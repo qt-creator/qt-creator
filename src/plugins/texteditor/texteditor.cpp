@@ -820,7 +820,7 @@ public:
     QList<int> m_visualIndentCache;
     int m_visualIndentOffset = 0;
 
-    void insertSuggestion(const QString &suggestion);
+    void insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion);
     void updateSuggestion();
     void clearCurrentSuggestion();
     QTextBlock m_suggestionBlock;
@@ -1651,12 +1651,13 @@ void TextEditorWidgetPrivate::handleMoveBlockSelection(QTextCursor::MoveOperatio
     q->setMultiTextCursor(MultiTextCursor(cursors));
 }
 
-void TextEditorWidgetPrivate::insertSuggestion(const QString &suggestion)
+void TextEditorWidgetPrivate::insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion)
 {
     clearCurrentSuggestion();
     auto cursor = q->textCursor();
+    cursor.setPosition(suggestion->position());
     m_suggestionBlock = cursor.block();
-    m_document->insertSuggestion(suggestion, cursor);
+    m_document->insertSuggestion(std::move(suggestion));
 }
 
 void TextEditorWidgetPrivate::updateSuggestion()
@@ -1666,10 +1667,9 @@ void TextEditorWidgetPrivate::updateSuggestion()
     if (m_cursors.mainCursor().block() != m_suggestionBlock) {
         clearCurrentSuggestion();
     } else {
-        const int position = m_cursors.mainCursor().position() - m_suggestionBlock.position();
-        if (!TextDocumentLayout::updateReplacement(m_suggestionBlock,
-                                                   position,
-                                                   m_document->fontSettings())) {
+        if (!TextDocumentLayout::updateSuggestion(m_suggestionBlock,
+                                                  m_cursors.mainCursor().position(),
+                                                  m_document->fontSettings())) {
             clearCurrentSuggestion();
         }
     }
@@ -1678,7 +1678,7 @@ void TextEditorWidgetPrivate::updateSuggestion()
 void TextEditorWidgetPrivate::clearCurrentSuggestion()
 {
     if (TextBlockUserData *userData = TextDocumentLayout::textUserData(m_suggestionBlock)) {
-        userData->clearReplacement();
+        userData->clearSuggestion();
         m_document->updateLayout();
     }
     m_suggestionBlock = QTextBlock();
@@ -2689,25 +2689,18 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Tab:
     case Qt::Key_Backtab: {
         if (ro) break;
-        if (d->m_suggestionBlock.isValid()) {
-            const int position = TextDocumentLayout::replacementPosition(d->m_suggestionBlock);
-            if (position >= 0) {
-                QTextCursor cursor(d->m_suggestionBlock);
-                cursor.setPosition(d->m_suggestionBlock.position() + position);
-                cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-                cursor.insertText(TextDocumentLayout::replacement(d->m_suggestionBlock));
-                setTextCursor(cursor);
-            }
-            d->clearCurrentSuggestion();
-            e->accept();
-            return;
-        }
         if (d->m_snippetOverlay->isVisible() && !d->m_snippetOverlay->isEmpty()) {
             d->snippetTabOrBacktab(e->key() == Qt::Key_Tab);
             e->accept();
             return;
         }
         QTextCursor cursor = textCursor();
+        if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(d->m_suggestionBlock)) {
+            suggestion->apply();
+            d->clearCurrentSuggestion();
+            e->accept();
+            return;
+        }
         if (d->m_skipAutoCompletedText && e->key() == Qt::Key_Tab) {
             bool skippedAutoCompletedText = false;
             while (!d->m_autoCompleteHighlightPos.isEmpty()
@@ -4067,10 +4060,10 @@ static TextMarks availableMarks(const TextMarks &marks,
 QRectF TextEditorWidgetPrivate::getLastLineLineRect(const QTextBlock &block)
 {
     QTextLayout *layout = nullptr;
-    if (block != m_suggestionBlock)
+    if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(block))
+        layout = suggestion->document()->firstBlock().layout();
+    else
         layout = block.layout();
-    else if (QTextDocument *replacement = TextDocumentLayout::replacementDocument(block))
-        layout = replacement->firstBlock().layout();
 
     QTC_ASSERT(layout, layout = block.layout());
     const int lineCount = layout->lineCount();
@@ -4467,18 +4460,18 @@ void TextEditorWidgetPrivate::paintAdditionalVisualWhitespaces(PaintEventData &d
                              visualArrow);
         }
         if (!nextBlockIsValid) { // paint EOF symbol
-            if (m_suggestionBlock.isValid() && data.block == m_suggestionBlock) {
-                if (QTextDocument *replacement = TextDocumentLayout::replacementDocument(
-                        m_suggestionBlock)) {
-                    const QTextBlock lastReplacementBlock = replacement->lastBlock();
-                    for (QTextBlock block = replacement->firstBlock();
-                         block != lastReplacementBlock && block.isValid();
-                         block = block.next()) {
-                        top += replacement->documentLayout()->blockBoundingRect(block).height();
-                    }
-                    layout = lastReplacementBlock.layout();
-                    lineCount = layout->lineCount();
+            if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(data.block)) {
+                const QTextBlock lastReplacementBlock = suggestion->document()->lastBlock();
+                for (QTextBlock block = suggestion->document()->firstBlock();
+                     block != lastReplacementBlock && block.isValid();
+                     block = block.next()) {
+                    top += suggestion->document()
+                               ->documentLayout()
+                               ->blockBoundingRect(block)
+                               .height();
                 }
+                layout = lastReplacementBlock.layout();
+                lineCount = layout->lineCount();
             }
             QTextLine line = layout->lineAt(lineCount - 1);
             QRectF lineRect = line.naturalTextRect().translated(data.offset.x(), top);
@@ -4739,17 +4732,14 @@ void TextEditorWidgetPrivate::setupSelections(const PaintEventData &data,
     int deltaPos = -1;
     int delta = 0;
 
-    if (m_suggestionBlock == data.block) {
-        if (QTextDocument *replacement = TextDocumentLayout::replacementDocument(
-                m_suggestionBlock)) {
-            deltaPos = TextDocumentLayout::replacementPosition(data.block);
-            const QString trailingText = data.block.text().mid(deltaPos);
-            if (!trailingText.isEmpty()) {
-                const int trailingIndex = replacement->firstBlock().text().indexOf(trailingText,
-                                                                                   deltaPos);
-                if (trailingIndex >= 0)
-                    delta = std::max(trailingIndex - deltaPos, 0);
-            }
+    if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(data.block)) {
+        deltaPos = suggestion->currentPosition() - data.block.position();
+        const QString trailingText = data.block.text().mid(deltaPos);
+        if (!trailingText.isEmpty()) {
+            const int trailingIndex
+                = suggestion->document()->firstBlock().text().indexOf(trailingText, deltaPos);
+            if (trailingIndex >= 0)
+                delta = std::max(trailingIndex - deltaPos, 0);
         }
     }
 
@@ -4994,21 +4984,23 @@ void TextEditorWidget::paintBlock(QPainter *painter,
                                   const QVector<QTextLayout::FormatRange> &selections,
                                   const QRect &clipRect) const
 {
-    if (QTextDocument *replacement = TextDocumentLayout::replacementDocument(block)) {
-        QTextBlock replacementBlock = replacement->firstBlock();
-        QPointF replacementOffset = offset;
-        replacementOffset.rx() += document()->documentMargin();
-        while (replacementBlock.isValid()) {
+    if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(block)) {
+        QTextBlock suggestionBlock = suggestion->document()->firstBlock();
+        QPointF suggestionOffset = offset;
+        suggestionOffset.rx() += document()->documentMargin();
+        while (suggestionBlock.isValid()) {
             const QVector<QTextLayout::FormatRange> blockSelections
-                = replacementBlock.blockNumber() == 0 ? selections
+                = suggestionBlock.blockNumber() == 0 ? selections
                                                       : QVector<QTextLayout::FormatRange>{};
-            replacementBlock.layout()->draw(painter,
-                                            replacementOffset,
+            suggestionBlock.layout()->draw(painter,
+                                            suggestionOffset,
                                             blockSelections,
                                             clipRect);
-            replacementOffset.ry()
-                += replacement->documentLayout()->blockBoundingRect(replacementBlock).height();
-            replacementBlock = replacementBlock.next();
+            suggestionOffset.ry() += suggestion->document()
+                                         ->documentLayout()
+                                         ->blockBoundingRect(suggestionBlock)
+                                         .height();
+            suggestionBlock = suggestionBlock.next();
         }
         return;
     }
@@ -5992,9 +5984,9 @@ void TextEditorWidget::removeHoverHandler(BaseHoverHandler *handler)
     d->m_hoverHandlerRunner.handlerRemoved(handler);
 }
 
-void TextEditorWidget::insertSuggestion(const QString &suggestion)
+void TextEditorWidget::insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion)
 {
-    d->insertSuggestion(suggestion);
+    d->insertSuggestion(std::move(suggestion));
 }
 
 void TextEditorWidget::clearSuggestion()

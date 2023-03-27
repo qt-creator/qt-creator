@@ -117,6 +117,8 @@ public:
     bool isLeftOf(const Range &other) const
     { return isEmpty() || other.isEmpty() ? end() < other.start() : end() <= other.start(); }
 
+    QTextCursor toSelection(QTextDocument *doc) const;
+
     bool isValid() const override
     { return JsonObject::contains(startKey) && JsonObject::contains(endKey); }
 };

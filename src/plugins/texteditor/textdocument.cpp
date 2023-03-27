@@ -373,16 +373,13 @@ QAction *TextDocument::createDiffAgainstCurrentFileAction(
     return diffAction;
 }
 
-void TextDocument::insertSuggestion(const QString &text, const QTextCursor &cursor)
+void TextDocument::insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion)
 {
+    QTextCursor cursor(&d->m_document);
+    cursor.setPosition(suggestion->position());
     const QTextBlock block = cursor.block();
-    const QString blockText = block.text();
-    QString replacement = blockText.left(cursor.positionInBlock()) + text;
-    if (!text.contains('\n'))
-        replacement.append(blockText.mid(cursor.positionInBlock()));
-    TextDocumentLayout::userData(block)->setReplacement(replacement);
-    TextDocumentLayout::userData(block)->setReplacementPosition(cursor.positionInBlock());
-    TextDocumentLayout::updateReplacementFormats(block, fontSettings());
+    TextDocumentLayout::userData(block)->insertSuggestion(std::move(suggestion));
+    TextDocumentLayout::updateSuggestionFormats(block, fontSettings());
     updateLayout();
 }
 
@@ -434,7 +431,7 @@ void TextDocument::applyFontSettings()
     d->m_fontSettingsNeedsApply = false;
     QTextBlock block = document()->firstBlock();
     while (block.isValid()) {
-        TextDocumentLayout::updateReplacementFormats(block, fontSettings());
+        TextDocumentLayout::updateSuggestionFormats(block, fontSettings());
         block = block.next();
     }
     updateLayout();

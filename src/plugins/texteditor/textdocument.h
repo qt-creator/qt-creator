@@ -37,6 +37,7 @@ class SyntaxHighlighter;
 class TabSettings;
 class TextDocumentPrivate;
 class TextMark;
+class TextSuggestion;
 class TypingSettings;
 
 using TextMarks = QList<TextMark *>;
@@ -145,6 +146,7 @@ public:
         const std::function<Utils::FilePath()> &filePath);
 
     void insertSuggestion(const QString &text, const QTextCursor &cursor);
+    void insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion);
 
 #ifdef WITH_TESTS
     void setSilentReload();

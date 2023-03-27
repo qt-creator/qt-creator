@@ -42,15 +42,16 @@ class HighlightScrollBarController;
 }
 
 namespace TextEditor {
-class TextDocument;
-class TextMark;
-class BaseHoverHandler;
-class RefactorOverlay;
-class SyntaxHighlighter;
 class AssistInterface;
+class BaseHoverHandler;
+class CompletionAssistProvider;
 class IAssistProvider;
 class ICodeStylePreferences;
-class CompletionAssistProvider;
+class RefactorOverlay;
+class SyntaxHighlighter;
+class TextDocument;
+class TextMark;
+class TextSuggestion;
 using RefactorMarkers = QList<RefactorMarker>;
 using TextMarks = QList<TextMark *>;
 
@@ -470,7 +471,7 @@ public:
     void addHoverHandler(BaseHoverHandler *handler);
     void removeHoverHandler(BaseHoverHandler *handler);
 
-    void insertSuggestion(const QString &suggestion);
+    void insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion);
     void clearSuggestion();
     bool suggestionVisible() const;
 

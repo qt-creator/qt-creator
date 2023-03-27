@@ -42,6 +42,24 @@ public:
     virtual ~CodeFormatterData();
 };
 
+class TEXTEDITOR_EXPORT TextSuggestion
+{
+public:
+    TextSuggestion();
+    virtual bool apply() = 0;
+    virtual void reset() = 0;
+    virtual int position() = 0;
+
+    int currentPosition() const { return m_currentPosition; }
+    void setCurrentPosition(int position) { m_currentPosition = position; }
+
+    QTextDocument *document() { return &m_replacementDocument; }
+
+private:
+    QTextDocument m_replacementDocument;
+    int m_currentPosition = -1;
+};
+
 class TEXTEDITOR_EXPORT TextBlockUserData : public QTextBlockUserData
 {
 public:
@@ -126,11 +144,9 @@ public:
     QByteArray expectedRawStringSuffix() { return m_expectedRawStringSuffix; }
     void setExpectedRawStringSuffix(const QByteArray &suffix) { m_expectedRawStringSuffix = suffix; }
 
-    void setReplacement(const QString &replacement);
-    void setReplacementPosition(int replacementPosition);
-    void clearReplacement();
-    QTextDocument *replacement() const { return m_replacement.get(); }
-    int replacementPosition() const { return m_replacementPosition; }
+    void insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion);
+    TextSuggestion *suggestion() const;
+    void clearSuggestion();
 
 private:
     TextMarks m_marks;
@@ -146,7 +162,7 @@ private:
     KSyntaxHighlighting::State m_syntaxState;
     QByteArray m_expectedRawStringSuffix; // A bit C++-specific, but let's be pragmatic.
     std::unique_ptr<QTextDocument> m_replacement;
-    int m_replacementPosition = -1;
+    std::unique_ptr<TextSuggestion> m_suggestion;
 };
 
 
@@ -180,14 +196,12 @@ public:
     static void setFolded(const QTextBlock &block, bool folded);
     static void setExpectedRawStringSuffix(const QTextBlock &block, const QByteArray &suffix);
     static QByteArray expectedRawStringSuffix(const QTextBlock &block);
-    static void updateReplacementFormats(const QTextBlock &block,
+    static TextSuggestion *suggestion(const QTextBlock &block);
+    static void updateSuggestionFormats(const QTextBlock &block,
                                         const FontSettings &fontSettings);
-    static QString replacement(const QTextBlock &block);
-    static QTextDocument *replacementDocument(const QTextBlock &block);
-    static int replacementPosition(const QTextBlock &block);
-    static bool updateReplacement(const QTextBlock &block,
-                                  int position,
-                                  const FontSettings &fontSettings);
+    static bool updateSuggestion(const QTextBlock &block,
+                                 int position,
+                                 const FontSettings &fontSettings);
 
     class TEXTEDITOR_EXPORT FoldValidator
     {

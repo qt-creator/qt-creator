@@ -311,6 +311,16 @@ bool Range::overlaps(const Range &range) const
     return !isLeftOf(range) && !range.isLeftOf(*this);
 }
 
+QTextCursor Range::toSelection(QTextDocument *doc) const
+{
+    QTC_ASSERT(doc, return {});
+    if (!isValid())
+        return {};
+    QTextCursor cursor = start().toTextCursor(doc);
+    cursor.setPosition(end().toPositionInDocument(doc), QTextCursor::KeepAnchor);
+    return cursor;
+}
+
 QString expressionForGlob(QString globPattern)
 {
     const QString anySubDir("qtc_anysubdir_id");

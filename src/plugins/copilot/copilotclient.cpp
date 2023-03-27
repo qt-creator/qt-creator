@@ -11,6 +11,7 @@
 
 #include <utils/filepath.h>
 
+#include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 
 #include <languageserverprotocol/lsptypes.h>
@@ -128,6 +129,39 @@ void CopilotClient::requestCompletions(TextEditorWidget *editor)
     sendMessage(request);
 }
 
+class CopilotSuggestion final : public TextEditor::TextSuggestion
+{
+public:
+    CopilotSuggestion(const Completion &completion, QTextDocument *origin)
+        : m_completion(completion)
+    {
+        document()->setPlainText(completion.text());
+        m_start = completion.position().toTextCursor(origin);
+        m_start.setKeepPositionOnInsert(true);
+        setCurrentPosition(m_start.position());
+    }
+
+    bool apply() final
+    {
+        reset();
+        QTextCursor cursor = m_completion.range().toSelection(m_start.document());
+        cursor.insertText(m_completion.text());
+        return true;
+    }
+    void reset() final
+    {
+        m_start.removeSelectedText();
+    }
+    int position() final
+    {
+        return m_start.position();
+    }
+
+private:
+    Completion m_completion;
+    QTextCursor m_start;
+};
+
 void CopilotClient::handleCompletions(const GetCompletionRequest::Response &response,
                                       TextEditorWidget *editor)
 {
@@ -142,19 +176,15 @@ void CopilotClient::handleCompletions(const GetCompletionRequest::Response &resp
     if (cursors.hasMultipleCursors())
         return;
 
-    const QTextCursor cursor = cursors.mainCursor();
     if (cursors.hasSelection() || cursors.mainCursor().position() != requestPosition)
         return;
 
     if (const std::optional<GetCompletionResponse> result = response.result()) {
-        LanguageClientArray<Completion> completions = result->completions();
-        if (completions.isNull() || completions.toList().isEmpty())
+        QList<Completion> completions = result->completions().toListOrEmpty();
+        if (completions.isEmpty())
             return;
-
-        const Completion firstCompletion = completions.toList().first();
-        const QString content = firstCompletion.text().mid(firstCompletion.position().character());
-
-        editor->insertSuggestion(content);
+        editor->insertSuggestion(
+            std::make_unique<CopilotSuggestion>(completions.first(), editor->document()));
     }
 }
 
