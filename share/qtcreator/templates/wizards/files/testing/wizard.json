@@ -1,0 +1,146 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "M.TestCase",
+    "category": "X.Testing",
+    "trDescription": "Creates a source file that you can add to an existing test project.",
+    "trDisplayName": "Test Case",
+    "trDisplayCategory": "Test Case",
+    "icon": "../../autotest/autotest.png",
+    "iconKind": "Themed",
+    "enabled": "%{JS: value('Plugins').indexOf('AutoTest') >= 0}",
+
+    "options": [
+        { "key": "TargetPath", "value": "%{Path}" },
+        { "key": "QmlFileName", "value": "%{JS: Util.fileName(value('QmlSrcFile').startsWith('tst_') ? value('QmlSrcFile') : 'tst_' + value('QmlSrcFile'), '.qml')}" },
+        { "key": "CppFileName", "value": "%{JS: Util.fileName(value('CppSrcFile'), Util.preferredSuffix('text/x-c++src'))}" }
+    ],
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Test Information",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "info",
+                    "type": "Label",
+                    "data":
+                    {
+                        "wordWrap": true,
+                        "trText": "You must tell Qt Creator which test framework is used inside the project.\n\nYou should not mix multiple test frameworks in a project."
+                    }
+                },
+                {
+                    "name": "TestFrameWork",
+                    "trDisplayName": "Test framework:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                        [
+                            {
+                                "trKey": "Google Test",
+                                "value": "GTest"
+                            },
+                            {
+                                "trKey": "Qt Quick Test",
+                                "value": "QtQuickTest"
+                            },
+                            {
+                                "trKey": "Boost Test",
+                                "value": "BoostTest"
+                            },
+                            {
+                                "trKey": "Catch2",
+                                "value": "Catch2"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "TestSuiteName",
+                    "trDisplayName": "Test suite name:",
+                    "visible": "%{JS: ['BoostTest', 'GTest'].indexOf(value('TestFrameWork')) >= 0}",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": { "validator": "^[a-zA-Z_0-9]+$" }
+                },
+                {
+                    "name": "TestCaseName",
+                    "trDisplayName": "Test case name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": { "validator": "^[a-zA-Z_0-9]+$" }
+                },
+                {
+                    "name": "GenerateInitAndCleanup",
+                    "trDisplayName": "Generate initialization and cleanup code",
+                    "visible": "%{JS: value('TestFrameWork') === 'QtQuickTest' }",
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": false
+                    }
+                },
+                {
+                    "name": "CppSrcFile",
+                    "type": "LineEdit",
+                    "trDisplayName": "Source file:",
+                    "mandatory": true,
+                    "visible": "%{JS: value('TestFrameWork') !== 'QtQuickTest' }",
+                    "data": { "trText": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.' + Util.preferredSuffix('text/x-c++src')}" }
+                },
+                {
+                    "name": "QmlSrcFile",
+                    "type": "LineEdit",
+                    "trDisplayName": "Source file:",
+                    "mandatory": true,
+                    "visible": "%{JS: value('TestFrameWork') === 'QtQuickTest' }",
+                    "data": { "trText": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.qml'}" }
+                },
+                {
+                    "name": "Path",
+                    "type": "PathChooser",
+                    "trDisplayName": "Path:",
+                    "mandatory": true,
+                    "data":
+                    {
+                        "kind": "directory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "file.cpp",
+                    "target": "%{CppFileName}",
+                    "condition": "%{JS: value('TestFrameWork') !== 'QtQuickTest'}",
+                    "openInEditor": true,
+                    "options": { "key": "Cpp:License:FileName", "value": "%{CppFileName}" }
+                },
+                {
+                    "source": "../../autotest/files/tst_qml.tmpl",
+                    "target": "%{QmlFileName}",
+                    "condition": "%{JS: value('TestFrameWork') === 'QtQuickTest'}",
+                    "openInEditor": true
+                }
+            ]
+        }
+    ]
+}
