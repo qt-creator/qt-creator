@@ -555,7 +555,7 @@ QString Client::stateString() const
     case InitializeRequested: return Tr::tr("initialize requested");
     case Initialized: return Tr::tr("initialized");
     case ShutdownRequested: return Tr::tr("shutdown requested");
-    case Shutdown: return Tr::tr("shutdown");
+    case Shutdown: return Tr::tr("shut down");
     case Error: return Tr::tr("error");
     }
     return {};
