@@ -44,7 +44,7 @@ public:
             fwprintf(stderr, L"qtcreator_ctrlc_stub: CreateJobObject failed: 0x%x.\n", GetLastError());
             return;
         }
-        JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = {0};
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = {};
         jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
         if (!SetInformationJobObject(m_job, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli))) {
             fwprintf(stderr, L"qtcreator_ctrlc_stub: SetInformationJobObject failed: 0x%x.\n", GetLastError());
@@ -85,7 +85,7 @@ int main(int argc, char **)
     uiShutDownWindowMessage = RegisterWindowMessage(L"qtcctrlcstub_shutdown");
     uiInterruptMessage = RegisterWindowMessage(L"qtcctrlcstub_interrupt");
 
-    WNDCLASSEX wcex = {0};
+    WNDCLASSEX wcex = {};
     wcex.cbSize = sizeof(wcex);
     wcex.lpfnWndProc = WndProc;
     wcex.hInstance = GetModuleHandle(nullptr);
@@ -188,14 +188,14 @@ DWORD WINAPI processWatcherThread(LPVOID lpParameter)
 
 bool startProcess(wchar_t *pCommandLine, bool lowerPriority, const JobKillOnClose& job)
 {
-    SECURITY_ATTRIBUTES sa = {0};
+    SECURITY_ATTRIBUTES sa = {};
     sa.nLength = sizeof(sa);
     sa.bInheritHandle = TRUE;
 
-    STARTUPINFO si = {0};
+    STARTUPINFO si = {};
     si.cb = sizeof(si);
 
-    PROCESS_INFORMATION pi;
+    PROCESS_INFORMATION pi = {};
     DWORD dwCreationFlags = lowerPriority ? BELOW_NORMAL_PRIORITY_CLASS : 0;
     BOOL bSuccess = CreateProcess(NULL, pCommandLine, &sa, &sa, TRUE, dwCreationFlags, NULL, NULL, &si, &pi);
     if (!bSuccess) {

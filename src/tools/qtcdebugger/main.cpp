@@ -520,7 +520,7 @@ int main(int argc, char *argv[])
     }
     if (debug)
         qDebug() << "Mode=" << optMode << " PID=" << argProcessId << " Evt=" << argWinCrashEvent;
-    bool ex = 0;
+    int ex = 0;
     switch (optMode) {
     case HelpMode:
         usage(QCoreApplication::applicationFilePath(), errorMessage);

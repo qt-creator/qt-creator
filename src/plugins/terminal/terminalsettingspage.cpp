@@ -89,7 +89,7 @@ static expected_str<void> loadItermColors(const FilePath &path)
                             colorName = reader.readElementText();
                         } else if (reader.name() == u"dict") {
                             QColor color;
-                            int component;
+                            int component = 0;
                             while (!reader.atEnd() && reader.readNextStartElement()) {
                                 if (reader.name() == u"key") {
                                     const auto &text = reader.readElementText();
