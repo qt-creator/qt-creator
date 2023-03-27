@@ -52,7 +52,7 @@ public:
 
 private:
     QString m_host;
-    quint16 m_port = 0;
+    quint16 m_port = 22;
     QString m_userName;
 };
 
