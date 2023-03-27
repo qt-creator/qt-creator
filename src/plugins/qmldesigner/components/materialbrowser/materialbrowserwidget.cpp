@@ -85,7 +85,7 @@ public:
 bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusOut) {
-        if (obj == m_quickWidget.data())
+        if (obj == m_quickWidget->quickWidget())
             QMetaObject::invokeMethod(m_quickWidget->rootObject(), "closeContextMenu");
     } else if (event->type() == QMouseEvent::MouseMove) {
         DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();

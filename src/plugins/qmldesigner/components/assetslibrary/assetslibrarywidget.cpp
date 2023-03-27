@@ -55,7 +55,7 @@ static QString propertyEditorResourcesPath()
 bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusOut) {
-        if (obj == m_assetsWidget.data())
+        if (obj == m_assetsWidget->quickWidget())
             QMetaObject::invokeMethod(m_assetsWidget->rootObject(), "handleViewFocusOut");
     } else if (event->type() == QMouseEvent::MouseMove) {
         if (!m_assetsToDrag.isEmpty() && !m_model.isNull()) {

@@ -71,7 +71,7 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     Model *model = document ? document->documentModel() : nullptr;
 
     if (event->type() == QEvent::FocusOut) {
-        if (obj == m_itemsWidget.data())
+        if (obj == m_itemsWidget->quickWidget())
             QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "closeContextMenu");
     } else if (event->type() == QMouseEvent::MouseMove) {
         if (m_itemToDrag.isValid()) {
