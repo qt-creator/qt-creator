@@ -81,7 +81,7 @@ void QbsInstallStep::doRun()
 
     QJsonObject request;
     request.insert("type", "install-project");
-    request.insert("install-root", installRoot());
+    request.insert("install-root", installRoot().path());
     request.insert("clean-install-root", m_cleanInstallRoot->value());
     request.insert("keep-going", m_keepGoing->value());
     request.insert("dry-run", m_dryRun->value());
@@ -102,10 +102,10 @@ void QbsInstallStep::doCancel()
         m_session->cancelCurrentJob();
 }
 
-QString QbsInstallStep::installRoot() const
+FilePath QbsInstallStep::installRoot() const
 {
     const QbsBuildStep * const bs = buildConfig()->qbsStep();
-    return bs ? bs->installRoot().toString() : QString();
+    return bs ? bs->installRoot() : FilePath();
 }
 
 const QbsBuildConfiguration *QbsInstallStep::buildConfig() const
@@ -162,7 +162,7 @@ QWidget *QbsInstallStep::createConfigWidget()
 {
     auto widget = new QWidget;
 
-    auto installRootValueLabel = new QLabel(installRoot());
+    auto installRootValueLabel = new QLabel(installRoot().toUserOutput());
 
     auto commandLineKeyLabel = new QLabel(Tr::tr("Equivalent command line:"));
     commandLineKeyLabel->setAlignment(Qt::AlignTop);
@@ -183,7 +183,7 @@ QWidget *QbsInstallStep::createConfigWidget()
     builder.attachTo(widget);
 
     const auto updateState = [this, commandLineTextEdit, installRootValueLabel] {
-        installRootValueLabel->setText(installRoot());
+        installRootValueLabel->setText(installRoot().toUserOutput());
         commandLineTextEdit->setPlainText(buildConfig()->equivalentCommandLine(stepData()));
     };
 
