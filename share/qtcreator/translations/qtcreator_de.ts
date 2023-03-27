@@ -12463,11 +12463,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Format entire file if no text was selected</source>
-        <translation>Formatiere die ganze Datei falls kein Text selektiert ist</translation>
+        <translation>Formatiere die ganze Datei, falls kein Text ausgewählt ist</translation>
     </message>
     <message>
         <source>For action Format Selected Text</source>
-        <translation>Für die Aktion &quot;Formatiere selektierten Text&quot;</translation>
+        <translation>Für die Aktion &quot;Markierten Text formatieren&quot;</translation>
     </message>
     <message>
         <source>Uncrustify command:</source>
