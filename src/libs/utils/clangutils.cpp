@@ -45,6 +45,11 @@ QVersionNumber clangdVersion(const FilePath &clangd)
 
 bool checkClangdVersion(const FilePath &clangd, QString *error)
 {
+    if (clangd.isEmpty()) {
+        *error = Tr::tr("No clangd executable specified.");
+        return false;
+    }
+
     const QVersionNumber version = clangdVersion(clangd);
     if (version >= minimumClangdVersion())
         return true;
