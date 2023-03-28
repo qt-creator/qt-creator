@@ -3,6 +3,7 @@
 
 #include "copystep.h"
 
+#include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 
 #include <utils/aspects.h>
@@ -99,14 +100,14 @@ public:
 
 CopyFileStepFactory::CopyFileStepFactory()
 {
-    registerStep<CopyFileStep>("ProjectExplorer.CopyFileStep");
+    registerStep<CopyFileStep>(Constants::COPY_FILE_STEP);
     //: Default CopyStep display name
     setDisplayName(Tr::tr("Copy file"));
 }
 
 CopyDirectoryStepFactory::CopyDirectoryStepFactory()
 {
-    registerStep<CopyDirectoryStep>("ProjectExplorer.CopyDirectoryStep");
+    registerStep<CopyDirectoryStep>(Constants::COPY_DIRECTORY_STEP);
     //: Default CopyStep display name
     setDisplayName(Tr::tr("Copy directory recursively"));
 }
