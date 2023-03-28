@@ -725,6 +725,7 @@ bool DockerDevicePrivate::startContainer()
     connect(m_shell.get(), &DeviceShell::done, this, [this](const ProcessResultData &resultData) {
         if (m_shell)
             m_shell.release()->deleteLater();
+
         if (resultData.m_error != QProcess::UnknownError
             || resultData.m_exitStatus == QProcess::NormalExit)
             return;
@@ -1248,11 +1249,17 @@ bool DockerDevicePrivate::ensureReachable(const FilePath &other)
         const FilePath fMount = FilePath::fromString(mount);
         if (other.isChildOf(fMount))
             return true;
+
+        if (fMount == other)
+            return true;
     }
 
     for (const auto &[path, containerPath] : m_temporaryMounts) {
         if (path.path() != containerPath.path())
             continue;
+
+        if (path == other)
+            return true;
 
         if (other.isChildOf(path))
             return true;
