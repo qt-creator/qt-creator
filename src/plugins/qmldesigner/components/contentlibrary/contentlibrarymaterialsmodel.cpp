@@ -249,8 +249,6 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
         }
     }
 
-    m_matBundleExists = true;
-
     QString bundleId = m_matBundleObj.value("id").toString();
 
     const QJsonObject catsObj = m_matBundleObj.value("categories").toObject();
@@ -304,6 +302,9 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
     } else {
         createImporter(matBundleDir.path(), bundleId, sharedFiles);
     }
+
+    m_matBundleExists = true;
+    emit matBundleExistsChanged();
 }
 
 bool ContentLibraryMaterialsModel::hasRequiredQuick3DImport() const
