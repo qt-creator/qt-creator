@@ -322,16 +322,6 @@ GenericDirectUploadStep::~GenericDirectUploadStep()
     delete d;
 }
 
-Utils::Id GenericDirectUploadStep::stepId()
-{
-    return Constants::DirectUploadStepId;
-}
-
-QString GenericDirectUploadStep::displayName()
-{
-    return Tr::tr("Upload files via SFTP");
-}
-
 // Factory
 
 GenericDirectUploadStepFactory::GenericDirectUploadStepFactory()
@@ -340,4 +330,4 @@ GenericDirectUploadStepFactory::GenericDirectUploadStepFactory()
     setDisplayName(Tr::tr("Upload files via SFTP"));
 }
 
-} //namespace RemoteLinux
+} // RemoteLinux

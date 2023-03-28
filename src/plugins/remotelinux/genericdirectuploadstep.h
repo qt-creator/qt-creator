@@ -20,9 +20,6 @@ public:
     bool isDeploymentNecessary() const final;
     Utils::Tasking::Group deployRecipe() final;
 
-    static Utils::Id stepId();
-    static QString displayName();
-
 private:
     friend class GenericDirectUploadStepPrivate;
     class GenericDirectUploadStepPrivate *d;

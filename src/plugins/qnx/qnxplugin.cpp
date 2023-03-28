@@ -43,21 +43,22 @@ using namespace ProjectExplorer;
 
 namespace Qnx::Internal {
 
-class QnxUploadStep : public RemoteLinux::GenericDirectUploadStep
+// FIXME: Remove...
+class QnxUploadStepFactory : public RemoteLinux::GenericDirectUploadStepFactory
 {
 public:
-    QnxUploadStep(BuildStepList *bsl, Utils::Id id) : GenericDirectUploadStep(bsl, id) {}
-    static Utils::Id stepId() { return "Qnx.DirectUploadStep"; }
+    QnxUploadStepFactory()
+    {
+        registerStep<RemoteLinux::GenericDirectUploadStep>(Constants::QNX_DIRECT_UPLOAD_STEP_ID);
+    }
 };
 
-template <class Step>
-class GenericQnxDeployStepFactory : public BuildStepFactory
+template <class Factory>
+class QnxDeployStepFactory : public RemoteLinux::MakeInstallStepFactory
 {
 public:
-    GenericQnxDeployStepFactory()
+    QnxDeployStepFactory()
     {
-        registerStep<Step>(Step::stepId());
-        setDisplayName(Step::displayName());
         setSupportedConfiguration(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }
@@ -78,8 +79,8 @@ public:
             return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
                     && prj->hasMakeInstallEquivalent();
         });
-        addInitialStep(DeviceCheckBuildStep::stepId());
-        addInitialStep(QnxUploadStep::stepId());
+        addInitialStep(ProjectExplorer::Constants::DEVICE_CHECK_STEP);
+        addInitialStep(Constants::QNX_DIRECT_UPLOAD_STEP_ID);
     }
 };
 
@@ -95,9 +96,9 @@ public:
     QnxQtVersionFactory qtVersionFactory;
     QnxDeviceFactory deviceFactory;
     QnxDeployConfigurationFactory deployConfigFactory;
-    GenericQnxDeployStepFactory<QnxUploadStep> directUploadDeployFactory;
-    GenericQnxDeployStepFactory<RemoteLinux::MakeInstallStep> makeInstallDeployFactory;
-    GenericQnxDeployStepFactory<DeviceCheckBuildStep> checkBuildDeployFactory;
+    QnxDeployStepFactory<QnxUploadStepFactory> directUploadDeployFactory;
+    QnxDeployStepFactory<RemoteLinux::MakeInstallStepFactory> makeInstallDeployFactory;
+    QnxDeployStepFactory<DeviceCheckBuildStepFactory> checkBuildDeployFactory;
     QnxRunConfigurationFactory runConfigFactory;
     QnxSettingsPage settingsPage;
     QnxToolChainFactory toolChainFactory;
