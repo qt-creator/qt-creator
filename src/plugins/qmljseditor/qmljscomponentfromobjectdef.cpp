@@ -246,13 +246,16 @@ void matchComponentFromObjectDefQuickFix(const QmlJSQuickFixAssistInterface *int
     }
 }
 
-void performComponentFromObjectDef(const QString &fileName, QmlJS::AST::UiObjectDefinition *objDef)
+void performComponentFromObjectDef(QmlJSEditorWidget *editor,
+                                   const QString &fileName,
+                                   QmlJS::AST::UiObjectDefinition *objDef)
 {
     QmlJSRefactoringChanges refactoring(QmlJS::ModelManagerInterface::instance(),
                                         QmlJS::ModelManagerInterface::instance()->snapshot());
     QmlJSRefactoringFilePtr current = refactoring.file(Utils::FilePath::fromString(fileName));
 
-    Operation operation(nullptr, objDef);
+    QmlJSQuickFixAssistInterface interface(editor, TextEditor::AssistReason::ExplicitlyInvoked);
+    Operation operation(&interface, objDef);
 
     operation.performChanges(current, refactoring);
 }
