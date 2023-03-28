@@ -361,7 +361,7 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
             return false;
     }
 
-    if (!m_isRepeatable && bsl->contains(m_info.id))
+    if (!m_isRepeatable && bsl->contains(m_stepId))
         return false;
 
     if (m_supportedConfiguration.isValid()) {
@@ -375,14 +375,19 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     return true;
 }
 
-void BuildStepFactory::setDisplayName(const QString &displayName)
+QString BuildStepFactory::displayName() const
 {
-    m_info.displayName = displayName;
+    return m_displayName;
 }
 
-void BuildStepFactory::setFlags(BuildStepInfo::Flags flags)
+void BuildStepFactory::setDisplayName(const QString &displayName)
 {
-    m_info.flags = flags;
+    m_displayName = displayName;
+}
+
+void BuildStepFactory::setFlags(BuildStep::Flags flags)
+{
+    m_flags = flags;
 }
 
 void BuildStepFactory::setSupportedStepList(Id id)
@@ -415,20 +420,20 @@ void BuildStepFactory::setSupportedDeviceTypes(const QList<Id> &ids)
     m_supportedDeviceTypes = ids;
 }
 
-BuildStepInfo BuildStepFactory::stepInfo() const
+BuildStep::Flags BuildStepFactory::stepFlags() const
 {
-    return m_info;
+    return m_flags;
 }
 
 Id BuildStepFactory::stepId() const
 {
-    return m_info.id;
+    return m_stepId;
 }
 
 BuildStep *BuildStepFactory::create(BuildStepList *parent)
 {
-    BuildStep *step = m_info.creator(parent);
-    step->setDefaultDisplayName(m_info.displayName);
+    BuildStep *step = m_creator(parent);
+    step->setDefaultDisplayName(m_displayName);
     return step;
 }
 

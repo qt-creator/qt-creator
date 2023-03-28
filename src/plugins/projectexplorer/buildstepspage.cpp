@@ -209,14 +209,14 @@ void BuildStepListWidget::updateAddBuildStepMenu()
         if (!factory->canHandle(m_buildStepList))
             continue;
 
-        const BuildStepInfo &info = factory->stepInfo();
-        if (info.flags & BuildStepInfo::Uncreatable)
+        const BuildStep::Flags flags = factory->stepFlags();
+        if (flags & BuildStep::Uncreatable)
             continue;
 
-        if ((info.flags & BuildStepInfo::UniqueStep) && m_buildStepList->contains(info.id))
+        if ((flags & BuildStep::UniqueStep) && m_buildStepList->contains(factory->stepId()))
             continue;
 
-        QAction *action = menu->addAction(info.displayName);
+        QAction *action = menu->addAction(factory->displayName());
         connect(action, &QAction::triggered, this, [factory, this] {
             BuildStep *newStep = factory->create(m_buildStepList);
             QTC_ASSERT(newStep, return);

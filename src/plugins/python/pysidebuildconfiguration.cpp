@@ -42,7 +42,7 @@ PySideBuildStepFactory::PySideBuildStepFactory()
     registerStep<PySideBuildStep>(pySideBuildStep);
     setSupportedProjectType(PythonProjectId);
     setDisplayName(Tr::tr("Run PySide6 project tool"));
-    setFlags(BuildStepInfo::UniqueStep);
+    setFlags(BuildStep::UniqueStep);
 }
 
 PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)

@@ -744,7 +744,7 @@ QMakeStepFactory::QMakeStepFactory()
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     //: QMakeStep default display name
     setDisplayName(::QmakeProjectManager::Tr::tr("qmake")); // Fully qualifying for lupdate
-    setFlags(BuildStepInfo::UniqueStep);
+    setFlags(BuildStep::UniqueStep);
 }
 
 QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &, const QtVersion *)
