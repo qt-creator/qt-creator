@@ -5,6 +5,7 @@
 #include "savefile.h"
 
 #include "algorithm.h"
+#include "devicefileaccess.h"
 #include "qtcassert.h"
 #include "utilstr.h"
 
@@ -189,12 +190,13 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
         auto tf = new QTemporaryFile(QDir::tempPath() + "/remotefilesaver-XXXXXX");
         tf->setAutoRemove(false);
         m_file.reset(tf);
-    } else if (mode & (QIODevice::ReadOnly | QIODevice::Append)) {
-        m_file.reset(new QFile{filePath.path()});
-        m_isSafe = false;
     } else {
-        m_file.reset(new SaveFile(filePath));
-        m_isSafe = true;
+        const bool readOnlyOrAppend = mode & (QIODevice::ReadOnly | QIODevice::Append);
+        m_isSafe = !readOnlyOrAppend && !filePath.hasHardLinks();
+        if (m_isSafe)
+            m_file.reset(new SaveFile(filePath));
+        else
+            m_file.reset(new QFile{filePath.path()});
     }
     if (!m_file->open(QIODevice::WriteOnly | mode)) {
         QString err = filePath.exists() ?

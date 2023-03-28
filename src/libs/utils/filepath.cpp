@@ -564,6 +564,11 @@ bool FilePath::isSymLink() const
     return fileAccess()->isSymLink(*this);
 }
 
+bool FilePath::hasHardLinks() const
+{
+    return fileAccess()->hasHardLinks(*this);
+}
+
 /*!
     \brief Creates a directory in this location.
 

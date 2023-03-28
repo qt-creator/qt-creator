@@ -118,6 +118,7 @@ public:
     bool isFile() const;
     bool isDir() const;
     bool isSymLink() const;
+    bool hasHardLinks() const;
     bool isRootPath() const;
     bool isNewerThan(const QDateTime &timeStamp) const;
     QDateTime lastModified() const;

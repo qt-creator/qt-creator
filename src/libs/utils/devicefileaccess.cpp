@@ -106,6 +106,13 @@ bool DeviceFileAccess::isSymLink(const FilePath &filePath) const
     return false;
 }
 
+bool DeviceFileAccess::hasHardLinks(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    QTC_CHECK(false);
+    return false;
+}
+
 bool DeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
 {
     if (isWritableDirectory(filePath))
@@ -473,6 +480,21 @@ bool DesktopDeviceFileAccess::isSymLink(const FilePath &filePath) const
 {
     const QFileInfo fi(filePath.path());
     return fi.isSymLink();
+}
+
+bool DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) const
+{
+#ifdef Q_OS_UNIX
+    struct stat s
+    {};
+    const int r = stat(filePath.absoluteFilePath().toString().toLocal8Bit().constData(), &s);
+    if (r == 0) {
+        // check for hardlinks because these would break without the atomic write implementation
+        if (s.st_nlink > 1)
+            return true;
+    }
+#endif
+    return false;
 }
 
 bool DesktopDeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
@@ -847,6 +869,13 @@ bool UnixDeviceFileAccess::isSymLink(const FilePath &filePath) const
 {
     const QString path = filePath.path();
     return runInShellSuccess({"test", {"-h", path}, OsType::OsTypeLinux});
+}
+
+bool UnixDeviceFileAccess::hasHardLinks(const FilePath &filePath) const
+{
+    const QStringList args = statArgs(filePath, "%h", "%l");
+    const RunResult result = runInShell({"stat", args, OsType::OsTypeLinux});
+    return result.stdOut.toLongLong() > 1;
 }
 
 bool UnixDeviceFileAccess::ensureExistingFile(const FilePath &filePath) const

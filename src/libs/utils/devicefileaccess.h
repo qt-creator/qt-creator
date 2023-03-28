@@ -34,6 +34,7 @@ protected:
     virtual bool isFile(const FilePath &filePath) const;
     virtual bool isDirectory(const FilePath &filePath) const;
     virtual bool isSymLink(const FilePath &filePath) const;
+    virtual bool hasHardLinks(const FilePath &filePath) const;
     virtual bool ensureWritableDirectory(const FilePath &filePath) const;
     virtual bool ensureExistingFile(const FilePath &filePath) const;
     virtual bool createDirectory(const FilePath &filePath) const;
@@ -90,6 +91,7 @@ protected:
     bool isFile(const FilePath &filePath) const override;
     bool isDirectory(const FilePath &filePath) const override;
     bool isSymLink(const FilePath &filePath) const override;
+    bool hasHardLinks(const FilePath &filePath) const override;
     bool ensureWritableDirectory(const FilePath &filePath) const override;
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
@@ -148,6 +150,7 @@ protected:
     bool isFile(const FilePath &filePath) const override;
     bool isDirectory(const FilePath &filePath) const override;
     bool isSymLink(const FilePath &filePath) const override;
+    bool hasHardLinks(const FilePath &filePath) const override;
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
