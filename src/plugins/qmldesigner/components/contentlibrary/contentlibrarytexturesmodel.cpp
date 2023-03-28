@@ -110,7 +110,7 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &remoteUrl, co
         return;
     }
 
-    const QFileInfoList dirs = bundleDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+    const QFileInfoList dirs = bundleDir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QFileInfo &dir : dirs) {
         auto category = new ContentLibraryTexturesCategory(this, dir.fileName());
         const QFileInfoList texFiles = QDir(dir.filePath()).entryInfoList(QDir::Files);

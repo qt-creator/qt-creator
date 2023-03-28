@@ -229,7 +229,7 @@ bool ContentLibraryWidget::fetchTextureBundleIcons(const QDir &bundleDir)
     QString iconsPath = bundleDir.filePath("TextureBundleIcons");
 
     QDir iconsDir(iconsPath);
-    if (iconsDir.exists() && iconsDir.entryList(QDir::NoDotAndDotDot).length() > 0)
+    if (iconsDir.exists() && iconsDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot).length() > 0)
         return true;
 
     QString zipFileUrl = m_baseUrl + "/icons.zip";
