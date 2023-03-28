@@ -2533,7 +2533,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
 {
     ICore::restartTrimmer();
 
-    ExecuteOnDestruction eod([&]() { d->clearBlockSelection(); });
+    auto clearBlockSelectionGuard = qScopeGuard([&]() { d->clearBlockSelection(); });
 
     if (!isModifier(e) && mouseHidingEnabled())
         viewport()->setCursor(Qt::BlankCursor);
@@ -2803,8 +2803,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
 
         if (blockSelectionOperation != QTextCursor::NoMove) {
-            auto doNothing = [](){};
-            eod.reset(doNothing);
+            clearBlockSelectionGuard.dismiss();
             d->handleMoveBlockSelection(blockSelectionOperation);
         } else if (!d->cursorMoveKeyEvent(e)) {
             QTextCursor cursor = textCursor();
