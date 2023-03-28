@@ -97,7 +97,7 @@ HelperWidgets.ScrollView {
             id: infoText
             text: {
                 if (!materialsModel.matBundleExists)
-                    qsTr("<b>Content Library</b> materials are not installed.")
+                    qsTr("No materials available. Make sure you have internet connection.")
                 else if (!ContentLibraryBackend.rootView.hasQuick3DImport)
                     qsTr("To use <b>Content Library</b>, first add the QtQuick3D module in the <b>Components</b> view.")
                 else if (!materialsModel.hasRequiredQuick3DImport)
