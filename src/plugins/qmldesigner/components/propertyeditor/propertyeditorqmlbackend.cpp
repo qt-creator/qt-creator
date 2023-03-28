@@ -380,7 +380,7 @@ PropertyEditorContextObject* PropertyEditorQmlBackend::contextObject() {
     return m_contextObject.data();
 }
 
-QWidget *PropertyEditorQmlBackend::widget() {
+QQuickWidget *PropertyEditorQmlBackend::widget() {
     return m_view;
 }
 

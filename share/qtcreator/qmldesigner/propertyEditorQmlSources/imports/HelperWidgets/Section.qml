@@ -67,6 +67,9 @@ Item {
                     section.expand()
             }
         }
+        function onCloseContextMenu() {
+            contextMenu.close()
+        }
     }
 
     signal drop(var drag)

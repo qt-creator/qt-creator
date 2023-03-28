@@ -18,6 +18,12 @@ Rectangle {
 
     default property alias content: mainColumn.children
 
+    // Called from C++ to close context menu on focus out
+    function closeContextMenu()
+    {
+        Controller.closeContextMenu()
+    }
+
     MouseArea {
         anchors.fill: parent
         onClicked: forceActiveFocus()

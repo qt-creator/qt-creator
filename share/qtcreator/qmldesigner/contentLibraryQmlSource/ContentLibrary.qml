@@ -19,6 +19,7 @@ Item {
         materialsView.closeContextMenu()
         texturesView.closeContextMenu()
         environmentsView.closeContextMenu()
+        HelperWidgets.Controller.closeContextMenu()
     }
 
     // Called from C++

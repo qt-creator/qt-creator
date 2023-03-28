@@ -27,6 +27,7 @@ Item {
     {
         ctxMenu.close()
         ctxMenuTextures.close()
+        HelperWidgets.Controller.closeContextMenu()
     }
 
     // Called from C++ to refresh a preview material after it changes

@@ -11,4 +11,5 @@ QtObject {
 
     signal collapseAll(string category)
     signal expandAll(string category)
+    signal closeContextMenu()
 }

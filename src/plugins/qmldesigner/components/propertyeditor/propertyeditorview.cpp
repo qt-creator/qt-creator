@@ -6,6 +6,7 @@
 #include "propertyeditorqmlbackend.h"
 #include "propertyeditortransaction.h"
 #include "propertyeditorvalue.h"
+#include "propertyeditorwidget.h"
 
 #include <auxiliarydataproperties.h>
 #include <nodemetainfo.h>
@@ -33,6 +34,7 @@
 #include <QFileSystemWatcher>
 #include <QFileInfo>
 #include <QDebug>
+#include <QQuickItem>
 #include <QTimer>
 #include <QShortcut>
 #include <QApplication>
@@ -501,6 +503,7 @@ void PropertyEditorView::setupQmlBackend()
         currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
     }
 
+    currentQmlBackend->widget()->installEventFilter(this);
     m_stackedWidget->setCurrentWidget(currentQmlBackend->widget());
 
     currentQmlBackend->contextObject()->triggerSelectionChanged();
@@ -896,6 +899,15 @@ void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode,
     m_locked = true;
     m_qmlBackEndForCurrentType->setValue(qmlObjectNode, name, value);
     m_locked = false;
+}
+
+bool PropertyEditorView::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::FocusOut) {
+        if (m_qmlBackEndForCurrentType && m_qmlBackEndForCurrentType->widget() == obj)
+            QMetaObject::invokeMethod(m_qmlBackEndForCurrentType->widget()->rootObject(), "closeContextMenu");
+    }
+    return AbstractView::eventFilter(obj, event);
 }
 
 void PropertyEditorView::reloadQml()

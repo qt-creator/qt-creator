@@ -39,7 +39,7 @@ public:
 
     QQmlContext *context();
     PropertyEditorContextObject* contextObject();
-    QWidget *widget();
+    QQuickWidget *widget();
     void setSource(const QUrl& url);
     Internal::QmlAnchorBindingProxy &backendAnchorBinding();
     DesignerPropertyMap &backendValuesPropertyMap();

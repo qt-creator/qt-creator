@@ -18,10 +18,11 @@ PropertyEditorPane {
         topSection.refreshPreview()
     }
 
-    // Called also from C++ to close context menu on focus out
+    // Called from C++ to close context menu on focus out
     function closeContextMenu()
     {
         topSection.closeContextMenu()
+        Controller.closeContextMenu()
     }
 
     // Called from C++ to initialize preview menu checkmarks
