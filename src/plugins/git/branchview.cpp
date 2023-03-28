@@ -224,6 +224,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     const bool hasActions = m_model->isLeaf(index);
     const bool currentLocal = m_model->isLocal(currentBranch);
     std::unique_ptr<TaskTree> taskTree;
+    QAction *mergeAction = nullptr;
 
     QMenu contextMenu;
     contextMenu.addAction(Tr::tr("&Add..."), this, &BranchView::add);
@@ -267,10 +268,10 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             resetMenu->addAction(Tr::tr("&Mixed"), this, [this] { reset("mixed"); });
             resetMenu->addAction(Tr::tr("&Soft"), this, [this] { reset("soft"); });
             contextMenu.addMenu(resetMenu);
-            QAction *mergeAction = contextMenu.addAction(Tr::tr("&Merge \"%1\" into \"%2\"")
-                                                             .arg(indexName, currentName),
-                                                         this,
-                                                         [this] { merge(false); });
+            mergeAction = contextMenu.addAction(Tr::tr("&Merge \"%1\" into \"%2\"")
+                                                    .arg(indexName, currentName),
+                                                this,
+                                                [this] { merge(false); });
             taskTree.reset(onFastForwardMerge([&] {
                 auto ffMerge = new QAction(
                     Tr::tr("&Merge \"%1\" into \"%2\" (Fast-Forward)").arg(indexName, currentName));
@@ -279,6 +280,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
                 mergeAction->setText(Tr::tr("Merge \"%1\" into \"%2\" (No &Fast-Forward)")
                                          .arg(indexName, currentName));
             }));
+            connect(mergeAction, &QObject::destroyed, taskTree.get(), &TaskTree::stop);
 
             contextMenu.addAction(Tr::tr("&Rebase \"%1\" on \"%2\"")
                                   .arg(currentName, indexName),
