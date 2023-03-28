@@ -208,6 +208,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTasks() const
     return Tasking::Group {
         continueOnDone,
         Storage(storage),
+        transferTask(FileTransferMethod::GenericCopy, storage),
         transferTask(FileTransferMethod::Sftp, storage),
         transferTask(FileTransferMethod::Rsync, storage),
         OnGroupError([this] { emit q->errorMessage(Tr::tr("Deployment to this device will not "
