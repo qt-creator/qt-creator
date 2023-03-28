@@ -3,6 +3,8 @@
 
 #include "qtcolorbutton.h"
 
+#include "theme/theme.h"
+
 #include <QApplication>
 #include <QColorDialog>
 #include <QDrag>
@@ -160,9 +162,25 @@ void QtColorButton::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 
+    constexpr Theme::Color overlayColor = Theme::TextColorNormal;
+    constexpr qreal overlayOpacity = 0.25;
+
     QPainter p(this);
-    if (isEnabled()) {
-        QBrush br(d_ptr->shownColor());
+    const QColor color = d_ptr->shownColor();
+    if (!color.isValid()) {
+        constexpr int size = 11;
+        const qreal horPadding = (width() - size) / 2.0;
+        const qreal verPadding = (height() - size) / 2.0;
+        const QPen pen(creatorTheme()->color(overlayColor), 2);
+
+        p.save();
+        p.setOpacity(overlayOpacity);
+        p.setPen(pen);
+        p.setRenderHint(QPainter::Antialiasing);
+        p.drawLine(QLineF(horPadding, height() - verPadding, width() - horPadding, verPadding));
+        p.restore();
+    } else if (isEnabled()) {
+        QBrush br(color);
         if (d_ptr->m_backgroundCheckered) {
             const int pixSize = 10;
             QPixmap pm(2 * pixSize, 2 * pixSize);
@@ -170,7 +188,7 @@ void QtColorButton::paintEvent(QPaintEvent *event)
             QPainter pmp(&pm);
             pmp.fillRect(0, pixSize, pixSize, pixSize, Qt::black);
             pmp.fillRect(pixSize, 0, pixSize, pixSize, Qt::black);
-            pmp.fillRect(pm.rect(), d_ptr->shownColor());
+            pmp.fillRect(pm.rect(), color);
             br = QBrush(pm);
             p.setBrushOrigin((width() - pixSize) / 2, (height() - pixSize) / 2);
         }
@@ -184,8 +202,8 @@ void QtColorButton::paintEvent(QPaintEvent *event)
         p.setPen(pen);
         p.setCompositionMode(QPainter::CompositionMode_Difference);
     } else {
-        p.setPen(palette().text().color());
-        p.setOpacity(0.25);
+        p.setPen(creatorTheme()->color(overlayColor));
+        p.setOpacity(overlayOpacity);
     }
     p.drawRect(rect().adjusted(0, 0, -1, -1));
 }
