@@ -653,6 +653,14 @@
      width="100%"
      height="100%"
      transform="matrix(1.5,0,0,1.5,0,-242)" />
+  <use
+     x="0"
+     y="0"
+     xlink:href="#backgroundRect"
+     id="backgroundRect_12"
+     width="100%"
+     height="100%"
+     transform="matrix(0.75,0,0,0.75,-24,97)" />
   <rect
      y="452"
      x="-16"
@@ -6526,6 +6534,27 @@
          id="path6750"
          d="m 347,597.33936 0.60019,0.60645 3.49128,-3.49127 3.09695,3.09695 c 0.29088,-0.96173 0.20375,-2.0863 -0.1875,-3.07155 l 3.68179,-3.68179 0.55968,0.52841 0.75761,-0.75762 -4.51473,-4.51475 -0.80193,0.80194 0.53076,0.51509 -3.60205,3.60206 c -1.04768,-0.37523 -2.22553,-0.48941 -3.20237,-0.15625 l 3.0615,3.0615 z"
          style="fill:#000000" />
+    </g>
+    <g
+       id="src/libs/utils/images/pinned_small">
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_12"
+         id="use1988"
+         width="100%"
+         height="100%"
+         transform="translate(397,160)" />
+      <g
+         id="g6007"
+         transform="rotate(45,366.14645,589.64645)">
+        <path
+           style="fill:#000000;fill-opacity:1"
+           d="m 369.5,585 v 1 h -1 l 0.5,3 h 1 v 1 h -2.5 l -0.2,5 h -0.6 l -0.2,-5 H 364 v -1 h 1 l 0.5,-3 h -1 v -1 z"
+           id="path5401"
+           sodipodi:nodetypes="ccccccccccccccccc" />
+      </g>
     </g>
   </g>
   <g

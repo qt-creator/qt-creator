@@ -36,6 +36,8 @@
         <file>images/unlocked@2x.png</file>
         <file>images/pinned.png</file>
         <file>images/pinned@2x.png</file>
+        <file>images/pinned_small.png</file>
+        <file>images/pinned_small@2x.png</file>
         <file>images/broken.png</file>
         <file>images/broken@2x.png</file>
         <file>images/notloaded.png</file>
