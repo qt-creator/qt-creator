@@ -314,7 +314,8 @@ void DockerProcessImpl::start()
     if (m_setup.m_lowPriority)
         m_process.setLowPriority();
 
-    const bool inTerminal = m_setup.m_terminalMode != TerminalMode::Off;
+    const bool inTerminal = m_setup.m_terminalMode != TerminalMode::Off
+                            || m_setup.m_ptyData.has_value();
 
     const bool interactive = m_setup.m_processMode == ProcessMode::Writer
                              || !m_setup.m_writeData.isEmpty() || inTerminal;
