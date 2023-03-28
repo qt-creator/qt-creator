@@ -64,7 +64,6 @@ TerminalPane::TerminalPane(QObject *parent)
               {":/utils/images/iconoverlay_close_small.png", Theme::IconsStopToolBarColor}})
             .icon());
     closeTerminal.setToolTip(Tr::tr("Close the current Terminal."));
-    closeTerminal.setEnabled(false);
 
     connect(&closeTerminal, &QAction::triggered, this, [this] {
         removeTab(m_tabWidget->currentIndex());
@@ -175,7 +174,8 @@ static std::optional<FilePath> startupProjectDirectory()
 void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
 {
     OpenTerminalParameters parametersCopy{parameters};
-    showPage(0);
+    if (!m_isVisible)
+        emit showPage(0);
 
     if (!parametersCopy.workingDirectory) {
         const std::optional<FilePath> projectDir = startupProjectDirectory();
@@ -193,17 +193,16 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
 
     m_tabWidget->currentWidget()->setFocus();
 
-    TerminalCommands::instance().paneActions().closeTerminal.setEnabled(m_tabWidget->count() > 1);
     emit navigateStateUpdate();
 }
 
 void TerminalPane::addTerminal(TerminalWidget *terminal, const QString &title)
 {
-    showPage(0);
+    if (!m_isVisible)
+        emit showPage(0);
     m_tabWidget->setCurrentIndex(m_tabWidget->addTab(terminal, title));
     setupTerminalWidget(terminal);
 
-    TerminalCommands::instance().paneActions().closeTerminal.setEnabled(m_tabWidget->count() > 1);
     emit navigateStateUpdate();
 }
 
@@ -236,6 +235,8 @@ QWidget *TerminalPane::outputWidget(QWidget *parent)
         connect(m_tabWidget, &QTabWidget::currentChanged, this, [this](int index) {
             if (auto widget = m_tabWidget->widget(index))
                 widget->setFocus();
+            else
+                emit hidePage();
         });
 
         auto terminalWidget = new TerminalWidget(parent);
@@ -254,11 +255,7 @@ TerminalWidget *TerminalPane::currentTerminal() const
 
 void TerminalPane::removeTab(int index)
 {
-    if (m_tabWidget->count() > 1)
-        delete m_tabWidget->widget(index);
-
-    TerminalCommands::instance().paneActions().closeTerminal.setEnabled(m_tabWidget->count() > 1);
-
+    delete m_tabWidget->widget(index);
     emit navigateStateUpdate();
 }
 
@@ -320,6 +317,19 @@ void TerminalPane::clearContents()
 {
     if (const auto t = currentTerminal())
         t->clearContents();
+}
+
+void TerminalPane::visibilityChanged(bool visible)
+{
+    if (m_isVisible == visible)
+        return;
+
+    m_isVisible = visible;
+
+    if (visible && m_tabWidget && m_tabWidget->count() == 0)
+        openTerminal({});
+
+    IOutputPane::visibilityChanged(visible);
 }
 
 void TerminalPane::setFocus()
