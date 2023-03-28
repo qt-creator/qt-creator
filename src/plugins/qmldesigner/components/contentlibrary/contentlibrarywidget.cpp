@@ -436,18 +436,4 @@ QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::environmentsModel() 
     return m_environmentsModel;
 }
 
-bool ContentLibraryWidget::markTextureDownloading()
-{
-    if (m_anyTextureBeingDownloaded)
-        return false;
-
-    m_anyTextureBeingDownloaded = true;
-    return true; // let the caller know it can begin download
-}
-
-void ContentLibraryWidget::markNoTextureDownloading()
-{
-    m_anyTextureBeingDownloaded = false; // allow other textures to be downloaded
-}
-
 } // namespace QmlDesigner
