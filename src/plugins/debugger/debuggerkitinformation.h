@@ -21,7 +21,6 @@ public:
         { return DebuggerKitAspect::validateDebugger(k); }
 
     void setup(ProjectExplorer::Kit *k) override;
-    void fix(ProjectExplorer::Kit *k) override;
 
     static const DebuggerItem *debugger(const ProjectExplorer::Kit *kit);
     static ProjectExplorer::Runnable runnable(const ProjectExplorer::Kit *kit);

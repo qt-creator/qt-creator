@@ -228,66 +228,6 @@ void DebuggerKitAspect::setup(Kit *k)
     k->setValue(DebuggerKitAspect::id(), bestLevel != DebuggerItem::DoesNotMatch ? bestItem.id() : QVariant());
 }
 
-
-// This handles the upgrade path from 2.8 to 3.0
-void DebuggerKitAspect::fix(Kit *k)
-{
-    QTC_ASSERT(k, return);
-
-    // This can be Id, binary path, but not "auto" anymore.
-    const QVariant rawId = k->value(DebuggerKitAspect::id());
-
-    if (rawId.toString().isEmpty()) // No debugger set, that is fine.
-        return;
-
-    if (rawId.type() == QVariant::String) {
-        const DebuggerItem * const item = DebuggerItemManager::findById(rawId);
-        if (!item) {
-            qWarning("Unknown debugger id %s in kit %s",
-                     qPrintable(rawId.toString()), qPrintable(k->displayName()));
-            k->setValue(DebuggerKitAspect::id(), QVariant());
-            setup(k);
-            return;
-        }
-
-        Abi kitAbi;
-        if (ToolChainKitAspect::toolChains(k).isEmpty()) {
-            if (DeviceTypeKitAspect::deviceTypeId(k)
-                    != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-                return;
-            }
-            kitAbi = Abi(Abi::UnknownArchitecture, Abi::hostAbi().os());
-        } else {
-            kitAbi = ToolChainKitAspect::targetAbi(k);
-        }
-        if (item->matchTarget(kitAbi) != DebuggerItem::DoesNotMatch)
-            return;
-        k->setValue(DebuggerKitAspect::id(), QVariant());
-        setup(k);
-        return; // All fine (now).
-    }
-
-    QMap<QString, QVariant> map = rawId.toMap();
-    QString binary = map.value("Binary").toString();
-    if (binary == "auto") {
-        // This should not happen as "auto" is handled by setup() already.
-        QTC_CHECK(false);
-        k->setValue(DebuggerKitAspect::id(), QVariant());
-        return;
-    }
-
-    FilePath fileName = FilePath::fromUserInput(binary);
-    const DebuggerItem *item = DebuggerItemManager::findByCommand(fileName);
-    if (!item) {
-        qWarning("Debugger command %s invalid in kit %s",
-                 qPrintable(binary), qPrintable(k->displayName()));
-        k->setValue(DebuggerKitAspect::id(), QVariant());
-        return;
-    }
-
-    k->setValue(DebuggerKitAspect::id(), item->id());
-}
-
 // Check the configuration errors and return a flag mask. Provide a quick check and
 // a verbose one with a list of errors.
 
@@ -299,15 +239,15 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
     if (!item)
         return NoDebugger;
 
-    if (item->command().isEmpty())
+    const FilePath debugger = item->command();
+    if (debugger.isEmpty())
         return NoDebugger;
 
+    if (debugger.isRelativePath())
+        return NoConfigurationError;
+
     ConfigurationErrors result = NoConfigurationError;
-    const FilePath debugger = item->command();
-    const bool found = debugger.exists() && !debugger.isDir();
-    if (!found)
-        result |= DebuggerNotFound;
-    else if (!debugger.isExecutableFile())
+    if (!debugger.isExecutableFile())
         result |= DebuggerNotExecutable;
 
     const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
@@ -318,16 +258,15 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
             result |= DebuggerDoesNotMatch;
     }
 
-    if (!found) {
-        if (item->engineType() == NoEngineType)
-            return NoDebugger;
+    if (item->engineType() == NoEngineType)
+        return NoDebugger;
 
-        // We need an absolute path to be able to locate Python on Windows.
-        if (item->engineType() == GdbEngineType) {
-            if (tcAbi.os() == Abi::WindowsOS && !debugger.isAbsolutePath())
-                result |= DebuggerNeedsAbsolutePath;
-        }
+    // We need an absolute path to be able to locate Python on Windows.
+    if (item->engineType() == GdbEngineType) {
+        if (tcAbi.os() == Abi::WindowsOS && !debugger.isAbsolutePath())
+            result |= DebuggerNeedsAbsolutePath;
     }
+
     return result;
 }
 
@@ -342,7 +281,12 @@ Runnable DebuggerKitAspect::runnable(const Kit *kit)
 {
     Runnable runnable;
     if (const DebuggerItem *item = debugger(kit)) {
-        runnable.command = CommandLine{item->command()};
+        FilePath cmd = item->command();
+        if (cmd.isRelativePath()) {
+            if (const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit))
+                cmd = buildDevice->searchExecutableInPath(cmd.path());
+        }
+        runnable.command.setExecutable(cmd);
         runnable.workingDirectory = item->workingDirectory();
         runnable.environment = kit->runEnvironment();
         runnable.environment.set("LC_NUMERIC", "C");

@@ -170,6 +170,7 @@ class DebuggerItemModel : public TreeModel<TreeItem, StaticTreeItem, DebuggerTre
 {
 public:
     DebuggerItemModel();
+    enum { Generic, AutoDetected, Manual };
 
     QModelIndex lastIndex() const;
     void setCurrentIndex(const QModelIndex &index);
@@ -202,16 +203,35 @@ const DebuggerItem *findDebugger(const Predicate &pred)
 DebuggerItemModel::DebuggerItemModel()
 {
     setHeader({Tr::tr("Name"), Tr::tr("Path"), Tr::tr("Type")});
-    rootItem()->appendChild(
-        new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
-                           {ProjectExplorer::Constants::msgAutoDetectedToolTip()}));
+
+    auto generic = new StaticTreeItem(Tr::tr("Generic"));
+    auto autoDetected = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
+                                           {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
+    rootItem()->appendChild(generic);
+    rootItem()->appendChild(autoDetected);
     rootItem()->appendChild(new StaticTreeItem(ProjectExplorer::Constants::msgManual()));
+
+    DebuggerItem genericGdb(QVariant("gdb"));
+    genericGdb.setAutoDetected(true);
+    genericGdb.setEngineType(GdbEngineType);
+    genericGdb.setAbi(Abi());
+    genericGdb.setCommand("gdb");
+    genericGdb.setUnexpandedDisplayName(Tr::tr("%1 from PATH on Build Device").arg("GDB"));
+    generic->appendChild(new DebuggerTreeItem(genericGdb, false));
+
+    DebuggerItem genericLldb(QVariant("lldb"));
+    genericLldb.setAutoDetected(true);
+    genericLldb.setEngineType(LldbEngineType);
+    genericLldb.setAbi(Abi());
+    genericLldb.setCommand("lldb");
+    genericLldb.setUnexpandedDisplayName(Tr::tr("%1 from PATH on Build Device").arg("LLDB"));
+    generic->appendChild(new DebuggerTreeItem(genericLldb, false));
 }
 
 void DebuggerItemModel::addDebugger(const DebuggerItem &item, bool changed)
 {
     QTC_ASSERT(item.id().isValid(), return);
-    int group = item.isAutoDetected() ? 0 : 1;
+    int group = item.isAutoDetected() ? AutoDetected : Manual;
     rootItem()->childAt(group)->appendChild(new DebuggerTreeItem(item, changed));
 }
 

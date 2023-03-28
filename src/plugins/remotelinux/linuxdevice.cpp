@@ -339,7 +339,7 @@ Environment LinuxDevicePrivate::getEnvironment()
         return m_environmentCache.value();
 
     QtcProcess getEnvProc;
-    getEnvProc.setCommand({FilePath("env").onDevice(q->rootPath()), {}});
+    getEnvProc.setCommand({q->filePath("env"), {}});
     getEnvProc.runBlocking();
 
     const QString remoteOutput = getEnvProc.cleanedStdOut();
