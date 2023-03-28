@@ -7,14 +7,34 @@
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
+#include <projectexplorer/devicesupport/filetransferinterface.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
 
 namespace RemoteLinux::Internal {
+
+FileTransferMethod defaultTransferMethod(Kit *kit)
+{
+    auto runDevice = DeviceKitAspect::device(kit);
+    auto buildDevice = BuildDeviceKitAspect::device(kit);
+
+    if (runDevice != buildDevice) {
+        // FIXME: That's not the full truth, we need support from the build
+        // device, too.
+        if (runDevice && runDevice->extraData(Constants::SupportsRSync).toBool())
+            return FileTransferMethod::Rsync;
+    }
+
+    if (runDevice && runDevice->extraData(Constants::SupportsSftp).toBool())
+        return FileTransferMethod::Sftp;
+
+    return FileTransferMethod::GenericCopy;
+}
 
 RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
 {
@@ -40,23 +60,16 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
     addInitialStep(Constants::MakeInstallStepId, needsMakeInstall);
     addInitialStep(Constants::KillAppStepId);
 
-    // Todo: Check: Instead of having two different steps here, have one
+    // Todo: Check: Instead of having three different steps here, have one
     // and shift the logic into the implementation there?
     addInitialStep(Constants::RsyncDeployStepId, [](Target *target) {
-        auto runDevice = DeviceKitAspect::device(target->kit());
-        auto buildDevice = BuildDeviceKitAspect::device(target->kit());
-        if (runDevice == buildDevice)
-            return false;
-        // FIXME: That's not the full truth, we need support from the build
-        // device, too.
-        return runDevice && runDevice->extraData(Constants::SupportsRSync).toBool();
+        return defaultTransferMethod(target->kit()) == FileTransferMethod::Rsync;
     });
     addInitialStep(Constants::DirectUploadStepId, [](Target *target) {
-        auto runDevice = DeviceKitAspect::device(target->kit());
-        auto buildDevice = BuildDeviceKitAspect::device(target->kit());
-        if (runDevice == buildDevice)
-            return true;
-        return runDevice && !runDevice->extraData(Constants::SupportsRSync).toBool();
+        return defaultTransferMethod(target->kit()) == FileTransferMethod::Sftp;
+    });
+    addInitialStep(ProjectExplorer::Constants::COPY_FILE_STEP, [](Target *target) {
+        return defaultTransferMethod(target->kit()) == FileTransferMethod::GenericCopy;
     });
 }
 

@@ -24,7 +24,7 @@ namespace Internal {
 
 struct TransferStorage
 {
-    bool sftpWorks = false;
+    bool useGenericCopy = false;
 };
 
 class GenericLinuxDeviceTesterPrivate
@@ -173,8 +173,10 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method
         emit q->progressMessage(Tr::tr("\"%1\" is functional.\n").arg(methodName));
         if (method == FileTransferMethod::Rsync)
             m_device->setExtraData(Constants::SupportsRSync, true);
+        else if (method == FileTransferMethod::Sftp)
+            m_device->setExtraData(Constants::SupportsSftp, true);
         else
-            storage->sftpWorks = true;
+            storage->useGenericCopy = true;
     };
     const auto error = [this, method, storage](const FileTransfer &transfer) {
         const QString methodName = FileTransfer::transferMethodName(method);
@@ -189,14 +191,21 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method
                     .arg(methodName).arg(resultData.m_exitCode).arg(resultData.m_errorString);
         }
         emit q->errorMessage(error);
-        if (method == FileTransferMethod::Rsync) {
+        if (method == FileTransferMethod::Rsync)
             m_device->setExtraData(Constants::SupportsRSync, false);
-            if (!storage->sftpWorks)
-                return;
+        else if (method == FileTransferMethod::Sftp)
+            m_device->setExtraData(Constants::SupportsSftp, false);
+
+        const QVariant supportsRSync = m_device->extraData(Constants::SupportsRSync);
+        const QVariant supportsSftp = m_device->extraData(Constants::SupportsSftp);
+        if (supportsRSync.isValid() && !supportsRSync.toBool()
+            && supportsSftp.isValid() && !supportsSftp.toBool()) {
+            const QString generic = FileTransfer::transferMethodName(FileTransferMethod::GenericCopy);
             const QString sftp = FileTransfer::transferMethodName(FileTransferMethod::Sftp);
-            const QString rsync = methodName;
+            const QString rsync = FileTransfer::transferMethodName(FileTransferMethod::Rsync);
             emit q->progressMessage(Tr::tr("\"%1\" will be used for deployment, because \"%2\" "
-                                           "is not available.\n").arg(sftp, rsync));
+                                           "and \"%3\" are not available.\n")
+                                           .arg(generic, sftp, rsync));
         }
     };
     return TransferTest(setup, done, error);
