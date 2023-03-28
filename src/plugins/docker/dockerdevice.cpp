@@ -255,8 +255,10 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
                 if (ok)
                     emit started(m_remotePID);
 
-                if (rest.size() > 0)
-                    emit readyRead(rest, {});
+                // In case we already received some error output, send it now.
+                const QByteArray stdErr = m_process.readAllRawStandardError();
+                if (rest.size() > 0 || stdErr.size() > 0)
+                    emit readyRead(rest, stdErr);
 
                 m_hasReceivedFirstOutput = true;
                 return;
@@ -266,13 +268,28 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
     });
 
     connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
-        emit readyRead({}, m_process.readAllRawStandardError());
+        if (m_remotePID)
+            emit readyRead({}, m_process.readAllRawStandardError());
     });
 
     connect(&m_process, &QtcProcess::done, this, [this] {
         qCDebug(dockerDeviceLog) << "Process exited:" << m_process.commandLine()
                                  << "with code:" << m_process.resultData().m_exitCode;
-        emit done(m_process.resultData());
+
+        Utils::ProcessResultData resultData = m_process.resultData();
+
+        if (m_remotePID == 0) {
+            resultData.m_error = QProcess::FailedToStart;
+            qCWarning(dockerDeviceLog) << "Process failed to start:" << m_process.commandLine();
+            QByteArray stdOut = m_process.readAllRawStandardOutput();
+            QByteArray stdErr = m_process.readAllRawStandardError();
+            if (!stdOut.isEmpty())
+                qCWarning(dockerDeviceLog) << "stdout:" << stdOut;
+            if (!stdErr.isEmpty())
+                qCWarning(dockerDeviceLog) << "stderr:" << stdErr;
+        }
+
+        emit done(resultData);
     });
 }
 
@@ -699,7 +716,8 @@ bool DockerDevicePrivate::startContainer()
     m_shell = std::make_unique<ContainerShell>(m_settings, m_container, q->rootPath());
 
     connect(m_shell.get(), &DeviceShell::done, this, [this](const ProcessResultData &resultData) {
-        m_shell.release()->deleteLater();
+        if (m_shell)
+            m_shell.release()->deleteLater();
         if (resultData.m_error != QProcess::UnknownError
             || resultData.m_exitStatus == QProcess::NormalExit)
             return;
