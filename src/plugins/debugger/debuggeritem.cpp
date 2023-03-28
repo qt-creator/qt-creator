@@ -116,6 +116,9 @@ void DebuggerItem::createId()
 
 void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *customEnv)
 {
+    if (isGeneric())
+        return;
+
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
     // happy with both -version and --version. So use the "working" -version
     // except for the experimental LLDB-MI which insists on --version.
@@ -282,6 +285,16 @@ QString DebuggerItem::engineTypeName() const
     }
 }
 
+void DebuggerItem::setGeneric(bool on)
+{
+    m_detectionSource = on ? QLatin1String("Generic") : QLatin1String();
+}
+
+bool DebuggerItem::isGeneric() const
+{
+    return m_detectionSource == "Generic";
+}
+
 QStringList DebuggerItem::abiNames() const
 {
     QStringList list;
@@ -297,13 +310,15 @@ QDateTime DebuggerItem::lastModified() const
 
 QIcon DebuggerItem::decoration() const
 {
+    if (isGeneric())
+        return {};
     if (m_engineType == NoEngineType)
         return Icons::CRITICAL.icon();
     if (!m_command.isExecutableFile())
         return Icons::WARNING.icon();
     if (!m_workingDirectory.isEmpty() && !m_workingDirectory.isDir())
         return Icons::WARNING.icon();
-    return QIcon();
+    return {};
 }
 
 QString DebuggerItem::validityMessage() const

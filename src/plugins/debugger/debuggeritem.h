@@ -8,7 +8,7 @@
 
 #include <projectexplorer/abi.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/environment.h>
 
 #include <QDateTime>
@@ -83,6 +83,9 @@ public:
 
     QString detectionSource() const { return m_detectionSource; }
     void setDetectionSource(const QString &source) { m_detectionSource = source; }
+
+    bool isGeneric() const;
+    void setGeneric(bool on);
 
     static bool addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils::Environment &env);
 
