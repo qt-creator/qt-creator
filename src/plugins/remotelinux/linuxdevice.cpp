@@ -1522,8 +1522,9 @@ private:
                           .arg(m_currentIndex)
                           .arg(m_fileCount)
                           .arg(source.toUserOutput(), target.toUserOutput()));
-        if (!source.copyFile(target)) {
-            result.m_errorString = Tr::tr("Failed.");
+        expected_str<void> copyResult = source.copyFile(target);
+        if (!copyResult) {
+            result.m_errorString = Tr::tr("Failed: %1").arg(copyResult.error());
             result.m_exitCode = -1; // Random pick
             emit done(result);
             return;
