@@ -64,6 +64,10 @@ static Utils::FilePath getMainUiFile()
 
     auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
         project->activeTarget()->buildSystem());
+
+    if (!qmlBuildSystem)
+        return {};
+
     return qmlBuildSystem->mainUiFilePath();
 }
 
