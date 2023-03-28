@@ -19,12 +19,14 @@
 #include <utils/algorithm.h>
 #include <utils/asynctask.h>
 #include <utils/layoutbuilder.h>
+#include <utils/optionpushbutton.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QTextStream>
@@ -101,21 +103,28 @@ void DeviceSettingsWidget::initGui()
     m_deviceStateTextLabel = new QLabel;
     m_osSpecificGroupBox = new QGroupBox(Tr::tr("Type Specific"));
     m_osSpecificGroupBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-    m_addConfigButton = new QPushButton(Tr::tr("&Start Wizard to Add Device..."));
     m_removeConfigButton = new QPushButton(Tr::tr("&Remove"));
     m_defaultDeviceButton = new QPushButton(Tr::tr("Set As Default"));
 
-    auto directLayout = new QVBoxLayout;
+    OptionPushButton *addButton = new OptionPushButton(Tr::tr("&Add..."));
+    connect(addButton, &OptionPushButton::clicked, this, &DeviceSettingsWidget::addDevice);
+
+    QMenu *deviceTypeMenu = new QMenu(addButton);
+    QAction *defaultAction = new QAction(Tr::tr("&Start Wizard to Add Device..."));
+    connect(defaultAction, &QAction::triggered, this, &DeviceSettingsWidget::addDevice);
+    deviceTypeMenu->addAction(defaultAction);
+    deviceTypeMenu->addSeparator();
+
     for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories()) {
         if (!factory->canCreate())
             continue;
-        auto button = new QPushButton(Tr::tr("Add %1").arg(factory->displayName()));
-        directLayout->addWidget(button);
-        if (!factory->quickCreationAllowed()) {
-            button->setEnabled(false);
+        if (!factory->quickCreationAllowed())
             continue;
-        }
-        connect (button, &QPushButton::clicked, this, [factory, this] {
+
+        QAction *action = new QAction(Tr::tr("Add %1").arg(factory->displayName()));
+        deviceTypeMenu->addAction(action);
+
+        connect(action, &QAction::triggered, this, [factory, this] {
             IDevice::Ptr device = factory->construct();
             QTC_ASSERT(device, return);
             m_deviceManager->addDevice(device);
@@ -124,6 +133,8 @@ void DeviceSettingsWidget::initGui()
             saveSettings();
         });
     }
+
+    addButton->setOptionalMenu(deviceTypeMenu);
 
     m_buttonsLayout = new QVBoxLayout;
     m_buttonsLayout->setContentsMargins({});
@@ -145,15 +156,14 @@ void DeviceSettingsWidget::initGui()
         Tr::tr("Current state:"), Row { m_deviceStateIconLabel, m_deviceStateTextLabel, st, }, br,
     }.attachTo(m_generalGroupBox);
 
+    // clang-format off
     Row {
         Column {
             Form { m_configurationLabel, m_configurationComboBox, br, },
             scrollArea,
         },
         Column {
-            m_addConfigButton,
-            Space(10),
-            directLayout,
+            addButton,
             Space(30),
             m_removeConfigButton,
             m_defaultDeviceButton,
@@ -161,11 +171,12 @@ void DeviceSettingsWidget::initGui()
             st,
         },
     }.attachTo(this);
+    // clang-format on
 
     bool hasDeviceFactories = Utils::anyOf(IDeviceFactory::allDeviceFactories(),
                                            &IDeviceFactory::canCreate);
 
-    m_addConfigButton->setEnabled(hasDeviceFactories);
+    addButton->setEnabled(hasDeviceFactories);
 
     int lastIndex = ICore::settings()
         ->value(QLatin1String(LastDeviceIndexKey), 0).toInt();
@@ -180,10 +191,10 @@ void DeviceSettingsWidget::initGui()
             this, &DeviceSettingsWidget::setDefaultDevice);
     connect(m_removeConfigButton, &QAbstractButton::clicked,
             this, &DeviceSettingsWidget::removeDevice);
-    connect(m_nameLineEdit, &QLineEdit::editingFinished,
-            this, &DeviceSettingsWidget::deviceNameEditingFinished);
-    connect(m_addConfigButton, &QAbstractButton::clicked,
-            this, &DeviceSettingsWidget::addDevice);
+    connect(m_nameLineEdit,
+            &QLineEdit::editingFinished,
+            this,
+            &DeviceSettingsWidget::deviceNameEditingFinished);
 }
 
 void DeviceSettingsWidget::addDevice()

@@ -76,7 +76,6 @@ private:
     QLabel *m_deviceStateIconLabel;
     QLabel *m_deviceStateTextLabel;
     QGroupBox *m_osSpecificGroupBox;
-    QPushButton *m_addConfigButton;
     QPushButton *m_removeConfigButton;
     QPushButton *m_defaultDeviceButton;
     QVBoxLayout *m_buttonsLayout;
