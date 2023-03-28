@@ -217,7 +217,8 @@ private:
     Utils::FilePath m_cwd;
     Utils::CommandLine m_currentCommand;
 
-    std::unique_ptr<TerminalSearch> m_search;
+    using TerminalSearchPtr = std::unique_ptr<TerminalSearch, std::function<void(TerminalSearch *)>>;
+    TerminalSearchPtr m_search;
 
     Aggregation::Aggregate *m_aggregate{nullptr};
     SearchHit m_lastSelectedHit{};

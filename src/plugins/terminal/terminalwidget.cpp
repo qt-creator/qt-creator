@@ -131,7 +131,6 @@ TerminalWidget::~TerminalWidget()
     // The Aggregate stuff tries to do clever deletion of the children, but we
     // we don't want that.
     m_aggregate->remove(this);
-    m_aggregate->remove(m_search.get());
 }
 
 void TerminalWidget::setupPty()
@@ -279,7 +278,10 @@ void TerminalWidget::setupSurface()
 {
     m_shellIntegration.reset(new ShellIntegration());
     m_surface = std::make_unique<Internal::TerminalSurface>(QSize{80, 60}, m_shellIntegration.get());
-    m_search = std::make_unique<TerminalSearch>(m_surface.get());
+    m_search = TerminalSearchPtr(new TerminalSearch(m_surface.get()), [this](TerminalSearch *p) {
+        m_aggregate->remove(p);
+        delete p;
+    });
 
     connect(m_search.get(), &TerminalSearch::hitsChanged, this, &TerminalWidget::updateViewport);
     connect(m_search.get(), &TerminalSearch::currentHitChanged, this, [this] {
