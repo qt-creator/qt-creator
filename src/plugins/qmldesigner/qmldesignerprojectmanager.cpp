@@ -185,11 +185,11 @@ public:
 
 std::unique_ptr<ProjectStorageData> createProjectStorageData(::ProjectExplorer::Project *project)
 {
-    if (qEnvironmentVariableIsSet("QDS_ACTIVATE_PROJECT_STORAGE")) {
+    if constexpr (useProjectStorage()) {
         return std::make_unique<ProjectStorageData>(project);
+    } else {
+        return {};
     }
-
-    return {};
 }
 } // namespace
 
@@ -262,9 +262,21 @@ AsynchronousImageCache &QmlDesignerProjectManager::asynchronousImageCache()
     return imageCacheData()->asynchronousImageCache;
 }
 
+namespace {
+ProjectStorage<Sqlite::Database> *dummyProjectStorage()
+{
+    return nullptr;
+}
+
+} // namespace
+
 ProjectStorage<Sqlite::Database> &QmlDesignerProjectManager::projectStorage()
 {
-    return m_projectData->projectStorageData->storage;
+    if constexpr (useProjectStorage()) {
+        return m_projectData->projectStorageData->storage;
+    } else {
+        return *dummyProjectStorage();
+    }
 }
 
 void QmlDesignerProjectManager::editorOpened(::Core::IEditor *) {}
