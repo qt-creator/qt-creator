@@ -31,6 +31,7 @@
 
 #include <QMessageBox>
 #include <QPushButton>
+#include <QRegularExpression>
 
 using CMakeProjectManager::CMakeConfig;
 using CMakeProjectManager::CMakeConfigItem;
