@@ -528,7 +528,14 @@ void DockerDevicePrivate::stopCurrentContainer()
     if (!DockerApi::isDockerDaemonAvailable(false).value_or(false))
         return;
 
-    m_shell.reset();
+    if (m_shell) {
+        // We have to disconnect the shell from the device, otherwise it will try to
+        // tell us about the container being stopped. Since that signal is emitted in a different
+        // thread, it would be delayed received by us when we might already have started
+        // a new shell.
+        m_shell->disconnect(this);
+        m_shell.reset();
+    }
 
     QtcProcess proc;
     proc.setCommand({m_settings->dockerBinaryPath.filePath(), {"container", "stop", m_container}});
