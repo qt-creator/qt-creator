@@ -18,6 +18,7 @@
 #include <utils/algorithm.h>
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
+#include <utils/tasktree.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -26,6 +27,26 @@ using namespace Utils::Tasking;
 namespace RemoteLinux {
 
 // RsyncDeployStep
+
+class RsyncDeployStep : public AbstractRemoteLinuxDeployStep
+{
+public:
+    RsyncDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
+    ~RsyncDeployStep() override;
+
+    static Utils::Id stepId();
+    static QString displayName();
+
+private:
+    bool isDeploymentNecessary() const final;
+    Utils::Tasking::Group deployRecipe() final;
+    Utils::Tasking::TaskItem mkdirTask();
+    Utils::Tasking::TaskItem transferTask();
+
+    mutable ProjectExplorer::FilesToTransfer m_files;
+    bool m_ignoreMissingFiles = false;
+    QString m_flags;
+};
 
 RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
