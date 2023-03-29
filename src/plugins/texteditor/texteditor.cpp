@@ -8144,11 +8144,14 @@ QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side
         d->m_stretchAction->setVisible(false);
 
     if (side == Left) {
+        auto findLeftMostAction = [this](QAction *action) {
+            if (d->m_toolbarOutlineAction && action == d->m_toolbarOutlineAction)
+                return false;
+            return d->m_toolBar->widgetForAction(action) != nullptr;
+        };
         QAction *before = Utils::findOr(d->m_toolBar->actions(),
                                         d->m_fileEncodingLabelAction,
-                                        [this](QAction *action) {
-                                            return d->m_toolBar->widgetForAction(action) != nullptr;
-                                        });
+                                        findLeftMostAction);
         return d->m_toolBar->insertWidget(before, widget);
     } else {
         return d->m_toolBar->insertWidget(d->m_fileEncodingLabelAction, widget);
@@ -8171,7 +8174,7 @@ void TextEditorWidget::setToolbarOutline(QWidget *widget)
         if (widget->sizePolicy().horizontalPolicy() & QSizePolicy::ExpandFlag)
             d->m_stretchAction->setVisible(false);
 
-        d->m_toolbarOutlineAction = d->m_toolBar->insertWidget(d->m_stretchAction, widget);
+        d->m_toolbarOutlineAction = insertExtraToolBarWidget(Left, widget);
     } else {
         // check for a widget with an expanding size policy otherwise re-enable the stretcher
         for (auto action : d->m_toolBar->actions()) {
