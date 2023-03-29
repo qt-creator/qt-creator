@@ -519,7 +519,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
     setAttribute(Qt::WA_DeleteOnClose);
 
     isPinned = false;
-    const QIcon pinIcon(":/debugger/images/pin.xpm");
+    const QIcon pinIcon = Utils::Icons::PINNED_SMALL.icon();
 
     pinButton = new QToolButton;
     pinButton->setIcon(pinIcon);
@@ -534,9 +534,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
 
     auto toolBar = new QToolBar(this);
     toolBar->setProperty("_q_custom_style_disabled", QVariant(true));
-    const QList<QSize> pinIconSizes = pinIcon.availableSizes();
-    if (!pinIconSizes.isEmpty())
-        toolBar->setIconSize(pinIconSizes.front());
+    toolBar->setIconSize({12, 12});
     toolBar->addWidget(pinButton);
     toolBar->addWidget(copyButton);
     toolBar->addWidget(titleLabel);

@@ -6,6 +6,7 @@
 #include "qmleditorwidgetstr.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/utilsicons.h>
 
 #include <QToolButton>
 #include <QFontComboBox>
@@ -26,26 +27,6 @@
 using namespace Utils;
 
 namespace QmlEditorWidgets {
-
-/* XPM */
-static const char * pin_xpm[] = {
-"12 9 7 1",
-" 	c None",
-".	c #000000",
-"+	c #515151",
-"@	c #A8A8A8",
-"#	c #A9A9A9",
-"$	c #999999",
-"%	c #696969",
-"     .      ",
-"     ......+",
-"     .@@@@@.",
-"     .#####.",
-"+.....$$$$$.",
-"     .%%%%%.",
-"     .......",
-"     ......+",
-"     .      "};
 
 DragWidget::DragWidget(QWidget *parent) : QFrame(parent)
 {
@@ -143,7 +124,7 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
 
     m_toolButton->setIcon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
     m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    m_toolButton->setFixedSize(16, 16);
+    m_toolButton->setFixedSize(20, 20);
 
     m_toolButton->setToolTip(Tr::tr("Hides this toolbar."));
     connect(m_toolButton, &QToolButton::clicked, this, &ContextPaneWidget::onTogglePane);
@@ -464,9 +445,7 @@ void ContextPaneWidget::setPinButton()
     m_toolButton->setAutoRaise(true);
     m_pinned = true;
 
-    m_toolButton->setIcon(QPixmap::fromImage(QImage(pin_xpm)));
-    m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    m_toolButton->setFixedSize(20, 20);
+    m_toolButton->setIcon(Utils::Icons::PINNED_SMALL.icon());
     m_toolButton->setToolTip(Tr::tr("Unpins the toolbar and moves it to the default position."));
 
     emit pinnedChanged(true);
@@ -481,8 +460,6 @@ void ContextPaneWidget::setLineButton()
     m_pinned = false;
     m_toolButton->setAutoRaise(true);
     m_toolButton->setIcon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
-    m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    m_toolButton->setFixedSize(20, 20);
     m_toolButton->setToolTip(Tr::tr("Hides this toolbar. This toolbar can be"
                                 " permanently disabled in the options page or in the context menu."));
 

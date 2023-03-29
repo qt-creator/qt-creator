@@ -175,7 +175,7 @@ Project {
         Group {
             name: "Images"
             prefix: "images/"
-            files: ["*.png", "*.xpm"]
+            files: ["*.png"]
         }
 
         Group {

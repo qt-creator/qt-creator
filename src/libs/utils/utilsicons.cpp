@@ -24,6 +24,8 @@ const Icon UNLOCKED({
         {":/utils/images/unlocked.png", Theme::PanelTextColorDark}}, Icon::Tint);
 const Icon PINNED({
         {":/utils/images/pinned.png", Theme::PanelTextColorDark}}, Icon::Tint);
+const Icon PINNED_SMALL({
+        {":/utils/images/pinned_small.png", Theme::PanelTextColorDark}}, Icon::Tint);
 const Icon NEXT({
         {":/utils/images/next.png", Theme::IconsWarningColor}}, Icon::MenuTintedStyle);
 const Icon NEXT_TOOLBAR({
