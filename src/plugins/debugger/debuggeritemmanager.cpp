@@ -982,6 +982,8 @@ void DebuggerItemManagerPrivate::saveDebuggers()
 
     int count = 0;
     forAllDebuggers([&count, &data](DebuggerItem &item) {
+        if (item.isGeneric()) // do not store generic debuggers, these get added automatically
+            return;
         if (item.isValid() && item.engineType() != NoEngineType) {
             QVariantMap tmp = item.toMap();
             if (!tmp.isEmpty()) {
