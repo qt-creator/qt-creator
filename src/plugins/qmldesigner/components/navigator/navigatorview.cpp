@@ -482,7 +482,10 @@ const ProjectExplorer::FileNode *NavigatorView::fileNodeForModelNode(const Model
     if (!currentProject)
         return nullptr;
 
-    return currentProject->nodeForFilePath(filePath)->asFileNode();
+    const auto fileNode = currentProject->nodeForFilePath(filePath);
+    QTC_ASSERT(fileNode, return nullptr);
+
+    return fileNode->asFileNode();
 }
 
 const ProjectExplorer::FileNode *NavigatorView::fileNodeForIndex(const QModelIndex &index) const
