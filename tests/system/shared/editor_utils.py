@@ -168,7 +168,7 @@ def __handleTextTips__(textTip, expectedVals, alternativeVals):
     if not expFail:
         test.passes("TextTip verified")
     else:
-        for key,val in eResult.iteritems():
+        for key,val in eResult.items():
             if val == False:
                 if aResult and aResult.get(key):
                     test.passes("Property '%s' does not match expected, but alternative value" % key)
@@ -240,7 +240,7 @@ def verifyProperties(properties, expectedProps):
         test.warning("Wrong usage - both parameter must be of type dict")
         return {}
     result = {}
-    for key,val in expectedProps.iteritems():
+    for key,val in expectedProps.items():
         foundVal = properties.get(key, None)
         if foundVal != None:
             result[key] = val == foundVal

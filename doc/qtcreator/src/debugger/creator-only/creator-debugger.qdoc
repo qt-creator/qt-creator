@@ -632,9 +632,11 @@
     \row
         \li Peripheral Registers
         \li View the current state of peripheral registers.
-        \li
+        \li \l {Peripheral Registers}
     \row
-        \li Debugger Log
+        \li Global Debugger Log
+
+            Debugger Log
         \li View debug output to find out why the debugger does not work.
 
             The log view acts as a console, so you can send the contents
@@ -642,7 +644,7 @@
             native debugger.
         \li \l{Troubleshooting Debugger}
 
-            \l {Directly Interacting with Native Debuggers}
+            \l {Debugger Log}
      \row
         \li Disassembler
         \li View disassembled code for the current function.
@@ -652,6 +654,9 @@
         \li Open the current source file in the text editor for changing it.
         \li \l {Working in Edit Mode}
     \endtable
+
+    \note The \uicontrol Views menu shows some views only while you are
+    debugging.
 
     \section1 Managing Debug Views
 
@@ -1003,42 +1008,141 @@
 /*!
     \page creator-registers-view.html
     \previouspage creator-expressions-view.html
-    \nextpage creator-debugger-log-view.html
+    \nextpage creator-peripheral-registers-view.html
 
     \title Viewing and Editing Register State
 
-    The \uicontrol Registers view displays the current state of the CPU registers.
-    Depending on the CPU type, there will be different registers available. The
-    values of registers that recently have changed are highlighted in red and empty
-    register values as well as leading zeroes are grayed out.
+    \e {Machine code} consists of machine language instructions that make the CPU
+    perform tasks, such as load or store, on units of data in the CPU's registers
+    or memory.
 
-    In addition it is possible to edit the content of registers while the application is
-    stopped. This applies to both General-purpose and Special-purpose registers.
-    Registers can be edited in the standard condensed view or in their particular parts
-    if the register is displayed expanded.
+    The \uicontrol Registers view displays the current state of general-purpose
+    and special-purpose CPU registers. The available registers depend on the CPU
+    type.
 
-    By default, the \uicontrol Registers view is hidden.
+    \image qtcreator-debugger-registers-view.webp {Registers view}
+
+    You can view register values when the application stops. Double-click
+    register values to edit them.
+
+    The values of registers that recently changed are highlighted in red. Empty
+    register values and leading zeroes are grayed out.
+
+    Right-click column headers to show and hide the \uicontrol Name and
+    \uicontrol Value columns in the view.
+
+    Right-click the view to select the following actions:
+
+    \list
+        \li Reload register list.
+        \li Open \l {Examining Memory}{Memory Editor} at the selected value.
+        \li Open the \l {Viewing Disassembled Code}{Disassembler} view.
+        \li Display a value in hexadecimal, decimal, octal, or binary format.
+        \li Set \l{Debugger Preferences}{debugger preferences}.
+    \endlist
+
+    By default, the \uicontrol Registers view is hidden. To show it, select it in
+    \uicontrol Views on the debugger toolbar.
+
+    \section1 Examining Memory
+
+    You can examine memory in many formats, independently of the application's
+    data types.
+
+    To open the memory editor, select a value \uicontrol Registers view,
+    and then select \uicontrol {Open Memory Editor at <value>} or
+    \uicontrol {Open Memory View at <value>} in the context menu:
+
+    \image qtcreator-debugger-memory-editor.webp {Memory Editor}
+
+    Hover the mouse pointer on a value to see details as a tooltip.
+
+    Right-click a value to:
+
+    \list
+        \li Copy the selection in ASCII or hexadecimal format.
+        \li Set a data breakpoint on the selection.
+        \li Jump to the selected address in the current data view or a new one.
+    \endlist
+*/
+
+/*!
+    \page creator-peripheral-registers-view.html
+    \previouspage creator-registers-view.html
+    \nextpage creator-debugger-log-view.html
+
+    \title Peripheral Registers
+
+    The \uicontrol {Peripheral Registers} view displays the current state of
+    peripheral devices, such as a mouse, keyboard, display, printer, or USB
+    drive. Applications write registers to send information to the device and
+    read them to get information from the device. To read registers in a
+    peripheral device, the application accesses its I/O addresses with a load
+    or store instruction that the CPU issues.
+
+    \image qtcreator-debugger-peripheral-registers-view.webp {Peripheral Registers view}
+
+    The \uicontrol Access column shows whether the register is read-and-write
+    (\uicontrol RW), read-only (\uicontrol RO), or write-only (\uicontrol WO).
+    \uicontrol N/A means that the access type is not available.
+
+    Right-click column headers to show and hide columns in the view.
+
+    Right-click the view to select the following actions:
+
+    \list
+        \li View register groups.
+        \li Set \l{Debugger Preferences}{debugger preferences}.
+    \endlist
+
+    By default, the \uicontrol {Peripheral Registers} view is hidden. To show it,
+    select it in \uicontrol Views on the debugger toolbar.
 */
 
 /*!
     \page creator-debugger-log-view.html
-    \previouspage creator-registers-view.html
+    \previouspage creator-peripheral-registers-view.html
     \nextpage creator-disassembler-view.html
 
-    \title Directly Interacting with Native Debuggers
+    \title Debugger Log
 
-    In some cases, it is convenient to directly interact with the command line
-    of the native debugger. In \QC, you can use the left pane of the
-    \uicontrol {Debugger Log} view for that purpose. When you press
-    \key {Ctrl+Enter}, the contents of the line under the text cursor are sent
-    directly to the native debugger. Alternatively, you can use the line edit at
-    the bottom of the view. Output is displayed in the right pane of the
-    \uicontrol {Debugger Log} view.
+    You can view debug output in the \uicontrol {Debugger Log} view to
+    \l {Debugger Does Not Work}{troubleshoot the debugger}.
+
+    \image qtcreator-debugger-log-view.webp {Debugger Log view}
+
+    If debug output is sent to the system log, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Debugger > \uicontrol General >
+    \uicontrol {Force logging to console} check box.
+
+    Right-click the view to select the following actions:
+
+    \list
+        \li Copy, paste, cut, and delete log contents.
+        \li Undo and redo editing actions.
+        \li Select all log contents.
+        \li Clear log contents.
+        \li Save log contents as a file.
+        \li Log time stamps.
+        \li Reload debugging helpers after \l{Adding Custom Debugging Helpers}
+            {adding custom debugging helpers}.
+        \li Set \l{Debugger Preferences}{debugger preferences}.
+    \endlist
+
+    \section1 Directly Interacting with Native Debuggers
+
+    You can use the left pane of the \uicontrol {Debugger Log} view to directly
+    interact with the command line of the native debugger.
+
+    Press \key {Ctrl+Enter} to send the contents of the line under the
+    text cursor to the native debugger. Or, enter the command in the
+    \uicontrol Command field. The right side pane of the
+    \uicontrol {Debugger Log} view shows the command output.
 
     \note Usually, you do not need this feature because \QC offers better ways to
     handle the task. For example, instead of using the GDB
     \c print command from the command line, you can evaluate an expression in
-    the \uicontrol {Expressions} view.
+    the \l {Evaluating Expressions}{Expressions} view.
 */
 
 /*!
@@ -1048,22 +1152,38 @@
 
     \title Viewing Disassembled Code
 
+    A \e disassembler translates machine language into assembly language for
+    human-readability.
+
     The \uicontrol Disassembler view displays disassembled code for the current
-    function.
+    function. It is useful for low-level commands for checking single
+    instructions, such as \uicontrol {Step Into} and \uicontrol {Step Over}.
 
-    The \uicontrol Disassembler view is useful for low-level commands for checking
-    single instructions, such as \uicontrol {Step Into} and \uicontrol {Step Over}.
-    By default, the \uicontrol Disassembler view is hidden.
-
-    To access the \uicontrol Disassembler view, check
-    \uicontrol Debug > \uicontrol {Operate by Instruction} while the debugger is
-    running. Alternatively, click the
-    \inlineimage icons/debugger_singleinstructionmode.png
-    (\uicontrol {Operate by Instruction}) tool button on the debugger toolbar.
+    \image qtcreator-debugger-disassembler-view.webp {Disassembler view}
 
     By default, GDB shows AT&T style disassembly. To switch to the Intel style,
     select \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
     \uicontrol GDB > \uicontrol {Use Intel style disassembly}.
+
+    To open the \uicontrol Disassembler view:
+
+    \list
+        \li Select \uicontrol Debug > \uicontrol {Operate by Instruction} while
+            the debugger is running.
+        \li Select the \inlineimage icons/debugger_singleinstructionmode.png
+            (\uicontrol {Operate by Instruction}) tool button on the debugger
+            toolbar.
+        \li In the \l {Viewing and Editing Register State}{Registers} view,
+            select a value, and then select \uicontrol {Open Disassembler at <value>}
+            in the context menu.
+    \endlist
+
+    \section1 Starting Disassembler
+
+    To start a disassembler from the \uicontrol Registers view, select
+    \uicontrol {Open Disassembler} and  set the disassembler address:
+
+    \image qcreator-debugger-select-start-address.webp {Select Start Address dialog}
 */
 
 /*!
@@ -1210,7 +1330,7 @@
     The custom debugging helpers will be automatically picked up from
     \c personaltypes.py when you start a debugging session in \QC or select
     \uicontrol {Reload Debugging Helpers} from the context menu of the
-    \uicontrol {Debugger Log} view.
+    \l {Debugger Log} view.
 
     \section2 Debugging Helper Overview
 
@@ -1756,7 +1876,7 @@
 
         \li In the \uicontrol Debug mode, select \uicontrol View >
             \uicontrol Views > \uicontrol {Debugger Log} to open the
-            \uicontrol {Debugger Log} view. Browse the contents of the pane on
+            \l {Debugger Log} view. Browse the contents of the pane on
             the right hand side to find out what went wrong. Always attach the
             contents of the pane to debugger-related questions to the \QC
             mailing list (qt-creator@qt-project.org) or paste them to a
@@ -1814,7 +1934,7 @@
 
     \section2 Disabling Incremental Linking
 
-    Incremental linking can affect debugging. If the debugger log has
+    Incremental linking can affect debugging. If the \l {Debugger Log} view shows
     the \e {Unable to verify checksum of module} message, disable incremental
     linking.
 

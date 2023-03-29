@@ -45,6 +45,10 @@ def main():
                 if platform.system() in ('Microsoft' 'Windows'):
                     switchViewTo(ViewConstants.PROJECTS)
                     switchToBuildOrRunSettingsFor(kit, ProjectSettings.BUILD)
+                    detailsWidget = waitForObject("{type='Utils::DetailsWidget' unnamed='1' visible='1' "
+                                                  "summaryText~='^<b>Configure:</b>.+'}")
+                    detailsButton = getChildByClass(detailsWidget, "QToolButton")
+                    ensureChecked(detailsButton)
                     buildDir = os.path.join(str(waitForObject(":Qt Creator_Utils::BuildDirectoryLineEdit").text),
                                             "debug")
                     switchViewTo(ViewConstants.EDIT)

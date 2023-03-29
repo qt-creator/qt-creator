@@ -5,7 +5,7 @@
 
 constexpr auto ghs_tviic2d4m_baremetal_json = R"(
 {
-    "qulVersion": "2.3.0",
+    "qulVersion": "2.4.0",
     "compatVersion": "1",
     "platform": {
         "id": "TVIIC2D4M-BAREMETAL",
@@ -16,9 +16,10 @@ constexpr auto ghs_tviic2d4m_baremetal_json = R"(
         "cmakeEntries": [
             {
                 "id": "INFINEON_AUTO_FLASH_UTILITY_DIR",
-                "setting": "CypressAutoFlashUtil",
-                "label": "Cypress Auto Flash Utility",
+                "setting": "InfineonAutoFlashUtil",
+                "label": "Infineon Auto Flash Utility",
                 "type": "path",
+                "defaultValue": "%{Env:PROGRAMFILES(x86)}/Infineon/Auto Flash Utility 1.2",
                 "cmakeVar": "INFINEON_AUTO_FLASH_UTILITY_DIR",
                 "detectionPath": "bin/openocd.exe",
                 "optional": false,
@@ -36,8 +37,8 @@ constexpr auto ghs_tviic2d4m_baremetal_json = R"(
             "label": "Green Hills Compiler for ARM",
             "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
             "setting": "GHSArmToolchain",
-            "detectionPath": "cxarm.exe",
             "type": "path",
+            "defaultValue": "C:/ghs/comp_201954",
             "optional": false,
             "versionDetection": {
                 "filePattern": "gversion.exe",
@@ -59,15 +60,17 @@ constexpr auto ghs_tviic2d4m_baremetal_json = R"(
         "envVar": "TVII_GRAPHICS_DRIVER_DIR",
         "setting": "TVII_GRAPHICS_DRIVER_DIR",
         "versions": [
-            "V1e.1.0"
+            "V1.2.0"
         ],
         "id": "TVII_GRAPHICS_DRIVER_DIR",
         "label": "Graphics Driver for Traveo II Cluster Series",
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "type": "path",
+        "defaultValue": "C:/TVII-GraphicsDriver",
         "optional": false,
         "versionDetection": {
-            "regex": "V\\w+\\.\\d+\\.\\d+"
+            "regex": "V\\d+\\.\\d+\\.\\d+"
+        }
     }
 }
 )";

@@ -48,6 +48,7 @@ Editing
     * Made temporary disabling of global indexing possible by canceling it in the
       progress indicator
     * Added support for highlighting angle brackets
+    * Added semantic highlighting for concepts (QTCREATORBUG-28887)
 * Built-in
     * Added support for the spaceship operator (QTCREATORBUG-27503)
     * Fixed the handling of `= default` (QTCREATORBUG-28102)
@@ -99,23 +100,28 @@ Projects
 
 * Added a deployment method with `cmake --install` to `Projects > Run Settings >
   Add Deploy Step > CMake Install` (QTCREATORBUG-25880)
-* Added the option to use `cmake-format` for CMake files to `Edit > Preferences >
-  CMake > Formatter`
+* Added the option to use `cmake-format` for CMake files to `Edit > Preferences
+  > CMake > Formatter`
   ([cmake-format Documentation](https://cmake-format.readthedocs.io/en/latest/))
 * Added `Show advanced options by default` to `Edit > Preferences > CMake > Tools`
-* Added support for the `external` strategy for the architecture and toolset of
-  presets (QTCREATORBUG-28693)
+* Added support for presets version 5
+    * Added support for the `external` strategy for the architecture and toolset
+      of presets (QTCREATORBUG-28693)
+    * Added support for preset includes (QTCREATORBUG-28894)
+    * Added support for the `pathListSep` variable
+    * Fixed that CMake preset macros were not expanded for environment variables and
+      `CMAKE_BUILD_TYPE` (QTCREATORBUG-28606, QTCREATORBUG-28893)
 * Moved `Autorun CMake` to `Edit > Preferences > CMake > General`
 * Changed the environment for running CMake to be based on the build environment
   by default (QTCREATORBUG-28513)
-* Fixed that `Package manager auto setup` created a dependency of the project
-  build to the Qt Creator installation
 * Fixed that cloned build configurations could miss values from the `Initial
   Parameters` (QTCREATORBUG-28759)
-* Fixed that CMake preset macros were not expanded for environment variables
-  (QTCREATORBUG-28606)
 * Fixed a crash with the `Kit Configuration` button for build configurations
   (QTCREATORBUG-28740)
+* Package manager auto setup
+    * Added support for Conan 2.0
+    * Fixed that it created a dependency of the project build to the Qt Creator
+      installation
 
 ### Qbs
 
@@ -238,10 +244,12 @@ Dmitry Bravikov
 Eike Ziller  
 Fabian Kosmale  
 Fawzi Mohamed  
+Haowei Hsu  
 Henning Gruendl  
 Jaroslaw Kobus  
 Jussi Witick  
 Kai Köhne  
+Karim Abdelrahman  
 Knud Dollereder  
 Knut Petter Svendsen  
 Leena Miettinen  
@@ -261,6 +269,7 @@ Robert Löhning
 Sami Shalayel  
 Samuel Gaist  
 Samuel Ghinet  
+Semih Yavuz  
 Sergey Levin  
 Sivert Krøvel  
 Tasuku Suzuki  

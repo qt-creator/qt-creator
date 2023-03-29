@@ -8,7 +8,7 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
     "qulVersion": "2.4.0",
     "compatVersion": "1",
     "platform": {
-        "id": "TVIIC2D6M-BAREMETAL",
+        "id": "TVIIC2D4M-BAREMETAL",
         "vendor": "CYPRESS",
         "colorDepths": [
             32
@@ -61,7 +61,7 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
         "envVar": "TVII_GRAPHICS_DRIVER_DIR",
         "setting": "TVII_GRAPHICS_DRIVER_DIR",
         "versions": [
-            "V2e.1.0"
+            "V1.2.0"
         ],
         "id": "TVII_GRAPHICS_DRIVER_DIR",
         "label": "Graphics Driver for Traveo II Cluster Series",
@@ -70,7 +70,7 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
         "defaultValue": "C:/TVII-GraphicsDriver",
         "optional": false,
         "versionDetection": {
-            "regex": "V\\d+e\\.\\d+\\.\\d+"
+            "regex": "V\\d+\\.\\d+\\.\\d+"
         }
     }
 }

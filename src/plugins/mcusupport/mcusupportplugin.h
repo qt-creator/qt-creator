@@ -24,6 +24,7 @@ public:
 
     void askUserAboutMcuSupportKitsSetup();
     static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settingsHandler);
+    static void askUserAboutRemovingUninstalledTargetsKits();
 };
 
 } // McuSupport::Internal

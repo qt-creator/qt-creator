@@ -18,7 +18,7 @@
     \l{Specifying Breakpoint Settings}{specify settings for breakpoints},
     and map source paths to target paths.
 
-    You can view debug output in the \uicontrol {Debugger Log} view.
+    You can view debug output in the \l {Debugger Log} view.
     However, in some Linux distributions, such as Arch Linux, debug
     output is sent to the system log. To override this behavior, select
     the \uicontrol {Force logging to console} check box. This sets
