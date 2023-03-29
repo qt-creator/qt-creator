@@ -47,6 +47,7 @@ signals:
     void stopRecordRequested();
     void interruptRequested();
     void runRequested(StepMode mode);
+    void inspectTriggered();
 
 private:
     void onStopTriggered();
@@ -60,9 +61,12 @@ private:
     QAction *m_stepOverAction = nullptr;
     QAction *m_stepOutAction = nullptr;
     QAction *m_stopAction = nullptr;
+    QAction *m_inspectAction = nullptr;
     QLabel *m_status = nullptr;
     class SquishControlBar *m_controlBar = nullptr;
     Utils::TreeModel<LocalsItem> m_localsModel;
+    Utils::TreeModel<> m_objectsModel;
+    Utils::TreeModel<> m_propertiesModel;
     PerspectiveMode m_mode = NoMode;
 
     friend class SquishControlBar;

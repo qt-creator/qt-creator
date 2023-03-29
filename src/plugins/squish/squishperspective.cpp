@@ -26,10 +26,13 @@
 namespace Squish {
 namespace Internal {
 
-enum class IconType { StopRecord, Play, Pause, StepIn, StepOver, StepReturn, Stop };
+enum class IconType { StopRecord, Play, Pause, StepIn, StepOver, StepReturn, Stop, Inspect };
 
 static QIcon iconForType(IconType type)
 {
+    static const Utils::Icon inspectIcon({{":/squish/images/picker.png",
+                                           Utils::Theme::IconsBaseColor}});
+
     switch (type) {
     case IconType::StopRecord:
         return Debugger::Icons::RECORD_ON.icon();
@@ -45,6 +48,8 @@ static QIcon iconForType(IconType type)
         return Debugger::Icons::STEP_OUT_TOOLBAR.icon();
     case IconType::Stop:
         return Utils::Icons::STOP_SMALL.icon();
+    case IconType::Inspect:
+        return inspectIcon.icon();
     }
     return QIcon();
 }
@@ -209,10 +214,14 @@ void SquishPerspective::initPerspective()
     m_stepOutAction->setEnabled(false);
     m_stopAction = Debugger::createStopAction();
     m_stopAction->setEnabled(false);
+    m_inspectAction = new QAction(this);
+    m_inspectAction->setIcon(iconForType(IconType::Inspect));
+    m_inspectAction->setToolTip(Tr::tr("Inspect"));
+    m_inspectAction->setEnabled(false);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(1);
+    QVBoxLayout *localsMainLayout = new QVBoxLayout;
+    localsMainLayout->setContentsMargins(0, 0, 0, 0);
+    localsMainLayout->setSpacing(1);
 
     m_localsModel.setHeader({Tr::tr("Name"), Tr::tr("Type"), Tr::tr("Value")});
     auto localsView = new Utils::TreeView;
@@ -220,11 +229,45 @@ void SquishPerspective::initPerspective()
     localsView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     localsView->setModel(&m_localsModel);
     localsView->setRootIsDecorated(true);
-    mainLayout->addWidget(localsView);
-    QWidget *mainWidget = new QWidget;
-    mainWidget->setObjectName("SquishLocalsView");
-    mainWidget->setWindowTitle(Tr::tr("Squish Locals"));
-    mainWidget->setLayout(mainLayout);
+    localsMainLayout->addWidget(localsView);
+    QWidget *localsWidget = new QWidget;
+    localsWidget->setObjectName("SquishLocalsView");
+    localsWidget->setWindowTitle(Tr::tr("Squish Locals"));
+    localsWidget->setLayout(localsMainLayout);
+
+    QVBoxLayout *objectsMainLayout = new QVBoxLayout;
+    objectsMainLayout->setContentsMargins(0, 0, 0, 0);
+    objectsMainLayout->setSpacing(1);
+
+    m_objectsModel.setHeader({Tr::tr("Object"), Tr::tr("Type")});
+    auto objectsView = new Utils::TreeView;
+    objectsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    objectsView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    objectsView->setModel(&m_objectsModel);
+    objectsView->setRootIsDecorated(true);
+    objectsMainLayout->addWidget(objectsView);
+
+    QWidget *objectWidget = new QWidget;
+    objectWidget->setObjectName("SquishObjectsView");
+    objectWidget->setWindowTitle(Tr::tr("Squish Objects"));
+    objectWidget->setLayout(objectsMainLayout);
+
+    QVBoxLayout *propertiesMainLayout = new QVBoxLayout;
+    propertiesMainLayout->setContentsMargins(0, 0, 0, 0);
+    propertiesMainLayout->setSpacing(1);
+
+    m_propertiesModel.setHeader({Tr::tr("Property"), Tr::tr("Value")});
+    auto propertiesView = new Utils::TreeView;
+    propertiesView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    propertiesView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    propertiesView->setModel(&m_propertiesModel);
+    propertiesView->setRootIsDecorated(true);
+    propertiesMainLayout->addWidget(propertiesView);
+
+    QWidget *propertiesWidget = new QWidget;
+    propertiesWidget->setObjectName("SquishPropertiesView");
+    propertiesWidget->setWindowTitle(Tr::tr("Squish Object Properties"));
+    propertiesWidget->setLayout(propertiesMainLayout);
 
     addToolBarAction(m_pausePlayAction);
     addToolBarAction(m_stepInAction);
@@ -232,10 +275,14 @@ void SquishPerspective::initPerspective()
     addToolBarAction(m_stepOutAction);
     addToolBarAction(m_stopAction);
     addToolbarSeparator();
+    addToolBarAction(m_inspectAction);
+    addToolbarSeparator();
     m_status = new QLabel;
     addToolBarWidget(m_status);
 
-    addWindow(mainWidget, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
+    addWindow(objectWidget, Perspective::SplitVertical, nullptr);
+    addWindow(propertiesWidget, Perspective::SplitHorizontal, objectWidget);
+    addWindow(localsWidget, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
 
     connect(m_pausePlayAction, &QAction::triggered, this, &SquishPerspective::onPausePlayTriggered);
     connect(m_stepInAction, &QAction::triggered, this, [this] {
@@ -250,6 +297,10 @@ void SquishPerspective::initPerspective()
     connect(m_stopAction, &QAction::triggered, this, &SquishPerspective::onStopTriggered);
     connect(m_stopRecordAction, &QAction::triggered,
             this, &SquishPerspective::onStopRecordTriggered);
+    connect(m_inspectAction, &QAction::triggered, this, [this]{
+        m_inspectAction->setEnabled(false);
+        emit inspectTriggered();
+    });
 
     connect(SquishTools::instance(), &SquishTools::localsUpdated,
             this, &SquishPerspective::onLocalsUpdated);
@@ -269,6 +320,7 @@ void SquishPerspective::onStopTriggered()
     m_stopRecordAction->setEnabled(false);
     m_pausePlayAction->setEnabled(false);
     m_stopAction->setEnabled(false);
+    m_inspectAction->setEnabled(false);
     emit stopRequested();
 }
 
@@ -277,6 +329,7 @@ void SquishPerspective::onStopRecordTriggered()
     m_stopRecordAction->setEnabled(false);
     m_pausePlayAction->setEnabled(false);
     m_stopAction->setEnabled(false);
+    m_inspectAction->setEnabled(false);
     emit stopRecordRequested();
 }
 
@@ -376,6 +429,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_stepOverAction->setEnabled(false);
         m_stepOutAction->setEnabled(false);
         m_stopAction->setEnabled(true);
+        m_inspectAction->setEnabled(false);
         break;
     case Recording:
         m_stopRecordAction->setEnabled(true);
@@ -386,6 +440,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_stepOverAction->setEnabled(false);
         m_stepOutAction->setEnabled(false);
         m_stopAction->setEnabled(true);
+        m_inspectAction->setEnabled(false);
         break;
     case Interrupted:
         m_pausePlayAction->setEnabled(true);
@@ -395,6 +450,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_stepOverAction->setEnabled(true);
         m_stepOutAction->setEnabled(true);
         m_stopAction->setEnabled(true);
+        m_inspectAction->setEnabled(true);
         break;
     case Configuring:
     case Querying:
@@ -407,6 +463,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_stepOverAction->setEnabled(false);
         m_stepOutAction->setEnabled(false);
         m_stopAction->setEnabled(false);
+        m_inspectAction->setEnabled(false);
         m_localsModel.clear();
         break;
     default:
