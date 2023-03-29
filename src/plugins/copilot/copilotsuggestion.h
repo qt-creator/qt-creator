@@ -20,7 +20,7 @@ public:
     int position() final;
 
     const QList<Completion> &completions() const { return m_completions; }
-    const int currentCompletion() const { return m_currentCompletion; }
+    int currentCompletion() const { return m_currentCompletion; }
 
 private:
     QList<Completion> m_completions;
