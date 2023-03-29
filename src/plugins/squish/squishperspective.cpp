@@ -96,6 +96,79 @@ QVariant LocalsItem::data(int column, int role) const
     return TreeItem::data(column, role);
 }
 
+QVariant InspectedObjectItem::data(int column, int role) const
+{
+    if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
+        switch (column) {
+        case 0: return value;
+        case 1: return type;
+        }
+    }
+    return TreeItem::data(column, role);
+}
+
+QVariant InspectedPropertyItem::data(int column, int role) const
+{
+    if (role ==Qt::DisplayRole || role == Qt::ToolTipRole) {
+        switch (column) {
+        case 0: return name;
+        case 1: return value;
+        }
+    }
+    return TreeItem::data(column, role);
+}
+
+void InspectedPropertyItem::parseAndUpdateChildren()
+{
+    const char open = '{';
+    const char close = '}';
+    const char delimiter =',';
+    const char eq = '=';
+
+    if (!value.startsWith(open) || !value.endsWith(close)) // only parse multi-property content
+        return;
+
+    int start = 1;
+    int end = value.size() - 1;
+    do {
+        int endOfName = value.indexOf(eq, start);
+        QTC_ASSERT(endOfName != -1, return);
+        int innerStart = endOfName + 2;
+        QTC_ASSERT(innerStart < end, return);
+        const QString name = value.mid(start, endOfName - start).trimmed();
+        if (value.at(innerStart) != open) {
+            int endOfItemValue = value.indexOf(delimiter, innerStart);
+            if (endOfItemValue == -1)
+                endOfItemValue = end;
+            const QString content = value.mid(innerStart, endOfItemValue - innerStart).trimmed();
+            appendChild(new InspectedPropertyItem(name, content));
+            start = endOfItemValue + 1;
+        } else {
+            int openedBraces = 1;
+            // advance until item's content is complete
+            int pos = innerStart;
+            do {
+                if (++pos > end)
+                    break;
+                if (value.at(pos) == open) {
+                    ++openedBraces;
+                    continue;
+                }
+                if (value.at(pos) == close) {
+                    --openedBraces;
+                    if (openedBraces == 0)
+                        break;
+                }
+            } while (pos < end);
+            ++pos;
+            QTC_ASSERT(pos < end, return);
+            const QString content = value.mid(innerStart, pos - innerStart).trimmed();
+            appendChild(new InspectedPropertyItem(name, content));
+            start = pos + 1;
+        }
+    } while (start < end);
+}
+
 class SquishControlBar : public QDialog
 {
 public:
@@ -240,12 +313,12 @@ void SquishPerspective::initPerspective()
     objectsMainLayout->setSpacing(1);
 
     m_objectsModel.setHeader({Tr::tr("Object"), Tr::tr("Type")});
-    auto objectsView = new Utils::TreeView;
-    objectsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    objectsView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    objectsView->setModel(&m_objectsModel);
-    objectsView->setRootIsDecorated(true);
-    objectsMainLayout->addWidget(objectsView);
+    m_objectsView = new Utils::TreeView;
+    m_objectsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_objectsView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_objectsView->setModel(&m_objectsModel);
+    m_objectsView->setRootIsDecorated(true);
+    objectsMainLayout->addWidget(m_objectsView);
 
     QWidget *objectWidget = new QWidget;
     objectWidget->setObjectName("SquishObjectsView");
@@ -313,6 +386,33 @@ void SquishPerspective::initPerspective()
             SquishTools::instance()->requestExpansion(item->name);
         }
     });
+
+    connect(SquishTools::instance(), &SquishTools::objectPicked,
+            this, &SquishPerspective::onObjectPicked);
+    connect(SquishTools::instance(), &SquishTools::propertiesFetched,
+            this, &SquishPerspective::onPropertiesFetched);
+    connect(SquishTools::instance(), &SquishTools::autIdRetrieved,
+            this, [this]{
+                m_autIdKnown = true;
+                m_inspectAction->setEnabled(true);
+            });
+    connect(m_objectsView, &QTreeView::expanded, this, [this](const QModelIndex &idx) {
+        InspectedObjectItem *item = m_objectsModel.itemForIndex(idx);
+        if (QTC_GUARD(item)) {
+            if (item->expanded)
+                return;
+            item->expanded = true;
+            SquishTools::instance()->requestExpansionForObject(item->value);
+        }
+    });
+    connect(m_objectsView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, [this](const QModelIndex &current){
+                m_propertiesModel.clear();
+                InspectedObjectItem *item = m_objectsModel.itemForIndex(current);
+                if (!item)
+                    return;
+                SquishTools::instance()->requestPropertiesForObject(item->value);
+            });
 }
 
 void SquishPerspective::onStopTriggered()
@@ -321,6 +421,7 @@ void SquishPerspective::onStopTriggered()
     m_pausePlayAction->setEnabled(false);
     m_stopAction->setEnabled(false);
     m_inspectAction->setEnabled(false);
+    m_autIdKnown = false;
     emit stopRequested();
 }
 
@@ -330,6 +431,7 @@ void SquishPerspective::onStopRecordTriggered()
     m_pausePlayAction->setEnabled(false);
     m_stopAction->setEnabled(false);
     m_inspectAction->setEnabled(false);
+    m_autIdKnown = false;
     emit stopRecordRequested();
 }
 
@@ -379,6 +481,44 @@ void SquishPerspective::onLocalsUpdated(const QString &output)
     }
 }
 
+void SquishPerspective::onObjectPicked(const QString &output)
+{
+    // "+{container=':o_QQuickView' text='2' type='Text' unnamed='1' visible='true'}\tQQuickText_QML_1"
+    static const QRegularExpression regex("^(?<exp>[-+])(?<content>\\{.*\\})\t(?<type>.+)$");
+    const QRegularExpressionMatch match = regex.match(output);
+    if (!match.hasMatch())
+        return;
+    InspectedObjectItem *parent = nullptr;
+    const QString content = match.captured("content");
+    parent = m_objectsModel.findNonRootItem([content](InspectedObjectItem *it) {
+        return it->value == content;
+    });
+    if (!parent) {
+        m_objectsModel.clear();
+        parent = m_objectsModel.rootItem();
+    }
+    InspectedObjectItem *obj = new InspectedObjectItem(content, match.captured("type"));
+    if (match.captured("exp") == "+")
+        obj->appendChild(new InspectedObjectItem); // add pseudo child
+    parent->appendChild(obj);
+    m_inspectAction->setEnabled(true);
+    const QModelIndex idx = m_objectsModel.indexForItem(obj);
+    if (idx.isValid())
+        m_objectsView->setCurrentIndex(idx);
+}
+
+void SquishPerspective::onPropertiesFetched(const QStringList &properties)
+{
+    static const QRegularExpression regex("(?<name>.+)=(?<exp>[-+])(?<content>.*)");
+
+    for (const QString &line : properties) {
+        const QRegularExpressionMatch match = regex.match(line);
+        QTC_ASSERT(match.hasMatch(), continue);
+        auto item = new InspectedPropertyItem(match.captured("name"), match.captured("content"));
+        m_propertiesModel.rootItem()->appendChild(item);
+    }
+}
+
 void SquishPerspective::updateStatus(const QString &status)
 {
     m_status->setText(status);
@@ -411,6 +551,12 @@ void SquishPerspective::destroyControlBar()
         return;
     delete m_controlBar;
     m_controlBar = nullptr;
+}
+
+void SquishPerspective::resetAutId()
+{
+    m_autIdKnown = false;
+    m_inspectAction->setEnabled(false);
 }
 
 void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
@@ -450,7 +596,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_stepOverAction->setEnabled(true);
         m_stepOutAction->setEnabled(true);
         m_stopAction->setEnabled(true);
-        m_inspectAction->setEnabled(true);
+        m_inspectAction->setEnabled(m_autIdKnown);
         break;
     case Configuring:
     case Querying:
@@ -465,6 +611,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_stopAction->setEnabled(false);
         m_inspectAction->setEnabled(false);
         m_localsModel.clear();
+        m_objectsModel.clear();
         break;
     default:
         break;

@@ -9,6 +9,8 @@
 
 #include <utils/treemodel.h>
 
+namespace Utils { class TreeView; }
+
 namespace Squish {
 namespace Internal {
 
@@ -26,6 +28,31 @@ public:
     bool expanded = false;
 };
 
+class InspectedObjectItem : public Utils::TreeItem
+{
+public:
+    InspectedObjectItem() = default;
+    InspectedObjectItem(const QString &v, const QString &t) : value(v), type(t) {}
+    QVariant data(int column, int role) const override;
+    QString value;
+    QString type;
+    bool expanded = false;
+};
+
+class InspectedPropertyItem : public Utils::TreeItem
+{
+public:
+    InspectedPropertyItem() = default;
+    InspectedPropertyItem(const QString &n, const QString &v)
+        : name(n), value(v) { parseAndUpdateChildren(); }
+    QVariant data(int column, int role) const override;
+    QString name;
+    QString value;
+    bool expanded = false;
+private:
+    void parseAndUpdateChildren();
+};
+
 class SquishPerspective : public Utils::Perspective
 {
     Q_OBJECT
@@ -41,6 +68,7 @@ public:
 
     void showControlBar(SquishXmlOutputHandler *xmlOutputHandler);
     void destroyControlBar();
+    void resetAutId();
 
 signals:
     void stopRequested();
@@ -54,6 +82,8 @@ private:
     void onStopRecordTriggered();
     void onPausePlayTriggered();
     void onLocalsUpdated(const QString &output);
+    void onObjectPicked(const QString &output);
+    void onPropertiesFetched(const QStringList &properties);
 
     QAction *m_stopRecordAction = nullptr;
     QAction *m_pausePlayAction = nullptr;
@@ -65,9 +95,11 @@ private:
     QLabel *m_status = nullptr;
     class SquishControlBar *m_controlBar = nullptr;
     Utils::TreeModel<LocalsItem> m_localsModel;
-    Utils::TreeModel<> m_objectsModel;
-    Utils::TreeModel<> m_propertiesModel;
+    Utils::TreeModel<InspectedObjectItem> m_objectsModel;
+    Utils::TreeModel<InspectedPropertyItem> m_propertiesModel;
+    Utils::TreeView *m_objectsView = nullptr;
     PerspectiveMode m_mode = NoMode;
+    bool m_autIdKnown = false;
 
     friend class SquishControlBar;
 };

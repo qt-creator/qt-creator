@@ -60,10 +60,13 @@ public:
     void requestSetSharedFolders(const Utils::FilePaths &sharedFolders);
     void writeServerSettingsChanges(const QList<QStringList> &changes);
     void requestExpansion(const QString &name);
+    void requestExpansionForObject(const QString &value);
+    void requestPropertiesForObject(const QString &value);
 
     bool shutdown();
 
 signals:
+    void autIdRetrieved();
     void logOutputReceived(const QString &output);
     void squishTestRunStarted();
     void squishTestRunFinished();
@@ -71,6 +74,8 @@ signals:
     void configChangesFailed(QProcess::ProcessError error);
     void configChangesWritten();
     void localsUpdated(const QString &output);
+    void objectPicked(const QString &output);
+    void propertiesFetched(const QStringList &properties);
     void shutdownFinished();
 
 private:
@@ -103,6 +108,9 @@ private:
     void stopSquishServer();
     void startSquishRunner();
     void setupAndStartRecorder();
+    void setupAndStartInspector();
+    void exitAndResetSecondaryRunner();
+    void onInspectTriggered();
     void stopRecorder();
     void queryServer(RunnerQuery query);
     void executeRunnerQuery();

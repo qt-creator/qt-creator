@@ -133,6 +133,8 @@ SquishTools::SquishTools(QObject *parent)
             this, &SquishTools::stopRecorder);
     connect(&m_perspective, &SquishPerspective::runRequested,
             this, &SquishTools::onRunnerRunRequested);
+    connect(&m_perspective, &SquishPerspective::inspectTriggered,
+            this, &SquishTools::onInspectTriggered);
 }
 
 SquishTools::~SquishTools()
@@ -440,6 +442,7 @@ void SquishTools::onRunnerStopped()
         m_request = ServerStopRequested;
         qCInfo(LOG) << "Stopping server from RunnerStopped (query)";
         stopSquishServer();
+        return;
     } else if (m_request == RecordTestRequested) {
         if (m_secondaryRunner && m_secondaryRunner->isRunning()) {
             stopRecorder();
@@ -448,7 +451,12 @@ void SquishTools::onRunnerStopped()
             qCInfo(LOG) << "Stopping server from RunnerStopped (startaut)";
             stopSquishServer();
         }
-    } else if (m_testCases.isEmpty() || (m_squishRunnerState == RunnerState::Canceled)) {
+        return;
+    }
+    // below only normal run of test case(s)
+    exitAndResetSecondaryRunner();
+
+    if (m_testCases.isEmpty() || (m_squishRunnerState == RunnerState::Canceled)) {
         m_request = ServerStopRequested;
         qCInfo(LOG) << "Stopping server from RunnerStopped";
         stopSquishServer();
@@ -611,6 +619,50 @@ void SquishTools::setupAndStartRecorder()
     if (m_suiteConf.objectMapPath().isReadableFile())
         Core::DocumentManager::expectFileChange(m_suiteConf.objectMapPath());
     m_secondaryRunner->start(cmd, squishEnvironment());
+}
+
+void SquishTools::setupAndStartInspector()
+{
+    QTC_ASSERT(m_primaryRunner && m_primaryRunner->autId() != 0, return);
+    QTC_ASSERT(!m_secondaryRunner, return);
+
+    QStringList args;
+    if (!toolsSettings.isLocalServer)
+        args << "--host" << toolsSettings.serverHost;
+    args << "--port" << QString::number(m_serverProcess.port());
+    args << "--debugLog" << "alpw"; // TODO make this configurable?
+    args << "--inspect";
+    args << "--suitedir" << m_suitePath.toUserOutput();
+    args << "--autid" << QString::number(m_primaryRunner->autId());
+
+    m_secondaryRunner = new SquishRunnerProcess(this);
+    m_secondaryRunner->setupProcess(SquishRunnerProcess::Inspect);
+    const CommandLine cmd = {toolsSettings.runnerPath, args};
+    connect(m_secondaryRunner, &SquishRunnerProcess::logOutputReceived,
+            this, &SquishTools::logOutputReceived);
+    connect(m_secondaryRunner, &SquishRunnerProcess::objectPicked,
+            this, &SquishTools::objectPicked);
+    connect(m_secondaryRunner, &SquishRunnerProcess::propertiesFetched,
+            this, &SquishTools::propertiesFetched);
+    qCDebug(LOG) << "Inspector starting:" << cmd.toUserOutput();
+    m_secondaryRunner->start(cmd, squishEnvironment());
+}
+
+void SquishTools::exitAndResetSecondaryRunner()
+{
+    m_perspective.resetAutId();
+    if (m_secondaryRunner) {
+        m_secondaryRunner->writeCommand(SquishRunnerProcess::Exit);
+        m_secondaryRunner->deleteLater();
+        m_secondaryRunner = nullptr;
+    }
+}
+
+void SquishTools::onInspectTriggered()
+{
+    QTC_ASSERT(m_primaryRunner, return);
+    QTC_ASSERT(m_secondaryRunner, return);
+    m_secondaryRunner->writeCommand(SquishRunnerProcess::Pick);
 }
 
 void SquishTools::stopRecorder()
@@ -865,6 +917,7 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
     case RunnerState::CancelRequested:
     case RunnerState::CancelRequestedWhileInterrupted:
         logAndChangeRunnerState(RunnerState::Canceled);
+        exitAndResetSecondaryRunner();
         m_primaryRunner->writeCommand(SquishRunnerProcess::Exit);
         clearLocationMarker();
         break;
@@ -885,6 +938,9 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
                 const FilePath filePath = FilePath::fromUserInput(fileName);
                 Core::EditorManager::openEditorAt({filePath, line, column});
                 updateLocationMarker(filePath, line);
+                // looks like we need to start inspector while being interrupted?
+                if (!m_secondaryRunner && m_primaryRunner->autId() !=0)
+                    setupAndStartInspector();
             }
         } else { // it's just some output coming from the server
             if (m_squishRunnerState == RunnerState::Interrupted && !m_requestVarsTimer) {
@@ -907,6 +963,24 @@ void SquishTools::requestExpansion(const QString &name)
     QTC_ASSERT(m_primaryRunner, return);
     QTC_ASSERT(m_squishRunnerState == RunnerState::Interrupted, return);
     m_primaryRunner->requestExpanded(name);
+}
+
+void SquishTools::requestExpansionForObject(const QString &value)
+{
+    QTC_ASSERT(m_primaryRunner, return);
+    if (m_squishRunnerState != RunnerState::Interrupted)
+        return;
+    QTC_ASSERT(m_secondaryRunner, return);
+    m_secondaryRunner->requestListObject(value);
+}
+
+void SquishTools::requestPropertiesForObject(const QString &value)
+{
+    QTC_ASSERT(m_primaryRunner, return);
+    if (m_squishRunnerState != RunnerState::Interrupted)
+        return;
+    QTC_ASSERT(m_secondaryRunner, return);
+    m_secondaryRunner->requestListProperties(value);
 }
 
 bool SquishTools::shutdown()
@@ -1202,6 +1276,8 @@ void SquishTools::setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmd
     m_primaryRunner->closeProcess();
 
     if (m_request == RunTestRequested) {
+        connect(m_primaryRunner, &SquishRunnerProcess::autIdRetrieved,
+                this, &SquishTools::autIdRetrieved);
         // set up the file system watcher for being able to read the results.xml file
         m_resultsFileWatcher = new QFileSystemWatcher;
         // on 2nd run this directory exists and won't emit changes, so use the current subdirectory

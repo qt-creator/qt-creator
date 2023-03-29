@@ -6,12 +6,21 @@
 #include "squishtr.h"
 
 #include <debugger/breakhandler.h>
+#include <utils/executeondestruction.h>
 
 #include <QLoggingCategory>
 
 Q_LOGGING_CATEGORY(runnerLOG, "qtc.squish.squishrunner", QtWarningMsg)
 
 namespace Squish::Internal {
+
+static QString maskedArgument(const QString &originalArg)
+{
+    QString masked = originalArg;
+    masked.replace('\\', "\\\\");
+    masked.replace(' ', "\\x20");
+    return masked;
+}
 
 SquishRunnerProcess::SquishRunnerProcess(QObject *parent)
     : SquishProcessBase{parent}
@@ -36,6 +45,10 @@ void SquishRunnerProcess::setupProcess(RunnerMode mode)
     case Record:
         m_process.setProcessMode(Utils::ProcessMode::Writer);
         break;
+    case Inspect:
+        m_process.setProcessMode(Utils::ProcessMode::Writer);
+        m_process.setStdOutLineCallback([this](const QString &line) { onInspectorOutput(line); });
+        break;
     }
 }
 
@@ -44,6 +57,8 @@ void SquishRunnerProcess::start(const Utils::CommandLine &cmdline, const Utils::
     QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
     m_licenseIssues = false;
     m_autId = 0;
+    m_outputMode = SingleLine;
+    m_multiLineContent.clear();
 
     SquishProcessBase::start(cmdline, env);
 }
@@ -130,9 +145,73 @@ void SquishRunnerProcess::onStdOutput(const QString &lineIn)
         isPrompt = true;
         m_autId = line.mid(7).toInt();
         qCInfo(runnerLOG) << "AUT ID set" << m_autId << "(" << line << ")";
+        emit autIdRetrieved();
     }
     if (isPrompt)
         emit interrupted(fileName, fileLine, fileColumn);
+}
+
+void SquishRunnerProcess::handleMultiLineOutput(OutputMode mode)
+{
+    Utils::ExecuteOnDestruction atExit([this]{
+        m_multiLineContent.clear();
+        m_context.clear();
+    });
+
+    if (mode == MultiLineProperties) {
+        emit propertiesFetched(m_multiLineContent);
+    } else if (mode == MultiLineChildren) {
+        // TODO
+    }
+}
+
+void SquishRunnerProcess::onInspectorOutput(const QString &lineIn)
+{
+    QString line = lineIn;
+    line.chop(1); // line has a newline
+    if (line.startsWith("SSPY:"))
+        line = line.mid(5);
+    if (line.isEmpty()) // we have a prompt, that's fine
+        return;
+
+    if (m_outputMode != SingleLine) {
+        const OutputMode originalMode = m_outputMode;
+        if (line.startsWith("@end")) {
+            m_outputMode = SingleLine;
+            if (!QTC_GUARD(line.mid(6).chopped(1) == m_context)) { // messed up output
+                m_multiLineContent.clear();
+                m_context.clear();
+                return;
+            }
+        } else {
+            m_multiLineContent.append(line);
+        }
+        if (m_outputMode == SingleLine) // we reached the @end
+            handleMultiLineOutput(originalMode);
+        return;
+    }
+    if (line == "@ready")
+        return;
+    if (line.startsWith("@picked: ")) {
+        const QString value = line.mid(9);
+        emit objectPicked(value);
+        return;
+    }
+    if (line.startsWith("@startprop")) {
+        m_outputMode = MultiLineProperties;
+        m_context = line.mid(12).chopped(1);
+        return;
+    }
+    if (line.startsWith("@startobj")) {
+        m_outputMode = MultiLineChildren;
+        m_context = line.mid(11).chopped(1);
+        return;
+    }
+    if (line.contains("license acquisition")) {
+        emit logOutputReceived("Inspect: " + line);
+        return;
+    }
+//    qDebug() << "unhandled" << line;
 }
 
 static QString cmdToString(SquishRunnerProcess::RunnerCommand cmd)
@@ -142,6 +221,7 @@ static QString cmdToString(SquishRunnerProcess::RunnerCommand cmd)
     case SquishRunnerProcess::EndRecord: return "endrecord\n";
     case SquishRunnerProcess::Exit: return "exit\n";
     case SquishRunnerProcess::Next: return "next\n";
+    case SquishRunnerProcess::Pick: return "pick\n";
     case SquishRunnerProcess::PrintVariables: return "print variables\n";
     case SquishRunnerProcess::Return: return "return\n";
     case SquishRunnerProcess::Step: return "step\n";
@@ -159,6 +239,16 @@ void SquishRunnerProcess::writeCommand(RunnerCommand cmd)
 void SquishRunnerProcess::requestExpanded(const QString &variableName)
 {
     m_process.write("print variables +" + variableName + "\n");
+}
+
+void SquishRunnerProcess::requestListObject(const QString &value)
+{
+    m_process.write("list objects " + maskedArgument(value) + "\n");
+}
+
+void SquishRunnerProcess::requestListProperties(const QString &value)
+{
+    m_process.write("list properties " + maskedArgument(value) + "\n");
 }
 
 // FIXME: add/removal of breakpoints while debugging not handled yet
@@ -180,8 +270,7 @@ Utils::Links SquishRunnerProcess::setBreakpoints(const QString &scriptExtension)
             continue;
 
         // mask backslashes and spaces
-        fileName.replace('\\', "\\\\");
-        fileName.replace(' ', "\\x20");
+        fileName = maskedArgument(fileName);
         auto line = gb->data(BreakpointLineColumn, Qt::DisplayRole).toInt();
         QString cmd = "break ";
         cmd.append(fileName);
