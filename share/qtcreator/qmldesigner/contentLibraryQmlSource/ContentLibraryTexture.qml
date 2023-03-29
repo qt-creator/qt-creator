@@ -227,6 +227,16 @@ Item {
         }
     }
 
+    Timer {
+        id: delayedFinish
+        interval: 200
+
+        onTriggered: {
+            modelData.setDownloaded()
+            root.downloadState = modelData.isDownloaded() ? "downloaded" : "failed"
+        }
+    }
+
     FileExtractor {
         id: extractor
         archiveName: downloader.completeBaseName
@@ -235,8 +245,7 @@ Item {
         alwaysCreateDir: false
         clearTargetPathContents: false
         onFinishedChanged: {
-            modelData.setDownloaded()
-            root.downloadState = modelData.isDownloaded() ? "downloaded" : "failed"
+            delayedFinish.restart()
         }
     }
 }
