@@ -163,7 +163,7 @@ QVariantMap ContentLibraryWidget::readBundleMetadata()
         metaData = QJsonDocument::fromJson(jsonFile.readAll()).toVariant().toMap();
 
     int version = metaData["version"].toInt();
-    if (version != TextureBundleMetadataVersion) {
+    if (version > TextureBundleMetadataVersion) {
         qWarning() << "Unrecognized texture metadata file version: " << version;
         return {};
     }

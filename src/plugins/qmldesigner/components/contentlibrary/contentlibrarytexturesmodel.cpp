@@ -110,6 +110,8 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &remoteUrl, co
         return;
     }
 
+    const QVariantMap imageItems = metaData.value("image_items").toMap();
+
     const QFileInfoList dirs = bundleDir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QFileInfo &dir : dirs) {
         auto category = new ContentLibraryTexturesCategory(this, dir.fileName());
@@ -124,11 +126,11 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &remoteUrl, co
             QSize dimensions;
             qint64 sizeInBytes = -1;
 
-            if (metaData.contains(key)) {
-                QVariantMap dataMap = metaData[key].toMap();
+            if (imageItems.contains(key)) {
+                QVariantMap dataMap = imageItems[key].toMap();
                 fileExt = '.' + dataMap.value("format").toString();
                 dimensions = QSize(dataMap.value("width").toInt(), dataMap.value("height").toInt());
-                sizeInBytes = dataMap.value("size").toLongLong();
+                sizeInBytes = dataMap.value("file_size").toLongLong();
             }
 
             category->addTexture(tex, localDownloadPath, fullRemoteUrl, fileExt, dimensions, sizeInBytes);
