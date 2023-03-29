@@ -2285,9 +2285,9 @@ void CdbEngine::parseOutputLine(QString line)
         CheckableMessageBox::doNotShowAgainInformation(
             Core::ICore::dialogParent(),
             Tr::tr("Debugger Start Failed"),
-            Tr::tr("The system prevents loading of %1 which is required for debugging. "
+            Tr::tr("The system prevents loading of %1, which is required for debugging. "
                    "Make sure that your antivirus solution is up to date and if that does not work "
-                   "consider to add an exception for %1.")
+                   "consider adding an exception for %1.")
                 .arg(m_extensionFileName),
             Core::ICore::settings(),
             "SecureInfoCdbextCannotBeLoaded");

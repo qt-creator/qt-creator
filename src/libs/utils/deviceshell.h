@@ -28,7 +28,7 @@ class QTCREATOR_UTILS_EXPORT DeviceShell : public QObject
     Q_OBJECT
 
 public:
-    enum class State { FailedToStart = -1, Unknown = 0, Succeeded = 1, NoScript = 2 };
+    enum class State { Failed = -1, Unknown = 0, Succeeded = 1 };
 
     enum class ParseType {
         StdOut,

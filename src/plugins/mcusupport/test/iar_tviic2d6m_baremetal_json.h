@@ -5,7 +5,7 @@
 
 constexpr auto iar_tviic2d6m_baremetal_json = R"(
 {
-    "qulVersion": "2.3.0",
+    "qulVersion": "2.4.0",
     "compatVersion": "1",
     "platform": {
         "id": "TVIIC2D6M-BAREMETAL",
@@ -16,9 +16,10 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
         "cmakeEntries": [
             {
                 "id": "INFINEON_AUTO_FLASH_UTILITY_DIR",
-                "setting": "CypressAutoFlashUtil",
-                "label": "Cypress Auto Flash Utility",
+                "setting": "InfineonAutoFlashUtil",
+                "label": "Infineon Auto Flash Utility",
                 "type": "path",
+                "defaultValue": "%{Env:PROGRAMFILES(x86)}/Infineon/Auto Flash Utility 1.2",
                 "cmakeVar": "INFINEON_AUTO_FLASH_UTILITY_DIR",
                 "detectionPath": "bin/openocd.exe",
                 "optional": false,
@@ -39,14 +40,12 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
             "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
             "type": "path",
             "versionDetection": {
-                "filePattern": {
-                    "windows": "bin/iccarm.exe",
-                    "linux": "bin/iccarm"
-                },
+                "filePattern": "bin/iccarm.exe",
                 "executableArgs": "--version",
                 "regex": "\\bV(\\d+\\.\\d+\\.\\d+)\\.\\d+\\b"
             },
             "detectionPath": "bin/iccarm.exe",
+            "defaultValue": "%{Env:PROGRAMFILES(x86)}/IAR Systems/Embedded Workbench 8.0 EWARM FS 8.22.3/arm",
             "optional": false
         },
         "file": {
@@ -62,15 +61,17 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
         "envVar": "TVII_GRAPHICS_DRIVER_DIR",
         "setting": "TVII_GRAPHICS_DRIVER_DIR",
         "versions": [
-            "V1e.1.0"
+            "V2e.1.0"
         ],
         "id": "TVII_GRAPHICS_DRIVER_DIR",
         "label": "Graphics Driver for Traveo II Cluster Series",
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "type": "path",
+        "defaultValue": "C:/TVII-GraphicsDriver",
         "optional": false,
         "versionDetection": {
-            "regex": "V\\w+\\.\\d+\\.\\d+"
+            "regex": "V\\d+e\\.\\d+\\.\\d+"
+        }
     }
 }
 )";

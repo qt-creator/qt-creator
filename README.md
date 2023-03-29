@@ -56,6 +56,32 @@ Prerequisites:
 
 The used toolchain has to be compatible with the one Qt was compiled with.
 
+### Getting Qt Creator from Git
+
+The official mirror of the Qt Creator repository is located at
+https://code.qt.io/cgit/qt-creator/qt-creator.git/. Run
+
+    git clone https://code.qt.io/qt-creator/qt-creator.git
+
+to clone the Qt Creator sources from there. This creates a checkout of the
+Qt Creator sources in the `qt-creator/` directory of your current working
+directory.
+
+Qt Creator relies on some submodules, like
+[litehtml](https://github.com/litehtml) for displaying documentation. Get these
+submodules with
+
+    cd qt-creator  # switch to the sources, if you just ran git clone
+    git submodule update --init --recursive
+
+Note the `--recursive` in this command, which fetches also submodules within
+submodules, and is necessary to get all the sources.
+
+The git history contains some coding style cleanup commits, which you might
+want to exclude for example when running `git blame`. Do this by running
+
+    git config blame.ignoreRevsFile .gitignore-blame
+
 ### Linux and macOS
 
 These instructions assume that Ninja is installed and in the `PATH`, Qt Creator

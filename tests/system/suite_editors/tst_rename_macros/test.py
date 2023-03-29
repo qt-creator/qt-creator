@@ -113,7 +113,7 @@ def performMacroRenaming(newMacroName):
 def verifyChangedContent(origTexts, replacedSymbol, replacement):
     global cppEditorStr
     successfullyCompared = []
-    for fileName,text in origTexts.iteritems():
+    for fileName,text in origTexts.items():
         if openDocument(fileName):
             successfullyCompared.append(test.compare(waitForObject(cppEditorStr).plainText,
                                                      text.replace(replacedSymbol, replacement),

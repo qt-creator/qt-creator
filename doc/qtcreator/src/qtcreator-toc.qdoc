@@ -175,7 +175,7 @@
                         \li \l{Local Variables and Function Parameters}
                         \li \l{Evaluating Expressions}
                         \li \l{Viewing and Editing Register State}
-                        \li \l{Directly Interacting with Native Debuggers}
+                        \li \l{Debugger Log}
                         \li \l{Viewing Disassembled Code}
                         \li
                     \endlist

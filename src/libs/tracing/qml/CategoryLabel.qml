@@ -174,9 +174,10 @@ Item {
         id: dragger
         property int visualIndex: labelContainer.visualIndex
         width: labelContainer.width
-        height: 0
+        height: labelContainer.height
         color: Theme.color(Theme.PanelStatusBarBackgroundColor)
         opacity: 0.5
+        visible: Drag.active
         anchors.left: parent.left
 
         // anchor to top so that it reliably snaps back after dragging
@@ -184,16 +185,13 @@ Item {
 
         Drag.active: dragArea.drag.active
         Drag.onActiveChanged: {
-            // We don't want height or text to be changed when reordering occurs, so we don't make
-            // them properties.
+            // We don't want text to be changed when reordering occurs, so we don't make
+            // it a property
             draggerText.text = txt.text;
-            if (Drag.active) {
-                height = labelContainer.height;
+            if (Drag.active)
                 labelContainer.dragStarted();
-            } else {
-                height = 0;
+            else
                 labelContainer.dragStopped();
-            }
         }
 
         states: [

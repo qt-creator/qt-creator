@@ -265,6 +265,7 @@ void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
     timeoutEditingFinished();
     sourceProfileCheckingChanged(m_sourceProfileCheckBox->isChecked());
     linkDeviceChanged(m_linkDeviceComboBox->currentIndex());
+    qmlRuntimeEditingFinished();
 }
 
 void GenericLinuxDeviceConfigurationWidget::updatePortsWarningLabel()

@@ -1,10 +1,37 @@
 # Copyright (C) 2016 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+def toggleIssuesFilter(filterName, checked):
+    try:
+        toggleFilter = waitForObject("{type='QToolButton' toolTip='Filter by categories' "
+                                     "window=':Qt Creator_Core::Internal::MainWindow'}")
+        clickButton(toggleFilter)
+        filterMenu = waitForObject("{type='QMenu' unnamed='1' visible='1'}")
+        waitFor("filterMenu.visible", 1000)
+
+        filterCategory = waitForObjectItem(filterMenu, filterName)
+        waitFor("filterCategory.visible", 2000)
+        if filterCategory.checked == checked:
+            test.log("Filter '%s' has already check state %s - not toggling."
+                     % (filterName, checked))
+            clickButton(toggleFilter) # close the menu again
+        else:
+            activateItem(filterCategory)
+            test.log("Filter '%s' check state changed to %s." % (filterName, checked))
+    except:
+        t,v = sys.exc_info()[:2]
+        test.log("Exception while toggling filter '%s'" % filterName,
+                 "%s(%s)" % (str(t), str(v)))
+
 def getBuildIssues():
     ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
     model = waitForObject(":Qt Creator.Issues_QListView").model()
-    return dumpBuildIssues(model)
+    # filter out possible code model issues present inside the Issues pane
+    toggleIssuesFilter("Clang Code Model", False)
+    result = dumpBuildIssues(model)
+    # reset the filter
+    toggleIssuesFilter("Clang Code Model", True)
+    return result
 
 # this method checks the last build (if there's one) and logs the number of errors, warnings and
 # lines within the Issues output

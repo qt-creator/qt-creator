@@ -284,6 +284,7 @@ void DeviceSettingsWidget::updateDeviceFromUi()
 
 void DeviceSettingsWidget::saveSettings()
 {
+    updateDeviceFromUi();
     ICore::settings()->setValueWithDefault(LastDeviceIndexKey, currentIndex(), 0);
     DeviceManager::replaceInstance();
 }

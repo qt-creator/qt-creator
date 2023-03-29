@@ -840,7 +840,12 @@ function(add_qtc_test name)
   endif()
   set(${_build_test_var} "${_build_test_default}" CACHE BOOL "Build test ${name}.")
 
-  if (NOT ${_build_test_var} OR NOT ${_arg_CONDITION})
+  if ((${_arg_CONDITION}) AND ${_build_test_var})
+    set(_test_enabled ON)
+  else()
+    set(_test_enabled OFF)
+  endif()
+  if (NOT _test_enabled)
     return()
   endif()
 
@@ -868,7 +873,6 @@ function(add_qtc_test name)
     DEFINES ${_arg_DEFINES} ${TEST_DEFINES} ${default_defines_copy}
     EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
     SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
-    CONDITION ${_arg_CONDITION}
   )
 
   set_target_properties(${name} PROPERTIES
@@ -988,7 +992,10 @@ function(qtc_add_resources target resourceName)
     message(FATAL_ERROR "qtc_add_resources had unparsed arguments!")
   endif()
 
-  if (DEFINED _arg_CONDITION AND NOT _arg_CONDITION)
+  if (NOT _arg_CONDITION)
+    set(_arg_CONDITION ON)
+  endif()
+  if (NOT (${_arg_CONDITION}))
     return()
   endif()
 

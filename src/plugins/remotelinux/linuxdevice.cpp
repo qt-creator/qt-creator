@@ -220,7 +220,9 @@ void SshSharedConnection::emitConnected()
 void SshSharedConnection::emitError(QProcess::ProcessError error, const QString &errorString)
 {
     m_state = QProcess::NotRunning;
-    ProcessResultData resultData = m_masterProcess->resultData();
+    ProcessResultData resultData{-1, QProcess::CrashExit, QProcess::UnknownError, {}};
+    if (m_masterProcess)
+        resultData = m_masterProcess->resultData();
     resultData.m_error = error;
     resultData.m_errorString = errorString;
     emit disconnected(resultData);

@@ -56,6 +56,10 @@ void fixExistingKits(const SettingsHandler::Ptr &);
 // Outdated kits:
 void removeOutdatedKits();
 
+// kits for uninstalled targets:
+const QList<ProjectExplorer::Kit *> findUninstalledTargetsKits();
+void removeUninstalledTargetsKits(const QList<ProjectExplorer::Kit *> uninstalledTargetsKits);
+
 } // namespace McuKitManager
 } // namespace McuSupport::Internal
 

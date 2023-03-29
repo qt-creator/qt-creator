@@ -37,6 +37,9 @@ private slots:
 
     void testIndentationClean_data();
     void testIndentationClean();
+
+    void testFormatting_data();
+    void testFormatting();
 #endif
 };
 

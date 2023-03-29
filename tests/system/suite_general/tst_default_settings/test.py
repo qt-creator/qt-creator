@@ -260,10 +260,10 @@ def __compareCompilers__(foundCompilers, expectedCompilers):
             for currentExp in expectedCompilers:
                 if isString(currentExp):
                     continue
-                key = currentExp.keys()[0]
+                key = list(currentExp.keys())[0]
                 # the regex .*? is used for the different possible version strings of the WinSDK
                 # if it's present a regex will be validated otherwise simple string comparison
-                if (((".*?" in key and re.match(key, currentFound.keys()[0], flags))
+                if (((".*?" in key and re.match(key, list(currentFound.keys())[0], flags))
                     or currentFound.keys() == currentExp.keys())):
                     if ((isWin and os.path.abspath(currentFound.values()[0].lower())
                          == os.path.abspath(currentExp.values()[0].lower()))
@@ -322,8 +322,8 @@ def __checkCreatedSettings__(settingsFolder):
         test.verify(os.path.isdir(f),
                     "Verifying whether folder '%s' has been created." % os.path.basename(f))
     for f in files:
-        fName = f.keys()[0]
-        fMinSize = f.values()[0]
+        fName = list(f.keys())[0]
+        fMinSize = list(f.values())[0]
         text = "created non-empty"
         if fMinSize > 0:
             text = "modified"
