@@ -1,1 +1,62 @@
-<?xml version="1.0" encoding="UTF-8"?><QtAdvancedDockingSystem version="1" userVersion="0" containers="1"><container floating="false"><splitter orientation="Horizontal" count="3"><splitter orientation="Vertical" count="3"><area tabs="2" current="Navigator"><widget name="Navigator" closed="false"/><widget name="DebugView" closed="false"/></area><area tabs="2" current="Assets"><widget name="Assets" closed="false"/><widget name="Components" closed="false"/></area><area tabs="3" current="Projects"><widget name="Projects" closed="false"/><widget name="FileSystem" closed="false"/><widget name="OpenDocuments" closed="false"/></area><sizes>355 428 404</sizes></splitter><splitter orientation="Vertical" count="4"><splitter orientation="Horizontal" count="2"><area tabs="2" current="FormEditor"><widget name="FormEditor" closed="false"/><widget name="TextEditor" closed="false"/></area><area tabs="1" current="MaterialEditor"><widget name="MaterialEditor" closed="false"/></area><sizes>678 678</sizes></splitter><splitter orientation="Horizontal" count="2"><area tabs="1" current="Editor3D"><widget name="Editor3D" closed="false"/></area><area tabs="1" current="MaterialBrowser"><widget name="MaterialBrowser" closed="false"/></area><sizes>678 678</sizes></splitter><area tabs="2" current="Timelines"><widget name="StatesEditor" closed="true"/><widget name="Timelines" closed="true"/></area><area tabs="1" current="OutputPane"><widget name="OutputPane" closed="true"/></area><sizes>641 547 0 0</sizes></splitter><splitter orientation="Vertical" count="2"><area tabs="1" current="Properties"><widget name="Properties" closed="false"/></area><area tabs="1" current="ConnectionView"><widget name="ConnectionView" closed="false"/></area><sizes>831 357</sizes></splitter><sizes>453 1357 453</sizes></splitter></container></QtAdvancedDockingSystem>
+<?xml version="1.0" encoding="UTF-8"?>
+<QtAdvancedDockingSystem version="1" userVersion="0" containers="1" displayName="3D Essentials">
+  <container floating="false">
+    <splitter orientation="Horizontal" count="3">
+      <splitter orientation="Vertical" count="3">
+        <area tabs="2" current="Navigator">
+          <widget name="Navigator" closed="false"/>
+          <widget name="DebugView" closed="false"/>
+        </area>
+        <area tabs="2" current="Assets">
+          <widget name="Assets" closed="false"/>
+          <widget name="Components" closed="false"/>
+        </area>
+        <area tabs="3" current="Projects">
+          <widget name="Projects" closed="false"/>
+          <widget name="FileSystem" closed="false"/>
+          <widget name="OpenDocuments" closed="false"/>
+        </area>
+        <sizes>355 428 404</sizes>
+      </splitter>
+      <splitter orientation="Vertical" count="4">
+        <splitter orientation="Horizontal" count="2">
+          <area tabs="2" current="FormEditor">
+            <widget name="FormEditor" closed="false"/>
+            <widget name="TextEditor" closed="false"/>
+          </area>
+          <area tabs="1" current="MaterialEditor">
+            <widget name="MaterialEditor" closed="false"/>
+          </area>
+          <sizes>678 678</sizes>
+        </splitter>
+        <splitter orientation="Horizontal" count="2">
+          <area tabs="1" current="Editor3D">
+            <widget name="Editor3D" closed="false"/>
+          </area>
+          <area tabs="1" current="MaterialBrowser">
+            <widget name="MaterialBrowser" closed="false"/>
+          </area>
+          <sizes>678 678</sizes>
+        </splitter>
+        <area tabs="2" current="Timelines">
+          <widget name="StatesEditor" closed="true"/>
+          <widget name="Timelines" closed="true"/>
+        </area>
+        <area tabs="1" current="OutputPane">
+          <widget name="OutputPane" closed="true"/>
+        </area>
+        <sizes>641 547 0 0</sizes>
+      </splitter>
+      <splitter orientation="Vertical" count="2">
+        <area tabs="1" current="Properties">
+          <widget name="Properties" closed="false"/>
+        </area>
+        <area tabs="1" current="ConnectionView">
+          <widget name="ConnectionView" closed="false"/>
+        </area>
+        <sizes>831 357</sizes>
+      </splitter>
+      <sizes>453 1357 453</sizes>
+    </splitter>
+  </container>
+</QtAdvancedDockingSystem>

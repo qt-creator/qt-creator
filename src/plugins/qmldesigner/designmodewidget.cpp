@@ -372,38 +372,13 @@ void DesignModeWidget::setup()
         connect(m_toolBar, &Core::EditorToolBar::goForwardClicked, this, &DesignModeWidget::toolBarOnGoForwardClicked);
         connect(m_toolBar, &Core::EditorToolBar::goBackClicked, this, &DesignModeWidget::toolBarOnGoBackClicked);
 
-
         QToolBar* toolBarWrapper = new QToolBar();
         toolBarWrapper->addWidget(m_toolBar);
         toolBarWrapper->addWidget(createCrumbleBarFrame());
         toolBarWrapper->setMovable(false);
         addToolBar(Qt::TopToolBarArea, toolBarWrapper);
 
-
         addSpacerToToolBar(toolBar);
-
-        auto workspaceComboBox = new QComboBox();
-        workspaceComboBox->setMinimumWidth(120);
-        workspaceComboBox->setToolTip(tr("Switch the active workspace."));
-        auto sortedWorkspaces = m_dockManager->workspaces();
-        Utils::sort(sortedWorkspaces);
-        workspaceComboBox->addItems(sortedWorkspaces);
-        workspaceComboBox->setCurrentText(m_dockManager->activeWorkspace());
-        toolBar->addWidget(workspaceComboBox);
-
-        connect(m_dockManager, &ADS::DockManager::workspaceListChanged,
-                workspaceComboBox, [this, workspaceComboBox]() {
-                    workspaceComboBox->clear();
-                    auto sortedWorkspaces = m_dockManager->workspaces();
-                    Utils::sort(sortedWorkspaces);
-                    workspaceComboBox->addItems(sortedWorkspaces);
-                    workspaceComboBox->setCurrentText(m_dockManager->activeWorkspace());
-        });
-        connect(m_dockManager, &ADS::DockManager::workspaceLoaded, workspaceComboBox, &QComboBox::setCurrentText);
-        connect(workspaceComboBox, &QComboBox::activated,
-                m_dockManager, [this, workspaceComboBox]([[maybe_unused]] int index) {
-                    m_dockManager->openWorkspace(workspaceComboBox->currentText());
-                });
 
         const QIcon gaIcon = Utils::StyleHelper::getIconFromIconFont(
                     fontName, Theme::getIconUnicode(Theme::Icon::annotationBubble),
@@ -416,7 +391,6 @@ void DesignModeWidget::setup()
                 m_globalAnnotationEditor.showWidget();
             }
         });
-
     }
 
     if (currentDesignDocument())
@@ -448,8 +422,6 @@ void DesignModeWidget::setup()
                 }
             });
 
-
-
     viewManager().enableWidgets();
     readSettings();
     show();
@@ -464,8 +436,7 @@ void DesignModeWidget::aboutToShowWorkspaces()
     auto *ag = new QActionGroup(menu);
 
     connect(ag, &QActionGroup::triggered, this, [this](QAction *action) {
-        QString workspace = action->data().toString();
-        m_dockManager->openWorkspace(workspace);
+        m_dockManager->openWorkspace(action->data().toString());
     });
 
     QAction *action = menu->addAction(tr("Manage..."));
@@ -473,21 +444,18 @@ void DesignModeWidget::aboutToShowWorkspaces()
 
     QAction *resetWorkspace = menu->addAction(tr("Reset Active"));
     connect(resetWorkspace, &QAction::triggered, this, [this]() {
-        if (m_dockManager->resetWorkspacePreset(m_dockManager->activeWorkspace()))
+        if (m_dockManager->resetWorkspacePreset(m_dockManager->activeWorkspace()->fileName()))
             m_dockManager->reloadActiveWorkspace();
     });
 
     menu->addSeparator();
 
-    // Sort the list of workspaces
-    auto sortedWorkspaces = m_dockManager->workspaces();
-    Utils::sort(sortedWorkspaces);
-
-    for (const auto &workspace : std::as_const(sortedWorkspaces)) {
-        QAction *action = ag->addAction(workspace);
-        action->setData(workspace);
+    auto workspaces = m_dockManager->workspaces();
+    for (const auto &workspace : std::as_const(workspaces)) {
+        QAction *action = ag->addAction(workspace.name());
+        action->setData(workspace.fileName());
         action->setCheckable(true);
-        if (workspace == m_dockManager->activeWorkspace())
+        if (workspace == *m_dockManager->activeWorkspace())
             action->setChecked(true);
     }
     menu->addActions(ag->actions());

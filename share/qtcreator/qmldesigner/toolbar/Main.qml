@@ -237,14 +237,18 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: annotations.left
             anchors.rightMargin: 10
-            model: backend.workspaces
-            suffix: qsTr(" Workspace")
-            property int currentWorkspaceIndex: workspaces.find(backend.currentWorkspace)
-            onCurrentWorkspaceIndexChanged: workspaces.currentIndex = workspaces.currentWorkspaceIndex
-
             visible: !root.flyoutEnabled
+            model: WorkspaceModel {
+                id: workspaceModel
+            }
+            textRole: "displayName"
+            valueRole: "fileName"
+            suffix: qsTr(" Workspace")
 
-            onActivated: backend.setCurrentWorkspace(workspaces.currentText)
+            property int currentWorkspaceIndex: workspaces.indexOfValue(backend.currentWorkspace)
+
+            onCurrentWorkspaceIndexChanged: workspaces.currentIndex = workspaces.currentWorkspaceIndex
+            onActivated: backend.setCurrentWorkspace(workspaces.currentValue)
         }
 
         ToolbarButton {
@@ -253,12 +257,11 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: shareButton.left
             anchors.rightMargin: 10
+            width: 0
             tooltip: qsTr("Edit Annotations")
             buttonIcon: StudioTheme.Constants.annotations_large
-            //visible: !root.flyoutEnabled
 
             onClicked: backend.editGlobalAnnoation()
-            width: 0
         }
 
         ToolbarButton {
@@ -391,10 +394,12 @@ Rectangle {
                         style: StudioTheme.Values.statusbarControlStyle
                         width: row.width
                         maximumPopupHeight: 400
-                        model: backend.workspaces
-                        currentIndex: workspacesFlyout.find(backend.currentWorkspace)
+                        model: workspaceModel
+                        textRole: "displayName"
+                        valueRole: "fileName"
+                        currentIndex: workspacesFlyout.indexOfValue(backend.currentWorkspace)
 
-                        onCompressedActivated: backend.setCurrentWorkspace(workspacesFlyout.currentText)
+                        onCompressedActivated: backend.setCurrentWorkspace(workspacesFlyout.currentValue)
                     }
                 }
             }

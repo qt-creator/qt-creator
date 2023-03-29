@@ -79,10 +79,288 @@ static void openUiFile()
         Core::EditorManager::openEditor(mainUiFile, Utils::Id());
 }
 
+CrumbleBarModel::CrumbleBarModel(QObject *)
+{
+    connect(crumbleBar(), &CrumbleBar::pathChanged, this, &CrumbleBarModel::handleCrumblePathChanged);
+}
+
+int CrumbleBarModel::rowCount(const QModelIndex &) const
+{
+    return crumbleBar()->path().count();
+}
+
+QHash<int, QByteArray> CrumbleBarModel::roleNames() const
+{
+    static QHash<int, QByteArray> roleNames{{Qt::UserRole + 1, "fileName"},
+                                            {Qt::UserRole + 2, "fileAddress"}};
+
+    return roleNames;
+}
+
+QVariant CrumbleBarModel::data(const QModelIndex &index, int role) const
+{
+    if (index.isValid() && index.row() < rowCount()) {
+        auto info = crumbleBar()->infos().at(index.row());
+
+        if (role == Qt::UserRole + 1) {
+            return info.displayName;
+        } else if (role == Qt::UserRole + 2) {
+            return info.fileName.displayName();
+        } else {
+            qWarning() << Q_FUNC_INFO << "invalid role";
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << "invalid index";
+    }
+
+    return QVariant();
+}
+
+void CrumbleBarModel::handleCrumblePathChanged()
+{
+    beginResetModel();
+    endResetModel();
+}
+
+void CrumbleBarModel::onCrumblePathElementClicked(int i)
+{
+    if (i < rowCount()) {
+        auto info = crumbleBar()->infos().at(i);
+        crumbleBar()->onCrumblePathElementClicked(QVariant::fromValue(info));
+    }
+}
+
+WorkspaceModel::WorkspaceModel(QObject *)
+{
+    connect(designModeWidget(), &Internal::DesignModeWidget::initialized, this, [this]() {
+        const auto dockManager = designModeWidget()->dockManager();
+
+        connect(dockManager, &ADS::DockManager::workspaceListChanged, this, [this]() {
+            beginResetModel();
+            endResetModel();
+        });
+
+        beginResetModel();
+        endResetModel();
+    });
+}
+
+int WorkspaceModel::rowCount(const QModelIndex &) const
+{
+    if (designModeWidget() && designModeWidget()->dockManager())
+        return designModeWidget()->dockManager()->workspaces().count();
+
+    return 0;
+}
+
+QHash<int, QByteArray> WorkspaceModel::roleNames() const
+{
+    static QHash<int, QByteArray> roleNames{{DisplayNameRole, "displayName"},
+                                            {FileNameRole, "fileName"}};
+
+    return roleNames;
+}
+
+QVariant WorkspaceModel::data(const QModelIndex &index, int role) const
+{
+    if (index.isValid() && index.row() < rowCount()) {
+        auto workspace = designModeWidget()->dockManager()->workspaces().at(index.row());
+
+        if (role == DisplayNameRole) {
+            return workspace.name();
+        } else if (role == FileNameRole) {
+            return workspace.fileName();
+        } else {
+            qWarning() << Q_FUNC_INFO << "invalid role";
+        }
+    } else {
+        qWarning() << Q_FUNC_INFO << "invalid index";
+    }
+
+    return QVariant();
+}
+
+ActionSubscriber::ActionSubscriber(QObject *parent)
+    : QObject(parent)
+{
+    ActionAddedInterface callback = [this](ActionInterface *interface) {
+        if (interface->menuId() == m_actionId.toLatin1()) {
+            m_interface = interface;
+            setupNotifier();
+        }
+    };
+
+    QmlDesignerPlugin::instance()->viewManager().designerActionManager().addAddActionCallback(callback);
+}
+
+void ActionSubscriber::trigger()
+{
+    if (m_interface)
+        m_interface->action()->trigger();
+}
+
+bool ActionSubscriber::available() const
+{
+    if (m_interface)
+        return m_interface->action()->isEnabled();
+    return false;
+}
+
+bool ActionSubscriber::checked() const
+{
+    if (m_interface)
+        return m_interface->action()->isChecked();
+
+    return false;
+}
+
+QString ActionSubscriber::actionId() const
+{
+    return m_actionId;
+}
+
+void ActionSubscriber::setActionId(const QString &id)
+{
+    if (id == m_actionId)
+        return;
+
+    m_actionId = id;
+    emit actionIdChanged();
+    emit tooltipChanged();
+}
+
+QString ActionSubscriber::tooltip() const
+{
+    if (m_interface)
+        return m_interface->action()->text();
+    return {};
+}
+
+void ActionSubscriber::setupNotifier()
+{
+    if (!m_interface)
+        return;
+
+    connect(m_interface->action(), &QAction::enabledChanged, this, &ActionSubscriber::availableChanged);
+
+    emit tooltipChanged();
+}
+
+ToolBarBackend::ToolBarBackend(QObject *parent)
+    : QObject(parent)
+{
+    ActionAddedInterface callback = [this](ActionInterface *interface) {
+        if (interface->menuId() == "PreviewZoom")
+            m_zoomAction = interface;
+    };
+
+    QmlDesignerPlugin::instance()->viewManager().designerActionManager().addAddActionCallback(callback);
+
+    connect(designModeWidget(),
+            &Internal::DesignModeWidget::navigationHistoryChanged,
+            this,
+            &ToolBarBackend::navigationHistoryChanged);
+
+    connect(Core::DocumentModel::model(),
+            &QAbstractItemModel::rowsInserted,
+            this,
+            &ToolBarBackend::updateDocumentModel);
+    connect(Core::DocumentModel::model(),
+            &QAbstractItemModel::rowsRemoved,
+            this,
+            &ToolBarBackend::updateDocumentModel);
+    connect(Core::DocumentModel::model(),
+            &QAbstractItemModel::dataChanged,
+            this,
+            &ToolBarBackend::updateDocumentModel);
+    connect(Core::DocumentModel::model(),
+            &QAbstractItemModel::modelReset,
+            this,
+            &ToolBarBackend::updateDocumentModel);
+
+    connect(Core::EditorManager::instance(),
+            &Core::EditorManager::currentEditorChanged,
+            this,
+            &ToolBarBackend::documentIndexChanged);
+
+    connect(Core::EditorManager::instance(),
+            &Core::EditorManager::currentEditorChanged,
+            this,
+            &ToolBarBackend::currentStyleChanged);
+
+    connect(designModeWidget(), &Internal::DesignModeWidget::initialized, this, [this]() {
+        const auto dockManager = designModeWidget()->dockManager();
+
+        connect(dockManager, &ADS::DockManager::workspaceLoaded, this, [this](const QString &) {
+            emit currentWorkspaceChanged();
+        });
+
+        connect(dockManager, &ADS::DockManager::workspaceListChanged, this, [this]() {
+            emit currentWorkspaceChanged();
+        });
+
+        emit currentWorkspaceChanged();
+    });
+
+    auto editorManager = Core::EditorManager::instance();
+
+    connect(editorManager, &Core::EditorManager::documentClosed, this, [this]() {
+        if (isInDesignMode() && Core::DocumentModel::entryCount() == 0) {
+            QTimer::singleShot(0,
+                               Core::ModeManager::instance(),
+                               []() { /* The mode change has to happen from event loop.
+                                            Otherwise we and up in an invalid state */
+                                      Core::ModeManager::activateMode(Core::Constants::MODE_WELCOME);
+                               });
+        }
+    });
+
+    connect(Core::ICore::instance(), &Core::ICore::coreAboutToOpen, this, [this] {
+        connect(Core::DesignMode::instance(), &Core::DesignMode::enabledStateChanged, this, [this] {
+            emit isDesignModeEnabledChanged();
+        });
+    });
+
+    connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this]() {
+        emit isInDesignModeChanged();
+        emit isInEditModeChanged();
+        emit isDesignModeEnabledChanged();
+    });
+
+    connect(ProjectExplorer::SessionManager::instance(),
+            &ProjectExplorer::SessionManager::startupProjectChanged,
+            this,
+            [this](ProjectExplorer::Project *project) {
+                disconnect(m_kitConnection);
+                emit isQt6Changed();
+                emit projectOpenedChanged();
+                if (project) {
+                    m_kitConnection = connect(project,
+                                              &ProjectExplorer::Project::activeTargetChanged,
+                                              this,
+                                              &ToolBarBackend::currentKitChanged);
+                    emit currentKitChanged();
+                }
+            });
+
+    connect(ProjectExplorer::KitManager::instance(),
+            &ProjectExplorer::KitManager::kitsChanged,
+            this,
+            &ToolBarBackend::kitsChanged);
+}
+
+void ToolBarBackend::registerDeclarativeType()
+{
+    qmlRegisterType<ToolBarBackend>("ToolBar", 1, 0, "ToolBarBackend");
+    qmlRegisterType<ActionSubscriber>("ToolBar", 1, 0, "ActionSubscriber");
+    qmlRegisterType<CrumbleBarModel>("ToolBar", 1, 0, "CrumbleBarModel");
+    qmlRegisterType<WorkspaceModel>("ToolBar", 1, 0, "WorkspaceModel");
+}
+
 void ToolBarBackend::triggerModeChange()
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_MODE_CHANGE);
-    QTimer::singleShot(0, [this]() { //Do not trigger mode change directly from QML
+    QTimer::singleShot(0, this, [this]() { //Do not trigger mode change directly from QML
         bool qmlFileOpen = false;
 
         if (!projectOpened()) {
@@ -109,7 +387,7 @@ void ToolBarBackend::triggerModeChange()
 void ToolBarBackend::triggerProjectSettings()
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_PROJECT_SETTINGS);
-    QTimer::singleShot(0, []() { //Do not trigger mode change directly from QML
+    QTimer::singleShot(0, Core::ModeManager::instance(), []() { // Do not trigger mode change directly from QML
         Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
     });
 }
@@ -249,113 +527,6 @@ bool ToolBarBackend::canGoForward() const
     return designModeWidget()->canGoForward();
 }
 
-ToolBarBackend::ToolBarBackend(QObject *parent)
-    : QObject(parent)
-{
-    ActionAddedInterface callback = [this](ActionInterface *interface) {
-        if (interface->menuId() == "PreviewZoom")
-            m_zoomAction = interface;
-    };
-
-    QmlDesignerPlugin::instance()->viewManager().designerActionManager().addAddActionCallback(callback);
-
-    connect(designModeWidget(),
-            &Internal::DesignModeWidget::navigationHistoryChanged,
-            this,
-            &ToolBarBackend::navigationHistoryChanged);
-
-    connect(Core::DocumentModel::model(),
-            &QAbstractItemModel::rowsInserted,
-            this,
-            &ToolBarBackend::updateDocumentModel);
-    connect(Core::DocumentModel::model(),
-            &QAbstractItemModel::rowsRemoved,
-            this,
-            &ToolBarBackend::updateDocumentModel);
-    connect(Core::DocumentModel::model(),
-            &QAbstractItemModel::dataChanged,
-            this,
-            &ToolBarBackend::updateDocumentModel);
-    connect(Core::DocumentModel::model(),
-            &QAbstractItemModel::modelReset,
-            this,
-            &ToolBarBackend::updateDocumentModel);
-
-    connect(Core::EditorManager::instance(),
-            &Core::EditorManager::currentEditorChanged,
-            this,
-            &ToolBarBackend::documentIndexChanged);
-
-    connect(Core::EditorManager::instance(),
-            &Core::EditorManager::currentEditorChanged,
-            this,
-            &ToolBarBackend::currentStyleChanged);
-
-    connect(designModeWidget(), &Internal::DesignModeWidget::initialized, this, [this]() {
-        const auto dockManager = designModeWidget()->dockManager();
-
-        connect(dockManager,
-                &ADS::DockManager::workspaceListChanged,
-                this,
-                &ToolBarBackend::setupWorkspaces);
-        connect(dockManager, &ADS::DockManager::workspaceLoaded, this, [this](const QString &) {
-            emit currentWorkspaceChanged();
-        });
-
-        setupWorkspaces();
-    });
-
-    auto editorManager = Core::EditorManager::instance();
-
-    connect(editorManager, &Core::EditorManager::documentClosed, this, [this]() {
-        if (isInDesignMode() && Core::DocumentModel::entryCount() == 0) {
-            QTimer::singleShot(0, []() { /* The mode change has to happen from event loop.
-                                            Otherwise we and up in an invalid state */
-                                         Core::ModeManager::activateMode(Core::Constants::MODE_WELCOME);
-            });
-        }
-    });
-
-    connect(Core::ICore::instance(), &Core::ICore::coreAboutToOpen, this, [this] {
-        connect(Core::DesignMode::instance(), &Core::DesignMode::enabledStateChanged, this, [this] {
-            emit isDesignModeEnabledChanged();
-        });
-    });
-
-    connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this]() {
-        emit isInDesignModeChanged();
-        emit isInEditModeChanged();
-        emit isDesignModeEnabledChanged();
-    });
-
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged,
-            [this](ProjectExplorer::Project *project) {
-                disconnect(m_kitConnection);
-                emit isQt6Changed();
-                emit projectOpenedChanged();
-                if (project) {
-                    m_kitConnection = connect(project,
-                                              &ProjectExplorer::Project::activeTargetChanged,
-                                              this,
-                                              &ToolBarBackend::currentKitChanged);
-                    emit currentKitChanged();
-                }
-            });
-
-    connect(ProjectExplorer::KitManager::instance(),
-            &ProjectExplorer::KitManager::kitsChanged,
-            this,
-            &ToolBarBackend::kitsChanged);
-}
-
-void ToolBarBackend::registerDeclarativeType()
-{
-    qmlRegisterType<ToolBarBackend>("ToolBar", 1, 0, "ToolBarBackend");
-    qmlRegisterType<ActionSubscriber>("ToolBar", 1, 0, "ActionSubscriber");
-    qmlRegisterType<CrumbleBarModel>("ToolBar", 1, 0, "CrumbleBarModel");
-}
-
 QStringList ToolBarBackend::documentModel() const
 {
     return m_openDocuments;
@@ -384,13 +555,9 @@ int ToolBarBackend::documentIndex() const
 QString ToolBarBackend::currentWorkspace() const
 {
     if (designModeWidget() && designModeWidget()->dockManager())
-        return designModeWidget()->dockManager()->activeWorkspace();
-    return {};
-}
+        return designModeWidget()->dockManager()->activeWorkspace()->fileName();
 
-QStringList ToolBarBackend::workspaces() const
-{
-    return m_workspaces;
+    return {};
 }
 
 QStringList ToolBarBackend::styles() const
@@ -419,17 +586,6 @@ bool ToolBarBackend::isInEditMode() const
     return Core::ModeManager::currentModeId() == Core::Constants::MODE_EDIT;
 }
 
-void ToolBarBackend::launchGlobalAnnotations()
-{
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_EDIT_GLOBAL_ANNOTATION);
-    ModelNode node = currentDesignDocument()->rewriterView()->rootModelNode();
-
-    if (node.isValid()) {
-        designModeWidget()->globalAnnotationEditor().setModelNode(node);
-        designModeWidget()->globalAnnotationEditor().showWidget();
-    }
-}
-
 bool ToolBarBackend::isDesignModeEnabled() const
 {
     if (Core::DesignMode::instance())
@@ -447,9 +603,7 @@ int ToolBarBackend::currentStyle() const
 
     const QString qmlFile = view->model()->fileUrl().toLocalFile();
 
-    const int index = ChangeStyleWidgetAction::getCurrentStyle(qmlFile);
-
-    return index;
+    return ChangeStyleWidgetAction::getCurrentStyle(qmlFile);
 }
 
 QStringList ToolBarBackend::kits() const
@@ -487,129 +641,14 @@ bool ToolBarBackend::projectOpened() const
     return ProjectExplorer::SessionManager::instance()->startupProject();
 }
 
-void ToolBarBackend::setupWorkspaces()
+void ToolBarBackend::launchGlobalAnnotations()
 {
-    m_workspaces.clear();
-    m_workspaces = designModeWidget()->dockManager()->workspaces();
-    Utils::sort(m_workspaces);
-    emit workspacesChanged();
-    emit currentWorkspaceChanged();
-}
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_EDIT_GLOBAL_ANNOTATION);
+    ModelNode node = currentDesignDocument()->rewriterView()->rootModelNode();
 
-ActionSubscriber::ActionSubscriber(QObject *parent)
-    : QObject(parent)
-{
-    ActionAddedInterface callback = [this](ActionInterface *interface) {
-        if (interface->menuId() == m_actionId.toLatin1()) {
-            m_interface = interface;
-            setupNotifier();
-        }
-    };
-
-    QmlDesignerPlugin::instance()->viewManager().designerActionManager().addAddActionCallback(callback);
-}
-
-void ActionSubscriber::trigger()
-{
-    if (m_interface)
-        m_interface->action()->trigger();
-}
-
-bool ActionSubscriber::available() const
-{
-    if (m_interface)
-        return m_interface->action()->isEnabled();
-    return false;
-}
-
-bool ActionSubscriber::checked() const
-{
-    if (m_interface)
-        return m_interface->action()->isChecked();
-
-    return false;
-}
-
-QString ActionSubscriber::actionId() const
-{
-    return m_actionId;
-}
-
-void ActionSubscriber::setActionId(const QString &id)
-{
-    if (id == m_actionId)
-        return;
-
-    m_actionId = id;
-    emit actionIdChanged();
-    emit tooltipChanged();
-}
-
-QString ActionSubscriber::tooltip() const
-{
-    if (m_interface)
-        return m_interface->action()->text();
-    return {};
-}
-
-void ActionSubscriber::setupNotifier()
-{
-    if (!m_interface)
-        return;
-
-    connect(m_interface->action(), &QAction::enabledChanged, this, &ActionSubscriber::availableChanged);
-
-    emit tooltipChanged();
-}
-
-CrumbleBarModel::CrumbleBarModel(QObject *)
-{
-    connect(crumbleBar(), &CrumbleBar::pathChanged, this, &CrumbleBarModel::handleCrumblePathChanged);
-}
-
-int CrumbleBarModel::rowCount(const QModelIndex &) const
-{
-    return crumbleBar()->path().count();
-}
-
-QHash<int, QByteArray> CrumbleBarModel::roleNames() const
-{
-    static QHash<int, QByteArray> roleNames{{Qt::UserRole + 1, "fileName"},
-                                            {Qt::UserRole + 2, "fileAddress"}};
-
-    return roleNames;
-}
-
-QVariant CrumbleBarModel::data(const QModelIndex &index, int role) const
-{
-    if (index.isValid() && index.row() < rowCount()) {
-        auto info = crumbleBar()->infos().at(index.row());
-
-        if (role == Qt::UserRole + 1) {
-            return info.displayName;
-        } else if (role == Qt::UserRole + 2) {
-            return info.fileName.displayName();
-        } else {
-            qWarning() << Q_FUNC_INFO << "invalid role";
-        }
-    } else {
-        qWarning() << Q_FUNC_INFO << "invalid index";
-    }
-
-    return QVariant();
-}
-
-void CrumbleBarModel::handleCrumblePathChanged()
-{
-    beginResetModel();
-    endResetModel();
-}
-
-void CrumbleBarModel::onCrumblePathElementClicked(int i)
-{
-    if (i < rowCount()) {
-        auto info = crumbleBar()->infos().at(i);
-        crumbleBar()->onCrumblePathElementClicked(QVariant::fromValue(info));
+    if (node.isValid()) {
+        designModeWidget()->globalAnnotationEditor().setModelNode(node);
+        designModeWidget()->globalAnnotationEditor().showWidget();
     }
 }
 

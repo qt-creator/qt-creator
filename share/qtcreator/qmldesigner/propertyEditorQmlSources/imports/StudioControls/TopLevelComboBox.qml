@@ -152,7 +152,10 @@ T.ComboBox {
 
             contentItem: Text {
                 leftPadding: itemDelegateIconArea.width
-                text: modelData
+                text: control.textRole ? (Array.isArray(control.model)
+                                          ? modelData[control.textRole]
+                                          : model[control.textRole])
+                                       : modelData
                 color: {
                     if (!itemDelegate.enabled)
                         return control.style.text.disabled
