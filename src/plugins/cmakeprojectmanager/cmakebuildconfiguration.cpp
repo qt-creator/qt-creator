@@ -701,7 +701,7 @@ void CMakeBuildSettingsWidget::updateConfigureDetailsWidgetsSummary(
     const FilePath buildDirectory = bc ? bc->buildDirectory() : ".";
 
     cmd.addArgs({"-S", m_buildSystem->projectDirectory().path()});
-    cmd.addArgs({"-B", buildDirectory.onDevice(cmd.executable()).path()});
+    cmd.addArgs({"-B", cmd.executable().withNewMappedPath(buildDirectory).path()}); // FIXME: Just buildDirectory.path()
     cmd.addArgs(configurationArguments);
 
     params.setCommandLine(cmd);

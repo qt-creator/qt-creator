@@ -2114,7 +2114,7 @@ FilePath Client::serverUriToHostPath(const LanguageServerProtocol::DocumentUri &
 DocumentUri Client::hostPathToServerUri(const Utils::FilePath &path) const
 {
     return DocumentUri::fromFilePath(path, [&](const Utils::FilePath &clientPath) {
-        return clientPath.onDevice(d->m_serverDeviceTemplate);
+        return d->m_serverDeviceTemplate.withNewPath(clientPath.path());
     });
 }
 

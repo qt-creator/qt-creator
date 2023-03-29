@@ -145,7 +145,7 @@ bool MakeInstallStep::init()
     if (!MakeStep::init())
         return false;
 
-    const FilePath rootDir = installRoot().onDevice(makeCommand());
+    const FilePath rootDir = makeCommand().withNewPath(installRoot().path()); // FIXME: Needed?
     if (rootDir.isEmpty()) {
         emit addTask(BuildSystemTask(Task::Error, Tr::tr("You must provide an install root.")));
         return false;
@@ -191,7 +191,7 @@ bool MakeInstallStep::init()
 void MakeInstallStep::finish(ProcessResult result)
 {
     if (isSuccess(result)) {
-        const FilePath rootDir = installRoot().onDevice(makeCommand());
+        const FilePath rootDir = makeCommand().withNewPath(installRoot().path()); // FIXME: Needed?
 
         m_deploymentData = DeploymentData();
         m_deploymentData.setLocalInstallRoot(rootDir);

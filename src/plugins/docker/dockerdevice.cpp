@@ -106,7 +106,7 @@ private:
     CommandLine createFallbackCommand(const CommandLine &cmdLine)
     {
         CommandLine result = cmdLine;
-        result.setExecutable(cmdLine.executable().onDevice(m_devicePath));
+        result.setExecutable(m_devicePath.withNewPath(cmdLine.executable().path()));
         return result;
     }
 
@@ -497,7 +497,7 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
     }
 
     if (workDir && !workDir->isEmpty())
-        dockerCmd.addArgs({"-w", workDir->onDevice(q->rootPath()).nativePath()});
+        dockerCmd.addArgs({"-w", q->rootPath().withNewMappedPath(*workDir).nativePath()});
 
     dockerCmd.addArg(m_container);
 

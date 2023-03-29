@@ -87,8 +87,8 @@ private slots:
     void startsWithDriveLetter();
     void startsWithDriveLetter_data();
 
-    void onDevice_data();
-    void onDevice();
+    void withNewMappedPath_data();
+    void withNewMappedPath();
 
     void stringAppended();
     void stringAppended_data();
@@ -1333,7 +1333,7 @@ void tst_filepath::startsWithDriveLetter()
     QCOMPARE(path.startsWithDriveLetter(), expected);
 }
 
-void tst_filepath::onDevice_data()
+void tst_filepath::withNewMappedPath_data()
 {
     QTest::addColumn<FilePath>("path");
     QTest::addColumn<FilePath>("templatePath");
@@ -1350,13 +1350,13 @@ void tst_filepath::onDevice_data()
         << FilePath("/a/b") << FilePath("docker://1234/c/d") << FilePath("docker://1234/a/b");
 }
 
-void tst_filepath::onDevice()
+void tst_filepath::withNewMappedPath()
 {
     QFETCH(FilePath, path);
     QFETCH(FilePath, templatePath);
     QFETCH(FilePath, expected);
 
-    QCOMPARE(path.onDevice(templatePath), expected);
+    QCOMPARE(templatePath.withNewMappedPath(path), expected);
 }
 
 void tst_filepath::stringAppended_data()

@@ -886,8 +886,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
 
     Runnable inferior = runControl->runnable();
     const FilePath &debuggerExecutable = m_runParameters.debugger.command.executable();
-    inferior.command.setExecutable(inferior.command.executable().onDevice(debuggerExecutable));
-    inferior.workingDirectory = inferior.workingDirectory.onDevice(debuggerExecutable);
+    inferior.command.setExecutable(debuggerExecutable.withNewMappedPath(inferior.command.executable()));
+    inferior.workingDirectory = debuggerExecutable.withNewMappedPath(inferior.workingDirectory);
     // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
     inferior.workingDirectory = inferior.workingDirectory.normalizedPathName();
     m_runParameters.inferior = inferior;

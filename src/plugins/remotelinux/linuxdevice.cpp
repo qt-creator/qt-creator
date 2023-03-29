@@ -821,7 +821,7 @@ class ShellThreadHandler : public QObject
         CommandLine createFallbackCommand(const CommandLine &cmdLine) override
         {
             CommandLine result = cmdLine;
-            result.setExecutable(cmdLine.executable().onDevice(m_devicePath));
+            result.setExecutable(m_devicePath.withNewMappedPath(cmdLine.executable())); // Needed?
             return result;
         }
 

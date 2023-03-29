@@ -201,7 +201,7 @@ void CallgrindToolRunner::run(Option option)
             this, &CallgrindToolRunner::controllerProcessDone);
 
     const FilePath control =
-            FilePath(CALLGRIND_CONTROL_BINARY).onDevice(m_valgrindRunnable.command.executable());
+            m_valgrindRunnable.command.executable().withNewPath(CALLGRIND_CONTROL_BINARY);
     m_controllerProcess->setCommand({control, {toOptionString(option), QString::number(m_pid)}});
     m_controllerProcess->setWorkingDirectory(m_valgrindRunnable.workingDirectory);
     m_controllerProcess->setEnvironment(m_valgrindRunnable.environment);

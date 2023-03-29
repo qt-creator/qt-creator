@@ -216,7 +216,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     currentInterpreterChanged();
 
     setRunnableModifier([](Runnable &r) {
-        r.workingDirectory = r.workingDirectory.onDevice(r.command.executable());
+        r.workingDirectory = r.command.executable().withNewMappedPath(r.workingDirectory); // FIXME: Needed?
     });
 
     connect(PySideInstaller::instance(), &PySideInstaller::pySideInstalled, this,
@@ -280,12 +280,12 @@ void PythonRunConfigurationPrivate::handlePySidePackageInfo(const PipPackageInfo
             = OsSpecificAspects::withExecutableSuffix(python.osType(), "pyside6-uic");
         for (const FilePath &file : files) {
             if (file.fileName() == pySide6ProjectName) {
-                result.pySideProjectPath = location.resolvePath(file).onDevice(python);
+                result.pySideProjectPath = python.withNewMappedPath(location.resolvePath(file));
                 result.pySideProjectPath = result.pySideProjectPath.cleanPath();
                 if (!result.pySideUicPath.isEmpty())
                     return result;
             } else if (file.fileName() == pySide6UicName) {
-                result.pySideUicPath = location.resolvePath(file).onDevice(python);
+                result.pySideUicPath = python.withNewMappedPath(location.resolvePath(file));
                 result.pySideUicPath = result.pySideUicPath.cleanPath();
                 if (!result.pySideProjectPath.isEmpty())
                     return result;

@@ -204,11 +204,8 @@ expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
 #ifdef UTILS_STATIC_LIBRARY
     return copyRecursively_fallback(src, target);
 #else
-    const FilePath tar = FilePath::fromString("tar").onDevice(target);
-    const FilePath targetTar = tar.searchInPath();
-
-    const FilePath sTar = FilePath::fromString("tar").onDevice(src);
-    const FilePath sourceTar = sTar.searchInPath();
+    const FilePath targetTar = target.withNewPath("tar").searchInPath();
+    const FilePath sourceTar = src.withNewPath("tar").searchInPath();
 
     const bool isSrcOrTargetQrc = src.toFSPathString().startsWith(":/")
                                   || target.toFSPathString().startsWith(":/");
@@ -683,11 +680,12 @@ expected_str<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &f
 {
     QTemporaryFile file(filePath.path());
     file.setAutoRemove(false);
-    if (!file.open())
-        return make_unexpected(Tr::tr("Could not create temporary file in \"%1\" (%2)").arg(filePath.toUserOutput()).arg(file.errorString()));
-    return FilePath::fromString(file.fileName()).onDevice(filePath);
+    if (!file.open()) {
+        return make_unexpected(Tr::tr("Could not create temporary file in \"%1\" (%2)")
+            .arg(filePath.toUserOutput()).arg(file.errorString()));
+    }
+    return filePath.withNewPath(file.fileName());
 }
-
 
 QDateTime DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const
 {
@@ -984,7 +982,7 @@ expected_str<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &file
                     .arg(filePath.toUserOutput(), QString::fromUtf8(result.stdErr)));
         }
 
-        return FilePath::fromString(QString::fromUtf8(result.stdOut.trimmed())).onDevice(filePath);
+        return filePath.withNewPath(QString::fromUtf8(result.stdOut.trimmed()));
     }
 
     // Manually create a temporary/unique file.
@@ -1008,7 +1006,7 @@ expected_str<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &file
         for (QChar *it = firstX.base(); it != std::end(tmplate); ++it) {
             *it = chars[dist(*QRandomGenerator::global())];
         }
-        newPath = FilePath::fromString(tmplate).onDevice(filePath);
+        newPath = filePath.withNewPath(tmplate);
         if (--maxTries == 0) {
             return make_unexpected(Tr::tr("Failed creating temporary file \"%1\" (too many tries)")
                                        .arg(filePath.toUserOutput()));

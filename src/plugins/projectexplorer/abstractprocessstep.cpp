@@ -306,7 +306,7 @@ bool AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
     const bool looksGood = executable.isEmpty() || executable.ensureReachable(workingDirectory);
     QTC_ASSERT(looksGood, return false);
 
-    params->setWorkingDirectory(workingDirectory.onDevice(executable));
+    params->setWorkingDirectory(executable.withNewPath(workingDirectory.path()));
 
     return true;
 }

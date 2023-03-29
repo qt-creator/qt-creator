@@ -264,7 +264,7 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                             continue;
 
                         const FilePath buildDir = haveLibrariesRelativeToBuildDirectory ? buildDirectory : currentBuildDir;
-                        FilePath tmp = buildDir.resolvePath(FilePath::fromUserInput(part).onDevice(buildDir));
+                        FilePath tmp = buildDir.resolvePath(buildDir.withNewPath(part));
 
                         if (f.role == "libraries")
                             tmp = tmp.parentDir();

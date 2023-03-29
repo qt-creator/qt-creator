@@ -213,7 +213,7 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
     if (settings.clangdVersion() >= QVersionNumber(16))
         cmd.addArg("--rename-file-limit=0");
     if (!jsonDbDir.isEmpty())
-        cmd.addArg("--compile-commands-dir=" + jsonDbDir.onDevice(clangdExePath).path());
+        cmd.addArg("--compile-commands-dir=" + clangdExePath.withNewMappedPath(jsonDbDir).path());
     if (clangdLogServer().isDebugEnabled())
         cmd.addArgs({"--log=verbose", "--pretty"});
     cmd.addArg("--use-dirty-headers");

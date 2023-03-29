@@ -1253,7 +1253,7 @@ void QtVersionPrivate::updateVersionInfo()
     m_qmakeIsExecutable = true;
 
     auto fileProperty = [this](const QByteArray &name) {
-        return FilePath::fromUserInput(qmakeProperty(name)).onDevice(m_qmakeCommand);
+        return m_qmakeCommand.withNewPath(qmakeProperty(name)).cleanPath();
     };
 
     m_data.prefix = fileProperty("QT_INSTALL_PREFIX");
@@ -1774,7 +1774,7 @@ FilePath QtVersionPrivate::mkspecDirectoryFromVersionInfo(const QHash<ProKey, Pr
     QString dataDir = qmakeProperty(versionInfo, "QT_HOST_DATA", PropertyVariantSrc);
     if (dataDir.isEmpty())
         return FilePath();
-    return FilePath::fromUserInput(dataDir + "/mkspecs").onDevice(qmakeCommand);
+    return qmakeCommand.withNewPath(dataDir + "/mkspecs").cleanPath();
 }
 
 FilePath QtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> &versionInfo,

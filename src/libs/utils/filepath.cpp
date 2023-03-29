@@ -510,14 +510,14 @@ expected_str<FilePath> FilePath::tmpDir() const
     if (needsDevice()) {
         const Environment env = deviceEnvironment();
         if (env.hasKey("TMPDIR"))
-            return FilePath::fromUserInput(env.value("TMPDIR")).onDevice(*this);
+            return withNewPath(env.value("TMPDIR")).cleanPath();
         if (env.hasKey("TEMP"))
-            return FilePath::fromUserInput(env.value("TEMP")).onDevice(*this);
+            return withNewPath(env.value("TEMP")).cleanPath();
         if (env.hasKey("TMP"))
-            return FilePath::fromUserInput(env.value("TMP")).onDevice(*this);
+            return withNewPath(env.value("TMP")).cleanPath();
 
         if (osType() != OsTypeWindows)
-            return FilePath("/tmp").onDevice(*this);
+            return withNewPath("/tmp");
         return make_unexpected(QString("Could not find temporary directory on device %1")
                                .arg(displayName()));
     }
@@ -1416,30 +1416,31 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
 }
 
 /*!
-    Returns a path corresponding to the current object on the
-    same device as \a deviceTemplate. The FilePath needs to be local.
+    Returns a path corresponding to \a newPath object on the
+    same device as the current object.
+
+    This may involve device-specific translations like converting
+    windows style paths to unix style paths with suitable file
+    system case or handling of drive letters: C:/dev/src -> /c/dev/src
 
     Example usage:
     \code
         localDir = FilePath("/tmp/workingdir");
         executable = FilePath::fromUrl("docker://123/bin/ls")
-        realDir = localDir.onDevice(executable)
+        realDir = executable.withNewMappedPath(localDir)
         assert(realDir == FilePath::fromUrl("docker://123/tmp/workingdir"))
     \endcode
-
-    \param deviceTemplate A path from which the host and scheme is taken.
 */
-FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
+FilePath FilePath::withNewMappedPath(const FilePath &newPath) const
 {
-    isSameDevice(deviceTemplate);
-    const bool sameDevice = scheme() == deviceTemplate.scheme() && host() == deviceTemplate.host();
+    const bool sameDevice = newPath.scheme() == scheme() && newPath.host() == host();
     if (sameDevice)
-        return *this;
+        return newPath;
     // TODO: converting paths between different non local devices is still unsupported
-    QTC_CHECK(!needsDevice() || !deviceTemplate.needsDevice());
-    return fromParts(deviceTemplate.scheme(),
-                     deviceTemplate.host(),
-                     deviceTemplate.fileAccess()->mapToDevicePath(path()));
+    QTC_CHECK(!newPath.needsDevice() || !needsDevice());
+    FilePath res;
+    res.setParts(scheme(), host(), fileAccess()->mapToDevicePath(newPath.path()));
+    return res;
 }
 
 /*!
@@ -1486,8 +1487,8 @@ FilePath FilePath::searchInPath(const FilePaths &additionalDirs,
         return *this;
     FilePaths directories = deviceEnvironment().path();
     if (needsDevice()) {
-        directories = Utils::transform(directories, [this](const FilePath &path) {
-            return path.onDevice(*this);
+        directories = Utils::transform(directories, [this](const FilePath &filePath) {
+            return withNewPath(filePath.path());
         });
     }
     if (!additionalDirs.isEmpty()) {

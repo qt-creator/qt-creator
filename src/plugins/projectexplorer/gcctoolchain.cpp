@@ -196,7 +196,7 @@ HeaderPaths GccToolChain::gccHeaderPaths(const FilePath &gcc,
                 }
 
                 const FilePath headerPath
-                    = FilePath::fromString(QString::fromUtf8(line)).onDevice(gcc).canonicalPath();
+                    = gcc.withNewPath(QString::fromUtf8(line)).canonicalPath();
 
                 if (!headerPath.isEmpty())
                     builtInHeaderPaths.append({headerPath, thisHeaderKind});

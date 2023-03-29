@@ -163,8 +163,8 @@ public:
     [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs,
                                                const FilePathPredicate &filter = {}) const;
     [[nodiscard]] Environment deviceEnvironment() const;
-    [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
+    [[nodiscard]] FilePath withNewMappedPath(const FilePath &newPath) const;
 
     using IterateDirCallback
         = std::variant<

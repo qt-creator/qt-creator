@@ -27,7 +27,7 @@ FilePath defaultShellForDevice(const FilePath &deviceRoot)
     if (shell.isEmpty())
         return shell;
 
-    return shell.onDevice(deviceRoot);
+    return deviceRoot.withNewMappedPath(shell);
 }
 
 class ExternalTerminalProcessImpl final : public TerminalInterface
