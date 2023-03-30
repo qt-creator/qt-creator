@@ -3,11 +3,10 @@
 
 #pragma once
 
-#include "qjsonobject.h"
-#include <modelnode.h>
-#include <qmlobjectnode.h>
+#include "modelnode.h"
 
 #include <QAbstractListModel>
+#include <QJsonObject>
 #include <QObject>
 #include <QPointer>
 
@@ -77,6 +76,7 @@ public:
     Q_INVOKABLE void applyToSelected(qint64 internalId, bool add = false);
     Q_INVOKABLE void openMaterialEditor();
     Q_INVOKABLE bool isCopiedMaterialValid() const;
+    Q_INVOKABLE bool isVisible(int idx) const;
 
     struct PropertyCopyData
     {
@@ -105,7 +105,6 @@ signals:
             bool all);
 
 private:
-    bool isMaterialVisible(int idx) const;
     bool isValidIndex(int idx) const;
 
     QString m_searchText;

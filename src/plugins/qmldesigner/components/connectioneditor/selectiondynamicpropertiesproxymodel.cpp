@@ -28,7 +28,7 @@
 #include <dynamicpropertiesmodel.h>
 #include <connectionview.h>
 
-using namespace QmlDesigner::Internal;
+namespace QmlDesigner {
 
 SelectionDynamicPropertiesProxyModel::SelectionDynamicPropertiesProxyModel(QObject *parent)
     : DynamicPropertiesProxyModel(parent)
@@ -42,3 +42,5 @@ void SelectionDynamicPropertiesProxyModel::registerDeclarativeType()
     DynamicPropertiesProxyModel::registerDeclarativeType();
     qmlRegisterType<SelectionDynamicPropertiesProxyModel>("HelperWidgets", 2, 0, "SelectionDynamicPropertiesModel");
 }
+
+} // namespace QmlDesigner

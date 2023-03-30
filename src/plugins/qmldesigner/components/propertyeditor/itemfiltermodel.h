@@ -6,12 +6,13 @@
 #include <qmlitemnode.h>
 
 #include <QDir>
+#include <QHash>
 #include <QObject>
 #include <QStringList>
 #include <QUrl>
 #include <QtQml>
 
-class ItemFilterModel : public QObject
+class ItemFilterModel : public QAbstractListModel
 {
     Q_OBJECT
 
@@ -21,6 +22,13 @@ class ItemFilterModel : public QObject
     Q_PROPERTY(bool selectionOnly READ selectionOnly WRITE setSelectionOnly NOTIFY selectionOnlyChanged)
 
 public:
+    enum Roles {
+        IdRole = Qt::UserRole + 1,
+        NameRole,
+        IdAndNameRole
+    };
+    Q_ENUM(Roles)
+
     explicit ItemFilterModel(QObject *parent = nullptr);
 
     void setModelNodeBackend(const QVariant &modelNodeBackend);
@@ -33,6 +41,14 @@ public:
 
     static void registerDeclarativeType();
 
+    // Make index accessible for Qml side since it's not accessible by default in QAbstractListModel
+    Q_INVOKABLE QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const override;
+    Q_INVOKABLE virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    Q_INVOKABLE virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    Q_INVOKABLE virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+
+    virtual QHash<int,QByteArray> roleNames() const override;
+
 signals:
     void modelNodeBackendChanged();
     void itemModelChanged();
@@ -40,13 +56,14 @@ signals:
 
 private:
     QVariant modelNodeBackend() const;
+    QmlDesigner::ModelNode modelNodeForRow(const int &row) const;
 
 private:
     QString m_typeFilter;
-    bool m_lock;
-    QStringList m_model;
+    QList<qint32> m_modelInternalIds;
     QmlDesigner::ModelNode m_modelNode;
     bool m_selectionOnly;
+    static QHash<int, QByteArray> m_roles;
 };
 
 QML_DECLARE_TYPE(ItemFilterModel)

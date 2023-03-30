@@ -1,27 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2022 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of Qt Creator.
-**
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-****************************************************************************/
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick
 import QtQuick.Templates as T
@@ -30,8 +8,10 @@ import StudioTheme 1.0 as StudioTheme
 T.ToolTip {
     id: control
 
-    x: parent ? (parent.width - implicitWidth) / 2 : 0
-    y: -implicitHeight - 3
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+
+    x: parent ? (parent.width - control.implicitWidth) / 2 : 0
+    y: -control.implicitHeight - 3
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding)
@@ -42,19 +22,20 @@ T.ToolTip {
     padding: 4
     delay: 1000
     timeout: 5000
-    closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent | T.Popup.CloseOnReleaseOutsideParent
+    closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent
+                 | T.Popup.CloseOnReleaseOutsideParent
 
     contentItem: Text {
         text: control.text
         wrapMode: Text.Wrap
-        font.pixelSize: StudioTheme.Values.myFontSize
-        color: StudioTheme.Values.themeToolTipText
+        font.pixelSize: control.style.baseFontSize
+        color: control.style.toolTip.text
     }
 
     background: Rectangle {
-        color: StudioTheme.Values.themeToolTipBackground
-        border.width: StudioTheme.Values.border
-        border.color: StudioTheme.Values.themeToolTipOutline
+        color: control.style.toolTip.background
+        border.width: control.style.borderWidth
+        border.color: control.style.toolTip.border
     }
 }
 

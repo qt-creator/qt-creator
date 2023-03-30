@@ -134,6 +134,9 @@
                         \li \l{Previewing on Devices}
                         \li \l{Previewing Android Applications}
                         \li \l{Sharing Applications Online}
+                          \list
+                            \li \l{Creating a Single Page Navigation Web Application}
+                          \endlist
                     \endlist
                 \li \l {Asset Creation with Other Tools}
                     \list
@@ -159,6 +162,7 @@
                                 \list
                                     \li \l{Setting Up Qt Bridge for Figma}
                                     \li \l{Using Qt Bridge for Figma}
+                                    \li \l{Using Figma Quick Control Template in Qt Design Studio}
                                 \endlist
                         \endlist
                         \li \l {Exporting 3D Assets}

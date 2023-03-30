@@ -90,15 +90,12 @@ public:
         return m_databaseBackend.lastInsertedRowId();
     }
 
-    void setLastInsertedRowId(int64_t rowId)
-    {
-        m_databaseBackend.setLastInsertedRowId(rowId);
-    }
+    void setLastInsertedRowId(int64_t rowId) { m_databaseBackend.setLastInsertedRowId(rowId); }
 
-    int changesCount()
-    {
-        return m_databaseBackend.changesCount();
-    }
+    int version() const { return m_databaseBackend.version(); }
+    void setVersion(int version) { m_databaseBackend.setVersion(version); }
+
+    int changesCount() { return m_databaseBackend.changesCount(); }
 
     int totalChangesCount() { return m_databaseBackend.totalChangesCount(); }
 

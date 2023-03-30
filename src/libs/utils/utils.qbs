@@ -298,6 +298,8 @@ Project {
             "stringtable.h",
             "stringutils.cpp",
             "stringutils.h",
+            "styleanimator.cpp",
+            "styleanimator.h",
             "styledbar.cpp",
             "styledbar.h",
             "stylehelper.cpp",

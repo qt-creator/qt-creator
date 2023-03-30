@@ -1,0 +1,289 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+
+    \page design-viewer-single-page-navigation.html
+    \previouspage qt-design-viewer.html
+    \nextpage studio-exporting-and-importing.html
+
+
+    \title Creating a Single Page Navigation Web Application
+
+    This example explains how you can create a single page navigation web
+    application suitable to run in Qt Design Viewer. In this project,
+    you create the structure and navigation for the web application.
+
+    \section1 Setting up the Project
+
+    To set up the project:
+    \list 1
+      \li
+        In \QDS, create a new project where you set:
+        \list
+          \li \uicontrol Preset to \uicontrol Desktop > \uicontrol Launcher.
+          \li \uicontrol Resolution to 1024 x 768.
+          \li \uicontrol {Target Version} to 6.2.
+        \endlist
+      \li In \uicontrol Navigator:
+        \list
+          \li Select and delete \e Text.
+          \li Select \e Rectangle and in \uicontrol Properties, set
+          \uicontrol {Fill color} to #ffffff.
+        \endlist
+    \endlist
+
+    \section1 Adding Components
+
+    Next, add the needed components to create the structure for your web
+    application.
+
+    Add the \uicontrol {QtQuick Layouts} module:
+    \list 1
+      \li In \uicontrol Components, select
+      \inlineimage icons/plus.png
+      \li Select \uicontrol {QtQuick.Layouts}.
+    \endlist
+
+    To add the structure for the web application,
+    drag and drop the following components from \uicontrol Components
+    to \e rectangle in \uicontrol Navigator.
+    \list
+      \li \uicontrol Rectangle
+        \list
+          \li \uicontrol Rectangle
+            \list
+            \li \uicontrol Row
+              \list
+                \li \uicontrol Button
+                \li \uicontrol Button
+                \li \uicontrol Button
+              \endlist
+          \endlist
+          \li \uicontrol Flickable
+        \list
+          \li \uicontrol ColumnLayout
+        \endlist
+        \endlist
+
+    \endlist
+
+    \image web-navigation-components.png
+
+    \section1 Creating the Pages
+
+    Next, create the separate pages for your web application. In this example,
+    you create pages for \e Home, \e {About Us}, and \e {Contact Us}.
+
+    You create each page as a separate component and then add it to the main
+    application.
+
+    To create the first page:
+
+    \list 1
+      \li Go to \uicontrol File > \uicontrol {New File}.
+      \li On the \uicontrol {Qt Quick Files} tab,
+      select \uicontrol {Qt Quick File}.
+      \li Select \uicontrol {Choose} and enter a name, for example, \e Page1.
+      \li Set \uicontrol {Root Item} to \e Rectangle.
+    \endlist
+
+    \image web-navigation-new-file.png
+
+    When you have created the new page, select \e rectangle in
+    \uicontrol Navigator, and in the \uicontrol Properties view:
+    \list
+      \li Set \uicontrol Size > \uicontrol H to 1024.
+      \li Next to \uicontrol Size > \uicontrol W, select
+      \inlineimage icons/action-icon.png
+      and select \uicontrol Reset.
+    \endlist
+
+    Next, create a header for the page:
+    \list 1
+      \li From \uicontrol Components, drag a \uicontrol Text component
+      to \e Rectangle in \uicontrol Navigator.
+      \li In \uicontrol Properties, go to the \uicontrol Text tab and set:
+        \list
+          \li \uicontrol Text to \e Welcome.
+          \li \uicontrol {Style Name} to Bold.
+          \li \uicontrol Size to 32 px.
+        \endlist
+      \li On the \uicontrol Layout tab set the anchors and margins to:
+        \list
+          \li Top, 100
+          \li Left, 50
+        \endlist
+        \image web-navigation-page-margins.png
+    \endlist
+
+Now, with the first page done, create two more pages in the same way. For these
+pages, set the text to \e {About Us} and \e {Contact Us} respectively.
+
+You can change the file that you are working on from the drop-down menu in the
+toolbar. Now, select \e Screen01.ui.qml from this menu to go back to your
+main page.
+
+\image web-navigation-change-file.png
+
+You can see the pages you created under \uicontrol {My Components} in the
+\uicontrol Components view. To edit a component, right-click it in
+\uicontrol Components and select \uicontrol {Edit Component}
+
+\image web-navigation-page-components.png
+
+\section1 Organizing the Pages
+
+To organize the pages vertically:
+
+\list 1
+  \li From \uicontrol Components, drag each of the pages to
+  \e columnLayout in \uicontrol Navigator.
+  \image web-navigation-components-2.png
+  \li Select \e columnLayout in Navigator and in \uicontrol Properties:
+    \list
+      \li Next to \uicontrol Size > \uicontrol W and \uicontrol Size >
+      \uicontrol H, select \inlineimage icons/action-icon.png
+      and select \uicontrol Reset.
+      \li Set \uicontrol {Column Spacing} to 0.
+    \endlist
+  \li Select \e flickable in \uicontrol Navigator, and in \uicontrol Properties:
+    \list
+      \li Next to \uicontrol Size > \uicontrol W and \uicontrol Size >
+      \uicontrol H, select \inlineimage icons/action-icon.png
+      and select \uicontrol Reset.
+      \li Set \uicontrol {Content size} > \uicontrol H to 3072.
+      \li On the \uicontrol Layout tab, select
+      \uicontrol {Fill parent component}.
+    \endlist
+\endlist
+
+You must also create a scrollbar to scroll the web application. You create
+vertical and horizontal scrollbars that are visible only when the content
+doesn't fit in the window, similar to web browser scrollbars.
+
+To create the scrollbar, go to the \uicontrol Code view and enter the scrollbar
+code inside the \e Flickable component:
+\code
+      Flickable {
+        id: flickable
+        anchors.fill: parent
+        contentHeight: 3072
+       ScrollBar.vertical: ScrollBar {
+            policy: flickable.contentHeight > flickable.height ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
+            width: 20
+        }
+        ScrollBar.horizontal: ScrollBar {
+            policy: flickable.contentWidth > flickable.width ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
+            height: 20
+        }
+        ...
+\endcode
+
+To align the scrollbar to the right and bottom side of the window, set the height and width of the
+main rectangle so that it adapts to the window size.
+
+\list 1
+  \li In \uicontrol Navigator, select \e Rectangle.
+  \li In \uicontrol Properties, select
+  \inlineimage icons/action-icon-binding.png
+  next to \uicontrol Width and select \uicontrol {Set Binding}.
+  \li Enter \c {Window.width}
+  \image web-navigation-size-binding.png
+  \li Repeat step 2 and 3 for \uicontrol Height and set the value to
+  \c {Window.height}.
+\endlist
+
+\section1 Creating the Navigation
+
+The final step is to create the navigation for the web page. To do this, use the buttons
+that you created earlier.
+
+First, create an animation to use when scrolling between the different pages:
+
+\list 1
+  \li From \uicontrol Components, drag a \uicontrol {Number Animation} to
+  \e Rectangle in \uicontrol Navigator.
+  \li In \uicontrol Properties, set:
+    \list
+      \li \uicontrol Target to \e flickable.
+      \li \uicontrol Property to \e contentY.
+      \li \uicontrol Duration to \e 200.
+    \endlist
+\endlist
+
+Next, connect the buttons to the number animation to scroll the content
+vertically to the correct place.
+
+\list 1
+  \li In \uicontrol Navigator, select \e rectangle and in \uicontrol Properties
+   set:
+    \list
+      \li \uicontrol Height to 40.
+      \li \uicontrol {Fill color} to #e0e0e0.
+      \li \uicontrol {Z stack} to 1.
+    \endlist
+  \li Select \inlineimage icons/action-icon-binding.png
+  next to \uicontrol Width and select \uicontrol {Set Binding}.
+  \li Enter \c {parent.width}.
+  \image web-navigation-size-binding-2.png
+  \li In \uicontrol Navigator:
+    \list 1
+      \li Select \e Button and on the \uicontrol Button tab in \uicontrol Properties,
+      set \uicontrol Text to \e {Home}.
+      \li Select \e Button1 and on the \uicontrol Button tab in \uicontrol Properties,
+      set \uicontrol Name to \e {About Us}.
+      \li Select \e Button2 and on the \uicontrol Button tab in \uicontrol Properties,
+      set \uicontrol Name to \e {Contact Us}.
+    \endlist
+  \li In \uicontrol Code, enter \e connections for each of the buttons to run
+  the number animation when pressed.
+  \code
+  Button {
+            id: button
+            text: qsTr("Home")
+            Connections {
+                target: button
+
+                onPressed: {
+                    numberAnimation.to = 0
+                    numberAnimation.start()
+                }
+            }
+        }
+
+        Button {
+            id: button1
+            text: qsTr("About Us")
+            Connections {
+                target: button1
+
+                onPressed: {
+                    numberAnimation.to = 1024
+                    numberAnimation.start()
+                }
+            }
+        }
+
+        Button {
+            id: button2
+            text: qsTr("Contact Us")
+            Connections {
+                target: button2
+
+                onPressed: {
+                    numberAnimation.to = 2048
+                    numberAnimation.start()
+                }
+            }
+        }
+        \endcode
+\endlist
+
+\section1 Previewing the application
+
+To preview your application in the live preview, select \key Alt + \key P. You
+can also go to \uicontrol File > \uicontrol {Share Application Online} to
+share and preview your application in a web browser.
+
+*/

@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
+import MaterialBrowserBackend
 
 Rectangle {
     id: root
@@ -32,12 +33,12 @@ Rectangle {
         if (matName.readOnly)
             return;
 
-        materialBrowserModel.renameMaterial(index, matName.text);
+        MaterialBrowserBackend.materialBrowserModel.renameMaterial(index, matName.text);
         mouseArea.forceActiveFocus()
     }
 
-    border.width: materialBrowserModel.selectedIndex === index ? rootView.materialSectionFocused ? 3 : 1 : 0
-    border.color: materialBrowserModel.selectedIndex === index
+    border.width: MaterialBrowserBackend.materialBrowserModel.selectedIndex === index ? MaterialBrowserBackend.rootView.materialSectionFocused ? 3 : 1 : 0
+    border.color: MaterialBrowserBackend.materialBrowserModel.selectedIndex === index
                         ? StudioTheme.Values.themeControlOutlineInteraction
                         : "transparent"
     color: "transparent"
@@ -48,10 +49,20 @@ Rectangle {
 
         onEntered: (drag) => {
             drag.accepted = drag.formats[0] === "application/vnd.qtdesignstudio.texture"
+                         || drag.formats[0] === "application/vnd.qtdesignstudio.bundletexture"
+                         || (drag.formats[0] === "application/vnd.qtdesignstudio.assets"
+                             && rootView.hasAcceptableAssets(drag.urls))
         }
 
         onDropped: (drag) => {
-            rootView.acceptTextureDropOnMaterial(index, drag.getDataAsString(drag.keys[0]))
+            drag.accept()
+
+            if (drag.formats[0] === "application/vnd.qtdesignstudio.texture")
+                MaterialBrowserBackend.rootView.acceptTextureDropOnMaterial(index, drag.getDataAsString(drag.keys[0]))
+            else if (drag.formats[0] === "application/vnd.qtdesignstudio.bundletexture")
+                MaterialBrowserBackend.rootView.acceptBundleTextureDropOnMaterial(index, drag.urls[0])
+            else if (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+                MaterialBrowserBackend.rootView.acceptAssetsDropOnMaterial(index, drag.urls)
         }
     }
 
@@ -62,16 +73,16 @@ Rectangle {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: (mouse) => {
-            rootView.focusMaterialSection(true)
-            materialBrowserModel.selectMaterial(index)
+            MaterialBrowserBackend.materialBrowserModel.selectMaterial(index)
+            MaterialBrowserBackend.rootView.focusMaterialSection(true)
 
             if (mouse.button === Qt.LeftButton)
-                rootView.startDragMaterial(index, mapToGlobal(mouse.x, mouse.y))
+                MaterialBrowserBackend.rootView.startDragMaterial(index, mapToGlobal(mouse.x, mouse.y))
             else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()
         }
 
-        onDoubleClicked: materialBrowserModel.openMaterialEditor();
+        onDoubleClicked: MaterialBrowserBackend.materialBrowserModel.openMaterialEditor();
     }
 
     Column {
@@ -88,6 +99,11 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             source: "image://materialBrowser/" + materialInternalId
             cache: false
+        }
+
+        // Eat keys so they are not passed to parent while editing name
+        Keys.onPressed: (e) => {
+            e.accepted = true;
         }
 
         TextInput {
@@ -130,8 +146,8 @@ Rectangle {
                 anchors.fill: parent
 
                 onClicked: {
-                    rootView.focusMaterialSection(true)
-                    materialBrowserModel.selectMaterial(index)
+                    MaterialBrowserBackend.materialBrowserModel.selectMaterial(index)
+                    MaterialBrowserBackend.rootView.focusMaterialSection(true)
                 }
                 onDoubleClicked: root.startRename()
             }

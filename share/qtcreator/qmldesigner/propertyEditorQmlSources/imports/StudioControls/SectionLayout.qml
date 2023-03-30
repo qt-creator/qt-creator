@@ -1,13 +1,17 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
+import QtQuick
+import QtQuick.Layouts
 import StudioTheme 1.0 as StudioTheme
 
 GridLayout {
+    id: control
+
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+
     columns: 2
-    columnSpacing: StudioTheme.Values.sectionColumnSpacing
-    rowSpacing: StudioTheme.Values.sectionRowSpacing
+    columnSpacing: control.style.sectionColumnSpacing
+    rowSpacing: control.style.sectionRowSpacing
     width: parent.width - 16 // TODO parameterize
 }

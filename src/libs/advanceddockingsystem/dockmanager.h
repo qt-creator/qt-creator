@@ -484,7 +484,7 @@ public:
     QString activeWorkspace() const;
     QString lastWorkspace() const;
     bool autoRestorLastWorkspace() const;
-    QString workspaceFileExtension() const;
+    QStringView workspaceFileExtension() const;
     QStringList workspaces();
     QSet<QString> workspacePresets() const;
     QDateTime workspaceDateTime(const QString &workspace) const;

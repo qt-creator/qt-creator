@@ -19,7 +19,7 @@ public:
                  ImageCacheCollectorInterface::AbortCallback abortCallback),
                 (override));
 
-    MOCK_METHOD(ImagePair,
+    MOCK_METHOD(ImageTuple,
                 createImage,
                 (Utils::SmallStringView filePath,
                  Utils::SmallStringView state,

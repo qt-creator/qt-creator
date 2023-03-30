@@ -34,8 +34,6 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
-
 ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::ConnectionViewWidget)
@@ -72,6 +70,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
 
     const QList<QToolButton*> buttons = createToolBarWidgets();
 
+    ui->toolBar->setFixedHeight(41);
     for (auto toolButton : buttons)
         ui->toolBar->addWidget(toolButton);
 
@@ -610,7 +609,5 @@ void ConnectionViewWidget::backendTableViewSelectionChanged(const QModelIndex &c
     }
 
 }
-
-} // namespace Internal
 
 } // namespace QmlDesigner

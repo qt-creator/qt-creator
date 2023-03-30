@@ -3,13 +3,15 @@
 
 #pragma once
 
-#include <abstractview.h>
+#include "abstractview.h"
+
 #include <QHash>
+#include <QObject>
 #include <QTimer>
 
-#include "propertyeditorwidget.h"
 
 QT_BEGIN_NAMESPACE
+class QEvent;
 class QShortcut;
 class QStackedWidget;
 class QTimer;
@@ -17,14 +19,13 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class PropertyEditorTransaction;
 class CollapseButton;
-class PropertyEditorWidget;
-class PropertyEditorView;
-class PropertyEditorQmlBackend;
 class ModelNode;
+class PropertyEditorQmlBackend;
+class PropertyEditorView;
+class PropertyEditorWidget;
 
-class PropertyEditorView: public AbstractView
+class PropertyEditorView : public AbstractView
 {
     Q_OBJECT
 
@@ -84,6 +85,7 @@ protected:
     void timerEvent(QTimerEvent *event) override;
     void setupPane(const TypeName &typeName);
     void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private: //functions
     void reloadQml();

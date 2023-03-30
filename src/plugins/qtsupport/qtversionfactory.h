@@ -22,7 +22,7 @@ public:
     static const QList<QtVersionFactory *> allQtVersionFactories();
 
     bool canRestore(const QString &type);
-    QtVersion *restore(const QString &type, const QVariantMap &data);
+    QtVersion *restore(const QString &type, const QVariantMap &data, const Utils::FilePath &workingDirectory);
 
     /// factories with higher priority are asked first to identify
     /// a qtversion, the priority of the desktop factory is 0 and

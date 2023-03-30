@@ -35,6 +35,8 @@ static QQuickWidget *createBusyIndicator(QWidget *p)
     widget->setAttribute(Qt::WA_AlwaysStackOnTop);
     widget->setClearColor(Qt::transparent);
     widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    widget->setObjectName(Constants::OBJECT_NAME_BUSY_INDICATOR);
+
     return widget;
 }
 

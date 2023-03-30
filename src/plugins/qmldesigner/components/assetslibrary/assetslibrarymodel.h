@@ -39,6 +39,7 @@ public:
 
     Q_INVOKABLE QList<QModelIndex> parentIndices(const QModelIndex &index) const;
     Q_INVOKABLE bool indexIsValid(const QModelIndex &index) const;
+    Q_INVOKABLE bool urlPathExistsInModel(const QUrl &url) const;
     Q_INVOKABLE QString currentProjectDirPath() const;
     Q_INVOKABLE QString contentDirPath() const;
     Q_INVOKABLE bool requestDeleteFiles(const QStringList &filePaths);
@@ -46,12 +47,7 @@ public:
     Q_INVOKABLE bool renameFolder(const QString &folderPath, const QString &newName);
     Q_INVOKABLE bool addNewFolder(const QString &folderPath);
     Q_INVOKABLE bool deleteFolderRecursively(const QModelIndex &folderIndex);
-    Q_INVOKABLE bool allFilePathsAreImages(const QStringList &filePaths) const;
-
-    Q_INVOKABLE QString getUniqueEffectPath(const QString &parentFolder, const QString &effectName);
-    Q_INVOKABLE bool createNewEffect(const QString &effectPath, bool openEffectMaker = true);
-
-    Q_INVOKABLE bool canCreateEffects() const;
+    Q_INVOKABLE bool allFilePathsAreTextures(const QStringList &filePaths) const;
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override
     {
@@ -60,6 +56,8 @@ public:
     }
 
     bool haveFiles() const { return m_haveFiles; }
+
+    QString getUniqueName(const QString &oldName);
 
 signals:
     void directoryLoaded(const QString &path);
@@ -75,7 +73,6 @@ private:
     void destroyBackendModel();
     bool checkHaveFiles(const QModelIndex &parentIdx) const;
     bool checkHaveFiles() const;
-    QString getUniqueName(const QString &oldName);
 
     QString m_searchText;
     QString m_rootPath;

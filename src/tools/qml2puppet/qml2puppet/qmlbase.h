@@ -40,10 +40,12 @@ public:
         , m_args({argc, argv})
     {
         m_argParser.setApplicationDescription("QML Runtime Provider for QDS");
-        m_argParser.addOptions({{"qml-puppet", "Run QML Puppet (default)"},
-                                {"qml-runtime", "Run QML Runtime"},
-                                {"appinfo", "Print build information"},
-                                {"test", "Run test mode"}});
+        m_argParser.addOption({"qml-puppet", "Run QML Puppet (default)"});
+#ifdef ENABLE_INTERNAL_QML_RUNTIME
+        m_argParser.addOption({"qml-runtime", "Run QML Runtime"});
+#endif
+        m_argParser.addOption({"appinfo", "Print build information"});
+        m_argParser.addOption({"test", "Run test mode"});
     }
 
     int run()
@@ -93,8 +95,13 @@ private:
         QCommandLineOption optVers = m_argParser.addVersionOption();
 
         if (!m_argParser.parse(m_coreApp->arguments())) {
-            std::cout << "Error: " << m_argParser.errorText().toStdString() << std::endl
-                      << std::endl;
+            std::cout << "Error: " << m_argParser.errorText().toStdString() << std::endl;
+            if (m_argParser.errorText().contains("qml-runtime")) {
+                std::cout << "Note: --qml-runtime is only availabe when Qt is 6.4.x or higher"
+                          << std::endl;
+            }
+            std::cout << std::endl;
+
             m_argParser.showHelp(1);
         } else if (m_argParser.isSet(optVers)) {
             m_argParser.showVersion();

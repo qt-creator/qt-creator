@@ -17,6 +17,8 @@
 #include "floatingdragpreview.h"
 #include "iconprovider.h"
 
+#include <utils/qtcassert.h>
+
 #include <QBoxLayout>
 #include <QLoggingCategory>
 #include <QMenu>
@@ -379,6 +381,8 @@ namespace ADS
 
     void DockAreaTitleBar::updateDockWidgetActionsButtons()
     {
+        QTC_ASSERT(d->m_tabBar->currentTab(), return );
+        QTC_ASSERT(d->m_tabBar->currentTab()->dockWidget(), return );
         DockWidget* dockWidget = d->m_tabBar->currentTab()->dockWidget();
         if (!d->m_dockWidgetActionsButtons.isEmpty()) {
             for (auto button : std::as_const(d->m_dockWidgetActionsButtons)) {

@@ -4,7 +4,9 @@
 #include "createtexture.h"
 
 #include "abstractview.h"
+#include "asset.h"
 #include "documentmanager.h"
+#include "modelnode.h"
 #include "modelnodeoperations.h"
 #include "nodelistproperty.h"
 #include "nodemetainfo.h"
@@ -17,27 +19,39 @@
 
 namespace QmlDesigner {
 
-CreateTexture::CreateTexture(AbstractView *view, bool importFile)
+CreateTexture::CreateTexture(AbstractView *view)
     : m_view{view}
-    , m_importFile{importFile}
 {}
 
-void CreateTexture::execute(const QString &filePath, AddTextureMode mode, int sceneId)
+ModelNode CreateTexture::execute(const QString &filePath, AddTextureMode mode, int sceneId)
 {
-    if (m_importFile && !addFileToProject(filePath))
-        return;
+    Asset asset(filePath);
+    if (!asset.isValidTextureSource())
+        return {};
 
-    ModelNode texture = createTextureFromImage(filePath, mode);
+    Utils::FilePath assetPath = Utils::FilePath::fromString(filePath);
+    if (!assetPath.isChildOf(DocumentManager::currentResourcePath())) {
+        if (!addFileToProject(filePath))
+            return {};
+
+        // after importing change assetPath to path in project
+        QString assetName = assetPath.fileName();
+        assetPath = ModelNodeOperations::getImagesDefaultDirectory().pathAppended(assetName);
+    }
+
+    ModelNode texture = createTextureFromImage(assetPath, mode);
     if (!texture.isValid())
-        return;
+        return {};
 
     if (mode == AddTextureMode::LightProbe && sceneId != -1)
         assignTextureAsLightProbe(texture, sceneId);
 
     QTimer::singleShot(0, m_view, [this, texture]() {
         if (m_view->model())
-            m_view->emitCustomNotification("selected_texture_changed", {texture});
+            m_view->emitCustomNotification("select_texture", {texture}, {true});
     });
+
+    return texture;
 }
 
 bool CreateTexture::addFileToProject(const QString &filePath)
@@ -54,7 +68,7 @@ bool CreateTexture::addFileToProject(const QString &filePath)
     return true;
 }
 
-ModelNode CreateTexture::createTextureFromImage(const QString &assetPath, AddTextureMode mode)
+ModelNode CreateTexture::createTextureFromImage(const  Utils::FilePath &assetPath, AddTextureMode mode)
 {
     if (mode != AddTextureMode::Texture && mode != AddTextureMode::LightProbe)
         return {};
@@ -65,25 +79,16 @@ ModelNode CreateTexture::createTextureFromImage(const QString &assetPath, AddTex
 
     NodeMetaInfo metaInfo = m_view->model()->qtQuick3DTextureMetaInfo();
 
-    Utils::FilePath currentDocumentPath = QmlDesigner::DocumentManager::currentFilePath();
-    Utils::FilePath imageTargetPath;
-    if (m_importFile) {
-        QString assetName = Utils::FilePath::fromString(assetPath).fileName();
-        // if the asset had to be imported from somewhere else, then assetPath is the source where
-        // the asset was taken from, and we have to compute where it was placed in the project.
-        imageTargetPath = ModelNodeOperations::getImagesDefaultDirectory().pathAppended(assetName);
-    } else {
-        imageTargetPath = Utils::FilePath::fromString(assetPath);
-    }
-
-    QString textureSource = imageTargetPath.relativePathFrom(currentDocumentPath).toString();
+    QString textureSource = assetPath.relativePathFrom(DocumentManager::currentFilePath()).toString();
 
     ModelNode newTexNode = m_view->getTextureDefaultInstance(textureSource);
     if (!newTexNode.isValid()) {
         newTexNode = m_view->createModelNode("QtQuick3D.Texture",
                                              metaInfo.majorVersion(),
                                              metaInfo.minorVersion());
-        newTexNode.validId();
+
+        newTexNode.setIdWithoutRefactoring(m_view->model()->generateNewId(assetPath.baseName()));
+
         VariantProperty sourceProp = newTexNode.variantProperty("source");
         sourceProp.setValue(textureSource);
         matLib.defaultNodeListProperty().reparentHere(newTexNode);
@@ -128,6 +133,12 @@ ModelNode CreateTexture::resolveSceneEnv(int sceneId)
     }
 
     return activeSceneEnv;
+}
+
+void CreateTextures::execute(const QStringList &filePaths, AddTextureMode mode, int sceneId)
+{
+    for (const QString &path : filePaths)
+        CreateTexture::execute(path, mode, sceneId);
 }
 
 } // namespace QmlDesigner

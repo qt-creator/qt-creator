@@ -648,7 +648,8 @@ WidgetInfo TimelineView::widgetInfo()
                             QStringLiteral("Timelines"),
                             WidgetInfo::BottomPane,
                             0,
-                            tr("Timeline"));
+                            tr("Timeline"),
+                            tr("Timeline view"));
 }
 
 bool TimelineView::hasQtQuickTimelineImport()

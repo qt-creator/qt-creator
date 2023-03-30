@@ -3,31 +3,34 @@
 
 #pragma once
 
-#include <qmldesignercorelib_global.h>
+#include "modelnode.h"
+#include "qmldesignercorelib_global.h"
 
 #include <QObject>
 #include <QQmlPropertyMap>
 #include <QtQml>
-#include <modelnode.h>
-#include <enumeration.h>
+
+namespace QmlDesigner {
 
 class PropertyEditorValue;
 
-class PropertyEditorNodeWrapper : public QObject {
+class PropertyEditorNodeWrapper : public QObject
+{
     Q_OBJECT
 
     Q_PROPERTY(bool exists READ exists NOTIFY existsChanged)
-    Q_PROPERTY(QQmlPropertyMap* properties READ properties NOTIFY propertiesChanged)
+    Q_PROPERTY(QQmlPropertyMap *properties READ properties NOTIFY propertiesChanged)
     Q_PROPERTY(QString type READ type NOTIFY typeChanged)
 
 public:
-    PropertyEditorNodeWrapper(QObject *parent=nullptr);
-    PropertyEditorNodeWrapper(PropertyEditorValue* parent);
-    bool exists();
-    QString type();
-    QQmlPropertyMap* properties();
-    QmlDesigner::ModelNode parentModelNode() const;
-    QmlDesigner::PropertyName propertyName() const;
+    PropertyEditorNodeWrapper(QObject *parent = nullptr);
+    PropertyEditorNodeWrapper(PropertyEditorValue *parent);
+
+    bool exists() const;
+    QString type() const;
+    QQmlPropertyMap *properties();
+    ModelNode parentModelNode() const;
+    PropertyName propertyName() const;
 
 public slots:
     void add(const QString &type = QString());
@@ -43,14 +46,15 @@ signals:
 private:
     void setup();
 
-    QmlDesigner::ModelNode m_modelNode;
+    ModelNode m_modelNode;
     QQmlPropertyMap m_valuesPropertyMap;
-    PropertyEditorValue* m_editorValue;
+    PropertyEditorValue *m_editorValue = nullptr;
 };
 
 class PropertyEditorValue : public QObject
 {
     Q_OBJECT
+
     Q_PROPERTY(QVariant value READ value WRITE setValueWithEmit NOTIFY valueChangedQml)
     Q_PROPERTY(QVariant enumeration READ enumeration NOTIFY valueChangedQml)
     Q_PROPERTY(QString expression READ expression WRITE setExpressionWithEmit NOTIFY expressionChanged FINAL)
@@ -65,13 +69,13 @@ class PropertyEditorValue : public QObject
     Q_PROPERTY(bool isIdList READ isIdList NOTIFY expressionChanged FINAL)
     Q_PROPERTY(QStringList expressionAsList READ getExpressionAsList NOTIFY expressionChanged FINAL)
 
-    Q_PROPERTY(QString name READ nameAsQString FINAL)
-    Q_PROPERTY(PropertyEditorNodeWrapper* complexNode READ complexNode NOTIFY complexNodeChanged FINAL)
+    Q_PROPERTY(QString name READ nameAsQString CONSTANT FINAL)
+    Q_PROPERTY(PropertyEditorNodeWrapper *complexNode READ complexNode NOTIFY complexNodeChanged FINAL)
 
     Q_PROPERTY(bool isAvailable READ isAvailable NOTIFY isBoundChanged)
 
 public:
-    PropertyEditorValue(QObject *parent=nullptr);
+    PropertyEditorValue(QObject *parent = nullptr);
 
     QVariant value() const;
     void setValueWithEmit(const QVariant &value);
@@ -101,14 +105,14 @@ public:
 
     bool isAvailable() const;
 
-    QmlDesigner::PropertyName name() const;
+    PropertyName name() const;
     QString nameAsQString() const;
-    void setName(const QmlDesigner::PropertyName &name);
+    void setName(const PropertyName &name);
 
-    QmlDesigner::ModelNode modelNode() const;
-    void setModelNode(const QmlDesigner::ModelNode &modelNode);
+    ModelNode modelNode() const;
+    void setModelNode(const ModelNode &modelNode);
 
-    PropertyEditorNodeWrapper* complexNode();
+    PropertyEditorNodeWrapper *complexNode();
 
     static void registerDeclarativeTypes();
 
@@ -126,19 +130,18 @@ public:
     Q_INVOKABLE bool idListRemove(int idx);
     Q_INVOKABLE bool idListReplace(int idx, const QString &value);
     Q_INVOKABLE void commitDrop(const QString &dropData);
+    Q_INVOKABLE void openMaterialEditor(int idx);
 
 public slots:
     void resetValue();
     void setEnumeration(const QString &scope, const QString &name);
 
 signals:
-    void valueChanged(const QString &name, const QVariant&);
+    void valueChanged(const QString &name, const QVariant &);
     void valueChangedQml();
 
-    void expressionChanged(const QString &name); //HACK - We use the same notifer
-                                                 //for the backend and frontend.
-                                                 //If name is empty the signal is
-                                                 //used for QML.
+    void expressionChanged(const QString &name); // HACK - We use the same notifer for the backend and frontend.
+                                                 // If name is empty the signal is used for QML.
 
     void exportPropertyAsAliasRequested(const QString &name);
     void removeAliasExportRequested(const QString &name);
@@ -155,17 +158,19 @@ private:
     QStringList generateStringList(const QString &string) const;
     QString generateString(const QStringList &stringList) const;
 
-    QmlDesigner::ModelNode m_modelNode;
+    ModelNode m_modelNode;
     QVariant m_value;
     QString m_expression;
-    QmlDesigner::PropertyName m_name;
-    bool m_isInSubState;
-    bool m_isInModel;
-    bool m_isBound;
+    PropertyName m_name;
+    bool m_isInSubState = false;
+    bool m_isInModel = false;
+    bool m_isBound = false;
     bool m_hasActiveDrag = false;
-    bool m_isValid; // if the property value belongs to a non-existing complexProperty it is invalid
+    bool m_isValid = false; // if the property value belongs to a non-existing complexProperty it is invalid
     PropertyEditorNodeWrapper *m_complexNode;
 };
 
-QML_DECLARE_TYPE(PropertyEditorValue)
-QML_DECLARE_TYPE(PropertyEditorNodeWrapper)
+} // namespace QmlDesigner
+
+QML_DECLARE_TYPE(QmlDesigner::PropertyEditorValue)
+QML_DECLARE_TYPE(QmlDesigner::PropertyEditorNodeWrapper)

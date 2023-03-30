@@ -1,13 +1,14 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuickDesignerTheme
-import HelperWidgets as HelperWidgets
-import StudioControls as StudioControls
-import StudioTheme as StudioTheme
+import HelperWidgets 2.0 as HelperWidgets
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
+import ContentLibraryBackend
 
 Item {
     id: root
@@ -18,6 +19,7 @@ Item {
         materialsView.closeContextMenu()
         texturesView.closeContextMenu()
         environmentsView.closeContextMenu()
+        HelperWidgets.Controller.closeContextMenu()
     }
 
     // Called from C++
@@ -28,43 +30,59 @@ Item {
 
     Column {
         id: col
-        y: 5
+        anchors.fill: parent
         spacing: 5
 
-        StudioControls.SearchBox {
-            id: searchBox
+        Rectangle {
+            width: parent.width
+            height: StudioTheme.Values.doubleToolbarHeight
+            color: StudioTheme.Values.themeToolbarBackground
 
-            width: root.width
-            enabled: {
-                if (tabBar.currIndex == 0) { // Materials tab
-                    materialsModel.matBundleExists
-                            && rootView.hasMaterialLibrary
-                            && materialsModel.hasRequiredQuick3DImport
-                } else { // Textures / Environments tabs
-                    texturesModel.texBundleExists
+            Column {
+                anchors.fill: parent
+                anchors.topMargin: 6
+                anchors.bottomMargin: 6
+                anchors.leftMargin: 10
+                anchors.rightMargin: 10
+                spacing: 12
+
+                StudioControls.SearchBox {
+                    id: searchBox
+                    width: parent.width
+                    style: StudioTheme.Values.searchControlStyle
+                    enabled: {
+                        if (tabBar.currIndex === 0) { // Materials tab
+                            ContentLibraryBackend.materialsModel.matBundleExists
+                                && ContentLibraryBackend.rootView.hasMaterialLibrary
+                                && ContentLibraryBackend.materialsModel.hasRequiredQuick3DImport
+                        } else { // Textures / Environments tabs
+                            ContentLibraryBackend.texturesModel.texBundleExists
+                        }
+                    }
+
+                    onSearchChanged: (searchText) => {
+                        ContentLibraryBackend.rootView.handleSearchFilterChanged(searchText)
+
+                        // make sure categories with matches are expanded
+                        materialsView.expandVisibleSections()
+                        texturesView.expandVisibleSections()
+                        environmentsView.expandVisibleSections()
+                    }
                 }
-            }
 
-            onSearchChanged: (searchText) => {
-                rootView.handleSearchFilterChanged(searchText)
-
-                // make sure categories with matches are expanded
-                materialsView.expandVisibleSections()
-                texturesView.expandVisibleSections()
-                environmentsView.expandVisibleSections()
+                ContentLibraryTabBar {
+                    id: tabBar
+                    width: parent.width
+                    height: StudioTheme.Values.toolbarHeight
+                    tabsModel: [{name: qsTr("Materials"),    icon: StudioTheme.Constants.material_medium},
+                                {name: qsTr("Textures"),     icon: StudioTheme.Constants.textures_medium},
+                                {name: qsTr("Environments"), icon: StudioTheme.Constants.languageList_medium}]
+                }
             }
         }
 
         UnimportBundleMaterialDialog {
             id: confirmUnimportDialog
-        }
-
-        ContentLibraryTabBar {
-            id: tabBar
-             // TODO: update icons
-            tabsModel: [{name: qsTr("Materials"),    icon: StudioTheme.Constants.gradient},
-                        {name: qsTr("Textures"),     icon: StudioTheme.Constants.materialPreviewEnvironment},
-                        {name: qsTr("Environments"), icon: StudioTheme.Constants.translationSelectLanguages}]
         }
 
         StackLayout {
@@ -89,7 +107,8 @@ Item {
                 id: texturesView
 
                 width: root.width
-                model: texturesModel
+                model: ContentLibraryBackend.texturesModel
+                sectionCategory: "ContentLib_Tex"
 
                 searchBox: searchBox
             }
@@ -98,7 +117,8 @@ Item {
                 id: environmentsView
 
                 width: root.width
-                model: environmentsModel
+                model: ContentLibraryBackend.environmentsModel
+                sectionCategory: "ContentLib_Env"
 
                 searchBox: searchBox
             }

@@ -9,10 +9,12 @@
 #include <QPointer>
 
 QT_BEGIN_NAMESPACE
+class QDir;
 class QShortcut;
 class QToolButton;
-class QQuickWidget;
 QT_END_NAMESPACE
+
+class StudioQuickWidget;
 
 namespace QmlDesigner {
 
@@ -27,6 +29,9 @@ class ContentLibraryWidget : public QFrame
 
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport  NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
+
+    // Needed for a workaround for a bug where after drag-n-dropping an item, the ScrollView scrolls to a random position
+    Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
 
 public:
     ContentLibraryWidget();
@@ -56,6 +61,8 @@ public:
     Q_INVOKABLE void addTexture(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void addLightProbe(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void updateSceneEnvState();
+    Q_INVOKABLE bool markTextureDownloading();
+    Q_INVOKABLE void markNoTextureDownloading();
 
 signals:
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);
@@ -64,6 +71,7 @@ signals:
     void updateSceneEnvStateRequested();
     void hasQuick3DImportChanged();
     void hasMaterialLibraryChanged();
+    void isDraggingChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -71,9 +79,14 @@ protected:
 private:
     void reloadQmlSource();
     void updateSearch();
+    void setIsDragging(bool val);
     QString findTextureBundlePath();
+    void loadTextureBundle();
+    QVariantMap readBundleMetadata();
+    bool fetchTextureBundleMetadata(const QDir &bundleDir);
+    bool fetchTextureBundleIcons(const QDir &bundleDir);
 
-    QScopedPointer<QQuickWidget> m_quickWidget;
+    QScopedPointer<StudioQuickWidget> m_quickWidget;
     QPointer<ContentLibraryMaterialsModel> m_materialsModel;
     QPointer<ContentLibraryTexturesModel> m_texturesModel;
     QPointer<ContentLibraryTexturesModel> m_environmentsModel;
@@ -88,6 +101,12 @@ private:
 
     bool m_hasMaterialLibrary = false;
     bool m_hasQuick3DImport = false;
+    bool m_isDragging = false;
+    bool m_anyTextureBeingDownloaded = false;
+    QString m_baseUrl;
+    QString m_texturesUrl;
+    QString m_environmentsUrl;
+    QString m_downloadPath;
 };
 
 } // namespace QmlDesigner

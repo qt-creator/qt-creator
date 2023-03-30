@@ -19,6 +19,7 @@
 #include <rewriterview.h>
 
 #include <utils/algorithm.h>
+#include <utils/ranges.h>
 
 #include <QHash>
 #include <QRegularExpression>
@@ -1400,6 +1401,31 @@ ModelNode ModelNode::lowestCommonAncestor(const QList<ModelNode> &nodes)
     }
 
     return accumulatedNode;
+}
+
+QList<ModelNode> ModelNode::pruneChildren(const QList<ModelNode> &nodes)
+{
+    QList<ModelNode> forwardNodes;
+    QList<ModelNode> backNodes;
+
+    auto pushIfIsNotChild = [] (QList<ModelNode> &container, const ModelNode &node) {
+        bool hasAncestor = Utils::anyOf(container,
+                                        [node] (const ModelNode &testNode) -> bool {
+            return testNode.isAncestorOf(node);
+        });
+        if (!hasAncestor)
+            container.append(node);
+    };
+
+    for (const ModelNode &node : nodes | Utils::views::reverse) {
+        if (node)
+            pushIfIsNotChild(forwardNodes, node);
+    }
+
+    for (const ModelNode &node : forwardNodes | Utils::views::reverse)
+        pushIfIsNotChild(backNodes, node);
+
+    return backNodes;
 }
 
 void  ModelNode::setScriptFunctions(const QStringList &scriptFunctionList)

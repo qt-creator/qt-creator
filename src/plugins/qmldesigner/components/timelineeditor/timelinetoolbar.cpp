@@ -96,6 +96,7 @@ TimelineToolBar::TimelineToolBar(QWidget *parent)
     , m_grp()
 {
     setContentsMargins(0, 0, 0, 0);
+    setFixedHeight(Theme::toolbarSize());
     createLeftControls();
     createCenterControls();
     createRightControls();
@@ -220,7 +221,7 @@ void TimelineToolBar::createLeftControls()
     addSpacingToGroup(5);
 
     auto *settingsAction = createAction(TimelineConstants::C_SETTINGS,
-                                        TimelineIcons::ANIMATION.icon(),
+                                        Theme::iconFromName(Theme::Icon::settings_medium),
                                         tr("Timeline Settings"),
                                         QKeySequence(Qt::Key_S));
 
@@ -255,7 +256,7 @@ void TimelineToolBar::createCenterControls()
     addSpacing(5);
 
     auto *toStart = createAction(TimelineConstants::C_TO_START,
-                                 TimelineIcons::TO_FIRST_FRAME.icon(),
+                                 Theme::iconFromName(Theme::Icon::toStartFrame_medium),
                                  tr("To Start"),
                                  QKeySequence(Qt::Key_Home));
 
@@ -265,7 +266,7 @@ void TimelineToolBar::createCenterControls()
     addSpacing(2);
 
     auto *previous = createAction(TimelineConstants::C_PREVIOUS,
-                                  TimelineIcons::BACK_ONE_FRAME.icon(),
+                                  Theme::iconFromName(Theme::Icon::toPrevFrame_medium),
                                   tr("Previous"),
                                   QKeySequence(Qt::Key_Comma));
 
@@ -273,8 +274,12 @@ void TimelineToolBar::createCenterControls()
     addAction(previous);
 
     addSpacing(2);
-    QIcon playbackIcon = TimelineUtils::mergeIcons(TimelineIcons::PAUSE_PLAYBACK,
-                                                   TimelineIcons::START_PLAYBACK);
+    QIcon playbackIcon = TimelineUtils::mergeIcons(
+        Theme::iconFromName(Theme::Icon::pause,
+                            Theme::getColor(Theme::Color::DStextSelectedTextColor)),
+        Theme::iconFromName(Theme::Icon::playOutline_medium,
+                            Theme::getColor(Theme::Color::IconsRunColor)));
+
     m_playing = createAction(TimelineConstants::C_PLAY,
                              playbackIcon,
                              tr("Play"),
@@ -286,7 +291,7 @@ void TimelineToolBar::createCenterControls()
     addSpacing(2);
 
     auto *next = createAction(TimelineConstants::C_NEXT,
-                              TimelineIcons::FORWARD_ONE_FRAME.icon(),
+                              Theme::iconFromName(Theme::Icon::toNextFrame_medium),
                               tr("Next"),
                               QKeySequence(Qt::Key_Period));
 
@@ -296,7 +301,7 @@ void TimelineToolBar::createCenterControls()
     addSpacing(2);
 
     auto *toEnd = createAction(TimelineConstants::C_TO_END,
-                               TimelineIcons::TO_LAST_FRAME.icon(),
+                               Theme::iconFromName(Theme::Icon::toEndFrame_medium),
                                tr("To End"),
                                QKeySequence(Qt::Key_End));
 
@@ -309,10 +314,12 @@ void TimelineToolBar::createCenterControls()
 
     addSpacing(10);
 
-    auto *loopAnimation = createAction(TimelineConstants::C_LOOP_PLAYBACK,
-                                      TimelineIcons::LOOP_PLAYBACK.icon(),
-                                      tr("Loop Playback"),
-                                      QKeySequence((Qt::ControlModifier | Qt::ShiftModifier) + Qt::Key_Space)); // TODO: Toggles looping. Select shortcut for this QDS-4941
+    auto *loopAnimation = createAction(
+        TimelineConstants::C_LOOP_PLAYBACK,
+        Theme::iconFromName(Theme::Icon::loopPlayback_medium),
+        tr("Loop Playback"),
+        QKeySequence((Qt::ControlModifier | Qt::ShiftModifier)
+                     + Qt::Key_Space)); // TODO: Toggles looping. Select shortcut for this QDS-4941
 
     loopAnimation->setCheckable(true);
     connect(loopAnimation, &QAction::toggled, [&](bool value) { emit loopPlaybackToggled(value);} );
@@ -349,8 +356,10 @@ void TimelineToolBar::createCenterControls()
 
     addSpacing(10);
 
-    QIcon autoKeyIcon = TimelineUtils::mergeIcons(TimelineIcons::GLOBAL_RECORD_KEYFRAMES,
-                                                  TimelineIcons::GLOBAL_RECORD_KEYFRAMES_OFF);
+    QIcon autoKeyIcon = TimelineUtils::mergeIcons(
+        Theme::iconFromName(Theme::Icon::recordFill_medium,
+                            Theme::getColor(Theme::Color::IconsStopColor)),
+        Theme::iconFromName(Theme::Icon::recordOutline_medium));
 
     m_recording = createAction(TimelineConstants::C_AUTO_KEYFRAME,
                                autoKeyIcon,
@@ -369,7 +378,7 @@ void TimelineToolBar::createCenterControls()
     addSpacing(10);
 
     auto *curvePicker = createAction(TimelineConstants::C_CURVE_PICKER,
-                                     TimelineIcons::CURVE_EDITOR.icon(),
+                                     Theme::iconFromName(Theme::Icon::curveDesigner_medium),
                                      tr("Easing Curve Editor"),
                                      QKeySequence(Qt::Key_C));
 
@@ -408,7 +417,7 @@ void TimelineToolBar::createRightControls()
     addSpacing(10);
 
     auto *zoomOut = createAction(TimelineConstants::C_ZOOM_OUT,
-                                 TimelineIcons::ZOOM_SMALL.icon(),
+                                 Theme::iconFromName(Theme::Icon::zoomOut_medium),
                                  tr("Zoom Out"),
                                  QKeySequence(QKeySequence::ZoomOut));
 
@@ -421,6 +430,8 @@ void TimelineToolBar::createRightControls()
 
     m_scale = new QSlider(this);
     m_scale->setOrientation(Qt::Horizontal);
+    m_scale->setProperty("panelwidget", true);
+    m_scale->setProperty("panelwidget_singlerow", true);
     m_scale->setMaximumWidth(200);
     m_scale->setMinimumWidth(100);
     m_scale->setMinimum(0);
@@ -433,7 +444,7 @@ void TimelineToolBar::createRightControls()
     addSpacing(10);
 
     auto *zoomIn = createAction(TimelineConstants::C_ZOOM_IN,
-                                TimelineIcons::ZOOM_BIG.icon(),
+                                Theme::iconFromName(Theme::Icon::zoomIn_medium),
                                 tr("Zoom In"),
                                 QKeySequence(QKeySequence::ZoomIn));
 

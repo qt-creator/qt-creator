@@ -3,16 +3,19 @@
 
 #include "edit3dwidget.h"
 #include "designdocument.h"
+#include "designericons.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
 #include "edit3dvisibilitytogglesmenu.h"
+#include "materialutils.h"
 #include "metainfo.h"
 #include "modelnodeoperations.h"
 #include "nodeabstractproperty.h"
 #include "nodehints.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
+#include "qmleditormenu.h"
 #include "qmlvisualnode.h"
 #include "viewmanager.h"
 
@@ -26,6 +29,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 #include <toolbox.h>
+#include <utils/asset.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -37,10 +41,40 @@
 
 namespace QmlDesigner {
 
+static inline QIcon contextIcon(const DesignerIcons::IconId &iconId) {
+    return DesignerActionManager::instance().contextIcon(iconId);
+};
+
+static QIcon getEntryIcon(const ItemLibraryEntry &entry)
+{
+    static const QMap<QString, DesignerIcons::IconId> itemLibraryDesignerIconId = {
+        {"QtQuick3D.OrthographicCamera__Camera Orthographic", DesignerIcons::CameraOrthographicIcon},
+        {"QtQuick3D.PerspectiveCamera__Camera Perspective", DesignerIcons::CameraPerspectiveIcon},
+        {"QtQuick3D.DirectionalLight__Light Directional", DesignerIcons::LightDirectionalIcon},
+        {"QtQuick3D.PointLight__Light Point", DesignerIcons::LightPointIcon},
+        {"QtQuick3D.SpotLight__Light Spot", DesignerIcons::LightSpotIcon},
+        {"QtQuick3D.Model__Cone", DesignerIcons::ModelConeIcon},
+        {"QtQuick3D.Model__Cube", DesignerIcons::ModelCubeIcon},
+        {"QtQuick3D.Model__Cylinder", DesignerIcons::ModelCylinderIcon},
+        {"QtQuick3D.Model__Plane", DesignerIcons::ModelPlaneIcon},
+        {"QtQuick3D.Model__Sphere", DesignerIcons::ModelSphereIcon},
+    };
+
+    QString entryKey = entry.typeName() + "__" + entry.name();
+    if (itemLibraryDesignerIconId.contains(entryKey)) {
+        return contextIcon(itemLibraryDesignerIconId.value(entryKey));
+    }
+    return QIcon(entry.libraryEntryIconPath());
+}
+
 Edit3DWidget::Edit3DWidget(Edit3DView *view)
     : m_view(view)
 {
     setAcceptDrops(true);
+
+    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
+    sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
+    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
     Core::Context context(Constants::C_QMLEDITOR3D);
     m_context = new Core::IContext(this);
@@ -55,11 +89,8 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     fillLayout->setSpacing(0);
     setLayout(fillLayout);
 
-    SeekerSlider *seeker = new SeekerSlider(this);
-    seeker->setEnabled(false);
-
     // Initialize toolbar
-    m_toolBox = new ToolBox(seeker, this);
+    m_toolBox = new ToolBox(this);
     fillLayout->addWidget(m_toolBox.data());
 
     // Iterate through view actions. A null action indicates a separator and a second null action
@@ -136,13 +167,6 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
 
     createContextMenu();
 
-    view->setSeeker(seeker);
-    seeker->setToolTip(QLatin1String("Seek particle system time when paused."));
-
-    QObject::connect(seeker, &SeekerSlider::positionChanged, [seeker, view]() {
-        view->emitView3DAction(View3DActionType::ParticlesSeek, seeker->position());
-    });
-
     // Onboarding label contains instructions for new users how to get 3D content into the project
     m_onboardingLabel = new QLabel(this);
     QString labelText =
@@ -172,13 +196,17 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
 
 void Edit3DWidget::createContextMenu()
 {
-    m_contextMenu = new QMenu(this);
+    m_contextMenu = new QmlEditorMenu(this);
 
-    m_editComponentAction = m_contextMenu->addAction(tr("Edit Component"), [&] {
+    m_editComponentAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::EditComponentIcon),
+                tr("Edit Component"), [&] {
         DocumentManager::goIntoComponent(m_view->singleSelectedModelNode());
     });
 
-    m_editMaterialAction = m_contextMenu->addAction(tr("Edit Material"), [&] {
+    m_editMaterialAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::MaterialIcon),
+                tr("Edit Material"), [&] {
         SelectionContext selCtx(m_view);
         selCtx.setTargetNode(m_contextMenuTarget);
         ModelNodeOperations::editMaterial(selCtx);
@@ -186,42 +214,58 @@ void Edit3DWidget::createContextMenu()
 
     m_contextMenu->addSeparator();
 
-    m_duplicateAction = m_contextMenu->addAction(tr("Duplicate"), [&] {
-        QmlDesignerPlugin::instance()->currentDesignDocument()->duplicateSelected();
-    });
-
-    m_copyAction = m_contextMenu->addAction(tr("Copy"), [&] {
+    m_copyAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::CopyIcon),
+                tr("Copy"), [&] {
         QmlDesignerPlugin::instance()->currentDesignDocument()->copySelected();
     });
 
-    m_pasteAction = m_contextMenu->addAction(tr("Paste"), [&] {
+    m_pasteAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::PasteIcon),
+                tr("Paste"), [&] {
         QmlDesignerPlugin::instance()->currentDesignDocument()->pasteToPosition(m_contextMenuPos3d);
     });
 
-    m_deleteAction = m_contextMenu->addAction(tr("Delete"), [&] {
+    m_deleteAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::DeleteIcon),
+                tr("Delete"), [&] {
         view()->executeInTransaction("Edit3DWidget::createContextMenu", [&] {
             for (ModelNode &node : m_view->selectedModelNodes())
                 node.destroy();
         });
     });
 
+    m_duplicateAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::DuplicateIcon),
+                tr("Duplicate"), [&] {
+        QmlDesignerPlugin::instance()->currentDesignDocument()->duplicateSelected();
+    });
+
     m_contextMenu->addSeparator();
 
-    m_fitSelectedAction = m_contextMenu->addAction(tr("Fit Selected Items to View"), [&] {
+    m_fitSelectedAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::FitSelectedIcon),
+                tr("Fit Selected Items to View"), [&] {
         view()->emitView3DAction(View3DActionType::FitToView, true);
     });
 
-    m_alignCameraAction = m_contextMenu->addAction(tr("Align Camera to View"), [&] {
+    m_alignCameraAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::AlignCameraToViewIcon),
+                tr("Align Camera to View"), [&] {
         view()->emitView3DAction(View3DActionType::AlignCamerasToView, true);
     });
 
-    m_alignViewAction = m_contextMenu->addAction(tr("Align View to Camera"), [&] {
+    m_alignViewAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::AlignViewToCameraIcon),
+                tr("Align View to Camera"), [&] {
         view()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
     });
 
     m_contextMenu->addSeparator();
 
-    m_selectParentAction = m_contextMenu->addAction(tr("Select Parent"), [&] {
+    m_selectParentAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::ParentIcon),
+                tr("Select Parent"), [&] {
         ModelNode parentNode = ModelNode::lowestCommonAncestor(view()->selectedModelNodes());
         if (!parentNode.isValid())
             return;
@@ -233,8 +277,9 @@ void Edit3DWidget::createContextMenu()
     });
 
     QAction *defaultToggleGroupAction = view()->edit3DAction(View3DActionType::SelectionModeToggle)->action();
-    m_toggleGroupAction = m_contextMenu->addAction(tr("Group Selection Mode"), [&](const bool &mode) {
-        Q_UNUSED(mode)
+    m_toggleGroupAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::ToggleGroupIcon),
+                tr("Group Selection Mode"), [&]() {
         view()->edit3DAction(View3DActionType::SelectionModeToggle)->action()->trigger();
     });
     connect(defaultToggleGroupAction, &QAction::toggled, m_toggleGroupAction, &QAction::setChecked);
@@ -260,8 +305,7 @@ bool Edit3DWidget::isSceneLocked() const
 }
 
 // Called by the view to update the "create" sub-menu when the Quick3D entries are ready.
-void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
-                                       const QHash<QString, QList<ItemLibraryEntry>> &entriesMap)
+void Edit3DWidget::updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesList)
 {
     if (!m_contextMenu)
         return;
@@ -272,21 +316,45 @@ void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
     }
 
     m_nameToEntry.clear();
-    m_createSubMenu = m_contextMenu->addMenu(tr("Create"));
 
-    for (const QString &cat : keys) {
-        QList<ItemLibraryEntry> entries = entriesMap.value(cat);
+    m_createSubMenu = new QmlEditorMenu(tr("Create"), m_contextMenu);
+    m_createSubMenu->setIcon(contextIcon(DesignerIcons::CreateIcon));
+    m_contextMenu->addMenu(m_createSubMenu);
+
+    const QString docPath = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName().toString();
+
+    auto isEntryValid = [&](const ItemLibraryEntry &entry) -> bool {
+        // Don't allow entries that match current document
+        const QString path = entry.customComponentSource();
+        return path.isEmpty() || docPath != path;
+    };
+
+    for (const auto &details : entriesList) {
+        QList<ItemLibraryEntry> entries = details.entryList;
         if (entries.isEmpty())
             continue;
 
-        QMenu *catMenu = m_createSubMenu->addMenu(cat);
+        QMenu *catMenu = nullptr;
 
         std::sort(entries.begin(), entries.end(), [](const ItemLibraryEntry &a, const ItemLibraryEntry &b) {
             return a.name() < b.name();
         });
 
         for (const ItemLibraryEntry &entry : std::as_const(entries)) {
-            QAction *action = catMenu->addAction(entry.name(), this, &Edit3DWidget::onCreateAction);
+            if (!isEntryValid(entry))
+                continue;
+
+            if (!catMenu) {
+                catMenu = new QmlEditorMenu(details.name, m_createSubMenu);
+                catMenu->setIcon(details.icon);
+                m_createSubMenu->addMenu(catMenu);
+            }
+
+            QAction *action = catMenu->addAction(
+                        getEntryIcon(entry),
+                        entry.name(),
+                        this,
+                        &Edit3DWidget::onCreateAction);
             action->setData(entry.name());
             m_nameToEntry.insert(entry.name(), entry);
         }
@@ -320,7 +388,7 @@ void Edit3DWidget::onCreateAction()
 
         // if added node is a Model, assign it a material
         if (modelNode.metaInfo().isQtQuick3DModel())
-            m_view->assignMaterialTo3dModel(modelNode);
+            MaterialUtils::assignMaterialTo3dModel(m_view, modelNode);
     });
 }
 
@@ -431,10 +499,17 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
-    if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
-        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
-        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
-        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
+    if (dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ASSETS)
+        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
+        const auto urls = dragEnterEvent->mimeData()->urls();
+        if (!urls.isEmpty()) {
+            if (Asset(urls.first().toLocalFile()).isValidTextureSource())
+                dragEnterEvent->acceptProposedAction();
+        }
+    } else if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
+               || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
+               || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
+               || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
         dragEnterEvent->acceptProposedAction();
     } else if (dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
         QByteArray data = dragEnterEvent->mimeData()->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);
@@ -449,6 +524,8 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 
 void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
 {
+    dropEvent->accept();
+    setFocus();
     const QPointF pos = m_canvas->mapFrom(this, dropEvent->position());
 
     // handle dropping materials and textures
@@ -464,12 +541,14 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
             else
                 m_view->dropTexture(dropNode, pos);
         }
+        m_view->model()->endDrag();
         return;
     }
 
     // handle dropping bundle materials
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
         m_view->dropBundleMaterial(pos);
+        m_view->model()->endDrag();
         return;
     }
 
@@ -477,6 +556,15 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
         if (!m_draggedEntry.name().isEmpty())
             m_view->dropComponent(m_draggedEntry, pos);
+        m_view->model()->endDrag();
+        return;
+    }
+
+    // handle dropping image assets
+    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ASSETS)
+        || dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
+        m_view->dropAsset(dropEvent->mimeData()->urls().first().toLocalFile(), pos);
+        m_view->model()->endDrag();
         return;
     }
 
@@ -501,6 +589,8 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
             }
         }
     });
+
+    m_view->model()->endDrag();
 }
 
 } // namespace QmlDesigner

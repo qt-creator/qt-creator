@@ -91,8 +91,7 @@ protected:
     void checkIsReadOnlyStatement()
     {
         if (!Base::isReadOnlyStatement())
-            throw NotReadOnlySqlStatement(
-                "SqliteStatement::SqliteReadStatement: is not read only statement!");
+            throw NotReadOnlySqlStatement();
     }
 };
 

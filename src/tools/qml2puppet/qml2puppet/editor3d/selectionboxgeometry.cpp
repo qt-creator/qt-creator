@@ -131,6 +131,31 @@ QSSGRenderGraphObject *SelectionBoxGeometry::updateSpatialNode(QSSGRenderGraphOb
         updateGeometry();
     }
 
+#if QT_VERSION_MAJOR == 6 && QT_VERSION_MINOR == 4
+    if (!node) {
+        markAllDirty();
+        auto geometryNode = new QSSGRenderGeometry();
+        node = geometryNode;
+        emit geometryNodeDirty();
+
+        // This is a work around for the issue of incorrect geometry objects getting matched for
+        // cached mesh data in QSSGBufferManager::loadRenderMesh in QtQuick3D in 6.4 (see QDS-8843).
+        // Each setting of stride value increments the generation id of the geometry node.
+        // By incrementing generation id by different amounts, we can ensure QSSGBufferManager cache
+        // never matches wrong mesh data.
+        // The cache should be cleared of old objects after they are unused for one frame.
+        // With puppet reset & multiselection, we can create multiple new boxes per frame,
+        // so there's no count that really guarantees there are no invalid cache matches, but
+        // even just 8 should make them very unlikely.
+        // We start count at 12 here to avoid overlapping with gridgeometry cache ids.
+        static int dirtyCount = 12;
+        if (++dirtyCount > 20)
+            dirtyCount = 12;
+        for (int i = 0; i < dirtyCount; ++i)
+            geometryNode->setStride(stride());
+    }
+#endif
+
     return QQuick3DGeometry::updateSpatialNode(node);
 }
 

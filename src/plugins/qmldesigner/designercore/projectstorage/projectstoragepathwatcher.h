@@ -32,7 +32,6 @@ void set_greedy_intersection_call(
     }
 }
 
-
 template<typename FileSystemWatcher, typename Timer, class SourcePathCache>
 class ProjectStoragePathWatcher : public ProjectStoragePathWatcherInterface
 {
@@ -61,10 +60,31 @@ public:
 
     void updateIdPaths(const std::vector<IdPaths> &idPaths) override
     {
-        auto entriesAndIds = convertIdPathsToWatcherEntriesAndIds(idPaths);
+        const auto &[entires, ids] = convertIdPathsToWatcherEntriesAndIds(idPaths);
 
-        addEntries(entriesAndIds.first);
-        removeUnusedEntries(entriesAndIds.first, entriesAndIds.second);
+        addEntries(entires);
+
+        auto notContainsdId = [&, &ids = ids](WatcherEntry entry) {
+            return !std::binary_search(ids.begin(), ids.end(), entry.id);
+        };
+        removeUnusedEntries(entires, notContainsdId);
+    }
+
+    void updateContextIdPaths(const std::vector<IdPaths> &idPaths,
+                              const SourceContextIds &sourceContextIds)
+    {
+        const auto &[entires, ids] = convertIdPathsToWatcherEntriesAndIds(idPaths);
+
+        addEntries(entires);
+
+        auto notContainsdId = [&, &ids = ids](WatcherEntry entry) {
+            return !std::binary_search(ids.begin(), ids.end(), entry.id)
+                   || !std::binary_search(sourceContextIds.begin(),
+                                          sourceContextIds.end(),
+                                          entry.sourceContextId);
+        };
+
+        removeUnusedEntries(entires, notContainsdId);
     }
 
     void removeIds(const ProjectPartIds &ids) override
@@ -134,9 +154,10 @@ public:
             m_fileSystemWatcher.addPaths(convertWatcherEntriesToDirectoryPathList(filteredPaths));
     }
 
-    void removeUnusedEntries(const WatcherEntries &entries, const ProjectChunkIds &ids)
+    template<typename Filter>
+    void removeUnusedEntries(const WatcherEntries &entries, Filter filter)
     {
-        auto oldEntries = notAnymoreWatchedEntriesWithIds(entries, ids);
+        auto oldEntries = notAnymoreWatchedEntriesWithIds(entries, filter);
 
         removeFromWatchedEntries(oldEntries);
 
@@ -195,10 +216,8 @@ public:
         return notWatchedDirectoryIds;
     }
 
-    template <typename Compare>
-    WatcherEntries notAnymoreWatchedEntries(
-            const WatcherEntries &newEntries,
-            Compare compare) const
+    template<typename Compare>
+    WatcherEntries notAnymoreWatchedEntries(const WatcherEntries &newEntries, Compare compare) const
     {
         WatcherEntries notAnymoreWatchedEntries;
         notAnymoreWatchedEntries.reserve(m_watchedEntries.size());
@@ -213,16 +232,12 @@ public:
         return notAnymoreWatchedEntries;
     }
 
-    WatcherEntries notAnymoreWatchedEntriesWithIds(const WatcherEntries &newEntries,
-                                                   const ProjectChunkIds &ids) const
+    template<typename Filter>
+    WatcherEntries notAnymoreWatchedEntriesWithIds(const WatcherEntries &newEntries, Filter filter) const
     {
         auto oldEntries = notAnymoreWatchedEntries(newEntries, std::less<WatcherEntry>());
 
-        auto newEnd = std::remove_if(oldEntries.begin(),
-                                     oldEntries.end(),
-                                     [&] (WatcherEntry entry) {
-                return !std::binary_search(ids.begin(), ids.end(), entry.id);
-        });
+        auto newEnd = std::remove_if(oldEntries.begin(), oldEntries.end(), filter);
 
         oldEntries.erase(newEnd, oldEntries.end());
 

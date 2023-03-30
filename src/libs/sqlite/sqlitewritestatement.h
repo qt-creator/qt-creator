@@ -28,8 +28,7 @@ protected:
     void checkIsWritableStatement()
     {
         if (Base::isReadOnlyStatement())
-            throw NotWriteSqlStatement(
-                "SqliteStatement::SqliteWriteStatement: is not a writable statement!");
+            throw NotWriteSqlStatement();
     }
 };
 

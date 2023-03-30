@@ -18,7 +18,10 @@ Column {
         anchors.right: parent.right
 
         SectionLayout {
-            PropertyLabel { text: qsTr("Columns") }
+            PropertyLabel {
+                text: qsTr("Columns")
+                tooltip: qsTr("Sets the number of columns in the grid.")
+            }
 
             SecondColumnLayout {
                 SpinBox {
@@ -33,7 +36,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Rows") }
+            PropertyLabel {
+                text: qsTr("Rows")
+                tooltip: qsTr("Sets the number of rows in the grid.")
+            }
 
             SecondColumnLayout {
                 SpinBox {
@@ -48,7 +54,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Spacing") }
+            PropertyLabel {
+                text: qsTr("Spacing")
+                tooltip: qsTr("Sets the space between grid items. The same space is applied for both rows and columns.")
+            }
 
             SecondColumnLayout {
                 SpinBox {
@@ -63,7 +72,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Flow") }
+            PropertyLabel {
+                text: qsTr("Flow")
+                tooltip: qsTr("Sets in which direction items in the grid are placed.")
+            }
 
             SecondColumnLayout {
                 ComboBox {
@@ -78,7 +90,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Layout direction") }
+            PropertyLabel {
+                text: qsTr("Layout direction")
+                tooltip: qsTr("Sets in which direction items in the grid are placed.")
+            }
 
             SecondColumnLayout {
                 ComboBox {
@@ -93,7 +108,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Alignment H") }
+            PropertyLabel {
+                text: qsTr("Alignment H")
+                tooltip: qsTr("Sets the horizontal alignment of items in the grid.")
+            }
 
             SecondColumnLayout {
                 ComboBox {
@@ -108,7 +126,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Alignment V") }
+            PropertyLabel {
+                text: qsTr("Alignment V")
+                tooltip: qsTr("Sets the vertical alignment of items in the grid.")
+            }
 
             SecondColumnLayout {
                 ComboBox {

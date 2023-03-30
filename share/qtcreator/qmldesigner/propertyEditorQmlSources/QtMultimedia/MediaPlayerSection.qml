@@ -49,7 +49,6 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
                 width: implicitWidth
                 typeFilter: "QtQuick.AudioOutput"
-                validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
                 backendValue: backendValues.audioOutput
             }
 
@@ -70,7 +69,6 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
                 width: implicitWidth
                 typeFilter: "QtQuick.VideoOutput"
-                validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
                 backendValue: backendValues.videoOutput
             }
 

@@ -20,7 +20,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Enable")
-                tooltip: qsTr("Accepts mouse events.")
+                tooltip: qsTr("Sets how the mouse can interact with the area.")
                 blockedByTemplate: !backendValues.enabled.isAvailable
             }
 
@@ -48,7 +48,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Accepted buttons")
-                tooltip: qsTr("Mouse buttons that the mouse area reacts to.")
+                tooltip: qsTr("Sets which mouse buttons the area reacts to.")
                 blockedByTemplate: !backendValues.acceptedButtons.isAvailable
             }
 
@@ -68,7 +68,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Cursor shape")
-                tooltip: qsTr("Cursor shape for this mouse area.")
+                tooltip: qsTr("Sets which mouse cursor to display on this area.")
                 blockedByTemplate: !backendValues.cursorShape.isAvailable
             }
 
@@ -93,7 +93,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Hold interval")
-                tooltip: qsTr("Overrides the elapsed time in milliseconds before pressAndHold signal is emitted.")
+                tooltip: qsTr("Sets the time before the pressAndHold signal is registered when you press the area.")
             }
 
             SecondColumnLayout {
@@ -111,7 +111,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Scroll gesture")
-                tooltip: qsTr("Responds to scroll gestures from non-mouse devices.")
+                tooltip: qsTr("Toggles if scroll gestures from non-mouse devices are supported.")
                 blockedByTemplate: !backendValues.scrollGestureEnabled.isAvailable
             }
 
@@ -129,7 +129,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Prevent stealing")
-                tooltip: qsTr("Stops mouse events from being stolen from this mouse area.")
+                tooltip: qsTr("Toggles if mouse events can be stolen from this area.")
                 blockedByTemplate: !backendValues.preventStealing.isAvailable
             }
 
@@ -147,7 +147,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Propagate events")
-                tooltip: qsTr("Automatically propagates composed mouse events to other mouse areas.")
+                tooltip: qsTr("Toggles if composed mouse events should be propagated to other mouse areas overlapping this area.")
                 blockedByTemplate: !backendValues.propagateComposedEvents.isAvailable
             }
 
@@ -175,13 +175,12 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Target")
-                tooltip: qsTr("ID of the component to drag.")
+                tooltip: qsTr("Sets the component to have drag functionalities.")
             }
 
             SecondColumnLayout {
                 ItemFilterComboBox {
                     typeFilter: "QtQuick.QtObject"
-                    validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
                     backendValue: backendValues.drag_target
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
@@ -192,7 +191,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Axis")
-                tooltip: qsTr("Whether dragging can be done horizontally, vertically, or both.")
+                tooltip: qsTr("Sets in which directions the dragging work.")
             }
 
             SecondColumnLayout {
@@ -210,7 +209,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Threshold")
-                tooltip: qsTr("Threshold in pixels of when the drag operation should start.")
+                tooltip: qsTr("Sets a threshold after which the drag starts to work.")
             }
 
             SecondColumnLayout {
@@ -228,7 +227,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Filter children")
-                tooltip: qsTr("Whether dragging overrides descendant mouse areas.")
+                tooltip: qsTr("Toggles if the dragging overrides descendant mouse areas.")
             }
 
             SecondColumnLayout {
@@ -244,8 +243,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Smoothed")
-                tooltip: qsTr("Moves targets only after the drag operation has started.\n"
-                              + "When disabled, moves targets straight to the current mouse position.")
+                tooltip: qsTr("Toggles if the move is smoothly animated.")
             }
 
             SecondColumnLayout {

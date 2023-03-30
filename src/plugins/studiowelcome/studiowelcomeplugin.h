@@ -5,38 +5,11 @@
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/pathchooser.h>
 
 #include <QTimer>
 
-QT_FORWARD_DECLARE_CLASS(QCheckBox)
-
 namespace StudioWelcome {
 namespace Internal {
-
-class StudioSettingsPage : public Core::IOptionsPageWidget
-{
-    Q_OBJECT
-
-public:
-    void apply() final;
-
-    StudioSettingsPage();
-
-private:
-    QCheckBox *m_buildCheckBox;
-    QCheckBox *m_debugCheckBox;
-    QCheckBox *m_analyzeCheckBox;
-    Utils::PathChooser *m_pathChooser;
-};
-
-class StudioWelcomeSettingsPage : public Core::IOptionsPage
-{
-    Q_OBJECT
-
-public:
-    StudioWelcomeSettingsPage();
-};
 
 class StudioWelcomePlugin final : public ExtensionSystem::IPlugin
 {
@@ -54,15 +27,8 @@ public:
     void extensionsInitialized() override;
     bool delayedInitialize() override;
 
-    static Utils::FilePath defaultExamplesPath();
-    static QString examplesPathSetting();
-
-signals:
-    void examplesDownloadPathChanged(const QString &path);
-
 private:
     class WelcomeMode *m_welcomeMode = nullptr;
-    StudioWelcomeSettingsPage m_settingsPage;
 };
 
 } // namespace Internal

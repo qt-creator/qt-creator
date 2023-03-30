@@ -15,8 +15,6 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-namespace Internal {
-
 class ConnectionViewWidget;
 class BindingModel;
 class ConnectionModel;
@@ -81,7 +79,5 @@ private: //variables
     DynamicPropertiesModel *m_dynamicPropertiesModel;
     BackendModel *m_backendModel;
 };
-
-} // namespace Internal
 
 } // namespace QmlDesigner

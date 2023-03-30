@@ -71,7 +71,7 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     Model *model = document ? document->documentModel() : nullptr;
 
     if (event->type() == QEvent::FocusOut) {
-        if (obj == m_itemsWidget.data())
+        if (obj == m_itemsWidget->quickWidget())
             QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "closeContextMenu");
     } else if (event->type() == QMouseEvent::MouseMove) {
         if (m_itemToDrag.isValid()) {
@@ -105,6 +105,10 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 m_itemToDrag = {};
             }
         }
+    } else if (event->type() == QMouseEvent::MouseButtonRelease) {
+        m_itemToDrag = {};
+
+        setIsDragging(false);
     }
 
     return QObject::eventFilter(obj, event);
@@ -119,7 +123,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     : m_itemIconSize(24, 24)
     , m_itemLibraryModel(new ItemLibraryModel(this))
     , m_addModuleModel(new ItemLibraryAddImportModel(this))
-    , m_itemsWidget(new QQuickWidget(this))
+    , m_itemsWidget(new StudioQuickWidget(this))
     , m_imageCache{imageCache}
 {
     m_compressionTimer.setInterval(1000);
@@ -130,27 +134,17 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     setMinimumWidth(100);
 
     // set up Component Library view and model
+    m_itemsWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_COMPONENT_LIBRARY);
     m_itemsWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_itemsWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
 
-    m_itemsWidget->rootContext()->setContextProperties({
-        {"itemLibraryModel", QVariant::fromValue(m_itemLibraryModel.data())},
-        {"addModuleModel", QVariant::fromValue(m_addModuleModel.data())},
-        {"itemLibraryIconWidth", m_itemIconSize.width()},
-        {"itemLibraryIconHeight", m_itemIconSize.height()},
-        {"rootView", QVariant::fromValue(this)},
-        {"widthLimit", HORIZONTAL_LAYOUT_WIDTH_LIMIT},
-        {"highlightColor", Utils::StyleHelper::notTooBrightHighlightColor()},
-    });
-
     m_previewTooltipBackend = std::make_unique<PreviewTooltipBackend>(m_imageCache);
-    m_itemsWidget->rootContext()->setContextProperty("tooltipBackend", m_previewTooltipBackend.get());
 
     m_itemsWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
     m_itemsWidget->engine()->addImageProvider(QStringLiteral("qmldesigner_itemlibrary"),
                                                       new Internal::ItemLibraryImageProvider);
     Theme::setupTheme(m_itemsWidget->engine());
-    m_itemsWidget->installEventFilter(this);
+    m_itemsWidget->quickWidget()->installEventFilter(this);
 
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
@@ -173,6 +167,19 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_ITEMLIBRARY_TIME);
 
     // init the first load of the QML UI elements
+
+    auto map = m_itemsWidget->registerPropertyMap("ItemLibraryBackend");
+
+    map->setProperties({{"itemLibraryModel", QVariant::fromValue(m_itemLibraryModel.data())},
+                        {"addModuleModel", QVariant::fromValue(m_addModuleModel.data())},
+                        {"itemLibraryIconWidth", m_itemIconSize.width()},
+                        {"itemLibraryIconHeight", m_itemIconSize.height()},
+                        {"rootView", QVariant::fromValue(this)},
+                        {"widthLimit", HORIZONTAL_LAYOUT_WIDTH_LIMIT},
+                        {"highlightColor", Utils::StyleHelper::notTooBrightHighlightColor()},
+                        {"tooltipBackend", QVariant::fromValue(m_previewTooltipBackend.get())}});
+
+
     reloadQmlSource();
 }
 
@@ -316,7 +323,6 @@ void ItemLibraryWidget::reloadQmlSource()
 {
     const QString itemLibraryQmlPath = qmlSourcesPath() + "/ItemsView.qml";
     QTC_ASSERT(QFileInfo::exists(itemLibraryQmlPath), return);
-    m_itemsWidget->engine()->clearComponentCache();
     m_itemsWidget->setSource(QUrl::fromLocalFile(itemLibraryQmlPath));
 }
 
@@ -366,12 +372,21 @@ void ItemLibraryWidget::handlePriorityImportsChanged()
     }
 }
 
+void ItemLibraryWidget::setIsDragging(bool val)
+{
+    if (m_isDragging != val) {
+        m_isDragging = val;
+        emit isDraggingChanged();
+    }
+}
+
 void ItemLibraryWidget::startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos)
 {
     // Actual drag is created after mouse has moved to avoid a QDrag bug that causes drag to stay
     // active (and blocks mouse release) if mouse is released at the same spot of the drag start.
     m_itemToDrag = itemLibEntry;
     m_dragStartPoint = mousePos.toPoint();
+    setIsDragging(true);
 }
 
 bool ItemLibraryWidget::subCompEditMode() const

@@ -513,7 +513,7 @@ FilePath ICore::libexecPath(const QString &rel)
 FilePath ICore::crashReportsPath()
 {
     if (Utils::HostOsInfo::isMacHost())
-        return libexecPath("crashpad_reports/completed");
+        return Core::ICore::userResourcePath("crashpad_reports/completed");
     else
         return libexecPath("crashpad_reports/reports");
 }

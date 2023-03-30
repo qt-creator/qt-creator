@@ -1,44 +1,76 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Templates 2.15 as T
+import QtQuick
+import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
 TextInput {
-    id: textInput
+    id: control
 
-    property T.Control myControl
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
-    property bool edit: textInput.activeFocus
-    property bool hover: mouseArea.containsMouse && textInput.enabled
+    property T.ComboBox __parentControl
+
+    property bool edit: control.activeFocus
+    property bool hover: mouseArea.containsMouse && control.enabled
+    property bool elidable: false
+    property string suffix: ""
 
     z: 2
-    font: myControl.font
-    color: StudioTheme.Values.themeTextColor
-    selectionColor: StudioTheme.Values.themeTextSelectionColor
-    selectedTextColor: StudioTheme.Values.themeTextSelectedTextColor
+    font: control.__parentControl.font
+    color: control.style.text.idle
+    selectionColor: control.style.text.selection
+    selectedTextColor: control.style.text.selectedText
 
     horizontalAlignment: Qt.AlignLeft
     verticalAlignment: Qt.AlignVCenter
-    leftPadding: StudioTheme.Values.inputHorizontalPadding
-    rightPadding: StudioTheme.Values.inputHorizontalPadding
+    leftPadding: control.style.inputHorizontalPadding
+    rightPadding: control.style.inputHorizontalPadding
 
-    readOnly: !myControl.editable
-    validator: myControl.validator
-    inputMethodHints: myControl.inputMethodHints
+    readOnly: !control.__parentControl.editable
+    validator: control.__parentControl.validator
+    inputMethodHints: control.__parentControl.inputMethodHints
     selectByMouse: false
     activeFocusOnPress: false
     clip: true
+    echoMode: control.elidable ? TextInput.NoEcho : TextInput.Normal
+
+    Text {
+        id: elidableText
+        anchors.fill: control
+        leftPadding: control.leftPadding
+        rightPadding: control.rightPadding
+        horizontalAlignment: control.horizontalAlignment
+        verticalAlignment: control.verticalAlignment
+        font: control.font
+        color: control.color
+        text: control.text + control.suffix
+        visible: control.elidable
+        elide: Text.ElideRight
+    }
+
+    Text {
+        id: nonElidableSuffix
+        anchors.fill: control
+        leftPadding: control.implicitWidth - control.rightPadding
+        rightPadding: control.rightPadding
+        horizontalAlignment: control.horizontalAlignment
+        verticalAlignment: control.verticalAlignment
+        font: control.font
+        color: control.color
+        text: control.suffix
+        visible: !control.elidable
+    }
 
     Rectangle {
-        id: textInputBackground
-        x: StudioTheme.Values.border
-        y: StudioTheme.Values.border
+        id: background
+        x: control.style.borderWidth
+        y: control.style.borderWidth
         z: -1
-        width: textInput.width
-        height: StudioTheme.Values.height - StudioTheme.Values.border * 2
-        color: StudioTheme.Values.themeControlBackground
+        width: control.width
+        height: control.style.controlSize.height - control.style.borderWidth * 2
+        color: control.style.background.idle
         border.width: 0
     }
 
@@ -51,16 +83,16 @@ TextInput {
         acceptedButtons: Qt.LeftButton
         cursorShape: Qt.PointingHandCursor
         onPressed: function(mouse) {
-            if (!textInput.myControl.editable) {
-                if (myControl.popup.opened) {
-                    myControl.popup.close()
-                    myControl.focus = false
+            if (!control.__parentControl.editable) {
+                if (control.__parentControl.popup.opened) {
+                    control.__parentControl.popup.close()
+                    control.__parentControl.focus = false
                 } else {
-                    myControl.popup.open()
-                    //myControl.forceActiveFocus()
+                    control.__parentControl.popup.open()
+                    //textInput.__control.forceActiveFocus()
                 }
             } else {
-                textInput.forceActiveFocus()
+                control.forceActiveFocus()
             }
 
             mouse.accepted = false
@@ -70,11 +102,12 @@ TextInput {
     states: [
         State {
             name: "default"
-            when: myControl.enabled && !textInput.edit && !textInput.hover && !myControl.hover
-                  && !myControl.open && !myControl.hasActiveDrag
+            when: control.__parentControl.enabled && !control.edit && !control.hover
+                  && !control.__parentControl.hover && !control.__parentControl.open
+                  && !control.__parentControl.hasActiveDrag
             PropertyChanges {
-                target: textInputBackground
-                color: StudioTheme.Values.themeControlBackground
+                target: background
+                color: control.style.background.idle
             }
             PropertyChanges {
                 target: mouseArea
@@ -84,44 +117,58 @@ TextInput {
         },
         State {
             name: "dragHover"
-            when: myControl.enabled && myControl.hasActiveHoverDrag
+            when: control.__parentControl.enabled
+                  && (control.__parentControl.hasActiveHoverDrag ?? false)
             PropertyChanges {
-                target: textInputBackground
-                color: StudioTheme.Values.themeControlBackgroundInteraction
+                target: background
+                color: control.style.background.interaction
             }
         },
         State {
             name: "globalHover"
-            when: myControl.hover && !textInput.hover && !textInput.edit && !myControl.open
+            when: control.__parentControl.hover && !control.hover && !control.edit
+                  && !control.__parentControl.open
             PropertyChanges {
-                target: textInputBackground
-                color: StudioTheme.Values.themeControlBackgroundGlobalHover
+                target: background
+                color: control.style.background.globalHover
             }
         },
         State {
             name: "hover"
-            when: textInput.hover && myControl.hover && !textInput.edit
+            when: control.hover && control.__parentControl.hover && !control.edit
             PropertyChanges {
-                target: textInputBackground
-                color: StudioTheme.Values.themeControlBackgroundHover
+                target: background
+                color: control.style.background.hover
             }
         },
         // This state is intended for ComboBoxes which aren't editable, but have focus e.g. via
         // tab focus. It is therefor possible to use the mouse wheel to scroll through the items.
         State {
             name: "focus"
-            when: textInput.edit && !myControl.editable
+            when: control.edit && !control.__parentControl.editable
             PropertyChanges {
-                target: textInputBackground
-                color: StudioTheme.Values.themeControlBackgroundInteraction
+                target: background
+                color: control.style.background.interaction
             }
         },
         State {
             name: "edit"
-            when: textInput.edit && myControl.editable
+            when: control.edit && control.__parentControl.editable
             PropertyChanges {
-                target: textInputBackground
-                color: StudioTheme.Values.themeControlBackgroundInteraction
+                target: background
+                color: control.style.background.interaction
+            }
+            PropertyChanges {
+                target: control
+                echoMode: TextInput.Normal
+            }
+            PropertyChanges {
+                target: elidableText
+                visible: false
+            }
+            PropertyChanges {
+                target: nonElidableSuffix
+                visible: false
             }
             PropertyChanges {
                 target: mouseArea
@@ -131,22 +178,22 @@ TextInput {
         },
         State {
             name: "popup"
-            when: myControl.open
+            when: control.__parentControl.open
             PropertyChanges {
-                target: textInputBackground
-                color: StudioTheme.Values.themeControlBackgroundHover
+                target: background
+                color: control.style.background.hover
             }
         },
         State {
             name: "disable"
-            when: !myControl.enabled
+            when: !control.__parentControl.enabled
             PropertyChanges {
-                target: textInputBackground
-                color: StudioTheme.Values.themeControlBackgroundDisabled
+                target: background
+                color: control.style.background.disabled
             }
             PropertyChanges {
-                target: textInput
-                color: StudioTheme.Values.themeTextColorDisabled
+                target: control
+                color: control.style.text.disabled
             }
         }
     ]

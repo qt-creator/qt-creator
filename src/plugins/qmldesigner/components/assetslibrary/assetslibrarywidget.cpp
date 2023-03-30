@@ -6,26 +6,16 @@
 #include "asset.h"
 #include "assetslibraryiconprovider.h"
 #include "assetslibrarymodel.h"
-
-#include <theme.h>
-
-#include <designeractionmanager.h>
+#include "assetslibraryview.h"
+#include "designeractionmanager.h"
 #include "modelnodeoperations.h"
-#include <model.h>
-#include <navigatorwidget.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
+#include "qmldesignerconstants.h"
+#include "qmldesignerplugin.h"
+#include "theme.h"
 
-#include <utils/algorithm.h>
-#include <utils/environment.h>
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
-#include <utils/stylehelper.h>
-#include <utils/utilsicons.h>
-#include "utils/environment.h"
-#include "utils/filepath.h"
+#include <studioquickwidget.h>
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
@@ -33,21 +23,22 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 
-#include <QApplication>
-#include <QDrag>
+#include <utils/algorithm.h>
+#include <utils/environment.h>
+#include <utils/filepath.h>
+#include <utils/qtcassert.h>
+
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QFileSystemModel>
-#include <QVBoxLayout>
 #include <QImageReader>
-#include <QMenu>
 #include <QMimeData>
 #include <QMouseEvent>
-#include <QShortcut>
-#include <QTimer>
-#include <QToolButton>
+#include <QPointF>
 #include <QQmlContext>
 #include <QQuickItem>
+#include <QShortcut>
+#include <QToolButton>
+#include <QVBoxLayout>
 
 namespace QmlDesigner {
 
@@ -63,38 +54,50 @@ static QString propertyEditorResourcesPath()
 bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusOut) {
-        if (obj == m_assetsWidget.data())
+        if (obj == m_assetsWidget->quickWidget())
             QMetaObject::invokeMethod(m_assetsWidget->rootObject(), "handleViewFocusOut");
     } else if (event->type() == QMouseEvent::MouseMove) {
-        if (!m_assetsToDrag.isEmpty() && !m_model.isNull()) {
+        if (!m_assetsToDrag.isEmpty() && m_assetsView->model()) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 10) {
                 QMimeData *mimeData = new QMimeData;
                 mimeData->setData(Constants::MIME_TYPE_ASSETS, m_assetsToDrag.join(',').toUtf8());
-                m_model->startDrag(mimeData,
-                                   m_assetsIconProvider->requestPixmap(m_assetsToDrag[0], nullptr, {128, 128}));
+
+                QList<QUrl> urlsToDrag = Utils::transform(m_assetsToDrag, [](const QString &path) {
+                    return QUrl::fromLocalFile(path);
+                });
+
+                mimeData->setUrls(urlsToDrag);
+
+                m_assetsView->model()->startDrag(mimeData, m_assetsIconProvider->requestPixmap(
+                                                     m_assetsToDrag[0], nullptr, {128, 128}));
+
                 m_assetsToDrag.clear();
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_assetsToDrag.clear();
+        setIsDragging(false);
     }
 
     return QObject::eventFilter(obj, event);
 }
 
 AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
-                                         SynchronousImageCache &synchronousFontImageCache)
+                                         SynchronousImageCache &synchronousFontImageCache,
+                                         AssetsLibraryView *view)
     : m_itemIconSize{24, 24}
     , m_fontImageCache{synchronousFontImageCache}
     , m_assetsIconProvider{new AssetsLibraryIconProvider(synchronousFontImageCache)}
     , m_assetsModel{new AssetsLibraryModel(this)}
-    , m_assetsWidget{new QQuickWidget(this)}
+    , m_assetsView{view}
+    , m_createTextures{view}
+    , m_assetsWidget{new StudioQuickWidget(this)}
 {
     setWindowTitle(tr("Assets Library", "Title of assets library widget"));
     setMinimumWidth(250);
 
-    m_assetsWidget->installEventFilter(this);
+    m_assetsWidget->quickWidget()->installEventFilter(this);
 
     m_fontPreviewTooltipBackend = std::make_unique<PreviewTooltipBackend>(asynchronousFontImageCache);
     // We want font images to have custom size, so don't scale them in the tooltip
@@ -109,16 +112,12 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
                                                                   "over the lazy dog\n"
                                                                   "1234567890")});
     // create assets widget
+    m_assetsWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_ASSET_LIBRARY);
     m_assetsWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     Theme::setupTheme(m_assetsWidget->engine());
     m_assetsWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_assetsWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
     m_assetsWidget->engine()->addImageProvider("qmldesigner_assets", m_assetsIconProvider);
-    m_assetsWidget->rootContext()->setContextProperties(QVector<QQmlContext::PropertyPair>{
-        {{"assetsModel"}, QVariant::fromValue(m_assetsModel)},
-        {{"rootView"}, QVariant::fromValue(this)},
-        {{"tooltipBackend"}, QVariant::fromValue(m_fontPreviewTooltipBackend.get())}
-    });
 
     connect(m_assetsModel, &AssetsLibraryModel::fileChanged, [](const QString &changeFilePath) {
         QmlDesignerPlugin::instance()->emitAssetChanged(changeFilePath);
@@ -136,28 +135,135 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
 
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F6), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &AssetsLibraryWidget::reloadQmlSource);
-    connect(this, &AssetsLibraryWidget::extFilesDrop, this, &AssetsLibraryWidget::handleExtFilesDrop, Qt::QueuedConnection);
+    connect(this,
+            &AssetsLibraryWidget::extFilesDrop,
+            this,
+            &AssetsLibraryWidget::handleExtFilesDrop,
+            Qt::QueuedConnection);
 
-     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_ASSETSLIBRARY_TIME);
+    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_ASSETSLIBRARY_TIME);
+
+    auto map = m_assetsWidget->registerPropertyMap("AssetsLibraryBackend");
+
+    map->setProperties({{"assetsModel", QVariant::fromValue(m_assetsModel)},
+                        {"rootView", QVariant::fromValue(this)},
+                        {"tooltipBackend", QVariant::fromValue(m_fontPreviewTooltipBackend.get())}});
 
     // init the first load of the QML UI elements
     reloadQmlSource();
 }
 
-bool AssetsLibraryWidget::qtVersionIsAtLeast6_4() const
+void AssetsLibraryWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
-    return (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0));
+    if (m_assetsView)
+        QmlDesignerPlugin::contextHelp(callback, m_assetsView->contextHelpId());
+    else
+        callback({});
 }
 
+void AssetsLibraryWidget::deleteSelectedAssets()
+{
+    emit deleteSelectedAssetsRequested();
+}
+
+QString AssetsLibraryWidget::getUniqueEffectPath(const QString &parentFolder, const QString &effectName)
+{
+    auto genEffectPath = [&parentFolder](const QString &name) {
+        QString effectsDir = ModelNodeOperations::getEffectsDefaultDirectory(parentFolder);
+        return QLatin1String("%1/%2.qep").arg(effectsDir, name);
+    };
+
+    QString uniqueName = effectName;
+    QString path = genEffectPath(uniqueName);
+    QFileInfo file{path};
+
+    while (file.exists()) {
+        uniqueName = m_assetsModel->getUniqueName(uniqueName);
+
+        path = genEffectPath(uniqueName);
+        file.setFile(path);
+    }
+
+    return path;
+}
+
+bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openEffectMaker)
+{
+    bool created = QFile(effectPath).open(QIODevice::WriteOnly);
+
+    if (created && openEffectMaker) {
+        ModelNodeOperations::openEffectMaker(effectPath);
+        emit directoryCreated(QFileInfo(effectPath).absolutePath());
+    }
+
+    return created;
+}
+
+bool AssetsLibraryWidget::canCreateEffects() const
+{
+#ifdef LICENSECHECKER
+    return checkLicense() == FoundLicense::enterprise;
+#else
+    return true;
+#endif
+}
+
+void AssetsLibraryWidget::showInGraphicalShell(const QString &path)
+{
+    Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), Utils::FilePath::fromString(path));
+}
+
+QString AssetsLibraryWidget::showInGraphicalShellMsg() const
+{
+    return Core::FileUtils::msgGraphicalShellAction();
+}
+
+int AssetsLibraryWidget::qtVersion() const
+{
+    return QT_VERSION;
+}
 
 void AssetsLibraryWidget::addTextures(const QStringList &filePaths)
 {
-    emit addTexturesRequested(filePaths, AddTextureMode::Texture);
+    m_assetsView->executeInTransaction(__FUNCTION__, [&] {
+        m_createTextures.execute(filePaths, AddTextureMode::Texture,
+                                 m_assetsView->model()->active3DSceneId());
+    });
 }
 
 void AssetsLibraryWidget::addLightProbe(const QString &filePath)
 {
-    emit addTexturesRequested({filePath}, AddTextureMode::LightProbe);
+    m_assetsView->executeInTransaction(__FUNCTION__, [&] {
+        m_createTextures.execute({filePath}, AddTextureMode::LightProbe,
+                                 m_assetsView->model()->active3DSceneId());
+    });
+}
+
+void AssetsLibraryWidget::updateContextMenuActionsEnableState()
+{
+    setHasMaterialLibrary(m_assetsView->materialLibraryNode().isValid()
+                          && m_assetsView->model()->hasImport("QtQuick3D"));
+
+    ModelNode activeSceneEnv = m_createTextures.resolveSceneEnv(m_assetsView->model()->active3DSceneId());
+    setHasSceneEnv(activeSceneEnv.isValid());
+}
+
+void AssetsLibraryWidget::setHasMaterialLibrary(bool enable)
+{
+    if (m_hasMaterialLibrary == enable)
+        return;
+
+    m_hasMaterialLibrary = enable;
+    emit hasMaterialLibraryChanged();
+}
+
+void AssetsLibraryWidget::setHasSceneEnv(bool b)
+{
+    if (b == m_hasSceneEnv)
+        return;
+
+    m_hasSceneEnv = b;
+    emit hasSceneEnvChanged();
 }
 
 void AssetsLibraryWidget::invalidateThumbnail(const QString &id)
@@ -176,9 +282,9 @@ QString AssetsLibraryWidget::assetFileSize(const QString &id)
     return QLocale::system().formattedDataSize(fileSize, 2, QLocale::DataSizeTraditionalFormat);
 }
 
-bool AssetsLibraryWidget::assetIsImage(const QString &id)
+bool AssetsLibraryWidget::assetIsImageOrTexture(const QString &id)
 {
-    return m_assetsIconProvider->assetIsImage(id);
+    return Asset(id).isValidTextureSource();
 }
 
 QList<QToolButton *> AssetsLibraryWidget::createToolBarWidgets()
@@ -218,15 +324,16 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
     auto toLocalFile = [](const QUrl &url) { return url.toLocalFile(); };
 
     QStringList simpleFilePathStrings = Utils::transform<QStringList>(simpleFilePaths, toLocalFile);
-    QStringList complexFilePathStrings = Utils::transform<QStringList>(complexFilePaths,
-                                                                       toLocalFile);
+    QStringList complexFilePathStrings = Utils::transform<QStringList>(complexFilePaths, toLocalFile);
 
     if (!simpleFilePathStrings.isEmpty()) {
         if (targetDirPath.isEmpty()) {
             addResources(simpleFilePathStrings);
         } else {
+            bool isDropOnRoot = m_assetsModel->rootPath() == targetDirPath;
             AddFilesResult result = ModelNodeOperations::addFilesToProject(simpleFilePathStrings,
-                                                                           targetDirPath);
+                                                                           targetDirPath,
+                                                                           isDropOnRoot);
             if (result.status() == AddFilesResult::Failed) {
                 Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
                                                       tr("Could not add %1 to project.")
@@ -237,6 +344,8 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
 
     if (!complexFilePathStrings.empty())
         addResources(complexFilePathStrings);
+
+    m_assetsView->model()->endDrag();
 }
 
 QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
@@ -246,7 +355,7 @@ QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
 
     QSet<QString> suffixes;
     for (const AddResourceHandler &handler : handlers) {
-        if (Asset(handler.filter).isSupported() != complex)
+        if (Asset::isSupported(handler.filter) != complex)
             suffixes.insert(handler.filter);
     }
 
@@ -258,18 +367,13 @@ void AssetsLibraryWidget::openEffectMaker(const QString &filePath)
     ModelNodeOperations::openEffectMaker(filePath);
 }
 
-void AssetsLibraryWidget::setModel(Model *model)
-{
-    m_model = model;
-}
-
 QString AssetsLibraryWidget::qmlSourcesPath()
 {
 #ifdef SHARE_QML_PATH
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
-        return QLatin1String(SHARE_QML_PATH) + "/itemLibraryQmlSources";
+        return QLatin1String(SHARE_QML_PATH) + "/assetsLibraryQmlSources";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/itemLibraryQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/assetsLibraryQmlSources").toString();
 }
 
 void AssetsLibraryWidget::clearSearchFilter()
@@ -281,13 +385,20 @@ void AssetsLibraryWidget::reloadQmlSource()
 {
     const QString assetsQmlPath = qmlSourcesPath() + "/Assets.qml";
     QTC_ASSERT(QFileInfo::exists(assetsQmlPath), return);
-    m_assetsWidget->engine()->clearComponentCache();
     m_assetsWidget->setSource(QUrl::fromLocalFile(assetsQmlPath));
 }
 
 void AssetsLibraryWidget::updateSearch()
 {
     m_assetsModel->setSearchText(m_filterText);
+}
+
+void AssetsLibraryWidget::setIsDragging(bool val)
+{
+    if (m_isDragging != val) {
+        m_isDragging = val;
+        emit isDraggingChanged();
+    }
 }
 
 void AssetsLibraryWidget::setResourcePath(const QString &resourcePath)
@@ -303,6 +414,7 @@ void AssetsLibraryWidget::startDragAsset(const QStringList &assetPaths, const QP
     // active (and blocks mouse release) if mouse is released at the same spot of the drag start.
     m_assetsToDrag = assetPaths;
     m_dragStartPoint = mousePos.toPoint();
+    setIsDragging(true);
 }
 
 QPair<QString, QByteArray> AssetsLibraryWidget::getAssetTypeAndData(const QString &assetPath)
@@ -351,7 +463,7 @@ static QHash<QByteArray, QStringList> allImageFormats()
     return imageFormats;
 }
 
-void AssetsLibraryWidget::addResources(const QStringList &files)
+void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog)
 {
     clearSearchFilter();
 
@@ -425,7 +537,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files)
         QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RESOURCE_IMPORTED + category);
         if (operation) {
             AddFilesResult result = operation(fileNames,
-                                              document->fileName().parentDir().toString(), true);
+                                              document->fileName().parentDir().toString(), showDialog);
             if (result.status() == AddFilesResult::Failed) {
                 Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
                                                       tr("Could not add %1 to project.")

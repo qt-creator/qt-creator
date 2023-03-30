@@ -1,8 +1,9 @@
 add_qtc_plugin(QmlProjectManager
   CONDITION TARGET Qt::QuickWidgets
+  PROPERTIES COMPILE_WARNING_AS_ERROR ON
   PLUGIN_CLASS QmlProjectPlugin
   DEPENDS QmlJS Qt::QuickWidgets
-  PLUGIN_DEPENDS Core ProjectExplorer QtSupport
+  PLUGIN_DEPENDS Core ProjectExplorer QtSupport QmlDesignerBase
   SOURCES
     fileformat/filefilteritems.cpp fileformat/filefilteritems.h
     fileformat/qmlprojectfileformat.cpp fileformat/qmlprojectfileformat.h

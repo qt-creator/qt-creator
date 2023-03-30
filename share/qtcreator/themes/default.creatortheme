@@ -12,8 +12,64 @@ shadowBackground=ff232323
 splitterColor=ff151515
 qmlDesignerButtonColor=ff4c4e50
 
+;DS Theme Palette START
+;greyscale
+fullWhite=ffffffff
+lightWhite=ffdfdfdf
+offWhite=ffdcdada
+slateGrey=ff8d8d8d
+concreteGrey=ffbbbbbb
+smokeGrey=ff8b8b8b
+shadowGrey=ff636363
+duskGrey=ff606060
+raincloudGrey=ff4d4d4d
+graniteGrey=ff343434
+ashGrey=ff434343
+midnightGrey=ff333333
+dawnGrey=ff2a2a2a
+offBlack=ff202020
+nearBlack=ff1b1b1b
+fullBlack=ff000000
+
+;special colors
+idleGreen=ff649a5d
+runningGreen=ff2eff68
+successGreen=ff2bcf32
+idleRed=ff6a4242
+recordingRed=ffcc3c34
+errorRed=ffaf2b2b
+warningOrange=ffca8113
+splitterBlue=ff64daff
+rgbBlue=ff64daff
+highlightBlue=ff57b9fc
+highlightHover=ff74CBFC
+;DS Theme Palette END
+
 [Colors]
 ;DS controls theme START
+
+;NEW FOR QtDS 4.0
+DScontrolBackground_toolbarIdle=offWhite
+DScontrolBackground_toolbarHover=offWhite
+DScontrolBackground_topToolbarHover=concreteGrey
+DScontrolBackground_statusbarIdle=concreteGrey
+DSControlBackground_statusbarHover=lightWhite
+DScontrolOutline_topToolbarIdle=concreteGrey
+DScontrolOutline_topToolbarHover=lightWhite
+DSidleGreen=idleGreen
+DSrunningGreen=runningGreen
+DStoolbarBackground=offWhite
+DStoolbarIcon_blocked=shadowGrey
+DSthumbnailBackground_baseState=smokeGrey
+DStextColor=raincloudGrey
+DSstatusbarBackground=concreteGrey
+DSprimaryButton_hoverHighlight=highlightHover
+DSstateBackgroundColor_hover=concreteGrey
+DSstateControlBackgroundColor_globalHover=concreteGrey
+DSstateControlBackgroundColor_hover=smokeGrey
+DSpanelBackground=dawnGrey
+;END NEW FOR QtDS 4.0
+
 DSpanelBackground=ffeaeaea
 
 DSwelcomeScreenBackground=ffEAEAEA
@@ -86,7 +142,7 @@ DSstateBackgroundColor=ffe0e0e0
 DSstatePreviewOutline=ff363636
 
 DSstatePanelBackground=ffdadada
-DSstateHighlight=ff8d8d8d
+DSstateHighlight=offWhite
 
 DSchangedStateText=ff99ccff
 
@@ -162,6 +218,7 @@ DSUnimportedModuleColor=ffe33c2e
 
 DSBackgroundColorAlternate=ffeaeaea
 DSBackgroundColorNormal=ffd8d8d8
+
 
 ;DS controls theme END
 
@@ -389,3 +446,4 @@ FlatMenuBar=false
 ToolBarIconShadow=true
 WindowColorAsBase=false
 DarkUserInterface=false
+QDSTheme=false

@@ -6,6 +6,7 @@
 #include "qmldesignerplugin.h"
 
 #include <nodeabstractproperty.h>
+#include <toolbar.h>
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/idocument.h>
@@ -60,6 +61,7 @@ void CrumbleBar::pushFile(const Utils::FilePath &fileName)
 {
     if (!m_isInternalCalled) {
         crumblePath()->clear();
+        m_pathes.clear();
     } else {
         // If the path already exists in crumblePath, pop up to first instance of that to avoid
         // cyclical crumblePath
@@ -71,8 +73,10 @@ void CrumbleBar::pushFile(const Utils::FilePath &fileName)
         }
 
         if (match != -1) {
-            for (int i = crumblePath()->length() - 1 - match; i > 0; --i)
+            for (int i = crumblePath()->length() - 1 - match; i > 0; --i) {
                 crumblePath()->popElement();
+                m_pathes.removeLast();
+            }
         }
     }
 
@@ -81,10 +85,13 @@ void CrumbleBar::pushFile(const Utils::FilePath &fileName)
         CrumbleBarInfo crumbleBarInfo;
         crumbleBarInfo.fileName = fileName;
         crumblePath()->pushElement(fileName.fileName(), QVariant::fromValue(crumbleBarInfo));
+        m_pathes.append({fileName, fileName.fileName(), {}});
     }
 
     m_isInternalCalled = false;
     updateVisibility();
+
+    emit pathChanged();
 }
 
 void CrumbleBar::pushInFileComponent(const ModelNode &modelNode)
@@ -97,10 +104,13 @@ void CrumbleBar::pushInFileComponent(const ModelNode &modelNode)
         crumblePath()->popElement();
 
     crumblePath()->pushElement(crumbleBarInfo.displayName, QVariant::fromValue(crumbleBarInfo));
+    m_pathes.append({{}, crumbleBarInfo.displayName, modelNode});
 
     m_isInternalCalled = false;
 
     updateVisibility();
+
+    emit pathChanged();
 }
 
 void CrumbleBar::nextFileIsCalledInternally()
@@ -118,6 +128,21 @@ Utils::CrumblePath *CrumbleBar::crumblePath()
     }
 
     return m_crumblePath;
+}
+
+QStringList CrumbleBar::path() const
+{
+    QStringList list;
+    for (auto &path : m_pathes) {
+        list.append(path.displayName);
+    }
+
+    return list;
+}
+
+QList<CrumbleBarInfo> CrumbleBar::infos() const
+{
+    return m_pathes;
 }
 
 bool CrumbleBar::showSaveDialog()
@@ -151,11 +176,15 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
     if (!inlineComp && !showSaveDialog())
         return;
 
-    while (clickedCrumbleBarInfo != crumblePath()->dataForLastIndex().value<CrumbleBarInfo>())
+    while (clickedCrumbleBarInfo != crumblePath()->dataForLastIndex().value<CrumbleBarInfo>()) {
         crumblePath()->popElement();
+        m_pathes.removeLast();
+    }
 
-    if (crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isValid())
+    if (crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isValid()) {
         crumblePath()->popElement();
+        m_pathes.removeLast();
+    }
 
     m_isInternalCalled = true;
     if (inlineComp) {
@@ -164,6 +193,7 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
         QmlDesignerPlugin::instance()->viewManager().setComponentViewToMaster();
     } else {
         crumblePath()->popElement();
+        m_pathes.removeLast();
         nextFileIsCalledInternally();
         Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName,
                                         Utils::Id(),
@@ -175,12 +205,14 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
             QmlDesignerPlugin::instance()->viewManager().setComponentViewToMaster();
         }
     }
+    emit pathChanged();
     updateVisibility();
 }
 
 void CrumbleBar::updateVisibility()
 {
-    crumblePath()->setVisible(crumblePath()->length() > 1);
+    if (!ToolBar::isVisible())
+        crumblePath()->setVisible(crumblePath()->length() > 1);
 }
 
 bool operator ==(const CrumbleBarInfo &first, const CrumbleBarInfo &second)

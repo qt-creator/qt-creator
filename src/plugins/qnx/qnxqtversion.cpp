@@ -116,7 +116,7 @@ QVariantMap QnxQtVersion::toMap() const
     return result;
 }
 
-void QnxQtVersion::fromMap(const QVariantMap &map)
+void QnxQtVersion::fromMap(const QVariantMap &map, const Utils::FilePath &)
 {
     QtVersion::fromMap(map);
     setSdpPath(FilePath::fromSettings(map.value(SDP_PATH_KEY)));

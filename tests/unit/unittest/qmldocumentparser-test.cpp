@@ -11,7 +11,7 @@
 
 namespace {
 
-namespace Storage = QmlDesigner::Storage;
+namespace Storage = QmlDesigner::Storage::Synchronization;
 using QmlDesigner::ModuleId;
 using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
@@ -177,9 +177,10 @@ TEST_F(QmlDocumentParser, Properties)
     auto type = parser.parse(R"(Example{ property int foo })", imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
-                UnorderedElementsAre(IsPropertyDeclaration("foo",
-                                                           Storage::ImportedType{"int"},
-                                                           Storage::PropertyDeclarationTraits::None)));
+                UnorderedElementsAre(
+                    IsPropertyDeclaration("foo",
+                                          Storage::ImportedType{"int"},
+                                          QmlDesigner::Storage::PropertyDeclarationTraits::None)));
 }
 
 TEST_F(QmlDocumentParser, QualifiedProperties)
@@ -199,7 +200,7 @@ TEST_F(QmlDocumentParser, QualifiedProperties)
                                                    Storage::Import{exampleModuleId,
                                                                    Storage::Version{2, 1},
                                                                    qmlFileSourceId}),
-                    Storage::PropertyDeclarationTraits::None)));
+                    QmlDesigner::Storage::PropertyDeclarationTraits::None)));
 }
 
 TEST_F(QmlDocumentParser, EnumerationInProperties)
@@ -211,9 +212,10 @@ TEST_F(QmlDocumentParser, EnumerationInProperties)
                              directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
-                UnorderedElementsAre(IsPropertyDeclaration("foo",
-                                                           Storage::ImportedType("Enumeration.Foo"),
-                                                           Storage::PropertyDeclarationTraits::None)));
+                UnorderedElementsAre(
+                    IsPropertyDeclaration("foo",
+                                          Storage::ImportedType("Enumeration.Foo"),
+                                          QmlDesigner::Storage::PropertyDeclarationTraits::None)));
 }
 
 TEST_F(QmlDocumentParser, QualifiedEnumerationInProperties)
@@ -233,7 +235,7 @@ TEST_F(QmlDocumentParser, QualifiedEnumerationInProperties)
                                                    Storage::Import{exampleModuleId,
                                                                    Storage::Version{2, 1},
                                                                    qmlFileSourceId}),
-                    Storage::PropertyDeclarationTraits::None)));
+                    QmlDesigner::Storage::PropertyDeclarationTraits::None)));
 }
 
 TEST_F(QmlDocumentParser, Imports)
@@ -393,9 +395,10 @@ TEST_F(QmlDocumentParser, AliasItemProperties)
                              directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
-                UnorderedElementsAre(IsPropertyDeclaration("delegate",
-                                                           Storage::ImportedType{"Item"},
-                                                           Storage::PropertyDeclarationTraits::None)));
+                UnorderedElementsAre(
+                    IsPropertyDeclaration("delegate",
+                                          Storage::ImportedType{"Item"},
+                                          QmlDesigner::Storage::PropertyDeclarationTraits::None)));
 }
 
 TEST_F(QmlDocumentParser, AliasProperties)
@@ -411,10 +414,11 @@ TEST_F(QmlDocumentParser, AliasProperties)
                              directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
-                UnorderedElementsAre(IsAliasPropertyDeclaration("text",
-                                                                Storage::ImportedType{"Item"},
-                                                                Storage::PropertyDeclarationTraits::None,
-                                                                "text2")));
+                UnorderedElementsAre(
+                    IsAliasPropertyDeclaration("text",
+                                               Storage::ImportedType{"Item"},
+                                               QmlDesigner::Storage::PropertyDeclarationTraits::None,
+                                               "text2")));
 }
 
 TEST_F(QmlDocumentParser, IndirectAliasProperties)
@@ -430,11 +434,12 @@ TEST_F(QmlDocumentParser, IndirectAliasProperties)
                              directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
-                UnorderedElementsAre(IsAliasPropertyDeclaration("textSize",
-                                                                Storage::ImportedType{"Item"},
-                                                                Storage::PropertyDeclarationTraits::None,
-                                                                "text",
-                                                                "size")));
+                UnorderedElementsAre(
+                    IsAliasPropertyDeclaration("textSize",
+                                               Storage::ImportedType{"Item"},
+                                               QmlDesigner::Storage::PropertyDeclarationTraits::None,
+                                               "text",
+                                               "size")));
 }
 
 TEST_F(QmlDocumentParser, InvalidAliasPropertiesAreSkipped)
@@ -465,7 +470,7 @@ TEST_F(QmlDocumentParser, ListProperty)
                 UnorderedElementsAre(
                     IsPropertyDeclaration("foos",
                                           Storage::ImportedType{"Foo"},
-                                          Storage::PropertyDeclarationTraits::IsList)));
+                                          QmlDesigner::Storage::PropertyDeclarationTraits::IsList)));
 }
 
 TEST_F(QmlDocumentParser, AliasOnListProperty)
@@ -486,7 +491,7 @@ TEST_F(QmlDocumentParser, AliasOnListProperty)
                 UnorderedElementsAre(
                     IsPropertyDeclaration("foos",
                                           Storage::ImportedType{"Foo"},
-                                          Storage::PropertyDeclarationTraits::IsList)));
+                                          QmlDesigner::Storage::PropertyDeclarationTraits::IsList)));
 }
 
 TEST_F(QmlDocumentParser, QualifiedListProperty)
@@ -507,7 +512,7 @@ TEST_F(QmlDocumentParser, QualifiedListProperty)
                                                    Storage::Import{exampleModuleId,
                                                                    Storage::Version{2, 1},
                                                                    qmlFileSourceId}},
-                    Storage::PropertyDeclarationTraits::IsList)));
+                    QmlDesigner::Storage::PropertyDeclarationTraits::IsList)));
 }
 
 } // namespace

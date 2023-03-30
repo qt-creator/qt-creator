@@ -34,36 +34,20 @@
 
     \section1 Creating an Effect File
 
-    You can create empty Qt Quick Effect Maker effect (.qep) files in \QDS and
+    You can create Qt Quick Effect Maker effect (.qep) files in \QDS and
     then edit them in Qt Quick Effect Maker.
 
     To create an effect file:
 
     \list 1
-      \li In \QDS, go to \uicontrol File > \uicontrol {New File}.
-      \li Go to the \uicontrol Effects tab and select
-      \uicontrol {Effect file (Effect Maker)}.
-      \image new-effect-file.png
-      \li Select \uicontrol Choose and follow the wizard to create the file.
-    \endlist
-
-    After you have created the effect file, it is available in the
-    \uicontrol Assets view.
-
-    \image assets-view-effect.png
-
-    \section2 Editing and Re-importing an Effect File
-
-    To edit an effect file in Qt Quick Effect Maker, double-click it in
-    the \uicontrol Assets view. This opens the effect in Qt Quick Effect
-    Maker where you can make your changes.
-
-    When you have edited the effect file in Qt Quick Effect Maker, you need
-    to save and export it:
-    \list 1
+      \li In \QDS, right-click in the \uicontrol Assets view and
+      select \uicontrol {New Effect}.
+      \QDS creates an effect file and opens it in Qt Quick Effect Maker.
+      \image qt-quick-effect-maker.webp
+      \li Edit the effect.
       \li In Qt Quick Effect Maker, go to \uicontrol File > \uicontrol Save.
       \li Select \uicontrol File > \uicontrol Export.
-      \li With the default settings, select \uicontrol Ok.
+      \li With the default settings, select \uicontrol OK.
       \image effect-maker-export.png
     \endlist
 
@@ -73,7 +57,8 @@
     \section1 Applying an Effect
 
     You can apply effects to components in \QDS. To do so, drag the effect
-    from the \uicontrol Assets view to the component in the \uicontrol 2D view.
+    from the \uicontrol Assets view to the component in the \uicontrol 2D or
+    \uicontrol Navigator view.
 
     \image apply-effect-maker-effect.webp
 

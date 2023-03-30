@@ -1,17 +1,18 @@
+#only if the plugin is requested by qtc_plugin_enabled continue if not stop as early as possible
 add_qtc_plugin(QmlDesigner
-  CONDITION TARGET Qt::QuickWidgets AND TARGET Qt::Svg
-  DEPENDS
-    QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
-    Qt::QuickWidgets Qt::CorePrivate Sqlite Qt::Xml Qt::Svg
-  PLUGIN_DEPENDS
-    Core ProjectExplorer QmlJSEditor QmlProjectManager
-    QtSupport QmakeProjectManager
   PLUGIN_RECOMMENDS QmlPreview
+  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
+  PROPERTIES COMPILE_WARNING_AS_ERROR ON
+  PLUGIN_DEPENDS
+    Core ProjectExplorer QmlDesignerBase QmlJSEditor QmakeProjectManager QmlProjectManager
+    QtSupport
 )
 qtc_plugin_enabled(_qmlDesignerEnabled QmlDesigner)
 if (NOT _qmlDesignerEnabled)
   return()
 endif()
+
+find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate)
 
 set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/qmldesigner")
 if (APPLE)
@@ -23,21 +24,22 @@ env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
 option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
 add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
 
-env_with_default("QDS_WITH_QMLDOM" ENV_QDS_WITH_QMLDOM OFF)
-option(WITH_QMLDOM "Build with QmlDom" ${ENV_QDS_WITH_QMLDOM})
-add_feature_info("Build with QmlDom" ${WITH_QMLDOM} "")
-
 add_qtc_library(QmlDesignerUtils STATIC
+  PROPERTIES COMPILE_WARNING_AS_ERROR ON
   DEPENDS
-    Qt::Gui
+    Qt::Gui Utils Qt::QmlPrivate
   DEFINES QMLDESIGNERUTILS_LIBRARY
   PUBLIC_DEFINES $<$<BOOL:${QTC_STATIC_BUILD}>:QMLDESIGNER_STATIC_LIBRARY>
+
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES
     asset.cpp asset.h
-    designersettings.cpp designersettings.h
+    filedownloader.cpp filedownloader.h
+    multifiledownloader.cpp multifiledownloader.h
+    fileextractor.cpp fileextractor.h
     hdrimage.cpp hdrimage.h
+    ktximage.cpp ktximage.h
     imageutils.cpp imageutils.h
     qmldesignerutils_global.h
 )
@@ -60,6 +62,7 @@ add_qtc_library(QmlDesignerCore STATIC
     QmlProjectManager
     QtSupport
   PUBLIC_DEPENDS
+    QmlDesignerBase
     QmlPuppetCommunication
     QmlDesignerUtils
     TextEditor
@@ -74,6 +77,13 @@ add_qtc_library(QmlDesignerCore STATIC
   SOURCES
     rewritertransaction.cpp
     rewritertransaction.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND Qt6_VERSION VERSION_GREATER_EQUAL 6.5.0
+
+  DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
+  DEFINES QDS_HAS_QMLDOM
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -173,6 +183,8 @@ extend_qtc_library(QmlDesignerCore
     meshimagecachecollector.cpp
     meshimagecachecollector.h
     synchronousimagecache.cpp
+    textureimagecachecollector.cpp
+    textureimagecachecollector.h
     timestampprovider.cpp
     timestampprovider.h
     timestampproviderinterface.h
@@ -377,6 +389,7 @@ extend_qtc_library(QmlDesignerCore
     filestatus.h
     filestatuscache.cpp filestatuscache.h
     nonlockingmutex.h
+    projectstorageexceptions.cpp projectstorageexceptions.h
     projectstorageinterface.h
     projectstoragefwd.h
     projectstorageinfotypes.h
@@ -407,6 +420,14 @@ file(GLOB PROJECTSTORAGE_EXCLUDED_SOURCES designercore/projectstorage/*.cpp)
 set_property(SOURCE ${PROJECTSTORAGE_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
 
 extend_qtc_plugin(QmlDesigner
+  PUBLIC_DEPENDS
+    QmlDesignerUtils
+    QmlDesignerBase
+    QmlPuppetCommunication
+  DEPENDS
+    QmlDesignerCore
+    QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem Sqlite
+    Qt::QuickWidgets Qt::CorePrivate Qt::Xml Qt::Svg
   DEFINES
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
     SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
@@ -429,13 +450,8 @@ extend_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}/components/texteditor
   PUBLIC_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}
-    ${CMAKE_CURRENT_LIST_DIR}/designercore
-    ${CMAKE_CURRENT_LIST_DIR}/designercore/include
-  PUBLIC_DEPENDS
-    QmlDesignerUtils
-    QmlPuppetCommunication
-  DEPENDS
-    QmlDesignerCore
+    ${CMAKE_CURRENT_LIST_DIR}/designercore #can not be a public dependency -> EXCLUDE_FROM_INSTALL in QmlDesignerCore
+    ${CMAKE_CURRENT_LIST_DIR}/designercore/include #iwidgetplugin.h is used by other plugins
   SOURCES
     designmodecontext.cpp designmodecontext.h
     designmodewidget.cpp designmodewidget.h
@@ -500,33 +516,15 @@ function(get_and_add_as_subdirectory name repository git_tag build_dir source_di
     add_subdirectory(${source_dir}/${name}/${source_subdir} ${name})
 endfunction()
 
-if (WITH_QMLDOM)
-  if (Qt6_VERSION VERSION_LESS 6.3.2)
-    message(FATAL_ERROR "You need Qt 6.3.2 or newer to enable WITH_QMLDOM feature.")
-  endif()
-
-
-  get_and_add_as_subdirectory("qmldom_standalone"
-                              "https://codereview.qt-project.org/qt/qtdeclarative"
-                              "origin/dev"
-                              "${CMAKE_BINARY_DIR}"
-                              "${CMAKE_CURRENT_SOURCE_DIR}/../.."
-                              "src/qmldom/standalone"
-                              )
-
-  set_target_properties(qmldomlib PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,RUNTIME_OUTPUT_DIRECTORY>"
-    LIBRARY_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,LIBRARY_OUTPUT_DIRECTORY>")
-
-  extend_qtc_target(QmlDesigner
-      CONDITION TARGET qmldomlib
-      DEFINES QDS_HAS_QMLDOM
-      DEPENDS qmldomlib
-  )
-endif()
-
-
 if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
+  get_target_property(_designerType Qt5::Designer TYPE)
+  if (${_designerType} STREQUAL "STATIC_LIBRARY")
+    extend_qtc_target(QmlDesigner PUBLIC_DEFINES QT_DESIGNER_STATIC)
+  endif()
+  get_target_property(_designerType Qt::Designer TYPE)
+  if (${_designerType} STREQUAL "STATIC_LIBRARY")
+    extend_qtc_target(QmlDesigner PUBLIC_DEFINES QT_DESIGNER_STATIC)
+  endif()
   extend_qtc_target(QmlDesigner PUBLIC_DEPENDS TextEditor)
 endif()
 
@@ -618,6 +616,7 @@ extend_qtc_plugin(QmlDesigner
     designeractionmanagerview.cpp designeractionmanagerview.h
     designericons.cpp designericons.h
     findimplementation.cpp findimplementation.h
+    groupitemaction.cpp groupitemaction.h
     layoutingridlayout.cpp layoutingridlayout.h
     modelnodecontextmenu.cpp modelnodecontextmenu.h
     modelnodecontextmenu_helper.cpp modelnodecontextmenu_helper.h
@@ -625,6 +624,7 @@ extend_qtc_plugin(QmlDesigner
     formatoperation.cpp formatoperation.h
     navigation2d.cpp navigation2d.h
     qmldesignericonprovider.cpp qmldesignericonprovider.h
+    qmleditormenu.cpp qmleditormenu.h
     selectioncontext.cpp selectioncontext.h
     theme.cpp theme.h
     zoomaction.cpp zoomaction.h
@@ -776,6 +776,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/propertyeditor
   SOURCES
     aligndistribute.cpp aligndistribute.h
+    assetimageprovider.cpp assetimageprovider.h
     colorpalettebackend.cpp colorpalettebackend.h
     designerpropertymap.cpp designerpropertymap.h
     fileresourcesmodel.cpp fileresourcesmodel.h
@@ -787,7 +788,6 @@ extend_qtc_plugin(QmlDesigner
     gradientpresetitem.cpp gradientpresetitem.h
     gradientpresetlistmodel.cpp gradientpresetlistmodel.h
     propertyeditorcontextobject.cpp propertyeditorcontextobject.h
-    propertyeditorimageprovider.cpp propertyeditorimageprovider.h
     propertyeditorqmlbackend.cpp propertyeditorqmlbackend.h
     propertyeditortransaction.cpp propertyeditortransaction.h
     propertyeditorvalue.cpp propertyeditorvalue.h
@@ -842,6 +842,7 @@ extend_qtc_plugin(QmlDesigner
     materialbrowserwidget.cpp materialbrowserwidget.h
     materialbrowsermodel.cpp materialbrowsermodel.h
     materialbrowsertexturesmodel.cpp materialbrowsertexturesmodel.h
+    materialutils.cpp materialutils.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -914,6 +915,10 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     explicitimagecacheimageprovider.cpp
     explicitimagecacheimageprovider.h
+    imagecacheimageresponse.cpp
+    imagecacheimageresponse.h
+    midsizeimagecacheprovider.cpp
+    midsizeimagecacheprovider.h
     smallimagecacheprovider.cpp
     smallimagecacheprovider.h
 )
@@ -1072,6 +1077,7 @@ extend_qtc_plugin(QmlDesigner
     curveeditorview.cpp curveeditorview.h
     animationcurve.cpp animationcurve.h
     curveeditor.cpp curveeditor.h
+    curveeditorconstants.h
     curveeditortoolbar.cpp curveeditortoolbar.h
     curveeditormodel.cpp curveeditormodel.h
     curveeditorstyle.h
@@ -1115,6 +1121,15 @@ extend_qtc_plugin(QmlDesigner
     nodeselectionmodel.cpp nodeselectionmodel.h
     connectsignaldialog.cpp connectsignaldialog.h
     shortcutwidget.cpp shortcutwidget.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/toolbar
+  SOURCES
+    toolbar.cpp
+    toolbar.h
+    toolbarbackend.cpp
+    toolbarbackend.h
 )
 
 extend_qtc_plugin(QmlDesigner

@@ -40,6 +40,10 @@ public:
     MOCK_METHOD(void, write, (Utils::SmallStringView, long long, Sqlite::BlobView, Sqlite::BlobView), ());
     MOCK_METHOD(void,
                 write,
+                (Utils::SmallStringView, long long, Sqlite::BlobView, Sqlite::BlobView, Sqlite::BlobView),
+                ());
+    MOCK_METHOD(void,
+                write,
                 (Utils::SmallStringView,
                  Utils::SmallStringView,
                  Utils::SmallStringView,

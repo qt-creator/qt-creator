@@ -15,21 +15,30 @@ Section {
     property bool isTextInput: false
 
     SectionLayout {
-        PropertyLabel { text: qsTr("Selection color") }
+        PropertyLabel {
+            text: qsTr("Selection color")
+            tooltip: qsTr("Sets the background color of selected text.")
+        }
 
         ColorEditor {
             backendValue: backendValues.selectionColor
             supportGradient: false
         }
 
-        PropertyLabel { text: qsTr("Selected text color") }
+        PropertyLabel {
+            text: qsTr("Selected text color")
+            tooltip: qsTr("Sets the color of selected text.")
+        }
 
         ColorEditor {
             backendValue: backendValues.selectedTextColor
             supportGradient: false
         }
 
-        PropertyLabel { text: qsTr("Selection mode") }
+        PropertyLabel {
+            text: qsTr("Selection mode")
+            tooltip: qsTr("Sets the way text is selected with the mouse.")
+        }
 
         SecondColumnLayout {
             ComboBox {
@@ -47,6 +56,7 @@ Section {
         PropertyLabel {
             visible: textInputSection.isTextInput
             text: qsTr("Input mask")
+            tooltip: qsTr("Sets the allowed characters.")
         }
 
         SecondColumnLayout {
@@ -66,6 +76,7 @@ Section {
         PropertyLabel {
             visible: textInputSection.isTextInput
             text: qsTr("Echo mode")
+            tooltip: qsTr("Sets the visibility mode.")
         }
 
         SecondColumnLayout {
@@ -86,7 +97,7 @@ Section {
         PropertyLabel {
             visible: textInputSection.isTextInput
             text: qsTr("Password character")
-            tooltip: qsTr("Character displayed when users enter passwords.")
+            tooltip: qsTr("Sets which character to display when passwords are entered.")
         }
 
         SecondColumnLayout {
@@ -154,7 +165,7 @@ Section {
         PropertyLabel {
             visible: textInputSection.isTextInput
             text: qsTr("Maximum length")
-            tooltip: qsTr("Maximum permitted length of the text in the Text Input.")
+            tooltip: qsTr("Sets the maximum length of the text.")
         }
 
         SecondColumnLayout {
@@ -183,21 +194,31 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Read only") }
+        PropertyLabel {
+            text: qsTr("Read only")
+            tooltip: qsTr("Toggles if the text allows edits.")
+        }
 
         FlagItem { backendValue: backendValues.readOnly }
 
-        PropertyLabel { text: qsTr("Cursor visible") }
+        PropertyLabel {
+            text: qsTr("Cursor visible")
+            tooltip: qsTr("Toggles if the cursor is visible.")
+        }
 
         FlagItem { backendValue: backendValues.cursorVisible }
 
-        PropertyLabel { text: qsTr("Focus on press") }
+        PropertyLabel {
+            text: qsTr("Focus on press")
+            tooltip: qsTr("Toggles if the text is focused on mouse click.")
+        }
 
         FlagItem { backendValue: backendValues.activeFocusOnPress }
 
         PropertyLabel {
             visible: textInputSection.isTextInput
             text: qsTr("Auto scroll")
+            tooltip: qsTr("Toggles if the text scrolls when it exceeds its boundary.")
         }
 
         FlagItem {
@@ -205,15 +226,24 @@ Section {
             backendValue: backendValues.autoScroll
         }
 
-        PropertyLabel { text: qsTr("Overwrite mode") }
+        PropertyLabel {
+            text: qsTr("Overwrite mode")
+            tooltip: qsTr("Toggles if overwriting text is allowed.")
+        }
 
         FlagItem { backendValue: backendValues.overwriteMode }
 
-        PropertyLabel { text: qsTr("Persistent selection") }
+        PropertyLabel {
+            text: qsTr("Persistent selection")
+            tooltip: qsTr("Toggles if the text should remain selected after moving the focus elsewhere.")
+        }
 
         FlagItem { backendValue: backendValues.persistentSelection }
 
-        PropertyLabel { text: qsTr("Select by mouse") }
+        PropertyLabel {
+            text: qsTr("Select by mouse")
+            tooltip: qsTr("Toggles if the text can be selected with the mouse.")
+        }
 
         FlagItem { backendValue: backendValues.selectByMouse }
 

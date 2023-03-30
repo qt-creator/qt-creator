@@ -50,7 +50,20 @@ void QmlPropertyChangesNodeInstance::setPropertyBinding(const PropertyName &name
     if (QmlPrivateGate::PropertyChanges::isNormalProperty(name)) { // 'restoreEntryValues', 'explicit'
         ObjectNodeInstance::setPropertyBinding(name, expression);
     } else {
+        QObject *state = QmlPrivateGate::PropertyChanges::stateObject(object());
+
+        ServerNodeInstance activeState = nodeInstanceServer()->activeStateInstance();
+        auto activeStateInstance = activeState.internalInstance();
+
+        const bool inState = activeStateInstance && activeStateInstance->object() == state;
+
+        if (inState)
+            activeState.deactivateState();
+
         QmlPrivateGate::PropertyChanges::changeExpression(object(), name, expression);
+
+        if (inState)
+            activeState.activateState();
     }
 }
 

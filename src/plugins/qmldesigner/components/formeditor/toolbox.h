@@ -16,18 +16,16 @@ namespace QmlDesigner {
 class ToolBox : public Utils::StyledBar
 {
 public:
-    ToolBox(SeekerSlider *seeker, QWidget *parentWidget);
+    explicit ToolBox(QWidget *parentWidget);
     void setLeftSideActions(const QList<QAction*> &actions);
     void setRightSideActions(const QList<QAction*> &actions);
     void addLeftSideAction(QAction *action);
     void addRightSideAction(QAction *action);
     QList<QAction*> actions() const;
-    SeekerSlider *seeker() const;
 
 private:
     QToolBar *m_leftToolBar;
     QToolBar *m_rightToolBar;
-    SeekerSlider *m_seeker;
 };
 
 } // namespace QmlDesigner

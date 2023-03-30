@@ -36,24 +36,6 @@
         \li Tooltip
         \li Read More
     \row
-        \li \inlineimage icons/no_snapping.png
-        \li Disables snapping.
-        \li \l{Snapping to Parent and Sibling Components}
-    \row
-        \li \inlineimage icons/snapping_and_anchoring.png
-        \li Anchors the component instance to the component instances that it
-            is snapped to.
-        \li \l{Snapping to Parent and Sibling Components}
-    \row
-        \li \inlineimage icons/snapping.png
-        \li Snaps component instances to their parent or siblings when you
-            align them.
-        \li \l{Snapping to Parent and Sibling Components}
-    \row
-        \li \inlineimage icons/boundingrect.png
-        \li Hides and shows component instance boundaries.
-        \li \l{Hiding Component Boundaries}
-    \row
         \li \uicontrol {Override Width}
         \li Shows a preview of the component using the specified width.
         \li \l{Previewing Component Size}
@@ -149,13 +131,16 @@
     \section1 Snapping to Parent and Sibling Components
 
     You can use snapping to align component instances in
-    the \uicontrol {2D} view. Select the \inlineimage icons/snapping.png
-    button to have the component instances snap to their parent or siblings.
+    the \uicontrol {2D} view. With snapping turned on, all component instances
+    snap to their parent and siblings. If you use snapping with anchors, anchors are created
+    when you snap a component to another.
+
+    To turn on snapping, right-click in the \uicontrol 2D view and select
+    \uicontrol Snapping > \uicontrol {Snap with Anchors} or
+    \uicontrol {Snap without Anchors}.
+
     Snapping lines automatically appear to help you position the component
-    instances. Click the \inlineimage icons/snapping_and_anchoring.png
-    button to anchor the selected component instance to those that you snap to.
-    Only one snapping button can be selected at the time. Selecting
-    one snapping button automatically deselects the others.
+    instances.
 
     Choose \uicontrol Edit > \uicontrol Preferences > \uicontrol {Qt Quick} >
     \uicontrol {Qt Quick Designer} to specify settings for snapping. In the
@@ -177,8 +162,8 @@
     \section1 Hiding Component Boundaries
 
     The \uicontrol {2D} view displays the boundaries of component instances.
-    To hide them, select the \inlineimage icons/boundingrect.png
-    button.
+    To hide them, right-click in the \uicontrol 2D view and select
+    \uicontrol {Show Bounds} from the context menu.
 
     \section1 Previewing Component Size
 

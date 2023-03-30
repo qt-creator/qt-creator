@@ -33,6 +33,11 @@ public:
                       ImageCache::AbortCallback abortCallback,
                       Utils::SmallString extraId = {},
                       ImageCache::AuxiliaryData auxiliaryData = {}) override;
+    void requestMidSizeImage(Utils::PathString name,
+                             ImageCache::CaptureImageCallback captureCallback,
+                             ImageCache::AbortCallback abortCallback,
+                             Utils::SmallString extraId = {},
+                             ImageCache::AuxiliaryData auxiliaryData = {}) override;
     void requestSmallImage(Utils::PathString name,
                            ImageCache::CaptureImageCallback captureCallback,
                            ImageCache::AbortCallback abortCallback,
@@ -42,7 +47,7 @@ public:
     void clean();
 
 private:
-    enum class RequestType { Image, SmallImage, Icon };
+    enum class RequestType { Image, MidSizeImage, SmallImage, Icon };
     struct Entry
     {
         Entry() = default;

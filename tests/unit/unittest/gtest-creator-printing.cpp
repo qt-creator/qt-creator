@@ -454,6 +454,8 @@ const char *sourceTypeToText(SourceType sourceType)
         return "QmlDir";
     case SourceType::QmlTypes:
         return "QmlTypes";
+    case SourceType::Directory:
+        return "Directory";
     }
 
     return "";

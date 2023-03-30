@@ -11,6 +11,7 @@
 #include <utils/qtcassert.h>
 
 #include <qmldesigner/components/componentcore/theme.h>
+#include <qmldesigner/qmldesignerconstants.h>
 
 #include "createproject.h"
 #include "newprojectdialogimageprovider.h"
@@ -61,6 +62,7 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     m_recentsStore.setReverseOrder();
     m_recentsStore.setMaximum(10);
 
+    m_dialog->setObjectName(QmlDesigner::Constants::OBJECT_NAME_NEW_DIALOG);
     m_dialog->setResizeMode(QQuickWidget::SizeRootObjectToView); // SizeViewToRootObject
     m_dialog->engine()->addImageProvider(QStringLiteral("newprojectdialog_library"),
                                          new Internal::NewProjectDialogImageProvider());
@@ -390,7 +392,7 @@ void QdsNewDialog::accept()
     create.withName(m_qmlProjectName)
         .atLocation(m_qmlProjectLocation)
         .withScreenSizes(m_qmlScreenSizeIndex, m_qmlCustomWidth, m_qmlCustomHeight)
-        .withStyle(m_qmlStyleIndex)
+        .withStyle(getStyleIndex())
         .useQtVirtualKeyboard(m_qmlUseVirtualKeyboard)
         .saveAsDefaultLocation(m_qmlSaveAsDefaultLocation)
         .withTargetQtVersion(m_qmlTargetQtVersionIndex)
@@ -450,7 +452,7 @@ UserPresetData QdsNewDialog::currentUserPresetData(const QString &displayName) c
         targetQtVersion = m_wizard.targetQtVersionName(m_qmlTargetQtVersionIndex);
 
     if (m_wizard.haveStyleModel())
-        styleName = m_wizard.styleName(m_qmlStyleIndex);
+        styleName = m_wizard.styleName(getStyleIndex());
 
     if (m_wizard.haveVirtualKeyboard())
         useVirtualKeyboard = m_qmlUseVirtualKeyboard;

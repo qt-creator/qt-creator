@@ -3,42 +3,34 @@
 
 #include "materialbrowserwidget.h"
 
+#include "asset.h"
+#include "assetimageprovider.h"
+#include "createtexture.h"
+#include "documentmanager.h"
+#include "hdrimage.h"
 #include "materialbrowsermodel.h"
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserview.h"
+#include "qmldesignerconstants.h"
+#include "qmldesignerplugin.h"
+#include "theme.h"
+#include "variantproperty.h"
 
-#include <designeractionmanager.h>
-#include <designermcumanager.h>
-#include <documentmanager.h>
-#include <propertyeditorimageprovider.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
-#include <variantproperty.h>
+#include <coreplugin/icore.h>
 
-#include <theme.h>
+#include <studioquickwidget.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/hdrimage.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
-#include <QMenu>
 #include <QMimeData>
 #include <QMouseEvent>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QQmlContext>
-#include <QQmlEngine>
 #include <QQuickImageProvider>
 #include <QQuickItem>
-#include <QQuickWidget>
 #include <QShortcut>
-#include <QStackedWidget>
-#include <QTabBar>
-#include <QToolButton>
 #include <QVBoxLayout>
-#include <QWheelEvent>
 
 namespace QmlDesigner {
 
@@ -93,7 +85,7 @@ public:
 bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusOut) {
-        if (obj == m_quickWidget.data())
+        if (obj == m_quickWidget->quickWidget())
             QMetaObject::invokeMethod(m_quickWidget->rootObject(), "closeContextMenu");
     } else if (event->type() == QMouseEvent::MouseMove) {
         DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
@@ -124,6 +116,8 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
                     const QString suffix = iconPath.split('.').last().toLower();
                     if (suffix == "hdr")
                         pixmap = HdrImage{iconPath}.toPixmap();
+                    else if (suffix == "ktx")
+                        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_ktx.png");
                     else
                         pixmap = Utils::StyleHelper::dpiSpecificImageFile(iconPath);
                     if (pixmap.isNull())
@@ -137,6 +131,8 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_materialToDrag = {};
         m_textureToDrag = {};
+
+        setIsDragging(false);
     }
 
     return QObject::eventFilter(obj, event);
@@ -147,12 +143,12 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
     : m_materialBrowserView(view)
     , m_materialBrowserModel(new MaterialBrowserModel(this))
     , m_materialBrowserTexturesModel(new MaterialBrowserTexturesModel(this))
-    , m_quickWidget(new QQuickWidget(this))
+    , m_quickWidget(new StudioQuickWidget(this))
     , m_previewImageProvider(new PreviewImageProvider())
 {
     QImage defaultImage;
     defaultImage.load(Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png"));
-    m_textureImageProvider = new PropertyEditorImageProvider(imageCache, defaultImage);
+    m_textureImageProvider = new AssetImageProvider(imageCache, defaultImage);
 
     setWindowTitle(tr("Material Browser", "Title of material browser widget"));
     setMinimumWidth(120);
@@ -162,21 +158,16 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
     m_context->setContext(context);
     m_context->setWidget(this);
 
+    m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_MATERIAL_BROWSER);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
-
-    m_quickWidget->rootContext()->setContextProperties({
-        {"rootView", QVariant::fromValue(this)},
-        {"materialBrowserModel", QVariant::fromValue(m_materialBrowserModel.data())},
-        {"materialBrowserTexturesModel", QVariant::fromValue(m_materialBrowserTexturesModel.data())},
-    });
 
     m_quickWidget->engine()->addImageProvider("materialBrowser", m_previewImageProvider);
     m_quickWidget->engine()->addImageProvider("materialBrowserTex", m_textureImageProvider);
 
     Theme::setupTheme(m_quickWidget->engine());
-    m_quickWidget->installEventFilter(this);
+    m_quickWidget->quickWidget()->installEventFilter(this);
 
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
@@ -203,7 +194,17 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
 
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_MATERIALBROWSER_TIME);
 
+    auto map = m_quickWidget->registerPropertyMap("MaterialBrowserBackend");
+
+    map->setProperties({
+        {"rootView", QVariant::fromValue(this)},
+        {"materialBrowserModel", QVariant::fromValue(m_materialBrowserModel.data())},
+        {"materialBrowserTexturesModel", QVariant::fromValue(m_materialBrowserTexturesModel.data())},
+    });
+
     reloadQmlSource();
+
+    setFocusProxy(m_quickWidget.data());
 }
 
 void MaterialBrowserWidget::updateMaterialPreview(const ModelNode &node, const QPixmap &pixmap)
@@ -247,22 +248,91 @@ void MaterialBrowserWidget::startDragMaterial(int index, const QPointF &mousePos
 {
     m_materialToDrag = m_materialBrowserModel->materialAt(index);
     m_dragStartPoint = mousePos.toPoint();
+
+    setIsDragging(true);
 }
 
 void MaterialBrowserWidget::startDragTexture(int index, const QPointF &mousePos)
 {
     m_textureToDrag = m_materialBrowserTexturesModel->textureAt(index);
     m_dragStartPoint = mousePos.toPoint();
+
+    setIsDragging(true);
 }
 
 void MaterialBrowserWidget::acceptBundleMaterialDrop()
 {
     m_materialBrowserView->emitCustomNotification("drop_bundle_material", {}, {}); // To ContentLibraryView
+    if (m_materialBrowserView->model())
+        m_materialBrowserView->model()->endDrag();
+}
+
+bool MaterialBrowserWidget::hasAcceptableAssets(const QList<QUrl> &urls)
+{
+    return Utils::anyOf(urls, [](const QUrl &url) {
+        return Asset(url.toLocalFile()).isValidTextureSource();
+    });
 }
 
 void MaterialBrowserWidget::acceptBundleTextureDrop()
 {
     m_materialBrowserView->emitCustomNotification("drop_bundle_texture", {}, {}); // To ContentLibraryView
+    if (m_materialBrowserView->model())
+        m_materialBrowserView->model()->endDrag();
+}
+
+void MaterialBrowserWidget::acceptBundleTextureDropOnMaterial(int matIndex, const QUrl &bundleTexPath)
+{
+    ModelNode mat = m_materialBrowserModel->materialAt(matIndex);
+    QTC_ASSERT(mat.isValid(), return);
+
+    auto *creator = new CreateTexture(m_materialBrowserView);
+
+    m_materialBrowserView->executeInTransaction(__FUNCTION__, [&] {
+        ModelNode tex = creator->execute(bundleTexPath.toLocalFile());
+        QTC_ASSERT(tex.isValid(), return);
+
+        m_materialBrowserModel->selectMaterial(matIndex);
+        m_materialBrowserView->applyTextureToMaterial({mat}, tex);
+    });
+
+    if (m_materialBrowserView->model())
+        m_materialBrowserView->model()->endDrag();
+
+    creator->deleteLater();
+}
+
+void MaterialBrowserWidget::acceptAssetsDrop(const QList<QUrl> &urls)
+{
+    QStringList assetPaths = Utils::transform(urls, [](const QUrl &url) { return url.toLocalFile(); });
+    m_materialBrowserView->createTextures(assetPaths);
+    if (m_materialBrowserView->model())
+        m_materialBrowserView->model()->endDrag();
+}
+
+void MaterialBrowserWidget::acceptAssetsDropOnMaterial(int matIndex, const QList<QUrl> &urls)
+{
+    ModelNode mat = m_materialBrowserModel->materialAt(matIndex);
+    QTC_ASSERT(mat.isValid(), return);
+
+    auto *creator = new CreateTexture(m_materialBrowserView);
+
+    QString imageSrc = Utils::findOrDefault(urls, [] (const QUrl &url) {
+        return Asset(url.toLocalFile()).isValidTextureSource();
+    }).toLocalFile();
+
+    m_materialBrowserView->executeInTransaction(__FUNCTION__, [&] {
+        ModelNode tex = creator->execute(imageSrc);
+        QTC_ASSERT(tex.isValid(), return);
+
+        m_materialBrowserModel->selectMaterial(matIndex);
+        m_materialBrowserView->applyTextureToMaterial({mat}, tex);
+    });
+
+    if (m_materialBrowserView->model())
+        m_materialBrowserView->model()->endDrag();
+
+    creator->deleteLater();
 }
 
 void MaterialBrowserWidget::acceptTextureDropOnMaterial(int matIndex, const QString &texId)
@@ -274,6 +344,9 @@ void MaterialBrowserWidget::acceptTextureDropOnMaterial(int matIndex, const QStr
         m_materialBrowserModel->selectMaterial(matIndex);
         m_materialBrowserView->applyTextureToMaterial({mat}, tex);
     }
+
+    if (m_materialBrowserView->model())
+        m_materialBrowserView->model()->endDrag();
 }
 
 void MaterialBrowserWidget::focusMaterialSection(bool focusMatSec)
@@ -304,7 +377,6 @@ void MaterialBrowserWidget::reloadQmlSource()
 
     QTC_ASSERT(QFileInfo::exists(materialBrowserQmlPath), return);
 
-    m_quickWidget->engine()->clearComponentCache();
     m_quickWidget->setSource(QUrl::fromLocalFile(materialBrowserQmlPath));
 }
 
@@ -315,7 +387,15 @@ void MaterialBrowserWidget::updateSearch()
     m_quickWidget->update();
 }
 
-QQuickWidget *MaterialBrowserWidget::quickWidget() const
+void MaterialBrowserWidget::setIsDragging(bool val)
+{
+    if (m_isDragging != val) {
+        m_isDragging = val;
+        emit isDraggingChanged();
+    }
+}
+
+StudioQuickWidget *MaterialBrowserWidget::quickWidget() const
 {
     return m_quickWidget.data();
 }

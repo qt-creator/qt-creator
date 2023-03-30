@@ -77,6 +77,8 @@ public:
 
     QList<const ObjectValue *> all() const;
 
+    static void setSkipmakeComponentChain(bool b);
+
 private:
     void update() const;
     void initializeRootScope();
@@ -97,6 +99,8 @@ private:
 
     mutable bool m_modified;
     mutable QList<const ObjectValue *> m_all;
+
+    static bool s_setSkipmakeComponentChain;
 };
 
 } // namespace QmlJS

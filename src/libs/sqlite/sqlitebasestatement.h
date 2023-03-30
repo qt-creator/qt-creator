@@ -50,8 +50,6 @@ public:
     BaseStatement(const BaseStatement &) = delete;
     BaseStatement &operator=(const BaseStatement &) = delete;
 
-    static void deleteCompiledStatement(sqlite3_stmt *m_compiledStatement);
-
     bool next() const;
     void step() const;
     void reset() const noexcept;
@@ -109,35 +107,11 @@ public:
 
     sqlite3 *sqliteDatabaseHandle() const;
 
-    [[noreturn]] void checkForStepError(int resultCode) const;
-    [[noreturn]] void checkForPrepareError(int resultCode) const;
-    [[noreturn]] void checkForBindingError(int resultCode) const;
     void setIfIsReadyToFetchValues(int resultCode) const;
     void checkBindingName(int index) const;
     void checkBindingParameterCount(int bindingParameterCount) const;
     void checkColumnCount(int columnCount) const;
     bool isReadOnlyStatement() const;
-    [[noreturn]] void throwStatementIsBusy(const char *whatHasHappened) const;
-    [[noreturn]] void throwStatementHasError(const char *whatHasHappened) const;
-    [[noreturn]] void throwStatementIsMisused(const char *whatHasHappened) const;
-    [[noreturn]] void throwInputOutputError(const char *whatHasHappened) const;
-    [[noreturn]] void throwConstraintPreventsModification(const char *whatHasHappened) const;
-    [[noreturn]] void throwNoValuesToFetch(const char *whatHasHappened) const;
-    [[noreturn]] void throwInvalidColumnFetched(const char *whatHasHappened) const;
-    [[noreturn]] void throwBindingIndexIsOutOfRange(const char *whatHasHappened) const;
-    [[noreturn]] void throwWrongBingingName(const char *whatHasHappened) const;
-    [[noreturn]] void throwUnknowError(const char *whatHasHappened) const;
-    [[noreturn]] void throwBingingTooBig(const char *whatHasHappened) const;
-    [[noreturn]] void throwTooBig(const char *whatHasHappened) const;
-    [[noreturn]] void throwSchemaChangeError(const char *whatHasHappened) const;
-    [[noreturn]] void throwCannotWriteToReadOnlyConnection(const char *whatHasHappened) const;
-    [[noreturn]] void throwProtocolError(const char *whatHasHappened) const;
-    [[noreturn]] void throwDatabaseExceedsMaximumFileSize(const char *whatHasHappened) const;
-    [[noreturn]] void throwDataTypeMismatch(const char *whatHasHappened) const;
-    [[noreturn]] void throwConnectionIsLocked(const char *whatHasHappened) const;
-    [[noreturn]] void throwExecutionInterrupted(const char *whatHasHappened) const;
-    [[noreturn]] void throwDatabaseIsCorrupt(const char *whatHasHappened) const;
-    [[noreturn]] void throwCannotOpen(const char *whatHasHappened) const;
 
     QString columnName(int column) const;
 
@@ -147,7 +121,13 @@ protected:
     ~BaseStatement() = default;
 
 private:
-    std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt *)> m_compiledStatement;
+    struct Deleter
+    {
+        SQLITE_EXPORT void operator()(sqlite3_stmt *statement);
+    };
+
+private:
+    std::unique_ptr<sqlite3_stmt, Deleter> m_compiledStatement;
     Database &m_database;
 };
 
@@ -417,7 +397,7 @@ private:
             : statement(statement)
         {
             if (statement && !statement->database().isLocked())
-                throw DatabaseIsNotLocked{"Database connection is not locked!"};
+                throw DatabaseIsNotLocked{};
         }
 
         Resetter(Resetter &) = delete;

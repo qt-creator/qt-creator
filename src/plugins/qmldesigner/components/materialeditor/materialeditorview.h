@@ -3,28 +3,24 @@
 
 #pragma once
 
-#include <abstractview.h>
-#include <itemlibraryinfo.h>
+#include "abstractview.h"
+#include "modelnode.h"
 
 #include <QHash>
 #include <QPointer>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
+class QColorDialog;
 class QShortcut;
 class QStackedWidget;
-class QTimer;
-class QColorDialog;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class ModelNode;
-class MaterialEditorQmlBackend;
-
-namespace Internal {
 class DynamicPropertiesModel;
-}
+class ItemLibraryInfo;
+class MaterialEditorQmlBackend;
 
 class MaterialEditorView : public AbstractView
 {
@@ -79,7 +75,7 @@ public:
 
     void currentTimelineChanged(const ModelNode &node) override;
 
-    Internal::DynamicPropertiesModel *dynamicPropertiesModel() const;
+    DynamicPropertiesModel *dynamicPropertiesModel() const;
 
     static MaterialEditorView *instance();
 
@@ -133,7 +129,7 @@ private:
 
     QPointer<QColorDialog> m_colorDialog;
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;
-    Internal::DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
+    DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
 };
 
 } // namespace QmlDesigner

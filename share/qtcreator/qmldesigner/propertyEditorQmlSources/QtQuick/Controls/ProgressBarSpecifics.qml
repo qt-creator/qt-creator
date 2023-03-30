@@ -17,7 +17,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Value")
-                tooltip: qsTr("The current value of the progress.")
+                tooltip: qsTr("Sets the value of the progress bar.")
             }
 
             SecondColumnLayout {
@@ -37,7 +37,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("From")
-                tooltip: qsTr("The starting value for the progress.")
+                tooltip: qsTr("Sets the minimum value of the progress bar.")
             }
 
             SecondColumnLayout {
@@ -57,7 +57,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("To")
-                tooltip: qsTr("The ending value for the progress.")
+                tooltip: qsTr("Sets the maximum value of the progress bar.")
             }
 
             SecondColumnLayout {
@@ -77,7 +77,9 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Indeterminate")
-                tooltip: qsTr("Whether the progress is indeterminate.")
+                tooltip: qsTr("Toggles if the progress bar is in indeterminate mode.\n"
+                            +"A progress bar in indeterminate mode displays that an\n"
+                            + "operation is in progress.")
                 blockedByTemplate: !backendValues.indeterminate.isAvailable
             }
 

@@ -3,40 +3,42 @@
 
 #pragma once
 
-#include <modelnode.h>
+#include <QObject>
+
+namespace Utils {
+class FilePath;
+}
 
 namespace QmlDesigner {
 
 class AbstractView;
+class ModelNode;
 
 enum class AddTextureMode { Image, Texture, LightProbe };
 
-class CreateTexture
+class CreateTexture : public QObject
 {
+    Q_OBJECT
+
 public:
-    CreateTexture(AbstractView *view, bool importFiles = false);
-    void execute(const QString &filePath, AddTextureMode mode, int sceneId);
+    CreateTexture(AbstractView *view);
+
+    ModelNode execute(const QString &filePath, AddTextureMode mode = AddTextureMode::Texture, int sceneId = -1);
     ModelNode resolveSceneEnv(int sceneId);
     void assignTextureAsLightProbe(const ModelNode &texture, int sceneId);
 
 private:
     bool addFileToProject(const QString &filePath);
-    ModelNode createTextureFromImage(const QString &assetPath, AddTextureMode mode);
+    ModelNode createTextureFromImage(const Utils::FilePath &assetPath, AddTextureMode mode);
 
-private:
     AbstractView *m_view = nullptr;
-    bool m_importFile = false;
 };
 
 class CreateTextures : public CreateTexture
 {
 public:
     using CreateTexture::CreateTexture;
-    void execute(const QStringList &filePaths, AddTextureMode mode, int sceneId)
-    {
-        for (const QString &path : filePaths)
-            CreateTexture::execute(path, mode, sceneId);
-    }
+    void execute(const QStringList &filePaths, AddTextureMode mode, int sceneId = -1);
 };
 
-}
+} // namespace QmlDesigner

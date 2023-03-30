@@ -66,9 +66,8 @@ void MeshImageCacheCollector::start(Utils::SmallStringView name,
     m_imageCacheCollector.start(path, state, auxiliaryData, captureCallback, abortCallback);
 }
 
-std::pair<QImage, QImage> MeshImageCacheCollector::createImage(Utils::SmallStringView,
-                                                               Utils::SmallStringView,
-                                                               const ImageCache::AuxiliaryData &)
+ImageCacheCollectorInterface::ImageTuple MeshImageCacheCollector::createImage(
+    Utils::SmallStringView, Utils::SmallStringView, const ImageCache::AuxiliaryData &)
 {
     return {};
 }

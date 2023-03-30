@@ -28,6 +28,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+#include <designdocument.h>
 #include <designmodewidget.h>
 #include <propertyeditorqmlbackend.h>
 #include <utils/environment.h>
@@ -54,7 +55,7 @@ TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
     : AbstractView{externalDependencies}
     , m_imageCache(imageCache)
     , m_stackedWidget(new QStackedWidget)
-    , m_dynamicPropertiesModel(new Internal::DynamicPropertiesModel(true, this))
+    , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F12), m_stackedWidget);
     connect(m_updateShortcut, &QShortcut::activated, this, &TextureEditorView::reloadQml);
@@ -62,7 +63,9 @@ TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
     m_ensureMatLibTimer.callOnTimeout([this] {
         if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()
             && model()->rewriterView()->errors().isEmpty()) {
-            ensureMaterialLibraryNode();
+            DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
+            if (doc && !doc->inFileComponentModelActive())
+                ensureMaterialLibraryNode();
             if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
                 m_qmlBackEnd->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
             m_ensureMatLibTimer.stop();
@@ -288,7 +291,7 @@ void TextureEditorView::currentTimelineChanged(const ModelNode &)
     m_qmlBackEnd->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
 }
 
-Internal::DynamicPropertiesModel *TextureEditorView::dynamicPropertiesModel() const
+DynamicPropertiesModel *TextureEditorView::dynamicPropertiesModel() const
 {
     return m_dynamicPropertiesModel;
 }
@@ -670,7 +673,8 @@ WidgetInfo TextureEditorView::widgetInfo()
                             "TextureEditor",
                             WidgetInfo::RightPane,
                             0,
-                            tr("Texture Editor"));
+                            tr("Texture Editor"),
+                            tr("Texture Editor view"));
 }
 
 void TextureEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,

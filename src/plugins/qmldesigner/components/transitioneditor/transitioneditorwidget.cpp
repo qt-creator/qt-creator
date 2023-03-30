@@ -92,6 +92,9 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
     setWindowTitle(tr("Transition", "Title of transition view"));
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+    m_toolbar->setStyleSheet(Theme::replaceCssColors(
+        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
+
     const QString css = Theme::replaceCssColors(
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
 

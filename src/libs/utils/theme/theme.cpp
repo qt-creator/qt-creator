@@ -91,6 +91,9 @@ Theme::Theme(Theme *originTheme, QObject *parent)
 
 Theme::~Theme()
 {
+    if (this == m_creatorTheme)
+        m_creatorTheme = nullptr;
+
     delete d;
 }
 

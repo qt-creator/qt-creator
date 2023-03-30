@@ -6,6 +6,7 @@
 #include "spydummy.h"
 
 #include <sqlitedatabase.h>
+#include <sqliteprogresshandler.h>
 #include <sqlitereadstatement.h>
 #include <sqlitetable.h>
 #include <sqlitewritestatement.h>
@@ -32,15 +33,9 @@ class SqliteDatabase : public ::testing::Test
 protected:
     SqliteDatabase()
     {
-        database.lock();
-        database.setJournalMode(JournalMode::Memory);
-        database.setDatabaseFilePath(databaseFilePath);
-        Table table;
         table.setName("test");
         table.addColumn("id", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
         table.addColumn("name");
-
-        database.open();
 
         table.initialize(database);
     }
@@ -49,7 +44,6 @@ protected:
     {
         if (database.isOpen())
             database.close();
-        database.unlock();
     }
 
     std::vector<Utils::SmallString> names() const
@@ -68,17 +62,18 @@ protected:
 
 protected:
     SpyDummy spyDummy;
-    QString databaseFilePath{":memory:"};
-    mutable Sqlite::Database database;
+    Table table;
+    mutable Sqlite::Database database{":memory:", JournalMode::Memory};
     Sqlite::TransactionInterface &transactionInterface = database;
     MockFunction<void(Sqlite::ChangeType tupe, char const *, char const *, long long)> callbackMock;
     std::function<void(Sqlite::ChangeType tupe, char const *, char const *, long long)>
         callback = callbackMock.AsStdFunction();
+    std::unique_lock<Sqlite::Database> lock{database};
 };
 
 TEST_F(SqliteDatabase, SetDatabaseFilePath)
 {
-    ASSERT_THAT(database.databaseFilePath(), databaseFilePath);
+    ASSERT_THAT(database.databaseFilePath(), ":memory:");
 }
 
 TEST_F(SqliteDatabase, SetJournalMode)
@@ -335,7 +330,7 @@ TEST_F(SqliteDatabase, SessionsCommit)
         .write(2, "hoo");
     database.applyAndUpdateSessions();
 
-    ASSERT_THAT(names(), ElementsAre("foo", "bar"));
+    ASSERT_THAT(names(), UnorderedElementsAre("foo", "bar"));
 }
 
 TEST_F(SqliteDatabase, SessionsRollback)
@@ -353,7 +348,41 @@ TEST_F(SqliteDatabase, SessionsRollback)
         .write(2, "hoo");
     database.applyAndUpdateSessions();
 
-    ASSERT_THAT(names(), ElementsAre("foo", "hoo"));
+    ASSERT_THAT(names(), UnorderedElementsAre("foo", "hoo"));
+}
+
+TEST_F(SqliteDatabase, ProgressHandlerInterrupts)
+{
+    Sqlite::WriteStatement<1> statement("INSERT INTO test(name) VALUES (?)", database);
+    lock.unlock();
+    Sqlite::ProgressHandler handler{[] { return Sqlite::Progress::Interrupt; }, 1, database};
+    lock.lock();
+
+    ASSERT_THROW(statement.write(42), Sqlite::ExecutionInterrupted);
+    lock.unlock();
+}
+
+TEST_F(SqliteDatabase, ProgressHandlerContinues)
+{
+    Sqlite::WriteStatement<1> statement("INSERT INTO test(name) VALUES (?)", database);
+    lock.unlock();
+    Sqlite::ProgressHandler handler{[] { return Sqlite::Progress::Continue; }, 1, database};
+    lock.lock();
+
+    ASSERT_NO_THROW(statement.write(42));
+    lock.unlock();
+}
+
+TEST_F(SqliteDatabase, ProgressHandlerResetsAfterLeavingScope)
+{
+    lock.unlock();
+    {
+        Sqlite::ProgressHandler handler{[] { return Sqlite::Progress::Interrupt; }, 1, database};
+    }
+    lock.lock();
+    Sqlite::WriteStatement<1> statement("INSERT INTO test(name) VALUES (?)", database);
+
+    ASSERT_NO_THROW(statement.write(42));
 }
 
 } // namespace

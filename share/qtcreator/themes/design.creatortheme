@@ -23,37 +23,119 @@ textColorLink=ff007af4
 textColorLinkVisited=ffa57aff
 backgroundColorDisabled=ff444444
 
-[Colors]
-;DS controls theme START
-DSpanelBackground=ff2E2F30
+;DS Theme Palette START
+;greyscale
+fullWhite=ffffffff
+lightWhite=ffdfdfdf
+offWhite=ffdcdada
+slateGrey=ff8d8d8d
+concreteGrey=ffbbbbbb
+smokeGrey=ff8b8b8b
+shadowGrey=ff636363
+duskGrey=ff606060
+raincloudGrey=ff4d4d4d
+graniteGrey=ff343434
+ashGrey=ff434343
+midnightGrey=ff333333
+dawnGrey=ff2a2a2a
+offBlack=ff202020
+nearBlack=ff1b1b1b
+fullBlack=ff000000
 
+;special colors
+idleGreen=ff649a5d
+runningGreen=ff2eff68
+successGreen=ff2bcf32
+idleRed=ff6a4242
+recordingRed=ffcc3c34
+errorRed=ffaf2b2b
+warningOrange=ffca8113
+splitterBlue=ff64daff
+rgbBlue=ff64daff
+highlightBlue=ff57b9fc
+highlightHover=ff74CBFC
+;DS Theme Palette END
+
+[Colors]
+;DS controls theme
+
+;NEW FOR QtDS 4.0
+DScontrolBackground_toolbarIdle=midnightGrey
+DScontrolBackground_toolbarHover=midnightGrey
+DScontrolBackground_topToolbarHover=ashGrey
+DScontrolBackground_statusbarIdle=offBlack
+DSControlBackground_statusbarHover=dawnGrey
+DScontrolOutline_topToolbarIdle=dawnGrey
+DScontrolOutline_topToolbarHover=raincloudGrey
+DSidleGreen=idleGreen
+DSrunningGreen=runningGreen
+DStoolbarBackground=midnightGrey
+DStoolbarIcon_blocked=shadowGrey
+DSthumbnailBackground_baseState=nearBlack
+DStextColor=lightWhite
+DSstatusbarBackground=offBlack
+DSprimaryButton_hoverHighlight=highlightHover
+DSstateBackgroundColor_hover=ashGrey
+DSstateControlBackgroundColor_globalHover=ashGrey
+DSstateControlBackgroundColor_hover=raincloudGrey
+DSpanelBackground=dawnGrey
+;END NEW FOR QtDS 4.0
+
+;REMAPPED
+DSinteraction=highlightBlue
+DScontrolBackground=dawnGrey
+DScontrolOutlineInteraction=highlightBlue
+DScontrolOutline=nearBlack
+DSiconColorInteraction=nearBlack
+DSiconColorSelected=nearBlack
+DSsectionHeadBackground=midnightGrey
+DSstateSeparatorColor=graniteGrey
+DSnavigatorItemBackground=dawnGrey
+DSnavigatorItemBackgroundHover=graniteGrey
+DSnavigatorItemBackgroundSelected=midnightGrey
+DStabActiveBackground=raincloudGrey
+DStabActiveText=offWhite
+DStabActiveIcon=offWhite
+DStabFocusButtonHover=highlightBlue
+DStabFocusButtonPress=highlightBlue
+DStabFocusBackground=highlightBlue
+DSnavigatorText=lightWhite
+DSpopupBackground=offBlack
+DSinteractionHover=highlightHover
+DSnavigatorTextSelected=highlightBlue
+
+;contentious remap
+;background color for main form view, library, navigator, properties, connections
+QmlDesigner_BackgroundColorDarkAlternate=dawnGrey
+
+;TODO
+DSscrollBarTrack=dawnGrey
+DSscrollBarHandle=offBlack
+
+DSdockWidgetTitleBar=dawnGrey
+DSdockWidgetSplitter=fullBlack
+
+;LEGACY
 DSwelcomeScreenBackground=ff242424
 DSsubPanelBackground=ff1c1c1c
 DSthumbnailBackground=ff232323
 DSthumbnailLabelBackground=ff2b2a2a
-
 DSgreenLight=ff5cdc68
 DSamberLight=ffffbf00
 DSredLight=ffff0401
 
-DSinteraction=ff2aafd3
 DSerrorColor=ffdf3a3a
 DSwarningColor=warning
 DSdisabledColor=ff707070
 
-DSinteractionHover=ff74cbfc
 
-DScontrolBackground=ff2e2f30
 DScontrolBackgroundInteraction=ff3d3d3d
 DScontrolBackgroundDisabled=ff2e2f30
 DScontrolBackgroundGlobalHover=ff333333
 DScontrolBackgroundHover=ff333333
 
-DScontrolOutline=ff1f1f1f
-DScontrolOutlineInteraction=ff2aafd3
 DScontrolOutlineDisabled=ff707070
 
-DStextColor=ffffffff
 DStextColorDisabled=ff707070
 DStextSelectionColor=ff2aafd3
 DStextSelectedTextColor=ff000000
@@ -61,18 +143,16 @@ DStextSelectedTextColor=ff000000
 DSplaceholderTextColor=ffffffff
 DSplaceholderTextColorInteraction=ffababab
 
-DSiconColor=ffffffff
+DSiconColor=fullWhite
 DSiconColorHover=ffffffff
-DSiconColorInteraction=ff707070
 DSiconColorDisabled=ffC7C7C7
 DSiconColorSelected=ff2aafd3
-
 DSlinkIndicatorColor=ff808080
 DSlinkIndicatorColorHover=ffffffff
 DSlinkIndicatorColorInteraction=ff2aafd3
 DSlinkIndicatorColorDisabled=ff707070
 
-DSpopupBackground=ff474747
+
 DSpopupOverlayColor=99191919
 
 DSsliderActiveTrack=ff7c7b7b
@@ -86,14 +166,8 @@ DSsliderHandleHover=ff606060
 DSsliderHandleFocus=ff0492c9
 DSsliderHandleInteraction=ff2aafd3
 
-DSscrollBarTrack=ff3E3E3E
-DSscrollBarHandle=ff4C4C4C
-
-DSsectionHeadBackground=ff1f1f1f
-
 DSstateDefaultHighlight=ffffe400
-DSstateSeparatorColor=ff7c7b7b
-DSstateBackgroundColor=ff383838
+DSstateBackgroundColor=fffff000
 DSstatePreviewOutline=ffaaaaaa
 
 DSstatePanelBackground=ff252525
@@ -116,11 +190,7 @@ DStableHeaderText=ff00ff00
 DSdockContainerBackground=ff242424
 DSdockContainerSplitter=ff323232
 DSdockAreaBackground=ff262728
-
 DSdockWidgetBackground=ff00ff00
-DSdockWidgetSplitter=ff595959
-DSdockWidgetTitleBar=ff1f1f1f
-
 DStitleBarText=ffdadada
 DStitleBarIcon=ffffffff
 DStitleBarButtonHover=40ffffff
@@ -135,26 +205,16 @@ DStabInactiveIcon=ffffffff
 DStabInactiveButtonHover=ff1f1f1f
 DStabInactiveButtonPress=ff1f1f1f
 
-DStabActiveBackground=ffdadada
-DStabActiveText=ff111111
-DStabActiveIcon=ff000000
 DStabActiveButtonHover=ffdadada
 DStabActiveButtonPress=ffdadada
 
-DStabFocusBackground=ff2aafd3
 DStabFocusText=ff111111
 DStabFocusIcon=ff000000
-DStabFocusButtonHover=ff2aafd3
-DStabFocusButtonPress=ff2aafd3
 
 DSnavigatorBranch=ff7c7b7b
 DSnavigatorBranchIndicator=ff7c7b7b
-DSnavigatorItemBackground=ff2E2F30
-DSnavigatorItemBackgroundHover=ff333333
-DSnavigatorItemBackgroundSelected=ff3D3D3D
-DSnavigatorText=ffffffff
 DSnavigatorTextHover=ffffffff
-DSnavigatorTextSelected=ff2aafd3
+
 DSnavigatorIcon=ffffffff
 DSnavigatorIconHover=ffa1a1a1
 DSnavigatorIconSelected=ffffffff
@@ -349,143 +409,85 @@ ProjectExplorer_TaskWarn_TextMarkColor=warning
 CodeModel_Error_TextMarkColor=error
 CodeModel_Warning_TextMarkColor=warning
 
-
 ;Designer Main colors
 
 ; Design View panel backgrounds - Library, Form Viewer, Properties, States, Timeline & Connections. - lOOKS LIKE IS NO LONGER USED.
 QmlDesigner_BackgroundColor=ff4c4e50
-;QmlDesigner_BackgroundColor=ffd3299a
-
 
 ; Design View selected items - Navigator Selection, Timeline Property Selection, TImeline bar, property text highlighted
 QmlDesigner_HighlightColor=ff0492c9
 
-
-
 ; live selection color for the form editors smart guides.
-;QmlDesigner_FormEditorSelectionColor=ff4ba2ff
 QmlDesigner_FormEditorSelectionColor=ffd3299a
-
 
 ;color for lable text in form editor
 QmlDesigner_FormEditorForegroundColor=ffdadada
-;QmlDesigner_FormEditorForegroundColor=ffd3299a
-
-
-
-
-;new colors
-
-;background color for main form view, library, navigator, properties, connections
-;QmlDesigner_BackgroundColorDarkAlternate=ff4c4e50
-QmlDesigner_BackgroundColorDarkAlternate=ff2e2f30
 
 ;filter outlines, override W/H outlines, properties spinbox background, timeline separators.
-;QmlDesigner_BackgroundColorDarker=ff262728
 QmlDesigner_BackgroundColorDarker=ff191919
 
 ;properties outlines, states thumbnail outlines, add state button outlines.
-;QmlDesigner_BorderColor=splitter
 QmlDesigner_BorderColor=ff353535
 
 ;background sqaures for components, effects, etc. Handles for scrollbars, type background in properties.
-;QmlDesigner_ButtonColor=ff595b5c
 QmlDesigner_ButtonColor=ff353535
 
 
 ;non - selected tabs, text color for selected tabs.
-;QmlDesigner_TabDark=shadowBackground
 QmlDesigner_TabDark=ff111111
 
 
 ;active tab backgrounds and non selected tab text.
 QmlDesigner_TabLight=text
-;QmlDesigner_TabLight=ff262626
+
 
 ;extra_new_colors
-
-
 QmlDesigner_FormeditorBackgroundColor=ff000000
-
 QmlDesigner_AlternateBackgroundColor=ffc14fc1
-
 QmlDesigner_ScrollBarHandleColor=ff595b5c
-
-
 
 ;palette colors
 
 ;outline colors on the combo box, zoom slider, dialog outlines, on loading project the whole screen flashes this color
-;PaletteWindow=normalBackground
 PaletteWindow=ff262626
-
-
 
 ; item text for search results panel and application output panel, twirl down triangles in edit mode, text editor.
 PaletteWindowText=text
-;PaletteWindowText=ffd3299a
-
 
 ;Search bar background, edit view project list background, style combo box background
 PaletteBase=normalBackground
-;PaletteBase=ff191919
-
-
 
 ;can't see where this is used. ;Used in plugin dialog
 PaletteAlternateBase=normalBackground
-;PaletteAlternateBase=ffd3299a
-
-
 
 ;flow tag backgrounds, import combobox background, edit mode scrollbars
-;PaletteButton=shadowBackground
 PaletteButton=ff262626
-
-
 
 ;alternate text in the search and application output panel - NO LONGER SEEMS TO DO ANYTHING
 PaletteBrightText=ffff3333
-;PaletteBrightText=ffd3299a
-
 
 ; text inside dropdown combo boxes, styles, connections.
 PaletteText=text
-;PaletteText=ffd3299a
-
-
 
 ; text for ticks for tick boxes.
 PaletteButtonText=text
-;PaletteButtonText=ffd3299a
-
 
 PaletteButtonTextDisabled=textDisabled
 
-
 ;background color for the tool tip hover background
 PaletteToolTipBase=selectedBackground
-;PaletteToolTipBase=ffd3299a
-
 
 ;the selection highlight on the dropdown combo box in the file selection top menu and connections panel and tab mode selector dropdowns
 PaletteHighlight=selectedBackgroundText
 
-
 ; outline of warning in editor mode, underline of "open a document" page in the edit mode
 PaletteDark=shadowBackground
-;PaletteDark=ffd3299a
-
 
 ;selected text highlight in edit and design studio modes
 PaletteHighlightedText=ffffffff
-;PaletteHighlightedText=ffd3299a
-
 
 ; text for for floating tool tips
 PaletteToolTipText=text
-;PaletteToolTipText=ffd3299a
-
 
 PaletteLink=textColorLink
 PaletteLinkVisited=textColorLinkVisited
@@ -533,3 +535,4 @@ FlatMenuBar=true
 ToolBarIconShadow=true
 WindowColorAsBase=false
 DarkUserInterface=true
+QDSTheme=true

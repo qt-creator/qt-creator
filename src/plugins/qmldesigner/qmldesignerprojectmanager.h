@@ -68,7 +68,6 @@ private:
     std::unique_ptr<ImageCacheData> m_imageCacheData;
     std::unique_ptr<PreviewImageCacheData> m_previewImageCacheData;
     std::unique_ptr<QmlDesignerProjectManagerProjectData> m_projectData;
-    QTimer m_previewTimer;
     ExternalDependenciesInterface &m_externalDependencies;
 };
 } // namespace QmlDesigner

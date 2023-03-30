@@ -6,30 +6,26 @@
 
 #include <QDebug>
 
-#include <nodelistproperty.h>
-#include <modelnode.h>
 #include <bindingproperty.h>
-#include <variantproperty.h>
+#include <modelnode.h>
+#include <nodelistproperty.h>
 #include <rewriterview.h>
+#include <variantproperty.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
 #include <QWidget>
 
-enum {
-    debug = false
-};
-
+enum { debug = false };
 
 namespace QmlDesigner {
 
 StatesEditorModel::StatesEditorModel(StatesEditorView *view)
-    : QAbstractListModel(view),
-      m_statesEditorView(view),
-      m_updateCounter(0)
-{
-}
+    : QAbstractListModel(view)
+    , m_statesEditorView(view)
+    , m_updateCounter(0)
+{}
 
 int StatesEditorModel::count() const
 {
@@ -43,9 +39,12 @@ QModelIndex StatesEditorModel::index(int row, int column, const QModelIndex &par
 
     int internalNodeId = 0;
     if (row > 0 && row < rowCount() - 1) // first and last rows are base state, add state
-        internalNodeId = m_statesEditorView->acitveStatesGroupNode().nodeListProperty("states").at(row - 1).internalId();
+        internalNodeId = m_statesEditorView->acitveStatesGroupNode()
+                             .nodeListProperty("states")
+                             .at(row - 1)
+                             .internalId();
 
-    return hasIndex(row, column, parent) ? createIndex(row, column,  internalNodeId) : QModelIndex();
+    return hasIndex(row, column, parent) ? createIndex(row, column, internalNodeId) : QModelIndex();
 }
 
 int StatesEditorModel::rowCount(const QModelIndex &parent) const
@@ -56,7 +55,8 @@ int StatesEditorModel::rowCount(const QModelIndex &parent) const
     if (!m_statesEditorView->acitveStatesGroupNode().hasNodeListProperty("states"))
         return 2; // base state + add new state
 
-    return m_statesEditorView->acitveStatesGroupNode().nodeListProperty("states").count() + 2; // 2 = base state + add new state
+    return m_statesEditorView->acitveStatesGroupNode().nodeListProperty("states").count()
+           + 2; // 2 = base state + add new state
 }
 
 void StatesEditorModel::reset()
@@ -67,7 +67,8 @@ void StatesEditorModel::reset()
 
 QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
 {
-    if (index.parent().isValid() || index.column() != 0 || m_statesEditorView.isNull() || !m_statesEditorView->hasModelNodeForInternalId(index.internalId()))
+    if (index.parent().isValid() || index.column() != 0 || m_statesEditorView.isNull()
+        || !m_statesEditorView->hasModelNodeForInternalId(index.internalId()))
         return QVariant();
 
     ModelNode stateNode;
@@ -121,16 +122,14 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> StatesEditorModel::roleNames() const
 {
-    static QHash<int, QByteArray> roleNames {
-        {StateNameRole, "stateName"},
-        {StateImageSourceRole, "stateImageSource"},
-        {InternalNodeId, "internalNodeId"},
-        {HasWhenCondition, "hasWhenCondition"},
-        {WhenConditionString, "whenConditionString"},
-        {IsDefault, "isDefault"},
-        {ModelHasDefaultState, "modelHasDefaultState"},
-        {StateType, "type"}
-    };
+    static QHash<int, QByteArray> roleNames{{StateNameRole, "stateName"},
+                                            {StateImageSourceRole, "stateImageSource"},
+                                            {InternalNodeId, "internalNodeId"},
+                                            {HasWhenCondition, "hasWhenCondition"},
+                                            {WhenConditionString, "whenConditionString"},
+                                            {IsDefault, "isDefault"},
+                                            {ModelHasDefaultState, "modelHasDefaultState"},
+                                            {StateType, "type"}};
     return roleNames;
 }
 
@@ -167,19 +166,17 @@ void StatesEditorModel::renameState(int internalNodeId, const QString &newName)
     if (newName == m_statesEditorView->currentStateName())
         return;
 
-    if (newName.isEmpty() ||! m_statesEditorView->validStateName(newName)) {
-        QTimer::singleShot(0, [newName]{
+    if (newName.isEmpty() || !m_statesEditorView->validStateName(newName)) {
+        QTimer::singleShot(0, [newName] {
             Core::AsynchronousMessageBox::warning(
-                        tr("Invalid State Name"),
-                        newName.isEmpty() ?
-                            tr("The empty string as a name is reserved for the base state.") :
-                            tr("Name already used in another state."));
+                tr("Invalid State Name"),
+                newName.isEmpty() ? tr("The empty string as a name is reserved for the base state.")
+                                  : tr("Name already used in another state."));
         });
         reset();
     } else {
         m_statesEditorView->renameState(internalNodeId, newName);
     }
-
 }
 
 void StatesEditorModel::setWhenCondition(int internalNodeId, const QString &condition)

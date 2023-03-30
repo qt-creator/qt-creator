@@ -22,6 +22,7 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     //  -> SpriteParticle3D
     //  -> TextureInput
     //  -> SceneEnvironment
+    //  -> Model
     // Effect
     //  -> SceneEnvironment
     // Shader, Command, Buffer
@@ -41,6 +42,8 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     //  -> Model
     // Effect
     //  -> Item
+    // BakedLightmap
+    //  -> Model
 
     if (insertInfo.isQtQuick3DTexture()) {
         if (parentInfo.isQtQuick3DDefaultMaterial() || parentInfo.isQtQuick3DPrincipledMaterial()
@@ -63,6 +66,8 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
                 propertyList.append("skyBoxCubeMap");
             else
                 propertyList.append("lightProbe");
+        } else if (parentInfo.isQtQuick3DModel()) {
+            propertyList.append("materials");
         }
     } else if (insertInfo.isQtQuick3DEffect()) {
         if (parentInfo.isQtQuick3DSceneEnvironment())
@@ -98,6 +103,9 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     } else if (insertInfo.isEffectMaker()) {
         if (parentInfo.isQtQuickItem())
             propertyList.append("effect");
+    } else if (insertInfo.isQtQuick3DBakedLightmap()) {
+        if (parentInfo.isQtQuick3DModel())
+            propertyList.append("bakedLightmap");
     }
 }
 

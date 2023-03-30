@@ -3,131 +3,118 @@
 
 #pragma once
 
+#include "../include/qmldesignercorelib_global.h"
+
 #include <exception>
 
 namespace QmlDesigner {
 
-class NoSourcePathForInvalidSourceId : std::exception
+class QMLDESIGNERCORE_EXPORT NoSourcePathForInvalidSourceId : std::exception
 {
 public:
-    const char *what() const noexcept override
-    {
-        return "You cannot get a file path for an invalid file path id!";
-    }
+    const char *what() const noexcept override;
 };
 
-class NoSourceContextPathForInvalidSourceContextId : std::exception
+class QMLDESIGNERCORE_EXPORT NoSourceContextPathForInvalidSourceContextId : std::exception
 {
 public:
-    const char *what() const noexcept override
-    {
-        return "You cannot get a directory path for an invalid directory path id!";
-    }
+    const char *what() const noexcept override;
 };
 
-class SourceContextIdDoesNotExists : std::exception
+class QMLDESIGNERCORE_EXPORT SourceContextIdDoesNotExists : std::exception
 {
 public:
-    const char *what() const noexcept override
-    {
-        return "The source context id does not exist in the database!";
-    }
+    const char *what() const noexcept override;
 };
 
-class SourceIdDoesNotExists : std::exception
+class QMLDESIGNERCORE_EXPORT SourceIdDoesNotExists : std::exception
 {
 public:
-    const char *what() const noexcept override
-    {
-        return "The source id does not exist in the database!";
-    }
+    const char *what() const noexcept override;
 };
 
-class TypeHasInvalidSourceId : std::exception
+class QMLDESIGNERCORE_EXPORT TypeHasInvalidSourceId : std::exception
 {
 public:
-    const char *what() const noexcept override { return "The source id is invalid!"; }
+    const char *what() const noexcept override;
 };
 
-class ModuleDoesNotExists : std::exception
+class QMLDESIGNERCORE_EXPORT ModuleDoesNotExists : std::exception
 {
 public:
-    const char *what() const noexcept override { return "The module does not exist!"; }
+    const char *what() const noexcept override;
 };
 
-class ModuleAlreadyExists : std::exception
+class QMLDESIGNERCORE_EXPORT ModuleAlreadyExists : std::exception
 {
 public:
-    const char *what() const noexcept override { return "The module does already exist!"; }
+    const char *what() const noexcept override;
 };
 
-class ExportedTypeCannotBeInserted : std::exception
+class QMLDESIGNERCORE_EXPORT ExportedTypeCannotBeInserted : std::exception
 {
 public:
-    const char *what() const noexcept override { return "The exported type cannot be inserted!"; }
+    const char *what() const noexcept override;
 };
 
-class TypeNameDoesNotExists : std::exception
+class QMLDESIGNERCORE_EXPORT TypeNameDoesNotExists : std::exception
 {
 public:
-    const char *what() const noexcept override { return "The type name does not exist!"; }
+    const char *what() const noexcept override;
 };
 
-class PropertyNameDoesNotExists : std::exception
+class QMLDESIGNERCORE_EXPORT PropertyNameDoesNotExists : std::exception
 {
 public:
-    const char *what() const noexcept override { return "The property name does not exist!"; }
+    const char *what() const noexcept override;
 };
 
-class PrototypeChainCycle : std::exception
+class QMLDESIGNERCORE_EXPORT PrototypeChainCycle : std::exception
 {
 public:
-    const char *what() const noexcept override { return "There is a prototype chain cycle!"; }
+    const char *what() const noexcept override;
 };
 
-class AliasChainCycle : std::exception
+class QMLDESIGNERCORE_EXPORT AliasChainCycle : std::exception
 {
 public:
-    const char *what() const noexcept override { return "There is a prototype chain cycle!"; }
+    const char *what() const noexcept override;
 };
 
-class CannotParseQmlTypesFile : std::exception
+class QMLDESIGNERCORE_EXPORT CannotParseQmlTypesFile : std::exception
 {
 public:
-    const char *what() const noexcept override { return "Cannot parse qml types file!"; }
+    const char *what() const noexcept override;
 };
 
-class CannotParseQmlDocumentFile : std::exception
+class QMLDESIGNERCORE_EXPORT CannotParseQmlDocumentFile : std::exception
 {
 public:
-    const char *what() const noexcept override { return "Cannot parse qml types file!"; }
+    const char *what() const noexcept override;
 };
 
-class ProjectDataHasInvalidProjectSourceId : std::exception
+class QMLDESIGNERCORE_EXPORT ProjectDataHasInvalidProjectSourceId : std::exception
 {
 public:
-    const char *what() const noexcept override { return "The project source id is invalid!"; }
+    const char *what() const noexcept override;
 };
 
-class ProjectDataHasInvalidSourceId : std::exception
+class QMLDESIGNERCORE_EXPORT ProjectDataHasInvalidSourceId : std::exception
 {
 public:
-    const char *what() const noexcept override { return "The source id is invalid!"; }
+    const char *what() const noexcept override;
 };
 
-class ProjectDataHasInvalidModuleId : std::exception
+class QMLDESIGNERCORE_EXPORT ProjectDataHasInvalidModuleId : std::exception
 {
 public:
-    const char *what() const noexcept override { return "The module id is invalid!"; }
+    const char *what() const noexcept override;
 };
 
-class FileStatusHasInvalidSourceId : std::exception
+class QMLDESIGNERCORE_EXPORT FileStatusHasInvalidSourceId : std::exception
 {
 public:
-    const char *what() const noexcept override
-    {
-        return "The source id in file status is invalid!";
-    }
+    const char *what() const noexcept override;
 };
 
 } // namespace QmlDesigner

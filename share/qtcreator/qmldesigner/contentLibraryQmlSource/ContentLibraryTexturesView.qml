@@ -5,12 +5,13 @@ import QtQuick
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import ContentLibraryBackend
 
 HelperWidgets.ScrollView {
     id: root
 
     clip: true
-    interactive: !ctxMenu.opened
+    interactive: !ctxMenu.opened && !ContentLibraryBackend.rootView.isDragging
 
     readonly property int cellWidth: 100
     readonly property int cellHeight: 100
@@ -20,6 +21,7 @@ HelperWidgets.ScrollView {
 
     required property var searchBox
     required property var model
+    required property string sectionCategory
 
     signal unimport(var bundleMat);
 
@@ -56,6 +58,8 @@ HelperWidgets.ScrollView {
                 visible: bundleCategoryVisible && !root.model.isEmpty
                 expanded: bundleCategoryExpanded
                 expandOnClick: false
+                category: root.sectionCategory
+
                 onToggleExpand: bundleCategoryExpanded = !bundleCategoryExpanded
                 onExpand: bundleCategoryExpanded = true
                 onCollapse: bundleCategoryExpanded = false
@@ -90,7 +94,7 @@ HelperWidgets.ScrollView {
             id: infoText
             text: {
                 if (!root.model.texBundleExists)
-                    qsTr("<b>Content Library</b> textures are not installed.")
+                    qsTr("No textures available. Make sure you have internet connection.")
                 else if (!searchBox.isEmpty())
                     qsTr("No match found.")
                 else

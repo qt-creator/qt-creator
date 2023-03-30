@@ -7,6 +7,7 @@
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
+class QSize;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -26,7 +27,8 @@ class ContentLibraryTexturesCategory : public QObject
 public:
     ContentLibraryTexturesCategory(QObject *parent, const QString &name);
 
-    void addTexture(const QFileInfo &tex);
+    void addTexture(const QFileInfo &tex, const QString &subPath, const QString &webUrl,
+                    const QString &fileExt, const QSize &dimensions, const qint64 sizeInBytes);
     bool filter(const QString &searchText);
 
     QString name() const;

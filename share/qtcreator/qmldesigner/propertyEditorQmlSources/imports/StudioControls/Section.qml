@@ -1,12 +1,15 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
+import QtQuick
+import QtQuick.Layouts
 import StudioTheme 1.0 as StudioTheme
 
 Item {
-    id: section
+    id: control
+
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+
     property alias caption: label.text
     property alias captionPixelSize: label.font.pixelSize
     property alias captionColor: header.color
@@ -23,34 +26,36 @@ Item {
         id: header
         anchors.left: parent.left
         anchors.right: parent.right
-        height: StudioTheme.Values.sectionHeadHeight
-        color: StudioTheme.Values.themeSectionHeadBackground
+        height: control.style.sectionHeadHeight
+        color: control.style.section.head
 
         SectionLabel {
             id: label
+            style: control.style
             anchors.verticalCenter: parent.verticalCenter
-            color: StudioTheme.Values.themeTextColor
+            color: control.style.text.idle
             x: 22
-            font.pixelSize: StudioTheme.Values.myFontSize
+            font.pixelSize: control.style.baseFontSize
             font.capitalization: Font.AllUppercase
         }
 
         SectionLabel {
             id: arrow
-            width: StudioTheme.Values.spinControlIconSizeMulti
-            height: StudioTheme.Values.spinControlIconSizeMulti
+            style: control.style
+            width: control.style.smallIconSize.width
+            height: control.style.smallIconSize.height
             text: StudioTheme.Constants.sectionToggle
-            color: StudioTheme.Values.themeTextColor
+            color: control.style.icon.idle
             renderType: Text.NativeRendering
             anchors.left: parent.left
             anchors.leftMargin: 4
             anchors.verticalCenter: parent.verticalCenter
-            font.pixelSize: StudioTheme.Values.spinControlIconSizeMulti
+            font.pixelSize: control.style.smallIconFontSize
             font.family: StudioTheme.Constants.iconFont.family
             Behavior on rotation {
                 NumberAnimation {
                     easing.type: Easing.OutCubic
-                    duration: section.animationDuration
+                    duration: control.animationDuration
                 }
             }
         }
@@ -58,9 +63,9 @@ Item {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                section.expanded = !section.expanded
-                if (!section.expanded) // TODO
-                    section.forceActiveFocus()
+                control.expanded = !control.expanded
+                if (!control.expanded) // TODO
+                    control.forceActiveFocus()
             }
         }
     }
@@ -73,7 +78,7 @@ Item {
 
     Row {
         id: topRow
-        height: StudioTheme.Values.sectionHeadSpacerHeight
+        height: control.style.sectionHeadSpacerHeight
         anchors.top: header.bottom
     }
 
@@ -88,21 +93,21 @@ Item {
 
     Row {
         id: bottomRow
-        height: StudioTheme.Values.sectionHeadSpacerHeight
+        height: control.style.sectionHeadSpacerHeight
         anchors.top: column.bottom
     }
 
     Behavior on implicitHeight {
         NumberAnimation {
             easing.type: Easing.OutCubic
-            duration: section.animationDuration
+            duration: control.animationDuration
         }
     }
 
     states: [
         State {
             name: "Expanded"
-            when: section.expanded
+            when: control.expanded
             PropertyChanges {
                 target: arrow
                 rotation: 0
@@ -110,9 +115,9 @@ Item {
         },
         State {
             name: "Collapsed"
-            when: !section.expanded
+            when: !control.expanded
             PropertyChanges {
-                target: section
+                target: control
                 implicitHeight: header.height
             }
             PropertyChanges {

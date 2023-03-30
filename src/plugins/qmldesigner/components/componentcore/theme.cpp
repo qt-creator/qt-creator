@@ -11,12 +11,13 @@
 #include <utils/stylehelper.h>
 
 #include <QApplication>
+#include <QMainWindow>
+#include <QPointer>
+#include <QQmlComponent>
+#include <QQmlEngine>
+#include <QQmlProperty>
 #include <QRegularExpression>
 #include <QScreen>
-#include <QPointer>
-#include <QQmlEngine>
-#include <QQmlComponent>
-#include <QQmlProperty>
 #include <qqml.h>
 
 static Q_LOGGING_CATEGORY(themeLog, "qtc.qmldesigner.theme", QtWarningMsg)
@@ -137,6 +138,11 @@ bool Theme::highPixelDensity() const
     return qApp->primaryScreen()->logicalDotsPerInch() > 100;
 }
 
+QWindow *Theme::mainWindowHandle() const
+{
+    return Core::ICore::mainWindow()->windowHandle();
+}
+
 QPixmap Theme::getPixmap(const QString &id)
 {
     return QmlDesignerIconProvider::getPixmap(id);
@@ -164,6 +170,21 @@ QString Theme::getIconUnicode(Theme::Icon i)
 QString Theme::getIconUnicode(const QString &name)
 {
     return instance()->m_constants->property(name.toStdString().data()).toString();
+}
+
+QIcon Theme::iconFromName(Icon i, QColor c)
+{
+    QColor color = c;
+    if (!color.isValid())
+        color = getColor(Theme::Color::DSiconColor);
+
+    const QString fontName = "qtds_propertyIconFont.ttf";
+    return Utils::StyleHelper::getIconFromIconFont(fontName, Theme::getIconUnicode(i), 32, 32, color);
+}
+
+int Theme::toolbarSize()
+{
+    return 41;
 }
 
 QColor Theme::qmlDesignerBackgroundColorDarker() const

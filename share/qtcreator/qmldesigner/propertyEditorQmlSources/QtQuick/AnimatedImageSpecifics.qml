@@ -24,6 +24,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Speed")
+                tooltip: qsTr("Sets the speed of the animation.")
                 blockedByTemplate: !backendValues.speed.isAvailable
             }
 
@@ -47,7 +48,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Playing")
-                tooltip: qsTr("Whether the animation is playing or paused.")
+                tooltip: qsTr("Toggles if the animation is playing.")
                 blockedByTemplate: !backendValues.playing.isAvailable && !backendValues.paused.isAvailable
             }
 

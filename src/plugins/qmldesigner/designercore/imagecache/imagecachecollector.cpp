@@ -53,6 +53,22 @@ ImageCacheCollector::ImageCacheCollector(ImageCacheConnectionManager &connection
 
 ImageCacheCollector::~ImageCacheCollector() = default;
 
+namespace {
+QImage scaleImage(const QImage &image, QSize targetSize)
+{
+    if (image.isNull())
+        return {};
+
+    const qreal ratio = qGuiApp->devicePixelRatio();
+    if (ratio > 1.0)
+        targetSize *= qRound(ratio);
+    QSize scaledImageSize = image.size().scaled(targetSize.boundedTo(image.size()),
+                                                Qt::KeepAspectRatio);
+    return image.scaled(scaledImageSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+}
+} // namespace
+
 void ImageCacheCollector::start(Utils::SmallStringView name,
                                 Utils::SmallStringView state,
                                 const ImageCache::AuxiliaryData &auxiliaryData,
@@ -104,17 +120,9 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     auto callback = [=, captureCallback = std::move(captureCallback)](const QImage &image) {
         if (nullImageHandling == ImageCacheCollectorNullImageHandling::CaptureNullImage
             || !image.isNull()) {
-            QSize targetSize {96, 96};
-            const qreal ratio = qGuiApp->devicePixelRatio();
-            if (ratio > 1.0)
-                targetSize *= qRound(ratio);
-            QSize smallImageSize = image.size().scaled(targetSize.boundedTo(image.size()),
-                                                       Qt::KeepAspectRatio);
-            QImage smallImage = image.isNull() ? QImage{}
-                                               : image.scaled(smallImageSize,
-                                                              Qt::IgnoreAspectRatio,
-                                                              Qt::SmoothTransformation);
-            captureCallback(image, smallImage);
+            QImage midSizeImage = scaleImage(image, QSize{300, 300});
+            QImage smallImage = scaleImage(midSizeImage, QSize{96, 96});
+            captureCallback(image, midSizeImage, smallImage);
         }
     };
 
@@ -138,9 +146,8 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
         abortCallback(ImageCache::AbortReason::Failed);
 }
 
-std::pair<QImage, QImage> ImageCacheCollector::createImage(Utils::SmallStringView,
-                                                           Utils::SmallStringView,
-                                                           const ImageCache::AuxiliaryData &)
+ImageCacheCollectorInterface::ImageTuple ImageCacheCollector::createImage(
+    Utils::SmallStringView, Utils::SmallStringView, const ImageCache::AuxiliaryData &)
 {
     return {};
 }

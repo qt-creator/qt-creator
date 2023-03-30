@@ -47,6 +47,15 @@ public:
     void contextHelp(const Core::IContext::HelpCallback &callback) const override;
 };
 
+class AssetsLibraryContext : public Core::IContext
+{
+    Q_OBJECT
+
+public:
+    AssetsLibraryContext(QWidget *widget);
+    void contextHelp(const Core::IContext::HelpCallback &callback) const override;
+};
+
 class NavigatorContext : public Core::IContext
 {
     Q_OBJECT

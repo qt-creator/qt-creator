@@ -13,13 +13,15 @@ HelperWidgets.ComboBox {
     editable: true
     model: comboBox.addDefaultItem(itemFilterModel.itemModel)
 
+    validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
+
     HelperWidgets.ItemFilterModel {
         id: itemFilterModel
         modelNodeBackendProperty: modelNodeBackend
     }
 
     property string defaultItem: qsTr("[None]")
-    property string textValue: comboBox.backendValue.expression
+    property string textValue: comboBox.backendValue?.expression ?? ""
     property bool block: false
     property bool dirty: true
 

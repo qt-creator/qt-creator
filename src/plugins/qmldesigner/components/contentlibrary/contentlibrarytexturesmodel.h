@@ -18,7 +18,7 @@ class ContentLibraryTexturesModel : public QAbstractListModel
     Q_PROPERTY(bool hasSceneEnv READ hasSceneEnv NOTIFY hasSceneEnvChanged)
 
 public:
-    ContentLibraryTexturesModel(QObject *parent = nullptr);
+    ContentLibraryTexturesModel(const QString &category, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -33,7 +33,8 @@ public:
     void setHasSceneEnv(bool b);
 
     void resetModel();
-    void loadTextureBundle(const QString &bundlePath);
+    void loadTextureBundle(const QString &remoteUrl, const QString &bundlePath,
+                           const QVariantMap &metaData);
 
 signals:
     void isEmptyChanged();
@@ -45,6 +46,7 @@ private:
     void updateIsEmpty();
 
     QString m_searchText;
+    QString m_category;
     QList<ContentLibraryTexturesCategory *> m_bundleCategories;
 
     bool m_isEmpty = true;

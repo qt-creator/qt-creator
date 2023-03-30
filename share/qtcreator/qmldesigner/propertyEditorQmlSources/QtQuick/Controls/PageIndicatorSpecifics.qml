@@ -16,7 +16,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Count")
-                tooltip: qsTr("The number of pages.")
+                tooltip: qsTr("Sets the number of pages.")
             }
 
             SecondColumnLayout {
@@ -35,7 +35,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Current")
-                tooltip: qsTr("The index of the current page.")
+                tooltip: qsTr("Sets the current page.")
             }
 
             SecondColumnLayout {
@@ -54,7 +54,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Interactive")
-                tooltip: qsTr("Whether the control is interactive.")
+                tooltip: qsTr("Toggles if the user can interact with the page indicator.")
             }
 
             SecondColumnLayout {

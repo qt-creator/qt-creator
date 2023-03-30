@@ -51,6 +51,12 @@ public:
     bool isPointer() const;
     QVariant castedValue(const QVariant &value) const;
 
+    friend bool operator==(const PropertyMetaInfo &first, const PropertyMetaInfo &second)
+    {
+        return first.m_nodeMetaInfoPrivateData == second.m_nodeMetaInfoPrivateData
+               && first.name() == second.name();
+    }
+
 private:
     const Storage::Info::PropertyDeclaration &propertyData() const;
     TypeName propertyTypeName() const;

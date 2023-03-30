@@ -16,7 +16,7 @@ Section {
     SectionLayout {
         PropertyLabel {
             text: qsTr("Enable")
-            tooltip: qsTr("Whether the control is enabled and hover events are received.")
+            tooltip: qsTr("Toggles if the component can receive hover events.")
         }
 
         SecondColumnLayout {
@@ -42,7 +42,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Focus policy")
-            tooltip: qsTr("Focus policy of the control.")
+            tooltip: qsTr("Sets focus method.")
             blockedByTemplate: !backendValues.focusPolicy.isAvailable
         }
 
@@ -62,7 +62,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Spacing")
-            tooltip: qsTr("Spacing between internal elements of the control.")
+            tooltip: qsTr("Sets the spacing between internal elements of the component.")
         }
 
         SecondColumnLayout {
@@ -81,7 +81,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Wheel")
-            tooltip: qsTr("Whether control accepts wheel events.")
+            tooltip: qsTr("Toggles if the component supports mouse wheel events.")
             blockedByTemplate: !backendValues.wheelEnabled.isAvailable
         }
 

@@ -19,5 +19,8 @@
         <file>images/assets_default_128.png</file>
         <file>images/asset_effectClass_128.png</file>
         <file>images/asset_effectExported_128.png</file>
+        <file>images/asset_ktx.png</file>
+        <file>images/asset_ktx@2x.png</file>
+        <file>images/asset_ktx_128.png</file>
     </qresource>
 </RCC>

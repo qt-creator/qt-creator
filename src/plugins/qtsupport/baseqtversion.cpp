@@ -640,7 +640,7 @@ bool QtVersion::hasReleaseBuild() const
     return !d->m_defaultConfigIsDebug || d->m_defaultConfigIsDebugAndRelease;
 }
 
-void QtVersion::fromMap(const QVariantMap &map)
+void QtVersion::fromMap(const QVariantMap &map, const FilePath &filePath)
 {
     d->m_id = map.value(Constants::QTVERSIONID).toInt();
     if (d->m_id == -1) // this happens on adding from installer, see updateFromInstaller => get a new unique id
@@ -665,6 +665,7 @@ void QtVersion::fromMap(const QVariantMap &map)
             d->m_qmakeCommand = BuildableHelperLibrary::qtChooserToQmakePath(qmake);
         }
     }
+    d->m_qmakeCommand = filePath.resolvePath(d->m_qmakeCommand);
 
     d->m_data.qtSources = FilePath::fromSettings(map.value(QTVERSIONSOURCEPATH));
 
@@ -2309,12 +2310,12 @@ bool QtVersionFactory::canRestore(const QString &type)
     return type == m_supportedType;
 }
 
-QtVersion *QtVersionFactory::restore(const QString &type, const QVariantMap &data)
+QtVersion *QtVersionFactory::restore(const QString &type, const QVariantMap &data, const FilePath &filePath)
 {
     QTC_ASSERT(canRestore(type), return nullptr);
     QTC_ASSERT(m_creator, return nullptr);
     QtVersion *version = create();
-    version->fromMap(data);
+    version->fromMap(data, filePath);
     return version;
 }
 

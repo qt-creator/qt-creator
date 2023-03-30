@@ -24,6 +24,9 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <qmldesignerbase/qmldesignerbaseplugin.h>
+#include <qmldesignerbase/utils/qmlpuppetpaths.h>
+
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
@@ -62,6 +65,7 @@ private:
     QmlMainFileAspect *m_qmlMainFileAspect = nullptr;
     QmlMultiLanguageAspect *m_multiLanguageAspect = nullptr;
     SelectionAspect *m_qtversionAspect = nullptr;
+    mutable bool usePuppetAsQmlRuntime = false;
 };
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
@@ -80,6 +84,8 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     setCommandLineGetter([this, target] {
         const FilePath qmlRuntime = qmlRuntimeFilePath();
         CommandLine cmd(qmlRuntime);
+        if (usePuppetAsQmlRuntime)
+            cmd.addArg("--qml-runtime");
 
         // arguments in .user file
         cmd.addArgs(aspect<ArgumentsAspect>()->arguments(), CommandLine::Raw);
@@ -193,6 +199,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
 
 FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 {
+    usePuppetAsQmlRuntime = false;
     // Give precedence to the manual override in the run configuration.
     const FilePath qmlViewer = m_qmlViewerAspect->filePath();
     if (!qmlViewer.isEmpty())
@@ -212,6 +219,14 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     // i.e. not necessarily something the device can use, but the
     // device had its chance above.
     if (QtVersion *version = QtKitAspect::qtVersion(kit)) {
+        if (version->qtVersion().majorVersion() > 5) {
+            auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
+                        target(), QmlDesigner::QmlDesignerBasePlugin::settings());
+            if (!puppetPath.isEmpty()) {
+                usePuppetAsQmlRuntime = true;
+                return puppetPath;
+            }
+        }
         const FilePath qmlRuntime = version->qmlRuntimeFilePath();
         if (!qmlRuntime.isEmpty())
             return qmlRuntime;

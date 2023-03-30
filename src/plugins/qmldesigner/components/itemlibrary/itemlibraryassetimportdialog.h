@@ -67,6 +67,7 @@ private:
 
     bool isSimpleGroup(const QString &id);
     bool isSimpleOption(const QString &id);
+    bool isHiddenOption(const QString &id);
 
     Ui::ItemLibraryAssetImportDialog *ui = nullptr;
     Utils::OutputFormatter *m_outputFormatter = nullptr;

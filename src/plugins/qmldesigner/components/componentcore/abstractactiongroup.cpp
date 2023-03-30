@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "abstractactiongroup.h"
+#include "qmleditormenu.h"
 
 #include <QMenu>
 
@@ -9,10 +10,14 @@ namespace QmlDesigner {
 
 AbstractActionGroup::AbstractActionGroup(const QString &displayName) :
     m_displayName(displayName),
-    m_menu(new QMenu)
+    m_menu(new QmlEditorMenu)
 {
     m_menu->setTitle(displayName);
     m_action = m_menu->menuAction();
+
+    QmlEditorMenu *qmlEditorMenu = qobject_cast<QmlEditorMenu *>(m_menu.data());
+    if (qmlEditorMenu)
+        qmlEditorMenu->setIconsVisible(false);
 }
 
 ActionInterface::Type AbstractActionGroup::type() const

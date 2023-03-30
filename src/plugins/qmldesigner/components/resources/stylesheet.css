@@ -95,3 +95,44 @@ QLineEdit:focus {
     background-color: creatorTheme.DScontrolBackgroundInteraction;
     border-color: creatorTheme.DScontrolOutlineInteraction;
 }
+
+QToolBar QLineEdit {
+    height: 27px; min-height: 27px; max-height: 27px;
+    border-radius: 4;
+    color: creatorTheme.DStextColor;
+    border: 1px solid creatorTheme.DScontrolOutline_topToolbarIdle;
+    background: creatorTheme.DStoolbarBackground;
+    /*font-size: 12px;*/
+}
+
+QToolBar QLineEdit:hover {
+    color: creatorTheme.DStextColor;
+    border: 1px solid creatorTheme.DScontrolOutline_topToolbarHover;
+    background: creatorTheme.DScontrolBackground_toolbarHover;
+}
+
+QToolBar QLineEdit:focus {
+    color: creatorTheme.DStextColor;
+    border: 1px solid creatorTheme.DSinteraction;
+    background: creatorTheme.DStoolbarBackground;
+}
+
+QToolBar QToolButton {
+    border: none;
+    padding: 0px;
+    width: 29px; min-width: 29px; max-width: 29px;
+    height: 29px; min-height: 29px; max-height: 29px;
+    border-radius: 4px;
+}
+
+QToolBar QToolButton:hover {
+    background-color: creatorTheme.DScontrolBackground_topToolbarHover;
+}
+
+QToolBar QToolButton:pressed {
+    background-color: creatorTheme.DSinteraction;
+}
+
+QToolBar QToolButton:checked {
+    background-color: creatorTheme.DSinteraction;
+}

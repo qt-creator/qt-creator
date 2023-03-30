@@ -14,6 +14,8 @@
 #include <QToolBar>
 #include <QImage>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QGraphicsItem;
 class QGraphicsWidget;
@@ -27,6 +29,7 @@ class DesignerIcons;
 
 using AddResourceOperation = std::function<AddFilesResult(const QStringList &, const QString &, bool)>;
 using ModelNodePreviewImageOperation = std::function<QVariant(const ModelNode &)>;
+using ActionAddedInterface = std::function<void(ActionInterface*)>;
 
 struct AddResourceHandler
 {
@@ -121,6 +124,8 @@ public:
     QHash<QString, QStringList> handleExternalAssetsDrop(const QMimeData *data) const;
     QIcon contextIcon(int contextId) const;
 
+    void addAddActionCallback(ActionAddedInterface callback);
+
 private:
     void addTransitionEffectAction(const TypeName &typeName);
     void addCustomTransitionEffectAction();
@@ -133,6 +138,7 @@ private:
     QList<ModelNodePreviewImageHandler> m_modelNodePreviewImageHandlers;
     ExternalDependenciesInterface &m_externalDependencies;
     QScopedPointer<DesignerIcons> m_designerIcons;
+    QList<ActionAddedInterface> m_callBacks;
 };
 
 } //QmlDesigner

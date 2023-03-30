@@ -6,6 +6,7 @@ import QmlProject 1.1
 
 Project {
     mainFile: "content/App.qml"
+    mainUiFile: "content/Screen01.ui.qml"
 
     /* Include .qml, .js, and image files from current directory and subdirectories */
     QmlFiles {
@@ -100,7 +101,7 @@ Project {
     /* Required for deployment */
     targetDirectory: "/opt/%{ProjectName}"
 
-    qdsVersion: "3.9"
+    qdsVersion: "4.0"
 
     quickVersion: "%{QtQuickVersion}"
 

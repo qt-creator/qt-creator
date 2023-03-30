@@ -1,34 +1,14 @@
-/****************************************************************************
-**
-** Copyright (C) 2022 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of Qt Creator.
-**
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-****************************************************************************/
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick
 import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
 T.Dialog {
-    id: root
+    id: control
+
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding,
@@ -39,36 +19,37 @@ T.Dialog {
                              + (implicitHeaderHeight > 0 ? implicitHeaderHeight + spacing : 0)
                              + (implicitFooterHeight > 0 ? implicitFooterHeight + spacing : 0))
 
-    padding: StudioTheme.Values.dialogPadding
+    padding: control.style.dialogPadding
 
     background: Rectangle {
-        color: StudioTheme.Values.themeDialogBackground
-        border.color: StudioTheme.Values.themeDialogOutline
-        border.width: StudioTheme.Values.border
+        color: control.style.dialog.background
+        border.color: control.style.dialog.border
+        border.width: control.style.borderWidth
     }
 
     header: T.Label {
-        text: root.title
-        visible: root.title
+        text: control.title
+        visible: control.title
         elide: T.Label.ElideRight
         font.bold: true
-        padding: StudioTheme.Values.dialogPadding
-        color: StudioTheme.Values.themeTextColor
+        padding: control.padding
+        color: control.style.text.idle
 
         background: Rectangle {
-            x: StudioTheme.Values.border
-            y: StudioTheme.Values.border
-            width: parent.width - (2 * StudioTheme.Values.border)
-            height: parent.height - (2 * StudioTheme.Values.border)
-            color: StudioTheme.Values.themeDialogBackground
+            x: control.style.borderWidth
+            y: control.style.borderWidth
+            width: parent.width - (2 * control.style.borderWidth)
+            height: parent.height - (2 * control.style.borderWidth)
+            color: control.style.dialog.background
         }
     }
 
     footer: DialogButtonBox {
+        style: control.style
         visible: count > 0
     }
 
     T.Overlay.modal: Rectangle {
-        color: Qt.alpha(StudioTheme.Values.themeDialogBackground, 0.5)
+        color: Qt.alpha(control.style.dialog.overlay, 0.5)
     }
 }

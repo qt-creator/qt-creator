@@ -2,51 +2,51 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import StudioTheme as StudioTheme
+import HelperWidgets 2.0 as HelperWidgets
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
     id: root
 
     signal clicked()
 
-    property alias icon: icon.text
-    property alias name: name.text
+    property alias icon: button.buttonIcon
+    property alias name: label.text
     property bool selected: false
 
-    width: 100
-    height: 100
-    color: root.selected ? StudioTheme.Values.themePanelBackground
-                         : mouseArea.containsMouse ? Qt.lighter(StudioTheme.Values.themeSectionHeadBackground, 1.3)
-                                                   : StudioTheme.Values.themeSectionHeadBackground
+    height: button.height
+    width: button.width + label.width + contentRow.spacing + 6
+    color: StudioTheme.Values.themeToolbarBackground
+    radius: StudioTheme.Values.smallRadius
 
-    Text {
-        id: icon
+    state: "default"
 
-        color: root.selected ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeTextColor
+    Row {
+        id: contentRow
+        spacing: 6
 
-        font.family: StudioTheme.Constants.iconFont.family
-        font.pixelSize: StudioTheme.Values.mediumIconFontSize
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: 8
-    }
+        HelperWidgets.AbstractButton {
+            id: button
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.material_medium
+            hover: mouseArea.containsMouse
+            checked: root.selected
+            checkable: true
+            checkedInverted: true
+            autoExclusive: true
+        }
 
-    Text {
-        id: name
-
-        font.weight: Font.DemiBold
-        font.pixelSize: StudioTheme.Values.baseFontSize
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 6
-
-        color: root.selected ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeTextColor
-    }
-
-    Rectangle { // strip
-        width: root.width
-        height: 4
-        color: root.selected ? StudioTheme.Values.themeInteraction : "transparent"
-        anchors.bottom: parent.bottom
+        Text {
+            id: label
+            height: StudioTheme.Values.statusbarButtonStyle.controlSize.height
+            color: StudioTheme.Values.themeTextColor
+            text: qsTr("Materials")
+            font.pixelSize: StudioTheme.Values.baseFontSize
+            horizontalAlignment: Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
+        }
     }
 
     MouseArea {
@@ -55,4 +55,43 @@ Rectangle {
         hoverEnabled: true
         onClicked: root.clicked()
     }
+
+    states: [
+        State {
+            name: "default"
+            when: !mouseArea.containsMouse && !button.checked
+        },
+        State {
+            name: "hover"
+            when: mouseArea.containsMouse && !button.checked
+            PropertyChanges {
+                target: root
+                color: StudioTheme.Values.themeControlBackground_topToolbarHover
+            }
+        },
+        State {
+            name: "checked"
+            when: !mouseArea.containsMouse && button.checked
+            PropertyChanges {
+                target: root
+                color: StudioTheme.Values.themeInteraction
+            }
+            PropertyChanges {
+                target: label
+                color: StudioTheme.Values.themeTextSelectedTextColor
+            }
+        },
+        State {
+            name: "hoverChecked"
+            when: mouseArea.containsMouse && button.checked
+            PropertyChanges {
+                target: root
+                color: StudioTheme.Values.themeInteractionHover
+            }
+            PropertyChanges {
+                target: label
+                color: StudioTheme.Values.themeTextSelectedTextColor
+            }
+        }
+    ]
 }

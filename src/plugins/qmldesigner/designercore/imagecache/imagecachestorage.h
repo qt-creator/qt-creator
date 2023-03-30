@@ -51,6 +51,26 @@ public:
         }
     }
 
+    ImageEntry fetchMidSizeImage(Utils::SmallStringView name,
+                                 Sqlite::TimeStamp minimumTimeStamp) const override
+    {
+        try {
+            Sqlite::DeferredTransaction transaction{database};
+
+            auto optionalBlob = selectMidSizeImageStatement.template optionalValue<Sqlite::ByteArrayBlob>(
+                name, minimumTimeStamp.value);
+
+            transaction.commit();
+
+            if (optionalBlob)
+                return {readImage(optionalBlob->byteArray)};
+
+            return {};
+        } catch (const Sqlite::StatementIsBusy &) {
+            return fetchMidSizeImage(name, minimumTimeStamp);
+        }
+    }
+
     ImageEntry fetchSmallImage(Utils::SmallStringView name,
                                Sqlite::TimeStamp minimumTimeStamp) const override
     {
@@ -95,22 +115,25 @@ public:
     void storeImage(Utils::SmallStringView name,
                     Sqlite::TimeStamp newTimeStamp,
                     const QImage &image,
+                    const QImage &midSizeImage,
                     const QImage &smallImage) override
     {
         try {
             Sqlite::ImmediateTransaction transaction{database};
 
             auto imageBuffer = createBuffer(image);
+            auto midSizeImageBuffer = createBuffer(midSizeImage);
             auto smallImageBuffer = createBuffer(smallImage);
             upsertImageStatement.write(name,
                                        newTimeStamp.value,
                                        createBlobView(imageBuffer.get()),
+                                       createBlobView(midSizeImageBuffer.get()),
                                        createBlobView(smallImageBuffer.get()));
 
             transaction.commit();
 
         } catch (const Sqlite::StatementIsBusy &) {
-            return storeImage(name, newTimeStamp, image, smallImage);
+            return storeImage(name, newTimeStamp, image, midSizeImage, smallImage);
         }
     }
 
@@ -158,12 +181,15 @@ private:
                 Sqlite::ExclusiveTransaction transaction{database};
 
                 createImagesTable(database);
+                database.setVersion(1);
 
                 transaction.commit();
 
                 database.setIsInitialized(true);
 
                 database.walCheckpointFull();
+            } else if (database.version() < 1) {
+                updateTableToVersion1(database);
             }
         }
 
@@ -179,6 +205,7 @@ private:
             imageTable.addColumn("mtime", Sqlite::ColumnType::Integer);
             imageTable.addColumn("image", Sqlite::ColumnType::Blob);
             imageTable.addColumn("smallImage", Sqlite::ColumnType::Blob);
+            imageTable.addColumn("midSizeImage", Sqlite::ColumnType::Blob);
 
             imageTable.initialize(database);
 
@@ -193,6 +220,17 @@ private:
             iconTable.addColumn("icon", Sqlite::ColumnType::Blob);
 
             iconTable.initialize(database);
+        }
+
+        void updateTableToVersion1(DatabaseType &database)
+        {
+            Sqlite::ExclusiveTransaction transaction{database};
+
+            database.execute("DELETE FROM images");
+            database.execute("ALTER TABLE images ADD COLUMN midSizeImage");
+            database.setVersion(1);
+
+            transaction.commit();
         }
     };
 
@@ -264,14 +302,17 @@ public:
     Sqlite::ImmediateNonThrowingDestructorTransaction<DatabaseType> transaction{database};
     mutable ReadStatement<1, 2> selectImageStatement{
         "SELECT image FROM images WHERE name=?1 AND mtime >= ?2", database};
+    mutable ReadStatement<1, 2> selectMidSizeImageStatement{
+        "SELECT midSizeImage FROM images WHERE name=?1 AND mtime >= ?2", database};
     mutable ReadStatement<1, 2> selectSmallImageStatement{
         "SELECT smallImage FROM images WHERE name=?1 AND mtime >= ?2", database};
     mutable ReadStatement<1, 2> selectIconStatement{
         "SELECT icon FROM icons WHERE name=?1 AND mtime >= ?2", database};
-    WriteStatement<4> upsertImageStatement{
-        "INSERT INTO images(name, mtime, image, smallImage) VALUES (?1, ?2, ?3, ?4) ON "
-        "CONFLICT(name) DO UPDATE SET mtime=excluded.mtime, image=excluded.image, "
-        "smallImage=excluded.smallImage",
+    WriteStatement<5> upsertImageStatement{
+        "INSERT INTO images(name, mtime, image, midSizeImage, smallImage) "
+        "VALUES (?1, ?2, ?3, ?4, ?5) "
+        "ON CONFLICT(name) DO UPDATE SET mtime=excluded.mtime, image=excluded.image, "
+        "midSizeImage=excluded.midSizeImage, smallImage=excluded.smallImage",
         database};
     WriteStatement<3> upsertIconStatement{
         "INSERT INTO icons(name, mtime, icon) VALUES (?1, ?2, ?3) ON "

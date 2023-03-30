@@ -5,112 +5,102 @@
 
 #include <utils/icon.h>
 
+#include <QMouseEvent>
 #include <QStyleOption>
 #include <QSlider>
-#include <QDebug>
 #include <QPainter>
 
 namespace QmlDesigner {
 
-SeekerSlider::SeekerSlider(QWidget *parentWidget)
-    : QWidget(parentWidget),
-      m_bgIcon(QLatin1String(":/icon/layout/scrubbg.png"))
+SeekerSlider::SeekerSlider(QWidget *parent)
+    : QSlider(parent)
 {
-    m_handleIcon.addFile(QLatin1String(":/icon/layout/scrubhandle-24.png"), QSize(24, 24));
-    m_handleIcon.addFile(QLatin1String(":/icon/layout/scrubhandle-48.png"), QSize(48, 48));
-    m_handleIcon.addFile(QLatin1String(":/icon/layout/scrubhandle-disabled-24.png"), QSize(24, 24), QIcon::Disabled);
-    m_handleIcon.addFile(QLatin1String(":/icon/layout/scrubhandle-disabled-48.png"), QSize(48, 48), QIcon::Disabled);
-    const Utils::Icon bg({{":/icon/layout/scrubbg.png", Utils::Theme::IconsBaseColor}});
-    m_bgWidth = bg.pixmap().width();
-    m_bgHeight = bg.pixmap().height();
-    m_handleWidth = m_bgHeight;
-    m_handleHeight = m_bgHeight;
-    int width = m_bgWidth + m_handleWidth * 2;
-    m_sliderHalfWidth = m_bgWidth / 2;
-    setMinimumWidth(width);
-    setMaximumWidth(width);
     setProperty("panelwidget", true);
     setProperty("panelwidget_singlerow", true);
+    setOrientation(Qt::Horizontal);
+    setFixedWidth(120);
+    setMaxValue(30);
 }
 
-void SeekerSlider::paintEvent([[maybe_unused]] QPaintEvent *event)
+int SeekerSlider::maxValue() const
 {
-    QPainter painter(this);
-    {
-        QStyleOptionToolBar option;
-        option.rect = rect();
-        option.state = QStyle::State_Horizontal;
-        style()->drawControl(QStyle::CE_ToolBar, &option, &painter, this);
-    }
+    return maximum();
+}
 
-    int x = rect().width() / 2;
-    int y = rect().height() / 2;
-
-    const QPixmap bg = m_bgIcon.pixmap(QSize(m_bgWidth, m_bgHeight), isEnabled() ? QIcon::Normal : QIcon::Disabled, QIcon::On);
-    painter.drawPixmap(x - m_bgWidth / 2, y - m_bgHeight / 2, bg);
-
-    if (m_moving) {
-        const QPixmap handle = m_handleIcon.pixmap(QSize(m_handleWidth, m_handleHeight), QIcon::Active, QIcon::On);
-        painter.drawPixmap(x - m_handleWidth / 2 + m_sliderPos, y - m_handleHeight / 2, handle);
-    } else {
-        const QPixmap handle = m_handleIcon.pixmap(QSize(m_handleWidth, m_handleHeight), isEnabled() ? QIcon::Normal : QIcon::Disabled, QIcon::On);
-        painter.drawPixmap(x - m_handleWidth / 2, y - m_handleHeight / 2, handle);
-    }
+void SeekerSlider::setMaxValue(int maxValue)
+{
+    maxValue = std::abs(maxValue);
+    setRange(-maxValue, +maxValue);
 }
 
 void SeekerSlider::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() != Qt::LeftButton) {
-        QWidget::mousePressEvent(event);
+    if (event->button() != Qt::LeftButton)
         return;
-    }
 
-    int x = rect().width() / 2;
-    int y = rect().height() / 2;
-    auto pos = event->localPos();
-    if (pos.x() >= x - m_handleWidth / 2 && pos.x() <= x + m_handleWidth / 2
-            && pos.y() >= y - m_handleHeight / 2 && pos.y() <= y + m_handleHeight / 2) {
-        m_moving = true;
-        m_startPos = pos.x();
-    }
+    QStyleOptionSlider os;
+    initStyleOption(&os);
+    QRect handleRect = style()->subControlRect(QStyle::CC_Slider, &os, QStyle::SC_SliderHandle, this);
+    m_moving = handleRect.contains(event->localPos().toPoint());
+    if (m_moving)
+        QSlider::mousePressEvent(event);
+    else
+        event->setAccepted(false);
 }
 
 void SeekerSlider::mouseMoveEvent(QMouseEvent *event)
 {
-    if (!m_moving) {
-        QWidget::mouseMoveEvent(event);
+    if (!m_moving)
         return;
-    }
 
-    auto pos = event->localPos();
-    int delta = pos.x() - m_startPos;
-    m_sliderPos = qBound(-m_sliderHalfWidth, delta, m_sliderHalfWidth);
-    delta = m_maxPosition * m_sliderPos / m_sliderHalfWidth;
-    if (delta != m_position) {
-        m_position = delta;
-        Q_EMIT positionChanged();
-        update();
-    }
+    QSlider::mouseMoveEvent(event);
 }
 
 void SeekerSlider::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (!m_moving) {
-        QWidget::mouseReleaseEvent(event);
+    if (!m_moving)
         return;
-    }
 
+    setValue(0);
     m_moving = false;
-    m_position = 0;
-    m_startPos = 0;
-    m_sliderPos = 0;
-    Q_EMIT positionChanged();
-    update();
+    QSlider::mouseReleaseEvent(event);
 }
 
-int SeekerSlider::position() const
+SeekerSliderAction::SeekerSliderAction(QObject *parent)
+    : QWidgetAction(parent)
+    , m_defaultSlider(new SeekerSlider())
 {
-    return m_position;
+    setDefaultWidget(m_defaultSlider);
+    QObject::connect(m_defaultSlider, &QSlider::valueChanged, this, &SeekerSliderAction::valueChanged);
+}
+
+SeekerSliderAction::~SeekerSliderAction()
+{
+    m_defaultSlider->deleteLater();
+}
+
+SeekerSlider *SeekerSliderAction::defaultSlider() const
+{
+    return m_defaultSlider;
+}
+
+int SeekerSliderAction::value()
+{
+    return m_defaultSlider->value();
+}
+
+QWidget *SeekerSliderAction::createWidget(QWidget *parent)
+{
+    SeekerSlider *slider = new SeekerSlider(parent);
+
+    QObject::connect(m_defaultSlider, &SeekerSlider::valueChanged, slider, &SeekerSlider::setValue);
+    QObject::connect(slider, &SeekerSlider::valueChanged, m_defaultSlider, &SeekerSlider::setValue);
+    QObject::connect(m_defaultSlider, &QSlider::rangeChanged, slider, &QSlider::setRange);
+
+    slider->setValue(m_defaultSlider->value());
+    slider->setMaxValue(m_defaultSlider->maxValue());
+
+    return slider;
 }
 
 } // namespace QmlDesigner

@@ -28,7 +28,7 @@ ImageCacheGenerator::~ImageCacheGenerator()
 void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
                                         Utils::SmallStringView extraId,
                                         Sqlite::TimeStamp timeStamp,
-                                        ImageCache::CaptureImageWithSmallImageCallback &&captureCallback,
+                                        ImageCache::CaptureImageWithScaledImagesCallback &&captureCallback,
                                         ImageCache::AbortCallback &&abortCallback,
                                         ImageCache::AuxiliaryData &&auxiliaryData)
 {
@@ -113,21 +113,26 @@ void ImageCacheGenerator::startGeneration()
             task.filePath,
             task.extraId,
             std::move(task.auxiliaryData),
-            [this, task](const QImage &image, const QImage &smallImage) {
-                if (image.isNull())
+            [this, task](const QImage &image, const QImage &midSizeImage, const QImage &smallImage) {
+                if (image.isNull() && midSizeImage.isNull() && smallImage.isNull())
                     callCallbacks(task.abortCallbacks, ImageCache::AbortReason::Failed);
                 else
-                    callCallbacks(task.captureCallbacks, image, smallImage);
+                    callCallbacks(task.captureCallbacks, image, midSizeImage, smallImage);
 
                 m_storage.storeImage(createId(task.filePath, task.extraId),
                                      task.timeStamp,
                                      image,
+                                     midSizeImage,
                                      smallImage);
             },
             [this, task](ImageCache::AbortReason abortReason) {
                 callCallbacks(task.abortCallbacks, abortReason);
                 if (abortReason != ImageCache::AbortReason::Abort)
-                    m_storage.storeImage(createId(task.filePath, task.extraId), task.timeStamp, {}, {});
+                    m_storage.storeImage(createId(task.filePath, task.extraId),
+                                         task.timeStamp,
+                                         {},
+                                         {},
+                                         {});
             });
 
         std::lock_guard lock{m_mutex};

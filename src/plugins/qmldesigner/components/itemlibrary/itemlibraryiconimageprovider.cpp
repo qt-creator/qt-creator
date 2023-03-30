@@ -3,6 +3,8 @@
 
 #include "itemlibraryiconimageprovider.h"
 
+#include <imagecacheimageresponse.h>
+
 #include <projectexplorer/target.h>
 #include <utils/stylehelper.h>
 
@@ -11,42 +13,15 @@
 
 namespace QmlDesigner {
 
-class ImageRespose : public QQuickImageResponse
-{
-public:
-    QQuickTextureFactory *textureFactory() const override
-    {
-        return QQuickTextureFactory::textureFactoryForImage(m_image);
-    }
-
-    void setImage(const QImage &image)
-    {
-        m_image = image;
-
-        emit finished();
-    }
-
-    void abort()
-    {
-        m_image = QImage{
-            Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/item-default-icon.png")};
-
-        emit finished();
-    }
-
-private:
-    QImage m_image;
-};
-
-
 QQuickImageResponse *ItemLibraryIconImageProvider::requestImageResponse(const QString &id,
                                                                         const QSize &)
 {
-    auto response = std::make_unique<ImageRespose>();
+    auto response = std::make_unique<ImageCacheImageResponse>(QImage{
+        Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/item-default-icon.png")});
 
     m_cache.requestSmallImage(
         id,
-        [response = QPointer<ImageRespose>(response.get())](const QImage &image) {
+        [response = QPointer<ImageCacheImageResponse>(response.get())](const QImage &image) {
             QMetaObject::invokeMethod(
                 response,
                 [response, image] {
@@ -55,12 +30,14 @@ QQuickImageResponse *ItemLibraryIconImageProvider::requestImageResponse(const QS
                 },
                 Qt::QueuedConnection);
         },
-        [response = QPointer<ImageRespose>(response.get())](ImageCache::AbortReason abortReason) {
+        [response = QPointer<ImageCacheImageResponse>(response.get())](
+            ImageCache::AbortReason abortReason) {
             QMetaObject::invokeMethod(
                 response,
                 [response, abortReason] {
                     switch (abortReason) {
                     case ImageCache::AbortReason::Failed:
+                    case ImageCache::AbortReason::NoEntry:
                         if (response)
                             response->abort();
                         break;

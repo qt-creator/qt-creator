@@ -6,7 +6,7 @@
 #include "dynamicpropertiesmodel.h"
 #include "textureeditorview.h"
 
-using namespace QmlDesigner;
+namespace QmlDesigner {
 
 TextureEditorDynamicPropertiesProxyModel::TextureEditorDynamicPropertiesProxyModel(QObject *parent)
     : DynamicPropertiesProxyModel(parent)
@@ -20,3 +20,5 @@ void TextureEditorDynamicPropertiesProxyModel::registerDeclarativeType()
     DynamicPropertiesProxyModel::registerDeclarativeType();
     qmlRegisterType<TextureEditorDynamicPropertiesProxyModel>("HelperWidgets", 2, 0, "TextureEditorDynamicPropertiesModel");
 }
+
+} // namespace QmlDesigner

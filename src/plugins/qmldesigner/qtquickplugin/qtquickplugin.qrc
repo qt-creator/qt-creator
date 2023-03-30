@@ -101,5 +101,23 @@
         <file>images/timer-16px.png</file>
         <file>images/timer-24px.png</file>
         <file>images/timer-24px@2x.png</file>
+        <file>images/default3d.png</file>
+        <file>images/default3d@2x.png</file>
+        <file>images/default3d16.png</file>
+        <file>images/ambient-sound-16.png</file>
+        <file>images/ambient-sound-24.png</file>
+        <file>images/ambient-sound-24@2x.png</file>
+        <file>images/audio-engine-16.png</file>
+        <file>images/audio-engine-24.png</file>
+        <file>images/audio-engine-24@2x.png</file>
+        <file>images/audio-listener-16.png</file>
+        <file>images/audio-listener-24.png</file>
+        <file>images/audio-listener-24@2x.png</file>
+        <file>images/audio-room-16.png</file>
+        <file>images/audio-room-24.png</file>
+        <file>images/audio-room-24@2x.png</file>
+        <file>images/spatial-audio-16.png</file>
+        <file>images/spatial-audio-24.png</file>
+        <file>images/spatial-audio-24@2x.png</file>
     </qresource>
 </RCC>

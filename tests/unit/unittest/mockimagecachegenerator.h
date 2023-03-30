@@ -15,7 +15,7 @@ public:
                 (Utils::SmallStringView name,
                  Utils::SmallStringView state,
                  Sqlite::TimeStamp timeStamp,
-                 QmlDesigner::ImageCache::CaptureImageWithSmallImageCallback &&captureCallback,
+                 QmlDesigner::ImageCache::CaptureImageWithScaledImagesCallback &&captureCallback,
                  QmlDesigner::ImageCache::AbortCallback &&abortCallback,
                  QmlDesigner::ImageCache::AuxiliaryData &&auxiliaryData),
                 (override));

@@ -140,6 +140,7 @@ add_qtc_library(Utils
     qtcolorbutton.cpp qtcolorbutton.h
     qtcprocess.cpp qtcprocess.h
     qtcsettings.cpp qtcsettings.h
+    ranges.h
     reloadpromptutils.cpp reloadpromptutils.h
     removefiledialog.cpp removefiledialog.h
     runextensions.cpp runextensions.h
@@ -165,6 +166,7 @@ add_qtc_library(Utils
     statuslabel.cpp statuslabel.h
     stringtable.cpp stringtable.h
     stringutils.cpp stringutils.h
+    styleanimator.cpp styleanimator.h
     styledbar.cpp styledbar.h
     stylehelper.cpp stylehelper.h
     tasktree.cpp tasktree.h

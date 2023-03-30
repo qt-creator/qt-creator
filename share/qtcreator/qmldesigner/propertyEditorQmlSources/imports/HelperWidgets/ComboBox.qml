@@ -19,7 +19,7 @@ StudioControls.ComboBox {
 
     onModelChanged: colorLogic.invalidate()
 
-    hasActiveDrag: comboBox.backendValue !== undefined && comboBox.backendValue.hasActiveDrag
+    hasActiveDrag: comboBox.backendValue?.hasActiveDrag ?? false
 
     // This is available in all editors.
 
@@ -69,7 +69,8 @@ StudioControls.ComboBox {
 
         onExited: comboBox.hasActiveHoverDrag = false
 
-        onDropped: {
+        onDropped: (drag) => {
+            drag.accept()
             comboBox.backendValue.commitDrop(dropArea.dropData)
             comboBox.hasActiveHoverDrag = false
         }
@@ -119,7 +120,7 @@ StudioControls.ComboBox {
                     break
                 case ComboBox.ValueType.Enum:
                 default:
-                    if (comboBox.backendValue === undefined)
+                    if (!comboBox.backendValue)
                         break
 
                     var enumString = comboBox.backendValue.enumeration
@@ -145,11 +146,15 @@ StudioControls.ComboBox {
         if (!comboBox.__isCompleted)
             return
 
-        let inputValue = comboBox.editText
-
-        let index = comboBox.find(inputValue)
-        if (index !== -1)
-            inputValue = comboBox.textAt(index)
+        let inputText = comboBox.editText
+        let inputValue = inputText;
+        let index = comboBox.find(inputText)
+        if (index !== -1) {
+            let modelIdx = comboBox.model.index(index)
+            inputValue = comboBox.valueRole
+                    ? comboBox.model.data(modelIdx, comboBox.valueRole)
+                    : comboBox.textAt(index)
+        }
 
         comboBox.backendValue.value = inputValue
 
@@ -165,6 +170,18 @@ StudioControls.ComboBox {
 
         if (comboBox.manualMapping)
             return
+
+        if (comboBox.valueRole && comboBox.textRole !== comboBox.valueRole) {
+            let inputText = comboBox.currentText
+            let inputValue = comboBox.currentValue
+            let index = comboBox.find(inputText)
+            if (index !== -1) {
+                let modelIdx = comboBox.model.index(index)
+                inputValue = comboBox.model.data(modelIdx, comboBox.valueRole)
+            }
+            comboBox.backendValue.value = inputValue
+            return
+        }
 
         switch (comboBox.valueType) {
         case ComboBox.ValueType.String:

@@ -7,7 +7,7 @@
 #include "sqlitedatabasebackend.h"
 #include "sqliteexception.h"
 
-#include "sqlite.h"
+#include <sqlite.h>
 
 #include <condition_variable>
 #include <mutex>
@@ -27,15 +27,9 @@ extern "C" int sqlite3_carray_bind(
 namespace Sqlite {
 
 BaseStatement::BaseStatement(Utils::SmallStringView sqlStatement, Database &database)
-    : m_compiledStatement(nullptr, deleteCompiledStatement)
-    , m_database(database)
+    : m_database(database)
 {
     prepare(sqlStatement);
-}
-
-void BaseStatement::deleteCompiledStatement(sqlite3_stmt *compiledStatement)
-{
-    sqlite3_finalize(compiledStatement);
 }
 
 class UnlockNotification
@@ -79,7 +73,7 @@ void BaseStatement::waitForUnlockNotify() const
                                            &unlockNotification);
 
     if (resultCode == SQLITE_LOCKED)
-        throw DeadLock("SqliteStatement::waitForUnlockNotify: database is in a dead lock!");
+        throw DeadLock();
 
     unlockNotification.wait();
 }
@@ -107,7 +101,7 @@ bool BaseStatement::next() const
     else if (resultCode == SQLITE_DONE)
         return false;
 
-    checkForStepError(resultCode);
+    Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::step() const
@@ -119,7 +113,7 @@ void BaseStatement::bindNull(int index)
 {
     int resultCode = sqlite3_bind_null(m_compiledStatement.get(), index);
     if (resultCode != SQLITE_OK)
-        checkForBindingError(resultCode);
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::bind(int index, NullValue)
@@ -131,21 +125,21 @@ void BaseStatement::bind(int index, int value)
 {
     int resultCode = sqlite3_bind_int(m_compiledStatement.get(), index, value);
     if (resultCode != SQLITE_OK)
-        checkForBindingError(resultCode);
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::bind(int index, long long value)
 {
     int resultCode = sqlite3_bind_int64(m_compiledStatement.get(), index, value);
     if (resultCode != SQLITE_OK)
-        checkForBindingError(resultCode);
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::bind(int index, double value)
 {
     int resultCode = sqlite3_bind_double(m_compiledStatement.get(), index, value);
     if (resultCode != SQLITE_OK)
-        checkForBindingError(resultCode);
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::bind(int index, void *pointer)
@@ -156,7 +150,7 @@ void BaseStatement::bind(int index, void *pointer)
                                           "carray",
                                           nullptr);
     if (resultCode != SQLITE_OK)
-        checkForBindingError(resultCode);
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::bind(int index, Utils::span<const int> values)
@@ -168,7 +162,7 @@ void BaseStatement::bind(int index, Utils::span<const int> values)
                                          CARRAY_INT32,
                                          SQLITE_STATIC);
     if (resultCode != SQLITE_OK)
-        checkForBindingError(resultCode);
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::bind(int index, Utils::span<const long long> values)
@@ -180,7 +174,7 @@ void BaseStatement::bind(int index, Utils::span<const long long> values)
                                          CARRAY_INT64,
                                          SQLITE_STATIC);
     if (resultCode != SQLITE_OK)
-        checkForBindingError(resultCode);
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::bind(int index, Utils::span<const double> values)
@@ -192,7 +186,7 @@ void BaseStatement::bind(int index, Utils::span<const double> values)
                                          CARRAY_DOUBLE,
                                          SQLITE_STATIC);
     if (resultCode != SQLITE_OK)
-        checkForBindingError(resultCode);
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::bind(int index, Utils::span<const char *> values)
@@ -204,7 +198,7 @@ void BaseStatement::bind(int index, Utils::span<const char *> values)
                                          CARRAY_TEXT,
                                          SQLITE_STATIC);
     if (resultCode != SQLITE_OK)
-        checkForBindingError(resultCode);
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::bind(int index, Utils::SmallStringView text)
@@ -215,7 +209,7 @@ void BaseStatement::bind(int index, Utils::SmallStringView text)
                                        int(text.size()),
                                        SQLITE_STATIC);
     if (resultCode != SQLITE_OK)
-        checkForBindingError(resultCode);
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::bind(int index, BlobView blobView)
@@ -233,7 +227,7 @@ void BaseStatement::bind(int index, BlobView blobView)
     }
 
     if (resultCode != SQLITE_OK)
-        checkForBindingError(resultCode);
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::bind(int index, const Value &value)
@@ -298,7 +292,7 @@ void BaseStatement::prepare(Utils::SmallStringView sqlStatement)
 
 
     if (resultCode != SQLITE_OK)
-        checkForPrepareError(resultCode);
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 sqlite3 *BaseStatement::sqliteDatabaseHandle() const
@@ -306,300 +300,21 @@ sqlite3 *BaseStatement::sqliteDatabaseHandle() const
     return m_database.backend().sqliteDatabaseHandle();
 }
 
-void BaseStatement::checkForStepError(int resultCode) const
-{
-    switch (resultCode) {
-    case SQLITE_BUSY_RECOVERY:
-    case SQLITE_BUSY_SNAPSHOT:
-    case SQLITE_BUSY_TIMEOUT:
-    case SQLITE_BUSY:
-        throwStatementIsBusy("SqliteStatement::stepStatement: database engine was unable to "
-                             "acquire the database locks!");
-    case SQLITE_ERROR_MISSING_COLLSEQ:
-    case SQLITE_ERROR_RETRY:
-    case SQLITE_ERROR_SNAPSHOT:
-    case SQLITE_ERROR:
-        throwStatementHasError("SqliteStatement::stepStatement: run-time error (such as a "
-                               "constraint violation) has occurred!");
-    case SQLITE_MISUSE:
-        throwStatementIsMisused("SqliteStatement::stepStatement: was called inappropriately!");
-    case SQLITE_CONSTRAINT_CHECK:
-    case SQLITE_CONSTRAINT_COMMITHOOK:
-    case SQLITE_CONSTRAINT_DATATYPE:
-    case SQLITE_CONSTRAINT_FOREIGNKEY:
-    case SQLITE_CONSTRAINT_FUNCTION:
-    case SQLITE_CONSTRAINT_NOTNULL:
-    case SQLITE_CONSTRAINT_PINNED:
-    case SQLITE_CONSTRAINT_PRIMARYKEY:
-    case SQLITE_CONSTRAINT_ROWID:
-    case SQLITE_CONSTRAINT_TRIGGER:
-    case SQLITE_CONSTRAINT_UNIQUE:
-    case SQLITE_CONSTRAINT_VTAB:
-    case SQLITE_CONSTRAINT:
-        throwConstraintPreventsModification(
-            "SqliteStatement::stepStatement: contraint prevent insert or update!");
-    case SQLITE_TOOBIG:
-        throwTooBig("SqliteStatement::stepStatement: Some is to bigger than SQLITE_MAX_LENGTH.");
-    case SQLITE_SCHEMA:
-        throwSchemaChangeError("SqliteStatement::stepStatement: Schema changed but the statement "
-                               "cannot be recompiled.");
-    case SQLITE_READONLY_CANTINIT:
-    case SQLITE_READONLY_CANTLOCK:
-    case SQLITE_READONLY_DBMOVED:
-    case SQLITE_READONLY_DIRECTORY:
-    case SQLITE_READONLY_RECOVERY:
-    case SQLITE_READONLY_ROLLBACK:
-    case SQLITE_READONLY:
-        throwCannotWriteToReadOnlyConnection(
-            "SqliteStatement::stepStatement: Cannot write to read only connection");
-    case SQLITE_PROTOCOL:
-        throwProtocolError(
-            "SqliteStatement::stepStatement: Something strang with the file locking happened.");
-    case SQLITE_NOMEM:
-        throw std::bad_alloc();
-    case SQLITE_NOLFS:
-        throwDatabaseExceedsMaximumFileSize(
-            "SqliteStatement::stepStatement: Database exceeds maximum file size.");
-    case SQLITE_MISMATCH:
-        throwDataTypeMismatch(
-            "SqliteStatement::stepStatement: Most probably you used not an integer for a rowid.");
-    case SQLITE_LOCKED_SHAREDCACHE:
-    case SQLITE_LOCKED_VTAB:
-    case SQLITE_LOCKED:
-        throwConnectionIsLocked("SqliteStatement::stepStatement: Database connection is locked.");
-    case SQLITE_IOERR_AUTH:
-    case SQLITE_IOERR_BEGIN_ATOMIC:
-    case SQLITE_IOERR_BLOCKED:
-    case SQLITE_IOERR_CHECKRESERVEDLOCK:
-    case SQLITE_IOERR_CLOSE:
-    case SQLITE_IOERR_COMMIT_ATOMIC:
-    case SQLITE_IOERR_CONVPATH:
-    case SQLITE_IOERR_DATA:
-    case SQLITE_IOERR_DELETE:
-    case SQLITE_IOERR_DELETE_NOENT:
-    case SQLITE_IOERR_DIR_CLOSE:
-    case SQLITE_IOERR_DIR_FSYNC:
-    case SQLITE_IOERR_FSTAT:
-    case SQLITE_IOERR_FSYNC:
-    case SQLITE_IOERR_GETTEMPPATH:
-    case SQLITE_IOERR_LOCK:
-    case SQLITE_IOERR_MMAP:
-    case SQLITE_IOERR_NOMEM:
-    case SQLITE_IOERR_RDLOCK:
-    case SQLITE_IOERR_READ:
-    case SQLITE_IOERR_ROLLBACK_ATOMIC:
-    case SQLITE_IOERR_SEEK:
-    case SQLITE_IOERR_SHMLOCK:
-    case SQLITE_IOERR_SHMMAP:
-    case SQLITE_IOERR_SHMOPEN:
-    case SQLITE_IOERR_SHMSIZE:
-    case SQLITE_IOERR_SHORT_READ:
-    case SQLITE_IOERR_TRUNCATE:
-    case SQLITE_IOERR_UNLOCK:
-    case SQLITE_IOERR_VNODE:
-    case SQLITE_IOERR_WRITE:
-    case SQLITE_IOERR:
-        throwInputOutputError("SqliteStatement::stepStatement: An IO error happened.");
-    case SQLITE_INTERRUPT:
-        throwExecutionInterrupted("SqliteStatement::stepStatement: Execution was interrupted.");
-    case SQLITE_CORRUPT_INDEX:
-    case SQLITE_CORRUPT_SEQUENCE:
-    case SQLITE_CORRUPT_VTAB:
-    case SQLITE_CORRUPT:
-        throwDatabaseIsCorrupt("SqliteStatement::stepStatement: Database is corrupt.");
-    case SQLITE_CANTOPEN_CONVPATH:
-    case SQLITE_CANTOPEN_DIRTYWAL:
-    case SQLITE_CANTOPEN_FULLPATH:
-    case SQLITE_CANTOPEN_ISDIR:
-    case SQLITE_CANTOPEN_NOTEMPDIR:
-    case SQLITE_CANTOPEN_SYMLINK:
-    case SQLITE_CANTOPEN:
-        throwCannotOpen("SqliteStatement::stepStatement: Cannot open database or temporary file.");
-    }
-
-    throwUnknowError("SqliteStatement::stepStatement: unknown error has happened");
-}
-
-void BaseStatement::checkForPrepareError(int resultCode) const
-{
-    switch (resultCode) {
-    case SQLITE_BUSY_RECOVERY:
-    case SQLITE_BUSY_SNAPSHOT:
-    case SQLITE_BUSY_TIMEOUT:
-    case SQLITE_BUSY:
-        throwStatementIsBusy("SqliteStatement::prepareStatement: database engine was unable to "
-                             "acquire the database locks!");
-    case SQLITE_ERROR_MISSING_COLLSEQ:
-    case SQLITE_ERROR_RETRY:
-    case SQLITE_ERROR_SNAPSHOT:
-    case SQLITE_ERROR:
-        throwStatementHasError("SqliteStatement::prepareStatement: run-time error (such as a "
-                               "constraint violation) has occurred!");
-    case SQLITE_MISUSE:
-        throwStatementIsMisused("SqliteStatement::prepareStatement: was called inappropriately!");
-    case SQLITE_IOERR_AUTH:
-    case SQLITE_IOERR_BEGIN_ATOMIC:
-    case SQLITE_IOERR_BLOCKED:
-    case SQLITE_IOERR_CHECKRESERVEDLOCK:
-    case SQLITE_IOERR_CLOSE:
-    case SQLITE_IOERR_COMMIT_ATOMIC:
-    case SQLITE_IOERR_CONVPATH:
-    case SQLITE_IOERR_DATA:
-    case SQLITE_IOERR_DELETE:
-    case SQLITE_IOERR_DELETE_NOENT:
-    case SQLITE_IOERR_DIR_CLOSE:
-    case SQLITE_IOERR_DIR_FSYNC:
-    case SQLITE_IOERR_FSTAT:
-    case SQLITE_IOERR_FSYNC:
-    case SQLITE_IOERR_GETTEMPPATH:
-    case SQLITE_IOERR_LOCK:
-    case SQLITE_IOERR_MMAP:
-    case SQLITE_IOERR_NOMEM:
-    case SQLITE_IOERR_RDLOCK:
-    case SQLITE_IOERR_READ:
-    case SQLITE_IOERR_ROLLBACK_ATOMIC:
-    case SQLITE_IOERR_SEEK:
-    case SQLITE_IOERR_SHMLOCK:
-    case SQLITE_IOERR_SHMMAP:
-    case SQLITE_IOERR_SHMOPEN:
-    case SQLITE_IOERR_SHMSIZE:
-    case SQLITE_IOERR_SHORT_READ:
-    case SQLITE_IOERR_TRUNCATE:
-    case SQLITE_IOERR_UNLOCK:
-    case SQLITE_IOERR_VNODE:
-    case SQLITE_IOERR_WRITE:
-    case SQLITE_IOERR:
-        throwInputOutputError("SqliteStatement::prepareStatement: IO error happened!");
-    }
-
-    throwUnknowError("SqliteStatement::prepareStatement: unknown error has happened");
-}
-
-void BaseStatement::checkForBindingError(int resultCode) const
-{
-    switch (resultCode) {
-        case SQLITE_TOOBIG: throwBingingTooBig("SqliteStatement::bind: string or blob are over size limits(SQLITE_LIMIT_LENGTH)!");
-        case SQLITE_RANGE : throwBindingIndexIsOutOfRange("SqliteStatement::bind: binding index is out of range!");
-        case SQLITE_NOMEM: throw std::bad_alloc();
-        case SQLITE_MISUSE: throwStatementIsMisused("SqliteStatement::bind: was called inappropriately!");
-    }
-
-    throwUnknowError("SqliteStatement::bind: unknown error has happened");
-}
-
 void BaseStatement::checkBindingParameterCount(int bindingParameterCount) const
 {
     if (bindingParameterCount != sqlite3_bind_parameter_count(m_compiledStatement.get()))
-        throw WrongBindingParameterCount{"Sqlite: wrong binding parameter count!"};
+        throw WrongBindingParameterCount{};
 }
 
 void BaseStatement::checkColumnCount(int columnCount) const
 {
     if (columnCount != sqlite3_column_count(m_compiledStatement.get()))
-        throw WrongColumnCount{"Sqlite: wrong column count!"};
+        throw WrongColumnCount{};
 }
 
 bool BaseStatement::isReadOnlyStatement() const
 {
     return sqlite3_stmt_readonly(m_compiledStatement.get());
-}
-
-void BaseStatement::throwStatementIsBusy(const char *whatHasHappened) const
-{
-    throw StatementIsBusy(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
-}
-
-void BaseStatement::throwStatementHasError(const char *whatHasHappened) const
-{
-    throw StatementHasError(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
-}
-
-void BaseStatement::throwStatementIsMisused(const char *whatHasHappened) const
-{
-    throw StatementIsMisused(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
-}
-
-void BaseStatement::throwInputOutputError(const char *whatHasHappened) const
-{
-    throw InputOutputError(whatHasHappened);
-}
-
-void BaseStatement::throwConstraintPreventsModification(const char *whatHasHappened) const
-{
-    throw ConstraintPreventsModification(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
-}
-
-void BaseStatement::throwNoValuesToFetch(const char *whatHasHappened) const
-{
-    throw NoValuesToFetch(whatHasHappened);
-}
-
-void BaseStatement::throwBindingIndexIsOutOfRange(const char *whatHasHappened) const
-{
-    throw BindingIndexIsOutOfRange(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
-}
-
-void BaseStatement::throwUnknowError(const char *whatHasHappened) const
-{
-    if (sqliteDatabaseHandle())
-        throw UnknowError(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
-    else
-        throw UnknowError(whatHasHappened);
-}
-
-void BaseStatement::throwBingingTooBig(const char *whatHasHappened) const
-{
-    throw BindingTooBig(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
-}
-
-void BaseStatement::throwTooBig(const char *whatHasHappened) const
-{
-    throw TooBig{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
-}
-
-void BaseStatement::throwSchemaChangeError(const char *whatHasHappened) const
-{
-    throw SchemeChangeError{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
-}
-
-void BaseStatement::throwCannotWriteToReadOnlyConnection(const char *whatHasHappened) const
-{
-    throw CannotWriteToReadOnlyConnection{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
-}
-
-void BaseStatement::throwProtocolError(const char *whatHasHappened) const
-{
-    throw ProtocolError{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
-}
-
-void BaseStatement::throwDatabaseExceedsMaximumFileSize(const char *whatHasHappened) const
-{
-    throw DatabaseExceedsMaximumFileSize{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
-}
-
-void BaseStatement::throwDataTypeMismatch(const char *whatHasHappened) const
-{
-    throw DataTypeMismatch{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
-}
-
-void BaseStatement::throwConnectionIsLocked(const char *whatHasHappened) const
-{
-    throw ConnectionIsLocked{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
-}
-
-void BaseStatement::throwExecutionInterrupted(const char *whatHasHappened) const
-{
-    throw ExecutionInterrupted{whatHasHappened};
-}
-
-void BaseStatement::throwDatabaseIsCorrupt(const char *whatHasHappened) const
-{
-    throw DatabaseIsCorrupt{whatHasHappened};
-}
-
-void BaseStatement::throwCannotOpen(const char *whatHasHappened) const
-{
-    throw CannotOpen{whatHasHappened};
 }
 
 QString BaseStatement::columnName(int column) const
@@ -762,6 +477,11 @@ ValueView BaseStatement::fetchValueView(int column) const
     }
 
     return ValueView::create(NullValue{});
+}
+
+void BaseStatement::Deleter::operator()(sqlite3_stmt *statement)
+{
+    sqlite3_finalize(statement);
 }
 
 } // namespace Sqlite

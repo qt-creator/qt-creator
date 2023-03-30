@@ -21,6 +21,8 @@ public:
 
     virtual ImageEntry fetchImage(Utils::SmallStringView name,
                                   Sqlite::TimeStamp minimumTimeStamp) const = 0;
+    virtual ImageEntry fetchMidSizeImage(Utils::SmallStringView name,
+                                         Sqlite::TimeStamp minimumTimeStamp) const = 0;
     virtual ImageEntry fetchSmallImage(Utils::SmallStringView name,
                                        Sqlite::TimeStamp minimumTimeStamp) const = 0;
     virtual IconEntry fetchIcon(Utils::SmallStringView name,
@@ -28,6 +30,7 @@ public:
     virtual void storeImage(Utils::SmallStringView name,
                             Sqlite::TimeStamp newTimeStamp,
                             const QImage &image,
+                            const QImage &midSizeImage,
                             const QImage &smallImage)
         = 0;
     virtual void storeIcon(Utils::SmallStringView name, Sqlite::TimeStamp newTimeStamp, const QIcon &icon) = 0;

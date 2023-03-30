@@ -16,7 +16,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Interactive")
-                tooltip: qsTr("Whether the view is interactive.")
+                tooltip: qsTr("Toggles if the user can interact with the view.")
             }
 
             SecondColumnLayout {
@@ -32,7 +32,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Orientation")
-                tooltip: qsTr("Orientation of the view.")
+                tooltip: qsTr("Sets the orientation of the view.")
             }
 
             SecondColumnLayout {

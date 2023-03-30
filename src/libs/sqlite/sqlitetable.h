@@ -88,7 +88,7 @@ public:
                                 Constraints &&constraints = {})
     {
         if (!constainsUniqueIndex(referencedColumn.constraints))
-            throw ForeignKeyColumnIsNotUnique("Foreign column key must be unique!");
+            throw ForeignKeyColumnIsNotUnique();
 
         constraints.emplace_back(ForeignKey{referencedColumn.tableName,
                                             referencedColumn.name,

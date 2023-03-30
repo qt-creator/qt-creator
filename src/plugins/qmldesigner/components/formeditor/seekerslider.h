@@ -2,50 +2,54 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include <QWidget>
-#include <QMouseEvent>
-#include <QIcon>
+#include <QSlider>
+#include <QWidgetAction>
 
 namespace QmlDesigner {
-
-class SeekerSlider : public QWidget
+class SeekerSlider : public QSlider
 {
     Q_OBJECT
+
 public:
-    SeekerSlider(QWidget *parentWidget);
-    int position() const;
-    int maxPosition() const
-    {
-        return m_maxPosition;
-    }
+    explicit SeekerSlider(QWidget *parent = nullptr);
 
-    void setMaxPosition(int pos)
-    {
-        m_maxPosition = qMax(0, pos);
-    }
-
-Q_SIGNALS:
-    void positionChanged();
+    int maxValue() const;
+    void setMaxValue(int maxValue);
 
 protected:
-    void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
-    int m_position = 0;
-    int m_startPos = 0;
-    int m_sliderPos = 0;
-    int m_sliderHalfWidth = 0;
-    int m_maxPosition = 30;
+    using QSlider::setMinimum;
+    using QSlider::setMaximum;
+    using QSlider::setRange;
+
     bool m_moving = false;
-    int m_bgWidth;
-    int m_bgHeight;
-    int m_handleWidth;
-    int m_handleHeight;
-    QIcon m_bgIcon;
-    QIcon m_handleIcon;
+};
+
+class SeekerSlider;
+class SeekerSliderAction : public QWidgetAction
+{
+    Q_OBJECT
+
+public:
+    explicit SeekerSliderAction(QObject *parent);
+    virtual ~SeekerSliderAction();
+
+    SeekerSlider *defaultSlider() const;
+    int value();
+
+signals:
+    void valueChanged(int);
+
+protected:
+    virtual QWidget *createWidget(QWidget *parent) override;
+
+private:
+    using QWidgetAction::setDefaultWidget;
+    SeekerSlider *m_defaultSlider = nullptr;
 };
 
 } // namespace QmlDesigner

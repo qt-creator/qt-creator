@@ -2,7 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "curveeditortoolbar.h"
+#include "curveeditorconstants.h"
 #include "curveeditormodel.h"
+
+#include "coreplugin/actionmanager/actionmanager.h"
+#include "coreplugin/icontext.h"
+#include "theme.h"
+#include "utils/id.h"
 
 #include <QAction>
 #include <QHBoxLayout>
@@ -14,7 +20,11 @@ namespace QmlDesigner {
 ValidatableSpinBox::ValidatableSpinBox(std::function<bool(int)> validator, QWidget* parent)
     : QSpinBox(parent)
     , m_validator(validator)
-{ }
+{
+    setButtonSymbols(NoButtons);
+    setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    setFrame(false);
+}
 
 QValidator::State ValidatableSpinBox::validate(QString &text, int &pos) const
 {
@@ -28,6 +38,20 @@ QValidator::State ValidatableSpinBox::validate(QString &text, int &pos) const
     return result;
 }
 
+static QAction *createAction(const Utils::Id &id,
+                      const QIcon &icon,
+                      const QString &name,
+                      const QKeySequence &shortcut)
+{
+    Core::Context context(CurveEditorConstants::C_QMLCURVEEDITOR);
+
+    auto *action = new QAction(icon, name);
+    auto *command = Core::ActionManager::registerAction(action, id, context);
+    command->setDefaultKeySequence(shortcut);
+    command->augmentActionWithShortcutToolTip(action);
+
+    return action;
+}
 
 CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     : QToolBar(parent)
@@ -37,15 +61,16 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
 
 {
     setFloatable(false);
+    setFixedHeight(Theme::toolbarSize());
+    setContentsMargins(0, 0, 0, 0);
 
-    QAction *tangentLinearAction = addAction(
-        QIcon(":/curveeditor/images/tangetToolsLinearIcon.png"), "Linear");
-    QAction *tangentStepAction = addAction(
-        QIcon(":/curveeditor/images/tangetToolsStepIcon.png"), "Step");
-    QAction *tangentSplineAction = addAction(
-        QIcon(":/curveeditor/images/tangetToolsSplineIcon.png"), "Spline");
+    addSpace(5);
 
-    QAction *tangentUnifyAction = addAction(tr("Unify"));
+    QAction *tangentLinearAction = addAction(Theme::iconFromName(Theme::linear_medium), "Linear");
+    QAction *tangentStepAction = addAction(Theme::iconFromName(Theme::step_medium), "Step");
+    QAction *tangentSplineAction = addAction(Theme::iconFromName(Theme::bezier_medium), "Spline");
+
+    QAction *tangentUnifyAction = addAction(Theme::iconFromName(Theme::unify_medium), tr("Unify"));
 
     auto setLinearInterpolation = [this]() {
         emit interpolationClicked(Keyframe::Interpolation::Linear);
@@ -96,33 +121,70 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     m_currentSpin->setMinimum(0);
     m_currentSpin->setMaximum(std::numeric_limits<int>::max());
     m_currentSpin->setFixedWidth(70);
+    m_currentSpin->setButtonSymbols(QSpinBox::NoButtons);
+    m_currentSpin->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    m_currentSpin->setFrame(false);
 
     connect(m_currentSpin, &QSpinBox::valueChanged, this, &CurveEditorToolBar::currentFrameChanged);
 
+    addSpacer();
+
     auto *durationBox = new QHBoxLayout;
+    durationBox->setContentsMargins(0, 0, 0, 0);
     durationBox->addWidget(new QLabel(tr("Start Frame")));
     durationBox->addWidget(m_startSpin);
+    addSpace(durationBox);
     durationBox->addWidget(new QLabel(tr("End Frame")));
     durationBox->addWidget(m_endSpin);
 
     auto *durationWidget = new QWidget;
     durationWidget->setLayout(durationBox);
     addWidget(durationWidget);
+    addSpace();
 
     auto *positionBox = new QHBoxLayout;
+    positionBox->setContentsMargins(0, 0, 0, 0);
     positionBox->addWidget(new QLabel(tr("Current Frame")));
     positionBox->addWidget(m_currentSpin);
 
     auto *positionWidget = new QWidget;
     positionWidget->setLayout(positionBox);
     addWidget(positionWidget);
+    addSpace();
 
     m_zoomSlider = new QSlider(Qt::Horizontal);
     m_zoomSlider->setRange(0, 100);
+    m_zoomSlider->setProperty("panelwidget", true);
+    m_zoomSlider->setProperty("panelwidget_singlerow", true);
+    m_zoomSlider->setFixedWidth(120);
+
     connect(m_zoomSlider, &QSlider::valueChanged, [this](int value) {
         emit zoomChanged(static_cast<double>(value)/100.0f);
     });
+
+    auto *zoomOut = createAction(CurveEditorConstants::C_ZOOM_OUT,
+                                 Theme::iconFromName(Theme::Icon::zoomOut_medium),
+                                 tr("Zoom Out"),
+                                 QKeySequence(QKeySequence::ZoomOut));
+
+    connect(zoomOut, &QAction::triggered, [this]() {
+        m_zoomSlider->setValue(m_zoomSlider->value() - m_zoomSlider->pageStep());
+    });
+
+    auto *zoomIn = createAction(CurveEditorConstants::C_ZOOM_IN,
+                                Theme::iconFromName(Theme::Icon::zoomIn_medium),
+                                tr("Zoom In"),
+                                QKeySequence(QKeySequence::ZoomIn));
+
+    connect(zoomIn, &QAction::triggered, [this]() {
+        m_zoomSlider->setValue(m_zoomSlider->value() + m_zoomSlider->pageStep());
+    });
+
+    addAction(zoomOut);
     addWidget(m_zoomSlider);
+    addAction(zoomIn);
+
+    addSpace(5);
 }
 
 void CurveEditorToolBar::setZoom(double zoom)
@@ -148,6 +210,29 @@ void CurveEditorToolBar::updateBoundsSilent(int start, int end)
 
     QSignalBlocker endBlocker(m_endSpin);
     m_endSpin->setValue(end);
+}
+
+void CurveEditorToolBar::addSpacer()
+{
+    QWidget *spacerWidget = new QWidget(this);
+    spacerWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    addWidget(spacerWidget);
+}
+
+void CurveEditorToolBar::addSpace(int spaceSize)
+{
+    QWidget *spacerWidget = new QWidget(this);
+    spacerWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    spacerWidget->setFixedSize(spaceSize, 1);
+    addWidget(spacerWidget);
+}
+
+void CurveEditorToolBar::addSpace(QLayout *layout, int spaceSize)
+{
+    QWidget *spacerWidget = new QWidget(layout->widget());
+    spacerWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    spacerWidget->setFixedSize(spaceSize, 1);
+    layout->addWidget(spacerWidget);
 }
 
 } // End namespace QmlDesigner.

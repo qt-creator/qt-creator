@@ -6,35 +6,33 @@
 #include "modelnode.h"
 
 #include <coreplugin/icontext.h>
-#include <utils/dropsupport.h>
-#include <utils/fancylineedit.h>
 
-#include <QFileIconProvider>
 #include <QFrame>
-#include <QQmlPropertyMap>
-
-#include <memory>
 
 QT_BEGIN_NAMESPACE
-class QQuickWidget;
 class QPointF;
 class QShortcut;
 class QToolButton;
 QT_END_NAMESPACE
 
+class StudioQuickWidget;
+
 namespace QmlDesigner {
 
+class AssetImageProvider;
 class MaterialBrowserView;
 class MaterialBrowserModel;
 class MaterialBrowserTexturesModel;
 class PreviewImageProvider;
-class PropertyEditorImageProvider;
 
 class MaterialBrowserWidget : public QFrame
 {
     Q_OBJECT
 
     Q_PROPERTY(bool materialSectionFocused MEMBER m_materialSectionFocused NOTIFY materialSectionFocusedChanged)
+
+    // Needed for a workaround for a bug where after drag-n-dropping an item, the ScrollView scrolls to a random position
+    Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
 
 public:
     MaterialBrowserWidget(class AsynchronousImageCache &imageCache, MaterialBrowserView *view);
@@ -55,16 +53,21 @@ public:
     Q_INVOKABLE void startDragMaterial(int index, const QPointF &mousePos);
     Q_INVOKABLE void startDragTexture(int index, const QPointF &mousePos);
     Q_INVOKABLE void acceptBundleMaterialDrop();
+    Q_INVOKABLE bool hasAcceptableAssets(const QList<QUrl> &urls);
     Q_INVOKABLE void acceptBundleTextureDrop();
+    Q_INVOKABLE void acceptBundleTextureDropOnMaterial(int matIndex, const QUrl &bundleTexPath);
+    Q_INVOKABLE void acceptAssetsDrop(const QList<QUrl> &urls);
+    Q_INVOKABLE void acceptAssetsDropOnMaterial(int matIndex, const QList<QUrl> &urls);
     Q_INVOKABLE void acceptTextureDropOnMaterial(int matIndex, const QString &texId);
     Q_INVOKABLE void focusMaterialSection(bool focusMatSec);
 
-    QQuickWidget *quickWidget() const;
+    StudioQuickWidget *quickWidget() const;
 
     void clearPreviewCache();
 
 signals:
     void materialSectionFocusedChanged();
+    void isDraggingChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -73,14 +76,16 @@ private:
     void reloadQmlSource();
     void updateSearch();
 
+    void setIsDragging(bool val);
+
     QPointer<MaterialBrowserView>  m_materialBrowserView;
     QPointer<MaterialBrowserModel> m_materialBrowserModel;
     QPointer<MaterialBrowserTexturesModel> m_materialBrowserTexturesModel;
-    QScopedPointer<QQuickWidget> m_quickWidget;
+    QScopedPointer<StudioQuickWidget> m_quickWidget;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
     PreviewImageProvider *m_previewImageProvider = nullptr;
-    PropertyEditorImageProvider *m_textureImageProvider = nullptr;
+    AssetImageProvider *m_textureImageProvider = nullptr;
     Core::IContext *m_context = nullptr;
 
     QString m_filterText;
@@ -90,6 +95,7 @@ private:
     QPoint m_dragStartPoint;
 
     bool m_materialSectionFocused = true;
+    bool m_isDragging = false;
 };
 
 } // namespace QmlDesigner

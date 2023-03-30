@@ -33,6 +33,7 @@ public:
     // This is our color table, all colors derive from baseColor
     static QColor requestedBaseColor() { return m_requestedBaseColor; }
     static QColor baseColor(bool lightColored = false);
+    static QColor toolbarBaseColor(bool lightColored = false);
     static QColor panelTextColor(bool lightColored = false);
     static QColor highlightColor(bool lightColored = false);
     static QColor shadowColor(bool lightColored = false);
@@ -54,6 +55,7 @@ public:
 
     // Draws a shaded anti-aliased arrow
     static void drawArrow(QStyle::PrimitiveElement element, QPainter *painter, const QStyleOption *option);
+    static void drawMinimalArrow(QStyle::PrimitiveElement element, QPainter *painter, const QStyleOption *option);
 
     // Gradients used for panels
     static void horizontalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect, bool lightColored = false);
@@ -70,6 +72,8 @@ public:
 
     static void tintImage(QImage &img, const QColor &tintColor);
     static QLinearGradient statusBarGradient(const QRect &statusBarRect);
+
+    static bool isQDSTheme();
 
     class IconFontHelper
     {

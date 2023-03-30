@@ -16,7 +16,10 @@ Column {
         caption: qsTr("Rectangle")
 
         SectionLayout {
-            PropertyLabel { text: qsTr("Fill color") }
+            PropertyLabel {
+                text: qsTr("Fill color")
+                tooltip: qsTr("Sets the color for the background.")
+            }
 
             ColorEditor {
                 backendValue: backendValues.color
@@ -25,6 +28,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Border color")
+                tooltip: qsTr("Sets the color for the border.")
                 visible: backendValues.border_color.isAvailable
             }
 
@@ -36,6 +40,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Border width")
+                tooltip: qsTr("Sets the border width.")
                 blockedByTemplate: !backendValues.border_width.isAvailable
             }
 
@@ -51,7 +56,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Radius") }
+            PropertyLabel {
+                text: qsTr("Radius")
+                tooltip: qsTr("Sets the radius by which the corners get rounded.")
+            }
 
             SecondColumnLayout {
                 SpinBox {

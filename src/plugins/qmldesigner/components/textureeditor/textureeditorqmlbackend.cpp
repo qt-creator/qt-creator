@@ -3,10 +3,10 @@
 
 #include "textureeditorqmlbackend.h"
 
+#include "assetimageprovider.h"
 #include "bindingproperty.h"
 #include "documentmanager.h"
 #include "nodemetainfo.h"
-#include "propertyeditorimageprovider.h"
 #include "propertyeditorvalue.h"
 #include "qmldesignerconstants.h"
 #include "qmlobjectnode.h"
@@ -49,8 +49,9 @@ TextureEditorQmlBackend::TextureEditorQmlBackend(TextureEditorView *textureEdito
 {
     QImage defaultImage;
     defaultImage.load(Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png"));
-    m_textureEditorImageProvider = new PropertyEditorImageProvider(imageCache, defaultImage);
+    m_textureEditorImageProvider = new AssetImageProvider(imageCache, defaultImage);
     m_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    m_view->setObjectName(Constants::OBJECT_NAME_TEXTURE_EDITOR);
     m_view->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_view->engine()->addImageProvider("qmldesigner_thumbnails", m_textureEditorImageProvider);
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);

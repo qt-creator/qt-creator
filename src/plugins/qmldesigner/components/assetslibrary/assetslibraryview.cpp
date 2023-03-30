@@ -4,7 +4,7 @@
 #include "assetslibraryview.h"
 
 #include "assetslibrarywidget.h"
-#include "createtexture.h"
+#include "designmodecontext.h"
 #include "qmldesignerplugin.h"
 
 #include <asynchronousimagecache.h>
@@ -46,7 +46,6 @@ public:
 
 AssetsLibraryView::AssetsLibraryView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
-    , m_createTextures{this, false}
 {}
 
 AssetsLibraryView::~AssetsLibraryView()
@@ -61,17 +60,23 @@ WidgetInfo AssetsLibraryView::widgetInfo()
 {
     if (m_widget.isNull()) {
         m_widget = new AssetsLibraryWidget{imageCacheData()->asynchronousFontImageCache,
-                                           imageCacheData()->synchronousFontImageCache};
+                                           imageCacheData()->synchronousFontImageCache,
+                                           this};
 
-        connect(m_widget, &AssetsLibraryWidget::addTexturesRequested, this,
-        [&] (const QStringList &filePaths, AddTextureMode mode) {
-            executeInTransaction("AssetsLibraryView::widgetInfo", [&]() {
-                m_createTextures.execute(filePaths, mode, m_sceneId);
-            });
-        });
+        auto context = new Internal::AssetsLibraryContext(m_widget.data());
+        Core::ICore::addContextObject(context);
     }
 
     return createWidgetInfo(m_widget.data(), "Assets", WidgetInfo::LeftPane, 0, tr("Assets"));
+}
+
+void AssetsLibraryView::customNotification(const AbstractView * /*view*/,
+                                           const QString &identifier,
+                                           const QList<ModelNode> & /*nodeList*/,
+                                           const QList<QVariant> & /*data*/)
+{
+    if (identifier == "delete_selected_assets")
+        m_widget->deleteSelectedAssets();
 }
 
 void AssetsLibraryView::modelAttached(Model *model)
@@ -79,18 +84,13 @@ void AssetsLibraryView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
 
     m_widget->clearSearchFilter();
-    m_widget->setModel(model);
 
     setResourcePath(DocumentManager::currentResourcePath().toFileInfo().absoluteFilePath());
-
-    m_sceneId = model->active3DSceneId();
 }
 
 void AssetsLibraryView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
-
-    m_widget->setModel(nullptr);
 }
 
 void AssetsLibraryView::setResourcePath(const QString &resourcePath)
@@ -103,7 +103,8 @@ void AssetsLibraryView::setResourcePath(const QString &resourcePath)
 
     if (m_widget.isNull()) {
         m_widget = new AssetsLibraryWidget{imageCacheData()->asynchronousFontImageCache,
-                                           imageCacheData()->synchronousFontImageCache};
+                                           imageCacheData()->synchronousFontImageCache,
+                                           this};
     }
 
     m_widget->setResourcePath(resourcePath);
@@ -114,11 +115,6 @@ AssetsLibraryView::ImageCacheData *AssetsLibraryView::imageCacheData()
     std::call_once(imageCacheFlag,
                    [this]() { m_imageCacheData = std::make_unique<ImageCacheData>(); });
     return m_imageCacheData.get();
-}
-
-void AssetsLibraryView::active3DSceneChanged(qint32 sceneId)
-{
-    m_sceneId = sceneId;
 }
 
 } // namespace QmlDesigner

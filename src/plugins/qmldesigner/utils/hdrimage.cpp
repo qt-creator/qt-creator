@@ -21,7 +21,7 @@ typedef unsigned char RGBE[4];
 
 constexpr float GAMMA = 1.f / 2.2f;
 
-QByteArray fileToByteArray(QString const &filename)
+static QByteArray fileToByteArray(QString const &filename)
 {
     QFile file(filename);
     QFileInfo info(file);

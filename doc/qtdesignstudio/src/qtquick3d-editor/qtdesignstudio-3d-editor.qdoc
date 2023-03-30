@@ -62,7 +62,7 @@
     select the \inlineimage icons/reset.png
     (\uicontrol {Reset View}) button.
 
-    \image studio-3d-editor.png "The 3D view"
+    \image studio-3d-editor.webp "The 3D view"
 
     The following video illustrates navigating in the \uicontrol{3D} view and
     using the toolbar:
@@ -104,7 +104,7 @@
     selected, the camera is pointed at the world origin. This does not affect
     the camera zoom level.
 
-    \image studio-3d-editor-axis-helper.png "Axis helper in the 3D view"
+    \image studio-3d-editor-axis-helper.webp "Axis helper in the 3D view"
 
     You can use scene cameras (2) to view the \uicontrol View3D component from a
     specific angle in the \l {2D} view while editing scenes. Different types of
@@ -116,8 +116,7 @@
     \section1 Using Global and Local Orientation
 
     To switch between local and global orientation, select
-    \inlineimage local.png
-    or \inlineimage global.png
+    \inlineimage global.png
     (\uicontrol {Toggle Local/Global Orientation})
     or press \key Y.
 
@@ -170,13 +169,13 @@
     \target moving components 3d view
     \section1 Moving Components
 
-    \image studio-3d-editor-move.png "The 3D view in move mode"
+    \image studio-3d-editor-move.webp "The 3D view in move mode"
 
     You can move components in relation to their coordinate system, along the x,
     y, or z axis or on the top, bottom, left, and right clip planes of the
     the \uicontrol{3D} view.
 
-    To move components, select \inlineimage move_on.png
+    To move components, select \inlineimage move_off.png
     or press \key W:
 
     \list
@@ -190,9 +189,9 @@
 
     \section1 Rotating Components
 
-    \image studio-3d-editor-rotate.png "The 3D view in rotate mode"
+    \image studio-3d-editor-rotate.webp "The 3D view in rotate mode"
 
-    To rotate components, select \inlineimage rotate_on.png
+    To rotate components, select \inlineimage rotate_off.png
     or press \key E:
 
     \list
@@ -204,13 +203,13 @@
 
     \section1 Scaling Components
 
-    \image studio-3d-editor-scale.png "The 3D view in scale mode"
+    \image studio-3d-editor-scale.webp "The 3D view in scale mode"
 
     You can use the scale handles to adjust the local x, y, or z scale of a
     component. You can adjust the scale across one, two, or three axes,
     depending on the handle.
 
-    To scale components, select \inlineimage scale_on.png
+    To scale components, select \inlineimage scale_off.png
     or press \key R:
 
     \list
@@ -330,49 +329,45 @@
         \li Keyboard Shortcut
         \li Read More
     \row
-        \li \inlineimage select_group.png
-            \inlineimage select_item.png
+        \li \inlineimage icons/select_group.png
+            \inlineimage icons/select_item.png
         \li Toggle Group/Single Selection Mode
         \li \key Q
         \li \l{Selecting Components}
     \row
-        \li \inlineimage move_off.png
-            \inlineimage move_on.png
+        \li \inlineimage icons/move_off.png
         \li Activate the Move Tool
         \li \key W
         \li \l{moving components 3d view}{Moving Components}
     \row
-        \li \inlineimage rotate_off.png
-            \inlineimage rotate_on.png
+        \li \inlineimage icons/rotate_off.png
         \li Activate Rotate Tool
         \li \key E
         \li \l{Rotating Components}
     \row
-        \li \inlineimage scale_off.png
-            \inlineimage scale_on.png
+        \li \inlineimage icons/scale_off.png
         \li Activate Scale Tool
         \li \key R
         \li \l{Scaling Components}
     \row
-        \li \inlineimage fit_selected.png
+        \li \inlineimage icons/fit_selected.png
         \li Fit Selected Object to View
         \li \key F
         \li \l{Controlling the 3D View Camera}
     \row
-        \li  \inlineimage perspective_camera.png
-             \inlineimage orthographic_camera.png
+        \li  \inlineimage icons/perspective_camera.png
+             \inlineimage icons/orthographic_camera.png
         \li Toggle Perspective/Orthographic Edit Camera
         \li \key T
         \li \l{Controlling the 3D View Camera}
     \row
-        \li \inlineimage global.png
-            \inlineimage local.png
+        \li \inlineimage icons/global.png
         \li Toggle Global/Local Orientation
         \li \key Y
         \li \l{Using Global and Local Orientation}
     \row
-        \li \inlineimage edit_light_off.png
-            \inlineimage edit_light_on.png
+        \li \inlineimage icons/edit_light_off.png
+            \inlineimage icons/edit_light_on.png
         \li Toggle Edit Light On/Off
         \li \key U
         \li \l{Using Edit Light}
@@ -403,7 +398,6 @@
         \li \l{Particle Editor}
     \row
         \li \inlineimage icons/particle-animation-on.png
-            \inlineimage icons/particle-animation-off.png
         \li Toggle Particle Animation
         \li \key V
         \li \l{Particle Editor}

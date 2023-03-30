@@ -3,13 +3,13 @@
 
 #include "materialbrowsermodel.h"
 
-#include <bindingproperty.h>
-#include <designmodewidget.h>
-#include <qmldesignerplugin.h>
-#include <qmlobjectnode.h>
-#include <variantproperty.h>
-#include <qmltimelinekeyframegroup.h>
-#include "utils/qtcassert.h"
+#include "designmodewidget.h"
+#include "qmldesignerplugin.h"
+#include "qmlobjectnode.h"
+#include "variantproperty.h"
+#include "qmltimelinekeyframegroup.h"
+
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 
@@ -42,7 +42,7 @@ QVariant MaterialBrowserModel::data(const QModelIndex &index, int role) const
         return m_materialList.at(index.row()).internalId();
 
     if (roleName == "materialVisible")
-        return isMaterialVisible(index.row());
+        return isVisible(index.row());
 
     if (roleName == "materialType") {
         QString matType = QString::fromLatin1(m_materialList.at(index.row()).type());
@@ -57,7 +57,7 @@ QVariant MaterialBrowserModel::data(const QModelIndex &index, int role) const
     return {};
 }
 
-bool MaterialBrowserModel::isMaterialVisible(int idx) const
+bool MaterialBrowserModel::isVisible(int idx) const
 {
     if (!isValidIndex(idx))
         return false;
@@ -221,14 +221,14 @@ void MaterialBrowserModel::refreshSearch()
     bool isEmpty = false;
 
     // if selected material goes invisible, select nearest material
-    if (!isMaterialVisible(m_selectedIndex)) {
+    if (!isVisible(m_selectedIndex)) {
         int inc = 1;
         int incCap = m_materialList.count();
         while (!isEmpty && inc < incCap) {
-            if (isMaterialVisible(m_selectedIndex - inc)) {
+            if (isVisible(m_selectedIndex - inc)) {
                 selectMaterial(m_selectedIndex - inc);
                 break;
-            } else if (isMaterialVisible(m_selectedIndex + inc)) {
+            } else if (isVisible(m_selectedIndex + inc)) {
                 selectMaterial(m_selectedIndex + inc);
                 break;
             }
@@ -236,7 +236,7 @@ void MaterialBrowserModel::refreshSearch()
             isEmpty = !isValidIndex(m_selectedIndex + inc)
                    && !isValidIndex(m_selectedIndex - inc);
         }
-        if (!isMaterialVisible(m_selectedIndex)) // handles the case of a single material
+        if (!isVisible(m_selectedIndex)) // handles the case of a single material
             isEmpty = true;
     }
 

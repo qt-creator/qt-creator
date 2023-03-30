@@ -70,9 +70,9 @@ QmlPreviewAction::QmlPreviewAction() : ModelNodeAction(livePreviewId,
                                                        &SelectionContextFunctors::always)
 {
     if (!QmlPreviewWidgetPlugin::getPreviewPlugin())
-        defaultAction()->setVisible(false);
+        action()->setVisible(false);
 
-    defaultAction()->setCheckable(true);
+    action()->setCheckable(true);
 }
 
 void QmlPreviewAction::updateContext()
@@ -80,7 +80,7 @@ void QmlPreviewAction::updateContext()
     if (selectionContext().view()->isAttached())
         QmlPreviewWidgetPlugin::setQmlFile();
 
-    defaultAction()->setSelectionContext(selectionContext());
+    pureAction()->setSelectionContext(selectionContext());
 }
 
 ActionInterface::Type QmlPreviewAction::type() const
@@ -113,7 +113,7 @@ QByteArray ZoomPreviewAction::category() const
 
 QByteArray ZoomPreviewAction::menuId() const
 {
-    return QByteArray();
+    return "PreviewZoom";
 }
 
 int ZoomPreviewAction::priority() const

@@ -54,7 +54,10 @@ PropertyEditorPane {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Opacity") }
+            PropertyLabel {
+                text: qsTr("Opacity")
+                tooltip: qsTr("Sets the transparency of the component.")
+            }
 
             SecondColumnLayout {
                 SpinBox {

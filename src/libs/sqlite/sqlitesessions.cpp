@@ -20,13 +20,13 @@ void checkResultCode(int resultCode)
     case SQLITE_NOMEM:
         throw std::bad_alloc();
     case SQLITE_SCHEMA:
-        throw CannotApplyChangeSet("Cannot apply change set!");
+        throw CannotApplyChangeSet();
     case SQLITE_MISUSE:
-        throw ChangeSetIsMisused("Change set is misused!");
+        throw ChangeSetIsMisused();
     }
 
     if (resultCode != SQLITE_OK)
-        throw UnknowError("Unknow exception");
+        throw UnknowError();
 }
 
 int xConflict(void *, int conflict, sqlite3_changeset_iter *)
@@ -171,6 +171,11 @@ SessionChangeSets Sessions::changeSets() const
                                       database};
 
     return selectChangeSets.values<SessionChangeSet>(1024);
+}
+
+void Sessions::Deleter::operator()(sqlite3_session *session)
+{
+    sqlite3session_delete(session);
 }
 
 } // namespace Sqlite

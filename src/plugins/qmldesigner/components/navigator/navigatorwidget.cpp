@@ -21,8 +21,9 @@
 #include <QToolButton>
 
 #include <utils/fileutils.h>
-#include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
+#include <utils/utilsicons.h>
 
 namespace QmlDesigner {
 
@@ -44,14 +45,16 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    QWidget *toolBar = createToolBar();
+    m_searchWidget = new NavigatorSearchWidget();
+    connect(m_searchWidget,
+            &NavigatorSearchWidget::textChanged,
+            this,
+            &NavigatorWidget::textFilterChanged);
+    layout->addWidget(m_searchWidget);
 
+    QWidget *toolBar = createToolBar();
     toolBar->setParent(this);
     layout->addWidget(toolBar);
-
-    m_searchWidget = new NavigatorSearchWidget();
-    connect(m_searchWidget, &NavigatorSearchWidget::textChanged, this, &NavigatorWidget::textFilterChanged);
-    layout->addWidget(m_searchWidget);
 
     layout->addWidget(m_treeView);
     setLayout(layout);
@@ -63,6 +66,8 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_NAVIGATORVIEW_TIME);
+
+    setFocusProxy(m_treeView);
 }
 
 void NavigatorWidget::setTreeModel(QAbstractItemModel *model)
@@ -75,73 +80,99 @@ QTreeView *NavigatorWidget::treeView() const
     return m_treeView;
 }
 
-QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
+QList<QWidget *> NavigatorWidget::createToolBarWidgets()
 {
-    QList<QToolButton *> buttons;
+    QList<QWidget *> buttons;
+
+    auto empty = new QWidget();
+    empty->setFixedWidth(5);
+    empty->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    buttons.append(empty);
 
     auto button = new QToolButton();
-    button->setIcon(Icons::ARROW_LEFT.icon());
+    button->setIcon(Theme::iconFromName(Theme::Icon::moveUpwards_medium));
     button->setToolTip(tr("Become last sibling of parent (CTRL + Left)."));
     button->setShortcut(QKeySequence(Qt::Key_Left | Qt::CTRL));
     connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::leftButtonClicked);
     buttons.append(button);
 
     button = new QToolButton();
-    button->setIcon(Icons::ARROW_RIGHT.icon());
+    button->setIcon(Theme::iconFromName(Theme::Icon::moveInwards_medium));
     button->setToolTip(tr("Become child of last sibling (CTRL + Right)."));
     button->setShortcut(QKeySequence(Qt::Key_Right | Qt::CTRL));
     connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::rightButtonClicked);
     buttons.append(button);
 
     button = new QToolButton();
-    button->setIcon(Icons::ARROW_DOWN.icon());
+    button->setIcon(Theme::iconFromName(Theme::Icon::moveDown_medium));
     button->setToolTip(tr("Move down (CTRL + Down)."));
     button->setShortcut(QKeySequence(Qt::Key_Down | Qt::CTRL));
     connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::downButtonClicked);
     buttons.append(button);
 
     button = new QToolButton();
-    button->setIcon(Icons::ARROW_UP.icon());
+    button->setIcon(Theme::iconFromName(Theme::Icon::moveUp_medium));
     button->setToolTip(tr("Move up (CTRL + Up)."));
     button->setShortcut(QKeySequence(Qt::Key_Up | Qt::CTRL));
     connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::upButtonClicked);
     buttons.append(button);
 
-    auto filter = new QToolButton;
-    filter->setIcon(Utils::Icons::FILTER.icon());
-    filter->setToolTip(tr("Filter Tree"));
-    filter->setPopupMode(QToolButton::InstantPopup);
-    filter->setProperty("noArrow", true);
-    auto filterMenu = new QMenu(filter);
-    auto filterAction = new QAction(tr("Show Only Visible Components"), nullptr);
-    filterAction->setCheckable(true);
+    empty = new QWidget();
+    empty->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    buttons.append(empty);
 
-    bool filterFlag = QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool();
-    filterAction->setChecked(filterFlag);
+    // Show Only Visible Components
+    auto visibleIcon = Theme::iconFromName(Theme::Icon::visible_medium);
+    auto invisibleIcon = Theme::iconFromName(Theme::Icon::invisible_medium,
+                                             Theme::getColor(Theme::Color::DStextSelectedTextColor));
+    QIcon vIcon;
+    vIcon.addPixmap(invisibleIcon.pixmap({16, 16}), QIcon::Normal, QIcon::On);
+    vIcon.addPixmap(visibleIcon.pixmap({16, 16}), QIcon::Normal, QIcon::Off);
 
-    connect(filterAction, &QAction::toggled, this, &NavigatorWidget::filterToggled);
-    filterMenu->addAction(filterAction);
+    button = new QToolButton();
+    button->setIcon(vIcon);
+    button->setCheckable(true);
+    bool visibleFlag = QmlDesignerPlugin::settings()
+                           .value(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS)
+                           .toBool();
+    button->setChecked(visibleFlag);
+    button->setToolTip(tr("Show Only Visible Components"));
+    connect(button, &QAbstractButton::toggled, this, &NavigatorWidget::filterToggled);
+    buttons.append(button);
 
-    auto reverseAction = new QAction(tr("Reverse Component Order"), nullptr);
-    reverseAction->setCheckable(true);
+    // Reverse Component Order
+    auto reverseOffIcon = Theme::iconFromName(Theme::Icon::reverseOrder_medium);
+    auto reverseOnIcon = Theme::iconFromName(Theme::Icon::reverseOrder_medium,
+                                             Theme::getColor(Theme::Color::DStextSelectedTextColor));
+    QIcon rIcon;
+    rIcon.addPixmap(reverseOnIcon.pixmap({16, 16}), QIcon::Normal, QIcon::On);
+    rIcon.addPixmap(reverseOffIcon.pixmap({16, 16}), QIcon::Normal, QIcon::Off);
 
-    bool reverseFlag = QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
-    reverseAction->setChecked(reverseFlag);
+    button = new QToolButton();
+    button->setIcon(rIcon);
+    button->setCheckable(true);
+    bool reverseFlag = QmlDesignerPlugin::settings()
+                           .value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER)
+                           .toBool();
+    button->setChecked(reverseFlag);
+    button->setToolTip(tr("Reverse Component Order"));
+    connect(button, &QAbstractButton::toggled, this, &NavigatorWidget::reverseOrderToggled);
+    buttons.append(button);
 
-    connect(reverseAction, &QAction::toggled, this, &NavigatorWidget::reverseOrderToggled);
-    filterMenu->addAction(reverseAction);
-
-    filter->setMenu(filterMenu);
-    buttons.append(filter);
+    empty = new QWidget();
+    empty->setFixedWidth(5);
+    empty->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    buttons.append(empty);
 
     return buttons;
 }
 
 QToolBar *NavigatorWidget::createToolBar()
 {
-    const QList<QToolButton*> buttons = createToolBarWidgets();
+    const QList<QWidget *> buttons = createToolBarWidgets();
 
     auto toolBar = new QToolBar();
+    toolBar->setFixedHeight(Theme::toolbarSize());
     for (auto toolButton : buttons)
         toolBar->addWidget(toolButton);
 
@@ -181,6 +212,7 @@ void NavigatorWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 
 void NavigatorWidget::dropEvent(QDropEvent *dropEvent)
 {
+    dropEvent->accept();
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
     actionManager.handleExternalAssetsDrop(dropEvent->mimeData());

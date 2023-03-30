@@ -222,8 +222,17 @@ struct JsonMap<QMap<Key, Value>>
     static QJsonObject json(const QMap<Key, Value> &map)
     {
         QJsonObject output;
-        for (auto it = map.cbegin(), end = map.cend(); it != end; ++it)
-            output[DesignerIconEnums<Key>::toString(it.key())] = JsonMap<Value>::json(it.value());
+
+        #if (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0))
+                for (const auto &[key, val] : map.asKeyValueRange())
+                    output[DesignerIconEnums<Key>::toString(key)] = JsonMap<Value>::json(val);
+        #else
+                const auto mapKeys = map.keys();
+                for (const Key &key : mapKeys) {
+                    const Value &val = map.value(key);
+                    output[DesignerIconEnums<Key>::toString(key)] = JsonMap<Value>::json(val);
+                }
+        #endif
 
         return output;
     }
@@ -388,6 +397,33 @@ void DesignerIcons::addIcon(IconId iconId,
 void DesignerIcons::addIcon(IconId iconId, Area area, Theme::Icon themeIcon, Theme::Color color, const QSize &size)
 {
     addIcon(iconId, area, {themeIcon, color, size});
+}
+
+QIcon DesignerIcons::rotateIcon(const QIcon &icon, const double &degrees)
+{
+    QIcon result;
+    const QMetaEnum &modeMetaEnum = DesignerIconEnums<QIcon::Mode>().metaEnum;
+    const QMetaEnum &stateMetaEnum = DesignerIconEnums<QIcon::State>().metaEnum;
+
+    const int maxModeIdx = modeMetaEnum.keyCount();
+    const int maxStateIdx = stateMetaEnum.keyCount();
+    for (int modeI = 0; modeI < maxModeIdx; ++modeI) {
+        const QIcon::Mode mode = static_cast<QIcon::Mode>(modeMetaEnum.value(modeI));
+        for (int stateI = 0; stateI < maxStateIdx; ++stateI) {
+            const QIcon::State state = static_cast<QIcon::State>(stateMetaEnum.value(stateI));
+            const QList<QSize> iconSizes = icon.availableSizes();
+            for (const QSize &size : iconSizes) {
+                QTransform tr;
+                tr.translate(size.width()/2, size.height()/2);
+                tr.rotate(degrees);
+
+                QPixmap pix = icon.pixmap(size, mode, state).transformed(tr);
+                result.addPixmap(pix, mode, state);
+            }
+        }
+    }
+
+    return result;
 }
 
 QList<Utils::StyleHelper::IconFontHelper> DesignerIcons::helperList(const IconId &iconId,

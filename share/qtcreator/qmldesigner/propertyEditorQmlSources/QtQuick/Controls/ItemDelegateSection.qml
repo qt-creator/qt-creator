@@ -17,7 +17,7 @@ Section {
     SectionLayout {
         PropertyLabel {
             text: qsTr("Highlight")
-            tooltip: qsTr("Whether the delegate is highlighted.")
+            tooltip: qsTr("Toggles if the delegate is highlighted.")
         }
 
         SecondColumnLayout {

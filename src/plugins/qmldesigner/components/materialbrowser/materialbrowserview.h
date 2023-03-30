@@ -4,7 +4,6 @@
 #pragma once
 
 #include "abstractview.h"
-#include "createtexture.h"
 
 #include <QPointer>
 #include <QSet>
@@ -53,9 +52,10 @@ public:
     void active3DSceneChanged(qint32 sceneId) override;
     void currentStateChanged(const ModelNode &node) override;
 
-    void applyTextureToModel3D(const QmlObjectNode &model3D, const ModelNode &texture);
+    void applyTextureToModel3D(const QmlObjectNode &model3D, const ModelNode &texture = {});
     void applyTextureToMaterial(const QList<ModelNode> &materials, const ModelNode &texture);
 
+    void createTextures(const QStringList &assetPaths);
 
     Q_INVOKABLE void updatePropsModel(const QString &matId);
     Q_INVOKABLE void applyTextureToProperty(const QString &matId, const QString &propName);
@@ -71,7 +71,7 @@ private:
     void loadPropertyGroups();
     void requestPreviews();
     ModelNode resolveSceneEnv();
-    ModelNode getMaterialOfModel(const ModelNode &model);
+    ModelNode getMaterialOfModel(const ModelNode &model, int idx = 0);
 
     AsynchronousImageCache &m_imageCache;
     QPointer<MaterialBrowserWidget> m_widget;
@@ -87,6 +87,7 @@ private:
     QPointer<QQuickView> m_chooseMatPropsView;
     QHash<QString, QList<PropertyName>> m_textureModels;
     QString m_appliedTextureId;
+    QString m_appliedTexturePath; // defers texture creation until dialog apply
     int m_sceneId = -1;
 };
 

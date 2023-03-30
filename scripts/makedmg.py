@@ -18,6 +18,11 @@ def parse_arguments():
     parser.add_argument('dmg_volumename', help='volume name to use for the disk image')
     parser.add_argument('source_directory', help='directory with the Qt Creator sources')
     parser.add_argument('binary_directory', help='directory that contains the Qt Creator.app')
+    parser.add_argument('--dmg-size', default='1500m', required=False)
+    parser.add_argument('--license-replacement', default=None,
+        help='Absolute path to a license file which replaces the default LICENSE.GPL3-EXCEPT from Qt Creator source directory.')
+    parser.add_argument('--keep-signed-content-at', default=None,
+        help='For online installer we want to keep the signed .app without the dmg. This is used to create a 7z.')
     return parser.parse_args()
 
 def main():
@@ -30,13 +35,19 @@ def main():
             app_path = [app for app in os.listdir(tempdir) if app.endswith('.app')][0]
             common.codesign(os.path.join(tempdir, app_path))
         os.symlink('/Applications', os.path.join(tempdir, 'Applications'))
-        shutil.copy(os.path.join(arguments.source_directory, 'LICENSE.GPL3-EXCEPT'), tempdir)
+        license_file = os.path.join(arguments.source_directory, 'LICENSE.GPL3-EXCEPT')
+        if (arguments.license_replacement):
+            license_file = arguments.license_replacement
+        shutil.copy(license_file, tempdir)
         dmg_cmd = ['hdiutil', 'create', '-srcfolder', tempdir, '-volname', arguments.dmg_volumename,
-                   '-format', 'UDBZ', arguments.target_diskimage, '-ov', '-scrub', '-size', '1500m', '-verbose']
+                   '-format', 'UDBZ', arguments.target_diskimage, '-ov', '-scrub', '-size', arguments.dmg_size, '-verbose']
         subprocess.check_call(dmg_cmd)
         # sleep a few seconds to make sure disk image is fully unmounted etc
         time.sleep(5)
     finally:
-        shutil.rmtree(tempdir_base)
+        if arguments.keep_signed_content_at:
+            shutil.move(tempdir, arguments.keep_signed_content_at)
+        else:
+            shutil.rmtree(tempdir_base)
 if __name__ == "__main__":
     main()

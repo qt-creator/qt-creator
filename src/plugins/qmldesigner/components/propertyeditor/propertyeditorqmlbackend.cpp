@@ -365,6 +365,13 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode & , const PropertyNa
     }
 }
 
+void PropertyEditorQmlBackend::setExpression(const PropertyName &propName, const QString &exp)
+{
+    PropertyEditorValue *propertyValue = propertyValueForName(QString::fromUtf8(propName));
+    if (propertyValue)
+        propertyValue->setExpression(exp);
+}
+
 QQmlContext *PropertyEditorQmlBackend::context() {
     return m_view->rootContext();
 }
@@ -373,7 +380,7 @@ PropertyEditorContextObject* PropertyEditorQmlBackend::contextObject() {
     return m_contextObject.data();
 }
 
-QWidget *PropertyEditorQmlBackend::widget() {
+QQuickWidget *PropertyEditorQmlBackend::widget() {
     return m_view;
 }
 
@@ -637,7 +644,7 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
 
         if (!superType.hasProperty(propertyName) // TODO add property.isLocalProperty()
             && property.isWritable() && dotPropertyHeuristic(node, metaType, propertyName)) {
-            QString typeName = QString::fromUtf8(property.propertyType().typeName());
+            QString typeName = QString::fromUtf8(property.propertyType().simplifiedTypeName());
 
             if (typeName == "alias" && node.isValid())
                 typeName = QString::fromUtf8(node.instanceType(propertyName));
@@ -649,10 +656,19 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
                 } else {
                     if (propertyName.contains('.')) {
                         const PropertyName parentPropertyName = propertyName.split('.').first();
-                        const PropertyMetaInfo parentProperty = metaType.property(
-                            parentPropertyName);
+                        const PropertyMetaInfo parentProperty = metaType.property(parentPropertyName);
 
-                        propertyMap[parentProperty].push_back(property);
+                        auto vectorFound = std::find(separateSectionProperties.begin(),
+                                                     separateSectionProperties.end(),
+                                                     parentProperty);
+
+                        auto propertyMapFound = propertyMap.find(parentProperty);
+
+                        const bool exists = propertyMapFound != propertyMap.end()
+                                            || vectorFound != separateSectionProperties.end();
+
+                        if (!exists)
+                            propertyMap[parentProperty].push_back(property);
                     } else {
                         propertyMap[property];
                     }
@@ -681,7 +697,7 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
         PropertyName underscoreProperty = propertyName;
         underscoreProperty.replace('.', '_');
 
-        TypeName typeName = property.propertyType().typeName();
+        TypeName typeName = property.propertyType().simplifiedTypeName();
         // alias resolution only possible with instance
         if (!useProjectStorage() && typeName == "alias" && node.isValid())
             typeName = node.instanceType(propertyName);
@@ -757,7 +773,7 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
         emptyTemplate = false;
         for (auto &[property, properties] : propertyMap) {
             //     for (auto it = propertyMap.cbegin(); it != propertyMap.cend(); ++it) {
-            TypeName parentTypeName = property.propertyType().typeName();
+            TypeName parentTypeName = property.propertyType().simplifiedTypeName();
             // alias resolution only possible with instance
             if (!useProjectStorage() && parentTypeName == "alias" && node.isValid())
                 parentTypeName = node.instanceType(property.name());

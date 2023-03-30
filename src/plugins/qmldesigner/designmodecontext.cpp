@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "designmodecontext.h"
-#include "qmldesignerconstants.h"
+#include "assetslibrarywidget.h"
 #include "designmodewidget.h"
-#include "formeditorwidget.h"
 #include "edit3dwidget.h"
+#include "formeditorwidget.h"
 #include "materialbrowserwidget.h"
 #include "navigatorwidget.h"
+#include "qmldesignerconstants.h"
 #include "texteditorwidget.h"
 
 namespace QmlDesigner {
@@ -59,6 +60,18 @@ MaterialBrowserContext::MaterialBrowserContext(QWidget *widget)
 void MaterialBrowserContext::contextHelp(const HelpCallback &callback) const
 {
     qobject_cast<MaterialBrowserWidget *>(m_widget)->contextHelp(callback);
+}
+
+AssetsLibraryContext::AssetsLibraryContext(QWidget *widget)
+    : IContext(widget)
+{
+    setWidget(widget);
+    setContext(Core::Context(Constants::C_QMLASSETSLIBRARY, Constants::C_QT_QUICK_TOOLS_MENU));
+}
+
+void AssetsLibraryContext::contextHelp(const HelpCallback &callback) const
+{
+    qobject_cast<AssetsLibraryWidget *>(m_widget)->contextHelp(callback);
 }
 
 NavigatorContext::NavigatorContext(QWidget *widget)

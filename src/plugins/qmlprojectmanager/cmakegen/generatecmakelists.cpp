@@ -60,6 +60,16 @@ enum ProjectDirectoryError {
 
 const QString MENU_ITEM_GENERATE = Tr::tr("Generate CMake Build Files...");
 
+const QmlBuildSystem *getBuildSystem()
+{
+    auto project = ProjectExplorer::ProjectManager::startupProject();
+    if (project && project->activeTarget() && project->activeTarget()->buildSystem()) {
+        return qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+            project->activeTarget()->buildSystem());
+    }
+    return nullptr;
+}
+
 void generateMenuEntry(QObject *parent)
 {
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(Core::Constants::M_FILE);
@@ -83,9 +93,8 @@ void generateMenuEntry(QObject *parent)
     QObject::connect(ProjectExplorer::ProjectManager::instance(),
                      &ProjectExplorer::ProjectManager::startupProjectChanged,
                      [action]() {
-                         auto qmlProject = qobject_cast<QmlProject *>(
-                             ProjectExplorer::ProjectManager::startupProject());
-                         action->setEnabled(qmlProject != nullptr);
+                         if (auto buildSystem = getBuildSystem())
+                             action->setEnabled(!buildSystem->qtForMCUs());
                      });
 }
 
@@ -247,17 +256,15 @@ const QString projectEnvironmentVariable(const QString &key)
 {
     QString value = {};
 
-    auto *target = ProjectExplorer::ProjectManager::startupProject()->activeTarget();
-    if (target && target->buildSystem()) {
-        auto buildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
-        if (buildSystem) {
-            auto envItems = buildSystem->environment();
-            auto confEnv = std::find_if(envItems.begin(), envItems.end(),
-                                     [key](NameValueItem &item){return item.name == key;});
-            if (confEnv != envItems.end())
-                value = confEnv->value;
-        }
+    if (auto buildSystem = getBuildSystem()) {
+        auto envItems = buildSystem->environment();
+        auto confEnv = std::find_if(envItems.begin(), envItems.end(), [key](NameValueItem &item) {
+            return item.name == key;
+        });
+        if (confEnv != envItems.end())
+            value = confEnv->value;
     }
+
     return value;
 }
 
@@ -532,7 +539,6 @@ bool CmakeFileGenerator::includeFile(const FilePath &filePath)
     return !isFileBlacklisted(filePath.fileName());
 }
 
-
 bool CmakeFileGenerator::generateEntryPointFiles(const FilePath &dir)
 {
     const QString qtcontrolsConf = GenerateCmake::projectEnvironmentVariable(ENV_VARIABLE_CONTROLCONF);
@@ -571,22 +577,19 @@ bool CmakeFileGenerator::generateMainCpp(const FilePath &dir)
 
     bool envHeaderOk = true;
     QString environment;
-    auto *target = ProjectExplorer::ProjectManager::startupProject()->activeTarget();
-    if (target && target->buildSystem()) {
-        auto buildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
-        if (buildSystem) {
-            for (EnvironmentItem &envItem : buildSystem->environment()) {
-                QString key = envItem.name;
-                QString value = envItem.value;
-                if (isFileResource(value))
-                    value.prepend(":/");
-                environment.append(QString(ENV_HEADER_VARIABLE_LINE).arg(key).arg(value));
-            }
-            QString envHeaderContent = GenerateCmake::readTemplate(ENV_HEADER_TEMPLATE_PATH)
-                    .arg(environment);
-            FilePath envHeaderPath = srcDir.pathAppended(FILENAME_ENV_HEADER);
-            envHeaderOk = m_fileQueue.queueFile(envHeaderPath, envHeaderContent);
+
+    if (auto buildSystem = getBuildSystem()) {
+        for (EnvironmentItem &envItem : buildSystem->environment()) {
+            QString key = envItem.name;
+            QString value = envItem.value;
+            if (isFileResource(value))
+                value.prepend(":/");
+            environment.append(QString(ENV_HEADER_VARIABLE_LINE).arg(key).arg(value));
         }
+        QString envHeaderContent = GenerateCmake::readTemplate(ENV_HEADER_TEMPLATE_PATH)
+                                       .arg(environment);
+        FilePath envHeaderPath = srcDir.pathAppended(FILENAME_ENV_HEADER);
+        envHeaderOk = m_fileQueue.queueFile(envHeaderPath, envHeaderContent);
     }
 
     return cppOk && pluginHeaderOk && envHeaderOk;
@@ -608,6 +611,8 @@ bool CmakeFileGenerator::isFileResource(const QString &relativeFilePath)
 
     return false;
 }
+
+
 
 } //GenerateCmake
 } //QmlProjectManager

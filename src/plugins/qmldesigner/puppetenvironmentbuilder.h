@@ -20,17 +20,20 @@ class PuppetEnvironmentBuilder
 public:
     PuppetEnvironmentBuilder(ProjectExplorer::Target *target,
                              const class DesignerSettings &designerSettings,
-                             const class Model &model)
+                             const class Model &model,
+                             const Utils::FilePath &qmlPuppetPath)
         : m_target(target)
         , m_designerSettings(designerSettings)
         , m_model(model)
+        , m_qmlPuppetPath(qmlPuppetPath)
     {}
 
     QProcessEnvironment processEnvironment() const;
 
     static QProcessEnvironment createEnvironment(ProjectExplorer::Target *target,
                                                  const class DesignerSettings &designerSettings,
-                                                 const class Model &model);
+                                                 const class Model &model,
+                                                 const Utils::FilePath &qmlPuppetPath);
 
 private:
     PuppetType determinePuppetType() const;
@@ -53,6 +56,7 @@ private:
     const Model &m_model;
     mutable PuppetType m_availablePuppetType = {};
     mutable Utils::Environment m_environment;
+    Utils::FilePath m_qmlPuppetPath;
 };
 
 } // namespace QmlDesigner

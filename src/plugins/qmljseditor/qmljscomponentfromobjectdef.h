@@ -8,10 +8,13 @@
 
 namespace QmlJSEditor {
 
+class QmlJSEditorWidget;
+
 QMLJSEDITOR_EXPORT void matchComponentFromObjectDefQuickFix(
     const Internal::QmlJSQuickFixAssistInterface *interface, QuickFixOperations &result);
 
-QMLJSEDITOR_EXPORT void performComponentFromObjectDef
-    (const QString &fileName, QmlJS::AST::UiObjectDefinition *objDef);
+QMLJSEDITOR_EXPORT void performComponentFromObjectDef(QmlJSEditorWidget *editor,
+                                                      const QString &fileName,
+                                                      QmlJS::AST::UiObjectDefinition *objDef);
 
 } // namespace QmlJSEditor

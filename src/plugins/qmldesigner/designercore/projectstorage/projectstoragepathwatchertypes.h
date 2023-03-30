@@ -10,7 +10,7 @@
 
 namespace QmlDesigner {
 
-enum class SourceType : int { Qml, QmlUi, QmlTypes, QmlDir };
+enum class SourceType : int { Qml, QmlUi, QmlTypes, QmlDir, Directory };
 
 class ProjectChunkId
 {

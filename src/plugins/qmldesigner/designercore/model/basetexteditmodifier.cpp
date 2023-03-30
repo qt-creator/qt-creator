@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "basetexteditmodifier.h"
+#include "qmljseditor/qmljseditor.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -111,7 +112,10 @@ bool BaseTextEditModifier::moveToComponent(int nodeOffset)
             if (!object)
                 return false;
 
-            QmlJSEditor::performComponentFromObjectDef(document->filePath().toString(), object);
+            QmlJSEditor::performComponentFromObjectDef(qobject_cast<QmlJSEditor::QmlJSEditorWidget *>(
+                                                           m_textEdit),
+                                                       document->filePath().toString(),
+                                                       object);
             return true;
         }
     }

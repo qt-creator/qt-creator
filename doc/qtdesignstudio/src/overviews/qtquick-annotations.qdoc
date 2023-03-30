@@ -21,8 +21,8 @@
     An annotation consist of an annotation name and one or several comments.
     The comments have a title, author, and comment text.
 
-    To add or edit global annotations, select \inlineimage icons/annotation.png
-    on the top menu bar in the Design mode.
+    To add or edit global annotations, right-click in the \uicontrol 2D or
+    \uicontrol Navigator view and select \uicontrol {Edit Annotations}.
 
     Global annotations have an additional status property, which enables you
     to indicate whether you are still working on the design, you have submitted

@@ -7,7 +7,7 @@
 
 #include "projectstorage/projectstoragepathwatcherinterface.h"
 
-class MockProjectStoragePathWatcher : public QmlDesigner::ProjectStoragePathWatcherInterface
+class ProjectStoragePathWatcherMock : public QmlDesigner::ProjectStoragePathWatcherInterface
 {
 public:
     MOCK_METHOD(void, updateIdPaths, (const std::vector<QmlDesigner::IdPaths> &idPaths), ());

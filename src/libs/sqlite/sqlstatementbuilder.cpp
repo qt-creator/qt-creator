@@ -197,30 +197,37 @@ void SqlStatementBuilder::checkIfPlaceHolderExists(Utils::SmallStringView name) 
 void SqlStatementBuilder::checkIfNoPlaceHoldersAynmoreExists() const
 {
     if (m_sqlStatement.contains('$'))
-        throwException("SqlStatementBuilder::bind: there are still placeholder in the sql statement!", m_sqlTemplate.constData());
+        throwException(
+            "SqlStatementBuilder::bind: there are still placeholder in the sql statement!",
+            m_sqlTemplate);
 }
 
 void SqlStatementBuilder::checkBindingTextIsNotEmpty(Utils::SmallStringView text) const
 {
     if (text.isEmpty())
-        throwException("SqlStatementBuilder::bind: binding text it empty!", m_sqlTemplate.constData());
+        throwException("SqlStatementBuilder::bind: binding text it empty!", m_sqlTemplate);
 }
 
 void SqlStatementBuilder::checkBindingTextVectorIsNotEmpty(const Utils::SmallStringVector &textVector) const
 {
     if (textVector.empty())
-        throwException("SqlStatementBuilder::bind: binding text vector it empty!", m_sqlTemplate.constData());
+        throwException("SqlStatementBuilder::bind: binding text vector it empty!", m_sqlTemplate);
 }
 
 void SqlStatementBuilder::checkBindingIntegerVectorIsNotEmpty(const std::vector<int> &integerVector) const
 {
     if (integerVector.empty())
-        throwException("SqlStatementBuilder::bind: binding integer vector it empty!", m_sqlTemplate.constData());
+        throwException("SqlStatementBuilder::bind: binding integer vector it empty!", m_sqlTemplate);
 }
 
-void SqlStatementBuilder::throwException(const char *whatHasHappened, const char *errorMessage)
+void SqlStatementBuilder::throwException(const char *whatHasHappened, Utils::SmallString sqlTemplate)
 {
-    throw SqlStatementBuilderException(whatHasHappened, errorMessage);
+    throw SqlStatementBuilderException(whatHasHappened, std::move(sqlTemplate));
+}
+
+const char *SqlStatementBuilderException::what() const noexcept
+{
+    return m_whatHasHappened;
 }
 
 } // namespace Sqlite

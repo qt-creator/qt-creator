@@ -19,6 +19,7 @@
 #include <QApplication>
 #include <QCursor>
 #include <QFontDatabase>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QQmlContext>
 #include <QWindow>
@@ -68,7 +69,9 @@ QColor convertColorFromString(const QString &s)
 
 namespace QmlDesigner {
 
-PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent)
+static Q_LOGGING_CATEGORY(urlSpecifics, "qtc.propertyeditor.specifics", QtWarningMsg)
+
+    PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent)
     : QObject(parent)
     , m_isBaseState(false)
     , m_selectionChanged(false)
@@ -442,6 +445,8 @@ void PropertyEditorContextObject::setSpecificsUrl(const QUrl &newSpecificsUrl)
 {
     if (newSpecificsUrl == m_specificsUrl)
         return;
+
+    qCInfo(urlSpecifics) << Q_FUNC_INFO << newSpecificsUrl;
 
     m_specificsUrl = newSpecificsUrl;
     emit specificsUrlChanged();

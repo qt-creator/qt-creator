@@ -10,14 +10,18 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 
+#include "projectexplorer/target.h"
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -25,9 +29,15 @@
 #include <qmlprojectmanager/projectfilecontenttools.h>
 #include <qmlprojectmanager/qmlproject.h>
 
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
+
 #include <qmldesigner/components/componentcore/theme.h>
 #include <qmldesigner/dynamiclicensecheck.h>
+#include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
+
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
@@ -38,14 +48,11 @@
 
 #include <QAbstractListModel>
 #include <QApplication>
-#include <QCheckBox>
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QFontDatabase>
-#include <QGroupBox>
 #include <QMainWindow>
 #include <QPointer>
-#include <QPushButton>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
@@ -90,11 +97,34 @@ const char STATISTICS_COLLECTION_MODE[] = "StatisticsCollectionMode";
 const char NO_TELEMETRY[] = "NoTelemetry";
 const char CRASH_REPORTER_SETTING[] = "CrashReportingEnabled";
 
-const char EXAMPLES_DOWNLOAD_PATH[] = "StudioWelcome/ExamplesDownloadPath";
-
 QPointer<QQuickView> s_viewWindow = nullptr;
 QPointer<QQuickWidget> s_viewWidget = nullptr;
 static StudioWelcomePlugin *s_pluginInstance = nullptr;
+
+static Utils::FilePath getMainUiFileWithFallback()
+{
+    auto project = ProjectExplorer::ProjectManager::startupProject();
+    if (!project)
+        return {};
+
+    if (!project->activeTarget())
+        return {};
+
+    auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+        project->activeTarget()->buildSystem());
+
+    auto mainUiFile = qmlBuildSystem->mainUiFilePath();
+    if (mainUiFile.exists())
+        return mainUiFile;
+
+    const Utils::FilePaths uiFiles = project->files([&](const ProjectExplorer::Node *node) {
+        return node->filePath().completeSuffix() == "ui.qml";
+    });
+    if (!uiFiles.isEmpty())
+        return uiFiles.first();
+
+    return {};
+}
 
 std::unique_ptr<QSettings> makeUserFeedbackSettings()
 {
@@ -223,8 +253,15 @@ public:
 
         m_blockOpenRecent = true;
         const FilePath projectFile = FilePath::fromVariant(data(index(row, 0), ProjectModel::FilePathRole));
-        if (projectFile.exists())
-            ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+        if (projectFile.exists()) {
+            const ProjectExplorerPlugin::OpenProjectResult result
+                = ProjectExplorer::ProjectExplorerPlugin::openProject(projectFile);
+            if (!result && !result.alreadyOpen().isEmpty()) {
+                const auto mainUiFile = getMainUiFileWithFallback();
+                if (mainUiFile.exists())
+                    Core::EditorManager::openEditor(mainUiFile, Utils::Id());
+            };
+        }
 
         resetProjects();
     }
@@ -241,6 +278,7 @@ public:
                                  const QString &formFile,
                                  const QString &explicitQmlproject)
     {
+        QTC_ASSERT(!exampleName.isEmpty(), return );
         QmlDesigner::QmlDesignerPlugin::emitUsageStatistics("exampleOpened:"
                                                             + exampleName);
 
@@ -525,6 +563,7 @@ void StudioWelcomePlugin::extensionsInitialized()
 
     if (showSplashScreen()) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
+            Core::ModeManager::setModeStyle(Core::ModeManager::Style::Hidden);
             if (Utils::HostOsInfo::isMacHost()) {
                 s_viewWindow = new QQuickView(Core::ICore::mainWindow()->windowHandle());
 
@@ -563,11 +602,13 @@ void StudioWelcomePlugin::extensionsInitialized()
 
                 s_viewWindow->show();
                 s_viewWindow->requestActivate();
+                s_viewWindow->setObjectName(QmlDesigner::Constants::OBJECT_NAME_SPLASH_SCREEN);
             } else {
                 s_viewWidget = new QQuickWidget(Core::ICore::dialogParent());
 
                 s_viewWidget->setWindowFlag(Qt::SplashScreen, true);
 
+                s_viewWidget->setObjectName(QmlDesigner::Constants::OBJECT_NAME_SPLASH_SCREEN);
                 s_viewWidget->setWindowModality(Qt::ApplicationModal);
                 s_viewWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
                 s_viewWidget->engine()->addImportPath("qrc:/studiofonts");
@@ -601,24 +642,36 @@ void StudioWelcomePlugin::extensionsInitialized()
 
 bool StudioWelcomePlugin::delayedInitialize()
 {
+    QTimer::singleShot(2000, this, []() {
+        auto modelManager = QmlJS::ModelManagerInterface::instance();
+        if (!modelManager)
+            return;
+
+        QmlJS::PathsAndLanguages importPaths;
+
+        const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [](const Kit *k) {
+            const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+            const bool isQt6 = version && version->qtVersion().majorVersion() == 6;
+
+            return isQt6
+                   && ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(k)
+                          == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+        });
+
+        for (const Kit *kit : kits) {
+            const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
+
+            const Utils::FilePath qmlPath = version->qmlPath();
+            importPaths.maybeInsert(qmlPath, QmlJS::Dialect::QmlQtQuick2);
+
+            QmlJS::ModelManagerInterface::importScan(QmlJS::ModelManagerInterface::workingCopy(),
+                                                     importPaths,
+                                                     modelManager,
+                                                     false);
+        }
+    });
+
     return true;
-}
-
-Utils::FilePath StudioWelcomePlugin::defaultExamplesPath()
-{
-    QStandardPaths::StandardLocation location = Utils::HostOsInfo::isMacHost()
-                                                    ? QStandardPaths::HomeLocation
-                                                    : QStandardPaths::DocumentsLocation;
-
-    return Utils::FilePath::fromString(QStandardPaths::writableLocation(location))
-        .pathAppended("QtDesignStudio");
-}
-
-QString StudioWelcomePlugin::examplesPathSetting()
-{
-    return Core::ICore::settings()
-        ->value(EXAMPLES_DOWNLOAD_PATH, defaultExamplesPath().toString())
-        .toString();
 }
 
 WelcomeMode::WelcomeMode()
@@ -706,36 +759,6 @@ WelcomeMode::WelcomeMode()
                                 [](const QString &path) { return QFileInfo::exists(path); }));
 }
 
-static bool hideBuildMenuSetting()
-{
-    return Core::ICore::settings()
-        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_BUILD, false)
-        .toBool();
-}
-
-static bool hideDebugMenuSetting()
-{
-    return Core::ICore::settings()
-        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_DEBUG, false)
-        .toBool();
-}
-
-static bool hideAnalyzeMenuSetting()
-{
-    return Core::ICore::settings()
-        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_ANALYZE, false)
-        .toBool();
-}
-
-void setSettingIfDifferent(const QString &key, bool value, bool &dirty)
-{
-    QSettings *s = Core::ICore::settings();
-    if (s->value(key, false).toBool() != value) {
-        dirty = true;
-        s->setValue(key, value);
-    }
-}
-
 WelcomeMode::~WelcomeMode()
 {
     delete m_modeWidget;
@@ -751,10 +774,12 @@ void WelcomeMode::setupQuickWidget(const QString &welcomePagePath)
         m_quickWidget->setSource(
             QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH) + "welcomepage/main.qml"));
 #else
+        m_quickWidget->rootContext()->setContextProperty("$dataModel", m_dataModelDownloader);
         m_quickWidget->engine()->addImportPath("qrc:/qml/welcomepage/imports");
         m_quickWidget->setSource(QUrl("qrc:/qml/welcomepage/main.qml"));
 #endif
     } else {
+        m_quickWidget->rootContext()->setContextProperty("$dataModel", m_dataModelDownloader);
 
         m_quickWidget->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toString());
 
@@ -778,110 +803,13 @@ void WelcomeMode::createQuickWidget()
     m_quickWidget = new QQuickWidget;
     m_quickWidget->setMinimumSize(640, 480);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    m_quickWidget->setObjectName(QmlDesigner::Constants::OBJECT_NAME_WELCOME_PAGE);
     QmlDesigner::Theme::setupTheme(m_quickWidget->engine());
     m_quickWidget->engine()->addImportPath("qrc:/studiofonts");
 
     QmlDesigner::QmlDesignerPlugin::registerPreviewImageProvider(m_quickWidget->engine());
 
     m_quickWidget->engine()->setOutputWarningsToStandardError(false);
-}
-
-StudioSettingsPage::StudioSettingsPage()
-    : m_buildCheckBox(new QCheckBox(tr("Build")))
-    , m_debugCheckBox(new QCheckBox(tr("Debug")))
-    , m_analyzeCheckBox(new QCheckBox(tr("Analyze")))
-    , m_pathChooser(new Utils::PathChooser())
-{
-    const QString toolTip = tr(
-        "Hide top-level menus with advanced functionality to simplify the UI. <b>Build</b> is "
-        "generally not required in the context of Qt Design Studio. <b>Debug</b> and <b>Analyze</b> "
-        "are only required for debugging and profiling.");
-
-    QVBoxLayout *boxLayout = new QVBoxLayout();
-    setLayout(boxLayout);
-    auto groupBox = new QGroupBox(tr("Hide Menu"));
-    groupBox->setToolTip(toolTip);
-    boxLayout->addWidget(groupBox);
-
-    auto verticalLayout = new QVBoxLayout();
-    groupBox->setLayout(verticalLayout);
-
-    m_buildCheckBox->setToolTip(toolTip);
-    m_debugCheckBox->setToolTip(toolTip);
-    m_analyzeCheckBox->setToolTip(toolTip);
-
-    verticalLayout->addWidget(m_buildCheckBox);
-    verticalLayout->addWidget(m_debugCheckBox);
-    verticalLayout->addWidget(m_analyzeCheckBox);
-    verticalLayout->addSpacerItem(
-        new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
-
-    m_buildCheckBox->setChecked(hideBuildMenuSetting());
-    m_debugCheckBox->setChecked(hideDebugMenuSetting());
-    m_analyzeCheckBox->setChecked(hideAnalyzeMenuSetting());
-
-    auto examplesGroupBox = new QGroupBox(tr("Examples"));
-    boxLayout->addWidget(examplesGroupBox);
-
-    auto horizontalLayout = new QHBoxLayout();
-    examplesGroupBox->setLayout(horizontalLayout);
-
-    auto label = new QLabel(tr("Examples path:"));
-    m_pathChooser->setFilePath(
-        Utils::FilePath::fromString(StudioWelcomePlugin::examplesPathSetting()));
-    auto resetButton = new QPushButton(tr("Reset Path"));
-
-    connect(resetButton, &QPushButton::clicked, this, [this]() {
-        m_pathChooser->setFilePath(StudioWelcomePlugin::defaultExamplesPath());
-    });
-
-    horizontalLayout->addWidget(label);
-    horizontalLayout->addWidget(m_pathChooser);
-    horizontalLayout->addWidget(resetButton);
-
-
-    boxLayout->addSpacerItem(
-        new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Expanding));
-}
-
-void StudioSettingsPage::apply()
-{
-    bool dirty = false;
-
-    setSettingIfDifferent(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_BUILD,
-                          m_buildCheckBox->isChecked(),
-                          dirty);
-
-    setSettingIfDifferent(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_DEBUG,
-                          m_debugCheckBox->isChecked(),
-                          dirty);
-
-    setSettingIfDifferent(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_ANALYZE,
-                          m_analyzeCheckBox->isChecked(),
-                          dirty);
-
-
-    if (dirty) {
-        const QString restartText = tr("The menu visibility change will take effect after restart.");
-        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
-        restartDialog.exec();
-    }
-
-    QSettings *s = Core::ICore::settings();
-    const QString value = m_pathChooser->filePath().toString();
-
-    if (s->value(EXAMPLES_DOWNLOAD_PATH, false).toString() != value) {
-        s->setValue(EXAMPLES_DOWNLOAD_PATH, value);
-        emit s_pluginInstance->examplesDownloadPathChanged(value);
-    }
-}
-
-StudioWelcomeSettingsPage::StudioWelcomeSettingsPage()
-{
-    setId("Z.StudioWelcome.Settings");
-    setDisplayName(tr("Qt Design Studio Configuration"));
-    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
-    setWidgetCreator([] { return new StudioSettingsPage; });
 }
 
 } // namespace Internal

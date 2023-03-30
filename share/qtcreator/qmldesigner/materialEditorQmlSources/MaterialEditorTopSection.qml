@@ -1,12 +1,11 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import QtQuickDesignerTheme 1.0
-import QtQuick.Templates 2.15 as T
-import HelperWidgets 2.0
+import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
@@ -17,6 +16,11 @@ Column {
 
     property string previewEnv
     property string previewModel
+    property StudioTheme.ControlStyle buttonStyle: StudioTheme.ViewBarButtonStyle {
+        //This is how you can override stuff from the control styles
+        controlSize: Qt.size(previewOptions.width, previewOptions.width)
+        baseIconFontSize: StudioTheme.Values.bigIconFontSize
+    }
 
     function refreshPreview()
     {
@@ -153,17 +157,17 @@ Column {
 
             Column {
                 anchors.horizontalCenter: parent.horizontalCenter
-                IconButton {
-                    icon: StudioTheme.Constants.materialPreviewEnvironment
-                    iconSize: StudioTheme.Values.bigIconFontSize
-                    buttonSize: previewOptions.width
+
+                HelperWidgets.AbstractButton {
+                    style: root.buttonStyle
+                    buttonIcon: StudioTheme.Constants.textures_medium
                     tooltip: qsTr("Select preview environment.")
                     onClicked: envMenu.popup()
                 }
-                IconButton {
-                    icon: StudioTheme.Constants.materialPreviewModel
-                    iconSize: StudioTheme.Values.bigIconFontSize
-                    buttonSize: previewOptions.width
+
+                HelperWidgets.AbstractButton {
+                    style: root.buttonStyle
+                    buttonIcon: StudioTheme.Constants.cube_medium
                     tooltip: qsTr("Select preview model.")
                     onClicked: modelMenu.popup()
                 }
@@ -172,19 +176,19 @@ Column {
 
     }
 
-    Section {
+    HelperWidgets.Section {
         // Section with hidden header is used so properties are aligned with the other sections' properties
         hideHeader: true
         width: parent.width
         collapsible: false
 
-        SectionLayout {
-            PropertyLabel { text: qsTr("Name") }
+        HelperWidgets.SectionLayout {
+            HelperWidgets.PropertyLabel { text: qsTr("Name") }
 
-            SecondColumnLayout {
-                Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
+            HelperWidgets.SecondColumnLayout {
+                HelperWidgets.Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
 
-                LineEdit {
+                HelperWidgets.LineEdit {
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
                     width: StudioTheme.Values.singleControlColumnWidth
                     backendValue: backendValues.objectName
@@ -195,18 +199,18 @@ Column {
                     showExtendedFunctionButton: false
 
                     // allow only alphanumeric characters, underscores, no space at start, and 1 space between words
-                    validator: RegExpValidator { regExp: /^(\w+\s)*\w+$/ }
+                    validator: HelperWidgets.RegExpValidator { regExp: /^(\w+\s)*\w+$/ }
                 }
 
-                ExpandingSpacer {}
+                HelperWidgets.ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Type") }
+            HelperWidgets.PropertyLabel { text: qsTr("Type") }
 
-            SecondColumnLayout {
-                Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
+            HelperWidgets.SecondColumnLayout {
+            HelperWidgets.Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
 
-                ComboBox {
+            HelperWidgets.ComboBox {
                     currentIndex: possibleTypeIndex
                     model: possibleTypes
                     showExtendedFunctionButton: false

@@ -1,0 +1,33 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page material-bundle-example.html
+    \ingroup studioexamples
+    \sa {Content Library}
+
+    \title Material Bundle
+    \brief Showcases the materials in \uicontrol {Content Library} and the real-time rendering
+    capabilities of \QDS.
+
+    \image material-bundle-example.webp
+
+    The \e{Material Bundle} example showcases the materials included in the \QDS
+    \uicontrol {Content Library} and the real-time 3D rendering capabilities of \QDS.
+
+    Run the project to:
+
+    \list
+      \li Select the material for two different meshes; all material bundle materials are available.
+      \li Navigate (rotate and zoom) with the mouse.
+      \li Choose between two different environment light options.
+    \endlist
+
+    \section1 The Material Bundle
+
+    The material bundle is included in \uicontrol {Content Library} which is
+    included in the \QDS Enterprise license. It contains a ready-made set of materials that you
+    can apply to your 3D models by dragging and dropping.
+
+    \image content-library.webp
+*/

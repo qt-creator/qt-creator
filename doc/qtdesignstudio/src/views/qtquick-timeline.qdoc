@@ -93,7 +93,7 @@
     state in \uicontrol {States} and the timeline is available in
     \uicontrol{Timelines}.
 
-    \image timeline-states.png
+    \image timeline-states.webp
 
     \section2 Setting Keyframe Values
 
@@ -118,7 +118,7 @@
         \li In the \l Timeline view, select the
             \uicontrol {Per Property Recording} button
             to start recording property changes.
-            \image timeline-per-property-recording.png
+            \image timeline-per-property-recording.webp
         \li Ensure that the playhead is in frame 0 and enter the value of the
             property in the field next to the property name on the timeline.
             Press \key Enter to save the value.
@@ -180,7 +180,7 @@
 
     \section1 Managing Keyframes
 
-    \image studio-timeline-with-tracks.png "Timeline view"
+    \image studio-timeline-with-tracks.webp "Timeline view"
 
     \section2 Editing Keyframes
 
@@ -240,9 +240,8 @@
     \endlist
 
     To preview the whole UI, select the
-    \inlineimage icons/live_preview.png
-    (\uicontrol {Show Live Preview}) button on the canvas toolbar
-    or press \key {Alt+P}.
+    \uicontrol {Live Preview} button on the top toolbar
+    or press \key Alt + \key P.
 
     \section1 Animating Rotation
 

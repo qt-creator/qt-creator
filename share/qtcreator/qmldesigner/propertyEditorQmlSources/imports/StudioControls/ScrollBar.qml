@@ -1,12 +1,14 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Templates 2.15 as T
+import QtQuick
+import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
 T.ScrollBar {
     id: control
+
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
     // This needs to be set, when using T.ScrollBar
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
@@ -31,11 +33,11 @@ T.ScrollBar {
         implicitWidth: 4
         implicitHeight: 4
         radius: width / 2 // TODO 0
-        color: StudioTheme.Values.themeScrollBarHandle
+        color: control.style.scrollBar.handle
     }
 
     background: Rectangle {
         id: controlTrack
-        color: StudioTheme.Values.themeScrollBarTrack
+        color: control.style.scrollBar.track
     }
 }

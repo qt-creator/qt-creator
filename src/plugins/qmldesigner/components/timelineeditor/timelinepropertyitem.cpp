@@ -182,8 +182,10 @@ TimelinePropertyItem *TimelinePropertyItem::create(const QmlTimelineKeyframeGrou
         }
     });
 
-    QIcon autoKeyIcon = TimelineUtils::mergeIcons(TimelineIcons::GLOBAL_RECORD_KEYFRAMES,
-                                                  TimelineIcons::GLOBAL_RECORD_KEYFRAMES_OFF);
+    QIcon autoKeyIcon = TimelineUtils::mergeIcons(
+        Theme::iconFromName(Theme::recordFill_medium, Theme::getColor(Theme::Color::IconsStopColor)),
+        Theme::iconFromName(Theme::recordOutline_medium));
+
     auto recact = new QAction(autoKeyIcon, tr("Auto Record"));
     recact->setCheckable(true);
     recact->setChecked(isRecording);

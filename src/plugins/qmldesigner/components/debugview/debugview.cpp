@@ -283,7 +283,8 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
 
         if (selectedNode.metaInfo().isValid()) {
             for (const NodeMetaInfo &metaInfo : selectedNode.metaInfo().classHierarchy())
-                message << metaInfo.typeName() << lineBreak;
+                message << metaInfo.typeName() << " " << metaInfo.majorVersion() << "."
+                        << metaInfo.minorVersion() << lineBreak;
 
             message << lineBreak;
             message << selectedNode.metaInfo().typeName();
@@ -425,7 +426,11 @@ void DebugView::rewriterEndTransaction()
 
 WidgetInfo DebugView::widgetInfo()
 {
-    return createWidgetInfo(m_debugViewWidget.data(), QStringLiteral("DebugView"), WidgetInfo::LeftPane, 0, tr("Debug View"));
+    return createWidgetInfo(m_debugViewWidget.data(),
+                            QStringLiteral("DebugView"),
+                            WidgetInfo::LeftPane,
+                            0,
+                            tr("Debug View"));
 }
 
 bool DebugView::hasWidget() const

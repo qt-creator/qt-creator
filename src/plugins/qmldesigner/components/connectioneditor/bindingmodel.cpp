@@ -18,8 +18,6 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
-
 BindingModel::BindingModel(ConnectionView *parent)
     : QStandardItemModel(parent)
     , m_connectionView(parent)
@@ -439,7 +437,5 @@ void BindingModel::handleException()
     QMessageBox::warning(nullptr, tr("Error"), m_exceptionError);
     resetModel();
 }
-
-} // namespace Internal
 
 } // namespace QmlDesigner

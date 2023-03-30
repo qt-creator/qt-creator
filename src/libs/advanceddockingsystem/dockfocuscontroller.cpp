@@ -105,11 +105,16 @@ namespace ADS
                              q, &DockFocusController::onFocusedDockAreaViewToggled);
         }
 
-        auto newFloatingWidget = m_focusedDockWidget->dockContainer()->floatingWidget();
+        auto dockContainer = m_focusedDockWidget->dockContainer();
+        FloatingDockContainer *newFloatingWidget = nullptr;
+
+        if (dockContainer)
+            newFloatingWidget = dockContainer->floatingWidget();
+
         if (newFloatingWidget)
             newFloatingWidget->setProperty("FocusedDockWidget", QVariant::fromValue(dockWidget));
 
-    #ifdef Q_OS_LINUX
+#ifdef Q_OS_LINUX
         // This code is required for styling the floating widget titlebar for linux
         // depending on the current focus state
         if (m_floatingWidget == newFloatingWidget)
@@ -122,7 +127,7 @@ namespace ADS
 
         if (m_floatingWidget)
             updateFloatingWidgetFocusStyle(m_floatingWidget, true);
-    #endif
+#endif
 
         if (old != dockWidget)
             emit m_dockManager->focusedDockWidgetChanged(old, dockWidget);
@@ -162,6 +167,8 @@ namespace ADS
         if (!dockWidget)
             dockWidget = qobject_cast<DockWidget *>(focusedNow);
 
+        bool focusActual = dockWidget && dockWidget->widget();
+
         if (!dockWidget)
             dockWidget = internal::findParent<DockWidget *>(focusedNow);
 
@@ -174,6 +181,12 @@ namespace ADS
     #endif
 
         d->updateDockWidgetFocus(dockWidget);
+
+        if (focusActual) {
+            // Do this async to avoid issues when changing focus in middle of another focus handling
+            QMetaObject::invokeMethod(dockWidget->widget(), QOverload<>::of(&QWidget::setFocus),
+                                      Qt::QueuedConnection);
+        }
     }
 
     void DockFocusController::setDockWidgetFocused(DockWidget *focusedNow)

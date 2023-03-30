@@ -3,24 +3,24 @@
 
 #pragma once
 
-#include <previewtooltip/previewtooltipbackend.h>
-
-#include "assetslibrarymodel.h"
 #include "createtexture.h"
+#include "previewtooltipbackend.h"
 
-#include <QFileIconProvider>
+#include <coreplugin/icontext.h>
+
 #include <QFrame>
-#include <QPointF>
 #include <QQmlPropertyMap>
 #include <QQuickWidget>
-#include <QTimer>
-#include <QToolButton>
 
 #include <memory>
 
 QT_BEGIN_NAMESPACE
+class QPointF;
 class QShortcut;
+class QToolButton;
 QT_END_NAMESPACE
+
+class StudioQuickWidget;
 
 namespace Utils {
     class QtcProcess;
@@ -33,6 +33,7 @@ class Model;
 
 class AssetsLibraryIconProvider;
 class AssetsLibraryModel;
+class AssetsLibraryView;
 class SynchronousImageCache;
 class AsynchronousImageCache;
 class ImageCacheCollector;
@@ -41,12 +42,19 @@ class AssetsLibraryWidget : public QFrame
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool hasMaterialLibrary MEMBER m_hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
+    Q_PROPERTY(bool hasSceneEnv MEMBER m_hasSceneEnv NOTIFY hasSceneEnvChanged)
+
+    // Needed for a workaround for a bug where after drag-n-dropping an item, the ScrollView scrolls to a random position
+    Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
+
 public:
     AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
-                        SynchronousImageCache &synchronousFontImageCache);
+                        SynchronousImageCache &synchronousFontImageCache, AssetsLibraryView *view);
     ~AssetsLibraryWidget() = default;
 
     QList<QToolButton *> createToolBarWidgets();
+    void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
     static QString qmlSourcesPath();
     void clearSearchFilter();
@@ -55,8 +63,9 @@ public:
     void updateModel();
 
     void setResourcePath(const QString &resourcePath);
-    void setModel(Model *model);
     static QPair<QString, QByteArray> getAssetTypeAndData(const QString &assetPath);
+
+    void deleteSelectedAssets();
 
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
     Q_INVOKABLE void handleAddAsset();
@@ -72,14 +81,23 @@ public:
 
     Q_INVOKABLE QSet<QString> supportedAssetSuffixes(bool complex);
     Q_INVOKABLE void openEffectMaker(const QString &filePath);
-    Q_INVOKABLE bool qtVersionIsAtLeast6_4() const;
+    Q_INVOKABLE int qtVersion() const;
     Q_INVOKABLE void invalidateThumbnail(const QString &id);
     Q_INVOKABLE QSize imageSize(const QString &id);
     Q_INVOKABLE QString assetFileSize(const QString &id);
-    Q_INVOKABLE bool assetIsImage(const QString &id);
+    Q_INVOKABLE bool assetIsImageOrTexture(const QString &id);
 
     Q_INVOKABLE void addTextures(const QStringList &filePaths);
     Q_INVOKABLE void addLightProbe(const QString &filePaths);
+    Q_INVOKABLE void updateContextMenuActionsEnableState();
+
+    Q_INVOKABLE QString getUniqueEffectPath(const QString &parentFolder, const QString &effectName);
+    Q_INVOKABLE bool createNewEffect(const QString &effectPath, bool openEffectMaker = true);
+
+    Q_INVOKABLE bool canCreateEffects() const;
+
+    Q_INVOKABLE void showInGraphicalShell(const QString &path);
+    Q_INVOKABLE QString showInGraphicalShellMsg() const;
 
 signals:
     void itemActivated(const QString &itemName);
@@ -87,7 +105,11 @@ signals:
                       const QList<QUrl> &complexFilePaths,
                       const QString &targetDirPath);
     void directoryCreated(const QString &path);
-    void addTexturesRequested(const QStringList &filePaths, QmlDesigner::AddTextureMode mode);
+    void hasMaterialLibraryChanged();
+    void hasSceneEnvChanged();
+    void isDraggingChanged();
+    void endDrag();
+    void deleteSelectedAssetsRequested();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -95,8 +117,12 @@ protected:
 private:
     void reloadQmlSource();
 
-    void addResources(const QStringList &files);
+    void addResources(const QStringList &files, bool showDialog = true);
     void updateSearch();
+    void setIsDragging(bool val);
+
+    void setHasMaterialLibrary(bool enable);
+    void setHasSceneEnv(bool b);
 
     QSize m_itemIconSize;
 
@@ -104,16 +130,20 @@ private:
 
     AssetsLibraryIconProvider *m_assetsIconProvider = nullptr;
     AssetsLibraryModel *m_assetsModel = nullptr;
+    AssetsLibraryView *m_assetsView = nullptr;
+    CreateTextures m_createTextures = nullptr;
 
-    QScopedPointer<QQuickWidget> m_assetsWidget;
+    QScopedPointer<StudioQuickWidget> m_assetsWidget;
     std::unique_ptr<PreviewTooltipBackend> m_fontPreviewTooltipBackend;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
-    QPointer<Model> m_model;
     QStringList m_assetsToDrag;
     bool m_updateRetry = false;
     QString m_filterText;
     QPoint m_dragStartPoint;
+    bool m_hasMaterialLibrary = false;
+    bool m_hasSceneEnv = false;
+    bool m_isDragging = false;
 };
 
 } // namespace QmlDesigner

@@ -52,7 +52,8 @@ protected:
     void checkBindingTextVectorIsNotEmpty(const Utils::SmallStringVector &textVector) const;
     void checkBindingIntegerVectorIsNotEmpty(const std::vector<int> &integerVector) const;
 
-    Q_NORETURN static void throwException(const char *whatHasHappened, const char *errorMessage);
+    Q_NORETURN static void throwException(const char *whatHasHappened,
+                                          Utils::SmallString sqlTemplate);
 
 private:
     Utils::BasicSmallString<510> m_sqlTemplate;

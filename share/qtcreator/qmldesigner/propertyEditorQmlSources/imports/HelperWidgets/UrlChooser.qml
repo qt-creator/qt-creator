@@ -88,7 +88,7 @@ Row {
         ToolTip {
             id: toolTip
             visible: comboBox.hover && toolTip.text !== ""
-            text: root.backendValue.valueToString
+            text: root.backendValue?.valueToString ?? ""
             delay: StudioTheme.Values.toolTipDelay
 
             background: Rectangle {
@@ -116,8 +116,6 @@ Row {
                     Image {
                         id: thumbnail
                         asynchronous: true
-                        sourceSize.height: 96
-                        sourceSize.width: 96
                         height: 96
                         width: 96
                         fillMode: Image.PreserveAspectFit

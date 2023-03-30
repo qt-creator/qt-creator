@@ -15,18 +15,20 @@ SecondColumnLayout {
     property color color
     property bool supportGradient: false
     property variant backendValue
+
     property variant value: {
-        if (colorEditor.backendValue === undefined
-                || colorEditor.backendValue.value === undefined)
+        if (!colorEditor.backendValue || !colorEditor.backendValue.value)
             return "white" // default color for Rectangle
 
-        if (colorEditor.isVector3D)
+        if (colorEditor.isVector3D) {
             return Qt.rgba(colorEditor.backendValue.value.x,
                            colorEditor.backendValue.value.y,
                            colorEditor.backendValue.value.z, 1)
-        else
-            return colorEditor.backendValue.value
+        }
+
+        return colorEditor.backendValue.value
     }
+
     property alias gradientPropertyName: popupLoader.gradientPropertyName
 
     property alias gradientThumbnail: gradientThumbnail
@@ -39,6 +41,8 @@ SecondColumnLayout {
     property alias spacer: spacer
 
     property bool __block: false
+
+    property string caption // Legacy Qt5 specifics sheets compatibility
 
     function resetShapeColor() {
         colorEditor.backendValue.resetValue()

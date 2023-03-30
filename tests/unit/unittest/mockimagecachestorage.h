@@ -16,6 +16,11 @@ public:
                 (const, override));
 
     MOCK_METHOD(QmlDesigner::ImageCacheStorageInterface::ImageEntry,
+                fetchMidSizeImage,
+                (Utils::SmallStringView name, Sqlite::TimeStamp minimumTimeStamp),
+                (const, override));
+
+    MOCK_METHOD(QmlDesigner::ImageCacheStorageInterface::ImageEntry,
                 fetchSmallImage,
                 (Utils::SmallStringView name, Sqlite::TimeStamp minimumTimeStamp),
                 (const, override));
@@ -30,6 +35,7 @@ public:
                 (Utils::SmallStringView name,
                  Sqlite::TimeStamp newTimeStamp,
                  const QImage &image,
+                 const QImage &midSizeImage,
                  const QImage &smallImage),
                 (override));
 

@@ -65,7 +65,7 @@ StudioControls.TextField {
                 lineEdit.text = ""
             } else {
                 if (lineEdit.writeValueManually)
-                    lineEdit.text = convertColorToString(colorLogic.valueFromBackend)
+                    lineEdit.text = convertColorToString?.(colorLogic.valueFromBackend) ?? ""
                 else
                     lineEdit.text = colorLogic.valueFromBackend
             }
@@ -111,8 +111,7 @@ StudioControls.TextField {
         lineEdit.__dirty = false
     }
 
-    property bool isTranslated: colorLogic.backendValue === undefined ? false
-                                                                      : colorLogic.backendValue.isTranslated
+    property bool isTranslated: colorLogic.backendValue?.isTranslated ?? false
 
     translationIndicator.onClicked: {
         if (lineEdit.translationIndicator.checked) {
@@ -124,19 +123,12 @@ StudioControls.TextField {
         colorLogic.evaluate()
     }
 
-    property variant backendValueValueInternal: lineEdit.backendValue === undefined ? 0
-                                                                                    : lineEdit.backendValue.value
+    property variant backendValueValueInternal: lineEdit.backendValue?.value ?? 0
     onBackendValueValueInternalChanged: {
-        if (lineEdit.backendValue === undefined)
-            lineEdit.translationIndicator.checked = false
-        else
-            lineEdit.translationIndicator.checked = lineEdit.backendValue.isTranslated
+        lineEdit.translationIndicator.checked = lineEdit.backendValue?.isTranslated ?? false
     }
 
     onIsTranslatedChanged: {
-        if (lineEdit.backendValue === undefined)
-            lineEdit.translationIndicator.checked = false
-        else
-            lineEdit.translationIndicator.checked = lineEdit.backendValue.isTranslated
+        lineEdit.translationIndicator.checked = lineEdit.backendValue?.isTranslated ?? false
     }
 }

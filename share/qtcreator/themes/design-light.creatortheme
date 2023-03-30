@@ -2,7 +2,6 @@
 ThemeName=Design Light
 PreferredStyles=
 
-
 [Palette]
 shadowBackground=ffd1cfcf
 text=ff000000
@@ -26,8 +25,64 @@ textColorLink=ff007af4
 textColorLinkVisited=ffa57aff
 backgroundColorDisabled=ff8e8e8e
 
+;DS Theme Palette START
+;greyscale
+fullWhite=ffffffff
+lightWhite=ffdfdfdf
+offWhite=ffdcdada
+slateGrey=ff8d8d8d
+concreteGrey=ffbbbbbb
+smokeGrey=ff8b8b8b
+shadowGrey=ff636363
+duskGrey=ff606060
+raincloudGrey=ff4d4d4d
+graniteGrey=ff343434
+ashGrey=ff434343
+midnightGrey=ff333333
+dawnGrey=ff2a2a2a
+offBlack=ff202020
+nearBlack=ff1b1b1b
+fullBlack=ff000000
+
+;special colors
+idleGreen=ff649a5d
+runningGreen=ff2eff68
+successGreen=ff2bcf32
+idleRed=ff6a4242
+recordingRed=ffcc3c34
+errorRed=ffaf2b2b
+warningOrange=ffca8113
+splitterBlue=ff64daff
+rgbBlue=ff64daff
+highlightBlue=ff57b9fc
+highlightHover=ff74CBFC
+;DS Theme Palette END
+
 [Colors]
 ;DS controls theme START
+
+;NEW FOR QtDS 4.0
+DScontrolBackground_toolbarIdle=offWhite
+DScontrolBackground_toolbarHover=offWhite
+DScontrolBackground_topToolbarHover=concreteGrey
+DScontrolBackground_statusbarIdle=concreteGrey
+DSControlBackground_statusbarHover=lightWhite
+DScontrolOutline_topToolbarIdle=concreteGrey
+DScontrolOutline_topToolbarHover=lightWhite
+DSidleGreen=idleGreen
+DSrunningGreen=runningGreen
+DStoolbarBackground=offWhite
+DStoolbarIcon_blocked=shadowGrey
+DSthumbnailBackground_baseState=smokeGrey
+DStextColor=raincloudGrey
+DSstatusbarBackground=concreteGrey
+DSprimaryButton_hoverHighlight=highlightHover
+DSstateBackgroundColor_hover=concreteGrey
+DSstateControlBackgroundColor_globalHover=concreteGrey
+DSstateControlBackgroundColor_hover=smokeGrey
+DSpanelBackground=dawnGrey
+;END NEW FOR QtDS 4.0
+
 DSpanelBackground=ffeaeaea
 
 DSwelcomeScreenBackground=ffEAEAEA
@@ -39,12 +94,12 @@ DSgreenLight=ff5cdc68
 DSamberLight=ffffbf00
 DSredLight=ffff0401
 
-DSinteraction=ff2aafd3
+DSinteraction=highlightBlue
 DSerrorColor=ffdf3a3a
 DSwarningColor=warning
 DSdisabledColor=ff8e8e8e
 
-DSinteractionHover=ff74cbfc
+DSinteractionHover=highlightHover
 
 DScontrolBackground=ffeaeaea
 DScontrolBackgroundInteraction=ffc9c9c9
@@ -56,7 +111,6 @@ DScontrolOutline=ffcecccc
 DScontrolOutlineInteraction=ff2aafd3
 DScontrolOutlineDisabled=ff707070
 
-DStextColor=ff262626
 DStextColorDisabled=ff707070
 DStextSelectionColor=ff2aafd3
 DStextSelectedTextColor=ff000000
@@ -433,3 +487,4 @@ FlatMenuBar=true
 ToolBarIconShadow=false
 WindowColorAsBase=false
 DarkUserInterface=false
+QDSTheme=true

@@ -23,7 +23,7 @@
 
     \section1 The Qt Blockset for Simulink
 
-    Install the Simulink \l {https://git.qt.io/qt-design-studio/simulink-plugin-dependencies}
+    Install the Simulink \l {https://git.qt.io/design-studio/simulink/simulink-plugin-dependencies}
     {Qt Blockset} to your computer in order to connect a Simulink model to your
     application. The Qt Blockset installer adds the Simulink blocks needed to
     establish connectivity to your application. After installation, the

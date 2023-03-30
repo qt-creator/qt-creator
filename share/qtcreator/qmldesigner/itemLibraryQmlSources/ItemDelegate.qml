@@ -6,6 +6,7 @@ import QtQuick.Controls 2.15
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
+import ItemLibraryBackend
 
 Item {
     id: delegateRoot
@@ -34,8 +35,8 @@ Item {
             anchors.topMargin: styleConstants.cellVerticalMargin
             anchors.horizontalCenter: parent.horizontalCenter
 
-            width: itemLibraryIconWidth  // to be set in Qml context
-            height: itemLibraryIconHeight   // to be set in Qml context
+            width: ItemLibraryBackend.itemLibraryIconWidth  // to be set in Qml context
+            height: ItemLibraryBackend.itemLibraryIconHeight   // to be set in Qml context
             source: itemLibraryIconPath     // to be set by model
 
             // Icons generated for components can change if the component is edited,
@@ -75,12 +76,12 @@ Item {
                 allowTooltip = false
                 hide()
                 if (mouse.button === Qt.LeftButton)
-                    rootView.startDragAndDrop(itemLibraryEntry, mapToGlobal(mouse.x, mouse.y))
+                    ItemLibraryBackend.rootView.startDragAndDrop(itemLibraryEntry, mapToGlobal(mouse.x, mouse.y))
             }
             onDoubleClicked: (mouse)=> {
                 if (mouse.button === Qt.LeftButton && itemComponentSource) {
                     hide()
-                    rootView.goIntoComponent(itemComponentSource)
+                    ItemLibraryBackend.rootView.goIntoComponent(itemComponentSource)
                 }
             }
         }

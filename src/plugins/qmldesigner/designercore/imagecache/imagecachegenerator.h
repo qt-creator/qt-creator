@@ -33,7 +33,7 @@ public:
     void generateImage(Utils::SmallStringView filePath,
                        Utils::SmallStringView extraId,
                        Sqlite::TimeStamp timeStamp,
-                       ImageCache::CaptureImageWithSmallImageCallback &&captureCallback,
+                       ImageCache::CaptureImageWithScaledImagesCallback &&captureCallback,
                        ImageCache::AbortCallback &&abortCallback,
                        ImageCache::AuxiliaryData &&auxiliaryData) override;
     void clean() override;
@@ -48,7 +48,7 @@ private:
              Utils::SmallStringView extraId,
              ImageCache::AuxiliaryData &&auxiliaryData,
              Sqlite::TimeStamp timeStamp,
-             ImageCache::CaptureImageWithSmallImageCallback &&captureCallback,
+             ImageCache::CaptureImageWithScaledImagesCallback &&captureCallback,
              ImageCache::AbortCallback &&abortCallback)
             : filePath(filePath)
             , extraId(std::move(extraId))
@@ -61,7 +61,7 @@ private:
         Utils::PathString filePath;
         Utils::SmallString extraId;
         ImageCache::AuxiliaryData auxiliaryData;
-        std::vector<ImageCache::CaptureImageWithSmallImageCallback> captureCallbacks;
+        std::vector<ImageCache::CaptureImageWithScaledImagesCallback> captureCallbacks;
         std::vector<ImageCache::AbortCallback> abortCallbacks;
         Sqlite::TimeStamp timeStamp;
     };

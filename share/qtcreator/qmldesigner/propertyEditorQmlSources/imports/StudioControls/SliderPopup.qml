@@ -1,14 +1,16 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Templates 2.15 as T
+import QtQuick
+import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
 T.Popup {
-    id: sliderPopup
+    id: control
 
-    property T.Control myControl
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+
+    property T.Control __parentControl
 
     property bool drag: slider.pressed
 
@@ -18,7 +20,7 @@ T.Popup {
                  | T.Popup.CloseOnReleaseOutsideParent
 
     background: Rectangle {
-        color: StudioTheme.Values.themePopupBackground
+        color: control.style.popup.background
         border.width: 0
     }
 
@@ -31,54 +33,54 @@ T.Popup {
         rightPadding: 3
         leftPadding: 3
 
-        from: myControl.from
-        value: myControl.value
-        to: myControl.to
+        from: control.__parentControl.from
+        value: control.__parentControl.value
+        to: control.__parentControl.to
 
         focusPolicy: Qt.NoFocus
 
         handle: Rectangle {
             x: slider.leftPadding + slider.visualPosition * (slider.availableWidth - width)
             y: slider.topPadding + (slider.availableHeight / 2) - (height / 2)
-            width: StudioTheme.Values.sliderHandleWidth
-            height: StudioTheme.Values.sliderHandleHeight
+            width: control.style.sliderHandleSize.width
+            height: control.style.sliderHandleSize.height
             radius: 0
-            color: slider.pressed ? StudioTheme.Values.themeSliderHandleInteraction
-                                  : StudioTheme.Values.themeSliderHandle
+            color: slider.pressed ? control.style.slider.handleInteraction
+                                  : control.style.slider.handle
         }
 
         background: Rectangle {
             x: slider.leftPadding
             y: slider.topPadding + (slider.availableHeight / 2) - (height / 2)
             width: slider.availableWidth
-            height: StudioTheme.Values.sliderTrackHeight
+            height: control.style.sliderTrackHeight
             radius: 0
-            color: StudioTheme.Values.themeSliderInactiveTrack
+            color: control.style.slider.inactiveTrack
 
             Rectangle {
                 width: slider.visualPosition * parent.width
                 height: parent.height
-                color: StudioTheme.Values.themeSliderActiveTrack
+                color: control.style.slider.activeTrack
                 radius: 0
             }
         }
 
         onMoved: {
-            var currValue = myControl.value
-            myControl.value = slider.value
+            var currValue = control.__parentControl.value
+            control.__parentControl.value = slider.value
 
-            if (currValue !== myControl.value)
-                myControl.valueModified()
+            if (currValue !== control.__parentControl.value)
+                control.__parentControl.valueModified()
         }
     }
 
     onOpened: {
         // Check if value is in sync with text input, if not sync it!
-        var val = myControl.valueFromText(myControl.contentItem.text,
-                                          myControl.locale)
-        if (myControl.value !== val) {
-            myControl.value = val
-            myControl.valueModified()
+        var val = control.__parentControl.valueFromText(control.__parentControl.contentItem.text,
+                                                        control.__parentControl.locale)
+        if (control.__parentControl.value !== val) {
+            control.__parentControl.value = val
+            control.__parentControl.valueModified()
         }
     }
 }

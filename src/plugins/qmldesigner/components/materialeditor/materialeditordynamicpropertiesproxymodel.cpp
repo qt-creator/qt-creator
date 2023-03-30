@@ -29,7 +29,7 @@
 
 #include <materialeditorview.h>
 
-using namespace QmlDesigner;
+namespace QmlDesigner {
 
 MaterialEditorDynamicPropertiesProxyModel::MaterialEditorDynamicPropertiesProxyModel(QObject *parent)
     : DynamicPropertiesProxyModel(parent)
@@ -43,3 +43,5 @@ void MaterialEditorDynamicPropertiesProxyModel::registerDeclarativeType()
     DynamicPropertiesProxyModel::registerDeclarativeType();
     qmlRegisterType<MaterialEditorDynamicPropertiesProxyModel>("HelperWidgets", 2, 0, "MaterialEditorDynamicPropertiesModel");
 }
+
+} // namespace QmlDesigner

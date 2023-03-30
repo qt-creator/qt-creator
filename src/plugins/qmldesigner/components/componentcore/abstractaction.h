@@ -10,7 +10,19 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCOMPONENTS_EXPORT DefaultAction : public QAction
+class QMLDESIGNERCOMPONENTS_EXPORT PureActionInterface
+{
+public:
+    explicit PureActionInterface(QAction *action);
+    virtual ~PureActionInterface() = default;
+    virtual void setSelectionContext(const SelectionContext &selectionContext) = 0;
+    QAction *action();
+
+private:
+    QAction *m_action = nullptr;
+};
+
+class QMLDESIGNERCOMPONENTS_EXPORT DefaultAction : public QAction, public PureActionInterface
 {
     Q_OBJECT
 
@@ -19,7 +31,7 @@ public:
 
     // virtual function instead of slot
     virtual void actionTriggered([[maybe_unused]] bool enable) {}
-    void setSelectionContext(const SelectionContext &selectionContext);
+    virtual void setSelectionContext(const SelectionContext &selectionContext) override;
 
 protected:
     SelectionContext m_selectionContext;
@@ -29,10 +41,10 @@ class QMLDESIGNERCOMPONENTS_EXPORT AbstractAction : public ActionInterface
 {
 public:
     AbstractAction(const QString &description = QString());
-    AbstractAction(DefaultAction *action);
+    AbstractAction(PureActionInterface *action);
 
     QAction *action() const override final;
-    DefaultAction *defaultAction() const;
+    PureActionInterface *pureAction() const;
 
     void currentContextChanged(const SelectionContext &selectionContext) override;
 
@@ -46,7 +58,7 @@ protected:
     SelectionContext selectionContext() const;
 
 private:
-    QScopedPointer<DefaultAction> m_defaultAction;
+    QScopedPointer<PureActionInterface> m_pureAction;
     SelectionContext m_selectionContext;
 };
 

@@ -35,6 +35,7 @@ public:
     bool hasStartupTarget() const override;
     PuppetStartData puppetStartData(const class Model &model) const override;
     bool instantQmlTextUpdate() const override;
+    Utils::FilePath qmlPuppetPath() const override;
 
 private:
     const DesignerSettings &m_designerSettings;

@@ -30,7 +30,7 @@
     where you want to attach the view is highlighted, and then drop them into
     the dock area.
 
-    \image qtcreator-workspace-attaching-views.png "Attaching views"
+    \image qtcreator-workspace-attaching-views.webp "Attaching views"
 
     To close groups of views, select the \uicontrol {Close Group} button.
 

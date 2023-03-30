@@ -30,7 +30,7 @@ namespace QmlDesigner {
 
 ContentLibraryView::ContentLibraryView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView(externalDependencies)
-    , m_createTexture(this, true)
+    , m_createTexture(this)
 {}
 
 ContentLibraryView::~ContentLibraryView()
@@ -132,6 +132,8 @@ void ContentLibraryView::modelAttached(Model *model)
     m_widget->setHasQuick3DImport(m_hasQuick3DImport);
 
     m_sceneId = model->active3DSceneId();
+
+    m_widget->clearSearchFilter();
 }
 
 void ContentLibraryView::modelAboutToBeDetached(Model *model)
@@ -322,6 +324,8 @@ ModelNode ContentLibraryView::createMaterial(const NodeMetaInfo &metaInfo)
 
     VariantProperty objNameProp = newMatNode.variantProperty("objectName");
     objNameProp.setValue(newName);
+
+    emitCustomNotification("focus_material_section", {});
 
     return newMatNode;
 }

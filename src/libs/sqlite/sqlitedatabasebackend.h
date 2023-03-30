@@ -15,10 +15,13 @@ namespace Sqlite {
 
 class Database;
 
+enum class Progress { Interrupt, Continue };
+
 class SQLITE_EXPORT DatabaseBackend
 {
 public:
     using BusyHandler = std::function<bool(int count)>;
+    using ProgressHandler = std::function<Progress()>;
 
     DatabaseBackend(Database &database);
     ~DatabaseBackend();
@@ -36,7 +39,7 @@ public:
     static void shutdownSqliteLibrary();
     void checkpointFullWalLog();
 
-    void open(Utils::SmallStringView databaseFilePath, OpenMode openMode);
+    void open(Utils::SmallStringView databaseFilePath, OpenMode openMode, JournalMode journalMode);
     void close();
     void closeWithoutException();
 
@@ -50,6 +53,9 @@ public:
 
     Utils::SmallStringVector columnNames(Utils::SmallStringView tableName);
 
+    int version() const;
+    void setVersion(int version);
+
     int changesCount() const;
     int totalChangesCount() const;
 
@@ -61,7 +67,7 @@ public:
     template<typename Type>
     Type toValue(Utils::SmallStringView sqlStatement) const;
 
-    static int openMode(OpenMode);
+    static int createOpenFlags(OpenMode openMode, JournalMode journalMode);
 
     void setBusyTimeout(std::chrono::milliseconds timeout);
 
@@ -73,6 +79,8 @@ public:
     void resetUpdateHook();
 
     void setBusyHandler(BusyHandler &&busyHandler);
+    void setProgressHandler(int operationCount, ProgressHandler &&progressHandler);
+    void resetProgressHandler();
 
     void registerBusyHandler();
 
@@ -100,15 +108,17 @@ protected:
     static Utils::SmallStringView journalModeToPragma(JournalMode journalMode);
     static JournalMode pragmaToJournalMode(Utils::SmallStringView pragma);
 
-    Q_NORETURN static void throwExceptionStatic(const char *whatHasHappens);
-    [[noreturn]] void throwException(const char *whatHasHappens) const;
-    [[noreturn]] void throwUnknowError(const char *whatHasHappens) const;
-    [[noreturn]] void throwDatabaseIsNotOpen(const char *whatHasHappens) const;
+private:
+    struct Deleter
+    {
+        SQLITE_EXPORT void operator()(sqlite3 *database);
+    };
 
 private:
     Database &m_database;
-    sqlite3 *m_databaseHandle;
+    std::unique_ptr<sqlite3, Deleter> m_databaseHandle;
     BusyHandler m_busyHandler;
+    ProgressHandler m_progressHandler;
 };
 
 } // namespace Sqlite

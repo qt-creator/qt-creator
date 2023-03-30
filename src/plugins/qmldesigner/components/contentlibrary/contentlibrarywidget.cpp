@@ -8,25 +8,35 @@
 #include "contentlibrarytexture.h"
 #include "contentlibrarytexturesmodel.h"
 
+#include "utils/filedownloader.h"
+#include "utils/fileextractor.h"
+
 #include <coreplugin/icore.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
+#include <studioquickwidget.h>
 #include <theme.h>
 
 #include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QDir>
+#include <QJsonDocument>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QQmlContext>
-#include <QQuickWidget>
 #include <QQmlEngine>
 #include <QQuickItem>
+#include <QQuickWidget>
 #include <QShortcut>
+#include <QStandardPaths>
 #include <QVBoxLayout>
 
 namespace QmlDesigner {
+
+constexpr int TextureBundleMetadataVersion = 1;
 
 static QString propertyEditorResourcesPath()
 {
@@ -40,7 +50,7 @@ static QString propertyEditorResourcesPath()
 bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusOut) {
-        if (obj == m_quickWidget.data())
+        if (obj == m_quickWidget->quickWidget())
             QMetaObject::invokeMethod(m_quickWidget->rootObject(), "closeContextMenu");
     } else if (event->type() == QMouseEvent::MouseMove) {
         DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
@@ -50,7 +60,8 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
         if (m_materialToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
+            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20
+                && m_materialToDrag->isDownloaded()) {
                 QByteArray data;
                 QMimeData *mimeData = new QMimeData;
                 QDataStream stream(&data, QIODevice::WriteOnly);
@@ -64,13 +75,14 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             }
         } else if (m_textureToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
-                QByteArray data;
+            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20
+                && m_textureToDrag->isDownloaded()) {
                 QMimeData *mimeData = new QMimeData;
-                QDataStream stream(&data, QIODevice::WriteOnly);
-                stream << m_textureToDrag->path();
-                mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE, data);
-                mimeData->removeFormat("text/plain");
+                mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE,
+                                  {m_textureToDrag->downloadedTexturePath().toUtf8()});
+
+                // Allows standard file drag-n-drop. As of now needed to drop on Assets view
+                mimeData->setUrls({QUrl::fromLocalFile(m_textureToDrag->downloadedTexturePath())});
 
                 emit bundleTextureDragStarted(m_textureToDrag);
                 model->startDrag(mimeData, m_textureToDrag->icon().toLocalFile());
@@ -80,37 +92,43 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_materialToDrag = nullptr;
         m_textureToDrag = nullptr;
+        setIsDragging(false);
     }
 
     return QObject::eventFilter(obj, event);
 }
 
 ContentLibraryWidget::ContentLibraryWidget()
-    : m_quickWidget(new QQuickWidget(this))
+    : m_quickWidget(new StudioQuickWidget(this))
     , m_materialsModel(new ContentLibraryMaterialsModel(this))
-    , m_texturesModel(new ContentLibraryTexturesModel(this))
-    , m_environmentsModel(new ContentLibraryTexturesModel(this))
+    , m_texturesModel(new ContentLibraryTexturesModel("Textures", this))
+    , m_environmentsModel(new ContentLibraryTexturesModel("Environments", this))
 {
+    qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
+    qmlRegisterType<QmlDesigner::FileExtractor>("WebFetcher", 1, 0, "FileExtractor");
+
     setWindowTitle(tr("Content Library", "Title of content library widget"));
     setMinimumWidth(120);
 
+    m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_CONTENT_LIBRARY);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
 
-    QString textureBundlePath = findTextureBundlePath();
-    m_texturesModel->loadTextureBundle(textureBundlePath + "/Textures");
-    m_environmentsModel->loadTextureBundle(textureBundlePath + "/Environments");
+    m_baseUrl = QmlDesignerPlugin::settings()
+                    .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL).toString()
+                + "/textures/v1";
 
-    m_quickWidget->rootContext()->setContextProperties({
-        {"rootView",          QVariant::fromValue(this)},
-        {"materialsModel",    QVariant::fromValue(m_materialsModel.data())},
-        {"texturesModel",     QVariant::fromValue(m_texturesModel.data())},
-        {"environmentsModel", QVariant::fromValue(m_environmentsModel.data())},
-    });
+    m_texturesUrl = m_baseUrl + "/Textures";
+    m_environmentsUrl = m_baseUrl + "/Environments";
+
+    m_downloadPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+                     + "/QtDesignStudio/bundles";
+
+    loadTextureBundle();
 
     Theme::setupTheme(m_quickWidget->engine());
-    m_quickWidget->installEventFilter(this);
+    m_quickWidget->quickWidget()->installEventFilter(this);
 
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
@@ -125,9 +143,125 @@ ContentLibraryWidget::ContentLibraryWidget()
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F11), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &ContentLibraryWidget::reloadQmlSource);
 
-//    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_MATERIALBROWSER_TIME); // TODO
+    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_CONTENTLIBRARY_TIME);
+
+    auto map = m_quickWidget->registerPropertyMap("ContentLibraryBackend");
+
+    map->setProperties({{"rootView", QVariant::fromValue(this)},
+                        {"materialsModel", QVariant::fromValue(m_materialsModel.data())},
+                        {"texturesModel", QVariant::fromValue(m_texturesModel.data())},
+                        {"environmentsModel", QVariant::fromValue(m_environmentsModel.data())}});
 
     reloadQmlSource();
+}
+
+QVariantMap ContentLibraryWidget::readBundleMetadata()
+{
+    QVariantMap metaData;
+    QFile jsonFile(m_downloadPath + "/texture_bundle.json");
+    if (jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        metaData = QJsonDocument::fromJson(jsonFile.readAll()).toVariant().toMap();
+
+    int version = metaData["version"].toInt();
+    if (version > TextureBundleMetadataVersion) {
+        qWarning() << "Unrecognized texture metadata file version: " << version;
+        return {};
+    }
+
+    return metaData;
+}
+
+void ContentLibraryWidget::loadTextureBundle()
+{
+    QDir bundleDir{m_downloadPath};
+
+    if (fetchTextureBundleMetadata(bundleDir) && fetchTextureBundleIcons(bundleDir)) {
+        QString bundleIconPath = m_downloadPath + "/TextureBundleIcons";
+        QVariantMap metaData = readBundleMetadata();
+        m_texturesModel->loadTextureBundle(m_texturesUrl, bundleIconPath, metaData);
+        m_environmentsModel->loadTextureBundle(m_environmentsUrl, bundleIconPath, metaData);
+    }
+}
+
+bool ContentLibraryWidget::fetchTextureBundleMetadata(const QDir &bundleDir)
+{
+    QString filePath = bundleDir.filePath("texture_bundle.json");
+
+    QFileInfo fi(filePath);
+    if (fi.exists() && fi.size() > 0)
+        return true;
+
+    QString metaFileUrl = m_baseUrl + "/texture_bundle.zip";
+    FileDownloader *downloader = new FileDownloader(this);
+    downloader->setUrl(metaFileUrl);
+    downloader->setProbeUrl(false);
+    downloader->setDownloadEnabled(true);
+
+    QObject::connect(downloader, &FileDownloader::finishedChanged, this, [=]() {
+        FileExtractor *extractor = new FileExtractor(this);
+        extractor->setArchiveName(downloader->completeBaseName());
+        extractor->setSourceFile(downloader->outputFile());
+        extractor->setTargetPath(bundleDir.absolutePath());
+        extractor->setAlwaysCreateDir(false);
+        extractor->setClearTargetPathContents(false);
+
+        QObject::connect(extractor, &FileExtractor::finishedChanged, this, [=]() {
+            downloader->deleteLater();
+            extractor->deleteLater();
+
+            if (fetchTextureBundleIcons(bundleDir)) {
+                QString bundleIconPath = m_downloadPath + "/TextureBundleIcons";
+                QVariantMap metaData = readBundleMetadata();
+                m_texturesModel->loadTextureBundle(m_texturesUrl, bundleIconPath, metaData);
+                m_environmentsModel->loadTextureBundle(m_environmentsUrl, bundleIconPath, metaData);
+            }
+        });
+
+        extractor->extract();
+    });
+
+    downloader->start();
+    return false;
+}
+
+bool ContentLibraryWidget::fetchTextureBundleIcons(const QDir &bundleDir)
+{
+    QString iconsPath = bundleDir.filePath("TextureBundleIcons");
+
+    QDir iconsDir(iconsPath);
+    if (iconsDir.exists() && iconsDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot).length() > 0)
+        return true;
+
+    QString zipFileUrl = m_baseUrl + "/icons.zip";
+
+    FileDownloader *downloader = new FileDownloader(this);
+    downloader->setUrl(zipFileUrl);
+    downloader->setProbeUrl(false);
+    downloader->setDownloadEnabled(true);
+
+    QObject::connect(downloader, &FileDownloader::finishedChanged, this, [=]() {
+        FileExtractor *extractor = new FileExtractor(this);
+        extractor->setArchiveName(downloader->completeBaseName());
+        extractor->setSourceFile(downloader->outputFile());
+        extractor->setTargetPath(bundleDir.absolutePath());
+        extractor->setAlwaysCreateDir(false);
+        extractor->setClearTargetPathContents(false);
+
+        QObject::connect(extractor, &FileExtractor::finishedChanged, this, [=]() {
+            downloader->deleteLater();
+            extractor->deleteLater();
+
+            QString bundleIconPath = m_downloadPath + "/TextureBundleIcons";
+            QVariantMap metaData = readBundleMetadata();
+            m_texturesModel->loadTextureBundle(m_texturesUrl, bundleIconPath, metaData);
+            m_environmentsModel->loadTextureBundle(m_environmentsUrl, bundleIconPath, metaData);
+        });
+
+        extractor->extract();
+    });
+
+    downloader->start();
+    return false;
 }
 
 QList<QToolButton *> ContentLibraryWidget::createToolBarWidgets()
@@ -201,7 +335,6 @@ void ContentLibraryWidget::reloadQmlSource()
 
     QTC_ASSERT(QFileInfo::exists(materialBrowserQmlPath), return);
 
-    m_quickWidget->engine()->clearComponentCache();
     m_quickWidget->setSource(QUrl::fromLocalFile(materialBrowserQmlPath));
 }
 
@@ -213,9 +346,22 @@ void ContentLibraryWidget::updateSearch()
     m_quickWidget->update();
 }
 
+void ContentLibraryWidget::setIsDragging(bool val)
+{
+    if (m_isDragging != val) {
+        m_isDragging = val;
+        emit isDraggingChanged();
+    }
+}
+
 QString ContentLibraryWidget::findTextureBundlePath()
 {
-    QDir texBundleDir(qEnvironmentVariable("TEXTURE_BUNDLE_PATH"));
+    QDir texBundleDir;
+
+    if (!qEnvironmentVariable("TEXTURE_BUNDLE_PATH").isEmpty())
+        texBundleDir.setPath(qEnvironmentVariable("TEXTURE_BUNDLE_PATH"));
+    else if (Utils::HostOsInfo::isMacHost())
+        texBundleDir.setPath(QCoreApplication::applicationDirPath() + "/../Resources/texture_bundle");
 
     // search for matBundleDir from exec dir and up
     if (texBundleDir.dirName() == ".") {
@@ -235,6 +381,7 @@ void ContentLibraryWidget::startDragMaterial(QmlDesigner::ContentLibraryMaterial
 {
     m_materialToDrag = mat;
     m_dragStartPoint = mousePos.toPoint();
+    setIsDragging(true);
 }
 
 void ContentLibraryWidget::startDragTexture(QmlDesigner::ContentLibraryTexture *tex,
@@ -242,21 +389,31 @@ void ContentLibraryWidget::startDragTexture(QmlDesigner::ContentLibraryTexture *
 {
     m_textureToDrag = tex;
     m_dragStartPoint = mousePos.toPoint();
+    setIsDragging(true);
 }
 
 void ContentLibraryWidget::addImage(ContentLibraryTexture *tex)
 {
-    emit addTextureRequested(tex->path(), AddTextureMode::Image);
+    if (!tex->isDownloaded())
+        return;
+
+    emit addTextureRequested(tex->downloadedTexturePath(), AddTextureMode::Image);
 }
 
 void ContentLibraryWidget::addTexture(ContentLibraryTexture *tex)
 {
-    emit addTextureRequested(tex->path(), AddTextureMode::Texture);
+    if (!tex->isDownloaded())
+        return;
+
+    emit addTextureRequested(tex->downloadedTexturePath(), AddTextureMode::Texture);
 }
 
 void ContentLibraryWidget::addLightProbe(ContentLibraryTexture *tex)
 {
-    emit addTextureRequested(tex->path(), AddTextureMode::LightProbe);
+    if (!tex->isDownloaded())
+        return;
+
+    emit addTextureRequested(tex->downloadedTexturePath(), AddTextureMode::LightProbe);
 }
 
 void ContentLibraryWidget::updateSceneEnvState()
@@ -277,6 +434,20 @@ QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::texturesModel() cons
 QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::environmentsModel() const
 {
     return m_environmentsModel;
+}
+
+bool ContentLibraryWidget::markTextureDownloading()
+{
+    if (m_anyTextureBeingDownloaded)
+        return false;
+
+    m_anyTextureBeingDownloaded = true;
+    return true; // let the caller know it can begin download
+}
+
+void ContentLibraryWidget::markNoTextureDownloading()
+{
+    m_anyTextureBeingDownloaded = false; // allow other textures to be downloaded
 }
 
 } // namespace QmlDesigner

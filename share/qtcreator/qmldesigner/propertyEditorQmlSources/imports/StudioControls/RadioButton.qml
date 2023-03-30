@@ -1,22 +1,24 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Templates 2.15 as T
+import QtQuick
+import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
 T.RadioButton {
-    id: root
+    id: control
+
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
     property alias actionIndicator: actionIndicator
 
     // This property is used to indicate the global hover state
-    property bool hover: root.hovered && root.enabled
+    property bool hover: control.hovered && control.enabled
     property bool edit: false
 
     property alias actionIndicatorVisible: actionIndicator.visible
-    property real __actionIndicatorWidth: StudioTheme.Values.actionIndicatorWidth
-    property real __actionIndicatorHeight: StudioTheme.Values.actionIndicatorHeight
+    property real __actionIndicatorWidth: control.style.actionIndicatorSize.width
+    property real __actionIndicatorHeight: control.style.actionIndicatorSize.height
 
     property alias labelVisible: radioButtonLabel.visible
     property alias labelColor: radioButtonLabel.color
@@ -24,7 +26,7 @@ T.RadioButton {
     property alias fontFamily: radioButtonLabel.font.family
     property alias fontPixelSize: radioButtonLabel.font.pixelSize
 
-    font.pixelSize: StudioTheme.Values.myFontSize
+    font.pixelSize: control.style.baseFontSize
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
@@ -32,119 +34,120 @@ T.RadioButton {
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
 
-    spacing: StudioTheme.Values.radioButtonSpacing
+    spacing: control.style.controlSpacing
     hoverEnabled: true
     activeFocusOnTab: false
 
     ActionIndicator {
         id: actionIndicator
-        myControl: root
-        width: actionIndicator.visible ? root.__actionIndicatorWidth : 0
-        height: actionIndicator.visible ? root.__actionIndicatorHeight : 0
+        style: control.style
+        __parentControl: control
+        width: actionIndicator.visible ? control.__actionIndicatorWidth : 0
+        height: actionIndicator.visible ? control.__actionIndicatorHeight : 0
     }
 
     indicator: Rectangle {
         id: radioButtonBackground
-        implicitWidth: StudioTheme.Values.radioButtonWidth
-        implicitHeight: StudioTheme.Values.radioButtonHeight
+        implicitWidth: control.style.squareControlSize.width
+        implicitHeight: control.style.squareControlSize.height
 
         x: actionIndicator.width
         y: 0
         z: 5
 
         radius: width / 2
-        color: StudioTheme.Values.themeControlBackground
-        border.color: StudioTheme.Values.themeControlOutline
-        border.width: StudioTheme.Values.border
+        color: control.style.background.idle
+        border.color: control.style.border.idle
+        border.width: control.style.borderWidth
 
         Rectangle {
             id: radioButtonIndicator
             x: (parent.width - width) / 2
             y: (parent.height - height) / 2
-            width: StudioTheme.Values.radioButtonIndicatorWidth
-            height: StudioTheme.Values.radioButtonIndicatorHeight
+            width: control.style.radioButtonIndicatorSize.width
+            height: control.style.radioButtonIndicatorSize.height
             radius: width / 2
-            color: StudioTheme.Values.themeInteraction
-            visible: root.checked
+            color: control.style.interaction
+            visible: control.checked
         }
     }
 
     contentItem: T.Label {
         id: radioButtonLabel
-        leftPadding: radioButtonBackground.x + radioButtonBackground.width + root.spacing
+        leftPadding: radioButtonBackground.x + radioButtonBackground.width + control.spacing
         rightPadding: 0
 
         verticalAlignment: Text.AlignVCenter
-        text: root.text
-        font: root.font
-        color: StudioTheme.Values.themeTextColor
+        text: control.text
+        font: control.font
+        color: control.style.text.idle
         visible: text !== ""
     }
 
     states: [
         State {
             name: "default"
-            when: root.enabled && !root.hover && !root.pressed && !actionIndicator.hover
+            when: control.enabled && !control.hover && !control.pressed && !actionIndicator.hover
             PropertyChanges {
                 target: radioButtonBackground
-                color: StudioTheme.Values.themeControlBackground
-                border.color: StudioTheme.Values.themeControlOutline
+                color: control.style.background.idle
+                border.color: control.style.border.idle
             }
             PropertyChanges {
                 target: radioButtonIndicator
-                color: StudioTheme.Values.themeInteraction
+                color: control.style.interaction
             }
         },
         State {
             name: "globalHover"
-            when: actionIndicator.hover && !root.pressed && root.enabled
+            when: actionIndicator.hover && !control.pressed && control.enabled
             PropertyChanges {
                 target: radioButtonBackground
-                color: StudioTheme.Values.themeControlBackgroundGlobalHover
-                border.color: StudioTheme.Values.themeControlOutline
+                color: control.style.background.globalHover
+                border.color: control.style.border.idle
             }
             PropertyChanges {
                 target: radioButtonIndicator
-                color: StudioTheme.Values.themeInteraction
+                color: control.style.interaction
             }
         },
         State {
             name: "hover"
-            when: root.hover && !actionIndicator.hover && !root.pressed
+            when: control.hover && !actionIndicator.hover && !control.pressed
             PropertyChanges {
                 target: radioButtonBackground
-                color: StudioTheme.Values.themeControlBackgroundHover
-                border.color: StudioTheme.Values.themeControlOutline
+                color: control.style.background.hover
+                border.color: control.style.border.hover
             }
             PropertyChanges {
                 target: radioButtonIndicator
-                color: StudioTheme.Values.themeInteraction
+                color: control.style.interaction
             }
         },
         State {
             name: "press"
-            when: root.hover && root.pressed
+            when: control.hover && control.pressed
             PropertyChanges {
                 target: radioButtonBackground
-                color: StudioTheme.Values.themeControlBackgroundInteraction
-                border.color: StudioTheme.Values.themeControlOutlineInteraction
+                color: control.style.background.interaction
+                border.color: control.style.border.interaction
             }
             PropertyChanges {
                 target: radioButtonIndicator
-                color: StudioTheme.Values.themeInteraction
+                color: control.style.interaction
             }
         },
         State {
             name: "disable"
-            when: !root.enabled
+            when: !control.enabled
             PropertyChanges {
                 target: radioButtonBackground
-                color: StudioTheme.Values.themeControlBackgroundDisabled
-                border.color: StudioTheme.Values.themeControlOutlineDisabled
+                color: control.style.background.disabled
+                border.color: control.style.border.disabled
             }
             PropertyChanges {
                 target: radioButtonIndicator
-                color: StudioTheme.Values.themeIconColorDisabled
+                color: control.style.icon.disabled
             }
         }
     ]

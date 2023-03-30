@@ -18,10 +18,13 @@ class CurveEditorModel;
 class ValidatableSpinBox : public QSpinBox
 {
     Q_OBJECT
+
 public:
     ValidatableSpinBox(std::function<bool(int)> validator, QWidget* parent=nullptr);
+
 protected:
     QValidator::State validate(QString &text, int &pos) const override;
+
 private:
     std::function<bool(int)> m_validator;
 };
@@ -54,6 +57,10 @@ public:
     void updateBoundsSilent(int start, int end);
 
 private:
+    void addSpacer();
+    void addSpace(int spaceSize = 32);
+    void addSpace(QLayout *layout, int spaceSize = 32);
+
     ValidatableSpinBox *m_startSpin;
     ValidatableSpinBox *m_endSpin;
     QSpinBox *m_currentSpin;

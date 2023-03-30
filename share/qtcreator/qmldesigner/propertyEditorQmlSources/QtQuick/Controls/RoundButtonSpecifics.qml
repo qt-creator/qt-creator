@@ -16,7 +16,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Appearance")
-                tooltip: qsTr("Whether the button is flat and/or highlighted.")
+                tooltip: qsTr("Toggles if the button is flat or highlighted.")
                 blockedByTemplate: !backendValues.flat.isAvailable
                                    && !backendValues.highlighted.isAvailable
             }
@@ -45,7 +45,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Radius")
-                tooltip: qsTr("Radius of the button.")
+                tooltip: qsTr("Sets the radius of the button.")
             }
 
             SecondColumnLayout {

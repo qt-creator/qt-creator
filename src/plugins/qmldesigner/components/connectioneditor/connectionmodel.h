@@ -13,8 +13,6 @@ class BindingProperty;
 class SignalHandlerProperty;
 class VariantProperty;
 
-namespace Internal {
-
 class ConnectionView;
 
 class ConnectionModel : public QStandardItemModel
@@ -72,7 +70,5 @@ private:
     bool m_lock = false;
     QString m_exceptionError;
 };
-
-} // namespace Internal
 
 } // namespace QmlDesigner

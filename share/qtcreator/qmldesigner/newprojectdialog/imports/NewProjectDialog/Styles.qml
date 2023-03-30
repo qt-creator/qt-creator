@@ -140,11 +140,15 @@ Item {
                                     height: DialogValues.styleImageHeight
                                             + 2 * DialogValues.styleImageBorderWidth
 
-                                    border.color: delegateId.hovered
-                                                  ? DialogValues.textColor
-                                                  : (index === stylesList.currentIndex
-                                                     ? DialogValues.textColorInteraction
-                                                     : "transparent")
+                                    border.color: {
+                                        if (index === stylesList.currentIndex)
+                                            return DialogValues.textColorInteraction
+
+                                        if (delegateId.hovered)
+                                            return DialogValues.textColor
+                                        else
+                                            return "transparent"
+                                    }
 
                                     border.width: index === stylesList.currentIndex || delegateId.hovered
                                                   ? DialogValues.styleImageBorderWidth

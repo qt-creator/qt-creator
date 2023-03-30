@@ -106,14 +106,14 @@ void ImageCacheFontCollector::start(Utils::SmallStringView name,
         QImage image = createFontImage(text, textColor, font, size);
 
         if (!image.isNull()) {
-            captureCallback(std::move(image), {});
+            captureCallback(std::move(image), {}, {});
             return;
         }
     }
     abortCallback(ImageCache::AbortReason::Failed);
 }
 
-std::pair<QImage, QImage> ImageCacheFontCollector::createImage(
+ImageCacheCollectorInterface::ImageTuple ImageCacheFontCollector::createImage(
     Utils::SmallStringView name,
     Utils::SmallStringView,
     const ImageCache::AuxiliaryData &auxiliaryDataValue)
@@ -128,7 +128,7 @@ std::pair<QImage, QImage> ImageCacheFontCollector::createImage(
         QImage image = createFontImage(text, textColor, font, size);
 
         if (!image.isNull())
-            return {image, {}};
+            return {image, {}, {}};
     }
 
     return {};

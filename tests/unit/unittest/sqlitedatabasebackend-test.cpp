@@ -31,7 +31,7 @@ protected:
     {
         database.lock();
         QDir::temp().remove(QStringLiteral("SqliteDatabaseBackendTest.db"));
-        databaseBackend.open(databaseFilePath, OpenMode::ReadWrite);
+        databaseBackend.open(databaseFilePath, OpenMode::ReadWrite, Sqlite::JournalMode::Wal);
     }
 
     ~SqliteDatabaseBackend() noexcept(true)
@@ -49,7 +49,7 @@ using SqliteDatabaseBackendSlowTest = SqliteDatabaseBackend;
 
 TEST_F(SqliteDatabaseBackend, OpenAlreadyOpenDatabase)
 {
-    ASSERT_THROW(databaseBackend.open(databaseFilePath, OpenMode::ReadWrite),
+    ASSERT_THROW(databaseBackend.open(databaseFilePath, OpenMode::ReadWrite, Sqlite::JournalMode::Wal),
                  Sqlite::DatabaseIsAlreadyOpen);
 }
 
@@ -62,7 +62,9 @@ TEST_F(SqliteDatabaseBackend, CloseAlreadyClosedDatabase)
 
 TEST_F(SqliteDatabaseBackend, OpenWithWrongPath)
 {
-    ASSERT_THROW(databaseBackend.open("/xxx/SqliteDatabaseBackendTest.db", OpenMode::ReadWrite),
+    ASSERT_THROW(databaseBackend.open("/xxx/SqliteDatabaseBackendTest.db",
+                                      OpenMode::ReadWrite,
+                                      Sqlite::JournalMode::Wal),
                  Sqlite::WrongFilePath);
 }
 
@@ -101,15 +103,24 @@ TEST_F(SqliteDatabaseBackend, PersistJournalMode)
 
 TEST_F(SqliteDatabaseBackend, OpenModeReadOnly)
 {
-    auto mode = Backend::openMode(OpenMode::ReadOnly);
+    auto mode = Backend::createOpenFlags(OpenMode::ReadOnly, Sqlite::JournalMode::Wal);
 
-    ASSERT_THAT(mode, SQLITE_OPEN_CREATE | SQLITE_OPEN_READONLY);
+    ASSERT_THAT(mode, SQLITE_OPEN_CREATE | SQLITE_OPEN_READONLY | SQLITE_OPEN_EXRESCODE);
 }
 
 TEST_F(SqliteDatabaseBackend, OpenModeReadWrite)
 {
-    auto mode = Backend::openMode(OpenMode::ReadWrite);
+    auto mode = Backend::createOpenFlags(OpenMode::ReadWrite, Sqlite::JournalMode::Wal);
 
-    ASSERT_THAT(mode, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE);
+    ASSERT_THAT(mode, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_EXRESCODE);
+}
+
+TEST_F(SqliteDatabaseBackend, OpenModeReadWriteAndMemoryJournal)
+{
+    auto mode = Backend::createOpenFlags(OpenMode::ReadWrite, Sqlite::JournalMode::Memory);
+
+    ASSERT_THAT(mode,
+                SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_EXRESCODE
+                    | SQLITE_OPEN_MEMORY);
 }
 } // namespace

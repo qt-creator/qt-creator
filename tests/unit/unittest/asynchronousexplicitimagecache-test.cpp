@@ -22,6 +22,7 @@ protected:
     NiceMock<MockImageCacheStorage> mockStorage;
     QmlDesigner::AsynchronousExplicitImageCache cache{mockStorage};
     QImage image1{10, 10, QImage::Format_ARGB32};
+    QImage midSizeImage1{5, 5, QImage::Format_ARGB32};
     QImage smallImage1{1, 1, QImage::Format_ARGB32};
 };
 
@@ -73,7 +74,7 @@ TEST_F(AsynchronousExplicitImageCache, RequestImageCallsAbortCallbackWithoutEntr
     ON_CALL(mockStorage, fetchImage(Eq("/path/to/Component.qml"), _))
         .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{}));
 
-    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)))
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::NoEntry)))
         .WillRepeatedly([&](auto) { notification.notify(); });
 
     cache.requestImage("/path/to/Component.qml",
@@ -93,6 +94,63 @@ TEST_F(AsynchronousExplicitImageCache, RequestImageCallsAbortCallbackWithoutImag
     cache.requestImage("/path/to/Component.qml",
                        mockCaptureCallback.AsStdFunction(),
                        mockAbortCallback.AsStdFunction());
+    notification.wait();
+}
+
+TEST_F(AsynchronousExplicitImageCache, RequestMidSizeImageFetchesMidSizeImageFromStorage)
+{
+    EXPECT_CALL(mockStorage, fetchMidSizeImage(Eq("/path/to/Component.qml"), Eq(Sqlite::TimeStamp{})))
+        .WillRepeatedly([&](Utils::SmallStringView, auto) {
+            notification.notify();
+            return QmlDesigner::ImageCacheStorageInterface::ImageEntry{};
+        });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction());
+    notification.wait();
+}
+
+TEST_F(AsynchronousExplicitImageCache, RequestMidSizeImageCallsCaptureCallbackWithImageFromStorage)
+{
+    ON_CALL(mockStorage, fetchMidSizeImage(Eq("/path/to/Component.qml"), _))
+        .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{midSizeImage1}));
+
+    EXPECT_CALL(mockCaptureCallback, Call(Eq(midSizeImage1))).WillRepeatedly([&](const QImage &) {
+        notification.notify();
+    });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction());
+    notification.wait();
+}
+
+TEST_F(AsynchronousExplicitImageCache, RequestMidSizeImageCallsAbortCallbackWithoutEntry)
+{
+    ON_CALL(mockStorage, fetchMidSizeImage(Eq("/path/to/Component.qml"), _))
+        .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{}));
+
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::NoEntry)))
+        .WillRepeatedly([&](auto) { notification.notify(); });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction());
+    notification.wait();
+}
+
+TEST_F(AsynchronousExplicitImageCache, RequestMidSizeImageCallsAbortCallbackWithoutMidSizeImage)
+{
+    ON_CALL(mockStorage, fetchMidSizeImage(Eq("/path/to/Component.qml"), _))
+        .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{QImage{}}));
+
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)))
+        .WillRepeatedly([&](auto) { notification.notify(); });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction());
     notification.wait();
 }
 
@@ -130,7 +188,7 @@ TEST_F(AsynchronousExplicitImageCache, RequestSmallImageCallsAbortCallbackWithou
     ON_CALL(mockStorage, fetchSmallImage(Eq("/path/to/Component.qml"), _))
         .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{}));
 
-    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)))
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::NoEntry)))
         .WillRepeatedly([&](auto) { notification.notify(); });
 
     cache.requestSmallImage("/path/to/Component.qml",
@@ -220,6 +278,21 @@ TEST_F(AsynchronousExplicitImageCache, RequestImageWithExtraIdFetchesImageFromSt
                        mockCaptureCallback.AsStdFunction(),
                        mockAbortCallback.AsStdFunction(),
                        "extraId1");
+    notification.wait();
+}
+
+TEST_F(AsynchronousExplicitImageCache, RequestMidSizeImageWithExtraIdFetchesImageFromStorage)
+{
+    EXPECT_CALL(mockStorage, fetchMidSizeImage(Eq("/path/to/Component.qml+extraId1"), _))
+        .WillRepeatedly([&](Utils::SmallStringView, auto) {
+            notification.notify();
+            return QmlDesigner::ImageCacheStorageInterface::ImageEntry{};
+        });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction(),
+                              "extraId1");
     notification.wait();
 }
 

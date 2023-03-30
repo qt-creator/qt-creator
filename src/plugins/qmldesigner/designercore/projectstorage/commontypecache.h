@@ -23,6 +23,7 @@ namespace QmlDesigner::Storage::Info {
 
 inline constexpr char Affector3D[] = "Affector3D";
 inline constexpr char Attractor3D[] = "Attractor3D";
+inline constexpr char BakedLightmap[] = "BakedLightmap";
 inline constexpr char BoolType[] = "bool";
 inline constexpr char BorderImage[] = "BorderImage";
 inline constexpr char Buffer[] = "Buffer";
@@ -184,6 +185,7 @@ class CommonTypeCache
                                    CacheType<QtQuick, vector2d>,
                                    CacheType<QtQuick, vector3d>,
                                    CacheType<QtQuick, vector4d>,
+                                   CacheType<QtQuick3D, BakedLightmap>,
                                    CacheType<QtQuick3D, Buffer>,
                                    CacheType<QtQuick3D, Camera>,
                                    CacheType<QtQuick3D, Command>,

@@ -20,7 +20,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Interactive")
-                tooltip: qsTr("Allows users to drag or flick a path view.")
+                tooltip: qsTr("Toggles if the path view allows drag or flick.")
             }
 
             SecondColumnLayout {
@@ -34,7 +34,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Drag margin") }
+            PropertyLabel {
+                text: qsTr("Drag margin")
+                tooltip: qsTr("Sets a margin within which the drag function also works even without clicking the item itself.")
+            }
 
             SecondColumnLayout {
                 SpinBox {
@@ -49,7 +52,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Flick deceleration") }
+            PropertyLabel {
+                text: qsTr("Flick deceleration")
+                tooltip: qsTr("Sets the rate by which a flick action slows down after performing.")
+            }
 
             SecondColumnLayout {
                 SpinBox {
@@ -66,7 +72,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Offset")
-                tooltip: qsTr("Specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.")
+                tooltip: qsTr("Sets how far along the path the items are from their initial position.")
             }
 
             SecondColumnLayout {
@@ -84,7 +90,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Item count")
-                tooltip: qsTr("Number of items visible on the path at any one time.")
+                tooltip: qsTr("Sets the number of items visible at once along the path.")
             }
 
             SecondColumnLayout {
@@ -111,7 +117,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Range")
-                tooltip: qsTr("Highlight range")
+                tooltip: qsTr("Sets the highlight range mode.")
             }
 
             SecondColumnLayout {
@@ -129,7 +135,8 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Move duration")
-                tooltip: qsTr("Move animation duration of the highlight delegate.")
+                tooltip: qsTr("Sets the animation duration of the highlight delegate when\n"
+                            + "it is moved.")
             }
 
             SecondColumnLayout {
@@ -147,7 +154,9 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Preferred begin")
-                tooltip: qsTr("Preferred highlight begin - must be smaller than Preferred end. Note that the user has to add a highlight component.")
+                tooltip: qsTr("Sets the preferred highlight beginning. It must be smaller than\n"
+                            + "the <b>Preferred end</b>. Note that the user has to add\n"
+                            + "a highlight component.")
             }
 
             SecondColumnLayout {
@@ -166,7 +175,9 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Preferred end")
-                tooltip: qsTr("Preferred highlight end - must be larger than Preferred begin. Note that the user has to add a highlight component.")
+                tooltip: qsTr("Sets the preferred highlight end. It must be larger than\n"
+                            + "the <b>Preferred begin</b>. Note that the user has to add\n"
+                            + "a highlight component.")
             }
 
             SecondColumnLayout {

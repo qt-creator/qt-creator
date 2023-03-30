@@ -17,6 +17,7 @@ const char C_QMLEDITOR3D[]        = "QmlDesigner::Editor3D";
 const char C_QMLNAVIGATOR[]       = "QmlDesigner::Navigator";
 const char C_QMLTEXTEDITOR[]      = "QmlDesigner::TextEditor";
 const char C_QMLMATERIALBROWSER[] = "QmlDesigner::MaterialBrowser";
+const char C_QMLASSETSLIBRARY[]   = "QmlDesigner::AssetsLibrary";
 
 // Special context for preview menu, shared b/w designer and text editor
 const char C_QT_QUICK_TOOLS_MENU[] = "QmlDesigner::ToolsMenu";
@@ -56,6 +57,7 @@ const char EDIT3D_EDIT_SHOW_PARTICLE_EMITTER[] = "QmlDesigner.Editor3D.TogglePar
 const char EDIT3D_RESET_VIEW[]     = "QmlDesigner.Editor3D.ResetView";
 const char EDIT3D_PARTICLE_MODE[]     = "QmlDesigner.Editor3D.ParticleViewModeToggle";
 const char EDIT3D_PARTICLES_PLAY[]    = "QmlDesigner.Editor3D.ParticlesPlay";
+const char EDIT3D_PARTICLES_SEEKER[]    = "QmlDesigner.Editor3D.ParticlesSeeker";
 const char EDIT3D_PARTICLES_RESTART[] = "QmlDesigner.Editor3D.ParticlesRestart";
 const char EDIT3D_VISIBILITY_TOGGLES[] = "QmlDesigner.Editor3D.VisibilityToggles";
 const char EDIT3D_BACKGROUND_COLOR_ACTIONS[] = "QmlDesigner.Editor3D.BackgroundColorActions";
@@ -123,12 +125,41 @@ const char EVENT_NAVIGATORVIEW_TIME[] = "navigatorView";
 const char EVENT_DESIGNMODE_TIME[] = "designMode";
 const char EVENT_MATERIALEDITOR_TIME[] = "materialEditor";
 const char EVENT_MATERIALBROWSER_TIME[] = "materialBrowser";
+const char EVENT_CONTENTLIBRARY_TIME[] = "contentLibrary";
 const char EVENT_INSIGHT_TIME[] = "insight";
+const char EVENT_TOOLBAR_MODE_CHANGE[] = "ToolBarTriggerModeChange";
+const char EVENT_TOOLBAR_PROJECT_SETTINGS[] = "ToolBarTriggerProjectSettings";
+const char EVENT_TOOLBAR_RUN_PROJECT[] = "ToolBarRunProject";
+const char EVENT_TOOLBAR_GO_FORWARD[] = "ToolBarGoForward";
+const char EVENT_TOOLBAR_GO_BACKWARD[] = "ToolBarGoBackward";
+const char EVENT_TOOLBAR_OPEN_FILE[] = "ToolBarOpenFile";
+const char EVENT_TOOLBAR_CLOSE_DOCUMENT[] = "ToolBarCloseCurrentDocument";
+const char EVENT_TOOLBAR_SHARE_APPLICATION[] = "ToolBarShareApplication";
+const char EVENT_TOOLBAR_SET_CURRENT_WORKSPACE[] = "ToolBarSetCurrentWorkspace";
+const char EVENT_TOOLBAR_EDIT_GLOBAL_ANNOTATION[] = "ToolBarEditGlobalAnnotation";
+const char EVENT_STATUSBAR_SHOW_ZOOM[] = "StatusBarShowZoomMenu";
+const char EVENT_STATUSBAR_SET_STYLE[] = "StatusBarSetCurrentStyle";
 
 const char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
 
 // Copy/Paste Headers
 const char HEADER_3DPASTE_CONTENT[] = "// __QmlDesigner.Editor3D.Paste__ \n";
+
+const char OBJECT_NAME_ASSET_LIBRARY[] = "QQuickWidgetAssetLibrary";
+const char OBJECT_NAME_CONTENT_LIBRARY[] = "QQuickWidgetContentLibrary";
+const char OBJECT_NAME_BUSY_INDICATOR[] = "QQuickWidgetBusyIndicator";
+const char OBJECT_NAME_COMPONENT_LIBRARY[] = "QQuickWidgetComponentLibrary";
+const char OBJECT_NAME_MATERIAL_BROWSER[] = "QQuickWidgetMaterialBrowser";
+const char OBJECT_NAME_MATERIAL_EDITOR[] = "QQuickWidgetMaterialEditor";
+const char OBJECT_NAME_PROPERTY_EDITOR[] = "QQuickWidgetPropertyEditor";
+const char OBJECT_NAME_STATES_EDITOR[] = "QQuickWidgetStatesEditor";
+const char OBJECT_NAME_TEXTURE_EDITOR[] = "QQuickWidgetTextureEditor";
+const char OBJECT_NAME_TOP_TOOLBAR[] = "QQuickWidgetTopToolbar";
+const char OBJECT_NAME_STATUSBAR[] = "QQuickWidgetStatusbar";
+const char OBJECT_NAME_TOP_FEEDBACK[] = "QQuickWidgetQDSFeedback";
+const char OBJECT_NAME_NEW_DIALOG[] = "QQuickWidgetQDSNewDialog";
+const char OBJECT_NAME_SPLASH_SCREEN[] = "QQuickWidgetSplashScreen";
+const char OBJECT_NAME_WELCOME_PAGE[] = "QQuickWidgetQDSWelcomePage";
 
 namespace Internal {
     enum { debug = 0 };

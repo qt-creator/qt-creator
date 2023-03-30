@@ -1516,7 +1516,9 @@ static QString firstCharToLower(const QString &string)
     return resultString;
 }
 
-QString Model::generateNewId(const QString &prefixName, const QString &fallbackPrefix) const
+QString Model::generateNewId(const QString &prefixName,
+                             const QString &fallbackPrefix,
+                             std::optional<std::function<bool(const QString &)>> isDuplicate) const
 {
     // First try just the prefixName without number as postfix, then continue with 2 and further
     // as postfix until id does not already exist.
@@ -1538,7 +1540,10 @@ QString Model::generateNewId(const QString &prefixName, const QString &fallbackP
 
     QString newId = newBaseId;
 
-    while (!ModelNode::isValidId(newId) || hasId(newId)
+    if (!isDuplicate.has_value())
+        isDuplicate = std::bind(&Model::hasId, this, std::placeholders::_1);
+
+    while (!ModelNode::isValidId(newId) || isDuplicate.value()(newId)
            || d->rootNode()->hasProperty(newId.toUtf8())) {
         ++counter;
         newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(newBaseId)).arg(counter);
@@ -1951,6 +1956,16 @@ NodeMetaInfo Model::qtQuick3DDefaultMaterialMetaInfo() const
         return createNodeMetaInfo<QtQuick3D, DefaultMaterial>();
     } else {
         return metaInfo("QtQuick3D.DefaultMaterial");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DPrincipledMaterialMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, PrincipledMaterial>();
+    } else {
+        return metaInfo("QtQuick3D.PrincipledMaterial");
     }
 }
 

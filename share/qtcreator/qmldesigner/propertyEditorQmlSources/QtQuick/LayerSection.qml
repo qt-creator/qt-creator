@@ -15,7 +15,7 @@ Section {
     SectionLayout {
         PropertyLabel {
             text: qsTr("Enabled")
-            tooltip: qsTr("Whether the component is layered or not.")
+            tooltip: qsTr("Toggles if the component is layered.")
         }
 
         SecondColumnLayout {
@@ -31,7 +31,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Sampler name")
-            tooltip: qsTr("Name of the effect's source texture property.")
+            tooltip: qsTr("Sets the name of the effect's source texture property.")
         }
 
         SecondColumnLayout {
@@ -49,7 +49,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Samples")
-            tooltip: qsTr("Allows requesting multisampled rendering in the layer.")
+            tooltip: qsTr("Sets the number of multisample renderings in the layer.")
         }
 
         SecondColumnLayout {
@@ -91,7 +91,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Effect")
-            tooltip: qsTr("Applies the effect to this layer.")
+            tooltip: qsTr("Sets which effect is applied.")
         }
 
         SecondColumnLayout {
@@ -100,7 +100,6 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
                 width: implicitWidth
                 typeFilter: "QtQuick.Item"
-                validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
                 backendValue: backendValues.layer_effect
             }
 
@@ -109,7 +108,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Format")
-            tooltip: qsTr("Internal OpenGL format of the texture.")
+            tooltip: qsTr("Sets the internal OpenGL format for the texture.")
         }
 
         SecondColumnLayout {
@@ -127,7 +126,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Texture size")
-            tooltip: qsTr("Requested pixel size of the layer's texture.")
+            tooltip: qsTr("Sets the requested pixel size of the layer's texture.")
         }
 
         SecondColumnLayout {
@@ -145,6 +144,7 @@ Section {
             ControlLabel {
                 //: The width of the object
                 text: qsTr("W", "width")
+                tooltip: qsTr("Width.")
             }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
@@ -163,6 +163,7 @@ Section {
             ControlLabel {
                 //: The height of the object
                 text: qsTr("H", "height")
+                tooltip: qsTr("Height.")
             }
 
             ExpandingSpacer {}
@@ -188,7 +189,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Wrap mode")
-            tooltip: qsTr("OpenGL wrap modes associated with the texture.")
+            tooltip: qsTr("Sets the OpenGL wrap modes associated with the texture.")
         }
 
         SecondColumnLayout {
@@ -206,7 +207,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Mipmap")
-            tooltip: qsTr("Generates mipmaps for the texture.")
+            tooltip: qsTr("Toggles if mipmaps are generated for the texture.")
         }
 
         SecondColumnLayout {
@@ -222,7 +223,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Smooth")
-            tooltip: qsTr("Transforms the layer smoothly.")
+            tooltip: qsTr("Toggles if the layer transforms smoothly.")
         }
 
         SecondColumnLayout {
@@ -238,7 +239,8 @@ Section {
 
         PropertyLabel {
             text: qsTr("Source rectangle")
-            tooltip: qsTr("Sets the rectangular area of the component that should be rendered into the texture.")
+            tooltip: qsTr("Sets the rectangular area of the component that should\n"
+                        + "be rendered into the texture.")
         }
 
         SecondColumnLayout {

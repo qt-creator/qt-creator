@@ -32,7 +32,9 @@ bool isValidIndex(int index)
 ZoomAction::ZoomAction(QObject *parent)
     : QWidgetAction(parent)
     , m_combo(nullptr)
-{}
+{
+    m_index = indexOf(1.0);
+}
 
 std::array<double, 27> ZoomAction::zoomLevels()
 {
@@ -51,14 +53,20 @@ int ZoomAction::indexOf(double zoom)
 void ZoomAction::setZoomFactor(double zoom)
 {
     if (int index = indexOf(zoom); index >= 0) {
-        m_combo->setCurrentIndex(index);
-        m_combo->setToolTip(m_combo->currentText());
+        emitZoomLevelChanged(index);
+        if (m_combo) {
+            m_combo->setCurrentIndex(index);
+            m_combo->setToolTip(m_combo->currentText());
+        }
+        m_index = index;
         return;
     }
-    int rounded = static_cast<int>(std::round(zoom * 100));
-    m_combo->setEditable(true);
-    m_combo->setEditText(QString::number(rounded) + " %");
-    m_combo->setToolTip(m_combo->currentText());
+    if (m_combo) {
+        int rounded = static_cast<int>(std::round(zoom * 100));
+        m_combo->setEditable(true);
+        m_combo->setEditText(QString::number(rounded) + " %");
+        m_combo->setToolTip(m_combo->currentText());
+    }
 }
 
 double ZoomAction::setNextZoomFactor(double zoom)
@@ -91,6 +99,11 @@ double ZoomAction::setPreviousZoomFactor(double zoom)
     return zoom;
 }
 
+int ZoomAction::currentIndex() const
+{
+    return m_index;
+}
+
 bool parentIsToolBar(QWidget *parent)
 {
     return qobject_cast<QToolBar *>(parent) != nullptr;
@@ -111,7 +124,7 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
     if (!m_combo && parentIsToolBar(parent)) {
         m_combo = createZoomComboBox(parent);
         m_combo->setProperty("hideborder", true);
-        m_combo->setCurrentIndex(indexOf(1.0));
+        m_combo->setCurrentIndex(m_index);
         m_combo->setToolTip(m_combo->currentText());
 
         connect(m_combo, &QComboBox::currentIndexChanged, this, &ZoomAction::emitZoomLevelChanged);

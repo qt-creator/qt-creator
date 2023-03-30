@@ -32,6 +32,7 @@
 
 #include <designermcumanager.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignerconstants.h>
 
 #include <coreplugin/messagebox.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -834,8 +835,8 @@ void editMaterial(const SelectionContext &selectionContext)
     if (material.isValid()) {
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
 
-        // to MaterialEditor and MaterialBrowser...
-        view->emitCustomNotification("selected_material_changed", {material});
+        // to MaterialBrowser...
+        view->emitCustomNotification("select_material", {material});
     }
 }
 
@@ -1209,7 +1210,7 @@ void addFlowEffect(const SelectionContext &selectionContext, const TypeName &typ
                                   if (container.hasProperty("effect"))
                                       container.removeProperty("effect");
 
-                                  if (effectMetaInfo.isValid()) {
+                                  if (effectMetaInfo.isQtObject()) {
                                       ModelNode effectNode =
                                           view->createModelNode(effectMetaInfo.typeName(),
                                                                 effectMetaInfo.majorVersion(),
@@ -1384,15 +1385,15 @@ void addCustomFlowEffect(const SelectionContext &selectionContext)
     if (typeName.isEmpty())
         return;
 
-    qDebug() << Q_FUNC_INFO << typeName << importString;
-
-    const Import import = Import::createFileImport("FlowEffects");
-
-    if (!importString.isEmpty() && !selectionContext.view()->model()->hasImport(import, true, true)) {
-        selectionContext.view()-> model()->changeImports({import}, {});
-    }
-
     AbstractView *view = selectionContext.view();
+
+    view->executeInTransaction("DesignerActionManager:addFlowEffect", [view, importString]() {
+        const Import import = Import::createFileImport("FlowEffects");
+
+        if (!importString.isEmpty() && !view->model()->hasImport(import, true, true)) {
+            view->model()->changeImports({import}, {});
+        }
+    });
 
     QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
     ModelNode container = selectionContext.currentSingleSelectedNode();
@@ -1642,10 +1643,10 @@ void openEffectMaker(const QString &filePath)
 
     Utils::FilePath projectPath = target->project()->projectDirectory();
     QString effectName = QFileInfo(filePath).baseName();
-    QString effectResDir = "asset_imports/Effects/" + effectName;
-    Utils::FilePath effectResPath = projectPath.resolvePath(effectResDir);
+    QString effectResDir = QLatin1String(Constants::DEFAULT_ASSET_IMPORT_FOLDER) + "/Effects/" + effectName;
+    Utils::FilePath effectResPath = projectPath.pathAppended(effectResDir);
     if (!effectResPath.exists())
-        QDir(projectPath.toString()).mkpath(effectResDir);
+        QDir().mkpath(effectResPath.toString());
 
     const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (baseQtVersion) {
@@ -1669,17 +1670,16 @@ void openEffectMaker(const QString &filePath)
         Utils::QtcProcess *qqemProcess = new Utils::QtcProcess();
         qqemProcess->setEnvironment(env);
         qqemProcess->setCommand({ effectMakerPath, arguments });
-        qqemProcess->start();
-
         QObject::connect(qqemProcess, &Utils::QtcProcess::done, [qqemProcess]() {
             qqemProcess->deleteLater();
         });
+        qqemProcess->start();
     }
 }
 
 Utils::FilePath getEffectsImportDirectory()
 {
-    QString defaultDir = "asset_imports/Effects";
+    QString defaultDir = QLatin1String(Constants::DEFAULT_ASSET_IMPORT_FOLDER) + "/Effects";
     Utils::FilePath projectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
     Utils::FilePath effectsPath = projectPath.pathAppended(defaultDir);
 
@@ -1698,13 +1698,7 @@ QString getEffectsDefaultDirectory(const QString &defaultDir)
 
 QString getEffectIcon(const QString &effectPath)
 {
-    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
-    if (!target) {
-        qWarning() << __FUNCTION__ << "No project open";
-        return QString();
-    }
-
-    Utils::FilePath projectPath = target->project()->projectDirectory();
+    Utils::FilePath projectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
     QString effectName = QFileInfo(effectPath).baseName();
     QString effectResDir = "asset_imports/Effects/" + effectName;
     Utils::FilePath effectResPath = projectPath.resolvePath(effectResDir + "/" + effectName + ".qml");
@@ -1727,8 +1721,9 @@ bool validateEffect(const QString &effectPath)
     Utils::FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
     if (!qmlPath.exists()) {
         QMessageBox msgBox;
-        msgBox.setText(QObject::tr("Effect %1 not complete").arg(effectName));
-        msgBox.setInformativeText(QObject::tr("Do you want to edit %1?").arg(effectName));
+        msgBox.setText(QObject::tr("Effect %1 is not complete.").arg(effectName));
+        msgBox.setInformativeText(QObject::tr("Ensure that you have saved it in Qt Quick Effect Maker."
+                                              "\nDo you want to edit this effect?"));
         msgBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
         msgBox.setDefaultButton(QMessageBox::Yes);
         msgBox.setIcon(QMessageBox::Question);

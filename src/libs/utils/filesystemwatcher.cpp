@@ -5,13 +5,12 @@
 
 #include "algorithm.h"
 #include "globalfilechangeblocker.h"
+#include "filepath.h"
 
-#include <QDebug>
 #include <QDir>
 #include <QFileSystemWatcher>
 #include <QDateTime>
-
-enum { debug = 0 };
+#include <QLoggingCategory>
 
 // Returns upper limit of file handles that can be opened by this process at
 // once. (which is limited on MacOS, exceeding it will probably result in
@@ -62,6 +61,8 @@ static inline quint64 getFileLimit()
 */
 
 namespace Utils {
+
+static Q_LOGGING_CATEGORY(fileSystemWatcherLog, "qtc.utils.filesystemwatcher", QtInfoMsg)
 
 // Centralized file watcher static data per integer id.
 class FileSystemWatcherStaticData
@@ -216,8 +217,8 @@ void FileSystemWatcher::init()
 
     if (!d->m_staticData->m_watcher) {
         d->m_staticData->m_watcher = new QFileSystemWatcher();
-        if (debug)
-            qDebug() << this << "Created watcher for id " << d->m_id;
+        qCDebug(fileSystemWatcherLog)
+            << this << "Created watcher for id" << d->m_id;
     }
     ++(d->m_staticData->m_objectCount);
     connect(d->m_staticData->m_watcher, &QFileSystemWatcher::fileChanged,
@@ -235,8 +236,8 @@ FileSystemWatcher::~FileSystemWatcher()
         d->m_staticData->m_watcher = nullptr;
         d->m_staticData->m_fileCount.clear();
         d->m_staticData->m_directoryCount.clear();
-        if (debug)
-              qDebug() << this << "Deleted watcher" << d->m_id;
+        qCDebug(fileSystemWatcherLog)
+            << this << "Deleted watcher" << d->m_id;
     }
     delete d;
 }
@@ -253,10 +254,10 @@ void FileSystemWatcher::addFile(const QString &file, WatchMode wm)
 
 void FileSystemWatcher::addFiles(const QStringList &files, WatchMode wm)
 {
-    if (debug)
-        qDebug() << this << d->m_id << "addFiles mode=" << wm << files
-                 << " limit currently: " << (d->m_files.size() + d->m_directories.size())
-                 << " of " << d->m_staticData->maxFileOpen;
+    qCDebug(fileSystemWatcherLog)
+        << this << d->m_id << "addFiles mode" << wm << files
+        << "limit currently:" << (d->m_files.size() + d->m_directories.size())
+        << "of" << d->m_staticData->maxFileOpen;
     QStringList toAdd;
     for (const QString &file : files) {
         if (watchesFile(file)) {
@@ -297,8 +298,8 @@ void FileSystemWatcher::removeFile(const QString &file)
 
 void FileSystemWatcher::removeFiles(const QStringList &files)
 {
-    if (debug)
-        qDebug() << this << d->m_id << "removeFiles " << files;
+    qCDebug(fileSystemWatcherLog)
+        << this << d->m_id << "removeFiles" << files;
     QStringList toRemove;
     for (const QString &file : files) {
         const auto it = d->m_files.constFind(file);
@@ -351,10 +352,10 @@ void FileSystemWatcher::addDirectory(const QString &directory, WatchMode wm)
 
 void FileSystemWatcher::addDirectories(const QStringList &directories, WatchMode wm)
 {
-    if (debug)
-        qDebug() << this << d->m_id << "addDirectories mode " << wm << directories
-                 << " limit currently: " << (d->m_files.size() + d->m_directories.size())
-                 << " of " << d->m_staticData->maxFileOpen;
+    qCDebug(fileSystemWatcherLog)
+        << this << d->m_id << "addDirectories mode" << wm << directories
+        << "limit currently:" << (d->m_files.size() + d->m_directories.size())
+        << "of" << d->m_staticData->maxFileOpen;
     QStringList toAdd;
     for (const QString &directory : directories) {
         if (watchesDirectory(directory)) {
@@ -388,8 +389,8 @@ void FileSystemWatcher::removeDirectory(const FilePath &file)
 
 void FileSystemWatcher::removeDirectories(const QStringList &directories)
 {
-    if (debug)
-        qDebug() << this << d->m_id << "removeDirectories" << directories;
+    qCDebug(fileSystemWatcherLog)
+        << this << d->m_id << "removeDirectories" << directories;
 
     QStringList toRemove;
     for (const QString &directory : directories) {
@@ -419,10 +420,10 @@ void FileSystemWatcher::slotFileChanged(const QString &path)
 {
     const auto it = d->m_files.find(path);
     if (it != d->m_files.end() && it.value().trigger(path)) {
-        if (debug)
-            qDebug() << this << "triggers on file " << path
-                     << it.value().watchMode
-                     << it.value().modifiedTime.toString(Qt::ISODate);
+        qCDebug(fileSystemWatcherLog)
+            << this << "triggers on file" << it.key()
+            << it.value().watchMode
+            << it.value().modifiedTime.toString(Qt::ISODate);
         d->fileChanged(path);
     }
 }
@@ -431,17 +432,17 @@ void FileSystemWatcher::slotDirectoryChanged(const QString &path)
 {
     const auto it = d->m_directories.find(path);
     if (it != d->m_directories.end() && it.value().trigger(path)) {
-        if (debug)
-            qDebug() << this << "triggers on dir " << path
-                     << it.value().watchMode
-                     << it.value().modifiedTime.toString(Qt::ISODate);
+        qCDebug(fileSystemWatcherLog)
+            << this << "triggers on dir" << it.key()
+            << it.value().watchMode
+            << it.value().modifiedTime.toString(Qt::ISODate);
         d->directoryChanged(path);
     }
 
     QStringList toReadd;
-    const QDir dir(path);
-    for (const QFileInfo &entry : dir.entryInfoList(QDir::Files)) {
-        const QString file = entry.filePath();
+    const auto dir = FilePath::fromString(path);
+    for (const FilePath &entry : dir.dirEntries(QDir::Files)) {
+        const QString file = entry.toString();
         if (d->m_files.contains(file))
             toReadd.append(file);
     }

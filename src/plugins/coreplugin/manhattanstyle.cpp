@@ -3,16 +3,14 @@
 
 #include "manhattanstyle.h"
 
-#include "styleanimator.h"
-
 #include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
-#include <utils/stylehelper.h>
-
 #include <utils/fancymainwindow.h>
+#include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
+#include <utils/styleanimator.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
-#include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -26,6 +24,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmap>
+#include <QPixmapCache>
 #include <QSpinBox>
 #include <QStatusBar>
 #include <QStyleFactory>
@@ -89,6 +88,23 @@ bool panelWidget(const QWidget *widget)
 }
 
 // Consider making this a QStyle state
+static bool isQmlEditorMenu(const QWidget *widget)
+{
+    const QMenu *menu = qobject_cast<const QMenu *> (widget);
+    if (!menu)
+        return false;
+
+    const QWidget *p = widget;
+    while (p) {
+        if (p->property("qmlEditorMenu").toBool())
+            return styleEnabled(widget);
+        p = p->parentWidget();
+    }
+
+    return false;
+}
+
+// Consider making this a QStyle state
 bool lightColored(const QWidget *widget)
 {
     if (!widget)
@@ -111,6 +127,246 @@ static bool isDarkFusionStyle(const QStyle *style)
     return creatorTheme()->flag(Theme::DarkUserInterface)
             && strcmp(style->metaObject()->className(), "QFusionStyle") == 0;
 }
+
+QColor qmlEditorTextColor(bool enabled,
+                          bool active,
+                          bool checked)
+{
+    Theme::Color themePenColorId = enabled ? (active
+                                              ? (checked ? Theme::DSsubPanelBackground
+                                                         : Theme::DSpanelBackground)
+                                              : Theme::DStextColor)
+                                           : Theme::DStextColorDisabled;
+
+    return creatorTheme()->color(themePenColorId);
+}
+
+QPixmap getDeletePixmap(bool enabled,
+                        bool active,
+                        const QSize &sizeLimit)
+{
+    using Utils::Theme;
+    using Utils::creatorTheme;
+    using Utils::StyleHelper;
+
+    const double xRatio = 19;
+    const double yRatio = 9;
+    double sizeConst = std::min(xRatio * sizeLimit.height(), yRatio * sizeLimit.width());
+    sizeConst = std::max(xRatio, sizeConst);
+
+    const int height = sizeConst/xRatio;
+    const int width = sizeConst/yRatio;
+    QPixmap retval(width, height);
+    QPainter p(&retval);
+    const qreal devicePixelRatio = p.device()->devicePixelRatio();
+
+    QPixmap pixmap;
+    QString pixmapName = QLatin1String("StyleHelper::drawDelete")
+            + "-" + QString::number(sizeConst)
+            + "-" + QString::number(enabled)
+            + "-" + QString::number(active)
+            + "-" + QString::number(devicePixelRatio);
+
+    if (!QPixmapCache::find(pixmapName, &pixmap)) {
+        QImage image(width * devicePixelRatio, height * devicePixelRatio, QImage::Format_ARGB32_Premultiplied);
+        image.fill(Qt::transparent);
+        QPainter painter(&image);
+
+        auto drawDelete = [&painter, yRatio](const QRect &rect, const QColor &color) -> void
+        {
+            static const QStyle* const style = QApplication::style();
+            if (!style)
+                return;
+
+            const int height = rect.height();
+            const int width = rect.width();
+            const int insideW = height / 2;
+            const int penWidth = std::ceil(height / yRatio);
+            const int pixelGuard = penWidth / 2;
+            const QRect xRect = {insideW + (4 * penWidth),
+                                2 * penWidth,
+                                4 * penWidth,
+                                5 * penWidth};
+
+            // Workaround for QTCREATORBUG-28470
+            painter.save();
+            painter.setOpacity(color.alphaF());
+
+            QPen pen(color, penWidth);
+            pen.setJoinStyle(Qt::MiterJoin);
+            painter.setPen(pen);
+
+            QPainterPath pp(QPointF(pixelGuard, insideW));
+            pp.lineTo(insideW, pixelGuard);
+            pp.lineTo(width - pixelGuard, pixelGuard);
+            pp.lineTo(width - pixelGuard, height - pixelGuard);
+            pp.lineTo(insideW, height - pixelGuard);
+            pp.lineTo(pixelGuard, insideW);
+
+            painter.drawPath(pp);
+
+            // drawing X
+            painter.setPen(QPen(color, 1));
+            QPoint stepOver(penWidth, 0);
+
+            pp.clear();
+            pp.moveTo(xRect.topLeft());
+            pp.lineTo(xRect.topLeft() + stepOver);
+            pp.lineTo(xRect.bottomRight());
+            pp.lineTo(xRect.bottomRight() - stepOver);
+            pp.lineTo(xRect.topLeft());
+            painter.fillPath(pp, QBrush(color));
+
+            pp.clear();
+            pp.moveTo(xRect.topRight());
+            pp.lineTo(xRect.topRight() - stepOver);
+            pp.lineTo(xRect.bottomLeft());
+            pp.lineTo(xRect.bottomLeft() + stepOver);
+            pp.lineTo(xRect.topRight());
+            painter.fillPath(pp, QBrush(color));
+
+            painter.restore();
+        };
+
+        if (enabled && creatorTheme()->flag(Theme::ToolBarIconShadow))
+            drawDelete(image.rect().translated(0, devicePixelRatio), StyleHelper::toolBarDropShadowColor());
+
+        drawDelete(image.rect(), qmlEditorTextColor(enabled, active, false));
+
+        painter.end();
+        pixmap = QPixmap::fromImage(image);
+        pixmap.setDevicePixelRatio(devicePixelRatio);
+        QPixmapCache::insert(pixmapName, pixmap);
+    }
+    return pixmap;
+}
+
+struct ManhattanShortcut {
+    ManhattanShortcut(const QStyleOptionMenuItem *option,
+                      const QString &shortcutText)
+        : shortcutText(shortcutText)
+        , enabled(option->state & QStyle::State_Enabled)
+        , active(option->state & QStyle::State_Selected)
+        , font(option->font)
+        , fm(font)
+        , defaultHeight(fm.height())
+        , palette(option->palette)
+        , spaceConst(fm.boundingRect(".").width())
+    {
+        reset();
+    }
+
+    QSize getSize()
+    {
+        if (isFirstParticle)
+            calcResult();
+        return _size;
+    }
+
+    QPixmap getPixmap()
+    {
+        if (!isFirstParticle && !_pixmap.isNull())
+            return _pixmap;
+
+        _pixmap = QPixmap(getSize());
+        _pixmap.fill(Qt::transparent);
+        QPainter painter(&_pixmap);
+        painter.setFont(font);
+        QPen pPen = painter.pen();
+        pPen.setColor(qmlEditorTextColor(enabled, active, false));
+        painter.setPen(pPen);
+        calcResult(&painter);
+        painter.end();
+
+        return _pixmap;
+    }
+
+private:
+    void applySize(const QSize &itemSize) {
+        width += itemSize.width();
+        height = std::max(height, itemSize.height());
+        if (isFirstParticle)
+            isFirstParticle = false;
+        else
+            width += spaceConst;
+    };
+
+    void addText(const QString &txt, QPainter *painter = nullptr)
+    {
+        if (txt.size()) {
+            int textWidth = fm.boundingRect(txt).width();
+            QSize itemSize = {textWidth, defaultHeight};
+            if (painter) {
+                QRect placeRect({width, 0}, itemSize);
+                painter->drawText(placeRect, txt, textOption);
+            }
+            applySize(itemSize);
+        }
+    };
+
+    void addPixmap(const QPixmap &pixmap, QPainter *painter = nullptr)
+    {
+        if (painter)
+            painter->drawPixmap(QRect({width, 0}, pixmap.size()), pixmap);
+
+        applySize(pixmap.size());
+    };
+
+    void calcResult(QPainter *painter = nullptr)
+    {
+        reset();
+#ifndef QT_NO_SHORTCUT
+        if (!shortcutText.isEmpty()) {
+            int fwdIndex = 0;
+            QRegularExpressionMatch mMatch = backspaceDetect.match(shortcutText);
+            int matchCount = mMatch.lastCapturedIndex();
+
+            for (int i = 0; i <= matchCount; ++i) {
+                QString mStr = mMatch.captured(i);
+                QPixmap pixmap = getDeletePixmap(enabled,
+                                                 active,
+                                                 {defaultHeight * 3, defaultHeight});
+
+                int lIndex = shortcutText.indexOf(mStr, fwdIndex);
+                int diffChars = lIndex - fwdIndex;
+                addText(shortcutText.mid(fwdIndex, diffChars), painter);
+                addPixmap(pixmap, painter);
+                fwdIndex = lIndex + mStr.size();
+            }
+            addText(shortcutText.mid(fwdIndex), painter);
+        }
+#endif
+        _size = {width, height};
+    }
+
+    void reset()
+    {
+        isFirstParticle = true;
+        width = 0;
+        height = 0;
+    }
+
+    const QString shortcutText;
+    const bool enabled;
+    const bool active;
+    const QFont font;
+    const QFontMetrics fm;
+    const int defaultHeight;
+    const QPalette palette;
+    const int spaceConst;
+    static const QTextOption textOption;
+    static const QRegularExpression backspaceDetect;
+    bool isFirstParticle = true;
+
+    int width = 0;
+    int height = 0;
+    QSize _size;
+    QPixmap _pixmap;
+};
+const QRegularExpression ManhattanShortcut::backspaceDetect("\\+*backspace\\+*",
+                                                            QRegularExpression::CaseInsensitiveOption);
+const QTextOption ManhattanShortcut::textOption(Qt::AlignLeft | Qt::AlignVCenter);
+
 
 class ManhattanStylePrivate
 {
@@ -152,10 +408,66 @@ QSize ManhattanStyle::sizeFromContents(ContentsType type, const QStyleOption *op
 {
     QSize newSize = QProxyStyle::sizeFromContents(type, option, size, widget);
 
-    if (type == CT_Splitter && widget && widget->property("minisplitter").toBool())
-        return QSize(1, 1);
-    else if (type == CT_ComboBox && panelWidget(widget))
-        newSize += QSize(14, 0);
+    switch (type) {
+    case CT_Splitter:
+        if (widget && widget->property("minisplitter").toBool())
+            newSize = QSize(1, 1);
+        break;
+    case CT_ComboBox:
+        if (panelWidget(widget))
+            newSize += QSize(14, 0);
+        break;
+    case CT_MenuItem:
+        if (isQmlEditorMenu(widget)) {
+            if (const auto mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+                const int leftMargin = pixelMetric(QStyle::PM_LayoutLeftMargin, option, widget);
+                const int rightMargin = pixelMetric(QStyle::PM_LayoutRightMargin, option, widget);
+                const int horizontalSpacing = pixelMetric(QStyle::PM_LayoutHorizontalSpacing, option, widget);
+                const int iconHeight = pixelMetric(QStyle::PM_SmallIconSize, option, widget) + horizontalSpacing;
+                int width = leftMargin + rightMargin;
+                if (mbi->menuHasCheckableItems || mbi->maxIconWidth)
+                    width += iconHeight + horizontalSpacing;
+
+                if (!mbi->text.isEmpty()) {
+                    QString itemText = mbi->text;
+                    QString shortcutText;
+                    int tabIndex = itemText.indexOf("\t");
+                    if (tabIndex > -1) {
+                        shortcutText = itemText.mid(tabIndex + 1);
+                        itemText = itemText.left(tabIndex);
+                    }
+
+                    if (itemText.size())
+                        width += option->fontMetrics.boundingRect(itemText).width() + horizontalSpacing;
+
+                    if (shortcutText.size()) {
+                        QSize shortcutSize = ManhattanShortcut(mbi, shortcutText).getSize();
+                        width += shortcutSize.width() + 2 * horizontalSpacing;
+                    }
+                }
+
+                if (mbi->menuItemType == QStyleOptionMenuItem::SubMenu)
+                    width += iconHeight + horizontalSpacing;
+
+                newSize.setWidth(width);
+
+                switch (mbi->menuItemType) {
+                case QStyleOptionMenuItem::Normal:
+                case QStyleOptionMenuItem::DefaultItem:
+                case QStyleOptionMenuItem::SubMenu:
+                    newSize.setHeight(19);
+                    break;
+                default:
+                    newSize += QSize(0, 7);
+                    break;
+                }
+            }
+        }
+        break;
+    default:
+        break;
+    }
+
     return newSize;
 }
 
@@ -175,7 +487,30 @@ QRect ManhattanStyle::subControlRect(ComplexControl control, const QStyleOptionC
             return QRect(); // breaks the scrollbar, but avoids the crash
     }
 #endif
-    return QProxyStyle::subControlRect(control, option, subControl, widget);
+
+    QRect retval = QProxyStyle::subControlRect(control, option, subControl, widget);;
+    if (panelWidget(widget)) {
+        if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
+            switch (subControl) {
+            case SubControl::SC_SliderGroove:
+                return option->rect;
+            case SubControl::SC_SliderHandle:
+            {
+                int thickness = 2;
+                QPoint center = retval.center();
+                const QRect &rect = slider->rect;
+                if (slider->orientation == Qt::Horizontal)
+                    return QRect(center.x() - thickness, rect.top(), (thickness * 2) + 1, rect.height());
+                else
+                    return QRect(rect.left(), center.y() - thickness, rect.width(), (thickness * 2) + 1);
+            }
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    return retval;
 }
 
 QStyle::SubControl ManhattanStyle::hitTestComplexControl(ComplexControl control, const QStyleOptionComplex *option,
@@ -186,8 +521,8 @@ QStyle::SubControl ManhattanStyle::hitTestComplexControl(ComplexControl control,
 
 int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
 {
-    int retval = 0;
-    retval = QProxyStyle::pixelMetric(metric, option, widget);
+    int retval = QProxyStyle::pixelMetric(metric, option, widget);
+
     switch (metric) {
 #ifdef Q_OS_MACOS
     case PM_MenuButtonIndicator:
@@ -205,29 +540,60 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
             retval = 16;
         break;
     case PM_SmallIconSize:
-        retval = 16;
+        if (isQmlEditorMenu(widget))
+            retval = 10;
+        else
+            retval = 16;
         break;
     case PM_DockWidgetHandleExtent:
     case PM_DockWidgetSeparatorExtent:
         return 1;
+    case PM_LayoutLeftMargin:
+    case PM_LayoutRightMargin:
+        if (isQmlEditorMenu(widget))
+            retval = 7;
+        break;
+    case PM_LayoutHorizontalSpacing:
+        if (isQmlEditorMenu(widget))
+            retval = 12;
+        break;
+    case PM_MenuHMargin:
+        if (isQmlEditorMenu(widget))
+            retval = 5;
+        break;
+    case PM_SubMenuOverlap:
+        if (isQmlEditorMenu(widget))
+            retval = 10;
+        break;
     case PM_MenuPanelWidth:
     case PM_MenuBarHMargin:
     case PM_MenuBarVMargin:
     case PM_ToolBarFrameWidth:
-        if (panelWidget(widget))
+        if (panelWidget(widget) || isQmlEditorMenu(widget))
             retval = 1;
         break;
     case PM_ButtonShiftVertical:
     case PM_ButtonShiftHorizontal:
     case PM_MenuBarPanelWidth:
     case PM_ToolBarItemMargin:
+        if (StyleHelper::isQDSTheme()) {
+            retval = 0;
+            break;
+        }
+        [[fallthrough]];
     case PM_ToolBarItemSpacing:
         if (panelWidget(widget))
             retval = 0;
+        if (StyleHelper::isQDSTheme())
+            retval = 4;
         break;
     case PM_DefaultFrameWidth:
         if (qobject_cast<const QLineEdit*>(widget) && panelWidget(widget))
             return 1;
+        break;
+    case PM_ToolBarExtensionExtent:
+        if (StyleHelper::isQDSTheme())
+            retval = 29;
         break;
     default:
         break;
@@ -540,8 +906,11 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
 void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                                    QPainter *painter, const QWidget *widget) const
 {
-    const bool isPanelWidget = panelWidget(widget);
-    if (!isPanelWidget) {
+    if (panelWidget(widget)) {
+        drawPrimitiveForPanelWidget(element, option, painter, widget);
+    } else if (isQmlEditorMenu(widget)) {
+        drawPrimitiveForQmlEditor(element, option, painter, widget);
+    } else {
         const bool tweakDarkTheme =
                 (element == PE_Frame
                  || element == PE_FrameLineEdit
@@ -556,7 +925,13 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
             QProxyStyle::drawPrimitive(element, option, painter, widget);
         return;
     }
+}
 
+void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
+                                                 const QStyleOption *option,
+                                                 QPainter *painter,
+                                                 const QWidget *widget) const
+{
     bool animating = (option->state & State_Animating);
     int state = option->state;
     QRect rect = option->rect;
@@ -630,7 +1005,10 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 painter->save();
                 if (!enabled)
                     painter->setOpacity(0.75);
-                painter->fillRect(backgroundRect, option->palette.base());
+                QBrush baseBrush = option->palette.base();
+                if (widget && qobject_cast<const QSpinBox *>(widget->parentWidget()))
+                    baseBrush = creatorTheme()->color(Theme::DScontrolBackgroundDisabled);
+                painter->fillRect(backgroundRect, baseBrush);
                 painter->restore();
             } else {
                 backgroundRect.adjust(1, 1, -1, -1);
@@ -720,7 +1098,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
         break;
 
     case PE_IndicatorToolBarSeparator:
-        {
+        if (!StyleHelper::isQDSTheme()) {
             QRect separatorRect = rect;
             separatorRect.setLeft(rect.width() / 2);
             separatorRect.setWidth(1);
@@ -785,6 +1163,225 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
     }
 }
 
+void ManhattanStyle::drawPrimitiveForQmlEditor(PrimitiveElement element,
+                                               const QStyleOption *option,
+                                               QPainter *painter,
+                                               const QWidget *widget) const
+{
+    const auto mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option);
+    if (!mbi) {
+        QProxyStyle::drawPrimitive(element, option, painter, widget);
+        return;
+    }
+
+    switch (element) {
+    case PE_IndicatorArrowUp:
+    case PE_IndicatorArrowDown:
+        {
+            QStyleOptionMenuItem item = *mbi;
+            item.palette = QPalette(Qt::white);
+            StyleHelper::drawMinimalArrow(element, painter, &item);
+        }
+        break;
+    case PE_IndicatorArrowRight:
+        drawQmlEditorIcon(element, option, "cascadeIconRight", painter, widget);
+        break;
+    case PE_IndicatorArrowLeft:
+        drawQmlEditorIcon(element, option, "cascadeIconLeft", painter, widget);
+        break;
+    case PE_PanelButtonCommand:
+        break;
+    case PE_IndicatorMenuCheckMark:
+        drawQmlEditorIcon(element, option, "tickIcon", painter, widget);
+        break;
+    case PE_FrameMenu:
+    case PE_PanelMenu:
+    {
+        painter->save();
+        painter->setBrush(creatorTheme()->color(Theme::DSsubPanelBackground));
+        painter->setPen(Qt::NoPen);
+        painter->drawRect(option->rect);
+        painter->restore();
+    }
+        break;
+    default:
+        QProxyStyle::drawPrimitive(element, option, painter, widget);
+        break;
+    }
+}
+
+void ManhattanStyle::drawControlForQmlEditor(ControlElement element,
+                                             const QStyleOption *option,
+                                             QPainter *painter,
+                                             const QWidget *widget) const
+{
+    Q_UNUSED(element)
+    if (const auto mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+        painter->save();
+        const int iconHeight = pixelMetric(QStyle::PM_SmallIconSize, option, widget);
+        const int horizontalSpacing = pixelMetric(QStyle::PM_LayoutHorizontalSpacing, option, widget);
+        const int iconWidth = iconHeight;
+        const bool isActive = mbi->state & State_Selected;
+        const bool isDisabled = !(mbi->state & State_Enabled);
+        const bool isCheckable = mbi->checkType != QStyleOptionMenuItem::NotCheckable;
+        const bool isChecked = isCheckable ? mbi->checked : false;
+        int startMargin = pixelMetric(QStyle::PM_LayoutLeftMargin, option, widget);
+        int endMargin = pixelMetric(QStyle::PM_LayoutRightMargin, option, widget);
+        int forwardX = 0;
+
+        if (option->direction == Qt::RightToLeft)
+            std::swap(startMargin, endMargin);
+
+        QStyleOptionMenuItem item = *mbi;
+
+        if (isActive) {
+            painter->fillRect(item.rect, creatorTheme()->color(Theme::DSinteraction));
+        }
+        forwardX += startMargin;
+
+        if (item.menuItemType == QStyleOptionMenuItem::Separator) {
+            int commonHeight = item.rect.center().y();
+            int additionalMargin = forwardX /*hmargin*/;
+            QLineF separatorLine (item.rect.left() + additionalMargin,
+                                  commonHeight,
+                                  item.rect.right() - additionalMargin,
+                                  commonHeight);
+
+            painter->setPen(creatorTheme()->color(Theme::DSstateSeparatorColor));
+            painter->drawLine(separatorLine);
+            item.text.clear();
+            painter->restore();
+            return;
+        }
+
+        QPixmap iconPixmap;
+        QIcon::Mode mode = isDisabled ? QIcon::Disabled : ((isActive) ? QIcon::Active : QIcon::Normal);
+        QIcon::State state = isChecked ? QIcon::On : QIcon::Off;
+        QColor themePenColor = qmlEditorTextColor(!isDisabled, isActive, isChecked);
+
+        if (!item.icon.isNull()) {
+            iconPixmap = item.icon.pixmap(QSize(iconHeight, iconHeight), mode, state);
+        } else if (isCheckable) {
+            iconPixmap = QPixmap(iconHeight, iconHeight);
+            iconPixmap.fill(Qt::transparent);
+
+            if (item.checked) {
+                QStyleOptionMenuItem so = item;
+                so.rect = iconPixmap.rect();
+                QPainter dPainter(&iconPixmap);
+                dPainter.setPen(themePenColor);
+                drawPrimitive(PE_IndicatorMenuCheckMark, &so, &dPainter, widget);
+            }
+        }
+
+        if (!iconPixmap.isNull()) {
+            QRect vCheckRect = visualRect(item.direction,
+                                          item.rect,
+                                          QRect(item.rect.x() + forwardX,
+                                                item.rect.y(),
+                                                iconWidth,
+                                                item.rect.height()));
+
+            QRect pmr(QPoint(0, 0), iconPixmap.deviceIndependentSize().toSize());
+            pmr.moveCenter(vCheckRect.center());
+            painter->setPen(themePenColor);
+            painter->drawPixmap(pmr.topLeft(), iconPixmap);
+
+            item.checkType = QStyleOptionMenuItem::NotCheckable;
+            item.checked = false;
+            item.icon = {};
+        }
+        if (item.menuHasCheckableItems || item.maxIconWidth > 0) {
+            forwardX += iconWidth + horizontalSpacing;
+        }
+
+        QString shortcutText;
+        int tabIndex = item.text.indexOf("\t");
+        if (tabIndex > -1) {
+            shortcutText = item.text.mid(tabIndex + 1);
+            item.text = item.text.left(tabIndex);
+        }
+
+        if (item.text.size()) {
+            painter->save();
+
+            QRect vTextRect = visualRect(item.direction,
+                                         item.rect,
+                                         item.rect.adjusted(forwardX, 0 , 0 , 0));
+
+            Qt::Alignment alignmentFlags = item.direction == Qt::LeftToRight ? Qt::AlignLeft
+                                                                             : Qt::AlignRight;
+            alignmentFlags |= Qt::AlignVCenter;
+
+            int textFlags = Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
+            if (!proxy()->styleHint(SH_UnderlineShortcut, &item, widget))
+                textFlags |= Qt::TextHideMnemonic;
+            textFlags |= alignmentFlags;
+
+            painter->setPen(themePenColor);
+            painter->drawText(vTextRect, textFlags, item.text);
+            painter->restore();
+        }
+
+        if (item.menuItemType == QStyleOptionMenuItem::SubMenu) {
+            PrimitiveElement dropDirElement = item.direction == Qt::LeftToRight ? PE_IndicatorArrowRight
+                                                                                : PE_IndicatorArrowLeft;
+
+            QSize elSize(iconHeight, iconHeight);
+            int xOffset = iconHeight + endMargin;
+            int yOffset = (item.rect.height() - iconHeight) / 2;
+            QRect dropRect(item.rect.topRight(), elSize);
+            dropRect.adjust(-xOffset, yOffset, -xOffset, yOffset);
+
+            QStyleOptionMenuItem so = item;
+            so.rect = visualRect(item.direction,
+                                 item.rect,
+                                 dropRect);
+
+            drawPrimitive(dropDirElement, &so, painter, widget);
+        } else if (!shortcutText.isEmpty()) {
+            QPixmap pix = ManhattanShortcut(&item, shortcutText).getPixmap();
+
+            if (pix.width()) {
+                int xOffset = pix.width() + (iconHeight / 2) + endMargin;
+                QRect shortcutRect = item.rect.translated({item.rect.width() - xOffset, 0});
+                shortcutRect.setSize({pix.width(), item.rect.height()});
+                shortcutRect = visualRect(item.direction,
+                                          item.rect,
+                                          shortcutRect);
+                drawItemPixmap(painter,
+                               shortcutRect,
+                               Qt::AlignRight | Qt::AlignVCenter,
+                               pix);
+            }
+        }
+        painter->restore();
+    }
+}
+
+void ManhattanStyle::drawQmlEditorIcon(PrimitiveElement element,
+                                       const QStyleOption *option,
+                                       const char *propertyName,
+                                       QPainter *painter,
+                                       const QWidget *widget) const
+{
+    if (option->styleObject && option->styleObject->property(propertyName).isValid()) {
+        const auto mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option);
+        if (mbi) {
+            const bool checkable = mbi->checkType != QStyleOptionMenuItem::NotCheckable;
+            const bool isDisabled = !(mbi->state & State_Enabled);
+            const bool isActive = mbi->state & State_Selected;
+            QIcon icon = mbi->styleObject->property(propertyName).value<QIcon>();
+            QIcon::Mode mode = isDisabled ? QIcon::Disabled : ((isActive) ? QIcon::Active : QIcon::Normal);
+            QIcon::State state = (checkable && mbi->checked) ? QIcon::On : QIcon::Off;
+            QPixmap pix = icon.pixmap(option->rect.size(), mode, state);
+            drawItemPixmap(painter, option->rect, Qt::AlignCenter, pix);
+            return;
+        }
+    }
+    QProxyStyle::drawPrimitive(element, option, painter, widget);
+}
+
 void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *option,
                                  QPainter *painter, const QWidget *widget) const
 {
@@ -808,7 +1405,11 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 pal.setBrush(QPalette::Text, color);
                 item.palette = pal;
             }
-            QProxyStyle::drawControl(element, &item, painter, widget);
+
+            if (isQmlEditorMenu(widget))
+                drawControlForQmlEditor(element, &item, painter, widget);
+            else
+                QProxyStyle::drawControl(element, &item, painter, widget);
         }
         painter->restore();
         break;
@@ -967,6 +1568,13 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         }
         break;
 
+    case CE_MenuEmptyArea:
+        if (isQmlEditorMenu(widget))
+            drawPrimitive(PE_PanelMenu, option, painter, widget);
+        else
+            QProxyStyle::drawControl(element, option, painter, widget);
+
+        break;
     case CE_ToolBar:
         {
             QRect rect = option->rect;
@@ -984,7 +1592,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             bool drawLightColored = lightColored(widget);
             // draws the background of the 'Type hierarchy', 'Projects' headers
             if (creatorTheme()->flag(Theme::FlatToolBars))
-                painter->fillRect(rect, StyleHelper::baseColor(drawLightColored));
+                painter->fillRect(rect, StyleHelper::toolbarBaseColor(drawLightColored));
             else if (horizontal)
                 StyleHelper::horizontalGradient(painter, gradientSpan, rect, drawLightColored);
             else
@@ -1043,7 +1651,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                                         QPainter *painter, const QWidget *widget) const
 {
     if (!panelWidget(widget))
-         return     QProxyStyle::drawComplexControl(control, option, painter, widget);
+         return QProxyStyle::drawComplexControl(control, option, painter, widget);
 
     QRect rect = option->rect;
     switch (control) {
@@ -1184,7 +1792,170 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             painter->restore();
         }
         break;
+    case CC_Slider:
+        if (const auto *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
+            QRect groove = proxy()->subControlRect(CC_Slider, option, SC_SliderGroove, widget);
+            QRect handle = proxy()->subControlRect(CC_Slider, option, SC_SliderHandle, widget);
 
+            bool horizontal = slider->orientation == Qt::Horizontal;
+            bool ticksAbove = slider->tickPosition & QSlider::TicksAbove;
+            bool ticksBelow = slider->tickPosition & QSlider::TicksBelow;
+            bool enabled = option->state & QStyle::State_Enabled;
+            bool grooveHover = slider->activeSubControls & SC_SliderGroove;
+            bool handleHover = slider->activeSubControls & SC_SliderHandle;
+            bool interaction = option->state & State_Sunken;
+            bool activeFocus = option->state & State_HasFocus && option->state & State_KeyboardFocusChange;
+
+            int sliderPaintingOffset = horizontal
+                    ? handle.center().x()
+                    : handle.center().y();
+
+            int borderRadius = 4;
+
+            painter->save();
+            painter->setRenderHint(QPainter::RenderHint::Antialiasing);
+
+            int lineWidth = pixelMetric(QStyle::PM_DefaultFrameWidth, option, widget);
+            Theme::Color themeframeColor = enabled
+                    ? interaction
+                      ? Theme::DSstateControlBackgroundColor_hover // Pressed
+                      : grooveHover
+                          ? Theme::DSstateSeparatorColor // GrooveHover
+                          : Theme::DSpopupBackground // Idle
+                    : Theme::DSpopupBackground; // Disabled
+
+            QColor frameColor = creatorTheme()->color(themeframeColor);
+
+            if ((option->subControls & SC_SliderGroove) && groove.isValid()) {
+                Theme::Color bgPlusColor = enabled
+                        ? interaction
+                          ? Theme::DSstateControlBackgroundColor_hover // Pressed
+                          : grooveHover
+                              ? Theme::DSstateSeparatorColor // GrooveHover
+                              : Theme::DStoolbarBackground // Idle
+                        : Theme::DStoolbarBackground; // Disabled
+                Theme::Color bgMinusColor = Theme::DSpopupBackground;
+
+                QRect minusRect(groove);
+                QRect plusRect(groove);
+
+                if (horizontal) {
+                    if (slider->upsideDown) {
+                        minusRect.setLeft(sliderPaintingOffset);
+                        plusRect.setRight(sliderPaintingOffset);
+                    } else {
+                        minusRect.setRight(sliderPaintingOffset);
+                        plusRect.setLeft(sliderPaintingOffset);
+                    }
+                } else {
+                    if (slider->upsideDown) {
+                        minusRect.setBottom(sliderPaintingOffset);
+                        plusRect.setTop(sliderPaintingOffset);
+                    } else {
+                        minusRect.setTop(sliderPaintingOffset);
+                        plusRect.setBottom(sliderPaintingOffset);
+                    }
+                }
+
+                painter->save();
+                painter->setPen(Qt::NoPen);
+                painter->setBrush(creatorTheme()->color(bgPlusColor));
+                painter->drawRoundedRect(plusRect, borderRadius, borderRadius);
+                painter->setBrush(creatorTheme()->color(bgMinusColor));
+                painter->drawRoundedRect(minusRect, borderRadius, borderRadius);
+                painter->restore();
+            }
+
+            if (option->subControls & SC_SliderTickmarks) {
+                Theme::Color tickPen = enabled
+                        ? activeFocus
+                          ? Theme::DSstateBackgroundColor_hover
+                          : Theme::DSBackgroundColorAlternate
+                        : Theme::DScontrolBackgroundDisabled;
+
+                painter->setPen(tickPen);
+                int tickSize = proxy()->pixelMetric(PM_SliderTickmarkOffset, option, widget);
+                int available = proxy()->pixelMetric(PM_SliderSpaceAvailable, slider, widget);
+                int interval = slider->tickInterval;
+                if (interval <= 0) {
+                    interval = slider->singleStep;
+                    if (QStyle::sliderPositionFromValue(slider->minimum, slider->maximum, interval,
+                                                        available)
+                            - QStyle::sliderPositionFromValue(slider->minimum, slider->maximum,
+                                                              0, available) < 3)
+                        interval = slider->pageStep;
+                }
+                if (interval <= 0)
+                    interval = 1;
+
+                int v = slider->minimum;
+                int len = proxy()->pixelMetric(PM_SliderLength, slider, widget);
+                while (v <= slider->maximum + 1) {
+                    if (v == slider->maximum + 1 && interval == 1)
+                        break;
+                    const int v_ = qMin(v, slider->maximum);
+                    int pos = sliderPositionFromValue(slider->minimum, slider->maximum,
+                                                      v_, (horizontal
+                                                           ? slider->rect.width()
+                                                           : slider->rect.height()) - len,
+                                                      slider->upsideDown) + len / 2;
+                    int extra = 2 - ((v_ == slider->minimum || v_ == slider->maximum) ? 1 : 0);
+
+                    if (horizontal) {
+                        if (ticksAbove) {
+                            painter->drawLine(pos, slider->rect.top() + extra,
+                                              pos, slider->rect.top() + tickSize);
+                        }
+                        if (ticksBelow) {
+                            painter->drawLine(pos, slider->rect.bottom() - extra,
+                                              pos, slider->rect.bottom() - tickSize);
+                        }
+                    } else {
+                        if (ticksAbove) {
+                            painter->drawLine(slider->rect.left() + extra, pos,
+                                              slider->rect.left() + tickSize, pos);
+                        }
+                        if (ticksBelow) {
+                            painter->drawLine(slider->rect.right() - extra, pos,
+                                              slider->rect.right() - tickSize, pos);
+                        }
+                    }
+                    // in the case where maximum is max int
+                    int nextInterval = v + interval;
+                    if (nextInterval < v)
+                        break;
+                    v = nextInterval;
+                }
+            }
+
+            // draw handle
+            if ((option->subControls & SC_SliderHandle) ) {
+                Theme::Color handleColor = enabled
+                        ? interaction
+                            ? Theme::DSinteraction  // Interaction
+                            : grooveHover || handleHover
+                              ? Theme::DStabActiveText // Hover
+                              : Theme::PalettePlaceholderText // Idle
+                        : Theme::DStoolbarIcon_blocked; // Disabled
+
+                int halfSliderThickness = horizontal
+                        ? handle.width() / 2
+                        : handle.height() / 2;
+                painter->setBrush(creatorTheme()->color(handleColor));
+                painter->setPen(Qt::NoPen);
+                painter->drawRoundedRect(handle,
+                                        halfSliderThickness,
+                                        halfSliderThickness);
+            }
+
+            if (groove.isValid()) {
+                painter->setBrush(Qt::NoBrush);
+                painter->setPen(QPen(frameColor, lineWidth));
+                painter->drawRoundedRect(groove, borderRadius, borderRadius);
+            }
+            painter->restore();
+        }
+        break;
     default:
         QProxyStyle::drawComplexControl(control, option, painter, widget);
         break;

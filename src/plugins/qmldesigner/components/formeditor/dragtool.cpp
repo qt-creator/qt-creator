@@ -7,6 +7,7 @@
 #include "formeditorview.h"
 #include "assetslibrarywidget.h"
 #include "assetslibrarymodel.h"
+#include "materialutils.h"
 #include <metainfo.h>
 #include <modelnodeoperations.h>
 #include <nodehints.h>
@@ -284,6 +285,7 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
         }
 
         view()->changeToSelectionTool();
+        view()->model()->endDrag();
     }
 }
 
@@ -440,7 +442,7 @@ void DragTool::handleView3dDrop()
             const QList<ModelNode> models = dragNode.modelNode().subModelNodesOfType(
                 model->qtQuick3DModelMetaInfo());
             QTC_ASSERT(models.size() == 1, return);
-            view()->assignMaterialTo3dModel(models.at(0));
+            MaterialUtils::assignMaterialTo3dModel(view(), models.at(0));
         }
     }
 }

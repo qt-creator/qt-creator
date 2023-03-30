@@ -24,14 +24,14 @@ public:
                    QIcon::Mode mode = QIcon::Normal,
                    QIcon::State state = QIcon::Off);
 
+    IconFontHelper();
+
     static IconFontHelper fromJson(const QJsonObject &jsonObject);
     QJsonObject toJson() const;
     Theme::Icon themeIcon() const;
     Theme::Color themeColor() const;
 
 private:
-    IconFontHelper();
-
     Theme::Icon mThemeIcon;
     Theme::Color mThemeColor;
 };
@@ -45,25 +45,54 @@ public:
     enum IconId {
         AddMouseAreaIcon,
         AlignBottomIcon,
+        AlignCameraToViewIcon,
         AlignLeftIcon,
         AlignRightIcon,
         AlignTopIcon,
+        AlignViewToCameraIcon,
         AnchorsIcon,
         AnnotationIcon,
         ArrangeIcon,
+        CameraIcon,
+        CameraOrthographicIcon,
+        CameraPerspectiveIcon,
         ConnectionsIcon,
+        CopyIcon,
+        CreateIcon,
+        DeleteIcon,
+        DuplicateIcon,
+        EditComponentIcon,
         EditIcon,
         EnterComponentIcon,
         EventListIcon,
+        FitSelectedIcon,
         GroupSelectionIcon,
+        ImportedModelsIcon,
         LayoutsIcon,
+        LightIcon,
+        LightDirectionalIcon,
+        LightPointIcon,
+        LightSpotIcon,
         MakeComponentIcon,
+        MaterialIcon,
         MergeWithTemplateIcon,
+        MinimalDownArrowIcon,
+        ModelConeIcon,
+        ModelCubeIcon,
+        ModelCylinderIcon,
+        ModelPlaneIcon,
+        ModelSphereIcon,
+        ParentIcon,
+        PasteIcon,
         PositionsersIcon,
+        PrimitivesIcon,
+        ResetViewIcon,
         SelecionIcon,
+        ShowBoundsIcon,
+        SimpleCheckIcon,
         SnappingIcon,
         TimelineIcon,
-        ShowBoundsIcon,
+        ToggleGroupIcon,
         VisibilityIcon
     };
     Q_ENUM(IconId)
@@ -80,7 +109,6 @@ public:
         Hovered = QIcon::Active,
         Selected = QIcon::Selected
     };
-
     Q_ENUM(Mode)
 
     enum State {
@@ -122,6 +150,8 @@ public:
                  Theme::Icon themeIcon,
                  Theme::Color color,
                  const QSize &size);
+
+    static QIcon rotateIcon(const QIcon &icon, const double &degrees);
 
 private:
     QList<Utils::StyleHelper::IconFontHelper> helperList(const IconId &iconId,

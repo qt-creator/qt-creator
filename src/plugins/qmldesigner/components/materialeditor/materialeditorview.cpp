@@ -3,48 +3,39 @@
 
 #include "materialeditorview.h"
 
+#include "asset.h"
+#include "bindingproperty.h"
+#include "auxiliarydataproperties.h"
+#include "designdocument.h"
+#include "designmodewidget.h"
+#include "dynamicpropertiesmodel.h"
+#include "itemlibraryinfo.h"
 #include "materialeditorqmlbackend.h"
 #include "materialeditorcontextobject.h"
 #include "materialeditordynamicpropertiesproxymodel.h"
-#include "propertyeditorvalue.h"
 #include "materialeditortransaction.h"
-#include "assetslibrarywidget.h"
-
-#include <auxiliarydataproperties.h>
-#include <bindingproperty.h>
-#include <dynamicpropertiesmodel.h>
-#include <metainfo.h>
-#include <nodeinstanceview.h>
-#include <nodelistproperty.h>
-#include <nodemetainfo.h>
-#include <nodeproperty.h>
-#include <rewritingexception.h>
-#include <variantproperty.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
-#include <qmltimeline.h>
-
-#include <theme.h>
+#include "metainfo.h"
+#include "nodeinstanceview.h"
+#include "nodelistproperty.h"
+#include "nodemetainfo.h"
+#include "propertyeditorqmlbackend.h"
+#include "propertyeditorvalue.h"
+#include "qmldesignerconstants.h"
+#include "qmldesignerplugin.h"
+#include "qmltimeline.h"
+#include "variantproperty.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
-#include <designmodewidget.h>
-#include <propertyeditorqmlbackend.h>
-#include <utils/environment.h>
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
-#include <qmldesignerplugin.h>
 
-#include <QApplication>
-#include <QDebug>
+#include <utils/environment.h>
+#include <utils/qtcassert.h>
+
 #include <QDir>
 #include <QFileInfo>
-#include <QQuickWidget>
 #include <QQuickItem>
-#include <QScopedPointer>
 #include <QStackedWidget>
 #include <QShortcut>
-#include <QTimer>
 #include <QColorDialog>
 
 namespace QmlDesigner {
@@ -52,7 +43,7 @@ namespace QmlDesigner {
 MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_stackedWidget(new QStackedWidget)
-    , m_dynamicPropertiesModel(new Internal::DynamicPropertiesModel(true, this))
+    , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F7), m_stackedWidget);
     connect(m_updateShortcut, &QShortcut::activated, this, &MaterialEditorView::reloadQml);
@@ -60,7 +51,9 @@ MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDe
     m_ensureMatLibTimer.callOnTimeout([this] {
         if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()
             && model()->rewriterView()->errors().isEmpty()) {
-            ensureMaterialLibraryNode();
+            DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
+            if (doc && !doc->inFileComponentModelActive())
+                ensureMaterialLibraryNode();
             if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
                 m_qmlBackEnd->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
             m_ensureMatLibTimer.stop();
@@ -71,8 +64,6 @@ MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDe
     m_typeUpdateTimer.setInterval(500);
     connect(&m_typeUpdateTimer, &QTimer::timeout, this, &MaterialEditorView::updatePossibleTypes);
 
-    m_stackedWidget->setStyleSheet(Theme::replaceCssColors(
-        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
     m_stackedWidget->setMinimumWidth(250);
     QmlDesignerPlugin::trackWidgetFocusTime(m_stackedWidget, Constants::EVENT_MATERIALEDITOR_TIME);
 
@@ -180,7 +171,7 @@ void MaterialEditorView::changeExpression(const QString &propertyName)
     if (name.isNull() || locked() || noValidSelection())
         return;
 
-    executeInTransaction("MaterialEditorView::changeExpression", [this, name] {
+    executeInTransaction(__FUNCTION__, [this, name] {
         PropertyName underscoreName(name);
         underscoreName.replace('.', '_');
 
@@ -254,7 +245,7 @@ void MaterialEditorView::exportPropertyAsAlias(const QString &name)
     if (name.isNull() || locked() || noValidSelection())
         return;
 
-    executeInTransaction("MaterialEditorView::exportPopertyAsAlias", [this, name] {
+    executeInTransaction(__FUNCTION__, [this, name] {
         const QString id = m_selectedMaterial.validId();
         QString upperCasePropertyName = name;
         upperCasePropertyName.replace(0, 1, upperCasePropertyName.at(0).toUpper());
@@ -276,7 +267,7 @@ void MaterialEditorView::removeAliasExport(const QString &name)
     if (name.isNull() || locked() || noValidSelection())
         return;
 
-    executeInTransaction("MaterialEditorView::removeAliasExport", [this, name] {
+    executeInTransaction(__FUNCTION__, [this, name] {
         const QString id = m_selectedMaterial.validId();
 
         const QList<BindingProperty> bindingProps = rootModelNode().bindingProperties();
@@ -299,7 +290,7 @@ void MaterialEditorView::currentTimelineChanged(const ModelNode &)
     m_qmlBackEnd->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
 }
 
-Internal::DynamicPropertiesModel *MaterialEditorView::dynamicPropertiesModel() const
+DynamicPropertiesModel *MaterialEditorView::dynamicPropertiesModel() const
 {
     return m_dynamicPropertiesModel;
 }
@@ -389,7 +380,7 @@ void MaterialEditorView::applyMaterialToSelectedModels(const ModelNode &material
         return QString();
     };
 
-    executeInTransaction("MaterialEditorView::applyMaterialToSelectedModels", [&] {
+    executeInTransaction(__FUNCTION__, [&] {
         for (const ModelNode &node : std::as_const(m_selectedModels)) {
             QmlObjectNode qmlObjNode(node);
             if (add) {
@@ -422,14 +413,15 @@ void MaterialEditorView::handleToolBarAction(int action)
     case MaterialEditorContextObject::AddNewMaterial: {
         if (!model())
             break;
-        executeInTransaction("MaterialEditorView:handleToolBarAction", [&] {
+        executeInTransaction(__FUNCTION__, [&] {
             ModelNode matLib = materialLibraryNode();
             if (!matLib.isValid())
                 return;
 
-            NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.DefaultMaterial");
-            ModelNode newMatNode = createModelNode("QtQuick3D.DefaultMaterial", metaInfo.majorVersion(),
-                                                                                metaInfo.minorVersion());
+            NodeMetaInfo metaInfo = model()->qtQuick3DPrincipledMaterialMetaInfo();
+            ModelNode newMatNode = createModelNode("QtQuick3D.PrincipledMaterial",
+                                                   metaInfo.majorVersion(),
+                                                   metaInfo.minorVersion());
             renameMaterial(newMatNode, "New Material");
             matLib.defaultNodeListProperty().reparentHere(newMatNode);
         });
@@ -451,7 +443,6 @@ void MaterialEditorView::handleToolBarAction(int action)
 
 void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
 {
-    Q_UNUSED(envAndValue);
     if (envAndValue.isEmpty() || m_initializingPreviewData)
         return;
 
@@ -514,7 +505,6 @@ void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
 
 void MaterialEditorView::handlePreviewModelChanged(const QString &modelStr)
 {
-    Q_UNUSED(modelStr);
     if (modelStr.isEmpty() || m_initializingPreviewData)
         return;
 
@@ -609,7 +599,7 @@ void MaterialEditorView::setupQmlBackend()
 void MaterialEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
 {
     m_locked = true;
-    executeInTransaction("MaterialEditorView:commitVariantValueToModel", [&] {
+    executeInTransaction(__FUNCTION__, [&] {
         QmlObjectNode(m_selectedMaterial).setVariantProperty(propertyName, value);
     });
     m_locked = false;
@@ -637,7 +627,7 @@ void MaterialEditorView::commitAuxValueToModel(const PropertyName &propertyName,
 void MaterialEditorView::removePropertyFromModel(const PropertyName &propertyName)
 {
     m_locked = true;
-    executeInTransaction("MaterialEditorView:removePropertyFromModel", [&] {
+    executeInTransaction(__FUNCTION__, [&] {
         QmlObjectNode(m_selectedMaterial).removeProperty(propertyName);
     });
     m_locked = false;
@@ -692,6 +682,7 @@ static Import entryToImport(const ItemLibraryEntry &entry)
 {
     if (entry.majorVersion() == -1 && entry.minorVersion() == -1)
         return Import::createFileImport(entry.requiredImport());
+
     return Import::createLibraryImport(entry.requiredImport(),
                                        QString::number(entry.majorVersion()) + QLatin1Char('.') +
                                        QString::number(entry.minorVersion()));
@@ -908,7 +899,8 @@ WidgetInfo MaterialEditorView::widgetInfo()
                             "MaterialEditor",
                             WidgetInfo::RightPane,
                             0,
-                            tr("Material Editor"));
+                            tr("Material Editor"),
+                            tr("Material Editor view"));
 }
 
 void MaterialEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
@@ -928,6 +920,7 @@ void MaterialEditorView::currentStateChanged(const ModelNode &node)
 {
     QmlModelState newQmlModelState(node);
     Q_ASSERT(newQmlModelState.isValid());
+
     resetView();
 }
 
@@ -1001,7 +994,7 @@ void MaterialEditorView::renameMaterial(ModelNode &material, const QString &newN
     if (objName.isValid() && objName.toString() == newName)
         return;
 
-    executeInTransaction("MaterialEditorView:renameMaterial", [&] {
+    executeInTransaction(__FUNCTION__, [&] {
         material.setIdWithRefactoring(model()->generateIdFromName(newName, "material"));
 
         VariantProperty objNameProp = material.variantProperty("objectName");
@@ -1034,7 +1027,8 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
 
         // set name and id
         QString newName = sourceMat.modelNode().variantProperty("objectName").value().toString() + " copy";
-        duplicateMatNode.variantProperty("objectName").setValue(newName);
+        VariantProperty objNameProp = duplicateMatNode.variantProperty("objectName");
+        objNameProp.setValue(newName);
         duplicateMatNode.setIdWithoutRefactoring(model()->generateIdFromName(newName, "material"));
 
         // sync properties. Only the base state is duplicated.
@@ -1047,15 +1041,15 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
                 if (prop.isDynamic()) {
                     dynamicProps.append(prop);
                 } else {
-                    duplicateMatNode.variantProperty(prop.name())
-                            .setValue(prop.toVariantProperty().value());
+                    VariantProperty variantProp = duplicateMatNode.variantProperty(prop.name());
+                    variantProp.setValue(prop.toVariantProperty().value());
                 }
             } else if (prop.isBindingProperty()) {
                 if (prop.isDynamic()) {
                     dynamicProps.append(prop);
                 } else {
-                    duplicateMatNode.bindingProperty(prop.name())
-                            .setExpression(prop.toBindingProperty().expression());
+                    BindingProperty bindingProp = duplicateMatNode.bindingProperty(prop.name());
+                    bindingProp.setExpression(prop.toBindingProperty().expression());
                 }
             }
         }
@@ -1070,13 +1064,13 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
         executeInTransaction(__FUNCTION__, [&] {
             for (const AbstractProperty &prop : std::as_const(dynamicProps)) {
                 if (prop.isVariantProperty()) {
-                    duplicateMatNode.variantProperty(prop.name())
-                            .setDynamicTypeNameAndValue(prop.dynamicTypeName(),
-                                                        prop.toVariantProperty().value());
+                    VariantProperty variantProp = duplicateMatNode.variantProperty(prop.name());
+                    variantProp.setDynamicTypeNameAndValue(prop.dynamicTypeName(),
+                                                           prop.toVariantProperty().value());
                 } else if (prop.isBindingProperty()) {
-                    duplicateMatNode.bindingProperty(prop.name())
-                            .setDynamicTypeNameAndExpression(prop.dynamicTypeName(),
-                                                             prop.toBindingProperty().expression());
+                    BindingProperty bindingProp = duplicateMatNode.bindingProperty(prop.name());
+                    bindingProp.setDynamicTypeNameAndExpression(prop.dynamicTypeName(),
+                                                                prop.toBindingProperty().expression());
                 }
             }
         });
@@ -1144,13 +1138,14 @@ void MaterialEditorView::dragStarted(QMimeData *mimeData)
 {
     if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
         const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',')[0];
-        QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
+        Asset asset(assetPath);
 
-        if (assetType != Constants::MIME_TYPE_ASSET_IMAGE) // currently only image assets have dnd-supported properties
+        if (!asset.isValidTextureSource()) // currently only image assets have dnd-supported properties
             return;
 
         highlightSupportedProperties();
-    } else if (mimeData->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_TEXTURE)
+            || mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
         highlightSupportedProperties();
     }
 }

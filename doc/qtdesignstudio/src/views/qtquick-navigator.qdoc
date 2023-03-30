@@ -26,7 +26,7 @@
     fit inside the parent component. For example, you might want to make a
     mouse area larger than the rectangle or image beneath it.
 
-    \image qmldesigner-element-size.png "Mouse area for a button"
+    \image qmldesigner-element-size.webp "Mouse area for a button"
 
     When you copy a component, all its child components are also copied. When
     you remove a component, the child components are also removed.
@@ -90,7 +90,7 @@
 
     To change the visibility of a component in the application code, select the
     \uicontrol Visibility check box in the \uicontrol Properties view or select
-    \uicontrol Edit > \uicontrol Visibility in the context menu.
+    \uicontrol Visibility in the context menu.
 
     You can also set the \uicontrol Opacity field to 0 in \uicontrol Properties
     to hide components in the UI that you want to apply animation to.
@@ -224,7 +224,7 @@
     \list
         \li In the \uicontrol {2D} or \uicontrol Navigator view,
             right-click an instance of a component and then select
-            \uicontrol {Go into Component} in the context menu or
+            \uicontrol {Edit Component} in the context menu or
             press \key F2.
         \li In \uicontrol Properties, select \uicontrol {Edit Base Component}.
     \endlist

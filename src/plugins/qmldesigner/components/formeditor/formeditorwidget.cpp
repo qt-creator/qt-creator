@@ -105,7 +105,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_showBoundingRectAction = new QAction(tr("Show Bounds"), this);
     m_showBoundingRectAction->setCheckable(true);
     m_showBoundingRectAction->setChecked(false);
-    m_showBoundingRectAction->setIcon(DesignerActionManager::instance().contextIcon(DesignerIcons::ShowBoundsIcon));
+    m_showBoundingRectAction->setIcon(
+        DesignerActionManager::instance().contextIcon(DesignerIcons::ShowBoundsIcon));
     registerActionAsCommand(m_showBoundingRectAction,
                             Constants::FORMEDITOR_NO_SHOW_BOUNDING_RECTANGLE,
                             QKeySequence(Qt::Key_A),
@@ -116,53 +117,49 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     m_rootWidthAction = new LineEditAction(tr("Override Width"), this);
     m_rootWidthAction->setToolTip(tr("Override width of root component."));
-    connect(m_rootWidthAction.data(), &LineEditAction::textChanged,
-            this, &FormEditorWidget::changeRootItemWidth);
+    connect(m_rootWidthAction.data(),
+            &LineEditAction::textChanged,
+            this,
+            &FormEditorWidget::changeRootItemWidth);
     addAction(m_rootWidthAction.data());
     upperActions.append(m_rootWidthAction.data());
 
     m_rootHeightAction = new LineEditAction(tr("Override Height"), this);
     m_rootHeightAction->setToolTip(tr("Override height of root component."));
-    connect(m_rootHeightAction.data(), &LineEditAction::textChanged,
-            this, &FormEditorWidget::changeRootItemHeight);
+    connect(m_rootHeightAction.data(),
+            &LineEditAction::textChanged,
+            this,
+            &FormEditorWidget::changeRootItemHeight);
     addAction(m_rootHeightAction.data());
     upperActions.append(m_rootHeightAction.data());
 
-    m_toolBox = new ToolBox(nullptr, this);
+    m_toolBox = new ToolBox(this);
     fillLayout->addWidget(m_toolBox.data());
 
     m_toolBox->setLeftSideActions(upperActions);
 
     m_backgroundAction = new BackgroundAction(m_toolActionGroup.data());
-    connect(m_backgroundAction.data(), &BackgroundAction::backgroundChanged, this, &FormEditorWidget::changeBackgound);
+    connect(m_backgroundAction.data(),
+            &BackgroundAction::backgroundChanged,
+            this,
+            &FormEditorWidget::changeBackgound);
     addAction(m_backgroundAction.data());
     upperActions.append(m_backgroundAction.data());
     m_toolBox->addRightSideAction(m_backgroundAction.data());
 
     // Zoom actions
-    const QString fontName = "qtds_propertyIconFont.ttf";
-    const QColor iconColorNormal(Theme::getColor(Theme::IconsBaseColor));
-    const QColor iconColorDisabled(Theme::getColor(Theme::IconsDisabledColor));
-    const QIcon zoomAllIcon = Utils::StyleHelper::getIconFromIconFont(
-        fontName, Theme::getIconUnicode(Theme::Icon::zoomAll), 28, 28, iconColorNormal);
+    const QIcon zoomAllIcon = Theme::iconFromName(Theme::Icon::fitAll_medium);
+    auto zoomSelectionNormal = Theme::iconFromName(Theme::Icon::fitSelection_medium);
+    auto zoomSelectionDisabeld = Theme::iconFromName(Theme::Icon::fitSelection_medium,
+                                                     Theme::getColor(
+                                                         Theme::Color::DStoolbarIcon_blocked));
+    QIcon zoomSelectionIcon;
+    zoomSelectionIcon.addPixmap(zoomSelectionNormal.pixmap({16, 16}), QIcon::Normal);
+    zoomSelectionIcon.addPixmap(zoomSelectionDisabeld.pixmap({16, 16}), QIcon::Disabled);
 
-    const QString zoomSelectionUnicode = Theme::getIconUnicode(Theme::Icon::zoomSelection);
-    const auto zoomSelectionNormal = Utils::StyleHelper::IconFontHelper(zoomSelectionUnicode,
-                                                                        iconColorNormal,
-                                                                        QSize(28, 28),
-                                                                        QIcon::Normal);
-    const auto zoomSelectionDisabeld = Utils::StyleHelper::IconFontHelper(zoomSelectionUnicode,
-                                                                          iconColorDisabled,
-                                                                          QSize(28, 28),
-                                                                          QIcon::Disabled);
-
-    const QIcon zoomSelectionIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                            {zoomSelectionNormal,
-                                                                             zoomSelectionDisabeld});
-    const QIcon zoomInIcon = Utils::StyleHelper::getIconFromIconFont(
-        fontName, Theme::getIconUnicode(Theme::Icon::zoomIn), 28, 28, iconColorNormal);
-    const QIcon zoomOutIcon = Utils::StyleHelper::getIconFromIconFont(
-        fontName, Theme::getIconUnicode(Theme::Icon::zoomOut), 28, 28, iconColorNormal);
+    const QIcon zoomInIcon = Theme::iconFromName(Theme::Icon::zoomIn_medium);
+    const QIcon zoomOutIcon = Theme::iconFromName(Theme::Icon::zoomOut_medium);
+    const QIcon reloadIcon = Theme::iconFromName(Theme::Icon::reload_medium);
 
     auto writeZoomLevel = [this]() {
         double level = m_graphicsView->transform().m11();
@@ -270,7 +267,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_toolBox->addRightSideAction(m_zoomSelectionAction.data());
     connect(m_zoomSelectionAction.data(), &QAction::triggered, frameSelection);
 
-    m_resetAction = new QAction(Utils::Icons::RESET_TOOLBAR.icon(), tr("Reset View"), this);
+    m_resetAction = new QAction(reloadIcon, tr("Reload View"), this);
     registerActionAsCommand(m_resetAction,
                             Constants::FORMEDITOR_REFRESH,
                             QKeySequence(Qt::Key_R),
@@ -611,7 +608,8 @@ void FormEditorWidget::showEvent(QShowEvent *event)
 void FormEditorWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 {
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
-                                                     ->viewManager().designerActionManager();
+                                                     ->viewManager()
+                                                     .designerActionManager();
     if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData()))
         dragEnterEvent->acceptProposedAction();
 }
@@ -619,25 +617,34 @@ void FormEditorWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 void FormEditorWidget::dropEvent(QDropEvent *dropEvent)
 {
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
-                                                     ->viewManager().designerActionManager();
-    QHash<QString, QStringList> addedAssets = actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
+                                                     ->viewManager()
+                                                     .designerActionManager();
+    QHash<QString, QStringList> addedAssets = actionManager.handleExternalAssetsDrop(
+        dropEvent->mimeData());
 
     m_formEditorView->executeInTransaction("FormEditorWidget::dropEvent", [&] {
         // Create Image components for added image assets
-        const QStringList addedImages = addedAssets.value(ComponentCoreConstants::addImagesDisplayString);
+        const QStringList addedImages = addedAssets.value(
+            ComponentCoreConstants::addImagesDisplayString);
         for (const QString &imgPath : addedImages) {
-            QmlItemNode::createQmlItemNodeFromImage(m_formEditorView, imgPath, {},
-                                                    m_formEditorView->scene()->rootFormEditorItem()->qmlItemNode(),
-                                                    false);
+            QmlItemNode::createQmlItemNodeFromImage(
+                m_formEditorView,
+                imgPath,
+                {},
+                m_formEditorView->scene()->rootFormEditorItem()->qmlItemNode(),
+                false);
         }
 
         // Create Text components for added font assets
         const QStringList addedFonts = addedAssets.value(ComponentCoreConstants::addFontsDisplayString);
         for (const QString &fontPath : addedFonts) {
             QString fontFamily = QFileInfo(fontPath).baseName();
-            QmlItemNode::createQmlItemNodeFromFont(m_formEditorView, fontFamily, rootItemRect().center(),
-                                                   m_formEditorView->scene()->rootFormEditorItem()->qmlItemNode(),
-                                                   false);
+            QmlItemNode::createQmlItemNodeFromFont(
+                m_formEditorView,
+                fontFamily,
+                rootItemRect().center(),
+                m_formEditorView->scene()->rootFormEditorItem()->qmlItemNode(),
+                false);
         }
     });
 }

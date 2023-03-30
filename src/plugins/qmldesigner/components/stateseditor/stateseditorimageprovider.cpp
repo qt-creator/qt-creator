@@ -6,14 +6,11 @@
 
 #include <QDebug>
 
-namespace QmlDesigner {
-
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 StatesEditorImageProvider::StatesEditorImageProvider()
     : QQuickImageProvider(QQuickImageProvider::Image)
-{
-}
+{}
 
 QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
@@ -28,7 +25,8 @@ QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, c
             bool canBeConverted;
             int instanceId = imageId.toInt(&canBeConverted);
             if (canBeConverted && m_nodeInstanceView->hasModelNodeForInternalId(instanceId)) {
-                image = m_nodeInstanceView->statePreviewImage(m_nodeInstanceView->modelNodeForInternalId(instanceId));
+                image = m_nodeInstanceView->statePreviewImage(
+                    m_nodeInstanceView->modelNodeForInternalId(instanceId));
             }
         }
     }
@@ -37,7 +35,7 @@ QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, c
         //creating white QImage
         QSize newSize = requestedSize;
         if (newSize.isEmpty())
-            newSize = QSize (100, 100);
+            newSize = QSize(100, 100);
 
         QImage image(newSize, QImage::Format_ARGB32);
         image.fill(0xFFFFFFFF);
@@ -54,7 +52,4 @@ void StatesEditorImageProvider::setNodeInstanceView(const NodeInstanceView *node
     m_nodeInstanceView = nodeInstanceView;
 }
 
-}
-
-}
-
+} // QmlDesigner::Internal

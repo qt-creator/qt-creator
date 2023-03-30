@@ -17,7 +17,7 @@ public:
     virtual void generateImage(Utils::SmallStringView name,
                                Utils::SmallStringView extraId,
                                Sqlite::TimeStamp timeStamp,
-                               ImageCache::CaptureImageWithSmallImageCallback &&captureCallback,
+                               ImageCache::CaptureImageWithScaledImagesCallback &&captureCallback,
                                ImageCache::AbortCallback &&abortCallback,
                                ImageCache::AuxiliaryData &&auxiliaryData)
         = 0;

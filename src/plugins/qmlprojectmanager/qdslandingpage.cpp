@@ -23,6 +23,7 @@ namespace QmlProjectManager {
 namespace Internal {
 
 const char INSTALL_QDS_URL[] = "https://www.qt.io/product/ui-design-tools";
+const char OBJECT_NAME_LANDING_PAGE[] = "QQuickWidgetQDSLandingPage";
 
 QdsLandingPageWidget::QdsLandingPageWidget(QWidget* parent)
     : QWidget(parent)
@@ -50,6 +51,7 @@ QQuickWidget *QdsLandingPageWidget::widget()
         QdsLandingPageTheme::setupTheme(m_widget->engine());
 
         m_widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+        m_widget->setObjectName(OBJECT_NAME_LANDING_PAGE);
         m_widget->engine()->addImportPath(landingPath + "/imports");
         m_widget->engine()->addImportPath(resourcePath);
         m_widget->engine()->addImportPath("qrc:/studiofonts");

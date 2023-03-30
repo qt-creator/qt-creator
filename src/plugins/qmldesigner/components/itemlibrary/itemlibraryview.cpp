@@ -45,7 +45,12 @@ WidgetInfo ItemLibraryView::widgetInfo()
     if (m_widget.isNull())
         m_widget = new ItemLibraryWidget{m_imageCache};
 
-    return createWidgetInfo(m_widget.data(), "Components", WidgetInfo::LeftPane, 0, tr("Components"));
+    return createWidgetInfo(m_widget.data(),
+                            "Components",
+                            WidgetInfo::LeftPane,
+                            0,
+                            tr("Components"),
+                            tr("Components view"));
 }
 
 void ItemLibraryView::modelAttached(Model *model)

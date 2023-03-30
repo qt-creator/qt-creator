@@ -111,7 +111,7 @@ struct alignas(16) StringDataLayout
                 shortString[i] = string[i];
         } else {
             control = {0, true, true};
-            reference = {string, Size - 1, 0};
+            reference = {{string}, Size - 1, 0};
         }
     }
 
@@ -163,7 +163,7 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
                 shortString[i] = string[i];
         } else {
             control = {0, true, true};
-            reference = {string, Size - 1, 0};
+            reference = {{string}, Size - 1, 0};
         }
     }
 

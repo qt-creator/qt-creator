@@ -32,6 +32,8 @@ public:
     double setNextZoomFactor(double zoom);
     double setPreviousZoomFactor(double zoom);
 
+    int currentIndex() const;
+
 protected:
     QWidget *createWidget(QWidget *parent) override;
 
@@ -40,6 +42,7 @@ private:
 
     static std::array<double, 27> m_zooms;
     QPointer<QComboBox> m_combo;
+    int m_index = -1;
 };
 
 } // namespace QmlDesigner

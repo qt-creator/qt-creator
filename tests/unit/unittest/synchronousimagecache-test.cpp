@@ -29,8 +29,14 @@ protected:
         ON_CALL(mockStorage,
                 fetchImage(Eq("/path/to/Component.qml+extraId1"), Eq(Sqlite::TimeStamp{123})))
             .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{image2}));
+        ON_CALL(mockStorage,
+                fetchMidSizeImage(Eq("/path/to/Component.qml"), Eq(Sqlite::TimeStamp{123})))
+            .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{midSizeImage1}));
         ON_CALL(mockStorage, fetchSmallImage(Eq("/path/to/Component.qml"), Eq(Sqlite::TimeStamp{123})))
             .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{smallImage1}));
+        ON_CALL(mockStorage,
+                fetchMidSizeImage(Eq("/path/to/Component.qml+extraId1"), Eq(Sqlite::TimeStamp{123})))
+            .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{midSizeImage2}));
         ON_CALL(mockStorage,
                 fetchSmallImage(Eq("/path/to/Component.qml+extraId1"), Eq(Sqlite::TimeStamp{123})))
             .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{smallImage2}));
@@ -40,7 +46,7 @@ protected:
                 fetchIcon(Eq("/path/to/Component.qml+extraId1"), Eq(Sqlite::TimeStamp{123})))
             .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::IconEntry{icon2}));
         ON_CALL(mockCollector, createImage(Eq("/path/to/Component.qml"), Eq("extraId1"), _))
-            .WillByDefault(Return(std::make_pair(image3, smallImage3)));
+            .WillByDefault(Return(std::make_tuple(image3, midSizeImage3, smallImage3)));
         ON_CALL(mockCollector, createIcon(Eq("/path/to/Component.qml"), Eq("extraId1"), _))
             .WillByDefault(Return(icon3));
     }
@@ -52,10 +58,13 @@ protected:
     NiceMock<MockTimeStampProvider> mockTimeStampProvider;
     QmlDesigner::SynchronousImageCache cache{mockStorage, mockTimeStampProvider, mockCollector};
     QImage image1{1, 1, QImage::Format_ARGB32};
-    QImage image2{2, 2, QImage::Format_ARGB32};
-    QImage image3{3, 3, QImage::Format_ARGB32};
-    QImage smallImage1{1, 1, QImage::Format_ARGB32};
-    QImage smallImage2{2, 1, QImage::Format_ARGB32};
+    QImage image2{1, 2, QImage::Format_ARGB32};
+    QImage image3{1, 3, QImage::Format_ARGB32};
+    QImage midSizeImage1{2, 1, QImage::Format_ARGB32};
+    QImage midSizeImage2{2, 2, QImage::Format_ARGB32};
+    QImage midSizeImage3{2, 3, QImage::Format_ARGB32};
+    QImage smallImage1{3, 1, QImage::Format_ARGB32};
+    QImage smallImage2{3, 1, QImage::Format_ARGB32};
     QImage smallImage3{3, 1, QImage::Format_ARGB32};
     QIcon icon1{QPixmap::fromImage(image1)};
     QIcon icon2{QPixmap::fromImage(image2)};
@@ -95,9 +104,49 @@ TEST_F(SynchronousImageCache, GetImageWithOutdatedTimeStampStored)
                 storeImage(Eq("/path/to/Component.qml+extraId1"),
                            Eq(Sqlite::TimeStamp{124}),
                            Eq(image3),
+                           Eq(midSizeImage3),
                            Eq(smallImage3)));
 
     auto image = cache.image("/path/to/Component.qml", "extraId1");
+}
+
+TEST_F(SynchronousImageCache, GetMidSizeImageFromStorage)
+{
+    auto image = cache.midSizeImage("/path/to/Component.qml");
+
+    ASSERT_THAT(image, midSizeImage1);
+}
+
+TEST_F(SynchronousImageCache, GetMidSizeImageWithExtraIdFromStorage)
+{
+    auto image = cache.midSizeImage("/path/to/Component.qml", "extraId1");
+
+    ASSERT_THAT(image, midSizeImage2);
+}
+
+TEST_F(SynchronousImageCache, GetMidSizeImageWithOutdatedTimeStampFromCollector)
+{
+    ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
+        .WillByDefault(Return(Sqlite::TimeStamp{124}));
+
+    auto image = cache.midSizeImage("/path/to/Component.qml", "extraId1");
+
+    ASSERT_THAT(image, midSizeImage3);
+}
+
+TEST_F(SynchronousImageCache, GetMidSizeImageWithOutdatedTimeStampStored)
+{
+    ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
+        .WillByDefault(Return(Sqlite::TimeStamp{124}));
+
+    EXPECT_CALL(mockStorage,
+                storeImage(Eq("/path/to/Component.qml+extraId1"),
+                           Eq(Sqlite::TimeStamp{124}),
+                           Eq(image3),
+                           Eq(midSizeImage3),
+                           Eq(smallImage3)));
+
+    auto image = cache.midSizeImage("/path/to/Component.qml", "extraId1");
 }
 
 TEST_F(SynchronousImageCache, GetSmallImageFromStorage)
@@ -133,6 +182,7 @@ TEST_F(SynchronousImageCache, GetSmallImageWithOutdatedTimeStampStored)
                 storeImage(Eq("/path/to/Component.qml+extraId1"),
                            Eq(Sqlite::TimeStamp{124}),
                            Eq(image3),
+                           Eq(midSizeImage3),
                            Eq(smallImage3)));
 
     auto image = cache.smallImage("/path/to/Component.qml", "extraId1");

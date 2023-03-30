@@ -4,8 +4,8 @@
 #pragma once
 
 #include "sqliteglobal.h"
+#include "sqlitevalue.h"
 
-#include <sqlitevalue.h>
 #include <utils/smallstringvector.h>
 
 #include <variant>

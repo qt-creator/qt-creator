@@ -9,8 +9,6 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
-
 class PropertiesComboBox : public QComboBox
 {
     Q_OBJECT
@@ -76,7 +74,5 @@ public:
                                   const QStyleOptionViewItem &option,
                                   const QModelIndex &index) const override;
 };
-
-} // namespace Internal
 
 } // namespace QmlDesigner

@@ -4,9 +4,9 @@
 #pragma once
 
 #include "qmldesignercorelib_global.h"
-#include "exception.h"
 #include "abstractview.h"
 #include "documentmessage.h"
+#include "rewritertransaction.h"
 
 #include <QScopedPointer>
 #include <QTimer>
@@ -169,6 +169,8 @@ public:
 
     bool possibleImportsEnabled() const;
     void setPossibleImportsEnabled(bool b);
+
+    void forceAmend();
 
 signals:
     void modelInterfaceProjectUpdated();

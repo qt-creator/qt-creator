@@ -127,7 +127,8 @@ Item {
         id: stateBackground
         color: StudioTheme.Values.themeControlBackground
         border.color: StudioTheme.Values.themeInteraction
-        border.width: root.isChecked ? 4 : 0
+        border.width: root.isChecked ? 3 : 0
+        radius: 10
         anchors.fill: parent
 
         readonly property int controlHeight: 25
@@ -159,6 +160,7 @@ Item {
 
                 HelperWidgets.AbstractButton {
                     id: defaultButton
+                    style: StudioTheme.Values.statesControlStyle
                     width: 50
                     height: stateBackground.controlHeight
                     checkedInverted: true
@@ -173,6 +175,7 @@ Item {
 
                 StudioControls.TextField {
                     id: stateNameField
+                    style: StudioTheme.Values.statesControlStyle
 
                     property string previousText
 
@@ -648,6 +651,7 @@ Item {
 
             StudioControls.TextField {
                 id: whenCondition
+                style: StudioTheme.Values.statesControlStyle
 
                 property string previousCondition
 
@@ -656,7 +660,7 @@ Item {
 
                 visible: !root.baseState
                 indicatorVisible: true
-                indicator.icon.text: StudioTheme.Constants.edit
+                indicator.icon.text: StudioTheme.Constants.edit_medium
                 indicator.onClicked: {
                     whenCondition.previousCondition = whenCondition.text
 
@@ -755,7 +759,7 @@ Item {
 
             PropertyChanges {
                 target: stateBackground
-                color: StudioTheme.Values.themeControlBackground
+                color: StudioTheme.Values.themeToolbarBackground
             }
         },
         State {
@@ -764,7 +768,7 @@ Item {
 
             PropertyChanges {
                 target: stateBackground
-                color: StudioTheme.Values.themeControlBackgroundHover
+                color: StudioTheme.Values.themeStateBackgroundColor_hover
             }
         },
         State {
@@ -774,7 +778,7 @@ Item {
 
             PropertyChanges {
                 target: stateBackground
-                color: StudioTheme.Values.themeStateHighlight
+                color: StudioTheme.Values.themeThumbnailBackground_baseState
             }
         },
         State {

@@ -112,6 +112,10 @@ static const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
 
 static const bool askBeforeExitDefault = false;
 
+static bool hideToolsMenu()
+{
+    return Core::ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_TOOLS, false).toBool();
+}
 
 enum { debugMainWindow = 0 };
 
@@ -498,7 +502,10 @@ void MainWindow::registerDefaultContainers()
 
     // Tools Menu
     ActionContainer *ac = ActionManager::createMenu(Constants::M_TOOLS);
-    menubar->addMenu(ac, Constants::G_TOOLS);
+    ac->setParent(this);
+    if (!hideToolsMenu())
+        menubar->addMenu(ac, Constants::G_TOOLS);
+
     ac->menu()->setTitle(Tr::tr("&Tools"));
 
     // Window Menu

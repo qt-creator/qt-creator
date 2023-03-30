@@ -1,23 +1,25 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Shapes 1.15
-import QtQuick.Templates 2.15 as T
+import QtQuick
+import QtQuick.Shapes
+import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
-    id: linkIndicator
+    id: control
 
-    property Item myControl
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+
+    property Item __parentControl
 
     property bool linked: linkXZ.linked || linkYZ.linked || linkXY.linked
 
     color: "transparent"
     border.color: "transparent"
 
-    implicitWidth: StudioTheme.Values.height
-    implicitHeight: StudioTheme.Values.height
+    implicitWidth: control.style.squareControlSize.width
+    implicitHeight: control.style.squareControlSize.height
 
     z: 10
 
@@ -32,12 +34,12 @@ Rectangle {
     T.Label {
         id: linkIndicatorIcon
         anchors.fill: parent
-        text: linkIndicator.linked ? StudioTheme.Constants.linked
-                                   : StudioTheme.Constants.unLinked
+        text: control.linked ? StudioTheme.Constants.linked
+                             : StudioTheme.Constants.unLinked
         visible: true
-        color: StudioTheme.Values.themeTextColor
+        color: control.style.indicator.idle
         font.family: StudioTheme.Constants.iconFont.family
-        font.pixelSize: StudioTheme.Values.myIconFontSize
+        font.pixelSize: control.style.baseIconFontSize
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
     }
@@ -56,10 +58,10 @@ Rectangle {
         y: 0
 
         // TODO proper size
-        width: 20 + (3 * StudioTheme.Values.height)
-        height: 20 + (3 * StudioTheme.Values.height)
+        width: 20 + (3 * control.style.squareControlSize.width)
+        height: 20 + (3 * control.style.squareControlSize.height)
 
-        padding: StudioTheme.Values.border
+        padding: control.style.borderWidth
         margins: 0 // If not defined margin will be -1
 
         closePolicy: T.Popup.CloseOnPressOutside | T.Popup.CloseOnPressOutsideParent
@@ -99,7 +101,7 @@ Rectangle {
 
                         property vector2d center: Qt.vector2d(triangle.radius, triangle.radius)
 
-                        strokeWidth: StudioTheme.Values.border
+                        strokeWidth: control.style.borderWidth
                         strokeColor: triangleMouseArea.containsMouse ? "white" : "gray"
                         strokeStyle: ShapePath.SolidLine
                         fillColor: "transparent"
@@ -149,9 +151,9 @@ Rectangle {
 
                     onClicked: {
                         if (linkXZ.linked && linkYZ.linked && linkXY.linked)
-                            linkIndicator.unlinkAll()
+                            control.unlinkAll()
                         else
-                            linkIndicator.linkAll()
+                            control.linkAll()
                     }
 
                     MouseArea {
@@ -177,13 +179,14 @@ Rectangle {
                     visible: true
                     color: triangleMouseArea.containsMouse ? "white" : "gray"
                     font.family: StudioTheme.Constants.iconFont.family
-                    font.pixelSize: StudioTheme.Values.myIconFontSize * 3
+                    font.pixelSize: control.style.baseIconFontSize * 3
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                 }
 
                 LinkIndicator3DComponent {
                     id: linkXZ
+                    style: control.style
                     pointA: path.pX
                     pointB: path.pZ
                     rotation: 105 // 60
@@ -191,6 +194,7 @@ Rectangle {
 
                 LinkIndicator3DComponent {
                     id: linkYZ
+                    style: control.style
                     pointA: path.pZ
                     pointB: path.pY
                     rotation: 45 // -180
@@ -198,6 +202,7 @@ Rectangle {
 
                 LinkIndicator3DComponent {
                     id: linkXY
+                    style: control.style
                     pointA: path.pY
                     pointB: path.pX
                     rotation: -15 // -60
@@ -211,7 +216,7 @@ Rectangle {
                     color: StudioTheme.Values.theme3DAxisXColor
 
                     font.family: StudioTheme.Constants.font.family
-                    font.pixelSize: StudioTheme.Values.myFontSize
+                    font.pixelSize: control.style.baseIconFontSize
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                 }
@@ -223,7 +228,7 @@ Rectangle {
                     color: StudioTheme.Values.theme3DAxisYColor
 
                     font.family: StudioTheme.Constants.font.family
-                    font.pixelSize: StudioTheme.Values.myFontSize
+                    font.pixelSize: control.style.baseIconFontSize
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                 }
@@ -235,7 +240,7 @@ Rectangle {
                     color: StudioTheme.Values.theme3DAxisZColor
 
                     font.family: StudioTheme.Constants.font.family
-                    font.pixelSize: StudioTheme.Values.myFontSize
+                    font.pixelSize: control.style.baseIconFontSize
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                 }
@@ -244,9 +249,9 @@ Rectangle {
         }
 
         background: Rectangle {
-            color: StudioTheme.Values.themeControlBackground
-            border.color: StudioTheme.Values.themeInteraction
-            border.width: StudioTheme.Values.border
+            color: control.style.background.idle
+            border.color: control.style.interaction
+            border.width: control.style.borderWidth
         }
 
         enter: Transition {}
@@ -259,7 +264,7 @@ Rectangle {
             when: !mouseArea.containsMouse && !linkPopup.opened
             PropertyChanges {
                 target: linkIndicatorIcon
-                color: StudioTheme.Values.themeLinkIndicatorColor
+                color: control.style.indicator.idle
             }
         },
         State {
@@ -267,7 +272,7 @@ Rectangle {
             when: mouseArea.containsMouse && !linkPopup.opened
             PropertyChanges {
                 target: linkIndicatorIcon
-                color: StudioTheme.Values.themeLinkIndicatorColorHover
+                color: control.style.indicator.hover
             }
         },
         State {
@@ -275,7 +280,7 @@ Rectangle {
             when: linkPopup.opened
             PropertyChanges {
                 target: linkIndicatorIcon
-                color: StudioTheme.Values.themeLinkIndicatorColorInteraction
+                color: control.style.indicator.interaction
             }
         }
     ]

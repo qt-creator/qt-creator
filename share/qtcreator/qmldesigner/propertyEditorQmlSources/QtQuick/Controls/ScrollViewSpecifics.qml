@@ -14,7 +14,11 @@ Column {
         caption: qsTr("Scroll View")
 
         SectionLayout {
-            PropertyLabel { text: qsTr("Content size") }
+            PropertyLabel {
+                text: qsTr("Content size")
+                tooltip: qsTr("Sets the width and height of the view.\n"
+                            + "This is used for calculating the total implicit size.")
+            }
 
             SecondColumnLayout {
                 SpinBox {

@@ -54,17 +54,19 @@ add_subdirectory(mesonprojectmanager)
 add_subdirectory(perforce)
 add_subdirectory(qmakeprojectmanager)
 add_subdirectory(qmljstools)
-add_subdirectory(qmlprojectmanager)
 add_subdirectory(scxmleditor)
 add_subdirectory(subversion)
 add_subdirectory(compilationdatabaseprojectmanager)
 add_subdirectory(languageclient)
+add_subdirectory(qmldesignerbase)
+
 
 # Level 6:
 add_subdirectory(cmakeprojectmanager)
 add_subdirectory(debugger)
 add_subdirectory(coco)
 add_subdirectory(gitlab)
+add_subdirectory(qmlprojectmanager)
 
 # Level 7:
 add_subdirectory(android)

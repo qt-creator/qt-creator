@@ -44,14 +44,30 @@ void AsynchronousExplicitImageCache::request(Utils::SmallStringView name,
     const auto id = extraId.empty() ? Utils::PathString{name}
                                     : Utils::PathString::join({name, "+", extraId});
 
-    const auto entry = requestType == RequestType::Image
-                           ? storage.fetchImage(id, Sqlite::TimeStamp{})
-                           : storage.fetchSmallImage(id, Sqlite::TimeStamp{});
+    auto requestImageFromStorage = [&](RequestType requestType) {
+        switch (requestType) {
+        case RequestType::Image:
+            return storage.fetchImage(id, Sqlite::TimeStamp{});
+        case RequestType::MidSizeImage:
+            return storage.fetchMidSizeImage(id, Sqlite::TimeStamp{});
+        case RequestType::SmallImage:
+            return storage.fetchSmallImage(id, Sqlite::TimeStamp{});
+        default:
+            break;
+        }
 
-    if (entry && !entry->isNull())
-        captureCallback(*entry);
-    else
-        abortCallback(ImageCache::AbortReason::Failed);
+        return storage.fetchImage(id, Sqlite::TimeStamp{});
+    };
+    const auto entry = requestImageFromStorage(requestType);
+
+    if (entry) {
+        if (entry->isNull())
+            abortCallback(ImageCache::AbortReason::Failed);
+        else
+            captureCallback(*entry);
+    } else {
+        abortCallback(ImageCache::AbortReason::NoEntry);
+    }
 }
 
 void AsynchronousExplicitImageCache::wait()
@@ -72,6 +88,19 @@ void AsynchronousExplicitImageCache::requestImage(Utils::PathString name,
              std::move(captureCallback),
              std::move(abortCallback),
              RequestType::Image);
+    m_condition.notify_all();
+}
+
+void AsynchronousExplicitImageCache::requestMidSizeImage(Utils::PathString name,
+                                                         ImageCache::CaptureImageCallback captureCallback,
+                                                         ImageCache::AbortCallback abortCallback,
+                                                         Utils::SmallString extraId)
+{
+    addEntry(std::move(name),
+             std::move(extraId),
+             std::move(captureCallback),
+             std::move(abortCallback),
+             RequestType::MidSizeImage);
     m_condition.notify_all();
 }
 

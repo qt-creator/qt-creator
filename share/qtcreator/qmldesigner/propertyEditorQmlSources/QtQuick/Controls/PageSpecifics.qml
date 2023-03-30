@@ -17,7 +17,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Title")
-                tooltip: qsTr("Title of the page.")
+                tooltip: qsTr("Sets the title of the page.")
             }
 
             SecondColumnLayout {
@@ -33,7 +33,8 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Content size")
-                tooltip: qsTr("Content width and height used for calculating the total implicit size.")
+                tooltip: qsTr("Sets the size of the page. This is used to\n"
+                            + "calculate the total implicit size.")
             }
 
             SecondColumnLayout {

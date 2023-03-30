@@ -17,7 +17,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Delay")
-                tooltip: qsTr("The delay in milliseconds.")
+                tooltip: qsTr("Sets the delay before the button activates.")
             }
 
             SecondColumnLayout {
@@ -36,6 +36,7 @@ Column {
 
                 ControlLabel {
                     text: "ms"
+                    tooltip: qsTr("Milliseconds.")
                     elide: Text.ElideNone
                 }
 

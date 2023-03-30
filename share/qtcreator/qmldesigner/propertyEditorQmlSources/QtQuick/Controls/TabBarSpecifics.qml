@@ -17,7 +17,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Position")
-                tooltip: qsTr("Position of the tab bar.")
+                tooltip: qsTr("Sets the position of the tab bar.")
             }
 
             SecondColumnLayout {
@@ -35,7 +35,8 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Content size")
-                tooltip: qsTr("Content width and height used for calculating the total implicit size.")
+                tooltip: qsTr("Sets the width and height of the tab bar.\n"
+                        + "This is used for calculating the total implicit size.")
             }
 
             SecondColumnLayout {

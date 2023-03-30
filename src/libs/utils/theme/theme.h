@@ -284,7 +284,6 @@ public:
         QmlDesigner_ScrollBarHandleColor,
 
         /* Palette for DS Controls */
-
         DSpanelBackground,
         DSinteraction,
         DSerrorColor,
@@ -304,9 +303,28 @@ public:
         DStextSelectionColor,
         DStextSelectedTextColor,
 
+        /*NEW for QtDS 4.0*/
+        DScontrolBackground_toolbarIdle,
+        DScontrolBackground_toolbarHover,
+        DStoolbarBackground,
+        DStoolbarIcon_blocked,
+        DSthumbnailBackground_baseState,
+        DSidleGreen,
+        DSrunningGreen,
+        DSstatusbarBackground,
+        DScontrolBackground_statusbarIdle,
+        DScontrolBackground_topToolbarHover,
+        DSControlBackground_statusbarHover,
+        DScontrolOutline_topToolbarIdle,
+        DScontrolOutline_topToolbarHover,
+        DSprimaryButton_hoverHighlight,
+        DSstateBackgroundColor_hover,
+        DSstateControlBackgroundColor_hover,
+        DSstateControlBackgroundColor_globalHover,
         DSplaceholderTextColor,
         DSplaceholderTextColorInteraction,
 
+        /*Legacy QtDS*/
         DSiconColor,
         DSiconColorHover,
         DSiconColorInteraction,
@@ -469,7 +487,8 @@ public:
         FlatMenuBar,
         ToolBarIconShadow,
         WindowColorAsBase,
-        DarkUserInterface
+        DarkUserInterface,
+        QDSTheme
     };
 
     Q_ENUM(Color)

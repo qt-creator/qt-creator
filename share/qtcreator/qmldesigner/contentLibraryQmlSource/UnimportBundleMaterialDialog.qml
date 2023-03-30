@@ -8,6 +8,7 @@ import QtQuickDesignerTheme
 import HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import ContentLibraryBackend
 
 Dialog {
     id: root
@@ -47,7 +48,7 @@ Dialog {
                 text: qsTr("Remove")
 
                 onClicked: {
-                    materialsModel.removeFromProject(root.targetBundleMaterial)
+                    ContentLibraryBackend.materialsModel.removeFromProject(root.targetBundleMaterial)
                     root.accept()
                 }
             }

@@ -4,29 +4,10 @@
 #pragma once
 
 #include <QQuickAsyncImageProvider>
-#include <QQuickImageResponse>
 
 namespace QmlDesigner {
 
 class AsynchronousImageCache;
-
-class ImageResponse : public QQuickImageResponse
-{
-public:
-    ImageResponse(const QImage &defaultImage)
-        : m_image(defaultImage)
-    {}
-
-    QQuickTextureFactory *textureFactory() const override;
-
-    void setImage(const QImage &image);
-    QImage image() const { return m_image; }
-
-    void abort();
-
-private:
-    QImage m_image;
-};
 
 class SmallImageCacheProvider : public QQuickAsyncImageProvider
 {

@@ -2,59 +2,145 @@
     "ContextMenuArea": {
         "size": "28x28",
         "Off": {
-            "Disabled": { "color": "DSiconColorDisabled" },
-            "Hovered": { "color": "DSnavigatorIconHover"  },
-            "Normal": { "color": "DSnavigatorIcon" },
-            "Selected": { "color": "DSnavigatorIconSelected" }
+            "Disabled": { "color": "DStextColorDisabled" },
+            "Hovered": { "color": "DSpanelBackground"  },
+            "Normal": { "color": "DStextColor" },
+            "Selected": { "color": "DStextSelectedTextColor" }
         },
         "On": {
-            "Disabled": { "color": "DSiconColorDisabled" },
-            "Hovered": { "color": "DSnavigatorIconHover"  },
-            "Normal": { "color": "DSnavigatorIcon" },
-            "Selected": { "color": "DSnavigatorIconSelected" }
+            "Disabled": { "color": "DStextColorDisabled" },
+            "Hovered": { "color": "DSsubPanelBackground"  },
+            "Normal": { "color": "DStextColor" },
+            "Selected": { "color": "DStextSelectedTextColor" }
         }
     },
     "AddMouseAreaIcon": {
-        "iconName": "s_mouseArea"
+        "iconName": "mouseArea_small"
+    },
+    "AlignCameraToViewIcon": {
+        "iconName": "alignToCamera_small"
+    },
+    "AlignViewToCameraIcon": {
+        "iconName": "alignToObject_small"
     },
     "AnchorsIcon": {
-        "iconName": "s_anchors"
+        "iconName": "anchors_small"
     },
     "AnnotationIcon": {
-        "iconName": "s_annotations"
+        "iconName": "annotations_small"
     },
     "ArrangeIcon": {
-        "iconName": "s_arrange"
+        "iconName": "arrange_small"
+    },
+    "CameraIcon": {
+        "iconName": "camera_small"
+    },
+    "CameraOrthographicIcon": {
+        "iconName": "orthCam_small"
+    },
+    "CameraPerspectiveIcon": {
+        "iconName": "perspectiveCam_small"
     },
     "ConnectionsIcon": {
-        "iconName": "s_connections"
+        "iconName": "connection_small"
+    },
+    "CopyIcon": {
+        "iconName": "copy_small"
+    },
+    "CreateIcon": {
+        "iconName": "create_small"
+    },
+    "DeleteIcon": {
+        "iconName": "delete_small"
+    },
+    "DuplicateIcon": {
+        "iconName": "duplicate_small"
+    },
+    "EditComponentIcon": {
+        "iconName": "editComponent_small"
     },
     "EditIcon": {
-        "iconName": "s_edit"
+        "iconName": "edit_small"
     },
     "EnterComponentIcon": {
-        "iconName": "s_enterComponent"
+        "iconName": "editComponent_small"
     },
     "EventListIcon": {
-        "iconName": "s_eventList"
+        "iconName": "events_small"
+    },
+    "FitSelectedIcon": {
+        "iconName": "fitSelected_small"
     },
     "GroupSelectionIcon": {
-        "iconName": "s_group"
+        "iconName": "group_small"
+    },
+    "ImportedModelsIcon": {
+        "iconName": "importedModels_small"
     },
     "LayoutsIcon": {
-        "iconName": "s_layouts"
+        "iconName": "layouts_small"
+    },
+    "LightIcon": {
+        "Off": {
+            "iconName": "editLightOff_medium"
+        },
+        "On": {
+            "iconName": "editLightOn_medium"
+        }
+    },
+    "LightDirectionalIcon": {
+        "iconName": "directionalLight_small"
+    },
+    "LightPointIcon": {
+        "iconName": "pointLight_small"
+    },
+    "LightSpotIcon": {
+        "iconName": "spotLight_small"
     },
     "MakeComponentIcon": {
-        "iconName": "s_component"
+        "iconName": "createComponent_small"
+    },
+    "MaterialIcon": {
+        "iconName": "material_medium"
     },
     "MergeWithTemplateIcon": {
-        "iconName": "s_merging"
+        "iconName": "merge_small"
+    },
+    "MinimalDownArrowIcon" : {
+        "iconName": "upDownSquare2"
+    },
+    "ModelConeIcon": {
+        "iconName": "cone_small"
+    },
+    "ModelCubeIcon": {
+        "iconName": "cube_small"
+    },
+    "ModelCylinderIcon": {
+        "iconName": "cylinder_small"
+    },
+    "ModelPlaneIcon": {
+        "iconName": "plane_small"
+    },
+    "ModelSphereIcon": {
+        "iconName": "sphere_small"
+    },
+    "ParentIcon": {
+        "iconName": "selectParent_small"
+    },
+    "PasteIcon": {
+        "iconName": "paste_small"
     },
     "PositionsersIcon": {
-        "iconName": "s_positioners"
+        "iconName": "positioners_small"
+    },
+    "PrimitivesIcon": {
+        "iconName": "cube_small"
+    },
+    "ResetViewIcon": {
+        "iconName": "reload_medium"
     },
     "SelecionIcon": {
-        "iconName": "s_selection"
+        "iconName": "selection_small"
     },
     "ShowBoundsIcon": {
         "Off": {
@@ -65,10 +151,26 @@
         }
     },
     "SnappingIcon": {
-        "iconName": "s_snapping"
+        "iconName": "snapping_small"
+    },
+    "SimpleCheckIcon": {
+        "Off": {
+            "iconName": "transparent"
+        },
+        "On": {
+            "iconName": "tickMark_small"
+        }
     },
     "TimelineIcon": {
-        "iconName": "s_timeline"
+        "iconName": "timeline_small"
+    },
+    "ToggleGroupIcon": {
+        "Off": {
+            "iconName": "selectOutline_medium"
+        },
+        "On": {
+            "iconName": "selectFill_medium"
+        }
     },
     "VisibilityIcon": {
         "Off": {

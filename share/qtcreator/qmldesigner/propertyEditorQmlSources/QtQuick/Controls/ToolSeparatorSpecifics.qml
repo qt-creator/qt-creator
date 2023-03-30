@@ -16,7 +16,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Orientation")
-                tooltip: qsTr("The orientation of the separator.")
+                tooltip: qsTr("Sets the orientation of the separator.")
             }
 
             SecondColumnLayout {

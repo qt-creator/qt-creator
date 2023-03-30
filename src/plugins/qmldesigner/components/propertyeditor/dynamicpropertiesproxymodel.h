@@ -30,16 +30,13 @@
 #include <abstractview.h>
 #include <qmlitemnode.h>
 
-#include <enumeration.h>
 #include <QAbstractListModel>
 #include <QColor>
 #include <QtQml>
 
 namespace QmlDesigner {
-namespace Internal {
+
 class DynamicPropertiesModel;
-}
-} // namespace QmlDesigner
 
 class DynamicPropertiesProxyModel : public QAbstractListModel
 {
@@ -55,16 +52,16 @@ public:
 
     static void registerDeclarativeType();
 
-    QmlDesigner::Internal::DynamicPropertiesModel *dynamicPropertiesModel() const;
+    DynamicPropertiesModel *dynamicPropertiesModel() const;
 
     Q_INVOKABLE QString newPropertyName() const;
     Q_INVOKABLE void createProperty(const QString &name, const QString &type);
 
 protected:
-    void initModel(QmlDesigner::Internal::DynamicPropertiesModel *model);
+    void initModel(DynamicPropertiesModel *model);
 
 private:
-    QmlDesigner::Internal::DynamicPropertiesModel *m_model = nullptr;
+    DynamicPropertiesModel *m_model = nullptr;
 };
 
 class DynamicPropertyRow : public QObject
@@ -72,7 +69,7 @@ class DynamicPropertyRow : public QObject
     Q_OBJECT
 
     Q_PROPERTY(int row READ row WRITE setRow NOTIFY rowChanged FINAL)
-    Q_PROPERTY(PropertyEditorValue *backendValue READ backendValue NOTIFY rowChanged FINAL)
+    Q_PROPERTY(QmlDesigner::PropertyEditorValue *backendValue READ backendValue NOTIFY rowChanged FINAL)
     Q_PROPERTY(DynamicPropertiesProxyModel *model READ model WRITE setModel NOTIFY modelChanged FINAL)
 
 public:
@@ -85,10 +82,10 @@ public:
     int row() const;
     void setModel(DynamicPropertiesProxyModel *model);
     DynamicPropertiesProxyModel *model() const;
-    PropertyEditorValue *backendValue() const;
+    QmlDesigner::PropertyEditorValue *backendValue() const;
 
     Q_INVOKABLE void remove();
-    Q_INVOKABLE PropertyEditorValue *createProxyBackendValue();
+    Q_INVOKABLE QmlDesigner::PropertyEditorValue *createProxyBackendValue();
     Q_INVOKABLE void clearProxyBackendValues();
 
 signals:
@@ -103,10 +100,12 @@ private:
     void resetValue();
 
     int m_row = -1;
-    PropertyEditorValue *m_backendValue = nullptr;
+    QmlDesigner::PropertyEditorValue *m_backendValue = nullptr;
     DynamicPropertiesProxyModel *m_model = nullptr;
-    QList<PropertyEditorValue *> m_proxyBackendValues;
+    QList<QmlDesigner::PropertyEditorValue *> m_proxyBackendValues;
     bool m_lock = false;
 };
 
-QML_DECLARE_TYPE(DynamicPropertyRow)
+} // namespace QmlDesigner
+
+QML_DECLARE_TYPE(QmlDesigner::DynamicPropertyRow)

@@ -109,6 +109,7 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView,
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F10), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &StatesEditorWidget::reloadQmlSource);
 
+    setObjectName(Constants::OBJECT_NAME_STATES_EDITOR);
     setResizeMode(QQuickWidget::SizeRootObjectToView);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -162,7 +163,6 @@ void StatesEditorWidget::reloadQmlSource()
 {
     QString statesListQmlFilePath = qmlSourcesPath() + QStringLiteral("/Main.qml");
     QTC_ASSERT(QFileInfo::exists(statesListQmlFilePath), return );
-    engine()->clearComponentCache();
     setSource(QUrl::fromLocalFile(statesListQmlFilePath));
 
     if (!rootObject()) {

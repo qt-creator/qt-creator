@@ -161,8 +161,8 @@
                     "target": "%{ProjectDirectory}/imports/Constants/Constants.qml"
                 },
                 {
-                    "source": "DirectoryFontLoader.qml.tpl",
-                    "target": "%{ProjectDirectory}/imports/Constants/DirectoryFontLoader.qml"
+                    "source": "constants_module.qmlproject.tpl",
+                    "target": "%{ProjectDirectory}/imports/Constants/constants_module.qmlproject"
                 },
                 {
                     "source": "Screen01.ui.qml.tpl",

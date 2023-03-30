@@ -2245,7 +2245,17 @@ bool NodeMetaInfo::isQtQuick3DCamera() const
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, Camera>(m_projectStorage, m_typeId);
     } else {
-        return isValid() && isSubclassOf("QQuick3D.Camera");
+        return isValid() && isSubclassOf("QtQuick3D.Camera");
+    }
+}
+
+bool NodeMetaInfo::isQtQuick3DBakedLightmap() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick3D, BakedLightmap>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick3D.BakedLightmap");
     }
 }
 
@@ -2255,7 +2265,7 @@ bool NodeMetaInfo::isQtQuick3DBuffer() const
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, Buffer>(m_projectStorage, m_typeId);
     } else {
-        return isValid() && isSubclassOf("QQuick3D.Buffer");
+        return isValid() && isSubclassOf("QtQuick3D.Buffer");
     }
 }
 
@@ -2265,7 +2275,7 @@ bool NodeMetaInfo::isQtQuick3DInstanceListEntry() const
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, InstanceListEntry>(m_projectStorage, m_typeId);
     } else {
-        return isValid() && isSubclassOf("QQuick3D.InstanceListEntry");
+        return isValid() && isSubclassOf("QtQuick3D.InstanceListEntry");
     }
 }
 
@@ -2275,7 +2285,7 @@ bool NodeMetaInfo::isQtQuick3DInstanceList() const
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, InstanceList>(m_projectStorage, m_typeId);
     } else {
-        return isValid() && isSubclassOf("QQuick3D.InstanceList");
+        return isValid() && isSubclassOf("QtQuick3D.InstanceList");
     }
 }
 
@@ -2564,7 +2574,7 @@ bool NodeMetaInfo::isBool() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
         return type == "bool" || type == "boolean";
     }
@@ -2579,7 +2589,7 @@ bool NodeMetaInfo::isInteger() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
         return type == "int" || type == "integer";
     }
@@ -2597,7 +2607,7 @@ bool NodeMetaInfo::isFloat() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
         return type == "qreal" || type == "double" || type == "float";
     }
@@ -2609,7 +2619,7 @@ bool NodeMetaInfo::isVariant() const
         using namespace Storage::Info;
         return isTypeId(m_typeId, m_projectStorage->builtinTypeId<QVariant>());
     } else {
-        return isValid() && m_privateData->qualfiedTypeName() == "QVariant";
+        return isValid() && simplifiedTypeName() == "QVariant";
     }
 }
 
@@ -2622,7 +2632,7 @@ bool NodeMetaInfo::isString() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
         return type == "string" || type == "QString";
     }

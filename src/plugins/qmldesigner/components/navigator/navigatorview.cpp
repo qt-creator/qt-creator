@@ -117,7 +117,8 @@ WidgetInfo NavigatorView::widgetInfo()
                             QStringLiteral("Navigator"),
                             WidgetInfo::LeftPane,
                             0,
-                            tr("Navigator"));
+                            tr("Navigator"),
+                            tr("Navigator view"));
 }
 
 void NavigatorView::modelAttached(Model *model)
@@ -254,11 +255,20 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
 
         m_widget->setDragType(itemLibraryEntry.typeName());
         m_widget->update();
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
+        qint32 internalId = mimeData->data(Constants::MIME_TYPE_TEXTURE).toInt();
+        ModelNode texNode = modelNodeForInternalId(internalId);
+
+        m_widget->setDragType(texNode.metaInfo().typeName());
+        m_widget->update();
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
         qint32 internalId = mimeData->data(Constants::MIME_TYPE_MATERIAL).toInt();
         ModelNode matNode = modelNodeForInternalId(internalId);
 
         m_widget->setDragType(matNode.metaInfo().typeName());
+        m_widget->update();
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
+        m_widget->setDragType(Constants::MIME_TYPE_BUNDLE_TEXTURE);
         m_widget->update();
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
         QByteArray data = mimeData->data(Constants::MIME_TYPE_BUNDLE_MATERIAL);
@@ -277,6 +287,12 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
                 // We use arbitrary type name because at this time we don't have effect maker
                 // specific type
                 m_widget->setDragType(Storage::Info::EffectMaker);
+                m_widget->update();
+            } else if (assetType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
+                m_widget->setDragType(Constants::MIME_TYPE_ASSET_TEXTURE3D);
+                m_widget->update();
+            } else if (assetType == Constants::MIME_TYPE_ASSET_IMAGE) {
+                m_widget->setDragType(Constants::MIME_TYPE_ASSET_IMAGE);
                 m_widget->update();
             }
         }
@@ -466,7 +482,10 @@ const ProjectExplorer::FileNode *NavigatorView::fileNodeForModelNode(const Model
     if (!currentProject)
         return nullptr;
 
-    return currentProject->nodeForFilePath(filePath)->asFileNode();
+    const auto fileNode = currentProject->nodeForFilePath(filePath);
+    QTC_ASSERT(fileNode, return nullptr);
+
+    return fileNode->asFileNode();
 }
 
 const ProjectExplorer::FileNode *NavigatorView::fileNodeForIndex(const QModelIndex &index) const

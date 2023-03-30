@@ -6,6 +6,8 @@
 #include "itemlibraryinfo.h"
 #include "import.h"
 
+#include <studioquickwidget.h>
+
 #include <utils/fancylineedit.h>
 #include <utils/dropsupport.h>
 #include <previewtooltip/previewtooltipbackend.h>
@@ -14,7 +16,6 @@
 #include <QFrame>
 #include <QPointF>
 #include <QQmlPropertyMap>
-#include <QQuickWidget>
 #include <QTimer>
 #include <QToolButton>
 
@@ -43,6 +44,9 @@ class ItemLibraryWidget : public QFrame
 
 public:
     Q_PROPERTY(bool subCompEditMode READ subCompEditMode NOTIFY subCompEditModeChanged)
+
+    // Needed for a workaround for a bug where after drag-n-dropping an item, the ScrollView scrolls to a random position
+    Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
 
     ItemLibraryWidget(AsynchronousImageCache &imageCache);
     ~ItemLibraryWidget();
@@ -76,6 +80,7 @@ public:
 signals:
     void itemActivated(const QString &itemName);
     void subCompEditModeChanged();
+    void isDraggingChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -86,6 +91,8 @@ private:
 
     void updateSearch();
     void handlePriorityImportsChanged();
+    void setIsDragging(bool val);
+
     static QString getDependencyImport(const Import &import);
 
     QTimer m_compressionTimer;
@@ -96,7 +103,7 @@ private:
     QPointer<ItemLibraryModel> m_itemLibraryModel;
     QPointer<ItemLibraryAddImportModel> m_addModuleModel;
 
-    QScopedPointer<QQuickWidget> m_itemsWidget;
+    QScopedPointer<StudioQuickWidget> m_itemsWidget;
     std::unique_ptr<PreviewTooltipBackend> m_previewTooltipBackend;
 
     QShortcut *m_qmlSourceUpdateShortcut;
@@ -107,6 +114,7 @@ private:
     QString m_filterText;
     QPoint m_dragStartPoint;
     bool m_subCompEditMode = false;
+    bool m_isDragging = false;
 
     inline static int HORIZONTAL_LAYOUT_WIDTH_LIMIT = 600;
 };

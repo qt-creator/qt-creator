@@ -10,7 +10,16 @@ namespace Sqlite {
 class SQLITE_EXPORT SqlStatementBuilderException : public ExceptionWithMessage
 {
 public:
-    using ExceptionWithMessage::ExceptionWithMessage;
+    SqlStatementBuilderException(const char *whatHasHappened,
+                                 Utils::SmallString &&sqliteErrorMessage)
+        : ExceptionWithMessage(std::move(sqliteErrorMessage))
+        , m_whatHasHappened{whatHasHappened}
+    {}
+
+    const char *what() const noexcept override;
+
+private:
+    const char *m_whatHasHappened;
 };
 
 } // namespace Sqlite

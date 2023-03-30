@@ -11,8 +11,6 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
-
 class ConnectionView;
 
 class BindingModel : public QStandardItemModel
@@ -64,7 +62,5 @@ private:
     QString m_exceptionError;
 
 };
-
-} // namespace Internal
 
 } // namespace QmlDesigner

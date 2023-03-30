@@ -1,5 +1,6 @@
 find_package(Googletest MODULE)
 find_package(GoogleBenchmark MODULE)
+find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate)
 
 if (NOT Googletest_FOUND)
   message(STATUS "Googletest was not found. Please set GOOGLETEST_DIR (CMake or Environment) variable.")
@@ -18,6 +19,7 @@ file(RELATIVE_PATH RELATIVE_TEST_PATH "${PROJECT_BINARY_DIR}" "${CMAKE_CURRENT_B
 file(RELATIVE_PATH TEST_RELATIVE_LIBEXEC_PATH "/${RELATIVE_TEST_PATH}" "/${IDE_LIBEXEC_PATH}")
 
 add_qtc_test(unittest GTEST
+  PROPERTIES COMPILE_WARNING_AS_ERROR OFF
   INCLUDES
     BEFORE "../mockup"
     BEFORE "../mockup/qmldesigner/designercore/include"
@@ -70,6 +72,7 @@ add_qtc_test(unittest GTEST
     sqlitecolumn-test.cpp
     sqlitedatabasebackend-test.cpp
     sqlitedatabase-test.cpp
+    sqlitefunctionregistry-test.cpp
     sqlitesessions-test.cpp
     sqlitestatement-test.cpp
     sqlitetable-test.cpp
@@ -248,6 +251,7 @@ extend_qtc_test(unittest
     projectstorage/filestatus.h
     projectstorage/filestatuscache.cpp projectstorage/filestatuscache.h
     projectstorage/nonlockingmutex.h
+    projectstorage/projectstorageexceptions.cpp projectstorage/projectstorageexceptions.h
     projectstorage/projectstorageinterface.h
     projectstorage/projectstorage.cpp projectstorage/projectstorage.h
     projectstorage/projectstoragepathwatcher.h
@@ -311,17 +315,18 @@ endif()
 extend_qtc_test(unittest DEPENDS Utils CPlusPlus)
 
 extend_qtc_test(unittest
-  CONDITION TARGET qmldomlib
-  DEPENDS qmldomlib
+  CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND Qt6_VERSION VERSION_GREATER_EQUAL 6.5.0
+  DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
   SOURCES
     qmldocumentparser-test.cpp
     qmltypesparser-test.cpp
 )
 
 extend_qtc_test(unittest
+  CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND Qt6_VERSION VERSION_GREATER_EQUAL 6.5.0
   SOURCES_PREFIX "${QmlDesignerDir}/designercore"
-  CONDITION TARGET qmldomlib
-  DEPENDS qmldomlib
+  DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
+  DEFINES QDS_HAS_QMLDOM
   SOURCES
     projectstorage/qmldocumentparser.cpp projectstorage/qmldocumentparser.h
     projectstorage/qmltypesparser.cpp projectstorage/qmltypesparser.h

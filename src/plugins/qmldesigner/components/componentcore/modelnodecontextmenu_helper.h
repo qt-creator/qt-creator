@@ -173,14 +173,18 @@ private:
     QByteArray m_category;
 };
 
-class SeperatorDesignerAction : public AbstractAction
+class SeparatorDesignerAction : public AbstractAction
 {
 public:
-    SeperatorDesignerAction(const QByteArray &category, int priority) :
-        m_category(category),
-        m_priority(priority),
-        m_visibility(&SelectionContextFunctors::always)
-    { defaultAction()->setSeparator(true); }
+    SeparatorDesignerAction(const QByteArray &category, int priority)
+        : AbstractAction()
+        , m_category(category)
+        , m_priority(priority)
+        , m_visibility(&SelectionContextFunctors::always)
+    {
+        action()->setSeparator(true);
+        action()->setIcon({});
+    }
 
     bool isVisible(const SelectionContext &m_selectionState) const override { return m_visibility(m_selectionState); }
     bool isEnabled(const SelectionContext &) const override { return true; }

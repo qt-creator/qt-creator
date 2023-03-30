@@ -4,20 +4,33 @@
 #include "contentlibrarytexture.h"
 
 #include "imageutils.h"
+#include <utils/algorithm.h>
+
+#include <QDir>
+#include <QFileInfo>
 
 namespace QmlDesigner {
 
-ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QString &path, const QUrl &icon)
+ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo,
+                                             const QString &downloadPath, const QUrl &icon,
+                                             const QString &webUrl, const QString &fileExt,
+                                             const QSize &dimensions, const qint64 sizeInBytes)
     : QObject(parent)
-    , m_path(path)
+    , m_iconPath(iconFileInfo.filePath())
+    , m_downloadPath(downloadPath)
+    , m_webUrl(webUrl)
+    , m_baseName{iconFileInfo.baseName()}
+    , m_fileExt(fileExt)
     , m_icon(icon)
+    , m_dimensions(dimensions)
+    , m_sizeInBytes(sizeInBytes)
 {
-    m_toolTip = QLatin1String("%1\n%2").arg(path.split('/').last(), ImageUtils::imageInfo(path));
+    doSetDownloaded();
 }
 
 bool ContentLibraryTexture::filter(const QString &searchText)
 {
-    if (m_visible != m_path.contains(searchText, Qt::CaseInsensitive)) {
+    if (m_visible != m_iconPath.contains(searchText, Qt::CaseInsensitive)) {
         m_visible = !m_visible;
         emit textureVisibleChanged();
     }
@@ -30,9 +43,83 @@ QUrl ContentLibraryTexture::icon() const
     return m_icon;
 }
 
-QString ContentLibraryTexture::path() const
+QString ContentLibraryTexture::iconPath() const
 {
-    return m_path;
+    return m_iconPath;
+}
+
+QString ContentLibraryTexture::resolveFileExt()
+{
+    const QFileInfoList files = QDir(m_downloadPath).entryInfoList(QDir::Files);
+    const QFileInfoList textureFiles = Utils::filtered(files, [this](const QFileInfo &fi) {
+        return fi.baseName() == m_baseName;
+    });
+
+    if (textureFiles.isEmpty())
+        return {};
+
+    if (textureFiles.count() > 1) {
+        qWarning() << "Found multiple textures with the same name in the same directories: "
+                   << Utils::transform(textureFiles, [](const QFileInfo &fi) {
+                          return fi.fileName();
+                      });
+    }
+
+    return '.' + textureFiles.at(0).completeSuffix();
+}
+
+QString ContentLibraryTexture::resolveToolTipText()
+{
+    if (m_fileExt.isEmpty()) {
+        // No supplied or resolved extension means we have just the icon and no other data
+        return m_baseName;
+    }
+
+    QString fileName = m_baseName + m_fileExt;
+    QString imageInfo;
+
+    if (!m_isDownloaded && m_sizeInBytes > 0 && !m_dimensions.isNull()) {
+        imageInfo = ImageUtils::imageInfo(m_dimensions, m_sizeInBytes);
+    } else {
+        QString fullDownloadPath = m_downloadPath + '/' + fileName;
+        imageInfo = ImageUtils::imageInfo(fullDownloadPath);
+    }
+
+    return QStringLiteral("%1\n%2").arg(fileName, imageInfo);
+}
+
+bool ContentLibraryTexture::isDownloaded() const
+{
+    return m_isDownloaded;
+}
+
+QString ContentLibraryTexture::downloadedTexturePath() const
+{
+    return m_downloadPath + '/' + m_baseName + m_fileExt;
+}
+
+void ContentLibraryTexture::setDownloaded()
+{
+    QString toolTip = m_toolTip;
+
+    doSetDownloaded();
+
+    if (toolTip != m_toolTip)
+        emit textureToolTipChanged();
+}
+
+void ContentLibraryTexture::doSetDownloaded()
+{
+    if (m_fileExt.isEmpty())
+        m_fileExt = resolveFileExt();
+
+    m_isDownloaded = QFileInfo::exists(downloadedTexturePath());
+    m_toolTip = resolveToolTipText();
+}
+
+QString ContentLibraryTexture::parentDirPath() const
+{
+    return m_downloadPath;
 }
 
 } // namespace QmlDesigner

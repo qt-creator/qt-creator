@@ -5,12 +5,15 @@ import QtQuick
 import HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import MaterialBrowserBackend
 
 StudioControls.Menu {
     id: root
 
     property var targetTexture: null
     property int copiedTextureInternalId: -1
+
+    property var materialBrowserTexturesModel: MaterialBrowserBackend.materialBrowserTexturesModel
 
     function popupMenu(targetTexture = null)
     {
@@ -30,7 +33,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Apply to selected material")
-        enabled: root.targetTexture && materialBrowserModel.selectedIndex >= 0
+        enabled: root.targetTexture && MaterialBrowserBackend.materialBrowserModel.selectedIndex >= 0
         onTriggered: materialBrowserTexturesModel.applyToSelectedMaterial(root.targetTexture.textureInternalId)
     }
 

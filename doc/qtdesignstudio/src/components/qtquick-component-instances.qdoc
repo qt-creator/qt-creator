@@ -11,7 +11,7 @@
     \QDS comes with \e {preset components} that you can use in your UI by
     creating instances of them.
 
-    \image qmldesigner-editing-components.png "Creating Component Instances"
+    \image qmldesigner-editing-components.webp "Creating Component Instances"
 
     To create component instances and edit their properties:
 

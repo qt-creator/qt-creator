@@ -5,7 +5,6 @@
 
 #include "documentmanager.h"
 #include "qmldesigner_global.h"
-#include "shortcutmanager.h"
 
 #include <designersettings.h>
 #include <viewmanager.h>
@@ -13,10 +12,12 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <qmldesignerbase/qmldesignerbaseplugin.h>
 
 #include <QElapsedTimer>
 
 QT_FORWARD_DECLARE_CLASS(QQmlEngine)
+QT_FORWARD_DECLARE_CLASS(QQuickWidget)
 
 namespace Core {
     class IEditor;
@@ -85,7 +86,13 @@ public:
 signals:
     void usageStatisticsNotifier(const QString &identifier);
     void usageStatisticsUsageTimer(const QString &identifier, int elapsed);
+    void usageStatisticsInsertFeedback(const QString &identifier, const QString &feedback, int rating);
     void assetChanged(const QString &assetPath);
+
+private slots:
+    void closeFeedbackPopup();
+    void lauchFeedbackPopup(const QString &identifier);
+    void handleFeedback(const QString &feedback, int rating);
 
 private: // functions
     void integrateIntoQtCreator(QWidget *modeWidget);
@@ -97,13 +104,17 @@ private: // functions
     void activateAutoSynchronization();
     void deactivateAutoSynchronization();
     void resetModelSelection();
+    QString identiferToDisplayString(const QString &identifier);
+
     RewriterView *rewriterView() const;
     Model *currentModel() const;
+    QQuickWidget *m_feedbackWidget = nullptr;
 
 private: // variables
     QmlDesignerPluginPrivate *d = nullptr;
     static QmlDesignerPlugin *m_instance;
     QElapsedTimer m_usageTimer;
+    StudioConfigSettingsPage m_settingsPage;
 };
 
 } // namespace QmlDesigner

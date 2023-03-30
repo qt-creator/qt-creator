@@ -203,8 +203,7 @@ TEST_F(SqliteTransaction, ExclusiveTNonThrowingDestructorransactionRollBack)
 
 TEST_F(SqliteTransaction, DeferredTransactionBeginThrows)
 {
-    ON_CALL(mockTransactionBackend, deferredBegin())
-            .WillByDefault(Throw(Sqlite::Exception("foo")));
+    ON_CALL(mockTransactionBackend, deferredBegin()).WillByDefault(Throw(Sqlite::Exception()));
 
     ASSERT_THROW(DeferredTransaction{mockTransactionBackend},
                  Sqlite::Exception);
@@ -212,8 +211,7 @@ TEST_F(SqliteTransaction, DeferredTransactionBeginThrows)
 
 TEST_F(SqliteTransaction, ImmediateTransactionBeginThrows)
 {
-    ON_CALL(mockTransactionBackend, immediateBegin())
-            .WillByDefault(Throw(Sqlite::Exception("foo")));
+    ON_CALL(mockTransactionBackend, immediateBegin()).WillByDefault(Throw(Sqlite::Exception()));
 
     ASSERT_THROW(ImmediateTransaction{mockTransactionBackend},
                  Sqlite::Exception);
@@ -221,8 +219,7 @@ TEST_F(SqliteTransaction, ImmediateTransactionBeginThrows)
 
 TEST_F(SqliteTransaction, ExclusiveTransactionBeginThrows)
 {
-    ON_CALL(mockTransactionBackend, exclusiveBegin())
-            .WillByDefault(Throw(Sqlite::Exception("foo")));
+    ON_CALL(mockTransactionBackend, exclusiveBegin()).WillByDefault(Throw(Sqlite::Exception()));
 
     ASSERT_THROW(ExclusiveTransaction{mockTransactionBackend},
                  Sqlite::Exception);
@@ -233,8 +230,7 @@ TEST_F(SqliteTransaction, DeferredTransactionBeginThrowsAndNotRollback)
     InSequence s;
 
     EXPECT_CALL(mockTransactionBackend, lock());
-    EXPECT_CALL(mockTransactionBackend, deferredBegin())
-            .WillOnce(Throw(Sqlite::Exception("foo")));
+    EXPECT_CALL(mockTransactionBackend, deferredBegin()).WillOnce(Throw(Sqlite::Exception()));
     EXPECT_CALL(mockTransactionBackend, rollback()).Times(0);
     EXPECT_CALL(mockTransactionBackend, unlock());
 
@@ -246,8 +242,7 @@ TEST_F(SqliteTransaction, ImmediateTransactionBeginThrowsAndNotRollback)
     InSequence s;
 
     EXPECT_CALL(mockTransactionBackend, lock());
-    EXPECT_CALL(mockTransactionBackend, immediateBegin())
-            .WillOnce(Throw(Sqlite::Exception("foo")));
+    EXPECT_CALL(mockTransactionBackend, immediateBegin()).WillOnce(Throw(Sqlite::Exception()));
     EXPECT_CALL(mockTransactionBackend, rollback()).Times(0);
     EXPECT_CALL(mockTransactionBackend, unlock());
 
@@ -260,8 +255,7 @@ TEST_F(SqliteTransaction, ExclusiveTransactionBeginThrowsAndNotRollback)
     InSequence s;
 
     EXPECT_CALL(mockTransactionBackend, lock());
-    EXPECT_CALL(mockTransactionBackend, exclusiveBegin())
-            .WillOnce(Throw(Sqlite::Exception("foo")));
+    EXPECT_CALL(mockTransactionBackend, exclusiveBegin()).WillOnce(Throw(Sqlite::Exception()));
     EXPECT_CALL(mockTransactionBackend, rollback()).Times(0);
     EXPECT_CALL(mockTransactionBackend, unlock());
 
@@ -270,8 +264,7 @@ TEST_F(SqliteTransaction, ExclusiveTransactionBeginThrowsAndNotRollback)
 
 TEST_F(SqliteTransaction, TransactionCommitThrows)
 {
-    ON_CALL(mockTransactionBackend, commit())
-            .WillByDefault(Throw(Sqlite::Exception("foo")));
+    ON_CALL(mockTransactionBackend, commit()).WillByDefault(Throw(Sqlite::Exception()));
     ImmediateTransaction transaction{mockTransactionBackend};
 
     ASSERT_THROW(transaction.commit(),
@@ -280,8 +273,7 @@ TEST_F(SqliteTransaction, TransactionCommitThrows)
 
 TEST_F(SqliteTransaction, TransactionRollbackInDestructorThrows)
 {
-    ON_CALL(mockTransactionBackend, rollback())
-            .WillByDefault(Throw(Sqlite::Exception("foo")));
+    ON_CALL(mockTransactionBackend, rollback()).WillByDefault(Throw(Sqlite::Exception()));
 
     ASSERT_THROW(ExclusiveTransaction{mockTransactionBackend},
                  Sqlite::Exception);
@@ -289,8 +281,7 @@ TEST_F(SqliteTransaction, TransactionRollbackInDestructorThrows)
 
 TEST_F(SqliteTransaction, TransactionRollbackInDestructorDontThrows)
 {
-    ON_CALL(mockTransactionBackend, rollback())
-            .WillByDefault(Throw(Sqlite::Exception("foo")));
+    ON_CALL(mockTransactionBackend, rollback()).WillByDefault(Throw(Sqlite::Exception()));
 
     ASSERT_NO_THROW(ExclusiveNonThrowingDestructorTransaction{mockTransactionBackend});
 }
@@ -322,15 +313,14 @@ TEST_F(SqliteTransaction, ImmediateSessionTransactionRollBack)
 
 TEST_F(SqliteTransaction, SessionTransactionRollbackInDestructorThrows)
 {
-    ON_CALL(mockTransactionBackend, sessionRollback()).WillByDefault(Throw(Sqlite::Exception("foo")));
+    ON_CALL(mockTransactionBackend, sessionRollback()).WillByDefault(Throw(Sqlite::Exception()));
 
     ASSERT_THROW(ImmediateSessionTransaction{mockTransactionBackend}, Sqlite::Exception);
 }
 
 TEST_F(SqliteTransaction, ImmidiateSessionTransactionBeginThrows)
 {
-    ON_CALL(mockTransactionBackend, immediateSessionBegin())
-        .WillByDefault(Throw(Sqlite::Exception("foo")));
+    ON_CALL(mockTransactionBackend, immediateSessionBegin()).WillByDefault(Throw(Sqlite::Exception()));
 
     ASSERT_THROW(ImmediateSessionTransaction{mockTransactionBackend}, Sqlite::Exception);
 }
@@ -340,7 +330,7 @@ TEST_F(SqliteTransaction, ImmediateSessionTransactionBeginThrowsAndNotRollback)
     InSequence s;
 
     EXPECT_CALL(mockTransactionBackend, lock());
-    EXPECT_CALL(mockTransactionBackend, immediateSessionBegin()).WillOnce(Throw(Sqlite::Exception("foo")));
+    EXPECT_CALL(mockTransactionBackend, immediateSessionBegin()).WillOnce(Throw(Sqlite::Exception()));
     EXPECT_CALL(mockTransactionBackend, sessionRollback()).Times(0);
     EXPECT_CALL(mockTransactionBackend, unlock());
 

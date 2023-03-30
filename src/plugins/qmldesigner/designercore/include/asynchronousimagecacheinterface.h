@@ -20,6 +20,12 @@ public:
                               Utils::SmallString extraId = {},
                               ImageCache::AuxiliaryData auxiliaryData = {})
         = 0;
+    virtual void requestMidSizeImage(Utils::PathString name,
+                                     ImageCache::CaptureImageCallback captureCallback,
+                                     ImageCache::AbortCallback abortCallback,
+                                     Utils::SmallString extraId = {},
+                                     ImageCache::AuxiliaryData auxiliaryData = {})
+        = 0;
     virtual void requestSmallImage(Utils::PathString name,
                                    ImageCache::CaptureImageCallback captureCallback,
                                    ImageCache::AbortCallback abortCallback,

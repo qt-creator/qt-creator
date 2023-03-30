@@ -3,36 +3,21 @@
 
 #include "smallimagecacheprovider.h"
 
+#include "imagecacheimageresponse.h"
+
 #include <asynchronousimagecache.h>
 
 #include <QMetaObject>
 
 namespace QmlDesigner {
 
-QQuickTextureFactory *ImageResponse::textureFactory() const
-{
-    return QQuickTextureFactory::textureFactoryForImage(m_image);
-}
-
-void ImageResponse::setImage(const QImage &image)
-{
-    m_image = image;
-
-    emit finished();
-}
-
-void ImageResponse::abort()
-{
-    emit finished();
-}
-
 QQuickImageResponse *SmallImageCacheProvider::requestImageResponse(const QString &id, const QSize &)
 {
-    auto response = std::make_unique<QmlDesigner::ImageResponse>(m_defaultImage);
+    auto response = std::make_unique<ImageCacheImageResponse>(m_defaultImage);
 
     m_cache.requestSmallImage(
         id,
-        [response = QPointer<QmlDesigner::ImageResponse>(response.get())](const QImage &image) {
+        [response = QPointer<ImageCacheImageResponse>(response.get())](const QImage &image) {
             QMetaObject::invokeMethod(
                 response,
                 [response, image] {
@@ -41,13 +26,14 @@ QQuickImageResponse *SmallImageCacheProvider::requestImageResponse(const QString
                 },
                 Qt::QueuedConnection);
         },
-        [response = QPointer<QmlDesigner::ImageResponse>(response.get())](
+        [response = QPointer<ImageCacheImageResponse>(response.get())](
             ImageCache::AbortReason abortReason) {
             QMetaObject::invokeMethod(
                 response,
                 [response, abortReason] {
                     switch (abortReason) {
                     case ImageCache::AbortReason::Failed:
+                    case ImageCache::AbortReason::NoEntry:
                         if (response)
                             response->abort();
                         break;

@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include"abstractview.h"
+#include "abstractview.h"
 
-#include <QQuickImageProvider>
 #include <QPointer>
+#include <QQuickImageProvider>
 
 namespace QmlDesigner {
 namespace Internal {

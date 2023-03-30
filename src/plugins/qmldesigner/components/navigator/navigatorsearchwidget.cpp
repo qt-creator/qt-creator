@@ -20,25 +20,22 @@ LineEdit::LineEdit(QWidget *parent)
     clearButton = new QToolButton(this);
 
     const QString fontName = "qtds_propertyIconFont.ttf";
-    const int searchIconSize = 16;
-    const int clearIconSize = 12;
-    const QColor iconColor(QmlDesigner::Theme::getColor(QmlDesigner::Theme::DSiconColor));
+    const int clearIconSize = 10;
+    const QColor iconColor(QmlDesigner::Theme::getColor(QmlDesigner::Theme::DStextColor));
 
-    const QIcon searchIcon
-        = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                  QmlDesigner::Theme::getIconUnicode(
-                                                      QmlDesigner::Theme::Icon::search),
-                                                  searchIconSize,
-                                                  searchIconSize,
-                                                  iconColor);
+    const QIcon searchIcon = Utils::StyleHelper::getIconFromIconFont(
+        fontName,
+        QmlDesigner::Theme::getIconUnicode(QmlDesigner::Theme::Icon::search_small),
+        10,
+        16,
+        iconColor);
 
-    const QIcon clearIcon
-        = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                  QmlDesigner::Theme::getIconUnicode(
-                                                      QmlDesigner::Theme::Icon::closeCross),
-                                                  clearIconSize,
-                                                  clearIconSize,
-                                                  iconColor);
+    const QIcon clearIcon = Utils::StyleHelper::getIconFromIconFont(
+        fontName,
+        QmlDesigner::Theme::getIconUnicode(QmlDesigner::Theme::Icon::close_small),
+        clearIconSize,
+        clearIconSize,
+        iconColor);
 
     addAction(searchIcon, QLineEdit::LeadingPosition);
 
@@ -46,9 +43,9 @@ LineEdit::LineEdit(QWidget *parent)
     clearButton->setIconSize(QSize(clearIconSize, clearIconSize));
     clearButton->setCursor(Qt::ArrowCursor);
     clearButton->hide();
-    clearButton->setStyleSheet(Theme::replaceCssColors(
-        QString("QToolButton { border: none; padding: 0px; }"
-                "QToolButton:hover { background: creatorTheme.DScontrolBackgroundHover; }")));
+    clearButton->setStyleSheet(
+        Theme::replaceCssColors(QString("QToolButton { border: none; padding: 0px; }"
+                                        "QToolButton:hover {}")));
 
     setClearButtonEnabled(false);
 
@@ -56,8 +53,20 @@ LineEdit::LineEdit(QWidget *parent)
     connect(this, &QLineEdit::textChanged, this, &LineEdit::updateClearButton);
 
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    setStyleSheet(QString("QLineEdit { padding-right: %1px; } ")
-                      .arg(clearButton->sizeHint().width() + frameWidth + 8));
+    setStyleSheet(Theme::replaceCssColors(
+        QString("QLineEdit { padding-right: %1px; border-radius: 4;"
+                "color: creatorTheme.DStextColor;"
+                "border-color: creatorTheme.DScontrolOutline_topToolbarIdle;"
+                "background: creatorTheme.DStoolbarBackground; }"
+                "QLineEdit:hover {"
+                "color: creatorTheme.DStextColor;"
+                "border-color: creatorTheme.DScontrolOutline_topToolbarHover;"
+                "background: creatorTheme.DScontrolBackground_toolbarHover; }"
+                "QLineEdit:focus {"
+                "color: creatorTheme.DStextColor;"
+                "border-color: creatorTheme.DSinteraction;"
+                "background: creatorTheme.DStoolbarBackground; }")
+            .arg(clearButton->sizeHint().width() + frameWidth + 8)));
 
     setFixedHeight(29);
 }
@@ -81,7 +90,7 @@ NavigatorSearchWidget::NavigatorSearchWidget(QWidget *parent)
 {
     auto layout = new QBoxLayout(QBoxLayout::LeftToRight);
     layout->setSpacing(0);
-    layout->setContentsMargins(5, 5, 5, 3);
+    layout->setContentsMargins(10, 6, 10, 6);
     setLayout(layout);
 
     m_textField = new LineEdit;
@@ -91,6 +100,12 @@ NavigatorSearchWidget::NavigatorSearchWidget(QWidget *parent)
     connect(m_textField, &QLineEdit::textChanged, this, &NavigatorSearchWidget::textChanged);
 
     layout->addWidget(m_textField);
+
+    setFixedHeight(Theme::toolbarSize());
+    QPalette pal = QPalette();
+    pal.setColor(QPalette::Window, Theme::getColor(Utils::Theme::DStoolbarBackground));
+    setAutoFillBackground(true);
+    setPalette(pal);
 }
 
 void NavigatorSearchWidget::clear()

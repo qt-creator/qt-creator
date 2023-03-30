@@ -31,18 +31,18 @@ Item {
     }
 
     Component.onCompleted: {
-        spinBox.enabled = backendValue === undefined ? false : !isBlocked(backendValue.name)
+        spinBox.enabled = backendValue ? !isBlocked(backendValue.name) : false
     }
 
     Connections {
         target: modelNodeBackend
         function onSelectionChanged() {
-            spinBox.enabled = backendValue === undefined ? false : !isBlocked(backendValue.name)
+            spinBox.enabled = backendValue ? !isBlocked(backendValue.name) : false
         }
     }
 
     onBackendValueChanged: {
-        spinBox.enabled = backendValue === undefined ? false : !isBlocked(backendValue.name)
+        spinBox.enabled = backendValue ? !isBlocked(backendValue.name) : false
     }
 
     StudioControls.RealSpinBox {

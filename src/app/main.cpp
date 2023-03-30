@@ -425,13 +425,26 @@ QStringList lastSessionArgument()
     return hasProjectExplorer ? QStringList({"-lastsession"}) : QStringList();
 }
 
+// should be in sync with src/plugins/coreplugin/icore.cpp -> FilePath ICore::crashReportsPath()
+// and src\tools\qml2puppet\qml2puppet\qmlpuppet.cpp -> QString crashReportsPath()
+QString crashReportsPath()
+{
+    std::unique_ptr<QSettings> settings(createUserSettings());
+    QFileInfo(settings->fileName()).path() + "/crashpad_reports";
+    if (Utils::HostOsInfo::isMacHost())
+        return QFileInfo(createUserSettings()->fileName()).path() + "/crashpad_reports";
+    else
+        return QCoreApplication::applicationDirPath()
+                + '/' + RELATIVE_LIBEXEC_PATH + "crashpad_reports";
+}
+
 #ifdef ENABLE_CRASHPAD
 bool startCrashpad(const QString &libexecPath, bool crashReportingEnabled)
 {
     using namespace crashpad;
 
     // Cache directory that will store crashpad information and minidumps
-    QString databasePath = QDir::cleanPath(libexecPath + "/crashpad_reports");
+    QString databasePath = QDir::cleanPath(crashReportsPath());
     QString handlerPath = QDir::cleanPath(libexecPath + "/crashpad_handler");
 #ifdef Q_OS_WIN
     handlerPath += ".exe";
@@ -453,6 +466,9 @@ bool startCrashpad(const QString &libexecPath, bool crashReportingEnabled)
     std::map<std::string, std::string> annotations;
     annotations["app-version"] = Core::Constants::IDE_VERSION_DISPLAY;
     annotations["qt-version"] = QT_VERSION_STR;
+#ifdef IDE_REVISION
+    annotations["sha1"] = Core::Constants::IDE_REVISION_STR;
+#endif
 
     // Optional arguments to pass to the handler
     std::vector<std::string> arguments;

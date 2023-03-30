@@ -9,8 +9,10 @@
 #include "designericons.h"
 #include "designermcumanager.h"
 #include "formatoperation.h"
+#include "groupitemaction.h"
 #include "modelnodecontextmenu_helper.h"
 #include "qmldesignerconstants.h"
+#include "qmleditormenu.h"
 #include "rewritingexception.h"
 #include <bindingproperty.h>
 #include <nodehints.h>
@@ -112,12 +114,14 @@ void DesignerActionManager::polishActions() const
     Core::Context qmlDesignerEditor3DContext(Constants::C_QMLEDITOR3D);
     Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
     Core::Context qmlDesignerMaterialBrowserContext(Constants::C_QMLMATERIALBROWSER);
+    Core::Context qmlDesignerAssetsLibraryContext(Constants::C_QMLASSETSLIBRARY);
 
     Core::Context qmlDesignerUIContext;
     qmlDesignerUIContext.add(qmlDesignerFormEditorContext);
     qmlDesignerUIContext.add(qmlDesignerEditor3DContext);
     qmlDesignerUIContext.add(qmlDesignerNavigatorContext);
     qmlDesignerUIContext.add(qmlDesignerMaterialBrowserContext);
+    qmlDesignerUIContext.add(qmlDesignerAssetsLibraryContext);
 
     for (auto *action : actions) {
         if (!action->menuId().isEmpty()) {
@@ -233,7 +237,7 @@ ModelNodePreviewImageOperation DesignerActionManager::modelNodePreviewOperation(
 
 bool DesignerActionManager::externalDragHasSupportedAssets(const QMimeData *mimeData) const
 {
-    if (!mimeData->hasUrls())
+    if (!mimeData->hasUrls() || mimeData->hasFormat(Constants::MIME_TYPE_ASSETS))
         return false;
 
     QSet<QString> filtersSet;
@@ -292,6 +296,11 @@ QIcon DesignerActionManager::contextIcon(int contextId) const
     return m_designerIcons->icon(DesignerIcons::IconId(contextId), DesignerIcons::ContextMenuArea);
 }
 
+void DesignerActionManager::addAddActionCallback(ActionAddedInterface callback)
+{
+    m_callBacks.append(callback);
+}
+
 class VisiblityModelNodeAction : public ModelNodeContextMenuAction
 {
 public:
@@ -304,17 +313,17 @@ public:
 
     void updateContext() override
     {
-        defaultAction()->setSelectionContext(selectionContext());
+        pureAction()->setSelectionContext(selectionContext());
         if (selectionContext().isValid()) {
-            defaultAction()->setEnabled(isEnabled(selectionContext()));
-            defaultAction()->setVisible(isVisible(selectionContext()));
+            action()->setEnabled(isEnabled(selectionContext()));
+            action()->setVisible(isVisible(selectionContext()));
 
-            defaultAction()->setCheckable(true);
+            action()->setCheckable(true);
             QmlItemNode itemNode = QmlItemNode(selectionContext().currentSingleSelectedNode());
             if (itemNode.isValid())
-                defaultAction()->setChecked(itemNode.instanceValue("visible").toBool());
+                action()->setChecked(itemNode.instanceValue("visible").toBool());
             else
-                defaultAction()->setEnabled(false);
+                action()->setEnabled(false);
         }
     }
 };
@@ -330,12 +339,12 @@ public:
     {}
     void updateContext() override
     {
-        defaultAction()->setSelectionContext(selectionContext());
+        pureAction()->setSelectionContext(selectionContext());
         if (selectionContext().isValid()) {
-            defaultAction()->setEnabled(isEnabled(selectionContext()));
-            defaultAction()->setVisible(isVisible(selectionContext()));
+            action()->setEnabled(isEnabled(selectionContext()));
+            action()->setVisible(isVisible(selectionContext()));
 
-            defaultAction()->setCheckable(true);
+            action()->setCheckable(true);
             QmlItemNode itemNode = QmlItemNode(selectionContext().currentSingleSelectedNode());
             if (itemNode.isValid()) {
                 bool flag = false;
@@ -343,9 +352,9 @@ public:
                         || itemNode.propertyAffectedByCurrentState(m_propertyName)) {
                     flag = itemNode.modelValue(m_propertyName).toBool();
                 }
-                defaultAction()->setChecked(flag);
+                action()->setChecked(flag);
             } else {
-                defaultAction()->setEnabled(false);
+                action()->setEnabled(false);
             }
         }
     }
@@ -578,10 +587,15 @@ QList<SlotList> getSlotsLists(const ModelNode &node)
 ModelNode createNewConnection(ModelNode targetNode)
 {
     NodeMetaInfo connectionsMetaInfo = targetNode.view()->model()->qtQuickConnectionsMetaInfo();
-    ModelNode newConnectionNode = targetNode.view()->createModelNode(
-        "QtQuick.Connections", connectionsMetaInfo.majorVersion(), connectionsMetaInfo.minorVersion());
-    if (QmlItemNode::isValidQmlItemNode(targetNode))
+    ModelNode newConnectionNode = targetNode.view()->createModelNode(connectionsMetaInfo.typeName(),
+                                                                     connectionsMetaInfo.majorVersion(),
+                                                                     connectionsMetaInfo.minorVersion());
+    if (QmlItemNode::isValidQmlItemNode(targetNode)) {
         targetNode.nodeAbstractProperty("data").reparentHere(newConnectionNode);
+    } else {
+        targetNode.view()->rootModelNode().defaultNodeAbstractProperty().reparentHere(
+            newConnectionNode);
+    }
 
     newConnectionNode.bindingProperty("target").setExpression(targetNode.id());
 
@@ -648,11 +662,11 @@ public:
 
                     const QString propertyName = QString::fromUtf8(signalHandler.name());
 
-                    QMenu *activeSignalHandlerGroup = new QMenu(propertyName, menu());
+                    QMenu *activeSignalHandlerGroup = new QmlEditorMenu(propertyName, menu());
 
-                    QMenu *editSignalGroup = new QMenu(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                         "Change Signal"),
-                                                       menu());
+                    QMenu *editSignalGroup = new QmlEditorMenu(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                                 "Change Signal"),
+                                                               menu());
 
                     for (const auto &signalStr : signalsList) {
                         if (prependSignal(signalStr).toUtf8() == signalHandler.name())
@@ -679,9 +693,9 @@ public:
                     activeSignalHandlerGroup->addMenu(editSignalGroup);
 
                     if (!slotsLists.isEmpty()) {
-                        QMenu *editSlotGroup = new QMenu(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                           "Change Slot"),
-                                                         menu());
+                        QMenu *editSlotGroup = new QmlEditorMenu(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                                   "Change Slot"),
+                                                                 menu());
 
                         if (slotsLists.size() == 1) {
                             for (const auto &slot : slotsLists.at(0).slotEntries) {
@@ -701,7 +715,7 @@ public:
                             }
                         } else {
                             for (const auto &slotCategory : slotsLists) {
-                                QMenu *slotCategoryMenu = new QMenu(slotCategory.categoryName, menu());
+                                QMenu *slotCategoryMenu = new QmlEditorMenu(slotCategory.categoryName, menu());
                                 for (const auto &slot : slotCategory.slotEntries) {
                                     ActionTemplate *newSlotAction = new ActionTemplate(
                                         (slot.name + "Id").toLatin1(),
@@ -754,12 +768,12 @@ public:
         }
 
         //singular add connection:
-        QMenu *addConnection = new QMenu(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                   "Add Signal Handler")),
-                                         menu());
+        QMenu *addConnection = new QmlEditorMenu(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                           "Add Signal Handler")),
+                                                 menu());
 
         for (const auto &signalStr : signalsList) {
-            QMenu *newSignal = new QMenu(signalStr, addConnection);
+            QMenu *newSignal = new QmlEditorMenu(signalStr, addConnection);
 
             if (!slotsLists.isEmpty()) {
                 if (slotsLists.size() == 1) {
@@ -782,7 +796,7 @@ public:
                     }
                 } else {
                     for (const auto &slotCategory : slotsLists) {
-                        QMenu *slotCategoryMenu = new QMenu(slotCategory.categoryName, menu());
+                        QMenu *slotCategoryMenu = new QmlEditorMenu(slotCategory.categoryName, menu());
                         for (const auto &slot : slotCategory.slotEntries) {
                             ActionTemplate *newSlot = new ActionTemplate(
                                 QString(signalStr + slot.name + "Id").toLatin1(),
@@ -1328,6 +1342,26 @@ bool anchorsMenuEnabled(const SelectionContext &context)
            || singleSelectionItemIsAnchored(context);
 }
 
+static QIcon createResetIcon(const QStringList &basicIconAddresses)
+{
+    using namespace Utils;
+    static const IconMaskAndColor resetMask({":/utils/images/iconoverlay_reset.png",
+                                             Theme::IconsStopToolBarColor});
+    QList<IconMaskAndColor> iconMaskList = transform(basicIconAddresses, [=] (const QString &refAddr) {
+        return IconMaskAndColor(
+                    FilePath::fromString(refAddr),
+                    Theme::IconsBaseColor);
+    });
+
+    QIcon finalIcon = Icon(iconMaskList).icon();
+    iconMaskList.append(resetMask);
+    QIcon finalOn = Icon(iconMaskList).icon();
+    for (const QSize &iSize : finalIcon.availableSizes()) {
+        for (const QIcon::Mode &mode : {QIcon::Normal, QIcon::Disabled, QIcon::Active, QIcon::Selected})
+            finalIcon.addPixmap(finalOn.pixmap(iSize, mode, QIcon::On), mode, QIcon::On);
+    }
+    return finalIcon;
+}
 
 void DesignerActionManager::createDefaultDesignerActions()
 {
@@ -1364,7 +1398,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           Priorities::ArrangeCategory,
                           &selectionNotEmpty));
 
-    addDesignerAction(new SeperatorDesignerAction(arrangeCategory, 10));
+    addDesignerAction(new SeparatorDesignerAction(arrangeCategory, 10));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           toFrontCommandId,
@@ -1379,7 +1413,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeContextMenuAction(
                           raiseCommandId,
                           raiseDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/raise.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          {},
                           arrangeCategory,
                           QKeySequence(),
                           11,
@@ -1389,7 +1423,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeContextMenuAction(
                           lowerCommandId,
                           lowerDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/lower.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          {},
                           arrangeCategory,
                           QKeySequence(),
                           12,
@@ -1406,7 +1440,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &toBack,
                           &lowerAvailable));
 
-    addDesignerAction(new SeperatorDesignerAction(arrangeCategory, 20));
+    addDesignerAction(new SeparatorDesignerAction(arrangeCategory, 20));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           reverseCommandId,
@@ -1424,75 +1458,45 @@ void DesignerActionManager::createDefaultDesignerActions()
                                       Priorities::EditCategory,
                                       &selectionNotEmpty));
 
-    addDesignerAction(new SeperatorDesignerAction(editCategory, 30));
+    addDesignerAction(new SeparatorDesignerAction(editCategory, 30));
 
-    addDesignerAction(
-        new ModelNodeAction(resetPositionCommandId,
-                            resetPositionDisplayName,
-                            Utils::Icon({{":/utils/images/pan.png", Utils::Theme::IconsBaseColor},
-                                         {":/utils/images/iconoverlay_reset.png",
-                                          Utils::Theme::IconsStopToolBarColor}})
-                                .icon(),
-                            resetPositionTooltip,
-                            editCategory,
-                            QKeySequence("Ctrl+d"),
-                            32,
-                            &resetPosition,
-                            &selectionNotEmptyAndHasXorYProperty));
+    addDesignerAction(new ModelNodeAction(
+                          resetPositionCommandId,
+                          resetPositionDisplayName,
+                          createResetIcon({":/utils/images/pan.png"}),
+                          resetPositionTooltip,
+                          editCategory,
+                          QKeySequence("Ctrl+d"),
+                          32,
+                          &resetPosition,
+                          &selectionNotEmptyAndHasXorYProperty));
 
-    const QString fontName = "qtds_propertyIconFont.ttf";
-    const QColor iconColorDefault(Theme::getColor(Theme::IconsBaseColor));
-    const QColor iconColorDisabled(Theme::getColor(Theme::IconsDisabledColor));
-    const QString copyUnicode = Theme::getIconUnicode(Theme::Icon::copyStyle);
-    const QString pasteUnicode = Theme::getIconUnicode(Theme::Icon::pasteStyle);
+    addDesignerAction(new ModelNodeAction(
+                          copyFormatCommandId,
+                          copyFormatDisplayName,
+                          contextIcon(DesignerIcons::CopyIcon),
+                          copyFormatTooltip,
+                          editCategory,
+                          QKeySequence(),
+                          41,
+                          &copyFormat,
+                          &propertiesCopyable));
 
-    const auto copyDefault = Utils::StyleHelper::IconFontHelper(copyUnicode,
-                                                                iconColorDefault,
-                                                                QSize(28, 28),
-                                                                QIcon::Normal);
-    const auto copyDisabled = Utils::StyleHelper::IconFontHelper(copyUnicode,
-                                                                 iconColorDisabled,
-                                                                 QSize(28, 28),
-                                                                 QIcon::Disabled);
-    const QIcon copyIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                   {copyDefault, copyDisabled});
-
-    const auto pasteDefault = Utils::StyleHelper::IconFontHelper(pasteUnicode,
-                                                                 iconColorDefault,
-                                                                 QSize(28, 28),
-                                                                 QIcon::Normal);
-    const auto pasteDisabled = Utils::StyleHelper::IconFontHelper(pasteUnicode,
-                                                                  iconColorDisabled,
-                                                                  QSize(28, 28),
-                                                                  QIcon::Disabled);
-    const QIcon pasteIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                    {pasteDefault, pasteDisabled});
-
-    addDesignerAction(new ModelNodeAction(copyFormatCommandId,
-                                          copyFormatDisplayName,
-                                          copyIcon,
-                                          copyFormatTooltip,
-                                          editCategory,
-                                          QKeySequence(),
-                                          41,
-                                          &copyFormat,
-                                          &propertiesCopyable));
-
-    addDesignerAction(new ModelNodeAction(applyFormatCommandId,
-                                          applyFormatDisplayName,
-                                          pasteIcon,
-                                          applyFormatTooltip,
-                                          editCategory,
-                                          QKeySequence(),
-                                          42,
-                                          &applyFormat,
-                                          &propertiesApplyable));
+    addDesignerAction(new ModelNodeAction(
+                          applyFormatCommandId,
+                          applyFormatDisplayName,
+                          contextIcon(DesignerIcons::PasteIcon),
+                          applyFormatTooltip,
+                          editCategory,
+                          QKeySequence(),
+                          42,
+                          &applyFormat,
+                          &propertiesApplyable));
 
     addDesignerAction(new ModelNodeAction(
                           resetSizeCommandId,
                           resetSizeDisplayName,
-                          Utils::Icon({{":/utils/images/fittoview.png", Utils::Theme::IconsBaseColor},
-                                      {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          createResetIcon({":/utils/images/fittoview.png"}),
                           resetSizeToolTip,
                           editCategory,
                           QKeySequence("shift+s"),
@@ -1500,7 +1504,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &resetSize,
                           &selectionNotEmptyAndHasWidthOrHeightProperty));
 
-    addDesignerAction(new SeperatorDesignerAction(editCategory, 40));
+    addDesignerAction(new SeparatorDesignerAction(editCategory, 40));
 
     addDesignerAction(new VisiblityModelNodeAction(
                           visiblityCommandId,
@@ -1541,12 +1545,13 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &anchorsReset,
                           &singleSelectionItemIsAnchored));
 
-    addDesignerAction(new SeperatorDesignerAction(anchorsCategory, 10));
+    addDesignerAction(new SeparatorDesignerAction(anchorsCategory, 10));
 
     addDesignerAction(new ParentAnchorAction(
                           anchorParentTopAndBottomCommandId,
                           anchorParentTopAndBottomDisplayName,
-                          {},
+                          createResetIcon({":/qmldesigner/images/anchor_top.png",
+                                           ":/qmldesigner/images/anchor_bottom.png"}),
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1556,20 +1561,20 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentLeftAndRightCommandId,
                           anchorParentLeftAndRightDisplayName,
-                          {},
+                          createResetIcon({":/qmldesigner/images/anchor_left.png",
+                                           ":/qmldesigner/images/anchor_right.png"}),
                           {},
                           anchorsCategory,
                           QKeySequence(),
                           12,
                           AnchorLineType(AnchorLineLeft | AnchorLineRight)));
 
-    addDesignerAction(new SeperatorDesignerAction(anchorsCategory, 20));
+    addDesignerAction(new SeparatorDesignerAction(anchorsCategory, 20));
 
     addDesignerAction(new ParentAnchorAction(
                           anchorParentTopCommandId,
                           anchorParentTopDisplayName,
-                          Utils::Icon({{":/qmldesigner/images/anchor_top.png", Utils::Theme::IconsBaseColor},
-                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          createResetIcon({":/qmldesigner/images/anchor_top.png"}),
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1579,8 +1584,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentBottomCommandId,
                           anchorParentBottomDisplayName,
-                          Utils::Icon({{":/qmldesigner/images/anchor_bottom.png", Utils::Theme::IconsBaseColor},
-                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          createResetIcon({":/qmldesigner/images/anchor_bottom.png"}),
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1590,8 +1594,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentLeftCommandId,
                           anchorParentLeftDisplayName,
-                          Utils::Icon({{":/qmldesigner/images/anchor_left.png", Utils::Theme::IconsBaseColor},
-                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          createResetIcon({":/qmldesigner/images/anchor_left.png"}),
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1601,8 +1604,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentRightCommandId,
                           anchorParentRightDisplayName,
-                          Utils::Icon({{":/qmldesigner/images/anchor_right.png", Utils::Theme::IconsBaseColor},
-                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          createResetIcon({":/qmldesigner/images/anchor_right.png"}),
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1631,12 +1633,10 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &selectionEnabled,
                           &selectionEnabled));
 
-    addDesignerAction(new ActionGroup(
-                          groupCategoryDisplayName,
-                          groupCategory,
+    addDesignerAction(new GroupItemAction(
                           contextIcon(DesignerIcons::GroupSelectionIcon),
-                          Priorities::Group,
-                          &studioComponentsAvailableAndSelectionCanBeLayouted));
+                          {},
+                          Priorities::Group));
 
     addDesignerAction(new ActionGroup(
                           flowCategoryDisplayName,
@@ -1659,16 +1659,16 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(effectMenu);
 
     addDesignerAction(new ModelNodeFormEditorAction(
-        createFlowActionAreaCommandId,
-        createFlowActionAreaDisplayName,
-        addIcon.icon(),
-        addFlowActionToolTip,
-        flowCategory,
-        {},
-        1,
-        &createFlowActionArea,
-        &isFlowItem,
-        &flowOptionVisible));
+                          createFlowActionAreaCommandId,
+                          createFlowActionAreaDisplayName,
+                          addIcon.icon(),
+                          addFlowActionToolTip,
+                          flowCategory,
+                          {},
+                          1,
+                          &createFlowActionArea,
+                          &isFlowItem,
+                          &flowOptionVisible));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           setFlowStartCommandId,
@@ -1699,20 +1699,21 @@ void DesignerActionManager::createDefaultDesignerActions()
     addCustomTransitionEffectAction();
 
     addDesignerAction(new ModelNodeContextMenuAction(
-        selectFlowEffectCommandId,
-        selectEffectDisplayName,
-        {},
-        flowCategory,
-        {},
-        2,
-        &selectFlowEffect,
-        &isFlowTransitionItemWithEffect));
+                          selectFlowEffectCommandId,
+                          selectEffectDisplayName,
+                          {},
+                          flowCategory,
+                          {},
+                          2,
+                          &selectFlowEffect,
+                          &isFlowTransitionItemWithEffect));
 
     addDesignerAction(new ActionGroup(
                           stackedContainerCategoryDisplayName,
                           stackedContainerCategory,
-                          {},
+                          addIcon.icon(),
                           Priorities::StackedContainerCategory,
+                          &isStackedContainer,
                           &isStackedContainer));
 
     addDesignerAction(new ModelNodeContextMenuAction(
@@ -1770,7 +1771,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &selectionCanBeLayouted,
                           &selectionCanBeLayouted));
 
-    addDesignerAction(new SeperatorDesignerAction(layoutCategory, 0));
+    addDesignerAction(new SeparatorDesignerAction(layoutCategory, 0));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           removeLayoutCommandId,
@@ -1783,34 +1784,17 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &isLayout,
                           &isLayout));
 
-    addDesignerAction(new ModelNodeContextMenuAction(addToGroupItemCommandId,
-                                                     addToGroupItemDisplayName,
-                                                     {},
-                                                     groupCategory,
-                                                     QKeySequence("Ctrl+Shift+g"),
-                                                     1,
-                                                     &addToGroupItem,
-                                                     &selectionCanBeLayouted));
-
-    addDesignerAction(new ModelNodeContextMenuAction(removeGroupItemCommandId,
-                                                     removeGroupItemDisplayName,
-                                                     {},
-                                                     groupCategory,
-                                                     QKeySequence(),
-                                                     2,
-                                                     &removeGroup,
-                                                     &isGroup));
-
-    addDesignerAction(new ModelNodeFormEditorAction(addItemToStackedContainerCommandId,
-                                                    addItemToStackedContainerDisplayName,
-                                                    addIcon.icon(),
-                                                    addItemToStackedContainerToolTip,
-                                                    stackedContainerCategory,
-                                                    QKeySequence("Ctrl+Shift+a"),
-                                                    1,
-                                                    &addItemToStackedContainer,
-                                                    &isStackedContainer,
-                                                    &isStackedContainer));
+    addDesignerAction(new ModelNodeFormEditorAction(
+                          addItemToStackedContainerCommandId,
+                          addItemToStackedContainerDisplayName,
+                          addIcon.icon(),
+                          addItemToStackedContainerToolTip,
+                          stackedContainerCategory,
+                          QKeySequence("Ctrl+Shift+a"),
+                          1,
+                          &addItemToStackedContainer,
+                          &isStackedContainer,
+                          &isStackedContainer));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           addTabBarToStackedContainerCommandId,
@@ -1850,7 +1834,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           layoutRowLayoutCommandId,
                           layoutRowLayoutDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/row.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/row.png",
+                                        Utils::Theme::IconsBaseColor}}).icon(),
                           layoutRowLayoutToolTip,
                           layoutCategory,
                           QKeySequence("Ctrl+u"),
@@ -1861,7 +1846,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           layoutColumnLayoutCommandId,
                           layoutColumnLayoutDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/column.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/column.png",
+                                        Utils::Theme::IconsBaseColor}}).icon(),
                           layoutColumnLayoutToolTip,
                           layoutCategory,
                           QKeySequence("Ctrl+l"),
@@ -1872,7 +1858,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           layoutGridLayoutCommandId,
                           layoutGridLayoutDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/grid.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/grid.png",
+                                        Utils::Theme::IconsBaseColor}}).icon(),
                           layoutGridLayoutToolTip,
                           layoutCategory,
                           QKeySequence("shift+g"),
@@ -1880,7 +1867,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &layoutGridLayout,
                           &selectionCanBeLayoutedAndQtQuickLayoutPossibleAndNotMCU));
 
-    addDesignerAction(new SeperatorDesignerAction(layoutCategory, 10));
+    addDesignerAction(new SeparatorDesignerAction(layoutCategory, 10));
 
     addDesignerAction(new FillWidthModelNodeAction(
                           layoutFillWidthCommandId,
@@ -1902,12 +1889,12 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelectionAndInQtQuickLayout,
                           &singleSelectionAndInQtQuickLayout));
 
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::ModifySection));
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::PositionSection));
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::EventSection));
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::AdditionsSection));
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::ViewOprionsSection));
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::CustomActionsSection));
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::ModifySection));
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::PositionSection));
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::EventSection));
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::AdditionsSection));
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::ViewOprionsSection));
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::CustomActionsSection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           goIntoComponentCommandId,
@@ -1956,15 +1943,6 @@ void DesignerActionManager::createDefaultDesignerActions()
     }
 
     addDesignerAction(new ModelNodeContextMenuAction(
-                          addSignalHandlerCommandId,
-                          addSignalHandlerDisplayName,
-                          {},
-                          rootCategory, QKeySequence(),
-                          42, &addNewSignalHandler,
-                          &singleSelectedAndUiFile,
-                          &singleSelectedAndUiFile));
-
-    addDesignerAction(new ModelNodeContextMenuAction(
                           makeComponentCommandId,
                           makeComponentDisplayName,
                           contextIcon(DesignerIcons::MakeComponentIcon),
@@ -1986,14 +1964,15 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &modelHasMaterial,
                           &isModel));
 
-    addDesignerAction(new ModelNodeContextMenuAction(mergeTemplateCommandId,
-                                                     mergeTemplateDisplayName,
-                                                     {},
-                                                     rootCategory,
-                                                     {},
-                                                     Priorities::MergeWithTemplate,
-                                                     [&] (const SelectionContext& context) { mergeWithTemplate(context, m_externalDependencies); },
-                                                     &SelectionContextFunctors::always));
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          mergeTemplateCommandId,
+                          mergeTemplateDisplayName,
+                          contextIcon(DesignerIcons::MergeWithTemplateIcon),
+                          rootCategory,
+                          {},
+                          Priorities::MergeWithTemplate,
+                          [&] (const SelectionContext& context) { mergeWithTemplate(context, m_externalDependencies); },
+                          &SelectionContextFunctors::always));
 
     addDesignerAction(new ActionGroup(
                           "",
@@ -2005,15 +1984,15 @@ void DesignerActionManager::createDefaultDesignerActions()
 
     addDesignerAction(new EditListModelAction);
 
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          openSignalDialogCommandId,
-                          openSignalDialogDisplayName,
-                          {},
-                          rootCategory,
-                          QKeySequence(),
-                          Priorities::SignalsDialog,
-                          &openSignalDialog,
-                          &singleSelectionAndHasSlotTrigger));
+    addDesignerAction(new ModelNodeContextMenuAction(openSignalDialogCommandId,
+                                                     openSignalDialogDisplayName,
+                                                     {},
+                                                     rootCategory,
+                                                     QKeySequence(),
+                                                     Priorities::SignalsDialog,
+                                                     &openSignalDialog,
+                                                     &singleSelectionAndHasSlotTrigger,
+                                                     &singleSelectionAndHasSlotTrigger));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           update3DAssetCommandId,
@@ -2102,6 +2081,10 @@ void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
 void DesignerActionManager::addDesignerAction(ActionInterface *newAction)
 {
     m_designerActions.append(QSharedPointer<ActionInterface>(newAction));
+
+    for (auto callback : m_callBacks) {
+        callback(newAction);
+    }
 }
 
 void DesignerActionManager::addCreatorCommand(Core::Command *command, const QByteArray &category, int priority,

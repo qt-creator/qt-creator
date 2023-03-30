@@ -1,156 +1,168 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Templates 2.15 as T
+import QtQuick
+import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
-    id: checkIndicator
+    id: control
 
-    property T.Control myControl
-    property T.Popup myPopup
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
-    property bool hover: checkIndicatorMouseArea.containsMouse && checkIndicator.enabled
-    property bool pressed: checkIndicatorMouseArea.containsPress
+    property T.Control __parentControl
+    property T.Popup __parentPopup
+
+    property bool hover: mouseArea.containsMouse && control.enabled
+    property bool pressed: mouseArea.containsPress
     property bool checked: false
 
-    property bool hasActiveDrag: myControl.hasActiveDrag ?? false
-    property bool hasActiveHoverDrag: myControl.hasActiveHoverDrag ?? false
+    property bool hasActiveDrag: control.__parentControl.hasActiveDrag ?? false
+    property bool hasActiveHoverDrag: control.__parentControl.hasActiveHoverDrag ?? false
 
-    color: StudioTheme.Values.themeControlBackground
+    color: control.style.background.idle
     border.width: 0
 
     Connections {
-        target: myPopup
-        function onClosed() { checkIndicator.checked = false }
-        function onOpened() { checkIndicator.checked = true }
+        target: control.__parentPopup
+        function onClosed() { control.checked = false }
+        function onOpened() { control.checked = true }
     }
 
     MouseArea {
-        id: checkIndicatorMouseArea
+        id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
         onClicked: {
-            if (myControl.activeFocus)
-                myControl.focus = false
+            if (control.__parentControl.activeFocus)
+                control.__parentControl.focus = false
 
-            if (myPopup.opened) {
-                myPopup.close()
+            if (control.__parentPopup.opened) {
+                control.__parentPopup.close()
             } else {
-                myPopup.open()
-                myPopup.forceActiveFocus()
+                control.__parentPopup.open()
+                control.__parentPopup.forceActiveFocus()
             }
         }
     }
 
     T.Label {
-        id: checkIndicatorIcon
+        id: icon
         anchors.fill: parent
-        color: StudioTheme.Values.themeTextColor
+        color: control.style.icon.idle
         text: StudioTheme.Constants.upDownSquare2
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        font.pixelSize: StudioTheme.Values.sliderControlSizeMulti
+        font.pixelSize: control.style.baseIconFontSize
         font.family: StudioTheme.Constants.iconFont.family
     }
 
     states: [
         State {
             name: "default"
-            when: myControl.enabled && checkIndicator.enabled && !myControl.edit
-                  && !checkIndicator.hover && !myControl.hover && !myControl.drag
-                  && !checkIndicator.checked && !checkIndicator.hasActiveDrag
+            when: control.__parentControl.enabled && control.enabled
+                  && !control.__parentControl.edit && !control.hover
+                  && !control.__parentControl.hover && !control.__parentControl.drag
+                  && !control.checked && !control.hasActiveDrag
             PropertyChanges {
-                target: checkIndicator
-                color: StudioTheme.Values.themeControlBackground
+                target: icon
+                color: control.style.icon.idle
+            }
+            PropertyChanges {
+                target: control
+                color: control.style.background.idle
             }
         },
         State {
             name: "dragHover"
-            when: myControl.enabled && checkIndicator.hasActiveHoverDrag
+            when: control.__parentControl.enabled && control.hasActiveHoverDrag
             PropertyChanges {
-                target: checkIndicator
-                color: StudioTheme.Values.themeControlBackgroundInteraction
+                target: control
+                color: control.style.background.interaction
             }
         },
         State {
             name: "globalHover"
-            when: myControl.enabled && checkIndicator.enabled && !myControl.drag
-                  && !checkIndicator.hover && myControl.hover && !myControl.edit
-                  && !checkIndicator.checked
+            when: control.__parentControl.enabled && control.enabled
+                  && !control.__parentControl.drag && !control.hover
+                  && control.__parentControl.hover && !control.__parentControl.edit
+                  && !control.checked
             PropertyChanges {
-                target: checkIndicator
-                color: StudioTheme.Values.themeControlBackgroundGlobalHover
+                target: control
+                color: control.style.background.globalHover
             }
         },
         State {
             name: "hover"
-            when: myControl.enabled && checkIndicator.enabled && !myControl.drag
-                  && checkIndicator.hover && myControl.hover && !checkIndicator.pressed
-                  && !checkIndicator.checked
+            when: control.__parentControl.enabled && control.enabled
+                  && !control.__parentControl.drag && control.hover && control.__parentControl.hover
+                  && !control.pressed && !control.checked
             PropertyChanges {
-                target: checkIndicator
-                color: StudioTheme.Values.themeControlBackgroundHover
+                target: icon
+                color: control.style.icon.hover
+            }
+            PropertyChanges {
+                target: control
+                color: control.style.background.hover
             }
         },
         State {
             name: "check"
-            when: checkIndicator.checked
+            when: control.checked
             PropertyChanges {
-                target: checkIndicatorIcon
-                color: StudioTheme.Values.themeIconColor
+                target: icon
+                color: control.style.icon.interaction
             }
             PropertyChanges {
-                target: checkIndicator
-                color: StudioTheme.Values.themeInteraction
+                target: control
+                color: control.style.interaction
             }
         },
         State {
             name: "edit"
-            when: myControl.edit && !checkIndicator.checked
-                  && !(checkIndicator.hover && myControl.hover)
+            when: control.__parentControl.edit && !control.checked
+                  && !(control.hover && control.__parentControl.hover)
             PropertyChanges {
-                target: checkIndicatorIcon
-                color: StudioTheme.Values.themeTextColor
+                target: icon
+                color: control.style.icon.idle
             }
             PropertyChanges {
-                target: checkIndicator
-                color: StudioTheme.Values.themeControlBackground
+                target: control
+                color: control.style.background.idle
             }
         },
         State {
             name: "press"
-            when: myControl.enabled && checkIndicator.enabled && !myControl.drag
-                  && checkIndicator.pressed
+            when: control.__parentControl.enabled && control.enabled
+                  && !control.__parentControl.drag && control.pressed
             PropertyChanges {
-                target: checkIndicatorIcon
-                color: StudioTheme.Values.themeIconColor
+                target: icon
+                color: control.style.icon.interaction
             }
             PropertyChanges {
-                target: checkIndicator
-                color: StudioTheme.Values.themeInteraction
+                target: control
+                color: control.style.interaction
             }
         },
         State {
             name: "drag"
-            when: (myControl.drag !== undefined && myControl.drag) && !checkIndicator.checked
-                  && !(checkIndicator.hover && myControl.hover)
+            when: (control.__parentControl.drag !== undefined && control.__parentControl.drag)
+                  && !control.checked && !(control.hover && control.__parentControl.hover)
             PropertyChanges {
-                target: checkIndicator
-                color: StudioTheme.Values.themeControlBackgroundInteraction
+                target: control
+                color: control.style.background.idle
             }
         },
         State {
             name: "disable"
-            when: !myControl.enabled
+            when: !control.__parentControl.enabled
             PropertyChanges {
-                target: checkIndicator
-                color: StudioTheme.Values.themeControlBackgroundDisabled
+                target: control
+                color: control.style.background.disabled
             }
             PropertyChanges {
-                target: checkIndicatorIcon
-                color: StudioTheme.Values.themeTextColorDisabled
+                target: icon
+                color: control.style.icon.disabled
             }
         }
     ]

@@ -36,11 +36,12 @@
 #include <utils/qrcparser.h>
 #include <utils/qtcassert.h>
 
-#include <QSet>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QLoggingCategory>
 #include <QRegularExpression>
-#include <QElapsedTimer>
+#include <QScopeGuard>
+#include <QSet>
 
 #include <memory>
 
@@ -428,91 +429,43 @@ public:
     void leaveScope()
     { m_scopeBuilder.pop(); }
 
-    void lookup(AST::UiQualifiedId *astTypeNode, QString &typeName, int &majorVersion,
-                int &minorVersion, QString &defaultPropertyName)
+    NodeMetaInfo lookup(AST::UiQualifiedId *astTypeNode)
     {
-        const ObjectValue *value = m_context->lookupType(m_doc.data(), astTypeNode);
-        defaultPropertyName = m_context->defaultPropertyName(value);
+        TypeName fullTypeName;
+        for (AST::UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
+            if (!iter->name.isEmpty())
+                fullTypeName += iter->name.toUtf8() + '.';
 
-        const CppComponentValue *qmlValue = value_cast<CppComponentValue>(value);
-        if (qmlValue) {
-            typeName = qmlValue->moduleName() + QStringLiteral(".") + qmlValue->className();
+        if (fullTypeName.endsWith('.'))
+            fullTypeName.chop(1);
 
-            majorVersion = qmlValue->componentVersion().majorVersion();
-            minorVersion = qmlValue->componentVersion().minorVersion();
-        } else {
-            for (AST::UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
-                if (!iter->next && !iter->name.isEmpty())
-                    typeName = iter->name.toString();
+        NodeMetaInfo metaInfo = m_model->metaInfo(fullTypeName);
+        return metaInfo;
+    }
 
-            QString fullTypeName;
-            for (AST::UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
-                if (!iter->name.isEmpty())
-                    fullTypeName += iter->name.toString() + QLatin1Char('.');
+    bool lookupProperty(const QString &propertyPrefix,
+                        const ModelNode &node,
+                        const AST::UiQualifiedId *propertyId)
+    {
+        const QString propertyName = propertyPrefix.isEmpty() ? propertyId->name.toString()
+                                                              : propertyPrefix;
 
-            if (fullTypeName.endsWith(QLatin1Char('.')))
-                fullTypeName.chop(1);
+        if (propertyName == QStringLiteral("id") && !propertyId->next)
+            return false; // ### should probably be a special value
 
-            majorVersion = ComponentVersion::NoVersion;
-            minorVersion = ComponentVersion::NoVersion;
-
-            const Imports *imports = m_context->imports(m_doc.data());
-            ImportInfo importInfo = imports->info(fullTypeName, m_context.data());
-            if (importInfo.isValid() && importInfo.type() == ImportType::Library) {
-                QString name = importInfo.name();
-                majorVersion = importInfo.version().majorVersion();
-                minorVersion = importInfo.version().minorVersion();
-                typeName.prepend(name + QLatin1Char('.'));
-            } else if (importInfo.isValid() && importInfo.type() == ImportType::Directory) {
-                const Utils::FilePath path = Utils::FilePath::fromString(importInfo.path());
-                const Utils::FilePath dir = m_doc->path();
-                // should probably try to make it relative to some import path, not to the document path
-                const Utils::FilePath relativePath = path.relativeChildPath(dir);
-                QString name = relativePath.path().replace(QLatin1Char('/'), QLatin1Char('.'));
-                if (!name.isEmpty() && name != QLatin1String("."))
-                    typeName.prepend(name + QLatin1Char('.'));
-            } else if (importInfo.isValid() && importInfo.type() == ImportType::QrcDirectory) {
-                QString path = Utils::QrcParser::normalizedQrcDirectoryPath(importInfo.path());
-                path = path.mid(1, path.size() - ((path.size() > 1) ? 2 : 1));
-                const QString name = path.replace(QLatin1Char('/'), QLatin1Char('.'));
-                if (!name.isEmpty())
-                    typeName.prepend(name + QLatin1Char('.'));
-            }
-        }
-
-        {
-            TypeName fullTypeName;
-            for (AST::UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
-                if (!iter->name.isEmpty())
-                    fullTypeName += iter->name.toUtf8() + '.';
-
-            if (fullTypeName.endsWith('.'))
-                fullTypeName.chop(1);
-
-            NodeMetaInfo metaInfo = m_model->metaInfo(fullTypeName);
-
-            bool ok = metaInfo.typeName() == typeName.toUtf8()
-                && metaInfo.majorVersion() == majorVersion
-                && metaInfo.minorVersion() == minorVersion;
-
-
-            if (!ok) {
-                qDebug() << Q_FUNC_INFO;
-                qDebug() << astTypeNode->name.toString() << typeName;
-                qDebug() << metaInfo.isValid() << metaInfo.typeName();
-            }
-
-            typeName = QString::fromUtf8(metaInfo.typeName());
-            majorVersion = metaInfo.majorVersion();
-            minorVersion = metaInfo.minorVersion();
-        }
+        //compare to lookupProperty(propertyPrefix, propertyId);
+        return node.metaInfo().hasProperty(propertyName.toUtf8());
     }
 
     /// When something is changed here, also change Check::checkScopeObjectMember in
     /// qmljscheck.cpp
     /// ### Maybe put this into the context as a helper function.
-    bool lookupProperty(const QString &prefix, const AST::UiQualifiedId *id, const Value **property = nullptr,
-                        const ObjectValue **parentObject = nullptr, QString *name = nullptr)
+    ///
+    bool lookupProperty(const QString &prefix,
+                        const AST::UiQualifiedId *id,
+                        const Value **property = nullptr,
+                        const ObjectValue **parentObject = nullptr,
+                        QString *name = nullptr)
     {
         QList<const ObjectValue *> scopeObjects = m_scopeChain.qmlScopeObjects();
         if (scopeObjects.isEmpty())
@@ -685,7 +638,11 @@ public:
         return value;
     }
 
-    QVariant convertToEnum(AST::Statement *rhs, const QString &propertyPrefix, AST::UiQualifiedId *propertyId, const QString &astValue)
+    QVariant convertToEnum(AST::Statement *rhs,
+                           const NodeMetaInfo &metaInfo,
+                           const QString &propertyPrefix,
+                           AST::UiQualifiedId *propertyId,
+                           const QString &astValue)
     {
         QStringList astValueList = astValue.split(QStringLiteral("."));
 
@@ -704,42 +661,12 @@ public:
         if (!eStmt || !eStmt->expression)
             return QVariant();
 
-        const ObjectValue *containingObject = nullptr;
-        QString name;
-        if (!lookupProperty(propertyPrefix, propertyId, nullptr, &containingObject, &name))
-            return QVariant();
+        const QString propertyName = propertyPrefix.isEmpty() ? propertyId->name.toString()
+                                                              : propertyPrefix;
 
-        if (containingObject)
-            containingObject->lookupMember(name, m_context, &containingObject);
-        const CppComponentValue * lhsCppComponent = value_cast<CppComponentValue>(containingObject);
-        if (!lhsCppComponent)
-            return QVariant();
-        const QString lhsPropertyTypeName = lhsCppComponent->propertyType(name);
+        const PropertyMetaInfo pInfo = metaInfo.property(propertyName.toUtf8());
 
-        const ObjectValue *rhsValueObject = nullptr;
-        QString rhsValueName;
-        if (auto idExp = AST::cast<AST::IdentifierExpression *>(eStmt->expression)) {
-            if (!m_scopeChain.qmlScopeObjects().isEmpty())
-                rhsValueObject = m_scopeChain.qmlScopeObjects().constLast();
-            if (!idExp->name.isEmpty())
-                rhsValueName = idExp->name.toString();
-        } else if (auto memberExp = AST::cast<AST::FieldMemberExpression *>(eStmt->expression)) {
-            Evaluate evaluate(&m_scopeChain);
-            const Value *result = evaluate(memberExp->base);
-            rhsValueObject = result->asObjectValue();
-
-            if (!memberExp->name.isEmpty())
-                rhsValueName = memberExp->name.toString();
-        }
-
-        if (rhsValueObject)
-            rhsValueObject->lookupMember(rhsValueName, m_context, &rhsValueObject);
-
-        const CppComponentValue *rhsCppComponentValue = value_cast<CppComponentValue>(rhsValueObject);
-        if (!rhsCppComponentValue)
-            return QVariant();
-
-        if (rhsCppComponentValue->getEnum(lhsPropertyTypeName).hasKey(rhsValueName))
+        if (pInfo.isEnumType())
             return QVariant::fromValue(Enumeration(astValue));
         else
             return QVariant();
@@ -1092,6 +1019,9 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
 
 bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
+    QmlJS::ScopeChain::setSkipmakeComponentChain(true);
+    QScopeGuard unSkip([]() { QmlJS::ScopeChain::setSkipmakeComponentChain(false); });
+
     qCInfo(rewriterBenchmark) << Q_FUNC_INFO;
 
     const bool justSanityCheck = !differenceHandler.isAmender();
@@ -1228,22 +1158,20 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     m_rewriterView->positionStorage()->setNodeOffset(modelNode, astObjectType->identifierToken.offset);
 
-    QString typeNameString;
-    QString defaultPropertyNameString;
-    int majorVersion;
-    int minorVersion;
-    context->lookup(astObjectType, typeNameString, majorVersion, minorVersion, defaultPropertyNameString);
+    NodeMetaInfo info = context->lookup(astObjectType);
+    if (!info.isValid()) {
+        qWarning() << "Skipping node with unknown type" << toString(astObjectType) << info.typeName();
+        return;
+    }
 
-    TypeName typeName = typeNameString.toUtf8();
-    PropertyName defaultPropertyName = defaultPropertyNameString.toUtf8();
+    int majorVersion = info.majorVersion();
+    int minorVersion = info.minorVersion();
+
+    TypeName typeName = info.typeName();
+    PropertyName defaultPropertyName = info.defaultPropertyName();
 
     if (defaultPropertyName.isEmpty()) //fallback and use the meta system of the model
         defaultPropertyName = modelNode.metaInfo().defaultPropertyName();
-
-    if (typeName.isEmpty()) {
-        qWarning() << "Skipping node with unknown type" << toString(astObjectType);
-        return;
-    }
 
     if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && isComponentType(typeName)) {
         for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
@@ -1536,7 +1464,11 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
         }
     }
 
-    const QVariant enumValue = context->convertToEnum(script->statement, prefix, script->qualifiedId, astValue);
+    const QVariant enumValue = context->convertToEnum(script->statement,
+                                                      modelNode.metaInfo(),
+                                                      prefix,
+                                                      script->qualifiedId,
+                                                      astValue);
     if (enumValue.isValid()) { // It is a qualified enum:
         AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
         syncVariantProperty(modelProperty, enumValue, TypeName(), differenceHandler); // TODO: parse type
@@ -1583,20 +1515,16 @@ void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
                                          const TypeName &dynamicPropertyType,
                                          DifferenceHandler &differenceHandler)
 {
+    NodeMetaInfo info = context->lookup(binding->qualifiedTypeNameId);
 
-    QString typeNameString;
-    QString dummy;
-    int majorVersion;
-    int minorVersion;
-    context->lookup(binding->qualifiedTypeNameId, typeNameString, majorVersion, minorVersion, dummy);
-
-    TypeName typeName = typeNameString.toUtf8();
-
-
-    if (typeName.isEmpty()) {
-        qWarning() << "Skipping node with unknown type" << toString(binding->qualifiedTypeNameId);
+    if (!info.isValid()) {
+        qWarning() << "SNP"
+                   << "Skipping node with unknown type" << toString(binding->qualifiedTypeNameId);
         return;
     }
+    TypeName typeName = info.typeName();
+    int majorVersion = info.majorVersion();
+    int minorVersion = info.minorVersion();
 
     if (modelProperty.isNodeProperty() && dynamicPropertyType == modelProperty.dynamicTypeName()) {
         ModelNode nodePropertyNode = modelProperty.toNodeProperty().modelNode();
@@ -2114,18 +2042,14 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
     if (!astObjectType || !astInitializer)
         return ModelNode();
 
-    QString typeNameString;
-    QString dummy;
-    int majorVersion;
-    int minorVersion;
-    context->lookup(astObjectType, typeNameString, majorVersion, minorVersion, dummy);
-
-    TypeName typeName = typeNameString.toUtf8();
-
-    if (typeName.isEmpty()) {
+    NodeMetaInfo info = context->lookup(astObjectType);
+    if (!info.isValid()) {
         qWarning() << "Skipping node with unknown type" << toString(astObjectType);
-        return ModelNode();
+        return {};
     }
+    TypeName typeName = info.typeName();
+    int majorVersion = info.majorVersion();
+    int minorVersion = info.minorVersion();
 
     const bool propertyTakesComponent = propertyIsComponentType(modelProperty, typeName, m_merger->view()->model());
 

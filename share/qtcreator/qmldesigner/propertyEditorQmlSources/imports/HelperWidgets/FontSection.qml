@@ -34,7 +34,10 @@ Section {
     onPixelSizeChanged: sizeWidget.setPointPixelSize()
 
     SectionLayout {
-        PropertyLabel { text: qsTr("Font") }
+        PropertyLabel {
+            text: qsTr("Font")
+            tooltip: qsTr("Sets the font of the text.")
+        }
 
         SecondColumnLayout {
             FontComboBox {
@@ -49,7 +52,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Size") }
+        PropertyLabel {
+            text: qsTr("Size")
+            tooltip: qsTr("Sets the font size in pixels or points.")
+        }
 
         SecondColumnLayout {
             id: sizeWidget
@@ -129,6 +135,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Emphasis")
+            tooltip: qsTr("Sets the text to bold, italic, underlined, or strikethrough.")
             blockedByTemplate: !fontSection.boldStyle.isAvailable
                                && !fontSection.italicStyle.isAvailable
                                && !fontSection.underlineStyle.isAvailable
@@ -145,7 +152,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Capitalization")
-            tooltip: qsTr("Capitalization for the text.")
+            tooltip: qsTr("Sets capitalization rules for the text.")
             blockedByTemplate: !getBackendValue("capitalization").isAvailable
         }
 
@@ -165,7 +172,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Weight")
-            tooltip: qsTr("Font's weight.")
+            tooltip: qsTr("Sets the overall thickness of the font.")
             blockedByTemplate: styleNameComboBox.styleSet
         }
 
@@ -185,7 +192,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Style name")
-            tooltip: qsTr("Font's style.")
+            tooltip: qsTr("Sets the style of the selected font. This is prioritized over <b>Weight</b> and <b>Emphasis</b>.")
             blockedByTemplate: !styleNameComboBox.enabled
         }
 
@@ -208,6 +215,7 @@ Section {
         PropertyLabel {
             visible: fontSection.showStyle
             text: qsTr("Style")
+            tooltip: qsTr("Sets the font style.")
             blockedByTemplate: !styleComboBox.enabled
         }
 
@@ -230,6 +238,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Style color")
+            tooltip: qsTr("Sets the color for the font style.")
             visible: fontSection.showStyle && backendValues.styleColor.isAvailable
         }
 
@@ -241,7 +250,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Hinting")
-            tooltip: qsTr("Preferred hinting on the text.")
+            tooltip: qsTr("Sets how to interpolate the text to render it more clearly when scaled.")
             blockedByTemplate: !getBackendValue("hintingPreference").isAvailable
         }
 
@@ -261,7 +270,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Letter spacing")
-            tooltip: qsTr("Letter spacing for the font.")
+            tooltip: qsTr("Sets the letter spacing for the text.")
             blockedByTemplate: !getBackendValue("letterSpacing").isAvailable
         }
 
@@ -282,7 +291,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Word spacing")
-            tooltip: qsTr("Word spacing for the font.")
+            tooltip: qsTr("Sets the word spacing for the text.")
             blockedByTemplate: !getBackendValue("wordSpacing").isAvailable
         }
 
@@ -303,8 +312,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Auto kerning")
-            tooltip: qsTr("Enables or disables the kerning OpenType feature when shaping the text. Disabling this may " +
-                          "improve performance when creating or changing the text, at the expense of some cosmetic features.")
+            tooltip: qsTr("Resolves the gap between texts if turned true.")
             blockedByTemplate: !getBackendValue("kerning").isAvailable
         }
 
@@ -322,9 +330,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Prefer shaping")
-            tooltip: qsTr("Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.\n" +
-                          "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in " +
-                          "Latin script,\n it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features\nwhen they are not required, which will improve performance in most cases.")
+            tooltip: qsTr("Toggles the disables font-specific special features.")
             blockedByTemplate: !getBackendValue("preferShaping").isAvailable
         }
 

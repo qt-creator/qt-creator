@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
 
 import QtQuick
@@ -6,7 +6,9 @@ import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
 Item {
-    id: root
+    id: control
+
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
     enum Interaction { None, TextEdit, Key }
 
@@ -23,7 +25,7 @@ Item {
 
     // This is the actual filter that is applied on the model
     property string filter: ""
-    property bool filterActive: root.filter !== ""
+    property bool filterActive: control.filter !== ""
 
     // Accept arbitrary input or only items from the model
     property bool allowUserInput: false
@@ -40,13 +42,13 @@ Item {
 
     // This property is used to indicate the global hover state
     property bool hover: (actionIndicator.hover || textInput.hover || checkIndicator.hover)
-                         && root.enabled
+                         && control.enabled
     property alias edit: textInput.edit
     property alias open: popup.visible
 
     property alias actionIndicatorVisible: actionIndicator.visible
-    property real __actionIndicatorWidth: StudioTheme.Values.actionIndicatorWidth
-    property real __actionIndicatorHeight: StudioTheme.Values.actionIndicatorHeight
+    property real __actionIndicatorWidth: control.style.actionIndicatorSize.width
+    property real __actionIndicatorHeight: control.style.actionIndicatorSize.height
 
     property bool dirty: false // user modification flag
 
@@ -65,43 +67,43 @@ Item {
     property bool hasActiveDrag: false // an item that can be dropped here is being dragged
     property bool hasActiveHoverDrag: false // an item that can be dropped her is being hovered on top
 
-    width: StudioTheme.Values.defaultControlWidth
-    height: StudioTheme.Values.defaultControlHeight
-    implicitHeight: StudioTheme.Values.defaultControlHeight
+    width: control.style.controlSize.width
+    height: control.style.controlSize.height
+    implicitHeight: control.style.controlSize.width
 
     function selectItem(itemsIndex) {
         textInput.text = sortFilterModel.items.get(itemsIndex).model.name
-        root.currentIndex = itemsIndex
-        root.finishEditing()
-        root.activated(itemsIndex)
+        control.currentIndex = itemsIndex
+        control.finishEditing()
+        control.activated(itemsIndex)
     }
 
     function submitValue() {
-        if (!root.allowUserInput) {
+        if (!control.allowUserInput) {
             // If input isn't according to any item in the model, don't finish editing
-            if (root.highlightedIndex === -1)
+            if (control.highlightedIndex === -1)
                 return
 
-            root.selectItem(root.highlightedIndex)
+            control.selectItem(control.highlightedIndex)
         } else {
-            root.currentIndex = -1
+            control.currentIndex = -1
 
             // Only trigger the signal, if the value was modified
-            if (root.dirty) {
+            if (control.dirty) {
                 myTimer.stop()
-                root.dirty = false
-                root.editText = root.editText.trim()
+                control.dirty = false
+                control.editText = control.editText.trim()
             }
 
-            root.finishEditing()
-            root.accepted()
+            control.finishEditing()
+            control.accepted()
         }
     }
 
     function finishEditing() {
-        root.editing = false
-        root.filter = ""
-        root.autocompleteString = ""
+        control.editing = false
+        control.filter = ""
+        control.autocompleteString = ""
         textInput.focus = false // Remove focus from text field
         popup.close()
     }
@@ -111,16 +113,16 @@ Item {
         if (!numItems)
             return
 
-        if (root.highlightedIndex === -1) // Nothing is selected
-            root.setHighlightedIndexVisible(0)
+        if (control.highlightedIndex === -1) // Nothing is selected
+            control.setHighlightedIndexVisible(0)
         else {
-            let currentVisibleIndex = sortFilterModel.items.get(root.highlightedIndex).visibleIndex
+            let currentVisibleIndex = sortFilterModel.items.get(control.highlightedIndex).visibleIndex
             ++currentVisibleIndex
 
             if (currentVisibleIndex > numItems - 1)
                 currentVisibleIndex = 0
 
-            root.setHighlightedIndexVisible(currentVisibleIndex)
+            control.setHighlightedIndexVisible(currentVisibleIndex)
         }
     }
 
@@ -129,32 +131,32 @@ Item {
         if (!numItems)
             return
 
-        if (root.highlightedIndex === -1) // Nothing is selected
-            root.setHighlightedIndexVisible(numItems - 1)
+        if (control.highlightedIndex === -1) // Nothing is selected
+            control.setHighlightedIndexVisible(numItems - 1)
         else {
-            let currentVisibleIndex = sortFilterModel.items.get(root.highlightedIndex).visibleIndex
+            let currentVisibleIndex = sortFilterModel.items.get(control.highlightedIndex).visibleIndex
             --currentVisibleIndex
 
             if (currentVisibleIndex < 0)
                 currentVisibleIndex = numItems - 1
 
-            root.setHighlightedIndexVisible(currentVisibleIndex)
+            control.setHighlightedIndexVisible(currentVisibleIndex)
         }
     }
 
     function updateHighlightedIndex() {
         // Check if current index is still part of the filtered list, if not set it to 0
-        if (root.highlightedIndex !== -1 && !sortFilterModel.items.get(root.highlightedIndex).inVisible) {
-            root.setHighlightedIndexVisible(0)
+        if (control.highlightedIndex !== -1 && !sortFilterModel.items.get(control.highlightedIndex).inVisible) {
+            control.setHighlightedIndexVisible(0)
         } else {
             // Needs to be set in order for ListView to keep its currenIndex up to date, so
             // scroll position gets updated according to the higlighted item
-            root.setHighlightedIndexItems(root.highlightedIndex)
+            control.setHighlightedIndexItems(control.highlightedIndex)
         }
     }
 
     function setHighlightedIndexItems(itemsIndex) { // items group index
-        root.highlightedIndex = itemsIndex
+        control.highlightedIndex = itemsIndex
 
         if (itemsIndex === -1)
             listView.currentIndex = -1
@@ -164,19 +166,19 @@ Item {
 
     function setHighlightedIndexVisible(visibleIndex) { // visible group index
         if (visibleIndex === -1)
-            root.highlightedIndex = -1
+            control.highlightedIndex = -1
         else
-            root.highlightedIndex = sortFilterModel.visibleGroup.get(visibleIndex).itemsIndex
+            control.highlightedIndex = sortFilterModel.visibleGroup.get(visibleIndex).itemsIndex
 
         listView.currentIndex = visibleIndex
     }
 
     function updateAutocomplete() {
-        if (root.highlightedIndex === -1)
-            root.autocompleteString = ""
+        if (control.highlightedIndex === -1)
+            control.autocompleteString = ""
         else {
-            let suggestion = sortFilterModel.items.get(root.highlightedIndex).model.name
-            root.autocompleteString = suggestion.substring(textInput.text.length)
+            let suggestion = sortFilterModel.items.get(control.highlightedIndex).model.name
+            control.autocompleteString = suggestion.substring(textInput.text.length)
         }
     }
 
@@ -195,8 +197,8 @@ Item {
         repeat: false
         running: false
         interval: 100
-        onTriggered: root.compressedActivated(myTimer.activatedIndex,
-                                              ComboBox.ActivatedReason.Other)
+        onTriggered: control.compressedActivated(myTimer.activatedIndex,
+                                                 ComboBox.ActivatedReason.Other)
     }
 
     onActivated: function(index) {
@@ -205,8 +207,8 @@ Item {
     }
 
     onHighlightedIndexChanged: {
-        if (root.editing || (root.editText === "" && root.allowUserInput))
-            root.updateAutocomplete()
+        if (control.editing || (control.editText === "" && control.allowUserInput))
+            control.updateAutocomplete()
     }
 
     DelegateModel {
@@ -221,14 +223,14 @@ Item {
             width: popup.width - popup.leftPadding - popup.rightPadding
                    - (popupScrollBar.visible ? popupScrollBar.contentItem.implicitWidth + 2
                                              : 0) // TODO Magic number
-            height: StudioTheme.Values.height - 2 * StudioTheme.Values.border
+            height: control.style.controlSize.height - 2 * control.style.borderWidth
             padding: 0
 
             contentItem: Text {
-                leftPadding: StudioTheme.Values.inputHorizontalPadding
+                leftPadding: control.style.inputHorizontalPadding
                 text: name
                 font.italic: true
-                color: StudioTheme.Values.themeTextColor
+                color: control.style.text.idle
                 elide: Text.ElideRight
                 verticalAlignment: Text.AlignVCenter
             }
@@ -247,7 +249,7 @@ Item {
         id: sortFilterModel
 
         filterAcceptsItem: function(item) {
-            return item.name.toLowerCase().startsWith(root.filter.toLowerCase())
+            return item.name.toLowerCase().startsWith(control.filter.toLowerCase())
         }
 
         lessThan: function(left, right) {
@@ -263,17 +265,17 @@ Item {
             width: popup.width - popup.leftPadding - popup.rightPadding
                    - (popupScrollBar.visible ? popupScrollBar.contentItem.implicitWidth + 2
                                              : 0) // TODO Magic number
-            height: StudioTheme.Values.height - 2 * StudioTheme.Values.border
+            height: control.style.controlSize.height - 2 * control.style.borderWidth
             padding: 0
             hoverEnabled: true
-            highlighted: root.highlightedIndex === delegateRoot.DelegateModel.itemsIndex
+            highlighted: control.highlightedIndex === delegateRoot.DelegateModel.itemsIndex
 
             onHoveredChanged: {
                 if (delegateRoot.hovered && !popupMouseArea.active)
-                    root.setHighlightedIndexItems(delegateRoot.DelegateModel.itemsIndex)
+                    control.setHighlightedIndexItems(delegateRoot.DelegateModel.itemsIndex)
             }
 
-            onClicked: root.selectItem(delegateRoot.DelegateModel.itemsIndex)
+            onClicked: control.selectItem(delegateRoot.DelegateModel.itemsIndex)
 
             indicator: Item {
                 id: itemDelegateIconArea
@@ -283,12 +285,12 @@ Item {
                 T.Label {
                     id: itemDelegateIcon
                     text: StudioTheme.Constants.tickIcon
-                    color: delegateRoot.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
-                                                    : StudioTheme.Values.themeTextColor
+                    color: delegateRoot.highlighted ? control.style.text.selectedText
+                                                    : control.style.text.idle
                     font.family: StudioTheme.Constants.iconFont.family
-                    font.pixelSize: StudioTheme.Values.spinControlIconSizeMulti
-                    visible: root.currentIndex === delegateRoot.DelegateModel.itemsIndex ? true
-                                                                                         : false
+                    font.pixelSize: control.style.smallIconFontSize
+                    visible: control.currentIndex === delegateRoot.DelegateModel.itemsIndex ? true
+                                                                                            : false
                     anchors.fill: parent
                     renderType: Text.NativeRendering
                     horizontalAlignment: Text.AlignHCenter
@@ -299,8 +301,8 @@ Item {
             contentItem: Text {
                 leftPadding: itemDelegateIconArea.width
                 text: name
-                color: delegateRoot.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
-                                                : StudioTheme.Values.themeTextColor
+                color: delegateRoot.highlighted ? control.style.text.selectedText
+                                                : control.style.text.idle
                 font: textInput.font
                 elide: Text.ElideRight
                 verticalAlignment: Text.AlignVCenter
@@ -311,20 +313,19 @@ Item {
                 y: 0
                 width: delegateRoot.width
                 height: delegateRoot.height
-                color: delegateRoot.highlighted ? StudioTheme.Values.themeInteraction
-                                                : "transparent"
+                color: delegateRoot.highlighted ? control.style.interaction : "transparent"
             }
         }
 
         onUpdated: {
-            if (!root.__isCompleted)
+            if (!control.__isCompleted)
                 return
 
             if (sortFilterModel.count === 0)
-                root.setHighlightedIndexVisible(-1)
+                control.setHighlightedIndexVisible(-1)
             else {
-                if (root.highlightedIndex === -1 && !root.allowUserInput)
-                    root.setHighlightedIndexVisible(0)
+                if (control.highlightedIndex === -1 && !control.allowUserInput)
+                    control.setHighlightedIndexVisible(0)
             }
         }
     }
@@ -332,11 +333,12 @@ Item {
     Row {
         ActionIndicator {
             id: actionIndicator
-            myControl: root
+            style: control.style
+            __parentControl: control
             x: 0
             y: 0
-            width: actionIndicator.visible ? root.__actionIndicatorWidth : 0
-            height: actionIndicator.visible ? root.__actionIndicatorHeight : 0
+            width: actionIndicator.visible ? control.__actionIndicatorWidth : 0
+            height: actionIndicator.visible ? control.__actionIndicatorHeight : 0
         }
 
         TextInput {
@@ -349,16 +351,16 @@ Item {
             x: 0
             y: 0
             z: 2
-            width: root.width - actionIndicator.width
-            height: root.height
-            leftPadding: StudioTheme.Values.inputHorizontalPadding
-            rightPadding: StudioTheme.Values.inputHorizontalPadding + checkIndicator.width
-                          + StudioTheme.Values.border
+            width: control.width - actionIndicator.width
+            height: control.height
+            leftPadding: control.style.inputHorizontalPadding
+            rightPadding: control.style.inputHorizontalPadding + checkIndicator.width
+                          + control.style.borderWidth
             horizontalAlignment: Qt.AlignLeft
             verticalAlignment: Qt.AlignVCenter
-            color: StudioTheme.Values.themeTextColor
-            selectionColor: StudioTheme.Values.themeTextSelectionColor
-            selectedTextColor: StudioTheme.Values.themeTextSelectedTextColor
+            color: control.style.text.idle
+            selectionColor: control.style.text.selection
+            selectedTextColor: control.style.text.selectedText
             selectByMouse: true
             clip: true
 
@@ -367,9 +369,9 @@ Item {
                 z: -1
                 width: textInput.width
                 height: textInput.height
-                color: StudioTheme.Values.themeControlBackground
-                border.color: StudioTheme.Values.themeControlOutline
-                border.width: StudioTheme.Values.border
+                color: control.style.background.idle
+                border.color: control.style.border.idle
+                border.width: control.style.borderWidth
             }
 
             MouseArea {
@@ -388,20 +390,20 @@ Item {
                 // Stop scrollable views from scrolling while ComboBox is in edit mode and the mouse
                 // pointer is on top of it. We might add wheel selection in the future.
                 onWheel: function(wheel) {
-                    wheel.accepted = root.edit
+                    wheel.accepted = control.edit
                 }
             }
 
             onEditingFinished: {
-                if (root.escapePressed) {
-                    root.escapePressed = false
-                    root.editText = textInput.preFocusText
+                if (control.escapePressed) {
+                    control.escapePressed = false
+                    control.editText = textInput.preFocusText
                 } else {
-                    if (root.currentInteraction === FilterComboBox.Interaction.TextEdit) {
-                        if (root.dirty)
-                            root.submitValue()
-                    } else if (root.currentInteraction === FilterComboBox.Interaction.Key) {
-                        root.selectItem(root.highlightedIndex)
+                    if (control.currentInteraction === FilterComboBox.Interaction.TextEdit) {
+                        if (control.dirty)
+                            control.submitValue()
+                    } else if (control.currentInteraction === FilterComboBox.Interaction.Key) {
+                        control.selectItem(control.highlightedIndex)
                     }
                 }
 
@@ -409,16 +411,16 @@ Item {
             }
 
             onTextEdited: {
-                root.currentInteraction = FilterComboBox.Interaction.TextEdit
-                root.editing = true
+                control.currentInteraction = FilterComboBox.Interaction.TextEdit
+                control.editing = true
                 popupMouseArea.active = true
-                root.dirty = true
+                control.dirty = true
 
                 if (textInput.text !== "")
-                    root.filter = textInput.text
+                    control.filter = textInput.text
                 else {
-                    root.filter = ""
-                    root.autocompleteString = ""
+                    control.filter = ""
+                    control.autocompleteString = ""
                 }
 
                 if (!popup.visible)
@@ -426,12 +428,12 @@ Item {
 
                 sortFilterModel.update()
 
-                if (!root.allowUserInput)
-                    root.updateHighlightedIndex()
+                if (!control.allowUserInput)
+                    control.updateHighlightedIndex()
                 else
-                    root.setHighlightedIndexVisible(-1)
+                    control.setHighlightedIndexVisible(-1)
 
-                root.updateAutocomplete()
+                control.updateAutocomplete()
             }
 
             onActiveFocusChanged: {
@@ -445,12 +447,12 @@ Item {
             states: [
                 State {
                     name: "default"
-                    when: root.enabled && !textInput.edit && !root.hover && !root.open
-                          && !root.hasActiveDrag
+                    when: control.enabled && !textInput.edit && !control.hover && !control.open
+                          && !control.hasActiveDrag
                     PropertyChanges {
                         target: textInputBackground
-                        color: StudioTheme.Values.themeControlBackground
-                        border.color: StudioTheme.Values.themeControlOutline
+                        color: control.style.background.idle
+                        border.color: control.style.border.idle
                     }
                     PropertyChanges {
                         target: textInputMouseArea
@@ -460,44 +462,44 @@ Item {
                 },
                 State {
                     name: "acceptsDrag"
-                    when: root.enabled && root.hasActiveDrag && !root.hasActiveHoverDrag
+                    when: control.enabled && control.hasActiveDrag && !control.hasActiveHoverDrag
                     PropertyChanges {
                         target: textInputBackground
-                        border.color: StudioTheme.Values.themeInteraction
+                        border.color: control.style.interaction
                     }
                 },
                 State {
                     name: "dragHover"
-                    when: root.enabled && root.hasActiveHoverDrag
+                    when: control.enabled && control.hasActiveHoverDrag
                     PropertyChanges {
                         target: textInputBackground
-                        color: StudioTheme.Values.themeControlBackgroundInteraction
-                        border.color: StudioTheme.Values.themeInteraction
+                        color: control.style.background.interaction
+                        border.color: control.style.interaction
                     }
                 },
                 State {
                     name: "globalHover"
-                    when: root.hover && !textInput.hover && !textInput.edit && !root.open
+                    when: control.hover && !textInput.hover && !textInput.edit && !control.open
                     PropertyChanges {
                         target: textInputBackground
-                        color: StudioTheme.Values.themeControlBackgroundGlobalHover
+                        color: control.style.background.globalHover
                     }
                 },
                 State {
                     name: "hover"
-                    when: textInput.hover && root.hover && !textInput.edit
+                    when: textInput.hover && control.hover && !textInput.edit
                     PropertyChanges {
                         target: textInputBackground
-                        color: StudioTheme.Values.themeControlBackgroundHover
+                        color: control.style.background.hover
                     }
                 },
                 State {
                     name: "edit"
-                    when: root.edit
+                    when: control.edit
                     PropertyChanges {
                         target: textInputBackground
-                        color: StudioTheme.Values.themeControlBackgroundInteraction
-                        border.color: StudioTheme.Values.themeControlOutlineInteraction
+                        color: control.style.background.interaction
+                        border.color: control.style.border.interaction
                     }
                     PropertyChanges {
                         target: textInputMouseArea
@@ -507,23 +509,23 @@ Item {
                 },
                 State {
                     name: "disable"
-                    when: !root.enabled
+                    when: !control.enabled
                     PropertyChanges {
                         target: textInputBackground
-                        color: StudioTheme.Values.themeControlBackgroundDisabled
-                        border.color: StudioTheme.Values.themeControlOutlineDisabled
+                        color: control.style.background.disabled
+                        border.color: control.style.border.disabled
                     }
                     PropertyChanges {
                         target: textInput
-                        color: StudioTheme.Values.themeTextColorDisabled
+                        color: control.style.text.disabled
                     }
                 }
             ]
 
             Text {
                 id: tmpSelectionName
-                visible: root.autocompleteString !== "" && root.open
-                text: root.autocompleteString
+                visible: control.autocompleteString !== "" && control.open
+                text: control.autocompleteString
                 x: textInput.leftPadding + textMetrics.advanceWidth
                 y: (textInput.height - Math.ceil(tmpSelectionTextMetrics.height)) / 2
                 color: "gray" // TODO proper color value
@@ -542,7 +544,6 @@ Item {
                 }
             }
 
-
             Rectangle {
                 id: checkIndicator
 
@@ -550,11 +551,11 @@ Item {
                 property bool pressed: checkIndicatorMouseArea.containsPress
                 property bool checked: popup.visible
 
-                x: textInput.width - checkIndicator.width - StudioTheme.Values.border
-                y: StudioTheme.Values.border
-                width: StudioTheme.Values.height - StudioTheme.Values.border
-                height: textInput.height  - (StudioTheme.Values.border * 2)
-                color: StudioTheme.Values.themeControlBackground
+                x: textInput.width - checkIndicator.width - control.style.borderWidth
+                y: control.style.borderWidth
+                width: control.style.squareControlSize.width - control.style.borderWidth
+                height: textInput.height  - (control.style.borderWidth * 2)
+                color: control.style.background.idle
                 border.width: 0
 
                 MouseArea {
@@ -577,51 +578,51 @@ Item {
                 T.Label {
                     id: checkIndicatorIcon
                     anchors.fill: parent
-                    color: StudioTheme.Values.themeTextColor
+                    color: control.style.icon.idle
                     text: StudioTheme.Constants.upDownSquare2
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    font.pixelSize: StudioTheme.Values.sliderControlSizeMulti
+                    font.pixelSize: control.style.baseIconFontSize
                     font.family: StudioTheme.Constants.iconFont.family
                 }
 
                 states: [
                     State {
                         name: "default"
-                        when: root.enabled && checkIndicator.enabled && !root.edit
-                              && !checkIndicator.hover && !root.hover
-                              && !checkIndicator.checked && !root.hasActiveHoverDrag
+                        when: control.enabled && checkIndicator.enabled && !control.edit
+                              && !checkIndicator.hover && !control.hover
+                              && !checkIndicator.checked && !control.hasActiveHoverDrag
                         PropertyChanges {
                             target: checkIndicator
-                            color: StudioTheme.Values.themeControlBackground
+                            color: control.style.background.idle
                         }
                     },
                     State {
                         name: "dragHover"
-                        when: root.enabled && root.hasActiveHoverDrag
+                        when: control.enabled && control.hasActiveHoverDrag
                         PropertyChanges {
                             target: checkIndicator
-                            color: StudioTheme.Values.themeControlBackgroundInteraction
+                            color: control.style.background.interaction
                         }
                     },
                     State {
                         name: "globalHover"
-                        when: root.enabled && checkIndicator.enabled
-                              && !checkIndicator.hover && root.hover && !root.edit
+                        when: control.enabled && checkIndicator.enabled
+                              && !checkIndicator.hover && control.hover && !control.edit
                               && !checkIndicator.checked
                         PropertyChanges {
                             target: checkIndicator
-                            color: StudioTheme.Values.themeControlBackgroundGlobalHover
+                            color: control.style.background.globalHover
                         }
                     },
                     State {
                         name: "hover"
-                        when: root.enabled && checkIndicator.enabled
-                              && checkIndicator.hover && root.hover && !checkIndicator.pressed
+                        when: control.enabled && checkIndicator.enabled
+                              && checkIndicator.hover && control.hover && !checkIndicator.pressed
                               && !checkIndicator.checked
                         PropertyChanges {
                             target: checkIndicator
-                            color: StudioTheme.Values.themeControlBackgroundHover
+                            color: control.style.background.hover
                         }
                     },
                     State {
@@ -629,36 +630,36 @@ Item {
                         when: checkIndicator.checked
                         PropertyChanges {
                             target: checkIndicatorIcon
-                            color: StudioTheme.Values.themeIconColor
+                            color: control.style.icon.idle
                         }
                         PropertyChanges {
                             target: checkIndicator
-                            color: StudioTheme.Values.themeInteraction
+                            color: control.style.interaction
                         }
                     },
                     State {
                         name: "press"
-                        when: root.enabled && checkIndicator.enabled
+                        when: control.enabled && checkIndicator.enabled
                               && checkIndicator.pressed
                         PropertyChanges {
                             target: checkIndicatorIcon
-                            color: StudioTheme.Values.themeIconColor
+                            color: control.style.icon.idle
                         }
                         PropertyChanges {
                             target: checkIndicator
-                            color: StudioTheme.Values.themeInteraction
+                            color: control.style.interaction
                         }
                     },
                     State {
                         name: "disable"
-                        when: !root.enabled
+                        when: !control.enabled
                         PropertyChanges {
                             target: checkIndicator
-                            color: StudioTheme.Values.themeControlBackgroundDisabled
+                            color: control.style.background.disabled
                         }
                         PropertyChanges {
                             target: checkIndicatorIcon
-                            color: StudioTheme.Values.themeTextColorDisabled
+                            color: control.style.icon.disabled
                         }
                     }
                 ]
@@ -668,13 +669,13 @@ Item {
 
     T.Popup {
         id: popup
-        x: textInput.x + StudioTheme.Values.border
+        x: textInput.x + control.style.borderWidth
         y: textInput.height
-        width: textInput.width - (StudioTheme.Values.border * 2)
+        width: textInput.width - (control.style.borderWidth * 2)
         height: Math.min(popup.contentItem.implicitHeight + popup.topPadding + popup.bottomPadding,
-                         root.Window.height - popup.topMargin - popup.bottomMargin,
-                         StudioTheme.Values.maxComboBoxPopupHeight)
-        padding: StudioTheme.Values.border
+                         control.Window.height - popup.topMargin - popup.bottomMargin,
+                         control.style.maxComboBoxPopupHeight)
+        padding: control.style.borderWidth
         margins: 0 // If not defined margin will be -1
         closePolicy: T.Popup.NoAutoClose
 
@@ -700,20 +701,20 @@ Item {
         }
 
         background: Rectangle {
-            color: StudioTheme.Values.themePopupBackground
+            color: control.style.popup.background
             border.width: 0
         }
 
         onOpened: {
             // Reset the highlightedIndex of ListView as binding with condition didn't work
-            if (root.highlightedIndex !== -1)
-                root.setHighlightedIndexItems(root.highlightedIndex)
+            if (control.highlightedIndex !== -1)
+                control.setHighlightedIndexItems(control.highlightedIndex)
         }
 
         onAboutToShow: {
             // Select first item in list
-            if (root.highlightedIndex === -1 && sortFilterModel.count && !root.allowUserInput)
-                root.setHighlightedIndexVisible(0)
+            if (control.highlightedIndex === -1 && sortFilterModel.count && !control.allowUserInput)
+                control.setHighlightedIndexVisible(0)
         }
 
         MouseArea {
@@ -734,8 +735,8 @@ Item {
         if (!sortFilterModel.visibleGroup.count)
             return
 
-        root.currentInteraction = FilterComboBox.Interaction.Key
-        root.increaseVisibleIndex()
+        control.currentInteraction = FilterComboBox.Interaction.Key
+        control.increaseVisibleIndex()
 
         popupMouseArea.active = true
     }
@@ -744,22 +745,21 @@ Item {
         if (!sortFilterModel.visibleGroup.count)
             return
 
-        root.currentInteraction = FilterComboBox.Interaction.Key
-        root.decreaseVisibleIndex()
+        control.currentInteraction = FilterComboBox.Interaction.Key
+        control.decreaseVisibleIndex()
 
         popupMouseArea.active = true
     }
 
     Keys.onEscapePressed: {
-        root.escapePressed = true
-        root.finishEditing()
+        control.escapePressed = true
+        control.finishEditing()
     }
 
     Component.onCompleted: {
-        let index = root.find(root.editText)
-        root.currentIndex = index
-        root.highlightedIndex = index // TODO might not be intended
-
-        root.__isCompleted = true
+        let index = control.find(control.editText)
+        control.currentIndex = index
+        control.highlightedIndex = index // TODO might not be intended
+        control.__isCompleted = true
     }
 }

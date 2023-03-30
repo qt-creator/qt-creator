@@ -1,33 +1,35 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Templates 2.15 as T
+import QtQuick
+import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
-    id: infinityLoopIndicator
+    id: control
 
-    property Item myControl
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+
+    property Item __parentControl
 
     property bool infinite: false
 
     color: "transparent"
     border.color: "transparent"
 
-    implicitWidth: StudioTheme.Values.infinityControlWidth
-    implicitHeight: StudioTheme.Values.infinityControlHeight
+    implicitWidth: control.style.indicatorIconSize.width
+    implicitHeight: control.style.indicatorIconSize.height
 
     z: 10
 
     T.Label {
-        id: infinityLoopIndicatorIcon
+        id: icon
         anchors.fill: parent
         text: StudioTheme.Constants.infinity
         visible: true
-        color: StudioTheme.Values.themeTextColor
+        color: control.style.indicator.idle
         font.family: StudioTheme.Constants.iconFont.family
-        font.pixelSize: StudioTheme.Values.myIconFontSize
+        font.pixelSize: control.style.baseIconFontSize
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
     }
@@ -36,32 +38,32 @@ Rectangle {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
-        onClicked: infinityLoopIndicator.infinite = !infinityLoopIndicator.infinite
+        onClicked: control.infinite = !control.infinite
     }
 
     states: [
         State {
             name: "active"
-            when: infinityLoopIndicator.infinite && !mouseArea.containsMouse
+            when: control.infinite && !mouseArea.containsMouse
             PropertyChanges {
-                target: infinityLoopIndicatorIcon
-                color: StudioTheme.Values.themeInfiniteLoopIndicatorColorInteraction
+                target: icon
+                color: control.style.indicator.interaction
             }
         },
         State {
             name: "default"
             when: !mouseArea.containsMouse
             PropertyChanges {
-                target: infinityLoopIndicatorIcon
-                color: StudioTheme.Values.themeInfiniteLoopIndicatorColor
+                target: icon
+                color: control.style.indicator.idle
             }
         },
         State {
             name: "hover"
             when: mouseArea.containsMouse
             PropertyChanges {
-                target: infinityLoopIndicatorIcon
-                color: StudioTheme.Values.themeInfiniteLoopIndicatorColorHover
+                target: icon
+                color: control.style.indicator.hover
             }
         }
     ]

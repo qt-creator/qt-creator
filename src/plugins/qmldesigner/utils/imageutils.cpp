@@ -3,11 +3,22 @@
 
 #include "imageutils.h"
 
+#include "ktximage.h"
+
 #include <QFile>
 #include <QFileInfo>
 #include <QImageReader>
 
 namespace QmlDesigner {
+
+QString ImageUtils::imageInfo(const QSize &dimensions, qint64 sizeInBytes)
+{
+    return QLatin1String("%1 x %2\n%3")
+            .arg(QString::number(dimensions.width()),
+                 QString::number(dimensions.height()),
+                 QLocale::system().formattedDataSize(
+                     sizeInBytes, 2, QLocale::DataSizeTraditionalFormat));
+}
 
 QString QmlDesigner::ImageUtils::imageInfo(const QString &path)
 {
@@ -17,7 +28,8 @@ QString QmlDesigner::ImageUtils::imageInfo(const QString &path)
 
     int width = 0;
     int height = 0;
-    if (info.suffix() == "hdr") {
+    const QString suffix = info.suffix();
+    if (suffix == "hdr") {
         QFile file(path);
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             return {};
@@ -27,20 +39,20 @@ QString QmlDesigner::ImageUtils::imageInfo(const QString &path)
             if (sscanf(line.constData(), "-Y %d +X %d", &height, &width))
                 break;
         }
+    } else if (suffix == "ktx") {
+        KtxImage ktx(path);
+        width = ktx.dimensions().width();
+        height = ktx.dimensions().height();
     } else {
         QSize size = QImageReader(path).size();
         width = size.width();
         height = size.height();
     }
 
-    if (width == 0 && height == 0)
+    if (width <= 0 || height <= 0)
         return {};
 
-    return QLatin1String("%1 x %2\n%3 (%4)")
-            .arg(QString::number(width),
-                 QString::number(height),
-                 QLocale::system().formattedDataSize(info.size(), 2, QLocale::DataSizeTraditionalFormat),
-                 info.suffix());
+    return imageInfo(QSize(width, height), info.size());
 }
 
 } // namespace QmlDesigner

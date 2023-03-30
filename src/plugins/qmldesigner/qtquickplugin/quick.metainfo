@@ -545,7 +545,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Component"
-            category: "e.Qt Quick - Component"
+            category: "e.Qt Quick - Instancers"
             libraryIcon: ":/qtquickplugin/images/component-icon.png"
             version: "1.0"
 
@@ -565,7 +565,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Component 3D"
-            category: "Qt Quick 3D Component"
+            category: "Instancers"
             libraryIcon: ":/qtquickplugin/images/component-icon.png"
             version: "1.0"
             requiredImport: "QtQuick3D"
@@ -580,7 +580,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Loader"
-            category: "e.Qt Quick - Component"
+            category: "e.Qt Quick - Instancers"
             libraryIcon: ":/qtquickplugin/images/loader-icon.png"
             version: "2.0"
             Property { name: "width"; type: "int"; value: 200; }
@@ -600,7 +600,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Repeater"
-            category: "e.Qt Quick - Component"
+            category: "e.Qt Quick - Instancers"
             libraryIcon: ":/qtquickplugin/images/repeater-icon.png"
             version: "2.0"
             toolTip: qsTr("Creates a number of copies of the same item.")
@@ -687,6 +687,130 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 200; }
             Property { name: "height"; type: "int"; value: 200; }
+        }
+    }
+
+    Type {
+        name: "QtQuick3D.SpatialAudio.AmbientSound"
+        icon: ":/qtquickplugin/images/ambient-sound-16.png"
+
+        Hints {
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeDroppedInView3D: false
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Ambient Sound"
+            category: "Spatial Audio"
+            libraryIcon: ":/qtquickplugin/images/ambient-sound-24.png"
+            version: "6.0"
+            requiredImport: "QtQuick3D.SpatialAudio"
+            toolTip: qsTr("An ambient background sound.")
+        }
+    }
+
+    Type {
+        name: "QtQuick3D.SpatialAudio.AudioEngine"
+        icon: ":/qtquickplugin/images/audio-engine-16.png"
+
+        Hints {
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeDroppedInView3D: false
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Audio Engine"
+            category: "Spatial Audio"
+            libraryIcon: ":/qtquickplugin/images/audio-engine-24.png"
+            version: "6.0"
+            requiredImport: "QtQuick3D.SpatialAudio"
+            toolTip: qsTr("Manages sound objects inside a 3D scene.")
+        }
+    }
+
+    Type {
+        name: "QtQuick3D.SpatialAudio.AudioListener"
+        icon: ":/qtquickplugin/images/audio-listener-16.png"
+
+        Hints {
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeDroppedInView3D: true
+        }
+
+        ItemLibraryEntry {
+            name: "Audio Listener"
+            category: "Spatial Audio"
+            libraryIcon: ":/qtquickplugin/images/audio-listener-24.png"
+            version: "6.0"
+            requiredImport: "QtQuick3D.SpatialAudio"
+            toolTip: qsTr("Sets the position and orientation of listening.")
+        }
+    }
+
+    Type {
+        name: "QtQuick3D.SpatialAudio.AudioRoom"
+        icon: ":/qtquickplugin/images/audio-room-16.png"
+
+        Hints {
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeDroppedInView3D: true
+        }
+
+        ItemLibraryEntry {
+            name: "Audio Room"
+            category: "Spatial Audio"
+            libraryIcon: ":/qtquickplugin/images/audio-room-24.png"
+            version: "6.0"
+            requiredImport: "QtQuick3D.SpatialAudio"
+            toolTip: qsTr("Sets up a room for the spatial audio engine.")
+        }
+    }
+
+    Type {
+        name: "QtQuick3D.SpatialAudio.SpatialSound"
+        icon: ":/qtquickplugin/images/spatial-audio-16.png"
+
+        Hints {
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeDroppedInView3D: true
+        }
+
+        ItemLibraryEntry {
+            name: "Spatial Sound"
+            category: "Spatial Audio"
+            libraryIcon: ":/qtquickplugin/images/spatial-audio-24.png"
+            version: "6.0"
+            requiredImport: "QtQuick3D.SpatialAudio"
+            toolTip: qsTr("A sound object in 3D space.")
+        }
+    }
+
+    Type {
+        name: "QtQuick3D.BakedLightmap"
+        icon: ":/ItemLibrary/images/item-default-icon.png"
+
+        Hints {
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeDroppedInView3D: false
+        }
+
+        ItemLibraryEntry {
+            name: "Baked Lightmap"
+            category: "Components"
+            libraryIcon: ":/ItemLibrary/images/item-default-icon.png"
+            version: "6.5"
+            requiredImport: "QtQuick3D"
+            toolTip: qsTr("An object to specify details about baked lightmap of a model.")
+
+            Property { name: "loadPrefix"; type: "string"; value: "lightmaps"; }
         }
     }
 }

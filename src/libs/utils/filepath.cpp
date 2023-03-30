@@ -1320,13 +1320,13 @@ FilePath FilePath::relativeChildPath(const FilePath &parent) const
 }
 
 /*!
-    Returns the relativePath of FilePath from a given \a anchor.
+    Returns the relative path of FilePath from a given \a anchor.
     Both, FilePath and anchor may be files or directories.
     Example usage:
 
     \code
         FilePath filePath("/foo/b/ar/file.txt");
-        FilePath relativePath = filePath.relativePath("/foo/c");
+        FilePath relativePath = filePath.relativePathFrom("/foo/c");
         qDebug() << relativePath
     \endcode
 

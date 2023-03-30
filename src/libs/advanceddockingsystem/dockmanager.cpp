@@ -599,10 +599,13 @@ namespace ADS
         return d->m_settings->value(Constants::AUTO_RESTORE_WORKSPACE_SETTINGS_KEY).toBool();
     }
 
-    const QString m_dirName = QLatin1String("workspaces");
-    const QString m_fileExt = QLatin1String(".wrk"); // TODO
+    constexpr QStringView m_dirName{u"workspaces"};
+    constexpr QStringView m_fileExt{u".wrk"}; // TODO
 
-    QString DockManager::workspaceFileExtension() const { return m_fileExt; }
+    QStringView DockManager::workspaceFileExtension() const
+    {
+        return m_fileExt;
+    }
 
     QStringList DockManager::workspaces()
     {

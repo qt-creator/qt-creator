@@ -1,17 +1,30 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 pragma Singleton
-import QtQuick 2.15
+import QtQuick
 import QtQuickDesignerTheme 1.0
 
 QtObject {
     id: values
 
     property real baseHeight: 29
+
+    property real topLevelComboWidth: 210
+    property real topLevelComboHeight: 36
+    property real topLevelComboIcon: 20
+
+    property real viewBarComboWidth: 210
+    property real viewBarComboHeight: 29
+    property real viewBarComboIcon: 16
+
+    property real smallFont: 8
+    property real miniIcon: 10
     property real baseFont: 12
     property real mediumFont: 14
     property real bigFont: 16
+
+    property real smallIconFont: 8
     property real baseIconFont: 12
     property real mediumIconFont: 18
     property real bigIconFont: 26
@@ -19,21 +32,27 @@ QtObject {
     property real scaleFactor: 1.0
 
     property real height: Math.round(values.baseHeight * values.scaleFactor)
-    property real baseFontSize: Math.round(values.baseFont * values.scaleFactor)
+
     property real myFontSize: values.baseFontSize // TODO: rename all refs to myFontSize -> baseFontSize then remove myFontSize
+
+    property real smallFontSize: Math.round(values.smallFont * values.scaleFactor)
+    property real baseFontSize: Math.round(values.baseFont * values.scaleFactor)
     property real mediumFontSize: Math.round(values.mediumFont * values.scaleFactor)
     property real bigFontSize: Math.round(values.bigFont * values.scaleFactor)
+
+    property real myIconFontSize: values.baseIconFontSize  // TODO: rename all refs to myIconFontSize -> baseIconFontSize then remove myIconFontSize
+
+    property real smallIconFontSize: Math.round(values.smallIconFont * values.scaleFactor)
     property real baseIconFontSize: Math.round(values.baseIconFont * values.scaleFactor)
-    property real myIconFontSize: values.baseIconFontSize;  // TODO: rename all refs to myIconFontSize -> baseIconFontSize then remove myIconFontSize
     property real mediumIconFontSize: Math.round(values.mediumIconFont * values.scaleFactor)
     property real bigIconFontSize: Math.round(values.bigIconFont * values.scaleFactor)
 
     property real squareComponentWidth: values.height
-    property real smallRectWidth: values.height / 2 * 1.5
+    property real smallRectWidth: values.height * 0.75// / 2 * 1.5
 
     property real inputWidth: values.height * 4
 
-    property real sliderHeight: values.height / 2 * 1.5 // TODO:Have a look at -> sliderAreaHeight: Data.Values.height/2*1.5
+    property real sliderHeight: values.height * 0.75// / 2 * 1.5 // TODO:Have a look at -> sliderAreaHeight: Data.Values.height/2*1.5
 
     property real sliderControlSize: 12
     property real sliderControlSizeMulti: values.sliderControlSize * values.scaleFactor
@@ -43,8 +62,8 @@ QtObject {
     property real spinControlIconSizeMulti: values.spinControlIconSize * values.scaleFactor
 
     property real sliderTrackHeight: values.height / 3
-    property real sliderHandleHeight: values.sliderTrackHeight * 1.8
     property real sliderHandleWidth: values.sliderTrackHeight * 0.5
+    property real sliderHandleHeight: values.sliderTrackHeight * 1.8
     property real sliderFontSize: Math.round(8 * values.scaleFactor)
     property real sliderPadding: Math.round(6 * values.scaleFactor)
     property real sliderMargin: Math.round(3 * values.scaleFactor)
@@ -55,10 +74,10 @@ QtObject {
     property real checkBoxSpacing: Math.round(6 * values.scaleFactor)
 
     property real radioButtonSpacing: values.checkBoxSpacing
-    property real radioButtonWidth: values.height
-    property real radioButtonHeight: values.height
-    property real radioButtonIndicatorWidth: 14
-    property real radioButtonIndicatorHeight: 14
+    //property real radioButtonWidth: values.height
+    //property real radioButtonHeight: values.height
+    property real radioButtonIndicatorWidth: Math.round(14 * values.scaleFactor)
+    property real radioButtonIndicatorHeight: Math.round(14 * values.scaleFactor)
 
     property real switchSpacing: values.checkBoxSpacing
 
@@ -67,6 +86,9 @@ QtObject {
     property real marginTopBottom: 4
     property real border: 1
     property real borderHover: 3
+    property real radius: 0 //adding specific radiuses
+
+    property real smallRadius: 4
 
     property real maxComboBoxPopupHeight: Math.round(300 * values.scaleFactor)
     property real maxTextAreaPopupHeight: Math.round(150 * values.scaleFactor)
@@ -139,13 +161,13 @@ QtObject {
                                             + values.twoControlColumnGap
                                             + values.actionIndicatorWidth
 
-    property real twoControlColumnWidthMin: 3 * values.height - 2 * values.border
+    property real twoControlColumnWidthMin: 3 * values.height - 2 * values.border - 10
     property real twoControlColumnWidthMax: 3 * values.twoControlColumnWidthMin
     property real twoControlColumnWidth: values.twoControlColumnWidthMin
 
     property real controlColumnWithoutControlsWidth: 2 * (values.actionIndicatorWidth
                                                           + values.twoControlColumnGap)
-                                                    + values.linkControlWidth
+                                                    + values.linkControlWidth // there could be an issue here with the new style
 
     property real controlColumnWidth: values.controlColumnWithoutControlsWidth
                                       + 2 * values.twoControlColumnWidth
@@ -197,8 +219,10 @@ QtObject {
     property real colorEditorPopupSpinBoxWidth: 54
 
     // Toolbar
-    property real toolbarHeight: 35
-    property real toolbarSpacing: 8
+    property real toolbarHeight: 41
+    property real doubleToolbarHeight: values.toolbarHeight * 2
+    property real toolbarSpacing: 10
+
 
     // Dialog
     property real dialogPadding: 12
@@ -207,134 +231,184 @@ QtObject {
 
     // Theme Colors
 
-    property bool isLightTheme: themeControlBackground.hsvValue > themeTextColor.hsvValue
+    property bool isLightTheme: values.themeControlBackground.hsvValue > values.themeTextColor.hsvValue
 
-    property string themePanelBackground: Theme.color(Theme.DSpanelBackground)
+    //NEW QtDS 4.0
 
-    property string themeGreenLight: Theme.color(Theme.DSgreenLight)
-    property string themeAmberLight: Theme.color(Theme.DSamberLight)
-    property string themeRedLight: Theme.color(Theme.DSredLight)
+    //Top & View toolbar colors
 
-    property string themeInteraction: Theme.color(Theme.DSinteraction)
-    property string themeError: Theme.color(Theme.DSerrorColor)
-    property string themeWarning: Theme.color(Theme.DSwarningColor)
-    property string themeDisabled: Theme.color(Theme.DSdisabledColor)
+    //backgrounds
+    property color themeControlBackground_toolbarIdle: Theme.color(Theme.DScontrolBackground_toolbarIdle)
+    property color themeControlBackground_toolbarHover: Theme.color(Theme.DScontrolBackground_toolbarHover)
+    property color themeControlBackground_topToolbarHover: Theme.color(Theme.DScontrolBackground_topToolbarHover)
+    property color themeToolbarBackground: Theme.color(Theme.DStoolbarBackground)
 
-    property string themeInteractionHover: Theme.color(Theme.DSinteractionHover)
+    //outlines
+    property color controlOutline_toolbarIdle: Theme.color(Theme.DScontrolOutline_topToolbarIdle)
+    property color controlOutline_toolbarHover: Theme.color(Theme.DScontrolOutline_topToolbarHover)
 
-    property string themeAliasIconChecked: Theme.color(Theme.DSnavigatorAliasIconChecked)
+    //icons
+    property color themeToolbarIcon_blocked: Theme.color(Theme.DStoolbarIcon_blocked)
+
+    //primary buttons
+    property color themePrimaryButton_hoverHighlight: Theme.color(Theme.DSprimaryButton_hoverHighlight)
+
+    //states
+    property color themeStateControlBackgroundColor_hover: Theme.color(Theme.DSstateControlBackgroundColor_hover)
+    property color themeStateBackgroundColor_hover: Theme.color(Theme.DSstateBackgroundColor_hover)
+    property color themeStateControlBackgroundColor_globalHover: Theme.color(Theme.DSstateControlBackgroundColor_globalHover)
+    property color themeThumbnailBackground_baseState: Theme.color(Theme.DSthumbnailBackground_baseState)
+
+    //task bar
+    property color themeStatusbarBackground:Theme.color(Theme.DSstatusbarBackground)
+    property color themecontrolBackground_statusbarIdle:Theme.color(Theme.DScontrolBackground_statusbarIdle)
+    property color themecontrolBackground_statusbarHover:Theme.color(Theme.DSControlBackground_statusbarHover)
+
+    //run project button
+    property color themeIdleGreen: Theme.color(Theme.DSidleGreen)
+    property color themeRunningGreen: Theme.color(Theme.DSrunningGreen)
+
+    //END NEW COLORS QtDS 4.0
+
+    property color themePanelBackground: Theme.color(Theme.DSpanelBackground)
+
+    property color themeGreenLight: Theme.color(Theme.DSgreenLight)
+    property color themeAmberLight: Theme.color(Theme.DSamberLight)
+    property color themeRedLight: Theme.color(Theme.DSredLight)
+
+    property color themeInteraction: Theme.color(Theme.DSinteraction)
+    property color themeError: Theme.color(Theme.DSerrorColor)
+    property color themeWarning: Theme.color(Theme.DSwarningColor)
+    property color themeDisabled: Theme.color(Theme.DSdisabledColor)
+
+    property color themeInteractionHover: Theme.color(Theme.DSinteractionHover)
+
+    property color themeAliasIconChecked: Theme.color(Theme.DSnavigatorAliasIconChecked)
 
     // Control colors
     property color themeControlBackground: Theme.color(Theme.DScontrolBackground)
-    property string themeControlBackgroundInteraction: Theme.color(Theme.DScontrolBackgroundInteraction)
-    property string themeControlBackgroundDisabled: Theme.color(Theme.DScontrolBackgroundDisabled)
-    property string themeControlBackgroundGlobalHover: Theme.color(Theme.DScontrolBackgroundGlobalHover)
-    property string themeControlBackgroundHover: Theme.color(Theme.DScontrolBackgroundHover)
+    property color themeControlBackgroundInteraction: Theme.color(Theme.DScontrolBackgroundInteraction)
+    property color themeControlBackgroundDisabled: Theme.color(Theme.DScontrolBackgroundDisabled)
+    property color themeControlBackgroundGlobalHover: Theme.color(Theme.DScontrolBackgroundGlobalHover)
+    property color themeControlBackgroundHover: Theme.color(Theme.DScontrolBackgroundHover)
 
-    property string themeControlOutline: Theme.color(Theme.DScontrolOutline)
-    property string themeControlOutlineInteraction: Theme.color(Theme.DScontrolOutlineInteraction)
-    property string themeControlOutlineDisabled: Theme.color(Theme.DScontrolOutlineDisabled)
+    property color themeControlOutline: Theme.color(Theme.DScontrolOutline)
+    property color themeControlOutlineInteraction: Theme.color(Theme.DScontrolOutlineInteraction)
+    property color themeControlOutlineDisabled: Theme.color(Theme.DScontrolOutlineDisabled)
 
     // Panels & Panes
-    property string themeBackgroundColorNormal: Theme.color(Theme.DSBackgroundColorNormal)
-    property string themeBackgroundColorAlternate: Theme.color(Theme.DSBackgroundColorAlternate)
+    property color themeBackgroundColorNormal: Theme.color(Theme.DSBackgroundColorNormal)
+    property color themeBackgroundColorAlternate: Theme.color(Theme.DSBackgroundColorAlternate)
 
     // Text colors
     property color themeTextColor: Theme.color(Theme.DStextColor)
-    property string themeTextColorDisabled: Theme.color(Theme.DStextColorDisabled)
-    property string themeTextSelectionColor: Theme.color(Theme.DStextSelectionColor)
-    property string themeTextSelectedTextColor: Theme.color(Theme.DStextSelectedTextColor)
-    property string themeTextColorDisabledMCU: Theme.color(Theme.DStextColorDisabled)
+    property color themeTextColorDisabled: Theme.color(Theme.DStextColorDisabled)
+    property color themeTextSelectionColor: Theme.color(Theme.DStextSelectionColor)
+    property color themeTextSelectedTextColor: Theme.color(Theme.DStextSelectedTextColor)
+    property color themeTextColorDisabledMCU: Theme.color(Theme.DStextColorDisabled)
 
-    property string themePlaceholderTextColor: Theme.color(Theme.DSplaceholderTextColor)
-    property string themePlaceholderTextColorInteraction: Theme.color(Theme.DSplaceholderTextColorInteraction)
+    property color themePlaceholderTextColor: Theme.color(Theme.DSplaceholderTextColor)
+    property color themePlaceholderTextColorInteraction: Theme.color(Theme.DSplaceholderTextColorInteraction)
 
     // Icon colors
-    property string themeIconColor: Theme.color(Theme.DSiconColor)
-    property string themeIconColorHover: Theme.color(Theme.DSiconColorHover)
-    property string themeIconColorInteraction: Theme.color(Theme.DSiconColorInteraction)
-    property string themeIconColorDisabled: Theme.color(Theme.DSiconColorDisabled)
-    property string themeIconColorSelected: Theme.color(Theme.DSiconColorSelected)
+    property color themeIconColor: Theme.color(Theme.DSiconColor)
+    property color themeIconColorHover: Theme.color(Theme.DSiconColorHover)
+    property color themeIconColorInteraction: Theme.color(Theme.DSiconColorInteraction)
+    property color themeIconColorDisabled: Theme.color(Theme.DSiconColorDisabled)
+    property color themeIconColorSelected: Theme.color(Theme.DSiconColorSelected)
 
-    property string themeLinkIndicatorColor: Theme.color(Theme.DSlinkIndicatorColor)
-    property string themeLinkIndicatorColorHover: Theme.color(Theme.DSlinkIndicatorColorHover)
-    property string themeLinkIndicatorColorInteraction: Theme.color(Theme.DSlinkIndicatorColorInteraction)
-    property string themeLinkIndicatorColorDisabled: Theme.color(Theme.DSlinkIndicatorColorDisabled)
+    property color themeLinkIndicatorColor: Theme.color(Theme.DSlinkIndicatorColor)
+    property color themeLinkIndicatorColorHover: Theme.color(Theme.DSlinkIndicatorColorHover)
+    property color themeLinkIndicatorColorInteraction: Theme.color(Theme.DSlinkIndicatorColorInteraction)
+    property color themeLinkIndicatorColorDisabled: Theme.color(Theme.DSlinkIndicatorColorDisabled)
 
-    property string themeInfiniteLoopIndicatorColor: Theme.color(Theme.DSlinkIndicatorColor)
-    property string themeInfiniteLoopIndicatorColorHover: Theme.color(Theme.DSlinkIndicatorColorHover)
-    property string themeInfiniteLoopIndicatorColorInteraction: Theme.color(Theme.DSlinkIndicatorColorInteraction)
+    property color themeInfiniteLoopIndicatorColor: Theme.color(Theme.DSlinkIndicatorColor)
+    property color themeInfiniteLoopIndicatorColorHover: Theme.color(Theme.DSlinkIndicatorColorHover)
+    property color themeInfiniteLoopIndicatorColorInteraction: Theme.color(Theme.DSlinkIndicatorColorInteraction)
 
     // Popup background color (ComboBox, SpinBox, TextArea)
-    property string themePopupBackground: Theme.color(Theme.DSpopupBackground)
-    // GradientPopupDialog modal overly color
-    property string themePopupOverlayColor: Theme.color(Theme.DSpopupOverlayColor)
+    property color themePopupBackground: Theme.color(Theme.DSpopupBackground)
+    // GradientPopupDialog modal overlay color
+    property color themePopupOverlayColor: Theme.color(Theme.DSpopupOverlayColor)
 
     // ToolTip (UrlChooser)
-    property string themeToolTipBackground: Theme.color(Theme.DStoolTipBackground)
-    property string themeToolTipOutline: Theme.color(Theme.DStoolTipOutline)
-    property string themeToolTipText: Theme.color(Theme.DStoolTipText)
+    property color themeToolTipBackground: Theme.color(Theme.DStoolTipBackground)
+    property color themeToolTipOutline: Theme.color(Theme.DStoolTipOutline)
+    property color themeToolTipText: Theme.color(Theme.DStoolTipText)
 
     // Slider colors
-    property string themeSliderActiveTrack: Theme.color(Theme.DSsliderActiveTrack)
-    property string themeSliderActiveTrackHover: Theme.color(Theme.DSsliderActiveTrackHover)
-    property string themeSliderActiveTrackFocus: Theme.color(Theme.DSsliderActiveTrackFocus)
-    property string themeSliderInactiveTrack: Theme.color(Theme.DSsliderInactiveTrack)
-    property string themeSliderInactiveTrackHover: Theme.color(Theme.DSsliderInactiveTrackHover)
-    property string themeSliderInactiveTrackFocus: Theme.color(Theme.DSsliderInactiveTrackFocus)
-    property string themeSliderHandle: Theme.color(Theme.DSsliderHandle)
-    property string themeSliderHandleHover: Theme.color(Theme.DSsliderHandleHover)
-    property string themeSliderHandleFocus: Theme.color(Theme.DSsliderHandleFocus)
-    property string themeSliderHandleInteraction: Theme.color(Theme.DSsliderHandleInteraction)
+    property color themeSliderActiveTrack: Theme.color(Theme.DSsliderActiveTrack)
+    property color themeSliderActiveTrackHover: Theme.color(Theme.DSsliderActiveTrackHover)
+    property color themeSliderActiveTrackFocus: Theme.color(Theme.DSsliderActiveTrackFocus)
+    property color themeSliderInactiveTrack: Theme.color(Theme.DSsliderInactiveTrack)
+    property color themeSliderInactiveTrackHover: Theme.color(Theme.DSsliderInactiveTrackHover)
+    property color themeSliderInactiveTrackFocus: Theme.color(Theme.DSsliderInactiveTrackFocus)
+    property color themeSliderHandle: Theme.color(Theme.DSsliderHandle)
+    property color themeSliderHandleHover: Theme.color(Theme.DSsliderHandleHover)
+    property color themeSliderHandleFocus: Theme.color(Theme.DSsliderHandleFocus)
+    property color themeSliderHandleInteraction: Theme.color(Theme.DSsliderHandleInteraction)
 
-    property string themeScrollBarTrack: Theme.color(Theme.DSscrollBarTrack)
-    property string themeScrollBarHandle: Theme.color(Theme.DSscrollBarHandle)
+    property color themeScrollBarTrack: Theme.color(Theme.DSscrollBarTrack)
+    property color themeScrollBarHandle: Theme.color(Theme.DSscrollBarHandle)
 
-    property string themeSectionHeadBackground: Theme.color(Theme.DSsectionHeadBackground)
+    property color themeSectionHeadBackground: Theme.color(Theme.DSsectionHeadBackground)
 
-    property string themeTabActiveBackground: Theme.color(Theme.DStabActiveBackground)
-    property string themeTabActiveText: Theme.color(Theme.DStabActiveText)
-    property string themeTabInactiveBackground: Theme.color(Theme.DStabInactiveBackground)
-    property string themeTabInactiveText: Theme.color(Theme.DStabInactiveText)
+    property color themeTabActiveBackground: Theme.color(Theme.DStabActiveBackground)
+    property color themeTabActiveText: Theme.color(Theme.DStabActiveText)
+    property color themeTabInactiveBackground: Theme.color(Theme.DStabInactiveBackground)
+    property color themeTabInactiveText: Theme.color(Theme.DStabInactiveText)
+
 
     // State Editor
-    property string themeStateSeparator: Theme.color(Theme.DSstateSeparatorColor)
-    property string themeStateBackground: Theme.color(Theme.DSstateBackgroundColor)
-    property string themeStatePreviewOutline: Theme.color(Theme.DSstatePreviewOutline)
+    property color themeStateSeparator: Theme.color(Theme.DSstateSeparatorColor)
+    property color themeStateBackground: Theme.color(Theme.DSstateBackgroundColor)
+    property color themeStatePreviewOutline: Theme.color(Theme.DSstatePreviewOutline)
 
     // State Editor *new*
     property color themeStatePanelBackground: Theme.color(Theme.DSstatePanelBackground)
     property color themeStateHighlight: Theme.color(Theme.DSstateHighlight)
 
-    property string themeUnimportedModuleColor: Theme.color(Theme.DSUnimportedModuleColor)
+    property color themeUnimportedModuleColor: Theme.color(Theme.DSUnimportedModuleColor)
 
     // Taken out of Constants.js
-    property string themeChangedStateText: Theme.color(Theme.DSchangedStateText)
+    property color themeChangedStateText: Theme.color(Theme.DSchangedStateText)
 
     // 3D
-    property string theme3DAxisXColor: Theme.color(Theme.DS3DAxisXColor)
-    property string theme3DAxisYColor: Theme.color(Theme.DS3DAxisYColor)
-    property string theme3DAxisZColor: Theme.color(Theme.DS3DAxisZColor)
+    property color theme3DAxisXColor: Theme.color(Theme.DS3DAxisXColor)
+    property color theme3DAxisYColor: Theme.color(Theme.DS3DAxisYColor)
+    property color theme3DAxisZColor: Theme.color(Theme.DS3DAxisZColor)
 
-    property string themeActionBinding: Theme.color(Theme.DSactionBinding)
-    property string themeActionAlias: Theme.color(Theme.DSactionAlias)
-    property string themeActionKeyframe: Theme.color(Theme.DSactionKeyframe)
-    property string themeActionJIT: Theme.color(Theme.DSactionJIT)
+    property color themeActionBinding: Theme.color(Theme.DSactionBinding)
+    property color themeActionAlias: Theme.color(Theme.DSactionAlias)
+    property color themeActionKeyframe: Theme.color(Theme.DSactionKeyframe)
+    property color themeActionJIT: Theme.color(Theme.DSactionJIT)
 
-    property string themeListItemBackground: Theme.color(Theme.DSnavigatorItemBackground)
-    property string themeListItemBackgroundHover: Theme.color(Theme.DSnavigatorItemBackgroundHover)
-    property string themeListItemBackgroundPress: Theme.color(Theme.DSnavigatorItemBackgroundSelected)
-    property string themeListItemText: Theme.color(Theme.DSnavigatorText)
-    property string themeListItemTextHover: Theme.color(Theme.DSnavigatorTextHover)
-    property string themeListItemTextPress: Theme.color(Theme.DSnavigatorTextSelected)
+    property color themeListItemBackground: Theme.color(Theme.DSnavigatorItemBackground)
+    property color themeListItemBackgroundHover: Theme.color(Theme.DSnavigatorItemBackgroundHover)
+    property color themeListItemBackgroundPress: Theme.color(Theme.DSnavigatorItemBackgroundSelected)
+    property color themeListItemText: Theme.color(Theme.DSnavigatorText)
+    property color themeListItemTextHover: Theme.color(Theme.DSnavigatorTextHover)
+    property color themeListItemTextPress: Theme.color(Theme.DSnavigatorTextSelected)
 
     // Welcome Page
-    property string welcomeScreenBackground: Theme.color(Theme.DSwelcomeScreenBackground)
-    property string themeSubPanelBackground: Theme.color(Theme.DSsubPanelBackground)
-    property string themeThumbnailBackground: Theme.color(Theme.DSthumbnailBackground)
-    property string themeThumbnailLabelBackground: Theme.color(Theme.DSthumbnailLabelBackground)
+    property color welcomeScreenBackground: Theme.color(Theme.DSwelcomeScreenBackground)
+    property color themeSubPanelBackground: Theme.color(Theme.DSsubPanelBackground)
+    property color themeThumbnailBackground: Theme.color(Theme.DSthumbnailBackground)
+    property color themeThumbnailLabelBackground: Theme.color(Theme.DSthumbnailLabelBackground)
 
     // Dialog
     property color themeDialogBackground: values.themeThumbnailBackground
     property color themeDialogOutline: values.themeInteraction
+
+    // Control Style Mapping
+    property ControlStyle controlStyle: DefaultStyle {}
+    property ControlStyle toolbarStyle: ToolbarStyle {}
+    property ControlStyle primaryToolbarStyle: PrimaryButtonStyle {}
+    property ControlStyle toolbarButtonStyle: TopToolbarButtonStyle {}
+    property ControlStyle viewBarButtonStyle: ViewBarButtonStyle {}
+    property ControlStyle viewBarControlStyle: ViewBarControlStyle {}
+    property ControlStyle statusbarButtonStyle: StatusBarButtonStyle {}
+    property ControlStyle statusbarControlStyle: StatusBarControlStyle {}
+    property ControlStyle statesControlStyle: StatesControlStyle {}
+    property ControlStyle searchControlStyle: SearchControlStyle {}
 }

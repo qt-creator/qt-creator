@@ -44,8 +44,14 @@ public:
 
     const QList<StyleWidgetEntry> styleItems() const;
 
+    static QList<StyleWidgetEntry> getAllStyleItems();
+
+    static void changeCurrentStyle(const QString &style, const QString &qmlFileName);
+
+    static int getCurrentStyle(const QString &fileName);
+
 public slots:
-    void changeStyle(const QString &style);
+    void handleStyleChanged(const QString &style);
 
 protected:
     QWidget *createWidget(QWidget *parent) override;

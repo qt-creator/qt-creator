@@ -853,9 +853,14 @@ void QuickItemNodeInstance::setPropertyVariant(const PropertyName &name, const Q
 void QuickItemNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     static QList<PropertyName> anchorsTargets = {"anchors.top",
-                                                 "acnhors.bottom",
+                                                 "anchors.bottom",
                                                  "anchors.left",
-                                                 "achors.right"};
+                                                 "anchors.right",
+                                                 "anchors.horizontalCenter",
+                                                 "anchors.verticalCenter",
+                                                 "anchors.fill",
+                                                 "anchors.centerIn",
+                                                 "anchors.baseline"};
     if (ignoredProperties().contains(name))
         return;
 

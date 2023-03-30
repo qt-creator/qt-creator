@@ -9,20 +9,11 @@ QtObject {
 
     property variant backendValue
     property color textColor: StudioTheme.Values.themeTextColor
-    property variant valueFromBackend: root.backendValue === undefined ? 0 : root.backendValue.value
+    property variant valueFromBackend: root.backendValue?.value ?? 0
     property bool baseStateFlag: isBaseState
-    property bool isInModel: {
-        if (root.backendValue !== undefined && root.backendValue.isInModel !== undefined)
-            return root.backendValue.isInModel
+    property bool isInModel: root.backendValue?.isInModel ?? false
+    property bool isInSubState: root.backendValue?.isInSubState ?? false
 
-        return false
-    }
-    property bool isInSubState: {
-        if (root.backendValue !== undefined && root.backendValue.isInSubState !== undefined)
-            return root.backendValue.isInSubState
-
-        return false
-    }
     property bool highlight: root.textColor === root.__changedTextColor
     property bool errorState: false
 
@@ -38,7 +29,7 @@ QtObject {
     onErrorStateChanged: root.evaluate()
 
     function evaluate() {
-        if (root.backendValue === undefined)
+        if (!root.backendValue)
             return
 
         if (root.errorState) {
@@ -47,15 +38,11 @@ QtObject {
         }
 
         if (root.baseStateFlag) {
-            if (root.backendValue.isInModel)
-                root.textColor = root.__changedTextColor
-            else
-                root.textColor = root.__defaultTextColor
+            root.textColor = root.backendValue.isInModel ? root.__changedTextColor
+                                                         : root.__defaultTextColor
         } else {
-            if (root.backendValue.isInSubState)
-                root.textColor = StudioTheme.Values.themeChangedStateText
-            else
-                root.textColor = root.__defaultTextColor
+            root.textColor = root.backendValue.isInSubState ? StudioTheme.Values.themeChangedStateText
+                                                            : root.__defaultTextColor
         }
     }
 }

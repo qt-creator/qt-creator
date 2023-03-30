@@ -20,8 +20,6 @@ namespace Ui { class ConnectionViewWidget; }
 class ActionEditor;
 class BindingEditor;
 
-namespace Internal {
-
 class BindingModel;
 class ConnectionModel;
 class DynamicPropertiesModel;
@@ -92,7 +90,5 @@ private:
     QModelIndex m_bindingIndex;
     QModelIndex m_dynamicIndex;
 };
-
-} // namespace Internal
 
 } // namespace QmlDesigner

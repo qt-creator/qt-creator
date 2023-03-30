@@ -150,7 +150,6 @@ add_qtc_plugin(Core
     sidebar.cpp sidebar.h
     sidebarwidget.cpp sidebarwidget.h
     statusbarmanager.cpp statusbarmanager.h
-    styleanimator.cpp styleanimator.h
     systemsettings.cpp systemsettings.h
     textdocument.cpp textdocument.h
     themechooser.cpp themechooser.h

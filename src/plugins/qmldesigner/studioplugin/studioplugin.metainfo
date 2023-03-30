@@ -27,6 +27,7 @@ MetaInfo {
         "QtQuick.Controls.Universal",
         "QtQuick.Controls.Material",
         "QtQuick.Controls.NativeStyle",
+        "QtQuick.Controls.Windows",
         "QtQuick.NativeStyle",
         "QtRemoteObjects",
         "Qt5Compat.GraphicalEffects",

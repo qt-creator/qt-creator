@@ -10,7 +10,11 @@ namespace QmlDesigner {
 Asset::Asset(const QString &filePath)
     : m_filePath(filePath)
 {
-    m_suffix = "*." + filePath.split('.').last().toLower();
+    const QStringList split = filePath.split('.');
+    if (split.size() > 1)
+        m_suffix = "*." + split.last().toLower();
+
+    resolveType();
 }
 
 
@@ -28,6 +32,12 @@ const QStringList &Asset::supportedImageSuffixes()
 const QStringList &Asset::supportedFragmentShaderSuffixes()
 {
     static const QStringList retList {"*.frag", "*.glsl", "*.glslf", "*.fsh"};
+    return retList;
+}
+
+const QStringList &Asset::supportedVertexShaderSuffixes()
+{
+    static const QStringList retList {"*.vert", "*.glsl", "*.glslv", "*.vsh"};
     return retList;
 }
 
@@ -90,68 +100,54 @@ const QSet<QString> &Asset::supportedSuffixes()
     return allSuffixes;
 }
 
+bool Asset::isSupported(const QString &path)
+{
+    return supportedSuffixes().contains(path);
+}
+
 Asset::Type Asset::type() const
 {
-    if (supportedImageSuffixes().contains(m_suffix))
-        return Asset::Type::Image;
-
-    if (supportedFragmentShaderSuffixes().contains(m_suffix))
-        return Asset::Type::FragmentShader;
-
-    if (supportedShaderSuffixes().contains(m_suffix))
-        return Asset::Type::Shader;
-
-    if (supportedFontSuffixes().contains(m_suffix))
-        return Asset::Type::Font;
-
-    if (supportedAudioSuffixes().contains(m_suffix))
-        return Asset::Type::Audio;
-
-    if (supportedVideoSuffixes().contains(m_suffix))
-        return Asset::Type::Video;
-
-    if (supportedTexture3DSuffixes().contains(m_suffix))
-        return Asset::Type::Texture3D;
-
-    if (supportedEffectMakerSuffixes().contains(m_suffix))
-        return Asset::Type::Effect;
-
-    return Asset::Type::Unknown;
+    return m_type;
 }
 
 bool Asset::isImage() const
 {
-    return type() == Asset::Type::Image;
+    return m_type == Asset::Type::Image;
 }
 
 bool Asset::isFragmentShader() const
 {
-    return type() == Asset::Type::FragmentShader;
+    return m_type == Asset::Type::FragmentShader;
+}
+
+bool Asset::isVertexShader() const
+{
+    return m_type == Asset::Type::VertexShader;
 }
 
 bool Asset::isShader() const
 {
-    return type() == Asset::Type::Shader;
+    return isFragmentShader() || isVertexShader();
 }
 
 bool Asset::isFont() const
 {
-    return type() == Asset::Type::Font;
+    return m_type == Asset::Type::Font;
 }
 
 bool Asset::isAudio() const
 {
-    return type() == Asset::Type::Audio;
+    return m_type == Asset::Type::Audio;
 }
 
 bool Asset::isVideo() const
 {
-    return type() == Asset::Type::Video;
+    return m_type == Asset::Type::Video;
 }
 
 bool Asset::isTexture3D() const
 {
-    return type() == Asset::Type::Texture3D;
+    return m_type == Asset::Type::Texture3D;
 }
 
 bool Asset::isHdrFile() const
@@ -159,9 +155,14 @@ bool Asset::isHdrFile() const
     return m_suffix == "*.hdr";
 }
 
+bool Asset::isKtxFile() const
+{
+    return m_suffix == "*.ktx";
+}
+
 bool Asset::isEffect() const
 {
-    return type() == Asset::Type::Effect;
+    return m_type == Asset::Type::Effect;
 }
 
 const QString Asset::suffix() const
@@ -176,7 +177,35 @@ const QString Asset::id() const
 
 bool Asset::isSupported() const
 {
-    return supportedSuffixes().contains(m_filePath);
+    return m_type != Asset::Type::Unknown;
+}
+
+bool Asset::isValidTextureSource()
+{
+    return isImage() || isTexture3D();
+}
+
+void Asset::resolveType()
+{
+    if (m_suffix.isEmpty())
+        return;
+
+    if (supportedImageSuffixes().contains(m_suffix))
+        m_type = Asset::Type::Image;
+    else if (supportedFragmentShaderSuffixes().contains(m_suffix))
+        m_type = Asset::Type::FragmentShader;
+    else if (supportedVertexShaderSuffixes().contains(m_suffix))
+        m_type = Asset::Type::VertexShader;
+    else if (supportedFontSuffixes().contains(m_suffix))
+        m_type = Asset::Type::Font;
+    else if (supportedAudioSuffixes().contains(m_suffix))
+        m_type = Asset::Type::Audio;
+    else if (supportedVideoSuffixes().contains(m_suffix))
+        m_type = Asset::Type::Video;
+    else if (supportedTexture3DSuffixes().contains(m_suffix))
+        m_type = Asset::Type::Texture3D;
+    else if (supportedEffectMakerSuffixes().contains(m_suffix))
+        m_type = Asset::Type::Effect;
 }
 
 bool Asset::hasSuffix() const

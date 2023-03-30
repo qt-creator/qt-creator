@@ -1,12 +1,14 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Templates 2.15 as T
+import QtQuick
+import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
 T.TabButton {
-    id: myButton
+    id: control
+
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
@@ -17,24 +19,19 @@ T.TabButton {
 
     background: Rectangle {
         id: buttonBackground
-        color: myButton.checked ? StudioTheme.Values.themeInteraction
-                                : "transparent"
-        border.width: StudioTheme.Values.border
-        border.color: StudioTheme.Values.themeInteraction
+        color: control.checked ? control.style.interaction : "transparent"
+        border.width: control.style.borderWidth
+        border.color: control.style.interaction
     }
 
     contentItem: T.Label {
         id: buttonIcon
-        color: myButton.checked ? StudioTheme.Values.themeControlBackground
-                                : StudioTheme.Values.themeInteraction
-        //font.weight: Font.Bold
-        //font.family: StudioTheme.Constants.font.family
-        font.pixelSize: StudioTheme.Values.myFontSize
+        color: control.checked ? control.style.background.idle : control.style.interaction
+        font.pixelSize: control.style.baseFontSize
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
         anchors.fill: parent
         renderType: Text.QtRendering
-
-        text: myButton.text
+        text: control.text
     }
 }

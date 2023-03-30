@@ -16,10 +16,10 @@ PropertyEditorPane {
         topSection.refreshPreview()
     }
 
-    // Called also from C++ to close context menu on focus out
+    // Called from C++ to close context menu on focus out
     function closeContextMenu()
     {
-        // Nothing
+        Controller.closeContextMenu()
     }
 
     TextureEditorTopSection {

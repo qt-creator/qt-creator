@@ -1,16 +1,18 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Templates 2.15 as T
+import QtQuick
+import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
-    id: actionIndicator
+    id: control
 
-    property Item myControl
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
-    property alias icon: actionIndicatorIcon
+    property Item __parentControl
+
+    property alias icon: icon
 
     property bool hover: false
     property bool pressed: false
@@ -18,55 +20,56 @@ Rectangle {
 
     color: "transparent"
 
-    implicitWidth: StudioTheme.Values.actionIndicatorWidth
-    implicitHeight: StudioTheme.Values.actionIndicatorHeight
+    implicitWidth: control.style.actionIndicatorSize.width
+    implicitHeight: control.style.actionIndicatorSize.height
 
     signal clicked
     z: 10
 
     T.Label {
-        id: actionIndicatorIcon
+        id: icon
         anchors.fill: parent
         text: StudioTheme.Constants.actionIcon
-        visible: text !== StudioTheme.Constants.actionIcon || actionIndicator.forceVisible
-                 || (myControl !== undefined &&
-                     ((myControl.edit !== undefined && myControl.edit)
-                      || (myControl.hover !== undefined && myControl.hover)
-                      || (myControl.drag !== undefined && myControl.drag)))
-        color: StudioTheme.Values.themeTextColor
+        visible: text !== StudioTheme.Constants.actionIcon || control.forceVisible
+                 || (control.__parentControl !== undefined &&
+                     ((control.__parentControl.edit !== undefined && control.__parentControl.edit)
+                      || (control.__parentControl.hover !== undefined && control.__parentControl.hover)
+                      || (control.__parentControl.drag !== undefined && control.__parentControl.drag)))
+        color: control.style.icon.idle
         font.family: StudioTheme.Constants.iconFont.family
-        font.pixelSize: StudioTheme.Values.myIconFontSize
+        font.pixelSize: control.style.baseIconFontSize
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
 
         states: [
             State {
                 name: "hover"
-                when: actionIndicator.hover && !actionIndicator.pressed
-                      && (!myControl || (!myControl.edit && !myControl.drag))
-                      && actionIndicator.enabled
+                when: control.hover && !control.pressed
+                      && (!control.__parentControl
+                          || (!control.__parentControl.edit && !control.__parentControl.drag))
+                      && control.enabled
                 PropertyChanges {
-                    target: actionIndicatorIcon
+                    target: icon
                     scale: 1.2
                     visible: true
                 }
             },
             State {
                 name: "disable"
-                when: !actionIndicator.enabled
+                when: !control.enabled
                 PropertyChanges {
-                    target: actionIndicatorIcon
-                    color: StudioTheme.Values.themeTextColorDisabled
+                    target: icon
+                    color: control.style.icon.disabled
                 }
             }
         ]
     }
 
     MouseArea {
-        id: actionIndicatorMouseArea
+        id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
-        onContainsMouseChanged: actionIndicator.hover = containsMouse
-        onClicked: actionIndicator.clicked()
+        onContainsMouseChanged: control.hover = mouseArea.containsMouse
+        onClicked: control.clicked()
     }
 }

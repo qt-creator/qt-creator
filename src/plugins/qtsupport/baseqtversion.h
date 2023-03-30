@@ -49,7 +49,7 @@ public:
 
     virtual ~QtVersion();
 
-    virtual void fromMap(const QVariantMap &map);
+    virtual void fromMap(const QVariantMap &map, const Utils::FilePath &filePath = {});
     virtual bool equals(QtVersion *other);
 
     bool isAutodetected() const;

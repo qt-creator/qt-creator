@@ -15,6 +15,7 @@ Section {
         PropertyLabel {
             visible: majorQtQuickVersion > 1
             text: qsTr("Enabled")
+            tooltip: qsTr("Toggles if the component is enabled to receive mouse and keyboard input.")
         }
 
         SecondColumnLayout {
@@ -32,6 +33,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Smooth")
+            tooltip: qsTr("Uses smooth filtering when the image is scaled or transformed.")
             blockedByTemplate: !backendValues.smooth.isAvailable
         }
 
@@ -49,6 +51,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Antialiasing")
+            tooltip: qsTr("Refines the edges of the image.")
             blockedByTemplate: !backendValues.antialiasing.isAvailable
         }
 
@@ -102,7 +105,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Baseline offset")
-            tooltip: qsTr("Position of the component's baseline in local coordinates.")
+            tooltip: qsTr("Sets the position of the component's baseline in local coordinates.")
             blockedByTemplate: !backendValues.baselineOffset.isAvailable
         }
 
