@@ -63,17 +63,12 @@
     in the context menu to specify the connection in
     \uicontrol {Connection Editor}.
 
-    \if defined(qtcreator)
-    For an example of using the \uicontrol {Connections} view, see
-    \l{Connecting Mouse Clicks to State Changes}.
-    \else
     For examples of using the \uicontrol {Connections} view, see:
 
     \list
         \li \l{Connecting Buttons to States} in \l{Log In UI - States}
         \li \l{Connecting Buttons to State Changes} in \l{Washing Machine UI}
     \endlist
-    \endif
 
     \section1 Adding Signal Handlers
 

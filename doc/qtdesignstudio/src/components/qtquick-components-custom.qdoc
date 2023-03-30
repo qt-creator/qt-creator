@@ -26,11 +26,7 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File} >
-            \if defined(qtcreator)
-            \uicontrol Qt > \uicontrol {Qt Quick UI File} >
-            \else
             \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick UI File} >
-            \endif
             \uicontrol Choose to create a new \c .ui.qml file.
             \note Components are listed in \uicontrol Components >
             \uicontrol {My Components} only if the filename begins with a
@@ -80,9 +76,7 @@
     that screen. For example, \e myButton_myMenu_home, \e myButton_myMenu_profile,
     and \e myButton_myMenu_settings
 
-    \if defined(qtdesignstudio)
     \include qtdesignstudio-components.qdocinc creating studio components
-    \endif
 
     \section1 Turning Component Instances into Custom Components
 
@@ -107,11 +101,7 @@
     additional ways of opening base components, see \l{Moving Within Components}.
 
     For an example of creating a reusable custom component, see
-    \if defined(qtcreator)
-    \l{Creating a Mobile Application}.
-    \else
     \l{Progress Bar}.
-    \endif
 
     Custom components are listed in \uicontrol Components
     > \uicontrol {My Components}, and you can use instances of them to build

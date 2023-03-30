@@ -54,11 +54,7 @@
 
     \list
         \li \l{Using States to Change Component Property Values}
-        \if defined(qtdesignstudio)
         \li \l{Exporting Properties}
-        \else
-        \li \l{Moving the Bubble} in \l{Creating a Mobile Application}
-        \endif
     \endlist
 
     For more information, watch the following video:

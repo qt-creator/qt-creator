@@ -4,11 +4,7 @@
 /*!
     \page quick-data-models.html
     \previouspage quick-controls.html
-    \if defined(qtdesignstudio)
     \nextpage quick-2d-effects.html
-    \else
-    \nextpage quick-animations.html
-    \endif
 
     \title Lists and Other Data Models
 
@@ -167,9 +163,7 @@
     > \uicontrol {Qt Quick Controls}.
 
     \include qtquick-pathview-editor.qdocinc pathview
-    \if defined(qtdesignstudio)
     \include qtquick-pathview-editor.qdocinc svgpath
-    \endif
 
     \section1 Summary of Model Components
 
@@ -223,14 +217,12 @@
         \li Qt Quick Controls
         \li
         \li A stack-based navigation model.
-    \if defined(qtdesignstudio)
     \row
         \li \inlineimage icons/item-svg-16px.png
         \li \l{SVG Path Item}
         \li Qt Quick Studio Components
         \li
         \li An SVG path data string that is used to draw a path as a line.
-    \endif
     \row
         \li \inlineimage icons/itemdelegate-icon16.png
         \li \l{SwipeDelegate}{Swipe Delegate}
