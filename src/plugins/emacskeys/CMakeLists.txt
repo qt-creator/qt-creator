@@ -4,4 +4,5 @@ add_qtc_plugin(EmacsKeys
     emacskeysconstants.h
     emacskeysplugin.cpp emacskeysplugin.h
     emacskeysstate.cpp emacskeysstate.h
+    emacskeystr.h
 )

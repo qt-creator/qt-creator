@@ -10,6 +10,7 @@ add_qtc_plugin(BareMetal
     baremetaldeviceconfigurationwizardpages.cpp baremetaldeviceconfigurationwizardpages.h
     baremetalplugin.cpp baremetalplugin.h
     baremetalrunconfiguration.cpp baremetalrunconfiguration.h
+    baremetaltr.h
     debugserverproviderchooser.cpp debugserverproviderchooser.h
     debugserverprovidermanager.cpp debugserverprovidermanager.h
     debugserverproviderssettingspage.cpp debugserverproviderssettingspage.h

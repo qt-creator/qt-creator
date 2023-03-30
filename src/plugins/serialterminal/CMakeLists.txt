@@ -10,4 +10,5 @@ add_qtc_plugin(SerialTerminal
     serialterminalconstants.h
     serialterminalplugin.cpp serialterminalplugin.h
     serialterminalsettings.cpp serialterminalsettings.h
+    serialterminaltr.h
 )

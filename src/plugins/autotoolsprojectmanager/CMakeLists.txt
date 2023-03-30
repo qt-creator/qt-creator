@@ -7,6 +7,7 @@ add_qtc_plugin(AutotoolsProjectManager
     autotoolsbuildconfiguration.cpp autotoolsbuildconfiguration.h
     autotoolsbuildsystem.cpp autotoolsbuildsystem.h
     autotoolsprojectconstants.h
+    autotoolsprojectmanagertr.h
     autotoolsprojectplugin.cpp autotoolsprojectplugin.h
     configurestep.cpp configurestep.h
     makefileparser.cpp makefileparser.h

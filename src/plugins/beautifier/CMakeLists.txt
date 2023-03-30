@@ -11,6 +11,7 @@ add_qtc_plugin(Beautifier
     beautifierabstracttool.h
     beautifierconstants.h
     beautifierplugin.cpp beautifierplugin.h
+    beautifiertr.h
     clangformat/clangformat.cpp clangformat/clangformat.h
     clangformat/clangformatconstants.h
     clangformat/clangformatoptionspage.cpp clangformat/clangformatoptionspage.h

@@ -20,6 +20,7 @@ add_qtc_plugin(Ios
     iossettingswidget.cpp iossettingswidget.h
     iossimulator.cpp iossimulator.h
     iostoolhandler.cpp iostoolhandler.h
+    iostr.h
     simulatorcontrol.cpp simulatorcontrol.h
     simulatorinfomodel.cpp simulatorinfomodel.h
     simulatoroperationdialog.cpp simulatoroperationdialog.h
