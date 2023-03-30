@@ -8,7 +8,7 @@ import StudioTheme as StudioTheme
 import StudioControls as StudioControls
 import AssetsLibraryBackend
 
-Dialog {
+StudioControls.Dialog {
     id: root
     title: qsTr("Confirm Delete Files")
     anchors.centerIn: parent
