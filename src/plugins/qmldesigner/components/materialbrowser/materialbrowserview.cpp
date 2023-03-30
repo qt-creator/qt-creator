@@ -469,8 +469,8 @@ ModelNode MaterialBrowserView::getMaterialOfModel(const ModelNode &model, int id
     return mat;
 }
 
-void MaterialBrowserView::importsChanged([[maybe_unused]] const QList<Import> &addedImports,
-                                         [[maybe_unused]] const QList<Import> &removedImports)
+void MaterialBrowserView::importsChanged([[maybe_unused]] const Imports &addedImports,
+                                         [[maybe_unused]] const Imports &removedImports)
 {
     bool hasQuick3DImport = model()->hasImport("QtQuick3D");
 

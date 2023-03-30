@@ -108,10 +108,10 @@ void ModelPrivate::detachAllViews()
     }
 }
 
-void ModelPrivate::changeImports(const QList<Import> &toBeAddedImportList,
-                                 const QList<Import> &toBeRemovedImportList)
+void ModelPrivate::changeImports(const Imports &toBeAddedImportList,
+                                 const Imports &toBeRemovedImportList)
 {
-    QList<Import> removedImportList;
+    Imports removedImportList;
     for (const Import &import : toBeRemovedImportList) {
         if (m_imports.contains(import)) {
             removedImportList.append(import);
@@ -119,7 +119,7 @@ void ModelPrivate::changeImports(const QList<Import> &toBeAddedImportList,
         }
     }
 
-    QList<Import> addedImportList;
+    Imports addedImportList;
     for (const Import &import : toBeAddedImportList) {
         if (!m_imports.contains(import)) {
             addedImportList.append(import);
@@ -131,8 +131,7 @@ void ModelPrivate::changeImports(const QList<Import> &toBeAddedImportList,
         notifyImportsChanged(addedImportList, removedImportList);
 }
 
-void ModelPrivate::notifyImportsChanged(const QList<Import> &addedImports,
-                                        const QList<Import> &removedImports)
+void ModelPrivate::notifyImportsChanged(const Imports &addedImports, const Imports &removedImports)
 {
     bool resetModel = false;
     QString description;
@@ -157,7 +156,7 @@ void ModelPrivate::notifyImportsChanged(const QList<Import> &addedImports,
         resetModelByRewriter(description);
 }
 
-void ModelPrivate::notifyPossibleImportsChanged(const QList<Import> &possibleImports)
+void ModelPrivate::notifyPossibleImportsChanged(const Imports &possibleImports)
 {
     for (const QPointer<AbstractView> &view : enabledViews()) {
         Q_ASSERT(view != nullptr);
@@ -165,7 +164,7 @@ void ModelPrivate::notifyPossibleImportsChanged(const QList<Import> &possibleImp
     }
 }
 
-void ModelPrivate::notifyUsedImportsChanged(const QList<Import> &usedImports)
+void ModelPrivate::notifyUsedImportsChanged(const Imports &usedImports)
 {
     for (const QPointer<AbstractView> &view : enabledViews()) {
         Q_ASSERT(view != nullptr);
@@ -1400,28 +1399,27 @@ Model::Model(const TypeName &typeName, int major, int minor, Model *metaInfoProx
 
 Model::~Model() = default;
 
-const QList<Import> &Model::imports() const
+const Imports &Model::imports() const
 {
     return d->imports();
 }
 
-const QList<Import> &Model::possibleImports() const
+const Imports &Model::possibleImports() const
 {
     return d->m_possibleImportList;
 }
 
-const QList<Import> &Model::usedImports() const
+const Imports &Model::usedImports() const
 {
     return d->m_usedImportList;
 }
 
-void Model::changeImports(const QList<Import> &importsToBeAdded,
-                          const QList<Import> &importsToBeRemoved)
+void Model::changeImports(const Imports &importsToBeAdded, const Imports &importsToBeRemoved)
 {
     d->changeImports(importsToBeAdded, importsToBeRemoved);
 }
 
-void Model::setPossibleImports(const QList<Import> &possibleImports)
+void Model::setPossibleImports(const Imports &possibleImports)
 {
     if (d->m_possibleImportList != possibleImports) {
         d->m_possibleImportList = possibleImports;
@@ -1429,7 +1427,7 @@ void Model::setPossibleImports(const QList<Import> &possibleImports)
     }
 }
 
-void Model::setUsedImports(const QList<Import> &usedImports)
+void Model::setUsedImports(const Imports &usedImports)
 {
     if (d->m_usedImportList != usedImports) {
         d->m_usedImportList = usedImports;

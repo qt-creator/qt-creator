@@ -709,9 +709,9 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
                         model->rewriterView()->textModifier()->replace(0, 0, {});
                     } else if (counter < 100) {
                         try {
-                            const QList<Import> posImports = model->possibleImports();
-                            const QList<Import> currentImports = model->imports();
-                            QList<Import> newImportsToAdd;
+                            const Imports posImports = model->possibleImports();
+                            const Imports currentImports = model->imports();
+                            Imports newImportsToAdd;
 
                             for (auto &imp : std::as_const(m_requiredImports)) {
                                 const bool isPos = Utils::contains(posImports, [imp](const Import &posImp) {

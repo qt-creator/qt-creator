@@ -86,7 +86,7 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                     Import fileImport = Import::createFileImport(entry.requiredImport());
                     if (!m_model->hasImport(libImport, true, true)
                             && !m_model->hasImport(fileImport, true, true)) {
-                        const QList<Import> possImports = m_model->possibleImports();
+                        const Imports possImports = m_model->possibleImports();
                         for (const auto &possImport : possImports) {
                             if ((!possImport.url().isEmpty() && possImport.url() == libImport.url())
                                 || (!possImport.file().isEmpty() && possImport.file() == fileImport.file())) {
@@ -246,7 +246,7 @@ void ItemLibraryWidget::handleAddImport(int index)
                                                + importStr);
     }
 
-    QList<Import> imports;
+    Imports imports;
     const QString dependency = getDependencyImport(import);
 
     auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
@@ -346,13 +346,13 @@ void ItemLibraryWidget::updateModel()
     updateSearch();
 }
 
-void ItemLibraryWidget::updatePossibleImports(const QList<Import> &possibleImports)
+void ItemLibraryWidget::updatePossibleImports(const Imports &possibleImports)
 {
     m_addModuleModel->update(possibleImports);
     delayedUpdateModel();
 }
 
-void ItemLibraryWidget::updateUsedImports(const QList<Import> &usedImports)
+void ItemLibraryWidget::updateUsedImports(const Imports &usedImports)
 {
     m_itemLibraryModel->updateUsedImports(usedImports);
 }

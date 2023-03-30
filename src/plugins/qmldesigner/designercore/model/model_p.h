@@ -202,13 +202,13 @@ public:
     void resetModelByRewriter(const QString &description);
 
     // Imports:
-    const QList<Import> &imports() const { return m_imports; }
+    const Imports &imports() const { return m_imports; }
     void addImport(const Import &import);
     void removeImport(const Import &import);
-    void changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importToBeRemoved);
-    void notifyImportsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
-    void notifyPossibleImportsChanged(const QList<Import> &possibleImports);
-    void notifyUsedImportsChanged(const QList<Import> &usedImportsChanged);
+    void changeImports(const Imports &importsToBeAdded, const Imports &importToBeRemoved);
+    void notifyImportsChanged(const Imports &addedImports, const Imports &removedImports);
+    void notifyPossibleImportsChanged(const Imports &possibleImports);
+    void notifyUsedImportsChanged(const Imports &usedImportsChanged);
 
     //node state property manipulation
     void addProperty(const InternalNodePointer &node, const PropertyName &name);
@@ -269,9 +269,9 @@ private:
 private:
     Model *m_model = nullptr;
     MetaInfo m_metaInfo;
-    QList<Import> m_imports;
-    QList<Import> m_possibleImportList;
-    QList<Import> m_usedImportList;
+    Imports m_imports;
+    Imports m_possibleImportList;
+    Imports m_usedImportList;
     QList<QPointer<AbstractView>> m_viewList;
     QList<QPointer<AbstractView>> m_enabledViewList;
     QList<InternalNodePointer> m_selectedInternalNodeList;

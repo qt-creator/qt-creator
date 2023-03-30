@@ -768,7 +768,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
                     }
                 } else {
                     m_isFileComponent = true;
-                    const Imports *imports = context()->imports(document());
+                    const auto *imports = context()->imports(document());
                     const ImportInfo importInfo = imports->info(lookupNameComponent().constLast(),
                                                                 context().data());
 
@@ -791,7 +791,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
             } else {
                 // Special case for aliased types for the rewriter
 
-                const Imports *imports = context()->imports(document());
+                const auto *imports = context()->imports(document());
                 const ImportInfo importInfo = imports->info(QString::fromUtf8(m_qualfiedTypeName),
                                                             context().data());
                 if (importInfo.isValid()) {
@@ -1198,7 +1198,7 @@ QString NodeMetaInfoPrivate::importDirectoryPath() const
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
     if (isValid()) {
-        const Imports *imports = context()->imports(document());
+        const auto *imports = context()->imports(document());
         ImportInfo importInfo = imports->info(lookupNameComponent().constLast(), context().data());
 
         if (importInfo.type() == ImportType::Directory) {
@@ -1333,7 +1333,7 @@ void NodeMetaInfoPrivate::setupPrototypes()
             m_prototypes.append(description);
         } else {
             if (context()->lookupType(document(), {ov->className()})) {
-                const Imports *allImports = context()->imports(document());
+                const auto *allImports = context()->imports(document());
                 ImportInfo importInfo = allImports->info(description.className, context().data());
 
                 if (importInfo.isValid()) {

@@ -103,7 +103,7 @@ void TextEditorView::modelAboutToBeDetached(Model *model)
     }
 }
 
-void TextEditorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
+void TextEditorView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)
 {
 }
 

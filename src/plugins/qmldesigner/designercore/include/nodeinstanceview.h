@@ -85,7 +85,7 @@ public:
     void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl) override;
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
     void nodeOrderChanged(const NodeListProperty &listProperty) override;
-    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
+    void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
     void auxiliaryDataChanged(const ModelNode &node,
                               AuxiliaryDataKeyView key,
                               const QVariant &data) override;

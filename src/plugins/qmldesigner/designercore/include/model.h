@@ -115,12 +115,12 @@ public:
     // Editing sub-components:
 
     // Imports:
-    const QList<Import> &imports() const;
-    const QList<Import> &possibleImports() const;
-    const QList<Import> &usedImports() const;
-    void changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importsToBeRemoved);
-    void setPossibleImports(const QList<Import> &possibleImports);
-    void setUsedImports(const QList<Import> &usedImports);
+    const Imports &imports() const;
+    const Imports &possibleImports() const;
+    const Imports &usedImports() const;
+    void changeImports(const Imports &importsToBeAdded, const Imports &importsToBeRemoved);
+    void setPossibleImports(const Imports &possibleImports);
+    void setUsedImports(const Imports &usedImports);
     bool hasImport(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false) const;
     bool isImportPossible(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false) const;
     QString pathForImport(const Import &import);

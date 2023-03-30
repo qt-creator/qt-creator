@@ -9,9 +9,11 @@
 #include <edit3d/edit3dviewconfig.h>
 #include <itemlibraryimport.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <puppetenvironmentbuilder.h>
+#include <qmlprojectmanager/qmlproject.h>
 #include <qmlpuppetpaths.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -184,6 +186,52 @@ Utils::FilePath ExternalDependencies::qmlPuppetPath() const
     auto target = ProjectExplorer::SessionManager::startupTarget();
     auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target, m_designerSettings);
     return puppetPath;
+}
+
+namespace {
+
+QString qmlPath(ProjectExplorer::Target *target)
+{
+    auto kit = target->kit();
+
+    if (!kit)
+        return {};
+
+    auto qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
+    if (!qtVersion)
+        return {};
+
+    return qtVersion->qmlPath().toString();
+}
+} // namespace
+
+QStringList ExternalDependencies::modulePaths() const
+{
+    QStringList modulePaths;
+
+    auto project = ProjectExplorer::SessionManager::startupProject();
+
+    if (!project)
+        return modulePaths;
+
+    auto target = project->activeTarget();
+
+    if (!target)
+        return modulePaths;
+
+    if (auto path = qmlPath(target); !path.isEmpty())
+        modulePaths.push_back(path);
+
+    const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+        target->buildSystem());
+
+    if (!qmlBuildSystem)
+        return modulePaths;
+
+    for (const QString &modulePath : qmlBuildSystem->customImportPaths())
+        modulePaths.append(project->projectDirectory().pathAppended(modulePath).toString());
+
+    return modulePaths;
 }
 
 } // namespace QmlDesigner

@@ -625,7 +625,7 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty &listProperty)
     m_nodeInstanceServer->reparentInstances(ReparentInstancesCommand(containerList));
 }
 
-void NodeInstanceView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
+void NodeInstanceView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)
 {
     restartProcess();
 }

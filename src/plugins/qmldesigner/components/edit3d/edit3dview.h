@@ -44,7 +44,7 @@ public:
     void updateActiveScene3D(const QVariantMap &sceneState) override;
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
-    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
+    void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos3d) override;
 

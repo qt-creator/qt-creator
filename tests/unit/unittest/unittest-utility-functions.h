@@ -15,10 +15,9 @@ bool operator==(const QString &first, const char *second)
 
 namespace UnitTest {
 
-inline
-Utils::PathString temporaryDirPath()
+inline ::Utils::PathString temporaryDirPath()
 {
-    return Utils::PathString::fromQString(Utils::TemporaryDirectory::masterDirectoryPath());
+    return ::Utils::PathString::fromQString(Utils::TemporaryDirectory::masterDirectoryPath());
 }
 
 } // namespace UnitTest

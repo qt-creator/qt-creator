@@ -8,7 +8,7 @@
 
 #include <sqlitedatabase.h>
 
-#ifdef QDS_HAS_QMLDOM
+#ifdef QDS_HAS_QMLPRIVATE
 #include <private/qqmldomtop_p.h>
 #include <private/qqmljstypedescriptionreader_p.h>
 #endif
@@ -20,7 +20,7 @@
 
 namespace QmlDesigner {
 
-#ifdef QDS_HAS_QMLDOM
+#ifdef QDS_HAS_QMLPRIVATE
 
 namespace QmlDom = QQmlJS::Dom;
 

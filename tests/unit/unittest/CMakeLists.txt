@@ -25,7 +25,7 @@ add_qtc_test(unittest GTEST
     BEFORE "../mockup/qmldesigner/designercore/include"
   DEPENDS
     Qt::Core Qt::Network Qt::Widgets
-    Qt::Xml Qt::Concurrent Qt::Qml Qt::Gui
+    Qt::Xml Qt::Concurrent Qt::QmlPrivate Qt::Gui
     Qt6Core5Compat QmlJS Sqlite SqliteC
     Googletest
   DEFINES
@@ -36,6 +36,7 @@ add_qtc_test(unittest GTEST
     QTC_RESOURCE_DIR="${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator"
     TESTDATA_DIR="${CMAKE_CURRENT_BINARY_DIR}/data"
     TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
+    QT6_INSTALL_PREFIX="${QT6_INSTALL_PREFIX}"
   SOURCES
     abstractviewmock.h
     compare-operators.h
@@ -97,6 +98,7 @@ add_qtc_test(unittest GTEST
     mockimagecachestorage.h
     asynchronousexplicitimagecache-test.cpp
     asynchronousimagefactory-test.cpp
+    modulescanner-test.cpp
 )
 
 if (NOT TARGET unittest)
@@ -250,6 +252,7 @@ extend_qtc_test(unittest
     projectstorage/filesystem.cpp projectstorage/filesystem.h
     projectstorage/filestatus.h
     projectstorage/filestatuscache.cpp projectstorage/filestatuscache.h
+    projectstorage/modulescanner.cpp projectstorage/modulescanner.h
     projectstorage/nonlockingmutex.h
     projectstorage/projectstorageexceptions.cpp projectstorage/projectstorageexceptions.h
     projectstorage/projectstorageinterface.h
@@ -335,7 +338,7 @@ extend_qtc_test(unittest
   CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND Qt6_VERSION VERSION_GREATER_EQUAL 6.5.0
   SOURCES_PREFIX "${QmlDesignerDir}/designercore"
   DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
-  DEFINES QDS_HAS_QMLDOM
+  DEFINES QDS_HAS_QMLPRIVATE
   SOURCES
     projectstorage/qmldocumentparser.cpp projectstorage/qmldocumentparser.h
     projectstorage/qmltypesparser.cpp projectstorage/qmltypesparser.h

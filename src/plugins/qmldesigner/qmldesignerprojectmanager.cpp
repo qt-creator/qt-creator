@@ -342,7 +342,7 @@ void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPa
         qmldirPaths.push_back(QDir::cleanPath(pojectDirectory.absoluteFilePath(importPath))
                               + "/qmldir");
 }
-#ifdef QDS_HAS_QMLDOM
+#ifdef QDS_HAS_QMLPRIVATE
 bool skipPath(const std::filesystem::path &path)
 {
     auto directory = path.filename();
@@ -359,25 +359,27 @@ bool skipPath(const std::filesystem::path &path)
 }
 #endif
 
-void qtQmldirPaths([[maybe_unused]] ::ProjectExplorer::Target *target,
-                   [[maybe_unused]] QStringList &qmldirPaths)
+void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
 {
-#ifdef QDS_HAS_QMLDOM
-    const QString installDirectory = qmlPath(target).toString();
+#ifdef QDS_HAS_QMLPRIVATE
 
-    const std::filesystem::path installDirectoryPath{installDirectory.toStdString()};
+    if (useProjectStorage()) {
+        const QString installDirectory = qmlPath(target).toString();
 
-    auto current = std::filesystem::recursive_directory_iterator{installDirectoryPath};
-    auto end = std::filesystem::end(current);
-    for (; current != end; ++current) {
-        const auto &entry = *current;
-        auto path = entry.path();
-        if (current.depth() < 3 && !current->is_regular_file() && skipPath(path)) {
-            current.disable_recursion_pending();
-            continue;
-        }
-        if (path.filename() == "qmldir") {
-            qmldirPaths.push_back(QString::fromStdU16String(path.generic_u16string()));
+        const std::filesystem::path installDirectoryPath{installDirectory.toStdString()};
+
+        auto current = std::filesystem::recursive_directory_iterator{installDirectoryPath};
+        auto end = std::filesystem::end(current);
+        for (; current != end; ++current) {
+            const auto &entry = *current;
+            auto path = entry.path();
+            if (current.depth() < 3 && !current->is_regular_file() && skipPath(path)) {
+                current.disable_recursion_pending();
+                continue;
+            }
+            if (path.filename() == "qmldir") {
+                qmldirPaths.push_back(QString::fromStdU16String(path.generic_u16string()));
+            }
         }
     }
 #endif

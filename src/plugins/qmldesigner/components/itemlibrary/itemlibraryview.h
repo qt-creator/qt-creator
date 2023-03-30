@@ -26,9 +26,9 @@ public:
     // AbstractView
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
-    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
-    void possibleImportsChanged(const QList<Import> &possibleImports) override;
-    void usedImportsChanged(const QList<Import> &usedImports) override;
+    void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
+    void possibleImportsChanged(const Imports &possibleImports) override;
+    void usedImportsChanged(const Imports &usedImports) override;
     void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
     void updateImport3DSupport(const QVariantMap &supportMap) override;
     void customNotification(const AbstractView *view, const QString &identifier,

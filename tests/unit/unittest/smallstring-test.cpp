@@ -9,8 +9,6 @@
 #include <utils/smallstringio.h>
 #include <utils/smallstringvector.h>
 
-using namespace ::testing;
-
 using Utils::PathString;
 using Utils::SmallString;
 using Utils::SmallStringLiteral;

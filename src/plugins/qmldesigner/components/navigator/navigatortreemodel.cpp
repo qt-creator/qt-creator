@@ -901,7 +901,7 @@ void NavigatorTreeModel::addImport(const QString &importName)
 {
     Import import = Import::createLibraryImport(importName);
     if (!m_view->model()->hasImport(import, true, true)) {
-        const QList<Import> possImports = m_view->model()->possibleImports();
+        const Imports possImports = m_view->model()->possibleImports();
         for (const auto &possImport : possImports) {
             if (possImport.url() == import.url()) {
                 import = possImport;

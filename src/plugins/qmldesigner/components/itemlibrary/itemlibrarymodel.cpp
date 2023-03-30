@@ -343,7 +343,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     materialBundlePrefix.append(".MaterialBundle");
 
     // create import sections
-    const QList<Import> usedImports = model->usedImports();
+    const Imports usedImports = model->usedImports();
     QHash<QString, ItemLibraryImport *> importHash;
     for (const Import &import : model->imports()) {
         if (import.url() != projectName) {
@@ -550,7 +550,7 @@ ItemLibraryImport *ItemLibraryModel::importByUrl(const QString &importUrl) const
     return nullptr;
 }
 
-void ItemLibraryModel::updateUsedImports(const QList<Import> &usedImports)
+void ItemLibraryModel::updateUsedImports(const Imports &usedImports)
 {
     // imports in the excludeList are not marked used and thus can always be removed even when in use.
     const QList<QString> excludeList = {"SimulinkConnector"};

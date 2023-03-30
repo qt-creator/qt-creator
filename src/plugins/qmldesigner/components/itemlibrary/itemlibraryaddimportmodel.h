@@ -24,7 +24,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-    void update(const QList<Import> &possibleImports);
+    void update(const Imports &possibleImports);
     void setSearchText(const QString &searchText);
     Import getImportAt(int index) const;
 
@@ -33,7 +33,7 @@ public:
 
 private:
     QString m_searchText;
-    QList<Import> m_importList;
+    Imports m_importList;
     QSet<QString> m_importFilterList;
     QHash<int, QByteArray> m_roleNames;
     QSet<QString> m_priorityImports;

@@ -74,7 +74,7 @@ void ItemLibraryView::modelAboutToBeDetached(Model *model)
     m_widget->setModel(nullptr);
 }
 
-void ItemLibraryView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
+void ItemLibraryView::importsChanged(const Imports &addedImports, const Imports &removedImports)
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     for (const auto &import : addedImports)
@@ -111,7 +111,7 @@ void ItemLibraryView::importsChanged(const QList<Import> &addedImports, const QL
     }
 }
 
-void ItemLibraryView::possibleImportsChanged(const QList<Import> &possibleImports)
+void ItemLibraryView::possibleImportsChanged(const Imports &possibleImports)
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     for (const auto &import : possibleImports)
@@ -120,7 +120,7 @@ void ItemLibraryView::possibleImportsChanged(const QList<Import> &possibleImport
     m_widget->updatePossibleImports(possibleImports);
 }
 
-void ItemLibraryView::usedImportsChanged(const QList<Import> &usedImports)
+void ItemLibraryView::usedImportsChanged(const Imports &usedImports)
 {
     m_widget->updateUsedImports(usedImports);
 }

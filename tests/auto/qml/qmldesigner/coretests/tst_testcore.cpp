@@ -160,6 +160,7 @@ public:
     PuppetStartData puppetStartData(const class Model &) const override { return {}; }
     bool instantQmlTextUpdate() const override { return true; }
     Utils::FilePath qmlPuppetPath() const override { return {}; }
+    QStringList modulePaths() const override { return {}; }
 
 public:
     QSettings qsettings;
@@ -1074,10 +1075,10 @@ void tst_TestCore::testRewriterChangeImports()
     //
     Import webkitImport = Import::createLibraryImport("QtWebKit", "1.0");
 
-    QList<Import> importList;
+    Imports importList;
     importList << webkitImport;
 
-    model->changeImports(importList, QList<Import>());
+    model->changeImports(importList, Imports());
 
     const QLatin1String qmlWithImport("\n"
                                       "import QtQuick 2.1\n"
@@ -1086,7 +1087,7 @@ void tst_TestCore::testRewriterChangeImports()
                                       "Rectangle {}\n");
     QCOMPARE(textEdit.toPlainText(), qmlWithImport);
 
-    model->changeImports(QList<Import>(), importList);
+    model->changeImports(Imports(), importList);
 
     QCOMPARE(model->imports().size(), 1);
     QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "2.1"));
@@ -1100,7 +1101,7 @@ void tst_TestCore::testRewriterChangeImports()
 
     Import webkitImportAlias = Import::createLibraryImport("QtWebKit", "1.0", "Web");
 
-    model->changeImports(QList<Import>() << webkitImportAlias, QList<Import>() <<  webkitImport);
+    model->changeImports(Imports() << webkitImportAlias, Imports() <<  webkitImport);
 
     const QLatin1String qmlWithAliasImport("\n"
                                            "import QtQuick 2.1\n"
@@ -1109,7 +1110,7 @@ void tst_TestCore::testRewriterChangeImports()
                                            "Rectangle {}\n");
     QCOMPARE(textEdit.toPlainText(), qmlWithAliasImport);
 
-    model->changeImports(QList<Import>(), QList<Import>() << webkitImportAlias);
+    model->changeImports(Imports(), Imports() << webkitImportAlias);
     QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "2.1"));
 
     QCOMPARE(textEdit.toPlainText(), qmlString);

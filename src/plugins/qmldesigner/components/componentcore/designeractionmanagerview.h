@@ -37,7 +37,7 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &,
                                       const QList<ModelNode> &) override;
     void nodeOrderChanged(const NodeListProperty &) override;
-    void importsChanged(const QList<Import> &, const QList<Import> &) override;
+    void importsChanged(const Imports &, const Imports &) override;
     void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/) override;
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChangeFlag) override;
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChangeFlag) override;

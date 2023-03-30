@@ -19,6 +19,7 @@
 #include "signalhandlerproperty.h"
 #include "variantproperty.h"
 #include <externaldependenciesinterface.h>
+#include <projectstorage/modulescanner.h>
 #include <rewritingexception.h>
 
 #include <enumeration.h>
@@ -44,6 +45,7 @@
 #include <QSet>
 
 #include <memory>
+#include <tuple>
 
 using namespace LanguageUtils;
 using namespace QmlJS;
@@ -716,7 +718,7 @@ bool TextToModelMerger::isActive() const
 void TextToModelMerger::setupImports(const Document::Ptr &doc,
                                      DifferenceHandler &differenceHandler)
 {
-    QList<Import> existingImports = m_rewriterView->model()->imports();
+    Imports existingImports = m_rewriterView->model()->imports();
 
     m_hasVersionlessImport = false;
 
@@ -756,162 +758,125 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
         differenceHandler.importAbsentInQMl(import);
 }
 
-static bool isLatestImportVersion(const ImportKey &importKey, const QHash<QString, ImportKey> &filteredPossibleImportKeys)
+namespace {
+
+bool skipByMetaInfo(QStringView moduleName, const QStringList &skipModuleNames)
 {
-    return !filteredPossibleImportKeys.contains(importKey.path())
-            || filteredPossibleImportKeys.value(importKey.path()).majorVersion < importKey.majorVersion
-            || (filteredPossibleImportKeys.value(importKey.path()).majorVersion == importKey.majorVersion
-                && filteredPossibleImportKeys.value(importKey.path()).minorVersion < importKey.minorVersion);
+    return std::any_of(skipModuleNames.begin(),
+                       skipModuleNames.end(),
+                       [&](const QString &skipModuleName) {
+                           return moduleName.contains(skipModuleName);
+                       });
 }
 
-static bool filterByMetaInfo(const ImportKey &importKey, Model *model)
+class StartsWith : public QStringView
 {
-    if (model) {
-        for (const QString &filter : model->metaInfo().itemLibraryInfo()->blacklistImports()) {
-            if (importKey.libraryQualifiedPath().contains(filter))
-                return true;
+public:
+    using QStringView::QStringView;
+    bool operator()(QStringView moduleName) const { return moduleName.startsWith(*this); }
+};
+
+class EndsWith : public QStringView
+{
+public:
+    using QStringView::QStringView;
+    bool operator()(QStringView moduleName) const { return moduleName.endsWith(*this); }
+};
+
+class StartsAndEndsWith : public std::pair<QStringView, QStringView>
+{
+public:
+    using Base = std::pair<QStringView, QStringView>;
+    using Base::Base;
+    bool operator()(QStringView moduleName) const
+    {
+        return moduleName.startsWith(first) && moduleName.endsWith(second);
+    }
+};
+
+class Equals : public QStringView
+{
+public:
+    using QStringView::QStringView;
+    bool operator()(QStringView moduleName) const { return moduleName == *this; }
+};
+
+constexpr auto skipModules = std::make_tuple(EndsWith(u".impl"),
+                                             StartsWith(u"QML"),
+                                             StartsWith(u"QtQml"),
+                                             StartsAndEndsWith(u"QtQuick", u".PrivateWidgets"),
+                                             EndsWith(u".private"),
+                                             EndsWith(u".Private"),
+                                             Equals(u"QtQuick.Particles"),
+                                             Equals(u"QtQuick.Dialogs"),
+                                             Equals(u"QtQuick.Controls.Styles"),
+                                             Equals(u"QtNfc"),
+                                             Equals(u"Qt.WebSockets"),
+                                             Equals(u"QtWebkit"),
+                                             Equals(u"QtLocation"),
+                                             Equals(u"QtWebChannel"),
+                                             Equals(u"QtWinExtras"),
+                                             Equals(u"QtPurchasing"),
+                                             Equals(u"QtBluetooth"),
+                                             Equals(u"Enginio"));
+
+bool skipModule(QStringView moduleName)
+{
+    return std::apply([=](const auto &...skipModule) { return (skipModule(moduleName) || ...); },
+                      skipModules);
+}
+
+bool skipModule(QStringView moduleName, const QStringList &skipModuleNames)
+{
+    return skipModule(moduleName) || skipByMetaInfo(moduleName, skipModuleNames);
+}
+
+void collectPossibleFileImports(const QString &checkPath,
+                                QSet<QString> usedImportsSet,
+                                QList<QmlDesigner::Import> &possibleImports)
+{
+    const QStringList qmlList("*.qml");
+    const QStringList qmldirList("qmldir");
+    const QChar delimeter('/');
+
+    if (QFileInfo(checkPath).isRoot())
+        return;
+
+    const QStringList entries = QDir(checkPath).entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot);
+    const QString checkPathDelim = checkPath + delimeter;
+    for (const QString &entry : entries) {
+        QDir dir(checkPathDelim + entry);
+        const QString dirPath = dir.path();
+        if (!dir.entryInfoList(qmlList, QDir::Files).isEmpty()
+            && dir.entryInfoList(qmldirList, QDir::Files).isEmpty()
+            && !usedImportsSet.contains(dirPath)) {
+            const QString importName = dir.path().mid(checkPath.size() + 1);
+            QmlDesigner::Import import = QmlDesigner::Import::createFileImport(importName);
+            possibleImports.append(import);
         }
-
+        collectPossibleFileImports(dirPath, usedImportsSet, possibleImports);
     }
-
-    return false;
 }
 
-static bool isBlacklistImport(const ImportKey &importKey, Model *model)
-{
-    const QString &importPathFirst = importKey.splitPath.constFirst();
-    const QString &importPathLast = importKey.splitPath.constLast();
-    return importPathFirst == QStringLiteral("<cpp>")
-            || importPathFirst == QStringLiteral("QML")
-            || importPathFirst == QStringLiteral("QtQml")
-            || (importPathFirst == QStringLiteral("QtQuick") && importPathLast == QStringLiteral("PrivateWidgets"))
-            || importPathLast == QStringLiteral("Private")
-            || importPathLast == QStringLiteral("private")
-            || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Particles") //Unsupported
-            || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Dialogs")   //Unsupported
-            || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Controls.Styles")   //Unsupported
-            || importKey.libraryQualifiedPath() == QStringLiteral("QtNfc") //Unsupported
-            || importKey.libraryQualifiedPath() == QStringLiteral("Qt.WebSockets")
-            || importKey.libraryQualifiedPath() == QStringLiteral("QtWebkit")
-            || importKey.libraryQualifiedPath() == QStringLiteral("QtLocation")
-            || importKey.libraryQualifiedPath() == QStringLiteral("QtWebChannel")
-            || importKey.libraryQualifiedPath() == QStringLiteral("QtWinExtras")
-            || importKey.libraryQualifiedPath() == QStringLiteral("QtPurchasing")
-            || importKey.libraryQualifiedPath() == QStringLiteral("QtBluetooth")
-            || importKey.libraryQualifiedPath() ==  QStringLiteral("Enginio")
-
-            || filterByMetaInfo(importKey, model);
-}
-
-static QHash<QString, ImportKey> filterPossibleImportKeys(const QSet<ImportKey> &possibleImportKeys, Model *model)
-{
-    QHash<QString, ImportKey> filteredPossibleImportKeys;
-    for (const ImportKey &importKey : possibleImportKeys) {
-        if (isLatestImportVersion(importKey, filteredPossibleImportKeys) && !isBlacklistImport(importKey, model))
-            filteredPossibleImportKeys.insert(importKey.path(), importKey);
-    }
-
-    return filteredPossibleImportKeys;
-}
-
-static void removeUsedImports(QHash<QString, ImportKey> &filteredPossibleImportKeys, const QList<QmlJS::Import> &usedImports)
-{
-    for (const QmlJS::Import &import : usedImports)
-        filteredPossibleImportKeys.remove(import.info.path());
-}
-
-static QList<QmlDesigner::Import> generatePossibleFileImports(const QString &path,
-                                                              const QList<QmlJS::Import> &usedImports)
+QList<QmlDesigner::Import> generatePossibleFileImports(const QString &path,
+                                                       const QList<QmlJS::Import> &usedImports)
 {
     QSet<QString> usedImportsSet;
     for (const QmlJS::Import &i : usedImports)
         usedImportsSet.insert(i.info.path());
 
     QList<QmlDesigner::Import> possibleImports;
-    const QStringList qmlList("*.qml");
-    const QStringList qmldirList("qmldir");
 
     QStringList fileImportPaths;
-    const QChar delimeter('/');
 
-    std::function<void(const QString &)> checkDir;
-    checkDir = [&](const QString &checkPath) {
-
-       if (QFileInfo(checkPath).isRoot())
-            return;
-
-        const QStringList entries = QDir(checkPath).entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot);
-        const QString checkPathDelim = checkPath + delimeter;
-        for (const QString &entry : entries) {
-            QDir dir(checkPathDelim + entry);
-            const QString dirPath = dir.path();
-            if (!dir.entryInfoList(qmlList, QDir::Files).isEmpty()
-                    && dir.entryInfoList(qmldirList, QDir::Files).isEmpty()
-                    && !usedImportsSet.contains(dirPath)) {
-                const QString importName = dir.path().mid(path.size() + 1);
-                QmlDesigner::Import import = QmlDesigner::Import::createFileImport(importName);
-                possibleImports.append(import);
-            }
-            checkDir(dirPath);
-        }
-    };
-    checkDir(path);
+    collectPossibleFileImports(path, usedImportsSet, possibleImports);
 
     return possibleImports;
 }
 
-static QList<QmlDesigner::Import> generatePossibleLibraryImports(const QHash<QString, ImportKey> &filteredPossibleImportKeys)
-{
-    QList<QmlDesigner::Import> possibleImports;
-    QSet<QString> controlsImplVersions;
-    bool hasVersionedControls = false;
-    bool hasVersionlessControls = false;
-    const QString controlsName = "QtQuick.Controls";
-    const QString controlsImplName = "QtQuick.Controls.impl";
+} // namespace
 
-    for (const ImportKey &importKey : filteredPossibleImportKeys) {
-        QString libraryName = importKey.splitPath.join(QLatin1Char('.'));
-        int majorVersion = importKey.majorVersion;
-        if (majorVersion >= 0) {
-            int minorVersion = (importKey.minorVersion == LanguageUtils::ComponentVersion::NoVersion) ? 0 : importKey.minorVersion;
-
-            if (libraryName.contains("QtQuick.Studio")) {
-                majorVersion = 1;
-                minorVersion = 0;
-            }
-
-            QString version = QStringLiteral("%1.%2").arg(majorVersion).arg(minorVersion);
-            if (!libraryName.endsWith(".impl"))
-                possibleImports.append(QmlDesigner::Import::createLibraryImport(libraryName, version));
-
-            // In Qt6, QtQuick.Controls itself doesn't have any version as it has no types,
-            // so it never gets added normally to possible imports.
-            // We work around this by injecting corresponding QtQuick.Controls version for each
-            // found impl version, if no valid QtQuick.Controls versions are found.
-            if (!hasVersionedControls) {
-                if (libraryName == controlsImplName)
-                    controlsImplVersions.insert(version);
-                else if (libraryName == controlsName)
-                    hasVersionedControls = true;
-            }
-        } else if (!hasVersionlessControls && libraryName == controlsName) {
-            // If QtQuick.Controls module is not included even in non-versioned, it means
-            // QtQuick.Controls is either in use or not available at all,
-            // so we shouldn't inject it.
-            hasVersionlessControls = true;
-        }
-    }
-
-    if (hasVersionlessControls && !hasVersionedControls && !controlsImplVersions.isEmpty()) {
-        for (const auto &version : std::as_const(controlsImplVersions))
-            possibleImports.append(QmlDesigner::Import::createLibraryImport(controlsName, version));
-    }
-
-
-    return possibleImports;
-}
-
-void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, const QmlJS::ViewerContext &viewContext)
+void TextToModelMerger::setupPossibleImports()
 {
     if (!m_rewriterView->possibleImportsEnabled())
         return;
@@ -919,27 +884,25 @@ void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, co
     static QUrl lastProjectUrl;
     auto &externalDependencies = m_rewriterView->externalDependencies();
     auto projectUrl = externalDependencies.projectUrl();
+    auto allUsedImports = m_scopeChain->context()->imports(m_document.data())->all();
 
-    if (m_possibleImportKeys.isEmpty() || projectUrl != lastProjectUrl)
-        m_possibleImportKeys = snapshot.importDependencies()->libraryImports(viewContext);
+    if (m_possibleModules.isEmpty() || projectUrl != lastProjectUrl) {
+        const auto skipModuleNames = m_rewriterView->model()->metaInfo().itemLibraryInfo()->blacklistImports();
+        ModuleScanner moduleScanner{
+            [&](QStringView moduleName) { return skipModule(moduleName, skipModuleNames); }};
+        moduleScanner.scan(m_rewriterView->externalDependencies().modulePaths());
+        m_possibleModules = moduleScanner.modules();
+    }
 
     lastProjectUrl = projectUrl;
 
-    QHash<QString, ImportKey> filteredPossibleImportKeys = filterPossibleImportKeys(
-        m_possibleImportKeys, m_rewriterView->model());
-
-    const QmlJS::Imports *imports = m_scopeChain->context()->imports(m_document.data());
-    if (imports)
-        removeUsedImports(filteredPossibleImportKeys, imports->all());
-
-    QList<QmlDesigner::Import> possibleImports = generatePossibleLibraryImports(filteredPossibleImportKeys);
+    auto modules = m_possibleModules;
 
     if (document()->fileName() != "<internal>")
-        possibleImports.append(
-            generatePossibleFileImports(document()->path().toString(), imports->all()));
+        modules.append(generatePossibleFileImports(document()->path().toString(), allUsedImports));
 
     if (m_rewriterView->isAttached())
-        m_rewriterView->model()->setPossibleImports(possibleImports);
+        m_rewriterView->model()->setPossibleImports(modules);
 }
 
 void TextToModelMerger::setupUsedImports()
@@ -951,7 +914,7 @@ void TextToModelMerger::setupUsedImports()
      const QList<QmlJS::Import> allImports = imports->all();
 
      QSet<QString> usedImportsSet;
-     QList<Import> usedImports;
+     Imports usedImports;
 
      // populate usedImportsSet from current model nodes
      const QList<ModelNode> allModelNodes = m_rewriterView->allModelNodes();
@@ -963,9 +926,6 @@ void TextToModelMerger::setupUsedImports()
 
      for (const QmlJS::Import &import : allImports) {
          QString version = import.info.version().toString();
-
-         if (!import.info.version().isValid())
-             version = getHighestPossibleImport(import.info.name());
 
          if (!import.info.name().isEmpty() && usedImportsSet.contains(import.info.name())) {
             if (import.info.type() == ImportType::Library)
@@ -1077,7 +1037,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             collectLinkErrors(&errors, ctxt);
         }
 
-        setupPossibleImports(snapshot, m_vContext);
+        setupPossibleImports();
 
         qCInfo(rewriterBenchmark) << "possible imports:" << time.elapsed();
 
@@ -1114,12 +1074,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         setupUsedImports();
 
         setActive(false);
-
-        // Clear possible imports cache if code model hasn't settled yet
-        const int importKeysSize = m_possibleImportKeys.size();
-        if (m_previousPossibleImportsSize != importKeysSize)
-            m_possibleImportKeys.clear();
-        m_previousPossibleImportsSize = importKeysSize;
 
         return true;
     } catch (Exception &e) {
@@ -2387,8 +2341,8 @@ QList<QmlTypeData> TextToModelMerger::getQMLSingletons() const
 
 void TextToModelMerger::clearPossibleImportKeys()
 {
-    m_possibleImportKeys.clear();
-    m_previousPossibleImportsSize = -1;
+    m_possibleModules.clear();
+    m_previousPossibleModulesSize = -1;
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,
@@ -2402,20 +2356,4 @@ QString TextToModelMerger::textAt(const Document::Ptr &doc,
                                   const SourceLocation &to)
 {
     return doc->source().mid(from.offset, to.end() - from.begin());
-}
-
-QString TextToModelMerger::getHighestPossibleImport(const QString &importName) const
-{
-    QString version = "2.15";
-    int maj = -1;
-    const auto imports = m_possibleImportKeys.values();
-    for (const ImportKey &import : imports) {
-        if (importName == import.libraryQualifiedPath()) {
-            if (import.majorVersion > maj) {
-                version = QString("%1.%2").arg(import.majorVersion).arg(import.minorVersion);
-                maj = import.majorVersion;
-            }
-        }
-    }
-    return version;
 }

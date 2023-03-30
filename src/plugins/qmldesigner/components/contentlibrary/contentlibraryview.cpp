@@ -144,7 +144,7 @@ void ContentLibraryView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void ContentLibraryView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
+void ContentLibraryView::importsChanged(const Imports &addedImports, const Imports &removedImports)
 {
     Q_UNUSED(addedImports)
     Q_UNUSED(removedImports)

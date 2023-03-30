@@ -56,6 +56,8 @@ private:
 
 QMLDESIGNERCORE_EXPORT size_t qHash(const Import &import);
 
+using Imports = QList<Import>;
+
 } // namespace QmlDesigner
 
 Q_DECLARE_METATYPE(QmlDesigner::Import)

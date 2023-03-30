@@ -720,8 +720,8 @@ void TextureEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pro
     m_locked = false;
 }
 
-void TextureEditorView::importsChanged([[maybe_unused]] const QList<Import> &addedImports,
-                                       [[maybe_unused]] const QList<Import> &removedImports)
+void TextureEditorView::importsChanged([[maybe_unused]] const Imports &addedImports,
+                                       [[maybe_unused]] const Imports &removedImports)
 {
     m_hasQuick3DImport = model()->hasImport("QtQuick3D");
     m_qmlBackEnd->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);

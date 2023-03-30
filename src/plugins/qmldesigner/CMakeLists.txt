@@ -57,6 +57,7 @@ add_qtc_library(QmlDesignerCore STATIC
     Utils
     Qt::Widgets
     Qt::Qml
+    Qt::QmlPrivate
     Core
     ProjectExplorer
     QmakeProjectManager
@@ -92,7 +93,7 @@ extend_qtc_library(QmlDesignerCore
   CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND Qt6_VERSION VERSION_GREATER_EQUAL 6.5.0
 
   DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
-  DEFINES QDS_HAS_QMLDOM
+  PUBLIC_DEFINES QDS_HAS_QMLPRIVATE
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -400,6 +401,7 @@ extend_qtc_library(QmlDesignerCore
     filesystem.cpp filesystem.h
     filestatus.h
     filestatuscache.cpp filestatuscache.h
+    modulescanner.cpp modulescanner.h
     nonlockingmutex.h
     projectstorageexceptions.cpp projectstorageexceptions.h
     projectstorageinterface.h

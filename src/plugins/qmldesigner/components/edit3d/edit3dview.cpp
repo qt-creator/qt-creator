@@ -312,8 +312,8 @@ void Edit3DView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void Edit3DView::importsChanged([[maybe_unused]] const QList<Import> &addedImports,
-                                [[maybe_unused]] const QList<Import> &removedImports)
+void Edit3DView::importsChanged([[maybe_unused]] const Imports &addedImports,
+                                [[maybe_unused]] const Imports &removedImports)
 {
     checkImports();
 }
@@ -920,7 +920,7 @@ void Edit3DView::addQuick3DImport()
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     if (document && !document->inFileComponentModelActive() && model()) {
-        const QList<Import> imports = model()->possibleImports();
+        const Imports imports = model()->possibleImports();
         for (const auto &import : imports) {
             if (import.url() == "QtQuick3D") {
                 if (!import.version().isEmpty() && import.majorVersion() >= 6) {

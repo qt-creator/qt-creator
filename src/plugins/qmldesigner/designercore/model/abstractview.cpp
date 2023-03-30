@@ -315,15 +315,15 @@ void AbstractView::nodeTypeChanged(const ModelNode & /*node*/, const TypeName & 
 
 }
 
-void AbstractView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
+void AbstractView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)
 {
 }
 
-void AbstractView::possibleImportsChanged(const QList<Import> &/*possibleImports*/)
+void AbstractView::possibleImportsChanged(const Imports &/*possibleImports*/)
 {
 }
 
-void AbstractView::usedImportsChanged(const QList<Import> &/*usedImports*/)
+void AbstractView::usedImportsChanged(const Imports &/*usedImports*/)
 {
 }
 
@@ -893,7 +893,7 @@ QmlTimeline AbstractView::currentTimeline() const
 
 static int getMinorVersionFromImport(const Model *model)
 {
-    const QList<Import> imports = model->imports();
+    const Imports imports = model->imports();
     for (const Import &import : imports) {
         if (import.isLibraryImport() && import.url() == "QtQuick") {
             const QString versionString = import.version();
@@ -909,7 +909,7 @@ static int getMinorVersionFromImport(const Model *model)
 
 static int getMajorVersionFromImport(const Model *model)
 {
-    const QList<Import> imports = model->imports();
+    const Imports imports = model->imports();
     for (const Import &import : imports) {
         if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick")) {
             const QString versionString = import.version();
