@@ -47,10 +47,10 @@ Utils::FilePath qmlSourcesPath()
     return Core::ICore::resourcePath("qmldesigner/toolbar");
 }
 
-void ToolBar::create()
+std::unique_ptr<QToolBar> ToolBar::create()
 {
     if (!isVisible())
-        return;
+        return nullptr;
 
     ToolBarBackend::registerDeclarativeType();
 
@@ -58,7 +58,7 @@ void ToolBar::create()
 
     //Core::ICore::statusBar()->hide();
 
-    auto toolBar = new QToolBar;
+    auto toolBar = std::make_unique<QToolBar>();
     toolBar->setObjectName("QDS-TOOLBAR");
 
     toolBar->setContextMenuPolicy(Qt::PreventContextMenu);
@@ -78,24 +78,26 @@ void ToolBar::create()
     quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toString() + "/imports");
 
     Utils::FilePath qmlFilePath = qmlSourcesPath() / "Main.qml";
-    QTC_ASSERT(qmlFilePath.exists(), return);
+    QTC_ASSERT(qmlFilePath.exists(), return nullptr);
 
     Theme::setupTheme(quickWidget->engine());
 
     quickWidget->setSource(QUrl::fromLocalFile(qmlFilePath.toFSPathString()));
 
     toolBar->addWidget(quickWidget);
-    window->addToolBar(toolBar);
+    window->addToolBar(toolBar.get());
+
+    return toolBar;
 }
 
-void ToolBar::createStatusBar()
+std::unique_ptr<QWidget> ToolBar::createStatusBar()
 {
     if (!isVisible())
-        return;
+        return nullptr;
 
     ToolBarBackend::registerDeclarativeType();
 
-    auto quickWidget = new StudioQuickWidget;
+    auto quickWidget = std::make_unique<StudioQuickWidget>();
 
     quickWidget->setFixedHeight(Theme::toolbarSize());
     quickWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -107,7 +109,7 @@ void ToolBar::createStatusBar()
     quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toString() + "/imports");
 
     Utils::FilePath qmlFilePath = qmlSourcesStatusBarPath().pathAppended("/Main.qml");
-    QTC_ASSERT(qmlFilePath.exists(), return);
+    QTC_ASSERT(qmlFilePath.exists(), return nullptr);
 
     Theme::setupTheme(quickWidget->engine());
 
@@ -117,8 +119,10 @@ void ToolBar::createStatusBar()
         w->hide();
     }
 
-    Core::ICore::statusBar()->addWidget(quickWidget);
+    Core::ICore::statusBar()->addWidget(quickWidget.get());
     Core::ICore::statusBar()->setFixedHeight(Theme::toolbarSize());
+
+    return quickWidget;
 }
 
 bool ToolBar::isVisible()

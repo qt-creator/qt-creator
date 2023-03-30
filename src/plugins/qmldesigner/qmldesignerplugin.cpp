@@ -144,6 +144,8 @@ public:
     DesignModeWidget mainWidget;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
     bool blockEditorChange = false;
+    std::unique_ptr<QToolBar> toolBar;
+    std::unique_ptr<QWidget> statusBar;
 };
 
 QmlDesignerPlugin *QmlDesignerPlugin::m_instance = nullptr;
@@ -273,8 +275,8 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     });
 
     if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
-        ToolBar::create();
-        ToolBar::createStatusBar();
+        d->toolBar = ToolBar::create();
+        d->statusBar = ToolBar::createStatusBar();
     }
 
     return true;
