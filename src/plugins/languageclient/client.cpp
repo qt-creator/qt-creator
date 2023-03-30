@@ -618,7 +618,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
         }
     }
 
-    d->m_openedDocument[document].document = document->document()->clone(this);
+    d->m_openedDocument[document].document = new QTextDocument(document->document()->toPlainText());
     d->m_openedDocument[document].contentsChangedConnection
         = connect(document,
                   &TextDocument::contentsChangedWithPosition,
