@@ -1,3 +1,9 @@
+if (MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+elseif (MINGW)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+endif()
+
 add_qtc_plugin(LanguageClient
   PUBLIC_DEPENDS LanguageServerProtocol Qt::Core app_version
   PLUGIN_DEPENDS ProjectExplorer Core TextEditor
