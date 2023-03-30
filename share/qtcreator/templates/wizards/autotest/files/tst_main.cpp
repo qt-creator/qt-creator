@@ -21,13 +21,22 @@ int main(int argc, char *argv[])
 }
 @endif
 @if "%{TestFrameWork}" == "BoostTest"
-#define BOOST_TEST_MODULE %{TestSuiteName}
+#define BOOST_TEST_MODULE My test module
 #include <boost/test/included/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE( %{TestSuiteName} )
 
 BOOST_AUTO_TEST_CASE( %{TestCaseName} )
 {
   BOOST_TEST( true /* test assertion */ );
 }
+
+BOOST_AUTO_TEST_SUITE_END()
+@endif
+@if "%{TestFrameWork}" == "BoostTest_dyn"
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE My test module
+#include <boost/test/unit_test.hpp>
 @endif
 @if "%{TestFrameWork}" == "Catch2"
 @if "%{Catch2NeedsQt}" == "true"
