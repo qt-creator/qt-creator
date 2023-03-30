@@ -5,7 +5,7 @@
 
 #include <QToolBar>
 
-#include <memory>
+#include <utils/uniqueobjectptr.h>
 
 namespace QmlDesigner {
 
@@ -13,8 +13,8 @@ class ToolBar
 {
 
 public:
-    static std::unique_ptr<QToolBar> create();
-    static std::unique_ptr<QWidget> createStatusBar();
+    static Utils::UniqueObjectPtr<QToolBar> create();
+    static Utils::UniqueObjectPtr<QWidget> createStatusBar();
     static bool isVisible();
 };
 

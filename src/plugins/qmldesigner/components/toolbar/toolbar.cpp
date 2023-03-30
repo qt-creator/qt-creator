@@ -47,7 +47,7 @@ Utils::FilePath qmlSourcesPath()
     return Core::ICore::resourcePath("qmldesigner/toolbar");
 }
 
-std::unique_ptr<QToolBar> ToolBar::create()
+Utils::UniqueObjectPtr<QToolBar> ToolBar::create()
 {
     if (!isVisible())
         return nullptr;
@@ -58,7 +58,7 @@ std::unique_ptr<QToolBar> ToolBar::create()
 
     //Core::ICore::statusBar()->hide();
 
-    auto toolBar = std::make_unique<QToolBar>();
+    auto toolBar = Utils::makeUniqueObjectPtr<QToolBar>();
     toolBar->setObjectName("QDS-TOOLBAR");
 
     toolBar->setContextMenuPolicy(Qt::PreventContextMenu);
@@ -66,7 +66,7 @@ std::unique_ptr<QToolBar> ToolBar::create()
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
 
-    auto quickWidget = new StudioQuickWidget;
+    auto quickWidget = std::make_unique<StudioQuickWidget>();
 
     quickWidget->setFixedHeight(48);
     quickWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -84,20 +84,20 @@ std::unique_ptr<QToolBar> ToolBar::create()
 
     quickWidget->setSource(QUrl::fromLocalFile(qmlFilePath.toFSPathString()));
 
-    toolBar->addWidget(quickWidget);
+    toolBar->addWidget(quickWidget.release());
     window->addToolBar(toolBar.get());
 
     return toolBar;
 }
 
-std::unique_ptr<QWidget> ToolBar::createStatusBar()
+Utils::UniqueObjectPtr<QWidget> ToolBar::createStatusBar()
 {
     if (!isVisible())
         return nullptr;
 
     ToolBarBackend::registerDeclarativeType();
 
-    auto quickWidget = std::make_unique<StudioQuickWidget>();
+    auto quickWidget = Utils::makeUniqueObjectPtr<StudioQuickWidget>();
 
     quickWidget->setFixedHeight(Theme::toolbarSize());
     quickWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);

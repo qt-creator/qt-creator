@@ -31,7 +31,6 @@
 #include <texttool/texttool.h>
 #include <timelineeditor/timelineview.h>
 #include <transitioneditor/transitioneditorview.h>
-
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljseditor/qmljseditordocument.h>
@@ -66,6 +65,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/uniqueobjectptr.h>
 
 #include <QAction>
 #include <QApplication>
@@ -144,8 +144,8 @@ public:
     DesignModeWidget mainWidget;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
     bool blockEditorChange = false;
-    std::unique_ptr<QToolBar> toolBar;
-    std::unique_ptr<QWidget> statusBar;
+    Utils::UniqueObjectPtr<QToolBar> toolBar;
+    Utils::UniqueObjectPtr<QWidget> statusBar;
 };
 
 QmlDesignerPlugin *QmlDesignerPlugin::m_instance = nullptr;
