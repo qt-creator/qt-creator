@@ -46,6 +46,7 @@ class TEXTEDITOR_EXPORT TextSuggestion
 {
 public:
     TextSuggestion();
+    virtual ~TextSuggestion();
     virtual bool apply() = 0;
     virtual void reset() = 0;
     virtual int position() = 0;

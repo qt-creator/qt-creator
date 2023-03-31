@@ -839,4 +839,6 @@ TextSuggestion::TextSuggestion()
     m_replacementDocument.setDocumentMargin(0);
 }
 
+TextSuggestion::~TextSuggestion() = default;
+
 } // namespace TextEditor
