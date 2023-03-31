@@ -454,13 +454,15 @@ def waitForProcessRunning(running=True):
 
 # run and close an application
 # returns None if the build failed, False if the subprocess did not start, and True otherwise
-def runAndCloseApp():
+def runAndCloseApp(expectCompileToFail=False):
     runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
     clickButton(runButton)
     waitForCompile(300000)
-    buildSucceeded = checkLastBuild()
+    buildSucceeded = checkLastBuild(expectCompileToFail)
     ensureChecked(waitForObject(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton"))
     if not buildSucceeded:
+        if expectCompileToFail:
+            return None
         test.fatal("Build inside run wasn't successful - leaving test")
         return None
     if not waitForProcessRunning():

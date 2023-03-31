@@ -157,7 +157,7 @@ def __handleTextTips__(textTip, expectedVals, alternativeVals):
     props = object.properties(textTip)
     expFail = False
     eResult = verifyProperties(props, expectedVals)
-    for val in eResult.itervalues():
+    for val in eResult.values():
         if not val:
             expFail = True
             break

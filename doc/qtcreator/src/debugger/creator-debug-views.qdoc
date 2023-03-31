@@ -385,14 +385,14 @@
     //! [0]
     \list
         \li Add and remove expression evaluators
-        \li Change value display format
+        \li Change \l{Changing Value Display format}{value display format}
         \li Expand and collapse view contents
         \li Copy view contents or expression values to the clipboard
         \li Open view contents in an editor
         \li Open memory editor
         \li Set data breakpoints
         \li Use \l{Using Debugging Helpers}{debugging helpers}
-        \li Show tooltips in the \uicontrol Locals view when debugging
+        \li Show and hide tooltips in the view when debugging
         \li Dereference pointers automatically
         \li Sort members of classes and structs alphabetically
         \li Use dynamic object type for display
@@ -512,42 +512,5 @@
     appears uninitialized, its value is reported as
     \uicontrol {not in scope}. Not all uninitialized objects,
     however, can be recognized as such.
-
-    \section1 Inspecting Basic Qt Objects
-
-    The most powerful feature of the debugger is that the \uicontrol {Locals}
-    and \uicontrol {Expressions} views show the data that belongs to
-    Qt's basic objects. For example, in case of QObject, instead of
-    a pointer to some private data structure, you see a list of
-    children, signals, and slots.
-
-    Similarly, instead of displaying many pointers and integers, \QC's debugger
-    displays the contents of a QHash or QMap in an orderly manner. Also, the
-    debugger shows access data for QFileInfo and the \e real contents of QVariant.
-
-    Right-click in the \uicontrol {Locals} or the \uicontrol {Expressions} view
-    to open a context menu that has more options for viewing data. The
-    available options depend on the type of the current items, and come from
-    the \l{Using Debugging Helpers}{Debugging Helpers}. Typically,
-    string-like data, such as \c{QByteArray} and \c{std::string}, offer a
-    selection of encodings, as well as the possibility to use a full editor
-    window. Map-like data, such as \c{QMap}, \c{QHash}, and \c{std::map}, offer
-    a compact option using the \c{name} column for keys, resulting in a concise
-    display of containers with short keys, such as numbers or short strings. For
-    example, to expand all the values of QMap, select
-    \uicontrol {Change Value Display Format} > \uicontrol Compact.
-
-    You can use the \uicontrol {Locals} and \uicontrol {Expressions} view to change
-    the contents of variables of simple data types, for example, \c int, \c float,
-    \c QString and \c std::string when the application is interrupted. To do so,
-    click the \uicontrol Value column, modify the value with the inplace editor,
-    and press \key Enter (or \key Return).
-
-    To change the complete contents of QVector or \c std::vector values, type
-    all values separated by commas into the \uicontrol Value column of the main
-    entry.
-
-    You can enable tooltips in the main editor displaying this information.
-    For more information, see \l{See the value of variables in tooltips while debugging}.
     \endif
 */

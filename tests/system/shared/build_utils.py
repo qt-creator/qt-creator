@@ -56,17 +56,23 @@ def checkLastBuild(expectedToFail=False, createTasksFileOnError=True):
     return not gotErrors
 
 # helper function to check the compilation when build wasn't successful
-def checkCompile():
+def checkCompile(expectToFail=False):
     ensureChecked(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton")
     output = waitForObject(":Qt Creator.Compile Output_Core::OutputWindow")
     waitFor("len(str(output.plainText))>0",5000)
     if compileSucceeded(output.plainText):
         if os.getenv("SYSTEST_DEBUG") == "1":
             test.log("Compile Output:\n%s" % str(output.plainText))
-        test.passes("Compile successful")
+        if expectToFail:
+            test.fail("Compile successful - but was expected to fail.")
+        else:
+            test.passes("Compile successful")
         return True
     else:
-        test.fail("Compile Output:\n%s" % output.plainText)
+        if expectToFail:
+            test.passes("Expected fail - Compile output:\n%s" % str(output.plainText))
+        else:
+            test.fail("Compile Output:\n%s" % str(output.plainText))
         return False
 
 def compileSucceeded(compileOutput):
@@ -220,28 +226,32 @@ def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShad
     switchViewTo(ViewConstants.EDIT)
 
 # verify if building and running of project was successful
-def verifyBuildAndRun():
+def verifyBuildAndRun(expectCompileToFail=False):
     # check compile output if build successful
-    checkCompile()
+    checkCompile(expectCompileToFail)
     # check application output log
     appOutput = logApplicationOutput()
     if appOutput:
         test.verify((re.search(".* exited with code \d+", str(appOutput)) or
-                     re.search(".* crashed\.", str(appOutput))) and
+                     re.search(".* crashed\.", str(appOutput)) or
+                     re.search(".* was ended forcefully\.", str(appOutput))) and
                     re.search('[Ss]tarting.*', str(appOutput)),
                     "Verifying if built app started and closed successfully.")
 
 # run project for debug and release
-def runVerify():
+def runVerify(expectCompileToFailFor=None):
     availableConfigs = iterateBuildConfigs()
     if not availableConfigs:
         test.fatal("Haven't found build configurations, quitting")
         saveAndExit()
     for kit, config in availableConfigs:
         selectBuildConfig(kit, config)
+        expectCompileToFail = False
+        if expectCompileToFailFor is not None and kit in expectCompileToFailFor:
+            expectCompileToFail = True
         test.log("Using build config '%s'" % config)
-        if runAndCloseApp() == None:
-            checkCompile()
+        if runAndCloseApp(expectCompileToFail) == None:
+            checkCompile(expectCompileToFail)
             continue
-        verifyBuildAndRun()
+        verifyBuildAndRun(expectCompileToFail)
         mouseClick(waitForObject(":*Qt Creator.Clear_QToolButton"))

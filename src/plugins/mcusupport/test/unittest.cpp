@@ -146,9 +146,9 @@ const QString stmCubeProgrammerDetectionPath{HostOsInfo::isWindowsHost()
                                                  ? QString("bin/STM32_Programmer_CLI.exe")
                                                  : QString("bin/STM32_Programmer.sh")};
 
-const char renesasProgrammerSetting[]{"RenesasFlashProgrammer"};
+const char renesasProgrammerSetting[]{"FlashProgrammerPath"};
 const char renesasProgrammerCmakeVar[]{"RENESAS_FLASH_PROGRAMMER_PATH"};
-const QString renesasProgrammerEnvVar{renesasProgrammerCmakeVar};
+const QString renesasProgrammerEnvVar{"RenesasFlashProgrammer_PATH"};
 const char renesasProgrammerLabel[]{"Renesas Flash Programmer"};
 const QString renesasProgrammerDetectionPath{HostOsInfo::withExecutableSuffix("rfp-cli")};
 
@@ -1106,7 +1106,7 @@ void McuSupportTest::test_legacy_createBoardSdk_data()
         << iar_mimxrt1064_evk_freertos_json << boardSdkCmakeVar << "EVK_MIMXRT1064_SDK_PATH"
         << QStringList{boardSdkVersion};
     QTest::newRow("ghs_rh850_d1m1a_baremetal_json")
-        << ghs_rh850_d1m1a_baremetal_json << boardSdkCmakeVar << "RGL_DIR" << QStringList{"2.0.0a"};
+        << ghs_rh850_d1m1a_baremetal_json << boardSdkCmakeVar << "RGL_DIR" << QStringList{"2.0.0", "2.0.0a"};
 }
 
 void McuSupportTest::test_legacy_createBoardSdk()
