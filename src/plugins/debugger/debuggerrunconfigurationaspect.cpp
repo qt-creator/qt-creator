@@ -20,6 +20,7 @@
 
 #include <qtsupport/qtbuildaspects.h>
 
+#include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 
@@ -128,9 +129,13 @@ bool DebuggerLanguageAspect::value() const
 
 void DebuggerLanguageAspect::setValue(bool value)
 {
-    m_value = value ? EnabledLanguage : DisabledLanguage;
+    const DebuggerLanguageStatus status = value ? EnabledLanguage : DisabledLanguage;
+    const bool didChange = status != m_value;
+    m_value = status;
     if (m_checkBox)
         m_checkBox->setChecked(m_value);
+    if (didChange)
+        emit changed();
 }
 
 void DebuggerLanguageAspect::setLabel(const QString &label)
@@ -159,7 +164,31 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
         static const QString env = qtcEnvironmentVariable("QTC_DEBUGGER_MULTIPROCESS");
         if (env.toInt())
             builder.addRow(m_multiProcessAspect);
-        return builder.emerge(Layouting::WithoutMargins);
+
+        auto details = new DetailsWidget;
+        details->setState(DetailsWidget::Expanded);
+        auto innerPane = new QWidget;
+        details->setWidget(innerPane);
+        builder.attachTo(innerPane, Layouting::WithoutMargins);
+
+        const auto setSummaryText = [this, details] {
+            QStringList items;
+            if (m_cppAspect->value())
+                items.append(m_cppAspect->m_label);
+            if (m_qmlAspect->value())
+                items.append(m_qmlAspect->m_label);
+            items.append(m_overrideStartupAspect->value().isEmpty()
+                             ? Tr::tr("Without additional startup commands")
+                             : Tr::tr("With additional startup commands"));
+            details->setSummaryText(items.join(". "));
+        };
+        setSummaryText();
+
+        connect(m_cppAspect, &BaseAspect::changed, this, setSummaryText);
+        connect(m_qmlAspect, &BaseAspect::changed, this, setSummaryText);
+        connect(m_overrideStartupAspect, &BaseAspect::changed, this, setSummaryText);
+
+        return details;
     });
 
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useCppDebugger, &Data::useCppDebugger);
