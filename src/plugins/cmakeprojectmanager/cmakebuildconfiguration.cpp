@@ -1255,6 +1255,12 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
         const QString presetItemArg = presetItem.toArgument();
         const QString presetItemArgNoType = presetItemArg.left(presetItemArg.indexOf(":"));
 
+        static QSet<QByteArray> defaultKitMacroValues{"CMAKE_C_COMPILER",
+                                                      "CMAKE_CXX_COMPILER",
+                                                      "QT_QMAKE_EXECUTABLE",
+                                                      "QT_HOST_PATH",
+                                                      "CMAKE_PROJECT_INCLUDE_BEFORE"};
+
         auto it = std::find_if(initialArguments.begin(),
                                initialArguments.end(),
                                [presetItemArgNoType](const QString &arg) {
@@ -1264,6 +1270,11 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
         if (it != initialArguments.end()) {
             QString &arg = *it;
             CMakeConfigItem argItem = CMakeConfigItem::fromString(arg.mid(2)); // skip -D
+
+            // These values have Qt Creator macro names pointing to the Kit values
+            // which are preset expanded values used when the Kit was created
+            if (defaultKitMacroValues.contains(argItem.key) && argItem.value.startsWith("%{"))
+                continue;
 
             // For multi value path variables append the non Qt path
             if (argItem.key == "CMAKE_PREFIX_PATH" || argItem.key == "CMAKE_FIND_ROOT_PATH") {
@@ -1275,7 +1286,7 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
                     QStringList argItemPaths = argItemExpandedValue.split(";");
                     for (const QString &argPath : argItemPaths) {
                         const FilePath argFilePath = FilePath::fromString(argPath);
-                        const FilePath presetFilePath = FilePath::fromString(presetPath);
+                        const FilePath presetFilePath = FilePath::fromUserInput(presetPath);
 
                         if (argFilePath == presetFilePath)
                             return true;
@@ -1290,12 +1301,10 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
                 }
 
                 arg = argItem.toArgument();
-            } else if (argItem.key == "CMAKE_C_COMPILER" || argItem.key == "CMAKE_CXX_COMPILER"
-                       || argItem.key == "QT_QMAKE_EXECUTABLE" || argItem.key == "QT_HOST_PATH"
-                       || argItem.key == "CMAKE_PROJECT_INCLUDE_BEFORE"
-                       || argItem.key == "CMAKE_TOOLCHAIN_FILE") {
+            } else if (argItem.key == "CMAKE_TOOLCHAIN_FILE") {
                 const FilePath argFilePath = FilePath::fromString(argItem.expandedValue(k));
-                const FilePath presetFilePath = FilePath::fromUtf8(presetItem.value);
+                const FilePath presetFilePath = FilePath::fromUserInput(
+                    QString::fromUtf8(presetItem.value));
 
                 if (argFilePath != presetFilePath)
                     arg = presetItem.toArgument();
