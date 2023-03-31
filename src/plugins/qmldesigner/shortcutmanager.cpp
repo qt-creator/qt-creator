@@ -39,21 +39,24 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QMainWindow>
+#include <QStandardPaths>
 
 namespace QmlDesigner {
 
 ShortCutManager::ShortCutManager()
-    : QObject(),
-    m_exportAsImageAction(tr("Export as &Image...")),
-    m_undoAction(tr("&Undo")),
-    m_redoAction(tr("&Redo")),
-    m_deleteAction(tr("Delete")),
-    m_cutAction(tr("Cu&t")),
-    m_copyAction(tr("&Copy")),
-    m_pasteAction(tr("&Paste")),
-    m_duplicateAction(tr("&Duplicate")),
-    m_selectAllAction(tr("Select &All")),
-    m_escapeAction(this)
+    : QObject()
+    , m_exportAsImageAction(tr("Export as &Image..."))
+    , m_takeScreenshotAction(tr("Take Screenshot"))
+    , m_undoAction(tr("&Undo"))
+    , m_redoAction(tr("&Redo"))
+    , m_deleteAction(tr("Delete"))
+    , m_cutAction(tr("Cu&t"))
+    , m_copyAction(tr("&Copy"))
+    , m_pasteAction(tr("&Paste"))
+    , m_duplicateAction(tr("&Duplicate"))
+    , m_selectAllAction(tr("Select &All"))
+    , m_escapeAction(this)
 {
 
 }
@@ -110,6 +113,23 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     command = Core::ActionManager::registerAction(action, "Edit.Annotations", qmlDesignerMainContext);
     Core::ActionManager::actionContainer(Core::Constants::M_EDIT)
         ->addAction(command, Core::Constants::G_EDIT_OTHER);
+
+    command = Core::ActionManager::registerAction(&m_takeScreenshotAction,
+                                                  QmlDesigner::Constants::TAKE_SCREENSHOT);
+    connect(&m_takeScreenshotAction, &QAction::triggered, [] {
+        const auto folder = Utils::FilePath::fromString(
+                                QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation))
+                                .pathAppended("QtDesignStudio/screenshots/");
+        folder.createDir();
+
+        const auto file = folder.pathAppended(QDateTime::currentDateTime().toString("dddd-hh-mm-ss")
+                                              + ".png");
+
+        QPixmap pixmap = Core::ICore::mainWindow()->grab();
+
+        const bool b = pixmap.save(file.toString(), "PNG");
+        qWarning() << "screenshot" << file << b << pixmap;
+    });
 
     connect(action, &QAction::triggered, this, [] { ToolBarBackend::launchGlobalAnnotations(); });
 

@@ -30,6 +30,7 @@ const char TOGGLE_RIGHT_SIDEBAR[] = "QmlDesigner.ToggleRightSideBar";
 const char TOGGLE_STATES_EDITOR[] = "QmlDesigner.ToggleStatesEditor";
 const char GO_INTO_COMPONENT[] = "QmlDesigner.GoIntoComponent";
 const char EXPORT_AS_IMAGE[] = "QmlDesigner.ExportAsImage";
+const char TAKE_SCREENSHOT[] = "QmlDesigner.TakeScreenshot";
 const char FORMEDITOR_REFRESH[] = "QmlDesigner.FormEditor.Refresh";
 const char FORMEDITOR_SNAPPING[] = "QmlDesigner.FormEditor.Snapping";
 const char FORMEDITOR_NO_SNAPPING[] = "QmlDesigner.FormEditor.NoSnapping";
