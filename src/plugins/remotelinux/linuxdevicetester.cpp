@@ -13,6 +13,7 @@
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -98,9 +99,10 @@ TaskItem GenericLinuxDeviceTesterPrivate::echoTask() const
         process.setCommand({m_device->filePath("echo"), {s_echoContents}});
     };
     const auto done = [this](const QtcProcess &process) {
-        const QString reply = process.cleanedStdOut().chopped(1); // Remove trailing '\n'
+        const QString reply = Utils::chopIfEndsWith(process.cleanedStdOut(), '\n');
         if (reply != s_echoContents)
-            emit q->errorMessage(Tr::tr("Device replied to echo with unexpected contents.") + '\n');
+            emit q->errorMessage(Tr::tr("Device replied to echo with unexpected contents: \"%1\"")
+                    .arg(reply) + '\n');
         else
             emit q->progressMessage(Tr::tr("Device replied to echo with expected contents.") + '\n');
     };
