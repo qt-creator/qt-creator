@@ -500,7 +500,15 @@ void ObjectNodeInstance::setPropertyBinding(const PropertyName &name, const QStr
     if (!isSimpleExpression(expression))
         return;
 
-    QmlPrivateGate::setPropertyBinding(object(), context(), name, expression);
+    QQmlExpression qmlExpression(context(), object(), expression);
+    qmlExpression.evaluate();
+    if (qmlExpression.hasError())
+        QmlPrivateGate::setPropertyBinding(object(),
+                                           context()->engine()->rootContext(),
+                                           name,
+                                           expression);
+    else
+        QmlPrivateGate::setPropertyBinding(object(), context(), name, expression);
 }
 
 void ObjectNodeInstance::deleteObjectsInList(const QQmlProperty &property)
