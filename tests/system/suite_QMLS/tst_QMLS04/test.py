@@ -48,8 +48,12 @@ def main():
     except:
         pass
     # open MyComponent.qml file for verification
-    if not test.verify(openDocument(myCompTE),
-                       "Was MyComponent.qml properly generated in project explorer?"):
+    docOpened = openDocument(myCompTE)
+    if JIRA.isBugStillOpen(28985):
+        test.xverify(docOpened, "Was MyComponent.qml properly generated in project explorer?")
+        saveAndExit()
+        return
+    if not test.verify(docOpened, "Was MyComponent.qml properly generated in project explorer?"):
         test.fatal("Could not open MyComponent.qml.")
         saveAndExit()
         return
