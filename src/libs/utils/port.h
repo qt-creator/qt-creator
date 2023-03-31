@@ -25,6 +25,7 @@ public:
     QString toString() const { return QString::number(m_port); }
 
     static QList<Port> parseFromSedOutput(const QByteArray &output);
+    static QList<Port> parseFromCatOutput(const QByteArray &output);
     static QList<Port> parseFromNetstatOutput(const QByteArray &output);
 
     friend bool operator<(const Port &p1, const Port &p2) { return p1.number() < p2.number(); }

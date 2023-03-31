@@ -6,6 +6,8 @@
 #include "qtcassert.h"
 #include "stringutils.h"
 
+#include <QRegularExpression>
+
 #include <limits>
 
 /*! \class Utils::Port
@@ -46,6 +48,36 @@ QList<Port> Port::parseFromSedOutput(const QByteArray &output)
         } else {
             qWarning("%s: Unexpected string '%s' is not a port.",
                      Q_FUNC_INFO, portString.data());
+        }
+    }
+    return ports;
+}
+
+QList<Port> Port::parseFromCatOutput(const QByteArray &output)
+{
+    // Parse something like
+    //  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
+    // : 00000000:2717 00000000:0000 0A 00000000:00000000 00:00000000 00000000  1001        0 3995881 1 0000000000000000 100 0 0 10 0
+    // : 00000000:2716 00000000:0000 0A 00000000:00000000 00:00000000 00000000  1001        0 3594482 1 0000000000000000 100 0 0 10 0
+    const QRegularExpression re(".*: [[:xdigit:]]*:([[:xdigit:]]{4}).*");
+
+    QList<Port> ports;
+    const QStringList lines = QString::fromLocal8Bit(output).split('\n');
+    for (const QString &line : lines) {
+        const QRegularExpressionMatch match = re.match(line);
+        if (!match.hasMatch())
+            continue;
+        const QString portString = match.captured(1);
+        if (portString.size() != 4)
+            continue;
+        bool ok;
+        const Port port(portString.toInt(&ok, 16));
+        if (ok) {
+            if (!ports.contains(port))
+                ports << port;
+        } else {
+            qWarning("%s: Unexpected string '%s' is not a port.",
+                     Q_FUNC_INFO, qPrintable(portString));
         }
     }
     return ports;

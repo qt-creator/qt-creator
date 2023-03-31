@@ -1048,13 +1048,17 @@ PortsGatheringMethod LinuxDevice::portsGatheringMethod() const
 
             Q_UNUSED(protocol)
 
-            // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
-            return {filePath("sed"),
-                    "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*",
-                    CommandLine::Raw};
+            // We used to have
+            //            // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
+            //            return {filePath("sed"),
+            //                    "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*",
+            //
+            // here, but that doesn't pass quoting on double-remote setups.
+            // Chicken out by using a simpler command.
+            return {filePath("cat"), {"/proc/net/tcp*"}};
         },
 
-        &Port::parseFromSedOutput
+        &Port::parseFromCatOutput
     };
 }
 
