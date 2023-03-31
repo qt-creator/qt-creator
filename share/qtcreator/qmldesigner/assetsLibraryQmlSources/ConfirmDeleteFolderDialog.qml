@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Controls
 import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
+import StudioControls as StudioControls
 import AssetsLibraryBackend
 
 StudioControls.Dialog {
