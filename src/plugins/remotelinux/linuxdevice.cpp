@@ -392,7 +392,6 @@ public:
 
     QString m_socketFilePath;
     SshParameters m_sshParameters;
-    IDevice::ConstPtr m_linkDevice;
 
     bool m_connecting = false;
     bool m_killed = false;
@@ -596,12 +595,32 @@ SshProcessInterfacePrivate::SshProcessInterfacePrivate(SshProcessInterface *sshI
 void SshProcessInterfacePrivate::start()
 {
     clearForStart();
+    m_sshParameters = m_device->sshParameters();
 
     const Id linkDeviceId = Id::fromSetting(m_device->extraData(Constants::LinkDevice));
-    m_linkDevice = DeviceManager::instance()->find(linkDeviceId);
-    m_useConnectionSharing = !m_linkDevice && SshSettings::connectionSharingEnabled();
+    if (const IDevice::ConstPtr linkDevice = DeviceManager::instance()->find(linkDeviceId)) {
+        CommandLine cmd{linkDevice->filePath("ssh")};
+        if (!m_sshParameters.userName().isEmpty()) {
+            cmd.addArg("-l");
+            cmd.addArg(m_sshParameters.userName());
+        }
+        cmd.addArg(m_sshParameters.host());
 
-    m_sshParameters = m_device->sshParameters();
+        const CommandLine full = q->m_setup.m_commandLine;
+        if (!full.isEmpty()) {
+            // Empty is ok in case of opening a terminal.
+            cmd.addArgs(QString("echo ") + s_pidMarker + "\\$\\$" + s_pidMarker + " \\&\\& ",
+                        CommandLine::Raw);
+            cmd.addCommandLineAsArgs(full, CommandLine::Raw);
+        }
+
+        m_process.setCommand(cmd);
+        m_process.start();
+        return;
+    }
+
+    m_useConnectionSharing = SshSettings::connectionSharingEnabled();
+
     // TODO: Do we really need it for master process?
     m_sshParameters.x11DisplayName
             = q->m_setup.m_extraData.value("Ssh.X11ForwardToDisplay").toString();
@@ -672,17 +691,14 @@ void SshProcessInterfacePrivate::doStart()
     m_process.start();
 }
 
-static CommandLine getCommandLine(
-    const FilePath sshBinary,
-    const CommandLine commandLine0,
-    const FilePath &workingDirectory,
-    const Environment &env,
-    const QStringList &options,
-    bool useX,
-    bool useTerminal,
-    bool usePidMarker,
-    bool sourceProfile)
+CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
 {
+    const FilePath sshBinary = SshSettings::sshFilePath();
+    const bool useTerminal = q->m_setup.m_terminalMode != TerminalMode::Off || q->m_setup.m_ptyData;
+    const bool usePidMarker = !useTerminal;
+    const bool sourceProfile = m_device->extraData(Constants::SourceProfile).toBool();
+    const bool useX = !m_sshParameters.x11DisplayName.isEmpty();
+
     CommandLine cmd{sshBinary};
 
     if (useX)
@@ -692,9 +708,13 @@ static CommandLine getCommandLine(
 
     cmd.addArg("-q");
 
-    cmd.addArgs(options);
+    cmd.addArgs(m_sshParameters.connectionOptions(sshBinary));
+    if (!m_socketFilePath.isEmpty())
+        cmd.addArgs({"-o", "ControlPath=" + m_socketFilePath});
 
-    CommandLine commandLine = commandLine0;
+    cmd.addArg(m_sshParameters.host());
+
+    CommandLine commandLine = q->m_setup.m_commandLine;
     FilePath executable = FilePath::fromParts({}, {}, commandLine.executable().path());
     commandLine.setExecutable(executable);
 
@@ -710,6 +730,7 @@ static CommandLine getCommandLine(
         }
     }
 
+    const FilePath &workingDirectory = q->m_setup.m_workingDirectory;
     if (!workingDirectory.isEmpty()) {
         inner.addArgs({"cd", workingDirectory.path()});
         inner.addArgs("&&", CommandLine::Raw);
@@ -718,6 +739,7 @@ static CommandLine getCommandLine(
     if (usePidMarker)
         inner.addArgs(QString("echo ") + s_pidMarker + "$$" + s_pidMarker + " && ", CommandLine::Raw);
 
+    const Environment &env = q->m_setup.m_environment;
     env.forEachEntry([&](const QString &key, const QString &value, bool) {
         inner.addArgs(key + "='" + env.expandVariables(value) + '\'', CommandLine::Raw);
     });
@@ -729,64 +751,6 @@ static CommandLine getCommandLine(
         inner.addCommandLineAsArgs(commandLine, CommandLine::Raw);
 
     cmd.addArg(inner.arguments());
-
-    return cmd;
-}
-
-CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
-{
-    const FilePath sshBinary = SshSettings::sshFilePath();
-    const bool useTerminal = q->m_setup.m_terminalMode != TerminalMode::Off || q->m_setup.m_ptyData;
-    const bool usePidMarker = !useTerminal;
-    const bool sourceProfile = m_device->extraData(Constants::SourceProfile).toBool();
-    const bool useX = !m_sshParameters.x11DisplayName.isEmpty();
-
-    CommandLine cmd;
-    if (m_linkDevice) {
-        QStringList farOptions = m_sshParameters.connectionOptions("ssh");
-        farOptions << m_sshParameters.host();
-
-        const SshParameters nearParameters = m_linkDevice->sshParameters();
-        QStringList nearOptions = nearParameters.connectionOptions(sshBinary);
-//        if (!m_socketFilePath.isEmpty())
-//            options << "-o" << ("ControlPath=" + m_socketFilePath);
-        nearOptions << nearParameters.host();
-
-        cmd = getCommandLine("ssh",
-                             q->m_setup.m_commandLine,
-                             {},
-                             {},
-                             farOptions,
-                             false,
-                             false,
-                             false,
-                             false);
-
-        cmd = getCommandLine(sshBinary,
-                             cmd,
-                             {},
-                             {},
-                             nearOptions,
-                             false,
-                             false,
-                             usePidMarker,
-                             false);
-    } else {
-        QStringList options = m_sshParameters.connectionOptions(sshBinary);
-        if (!m_socketFilePath.isEmpty())
-            options << "-o" << ("ControlPath=" + m_socketFilePath);
-        options << m_sshParameters.host();
-
-        cmd = getCommandLine(sshBinary,
-                             q->m_setup.m_commandLine,
-                             q->m_setup.m_workingDirectory,
-                             q->m_setup.m_environment,
-                             options,
-                             useX,
-                             useTerminal,
-                             usePidMarker,
-                             sourceProfile);
-    }
 
     return cmd;
 }

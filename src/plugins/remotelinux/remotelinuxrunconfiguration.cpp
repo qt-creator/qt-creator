@@ -65,7 +65,8 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
         QTC_ASSERT(runDevice, return);
         const BuildTargetInfo bti = buildTargetInfo();
         const FilePath localExecutable = bti.targetFilePath;
-        const DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
+        const DeploymentData deploymentData = target->deploymentData();
+        const DeployableFile depFile = deploymentData.deployableForLocalFile(localExecutable);
 
         exeAspect->setExecutable(runDevice->filePath(depFile.remoteFilePath()));
         symbolsAspect->setFilePath(localExecutable);

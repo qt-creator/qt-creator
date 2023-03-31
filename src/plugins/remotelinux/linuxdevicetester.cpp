@@ -154,9 +154,14 @@ TaskItem GenericLinuxDeviceTesterPrivate::gathererTask() const
         }
     };
     const auto error = [this](const DeviceUsedPortsGatherer &gatherer) {
-        emit q->errorMessage(Tr::tr("Error gathering ports: %1").arg(gatherer.errorString()) + '\n');
+        emit q->errorMessage(Tr::tr("Error gathering ports: %1").arg(gatherer.errorString()) + '\n'
+                           + Tr::tr("Some tools will not work out of the box.\n"));
     };
-    return PortGatherer(setup, done, error);
+
+    return Group {
+        optional,
+        PortGatherer(setup, done, error)
+    };
 }
 
 TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method,
