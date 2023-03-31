@@ -50,6 +50,7 @@ public:
     {
         setId({});
         setDisplayName({});
+        setDescription({});
         setDefaultShortcutString({});
         setEnabled(false);
         setHidden(true);
@@ -63,6 +64,7 @@ public:
     {
         setId({});
         setDisplayName({});
+        setDescription({});
         setDefaultShortcutString({});
         setEnabled(false);
         setHidden(true);
@@ -82,6 +84,7 @@ public:
     {
         setId({});
         setDisplayName({});
+        setDescription({});
         setDefaultShortcutString({});
         setEnabled(false);
         setHidden(true);
@@ -94,6 +97,7 @@ public:
     LspClassesFilter() {
         setId({});
         setDisplayName({});
+        setDescription({});
         setDefaultShortcutString({});
         setEnabled(false);
         setHidden(true);
@@ -112,6 +116,7 @@ public:
     {
         setId({});
         setDisplayName({});
+        setDescription({});
         setDefaultShortcutString({});
         setEnabled(false);
         setHidden(true);
@@ -125,6 +130,7 @@ public:
     {
         setId({});
         setDisplayName({});
+        setDescription({});
         setDefaultShortcutString({});
         setEnabled(false);
         setHidden(true);
@@ -148,6 +154,7 @@ ClangGlobalSymbolFilter::ClangGlobalSymbolFilter(ILocatorFilter *cppFilter,
 {
     setId(CppEditor::Constants::LOCATOR_FILTER_ID);
     setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::LOCATOR_FILTER_DISPLAY_NAME));
+    setDescription(::CppEditor::Tr::tr(CppEditor::Constants::LOCATOR_FILTER_DESCRIPTION));
     setDefaultShortcutString(":");
     setDefaultIncludedByDefault(false);
 }
@@ -175,6 +182,7 @@ ClangClassesFilter::ClangClassesFilter()
 {
     setId(CppEditor::Constants::CLASSES_FILTER_ID);
     setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::CLASSES_FILTER_DISPLAY_NAME));
+    setDescription(::CppEditor::Tr::tr(CppEditor::Constants::CLASSES_FILTER_DESCRIPTION));
     setDefaultShortcutString("c");
     setDefaultIncludedByDefault(false);
 }
@@ -184,6 +192,7 @@ ClangFunctionsFilter::ClangFunctionsFilter()
 {
     setId(CppEditor::Constants::FUNCTIONS_FILTER_ID);
     setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
+    setDescription(::CppEditor::Tr::tr(CppEditor::Constants::FUNCTIONS_FILTER_DESCRIPTION));
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);
 }
@@ -195,6 +204,7 @@ public:
     {
         setId({});
         setDisplayName({});
+        setDescription({});
         setDefaultShortcutString({});
         setEnabled(false);
         setHidden(true);
@@ -309,6 +319,7 @@ ClangdCurrentDocumentFilter::ClangdCurrentDocumentFilter() : d(new Private)
 {
     setId(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_ID);
     setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME));
+    setDescription(::CppEditor::Tr::tr(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_DESCRIPTION));
     setDefaultShortcutString(".");
     setPriority(High);
     setDefaultIncludedByDefault(false);

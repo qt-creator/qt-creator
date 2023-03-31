@@ -114,8 +114,7 @@ DocumentLocatorFilter::DocumentLocatorFilter()
 {
     setId(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_DISPLAY_NAME));
-    setDescription(
-        Tr::tr("Matches all symbols from the current document, based on a language server."));
+    setDescription(Tr::tr(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_DESCRIPTION));
     setDefaultShortcutString(".");
     setDefaultIncludedByDefault(false);
     setPriority(ILocatorFilter::Low);
@@ -292,6 +291,7 @@ WorkspaceLocatorFilter::WorkspaceLocatorFilter(const QVector<SymbolKind> &filter
 {
     setId(Constants::LANGUAGECLIENT_WORKSPACE_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_FILTER_DISPLAY_NAME));
+    setDescription(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_FILTER_DESCRIPTION));
     setDefaultShortcutString(":");
     setDefaultIncludedByDefault(false);
     setPriority(ILocatorFilter::Low);
@@ -388,6 +388,7 @@ WorkspaceClassLocatorFilter::WorkspaceClassLocatorFilter()
 {
     setId(Constants::LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_DISPLAY_NAME));
+    setDescription(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_DESCRIPTION));
     setDefaultShortcutString("c");
 }
 
@@ -396,6 +397,7 @@ WorkspaceMethodLocatorFilter::WorkspaceMethodLocatorFilter()
 {
     setId(Constants::LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_DISPLAY_NAME));
+    setDescription(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_DESCRIPTION));
     setDefaultShortcutString("m");
 }
 

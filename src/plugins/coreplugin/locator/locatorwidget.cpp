@@ -26,6 +26,7 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/stylehelper.h>
+#include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -599,6 +600,10 @@ LocatorWidget::LocatorWidget(Locator *locator)
     connect(m_filterMenu, &QMenu::aboutToShow, this, [this] {
         m_centeredPopupAction->setChecked(Locator::useCenteredPopupForShortcut());
     });
+    connect(m_filterMenu, &QMenu::hovered, this, [this](QAction *action) {
+        ToolTip::show(m_filterMenu->mapToGlobal(m_filterMenu->actionGeometry(action).topRight()),
+                      action->toolTip());
+    });
     connect(m_centeredPopupAction, &QAction::toggled, locator, [locator](bool toggled) {
         if (toggled != Locator::useCenteredPopupForShortcut()) {
             Locator::setUseCenteredPopupForShortcut(toggled);
@@ -672,12 +677,20 @@ void LocatorWidget::updatePlaceholderText(Command *command)
 void LocatorWidget::updateFilterList()
 {
     m_filterMenu->clear();
-    const QList<ILocatorFilter *> filters = Locator::filters();
+    const QList<ILocatorFilter *> filters = Utils::sorted(Locator::filters(),
+                                                          [](ILocatorFilter *a, ILocatorFilter *b) {
+                                                              return a->displayName()
+                                                                     < b->displayName();
+                                                          });
     for (ILocatorFilter *filter : filters) {
         if (filter->shortcutString().isEmpty() || filter->isHidden())
             continue;
         QAction *action = m_filterMenu->addAction(filter->displayName());
-        action->setToolTip(filter->description());
+        action->setEnabled(filter->isEnabled());
+        const QString description = filter->description();
+        action->setToolTip(description.isEmpty() ? QString()
+                                                 : ("<html>" + description.toHtmlEscaped()));
+        connect(filter, &ILocatorFilter::enabledChanged, action, &QAction::setEnabled);
         connect(action, &QAction::triggered, this, [this, filter] {
             Locator::showFilter(filter, this);
         });

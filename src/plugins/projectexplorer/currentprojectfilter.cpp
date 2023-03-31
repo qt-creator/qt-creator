@@ -20,9 +20,9 @@ CurrentProjectFilter::CurrentProjectFilter()
 {
     setId("Files in current project");
     setDisplayName(Tr::tr("Files in Current Project"));
-    setDescription(Tr::tr("Matches all files from the current document's project. Append \"+<number>\" "
-                      "or \":<number>\" to jump to the given line number. Append another "
-                      "\"+<number>\" or \":<number>\" to jump to the column number as well."));
+    setDescription(Tr::tr("Locates files from the current document's project. Append \"+<number>\" "
+                          "or \":<number>\" to jump to the given line number. Append another "
+                          "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("p");
     setDefaultIncludedByDefault(false);
     setRefreshRecipe(Tasking::Sync([this] { invalidateCache(); return true; }));

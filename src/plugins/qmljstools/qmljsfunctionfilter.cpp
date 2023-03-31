@@ -20,6 +20,7 @@ FunctionFilter::FunctionFilter(LocatorData *data, QObject *parent)
 {
     setId("Functions");
     setDisplayName(Tr::tr("QML Functions"));
+    setDescription(Tr::tr("Locates QML functions in any open project."));
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);
 }

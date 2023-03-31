@@ -20,9 +20,9 @@ AllProjectsFilter::AllProjectsFilter()
 {
     setId("Files in any project");
     setDisplayName(Tr::tr("Files in Any Project"));
-    setDescription(Tr::tr("Matches all files of all open projects. Append \"+<number>\" or "
-                      "\":<number>\" to jump to the given line number. Append another "
-                      "\"+<number>\" or \":<number>\" to jump to the column number as well."));
+    setDescription(Tr::tr("Locates files of all open projects. Append \"+<number>\" or "
+                          "\":<number>\" to jump to the given line number. Append another "
+                          "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("a");
     setDefaultIncludedByDefault(true);
     setRefreshRecipe(Tasking::Sync([this] { invalidateCache(); return true; }));

@@ -102,7 +102,7 @@ CppIncludesFilter::CppIncludesFilter()
     setId(Constants::INCLUDES_FILTER_ID);
     setDisplayName(Tr::tr(Constants::INCLUDES_FILTER_DISPLAY_NAME));
     setDescription(
-        Tr::tr("Matches all files that are included by all C++ files in all projects. Append "
+        Tr::tr("Locates files that are included by C++ files of any open project. Append "
                "\"+<number>\" or \":<number>\" to jump to the given line number. Append another "
                "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("ai");

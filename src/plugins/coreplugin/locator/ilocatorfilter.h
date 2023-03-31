@@ -251,6 +251,9 @@ public:
 public slots:
     void setEnabled(bool enabled);
 
+signals:
+    void enabledChanged(bool enabled);
+
 protected:
     void setHidden(bool hidden);
     void setId(Utils::Id id);

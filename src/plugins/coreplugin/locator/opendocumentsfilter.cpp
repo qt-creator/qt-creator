@@ -21,6 +21,7 @@ OpenDocumentsFilter::OpenDocumentsFilter()
 {
     setId("Open documents");
     setDisplayName(Tr::tr("Open Documents"));
+    setDescription(Tr::tr("Switches to an open document."));
     setDefaultShortcutString("o");
     setPriority(High);
     setDefaultIncludedByDefault(true);

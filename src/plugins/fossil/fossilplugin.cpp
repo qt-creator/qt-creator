@@ -293,6 +293,7 @@ FossilPluginPrivate::FossilPluginPrivate()
     connect(&m_client, &VcsBase::VcsBaseClient::changed, this, &FossilPluginPrivate::changed);
 
     m_commandLocator = new Core::CommandLocator("Fossil", "fossil", "fossil", this);
+    m_commandLocator->setDescription(Tr::tr("Triggers a Fossil version control operation."));
 
     ProjectExplorer::JsonWizardFactory::addWizardPath(Utils::FilePath::fromString(Constants::WIZARD_PATH));
     Core::JsExpander::registerGlobalObject("Fossil", [this] {

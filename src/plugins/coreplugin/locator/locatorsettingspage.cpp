@@ -101,8 +101,10 @@ QVariant FilterItem::data(int column, int role) const
         break;
     }
 
-    if (role == Qt::ToolTipRole)
-        return m_filter->description();
+    if (role == Qt::ToolTipRole) {
+        const QString description = m_filter->description();
+        return description.isEmpty() ? QString() : ("<html>" + description.toHtmlEscaped());
+    }
     return QVariant();
 }
 

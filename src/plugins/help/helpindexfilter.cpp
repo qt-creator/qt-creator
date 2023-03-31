@@ -25,6 +25,7 @@ HelpIndexFilter::HelpIndexFilter()
 {
     setId("HelpIndexFilter");
     setDisplayName(Tr::tr("Help Index"));
+    setDescription(Tr::tr("Locates help topics, for example in the Qt documentation."));
     setDefaultIncludedByDefault(false);
     setDefaultShortcutString("?");
     setRefreshRecipe(Utils::Tasking::Sync([this] { invalidateCache(); return true; }));

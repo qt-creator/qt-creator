@@ -167,6 +167,7 @@ CppLocatorFilter::CppLocatorFilter()
 {
     setId(Constants::LOCATOR_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LOCATOR_FILTER_DISPLAY_NAME));
+    setDescription(Tr::tr(Constants::LOCATOR_FILTER_DESCRIPTION));
     setDefaultShortcutString(":");
     setDefaultIncludedByDefault(false);
 }
@@ -263,6 +264,7 @@ CppClassesFilter::CppClassesFilter()
 {
     setId(Constants::CLASSES_FILTER_ID);
     setDisplayName(Tr::tr(Constants::CLASSES_FILTER_DISPLAY_NAME));
+    setDescription(Tr::tr(Constants::CLASSES_FILTER_DESCRIPTION));
     setDefaultShortcutString("c");
     setDefaultIncludedByDefault(false);
 }
@@ -283,6 +285,7 @@ CppFunctionsFilter::CppFunctionsFilter()
 {
     setId(Constants::FUNCTIONS_FILTER_ID);
     setDisplayName(Tr::tr(Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
+    setDescription(Tr::tr(Constants::FUNCTIONS_FILTER_DESCRIPTION));
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);
 }

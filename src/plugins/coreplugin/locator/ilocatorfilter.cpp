@@ -844,7 +844,10 @@ ILocatorFilter::Priority ILocatorFilter::priority() const
 */
 void ILocatorFilter::setEnabled(bool enabled)
 {
+    if (enabled == m_enabled)
+        return;
     m_enabled = enabled;
+    emit enabledChanged(m_enabled);
 }
 
 /*!

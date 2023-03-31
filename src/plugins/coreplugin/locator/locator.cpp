@@ -66,6 +66,7 @@ public:
 
 LocatorData::LocatorData()
 {
+    m_urlFilter.setDescription(Tr::tr("Triggers a web search with the selected search engine."));
     m_urlFilter.setDefaultShortcutString("r");
     m_urlFilter.addDefaultUrl("https://www.bing.com/search?q=%1");
     m_urlFilter.addDefaultUrl("https://www.google.com/search?q=%1");
@@ -75,6 +76,7 @@ LocatorData::LocatorData()
         "http://en.cppreference.com/mwiki/index.php?title=Special%3ASearch&search=%1");
     m_urlFilter.addDefaultUrl("https://en.wikipedia.org/w/index.php?search=%1");
 
+    m_bugFilter.setDescription(Tr::tr("Triggers a search in the Qt bug tracker."));
     m_bugFilter.setDefaultShortcutString("bug");
     m_bugFilter.addDefaultUrl("https://bugreports.qt.io/secure/QuickSearch.jspa?searchString=%1");
 }

@@ -92,7 +92,7 @@ void CMakeTargetLocatorFilter::projectListUpdated()
 BuildCMakeTargetLocatorFilter::BuildCMakeTargetLocatorFilter()
 {
     setId("Build CMake target");
-    setDisplayName(Tr::tr("Build CMake target"));
+    setDisplayName(Tr::tr("Build CMake Target"));
     setDescription(Tr::tr("Builds a target of any open CMake project."));
     setDefaultShortcutString("cm");
     setPriority(High);
@@ -139,8 +139,8 @@ void BuildCMakeTargetLocatorFilter::accept(const LocatorFilterEntry &selection, 
 OpenCMakeTargetLocatorFilter::OpenCMakeTargetLocatorFilter()
 {
     setId("Open CMake target definition");
-    setDisplayName(Tr::tr("Open CMake target"));
-    setDescription(Tr::tr("Jumps to the definition of a target of any open CMake project."));
+    setDisplayName(Tr::tr("Open CMake Target"));
+    setDescription(Tr::tr("Locates the definition of a target of any open CMake project."));
     setDefaultShortcutString("cmo");
     setPriority(Medium);
 }

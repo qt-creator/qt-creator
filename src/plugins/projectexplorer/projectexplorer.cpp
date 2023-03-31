@@ -4357,10 +4357,9 @@ AllProjectFilesFilter::AllProjectFilesFilter()
     setDefaultIncludedByDefault(false); // but not included in default
     setFilters({});
     setIsCustomFilter(false);
-    setDescription(Tr::tr(
-        "Matches all files from all project directories. Append \"+<number>\" or "
-        "\":<number>\" to jump to the given line number. Append another "
-        "\"+<number>\" or \":<number>\" to jump to the column number as well."));
+    setDescription(Tr::tr("Locates files from all project directories. Append \"+<number>\" or "
+                          "\":<number>\" to jump to the given line number. Append another "
+                          "\"+<number>\" or \":<number>\" to jump to the column number as well."));
 
     ProjectManager *projectManager = ProjectManager::instance();
     QTC_ASSERT(projectManager, return);
@@ -4440,8 +4439,8 @@ static RunConfiguration *runConfigurationForDisplayName(const QString &displayNa
 RunRunConfigurationLocatorFilter::RunRunConfigurationLocatorFilter()
 {
     setId("Run run configuration");
-    setDisplayName(Tr::tr("Run run configuration"));
-    setDescription(Tr::tr("Run a run configuration of the current active project"));
+    setDisplayName(Tr::tr("Run Run Configuration"));
+    setDescription(Tr::tr("Runs a run configuration of the active project."));
     setDefaultShortcutString("rr");
     setPriority(Medium);
 }
@@ -4463,8 +4462,8 @@ void RunRunConfigurationLocatorFilter::accept(const LocatorFilterEntry &selectio
 SwitchToRunConfigurationLocatorFilter::SwitchToRunConfigurationLocatorFilter()
 {
     setId("Switch run configuration");
-    setDisplayName(Tr::tr("Switch run configuration"));
-    setDescription(Tr::tr("Switch active run configuration"));
+    setDisplayName(Tr::tr("Switch Run Configuration"));
+    setDescription(Tr::tr("Switches the active run configuration of the active project."));
     setDefaultShortcutString("sr");
     setPriority(Medium);
 }

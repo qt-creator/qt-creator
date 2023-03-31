@@ -75,7 +75,7 @@ DirectoryFilter::DirectoryFilter(Id id)
     setId(id);
     setDefaultIncludedByDefault(true);
     setDisplayName(defaultDisplayName());
-    setDescription(Tr::tr("Matches all files from a custom set of directories. Append \"+<number>\" "
+    setDescription(Tr::tr("Locates files from a custom set of directories. Append \"+<number>\" "
                           "or \":<number>\" to jump to the given line number. Append another "
                           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
 
