@@ -67,7 +67,7 @@ public:
     const QList<ProjectExplorer::BuildTargetInfo> appTargets() const;
     QStringList buildTargetTitles() const;
     const QList<CMakeBuildTarget> &buildTargets() const;
-    ProjectExplorer::DeploymentData deploymentData() const;
+    ProjectExplorer::DeploymentData deploymentDataFromFile() const;
 
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 
