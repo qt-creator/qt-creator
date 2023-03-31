@@ -119,7 +119,7 @@ std::unique_ptr<QWidget> ToolBar::createStatusBar()
         w->hide();
     }
 
-    Core::ICore::statusBar()->addWidget(quickWidget.get());
+    Core::ICore::statusBar()->addPermanentWidget(quickWidget.get(), 100);
     Core::ICore::statusBar()->setFixedHeight(Theme::toolbarSize());
 
     return quickWidget;
