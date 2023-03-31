@@ -325,7 +325,6 @@ void BuildSystem::setDeploymentData(const DeploymentData &deploymentData)
     if (d->m_deploymentData != deploymentData) {
         d->m_deploymentData = deploymentData;
         emit deploymentDataChanged();
-        emit applicationTargetsChanged();
         emit target()->deploymentDataChanged();
     }
 }
@@ -337,10 +336,7 @@ DeploymentData BuildSystem::deploymentData() const
 
 void BuildSystem::setApplicationTargets(const QList<BuildTargetInfo> &appTargets)
 {
-    if (Utils::toSet(appTargets) != Utils::toSet(d->m_appTargets)) {
-        d->m_appTargets = appTargets;
-        emit applicationTargetsChanged();
-    }
+    d->m_appTargets = appTargets;
 }
 
 const QList<BuildTargetInfo> BuildSystem::applicationTargets() const

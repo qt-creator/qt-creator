@@ -152,7 +152,6 @@ signals:
     void parsingStarted();
     void parsingFinished(bool success);
     void deploymentDataChanged();
-    void applicationTargetsChanged();
     void testInformationUpdated();
 
 protected:
