@@ -411,11 +411,6 @@ void DirectoryFilter::removeDirectory(const FilePath &directory)
     setDirectories(directories);
 }
 
-FilePaths DirectoryFilter::directories() const
-{
-    return m_directories;
-}
-
 void DirectoryFilter::setFilters(const QStringList &filters)
 {
     m_filters = filters;

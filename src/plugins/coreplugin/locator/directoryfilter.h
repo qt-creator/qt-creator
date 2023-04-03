@@ -20,19 +20,18 @@ public:
     void restoreState(const QByteArray &state) override;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
 
+protected:
     void setIsCustomFilter(bool value);
-    void setDirectories(const Utils::FilePaths &directories);
     void addDirectory(const Utils::FilePath &directory);
     void removeDirectory(const Utils::FilePath &directory);
-    Utils::FilePaths directories() const;
     void setFilters(const QStringList &filters);
     void setExclusionFilters(const QStringList &exclusionFilters);
 
-protected:
     void saveState(QJsonObject &object) const override;
     void restoreState(const QJsonObject &object) override;
 
 private:
+    void setDirectories(const Utils::FilePaths &directories);
     void handleAddDirectory();
     void handleEditDirectory();
     void handleRemoveDirectory();

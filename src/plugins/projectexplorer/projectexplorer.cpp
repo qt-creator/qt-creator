@@ -863,16 +863,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             dd, &ProjectExplorerPluginPrivate::loadSesssionTasks);
 
-    connect(sessionManager, &ProjectManager::projectAdded, dd, [](ProjectExplorer::Project *project) {
-        dd->m_allProjectDirectoriesFilter.addDirectory(project->projectDirectory());
-    });
-    connect(sessionManager,
-            &ProjectManager::projectRemoved,
-            dd,
-            [](ProjectExplorer::Project *project) {
-                dd->m_allProjectDirectoriesFilter.removeDirectory(project->projectDirectory());
-            });
-
     ProjectTree *tree = &dd->m_projectTree;
     connect(tree, &ProjectTree::currentProjectChanged, dd, [] {
         dd->updateContextMenuActions(ProjectTree::currentNode());
@@ -4371,6 +4361,15 @@ AllProjectFilesFilter::AllProjectFilesFilter()
         "Matches all files from all project directories. Append \"+<number>\" or "
         "\":<number>\" to jump to the given line number. Append another "
         "\"+<number>\" or \":<number>\" to jump to the column number as well."));
+
+    ProjectManager *projectManager = ProjectManager::instance();
+    QTC_ASSERT(projectManager, return);
+    connect(projectManager, &ProjectManager::projectAdded, this, [this](Project *project) {
+        addDirectory(project->projectDirectory());
+    });
+    connect(projectManager, &ProjectManager::projectRemoved, this, [this](Project *project) {
+        removeDirectory(project->projectDirectory());
+    });
 }
 
 const char kDirectoriesKey[] = "directories";
