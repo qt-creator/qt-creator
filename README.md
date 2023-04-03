@@ -18,7 +18,7 @@ The standalone binary packages support the following platforms:
 
 * Windows 10 (64-bit) or later
 * (K)Ubuntu Linux 20.04 (64-bit) or later
-* macOS 10.14 or later
+* macOS 10.15 or later
 
 ## Contributing
 
@@ -37,7 +37,7 @@ Prerequisites:
 
 * Qt 6.2 or later. The Qt version that you use to build Qt Creator defines the
   minimum platform versions that the result supports
-  (Windows 10, RHEL/CentOS 8.4, Ubuntu 20.04, macOS 10.14 for Qt 6.2).
+  (Windows 10, RHEL/CentOS 8.4, Ubuntu 20.04, macOS 10.15 for Qt 6.2).
 * Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
     * MinGW with GCC 9 or Visual Studio 2019 or later
