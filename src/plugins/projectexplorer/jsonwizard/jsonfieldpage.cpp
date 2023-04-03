@@ -627,7 +627,7 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
                     && !isReservedName(entry.extraInfo)
                     && !entry.extraInfo.startsWith('~')
                     && !entry.extraInfo.contains("Anonymous:")
-                    && !FilePath::fromString(entry.extraInfo).isAbsolutePath();
+                    && !FilePath::fromUserInput(entry.extraInfo).isAbsolutePath();
             const bool isBaseClassCandidate = !isReservedName(entry.displayName)
                     && !entry.displayName.startsWith("Anonymous:");
             if (isBaseClassCandidate)
