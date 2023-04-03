@@ -23,14 +23,17 @@ def toggleIssuesFilter(filterName, checked):
         test.log("Exception while toggling filter '%s'" % filterName,
                  "%s(%s)" % (str(t), str(v)))
 
-def getBuildIssues():
+
+def getBuildIssues(ignoreCodeModel=True):
     ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
     model = waitForObject(":Qt Creator.Issues_QListView").model()
-    # filter out possible code model issues present inside the Issues pane
-    toggleIssuesFilter("Clang Code Model", False)
+    if ignoreCodeModel:
+        # filter out possible code model issues present inside the Issues pane
+        toggleIssuesFilter("Clang Code Model", False)
     result = dumpBuildIssues(model)
-    # reset the filter
-    toggleIssuesFilter("Clang Code Model", True)
+    if ignoreCodeModel:
+        # reset the filter
+        toggleIssuesFilter("Clang Code Model", True)
     return result
 
 # this method checks the last build (if there's one) and logs the number of errors, warnings and
