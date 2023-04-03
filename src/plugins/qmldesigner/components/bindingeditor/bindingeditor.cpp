@@ -187,7 +187,7 @@ void BindingEditor::prepareBindings()
     for (const auto &objnode : allNodes) {
         BindingEditorDialog::BindingOption binding;
         for (const auto &property : objnode.metaInfo().properties()) {
-            const TypeName &propertyTypeName = property.propertyType().typeName();
+            const TypeName &propertyTypeName = property.propertyType().simplifiedTypeName();
 
             if (skipTypeFiltering
                     || (m_backendValueTypeName == propertyTypeName)
