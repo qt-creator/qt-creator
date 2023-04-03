@@ -580,16 +580,6 @@ void IDevice::setDebugServerPath(const FilePath &path)
     d->debugServerPath = path;
 }
 
-FilePath IDevice::debugDumperPath() const
-{
-    return d->debugDumperPath;
-}
-
-void IDevice::setDebugDumperPath(const FilePath &path)
-{
-    d->debugDumperPath = path;
-}
-
 FilePath IDevice::qmlRunCommand() const
 {
     return d->qmlRunCommand;

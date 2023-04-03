@@ -765,7 +765,8 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
     if (cmd.flags & ConsoleCommand)
         cmd.function = "-interpreter-exec console \"" + cmd.function + '"';
     cmd.function = QString::number(token) + cmd.function;
-    showMessage(cmd.function, LogInput);
+
+    showMessage(cmd.function.left(100), LogInput);
 
     if (m_scheduledTestResponses.contains(token)) {
         // Fake response for test cases.
@@ -3969,15 +3970,59 @@ void GdbEngine::handleGdbStarted()
     //if (terminal()->isUsable())
     //    runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});
 
-    runCommand({"python sys.path.insert(1, '" + rp.dumperPath.path() + "')"});
+    const FilePath dumperPath = ICore::resourcePath("debugger");
+    if (rp.debugger.command.executable().needsDevice()) {
+        // Gdb itself running remotely.
+        const FilePath loadOrderFile = dumperPath / "loadorder.txt";
+        const expected_str<QByteArray> toLoad = loadOrderFile.fileContents();
+        if (!toLoad) {
+            AsynchronousMessageBox::critical(
+                Tr::tr("Cannot Find Debugger Initialization Script"),
+                Tr::tr("Cannot read %1: %2").arg(loadOrderFile.toUserOutput(), toLoad.error()));
+            notifyEngineSetupFailed();
+            return;
+        }
 
-    // This is useful (only) in custom gdb builds that did not run 'make install'
-    const FilePath uninstalledData = rp.debugger.command.executable().parentDir()
-        / "data-directory/python";
-    if (uninstalledData.exists())
-        runCommand({"python sys.path.append('" + uninstalledData.path() + "')"});
+        runCommand({"python import sys, types"});
+        QStringList moduleList;
+        for (const QByteArray &rawModuleName : toLoad->split('\n')) {
+            const QString module = QString::fromUtf8(rawModuleName).trimmed();
+            if (module.startsWith('#'))
+                continue;
 
-    runCommand({"python from gdbbridge import *"});
+            const FilePath codeFile = dumperPath / (module + ".py");
+            const expected_str<QByteArray> code = codeFile.fileContents();
+            if (!code) {
+                qDebug() << Tr::tr("Cannot read %1: %2").arg(codeFile.toUserOutput(), code.error());
+                continue;
+            }
+
+            showMessage("Reading " + codeFile.toUserOutput(), LogInput);
+            runCommand({QString("python module = types.ModuleType('%1')").arg(module)});
+            runCommand({QString("python code = bytes.fromhex('%1').decode('utf-8')")
+                            .arg(QString::fromUtf8(code->toHex()))});
+            runCommand({QString("python exec(code, module.__dict__)")});
+            runCommand({QString("python sys.modules['%1'] = module").arg(module)});
+            runCommand({QString("python import %1").arg(module)});
+
+            if (module.endsWith("types"))
+                moduleList.append('"' + module + '"');
+        }
+
+        runCommand({"python from gdbbridge import *"});
+        runCommand(QString("python theDumper.dumpermodules = [%1]").arg(moduleList.join(',')));
+
+    } else {
+        // Gdb on local host
+        // This is useful (only) in custom gdb builds that did not run 'make install'
+        const FilePath uninstalledData = rp.debugger.command.executable().parentDir()
+            / "data-directory/python";
+        if (uninstalledData.exists())
+            runCommand({"python sys.path.append('" + uninstalledData.path() + "')"});
+
+        runCommand({"python sys.path.insert(1, '" + dumperPath.path() + "')"});
+        runCommand({"python from gdbbridge import *"});
+    }
 
     const QString path = debuggerSettings()->extraDumperFile.value();
     if (!path.isEmpty() && QFileInfo(path).isReadable()) {

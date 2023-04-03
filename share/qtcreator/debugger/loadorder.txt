@@ -1,0 +1,13 @@
+utils
+gdbtracepoint
+dumper
+gdbbridge
+boosttypes
+creatortypes
+libcpp_stdtypes
+misctypes
+opencvtypes
+personaltypes
+qttypes
+stdtypes
+android_stdtypes

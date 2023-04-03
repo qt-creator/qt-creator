@@ -35,6 +35,7 @@ set(resource_files
   debugger/libcpp_stdtypes.py
   debugger/stdtypes.py
   debugger/utils.py
+  debugger/loadorder.txt
 )
 
 # copy resource directories during build

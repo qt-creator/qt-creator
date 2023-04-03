@@ -219,7 +219,8 @@ void LldbEngine::handleLldbStarted()
 
     const DebuggerRunParameters &rp = runParameters();
 
-    executeCommand("script sys.path.insert(1, '" + rp.dumperPath.path() + "')");
+    QString dumperPath = ICore::resourcePath("debugger").path();
+    executeCommand("script sys.path.insert(1, '" + dumperPath + "')");
     // This triggers reportState("enginesetupok") or "enginesetupfailed":
     executeCommand("script from lldbbridge import *");
 

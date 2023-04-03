@@ -928,7 +928,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         }
     }
 
-    m_runParameters.dumperPath = Core::ICore::resourcePath("debugger/");
     if (QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
         const QVersionNumber qtVersion = baseQtVersion->qtVersion();
         m_runParameters.fallbackQtVersion = 0x10000 * qtVersion.majorVersion()

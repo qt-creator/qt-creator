@@ -195,10 +195,16 @@ class DumperBase():
         self.childrenPrefix = 'children=['
         self.childrenSuffix = '],'
 
-        self.dumpermodules = [
-            os.path.splitext(os.path.basename(p))[0] for p in
-            glob.glob(os.path.join(os.path.dirname(__file__), '*types.py'))
-        ]
+        self.dumpermodules = []
+
+        try:
+            # Fails in the piping case
+            self.dumpermodules = [
+                os.path.splitext(os.path.basename(p))[0] for p in
+                glob.glob(os.path.join(os.path.dirname(__file__), '*types.py'))
+            ]
+        except:
+            pass
 
         # These values are never used, but the variables need to have
         # some value base for the swapping logic in Children.__enter__()

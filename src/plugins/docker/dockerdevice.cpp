@@ -677,9 +677,6 @@ bool DockerDevicePrivate::createContainer()
     if (m_data.useLocalUidGid)
         dockerCreate.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
 #endif
-    FilePath dumperPath = FilePath::fromString("/tmp/qtcreator/debugger");
-    addTemporaryMount(Core::ICore::resourcePath("debugger/"), dumperPath);
-    q->setDebugDumperPath(dumperPath);
 
     dockerCreate.addArgs(createMountArgs());
 
