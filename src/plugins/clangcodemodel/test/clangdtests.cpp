@@ -294,7 +294,7 @@ void ClangdTestFindReferences::test()
     QVERIFY(doc);
     QTextCursor cursor(doc->document());
     cursor.setPosition(pos);
-    client()->findUsages(doc, cursor, {}, {});
+    client()->findUsages(CppEditor::CursorInEditor(cursor, doc->filePath(), nullptr, doc), {}, {});
     QVERIFY(waitForSignalOrTimeout(client(), &ClangdClient::findUsagesDone, timeOutInMs()));
 
     QCOMPARE(m_actualResults.size(), expectedResults.size());

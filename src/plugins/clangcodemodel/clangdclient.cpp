@@ -508,21 +508,56 @@ void ClangdClient::closeExtraFile(const Utils::FilePath &filePath)
                 SendDocUpdates::Ignore);
 }
 
-void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
+void ClangdClient::findUsages(const CppEditor::CursorInEditor &cursor,
                               const std::optional<QString> &replacement,
                               const std::function<void()> &renameCallback)
 {
     // Quick check: Are we even on anything searchable?
-    const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
+    const QTextCursor adjustedCursor = d->adjustedCursor(cursor.cursor(), cursor.textDocument());
     const QString searchTerm = d->searchTermFromCursor(adjustedCursor);
     if (searchTerm.isEmpty())
         return;
 
     if (replacement && versionNumber() >= QVersionNumber(16)
-            && Utils::qtcEnvironmentVariable("QTC_CLANGD_RENAMING") != "0") {
-        symbolSupport().renameSymbol(document, adjustedCursor, *replacement, renameCallback,
-                                     CppEditor::preferLowerCaseFileNames());
-        return;
+        && Utils::qtcEnvironmentVariable("QTC_CLANGD_RENAMING") != "0") {
+
+        // If we have up-to-date highlighting data, we can prevent giving clangd
+        // macros or namespaces to rename, which it can't cope with.
+        // TODO: Fix this upstream for macros; see https://github.com/clangd/clangd/issues/729.
+        bool useClangdForRenaming = true;
+        const auto highlightingData = d->highlightingData.constFind(cursor.textDocument());
+        if (highlightingData != d->highlightingData.end()
+            && highlightingData->previousTokens.second == documentVersion(cursor.filePath())) {
+            const auto candidate = std::lower_bound(
+                highlightingData->previousTokens.first.cbegin(),
+                highlightingData->previousTokens.first.cend(),
+                cursor.cursor().position(),
+                [&cursor](const ExpandedSemanticToken &token, int pos) {
+                    const int startPos = Utils::Text::positionInText(
+                        cursor.textDocument()->document(), token.line, token.column);
+                    return startPos + token.length < pos;
+                });
+            if (candidate != highlightingData->previousTokens.first.cend()) {
+                const int startPos = Utils::Text::positionInText(
+                    cursor.textDocument()->document(), candidate->line, candidate->column);
+                if (startPos <= cursor.cursor().position()) {
+                    if (candidate->type == "namespace") {
+                        CppEditor::CppModelManager::globalRename(
+                            cursor, *replacement, renameCallback,
+                            CppEditor::CppModelManager::Backend::Builtin);
+                        return;
+                    }
+                    if (candidate->type == "macro")
+                        useClangdForRenaming = false;
+                }
+            }
+        }
+
+        if (useClangdForRenaming) {
+            symbolSupport().renameSymbol(cursor.textDocument(), adjustedCursor, *replacement,
+                                         renameCallback, CppEditor::preferLowerCaseFileNames());
+            return;
+        }
     }
 
     const bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
@@ -531,14 +566,15 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
     if (searchTerm != "operator" && Utils::allOf(searchTerm, [](const QChar &c) {
             return c.isLetterOrNumber() || c == '_';
     })) {
-        d->findUsages(document, adjustedCursor, searchTerm, replacement, renameCallback, categorize);
+        d->findUsages(cursor.textDocument(), adjustedCursor, searchTerm, replacement,
+                      renameCallback, categorize);
         return;
     }
 
     // Otherwise get the proper spelling of the search term from clang, so we can put it into the
     // search widget.
-    const auto symbolInfoHandler = [this, doc = QPointer(document), adjustedCursor, replacement,
-                                    renameCallback, categorize]
+    const auto symbolInfoHandler = [this, doc = QPointer(cursor.textDocument()), adjustedCursor,
+                                    replacement, renameCallback, categorize]
             (const QString &name, const QString &, const MessageId &) {
         if (!doc)
             return;
@@ -546,7 +582,8 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
             return;
         d->findUsages(doc.data(), adjustedCursor, name, replacement, renameCallback, categorize);
     };
-    requestSymbolInfo(document->filePath(), Range(adjustedCursor).start(), symbolInfoHandler);
+    requestSymbolInfo(cursor.textDocument()->filePath(), Range(adjustedCursor).start(),
+                      symbolInfoHandler);
 }
 
 void ClangdClient::checkUnused(const Utils::Link &link, Core::SearchResult *search,
