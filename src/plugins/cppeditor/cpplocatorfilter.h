@@ -10,6 +10,10 @@
 
 namespace CppEditor {
 
+Core::LocatorMatcherTask CPPEDITOR_EXPORT cppLocatorMatcher();
+Core::LocatorMatcherTask CPPEDITOR_EXPORT cppClassMatcher();
+Core::LocatorMatcherTask CPPEDITOR_EXPORT cppFunctionMatcher();
+
 class CPPEDITOR_EXPORT CppLocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT

@@ -5,7 +5,10 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class FilePath;
+class FutureSynchronizer;
+}
 
 namespace CppEditor {
 class CppCodeModelSettings;
@@ -37,6 +40,7 @@ public:
     static Utils::FilePath licenseTemplatePath();
     static QString licenseTemplate();
     static bool usePragmaOnce();
+    static Utils::FutureSynchronizer *futureSynchronizer();
 
     void openDeclarationDefinitionInNextSplit();
     void openTypeHierarchy();
