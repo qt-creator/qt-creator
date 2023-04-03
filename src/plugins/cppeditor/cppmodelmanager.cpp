@@ -897,10 +897,10 @@ void CppModelManager::initCppTools()
             &d->m_locatorData, &CppLocatorData::onAboutToRemoveFiles);
 
     // Set up builtin filters
-    setLocatorFilter(std::make_unique<CppLocatorFilter>(&d->m_locatorData));
-    setClassesFilter(std::make_unique<CppClassesFilter>(&d->m_locatorData));
+    setLocatorFilter(std::make_unique<CppLocatorFilter>());
+    setClassesFilter(std::make_unique<CppClassesFilter>());
     setIncludesFilter(std::make_unique<CppIncludesFilter>());
-    setFunctionsFilter(std::make_unique<CppFunctionsFilter>(&d->m_locatorData));
+    setFunctionsFilter(std::make_unique<CppFunctionsFilter>());
     setSymbolsFindFilter(std::make_unique<SymbolsFindFilter>(this));
     setCurrentDocumentFilter(
                 std::make_unique<Internal::CppCurrentDocumentFilter>(this));

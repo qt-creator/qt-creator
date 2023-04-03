@@ -5,6 +5,7 @@
 
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
+#include "cpplocatordata.h"
 
 #include <utils/algorithm.h>
 
@@ -14,16 +15,13 @@ using namespace Core;
 
 namespace CppEditor {
 
-CppLocatorFilter::CppLocatorFilter(CppLocatorData *locatorData)
-    : m_data(locatorData)
+CppLocatorFilter::CppLocatorFilter()
 {
     setId(Constants::LOCATOR_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LOCATOR_FILTER_DISPLAY_NAME));
     setDefaultShortcutString(":");
     setDefaultIncludedByDefault(false);
 }
-
-CppLocatorFilter::~CppLocatorFilter() = default;
 
 LocatorFilterEntry CppLocatorFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
@@ -52,7 +50,8 @@ QList<LocatorFilterEntry> CppLocatorFilter::matchesFor(
     const QRegularExpression shortRegexp =
             hasColonColon ? createRegExp(entry.mid(entry.lastIndexOf("::") + 2)) : regexp;
 
-    m_data->filterAllFiles([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
+    CppLocatorData *locatorData = CppModelManager::instance()->locatorData();
+    locatorData->filterAllFiles([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
         if (future.isCanceled())
             return IndexItem::Break;
         const IndexItem::ItemType type = info->type();
@@ -112,16 +111,13 @@ QList<LocatorFilterEntry> CppLocatorFilter::matchesFor(
     return std::accumulate(std::begin(entries), std::end(entries), QList<LocatorFilterEntry>());
 }
 
-CppClassesFilter::CppClassesFilter(CppLocatorData *locatorData)
-    : CppLocatorFilter(locatorData)
+CppClassesFilter::CppClassesFilter()
 {
     setId(Constants::CLASSES_FILTER_ID);
     setDisplayName(Tr::tr(Constants::CLASSES_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("c");
     setDefaultIncludedByDefault(false);
 }
-
-CppClassesFilter::~CppClassesFilter() = default;
 
 LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
@@ -135,16 +131,13 @@ LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::Ptr inf
     return filterEntry;
 }
 
-CppFunctionsFilter::CppFunctionsFilter(CppLocatorData *locatorData)
-    : CppLocatorFilter(locatorData)
+CppFunctionsFilter::CppFunctionsFilter()
 {
     setId(Constants::FUNCTIONS_FILTER_ID);
     setDisplayName(Tr::tr(Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);
 }
-
-CppFunctionsFilter::~CppFunctionsFilter() = default;
 
 LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {

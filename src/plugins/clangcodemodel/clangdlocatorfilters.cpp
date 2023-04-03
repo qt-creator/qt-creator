@@ -47,7 +47,6 @@ class CppLocatorFilter : public CppEditor::CppLocatorFilter
 {
 public:
     CppLocatorFilter()
-        : CppEditor::CppLocatorFilter(CppEditor::CppModelManager::instance()->locatorData())
     {
         setId({});
         setDisplayName({});
@@ -80,7 +79,6 @@ class CppClassesFilter : public CppEditor::CppClassesFilter
 {
 public:
     CppClassesFilter()
-        : CppEditor::CppClassesFilter(CppEditor::CppModelManager::instance()->locatorData())
     {
         setId({});
         setDisplayName({});
@@ -111,7 +109,6 @@ class CppFunctionsFilter : public CppEditor::CppFunctionsFilter
 {
 public:
     CppFunctionsFilter()
-        : CppEditor::CppFunctionsFilter(CppEditor::CppModelManager::instance()->locatorData())
     {
         setId({});
         setDisplayName({});
