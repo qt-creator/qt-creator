@@ -1069,9 +1069,8 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 QString cleanString = markupString;
                 cleanString.remove('`');
                 const QStringList lines = cleanString.trimmed().split('\n');
-                if (!lines.isEmpty()) {
-                    const auto markupFilePath = Utils::FilePath::fromUserInput(
-                        lines.last().simplified());
+                for (const QString &line : lines) {
+                    const auto markupFilePath = Utils::FilePath::fromUserInput(line.simplified());
                     if (markupFilePath.exists()) {
                         d->setHelpItemForTooltip(hoverResponse.id(),
                                                  filePath,
