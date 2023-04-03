@@ -90,7 +90,7 @@
     \list
         \li \l{Connecting MCUs}
         \li \l{Running Applications on MCUs}
-        \li \l{https://doc.qt.io/QtForMCUs/index.html}{Qt for MCUs}
+        \li \l{https://doc.qt.io/QtForMCUs/index.html}{\QMCU}
     \endlist
 
     \section1 QNX
