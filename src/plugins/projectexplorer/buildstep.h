@@ -171,6 +171,7 @@ protected:
         m_stepId = id;
         m_creator = [id](BuildStepList *bsl) { return new BuildStepType(bsl, id); };
     }
+    void cloneStep(Utils::Id exitstingStepId, Utils::Id overrideNewStepId = {});
 
     void setSupportedStepList(Utils::Id id);
     void setSupportedStepLists(const QList<Utils::Id> &ids);

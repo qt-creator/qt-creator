@@ -36,6 +36,7 @@
 #include "devicesupport/desktopdevice.h"
 #include "devicesupport/desktopdevicefactory.h"
 #include "devicesupport/devicemanager.h"
+#include "devicesupport/devicecheckbuildstep.h"
 #include "devicesupport/devicesettingspage.h"
 #include "devicesupport/sshsettings.h"
 #include "devicesupport/sshsettingspage.h"
@@ -726,6 +727,7 @@ public:
         cmakeRunConfigFactory.runConfigurationId()
     }};
 
+    DeviceCheckBuildStepFactory deviceCheckBuildStepFactory;
     SanitizerOutputFormatterFactory sanitizerFormatterFactory;
 };
 

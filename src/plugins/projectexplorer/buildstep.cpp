@@ -380,6 +380,29 @@ QString BuildStepFactory::displayName() const
     return m_displayName;
 }
 
+void BuildStepFactory::cloneStep(Utils::Id exitstingStepId, Utils::Id overrideNewStepId)
+{
+    m_stepId = {};
+    m_creator = {};
+    for (BuildStepFactory *factory : BuildStepFactory::allBuildStepFactories()) {
+        if (factory->m_stepId == exitstingStepId) {
+            m_creator = factory->m_creator;
+            m_stepId = factory->m_stepId;
+            m_displayName = factory->m_displayName;
+            // Other bits are intentionally not copied as they are unlikely to be
+            // useful in the cloner's context. The cloner can/has to finish the
+            // setup on its own.
+            break;
+        }
+    }
+    // Existence should be guaranteed by plugin dependencies. In case it fails,
+    // bark and keep the factory in a state where the invalid m_stepId keeps it
+    // inaction.
+    QTC_ASSERT(m_creator, return);
+    if (overrideNewStepId.isValid())
+        m_stepId = overrideNewStepId;
+}
+
 void BuildStepFactory::setDisplayName(const QString &displayName)
 {
     m_displayName = displayName;
@@ -432,6 +455,7 @@ Id BuildStepFactory::stepId() const
 
 BuildStep *BuildStepFactory::create(BuildStepList *parent)
 {
+    QTC_ASSERT(m_creator, return nullptr);
     BuildStep *step = m_creator(parent);
     step->setDefaultDisplayName(m_displayName);
     return step;

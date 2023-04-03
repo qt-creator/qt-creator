@@ -33,8 +33,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
-#include <remotelinux/genericdirectuploadstep.h>
-#include <remotelinux/makeinstallstep.h>
 #include <remotelinux/remotelinux_constants.h>
 
 #include <QAction>
@@ -43,22 +41,12 @@ using namespace ProjectExplorer;
 
 namespace Qnx::Internal {
 
-// FIXME: Remove...
-class QnxUploadStepFactory : public RemoteLinux::GenericDirectUploadStepFactory
+class QnxDeployStepFactory : public BuildStepFactory
 {
 public:
-    QnxUploadStepFactory()
+    QnxDeployStepFactory(Utils::Id existingStepId, Utils::Id overrideId = {})
     {
-        registerStep<RemoteLinux::GenericDirectUploadStep>(Constants::QNX_DIRECT_UPLOAD_STEP_ID);
-    }
-};
-
-template <class Factory>
-class QnxDeployStepFactory : public RemoteLinux::MakeInstallStepFactory
-{
-public:
-    QnxDeployStepFactory()
-    {
+        cloneStep(existingStepId, overrideId);
         setSupportedConfiguration(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }
@@ -96,9 +84,9 @@ public:
     QnxQtVersionFactory qtVersionFactory;
     QnxDeviceFactory deviceFactory;
     QnxDeployConfigurationFactory deployConfigFactory;
-    QnxDeployStepFactory<QnxUploadStepFactory> directUploadDeployFactory;
-    QnxDeployStepFactory<RemoteLinux::MakeInstallStepFactory> makeInstallDeployFactory;
-    QnxDeployStepFactory<DeviceCheckBuildStepFactory> checkBuildDeployFactory;
+    QnxDeployStepFactory directUploadDeployFactory{RemoteLinux::Constants::DirectUploadStepId,
+                                                   Constants::QNX_DIRECT_UPLOAD_STEP_ID};
+    QnxDeployStepFactory makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
     QnxRunConfigurationFactory runConfigFactory;
     QnxSettingsPage settingsPage;
     QnxToolChainFactory toolChainFactory;
