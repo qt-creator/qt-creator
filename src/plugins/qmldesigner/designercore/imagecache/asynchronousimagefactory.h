@@ -28,8 +28,8 @@ public:
 
     ~AsynchronousImageFactory();
 
-    void generate(Utils::PathString name,
-                  Utils::SmallString extraId = {},
+    void generate(Utils::SmallStringView name,
+                  Utils::SmallStringView extraId = {},
                   ImageCache::AuxiliaryData auxiliaryData = {});
     void clean();
 
@@ -50,8 +50,8 @@ private:
         ImageCache::AuxiliaryData auxiliaryData;
     };
 
-    void addEntry(Utils::PathString &&name,
-                  Utils::SmallString &&extraId,
+    void addEntry(Utils::SmallStringView name,
+                  Utils::SmallStringView extraId,
                   ImageCache::AuxiliaryData &&auxiliaryData);
     bool isRunning();
     void waitForEntries();

@@ -118,10 +118,10 @@ void AsynchronousImageCache::wait()
         m_backgroundThread.join();
 }
 
-void AsynchronousImageCache::requestImage(Utils::PathString name,
+void AsynchronousImageCache::requestImage(Utils::SmallStringView name,
                                           ImageCache::CaptureImageCallback captureCallback,
                                           ImageCache::AbortCallback abortCallback,
-                                          Utils::SmallString extraId,
+                                          Utils::SmallStringView extraId,
                                           ImageCache::AuxiliaryData auxiliaryData)
 {
     addEntry(std::move(name),
@@ -133,10 +133,10 @@ void AsynchronousImageCache::requestImage(Utils::PathString name,
     m_condition.notify_all();
 }
 
-void AsynchronousImageCache::requestMidSizeImage(Utils::PathString name,
+void AsynchronousImageCache::requestMidSizeImage(Utils::SmallStringView name,
                                                  ImageCache::CaptureImageCallback captureCallback,
                                                  ImageCache::AbortCallback abortCallback,
-                                                 Utils::SmallString extraId,
+                                                 Utils::SmallStringView extraId,
                                                  ImageCache::AuxiliaryData auxiliaryData)
 {
     addEntry(std::move(name),
@@ -148,10 +148,10 @@ void AsynchronousImageCache::requestMidSizeImage(Utils::PathString name,
     m_condition.notify_all();
 }
 
-void AsynchronousImageCache::requestSmallImage(Utils::PathString name,
+void AsynchronousImageCache::requestSmallImage(Utils::SmallStringView name,
                                                ImageCache::CaptureImageCallback captureCallback,
                                                ImageCache::AbortCallback abortCallback,
-                                               Utils::SmallString extraId,
+                                               Utils::SmallStringView extraId,
                                                ImageCache::AuxiliaryData auxiliaryData)
 {
     addEntry(std::move(name),

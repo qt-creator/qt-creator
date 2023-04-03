@@ -32,8 +32,9 @@ void PreviewTooltipBackend::showTooltip()
     m_tooltip->setInfo(m_info);
 
     m_cache.requestImage(
-        m_path,
-        [tooltip = QPointer<PreviewImageTooltip>(m_tooltip.get()), scaleImage = m_scaleImage](const QImage &image) {
+        Utils::PathString{m_path},
+        [tooltip = QPointer<PreviewImageTooltip>(m_tooltip.get()),
+         scaleImage = m_scaleImage](const QImage &image) {
             QMetaObject::invokeMethod(tooltip, [tooltip, image, scaleImage] {
                 if (tooltip) {
                     tooltip->setImage(image, scaleImage);
@@ -42,7 +43,7 @@ void PreviewTooltipBackend::showTooltip()
             });
         },
         [](auto) {},
-        m_extraId,
+        Utils::PathString{m_extraId},
         m_auxiliaryData);
 
     reposition();
