@@ -718,7 +718,7 @@ void AndroidSettingsWidget::updateUI()
     const bool openSslOk = m_openSslSummary->allRowsOk();
 
     const QListWidgetItem *currentItem = m_ndkListWidget->currentItem();
-    const FilePath currentNdk = FilePath::fromString(currentItem ? currentItem->text() : "");
+    const FilePath currentNdk = FilePath::fromUserInput(currentItem ? currentItem->text() : "");
     const QString infoText = Tr::tr("(SDK Version: %1, NDK Version: %2)")
             .arg(m_androidConfig.sdkToolsVersion().toString())
             .arg(currentNdk.isEmpty() ? "" : m_androidConfig.ndkVersion(currentNdk).toString());
