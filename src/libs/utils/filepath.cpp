@@ -438,7 +438,7 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
 {
     QTC_CHECK(!scheme.contains('/'));
 
-    if (path.startsWith(u"/./"))
+    if (path.length() >= 3 && path[0] == '/' && path[1] == '.' && path[2] == '/')
         path = path.mid(3);
 
     m_data = path.toString() + scheme.toString() + host.toString();
