@@ -3969,11 +3969,14 @@ void GdbEngine::handleGdbStarted()
     //if (terminal()->isUsable())
     //    runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});
 
-    const QString uninstalledData = rp.debugger.command.executable().parentDir()
-            .pathAppended("data-directory/python").path();
-
     runCommand({"python sys.path.insert(1, '" + rp.dumperPath.path() + "')"});
-    runCommand({"python sys.path.append('" + uninstalledData + "')"});
+
+    // This is useful (only) in custom gdb builds that did not run 'make install'
+    const FilePath uninstalledData = rp.debugger.command.executable().parentDir()
+        / "data-directory/python";
+    if (uninstalledData.exists())
+        runCommand({"python sys.path.append('" + uninstalledData.path() + "')"});
+
     runCommand({"python from gdbbridge import *"});
 
     const QString path = debuggerSettings()->extraDumperFile.value();
