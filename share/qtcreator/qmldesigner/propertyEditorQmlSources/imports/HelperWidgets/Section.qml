@@ -86,8 +86,8 @@ Item {
         enabled: section.dropEnabled
         anchors.fill: parent
 
-        onEntered: (drag)=> section.dropEnter(drag)
-        onDropped: (drag)=> section.drop(drag)
+        onEntered: (drag) => section.dropEnter(drag)
+        onDropped: (drag) => section.drop(drag)
         onExited: section.dropExit()
     }
 
@@ -114,6 +114,8 @@ Item {
                     text: qsTr("Collapse All")
                     onTriggered: Controller.collapseAll(section.category)
                 }
+
+                onOpenedChanged: Controller.contextMenuOpened = contextMenu.opened
             }
         }
 

@@ -609,6 +609,7 @@ Item {
             clip: true
             visible: root.enableUiElements
             interactive: !ctxMenu.opened && !ctxMenuTextures.opened && !rootView.isDragging
+                         && !HelperWidgets.Controller.contextMenuOpened
 
             Behavior on contentY {
                 id: contentYBehavior
