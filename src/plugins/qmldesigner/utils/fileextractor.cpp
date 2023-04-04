@@ -3,6 +3,7 @@
 #include "fileextractor.h"
 
 #include <QQmlEngine>
+#include <QRandomGenerator>
 #include <QStorageInfo>
 
 #include <extensionsystem/pluginmanager.h>
@@ -198,6 +199,13 @@ QString FileExtractor::sourceFile() const
 
 void FileExtractor::extract()
 {
+    if (m_targetPath.isEmpty()) {
+        auto uniqueText = QByteArray::number(QRandomGenerator::global()->generate(), 16);
+        QString tempFileName = QDir::tempPath() + "/.qds_" + uniqueText + "_extract_" + m_archiveName + "_dir";
+
+        m_targetPath = Utils::FilePath::fromString(tempFileName);
+    }
+
     m_targetFolder = m_targetPath.toString() + "/" + m_archiveName;
 
     // If the target directory already exists, remove it and its content

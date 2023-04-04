@@ -61,6 +61,7 @@ public:
     Q_INVOKABLE void addTexture(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void addLightProbe(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void updateSceneEnvState();
+    Q_INVOKABLE void markTextureUpdated(const QString &textureKey);
 
 signals:
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);
@@ -83,6 +84,11 @@ private:
     QVariantMap readBundleMetadata();
     bool fetchTextureBundleMetadata(const QDir &bundleDir);
     bool fetchTextureBundleIcons(const QDir &bundleDir);
+    void fetchNewTextureIcons(const QVariantMap &existingFiles, const QVariantMap &newFiles,
+                              const QString &existingMetaFilePath, const QDir &bundleDir);
+    std::tuple<QVariantMap, QVariantMap, QVariantMap> compareTextureMetaFiles(
+        const QString &existingMetaFile, const QString downloadedMetaFile);
+    QStringList saveNewTextures(const QDir &bundleDir, const QStringList &newFiles);
 
     QScopedPointer<StudioQuickWidget> m_quickWidget;
     QPointer<ContentLibraryMaterialsModel> m_materialsModel;
@@ -102,6 +108,8 @@ private:
     bool m_isDragging = false;
     QString m_baseUrl;
     QString m_texturesUrl;
+    QString m_textureIconsUrl;
+    QString m_environmentIconsUrl;
     QString m_environmentsUrl;
     QString m_downloadPath;
 };

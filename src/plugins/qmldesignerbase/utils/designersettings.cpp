@@ -90,6 +90,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::ACTIONS_MERGE_TEMPLATE_ENABLED, false);
     restoreValue(settings, DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL,
                  "https://cdn.qt.io/designstudio/bundles");
+    restoreValue(settings, DesignerSettingsKey::CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS, 3);
 
     settings->endGroup();
     settings->endGroup();

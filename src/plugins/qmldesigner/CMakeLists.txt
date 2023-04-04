@@ -756,6 +756,7 @@ extend_qtc_plugin(QmlDesigner
     contentlibrarymaterialsmodel.cpp contentlibrarymaterialsmodel.h
     contentlibrarymaterialscategory.cpp contentlibrarymaterialscategory.h
     contentlibrarymaterial.cpp contentlibrarymaterial.h
+    contentlibraryiconprovider.cpp contentlibraryiconprovider.h
 )
 
 extend_qtc_plugin(QmlDesigner

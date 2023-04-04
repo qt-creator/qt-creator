@@ -114,6 +114,13 @@ void FileDownloader::start()
                     return;
                 }
 
+                if (m_overwriteTarget && QFileInfo().exists(m_targetFilePath)) {
+                    if (!QFile::remove(m_targetFilePath)) {
+                        emit downloadFailed();
+                        return;
+                    }
+                }
+
                 if (!QFileInfo().exists(m_targetFilePath) && !m_outputFile.rename(m_targetFilePath)) {
                     emit downloadFailed();
                     return;
@@ -181,6 +188,19 @@ void FileDownloader::setDownloadEnabled(bool value)
 bool FileDownloader::downloadEnabled() const
 {
     return m_downloadEnabled;
+}
+
+bool FileDownloader::overwriteTarget() const
+{
+    return m_overwriteTarget;
+}
+
+void FileDownloader::setOverwriteTarget(bool value)
+{
+    if (value != m_overwriteTarget) {
+        m_overwriteTarget = value;
+        emit overwriteTargetChanged();
+    }
 }
 
 bool FileDownloader::finished() const
