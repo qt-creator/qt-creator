@@ -803,10 +803,10 @@ FilePath FileUtils::homePath()
     return FilePath::fromUserInput(QDir::homePath());
 }
 
-FilePaths FileUtils::toFilePathList(const QStringList &paths) {
-    return transform(paths, [](const QString &path) { return FilePath::fromString(path); });
+FilePaths FileUtils::toFilePathList(const QStringList &paths)
+{
+    return transform(paths, &FilePath::fromString);
 }
-
 
 qint64 FileUtils::bytesAvailableFromDFOutput(const QByteArray &dfOutput)
 {
