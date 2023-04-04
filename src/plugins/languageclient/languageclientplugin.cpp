@@ -33,6 +33,12 @@ LanguageClientPlugin *LanguageClientPlugin::instance()
     return m_instance;
 }
 
+Utils::FutureSynchronizer *LanguageClientPlugin::futureSynchronizer()
+{
+    QTC_ASSERT(m_instance, return nullptr);
+    return &m_instance->m_futureSynchronizer;
+}
+
 void LanguageClientPlugin::initialize()
 {
     using namespace Core;

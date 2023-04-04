@@ -3,9 +3,11 @@
 
 #include "locatorfilter.h"
 
+#include "clientrequesttask.h"
 #include "documentsymbolcache.h"
 #include "languageclient_global.h"
 #include "languageclientmanager.h"
+#include "languageclientplugin.h"
 #include "languageclienttr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -14,6 +16,7 @@
 
 #include <texteditor/textdocument.h>
 
+#include <utils/asynctask.h>
 #include <utils/fuzzymatcher.h>
 
 #include <QFutureWatcher>
@@ -21,8 +24,91 @@
 
 using namespace Core;
 using namespace LanguageServerProtocol;
+using namespace Utils;
 
 namespace LanguageClient {
+
+void filterResults(QPromise<LocatorMatcherTask::OutputData> &promise, Client *client,
+                   const QList<SymbolInformation> &results, const QList<SymbolKind> &filter)
+{
+    const auto doFilter = [&](const SymbolInformation &info) {
+        return filter.contains(SymbolKind(info.kind()));
+    };
+    const QList<SymbolInformation> filteredResults = filter.isEmpty() ? results
+        : Utils::filtered(results, doFilter);
+    const auto generateEntry = [client](const SymbolInformation &info) {
+        LocatorFilterEntry entry;
+        // TODO: Passing nullptr for filter -> accept won't work now. Replace with accept function.
+        entry.filter = nullptr;
+        entry.displayName = info.name();
+        if (std::optional<QString> container = info.containerName())
+            entry.extraInfo = container.value_or(QString());
+        entry.displayIcon = symbolIcon(info.kind());
+        entry.linkForEditor = info.location().toLink(client->hostPathMapper());
+        return entry;
+    };
+    promise.addResult(Utils::transform(filteredResults, generateEntry));
+}
+
+LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
+                                  const QList<SymbolKind> &filter)
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorMatcherTask::Storage> storage;
+    TreeStorage<QList<SymbolInformation>> resultStorage;
+
+    const auto onQuerySetup = [=](WorkspaceSymbolRequestTask &request) {
+        request.setClient(client);
+        WorkspaceSymbolParams params;
+        params.setQuery(storage->input);
+        if (maxResultCount > 0)
+            params.setLimit(maxResultCount);
+        request.setParams(params);
+    };
+    const auto onQueryDone = [resultStorage](const WorkspaceSymbolRequestTask &request) {
+        const std::optional<LanguageClientArray<SymbolInformation>> result
+            = request.response().result();
+        if (result.has_value())
+            *resultStorage = result->toList();
+    };
+
+    const auto onFilterSetup = [=](AsyncTask<LocatorMatcherTask::OutputData> &async) {
+        const QList<SymbolInformation> results = *resultStorage;
+        if (results.isEmpty())
+            return TaskAction::StopWithDone;
+        async.setFutureSynchronizer(LanguageClientPlugin::futureSynchronizer());
+        async.setConcurrentCallData(filterResults, client, results, filter);
+        return TaskAction::Continue;
+    };
+    const auto onFilterDone = [storage](const AsyncTask<LocatorMatcherTask::OutputData> &async) {
+        if (async.isResultAvailable())
+            storage->output = async.result();
+    };
+
+    const Group root {
+        Storage(resultStorage),
+        SymbolRequest(onQuerySetup, onQueryDone),
+        Async<LocatorMatcherTask::OutputData>(onFilterSetup, onFilterDone)
+    };
+    return {root, storage};
+}
+
+LocatorMatcherTask workspaceLocatorMatcher(Client *client, int maxResultCount)
+{
+    return locatorMatcher(client, maxResultCount, {});
+}
+
+LocatorMatcherTask workspaceClassMatcher(Client *client, int maxResultCount)
+{
+    return locatorMatcher(client, maxResultCount, {SymbolKind::Class, SymbolKind::Struct});
+}
+
+LocatorMatcherTask workspaceFunctionMatcher(Client *client, int maxResultCount)
+{
+    return locatorMatcher(client, maxResultCount,
+                          {SymbolKind::Method, SymbolKind::Function, SymbolKind::Constructor});
+}
 
 DocumentLocatorFilter::DocumentLocatorFilter(LanguageClientManager *languageManager)
 {
@@ -129,7 +215,7 @@ QList<LocatorFilterEntry> DocumentLocatorFilter::entriesForDocSymbols(
 void DocumentLocatorFilter::prepareSearch(const QString &/*entry*/)
 {
     QMutexLocker locker(&m_mutex);
-    m_currentFilePath = m_pathMapper ? m_currentUri.toFilePath(m_pathMapper) : Utils::FilePath();
+    m_currentFilePath = m_pathMapper ? m_currentUri.toFilePath(m_pathMapper) : FilePath();
     if (m_symbolCache && !m_currentSymbols.has_value()) {
         locker.unlock();
         m_symbolCache->requestSymbols(m_currentUri, Schedule::Now);
@@ -154,7 +240,7 @@ QList<LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
     return matchesForImpl(future, entry, docSymbolGenerator);
 }
 
-Utils::Link DocumentLocatorFilter::linkForDocSymbol(const DocumentSymbol &info) const
+Link DocumentLocatorFilter::linkForDocSymbol(const DocumentSymbol &info) const
 {
     const Position &pos = info.range().start();
     return {m_currentFilePath, pos.line() + 1, pos.character()};

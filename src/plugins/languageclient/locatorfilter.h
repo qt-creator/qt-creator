@@ -19,6 +19,14 @@ namespace Core { class IEditor; }
 
 namespace LanguageClient {
 
+// TODO: Could be public methods of Client instead
+Core::LocatorMatcherTask LANGUAGECLIENT_EXPORT workspaceLocatorMatcher(Client *client,
+                                                                       int maxResultCount = 0);
+Core::LocatorMatcherTask LANGUAGECLIENT_EXPORT workspaceClassMatcher(Client *client,
+                                                                     int maxResultCount = 0);
+Core::LocatorMatcherTask LANGUAGECLIENT_EXPORT workspaceFunctionMatcher(Client *client,
+                                                                        int maxResultCount = 0);
+
 class LanguageClientManager;
 
 class LANGUAGECLIENT_EXPORT DocumentLocatorFilter : public Core::ILocatorFilter
