@@ -579,6 +579,26 @@ ProjectNode *FolderNode::findProjectNode(const std::function<bool(const ProjectN
     return nullptr;
 }
 
+FolderNode *FolderNode::findChildFolderNode(const std::function<bool(FolderNode *)> &predicate) const
+{
+    for (const std::unique_ptr<Node> &n : m_nodes) {
+        if (FolderNode *fn = n->asFolderNode())
+            if (predicate(fn))
+                return fn;
+    }
+    return nullptr;
+}
+
+FileNode *FolderNode::findChildFileNode(const std::function<bool(FileNode *)> &predicate) const
+{
+    for (const std::unique_ptr<Node> &n : m_nodes) {
+        if (FileNode *fn = n->asFileNode())
+            if (predicate(fn))
+                return fn;
+    }
+    return nullptr;
+}
+
 const QList<Node *> FolderNode::nodes() const
 {
     return Utils::toRawPointer<QList>(m_nodes);

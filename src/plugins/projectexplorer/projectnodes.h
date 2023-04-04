@@ -232,7 +232,9 @@ public:
     void forEachProjectNode(const std::function<void(const ProjectNode *)> &genericTask) const;
     void forEachFileNode(const std::function<void(FileNode *)> &fileTask) const;
     void forEachFolderNode(const std::function<void(FolderNode *)> &folderTask) const;
-    ProjectNode *findProjectNode(const std::function<bool(const ProjectNode *)> &predicate);
+    ProjectNode *findProjectNode(const std::function<bool(const ProjectNode *)> &predicate); // recursive
+    FolderNode *findChildFolderNode(const std::function<bool (FolderNode *)> &predicate) const; // non-recursive
+    FileNode *findChildFileNode(const std::function<bool (FileNode *)> &predicate) const; // non-recursive
     const QList<Node *> nodes() const;
     QList<FileNode *> fileNodes() const;
     FileNode *fileNode(const Utils::FilePath &file) const;
