@@ -1230,7 +1230,6 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
         "CMAKE_CXX_COMPILER",
         "QT_QMAKE_EXECUTABLE",
         "QT_HOST_PATH",
-        "CMAKE_PROJECT_INCLUDE_BEFORE",
         "CMAKE_TOOLCHAIN_FILE"
     };
     for (const auto &var : singlePathList) {
