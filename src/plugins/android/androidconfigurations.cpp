@@ -1169,7 +1169,7 @@ void AndroidConfigurations::removeUnusedDebuggers()
             uniqueNdks.append(ndkLocation);
     }
 
-    uniqueNdks.append(FileUtils::toFilePathList(currentConfig().getCustomNdkList()).toVector());
+    uniqueNdks.append(FileUtils::toFilePathList(currentConfig().getCustomNdkList()));
 
     const QList<Debugger::DebuggerItem> allDebuggers = Debugger::DebuggerItemManager::debuggers();
     for (const Debugger::DebuggerItem &debugger : allDebuggers) {

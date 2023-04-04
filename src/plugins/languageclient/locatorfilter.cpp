@@ -301,7 +301,7 @@ void WorkspaceLocatorFilter::handleResponse(Client *client,
     auto result = response.result().value_or(LanguageClientArray<SymbolInformation>());
     if (!result.isNull())
         m_results.append(
-            Utils::transform(result.toList().toVector(), [client](const SymbolInformation &info) {
+            Utils::transform(result.toList(), [client](const SymbolInformation &info) {
                 return SymbolInfoWithPathMapper{info, client->hostPathMapper()};
             }));
     if (m_pendingRequests.isEmpty())

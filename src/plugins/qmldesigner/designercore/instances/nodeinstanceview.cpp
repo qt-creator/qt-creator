@@ -870,7 +870,7 @@ NodeInstance NodeInstanceView::activeStateInstance() const
 
 void NodeInstanceView::updateChildren(const NodeAbstractProperty &newPropertyParent)
 {
-    const QVector<ModelNode> childNodeVector = newPropertyParent.directSubNodes().toVector();
+    const QList<ModelNode> childNodeVector = newPropertyParent.directSubNodes();
 
     qint32 parentInstanceId = newPropertyParent.parentModelNode().internalId();
 
@@ -1506,7 +1506,7 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
     m_nodeInstanceServer->benchmark(Q_FUNC_INFO + QString::number(renderImageChangeSet.count()));
 
     if (!renderImageChangeSet.isEmpty())
-        emitInstancesRenderImageChanged(Utils::toList(renderImageChangeSet).toVector());
+        emitInstancesRenderImageChanged(Utils::toList(renderImageChangeSet));
 
     if (!containerVector.isEmpty()) {
         QMultiHash<ModelNode, InformationName> informationChangeHash = informationChanged(

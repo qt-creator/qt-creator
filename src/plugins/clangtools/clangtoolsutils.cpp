@@ -294,7 +294,7 @@ QStringList extraClangToolsPrependOptions()
     static const QStringList options = extraOptions(csaPrependOptions)
                                        + extraOptions(toolsPrependOptions);
     if (!options.isEmpty())
-        qWarning() << "ClangTools options are prepended with " << options.toVector();
+        qWarning() << "ClangTools options are prepended with " << options;
     return options;
 }
 
@@ -305,7 +305,7 @@ QStringList extraClangToolsAppendOptions()
     static const QStringList options = extraOptions(csaAppendOptions)
                                        + extraOptions(toolsAppendOptions);
     if (!options.isEmpty())
-        qWarning() << "ClangTools options are appended with " << options.toVector();
+        qWarning() << "ClangTools options are appended with " << options;
     return options;
 }
 
