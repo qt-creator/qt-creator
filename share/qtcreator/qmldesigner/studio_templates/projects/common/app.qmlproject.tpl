@@ -101,7 +101,7 @@ Project {
     /* Required for deployment */
     targetDirectory: "/opt/%{ProjectName}"
 
-    qdsVersion: "4.0"
+    qdsVersion: "4.1"
 
     quickVersion: "%{QtQuickVersion}"
 
