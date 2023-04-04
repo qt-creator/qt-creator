@@ -167,6 +167,10 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     expander->registerVariable("buildDir", Tr::tr("Build directory"),
             [this] { return buildDirectory().toUserOutput(); });
 
+    expander->registerFileVariables("BuildConfig:BuildDirectory",
+                                    Tr::tr("Build directory"),
+                                    [this] { return buildDirectory(); });
+
     expander->registerVariable("BuildConfig:Name", Tr::tr("Name of the build configuration"),
             [this] { return displayName(); });
 
