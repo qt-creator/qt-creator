@@ -547,6 +547,22 @@ void FolderNode::forEachProjectNode(const std::function<void(const ProjectNode *
     }
 }
 
+void FolderNode::forEachFileNode(const std::function<void (FileNode *)> &fileTask) const
+{
+    for (const std::unique_ptr<Node> &n : m_nodes) {
+        if (FileNode *fn = n->asFileNode())
+            fileTask(fn);
+    }
+}
+
+void FolderNode::forEachFolderNode(const std::function<void (FolderNode *)> &folderTask) const
+{
+    for (const std::unique_ptr<Node> &n : m_nodes) {
+        if (FolderNode *fn = n->asFolderNode())
+            folderTask(fn);
+    }
+}
+
 ProjectNode *FolderNode::findProjectNode(const std::function<bool(const ProjectNode *)> &predicate)
 {
     if (ProjectNode *projectNode = asProjectNode()) {

@@ -230,6 +230,8 @@ public:
                      const std::function<bool(const FolderNode *)> &folderFilterTask = {}) const;
     void forEachGenericNode(const std::function<void(Node *)> &genericTask) const;
     void forEachProjectNode(const std::function<void(const ProjectNode *)> &genericTask) const;
+    void forEachFileNode(const std::function<void(FileNode *)> &fileTask) const;
+    void forEachFolderNode(const std::function<void(FolderNode *)> &folderTask) const;
     ProjectNode *findProjectNode(const std::function<bool(const ProjectNode *)> &predicate);
     const QList<Node *> nodes() const;
     QList<FileNode *> fileNodes() const;
