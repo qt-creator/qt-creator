@@ -432,8 +432,12 @@ QStringList AndroidConfig::apiLevelNamesFor(const SdkPlatformList &platforms)
 
 QString AndroidConfig::apiLevelNameFor(const SdkPlatform *platform)
 {
-    return platform && platform->apiLevel() > 0 ?
-                QString("android-%1").arg(platform->apiLevel()) : "";
+    if (platform && platform->apiLevel() > 0) {
+        QString sdkStylePath = platform->sdkStylePath();
+        return sdkStylePath.remove("platforms;");
+    }
+
+    return {};
 }
 
 FilePath AndroidConfig::adbToolPath() const
