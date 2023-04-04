@@ -1019,7 +1019,7 @@ PortsGatheringMethod LinuxDevice::portsGatheringMethod() const
             //
             // here, but that doesn't pass quoting on double-remote setups.
             // Chicken out by using a simpler command.
-            return {filePath("cat"), {"/proc/net/tcp*"}};
+            return {filePath("/bin/sh"), {"-c", "cat /proc/net/tcp*"}};
         },
 
         &Port::parseFromCatOutput
