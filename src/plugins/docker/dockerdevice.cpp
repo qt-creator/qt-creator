@@ -164,7 +164,8 @@ public:
                                   const std::optional<Environment> &env = std::nullopt,
                                   const std::optional<FilePath> &workDir = std::nullopt,
                                   bool interactive = false,
-                                  bool withPty = false);
+                                  bool withPty = false,
+                                  bool withMarker = true);
 
     bool prepareForBuild(const Target *target);
     Tasks validateMounts() const;
@@ -237,33 +238,39 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
 {
     connect(&m_process, &QtcProcess::started, this, [this] {
         qCDebug(dockerDeviceLog) << "Process started:" << m_process.commandLine();
+
+        if (m_setup.m_ptyData.has_value()) {
+            m_hasReceivedFirstOutput = true;
+            emit started(m_process.processId(), m_process.applicationMainThreadId());
+        }
     });
 
     connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+        if (m_hasReceivedFirstOutput)
+            emit readyRead(m_process.readAllRawStandardOutput(), {});
+
         QByteArray output = m_process.readAllRawStandardOutput();
-        if (!m_hasReceivedFirstOutput) {
-            qsizetype idx = output.indexOf('\n');
-            QByteArray firstLine = output.left(idx).trimmed();
-            QByteArray rest = output.mid(idx + 1);
-            qCDebug(dockerDeviceLog)
-                << "Process first line received:" << m_process.commandLine() << firstLine;
-            if (firstLine.startsWith("__qtc")) {
-                bool ok = false;
-                m_remotePID = firstLine.mid(5, firstLine.size() - 5 - 5).toLongLong(&ok);
+        qsizetype idx = output.indexOf('\n');
+        QByteArray firstLine = output.left(idx).trimmed();
+        QByteArray rest = output.mid(idx + 1);
+        qCDebug(dockerDeviceLog) << "Process first line received:" << m_process.commandLine()
+                                 << firstLine;
 
-                if (ok)
-                    emit started(m_remotePID);
+        if (!firstLine.startsWith("__qtc"))
+            return;
 
-                // In case we already received some error output, send it now.
-                const QByteArray stdErr = m_process.readAllRawStandardError();
-                if (rest.size() > 0 || stdErr.size() > 0)
-                    emit readyRead(rest, stdErr);
+        bool ok = false;
+        m_remotePID = firstLine.mid(5, firstLine.size() - 5 - 5).toLongLong(&ok);
 
-                m_hasReceivedFirstOutput = true;
-                return;
-            }
-        }
-        emit readyRead(output, {});
+        if (ok)
+            emit started(m_remotePID);
+
+        // In case we already received some error output, send it now.
+        const QByteArray stdErr = m_process.readAllRawStandardError();
+        if (rest.size() > 0 || stdErr.size() > 0)
+            emit readyRead(rest, stdErr);
+
+        m_hasReceivedFirstOutput = true;
     });
 
     connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
@@ -277,7 +284,7 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
 
         Utils::ProcessResultData resultData = m_process.resultData();
 
-        if (m_remotePID == 0) {
+        if (m_remotePID == 0 && !m_hasReceivedFirstOutput) {
             resultData.m_error = QProcess::FailedToStart;
             qCWarning(dockerDeviceLog) << "Process failed to start:" << m_process.commandLine();
             QByteArray stdOut = m_process.readAllRawStandardOutput();
@@ -325,7 +332,8 @@ void DockerProcessImpl::start()
                                              m_setup.m_environment,
                                              m_setup.m_workingDirectory,
                                              interactive,
-                                             inTerminal);
+                                             inTerminal,
+                                             !m_process.ptyData().has_value());
 
     m_process.setCommand(fullCommandLine);
     m_process.start();
@@ -338,14 +346,26 @@ qint64 DockerProcessImpl::write(const QByteArray &data)
 
 void DockerProcessImpl::sendControlSignal(ControlSignal controlSignal)
 {
-    QTC_ASSERT(m_remotePID, return);
-    if (controlSignal == ControlSignal::CloseWriteChannel) {
-        m_process.closeWriteChannel();
-        return;
+    if (!m_setup.m_ptyData.has_value()) {
+        QTC_ASSERT(m_remotePID, return);
+        if (controlSignal == ControlSignal::CloseWriteChannel) {
+            m_process.closeWriteChannel();
+            return;
+        }
+        const int signal = controlSignalToInt(controlSignal);
+        m_devicePrivate->runInShell(
+            {"kill", {QString("-%1").arg(signal), QString("%2").arg(m_remotePID)}});
+    } else {
+        // clang-format off
+        switch (controlSignal) {
+        case ControlSignal::Terminate: m_process.terminate();      break;
+        case ControlSignal::Kill:      m_process.kill();           break;
+        case ControlSignal::Interrupt: m_process.interrupt();      break;
+        case ControlSignal::KickOff:   m_process.kickoffProcess(); break;
+        case ControlSignal::CloseWriteChannel: break;
+        }
+        // clang-format on
     }
-    const int signal = controlSignalToInt(controlSignal);
-    m_devicePrivate->runInShell(
-        {"kill", {QString("-%1").arg(signal), QString("%2").arg(m_remotePID)}});
 }
 
 IDeviceWidget *DockerDevice::createWidget()
@@ -473,7 +493,8 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
                                                    const std::optional<Environment> &env,
                                                    const std::optional<FilePath> &workDir,
                                                    bool interactive,
-                                                   bool withPty)
+                                                   bool withPty,
+                                                   bool withMarker)
 {
     if (!m_settings)
         return {};
@@ -506,11 +527,15 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
     CommandLine exec("exec");
     exec.addCommandLineAsArgs(cmd, CommandLine::Raw);
 
-    CommandLine echo("echo");
-    echo.addArgs("__qtc$$qtc__", CommandLine::Raw);
-    echo.addCommandLineWithAnd(exec);
+    if (withMarker) {
+        CommandLine echo("echo");
+        echo.addArgs("__qtc$$qtc__", CommandLine::Raw);
+        echo.addCommandLineWithAnd(exec);
 
-    dockerCmd.addCommandLineAsSingleArg(echo);
+        dockerCmd.addCommandLineAsSingleArg(echo);
+    } else {
+        dockerCmd.addCommandLineAsSingleArg(exec);
+    }
 
     return dockerCmd;
 }
