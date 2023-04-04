@@ -424,6 +424,10 @@ void StudioStyle::drawControl(
     switch (element) {
     case CE_MenuItem:
         if (const auto mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+            if (isQmlEditorMenu(widget)) {
+                Super::drawControl(element, option, painter, widget);
+                break;
+            }
             painter->save();
             const int iconHeight = pixelMetric(QStyle::PM_SmallIconSize, option, widget);
             const int horizontalSpacing = pixelMetric(QStyle::PM_LayoutHorizontalSpacing, option, widget);
