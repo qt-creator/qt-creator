@@ -341,7 +341,7 @@ void startProcess(const QString &executable, const QStringList &arguments, const
     QObject::connect(&inferiorProcess,
                      &QProcess::readyReadStandardError,
                      QCoreApplication::instance(),
-                     [] { writeToOut(inferiorProcess.readAllStandardOutput(), Out::StdErr); });
+                     [] { writeToOut(inferiorProcess.readAllStandardError(), Out::StdErr); });
 
     if (!(testMode && debugMode))
         inferiorProcess.setInputChannelMode(QProcess::ForwardedInputChannel);
