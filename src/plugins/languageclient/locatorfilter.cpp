@@ -218,16 +218,12 @@ WorkspaceLocatorFilter::WorkspaceLocatorFilter(const QVector<SymbolKind> &filter
 
 void WorkspaceLocatorFilter::prepareSearch(const QString &entry)
 {
-    prepareSearchHelper(entry, LanguageClientManager::clients(), false);
+    prepareSearchForClients(entry, Utils::filtered(LanguageClientManager::clients(),
+                                                   &Client::locatorsEnabled));
 }
 
-void WorkspaceLocatorFilter::prepareSearchForClients(const QString &entry, const QList<Client *> &clients)
-{
-    prepareSearchHelper(entry, clients, true);
-}
-
-void WorkspaceLocatorFilter::prepareSearchHelper(const QString &entry,
-                                                 const QList<Client *> &clients, bool force)
+void WorkspaceLocatorFilter::prepareSearchForClients(const QString &entry,
+                                                     const QList<Client *> &clients)
 {
     m_pendingRequests.clear();
     m_results.clear();
@@ -243,8 +239,6 @@ void WorkspaceLocatorFilter::prepareSearchHelper(const QString &entry,
     QMutexLocker locker(&m_mutex);
     for (auto client : std::as_const(clients)) {
         if (!client->reachable())
-            continue;
-        if (!(force || client->locatorsEnabled()))
             continue;
         std::optional<std::variant<bool, WorkDoneProgressOptions>> capability
             = client->capabilities().workspaceSymbolProvider();
