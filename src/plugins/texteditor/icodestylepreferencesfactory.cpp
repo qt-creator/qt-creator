@@ -18,7 +18,7 @@ CodeStyleEditorWidget *ICodeStylePreferencesFactory::createCodeStyleEditor(
 }
 
 CodeStyleEditorWidget *ICodeStylePreferencesFactory::createAdditionalGlobalSettings(
-    ProjectExplorer::Project *, QWidget *)
+    ICodeStylePreferences *, ProjectExplorer::Project *, QWidget *)
 {
     return nullptr;
 }
