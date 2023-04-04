@@ -377,41 +377,45 @@ void MacroExpander::registerIntVariable(const QByteArray &variable,
 void MacroExpander::registerFileVariables(const QByteArray &prefix,
     const QString &heading, const FileFunction &base, bool visibleInChooser)
 {
-    registerVariable(prefix + kFilePathPostfix,
-         Tr::tr("%1: Full path including file name.").arg(heading),
-         [base]() -> QString { QString tmp = base().toString(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).filePath(); },
-         visibleInChooser);
+    registerVariable(
+        prefix + kFilePathPostfix,
+        Tr::tr("%1: Full path including file name.").arg(heading),
+        [base]() -> QString { return base().toUserOutput(); },
+        visibleInChooser);
 
-    registerVariable(prefix + kPathPostfix,
-         Tr::tr("%1: Full path excluding file name.").arg(heading),
-         [base]() -> QString { QString tmp = base().toString(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).path(); },
-         visibleInChooser);
+    registerVariable(
+        prefix + kPathPostfix,
+        Tr::tr("%1: Full path excluding file name.").arg(heading),
+        [base]() -> QString { return base().parentDir().toUserOutput(); },
+        visibleInChooser);
 
-    registerVariable(prefix + kNativeFilePathPostfix,
-         Tr::tr("%1: Full path including file name, with native path separator (backslash on Windows).").arg(heading),
-         [base]() -> QString {
-             QString tmp = base().toString();
-             return tmp.isEmpty() ? QString() : QDir::toNativeSeparators(QFileInfo(tmp).filePath());
-         },
-         visibleInChooser);
+    registerVariable(
+        prefix + kNativeFilePathPostfix,
+        Tr::tr(
+            "%1: Full path including file name, with native path separator (backslash on Windows).")
+            .arg(heading),
+        [base]() -> QString { return base().nativePath(); },
+        visibleInChooser);
 
-    registerVariable(prefix + kNativePathPostfix,
-         Tr::tr("%1: Full path excluding file name, with native path separator (backslash on Windows).").arg(heading),
-         [base]() -> QString {
-             QString tmp = base().toString();
-             return tmp.isEmpty() ? QString() : QDir::toNativeSeparators(QFileInfo(tmp).path());
-         },
-         visibleInChooser);
+    registerVariable(
+        prefix + kNativePathPostfix,
+        Tr::tr(
+            "%1: Full path excluding file name, with native path separator (backslash on Windows).")
+            .arg(heading),
+        [base]() -> QString { return base().parentDir().nativePath(); },
+        visibleInChooser);
 
-    registerVariable(prefix + kFileNamePostfix,
-         Tr::tr("%1: File name without path.").arg(heading),
-         [base]() -> QString { QString tmp = base().toString(); return tmp.isEmpty() ? QString() : FilePath::fromString(tmp).fileName(); },
-         visibleInChooser);
+    registerVariable(
+        prefix + kFileNamePostfix,
+        Tr::tr("%1: File name without path.").arg(heading),
+        [base]() -> QString { return base().fileName(); },
+        visibleInChooser);
 
-    registerVariable(prefix + kFileBaseNamePostfix,
-         Tr::tr("%1: File base name without path and suffix.").arg(heading),
-         [base]() -> QString { QString tmp = base().toString(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).baseName(); },
-         visibleInChooser);
+    registerVariable(
+        prefix + kFileBaseNamePostfix,
+        Tr::tr("%1: File base name without path and suffix.").arg(heading),
+        [base]() -> QString { return base().baseName(); },
+        visibleInChooser);
 }
 
 void MacroExpander::registerExtraResolver(const MacroExpander::ResolverFunction &value)
