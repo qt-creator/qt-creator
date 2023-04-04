@@ -40,6 +40,8 @@ target_link_libraries(appaccelbubble
 
 install(TARGETS appaccelbubble
     BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
 qt_finalize_executable(appaccelbubble)
