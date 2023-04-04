@@ -241,6 +241,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     d->clangdChooser.setFilePath(settings.clangdFilePath());
     d->clangdChooser.setAllowPathFromDevice(true);
     d->clangdChooser.setEnabled(d->useClangdCheckBox.isChecked());
+    d->clangdChooser.setCommandVersionArguments({"--version"});
     using Priority = ClangdSettings::IndexingPriority;
     for (Priority prio : {Priority::Off, Priority::Background, Priority::Low, Priority::Normal}) {
         d->indexingComboBox.addItem(ClangdSettings::priorityToDisplayString(prio), int(prio));

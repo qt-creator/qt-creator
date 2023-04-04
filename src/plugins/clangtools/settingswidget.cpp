@@ -53,6 +53,7 @@ SettingsWidget::SettingsWidget()
         pathChooser->setHistoryCompleter(tool == ClangToolType::Tidy
                                         ? QString("ClangTools.ClangTidyExecutable.History")
                                         : QString("ClangTools.ClazyStandaloneExecutable.History"));
+        pathChooser->setCommandVersionArguments({"--version"});
         return pathChooser;
     };
     m_clangTidyPathChooser = createPathChooser(ClangToolType::Tidy);
