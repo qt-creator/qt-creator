@@ -616,13 +616,27 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
                          [buildType] { return buildTypeName(buildType); });
     exp.registerSubProvider([kit] { return kit->macroExpander(); });
 
-    QString buildDir = ProjectExplorerPlugin::buildDirectoryTemplate();
-    qCDebug(bcLog) << "build dir template:" << buildDir;
+    FilePath buildDir = FilePath::fromUserInput(ProjectExplorerPlugin::buildDirectoryTemplate());
+    qCDebug(bcLog) << "build dir template:" << buildDir.toUserOutput();
     buildDir = exp.expand(buildDir);
-    qCDebug(bcLog) << "expanded build:" << buildDir;
-    buildDir.replace(" ", "-");
+    qCDebug(bcLog) << "expanded build:" << buildDir.toUserOutput();
+    buildDir = buildDir.withNewPath(buildDir.path().replace(" ", "-"));
 
-    return projectDir.resolvePath(buildDir);
+    auto buildDevice = BuildDeviceKitAspect::device(kit);
+
+    if (buildDir.isAbsolutePath()) {
+        bool isReachable = buildDevice->ensureReachable(buildDir);
+        if (!isReachable)
+            return {};
+        return buildDevice->rootPath().withNewMappedPath(buildDir);
+    }
+
+    bool isReachable = buildDevice->ensureReachable(projectDir);
+    if (!isReachable)
+        return {};
+
+    const FilePath baseDir = buildDevice->rootPath().withNewMappedPath(projectDir);
+    return baseDir.resolvePath(buildDir);
 }
 ///
 // IBuildConfigurationFactory

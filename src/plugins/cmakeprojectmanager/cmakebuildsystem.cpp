@@ -1303,7 +1303,7 @@ MakeInstallCommand CMakeBuildSystem::makeInstallCommand(const FilePath &installR
         buildDirectory = bc->buildDirectory();
 
     cmd.command.addArg("--build");
-    cmd.command.addArg(cmd.command.executable().withNewMappedPath(buildDirectory).path());
+    cmd.command.addArg(buildDirectory.path());
     cmd.command.addArg("--target");
     cmd.command.addArg(installTarget);
 

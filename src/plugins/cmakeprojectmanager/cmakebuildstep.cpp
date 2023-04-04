@@ -383,7 +383,7 @@ CommandLine CMakeBuildStep::cmakeCommand() const
     if (buildConfiguration())
         buildDirectory = buildConfiguration()->buildDirectory();
 
-    cmd.addArgs({"--build", cmd.executable().withNewMappedPath(buildDirectory).path()});
+    cmd.addArgs({"--build", buildDirectory.path()});
 
     cmd.addArg("--target");
     cmd.addArgs(Utils::transform(m_buildTargets, [this](const QString &s) {

@@ -701,7 +701,7 @@ void CMakeBuildSettingsWidget::updateConfigureDetailsWidgetsSummary(
     const FilePath buildDirectory = bc ? bc->buildDirectory() : ".";
 
     cmd.addArgs({"-S", m_buildSystem->projectDirectory().path()});
-    cmd.addArgs({"-B", cmd.executable().withNewMappedPath(buildDirectory).path()}); // FIXME: Just buildDirectory.path()
+    cmd.addArgs({"-B", buildDirectory.path()});
     cmd.addArgs(configurationArguments);
 
     params.setCommandLine(cmd);
@@ -1138,7 +1138,7 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildT
     // Package manager auto setup
     if (Internal::CMakeSpecificSettings::instance()->packageManagerAutoSetup.value()) {
         cmd.addArg(QString("-DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH="
-                           "%{buildDir}/%1/auto-setup.cmake")
+                           "%{BuildConfig:BuildDirectory:NativeFilePath}/%1/auto-setup.cmake")
                        .arg(Constants::PACKAGE_MANAGER_DIR));
     }
 

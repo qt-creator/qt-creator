@@ -68,7 +68,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     }
 
     const FilePath sourceDirectory = cmakeExecutable.withNewMappedPath(parameters.sourceDirectory);
-    const FilePath buildDirectory = cmakeExecutable.withNewMappedPath(parameters.buildDirectory);
+    const FilePath buildDirectory = parameters.buildDirectory;
 
     if (!buildDirectory.exists()) {
         const QString msg = ::CMakeProjectManager::Tr::tr(
