@@ -3,7 +3,6 @@
 
 #include "remotelinuxdeployconfiguration.h"
 
-#include "makeinstallstep.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
@@ -52,8 +51,7 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
     setPostRestore([needsMakeInstall](DeployConfiguration *dc, const QVariantMap &map) {
         // 4.9 -> 4.10. See QTCREATORBUG-22689.
         if (map.value("_checkMakeInstall").toBool() && needsMakeInstall(dc->target())) {
-            auto step = new MakeInstallStep(dc->stepList(), MakeInstallStep::stepId());
-            dc->stepList()->insertStep(0, step);
+            dc->stepList()->insertStep(0, Constants::MakeInstallStepId);
         }
     });
 

@@ -124,16 +124,6 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     });
 }
 
-Utils::Id MakeInstallStep::stepId()
-{
-    return Constants::MakeInstallStepId;
-}
-
-QString MakeInstallStep::displayName()
-{
-    return Tr::tr("Install into temporary host directory");
-}
-
 QWidget *MakeInstallStep::createConfigWidget()
 {
     // Note: this intentionally skips the MakeStep::createConfigWidget() level.
