@@ -466,7 +466,7 @@ void SshProcessInterface::sendControlSignal(ControlSignal controlSignal)
         d->m_process.closeWriteChannel();
         return;
     }
-    if (d->m_process.usesTerminal()) {
+    if (d->m_process.usesTerminal() || d->m_process.ptyData().has_value()) {
         switch (controlSignal) {
         case ControlSignal::Terminate: d->m_process.terminate();      break;
         case ControlSignal::Kill:      d->m_process.kill();           break;
