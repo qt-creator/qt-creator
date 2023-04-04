@@ -140,7 +140,7 @@ using namespace Internal;
         MacroExpander::registerVariable(
             "MyVariable",
             Tr::tr("The current value of whatever I want."));
-            []() -> QString {
+            [] {
                 QString value;
                 // do whatever is necessary to retrieve the value
                 [...]
@@ -380,13 +380,13 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
     registerVariable(
         prefix + kFilePathPostfix,
         Tr::tr("%1: Full path including file name.").arg(heading),
-        [base]() -> QString { return base().toUserOutput(); },
+        [base] { return base().toUserOutput(); },
         visibleInChooser);
 
     registerVariable(
         prefix + kPathPostfix,
         Tr::tr("%1: Full path excluding file name.").arg(heading),
-        [base]() -> QString { return base().parentDir().toUserOutput(); },
+        [base] { return base().parentDir().toUserOutput(); },
         visibleInChooser);
 
     registerVariable(
@@ -394,7 +394,7 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
         Tr::tr(
             "%1: Full path including file name, with native path separator (backslash on Windows).")
             .arg(heading),
-        [base]() -> QString { return base().nativePath(); },
+        [base] { return base().nativePath(); },
         visibleInChooser);
 
     registerVariable(
@@ -402,19 +402,19 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
         Tr::tr(
             "%1: Full path excluding file name, with native path separator (backslash on Windows).")
             .arg(heading),
-        [base]() -> QString { return base().parentDir().nativePath(); },
+        [base] { return base().parentDir().nativePath(); },
         visibleInChooser);
 
     registerVariable(
         prefix + kFileNamePostfix,
         Tr::tr("%1: File name without path.").arg(heading),
-        [base]() -> QString { return base().fileName(); },
+        [base] { return base().fileName(); },
         visibleInChooser);
 
     registerVariable(
         prefix + kFileBaseNamePostfix,
         Tr::tr("%1: File base name without path and suffix.").arg(heading),
-        [base]() -> QString { return base().baseName(); },
+        [base] { return base().baseName(); },
         visibleInChooser);
 }
 
