@@ -613,8 +613,8 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
                 *errorMessage = Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
             return false;
         }
-        if (HostOsInfo::isWindowsHost() && !filePath.startsWithDriveLetter()
-                && !filePath.startsWith("\\\\") && !filePath.startsWith("//")) {
+        if (filePath.osType() == OsTypeWindows && !filePath.startsWithDriveLetter()
+            && !filePath.startsWith("\\\\") && !filePath.startsWith("//")) {
             if (errorMessage)
                 *errorMessage = Tr::tr("Invalid path \"%1\".").arg(filePath.toUserOutput());
             return false;
