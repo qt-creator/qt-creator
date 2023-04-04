@@ -167,6 +167,11 @@ bool ObjectNodeInstance::isRenderable() const
     return false;
 }
 
+bool ObjectNodeInstance::isPropertyChange() const
+{
+    return false;
+}
+
 bool ObjectNodeInstance::equalGraphicsItem(QGraphicsItem * /*item*/) const
 {
     return false;
@@ -500,15 +505,22 @@ void ObjectNodeInstance::setPropertyBinding(const PropertyName &name, const QStr
     if (!isSimpleExpression(expression))
         return;
 
-    QQmlExpression qmlExpression(context(), object(), expression);
-    qmlExpression.evaluate();
-    if (qmlExpression.hasError())
+    bool qmlExpressionHasError = false;
+
+    if (!isPropertyChange()) {
+        QQmlExpression qmlExpression(context(), object(), expression);
+        qmlExpression.evaluate();
+        qmlExpressionHasError = qmlExpression.hasError();
+    }
+
+    if (qmlExpressionHasError) {
         QmlPrivateGate::setPropertyBinding(object(),
                                            context()->engine()->rootContext(),
                                            name,
                                            expression);
-    else
+    } else {
         QmlPrivateGate::setPropertyBinding(object(), context(), name, expression);
+    }
 }
 
 void ObjectNodeInstance::deleteObjectsInList(const QQmlProperty &property)
