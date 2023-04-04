@@ -629,9 +629,9 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
         break;
 
     case PE_PanelButtonTool: {
-        bool animating = (state & State_Animating);
-        Animation *anim = d->animator.widgetAnimation(widget);
         painter->save();
+        const bool animating = (state & State_Animating);
+
         if (widget && !animating) {
             auto w = const_cast<QWidget *> (widget);
             int oldState = w->property("_q_stylestate").toInt();
@@ -651,6 +651,7 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
             if (doTransition) {
                 QImage startImage(option->rect.size(), QImage::Format_ARGB32_Premultiplied);
                 QImage endImage(option->rect.size(), QImage::Format_ARGB32_Premultiplied);
+                Animation *anim = d->animator.widgetAnimation(widget);
                 QStyleOption opt = *option;
                 opt.state = (QStyle::State)oldState;
                 opt.state |= State_Animating;
@@ -679,6 +680,8 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
                 t->setStartTime(QTime::currentTime());
             }
         }
+
+        Animation *anim = d->animator.widgetAnimation(widget);
 
         if (!animating && anim) {
             anim->paint(painter, option);
