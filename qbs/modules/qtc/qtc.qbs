@@ -100,7 +100,7 @@ Module {
 
     Properties {
         condition: cpp.present && qbs.toolchain.contains("msvc") && product.Qt
-                   && Utilities.versionCompare(Qt.core.version, "6.3") >= 0
+                   && Utilities.versionCompare(product.Qt.core.version, "6.3") >= 0
                    && Utilities.versionCompare(cpp.compilerVersion, "19.10") >= 0
                    && Utilities.versionCompare(qbs.version, "1.23") < 0
         cpp.cxxFlags: "/permissive-"
