@@ -777,32 +777,25 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
 }
 
 // Find the folder that contains a file with a certain name (recurse down)
-static FolderNode *folderOf(FolderNode *in, const FilePath &fileName)
+static FolderNode *folderOf(FolderNode *in, const FilePath &filePath)
 {
-    const QList<FileNode*> fileNodeList = in->fileNodes();
-    for (FileNode *fn : fileNodeList) {
-        if (fn->filePath() == fileName)
-            return in;
-    }
-    const QList<FolderNode *> folderNodeList = in->folderNodes();
-    for (FolderNode *folder : folderNodeList) {
-        if (FolderNode *pn = folderOf(folder, fileName))
-            return pn;
-    }
-    return {};
+    if (in->findChildFileNode([&filePath](FileNode *fn) { return fn->filePath() == filePath; }))
+        return in;
+
+    return in->findChildFolderNode([&filePath](FolderNode *folder) {
+        return folderOf(folder, filePath);
+    });
 }
 
 // Find the QmakeProFileNode that contains a certain file.
 // First recurse down to folder, then find the pro-file.
-static FileNode *fileNodeOf(FolderNode *in, const FilePath &fileName)
+static FileNode *fileNodeOf(FolderNode *in, const FilePath &filePath)
 {
-    for (FolderNode *folder = folderOf(in, fileName); folder; folder = folder->parentFolderNode()) {
-        if (auto *proFile = dynamic_cast<QmakeProFileNode *>(folder)) {
-            const QList<FileNode*> fileNodeList = proFile->fileNodes();
-            for (FileNode *fileNode : fileNodeList) {
-                if (fileNode->filePath() == fileName)
-                    return fileNode;
-            }
+    for (FolderNode *folder = folderOf(in, filePath); folder; folder = folder->parentFolderNode()) {
+        if (auto proFile = dynamic_cast<QmakeProFileNode *>(folder)) {
+            return proFile->findChildFileNode([&filePath](FileNode *fn) {
+                return fn->filePath() == filePath;
+            });
         }
     }
     return nullptr;

@@ -236,9 +236,7 @@ public:
     FolderNode *findChildFolderNode(const std::function<bool (FolderNode *)> &predicate) const; // non-recursive
     FileNode *findChildFileNode(const std::function<bool (FileNode *)> &predicate) const; // non-recursive
     const QList<Node *> nodes() const;
-    QList<FileNode *> fileNodes() const;
     FileNode *fileNode(const Utils::FilePath &file) const;
-    QList<FolderNode *> folderNodes() const;
     FolderNode *folderNode(const Utils::FilePath &directory) const;
 
     using FolderNodeFactory = std::function<std::unique_ptr<FolderNode>(const Utils::FilePath &)>;

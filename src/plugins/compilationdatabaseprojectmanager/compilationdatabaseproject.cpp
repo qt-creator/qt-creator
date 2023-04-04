@@ -223,13 +223,10 @@ FolderNode *addChildFolderNode(FolderNode *parent, const QString &childName)
 
 FolderNode *addOrGetChildFolderNode(FolderNode *parent, const QString &childName)
 {
-    for (FolderNode *folder : parent->folderNodes()) {
-        if (folder->filePath().fileName() == childName) {
-            return folder;
-        }
-    }
-
-    return addChildFolderNode(parent, childName);
+    FolderNode *fn = parent->findChildFolderNode([&](FolderNode *folder) {
+        return folder->filePath().fileName() == childName;
+    });
+    return fn ? fn : addChildFolderNode(parent, childName);
 }
 
     // Return the node for folderPath.

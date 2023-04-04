@@ -245,12 +245,10 @@ static AddNewTree *buildAddFilesTree(FolderNode *root, const FilePaths &files,
                                      Node *contextNode, BestNodeSelector *selector)
 {
     QList<AddNewTree *> children;
-    const QList<FolderNode *> folderNodes = root->folderNodes();
-    for (FolderNode *fn : folderNodes) {
-        AddNewTree *child = buildAddFilesTree(fn, files, contextNode, selector);
-        if (child)
+    root->forEachFolderNode([&](FolderNode *fn) {
+        if (AddNewTree *child = buildAddFilesTree(fn, files, contextNode, selector))
             children.append(child);
-    }
+    });
 
     if (root->supportsAction(AddNewFile, root) && !root->supportsAction(InheritedFromParent, root)) {
         FolderNode::AddNewInformation info = root->addNewInformation(files, contextNode);

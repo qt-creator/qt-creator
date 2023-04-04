@@ -326,14 +326,13 @@ FilePath Node::pathOrDirectory(bool dir) const
         FilePath location;
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
-        if (!folder->fileNodes().isEmpty() || folder->folderNodes().isEmpty()) {
+        auto Any = [](auto) { return true; };
+        if (folder->findChildFileNode(Any) || !folder->findChildFolderNode(Any)) {
             location = m_filePath;
         } else {
             // Otherwise we figure out a commonPath from the subfolders
             FilePaths list;
-            const QList<FolderNode *> folders = folder->folderNodes();
-            for (FolderNode *f : folders)
-                list << f->filePath();
+            folder->forEachFolderNode([&](FolderNode *f) { list << f->filePath(); });
             location = FileUtils::commonPath(list);
         }
 
@@ -604,16 +603,6 @@ const QList<Node *> FolderNode::nodes() const
     return Utils::toRawPointer<QList>(m_nodes);
 }
 
-QList<FileNode *> FolderNode::fileNodes() const
-{
-    QList<FileNode *> result;
-    for (const std::unique_ptr<Node> &n : m_nodes) {
-        if (FileNode *fn = n->asFileNode())
-            result.append(fn);
-    }
-    return result;
-}
-
 FileNode *FolderNode::fileNode(const Utils::FilePath &file) const
 {
     return static_cast<FileNode *>(Utils::findOrDefault(m_nodes,
@@ -621,16 +610,6 @@ FileNode *FolderNode::fileNode(const Utils::FilePath &file) const
         const FileNode *fn = n->asFileNode();
         return fn && fn->filePath() == file;
     }));
-}
-
-QList<FolderNode *> FolderNode::folderNodes() const
-{
-    QList<FolderNode *> result;
-    for (const std::unique_ptr<Node> &n : m_nodes) {
-        if (FolderNode *fn = n->asFolderNode())
-            result.append(fn);
-    }
-    return result;
 }
 
 FolderNode *FolderNode::folderNode(const Utils::FilePath &directory) const
@@ -705,8 +684,7 @@ void FolderNode::compress()
 
         compress();
     } else {
-        for (FolderNode *fn : folderNodes())
-            fn->compress();
+        forEachFolderNode([&](FolderNode *fn) { fn->compress(); });
     }
 }
 

@@ -497,11 +497,8 @@ FolderNode *createSourceGroupNode(const QString &sourceGroupName,
         const QStringList parts = sourceGroupName.split("\\");
 
         for (const QString &p : parts) {
-            FolderNode *existingNode = Utils::findOrDefault(currentNode->folderNodes(),
-                                                            [&p](const FolderNode *fn) {
-                                                                return fn->displayName() == p;
-                                                            });
-
+            FolderNode *existingNode = currentNode->findChildFolderNode(
+                [&p](const FolderNode *fn) { return fn->displayName() == p; });
             if (!existingNode) {
                 auto node = createCMakeVFolder(sourceDirectory, Node::DefaultFolderPriority + 5, p);
                 node->setListInProject(false);

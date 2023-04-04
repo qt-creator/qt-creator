@@ -195,8 +195,7 @@ static void createTree(QmakeBuildSystem *buildSystem,
                     fileNode->setEnabled(fn.second == FileOrigin::ExactParse);
                     vfolder->addNestedNode(std::move(fileNode));
                 }
-                for (FolderNode *fn : vfolder->folderNodes())
-                    fn->compress();
+                vfolder->forEachFolderNode([](FolderNode *fn) { fn->compress(); });
             }
             node->addNode(std::move(vfolder));
         }

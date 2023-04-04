@@ -42,8 +42,7 @@ void addCMakeVFolder(FolderNode *base,
         base->addNode(std::move(newFolder));
     }
     folder->addNestedNodes(std::move(files));
-    for (FolderNode *fn : folder->folderNodes())
-        fn->compress();
+    folder->forEachFolderNode([] (FolderNode *fn) { fn->compress(); });
 }
 
 std::vector<std::unique_ptr<FileNode>> &&removeKnownNodes(
