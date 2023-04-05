@@ -424,7 +424,7 @@ void StudioStyle::drawControl(
     switch (element) {
     case CE_MenuItem:
         if (const auto mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
-            if (isQmlEditorMenu(widget)) {
+            if (!isQmlEditorMenu(widget)) {
                 Super::drawControl(element, option, painter, widget);
                 break;
             }
