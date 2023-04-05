@@ -886,7 +886,7 @@ void CppModelManager::initCppTools()
     connect(VcsManager::instance(), &VcsManager::repositoryChanged,
             this, &CppModelManager::updateModifiedSourceFiles);
     connect(DocumentManager::instance(), &DocumentManager::filesChangedInternally,
-            [this](const FilePaths &filePaths) {
+            this, [this](const FilePaths &filePaths) {
         updateSourceFiles(toSet(filePaths));
     });
 
