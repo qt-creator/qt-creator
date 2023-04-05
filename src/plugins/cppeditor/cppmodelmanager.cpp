@@ -904,6 +904,10 @@ void CppModelManager::initCppTools()
     setSymbolsFindFilter(std::make_unique<SymbolsFindFilter>(this));
     setCurrentDocumentFilter(
                 std::make_unique<Internal::CppCurrentDocumentFilter>(this));
+    // Setup matchers
+    LocatorMatcher::addLocatorMatcherCreator([] { return QList{CppEditor::cppLocatorMatcher()}; });
+    LocatorMatcher::addClassMatcherCreator([] { return QList{CppEditor::cppClassMatcher()}; });
+    LocatorMatcher::addFunctionMatcherCreator([] { return QList{CppEditor::cppFunctionMatcher()}; });
 }
 
 CppModelManager::CppModelManager()

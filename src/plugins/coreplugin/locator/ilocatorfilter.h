@@ -142,6 +142,7 @@ public:
     Utils::Tasking::TreeStorage<Storage> storage;
 };
 
+using LocatorMatcherTaskCreator = std::function<QList<LocatorMatcherTask>()>;
 class LocatorMatcherPrivate;
 
 class CORE_EXPORT LocatorMatcher final : public QObject
@@ -165,6 +166,15 @@ public:
     static LocatorMatcherTask::OutputData runBlocking(const QList<LocatorMatcherTask> &tasks,
                                                       const LocatorMatcherTask::InputData &input,
                                                       int parallelLimit = 0);
+
+    static void addLocatorMatcherCreator(const LocatorMatcherTaskCreator &creator);
+    static void addClassMatcherCreator(const LocatorMatcherTaskCreator &creator);
+    static void addFunctionMatcherCreator(const LocatorMatcherTaskCreator &creator);
+
+    static QList<LocatorMatcherTask> locatorMatchers();
+    static QList<LocatorMatcherTask> classMatchers();
+    static QList<LocatorMatcherTask> functionMatchers();
+
 signals:
     void serialOutputDataReady(const LocatorMatcherTask::OutputData &serialOutputData);
     void done(bool success);

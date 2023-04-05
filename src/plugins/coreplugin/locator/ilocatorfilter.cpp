@@ -427,6 +427,51 @@ LocatorMatcherTask::OutputData LocatorMatcher::runBlocking(const QList<LocatorMa
     return tree.outputData();
 }
 
+static QList<LocatorMatcherTaskCreator> s_locatorMatcherCreators = {};
+static QList<LocatorMatcherTaskCreator> s_classMatcherCreators = {};
+static QList<LocatorMatcherTaskCreator> s_functionMatcherCreators = {};
+
+void LocatorMatcher::addLocatorMatcherCreator(const LocatorMatcherTaskCreator &creator)
+{
+    QTC_ASSERT(creator, return);
+    s_locatorMatcherCreators.append(creator);
+}
+
+void LocatorMatcher::addClassMatcherCreator(const LocatorMatcherTaskCreator &creator)
+{
+    QTC_ASSERT(creator, return);
+    s_classMatcherCreators.append(creator);
+}
+
+void LocatorMatcher::addFunctionMatcherCreator(const LocatorMatcherTaskCreator &creator)
+{
+    QTC_ASSERT(creator, return);
+    s_functionMatcherCreators.append(creator);
+}
+
+static QList<LocatorMatcherTask> matchers(const QList<LocatorMatcherTaskCreator> &creators)
+{
+    QList<LocatorMatcherTask> result;
+    for (const LocatorMatcherTaskCreator &creator : creators)
+        result << creator();
+    return result;
+}
+
+QList<LocatorMatcherTask> LocatorMatcher::locatorMatchers()
+{
+    return matchers(s_locatorMatcherCreators);
+}
+
+QList<LocatorMatcherTask> LocatorMatcher::classMatchers()
+{
+    return matchers(s_classMatcherCreators);
+}
+
+QList<LocatorMatcherTask> LocatorMatcher::functionMatchers()
+{
+    return matchers(s_functionMatcherCreators);
+}
+
 static QList<ILocatorFilter *> g_locatorFilters;
 
 /*!
