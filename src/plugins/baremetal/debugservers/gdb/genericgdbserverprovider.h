@@ -19,8 +19,8 @@ class GenericGdbServerProvider final : public GdbServerProvider
 private:
     GenericGdbServerProvider();
     QSet<StartupMode> supportedStartupModes() const final;
-    ProjectExplorer::RunWorker *targetRunner(
-            ProjectExplorer::RunControl *runControl) const final {
+    ProjectExplorer::RunWorker *targetRunner(ProjectExplorer::RunControl *runControl) const final {
+        Q_UNUSED(runControl)
         // Generic Runner assumes GDB Server already running
         return nullptr;
     }
