@@ -419,7 +419,7 @@ DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &dat
 {
     setFileAccess(&d->m_fileAccess);
     setDisplayType(Tr::tr("Docker"));
-    setOsType(OsTypeOtherUnix);
+    setOsType(OsTypeLinux);
     setDefaultDisplayName(Tr::tr("Docker Image"));
     setupId(IDevice::ManuallyAdded);
     setType(Constants::DOCKER_DEVICE_TYPE);
@@ -831,33 +831,6 @@ ProcessInterface *DockerDevice::createProcessInterface() const
 {
     return new DockerProcessImpl(this->sharedFromThis(), d);
 }
-
-bool DockerDevice::canAutoDetectPorts() const
-{
-    return true;
-}
-
-PortsGatheringMethod DockerDevice::portsGatheringMethod() const
-{
-    return {[this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
-                // We might encounter the situation that protocol is given IPv6
-                // but the consumer of the free port information decides to open
-                // an IPv4(only) port. As a result the next IPv6 scan will
-                // report the port again as open (in IPv6 namespace), while the
-                // same port in IPv4 namespace might still be blocked, and
-                // re-use of this port fails.
-                // GDBserver behaves exactly like this.
-
-                Q_UNUSED(protocol)
-
-                // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
-                return {filePath("sed"),
-                        "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*",
-                        CommandLine::Raw};
-            },
-
-            &Port::parseFromSedOutput};
-};
 
 DeviceProcessList *DockerDevice::createProcessListModel(QObject *parent) const
 {

@@ -388,11 +388,6 @@ IDeviceWidget *AndroidDevice::createWidget()
     return new AndroidDeviceWidget(sharedFromThis());
 }
 
-bool AndroidDevice::canAutoDetectPorts() const
-{
-    return true;
-}
-
 DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr(new AndroidSignalOperation());

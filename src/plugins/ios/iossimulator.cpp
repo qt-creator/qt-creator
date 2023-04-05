@@ -66,11 +66,6 @@ Utils::Port IosSimulator::nextPort() const
     return Utils::Port(m_lastPort);
 }
 
-bool IosSimulator::canAutoDetectPorts() const
-{
-    return true;
-}
-
 // IosDeviceType
 
 IosDeviceType::IosDeviceType(IosDeviceType::Type type, const QString &identifier, const QString &displayName) :

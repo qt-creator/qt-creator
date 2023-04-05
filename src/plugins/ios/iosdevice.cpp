@@ -185,12 +185,6 @@ Utils::Port IosDevice::nextPort() const
     return Utils::Port(m_lastPort);
 }
 
-bool IosDevice::canAutoDetectPorts() const
-{
-    return true;
-}
-
-
 // IosDeviceManager
 
 IosDeviceManager::TranslationMap IosDeviceManager::translationMap()

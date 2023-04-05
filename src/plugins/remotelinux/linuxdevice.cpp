@@ -993,39 +993,6 @@ IDeviceWidget *LinuxDevice::createWidget()
     return new Internal::GenericLinuxDeviceConfigurationWidget(sharedFromThis());
 }
 
-bool LinuxDevice::canAutoDetectPorts() const
-{
-    return true;
-}
-
-PortsGatheringMethod LinuxDevice::portsGatheringMethod() const
-{
-    return {
-        [this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
-            // We might encounter the situation that protocol is given IPv6
-            // but the consumer of the free port information decides to open
-            // an IPv4(only) port. As a result the next IPv6 scan will
-            // report the port again as open (in IPv6 namespace), while the
-            // same port in IPv4 namespace might still be blocked, and
-            // re-use of this port fails.
-            // GDBserver behaves exactly like this.
-
-            Q_UNUSED(protocol)
-
-            // We used to have
-            //            // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
-            //            return {filePath("sed"),
-            //                    "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*",
-            //
-            // here, but that doesn't pass quoting on double-remote setups.
-            // Chicken out by using a simpler command.
-            return {filePath("/bin/sh"), {"-c", "cat /proc/net/tcp*"}};
-        },
-
-        &Port::parseFromCatOutput
-    };
-}
-
 DeviceProcessList *LinuxDevice::createProcessListModel(QObject *parent) const
 {
     return new ProcessList(sharedFromThis(), parent);

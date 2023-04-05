@@ -139,10 +139,7 @@ public:
     void addDeviceAction(const DeviceAction &deviceAction);
     const QList<DeviceAction> deviceActions() const;
 
-    // Devices that can auto detect ports need not return a ports gathering method. Such devices can
-    // obtain a free port on demand. eg: Desktop device.
-    virtual bool canAutoDetectPorts() const { return false; }
-    virtual PortsGatheringMethod portsGatheringMethod() const { return {}; }
+    virtual PortsGatheringMethod portsGatheringMethod() const;
     virtual bool canCreateProcessModel() const { return false; }
     virtual DeviceProcessList *createProcessListModel(QObject *parent = nullptr) const;
     virtual bool hasDeviceTester() const { return false; }

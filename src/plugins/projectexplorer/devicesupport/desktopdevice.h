@@ -25,10 +25,8 @@ public:
     IDevice::DeviceInfo deviceInformation() const override;
 
     IDeviceWidget *createWidget() override;
-    bool canAutoDetectPorts() const override;
     bool canCreateProcessModel() const override;
     DeviceProcessList *createProcessListModel(QObject *parent) const override;
-    ProjectExplorer::PortsGatheringMethod portsGatheringMethod() const override;
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
     bool usableAsBuildDevice() const override;

@@ -78,16 +78,6 @@ public:
         }});
     }
 
-    PortsGatheringMethod portsGatheringMethod() const final
-    {
-        return {
-            [this](QAbstractSocket::NetworkLayerProtocol) {
-                return CommandLine(filePath("netstat"), {"-na"});
-            },
-            &Port::parseFromNetstatOutput
-        };
-    }
-
     DeviceProcessSignalOperation::Ptr signalOperation() const final
     {
         return DeviceProcessSignalOperation::Ptr(new QnxDeviceProcessSignalOperation(sharedFromThis()));

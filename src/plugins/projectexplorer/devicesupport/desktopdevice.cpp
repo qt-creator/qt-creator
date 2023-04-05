@@ -87,11 +87,6 @@ IDeviceWidget *DesktopDevice::createWidget()
     // range can be confusing to the user. Hence, disabling the widget for now.
 }
 
-bool DesktopDevice::canAutoDetectPorts() const
-{
-    return true;
-}
-
 bool DesktopDevice::canCreateProcessModel() const
 {
     return true;
@@ -105,31 +100,6 @@ DeviceProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
 DeviceProcessSignalOperation::Ptr DesktopDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr(new DesktopProcessSignalOperation());
-}
-
-PortsGatheringMethod DesktopDevice::portsGatheringMethod() const
-{
-    return {
-        [this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
-            // We might encounter the situation that protocol is given IPv6
-            // but the consumer of the free port information decides to open
-            // an IPv4(only) port. As a result the next IPv6 scan will
-            // report the port again as open (in IPv6 namespace), while the
-            // same port in IPv4 namespace might still be blocked, and
-            // re-use of this port fails.
-            // GDBserver behaves exactly like this.
-
-            Q_UNUSED(protocol)
-
-            if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
-                return {filePath("netstat"), {"-a", "-n"}};
-            if (HostOsInfo::isLinuxHost())
-                return {filePath("/bin/sh"), {"-c", "cat /proc/net/tcp*"}};
-            return {};
-        },
-
-        &Port::parseFromNetstatOutput
-    };
 }
 
 QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const

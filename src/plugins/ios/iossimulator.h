@@ -48,7 +48,6 @@ public:
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
     Utils::Port nextPort() const;
-    bool canAutoDetectPorts() const override;
 
 protected:
     friend class IosSimulatorFactory;

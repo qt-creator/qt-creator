@@ -36,7 +36,6 @@ public:
     QString osVersion() const;
     QString cpuArchitecture() const;
     Utils::Port nextPort() const;
-    bool canAutoDetectPorts() const override;
 
     static QString name();
 
