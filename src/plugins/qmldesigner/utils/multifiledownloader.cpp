@@ -46,6 +46,7 @@ void MultiFileDownloader::setDownloader(FileDownloader *downloader)
 
 void MultiFileDownloader::start()
 {
+    m_canceled = false;
     emit downloadStarting();
 }
 
