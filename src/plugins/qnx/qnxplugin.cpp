@@ -46,7 +46,7 @@ class QnxDeployStepFactory : public BuildStepFactory
 public:
     QnxDeployStepFactory(Utils::Id existingStepId, Utils::Id overrideId = {})
     {
-        cloneStep(existingStepId, overrideId);
+        cloneStepCreator(existingStepId, overrideId);
         setSupportedConfiguration(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }

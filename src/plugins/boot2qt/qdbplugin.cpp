@@ -101,7 +101,7 @@ class QdbDeployStepFactory : public BuildStepFactory
 public:
     explicit QdbDeployStepFactory(Id existingStepId)
     {
-        cloneStep(existingStepId);
+        cloneStepCreator(existingStepId);
         setSupportedConfiguration(Constants::QdbDeployConfigurationId);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }

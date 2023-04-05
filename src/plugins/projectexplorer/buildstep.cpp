@@ -380,7 +380,7 @@ QString BuildStepFactory::displayName() const
     return m_displayName;
 }
 
-void BuildStepFactory::cloneStep(Utils::Id exitstingStepId, Utils::Id overrideNewStepId)
+void BuildStepFactory::cloneStepCreator(Id exitstingStepId, Id overrideNewStepId)
 {
     m_stepId = {};
     m_creator = {};
