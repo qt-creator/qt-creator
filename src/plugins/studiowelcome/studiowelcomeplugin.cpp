@@ -651,9 +651,11 @@ bool StudioWelcomePlugin::delayedInitialize()
 
         const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [](const Kit *k) {
             const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
-            const bool isQt6 = version && version->qtVersion().majorVersion() == 6;
+            const bool valid = version && version->isValid();
+            const bool isQt6 = valid && version->qtVersion().majorVersion() == 6;
+            const bool autoDetected = valid && version->isAutodetected();
 
-            return isQt6
+            return isQt6 && autoDetected
                    && ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(k)
                           == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
         });
