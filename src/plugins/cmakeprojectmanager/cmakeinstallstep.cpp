@@ -93,6 +93,7 @@ void CMakeInstallStep::finish(ProcessResult result)
     emit progress(100, {});
     AbstractProcessStep::finish(result);
 }
+
 QWidget *CMakeInstallStep::createConfigWidget()
 {
     auto updateDetails = [this] {

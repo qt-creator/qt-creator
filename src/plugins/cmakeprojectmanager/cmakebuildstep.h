@@ -85,6 +85,10 @@ private:
     void doRun() override;
     QWidget *createConfigWidget() override;
 
+    Utils::FilePath cmakeExecutable() const;
+    QString currentInstallPrefix() const;
+    QString currentStagingDir() const;
+
     QString defaultBuildTarget() const;
     bool isCleanStep() const;
 
@@ -94,6 +98,7 @@ private:
     void handleBuildTargetsChanges(bool success);
     void recreateBuildTargetsModel();
     void updateBuildTargetsModel();
+    void updateDeploymentData();
 
     QMetaObject::Connection m_runTrigger;
 
@@ -102,6 +107,8 @@ private:
     Utils::StringAspect *m_cmakeArguments = nullptr;
     Utils::StringAspect *m_toolArguments = nullptr;
     Utils::BoolAspect *m_useiOSAutomaticProvisioningUpdates = nullptr;
+    Utils::BoolAspect *m_useStaging = nullptr;
+    Utils::StringAspect *m_stagingDir = nullptr;
 
     QString m_allTarget = "all";
     QString m_installTarget = "install";
