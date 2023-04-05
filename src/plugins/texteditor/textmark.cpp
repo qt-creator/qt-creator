@@ -81,6 +81,8 @@ TextMark::~TextMark()
         TextMarkRegistry::remove(this);
     if (m_baseTextDocument)
         m_baseTextDocument->removeMark(this);
+    if (m_deleteCallback)
+        m_deleteCallback();
     m_baseTextDocument = nullptr;
 }
 

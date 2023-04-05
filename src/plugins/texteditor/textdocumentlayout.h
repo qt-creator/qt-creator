@@ -245,7 +245,8 @@ public:
     QRectF blockBoundingRect(const QTextBlock &block) const override;
 
     TextMarks documentClosing();
-    void documentReloaded(TextMarks marks, TextDocument *baseextDocument);
+    void documentAboutToReload();
+    void documentReloaded(TextDocument *baseextDocument);
     void updateMarksLineNumber();
     void updateMarksBlock(const QTextBlock &block);
     void scheduleUpdate();
@@ -253,6 +254,8 @@ public:
 
 private:
     bool m_updateScheduled = false;
+    TextMarks m_reloadMarks;
+    void resetReloadMarks();
 
 signals:
     void updateExtraArea();

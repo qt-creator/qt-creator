@@ -118,11 +118,14 @@ public:
     bool isLocationMarker() const;;
     void setIsLocationMarker(bool newIsLocationMarker);
 
+
 protected:
     void setSettingsPage(Utils::Id settingsPage);
 
 private:
     Q_DISABLE_COPY(TextMark)
+
+    void setDeleteCallback(const std::function<void()> &callback) { m_deleteCallback = callback; };
 
     TextDocument *m_baseTextDocument = nullptr;
     Utils::FilePath m_fileName;
@@ -141,6 +144,9 @@ private:
     QVector<QAction *> m_actions; // FIXME Remove in master
     std::function<QList<QAction *>()> m_actionsProvider;
     Utils::Id m_settingsPage;
+    std::function<void()> m_deleteCallback;
+
+    friend class TextDocumentLayout;
 };
 
 } // namespace TextEditor

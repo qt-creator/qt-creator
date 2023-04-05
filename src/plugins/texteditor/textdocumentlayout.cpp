@@ -656,6 +656,7 @@ QSizeF TextDocumentLayout::documentSize() const
 
 TextMarks TextDocumentLayout::documentClosing()
 {
+    QTC_ASSERT(m_reloadMarks.isEmpty(), resetReloadMarks());
     TextMarks marks;
     for (QTextBlock block = document()->begin(); block.isValid(); block = block.next()) {
         if (auto data = static_cast<TextBlockUserData *>(block.userData()))
@@ -664,9 +665,17 @@ TextMarks TextDocumentLayout::documentClosing()
     return marks;
 }
 
-void TextDocumentLayout::documentReloaded(TextMarks marks, TextDocument *baseTextDocument)
+void TextDocumentLayout::documentAboutToReload()
 {
-    for (TextMark *mark : std::as_const(marks)) {
+    m_reloadMarks = documentClosing();
+    for (TextMark *mark : std::as_const(m_reloadMarks))
+        mark->setDeleteCallback([this, mark] { m_reloadMarks.removeOne(mark); });
+}
+
+void TextDocumentLayout::documentReloaded(TextDocument *baseTextDocument)
+{
+    for (TextMark *mark : std::as_const(m_reloadMarks)) {
+        mark->setDeleteCallback({});
         int blockNumber = mark->lineNumber() - 1;
         QTextBlock block = document()->findBlockByNumber(blockNumber);
         if (block.isValid()) {
@@ -680,6 +689,7 @@ void TextDocumentLayout::documentReloaded(TextMarks marks, TextDocument *baseTex
             mark->removedFromEditor();
         }
     }
+    m_reloadMarks.clear();
     requestUpdate();
 }
 
@@ -719,6 +729,13 @@ void TextDocumentLayout::requestUpdateNow()
 {
     m_updateScheduled = false;
     requestUpdate();
+}
+
+void TextDocumentLayout::resetReloadMarks()
+{
+    for (TextMark *mark : std::as_const(m_reloadMarks))
+        mark->setDeleteCallback({});
+    m_reloadMarks.clear();
 }
 
 static QRectF replacementBoundingRect(const QTextDocument *replacement)
