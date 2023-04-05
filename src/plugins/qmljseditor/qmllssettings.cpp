@@ -90,7 +90,7 @@ void QmllsSettingsManager::setupAutoupdate()
 void QmllsSettingsManager::checkForChanges()
 {
     FilePath newLatest = evaluateLatestQmlls();
-    QmllsSettings newSettings = QmlJsEditingSettings::get().qmllsSettigs();
+    QmllsSettings newSettings = QmlJsEditingSettings::get().qmllsSettings();
     if (m_lastSettings == newSettings && newLatest == m_latestQmlls)
         return;
     qCDebug(qmllsLog) << "qmlls settings changed:" << newSettings.useQmlls

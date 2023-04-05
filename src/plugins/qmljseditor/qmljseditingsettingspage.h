@@ -52,8 +52,8 @@ public:
     bool useCustomFormatCommand() const;
     void setUseCustomFormatCommand(bool customCommand);
 
-    QmllsSettings &qmllsSettigs();
-    const QmllsSettings &qmllsSettigs() const;
+    QmllsSettings &qmllsSettings();
+    const QmllsSettings &qmllsSettings() const;
 
     const QString uiQmlOpenMode() const;
     void setUiQmlOpenMode(const QString &mode);
