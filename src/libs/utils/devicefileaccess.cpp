@@ -1192,7 +1192,7 @@ void UnixDeviceFileAccess::findUsingLs(const QString &current,
                                        const FileFilter &filter,
                                        QStringList *found) const
 {
-    const RunResult result = runInShell({"ls", {"-1", "-p", "--", current}, OsType::OsTypeLinux});
+    const RunResult result = runInShell({"ls", {"-1", "-a", "-p", "--", current}, OsType::OsTypeLinux});
     const QStringList entries = QString::fromUtf8(result.stdOut).split('\n', Qt::SkipEmptyParts);
     for (QString entry : entries) {
         const QChar last = entry.back();
@@ -1254,8 +1254,8 @@ void UnixDeviceFileAccess::iterateDirectory(const FilePath &filePath,
     if (m_tryUseFind) {
         if (iterateWithFind(filePath, filter, callBack))
             return;
-        m_tryUseFind
-            = false; // remember the failure for the next time and use the 'ls' fallback below.
+        // Remember the failure for the next time and use the 'ls' fallback below.
+        m_tryUseFind = false;
     }
 
     // if we do not have find - use ls as fallback
