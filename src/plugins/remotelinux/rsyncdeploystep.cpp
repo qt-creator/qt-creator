@@ -31,19 +31,15 @@ namespace RemoteLinux {
 class RsyncDeployStep : public AbstractRemoteLinuxDeployStep
 {
 public:
-    RsyncDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-    ~RsyncDeployStep() override;
-
-    static Utils::Id stepId();
-    static QString displayName();
+    RsyncDeployStep(BuildStepList *bsl, Id id);
 
 private:
     bool isDeploymentNecessary() const final;
-    Utils::Tasking::Group deployRecipe() final;
-    Utils::Tasking::TaskItem mkdirTask();
-    Utils::Tasking::TaskItem transferTask();
+    Tasking::Group deployRecipe() final;
+    Tasking::TaskItem mkdirTask();
+    Tasking::TaskItem transferTask();
 
-    mutable ProjectExplorer::FilesToTransfer m_files;
+    mutable FilesToTransfer m_files;
     bool m_ignoreMissingFiles = false;
     QString m_flags;
 };
@@ -82,8 +78,6 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
             m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
     });
 }
-
-RsyncDeployStep::~RsyncDeployStep() = default;
 
 bool RsyncDeployStep::isDeploymentNecessary() const
 {
@@ -146,16 +140,6 @@ TaskItem RsyncDeployStep::transferTask()
 Group RsyncDeployStep::deployRecipe()
 {
     return Group { mkdirTask(), transferTask() };
-}
-
-Utils::Id RsyncDeployStep::stepId()
-{
-    return Constants::RsyncDeployStepId;
-}
-
-QString RsyncDeployStep::displayName()
-{
-    return Tr::tr("Deploy files via rsync");
 }
 
 // Factory
