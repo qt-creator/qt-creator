@@ -14,6 +14,7 @@
 #include "../modemanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/appmainwindow.h>
 #include <utils/fancylineedit.h>
 #include <utils/fsengine/fileiconprovider.h>

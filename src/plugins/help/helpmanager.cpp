@@ -12,7 +12,6 @@
 #include <utils/asynctask.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
 #include <QDateTime>
 #include <QDebug>

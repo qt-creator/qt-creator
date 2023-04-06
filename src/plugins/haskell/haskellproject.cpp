@@ -14,7 +14,6 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
 #include <QFile>
 #include <QTextStream>

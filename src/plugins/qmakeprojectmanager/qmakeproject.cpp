@@ -50,7 +50,6 @@
 #include <utils/algorithm.h>
 #include <utils/asynctask.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
 #include <QDebug>
 #include <QDir>

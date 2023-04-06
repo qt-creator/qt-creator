@@ -6,7 +6,7 @@
 #include "iostr.h"
 
 #include <utils/algorithm.h>
-#include <utils/runextensions.h>
+#include <utils/asynctask.h>
 
 #include <QTimer>
 

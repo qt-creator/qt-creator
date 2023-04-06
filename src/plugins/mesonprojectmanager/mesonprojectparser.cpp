@@ -14,7 +14,6 @@
 
 #include <utils/asynctask.h>
 #include <utils/fileinprojectfinder.h>
-#include <utils/runextensions.h>
 
 #include <QStringList>
 #include <QTextStream>

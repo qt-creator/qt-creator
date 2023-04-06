@@ -109,7 +109,7 @@ namespace Core {
     start a task concurrently in a different thread.
     QtConcurrent has several different functions to run e.g.
     a class function in a different thread. Qt Creator itself
-    adds a few more in \c{src/libs/qtconcurrent/runextensions.h}.
+    adds a few more in \c{src/libs/utils/asynctask.h}.
     The QtConcurrent functions to run a concurrent task return a
     \c QFuture object. This is what you want to give the
     ProgressManager in the addTask() function.

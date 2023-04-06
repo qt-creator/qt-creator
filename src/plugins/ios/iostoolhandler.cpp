@@ -17,7 +17,6 @@
 #include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDir>

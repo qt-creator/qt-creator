@@ -14,7 +14,6 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
 #include <QDir>
 #include <QDirIterator>

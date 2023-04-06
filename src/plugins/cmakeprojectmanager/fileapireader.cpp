@@ -16,7 +16,6 @@
 #include <utils/algorithm.h>
 #include <utils/asynctask.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
 #include <QLoggingCategory>
 

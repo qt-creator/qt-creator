@@ -12,9 +12,9 @@
 #include "simulatoroperationdialog.h"
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/runextensions.h>
 
 #include <QCheckBox>
 #include <QDateTime>

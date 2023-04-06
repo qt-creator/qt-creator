@@ -7,8 +7,8 @@
 #include "simulatorcontrol.h"
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/layoutbuilder.h>
-#include <utils/runextensions.h>
 
 #include <QApplication>
 #include <QComboBox>

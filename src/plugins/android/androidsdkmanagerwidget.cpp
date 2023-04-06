@@ -9,10 +9,10 @@
 
 #include <app/app_version.h>
 
+#include <utils/asynctask.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/utilsicons.h>
 
 #include <QAbstractButton>
