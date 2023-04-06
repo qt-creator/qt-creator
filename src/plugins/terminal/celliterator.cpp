@@ -14,6 +14,11 @@ CellIterator::CellIterator(const TerminalSurface *surface, QPoint pos)
     , m_surface(surface)
 {
     m_pos = (pos.x()) + (pos.y() * surface->liveSize().width());
+    if (m_pos < 0)
+        m_pos = 0;
+    if (m_pos == 0)
+        m_state = State::BEGIN;
+
     m_maxpos = surface->fullSize().width() * (surface->fullSize().height()) - 1;
     updateChar();
 }
@@ -23,7 +28,7 @@ CellIterator::CellIterator(const TerminalSurface *surface, int pos)
     , m_surface(surface)
 {
     m_maxpos = surface->fullSize().width() * (surface->fullSize().height()) - 1;
-    m_pos = qMin(m_maxpos + 1, pos);
+    m_pos = qMax(0, qMin(m_maxpos + 1, pos));
     if (m_pos == 0) {
         m_state = State::BEGIN;
     } else if (m_pos == m_maxpos + 1) {
