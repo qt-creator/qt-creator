@@ -1039,14 +1039,37 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
             cmd.setExecutable(commandLine().executable()); // FIXME: Case should not happen?
         } else {
             cmd.setExecutable(runControl->device()->debugServerPath());
-            if (cmd.isEmpty())
-                cmd.setExecutable(runControl->device()->filePath("gdbserver"));
+
+            if (cmd.isEmpty()) {
+                if (runControl->device()->osType() == Utils::OsTypeMac) {
+                    const FilePath debugServerLocation = runControl->device()->filePath(
+                        "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/"
+                        "Resources/debugserver");
+
+                    if (debugServerLocation.isExecutableFile()) {
+                        cmd.setExecutable(debugServerLocation);
+                    } else {
+                        // TODO: In the future it is expected that the debugserver will be
+                        // replaced by lldb-server. Remove the check for debug server at that point.
+                        const FilePath lldbserver
+                            = runControl->device()->filePath("lldb-server").searchInPath();
+                        if (lldbserver.isExecutableFile())
+                            cmd.setExecutable(lldbserver);
+                    }
+                } else {
+                    cmd.setExecutable(runControl->device()->filePath("gdbserver"));
+                }
+            }
             args.clear();
-            if (cmd.executable().toString().contains("lldb-server")) {
+            if (cmd.executable().baseName().contains("lldb-server")) {
                 args.append("platform");
                 args.append("--listen");
                 args.append(QString("*:%1").arg(portsGatherer->gdbServer().port()));
                 args.append("--server");
+            } else if (cmd.executable().baseName() == "debugserver") {
+                args.append(QString("*:%1").arg(portsGatherer->gdbServer().port()));
+                args.append("--attach");
+                args.append(QString::number(m_pid.pid()));
             } else {
                 // Something resembling gdbserver
                 if (m_useMulti)
