@@ -201,8 +201,6 @@ public:
     ILocatorFilter(QObject *parent = nullptr);
     ~ILocatorFilter() override;
 
-    static const QList<ILocatorFilter *> allLocatorFilters();
-
     Utils::Id id() const;
     Utils::Id actionId() const;
 
@@ -281,6 +279,7 @@ protected:
 
 private:
     friend class Internal::Locator;
+    static const QList<ILocatorFilter *> allLocatorFilters();
 
     Utils::Id m_id;
     QString m_shortcut;
