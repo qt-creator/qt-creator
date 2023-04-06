@@ -16,10 +16,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
-#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
 #include <QApplication>
@@ -29,7 +26,6 @@
 #include <QDebug>
 #include <QDir>
 #include <QFormLayout>
-#include <QFutureWatcher>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QListView>
@@ -603,25 +599,17 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
     using namespace Utils;
     if (m_completion == Completion::None)
         return;
-    ILocatorFilter * const classesFilter = findOrDefault(
-                ILocatorFilter::allLocatorFilters(),
-                equal(&ILocatorFilter::id, Id("Classes")));
-    if (!classesFilter)
-        return;
-    classesFilter->prepareSearch({});
-    const auto watcher = new QFutureWatcher<LocatorFilterEntry>;
-    const auto handleResults = [this, lineEdit, watcher](int firstIndex, int endIndex) {
+    const auto handleResults = [this, lineEdit](const QList<LocatorFilterEntry> &entries) {
         QSet<QString> namespaces;
         QStringList classes;
         Project * const project = ProjectTree::currentProject();
-        for (int i = firstIndex; i < endIndex; ++i) {
+        for (const LocatorFilterEntry &entry : entries) {
             static const auto isReservedName = [](const QString &name) {
                 static const QRegularExpression rx1("^_[A-Z].*");
                 static const QRegularExpression rx2(".*::_[A-Z].*");
                 return name.contains("__") || rx1.match(name).hasMatch()
                         || rx2.match(name).hasMatch();
             };
-            const LocatorFilterEntry &entry = watcher->resultAt(i);
             const bool hasNamespace = !entry.extraInfo.isEmpty()
                     && !entry.extraInfo.startsWith('<')  && !entry.extraInfo.contains("::<")
                     && !isReservedName(entry.extraInfo)
@@ -658,15 +646,11 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
         completionList.sort();
         lineEdit->setSpecialCompleter(new QCompleter(completionList, lineEdit));
     };
-    QObject::connect(watcher, &QFutureWatcher<LocatorFilterEntry>::resultsReadyAt, lineEdit,
-                     handleResults);
-    QObject::connect(watcher, &QFutureWatcher<LocatorFilterEntry>::finished,
-                     watcher, &QFutureWatcher<LocatorFilterEntry>::deleteLater);
-    watcher->setFuture(runAsync([classesFilter](QFutureInterface<LocatorFilterEntry> &f) {
-        const QList<LocatorFilterEntry> matches = classesFilter->matchesFor(f, {});
-        if (!matches.isEmpty())
-            f.reportResults(QVector<LocatorFilterEntry>(matches.cbegin(), matches.cend()));
-    }));
+    LocatorMatcher *matcher = new LocatorMatcher;
+    matcher->setTasks(LocatorMatcher::classMatchers());
+    QObject::connect(matcher, &LocatorMatcher::serialOutputDataReady, lineEdit, handleResults);
+    QObject::connect(matcher, &LocatorMatcher::done, matcher, &QObject::deleteLater);
+    matcher->start();
 }
 
 void LineEditField::setText(const QString &text)
