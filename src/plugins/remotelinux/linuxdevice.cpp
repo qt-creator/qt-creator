@@ -606,13 +606,29 @@ void SshProcessInterfacePrivate::start()
         }
         cmd.addArg(m_sshParameters.host());
 
+        const bool useTerminal = q->m_setup.m_terminalMode != TerminalMode::Off
+                                 || q->m_setup.m_ptyData;
+        if (useTerminal)
+            cmd.addArg("-tt");
+
         const CommandLine full = q->m_setup.m_commandLine;
         if (!full.isEmpty()) {
-            // Empty is ok in case of opening a terminal.
-            cmd.addArgs(QString("echo ") + s_pidMarker + "\\$\\$" + s_pidMarker + " \\&\\& ",
-                        CommandLine::Raw);
+            if (!useTerminal) {
+                // Empty is ok in case of opening a terminal.
+                cmd.addArgs(QString("echo ") + s_pidMarker + "\\$\\$" + s_pidMarker + " \\&\\& ",
+                            CommandLine::Raw);
+            }
             cmd.addCommandLineAsArgs(full, CommandLine::Raw);
         }
+
+        m_process.setProcessImpl(q->m_setup.m_processImpl);
+        m_process.setProcessMode(q->m_setup.m_processMode);
+        m_process.setTerminalMode(q->m_setup.m_terminalMode);
+        m_process.setPtyData(q->m_setup.m_ptyData);
+        m_process.setReaperTimeout(q->m_setup.m_reaperTimeout);
+        m_process.setWriteData(q->m_setup.m_writeData);
+        m_process.setCreateConsoleOnWindows(q->m_setup.m_createConsoleOnWindows);
+        m_process.setExtraData(q->m_setup.m_extraData);
 
         m_process.setCommand(cmd);
         m_process.start();
