@@ -65,7 +65,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/savefile.h>
 #include <utils/temporarydirectory.h>
 
@@ -535,8 +534,8 @@ void CppModelManager::findUnusedFunctions(const FilePath &folder)
     const auto actionsSwitcher = std::make_shared<FindUnusedActionsEnabledSwitcher>();
 
     // Step 1: Employ locator to find all functions
-    ILocatorFilter *const functionsFilter = CppModelManager::instance()->functionsFilter();
-    QTC_ASSERT(functionsFilter, return);
+    LocatorMatcher *matcher = new LocatorMatcher;
+    matcher->setTasks(LocatorMatcher::functionMatchers());
     const QPointer<SearchResult> search
         = SearchResultWindow::instance()->startNewSearch(Tr::tr("Find Unused Functions"),
                              {},
@@ -544,25 +543,22 @@ void CppModelManager::findUnusedFunctions(const FilePath &folder)
                              SearchResultWindow::SearchOnly,
                              SearchResultWindow::PreserveCaseDisabled,
                              "CppEditor");
+    matcher->setParent(search);
     connect(search, &SearchResult::activated, [](const SearchResultItem &item) {
         EditorManager::openEditorAtSearchResult(item);
     });
     SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
-    const auto locatorWatcher = new QFutureWatcher<LocatorFilterEntry>(search);
-    functionsFilter->prepareSearch({});
-    connect(search, &SearchResult::canceled, locatorWatcher, [locatorWatcher] {
-        locatorWatcher->cancel();
-    });
-    connect(locatorWatcher, &QFutureWatcher<LocatorFilterEntry>::finished, search,
-            [locatorWatcher, search, folder, actionsSwitcher] {
-        locatorWatcher->deleteLater();
-        if (locatorWatcher->isCanceled()) {
+    connect(search, &SearchResult::canceled, matcher, [matcher] { delete matcher; });
+    connect(matcher, &LocatorMatcher::done, search,
+            [matcher, search, folder, actionsSwitcher](bool success) {
+        matcher->deleteLater();
+        if (!success) {
             search->finishSearch(true);
             return;
         }
         Links links;
-        for (int i = 0; i < locatorWatcher->future().resultCount(); ++i) {
-            const LocatorFilterEntry &entry = locatorWatcher->resultAt(i);
+        const auto entries = matcher->outputData();
+        for (const LocatorFilterEntry &entry : entries) {
             static const QStringList prefixBlacklist{"main(", "~", "qHash(", "begin()", "end()",
                     "cbegin()", "cend()", "constBegin()", "constEnd()"};
             if (Utils::anyOf(prefixBlacklist, [&entry](const QString &prefix) {
@@ -614,10 +610,7 @@ void CppModelManager::findUnusedFunctions(const FilePath &folder)
         for (int i = 0; i < inFlightCount; ++i)
             checkNextFunctionForUnused(search, findRefsFuture, actionsSwitcher);
     });
-    locatorWatcher->setFuture(
-                Utils::runAsync([functionsFilter](QFutureInterface<LocatorFilterEntry> &future) {
-                    future.reportResults(functionsFilter->matchesFor(future, {}));
-                }));
+    matcher->start();
 }
 
 void CppModelManager::checkForUnusedSymbol(SearchResult *search,
