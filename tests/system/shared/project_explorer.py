@@ -103,7 +103,7 @@ def waitForProjectTreeItem(treeElement, timeoutMSec):
     projectTV = ":Qt Creator_Utils::NavigationTreeView"
     projItem = None
     treeElementWithBranch = addBranchWildcardToRoot(treeElement)
-    for _ in range(timeoutMSec / 200):
+    for _ in range(__builtins__.int(timeoutMSec / 200)):
         try:
             projItem = waitForObjectItem(projectTV, treeElement, 100)
         except:
