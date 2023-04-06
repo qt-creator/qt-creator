@@ -1362,7 +1362,7 @@ bool TerminalWidget::checkLinkAt(const QPoint &pos)
 
             Link link = Link::fromString(t, true);
 
-            if (!link.targetFilePath.isAbsolutePath())
+            if (!link.targetFilePath.isEmpty() && !link.targetFilePath.isAbsolutePath())
                 link.targetFilePath = m_cwd.pathAppended(link.targetFilePath.path());
 
             if (link.hasValidTarget()
