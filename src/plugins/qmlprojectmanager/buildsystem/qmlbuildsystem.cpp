@@ -141,6 +141,7 @@ void QmlBuildSystem::refresh(RefreshOptions options)
         break;
     case RefreshOptions::Project:
         initProjectItem();
+        [[fallthrough]];
     case RefreshOptions::Files:
         parseProjectFiles();
     }
