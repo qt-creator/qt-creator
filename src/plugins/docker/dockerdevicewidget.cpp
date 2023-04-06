@@ -198,6 +198,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             logView->append(Tr::tr("Docker daemon appears to be not running."));
         else
             logView->append(Tr::tr("Docker daemon appears to be running."));
+
+        logView->append(Tr::tr("Detection complete."));
         updateDaemonStateTexts();
     });
 
