@@ -644,7 +644,7 @@ OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &a
         }
     };
     m_optionsFuture = sdkManager->availableArguments();
-    Utils::onResultReady(m_optionsFuture, populateOptions);
+    Utils::onResultReady(m_optionsFuture, this, populateOptions);
 
     auto dialogButtons = new QDialogButtonBox(this);
     dialogButtons->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);

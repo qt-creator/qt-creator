@@ -553,13 +553,14 @@ public:
 void tst_RunExtensions::onResultReady()
 {
     { // lambda
+        QObject context;
         QFuture<QString> f = Utils::runAsync([](QFutureInterface<QString> &fi) {
                 fi.reportResult("Hi");
                 fi.reportResult("there");
         });
         int count = 0;
         QString res;
-        Utils::onResultReady(f, [&count, &res](const QString &s) {
+        Utils::onResultReady(f, &context, [&count, &res](const QString &s) {
             ++count;
             res = s;
         });

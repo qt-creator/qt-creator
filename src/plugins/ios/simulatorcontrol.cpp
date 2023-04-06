@@ -235,10 +235,10 @@ static QList<SimulatorInfo> getAvailableSimulators()
     return availableDevices;
 }
 
-QFuture<QList<DeviceTypeInfo>> SimulatorControl::updateDeviceTypes()
+QFuture<QList<DeviceTypeInfo>> SimulatorControl::updateDeviceTypes(QObject *context)
 {
     QFuture<QList<DeviceTypeInfo>> future = Utils::asyncRun(getAvailableDeviceTypes);
-    Utils::onResultReady(future, [](const QList<DeviceTypeInfo> &deviceTypes) {
+    Utils::onResultReady(future, context, [](const QList<DeviceTypeInfo> &deviceTypes) {
         s_availableDeviceTypes = deviceTypes;
     });
     return future;
@@ -249,20 +249,21 @@ QList<RuntimeInfo> SimulatorControl::availableRuntimes()
     return s_availableRuntimes;
 }
 
-QFuture<QList<RuntimeInfo>> SimulatorControl::updateRuntimes()
+QFuture<QList<RuntimeInfo>> SimulatorControl::updateRuntimes(QObject *context)
 {
     QFuture<QList<RuntimeInfo>> future = Utils::asyncRun(getAvailableRuntimes);
-    Utils::onResultReady(future, [](const QList<RuntimeInfo> &runtimes) {
+    Utils::onResultReady(future, context, [](const QList<RuntimeInfo> &runtimes) {
         s_availableRuntimes = runtimes;
     });
     return future;
 }
 
-QFuture<QList<SimulatorInfo>> SimulatorControl::updateAvailableSimulators()
+QFuture<QList<SimulatorInfo>> SimulatorControl::updateAvailableSimulators(QObject *context)
 {
     QFuture<QList<SimulatorInfo>> future = Utils::asyncRun(getAvailableSimulators);
-    Utils::onResultReady(future,
-                         [](const QList<SimulatorInfo> &devices) { s_availableDevices = devices; });
+    Utils::onResultReady(future, context, [](const QList<SimulatorInfo> &devices) {
+        s_availableDevices = devices;
+    });
     return future;
 }
 

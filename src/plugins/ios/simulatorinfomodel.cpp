@@ -109,7 +109,7 @@ void SimulatorInfoModel::requestSimulatorInfo()
     if (!m_fetchFuture.isEmpty())
         return; // Ignore the request if the last request is still pending.
 
-    m_fetchFuture.addFuture(Utils::onResultReady(SimulatorControl::updateAvailableSimulators(),
+    m_fetchFuture.addFuture(Utils::onResultReady(SimulatorControl::updateAvailableSimulators(this),
                                                  this, &SimulatorInfoModel::populateSimulators));
 }
 

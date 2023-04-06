@@ -514,23 +514,6 @@ const QFuture<T> &onResultReady(const QFuture<T> &future, QObject *guard, Functi
 }
 
 /*!
-    Adds a handler for when a result is ready.
-    This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
-    or create a QFutureWatcher already for other reasons.
-*/
-template <typename T, typename Function>
-const QFuture<T> &onResultReady(const QFuture<T> &future, Function f)
-{
-    auto watcher = new QFutureWatcher<T>();
-    QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
-    QObject::connect(watcher, &QFutureWatcherBase::resultReadyAt, [f, watcher](int index) {
-        f(watcher->future().resultAt(index));
-    });
-    watcher->setFuture(future);
-    return future;
-}
-
-/*!
     Adds a handler for when the future is finished.
     This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
     or create a QFutureWatcher already for other reasons.
@@ -562,23 +545,6 @@ const QFuture<T> &onFinished(const QFuture<T> &future, QObject *guard, Function 
     auto watcher = new QFutureWatcher<T>();
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
     QObject::connect(watcher, &QFutureWatcherBase::finished, guard, [f, watcher] {
-        f(watcher->future());
-    });
-    watcher->setFuture(future);
-    return future;
-}
-
-/*!
-    Adds a handler for when the future is finished.
-    This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
-    or create a QFutureWatcher already for other reasons.
-*/
-template<typename T, typename Function>
-const QFuture<T> &onFinished(const QFuture<T> &future, Function f)
-{
-    auto watcher = new QFutureWatcher<T>();
-    QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
-    QObject::connect(watcher, &QFutureWatcherBase::finished, [f, watcher] {
         f(watcher->future());
     });
     watcher->setFuture(future);

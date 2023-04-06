@@ -404,7 +404,7 @@ void IosConfigurations::updateSimulators()
         dev = IDevice::ConstPtr(new IosSimulator(devId));
         devManager->addDevice(dev);
     }
-    SimulatorControl::updateAvailableSimulators();
+    SimulatorControl::updateAvailableSimulators(this);
 }
 
 void IosConfigurations::setDeveloperPath(const FilePath &devPath)

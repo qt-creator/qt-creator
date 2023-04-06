@@ -175,7 +175,7 @@ void IosSettingsWidget::onStart()
                                     Utils::StdErrFormat);
         } else {
             futureList << QFuture<void>(Utils::onResultReady(
-                SimulatorControl::startSimulator(info.identifier),
+                SimulatorControl::startSimulator(info.identifier), this,
                 std::bind(onSimOperation, info, statusDialog, Tr::tr("simulator start"), _1)));
         }
     }
@@ -207,11 +207,9 @@ void IosSettingsWidget::onCreate()
 
     CreateSimulatorDialog createDialog(this);
     if (createDialog.exec() == QDialog::Accepted) {
-        QFuture<void> f = QFuture<void>(
-            Utils::onResultReady(SimulatorControl::createSimulator(createDialog.name(),
-                                                                   createDialog.deviceType(),
-                                                                   createDialog.runtime()),
-                                 std::bind(onSimulatorCreate, createDialog.name(), _1)));
+        QFuture<void> f = QFuture<void>(Utils::onResultReady(SimulatorControl::createSimulator(
+                createDialog.name(), createDialog.deviceType(), createDialog.runtime()),
+                this, std::bind(onSimulatorCreate, createDialog.name(), _1)));
         statusDialog->addFutures({ f });
         statusDialog->exec(); // Modal dialog returns only when all the operations are done or cancelled.
     }
@@ -242,7 +240,7 @@ void IosSettingsWidget::onReset()
     QList<QFuture<void>> futureList;
     for (const SimulatorInfo &info : simulatorInfoList) {
         futureList << QFuture<void>(Utils::onResultReady(
-            SimulatorControl::resetSimulator(info.identifier),
+            SimulatorControl::resetSimulator(info.identifier), this,
             std::bind(onSimOperation, info, statusDialog, Tr::tr("simulator reset"), _1)));
     }
 
@@ -270,7 +268,7 @@ void IosSettingsWidget::onRename()
     statusDialog->setAttribute(Qt::WA_DeleteOnClose);
     statusDialog->addMessage(Tr::tr("Renaming simulator device..."), Utils::NormalMessageFormat);
     QFuture<void> f = QFuture<void>(Utils::onResultReady(
-        SimulatorControl::renameSimulator(simInfo.identifier, newName),
+        SimulatorControl::renameSimulator(simInfo.identifier, newName), this,
         std::bind(onSimOperation, simInfo, statusDialog, Tr::tr("simulator rename"), _1)));
     statusDialog->addFutures({f});
     statusDialog->exec(); // Modal dialog returns only when all the operations are done or cancelled.
@@ -300,7 +298,7 @@ void IosSettingsWidget::onDelete()
     QList<QFuture<void>> futureList;
     for (const SimulatorInfo &info : simulatorInfoList) {
         futureList << QFuture<void>(Utils::onResultReady(
-            SimulatorControl::deleteSimulator(info.identifier),
+            SimulatorControl::deleteSimulator(info.identifier), this,
             std::bind(onSimOperation, info, statusDialog, Tr::tr("simulator delete"), _1)));
     }
 
@@ -331,7 +329,7 @@ void IosSettingsWidget::onScreenshot()
     QList<QFuture<void>> futureList;
     for (const SimulatorInfo &info : simulatorInfoList) {
         futureList << QFuture<void>(Utils::onResultReady(
-            SimulatorControl::takeSceenshot(info.identifier, generatePath(info)),
+            SimulatorControl::takeSceenshot(info.identifier, generatePath(info)), this,
             std::bind(onSimOperation, info, statusDialog, Tr::tr("simulator screenshot"), _1)));
     }
 

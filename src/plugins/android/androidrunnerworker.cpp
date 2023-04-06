@@ -684,9 +684,9 @@ void AndroidRunnerWorker::asyncStart()
 {
     asyncStartHelper();
 
-    m_pidFinder = Utils::onResultReady(Utils::asyncRun(findProcessPID, selector(),
-                                                       m_packageName, m_isPreNougat),
-                                       bind(&AndroidRunnerWorker::onProcessIdChanged, this, _1));
+    m_pidFinder = Utils::onResultReady(
+        Utils::asyncRun(findProcessPID, selector(),m_packageName, m_isPreNougat), this,
+        bind(&AndroidRunnerWorker::onProcessIdChanged, this, _1));
 }
 
 void AndroidRunnerWorker::asyncStop()
