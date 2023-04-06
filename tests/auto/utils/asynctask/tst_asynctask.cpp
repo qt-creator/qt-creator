@@ -15,6 +15,7 @@ class tst_AsyncTask : public QObject
 private slots:
     void runAsync();
     void crefFunction();
+    void onResultReady();
     void futureSynchonizer();
     void taskTree();
     void mapReduce_data();
@@ -324,6 +325,65 @@ void tst_AsyncTask::crefFunction()
              QList<double>({0, 2, 1}));
     QCOMPARE(Utils::asyncRun(std::cref(member), &obj).results(),
              QList<double>({0, 2, 1}));
+}
+
+class ObjWithProperty : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    void setValue(const QString &s)
+    {
+        value = s;
+    }
+
+public:
+    QString value;
+};
+
+void tst_AsyncTask::onResultReady()
+{
+    { // lambda
+        QObject context;
+        QFuture<QString> f = Utils::asyncRun([](QPromise<QString> &fi) {
+            fi.addResult("Hi");
+            fi.addResult("there");
+        });
+        int count = 0;
+        QString res;
+        Utils::onResultReady(f, &context, [&count, &res](const QString &s) {
+            ++count;
+            res = s;
+        });
+        f.waitForFinished();
+        QCoreApplication::processEvents();
+        QCOMPARE(count, 2);
+        QCOMPARE(res, QString("there"));
+    }
+    { // lambda with guard
+        QFuture<QString> f = Utils::asyncRun([](QPromise<QString> &fi) {
+            fi.addResult("Hi");
+            fi.addResult("there");
+        });
+        int count = 0;
+        ObjWithProperty obj;
+        Utils::onResultReady(f, &obj, [&count, &obj](const QString &s) {
+            ++count;
+            obj.setValue(s);
+        });
+        f.waitForFinished();
+        QCoreApplication::processEvents();
+        QCOMPARE(count, 2);
+        QCOMPARE(obj.value, QString("there"));
+    }
+    { // member
+        QFuture<QString> f = Utils::asyncRun([] { return QString("Hi"); });
+        ObjWithProperty obj;
+        Utils::onResultReady(f, &obj, &ObjWithProperty::setValue);
+        f.waitForFinished();
+        QCoreApplication::processEvents();
+        QCOMPARE(obj.value, QString("Hi"));
+    }
 }
 
 void tst_AsyncTask::futureSynchonizer()
