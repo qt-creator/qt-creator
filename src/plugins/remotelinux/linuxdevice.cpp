@@ -1152,13 +1152,9 @@ static FilePaths dirsToCreate(const FilesToTransfer &files)
     return sorted(std::move(dirs));
 }
 
-static QByteArray transferCommand(const FileTransferDirection direction, bool link)
+static QByteArray transferCommand(bool link)
 {
-    if (direction == FileTransferDirection::Upload)
-        return link ? "ln -s" : "put";
-    if (direction == FileTransferDirection::Download)
-        return "get";
-    return {};
+    return link ? "ln -s" : "put";
 }
 
 class SshTransferInterface : public FileTransferInterface
@@ -1171,8 +1167,6 @@ protected:
         , m_device(device)
         , m_process(this)
     {
-        m_direction = m_setup.m_files.isEmpty() ? FileTransferDirection::Invalid
-                                                : m_setup.m_files.first().direction();
         SshParameters::setupSshEnvironment(&m_process);
         connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
             emit progress(QString::fromLocal8Bit(m_process.readAllRawStandardOutput()));
@@ -1216,7 +1210,6 @@ protected:
     QString userAtHost() const { return m_sshParameters.userAtHost(); }
 
     QtcProcess &process() { return m_process; }
-    FileTransferDirection direction() const { return m_direction; }
 
 private:
     virtual void startImpl() = 0;
@@ -1269,7 +1262,6 @@ private:
 
     IDevice::ConstPtr m_device;
     SshParameters m_sshParameters;
-    FileTransferDirection m_direction = FileTransferDirection::Invalid; // helper
 
     // ssh shared connection related
     std::unique_ptr<SshConnectionHandle> m_connectionHandle;
@@ -1299,35 +1291,26 @@ private:
         QByteArray batchData;
 
         const FilePaths dirs = dirsToCreate(m_setup.m_files);
-        for (const FilePath &dir : dirs) {
-            if (direction() == FileTransferDirection::Upload) {
-                batchData += "-mkdir " + ProcessArgs::quoteArgUnix(dir.path()).toLocal8Bit() + '\n';
-            } else if (direction() == FileTransferDirection::Download) {
-                if (!QDir::root().mkpath(dir.path())) {
-                    startFailed(Tr::tr("Failed to create local directory \"%1\".")
-                                    .arg(QDir::toNativeSeparators(dir.path())));
-                    return;
-                }
-            }
-        }
+        for (const FilePath &dir : dirs)
+            batchData += "-mkdir " + ProcessArgs::quoteArgUnix(dir.path()).toLocal8Bit() + '\n';
 
         for (const FileToTransfer &file : m_setup.m_files) {
             FilePath sourceFileOrLinkTarget = file.m_source;
             bool link = false;
-            if (direction() == FileTransferDirection::Upload) {
-                const QFileInfo fi(file.m_source.toFileInfo());
-                if (fi.isSymLink()) {
-                    link = true;
-                    batchData += "-rm " + ProcessArgs::quoteArgUnix(
-                                file.m_target.path()).toLocal8Bit() + '\n';
-                     // see QTBUG-5817.
-                    sourceFileOrLinkTarget =
-                        sourceFileOrLinkTarget.withNewPath(fi.dir().relativeFilePath(fi.symLinkTarget()));
-                }
-             }
-             batchData += transferCommand(direction(), link) + ' '
-                     + ProcessArgs::quoteArgUnix(sourceFileOrLinkTarget.path()).toLocal8Bit() + ' '
-                     + ProcessArgs::quoteArgUnix(file.m_target.path()).toLocal8Bit() + '\n';
+
+            const QFileInfo fi(file.m_source.toFileInfo());
+            if (fi.isSymLink()) {
+                link = true;
+                batchData += "-rm " + ProcessArgs::quoteArgUnix(
+                                          file.m_target.path()).toLocal8Bit() + '\n';
+                // see QTBUG-5817.
+                sourceFileOrLinkTarget =
+                    sourceFileOrLinkTarget.withNewPath(fi.dir().relativeFilePath(fi.symLinkTarget()));
+            }
+
+            batchData += transferCommand(link) + ' '
+                         + ProcessArgs::quoteArgUnix(sourceFileOrLinkTarget.path()).toLocal8Bit() + ' '
+                         + ProcessArgs::quoteArgUnix(file.m_target.path()).toLocal8Bit() + '\n';
         }
         process().setCommand({sftpBinary, fullConnectionOptions() << "-b" << "-" << host()});
         process().setWriteData(batchData);
@@ -1392,8 +1375,7 @@ private:
         if (!HostOsInfo::isWindowsHost())
             return file;
 
-        QString localFilePath = direction() == FileTransferDirection::Upload
-                ? file.m_source.path() : file.m_target.path();
+        QString localFilePath = file.m_source.path();
         localFilePath = '/' + localFilePath.at(0) + localFilePath.mid(2);
         if (anyOf(options, [](const QString &opt) {
                 return opt.contains("cygwin", Qt::CaseInsensitive); })) {
@@ -1401,30 +1383,19 @@ private:
         }
 
         FileToTransfer fixedFile = file;
-        if (direction() == FileTransferDirection::Upload)
-            fixedFile.m_source = fixedFile.m_source.withNewPath(localFilePath);
-        else
-            fixedFile.m_target = fixedFile.m_target.withNewPath(localFilePath);
+        fixedFile.m_source = fixedFile.m_source.withNewPath(localFilePath);
         return fixedFile;
     }
 
     QPair<QString, QString> fixPaths(const FileToTransfer &file, const QString &remoteHost) const
     {
-        FilePath localPath;
-        FilePath remotePath;
-        if (direction() == FileTransferDirection::Upload) {
-            localPath = file.m_source;
-            remotePath = file.m_target;
-        } else {
-            remotePath = file.m_source;
-            localPath = file.m_target;
-        }
+        FilePath localPath = file.m_source;
+        FilePath remotePath = file.m_target;
         const QString local = (localPath.isDir() && localPath.path().back() != '/')
                 ? localPath.path() + '/' : localPath.path();
         const QString remote = remoteHost + ':' + remotePath.path();
 
-        return direction() == FileTransferDirection::Upload ? qMakePair(local, remote)
-                                                            : qMakePair(remote, local);
+        return qMakePair(local, remote);
     }
 
     int m_currentIndex = 0;
