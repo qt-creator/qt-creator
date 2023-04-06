@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qnxanalyzesupport.h"
-#include "qnxconfigurationmanager.h"
 #include "qnxconstants.h"
 #include "qnxdebugsupport.h"
 #include "qnxdevice.h"
@@ -80,7 +79,7 @@ public:
     QAction *m_debugSeparator = nullptr;
     QAction m_attachToQnxApplication{Tr::tr("Attach to remote QNX application..."), nullptr};
 
-    QnxConfigurationManager configurationManager;
+    QnxSettingsPage settingsPage;
     QnxQtVersionFactory qtVersionFactory;
     QnxDeviceFactory deviceFactory;
     QnxDeployConfigurationFactory deployConfigFactory;
@@ -88,7 +87,6 @@ public:
                                                    Constants::QNX_DIRECT_UPLOAD_STEP_ID};
     QnxDeployStepFactory makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
     QnxRunConfigurationFactory runConfigFactory;
-    QnxSettingsPage settingsPage;
     QnxToolChainFactory toolChainFactory;
     SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
     QnxDebugWorkerFactory debugWorkerFactory;
@@ -112,10 +110,6 @@ private:
 
 void QnxPlugin::extensionsInitialized()
 {
-    // Can't do yet as not all devices are around.
-    connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
-            &d->configurationManager, &QnxConfigurationManager::restoreConfigurations);
-
     // Attach support
     connect(&d->m_attachToQnxApplication, &QAction::triggered, this, &showAttachToProcessDialog);
 

@@ -3,9 +3,8 @@
 
 #include "qnxtoolchain.h"
 
-#include "qnxconfiguration.h"
-#include "qnxconfigurationmanager.h"
 #include "qnxconstants.h"
+#include "qnxsettingspage.h"
 #include "qnxtr.h"
 #include "qnxutils.h"
 
@@ -222,10 +221,7 @@ Toolchains QnxToolChainFactory::autoDetect(const ToolchainDetector &detector) co
     if (detector.device)
         return {};
 
-    Toolchains tcs;
-    const auto configurations = QnxConfigurationManager::instance()->configurations();
-    for (QnxConfiguration *configuration : configurations)
-        tcs += configuration->autoDetect(detector.alreadyKnown);
+    Toolchains tcs = QnxSettingsPage::autoDetect(detector.alreadyKnown);
     return tcs;
 }
 

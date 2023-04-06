@@ -16,6 +16,15 @@ using namespace Utils;
 
 namespace Qnx::Internal {
 
+QnxTarget::QnxTarget(const Utils::FilePath &path, const ProjectExplorer::Abi &abi) :
+    m_path(path), m_abi(abi)
+{}
+
+QString QnxTarget::shortDescription() const
+{
+    return QnxUtils::cpuDirShortDescription(cpuDir());
+}
+
 QString QnxUtils::cpuDirFromAbi(const Abi &abi)
 {
     if (abi.os() != Abi::OS::QnxOS)

@@ -4,8 +4,6 @@ add_qtc_plugin(Qnx
   SOURCES
     qnx.qrc
     qnxanalyzesupport.cpp qnxanalyzesupport.h
-    qnxconfiguration.cpp qnxconfiguration.h
-    qnxconfigurationmanager.cpp qnxconfigurationmanager.h
     qnxconstants.h
     qnxdebugsupport.cpp qnxdebugsupport.h
     qnxdeployqtlibrariesdialog.cpp qnxdeployqtlibrariesdialog.h
