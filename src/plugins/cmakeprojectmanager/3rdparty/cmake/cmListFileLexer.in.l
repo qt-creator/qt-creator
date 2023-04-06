@@ -18,10 +18,6 @@ Modify cmListFileLexer.c:
 
 /* IWYU pragma: no_forward_declare yyguts_t */
 
-#ifdef _WIN32
-#include "cmsys/Encoding.h"
-#endif
-
 /* Setup the proper cmListFileLexer_yylex declaration.  */
 #define YY_EXTRA_TYPE cmListFileLexer*
 #define YY_DECL int cmListFileLexer_yylex (yyscan_t yyscanner, cmListFileLexer* lexer)
@@ -114,7 +110,10 @@ LEGACY {MAKEVAR}|{UNQUOTED}|\"({MAKEVAR}|{UNQUOTED}|[ \t[=])*\"
 }
 
 <COMMENT>[^\0\n]* {
+  lexer->token.type = cmListFileLexer_Token_CommentLine;
+  cmListFileLexerSetToken(lexer, yytext, yyleng);
   lexer->column += yyleng;
+  return 1;
 }
 
 \( {
@@ -389,7 +388,6 @@ static void cmListFileLexerDestroy(cmListFileLexer* lexer)
       lexer->file = 0;
     }
     if (lexer->string_buffer) {
-      free(lexer->string_buffer);
       lexer->string_buffer = 0;
       lexer->string_left = 0;
       lexer->string_position = 0;
@@ -458,13 +456,7 @@ int cmListFileLexer_SetFileName(cmListFileLexer* lexer, const char* name,
   int result = 1;
   cmListFileLexerDestroy(lexer);
   if (name) {
-#ifdef _WIN32
-    wchar_t* wname = cmsysEncoding_DupToWide(name);
-    lexer->file = _wfopen(wname, L"rb");
-    free(wname);
-#else
     lexer->file = fopen(name, "rb");
-#endif
     if (lexer->file) {
       if (bom) {
         *bom = cmListFileLexer_ReadBOM(lexer->file);
@@ -478,20 +470,14 @@ int cmListFileLexer_SetFileName(cmListFileLexer* lexer, const char* name,
 }
 
 /*--------------------------------------------------------------------------*/
-int cmListFileLexer_SetString(cmListFileLexer* lexer, const char* text)
+int cmListFileLexer_SetString(cmListFileLexer* lexer, const char* text, int length)
 {
   int result = 1;
   cmListFileLexerDestroy(lexer);
   if (text) {
-    int length = (int)strlen(text);
-    lexer->string_buffer = (char*)malloc(length + 1);
-    if (lexer->string_buffer) {
-      strcpy(lexer->string_buffer, text);
-      lexer->string_position = lexer->string_buffer;
-      lexer->string_left = length;
-    } else {
-      result = 0;
-    }
+    lexer->string_buffer = (char *) text;
+    lexer->string_position = lexer->string_buffer;
+    lexer->string_left = length;
   }
   cmListFileLexerInit(lexer);
   return result;
@@ -555,6 +541,8 @@ const char* cmListFileLexer_GetTypeAsString(cmListFileLexer* lexer,
       return "unterminated bracket";
     case cmListFileLexer_Token_BadString:
       return "unterminated string";
+    case cmListFileLexer_Token_CommentLine:
+      return "line comment";
   }
   return "unknown token";
 }

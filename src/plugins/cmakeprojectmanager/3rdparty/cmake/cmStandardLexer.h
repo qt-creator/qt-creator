@@ -24,8 +24,6 @@
 #  define _XOPEN_SOURCE 700
 #endif
 
-#include "cmsys/Configure.h" // IWYU pragma: keep
-
 /* Disable some warnings.  */
 #if defined(_MSC_VER)
 #  pragma warning(disable : 4018)
@@ -38,6 +36,7 @@
 #  pragma warning(disable : 4309)
 #  pragma warning(disable : 4706)
 #  pragma warning(disable : 4786)
+#  pragma warning(disable : 4996)
 #endif
 
 #if defined(__GNUC__) && !defined(__INTEL_COMPILER)
@@ -80,10 +79,10 @@
 #define YY_NO_UNPUT 1
 #define ECHO
 
-#include <cm3p/kwiml/int.h>
-typedef KWIML_INT_int8_t flex_int8_t;
-typedef KWIML_INT_uint8_t flex_uint8_t;
-typedef KWIML_INT_int16_t flex_int16_t;
-typedef KWIML_INT_uint16_t flex_uint16_t;
-typedef KWIML_INT_int32_t flex_int32_t;
-typedef KWIML_INT_uint32_t flex_uint32_t;
+#include <stdint.h>
+typedef int8_t flex_int8_t;
+typedef uint8_t flex_uint8_t;
+typedef int16_t flex_int16_t;
+typedef uint16_t flex_uint16_t;
+typedef int32_t flex_int32_t;
+typedef uint32_t flex_uint32_t;
