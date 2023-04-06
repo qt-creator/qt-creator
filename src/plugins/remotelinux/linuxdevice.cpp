@@ -1174,6 +1174,8 @@ protected:
         connect(&m_process, &QtcProcess::done, this, &SshTransferInterface::doneImpl);
     }
 
+    IDevice::ConstPtr device() const { return m_device; }
+
     bool handleError()
     {
         ProcessResultData resultData = m_process.resultData();
@@ -1281,7 +1283,13 @@ public:
 private:
     void startImpl() final
     {
-        const FilePath sftpBinary = SshSettings::sftpFilePath();
+        FilePath sftpBinary = SshSettings::sftpFilePath();
+
+        // This is a hack. We only test the last hop here.
+        const Id linkDeviceId = Id::fromSetting(device()->extraData(Constants::LinkDevice));
+        if (const auto linkDevice = DeviceManager::instance()->find(linkDeviceId))
+            sftpBinary = linkDevice->filePath(sftpBinary.fileName()).searchInPath();
+
         if (!sftpBinary.exists()) {
             startFailed(Tr::tr("\"sftp\" binary \"%1\" does not exist.")
                             .arg(sftpBinary.toUserOutput()));
