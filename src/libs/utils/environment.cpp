@@ -155,14 +155,13 @@ void Environment::prependOrSet(const QString &key, const QString &value, const Q
 void Environment::prependOrSetLibrarySearchPath(const FilePath &value)
 {
     QTC_CHECK(value.osType() == osType());
+    const QChar sep = OsSpecificAspects::pathListSeparator(osType());
     switch (osType()) {
     case OsTypeWindows: {
-        const QChar sep = ';';
         prependOrSet("PATH", value.nativePath(), sep);
         break;
     }
     case OsTypeMac: {
-        const QChar sep =  ':';
         const QString nativeValue = value.nativePath();
         prependOrSet("DYLD_LIBRARY_PATH", nativeValue, sep);
         prependOrSet("DYLD_FRAMEWORK_PATH", nativeValue, sep);
@@ -170,7 +169,6 @@ void Environment::prependOrSetLibrarySearchPath(const FilePath &value)
     }
     case OsTypeLinux:
     case OsTypeOtherUnix: {
-        const QChar sep = ':';
         prependOrSet("LD_LIBRARY_PATH", value.nativePath(), sep);
         break;
     }
