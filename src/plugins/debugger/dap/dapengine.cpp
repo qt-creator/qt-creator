@@ -50,7 +50,7 @@ DapEngine::DapEngine()
     setDebuggerName("DAP");
 }
 
-void DapEngine::executeDebuggerCommand(const QString &command)
+void DapEngine::executeDebuggerCommand(const QString &/*command*/)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
 //    if (state() == DebuggerNotReady) {
@@ -183,9 +183,6 @@ void DapEngine::handleDabLaunch()
           QJsonObject{
               {"noDebug", false},
               {"program", runParameters().inferior.command.executable().path()},
-//              {"args", runParameters().inferior.command.arguments()},
-//              {"cwd", runParameters().inferior.workingDirectory},
-//              {"env", QJsonObject::fromVariantMap(runParameters().inferior.environment.toStringMap())}
               {"__restart", ""}
           }}});
     qDebug() << "handleDabLaunch";
@@ -193,24 +190,22 @@ void DapEngine::handleDabLaunch()
 
 void DapEngine::interruptInferior()
 {
-    QString error;
-
     postDirectCommand({{"command", "pause"},
                        {"type", "request"}});
-
-    qDebug() << "DapEngine::interruptInferior()";
-
-
-//    interruptProcess(m_proc.processId(), GdbEngineType, &error);
-//    notifyInferiorExited();
-    notifyInferiorStopOk();
 }
 
 void DapEngine::executeStepIn(bool)
 {
     notifyInferiorRunRequested();
+
+//    postDirectCommand({{"command", "stepIn"},
+//                       {"type", "request"},
+//                       {"arguments",
+//                        QJsonObject{
+//                            {"threadId", 1}, // The ID of the client using this adapter.
+//                        }}});
+
     notifyInferiorRunOk();
-//    postDirectCommand("step");
 }
 
 void DapEngine::executeStepOut()
@@ -229,19 +224,13 @@ void DapEngine::executeStepOver(bool)
 
 void DapEngine::continueInferior()
 {
+    notifyInferiorRunRequested();
     postDirectCommand({{"command", "continue"},
                        {"type", "request"},
                        {"arguments",
                         QJsonObject{
                             {"threadId", 1}, // The ID of the client using this adapter.
                         }}});
-
-    qDebug() << "continueInferior";
-    //    notifyInferiorRunRequested();
-    //    notifyInferiorRunOk();
-
-    // Callback will be triggered e.g. when breakpoint is hit.
-//    postDirectCommand("continue");
 }
 
 void DapEngine::executeRunToLine(const ContextData &data)
@@ -284,36 +273,57 @@ bool DapEngine::acceptsBreakpoint(const BreakpointParameters &) const
     return true; // FIXME: Too bold.
 }
 
+static QJsonObject createBreakpoint(const Breakpoint &breakpoint)
+{
+    const BreakpointParameters &params = breakpoint->requestedParameters();
+
+    if (params.fileName.isEmpty())
+        return QJsonObject();
+
+    QJsonObject bp;
+    bp["line"] = params.lineNumber;
+    bp["source"] = QJsonObject{{"name", params.fileName.fileName()},
+                               {"path", params.fileName.path()}};
+    return bp;
+}
+
+
 void DapEngine::insertBreakpoint(const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);
     QTC_CHECK(bp->state() == BreakpointInsertionRequested);
     notifyBreakpointInsertProceeding(bp);
 
-    QString loc;
     const BreakpointParameters &params = bp->requestedParameters();
-    if (params.type  == BreakpointByFunction)
-        loc = params.functionName;
-    else
-        loc = params.fileName.toString() + ':' + QString::number(params.lineNumber);
+    bp->setResponseId(QString::number(m_nextBreakpointId++));
+
+    QJsonArray breakpoints;
+    for (const auto &breakpoint : breakHandler()->breakpoints()) {
+        QJsonObject jsonBp = createBreakpoint(breakpoint);
+        if (!jsonBp.isEmpty()
+            && params.fileName.path() == jsonBp["source"].toObject()["path"].toString()) {
+            breakpoints.append(jsonBp);
+        }
+    }
 
     postDirectCommand(
         {{"command", "setBreakpoints"},
          {"type", "request"},
          {"arguments",
-          QJsonObject{{"source", QJsonObject{{"path", params.fileName.toString()}}},
-                      {"breakpoints",
-                       QJsonArray{QJsonObject{{"id", 1}, {"line", params.lineNumber}}}}
+          QJsonObject{{"source", QJsonObject{{"path", params.fileName.path()}}},
+                      {"breakpoints", breakpoints}
 
           }}});
+
+    qDebug() << "insertBreakpoint" << bp->modelId() << bp->responseId();
 }
 
 void DapEngine::updateBreakpoint(const Breakpoint &bp)
 {
+    notifyBreakpointChangeProceeding(bp);
 //    QTC_ASSERT(bp, return);
 //    const BreakpointState state = bp->state();
 //    if (QTC_GUARD(state == BreakpointUpdateRequested))
-//        notifyBreakpointChangeProceeding(bp);
 //    if (bp->responseId().isEmpty()) // FIXME postpone update somehow (QTimer::singleShot?)
 //        return;
 
@@ -334,16 +344,25 @@ void DapEngine::removeBreakpoint(const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);
     QTC_CHECK(bp->state() == BreakpointRemoveRequested);
-    //    notifyBreakpointRemoveProceeding(bp);
+    notifyBreakpointRemoveProceeding(bp);
+
     const BreakpointParameters &params = bp->requestedParameters();
+
+    QJsonArray breakpoints;
+    for (const auto &breakpoint : breakHandler()->breakpoints())
+        if (breakpoint->responseId() != bp->responseId()
+            && params.fileName == breakpoint->requestedParameters().fileName) {
+            QJsonObject jsonBp = createBreakpoint(breakpoint);
+            breakpoints.append(jsonBp);
+        }
+
     postDirectCommand({{"command", "setBreakpoints"},
                        {"type", "request"},
                        {"arguments",
-                        QJsonObject{{"source", QJsonObject{{"path", params.fileName.toString()}}},
-                                    {"breakpoints", QJsonArray{}}}}});
-    qDebug() << "removeBreakpoint";
+                        QJsonObject{{"source", QJsonObject{{"path", params.fileName.path()}}},
+                                    {"breakpoints", breakpoints}}}});
 
-//    notifyBreakpointRemoveOk(bp);
+    qDebug() << "removeBreakpoint" << bp->modelId() << bp->responseId();
 }
 
 void DapEngine::loadSymbols(const Utils::FilePath  &/*moduleName*/)
@@ -431,7 +450,7 @@ bool DapEngine::canHandleToolTip(const DebuggerToolTipContext &) const
     return state() == InferiorStopOk;
 }
 
-void DapEngine::assignValueInDebugger(WatchItem *, const QString &expression, const QVariant &value)
+void DapEngine::assignValueInDebugger(WatchItem *, const QString &/*expression*/, const QVariant &/*value*/)
 {
     //DebuggerCommand cmd("assignValue");
     //cmd.arg("expression", expression);
@@ -555,8 +574,6 @@ void DapEngine::handleOutput(const QJsonDocument &data)
             showMessage("configurationDone", LogDebug);
             qDebug() << "configurationDone success";
             notifyInferiorRunOk();
-
-            claimInitialBreakpoints();
             return;
         }
 
@@ -571,8 +588,9 @@ void DapEngine::handleOutput(const QJsonDocument &data)
 
     if (type == "event") {
         const QString event = ob.value("event").toString();
+        const QJsonObject body = ob.value("body").toObject();
+
         if (event == "output") {
-            const QJsonObject body = ob.value("body").toObject();
             const QString category = body.value("category").toString();
             const QString output = body.value("output").toString();
             if (category == "stdout")
@@ -599,9 +617,60 @@ void DapEngine::handleOutput(const QJsonDocument &data)
         }
 
         if (event == "stopped") {
-            notifyInferiorSpontaneousStop();
+            showMessage(event, LogDebug);
+            if (body.value("reason").toString() == "breakpoint") {
+                QString id = QString::number(body.value("hitBreakpointIds").toArray().first().toInteger());
+                const BreakpointParameters &params
+                    = breakHandler()->findBreakpointByResponseId(id)->requestedParameters();
+                gotoLocation(Location(params.fileName, params.lineNumber));
+            }
+
+            if (state() == InferiorStopRequested)
+                notifyInferiorStopOk();
+            else
+                notifyInferiorSpontaneousStop();
             return;
         }
+
+        if (event == "thread") {
+            showMessage(event, LogDebug);
+            if (body.value("reason").toString() == "started" && body.value("threadId").toInt() == 1)
+                claimInitialBreakpoints();
+            return;
+        }
+
+        if (event == "breakpoint") {
+            showMessage(event, LogDebug);
+            QJsonObject breakpoint = body.value("breakpoint").toObject();
+            Breakpoint bp = breakHandler()->findBreakpointByResponseId(
+                QString::number(breakpoint.value("id").toInt()));
+            qDebug() << "breakpoint id :" << breakpoint.value("id").toInt();
+
+            if (body.value("reason").toString() == "new") {
+                if (breakpoint.value("verified").toBool()) {
+//                    bp->setPending(false);
+                    notifyBreakpointInsertOk(bp);
+                    qDebug() << "breakpoint inserted";
+                } else {
+                    notifyBreakpointInsertFailed(bp);
+                    qDebug() << "breakpoint insertion failed";
+                }
+                return;
+            }
+
+            if (body.value("reason").toString() == "removed") {
+                if (breakpoint.value("verified").toBool()) {
+                    notifyBreakpointRemoveOk(bp);
+                    qDebug() << "breakpoint removed";
+                } else {
+                    notifyBreakpointRemoveFailed(bp);
+                    qDebug() << "breakpoint remove failed";
+                }
+                return;
+            }
+            return;
+        }
+
 
         showMessage("UNKNOWN EVENT:" + event);
         return;
@@ -686,10 +755,10 @@ void DapEngine::claimInitialBreakpoints()
 {
     BreakpointManager::claimBreakpointsForEngine(this);
     qDebug() << "claimInitialBreakpoints";
-    const Breakpoints bps = breakHandler()->breakpoints();
-    for (const Breakpoint &bp : bps)
-        qDebug() << "breakpoit: " << bp->fileName() << bp->lineNumber();
-    qDebug() << "claimInitialBreakpoints end";
+//    const Breakpoints bps = breakHandler()->breakpoints();
+//    for (const Breakpoint &bp : bps)
+//        qDebug() << "breakpoit: " << bp->fileName() << bp->lineNumber();
+//    qDebug() << "claimInitialBreakpoints end";
 
 //    const DebuggerRunParameters &rp = runParameters();
 //    if (rp.startMode != AttachToCore) {

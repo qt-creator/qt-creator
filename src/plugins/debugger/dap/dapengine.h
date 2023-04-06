@@ -92,6 +92,7 @@ private:
 
     QByteArray m_inbuffer;
     Utils::QtcProcess m_proc;
+    int m_nextBreakpointId = 1;
 };
 
 } // Debugger::Internal
