@@ -2,7 +2,8 @@ Prerequisites - general information
 -----------------------------------
 Squish tests inside this folder have several prerequisites to get them running.
 
-First - and most important - you have to own a valid Squish license. At least Squish 6.0 is required.
+First - and most important - you have to own a valid Squish license. At least Squish 6.0 is
+required. It must be configured to run tests written in Python3.
 
 Second - some of the test suites/test cases expect Qt versions to be installed in their default
 locations. For Qt5, this is ~/Qt5.x.1 on Linux/macOS or C:\Qt\Qt5.x.1 on Windows. For Qt6, this is
