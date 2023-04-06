@@ -72,8 +72,11 @@ public:
     CopyFileStep(BuildStepList *bsl, Id id)
         : CopyStepBase(bsl, id)
      {
-        m_sourceAspect->setExpectedKind(PathChooser::File);
-        m_targetAspect->setExpectedKind(PathChooser::SaveFile);
+        // Expected kind could be stricter in theory, but since this here is
+        // a last stand fallback, better not impose extra "nice to have"
+        // work on the system.
+        m_sourceAspect->setExpectedKind(PathChooser::Any); // "File"
+        m_targetAspect->setExpectedKind(PathChooser::Any); // "SaveFile"
 
         setSummaryUpdater([] {
             return QString("<b>" + Tr::tr("Copy file") + "</b>");
