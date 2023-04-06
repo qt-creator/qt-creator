@@ -20,6 +20,7 @@ namespace Terminal {
 
 constexpr char COPY[] = "Terminal.Copy";
 constexpr char PASTE[] = "Terminal.Paste";
+constexpr char COPY_LINK[] = "Terminal.CopyLink";
 constexpr char CLEARSELECTION[] = "Terminal.ClearSelection";
 constexpr char MOVECURSORWORDLEFT[] = "Terminal.MoveCursorWordLeft";
 constexpr char MOVECURSORWORDRIGHT[] = "Terminal.MoveCursorWordRight";
@@ -59,6 +60,7 @@ void TerminalCommands::initWidgetActions()
 {
     m_widgetActions.copy.setText(Tr::tr("Copy"));
     m_widgetActions.paste.setText(Tr::tr("Paste"));
+    m_widgetActions.copyLink.setText(Tr::tr("Copy Link"));
     m_widgetActions.clearSelection.setText(Tr::tr("Clear Selection"));
     m_widgetActions.clearTerminal.setText(Tr::tr("Clear Terminal"));
     m_widgetActions.moveCursorWordLeft.setText(Tr::tr("Move Cursor Word Left"));
@@ -75,6 +77,8 @@ void TerminalCommands::initWidgetActions()
                    PASTE,
                    {QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+V")
                                                          : QLatin1String("Ctrl+Shift+V"))});
+
+    registerAction(m_widgetActions.copyLink, COPY_LINK);
 
     registerAction(m_widgetActions.clearSelection, CLEARSELECTION);
 

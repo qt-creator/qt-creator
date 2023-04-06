@@ -262,6 +262,7 @@ void TerminalWidget::setupActions()
     // clang-format off
     connect(&a.copy, &QAction::triggered, this, ifHasFocus(&TerminalWidget::copyToClipboard));
     connect(&a.paste, &QAction::triggered, this, ifHasFocus(&TerminalWidget::pasteFromClipboard));
+    connect(&a.copyLink, &QAction::triggered, this, ifHasFocus(&TerminalWidget::copyLinkToClipboard));
     connect(&a.clearSelection, &QAction::triggered, this, ifHasFocus(&TerminalWidget::clearSelection));
     connect(&a.clearTerminal, &QAction::triggered, this, ifHasFocus(&TerminalWidget::clearContents));
     connect(&a.moveCursorWordLeft, &QAction::triggered, this, ifHasFocus(&TerminalWidget::moveCursorWordLeft));
@@ -390,6 +391,7 @@ void TerminalWidget::updateCopyState()
         return;
 
     TerminalCommands::widgetActions().copy.setEnabled(m_selection.has_value());
+    TerminalCommands::widgetActions().copyLink.setEnabled(m_linkSelection.has_value());
 }
 
 void TerminalWidget::setFont(const QFont &font)
@@ -434,6 +436,12 @@ void TerminalWidget::pasteFromClipboard()
         return;
 
     m_surface->pasteFromClipboard(clipboardText);
+}
+
+void TerminalWidget::copyLinkToClipboard()
+{
+    if (m_linkSelection)
+        setClipboardAndSelection(m_linkSelection->link.targetFilePath.toUserOutput());
 }
 
 void TerminalWidget::clearSelection()
@@ -1086,9 +1094,25 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
         return;
     }
 
+    if (event->key() == Qt::Key_Control) {
+        if (!m_linkSelection.has_value() && checkLinkAt(mapFromGlobal(QCursor::pos()))) {
+            setCursor(Qt::PointingHandCursor);
+        }
+    }
+
     event->accept();
 
     m_surface->sendKey(event);
+}
+
+void TerminalWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Control && m_linkSelection.has_value()) {
+        m_linkSelection.reset();
+        updateCopyState();
+        setCursor(Qt::IBeamCursor);
+        updateViewport();
+    }
 }
 
 void TerminalWidget::applySizeChange()
@@ -1198,8 +1222,13 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
 
     m_activeMouseSelect.start = viewportToGlobal(event->pos());
 
-    if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
+    if (event->button() == Qt::LeftButton && event->modifiers() & Qt::ControlModifier) {
         if (m_linkSelection) {
+            if (event->modifiers() & Qt::ShiftModifier) {
+                copyLinkToClipboard();
+                return;
+            }
+
             if (m_linkSelection->link.targetFilePath.scheme().toString().startsWith("http")) {
                 QDesktopServices::openUrl(m_linkSelection->link.targetFilePath.toUrl());
                 return;
@@ -1231,10 +1260,11 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
         event->accept();
         updateViewport();
     } else if (event->button() == Qt::RightButton) {
-        if (event->modifiers() == Qt::ShiftModifier) {
+        if (event->modifiers() & Qt::ShiftModifier) {
             QMenu *contextMenu = new QMenu(this);
             contextMenu->addAction(&TerminalCommands::widgetActions().copy);
             contextMenu->addAction(&TerminalCommands::widgetActions().paste);
+            contextMenu->addAction(&TerminalCommands::widgetActions().copyLink);
             contextMenu->addSeparator();
             contextMenu->addAction(&TerminalCommands::widgetActions().clearTerminal);
             contextMenu->addSeparator();
@@ -1303,10 +1333,11 @@ void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
         }
 
         setSelection(newSelection);
-    } else if (event->modifiers() == Qt::ControlModifier) {
+    } else if (event->modifiers() & Qt::ControlModifier) {
         checkLinkAt(event->pos());
     } else if (m_linkSelection) {
         m_linkSelection.reset();
+        updateCopyState();
         updateViewport();
     }
 
@@ -1317,7 +1348,7 @@ void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void TerminalWidget::checkLinkAt(const QPoint &pos)
+bool TerminalWidget::checkLinkAt(const QPoint &pos)
 {
     const TextAndOffsets hit = textAt(pos);
 
@@ -1325,34 +1356,35 @@ void TerminalWidget::checkLinkAt(const QPoint &pos)
         QString t = QString::fromUcs4(hit.text.c_str(), hit.text.size()).trimmed();
         t = chopIfEndsWith(t, ':');
 
-        if (t.isEmpty())
-            return;
+        if (!t.isEmpty()) {
+            if (t.startsWith("~/"))
+                t = QDir::homePath() + t.mid(1);
 
-        if (t.startsWith("~/")) {
-            t = QDir::homePath() + t.mid(1);
-        }
+            Link link = Link::fromString(t, true);
 
-        Link link = Link::fromString(t, true);
+            if (!link.targetFilePath.isAbsolutePath())
+                link.targetFilePath = m_cwd.pathAppended(link.targetFilePath.path());
 
-        if (!link.targetFilePath.isAbsolutePath())
-            link.targetFilePath = m_cwd.pathAppended(link.targetFilePath.path());
-
-        if (link.hasValidTarget()
-            && (link.targetFilePath.scheme().toString().startsWith("http")
-                || link.targetFilePath.exists())) {
-            const LinkSelection newSelection = LinkSelection{{hit.start, hit.end}, link};
-            if (!m_linkSelection || *m_linkSelection != newSelection) {
-                m_linkSelection = newSelection;
-                updateViewport();
+            if (link.hasValidTarget()
+                && (link.targetFilePath.scheme().toString().startsWith("http")
+                    || link.targetFilePath.exists())) {
+                const LinkSelection newSelection = LinkSelection{{hit.start, hit.end}, link};
+                if (!m_linkSelection || *m_linkSelection != newSelection) {
+                    m_linkSelection = newSelection;
+                    updateViewport();
+                    updateCopyState();
+                }
+                return true;
             }
-            return;
         }
     }
 
     if (m_linkSelection) {
         m_linkSelection.reset();
+        updateCopyState();
         updateViewport();
     }
+    return false;
 }
 
 void TerminalWidget::mouseReleaseEvent(QMouseEvent *event)

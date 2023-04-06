@@ -22,6 +22,7 @@ struct WidgetActions
 {
     QAction copy;
     QAction paste;
+    QAction copyLink;
     QAction clearSelection;
     QAction clearTerminal;
     QAction moveCursorWordLeft;

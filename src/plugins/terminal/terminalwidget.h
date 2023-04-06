@@ -35,6 +35,7 @@ public:
 
     void copyToClipboard();
     void pasteFromClipboard();
+    void copyLinkToClipboard();
 
     void clearSelection();
 
@@ -90,6 +91,7 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void focusInEvent(QFocusEvent *event) override;
@@ -148,7 +150,7 @@ protected:
     std::optional<QTextLayout::FormatRange> selectionToFormatRange(
         TerminalWidget::Selection selection, const QTextLayout &layout, int rowOffset) const;
 
-    void checkLinkAt(const QPoint &pos);
+    bool checkLinkAt(const QPoint &pos);
 
     struct TextAndOffsets
     {
