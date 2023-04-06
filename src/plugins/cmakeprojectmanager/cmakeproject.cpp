@@ -35,7 +35,11 @@ CMakeProject::CMakeProject(const FilePath &fileName)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
     setCanBuildProducts();
-    setHasMakeInstallEquivalent(true);
+
+    // This only influences whether 'Install into temporary host directory'
+    // will show up by default enabled in some remote deploy configurations.
+    // We rely on staging via the actual cmake build step.
+    setHasMakeInstallEquivalent(false);
 
     readPresets();
 }
