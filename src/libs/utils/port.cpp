@@ -33,7 +33,7 @@ quint16 Port::number() const
     QTC_ASSERT(isValid(), return -1); return quint16(m_port);
 }
 
-QList<Port> Port::parseFromNetstatOutput(const QByteArray &output)
+QList<Port> Port::parseFromCommandOutput(const QByteArray &output)
 {
     QList<Port> ports;
     const QList<QByteArray> lines = output.split('\n');

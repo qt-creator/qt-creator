@@ -389,7 +389,7 @@ PortsGatheringMethod IDevice::portsGatheringMethod() const
 
                 return {filePath("netstat"), {"-a", "-n"}};
             },
-            &Port::parseFromNetstatOutput};
+            &Port::parseFromCommandOutput};
 };
 
 DeviceProcessList *IDevice::createProcessListModel(QObject *parent) const
