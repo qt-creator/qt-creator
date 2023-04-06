@@ -119,4 +119,6 @@ QTCREATOR_UTILS_EXPORT QPair<QStringView, QStringView> splitAtFirst(const QStrin
 QTCREATOR_UTILS_EXPORT QPair<QStringView, QStringView> splitAtFirst(const QStringView &stringView,
                                                                     QChar ch);
 
+QTCREATOR_UTILS_EXPORT int endOfNextWord(const QString &string, int position = 0);
+
 } // namespace Utils

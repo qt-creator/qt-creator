@@ -2577,6 +2577,21 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     const bool inOverwriteMode = overwriteMode();
     const bool hasMultipleCursors = cursor.hasMultipleCursors();
 
+    if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(d->m_suggestionBlock)) {
+        if (e->matches(QKeySequence::MoveToNextWord)) {
+            e->accept();
+            if (suggestion->applyWord(this))
+                d->clearCurrentSuggestion();
+            return;
+        } else if (e->modifiers() == Qt::NoModifier
+                   && (e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab)) {
+            e->accept();
+            if (suggestion->apply())
+                d->clearCurrentSuggestion();
+            return;
+        }
+    }
+
     if (!ro
         && (e == QKeySequence::InsertParagraphSeparator
             || (!d->m_lineSeparatorsAllowed && e == QKeySequence::InsertLineSeparator))) {
@@ -2695,12 +2710,6 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             return;
         }
         QTextCursor cursor = textCursor();
-        if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(d->m_suggestionBlock)) {
-            suggestion->apply();
-            d->clearCurrentSuggestion();
-            e->accept();
-            return;
-        }
         if (d->m_skipAutoCompletedText && e->key() == Qt::Key_Tab) {
             bool skippedAutoCompletedText = false;
             while (!d->m_autoCompleteHighlightPos.isEmpty()

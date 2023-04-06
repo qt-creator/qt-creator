@@ -546,4 +546,26 @@ QTCREATOR_UTILS_EXPORT QPair<QStringView, QStringView> splitAtFirst(const QStrin
     return splitAtFirst(view, ch);
 }
 
+QTCREATOR_UTILS_EXPORT int endOfNextWord(const QString &string, int position)
+{
+    QTC_ASSERT(string.size() > position, return -1);
+
+    static const QString wordSeparators = QStringLiteral(" \t\n\r()[]{}<>");
+
+    const auto predicate = [](const QChar &c) { return wordSeparators.contains(c); };
+
+    auto it = string.begin() + position;
+    if (predicate(*it))
+        it = std::find_if_not(it, string.end(), predicate);
+
+    if (it == string.end())
+        return -1;
+
+    it = std::find_if(it, string.end(), predicate);
+    if (it == string.end())
+        return -1;
+
+    return std::distance(string.begin(), it);
+}
+
 } // namespace Utils

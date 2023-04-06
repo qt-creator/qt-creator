@@ -5,6 +5,7 @@
 #include "requests/getcompletions.h"
 
 #include <texteditor/textdocumentlayout.h>
+#include <texteditor/texteditor.h>
 
 namespace Copilot::Internal {
 
@@ -16,6 +17,7 @@ public:
                       int currentCompletion = 0);
 
     bool apply() final;
+    bool applyWord(TextEditor::TextEditorWidget *widget) final;
     void reset() final;
     int position() final;
 

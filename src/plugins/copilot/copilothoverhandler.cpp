@@ -43,11 +43,14 @@ public:
                               Tr::tr("Select Next Copilot Suggestion"));
         next->setEnabled(m_completions.size() > 1);
 
-        auto apply = addAction(Tr::tr("Apply (Tab)"));
+        auto apply = addAction(Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString()));
+        auto applyWord = addAction(
+            Tr::tr("Apply Word (%1)").arg(QKeySequence(QKeySequence::MoveToNextWord).toString()));
 
         connect(prev, &QAction::triggered, this, &CopilotCompletionToolTip::selectPrevious);
         connect(next, &QAction::triggered, this, &CopilotCompletionToolTip::selectNext);
         connect(apply, &QAction::triggered, this, &CopilotCompletionToolTip::apply);
+        connect(applyWord, &QAction::triggered, this, &CopilotCompletionToolTip::applyWord);
 
         updateLabels();
     }
@@ -88,8 +91,19 @@ private:
 
     void apply()
     {
-        if (TextSuggestion *suggestion = m_editor->currentSuggestion())
-            suggestion->apply();
+        if (TextSuggestion *suggestion = m_editor->currentSuggestion()) {
+            if (!suggestion->apply())
+                return;
+        }
+        ToolTip::hide();
+    }
+
+    void applyWord()
+    {
+        if (TextSuggestion *suggestion = m_editor->currentSuggestion()) {
+            if (!suggestion->applyWord(m_editor))
+                return;
+        }
         ToolTip::hide();
     }
 

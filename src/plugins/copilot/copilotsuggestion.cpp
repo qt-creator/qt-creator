@@ -3,6 +3,13 @@
 
 #include "copilotsuggestion.h"
 
+#include <texteditor/texteditor.h>
+
+#include <utils/stringutils.h>
+
+using namespace Utils;
+using namespace TextEditor;
+
 namespace Copilot::Internal {
 
 CopilotSuggestion::CopilotSuggestion(const QList<Completion> &completions,
@@ -25,6 +32,29 @@ bool CopilotSuggestion::apply()
     QTextCursor cursor = completion.range().toSelection(m_start.document());
     cursor.insertText(completion.text());
     return true;
+}
+
+bool CopilotSuggestion::applyWord(TextEditorWidget *widget)
+{
+    const Completion completion = m_completions.value(m_currentCompletion);
+    const QTextCursor cursor = completion.range().toSelection(m_start.document());
+    QTextCursor currentCursor = widget->textCursor();
+    const QString text = completion.text();
+    const int startPos = currentCursor.positionInBlock() - cursor.positionInBlock()
+                         + (cursor.selectionEnd() - cursor.selectionStart());
+    const int next = endOfNextWord(text, startPos);
+
+    if (next == -1)
+        return apply();
+
+    // TODO: Allow adding more than one line
+    QString subText = text.mid(startPos, next - startPos);
+    subText = subText.left(subText.indexOf('\n'));
+    if (subText.isEmpty())
+        return false;
+
+    currentCursor.insertText(subText);
+    return false;
 }
 
 void CopilotSuggestion::reset()

@@ -47,7 +47,10 @@ class TEXTEDITOR_EXPORT TextSuggestion
 public:
     TextSuggestion();
     virtual ~TextSuggestion();
+    // Returns true if the suggestion was applied completely, false if it was only partially applied.
     virtual bool apply() = 0;
+    // Returns true if the suggestion was applied completely, false if it was only partially applied.
+    virtual bool applyWord(TextEditorWidget *widget) = 0;
     virtual void reset() = 0;
     virtual int position() = 0;
 
