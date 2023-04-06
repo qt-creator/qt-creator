@@ -31,7 +31,7 @@ public:
 
     void start()
     {
-        QTC_ASSERT(isRunning(), return);
+        QTC_ASSERT(!isRunning(), return);
         QTC_ASSERT(preStartCheck(), m_callback({}); return);
 
         Request request(m_params);
@@ -65,14 +65,14 @@ public:
     bool preStartCheck() override;
 };
 
-class LANGUAGECLIENT_EXPORT ClientRequestTaskAdapter
+class LANGUAGECLIENT_EXPORT WorkspaceSymbolRequestTaskAdapter
     : public Utils::Tasking::TaskAdapter<WorkspaceSymbolRequestTask>
 {
 public:
-    ClientRequestTaskAdapter();
+    WorkspaceSymbolRequestTaskAdapter();
     void start() final;
 };
 
 } // namespace LanguageClient
 
-QTC_DECLARE_CUSTOM_TASK(WorkspaceSymbolRequest, LanguageClient::WorkspaceSymbolRequestTask);
+QTC_DECLARE_CUSTOM_TASK(SymbolRequest, LanguageClient::WorkspaceSymbolRequestTaskAdapter);

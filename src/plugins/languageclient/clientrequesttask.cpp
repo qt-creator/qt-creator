@@ -9,21 +9,21 @@ using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
 
-ClientRequestTaskAdapter::ClientRequestTaskAdapter()
+WorkspaceSymbolRequestTaskAdapter::WorkspaceSymbolRequestTaskAdapter()
 {
     task()->setResponseCallback([this](const WorkspaceSymbolRequest::Response &response){
         emit done(response.result().has_value());
     });
 }
 
-void ClientRequestTaskAdapter::start()
+void WorkspaceSymbolRequestTaskAdapter::start()
 {
     task()->start();
 }
 
 bool WorkspaceSymbolRequestTask::preStartCheck()
 {
-    if (!ClientRequestTask::preStartCheck() || !client()->locatorsEnabled())
+    if (!ClientRequestTask::preStartCheck())
         return false;
 
     const std::optional<std::variant<bool, WorkDoneProgressOptions>> capability
