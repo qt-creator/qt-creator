@@ -19,8 +19,8 @@ using namespace CPlusPlus;
 
 namespace CppEditor::Internal {
 
-CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
-    : m_modelManager(manager)
+CppCurrentDocumentFilter::CppCurrentDocumentFilter()
+    : m_modelManager(CppModelManager::instance())
 {
     setId(Constants::CURRENT_DOCUMENT_FILTER_ID);
     setDisplayName(Tr::tr(Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME));
@@ -34,7 +34,7 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
                                  SymbolSearcher::Functions |
                                  SymbolSearcher::Classes);
 
-    connect(manager, &CppModelManager::documentUpdated,
+    connect(m_modelManager, &CppModelManager::documentUpdated,
             this, &CppCurrentDocumentFilter::onDocumentUpdated);
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &CppCurrentDocumentFilter::onCurrentEditorChanged);

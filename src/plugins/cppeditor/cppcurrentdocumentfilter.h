@@ -20,7 +20,7 @@ class CppCurrentDocumentFilter : public  Core::ILocatorFilter
     Q_OBJECT
 
 public:
-    explicit CppCurrentDocumentFilter(CppModelManager *manager);
+    explicit CppCurrentDocumentFilter();
     ~CppCurrentDocumentFilter() override = default;
 
     void makeAuxiliary();

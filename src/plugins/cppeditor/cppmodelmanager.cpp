@@ -902,8 +902,7 @@ void CppModelManager::initCppTools()
     setIncludesFilter(std::make_unique<CppIncludesFilter>());
     setFunctionsFilter(std::make_unique<CppFunctionsFilter>());
     setSymbolsFindFilter(std::make_unique<SymbolsFindFilter>(this));
-    setCurrentDocumentFilter(
-                std::make_unique<Internal::CppCurrentDocumentFilter>(this));
+    setCurrentDocumentFilter(std::make_unique<CppCurrentDocumentFilter>());
     // Setup matchers
     LocatorMatcher::addLocatorMatcherCreator([] { return QList{CppEditor::cppLocatorMatcher()}; });
     LocatorMatcher::addClassMatcherCreator([] { return QList{CppEditor::cppClassMatcher()}; });
@@ -2021,7 +2020,7 @@ void CppModelManager::switchDeclDef(const CursorInEditor &data,
 
 ILocatorFilter *CppModelManager::createAuxiliaryCurrentDocumentFilter()
 {
-    const auto filter = new Internal::CppCurrentDocumentFilter(instance());
+    const auto filter = new Internal::CppCurrentDocumentFilter;
     filter->makeAuxiliary();
     return filter;
 }
