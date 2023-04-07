@@ -110,7 +110,7 @@ LocatorMatcherTask workspaceFunctionMatcher(Client *client, int maxResultCount)
                           {SymbolKind::Method, SymbolKind::Function, SymbolKind::Constructor});
 }
 
-DocumentLocatorFilter::DocumentLocatorFilter(LanguageClientManager *languageManager)
+DocumentLocatorFilter::DocumentLocatorFilter()
 {
     setId(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_DISPLAY_NAME));
@@ -121,7 +121,7 @@ DocumentLocatorFilter::DocumentLocatorFilter(LanguageClientManager *languageMana
     setPriority(ILocatorFilter::Low);
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &DocumentLocatorFilter::updateCurrentClient);
-    connect(languageManager, &LanguageClientManager::clientInitialized,
+    connect(LanguageClientManager::instance(), &LanguageClientManager::clientInitialized,
             this, &DocumentLocatorFilter::updateCurrentClient);
 }
 

@@ -27,6 +27,7 @@
 #include <cppeditor/editordocumenthandle.h>
 
 #include <languageclient/languageclientmanager.h>
+#include <languageclient/locatorfilter.h>
 
 #include <texteditor/quickfix.h>
 

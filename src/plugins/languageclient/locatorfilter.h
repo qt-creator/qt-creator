@@ -33,7 +33,7 @@ class LANGUAGECLIENT_EXPORT DocumentLocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 public:
-    DocumentLocatorFilter(LanguageClientManager *languageManager);
+    DocumentLocatorFilter();
 
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,

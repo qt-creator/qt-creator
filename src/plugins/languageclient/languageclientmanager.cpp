@@ -6,6 +6,7 @@
 #include "languageclientplugin.h"
 #include "languageclientsymbolsupport.h"
 #include "languageclienttr.h"
+#include "locatorfilter.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -41,9 +42,19 @@ static Q_LOGGING_CATEGORY(Log, "qtc.languageclient.manager", QtWarningMsg)
 static LanguageClientManager *managerInstance = nullptr;
 static bool g_shuttingDown = false;
 
+class LanguageClientManagerPrivate
+{
+    DocumentLocatorFilter m_currentDocumentLocatorFilter;
+    WorkspaceLocatorFilter m_workspaceLocatorFilter;
+    WorkspaceClassLocatorFilter m_workspaceClassLocatorFilter;
+    WorkspaceMethodLocatorFilter m_workspaceMethodLocatorFilter;
+};
+
 LanguageClientManager::LanguageClientManager(QObject *parent)
     : QObject(parent)
 {
+    managerInstance = this;
+    d.reset(new LanguageClientManagerPrivate);
     using namespace Core;
     using namespace ProjectExplorer;
     connect(EditorManager::instance(), &EditorManager::editorOpened,
@@ -74,7 +85,7 @@ void LanguageClientManager::init()
     if (managerInstance)
         return;
     QTC_ASSERT(LanguageClientPlugin::instance(), return);
-    managerInstance = new LanguageClientManager(LanguageClientPlugin::instance());
+    new LanguageClientManager(LanguageClientPlugin::instance());
 }
 
 void LanguageClient::LanguageClientManager::addClient(Client *client)
