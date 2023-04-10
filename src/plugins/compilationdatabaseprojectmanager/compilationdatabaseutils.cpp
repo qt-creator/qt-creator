@@ -136,8 +136,8 @@ void filteredFlags(const FilePath &filePath,
             continue;
         }
 
-        const QStringList userIncludeFlags{"-I", "/I"};
-        const QStringList systemIncludeFlags{"-isystem", "-imsvc", "/imsvc"};
+        const QStringList userIncludeFlags{"-I", "-iquote", "/I"};
+        const QStringList systemIncludeFlags{"-isystem", "-idirafter", "-imsvc", "/imsvc"};
         const QStringList allIncludeFlags = QStringList(userIncludeFlags) << systemIncludeFlags;
         const QString includeOpt = Utils::findOrDefault(allIncludeFlags, [flag](const QString &opt) {
             return flag.startsWith(opt) && flag != opt;
