@@ -26,6 +26,14 @@ namespace Internal { class Locator; }
 
 class ILocatorFilter;
 
+class AcceptResult
+{
+public:
+    QString newText;
+    int selectionStart = -1;
+    int selectionLength = 0;
+};
+
 class LocatorFilterEntry
 {
 public:
@@ -77,6 +85,7 @@ public:
         , displayName(name)
     {}
 
+    using Acceptor = std::function<AcceptResult()>;
     /* backpointer to creating filter */
     ILocatorFilter *filter = nullptr;
     /* displayed string */
@@ -87,8 +96,12 @@ public:
     QString extraInfo;
     /* additional tooltip */
     QString toolTip;
+    /* called by locator widget on accept. By default, when acceptor is empty,
+       EditorManager::openEditor(LocatorFilterEntry) will be used instead. */
+    Acceptor acceptor;
     /* can be used by the filter to save more information about the entry */
-    QVariant internalData; // DON'T USE IN NEW CODE, IT'S GOING TO BE REMOVED, SOON...
+    /* Replaced by acceptor - DON'T USE IN NEW CODE, IT'S GOING TO BE REMOVED, SOON... */
+    QVariant internalData;
     /* icon to display along with the entry */
     std::optional<QIcon> displayIcon;
     /* file path, if the entry is related to a file, is used e.g. for resolving a file icon */

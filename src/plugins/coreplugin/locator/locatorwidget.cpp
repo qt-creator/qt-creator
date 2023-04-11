@@ -10,6 +10,7 @@
 #include "locatorsearchutils.h"
 #include "../actionmanager/actionmanager.h"
 #include "../coreplugintr.h"
+#include "../editormanager/editormanager.h"
 #include "../icore.h"
 #include "../modemanager.h"
 
@@ -1003,18 +1004,22 @@ void LocatorWidget::acceptEntry(int row)
     if (!index.isValid())
         return;
     const LocatorFilterEntry entry = m_locatorModel->data(index, LocatorEntryRole).value<LocatorFilterEntry>();
-    Q_ASSERT(entry.filter != nullptr);
-    QString newText;
-    int selectionStart = -1;
-    int selectionLength = 0;
     QWidget *focusBeforeAccept = QApplication::focusWidget();
-    entry.filter->accept(entry, &newText, &selectionStart, &selectionLength);
-    if (newText.isEmpty()) {
+    AcceptResult result;
+    if (entry.acceptor) {
+        result = entry.acceptor();
+    } else if (entry.filter) {
+        entry.filter->accept(entry, &result.newText, &result.selectionStart,
+                             &result.selectionLength);
+    } else {
+        EditorManager::openEditor(entry);
+    }
+    if (result.newText.isEmpty()) {
         emit hidePopup();
         if (QApplication::focusWidget() == focusBeforeAccept)
             resetFocus(m_previousFocusWidget, isInMainWindow());
     } else {
-        showText(newText, selectionStart, selectionLength);
+        showText(result.newText, result.selectionStart, result.selectionLength);
     }
 }
 

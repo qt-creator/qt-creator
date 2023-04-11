@@ -28,8 +28,7 @@ namespace Internal {
 class LocatorModel;
 class CompletionList;
 
-class LocatorWidget
-  : public QWidget
+class LocatorWidget : public QWidget
 {
     Q_OBJECT
 
