@@ -58,9 +58,17 @@ void BookmarkFilter::prepareSearch(const QString &entry)
     for (const QModelIndex &idx : matches) {
         const Bookmark *bookmark = m_manager->bookmarkForIndex(idx);
         const QString filename = bookmark->filePath().fileName();
-        LocatorFilterEntry filterEntry(this,
-                                       QString("%1:%2").arg(filename).arg(bookmark->lineNumber()));
-        filterEntry.internalData = QVariant::fromValue(idx);
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName = QString("%1:%2").arg(filename).arg(bookmark->lineNumber());
+        // TODO: according to QModelIndex docs, we shouldn't store model indexes:
+        // Model indexes should be used immediately and then discarded.
+        // You should not rely on indexes to remain valid after calling model functions that change
+        // the structure of the model or delete items.
+        filterEntry.acceptor = [manager = m_manager, idx] {
+            if (Bookmark *bookmark = manager->bookmarkForIndex(idx))
+                manager->gotoBookmark(bookmark);
+            return AcceptResult();
+        };
         if (!bookmark->note().isEmpty())
             filterEntry.extraInfo = bookmark->note();
         else if (!bookmark->lineText().isEmpty())
@@ -102,16 +110,6 @@ QList<LocatorFilterEntry> BookmarkFilter::matchesFor(QFutureInterface<LocatorFil
     Q_UNUSED(future)
     Q_UNUSED(entry)
     return m_results;
-}
-
-void BookmarkFilter::accept(const LocatorFilterEntry &selection, QString *newText,
-                            int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    if (Bookmark *bookmark = m_manager->bookmarkForIndex(selection.internalData.toModelIndex()))
-        m_manager->gotoBookmark(bookmark);
 }
 
 } // Bookmarks::Internal
