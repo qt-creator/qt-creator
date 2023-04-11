@@ -190,15 +190,17 @@ void DocumentClangToolRunner::run()
     const Environment env = projectBuildEnvironment(project);
     using namespace Tasking;
     QList<TaskItem> tasks{parallel};
-    const auto addClangTool = [this, &config, &env, &tasks](ClangToolType tool) {
-        if (!config.isEnabled(tool))
+    const auto addClangTool = [this, &runSettings, &config, &env, &tasks](ClangToolType tool) {
+        if (!toolEnabled(tool, config, runSettings))
+            return;
+        if (!config.isEnabled(tool) && !runSettings.hasConfigFileForSourceFile(m_fileInfo.file))
             return;
         const FilePath executable = toolExecutable(tool);
         const auto [includeDir, clangVersion] = getClangIncludeDirAndVersion(executable);
         if (!executable.isExecutableFile() || includeDir.isEmpty() || clangVersion.isEmpty())
             return;
         const AnalyzeUnit unit(m_fileInfo, includeDir, clangVersion);
-        const AnalyzeInputData input{tool, config, m_temporaryDir.path(), env, unit,
+        const AnalyzeInputData input{tool, runSettings, config, m_temporaryDir.path(), env, unit,
                                      vfso().overlayFilePath().toString()};
         const auto setupHandler = [this, executable] {
             return !m_document->isModified() || isVFSOverlaySupported(executable);

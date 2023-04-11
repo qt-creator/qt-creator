@@ -4,6 +4,7 @@
 #pragma once
 
 #include "clangfileinfo.h"
+#include "clangtoolssettings.h"
 
 #include <cppeditor/clangdiagnosticconfig.h>
 
@@ -28,6 +29,7 @@ using AnalyzeUnits = QList<AnalyzeUnit>;
 struct AnalyzeInputData
 {
     CppEditor::ClangToolType tool = CppEditor::ClangToolType::Tidy;
+    RunSettings runSettings;
     CppEditor::ClangDiagnosticConfig config;
     Utils::FilePath outputDirPath;
     Utils::Environment environment;

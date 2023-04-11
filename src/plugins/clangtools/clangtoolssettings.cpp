@@ -27,6 +27,7 @@ const char clangTidyExecutableKey[] = "ClangTidyExecutable";
 const char clazyStandaloneExecutableKey[] = "ClazyStandaloneExecutable";
 
 const char parallelJobsKey[] = "ParallelJobs";
+const char preferConfigFileKey[] = "PreferConfigFile";
 const char buildBeforeAnalysisKey[] = "BuildBeforeAnalysis";
 const char analyzeOpenFilesKey[] = "AnalyzeOpenFiles";
 const char oldDiagnosticConfigIdKey[] = "diagnosticConfigId";
@@ -46,6 +47,7 @@ void RunSettings::fromMap(const QVariantMap &map, const QString &prefix)
 {
     m_diagnosticConfigId = Id::fromSetting(map.value(prefix + diagnosticConfigIdKey));
     m_parallelJobs = map.value(prefix + parallelJobsKey).toInt();
+    m_preferConfigFile = map.value(prefix + preferConfigFileKey).toBool();
     m_buildBeforeAnalysis = map.value(prefix + buildBeforeAnalysisKey).toBool();
     m_analyzeOpenFiles = map.value(prefix + analyzeOpenFilesKey).toBool();
 }
@@ -54,6 +56,7 @@ void RunSettings::toMap(QVariantMap &map, const QString &prefix) const
 {
     map.insert(prefix + diagnosticConfigIdKey, m_diagnosticConfigId.toSetting());
     map.insert(prefix + parallelJobsKey, m_parallelJobs);
+    map.insert(prefix + preferConfigFileKey, m_preferConfigFile);
     map.insert(prefix + buildBeforeAnalysisKey, m_buildBeforeAnalysis);
     map.insert(prefix + analyzeOpenFilesKey, m_analyzeOpenFiles);
 }
@@ -69,8 +72,21 @@ bool RunSettings::operator==(const RunSettings &other) const
 {
     return m_diagnosticConfigId == other.m_diagnosticConfigId
            && m_parallelJobs == other.m_parallelJobs
+           && m_preferConfigFile == other.m_preferConfigFile
            && m_buildBeforeAnalysis == other.m_buildBeforeAnalysis
            && m_analyzeOpenFiles == other.m_analyzeOpenFiles;
+}
+
+bool RunSettings::hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) const
+{
+    if (!preferConfigFile())
+        return false;
+    for (FilePath parentDir = sourceFile.parentDir(); !parentDir.isEmpty();
+         parentDir = parentDir.parentDir()) {
+        if (parentDir.resolvePath(QLatin1String(".clang-tidy")).isReadableFile())
+            return true;
+    }
+    return false;
 }
 
 ClangToolsSettings::ClangToolsSettings()
@@ -139,6 +155,7 @@ void ClangToolsSettings::readSettings()
         QVariantMap defaults;
         defaults.insert(diagnosticConfigIdKey, defaultDiagnosticId().toSetting());
         defaults.insert(parallelJobsKey, m_runSettings.parallelJobs());
+        defaults.insert(preferConfigFileKey, m_runSettings.preferConfigFile());
         defaults.insert(buildBeforeAnalysisKey, m_runSettings.buildBeforeAnalysis());
         defaults.insert(analyzeOpenFilesKey, m_runSettings.analyzeOpenFiles());
         map = defaults;

@@ -52,21 +52,22 @@ static bool isClMode(const QStringList &options)
     return options.contains("--driver-mode=cl");
 }
 
-static QStringList checksArguments(ClangToolType tool,
-                                   const ClangDiagnosticConfig &diagnosticConfig)
+static QStringList checksArguments(const AnalyzeInputData &input)
 {
-    if (tool == ClangToolType::Tidy) {
-        const ClangDiagnosticConfig::TidyMode tidyMode = diagnosticConfig.clangTidyMode();
-        // The argument "-config={}" stops stating/evaluating the .clang-tidy file.
-        if (tidyMode == ClangDiagnosticConfig::TidyMode::UseDefaultChecks)
+    if (input.tool == ClangToolType::Tidy) {
+        if (input.runSettings.hasConfigFileForSourceFile(input.unit.file))
+            return {"--warnings-as-errors=-*", "-checks=-clang-diagnostic-*"};
+        switch (input.config.clangTidyMode()) {
+        case ClangDiagnosticConfig::TidyMode::UseDefaultChecks:
+            // The argument "-config={}" stops stating/evaluating the .clang-tidy file.
             return {"-config={}", "-checks=-clang-diagnostic-*"};
-        if (tidyMode == ClangDiagnosticConfig::TidyMode::UseCustomChecks)
-            return {"-config=" + diagnosticConfig.clangTidyChecksAsJson()};
-        return {"--warnings-as-errors=-*", "-checks=-clang-diagnostic-*"};
+        case ClangDiagnosticConfig::TidyMode::UseCustomChecks:
+            return {"-config=" + input.config.clangTidyChecksAsJson()};
+        }
     }
-    const QString clazyChecks = diagnosticConfig.checks(ClangToolType::Clazy);
+    const QString clazyChecks = input.config.checks(ClangToolType::Clazy);
     if (!clazyChecks.isEmpty())
-        return {"-checks=" + diagnosticConfig.checks(ClangToolType::Clazy)};
+        return {"-checks=" + input.config.checks(ClangToolType::Clazy)};
     return {};
 }
 
@@ -148,7 +149,7 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
 
         const ClangToolStorage &data = *storage;
 
-        const QStringList args = checksArguments(input.tool, input.config)
+        const QStringList args = checksArguments(input)
                                  + mainToolArguments(data)
                                  + QStringList{"--"}
                                  + clangArguments(input.config, input.unit.arguments);

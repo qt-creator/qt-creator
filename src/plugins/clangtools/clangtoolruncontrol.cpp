@@ -185,7 +185,11 @@ void ClangToolRunWorker::start()
     using namespace Tasking;
     QList<TaskItem> tasks{ParallelLimit(qMax(1, m_runSettings.parallelJobs()))};
     for (const AnalyzeUnit &unit : std::as_const(unitsToProcess)) {
-        const AnalyzeInputData input{tool, m_diagnosticConfig, m_temporaryDir.path(),
+        if (!m_diagnosticConfig.isEnabled(tool)
+            && !m_runSettings.hasConfigFileForSourceFile(unit.file)) {
+            continue;
+        }
+        const AnalyzeInputData input{tool, m_runSettings, m_diagnosticConfig, m_temporaryDir.path(),
                                      m_environment, unit};
         const auto setupHandler = [this, unit, tool] {
             const QString filePath = unit.file.toUserOutput();

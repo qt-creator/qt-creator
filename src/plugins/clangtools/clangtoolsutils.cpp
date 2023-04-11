@@ -343,5 +343,13 @@ QString clazyDocUrl(const QString &check)
     return QString::fromLatin1(urlTemplate).arg(versionString, check);
 }
 
+bool toolEnabled(CppEditor::ClangToolType type, const ClangDiagnosticConfig &config,
+                 const RunSettings &runSettings)
+{
+    if (type == ClangToolType::Tidy && runSettings.preferConfigFile())
+        return true;
+    return config.isEnabled(type);
+}
+
 } // namespace Internal
 } // namespace ClangTools

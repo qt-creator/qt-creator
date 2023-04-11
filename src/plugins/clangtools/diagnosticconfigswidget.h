@@ -41,7 +41,6 @@ private:
     void syncClazyWidgets(const CppEditor::ClangDiagnosticConfig &config);
     void syncClazyChecksGroupBox();
 
-    void onClangTidyModeChanged(int index);
     void onClangTidyTreeChanged();
     void onClazyTreeChanged();
 
