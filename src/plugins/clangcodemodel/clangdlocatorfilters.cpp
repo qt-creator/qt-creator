@@ -225,7 +225,6 @@ private:
             entry.displayName = ClangdClient::displayNameFromDocumentSymbol(
                 static_cast<SymbolKind>(info.kind()), info.name(),
                 info.detail().value_or(QString()));
-            entry.internalData = QVariant::fromValue(info);
             entry.linkForEditor = linkForDocSymbol(info);
             entry.extraInfo = parent.extraInfo;
             if (!entry.extraInfo.isEmpty())
