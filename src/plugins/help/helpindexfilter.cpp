@@ -3,15 +3,16 @@
 
 #include "helpindexfilter.h"
 
-#include "helpmanager.h"
-#include "helptr.h"
 #include "localhelpmanager.h"
+#include "helpmanager.h"
+#include "helpplugin.h"
+#include "helptr.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
-#include <utils/utilsicons.h>
 #include <utils/tasktree.h>
+#include <utils/utilsicons.h>
 
 #include <QHelpEngine>
 #include <QHelpFilterEngine>
@@ -77,25 +78,19 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
     m_lastEntry = entry;
 
     QList<LocatorFilterEntry> entries;
-    for (const QString &keyword : std::as_const(m_lastIndicesCache)) {
-        const int index = keyword.indexOf(entry, 0, cs);
-        LocatorFilterEntry filterEntry(this, keyword);
+    for (const QString &key : std::as_const(m_lastIndicesCache)) {
+        const int index = key.indexOf(entry, 0, cs);
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName = key;
+        filterEntry.acceptor = [key] {
+            HelpPlugin::showLinksInCurrentViewer(LocalHelpManager::linksForKeyword(key), key);
+            return AcceptResult();
+        };
         filterEntry.displayIcon = m_icon;
         filterEntry.highlightInfo = {index, int(entry.length())};
         entries.append(filterEntry);
     }
     return entries;
-}
-
-void HelpIndexFilter::accept(const LocatorFilterEntry &selection,
-                             QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    const QString &key = selection.displayName;
-    const QMultiMap<QString, QUrl> links = LocalHelpManager::linksForKeyword(key);
-    emit linksActivated(links, key);
 }
 
 void HelpIndexFilter::invalidateCache()

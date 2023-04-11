@@ -26,6 +26,8 @@ public:
     ~HelpPlugin() final;
 
     static void showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
+    static void showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links,
+                                         const QString &key);
     static HelpViewer *createHelpViewer();
     static HelpWidget *modeHelpWidget();
 

@@ -165,6 +165,11 @@ void HelpPlugin::showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocat
     dd->showHelpUrl(url, location);
 }
 
+void HelpPlugin::showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links, const QString &key)
+{
+    dd->showLinksInCurrentViewer(links, key);
+}
+
 void HelpPlugin::initialize()
 {
     dd = new HelpPluginPrivate;
@@ -264,9 +269,6 @@ HelpPluginPrivate::HelpPluginPrivate()
     cmd = ActionManager::registerAction(action, "Help.SystemInformation");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, &QAction::triggered, this, &HelpPluginPrivate::slotSystemInformation);
-
-    connect(&helpIndexFilter, &HelpIndexFilter::linksActivated,
-            this, &HelpPluginPrivate::showLinksInCurrentViewer);
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &HelpPluginPrivate::modeChanged);

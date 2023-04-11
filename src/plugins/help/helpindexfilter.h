@@ -5,10 +5,6 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
-#include <QIcon>
-#include <QMultiMap>
-#include <QUrl>
-
 namespace Help {
 namespace Internal {
 
@@ -22,12 +18,6 @@ public:
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
-    void accept(const Core::LocatorFilterEntry &selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
-
-signals:
-    void linksActivated(const QMultiMap<QString, QUrl> &links, const QString &key) const;
-
 private:
     void invalidateCache();
 
