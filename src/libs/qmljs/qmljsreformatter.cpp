@@ -109,14 +109,15 @@ public:
         }
         const QList<SourceLocation> &directives = _doc->jsDirectives();
         for (const auto &d: directives) {
-            quint32 line = 1;
-            int i = 0;
-            while (line++ < d.startLine && i++ >= 0)
-                i = _doc->source().indexOf(QChar('\n'), i);
+            quint32 line = 0;
+            const QString &source = _doc->source();
+            int i = -1;
+            while (++line < d.startLine)
+                i = source.indexOf(QChar('\n'), i + 1);
             quint32 offset = static_cast<quint32>(i) + d.startColumn;
-            int endline = _doc->source().indexOf('\n', static_cast<int>(offset) + 1);
-            int end = endline == -1 ? _doc->source().length() : endline;
-            quint32 length =  static_cast<quint32>(end) - offset;
+            int endline = source.indexOf('\n', static_cast<int>(offset) + 1);
+            int end = endline == -1 ? source.length() : endline;
+            quint32 length = static_cast<quint32>(end) - offset + 1;
             out(SourceLocation(offset, length, d.startLine, d.startColumn));
         }
         if (!directives.isEmpty())
