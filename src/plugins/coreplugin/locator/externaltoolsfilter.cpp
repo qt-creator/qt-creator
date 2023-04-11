@@ -4,6 +4,7 @@
 #include "externaltoolsfilter.h"
 
 #include "../coreconstants.h"
+#include "../coreplugin.h"
 #include "../coreplugintr.h"
 #include "../externaltool.h"
 #include "../externaltoolmanager.h"
@@ -30,26 +31,6 @@ QList<LocatorFilterEntry> ExternalToolsFilter::matchesFor(QFutureInterface<Locat
     return m_results;
 }
 
-void ExternalToolsFilter::accept(const LocatorFilterEntry &selection,
-                                 QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-
-    if (!selection.internalData.isValid()) {
-        ICore::showOptionsDialog(Constants::SETTINGS_ID_TOOLS);
-        return;
-    }
-
-    auto tool = selection.internalData.value<ExternalTool *>();
-    QTC_ASSERT(tool, return);
-
-    auto runner = new ExternalToolRunner(tool);
-    if (runner->hasError())
-        MessageManager::writeFlashing(runner->errorString());
-}
-
 void ExternalToolsFilter::prepareSearch(const QString &entry)
 {
     QList<LocatorFilterEntry> bestEntries;
@@ -66,8 +47,14 @@ void ExternalToolsFilter::prepareSearch(const QString &entry)
         }
 
         if (index >= 0) {
-            LocatorFilterEntry filterEntry(this, tool->displayName());
-            filterEntry.internalData = QVariant::fromValue(tool);
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = tool->displayName();
+            filterEntry.acceptor = [tool] {
+                auto runner = new ExternalToolRunner(tool);
+                if (runner->hasError())
+                    MessageManager::writeFlashing(runner->errorString());
+                return AcceptResult();
+            };
             filterEntry.extraInfo = tool->description();
             filterEntry.highlightInfo = LocatorFilterEntry::HighlightInfo(index, entry.length(), hDataType);
 
@@ -81,6 +68,12 @@ void ExternalToolsFilter::prepareSearch(const QString &entry)
     }
     LocatorFilterEntry configEntry(this, "Configure External Tool...");
     configEntry.extraInfo = "Opens External Tool settings";
+    configEntry.acceptor = [] {
+        QMetaObject::invokeMethod(CorePlugin::instance(), [] {
+            ICore::showOptionsDialog(Constants::SETTINGS_ID_TOOLS);
+        }, Qt::QueuedConnection);
+        return AcceptResult();
+    };
     m_results = {};
     m_results << bestEntries << betterEntries << goodEntries << configEntry;
 }
