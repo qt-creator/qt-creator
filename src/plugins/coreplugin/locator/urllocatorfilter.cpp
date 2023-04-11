@@ -7,7 +7,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
-#include <utils/stringutils.h>
 
 #include <QCheckBox>
 #include <QDesktopServices>
@@ -19,7 +18,6 @@
 #include <QListWidget>
 #include <QMutexLocker>
 #include <QPushButton>
-#include <QUrl>
 
 using namespace Utils;
 
@@ -176,24 +174,17 @@ QList<Core::LocatorFilterEntry> UrlLocatorFilter::matchesFor(
         if (future.isCanceled())
             break;
         const QString name = url.arg(entry);
-        Core::LocatorFilterEntry filterEntry(this, name);
+        Core::LocatorFilterEntry filterEntry;
+        filterEntry.displayName = name;
+        filterEntry.acceptor = [name] {
+            if (!name.isEmpty())
+                QDesktopServices::openUrl(name);
+            return AcceptResult();
+        };
         filterEntry.highlightInfo = {int(name.lastIndexOf(entry)), int(entry.length())};
         entries.append(filterEntry);
     }
     return entries;
-}
-
-void UrlLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
-                              QString *newText,
-                              int *selectionStart,
-                              int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    const QString &url = selection.displayName;
-    if (!url.isEmpty())
-        QDesktopServices::openUrl(url);
 }
 
 const char kDisplayNameKey[] = "displayName";
