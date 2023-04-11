@@ -60,8 +60,12 @@ QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Loca
     for (int i = 0; i < m_filterShortcutStrings.size(); ++i) {
         if (future.isCanceled())
             break;
-        LocatorFilterEntry filterEntry(this, m_filterShortcutStrings.at(i));
-        filterEntry.internalData = i;
+        const QString shortcutString = m_filterShortcutStrings.at(i);
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName = shortcutString;
+        filterEntry.acceptor = [shortcutString] {
+            return AcceptResult{shortcutString + ' ', int(shortcutString.size() + 1)};
+        };
         filterEntry.displayIcon = m_icon;
         filterEntry.extraInfo = m_filterDisplayNames.at(i);
         filterEntry.toolTip = m_filterDescriptions.at(i);
@@ -69,20 +73,6 @@ QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Loca
         entries.append(filterEntry);
     }
     return entries;
-}
-
-void LocatorFiltersFilter::accept(const LocatorFilterEntry &selection,
-                                  QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(selectionLength)
-    bool ok;
-    int index = selection.internalData.toInt(&ok);
-    QTC_ASSERT(ok && index >= 0 && index < m_filterShortcutStrings.size(), return);
-    const QString shortcutString = m_filterShortcutStrings.at(index);
-    if (!shortcutString.isEmpty()) {
-        *newText = shortcutString + ' ';
-        *selectionStart = shortcutString.length() + 1;
-    }
 }
 
 } // Core::Internal
