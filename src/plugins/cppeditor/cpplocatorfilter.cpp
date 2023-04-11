@@ -110,7 +110,7 @@ LocatorMatcherTask locatorMatcher(IndexItem::ItemType type, const EntryFromIndex
     return {Async<LocatorMatcherTask::OutputData>(onSetup, onDone, onDone), storage};
 }
 
-LocatorMatcherTask cppLocatorMatcher()
+LocatorMatcherTask cppAllSymbolsMatcher()
 {
     const auto converter = [](const IndexItem::Ptr &info) {
         // TODO: Passing nullptr for filter -> accept won't work now. Replace with accept function.

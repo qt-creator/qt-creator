@@ -145,6 +145,12 @@ public:
 using LocatorMatcherTaskCreator = std::function<QList<LocatorMatcherTask>()>;
 class LocatorMatcherPrivate;
 
+enum class MatcherType {
+    AllSymbols,
+    Classes,
+    Functions
+};
+
 class CORE_EXPORT LocatorMatcher final : public QObject
 {
     Q_OBJECT
@@ -167,13 +173,8 @@ public:
                                                       const LocatorMatcherTask::InputData &input,
                                                       int parallelLimit = 0);
 
-    static void addLocatorMatcherCreator(const LocatorMatcherTaskCreator &creator);
-    static void addClassMatcherCreator(const LocatorMatcherTaskCreator &creator);
-    static void addFunctionMatcherCreator(const LocatorMatcherTaskCreator &creator);
-
-    static QList<LocatorMatcherTask> locatorMatchers();
-    static QList<LocatorMatcherTask> classMatchers();
-    static QList<LocatorMatcherTask> functionMatchers();
+    static void addMatcherCreator(MatcherType type, const LocatorMatcherTaskCreator &creator);
+    static QList<LocatorMatcherTask> matchers(MatcherType type);
 
 signals:
     void serialOutputDataReady(const LocatorMatcherTask::OutputData &serialOutputData);

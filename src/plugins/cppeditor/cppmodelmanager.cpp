@@ -535,7 +535,7 @@ void CppModelManager::findUnusedFunctions(const FilePath &folder)
 
     // Step 1: Employ locator to find all functions
     LocatorMatcher *matcher = new LocatorMatcher;
-    matcher->setTasks(LocatorMatcher::functionMatchers());
+    matcher->setTasks(LocatorMatcher::matchers(MatcherType::Functions));
     const QPointer<SearchResult> search
         = SearchResultWindow::instance()->startNewSearch(Tr::tr("Find Unused Functions"),
                              {},
@@ -897,9 +897,12 @@ void CppModelManager::initCppTools()
     setSymbolsFindFilter(std::make_unique<SymbolsFindFilter>(this));
     setCurrentDocumentFilter(std::make_unique<CppCurrentDocumentFilter>());
     // Setup matchers
-    LocatorMatcher::addLocatorMatcherCreator([] { return QList{CppEditor::cppLocatorMatcher()}; });
-    LocatorMatcher::addClassMatcherCreator([] { return QList{CppEditor::cppClassMatcher()}; });
-    LocatorMatcher::addFunctionMatcherCreator([] { return QList{CppEditor::cppFunctionMatcher()}; });
+    LocatorMatcher::addMatcherCreator(MatcherType::AllSymbols,
+                                      [] { return QList{CppEditor::cppAllSymbolsMatcher()}; });
+    LocatorMatcher::addMatcherCreator(MatcherType::Classes,
+                                      [] { return QList{CppEditor::cppClassMatcher()}; });
+    LocatorMatcher::addMatcherCreator(MatcherType::Functions,
+                                      [] { return QList{CppEditor::cppFunctionMatcher()}; });
 }
 
 CppModelManager::CppModelManager()

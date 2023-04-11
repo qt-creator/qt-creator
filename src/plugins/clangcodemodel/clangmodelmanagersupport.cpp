@@ -214,11 +214,11 @@ ClangModelManagerSupport::ClangModelManagerSupport()
             matchers << creator(client, 10000);
         return matchers;
     };
-    LocatorMatcher::addLocatorMatcherCreator(
-        [matcherCreator] { return matcherCreator(&LanguageClient::workspaceLocatorMatcher); });
-    LocatorMatcher::addClassMatcherCreator(
+    LocatorMatcher::addMatcherCreator(MatcherType::AllSymbols,
+        [matcherCreator] { return matcherCreator(&LanguageClient::workspaceAllSymbolsMatcher); });
+    LocatorMatcher::addMatcherCreator(MatcherType::Classes,
         [matcherCreator] { return matcherCreator(&LanguageClient::workspaceClassMatcher); });
-    LocatorMatcher::addFunctionMatcherCreator(
+    LocatorMatcher::addMatcherCreator(MatcherType::Functions,
         [matcherCreator] { return matcherCreator(&LanguageClient::workspaceFunctionMatcher); });
 
     EditorManager *editorManager = EditorManager::instance();

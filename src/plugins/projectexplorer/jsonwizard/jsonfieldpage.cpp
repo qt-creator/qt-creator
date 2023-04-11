@@ -647,7 +647,7 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
         lineEdit->setSpecialCompleter(new QCompleter(completionList, lineEdit));
     };
     LocatorMatcher *matcher = new LocatorMatcher;
-    matcher->setTasks(LocatorMatcher::classMatchers());
+    matcher->setTasks(LocatorMatcher::matchers(MatcherType::Classes));
     QObject::connect(matcher, &LocatorMatcher::serialOutputDataReady, lineEdit, handleResults);
     QObject::connect(matcher, &LocatorMatcher::done, matcher, &QObject::deleteLater);
     matcher->start();

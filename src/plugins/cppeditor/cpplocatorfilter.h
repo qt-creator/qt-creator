@@ -10,7 +10,7 @@
 
 namespace CppEditor {
 
-Core::LocatorMatcherTask CPPEDITOR_EXPORT cppLocatorMatcher();
+Core::LocatorMatcherTask CPPEDITOR_EXPORT cppAllSymbolsMatcher();
 Core::LocatorMatcherTask CPPEDITOR_EXPORT cppClassMatcher();
 Core::LocatorMatcherTask CPPEDITOR_EXPORT cppFunctionMatcher();
 
