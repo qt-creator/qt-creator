@@ -5,19 +5,10 @@
 
 #include "texteditortr.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/modemanager.h>
-
-#include <QMetaType>
-#include <QPair>
-#include <QVariant>
-
-using LineColumn = QPair<int, int>;
-Q_DECLARE_METATYPE(LineColumn)
 
 using namespace Core;
+using namespace Utils;
 
 namespace TextEditor::Internal {
 
@@ -54,9 +45,6 @@ QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<LocatorF
     if (!ok)
         return value;
     if (m_hasCurrentEditor && (line > 0 || column > 0)) {
-        LineColumn data;
-        data.first = line;
-        data.second = column - 1;  // column API is 0-based
         QString text;
         if (line > 0 && column > 0)
             text = Tr::tr("Line %1, Column %2").arg(line).arg(column);
@@ -64,28 +52,20 @@ QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<LocatorF
             text = Tr::tr("Line %1").arg(line);
         else
             text = Tr::tr("Column %1").arg(column);
-        LocatorFilterEntry entry(this, text);
-        entry.internalData = QVariant::fromValue(data);
+        LocatorFilterEntry entry;
+        entry.displayName = text;
+        entry.acceptor = [line, targetColumn = column - 1] {
+            IEditor *editor = EditorManager::currentEditor();
+            if (!editor)
+                return AcceptResult();
+            EditorManager::addCurrentPositionToNavigationHistory();
+            editor->gotoLine(line < 1 ? editor->currentLine() : line, targetColumn);
+            EditorManager::activateEditor(editor);
+            return AcceptResult();
+        };
         value.append(entry);
     }
     return value;
-}
-
-void LineNumberFilter::accept(const LocatorFilterEntry &selection,
-                              QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    IEditor *editor = EditorManager::currentEditor();
-    if (editor) {
-        EditorManager::addCurrentPositionToNavigationHistory();
-        LineColumn data = selection.internalData.value<LineColumn>();
-        if (data.first < 1)  // jump to column in same line
-            data.first = editor->currentLine();
-        editor->gotoLine(data.first, data.second);
-        EditorManager::activateEditor(editor);
-    }
 }
 
 } // TextEditor::Internal
