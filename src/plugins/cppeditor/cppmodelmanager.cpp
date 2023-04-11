@@ -903,6 +903,8 @@ void CppModelManager::initCppTools()
                                       [] { return QList{CppEditor::cppClassMatcher()}; });
     LocatorMatcher::addMatcherCreator(MatcherType::Functions,
                                       [] { return QList{CppEditor::cppFunctionMatcher()}; });
+    LocatorMatcher::addMatcherCreator(MatcherType::CurrentDocumentSymbols,
+                                      [] { return QList{CppEditor::cppCurrentDocumentMatcher()}; });
 }
 
 CppModelManager::CppModelManager()

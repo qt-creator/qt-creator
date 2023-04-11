@@ -77,6 +77,7 @@ class CppCurrentDocumentFilterTestCase
 {
 public:
     CppCurrentDocumentFilterTestCase(const FilePath &filePath,
+                                     const QList<LocatorMatcherTask> &matchers,
                                      const ResultDataList &expectedResults,
                                      const QString &searchText = QString())
         : BasicLocatorFilterTest(CppModelManager::instance()->currentDocumentFilter())
@@ -85,7 +86,16 @@ public:
         QVERIFY(succeededSoFar());
         QVERIFY(!m_filePath.isEmpty());
 
-        ResultDataList results = ResultData::fromFilterEntryList(matchesFor(searchText));
+        const auto runMatcher = [this, matchers, searchText] {
+            CppCurrentDocumentFilterTestCase::doBeforeLocatorRun();
+            const auto result = LocatorMatcher::runBlocking(matchers, searchText);
+            CppCurrentDocumentFilterTestCase::doAfterLocatorRun();
+            return result;
+        };
+
+        const QList<LocatorFilterEntry> entries = matchers.isEmpty() ? matchesFor(searchText)
+                                                                     : runMatcher();
+        ResultDataList results = ResultData::fromFilterEntryList(entries);
         if (debug) {
             ResultData::printFilterEntries(expectedResults, "Expected:");
             ResultData::printFilterEntries(results, "Results:");
@@ -371,7 +381,10 @@ void LocatorFilterTest::testCurrentDocumentFilter()
         ResultData("main()", ""),
     };
 
-    CppCurrentDocumentFilterTestCase(testFile, expectedResults);
+    CppCurrentDocumentFilterTestCase(testFile, {}, expectedResults);
+    CppCurrentDocumentFilterTestCase(testFile,
+                                     LocatorMatcher::matchers(MatcherType::CurrentDocumentSymbols),
+                                     expectedResults);
 }
 
 void LocatorFilterTest::testCurrentDocumentHighlighting()
@@ -395,7 +408,10 @@ void LocatorFilterTest::testCurrentDocumentHighlighting()
 
     Tests::VerifyCleanCppModelManager verify;
 
-    CppCurrentDocumentFilterTestCase(testFile, expectedResults, searchText);
+    CppCurrentDocumentFilterTestCase(testFile, {}, expectedResults, searchText);
+    CppCurrentDocumentFilterTestCase(testFile,
+                                     LocatorMatcher::matchers(MatcherType::CurrentDocumentSymbols),
+                                     expectedResults, searchText);
 }
 
 void LocatorFilterTest::testFunctionsFilterHighlighting()

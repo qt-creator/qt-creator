@@ -7,13 +7,19 @@
 #include "cppeditorplugin.h"
 #include "cppeditortr.h"
 #include "cpplocatordata.h"
+#include "cppmodelmanager.h"
+
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/asynctask.h>
+#include <utils/fuzzymatcher.h>
 
 #include <QRegularExpression>
 
 using namespace Core;
+using namespace CPlusPlus;
 using namespace Utils;
 
 namespace CppEditor {
@@ -161,6 +167,152 @@ LocatorMatcherTask cppFunctionMatcher()
         return filterEntry;
     };
     return locatorMatcher(IndexItem::Function, converter);
+}
+
+QList<IndexItem::Ptr> itemsOfCurrentDocument(const FilePath &currentFileName)
+{
+    if (currentFileName.isEmpty())
+        return {};
+
+    QList<IndexItem::Ptr> results;
+    const Snapshot snapshot = CppModelManager::instance()->snapshot();
+    if (const Document::Ptr thisDocument = snapshot.document(currentFileName)) {
+        SearchSymbols search;
+        search.setSymbolsToSearchFor(SymbolSearcher::Declarations |
+                                     SymbolSearcher::Enums |
+                                     SymbolSearcher::Functions |
+                                     SymbolSearcher::Classes);
+        IndexItem::Ptr rootNode = search(thisDocument);
+        rootNode->visitAllChildren([&](const IndexItem::Ptr &info) {
+            results.append(info);
+            return IndexItem::Recurse;
+        });
+    }
+    return results;
+}
+
+LocatorFilterEntry::HighlightInfo highlightInfo(const QRegularExpressionMatch &match,
+                                  LocatorFilterEntry::HighlightInfo::DataType dataType)
+{
+    const FuzzyMatcher::HighlightingPositions positions =
+        FuzzyMatcher::highlightingPositions(match);
+
+    return LocatorFilterEntry::HighlightInfo(positions.starts, positions.lengths, dataType);
+}
+
+void matchesForCurrentDocument(QPromise<LocatorMatcherTask::OutputData> &promise,
+                               const QString &entry, const FilePath &currentFileName)
+{
+    const QRegularExpression regexp = FuzzyMatcher::createRegExp(entry, Qt::CaseInsensitive, false);
+    if (!regexp.isValid())
+        return;
+
+    struct Entry
+    {
+        LocatorFilterEntry entry;
+        IndexItem::Ptr info;
+    };
+    QList<Entry> goodEntries;
+    QList<Entry> betterEntries;
+    const QList<IndexItem::Ptr> items = itemsOfCurrentDocument(currentFileName);
+    for (const IndexItem::Ptr &info : items) {
+        if (promise.isCanceled())
+            break;
+
+        QString matchString = info->symbolName();
+        if (info->type() == IndexItem::Declaration)
+            matchString = info->representDeclaration();
+        else if (info->type() == IndexItem::Function)
+            matchString += info->symbolType();
+
+        QRegularExpressionMatch match = regexp.match(matchString);
+        if (match.hasMatch()) {
+            const bool betterMatch = match.capturedStart() == 0;
+            QString name = matchString;
+            QString extraInfo = info->symbolScope();
+            if (info->type() == IndexItem::Function) {
+                if (info->unqualifiedNameAndScope(matchString, &name, &extraInfo)) {
+                    name += info->symbolType();
+                    match = regexp.match(name);
+                }
+            }
+
+            // TODO: Passing nullptr for filter -> accept won't work now. Replace with accept function.
+            LocatorFilterEntry filterEntry(nullptr, name);
+            filterEntry.displayIcon = info->icon();
+            filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
+            filterEntry.extraInfo = extraInfo;
+            if (match.hasMatch()) {
+                filterEntry.highlightInfo = highlightInfo(match,
+                            LocatorFilterEntry::HighlightInfo::DisplayName);
+            } else {
+                match = regexp.match(extraInfo);
+                filterEntry.highlightInfo =
+                    highlightInfo(match, LocatorFilterEntry::HighlightInfo::ExtraInfo);
+            }
+
+            if (betterMatch)
+                betterEntries.append({filterEntry, info});
+            else
+                goodEntries.append({filterEntry, info});
+        }
+    }
+
+    // entries are unsorted by design!
+    betterEntries += goodEntries;
+
+    QHash<QString, QList<Entry>> possibleDuplicates;
+    for (const Entry &e : std::as_const(betterEntries))
+        possibleDuplicates[e.info->scopedSymbolName() + e.info->symbolType()] << e;
+    for (auto it = possibleDuplicates.cbegin(); it != possibleDuplicates.cend(); ++it) {
+        const QList<Entry> &duplicates = it.value();
+        if (duplicates.size() == 1)
+            continue;
+        QList<Entry> declarations;
+        QList<Entry> definitions;
+        for (const Entry &candidate : duplicates) {
+            const IndexItem::Ptr info = candidate.info;
+            if (info->type() != IndexItem::Function)
+                break;
+            if (info->isFunctionDefinition())
+                definitions << candidate;
+            else
+                declarations << candidate;
+        }
+        if (definitions.size() == 1
+            && declarations.size() + definitions.size() == duplicates.size()) {
+            for (const Entry &decl : std::as_const(declarations)) {
+                Utils::erase(betterEntries, [&decl](const Entry &e) {
+                    return e.info == decl.info;
+                });
+            }
+        }
+    }
+    promise.addResult(Utils::transform(betterEntries,
+                                       [](const Entry &entry) { return entry.entry; }));
+}
+
+FilePath currentFileName()
+{
+    IEditor *currentEditor = EditorManager::currentEditor();
+    return currentEditor ? currentEditor->document()->filePath() : FilePath();
+}
+
+LocatorMatcherTask cppCurrentDocumentMatcher()
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorMatcherTask::Storage> storage;
+
+    const auto onSetup = [=](AsyncTask<LocatorMatcherTask::OutputData> &async) {
+        async.setFutureSynchronizer(Internal::CppEditorPlugin::futureSynchronizer());
+        async.setConcurrentCallData(matchesForCurrentDocument, storage->input, currentFileName());
+    };
+    const auto onDone = [storage](const AsyncTask<LocatorMatcherTask::OutputData> &async) {
+        if (async.isResultAvailable())
+            storage->output = async.result();
+    };
+    return {Async<LocatorMatcherTask::OutputData>(onSetup, onDone, onDone), storage};
 }
 
 CppLocatorFilter::CppLocatorFilter()

@@ -52,7 +52,7 @@ void CppCurrentDocumentFilter::makeAuxiliary()
 }
 
 QList<LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
-        QFutureInterface<LocatorFilterEntry> &future, const QString & entry)
+        QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
     const QRegularExpression regexp = createRegExp(entry);
     if (!regexp.isValid())
@@ -180,7 +180,7 @@ QList<IndexItem::Ptr> CppCurrentDocumentFilter::itemsOfCurrentDocument()
         const Snapshot snapshot = m_modelManager->snapshot();
         if (const Document::Ptr thisDocument = snapshot.document(m_currentFileName)) {
             IndexItem::Ptr rootNode = search(thisDocument);
-            rootNode->visitAllChildren([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
+            rootNode->visitAllChildren([&](const IndexItem::Ptr &info) {
                 m_itemsOfCurrentDoc.append(info);
                 return IndexItem::Recurse;
             });
