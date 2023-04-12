@@ -306,12 +306,12 @@ static const RunConfiguration *runConfigForNode(const Target *target, const Proj
 
 static bool hideBuildMenu()
 {
-    return Core::ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_BUILD, false).toBool();
+    return ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_BUILD, false).toBool();
 }
 
 static bool hideDebugMenu()
 {
-    return Core::ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_DEBUG, false).toBool();
+    return ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_DEBUG, false).toBool();
 }
 
 static bool canOpenTerminalWithRunEnv(const Project *project, const ProjectNode *node)
@@ -408,13 +408,13 @@ protected:
     void restoreState(const QJsonObject &object) override;
 };
 
-class RunConfigurationLocatorFilter : public Core::ILocatorFilter
+class RunConfigurationLocatorFilter : public ILocatorFilter
 {
 public:
     RunConfigurationLocatorFilter();
 
     void prepareSearch(const QString &entry) override;
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                                const QString &entry) override;
 protected:
     using RunAcceptor = std::function<void(RunConfiguration *)>;
@@ -422,7 +422,7 @@ protected:
 
 private:
     void targetListUpdated();
-    QList<Core::LocatorFilterEntry> m_result;
+    QList<LocatorFilterEntry> m_result;
     RunAcceptor m_acceptor;
 };
 
@@ -489,7 +489,7 @@ public:
     void deleteFile();
     void handleRenameFile();
     void handleSetStartupProject();
-    void setStartupProject(ProjectExplorer::Project *project);
+    void setStartupProject(Project *project);
     bool closeAllFilesInProject(const Project *project);
 
     void updateRecentProjectMenu();
@@ -501,11 +501,11 @@ public:
     void openTerminalHere(const EnvironmentGetter &env);
     void openTerminalHereWithRunEnv();
 
-    void invalidateProject(ProjectExplorer::Project *project);
+    void invalidateProject(Project *project);
 
-    void projectAdded(ProjectExplorer::Project *pro);
-    void projectRemoved(ProjectExplorer::Project *pro);
-    void projectDisplayNameChanged(ProjectExplorer::Project *pro);
+    void projectAdded(Project *pro);
+    void projectRemoved(Project *pro);
+    void projectDisplayNameChanged(Project *pro);
 
     void doUpdateRunActions();
 
@@ -744,7 +744,7 @@ static void openProjectsInDirectory(const FilePath &filePath)
 {
     const FilePaths projectFiles = projectsInDirectory(filePath);
     if (!projectFiles.isEmpty())
-        Core::ICore::openFiles(projectFiles);
+        ICore::openFiles(projectFiles);
 }
 
 static QStringList projectNames(const QVector<FolderNode *> &folders)
@@ -767,7 +767,7 @@ static QVector<FolderNode *> renamableFolderNodes(const FilePath &before, const 
     return folderNodes;
 }
 
-static QVector<FolderNode *> removableFolderNodes(const Utils::FilePath &filePath)
+static QVector<FolderNode *> removableFolderNodes(const FilePath &filePath)
 {
     QVector<FolderNode *> folderNodes;
     ProjectTree::forEachNode([&](Node *node) {
@@ -1611,7 +1611,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     Command * const expandCmd = ActionManager::registerAction(
                 dd->m_projectTreeExpandAllAction, Constants::PROJECTTREE_EXPAND_ALL,
                 projectTreeContext);
-    for (Core::ActionContainer * const ac : {mfileContextMenu, msubProjectContextMenu,
+    for (ActionContainer * const ac : {mfileContextMenu, msubProjectContextMenu,
          mfolderContextMenu, mprojectContextMenu, msessionContextMenu}) {
         ac->addSeparator(treeGroup);
         ac->addAction(expandNodeCmd, treeGroup);
@@ -1714,7 +1714,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     if (tmp < 0 || tmp > int(StopBeforeBuild::SameApp))
         tmp = int(defaultSettings.stopBeforeBuild);
     dd->m_projectExplorerSettings.stopBeforeBuild = StopBeforeBuild(tmp);
-    dd->m_projectExplorerSettings.terminalMode = static_cast<ProjectExplorer::TerminalMode>(
+    dd->m_projectExplorerSettings.terminalMode = static_cast<TerminalMode>(
         s->value(Constants::TERMINAL_MODE_SETTINGS_KEY, int(defaultSettings.terminalMode)).toInt());
     dd->m_projectExplorerSettings.closeSourceFilesWithProject
         = s->value(Constants::CLOSE_FILES_WITH_PROJECT_SETTINGS_KEY,
@@ -2128,13 +2128,13 @@ void ProjectExplorerPlugin::extensionsInitialized()
                          Tr::tr("Sanitizer", "Category for sanitizer issues listed under 'Issues'"));
     TaskHub::addCategory(Constants::TASK_CATEGORY_TASKLIST_ID, Tr::tr("My Tasks"));
 
-    SshSettings::loadSettings(Core::ICore::settings());
+    SshSettings::loadSettings(ICore::settings());
     const auto searchPathRetriever = [] {
-        FilePaths searchPaths = {Core::ICore::libexecPath()};
+        FilePaths searchPaths = {ICore::libexecPath()};
         if (HostOsInfo::isWindowsHost()) {
-            const QString gitBinary = Core::ICore::settings()->value("Git/BinaryPath", "git")
+            const QString gitBinary = ICore::settings()->value("Git/BinaryPath", "git")
                     .toString();
-            const QStringList rawGitSearchPaths = Core::ICore::settings()->value("Git/Path")
+            const QStringList rawGitSearchPaths = ICore::settings()->value("Git/Path")
                     .toString().split(':', Qt::SkipEmptyParts);
             const FilePaths gitSearchPaths = Utils::transform(rawGitSearchPaths,
                     [](const QString &rawPath) { return FilePath::fromString(rawPath); });
@@ -2914,10 +2914,9 @@ void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
                               "The file \"%1\" was renamed to \"%2\", "
                               "but the following projects could not be automatically changed: %3")
                               .arg(before.toUserOutput(), after.toUserOutput(), projects);
-                    QTimer::singleShot(0, Core::ICore::instance(), [errorMessage] {
-                        QMessageBox::warning(Core::ICore::dialogParent(),
-                                             Tr::tr("Project Editing Failed"),
-                                             errorMessage);
+                    QTimer::singleShot(0, ICore::instance(), [errorMessage] {
+                        QMessageBox::warning(ICore::dialogParent(),
+                                             Tr::tr("Project Editing Failed"), errorMessage);
                     });
                 }
             });
@@ -2935,8 +2934,8 @@ void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
                     const QString errorMessage
                         = Tr::tr("The following projects failed to automatically remove the file: %1")
                               .arg(projects);
-                    QTimer::singleShot(0, Core::ICore::instance(), [errorMessage] {
-                        QMessageBox::warning(Core::ICore::dialogParent(),
+                    QTimer::singleShot(0, ICore::instance(), [errorMessage] {
+                        QMessageBox::warning(ICore::dialogParent(),
                                              Tr::tr("Project Editing Failed"),
                                              errorMessage);
                     });
@@ -3583,9 +3582,7 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
                                   : Tr::tr("%1 in %2").arg(li.displayName).arg(li.path.toUserOutput());
         auto *action = new QAction(displayName, nullptr);
         connect(action, &QAction::triggered, this, [line, path] {
-            Core::EditorManager::openEditorAt(Link(path, line),
-                                              {},
-                                              Core::EditorManager::AllowExternalEditor);
+            EditorManager::openEditorAt(Link(path, line), {}, EditorManager::AllowExternalEditor);
         });
 
         projectMenu->addAction(action);
@@ -3884,7 +3881,7 @@ void ProjectExplorerPluginPrivate::removeFile()
 
     if (!siblings.isEmpty()) {
         const QMessageBox::StandardButton reply = QMessageBox::question(
-                    Core::ICore::dialogParent(), Tr::tr("Remove More Files?"),
+                    ICore::dialogParent(), Tr::tr("Remove More Files?"),
                     Tr::tr("Remove these files as well?\n    %1")
                     .arg(Utils::transform<QStringList>(siblings, [](const NodeAndPath &np) {
             return np.second.fileName();
@@ -4245,7 +4242,7 @@ void ProjectExplorerPlugin::updateActions()
 
 void ProjectExplorerPlugin::activateProjectPanel(Id panelId)
 {
-    Core::ModeManager::activateMode(Constants::MODE_SESSION);
+    ModeManager::activateMode(Constants::MODE_SESSION);
     dd->m_proWindow->activateProjectPanel(panelId);
 }
 
@@ -4274,9 +4271,8 @@ RecentProjectsEntries ProjectExplorerPlugin::recentProjects()
     return dd->recentProjects();
 }
 
-void ProjectExplorerPlugin::renameFilesForSymbol(
-        const QString &oldSymbolName, const QString &newSymbolName, const Utils::FilePaths &files,
-        bool preferLowerCaseFileNames)
+void ProjectExplorerPlugin::renameFilesForSymbol(const QString &oldSymbolName,
+        const QString &newSymbolName, const FilePaths &files, bool preferLowerCaseFileNames)
 {
     static const auto isAllLowerCase = [](const QString &text) { return text.toLower() == text; };
 
@@ -4427,8 +4423,8 @@ void RunConfigurationLocatorFilter::prepareSearch(const QString &entry)
     }
 }
 
-QList<Core::LocatorFilterEntry> RunConfigurationLocatorFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+QList<LocatorFilterEntry> RunConfigurationLocatorFilter::matchesFor(
+        QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
     Q_UNUSED(future)
     Q_UNUSED(entry)
@@ -4464,9 +4460,9 @@ SwitchToRunConfigurationLocatorFilter::SwitchToRunConfigurationLocatorFilter()
         ProjectManager::startupTarget()->setActiveRunConfiguration(config);
         QTimer::singleShot(200, ICore::mainWindow(), [displayName = config->displayName()] {
             if (auto ks = ICore::mainWindow()->findChild<QWidget *>("KitSelector.Button")) {
-                Utils::ToolTip::show(ks->mapToGlobal(QPoint{25, 25}),
-                                     Tr::tr("Switched run configuration to\n%1").arg(displayName),
-                                     ICore::dialogParent());
+                ToolTip::show(ks->mapToGlobal(QPoint{25, 25}),
+                              Tr::tr("Switched run configuration to\n%1").arg(displayName),
+                              ICore::dialogParent());
             }
         });
     });
