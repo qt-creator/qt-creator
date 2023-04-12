@@ -27,10 +27,11 @@
 #include <texteditor/texteditorconstants.h>
 #include <qmljseditor/qmljseditordocument.h>
 
-#include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljs/qmljsreformatter.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
+#include <utils/uniqueobjectptr.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsreformatter.h>
 
 #include <QDebug>
 #include <QPair>
@@ -78,15 +79,16 @@ void TextEditorView::modelAttached(Model *model)
 
     AbstractView::modelAttached(model);
 
-    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(
-                QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate());
+    auto textEditor = Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor>(
+        static_cast<TextEditor::BaseTextEditor *>(
+            QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate()));
 
     // Set the context of the text editor, but we add another special context to override shortcuts.
     Core::Context context = textEditor->context();
     context.prepend(TEXTEDITOR_CONTEXT_ID);
     m_textEditorContext->setContext(context);
 
-    m_widget->setTextEditor(textEditor);
+    m_widget->setTextEditor(std::move(textEditor));
 }
 
 void TextEditorView::modelAboutToBeDetached(Model *model)

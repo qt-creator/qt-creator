@@ -45,6 +45,25 @@ struct UniqueObjectPtrDeleter
     }
 };
 
+template<typename Type>
+struct UniqueObjectPtrLateDeleter
+{
+    using pointer = UniqueObjectInternalPointer<Type>;
+
+    constexpr UniqueObjectPtrLateDeleter() noexcept = default;
+    template<typename UpType, typename = std::enable_if_t<std::is_convertible_v<UpType *, Type *>>>
+    constexpr UniqueObjectPtrLateDeleter(const UniqueObjectPtrLateDeleter<UpType> &) noexcept
+    {}
+
+    constexpr void operator()(pointer p) const
+    {
+        static_assert(!std::is_void_v<Type>, "can't delete pointer to incomplete type");
+        static_assert(sizeof(Type) > 0, "can't delete pointer to incomplete type");
+
+        p->deleteLater();
+    }
+};
+
 } // namespace Internal
 
 template<typename Type>
@@ -54,5 +73,14 @@ template<typename Type, typename... Arguments>
 auto makeUniqueObjectPtr(Arguments &&...arguments)
 {
     return UniqueObjectPtr<Type>{new Type(std::forward<Arguments>(arguments)...)};
+}
+
+template<typename Type>
+using UniqueObjectLatePtr = std::unique_ptr<Type, Internal::UniqueObjectPtrLateDeleter<Type>>;
+
+template<typename Type, typename... Arguments>
+auto makeUniqueObjectLatePtr(Arguments &&...arguments)
+{
+    return UniqueObjectLatePtr<Type>{new Type(std::forward<Arguments>(arguments)...)};
 }
 } // namespace Utils

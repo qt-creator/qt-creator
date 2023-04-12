@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "texteditorwidget.h"
+#include "utils/uniqueobjectptr.h"
 
 #include <texteditorstatusbar.h>
 #include <texteditorview.h>
@@ -51,34 +52,30 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView)
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_TEXTEDITOR_TIME);
 }
 
-void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
+void TextEditorWidget::setTextEditor(Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor> textEditor)
 {
-    TextEditor::BaseTextEditor *oldEditor = m_textEditor.release();
-    m_textEditor.reset(textEditor);
+    std::swap(m_textEditor, textEditor);
 
-    if (textEditor) {
+    if (m_textEditor) {
         m_layout->insertWidget(0, textEditor->editorWidget());
 
-        setFocusProxy(textEditor->editorWidget());
+        setFocusProxy(m_textEditor->editorWidget());
 
-        QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(textEditor);
+        QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(m_textEditor.get());
 
-        connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged, this, [this] {
+        connect(m_textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged, this, [this] {
             // Cursor position is changed by rewriter
             if (!m_blockCursorSelectionSynchronisation)
                 m_updateSelectionTimer.start();
         });
 
-        textEditor->editorWidget()->installEventFilter(this);
+        m_textEditor->editorWidget()->installEventFilter(this);
 
         static QString styleSheet = Theme::replaceCssColors(
             QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
-        textEditor->editorWidget()->verticalScrollBar()->setStyleSheet(styleSheet);
-        textEditor->editorWidget()->horizontalScrollBar()->setStyleSheet(styleSheet);
+        m_textEditor->editorWidget()->verticalScrollBar()->setStyleSheet(styleSheet);
+        m_textEditor->editorWidget()->horizontalScrollBar()->setStyleSheet(styleSheet);
     }
-
-    if (oldEditor)
-        oldEditor->deleteLater();
 }
 
 void TextEditorWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
