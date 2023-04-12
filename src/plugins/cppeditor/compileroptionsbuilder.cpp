@@ -130,6 +130,7 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     undefineCppLanguageFeatureMacrosForMsvc2015();
     addDefineFunctionMacrosMsvc();
     addDefineFunctionMacrosQnx();
+    addQtMacros();
 
     addHeaderPathOptions();
 
@@ -784,6 +785,12 @@ void CompilerOptionsBuilder::addDefineFunctionMacrosQnx()
     // have these operators. This makes the code model happy and doesn't produce errors.
     if (m_projectPart.toolchainType == Qnx::Constants::QNX_TOOLCHAIN_ID)
         addMacros({{"_LIBCPP_HAS_NO_BUILTIN_OPERATOR_NEW_DELETE"}});
+}
+
+void CompilerOptionsBuilder::addQtMacros()
+{
+    if (m_projectPart.qtVersion != QtMajorVersion::None)
+        addMacros({{"QT_ANNOTATE_FUNCTION(x)", "__attribute__((annotate(#x)))"}});
 }
 
 void CompilerOptionsBuilder::reset()

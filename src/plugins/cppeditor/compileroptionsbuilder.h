@@ -62,6 +62,7 @@ public:
     void undefineClangVersionMacrosForMsvc();
 
     void addDefineFunctionMacrosQnx();
+    void addQtMacros();
 
     // Add custom options
     void add(const QString &arg, bool gccOnlyOption = false);
