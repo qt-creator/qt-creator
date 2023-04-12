@@ -120,9 +120,18 @@ Item {
         font.pixelSize: 12
         font.family: "SF Pro"
 
-        ToolTip.text: root.tooltip
-        ToolTip.visible: mouseArea.containsMouse
-        ToolTip.delay: 1000
+        ToolTip {
+            id: toolTipBox
+            text: root.tooltip
+            visible: mouseArea.containsMouse
+            delay: 1000
+
+            MouseArea {
+                anchors.fill: parent
+                anchors.margins: -toolTipBox.padding
+                onClicked: (mouseEvent) => mouseArea.clicked(mouseEvent)
+            }
+        }
     }
 
     MouseArea {
