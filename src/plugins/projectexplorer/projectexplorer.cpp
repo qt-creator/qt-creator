@@ -408,6 +408,7 @@ protected:
     void restoreState(const QJsonObject &object) override;
 };
 
+// TODO: Remove the base class
 class RunConfigurationLocatorFilter : public ILocatorFilter
 {
 public:
@@ -416,8 +417,8 @@ public:
     void prepareSearch(const QString &entry) override;
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                                const QString &entry) override;
-protected:
     using RunAcceptor = std::function<void(RunConfiguration *)>;
+protected:
     void setRunAcceptor(const RunAcceptor &acceptor) { m_acceptor = acceptor; }
 
 private:
@@ -426,16 +427,24 @@ private:
     RunAcceptor m_acceptor;
 };
 
+// TODO: Don't derive, flatten the hierarchy
 class RunRunConfigurationLocatorFilter final : public RunConfigurationLocatorFilter
 {
 public:
     RunRunConfigurationLocatorFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
+// TODO: Don't derive, flatten the hierarchy
 class SwitchToRunConfigurationLocatorFilter final : public RunConfigurationLocatorFilter
 {
 public:
     SwitchToRunConfigurationLocatorFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
 class ProjectExplorerPluginPrivate : public QObject
@@ -4401,6 +4410,40 @@ static RunConfiguration *runConfigurationForDisplayName(const QString &displayNa
     });
 }
 
+static LocatorMatcherTasks runConfigurationMatchers(
+    const RunConfigurationLocatorFilter::RunAcceptor &acceptor)
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorStorage> storage;
+
+    const auto onSetup = [storage, acceptor] {
+        const QString input = storage->input();
+        const Target *target = ProjectManager::startupTarget();
+        if (!target)
+            return true;
+
+        LocatorFilterEntries entries;
+        for (auto rc : target->runConfigurations()) {
+            if (rc->displayName().contains(input, Qt::CaseInsensitive)) {
+                LocatorFilterEntry entry;
+                entry.displayName = rc->displayName();
+                entry.acceptor = [name = entry.displayName, acceptor = acceptor] {
+                    RunConfiguration *config = runConfigurationForDisplayName(name);
+                    if (!config)
+                        return AcceptResult();
+                    acceptor(config);
+                    return AcceptResult();
+                };
+                entries.append(entry);
+            }
+        }
+        storage->reportOutput(entries);
+        return true;
+    };
+    return {{Sync(onSetup), storage}};
+}
+
 void RunConfigurationLocatorFilter::prepareSearch(const QString &entry)
 {
     m_result.clear();
@@ -4436,6 +4479,12 @@ void RunConfigurationLocatorFilter::targetListUpdated()
     setEnabled(ProjectManager::startupProject()); // at least one project opened
 }
 
+static void runAcceptor(RunConfiguration *config)
+{
+    if (!BuildManager::isBuilding(config->project()))
+        ProjectExplorerPlugin::runRunConfiguration(config, Constants::NORMAL_RUN_MODE, true);
+}
+
 RunRunConfigurationLocatorFilter::RunRunConfigurationLocatorFilter()
 {
     setId("Run run configuration");
@@ -4443,9 +4492,23 @@ RunRunConfigurationLocatorFilter::RunRunConfigurationLocatorFilter()
     setDescription(Tr::tr("Runs a run configuration of the active project."));
     setDefaultShortcutString("rr");
     setPriority(Medium);
-    setRunAcceptor([](RunConfiguration *config) {
-        if (!BuildManager::isBuilding(config->project()))
-            ProjectExplorerPlugin::runRunConfiguration(config, Constants::NORMAL_RUN_MODE, true);
+    setRunAcceptor(&runAcceptor);
+}
+
+LocatorMatcherTasks RunRunConfigurationLocatorFilter::matchers()
+{
+    return runConfigurationMatchers(&runAcceptor);
+}
+
+static void switchAcceptor(RunConfiguration *config)
+{
+    ProjectManager::startupTarget()->setActiveRunConfiguration(config);
+    QTimer::singleShot(200, ICore::mainWindow(), [name = config->displayName()] {
+        if (auto ks = ICore::mainWindow()->findChild<QWidget *>("KitSelector.Button")) {
+            ToolTip::show(ks->mapToGlobal(QPoint{25, 25}),
+                          Tr::tr("Switched run configuration to\n%1").arg(name),
+                          ICore::dialogParent());
+        }
     });
 }
 
@@ -4456,16 +4519,12 @@ SwitchToRunConfigurationLocatorFilter::SwitchToRunConfigurationLocatorFilter()
     setDescription(Tr::tr("Switches the active run configuration of the active project."));
     setDefaultShortcutString("sr");
     setPriority(Medium);
-    setRunAcceptor([](RunConfiguration *config) {
-        ProjectManager::startupTarget()->setActiveRunConfiguration(config);
-        QTimer::singleShot(200, ICore::mainWindow(), [displayName = config->displayName()] {
-            if (auto ks = ICore::mainWindow()->findChild<QWidget *>("KitSelector.Button")) {
-                ToolTip::show(ks->mapToGlobal(QPoint{25, 25}),
-                              Tr::tr("Switched run configuration to\n%1").arg(displayName),
-                              ICore::dialogParent());
-            }
-        });
-    });
+    setRunAcceptor(&switchAcceptor);
+}
+
+LocatorMatcherTasks SwitchToRunConfigurationLocatorFilter::matchers()
+{
+    return runConfigurationMatchers(&switchAcceptor);
 }
 
 } // namespace ProjectExplorer
