@@ -5,7 +5,6 @@
 
 #include "../coreplugin.h"
 #include "../coreplugintr.h"
-#include "../editormanager/editormanager.h"
 
 #include <utils/asynctask.h>
 #include <utils/fuzzymatcher.h>
@@ -22,6 +21,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QRegularExpression>
+#include <QWaitCondition>
 
 #include <unordered_set>
 
@@ -61,29 +61,29 @@ class OutputDataProvider
 
     struct WorkingData {
         WorkingData() = default;
-        WorkingData(const LocatorMatcherTask::OutputData &entries, std::atomic<State> &state) {
+        WorkingData(const LocatorFilterEntries &entries, std::atomic<State> &state) {
             mergeWith(entries, state);
         }
-        LocatorMatcherTask::OutputData mergeWith(const LocatorMatcherTask::OutputData &entries,
-                                                 std::atomic<State> &state) {
-            LocatorMatcherTask::OutputData results;
+        LocatorFilterEntries mergeWith(const LocatorFilterEntries &entries,
+                                       std::atomic<State> &state) {
+            LocatorFilterEntries results;
             results.reserve(entries.size());
             for (const LocatorFilterEntry &entry : entries) {
                 if (state == State::Canceled)
-                    return LocatorMatcherTask::OutputData();
+                    return {};
                 const auto &link = entry.linkForEditor;
                 if (!link || m_cache.emplace(*link).second)
                     results.append(entry);
             }
             if (state == State::Canceled)
-                return LocatorMatcherTask::OutputData();
+                return {};
 
             m_data += results;
             return results;
         }
-        LocatorMatcherTask::OutputData entries() const { return m_data; }
+        LocatorFilterEntries entries() const { return m_data; }
     private:
-        LocatorMatcherTask::OutputData m_data;
+        LocatorFilterEntries m_data;
         std::unordered_set<Utils::Link> m_cache;
     };
 
@@ -93,7 +93,7 @@ public:
         , m_outputData(filterCount, {})
     {}
 
-    void addOutputData(int index, const LocatorMatcherTask::OutputData &outputData)
+    void addOutputData(int index, const LocatorFilterEntries &outputData)
     {
         QTC_ASSERT(index >= 0, return);
 
@@ -115,9 +115,9 @@ public:
     }
 
     // Called from separate thread (OutputFilter's thread)
-    void run(QPromise<LocatorMatcherTask::OutputData> &promise)
+    void run(QPromise<LocatorFilterEntries> &promise)
     {
-        QList<std::optional<LocatorMatcherTask::OutputData>> data;
+        QList<std::optional<LocatorFilterEntries>> data;
         QList<std::optional<WorkingData>> workingList(m_filterCount, {});
         while (waitForData(&data)) {
             // Emit new results only when new data is reachable from the beginning (i.e. no gaps)
@@ -137,13 +137,13 @@ public:
                 const auto &workingData = workingList.at(currentIndex);
                 if (!workingData.has_value()) {
                     const bool mergeToCurrent = currentIndex == mergeToIndex;
-                    const LocatorMatcherTask::OutputData dataForIndex = mergeToCurrent
-                        ? *outputData : LocatorMatcherTask::OutputData();
+                    const LocatorFilterEntries dataForIndex = mergeToCurrent ? *outputData
+                        : LocatorFilterEntries();
                     workingList[currentIndex] = std::make_optional(WorkingData(dataForIndex,
                                                                                m_state));
                     if (m_state == State::Canceled)
                         return;
-                    const LocatorMatcherTask::OutputData newData = mergeToCurrent
+                    const LocatorFilterEntries newData = mergeToCurrent
                         ? workingList[currentIndex]->entries()
                         : workingList[mergeToIndex]->mergeWith(*outputData, m_state);
                     if (m_state == State::Canceled)
@@ -151,7 +151,7 @@ public:
                     if (!hasGap && !newData.isEmpty())
                         promise.addResult(newData);
                 } else if (currentIndex != mergeToIndex) {
-                    const LocatorMatcherTask::OutputData newData
+                    const LocatorFilterEntries newData
                         = workingList[mergeToIndex]->mergeWith(workingData->entries(), m_state);
                     workingList[currentIndex] = std::make_optional<WorkingData>({});
                     if (m_state == State::Canceled)
@@ -168,7 +168,7 @@ public:
     }
 
 private:
-    bool waitForData(QList<std::optional<LocatorMatcherTask::OutputData>> *data)
+    bool waitForData(QList<std::optional<LocatorFilterEntries>> *data)
     {
         QMutexLocker locker(&m_mutex);
         if (m_state == State::Canceled)
@@ -191,7 +191,7 @@ private:
     QWaitCondition m_waitCondition;
     const int m_filterCount = 0;
     std::atomic<State> m_state = State::Awaiting;
-    QList<std::optional<LocatorMatcherTask::OutputData>> m_outputData;
+    QList<std::optional<LocatorFilterEntries>> m_outputData;
 };
 
 class OutputFilter : public QObject
@@ -202,18 +202,18 @@ public:
     ~OutputFilter();
     void setFilterCount(int count);
     // When last index is added it ends automatically (asynchronously)
-    void addOutputData(int index, const LocatorMatcherTask::OutputData &outputData);
+    void addOutputData(int index, const LocatorFilterEntries &outputData);
     void start();
 
     bool isRunning() const { return m_watcher.get(); }
 
 signals:
-    void serialOutputDataReady(const LocatorMatcherTask::OutputData &serialOutputData);
+    void serialOutputDataReady(const LocatorFilterEntries &serialOutputData);
     void done();
 
 private:
     int m_filterCount = 0;
-    std::unique_ptr<QFutureWatcher<LocatorMatcherTask::OutputData>> m_watcher;
+    std::unique_ptr<QFutureWatcher<LocatorFilterEntries>> m_watcher;
     std::shared_ptr<OutputDataProvider> m_dataProvider;
 };
 
@@ -234,7 +234,7 @@ void OutputFilter::setFilterCount(int count)
     m_filterCount = count;
 }
 
-void OutputFilter::addOutputData(int index, const LocatorMatcherTask::OutputData &outputData)
+void OutputFilter::addOutputData(int index, const LocatorFilterEntries &outputData)
 {
     QTC_ASSERT(isRunning(), return);
 
@@ -251,7 +251,7 @@ void OutputFilter::start()
     }
 
     m_dataProvider.reset(new OutputDataProvider(m_filterCount));
-    m_watcher.reset(new QFutureWatcher<LocatorMatcherTask::OutputData>);
+    m_watcher.reset(new QFutureWatcher<LocatorFilterEntries>);
     connect(m_watcher.get(), &QFutureWatcherBase::resultReadyAt, this, [this](int index) {
         emit serialOutputDataReady(m_watcher->resultAt(index));
     });
@@ -262,7 +262,7 @@ void OutputFilter::start()
     });
 
     // TODO: When filterCount == 1, deliver results directly and finish?
-    auto filter = [](QPromise<LocatorMatcherTask::OutputData> &promise,
+    auto filter = [](QPromise<LocatorFilterEntries> &promise,
                      const std::shared_ptr<OutputDataProvider> &dataProvider) {
         dataProvider->run(promise);
     };
@@ -303,7 +303,7 @@ void LocatorMatcher::setTasks(const QList<LocatorMatcherTask> &tasks)
     d->m_tasks = tasks;
 }
 
-void LocatorMatcher::setInputData(const LocatorMatcherTask::InputData &inputData)
+void LocatorMatcher::setInputData(const QString &inputData)
 {
     d->m_storage.input = inputData;
 }
@@ -331,7 +331,7 @@ void LocatorMatcher::start()
         filterStorage->m_filter = &filter;
         filter.setFilterCount(filterCount);
         connect(&filter, &OutputFilter::serialOutputDataReady,
-                this, [this](const LocatorMatcherTask::OutputData &serialOutputData) {
+                this, [this](const LocatorFilterEntries &serialOutputData) {
             d->m_storage.output += serialOutputData;
             emit serialOutputDataReady(serialOutputData);
         });
@@ -406,13 +406,13 @@ bool LocatorMatcher::isRunning() const
     return d->m_taskTree.get() && d->m_taskTree->isRunning();
 }
 
-LocatorMatcherTask::OutputData LocatorMatcher::outputData() const
+LocatorFilterEntries LocatorMatcher::outputData() const
 {
     return d->m_storage.output;
 }
 
-LocatorMatcherTask::OutputData LocatorMatcher::runBlocking(const QList<LocatorMatcherTask> &tasks,
-                               const LocatorMatcherTask::InputData &input, int parallelLimit)
+LocatorFilterEntries LocatorMatcher::runBlocking(const QList<LocatorMatcherTask> &tasks,
+                                                 const QString &input, int parallelLimit)
 {
     LocatorMatcher tree;
     tree.setTasks(tasks);

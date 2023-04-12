@@ -112,16 +112,16 @@ public:
     }
 };
 
+using LocatorFilterEntries = QList<LocatorFilterEntry>;
+
 class CORE_EXPORT LocatorMatcherTask final
 {
 public:
-    using InputData = QString;
-    using OutputData = QList<LocatorFilterEntry>;
     class Storage
     {
     public:
-        InputData input;
-        OutputData output;
+        QString input;
+        LocatorFilterEntries output;
     };
     // The main task. Initial data taken from storage.input field.
     // Results reporting is done through the storage.output field.
@@ -150,25 +150,24 @@ public:
     LocatorMatcher();
     ~LocatorMatcher();
     void setTasks(const QList<LocatorMatcherTask> &tasks);
-    void setInputData(const LocatorMatcherTask::InputData &inputData);
+    void setInputData(const QString &inputData);
     void setParallelLimit(int limit); // by default 0 = parallel
     void start();
     void stop();
 
     bool isRunning() const;
     // Total data collected so far, even when running.
-    LocatorMatcherTask::OutputData outputData() const;
+    LocatorFilterEntries outputData() const;
 
     // Note: Starts internal event loop.
-    static LocatorMatcherTask::OutputData runBlocking(const QList<LocatorMatcherTask> &tasks,
-                                                      const LocatorMatcherTask::InputData &input,
-                                                      int parallelLimit = 0);
+    static LocatorFilterEntries runBlocking(const QList<LocatorMatcherTask> &tasks,
+                                            const QString &input, int parallelLimit = 0);
 
     static void addMatcherCreator(MatcherType type, const LocatorMatcherTaskCreator &creator);
     static QList<LocatorMatcherTask> matchers(MatcherType type);
 
 signals:
-    void serialOutputDataReady(const LocatorMatcherTask::OutputData &serialOutputData);
+    void serialOutputDataReady(const LocatorFilterEntries &serialOutputData);
     void done(bool success);
 
 private:

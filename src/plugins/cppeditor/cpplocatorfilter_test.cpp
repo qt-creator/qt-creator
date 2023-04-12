@@ -53,7 +53,7 @@ public:
             return result;
         };
 
-        const QList<LocatorFilterEntry> entries = filter ? matchesFor(searchText) : runMatcher();
+        const LocatorFilterEntries entries = filter ? matchesFor(searchText) : runMatcher();
         const ResultDataList results = ResultData::fromFilterEntryList(entries);
         if (debug) {
             ResultData::printFilterEntries(expectedResults, "Expected:");
@@ -93,7 +93,7 @@ public:
             return result;
         };
 
-        const QList<LocatorFilterEntry> entries = matchers.isEmpty() ? matchesFor(searchText)
+        const LocatorFilterEntries entries = matchers.isEmpty() ? matchesFor(searchText)
                                                                      : runMatcher();
         ResultDataList results = ResultData::fromFilterEntryList(entries);
         if (debug) {

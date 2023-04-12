@@ -28,7 +28,7 @@ using namespace Utils;
 
 namespace LanguageClient {
 
-void filterResults(QPromise<LocatorMatcherTask::OutputData> &promise, Client *client,
+void filterResults(QPromise<LocatorFilterEntries> &promise, Client *client,
                    const QList<SymbolInformation> &results, const QList<SymbolKind> &filter)
 {
     const auto doFilter = [&](const SymbolInformation &info) {
@@ -71,7 +71,7 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
             *resultStorage = result->toList();
     };
 
-    const auto onFilterSetup = [=](AsyncTask<LocatorMatcherTask::OutputData> &async) {
+    const auto onFilterSetup = [=](AsyncTask<LocatorFilterEntries> &async) {
         const QList<SymbolInformation> results = *resultStorage;
         if (results.isEmpty())
             return TaskAction::StopWithDone;
@@ -79,7 +79,7 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
         async.setConcurrentCallData(filterResults, client, results, filter);
         return TaskAction::Continue;
     };
-    const auto onFilterDone = [storage](const AsyncTask<LocatorMatcherTask::OutputData> &async) {
+    const auto onFilterDone = [storage](const AsyncTask<LocatorFilterEntries> &async) {
         if (async.isResultAvailable())
             storage->output = async.result();
     };
@@ -87,7 +87,7 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
     const Group root {
         Storage(resultStorage),
         SymbolRequest(onQuerySetup, onQueryDone),
-        Async<LocatorMatcherTask::OutputData>(onFilterSetup, onFilterDone)
+        Async<LocatorFilterEntries>(onFilterSetup, onFilterDone)
     };
     return {root, storage};
 }

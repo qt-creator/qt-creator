@@ -599,7 +599,7 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
     using namespace Utils;
     if (m_completion == Completion::None)
         return;
-    const auto handleResults = [this, lineEdit](const QList<LocatorFilterEntry> &entries) {
+    const auto handleResults = [this, lineEdit](const LocatorFilterEntries &entries) {
         QSet<QString> namespaces;
         QStringList classes;
         Project * const project = ProjectTree::currentProject();
