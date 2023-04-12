@@ -28,6 +28,8 @@ public:
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;
 private:
+    LocatorMatcherTasks matchers() final;
+
     QStringList m_filterShortcutStrings;
     QStringList m_filterDisplayNames;
     QStringList m_filterDescriptions;

@@ -12,6 +12,8 @@
 
 Q_DECLARE_METATYPE(Core::ILocatorFilter*)
 
+using namespace Utils;
+
 namespace Core::Internal {
 
 LocatorFiltersFilter::LocatorFiltersFilter():
@@ -23,6 +25,48 @@ LocatorFiltersFilter::LocatorFiltersFilter():
     setHidden(true);
     setPriority(Highest);
     setConfigurable(false);
+}
+
+LocatorMatcherTasks LocatorFiltersFilter::matchers()
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorStorage> storage;
+
+    const auto onSetup = [=] {
+        if (!storage->input().isEmpty())
+            return true;
+
+        QMap<QString, ILocatorFilter *> uniqueFilters;
+        const QList<ILocatorFilter *> allFilters = Locator::filters();
+        for (ILocatorFilter *filter : allFilters) {
+            const QString filterId = filter->shortcutString() + ',' + filter->displayName();
+            uniqueFilters.insert(filterId, filter);
+        }
+
+        LocatorFilterEntries entries;
+        for (ILocatorFilter *filter : std::as_const(uniqueFilters)) {
+            const QString shortcutString = filter->shortcutString();
+            if (!shortcutString.isEmpty() && !filter->isHidden() && filter->isEnabled()) {
+                LocatorFilterEntry entry;
+                entry.displayName = shortcutString;
+                entry.acceptor = [shortcutString] {
+                    return AcceptResult{shortcutString + ' ', int(shortcutString.size() + 1)};
+                };
+                entry.displayIcon = m_icon;
+                entry.extraInfo = filter->displayName();
+                entry.toolTip = filter->description();
+                QString keyboardShortcut;
+                if (auto command = ActionManager::command(filter->actionId()))
+                    keyboardShortcut = command->keySequence().toString(QKeySequence::NativeText);
+                entry.displayExtra = keyboardShortcut;
+                entries.append(entry);
+            }
+        }
+        storage->reportOutput(entries);
+        return true;
+    };
+    return {{Sync(onSetup), storage}};
 }
 
 void LocatorFiltersFilter::prepareSearch(const QString &entry)
