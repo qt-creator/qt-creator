@@ -64,6 +64,37 @@ void FileSystemFilter::prepareSearch(const QString &entry)
     m_currentIncludeHidden = m_includeHidden;
 }
 
+static const char kAlwaysCreate[] = "Locator/FileSystemFilter/AlwaysCreate";
+
+static void createAndOpen(const FilePath &filePath)
+{
+    if (!filePath.exists()) {
+        if (CheckableMessageBox::shouldAskAgain(ICore::settings(), kAlwaysCreate)) {
+            CheckableMessageBox messageBox(ICore::dialogParent());
+            messageBox.setWindowTitle(Tr::tr("Create File"));
+            messageBox.setIcon(QMessageBox::Question);
+            messageBox.setText(Tr::tr("Create \"%1\"?").arg(filePath.shortNativePath()));
+            messageBox.setCheckBoxVisible(true);
+            messageBox.setCheckBoxText(Tr::tr("Always create"));
+            messageBox.setChecked(false);
+            messageBox.setStandardButtons(QDialogButtonBox::Cancel);
+            QPushButton *createButton = messageBox.addButton(Tr::tr("Create"),
+                                                             QDialogButtonBox::AcceptRole);
+            messageBox.setDefaultButton(QDialogButtonBox::Cancel);
+            messageBox.exec();
+            if (messageBox.clickedButton() != createButton)
+                return;
+            if (messageBox.isChecked())
+                CheckableMessageBox::doNotAskAgain(ICore::settings(), kAlwaysCreate);
+        }
+        QFile file(filePath.toFSPathString());
+        file.open(QFile::WriteOnly);
+        file.close();
+        VcsManager::promptToAdd(filePath.absolutePath(), {filePath});
+    }
+    EditorManager::openEditor(filePath);
+}
+
 QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                                        const QString &entry)
 {
@@ -112,7 +143,13 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
         const QRegularExpressionMatch match = regExp.match(dirString);
         if (match.hasMatch()) {
             const MatchLevel level = matchLevelFor(match, dirString);
-            LocatorFilterEntry filterEntry(this, dirString);
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = dirString;
+            filterEntry.acceptor = [this, dir] {
+                const QString value = shortcutString() + ' '
+                      + dir.absoluteFilePath().cleanPath().pathAppended("/").toUserOutput();
+                return AcceptResult{value, int(value.length())};
+            };
             filterEntry.filePath = dir;
             filterEntry.highlightInfo = highlightInfo(match);
 
@@ -132,7 +169,8 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
         const QRegularExpressionMatch match = regExp.match(fileString);
         if (match.hasMatch()) {
             const MatchLevel level = matchLevelFor(match, fileString);
-            LocatorFilterEntry filterEntry(this, fileString);
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = fileString;
             filterEntry.filePath = file;
             filterEntry.highlightInfo = highlightInfo(match);
             filterEntry.linkForEditor = Link(filterEntry.filePath, link.targetLine,
@@ -145,59 +183,18 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     const FilePath fullFilePath = directory / entryFileName;
     const bool containsWildcard = expandedEntry.contains('?') || expandedEntry.contains('*');
     if (!containsWildcard && !fullFilePath.exists() && directory.exists()) {
-        LocatorFilterEntry createAndOpen(this, Tr::tr("Create and Open \"%1\"").arg(expandedEntry));
-        createAndOpen.filePath = fullFilePath;
-        createAndOpen.extraInfo = directory.absoluteFilePath().shortNativePath();
-        entries[int(MatchLevel::Normal)].append(createAndOpen);
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName =  Tr::tr("Create and Open \"%1\"").arg(expandedEntry);
+        filterEntry.acceptor = [fullFilePath] {
+            QMetaObject::invokeMethod(EditorManager::instance(),
+                [fullFilePath] { createAndOpen(fullFilePath); }, Qt::QueuedConnection);
+            return AcceptResult();
+        };
+        filterEntry.filePath = fullFilePath;
+        filterEntry.extraInfo = directory.absoluteFilePath().shortNativePath();
+        entries[int(MatchLevel::Normal)].append(filterEntry);
     }
-
     return std::accumulate(std::begin(entries), std::end(entries), QList<LocatorFilterEntry>());
-}
-
-const char kAlwaysCreate[] = "Locator/FileSystemFilter/AlwaysCreate";
-
-void FileSystemFilter::accept(const LocatorFilterEntry &selection,
-                              QString *newText,
-                              int *selectionStart,
-                              int *selectionLength) const
-{
-    Q_UNUSED(selectionLength)
-    if (selection.filePath.isDir()) {
-        const QString value
-            = shortcutString() + ' '
-              + selection.filePath.absoluteFilePath().cleanPath().pathAppended("/").toUserOutput();
-        *newText = value;
-        *selectionStart = value.length();
-    } else {
-        // Don't block locator filter execution with dialog
-        QMetaObject::invokeMethod(EditorManager::instance(), [selection] {
-            if (!selection.filePath.exists()) {
-                if (CheckableMessageBox::shouldAskAgain(ICore::settings(), kAlwaysCreate)) {
-                    CheckableMessageBox messageBox(ICore::dialogParent());
-                    messageBox.setWindowTitle(Tr::tr("Create File"));
-                    messageBox.setIcon(QMessageBox::Question);
-                    messageBox.setText(Tr::tr("Create \"%1\"?").arg(selection.filePath.shortNativePath()));
-                    messageBox.setCheckBoxVisible(true);
-                    messageBox.setCheckBoxText(Tr::tr("Always create"));
-                    messageBox.setChecked(false);
-                    messageBox.setStandardButtons(QDialogButtonBox::Cancel);
-                    QPushButton *createButton = messageBox.addButton(Tr::tr("Create"),
-                                                                     QDialogButtonBox::AcceptRole);
-                    messageBox.setDefaultButton(QDialogButtonBox::Cancel);
-                    messageBox.exec();
-                    if (messageBox.clickedButton() != createButton)
-                        return;
-                    if (messageBox.isChecked())
-                        CheckableMessageBox::doNotAskAgain(ICore::settings(), kAlwaysCreate);
-                }
-                QFile file(selection.filePath.toFSPathString());
-                file.open(QFile::WriteOnly);
-                file.close();
-                VcsManager::promptToAdd(selection.filePath.absolutePath(), {selection.filePath});
-            }
-            EditorManager::openEditor(selection);
-        }, Qt::QueuedConnection);
-    }
 }
 
 class FileSystemFilterOptions : public QDialog
