@@ -22,7 +22,10 @@ namespace Utils::Tasking { class TaskItem; }
 
 namespace Core {
 
-namespace Internal { class Locator; }
+namespace Internal {
+class Locator;
+class LocatorWidget;
+}
 
 class ILocatorFilter;
 class LocatorStoragePrivate;
@@ -279,6 +282,7 @@ private:
     virtual LocatorMatcherTasks matchers() { return {}; }
 
     friend class Internal::Locator;
+    friend class Internal::LocatorWidget;
     static const QList<ILocatorFilter *> allLocatorFilters();
 
     Utils::Id m_id;

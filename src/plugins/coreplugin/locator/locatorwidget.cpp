@@ -17,6 +17,7 @@
 #include <utils/algorithm.h>
 #include <utils/asynctask.h>
 #include <utils/appmainwindow.h>
+#include <utils/environment.h>
 #include <utils/fancylineedit.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/highlightingitemdelegate.h>
@@ -52,6 +53,8 @@ const int LocatorEntryRole = int(HighlightingItemRole::User);
 
 namespace Core {
 namespace Internal {
+
+static bool isUsingLocatorMatcher() { return qtcEnvironmentVariableIsSet("QTC_USE_MATCHER"); }
 
 bool LocatorWidget::m_shuttingDown = false;
 QFuture<void> LocatorWidget::m_sharedFuture;
@@ -917,10 +920,79 @@ void LocatorWidget::setProgressIndicatorVisible(bool visible)
     m_progressIndicator->show();
 }
 
+void LocatorWidget::runMatcher(const QString &text)
+{
+    QString searchText;
+    const QList<ILocatorFilter *> filters = filtersFor(text, searchText);
+
+    LocatorMatcherTasks tasks;
+    for (ILocatorFilter *filter : filters)
+        tasks += filter->matchers();
+
+    m_locatorMatcher.reset(new LocatorMatcher);
+    m_locatorMatcher->setTasks(tasks);
+    m_locatorMatcher->setInputData(searchText);
+
+    connect(m_locatorMatcher.get(), &LocatorMatcher::done, this, [this] {
+        m_showProgressTimer.stop();
+        setProgressIndicatorVisible(false);
+        m_updateRequested = false;
+        m_locatorMatcher.release()->deleteLater();
+        if (m_rowRequestedForAccept) {
+            acceptEntry(m_rowRequestedForAccept.value());
+            m_rowRequestedForAccept.reset();
+            return;
+        }
+        if (m_needsClearResult) {
+            m_locatorModel->clear();
+            m_needsClearResult = false;
+        }
+    });
+    connect(m_locatorMatcher.get(), &LocatorMatcher::serialOutputDataReady,
+            this, [this](const LocatorFilterEntries &serialOutputData) {
+        if (m_needsClearResult) {
+            m_locatorModel->clear();
+            m_needsClearResult = false;
+        }
+        const bool selectFirst = m_locatorModel->rowCount() == 0;
+        m_locatorModel->addEntries(serialOutputData);
+        if (selectFirst) {
+            emit selectRow(0);
+            if (m_rowRequestedForAccept)
+                m_rowRequestedForAccept = 0;
+        }
+    });
+
+    m_showProgressTimer.start();
+    m_needsClearResult = true;
+    m_updateRequested = true;
+    m_locatorMatcher->start();
+}
+
+// TODO: Remove when switched the default into new implementation.
+static void printMatcherInfo()
+{
+    static bool printed = false;
+    if (printed)
+        return;
+    if (isUsingLocatorMatcher())
+        qDebug() << "QTC_USE_MATCHER env var set, using new LocatorMatcher implementation.";
+    else
+        qDebug() << "QTC_USE_MATCHER env var not set, using old matchesFor implementation.";
+    printed = true;
+}
+
 void LocatorWidget::updateCompletionList(const QString &text)
 {
     if (m_shuttingDown)
         return;
+
+    printMatcherInfo();
+
+    if (isUsingLocatorMatcher()) {
+        runMatcher(text);
+        return;
+    }
 
     m_updateRequested = true;
     if (m_sharedFuture.isRunning()) {
@@ -987,7 +1059,10 @@ void LocatorWidget::scheduleAcceptEntry(const QModelIndex &index)
         // accept will be called after the update finished
         m_rowRequestedForAccept = index.row();
         // do not wait for the rest of the search to finish
-        m_entriesWatcher->future().cancel();
+        if (isUsingLocatorMatcher())
+            m_locatorMatcher.reset();
+        else
+            m_entriesWatcher->future().cancel();
     } else {
         acceptEntry(index.row());
     }
