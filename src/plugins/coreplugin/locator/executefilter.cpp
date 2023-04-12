@@ -39,6 +39,43 @@ ExecuteFilter::~ExecuteFilter()
     removeProcess();
 }
 
+LocatorMatcherTasks ExecuteFilter::matchers()
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorStorage> storage;
+
+    const auto onSetup = [=] {
+        const QString input = storage->input();
+        LocatorFilterEntries entries;
+        if (!input.isEmpty()) { // avoid empty entry
+            LocatorFilterEntry entry;
+            entry.displayName = input;
+            entry.acceptor = [this, input] { acceptCommand(input); return AcceptResult(); };
+            entries.append(entry);
+        }
+        LocatorFilterEntries others;
+        const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(input);
+        for (const QString &cmd : std::as_const(m_commandHistory)) {
+            if (cmd == input) // avoid repeated entry
+                continue;
+            LocatorFilterEntry entry;
+            entry.displayName = cmd;
+            entry.acceptor = [this, cmd] { acceptCommand(cmd); return AcceptResult(); };
+            const int index = cmd.indexOf(input, 0, entryCaseSensitivity);
+            if (index >= 0) {
+                entry.highlightInfo = {index, int(input.length())};
+                entries.append(entry);
+            } else {
+                others.append(entry);
+            }
+        }
+        storage->reportOutput(entries + others);
+        return true;
+    };
+    return {{Sync(onSetup), storage}};
+}
+
 void ExecuteFilter::acceptCommand(const QString &cmd)
 {
     const QString displayName = cmd.trimmed();
