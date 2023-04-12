@@ -80,14 +80,7 @@ public:
 
     LocatorFilterEntry() = default;
 
-    LocatorFilterEntry(ILocatorFilter *fromFilter, const QString &name)
-        : filter(fromFilter)
-        , displayName(name)
-    {}
-
     using Acceptor = std::function<AcceptResult()>;
-    /* backpointer to creating filter */
-    ILocatorFilter *filter = nullptr;
     /* displayed string */
     QString displayName;
     /* extra information displayed in parentheses and light-gray next to display name (optional)*/

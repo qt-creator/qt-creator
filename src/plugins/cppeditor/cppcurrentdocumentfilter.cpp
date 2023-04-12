@@ -88,7 +88,8 @@ QList<LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
                 }
             }
 
-            LocatorFilterEntry filterEntry(this, name);
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = name;
             filterEntry.displayIcon = info->icon();
             filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
             filterEntry.extraInfo = extraInfo;

@@ -153,7 +153,8 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         QRegularExpressionMatch match = regexp.match(matchText);
 
         if (match.hasMatch()) {
-            LocatorFilterEntry filterEntry(this, path.fileName());
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = path.fileName();
             filterEntry.filePath = path;
             filterEntry.extraInfo = path.shortNativePath();
             filterEntry.linkForEditor = Link(path, link.targetLine, link.targetColumn);

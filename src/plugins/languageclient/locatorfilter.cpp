@@ -38,8 +38,6 @@ void filterResults(QPromise<LocatorMatcherTask::OutputData> &promise, Client *cl
         : Utils::filtered(results, doFilter);
     const auto generateEntry = [client](const SymbolInformation &info) {
         LocatorFilterEntry entry;
-        // TODO: Passing nullptr for filter -> accept won't work now. Replace with accept function.
-        entry.filter = nullptr;
         entry.displayName = info.name();
         if (std::optional<QString> container = info.containerName())
             entry.extraInfo = container.value_or(QString());
@@ -170,11 +168,9 @@ void DocumentLocatorFilter::resetSymbols()
 }
 
 static LocatorFilterEntry generateLocatorEntry(const SymbolInformation &info,
-                                               ILocatorFilter *filter,
                                                DocumentUri::PathMapper pathMapper)
 {
     LocatorFilterEntry entry;
-    entry.filter = filter;
     entry.displayName = info.name();
     if (std::optional<QString> container = info.containerName())
         entry.extraInfo = container.value_or(QString());
@@ -190,7 +186,7 @@ QList<LocatorFilterEntry> DocumentLocatorFilter::entriesForSymbolsInfo(
     QList<LocatorFilterEntry> entries;
     for (const SymbolInformation &info : infoList) {
         if (regexp.match(info.name()).hasMatch())
-            entries << LanguageClient::generateLocatorEntry(info, this, m_pathMapper);
+            entries << LanguageClient::generateLocatorEntry(info, m_pathMapper);
     }
     return entries;
 }
@@ -228,7 +224,6 @@ QList<LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
                                            const LocatorFilterEntry &parent) {
         Q_UNUSED(parent)
         LocatorFilterEntry entry;
-        entry.filter = this;
         entry.displayName = info.name();
         if (std::optional<QString> detail = info.detail())
             entry.extraInfo = detail.value_or(QString());
@@ -362,8 +357,8 @@ QList<LocatorFilterEntry> WorkspaceLocatorFilter::matchesFor(
             return m_filterKinds.contains(SymbolKind(info.symbol.kind()));
         });
     }
-    auto generateEntry = [this](const SymbolInfoWithPathMapper &info) {
-        return generateLocatorEntry(info.symbol, this, info.mapper);
+    auto generateEntry = [](const SymbolInfoWithPathMapper &info) {
+        return generateLocatorEntry(info.symbol, info.mapper);
     };
     return Utils::transform(m_results, generateEntry).toList();
 }

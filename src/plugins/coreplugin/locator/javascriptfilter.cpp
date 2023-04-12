@@ -75,7 +75,12 @@ QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
                 };
             };
             const QString expression = entry + " = " + result;
-            entries.append({this, expression});
+
+            LocatorFilterEntry entry;
+            entry.displayName = expression;
+            entry.acceptor = [] { return AcceptResult(); };
+            entries.append(entry);
+
             LocatorFilterEntry resultEntry;
             resultEntry.displayName = Tr::tr("Copy to clipboard: %1").arg(result);
             resultEntry.acceptor = acceptor(result);

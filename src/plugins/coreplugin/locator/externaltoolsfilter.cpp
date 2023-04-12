@@ -66,7 +66,8 @@ void ExternalToolsFilter::prepareSearch(const QString &entry)
                 goodEntries.append(filterEntry);
         }
     }
-    LocatorFilterEntry configEntry(this, "Configure External Tool...");
+    LocatorFilterEntry configEntry;
+    configEntry.displayName = "Configure External Tool...";
     configEntry.extraInfo = "Opens External Tool settings";
     configEntry.acceptor = [] {
         QMetaObject::invokeMethod(CorePlugin::instance(), [] {

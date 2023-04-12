@@ -221,7 +221,6 @@ private:
         const auto docSymbolGenerator = [&](const DocumentSymbol &info,
                                             const LocatorFilterEntry &parent) {
             LocatorFilterEntry entry;
-            entry.filter = this;
             entry.displayName = ClangdClient::displayNameFromDocumentSymbol(
                 static_cast<SymbolKind>(info.kind()), info.name(),
                 info.detail().value_or(QString()));

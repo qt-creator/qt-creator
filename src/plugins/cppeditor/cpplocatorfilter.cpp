@@ -119,8 +119,8 @@ LocatorMatcherTask locatorMatcher(IndexItem::ItemType type, const EntryFromIndex
 LocatorMatcherTask cppAllSymbolsMatcher()
 {
     const auto converter = [](const IndexItem::Ptr &info) {
-        // TODO: Passing nullptr for filter -> accept won't work now. Replace with accept function.
-        LocatorFilterEntry filterEntry(nullptr, info->scopedSymbolName());
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName = info->scopedSymbolName();
         filterEntry.displayIcon = info->icon();
         filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
         if (info->type() == IndexItem::Class || info->type() == IndexItem::Enum)
@@ -135,8 +135,8 @@ LocatorMatcherTask cppAllSymbolsMatcher()
 LocatorMatcherTask cppClassMatcher()
 {
     const auto converter = [](const IndexItem::Ptr &info) {
-        // TODO: Passing nullptr for filter -> accept won't work now. Replace with accept function.
-        LocatorFilterEntry filterEntry(nullptr, info->symbolName());
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName = info->symbolName();
         filterEntry.displayIcon = info->icon();
         filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
         filterEntry.extraInfo = info->symbolScope().isEmpty()
@@ -158,8 +158,8 @@ LocatorMatcherTask cppFunctionMatcher()
             extraInfo = info->shortNativeFilePath();
         else
             extraInfo.append(" (" + info->filePath().fileName() + ')');
-        // TODO: Passing nullptr for filter -> accept won't work now. Replace with accept function.
-        LocatorFilterEntry filterEntry(nullptr, name + info->symbolType());
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName = name + info->symbolType();
         filterEntry.displayIcon = info->icon();
         filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
         filterEntry.extraInfo = extraInfo;
@@ -237,8 +237,8 @@ void matchesForCurrentDocument(QPromise<LocatorMatcherTask::OutputData> &promise
                 }
             }
 
-            // TODO: Passing nullptr for filter -> accept won't work now. Replace with accept function.
-            LocatorFilterEntry filterEntry(nullptr, name);
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = name;
             filterEntry.displayIcon = info->icon();
             filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
             filterEntry.extraInfo = extraInfo;
@@ -326,7 +326,8 @@ CppLocatorFilter::CppLocatorFilter()
 
 LocatorFilterEntry CppLocatorFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
-    LocatorFilterEntry filterEntry(this, info->scopedSymbolName());
+    LocatorFilterEntry filterEntry;
+    filterEntry.displayName = info->scopedSymbolName();
     filterEntry.displayIcon = info->icon();
     filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
     if (info->type() == IndexItem::Class || info->type() == IndexItem::Enum)
@@ -423,7 +424,8 @@ CppClassesFilter::CppClassesFilter()
 
 LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
-    LocatorFilterEntry filterEntry(this, info->symbolName());
+    LocatorFilterEntry filterEntry;
+    filterEntry.displayName = info->symbolName();
     filterEntry.displayIcon = info->icon();
     filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
     filterEntry.extraInfo = info->symbolScope().isEmpty()
@@ -453,7 +455,8 @@ LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr i
         extraInfo.append(" (" + info->filePath().fileName() + ')');
     }
 
-    LocatorFilterEntry filterEntry(this, name + info->symbolType());
+    LocatorFilterEntry filterEntry;
+    filterEntry.displayName = name + info->symbolType();
     filterEntry.displayIcon = info->icon();
     filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
     filterEntry.extraInfo = extraInfo;
