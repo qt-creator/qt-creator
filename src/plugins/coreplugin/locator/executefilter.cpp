@@ -39,12 +39,54 @@ ExecuteFilter::~ExecuteFilter()
     removeProcess();
 }
 
-QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
-                                             const QString &entry)
+void ExecuteFilter::acceptCommand(const QString &cmd)
 {
-    QList<LocatorFilterEntry> value;
-    if (!entry.isEmpty()) // avoid empty entry
-        value.append(LocatorFilterEntry(this, entry));
+    const QString displayName = cmd.trimmed();
+    const int index = m_commandHistory.indexOf(displayName);
+    if (index != -1 && index != 0)
+        m_commandHistory.removeAt(index);
+    if (index != 0)
+        m_commandHistory.prepend(displayName);
+    static const int maxHistory = 100;
+    while (m_commandHistory.size() > maxHistory)
+        m_commandHistory.removeLast();
+
+    bool found;
+    QString workingDirectory = globalMacroExpander()->value("CurrentDocument:Path", &found);
+    if (!found || workingDirectory.isEmpty())
+        workingDirectory = globalMacroExpander()->value("CurrentDocument:Project:Path", &found);
+
+    const ExecuteData data{CommandLine::fromUserInput(displayName, globalMacroExpander()),
+                           FilePath::fromString(workingDirectory)};
+    if (m_process) {
+        const QString info(Tr::tr("Previous command is still running (\"%1\").\n"
+                                  "Do you want to kill it?").arg(headCommand()));
+        const auto result = QMessageBox::question(ICore::dialogParent(),
+                                                  Tr::tr("Kill Previous Process?"), info,
+                                                  QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                                  QMessageBox::Yes);
+        if (result == QMessageBox::Cancel)
+            return;
+        if (result == QMessageBox::No) {
+            m_taskQueue.enqueue(data);
+            return;
+        }
+        removeProcess();
+    }
+    m_taskQueue.enqueue(data);
+    runHeadCommand();
+}
+
+QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+                                                    const QString &entry)
+{
+    QList<LocatorFilterEntry> results;
+    if (!entry.isEmpty()) { // avoid empty entry
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName = entry;
+        filterEntry.acceptor = [this, entry] { acceptCommand(entry); return AcceptResult(); };
+        results.append(filterEntry);
+    }
     QList<LocatorFilterEntry> others;
     const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
     for (const QString &cmd : std::as_const(m_commandHistory)) {
@@ -52,64 +94,19 @@ QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilt
             break;
         if (cmd == entry) // avoid repeated entry
             continue;
-        LocatorFilterEntry filterEntry(this, cmd);
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName = cmd;
+        filterEntry.acceptor = [this, cmd] { acceptCommand(cmd); return AcceptResult(); };
         const int index = cmd.indexOf(entry, 0, entryCaseSensitivity);
         if (index >= 0) {
             filterEntry.highlightInfo = {index, int(entry.length())};
-            value.append(filterEntry);
+            results.append(filterEntry);
         } else {
             others.append(filterEntry);
         }
     }
-    value.append(others);
-    return value;
-}
-
-void ExecuteFilter::accept(const LocatorFilterEntry &selection,
-                           QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    auto p = const_cast<ExecuteFilter *>(this);
-
-    const QString value = selection.displayName.trimmed();
-
-    const int index = m_commandHistory.indexOf(value);
-    if (index != -1 && index != 0)
-        p->m_commandHistory.removeAt(index);
-    if (index != 0)
-        p->m_commandHistory.prepend(value);
-    static const int maxHistory = 100;
-    while (p->m_commandHistory.size() > maxHistory)
-        p->m_commandHistory.removeLast();
-
-    bool found;
-    QString workingDirectory = Utils::globalMacroExpander()->value("CurrentDocument:Path", &found);
-    if (!found || workingDirectory.isEmpty())
-        workingDirectory = Utils::globalMacroExpander()->value("CurrentDocument:Project:Path", &found);
-
-    ExecuteData d;
-    d.command = CommandLine::fromUserInput(value, Utils::globalMacroExpander());
-    d.workingDirectory = FilePath::fromString(workingDirectory);
-
-    if (m_process) {
-        const QString info(Tr::tr("Previous command is still running (\"%1\").\nDo you want to kill it?")
-                           .arg(p->headCommand()));
-        int r = QMessageBox::question(ICore::dialogParent(), Tr::tr("Kill Previous Process?"), info,
-                                      QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
-                                      QMessageBox::Yes);
-        if (r == QMessageBox::Cancel)
-            return;
-        if (r == QMessageBox::No) {
-            p->m_taskQueue.enqueue(d);
-            return;
-        }
-        p->removeProcess();
-    }
-
-    p->m_taskQueue.enqueue(d);
-    p->runHeadCommand();
+    results.append(others);
+    return results;
 }
 
 void ExecuteFilter::done()
@@ -163,8 +160,8 @@ void ExecuteFilter::createProcess()
     if (m_process)
         return;
 
-    m_process = new Utils::QtcProcess;
-    m_process->setEnvironment(Utils::Environment::systemEnvironment());
+    m_process = new QtcProcess;
+    m_process->setEnvironment(Environment::systemEnvironment());
     connect(m_process, &QtcProcess::done, this, &ExecuteFilter::done);
     connect(m_process, &QtcProcess::readyReadStandardOutput, this, &ExecuteFilter::readStandardOutput);
     connect(m_process, &QtcProcess::readyReadStandardError, this, &ExecuteFilter::readStandardError);

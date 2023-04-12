@@ -31,10 +31,8 @@ public:
     ~ExecuteFilter() override;
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;
-    void accept(const LocatorFilterEntry &selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
-
 private:
+    void acceptCommand(const QString &cmd);
     void done();
     void readStandardOutput();
     void readStandardError();
