@@ -6,6 +6,7 @@
 #include "texteditortr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/tasktree.h>
 
 using namespace Core;
 using namespace Utils;
@@ -22,6 +23,50 @@ LineNumberFilter::LineNumberFilter(QObject *parent)
     setPriority(High);
     setDefaultShortcutString("l");
     setDefaultIncludedByDefault(true);
+}
+
+LocatorMatcherTasks LineNumberFilter::matchers()
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorStorage> storage;
+
+    const auto onSetup = [=] {
+        const QStringList lineAndColumn = storage->input().split(':');
+        int sectionCount = lineAndColumn.size();
+        int line = 0;
+        int column = 0;
+        bool ok = false;
+        if (sectionCount > 0)
+            line = lineAndColumn.at(0).toInt(&ok);
+        if (ok && sectionCount > 1)
+            column = lineAndColumn.at(1).toInt(&ok);
+        if (!ok)
+            return true;
+        if (EditorManager::currentEditor() && (line > 0 || column > 0)) {
+            QString text;
+            if (line > 0 && column > 0)
+                text = Tr::tr("Line %1, Column %2").arg(line).arg(column);
+            else if (line > 0)
+                text = Tr::tr("Line %1").arg(line);
+            else
+                text = Tr::tr("Column %1").arg(column);
+            LocatorFilterEntry entry;
+            entry.displayName = text;
+            entry.acceptor = [line, targetColumn = column - 1] {
+                IEditor *editor = EditorManager::currentEditor();
+                if (!editor)
+                    return AcceptResult();
+                EditorManager::addCurrentPositionToNavigationHistory();
+                editor->gotoLine(line < 1 ? editor->currentLine() : line, targetColumn);
+                EditorManager::activateEditor(editor);
+                return AcceptResult();
+            };
+            storage->reportOutput({entry});
+        }
+        return true;
+    };
+    return {{Sync(onSetup), storage}};
 }
 
 void LineNumberFilter::prepareSearch(const QString &entry)
