@@ -155,7 +155,7 @@ private:
     void addText(const QString &txt, QPainter *painter = nullptr)
     {
         if (txt.size()) {
-            int textWidth = fm.boundingRect(txt).width();
+            int textWidth = fm.horizontalAdvance(txt);
             QSize itemSize = {textWidth, defaultHeight};
             if (painter) {
                 static const QTextOption textOption(Qt::AlignLeft | Qt::AlignVCenter);
