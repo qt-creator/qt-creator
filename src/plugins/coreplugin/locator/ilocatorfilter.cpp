@@ -517,24 +517,6 @@ std::optional<Utils::Tasking::TaskItem> ILocatorFilter::refreshRecipe() const
 }
 
 /*!
-    Called with the entry specified by \a selection when the user activates it
-    in the result list.
-    Implementations can return a new search term \a newText, which has \a selectionLength characters
-    starting from \a selectionStart preselected, and the cursor set to the end of the selection.
-
-    The default implementation tries to open an editor for \a selections's linkForEditor,
-    if it exists.
-*/
-void ILocatorFilter::accept(const LocatorFilterEntry &selection, QString *newText,
-                            int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    EditorManager::openEditor(selection);
-}
-
-/*!
     Sets the default \a shortcut string that can be used to explicitly choose
     this filter in the locator input field. Call for example from the
     constructor of subclasses.

@@ -1018,15 +1018,9 @@ void LocatorWidget::acceptEntry(int row)
         return;
     const LocatorFilterEntry entry = m_locatorModel->data(index, LocatorEntryRole).value<LocatorFilterEntry>();
     QWidget *focusBeforeAccept = QApplication::focusWidget();
-    AcceptResult result;
-    if (entry.acceptor) {
-        result = entry.acceptor();
-    } else if (entry.filter) {
-        entry.filter->accept(entry, &result.newText, &result.selectionStart,
-                             &result.selectionLength);
-    } else {
+    if (!entry.acceptor)
         EditorManager::openEditor(entry);
-    }
+    const AcceptResult result = entry.acceptor ? entry.acceptor() : AcceptResult();
     if (result.newText.isEmpty()) {
         emit hidePopup();
         if (QApplication::focusWidget() == focusBeforeAccept)
