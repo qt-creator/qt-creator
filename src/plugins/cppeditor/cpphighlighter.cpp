@@ -161,10 +161,8 @@ void CppHighlighter::highlightBlock(const QString &text)
         } else if (tk.is(T_NUMERIC_LITERAL)) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_NUMBER));
         } else if (tk.isStringLiteral() || tk.isCharLiteral()) {
-            if (!highlightRawStringLiteral(text, tk, QString::fromUtf8(inheritedRawStringSuffix))) {
-                setFormatWithSpaces(text, tk.utf16charsBegin(), tk.utf16chars(),
-                                    formatForCategory(C_STRING));
-            }
+            if (!highlightRawStringLiteral(text, tk, QString::fromUtf8(inheritedRawStringSuffix)))
+                highlightStringLiteral(text, tk);
         } else if (tk.isComment()) {
             const int startPosition = initialLexerState ? previousTokenEnd : tk.utf16charsBegin();
             if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)) {
@@ -413,8 +411,18 @@ bool CppHighlighter::highlightRawStringLiteral(QStringView text, const Token &tk
         stringOffset = delimiterOffset + delimiter.length() + 1;
         stringLength -= delimiter.length() + 1;
     }();
-    if (text.mid(tk.utf16charsBegin(), tk.utf16chars()).endsWith(expectedSuffix)) {
-        endDelimiterOffset = tk.utf16charsBegin() + tk.utf16chars() - expectedSuffix.size();
+    int operatorOffset = tk.utf16charsBegin() + tk.utf16chars();
+    int operatorLength = 0;
+    if (tk.f.userDefinedLiteral) {
+        const int closingQuoteOffset = text.lastIndexOf('"', operatorOffset);
+        QTC_ASSERT(closingQuoteOffset >= tk.utf16charsBegin(), return false);
+        operatorOffset = closingQuoteOffset + 1;
+        operatorLength = tk.utf16charsBegin() + tk.utf16chars() - operatorOffset;
+        stringLength -= operatorLength;
+    }
+    if (text.mid(tk.utf16charsBegin(), operatorOffset - tk.utf16charsBegin())
+            .endsWith(expectedSuffix)) {
+        endDelimiterOffset = operatorOffset - expectedSuffix.size();
         stringLength -= expectedSuffix.size();
     }
 
@@ -422,11 +430,50 @@ bool CppHighlighter::highlightRawStringLiteral(QStringView text, const Token &tk
     //             a string, and the rest (including the delimiter) as a keyword.
     const QTextCharFormat delimiterFormat = formatForCategory(C_KEYWORD);
     if (delimiterOffset != -1)
-        setFormat(tk.utf16charsBegin(), stringOffset, delimiterFormat);
+        setFormat(tk.utf16charsBegin(), stringOffset - tk.utf16charsBegin(), delimiterFormat);
     setFormatWithSpaces(text.toString(), stringOffset, stringLength, formatForCategory(C_STRING));
     if (endDelimiterOffset != -1)
         setFormat(endDelimiterOffset, expectedSuffix.size(), delimiterFormat);
+    if (operatorLength > 0)
+        setFormat(operatorOffset, operatorLength, formatForCategory(C_OPERATOR));
     return true;
+}
+
+void CppHighlighter::highlightStringLiteral(QStringView text, const CPlusPlus::Token &tk)
+{
+    switch (tk.kind()) {
+    case T_WIDE_STRING_LITERAL:
+    case T_UTF8_STRING_LITERAL:
+    case T_UTF16_STRING_LITERAL:
+    case T_UTF32_STRING_LITERAL:
+        break;
+    default:
+        if (!tk.userDefinedLiteral()) { // Simple case: No prefix, no suffix.
+            setFormatWithSpaces(text.toString(), tk.utf16charsBegin(), tk.utf16chars(),
+                                formatForCategory(C_STRING));
+            return;
+        }
+    }
+
+    int stringOffset = 0;
+    if (!tk.f.joined) {
+        stringOffset = text.indexOf('"', tk.utf16charsBegin());
+        QTC_ASSERT(stringOffset > 0, return);
+        setFormat(tk.utf16charsBegin(), stringOffset - tk.utf16charsBegin(),
+                  formatForCategory(C_KEYWORD));
+    }
+    int operatorOffset = tk.utf16charsBegin() + tk.utf16chars();
+    if (tk.userDefinedLiteral()) {
+        const int closingQuoteOffset = text.lastIndexOf('"', operatorOffset);
+        QTC_ASSERT(closingQuoteOffset >= tk.utf16charsBegin(), return);
+        operatorOffset = closingQuoteOffset + 1;
+    }
+    setFormatWithSpaces(text.toString(), stringOffset, operatorOffset - tk.utf16charsBegin(),
+                        formatForCategory(C_STRING));
+    if (const int operatorLength = tk.utf16charsBegin() + tk.utf16chars() - operatorOffset;
+        operatorLength > 0) {
+        setFormat(operatorOffset, operatorLength, formatForCategory(C_OPERATOR));
+    }
 }
 
 void CppHighlighter::highlightDoxygenComment(const QString &text, int position, int)
@@ -514,6 +561,32 @@ void CppHighlighterTest::test_data()
     QTest::newRow("operator keyword") << 26 << 5 << 26 << 12 << C_KEYWORD;
     QTest::newRow("type in conversion operator") << 26 << 14 << 26 << 16 << C_PRIMITIVE_TYPE;
     QTest::newRow("concept keyword") << 29 << 22 << 29 << 28 << C_KEYWORD;
+    QTest::newRow("user-defined UTF-16 string literal (prefix)")
+        << 32 << 16 << 32 << 16 << C_KEYWORD;
+    QTest::newRow("user-defined UTF-16 string literal (content)")
+        << 32 << 17 << 32 << 21 << C_STRING;
+    QTest::newRow("user-defined UTF-16 string literal (suffix)")
+        << 32 << 22 << 32 << 23 << C_OPERATOR;
+    QTest::newRow("wide string literal (prefix)") << 33 << 17 << 33 << 17 << C_KEYWORD;
+    QTest::newRow("wide string literal (content)") << 33 << 18 << 33 << 24 << C_STRING;
+    QTest::newRow("UTF-8 string literal (prefix)") << 34 << 17 << 34 << 18 << C_KEYWORD;
+    QTest::newRow("UTF-8 string literal (content)") << 34 << 19 << 34 << 24 << C_STRING;
+    QTest::newRow("UTF-32 string literal (prefix)") << 35 << 17 << 35 << 17 << C_KEYWORD;
+    QTest::newRow("UTF-8 string literal (content)") << 35 << 18 << 35 << 23 << C_STRING;
+    QTest::newRow("user-defined UTF-16 raw string literal (prefix)")
+        << 36 << 17 << 36 << 20 << C_KEYWORD;
+    QTest::newRow("user-defined UTF-16 raw string literal (content)")
+        << 36 << 38 << 37 << 8 << C_STRING;
+    QTest::newRow("user-defined UTF-16 raw string literal (suffix 1)")
+        << 37 << 9 << 37 << 10 << C_KEYWORD;
+    QTest::newRow("user-defined UTF-16 raw string literal (suffix 2)")
+        << 37 << 11 << 37 << 12 << C_OPERATOR;
+    QTest::newRow("multi-line user-defined UTF-16 string literal (prefix)")
+        << 38 << 17 << 38 << 17 << C_KEYWORD;
+    QTest::newRow("multi-line user-defined UTF-16 string literal (content)")
+        << 38 << 18 << 39 << 3 << C_STRING;
+    QTest::newRow("multi-line user-defined UTF-16 string literal (suffix)")
+        << 39 << 4 << 39 << 5 << C_OPERATOR;
 }
 
 void CppHighlighterTest::test()

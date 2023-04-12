@@ -27,3 +27,13 @@ struct ConversionFunction {
 };
 
 template<typename T> concept NoConstraint = true;
+
+const char16_t *operator ""_w(const char16_t *s, size_t) { return s; }
+const auto s = u"one"_w;
+const auto s2 = L"hello";
+const auto s3 = u8"hello";
+const auto s4 = U"hello";
+const auto s5 = uR"("o
+     ne")"_w;
+const auto s6 = u"o\
+ne"_w;
