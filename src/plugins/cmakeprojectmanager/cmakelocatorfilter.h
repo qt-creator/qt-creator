@@ -15,22 +15,21 @@ public:
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) final;
+protected:
+    using BuildAcceptor = std::function<void(const Utils::FilePath &, const QString &)>;
+    void setBuildAcceptor(const BuildAcceptor &acceptor) { m_acceptor = acceptor; }
 
 private:
     void projectListUpdated();
 
     QList<Core::LocatorFilterEntry> m_result;
+    BuildAcceptor m_acceptor;
 };
 
 class BuildCMakeTargetLocatorFilter : CMakeTargetLocatorFilter
 {
 public:
     BuildCMakeTargetLocatorFilter();
-
-    void accept(const Core::LocatorFilterEntry &selection,
-                QString *newText,
-                int *selectionStart,
-                int *selectionLength) const final;
 };
 
 class OpenCMakeTargetLocatorFilter : CMakeTargetLocatorFilter
