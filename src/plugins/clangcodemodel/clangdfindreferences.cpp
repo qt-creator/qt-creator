@@ -595,6 +595,19 @@ static Usage::Tags getUsageType(const ClangdAstPath &path, const QString &search
                     tags |= Usage::Tag::Operator;
                 }
             }
+            if (pathIt->kind() == "CXXMethod") {
+                const ClangdAstNode &classNode = *std::next(pathIt);
+                if (classNode.hasChild([&](const ClangdAstNode &n) {
+                    if (n.kind() != "StaticAssert")
+                        return false;
+                    return n.hasChild([&](const ClangdAstNode &n) {
+                        return n.arcanaContains("Q_PROPERTY"); }, true)
+                           && n.hasChild([&](const ClangdAstNode &n) {
+                                  return n.arcanaContains(" " + searchTerm); }, true);
+                    }, false)) {
+                    tags |= Usage::Tag::MocInvokable;
+                }
+            }
             return tags;
         }
         if (pathIt->kind() == "MemberInitializer")

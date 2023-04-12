@@ -77,6 +77,7 @@ public:
 
     bool childContainsRange(int index, const LanguageServerProtocol::Range &range) const;
     bool hasChildWithRole(const QString &role) const;
+    bool hasChild(const std::function<bool(const ClangdAstNode &child)> &predicate, bool recursive) const;
     QString operatorString() const;
 
     enum class FileStatus { Ours, Foreign, Mixed, Unknown };

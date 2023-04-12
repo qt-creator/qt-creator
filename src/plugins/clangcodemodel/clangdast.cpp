@@ -172,6 +172,20 @@ bool ClangdAstNode::hasChildWithRole(const QString &role) const
                            [&role](const ClangdAstNode &c) { return c.role() == role; });
 }
 
+bool ClangdAstNode::hasChild(const std::function<bool(const ClangdAstNode &)> &predicate,
+                             bool recursive) const
+{
+    std::function<bool(const ClangdAstNode &)> fullPredicate = predicate;
+    if (recursive) {
+        fullPredicate = [&predicate](const ClangdAstNode &n) {
+            if (predicate(n))
+                return true;
+            return n.hasChild(predicate, true);
+        };
+    }
+    return Utils::contains(children().value_or(QList<ClangdAstNode>()), fullPredicate);
+}
+
 QString ClangdAstNode::operatorString() const
 {
     if (kind() == "BinaryOperator")
