@@ -7,6 +7,7 @@
 
 namespace CMakeProjectManager::Internal {
 
+// TODO: Remove the base class
 class CMakeTargetLocatorFilter : public Core::ILocatorFilter
 {
 public:
@@ -15,8 +16,8 @@ public:
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) final;
-protected:
     using BuildAcceptor = std::function<void(const Utils::FilePath &, const QString &)>;
+protected:
     void setBuildAcceptor(const BuildAcceptor &acceptor) { m_acceptor = acceptor; }
 
 private:
@@ -26,16 +27,24 @@ private:
     BuildAcceptor m_acceptor;
 };
 
+// TODO: Don't derive, flatten the hierarchy
 class BuildCMakeTargetLocatorFilter : CMakeTargetLocatorFilter
 {
 public:
     BuildCMakeTargetLocatorFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
+// TODO: Don't derive, flatten the hierarchy
 class OpenCMakeTargetLocatorFilter : CMakeTargetLocatorFilter
 {
 public:
     OpenCMakeTargetLocatorFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
 } // CMakeProjectManager::Internal
