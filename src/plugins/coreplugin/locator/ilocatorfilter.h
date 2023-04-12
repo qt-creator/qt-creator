@@ -132,7 +132,8 @@ public:
     Utils::Tasking::TreeStorage<Storage> storage;
 };
 
-using LocatorMatcherTaskCreator = std::function<QList<LocatorMatcherTask>()>;
+using LocatorMatcherTasks = QList<LocatorMatcherTask>;
+using LocatorMatcherTaskCreator = std::function<LocatorMatcherTasks()>;
 class LocatorMatcherPrivate;
 
 enum class MatcherType {
@@ -149,7 +150,7 @@ class CORE_EXPORT LocatorMatcher final : public QObject
 public:
     LocatorMatcher();
     ~LocatorMatcher();
-    void setTasks(const QList<LocatorMatcherTask> &tasks);
+    void setTasks(const LocatorMatcherTasks &tasks);
     void setInputData(const QString &inputData);
     void setParallelLimit(int limit); // by default 0 = parallel
     void start();
@@ -160,11 +161,11 @@ public:
     LocatorFilterEntries outputData() const;
 
     // Note: Starts internal event loop.
-    static LocatorFilterEntries runBlocking(const QList<LocatorMatcherTask> &tasks,
+    static LocatorFilterEntries runBlocking(const LocatorMatcherTasks &tasks,
                                             const QString &input, int parallelLimit = 0);
 
     static void addMatcherCreator(MatcherType type, const LocatorMatcherTaskCreator &creator);
-    static QList<LocatorMatcherTask> matchers(MatcherType type);
+    static LocatorMatcherTasks matchers(MatcherType type);
 
 signals:
     void serialOutputDataReady(const LocatorFilterEntries &serialOutputData);

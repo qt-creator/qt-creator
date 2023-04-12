@@ -287,7 +287,7 @@ namespace Core {
 class LocatorMatcherPrivate
 {
 public:
-    QList<LocatorMatcherTask> m_tasks;
+    LocatorMatcherTasks m_tasks;
     LocatorMatcherTask::Storage m_storage;
     int m_parallelLimit = 0;
     std::unique_ptr<TaskTree> m_taskTree;
@@ -298,7 +298,7 @@ LocatorMatcher::LocatorMatcher()
 
 LocatorMatcher::~LocatorMatcher() = default;
 
-void LocatorMatcher::setTasks(const QList<LocatorMatcherTask> &tasks)
+void LocatorMatcher::setTasks(const LocatorMatcherTasks &tasks)
 {
     d->m_tasks = tasks;
 }
@@ -411,7 +411,7 @@ LocatorFilterEntries LocatorMatcher::outputData() const
     return d->m_storage.output;
 }
 
-LocatorFilterEntries LocatorMatcher::runBlocking(const QList<LocatorMatcherTask> &tasks,
+LocatorFilterEntries LocatorMatcher::runBlocking(const LocatorMatcherTasks &tasks,
                                                  const QString &input, int parallelLimit)
 {
     LocatorMatcher tree;
@@ -435,10 +435,10 @@ void LocatorMatcher::addMatcherCreator(MatcherType type, const LocatorMatcherTas
     s_matcherCreators[type].append(creator);
 }
 
-QList<LocatorMatcherTask> LocatorMatcher::matchers(MatcherType type)
+LocatorMatcherTasks LocatorMatcher::matchers(MatcherType type)
 {
     const QList<LocatorMatcherTaskCreator> creators = s_matcherCreators.value(type);
-    QList<LocatorMatcherTask> result;
+    LocatorMatcherTasks result;
     for (const LocatorMatcherTaskCreator &creator : creators)
         result << creator();
     return result;

@@ -209,7 +209,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     using WorkspaceMatcherCreator = std::function<Core::LocatorMatcherTask(Client *, int)>;
     const auto matcherCreator = [](const WorkspaceMatcherCreator &creator) {
         const QList<Client *> clients = clientsForOpenProjects();
-        QList<LocatorMatcherTask> matchers;
+        LocatorMatcherTasks matchers;
         for (Client *client : clients)
             matchers << creator(client, 10000);
         return matchers;
