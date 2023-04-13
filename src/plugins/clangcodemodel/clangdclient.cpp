@@ -364,8 +364,10 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
 {
     setName(Tr::tr("clangd"));
     LanguageFilter langFilter;
-    langFilter.mimeTypes = QStringList{"text/x-chdr", "text/x-csrc",
-            "text/x-c++hdr", "text/x-c++src", "text/x-objc++src", "text/x-objcsrc"};
+    using namespace CppEditor::Constants;
+    langFilter.mimeTypes = QStringList{C_HEADER_MIMETYPE, C_SOURCE_MIMETYPE,
+            CPP_HEADER_MIMETYPE, CPP_SOURCE_MIMETYPE, OBJECTIVE_CPP_SOURCE_MIMETYPE,
+            OBJECTIVE_C_SOURCE_MIMETYPE, CUDA_SOURCE_MIMETYPE};
     setSupportedLanguage(langFilter);
     setActivateDocumentAutomatically(true);
     setCompletionAssistProvider(new ClangdCompletionAssistProvider(this));
