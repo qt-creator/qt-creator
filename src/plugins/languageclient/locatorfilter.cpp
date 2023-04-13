@@ -28,12 +28,14 @@ using namespace Utils;
 
 namespace LanguageClient {
 
-void filterResults(QPromise<LocatorFilterEntries> &promise, Client *client,
+void filterResults(QPromise<void> &promise, const LocatorStorage &storage, Client *client,
                    const QList<SymbolInformation> &results, const QList<SymbolKind> &filter)
 {
     const auto doFilter = [&](const SymbolInformation &info) {
         return filter.contains(SymbolKind(info.kind()));
     };
+    if (promise.isCanceled())
+        return;
     const QList<SymbolInformation> filteredResults = filter.isEmpty() ? results
         : Utils::filtered(results, doFilter);
     const auto generateEntry = [client](const SymbolInformation &info) {
@@ -45,7 +47,7 @@ void filterResults(QPromise<LocatorFilterEntries> &promise, Client *client,
         entry.linkForEditor = info.location().toLink(client->hostPathMapper());
         return entry;
     };
-    promise.addResult(Utils::transform(filteredResults, generateEntry));
+    storage.reportOutput(Utils::transform(filteredResults, generateEntry));
 }
 
 LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
@@ -53,13 +55,13 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorMatcherTask::Storage> storage;
+    TreeStorage<LocatorStorage> storage;
     TreeStorage<QList<SymbolInformation>> resultStorage;
 
     const auto onQuerySetup = [=](WorkspaceSymbolRequestTask &request) {
         request.setClient(client);
         WorkspaceSymbolParams params;
-        params.setQuery(storage->input);
+        params.setQuery(storage->input());
         if (maxResultCount > 0)
             params.setLimit(maxResultCount);
         request.setParams(params);
@@ -71,23 +73,19 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
             *resultStorage = result->toList();
     };
 
-    const auto onFilterSetup = [=](AsyncTask<LocatorFilterEntries> &async) {
+    const auto onFilterSetup = [=](AsyncTask<void> &async) {
         const QList<SymbolInformation> results = *resultStorage;
         if (results.isEmpty())
             return TaskAction::StopWithDone;
         async.setFutureSynchronizer(LanguageClientPlugin::futureSynchronizer());
-        async.setConcurrentCallData(filterResults, client, results, filter);
+        async.setConcurrentCallData(filterResults, *storage, client, results, filter);
         return TaskAction::Continue;
-    };
-    const auto onFilterDone = [storage](const AsyncTask<LocatorFilterEntries> &async) {
-        if (async.isResultAvailable())
-            storage->output = async.result();
     };
 
     const Group root {
         Storage(resultStorage),
         SymbolRequest(onQuerySetup, onQueryDone),
-        Async<LocatorFilterEntries>(onFilterSetup, onFilterDone)
+        Async<void>(onFilterSetup)
     };
     return {root, storage};
 }

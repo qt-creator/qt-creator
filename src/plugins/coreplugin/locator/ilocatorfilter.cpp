@@ -93,13 +93,16 @@ public:
         , m_outputData(filterCount, {})
     {}
 
-    void addOutputData(int index, const LocatorFilterEntries &outputData)
+    void reportOutput(int index, const LocatorFilterEntries &outputData)
     {
         QTC_ASSERT(index >= 0, return);
 
         QMutexLocker locker(&m_mutex);
+        // It may happen that the task tree was canceled, while tasks are still running in other
+        // threads and are about to be canceled. In this case we just ignore the call.
+        if (m_state == State::Canceled)
+            return;
         QTC_ASSERT(index < m_filterCount, return);
-        QTC_ASSERT(m_state != State::Canceled, return);
         QTC_ASSERT(!m_outputData.at(index).has_value(), return);
 
         m_outputData[index] = outputData;
@@ -201,11 +204,11 @@ class OutputFilter : public QObject
 public:
     ~OutputFilter();
     void setFilterCount(int count);
-    // When last index is added it ends automatically (asynchronously)
-    void addOutputData(int index, const LocatorFilterEntries &outputData);
     void start();
 
     bool isRunning() const { return m_watcher.get(); }
+
+    std::shared_ptr<OutputDataProvider> dataProvider() const { return m_dataProvider; }
 
 signals:
     void serialOutputDataReady(const LocatorFilterEntries &serialOutputData);
@@ -232,13 +235,6 @@ void OutputFilter::setFilterCount(int count)
     QTC_ASSERT(count >= 0, return);
 
     m_filterCount = count;
-}
-
-void OutputFilter::addOutputData(int index, const LocatorFilterEntries &outputData)
-{
-    QTC_ASSERT(isRunning(), return);
-
-    m_dataProvider->addOutputData(index, outputData);
 }
 
 void OutputFilter::start()
@@ -284,11 +280,72 @@ QTC_DECLARE_CUSTOM_TASK(Filter, Core::OutputFilterAdapter);
 
 namespace Core {
 
+class LocatorStoragePrivate
+{
+public:
+    LocatorStoragePrivate(const QString &input, int index,
+                          const std::shared_ptr<OutputDataProvider> &dataProvider)
+        : m_input(input)
+        , m_index(index)
+        , m_dataProvider(dataProvider)
+    {}
+
+    QString input() const { return m_input; }
+
+    void reportOutput(const LocatorFilterEntries &outputData)
+    {
+        QMutexLocker locker(&m_mutex);
+        QTC_ASSERT(m_dataProvider, return);
+        reportOutputImpl(outputData);
+    }
+
+    void finalize()
+    {
+        QMutexLocker locker(&m_mutex);
+        if (m_dataProvider)
+            reportOutputImpl({});
+    }
+
+private:
+    // Call me with mutex locked
+    void reportOutputImpl(const LocatorFilterEntries &outputData)
+    {
+        QTC_ASSERT(m_index >= 0, return);
+        m_dataProvider->reportOutput(m_index, outputData);
+        // Deliver results only once for all copies of the storage, drop ref afterwards
+        m_dataProvider.reset();
+    }
+
+    const QString m_input;
+    const int m_index = -1;
+    std::shared_ptr<OutputDataProvider> m_dataProvider;
+    QMutex m_mutex = {};
+};
+
+QString LocatorStorage::input() const
+{
+    QTC_ASSERT(d, return {});
+    return d->input();
+}
+
+void LocatorStorage::reportOutput(const LocatorFilterEntries &outputData) const
+{
+    QTC_ASSERT(d, return);
+    d->reportOutput(outputData);
+}
+
+void LocatorStorage::finalize() const
+{
+    QTC_ASSERT(d, return);
+    d->finalize();
+}
+
 class LocatorMatcherPrivate
 {
 public:
     LocatorMatcherTasks m_tasks;
-    LocatorMatcherTask::Storage m_storage;
+    QString m_input;
+    LocatorFilterEntries m_output;
     int m_parallelLimit = 0;
     std::unique_ptr<TaskTree> m_taskTree;
 };
@@ -305,7 +362,7 @@ void LocatorMatcher::setTasks(const LocatorMatcherTasks &tasks)
 
 void LocatorMatcher::setInputData(const QString &inputData)
 {
-    d->m_storage.input = inputData;
+    d->m_input = inputData;
 }
 
 void LocatorMatcher::setParallelLimit(int limit)
@@ -316,7 +373,7 @@ void LocatorMatcher::setParallelLimit(int limit)
 void LocatorMatcher::start()
 {
     QTC_ASSERT(!isRunning(), return);
-    d->m_storage.output = {};
+    d->m_output = {};
     d->m_taskTree.reset(new TaskTree);
 
     using namespace Tasking;
@@ -332,7 +389,7 @@ void LocatorMatcher::start()
         filter.setFilterCount(filterCount);
         connect(&filter, &OutputFilter::serialOutputDataReady,
                 this, [this](const LocatorFilterEntries &serialOutputData) {
-            d->m_storage.output += serialOutputData;
+            d->m_output += serialOutputData;
             emit serialOutputDataReady(serialOutputData);
         });
     };
@@ -343,16 +400,18 @@ void LocatorMatcher::start()
 
     QList<TaskItem> parallelTasks { ParallelLimit(d->m_parallelLimit) };
 
-    const auto onGroupSetup = [this](const TreeStorage<LocatorMatcherTask::Storage> &storage) {
-        return [this, storage] { storage->input = d->m_storage.input; };
-    };
-    const auto onGroupDone = [filterStorage]
-        (const TreeStorage<LocatorMatcherTask::Storage> &storage, int index) {
-        return [filterStorage, storage, index] {
+    const auto onGroupSetup = [this, filterStorage](const TreeStorage<LocatorStorage> &storage,
+                                                    int index) {
+        return [this, filterStorage, storage, index] {
             OutputFilter *outputFilter = filterStorage->m_filter;
             QTC_ASSERT(outputFilter, return);
-            outputFilter->addOutputData(index, storage->output);
+            *storage = std::make_shared<LocatorStoragePrivate>(d->m_input, index,
+                                                               outputFilter->dataProvider());
         };
+    };
+
+    const auto onGroupDone = [](const TreeStorage<LocatorStorage> &storage) {
+        return [storage] { storage->finalize(); };
     };
 
     int index = 0;
@@ -361,9 +420,9 @@ void LocatorMatcher::start()
         const Group group {
             optional,
             Storage(storage),
-            OnGroupSetup(onGroupSetup(storage)),
-            OnGroupDone(onGroupDone(storage, index)),
-            OnGroupError(onGroupDone(storage, index)),
+            OnGroupSetup(onGroupSetup(storage, index)),
+            OnGroupDone(onGroupDone(storage)),
+            OnGroupError(onGroupDone(storage)),
             task.task
         };
         parallelTasks << group;
@@ -408,7 +467,7 @@ bool LocatorMatcher::isRunning() const
 
 LocatorFilterEntries LocatorMatcher::outputData() const
 {
-    return d->m_storage.output;
+    return d->m_output;
 }
 
 LocatorFilterEntries LocatorMatcher::runBlocking(const LocatorMatcherTasks &tasks,

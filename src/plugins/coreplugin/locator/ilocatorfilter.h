@@ -25,6 +25,7 @@ namespace Core {
 namespace Internal { class Locator; }
 
 class ILocatorFilter;
+class LocatorStoragePrivate;
 
 class AcceptResult
 {
@@ -114,22 +115,29 @@ public:
 
 using LocatorFilterEntries = QList<LocatorFilterEntry>;
 
+class CORE_EXPORT LocatorStorage final
+{
+public:
+    LocatorStorage() = default;
+    QString input() const;
+    void reportOutput(const LocatorFilterEntries &outputData) const;
+
+private:
+    friend class LocatorMatcher;
+    LocatorStorage(const std::shared_ptr<LocatorStoragePrivate> &priv) { d = priv; }
+    void finalize() const;
+    std::shared_ptr<LocatorStoragePrivate> d;
+};
+
 class CORE_EXPORT LocatorMatcherTask final
 {
 public:
-    class Storage
-    {
-    public:
-        QString input;
-        LocatorFilterEntries output;
-    };
-    // The main task. Initial data taken from storage.input field.
-    // Results reporting is done through the storage.output field.
+    // The main task. Initial data (searchTerm) should be taken from storage.input().
+    // Results reporting is done via the storage.reportOutput().
     Utils::Tasking::TaskItem task = Utils::Tasking::Group{};
-    // When setting up the task, take the input data from storage.input field.
-    // When task is done, report results by updating the storage.output field.
+
     // When constructing the task, don't place the storage inside the task above.
-    Utils::Tasking::TreeStorage<Storage> storage;
+    Utils::Tasking::TreeStorage<LocatorStorage> storage;
 };
 
 using LocatorMatcherTasks = QList<LocatorMatcherTask>;
@@ -267,6 +275,9 @@ protected:
     static bool isOldSetting(const QByteArray &state);
 
 private:
+    // TODO: Make pure virtual when all subclasses implement it.
+    virtual LocatorMatcherTasks matchers() { return {}; }
+
     friend class Internal::Locator;
     static const QList<ILocatorFilter *> allLocatorFilters();
 

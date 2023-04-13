@@ -26,18 +26,19 @@ namespace CppEditor {
 
 using EntryFromIndex = std::function<LocatorFilterEntry(const IndexItem::Ptr &)>;
 
-void matchesFor(QPromise<LocatorFilterEntries> &promise, const QString &entry,
+void matchesFor(QPromise<void> &promise, const LocatorStorage &storage,
                 IndexItem::ItemType wantedType, const EntryFromIndex &converter)
 {
+    const QString input = storage.input();
     LocatorFilterEntries entries[int(ILocatorFilter::MatchLevel::Count)];
-    const Qt::CaseSensitivity caseSensitivityForPrefix = ILocatorFilter::caseSensitivity(entry);
-    const QRegularExpression regexp = ILocatorFilter::createRegExp(entry);
+    const Qt::CaseSensitivity caseSensitivityForPrefix = ILocatorFilter::caseSensitivity(input);
+    const QRegularExpression regexp = ILocatorFilter::createRegExp(input);
     if (!regexp.isValid())
         return;
 
-    const bool hasColonColon = entry.contains("::");
+    const bool hasColonColon = input.contains("::");
     const QRegularExpression shortRegexp = hasColonColon
-            ? ILocatorFilter::createRegExp(entry.mid(entry.lastIndexOf("::") + 2)) : regexp;
+            ? ILocatorFilter::createRegExp(input.mid(input.lastIndexOf("::") + 2)) : regexp;
     CppLocatorData *locatorData = CppModelManager::instance()->locatorData();
     locatorData->filterAllFiles([&](const IndexItem::Ptr &info) {
         if (promise.isCanceled())
@@ -76,9 +77,9 @@ void matchesFor(QPromise<LocatorFilterEntries> &promise, const QString &entry,
 
                 if (matchInParameterList)
                     entries[int(ILocatorFilter::MatchLevel::Normal)].append(filterEntry);
-                else if (filterEntry.displayName.startsWith(entry, caseSensitivityForPrefix))
+                else if (filterEntry.displayName.startsWith(input, caseSensitivityForPrefix))
                     entries[int(ILocatorFilter::MatchLevel::Best)].append(filterEntry);
-                else if (filterEntry.displayName.contains(entry, caseSensitivityForPrefix))
+                else if (filterEntry.displayName.contains(input, caseSensitivityForPrefix))
                     entries[int(ILocatorFilter::MatchLevel::Better)].append(filterEntry);
                 else
                     entries[int(ILocatorFilter::MatchLevel::Good)].append(filterEntry);
@@ -95,7 +96,7 @@ void matchesFor(QPromise<LocatorFilterEntries> &promise, const QString &entry,
             Utils::sort(entry, LocatorFilterEntry::compareLexigraphically);
     }
 
-    promise.addResult(std::accumulate(std::begin(entries), std::end(entries),
+    storage.reportOutput(std::accumulate(std::begin(entries), std::end(entries),
                                       LocatorFilterEntries()));
 }
 
@@ -103,17 +104,13 @@ LocatorMatcherTask locatorMatcher(IndexItem::ItemType type, const EntryFromIndex
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorMatcherTask::Storage> storage;
+    TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [=](AsyncTask<LocatorFilterEntries> &async) {
+    const auto onSetup = [=](AsyncTask<void> &async) {
         async.setFutureSynchronizer(Internal::CppEditorPlugin::futureSynchronizer());
-        async.setConcurrentCallData(matchesFor, storage->input, type, converter);
+        async.setConcurrentCallData(matchesFor, *storage, type, converter);
     };
-    const auto onDone = [storage](const AsyncTask<LocatorFilterEntries> &async) {
-        if (async.isResultAvailable())
-            storage->output = async.result();
-    };
-    return {Async<LocatorFilterEntries>(onSetup, onDone, onDone), storage};
+    return {Async<void>(onSetup), storage};
 }
 
 LocatorMatcherTask cppAllSymbolsMatcher()
@@ -200,10 +197,11 @@ LocatorFilterEntry::HighlightInfo highlightInfo(const QRegularExpressionMatch &m
     return LocatorFilterEntry::HighlightInfo(positions.starts, positions.lengths, dataType);
 }
 
-void matchesForCurrentDocument(QPromise<LocatorFilterEntries> &promise,
-                               const QString &entry, const FilePath &currentFileName)
+void matchesForCurrentDocument(QPromise<void> &promise, const LocatorStorage &storage,
+                               const FilePath &currentFileName)
 {
-    const QRegularExpression regexp = FuzzyMatcher::createRegExp(entry, Qt::CaseInsensitive, false);
+    const QString input = storage.input();
+    const QRegularExpression regexp = FuzzyMatcher::createRegExp(input, Qt::CaseInsensitive, false);
     if (!regexp.isValid())
         return;
 
@@ -288,7 +286,7 @@ void matchesForCurrentDocument(QPromise<LocatorFilterEntries> &promise,
             }
         }
     }
-    promise.addResult(Utils::transform(betterEntries,
+    storage.reportOutput(Utils::transform(betterEntries,
                                        [](const Entry &entry) { return entry.entry; }));
 }
 
@@ -302,17 +300,13 @@ LocatorMatcherTask cppCurrentDocumentMatcher()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorMatcherTask::Storage> storage;
+    TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [=](AsyncTask<LocatorFilterEntries> &async) {
+    const auto onSetup = [=](AsyncTask<void> &async) {
         async.setFutureSynchronizer(Internal::CppEditorPlugin::futureSynchronizer());
-        async.setConcurrentCallData(matchesForCurrentDocument, storage->input, currentFileName());
+        async.setConcurrentCallData(matchesForCurrentDocument, *storage, currentFileName());
     };
-    const auto onDone = [storage](const AsyncTask<LocatorFilterEntries> &async) {
-        if (async.isResultAvailable())
-            storage->output = async.result();
-    };
-    return {Async<LocatorFilterEntries>(onSetup, onDone, onDone), storage};
+    return {Async<void>(onSetup), storage};
 }
 
 CppLocatorFilter::CppLocatorFilter()
