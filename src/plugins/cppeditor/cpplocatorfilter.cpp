@@ -113,7 +113,7 @@ LocatorMatcherTask locatorMatcher(IndexItem::ItemType type, const EntryFromIndex
     return {Async<void>(onSetup), storage};
 }
 
-LocatorMatcherTask cppAllSymbolsMatcher()
+LocatorMatcherTask allSymbolsMatcher()
 {
     const auto converter = [](const IndexItem::Ptr &info) {
         LocatorFilterEntry filterEntry;
@@ -129,7 +129,7 @@ LocatorMatcherTask cppAllSymbolsMatcher()
     return locatorMatcher(IndexItem::All, converter);
 }
 
-LocatorMatcherTask cppClassMatcher()
+LocatorMatcherTask classMatcher()
 {
     const auto converter = [](const IndexItem::Ptr &info) {
         LocatorFilterEntry filterEntry;
@@ -145,7 +145,7 @@ LocatorMatcherTask cppClassMatcher()
     return locatorMatcher(IndexItem::Class, converter);
 }
 
-LocatorMatcherTask cppFunctionMatcher()
+LocatorMatcherTask functionMatcher()
 {
     const auto converter = [](const IndexItem::Ptr &info) {
         QString name = info->symbolName();
@@ -296,7 +296,7 @@ FilePath currentFileName()
     return currentEditor ? currentEditor->document()->filePath() : FilePath();
 }
 
-LocatorMatcherTask cppCurrentDocumentMatcher()
+LocatorMatcherTask currentDocumentMatcher()
 {
     using namespace Tasking;
 
@@ -307,6 +307,27 @@ LocatorMatcherTask cppCurrentDocumentMatcher()
         async.setConcurrentCallData(matchesForCurrentDocument, *storage, currentFileName());
     };
     return {Async<void>(onSetup), storage};
+}
+
+using MatcherCreator = std::function<Core::LocatorMatcherTask()>;
+
+static MatcherCreator creatorForType(MatcherType type)
+{
+    switch (type) {
+    case MatcherType::AllSymbols: return &allSymbolsMatcher;
+    case MatcherType::Classes: return &classMatcher;
+    case MatcherType::Functions: return &functionMatcher;
+    case MatcherType::CurrentDocumentSymbols: return &currentDocumentMatcher;
+    }
+    return {};
+}
+
+LocatorMatcherTasks cppMatchers(MatcherType type)
+{
+    const MatcherCreator creator = creatorForType(type);
+    if (!creator)
+        return {};
+    return {creator()};
 }
 
 CppLocatorFilter::CppLocatorFilter()

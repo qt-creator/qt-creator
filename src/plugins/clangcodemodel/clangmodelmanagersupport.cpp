@@ -206,20 +206,18 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     cppModelManager()->setClassesFilter(std::make_unique<ClangClassesFilter>());
     cppModelManager()->setFunctionsFilter(std::make_unique<ClangFunctionsFilter>());
     // Setup matchers
-    using WorkspaceMatcherCreator = std::function<Core::LocatorMatcherTask(Client *, int)>;
-    const auto matcherCreator = [](const WorkspaceMatcherCreator &creator) {
-        const QList<Client *> clients = clientsForOpenProjects();
-        LocatorMatcherTasks matchers;
-        for (Client *client : clients)
-            matchers << creator(client, 10000);
-        return matchers;
-    };
-    LocatorMatcher::addMatcherCreator(MatcherType::AllSymbols,
-        [matcherCreator] { return matcherCreator(&LanguageClient::workspaceAllSymbolsMatcher); });
-    LocatorMatcher::addMatcherCreator(MatcherType::Classes,
-        [matcherCreator] { return matcherCreator(&LanguageClient::workspaceClassMatcher); });
-    LocatorMatcher::addMatcherCreator(MatcherType::Functions,
-        [matcherCreator] { return matcherCreator(&LanguageClient::workspaceFunctionMatcher); });
+    LocatorMatcher::addMatcherCreator(MatcherType::AllSymbols, [] {
+        return LanguageClient::workspaceMatchers(clientsForOpenProjects(), MatcherType::AllSymbols,
+                                                 10000);
+    });
+    LocatorMatcher::addMatcherCreator(MatcherType::Classes, [] {
+        return LanguageClient::workspaceMatchers(clientsForOpenProjects(), MatcherType::Classes,
+                                                 10000);
+    });
+    LocatorMatcher::addMatcherCreator(MatcherType::Functions, [] {
+        return LanguageClient::workspaceMatchers(clientsForOpenProjects(), MatcherType::Functions,
+                                                 10000);
+    });
 
     EditorManager *editorManager = EditorManager::instance();
     connect(editorManager, &EditorManager::editorOpened,

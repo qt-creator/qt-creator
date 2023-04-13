@@ -897,14 +897,18 @@ void CppModelManager::initCppTools()
     setSymbolsFindFilter(std::make_unique<SymbolsFindFilter>(this));
     setCurrentDocumentFilter(std::make_unique<CppCurrentDocumentFilter>());
     // Setup matchers
-    LocatorMatcher::addMatcherCreator(MatcherType::AllSymbols,
-                                      [] { return QList{CppEditor::cppAllSymbolsMatcher()}; });
-    LocatorMatcher::addMatcherCreator(MatcherType::Classes,
-                                      [] { return QList{CppEditor::cppClassMatcher()}; });
-    LocatorMatcher::addMatcherCreator(MatcherType::Functions,
-                                      [] { return QList{CppEditor::cppFunctionMatcher()}; });
-    LocatorMatcher::addMatcherCreator(MatcherType::CurrentDocumentSymbols,
-                                      [] { return QList{CppEditor::cppCurrentDocumentMatcher()}; });
+    LocatorMatcher::addMatcherCreator(MatcherType::AllSymbols, [] {
+        return cppMatchers(MatcherType::AllSymbols);
+    });
+    LocatorMatcher::addMatcherCreator(MatcherType::Classes, [] {
+        return cppMatchers(MatcherType::Classes);
+    });
+    LocatorMatcher::addMatcherCreator(MatcherType::Functions, [] {
+        return cppMatchers(MatcherType::Functions);
+    });
+    LocatorMatcher::addMatcherCreator(MatcherType::CurrentDocumentSymbols, [] {
+        return cppMatchers(MatcherType::CurrentDocumentSymbols);
+    });
 }
 
 CppModelManager::CppModelManager()

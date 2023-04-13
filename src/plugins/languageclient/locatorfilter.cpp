@@ -90,20 +90,45 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
     return {root, storage};
 }
 
-LocatorMatcherTask workspaceAllSymbolsMatcher(Client *client, int maxResultCount)
+LocatorMatcherTask allSymbolsMatcher(Client *client, int maxResultCount)
 {
     return locatorMatcher(client, maxResultCount, {});
 }
 
-LocatorMatcherTask workspaceClassMatcher(Client *client, int maxResultCount)
+LocatorMatcherTask classMatcher(Client *client, int maxResultCount)
 {
     return locatorMatcher(client, maxResultCount, {SymbolKind::Class, SymbolKind::Struct});
 }
 
-LocatorMatcherTask workspaceFunctionMatcher(Client *client, int maxResultCount)
+LocatorMatcherTask functionMatcher(Client *client, int maxResultCount)
 {
     return locatorMatcher(client, maxResultCount,
                           {SymbolKind::Method, SymbolKind::Function, SymbolKind::Constructor});
+}
+
+using MatcherCreator = std::function<Core::LocatorMatcherTask(Client *, int)>;
+
+static MatcherCreator creatorForType(MatcherType type)
+{
+    switch (type) {
+    case MatcherType::AllSymbols: return &allSymbolsMatcher;
+    case MatcherType::Classes: return &classMatcher;
+    case MatcherType::Functions: return &functionMatcher;
+    case MatcherType::CurrentDocumentSymbols: return {}; // TODO: implement me
+    }
+    return {};
+}
+
+LocatorMatcherTasks workspaceMatchers(const QList<Client *> &clients, MatcherType type,
+                                      int maxResultCount)
+{
+    const MatcherCreator creator = creatorForType(type);
+    if (!creator)
+        return {};
+    LocatorMatcherTasks matchers;
+    for (Client *client : clients)
+        matchers << creator(client, maxResultCount);
+    return matchers;
 }
 
 DocumentLocatorFilter::DocumentLocatorFilter()
