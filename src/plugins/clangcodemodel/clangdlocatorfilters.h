@@ -19,6 +19,7 @@ public:
     ~ClangGlobalSymbolFilter() override;
 
 private:
+    Core::LocatorMatcherTasks matchers() override;
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
@@ -26,16 +27,24 @@ private:
     Core::ILocatorFilter * const m_lspFilter;
 };
 
+// TODO: Don't derive, flatten the hierarchy
 class ClangClassesFilter : public ClangGlobalSymbolFilter
 {
 public:
     ClangClassesFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
+// TODO: Don't derive, flatten the hierarchy
 class ClangFunctionsFilter : public ClangGlobalSymbolFilter
 {
 public:
     ClangFunctionsFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
 class ClangdCurrentDocumentFilter : public Core::ILocatorFilter

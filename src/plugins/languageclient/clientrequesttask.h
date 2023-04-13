@@ -14,7 +14,6 @@
 
 namespace LanguageClient {
 
-
 template <typename Request>
 class LANGUAGECLIENT_EXPORT ClientRequestTask
 {
@@ -32,8 +31,10 @@ public:
     void start()
     {
         QTC_ASSERT(!isRunning(), return);
-        QTC_ASSERT(preStartCheck(), m_callback({}); return);
-
+        if (!preStartCheck()) {
+            m_callback({});
+            return;
+        }
         Request request(m_params);
         request.setResponseCallback([this](const typename Request::Response &response) {
             m_response = response;

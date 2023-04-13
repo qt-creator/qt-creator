@@ -85,6 +85,7 @@ protected:
     void setMaxResultCount(qint64 limit) { m_maxResultCount = limit; }
 
 private:
+    Core::LocatorMatcherTasks matchers() override;
     void handleResponse(Client *client,
                         const LanguageServerProtocol::WorkspaceSymbolRequest::Response &response);
 
@@ -102,16 +103,24 @@ private:
     qint64 m_maxResultCount = 0;
 };
 
+// TODO: Don't derive, flatten the hierarchy
 class LANGUAGECLIENT_EXPORT WorkspaceClassLocatorFilter : public WorkspaceLocatorFilter
 {
 public:
     WorkspaceClassLocatorFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
+// TODO: Don't derive, flatten the hierarchy
 class LANGUAGECLIENT_EXPORT WorkspaceMethodLocatorFilter : public WorkspaceLocatorFilter
 {
 public:
     WorkspaceMethodLocatorFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
 } // namespace LanguageClient

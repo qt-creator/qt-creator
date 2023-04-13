@@ -301,6 +301,12 @@ WorkspaceLocatorFilter::WorkspaceLocatorFilter()
     : WorkspaceLocatorFilter(QVector<SymbolKind>())
 {}
 
+LocatorMatcherTasks WorkspaceLocatorFilter::matchers()
+{
+    return workspaceMatchers(MatcherType::AllSymbols,
+        Utils::filtered(LanguageClientManager::clients(), &Client::locatorsEnabled));
+}
+
 WorkspaceLocatorFilter::WorkspaceLocatorFilter(const QVector<SymbolKind> &filter)
     : m_filterKinds(filter)
 {
@@ -407,6 +413,12 @@ WorkspaceClassLocatorFilter::WorkspaceClassLocatorFilter()
     setDefaultShortcutString("c");
 }
 
+LocatorMatcherTasks WorkspaceClassLocatorFilter::matchers()
+{
+    return workspaceMatchers(MatcherType::Classes,
+        Utils::filtered(LanguageClientManager::clients(), &Client::locatorsEnabled));
+}
+
 WorkspaceMethodLocatorFilter::WorkspaceMethodLocatorFilter()
     : WorkspaceLocatorFilter({SymbolKind::Method, SymbolKind::Function, SymbolKind::Constructor})
 {
@@ -414,6 +426,12 @@ WorkspaceMethodLocatorFilter::WorkspaceMethodLocatorFilter()
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_DISPLAY_NAME));
     setDescription(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_DESCRIPTION));
     setDefaultShortcutString("m");
+}
+
+LocatorMatcherTasks WorkspaceMethodLocatorFilter::matchers()
+{
+    return workspaceMatchers(MatcherType::Functions,
+        Utils::filtered(LanguageClientManager::clients(), &Client::locatorsEnabled));
 }
 
 } // namespace LanguageClient
