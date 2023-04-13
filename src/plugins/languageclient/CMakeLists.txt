@@ -11,6 +11,7 @@ add_qtc_plugin(LanguageClient
     callhierarchy.cpp callhierarchy.h
     client.cpp client.h
     clientrequesttask.cpp clientrequesttask.h
+    currentdocumentsymbolsrequesttask.cpp currentdocumentsymbolsrequesttask.h
     diagnosticmanager.cpp diagnosticmanager.h
     documentsymbolcache.cpp documentsymbolcache.h
     dynamiccapabilities.cpp dynamiccapabilities.h
