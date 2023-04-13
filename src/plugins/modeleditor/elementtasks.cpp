@@ -25,7 +25,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <cppeditor/cpplocatordata.h>
-#include <cppeditor/cpplocatorfilter.h>
 #include <cppeditor/indexitem.h>
 #include <cppeditor/searchsymbols.h>
 #include <coreplugin/editormanager/editormanager.h>

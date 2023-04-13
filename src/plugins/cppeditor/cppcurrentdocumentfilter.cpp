@@ -5,6 +5,7 @@
 
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
+#include "cpplocatorfilter.h"
 #include "cppmodelmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -40,6 +41,11 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter()
             this, &CppCurrentDocumentFilter::onCurrentEditorChanged);
     connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
             this, &CppCurrentDocumentFilter::onEditorAboutToClose);
+}
+
+LocatorMatcherTasks CppCurrentDocumentFilter::matchers()
+{
+    return CppEditor::cppMatchers(MatcherType::CurrentDocumentSymbols);
 }
 
 void CppCurrentDocumentFilter::makeAuxiliary()

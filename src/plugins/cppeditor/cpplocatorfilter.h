@@ -24,8 +24,12 @@ public:
 protected:
     virtual IndexItem::ItemType matchTypes() const { return IndexItem::All; }
     virtual Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info);
+
+private:
+    Core::LocatorMatcherTasks matchers() override;
 };
 
+// TODO: Don't derive, flatten the hierarchy
 class CPPEDITOR_EXPORT CppClassesFilter : public CppLocatorFilter
 {
     Q_OBJECT
@@ -36,8 +40,12 @@ public:
 protected:
     IndexItem::ItemType matchTypes() const override { return IndexItem::Class; }
     Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) override;
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
+// TODO: Don't derive, flatten the hierarchy
 class CPPEDITOR_EXPORT CppFunctionsFilter : public CppLocatorFilter
 {
     Q_OBJECT
@@ -48,6 +56,9 @@ public:
 protected:
     IndexItem::ItemType matchTypes() const override { return IndexItem::Function; }
     Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) override;
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
 } // namespace CppEditor

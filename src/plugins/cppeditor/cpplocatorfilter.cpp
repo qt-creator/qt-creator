@@ -339,6 +339,11 @@ CppLocatorFilter::CppLocatorFilter()
     setDefaultIncludedByDefault(false);
 }
 
+LocatorMatcherTasks CppLocatorFilter::matchers()
+{
+    return {allSymbolsMatcher()};
+}
+
 LocatorFilterEntry CppLocatorFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
     LocatorFilterEntry filterEntry;
@@ -437,6 +442,11 @@ CppClassesFilter::CppClassesFilter()
     setDefaultIncludedByDefault(false);
 }
 
+LocatorMatcherTasks CppClassesFilter::matchers()
+{
+    return {classMatcher()};
+}
+
 LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
     LocatorFilterEntry filterEntry;
@@ -457,6 +467,11 @@ CppFunctionsFilter::CppFunctionsFilter()
     setDescription(Tr::tr(Constants::FUNCTIONS_FILTER_DESCRIPTION));
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);
+}
+
+LocatorMatcherTasks CppFunctionsFilter::matchers()
+{
+    return {functionMatcher()};
 }
 
 LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr info)

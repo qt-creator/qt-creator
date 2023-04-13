@@ -15,6 +15,7 @@ class CppModelManager;
 
 namespace Internal {
 
+// TODO: Move the class into cpplocatorfilter.h
 class CppCurrentDocumentFilter : public  Core::ILocatorFilter
 {
     Q_OBJECT
@@ -28,6 +29,7 @@ public:
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
 private:
+    Core::LocatorMatcherTasks matchers() final;
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
     void onCurrentEditorChanged(Core::IEditor *currentEditor);
     void onEditorAboutToClose(Core::IEditor *currentEditor);
