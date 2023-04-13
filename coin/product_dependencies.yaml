@@ -1,4 +1,4 @@
 dependencies:
-  ../../qt/tqtc-qt5.git:
-    ref: "tqtc/lts-6.2"
+  ../../qt/qt5.git:
+    ref: "6.5"
 

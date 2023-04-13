@@ -66,6 +66,9 @@ instructions:
         userMessageOnFailure: "Failed to run build.py, check logs."
       - type: ChangeDirectory
         directory: "{{.AgentWorkingDir}}/build/qtsdk/packaging-tools"
+      - type: EnvironmentVariable
+        variableName: MACOSX_DEPLOYMENT_TARGET
+        variableValue: "{{.Env.SDKTOOL_MACOSX_DEPLOYMENT_TARGET}}"
       - type: ExecuteCommand
         command: "python3 -m pipenv run python -u bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}/build/sdktool/qt --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool --build {{.AgentWorkingDir}}/build/sdktool/build --install {{.AgentWorkingDir}}/build/sdktool/install --make-command make"
         maxTimeInSeconds: 36000

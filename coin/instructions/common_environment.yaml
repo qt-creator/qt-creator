@@ -10,13 +10,16 @@ instructions:
         variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_16.0.0-based
       - type: EnvironmentVariable
         variableName: QTC_QT_BASE_URL
-        variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/6.4/6.4.3-released/Qt"
+        variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/6.5/6.5.0-released/Qt"
       - type: EnvironmentVariable
         variableName: QTC_QT_MODULES
         variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquickcontrols2 qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations qtwebengine"
       - type: EnvironmentVariable
         variableName: MACOSX_DEPLOYMENT_TARGET
         variableValue: 10.15
+      - type: EnvironmentVariable
+        variableName: SDKTOOL_MACOSX_DEPLOYMENT_TARGET
+        variableValue: 10.14
       - type: EnvironmentVariable
         variableName: QTC_SDKTOOL_QT_BASE_URL
         variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/5.15/5.15.2-final-released/latest/src/submodules/qtbase-everywhere-src-5.15.2"
