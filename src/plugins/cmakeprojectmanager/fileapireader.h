@@ -46,6 +46,7 @@ public:
 
     QSet<Utils::FilePath> projectFilesToWatch() const;
     QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage);
+    QSet<CMakeFileInfo> takeCMakeFileInfos(QString &errorMessage);
     CMakeConfig takeParsedConfiguration(QString &errorMessage);
     QString ctestPath() const;
     ProjectExplorer::RawProjectParts createRawProjectParts(QString &errorMessage);

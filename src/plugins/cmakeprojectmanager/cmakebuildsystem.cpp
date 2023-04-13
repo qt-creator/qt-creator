@@ -17,6 +17,8 @@
 #include <android/androidconstants.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -29,6 +31,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qtsupport/qtcppkitinfo.h>
@@ -51,73 +56,10 @@
 #include <QLoggingCategory>
 
 using namespace ProjectExplorer;
+using namespace TextEditor;
 using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
-
-static void copySourcePathsToClipboard(const FilePaths &srcPaths, const ProjectNode *node)
-{
-    QClipboard *clip = QGuiApplication::clipboard();
-
-    QString data = Utils::transform(srcPaths, [projDir = node->filePath()](const FilePath &path) {
-                       return path.relativePathFrom(projDir).cleanPath().toString();
-                   }).join(" ");
-    clip->setText(data);
-}
-
-static void noAutoAdditionNotify(const FilePaths &filePaths, const ProjectNode *node)
-{
-    const FilePaths srcPaths = Utils::filtered(filePaths, [](const FilePath &file) {
-        const auto mimeType = Utils::mimeTypeForFile(file).name();
-        return mimeType == CppEditor::Constants::C_SOURCE_MIMETYPE ||
-               mimeType == CppEditor::Constants::C_HEADER_MIMETYPE ||
-               mimeType == CppEditor::Constants::CPP_SOURCE_MIMETYPE ||
-               mimeType == CppEditor::Constants::CPP_HEADER_MIMETYPE ||
-               mimeType == ProjectExplorer::Constants::FORM_MIMETYPE ||
-               mimeType == ProjectExplorer::Constants::RESOURCE_MIMETYPE ||
-               mimeType == ProjectExplorer::Constants::SCXML_MIMETYPE;
-    });
-
-    if (!srcPaths.empty()) {
-        auto settings = CMakeSpecificSettings::instance();
-        switch (settings->afterAddFileSetting.value()) {
-        case AskUser: {
-            bool checkValue{false};
-            QDialogButtonBox::StandardButton reply = CheckableMessageBox::question(
-                Core::ICore::dialogParent(),
-                Tr::tr("Copy to Clipboard?"),
-                Tr::tr("Files are not automatically added to the "
-                                "CMakeLists.txt file of the CMake project."
-                                "\nCopy the path to the source files to the clipboard?"),
-                "Remember My Choice",
-                &checkValue,
-                QDialogButtonBox::Yes | QDialogButtonBox::No,
-                QDialogButtonBox::Yes);
-            if (checkValue) {
-                if (QDialogButtonBox::Yes == reply)
-                    settings->afterAddFileSetting.setValue(CopyFilePath);
-                else if (QDialogButtonBox::No == reply)
-                    settings->afterAddFileSetting.setValue(NeverCopyFilePath);
-
-                settings->writeSettings(Core::ICore::settings());
-            }
-
-            if (QDialogButtonBox::Yes == reply)
-                copySourcePathsToClipboard(srcPaths, node);
-
-            break;
-        }
-
-        case CopyFilePath: {
-            copySourcePathsToClipboard(srcPaths, node);
-            break;
-        }
-
-        case NeverCopyFilePath:
-            break;
-        }
-    }
-}
 
 static Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarningMsg);
 
@@ -258,24 +200,110 @@ void CMakeBuildSystem::triggerParsing()
 bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
     if (dynamic_cast<CMakeTargetNode *>(context))
-        return action == ProjectAction::AddNewFile;
-
-    if (dynamic_cast<CMakeListsNode *>(context))
-        return action == ProjectAction::AddNewFile;
+        return action == ProjectAction::AddNewFile || action == ProjectAction::AddExistingFile;
 
     return BuildSystem::supportsAction(context, action, node);
 }
 
 bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
 {
-    if (auto n = dynamic_cast<CMakeProjectNode *>(context)) {
-        noAutoAdditionNotify(filePaths, n);
-        return true; // Return always true as autoadd is not supported!
-    }
-
     if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
-        noAutoAdditionNotify(filePaths, n);
-        return true; // Return always true as autoadd is not supported!
+        const QString targetName = n->buildKey();
+        auto target = Utils::findOrDefault(buildTargets(),
+                                           [targetName](const CMakeBuildTarget &target) {
+                                               return target.title == targetName;
+                                           });
+
+        if (target.backtrace.isEmpty()) {
+            *notAdded = filePaths;
+            return false;
+        }
+        const FilePath targetCMakeFile = target.backtrace.last().path;
+        const int targetDefinitionLine = target.backtrace.last().line;
+
+        auto cmakeListFile
+            = Utils::findOrDefault(m_cmakeFiles, [targetCMakeFile](const CMakeFileInfo &info) {
+                  return info.path == targetCMakeFile;
+              }).cmakeListFile;
+
+        auto function = std::find_if(cmakeListFile.Functions.begin(),
+                                     cmakeListFile.Functions.end(),
+                                     [targetDefinitionLine](const auto &func) {
+                                         return func.Line() == targetDefinitionLine;
+                                     });
+
+        if (function == cmakeListFile.Functions.end()) {
+            *notAdded = filePaths;
+            return false;
+        }
+
+        const QString newSourceFiles = Utils::transform(filePaths,
+                                                        [projDir = n->filePath().canonicalPath()](
+                                                            const FilePath &path) {
+                                                            return path.canonicalPath()
+                                                                .relativePathFrom(projDir)
+                                                                .cleanPath()
+                                                                .toString();
+                                                        })
+                                           .join(" ");
+
+        static QSet<std::string> knownFunctions{"add_executable",
+                                                "add_library",
+                                                "qt_add_executable",
+                                                "qt_add_library",
+                                                "qt6_add_executable",
+                                                "qt6_add_library"};
+
+        int line = 0;
+        int column = 0;
+        QString snippet;
+
+        auto afterFunctionLastArgument = [&line, &column, &snippet, newSourceFiles](const auto &f) {
+            auto lastArgument = f->Arguments().back();
+
+            line = lastArgument.Line;
+            column = lastArgument.Column + static_cast<int>(lastArgument.Value.size()) - 1;
+            snippet = QString("\n%1").arg(newSourceFiles);
+        };
+
+        if (knownFunctions.contains(function->LowerCaseName())) {
+            afterFunctionLastArgument(function);
+        } else {
+            const std::string target_name = targetName.toStdString();
+            auto targetSourcesFunc = std::find_if(cmakeListFile.Functions.begin(),
+                                                  cmakeListFile.Functions.end(),
+                                                  [target_name](const auto &func) {
+                                                      return func.LowerCaseName()
+                                                                 == "target_sources"
+                                                             && func.Arguments().front().Value
+                                                                    == target_name;
+                                                  });
+
+            if (targetSourcesFunc == cmakeListFile.Functions.end()) {
+                line = function->LineEnd() + 1;
+                column = 0;
+                snippet = QString("\ntarget_sources(%1\n  PRIVATE\n    %2\n)\n")
+                              .arg(targetName)
+                              .arg(newSourceFiles);
+            } else {
+                afterFunctionLastArgument(targetSourcesFunc);
+            }
+        }
+
+        BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
+            Core::EditorManager::openEditorAt({targetCMakeFile, line, column},
+                                              Constants::CMAKE_EDITOR_ID,
+                                              Core::EditorManager::DoNotMakeVisible));
+        if (!editor) {
+            *notAdded = filePaths;
+            return false;
+        }
+
+        editor->insert(snippet);
+        editor->editorWidget()->autoIndent();
+        Core::DocumentManager::saveDocument(editor->document());
+
+        return true;
     }
 
     return BuildSystem::addFiles(context, filePaths, notAdded);
@@ -735,6 +763,8 @@ void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
             return result;
         });
         m_buildTargets += m_reader.takeBuildTargets(errorMessage);
+        m_cmakeFiles = m_reader.takeCMakeFileInfos(errorMessage);
+
         checkAndReportError(errorMessage);
     }
 

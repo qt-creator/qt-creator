@@ -9,12 +9,6 @@
 
 namespace CMakeProjectManager::Internal {
 
-enum AfterAddFileAction : int {
-    AskUser,
-    CopyFilePath,
-    NeverCopyFilePath
-};
-
 class CMakeSpecificSettings final : public Utils::AspectContainer
 {
 public:
@@ -23,7 +17,6 @@ public:
     static CMakeSpecificSettings *instance();
 
     Utils::BoolAspect autorunCMake;
-    Utils::SelectionAspect afterAddFileSetting;
     Utils::StringAspect ninjaPath;
     Utils::BoolAspect packageManagerAutoSetup;
     Utils::BoolAspect askBeforeReConfigureInitialParams;

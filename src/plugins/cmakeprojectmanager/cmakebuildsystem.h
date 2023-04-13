@@ -199,6 +199,7 @@ private:
     CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
+    QSet<CMakeFileInfo> m_cmakeFiles;
 
     // Parsing state:
     BuildDirParameters m_parameters;

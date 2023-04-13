@@ -30,16 +30,6 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     autorunCMake.setToolTip(::CMakeProjectManager::Tr::tr(
         "Automatically run CMake after changes to CMake project files."));
 
-    registerAspect(&afterAddFileSetting);
-    afterAddFileSetting.setSettingsKey("ProjectPopupSetting");
-    afterAddFileSetting.setDefaultValue(AfterAddFileAction::AskUser);
-    afterAddFileSetting.addOption(::CMakeProjectManager::Tr::tr("Ask about copying file paths"));
-    afterAddFileSetting.addOption(::CMakeProjectManager::Tr::tr("Do not copy file paths"));
-    afterAddFileSetting.addOption(::CMakeProjectManager::Tr::tr("Copy file paths"));
-    afterAddFileSetting.setToolTip(::CMakeProjectManager::Tr::tr("Determines whether file paths are copied "
-        "to the clipboard for pasting to the CMakeLists.txt file when you "
-        "add new files to CMake projects."));
-
     registerAspect(&ninjaPath);
     ninjaPath.setSettingsKey("NinjaPath");
     // never save this to the settings:
@@ -95,10 +85,6 @@ CMakeSpecificSettingsPage::CMakeSpecificSettingsPage()
         CMakeSpecificSettings &s = *settings;
         using namespace Layouting;
         Column {
-            Group {
-                title(::CMakeProjectManager::Tr::tr("Adding Files")),
-                Column { s.afterAddFileSetting }
-            },
             s.autorunCMake,
             s.packageManagerAutoSetup,
             s.askBeforeReConfigureInitialParams,

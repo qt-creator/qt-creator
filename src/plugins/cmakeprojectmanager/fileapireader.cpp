@@ -179,6 +179,13 @@ QList<CMakeBuildTarget> FileApiReader::takeBuildTargets(QString &errorMessage){
     return std::exchange(m_buildTargets, {});
 }
 
+QSet<CMakeFileInfo> FileApiReader::takeCMakeFileInfos(QString &errorMessage)
+{
+    Q_UNUSED(errorMessage)
+
+    return std::exchange(m_cmakeFiles, {});
+}
+
 CMakeConfig FileApiReader::takeParsedConfiguration(QString &errorMessage)
 {
     if (m_lastCMakeExitCode != 0)

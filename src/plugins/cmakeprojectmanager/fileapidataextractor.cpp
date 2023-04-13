@@ -27,6 +27,8 @@ using namespace CMakeProjectManager::Internal::FileApiDetails;
 
 namespace CMakeProjectManager::Internal {
 
+static Q_LOGGING_CATEGORY(cmakeLogger, "qtc.cmake.fileApiExtractor", QtWarningMsg);
+
 // --------------------------------------------------------------------
 // Helpers:
 // --------------------------------------------------------------------
@@ -53,7 +55,20 @@ CMakeFileResult extractCMakeFilesData(const std::vector<CMakeFileInfo> &cmakefil
         const int oldCount = result.cmakeFiles.count();
         CMakeFileInfo absolute(info);
         absolute.path = sfn;
+
+        expected_str<QByteArray> fileContent = sfn.fileContents();
+        std::string errorString;
+        if (fileContent) {
+            fileContent = fileContent->replace("\r\n", "\n");
+            if (!absolute.cmakeListFile.ParseString(fileContent->toStdString(),
+                                                    sfn.fileName().toStdString(),
+                                                    errorString))
+                qCWarning(cmakeLogger)
+                    << "Failed to parse:" << sfn.path() << QString::fromLatin1(errorString);
+        }
+
         result.cmakeFiles.insert(absolute);
+
         if (oldCount < result.cmakeFiles.count()) {
             if (info.isCMake && !info.isCMakeListsDotTxt) {
                 // Skip files that cmake considers to be part of the installation -- but include
