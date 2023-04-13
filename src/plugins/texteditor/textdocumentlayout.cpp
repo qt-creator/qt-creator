@@ -357,7 +357,7 @@ TextSuggestion *TextBlockUserData::suggestion() const
 
 void TextBlockUserData::clearSuggestion()
 {
-    m_suggestion.release();
+    m_suggestion.reset();
 }
 
 void TextBlockUserData::addMark(TextMark *mark)
