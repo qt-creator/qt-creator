@@ -674,8 +674,9 @@ void TextDocumentLayout::documentAboutToReload()
 
 void TextDocumentLayout::documentReloaded(TextDocument *baseTextDocument)
 {
-    for (TextMark *mark : std::as_const(m_reloadMarks)) {
-        mark->setDeleteCallback({});
+    const TextMarks marks = m_reloadMarks;
+    resetReloadMarks();
+    for (TextMark *mark : marks) {
         int blockNumber = mark->lineNumber() - 1;
         QTextBlock block = document()->findBlockByNumber(blockNumber);
         if (block.isValid()) {
@@ -689,7 +690,6 @@ void TextDocumentLayout::documentReloaded(TextDocument *baseTextDocument)
             mark->removedFromEditor();
         }
     }
-    m_reloadMarks.clear();
     requestUpdate();
 }
 
