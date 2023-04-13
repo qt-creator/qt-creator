@@ -593,6 +593,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptions()
              (QStringList{"-nostdinc", "-nostdinc++", "-arch", "x86_64", "-fsyntax-only", "-m64",
                           "--target=x86_64-apple-darwin10", "-x", "c++", "-std=c++17",
                           "-DprojectFoo=projectBar",
+                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))",
                           wrappedQtHeadersPath,         // contains -I already
                           wrappedQtCoreHeadersPath,     // contains -I already
                           "-I" + t.toNative("/tmp/path"),
@@ -621,6 +622,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvc()
                           "-D__FUNCSIG__=\"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"",
                           "-D__FUNCTION__=\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"",
                           "-D__FUNCDNAME__=\"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"",
+                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))",
                           wrappedQtHeadersPath,         // contains -I already
                           wrappedQtCoreHeadersPath,     // contains -I already
                           "-I" + t.toNative("/tmp/path"),
@@ -651,6 +653,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvcWithExceptions()
                           "-D__FUNCSIG__=\"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"",
                           "-D__FUNCTION__=\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"",
                           "-D__FUNCDNAME__=\"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"",
+                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))",
                           wrappedQtHeadersPath,             // contains -I already
                           wrappedQtCoreHeadersPath,         // contains -I already
                           "-I" + t.toNative("/tmp/path"),
