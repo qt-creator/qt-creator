@@ -8,4 +8,5 @@ add_qtc_plugin(Subversion
     subversionplugin.cpp subversionplugin.h
     subversionsettings.cpp subversionsettings.h
     subversionsubmiteditor.cpp subversionsubmiteditor.h
+    subversiontr.h
 )

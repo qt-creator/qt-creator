@@ -14,6 +14,7 @@ add_qtc_plugin(Macros
     macrosconstants.h
     macrosplugin.cpp macrosplugin.h
     macrotextfind.cpp macrotextfind.h
+    macrostr.h
     savedialog.cpp savedialog.h
     texteditormacrohandler.cpp texteditormacrohandler.h
 )

@@ -13,6 +13,7 @@ add_qtc_plugin(ClangCodeModel
     clangactivationsequencecontextprocessor.cpp clangactivationsequencecontextprocessor.h
     clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h
     clangcodemodelplugin.cpp clangcodemodelplugin.h
+    clangcodemodeltr.h
     clangcompletioncontextanalyzer.cpp clangcompletioncontextanalyzer.h
     clangconstants.h
     clangdast.cpp clangdast.h

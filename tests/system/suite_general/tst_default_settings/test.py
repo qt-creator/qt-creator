@@ -142,6 +142,10 @@ def __qtFunc__(it, foundQt, qmakePath):
 def __kitFunc__(it, foundQt, foundCompNames):
     global currentSelectedTreeItem, warningOrError
     qtVersionStr = str(waitForObjectExists(":Kits_QtVersion_QComboBox").currentText)
+    # The following may fail if Creator doesn't find a Qt version in PATH. It will then create one
+    # Qt-less kit for each available toolchain instead of just one default Desktop kit.
+    # Since Qt usually is in PATH on the test machines anyway, we consider this too much of a
+    # corner case to add error handling code or make Qt in PATH a hard requirement for the tests.
     test.compare(it, "Desktop (default)", "Verifying whether default Desktop kit has been created.")
     if foundQt:
         test.compare(qtVersionStr, foundQt, "Verifying if Qt versions match.")

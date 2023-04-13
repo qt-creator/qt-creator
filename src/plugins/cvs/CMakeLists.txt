@@ -6,5 +6,6 @@ add_qtc_plugin(CVS
     cvsplugin.cpp cvsplugin.h
     cvssettings.cpp cvssettings.h
     cvssubmiteditor.cpp cvssubmiteditor.h
+    cvstr.h
     cvsutils.cpp cvsutils.h
 )

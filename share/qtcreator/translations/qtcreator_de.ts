@@ -41132,7 +41132,7 @@ The affected files are:
     </message>
     <message>
         <source>Platform:</source>
-        <translation type="unfinished">Plattform:</translation>
+        <translation>Plattform:</translation>
     </message>
     <message>
         <source>Library inside &quot;debug&quot; or &quot;release&quot; subfolder</source>
@@ -41334,19 +41334,19 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>The process &quot;%1&quot; exited normally.</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; wurde normal beendet.</translation>
+        <translation>Der Prozess &quot;%1&quot; wurde normal beendet.</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; exited with code %2.</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; wurde mit dem Rückgabewert %2 beendet.</translation>
+        <translation>Der Prozess &quot;%1&quot; wurde mit dem Rückgabewert %2 beendet.</translation>
     </message>
     <message>
         <source>Could not start process &quot;%1&quot; %2.</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; %2 konnte nicht gestartet werden.</translation>
+        <translation>Der Prozess &quot;%1&quot; %2 konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; crashed.</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; ist abgestürzt.</translation>
+        <translation>Der Prozess &quot;%1&quot; ist abgestürzt.</translation>
     </message>
     <message>
         <source>ABIs:</source>
@@ -41399,19 +41399,19 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Run</source>
-        <translation type="unfinished">Ausführen</translation>
+        <translation>Ausführen</translation>
     </message>
     <message>
         <source>Ignore</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorieren</translation>
     </message>
     <message>
         <source>Use global setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale Einstellung verwenden</translation>
     </message>
     <message>
         <source>qmake system() behavior when parsing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verhalten von qmake system() beim Auswerten:</translation>
     </message>
     <message>
         <source>General</source>
@@ -41482,11 +41482,11 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Cannot parse project &quot;%1&quot;: The currently selected kit &quot;%2&quot; does not have a valid Qt.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Auswertung des Projekts &quot;%1&quot; ist fehlgeschlagen: Das ausgewählte Kit &quot;%2&quot; hat keine gültige Qt-Version.</translation>
     </message>
     <message>
         <source>Cannot parse project &quot;%1&quot;: No kit selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Auswertung des Projekts &quot;%1&quot; ist fehlgeschlagen: Kein Kit ausgewählt.</translation>
     </message>
     <message>
         <source>No Qt version set in kit.</source>
@@ -41506,35 +41506,35 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Generate Xcode project (via qmake)</source>
-        <translation type="unfinished"></translation>
+        <translation>Xcode-Projekt generieren (mittels qmake)</translation>
     </message>
     <message>
         <source>Generate Visual Studio project (via qmake)</source>
-        <translation type="unfinished"></translation>
+        <translation>Visual Studio-Projekt generieren (mittels qmake)</translation>
     </message>
     <message>
         <source>qmake generator failed: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>qmake-Generator fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>No Qt in kit</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Qt im Kit</translation>
     </message>
     <message>
         <source>No valid qmake executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine gültige ausführbare qmake-Datei</translation>
     </message>
     <message>
         <source>No qmake step in active build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein qmake-Build-Schritt in der aktiven Build-Konfiguration</translation>
     </message>
     <message>
         <source>Cannot create output directory &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Ausgabeverzeichnis &quot;%1&quot; konnte nicht angelegt werden</translation>
     </message>
     <message>
         <source>Running in %1: %2</source>
-        <translation type="unfinished">Führe in %1 aus: %2 {1:?}</translation>
+        <translation>Führe in %1 aus: %2</translation>
     </message>
     <message>
         <source>Build</source>
@@ -41656,7 +41656,7 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
     <message>
         <source>The build directory is not at the same level as the source directory, which could be the reason for the build failure.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Build-Verzeichnis liegt nicht auf der gleichen Ebene wie das Quellverzeichnis, was der Grund für den Fehler beim Erstellen sein könnte.</translation>
     </message>
     <message>
         <source>Qt mkspec</source>
@@ -41680,7 +41680,7 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
     <message>
         <source>Mkspec configured for qmake by the kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mkspec, die im Kit für qmake konfiguriert ist.</translation>
     </message>
     <message>
         <source>Reading Project &quot;%1&quot;</source>
@@ -41688,43 +41688,43 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
     <message>
         <source>Warn if a project&apos;s source and build directories are not at the same level</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnen, wenn das Quell- und das Build-Verzeichnis eines Projekts nicht auf der gleichen Ebene liegen</translation>
     </message>
     <message>
         <source>Qmake has subtle bugs that can be triggered if source and build directory are not at the same level.</source>
-        <translation type="unfinished"></translation>
+        <translation>In qmake können subtile Fehler ausgelöst werden, wenn das Quell- und das Build-Verzeichnis nicht auf der gleichen Ebene liegen.</translation>
     </message>
     <message>
         <source>Run qmake on every build</source>
-        <translation type="unfinished"></translation>
+        <translation>qmake bei jedem Erstellen ausführen</translation>
     </message>
     <message>
         <source>This option can help to prevent failures on incremental builds, but might slow them down unnecessarily in the general case.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Einstellung kann Fehler beim inkrementellen Erstellen verhindern, aber das Erstellen im Allgemeinen unnötig verlangsamen.</translation>
     </message>
     <message>
         <source>Ignore qmake&apos;s system() function when parsing a project</source>
-        <translation type="unfinished"></translation>
+        <translation>Qmakes system()-Funktion beim Auswerten eines Projektes ignorieren</translation>
     </message>
     <message>
         <source>Checking this option avoids unwanted side effects, but may result in inexact parsing results.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Einstellung verhindert ungewollte Nebeneffekte, kann aber zu ungenauen Resultaten beim Auswerten führen.</translation>
     </message>
     <message>
         <source>Qmake</source>
-        <translation type="unfinished"></translation>
+        <translation>Qmake</translation>
     </message>
     <message>
         <source>Required Qt features not present.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benötigte Qt-Funktionen sind nicht vorhanden.</translation>
     </message>
     <message>
         <source>Qt version does not target the expected platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Qt-Version unterstützt die erwartete Plattform nicht als Ziel.</translation>
     </message>
     <message>
         <source>Qt version does not provide all features.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Qt-Version stellt nicht alle Funktionen zur Verfügung.</translation>
     </message>
 </context>
 <context>
@@ -41940,11 +41940,21 @@ For qmlproject projects, use the importPaths property to add import paths.
 For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.
 For qmlRegister... calls, make sure that you define the Module URI as a string literal.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Modul wurde nicht gefunden (%1).
+
+Import-Verzeichnisse:
+%2
+
+Für qmake-Projekte benutzen Sie die Variable QML_IMPORT_PATH, um Importpfade hinzuzufügen.
+Für Qbs-Projekte geben Sie eine qmlImportPaths-Eigenschaft in Ihrem Produkt an, um Importpfade hinzuzufügen.
+Für qmlproject-Projekte benutzen Sie die importPaths-Eigenschaft, um Importpfade hinzuzufügen.
+Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMakeCache.txt steht.
+Für qmlRegister...-Aufrufe stellen Sie sicher, dass Sie den Modul-URI als Zeichenkettenliteral definieren.
+</translation>
     </message>
     <message>
         <source>QML module contains C++ plugins, currently reading type information... %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das QML-Modul enthält C++-Plugins. Lese Typinformationen... %1</translation>
     </message>
     <message>
         <source>Implicit import &apos;%1&apos; of QML module &apos;%2&apos; not found.
@@ -41970,7 +41980,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
     <message>
         <source>Hit maximal recursion depth in AST visit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale Rekursionstiefe beim Durchlaufen des Syntaxbaums erreicht.</translation>
     </message>
     <message>
         <source>package import requires a version number</source>
@@ -41978,7 +41988,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
     <message>
         <source>Nested inline components are not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Verschachtelte Inline-Komponenten werden nicht unterstützt</translation>
     </message>
     <message>
         <source>Errors while loading qmltypes from %1:
@@ -42070,7 +42080,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
     <message>
         <source>Expected string literal to contain &apos;Package/Name major.minor&apos; or &apos;Name major.minor&apos;.</source>
-        <translation>Das Zeichenkettenliteral sollte &apos;Package/Name major.minor&apos; oder &apos;Name major.minor&apos; enthalten./</translation>
+        <translation>Das Zeichenkettenliteral sollte &apos;Package/Name major.minor&apos; oder &apos;Name major.minor&apos; enthalten.</translation>
     </message>
     <message>
         <source>Expected array of numbers after colon.</source>
@@ -42278,87 +42288,87 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>Imperative code is not supported in Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Imperativer Code wird von Qt Design Studio nicht unterstützt.</translation>
     </message>
     <message>
         <source>This type (%1) is not supported in Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Typ (%1) wird von Qt Design Studio nicht unterstützt.</translation>
     </message>
     <message>
         <source>Reference to parent item cannot be resolved correctly by Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Referenz zum übergeordneten Element kann von Qt Design Studio nicht korrekt aufgelöst werden.</translation>
     </message>
     <message>
         <source>This visual property binding cannot be evaluated in the local context and might not show up in Qt Design Studio as expected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese visuelle Bindung der Eigenschaft kann nicht im lokalen Kontext ausgewertet werden und wird möglicherweise nicht wie erwartet in Qt Design Studio angezeigt.</translation>
     </message>
     <message>
         <source>Qt Design Studio only supports states in the root item.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Design Studio unterstützt States nur im Wurzelelement.</translation>
     </message>
     <message>
         <source>This id might be ambiguous and is not supported in Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese ID ist möglicherweise nicht eindeutig und wird von Qt Design Studio nicht unterstützt.</translation>
     </message>
     <message>
         <source>This type (%1) is not supported as a root element by Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Typ (%1) wird von Qt Design Studio nicht als Wurzelelement unterstützt.</translation>
     </message>
     <message>
         <source>This type (%1) is not supported as a root element of a UI file (.ui.qml).</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Typ (%1) wird von UI-Dateien (.ui.qml) nicht als Wurzelelement unterstützt.</translation>
     </message>
     <message>
         <source>This type (%1) is not supported in a UI file (.ui.qml).</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Typ (%1) wird von UI-Dateien (.ui.qml) nicht unterstützt.</translation>
     </message>
     <message>
         <source>Functions are not supported in a UI file (.ui.qml).</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionen werden von UI-Dateien (.ui.qml) nicht unterstützt.</translation>
     </message>
     <message>
         <source>JavaScript blocks are not supported in a UI file (.ui.qml).</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaScript-Blöcke werden von UI-Dateien (.ui.qml) nicht unterstützt.</translation>
     </message>
     <message>
         <source>Behavior type is not supported in a UI file (.ui.qml).</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Behavior-Typ wird von UI-Dateien (.ui.qml) nicht unterstützt.</translation>
     </message>
     <message>
         <source>States are only supported in the root item in a UI file (.ui.qml).</source>
-        <translation type="unfinished"></translation>
+        <translation>States werden nur im Wurzelelement von UI-Dateien (.ui.qml) unterstützt.</translation>
     </message>
     <message>
         <source>Referencing the parent of the root item is not supported in a UI file (.ui.qml).</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Referenzieren auf das übergeordnete Element des Wurzelelements wird von UI-Dateien (.ui.qml) nicht unterstützt.</translation>
     </message>
     <message>
         <source>Do not mix translation functions in a UI file (.ui.qml).</source>
-        <translation type="unfinished"></translation>
+        <translation>Vermischen Sie keine Übersetzungsfunktionen in UI-Dateien (.ui.qml).</translation>
     </message>
     <message>
         <source>Type cannot be instantiated recursively (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ kann nicht rekursiv instanziiert werden (%1).</translation>
     </message>
     <message>
         <source>Logical value does not depend on actual values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Logischer Wert hängt nicht von tatsächlichen Werten ab.</translation>
     </message>
     <message>
         <source>Components are only allowed to have a single child element.</source>
-        <translation type="unfinished"></translation>
+        <translation>Komponenten dürfen nur ein einziges Kindelement besitzen.</translation>
     </message>
     <message>
         <source>Components require a child element.</source>
-        <translation type="unfinished"></translation>
+        <translation>Komponenten müssen ein Kindelement besitzen.</translation>
     </message>
     <message>
         <source>Do not reference the root item as alias.</source>
-        <translation type="unfinished"></translation>
+        <translation>Referenzieren Sie das Wurzelelement nicht als Alias.</translation>
     </message>
     <message>
         <source>Avoid referencing the root item in a hierarchy.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vermeiden Sie, das Wurzelelement in einer Hierarchie zu referenzieren.</translation>
     </message>
     <message>
         <source>A State cannot have a child item (%1).</source>
@@ -42446,8 +42456,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>Minimum number value is %1.</source>
-        <translation>Minimalwert ist %1.
-</translation>
+        <translation>Minimalwert ist %1.</translation>
     </message>
     <message>
         <source>Maximum number value is exclusive.</source>
@@ -42485,7 +42494,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
         <source>Automatic type dump of QML module failed.
 Errors:
 %1</source>
-        <translation>Die automatische Ausgabe der Typen des QML-Modules schlug fehl.
+        <translation>Die automatische Ausgabe der Typen des QML-Moduls schlug fehl.
 Fehler:
 %1</translation>
     </message>
@@ -42506,12 +42515,16 @@ First 10 lines or errors:
 
 %1
 Check General Messages for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die automatische Ausgabe der Typen des QML-Moduls schlug fehl.
+Die ersten 10 Zeilen oder Fehler:
+
+%1
+Überprüfen Sie die Ansicht &quot;Allgemeine Ausgaben&quot;, um Details zu erhalten.</translation>
     </message>
     <message>
         <source>Warnings while parsing QML type information of %1:
 %2</source>
-        <translation>Warnungen beim Auswerten der QML-Typinformation von %1:
+        <translation>Warnungen beim Auswerten der QML-Typinformationen von %1:
 %2</translation>
     </message>
     <message>
@@ -42556,25 +42569,27 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     </message>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal.</source>
-        <translation type="unfinished">Dieser Typ wird im QML Editor nur sichtbar sein, wenn der Typname ein Zeichenketten-Literal ist.</translation>
+        <translation>Dieser Typ wird im QML-Editor nur sichtbar sein, wenn der Typname ein Zeichenkettenliteral ist.</translation>
     </message>
     <message>
         <source>The module URI cannot be determined by static analysis. The type will not be available
 globally in the QML editor. You can add a &quot;// @uri My.Module.Uri&quot; annotation to let
 the QML editor know about a likely URI.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Modul-URI kann durch statische Analyse nicht ermittelt werden.
+Der Typ wird nicht global im QML-Editor verfügbar sein.
+Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um dem QML-Editor einen mögliche URI mitzuteilen.</translation>
     </message>
     <message>
         <source>must be a string literal to be available in the QML editor</source>
-        <translation type="unfinished">muss eine Zeichenkette sein, um im QML-Editor verfügbar zu sein</translation>
+        <translation>muss ein Zeichenkettenliteral sein, um im QML-Editor verfügbar zu sein</translation>
     </message>
     <message>
         <source>XML error on line %1, col %2: %3</source>
-        <translation type="unfinished">XML-Fehler in Zeile %1, Spalte %2: %3</translation>
+        <translation>XML-Fehler in Zeile %1, Spalte %2: %3</translation>
     </message>
     <message>
         <source>The &lt;RCC&gt; root element is missing.</source>
-        <translation type="unfinished">Das Wurzelelement (&lt;RCC&gt;) fehlt.</translation>
+        <translation>Das Wurzelelement (&lt;RCC&gt;) fehlt.</translation>
     </message>
 </context>
 <context>
@@ -42626,7 +42641,7 @@ the QML editor know about a likely URI.</source>
     </message>
     <message>
         <source>Add a Comment to Suppress This Message</source>
-        <translation type="unfinished">Fügen Sie einen Kommentar ein, um diese Nachricht zu unterdrücken</translation>
+        <translation>Fügen Sie einen Kommentar ein, um diese Nachricht zu unterdrücken</translation>
     </message>
     <message>
         <source>Property assignments for %1:</source>
@@ -42642,15 +42657,15 @@ the QML editor know about a likely URI.</source>
     </message>
     <message>
         <source>Invalid component name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Komponentenname.</translation>
     </message>
     <message>
         <source>Invalid path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Pfad.</translation>
     </message>
     <message>
         <source>Component already exists.</source>
-        <translation type="unfinished">Komponente existiert bereits.</translation>
+        <translation>Komponente existiert bereits.</translation>
     </message>
     <message>
         <source>Component Name</source>
@@ -42706,15 +42721,15 @@ the QML editor know about a likely URI.</source>
     </message>
     <message>
         <source>Use custom command instead of built-in formatter</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefiniertes Kommando anstatt des integrierten Formatierers benutzen</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Always show Qt Quick Toolbar</source>
@@ -42722,23 +42737,23 @@ the QML editor know about a likely URI.</source>
     </message>
     <message>
         <source>Always Ask</source>
-        <translation type="unfinished">Stets fragen</translation>
+        <translation>Stets fragen</translation>
     </message>
     <message>
         <source>Qt Design Studio</source>
-        <translation type="unfinished">Qt Design Studio</translation>
+        <translation>Qt Design Studio</translation>
     </message>
     <message>
         <source>Qt Creator</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Creator</translation>
     </message>
     <message>
         <source>Use qmlls (EXPERIMENTAL!)</source>
-        <translation type="unfinished"></translation>
+        <translation>qmlls benutzen (EXPERIMENTELL!)</translation>
     </message>
     <message>
         <source>Always use latest qmlls</source>
-        <translation type="unfinished"></translation>
+        <translation>Stets das neueste qmlls benutzen</translation>
     </message>
     <message>
         <source>Automatic Formatting on File Save</source>
@@ -42746,11 +42761,11 @@ the QML editor know about a likely URI.</source>
     </message>
     <message>
         <source>Open .ui.qml files with:</source>
-        <translation type="unfinished"></translation>
+        <translation>.ui.qml-Dateien öffnen mit:</translation>
     </message>
     <message>
         <source>Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Language Server</translation>
     </message>
     <message>
         <source>Enable auto format on file save</source>
@@ -42810,19 +42825,19 @@ the QML editor know about a likely URI.</source>
     </message>
     <message>
         <source>Library at %1</source>
-        <translation type="unfinished">Bibliothek bei %1</translation>
+        <translation>Bibliothek bei %1</translation>
     </message>
     <message>
         <source>Dumped plugins successfully.</source>
-        <translation type="unfinished">Plugin-Information erfolgreich bestimmt.</translation>
+        <translation>Plugin-Information erfolgreich bestimmt.</translation>
     </message>
     <message>
         <source>Read typeinfo files successfully.</source>
-        <translation type="unfinished">typeinfo-Dateien gelesen.</translation>
+        <translation>typeinfo-Dateien erfolgreich gelesen.</translation>
     </message>
     <message>
         <source>Qmlls (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Qmlls (%1)</translation>
     </message>
 </context>
 <context>
@@ -42857,16 +42872,16 @@ the QML editor know about a likely URI.</source>
     </message>
     <message>
         <source>Qml JS Code Style</source>
-        <translation type="unfinished"></translation>
+        <translation>QML JS Coding Style</translation>
     </message>
     <message>
         <source>&amp;Line length:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Zeilenlänge:</translation>
     </message>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
-        <translation type="unfinished">Global</translation>
+        <translation>Global</translation>
     </message>
 </context>
 <context>
@@ -48403,7 +48418,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Pressing Alt displays context-sensitive help or type information as tooltips.</source>
-        <translation>Drücken Sie die Alt-Taste um kontextabhängige Hilfe oder Typinformation als Tooltip anzuzeigen.</translation>
+        <translation>Drücken Sie die Alt-Taste, um kontextabhängige Hilfe oder Typinformationen als Tooltip anzuzeigen.</translation>
     </message>
     <message>
         <source>Using Select Block Up / Down actions will now provide smarter selections.</source>

@@ -58,7 +58,7 @@ function(_create_ts_custom_target name)
     set(_arg_TS_TARGET_PREFIX "ts_")
   endif()
 
-  set(ts_file "${CMAKE_CURRENT_SOURCE_DIR}/${_arg_FILE_PREFIX}_${l}.ts")
+  set(ts_file "${CMAKE_CURRENT_SOURCE_DIR}/${_arg_FILE_PREFIX}_${name}.ts")
 
   set(_sources "${_arg_SOURCES}")
   list(SORT _sources)

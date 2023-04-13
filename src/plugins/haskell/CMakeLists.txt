@@ -13,6 +13,7 @@ add_qtc_plugin(Haskell
     haskellproject.cpp haskellproject.h
     haskellrunconfiguration.cpp haskellrunconfiguration.h
     haskelltokenizer.cpp haskelltokenizer.h
+    haskelltr.h
     optionspage.cpp optionspage.h
     stackbuildstep.cpp stackbuildstep.h
 )

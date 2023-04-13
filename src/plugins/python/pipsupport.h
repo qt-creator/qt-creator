@@ -55,9 +55,6 @@ public:
 private:
     Pip(const Utils::FilePath &python);
 
-    PipPackageInfo infoImpl(const PipPackage &package);
-
-    QMutex m_lock;
     Utils::FilePath m_python;
 };
 

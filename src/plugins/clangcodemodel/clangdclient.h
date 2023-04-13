@@ -53,7 +53,7 @@ public:
     void openExtraFile(const Utils::FilePath &filePath, const QString &content = {});
     void closeExtraFile(const Utils::FilePath &filePath);
 
-    void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
+    void findUsages(const CppEditor::CursorInEditor &cursor,
                     const std::optional<QString> &replacement,
                     const std::function<void()> &renameCallback);
     void checkUnused(const Utils::Link &link, Core::SearchResult *search,

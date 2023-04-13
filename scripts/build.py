@@ -8,6 +8,7 @@ from __future__ import print_function
 import argparse
 import collections
 import os
+import shlex
 import shutil
 
 import common
@@ -43,6 +44,8 @@ def get_arguments():
     # signing
     parser.add_argument('--keychain-unlock-script',
                         help='Path to script for unlocking the keychain used for signing (macOS)')
+    parser.add_argument('--sign-command',
+                        help='Command to use for signing (Windows). The installation directory to sign is added at the end. Is run in the CWD.')
 
     # cdbextension
     parser.add_argument('--python-path',
@@ -262,6 +265,14 @@ def zipPatternForApp(paths):
 
 
 def package_qtcreator(args, paths):
+    if common.is_windows_platform() and args.sign_command:
+        command = shlex.split(args.sign_command)
+        if not args.no_qtcreator:
+            common.check_print_call(command + [paths.install])
+        common.check_print_call(command + [paths.wininterrupt_install])
+        if not args.no_cdb:
+            common.check_print_call(command + [paths.qtcreatorcdbext_install])
+
     if not args.no_zip:
         if not args.no_qtcreator:
             common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,

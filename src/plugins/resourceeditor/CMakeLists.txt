@@ -10,6 +10,7 @@ add_qtc_plugin(ResourceEditor
     resourceeditorconstants.h
     resourceeditorfactory.cpp resourceeditorfactory.h
     resourceeditorplugin.cpp resourceeditorplugin.h
+    resourceeditortr.h
     resourceeditorw.cpp resourceeditorw.h
     resourcenode.cpp resourcenode.h
 )

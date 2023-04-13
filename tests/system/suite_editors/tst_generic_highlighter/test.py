@@ -99,10 +99,12 @@ def addHighlighterDefinition(*languages):
                   "text='Generic Highlighter'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Generic Highlighter")
 
+    test.log("Trying to download definitions...")
     clickButton("{text='Download Definitions' type='QPushButton' unnamed='1' visible='1'}")
     updateStatus = "{name='updateStatus' type='QLabel' visible='1'}"
     waitFor("object.exists(updateStatus)", 5000)
-    if waitFor('str(findObject(updateStatus).text) == "Download finished"', 5000):
+    if waitFor('str(findObject(updateStatus).text) == "Download finished"', 20000):
+        test.log("Received definitions")
         test.verify(os.path.exists(syntaxDirectory),
                     "Directory for syntax highlighter files exists.")
         xmlFiles = glob.glob(os.path.join(syntaxDirectory, "*.xml"))

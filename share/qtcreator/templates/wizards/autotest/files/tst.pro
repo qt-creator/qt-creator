@@ -47,7 +47,7 @@ CONFIG += thread
 CONFIG -= qt
 
 SOURCES += \\
-        %{MainCppName} \
+        %{MainCppName} \\
         %{TestCaseFileGTestWithCppSuffix}
 @endif
 @if "%{TestFrameWork}" == "BoostTest"

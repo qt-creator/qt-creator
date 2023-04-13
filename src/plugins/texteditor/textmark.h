@@ -115,7 +115,7 @@ public:
     void setActions(const QVector<QAction *> &actions); // Takes ownership
     void setActionsProvider(const std::function<QList<QAction *>()> &actionsProvider); // Takes ownership
 
-    bool isLocationMarker() const;;
+    bool isLocationMarker() const;
     void setIsLocationMarker(bool newIsLocationMarker);
 
 

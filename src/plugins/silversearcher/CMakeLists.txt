@@ -4,6 +4,7 @@ add_qtc_plugin(SilverSearcher
     findinfilessilversearcher.cpp findinfilessilversearcher.h
     silversearcheroutputparser.cpp silversearcheroutputparser.h
     silversearcherplugin.cpp silversearcherplugin.h
+    silversearchertr.h
 )
 
 extend_qtc_plugin(SilverSearcher CONDITION WITH_TESTS

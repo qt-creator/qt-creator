@@ -11,6 +11,7 @@ add_qtc_plugin(CodePaster
     cpasterconstants.h
     cpaster.qrc
     cpasterplugin.cpp cpasterplugin.h
+    cpastertr.h
     dpastedotcomprotocol.cpp dpastedotcomprotocol.h
     fileshareprotocol.cpp fileshareprotocol.h
     fileshareprotocolsettingspage.cpp fileshareprotocolsettingspage.h

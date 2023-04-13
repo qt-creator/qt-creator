@@ -10,6 +10,7 @@ add_qtc_plugin(ClassView
     classviewplugin.cpp classviewplugin.h
     classviewsymbolinformation.cpp classviewsymbolinformation.h
     classviewsymbollocation.cpp classviewsymbollocation.h
+    classviewtr.h
     classviewtreeitemmodel.cpp classviewtreeitemmodel.h
     classviewutils.cpp classviewutils.h
 )

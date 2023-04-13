@@ -19,9 +19,6 @@ def main():
     if platform.system() in ('Microsoft', 'Windows'):
         expectConfigureToFail = [ Targets.DESKTOP_5_4_1_GCC ] # gcc 4.9 does not know C++17
 
-        # Qt5.10 does not default enable C++17
-        expectBuildToFail = [ Targets.DESKTOP_5_10_1_DEFAULT ]
-
     for kit, config in availableConfigs:
         selectBuildConfig(kit, config)
         test.log("Testing build configuration: " + config)

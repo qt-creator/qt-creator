@@ -31,6 +31,7 @@ add_qtc_plugin(Valgrind
     valgrindplugin.cpp
     valgrindrunner.cpp valgrindrunner.h
     valgrindsettings.cpp valgrindsettings.h
+    valgrindtr.h
     xmlprotocol/announcethread.cpp xmlprotocol/announcethread.h
     xmlprotocol/error.cpp xmlprotocol/error.h
     xmlprotocol/errorlistmodel.cpp xmlprotocol/errorlistmodel.h
