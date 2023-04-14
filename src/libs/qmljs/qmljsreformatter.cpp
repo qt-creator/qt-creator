@@ -101,16 +101,16 @@ public:
         _hadEmptyLine = false;
         _binaryExpDepth = 0;
 
-
+        const QString &source = _doc->source();
         // emit directives
         if (_doc->bind()->isJsLibrary()) {
-            out(QLatin1String(".pragma library"));
+            const QLatin1String pragmaLine(".pragma library");
+            out(pragmaLine, SourceLocation(source.indexOf(".pragma"), pragmaLine.length()));
             newLine();
         }
         const QList<SourceLocation> &directives = _doc->jsDirectives();
         for (const auto &d: directives) {
             quint32 line = 0;
-            const QString &source = _doc->source();
             int i = -1;
             while (++line < d.startLine)
                 i = source.indexOf(QChar('\n'), i + 1);
