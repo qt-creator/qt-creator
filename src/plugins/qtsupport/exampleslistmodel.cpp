@@ -44,6 +44,7 @@ static bool debugExamples()
 }
 
 static const char kSelectedExampleSetKey[] = "WelcomePage/SelectedExampleSet";
+Q_GLOBAL_STATIC_WITH_ARGS(QVersionNumber, minQtVersionForCategories, (6, 5, 1));
 
 void ExampleSetModel::writeCurrentIdToSettings(int currentIndex) const
 {
@@ -117,7 +118,7 @@ void ExampleSetModel::recreateModel(const QtVersions &qtVersions)
     beginResetModel();
     clear();
 
-    QSet<QString> extraManifestDirs;
+    QHash<FilePath, int> extraManifestDirs;
     for (int i = 0; i < m_extraExampleSets.size(); ++i)  {
         const ExtraExampleSet &set = m_extraExampleSets.at(i);
         auto newItem = new QStandardItem();
@@ -127,14 +128,19 @@ void ExampleSetModel::recreateModel(const QtVersions &qtVersions)
         newItem->setData(i, Qt::UserRole + 3);
         appendRow(newItem);
 
-        extraManifestDirs.insert(set.manifestPath);
+        extraManifestDirs.insert(FilePath::fromUserInput(set.manifestPath), i);
     }
 
     for (QtVersion *version : qtVersions) {
-        // sanitize away qt versions that have already been added through extra sets
-        if (extraManifestDirs.contains(version->docsPath().toString())) {
+        // Sanitize away qt versions that have already been added through extra sets.
+        // This way we do not have entries for Qt/Android, Qt/Desktop, Qt/MinGW etc pp,
+        // but only the one "QtX X.Y.Z" entry that is registered as an example set by the installer.
+        if (extraManifestDirs.contains(version->docsPath())) {
+            m_extraExampleSets[extraManifestDirs.value(version->docsPath())].qtVersion
+                = version->qtVersion();
             if (debugExamples()) {
-                qWarning() << "Not showing Qt version because manifest path is already added through InstalledExamples settings:"
+                qWarning() << "Not showing Qt version because manifest path is already added "
+                              "through InstalledExamples settings:"
                            << version->displayName();
             }
             continue;
@@ -330,10 +336,11 @@ static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)
 }
 
 static QList<std::pair<QString, QList<ExampleItem *>>> getCategories(
-    const QList<ExampleItem *> &items)
+    const QList<ExampleItem *> &items, bool sortIntoCategories)
 {
     static const QString otherDisplayName = Tr::tr("Other", "Category for all other examples");
-    const bool useCategories = qtcEnvironmentVariableIsSet("QTC_USE_EXAMPLE_CATEGORIES");
+    const bool useCategories = sortIntoCategories
+                               || qtcEnvironmentVariableIsSet("QTC_USE_EXAMPLE_CATEGORIES");
     QList<ExampleItem *> other;
     QMap<QString, QList<ExampleItem *>> categoryMap;
     if (useCategories) {
@@ -374,10 +381,11 @@ void ExamplesViewController::updateExamples()
 {
     QString examplesInstallPath;
     QString demosInstallPath;
+    QVersionNumber qtVersion;
 
     const QStringList sources = m_exampleSetModel->exampleSources(&examplesInstallPath,
-                                                                  &demosInstallPath);
-
+                                                                  &demosInstallPath,
+                                                                  &qtVersion);
     m_view->clear();
 
     QList<ExampleItem *> items;
@@ -414,7 +422,9 @@ void ExamplesViewController::updateExamples()
         }
     }
 
-    const QList<std::pair<QString, QList<ExampleItem *>>> sections = getCategories(items);
+    const bool sortIntoCategories = qtVersion >= *minQtVersionForCategories;
+    const QList<std::pair<QString, QList<ExampleItem *>>> sections
+        = getCategories(items, sortIntoCategories);
     for (int i = 0; i < sections.size(); ++i) {
         m_view->addSection({sections.at(i).first, i},
                            static_container_cast<ListItem *>(sections.at(i).second));
@@ -482,7 +492,9 @@ QtVersion *ExampleSetModel::findHighestQtVersion(const QtVersions &versions) con
     return newVersion;
 }
 
-QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath, QString *demosInstallPath)
+QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath,
+                                            QString *demosInstallPath,
+                                            QVersionNumber *qtVersion)
 {
     QStringList sources;
 
@@ -500,6 +512,8 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath, QStrin
         manifestScanPath = exampleSet.manifestPath;
         examplesPath = exampleSet.examplesPath;
         demosPath = exampleSet.examplesPath;
+        if (qtVersion)
+            *qtVersion = exampleSet.qtVersion;
     } else if (currentType == ExampleSetModel::QtExampleSet) {
         const int qtId = getQtId(m_selectedExampleSetIndex);
         const QtVersions versions = QtVersionManager::versions();
@@ -508,6 +522,8 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath, QStrin
                 manifestScanPath = version->docsPath().toString();
                 examplesPath = version->examplesPath().toString();
                 demosPath = version->demosPath().toString();
+                if (qtVersion)
+                    *qtVersion = version->qtVersion();
                 break;
             }
         }
