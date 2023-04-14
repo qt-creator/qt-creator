@@ -954,9 +954,11 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
         return;
     }
 
-    if (dbgCmd.flags == ScriptCommand) {
+    if (dbgCmd.flags & ScriptCommand) {
         // repack script command into an extension command
         DebuggerCommand newCmd("script", ExtensionCommand, dbgCmd.callback);
+        if (dbgCmd.flags & DebuggerCommand::Silent)
+            newCmd.flags |= DebuggerCommand::Silent;
         if (!dbgCmd.args.isNull())
             newCmd.args = QString{dbgCmd.function + '(' + dbgCmd.argsToPython() + ')'};
         else
@@ -975,7 +977,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
     } else {
         const int token = ++m_nextCommandToken;
         StringInputStream str(fullCmd);
-        if (dbgCmd.flags == BuiltinCommand) {
+        if (dbgCmd.flags & BuiltinCommand) {
             // Post a built-in-command producing free-format output with a callback.
             // In order to catch the output, it is enclosed in 'echo' commands
             // printing a specially formatted token to be identifiable in the output.
@@ -986,7 +988,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
                 showMessage("Command is longer than 4096 characters execution will likely fail.",
                             LogWarning);
             }
-        } else if (dbgCmd.flags == ExtensionCommand) {
+        } else if (dbgCmd.flags & ExtensionCommand) {
 
             // Post an extension command producing one-line output with a callback,
             // pass along token for identification in hash.
@@ -1020,7 +1022,8 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
     if (debug) {
         qDebug("CdbEngine::postCommand: resulting command '%s'\n", qPrintable(fullCmd));
     }
-    showMessage(cmd, LogInput);
+    if (!(dbgCmd.flags & DebuggerCommand::Silent))
+        showMessage(cmd, LogInput);
     m_process.write(fullCmd);
 }
 
@@ -2766,12 +2769,60 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         return;
     }
 
-    QString dumperPath = Core::ICore::resourcePath("debugger").toUserOutput();
-    dumperPath.replace('\\', "\\\\");
-    runCommand({"sys.path.insert(1, '" + dumperPath + "')", ScriptCommand});
-    runCommand({"from cdbbridge import Dumper", ScriptCommand});
-    runCommand({"print(dir())", ScriptCommand});
-    runCommand({"theDumper = Dumper()", ScriptCommand});
+
+    if (runParameters().startMode == AttachToRemoteServer) {
+        FilePath dumperPath = Core::ICore::resourcePath("debugger");
+        const FilePath loadOrderFile = dumperPath / "loadorder.txt";
+        const expected_str<QByteArray> toLoad = loadOrderFile.fileContents();
+        if (!toLoad) {
+            Core::AsynchronousMessageBox::critical(
+                Tr::tr("Cannot Find Debugger Initialization Script"),
+                Tr::tr("Cannot read %1: %2").arg(loadOrderFile.toUserOutput(), toLoad.error()));
+            notifyEngineSetupFailed();
+            return;
+        }
+
+        runCommand({"import sys, types", ScriptCommand});
+        QStringList moduleList;
+        for (const QByteArray &rawModuleName : toLoad->split('\n')) {
+            QString module = QString::fromUtf8(rawModuleName).trimmed();
+            if (module.startsWith('#') || module.isEmpty())
+                continue;
+            if (module == "***bridge***")
+                module = "cdbbridge";
+
+            const FilePath codeFile = dumperPath / (module + ".py");
+            const expected_str<QByteArray> code = codeFile.fileContents();
+            if (!code) {
+                qDebug() << Tr::tr("Cannot read %1: %2").arg(codeFile.toUserOutput(), code.error());
+                continue;
+            }
+
+            showMessage("Reading " + codeFile.toUserOutput(), LogInput);
+            runCommand({QString("module = types.ModuleType('%1')").arg(module), ScriptCommand});
+            runCommand({QString("code = bytes.fromhex('%1').decode('utf-8')")
+                            .arg(QString::fromUtf8(code->toHex())), ScriptCommand | DebuggerCommand::Silent});
+            runCommand({QString("exec(code, module.__dict__)"), ScriptCommand});
+            runCommand({QString("sys.modules['%1'] = module").arg(module), ScriptCommand});
+            runCommand({QString("import %1").arg(module), ScriptCommand});
+
+            if (module.endsWith("types"))
+                moduleList.append('"' + module + '"');
+        }
+
+        runCommand({"from cdbbridge import Dumper", ScriptCommand});
+        runCommand({"print(dir())", ScriptCommand});
+        runCommand({"theDumper = Dumper()", ScriptCommand});
+        runCommand({QString("theDumper.dumpermodules = [%1]").arg(moduleList.join(',')), ScriptCommand});
+
+    } else {
+        QString dumperPath = Core::ICore::resourcePath("debugger").toUserOutput();
+        dumperPath.replace('\\', "\\\\");
+        runCommand({"sys.path.insert(1, '" + dumperPath + "')", ScriptCommand});
+        runCommand({"from cdbbridge import Dumper", ScriptCommand});
+        runCommand({"print(dir())", ScriptCommand});
+        runCommand({"theDumper = Dumper()", ScriptCommand});
+    }
 
     const QString path = debuggerSettings()->extraDumperFile.value();
     if (!path.isEmpty() && QFileInfo(path).isReadable()) {

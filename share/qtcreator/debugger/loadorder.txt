@@ -1,7 +1,7 @@
 utils
 gdbtracepoint
 dumper
-gdbbridge
+***bridge***
 boosttypes
 creatortypes
 libcpp_stdtypes

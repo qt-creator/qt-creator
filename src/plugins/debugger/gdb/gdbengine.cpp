@@ -3986,9 +3986,11 @@ void GdbEngine::handleGdbStarted()
         runCommand({"python import sys, types"});
         QStringList moduleList;
         for (const QByteArray &rawModuleName : toLoad->split('\n')) {
-            const QString module = QString::fromUtf8(rawModuleName).trimmed();
-            if (module.startsWith('#'))
+            QString module = QString::fromUtf8(rawModuleName).trimmed();
+            if (module.startsWith('#') || module.isEmpty())
                 continue;
+            if (module == "***bridge***")
+                module = "gdbbridge";
 
             const FilePath codeFile = dumperPath / (module + ".py");
             const expected_str<QByteArray> code = codeFile.fileContents();
