@@ -25,8 +25,16 @@ public:
     static const unsigned int DEFAULT_BASE_COLOR = 0x666666;
     static const int progressFadeAnimationDuration = 600;
 
+    enum ToolbarStyle {
+        ToolbarStyleCompact,
+        ToolbarStyleRelaxed,
+    };
+
     // Height of the project explorer navigation bar
-    static int navigationWidgetHeight() { return 24; }
+    static int navigationWidgetHeight();
+    static void setToolbarStyle(ToolbarStyle style);
+    static ToolbarStyle toolbarStyle();
+    static constexpr ToolbarStyle defaultToolbarStyle = ToolbarStyleCompact;
     static qreal sidebarFontSize();
     static QPalette sidebarFontPalette(const QPalette &original);
 
@@ -122,6 +130,7 @@ public:
     static QColor ensureReadableOn(const QColor &background, const QColor &desiredForeground);
 
 private:
+    static ToolbarStyle m_toolbarStyle;
     static QColor m_baseColor;
     static QColor m_requestedBaseColor;
 };

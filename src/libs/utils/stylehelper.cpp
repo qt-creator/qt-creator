@@ -58,6 +58,21 @@ QColor StyleHelper::alphaBlendedColors(const QColor &colorA, const QColor &color
                 );
 }
 
+int StyleHelper::navigationWidgetHeight()
+{
+    return m_toolbarStyle == ToolbarStyleCompact ? 24 : 30;
+}
+
+void StyleHelper::setToolbarStyle(ToolbarStyle style)
+{
+    m_toolbarStyle = style;
+}
+
+StyleHelper::ToolbarStyle StyleHelper::toolbarStyle()
+{
+    return m_toolbarStyle;
+}
+
 qreal StyleHelper::sidebarFontSize()
 {
     return HostOsInfo::isMacHost() ? 10 : 7.5;
@@ -89,6 +104,7 @@ QColor StyleHelper::panelTextColor(bool lightColored)
         return Qt::black;
 }
 
+StyleHelper::ToolbarStyle StyleHelper::m_toolbarStyle = StyleHelper::defaultToolbarStyle;
 // Invalid by default, setBaseColor needs to be called at least once
 QColor StyleHelper::m_baseColor;
 QColor StyleHelper::m_requestedBaseColor;
