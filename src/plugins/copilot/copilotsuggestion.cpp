@@ -9,6 +9,7 @@
 
 using namespace Utils;
 using namespace TextEditor;
+using namespace LanguageServerProtocol;
 
 namespace Copilot::Internal {
 
@@ -19,7 +20,14 @@ CopilotSuggestion::CopilotSuggestion(const QList<Completion> &completions,
     , m_currentCompletion(currentCompletion)
 {
     const Completion completion = completions.value(currentCompletion);
-    document()->setPlainText(completion.text());
+    const Position start = completion.range().start();
+    const Position end = completion.range().end();
+    QString text = start.toTextCursor(origin).block().text();
+    int length = text.length() - start.character();
+    if (start.line() == end.line())
+        length = end.character() - start.character();
+    text.replace(start.character(), length, completion.text());
+    document()->setPlainText(text);
     m_start = completion.position().toTextCursor(origin);
     m_start.setKeepPositionOnInsert(true);
     setCurrentPosition(m_start.position());
