@@ -54,7 +54,7 @@ static Abis detectTargetAbis(const FilePath &sdpPath)
         const EnvironmentItems environment = QnxUtils::qnxEnvironment(sdpPath);
         for (const EnvironmentItem &item : environment) {
             if (item.name == QLatin1String("QNX_TARGET"))
-                qnxTarget = FilePath::fromString(item.value);
+                qnxTarget = sdpPath.withNewPath(item.value);
         }
     }
 
