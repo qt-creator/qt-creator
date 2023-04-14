@@ -774,6 +774,11 @@ QSize StudioStyle::sizeFromContents(
     switch (type) {
     case CT_MenuItem:
         if (const auto mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+            if (!isQmlEditorMenu(widget)) {
+                newSize = Super::sizeFromContents(type, option, size, widget);
+                break;
+            }
+
             const int leftMargin = pixelMetric(
                         QStyle::PM_LayoutLeftMargin,
                         option, widget);
