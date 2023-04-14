@@ -160,6 +160,7 @@ private slots:
     void quitBlockingProcess_data();
     void quitBlockingProcess();
     void tarPipe();
+    void stdinToShell();
 
     void cleanupTestCase();
 
@@ -1517,6 +1518,21 @@ void tst_Process::tarPipe()
     QVERIFY(destinationArchive.exists());
     QVERIFY(destinationFile.exists());
     QCOMPARE(sourceFile.fileSize(), destinationFile.fileSize());
+}
+
+void tst_Process::stdinToShell()
+{
+    //  proc.setCommand({"cmd.exe", {}});  - Piping into cmd.exe does not appear to work.
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("Skipping env test on Windows");
+
+    Process proc;
+    proc.setCommand({"sh", {}});
+    proc.setWriteData("echo hallo");
+    proc.runBlocking();
+
+    QString result = proc.readAllStandardOutput().trimmed();
+    QCOMPARE(result, "hallo");
 }
 
 QTEST_GUILESS_MAIN(tst_Process)
