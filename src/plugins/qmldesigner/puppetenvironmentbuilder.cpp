@@ -51,6 +51,7 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
     addMultiLanguageDatatbase();
     addImportPaths();
     addCustomFileSelectors();
+    addDisableDeferredProperties();
 
     qCInfo(puppetEnvirmentBuild) << "Puppet environment:" << m_environment.toStringList();
 
@@ -226,6 +227,11 @@ void PuppetEnvironmentBuilder::addCustomFileSelectors() const
         m_environment.appendOrSet("QML_FILE_SELECTORS", customFileSelectors.join(","), pathSep);
 
     qCInfo(puppetEnvirmentBuild) << "Puppet selectors:" << customFileSelectors;
+}
+
+void PuppetEnvironmentBuilder::addDisableDeferredProperties() const
+{
+    m_environment.set("QML_DISABLE_INTERNAL_DEFERRED_PROPERTIES", "true");
 }
 
 PuppetType PuppetEnvironmentBuilder::determinePuppetType() const
