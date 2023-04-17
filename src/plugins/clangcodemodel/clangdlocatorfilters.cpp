@@ -162,7 +162,7 @@ ClangGlobalSymbolFilter::~ClangGlobalSymbolFilter()
 LocatorMatcherTasks ClangGlobalSymbolFilter::matchers()
 {
     return CppEditor::cppMatchers(MatcherType::AllSymbols)
-           + LanguageClient::workspaceMatchers(MatcherType::AllSymbols,
+           + LanguageClient::languageClientMatchers(MatcherType::AllSymbols,
                              ClangModelManagerSupport::clientsForOpenProjects(), MaxResultCount);
 }
 
@@ -191,7 +191,7 @@ ClangClassesFilter::ClangClassesFilter()
 LocatorMatcherTasks ClangClassesFilter::matchers()
 {
     return CppEditor::cppMatchers(MatcherType::Classes)
-           + LanguageClient::workspaceMatchers(MatcherType::Classes,
+           + LanguageClient::languageClientMatchers(MatcherType::Classes,
                              ClangModelManagerSupport::clientsForOpenProjects(), MaxResultCount);
 }
 
@@ -208,7 +208,7 @@ ClangFunctionsFilter::ClangFunctionsFilter()
 LocatorMatcherTasks ClangFunctionsFilter::matchers()
 {
     return CppEditor::cppMatchers(MatcherType::Functions)
-           + LanguageClient::workspaceMatchers(MatcherType::Functions,
+           + LanguageClient::languageClientMatchers(MatcherType::Functions,
                              ClangModelManagerSupport::clientsForOpenProjects(), MaxResultCount);
 }
 

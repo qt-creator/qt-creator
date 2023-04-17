@@ -19,11 +19,16 @@ namespace Core { class IEditor; }
 
 namespace LanguageClient {
 
+class CurrentDocumentSymbolsData;
+
 using DocSymbolModifier = std::function<void(Core::LocatorFilterEntry &,
     const LanguageServerProtocol::DocumentSymbol &, const Core::LocatorFilterEntry &)>;
 
-Core::LocatorMatcherTasks LANGUAGECLIENT_EXPORT workspaceMatchers(Core::MatcherType type,
-    const QList<Client *> &clients = {}, int maxResultCount = 0);
+Core::LocatorFilterEntries LANGUAGECLIENT_EXPORT currentDocumentSymbols(const QString &input,
+    const CurrentDocumentSymbolsData &currentSymbolsData, const DocSymbolModifier &docSymbolModifier);
+
+Core::LocatorMatcherTasks LANGUAGECLIENT_EXPORT languageClientMatchers(
+    Core::MatcherType type, const QList<Client *> &clients = {}, int maxResultCount = 0);
 
 class LanguageClientManager;
 
@@ -49,6 +54,7 @@ protected:
         const DocSymbolModifier &docSymbolModifier);
 
 private:
+    Core::LocatorMatcherTasks matchers() final;
     void updateCurrentClient();
     void updateSymbols(const LanguageServerProtocol::DocumentUri &uri,
                        const LanguageServerProtocol::DocumentSymbolsResult &symbols);
