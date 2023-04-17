@@ -134,8 +134,10 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
         int x = line.cursorToX(pos);
         lineRect.setLeft(x - borderWidth);
         lineRect.setRight(x + borderWidth);
+        lineRect.setBottom(lineRect.bottom() + borderWidth);
         QPainterPath path;
         path.addRect(lineRect);
+        path.translate(offset);
         return path;
     }
 
