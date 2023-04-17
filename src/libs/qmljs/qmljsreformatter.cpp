@@ -104,7 +104,7 @@ public:
         const QString &source = _doc->source();
         // emit directives
         if (_doc->bind()->isJsLibrary()) {
-            const QLatin1String pragmaLine(".pragma library");
+            const QString pragmaLine(".pragma library");
             out(pragmaLine, SourceLocation(source.indexOf(".pragma"), pragmaLine.length()));
             newLine();
         }
