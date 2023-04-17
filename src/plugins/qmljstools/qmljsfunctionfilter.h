@@ -16,11 +16,12 @@ class FunctionFilter : public Core::ILocatorFilter
 
 public:
     explicit FunctionFilter(LocatorData *data, QObject *parent = nullptr);
-    ~FunctionFilter() override;
 
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
 private:
+    Core::LocatorMatcherTasks matchers() final;
+
     LocatorData *m_data = nullptr;
 };
 
