@@ -252,6 +252,8 @@ void TextEditorOverlay::paintSelection(QPainter *painter,
         return;
 
     QPainterPath path = createSelectionPath(begin, end, clip);
+    if (path.isEmpty())
+        return;
 
     painter->save();
     QColor penColor = fg;
@@ -307,6 +309,8 @@ void TextEditorOverlay::fillSelection(QPainter *painter,
         return;
 
     QPainterPath path = createSelectionPath(begin, end, clip);
+    if (path.isEmpty())
+        return;
 
     painter->save();
     painter->translate(-.5, -.5);
