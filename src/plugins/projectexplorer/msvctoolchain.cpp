@@ -3,6 +3,7 @@
 
 #include "msvctoolchain.h"
 
+#include "devicesupport/idevice.h"
 #include "gcctoolchain.h"
 #include "msvcparser.h"
 #include "projectexplorer.h"
@@ -1909,7 +1910,7 @@ static void detectCppBuildTools2015(Toolchains *list)
 
 Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    if (!detector.device.isNull()) {
+    if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // FIXME currently no support for msvc toolchains on a device
         return {};
     }
@@ -2024,7 +2025,7 @@ bool ClangClToolChainFactory::canCreate() const
 
 Toolchains ClangClToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    if (!detector.device.isNull()) {
+    if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // FIXME currently no support for msvc toolchains on a device
         return {};
     }

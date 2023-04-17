@@ -3,6 +3,7 @@
 
 #include "toolchainsettingsaccessor.h"
 
+#include "devicesupport/devicemanager.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "toolchain.h"
@@ -192,9 +193,11 @@ Toolchains ToolChainSettingsAccessor::restoreToolChains(QWidget *parent) const
     // Autodetect: Pass autodetected toolchains from user file so the information can be reused:
     const Toolchains autodetectedUserFileTcs
             = Utils::filtered(userFileTcs, &ToolChain::isAutoDetected);
-    // FIXME: Use real device?
-    const Toolchains autodetectedTcs =
-        autoDetectToolChains(ToolchainDetector(autodetectedUserFileTcs, {}, {}));
+
+    // Autodect from system paths on the desktop device.
+    // The restriction is intentional to keep startup and automatic validation a limited effort
+    ToolchainDetector detector(autodetectedUserFileTcs, DeviceManager::defaultDesktopDevice(), {});
+    const Toolchains autodetectedTcs = autoDetectToolChains(detector);
 
     // merge tool chains and register those that we need to keep:
     const ToolChainOperations ops = mergeToolChainLists(systemFileTcs, userFileTcs, autodetectedTcs);

@@ -674,7 +674,9 @@ ToolchainDetector::ToolchainDetector(const Toolchains &alreadyKnown,
                                      const IDevice::ConstPtr &device,
                                      const FilePaths &searchPaths)
     : alreadyKnown(alreadyKnown), device(device), searchPaths(searchPaths)
-{}
+{
+    QTC_CHECK(device);
+}
 
 BadToolchain::BadToolchain(const Utils::FilePath &filePath)
     : BadToolchain(filePath, filePath.symLinkTarget(), filePath.lastModified())

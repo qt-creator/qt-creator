@@ -15,6 +15,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gcctoolchain.h>
@@ -573,7 +574,7 @@ IosToolChainFactory::IosToolChainFactory()
 
 Toolchains IosToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    if (detector.device)
+    if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         return {};
 
     QList<ClangToolChain *> existingClangToolChains = clangToolChains(detector.alreadyKnown);
