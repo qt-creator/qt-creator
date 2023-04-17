@@ -54,6 +54,7 @@ public:
     ~ClangdCurrentDocumentFilter() override;
 
 private:
+    Core::LocatorMatcherTasks matchers() final;
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
