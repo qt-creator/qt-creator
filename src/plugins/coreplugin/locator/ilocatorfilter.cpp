@@ -118,7 +118,7 @@ public:
     void run(QPromise<LocatorMatcherTask::OutputData> &promise)
     {
         QList<std::optional<LocatorMatcherTask::OutputData>> data;
-        QList<std::optional<WorkingData>> workingList;
+        QList<std::optional<WorkingData>> workingList(m_filterCount, {});
         while (waitForData(&data)) {
             // Emit new results only when new data is reachable from the beginning (i.e. no gaps)
             int currentIndex = 0;
