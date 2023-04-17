@@ -23,6 +23,8 @@ namespace TextEditor::Internal {
 const char MARKDOWNVIEWER_ID[] = "Editors.MarkdownViewer";
 const char MARKDOWNVIEWER_TEXT_CONTEXT[] = "Editors.MarkdownViewer.Text";
 const char MARKDOWNVIEWER_MIME_TYPE[] = "text/markdown";
+const char MARKDOWNVIEWER_TEXTEDITOR_RIGHT[] = "Markdown.TextEditorRight";
+const bool kTextEditorRightDefault = true;
 
 class MarkdownEditor : public Core::IEditor
 {
@@ -32,14 +34,18 @@ public:
     {
         m_document->setMimeType(MARKDOWNVIEWER_MIME_TYPE);
 
+        QSettings *s = Core::ICore::settings();
+        const bool textEditorRight
+            = s->value(MARKDOWNVIEWER_TEXTEDITOR_RIGHT, kTextEditorRightDefault).toBool();
+
         // Left side
-        auto browser = new QTextBrowser(&m_widget);
+        auto browser = new QTextBrowser();
         browser->setOpenExternalLinks(true);
         browser->setFrameShape(QFrame::NoFrame);
         new Utils::MarkdownHighlighter(browser->document());
 
         // Right side (hidable)
-        m_textEditorWidget = new TextEditorWidget(&m_widget);
+        m_textEditorWidget = new TextEditorWidget;
         m_textEditorWidget->setTextDocument(m_document);
         m_textEditorWidget->setupGenericHighlighter();
         m_textEditorWidget->setMarksVisible(false);
@@ -47,6 +53,14 @@ public:
         context->setWidget(m_textEditorWidget);
         context->setContext(Core::Context(MARKDOWNVIEWER_TEXT_CONTEXT));
         Core::ICore::addContextObject(context);
+
+        if (textEditorRight) {
+            m_widget.addWidget(browser);
+            m_widget.addWidget(m_textEditorWidget);
+        } else {
+            m_widget.addWidget(m_textEditorWidget);
+            m_widget.addWidget(browser);
+        }
 
         setContext(Core::Context(MARKDOWNVIEWER_ID));
         setWidget(&m_widget);
@@ -56,11 +70,15 @@ public:
         toggleEditorVisible->setCheckable(true);
         toggleEditorVisible->setChecked(true);
 
+        auto swapViews = new QToolButton;
+        swapViews->setText(Tr::tr("Swap Views"));
+
         auto layout = new QHBoxLayout(&m_toolbar);
         layout->setSpacing(0);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addStretch();
         layout->addWidget(toggleEditorVisible);
+        layout->addWidget(swapViews);
 
         connect(m_document.data(), &TextDocument::mimeTypeChanged,
                 m_document.data(), &TextDocument::changed);
@@ -80,6 +98,20 @@ public:
                     toggleEditorVisible->setText(editorVisible ? Tr::tr("Hide Editor")
                                                                : Tr::tr("Show Editor"));
                 });
+
+        connect(swapViews, &QToolButton::clicked, m_textEditorWidget, [this] {
+            QTC_ASSERT(m_widget.count() > 1, return);
+            auto placeholder = std::make_unique<QWidget>();
+            auto second = m_widget.replaceWidget(1, placeholder.get());
+            auto first = m_widget.replaceWidget(0, second);
+            m_widget.replaceWidget(1, first);
+            Utils::QtcSettings *s = Core::ICore::settings();
+            s->setValueWithDefault(MARKDOWNVIEWER_TEXTEDITOR_RIGHT,
+                                   !s->value(MARKDOWNVIEWER_TEXTEDITOR_RIGHT,
+                                             kTextEditorRightDefault)
+                                        .toBool(),
+                                   kTextEditorRightDefault);
+        });
 
         connect(m_document->document(), &QTextDocument::contentsChanged, this, [this, browser] {
             QHash<QScrollBar *, int> positions;
@@ -123,4 +155,4 @@ MarkdownEditorFactory::MarkdownEditorFactory()
     setEditorCreator([] { return new MarkdownEditor; });
 }
 
-} // TextEditor::Internal
+} // namespace TextEditor::Internal
