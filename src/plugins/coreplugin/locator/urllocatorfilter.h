@@ -44,6 +44,8 @@ protected:
     void restoreState(const QJsonObject &object) final;
 
 private:
+    LocatorMatcherTasks matchers() final;
+
     QString m_defaultDisplayName;
     QStringList m_defaultUrls;
     QStringList m_remoteUrls;

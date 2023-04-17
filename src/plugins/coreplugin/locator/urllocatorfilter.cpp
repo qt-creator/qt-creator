@@ -165,6 +165,34 @@ UrlLocatorFilter::UrlLocatorFilter(const QString &displayName, Id id)
 
 UrlLocatorFilter::~UrlLocatorFilter() = default;
 
+LocatorMatcherTasks UrlLocatorFilter::matchers()
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorStorage> storage;
+
+    const auto onSetup = [storage, urls = remoteUrls()] {
+        const QString input = storage->input();
+        LocatorFilterEntries entries;
+        for (const QString &url : urls) {
+            const QString name = url.arg(input);
+            LocatorFilterEntry entry;
+            entry.displayName = name;
+            entry.acceptor = [name] {
+                if (!name.isEmpty())
+                    QDesktopServices::openUrl(name);
+                return AcceptResult();
+            };
+            entry.highlightInfo = {int(name.lastIndexOf(input)), int(input.length())};
+            entries.append(entry);
+        }
+        storage->reportOutput(entries);
+        return true;
+    };
+
+    return {{Sync(onSetup), storage}};
+}
+
 QList<Core::LocatorFilterEntry> UrlLocatorFilter::matchesFor(
     QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {
