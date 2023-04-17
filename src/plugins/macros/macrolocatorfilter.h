@@ -14,11 +14,12 @@ class MacroLocatorFilter : public Core::ILocatorFilter
 
 public:
     MacroLocatorFilter();
-    ~MacroLocatorFilter() override;
 
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
 private:
+    Core::LocatorMatcherTasks matchers() final;
+
     const QIcon m_icon;
 };
 
