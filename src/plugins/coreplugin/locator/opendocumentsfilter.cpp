@@ -3,11 +3,13 @@
 
 #include "opendocumentsfilter.h"
 
+#include "../coreplugin.h"
 #include "../coreplugintr.h"
 
+#include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/filepath.h>
 #include <utils/link.h>
-#include <utils/tasktree.h>
 
 #include <QAbstractItemModel>
 #include <QMutexLocker>
@@ -25,6 +27,7 @@ OpenDocumentsFilter::OpenDocumentsFilter()
     setDefaultShortcutString("o");
     setPriority(High);
     setDefaultIncludedByDefault(true);
+    // TODO: Remove the refresh recipe
     setRefreshRecipe(Tasking::Sync([this] { refreshInternally(); return true; }));
 
     connect(DocumentModel::model(), &QAbstractItemModel::dataChanged,
@@ -33,6 +36,56 @@ OpenDocumentsFilter::OpenDocumentsFilter()
             this, &OpenDocumentsFilter::slotRowsInserted);
     connect(DocumentModel::model(), &QAbstractItemModel::rowsRemoved,
             this, &OpenDocumentsFilter::slotRowsRemoved);
+}
+
+static void matchEditors(QPromise<void> &promise, const LocatorStorage &storage,
+                         const QList<OpenDocumentsFilter::Entry> &editorsData)
+{
+    const Link link = Link::fromString(storage.input(), true);
+    const QRegularExpression regexp = ILocatorFilter::createRegExp(link.targetFilePath.toString());
+    if (!regexp.isValid())
+        return;
+
+    LocatorFilterEntries goodEntries;
+    LocatorFilterEntries betterEntries;
+
+    for (const OpenDocumentsFilter::Entry &editorData : editorsData) {
+        if (promise.isCanceled())
+            return;
+        if (editorData.fileName.isEmpty())
+            continue;
+        const QRegularExpressionMatch match = regexp.match(editorData.displayName);
+        if (match.hasMatch()) {
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = editorData.displayName;
+            filterEntry.filePath = editorData.fileName;
+            filterEntry.extraInfo = filterEntry.filePath.shortNativePath();
+            filterEntry.highlightInfo = ILocatorFilter::highlightInfo(match);
+            filterEntry.linkForEditor = Link(filterEntry.filePath, link.targetLine,
+                                             link.targetColumn);
+            if (match.capturedStart() == 0)
+                betterEntries.append(filterEntry);
+            else
+                goodEntries.append(filterEntry);
+        }
+    }
+    storage.reportOutput(betterEntries + goodEntries);
+}
+
+LocatorMatcherTasks OpenDocumentsFilter::matchers()
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorStorage> storage;
+
+    const auto onSetup = [storage](AsyncTask<void> &async) {
+        const QList<Entry> editorsData = Utils::transform(DocumentModel::entries(),
+            [](const DocumentModel::Entry *e) { return Entry{e->filePath(), e->displayName()}; });
+        async.setFutureSynchronizer(CorePlugin::futureSynchronizer());
+        async.setConcurrentCallData(matchEditors, *storage, editorsData);
+    };
+
+    return {{Async<void>(onSetup), storage}};
 }
 
 void OpenDocumentsFilter::slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,

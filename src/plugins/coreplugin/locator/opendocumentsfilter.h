@@ -20,13 +20,7 @@ public:
     OpenDocumentsFilter();
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;
-public slots:
-    void slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-                         const QVector<int> &roles);
-    void slotRowsInserted(const QModelIndex &, int first, int last);
-    void slotRowsRemoved(const QModelIndex &, int first, int last);
-
-private:
+    // TODO: Move to cpp when matchesFor() is removed
     class Entry
     {
     public:
@@ -34,6 +28,14 @@ private:
         QString displayName;
     };
 
+public slots:
+    void slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                         const QVector<int> &roles);
+    void slotRowsInserted(const QModelIndex &, int first, int last);
+    void slotRowsRemoved(const QModelIndex &, int first, int last);
+
+private:
+    LocatorMatcherTasks matchers() final;
     QList<Entry> editors() const;
     void refreshInternally();
 
