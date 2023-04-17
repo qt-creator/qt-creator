@@ -323,7 +323,7 @@
     </message>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
-        <translation>請輸入您想建置專案的目錄。Qt Creator 建議您不要直接用源碼的目錄來做建置。這樣可以保持源碼目錄的乾淨，並且可以讓您用不同的設定進行多個建置。</translation>
+        <translation>請輸入您想建置專案的目錄。Qt Creator 建議您不要直接用源碼的目錄來做建置。這樣可以保持源碼目錄的乾淨，並且可以讓您啟用不同的設定進行多個建置。</translation>
     </message>
 </context>
 <context>
@@ -1740,7 +1740,7 @@
     </message>
     <message>
         <source>Enable Doxygen blocks</source>
-        <translation>開啟 Doxygen 區塊</translation>
+        <translation>啟用 Doxygen 區塊</translation>
     </message>
     <message>
         <source>Generate a &lt;i&gt;brief&lt;/i&gt; command with an initial description for the corresponding declaration</source>
@@ -1978,11 +1978,11 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Enabled</source>
-        <translation>已開啟</translation>
+        <translation>已啟用</translation>
     </message>
     <message>
         <source>Disabled</source>
-        <translation>已關閉</translation>
+        <translation>已停用</translation>
     </message>
     <message>
         <source>, pending</source>
@@ -2340,7 +2340,7 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <translation>勾選此選項會在除錯過程中用工具提示來顯示變數的值。它可能會減慢除錯的速度， 同時由於不使用範圍資訊，造成提供的值並不見得正確，所以此選項預設為關閉。</translation>
+        <translation>勾選此選項會在除錯過程中啟用工具提示來顯示變數的值。它可能會減慢除錯的速度， 同時由於不使用範圍資訊，造成提供的值並不見得正確，所以此選項預設為關閉。</translation>
     </message>
     <message>
         <source>Use Tooltips in Locals View When Debugging</source>
@@ -2368,7 +2368,7 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Enable Reverse Debugging</source>
-        <translation>開啟反向除錯</translation>
+        <translation>啟用反向除錯</translation>
     </message>
     <message>
         <source>Register For Post-Mortem Debugging</source>
@@ -2384,7 +2384,7 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Checking this will enable tooltips in the locals view during debugging.</source>
-        <translation>勾選此選項會在除錯時於局部變數檢視中使用工具提示。</translation>
+        <translation>勾選此選項會在除錯時於局部變數檢視中啟用工具提示。</translation>
     </message>
     <message>
         <source>Break on &quot;abort&quot;</source>
@@ -2400,7 +2400,7 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Checking this will enable tooltips in the breakpoints view during debugging.</source>
-        <translation>勾選此選項會在除錯時於中斷點檢視中使用工具提示。</translation>
+        <translation>勾選此選項會在除錯時於中斷點檢視中啟用工具提示。</translation>
     </message>
     <message>
         <source>Show Address Data in Breakpoints View when Debugging</source>
@@ -3060,11 +3060,11 @@ at debugger startup.</source>
     </message>
     <message>
         <source>Enable reverse debugging</source>
-        <translation>開啟反向除錯</translation>
+        <translation>啟用反向除錯</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side.It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;這個選項會開啟反向除錯。&lt;/p&gt;&lt;.p&gt;&lt;b&gt;注意：&lt;/b&gt;這個功能會造成速度變很慢，並且在 GDB 端會變得不穩定。它在跑回系統呼叫時，行為會變得無法預測，並且可能會毀掉您的除錯工作階段。&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;這個選項會啟用反向除錯。&lt;/p&gt;&lt;.p&gt;&lt;b&gt;注意：&lt;/b&gt;這個功能會造成速度變很慢，並且在 GDB 端會變得不穩定。它在跑回系統呼叫時，行為會變得無法預測，並且可能會毀掉您的除錯工作階段。&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Additional Startup Commands</source>
@@ -6262,7 +6262,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Skipping disabled step %1.</source>
-        <translation>略過被關閉的步驟 %1 。</translation>
+        <translation>略過被停用的步驟 %1 。</translation>
     </message>
     <message>
         <source>Custom Executable</source>
@@ -7083,7 +7083,7 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>Building &apos;%1&apos; is disabled: %2&lt;br&gt;</source>
-        <translation>建置 &apos;%1&apos; 已被關閉：%2&lt;br&gt;</translation>
+        <translation>已停用建置 "%1"：%2&lt;br&gt;</translation>
     </message>
     <message>
         <source>A build is in progress</source>
@@ -7092,7 +7092,7 @@ Do you want to ignore them?</source>
     <message>
         <source>Building &apos;%1&apos; is disabled: %2
 </source>
-        <translation>建置 &apos;%1&apos; 已被關閉：%2
+        <translation>已停用建置 "%1"：%2
 </translation>
     </message>
     <message>
@@ -7689,7 +7689,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Enable QML debugging:</source>
-        <translation>開啟 QML 除錯：</translation>
+        <translation>啟用 QML 除錯：</translation>
     </message>
     <message>
         <source>Might make your application vulnerable. Only use in a safe environment.</source>
@@ -8513,7 +8513,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <source>Enable Text &amp;Wrapping</source>
-        <translation>開啟文字折行(&amp;W)</translation>
+        <translation>啟用文字折行(&amp;W)</translation>
     </message>
     <message>
         <source>Ctrl+/</source>
@@ -9204,7 +9204,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Disabled Code</source>
-        <translation>關閉的代碼</translation>
+        <translation>停用的代碼</translation>
     </message>
     <message>
         <source>Code disabled by preprocessor directives.</source>
@@ -9579,7 +9579,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. The latest binary is available at &lt;a href=&quot;ftp://ftp.qt.nokia.com/jom/&quot;&gt;ftp://ftp.qt.nokia.com/jom/&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
-        <translation type="obsolete">&lt;i&gt;jom&lt;/i&gt; 是 &lt;i&gt;nmake&lt;/i&gt; 的替代品。它會自動將編譯工作分配給多個 CPU。最新版的執行檔可以在 &lt;a href=&quot;ftp://ftp.qt.nokia.com/jom/&quot;&gt;ftp://ftp.qt.nokia.com/jom/&lt;/a&gt;取得。若是您的建置過程出現問題，請試著將它關閉。</translation>
+        <translation type="obsolete">&lt;i&gt;jom&lt;/i&gt; 是 &lt;i&gt;nmake&lt;/i&gt; 的替代品。它會自動將編譯工作分配給多個 CPU。最新版的執行檔可以在 &lt;a href=&quot;ftp://ftp.qt.nokia.com/jom/&quot;&gt;ftp://ftp.qt.nokia.com/jom/&lt;/a&gt;取得。若是您的建置過程出現問題，請試著將它停用。</translation>
     </message>
     <message>
         <source>Always build project before deploying it</source>
@@ -11206,7 +11206,7 @@ Reason: %2</source>
     </message>
     <message>
         <source> (disabled)</source>
-        <translation> (已關閉)</translation>
+        <translation> (已停用)</translation>
     </message>
 </context>
 <context>
@@ -14670,7 +14670,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>If enabled, the toolbar will remain pinned to an absolute position.</source>
-        <translation>若開啟此選項，則工具列將被釘在固定位置。</translation>
+        <translation>若啟用此選項，則工具列將被釘在固定位置。</translation>
     </message>
     <message>
         <source>Pin Qt Quick Toolbar</source>
@@ -15128,7 +15128,7 @@ GDB 允許使用 &apos;\n&apos; 來區隔多個命令序列。</translation>
     </message>
     <message>
         <source>&amp;Enabled:</source>
-        <translation>已開啟(&amp;E)：</translation>
+        <translation>已啟用(&amp;E)：</translation>
     </message>
     <message>
         <source>&amp;Address:</source>
@@ -15209,7 +15209,7 @@ This feature is only available for GDB.</source>
     </message>
     <message>
         <source>The CDB debug engine required for %1 is currently disabled.</source>
-        <translation type="obsolete">%1 需要的 CDB 除錯引擎目前已被關閉。</translation>
+        <translation type="obsolete">%1 需要的 CDB 除錯引擎目前已被停用。</translation>
     </message>
     <message>
         <source>The CDB engine does not support start mode %1.</source>
@@ -15471,7 +15471,7 @@ This feature is only available for GDB.</source>
     </message>
     <message>
         <source>The application requires the debugger engine &apos;%1&apos;, which is disabled.</source>
-        <translation type="obsolete">應用程式需要除錯工具引擎 &quot;%1&quot;，但是被關閉了。</translation>
+        <translation type="obsolete">應用程式需要除錯工具引擎 &quot;%1&quot;，但是被停用了。</translation>
     </message>
     <message>
         <source>Some breakpoints cannot be handled by the debugger languages currently active, and will be ignored.</source>
@@ -15479,7 +15479,7 @@ This feature is only available for GDB.</source>
     </message>
     <message>
         <source>The debugger engine &apos;%1&apos; is disabled.</source>
-        <translation type="obsolete">除錯引擎 &apos;%1&apos; 已關閉。</translation>
+        <translation type="obsolete">除錯引擎 &apos;%1&apos; 已停用。</translation>
     </message>
     <message>
         <source>The debugger engine &apos;%1&apos; required for debugging binaries of the type &apos;%2&apos; is not configured correctly.</source>
@@ -15619,7 +15619,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Status of &apos;%1&apos; changed to &apos;enabled&apos;.</source>
-        <translation type="obsolete">&apos;%1&apos; 的狀態轉變為「已開啟」。</translation>
+        <translation type="obsolete">&apos;%1&apos; 的狀態轉變為「已啟用」。</translation>
     </message>
     <message>
         <source>Status of &apos;%1&apos; changed to &apos;not connected&apos;.</source>
@@ -15784,7 +15784,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
     <message>
         <source>Disable</source>
-        <translation>關閉</translation>
+        <translation>停用</translation>
     </message>
     <message>
         <source>Move Down</source>
@@ -15995,7 +15995,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
     <message>
         <source>Disable Live Preview</source>
-        <translation type="obsolete">關閉即時預覽</translation>
+        <translation type="obsolete">停用即時預覽</translation>
     </message>
     <message>
         <source>The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. </source>
@@ -18205,11 +18205,11 @@ to version control (%2)
     </message>
     <message>
         <source>Disable Breakpoint %1</source>
-        <translation>關閉中斷點 %1</translation>
+        <translation>停用中斷點 %1</translation>
     </message>
     <message>
         <source>Enable Breakpoint %1</source>
-        <translation>開啟中斷點 %1</translation>
+        <translation>啟用中斷點 %1</translation>
     </message>
     <message>
         <source>Edit Breakpoint %1...</source>
@@ -20159,7 +20159,7 @@ a = a +
 &lt;/pre&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-開啟對齊方式類似於 =, += 等. 當選項被禁用時, 標準的續行縮排將會被啟用.&lt;br&gt;
+啟用對齊方式類似於 =, += 等. 當選項被停用時, 標準的續行縮排將會被啟用.&lt;br&gt;
 &lt;br&gt;
 有對齊:
 &lt;pre&gt;
@@ -20475,7 +20475,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>Enable cache simulation</source>
-        <translation>開啟快取模擬</translation>
+        <translation>啟用快取模擬</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -20487,7 +20487,7 @@ With cache simulation, further event counters are enabled:
 &quot;Bi&quot;/&quot;Bim&quot;)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;做分支預測模擬.&lt;/p&gt;
-&lt;p&gt;更多項計數將被開啟: &lt;/p&gt;
+&lt;p&gt;更多項計數將被啟用: &lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;有條件的分支和相關的預測將丟失(
 &quot;Bc&quot;/&quot;Bcm&quot;)&lt;/li&gt;
 &lt;li&gt;執行的間接跳轉和相關的跳轉地址預測將丟失(
@@ -20495,7 +20495,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>Enable branch prediction simulation</source>
-        <translation type="unfinished">開啟分支預測模擬</translation>
+        <translation>啟用分支預測模擬</translation>
     </message>
     <message>
         <source>Collect information for system call times.</source>
@@ -21195,11 +21195,11 @@ Do you want to continue?</source>
     </message>
     <message>
         <source>Disable profiling</source>
-        <translation>關閉效能分析</translation>
+        <translation>停用效能分析</translation>
     </message>
     <message>
         <source>Enable profiling</source>
-        <translation>開啟效能分析</translation>
+        <translation>啟用效能分析</translation>
     </message>
     <message>
         <source>Could not connect to the in-process QML profiler.
@@ -21992,7 +21992,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Enable cycle detection to properly handle recursive or circular function calls.</source>
-        <translation type="unfinished">開啟循環檢測來正確把握遞歸或循環功能的調用.</translation>
+        <translation>啟用循環檢測來正確把握遞歸或循環功能的調用.</translation>
     </message>
     <message>
         <source>This removes template parameter lists when displaying function names.</source>
@@ -22787,7 +22787,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
     <message>
         <source>Enabled</source>
-        <translation>已開啟</translation>
+        <translation>已啟用</translation>
     </message>
     <message>
         <source>This property holds whether the item accepts mouse events.</source>
@@ -22795,7 +22795,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
     <message>
         <source>Hover Enabled</source>
-        <translation>開啟置於其上</translation>
+        <translation>啟用置於其上</translation>
     </message>
     <message>
         <source>This property holds whether hover events are handled.</source>
@@ -24166,7 +24166,7 @@ Filter: %2
     <name>QtC::UpdateInfo</name>
     <message>
         <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
-        <translation>無法決定維護工具所在位置。請檢查您的安裝，確定您是否沒有手動開啟此外掛程式的支援。</translation>
+        <translation>無法決定維護工具所在位置。請檢查您的安裝，確定您是否沒有手動啟用此外掛程式的支援。</translation>
     </message>
     <message>
         <source>Could not find maintenance tool at &apos;%1&apos;. Check your installation.</source>
@@ -24556,7 +24556,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enable LLDB</source>
-        <translation>開啟 LLDB</translation>
+        <translation>啟用 LLDB</translation>
     </message>
     <message>
         <source>Use GDB Python dumpers</source>
@@ -24753,7 +24753,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enable touch optimized navigation</source>
-        <translation type="unfinished">開啟觸摸導航</translation>
+        <translation>啟用觸摸導航</translation>
     </message>
     <message>
         <source>Touch optimized navigation will make the HTML page flickable and enlarge the area of touch sensitive elements. If you use a JavaScript framework which optimizes the touch interaction, leave the checkbox unchecked.</source>
@@ -24781,7 +24781,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enable network access</source>
-        <translation type="obsolete">開啟網路存取</translation>
+        <translation type="obsolete">啟用網路存取</translation>
     </message>
     <message>
         <source>Plugin&apos;s directory name:</source>
@@ -24962,7 +24962,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enable automatic &amp;indentation</source>
-        <translation>開啟自動縮排(&amp;I)</translation>
+        <translation>啟用自動縮排(&amp;I)</translation>
     </message>
     <message>
         <source>Backspace indentation:</source>
@@ -25112,15 +25112,15 @@ Specifies how backspace interacts with indentation.
     </message>
     <message>
         <source>Enable &amp;mouse navigation</source>
-        <translation>開啟滑鼠導覽(&amp;M)</translation>
+        <translation>啟用滑鼠導覽(&amp;M)</translation>
     </message>
     <message>
         <source>Enable scroll &amp;wheel zooming</source>
-        <translation>開啟滑鼠滾輪縮放(&amp;W)</translation>
+        <translation>啟用滑鼠滾輪縮放(&amp;W)</translation>
     </message>
     <message>
         <source>Enable built-in camel case &amp;navigation</source>
-        <translation>開啟內建的駝峰式大小寫導覽(&amp;N)</translation>
+        <translation>啟用內建的駝峰式大小寫導覽(&amp;N)</translation>
     </message>
     <message>
         <source>Show help tooltips:</source>
@@ -25208,7 +25208,7 @@ Specifies how backspace interacts with indentation.
     </message>
     <message>
         <source>Enable text &amp;wrapping</source>
-        <translation>開啟文字折行(&amp;W)</translation>
+        <translation>啟用文字折行(&amp;W)</translation>
     </message>
     <message>
         <source>Display right &amp;margin at column:</source>
@@ -26113,7 +26113,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
-        <translation>請輸入您想建置專案的目錄。Qt Creator 建議您不要直接用源碼的目錄來做建置。這樣可以保持源碼目錄的乾淨，並且可以讓您用不同的設定進行多個建置。</translation>
+        <translation>請輸入您想建置專案的目錄。Qt Creator 建議您不要直接用源碼的目錄來做建置。這樣可以保持源碼目錄的乾淨，並且可以讓您啟用不同的設定進行多個建置。</translation>
     </message>
     <message>
         <source>Build Location</source>
@@ -26297,11 +26297,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Enable C++</source>
-        <translation>開啟 C++</translation>
+        <translation>啟用 C++</translation>
     </message>
     <message>
         <source>Enable QML</source>
-        <translation>開啟 QML</translation>
+        <translation>啟用 QML</translation>
     </message>
     <message>
         <source>Debug port:</source>
@@ -28832,19 +28832,19 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
     <message>
         <source>Disable Selected Breakpoints</source>
-        <translation>關閉已選擇的中斷點</translation>
+        <translation>停用已選擇的中斷點</translation>
     </message>
     <message>
         <source>Enable Selected Breakpoints</source>
-        <translation>開啟已選擇中斷點</translation>
+        <translation>啟用已選擇中斷點</translation>
     </message>
     <message>
         <source>Disable Breakpoint</source>
-        <translation>關閉中斷點</translation>
+        <translation>停用中斷點</translation>
     </message>
     <message>
         <source>Enable Breakpoint</source>
-        <translation>開啟中斷點</translation>
+        <translation>啟用中斷點</translation>
     </message>
     <message>
         <source>Add Breakpoint...</source>
@@ -29777,7 +29777,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
    %1
 Do you want to add them to the project?&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;Qt Creator 設定了以下的檔案來開啟打包功能：
+        <translation type="unfinished">&lt;html&gt;Qt Creator 設定了以下的檔案來啟用打包功能：
    %1
 您要將它們新增到專案中嗎？&lt;/html&gt;</translation>
     </message>
@@ -30186,7 +30186,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished">已開啟</translation>
+        <translation>已啟用</translation>
     </message>
     <message>
         <source>&lt;b&gt;Deploy packages&lt;/b&gt;</source>

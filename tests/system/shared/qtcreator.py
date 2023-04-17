@@ -248,7 +248,9 @@ def substituteMsvcPaths(settingsDir, version, targetBitness=64):
         try:
             msvcPath = os.path.join("C:\\Program Files (x86)", "Microsoft Visual Studio",
                                     version, msvcFlavor, "VC", "Tools", "MSVC")
-            msvcPath = os.path.join(msvcPath, os.listdir(msvcPath)[0], "bin", hostArch, targetArch)
+            foundVersions = os.listdir(msvcPath) # undetermined order
+            foundVersions.sort(reverse=True) # we explicitly want the latest and greatest
+            msvcPath = os.path.join(msvcPath, foundVersions[0], "bin", hostArch, targetArch)
             __substitute__(os.path.join(settingsDir, "QtProject", 'qtcreator', 'toolchains.xml'),
                            "SQUISH_MSVC%s_%d_PATH" % (version, targetBitness), msvcPath)
             return

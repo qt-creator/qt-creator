@@ -60,6 +60,14 @@ void updateToolchainFile(PresetsDetails::ConfigurePreset &configurePreset,
 void updateInstallDir(PresetsDetails::ConfigurePreset &configurePreset,
                       const Utils::Environment &env,
                       const Utils::FilePath &sourceDirectory);
+
+/**
+ * Updates the cacheVariables parameter of the configurePreset with the expanded prameter values.
+ * Including macro expansion and relative paths resolving.
+ */
+void updateCacheVariables(PresetsDetails::ConfigurePreset &configurePreset,
+                          const Utils::Environment &env,
+                          const Utils::FilePath &sourceDirectory);
 /**
  * Expands the condition values and then evaluates the condition object of the preset and returns
  * the boolean result.

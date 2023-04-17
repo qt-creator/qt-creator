@@ -21,4 +21,5 @@ add_qtc_plugin(Todo
     todoplugin.cpp todoplugin.h
     todoplugin.qrc
     todoprojectsettingswidget.cpp todoprojectsettingswidget.h
+    todotr.h
 )

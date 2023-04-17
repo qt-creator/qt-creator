@@ -12,7 +12,6 @@ of the Qt installation from the online installer.
 It's easiest to use installations of the official opensource Qt packages. Just install the
 Qt version for the respective toolchain with the components (if available):
 - (Desktop) <toolchain> <bitness>, e.g. Desktop gcc 64-bit
-- Qt Quick Controls (if available)
 - Qt Script (Qt5 only)
 
 The exact versions and toolchains are:

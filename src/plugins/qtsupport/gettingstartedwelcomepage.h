@@ -4,10 +4,7 @@
 #pragma once
 
 #include <coreplugin/iwelcomepage.h>
-
-QT_BEGIN_NAMESPACE
-class QFileInfo;
-QT_END_NAMESPACE
+#include <utils/filepath.h>
 
 namespace QtSupport {
 namespace Internal {
@@ -29,7 +26,9 @@ public:
     static void openProject(const ExampleItem *item);
 
 private:
-    static QString copyToAlternativeLocation(const QFileInfo &fileInfo, QStringList &filesToOpen, const QStringList &dependencies);
+    static Utils::FilePath copyToAlternativeLocation(const Utils::FilePath &fileInfo,
+                                                     Utils::FilePaths &filesToOpen,
+                                                     const Utils::FilePaths &dependencies);
     const bool m_showExamples;
 };
 

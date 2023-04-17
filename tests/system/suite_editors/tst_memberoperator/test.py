@@ -25,7 +25,7 @@ def __noBuildIssues__():
 
 
 def __syntaxErrorDetected__():
-    buildIssues = getBuildIssues()
+    buildIssues = getBuildIssues(False)
     for issue in buildIssues:
         if issue[3] in ["Expected ';' after expression (fix available)",
                         "Expected ';' at end of declaration (fix available)",

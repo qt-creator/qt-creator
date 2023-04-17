@@ -320,7 +320,7 @@ void ClangModelManagerSupport::globalRename(const CppEditor::CursorInEditor &cur
             client && client->isFullyIndexed()) {
         QTC_ASSERT(client->documentOpen(cursor.textDocument()),
                    client->openDocument(cursor.textDocument()));
-        client->findUsages(cursor.textDocument(), cursor.cursor(), replacement, callback);
+        client->findUsages(cursor, replacement, callback);
         return;
     }
     CppModelManager::globalRename(cursor, replacement, callback, CppModelManager::Backend::Builtin);
@@ -332,8 +332,7 @@ void ClangModelManagerSupport::findUsages(const CppEditor::CursorInEditor &curso
             client && client->isFullyIndexed()) {
         QTC_ASSERT(client->documentOpen(cursor.textDocument()),
                    client->openDocument(cursor.textDocument()));
-        client->findUsages(cursor.textDocument(), cursor.cursor(), {}, {});
-
+        client->findUsages(cursor, {}, {});
         return;
     }
     CppModelManager::findUsages(cursor, CppModelManager::Backend::Builtin);

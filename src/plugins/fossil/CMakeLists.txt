@@ -1,4 +1,3 @@
-
 add_qtc_plugin(Fossil
   PLUGIN_DEPENDS
     Core TextEditor ProjectExplorer VcsBase
@@ -14,6 +13,7 @@ add_qtc_plugin(Fossil
     fossileditor.cpp fossileditor.h
     fossilplugin.cpp fossilplugin.h
     fossilsettings.cpp fossilsettings.h
+    fossiltr.h
     pullorpushdialog.cpp pullorpushdialog.h
     revisioninfo.h
     wizard/fossiljsextension.cpp wizard/fossiljsextension.h

@@ -549,8 +549,11 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
     const std::optional<PrepareRenameRequest::Response::Error> &error = response.error();
     QString errorMessage;
     if (error.has_value()) {
-        m_client->log(*error);
         errorMessage = error->toString();
+        if (errorMessage.contains("Cannot rename symbol: new name is the same as the old name"))
+            errorMessage = Tr::tr("Start typing to see replacements"); // clangd optimization
+        else
+            m_client->log(*error);
     }
 
     const std::optional<WorkspaceEdit> &edits = response.result();

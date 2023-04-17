@@ -9,6 +9,7 @@ add_qtc_plugin(GLSLEditor
     glsleditor.qrc
     glsleditorconstants.h
     glsleditorplugin.cpp glsleditorplugin.h
+    glsleditortr.h
     glslhighlighter.cpp glslhighlighter.h
     glslindenter.cpp glslindenter.h
 )

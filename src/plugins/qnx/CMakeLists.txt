@@ -19,6 +19,7 @@ add_qtc_plugin(Qnx
     qnxrunconfiguration.cpp qnxrunconfiguration.h
     qnxsettingspage.cpp qnxsettingspage.h
     qnxtoolchain.cpp qnxtoolchain.h
+    qnxtr.h
     qnxutils.cpp qnxutils.h
     qnxversionnumber.cpp qnxversionnumber.h
     slog2inforunner.cpp slog2inforunner.h

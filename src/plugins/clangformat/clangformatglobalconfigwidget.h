@@ -14,6 +14,7 @@ class QLabel;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
+namespace TextEditor { class ICodeStylePreferences; }
 
 namespace ClangFormat {
 
@@ -22,7 +23,8 @@ class ClangFormatGlobalConfigWidget : public CppEditor::CppCodeStyleWidget
     Q_OBJECT
 
 public:
-    explicit ClangFormatGlobalConfigWidget(ProjectExplorer::Project *project = nullptr,
+    explicit ClangFormatGlobalConfigWidget(TextEditor::ICodeStylePreferences *codeStyle,
+                                           ProjectExplorer::Project *project = nullptr,
                                            QWidget *parent = nullptr);
     ~ClangFormatGlobalConfigWidget() override;
     void apply() override;
@@ -36,6 +38,7 @@ private:
     bool projectClangFormatFileExists();
 
     ProjectExplorer::Project *m_project;
+    TextEditor::ICodeStylePreferences *m_codeStyle;
 
     QLabel *m_projectHasClangFormat;
     QLabel *m_formattingModeLabel;

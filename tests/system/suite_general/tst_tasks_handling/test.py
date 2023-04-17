@@ -58,7 +58,7 @@ def checkOrUncheckMyTasks():
                                    "My Tasks"))
 
 def getBuildIssuesTypeCounts(model):
-    issueTypes = map(lambda x: x.data(Qt.UserRole + 5).toInt(), dumpIndices(model))
+    issueTypes = list(map(lambda x: x.data(Qt.UserRole + 5).toInt(), dumpIndices(model)))
     result = [issueTypes.count(0), issueTypes.count(1), issueTypes.count(2)]
     if len(issueTypes) != sum(result):
         test.fatal("Found unexpected value(s) for TaskType...")

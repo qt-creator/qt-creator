@@ -40,8 +40,10 @@ public:
     virtual CodeStyleEditorWidget *createCodeStyleEditor(ICodeStylePreferences *codeStyle,
                                                          ProjectExplorer::Project *project = nullptr,
                                                          QWidget *parent = nullptr);
-    virtual CodeStyleEditorWidget *createAdditionalGlobalSettings(
-        ProjectExplorer::Project *project = nullptr, QWidget *parent = nullptr);
+    virtual CodeStyleEditorWidget *createAdditionalGlobalSettings(ICodeStylePreferences *codeStyle,
+                                                                  ProjectExplorer::Project *project
+                                                                  = nullptr,
+                                                                  QWidget *parent = nullptr);
     virtual Utils::Id languageId() = 0;
     virtual QString displayName() = 0;
     virtual ICodeStylePreferences *createCodeStyle() const = 0;

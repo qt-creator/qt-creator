@@ -9,6 +9,7 @@ add_qtc_plugin(GitLab
     gitlabparameters.cpp gitlabparameters.h
     gitlabplugin.cpp gitlabplugin.h
     gitlabprojectsettings.cpp gitlabprojectsettings.h
+    gitlabtr.h
     queryrunner.cpp queryrunner.h
     resultparser.cpp resultparser.h
 )

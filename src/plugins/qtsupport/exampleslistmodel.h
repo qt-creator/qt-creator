@@ -28,6 +28,10 @@ public:
         QString displayName;
         QString manifestPath;
         QString examplesPath;
+        // qtVersion is set by recreateModel for extra sets that correspond to actual Qt versions.
+        // This is needed for the decision to show categories or not based on the Qt version
+        // (which is not ideal).
+        QVersionNumber qtVersion;
     };
     static QVector<ExtraExampleSet> pluginRegisteredExampleSets();
 
@@ -35,7 +39,9 @@ public:
 
     int selectedExampleSet() const { return m_selectedExampleSetIndex; }
     void selectExampleSet(int index);
-    QStringList exampleSources(QString *examplesInstallPath, QString *demosInstallPath);
+    QStringList exampleSources(QString *examplesInstallPath,
+                               QString *demosInstallPath,
+                               QVersionNumber *qtVersion);
     bool selectedQtSupports(const Utils::Id &target) const;
 
 signals:
@@ -77,29 +83,6 @@ private:
     bool m_initalized = false;
 };
 
-enum InstructionalType
-{
-    Example = 0, Demo, Tutorial
-};
-
-class ExampleItem : public Core::ListItem
-{
-public:
-    QString projectPath;
-    QString docUrl;
-    QStringList filesToOpen;
-    QString mainFile; /* file to be visible after opening filesToOpen */
-    QStringList dependencies;
-    InstructionalType type;
-    int difficulty = 0;
-    bool hasSourceCode = false;
-    bool isVideo = false;
-    bool isHighlighted = false;
-    QString videoUrl;
-    QString videoLength;
-    QStringList platforms;
-};
-
 class ExamplesViewController : public QObject
 {
     Q_OBJECT
@@ -119,5 +102,3 @@ private:
 
 } // namespace Internal
 } // namespace QtSupport
-
-Q_DECLARE_METATYPE(QtSupport::Internal::ExampleItem *)

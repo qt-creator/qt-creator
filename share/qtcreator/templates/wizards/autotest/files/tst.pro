@@ -47,7 +47,7 @@ CONFIG += thread
 CONFIG -= qt
 
 SOURCES += \\
-        %{MainCppName} \
+        %{MainCppName} \\
         %{TestCaseFileGTestWithCppSuffix}
 @endif
 @if "%{TestFrameWork}" == "BoostTest"
@@ -93,7 +93,7 @@ isEmpty(CATCH_INCLUDE_DIR): {
     message("CATCH_INCLUDE_DIR is not set, assuming Catch2 can be found automatically in your system")
 }
 
-SOURCES += \
-    main.cpp \
+SOURCES += \\
+    main.cpp \\
     %{TestCaseFileWithCppSuffix}
 @endif

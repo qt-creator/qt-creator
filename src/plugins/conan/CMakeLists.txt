@@ -5,4 +5,5 @@ add_qtc_plugin(Conan
     conaninstallstep.cpp conaninstallstep.h
     conanplugin.cpp conanplugin.h
     conansettings.cpp conansettings.h
+    conantr.h
 )

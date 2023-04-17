@@ -369,6 +369,28 @@
     You can launch the debugger in the post-mortem mode if an application
     crashes on Windows. Click the \uicontrol {Debug in \QC} button in the error
     message from the Windows operating system.
+
+    \section1 Starting the Debugger from the Command Line
+
+    You can use the \QC debugger interface from the command line. To attach it
+    to a running process, specify the process ID as a parameter for the
+    \c {-debug} option. To examine a core file, specify the file name. \QC
+    executes all the necessary steps, such as searching for the binary that
+    belongs to a core file. To connect to a debug server, specify the server
+    location and port number.
+
+    For example:
+
+    \list
+
+        \li  \c {C:\qtcreator\bin>qtcreator -debug 2000}
+        \li  \c {C:\qtcreator\bin>qtcreator -debug core=core.2000}
+        \li  \c {C:\qtcreator\bin>qtcreator -debug some.exe,core=core}
+        \li  \c {C:\qtcreator\bin>qtcreator -debug server=some.dot.com:4251}
+
+    \endlist
+
+    For more information, see \l{Using Command Line Options}.
 */
 
 /*!
@@ -745,73 +767,140 @@
 
     \title Examining Data
 
-    Use the \l{Local Variables and Function Parameters}{Locals} and
-    \l{Evaluating Expressions}{Expressions} views to examine the data
-    in more detail.
+    When the application stops, you can examine certain data in the debugger. The
+    availability of data depends on the compiler settings when compiling the
+    application and the exact location where the application stops.
 
-    You can use the following keyboard shortcuts:
+    Unexpected events are called \e exceptions and the debugger can stop
+    the application when they occur. Going to the location in the code where
+    the exception occurred helps you investigate the problem and find ways to
+    fix it.
 
-    \list
+    If you have a variable that shows text, but the application does not display
+    it correctly, for example, your data might be incorrect or the code that sets
+    the display text might do something wrong. You can step through the code and
+    examine changes to the variable to find out where the error occurs.
 
-       \li To finish debugging, press \key {Shift+F5}.
+    \section1 Showing Tooltips for Simple Values
 
-       \li To execute a line of code as a whole, press \key F10
-           (\key {Command+Shift+O} on \macos).
+    To display the value of a simple variable, hover the mouse pointer over its
+    name in the code editor.
 
-       \li To step into a function or a subfunction, press \key F11
-           (\key {Command+Shift+I} on \macos).
+    \image qtcreator-debugger-value-tooltips.webp {Value tooltip in code editor}
 
-       \li To leave the current function or subfunction, press \key {Shift+F11}
-           (\key {Command+Shift+T} on \macos).
+    To keep the tooltip visible, click the pin button.
+    You can expand pinned tooltips to view their full content.
 
-       \li To continue running the application, press \key F5.
+    Pinned tooltips are stored in the session. To close all pinned tooltips,
+    select \uicontrol {Close Editor Tooltips} in the context menu in the
+    \uicontrol Locals or \uicontrol Expressions view.
 
-       \li To run to the line that has the cursor, press \key {Ctrl+F10}
-           (\key {Shift+F8} on \macos).
+    To disable tooltips for performance reasons, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Debugger > \uicontrol General >
+    \uicontrol {Use tooltips in main editor when debugging}.
 
-       \li To run to the selected function when you are stepping into a nested
-           function, press \key {Ctrl+F6}.
+    \section1 Examining Complex Values in Debug Views
 
-    \endlist
+    \QC displays the raw information from the native debuggers in a clear and
+    concise manner to simplify the debugging process without losing the power
+    of the native debuggers.
 
-    You can continue executing the application until the current
-    function completes or jump to an arbitrary position in the current function.
+    \image qtcreator-locals.png {Locals view}
 
-    \section1 Stepping Into Code
+    The \l {Local Variables and Function Parameters}{Locals} and
+    \l {Evaluating Expressions}{Expressions} views show structured
+    data, such as objects of \c class, \c struct, or \c union types, as a tree.
+    To access sub-structures of the objects, expand the tree nodes.
+    The tree shows the sub-structures in their in-memory order. To show them
+    in alphabetic order, select \uicontrol {Sort Members of Classes and Structs
+    Alphabetically} in the context menu.
 
-    Use the following buttons to step through the code:
+    Similarly, pointers are displayed as a tree item with a single
+    child item representing the target of the pointer. Select
+    \uicontrol {Dereference Pointers Automatically} in the context
+    menu to combine the pointer and the target into a single entry that
+    shows the name and the type of the pointer and the value of the target.
+
+    The standard representation is good enough for the examination of simple
+    structures, but it does usually not give enough insight into more complex
+    structures, such as \c QObjects or associative containers. These items are
+    internally represented by a complex arrangement of pointers, often highly
+    optimized, with part of the data not directly accessible through neither
+    sub-structures nor pointers.
+
+    To show complex structures, such as \c QObjects or associative containers,
+    in a clear and concise manner, \QC uses Python scripts that are called
+    \l{Using Debugging Helpers}{debugging helpers}.
+
+    In addition to the generic IDE functionality of the
+    \l {Viewing Call Stack Trace}{Stack}, \uicontrol {Locals},
+    \uicontrol {Expressions}, \l {Viewing and Editing Register State}{Registers},
+    and other views, \QC makes debugging Qt-based applications easy. The debugger
+    plugin understands the internal layout of several Qt classes, for example,
+    QString, the Qt containers, and most importantly QObject (and classes derived
+    from it), as well as most containers of the C++ Standard Library and some GCC
+    extensions. It uses this deeper understanding to present objects of such
+    classes in a useful way.
+
+    \section1 Stepping Through Code
+
+    The following table summarizes the functions that you can use to step through
+    the code and examine the changes in variables.
 
     \table
         \header
             \li Button
             \li Function
+            \li Keyboard Shortcut
             \li Description
         \row
             \li \inlineimage icons/qtcreator-debug-button-stop.png
             \li \uicontrol {Stop Debugger}
+            \li \key {Shift+F5}
             \li Stops the debugger.
         \row
             \li \inlineimage icons/debugger_stepover_small.png
             \li \uicontrol {Step Over}
+            \li \key F10 (\key {Command+Shift+O} on \macos)
             \li Steps over the next line inside the function being debugged. It
                 executes the call and moves to the next line to be executed in
                 the function.
         \row
             \li \inlineimage icons/debugger_stepinto_small.png
             \li \uicontrol {Step Into}
+            \li \key F11 (\key {Command+Shift+I} on \macos)
             \li Steps into the line that it is currently on. For a function call,
                 goes into the function and is ready to continue.
         \row
             \li \inlineimage icons/debugger_stepout_small.png
             \li \uicontrol {Step Out}
+            \li \key {Shift+F11} (\key {Command+Shift+T} on \macos)
             \li Finishes executing the function and exits to the function that
                 it was called from.
         \row
+            \li
+            \li \uicontrol {Run to Line}
+            \li \key {Ctrl+F10} (\key {Shift+F8} on \macos)
+            \li Runs to the line that has the cursor.
+
+                You can also directly jump to a line instead of executing until
+                the end of the line, to avoid a variable getting modified or a
+                function getting called, for example.
+        \row
+            \li
+            \li \uicontrol {Run to Selected Function}
+            \li \key {Ctrl+F6}
+            \li Runs to the selected function when you are stepping into a nested
+                function.
+        \row
             \li \inlineimage icons/qtcreator-debugging-continue.png
             \li \uicontrol {Continue}
+            \li \key F5
             \li Resumes application execution at the address where it last
                 stopped.
     \endtable
+
+    \section2 Compressing Steps in GDB
 
     When using GDB as the debugging backend, you can compress several steps
     into one step for less noisy debugging. For more information, see
@@ -821,33 +910,6 @@
     but this option should be used with care, as it is slow and unstable on the
     GDB side. For more information, see \l{Specifying GDB Settings}.
 
-    \section1 Debugging C++ Based Applications
-
-    The following sections describe additional debugging functions that apply
-    only to debugging C++.
-
-    \section2 Starting the Debugger from the Command Line
-
-    You can use the \QC debugger interface from the command line. To attach it
-    to a running process, specify the process ID as a parameter for the
-    \c {-debug} option. To examine a core file, specify the file name. \QC
-    executes all the necessary steps, such as searching for the binary that
-    belongs to a core file. To connect to a debug server, specify the server
-    location and port number.
-
-    For example:
-
-    \list
-
-        \li  \c {C:\qtcreator\bin>qtcreator -debug 2000}
-        \li  \c {C:\qtcreator\bin>qtcreator -debug core=core.2000}
-        \li  \c {C:\qtcreator\bin>qtcreator -debug some.exe,core=core}
-        \li  \c {C:\qtcreator\bin>qtcreator -debug server=some.dot.com:4251}
-
-    \endlist
-
-    For more information, see \l{Using Command Line Options}.
-
     \section2 Stepping into Frameworks in \macos
 
     In \macos, external libraries are usually built into so-called Frameworks,
@@ -856,6 +918,87 @@
     used by default. To step into Frameworks, select the
     \uicontrol {Use debug versions of Frameworks} option in the project run
     settings.
+
+    \section1 Inspecting Basic Qt Objects
+
+    The most powerful feature of the debugger is that the \uicontrol {Locals}
+    and \uicontrol {Expressions} views show the data that belongs to
+    Qt's basic objects. For example, in case of QObject, instead of
+    a pointer to some private data structure, you see a list of
+    children, signals, and slots.
+
+    Similarly, instead of displaying many pointers and integers, \QC's debugger
+    displays the contents of a QHash or QMap in an orderly manner. Also, the
+    debugger shows access data for QFileInfo and the \e real contents of QVariant.
+
+    \section2 Changing Value Display format
+
+    In the \uicontrol {Locals} or the \uicontrol {Expressions} view, select
+    \uicontrol {Change Value Display Format} in the context menu to change the
+    value display format. The available options depend on the type of the
+    current items, and are provided by the debugging helpers.
+
+    To force a plain C-like display of structures, select
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
+    \uicontrol {Locals & Expressions}, and then deselect the
+    \uicontrol {Use Debugging Helpers} check box. This still uses the
+    Python scripts, but generates more basic output. To force the plain display
+    for a single object or for all objects of a given type, select
+    \uicontrol {Change Value Display Format} > \uicontrol Raw in the context
+    menu of the \uicontrol Locals or \uicontrol Expressions view.
+
+    Typically, you can change the encoding for string-like data, such as
+    \c{QByteArray} and \c{std::string}, or show the data in a full editor
+    window.
+
+    You can select a \e compact option for map-like data, such as \c{QMap},
+    \c{QHash}, and \c{std::map}, that uses the \uicontrol {Name} column for
+    keys and results in a concise display of containers with short keys,
+    such as numbers or short strings. For example, to expand all the values
+    of QMap, select \uicontrol {Change Value Display Format} > \uicontrol Compact.
+
+    For strings, you can select \uicontrol {Change Value Display Format} >
+    \uicontrol {Separate Window} to see string content inside a text edit
+    instead of a single line item in the view. For QPixmap, you can see
+    the pixmap being created pixel-by-pixel when stepping through the code.
+
+    \section2 Changing Variable Values
+
+    You can use the \uicontrol {Locals} and \uicontrol {Expressions} view to change
+    the contents of variables of simple data types, for example, \c int, \c float,
+    \c QString and \c std::string when the application is interrupted. To do so,
+    click the \uicontrol Value column, modify the value with the inplace editor,
+    and press \key Enter.
+
+    To change the complete contents of QVector or \c std::vector values, type
+    all values separated by commas into the \uicontrol Value column of the main
+    entry. However, \QC does not try to reallocate memory for variables, so it
+    applies the changes only if the new content fits into the old memory and if
+    the debugger supports changing values.
+
+    \section2 Signal-Slot Connections
+
+    If an instance of a class is derived from QObject, you can find all other
+    objects connected to this object's slots with Qt's signals and slots
+    mechanism. Select \uicontrol Edit > \uicontrol Preferences
+    > \uicontrol {Debugger} > \uicontrol {Locals & Expressions} >
+    \uicontrol {Use Debugging Helpers}.
+
+    \image qtcreator-debugging-helper-options.png "Locals & Expressions preferences"
+
+    In the \uicontrol Locals view, expand the object's entry and open the slot
+    in the \e slots subitem. The view shows the objects connected to this slot
+    as children of the slot. Similarly, you can show the children of signals.
+
+    \section2 Low-level Data
+
+    If you cannot debug Qt objects because their data is corrupted, you can
+    switch off the debugging helpers to make low-level structures visible.
+
+    To switch off the debugging helpers, deselect
+    \uicontrol {Use Debugging Helpers} in \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Debugger >
+    \uicontrol {Locals & Expressions}.
 
     \omit
     \section2 Creating Snapshots
@@ -1193,35 +1336,9 @@
 
     \title Using Debugging Helpers
 
-    Structured data, such as objects of \c class, \c struct, or \c union types,
-    is displayed in the \uicontrol {Locals} and \uicontrol {Expressions} views as part
-    of a tree. To access sub-structures of the objects, expand the tree nodes.
-    The sub-structures are presented in their in-memory order, unless the
-    \uicontrol {Sort Members of Classes and Structs Alphabetically} option
-    from the context menu is selected.
-
-    Similarly, pointers are displayed as a tree item with a single child item
-    representing the target of the pointer. In case the context menu item
-    \uicontrol {Dereference Pointers Automatically} is selected, the pointer and
-    the target are combined into a single entry, showing the name and the type
-    of the pointer and the value of the target.
-
-    This standard representation is good enough for the examination of simple
-    structures, but it does usually not give enough insight into more complex
-    structures, such as \c QObjects or associative containers. These items are
-    internally represented by a complex arrangement of pointers, often highly
-    optimized, with part of the data not directly accessible through neither
-    sub-structures nor pointers.
-
-    To give the user simple access also to these items, \QC employs Python
-    scripts that are called \e {debugging helpers}.
-    Debugging helpers are always automatically used. To force a plain C-like
-    display of structures, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Debugger > \uicontrol {Locals & Expressions}, and then deselect
-    the \uicontrol {Use Debugging Helpers} check box. This will still use the
-    Python scripts, but generate more basic output. To force the plain display
-    for a single object or for all objects of a given type, select the
-    corresponding option from the context menu.
+    To show complex structures, such as \c QObjects or associative containers,
+    in a clear and concise manner, \QC uses Python scripts that are called
+    \e {debugging helpers}.
 
     \QC ships with debugging helpers for more than 200 of the most popular Qt
     classes, standard C++ containers, and smart pointers, covering the usual
@@ -1231,8 +1348,9 @@
 
     \QC uses Python scripts to translate raw memory contents and type information
     data from native debugger backends (GDB, LLDB, and CDB are currently supported)
-    into the form presented to the user in the \uicontrol {Locals} and
-    \uicontrol {Expressions} views.
+    into the form presented to the user in the
+    \l {Local Variables and Function Parameters}{Locals}
+    and \l {Evaluating Expressions}{Expressions} views.
 
     Unlike GDB's
     \l{https://sourceware.org/gdb/onlinedocs/gdb/Pretty-Printing.html#Pretty-Printing}

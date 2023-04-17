@@ -51,9 +51,9 @@ public:
     }
 
     CodeStyleEditorWidget *createAdditionalGlobalSettings(
-        Project *project, QWidget *parent) override
+        ICodeStylePreferences *codeStyle, Project *project, QWidget *parent) override
     {
-        return new ClangFormatGlobalConfigWidget(project, parent);
+        return new ClangFormatGlobalConfigWidget(codeStyle, project, parent);
     }
 };
 

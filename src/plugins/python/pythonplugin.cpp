@@ -16,9 +16,11 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/theme/theme.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Python::Internal {
 
@@ -34,6 +36,7 @@ public:
     PySideBuildConfigurationFactory buildConfigFactory;
     SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
     PythonSettings settings;
+    FutureSynchronizer m_futureSynchronizer;
 };
 
 PythonPlugin::PythonPlugin()
@@ -52,6 +55,12 @@ PythonPlugin *PythonPlugin::instance()
     return m_instance;
 }
 
+FutureSynchronizer *PythonPlugin::futureSynchronizer()
+{
+    QTC_ASSERT(m_instance, return nullptr);
+    return &m_instance->d->m_futureSynchronizer;
+}
+
 void PythonPlugin::initialize()
 {
     d = new PythonPluginPrivate;
@@ -62,9 +71,9 @@ void PythonPlugin::initialize()
 void PythonPlugin::extensionsInitialized()
 {
     // Add MIME overlay icons (these icons displayed at Project dock panel)
-    QString imageFile = Utils::creatorTheme()->imageFile(Utils::Theme::IconOverlayPro,
-                                                         ::Constants::FILEOVERLAY_PY);
-    Utils::FileIconProvider::registerIconOverlayForSuffix(imageFile, "py");
+    const QString imageFile = Utils::creatorTheme()->imageFile(Theme::IconOverlayPro,
+                                                               ::Constants::FILEOVERLAY_PY);
+    FileIconProvider::registerIconOverlayForSuffix(imageFile, "py");
 
     TaskHub::addCategory(PythonErrorTaskCategory, "Python", true);
 }

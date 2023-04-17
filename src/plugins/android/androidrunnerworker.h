@@ -10,6 +10,7 @@
 #include <utils/port.h>
 
 #include <QFuture>
+#include <utility>
 
 QT_BEGIN_NAMESPACE
 class QProcess;
@@ -25,6 +26,8 @@ class AndroidDeviceInfo;
 namespace Internal {
 
 const int MIN_SOCKET_HANDSHAKE_PORT = 20001;
+
+using PidUserPair = std::pair<qint64, qint64>;
 
 class AndroidRunnerWorker : public QObject
 {
@@ -61,6 +64,7 @@ signals:
 
 private:
     void asyncStartHelper();
+    void startNativeDebugging();
     bool startDebuggerServer(const QString &packageDir, const QString &debugServerFile, QString *errorStr = nullptr);
     bool deviceFileExists(const QString &filePath);
     bool packageFileExists(const QString& filePath);
@@ -72,7 +76,7 @@ private:
         Waiting,
         Settled
     };
-    void onProcessIdChanged(qint64 pid);
+    void onProcessIdChanged(PidUserPair pidUser);
     using Deleter = void (*)(QProcess *);
 
     // Create the processes and timer in the worker thread, for correct thread affinity
@@ -83,11 +87,12 @@ private:
     QStringList m_afterFinishAdbCommands;
     QStringList m_amStartExtraArgs;
     qint64 m_processPID = -1;
+    qint64 m_processUser = -1;
     std::unique_ptr<QProcess, Deleter> m_adbLogcatProcess;
     std::unique_ptr<QProcess, Deleter> m_psIsAlive;
     QByteArray m_stdoutBuffer;
     QByteArray m_stderrBuffer;
-    QFuture<qint64> m_pidFinder;
+    QFuture<PidUserPair> m_pidFinder;
     bool m_useCppDebugger = false;
     bool m_useLldb = false; // FIXME: Un-implemented currently.
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;

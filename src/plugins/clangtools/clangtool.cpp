@@ -519,8 +519,8 @@ ClangTool::ClangTool(const QString &name, Utils::Id id)
     mainLayout->addWidget(m_infoBarWidget);
     mainLayout->addWidget(m_diagnosticView);
     auto mainWidget = new QWidget;
-    mainWidget->setObjectName("ClangTidyClazyIssuesView");
-    mainWidget->setWindowTitle(Tr::tr("Clang-Tidy and Clazy"));
+    mainWidget->setObjectName(id.toString() + "IssuesView");
+    mainWidget->setWindowTitle(name);
     mainWidget->setLayout(mainLayout);
 
     m_perspective.addWindow(mainWidget, Perspective::SplitVertical, nullptr);
