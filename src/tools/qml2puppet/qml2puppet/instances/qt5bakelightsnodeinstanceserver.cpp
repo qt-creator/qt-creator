@@ -167,7 +167,7 @@ void Qt5BakeLightsNodeInstanceServer::runDenoiser()
 
     m_denoiser = new QProcess();
 
-    QObject::connect(m_denoiser, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
+    QObject::connect(m_denoiser, &QProcess::errorOccurred, this, [this](QProcess::ProcessError) {
         m_workingDir.remove();
         nodeInstanceClient()->handlePuppetToCreatorCommand(
                     {PuppetToCreatorCommand::BakeLightsProgress,
