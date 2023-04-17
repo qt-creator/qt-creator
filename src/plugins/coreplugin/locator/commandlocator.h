@@ -26,9 +26,6 @@ public:
     void prepareSearch(const QString &entry) override;
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;
-    void accept(const LocatorFilterEntry &selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
-
 private:
     CommandLocatorPrivate *d = nullptr;
 };

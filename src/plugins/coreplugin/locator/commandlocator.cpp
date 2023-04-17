@@ -17,7 +17,7 @@ namespace Core {
 struct CommandLocatorPrivate
 {
     QList<Command *> commands;
-    QList<QPair<int, QString>> commandsData;
+    QList<QPair<QAction *, QString>> commandsData;
 };
 
 /*!
@@ -61,7 +61,7 @@ void CommandLocator::prepareSearch(const QString &entry)
             continue;
         QAction *action = command->action();
         if (action && action->isEnabled())
-            d->commandsData.append({i, action->text()});
+            d->commandsData.append({action, action->text()});
     }
 }
 
@@ -77,8 +77,17 @@ QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFil
         const QString text = Utils::stripAccelerator(pair.second);
         const int index = text.indexOf(entry, 0, entryCaseSensitivity);
         if (index >= 0) {
-            LocatorFilterEntry filterEntry(this, text);
-            filterEntry.internalData = QVariant(pair.first);
+            QAction *action = pair.first;
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = text;
+            filterEntry.acceptor = [action] {
+                // avoid nested stack trace and blocking locator by delayed triggering
+                QMetaObject::invokeMethod(action, [action] {
+                    if (action->isEnabled())
+                        action->trigger();
+                }, Qt::QueuedConnection);
+                return AcceptResult();
+            };
             filterEntry.highlightInfo = {index, int(entry.length())};
 
             if (index == 0)
@@ -89,23 +98,6 @@ QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFil
     }
     betterEntries.append(goodEntries);
     return betterEntries;
-}
-
-void CommandLocator::accept(const LocatorFilterEntry &entry,
-                            QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    // Retrieve action via index.
-    const int index = entry.internalData.toInt();
-    QTC_ASSERT(index >= 0 && index < d->commands.size(), return);
-    QAction *action = d->commands.at(index)->action();
-    // avoid nested stack trace and blocking locator by delayed triggering
-    QMetaObject::invokeMethod(action, [action] {
-        if (action->isEnabled())
-            action->trigger();
-    }, Qt::QueuedConnection);
 }
 
 }  // namespace Core
