@@ -218,25 +218,23 @@ private:
         };
         QList<Entry> docEntries;
 
-        const auto docSymbolGenerator = [&](const DocumentSymbol &info,
-                                            const LocatorFilterEntry &parent) {
-            LocatorFilterEntry entry;
+        const auto docSymbolModifier = [&docEntries](LocatorFilterEntry &entry,
+                                                     const DocumentSymbol &info,
+                                                     const LocatorFilterEntry &parent) {
             entry.displayName = ClangdClient::displayNameFromDocumentSymbol(
                 static_cast<SymbolKind>(info.kind()), info.name(),
                 info.detail().value_or(QString()));
-            entry.linkForEditor = linkForDocSymbol(info);
             entry.extraInfo = parent.extraInfo;
             if (!entry.extraInfo.isEmpty())
                 entry.extraInfo.append("::");
             entry.extraInfo.append(parent.displayName);
 
             // TODO: Can we extend clangd to send visibility information?
-            entry.displayIcon = LanguageClient::symbolIcon(info.kind());
             docEntries.append({entry, info});
-            return entry;
         };
 
-        QList<LocatorFilterEntry> allMatches = matchesForImpl(future, entry, docSymbolGenerator);
+        const QList<LocatorFilterEntry> allMatches = matchesForImpl(future, entry,
+                                                                    docSymbolModifier);
         if (docEntries.isEmpty())
             return allMatches; // SymbolInformation case
 

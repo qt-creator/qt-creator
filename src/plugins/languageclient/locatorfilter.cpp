@@ -190,8 +190,8 @@ void DocumentLocatorFilter::resetSymbols()
     m_currentSymbols.reset();
 }
 
-static LocatorFilterEntry generateLocatorEntry(const SymbolInformation &info,
-                                               DocumentUri::PathMapper pathMapper)
+static LocatorFilterEntry entryForSymbolInfo(const SymbolInformation &info,
+                                             DocumentUri::PathMapper pathMapper)
 {
     LocatorFilterEntry entry;
     entry.displayName = info.name();
@@ -202,30 +202,37 @@ static LocatorFilterEntry generateLocatorEntry(const SymbolInformation &info,
     return entry;
 }
 
-QList<LocatorFilterEntry> DocumentLocatorFilter::entriesForSymbolsInfo(
-    const QList<SymbolInformation> &infoList, const QRegularExpression &regexp)
+LocatorFilterEntries entriesForSymbolsInfo(const QList<SymbolInformation> &infoList,
+    const QRegularExpression &regexp, const DocumentUri::PathMapper &pathMapper)
 {
-    QTC_ASSERT(m_pathMapper, return {});
-    QList<LocatorFilterEntry> entries;
+    QTC_ASSERT(pathMapper, return {});
+    LocatorFilterEntries entries;
     for (const SymbolInformation &info : infoList) {
         if (regexp.match(info.name()).hasMatch())
-            entries << LanguageClient::generateLocatorEntry(info, m_pathMapper);
+            entries << LanguageClient::entryForSymbolInfo(info, pathMapper);
     }
     return entries;
 }
 
-QList<LocatorFilterEntry> DocumentLocatorFilter::entriesForDocSymbols(
-    const QList<DocumentSymbol> &infoList, const QRegularExpression &regexp,
-    const DocSymbolGenerator &docSymbolGenerator, const LocatorFilterEntry &parent)
+LocatorFilterEntries entriesForDocSymbols(const QList<DocumentSymbol> &infoList,
+    const QRegularExpression &regexp, const FilePath &filePath,
+    const DocSymbolModifier &docSymbolModifier, const LocatorFilterEntry &parent = {})
 {
-    QList<LocatorFilterEntry> entries;
+    LocatorFilterEntries entries;
     for (const DocumentSymbol &info : infoList) {
         const QList<DocumentSymbol> children = info.children().value_or(QList<DocumentSymbol>());
         const bool hasMatch = regexp.match(info.name()).hasMatch();
-        const LocatorFilterEntry entry = hasMatch ? docSymbolGenerator(info, parent) : parent;
-        if (hasMatch)
+        LocatorFilterEntry entry;
+        if (hasMatch) {
+            entry.displayIcon = LanguageClient::symbolIcon(info.kind());
+            const Position &pos = info.range().start();
+            entry.linkForEditor = {filePath, pos.line() + 1, pos.character()};
+            docSymbolModifier(entry, info, parent);
             entries << entry;
-        entries << entriesForDocSymbols(children, regexp, docSymbolGenerator, entry);
+        } else {
+            entry = parent;
+        }
+        entries << entriesForDocSymbols(children, regexp, filePath, docSymbolModifier, entry);
     }
     return entries;
 }
@@ -243,29 +250,19 @@ void DocumentLocatorFilter::prepareSearch(const QString &/*entry*/)
 QList<LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
     QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
-    const auto docSymbolGenerator = [this](const DocumentSymbol &info,
-                                           const LocatorFilterEntry &parent) {
+    const auto docSymbolModifier = [](LocatorFilterEntry &entry, const DocumentSymbol &info,
+                                      const LocatorFilterEntry &parent) {
         Q_UNUSED(parent)
-        LocatorFilterEntry entry;
         entry.displayName = info.name();
         if (std::optional<QString> detail = info.detail())
-            entry.extraInfo = detail.value_or(QString());
-        entry.displayIcon = symbolIcon(info.kind());
-        entry.linkForEditor = linkForDocSymbol(info);
-        return entry;
+            entry.extraInfo = *detail;
     };
-    return matchesForImpl(future, entry, docSymbolGenerator);
-}
-
-Link DocumentLocatorFilter::linkForDocSymbol(const DocumentSymbol &info) const
-{
-    const Position &pos = info.range().start();
-    return {m_currentFilePath, pos.line() + 1, pos.character()};
+    return matchesForImpl(future, entry, docSymbolModifier);
 }
 
 QList<LocatorFilterEntry> DocumentLocatorFilter::matchesForImpl(
     QFutureInterface<LocatorFilterEntry> &future, const QString &entry,
-    const DocSymbolGenerator &docSymbolGenerator)
+    const DocSymbolModifier &docSymbolModifier)
 {
     const FuzzyMatcher::CaseSensitivity caseSensitivity
         = ILocatorFilter::caseSensitivity(entry) == Qt::CaseSensitive
@@ -293,9 +290,9 @@ QList<LocatorFilterEntry> DocumentLocatorFilter::matchesForImpl(
     QTC_ASSERT(m_currentSymbols.has_value(), return {});
 
     if (auto list = std::get_if<QList<DocumentSymbol>>(&*m_currentSymbols))
-        return entriesForDocSymbols(*list, regExp, docSymbolGenerator);
+        return entriesForDocSymbols(*list, regExp, m_currentFilePath, docSymbolModifier);
     else if (auto list = std::get_if<QList<SymbolInformation>>(&*m_currentSymbols))
-        return entriesForSymbolsInfo(*list, regExp);
+        return entriesForSymbolsInfo(*list, regExp, m_pathMapper);
 
     return {};
 }
@@ -381,7 +378,7 @@ QList<LocatorFilterEntry> WorkspaceLocatorFilter::matchesFor(
         });
     }
     auto generateEntry = [](const SymbolInfoWithPathMapper &info) {
-        return generateLocatorEntry(info.symbol, info.mapper);
+        return entryForSymbolInfo(info.symbol, info.mapper);
     };
     return Utils::transform(m_results, generateEntry).toList();
 }

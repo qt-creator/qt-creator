@@ -19,6 +19,9 @@ namespace Core { class IEditor; }
 
 namespace LanguageClient {
 
+using DocSymbolModifier = std::function<void(Core::LocatorFilterEntry &,
+    const LanguageServerProtocol::DocumentSymbol &, const Core::LocatorFilterEntry &)>;
+
 Core::LocatorMatcherTasks LANGUAGECLIENT_EXPORT workspaceMatchers(const QList<Client *> &clients,
                                                                   Core::MatcherType type,
                                                                   int maxResultCount = 0);
@@ -42,27 +45,15 @@ protected:
 
     Utils::FilePath m_currentFilePath;
 
-    using DocSymbolGenerator = std::function<Core::LocatorFilterEntry(
-        const LanguageServerProtocol::DocumentSymbol &, const Core::LocatorFilterEntry &)>;
-
-    Utils::Link linkForDocSymbol(const LanguageServerProtocol::DocumentSymbol &info) const;
     QList<Core::LocatorFilterEntry> matchesForImpl(
         QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry,
-        const DocSymbolGenerator &docSymbolGenerator);
+        const DocSymbolModifier &docSymbolModifier);
 
 private:
     void updateCurrentClient();
     void updateSymbols(const LanguageServerProtocol::DocumentUri &uri,
                        const LanguageServerProtocol::DocumentSymbolsResult &symbols);
     void resetSymbols();
-
-    QList<Core::LocatorFilterEntry> entriesForSymbolsInfo(
-        const QList<LanguageServerProtocol::SymbolInformation> &infoList,
-        const QRegularExpression &regexp);
-    QList<Core::LocatorFilterEntry> entriesForDocSymbols(
-        const QList<LanguageServerProtocol::DocumentSymbol> &infoList,
-        const QRegularExpression &regexp, const DocSymbolGenerator &docSymbolGenerator,
-        const Core::LocatorFilterEntry &parent = {});
 
     QMutex m_mutex;
     QMetaObject::Connection m_updateSymbolsConnection;
