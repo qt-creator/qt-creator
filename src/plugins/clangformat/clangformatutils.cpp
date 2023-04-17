@@ -177,6 +177,7 @@ clang::format::FormatStyle qtcStyle()
     style.Standard = FormatStyle::LS_Cpp11;
     style.TabWidth = 4;
     style.UseTab = FormatStyle::UT_Never;
+    style.Standard = FormatStyle::LS_Auto;
     return style;
 }
 
