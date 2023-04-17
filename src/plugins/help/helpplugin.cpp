@@ -43,6 +43,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -97,7 +98,7 @@ class HelpPluginPrivate : public QObject
 public:
     HelpPluginPrivate();
 
-    void modeChanged(Utils::Id mode, Utils::Id old);
+    void modeChanged(Id mode, Id old);
 
     void requestContextHelp();
     void showContextHelp(const HelpItem &contextHelp);
@@ -142,6 +143,7 @@ public:
     LocalHelpManager m_localHelpManager;
 
     HelpIndexFilter helpIndexFilter;
+    FutureSynchronizer m_futureSynchronizer;
 };
 
 static HelpPluginPrivate *dd = nullptr;
@@ -395,6 +397,12 @@ HelpWidget *HelpPlugin::modeHelpWidget()
     return dd->m_centralWidget;
 }
 
+FutureSynchronizer *HelpPlugin::futureSynchronizer()
+{
+    QTC_ASSERT(dd, return nullptr);
+    return &dd->m_futureSynchronizer;
+}
+
 void HelpPluginPrivate::showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links, const QString &key)
 {
     if (links.size() < 1)
@@ -403,7 +411,7 @@ void HelpPluginPrivate::showLinksInCurrentViewer(const QMultiMap<QString, QUrl> 
     widget->showLinks(links, key);
 }
 
-void HelpPluginPrivate::modeChanged(Utils::Id mode, Utils::Id old)
+void HelpPluginPrivate::modeChanged(Id mode, Id old)
 {
     Q_UNUSED(old)
     if (mode == m_mode.id()) {
@@ -503,7 +511,7 @@ HelpViewer *HelpPluginPrivate::viewerForContextHelp()
 void HelpPluginPrivate::requestContextHelp()
 {
     // Find out what to show
-    const QVariant tipHelpValue = Utils::ToolTip::contextHelp();
+    const QVariant tipHelpValue = ToolTip::contextHelp();
     const HelpItem tipHelp = tipHelpValue.canConvert<HelpItem>()
                                  ? tipHelpValue.value<HelpItem>()
                                  : HelpItem(tipHelpValue.toString());
