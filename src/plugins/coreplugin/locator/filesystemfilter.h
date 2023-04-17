@@ -30,7 +30,7 @@ protected:
     void restoreState(const QJsonObject &object) final;
 
 private:
-    static MatchLevel matchLevelFor(const QRegularExpressionMatch &match, const QString &matchText);
+    LocatorMatcherTasks matchers() final;
 
     static const bool kIncludeHiddenDefault = true;
     bool m_includeHidden = kIncludeHiddenDefault;

@@ -3,12 +3,14 @@
 
 #include "filesystemfilter.h"
 
+#include "../coreplugin.h"
 #include "../coreplugintr.h"
 #include "../documentmanager.h"
 #include "../editormanager/editormanager.h"
 #include "../icore.h"
 #include "../vcsmanager.h"
 
+#include <utils/asynctask.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
@@ -30,41 +32,23 @@ using namespace Utils;
 namespace Core {
 namespace Internal {
 
-ILocatorFilter::MatchLevel FileSystemFilter::matchLevelFor(const QRegularExpressionMatch &match,
-                                                           const QString &matchText)
+static const char kAlwaysCreate[] = "Locator/FileSystemFilter/AlwaysCreate";
+
+static ILocatorFilter::MatchLevel matchLevelFor(const QRegularExpressionMatch &match,
+                                                const QString &matchText)
 {
     const int consecutivePos = match.capturedStart(1);
     if (consecutivePos == 0)
-        return MatchLevel::Best;
+        return ILocatorFilter::MatchLevel::Best;
     if (consecutivePos > 0) {
         const QChar prevChar = matchText.at(consecutivePos - 1);
         if (prevChar == '_' || prevChar == '.')
-            return MatchLevel::Better;
+            return ILocatorFilter::MatchLevel::Better;
     }
     if (match.capturedStart() == 0)
-        return MatchLevel::Good;
-    return MatchLevel::Normal;
+        return ILocatorFilter::MatchLevel::Good;
+    return ILocatorFilter::MatchLevel::Normal;
 }
-
-FileSystemFilter::FileSystemFilter()
-{
-    setId("Files in file system");
-    setDisplayName(Tr::tr("Files in File System"));
-    setDescription(Tr::tr("Opens a file given by a relative path to the current document, or absolute "
-                      "path. \"~\" refers to your home directory. You have the option to create a "
-                      "file if it does not exist yet."));
-    setDefaultShortcutString("f");
-    setDefaultIncludedByDefault(false);
-}
-
-void FileSystemFilter::prepareSearch(const QString &entry)
-{
-    Q_UNUSED(entry)
-    m_currentDocumentDirectory = DocumentManager::fileDialogInitialDirectory();
-    m_currentIncludeHidden = m_includeHidden;
-}
-
-static const char kAlwaysCreate[] = "Locator/FileSystemFilter/AlwaysCreate";
 
 static void createAndOpen(const FilePath &filePath)
 {
@@ -93,6 +77,143 @@ static void createAndOpen(const FilePath &filePath)
         VcsManager::promptToAdd(filePath.absolutePath(), {filePath});
     }
     EditorManager::openEditor(filePath);
+}
+
+FileSystemFilter::FileSystemFilter()
+{
+    setId("Files in file system");
+    setDisplayName(Tr::tr("Files in File System"));
+    setDescription(Tr::tr("Opens a file given by a relative path to the current document, or absolute "
+                      "path. \"~\" refers to your home directory. You have the option to create a "
+                      "file if it does not exist yet."));
+    setDefaultShortcutString("f");
+    setDefaultIncludedByDefault(false);
+}
+
+static void matches(QPromise<void> &promise, const LocatorStorage &storage,
+                    const QString &shortcutString, const FilePath &currentDocumentDir,
+                    bool includeHidden)
+{
+    const QString input = storage.input();
+    LocatorFilterEntries entries[int(ILocatorFilter::MatchLevel::Count)];
+
+    const Environment env = Environment::systemEnvironment();
+    const QString expandedEntry = env.expandVariables(input);
+    const auto expandedEntryPath = FilePath::fromUserInput(expandedEntry);
+    const auto absoluteEntryPath = currentDocumentDir.isEmpty() ? expandedEntryPath
+                                 : currentDocumentDir.resolvePath(expandedEntryPath);
+
+    // Consider the entered path a directory if it ends with slash/backslash.
+    // If it is a dir but doesn't end with a backslash, we want to still show all (other) matching
+    // items from the same parent directory.
+    // Unfortunately fromUserInput removes slash/backslash at the end, so manually check the original.
+    const bool isDir = expandedEntry.isEmpty() || expandedEntry.endsWith('/')
+                       || expandedEntry.endsWith('\\');
+    const FilePath directory = isDir ? absoluteEntryPath : absoluteEntryPath.parentDir();
+    const QString entryFileName = isDir ? QString() : absoluteEntryPath.fileName();
+
+    QDir::Filters dirFilter = QDir::Dirs | QDir::Drives | QDir::NoDot | QDir::NoDotDot;
+    QDir::Filters fileFilter = QDir::Files;
+    if (includeHidden) {
+        dirFilter |= QDir::Hidden;
+        fileFilter |= QDir::Hidden;
+    }
+    // use only 'name' for case sensitivity decision, because we need to make the path
+    // match the case on the file system for case-sensitive file systems
+    const Qt::CaseSensitivity caseSensitivity = ILocatorFilter::caseSensitivity(entryFileName);
+    const FilePaths dirs = FilePaths({directory / ".."})
+                           + directory.dirEntries({{}, dirFilter},
+                                                  QDir::Name | QDir::IgnoreCase | QDir::LocaleAware);
+    const FilePaths files = directory.dirEntries({{}, fileFilter},
+                                                 QDir::Name | QDir::IgnoreCase | QDir::LocaleAware);
+
+    QRegularExpression regExp = ILocatorFilter::createRegExp(entryFileName, caseSensitivity);
+    if (!regExp.isValid())
+        return;
+
+    for (const FilePath &dir : dirs) {
+        if (promise.isCanceled())
+            return;
+
+        const QString dirString = dir.relativeChildPath(directory).nativePath();
+        const QRegularExpressionMatch match = regExp.match(dirString);
+        if (match.hasMatch()) {
+            const ILocatorFilter::MatchLevel level = matchLevelFor(match, dirString);
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = dirString;
+            filterEntry.acceptor = [shortcutString, dir] {
+                const QString value = shortcutString + ' '
+                    + dir.absoluteFilePath().cleanPath().pathAppended("/").toUserOutput();
+                return AcceptResult{value, int(value.length())};
+            };
+            filterEntry.filePath = dir;
+            filterEntry.highlightInfo = ILocatorFilter::highlightInfo(match);
+
+            entries[int(level)].append(filterEntry);
+        }
+    }
+    // file names can match with +linenumber or :linenumber
+    const Link link = Link::fromString(entryFileName, true);
+    regExp = ILocatorFilter::createRegExp(link.targetFilePath.toString(), caseSensitivity);
+    if (!regExp.isValid())
+        return;
+    for (const FilePath &file : files) {
+        if (promise.isCanceled())
+            return;
+
+        const QString fileString = file.relativeChildPath(directory).nativePath();
+        const QRegularExpressionMatch match = regExp.match(fileString);
+        if (match.hasMatch()) {
+            const ILocatorFilter::MatchLevel level = matchLevelFor(match, fileString);
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = fileString;
+            filterEntry.filePath = file;
+            filterEntry.highlightInfo = ILocatorFilter::highlightInfo(match);
+            filterEntry.linkForEditor = Link(filterEntry.filePath, link.targetLine,
+                                             link.targetColumn);
+            entries[int(level)].append(filterEntry);
+        }
+    }
+
+    // "create and open" functionality
+    const FilePath fullFilePath = directory / entryFileName;
+    const bool containsWildcard = expandedEntry.contains('?') || expandedEntry.contains('*');
+    if (!containsWildcard && !fullFilePath.exists() && directory.exists()) {
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName =  Tr::tr("Create and Open \"%1\"").arg(expandedEntry);
+        filterEntry.acceptor = [fullFilePath] {
+            QMetaObject::invokeMethod(EditorManager::instance(),
+                [fullFilePath] { createAndOpen(fullFilePath); }, Qt::QueuedConnection);
+            return AcceptResult();
+        };
+        filterEntry.filePath = fullFilePath;
+        filterEntry.extraInfo = directory.absoluteFilePath().shortNativePath();
+        entries[int(ILocatorFilter::MatchLevel::Normal)].append(filterEntry);
+    }
+    storage.reportOutput(std::accumulate(std::begin(entries), std::end(entries),
+                                         LocatorFilterEntries()));
+}
+
+LocatorMatcherTasks FileSystemFilter::matchers()
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorStorage> storage;
+
+    const auto onSetup = [this, storage](AsyncTask<void> &async) {
+        async.setFutureSynchronizer(CorePlugin::futureSynchronizer());
+        async.setConcurrentCallData(matches, *storage, shortcutString(),
+                                    DocumentManager::fileDialogInitialDirectory(), m_includeHidden);
+    };
+
+    return {{Async<void>(onSetup), storage}};
+}
+
+void FileSystemFilter::prepareSearch(const QString &entry)
+{
+    Q_UNUSED(entry)
+    m_currentDocumentDirectory = DocumentManager::fileDialogInitialDirectory();
+    m_currentIncludeHidden = m_includeHidden;
 }
 
 QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
