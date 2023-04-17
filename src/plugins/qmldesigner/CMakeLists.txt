@@ -25,7 +25,6 @@ option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
 add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
 
 add_qtc_library(QmlDesignerUtils STATIC
-  PROPERTIES COMPILE_WARNING_AS_ERROR ON
   DEPENDS
     Qt::Gui Utils Qt::QmlPrivate
   DEFINES QMLDESIGNERUTILS_LIBRARY
@@ -42,6 +41,11 @@ add_qtc_library(QmlDesignerUtils STATIC
     ktximage.cpp ktximage.h
     imageutils.cpp imageutils.h
     qmldesignerutils_global.h
+)
+
+extend_qtc_library(QmlDesignerUtils
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
 )
 
 add_qtc_library(QmlDesignerCore STATIC
@@ -77,6 +81,11 @@ add_qtc_library(QmlDesignerCore STATIC
   SOURCES
     rewritertransaction.cpp
     rewritertransaction.h
+)
+
+extend_qtc_library(QmlDesignerCore
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -484,6 +493,11 @@ extend_qtc_plugin(QmlDesigner
     QMLDESIGNER_PLUGIN_PATH "${QmlDesignerPluginInstallPrefix}"
 )
 
+extend_qtc_plugin(QmlDesigner
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
+)
+
 function(get_and_add_as_subdirectory name repository git_tag build_dir source_dir source_subdir)
     # make the configuration in the build dir
     file(MAKE_DIRECTORY ${build_dir}/${name})
@@ -553,6 +567,11 @@ add_qtc_plugin(assetexporterplugin
   PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
 )
 
+extend_qtc_plugin(assetexporterplugin
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
+)
+
 add_qtc_plugin(componentsplugin
   PLUGIN_CLASS ComponentsPlugin
   CONDITION TARGET QmlDesigner
@@ -569,6 +588,11 @@ add_qtc_plugin(componentsplugin
   PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
 )
 
+extend_qtc_plugin(componentsplugin
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
+)
+
 add_qtc_plugin(qmlpreviewplugin
   PLUGIN_CLASS QmlPreviewWidgetPlugin
   CONDITION TARGET QmlDesigner
@@ -580,6 +604,11 @@ add_qtc_plugin(qmlpreviewplugin
   PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
 )
 
+extend_qtc_plugin(qmlpreviewplugin
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
+)
+
 add_qtc_plugin(qtquickplugin
   PLUGIN_CLASS QtQuickPlugin
   CONDITION TARGET QmlDesigner
@@ -589,6 +618,11 @@ add_qtc_plugin(qtquickplugin
     qtquickplugin/qtquickplugin.cpp qtquickplugin/qtquickplugin.h
     qtquickplugin/qtquickplugin.qrc
   PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
+)
+
+extend_qtc_plugin(qtquickplugin
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
 )
 
 add_subdirectory(studioplugin)

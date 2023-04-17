@@ -1,6 +1,5 @@
 add_qtc_plugin(QmlProjectManager
   CONDITION TARGET Qt5::QuickWidgets
-  PROPERTIES COMPILE_WARNING_AS_ERROR ON
   PLUGIN_CLASS QmlProjectPlugin
   DEPENDS QmlJS Qt5::QuickWidgets Utils
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport QmlDesignerBase
@@ -24,6 +23,11 @@ add_qtc_plugin(QmlProjectManager
     buildsystem/qmlbuildsystem.cpp buildsystem/qmlbuildsystem.h
 
     "${PROJECT_SOURCE_DIR}/src/share/3rdparty/studiofonts/studiofonts.qrc"
+)
+
+extend_qtc_plugin(QmlProjectManager
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
 )
 
 extend_qtc_plugin(QmlProjectManager
