@@ -20,8 +20,16 @@ extend_qtc_plugin(QmlDesignerBase
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES
+    designerpaths.cpp designerpaths.h
     designersettings.cpp designersettings.h
     qmlpuppetpaths.cpp qmlpuppetpaths.h
+)
+
+extend_qtc_plugin(QmlDesignerBase
+  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/studio
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/studio
+  SOURCES
     studiostyle.cpp studiostyle.h
     studioquickwidget.cpp studioquickwidget.h
+    studiosettingspage.cpp studiosettingspage.h
 )

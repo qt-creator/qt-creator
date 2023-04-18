@@ -114,7 +114,6 @@ private: // variables
     QmlDesignerPluginPrivate *d = nullptr;
     static QmlDesignerPlugin *m_instance;
     QElapsedTimer m_usageTimer;
-    StudioConfigSettingsPage m_settingsPage;
 };
 
 } // namespace QmlDesigner
