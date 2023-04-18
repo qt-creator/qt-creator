@@ -4,14 +4,11 @@
 #pragma once
 
 #include <projectexplorer/ipotentialkit.h>
-#include <utils/detailswidget.h>
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidPotentialKit : public ProjectExplorer::IPotentialKit
 {
-    Q_OBJECT
 public:
     QString displayName() const override;
     void executeFromMenu() override;
@@ -19,15 +16,4 @@ public:
     bool isEnabled() const override;
 };
 
-class AndroidPotentialKitWidget : public Utils::DetailsWidget
-{
-    Q_OBJECT
-public:
-    AndroidPotentialKitWidget(QWidget *parent);
-private:
-    void openOptions();
-    void recheck();
-};
-
-}
-}
+} // Android::Internal

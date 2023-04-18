@@ -8,23 +8,35 @@
 
 #include <app/app_version.h>
 
-#include <utils/detailswidget.h>
-#include <utils/utilsicons.h>
-
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
+
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/baseqtversion.h>
+
+#include <utils/detailswidget.h>
+#include <utils/utilsicons.h>
 
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
 
-using namespace Android;
-using namespace Android::Internal;
+
+namespace Android::Internal {
+
+class AndroidPotentialKitWidget : public Utils::DetailsWidget
+{
+public:
+    AndroidPotentialKitWidget(QWidget *parent);
+
+private:
+    void openOptions();
+    void recheck();
+};
 
 QString AndroidPotentialKit::displayName() const
 {
@@ -102,3 +114,5 @@ void AndroidPotentialKitWidget::recheck()
         }
     }
 }
+
+} // Android::Internal
