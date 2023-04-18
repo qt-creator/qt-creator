@@ -457,6 +457,7 @@ QStringList NavigatorTreeModel::mimeTypes() const
                                     Constants::MIME_TYPE_MATERIAL,
                                     Constants::MIME_TYPE_BUNDLE_TEXTURE,
                                     Constants::MIME_TYPE_BUNDLE_MATERIAL,
+                                    Constants::MIME_TYPE_BUNDLE_EFFECT,
                                     Constants::MIME_TYPE_ASSETS});
 
     return types;
@@ -565,6 +566,10 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
             ModelNode targetNode(modelNodeForIndex(dropModelIndex));
             if (targetNode.isValid())
                 m_view->emitCustomNotification("drop_bundle_material", {targetNode}); // To ContentLibraryView
+        } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_EFFECT)) {
+            ModelNode targetNode(modelNodeForIndex(dropModelIndex));
+            if (targetNode.isValid())
+                m_view->emitCustomNotification("drop_bundle_effect", {targetNode}); // To ContentLibraryView
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
             const QStringList assetsPaths = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',');
             NodeAbstractProperty targetProperty;

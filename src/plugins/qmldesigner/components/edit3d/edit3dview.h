@@ -69,6 +69,7 @@ public:
     void startContextMenu(const QPoint &pos);
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
     void dropBundleMaterial(const QPointF &pos);
+    void dropBundleEffect(const QPointF &pos);
     void dropTexture(const ModelNode &textureNode, const QPointF &pos);
     void dropComponent(const ItemLibraryEntry &entry, const QPointF &pos);
     void dropAsset(const QString &file, const QPointF &pos);
@@ -80,6 +81,7 @@ private slots:
 
 private:
     enum class NodeAtPosReqType {
+        BundleEffectDrop,
         BundleMaterialDrop,
         ComponentDrop,
         MaterialDrop,

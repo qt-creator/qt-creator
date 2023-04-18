@@ -18,10 +18,12 @@ class StudioQuickWidget;
 
 namespace QmlDesigner {
 
-class ContentLibraryTexture;
+class ContentLibraryEffect;
+class ContentLibraryEffectsModel;
 class ContentLibraryMaterial;
-class ContentLibraryTexturesModel;
 class ContentLibraryMaterialsModel;
+class ContentLibraryTexture;
+class ContentLibraryTexturesModel;
 
 class ContentLibraryWidget : public QFrame
 {
@@ -54,7 +56,9 @@ public:
     QPointer<ContentLibraryMaterialsModel> materialsModel() const;
     QPointer<ContentLibraryTexturesModel> texturesModel() const;
     QPointer<ContentLibraryTexturesModel> environmentsModel() const;
+    QPointer<ContentLibraryEffectsModel> effectsModel() const;
 
+    Q_INVOKABLE void startDragEffect(QmlDesigner::ContentLibraryEffect *eff, const QPointF &mousePos);
     Q_INVOKABLE void startDragMaterial(QmlDesigner::ContentLibraryMaterial *mat, const QPointF &mousePos);
     Q_INVOKABLE void startDragTexture(QmlDesigner::ContentLibraryTexture *tex, const QPointF &mousePos);
     Q_INVOKABLE void addImage(QmlDesigner::ContentLibraryTexture *tex);
@@ -64,6 +68,7 @@ public:
     Q_INVOKABLE void markTextureUpdated(const QString &textureKey);
 
 signals:
+    void bundleEffectDragStarted(QmlDesigner::ContentLibraryEffect *bundleEff);
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);
     void bundleTextureDragStarted(QmlDesigner::ContentLibraryTexture *bundleTex);
     void addTextureRequested(const QString texPath, QmlDesigner::AddTextureMode mode);
@@ -94,11 +99,13 @@ private:
     QPointer<ContentLibraryMaterialsModel> m_materialsModel;
     QPointer<ContentLibraryTexturesModel> m_texturesModel;
     QPointer<ContentLibraryTexturesModel> m_environmentsModel;
+    QPointer<ContentLibraryEffectsModel> m_effectsModel;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
 
     QString m_filterText;
 
+    ContentLibraryEffect *m_effectToDrag = nullptr;
     ContentLibraryMaterial *m_materialToDrag = nullptr;
     ContentLibraryTexture *m_textureToDrag = nullptr;
     QPoint m_dragStartPoint;

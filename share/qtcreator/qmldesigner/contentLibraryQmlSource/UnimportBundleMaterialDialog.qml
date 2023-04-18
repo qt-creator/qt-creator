@@ -10,7 +10,7 @@ import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import ContentLibraryBackend
 
-Dialog {
+StudioControls.Dialog {
     id: root
 
     title: qsTr("Bundle material might be in use")
@@ -19,7 +19,8 @@ Dialog {
     implicitWidth: 300
     modal: true
 
-    property var targetBundleMaterial
+    property var targetBundleType // "effect" or "material"
+    property var targetBundleItem
 
     contentItem: Column {
         spacing: 20
@@ -28,7 +29,8 @@ Dialog {
         Text {
             id: folderNotEmpty
 
-            text: qsTr("If the material you are removing is in use, it might cause the project to malfunction.\n\nAre you sure you want to remove the material?")
+            text: qsTr("If the %1 you are removing is in use, it might cause the project to malfunction.\n\nAre you sure you want to remove the %1?")
+                        .arg(root.targetBundleType)
             color: StudioTheme.Values.themeTextColor
             wrapMode: Text.WordWrap
             anchors.right: parent.right
@@ -48,7 +50,11 @@ Dialog {
                 text: qsTr("Remove")
 
                 onClicked: {
-                    ContentLibraryBackend.materialsModel.removeFromProject(root.targetBundleMaterial)
+                    if (root.targetBundleType === "material")
+                        ContentLibraryBackend.materialsModel.removeFromProject(root.targetBundleItem)
+                    else if (root.targetBundleType === "effect")
+                        ContentLibraryBackend.effectsModel.removeFromProject(root.targetBundleItem)
+
                     root.accept()
                 }
             }

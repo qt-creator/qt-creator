@@ -3,6 +3,8 @@
 
 #include "contentlibrarywidget.h"
 
+#include "contentlibraryeffect.h"
+#include "contentlibraryeffectsmodel.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialsmodel.h"
 #include "contentlibrarytexture.h"
@@ -64,7 +66,20 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
         Model *model = document->currentModel();
         QTC_ASSERT(model, return false);
 
-        if (m_materialToDrag) {
+        if (m_effectToDrag) {
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
+                QByteArray data;
+                QMimeData *mimeData = new QMimeData;
+                QDataStream stream(&data, QIODevice::WriteOnly);
+                stream << m_effectToDrag->type();
+                mimeData->setData(Constants::MIME_TYPE_BUNDLE_EFFECT, data);
+
+                emit bundleEffectDragStarted(m_effectToDrag);
+                model->startDrag(mimeData, m_effectToDrag->icon().toLocalFile());
+                m_effectToDrag = nullptr;
+            }
+        } else if (m_materialToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 20
                 && m_materialToDrag->isDownloaded()) {
@@ -96,6 +111,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
+        m_effectToDrag = nullptr;
         m_materialToDrag = nullptr;
         m_textureToDrag = nullptr;
         setIsDragging(false);
@@ -109,6 +125,7 @@ ContentLibraryWidget::ContentLibraryWidget()
     , m_materialsModel(new ContentLibraryMaterialsModel(this))
     , m_texturesModel(new ContentLibraryTexturesModel("Textures", this))
     , m_environmentsModel(new ContentLibraryTexturesModel("Environments", this))
+    , m_effectsModel(new ContentLibraryEffectsModel(this))
 {
     qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
     qmlRegisterType<QmlDesigner::FileExtractor>("WebFetcher", 1, 0, "FileExtractor");
@@ -156,10 +173,11 @@ ContentLibraryWidget::ContentLibraryWidget()
 
     auto map = m_quickWidget->registerPropertyMap("ContentLibraryBackend");
 
-    map->setProperties({{"rootView", QVariant::fromValue(this)},
-                        {"materialsModel", QVariant::fromValue(m_materialsModel.data())},
-                        {"texturesModel", QVariant::fromValue(m_texturesModel.data())},
-                        {"environmentsModel", QVariant::fromValue(m_environmentsModel.data())}});
+    map->setProperties({{"rootView",          QVariant::fromValue(this)},
+                        {"materialsModel",    QVariant::fromValue(m_materialsModel.data())},
+                        {"texturesModel",     QVariant::fromValue(m_texturesModel.data())},
+                        {"environmentsModel", QVariant::fromValue(m_environmentsModel.data())},
+                        {"effectsModel",      QVariant::fromValue(m_effectsModel.data())}});
 
     reloadQmlSource();
 }
@@ -655,6 +673,7 @@ void ContentLibraryWidget::reloadQmlSource()
 void ContentLibraryWidget::updateSearch()
 {
     m_materialsModel->setSearchText(m_filterText);
+    m_effectsModel->setSearchText(m_filterText);
     m_texturesModel->setSearchText(m_filterText);
     m_environmentsModel->setSearchText(m_filterText);
     m_quickWidget->update();
@@ -688,6 +707,14 @@ QString ContentLibraryWidget::findTextureBundlePath()
     }
 
     return texBundleDir.path();
+}
+
+void ContentLibraryWidget::startDragEffect(QmlDesigner::ContentLibraryEffect *eff,
+                                           const QPointF &mousePos)
+{
+    m_effectToDrag = eff;
+    m_dragStartPoint = mousePos.toPoint();
+    setIsDragging(true);
 }
 
 void ContentLibraryWidget::startDragMaterial(QmlDesigner::ContentLibraryMaterial *mat,
@@ -748,6 +775,11 @@ QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::texturesModel() cons
 QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::environmentsModel() const
 {
     return m_environmentsModel;
+}
+
+QPointer<ContentLibraryEffectsModel> ContentLibraryWidget::effectsModel() const
+{
+    return m_effectsModel;
 }
 
 } // namespace QmlDesigner

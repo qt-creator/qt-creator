@@ -141,6 +141,7 @@ public:
         editLightOn_medium,
         edit_medium,
         edit_small,
+        effects,
         events_small,
         export_medium,
         eyeDropper,
