@@ -121,6 +121,7 @@ class IdPaths;
 class ProjectChunkId;
 enum class SourceType : int;
 class FileStatus;
+class Import;
 
 std::ostream &operator<<(std::ostream &out, const ModelNode &node);
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
@@ -129,6 +130,7 @@ std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
 std::ostream &operator<<(std::ostream &out, const ProjectChunkId &id);
 std::ostream &operator<<(std::ostream &out, SourceType sourceType);
 std::ostream &operator<<(std::ostream &out, const FileStatus &fileStatus);
+std::ostream &operator<<(std::ostream &out, const Import &import);
 
 namespace Cache {
 class SourceContext;

@@ -203,35 +203,66 @@ QString qmlPath(ProjectExplorer::Target *target)
 
     return qtVersion->qmlPath().toString();
 }
-} // namespace
 
-QStringList ExternalDependencies::modulePaths() const
+std::tuple<ProjectExplorer::Project *, ProjectExplorer::Target *, QmlProjectManager::QmlBuildSystem *>
+activeProjectEntries()
 {
-    QStringList modulePaths;
-
     auto project = ProjectExplorer::SessionManager::startupProject();
 
     if (!project)
-        return modulePaths;
+        return {};
 
     auto target = project->activeTarget();
 
     if (!target)
-        return modulePaths;
-
-    if (auto path = qmlPath(target); !path.isEmpty())
-        modulePaths.push_back(path);
+        return {};
 
     const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
         target->buildSystem());
 
-    if (!qmlBuildSystem)
-        return modulePaths;
+    if (qmlBuildSystem)
+        return std::make_tuple(project, target, qmlBuildSystem);
 
-    for (const QString &modulePath : qmlBuildSystem->customImportPaths())
-        modulePaths.append(project->projectDirectory().pathAppended(modulePath).toString());
+    return {};
+}
+} // namespace
 
-    return modulePaths;
+QStringList ExternalDependencies::modulePaths() const
+{
+    auto [project, target, qmlBuildSystem] = activeProjectEntries();
+
+    if (project && target && qmlBuildSystem) {
+        QStringList modulePaths;
+
+        if (auto path = qmlPath(target); !path.isEmpty())
+            modulePaths.push_back(path);
+
+        for (const QString &modulePath : qmlBuildSystem->customImportPaths())
+            modulePaths.append(project->projectDirectory().pathAppended(modulePath).toString());
+    }
+
+    return {};
+}
+
+QStringList ExternalDependencies::projectModulePaths() const
+{
+    auto [project, target, qmlBuildSystem] = activeProjectEntries();
+
+    if (project && target && qmlBuildSystem) {
+        QStringList modulePaths;
+
+        for (const QString &modulePath : qmlBuildSystem->customImportPaths())
+            modulePaths.append(project->projectDirectory().pathAppended(modulePath).toString());
+    }
+
+    return {};
+}
+
+bool ExternalDependencies::isQt6Project() const
+{
+    auto [project, target, qmlBuildSystem] = activeProjectEntries();
+
+    return qmlBuildSystem && qmlBuildSystem->qt6Project();
 }
 
 } // namespace QmlDesigner

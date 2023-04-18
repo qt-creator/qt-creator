@@ -41,6 +41,8 @@ public:
     virtual bool instantQmlTextUpdate() const = 0;
     virtual Utils::FilePath qmlPuppetPath() const = 0;
     virtual QStringList modulePaths() const = 0;
+    virtual QStringList projectModulePaths() const = 0;
+    virtual bool isQt6Project() const = 0;
 };
 
 } // namespace QmlDesigner

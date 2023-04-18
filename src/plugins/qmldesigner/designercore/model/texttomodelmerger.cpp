@@ -874,6 +874,24 @@ QList<QmlDesigner::Import> generatePossibleFileImports(const QString &path,
     return possibleImports;
 }
 
+QmlDesigner::Imports createQt5Modules()
+{
+    return {QmlDesigner::Import::createLibraryImport("QtQuick", "5.15"),
+            QmlDesigner::Import::createLibraryImport("QtQuick3D", "5.15"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Controls", "5.15"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Window", "5.15"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Layouts", "5.15"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Timeline", "5.15"),
+            QmlDesigner::Import::createLibraryImport("QtCharts", "5.15"),
+            QmlDesigner::Import::createLibraryImport("QtDataVisulaization", "5.15"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Controls", "1.0"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Effects", "1.0"),
+            QmlDesigner::Import::createLibraryImport("FlowView", "1.0"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Studio.LogicHelper", "1.0"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Studio.MultiText", "1.0"),
+            QmlDesigner::Import::createLibraryImport("Qt.SafeRenderer", "2.0")};
+}
+
 } // namespace
 
 void TextToModelMerger::setupPossibleImports()
@@ -887,11 +905,25 @@ void TextToModelMerger::setupPossibleImports()
     auto allUsedImports = m_scopeChain->context()->imports(m_document.data())->all();
 
     if (m_possibleModules.isEmpty() || projectUrl != lastProjectUrl) {
-        const auto skipModuleNames = m_rewriterView->model()->metaInfo().itemLibraryInfo()->blacklistImports();
-        ModuleScanner moduleScanner{
-            [&](QStringView moduleName) { return skipModule(moduleName, skipModuleNames); }};
-        moduleScanner.scan(m_rewriterView->externalDependencies().modulePaths());
-        m_possibleModules = moduleScanner.modules();
+
+        auto &externalDependencies = m_rewriterView->externalDependencies();
+        if (externalDependencies.isQt6Project()) {
+            const auto skipModuleNames = m_rewriterView->model()
+                                             ->metaInfo()
+                                             .itemLibraryInfo()
+                                             ->blacklistImports();
+            ModuleScanner moduleScanner{[&](QStringView moduleName) {
+                                            return skipModule(moduleName, skipModuleNames);
+                                        },
+                                        VersionScanning::No};
+            moduleScanner.scan(m_rewriterView->externalDependencies().modulePaths());
+            m_possibleModules = moduleScanner.modules();
+        } else {
+            ModuleScanner moduleScanner{[&](QStringView) { return false; }, VersionScanning::Yes};
+            m_possibleModules = createQt5Modules();
+            moduleScanner.scan(externalDependencies.projectModulePaths());
+            m_possibleModules.append(moduleScanner.modules());
+        }
     }
 
     lastProjectUrl = projectUrl;

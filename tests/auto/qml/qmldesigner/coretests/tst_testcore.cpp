@@ -161,6 +161,8 @@ public:
     bool instantQmlTextUpdate() const override { return true; }
     Utils::FilePath qmlPuppetPath() const override { return {}; }
     QStringList modulePaths() const override { return {}; }
+    QStringList projectModulePaths() const override { return {}; }
+    bool isQt6Project() const override { return {}; }
 
 public:
     QSettings qsettings;

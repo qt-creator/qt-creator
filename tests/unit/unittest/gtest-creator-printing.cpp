@@ -12,6 +12,7 @@
 #include <clangtools/clangtoolsdiagnostic.h>
 #include <debugger/analyzer/diagnosticlocation.h>
 #include <imagecacheauxiliarydata.h>
+#include <import.h>
 #include <modelnode.h>
 #include <projectstorage/filestatus.h>
 #include <projectstorage/projectstoragepathwatchertypes.h>
@@ -467,6 +468,11 @@ std::ostream &operator<<(std::ostream &out, const FileStatus &fileStatus)
 {
     return out << "(" << fileStatus.sourceId << ", " << fileStatus.size << ", "
                << fileStatus.lastModified << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const Import &import)
+{
+    return out << "(" << import.url() << ", " << import.version() << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, SourceType sourceType)

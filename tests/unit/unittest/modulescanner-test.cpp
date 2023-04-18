@@ -15,11 +15,19 @@ auto UrlProperty(const Matcher &matcher)
     return Property(&QmlDesigner::Import::url, matcher);
 }
 
+template<typename Matcher>
+auto VersionProperty(const Matcher &matcher)
+{
+    return Property(&QmlDesigner::Import::version, matcher);
+}
+
 class ModuleScanner : public testing::Test
 {
 protected:
-    QmlDesigner::ModuleScanner scanner{
-        [](QStringView moduleName) { return moduleName.endsWith(u"impl"); }};
+    QmlDesigner::ModuleScanner scanner{[](QStringView moduleName) {
+                                           return moduleName.endsWith(u"impl");
+                                       },
+                                       QmlDesigner::VersionScanning::No};
 };
 
 TEST_F(ModuleScanner, ReturnEmptyOptionalForWrongPath)
@@ -48,6 +56,18 @@ TEST_F(ModuleScanner, UseSkipFunction)
     scanner.scan(QStringList{QT6_INSTALL_PREFIX});
 
     ASSERT_THAT(scanner.modules(), Not(Contains(UrlProperty(EndsWith(QStringView{u"impl"})))));
+}
+
+TEST_F(ModuleScanner, Version)
+{
+    QmlDesigner::ModuleScanner scanner{[](QStringView moduleName) {
+                                           return moduleName.endsWith(u"impl");
+                                       },
+                                       QmlDesigner::VersionScanning::Yes};
+
+    scanner.scan(QStringList{TESTDATA_DIR "/modulescanner"});
+
+    ASSERT_THAT(scanner.modules(), ElementsAre(AllOf(UrlProperty("Example"), VersionProperty("1.3"))));
 }
 
 } // namespace

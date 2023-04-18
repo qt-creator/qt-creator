@@ -11,13 +11,16 @@
 
 namespace QmlDesigner {
 
+enum class VersionScanning { No, Yes };
+
 class QMLDESIGNERCORE_EXPORT ModuleScanner
 {
 public:
     using SkipFunction = std::function<bool(QStringView)>;
 
-    ModuleScanner(SkipFunction skip)
+    ModuleScanner(SkipFunction skip, VersionScanning versionScanning)
         : m_skip{std::move(skip)}
+        , m_versionScanning{versionScanning}
     {
         m_modules.reserve(128);
     }
@@ -32,6 +35,7 @@ private:
 private:
     SkipFunction m_skip;
     Imports m_modules;
+    VersionScanning m_versionScanning;
 };
 
 } // namespace QmlDesigner

@@ -24,6 +24,20 @@ std::optional<QString> contentAsQString(const QString &filePath)
     return {};
 }
 
+#ifdef QDS_HAS_QMLPRIVATE
+QString createVersion(const QMultiHash<QString, QQmlDirParser::Component> &components)
+{
+    auto found = std::max_element(components.begin(), components.end(), [](auto &&first, auto &&second) {
+        return first.version < second.version;
+    });
+
+    if (found != components.end() && found->version.isValid())
+        return QString{"%1.%2"}.arg(found->version.majorVersion()).arg(found->version.minorVersion());
+
+    return {};
+}
+#endif
+
 } // namespace
 
 void ModuleScanner::scan(const QStringList &modulePaths)
@@ -61,7 +75,8 @@ void ModuleScanner::scan(std::string_view modulePath)
                 if (moduleName.isEmpty() || m_skip(moduleName))
                     continue;
 
-                m_modules.push_back(Import::createLibraryImport(moduleName));
+                m_modules.push_back(
+                    Import::createLibraryImport(moduleName, createVersion(parser.components())));
             }
         }
     } catch (const std::filesystem::filesystem_error &) {

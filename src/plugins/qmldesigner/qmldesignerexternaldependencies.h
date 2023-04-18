@@ -37,6 +37,8 @@ public:
     bool instantQmlTextUpdate() const override;
     Utils::FilePath qmlPuppetPath() const override;
     QStringList modulePaths() const override;
+    QStringList projectModulePaths() const override;
+    bool isQt6Project() const override;
 
 private:
     const DesignerSettings &m_designerSettings;

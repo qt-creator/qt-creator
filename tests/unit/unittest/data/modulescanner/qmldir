@@ -1,0 +1,5 @@
+module Example
+MyButton 1.0 MyButton.qml
+MyButton 1.1 MyButton11.qml
+MyButton 1.3 MyButton13.qml
+MyRectangle 1.2 MyRectangle12.qml
