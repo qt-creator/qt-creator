@@ -283,19 +283,21 @@ FilePaths UserFileBackUpStrategy::readFileCandidates(const FilePath &baseFileNam
 // UserFileAccessor:
 // --------------------------------------------------------------------
 
-UserFileAccessor::UserFileAccessor(Project *project) :
-    MergingSettingsAccessor("QtCreatorProject", Core::Constants::IDE_DISPLAY_NAME),
-    m_project(project)
+UserFileAccessor::UserFileAccessor(Project *project)
+    : m_project(project)
 {
     setStrategy(std::make_unique<VersionedBackUpStrategy>(this));
+    setDocType("QtCreatorProject");
+    setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
 
     // Setup:
     const FilePath externalUser = externalUserFile();
     const FilePath projectUser = projectUserFile();
     setBaseFilePath(externalUser.isEmpty() ? projectUser : externalUser);
 
-    auto secondary
-            = std::make_unique<SettingsAccessor>(docType, applicationDisplayName);
+    auto secondary = std::make_unique<SettingsAccessor>();
+    secondary->setDocType(m_docType);
+    secondary->setApplicationDisplayName(m_applicationDisplayName);
     secondary->setBaseFilePath(sharedFile());
     secondary->setReadOnly();
     setSecondaryAccessor(std::move(secondary));

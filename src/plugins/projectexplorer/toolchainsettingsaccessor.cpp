@@ -169,9 +169,10 @@ static ToolChainOperations mergeToolChainLists(const Toolchains &systemFileTcs,
 // ToolChainSettingsAccessor:
 // --------------------------------------------------------------------
 
-ToolChainSettingsAccessor::ToolChainSettingsAccessor() :
-    UpgradingSettingsAccessor("QtCreatorToolChains", Core::Constants::IDE_DISPLAY_NAME)
+ToolChainSettingsAccessor::ToolChainSettingsAccessor()
 {
+    setDocType("QtCreatorToolChains");
+    setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
     setBaseFilePath(Core::ICore::userResourcePath(TOOLCHAIN_FILENAME));
 
     addVersionUpgrader(std::make_unique<ToolChainSettingsUpgraderV0>());

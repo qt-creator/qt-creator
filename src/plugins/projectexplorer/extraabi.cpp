@@ -35,16 +35,15 @@ public:
 class AbiFlavorAccessor : public UpgradingSettingsAccessor
 {
 public:
-    AbiFlavorAccessor();
+    AbiFlavorAccessor()
+    {
+        setDocType("QtCreatorExtraAbi");
+        setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
+        setBaseFilePath(Core::ICore::installerResourcePath("abi.xml"));
+        addVersionUpgrader(std::make_unique<AbiFlavorUpgraderV0>());
+    }
 };
 
-AbiFlavorAccessor::AbiFlavorAccessor() :
-    UpgradingSettingsAccessor("QtCreatorExtraAbi", Core::Constants::IDE_DISPLAY_NAME)
-{
-    setBaseFilePath(Core::ICore::installerResourcePath("abi.xml"));
-
-    addVersionUpgrader(std::make_unique<AbiFlavorUpgraderV0>());
-}
 
 // --------------------------------------------------------------------
 // ExtraAbi:
