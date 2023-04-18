@@ -110,7 +110,7 @@ public:
     // IEditor
     Core::IDocument *document() const override;
 
-    IEditor *duplicate() override;
+    BaseTextEditor *duplicate() override;
 
     QByteArray saveState() const override;
     void restoreState(const QByteArray &state) override;

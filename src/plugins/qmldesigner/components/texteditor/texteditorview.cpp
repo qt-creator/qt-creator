@@ -80,8 +80,7 @@ void TextEditorView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
 
     auto textEditor = Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor>(
-        static_cast<TextEditor::BaseTextEditor *>(
-            QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate()));
+        QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate());
 
     // Set the context of the text editor, but we add another special context to override shortcuts.
     Core::Context context = textEditor->context();
