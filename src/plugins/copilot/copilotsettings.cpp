@@ -58,8 +58,15 @@ CopilotSettings::CopilotSettings()
     distPath.setHistoryCompleter("Copilot.DistPath.History");
     distPath.setDisplayName(Tr::tr("Agent.js path"));
 
+    autoComplete.setDisplayName(Tr::tr("Auto Complete"));
+    autoComplete.setLabelText(Tr::tr("Request completions automatically"));
+    autoComplete.setDefaultValue(true);
+    autoComplete.setToolTip(Tr::tr("Automatically request suggestions for the current text cursor "
+                                   "position after changes to the document"));
+
     registerAspect(&nodeJsPath);
     registerAspect(&distPath);
+    registerAspect(&autoComplete);
 }
 
 } // namespace Copilot

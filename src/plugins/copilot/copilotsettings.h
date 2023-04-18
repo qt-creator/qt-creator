@@ -16,6 +16,7 @@ public:
 
     Utils::StringAspect nodeJsPath;
     Utils::StringAspect distPath;
+    Utils::BoolAspect autoComplete;
 };
 
 } // namespace Copilot

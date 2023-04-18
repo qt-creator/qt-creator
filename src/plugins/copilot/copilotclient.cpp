@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "copilotclient.h"
+#include "copilotsettings.h"
 #include "copilotsuggestion.h"
 
 #include <languageclient/languageclientinterface.h>
@@ -80,6 +81,8 @@ void CopilotClient::openDocument(TextDocument *document)
             this,
             [this, document](int position, int charsRemoved, int charsAdded) {
                 Q_UNUSED(charsRemoved)
+                if (!CopilotSettings::instance().autoComplete.value())
+                    return;
                 auto textEditor = BaseTextEditor::currentTextEditor();
                 if (!textEditor || textEditor->document() != document)
                     return;

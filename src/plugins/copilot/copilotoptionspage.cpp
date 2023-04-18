@@ -49,6 +49,7 @@ file from the Copilot neovim plugin.
             authWidget, br,
             CopilotSettings::instance().nodeJsPath, br,
             CopilotSettings::instance().distPath, br,
+            CopilotSettings::instance().autoComplete, br,
             helpLabel, br,
             st
         }.attachTo(this);
