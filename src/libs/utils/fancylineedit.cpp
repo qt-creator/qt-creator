@@ -172,7 +172,6 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
     CompletingLineEdit(parent),
     d(new FancyLineEditPrivate(this))
 {
-    ensurePolished();
     updateMargins();
 
     connect(d->m_iconbutton[Left], &QAbstractButton::clicked, this, [this] {
