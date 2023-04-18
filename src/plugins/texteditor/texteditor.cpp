@@ -2905,9 +2905,9 @@ void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg,
     d->m_document->autoIndent(cursor);
     cursor.endEditBlock();
 
-    const QColor &occurrencesColor
+    const QColor occurrencesColor
         = textDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES).background().color();
-    const QColor &renameColor
+    const QColor renameColor
         = textDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES_RENAME).background().color();
 
     for (const CursorPart &part : cursorParts) {
