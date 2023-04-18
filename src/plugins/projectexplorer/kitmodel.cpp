@@ -24,57 +24,72 @@ namespace Internal {
 class KitNode : public TreeItem
 {
 public:
-    KitNode(Kit *k, KitModel *m)
-    {
-        widget = new KitManagerConfigWidget(k);
+    KitNode(Kit *k, KitModel *m, QBoxLayout *parentLayout)
+        : m_kit(k), m_model(m), m_parentLayout(parentLayout)
+    {}
 
-        QObject::connect(widget, &KitManagerConfigWidget::dirty, m, [this] { update(); });
-
-        QObject::connect(widget, &KitManagerConfigWidget::isAutoDetectedChanged, m, [this, m] {
-            TreeItem *oldParent = parent();
-            TreeItem *newParent =
-                    m->rootItem()->childAt(widget->workingCopy()->isAutoDetected() ? 0 : 1);
-            if (oldParent && oldParent != newParent) {
-                m->takeItem(this);
-                newParent->appendChild(this);
-            }
-        });
-    }
-
-    ~KitNode() override
-    {
-        delete widget;
-    }
+    ~KitNode() override { delete m_widget; }
 
     QVariant data(int, int role) const override
     {
-        if (widget) {
+        if (m_widget) {
             if (role == Qt::FontRole) {
                 QFont f = QApplication::font();
-                if (widget->isDirty())
+                if (m_widget->isDirty())
                     f.setBold(!f.bold());
-                if (widget->isDefaultKit())
+                if (m_widget->isDefaultKit())
                     f.setItalic(f.style() != QFont::StyleItalic);
                 return f;
             }
             if (role == Qt::DisplayRole) {
-                QString baseName = widget->displayName();
-                if (widget->isDefaultKit())
+                QString baseName = m_widget->displayName();
+                if (m_widget->isDefaultKit())
                     //: Mark up a kit as the default one.
                     baseName = Tr::tr("%1 (default)").arg(baseName);
                 return baseName;
             }
             if (role == Qt::DecorationRole) {
-                return widget->displayIcon();
+                return m_widget->displayIcon();
             }
             if (role == Qt::ToolTipRole) {
-                return widget->validityMessage();
+                return m_widget->validityMessage();
             }
         }
         return QVariant();
     }
 
-    KitManagerConfigWidget *widget;
+    KitManagerConfigWidget *widget() const
+    {
+        const_cast<KitNode *>(this)->ensureWidget();
+        return m_widget;
+    }
+
+private:
+    void ensureWidget()
+    {
+        if (m_widget)
+            return;
+
+        m_widget = new KitManagerConfigWidget(m_kit);
+
+        QObject::connect(m_widget, &KitManagerConfigWidget::dirty, m_model, [this] { update(); });
+
+        QObject::connect(m_widget, &KitManagerConfigWidget::isAutoDetectedChanged, m_model, [this] {
+            TreeItem *oldParent = parent();
+            TreeItem *newParent =
+                m_model->rootItem()->childAt(m_widget->workingCopy()->isAutoDetected() ? 0 : 1);
+            if (oldParent && oldParent != newParent) {
+                m_model->takeItem(this);
+                newParent->appendChild(this);
+            }
+        });
+        m_parentLayout->addWidget(m_widget);
+    }
+
+    Kit *m_kit = m_kit;
+    KitModel *m_model = nullptr;
+    KitManagerConfigWidget *m_widget = nullptr;
+    QBoxLayout *m_parentLayout = nullptr;
 };
 
 // --------------------------------------------------------------------------
@@ -113,7 +128,7 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent)
 Kit *KitModel::kit(const QModelIndex &index)
 {
     KitNode *n = kitNode(index);
-    return n ? n->widget->workingCopy() : nullptr;
+    return n ? n->widget()->workingCopy() : nullptr;
 }
 
 KitNode *KitModel::kitNode(const QModelIndex &index)
@@ -136,20 +151,20 @@ void KitModel::setDefaultKit(const QModelIndex &index)
 
 bool KitModel::isDefaultKit(Kit *k) const
 {
-    return m_defaultNode && m_defaultNode->widget->workingCopy() == k;
+    return m_defaultNode && m_defaultNode->widget()->workingCopy() == k;
 }
 
 KitManagerConfigWidget *KitModel::widget(const QModelIndex &index)
 {
     KitNode *n = kitNode(index);
-    return n ? n->widget : nullptr;
+    return n ? n->widget() : nullptr;
 }
 
 void KitModel::validateKitNames()
 {
     QHash<QString, int> nameHash;
     forItemsAtLevel<2>([&nameHash](KitNode *n) {
-        const QString displayName = n->widget->displayName();
+        const QString displayName = n->widget()->displayName();
         if (nameHash.contains(displayName))
             ++nameHash[displayName];
         else
@@ -157,8 +172,8 @@ void KitModel::validateKitNames()
     });
 
     forItemsAtLevel<2>([&nameHash](KitNode *n) {
-        const QString displayName = n->widget->displayName();
-        n->widget->setHasUniqueName(nameHash.value(displayName) == 1);
+        const QString displayName = n->widget()->displayName();
+        n->widget()->setHasUniqueName(nameHash.value(displayName) == 1);
     });
 }
 
@@ -166,8 +181,8 @@ void KitModel::apply()
 {
     // Add/update dirty nodes before removing kits. This ensures the right kit ends up as default.
     forItemsAtLevel<2>([](KitNode *n) {
-        if (n->widget->isDirty()) {
-            n->widget->apply();
+        if (n->widget()->isDirty()) {
+            n->widget()->apply();
             n->update();
         }
     });
@@ -175,7 +190,7 @@ void KitModel::apply()
     // Remove unused kits:
     const QList<KitNode *> removeList = m_toRemoveList;
     for (KitNode *n : removeList)
-        n->widget->removeKit();
+        n->widget()->removeKit();
 
     emit layoutChanged(); // Force update.
 }
@@ -197,7 +212,7 @@ void KitModel::markForRemoval(Kit *k)
         setDefaultNode(findItemAtLevel<2>([node](KitNode *kn) { return kn != node; }));
 
     takeItem(node);
-    if (node->widget->configures(nullptr))
+    if (node->widget()->configures(nullptr))
         delete node;
     else
         m_toRemoveList.append(node);
@@ -209,7 +224,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     const QString newName = newKitName(baseKit ? baseKit->unexpandedDisplayName() : QString());
     KitNode *node = createNode(nullptr);
     m_manualRoot->appendChild(node);
-    Kit *k = node->widget->workingCopy();
+    Kit *k = node->widget()->workingCopy();
     KitGuard g(k);
     if (baseKit) {
         k->copyFrom(baseKit);
@@ -229,7 +244,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
 void KitModel::updateVisibility()
 {
     forItemsAtLevel<2>([](const TreeItem *ti) {
-        static_cast<const KitNode *>(ti)->widget->updateVisibility();
+        static_cast<const KitNode *>(ti)->widget()->updateVisibility();
     });
 }
 
@@ -237,32 +252,31 @@ QString KitModel::newKitName(const QString &sourceName) const
 {
     QList<Kit *> allKits;
     forItemsAtLevel<2>([&allKits](const TreeItem *ti) {
-        allKits << static_cast<const KitNode *>(ti)->widget->workingCopy();
+        allKits << static_cast<const KitNode *>(ti)->widget()->workingCopy();
     });
     return Kit::newKitName(sourceName, allKits);
 }
 
 KitNode *KitModel::findWorkingCopy(Kit *k) const
 {
-    return findItemAtLevel<2>([k](KitNode *n) { return n->widget->workingCopy() == k; });
+    return findItemAtLevel<2>([k](KitNode *n) { return n->widget()->workingCopy() == k; });
 }
 
 KitNode *KitModel::createNode(Kit *k)
 {
-    auto node = new KitNode(k, this);
-    m_parentLayout->addWidget(node->widget);
+    auto node = new KitNode(k, this, m_parentLayout);
     return node;
 }
 
 void KitModel::setDefaultNode(KitNode *node)
 {
     if (m_defaultNode) {
-        m_defaultNode->widget->setIsDefaultKit(false);
+        m_defaultNode->widget()->setIsDefaultKit(false);
         m_defaultNode->update();
     }
     m_defaultNode = node;
     if (m_defaultNode) {
-        m_defaultNode->widget->setIsDefaultKit(true);
+        m_defaultNode->widget()->setIsDefaultKit(true);
         m_defaultNode->update();
     }
 }
@@ -271,7 +285,7 @@ void KitModel::addKit(Kit *k)
 {
     for (TreeItem *n : *m_manualRoot) {
         // Was added by us
-        if (static_cast<KitNode *>(n)->widget->isRegistering())
+        if (static_cast<KitNode *>(n)->widget()->isRegistering())
             return;
     }
 
@@ -292,7 +306,7 @@ void KitModel::removeKit(Kit *k)
 {
     QList<KitNode *> nodes = m_toRemoveList;
     for (KitNode *n : std::as_const(nodes)) {
-        if (n->widget->configures(k)) {
+        if (n->widget()->configures(k)) {
             m_toRemoveList.removeOne(n);
             if (m_defaultNode == n)
                 m_defaultNode = nullptr;
@@ -303,7 +317,7 @@ void KitModel::removeKit(Kit *k)
     }
 
     KitNode *node = findItemAtLevel<2>([k](KitNode *n) {
-        return n->widget->configures(k);
+        return n->widget()->configures(k);
     });
 
     if (node == m_defaultNode)
@@ -319,7 +333,7 @@ void KitModel::changeDefaultKit()
 {
     Kit *defaultKit = KitManager::defaultKit();
     KitNode *node = findItemAtLevel<2>([defaultKit](KitNode *n) {
-        return n->widget->configures(defaultKit);
+        return n->widget()->configures(defaultKit);
     });
     setDefaultNode(node);
 }
