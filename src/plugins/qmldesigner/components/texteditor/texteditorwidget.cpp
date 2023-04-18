@@ -57,7 +57,7 @@ void TextEditorWidget::setTextEditor(Utils::UniqueObjectLatePtr<TextEditor::Base
     std::swap(m_textEditor, textEditor);
 
     if (m_textEditor) {
-        m_layout->insertWidget(0, textEditor->editorWidget());
+        m_layout->insertWidget(0, m_textEditor->editorWidget());
 
         setFocusProxy(m_textEditor->editorWidget());
 
