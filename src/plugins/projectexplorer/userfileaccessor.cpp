@@ -284,11 +284,11 @@ FilePaths UserFileBackUpStrategy::readFileCandidates(const FilePath &baseFileNam
 // --------------------------------------------------------------------
 
 UserFileAccessor::UserFileAccessor(Project *project) :
-    MergingSettingsAccessor(std::make_unique<VersionedBackUpStrategy>(this),
-                            "QtCreatorProject",
-                            Core::Constants::IDE_DISPLAY_NAME),
+    MergingSettingsAccessor("QtCreatorProject", Core::Constants::IDE_DISPLAY_NAME),
     m_project(project)
 {
+    setStrategy(std::make_unique<VersionedBackUpStrategy>(this));
+
     // Setup:
     const FilePath externalUser = externalUserFile();
     const FilePath projectUser = projectUserFile();

@@ -223,14 +223,8 @@ std::optional<FilePath> BackUpStrategy::backupName(const QVariantMap &oldData,
 
 BackingUpSettingsAccessor::BackingUpSettingsAccessor(const QString &docType,
                                                      const QString &applicationDisplayName) :
-    BackingUpSettingsAccessor(std::make_unique<BackUpStrategy>(), docType, applicationDisplayName)
-{ }
-
-BackingUpSettingsAccessor::BackingUpSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
-                                                     const QString &docType,
-                                                     const QString &applicationDisplayName) :
     SettingsAccessor(docType, applicationDisplayName),
-    m_strategy(std::move(strategy))
+    m_strategy(std::make_unique<BackUpStrategy>())
 { }
 
 SettingsAccessor::RestoreData
@@ -270,6 +264,11 @@ std::optional<SettingsAccessor::Issue> BackingUpSettingsAccessor::writeData(cons
     backupFile(path, data, parent);
 
     return SettingsAccessor::writeData(path, data, parent);
+}
+
+void BackingUpSettingsAccessor::setStrategy(std::unique_ptr<BackUpStrategy> &&strategy)
+{
+    m_strategy = std::move(strategy);
 }
 
 FilePaths BackingUpSettingsAccessor::readFileCandidates(const FilePath &path) const
@@ -405,15 +404,10 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
  */
 UpgradingSettingsAccessor::UpgradingSettingsAccessor(const QString &docType,
                                                      const QString &applicationDisplayName) :
-    UpgradingSettingsAccessor(std::make_unique<VersionedBackUpStrategy>(this), docType,
-                              applicationDisplayName)
-{ }
-
-UpgradingSettingsAccessor::UpgradingSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
-                                                     const QString &docType,
-                                                     const QString &applicationDisplayName) :
-    BackingUpSettingsAccessor(std::move(strategy), docType, applicationDisplayName)
-{ }
+    BackingUpSettingsAccessor(docType, applicationDisplayName)
+{
+    setStrategy(std::make_unique<VersionedBackUpStrategy>(this));
+}
 
 int UpgradingSettingsAccessor::currentVersion() const
 {
@@ -568,10 +562,9 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
  * MergingSettingsAccessor allows to merge secondary settings into the main settings.
  * This is useful to e.g. handle .shared files together with .user files.
  */
-MergingSettingsAccessor::MergingSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
-                                                 const QString &docType,
+MergingSettingsAccessor::MergingSettingsAccessor(const QString &docType,
                                                  const QString &applicationDisplayName) :
-    UpgradingSettingsAccessor(std::move(strategy), docType, applicationDisplayName)
+    UpgradingSettingsAccessor(docType, applicationDisplayName)
 { }
 
 SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &path,

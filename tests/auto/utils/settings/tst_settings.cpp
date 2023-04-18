@@ -143,9 +143,9 @@ public:
 };
 
 BasicTestSettingsAccessor::BasicTestSettingsAccessor(const FilePath &baseName, const QByteArray &id) :
-    Utils::MergingSettingsAccessor(std::make_unique<TestBackUpStrategy>(this),
-                                   "TestData", TESTACCESSOR_APPLICATION_DN)
+    Utils::MergingSettingsAccessor("TestData", TESTACCESSOR_APPLICATION_DN)
 {
+    setStrategy(std::make_unique<TestBackUpStrategy>(this));
     setSettingsId(id);
     setBaseFilePath(baseName);
 }
