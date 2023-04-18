@@ -209,23 +209,11 @@ static CMakeConfig configurationFromPresetProbe(
                                       ? configurePreset.cacheVariables.value()
                                       : CMakeConfig();
 
-        auto expandCacheValue =
-            [configurePreset, env, sourceDirectory, cache](const QString &key) -> QString {
-            QString result = cache.stringValueOf(key.toUtf8());
-            CMakePresets::Macros::expand(configurePreset, env, sourceDirectory, result);
-
-            // all usages involve file paths, so make sure they are cleaned up
-            const FilePaths paths = transform(result.split(";"), &FilePath::fromUserInput);
-            result = transform(paths, &FilePath::path).join(";");
-
-            return result;
-        };
-
-        const QString cmakeMakeProgram = expandCacheValue("CMAKE_MAKE_PROGRAM");
-        const QString toolchainFile = expandCacheValue("CMAKE_TOOLCHAIN_FILE");
-        const QString prefixPath = expandCacheValue("CMAKE_PREFIX_PATH");
-        const QString findRootPath = expandCacheValue("CMAKE_FIND_ROOT_PATH");
-        const QString qtHostPath = expandCacheValue("QT_HOST_PATH");
+        const QString cmakeMakeProgram = cache.stringValueOf("CMAKE_MAKE_PROGRAM");
+        const QString toolchainFile = cache.stringValueOf("CMAKE_TOOLCHAIN_FILE");
+        const QString prefixPath = cache.stringValueOf("CMAKE_PREFIX_PATH");
+        const QString findRootPath = cache.stringValueOf("CMAKE_FIND_ROOT_PATH");
+        const QString qtHostPath = cache.stringValueOf("QT_HOST_PATH");
 
         if (!cmakeMakeProgram.isEmpty()) {
             args.emplace_back(
@@ -662,6 +650,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                                   projectDirectory(),
                                                   data->buildDirectory);
 
+        CMakePresets::Macros::updateCacheVariables(configurePreset, env, projectDirectory());
+
         const CMakeConfig cache = configurePreset.cacheVariables
                                       ? configurePreset.cacheVariables.value()
                                       : CMakeConfig();
@@ -710,10 +700,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         data->cmakePresetDefaultConfigHash
             = CMakeConfigurationKitAspect::computeDefaultConfigHash(config, data->cmakeBinary);
 
-        QString cmakeBuildType = QString::fromUtf8(cache.valueOf("CMAKE_BUILD_TYPE"));
-        CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), cmakeBuildType);
-
-        QByteArrayList buildConfigurationTypes = {cmakeBuildType.toUtf8()};
+        QByteArrayList buildConfigurationTypes = {cache.valueOf("CMAKE_BUILD_TYPE")};
         if (buildConfigurationTypes.front().isEmpty()) {
             buildConfigurationTypes.clear();
             QByteArray buildConfigurationTypesString = cache.valueOf("CMAKE_CONFIGURATION_TYPES");

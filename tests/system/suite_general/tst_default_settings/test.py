@@ -35,7 +35,7 @@ def __checkKits__():
     if llvmForBuild is not None:
         internalClangExe = os.path.join(llvmForBuild, "bin", "clang")
         if platform.system() in ("Microsoft", "Windows"):
-            internalClangExe.append(".exe")
+            internalClangExe += ".exe"
         if os.path.exists(internalClangExe):
             expectedCompilers.append(internalClangExe)
     foundCompilers = []

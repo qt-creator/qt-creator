@@ -28,6 +28,10 @@ public:
         QString displayName;
         QString manifestPath;
         QString examplesPath;
+        // qtVersion is set by recreateModel for extra sets that correspond to actual Qt versions.
+        // This is needed for the decision to show categories or not based on the Qt version
+        // (which is not ideal).
+        QVersionNumber qtVersion;
     };
     static QVector<ExtraExampleSet> pluginRegisteredExampleSets();
 
@@ -35,7 +39,9 @@ public:
 
     int selectedExampleSet() const { return m_selectedExampleSetIndex; }
     void selectExampleSet(int index);
-    QStringList exampleSources(QString *examplesInstallPath, QString *demosInstallPath);
+    QStringList exampleSources(QString *examplesInstallPath,
+                               QString *demosInstallPath,
+                               QVersionNumber *qtVersion);
     bool selectedQtSupports(const Utils::Id &target) const;
 
 signals:

@@ -103,7 +103,9 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
 
         auto resolveInherits = [](auto &presetsHash, auto &presetsList) {
             Utils::sort(presetsList, [](const auto &left, const auto &right) {
-                if (!left.inherits || left.inherits.value().contains(right.name))
+                const bool sameInheritance = left.inherits && right.inherits
+                                             && left.inherits.value() == right.inherits.value();
+                if (!left.inherits || left.inherits.value().contains(right.name) || sameInheritance)
                     return false;
                 return true;
             });

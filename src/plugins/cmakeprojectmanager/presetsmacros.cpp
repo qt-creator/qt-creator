@@ -4,6 +4,7 @@
 #include "presetsmacros.h"
 #include "presetsparser.h"
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
@@ -290,6 +291,47 @@ void updateInstallDir(PresetsDetails::ConfigurePreset &configurePreset,
         cache << CMakeConfigItem("CMAKE_INSTALL_PREFIX",
                                  CMakeConfigItem::PATH,
                                  installDirString.toUtf8());
+
+    configurePreset.cacheVariables = cache;
+}
+
+
+void updateCacheVariables(PresetsDetails::ConfigurePreset &configurePreset,
+                          const Utils::Environment &env,
+                          const Utils::FilePath &sourceDirectory)
+{
+    using namespace Utils;
+
+    if (!configurePreset.cacheVariables)
+        return;
+
+    CMakeConfig cache = configurePreset.cacheVariables.value();
+
+    static const QSet<QByteArray> pathKeys{"CMAKE_C_COMPILER",
+                                           "CMAKE_CXX_COMPILER",
+                                           "CMAKE_PREFIX_PATH",
+                                           "CMAKE_FIND_ROOT_PATH",
+                                           "CMAKE_MAKE_PROGRAM",
+                                           "CMAKE_TOOLCHAIN_FILE",
+                                           "QT_HOST_PATH",
+                                           "QT_QMAKE_EXECUTABLE",
+                                           "CMAKE_SYSROOT"};
+
+    auto expandCacheValue =
+        [configurePreset, env, sourceDirectory, cache](const QByteArray &key) {
+        QString result = cache.stringValueOf(key);
+        CMakePresets::Macros::expand(configurePreset, env, sourceDirectory, result);
+
+        if (pathKeys.contains(key)) {
+            const FilePaths paths = transform(result.split(";"), &FilePath::fromUserInput);
+            result = transform(paths, &FilePath::path).join(";");
+        }
+
+        return result.toUtf8();
+    };
+
+    for (auto &item : cache)
+        item.value = expandCacheValue(item.key);
 
     configurePreset.cacheVariables = cache;
 }
