@@ -42,6 +42,7 @@ add_qtc_plugin(ScxmlEditor
     plugin_interface/baseitem.cpp plugin_interface/baseitem.h
     plugin_interface/connectableitem.cpp plugin_interface/connectableitem.h
     plugin_interface/cornergrabberitem.cpp plugin_interface/cornergrabberitem.h
+    plugin_interface/eventitem.cpp plugin_interface/eventitem.h
     plugin_interface/finalstateitem.cpp plugin_interface/finalstateitem.h
     plugin_interface/genericscxmlplugin.cpp plugin_interface/genericscxmlplugin.h
     plugin_interface/graphicsitemprovider.h

@@ -4,7 +4,9 @@
 #pragma once
 
 #include "connectableitem.h"
+#include "textitem.h"
 #include <QPen>
+#include <QStyleOptionGraphicsItem>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsSceneMouseEvent)
 
@@ -16,6 +18,7 @@ class TransitionItem;
 class TextItem;
 class IdWarningItem;
 class StateWarningItem;
+class OnEntryExitItem;
 
 /**
  * @brief The StateItem class represents the SCXML-State.
@@ -49,6 +52,8 @@ public:
     QRectF childItemsBoundingRect() const;
     void connectToParent(BaseItem *parentItem) override;
 
+    void addChild(ScxmlTag *child) override;
+
 protected:
     void updatePolygon() override;
     void transitionsChanged() override;
@@ -69,6 +74,7 @@ private:
     void updateTextPositions();
     void checkParentBoundingRect();
     void checkWarningItems();
+    void positionOnExitItems();
 
     TextItem *m_stateNameItem;
     StateWarningItem *m_stateWarningItem = nullptr;
@@ -76,6 +82,8 @@ private:
     QPen m_pen;
     bool m_initial = false;
     bool m_parallelState = false;
+    QPointer<OnEntryExitItem> m_onEntryItem;
+    QPointer<OnEntryExitItem> m_onExitItem;
     QImage m_backgroundImage;
 };
 
