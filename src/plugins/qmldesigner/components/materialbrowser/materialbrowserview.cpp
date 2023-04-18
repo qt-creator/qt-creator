@@ -540,7 +540,7 @@ void MaterialBrowserView::active3DSceneChanged(qint32 sceneId)
 
 void MaterialBrowserView::currentStateChanged([[maybe_unused]] const ModelNode &node)
 {
-    m_widget->materialBrowserTexturesModel()->updateAllTexturesSources();
+    refreshModel(true);
 }
 
 void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
