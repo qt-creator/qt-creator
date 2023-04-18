@@ -55,7 +55,8 @@ private:
 
         connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
                 this, &ProjectBuilder::onBuildFinished, Qt::QueuedConnection);
-        BuildManager::buildProjectWithDependencies(target->project());
+        if (!BuildManager::isBuilding(target))
+            BuildManager::buildProjectWithDependencies(target->project());
      }
 
      void onBuildFinished(bool success)
