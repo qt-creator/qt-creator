@@ -10,7 +10,6 @@
 
 using namespace Utils;
 
-const char TESTACCESSOR_DN[] = "Test Settings Accessor";
 const char TESTACCESSOR_APPLICATION_DN[] = "SettingsAccessor Test (Basic)";
 const char TESTACCESSOR_DEFAULT_ID[] = "testId";
 
@@ -145,7 +144,7 @@ public:
 
 BasicTestSettingsAccessor::BasicTestSettingsAccessor(const FilePath &baseName, const QByteArray &id) :
     Utils::MergingSettingsAccessor(std::make_unique<TestBackUpStrategy>(this),
-                                   "TestData", TESTACCESSOR_DN, TESTACCESSOR_APPLICATION_DN)
+                                   "TestData", TESTACCESSOR_APPLICATION_DN)
 {
     setSettingsId(id);
     setBaseFilePath(baseName);

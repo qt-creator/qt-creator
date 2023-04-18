@@ -139,9 +139,7 @@ mergeTools(std::vector<std::unique_ptr<CMakeTool>> &sdkTools,
 // --------------------------------------------------------------------
 
 CMakeToolSettingsAccessor::CMakeToolSettingsAccessor() :
-    UpgradingSettingsAccessor("QtCreatorCMakeTools",
-                              Tr::tr("CMake"),
-                              Core::Constants::IDE_DISPLAY_NAME)
+    UpgradingSettingsAccessor("QtCreatorCMakeTools", Core::Constants::IDE_DISPLAY_NAME)
 {
     setBaseFilePath(Core::ICore::userResourcePath(CMAKE_TOOL_FILENAME));
 

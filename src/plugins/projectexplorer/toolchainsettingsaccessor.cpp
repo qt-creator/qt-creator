@@ -170,9 +170,7 @@ static ToolChainOperations mergeToolChainLists(const Toolchains &systemFileTcs,
 // --------------------------------------------------------------------
 
 ToolChainSettingsAccessor::ToolChainSettingsAccessor() :
-    UpgradingSettingsAccessor("QtCreatorToolChains",
-                              Tr::tr("Tool Chains"),
-                              Core::Constants::IDE_DISPLAY_NAME)
+    UpgradingSettingsAccessor("QtCreatorToolChains", Core::Constants::IDE_DISPLAY_NAME)
 {
     setBaseFilePath(Core::ICore::userResourcePath(TOOLCHAIN_FILENAME));
 

@@ -39,15 +39,10 @@ QMessageBox::StandardButtons SettingsAccessor::Issue::allButtons() const
 /*!
  * The SettingsAccessor can be used to read/write settings in XML format.
  */
-SettingsAccessor::SettingsAccessor(const QString &docType,
-                                   const QString &displayName,
-                                   const QString &applicationDisplayName) :
-docType(docType),
-displayName(displayName),
-applicationDisplayName(applicationDisplayName)
+SettingsAccessor::SettingsAccessor(const QString &docType, const QString &applicationDisplayName)
+    : docType(docType), applicationDisplayName(applicationDisplayName)
 {
     QTC_CHECK(!docType.isEmpty());
-    QTC_CHECK(!displayName.isEmpty());
     QTC_CHECK(!applicationDisplayName.isEmpty());
 }
 
@@ -227,16 +222,14 @@ std::optional<FilePath> BackUpStrategy::backupName(const QVariantMap &oldData,
 }
 
 BackingUpSettingsAccessor::BackingUpSettingsAccessor(const QString &docType,
-                                                     const QString &displayName,
                                                      const QString &applicationDisplayName) :
-    BackingUpSettingsAccessor(std::make_unique<BackUpStrategy>(), docType, displayName, applicationDisplayName)
+    BackingUpSettingsAccessor(std::make_unique<BackUpStrategy>(), docType, applicationDisplayName)
 { }
 
 BackingUpSettingsAccessor::BackingUpSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
                                                      const QString &docType,
-                                                     const QString &displayName,
                                                      const QString &applicationDisplayName) :
-    SettingsAccessor(docType, displayName, applicationDisplayName),
+    SettingsAccessor(docType, applicationDisplayName),
     m_strategy(std::move(strategy))
 { }
 
@@ -411,17 +404,15 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
  * upgrade the settings on load to the latest supported version (if possible).
  */
 UpgradingSettingsAccessor::UpgradingSettingsAccessor(const QString &docType,
-                                                     const QString &displayName,
                                                      const QString &applicationDisplayName) :
     UpgradingSettingsAccessor(std::make_unique<VersionedBackUpStrategy>(this), docType,
-                              displayName, applicationDisplayName)
+                              applicationDisplayName)
 { }
 
 UpgradingSettingsAccessor::UpgradingSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
                                                      const QString &docType,
-                                                     const QString &displayName,
                                                      const QString &applicationDisplayName) :
-    BackingUpSettingsAccessor(std::move(strategy), docType, displayName, applicationDisplayName)
+    BackingUpSettingsAccessor(std::move(strategy), docType, applicationDisplayName)
 { }
 
 int UpgradingSettingsAccessor::currentVersion() const
@@ -579,9 +570,8 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
  */
 MergingSettingsAccessor::MergingSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
                                                  const QString &docType,
-                                                 const QString &displayName,
                                                  const QString &applicationDisplayName) :
-    UpgradingSettingsAccessor(std::move(strategy), docType, displayName, applicationDisplayName)
+    UpgradingSettingsAccessor(std::move(strategy), docType, applicationDisplayName)
 { }
 
 SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &path,

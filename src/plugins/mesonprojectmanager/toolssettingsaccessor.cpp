@@ -26,9 +26,7 @@ static QString entryName(int index)
 }
 
 ToolsSettingsAccessor::ToolsSettingsAccessor()
-    : UpgradingSettingsAccessor("QtCreatorMesonTools",
-                                Tr::tr("Meson"),
-                                Core::Constants::IDE_DISPLAY_NAME)
+    : UpgradingSettingsAccessor("QtCreatorMesonTools", Core::Constants::IDE_DISPLAY_NAME)
 {
     setBaseFilePath(Core::ICore::userResourcePath(Constants::ToolsSettings::FILENAME));
 }
