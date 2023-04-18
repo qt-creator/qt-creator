@@ -10,7 +10,10 @@
 #include "icore.h"
 #include "locator/locatormanager.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/fuzzymatcher.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -23,6 +26,8 @@
 #include <QtConcurrent>
 #include <QTextDocument>
 
+using namespace Utils;
+
 static const char lastTriggeredC[] = "LastTriggeredActions";
 
 QT_BEGIN_NAMESPACE
@@ -33,6 +38,13 @@ size_t qHash(const QPointer<QAction> &p, size_t seed)
 QT_END_NAMESPACE
 
 namespace Core::Internal {
+
+static const QList<QAction *> menuBarActions()
+{
+    QMenuBar *menuBar = Core::ActionManager::actionContainer(Constants::MENU_BAR)->menuBar();
+    QTC_ASSERT(menuBar, return {});
+    return menuBar->actions();
+}
 
 ActionsFilter::ActionsFilter()
 {
@@ -50,12 +62,144 @@ ActionsFilter::ActionsFilter()
     });
 }
 
-static const QList<QAction *> menuBarActions()
+static void matches(QPromise<void> &promise, const LocatorStorage &storage,
+                    const LocatorFilterEntries &entries)
 {
-    QMenuBar *menuBar = Core::ActionManager::actionContainer(Constants::MENU_BAR)->menuBar();
-    QTC_ASSERT(menuBar, return {});
-    return menuBar->actions();
+    using Highlight = LocatorFilterEntry::HighlightInfo;
+    using MatchLevel = ILocatorFilter::MatchLevel;
+    const QString input = storage.input();
+    const QRegularExpression regExp = ILocatorFilter::createRegExp(input, Qt::CaseInsensitive,
+                                                                   true);
+    using FilterResult = std::pair<MatchLevel, LocatorFilterEntry>;
+    const auto filter = [&](const LocatorFilterEntry &filterEntry) -> std::optional<FilterResult> {
+        if (promise.isCanceled())
+            return {};
+        Highlight highlight;
+
+        const auto withHighlight = [&highlight](LocatorFilterEntry result) {
+            result.highlightInfo = highlight;
+            return result;
+        };
+
+        Highlight::DataType first = Highlight::DisplayName;
+        QString allText = filterEntry.displayName + ' ' + filterEntry.extraInfo;
+        QRegularExpressionMatch allTextMatch = regExp.match(allText);
+        if (!allTextMatch.hasMatch()) {
+            first = Highlight::ExtraInfo;
+            allText = filterEntry.extraInfo + ' ' + filterEntry.displayName;
+            allTextMatch = regExp.match(allText);
+        }
+        if (allTextMatch.hasMatch()) {
+            if (first == Highlight::DisplayName) {
+                const QRegularExpressionMatch displayMatch = regExp.match(filterEntry.displayName);
+                if (displayMatch.hasMatch())
+                    highlight = ILocatorFilter::highlightInfo(displayMatch);
+                const QRegularExpressionMatch extraMatch = regExp.match(filterEntry.extraInfo);
+                if (extraMatch.hasMatch()) {
+                    Highlight extraHighlight = ILocatorFilter::highlightInfo(extraMatch,
+                                                                             Highlight::ExtraInfo);
+                    highlight.startsExtraInfo = extraHighlight.startsExtraInfo;
+                    highlight.lengthsExtraInfo = extraHighlight.lengthsExtraInfo;
+                }
+
+                if (filterEntry.displayName.startsWith(input, Qt::CaseInsensitive))
+                    return FilterResult{MatchLevel::Best, withHighlight(filterEntry)};
+                if (filterEntry.displayName.contains(input, Qt::CaseInsensitive))
+                    return FilterResult{MatchLevel::Better, withHighlight(filterEntry)};
+                if (displayMatch.hasMatch())
+                    return FilterResult{MatchLevel::Good, withHighlight(filterEntry)};
+                if (extraMatch.hasMatch())
+                    return FilterResult{MatchLevel::Normal, withHighlight(filterEntry)};
+            }
+
+            const FuzzyMatcher::HighlightingPositions positions
+                = FuzzyMatcher::highlightingPositions(allTextMatch);
+            const int positionsCount = positions.starts.count();
+            QTC_ASSERT(positionsCount == positions.lengths.count(), return {});
+            const int border = first == Highlight::DisplayName ? filterEntry.displayName.length()
+                                                               : filterEntry.extraInfo.length();
+            for (int i = 0; i < positionsCount; ++i) {
+                int start = positions.starts.at(i);
+                const int length = positions.lengths.at(i);
+                Highlight::DataType type = first;
+                if (start > border) {
+                    // this highlight is behind the border so switch type and reset start index
+                    start -= border + 1;
+                    type = first == Highlight::DisplayName ? Highlight::ExtraInfo
+                                                           : Highlight::DisplayName;
+                } else if (start + length > border) {
+                    const int firstStart = start;
+                    const int firstLength = border - start;
+                    const int secondStart = 0;
+                    const int secondLength = length - firstLength - 1;
+                    if (first == Highlight::DisplayName) {
+                        highlight.startsDisplay.append(firstStart);
+                        highlight.lengthsDisplay.append(firstLength);
+                        highlight.startsExtraInfo.append(secondStart);
+                        highlight.lengthsExtraInfo.append(secondLength);
+                    } else {
+                        highlight.startsExtraInfo.append(firstStart);
+                        highlight.lengthsExtraInfo.append(firstLength);
+                        highlight.startsDisplay.append(secondStart);
+                        highlight.lengthsDisplay.append(secondLength);
+                    }
+                    continue;
+                }
+                if (type == Highlight::DisplayName) {
+                    highlight.startsDisplay.append(start);
+                    highlight.lengthsDisplay.append(length);
+                } else {
+                    highlight.startsExtraInfo.append(start);
+                    highlight.lengthsExtraInfo.append(length);
+                }
+            }
+
+            return FilterResult{MatchLevel::Normal, withHighlight(filterEntry)};
+        }
+        return {};
+    };
+
+    QMap<MatchLevel, LocatorFilterEntries> filtered;
+    const QList<std::optional<FilterResult>> filterResults
+        = QtConcurrent::blockingMapped(entries, filter);
+    if (promise.isCanceled())
+        return;
+    for (const std::optional<FilterResult> &filterResult : filterResults) {
+        if (promise.isCanceled())
+            return;
+        if (filterResult)
+            filtered[filterResult->first] << filterResult->second;
+    }
+    storage.reportOutput(std::accumulate(std::begin(filtered), std::end(filtered),
+                                         LocatorFilterEntries()));
 }
+
+LocatorMatcherTasks ActionsFilter::matchers()
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorStorage> storage;
+
+    const auto onSetup = [this, storage](AsyncTask<void> &async) {
+        m_entries.clear();
+        m_indexes.clear();
+        QList<const QMenu *> processedMenus;
+        collectEntriesForLastTriggered();
+        for (QAction* action : menuBarActions())
+            collectEntriesForAction(action, {}, processedMenus);
+        collectEntriesForCommands();
+        if (storage->input().simplified().isEmpty()) {
+            storage->reportOutput(m_entries);
+            return TaskAction::StopWithDone;
+        }
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+        async.setConcurrentCallData(matches, *storage, m_entries);
+        return TaskAction::Continue;
+    };
+
+    return {{Async<void>(onSetup), storage}};
+}
+
 
 QList<LocatorFilterEntry> ActionsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                                     const QString &entry)
@@ -342,7 +486,7 @@ void ActionsFilter::restoreState(const QJsonObject &object)
     m_lastTriggered.clear();
     for (const QJsonValue &command : object.value(lastTriggeredC).toArray()) {
         if (command.isString())
-            m_lastTriggered.append({nullptr, Utils::Id::fromString(command.toString())});
+            m_lastTriggered.append({nullptr, Id::fromString(command.toString())});
     }
 }
 

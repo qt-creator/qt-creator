@@ -39,6 +39,7 @@ public:
     void prepareSearch(const QString &entry) override;
 
 private:
+    LocatorMatcherTasks matchers() final;
     void saveState(QJsonObject &object) const override;
     void restoreState(const QJsonObject &object) override;
     LocatorFilterEntry::Acceptor acceptor(const ActionFilterEntryData &data) const;
