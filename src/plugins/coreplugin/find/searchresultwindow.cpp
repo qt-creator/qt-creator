@@ -90,6 +90,7 @@ namespace Internal {
         void popupRequested(SearchResultWidget *widget, bool focus);
         void handleExpandCollapseToolButton(bool checked);
         void updateFilterButton();
+        int indexOfSearchToEvict() const;
         QList<QWidget *> toolBarWidgets();
 
         SearchResultWindow *q;
@@ -473,11 +474,14 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
                 // temporarily set the index to the last but one existing
                 d->m_currentIndex = d->m_recentSearchesBox->count() - 2;
             }
-            d->m_searchResultWidgets.last()->notifyVisibilityChanged(false);
+            const int toRemoveIndex = d->indexOfSearchToEvict();
+            SearchResultWidget * const widgetToRemove
+                = d->m_searchResultWidgets.takeAt(toRemoveIndex);
+            widgetToRemove->notifyVisibilityChanged(false);
             // widget first, because that might send interesting signals to SearchResult
-            delete d->m_searchResultWidgets.takeLast();
-            delete d->m_searchResults.takeLast();
-            d->m_recentSearchesBox->removeItem(d->m_recentSearchesBox->count() - 1);
+            delete widgetToRemove;
+            delete d->m_searchResults.takeAt(toRemoveIndex);
+            d->m_recentSearchesBox->removeItem(toRemoveIndex + 1);
         }
         d->m_recentSearchesBox->insertItem(1, Tr::tr("%1 %2").arg(label, searchTerm));
     }
@@ -614,6 +618,16 @@ void SearchResultWindowPrivate::updateFilterButton()
 {
     m_filterButton->setEnabled(isSearchVisible()
                                && m_searchResultWidgets.at(visibleSearchIndex())->hasFilter());
+}
+
+int SearchResultWindowPrivate::indexOfSearchToEvict() const
+{
+    const int lastIndex = m_searchResultWidgets.size() - 1;
+    for (int i = lastIndex; i >= 0; --i) {
+        if (!m_searchResultWidgets.at(i)->isSearching())
+            return i;
+    }
+    return lastIndex;
 }
 
 QList<QWidget *> SearchResultWindowPrivate::toolBarWidgets()

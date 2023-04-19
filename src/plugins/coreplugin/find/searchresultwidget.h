@@ -36,6 +36,7 @@ public:
     void addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
 
     int count() const;
+    bool isSearching() const { return m_searching; }
 
     void setSupportsReplace(bool replaceSupported, const QString &group);
     bool supportsReplace() const;
