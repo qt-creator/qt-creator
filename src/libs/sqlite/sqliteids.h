@@ -51,10 +51,17 @@ public:
         return first.id >= second.id;
     }
 
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     constexpr friend InternalIntegerType operator-(BasicId first, BasicId second)
     {
         return first.id - second.id;
     }
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 
     constexpr bool isValid() const { return id >= 0; }
 
