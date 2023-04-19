@@ -7,10 +7,11 @@
 #include "texteditor.h"
 #include "texteditortr.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugintr.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
+#include <utils/stringutils.h>
 
 #include <QHBoxLayout>
 #include <QScrollBar>
@@ -34,6 +35,7 @@ public:
         auto browser = new QTextBrowser(&m_widget);
         browser->setOpenExternalLinks(true);
         browser->setFrameShape(QFrame::NoFrame);
+        new Utils::MarkdownHighlighter(browser->document());
 
         // Right side (hidable)
         auto editor = new TextEditorWidget(&m_widget);

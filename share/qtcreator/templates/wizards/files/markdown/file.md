@@ -11,8 +11,6 @@ Paragraph.
 * another bullet
     * child bullet
 
----
-
 1. ordered
 2. next ordered
 
@@ -24,6 +22,10 @@ An empty line starts a new paragraph.
 
 Use two spaces at the end  
 to force a line break.
+
+A horizontal ruler follows:
+
+---
 
 Add links inline like [this link to the Qt homepage](https://www.qt.io),
 or with a reference like [this other link to the Qt homepage][1].

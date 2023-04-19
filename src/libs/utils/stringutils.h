@@ -5,8 +5,10 @@
 
 #include "utils_global.h"
 
+#include <QBrush>
 #include <QList>
 #include <QString>
+#include <QSyntaxHighlighter>
 
 #include <functional>
 
@@ -120,5 +122,15 @@ QTCREATOR_UTILS_EXPORT QPair<QStringView, QStringView> splitAtFirst(const QStrin
                                                                     QChar ch);
 
 QTCREATOR_UTILS_EXPORT int endOfNextWord(const QString &string, int position = 0);
+
+class QTCREATOR_UTILS_EXPORT MarkdownHighlighter : public QSyntaxHighlighter
+{
+public:
+    MarkdownHighlighter(QTextDocument *parent);
+    void highlightBlock(const QString &text);
+
+private:
+    QBrush h2Brush;
+};
 
 } // namespace Utils
