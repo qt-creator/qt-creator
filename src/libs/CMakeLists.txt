@@ -13,9 +13,11 @@ add_subdirectory(qmldebug)
 add_subdirectory(qmleditorwidgets)
 add_subdirectory(glsl)
 add_subdirectory(languageserverprotocol)
-add_subdirectory(sqlite)
+if (WITH_QMLDESIGNER)
+  add_subdirectory(sqlite)
+  add_subdirectory(qmlpuppetcommunication)
+endif()
 add_subdirectory(tracing)
-add_subdirectory(qmlpuppetcommunication)
 
 add_subdirectory(qtcreatorcdbext)
 

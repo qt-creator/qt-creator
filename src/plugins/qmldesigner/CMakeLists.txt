@@ -1,16 +1,5 @@
 #only if the plugin is requested by qtc_plugin_enabled continue if not stop as early as possible
-add_qtc_plugin(QmlDesigner
-  PLUGIN_RECOMMENDS QmlPreview
-  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
-  PROPERTIES COMPILE_WARNING_AS_ERROR ON
-  PLUGIN_DEPENDS
-    Core ProjectExplorer QmlDesignerBase QmlJSEditor QmakeProjectManager QmlProjectManager
-    QtSupport
-)
-qtc_plugin_enabled(_qmlDesignerEnabled QmlDesigner)
-if (NOT _qmlDesignerEnabled)
-  return()
-endif()
+
 
 find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate)
 
@@ -18,7 +7,6 @@ set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/qmldesigner")
 if (APPLE)
   set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
 endif()
-
 
 env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
 option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
@@ -434,15 +422,17 @@ extend_qtc_library(QmlDesignerCore
 file(GLOB PROJECTSTORAGE_EXCLUDED_SOURCES designercore/projectstorage/*.cpp)
 set_property(SOURCE ${PROJECTSTORAGE_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
 
-extend_qtc_plugin(QmlDesigner
-  PUBLIC_DEPENDS
-    QmlDesignerUtils
-    QmlDesignerBase
-    QmlPuppetCommunication
+add_qtc_plugin(QmlDesigner
+  PLUGIN_RECOMMENDS QmlPreview
+  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
+  PLUGIN_DEPENDS
+    Core ProjectExplorer QmlDesignerBase QmlJSEditor QmakeProjectManager QmlProjectManager
+    QtSupport
   DEPENDS
-    QmlDesignerCore
-    QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem Sqlite
-    Qt::QuickWidgets Qt::CorePrivate Qt::Xml Qt::Svg
+    QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
+    Qt::QuickWidgets Qt::CorePrivate Qt::Xml Qt::Svg QmlDesignerCore Sqlite
+  PUBLIC_DEPENDS
+    QmlDesignerUtils QmlPuppetCommunication QmlDesignerBase
   DEFINES
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
     SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
@@ -548,87 +538,6 @@ if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
   extend_qtc_target(QmlDesigner PUBLIC_DEPENDS TextEditor)
 endif()
 
-add_qtc_plugin(assetexporterplugin
-  PLUGIN_CLASS AssetExporterPlugin
-  CONDITION TARGET QmlDesigner
-  DEPENDS Core ProjectExplorer QmlDesigner Utils Qt::Qml Qt::QuickPrivate
-  PUBLIC_INCLUDES assetexporterplugin
-  SOURCES
-    assetexporterplugin/assetexportdialog.h assetexporterplugin/assetexportdialog.cpp assetexporterplugin/assetexportdialog.ui
-    assetexporterplugin/assetexporter.h assetexporterplugin/assetexporter.cpp
-    assetexporterplugin/assetexporterplugin.h assetexporterplugin/assetexporterplugin.cpp
-    assetexporterplugin/assetexporterview.h assetexporterplugin/assetexporterview.cpp
-    assetexporterplugin/assetexportpluginconstants.h
-    assetexporterplugin/componentexporter.h assetexporterplugin/componentexporter.cpp
-    assetexporterplugin/exportnotification.h assetexporterplugin/exportnotification.cpp
-    assetexporterplugin/filepathmodel.h assetexporterplugin/filepathmodel.cpp
-    assetexporterplugin/dumpers/assetnodedumper.h assetexporterplugin/dumpers/assetnodedumper.cpp
-    assetexporterplugin/dumpers/itemnodedumper.h assetexporterplugin/dumpers/itemnodedumper.cpp
-    assetexporterplugin/dumpers/nodedumper.h assetexporterplugin/dumpers/nodedumper.cpp
-    assetexporterplugin/dumpers/textnodedumper.h assetexporterplugin/dumpers/textnodedumper.cpp
-    assetexporterplugin/assetexporterplugin.qrc
-  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-)
-
-extend_qtc_plugin(assetexporterplugin
-    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
-    PROPERTIES COMPILE_WARNING_AS_ERROR ON
-)
-
-add_qtc_plugin(componentsplugin
-  PLUGIN_CLASS ComponentsPlugin
-  CONDITION TARGET QmlDesigner
-  DEPENDS Core QmlDesigner Utils Qt::Qml
-  DEFINES COMPONENTS_LIBRARY
-  SOURCES
-    componentsplugin/addtabdesigneraction.cpp componentsplugin/addtabdesigneraction.h
-    componentsplugin/addtabtotabviewdialog.cpp componentsplugin/addtabtotabviewdialog.h
-    componentsplugin/addtabtotabviewdialog.ui
-    componentsplugin/componentsplugin.cpp componentsplugin/componentsplugin.h
-    componentsplugin/componentsplugin.qrc
-    componentsplugin/entertabdesigneraction.cpp componentsplugin/entertabdesigneraction.h
-    componentsplugin/tabviewindexmodel.cpp componentsplugin/tabviewindexmodel.h
-  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-)
-
-extend_qtc_plugin(componentsplugin
-    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
-    PROPERTIES COMPILE_WARNING_AS_ERROR ON
-)
-
-add_qtc_plugin(qmlpreviewplugin
-  PLUGIN_CLASS QmlPreviewWidgetPlugin
-  CONDITION TARGET QmlDesigner
-  DEPENDS Core ProjectExplorer QmlDesigner Utils Qt::Qml
-  SOURCES
-    qmlpreviewplugin/qmlpreviewactions.cpp qmlpreviewplugin/qmlpreviewactions.h
-    qmlpreviewplugin/qmlpreviewplugin.cpp qmlpreviewplugin/qmlpreviewplugin.h
-    qmlpreviewplugin/qmlpreviewplugin.qrc
-  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-)
-
-extend_qtc_plugin(qmlpreviewplugin
-    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
-    PROPERTIES COMPILE_WARNING_AS_ERROR ON
-)
-
-add_qtc_plugin(qtquickplugin
-  PLUGIN_CLASS QtQuickPlugin
-  CONDITION TARGET QmlDesigner
-  DEPENDS Core QmlDesigner Utils Qt::Qml
-  DEFINES QTQUICK_LIBRARY
-  SOURCES
-    qtquickplugin/qtquickplugin.cpp qtquickplugin/qtquickplugin.h
-    qtquickplugin/qtquickplugin.qrc
-  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
-)
-
-extend_qtc_plugin(qtquickplugin
-    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
-    PROPERTIES COMPILE_WARNING_AS_ERROR ON
-)
-
-add_subdirectory(studioplugin)
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components
@@ -1178,3 +1087,106 @@ extend_qtc_plugin(QmlDesigner
   CONDITION TARGET Nanotrace
   DEPENDS Nanotrace
 )
+
+add_qtc_plugin(assetexporterplugin
+  PLUGIN_CLASS AssetExporterPlugin
+  CONDITION TARGET QmlDesigner
+  PLUGIN_DEPENDS
+    Core ProjectExplorer QmlDesigner
+  DEPENDS Utils Qt::Qml Qt::QuickPrivate
+  PUBLIC_INCLUDES assetexporterplugin
+  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
+)
+
+extend_qtc_plugin(assetexporterplugin
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
+)
+
+extend_qtc_plugin(assetexporterplugin
+  SOURCES_PREFIX assetexporterplugin
+  SOURCES
+    assetexportdialog.h assetexportdialog.cpp assetexportdialog.ui
+    assetexporter.h assetexporter.cpp
+    assetexporterplugin.h assetexporterplugin.cpp
+    assetexporterview.h assetexporterview.cpp
+    assetexportpluginconstants.h
+    componentexporter.h componentexporter.cpp
+    exportnotification.h exportnotification.cpp
+    filepathmodel.h filepathmodel.cpp
+    dumpers/assetnodedumper.h dumpers/assetnodedumper.cpp
+    dumpers/itemnodedumper.h dumpers/itemnodedumper.cpp
+    dumpers/nodedumper.h dumpers/nodedumper.cpp
+    dumpers/textnodedumper.h dumpers/textnodedumper.cpp
+    assetexporterplugin.qrc
+)
+
+add_qtc_plugin(componentsplugin
+  PLUGIN_CLASS ComponentsPlugin
+  CONDITION TARGET QmlDesigner
+  PLUGIN_DEPENDS Core QmlDesigner
+  DEPENDS Utils Qt::Qml
+  DEFINES COMPONENTS_LIBRARY
+
+  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
+)
+
+extend_qtc_plugin(componentsplugin
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
+)
+
+extend_qtc_plugin(componentsplugin
+  SOURCES_PREFIX componentsplugin
+  SOURCES
+    addtabdesigneraction.cpp addtabdesigneraction.h
+    addtabtotabviewdialog.cpp addtabtotabviewdialog.h
+    addtabtotabviewdialog.ui
+    componentsplugin.cpp componentsplugin.h
+    componentsplugin.qrc
+    entertabdesigneraction.cpp entertabdesigneraction.h
+    tabviewindexmodel.cpp tabviewindexmodel.h
+)
+
+add_qtc_plugin(qmlpreviewplugin
+  PLUGIN_CLASS QmlPreviewWidgetPlugin
+  CONDITION TARGET QmlDesigner
+  PLUGIN_DEPENDS Core ProjectExplorer QmlDesigner
+  DEPENDS Utils Qt::Qml
+  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
+)
+
+extend_qtc_plugin(qmlpreviewplugin
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
+)
+
+extend_qtc_plugin(qmlpreviewplugin
+    SOURCES_PREFIX qmlpreviewplugin
+    SOURCES
+      qmlpreviewactions.cpp qmlpreviewactions.h
+      qmlpreviewplugin.cpp qmlpreviewplugin.h
+      qmlpreviewplugin.qrc
+)
+
+add_qtc_plugin(qtquickplugin
+  PLUGIN_CLASS QtQuickPlugin
+  CONDITION TARGET QmlDesigner
+  PLUGIN_DEPENDS Core QmlDesigner
+  DEPENDS Utils Qt::Qml
+  DEFINES QTQUICK_LIBRARY
+  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
+)
+
+extend_qtc_plugin(qtquickplugin
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
+)
+
+extend_qtc_plugin(qtquickplugin
+    SOURCES_PREFIX qtquickplugin
+    SOURCES
+      qtquickplugin.cpp qtquickplugin.h
+      qtquickplugin.qrc
+)
+add_subdirectory(studioplugin)

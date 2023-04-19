@@ -6,6 +6,7 @@ include(Utils)
 
 env_with_default("QTC_BUILD_WITH_PCH" ENV_QTC_BUILD_WITH_PCH ON)
 env_with_default("QTC_WITH_TESTS" ENV_QTC_WITH_TESTS OFF)
+env_with_default("QTC_WITH_QMLDESIGNER" ENV_QTC_WITH_QMLDESIGNER ON)
 
 option(BUILD_WITH_PCH "Build with precompiled headers" "${ENV_QTC_BUILD_WITH_PCH}")
 
@@ -35,6 +36,8 @@ qtc_link_with_qt()
 
 option(WITH_TESTS "Build Tests" ${ENV_QTC_WITH_TESTS})
 add_feature_info("Build tests" ${WITH_TESTS} "")
+option(WITH_QMLDESIGNER "Build QmlDesigner" ${ENV_QTC_WITH_QMLDESIGNER})
+add_feature_info("Build QmlDesigner and related code" ${WITH_QMLDESIGNER} "")
 option(WITH_DEBUG_CMAKE "Enabled CMake project debugging functionality" OFF)
 option(SHOW_BUILD_DATE "Show build date in about dialog" OFF)
 option(WITH_SANITIZE "Build with sanitizer enabled" OFF)

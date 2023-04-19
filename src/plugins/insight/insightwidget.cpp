@@ -5,8 +5,8 @@
 #include "insightmodel.h"
 #include "insightview.h"
 
+#include <componentcore/theme.h>
 #include <designersettings.h>
-#include <theme.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
