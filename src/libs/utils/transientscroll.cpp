@@ -41,24 +41,31 @@ public:
         }
     }
 
-    inline void checkToFlashScroll(QPointer<ScrollBar> scrollBar, const QPoint &pos)
+    inline bool checkToFlashScroll(QPointer<ScrollBar> scrollBar, const QPoint &pos)
     {
         if (scrollBar.isNull())
-            return;
+            return false;
 
         if (!scrollBar->style()->styleHint(
                 QStyle::SH_ScrollBar_Transient,
                 nullptr, scrollBar))
-            return;
+            return false;
 
-        if (scrollBarRect(scrollBar).contains(pos))
+        if (scrollBarRect(scrollBar).contains(pos)) {
             scrollBar->flash();
+            return true;
+        }
+
+        return false;
     }
 
-    inline void checkToFlashScroll(const QPoint &pos)
+    inline bool checkToFlashScroll(const QPoint &pos)
     {
-        checkToFlashScroll(verticalScrollBar, pos);
-        checkToFlashScroll(horizontalScrollBar, pos);
+        bool coversScroll = checkToFlashScroll(verticalScrollBar, pos);
+        if (!coversScroll)
+            coversScroll |= checkToFlashScroll(horizontalScrollBar, pos);
+
+        return coversScroll;
     }
 
     inline void installViewPort(QObject *eventHandler) {
@@ -126,8 +133,8 @@ bool TransientScrollAreaSupport::eventFilter(QObject *watched, QEvent *event)
         if (watched == d->viewPort){
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (mouseEvent) {
-                d->checkToFlashScroll(mouseEvent->pos());
-                return true;
+                if (d->checkToFlashScroll(mouseEvent->pos()))
+                    return true;
             }
         }
     }
