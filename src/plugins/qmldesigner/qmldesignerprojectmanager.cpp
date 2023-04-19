@@ -342,6 +342,7 @@ void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPa
         qmldirPaths.push_back(QDir::cleanPath(pojectDirectory.absoluteFilePath(importPath))
                               + "/qmldir");
 }
+
 #ifdef QDS_HAS_QMLPRIVATE
 bool skipPath(const std::filesystem::path &path)
 {
@@ -359,10 +360,10 @@ bool skipPath(const std::filesystem::path &path)
 }
 #endif
 
-void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
+void qtQmldirPaths([[maybe_unused]] ::ProjectExplorer::Target *target,
+                   [[maybe_unused]] QStringList &qmldirPaths)
 {
 #ifdef QDS_HAS_QMLPRIVATE
-
     if (useProjectStorage()) {
         const QString installDirectory = qmlPath(target).toString();
 
