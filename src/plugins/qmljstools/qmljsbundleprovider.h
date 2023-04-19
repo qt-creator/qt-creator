@@ -44,7 +44,7 @@ public:
                             const QHash<QString,QString> &replacements) override;
 
     static QmlJS::QmlBundle defaultBundle(const QString &bundleInfoName);
-    static QmlJS::QmlBundle defaultQt5QtQuick2Bundle();
+    static QmlJS::QmlBundle defaultQt5QtQuick2Bundle(bool enhance);
     static QmlJS::QmlBundle defaultQbsBundle();
     static QmlJS::QmlBundle defaultQmltypesBundle();
     static QmlJS::QmlBundle defaultQmlprojectBundle();

@@ -1,0 +1,10 @@
+{
+    "name": "QtQuickControlsMacOS",
+    "searchPaths": [],
+    "installPaths": [],
+    "implicitImports": [],
+    "supportedImports": [
+        "QtQuick.Controls.macOS",
+        "QtQuick.Controls.iOS"
+    ]
+}

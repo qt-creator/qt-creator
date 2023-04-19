@@ -1,0 +1,9 @@
+{
+    "name": "QtQuickControlsWin",
+    "searchPaths": [],
+    "installPaths": [],
+    "implicitImports": [],
+    "supportedImports": [
+        "QtQuick.Controls.Windows"
+    ]
+}

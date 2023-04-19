@@ -45,9 +45,16 @@ QmlBundle BasicBundleProvider::defaultBundle(const QString &bundleInfoName)
     return res;
 }
 
-QmlBundle BasicBundleProvider::defaultQt5QtQuick2Bundle()
+QmlBundle BasicBundleProvider::defaultQt5QtQuick2Bundle(bool enhance)
 {
-    return defaultBundle(QLatin1String("qt5QtQuick2-bundle.json"));
+    QmlBundle result = defaultBundle(QLatin1String("qt5QtQuick2-bundle.json"));
+    if (!enhance)
+        return result;
+    if (Utils::HostOsInfo::isMacHost())
+        result.merge(defaultBundle(QLatin1String("qt5QtQuick2ext-macos-bundle.json")));
+    if (Utils::HostOsInfo::isWindowsHost())
+        result.merge(defaultBundle(QLatin1String("qt5QtQuick2ext-win-bundle.json")));
+    return result;
 }
 
 QmlBundle BasicBundleProvider::defaultQbsBundle()
@@ -77,7 +84,7 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
 
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
     if (!qtVersion) {
-        QmlBundle b2(defaultQt5QtQuick2Bundle());
+        QmlBundle b2(defaultQt5QtQuick2Bundle(false));
         bundles.mergeBundleForLanguage(Dialect::Qml, b2);
         bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2, b2);
         bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2Ui, b2);
@@ -100,7 +107,7 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
     }
     if (!qtQuick2Bundle.supportedImports().contains(QLatin1String("QtQuick 2."),
                                                     PersistentTrie::Partial)) {
-        qtQuick2Bundle.merge(defaultQt5QtQuick2Bundle());
+        qtQuick2Bundle.merge(defaultQt5QtQuick2Bundle(qtVersion->qtVersion().majorVersion() >= 6));
     }
     qtQuick2Bundle.replaceVars(myReplacements);
     bundles.mergeBundleForLanguage(Dialect::Qml, qtQuick2Bundle);
