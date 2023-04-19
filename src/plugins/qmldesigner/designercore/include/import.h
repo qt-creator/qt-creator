@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/set_algorithm.h>
+
 #include <QString>
 #include <QStringList>
 #include <QMetaType>
@@ -26,22 +28,33 @@ public:
     bool hasVersion() const { return !m_version.isEmpty(); }
     bool hasAlias() const { return !m_alias.isEmpty(); }
 
-    QString url() const { return m_url; }
-    QString file() const { return m_file; }
-    QString version() const { return m_version; }
-    QString alias() const { return m_alias; }
-    QStringList importPaths() const { return m_importPathList; }
+    const QString &url() const { return m_url; }
+    const QString &file() const { return m_file; }
+    const QString &version() const { return m_version; }
+    const QString &alias() const { return m_alias; }
+    const QStringList &importPaths() const { return m_importPathList; }
 
     QString toString(bool skipAlias = false, bool skipVersion = false) const;
     QString toImportString() const;
 
-    bool operator==(const Import &other) const;
     bool isSameModule(const Import &other) const;
 
     int majorVersion() const;
     int minorVersion() const;
     static int majorFromVersion(const QString &version);
     static int minorFromVersion(const QString &version);
+
+    friend bool operator==(const Import &first, const Import &second)
+    {
+        return first.m_url == second.m_url && first.m_file == second.m_file
+               && (first.m_version == second.m_version || first.m_version.isEmpty()
+                   || second.m_version.isEmpty());
+    }
+
+    friend bool operator<(const Import &first, const Import &second)
+    {
+        return std::tie(first.m_url, first.m_file) < std::tie(second.m_url, second.m_file);
+    }
 
 private:
     Import(const QString &url, const QString &file, const QString &version, const QString &alias, const QStringList &importPaths);
@@ -57,6 +70,21 @@ private:
 QMLDESIGNERCORE_EXPORT size_t qHash(const Import &import);
 
 using Imports = QList<Import>;
+
+QMLDESIGNERCORE_EXPORT Imports difference(const Imports &first, const Imports &second);
+
+template<typename Callable>
+void differenceCall(const Imports &first, const Imports &second, Callable callable)
+{
+    Imports difference;
+    difference.reserve(first.size());
+
+    std::set_difference(first.begin(),
+                        first.end(),
+                        second.begin(),
+                        second.end(),
+                        Utils::make_iterator(callable));
+}
 
 } // namespace QmlDesigner
 

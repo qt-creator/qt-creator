@@ -62,7 +62,7 @@ void ItemLibraryView::modelAttached(Model *model)
     m_widget->setModel(model);
     updateImports();
     if (model)
-        m_widget->updatePossibleImports(model->possibleImports());
+        m_widget->updatePossibleImports(difference(model->possibleImports(), model->imports()));
     m_hasErrors = !rewriterView()->errors().isEmpty();
     m_widget->setFlowMode(QmlItemNode(rootModelNode()).isFlowView());
 }

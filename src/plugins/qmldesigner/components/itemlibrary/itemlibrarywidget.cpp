@@ -368,7 +368,7 @@ void ItemLibraryWidget::handlePriorityImportsChanged()
 {
     if (!m_itemLibraryInfo.isNull()) {
         m_addModuleModel->setPriorityImports(m_itemLibraryInfo->priorityImports());
-        m_addModuleModel->update(m_model->possibleImports());
+        m_addModuleModel->update(difference(m_model->possibleImports(), m_model->imports()));
     }
 }
 

@@ -62,11 +62,6 @@ QString Import::toString(bool skipAlias, bool skipVersion) const
     return result;
 }
 
-bool Import::operator==(const Import &other) const
-{
-    return url() == other.url() && file() == other.file() && (version() == other.version() || version().isEmpty() || other.version().isEmpty());
-}
-
 bool Import::isSameModule(const Import &other) const
 {
     if (isLibraryImport())
@@ -107,4 +102,17 @@ size_t qHash(const Import &import)
     return ::qHash(import.url()) ^ ::qHash(import.file()) ^ ::qHash(import.version()) ^ ::qHash(import.alias());
 }
 
+Imports difference(const Imports &first, const Imports &second)
+{
+    Imports difference;
+    difference.reserve(first.size());
+
+    std::set_difference(first.begin(),
+                        first.end(),
+                        second.begin(),
+                        second.end(),
+                        std::back_inserter(difference));
+
+    return difference;
+}
 } // namespace QmlDesigner

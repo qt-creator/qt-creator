@@ -119,8 +119,8 @@ public:
     const Imports &possibleImports() const;
     const Imports &usedImports() const;
     void changeImports(const Imports &importsToBeAdded, const Imports &importsToBeRemoved);
-    void setPossibleImports(const Imports &possibleImports);
-    void setUsedImports(const Imports &usedImports);
+    void setPossibleImports(Imports possibleImports);
+    void setUsedImports(Imports usedImports);
     bool hasImport(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false) const;
     bool isImportPossible(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false) const;
     QString pathForImport(const Import &import);

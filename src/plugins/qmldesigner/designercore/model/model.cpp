@@ -127,6 +127,8 @@ void ModelPrivate::changeImports(const Imports &toBeAddedImportList,
         }
     }
 
+    std::sort(m_imports.begin(), m_imports.end());
+
     if (!removedImportList.isEmpty() || !addedImportList.isEmpty())
         notifyImportsChanged(addedImportList, removedImportList);
 }
@@ -1419,19 +1421,23 @@ void Model::changeImports(const Imports &importsToBeAdded, const Imports &import
     d->changeImports(importsToBeAdded, importsToBeRemoved);
 }
 
-void Model::setPossibleImports(const Imports &possibleImports)
+void Model::setPossibleImports(Imports possibleImports)
 {
+    std::sort(possibleImports.begin(), possibleImports.end());
+
     if (d->m_possibleImportList != possibleImports) {
-        d->m_possibleImportList = possibleImports;
-        d->notifyPossibleImportsChanged(possibleImports);
+        d->m_possibleImportList = std::move(possibleImports);
+        d->notifyPossibleImportsChanged(d->m_possibleImportList);
     }
 }
 
-void Model::setUsedImports(const Imports &usedImports)
+void Model::setUsedImports(Imports usedImports)
 {
+    std::sort(usedImports.begin(), usedImports.end());
+
     if (d->m_usedImportList != usedImports) {
-        d->m_usedImportList = usedImports;
-        d->notifyUsedImportsChanged(usedImports);
+        d->m_usedImportList = std::move(usedImports);
+        d->notifyUsedImportsChanged(d->m_usedImportList);
     }
 }
 

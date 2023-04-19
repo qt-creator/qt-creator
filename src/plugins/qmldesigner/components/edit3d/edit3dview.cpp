@@ -920,19 +920,23 @@ void Edit3DView::addQuick3DImport()
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     if (document && !document->inFileComponentModelActive() && model()) {
-        const Imports imports = model()->possibleImports();
-        for (const auto &import : imports) {
-            if (import.url() == "QtQuick3D") {
-                if (!import.version().isEmpty() && import.majorVersion() >= 6) {
-                    // Prefer empty version number in Qt6 and beyond
-                    model()->changeImports({Import::createLibraryImport(
-                                                import.url(), {}, import.alias(),
-                                                import.importPaths())}, {});
-                } else {
-                    model()->changeImports({import}, {});
-                }
-                return;
+        Import qtQuick3DImport;
+        differenceCall(model()->possibleImports(), model()->imports(), [&](const auto &import) {
+            if (import.url() == "QtQuick3D")
+                qtQuick3DImport = import;
+        });
+        if (!qtQuick3DImport.isEmpty()) {
+            if (!qtQuick3DImport.version().isEmpty() && qtQuick3DImport.majorVersion() >= 6) {
+                // Prefer empty version number in Qt6 and beyond
+                model()->changeImports({Import::createLibraryImport(qtQuick3DImport.url(),
+                                                                    {},
+                                                                    qtQuick3DImport.alias(),
+                                                                    qtQuick3DImport.importPaths())},
+                                       {});
+            } else {
+                model()->changeImports({qtQuick3DImport}, {});
             }
+            return;
         }
     }
     Core::AsynchronousMessageBox::warning(tr("Failed to Add Import"),

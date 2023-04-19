@@ -203,8 +203,6 @@ public:
 
     // Imports:
     const Imports &imports() const { return m_imports; }
-    void addImport(const Import &import);
-    void removeImport(const Import &import);
     void changeImports(const Imports &importsToBeAdded, const Imports &importToBeRemoved);
     void notifyImportsChanged(const Imports &addedImports, const Imports &removedImports);
     void notifyPossibleImportsChanged(const Imports &possibleImports);
