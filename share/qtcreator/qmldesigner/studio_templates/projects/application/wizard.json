@@ -307,6 +307,10 @@
                     "target": "%{ProjectDirectory}/qmlcomponents"
                 },
                 {
+                    "source": "../common/insight.tpl",
+                    "target": "%{ProjectDirectory}/insight"
+                },
+                {
                     "source": "../common/main.qml",
                     "target": "%{ProjectDirectory}/main.qml"
                 },

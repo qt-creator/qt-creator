@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.21.1)
 
 set(BUILD_QDS_COMPONENTS ON CACHE BOOL "Build design studio components")
+option(LINK_INSIGHT "Link Qt Insight Tracker library" ON)
 
 project(%{ProjectName}App LANGUAGES CXX)
 
@@ -40,6 +41,10 @@ if (${BUILD_QDS_COMPONENTS})
 endif ()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/qmlmodules)
+
+if (LINK_INSIGHT)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/insight)
+endif ()
 
 install(TARGETS ${CMAKE_PROJECT_NAME}
     BUNDLE DESTINATION .
