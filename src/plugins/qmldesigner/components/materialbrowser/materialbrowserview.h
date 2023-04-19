@@ -66,6 +66,7 @@ protected:
 
 private:
     void refreshModel(bool updateImages);
+    void updateMaterialsPreview();
     bool isMaterial(const ModelNode &node) const;
     bool isTexture(const ModelNode &node) const;
     void loadPropertyGroups();
