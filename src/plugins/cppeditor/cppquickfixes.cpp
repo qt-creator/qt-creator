@@ -4182,7 +4182,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
             propertyDeclaration.append(QLatin1String(" NOTIFY ")).append(data.signalName);
         }
 
-        propertyDeclaration.append(QLatin1String(")\n"));
+        propertyDeclaration.append(QLatin1String(" FINAL)\n"));
         addHeaderCode(InsertionPointLocator::Private, propertyDeclaration);
     }
 }

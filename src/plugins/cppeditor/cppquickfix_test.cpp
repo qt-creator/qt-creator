@@ -2315,7 +2315,7 @@ signals:
     void newFooBarTestValue();
 
 private:
-    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue FINAL)
 };
 )-";
     QTest::addRow("create right names") << QByteArrayList{originalSource, expectedSource} << 4;
@@ -2346,7 +2346,7 @@ signals:
     void newFooBarTestValue();
 
 private:
-    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue FINAL)
 };
 )-";
     expectedSource = "";
@@ -2355,7 +2355,7 @@ private:
     // create from Q_PROPERTY with custom names
     originalSource = R"-(
 class Test {
-    Q_PROPER@TY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    Q_PROPER@TY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue FINAL)
 
 public:
     int give_me_foo_bar_test() const
@@ -2380,7 +2380,7 @@ signals:
 )-";
     expectedSource = R"-(
 class Test {
-    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue FINAL)
 
 public:
     int give_me_foo_bar_test() const
@@ -2411,14 +2411,14 @@ private:
     // create from Q_PROPERTY with custom names
     originalSource = R"-(
 class Test {
-    Q_PROPE@RTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    Q_PROPE@RTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue FINAL)
     int mem_fooBar_test;
 public:
 };
 )-";
     expectedSource = R"-(
 class Test {
-    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue FINAL)
     int mem_fooBar_test;
 public:
     int give_me_foo_bar_test() const
@@ -2766,7 +2766,7 @@ public:
 signals:
     void barChanged(N2::test *bar);
 private:
-    Q_PROPERTY(N2::test *bar READ getBar NOTIFY barChanged)
+    Q_PROPERTY(N2::test *bar READ getBar NOTIFY barChanged FINAL)
 };
 })--";
     testDocuments << CppTestDocument::create("file.h", original, expected);
@@ -3303,7 +3303,7 @@ void QuickfixTest::testGenerateGetterSetterAnonymousClass()
         void fooChanged();
 
     private:
-        Q_PROPERTY(int foo READ foo WRITE setFoo RESET resetFoo NOTIFY fooChanged)
+        Q_PROPERTY(int foo READ foo WRITE setFoo RESET resetFoo NOTIFY fooChanged FINAL)
     } bar;
 )";
     testDocuments << CppTestDocument::create("file.h", original, expected);
@@ -3334,7 +3334,7 @@ public:
 signals:
     void barChanged();
 private:
-    Q_PROPERTY(int bar READ getBar WRITE setBar RESET resetBar NOTIFY barChanged)
+    Q_PROPERTY(int bar READ getBar WRITE setBar RESET resetBar NOTIFY barChanged FINAL)
 };
 
 inline int Foo::getBar() const
@@ -3560,8 +3560,8 @@ private:
     int m_bar;
     int bar2_;
     QString bar3;
-    Q_PROPERTY(int bar2 READ getBar2 WRITE setBar2 RESET resetBar2 NOTIFY bar2Changed)
-    Q_PROPERTY(QString bar3 READ getBar3 WRITE setBar3 RESET resetBar3 NOTIFY bar3Changed)
+    Q_PROPERTY(int bar2 READ getBar2 WRITE setBar2 RESET resetBar2 NOTIFY bar2Changed FINAL)
+    Q_PROPERTY(QString bar3 READ getBar3 WRITE setBar3 RESET resetBar3 NOTIFY bar3Changed FINAL)
 };
 inline void Foo::resetBar()
 {
