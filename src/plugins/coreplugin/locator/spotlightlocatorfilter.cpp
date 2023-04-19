@@ -6,7 +6,10 @@
 #include "../coreplugintr.h"
 #include "../messagemanager.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/fancylineedit.h>
@@ -231,6 +234,89 @@ SpotlightLocatorFilter::SpotlightLocatorFilter()
         "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setConfigurable(true);
     reset();
+}
+
+static void matches(QPromise<void> &promise, const LocatorStorage &storage,
+                    const CommandLine &command)
+{
+    // If search string contains spaces, treat them as wildcard '*' and search in full path
+    const QString wildcardInput = QDir::fromNativeSeparators(storage.input()).replace(' ', '*');
+    const Link inputLink = Link::fromString(wildcardInput, true);
+    const QString newInput = inputLink.targetFilePath.toString();
+    const QRegularExpression regExp = ILocatorFilter::createRegExp(newInput);
+    if (!regExp.isValid())
+        return;
+
+    const bool hasPathSeparator = newInput.contains('/') || newInput.contains('*');
+    LocatorFileCache::MatchedEntries entries = {};
+    QEventLoop loop;
+    QtcProcess process;
+    process.setCommand(command);
+    process.setEnvironment(Environment::systemEnvironment()); // TODO: Is it needed?
+
+    QObject::connect(&process, &QtcProcess::readyReadStandardOutput, &process,
+                     [&, entriesPtr = &entries] {
+        QString output = process.readAllStandardOutput();
+        output.replace("\r\n", "\n");
+        const QStringList items = output.split('\n');
+        const FilePaths filePaths = Utils::transform(items, &FilePath::fromUserInput);
+        LocatorFileCache::processFilePaths(promise.future(), filePaths, hasPathSeparator, regExp,
+                                           inputLink, entriesPtr);
+        if (promise.isCanceled())
+            loop.exit();
+    });
+    QObject::connect(&process, &QtcProcess::done, &process, [&] {
+        if (process.result() != ProcessResult::FinishedWithSuccess) {
+            MessageManager::writeFlashing(Tr::tr("Locator: Error occurred when running \"%1\".")
+                                              .arg(command.executable().toUserOutput()));
+        }
+        loop.exit();
+    });
+    QFutureWatcher<void> watcher;
+    watcher.setFuture(promise.future());
+    QObject::connect(&watcher, &QFutureWatcherBase::canceled, &watcher, [&loop] { loop.exit(); });
+    if (promise.isCanceled())
+        return;
+    process.start();
+    loop.exec();
+
+    for (auto &entry : entries) {
+        if (promise.isCanceled())
+            return;
+        if (entry.size() < 1000)
+            Utils::sort(entry, LocatorFilterEntry::compareLexigraphically);
+    }
+    if (promise.isCanceled())
+        return;
+    storage.reportOutput(std::accumulate(std::begin(entries), std::end(entries),
+                                         LocatorFilterEntries()));
+}
+
+LocatorMatcherTasks SpotlightLocatorFilter::matchers()
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorStorage> storage;
+
+    const auto onSetup = [storage, command = m_command, insensArgs = m_arguments,
+                          sensArgs = m_caseSensitiveArguments](AsyncTask<void> &async) {
+        const Link link = Link::fromString(storage->input(), true);
+        const FilePath input = link.targetFilePath;
+        if (input.isEmpty())
+            return TaskAction::StopWithDone;
+
+        // only pass the file name part to allow searches like "somepath/*foo"
+        const std::unique_ptr<MacroExpander> expander(createMacroExpander(input.fileName()));
+        const QString args = caseSensitivity(input.toString()) == Qt::CaseInsensitive
+                           ? insensArgs : sensArgs;
+        const CommandLine cmd(FilePath::fromString(command), expander->expand(args),
+                              CommandLine::Raw);
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+        async.setConcurrentCallData(matches, *storage, cmd);
+        return TaskAction::Continue;
+    };
+
+    return {{Async<void>(onSetup), storage}};
 }
 
 void SpotlightLocatorFilter::prepareSearch(const QString &entry)

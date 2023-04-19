@@ -10,6 +10,7 @@
 namespace Core {
 namespace Internal {
 
+// TODO: Don't derive from BaseFileFilter, flatten the hierarchy
 class SpotlightLocatorFilter : public BaseFileFilter
 {
     Q_OBJECT
@@ -26,6 +27,7 @@ protected:
     void restoreState(const QJsonObject &obj) final;
 
 private:
+    LocatorMatcherTasks matchers() final;
     void reset();
 
     QString m_command;
