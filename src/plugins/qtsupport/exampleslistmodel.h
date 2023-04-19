@@ -31,7 +31,7 @@ public:
         // qtVersion is set by recreateModel for extra sets that correspond to actual Qt versions.
         // This is needed for the decision to show categories or not based on the Qt version
         // (which is not ideal).
-        QVersionNumber qtVersion;
+        QVersionNumber qtVersion = {};
     };
     static QVector<ExtraExampleSet> pluginRegisteredExampleSets();
 
