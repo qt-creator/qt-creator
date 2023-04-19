@@ -15,6 +15,7 @@ namespace QmlDesigner {
 
 namespace {
 
+#ifdef QDS_HAS_QMLPRIVATE
 std::optional<QString> contentAsQString(const QString &filePath)
 {
     QFile file{filePath};
@@ -24,7 +25,6 @@ std::optional<QString> contentAsQString(const QString &filePath)
     return {};
 }
 
-#ifdef QDS_HAS_QMLPRIVATE
 QString createVersion(const QMultiHash<QString, QQmlDirParser::Component> &components)
 {
     auto found = std::max_element(components.begin(), components.end(), [](auto &&first, auto &&second) {
@@ -46,7 +46,7 @@ void ModuleScanner::scan(const QStringList &modulePaths)
         scan(modulePath.toStdString());
 }
 
-void ModuleScanner::scan(std::string_view modulePath)
+void ModuleScanner::scan([[maybe_unused]] std::string_view modulePath)
 {
 #ifdef QDS_HAS_QMLPRIVATE
     try {
