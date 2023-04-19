@@ -21,6 +21,7 @@
 namespace TextEditor::Internal {
 
 const char MARKDOWNVIEWER_ID[] = "Editors.MarkdownViewer";
+const char MARKDOWNVIEWER_TEXT_CONTEXT[] = "Editors.MarkdownViewer.Text";
 const char MARKDOWNVIEWER_MIME_TYPE[] = "text/markdown";
 
 class MarkdownEditor : public Core::IEditor
@@ -38,10 +39,14 @@ public:
         new Utils::MarkdownHighlighter(browser->document());
 
         // Right side (hidable)
-        auto editor = new TextEditorWidget(&m_widget);
-        editor->setTextDocument(m_document);
-        editor->setupGenericHighlighter();
-        editor->setMarksVisible(false);
+        m_textEditorWidget = new TextEditorWidget(&m_widget);
+        m_textEditorWidget->setTextDocument(m_document);
+        m_textEditorWidget->setupGenericHighlighter();
+        m_textEditorWidget->setMarksVisible(false);
+        auto context = new Core::IContext(this);
+        context->setWidget(m_textEditorWidget);
+        context->setContext(Core::Context(MARKDOWNVIEWER_TEXT_CONTEXT));
+        Core::ICore::addContextObject(context);
 
         setContext(Core::Context(MARKDOWNVIEWER_ID));
         setWidget(&m_widget);
@@ -60,13 +65,21 @@ public:
         connect(m_document.data(), &TextDocument::mimeTypeChanged,
                 m_document.data(), &TextDocument::changed);
 
-        connect(toggleEditorVisible, &QToolButton::toggled,
-                editor, [editor, toggleEditorVisible](bool editorVisible) {
-            if (editor->isVisible() == editorVisible)
-                return;
-            editor->setVisible(editorVisible);
-            toggleEditorVisible->setText(editorVisible ? Tr::tr("Hide Editor") : Tr::tr("Show Editor"));
-        });
+        connect(toggleEditorVisible,
+                &QToolButton::toggled,
+                m_textEditorWidget,
+                [this, browser, toggleEditorVisible](bool editorVisible) {
+                    if (m_textEditorWidget->isVisible() == editorVisible)
+                        return;
+                    m_textEditorWidget->setVisible(editorVisible);
+                    if (editorVisible)
+                        m_textEditorWidget->setFocus();
+                    else
+                        browser->setFocus();
+
+                    toggleEditorVisible->setText(editorVisible ? Tr::tr("Hide Editor")
+                                                               : Tr::tr("Show Editor"));
+                });
 
         connect(m_document->document(), &QTextDocument::contentsChanged, this, [this, browser] {
             QHash<QScrollBar *, int> positions;
@@ -87,14 +100,22 @@ public:
     QWidget *toolBar() override { return &m_toolbar; }
 
     Core::IDocument *document() const override { return m_document.data(); }
+    TextEditorWidget *textEditorWidget() const { return m_textEditorWidget; }
 
 private:
     Core::MiniSplitter m_widget;
+    TextEditorWidget *m_textEditorWidget;
     TextDocumentPtr m_document;
     QWidget m_toolbar;
 };
 
 MarkdownEditorFactory::MarkdownEditorFactory()
+    : m_actionHandler(MARKDOWNVIEWER_ID,
+                      MARKDOWNVIEWER_TEXT_CONTEXT,
+                      TextEditor::TextEditorActionHandler::None,
+                      [](Core::IEditor *editor) {
+                          return static_cast<MarkdownEditor *>(editor)->textEditorWidget();
+                      })
 {
     setId(MARKDOWNVIEWER_ID);
     setDisplayName(::Core::Tr::tr("Markdown Viewer"));

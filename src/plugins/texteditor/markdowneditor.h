@@ -5,12 +5,17 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
+#include <texteditor/texteditoractionhandler.h>
+
 namespace TextEditor::Internal {
 
 class MarkdownEditorFactory final : public Core::IEditorFactory
 {
 public:
     MarkdownEditorFactory();
+
+private:
+    TextEditor::TextEditorActionHandler m_actionHandler;
 };
 
 } // TextEditor::Internal
