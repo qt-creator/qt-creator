@@ -5,6 +5,8 @@
 
 #include "debuggertr.h"
 
+#include <cppeditor/cppmodelmanager.h>
+
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -251,12 +253,26 @@ bool DebuggerRunConfigurationAspect::useCppDebugger() const
     return m_cppAspect->m_value == EnabledLanguage;
 }
 
+static bool projectHasQmlDefines(ProjectExplorer::Project *project)
+{
+    auto projectInfo = CppEditor::CppModelManager::instance()->projectInfo(project);
+    QTC_ASSERT(projectInfo, return false);
+    return Utils::anyOf(projectInfo->projectParts(),
+                        [](const CppEditor::ProjectPart::ConstPtr &part){
+                            return Utils::anyOf(part->projectMacros, [](const Macro &macro){
+                                return macro.key == "QT_DECLARATIVE_LIB"
+                                       || macro.key == "QT_QUICK_LIB"
+                                       || macro.key == "QT_QML_LIB";
+                            });
+                        });
+}
+
 bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
     if (m_qmlAspect->m_value == AutoEnabledLanguage) {
         const Core::Context languages = m_target->project()->projectLanguages();
         if (!languages.contains(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID))
-            return false;
+            return projectHasQmlDefines(m_target->project());
 
         //
         // Try to find a build configuration to check whether qml debugging is enabled there
