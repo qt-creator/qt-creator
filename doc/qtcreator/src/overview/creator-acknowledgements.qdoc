@@ -1059,6 +1059,18 @@
 
         \include license-mit.qdocinc
 
+        \li \b terminal/shellintegrations/clink
+
+        The Terminal plugin uses a lua script to integrate with the cmd shell when using clink.
+
+        \list
+            \li \l https://github.com/chrisant996/clink-gizmos
+        \endlist
+
+        Distributed under the MIT license.
+
+        \include license-mit.qdocinc
+
         \li \b cmake
 
         The CMake project manager uses the CMake lexer code for parsing CMake files.

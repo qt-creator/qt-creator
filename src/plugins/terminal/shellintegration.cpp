@@ -41,6 +41,10 @@ struct
     {
         FilePath script{":/terminal/shellintegrations/shellintegration.ps1"};
     } pwsh;
+    struct
+    {
+        FilePath script{":/terminal/shellintegrations/shellintegration-clink.lua"};
+    } clink;
 
 } filesToCopy;
 // clang-format on
@@ -63,6 +67,9 @@ bool ShellIntegration::canIntegrate(const Utils::CommandLine &cmdLine)
         || cmdLine.executable().baseName() == "powershell") {
         return true;
     }
+
+    if (cmdLine.executable().baseName() == "cmd")
+        return true;
 
     return false;
 }
@@ -105,6 +112,7 @@ void ShellIntegration::prepareProcess(Utils::QtcProcess &process)
         return;
 
     env.set("VSCODE_INJECTION", "1");
+    env.set("TERM_PROGRAM", "vscode");
 
     if (cmd.executable().baseName() == "bash") {
         const FilePath rcPath = filesToCopy.bash.rcFile;
@@ -134,6 +142,14 @@ void ShellIntegration::prepareProcess(Utils::QtcProcess &process)
 
         cmd.addArgs(QString("-noexit -command try { . \"%1\" } catch {}{1}").arg(tmpRc.nativePath()),
                     CommandLine::Raw);
+    } else if (cmd.executable().baseName() == "cmd") {
+        const FilePath rcPath = filesToCopy.clink.script;
+        const FilePath tmpRc = FilePath::fromUserInput(
+            m_tempDir.filePath(filesToCopy.clink.script.fileName()));
+        rcPath.copyFile(tmpRc);
+
+        env.set("CLINK_HISTORY_LABEL", "QtCreator");
+        env.appendOrSet("CLINK_PATH", tmpRc.parentDir().nativePath(), ";");
     }
 
     process.setCommand(cmd);
