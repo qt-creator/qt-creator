@@ -20,7 +20,7 @@
 
 namespace QmlDesigner {
 
-#ifdef QDS_HAS_QMLPRIVATE
+#if defined(QDS_HAS_QMLPRIVATE) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
 
 namespace QmlDom = QQmlJS::Dom;
 
