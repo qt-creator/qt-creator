@@ -20,6 +20,7 @@
 #include <QLocale>
 #include <QRegularExpression>
 #include <QSet>
+#include <QTextDocument>
 #include <QTextList>
 #include <QTime>
 
