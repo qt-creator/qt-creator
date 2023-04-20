@@ -33,9 +33,9 @@ private:
     void scan(std::string_view modulePaths);
 
 private:
-    SkipFunction m_skip;
+    [[maybe_unused]] SkipFunction m_skip;
     Imports m_modules;
-    VersionScanning m_versionScanning;
+    [[maybe_unused]] VersionScanning m_versionScanning;
 };
 
 } // namespace QmlDesigner
