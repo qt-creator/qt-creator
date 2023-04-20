@@ -79,7 +79,7 @@ extend_qtc_library(QmlDesignerCore
 
 extend_qtc_library(QmlDesignerCore
   CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3
-
+     AND Qt6_VERSION VERSION_LESS 6.6.0
   DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
   PUBLIC_DEFINES QDS_HAS_QMLPRIVATE
 )
