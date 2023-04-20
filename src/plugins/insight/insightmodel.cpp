@@ -9,6 +9,7 @@
 #include <plaintexteditmodifier.h>
 #include <rewriterview.h>
 #include <signalhandlerproperty.h>
+#include <qmldesignerplugin.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
@@ -452,6 +453,11 @@ void InsightModel::setEnabled(bool value)
         if (!m_qtdsConfigInfo.exists())
             writeJSON(m_qtdsConfigInfo.absoluteFilePath(), m_qtdsConfig);
     }
+
+    m_enabled = value;
+    setAuxiliaryEnabled(m_enabled);
+
+    QmlDesignerPlugin::instance()->viewManager().resetPropertyEditorView();
 }
 
 QString InsightModel::token() const
