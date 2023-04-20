@@ -312,14 +312,20 @@ void SelectionBoxGeometry::getBounds(
         if (auto renderModel = static_cast<QSSGRenderModel *>(renderNode)) {
             QWindow *window = static_cast<QWindow *>(m_view3D->window());
             if (window) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 1)
                 QSSGRef<QSSGRenderContextInterface> context;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
                 context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
-#else
+#elif QT_VERSION < QT_VERSION_CHECK(6, 5, 1)
                 context = QQuick3DObjectPrivate::get(this)->sceneManager->rci;
 #endif
                 if (!context.isNull()) {
-                    auto bufferManager = context->bufferManager();
+#else
+                const auto &sm = QQuick3DObjectPrivate::get(this)->sceneManager;
+                auto context = sm->wattached ? sm->wattached->rci().get() : nullptr;
+                if (context) {
+#endif
+                    const auto &bufferManager(context->bufferManager());
 #if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
                     QSSGBounds3 bounds = renderModel->getModelBounds(bufferManager);
 #else
