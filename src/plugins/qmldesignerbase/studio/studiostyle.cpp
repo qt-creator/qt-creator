@@ -888,12 +888,6 @@ int StudioStyle::styleHint(
         const QWidget *widget,
         QStyleHintReturn *returnData) const
 {
-    switch (hint) {
-    case SH_ScrollBar_Transient:
-        return true;
-    default:
-        break;
-    }
     return Super::styleHint(hint, option, widget, returnData);
 }
 

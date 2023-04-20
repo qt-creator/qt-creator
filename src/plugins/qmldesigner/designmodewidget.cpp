@@ -186,6 +186,7 @@ void DesignModeWidget::setup()
         Core::ICore::resourcePath("qmldesigner/workspacePresets/").toString());
 
     QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/dockwidgets.css"));
+    sheet += QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css"));
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
 
     // Setup icons
