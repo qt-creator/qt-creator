@@ -83,6 +83,7 @@ private Q_SLOTS:
     void bug1();
     void bug2();
     void bug3();
+    void indentFunctionWithReturnTypeAnnotation();
 };
 
 enum { DontCheck = -2, DontIndent = -1 };
@@ -1563,6 +1564,18 @@ void tst_QMLCodeFormatter::bug3()
          ;
     checkIndent(data);
 }
+
+
+void tst_QMLCodeFormatter::indentFunctionWithReturnTypeAnnotation()
+{
+    QList<Line> data;
+    data << Line("function test()   : void    {", 0)
+         << Line("", 4)
+         << Line("   }", 0)
+         ;
+    checkIndent(data);
+}
+
 
 QTEST_GUILESS_MAIN(tst_QMLCodeFormatter)
 #include "tst_qmlcodeformatter.moc"
