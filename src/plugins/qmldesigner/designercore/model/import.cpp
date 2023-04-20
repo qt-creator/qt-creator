@@ -5,6 +5,8 @@
 
 #include <QHash>
 
+#include <QStringView>
+
 namespace QmlDesigner {
 
 Import::Import() = default;
@@ -82,19 +84,34 @@ int Import::minorVersion() const
 
 int Import::majorFromVersion(const QString &version)
 {
-    if (version.isEmpty())
+    auto found = std::find(version.begin(), version.end(), u'.');
+    if (found == version.end())
         return -1;
-    return version.split('.').first().toInt();
+
+    QStringView majorVersionToken{version.begin(), found};
+    bool canConvert = false;
+    int majorVersion = majorVersionToken.toInt(&canConvert);
+
+    if (canConvert)
+        return majorVersion;
+
+    return -1;
 }
 
 int Import::minorFromVersion(const QString &version)
 {
-    if (version.isEmpty())
+    auto found = std::find(version.begin(), version.end(), u'.');
+    if (found == version.end())
         return -1;
-    const QStringList parts = version.split('.');
-    if (parts.size() < 2)
-        return -1;
-    return parts[1].toInt();
+
+    QStringView minorVersionToken{std::next(found), version.end()};
+    bool canConvert = false;
+    int minorVersion = minorVersionToken.toInt(&canConvert);
+
+    if (canConvert)
+        return minorVersion;
+
+    return -1;
 }
 
 size_t qHash(const Import &import)
