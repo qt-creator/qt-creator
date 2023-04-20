@@ -14,18 +14,16 @@
 #include <array>
 
 QT_BEGIN_NAMESPACE
-class QGroupBox;
 class QLabel;
 QT_END_NAMESPACE
+
+namespace Utils { class FancyLineEdit; }
 
 namespace Core {
 
 class Command;
 
 namespace Internal {
-
-class ActionManagerPrivate;
-class ShortcutSettingsWidget;
 
 struct ShortcutItem
 {
@@ -90,13 +88,6 @@ class ShortcutSettings final : public IOptionsPage
 {
 public:
     ShortcutSettings();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<ShortcutSettingsWidget> m_widget;
 };
 
 } // namespace Internal
