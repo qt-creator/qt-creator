@@ -29091,7 +29091,7 @@ Nicht markiert - Die Änderung ist kein Entwurf.</translation>
     </message>
     <message>
         <source>Filter log entries by text in the commit message.</source>
-        <translation>Log-Einträge nach Nachrichtentext filtern.</translation>
+        <translation>Log-Einträge nach Beschreibung filtern.</translation>
     </message>
     <message>
         <source>Filter by content</source>
@@ -53075,7 +53075,7 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>Clean Repository</source>
-        <translation type="unfinished">Repository bereinigen</translation>
+        <translation>Repository bereinigen</translation>
     </message>
     <message>
         <source>Delete...</source>
@@ -53190,25 +53190,25 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>Warning: The commit subject is very short.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung: Der Titel des Commits ist sehr kurz.</translation>
     </message>
     <message>
         <source>Warning: The commit subject is too long.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung: Der Titel des Commits ist zu lang.</translation>
     </message>
     <message>
         <source>Hint: Aim for a shorter commit subject.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis: Versuchen Sie, einen kürzeren Titel zu vergeben.</translation>
     </message>
     <message>
         <source>Hint: The second line of a commit message should be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis: Die zweite Zeile der Beschreibung sollte leer sein.</translation>
     </message>
     <message numerus="yes">
         <source>&lt;p&gt;Writing good commit messages&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Avoid very short commit messages.&lt;/li&gt;&lt;li&gt;Consider the first line as subject (like in email) and keep it shorter than %n characters.&lt;/li&gt;&lt;li&gt;After an empty second line, a longer description can be added.&lt;/li&gt;&lt;li&gt;Describe why the change was done, not how it was done.&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;p&gt;Gute Beschreibungen für Commits schreiben&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Vermeiden Sie sehr kurze Beschreibungen.&lt;/li&gt;&lt;li&gt;Betrachten Sie die erste Zeile als Betreff (wie in einer E-Mail) und halten Sie sie kürzer als ein Zeichen.&lt;/li&gt;&lt;li&gt;Eine längere Beschreibung kann nach einer leeren zweiten Zeile folgen.&lt;/li&gt;&lt;li&gt;Beschreiben Sie, weshalb die Änderung vorgenommen wurde, nicht wie sie vorgenommen wurde.&lt;/li&gt;&lt;/ul&gt;</numerusform>
+            <numerusform>&lt;p&gt;Gute Beschreibungen für Commits schreiben&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Vermeiden Sie sehr kurze Beschreibungen.&lt;/li&gt;&lt;li&gt;Betrachten Sie die erste Zeile als Betreff (wie in einer E-Mail) und halten Sie sie kürzer als %n Zeichen.&lt;/li&gt;&lt;li&gt;Eine längere Beschreibung kann nach einer leeren zweiten Zeile folgen.&lt;/li&gt;&lt;li&gt;Beschreiben Sie, weshalb die Änderung vorgenommen wurde, nicht wie sie vorgenommen wurde.&lt;/li&gt;&lt;/ul&gt;</numerusform>
         </translation>
     </message>
     <message>
@@ -53263,11 +53263,11 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>Running: %1</source>
-        <translation type="unfinished">Führe aus: %1</translation>
+        <translation>Führe aus: %1</translation>
     </message>
     <message>
         <source>Running in %1: %2</source>
-        <translation type="unfinished">Führe in %1 aus: %2 {1:?}</translation>
+        <translation>Führe in %1 aus: %2</translation>
     </message>
     <message>
         <source>Failed to retrieve data.</source>
@@ -53307,7 +53307,7 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>Command started...</source>
-        <translation type="unfinished">Kommando gestartet...</translation>
+        <translation>Kommando gestartet...</translation>
     </message>
     <message>
         <source>Checkout</source>
@@ -53315,15 +53315,15 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>No job running, please abort.</source>
-        <translation type="unfinished">Kein laufender Job, bitte brechen Sie ab.</translation>
+        <translation>Kein laufender Job, bitte brechen Sie ab.</translation>
     </message>
     <message>
         <source>Succeeded.</source>
-        <translation type="unfinished">Erfolgreich beendet.</translation>
+        <translation>Erfolgreich beendet.</translation>
     </message>
     <message>
         <source>Failed.</source>
-        <translation type="unfinished">Fehlgeschlagen.</translation>
+        <translation>Fehlgeschlagen.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; (%2) not found.</source>
@@ -53404,91 +53404,91 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>User/&amp;alias configuration file:</source>
-        <translation type="unfinished">Nutzer/&amp;Alias-Konfigurationsdatei:</translation>
+        <translation>Nutzer/&amp;Alias-Konfigurationsdatei:</translation>
     </message>
     <message>
         <source>A file listing nicknames in a 4-column mailmap format:
 &apos;name &lt;email&gt; alias &lt;email&gt;&apos;.</source>
-        <translation type="unfinished">Eine Datei, die Nutzernamen in einem vierspaltigen Format (mailmap) enthält:
+        <translation>Eine Datei, die Nutzernamen in einem vierspaltigen Format (mailmap) enthält:
 &apos;Name &lt;E-Mail&gt; Alias &lt;E-Mail&gt;&apos;.</translation>
     </message>
     <message>
         <source>User &amp;fields configuration file:</source>
-        <translation type="unfinished">Nutzer&amp;feld-Konfigurationsdatei:</translation>
+        <translation>Nutzer&amp;feld-Konfigurationsdatei:</translation>
     </message>
     <message>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="unfinished">Eine Datei, die Zeilen mit Feldnamen (zum Beispiel &quot;Reviewed-By:&quot;) enthält, die im Abgabefenster unter der Beschreibung erscheinen.</translation>
+        <translation>Eine Datei, die Zeilen mit Feldnamen (zum Beispiel &quot;Reviewed-By:&quot;) enthält, die im Abgabefenster unter der Beschreibung erscheinen.</translation>
     </message>
     <message>
         <source>Submit message &amp;check script:</source>
-        <translation type="unfinished">Skript zur &amp;Überprüfung der Beschreibung:</translation>
+        <translation>Skript zur &amp;Überprüfung der Beschreibung:</translation>
     </message>
     <message>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="unfinished">Eine ausführbare Datei, die mit der Beschreibung in einer temporären Datei als erstem Kommandozeilenparameter aufgerufen wird. Bei Fehlschlag sollte sie einen Rückgabewert ungleich Null mit einer entsprechende Nachricht auf der Fehlerausgabe zurückgeben.</translation>
+        <translation>Eine ausführbare Datei, die mit der Beschreibung in einer temporären Datei als erstem Kommandozeilenparameter aufgerufen wird. Bei Fehlschlag sollte sie einen Rückgabewert ungleich Null mit einer entsprechenden Nachricht auf der Fehlerausgabe zurückgeben.</translation>
     </message>
     <message>
         <source>&amp;SSH prompt command:</source>
-        <translation type="unfinished">Graphische &amp;SSH-Passwortabfrage:</translation>
+        <translation>Graphische &amp;SSH-Passwortabfrage:</translation>
     </message>
     <message>
         <source>Specifies a command that is executed to graphically prompt for a password,
 should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
-        <translation type="unfinished">Kommando zur graphischen Passwortabfrage bei SSH-Authorisierung eines Repositorys
+        <translation>Kommando zur graphischen Passwortabfrage bei SSH-Authorisierung eines Repositorys
 (siehe SSH-Dokumentation zur Umgebungsvariable SSH-ASKPASS).</translation>
     </message>
     <message>
         <source>Wrap submit message at:</source>
-        <translation type="unfinished">Beschreibung umbrechen bei:</translation>
+        <translation>Beschreibung umbrechen bei:</translation>
     </message>
     <message>
         <source> characters</source>
-        <translation type="unfinished"> Zeichen</translation>
+        <translation> Zeichen</translation>
     </message>
     <message>
         <source>Reset VCS Cache</source>
-        <translation type="unfinished">VCS-Cache zurücksetzen</translation>
+        <translation>VCS-Cache zurücksetzen</translation>
     </message>
     <message>
         <source>Reset information about which version control system handles which directory.</source>
-        <translation type="unfinished">Die Zuordnung, welches Versionsverwaltungssystem welches Verzeichnis behandelt, zurücksetzen.</translation>
+        <translation>Die Zuordnung zurücksetzen, welches Versionsverwaltungssystem welches Verzeichnis behandelt.</translation>
     </message>
     <message>
         <source>Log count:</source>
-        <translation type="unfinished">Log-Anzeige beschränken auf:</translation>
+        <translation>Log-Anzeige beschränken auf:</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">Zeitlimit:</translation>
+        <translation>Zeitlimit:</translation>
     </message>
     <message>
         <source>s</source>
-        <translation type="unfinished">s</translation>
+        <translation>s</translation>
     </message>
     <message>
         <source>&amp;Open &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; ö&amp;ffnen</translation>
     </message>
     <message>
         <source>&amp;Copy to clipboard: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>In die Zwischenablage &amp;kopieren: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Fossil File Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Fossil Datei-Log-Editor</translation>
     </message>
     <message>
         <source>Fossil Annotation Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Fossil Annotations-Editor</translation>
     </message>
     <message>
         <source>Fossil Diff Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Fossil Diff-Editor</translation>
     </message>
     <message>
         <source>Fossil Commit Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Fossil Commit-Log-Editor</translation>
     </message>
 </context>
 <context>
