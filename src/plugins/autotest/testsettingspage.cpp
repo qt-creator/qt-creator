@@ -27,19 +27,18 @@
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QTreeWidget>
-#include <QWidget>
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
-class TestSettingsWidget : public QWidget
+class TestSettingsWidget : public Core::IOptionsPageWidget
 {
 public:
-    explicit TestSettingsWidget(QWidget *parent = nullptr);
+    explicit TestSettingsWidget(TestSettings *settings);
 
-    void setSettings(const TestSettings &settings);
+    void apply() final;
+
     TestSettings settings() const;
 
 private:
@@ -49,6 +48,7 @@ private:
     void testToolsSettings(TestSettings &settings) const;
     void onFrameworkItemChanged();
 
+    TestSettings *m_settings;
     QCheckBox *m_omitInternalMsgCB;
     QCheckBox *m_omitRunConfigWarnCB;
     QCheckBox *m_limitResultOutputCB;
@@ -66,8 +66,8 @@ private:
     InfoLabel *m_frameworksWarn;
 };
 
-TestSettingsWidget::TestSettingsWidget(QWidget *parent)
-    : QWidget(parent)
+TestSettingsWidget::TestSettingsWidget(TestSettings *settings)
+    : m_settings(settings)
 {
     resize(586, 469);
 
@@ -203,25 +203,23 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
             m_openResultsOnFailCB, &QCheckBox::setEnabled);
     connect(m_limitResultDescriptionCb, &QCheckBox::toggled,
             m_limitResultDescriptionSpinBox, &QSpinBox::setEnabled);
-}
 
-void TestSettingsWidget::setSettings(const TestSettings &settings)
-{
-    m_timeoutSpin->setValue(settings.timeout / 1000); // we store milliseconds
-    m_omitInternalMsgCB->setChecked(settings.omitInternalMssg);
-    m_omitRunConfigWarnCB->setChecked(settings.omitRunConfigWarn);
-    m_limitResultOutputCB->setChecked(settings.limitResultOutput);
-    m_limitResultDescriptionCb->setChecked(settings.limitResultDescription);
-    m_limitResultDescriptionSpinBox->setEnabled(settings.limitResultDescription);
-    m_limitResultDescriptionSpinBox->setValue(settings.resultDescriptionMaxSize);
-    m_autoScrollCB->setChecked(settings.autoScroll);
-    m_processArgsCB->setChecked(settings.processArgs);
-    m_displayAppCB->setChecked(settings.displayApplication);
-    m_openResultsOnStartCB->setChecked(settings.popupOnStart);
-    m_openResultsOnFinishCB->setChecked(settings.popupOnFinish);
-    m_openResultsOnFailCB->setChecked(settings.popupOnFail);
-    m_runAfterBuildCB->setCurrentIndex(int(settings.runAfterBuild));
-    populateFrameworksListWidget(settings.frameworks, settings.tools);
+
+    m_timeoutSpin->setValue(settings->timeout / 1000); // we store milliseconds
+    m_omitInternalMsgCB->setChecked(settings->omitInternalMssg);
+    m_omitRunConfigWarnCB->setChecked(settings->omitRunConfigWarn);
+    m_limitResultOutputCB->setChecked(settings->limitResultOutput);
+    m_limitResultDescriptionCb->setChecked(settings->limitResultDescription);
+    m_limitResultDescriptionSpinBox->setEnabled(settings->limitResultDescription);
+    m_limitResultDescriptionSpinBox->setValue(settings->resultDescriptionMaxSize);
+    m_autoScrollCB->setChecked(settings->autoScroll);
+    m_processArgsCB->setChecked(settings->processArgs);
+    m_displayAppCB->setChecked(settings->displayApplication);
+    m_openResultsOnStartCB->setChecked(settings->popupOnStart);
+    m_openResultsOnFinishCB->setChecked(settings->popupOnFinish);
+    m_openResultsOnFailCB->setChecked(settings->popupOnFail);
+    m_runAfterBuildCB->setCurrentIndex(int(settings->runAfterBuild));
+    populateFrameworksListWidget(settings->frameworks, settings->tools);
 }
 
 TestSettings TestSettingsWidget::settings() const
@@ -343,30 +341,9 @@ void TestSettingsWidget::onFrameworkItemChanged()
                                     || (mixed == (ITestBase::Framework | ITestBase::Tool)));
 }
 
-TestSettingsPage::TestSettingsPage(TestSettings *settings)
-    : m_settings(settings)
+void TestSettingsWidget::apply()
 {
-    setId(Constants::AUTOTEST_SETTINGS_ID);
-    setDisplayName(Tr::tr("General"));
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Testing"));
-    setCategoryIconPath(":/autotest/images/settingscategory_autotest.png");
-}
-
-QWidget *TestSettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new TestSettingsWidget;
-        m_widget->setSettings(*m_settings);
-    }
-    return m_widget;
-}
-
-void TestSettingsPage::apply()
-{
-    if (!m_widget) // page was not shown at all
-        return;
-    const TestSettings newSettings = m_widget->settings();
+    const TestSettings newSettings = settings();
     const QList<Id> changedIds = Utils::filtered(newSettings.frameworksGrouping.keys(),
                                                  [newSettings, this](const Id &id) {
         return newSettings.frameworksGrouping[id] != m_settings->frameworksGrouping[id];
@@ -388,5 +365,16 @@ void TestSettingsPage::apply()
         TestTreeModel::instance()->rebuild(changedIds);
 }
 
-} // namespace Internal
-} // namespace Autotest
+// TestSettingsPage
+
+TestSettingsPage::TestSettingsPage(TestSettings *settings)
+{
+    setId(Constants::AUTOTEST_SETTINGS_ID);
+    setDisplayName(Tr::tr("General"));
+    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+    setDisplayCategory(Tr::tr("Testing"));
+    setCategoryIconPath(":/autotest/images/settingscategory_autotest.png");
+    setWidgetCreator([settings] { return new TestSettingsWidget(settings); });
+}
+
+} // Autotest::Internal

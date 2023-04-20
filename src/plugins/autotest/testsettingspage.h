@@ -5,28 +5,14 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 struct TestSettings;
-class TestSettingsWidget;
 
 class TestSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
 public:
     explicit TestSettingsPage(TestSettings *settings);
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override { }
-
-private:
-    TestSettings *m_settings;
-    QPointer<TestSettingsWidget> m_widget;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal
