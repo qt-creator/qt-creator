@@ -17,24 +17,32 @@
 
 using namespace Utils;
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-static QWidget *createQmlConfigWidget(QmlProfilerSettings *settings)
+class QmlProfilerOptionsPageWidget : public Core::IOptionsPageWidget
 {
-    QmlProfilerSettings &s = *settings;
-    using namespace Layouting;
+public:
+    explicit QmlProfilerOptionsPageWidget(QmlProfilerSettings *settings)
+    {
+        QmlProfilerSettings &s = *settings;
 
-    return Form {
-        s.flushEnabled,
-        s.flushInterval,
-        s.aggregateTraces
-    }.emerge();
-}
+        using namespace Layouting;
+        Form {
+            s.flushEnabled,
+            s.flushInterval,
+            s.aggregateTraces
+        }.attachTo(this);
+    }
+
+    void apply() final
+    {
+        QmlProfilerPlugin::globalSettings()->writeGlobalSettings();
+    }
+};
 
 QmlProfilerSettings::QmlProfilerSettings()
 {
-    setConfigWidgetCreator([this] { return createQmlConfigWidget(this); });
+    setConfigWidgetCreator([this] { return new QmlProfilerOptionsPageWidget(this); });
 
     setSettingsGroup(Constants::ANALYZER);
 
@@ -85,25 +93,9 @@ QmlProfilerOptionsPage::QmlProfilerOptionsPage()
     setCategory("T.Analyzer");
     setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+    setWidgetCreator([] {
+        return new QmlProfilerOptionsPageWidget(QmlProfilerPlugin::globalSettings());
+    });
 }
 
-QWidget *QmlProfilerOptionsPage::widget()
-{
-    // We cannot parent the widget to the options page as it expects a QWidget as parent
-    if (!m_widget)
-        m_widget = createQmlConfigWidget(QmlProfilerPlugin::globalSettings());
-    return m_widget;
-}
-
-void QmlProfilerOptionsPage::apply()
-{
-    QmlProfilerPlugin::globalSettings()->writeGlobalSettings();
-}
-
-void QmlProfilerOptionsPage::finish()
-{
-    delete m_widget;
-}
-
-} // Internal
-} // QmlProfiler
+} // QmlProfiler::Internal
