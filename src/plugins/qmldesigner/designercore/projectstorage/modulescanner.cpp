@@ -7,9 +7,8 @@
 #include <private/qqmldirparser_p.h>
 #endif
 
+#include <QDirIterator>
 #include <QFile>
-
-#include <filesystem>
 
 namespace QmlDesigner {
 
@@ -49,38 +48,30 @@ void ModuleScanner::scan(const QStringList &modulePaths)
 void ModuleScanner::scan([[maybe_unused]] std::string_view modulePath)
 {
 #ifdef QDS_HAS_QMLPRIVATE
-    try {
-        const std::filesystem::path installDirectoryPath{modulePath};
+    QDirIterator dirIterator{QString::fromUtf8(modulePath), QDir::Dirs, QDirIterator::Subdirectories};
 
-        auto current = std::filesystem::recursive_directory_iterator{installDirectoryPath};
-        auto end = std::filesystem::end(current);
+    while (dirIterator.hasNext()) {
+        auto directoryPath = dirIterator.next();
+        QString qmldirPath = directoryPath + "/qmldir";
+        if (QFileInfo::exists(qmldirPath)) {
+            QQmlDirParser parser;
 
-        for (; current != end; ++current) {
-            const auto &entry = *current;
-            auto path = entry.path();
+            auto content = contentAsQString(qmldirPath);
+            if (!content)
+                continue;
 
-            if (path.filename() == "qmldir") {
-                QQmlDirParser parser;
+            bool hasError = parser.parse(*content);
+            if (hasError)
+                continue;
 
-                auto content = contentAsQString(QString::fromStdU16String(path.u16string()));
-                if (!content)
-                    continue;
+            auto moduleName = parser.typeNamespace();
 
-                bool hasError = parser.parse(*content);
-                if (hasError)
-                    continue;
+            if (moduleName.isEmpty() || m_skip(moduleName))
+                continue;
 
-                auto moduleName = parser.typeNamespace();
-
-                if (moduleName.isEmpty() || m_skip(moduleName))
-                    continue;
-
-                m_modules.push_back(
-                    Import::createLibraryImport(moduleName, createVersion(parser.components())));
-            }
+            m_modules.push_back(
+                Import::createLibraryImport(moduleName, createVersion(parser.components())));
         }
-    } catch (const std::filesystem::filesystem_error &) {
-        return;
     }
 #endif
 }

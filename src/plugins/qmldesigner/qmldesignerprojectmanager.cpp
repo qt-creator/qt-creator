@@ -39,6 +39,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <QDirIterator>
 #include <QFileSystemWatcher>
 #include <QQmlEngine>
 
@@ -344,17 +345,23 @@ void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPa
 }
 
 #ifdef QDS_HAS_QMLPRIVATE
-bool skipPath(const std::filesystem::path &path)
+QStringView currentDirectoryName(const QString &path)
 {
-    auto directory = path.filename();
-    qDebug() << path.string().data();
+    auto found = std::find(path.rbegin(), path.rend(), u'/');
 
-    bool skip = directory == "QtApplicationManager" || directory == "QtInterfaceFramework"
-                || directory == "QtOpcUa" || directory == "Qt3D" || directory == "Qt3D"
-                || directory == "Scene2D" || directory == "Scene3D" || directory == "QtWayland"
-                || directory == "Qt5Compat";
-    if (skip)
-        qDebug() << "skip" << path.string().data();
+    if (found == path.rend())
+        return {};
+
+    return QStringView{found.base(), path.end()};
+}
+bool skipPath(const QString &path)
+{
+    auto directory = currentDirectoryName(path);
+
+    bool skip = directory == u"QtApplicationManager" || directory == u"QtInterfaceFramework"
+                || directory == u"QtOpcUa" || directory == u"Qt3D" || directory == u"Qt3D"
+                || directory == u"Scene2D" || directory == u"Scene3D" || directory == u"QtWayland"
+                || directory == u"Qt5Compat";
 
     return skip;
 }
@@ -366,21 +373,14 @@ void qtQmldirPaths([[maybe_unused]] ::ProjectExplorer::Target *target,
 #ifdef QDS_HAS_QMLPRIVATE
     if (useProjectStorage()) {
         const QString installDirectory = qmlPath(target).toString();
+        QDirIterator dirIterator{installDirectory, QDir::Dirs, QDirIterator::Subdirectories};
 
-        const std::filesystem::path installDirectoryPath{installDirectory.toStdString()};
+        while (dirIterator.hasNext()) {
+            auto directoryPath = dirIterator.next();
 
-        auto current = std::filesystem::recursive_directory_iterator{installDirectoryPath};
-        auto end = std::filesystem::end(current);
-        for (; current != end; ++current) {
-            const auto &entry = *current;
-            auto path = entry.path();
-            if (current.depth() < 3 && !current->is_regular_file() && skipPath(path)) {
-                current.disable_recursion_pending();
-                continue;
-            }
-            if (path.filename() == "qmldir") {
-                qmldirPaths.push_back(QString::fromStdU16String(path.generic_u16string()));
-            }
+            QString qmldirPath = directoryPath + "/qmldir";
+            if (!skipPath(directoryPath) && QFileInfo::exists(qmldirPath))
+                qmldirPaths.push_back(directoryPath);
         }
     }
 #endif
