@@ -8,9 +8,7 @@ if (APPLE)
   set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
 endif()
 
-env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
-option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
-add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
+
 
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
@@ -39,6 +37,7 @@ extend_qtc_library(QmlDesignerUtils
 add_qtc_library(QmlDesignerCore STATIC
   CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3
   EXCLUDE_FROM_INSTALL
+  PROPERTIES SKIP_AUTOUIC ON
   DEPENDS
     Threads::Threads
     Qt::CorePrivate
@@ -73,6 +72,14 @@ add_qtc_library(QmlDesignerCore STATIC
     rewritertransaction.h
 )
 
+
+if(TARGET QmlDesignerCore)
+  env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
+  option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
+  add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
+endif()
+
+
 extend_qtc_library(QmlDesignerCore
     CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
     PROPERTIES COMPILE_WARNING_AS_ERROR ON
@@ -89,20 +96,6 @@ extend_qtc_library(QmlDesignerCore
   CONDITION UNIX AND NOT APPLE
   PUBLIC_DEPENDS rt
 )
-
-set(UI_FILES
-  ${CMAKE_CURRENT_LIST_DIR}/designercore/instances/puppetbuildprogressdialog.ui
-  ${CMAKE_CURRENT_LIST_DIR}/designercore/instances/puppetdialog.ui
-)
-qt_wrap_ui(UI_SOURCES ${UI_FILES})
-
-extend_qtc_library(QmlDesignerCore
-  INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
-  SOURCES
-    ${UI_SOURCES}
-    ${UI_FILES}
-)
-set_source_files_properties(${UI_FILES} PROPERTIES SKIP_AUTOUIC ON)
 
 extend_qtc_library(QmlDesignerCore
   INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/exceptions
@@ -293,14 +286,23 @@ extend_qtc_library(QmlDesignerCore
     nodeinstanceserverproxy.cpp
     nodeinstanceserverproxy.h
     nodeinstanceview.cpp
-    puppetbuildprogressdialog.cpp
-    puppetbuildprogressdialog.h
     puppetstartdata.h
     puppetstarter.cpp
     puppetstarter.h
+    qprocessuniqueptr.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/instances
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/instances
+  SOURCES_PROPERTIES SKIP_AUTOUIC OFF
+  SOURCES
+    puppetbuildprogressdialog.ui
+    puppetdialog.ui
+    puppetbuildprogressdialog.cpp
+    puppetbuildprogressdialog.h
     puppetdialog.cpp
     puppetdialog.h
-    qprocessuniqueptr.h
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -386,6 +388,7 @@ extend_qtc_library(QmlDesignerCore
 extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX designercore/projectstorage
   PUBLIC_INCLUDES designercore/projectstorage
+  SOURCES_PROPERTIES SKIP_AUTOMOC ON
   SOURCES
     commontypecache.h
     directorypathcompressor.h
@@ -421,9 +424,6 @@ extend_qtc_library(QmlDesignerCore
     qmltypesparser.cpp qmltypesparser.h
     qmldocumentparser.cpp qmldocumentparser.h
 )
-
-file(GLOB PROJECTSTORAGE_EXCLUDED_SOURCES designercore/projectstorage/*.cpp)
-set_property(SOURCE ${PROJECTSTORAGE_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
 
 add_qtc_plugin(QmlDesigner
   PLUGIN_RECOMMENDS QmlPreview
