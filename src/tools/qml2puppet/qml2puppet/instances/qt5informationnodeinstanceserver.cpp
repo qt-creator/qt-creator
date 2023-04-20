@@ -1071,6 +1071,13 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
             m_editView3DData.window->afterRendering();
         }
 #else
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+        static bool justOnce = true;
+        if (justOnce) {
+            justOnce = false;
+            renderWindow(); // Need to make sure all View3Ds have context
+        }
+#endif
         renderImage = grabRenderControl(m_editView3DData);
 #endif
 
