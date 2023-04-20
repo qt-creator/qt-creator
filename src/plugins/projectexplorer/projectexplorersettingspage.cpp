@@ -25,15 +25,14 @@
 using namespace Core;
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 enum { UseCurrentDirectory, UseProjectDirectory };
 
-class ProjectExplorerSettingsWidget : public QWidget
+class ProjectExplorerSettingsWidget : public IOptionsPageWidget
 {
 public:
-    explicit ProjectExplorerSettingsWidget(QWidget *parent = nullptr);
+    ProjectExplorerSettingsWidget();
 
     ProjectExplorerSettings settings() const;
     void setSettings(const ProjectExplorerSettings  &s);
@@ -43,6 +42,13 @@ public:
 
     bool useProjectsDirectory();
     void setUseProjectsDirectory(bool v);
+
+    void apply() final
+    {
+        ProjectExplorerPlugin::setProjectExplorerSettings(settings());
+        DocumentManager::setProjectsDirectory(projectsDirectory());
+        DocumentManager::setUseProjectsDirectory(useProjectsDirectory());
+    }
 
 private:
     void slotDirectoryButtonGroupChanged();
@@ -68,8 +74,7 @@ private:
     QButtonGroup *m_directoryButtonGroup;
 };
 
-ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
-    QWidget(parent)
+ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
 {
     m_currentDirectoryRadioButton = new QRadioButton(Tr::tr("Current directory"));
     m_directoryRadioButton = new QRadioButton(Tr::tr("Directory"));
@@ -165,6 +170,10 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
 
     connect(m_directoryButtonGroup, &QButtonGroup::buttonClicked,
             this, &ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged);
+
+    setSettings(ProjectExplorerPlugin::projectExplorerSettings());
+    setProjectsDirectory(DocumentManager::projectsDirectory());
+    setUseProjectsDirectory(DocumentManager::useProjectsDirectory());
 }
 
 ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
@@ -236,7 +245,8 @@ void ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged()
     m_projectsDirectoryPathChooser->setEnabled(enable);
 }
 
-// ------------------ ProjectExplorerSettingsPage
+// ProjectExplorerSettingsPage
+
 ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
 {
     setId(Constants::BUILD_AND_RUN_SETTINGS_PAGE_ID);
@@ -244,32 +254,7 @@ ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setDisplayCategory(Tr::tr("Build & Run"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_buildrun.png");
+    setWidgetCreator([] { return new ProjectExplorerSettingsWidget; });
 }
 
-QWidget *ProjectExplorerSettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new ProjectExplorerSettingsWidget;
-        m_widget->setSettings(ProjectExplorerPlugin::projectExplorerSettings());
-        m_widget->setProjectsDirectory(DocumentManager::projectsDirectory());
-        m_widget->setUseProjectsDirectory(DocumentManager::useProjectsDirectory());
-    }
-    return m_widget;
-}
-
-void ProjectExplorerSettingsPage::apply()
-{
-    if (m_widget) {
-        ProjectExplorerPlugin::setProjectExplorerSettings(m_widget->settings());
-        DocumentManager::setProjectsDirectory(m_widget->projectsDirectory());
-        DocumentManager::setUseProjectsDirectory(m_widget->useProjectsDirectory());
-    }
-}
-
-void ProjectExplorerSettingsPage::finish()
-{
-    delete m_widget;
-}
-
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

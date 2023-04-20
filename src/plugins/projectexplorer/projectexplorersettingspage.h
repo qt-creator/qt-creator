@@ -5,25 +5,12 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
-namespace ProjectExplorer {
-namespace Internal {
-
-class ProjectExplorerSettingsWidget;
+namespace ProjectExplorer::Internal {
 
 class ProjectExplorerSettingsPage : public Core::IOptionsPage
 {
 public:
     ProjectExplorerSettingsPage();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<ProjectExplorerSettingsWidget> m_widget;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal
