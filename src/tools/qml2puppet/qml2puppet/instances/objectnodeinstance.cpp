@@ -507,6 +507,17 @@ void ObjectNodeInstance::setPropertyBinding(const PropertyName &name, const QStr
 
     bool qmlExpressionHasError = false;
 
+    QStringList idlist;
+    for (const auto &instance : nodeInstanceServer()->nodeInstances())
+        idlist.append(instance.id());
+
+    // Always set ids using the root context, since they are defined there anyway
+    if (idlist.contains(expression)) {
+        QmlPrivateGate::setPropertyBinding(object(),
+            context()->engine()->rootContext(), name, expression);
+        return;
+    }
+
     if (!isPropertyChange()) {
         QQmlExpression qmlExpression(context(), object(), expression);
         qmlExpression.evaluate();
