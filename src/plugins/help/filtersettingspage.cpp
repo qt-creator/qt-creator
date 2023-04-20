@@ -9,54 +9,63 @@
 
 #include <QHelpFilterEngine>
 #include <QHelpFilterSettingsWidget>
+#include <QVBoxLayout>
 #include <QVersionNumber>
 
-using namespace Help::Internal;
+namespace Help::Internal {
+
+class FilterSettingsPageWidget : public Core::IOptionsPageWidget
+{
+public:
+    FilterSettingsPageWidget(FilterSettingsPage *page) : m_page(page)
+    {
+        LocalHelpManager::setupGuiHelpEngine();
+        m_widget = new QHelpFilterSettingsWidget;
+        m_widget->readSettings(LocalHelpManager::filterEngine());
+
+        auto vbox = new QVBoxLayout(this);
+        vbox->addWidget(m_widget);
+
+        connect(Core::HelpManager::Signals::instance(),
+                &Core::HelpManager::Signals::documentationChanged,
+                this,
+                &FilterSettingsPageWidget::updateFilterPage);
+
+        updateFilterPage();
+    }
+
+    void apply() final
+    {
+        if (m_widget->applySettings(LocalHelpManager::filterEngine()))
+            emit m_page->filtersChanged();
+
+        m_widget->readSettings(LocalHelpManager::filterEngine());
+    }
+
+    void finish() final
+    {
+        disconnect(Core::HelpManager::Signals::instance(),
+                   &Core::HelpManager::Signals::documentationChanged,
+                   this,
+                   &FilterSettingsPageWidget::updateFilterPage);
+    }
+
+    void updateFilterPage()
+    {
+        m_widget->setAvailableComponents(LocalHelpManager::filterEngine()->availableComponents());
+        m_widget->setAvailableVersions(LocalHelpManager::filterEngine()->availableVersions());
+    }
+
+    FilterSettingsPage *m_page;
+    QHelpFilterSettingsWidget *m_widget;
+};
 
 FilterSettingsPage::FilterSettingsPage()
 {
     setId("D.Filters");
     setDisplayName(Tr::tr("Filters"));
     setCategory(Help::Constants::HELP_CATEGORY);
+    setWidgetCreator([this] { return new FilterSettingsPageWidget(this); });
 }
 
-QWidget *FilterSettingsPage::widget()
-{
-    if (!m_widget) {
-        LocalHelpManager::setupGuiHelpEngine();
-        m_widget = new QHelpFilterSettingsWidget(nullptr);
-        m_widget->readSettings(LocalHelpManager::filterEngine());
-
-        connect(Core::HelpManager::Signals::instance(),
-                &Core::HelpManager::Signals::documentationChanged,
-                this,
-                &FilterSettingsPage::updateFilterPage);
-
-        updateFilterPage();
-    }
-    return m_widget;
-}
-
-void FilterSettingsPage::apply()
-{
-    if (m_widget->applySettings(LocalHelpManager::filterEngine()))
-        emit filtersChanged();
-
-    m_widget->readSettings(LocalHelpManager::filterEngine());
-}
-
-void FilterSettingsPage::finish()
-{
-    disconnect(Core::HelpManager::Signals::instance(),
-               &Core::HelpManager::Signals::documentationChanged,
-               this,
-               &FilterSettingsPage::updateFilterPage);
-    delete m_widget;
-}
-
-void FilterSettingsPage::updateFilterPage()
-{
-    m_widget->setAvailableComponents(LocalHelpManager::filterEngine()->availableComponents());
-    m_widget->setAvailableVersions(LocalHelpManager::filterEngine()->availableVersions());
-}
-
+} // Help::Internal
