@@ -1462,37 +1462,19 @@ void Model::setUsedImports(Imports usedImports)
     }
 }
 
-static bool compareVersions(const QString &version1, const QString &version2, bool allowHigherVersion)
+static bool compareVersions(const Import &import1, const Import &import2, bool allowHigherVersion)
 {
+    auto version1 = import1.toVersion();
+    auto version2 = import2.toVersion();
+
     if (version2.isEmpty())
         return true;
     if (version1 == version2)
         return true;
     if (!allowHigherVersion)
         return false;
-    QStringList version1List = version1.split(QLatin1Char('.'));
-    QStringList version2List = version2.split(QLatin1Char('.'));
-    if (version1List.count() == 2 && version2List.count() == 2) {
-        bool ok;
-        int major1 = version1List.constFirst().toInt(&ok);
-        if (!ok)
-            return false;
-        int major2 = version2List.constFirst().toInt(&ok);
-        if (!ok)
-            return false;
-        if (major1 >= major2) {
-            int minor1 = version1List.constLast().toInt(&ok);
-            if (!ok)
-                return false;
-            int minor2 = version2List.constLast().toInt(&ok);
-            if (!ok)
-                return false;
-            if (minor1 >= minor2)
-                return true;
-        }
-    }
 
-    return false;
+    return version1 >= version2;
 }
 
 bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVersion) const
@@ -1510,7 +1492,7 @@ bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVe
         }
         if (existingImport.isLibraryImport() && import.isLibraryImport()) {
             if (existingImport.url() == import.url()
-                && compareVersions(existingImport.version(), import.version(), allowHigherVersion)) {
+                && compareVersions(existingImport, import, allowHigherVersion)) {
                 return true;
             }
         }
@@ -1684,7 +1666,7 @@ bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowH
 
         if (possibleImport.isLibraryImport() && import.isLibraryImport()) {
             if (possibleImport.url() == import.url()
-                && compareVersions(possibleImport.version(), import.version(), allowHigherVersion)) {
+                && compareVersions(possibleImport, import, allowHigherVersion)) {
                 return true;
             }
         }
@@ -1719,7 +1701,7 @@ Import Model::highestPossibleImport(const QString &importPath)
 
     for (const Import &import : possibleImports()) {
         if (import.url() == importPath) {
-            if (candidate.isEmpty() || compareVersions(import.version(), candidate.version(), true))
+            if (candidate.isEmpty() || compareVersions(import, candidate, true))
                 candidate = import;
         }
     }

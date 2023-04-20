@@ -893,32 +893,28 @@ QmlTimeline AbstractView::currentTimeline() const
 
 static int getMinorVersionFromImport(const Model *model)
 {
-    const Imports imports = model->imports();
-    for (const Import &import : imports) {
-        if (import.isLibraryImport() && import.url() == "QtQuick") {
-            const QString versionString = import.version();
-            if (versionString.contains(".")) {
-                const QString minorVersionString = versionString.split(".").constLast();
-                return minorVersionString.toInt();
-            }
-        }
-    }
+    const Imports &imports = model->imports();
+
+    auto found = std::find_if(imports.begin(), imports.end(), [](const auto &import) {
+        return import.url() == "QtQuick";
+    });
+
+    if (found != imports.end())
+        return found->minorVersion();
 
     return -1;
 }
 
 static int getMajorVersionFromImport(const Model *model)
 {
-    const Imports imports = model->imports();
-    for (const Import &import : imports) {
-        if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick")) {
-            const QString versionString = import.version();
-            if (versionString.contains(QStringLiteral("."))) {
-                const QString majorVersionString = versionString.split(QStringLiteral(".")).constFirst();
-                return majorVersionString.toInt();
-            }
-        }
-    }
+    const Imports &imports = model->imports();
+
+    auto found = std::find_if(imports.begin(), imports.end(), [](const auto &import) {
+        return import.url() == "QtQuick";
+    });
+
+    if (found != imports.end())
+        return found->majorVersion();
 
     return -1;
 }

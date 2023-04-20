@@ -19,6 +19,7 @@
 #include "signalhandlerproperty.h"
 #include "variantproperty.h"
 #include <externaldependenciesinterface.h>
+#include <import.h>
 #include <projectstorage/modulescanner.h>
 #include <rewritingexception.h>
 
@@ -61,12 +62,15 @@ bool isSupportedAttachedProperties(const QString &propertyName)
            || propertyName.startsWith(QLatin1String("InsightCategory."));
 }
 
-QStringList supportedVersionsList()
+bool isSupportedVersion(QmlDesigner::Version version)
 {
-    static const QStringList list = {"2.0", "2.1", "2.2",  "2.3",  "2.4",  "2.5",  "2.6",  "2.7",
-                                     "2.8", "2.9", "2.10", "2.11", "2.12", "2.13", "2.14", "2.15",
-                                     "6.0", "6.1", "6.2",  "6.3",  "6.4",  "6.5"};
-    return list;
+    if (version.major == 2)
+        return version.minor <= 15;
+
+    if (version.major == 6)
+        return version.minor <= 5;
+
+    return false;
 }
 
 QStringList globalQtEnums()
@@ -106,9 +110,10 @@ QStringList knownEnumScopes()
     return list;
 }
 
-bool supportedQtQuickVersion(const QString &version)
+bool supportedQtQuickVersion(const QmlDesigner::Import &import)
 {
-    return version.isEmpty() || supportedVersionsList().contains(version);
+    auto version = import.toVersion();
+    return version.isEmpty() || isSupportedVersion(version);
 }
 
 QString stripQuotes(const QString &str)
@@ -120,7 +125,7 @@ QString stripQuotes(const QString &str)
     return str;
 }
 
-inline QString deEscape(const QString &value)
+QString deEscape(const QString &value)
 {
     QString result = value;
 
@@ -2165,13 +2170,12 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
     bool hasQtQuick = false;
     for (const QmlDesigner::Import &import : m_rewriterView->model()->imports()) {
         if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick")) {
-
-            if (supportedQtQuickVersion(import.version())) {
+            if (supportedQtQuickVersion(import)) {
                 hasQtQuick = true;
 
                 auto &externalDependencies = m_rewriterView->externalDependencies();
                 if (externalDependencies.hasStartupTarget()) {
-                    const bool qt6import = import.version().startsWith("6");
+                    const bool qt6import = !import.hasVersion() || import.majorVersion() == 6;
 
                     if (!externalDependencies.isQt6Import() && (m_hasVersionlessImport || qt6import)) {
                         const QmlJS::DiagnosticMessage diagnosticMessage(

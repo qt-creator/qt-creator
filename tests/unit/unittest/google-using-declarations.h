@@ -24,6 +24,7 @@ using testing::EndsWith;
 using testing::Eq;
 using testing::Exactly;
 using testing::Field;
+using testing::FieldsAre;
 using testing::Ge;
 using testing::Gt;
 using testing::HasSubstr;

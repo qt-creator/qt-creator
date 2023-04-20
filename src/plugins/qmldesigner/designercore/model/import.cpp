@@ -82,6 +82,26 @@ int Import::minorVersion() const
     return minorFromVersion(m_version);
 }
 
+Version Import::toVersion() const
+{
+    auto found = std::find(m_version.begin(), m_version.end(), u'.');
+    if (found == m_version.end())
+        return {};
+
+    QStringView majorVersionToken{m_version.begin(), found};
+    bool canConvertMajor = false;
+    int majorVersion = majorVersionToken.toInt(&canConvertMajor);
+
+    QStringView minorVersionToken{std::next(found), m_version.end()};
+    bool canConvertMinor = false;
+    int minorVersion = minorVersionToken.toInt(&canConvertMinor);
+
+    if (canConvertMajor && canConvertMinor)
+        return {majorVersion, minorVersion};
+
+    return {};
+}
+
 int Import::majorFromVersion(const QString &version)
 {
     auto found = std::find(version.begin(), version.end(), u'.');

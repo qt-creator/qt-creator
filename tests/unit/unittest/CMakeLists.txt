@@ -53,6 +53,7 @@ add_qtc_test(unittest GTEST
     gtest-qt-printing.cpp gtest-qt-printing.h
     gtest-std-printing.h
     lastchangedrowid-test.cpp
+    import-test.cpp
     matchingtext-test.cpp
     mockfutureinterface.h
     mockmutex.h

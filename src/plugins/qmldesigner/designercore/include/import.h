@@ -11,7 +11,36 @@
 
 #include "qmldesignercorelib_global.h"
 
+#include <limits>
+
 namespace QmlDesigner {
+
+class Version
+{
+public:
+    friend bool operator==(Version first, Version second)
+    {
+        return first.major == second.major && first.minor == second.minor;
+    }
+
+    friend bool operator<(Version first, Version second)
+    {
+        return std::tie(first.major, first.minor) < std::tie(second.major, second.minor);
+    }
+
+    friend bool operator>(Version first, Version second) { return second < first; }
+    friend bool operator<=(Version first, Version second) { return !(second < first); }
+    friend bool operator>=(Version first, Version second) { return !(first < second); }
+
+    bool isEmpty() const
+    {
+        return major == std::numeric_limits<int>::max() || minor == std::numeric_limits<int>::max();
+    }
+
+public:
+    int major = std::numeric_limits<int>::max();
+    int minor = std::numeric_limits<int>::max();
+};
 
 class QMLDESIGNERCORE_EXPORT Import
 {
@@ -41,6 +70,7 @@ public:
 
     int majorVersion() const;
     int minorVersion() const;
+    Version toVersion() const;
     static int majorFromVersion(const QString &version);
     static int minorFromVersion(const QString &version);
 
