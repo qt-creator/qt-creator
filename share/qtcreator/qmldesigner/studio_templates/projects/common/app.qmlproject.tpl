@@ -60,6 +60,10 @@ Project {
     }
 
     Files {
+        filter: "*.qsb"
+    }
+
+    Files {
         filter: "*.mesh"
         directory: "asset_imports"
     }
