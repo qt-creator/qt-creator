@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -29,9 +29,18 @@
 
     \section1 Configuring Perforce
 
-    In the Perforce preferences, you can specify workspace details:
-    \uicontrol {P4 user}, \uicontrol {P4 client}, and \uicontrol {P4 port}. To
-    specify the details individually for several projects, use configuration
+    To set Perforce preferences, select \uicontrol Edit > \uicontrol Preferences
+    > \uicontrol {Version Control} > \uicontrol Perforce:
+
+    \image qtcreator-preferences-vcs-perforce.webp {Perforce preferences}
+
+    In \uicontrol {P4 command}, set the path to the command line client
+    executable.
+
+    Set workspace details in \uicontrol {P4 user}, \uicontrol {P4 client}, and
+    \uicontrol {P4 port}.
+
+    To specify the details individually for several projects, use configuration
     files instead. Create a \c {p4config.txt} configuration file for each
     project in the top level project directory, and run
     \c{p4 set P4CONFIG=p4config.txt} once. You must deselect the
@@ -56,9 +65,4 @@
 
     To view information about change lists and the files in them, select
     \uicontrol Tools > \uicontrol Perforce > \uicontrol Describe.
-
-    By default, you must confirm that you want to submit changes. To suppress
-    the confirmation prompt, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol {Version Control} > \uicontrol Perforce, and then deselect the
-    \uicontrol {Prompt on submit} check box.
 */

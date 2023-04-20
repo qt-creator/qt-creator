@@ -12,5 +12,11 @@
         <true/>
         <key>com.apple.security.automation.apple-events</key>
         <true/>
+        <!-- RTA needs Squish to inject itself via DYLD_* -->
+        <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+        <true/>
+        <!-- Allow ourselves to be debugged -->
+        <key>com.apple.security.get-task-allow</key>
+        <true/>
 </dict>
 </plist>

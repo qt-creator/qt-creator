@@ -2725,7 +2725,8 @@ void ProjectExplorerPluginPrivate::buildQueueFinished(bool success)
 RecentProjectsEntries ProjectExplorerPluginPrivate::recentProjects() const
 {
     return Utils::filtered(dd->m_recentProjects, [](const RecentProjectsEntry &p) {
-        return p.first.isFile();
+        // check if project is available, but avoid querying devices
+        return p.first.needsDevice() || p.first.isFile();
     });
 }
 

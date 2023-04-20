@@ -251,7 +251,7 @@ bool AndroidDeployQtStep::init()
     } else {
         m_uninstallPreviousPackageRun = true;
         m_command = AndroidConfigurations::currentConfig().adbToolPath();
-        m_apkPath = AndroidManager::apkPath(target());
+        m_apkPath = AndroidManager::packagePath(target());
         m_workingDirectory = bc ? AndroidManager::buildDirectory(target()): FilePath();
     }
     m_environment = bc ? bc->environment() : Utils::Environment();

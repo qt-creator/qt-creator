@@ -13,9 +13,21 @@ def main():
     availableConfigs = iterateBuildConfigs()
     if not availableConfigs:
         test.fatal("Haven't found a suitable Qt version - leaving without building.")
+
+    expectConfigureToFail = []
+    expectBuildToFail = []
+    if platform.system() in ('Microsoft', 'Windows'):
+        expectConfigureToFail = [ Targets.DESKTOP_5_4_1_GCC ] # gcc 4.9 does not know C++17
+        expectBuildToFail = [ Targets.DESKTOP_5_10_1_DEFAULT ] # fails to handle constexpr correctly
+
     for kit, config in availableConfigs:
         selectBuildConfig(kit, config)
         test.log("Testing build configuration: " + config)
-        if runAndCloseApp() == None:
-            checkCompile()
+        if kit in expectConfigureToFail:
+            test.log("Not performing build test. Kit '%s' not supported."
+                     % Targets.getStringForTarget(kit))
+            continue
+        buildFailExpected = kit in expectBuildToFail
+        if runAndCloseApp(buildFailExpected) == None:
+            checkCompile(buildFailExpected)
     invokeMenuItem("File", "Exit")

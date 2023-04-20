@@ -77,6 +77,8 @@ Project {
             "qtsupport.qrc",
             "exampleslistmodel.cpp",
             "exampleslistmodel.h",
+            "examplesparser.cpp",
+            "examplesparser.h",
             "profilereader.cpp",
             "profilereader.h",
             "qscxmlcgenerator.cpp",

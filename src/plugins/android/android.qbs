@@ -121,6 +121,10 @@ Project {
             condition: qtc.testsEnabled
             files: [
                 "android_tst.qrc",
+                "androidsdkmanager_test.cpp",
+                "androidsdkmanager_test.h",
+                "sdkmanageroutputparser_test.cpp",
+                "sdkmanageroutputparser_test.h",
             ]
         }
     }

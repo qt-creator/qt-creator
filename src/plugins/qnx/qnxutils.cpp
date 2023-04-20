@@ -4,27 +4,17 @@
 #include "qnxutils.h"
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QDebug>
-#include <QDir>
-#include <QDirIterator>
-#include <QDomDocument>
-#include <QStandardPaths>
 #include <QApplication>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Qnx::Internal {
-
-const char *EVAL_ENV_VARS[] = {
-    "QNX_TARGET", "QNX_HOST", "QNX_CONFIGURATION", "QNX_CONFIGURATION_EXCLUSIVE",
-    "MAKEFLAGS", "LD_LIBRARY_PATH", "PATH", "QDE", "CPUVARDIR", "PYTHONPATH"
-};
 
 QString QnxUtils::cpuDirFromAbi(const Abi &abi)
 {
@@ -61,33 +51,49 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
     if (!filePath.exists())
         return items;
 
-    const bool isWindows = HostOsInfo::isWindowsHost();
+    const bool isWindows = filePath.osType() == Utils::OsTypeWindows;
 
     // locking creating sdp-env file wrapper script
-    TemporaryFile tmpFile("sdp-env-eval-XXXXXX" + QString::fromLatin1(isWindows ? ".bat" : ".sh"));
-    if (!tmpFile.open())
-        return items;
-    tmpFile.setTextModeEnabled(true);
+    const expected_str<FilePath> tmpPath = filePath.tmpDir();
+    if (!tmpPath)
+        return {}; // make_unexpected(tmpPath.error());
 
-    // writing content to wrapper script
-    QTextStream fileContent(&tmpFile);
+    const QString tmpName = "sdp-env-eval-XXXXXX" + QLatin1String(isWindows ? ".bat" : "");
+    const FilePath pattern = *tmpPath / tmpName;
+
+    const expected_str<FilePath> tmpFile = pattern.createTempFile();
+    if (!tmpFile)
+        return {}; // make_unexpected(tmpFile.error());
+
+    QStringList fileContent;
+
+    // writing content to wrapper script.
+    // this has to use bash as qnxsdp-env.sh requires this
     if (isWindows)
-        fileContent << "@echo off\n"
-                    << "call " << filePath.path() << '\n';
+        fileContent << "@echo off" << "call " + filePath.path();
     else
-        fileContent << "#!/bin/bash\n"
-                    << ". " << filePath.path() << '\n';
-    QString linePattern = QString::fromLatin1(isWindows ? "echo %1=%%1%" : "echo %1=$%1");
-    for (int i = 0, len = sizeof(EVAL_ENV_VARS) / sizeof(const char *); i < len; ++i)
-        fileContent << linePattern.arg(QLatin1String(EVAL_ENV_VARS[i])) << QLatin1Char('\n');
-    tmpFile.close();
+        fileContent << "#!/bin/bash" << ". " + filePath.path();
+
+    QLatin1String linePattern(isWindows ? "echo %1=%%1%" : "echo %1=$%1");
+
+    static const char *envVars[] = {
+        "QNX_TARGET", "QNX_HOST", "QNX_CONFIGURATION", "QNX_CONFIGURATION_EXCLUSIVE",
+        "MAKEFLAGS", "LD_LIBRARY_PATH", "PATH", "QDE", "CPUVARDIR", "PYTHONPATH"
+    };
+
+    for (const char *envVar : envVars)
+        fileContent << linePattern.arg(QLatin1String(envVar));
+
+    QString content = fileContent.join(QLatin1String(isWindows ? "\r\n" : "\n"));
+
+    tmpFile->writeFileContents(content.toUtf8());
 
     // running wrapper script
     QtcProcess process;
     if (isWindows)
-        process.setCommand({"cmd.exe", {"/C", tmpFile.fileName()}});
+        process.setCommand({filePath.withNewPath("cmd.exe"), {"/C", tmpFile->path()}});
     else
-        process.setCommand({"/bin/bash", {tmpFile.fileName()}});
+        process.setCommand({filePath.withNewPath("/bin/bash"), {tmpFile->path()}});
     process.start();
 
     // waiting for finish
@@ -114,7 +120,7 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
     return items;
 }
 
-FilePath QnxUtils::envFilePath(const FilePath &sdpPath)
+EnvironmentItems QnxUtils::qnxEnvironment(const FilePath &sdpPath)
 {
     FilePaths entries;
     if (sdpPath.osType() == OsTypeWindows)
@@ -122,93 +128,35 @@ FilePath QnxUtils::envFilePath(const FilePath &sdpPath)
     else
         entries = sdpPath.dirEntries({{"*-env.sh"}});
 
-    if (!entries.isEmpty())
-        return entries.first();
+    if (entries.isEmpty())
+        return {};
 
-    return {};
-}
-
-QString QnxUtils::defaultTargetVersion(const QString &sdpPath)
-{
-    const QList<ConfigInstallInformation> configs = installedConfigs();
-    for (const ConfigInstallInformation &sdpInfo : configs) {
-        if (!sdpInfo.path.compare(sdpPath, HostOsInfo::fileNameCaseSensitivity()))
-            return sdpInfo.version;
-    }
-
-    return QString();
-}
-
-QList<ConfigInstallInformation> QnxUtils::installedConfigs(const QString &configPath)
-{
-    QList<ConfigInstallInformation> sdpList;
-    QString sdpConfigPath = configPath;
-
-    if (!QDir(sdpConfigPath).exists())
-        return sdpList;
-
-    const QFileInfoList sdpfileList
-        = QDir(sdpConfigPath).entryInfoList(QStringList{"*.xml"}, QDir::Files, QDir::Time);
-    for (const QFileInfo &sdpFile : sdpfileList) {
-        QFile xmlFile(sdpFile.absoluteFilePath());
-        if (!xmlFile.open(QIODevice::ReadOnly))
-            continue;
-
-        QDomDocument doc;
-        if (!doc.setContent(&xmlFile))  // Skip error message
-            continue;
-
-        QDomElement docElt = doc.documentElement();
-        if (docElt.tagName() != QLatin1String("qnxSystemDefinition"))
-            continue;
-
-        QDomElement childElt = docElt.firstChildElement(QLatin1String("installation"));
-        // The file contains only one installation node
-        if (!childElt.isNull()) {
-            // The file contains only one base node
-            ConfigInstallInformation sdpInfo;
-            sdpInfo.path = childElt.firstChildElement(QLatin1String("base")).text();
-            sdpInfo.name = childElt.firstChildElement(QLatin1String("name")).text();
-            sdpInfo.host = childElt.firstChildElement(QLatin1String("host")).text();
-            sdpInfo.target = childElt.firstChildElement(QLatin1String("target")).text();
-            sdpInfo.version = childElt.firstChildElement(QLatin1String("version")).text();
-            sdpInfo.installationXmlFilePath = sdpFile.absoluteFilePath();
-
-            sdpList.append(sdpInfo);
-        }
-    }
-
-    return sdpList;
-}
-
-EnvironmentItems QnxUtils::qnxEnvironment(const FilePath &sdpPath)
-{
-    return qnxEnvironmentFromEnvFile(envFilePath(sdpPath));
+    return qnxEnvironmentFromEnvFile(entries.first());
 }
 
 QList<QnxTarget> QnxUtils::findTargets(const FilePath &basePath)
 {
     QList<QnxTarget> result;
 
-    QDirIterator iterator(basePath.toString());
-    while (iterator.hasNext()) {
-        iterator.next();
-        const FilePath libc = FilePath::fromString(iterator.filePath()).pathAppended("lib/libc.so");
-        if (libc.exists()) {
-            auto abis = Abi::abisOfBinary(libc);
-            if (abis.isEmpty()) {
-                qWarning() << libc << "has no ABIs ... discarded";
-                continue;
-            }
+    basePath.iterateDirectory(
+            [&result](const FilePath &filePath) {
+                const FilePath libc = filePath / "lib/libc.so";
+                if (libc.exists()) {
+                    const Abis abis = Abi::abisOfBinary(libc);
+                    if (abis.isEmpty()) {
+                        qWarning() << libc << "has no ABIs ... discarded";
+                        return IterationPolicy::Continue;
+                    }
 
-            if (abis.count() > 1)
-                qWarning() << libc << "has more than one ABI ... processing all";
+                    if (abis.count() > 1)
+                        qWarning() << libc << "has more than one ABI ... processing all";
 
-            FilePath path = FilePath::fromString(iterator.filePath());
-            for (const Abi &abi : abis)
-                result.append(QnxTarget(path, QnxUtils::convertAbi(abi)));
-        }
-    }
+                    for (const Abi &abi : abis)
+                        result.append(QnxTarget(filePath, QnxUtils::convertAbi(abi)));
+                }
+                return IterationPolicy::Continue;
+            },
+            {{}, QDir::Dirs});
 
     return result;
 }

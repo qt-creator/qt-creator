@@ -68,7 +68,8 @@
             \endif
         \li Rename or remove existing files. If you change the base name of a
             file, \QC displays a list of other files with the same base name
-            and offers to rename them as well.
+            and offers to rename them as well. If you rename a UI file (.ui),
+            \QC also changes corresponding include statements accordingly.
         \if defined(qtcreator)
         \li Remove existing directories from \l{Setting Up a Generic Project}
             {generic projects}.
@@ -76,7 +77,9 @@
         \li Add libraries. For more information, see
             \l{Adding Libraries to Projects}.
         \li Add and remove subprojects.
+        \li Find unused functions.
         \endif
+
         \li Search from the selected directory.
         \li Open a terminal window in the project directory. To specify the
             terminal to use on Linux and \macos, select \uicontrol Edit >

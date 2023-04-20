@@ -320,7 +320,7 @@ void ClangModelManagerSupport::globalRename(const CppEditor::CursorInEditor &cur
             client && client->isFullyIndexed()) {
         QTC_ASSERT(client->documentOpen(cursor.textDocument()),
                    client->openDocument(cursor.textDocument()));
-        client->findUsages(cursor.textDocument(), cursor.cursor(), replacement, callback);
+        client->findUsages(cursor, replacement, callback);
         return;
     }
     CppModelManager::globalRename(cursor, replacement, callback, CppModelManager::Backend::Builtin);
@@ -332,8 +332,7 @@ void ClangModelManagerSupport::findUsages(const CppEditor::CursorInEditor &curso
             client && client->isFullyIndexed()) {
         QTC_ASSERT(client->documentOpen(cursor.textDocument()),
                    client->openDocument(cursor.textDocument()));
-        client->findUsages(cursor.textDocument(), cursor.cursor(), {}, {});
-
+        client->findUsages(cursor, {}, {});
         return;
     }
     CppModelManager::findUsages(cursor, CppModelManager::Backend::Builtin);
@@ -341,16 +340,10 @@ void ClangModelManagerSupport::findUsages(const CppEditor::CursorInEditor &curso
 
 void ClangModelManagerSupport::switchHeaderSource(const FilePath &filePath, bool inNextSplit)
 {
-    if (ClangdClient * const client = clientForFile(filePath)) {
-        // The fast, synchronous approach works most of the time, so let's try that one first.
-        const FilePath otherFile = correspondingHeaderOrSource(filePath);
-        if (!otherFile.isEmpty())
-            openEditor(otherFile, inNextSplit);
-        else
-            client->switchHeaderSource(filePath, inNextSplit);
-        return;
-    }
-    CppModelManager::switchHeaderSource(inNextSplit, CppModelManager::Backend::Builtin);
+    if (ClangdClient * const client = clientForFile(filePath))
+        client->switchHeaderSource(filePath, inNextSplit);
+    else
+        CppModelManager::switchHeaderSource(inNextSplit, CppModelManager::Backend::Builtin);
 }
 
 void ClangModelManagerSupport::checkUnused(const Link &link, Core::SearchResult *search,

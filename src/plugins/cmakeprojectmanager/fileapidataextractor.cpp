@@ -391,7 +391,7 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
                         continue;
                     const auto mimeTypes = Utils::mimeTypesForFileName(si.path);
                     for (const auto &mime : mimeTypes)
-                        if (mime.name() == headerMimeType)
+                        if (mime.inherits(headerMimeType))
                             sources.push_back(sourceDir.absoluteFilePath(si.path));
                 }
             }

@@ -13,6 +13,8 @@ namespace ExtensionSystem {
 
 namespace Internal { class IPluginPrivate; }
 
+using TestCreator = std::function<QObject *()>;
+
 class EXTENSIONSYSTEM_EXPORT IPlugin : public QObject
 {
     Q_OBJECT
@@ -41,7 +43,6 @@ public:
 protected:
     virtual void initialize() {}
 
-    using TestCreator = std::function<QObject *()>;
     template <typename Test, typename ...Args>
     void addTest(Args && ...args) { addTestCreator([args...] { return new Test(args...); }); }
     void addTestCreator(const TestCreator &creator);

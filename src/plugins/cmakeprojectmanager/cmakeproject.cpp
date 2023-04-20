@@ -98,7 +98,9 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
 
         auto resolveInherits = [](auto &presetsHash, auto &presetsList) {
             Utils::sort(presetsList, [](const auto &left, const auto &right) {
-                if (!left.inherits || left.inherits.value().contains(right.name))
+                const bool sameInheritance = left.inherits && right.inherits
+                                             && left.inherits.value() == right.inherits.value();
+                if (!left.inherits || left.inherits.value().contains(right.name) || sameInheritance)
                     return false;
                 return true;
             });
@@ -208,11 +210,50 @@ void CMakeProject::readPresets()
         return data;
     };
 
+    std::function<void(Internal::PresetsData & presetData, Utils::FilePaths & inclueStack)>
+        resolveIncludes = [&](Internal::PresetsData &presetData, Utils::FilePaths &includeStack) {
+            if (presetData.include) {
+                for (const QString &path : presetData.include.value()) {
+                    Utils::FilePath includePath = Utils::FilePath::fromUserInput(path);
+                    if (!includePath.isAbsolutePath())
+                        includePath = presetData.fileDir.resolvePath(path);
+
+                    Internal::PresetsData includeData = parsePreset(includePath);
+                    if (includeData.include) {
+                        if (includeStack.contains(includePath)) {
+                            TaskHub::addTask(BuildSystemTask(
+                                Task::TaskType::Warning,
+                                Tr::tr("Attempt to include %1 which was already parsed.")
+                                    .arg(includePath.path()),
+                                Utils::FilePath(),
+                                -1));
+                            TaskHub::requestPopup();
+                        } else {
+                            resolveIncludes(includeData, includeStack);
+                        }
+                    }
+
+                    presetData.configurePresets = includeData.configurePresets
+                                                  + presetData.configurePresets;
+                    presetData.buildPresets = includeData.buildPresets + presetData.buildPresets;
+
+                    includeStack << includePath;
+                }
+            }
+        };
+
     const Utils::FilePath cmakePresetsJson = projectDirectory().pathAppended("CMakePresets.json");
     const Utils::FilePath cmakeUserPresetsJson = projectDirectory().pathAppended("CMakeUserPresets.json");
 
     Internal::PresetsData cmakePresetsData = parsePreset(cmakePresetsJson);
     Internal::PresetsData cmakeUserPresetsData = parsePreset(cmakeUserPresetsJson);
+
+    // resolve the include
+    Utils::FilePaths includeStack = {cmakePresetsJson};
+    resolveIncludes(cmakePresetsData, includeStack);
+
+    includeStack = {cmakeUserPresetsJson};
+    resolveIncludes(cmakeUserPresetsData, includeStack);
 
     m_presetsData = combinePresets(cmakePresetsData, cmakeUserPresetsData);
     setupBuildPresets(m_presetsData);

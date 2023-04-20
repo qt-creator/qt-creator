@@ -17,10 +17,17 @@
     such as code completion and annotations. Select \uicontrol Install to install
     PySide6 and the language server.
 
-    To view and manage the available Python interpreters, select \uicontrol Edit
-    > \uicontrol Preferences > \uicontrol Python > \uicontrol Interpreters.
+    You can see the current Python interpreter on the \uicontrol Edit mode
+    toolbar.
 
-    \image qtcreator-python-interpreters.png "Python Interpreters in Preferences"
+    \image qtcreator-python-interpreter-edit-mode.webp {Python interpreter on the Edit mode toolbar}
+
+    To see the available interpreters and change their paths, select
+    the interpreter, and then select \uicontrol {Manage Python Interpreters}.
+    Or, select \uicontrol Edit > \uicontrol Preferences > \uicontrol Python >
+    \uicontrol Interpreters.
+
+    \image qtcreator-python-interpreters.png {Python Interpreters in Preferences}
 
     You can add and remove interpreters and clean up references to interpreters
     that you uninstalled, but that still appear in the list. In addition, you
@@ -42,7 +49,7 @@
     the PySide version, class name, base class, and source file for the
     class.
 
-    \image qtcreator-python-wizard-app-window.png "Qt for Python wizard for creating a widget-based UI"
+    \image qtcreator-python-wizard-app-window.png {Qt for Python wizard for creating a widget-based UI}
 
     The wizard adds the imports to the source file for
     access to the QApplication, the base class you selected in the Qt
@@ -150,7 +157,7 @@
     you to create a Python project that has a main QML file. Specify the
     minimum PySide version to run the application.
 
-    \image qtcreator-python-wizard-qml.png "Qt for Python wizard for creating an empty Qt Quick application"
+    \image qtcreator-python-wizard-qml.png {Qt for Python wizard for creating an empty Qt Quick application}
 
     The wizard adds the following imports to the source file for access
     to QGuiApplication and QQmlApplicationEngine:

@@ -223,6 +223,7 @@ void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
     keyFileEditingFinished();
     handleFreePortsChanged();
     gdbServerEditingFinished();
+    qmlRuntimeEditingFinished();
 }
 
 void GenericLinuxDeviceConfigurationWidget::updatePortsWarningLabel()

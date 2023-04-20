@@ -32,6 +32,8 @@
             \l{Viewing Defined Types and Symbols}{Outline} view or
             in the \uicontrol Symbols list on the \l{Using the Editor Toolbar}
             {editor toolbar}
+        \li \l{Viewing Call Hierarchy}
+            {Viewing the callers and callees of a function}
         \li \l{Finding Symbols}{Finding references to symbols}
         \li \l{Renaming Symbols}{Renaming the symbol under cursor}
         \li Code actions
@@ -147,14 +149,14 @@
 
     \section2 QML Language Server
 
-    Qt 6.4 ships with the \c qmlls language server that offers completion and
-    issues warnings for QML. To set it up as a \l {Generic StdIO Language Server},
-    select \c {text/x-qml} and \c {application/x-qt.ui+qml} as MIME types, and
-    \c {<Qt Installation>/bin/qmlls} as executable.
+    Since Qt 6.4, the \c qmlls language server offers code completion and
+    issues warnings for QML. To enable QML language server support, select
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Qt Quick} >
+    \uicontrol {QML/JS Editing} > \uicontrol {Use qmlls (EXPERIMENTAL!)}.
+    To use the latest version of the language server installed on your
+    system, select the \uicontrol {Always use latest qmlls} check box.
 
-    If the language server is used together with the \c QmlJSEditor plugin,
-    duplicate suggestions and warnings might be shown. To avoid this, disable
-    the editor plugin as described in \l {Enabling and Disabling Plugins}.
+    \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
 
     \section1 Supported Locator Filters
 
@@ -183,6 +185,10 @@
     \uicontrol {Startup behavior} field in the language server preferences
     determines when the server is started. The information displayed depends on
     the language server.
+
+    Select the \inlineimage icons/languageclient.png
+    button on the \l{Managing Language Servers}{editor toolbar}, and then select
+    \uicontrol {Restart} to restart language servers.
 
     \uicontrol Log displays additional information about the selected log entry.
     You can see the \uicontrol {Content length} and \uicontrol {MIME type} of

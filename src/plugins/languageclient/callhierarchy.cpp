@@ -58,7 +58,7 @@ public:
                 return QVariant();
             const Position start = m_item.selectionRange().start();
             return QVariant::fromValue(
-                Link(m_client->serverUriToHostPath(m_item.uri()), start.line(), start.character()));
+                Link(m_client->serverUriToHostPath(m_item.uri()), start.line() + 1, start.character()));
         }
         case AnnotationRole:
             if (const std::optional<QString> detail = m_item.detail())

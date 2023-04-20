@@ -118,6 +118,7 @@ class Dumper(DumperBase):
         val.isBaseClass = val.name == val._type.name
         val.nativeValue = nativeValue
         val.laddress = nativeValue.address()
+        val.lbitsize = nativeValue.bitsize()
         return val
 
     def nativeTypeId(self, nativeType):
@@ -298,16 +299,16 @@ class Dumper(DumperBase):
         coreModuleName = self.qtCoreModuleName()
         if coreModuleName is not None:
             qstrdupSymbolName = '%s!%s' % (coreModuleName, qstrdupSymbolName)
-        resolved = cdbext.resolveSymbol(qstrdupSymbolName)
-        if resolved:
-            name = resolved[0].split('!')[1]
-            namespaceIndex = name.find('::')
-            if namespaceIndex > 0:
-                namespace = name[:namespaceIndex + 2]
+            resolved = cdbext.resolveSymbol(qstrdupSymbolName)
+            if resolved:
+                name = resolved[0].split('!')[1]
+                namespaceIndex = name.find('::')
+                if namespaceIndex > 0:
+                    namespace = name[:namespaceIndex + 2]
+            self.qtCustomEventFunc = self.parseAndEvaluate(
+                '%s!%sQObject::customEvent' %
+                (self.qtCoreModuleName(), namespace)).address()
         self.qtNamespace = lambda: namespace
-        self.qtCustomEventFunc = self.parseAndEvaluate(
-            '%s!%sQObject::customEvent' %
-            (self.qtCoreModuleName(), namespace)).address()
         return namespace
 
     def qtVersion(self):
@@ -479,6 +480,10 @@ class Dumper(DumperBase):
             return None
 
         nativeValue = value.nativeValue
+        if nativeValue is None:
+            if not self.isExpanded():
+                raise Exception("Casting not expanded values is to expensive")
+            nativeValue = self.nativeParseAndEvaluate('(%s)0x%x' % (value.type.name, value.pointer()))
         castVal = nativeVtCastValue(nativeValue)
         if castVal is not None:
             val = self.fromNativeValue(castVal)

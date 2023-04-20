@@ -44,8 +44,12 @@ public:
     QString resultString() const;
     std::optional<SummaryEvaluation> summaryResult() const { return m_summaryResult; }
 
+    bool updateDescendantTypes(ResultType t);
+    bool descendantTypesContainsAnyOf(const QSet<ResultType> &types) const;
+
 private:
     TestResult m_testResult;
+    QSet<ResultType> m_descendantsTypes;
     std::optional<SummaryEvaluation> m_summaryResult;
 };
 
@@ -99,7 +103,6 @@ protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
 private:
-    bool acceptTestCaseResult(const QModelIndex &srcIndex) const;
     TestResultModel *m_sourceModel;
     QSet<ResultType> m_enabled;
 };

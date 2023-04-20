@@ -143,20 +143,13 @@ Pip *Pip::instance(const FilePath &python)
     return it.value();
 }
 
-QFuture<PipPackageInfo> Pip::info(const PipPackage &package)
-{
-    return Utils::runAsync(&Pip::infoImpl, this, package);
-}
-
-PipPackageInfo Pip::infoImpl(const PipPackage &package)
+static PipPackageInfo infoImpl(const PipPackage &package, const FilePath &python)
 {
     PipPackageInfo result;
 
     QtcProcess pip;
-    pip.setCommand(CommandLine(m_python, {"-m", "pip", "show", "-f", package.packageName}));
-    m_lock.lock();
+    pip.setCommand(CommandLine(python, {"-m", "pip", "show", "-f", package.packageName}));
     pip.runBlocking();
-    m_lock.unlock();
     QString fieldName;
     QStringList data;
     const QString pipOutput = pip.allOutput();
@@ -178,6 +171,11 @@ PipPackageInfo Pip::infoImpl(const PipPackage &package)
     }
     result.parseField(fieldName, data);
     return result;
+}
+
+QFuture<PipPackageInfo> Pip::info(const PipPackage &package)
+{
+    return Utils::runAsync(infoImpl, package, m_python);
 }
 
 Pip::Pip(const Utils::FilePath &python)

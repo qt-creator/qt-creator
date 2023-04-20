@@ -26,7 +26,7 @@
     \uicontrol Edit > \uicontrol Preferences > \uicontrol {Qt Quick} >
     \uicontrol {QML/JS Editing} > \uicontrol {Always show Qt Quick Toolbar}.
 
-    \image qtcreator-qml-js-editing.png "QML/JS Editing preferences"
+    \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
 
     Drag the toolbar to pin it to another location. Select
     \inlineimage icons/pin.png
@@ -59,6 +59,9 @@
     \l{Text} items.
     You can change the font family and size as well as text formatting, style,
     alignment, and color.
+
+    \note Move the mouse pointer over a color hex value in the code editor to
+    see the color as a tooltip.
 
     If a property is assigned an expression instead of a value, you
     cannot use the toolbar to edit it. The button for editing the property

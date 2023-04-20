@@ -353,7 +353,7 @@ private slots:
         QFETCH(CommandLine, cmdLine);
 
         TestShell shell(cmdLine, true);
-        QCOMPARE(shell.state(), DeviceShell::State::NoScript);
+        QCOMPARE(shell.state(), DeviceShell::State::Failed);
 
         const RunResult result = shell.runInShell({"echo", {"Hello"}});
         QCOMPARE(result.exitCode, 0);

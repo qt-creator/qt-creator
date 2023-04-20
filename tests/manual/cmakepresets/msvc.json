@@ -1,0 +1,76 @@
+{
+  "version": 4,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "visualc",
+      "displayName": "Visual C++ 2019 x64",
+      "generator": "Visual Studio 16 2019",
+      "binaryDir": "${sourceDir}/build-${presetName}",
+      "architecture" : {
+        "value": "x64"
+      },
+      "toolchainFile" : "../cmakepresets/msvc-toolchain.cmake",
+      "condition" : {
+        "type": "not",
+        "condition": {
+          "type": "notEquals",
+          "lhs": "${hostSystemName}",
+          "rhs": "$env{HOST_SYSTEM_NAME}"
+        }
+      },
+      "environment" : {
+        "HOST_SYSTEM_NAME": "Windows",
+        "QT_VERSION": "6.4.2"
+      }
+    },
+    {
+      "name": "visualc-ninja",
+      "displayName": "Visual C++ 2019 x64 Ninja",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-${presetName}",
+      "toolchainFile" : "c:/Qt/6.4.2/msvc2019_64/lib/cmake/Qt6/qt.toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "environment" : {
+        "VCToolsVersion": "14.29.30133",
+        "WindowsSDKVersion" : "10.0.22000.0",
+        "VCArch": "x64",
+        "VCToolsInstallDir": "$env{ProgramFiles(x86)}/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/$env{VCToolsVersion}",
+        "WindowsSdkDir" : "$env{ProgramFiles(x86)}/Windows Kits/10",
+        "WindowsSdkIncVerDir": "$env{WindowsSdkDir}/Include/$env{WindowsSDKVersion}",
+        "WindowsSdkLibVerDir": "$env{WindowsSdkDir}/Lib/$env{WindowsSDKVersion}",
+
+        "INCLUDE": "$env{VCToolsInstallDir}/ATLMFC/include;$env{VCToolsInstallDir}/include;$env{WindowsSdkIncVerDir}/ucrt;$env{WindowsSdkIncVerDir}/shared;$env{WindowsSdkIncVerDir}/um;$env{WindowsSdkIncVerDir}/winrt;$env{WindowsSdkIncVerDir}/cppwinrt",
+        "LIB": "$env{VCToolsInstallDir}/ATLMFC/lib/$env{VCArch};$env{VCToolsInstallDir}/lib/$env{VCArch};$env{WindowsSdkLibVerDir}/ucrt/$env{VCArch};$env{WindowsSdkLibVerDir}/um/$env{VCArch}",
+        "PATH": "$env{VCToolsInstallDir}/bin/HostX64/$env{VCArch};$env{WindowsSdkDir}/bin/$env{WindowsSDKVersion}/$env{VCArch};$penv{PATH}"
+      }
+    }
+  ],
+  "buildPresets": [
+   {
+      "name": "visualc-debug",
+      "configurePreset": "visualc",
+      "configuration": "Debug"
+    },
+    {
+      "name": "visualc-relwithdebinfo",
+      "inherits": "visualc-debug",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "visualc-ninja",
+      "configurePreset": "visualc-ninja"
+    }
+  ]
+}

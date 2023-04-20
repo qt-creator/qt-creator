@@ -9,6 +9,7 @@ import argparse
 import collections
 import glob
 import os
+import shlex
 
 import common
 
@@ -46,6 +47,9 @@ def get_arguments():
     # signing
     parser.add_argument('--keychain-unlock-script',
                         help='Path to script for unlocking the keychain used for signing (macOS)')
+    parser.add_argument('--sign-command',
+                        help='Command to use for signing (Windows). The installation directory to sign is added at the end. Is run in the CWD.')
+
     args = parser.parse_args()
     args.with_debug_info = args.build_type == 'RelWithDebInfo'
     return args
@@ -140,6 +144,9 @@ def build(args, paths):
 def package(args, paths):
     if not os.path.exists(paths.result):
         os.makedirs(paths.result)
+    if common.is_windows_platform() and args.sign_command:
+        command = shlex.split(args.sign_command)
+        common.check_print_call(command + [paths.install])
     common.check_print_call(['7z', 'a', '-mmt2', os.path.join(paths.result, args.name + '.7z'), '*'],
                             paths.install)
     if os.path.exists(paths.dev_install):  # some plugins might not provide anything in Devel

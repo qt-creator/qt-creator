@@ -8,7 +8,7 @@
 
     \title Qbs Build Configuration
 
-    \image qtcreator-build-settings-qbs.png "Qbs build settings"
+    \image qtcreator-build-settings-qbs.png {Qbs build settings}
 
     Qbs builds projects in the directory specified in the
     \uicontrol {Build Directory} field.
@@ -33,15 +33,22 @@
 
     \section1 Qbs Build Steps
 
-    \image creator-qbs-build-app.png "Qbs build steps"
+    \image creator-qbs-build-app.png {Qbs build steps}
 
     To specify build steps for Qbs:
 
     \list 1
 
-        \li In the \uicontrol {Build variant} field, select \uicontrol Debug to
-            include debug symbols in the build for debugging the application and
-            \uicontrol Release to create the final installation file.
+        \li In the \uicontrol {Build variant} field, select:
+            \list
+                \li \uicontrol Debug to include debug symbols in the build for
+                    debugging the application.
+                \li \uicontrol Profile for an optimized release build that is
+                    delivered with separate debug information. It is best suited
+                    for analyzing applications.
+                \li \uicontrol Release to create the final installation binary
+                    package.
+            \endlist
 
         \li In the \uicontrol ABIs field, select the ABIs for
             the \l{Connecting Android Devices}{Android} device
@@ -56,18 +63,18 @@
             \l{http://doc.qt.io/qbs/language-introduction.html}
             {Modules} in the Qbs Manual.
 
-        \li In the \uicontrol Flags field:
+        \li In the \uicontrol Flags field, select:
 
             \list
 
-                \li Select \uicontrol {Keep going} to continue building when
+                \li \uicontrol {Keep going} to continue building when
                     errors occur, if possible.
 
-                \li Select \uicontrol {Show command lines} to print actual
+                \li \uicontrol {Show command lines} to print actual
                     command lines to \l{Compile Output} instead of
                     high-level descriptions.
 
-                \li Select \uicontrol {Force probes} to force re-execution of
+                \li \uicontrol {Force probes} to force re-execution of
                     the configure scripts of
                     \l{https://doc.qt.io/qbs/qbsprobes-qmlmodule.html}{Probes}.
 
@@ -108,7 +115,7 @@
 
     When building with Qbs, you can specify flags in \uicontrol {Clean Steps}:
 
-    \image creator-qbs-build-clean.png "Qbs clean steps"
+    \image creator-qbs-build-clean.png {Qbs clean steps}
 
     \list
 

@@ -244,7 +244,6 @@ void CdbEngine::adjustOperateByInstruction(bool operateByInstruction)
         return;
     m_lastOperateByInstruction = operateByInstruction;
     runCommand({QLatin1String(m_lastOperateByInstruction ? "l-t" : "l+t"), NoFlags});
-    runCommand({QLatin1String(m_lastOperateByInstruction ? "l-s" : "l+s"), NoFlags});
 }
 
 bool CdbEngine::canHandleToolTip(const DebuggerToolTipContext &context) const
@@ -994,7 +993,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
             const QString prefix = m_extensionCommandPrefix + dbgCmd.function;
             if (dbgCmd.args.isString()) {
                 const QString &arguments = dbgCmd.argsToString();
-                cmd = prefix + arguments;
+                cmd = prefix + ' ' + arguments;
                 int argumentSplitPos = 0;
                 QList<QStringView> splittedArguments;
                 int maxArgumentSize = maxCommandLength - prefix.length() - maxTokenLength;
@@ -1274,9 +1273,15 @@ void CdbEngine::showScriptMessages(const QString &message) const
 {
     GdbMi gdmiMessage;
     gdmiMessage.fromString(message);
-    if (!gdmiMessage.isValid())
+    if (gdmiMessage.isValid())
+        showScriptMessages(gdmiMessage);
+    else
         showMessage(message, LogMisc);
-    for (const GdbMi &msg : gdmiMessage["msg"]) {
+}
+
+void CdbEngine::showScriptMessages(const GdbMi &message) const
+{
+    for (const GdbMi &msg : message["msg"]) {
         if (msg.name() == "bridgemessage")
             showMessage(msg["msg"].data(), LogMisc);
         else
@@ -2085,11 +2090,11 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
         if (t == 'R') {
             response.resultClass = ResultDone;
             response.data.fromString(message);
-            if (!response.data.isValid()) {
+            if (response.data.isValid()) {
+                showScriptMessages(response.data);
+            } else {
                 response.data.m_data = message;
                 response.data.m_type = GdbMi::Tuple;
-            } else {
-                showScriptMessages(message);
             }
         } else {
             response.resultClass = ResultError;
@@ -2273,6 +2278,19 @@ void CdbEngine::parseOutputLine(QString line)
     while (isCdbPrompt(line))
         line.remove(0, CdbPromptLength);
     // An extension notification (potentially consisting of several chunks)
+    if (!m_initialSessionIdleHandled && line.startsWith("SECURE: File not allowed to be loaded")
+        && line.endsWith("qtcreatorcdbext.dll")) {
+        CheckableMessageBox::doNotShowAgainInformation(
+            Core::ICore::dialogParent(),
+            Tr::tr("Debugger Start Failed"),
+            Tr::tr("The system prevents loading of %1, which is required for debugging. "
+                   "Make sure that your antivirus solution is up to date and if that does not work "
+                   "consider adding an exception for %1.")
+                .arg(m_extensionFileName),
+            Core::ICore::settings(),
+            "SecureInfoCdbextCannotBeLoaded");
+        notifyEngineSetupFailed();
+    }
     static const QString creatorExtPrefix = "<qtcreatorcdbext>|";
     if (line.startsWith(creatorExtPrefix)) {
         // "<qtcreatorcdbext>|type_char|token|remainingChunks|serviceName|message"

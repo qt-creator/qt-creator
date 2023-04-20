@@ -23,8 +23,6 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
 
 #ifdef WITH_TESTS
 private slots:
-   void testAndroidSdkManagerProgressParser_data();
-   void testAndroidSdkManagerProgressParser();
    void testAndroidConfigAvailableNdkPlatforms_data();
    void testAndroidConfigAvailableNdkPlatforms();
    void testAndroidQtVersionParseBuiltWith_data();

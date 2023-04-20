@@ -104,7 +104,7 @@
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
             \uicontrol {Code Model}.
 
-            \image qtcreator-clang-code-model-options.png "C++ Code Model preferences"
+            \image qtcreator-preferences-code-model.webp {C++ Code Model preferences}
 
         \li To instruct the code model to interpret ambiguous header files as C
             language files if you develop mainly using C, select the
@@ -127,6 +127,10 @@
             edit the value for the \uicontrol {Do not index files greater than}
             check box. To index all files, deselect the check box.
 
+        \li To ignore files that match wildcard patterns, select the
+            \uicontrol {Ignore files} check box and enter each wildcard pattern
+            on a separate line in the field.
+
     \endlist
 
     \section1 Configuring clangd
@@ -138,6 +142,12 @@
     large projects, this can take a while, but the index is persistent and
     re-scanning is incremental, so nothing is lost by closing and re-starting
     \QC.
+
+    To temporarily disable global indexing, select
+    \uicontrol {Toggle Progress Details} (1), and then select \uicontrol X on
+    the progress bar.
+
+    \image qtcreator-toggle-progress-bar.webp {Toggle Progress Details button}
 
     By default, \QC runs one clangd process per project. If you have created
     \l{Managing Sessions}{sessions} that have related projects, you can

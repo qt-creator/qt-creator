@@ -22,6 +22,10 @@ class Targets:
                                      "Desktop 6.2.4"]))
 
     @staticmethod
+    def isOnlineInstaller(target):
+        return target == Targets.DESKTOP_6_2_4
+
+    @staticmethod
     def availableTargetClasses(ignoreValidity=False):
         availableTargets = set(Targets.ALL_TARGETS)
         if platform.system() == 'Darwin':
@@ -75,19 +79,20 @@ class LibType:
             return "Qt Plugin"
         return None
 
-class Qt5Path:
+class QtPath:
     DOCS = 0
     EXAMPLES = 1
 
     @staticmethod
     def getPaths(pathSpec):
-        qt5targets = [Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT]
+        qtTargets = [Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT,
+                     Targets.DESKTOP_6_2_4]
         if platform.system() != 'Darwin':
-            qt5targets.append(Targets.DESKTOP_5_4_1_GCC)
-        if pathSpec == Qt5Path.DOCS:
-            return map(lambda target: Qt5Path.docsPath(target), qt5targets)
-        elif pathSpec == Qt5Path.EXAMPLES:
-            return map(lambda target: Qt5Path.examplesPath(target), qt5targets)
+            qtTargets.append(Targets.DESKTOP_5_4_1_GCC)
+        if pathSpec == QtPath.DOCS:
+            return map(lambda target: QtPath.docsPath(target), qtTargets)
+        elif pathSpec == QtPath.EXAMPLES:
+            return map(lambda target: QtPath.examplesPath(target), qtTargets)
         else:
             test.fatal("Unknown pathSpec given: %s" % str(pathSpec))
             return []
@@ -97,9 +102,9 @@ class Qt5Path:
         if target not in Targets.ALL_TARGETS:
             raise Exception("Unexpected target '%s'" % str(target))
 
-        matcher = re.match("^Desktop (5\.\\d{1,2}\.\\d{1,2}).*$", Targets.getStringForTarget(target))
+        matcher = re.match("^Desktop ([56]\.\\d{1,2}\.\\d{1,2}).*$", Targets.getStringForTarget(target))
         if matcher is None:
-            raise Exception("Currently this is supported for Desktop Qt5 only, got target '%s'"
+            raise Exception("Currently this is supported for Desktop Qt5/Qt6 only, got target '%s'"
                             % str(Targets.getStringForTarget(target)))
         return matcher.group(1)
 
@@ -111,34 +116,49 @@ class Qt5Path:
             return os.path.expanduser("~/Qt5.%d.1" % qt5Minor)
 
     @staticmethod
+    def __createQtOnlineInstallerPath__():
+        qtBasePath = os.getenv('SYSTEST_QTOI_BASEPATH', None)
+        if qtBasePath is None:
+            qtBasePath = 'C:/Qt' if platform.system() in ('Microsoft', 'Windows') else '~/Qt'
+        qtBasePath = os.path.expanduser(qtBasePath)
+        if not os.path.exists(qtBasePath):
+            test.fatal("Unexpected Qt install path '%s'" % qtBasePath)
+            return ""
+        return qtBasePath
+
+    @staticmethod
     def toVersionTuple(versionString):
         return tuple(map(__builtin__.int, versionString.split(".")))
 
     @staticmethod
-    def getQtMinorAndPatchVersion(target):
-        qtVersionStr = Qt5Path.__preCheckAndExtractQtVersionStr__(target)
-        versionTuple = Qt5Path.toVersionTuple(qtVersionStr)
-        return versionTuple[1], versionTuple[2]
+    def getQtVersion(target):
+        qtVersionStr = QtPath.__preCheckAndExtractQtVersionStr__(target)
+        versionTuple = QtPath.toVersionTuple(qtVersionStr)
+        return versionTuple
 
     @staticmethod
     def examplesPath(target):
-        qtMinorVersion, qtPatchVersion = Qt5Path.getQtMinorAndPatchVersion(target)
-        if qtMinorVersion < 10:
-            path = "Examples/Qt-5.%d" % qtMinorVersion
+        qtMajorVersion, qtMinorVersion, qtPatchVersion = QtPath.getQtVersion(target)
+        if qtMajorVersion == 5 and qtMinorVersion < 10:
+            path = "Examples/Qt-%d.%d" % (qtMajorVersion,  qtMinorVersion)
         else:
-            path = "Examples/Qt-5.%d.%d" % (qtMinorVersion, qtPatchVersion)
+            path = "Examples/Qt-%d.%d.%d" % (qtMajorVersion, qtMinorVersion, qtPatchVersion)
 
-        return os.path.join(Qt5Path.__createPlatformQtPath__(qtMinorVersion), path)
+        if Targets.isOnlineInstaller(target):
+            return os.path.join(QtPath.__createQtOnlineInstallerPath__(), path)
+        return os.path.join(QtPath.__createPlatformQtPath__(qtMinorVersion), path)
 
     @staticmethod
     def docsPath(target):
-        qtMinorVersion, qtPatchVersion = Qt5Path.getQtMinorAndPatchVersion(target)
-        if qtMinorVersion < 10:
-            path = "Docs/Qt-5.%d" % qtMinorVersion
+        qtMajorVersion, qtMinorVersion, qtPatchVersion = QtPath.getQtVersion(target)
+        if qtMajorVersion == 5 and qtMinorVersion < 10:
+            path = "Docs/Qt-%d.%d" % (qtMajorVersion, qtMinorVersion)
         else:
-            path = "Docs/Qt-5.%d.%d" % (qtMinorVersion, qtPatchVersion)
+            path = "Docs/Qt-%d.%d.%d" % (qtMajorVersion, qtMinorVersion, qtPatchVersion)
 
-        return os.path.join(Qt5Path.__createPlatformQtPath__(qtMinorVersion), path)
+        if Targets.isOnlineInstaller(target):
+            return os.path.join(QtPath.__createQtOnlineInstallerPath__(), path)
+        return os.path.join(QtPath.__createPlatformQtPath__(qtMinorVersion), path)
 
 class TestSection:
     def __init__(self, description):

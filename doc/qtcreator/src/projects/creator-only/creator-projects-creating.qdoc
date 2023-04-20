@@ -58,7 +58,7 @@
     In the first step, you select a template for the project. You can filter
     templates (1) to view only those that apply to a particular target platform.
 
-    \image qtcreator-new-project.png
+    \image qtcreator-new-project.webp {New Project dialog}
 
     Next, you select a location for the project and specify settings for it.
 
@@ -95,9 +95,12 @@
             \li Uses a single main.cpp file.
         \row
             \li Qt Quick Application
-            \li Creates a Qt Quick 2 application project that can have both
+            \li Creates a Qt Quick application project that can have both
                 QML and C++ code. You can build the application and deploy it
                 to desktop, embedded, and mobile target platforms.
+
+                You can select an option to create a project that you can open
+                in \QDS, which has a visual editor for Qt Quick UIs.
         \row
             \li {1,4} Application (Qt for Python)
             \li Empty Application
@@ -115,10 +118,6 @@
                 you to generate a Python file from the .ui file, to import
                 it directly into your application.
         \row
-            \li Window UI - Dynamic load
-            \li Creates a Qt for Python application that has an empty
-                window with a widget-based UI.
-        \row
             \li Qt Quick Application - Empty
             \li Creates a Python project that has an empty Qt Quick
                 Application.
@@ -129,7 +128,7 @@
         \row
             \li Qt Quick 2 Extension Plugin
             \li Creates a C++ plugin that makes it possible to offer extensions
-                that the QQmlEngine class can load dynamically into Qt Quick 2
+                that the QQmlEngine class can load dynamically into Qt Quick
                 applications.
         \row
             \li \QC Plugin
@@ -142,7 +141,7 @@
             \li Qt Quick UI Prototype
             \li Creates a \l{Creating Qt Quick UI Projects}{Qt Quick UI project}
                 with a single QML file that has the main view. You can
-                preview Qt Quick 2 UI projects in the
+                preview Qt Quick UI projects in the
                 \l{Validating with Target Hardware}{QML Scene preview tool}.
                 You do not need to build them because they do not have any
                 C++ code.
@@ -333,7 +332,7 @@
     \uicontrol {New Subproject}. Follow the steps in the
      \uicontrol {New Subproject} wizard to create a subproject.
 
-    \image qtcreator-new-qt-quick-project.png
+    \image qtcreator-project-qt-quick.webp {New Project dialog}
 
     To add an existing project as a subproject, select
     \uicontrol {Add Existing Projects} in the context menu.

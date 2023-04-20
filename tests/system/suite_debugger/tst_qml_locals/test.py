@@ -136,7 +136,7 @@ def checkForExpectedValues(items, expectedChildren, expectedProperties):
     properties = items.getChild("Properties")
     if properties:
         children = properties.getChildren()
-        for property,value in expectedProperties.iteritems():
+        for property,value in expectedProperties.items():
             foundProperty = getProperty(property, children)
             if foundProperty:
                 test.compare(foundProperty.getValue(), value, "Verifying value for %s" % property)

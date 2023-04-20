@@ -10,6 +10,7 @@ add_qtc_plugin(GenericProjectManager
     genericproject.cpp genericproject.h
     genericprojectconstants.h
     genericprojectfileseditor.cpp genericprojectfileseditor.h
+    genericprojectmanagertr.h
     genericprojectplugin.cpp genericprojectplugin.h
     genericprojectwizard.cpp genericprojectwizard.h
 )

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.15)
+cmake_minimum_required (VERSION 3.21.1)
 
 project(%{CorrectedProjectName} VERSION 0.0.1 LANGUAGES C CXX ASM)
 

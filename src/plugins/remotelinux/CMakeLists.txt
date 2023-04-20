@@ -26,6 +26,7 @@ add_qtc_plugin(RemoteLinux
     remotelinuxplugin.cpp remotelinuxplugin.h
     remotelinuxrunconfiguration.cpp remotelinuxrunconfiguration.h
     remotelinuxsignaloperation.cpp remotelinuxsignaloperation.h
+    remotelinuxtr.h
     rsyncdeploystep.cpp rsyncdeploystep.h
     sshkeycreationdialog.cpp sshkeycreationdialog.h
     sshprocessinterface.h

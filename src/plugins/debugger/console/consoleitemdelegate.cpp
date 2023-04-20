@@ -241,11 +241,6 @@ QWidget *ConsoleItemDelegate::createEditor(QWidget *parent,
                           "margin-top: 4px;"
                           "background-color: transparent;"
                           "}");
-    connect(editor, &ConsoleEdit::editingFinished, this, [this, editor] {
-        auto delegate = const_cast<ConsoleItemDelegate*>(this);
-        emit delegate->commitData(editor);
-        emit delegate->closeEditor(editor);
-    });
     return editor;
 }
 

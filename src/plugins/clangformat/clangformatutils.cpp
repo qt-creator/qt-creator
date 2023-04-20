@@ -177,6 +177,7 @@ clang::format::FormatStyle qtcStyle()
     style.Standard = FormatStyle::LS_Cpp11;
     style.TabWidth = 4;
     style.UseTab = FormatStyle::UT_Never;
+    style.Standard = FormatStyle::LS_Auto;
     return style;
 }
 
@@ -214,9 +215,10 @@ bool getCurrentOverriddenSettings(const Utils::FilePath &filePath)
     const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(
         filePath);
 
-    return getProjectUseGlobalSettings(project)
-               ? ClangFormatSettings::instance().overrideDefaultFile()
-               : getProjectOverriddenSettings(project);
+    return getProjectUseGlobalSettings(project) ? !TextEditor::TextEditorSettings::codeStyle("Cpp")
+                                                       ->currentPreferences()
+                                                       ->isTemporarilyReadOnly()
+                                                : getProjectOverriddenSettings(project);
 }
 
 ClangFormatSettings::Mode getProjectIndentationOrFormattingSettings(

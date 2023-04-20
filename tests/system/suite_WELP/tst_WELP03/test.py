@@ -41,7 +41,7 @@ def main():
     if not startedWithoutPluginError():
         return
     qchs = []
-    for p in Qt5Path.getPaths(Qt5Path.DOCS):
+    for p in QtPath.getPaths(QtPath.DOCS):
         qchs.extend([os.path.join(p, "qtopengl.qch"), os.path.join(p, "qtwidgets.qch")])
     addHelpDocumentation(qchs)
     setFixedHelpViewer(HelpViewer.HELPMODE)
@@ -72,7 +72,7 @@ def main():
     test.verify(example is None, "Verifying: No example is shown.")
 
     proFiles = [os.path.join(p, "opengl", "2dpainting", "2dpainting.pro")
-                for p in Qt5Path.getPaths(Qt5Path.EXAMPLES)]
+                for p in QtPath.getPaths(QtPath.EXAMPLES)]
     cleanUpUserFiles(proFiles)
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))
@@ -94,7 +94,7 @@ def main():
     # go to "Welcome" page and choose another example
     switchViewTo(ViewConstants.WELCOME)
     proFiles = [os.path.join(p, "widgets", "itemviews", "addressbook", "addressbook.pro")
-                for p in Qt5Path.getPaths(Qt5Path.EXAMPLES)]
+                for p in QtPath.getPaths(QtPath.EXAMPLES)]
     cleanUpUserFiles(proFiles)
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))

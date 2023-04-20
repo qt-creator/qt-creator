@@ -9,6 +9,7 @@
 #include "clangformatutils.h"
 
 #include <projectexplorer/project.h>
+#include <texteditor/icodestylepreferences.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -24,10 +25,11 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ProjectExplorer::Project *project,
-                                                             QWidget *parent)
+ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
+    TextEditor::ICodeStylePreferences *codeStyle, ProjectExplorer::Project *project, QWidget *parent)
     : CppCodeStyleWidget(parent)
     , m_project(project)
+    , m_codeStyle(codeStyle)
 {
     resize(489, 305);
 
@@ -164,10 +166,19 @@ void ClangFormatGlobalConfigWidget::initOverrideCheckBox()
         Tr::tr("Override Clang Format configuration file with the chosen configuration."));
 
     m_overrideDefault->setChecked(getProjectOverriddenSettings(m_project));
+    m_codeStyle->currentPreferences()->setTemporarilyReadOnly(!m_overrideDefault->isChecked());
 
     connect(m_overrideDefault, &QCheckBox::toggled, this, [this](bool checked) {
         if (m_project)
             m_project->setNamedSettings(Constants::OVERRIDE_FILE_ID, checked);
+        else {
+            m_codeStyle->currentPreferences()->setTemporarilyReadOnly(!checked);
+            emit m_codeStyle->currentPreferencesChanged(m_codeStyle->currentPreferences());
+        }
+    });
+
+    connect(m_codeStyle, &TextEditor::ICodeStylePreferences::currentPreferencesChanged, this, [this] {
+        m_codeStyle->currentPreferences()->setTemporarilyReadOnly(!m_overrideDefault->isChecked());
     });
 }
 
@@ -183,6 +194,12 @@ void ClangFormatGlobalConfigWidget::apply()
         settings.setOverrideDefaultFile(m_overrideDefault->isChecked());
     }
     settings.write();
+}
+
+void ClangFormatGlobalConfigWidget::finish()
+{
+    m_codeStyle->currentPreferences()->setTemporarilyReadOnly(
+        !ClangFormatSettings::instance().overrideDefaultFile());
 }
 
 } // namespace ClangFormat

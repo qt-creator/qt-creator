@@ -30,7 +30,7 @@ def main():
         invokeMenuItem("File", "Save All")
         availableConfigs = iterateBuildConfigs("Debug")
         if not availableConfigs:
-            test.fatal("Haven't found a suitable Qt version (need Qt 5.3+) - leaving without debugging.")
+            test.fatal("Haven't found a suitable Qt version (need Qt 6.2+) - leaving without profiling.")
         else:
             performTest(workingDir, projectName, availableConfigs)
     invokeMenuItem("File", "Exit")
@@ -77,7 +77,7 @@ def performTest(workingDir, projectName, availableConfigs):
              colMean, colMedian, colLongest, colShortest) = range(2, 11)
             model = waitForObject(":Events.QmlProfilerEventsTable_QmlProfiler::"
                                   "Internal::QmlProfilerStatisticsMainView").model()
-            compareEventsTab(model, "events_qt5.10.1.tsv")
+            compareEventsTab(model, "events_qt6.2.4.tsv")
             test.compare(dumpItems(model, column=colPercent)[0], '100 %')
             # cannot run following test on colShortest (unstable)
             for i in [colMean, colMedian, colLongest]:
@@ -120,7 +120,7 @@ def compareEventsTab(model, file):
                  "Checking number of rows in Events table")
     if not test.verify(containsOnce(expectedTable, foundTable),
                        "Verifying that Events table matches expected values"):
-        test.log("Events displayed by Creator: %s" % foundTable)
+        test.log("Events displayed by Creator: %s" % foundTable, str(expectedTable))
 
 def containsOnce(tuple, items):
     for item in items:

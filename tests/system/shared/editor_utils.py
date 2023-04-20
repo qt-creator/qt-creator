@@ -157,7 +157,7 @@ def __handleTextTips__(textTip, expectedVals, alternativeVals):
     props = object.properties(textTip)
     expFail = False
     eResult = verifyProperties(props, expectedVals)
-    for val in eResult.itervalues():
+    for val in eResult.values():
         if not val:
             expFail = True
             break
@@ -168,7 +168,7 @@ def __handleTextTips__(textTip, expectedVals, alternativeVals):
     if not expFail:
         test.passes("TextTip verified")
     else:
-        for key,val in eResult.iteritems():
+        for key,val in eResult.items():
             if val == False:
                 if aResult and aResult.get(key):
                     test.passes("Property '%s' does not match expected, but alternative value" % key)
@@ -240,7 +240,7 @@ def verifyProperties(properties, expectedProps):
         test.warning("Wrong usage - both parameter must be of type dict")
         return {}
     result = {}
-    for key,val in expectedProps.iteritems():
+    for key,val in expectedProps.items():
         foundVal = properties.get(key, None)
         if foundVal != None:
             result[key] = val == foundVal
@@ -403,7 +403,11 @@ def openDocument(treeElement):
         rect = navigator.visualRect(parentIndex)
         doubleClick(navigator, rect.x + 50, rect.y + 5, 0, Qt.LeftButton)
         mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
-        if waitFor("str(mainWindow.windowTitle).startswith(treePathElements[-1] + ' ')", 5000):
+        fileNameWithoutLinePrefix = treePathElements[-1]
+        matching = re.match("^(.+)(:\\d+)$", fileNameWithoutLinePrefix)
+        if matching is not None:
+            fileNameWithoutLinePrefix = matching.group(1)
+        if waitFor("str(mainWindow.windowTitle).startswith(fileNameWithoutLinePrefix + ' ')", 5000):
             return True
         test.log("Expected file (%s) was not being opened in openDocument()" % treePathElements[-1])
         return False

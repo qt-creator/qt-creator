@@ -78,6 +78,7 @@ def testRenameMacroAfterSourceMoving():
     if not content:
         return False
     formerTexts["testfiles.Headers.testfile\\.h"] = content
+    waitForProjectTreeItem("testfiles.Headers.anothertestfile\\.h", 5000)
     content = openDocumentPlaceCursor("testfiles.Headers.anothertestfile\\.h",
                                       "#define ANOTHERTESTFILE_H", __paste__)
     if not content:
@@ -113,7 +114,7 @@ def performMacroRenaming(newMacroName):
 def verifyChangedContent(origTexts, replacedSymbol, replacement):
     global cppEditorStr
     successfullyCompared = []
-    for fileName,text in origTexts.iteritems():
+    for fileName,text in origTexts.items():
         if openDocument(fileName):
             successfullyCompared.append(test.compare(waitForObject(cppEditorStr).plainText,
                                                      text.replace(replacedSymbol, replacement),

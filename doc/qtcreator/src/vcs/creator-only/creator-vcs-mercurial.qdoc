@@ -42,4 +42,23 @@
             \li \uicontrol{Push}
             \li Push changes to the remote repository.
      \endtable
+
+    \section1 Mercurial Preferences
+
+    To set preferences for Mercurial, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol Mercurial:
+
+    \image qtcreator-preferences-vcs-mercurial.webp {Mercurial preferences}
+
+    \list
+        \li \uicontrol Command specifies the path to the command line client
+            executable.
+        \li \uicontrol {Default username} and \uicontrol {Default email}
+            specify the username and email address to use by default when
+            committing changes.
+        \li \uicontrol {Log count} sets the maximum number of lines the log can
+            have.
+        \li \uicontrol Timeout sets a timeout for version control operations.
+    \endlist
+
 */

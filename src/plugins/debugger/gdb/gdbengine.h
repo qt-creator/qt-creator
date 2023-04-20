@@ -130,11 +130,12 @@ private: ////////// General Interface //////////
 
     bool m_rerunPending = false;
     bool m_ignoreNextTrap = false;
+    bool m_detectTargetIncompat = false;
 
     ////////// Gdb Output, State & Capability Handling //////////
 
     Q_INVOKABLE void handleResponse(const QString &buff);
-    void handleAsyncOutput(const QString &asyncClass, const GdbMi &result);
+    void handleAsyncOutput(const QStringView asyncClass, const GdbMi &result);
     void handleStopResponse(const GdbMi &data);
     void handleResultRecord(DebuggerResponse *response);
     void handleStop1(const GdbMi &data);

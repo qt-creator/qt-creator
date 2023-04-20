@@ -137,6 +137,7 @@ private:
     void postResolveSymbol(const QString &module, const QString &function,
                            DisassemblerAgent *agent);
     void showScriptMessages(const QString &message) const;
+    void showScriptMessages(const GdbMi &message) const;
     void handleInitialSessionIdle();
     // Builtin commands
     void handleStackTrace(const DebuggerResponse &);

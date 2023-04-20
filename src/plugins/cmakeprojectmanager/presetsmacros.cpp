@@ -4,9 +4,11 @@
 #include "presetsmacros.h"
 #include "presetsparser.h"
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
+#include <utils/osspecificaspects.h>
 
 namespace CMakeProjectManager::Internal::CMakePresets::Macros {
 
@@ -38,10 +40,13 @@ static void expandAllButEnv(const PresetsDetails::ConfigurePreset &preset,
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
     value.replace("${presetName}", preset.name);
+    value.replace("${fileDir}", preset.fileDir.path());
     if (preset.generator)
         value.replace("${generator}", preset.generator.value());
 
     value.replace("${hostSystemName}", getHostSystemName(sourceDirectory.osType()));
+    value.replace("${pathListSep}",
+                  Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
 }
 
 static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
@@ -51,10 +56,13 @@ static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
     value.replace("${dollar}", "$");
 
     value.replace("${sourceDir}", sourceDirectory.toString());
+    value.replace("${fileDir}", preset.fileDir.path());
     value.replace("${sourceParentDir}", sourceDirectory.parentDir().toString());
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
     value.replace("${presetName}", preset.name);
+    value.replace("${pathListSep}",
+                  Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
 }
 
 static QString expandMacroEnv(const QString &macroPrefix,
@@ -144,6 +152,9 @@ void expand(const PresetType &preset,
             return env.value(macroName);
         });
 
+        // Make sure to expand the CMake macros also for environment variables
+        expandAllButEnv(preset, sourceDirectory, value);
+
         if (append)
             env.appendOrSet(key, value, sep);
         else
@@ -182,6 +193,9 @@ void expand(const PresetType &preset,
             return QString("${%1}").arg(macroName);
         });
 
+        // Make sure to expand the CMake macros also for environment variables
+        expandAllButEnv(preset, sourceDirectory, value);
+
         envItems.emplace_back(Utils::EnvironmentItem(key, value, operation));
     }
 }
@@ -202,6 +216,9 @@ void expand(const PresetType &preset,
     value = expandMacroEnv("penv", value, [env](const QString &macroName) {
         return env.value(macroName);
     });
+
+    // Make sure to expand the CMake macros also for environment variables
+    expandAllButEnv(preset, sourceDirectory, value);
 }
 
 void updateToolchainFile(
@@ -283,6 +300,47 @@ void updateInstallDir(PresetsDetails::ConfigurePreset &configurePreset,
         cache << CMakeConfigItem("CMAKE_INSTALL_PREFIX",
                                  CMakeConfigItem::PATH,
                                  installDirString.toUtf8());
+
+    configurePreset.cacheVariables = cache;
+}
+
+
+void updateCacheVariables(PresetsDetails::ConfigurePreset &configurePreset,
+                          const Utils::Environment &env,
+                          const Utils::FilePath &sourceDirectory)
+{
+    using namespace Utils;
+
+    if (!configurePreset.cacheVariables)
+        return;
+
+    CMakeConfig cache = configurePreset.cacheVariables.value();
+
+    static const QSet<QByteArray> pathKeys{"CMAKE_C_COMPILER",
+                                           "CMAKE_CXX_COMPILER",
+                                           "CMAKE_PREFIX_PATH",
+                                           "CMAKE_FIND_ROOT_PATH",
+                                           "CMAKE_MAKE_PROGRAM",
+                                           "CMAKE_TOOLCHAIN_FILE",
+                                           "QT_HOST_PATH",
+                                           "QT_QMAKE_EXECUTABLE",
+                                           "CMAKE_SYSROOT"};
+
+    auto expandCacheValue =
+        [configurePreset, env, sourceDirectory, cache](const QByteArray &key) {
+        QString result = cache.stringValueOf(key);
+        CMakePresets::Macros::expand(configurePreset, env, sourceDirectory, result);
+
+        if (pathKeys.contains(key)) {
+            const FilePaths paths = transform(result.split(";"), &FilePath::fromUserInput);
+            result = transform(paths, &FilePath::path).join(";");
+        }
+
+        return result.toUtf8();
+    };
+
+    for (auto &item : cache)
+        item.value = expandCacheValue(item.key);
 
     configurePreset.cacheVariables = cache;
 }

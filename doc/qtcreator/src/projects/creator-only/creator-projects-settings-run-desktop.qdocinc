@@ -10,6 +10,15 @@
     and the working directory to use. The working directory defaults to
     the directory of the build result.
 
+    Select \uicontrol {Add Deploy Step} > \uicontrol {CMake Install} to add the
+    \l{https://cmake.org/cmake/help/latest/manual/cmake.1.html#install-a-project}
+    {install} option. It runs installation without using the generated build
+    system or the native build tool. \QC automatically adds the value of the
+    \uicontrol {Working directory} field as the installation directory in the
+    \c {--install} signature.
+
+    \image qtcreator-settings-run-desktop.webp {Run Settings}
+
     For console applications, check the \uicontrol{Run in terminal} check box.
     To specify the terminal to use on Linux and \macos, select \uicontrol Edit
     > \uicontrol Preferences > \uicontrol Environment > \uicontrol System.
@@ -17,8 +26,6 @@
     To run with special environment variables set up, select them in the
     \uicontrol {Run Environment} section. For more information, see
     \l {Selecting the Run Environment}.
-
-    \image qtcreator-pprunsettings.png
 
     When building an application, \QC creates a list of directories where the
     linker will look for libraries that the application links to. By

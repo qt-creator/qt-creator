@@ -1,4 +1,4 @@
-// Copyright (C) 2018 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -15,9 +15,8 @@
     \title Using ClearCase
 
     IBM Rational ClearCase is a version control, workspace management, parallel
-    development support, and build automation solution developed by IBM. The
-    ClearCase client plugin is available on Linux and Windows for accessing a
-    ClearCase server.
+    development support, and build automation solution developed by IBM. Use the
+    ClearCase client plugin on Linux and Windows to access a ClearCase server.
 
     \section1 Using GNU Diffutils with ClearCase
 
@@ -32,8 +31,10 @@
         \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol {Version Control} > \uicontrol ClearCase.
 
+            \image qtcreator-preferences-vcs-clearcase.webp {ClearCase preferences}
+
         \li Select the \uicontrol External radio button. The radio button is
-            disabled if \c diff is not found in the PATH.
+            disabled if \c diff is not in the PATH.
 
         \li In the \uicontrol Arguments field, specify arguments for running
             \c diff.
@@ -51,12 +52,10 @@
     a UCM activity. By default, the activities are automatically assigned names.
     To disable this functionality, select \uicontrol Edit > \uicontrol Preferences
     > \uicontrol {Version Control} > \uicontrol ClearCase, and then deselect the
-    \uicontrol {Automatically assign activity names} check box.
+    \uicontrol {Auto assign activity names} check box.
 
-    To automatically check out files when you edit them, select \uicontrol Edit
-    > \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol ClearCase,
-    and then select the \uicontrol {Automatically check out files on edit}
-    check box.
+    To automatically check out files when you edit them, select the
+    \uicontrol {Automatically check out files on edit} check box.
 
     To cancel the checkout for a file and delete the checked-out version,
     select \uicontrol Tools > \uicontrol ClearCase >
@@ -68,12 +67,12 @@
 
     To create a permanent new version of the current file or all files in the
     versioned object base (VOB), select \uicontrol Tools >
-    \uicontrol {ClearCase} > \uicontrol {Check In}. To be asked to confirm
+    \uicontrol {ClearCase} > \uicontrol {Check In}. To confirm
     that you want to check in the files, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol ClearCase,
     and then select the \uicontrol {Prompt on check-in} check box.
 
-    By default, you are asked to enter a comment when checking files out or in.
+    By default, you have to enter a comment when checking files out or in.
     To suppress this prompt, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {Version Control} > \uicontrol ClearCase, and then select the
     \uicontrol {Do not prompt for comment during checkout or check-in} check
@@ -89,4 +88,8 @@
     > \uicontrol {Version Control} > \uicontrol ClearCase, and then select the
     \uicontrol {Disable indexer} check box. To only have some VOBs indexed,
     specify them in the \uicontrol {Index only VOBs} field.
+
+    Specify the number of event records to show in \uicontrol {History count}.
+
+    Set a timeout for version control operations in \uicontrol Timeout.
 */

@@ -182,6 +182,7 @@ def std_1_string_dumper(d, value):
     size = 0
     size_mode_value = 0
     short_mode = False
+    libcxx_version = 14
 
     layoutModeIsDSC = layoutDecider.name == '__data_'
     if (layoutModeIsDSC):
@@ -200,8 +201,15 @@ def std_1_string_dumper(d, value):
         if not size_mode:
             raise Exception("Could not find size_mode")
 
-        size_mode_value = size_mode.integer()
-        short_mode = ((size_mode_value & 1) == 0)
+        if size_mode.name == '__is_long_':
+            libcxx_version = 15
+            short_mode = (size_mode.integer() == 0)
+
+            size_mode = D[1][0][1]
+            size_mode_value = size_mode.integer()
+        else:
+            size_mode_value = size_mode.integer()
+            short_mode = ((size_mode_value & 1) == 0)
 
     if short_mode:
         s = D[1]
@@ -209,8 +217,13 @@ def std_1_string_dumper(d, value):
         if not s:
             raise Exception("Could not find s")
 
-        location_sp = s[0] if layoutModeIsDSC else s[1]
-        size = size_mode_value if layoutModeIsDSC else ((size_mode_value >> 1) % 256)
+        if libcxx_version == 14:
+            location_sp = s[0] if layoutModeIsDSC else s[1]
+            size = size_mode_value if layoutModeIsDSC else ((size_mode_value >> 1) % 256)
+        elif libcxx_version == 15:
+            location_sp = s[0] if layoutModeIsDSC else s[2]
+            size = size_mode_value
+
     else:
         l = D[0]
         if not l:

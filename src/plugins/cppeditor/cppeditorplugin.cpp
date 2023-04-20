@@ -58,6 +58,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -126,7 +127,7 @@ public:
     CppEditorFactory()
     {
         setId(Constants::CPPEDITOR_ID);
-        setDisplayName(QCoreApplication::translate("OpenWith::Editors","C++ Editor"));
+        setDisplayName(::Core::Tr::tr("C++ Editor"));
         addMimeType(Constants::C_SOURCE_MIMETYPE);
         addMimeType(Constants::C_HEADER_MIMETYPE);
         addMimeType(Constants::CPP_SOURCE_MIMETYPE);

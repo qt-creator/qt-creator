@@ -41,15 +41,18 @@ def main():
     # there should be new QML file generated with name "MyComponent.qml"
     try:
         # openDocument() doesn't wait for expected elements, so it might be faster than the updates
-        # to the tree. Explicitly wait here to avoid timing issues. Using wFOI() instead of
+        # to the tree. Explicitly wait here to avoid timing issues. Using wFPTI() instead of
         # snooze() allows to proceed earlier, just in case it can find the item.
-        waitForObjectItem(":Qt Creator_Utils::NavigationTreeView",
-                          addBranchWildcardToRoot(myCompTE), 2000)
+        waitForProjectTreeItem(myCompTE, 2000)
     except:
         pass
     # open MyComponent.qml file for verification
-    if not test.verify(openDocument(myCompTE),
-                       "Was MyComponent.qml properly generated in project explorer?"):
+    docOpened = openDocument(myCompTE)
+    if JIRA.isBugStillOpen(28985):
+        test.xverify(docOpened, "Was MyComponent.qml properly generated in project explorer?")
+        saveAndExit()
+        return
+    if not test.verify(docOpened, "Was MyComponent.qml properly generated in project explorer?"):
         test.fatal("Could not open MyComponent.qml.")
         saveAndExit()
         return

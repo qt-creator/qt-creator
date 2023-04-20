@@ -63,9 +63,6 @@ public:
 
     void setId(const QString &id);
 
-    void setStartTimeout(int ms, const std::function<void()> &callback = {});
-    void setStopTimeout(int ms, const std::function<void()> &callback = {});
-
     void recordData(const QString &channel, const QVariant &data);
     QVariant recordedData(const QString &channel) const;
 
@@ -100,7 +97,6 @@ signals:
 protected:
     void virtual start();
     void virtual stop();
-    void virtual onFinished() {}
 
 private:
     friend class Internal::RunControlPrivate;

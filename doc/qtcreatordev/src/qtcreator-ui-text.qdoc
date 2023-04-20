@@ -413,7 +413,7 @@
                  provides them with functions for managing the information.
                  Available in \uicontrol Debug mode, for interaction with the program
                  that is running under the control of the debugger.
-                 \image qtcreator-debugger-views.png "Views"
+                 \image qtcreator-debugger-views.webp "Views"
             \li  Use descriptive names for views.
     \endtable
 

@@ -107,6 +107,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     m_model = new TestResultModel(this);
     m_filterModel = new TestResultFilterModel(m_model, this);
     m_filterModel->setDynamicSortFilter(true);
+    m_filterModel->setRecursiveFilteringEnabled(true);
     m_treeView->setModel(m_filterModel);
     TestResultDelegate *trd = new TestResultDelegate(this);
     m_treeView->setItemDelegate(trd);

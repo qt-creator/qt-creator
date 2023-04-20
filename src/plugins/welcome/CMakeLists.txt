@@ -5,4 +5,5 @@ add_qtc_plugin(Welcome
     introductionwidget.cpp introductionwidget.h
     welcome.qrc
     welcomeplugin.cpp
+    welcometr.h
 )

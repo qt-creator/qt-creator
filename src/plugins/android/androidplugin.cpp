@@ -20,6 +20,12 @@
 #include "androidsettingswidget.h"
 #include "androidtoolchain.h"
 #include "androidtr.h"
+
+#ifdef WITH_TESTS
+#  include "androidsdkmanager_test.h"
+#  include "sdkmanageroutputparser_test.h"
+#endif
+
 #include "javaeditor.h"
 #include "javalanguageserver.h"
 
@@ -33,9 +39,9 @@
 
 #include <languageclient/languageclientsettings.h>
 
-#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
@@ -113,6 +119,11 @@ void AndroidPlugin::initialize()
         {Android::Constants::JLS_SETTINGS_ID,
          Tr::tr("Java Language Server"),
          [] { return new JLSSettings; }});
+
+#ifdef WITH_TESTS
+    addTest<AndroidSdkManagerTest>();
+    addTest<SdkManagerOutputParserTest>();
+#endif
 }
 
 void AndroidPlugin::kitsRestored()

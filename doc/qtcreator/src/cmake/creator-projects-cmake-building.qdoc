@@ -16,41 +16,46 @@
     the \l{Specifying Build Settings}{Build Settings} of the project.
     Alternatively, you can use CMake presets to configure CMake.
 
-    The \uicontrol Configuration field displays the effective CMake call that
-    is constructed by using the values of the \uicontrol {Build directory} and
+    The \uicontrol Configure field displays the effective CMake call that
+    \QC constructs using the values of the \uicontrol {Build directory} and
     \uicontrol {Build type} fields.
 
-    \image qtcreator-cmake-build-settings-initial.png "CMake build settings"
-
-    \uicontrol {Initial Configuration} lists the variables that are used to
-    configure the CMake project for the first time. The default values that
-    are inherited from the kit's CMake configuration are displayed in italic.
-    The initial configuration list of variables is saved in the project's source
-    directory as the \e CMakeLists.txt.user file.
-
-    \uicontrol {Current Configuration} lists the CMake variables in the
-    \c cmake-file-api JSON export in the \c {.cmake/api/v1/reply} directory.
-    The variables that are inherited from the initial configuration are
-    displayed in italic. Mismatched values are displayed in red.
-
-    You can view and edit the actual values of the variables that are passed
-    to CMake. Variable names are listed in the \uicontrol Key column and their
-    current values in the \uicontrol Value column. For more information about
-    the available variables, select \uicontrol Help in the context menu or see
-    \l{CMake: cmake-variables(7)}. For more information about Qt-specific
-    variables, see \l{CMake Variable Reference}.
+    \image qtcreator-build-settings-cmake-configure.webp {CMake configure command}
 
     You can specify additional CMake options, such as \c {--find-debug},
     \c {--trace-expand}, or \c {--warn-uninitialized}, in
     \uicontrol {Additional CMake options}. For more information about
-    the available options, click the link in the field name or see
-    \l{CMake: cmake(1)}.
-
-    After successfully running CMake, you can view and modify the current
-    configuration in \uicontrol {Current Configuration}.
+    the options, click the link in the field name or see \l{CMake: cmake(1)}.
 
     Select \uicontrol {Kit Configuration} to edit the CMake settings for the
     build and run kit selected for the project.
+
+    \section1 Initial Configuration
+
+    \image qtcreator-build-settings-cmake-initial.webp {Initial CMake configuration}
+
+    \uicontrol {Initial Configuration} lists the variables that \QC uses to
+    configure the CMake project for the first time. It shows the default values
+    that come from the kit's CMake configuration in italics. \QC saves the
+    initial configuration list of variables in the project's source
+    directory as the \e CMakeLists.txt.user file.
+
+    \section1 Current Configuration
+
+    \image qtcreator-build-settings-cmake-current.webp {Current CMake configuration}
+
+    \uicontrol {Current Configuration} lists the CMake variables in the
+    \c cmake-file-api JSON export in the \c {.cmake/api/v1/reply} directory.
+    It shows the variables that come from the initial configuration in italics
+    and mismatched values in red.
+
+    After selecting the \uicontrol {Run CMake} button, you can view and
+    change the actual values of the variables that \QC passes to CMake.
+    The  \uicontrol Key column lists variable names, and the \uicontrol Value
+    column lists their current values. For more information about the variables,
+    select \uicontrol Help in the context menu or see
+    \l{CMake: cmake-variables(7)}. For more information about Qt-specific
+    variables, see \l{CMake Variable Reference}.
 
     \section1 CMake Presets
 
@@ -63,21 +68,21 @@
     \l{https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html}
     {cmake-presets(7)} and store them in project's root directory.
 
-    \QC supports presets up to version 3 (introduced in CMake 3.21), but version
-    checking is not enforced. All the fields from version 3 are read and used if
-    present. Test presets are not supported.
+    \QC supports presets up to version 3 (introduced in CMake 3.21), but does not
+    enforce version checking. It reads and uses all the fields from version 3 if
+    present. It does not support test presets.
 
     You can import the presets the first time you \l {Opening Projects}
     {open a project}, when no \c CMakeLists.txt.user file exists or you have
     disabled all kits in the project. To update changes to the
     \c CMakePresets.json file, delete the \c CMakeLists.txt.user file.
 
-    \image qtcreator-cmake-presets-configure.webp "Opening a project that has Cmake presets"
+    \image qtcreator-cmake-presets-configure.webp {Opening a project that has CMake presets}
 
     You can view the presets in the \uicontrol {Initial Configuration} field and
     in the environment configuration field below it.
 
-    \image qtcreator-cmake-presets-environment.webp "CMake environment configuration"
+    \image qtcreator-cmake-presets-environment.webp {CMake environment configuration}
 
     \section2 Configure Presets
 
@@ -189,6 +194,47 @@
     \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
     \uicontrol Tools.
 
+    \section2 MSVC Example
+
+    When using MSVC compilers with NMAKE Makefiles, Ninja, or Ninja
+    Multi-Config generators, you can use the \c external strategy for
+    the \c architecture and \c toolset fields. This lets \QC set up
+    the Visual C++ environment before invoking CMake.
+
+    For example:
+
+    \badcode
+    "generator": "Ninja Multi-Config",
+    "toolset": {
+      "value": "v142,host=x64",
+      "strategy": "external"
+    },
+    "architecture": {
+      "value": "x64",
+      "strategy": "external"
+    },
+    \endcode
+
+    If you use MSVC compilers with non-VS generators and have several compilers
+    in the \c PATH, you might also have to specify the compiler to use in
+    \c cacheVariables or \c environmentVariables:
+
+    \badcode
+    "generator": "Ninja Multi-Config",
+    "toolset": {
+      "value": "v142,host=x64",
+      "strategy": "external"
+    },
+    "architecture": {
+      "value": "x64",
+      "strategy": "external"
+    },
+    "cacheVariables": {
+      "CMAKE_C_COMPILER": "cl.exe",
+      "CMAKE_CXX_COMPILER": "cl.exe"
+    }
+    \endcode
+
     \section2 Using Conditions
 
     The following configure presets are used if they match \c condition. That is,
@@ -251,9 +297,19 @@
     are passed to CMake in \uicontrol {Initial Configuration} or
     \uicontrol {Current Configuration}.
 
-    \image qtcreator-cmake-build-settings.png "CMake variables"
+    \image qtcreator-build-settings-cmake-current.webp {Current CMake configuration}
 
-    To view all variables, select the \uicontrol Advanced check box.
+    You can select several variables and apply an action to them. To clear
+    the selection, click anywhere in the view.
+
+    To change the environment variable values for the CMake build environment,
+    select \uicontrol {Batch Edit}. For more information, see \l{Batch Editing}.
+
+    To build using the current configuration, select \uicontrol {Run CMake}.
+    While building, the button text changes to \uicontrol {Stop CMake}. Select
+    the button to cancel the current build.
+
+    \section2 Adding Variables
 
     To add variables, select \uicontrol Add, and then select the type of
     the variable that you are adding: \uicontrol Boolean, \uicontrol String,
@@ -268,35 +324,39 @@
     To copy the name or value of the selected variable to the clipboard,
     select \uicontrol Copy in the context menu.
 
-    To modify the value of a variable, double-click it, or select it,
+    \section2 Changing Variable Values
+
+    To change the value of a variable, double-click it, or select it,
     and then select \uicontrol Edit. If the initial, current, and kit
     configuration get out of sync, select \uicontrol {Apply Kit Value} or
     \uicontrol {Apply Initial Configuration Value} in the context menu in
     \uicontrol {Initial Configuration} or \uicontrol {Current Configuration}.
 
-    You can apply actions to multiple variables at a time. To clear
-    the selection, select \uicontrol {Clear Selection}.
-
-    To remove the selected variables, select \uicontrol Unset. To undo
-    the removal, select \uicontrol Set.
-
     To reset all the changes that you made, select \uicontrol Reset.
-
-    To modify the environment variable values for the CMake build environment,
-    select \uicontrol {Batch Edit}. For more information, see \l{Batch Editing}.
-
-    To build using the current configuration, select \uicontrol {Run CMake}.
-    While building, the button text changes to \uicontrol {Stop CMake}. Select
-    the button to cancel the current build.
 
     The variable values that you change are passed via \c -D<option>=<value>
     to CMake, which stores the options in the CMakeCache.txt file. This means
     that if you remove the build directory, all the custom variables that are
     not part of the initial CMake configuration are also removed.
 
-    To reconfigure a project using the modified variable values,
+    To reconfigure a project using the changed variable values,
     select \uicontrol Build > \uicontrol {Clear CMake Configuration}, which
     removes the CMakeCache.txt file. This enables you to do a full rebuild.
+
+    \section2 Removing Variables
+
+    To remove the selected variables, select \uicontrol Unset. To undo
+    the removal, select \uicontrol Set.
+
+    \section2 Viewing Advanced Variables
+
+    To view all variables, select the \uicontrol Advanced check box.
+
+    To view all variables by default, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol CMake > \uicontrol General >
+    \uicontrol {Show advanced options by default}.
+
+    \image qtcreator-preferences-cmake-general.webp "General tab in CMake Preferences"
 
     \section1 Re-configuring with Initial Variables
 
@@ -311,21 +371,19 @@
     \uicontrol Preferences > \uicontrol CMake > \uicontrol General >
     \uicontrol {Ask before re-configuring with initial parameters}.
 
-    \image qtcreator-preferences-cmake-general.png "General tab in CMake Preferences"
-
     \section1 Viewing CMake Output
 
     Output from CMake is displayed next to the \uicontrol {Build Settings} and
     \uicontrol {Run Settings} panes in the \uicontrol Projects mode.
 
-    \image qtcreator-build-cmake-output.png "CMake output in Projects mode"
+    \image qtcreator-build-cmake-output.png {CMake output in Projects mode}
 
     To clear the search results, select the \inlineimage icons/clean_pane_small.png
     (\uicontrol Clear) button.
 
     You can enter a string in the \uicontrol Filter field to filter output.
     To specify filtering options, select the
-    \inlineimage icons/magnifier.png "Filtering options menu"
+    \inlineimage icons/magnifier.png {Filtering options menu}
     button. You can filter output by using regular expressions or
     case-sensitivity. Select \uicontrol {Show Non-matching Lines} to
     hide the lines that match the filter.
@@ -350,7 +408,7 @@
     You can add arguments to pass to CMake and the generator and targets for
     the build command in \uicontrol {Build Steps}.
 
-    \image qtcreator-cmake-build-steps.png "CMake build steps"
+    \image qtcreator-cmake-build-steps.png {CMake build steps}
 
     \note While the other CMake generators are installed together with Qt,
     you usually need to install Ninja yourself.
@@ -366,10 +424,10 @@
             variable.
         \li In \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build
             > \uicontrol {Build Settings}, select \uicontrol {Kit Configuration}.
-            \image qtcreator-cmake-kit-configuration.png "Kit CMake Configuration dialog"
+            \image qtcreator-cmake-kit-configuration.png {Kit CMake Configuration dialog}
         \li Select \uicontrol Change next to the \uicontrol {CMake generator}
             field to open the \uicontrol {CMake Generator} dialog.
-            \image qtcreator-cmake-generator.png "CMake Generator dialog"
+            \image qtcreator-cmake-generator.png {CMake Generator dialog}
         \li In \uicontrol Generator, select \uicontrol Ninja.
         \li Select \uicontrol OK to save your changes and close the dialog.
         \li Select \uicontrol Close to close the
@@ -392,6 +450,13 @@
     value of the \c CMAKE_PROJECT_INCLUDE_BEFORE variable to the path to a
     CMake script that installs dependencies from a \c conanfile.txt,
     \c conanfile.py, or \c vcpkg.json file in the project source directory.
+
+    \section1 QTC_RUN Environment Variable
+
+    \QC sets the environment variable \c QTC_RUN to \c 1 when executing
+    the \c cmake process.
+
+    This enables the CMake code to detect if it's being executed from \QC.
 
     \section1 CMake Clean Steps
 

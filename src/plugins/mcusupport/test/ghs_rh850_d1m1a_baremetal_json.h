@@ -5,7 +5,7 @@
 
 constexpr auto ghs_rh850_d1m1a_baremetal_json = R"(
 {
-    "qulVersion": "2.3.0",
+    "qulVersion": "2.4.0",
     "compatVersion": "1",
     "platform": {
         "id": "RH850-D1M1A-BAREMETAL",
@@ -19,17 +19,16 @@ constexpr auto ghs_rh850_d1m1a_baremetal_json = R"(
                 "setting": "FlashProgrammerPath",
                 "label": "Renesas Flash Programmer",
                 "type": "path",
-                "setting": "RenesasFlashProgrammer",
                 "cmakeVar": "RENESAS_FLASH_PROGRAMMER_PATH",
                 "defaultValue": {
-                    "windows": "%{Env:PROGRAMFILES}/Renesas Electronics/Programming Tools/Renesas Flash Programmer V3.09",
-                    "linux": "%{Env:HOME}"
+                    "linux": "",
+                    "windows": "%{Env:PROGRAMFILES(x86)}/Renesas Electronics/Programming Tools/Renesas Flash Programmer V3.09"
                 },
                 "detectionPath": {
                     "windows": "rfp-cli.exe",
                     "linux": "rfp-cli"
                 },
-                "envVar": "RENESAS_FLASH_PROGRAMMER_PATH",
+                "envVar": "RenesasFlashProgrammer_PATH",
                 "optional": true,
                 "addToSystemPath": true
             }
@@ -45,6 +44,10 @@ constexpr auto ghs_rh850_d1m1a_baremetal_json = R"(
             "setting": "GHSToolchain",
             "label": "Green Hills Compiler",
             "type": "path",
+            "defaultValue": {
+                "linux": "",
+                "windows": "C:/ghs/comp_201815"
+            },
             "optional": false,
             "versionDetection": {
                 "filePattern": {
@@ -71,12 +74,16 @@ constexpr auto ghs_rh850_d1m1a_baremetal_json = R"(
         "envVar": "RGL_DIR",
         "setting": "RGL_DIR",
         "versions": [
+            "2.0.0",
             "2.0.0a"
         ],
         "label": "Renesas Graphics Library",
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "type": "path",
-        "defaultValue": "/Renesas_Electronics/D1x_RGL/rgl_ghs_D1Mx_obj_V.2.0.0a",
+        "defaultValue": {
+            "linux": "",
+            "windows": "%{Env:PROGRAMFILES(x86)}/Renesas_Electronics/D1x_RGL/rgl_ghs_D1Mx_obj_V.2.0.0a"
+        },
         "versionDetection": {
             "regex": "\\d+\\.\\d+\\.\\w+"
         },

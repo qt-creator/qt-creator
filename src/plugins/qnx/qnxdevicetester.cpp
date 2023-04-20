@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qnxdevicetester.h"
+
+#include "qnxconstants.h"
 #include "qnxdevice.h"
 #include "qnxtr.h"
 
@@ -58,10 +60,11 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &deviceConf
     using namespace Tasking;
 
     auto setupHandler = [this](QtcProcess &process) {
-        emit progressMessage(Tr::tr("Checking that files can be created in /var/run..."));
-        const CommandLine cmd {m_deviceConfiguration->filePath("/bin/sh"),
-            {"-c", QLatin1String("rm %1 > /dev/null 2>&1; echo ABC > %1 && rm %1")
-                        .arg("/var/run/qtc_xxxx.pid")}};
+        emit progressMessage(Tr::tr("Checking that files can be created in %1...")
+                .arg(Constants::QNX_TMP_DIR));
+        const QString pidFile = QString("%1/qtc_xxxx.pid").arg(Constants::QNX_TMP_DIR);
+        const CommandLine cmd(m_deviceConfiguration->filePath("/bin/sh"),
+            {"-c", QLatin1String("rm %1 > /dev/null 2>&1; echo ABC > %1 && rm %1").arg(pidFile)});
         process.setCommand(cmd);
     };
     auto doneHandler = [this](const QtcProcess &) {
@@ -69,9 +72,9 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &deviceConf
     };
     auto errorHandler = [this](const QtcProcess &process) {
         const QString message = process.result() == ProcessResult::StartFailed
-                ? Tr::tr("An error occurred while checking that files can be created in /var/run.")
-                  + '\n' + process.errorString()
-                : Tr::tr("Files cannot be created in /var/run.");
+                ? Tr::tr("An error occurred while checking that files can be created in %1.")
+                    .arg(Constants::QNX_TMP_DIR) + '\n' + process.errorString()
+                : Tr::tr("Files cannot be created in %1.").arg(Constants::QNX_TMP_DIR);
         emit errorMessage(message + '\n');
     };
     m_genericTester->setExtraTests({Process(setupHandler, doneHandler, errorHandler)});

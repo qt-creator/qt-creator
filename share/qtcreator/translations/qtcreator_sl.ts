@@ -10707,7 +10707,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>Urejevalniku navadnih besedil</translation>
@@ -10752,9 +10752,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>.qmlproject Editor</source>
         <translation type="obsolete">Urejevalniku datotek *.qmlproject</translation>
     </message>
-</context>
-<context>
-    <name>QtC::Core</name>
     <message>
         <source>Preferences</source>
         <translation>Nastavitve</translation>

@@ -15614,7 +15614,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>Éditeur de texte</translation>
@@ -15663,9 +15663,6 @@ p, li { white-space: pre-wrap; }
         <source>Python Editor</source>
         <translation>Éditeur Python</translation>
     </message>
-</context>
-<context>
-    <name>QtC::Core</name>
     <message>
         <source>Preferences</source>
         <translation>Préférences</translation>

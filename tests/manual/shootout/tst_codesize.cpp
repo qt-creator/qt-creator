@@ -241,7 +241,7 @@ void tst_CodeSize::codesize()
 #endif
         const int index = suite.cmd.indexOf(' ');
         QString command = suite.cmd.left(index);
-        arguments = QString::fromLatin1(suite.cmd.mid(index + 1)) + arguments;
+        arguments = QString::fromLatin1(suite.cmd.mid(index + 1)) + ' ' + arguments;
         QProcess final;
         final.setWorkingDirectory(t->buildPath);
         final.setProcessEnvironment(m_env);

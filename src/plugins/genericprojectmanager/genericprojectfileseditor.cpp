@@ -4,9 +4,10 @@
 #include "genericprojectfileseditor.h"
 #include "genericprojectconstants.h"
 
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditoractionhandler.h>
 
 #include <QCoreApplication>
 
@@ -22,7 +23,7 @@ namespace Internal {
 ProjectFilesFactory::ProjectFilesFactory()
 {
     setId(Constants::FILES_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", ".files Editor"));
+    setDisplayName(::Core::Tr::tr(".files Editor"));
     addMimeType("application/vnd.qtcreator.generic.files");
     addMimeType("application/vnd.qtcreator.generic.includes");
     addMimeType("application/vnd.qtcreator.generic.config");

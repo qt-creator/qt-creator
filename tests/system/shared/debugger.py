@@ -57,7 +57,7 @@ def setBreakpointsForCurrentProject(filesAndLines):
                   "window=':Qt Creator_Core::Internal::MainWindow'}")
     breakPointList = []
     for current in filesAndLines:
-        for curFile,curLine in current.iteritems():
+        for curFile,curLine in current.items():
             if not openDocument(curFile):
                 return None
             editor = getEditorForFileSuffix(curFile, True)
@@ -239,7 +239,7 @@ def __logDebugResult__():
 
 def verifyBreakPoint(bpToVerify):
     if isinstance(bpToVerify, dict):
-        fileName = bpToVerify.keys()[0]
+        fileName = list(bpToVerify.keys())[0]
         editor = getEditorForFileSuffix(fileName)
         if editor:
             test.compare(waitForObject(":DebugModeWidget_QComboBox").toolTip, fileName,
@@ -248,7 +248,7 @@ def verifyBreakPoint(bpToVerify):
             windowTitle = str(waitForObject(":Qt Creator_Core::Internal::MainWindow").windowTitle)
             test.verify(windowTitle.startswith(os.path.basename(fileName) + " "),
                         "Verify that Creator's window title changed according to current file")
-            return test.compare(line, bpToVerify.values()[0],
+            return test.compare(line, list(bpToVerify.values())[0],
                                 "Compare hit breakpoint to expected line number in %s" % fileName)
     else:
         test.fatal("Expected a dict for bpToVerify - got '%s'" % className(bpToVerify))

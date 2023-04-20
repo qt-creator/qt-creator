@@ -36,6 +36,8 @@ public:
 
         CMakeConfigItem toCMakeConfigItem() const;
 
+        QString expandedValue(Utils::MacroExpander *expander);
+
         enum Type { BOOLEAN, FILE, DIRECTORY, STRING, UNKNOWN};
 
         QString key;

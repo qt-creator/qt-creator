@@ -27,11 +27,51 @@ OpenDocumentsFilter::OpenDocumentsFilter()
     setDefaultIncludedByDefault(true);
 
     connect(DocumentModel::model(), &QAbstractItemModel::dataChanged,
-            this, &OpenDocumentsFilter::refreshInternally);
+            this, &OpenDocumentsFilter::slotDataChanged);
     connect(DocumentModel::model(), &QAbstractItemModel::rowsInserted,
-            this, &OpenDocumentsFilter::refreshInternally);
+            this, &OpenDocumentsFilter::slotRowsInserted);
     connect(DocumentModel::model(), &QAbstractItemModel::rowsRemoved,
-            this, &OpenDocumentsFilter::refreshInternally);
+            this, &OpenDocumentsFilter::slotRowsRemoved);
+}
+
+void OpenDocumentsFilter::slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                                          const QVector<int> &roles)
+{
+    Q_UNUSED(roles)
+
+    const int topIndex = std::max(0, topLeft.row() - 1 /*<no document>*/);
+    const int bottomIndex = bottomRight.row() - 1 /*<no document>*/;
+
+    QMutexLocker lock(&m_mutex);
+
+    const QList<DocumentModel::Entry *> documentEntries = DocumentModel::entries();
+    for (int i = topIndex; i <= bottomIndex; ++i) {
+        QTC_ASSERT(i < m_editors.size(), break);
+        DocumentModel::Entry *e = documentEntries.at(i);
+        m_editors[i] = {e->filePath(), e->displayName()};
+    }
+}
+
+void OpenDocumentsFilter::slotRowsInserted(const QModelIndex &, int first, int last)
+{
+    const int firstIndex = std::max(0, first - 1 /*<no document>*/);
+
+    QMutexLocker lock(&m_mutex);
+
+    const QList<DocumentModel::Entry *> documentEntries = DocumentModel::entries();
+    for (int i = firstIndex; i < last; ++i) {
+        DocumentModel::Entry *e = documentEntries.at(i);
+        m_editors.insert(i, {e->filePath(), e->displayName()});
+    }
+}
+
+void OpenDocumentsFilter::slotRowsRemoved(const QModelIndex &, int first, int last)
+{
+    QMutexLocker lock(&m_mutex);
+
+    const int firstIndex = std::max(0, first - 1 /*<no document>*/);
+    for (int i = firstIndex; i < last; ++i)
+        m_editors.removeAt(i);
 }
 
 QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
@@ -71,31 +111,10 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
     return betterEntries;
 }
 
-void OpenDocumentsFilter::refreshInternally()
-{
-    QMutexLocker lock(&m_mutex);
-    m_editors.clear();
-    const QList<DocumentModel::Entry *> documentEntries = DocumentModel::entries();
-    for (DocumentModel::Entry *e : documentEntries) {
-        Entry entry;
-        // create copy with only the information relevant to use
-        // to avoid model deleting entries behind our back
-        entry.displayName = e->displayName();
-        entry.fileName = e->filePath();
-        m_editors.append(entry);
-    }
-}
-
 QList<OpenDocumentsFilter::Entry> OpenDocumentsFilter::editors() const
 {
     QMutexLocker lock(&m_mutex);
     return m_editors;
-}
-
-void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-    QMetaObject::invokeMethod(this, &OpenDocumentsFilter::refreshInternally, Qt::QueuedConnection);
 }
 
 void OpenDocumentsFilter::accept(const LocatorFilterEntry &selection,

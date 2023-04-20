@@ -7,9 +7,9 @@ on:
       - 'doc/**'
 
 env:
-  QT_VERSION: 6.4.2
+  QT_VERSION: 6.4.3
   MACOS_DEPLOYMENT_TARGET: 10.14
-  CLANG_VERSION: 15.0.0
+  CLANG_VERSION: 16.0.0
   ELFUTILS_VERSION: 0.175
   CMAKE_VERSION: 3.21.1
   NINJA_VERSION: 1.10.2
@@ -189,11 +189,11 @@ jobs:
           if ("x${{ matrix.config.environment_script }}" STREQUAL "x")
             set(qt_package_arch_suffix "win64_mingw")
             set(qt_dir_prefix "${qt_version}/mingw_64")
-            set(qt_package_suffix "-Windows-Windows_10_21H2-Mingw-Windows-Windows_10_21H2-X86_64")
+            set(qt_package_suffix "-Windows-Windows_10_22H2-Mingw-Windows-Windows_10_22H2-X86_64")
           elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars64.bat")
             set(qt_package_arch_suffix "win64_msvc2019_64")
             set(qt_dir_prefix "${qt_version}/msvc2019_64")
-            set(qt_package_suffix "-Windows-Windows_10_21H2-MSVC2019-Windows-Windows_10_21H2-X86_64")
+            set(qt_package_suffix "-Windows-Windows_10_22H2-MSVC2019-Windows-Windows_10_22H2-X86_64")
           endif()
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(url_os "linux_x64")

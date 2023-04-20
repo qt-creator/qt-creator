@@ -6,6 +6,7 @@
 #include "scxmleditorconstants.h"
 #include "scxmleditordata.h"
 
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/fsengine/fileiconprovider.h>
@@ -19,7 +20,7 @@ using namespace ScxmlEditor::Internal;
 ScxmlEditorFactory::ScxmlEditorFactory()
 {
     setId(K_SCXML_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", C_SCXMLEDITOR_DISPLAY_NAME));
+    setDisplayName(::Core::Tr::tr(C_SCXMLEDITOR_DISPLAY_NAME));
     addMimeType(ProjectExplorer::Constants::SCXML_MIMETYPE);
 
     Utils::FileIconProvider::registerIconOverlayForSuffix(":/projectexplorer/images/fileoverlay_scxml.png", "scxml");

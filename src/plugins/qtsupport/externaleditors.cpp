@@ -3,6 +3,8 @@
 
 #include "externaleditors.h"
 
+#include <coreplugin/coreplugintr.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -254,7 +256,7 @@ static void processTerminated(const QString &binary)
 DesignerExternalEditor::DesignerExternalEditor()
 {
     setId("Qt.Designer");
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Qt Designer"));
+    setDisplayName(::Core::Tr::tr("Qt Designer"));
     setMimeTypes({ProjectExplorer::Constants::FORM_MIMETYPE});
 }
 
@@ -327,7 +329,7 @@ static QString linguistBinary(const QtSupport::QtVersion *qtVersion)
 LinguistEditor::LinguistEditor()
 {
     setId("Qt.Linguist");
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Qt Linguist"));
+    setDisplayName(::Core::Tr::tr("Qt Linguist"));
     setMimeTypes({ProjectExplorer::Constants::LINGUIST_MIMETYPE});
 }
 

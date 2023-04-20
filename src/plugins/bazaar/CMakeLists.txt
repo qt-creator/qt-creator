@@ -7,6 +7,7 @@ add_qtc_plugin(Bazaar
     bazaareditor.cpp bazaareditor.h
     bazaarplugin.cpp bazaarplugin.h
     bazaarsettings.cpp bazaarsettings.h
+    bazaartr.h
     branchinfo.cpp branchinfo.h
     commiteditor.cpp commiteditor.h
     constants.h

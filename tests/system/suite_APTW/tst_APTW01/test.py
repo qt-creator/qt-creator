@@ -11,6 +11,9 @@ def main():
         return
     createProject_Qt_GUI(tempDir(), "SampleApp", buildSystem="qmake")
     # run project for debug and release and verify results
-    runVerify()
+    expectToFail = None
+    if platform.system() in ('Microsoft', 'Windows'):
+        expectToFail = [Targets.DESKTOP_5_4_1_GCC]
+    runVerify(expectToFail)
     #close Qt Creator
     invokeMenuItem("File", "Exit")

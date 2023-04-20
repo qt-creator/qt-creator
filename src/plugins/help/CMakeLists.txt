@@ -14,6 +14,7 @@ add_qtc_plugin(Help
     helpmanager.cpp helpmanager.h
     helpmode.cpp helpmode.h
     helpplugin.cpp helpplugin.h
+    helptr.h
     helpviewer.cpp helpviewer.h
     helpwidget.cpp helpwidget.h
     localhelpmanager.cpp localhelpmanager.h

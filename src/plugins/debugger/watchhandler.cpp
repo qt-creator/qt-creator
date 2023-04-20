@@ -469,6 +469,7 @@ public:
 
     QSet<QString> m_expandedINames;
     QTimer m_requestUpdateTimer;
+    QTimer m_localsWindowsTimer;
 
     QHash<QString, TypeInfo> m_reportedTypeInfo;
     QHash<QString, DisplayFormats> m_reportedTypeFormats; // Type name -> Dumper Formats
@@ -514,6 +515,14 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
     m_requestUpdateTimer.setSingleShot(true);
     connect(&m_requestUpdateTimer, &QTimer::timeout,
         this, &WatchModel::updateStarted);
+
+    m_localsWindowsTimer.setSingleShot(true);
+    m_localsWindowsTimer.setInterval(50);
+    connect(&m_localsWindowsTimer, &QTimer::timeout, this, [this] {
+        // Force show/hide of return view.
+        const bool showReturn = m_returnRoot->childCount() != 0;
+        m_engine->updateLocalsWindow(showReturn);
+    });
 
     DebuggerSettings &s = *debuggerSettings();
     connect(&s.sortStructMembers, &BaseAspect::changed,
@@ -929,15 +938,22 @@ static QString displayName(const WatchItem *item)
     return result;
 }
 
-static QString displayValue(const WatchItem *item)
+
+void WatchItem::updateValueCache() const
 {
-    QString result = truncateValue(formattedValue(item));
-    result = watchModel(item)->removeNamespaces(result);
-    if (result.isEmpty() && item->address)
-        result += QString::fromLatin1("@0x" + QByteArray::number(item->address, 16));
+    valueCache = truncateValue(formattedValue(this));
+    valueCache = watchModel(this)->removeNamespaces(valueCache);
+    if (valueCache.isEmpty() && this->address)
+        valueCache += QString::fromLatin1("@0x" + QByteArray::number(this->address, 16));
 //    if (origaddr)
 //        result += QString::fromLatin1(" (0x" + QByteArray::number(origaddr, 16) + ')');
-    return result;
+}
+
+static QString displayValue(const WatchItem *item)
+{
+    if (item->valueCache.isEmpty())
+        item->updateValueCache();
+    return item->valueCache;
 }
 
 static QString displayType(const WatchItem *item)
@@ -1411,15 +1427,15 @@ int WatchModel::memberVariableRecursion(WatchItem *item,
     const QString nameRoot = name.isEmpty() ? name : name + '.';
     for (int r = 0; r < rows; r++) {
         WatchItem *child = item->childAt(r);
-        const quint64 childAddress = item->address;
+        const quint64 childAddress = child->address;
         if (childAddress && childAddress >= start
-                && (childAddress + item->size) <= end) { // Non-static, within area?
+                && (childAddress + child->size) <= end) { // Non-static, within area?
             const QString childName = nameRoot + child->name;
             const quint64 childOffset = childAddress - start;
-            const QString toolTip = variableToolTip(childName, item->type, childOffset);
+            const QString toolTip = variableToolTip(childName, child->type, childOffset);
             const ColorNumberToolTip colorNumberNamePair((*colorNumberIn)++, toolTip);
             const ColorNumberToolTips::iterator begin = cnmv->begin() + childOffset;
-            std::fill(begin, begin + item->size, colorNumberNamePair);
+            std::fill(begin, begin + child->size, colorNumberNamePair);
             childCount++;
             childCount += memberVariableRecursion(child, childName, start, end, colorNumberIn, cnmv);
         }
@@ -2293,7 +2309,7 @@ void WatchHandler::notifyUpdateFinished()
 
     m_model->forAllItems([this](WatchItem *item) {
         if (item->wantsChildren && isExpandedIName(item->iname)) {
-            m_model->m_engine->showMessage(QString("ADJUSTING CHILD EXPECTATION FOR " + item->iname));
+            // m_model->m_engine->showMessage(QString("ADJUSTING CHILD EXPECTATION FOR " + item->iname));
             item->wantsChildren = false;
         }
     });
@@ -2552,9 +2568,7 @@ void WatchModel::clearWatches()
 
 void WatchHandler::updateLocalsWindow()
 {
-    // Force show/hide of return view.
-    bool showReturn = m_model->m_returnRoot->childCount() != 0;
-    m_engine->updateLocalsWindow(showReturn);
+    m_model->m_localsWindowsTimer.start();
 }
 
 QStringList WatchHandler::watchedExpressions()

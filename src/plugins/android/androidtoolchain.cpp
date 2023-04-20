@@ -230,9 +230,14 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
                     atc->setPlatformCodeGenFlags({"-target", target});
                     atc->setPlatformLinkerFlags({"-target", target});
                     atc->setDisplayName(displayName);
-                    atc->resetToolChain(compilerCommand);
                     tc = atc;
                 }
+
+                // Do not only reset newly created toolchains. This triggers call to
+                // addToEnvironment, so that e.g. JAVA_HOME gets updated.
+                if (auto gccTc = dynamic_cast<GccToolChain*>(tc))
+                    gccTc->resetToolChain(compilerCommand);
+
                 tc->setDetection(ToolChain::AutoDetection);
                 result << tc;
                 ++targetItr;

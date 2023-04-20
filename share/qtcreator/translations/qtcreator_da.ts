@@ -11302,8 +11302,8 @@ Påvirket brudpunkter er %1</translation>
         <translation>Dereferencér pegere automatisk</translation>
     </message>
     <message>
-        <source>&lt;p&gt;This switches the Locals and Expressions view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation>&lt;p&gt;Dette skifter Locals og expressions-visningen til automatisk at dereferencere pegere. Det gemmer et niveau i trævisningen men mister også data for det nu manglende mellemliggende niveau.</translation>
+        <source>This switches the Locals and Expressions view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
+        <translation>Dette skifter Locals og expressions-visningen til automatisk at dereferencere pegere. Det gemmer et niveau i trævisningen men mister også data for det nu manglende mellemliggende niveau.</translation>
     </message>
     <message>
         <source>Show &quot;std::&quot; Namespace in Types</source>
@@ -11314,8 +11314,8 @@ Påvirket brudpunkter er %1</translation>
         <translation>Vis &quot;std::&quot;-navnerum i typer</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows &quot;std::&quot; prefix for types from the standard library.</source>
-        <translation>&lt;p&gt;Viser &quot;std::&quot;-præfiks for typer fra standardbiblioteket.</translation>
+        <source>Shows &quot;std::&quot; prefix for types from the standard library.</source>
+        <translation>Viser &quot;std::&quot;-præfiks for typer fra standardbiblioteket.</translation>
     </message>
     <message>
         <source>Show Qt&apos;s Namespace in Types</source>
@@ -11326,16 +11326,16 @@ Påvirket brudpunkter er %1</translation>
         <translation>Vis Qt&apos;s navnerum i typer</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
-        <translation>&lt;p&gt;Viser Qt-navnerum-præfiks for Qt-typer. Dette er kun relevant hvis Qt blev konfigureret med &quot;-qtnamespace&quot;.</translation>
+        <source>Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
+        <translation>Viser Qt-navnerum-præfiks for Qt-typer. Dette er kun relevant hvis Qt blev konfigureret med &quot;-qtnamespace&quot;.</translation>
     </message>
     <message>
         <source>Show QObject names if available</source>
         <translation>Vis QObject-navne, hvis tilgængelige</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
-        <translation>&lt;p&gt;Viser objectName-egenskaben af QObject-baseret punkter. Bemærk at det kan påvirke fejlretter-ydelse negativt selv hvis der ikke er nogen QObjects.</translation>
+        <source>Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
+        <translation>Viser objectName-egenskaben af QObject-baseret punkter. Bemærk at det kan påvirke fejlretter-ydelse negativt selv hvis der ikke er nogen QObjects.</translation>
     </message>
     <message>
         <source>Sort Members of Classes and Structs Alphabetically</source>
@@ -11354,12 +11354,12 @@ Påvirket brudpunkter er %1</translation>
         <translation>Brug kodemodel</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
-        <translation>&lt;p&gt;Valg af dette gør at C++-kodemodellen bliver spurgt efter variabel område-information. Det resultere måske i en smule hurtigere fejlretningshandling men kan mislykkes ved optimeret kode.</translation>
+        <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
+        <translation>Valg af dette gør at C++-kodemodellen bliver spurgt efter variabel område-information. Det resultere måske i en smule hurtigere fejlretningshandling men kan mislykkes ved optimeret kode.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays names of QThread based threads.</source>
-        <translation>&lt;p&gt;Viser navne af QThread-baseret tråde.</translation>
+        <source>Displays names of QThread based threads.</source>
+        <translation>Viser navne af QThread-baseret tråde.</translation>
     </message>
     <message>
         <source>Display thread names</source>
@@ -11374,8 +11374,8 @@ Påvirket brudpunkter er %1</translation>
         <translation>Juster brudpunkt placeringer</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation>&lt;p&gt;Ikke alle kildekodelinjer genererer eksekverbar kode. Sættes et brudpunkt på sådan en linje vil det virke som hvis brudpunktet blev sat på den næste linje der genererede kode. Valg af &apos;Juster brudpunkt placeringer&apos; skifter de røde brudpunktsmarkører til placeringen af det ægte brudpunkt.</translation>
+        <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
+        <translation>Ikke alle kildekodelinjer genererer eksekverbar kode. Sættes et brudpunkt på sådan en linje vil det virke som hvis brudpunktet blev sat på den næste linje der genererede kode. Valg af &apos;Juster brudpunkt placeringer&apos; skifter de røde brudpunktsmarkører til placeringen af det ægte brudpunkt.</translation>
     </message>
     <message>
         <source>Break on &quot;throw&quot;</source>
@@ -11466,12 +11466,12 @@ Påvirket brudpunkter er %1</translation>
         <translation>Register til efter-død fejlretning</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length of string entries in the Locals and Expressions pane. Longer than that are cut off and displayed with an ellipsis attached.</source>
-        <translation>&lt;p&gt;Den maksimale længde af strenge-entiteter i Locals og expressions-ruden. Længere strenge afkortes og vises med udeladelsesprikker.</translation>
+        <source>The maximum length of string entries in the Locals and Expressions pane. Longer than that are cut off and displayed with an ellipsis attached.</source>
+        <translation>Den maksimale længde af strenge-entiteter i Locals og expressions-ruden. Længere strenge afkortes og vises med udeladelsesprikker.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
-        <translation>&lt;p&gt;Den maksimale længde af strenge i separate vinduer. Længere strenge afkortes og vises med udeladelsesprikker.</translation>
+        <source>The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
+        <translation>Den maksimale længde af strenge i separate vinduer. Længere strenge afkortes og vises med udeladelsesprikker.</translation>
     </message>
     <message>
         <source>Reload Full Stack</source>
@@ -19956,7 +19956,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Binary Editor</source>
         <translation>Binær-redigering</translation>

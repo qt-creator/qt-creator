@@ -122,7 +122,7 @@ function(get_default_defines varName allow_ascii_casts)
 endfunction()
 
 function(add_qtc_library name)
-  cmake_parse_arguments(_arg "STATIC;OBJECT;SHARED;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;FEATURE_INFO;SKIP_PCH"
+  cmake_parse_arguments(_arg "STATIC;OBJECT;SHARED;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;FEATURE_INFO;SKIP_PCH;EXCLUDE_FROM_INSTALL"
     "DESTINATION;COMPONENT;SOURCES_PREFIX;BUILD_DEFAULT"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN}
   )
@@ -272,7 +272,7 @@ function(add_qtc_library name)
     set(COMPONENT_OPTION "COMPONENT" "${_arg_COMPONENT}")
   endif()
 
-  if (NOT QTC_STATIC_BUILD OR _arg_SHARED)
+  if (NOT _arg_EXCLUDE_FROM_INSTALL AND (NOT QTC_STATIC_BUILD OR _arg_SHARED))
     install(TARGETS ${name}
       EXPORT QtCreator
       RUNTIME
@@ -836,7 +836,12 @@ function(add_qtc_test name)
   endif()
   set(${_build_test_var} "${_build_test_default}" CACHE BOOL "Build test ${name}.")
 
-  if (NOT ${_build_test_var} OR NOT ${_arg_CONDITION})
+  if ((${_arg_CONDITION}) AND ${_build_test_var})
+    set(_test_enabled ON)
+  else()
+    set(_test_enabled OFF)
+  endif()
+  if (NOT _test_enabled)
     return()
   endif()
 
@@ -864,7 +869,6 @@ function(add_qtc_test name)
     DEFINES ${_arg_DEFINES} ${TEST_DEFINES} ${default_defines_copy}
     EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
     SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
-    CONDITION ${_arg_CONDITION}
   )
 
   set_target_properties(${name} PROPERTIES
@@ -984,7 +988,10 @@ function(qtc_add_resources target resourceName)
     message(FATAL_ERROR "qtc_add_resources had unparsed arguments!")
   endif()
 
-  if (DEFINED _arg_CONDITION AND NOT _arg_CONDITION)
+  if (NOT _arg_CONDITION)
+    set(_arg_CONDITION ON)
+  endif()
+  if (NOT (${_arg_CONDITION}))
     return()
   endif()
 

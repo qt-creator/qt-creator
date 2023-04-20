@@ -29,7 +29,6 @@ QnxConfigurationManager::QnxConfigurationManager()
 {
     m_instance = this;
     m_writer = new PersistentSettingsWriter(qnxConfigSettingsFileName(), "QnxConfigurations");
-    restoreConfigurations();
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &QnxConfigurationManager::saveConfigs);
 }
@@ -98,7 +97,6 @@ void QnxConfigurationManager::saveConfigs()
         data.insert(QNXConfigDataKey + QString::number(count), tmp);
         ++count;
     }
-
 
     data.insert(QLatin1String(QNXConfigCountKey), count);
     m_writer->save(data, Core::ICore::dialogParent());

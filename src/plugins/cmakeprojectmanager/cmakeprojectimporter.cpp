@@ -154,7 +154,9 @@ FilePaths CMakeProjectImporter::importCandidates()
 }
 
 static CMakeConfig configurationFromPresetProbe(
-    const FilePath &importPath, const PresetsDetails::ConfigurePreset &configurePreset)
+    const FilePath &importPath,
+    const FilePath &sourceDirectory,
+    const PresetsDetails::ConfigurePreset &configurePreset)
 {
     const FilePath cmakeListTxt = importPath / "CMakeLists.txt";
     cmakeListTxt.writeFileContents(QByteArray("cmake_minimum_required(VERSION 3.15)\n"
@@ -169,7 +171,7 @@ static CMakeConfig configurationFromPresetProbe(
     const FilePath cmakeExecutable = FilePath::fromString(configurePreset.cmakeExecutable.value());
 
     Environment env = cmakeExecutable.deviceEnvironment();
-    CMakePresets::Macros::expand(configurePreset, env, importPath);
+    CMakePresets::Macros::expand(configurePreset, env, sourceDirectory);
 
     env.setupEnglishOutput();
     cmake.setEnvironment(env);
@@ -207,18 +209,11 @@ static CMakeConfig configurationFromPresetProbe(
                                       ? configurePreset.cacheVariables.value()
                                       : CMakeConfig();
 
-        auto expandCacheValue =
-            [configurePreset, env, importPath, cache](const QString &key) -> QString {
-            QString result = cache.stringValueOf(key.toUtf8());
-            CMakePresets::Macros::expand(configurePreset, env, importPath, result);
-            return result;
-        };
-
-        const QString cmakeMakeProgram = expandCacheValue("CMAKE_MAKE_PROGRAM");
-        const QString toolchainFile = expandCacheValue("CMAKE_TOOLCHAIN_FILE");
-        const QString prefixPath = expandCacheValue("CMAKE_PREFIX_PATH");
-        const QString findRootPath = expandCacheValue("CMAKE_FIND_ROOT_PATH");
-        const QString qtHostPath = expandCacheValue("QT_HOST_PATH");
+        const QString cmakeMakeProgram = cache.stringValueOf("CMAKE_MAKE_PROGRAM");
+        const QString toolchainFile = cache.stringValueOf("CMAKE_TOOLCHAIN_FILE");
+        const QString prefixPath = cache.stringValueOf("CMAKE_PREFIX_PATH");
+        const QString findRootPath = cache.stringValueOf("CMAKE_FIND_ROOT_PATH");
+        const QString qtHostPath = cache.stringValueOf("QT_HOST_PATH");
 
         if (!cmakeMakeProgram.isEmpty()) {
             args.emplace_back(
@@ -545,7 +540,7 @@ ToolChain *findExternalToolchain(const QString &presetArchitecture, const QStrin
             };
 
             Abi::OSFlavor toolsetAbi = Abi::UnknownFlavor;
-            for (auto abiPair : abiTable) {
+            for (const auto &abiPair : abiTable) {
                 if (presetToolset.contains(abiPair.first)) {
                     toolsetAbi = abiPair.second;
                     break;
@@ -554,7 +549,7 @@ ToolChain *findExternalToolchain(const QString &presetArchitecture, const QStrin
 
             // User didn't specify any flavor, so pick the highest toolchain available
             if (toolsetAbi == Abi::UnknownFlavor) {
-                for (auto abiPair : abiTable) {
+                for (const auto &abiPair : abiTable) {
                     if (msvcFlavors.contains(abiPair.second)) {
                         toolsetAbi = abiPair.second;
                         break;
@@ -655,6 +650,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                                   projectDirectory(),
                                                   data->buildDirectory);
 
+        CMakePresets::Macros::updateCacheVariables(configurePreset, env, projectDirectory());
+
         const CMakeConfig cache = configurePreset.cacheVariables
                                       ? configurePreset.cacheVariables.value()
                                       : CMakeConfig();
@@ -665,7 +662,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         if (cache.valueOf("CMAKE_C_COMPILER").isEmpty()
             && cache.valueOf("CMAKE_CXX_COMPILER").isEmpty()) {
             QApplication::setOverrideCursor(Qt::WaitCursor);
-            config = configurationFromPresetProbe(importPath, configurePreset);
+            config = configurationFromPresetProbe(importPath, projectDirectory(), configurePreset);
             QApplication::restoreOverrideCursor();
 
             if (!configurePreset.generator) {

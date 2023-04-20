@@ -481,10 +481,18 @@ bool VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
         return true;
 
     const QString commitName = plugin->commitDisplayName();
-    return QMessageBox::question(Core::ICore::dialogParent(),
-                                 Tr::tr("Close %1 %2 Editor").arg(plugin->displayName(), commitName),
-                                 Tr::tr("Closing this editor will abort the %1. Are you sure?")
-                                 .arg(commitName.toLower())) == QMessageBox::Yes;
+    QMessageBox mb(Core::ICore::dialogParent());
+    mb.setWindowTitle(Tr::tr("Close %1 %2 Editor").arg(plugin->displayName(), commitName));
+    mb.setIcon(QMessageBox::Warning);
+    mb.setText(Tr::tr("Closing this editor will abort the %1.")
+                   .arg(commitName.toLower()));
+    mb.setStandardButtons(QMessageBox::Close | QMessageBox::Cancel);
+    // On Windows there is no mnemonic for Close. Set it explicitly.
+    mb.button(QMessageBox::Close)->setText(Tr::tr("&Close"));
+    mb.button(QMessageBox::Cancel)->setText(Tr::tr("&Keep Editing"));
+    mb.setDefaultButton(QMessageBox::Cancel);
+    mb.exec();
+    return mb.result() == QMessageBox::Close;
 }
 
 QString VcsBaseSubmitEditor::promptForNickName()

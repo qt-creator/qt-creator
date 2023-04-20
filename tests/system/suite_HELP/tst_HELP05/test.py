@@ -25,7 +25,7 @@ def main():
     if not startedWithoutPluginError():
         return
     qchs = []
-    for p in Qt5Path.getPaths(Qt5Path.DOCS):
+    for p in QtPath.getPaths(QtPath.DOCS):
         qchs.append(os.path.join(p, "qtquick.qch"))
     addHelpDocumentation(qchs)
     setFixedHelpViewer(HelpViewer.SIDEBYSIDE)
