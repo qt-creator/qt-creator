@@ -318,34 +318,37 @@ public:
         setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
         setDisplayCategory(Tr::tr("Python"));
         setCategoryIconPath(":/python/images/settingscategory_python.png");
-        setWidgetCreator([]() { return new InterpreterOptionsWidget(); });
+        setWidgetCreator([this] { m_widget = new InterpreterOptionsWidget; return m_widget; });
     }
 
     QList<Interpreter> interpreters()
     {
-        if (auto w = static_cast<InterpreterOptionsWidget *>(widget()))
-            return w->interpreters();
+        if (m_widget)
+            return m_widget->interpreters();
         return {};
     }
 
     void addInterpreter(const Interpreter &interpreter)
     {
-        if (auto w = static_cast<InterpreterOptionsWidget *>(widget()))
-            w->addInterpreter(interpreter);
+        if (m_widget)
+            m_widget->addInterpreter(interpreter);
     }
 
     void removeInterpreterFrom(const QString &detectionSource)
     {
-        if (auto w = static_cast<InterpreterOptionsWidget *>(widget()))
-            w->removeInterpreterFrom(detectionSource);
+        if (m_widget)
+            m_widget->removeInterpreterFrom(detectionSource);
     }
 
     QList<Interpreter> interpreterFrom(const QString &detectionSource)
     {
-        if (auto w = static_cast<InterpreterOptionsWidget *>(widget()))
-            return w->interpreterFrom(detectionSource);
+        if (m_widget)
+            return m_widget->interpreterFrom(detectionSource);
         return {};
     }
+
+private:
+    InterpreterOptionsWidget *m_widget = nullptr;
 };
 
 static bool alreadyRegistered(const QList<Interpreter> &pythons, const FilePath &pythonExecutable)
