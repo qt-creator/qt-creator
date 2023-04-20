@@ -17,11 +17,10 @@ using namespace LanguageClient;
 
 namespace Copilot {
 
-class CopilotOptionsPageWidget : public QWidget
+class CopilotOptionsPageWidget : public Core::IOptionsPageWidget
 {
 public:
-    CopilotOptionsPageWidget(QWidget *parent = nullptr)
-        : QWidget(parent)
+    CopilotOptionsPageWidget()
     {
         using namespace Layouting;
 
@@ -73,6 +72,12 @@ file from the Copilot neovim plugin.
                 updateAuthWidget);
         updateAuthWidget();
     }
+
+    void apply() final
+    {
+        CopilotSettings::instance().apply();
+        CopilotSettings::instance().writeSettings(Core::ICore::settings());
+    }
 };
 
 CopilotOptionsPage::CopilotOptionsPage()
@@ -82,24 +87,8 @@ CopilotOptionsPage::CopilotOptionsPage()
     setCategory("ZY.Copilot");
     setDisplayCategory("Copilot");
     setCategoryIconPath(":/copilot/images/settingscategory_copilot.png");
+    setWidgetCreator([] { return new CopilotOptionsPageWidget; });
 }
-
-CopilotOptionsPage::~CopilotOptionsPage() {}
-
-void CopilotOptionsPage::init() {}
-
-QWidget *CopilotOptionsPage::widget()
-{
-    return new CopilotOptionsPageWidget();
-}
-
-void CopilotOptionsPage::apply()
-{
-    CopilotSettings::instance().apply();
-    CopilotSettings::instance().writeSettings(Core::ICore::settings());
-}
-
-void CopilotOptionsPage::finish() {}
 
 CopilotOptionsPage &CopilotOptionsPage::instance()
 {

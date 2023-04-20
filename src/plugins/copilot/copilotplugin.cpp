@@ -50,7 +50,7 @@ void CopilotPlugin::initialize()
 
 void CopilotPlugin::extensionsInitialized()
 {
-    CopilotOptionsPage::instance().init();
+    (void)CopilotOptionsPage::instance();
 }
 
 void CopilotPlugin::restartClient()

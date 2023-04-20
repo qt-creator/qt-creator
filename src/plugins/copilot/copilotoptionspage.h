@@ -11,15 +11,8 @@ class CopilotOptionsPage : public Core::IOptionsPage
 {
 public:
     CopilotOptionsPage();
-    ~CopilotOptionsPage() override;
 
     static CopilotOptionsPage &instance();
-
-    void init();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
 };
 
-} // namespace Copilot
+} // Copilot

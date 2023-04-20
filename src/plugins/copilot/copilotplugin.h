@@ -9,8 +9,6 @@
 
 #include <QPointer>
 
-namespace TextEditor { class TextEditorWidget; }
-
 namespace Copilot {
 namespace Internal {
 
