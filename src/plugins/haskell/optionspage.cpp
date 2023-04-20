@@ -8,11 +8,7 @@
 #include "haskelltr.h"
 
 #include <utils/pathchooser.h>
-
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QVBoxLayout>
+#include <utils/layoutbuilder.h>
 
 using namespace Utils;
 
@@ -23,28 +19,23 @@ class HaskellOptionsPageWidget : public Core::IOptionsPageWidget
 public:
     HaskellOptionsPageWidget()
     {
-        auto topLayout = new QVBoxLayout;
-        setLayout(topLayout);
-        auto generalBox = new QGroupBox(Tr::tr("General"));
-        topLayout->addWidget(generalBox);
-        topLayout->addStretch(10);
-        auto boxLayout = new QHBoxLayout;
-        generalBox->setLayout(boxLayout);
-        boxLayout->addWidget(new QLabel(Tr::tr("Stack executable:")));
-        m_stackPath = new PathChooser();
-        m_stackPath->setExpectedKind(PathChooser::ExistingCommand);
-        m_stackPath->setPromptDialogTitle(Tr::tr("Choose Stack Executable"));
-        m_stackPath->setFilePath(HaskellManager::stackExecutable());
-        m_stackPath->setCommandVersionArguments({"--version"});
-        boxLayout->addWidget(m_stackPath);
-    }
+        auto stackPath = new PathChooser;
+        stackPath->setExpectedKind(PathChooser::ExistingCommand);
+        stackPath->setPromptDialogTitle(Tr::tr("Choose Stack Executable"));
+        stackPath->setFilePath(HaskellManager::stackExecutable());
+        stackPath->setCommandVersionArguments({"--version"});
 
-    void apply() final
-    {
-        HaskellManager::setStackExecutable(m_stackPath->rawFilePath());
-    }
+        setOnApply([stackPath] { HaskellManager::setStackExecutable(stackPath->rawFilePath()); });
 
-    QPointer<Utils::PathChooser> m_stackPath;
+        using namespace Layouting;
+        Column {
+            Group {
+                title(Tr::tr("General")),
+                Row { Tr::tr("Stack executable:"), stackPath }
+            },
+            st,
+        }.attachTo(this);
+    }
 };
 
 OptionsPage::OptionsPage()
