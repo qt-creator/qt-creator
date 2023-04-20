@@ -18,9 +18,11 @@ class QMLDESIGNERCORE_EXPORT ModuleScanner
 public:
     using SkipFunction = std::function<bool(QStringView)>;
 
-    ModuleScanner(SkipFunction skip, VersionScanning versionScanning)
+    ModuleScanner([[maybe_unused]] SkipFunction skip, [[maybe_unused]] VersionScanning versionScanning)
+#ifdef QDS_HAS_QMLPRIVATE
         : m_skip{std::move(skip)}
         , m_versionScanning{versionScanning}
+#endif
     {
         m_modules.reserve(128);
     }
@@ -33,9 +35,11 @@ private:
     void scan(std::string_view modulePaths);
 
 private:
-    [[maybe_unused]] SkipFunction m_skip;
     Imports m_modules;
-    [[maybe_unused]] VersionScanning m_versionScanning;
+#ifdef QDS_HAS_QMLPRIVATE
+    SkipFunction m_skip;
+    VersionScanning m_versionScanning;
+#endif
 };
 
 } // namespace QmlDesigner
