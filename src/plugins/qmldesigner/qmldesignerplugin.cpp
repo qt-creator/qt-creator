@@ -243,7 +243,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
         ->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
 
     connect(action, &QAction::triggered, this, [this] {
-        lauchFeedbackPopup(Core::Constants::IDE_DISPLAY_NAME);
+        lauchFeedbackPopupInternal(Core::Constants::IDE_DISPLAY_NAME);
     });
 
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
@@ -733,6 +733,18 @@ void QmlDesignerPlugin::trackWidgetFocusTime(QWidget *widget, const QString &ide
 
 void QmlDesignerPlugin::lauchFeedbackPopup(const QString &identifier)
 {
+    if (Core::ModeManager::currentModeId() == Core::Constants::MODE_DESIGN)
+        lauchFeedbackPopupInternal(identifier);
+}
+
+void QmlDesignerPlugin::handleFeedback(const QString &feedback, int rating)
+{
+    const QString identifier = sender()->property("identifier").toString();
+    emit usageStatisticsInsertFeedback(identifier, feedback, rating);
+}
+
+void QmlDesignerPlugin::lauchFeedbackPopupInternal(const QString &identifier)
+{
     m_feedbackWidget = new QQuickWidget(Core::ICore::dialogParent());
     m_feedbackWidget->setObjectName(Constants::OBJECT_NAME_TOP_FEEDBACK);
 
@@ -767,12 +779,6 @@ void QmlDesignerPlugin::lauchFeedbackPopup(const QString &identifier)
                      SLOT(handleFeedback(QString, int)));
 
     m_feedbackWidget->show();
-}
-
-void QmlDesignerPlugin::handleFeedback(const QString &feedback, int rating)
-{
-    const QString identifier = sender()->property("identifier").toString();
-    emit usageStatisticsInsertFeedback(identifier, feedback, rating);
 }
 
 void QmlDesignerPlugin::closeFeedbackPopup()

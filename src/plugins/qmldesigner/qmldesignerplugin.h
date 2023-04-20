@@ -95,6 +95,7 @@ private slots:
     void handleFeedback(const QString &feedback, int rating);
 
 private: // functions
+    void lauchFeedbackPopupInternal(const QString &identifier);
     void integrateIntoQtCreator(QWidget *modeWidget);
     void showDesigner();
     void hideDesigner();
