@@ -156,7 +156,7 @@ static QString architecture(const ProjectExplorer::Abi &targetAbi)
             switch (targetAbi.architecture()) {
             case ProjectExplorer::Abi::X86Architecture:
                 architecture.append(QLatin1Char('_'));
-                // fall through
+                [[fallthrough]];
             case ProjectExplorer::Abi::ArmArchitecture:
                 // ARM sub-architectures are currently not handled, which is kind of problematic
             case ProjectExplorer::Abi::MipsArchitecture:
