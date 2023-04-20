@@ -34,6 +34,7 @@
 #include <QCheckBox>
 #include <QTabWidget>
 #include <QTextBlock>
+#include <QVBoxLayout>
 
 using namespace TextEditor;
 using namespace Utils;
@@ -548,18 +549,13 @@ void CppCodeStylePreferencesWidget::finish()
     emit finishEmitted();
 }
 
-// ------------------ CppCodeStyleSettingsPage
+// CppCodeStyleSettingsPageWidget
 
-CppCodeStyleSettingsPage::CppCodeStyleSettingsPage()
+class CppCodeStyleSettingsPageWidget : public Core::IOptionsPageWidget
 {
-    setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
-    setDisplayName(Tr::tr("Code Style"));
-    setCategory(Constants::CPP_SETTINGS_CATEGORY);
-}
-
-QWidget *CppCodeStyleSettingsPage::widget()
-{
-    if (!m_widget) {
+public:
+    CppCodeStyleSettingsPageWidget()
+    {
         CppCodeStylePreferences *originalCodeStylePreferences = CppToolsSettings::instance()
                                                                     ->cppCodeStyle();
         m_pageCppCodeStylePreferences = new CppCodeStylePreferences();
@@ -571,15 +567,16 @@ QWidget *CppCodeStyleSettingsPage::widget()
             originalCodeStylePreferences->currentDelegate());
         // we set id so that it won't be possible to set delegate to the original prefs
         m_pageCppCodeStylePreferences->setId(originalCodeStylePreferences->id());
-        m_widget = TextEditorSettings::codeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID)
-                       ->createCodeStyleEditor(m_pageCppCodeStylePreferences);
-    }
-    return m_widget;
-}
 
-void CppCodeStyleSettingsPage::apply()
-{
-    if (m_widget) {
+        m_codeStyleEditor = TextEditorSettings::codeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID)
+                                ->createCodeStyleEditor(m_pageCppCodeStylePreferences);
+
+        auto hbox = new QVBoxLayout(this);
+        hbox->addWidget(m_codeStyleEditor);
+    }
+
+    void apply() final
+    {
         QSettings *s = Core::ICore::settings();
 
         CppCodeStylePreferences *originalCppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
@@ -596,15 +593,21 @@ void CppCodeStyleSettingsPage::apply()
             originalCppCodeStylePreferences->toSettings(QLatin1String(CppEditor::Constants::CPP_SETTINGS_ID), s);
         }
 
-        m_widget->apply();
+        m_codeStyleEditor->apply();
     }
-}
 
-void CppCodeStyleSettingsPage::finish()
+    CppCodeStylePreferences *m_pageCppCodeStylePreferences = nullptr;
+    CodeStyleEditorWidget *m_codeStyleEditor;
+};
+
+// CppCodeStyleSettingsPage
+
+CppCodeStyleSettingsPage::CppCodeStyleSettingsPage()
 {
-    if (m_widget)
-        m_widget->finish();
-    delete m_widget;
+    setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
+    setDisplayName(Tr::tr("Code Style"));
+    setCategory(Constants::CPP_SETTINGS_CATEGORY);
+    setWidgetCreator([] { return new CppCodeStyleSettingsPageWidget; });
 }
 
 } // namespace CppEditor::Internal
