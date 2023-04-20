@@ -15,8 +15,7 @@ using namespace Core;
 using namespace Debugger::Constants;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -30,6 +29,19 @@ public:
     explicit CommonOptionsPageWidget()
     {
         DebuggerSettings &s = *debuggerSettings();
+
+        setOnApply([&s] {
+            const bool originalPostMortem = s.registerForPostMortem->value();
+            const bool currentPostMortem = s.registerForPostMortem->volatileValue().toBool();
+            // explicitly trigger setValue() to override the setValueSilently() and trigger the registration
+            if (originalPostMortem != currentPostMortem)
+                s.registerForPostMortem->setValue(currentPostMortem);
+            s.page1.apply();
+            s.page1.writeSettings(ICore::settings());
+        });
+
+        setOnFinish([&s] { s.page1.finish(); });
+
         using namespace Layouting;
 
         Column col1 {
@@ -60,26 +72,7 @@ public:
             st
         }.attachTo(this);
     }
-
-    void apply() final;
-    void finish() final { m_group.finish(); }
-
-private:
-    AspectContainer &m_group = debuggerSettings()->page1;
 };
-
-void CommonOptionsPageWidget::apply()
-{
-    const DebuggerSettings *s = debuggerSettings();
-    const bool originalPostMortem = s->registerForPostMortem->value();
-    const bool currentPostMortem = s->registerForPostMortem->volatileValue().toBool();
-    // explicitly trigger setValue() to override the setValueSilently() and trigger the registration
-    if (originalPostMortem != currentPostMortem)
-        s->registerForPostMortem->setValue(currentPostMortem);
-
-    m_group.apply();
-    m_group.writeSettings(ICore::settings());
-}
 
 CommonOptionsPage::CommonOptionsPage()
 {
@@ -122,8 +115,9 @@ class LocalsAndExpressionsOptionsPageWidget : public IOptionsPageWidget
 public:
     LocalsAndExpressionsOptionsPageWidget()
     {
-        using namespace Layouting;
         DebuggerSettings &s = *debuggerSettings();
+        setOnApply([&s] { s.page4.apply(); s.page4.writeSettings(ICore::settings()); });
+        setOnFinish([&s] { s.page4.finish(); });
 
         auto label = new QLabel; //(useHelperGroup);
         label->setTextFormat(Qt::AutoText);
@@ -134,6 +128,7 @@ public:
                 "std::map in the &quot;Locals&quot; and &quot;Expressions&quot; views.")
             + "</p></body></html>");
 
+        using namespace Layouting;
         Column left {
             label,
             s.useCodeModel,
@@ -169,12 +164,6 @@ public:
             st
         }.attachTo(this);
     }
-
-    void apply() final { m_group.apply(); m_group.writeSettings(ICore::settings()); }
-    void finish() final { m_group.finish(); }
-
-private:
-    AspectContainer &m_group = debuggerSettings()->page4;
 };
 
 LocalsAndExpressionsOptionsPage::LocalsAndExpressionsOptionsPage()
@@ -186,5 +175,4 @@ LocalsAndExpressionsOptionsPage::LocalsAndExpressionsOptionsPage()
     setWidgetCreator([] { return new LocalsAndExpressionsOptionsPageWidget; });
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal
