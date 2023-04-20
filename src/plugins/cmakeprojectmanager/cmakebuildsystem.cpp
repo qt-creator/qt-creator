@@ -36,6 +36,7 @@
 #include <texteditor/textdocument.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljstools/qmljstoolsconstants.h>
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>
 
@@ -205,6 +206,53 @@ bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
     return BuildSystem::supportsAction(context, action, node);
 }
 
+static QString newFilesForFunction(const std::string &cmakeFunction,
+                                   const FilePaths &filePaths,
+                                   const FilePath &projDir)
+{
+    auto relativeFilePaths = [projDir](const FilePaths &filePaths) {
+        return Utils::transform(filePaths, [projDir](const FilePath &path) {
+            return path.canonicalPath().relativePathFrom(projDir).cleanPath().toString();
+        });
+    };
+
+    if (cmakeFunction == "qt_add_qml_module" || cmakeFunction == "qt6_add_qml_module") {
+        FilePaths sourceFiles;
+        FilePaths resourceFiles;
+        FilePaths qmlFiles;
+
+        for (const auto &file : filePaths) {
+            const auto mimeType = Utils::mimeTypeForFile(file);
+            if (mimeType.matchesName(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
+                || mimeType.matchesName(CppEditor::Constants::CPP_HEADER_MIMETYPE)
+                || mimeType.matchesName(CppEditor::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
+                || mimeType.matchesName(CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)) {
+                sourceFiles << file;
+            } else if (mimeType.matchesName(QmlJSTools::Constants::QML_MIMETYPE)
+                       || mimeType.matchesName(QmlJSTools::Constants::QMLUI_MIMETYPE)
+                       || mimeType.matchesName(QmlJSTools::Constants::QMLPROJECT_MIMETYPE)
+                       || mimeType.matchesName(QmlJSTools::Constants::JS_MIMETYPE)
+                       || mimeType.matchesName(QmlJSTools::Constants::JSON_MIMETYPE)) {
+                qmlFiles << file;
+            } else {
+                resourceFiles << file;
+            }
+        }
+
+        QStringList result;
+        if (!sourceFiles.isEmpty())
+            result << QString("SOURCES %1").arg(relativeFilePaths(sourceFiles).join(" "));
+        if (!resourceFiles.isEmpty())
+            result << QString("RESOURCES %1").arg(relativeFilePaths(resourceFiles).join(" "));
+        if (!qmlFiles.isEmpty())
+            result << QString("QML_FILES %1").arg(relativeFilePaths(qmlFiles).join(" "));
+
+        return result.join("\n");
+    }
+
+    return relativeFilePaths(filePaths).join(" ");
+}
+
 bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
 {
     if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
@@ -237,22 +285,32 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
             return false;
         }
 
-        const QString newSourceFiles = Utils::transform(filePaths,
-                                                        [projDir = n->filePath().canonicalPath()](
-                                                            const FilePath &path) {
-                                                            return path.canonicalPath()
-                                                                .relativePathFrom(projDir)
-                                                                .cleanPath()
-                                                                .toString();
-                                                        })
-                                           .join(" ");
+        // Special case: when qt_add_executable and qt_add_qml_module use the same target name
+        // then qt_add_qml_module function should be used
+        const std::string target_name = targetName.toStdString();
+        auto add_qml_module_func
+            = std::find_if(cmakeListFile.Functions.begin(),
+                           cmakeListFile.Functions.end(),
+                           [target_name](const auto &func) {
+                               return (func.LowerCaseName() == "qt_add_qml_module"
+                                       || func.LowerCaseName() == "qt6_add_qml_module")
+                                      && func.Arguments().front().Value == target_name;
+                           });
+        if (add_qml_module_func != cmakeListFile.Functions.end())
+            function = add_qml_module_func;
+
+        const QString newSourceFiles = newFilesForFunction(function->LowerCaseName(),
+                                                           filePaths,
+                                                           n->filePath().canonicalPath());
 
         static QSet<std::string> knownFunctions{"add_executable",
                                                 "add_library",
                                                 "qt_add_executable",
                                                 "qt_add_library",
                                                 "qt6_add_executable",
-                                                "qt6_add_library"};
+                                                "qt6_add_library",
+                                                "qt_add_qml_module",
+                                                "qt6_add_qml_module"};
 
         int line = 0;
         int column = 0;
@@ -269,7 +327,6 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
         if (knownFunctions.contains(function->LowerCaseName())) {
             afterFunctionLastArgument(function);
         } else {
-            const std::string target_name = targetName.toStdString();
             auto targetSourcesFunc = std::find_if(cmakeListFile.Functions.begin(),
                                                   cmakeListFile.Functions.end(),
                                                   [target_name](const auto &func) {
