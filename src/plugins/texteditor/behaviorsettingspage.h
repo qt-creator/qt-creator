@@ -5,8 +5,6 @@
 
 #include "texteditor_global.h"
 
-#include "tabsettingswidget.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 
 QT_BEGIN_NAMESPACE
@@ -31,11 +29,6 @@ public:
     BehaviorSettingsPage();
     ~BehaviorSettingsPage() override;
 
-    // IOptionsPage
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
     ICodeStylePreferences *codeStyle() const;
     CodeStylePool *codeStylePool() const;
     const TypingSettings &typingSettings() const;
@@ -44,17 +37,8 @@ public:
     const ExtraEncodingSettings &extraEncodingSettings() const;
 
 private:
-    void openCodingStylePreferences(TextEditor::TabSettingsWidget::CodingStyleLink link);
-
-    void settingsFromUI(TypingSettings *typingSettings,
-                        StorageSettings *storageSettings,
-                        BehaviorSettings *behaviorSettings,
-                        ExtraEncodingSettings *extraEncodingSettings) const;
-    void settingsToUI();
-
     QList<QTextCodec *> m_codecs;
-    struct BehaviorSettingsPagePrivate;
-    BehaviorSettingsPagePrivate *d;
+    class BehaviorSettingsPagePrivate *d;
 };
 
 } // namespace TextEditor
