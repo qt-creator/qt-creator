@@ -235,6 +235,7 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
         connect(baseEditor, &VcsBaseEditorWidget::annotateRevisionRequested,
                 this, &VcsBaseClientImpl::annotateRevisionRequested);
         baseEditor->setSource(source);
+        baseEditor->setDefaultLineNumber(1);
         if (codec)
             baseEditor->setCodec(codec);
     }
