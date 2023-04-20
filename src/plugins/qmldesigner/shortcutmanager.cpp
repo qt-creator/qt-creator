@@ -14,11 +14,12 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
+#include <coreplugin/modemanager.h>
 #include <qmljseditor/qmljseditorconstants.h>
 
 #include <qmlprojectmanager/qmlprojectmanagerconstants.h>
@@ -109,10 +110,16 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
         QmlDesignerPlugin::instance()->viewManager().exportAsImage();
     });
 
+    // Edit Global Annotations
     QAction *action = new QAction(tr("Edit Global Annotations..."), this);
     command = Core::ActionManager::registerAction(action, "Edit.Annotations", qmlDesignerMainContext);
     Core::ActionManager::actionContainer(Core::Constants::M_EDIT)
         ->addAction(command, Core::Constants::G_EDIT_OTHER);
+    connect(action, &QAction::triggered, this, [] { ToolBarBackend::launchGlobalAnnotations(); });
+    connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [action] {
+        action->setEnabled(Core::ModeManager::currentModeId() == Core::Constants::MODE_DESIGN);
+    });
+    action->setEnabled(false);
 
     command = Core::ActionManager::registerAction(&m_takeScreenshotAction,
                                                   QmlDesigner::Constants::TAKE_SCREENSHOT);
@@ -130,8 +137,6 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
         const bool b = pixmap.save(file.toString(), "PNG");
         qWarning() << "screenshot" << file << b << pixmap;
     });
-
-    connect(action, &QAction::triggered, this, [] { ToolBarBackend::launchGlobalAnnotations(); });
 
     Core::ActionContainer *exportMenu = Core::ActionManager::actionContainer(
         QmlProjectManager::Constants::EXPORT_MENU);

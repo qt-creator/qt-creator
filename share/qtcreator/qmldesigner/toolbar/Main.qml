@@ -254,6 +254,7 @@ Rectangle {
         ToolbarButton {
             id: annotations
             visible: false
+            enabled: backend.isInDesignMode
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: shareButton.left
             anchors.rightMargin: 10

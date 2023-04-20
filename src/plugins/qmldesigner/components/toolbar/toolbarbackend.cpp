@@ -644,6 +644,8 @@ bool ToolBarBackend::projectOpened() const
 void ToolBarBackend::launchGlobalAnnotations()
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_EDIT_GLOBAL_ANNOTATION);
+
+    QTC_ASSERT(currentDesignDocument(), return);
     ModelNode node = currentDesignDocument()->rewriterView()->rootModelNode();
 
     if (node.isValid()) {
