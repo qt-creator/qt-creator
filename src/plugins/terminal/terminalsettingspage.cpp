@@ -28,18 +28,6 @@ using namespace Utils;
 
 namespace Terminal {
 
-TerminalSettingsPage::TerminalSettingsPage()
-{
-    setId("Terminal.General");
-    setDisplayName("Terminal");
-    setCategory("ZY.Terminal");
-    setDisplayCategory("Terminal");
-    setSettings(&TerminalSettings::instance());
-    setCategoryIconPath(":/terminal/images/settingscategory_terminal.png");
-}
-
-void TerminalSettingsPage::init() {}
-
 static expected_str<void> loadXdefaults(const FilePath &path)
 {
     const expected_str<QByteArray> readResult = path.fileContents();
@@ -320,131 +308,146 @@ static expected_str<void> loadColorScheme(const FilePath &path)
     return make_unexpected(Tr::tr("Unknown color scheme format"));
 }
 
-QWidget *TerminalSettingsPage::widget()
+class TerminalSettingsPageWidget : public Core::IOptionsPageWidget
 {
-    QWidget *widget = new QWidget;
+public:
+    TerminalSettingsPageWidget()
+    {
+        using namespace Layouting;
 
-    using namespace Layouting;
+        QFontComboBox *fontComboBox = new QFontComboBox(this);
+        fontComboBox->setFontFilters(QFontComboBox::MonospacedFonts);
+        fontComboBox->setCurrentFont(TerminalSettings::instance().font.value());
 
-    QFontComboBox *fontComboBox = new QFontComboBox(widget);
-    fontComboBox->setFontFilters(QFontComboBox::MonospacedFonts);
-    fontComboBox->setCurrentFont(TerminalSettings::instance().font.value());
+        connect(fontComboBox, &QFontComboBox::currentFontChanged, this, [](const QFont &f) {
+            TerminalSettings::instance().font.setValue(f.family());
+        });
 
-    connect(fontComboBox, &QFontComboBox::currentFontChanged, this, [](const QFont &f) {
-        TerminalSettings::instance().font.setValue(f.family());
-    });
-
-    TerminalSettings &settings = TerminalSettings::instance();
-
-    QPushButton *loadThemeButton = new QPushButton(Tr::tr("Load Theme..."));
-    QPushButton *resetTheme = new QPushButton(Tr::tr("Reset Theme to default"));
-
-    connect(loadThemeButton, &QPushButton::clicked, this, [widget] {
-        const FilePath path = FileUtils::getOpenFilePath(
-            widget,
-            "Open Theme",
-            {},
-            "All Scheme formats (*.itermcolors *.json *.colorscheme *.theme *.theme.txt);;"
-            "Xdefaults (.Xdefaults Xdefaults);;"
-            "iTerm Color Schemes(*.itermcolors);;"
-            "VS Code Color Schemes(*.json);;"
-            "Konsole Color Schemes(*.colorscheme);;"
-            "XFCE4 Terminal Color Schemes(*.theme *.theme.txt);;"
-            "All files (*)",
-            nullptr,
-            {},
-            true,
-            false);
-
-        if (path.isEmpty())
-            return;
-
-        const expected_str<void> result = loadColorScheme(path);
-        if (!result)
-            QMessageBox::warning(widget, Tr::tr("Error"), result.error());
-    });
-
-    connect(resetTheme, &QPushButton::clicked, this, [] {
         TerminalSettings &settings = TerminalSettings::instance();
-        settings.foregroundColor.setVolatileValue(settings.foregroundColor.defaultValue());
-        settings.backgroundColor.setVolatileValue(settings.backgroundColor.defaultValue());
-        settings.selectionColor.setVolatileValue(settings.selectionColor.defaultValue());
 
-        for (auto &color : settings.colors)
-            color.setVolatileValue(color.defaultValue());
-    });
+        QPushButton *loadThemeButton = new QPushButton(Tr::tr("Load Theme..."));
+        QPushButton *resetTheme = new QPushButton(Tr::tr("Reset Theme to default"));
 
-    // clang-format off
-    Column {
-        Group {
-            title(Tr::tr("General")),
-            Column {
-                settings.enableTerminal, st,
-                settings.sendEscapeToTerminal, st,
-                settings.audibleBell, st,
-            },
-        },
-        Group {
-            title(Tr::tr("Font")),
-            Row {
-                settings.font.labelText(), fontComboBox, Space(20),
-                settings.fontSize, st,
-            },
-        },
-        Group {
-            title(Tr::tr("Cursor")),
-            Row {
-                settings.allowBlinkingCursor, st,
-            },
-        },
-        Group {
-            title(Tr::tr("Colors")),
-            Column {
-                Row {
-                    Tr::tr("Foreground"), settings.foregroundColor, st,
-                    Tr::tr("Background"), settings.backgroundColor, st,
-                    Tr::tr("Selection"), settings.selectionColor, st,
-                    Tr::tr("Find match"), settings.findMatchColor, st,
-                },
-                Row {
-                    settings.colors[0], settings.colors[1],
-                    settings.colors[2], settings.colors[3],
-                    settings.colors[4], settings.colors[5],
-                    settings.colors[6], settings.colors[7]
-                },
-                Row {
-                    settings.colors[8], settings.colors[9],
-                    settings.colors[10], settings.colors[11],
-                    settings.colors[12], settings.colors[13],
-                    settings.colors[14], settings.colors[15]
-                },
-                Row {
-                    loadThemeButton, resetTheme, st,
-                }
-            },
-        },
+        connect(loadThemeButton, &QPushButton::clicked, this, [this] {
+            const FilePath path = FileUtils::getOpenFilePath(
+                this,
+                "Open Theme",
+                {},
+                "All Scheme formats (*.itermcolors *.json *.colorscheme *.theme *.theme.txt);;"
+                "Xdefaults (.Xdefaults Xdefaults);;"
+                "iTerm Color Schemes(*.itermcolors);;"
+                "VS Code Color Schemes(*.json);;"
+                "Konsole Color Schemes(*.colorscheme);;"
+                "XFCE4 Terminal Color Schemes(*.theme *.theme.txt);;"
+                "All files (*)",
+                nullptr,
+                {},
+                true,
+                false);
+
+            if (path.isEmpty())
+                return;
+
+            const expected_str<void> result = loadColorScheme(path);
+            if (!result)
+                QMessageBox::warning(this, Tr::tr("Error"), result.error());
+        });
+
+        connect(resetTheme, &QPushButton::clicked, this, [] {
+            TerminalSettings &settings = TerminalSettings::instance();
+            settings.foregroundColor.setVolatileValue(settings.foregroundColor.defaultValue());
+            settings.backgroundColor.setVolatileValue(settings.backgroundColor.defaultValue());
+            settings.selectionColor.setVolatileValue(settings.selectionColor.defaultValue());
+
+            for (auto &color : settings.colors)
+                color.setVolatileValue(color.defaultValue());
+        });
+
+        // clang-format off
         Column {
-            settings.shell,
-            settings.shellArguments,
-        },
-        st,
-    }.attachTo(widget);
-    // clang-format on
+            Group {
+                title(Tr::tr("General")),
+                Column {
+                    settings.enableTerminal, st,
+                    settings.sendEscapeToTerminal, st,
+                    settings.audibleBell, st,
+                },
+            },
+            Group {
+                title(Tr::tr("Font")),
+                Row {
+                    settings.font.labelText(), fontComboBox, Space(20),
+                    settings.fontSize, st,
+                },
+            },
+            Group {
+                title(Tr::tr("Cursor")),
+                Row {
+                    settings.allowBlinkingCursor, st,
+                },
+            },
+            Group {
+                title(Tr::tr("Colors")),
+                Column {
+                    Row {
+                        Tr::tr("Foreground"), settings.foregroundColor, st,
+                        Tr::tr("Background"), settings.backgroundColor, st,
+                        Tr::tr("Selection"), settings.selectionColor, st,
+                        Tr::tr("Find match"), settings.findMatchColor, st,
+                    },
+                    Row {
+                        settings.colors[0], settings.colors[1],
+                        settings.colors[2], settings.colors[3],
+                        settings.colors[4], settings.colors[5],
+                        settings.colors[6], settings.colors[7]
+                    },
+                    Row {
+                        settings.colors[8], settings.colors[9],
+                        settings.colors[10], settings.colors[11],
+                        settings.colors[12], settings.colors[13],
+                        settings.colors[14], settings.colors[15]
+                    },
+                    Row {
+                        loadThemeButton, resetTheme, st,
+                    }
+                },
+            },
+            Column {
+                settings.shell,
+                settings.shellArguments,
+            },
+            st,
+        }.attachTo(this);
+        // clang-format on
 
-    DropSupport *dropSupport = new DropSupport(widget);
-    connect(dropSupport,
+        DropSupport *dropSupport = new DropSupport(this);
+        connect(dropSupport,
             &DropSupport::filesDropped,
             this,
-            [widget](const QList<DropSupport::FileSpec> &files) {
+            [this](const QList<DropSupport::FileSpec> &files) {
                 if (files.size() != 1)
                     return;
 
                 const expected_str<void> result = loadColorScheme(files.at(0).filePath);
                 if (!result)
-                    QMessageBox::warning(widget, Tr::tr("Error"), result.error());
+                    QMessageBox::warning(this, Tr::tr("Error"), result.error());
             });
+    }
 
-    return widget;
+    void apply() final {}
+};
+
+// TerminalSettingsPage
+
+TerminalSettingsPage::TerminalSettingsPage()
+{
+    setId("Terminal.General");
+    setDisplayName("Terminal");
+    setCategory("ZY.Terminal");
+    setDisplayCategory("Terminal");
+    setSettings(&TerminalSettings::instance());
+    setCategoryIconPath(":/terminal/images/settingscategory_terminal.png");
+    setWidgetCreator([] { return new TerminalSettingsPageWidget; });
 }
 
 TerminalSettingsPage &TerminalSettingsPage::instance()

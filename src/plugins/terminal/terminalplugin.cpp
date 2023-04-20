@@ -44,7 +44,7 @@ bool TerminalPlugin::delayedInitialize()
 
 void TerminalPlugin::extensionsInitialized()
 {
-    TerminalSettingsPage::instance().init();
+    (void) TerminalSettingsPage::instance();
     TerminalSettings::instance().readSettings(Core::ICore::settings());
 
     m_terminalPane = new TerminalPane();

@@ -13,10 +13,6 @@ public:
     TerminalSettingsPage();
 
     static TerminalSettingsPage &instance();
-
-    void init();
-
-    QWidget *widget() override;
 };
 
 } // namespace Terminal
