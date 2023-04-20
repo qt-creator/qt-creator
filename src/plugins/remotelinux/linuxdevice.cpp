@@ -612,13 +612,17 @@ void SshProcessInterfacePrivate::start()
             cmd.addArg("-tt");
 
         const CommandLine full = q->m_setup.m_commandLine;
-        if (!full.isEmpty()) {
+        if (!full.isEmpty()) { // Empty is ok in case of opening a terminal.
+            CommandLine inner;
+            const QString wd = q->m_setup.m_workingDirectory.path();
+            if (!wd.isEmpty())
+                inner.addCommandLineWithAnd({"cd", {wd}});
             if (!useTerminal) {
-                // Empty is ok in case of opening a terminal.
-                cmd.addArgs(QString("echo ") + s_pidMarker + "\\$\\$" + s_pidMarker + " \\&\\& ",
-                            CommandLine::Raw);
+                const QString pidArg = QString("%1\\$\\$%1").arg(QString::fromLatin1(s_pidMarker));
+                inner.addCommandLineWithAnd({"echo", pidArg, CommandLine::Raw});
             }
-            cmd.addCommandLineAsArgs(full, CommandLine::Raw);
+            inner.addCommandLineWithAnd(full);
+            cmd.addCommandLineAsSingleArg(inner);
         }
 
         m_process.setProcessImpl(q->m_setup.m_processImpl);

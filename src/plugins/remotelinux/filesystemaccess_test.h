@@ -24,6 +24,7 @@ private slots:
 
     void testCreateRemoteFile_data();
     void testCreateRemoteFile();
+    void testWorkingDirectory();
     void testDirStatus();
     void testBytesAvailable();
     void testFileActions();

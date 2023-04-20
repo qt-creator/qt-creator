@@ -12,6 +12,7 @@
 #include <utils/filestreamer.h>
 #include <utils/filestreamermanager.h>
 #include <utils/processinterface.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QFile>
@@ -179,6 +180,21 @@ void FileSystemAccessTest::testCreateRemoteFile()
     QCOMPARE(testFilePath.fileContents().value_or(QByteArray()), data);
     QVERIFY(testFilePath.removeFile());
     QVERIFY(!testFilePath.exists());
+}
+
+void FileSystemAccessTest::testWorkingDirectory()
+{
+    const FilePath dir = baseFilePath() / "testdir with space and 'various' \"quotes\" here";
+    QVERIFY(dir.ensureWritableDir());
+    QtcProcess proc;
+    proc.setCommand({"pwd", {}});
+    proc.setWorkingDirectory(dir);
+    proc.start();
+    QVERIFY(proc.waitForFinished());
+    const QString out = proc.readAllStandardOutput().trimmed();
+    QCOMPARE(out, dir.path());
+    const QString err = proc.readAllStandardOutput();
+    QVERIFY(err.isEmpty());
 }
 
 void FileSystemAccessTest::testDirStatus()
