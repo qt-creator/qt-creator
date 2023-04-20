@@ -3,6 +3,7 @@
 
 #include "fileapidataextractor.h"
 
+#include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
@@ -56,15 +57,19 @@ CMakeFileResult extractCMakeFilesData(const std::vector<CMakeFileInfo> &cmakefil
         CMakeFileInfo absolute(info);
         absolute.path = sfn;
 
-        expected_str<QByteArray> fileContent = sfn.fileContents();
-        std::string errorString;
-        if (fileContent) {
-            fileContent = fileContent->replace("\r\n", "\n");
-            if (!absolute.cmakeListFile.ParseString(fileContent->toStdString(),
-                                                    sfn.fileName().toStdString(),
-                                                    errorString))
-                qCWarning(cmakeLogger)
-                    << "Failed to parse:" << sfn.path() << QString::fromLatin1(errorString);
+        const auto mimeType = Utils::mimeTypeForFile(info.path);
+        if (mimeType.matchesName(Constants::CMAKE_MIMETYPE)
+            || mimeType.matchesName(Constants::CMAKE_PROJECT_MIMETYPE)) {
+            expected_str<QByteArray> fileContent = sfn.fileContents();
+            std::string errorString;
+            if (fileContent) {
+                fileContent = fileContent->replace("\r\n", "\n");
+                if (!absolute.cmakeListFile.ParseString(fileContent->toStdString(),
+                                                        sfn.fileName().toStdString(),
+                                                        errorString))
+                    qCWarning(cmakeLogger)
+                        << "Failed to parse:" << sfn.path() << QString::fromLatin1(errorString);
+            }
         }
 
         result.cmakeFiles.insert(absolute);
