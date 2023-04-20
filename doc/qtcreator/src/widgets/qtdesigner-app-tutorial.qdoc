@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -293,12 +293,6 @@
         \li In the \uicontrol{Add to project} field, select \b{TextFinder}
             and select \uicontrol{Finish} or \uicontrol Done to open the file
             in the code editor.
-
-        \li In the \uicontrol Copy to Clipboard dialog, select \uicontrol Yes to
-            copy the path to the resource file to the clipboard for adding it
-            to the CMakeLists.txt file.
-
-            \image qtcreator-add-resource-wizard4.png "Copy to Clipboard dialog"
 
         \li Select \uicontrol Add > \uicontrol {Add Prefix}.
 
