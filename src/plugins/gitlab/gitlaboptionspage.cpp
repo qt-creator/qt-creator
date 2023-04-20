@@ -9,6 +9,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
@@ -43,6 +44,25 @@ static bool hostValid(const QString &host)
     }
     return (host == "localhost") || dn.match(host).hasMatch();
 }
+
+class GitLabServerWidget : public QWidget
+{
+public:
+    enum Mode { Display, Edit };
+    explicit GitLabServerWidget(Mode m, QWidget *parent = nullptr);
+
+    GitLabServer gitLabServer() const;
+    void setGitLabServer(const GitLabServer &server);
+
+private:
+    Mode m_mode = Display;
+    Id m_id;
+    StringAspect m_host;
+    StringAspect m_description;
+    StringAspect m_token;
+    IntegerAspect m_port;
+    BoolAspect m_secure;
+};
 
 GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
     : QWidget(parent)
@@ -108,8 +128,43 @@ void GitLabServerWidget::setGitLabServer(const GitLabServer &server)
     m_secure.setValue(server.secure);
 }
 
-GitLabOptionsWidget::GitLabOptionsWidget(QWidget *parent)
-    : QWidget(parent)
+class GitLabOptionsWidget : public Core::IOptionsPageWidget
+{
+public:
+    explicit GitLabOptionsWidget(GitLabOptionsPage *page, GitLabParameters *parameters);
+
+    GitLabParameters parameters() const;
+
+    void apply() final
+    {
+        GitLabParameters newParameters = parameters();
+        if (newParameters != *m_parameters) {
+            *m_parameters = newParameters;
+            m_parameters->toSettings(Core::ICore::settings());
+            emit m_page->settingsChanged();
+        }
+    }
+
+private:
+    void showEditServerDialog();
+    void showAddServerDialog();
+    void removeCurrentTriggered();
+    void addServer(const GitLabServer &newServer);
+    void modifyCurrentServer(const GitLabServer &newServer);
+    void updateButtonsState();
+
+    GitLabOptionsPage *m_page = nullptr;
+    GitLabParameters *m_parameters = nullptr;
+    GitLabServerWidget *m_gitLabServerWidget = nullptr;
+    QPushButton *m_edit = nullptr;
+    QPushButton *m_remove = nullptr;
+    QPushButton *m_add = nullptr;
+    QComboBox *m_defaultGitLabServer = nullptr;
+    Utils::StringAspect m_curl;
+};
+
+GitLabOptionsWidget::GitLabOptionsWidget(GitLabOptionsPage *page, GitLabParameters *params)
+    : m_page(page), m_parameters(params)
 {
     auto defaultLabel = new QLabel(Tr::tr("Default:"), this);
     m_defaultGitLabServer = new QComboBox(this);
@@ -136,6 +191,20 @@ GitLabOptionsWidget::GitLabOptionsWidget(QWidget *parent)
         }, Column { m_add, m_edit, m_remove, st },
     }.attachTo(this);
 
+    m_curl.setFilePath(params->curl);
+
+    for (const auto &gitLabServer : params->gitLabServers) {
+        m_defaultGitLabServer->addItem(gitLabServer.displayString(),
+                                       QVariant::fromValue(gitLabServer));
+    }
+
+    const GitLabServer found = params->currentDefaultServer();
+    if (found.id.isValid()) {
+        m_defaultGitLabServer->setCurrentIndex(m_defaultGitLabServer->findData(
+                                                   QVariant::fromValue(found)));
+    }
+    updateButtonsState();
+
     connect(m_edit, &QPushButton::clicked, this, &GitLabOptionsWidget::showEditServerDialog);
     connect(m_remove, &QPushButton::clicked, this, &GitLabOptionsWidget::removeCurrentTriggered);
     connect(m_add, &QPushButton::clicked, this, &GitLabOptionsWidget::showAddServerDialog);
@@ -155,23 +224,6 @@ GitLabParameters GitLabOptionsWidget::parameters() const
         result.defaultGitLabServer = m_defaultGitLabServer->currentData().value<GitLabServer>().id;
     result.curl = m_curl.filePath();
     return result;
-}
-
-void GitLabOptionsWidget::setParameters(const GitLabParameters &params)
-{
-    m_curl.setFilePath(params.curl);
-
-    for (const auto &gitLabServer : params.gitLabServers) {
-        m_defaultGitLabServer->addItem(gitLabServer.displayString(),
-                                       QVariant::fromValue(gitLabServer));
-    }
-
-    const GitLabServer found = params.currentDefaultServer();
-    if (found.id.isValid()) {
-        m_defaultGitLabServer->setCurrentIndex(m_defaultGitLabServer->findData(
-                                                   QVariant::fromValue(found)));
-    }
-    updateButtonsState();
 }
 
 void GitLabOptionsWidget::showEditServerDialog()
@@ -253,39 +305,14 @@ void GitLabOptionsWidget::updateButtonsState()
     m_remove->setEnabled(hasItems);
 }
 
-GitLabOptionsPage::GitLabOptionsPage(GitLabParameters *p, QObject *parent)
-    : Core::IOptionsPage{parent}
-    , m_parameters(p)
+// GitLabOptionsPage
+
+GitLabOptionsPage::GitLabOptionsPage(GitLabParameters *p)
 {
     setId(Constants::GITLAB_SETTINGS);
     setDisplayName(Tr::tr("GitLab"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-}
-
-QWidget *GitLabOptionsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new GitLabOptionsWidget;
-        m_widget->setParameters(*m_parameters);
-    }
-    return m_widget;
-}
-
-void GitLabOptionsPage::apply()
-{
-    if (GitLabOptionsWidget *w = m_widget.data()) {
-        GitLabParameters newParameters = w->parameters();
-        if (newParameters != *m_parameters) {
-            *m_parameters = newParameters;
-            m_parameters->toSettings(Core::ICore::settings());
-            emit settingsChanged();
-        }
-    }
-}
-
-void GitLabOptionsPage::finish()
-{
-    delete m_widget;
+    setWidgetCreator([this, p] { return new GitLabOptionsWidget(this, p); });
 }
 
 } // namespace GitLab
