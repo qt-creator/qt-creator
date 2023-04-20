@@ -4,16 +4,15 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/fileutils.h>
 
-#include <QObject>
-#include <QPointer>
+#include <utils/filepath.h>
+
 #include <QVersionNumber>
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
-class QbsSettingsData {
+class QbsSettingsData
+{
 public:
     Utils::FilePath qbsExecutableFilePath;
     QString defaultInstallDirTemplate;
@@ -51,18 +50,8 @@ private:
 
 class QbsSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
 public:
     QbsSettingsPage();
-
-private:
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-    class SettingsWidget;
-    QPointer<SettingsWidget> m_widget;
 };
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // QbsProjectManager::Internal

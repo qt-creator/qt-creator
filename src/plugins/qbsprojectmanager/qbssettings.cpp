@@ -21,8 +21,7 @@
 
 using namespace Utils;
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 const char QBS_EXE_KEY[] = "QbsProjectManager/QbsExecutable";
 const char QBS_DEFAULT_INSTALL_DIR_KEY[] = "QbsProjectManager/DefaultInstallDir";
@@ -142,10 +141,10 @@ void QbsSettings::storeSettings() const
     s->setValue(USE_CREATOR_SETTINGS_KEY, m_settings.useCreatorSettings);
 }
 
-class QbsSettingsPage::SettingsWidget : public QWidget
+class QbsSettingsPageWidget : public Core::IOptionsPageWidget
 {
 public:
-    SettingsWidget()
+    QbsSettingsPageWidget()
     {
         m_qbsExePathChooser.setExpectedKind(PathChooser::ExistingCommand);
         m_qbsExePathChooser.setFilePath(QbsSettings::qbsExecutableFilePath());
@@ -166,7 +165,7 @@ public:
         });
     }
 
-    void apply()
+    void apply() final
     {
         QbsSettingsData settings = QbsSettings::rawSettingsData();
         if (m_qbsExePathChooser.filePath() != QbsSettings::qbsExecutableFilePath())
@@ -197,26 +196,7 @@ QbsSettingsPage::QbsSettingsPage()
     setCategory(Constants::QBS_SETTINGS_CATEGORY);
     setDisplayCategory(Tr::tr(Constants::QBS_SETTINGS_TR_CATEGORY));
     setCategoryIconPath(":/qbsprojectmanager/images/settingscategory_qbsprojectmanager.png");
+    setWidgetCreator([] { return new QbsSettingsPageWidget; });
 }
 
-QWidget *QbsSettingsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new SettingsWidget;
-    return m_widget;
-
-}
-
-void QbsSettingsPage::apply()
-{
-    if (m_widget)
-        m_widget->apply();
-}
-
-void QbsSettingsPage::finish()
-{
-    delete m_widget;
-}
-
-} // namespace Internal
-} // namespace QbsProjectManager
+} // QbsProjectManager::Internal

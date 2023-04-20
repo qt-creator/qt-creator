@@ -26,8 +26,7 @@
 
 using namespace ProjectExplorer;
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 class ProfileTreeItem : public Utils::TypedTreeItem<ProfileTreeItem, ProfileTreeItem>
 {
@@ -53,7 +52,6 @@ private:
 
 class ProfileModel : public Utils::TreeModel<ProfileTreeItem>
 {
-    Q_OBJECT
 public:
     ProfileModel() : TreeModel(static_cast<QObject *>(nullptr))
     {
@@ -91,13 +89,14 @@ public:
     }
 };
 
-class QbsProfilesSettingsWidget : public QWidget
+class QbsProfilesSettingsWidget : public Core::IOptionsPageWidget
 {
-    Q_OBJECT
 public:
     QbsProfilesSettingsWidget();
 
 private:
+    void apply() final {}
+
     void refreshKitsList();
     void displayCurrentProfile();
 
@@ -112,19 +111,7 @@ QbsProfilesSettingsPage::QbsProfilesSettingsPage()
     setId("Y.QbsProfiles");
     setDisplayName(Tr::tr("Profiles"));
     setCategory(Constants::QBS_SETTINGS_CATEGORY);
-}
-
-QWidget *QbsProfilesSettingsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new QbsProfilesSettingsWidget;
-    return m_widget;
-}
-
-void QbsProfilesSettingsPage::finish()
-{
-    delete m_widget;
-    m_widget = nullptr;
+    setWidgetCreator([] { return new QbsProfilesSettingsWidget; });
 }
 
 QbsProfilesSettingsWidget::QbsProfilesSettingsWidget()
@@ -211,7 +198,4 @@ void QbsProfilesSettingsWidget::displayCurrentProfile()
     }
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
-
-#include "qbsprofilessettingspage.moc"
+} // QbsProjectManager::Internal
