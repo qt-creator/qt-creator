@@ -6,10 +6,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/filepath.h>
 
-#include <QCoreApplication>
-#include <QPointer>
-#include <QWidget>
-
 QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QCheckBox;
@@ -75,17 +71,13 @@ class CppcheckOptionsPage final : public Core::IOptionsPage
 public:
     explicit CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &trigger);
 
-    QWidget *widget() final;
-    void apply() final;
-    void finish() final;
-
 private:
+    friend class CppcheckOptionsPageWidget;
     void save(const CppcheckOptions &options) const;
     void load(CppcheckOptions &options) const;
 
     CppcheckTool &m_tool;
     CppcheckTrigger &m_trigger;
-    QPointer<OptionsWidget> m_widget;
 };
 
 } // Cppcheck::Internal

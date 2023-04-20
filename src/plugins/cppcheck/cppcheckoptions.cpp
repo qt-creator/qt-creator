@@ -120,6 +120,33 @@ void OptionsWidget::save(CppcheckOptions &options) const
     options.guessArguments = m_guessArguments->isChecked();
 }
 
+class CppcheckOptionsPageWidget : public Core::IOptionsPageWidget
+{
+public:
+    CppcheckOptionsPageWidget(CppcheckOptionsPage *page)
+        : m_page(page)
+    {
+        m_optionWidget = new OptionsWidget;
+
+        auto vbox = new QVBoxLayout(this);
+        vbox->addWidget(m_optionWidget);
+
+        m_optionWidget->load(m_page->m_tool.options());
+    }
+
+    void apply() final
+    {
+        CppcheckOptions options;
+        m_optionWidget->save(options);
+        m_page->save(options);
+        m_page->m_tool.updateOptions(options);
+        m_page->m_trigger.recheck();
+    }
+
+    OptionsWidget *m_optionWidget;
+    CppcheckOptionsPage *m_page;
+};
+
 CppcheckOptionsPage::CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &trigger):
     m_tool(tool),
     m_trigger(trigger)
@@ -129,6 +156,8 @@ CppcheckOptionsPage::CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &tr
     setCategory("T.Analyzer");
     setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+
+    setWidgetCreator([this] { return new CppcheckOptionsPageWidget(this); });
 
     CppcheckOptions options;
     if (HostOsInfo::isAnyUnixHost()) {
@@ -143,27 +172,6 @@ CppcheckOptionsPage::CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &tr
     load(options);
 
     m_tool.updateOptions(options);
-}
-
-QWidget *CppcheckOptionsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new OptionsWidget;
-    m_widget->load(m_tool.options());
-    return m_widget.data();
-}
-
-void CppcheckOptionsPage::apply()
-{
-    CppcheckOptions options;
-    m_widget->save(options);
-    save(options);
-    m_tool.updateOptions(options);
-    m_trigger.recheck();
-}
-
-void CppcheckOptionsPage::finish()
-{
 }
 
 void CppcheckOptionsPage::save(const CppcheckOptions &options) const
