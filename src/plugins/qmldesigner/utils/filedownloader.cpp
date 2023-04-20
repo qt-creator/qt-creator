@@ -253,6 +253,8 @@ void FileDownloader::doProbeUrl()
 
         m_available = true;
         emit availableChanged();
+
+        reply->deleteLater();
     });
 
     QNetworkReply::connect(reply,
