@@ -17,11 +17,8 @@ public:
     MimeTypeSettings();
     ~MimeTypeSettings() override;
 
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
     static void restoreSettings();
+
 private:
     MimeTypeSettingsPrivate *d;
 };

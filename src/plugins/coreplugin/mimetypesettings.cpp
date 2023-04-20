@@ -291,6 +291,31 @@ MimeTypeSettingsPrivate::MimeTypeSettingsPrivate()
 
 MimeTypeSettingsPrivate::~MimeTypeSettingsPrivate() = default;
 
+class MimeTypeSettingsWidget : public IOptionsPageWidget
+{
+public:
+    MimeTypeSettingsWidget(MimeTypeSettingsPrivate *d)
+        : d(d)
+    {
+        d->configureUi(this);
+    }
+
+    void apply() final
+    {
+        MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(d->m_pendingModifiedMimeTypes);
+        Core::Internal::setUserPreferredEditorTypes(d->m_model->m_userDefault);
+        d->m_pendingModifiedMimeTypes.clear();
+        d->m_model->load();
+    }
+
+    void finish() final
+    {
+        d->m_pendingModifiedMimeTypes.clear();
+    }
+
+    MimeTypeSettingsPrivate *d;
+};
+
 void MimeTypeSettingsPrivate::configureUi(QWidget *w)
 {
     auto filterLineEdit = new FancyLineEdit;
@@ -713,34 +738,12 @@ MimeTypeSettings::MimeTypeSettings()
     setId(Constants::SETTINGS_ID_MIMETYPES);
     setDisplayName(Tr::tr("MIME Types"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
+    setWidgetCreator([this] { return new MimeTypeSettingsWidget(d); });
 }
 
 MimeTypeSettings::~MimeTypeSettings()
 {
     delete d;
-}
-
-QWidget *MimeTypeSettings::widget()
-{
-    if (!d->m_widget) {
-        d->m_widget = new QWidget;
-        d->configureUi(d->m_widget);
-    }
-    return d->m_widget;
-}
-
-void MimeTypeSettings::apply()
-{
-    MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(d->m_pendingModifiedMimeTypes);
-    Core::Internal::setUserPreferredEditorTypes(d->m_model->m_userDefault);
-    d->m_pendingModifiedMimeTypes.clear();
-    d->m_model->load();
-}
-
-void MimeTypeSettings::finish()
-{
-    d->m_pendingModifiedMimeTypes.clear();
-    delete d->m_widget;
 }
 
 void MimeTypeSettings::restoreSettings()
