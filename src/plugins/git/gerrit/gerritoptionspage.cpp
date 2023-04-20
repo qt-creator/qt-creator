@@ -16,108 +16,95 @@
 #include <QCheckBox>
 #include <QFormLayout>
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
-GerritOptionsPage::GerritOptionsPage(const QSharedPointer<GerritParameters> &p,
-                                     QObject *parent)
+class GerritOptionsWidget : public Core::IOptionsPageWidget
+{
+public:
+    GerritOptionsWidget(GerritOptionsPage *page, const QSharedPointer<GerritParameters> &p)
+        : m_page(page)
+        , m_hostLineEdit(new QLineEdit(this))
+        , m_userLineEdit(new QLineEdit(this))
+        , m_sshChooser(new Utils::PathChooser)
+        , m_curlChooser(new Utils::PathChooser)
+        , m_portSpinBox(new QSpinBox(this))
+        , m_httpsCheckBox(new QCheckBox(Git::Tr::tr("HTTPS")))
+        , m_parameters(p)
+    {
+        m_hostLineEdit->setText(p->server.host);
+        m_userLineEdit->setText(p->server.user.userName);
+        m_sshChooser->setFilePath(p->ssh);
+        m_curlChooser->setFilePath(p->curl);
+        m_portSpinBox->setValue(p->server.port);
+        m_httpsCheckBox->setChecked(p->https);
+
+        auto formLayout = new QFormLayout(this);
+        formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+        formLayout->addRow(Git::Tr::tr("&Host:"), m_hostLineEdit);
+        formLayout->addRow(Git::Tr::tr("&User:"), m_userLineEdit);
+        m_sshChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+        m_sshChooser->setCommandVersionArguments({"-V"});
+        m_sshChooser->setHistoryCompleter("Git.SshCommand.History");
+        formLayout->addRow(Git::Tr::tr("&ssh:"), m_sshChooser);
+        m_curlChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+        m_curlChooser->setCommandVersionArguments({"-V"});
+        formLayout->addRow(Git::Tr::tr("cur&l:"), m_curlChooser);
+        m_portSpinBox->setMinimum(1);
+        m_portSpinBox->setMaximum(65535);
+        formLayout->addRow(Git::Tr::tr("SSH &Port:"), m_portSpinBox);
+        formLayout->addRow(Git::Tr::tr("P&rotocol:"), m_httpsCheckBox);
+        m_httpsCheckBox->setToolTip(Git::Tr::tr(
+            "Determines the protocol used to form a URL in case\n"
+            "\"canonicalWebUrl\" is not configured in the file\n"
+            "\"gerrit.config\"."));
+        setTabOrder(m_sshChooser, m_curlChooser);
+        setTabOrder(m_curlChooser, m_portSpinBox);
+    }
+
+private:
+    void apply() final;
+
+    GerritOptionsPage *m_page;
+    QLineEdit *m_hostLineEdit;
+    QLineEdit *m_userLineEdit;
+    Utils::PathChooser *m_sshChooser;
+    Utils::PathChooser *m_curlChooser;
+    QSpinBox *m_portSpinBox;
+    QCheckBox *m_httpsCheckBox;
+    const QSharedPointer<GerritParameters> &m_parameters;
+};
+
+void GerritOptionsWidget::apply()
+{
+    GerritParameters newParameters;
+    newParameters.server = GerritServer(m_hostLineEdit->text().trimmed(),
+                                 static_cast<unsigned short>(m_portSpinBox->value()),
+                                 m_userLineEdit->text().trimmed(),
+                                 GerritServer::Ssh);
+    newParameters.ssh = m_sshChooser->filePath();
+    newParameters.curl = m_curlChooser->filePath();
+    newParameters.https = m_httpsCheckBox->isChecked();
+
+    if (newParameters != *m_parameters) {
+        if (m_parameters->ssh == newParameters.ssh)
+            newParameters.portFlag = m_parameters->portFlag;
+        else
+            newParameters.setPortFlagBySshType();
+        *m_parameters = newParameters;
+        m_parameters->toSettings(Core::ICore::settings());
+        emit m_page->settingsChanged();
+    }
+}
+
+// GerritOptionsPage
+
+GerritOptionsPage::GerritOptionsPage(const QSharedPointer<GerritParameters> &p, QObject *parent)
     : Core::IOptionsPage(parent)
-    , m_parameters(p)
 {
     setId("Gerrit");
     setDisplayName(Git::Tr::tr("Gerrit"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+    setWidgetCreator([this, p] { return new GerritOptionsWidget(this, p); });
 }
 
-GerritOptionsPage::~GerritOptionsPage()
-{
-    delete m_widget;
-}
-
-QWidget *GerritOptionsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new GerritOptionsWidget;
-        m_widget->setParameters(*m_parameters);
-    }
-    return m_widget;
-}
-
-void GerritOptionsPage::apply()
-{
-    if (GerritOptionsWidget *w = m_widget.data()) {
-        GerritParameters newParameters = w->parameters();
-        if (newParameters != *m_parameters) {
-            if (m_parameters->ssh == newParameters.ssh)
-                newParameters.portFlag = m_parameters->portFlag;
-            else
-                newParameters.setPortFlagBySshType();
-            *m_parameters = newParameters;
-            m_parameters->toSettings(Core::ICore::settings());
-            emit settingsChanged();
-        }
-    }
-}
-
-void GerritOptionsPage::finish()
-{
-    delete m_widget;
-}
-
-GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
-    : QWidget(parent)
-    , m_hostLineEdit(new QLineEdit(this))
-    , m_userLineEdit(new QLineEdit(this))
-    , m_sshChooser(new Utils::PathChooser)
-    , m_curlChooser(new Utils::PathChooser)
-    , m_portSpinBox(new QSpinBox(this))
-    , m_httpsCheckBox(new QCheckBox(Git::Tr::tr("HTTPS")))
-{
-    auto formLayout = new QFormLayout(this);
-    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    formLayout->addRow(Git::Tr::tr("&Host:"), m_hostLineEdit);
-    formLayout->addRow(Git::Tr::tr("&User:"), m_userLineEdit);
-    m_sshChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_sshChooser->setCommandVersionArguments({"-V"});
-    m_sshChooser->setHistoryCompleter("Git.SshCommand.History");
-    formLayout->addRow(Git::Tr::tr("&ssh:"), m_sshChooser);
-    m_curlChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_curlChooser->setCommandVersionArguments({"-V"});
-    formLayout->addRow(Git::Tr::tr("cur&l:"), m_curlChooser);
-    m_portSpinBox->setMinimum(1);
-    m_portSpinBox->setMaximum(65535);
-    formLayout->addRow(Git::Tr::tr("SSH &Port:"), m_portSpinBox);
-    formLayout->addRow(Git::Tr::tr("P&rotocol:"), m_httpsCheckBox);
-    m_httpsCheckBox->setToolTip(Git::Tr::tr(
-    "Determines the protocol used to form a URL in case\n"
-    "\"canonicalWebUrl\" is not configured in the file\n"
-    "\"gerrit.config\"."));
-    setTabOrder(m_sshChooser, m_curlChooser);
-    setTabOrder(m_curlChooser, m_portSpinBox);
-}
-
-GerritParameters GerritOptionsWidget::parameters() const
-{
-    GerritParameters result;
-    result.server = GerritServer(m_hostLineEdit->text().trimmed(),
-                                 static_cast<unsigned short>(m_portSpinBox->value()),
-                                 m_userLineEdit->text().trimmed(),
-                                 GerritServer::Ssh);
-    result.ssh = m_sshChooser->filePath();
-    result.curl = m_curlChooser->filePath();
-    result.https = m_httpsCheckBox->isChecked();
-    return result;
-}
-
-void GerritOptionsWidget::setParameters(const GerritParameters &p)
-{
-    m_hostLineEdit->setText(p.server.host);
-    m_userLineEdit->setText(p.server.user.userName);
-    m_sshChooser->setFilePath(p.ssh);
-    m_curlChooser->setFilePath(p.curl);
-    m_portSpinBox->setValue(p.server.port);
-    m_httpsCheckBox->setChecked(p.https);
-}
-
-} // namespace Internal
-} // namespace Gerrit
+} // Gerrit::Internal
