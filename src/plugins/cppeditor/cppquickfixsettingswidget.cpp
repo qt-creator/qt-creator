@@ -88,9 +88,8 @@ void LineCountSpinBox::updateFields()
     m_unitLabel->setEnabled(enabled);
 }
 
-CppQuickFixSettingsWidget::CppQuickFixSettingsWidget(QWidget *parent)
-    : QWidget(parent)
-    , m_typeSplitter("\\s*,\\s*")
+CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
+    : m_typeSplitter("\\s*,\\s*")
 {
     m_lines_getterOutsideClass = new LineCountSpinBox;
     m_lines_getterInCppFile = new LineCountSpinBox;
@@ -319,6 +318,8 @@ e.g. name = "m_test_foo_":
     connect(m_radioButton_addUsingnamespace, &QRadioButton::clicked, then);
     connect(m_radioButton_generateMissingNamespace, &QRadioButton::clicked, then);
     connect(m_radioButton_rewriteTypes, &QRadioButton::clicked, then);
+
+    loadSettings(CppQuickFixSettings::instance());
 }
 
 void CppQuickFixSettingsWidget::loadSettings(CppQuickFixSettings *settings)
@@ -424,6 +425,13 @@ void CppQuickFixSettingsWidget::saveSettings(CppQuickFixSettings *settings)
         t.returnType = item->data(CustomDataRoles::ReturnType).toString();
         settings->customTemplates.push_back(t);
     }
+}
+
+void CppQuickFixSettingsWidget::apply()
+{
+    const auto s = CppQuickFixSettings::instance();
+    saveSettings(s);
+    s->saveAsGlobalSettings();
 }
 
 void CppQuickFixSettingsWidget::currentCustomItemChanged(QListWidgetItem *newItem,

@@ -28,7 +28,7 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(ProjectExplor
     auto layout = new QVBoxLayout();
     gridLayout->addLayout(layout, 2, 0, 1, 2);
 
-    m_settingsWidget = new CppQuickFixSettingsWidget(this);
+    m_settingsWidget = new CppQuickFixSettingsWidget;
     m_settingsWidget->loadSettings(m_projectSettings->getSettings());
 
     if (QLayout *layout = m_settingsWidget->layout())

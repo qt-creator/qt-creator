@@ -5,24 +5,12 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
-namespace CppEditor {
-namespace Internal {
-class CppQuickFixSettingsWidget;
+namespace CppEditor::Internal {
 
 class CppQuickFixSettingsPage : public Core::IOptionsPage
 {
 public:
     CppQuickFixSettingsPage();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<CppQuickFixSettingsWidget> m_widget;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // CppEditor::Internal
