@@ -7,31 +7,24 @@
 #include "haskellmanager.h"
 #include "haskelltr.h"
 
+#include <utils/pathchooser.h>
+
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QWidget>
 
-namespace Haskell {
-namespace Internal {
+using namespace Utils;
 
-OptionsPage::OptionsPage()
+namespace Haskell::Internal {
+
+class HaskellOptionsPageWidget : public Core::IOptionsPageWidget
 {
-    setId(Constants::OPTIONS_GENERAL);
-    setDisplayName(Tr::tr("General"));
-    setCategory("J.Z.Haskell");
-    setDisplayCategory(Tr::tr("Haskell"));
-    setCategoryIconPath(":/haskell/images/settingscategory_haskell.png");
-}
-
-QWidget *OptionsPage::widget()
-{
-    using namespace Utils;
-    if (!m_widget) {
-        m_widget = new QWidget;
+public:
+    HaskellOptionsPageWidget()
+    {
         auto topLayout = new QVBoxLayout;
-        m_widget->setLayout(topLayout);
+        setLayout(topLayout);
         auto generalBox = new QGroupBox(Tr::tr("General"));
         topLayout->addWidget(generalBox);
         topLayout->addStretch(10);
@@ -45,19 +38,23 @@ QWidget *OptionsPage::widget()
         m_stackPath->setCommandVersionArguments({"--version"});
         boxLayout->addWidget(m_stackPath);
     }
-    return m_widget;
-}
 
-void OptionsPage::apply()
+    void apply() final
+    {
+        HaskellManager::setStackExecutable(m_stackPath->rawFilePath());
+    }
+
+    QPointer<Utils::PathChooser> m_stackPath;
+};
+
+OptionsPage::OptionsPage()
 {
-    if (!m_widget)
-        return;
-    HaskellManager::setStackExecutable(m_stackPath->rawFilePath());
+    setId(Constants::OPTIONS_GENERAL);
+    setDisplayName(Tr::tr("General"));
+    setCategory("J.Z.Haskell");
+    setDisplayCategory(Tr::tr("Haskell"));
+    setCategoryIconPath(":/haskell/images/settingscategory_haskell.png");
+    setWidgetCreator([] { return new HaskellOptionsPageWidget; });
 }
 
-void OptionsPage::finish()
-{
-}
-
-} // namespace Internal
-} // namespace Haskell
+} // Haskell::Internal
