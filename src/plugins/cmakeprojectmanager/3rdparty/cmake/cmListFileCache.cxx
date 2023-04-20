@@ -23,7 +23,6 @@ struct cmListFileParser
   bool AddArgument(cmListFileLexer_Token* token,
                    cmListFileArgument::Delimiter delim);
   cmListFile* ListFile;
-  const char* FileName = nullptr;
   cmListFileLexer* Lexer;
   std::string FunctionName;
   long FunctionLine;
@@ -57,10 +56,8 @@ void cmListFileParser::IssueError(const std::string& text) const
 }
 
 bool cmListFileParser::ParseString(const std::string &str,
-                                   const std::string &virtual_filename)
+                                   const std::string &/*virtual_filename*/)
 {
-  this->FileName = virtual_filename.c_str();
-
   if (!cmListFileLexer_SetString(this->Lexer, str.c_str(), (int)str.size())) {
     this->IssueError("cmListFileCache: cannot allocate buffer.");
     return false;
