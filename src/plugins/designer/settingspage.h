@@ -5,32 +5,16 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
 QT_BEGIN_NAMESPACE
 class QDesignerOptionsPageInterface;
 QT_END_NAMESPACE
 
-namespace Designer {
-namespace Internal {
-
-class SettingsPageWidget;
+namespace Designer::Internal {
 
 class SettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     explicit SettingsPage(QDesignerOptionsPageInterface *designerPage);
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QDesignerOptionsPageInterface *m_designerPage;
-    bool m_initialized = false;
-    QPointer<QWidget> m_widget;
 };
 
 class SettingsPageProvider : public Core::IOptionsPageProvider
@@ -48,5 +32,4 @@ private:
     mutable QStringList m_keywords;
 };
 
-} // namespace Internal
-} // namespace Designer
+} // Designer::Internal

@@ -11,38 +11,34 @@
 
 #include <QDesignerOptionsPageInterface>
 #include <QCoreApplication>
+#include <QVBoxLayout>
 
-using namespace Designer::Internal;
+namespace Designer::Internal {
+
+class SettingsPageWidget : public Core::IOptionsPageWidget
+{
+public:
+    explicit SettingsPageWidget(QDesignerOptionsPageInterface *designerPage)
+        : m_designerPage(designerPage)
+    {
+        auto vbox = new QVBoxLayout(this);
+        vbox->addWidget(m_designerPage->createPage(nullptr));
+    }
+
+    void apply() { m_designerPage->apply(); }
+    void finish() { m_designerPage->finish(); }
+
+    QDesignerOptionsPageInterface *m_designerPage;
+};
+
 
 SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
-    Core::IOptionsPage(nullptr, false),
-    m_designerPage(designerPage)
+    Core::IOptionsPage(nullptr, false)
 {
-    setId(Utils::Id::fromString(m_designerPage->name()));
-    setDisplayName(m_designerPage->name());
+    setId(Utils::Id::fromString(designerPage->name()));
+    setDisplayName(designerPage->name());
     setCategory(Designer::Constants::SETTINGS_CATEGORY);
-}
-
-QWidget *SettingsPage::widget()
-{
-    m_initialized = true;
-    if (!m_widget)
-        m_widget = m_designerPage->createPage(nullptr);
-    return m_widget;
-
-}
-
-void SettingsPage::apply()
-{
-    if (m_initialized)
-        m_designerPage->apply();
-}
-
-void SettingsPage::finish()
-{
-    if (m_initialized)
-        m_designerPage->finish();
-    delete m_widget;
+    setWidgetCreator([designerPage] { return new SettingsPageWidget(designerPage); });
 }
 
 SettingsPageProvider::SettingsPageProvider()
@@ -102,3 +98,5 @@ bool SettingsPageProvider::matches(const QRegularExpression &regex) const
     }
     return false;
 }
+
+} // Designer::Internal
