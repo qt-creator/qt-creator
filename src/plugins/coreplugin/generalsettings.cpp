@@ -9,6 +9,8 @@
 
 #include <coreplugin/dialogs/restartdialog.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
@@ -17,6 +19,7 @@
 #include <utils/qtcolorbutton.h>
 #include <utils/stylehelper.h>
 
+#include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCoreApplication>
@@ -38,6 +41,7 @@ namespace Internal {
 const char settingsKeyDPI[] = "Core/EnableHighDpiScaling";
 const char settingsKeyShortcutsInContextMenu[] = "General/ShowShortcutsInContextMenu";
 const char settingsKeyCodecForLocale[] = "General/OverrideCodecForLocale";
+const char settingsKeyToolbarStyle[] = "General/ToolbarStyle";
 
 class GeneralSettingsWidget final : public IOptionsPageWidget
 {
@@ -57,6 +61,7 @@ public:
     void fillCodecBox() const;
     static QByteArray codecForLocale();
     static void setCodecForLocale(const QByteArray&);
+    void fillToolbarSyleBox() const;
 
     GeneralSettings *q;
     QComboBox *m_languageBox;
@@ -65,6 +70,7 @@ public:
     QtColorButton *m_colorButton;
     ThemeChooser *m_themeChooser;
     QPushButton *m_resetWarningsButton;
+    QComboBox *m_toolbarStyleBox;
 };
 
 GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
@@ -75,6 +81,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     , m_colorButton(new QtColorButton)
     , m_themeChooser(new ThemeChooser)
     , m_resetWarningsButton(new QPushButton)
+    , m_toolbarStyleBox(new QComboBox)
 {
     m_languageBox->setObjectName("languageBox");
     m_languageBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
@@ -91,6 +98,8 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
         Tr::tr("Re-enable warnings that were suppressed by selecting \"Do Not "
            "Show Again\" (for example, missing highlighter).",
            nullptr));
+
+    m_toolbarStyleBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
     auto resetColorButton = new QPushButton(Tr::tr("Reset"));
     resetColorButton->setToolTip(Tr::tr("Reset to default.", "Color"));
@@ -116,10 +125,12 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     form.addRow({empty, m_showShortcutsInContextMenus});
     form.addRow({Row{m_resetWarningsButton, st}});
     form.addRow({Tr::tr("Text codec for tools:"), m_codecBox, st});
+    form.addRow({Tr::tr("Toolbar Style:"), m_toolbarStyleBox, st});
     Column{Group{title(Tr::tr("User Interface")), form}}.attachTo(this);
 
     fillLanguageBox();
     fillCodecBox();
+    fillToolbarSyleBox();
 
     m_colorButton->setColor(StyleHelper::requestedBaseColor());
     m_resetWarningsButton->setEnabled(canResetWarnings());
@@ -188,6 +199,15 @@ void GeneralSettingsWidget::apply()
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_colorButton->color());
     m_themeChooser->apply();
+    if (const auto newStyle = m_toolbarStyleBox->currentData().value<StyleHelper::ToolbarStyle>();
+        newStyle != StyleHelper::toolbarStyle()) {
+        ICore::settings()->setValueWithDefault(settingsKeyToolbarStyle, int(newStyle),
+                                               int(StyleHelper::defaultToolbarStyle));
+        StyleHelper::setToolbarStyle(newStyle);
+        QStyle *applicationStyle = QApplication::style();
+        for (QWidget *widget : QApplication::allWidgets())
+            applicationStyle->polish(widget);
+    }
 }
 
 bool GeneralSettings::showShortcutsInContextMenu()
@@ -268,12 +288,35 @@ void GeneralSettingsWidget::setCodecForLocale(const QByteArray &codec)
     QTextCodec::setCodecForLocale(QTextCodec::codecForName(codec));
 }
 
+StyleHelper::ToolbarStyle toolbarStylefromSettings()
+{
+    if (!ExtensionSystem::PluginManager::instance()) // May happen in tests
+        return StyleHelper::defaultToolbarStyle;
+
+    return StyleHelper::ToolbarStyle(
+        ICore::settings()->value(settingsKeyToolbarStyle,
+                                 StyleHelper::defaultToolbarStyle).toInt());
+}
+
+void GeneralSettingsWidget::fillToolbarSyleBox() const
+{
+    m_toolbarStyleBox->addItem(Tr::tr("Compact"), StyleHelper::ToolbarStyleCompact);
+    m_toolbarStyleBox->addItem(Tr::tr("Relaxed"), StyleHelper::ToolbarStyleRelaxed);
+    const int curId = m_toolbarStyleBox->findData(toolbarStylefromSettings());
+    m_toolbarStyleBox->setCurrentIndex(curId);
+}
+
 void GeneralSettings::setShowShortcutsInContextMenu(bool show)
 {
     ICore::settings()->setValueWithDefault(settingsKeyShortcutsInContextMenu,
                                            show,
                                            m_defaultShowShortcutsInContextMenu);
     QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus, !show);
+}
+
+void GeneralSettings::applyToolbarStyleFromSettings()
+{
+    StyleHelper::setToolbarStyle(toolbarStylefromSettings());
 }
 
 GeneralSettings::GeneralSettings()

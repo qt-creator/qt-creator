@@ -16,6 +16,8 @@ public:
     static bool showShortcutsInContextMenu();
     void setShowShortcutsInContextMenu(bool show);
 
+    static void applyToolbarStyleFromSettings();
+
 private:
     friend class GeneralSettingsWidget;
     bool m_defaultShowShortcutsInContextMenu;

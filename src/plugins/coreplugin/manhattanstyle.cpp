@@ -3,6 +3,8 @@
 
 #include "manhattanstyle.h"
 
+#include "generalsettings.h"
+
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
 #include <utils/hostosinfo.h>
@@ -390,6 +392,7 @@ ManhattanStyle::ManhattanStyle(const QString &baseStyleName)
     : QProxyStyle(QStyleFactory::create(baseStyleName)),
     d(new ManhattanStylePrivate())
 {
+    Core::Internal::GeneralSettings::applyToolbarStyleFromSettings();
 }
 
 ManhattanStyle::~ManhattanStyle()
