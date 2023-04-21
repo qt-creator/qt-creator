@@ -3,6 +3,8 @@
 
 #include "styledbar.h"
 
+#include "stylehelper.h"
+
 #include <QPainter>
 #include <QStyleOption>
 
@@ -11,14 +13,14 @@ using namespace Utils;
 StyledBar::StyledBar(QWidget *parent)
     : QWidget(parent)
 {
-    setProperty("panelwidget", true);
-    setProperty("panelwidget_singlerow", true);
+    StyleHelper::setPanelWidget(this);
+    StyleHelper::setPanelWidgetSingleRow(this);
     setProperty("lightColored", false);
 }
 
 void StyledBar::setSingleRow(bool singleRow)
 {
-    setProperty("panelwidget_singlerow", singleRow);
+    StyleHelper::setPanelWidgetSingleRow(this, singleRow);
 }
 
 bool StyledBar::isSingleRow() const

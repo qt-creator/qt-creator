@@ -49,6 +49,7 @@
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/url.h>
 #include <utils/utilsicons.h>
 
@@ -197,7 +198,7 @@ QmlProfilerTool::QmlProfilerTool()
             this, &QmlProfilerTool::toggleVisibleFeature);
 
     d->m_timeLabel = new QLabel();
-    d->m_timeLabel->setProperty("panelwidget", true);
+    StyleHelper::setPanelWidget(d->m_timeLabel);
     d->m_timeLabel->setIndent(10);
     updateTimeDisplay();
     connect(d->m_timeLabel, &QObject::destroyed, &d->m_recordingTimer, &QTimer::stop);

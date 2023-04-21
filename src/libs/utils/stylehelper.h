@@ -72,6 +72,8 @@ public:
 
     static void tintImage(QImage &img, const QColor &tintColor);
     static QLinearGradient statusBarGradient(const QRect &statusBarRect);
+    static void setPanelWidget(QWidget *widget, bool value = true);
+    static void setPanelWidgetSingleRow(QWidget *widget, bool value = true);
 
     static bool isQDSTheme();
 

@@ -634,6 +634,16 @@ QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
     return grad;
 }
 
+void StyleHelper::setPanelWidget(QWidget *widget, bool value)
+{
+    widget->setProperty("panelwidget", value);
+}
+
+void StyleHelper::setPanelWidgetSingleRow(QWidget *widget, bool value)
+{
+    widget->setProperty("panelwidget_singlerow", value);
+}
+
 bool StyleHelper::isQDSTheme()
 {
     return creatorTheme() ? creatorTheme()->flag(Theme::QDSTheme) : false;

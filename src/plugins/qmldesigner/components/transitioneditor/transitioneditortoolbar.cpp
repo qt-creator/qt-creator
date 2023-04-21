@@ -23,6 +23,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/stylehelper.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -249,8 +250,8 @@ void TransitionEditorToolBar::createRightControls()
     addSpacing(10);
 
     m_scale = new QSlider(this);
-    m_scale->setProperty("panelwidget", true);
-    m_scale->setProperty("panelwidget_singlerow", true);
+    Utils::StyleHelper::setPanelWidget(m_scale);
+    Utils::StyleHelper::setPanelWidgetSingleRow(m_scale);
     m_scale->setOrientation(Qt::Horizontal);
     m_scale->setMaximumWidth(200);
     m_scale->setMinimumWidth(100);
