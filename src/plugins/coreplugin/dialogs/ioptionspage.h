@@ -22,9 +22,19 @@ namespace Core {
 class CORE_EXPORT IOptionsPageWidget : public QWidget
 {
     Q_OBJECT
+
 public:
-    virtual void apply() = 0;
-    virtual void finish() {}
+    void setOnApply(const std::function<void ()> &func) { m_onApply = func; }
+    void setOnFinish(const std::function<void ()> &func) { m_onFinish = func; }
+
+protected:
+    friend class IOptionsPage;
+    virtual void apply() { if (m_onApply) m_onApply(); }
+    virtual void finish() { if (m_onFinish) m_onFinish(); }
+
+private:
+    std::function<void()> m_onApply;
+    std::function<void()> m_onFinish;
 };
 
 class CORE_EXPORT IOptionsPage : public QObject
