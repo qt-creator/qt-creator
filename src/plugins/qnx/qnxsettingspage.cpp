@@ -484,7 +484,6 @@ static QnxSettingsPagePrivate *dd = nullptr;
 
 // QnxSettingsWidget
 
-
 class ArchitecturesList final : public QWidget
 {
 public:
@@ -593,8 +592,6 @@ QnxSettingsWidget::QnxSettingsWidget()
     populateConfigsCombo();
 
     connect(m_configsCombo, &QComboBox::currentIndexChanged,
-            this, &QnxSettingsWidget::updateInformation);
-    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QnxSettingsWidget::updateInformation);
 }
 
