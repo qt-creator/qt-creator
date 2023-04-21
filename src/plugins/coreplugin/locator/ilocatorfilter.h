@@ -12,13 +12,14 @@
 
 #include <QFutureInterface>
 #include <QIcon>
-#include <QMetaType>
-#include <QVariant>
 #include <QKeySequence>
 
 #include <optional>
 
-namespace Utils::Tasking { class TaskItem; }
+QT_BEGIN_NAMESPACE
+template <typename T>
+class QPromise;
+QT_END_NAMESPACE
 
 namespace Core {
 
@@ -29,6 +30,7 @@ class LocatorWidget;
 
 class ILocatorFilter;
 class LocatorStoragePrivate;
+class LocatorFileCachePrivate;
 
 class AcceptResult
 {
@@ -299,6 +301,37 @@ private:
     bool m_hidden = false;
     bool m_enabled = true;
     bool m_isConfigurable = true;
+};
+
+class CORE_EXPORT LocatorFileCache final
+{
+    Q_DISABLE_COPY_MOVE(LocatorFileCache)
+
+public:
+    // Always called from non-main thread.
+    using FilePathsGenerator = std::function<Utils::FilePaths(const QFuture<void> &)>;
+    // Always called from main thread.
+    using GeneratorProvider = std::function<FilePathsGenerator()>;
+
+    LocatorFileCache();
+
+    void invalidate();
+    void setFilePathsGenerator(const FilePathsGenerator &generator);
+    void setFilePaths(const Utils::FilePaths &filePaths);
+    void setGeneratorProvider(const GeneratorProvider &provider);
+
+    static FilePathsGenerator filePathsGenerator(const Utils::FilePaths &filePaths);
+    LocatorMatcherTask matcher() const;
+
+    using MatchedEntries = std::array<LocatorFilterEntries, int(ILocatorFilter::MatchLevel::Count)>;
+    static Utils::FilePaths processFilePaths(const QFuture<void> &future,
+                                             const Utils::FilePaths &filePaths,
+                                             bool hasPathSeparator,
+                                             const QRegularExpression &regExp,
+                                             const Utils::Link &inputLink,
+                                             LocatorFileCache::MatchedEntries *entries);
+private:
+    std::shared_ptr<LocatorFileCachePrivate> d;
 };
 
 } // namespace Core

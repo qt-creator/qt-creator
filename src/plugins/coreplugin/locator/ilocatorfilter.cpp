@@ -7,13 +7,12 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/asynctask.h>
 #include <utils/fuzzymatcher.h>
-#include <utils/tasktree.h>
 
 #include <QBoxLayout>
 #include <QCheckBox>
-#include <QCoreApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFutureWatcher>
@@ -110,7 +109,7 @@ class ResultsDeduplicator
         LocatorFilterEntries entries() const { return m_data; }
     private:
         LocatorFilterEntries m_data;
-        std::unordered_set<Utils::Link> m_cache;
+        std::unordered_set<Link> m_cache;
     };
 
 public:
@@ -610,7 +609,7 @@ void ILocatorFilter::prepareSearch(const QString &entry)
 /*!
     Sets the refresh recipe for refreshing cached data.
 */
-void ILocatorFilter::setRefreshRecipe(const std::optional<Utils::Tasking::TaskItem> &recipe)
+void ILocatorFilter::setRefreshRecipe(const std::optional<Tasking::TaskItem> &recipe)
 {
     m_refreshRecipe = recipe;
 }
@@ -619,7 +618,7 @@ void ILocatorFilter::setRefreshRecipe(const std::optional<Utils::Tasking::TaskIt
     Returns the refresh recipe for refreshing cached data. By default, the locator filter has
     no recipe set, so that it won't be refreshed.
 */
-std::optional<Utils::Tasking::TaskItem> ILocatorFilter::refreshRecipe() const
+std::optional<Tasking::TaskItem> ILocatorFilter::refreshRecipe() const
 {
     return m_refreshRecipe;
 }
@@ -1158,6 +1157,403 @@ bool ILocatorFilter::isOldSetting(const QByteArray &state)
            The result has the highest number of matches for the regular
            expression.
 */
+
+std::atomic_int s_executeId = 0;
+
+
+class LocatorFileCachePrivate
+{
+public:
+    bool isValid() const { return bool(m_generator); }
+    void invalidate();
+    bool ensureValidated();
+    void bumpExecutionId() { m_executionId = s_executeId.fetch_add(1) + 1; }
+    void update(const LocatorFileCachePrivate &newCache);
+    void setGeneratorProvider(const LocatorFileCache::GeneratorProvider &provider)
+    { m_provider = provider; }
+    void setGenerator(const LocatorFileCache::FilePathsGenerator &generator);
+    LocatorFilterEntries generate(const QFuture<void> &future, const QString &input);
+
+    // Is persistent, does not reset on invalidate
+    LocatorFileCache::GeneratorProvider m_provider;
+    LocatorFileCache::FilePathsGenerator m_generator;
+    int m_executionId = 0;
+
+    std::optional<Utils::FilePaths> m_filePaths;
+
+    QString m_lastInput;
+    std::optional<Utils::FilePaths> m_cache;
+};
+
+// Clears all but provider
+void LocatorFileCachePrivate::invalidate()
+{
+    LocatorFileCachePrivate that;
+    that.m_provider = m_provider;
+    *this = that;
+}
+
+/*!
+    \internal
+
+    Returns true if the cache is valid. Otherwise, tries to validate the cache and returns whether
+    the validation succeeded.
+
+    When the cache is valid, it does nothing and returns true.
+    Otherwise, when the GeneratorProvider is not set, it does nothing and returns false.
+    Otherwise, the GeneratorProvider is used for recreating the FilePathsGenerator.
+    If the recreated FilePathsGenerator is not empty, it return true.
+    Otherwise, it returns false;
+*/
+bool LocatorFileCachePrivate::ensureValidated()
+{
+    if (isValid())
+        return true;
+
+    if (!m_provider)
+        return false;
+
+    invalidate();
+    m_generator = m_provider();
+    return isValid();
+}
+
+void LocatorFileCachePrivate::update(const LocatorFileCachePrivate &newCache)
+{
+    if (m_executionId != newCache.m_executionId)
+        return; // The mismatching executionId was detected, ignoring the update...
+    auto provider = m_provider;
+    *this = newCache;
+    m_provider = provider;
+}
+
+void LocatorFileCachePrivate::setGenerator(const LocatorFileCache::FilePathsGenerator &generator)
+{
+    invalidate();
+    m_generator = generator;
+}
+
+static bool containsPathSeparator(const QString &candidate)
+{
+    return candidate.contains('/') || candidate.contains('*');
+};
+
+/*!
+    \internal
+
+    Uses the generator to update the cache if needed and returns entries for the input.
+    Uses the cached data when no need for re-generation. Updates the cached accordingly.
+*/
+LocatorFilterEntries LocatorFileCachePrivate::generate(const QFuture<void> &future,
+                                                       const QString &input)
+{
+    QTC_ASSERT(isValid(), return {});
+
+    // If search string contains spaces, treat them as wildcard '*' and search in full path
+    const QString wildcardInput = QDir::fromNativeSeparators(input).replace(' ', '*');
+    const Link inputLink = Link::fromString(wildcardInput, true);
+    const QString newInput = inputLink.targetFilePath.toString();
+    const QRegularExpression regExp = ILocatorFilter::createRegExp(newInput);
+    if (!regExp.isValid())
+        return {}; // Don't clear the cache - still remember the cache for the last valid input.
+
+    if (future.isCanceled())
+        return {};
+
+    const bool hasPathSeparator = containsPathSeparator(newInput);
+    const bool containsLastInput = !m_lastInput.isEmpty() && newInput.contains(m_lastInput);
+    const bool pathSeparatorAdded = !containsPathSeparator(m_lastInput) && hasPathSeparator;
+    const bool searchInCache = m_filePaths && m_cache && containsLastInput && !pathSeparatorAdded;
+
+    if (!searchInCache && !m_filePaths) {
+        const FilePaths newPaths = m_generator(future);
+        if (future.isCanceled()) // Ensure we got not canceled results from generator.
+            return {};
+        m_filePaths = newPaths;
+    }
+
+    const FilePaths &sourcePaths = searchInCache ? *m_cache : *m_filePaths;
+    LocatorFileCache::MatchedEntries entries = {};
+    const FilePaths newCache = LocatorFileCache::processFilePaths(
+        future, sourcePaths, hasPathSeparator, regExp, inputLink, &entries);
+    for (auto &entry : entries) {
+        if (future.isCanceled())
+            return {};
+
+        if (entry.size() < 1000)
+            Utils::sort(entry, LocatorFilterEntry::compareLexigraphically);
+    }
+
+    if (future.isCanceled())
+        return {};
+
+    m_lastInput = newInput;
+    m_cache = newCache;
+    return std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries());
+}
+
+/*!
+    \class Core::LocatorFileCache
+
+    \brief The LocatorFileCache class encapsulates all the responsibilities needed for
+           implementing a cache for file filters.
+
+    LocatorFileCache serves as a replacement for the old BaseFileFilter interface.
+*/
+
+/*!
+    \fn LocatorFileCache
+
+    Constructs an invalid cache.
+
+    The cache is considered to be in an invalid state after a call to invalidate(),
+    of after a call to setFilePathsGenerator() when passed functions was empty.
+
+    It it possible to setup the automatic validator for the cache through the
+    setGeneratorProvider().
+
+    \sa invalidate, setGeneratorProvider, setFilePathsGenerator, setFilePaths
+*/
+
+LocatorFileCache::LocatorFileCache()
+    : d(new LocatorFileCachePrivate) {}
+
+/*!
+    Invalidates the cache.
+
+    In order to validate it, use either setFilePathsGenerator() or setFilePaths().
+    The cache may be automatically validated if the GeneratorProvider was set
+    through the setGeneratorProvider().
+
+    \note This function invalidates the cache permanently, clearing all the cached data,
+          and removing the stored generator. The stored generator provider is preserved.
+*/
+void LocatorFileCache::invalidate()
+{
+    d->invalidate();
+}
+
+/*!
+    Sets the file path generator provider.
+
+    The \a provider serves for an automatic validation of the invalid cache by recreating
+    the FilePathsGenerator. The automatic validation happens when the LocatorMatcherTask returned
+    by matcher() is being started, and the cache is not valid at that moment. In this case
+    the stored \a provider is being called.
+
+    The passed \a provider function is always called from the main thread. If needed, it is
+    called prior to starting an asynchronous task that collects the locator filter results.
+
+    When this function is called, the cache isn't invalidated.
+    Whenever cache's invalidation happens, e.g. when invalidate(), setFilePathsGenerator() or
+    setFilePaths() is called, the stored GeneratorProvider is being preserved.
+    In order to clear the stored GeneratorProvider, call this method with an empty
+    function {}.
+*/
+void LocatorFileCache::setGeneratorProvider(const GeneratorProvider &provider)
+{
+    d->setGeneratorProvider(provider);
+}
+
+/*!
+    Sets the file path generator.
+
+    The \a generator serves for returning the full input list of file paths when the
+    associated LocatorMatherTask is being run in a separate thread. When the computation of the
+    full list of file paths takes a considerable amount of time, this computation may
+    be potentially moved to the separate thread, provided that all the dependent data may be safely
+    passed to the \a generator function when this function is being set in the main thread.
+
+    The passed \a generator is always called exclusively from the non-main thread when running
+    LocatorMatcherTask returned by matcher(). It is called when the cached data is
+    empty or when it needs to be regenerated due to a new search which can't reuse
+    the cache from the previous search.
+
+    Generating a new file path list may be a time consuming task. In order to finish the task early
+    when being canceled, the \e future argument of the FilePathsGenerator may be used.
+    The FilePathsGenerator returns the full list of file paths used for file filter's processing.
+
+    Whenever it is possible to postpone the creation of a file path list so that it may be done
+    safely later from the non-main thread, based on some other reentrant/thread-safe data,
+    this method should be used. The other dependent data should be passed by lambda capture.
+    The body of the passed \a generator should take extra care for ensuring that the passed
+    other data via lambda captures are reentrant and the lambda body is thread safe.
+    See the example usage of the generator inside CppIncludesFilter implementation.
+
+    Otherwise, when postponing the creation of file paths list isn't safe, use setFilePaths()
+    with ready made list, prepared in main thread.
+
+    \note This function invalidates the cache, clearing all the cached data,
+          and if the passed generator is non-empty, the cache is set to a valid state.
+          The stored generator provider is preserved.
+
+    \sa setGeneratorProvider, setFilePaths
+*/
+void LocatorFileCache::setFilePathsGenerator(const FilePathsGenerator &generator)
+{
+    d->setGenerator(generator);
+}
+
+/*!
+    Wraps the passed \a filePaths into a trivial FilePathsGenerator and sets it
+    as a cache's generator.
+
+    \note This function invalidates the cache temporarily, clearing all the cached data,
+          and sets it to a valid state with the new generator for the passed \a filePaths.
+
+    \sa setGenerator
+*/
+void LocatorFileCache::setFilePaths(const FilePaths &filePaths)
+{
+    setFilePathsGenerator(filePathsGenerator(filePaths));
+}
+
+/*!
+    Adapts the \a filePaths list into a LocatorFileCacheGenerator.
+    Useful when implementing GeneratorProvider in case a creation of file paths
+    can't be invoked from the non-main thread.
+*/
+LocatorFileCache::FilePathsGenerator LocatorFileCache::filePathsGenerator(
+    const FilePaths &filePaths)
+{
+    return [filePaths](const QFuture<void> &) { return filePaths; };
+}
+
+static ILocatorFilter::MatchLevel matchLevelFor(const QRegularExpressionMatch &match,
+                                                const QString &matchText)
+{
+    const int consecutivePos = match.capturedStart(1);
+    if (consecutivePos == 0)
+        return ILocatorFilter::MatchLevel::Best;
+    if (consecutivePos > 0) {
+        const QChar prevChar = matchText.at(consecutivePos - 1);
+        if (prevChar == '_' || prevChar == '.')
+            return ILocatorFilter::MatchLevel::Better;
+    }
+    if (match.capturedStart() == 0)
+        return ILocatorFilter::MatchLevel::Good;
+    return ILocatorFilter::MatchLevel::Normal;
+}
+
+/*!
+    Helper used internally and by SpotlightLocatorFilter.
+
+    To be called from non-main thread. The cancellation is controlled by the passed \a future.
+    This function periodically checks for the cancellation state of the \a future and returns
+    early when cancellation was detected.
+    Creates lists of matching LocatorFilterEntries categorized by MatcherType. These lists
+    are returned through the \a entries argument.
+
+    Returns a list of all matching files.
+
+    This function checks for each file in \a filePaths if it matches the passed \a regExp.
+    If so, a new entry is created using \a hasPathSeparator and \a inputLink and
+    it's being added into the \a entries argument and the results list.
+*/
+FilePaths LocatorFileCache::processFilePaths(const QFuture<void> &future,
+                                             const FilePaths &filePaths,
+                                             bool hasPathSeparator,
+                                             const QRegularExpression &regExp,
+                                             const Link &inputLink,
+                                             LocatorFileCache::MatchedEntries *entries)
+{
+    FilePaths cache;
+    for (const FilePath &path : filePaths) {
+        if (future.isCanceled())
+            return {};
+
+        const QString matchText = hasPathSeparator ? path.toString() : path.fileName();
+        const QRegularExpressionMatch match = regExp.match(matchText);
+
+        if (match.hasMatch()) {
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = path.fileName();
+            filterEntry.filePath = path;
+            filterEntry.extraInfo = path.shortNativePath();
+            filterEntry.linkForEditor = Link(path, inputLink.targetLine, inputLink.targetColumn);
+            filterEntry.highlightInfo = hasPathSeparator
+                ? ILocatorFilter::highlightInfo(regExp.match(filterEntry.extraInfo),
+                                                LocatorFilterEntry::HighlightInfo::ExtraInfo)
+                : ILocatorFilter::highlightInfo(match);
+            const ILocatorFilter::MatchLevel matchLevel = matchLevelFor(match, matchText);
+            (*entries)[int(matchLevel)].append(filterEntry);
+            cache << path;
+        }
+    }
+    return cache;
+}
+
+static void filter(QPromise<LocatorFileCachePrivate> &promise, const LocatorStorage &storage,
+                   const LocatorFileCachePrivate &cache)
+{
+    QTC_ASSERT(cache.isValid(), return);
+    auto newCache = cache;
+    const LocatorFilterEntries output = newCache.generate(QFuture<void>(promise.future()),
+                                                          storage.input());
+    if (promise.isCanceled())
+        return;
+    storage.reportOutput(output);
+    promise.addResult(newCache);
+}
+
+/*!
+    Returns the locator matcher task for the cache. The task, when successfully finished,
+    updates this LocatorFileCache instance if needed.
+
+    This method is to be used directly by the FilePaths filters. The FilePaths filter should
+    keep an instance of a LocatorFileCache internally. Ensure the LocatorFileCache instance
+    outlives the running matcher, otherwise the cache won't be updated after the task finished.
+
+    When returned LocatorMatcherTask is being run it checks if this cache is valid.
+    When the cache is invalid, it uses GeneratorProvider to update the
+    cache's FilePathsGenerator and validates the cache. If that failed, the task
+    is not started. When the cache is valid, the running task will reuse cached data for
+    calculating the LocatorMatcherTask's results.
+
+    After a successful run of the task, this cache is updated according to the last search.
+    When this cache started a new search in meantime, the cache was invalidated or even deleted,
+    the update of the cache after a successful run of the task is ignored.
+*/
+LocatorMatcherTask LocatorFileCache::matcher() const
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorStorage> storage;
+    std::weak_ptr<LocatorFileCachePrivate> weak = d;
+
+    const auto onSetup = [storage, weak](AsyncTask<LocatorFileCachePrivate> &async) {
+        auto that = weak.lock();
+        if (!that) // LocatorMatcher is running after *this LocatorFileCache was destructed.
+            return TaskAction::StopWithDone;
+
+        if (!that->ensureValidated())
+            return TaskAction::StopWithDone; // The cache is invalid and
+                                             // no provider is set or it returned empty generator
+        that->bumpExecutionId();
+
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+        async.setConcurrentCallData(&filter, *storage, *that);
+        return TaskAction::Continue;
+    };
+    const auto onDone = [weak](const AsyncTask<LocatorFileCachePrivate> &async) {
+        auto that = weak.lock();
+        if (!that)
+            return; // LocatorMatcherTask finished after *this LocatorFileCache was destructed.
+
+        if (!that->isValid())
+            return; // The cache has been invalidated in meantime.
+
+        if (that->m_executionId == 0)
+            return; // The cache has been invalidated and not started.
+
+        if (!async.isResultAvailable())
+            return; // The async task didn't report updated cache.
+
+        that->update(async.result());
+    };
+
+    return {Async<LocatorFileCachePrivate>(onSetup, onDone), storage};
+}
 
 } // Core
 
