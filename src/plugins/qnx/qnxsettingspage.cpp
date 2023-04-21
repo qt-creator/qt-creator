@@ -37,6 +37,7 @@
 #include <QComboBox>
 #include <QDebug>
 #include <QDomDocument>
+#include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QMessageBox>
@@ -483,6 +484,32 @@ static QnxSettingsPagePrivate *dd = nullptr;
 
 // QnxSettingsWidget
 
+
+class ArchitecturesList final : public QWidget
+{
+public:
+    void setConfiguration(const FilePath &envFile)
+    {
+        m_envFile = envFile;
+        delete layout();
+
+        QnxConfiguration *config = dd->configurationFromEnvFile(envFile);
+        if (!config)
+            return;
+
+        auto l = new QHBoxLayout(this);
+        for (const QnxTarget &target : config->m_targets) {
+            auto button = new QPushButton(tr("Create Kit for %1").arg(target.cpuDir()));
+            connect(button, &QPushButton::clicked, this, [config, target] {
+                config->createKit(target);
+            });
+            l->addWidget(button);
+        }
+    }
+
+    FilePath m_envFile;
+};
+
 class QnxSettingsWidget final : public Core::IOptionsPageWidget
 {
 public:
@@ -510,7 +537,6 @@ public:
 
     void addConfiguration();
     void removeConfiguration();
-    void generateKits(bool checked);
     void updateInformation();
     void populateConfigsCombo();
 
@@ -518,12 +544,14 @@ public:
 
 private:
     QComboBox *m_configsCombo = new QComboBox;
-    QCheckBox *m_generateKitsCheckBox = new QCheckBox(Tr::tr("Generate kits"));
     QLabel *m_configName = new QLabel;
     QLabel *m_configVersion = new QLabel;
     QLabel *m_configHost = new QLabel;
     QLabel *m_configTarget = new QLabel;
-    QLabel *m_architecturesLabel = new QLabel;
+    QLabel *m_compiler = new QLabel;
+    QLabel *m_architectures = new QLabel;
+
+    ArchitecturesList *m_kitCreation = new ArchitecturesList;
 
     QList<ConfigState> m_changedConfigs;
 };
@@ -538,7 +566,6 @@ QnxSettingsWidget::QnxSettingsWidget()
     Row {
         Column {
             m_configsCombo,
-            Row { m_generateKitsCheckBox, st },
             Group {
                 title(Tr::tr("Configuration Information:")),
                 Form {
@@ -546,9 +573,11 @@ QnxSettingsWidget::QnxSettingsWidget()
                     Tr::tr("Version:"), m_configVersion, br,
                     Tr::tr("Host:"), m_configHost, br,
                     Tr::tr("Target:"), m_configTarget, br,
-                    Tr::tr("Architectures:"), m_architecturesLabel
+                    Tr::tr("Compiler:"), m_compiler, br,
+                    Tr::tr("Architectures:"), m_architectures
                 }
             },
+            Row { m_kitCreation, st },
             st
         },
         Column {
@@ -566,8 +595,6 @@ QnxSettingsWidget::QnxSettingsWidget()
             this, &QnxSettingsWidget::removeConfiguration);
     connect(m_configsCombo, &QComboBox::currentIndexChanged,
             this, &QnxSettingsWidget::updateInformation);
-    connect(m_generateKitsCheckBox, &QAbstractButton::toggled,
-            this, &QnxSettingsWidget::generateKits);
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QnxSettingsWidget::updateInformation);
 }
@@ -630,32 +657,26 @@ void QnxSettingsWidget::removeConfiguration()
     }
 }
 
-void QnxSettingsWidget::generateKits(bool checked)
-{
-    const FilePath envFile = m_configsCombo->currentData().value<FilePath>();
-    setConfigState(envFile, checked ? Activated : Deactivated);
-}
-
 void QnxSettingsWidget::updateInformation()
 {
     const FilePath envFile = m_configsCombo->currentData().value<FilePath>();
 
     if (QnxConfiguration *config = dd->configurationFromEnvFile(envFile)) {
         config->ensureContents();
-        m_generateKitsCheckBox->setEnabled(config->isValid());
-        m_generateKitsCheckBox->setChecked(config->isActive());
         m_configName->setText(config->m_configName);
         m_configVersion->setText(config->m_version.toString());
         m_configHost->setText(config->m_qnxHost.toString());
         m_configTarget->setText(config->m_qnxTarget.toString());
-        m_architecturesLabel->setText(config->architectureNames());
+        m_compiler->setText(config->m_qccCompiler.toUserOutput());
+        m_architectures->setText(config->architectureNames());
+        m_kitCreation->setConfiguration(envFile);
     } else {
-        m_generateKitsCheckBox->setEnabled(false);
-        m_generateKitsCheckBox->setChecked(false);
         m_configName->setText({});
         m_configVersion->setText({});
         m_configHost->setText({});
-        m_architecturesLabel->setText({});
+        m_compiler->setText({});
+        m_architectures->setText({});
+        m_kitCreation->setConfiguration({});
     }
 }
 
