@@ -3,17 +3,20 @@
 
 #pragma once
 
+#include "qmldesignercorelib_global.h"
+
+#include "abstractview.h"
+#include "metainfo.h"
+#include "modelnode.h"
+#include "skipiterator.h"
+
 #include <QList>
 #include <QPointer>
 #include <QSet>
 #include <QUrl>
 #include <QVector3D>
 
-#include "modelnode.h"
-#include "abstractview.h"
-#include "metainfo.h"
-
-#include "qmldesignercorelib_global.h"
+#include <algorithm>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
@@ -64,7 +67,28 @@ private:
     QPointer<ModelPrivate> m_model;
 };
 
-class ModelPrivate : public QObject {
+struct Increment
+{
+    using iterator = QList<QPointer<AbstractView>>::const_iterator;
+    auto operator()(iterator current) {
+        return std::find_if(std::next(current),
+                            end,
+                            [] (iterator::reference &view) { return view && view->isEnabled(); });
+    }
+
+   iterator end;
+};
+
+class EnabledViewRange : public SkipRange<QList<QPointer<AbstractView>>, Increment>
+{
+public:
+    EnabledViewRange(const container &views)
+        : base{views, Increment{views.end()}}
+    {}
+};
+
+class ModelPrivate : public QObject
+{
     Q_OBJECT
 
     friend Model;
@@ -249,8 +273,6 @@ public:
     InternalNodePointer currentStateNode() const;
     InternalNodePointer currentTimelineNode() const;
 
-    void updateEnabledViews();
-
 private:
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
     void removeAllSubNodes(const InternalNodePointer &node);
@@ -259,7 +281,7 @@ private:
     QList<ModelNode> toModelNodeList(const QList<InternalNodePointer> &nodeList, AbstractView *view) const;
     QVector<ModelNode> toModelNodeVector(const QVector<InternalNodePointer> &nodeVector, AbstractView *view) const;
     QVector<InternalNodePointer> toInternalNodeVector(const QVector<ModelNode> &modelNodeVector) const;
-    const QList<QPointer<AbstractView>> enabledViews() const;
+    EnabledViewRange enabledViews() const;
 
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
@@ -271,7 +293,6 @@ private:
     Imports m_possibleImportList;
     Imports m_usedImportList;
     QList<QPointer<AbstractView>> m_viewList;
-    QList<QPointer<AbstractView>> m_enabledViewList;
     QList<InternalNodePointer> m_selectedInternalNodeList;
     QHash<QString,InternalNodePointer> m_idNodeHash;
     QHash<qint32, InternalNodePointer> m_internalIdNodeHash;

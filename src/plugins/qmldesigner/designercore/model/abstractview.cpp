@@ -143,9 +143,6 @@ The default implementation is setting the reference of the model to the view.
 void AbstractView::modelAttached(Model *model)
 {
     setModel(model);
-
-    if (model)
-        model->d->updateEnabledViews();
 }
 
 /*!
@@ -617,9 +614,6 @@ bool AbstractView::isEnabled() const
 void AbstractView::setEnabled(bool b)
 {
     m_enabled = b;
-
-    if (model())
-        model()->d->updateEnabledViews();
 }
 
 QList<ModelNode> AbstractView::allModelNodes() const

@@ -371,6 +371,7 @@ extend_qtc_library(QmlDesignerCore
     rewriteactioncompressor.h
     rewriterview.cpp
     signalhandlerproperty.cpp
+    skipiterator.h
     stylesheetmerger.cpp
     textmodifier.cpp
     texttomodelmerger.cpp

@@ -96,7 +96,6 @@ void ModelPrivate::detachAllViews()
         detachView(view.data(), true);
 
     m_viewList.clear();
-    updateEnabledViews();
 
     if (m_nodeInstanceView) {
         m_nodeInstanceView->modelAboutToBeDetached(m_model);
@@ -299,9 +298,9 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
     m_internalIdNodeHash.remove(node->internalId);
 }
 
-const QList<QPointer<AbstractView>> ModelPrivate::enabledViews() const
+EnabledViewRange ModelPrivate::enabledViews() const
 {
-    return m_enabledViewList;
+    return EnabledViewRange{m_viewList};
 }
 
 void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
@@ -754,7 +753,6 @@ void ModelPrivate::detachView(AbstractView *view, bool notifyView)
     if (notifyView)
         view->modelAboutToBeDetached(m_model);
     m_viewList.removeOne(view);
-    updateEnabledViews();
 }
 
 void ModelPrivate::notifyNodeCreated(const InternalNodePointer &newInternalNodePointer)
@@ -1315,13 +1313,6 @@ NodeInstanceView *ModelPrivate::nodeInstanceView() const
 InternalNodePointer ModelPrivate::currentTimelineNode() const
 {
     return m_currentTimelineNode;
-}
-
-void ModelPrivate::updateEnabledViews()
-{
-    m_enabledViewList = Utils::filtered(m_viewList, [](QPointer<AbstractView> view) {
-        return view->isEnabled();
-    });
 }
 
 InternalNodePointer ModelPrivate::nodeForId(const QString &id) const
