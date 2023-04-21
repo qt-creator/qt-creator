@@ -747,7 +747,11 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     auto seeAllLink = new QLabel("<a href=\"link\">" + Tr::tr("Show All") + " &gt;</a>", this);
     seeAllLink->setVisible(gridView->maxRows().has_value());
     connect(seeAllLink, &QLabel::linkActivated, this, [this, section] { zoomInSection(section); });
-    QWidget *sectionLabel = Column{hr, Row{section.name, st, seeAllLink, Space(HSpacing)}}.emerge(
+    QWidget *line = createHr(this);
+    QSizePolicy linePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
+    linePolicy.setHorizontalStretch(2);
+    line->setSizePolicy(linePolicy);
+    QWidget *sectionLabel = Row{section.name, line, seeAllLink, Space(HSpacing)}.emerge(
         Layouting::WithoutMargins);
     m_sectionLabels.append(sectionLabel);
     sectionLabel->setContentsMargins(0, ItemGap, 0, 0);
