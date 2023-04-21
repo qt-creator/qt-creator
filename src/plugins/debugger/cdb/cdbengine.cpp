@@ -15,6 +15,7 @@
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerprotocol.h>
+#include <debugger/debuggersourcepathmappingwidget.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggertr.h>
 #include <debugger/disassembleragent.h>
@@ -224,7 +225,8 @@ void CdbEngine::init()
         }
     }
 
-    const SourcePathMap &sourcePathMap = debuggerSettings()->sourcePathMap.value();
+    const SourcePathMap &sourcePathMap
+        = mergePlatformQtPath(runParameters(), debuggerSettings()->sourcePathMap.value());
     if (!sourcePathMap.isEmpty()) {
         for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd(); it != cend; ++it) {
             m_sourcePathMappings.push_back({QDir::toNativeSeparators(it.key()),
