@@ -7,6 +7,7 @@
 
 #include <QString>
 #include <QFile>
+#include <QRegularExpression>
 #include <QTextStream>
 #include <QHash>
 
@@ -186,8 +187,10 @@ QString QmlBundle::toString(const QString &indent)
 }
 
 QStringList QmlBundle::maybeReadTrie(Trie &trie, Utils::JsonObjectValue *config,
-                                 const QString &path, const QString &propertyName, bool required)
+                                     const QString &path, const QString &propertyName,
+                                     bool required, bool stripVersions)
 {
+    static const QRegularExpression versionNumberAtEnd("^(.+)( \\d+\\.\\d+)$");
     QStringList res;
     if (!config->hasMember(propertyName)) {
         if (required)
@@ -202,7 +205,13 @@ QStringList QmlBundle::maybeReadTrie(Trie &trie, Utils::JsonObjectValue *config,
         for (Utils::JsonValue *v : elements) {
             Utils::JsonStringValue *impStr = ((v != nullptr) ? v->toString() : nullptr);
             if (impStr != nullptr) {
-                trie.insert(impStr->value());
+                QString value = impStr->value();
+                if (stripVersions) {
+                    const QRegularExpressionMatch match = versionNumberAtEnd.match(value);
+                    if (match.hasMatch())
+                        value = match.captured(1);
+                }
+                trie.insert(value);
             } else {
                 res.append(QString::fromLatin1("Expected all elements of array in property \"%1\" "
                                                "to be strings in QmlBundle at %2.")
@@ -217,7 +226,7 @@ QStringList QmlBundle::maybeReadTrie(Trie &trie, Utils::JsonObjectValue *config,
     return res;
 }
 
-bool QmlBundle::readFrom(QString path, QStringList *errors)
+bool QmlBundle::readFrom(QString path, bool stripVersions, QStringList *errors)
 {
     Utils::JsonMemoryPool pool;
 
@@ -249,8 +258,8 @@ bool QmlBundle::readFrom(QString path, QStringList *errors)
     }
     errs << maybeReadTrie(m_searchPaths, config, path, QLatin1String("searchPaths"));
     errs << maybeReadTrie(m_installPaths, config, path, QLatin1String("installPaths"));
-    errs << maybeReadTrie(m_supportedImports, config, path, QLatin1String("supportedImports")
-                             , true);
+    errs << maybeReadTrie(m_supportedImports, config, path, QLatin1String("supportedImports"),
+                          true, stripVersions);
     errs << maybeReadTrie(m_implicitImports, config, path, QLatin1String("implicitImports"));
     if (errors)
         (*errors) << errs;

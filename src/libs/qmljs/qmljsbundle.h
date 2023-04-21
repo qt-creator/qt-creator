@@ -53,14 +53,15 @@ public:
     bool writeTo(const QString &path) const;
     bool writeTo(QTextStream &stream, const QString &indent = QString()) const;
     QString toString(const QString &indent = QString());
-    bool readFrom(QString path, QStringList *errors);
+    bool readFrom(QString path, bool stripVersions, QStringList *errors);
     bool operator==(const QmlBundle &o) const;
     bool operator!=(const QmlBundle &o) const;
 private:
     static void printEscaped(QTextStream &s, const QString &str);
     static void writeTrie(QTextStream &stream, const Trie &t, const QString &indent);
     QStringList maybeReadTrie(Trie &trie, Utils::JsonObjectValue *config, const QString &path,
-                          const QString &propertyName, bool required = false);
+                              const QString &propertyName, bool required = false,
+                              bool stripVersions = false);
 
     QString m_name;
     Trie m_searchPaths;
