@@ -20,7 +20,7 @@ class QmlDesignerBasePlugin::Data
 {
 public:
     DesignerSettings settings;
-    Utils::UniqueObjectPtr<StudioStyle> style;
+    StudioStyle *style = nullptr;
     StudioConfigSettingsPage studioConfigSettingsPage;
 
     Data()
@@ -47,9 +47,9 @@ DesignerSettings &QmlDesignerBasePlugin::settings()
 QStyle *QmlDesignerBasePlugin::style()
 {
     if (!global->d->style)
-        global->d->style = Utils::makeUniqueObjectPtr<StudioStyle>(QApplication::style());
+        global->d->style = new StudioStyle(QApplication::style());
 
-    return global->d->style.get();
+    return global->d->style;
 }
 
 StudioConfigSettingsPage *QmlDesignerBasePlugin::studioConfigSettingsPage()
