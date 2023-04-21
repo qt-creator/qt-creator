@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 
@@ -6,6 +6,12 @@
     \page qtcreator-toc.html
 
     \title All Topics
+
+    \note The following list has links to all the individual topics (HTML files)
+    in the \QC Manual. Use your browser's page search to find a link to a
+    particular topic in the list. For a more extensive search, use the
+    \uicontrol Search function in the \l{https://doc.qt.io/qtcreator/}
+    {Qt documentation} portal or in the \l {Using the Help Mode}{Help} mode.
 
     \list
         \li \l{Getting Started}
