@@ -930,13 +930,7 @@ OutputPaneManageButton::OutputPaneManageButton()
 {
     setFocusPolicy(Qt::NoFocus);
     setCheckable(true);
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-}
-
-QSize OutputPaneManageButton::sizeHint() const
-{
-    ensurePolished();
-    return QSize(numberAreaWidth(), 16);
+    setFixedWidth(StyleHelper::toolbarStyle() == Utils::StyleHelper::ToolbarStyleCompact ? 17 : 21);
 }
 
 void OutputPaneManageButton::paintEvent(QPaintEvent*)
@@ -949,7 +943,9 @@ void OutputPaneManageButton::paintEvent(QPaintEvent*)
     QStyle *s = style();
     QStyleOption arrowOpt;
     arrowOpt.initFrom(this);
-    arrowOpt.rect = QRect(6, rect().center().y() - 3, 8, 8);
+    constexpr int arrowSize = 8;
+    arrowOpt.rect = QRect(0, 0, arrowSize, arrowSize);
+    arrowOpt.rect.moveCenter(rect().center());
     arrowOpt.rect.translate(0, -3);
     s->drawPrimitive(QStyle::PE_IndicatorArrowUp, &arrowOpt, &p, this);
     arrowOpt.rect.translate(0, 6);

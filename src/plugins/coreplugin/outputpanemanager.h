@@ -134,7 +134,6 @@ class OutputPaneManageButton : public QToolButton
     Q_OBJECT
 public:
     OutputPaneManageButton();
-    QSize sizeHint() const override;
     void paintEvent(QPaintEvent*) override;
 };
 
