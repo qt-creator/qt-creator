@@ -232,7 +232,7 @@ Toolchains QnxConfiguration::createToolChains(const QnxTarget &target)
     for (const Id language : {ProjectExplorer::Constants::C_LANGUAGE_ID,
                               ProjectExplorer::Constants::CXX_LANGUAGE_ID}) {
         auto toolChain = new QnxToolChain;
-        toolChain->setDetection(ToolChain::AutoDetection);
+        toolChain->setDetection(ToolChain::ManualDetection);
         toolChain->setLanguage(language);
         toolChain->setTargetAbi(target.m_abi);
         toolChain->setDisplayName(Tr::tr("QCC for %1 (%2)")
