@@ -862,6 +862,60 @@ public:
     }
 };
 
+class FakeVimUserCommandsPageWidget : public IOptionsPageWidget
+{
+public:
+    FakeVimUserCommandsPageWidget(FakeVimUserCommandsModel *model)
+        : m_model(model)
+    {
+        auto widget = new QTreeView;
+        widget->setModel(m_model);
+        widget->resizeColumnToContents(0);
+
+        auto delegate = new FakeVimUserCommandsDelegate(widget);
+        widget->setItemDelegateForColumn(1, delegate);
+
+        auto layout = new QGridLayout(this);
+        layout->addWidget(widget, 0, 0);
+        setLayout(layout);
+    }
+
+private:
+    void apply() final
+    {
+        // now save the mappings if necessary
+        const UserCommandMap &current = m_model->commandMap();
+        UserCommandMap &userMap = dd->m_userCommandMap;
+
+        if (current != userMap) {
+            QSettings *settings = ICore::settings();
+            settings->beginWriteArray(userCommandMapGroup);
+            int count = 0;
+            using Iterator = UserCommandMap::const_iterator;
+            const Iterator end = current.constEnd();
+            for (Iterator it = current.constBegin(); it != end; ++it) {
+                const int key = it.key();
+                const QString cmd = it.value();
+
+                if ((dd->m_defaultUserCommandMap.contains(key)
+                     && dd->m_defaultUserCommandMap[key] != cmd)
+                        || (!dd->m_defaultUserCommandMap.contains(key) && !cmd.isEmpty())) {
+                    settings->setArrayIndex(count);
+                    settings->setValue(idKey, key);
+                    settings->setValue(cmdKey, cmd);
+                    ++count;
+                }
+            }
+            settings->endArray();
+            userMap.clear();
+            userMap.insert(dd->m_defaultUserCommandMap);
+            userMap.insert(current);
+        }
+    }
+
+    FakeVimUserCommandsModel *m_model;
+};
+
 class FakeVimUserCommandsPage : public IOptionsPage
 {
 public:
@@ -870,75 +924,12 @@ public:
         setId(SETTINGS_USER_CMDS_ID);
         setDisplayName(Tr::tr("User Command Mapping"));
         setCategory(SETTINGS_CATEGORY);
+        setWidgetCreator([this] { return new FakeVimUserCommandsPageWidget(&m_model); });
     }
-
-    void apply() override;
-    void finish() override {}
-
-    QWidget *widget() override;
-    void initialize() {}
-    UserCommandMap currentCommandMap() { return m_model->commandMap(); }
 
 private:
-    QPointer<QWidget> m_widget;
-    FakeVimUserCommandsModel *m_model = nullptr;
+    FakeVimUserCommandsModel m_model;
 };
-
-QWidget *FakeVimUserCommandsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new QWidget;
-
-        m_model = new FakeVimUserCommandsModel;
-        auto widget = new QTreeView;
-        m_model->setParent(widget);
-        widget->setModel(m_model);
-        widget->resizeColumnToContents(0);
-
-        auto delegate = new FakeVimUserCommandsDelegate(widget);
-        widget->setItemDelegateForColumn(1, delegate);
-
-        auto layout = new QGridLayout(m_widget);
-        layout->addWidget(widget, 0, 0);
-        m_widget->setLayout(layout);
-    }
-    return m_widget;
-}
-
-void FakeVimUserCommandsPage::apply()
-{
-    if (!m_widget) // page has not been shown at all
-        return;
-
-    // now save the mappings if necessary
-    const UserCommandMap &current = currentCommandMap();
-    UserCommandMap &userMap = dd->m_userCommandMap;
-
-    if (current != userMap) {
-        QSettings *settings = ICore::settings();
-        settings->beginWriteArray(userCommandMapGroup);
-        int count = 0;
-        using Iterator = UserCommandMap::const_iterator;
-        const Iterator end = current.constEnd();
-        for (Iterator it = current.constBegin(); it != end; ++it) {
-            const int key = it.key();
-            const QString cmd = it.value();
-
-            if ((dd->m_defaultUserCommandMap.contains(key)
-                 && dd->m_defaultUserCommandMap[key] != cmd)
-                    || (!dd->m_defaultUserCommandMap.contains(key) && !cmd.isEmpty())) {
-                settings->setArrayIndex(count);
-                settings->setValue(idKey, key);
-                settings->setValue(cmdKey, cmd);
-                ++count;
-            }
-        }
-        settings->endArray();
-        userMap.clear();
-        userMap.insert(dd->m_defaultUserCommandMap);
-        userMap.insert(current);
-    }
-}
 
 
 ///////////////////////////////////////////////////////////////////////
