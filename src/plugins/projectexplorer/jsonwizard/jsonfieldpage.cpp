@@ -599,10 +599,14 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
     using namespace Utils;
     if (m_completion == Completion::None)
         return;
-    const auto handleResults = [this, lineEdit](const LocatorFilterEntries &entries) {
+    LocatorMatcher *matcher = new LocatorMatcher;
+    matcher->setParent(lineEdit);
+    matcher->setTasks(LocatorMatcher::matchers(MatcherType::Classes));
+    const auto handleResults = [lineEdit, matcher, completion = m_completion] {
         QSet<QString> namespaces;
         QStringList classes;
         Project * const project = ProjectTree::currentProject();
+        const LocatorFilterEntries entries = matcher->outputData();
         for (const LocatorFilterEntry &entry : entries) {
             static const auto isReservedName = [](const QString &name) {
                 static const QRegularExpression rx1("^_[A-Z].*");
@@ -623,7 +627,7 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
             if (hasNamespace) {
                 if (isBaseClassCandidate)
                     classes << (entry.extraInfo + "::" + entry.displayName);
-                if (m_completion == Completion::Namespaces) {
+                if (completion == Completion::Namespaces) {
                     if (!project
                             || entry.filePath.startsWith(project->projectDirectory().toString())) {
                         namespaces << entry.extraInfo;
@@ -632,7 +636,7 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
             }
         }
         QStringList completionList;
-        if (m_completion == Completion::Namespaces) {
+        if (completion == Completion::Namespaces) {
             completionList = toList(namespaces);
             completionList = filtered(completionList, [&classes](const QString &ns) {
                 return !classes.contains(ns);
@@ -646,9 +650,7 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
         completionList.sort();
         lineEdit->setSpecialCompleter(new QCompleter(completionList, lineEdit));
     };
-    LocatorMatcher *matcher = new LocatorMatcher;
-    matcher->setTasks(LocatorMatcher::matchers(MatcherType::Classes));
-    QObject::connect(matcher, &LocatorMatcher::serialOutputDataReady, lineEdit, handleResults);
+    QObject::connect(matcher, &LocatorMatcher::done, lineEdit, handleResults);
     QObject::connect(matcher, &LocatorMatcher::done, matcher, &QObject::deleteLater);
     matcher->start();
 }
