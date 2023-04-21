@@ -21,6 +21,15 @@ auto VersionProperty(const Matcher &matcher)
     return Property(&QmlDesigner::Import::version, matcher);
 }
 
+MATCHER(HasDuplicates, std::string(negation ? "hasn't duplicates" : "has dublicates"))
+{
+    auto values = arg;
+    std::sort(values.begin(), values.begin());
+    auto found = std::adjacent_find(values.begin(), values.end());
+
+    return found != values.end();
+}
+
 class ModuleScanner : public testing::Test
 {
 protected:
@@ -68,6 +77,22 @@ TEST_F(ModuleScanner, Version)
     scanner.scan(QStringList{TESTDATA_DIR "/modulescanner"});
 
     ASSERT_THAT(scanner.modules(), ElementsAre(AllOf(UrlProperty("Example"), VersionProperty("1.3"))));
+}
+
+TEST_F(ModuleScanner, Duplicates)
+{
+    scanner.scan(QStringList{QT6_INSTALL_PREFIX});
+
+    ASSERT_THAT(scanner.modules(), Not(HasDuplicates()));
+}
+
+TEST_F(ModuleScanner, DontAddModulesAgain)
+{
+    scanner.scan(QStringList{QT6_INSTALL_PREFIX});
+
+    scanner.scan(QStringList{QT6_INSTALL_PREFIX});
+
+    ASSERT_THAT(scanner.modules(), Not(HasDuplicates()));
 }
 
 } // namespace
