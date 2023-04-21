@@ -93,4 +93,18 @@ QtcPlugin {
         "projecttreehelper.cpp",
         "projecttreehelper.h"
     ]
+
+    Group {
+        name: "3rdparty"
+        cpp.includePaths: base.concat("3rdparty/cmake")
+
+        prefix: "3rdparty/cmake/"
+        files: [
+            "cmListFileCache.cxx",
+            "cmListFileCache.h",
+            "cmListFileLexer.c",
+            "cmListFileLexer.h",
+            "cmStandardLexer.h",
+        ]
+    }
 }
