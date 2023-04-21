@@ -558,9 +558,6 @@ private:
 
 QnxSettingsWidget::QnxSettingsWidget()
 {
-    auto addButton = new QPushButton(Tr::tr("Add..."));
-    auto removeButton = new QPushButton(Tr::tr("Remove"));
-
     using namespace Layouting;
 
     Row {
@@ -581,18 +578,20 @@ QnxSettingsWidget::QnxSettingsWidget()
             st
         },
         Column {
-            addButton,
-            removeButton,
+            PushButton {
+                text(Tr::tr("Add...")),
+                onClicked([this] { addConfiguration(); }, this)
+            },
+            PushButton {
+                text(Tr::tr("Remove")),
+                onClicked([this] { removeConfiguration(); }, this)
+            },
             st
         }
     }.attachTo(this);
 
     populateConfigsCombo();
 
-    connect(addButton, &QAbstractButton::clicked,
-            this, &QnxSettingsWidget::addConfiguration);
-    connect(removeButton, &QAbstractButton::clicked,
-            this, &QnxSettingsWidget::removeConfiguration);
     connect(m_configsCombo, &QComboBox::currentIndexChanged,
             this, &QnxSettingsWidget::updateInformation);
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
