@@ -23,8 +23,6 @@ class VcpkgSettingsPage final : public Core::IOptionsPage
 {
 public:
     VcpkgSettingsPage();
-
-    void apply() override;
 };
 
 } // namespace Vcpkg::Internal

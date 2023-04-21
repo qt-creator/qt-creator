@@ -43,13 +43,11 @@ bool VcpkgSettings::vcpkgRootValid() const
     return (vcpkgRoot.filePath() / "vcpkg").withExecutableSuffix().isExecutableFile();
 }
 
-VcpkgSettingsPage::VcpkgSettingsPage()
+class VcpkgSettingsPageWidget : public Core::IOptionsPageWidget
 {
-    setId(Constants::TOOLSSETTINGSPAGE_ID);
-    setDisplayName("Vcpkg");
-    setCategory(CMakeProjectManager::Constants::Settings::CATEGORY);
-
-    setLayouter([] (QWidget *widget) {
+public:
+    VcpkgSettingsPageWidget()
+    {
         auto websiteButton = new QToolButton;
         websiteButton->setIcon(Utils::Icons::ONLINE.icon());
         websiteButton->setToolTip(Constants::WEBSITE_URL);
@@ -64,17 +62,22 @@ VcpkgSettingsPage::VcpkgSettingsPage()
                 },
             },
             st,
-        }.attachTo(widget);
+        }.attachTo(this);
 
         connect(websiteButton, &QAbstractButton::clicked, [] {
             QDesktopServices::openUrl(QUrl::fromUserInput(Constants::WEBSITE_URL));
         });
-    });
-}
 
-void VcpkgSettingsPage::apply()
+        setOnApply([] {  VcpkgSettings::instance()->writeSettings(Core::ICore::settings()); });
+    }
+};
+
+VcpkgSettingsPage::VcpkgSettingsPage()
 {
-    VcpkgSettings::instance()->writeSettings(Core::ICore::settings());
+    setId(Constants::TOOLSSETTINGSPAGE_ID);
+    setDisplayName("Vcpkg");
+    setCategory(CMakeProjectManager::Constants::Settings::CATEGORY);
+    setWidgetCreator([] { return new VcpkgSettingsPageWidget; });
 }
 
 } // namespace Vcpkg::Internal
