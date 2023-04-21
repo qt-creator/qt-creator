@@ -45,6 +45,7 @@ private:
 
     QQuick3DViewport *m_view3D = nullptr;
     bool m_bakingStarted = false;
+    bool m_callbackReceived = false;
     int m_renderCount = 0;
     QProcess *m_denoiser = nullptr;
     QTemporaryDir m_workingDir;

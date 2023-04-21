@@ -34,7 +34,7 @@ void BakeLightsConnectionManager::dispatchCommand(const QVariant &command,
             m_progressCallback(cmd.data().toString());
             break;
         case PuppetToCreatorCommand::BakeLightsAborted:
-            m_finishedCallback(tr("Baking aborted!"));
+            m_finishedCallback(tr("Baking aborted: %1").arg(cmd.data().toString()));
             break;
         case PuppetToCreatorCommand::BakeLightsFinished:
             m_finishedCallback(tr("Baking finished!"));

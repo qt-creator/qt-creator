@@ -93,6 +93,7 @@ void Qt5BakeLightsNodeInstanceServer::bakeLights()
 
     QQuick3DLightmapBaker::Callback callback = [this](QQuick3DLightmapBaker::BakingStatus status,
             std::optional<QString> msg, QQuick3DLightmapBaker::BakingControl *) {
+        m_callbackReceived = true;
         switch (status) {
         case QQuick3DLightmapBaker::BakingStatus::Progress:
         case QQuick3DLightmapBaker::BakingStatus::Warning:
@@ -224,8 +225,11 @@ void Qt5BakeLightsNodeInstanceServer::render()
     } else {
         rootNodeInstance().updateDirtyNodeRecursive();
         renderWindow();
-        if (m_bakingStarted)
+        if (m_bakingStarted) {
             slowDownRenderTimer(); // No more renders needed
+            if (!m_callbackReceived)
+                abort(tr("No bakeable models detected."));
+        }
     }
 }
 #endif
