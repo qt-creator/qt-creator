@@ -14,6 +14,8 @@
 #include "rewritingexception.h"
 #include "viewmanager.h"
 
+#include <model/modelutils.h>
+
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/algorithm.h>
@@ -300,7 +302,7 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
             if (exitVal == QDialog::Accepted)
                 overwriteFiles = dlg.selectedFiles();
             if (!overwriteFiles.isEmpty()) {
-                overwriteFiles.append(Utils::toList(alwaysOverwrite));
+                overwriteFiles.append(::Utils::toList(alwaysOverwrite));
                 m_overwrittenImports.insert(pd.targetDirPath, overwriteFiles);
             } else {
                 addWarning(tr("No files selected for overwrite, skipping import: \"%1\".").arg(pd.assetName));
@@ -359,9 +361,8 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(ParseData &pd)
                 qmlInfo.append(".");
                 qmlInfo.append(pd.assetName);
                 qmlInfo.append('\n');
-                m_requiredImports.append(Import::createLibraryImport(
-                                             QStringLiteral("%1.%2").arg(pd.targetDir.dirName(),
-                                                                         pd.assetName), version));
+                m_requiredImports.append(
+                    QStringLiteral("%1.%2").arg(pd.targetDir.dirName(), pd.assetName));
                 while (qmlIt.hasNext()) {
                     qmlIt.next();
                     QFileInfo fi = QFileInfo(qmlIt.filePath());
@@ -417,11 +418,8 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(ParseData &pd)
                                 }
 
                                 // Add quick3D import unless it is already added
-                                if (impVersionMajor > 0
-                                    && m_requiredImports.first().url() != "QtQuick3D") {
-                                    m_requiredImports.prepend(Import::createLibraryImport(
-                                                                 "QtQuick3D", impVersionStr));
-                                }
+                                if (impVersionMajor > 0 && m_requiredImports.first() != "QtQuick3D")
+                                    m_requiredImports.prepend("QtQuick3D");
                             }
                             if (impVersionMajor > 0 && impVersionMajor < 6) {
                                 pd.iconFile = iconFileName;
@@ -683,66 +681,42 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
             QFuture<void> result;
             if (modelManager) {
                 QmlJS::PathsAndLanguages pathToScan;
-                pathToScan.maybeInsert(Utils::FilePath::fromString(m_importPath));
-                result = Utils::runAsync(&QmlJS::ModelManagerInterface::importScan,
-                                         modelManager->workingCopy(), pathToScan,
-                                         modelManager, true, true, true);
+                pathToScan.maybeInsert(::Utils::FilePath::fromString(m_importPath));
+                result = ::Utils::runAsync(&QmlJS::ModelManagerInterface::importScan,
+                                           modelManager->workingCopy(),
+                                           pathToScan,
+                                           modelManager,
+                                           true,
+                                           true,
+                                           true);
             }
 
             // First we have to wait a while to ensure qmljs detects new files and updates its
-            // internal model. Then we make a non-change to the document to trigger qmljs snapshot
-            // update. There is an inbuilt delay before rewriter change actually updates the data
-            // model, so we need to wait for another moment to allow the change to take effect.
-            // Otherwise subsequent subcomponent manager update won't detect new imports properly.
+            // internal model. Then we force amend on rewriter to trigger qmljs snapshot update.
             QTimer *timer = new QTimer(parent());
             static int counter;
             counter = 0;
 
             timer->callOnTimeout([this, timer, progressTitle, model, result]() {
                 if (!isCancelled()) {
-                    notifyProgress(++counter, progressTitle);
-                    if (counter < 50) {
+                    notifyProgress(++counter * 2, progressTitle);
+                    if (counter < 49) {
                         if (result.isCanceled() || result.isFinished())
-                            counter = 49; // skip to next step
-                    } else if (counter == 50) {
+                            counter = 48; // skip to next step
+                    } else if (counter == 49) {
                         QmlDesignerPlugin::instance()->documentManager().resetPossibleImports();
-                        model->rewriterView()->textModifier()->replace(0, 0, {});
-                    } else if (counter < 100) {
+                        model->rewriterView()->forceAmend();
                         try {
-                            const Imports posImports = model->possibleImports();
-                            const Imports currentImports = model->imports();
-                            Imports newImportsToAdd;
-
-                            for (auto &imp : std::as_const(m_requiredImports)) {
-                                const bool isPos = Utils::contains(posImports, [imp](const Import &posImp) {
-                                    return posImp.url() == imp.url();
-                                });
-                                const bool isCur = Utils::contains(currentImports, [imp](const Import &curImp) {
-                                    return curImp.url() == imp.url();
-                                });
-                                if (!(isPos || isCur))
-                                    return;
-                                // Check again with 'contains' to ensure we insert latest version
-                                if (!currentImports.contains(imp))
-                                    newImportsToAdd.append(imp);
-                            }
-                            if (counter == 99)
+                            RewriterTransaction transaction = model->rewriterView()->beginRewriterTransaction(
+                                QByteArrayLiteral("ItemLibraryAssetImporter::finalizeQuick3DImport"));
+                            bool success = Utils::addImportsWithCheck(m_requiredImports, model);
+                            if (!success)
                                 addError(tr("Failed to insert import statement into qml document."));
-                            else
-                                counter = 99;
-                            if (!newImportsToAdd.isEmpty()) {
-                                RewriterTransaction transaction
-                                        = model->rewriterView()->beginRewriterTransaction(
-                                            QByteArrayLiteral("ItemLibraryAssetImporter::finalizeQuick3DImport"));
-
-                                model->changeImports(newImportsToAdd, {});
-                                transaction.commit();
-                            }
+                            transaction.commit();
                         } catch (const RewritingException &e) {
                             addError(tr("Failed to update imports: %1").arg(e.description()));
-                            counter = 99;
                         }
-                    } else if (counter >= 100) {
+                    } else if (counter >= 50) {
                         if (!m_overwrittenImports.isEmpty())
                             model->rewriterView()->emitCustomNotification("asset_import_update");
                         timer->stop();
@@ -752,7 +726,7 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
                     timer->stop();
                 }
             });
-            timer->start(50);
+            timer->start(100);
         } else {
             notifyFinished();
         }

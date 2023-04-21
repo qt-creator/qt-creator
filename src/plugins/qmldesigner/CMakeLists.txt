@@ -343,6 +343,8 @@ extend_qtc_library(QmlDesignerCore
     modelnodepositionstorage.cpp
     modeltotextmerger.cpp
     modeltotextmerger.h
+    modelutils.cpp
+    modelutils.h
     nodeabstractproperty.cpp
     nodelistproperty.cpp
     nodeproperty.cpp

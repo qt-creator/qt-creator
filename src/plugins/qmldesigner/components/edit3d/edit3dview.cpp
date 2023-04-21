@@ -23,6 +23,8 @@
 #include "seekerslider.h"
 #include "theme.h"
 
+#include <model/modelutils.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
@@ -919,25 +921,12 @@ Edit3DBakeLightsAction *Edit3DView::bakeLightsAction() const
 void Edit3DView::addQuick3DImport()
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
-    if (document && !document->inFileComponentModelActive() && model()) {
-        Import qtQuick3DImport;
-        differenceCall(model()->possibleImports(), model()->imports(), [&](const auto &import) {
-            if (import.url() == "QtQuick3D")
-                qtQuick3DImport = import;
-        });
-        if (!qtQuick3DImport.isEmpty()) {
-            if (!qtQuick3DImport.version().isEmpty() && qtQuick3DImport.majorVersion() >= 6) {
-                // Prefer empty version number in Qt6 and beyond
-                model()->changeImports({Import::createLibraryImport(qtQuick3DImport.url(),
-                                                                    {},
-                                                                    qtQuick3DImport.alias(),
-                                                                    qtQuick3DImport.importPaths())},
-                                       {});
-            } else {
-                model()->changeImports({qtQuick3DImport}, {});
-            }
-            return;
-        }
+    if (document && !document->inFileComponentModelActive() && model()
+        && Utils::addImportWithCheck(
+            "QtQuick3D",
+            [](const Import &import) { return !import.hasVersion() || import.majorVersion() >= 6; },
+            model())) {
+        return;
     }
     Core::AsynchronousMessageBox::warning(tr("Failed to Add Import"),
                                           tr("Could not add QtQuick3D import to project."));
