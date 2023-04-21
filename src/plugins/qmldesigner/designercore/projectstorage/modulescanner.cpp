@@ -51,8 +51,6 @@ void ModuleScanner::scan([[maybe_unused]] std::string_view modulePath)
 #ifdef QDS_HAS_QMLPRIVATE
     QDirIterator dirIterator{QString::fromUtf8(modulePath), QDir::Dirs, QDirIterator::Subdirectories};
 
-    QMap<QString, bool> moduleNames;
-
     while (dirIterator.hasNext()) {
         auto directoryPath = dirIterator.next();
         QString qmldirPath = directoryPath + "/qmldir";
@@ -72,14 +70,13 @@ void ModuleScanner::scan([[maybe_unused]] std::string_view modulePath)
             if (moduleName.isEmpty() || m_skip(moduleName))
                 continue;
 
-            if (moduleNames.contains(moduleName))
-                continue;
-
-            moduleNames.insert(moduleName, true);
             m_modules.push_back(
                 Import::createLibraryImport(moduleName, createVersion(parser.components())));
         }
     }
+
+    std::sort(m_modules.begin(), m_modules.end());
+    m_modules.erase(std::unique(m_modules.begin(), m_modules.end()), m_modules.end());
 #endif
 }
 
