@@ -48,6 +48,13 @@ public:
     bool addFiles(ProjectExplorer::Node *context,
                   const Utils::FilePaths &filePaths, Utils::FilePaths *) final;
 
+    bool canRenameFile(ProjectExplorer::Node *context,
+                       const Utils::FilePath &oldFilePath,
+                       const Utils::FilePath &newFilePath) final;
+    bool renameFile(ProjectExplorer::Node *context,
+                    const Utils::FilePath &oldFilePath,
+                    const Utils::FilePath &newFilePath) final;
+
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
     QString name() const final { return QLatin1String("cmake"); }
 
@@ -200,6 +207,15 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
     QSet<CMakeFileInfo> m_cmakeFiles;
+
+    struct FileToBeRenamed
+    {
+        cmListFileArgument argumentPosition;
+        Utils::FilePath cmakeFile;
+        QString oldRelativeFileName;
+        bool fromGlobbing = false;
+    };
+    QHash<QString, FileToBeRenamed> m_filesToBeRenamed;
 
     // Parsing state:
     BuildDirParameters m_parameters;

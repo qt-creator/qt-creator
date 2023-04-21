@@ -201,7 +201,8 @@ void CMakeBuildSystem::triggerParsing()
 bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
     if (dynamic_cast<CMakeTargetNode *>(context))
-        return action == ProjectAction::AddNewFile || action == ProjectAction::AddExistingFile;
+        return action == ProjectAction::AddNewFile || action == ProjectAction::AddExistingFile
+               || action == ProjectAction::Rename;
 
     return BuildSystem::supportsAction(context, action, node);
 }
@@ -364,6 +365,150 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
     }
 
     return BuildSystem::addFiles(context, filePaths, notAdded);
+}
+
+bool CMakeBuildSystem::canRenameFile(Node *context,
+                                     const FilePath &oldFilePath,
+                                     const FilePath &newFilePath)
+{
+    // "canRenameFile" will cause an actual rename after the function call.
+    // This will make the a sequence like
+    //    canonicalPath().relativePathFrom(projDir).cleanPath().toString()
+    // to fail if the file doesn't exist on disk
+    // therefore cache the results for the subsequent "renameFile" call
+    // where oldFilePath has already been renamed as newFilePath.
+
+    if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
+        const FilePath projDir = n->filePath().canonicalPath();
+        const QString oldRelPathName
+            = oldFilePath.canonicalPath().relativePathFrom(projDir).cleanPath().toString();
+
+        const QString targetName = n->buildKey();
+        auto target = Utils::findOrDefault(buildTargets(),
+                                           [targetName](const CMakeBuildTarget &target) {
+                                               return target.title == targetName;
+                                           });
+
+        if (target.backtrace.isEmpty()) {
+            return false;
+        }
+        const FilePath targetCMakeFile = target.backtrace.last().path;
+
+        // Have a fresh look at the CMake file, not relying on a cached value
+        expected_str<QByteArray> fileContent = targetCMakeFile.fileContents();
+        cmListFile cmakeListFile;
+        std::string errorString;
+        if (fileContent) {
+            fileContent = fileContent->replace("\r\n", "\n");
+            if (!cmakeListFile.ParseString(fileContent->toStdString(),
+                                           targetCMakeFile.fileName().toStdString(),
+                                           errorString))
+                return false;
+        }
+
+        const int targetDefinitionLine = target.backtrace.last().line;
+
+        auto function = std::find_if(cmakeListFile.Functions.begin(),
+                                     cmakeListFile.Functions.end(),
+                                     [targetDefinitionLine](const auto &func) {
+                                         return func.Line() == targetDefinitionLine;
+                                     });
+
+        const std::string target_name = targetName.toStdString();
+        auto targetSourcesFunc
+            = std::find_if(cmakeListFile.Functions.begin(),
+                           cmakeListFile.Functions.end(),
+                           [target_name = targetName.toStdString()](const auto &func) {
+                               return func.LowerCaseName() == "target_sources"
+                                      && func.Arguments().front().Value == target_name;
+                           });
+
+        for (const auto &func : {function, targetSourcesFunc}) {
+            if (func == cmakeListFile.Functions.end())
+                continue;
+            auto filePathArgument
+                = Utils::findOrDefault(func->Arguments(),
+                                       [fileName = oldRelPathName.toStdString()](const auto &arg) {
+                                           return arg.Delim != cmListFileArgument::Comment
+                                                  && arg.Value == fileName;
+                                       });
+
+            const QString key
+                = QStringList{projDir.path(), targetName, oldFilePath.path(), newFilePath.path()}
+                      .join(";");
+
+            if (!filePathArgument.Value.empty()) {
+                m_filesToBeRenamed.insert(key, {filePathArgument, targetCMakeFile, oldRelPathName});
+                return true;
+            } else {
+                const auto globFunctions = std::get<0>(
+                    Utils::partition(cmakeListFile.Functions, [](const auto &f) {
+                        return f.LowerCaseName() == "file" && f.Arguments().size() > 2
+                               && (f.Arguments().front().Value == "GLOB"
+                                   || f.Arguments().front().Value == "GLOB_RECURSE");
+                    }));
+
+                const auto globVariables
+                    = Utils::transform<QSet>(globFunctions, [](const auto &func) {
+                          return std::string("${") + func.Arguments()[1].Value + "}";
+                      });
+
+                const auto haveGlobbing
+                    = Utils::anyOf(func->Arguments(), [globVariables](const auto &arg) {
+                          return globVariables.contains(arg.Value)
+                                 && arg.Delim != cmListFileArgument::Comment;
+                      });
+
+                if (haveGlobbing) {
+                    m_filesToBeRenamed
+                        .insert(key, {filePathArgument, targetCMakeFile, oldRelPathName, true});
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool CMakeBuildSystem::renameFile(Node *context,
+                                  const FilePath &oldFilePath,
+                                  const FilePath &newFilePath)
+{
+    if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
+        const FilePath projDir = n->filePath().canonicalPath();
+        const QString newRelPathName
+            = newFilePath.canonicalPath().relativePathFrom(projDir).cleanPath().toString();
+
+        const QString targetName = n->buildKey();
+        const QString key
+            = QStringList{projDir.path(), targetName, oldFilePath.path(), newFilePath.path()}.join(
+                ";");
+
+        auto fileToRename = m_filesToBeRenamed.take(key);
+        if (!fileToRename.cmakeFile.exists())
+            return false;
+
+        BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
+            Core::EditorManager::openEditorAt({fileToRename.cmakeFile,
+                                               static_cast<int>(fileToRename.argumentPosition.Line),
+                                               static_cast<int>(fileToRename.argumentPosition.Column
+                                                                - 1)},
+                                              Constants::CMAKE_EDITOR_ID,
+                                              Core::EditorManager::DoNotMakeVisible));
+        if (!editor)
+            return false;
+
+        if (!fileToRename.fromGlobbing)
+            editor->replace(fileToRename.oldRelativeFileName.length(), newRelPathName);
+
+        editor->editorWidget()->autoIndent();
+        if (!Core::DocumentManager::saveDocument(editor->document()))
+            return false;
+
+        return true;
+    }
+
+    return false;
 }
 
 FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const

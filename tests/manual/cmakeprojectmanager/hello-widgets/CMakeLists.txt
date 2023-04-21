@@ -30,3 +30,8 @@ my_add_executable(hello-my-widgets
 )
 
 target_link_libraries(hello-my-widgets PRIVATE Qt6::Widgets)
+
+file(GLOB SOURCE_FILES CONFIGURE_DEPENDS *.cpp *.h *.ui)
+
+add_executable(hello-widgets-glob ${SOURCE_FILES})
+target_link_libraries(hello-widgets-glob PRIVATE Qt6::Widgets)
