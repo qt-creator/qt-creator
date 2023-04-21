@@ -2,36 +2,37 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "mcubuildstep.h"
+#include "qmlprojectmanagertr.h"
 
-#include "projectexplorer/buildstep.h"
-#include "projectexplorer/buildsystem.h"
-#include "projectexplorer/buildsteplist.h"
-#include "projectexplorer/deployconfiguration.h"
-#include "projectexplorer/kit.h"
-#include "projectexplorer/target.h"
-#include "projectexplorer/kitmanager.h"
+#include <projectexplorer/buildstep.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/task.h>
+#include <projectexplorer/taskhub.h>
 
-#include <coreplugin/messagebox.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
 
-#include "qtsupport/qtsupportconstants.h"
-#include "mcusupport/mcusupportconstants.h"
-#include "mcusupport/mculegacyconstants.h"
+#include <mcusupport/mculegacyconstants.h>
+#include <mcusupport/mcusupportconstants.h>
+#include <qtsupport/qtsupportconstants.h>
 
-#include "utils/aspects.h"
-#include "utils/filepath.h"
+#include <utils/aspects.h>
+#include <utils/filepath.h>
 
 #include <QVersionNumber>
 
 namespace QmlProjectManager {
 
 const Utils::Id DeployMcuProcessStep::id = "QmlProject.Mcu.DeployStep";
-const QString DeployMcuProcessStep::processCommandKey = "QmlProject.Mcu.ProcessStep.Command";
-const QString DeployMcuProcessStep::processArgumentsKey = "QmlProject.Mcu.ProcessStep.Arguments";
-const QString DeployMcuProcessStep::processWorkingDirectoryKey = "QmlProject.Mcu.ProcessStep.BuildDirectory";
 
-void DeployMcuProcessStep::showError(const QString& text) {
-    Core::AsynchronousMessageBox::critical(tr("Qt4MCU Deploy Step"), text);
+void DeployMcuProcessStep::showError(const QString &text)
+{
+    ProjectExplorer::DeploymentTask task(ProjectExplorer::Task::Error, text);
+    ProjectExplorer::TaskHub::addTask(task);
 }
 
 // TODO:
@@ -47,86 +48,73 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, U
     : AbstractProcessStep(bc, id)
     , m_tmpDir()
 {
-    if (not buildSystem()) {
-        showError(QObject::tr("Failed to find valid build system"));
+    if (!buildSystem()) {
+        showError(Tr::tr("Failed to find valid build system"));
         return;
     }
 
-    if (not m_tmpDir.isValid()) {
-        showError(QObject::tr("Failed to create valid build directory"));
+    if (!m_tmpDir.isValid()) {
+        showError(Tr::tr("Failed to create valid build directory"));
         return;
     }
 
-    auto fixPath = [](const QString& path) -> QString {
-        return "\"" + QDir::toNativeSeparators(path) + "\"";
-    };
-
-    ProjectExplorer::Kit* kit = MCUBuildStepFactory::findMostRecentQulKit();
-    if (not kit)
+    ProjectExplorer::Kit *kit = MCUBuildStepFactory::findMostRecentQulKit();
+    if (!kit)
         return;
 
     QString root = findKitInformation(kit, McuSupport::Internal::Legacy::Constants::QUL_CMAKE_VAR);
+    auto rootPath = Utils::FilePath::fromString(root);
 
-    auto* cmd = addAspect<Utils::StringAspect>();
-    cmd->setSettingsKey(processCommandKey);
+    auto cmd = addAspect<Utils::StringAspect>();
+    cmd->setSettingsKey("QmlProject.Mcu.ProcessStep.Command");
     cmd->setDisplayStyle(Utils::StringAspect::PathChooserDisplay);
     cmd->setExpectedKind(Utils::PathChooser::Command);
-    cmd->setLabelText(tr("Command:"));
-    cmd->setValue(QDir::toNativeSeparators(root + "/bin/qmlprojectexporter"));
+    cmd->setLabelText(Tr::tr("Command:"));
+    cmd->setFilePath(rootPath.pathAppended("/bin/qmlprojectexporter"));
 
-    const char* importPathConstant = QtSupport::Constants::KIT_QML_IMPORT_PATH;
-    QString projectDir = buildSystem()->projectDirectory().toString();
-    QString qulIncludeDir = kit->value(importPathConstant).toString( );
+    const char *importPathConstant = QtSupport::Constants::KIT_QML_IMPORT_PATH;
+    Utils::FilePath projectDir = buildSystem()->projectDirectory();
+    Utils::FilePath qulIncludeDir = Utils::FilePath::fromVariant(kit->value(importPathConstant));
     QStringList includeDirs {
-        fixPath(qulIncludeDir),
-        fixPath(qulIncludeDir + "/Timeline"),
-        fixPath(projectDir + "/imports")
+        Utils::ProcessArgs::quoteArg(qulIncludeDir.toString()),
+        Utils::ProcessArgs::quoteArg(qulIncludeDir.pathAppended("Timeline").toString())
     };
 
-    const char* toolChainConstant = McuSupport::Internal::Constants::KIT_MCUTARGET_TOOLCHAIN_KEY;
+    const char *toolChainConstant = McuSupport::Internal::Constants::KIT_MCUTARGET_TOOLCHAIN_KEY;
     QStringList arguments = {
-        fixPath(buildSystem()->projectFilePath().toString()),
+        Utils::ProcessArgs::quoteArg(buildSystem()->projectFilePath().toString()),
         "--platform", findKitInformation(kit, "QUL_PLATFORM"),
-        "--toolchain", kit->value(toolChainConstant).toString( ),
+        "--toolchain", kit->value(toolChainConstant).toString(),
         "--include-dirs", includeDirs.join(","),
     };
 
-    auto* args = addAspect<Utils::StringAspect>();
-    args->setSettingsKey(processArgumentsKey);
+    auto args = addAspect<Utils::StringAspect>();
+    args->setSettingsKey("QmlProject.Mcu.ProcessStep.Arguments");
     args->setDisplayStyle(Utils::StringAspect::LineEditDisplay);
-    args->setLabelText(tr("Arguments:"));
-    args->setValue(arguments.join(" "));
+    args->setLabelText(Tr::tr("Arguments:"));
+    args->setValue(Utils::ProcessArgs::joinArgs(arguments));
 
-    auto* outDir = addAspect<Utils::StringAspect>();
-    outDir->setSettingsKey(processWorkingDirectoryKey);
+    auto outDir = addAspect<Utils::StringAspect>();
+    outDir->setSettingsKey("QmlProject.Mcu.ProcessStep.BuildDirectory");
     outDir->setDisplayStyle(Utils::StringAspect::PathChooserDisplay);
     outDir->setExpectedKind(Utils::PathChooser::Directory);
-    outDir->setLabelText(tr("Build directory:"));
-    outDir->setPlaceHolderText(fixPath(m_tmpDir.path()));
+    outDir->setLabelText(Tr::tr("Build directory:"));
+    outDir->setPlaceHolderText(m_tmpDir.path());
 
-    setCommandLineProvider([this, cmd, args, outDir, fixPath]() -> Utils::CommandLine {
+    setCommandLineProvider([this, cmd, args, outDir]() -> Utils::CommandLine {
         auto directory = outDir->value();
         if (directory.isEmpty())
-            directory = fixPath(m_tmpDir.path());
+            directory = m_tmpDir.path();
 
-        QString outArg = " --outdir " + directory;
-        return {cmd->filePath(), args->value() + outArg, Utils::CommandLine::Raw};
+        Utils::CommandLine cmdLine(cmd->filePath());
+        cmdLine.addArgs(args->value(), Utils::CommandLine::Raw);
+        cmdLine.addArg("--outdir");
+        cmdLine.addArg(directory);
+        return cmdLine;
     });
 }
 
-bool DeployMcuProcessStep::init()
-{
-    if (!AbstractProcessStep::init())
-        return false;
-    return true;
-}
-
-void DeployMcuProcessStep::doRun()
-{
-    AbstractProcessStep::doRun();
-}
-
-QString DeployMcuProcessStep::findKitInformation(ProjectExplorer::Kit* kit, const QString& key)
+QString DeployMcuProcessStep::findKitInformation(ProjectExplorer::Kit *kit, const QString &key)
 {
     // This is (kind of) stolen from mcukitmanager.cpp. Might make sense to unify.
     using namespace CMakeProjectManager;
@@ -139,59 +127,60 @@ QString DeployMcuProcessStep::findKitInformation(ProjectExplorer::Kit* kit, cons
     return {};
 }
 
-
 MCUBuildStepFactory::MCUBuildStepFactory()
     : BuildStepFactory()
 {
-    setDisplayName("Qt4MCU Deploy Step");
-    registerStep< DeployMcuProcessStep >(DeployMcuProcessStep::id);
+    setDisplayName(Tr::tr("Qt4MCU Deploy Step"));
+    registerStep<DeployMcuProcessStep>(DeployMcuProcessStep::id);
 }
 
 void MCUBuildStepFactory::attachToTarget(ProjectExplorer::Target *target)
 {
-    if (not target)
+    if (!target)
         return;
 
-    ProjectExplorer::DeployConfiguration* deployConfiguration = target->activeDeployConfiguration();
-    ProjectExplorer::BuildStepList* stepList = deployConfiguration->stepList();
+    ProjectExplorer::DeployConfiguration *deployConfiguration = target->activeDeployConfiguration();
+    ProjectExplorer::BuildStepList *stepList = deployConfiguration->stepList();
     if (stepList->contains(DeployMcuProcessStep::id))
         return;
 
-    if (not findMostRecentQulKit()) {
-        DeployMcuProcessStep::showError(QObject::tr("Failed to find valid Qt4MCU kit"));
+    if (!findMostRecentQulKit()) {
+        DeployMcuProcessStep::showError(Tr::tr("Failed to find valid Qt4MCU kit"));
         return;
     }
 
     for (BuildStepFactory *factory : BuildStepFactory::allBuildStepFactories()) {
         if (factory->stepId() == DeployMcuProcessStep::id) {
-           ProjectExplorer::BuildStep* deployConfig = factory->create(stepList);
-           stepList->appendStep(deployConfig);
+            ProjectExplorer::BuildStep *deployConfig = factory->create(stepList);
+            stepList->appendStep(deployConfig);
         }
     }
 }
 
-ProjectExplorer::Kit* MCUBuildStepFactory::findMostRecentQulKit()
+ProjectExplorer::Kit *MCUBuildStepFactory::findMostRecentQulKit()
 {
     // Stolen from mcukitmanager.cpp
     auto kitQulVersion = [](const ProjectExplorer::Kit *kit) -> QVersionNumber {
-        const char* sdkVersion = McuSupport::Internal::Constants::KIT_MCUTARGET_SDKVERSION_KEY;
+        const char *sdkVersion = McuSupport::Internal::Constants::KIT_MCUTARGET_SDKVERSION_KEY;
         return QVersionNumber::fromString(kit->value(sdkVersion).toString());
     };
 
-    ProjectExplorer::Kit* kit = nullptr;
-    for (auto k : ProjectExplorer::KitManager::kits())
-    {
-        auto qulVersion = kitQulVersion(k);
-        if (qulVersion.isNull( ))
+    ProjectExplorer::Kit *mcuKit = nullptr;
+    for (auto availableKit : ProjectExplorer::KitManager::kits()) {
+        if (!availableKit)
             continue;
 
-        if (not kit)
-            kit = k;
+        auto qulVersion = kitQulVersion(availableKit);
+        if (qulVersion.isNull())
+            continue;
 
-        if (qulVersion > kitQulVersion(kit))
-            kit = k;
+        if (!mcuKit)
+            mcuKit = availableKit;
+
+        if (qulVersion > kitQulVersion(mcuKit))
+            mcuKit = availableKit;
     }
-    return kit;
+    return mcuKit;
 }
 
 } // namespace QmlProjectManager
