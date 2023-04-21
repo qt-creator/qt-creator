@@ -45,7 +45,7 @@ public:
 class QMLDESIGNERCORE_EXPORT Import
 {
 public:
-    Import();
+    Import() = default;
 
     static Import createLibraryImport(const QString &url, const QString &version = QString(), const QString &alias = QString(), const QStringList &importPaths = QStringList());
     static Import createFileImport(const QString &file, const QString &version = QString(), const QString &alias = QString(), const QStringList &importPaths = QStringList());
