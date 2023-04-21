@@ -1016,10 +1016,17 @@ void LocatorWidget::acceptEntry(int row)
     const QModelIndex index = m_locatorModel->index(row, 0);
     if (!index.isValid())
         return;
-    const LocatorFilterEntry entry = m_locatorModel->data(index, LocatorEntryRole).value<LocatorFilterEntry>();
+    const LocatorFilterEntry entry
+        = m_locatorModel->data(index, LocatorEntryRole).value<LocatorFilterEntry>();
+    if (!entry.acceptor) {
+        // Opening editors can open dialogs (e.g. the ssh prompt, or showing erros), so delay until
+        // we have hidden the popup with emit hidePopup below and Qt actually processed that
+        QMetaObject::invokeMethod(
+            EditorManager::instance(),
+            [entry] { EditorManager::openEditor(entry); },
+            Qt::QueuedConnection);
+    }
     QWidget *focusBeforeAccept = QApplication::focusWidget();
-    if (!entry.acceptor)
-        EditorManager::openEditor(entry);
     const AcceptResult result = entry.acceptor ? entry.acceptor() : AcceptResult();
     if (result.newText.isEmpty()) {
         emit hidePopup();
