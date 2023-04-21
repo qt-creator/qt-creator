@@ -12,9 +12,7 @@ namespace QmlDesigner::Paths {
 
 Utils::FilePath defaultExamplesPath()
 {
-    QStandardPaths::StandardLocation location = Utils::HostOsInfo::isMacHost()
-                                                    ? QStandardPaths::HomeLocation
-                                                    : QStandardPaths::DocumentsLocation;
+    QStandardPaths::StandardLocation location = QStandardPaths::DocumentsLocation;
 
     return Utils::FilePath::fromString(QStandardPaths::writableLocation(location))
         .pathAppended("QtDesignStudio/examples");
