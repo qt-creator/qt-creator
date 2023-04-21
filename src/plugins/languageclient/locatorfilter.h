@@ -22,9 +22,8 @@ namespace LanguageClient {
 using DocSymbolModifier = std::function<void(Core::LocatorFilterEntry &,
     const LanguageServerProtocol::DocumentSymbol &, const Core::LocatorFilterEntry &)>;
 
-Core::LocatorMatcherTasks LANGUAGECLIENT_EXPORT workspaceMatchers(const QList<Client *> &clients,
-                                                                  Core::MatcherType type,
-                                                                  int maxResultCount = 0);
+Core::LocatorMatcherTasks LANGUAGECLIENT_EXPORT workspaceMatchers(Core::MatcherType type,
+    const QList<Client *> &clients = {}, int maxResultCount = 0);
 
 class LanguageClientManager;
 

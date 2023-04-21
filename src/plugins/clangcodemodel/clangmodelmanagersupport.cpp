@@ -207,15 +207,15 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     cppModelManager()->setFunctionsFilter(std::make_unique<ClangFunctionsFilter>());
     // Setup matchers
     LocatorMatcher::addMatcherCreator(MatcherType::AllSymbols, [] {
-        return LanguageClient::workspaceMatchers(clientsForOpenProjects(), MatcherType::AllSymbols,
+        return LanguageClient::workspaceMatchers(MatcherType::AllSymbols, clientsForOpenProjects(),
                                                  10000);
     });
     LocatorMatcher::addMatcherCreator(MatcherType::Classes, [] {
-        return LanguageClient::workspaceMatchers(clientsForOpenProjects(), MatcherType::Classes,
+        return LanguageClient::workspaceMatchers(MatcherType::Classes, clientsForOpenProjects(),
                                                  10000);
     });
     LocatorMatcher::addMatcherCreator(MatcherType::Functions, [] {
-        return LanguageClient::workspaceMatchers(clientsForOpenProjects(), MatcherType::Functions,
+        return LanguageClient::workspaceMatchers(MatcherType::Functions, clientsForOpenProjects(),
                                                  10000);
     });
 

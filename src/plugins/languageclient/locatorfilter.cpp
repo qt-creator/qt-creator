@@ -119,7 +119,7 @@ static MatcherCreator creatorForType(MatcherType type)
     return {};
 }
 
-LocatorMatcherTasks workspaceMatchers(const QList<Client *> &clients, MatcherType type,
+LocatorMatcherTasks workspaceMatchers(MatcherType type, const QList<Client *> &clients,
                                       int maxResultCount)
 {
     const MatcherCreator creator = creatorForType(type);
