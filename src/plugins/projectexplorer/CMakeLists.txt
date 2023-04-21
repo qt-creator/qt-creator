@@ -216,8 +216,13 @@ extend_qtc_plugin(ProjectExplorer
 extend_qtc_plugin(ProjectExplorer
   CONDITION WITH_TESTS
   SOURCES
-    jsonwizard/jsonwizard_test.cpp
     outputparser_test.cpp outputparser_test.h
+)
+extend_qtc_plugin(ProjectExplorer
+  CONDITION WITH_TESTS
+  SOURCES
+    jsonwizard/jsonwizard_test.cpp
+  SOURCES_PROPERTIES HEADER_FILE_ONLY ON
 )
 
 file(GLOB_RECURSE test_resources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testdata/*)
@@ -227,11 +232,3 @@ qtc_add_resources(ProjectExplorer "testdata"
   BASE "."
   FILES ${test_resources}
 )
-
-qtc_plugin_enabled(_projectexplorer_enabled ProjectExplorer)
-if (WITH_TESTS AND _projectexplorer_enabled)
-  set_source_files_properties(jsonwizard/jsonwizard_test.cpp
-    PROPERTIES HEADER_FILE_ONLY ON
-  )
-endif()
-
