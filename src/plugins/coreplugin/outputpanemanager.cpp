@@ -803,6 +803,13 @@ QSize OutputPaneToggleButton::sizeHint() const
     return s;
 }
 
+static QRect bgRect(const QRect &widgetRect)
+{
+    // Removes/compensates the left and right margins of StyleHelper::drawPanelBgRect
+    return StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact
+               ? widgetRect : widgetRect.adjusted(-2, 0, 2, 0);
+}
+
 void OutputPaneToggleButton::paintEvent(QPaintEvent*)
 {
     const QFontMetrics fm = fontMetrics();
@@ -824,7 +831,7 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
             c = Theme::BackgroundColorSelected;
 
         if (c != Theme::BackgroundColorDark)
-            p.fillRect(rect(), creatorTheme()->color(c));
+            StyleHelper::drawPanelBgRect(&p, bgRect(rect()), creatorTheme()->color(c));
     } else {
         const QImage *image = nullptr;
         if (isDown()) {
@@ -860,9 +867,10 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
     {
         QColor c = creatorTheme()->color(Theme::OutputPaneButtonFlashColor);
         c.setAlpha (m_flashTimer->currentFrame());
-        QRect r = creatorTheme()->flag(Theme::FlatToolBars)
-                  ? rect() : rect().adjusted(numberAreaWidth(), 1, -1, -1);
-        p.fillRect(r, c);
+        if (creatorTheme()->flag(Theme::FlatToolBars))
+            StyleHelper::drawPanelBgRect(&p, bgRect(rect()), c);
+        else
+            p.fillRect(rect().adjusted(numberAreaWidth(), 1, -1, -1), c);
     }
 
     p.setFont(font());

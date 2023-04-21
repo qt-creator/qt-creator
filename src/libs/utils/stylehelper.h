@@ -65,6 +65,8 @@ public:
     static void drawArrow(QStyle::PrimitiveElement element, QPainter *painter, const QStyleOption *option);
     static void drawMinimalArrow(QStyle::PrimitiveElement element, QPainter *painter, const QStyleOption *option);
 
+    static void drawPanelBgRect(QPainter *painter, const QRectF &rect, const QBrush &brush);
+
     // Gradients used for panels
     static void horizontalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect, bool lightColored = false);
     static void verticalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect, bool lightColored = false);

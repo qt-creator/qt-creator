@@ -12,6 +12,7 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPixmapCache>
 #include <QStyleOption>
 #include <QWindow>
@@ -453,6 +454,22 @@ void StyleHelper::drawMinimalArrow(QStyle::PrimitiveElement element, QPainter *p
     int xOffset = r.x() + (r.width() - size)/2;
     int yOffset = r.y() + (r.height() - size)/2;
     painter->drawPixmap(xOffset, yOffset, pixmap);
+}
+
+void StyleHelper::drawPanelBgRect(QPainter *painter, const QRectF &rect, const QBrush &brush)
+{
+    if (toolbarStyle() == ToolbarStyleCompact) {
+        painter->fillRect(rect.toRect(), brush);
+    } else {
+        constexpr int margin = 2;
+        constexpr int radius = 5;
+        QPainterPath path;
+        path.addRoundedRect(rect.adjusted(margin, margin, -margin, -margin), radius, radius);
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing);
+        painter->fillPath(path, brush);
+        painter->restore();
+    }
 }
 
 void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)

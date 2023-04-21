@@ -655,9 +655,15 @@ void ManhattanStyle::polish(QWidget *widget)
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
         // So that text isn't cutoff in line-edits, comboboxes... etc.
         const int height = qMax(StyleHelper::navigationWidgetHeight(), QApplication::fontMetrics().height());
-        if (qobject_cast<QToolButton*>(widget) || qobject_cast<QLineEdit*>(widget)) {
+        if (qobject_cast<QToolButton*>(widget)) {
+            widget->setMinimumWidth(
+                StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact ? 24 : 28);
             widget->setAttribute(Qt::WA_Hover);
             widget->setMaximumHeight(height - 2);
+        } else if (qobject_cast<QLineEdit*>(widget)) {
+            widget->setAttribute(Qt::WA_Hover);
+            widget->setFixedHeight(height - (StyleHelper::toolbarStyle()
+                                                     == StyleHelper::ToolbarStyleCompact ? 1 : 3));
         } else if (qobject_cast<QLabel*>(widget) || qobject_cast<QSpinBox*>(widget)
                    || qobject_cast<QCheckBox*>(widget)) {
             widget->setPalette(panelPalette(widget->palette(), lightColored(widget)));
@@ -1046,22 +1052,22 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
             if (!animating && anim) {
                 anim->paint(painter, option);
             } else {
-                bool pressed = option->state & State_Sunken || option->state & State_On;
+                const bool pressed = option->state & State_Sunken || option->state & State_On
+                                     || (widget && widget->property("highlightWidget").toBool());
                 painter->setPen(StyleHelper::sidebarShadow());
                 if (pressed) {
-                    const QColor shade = creatorTheme()->color(Theme::FancyToolButtonSelectedColor);
-                    painter->fillRect(rect, shade);
-                    if (!creatorTheme()->flag(Theme::FlatToolBars)) {
+                    StyleHelper::drawPanelBgRect(
+                        painter, rect, creatorTheme()->color(Theme::FancyToolButtonSelectedColor));
+                    if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact
+                        && !creatorTheme()->flag(Theme::FlatToolBars)) {
                         const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
                         painter->drawLine(borderRect.topLeft() + QPointF(1, 0), borderRect.topRight() - QPointF(1, 0));
                         painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
                         painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
                     }
                 } else if (option->state & State_Enabled && option->state & State_MouseOver) {
-                    painter->fillRect(rect, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
-                } else if (widget && widget->property("highlightWidget").toBool()) {
-                    QColor shade(0, 0, 0, 128);
-                    painter->fillRect(rect, shade);
+                    StyleHelper::drawPanelBgRect(
+                        painter, rect, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
                 }
                 if (option->state & State_HasFocus && (option->state & State_KeyboardFocusChange)) {
                     QColor highlight = option->palette.highlight().color();
