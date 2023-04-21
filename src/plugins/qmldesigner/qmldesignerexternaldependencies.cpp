@@ -239,6 +239,8 @@ QStringList ExternalDependencies::modulePaths() const
 
         for (const QString &modulePath : qmlBuildSystem->customImportPaths())
             modulePaths.append(project->projectDirectory().pathAppended(modulePath).toString());
+
+        return modulePaths;
     }
 
     return {};
