@@ -112,6 +112,11 @@ public:
     void ensureContents() const;
     void mutableEnsureContents();
 
+    QString architectureNames() const
+    {
+        return transform(m_targets, &QnxTarget::shortDescription).join(", ");
+    }
+
     EnvironmentItems qnxEnvironmentItems() const;
 
     QnxQtVersion *qnxQtVersion(const QnxTarget &target) const;
@@ -518,6 +523,7 @@ private:
     QLabel *m_configVersion = new QLabel;
     QLabel *m_configHost = new QLabel;
     QLabel *m_configTarget = new QLabel;
+    QLabel *m_architecturesLabel = new QLabel;
 
     QList<ConfigState> m_changedConfigs;
 };
@@ -539,7 +545,8 @@ QnxSettingsWidget::QnxSettingsWidget()
                     Tr::tr("Name:"), m_configName, br,
                     Tr::tr("Version:"), m_configVersion, br,
                     Tr::tr("Host:"), m_configHost, br,
-                    Tr::tr("Target:"), m_configTarget
+                    Tr::tr("Target:"), m_configTarget, br,
+                    Tr::tr("Architectures:"), m_architecturesLabel
                 }
             },
             st
@@ -641,13 +648,14 @@ void QnxSettingsWidget::updateInformation()
         m_configVersion->setText(config->m_version.toString());
         m_configHost->setText(config->m_qnxHost.toString());
         m_configTarget->setText(config->m_qnxTarget.toString());
+        m_architecturesLabel->setText(config->architectureNames());
     } else {
         m_generateKitsCheckBox->setEnabled(false);
         m_generateKitsCheckBox->setChecked(false);
         m_configName->setText({});
         m_configVersion->setText({});
         m_configHost->setText({});
-        m_configTarget->setText({});
+        m_architecturesLabel->setText({});
     }
 }
 
