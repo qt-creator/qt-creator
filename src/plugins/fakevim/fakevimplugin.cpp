@@ -568,12 +568,21 @@ public:
 
 enum { CommandRole = Qt::UserRole };
 
-class FakeVimExCommandsWidget : public CommandMappings
+const char exCommandMapGroup[] = "FakeVimExCommand";
+const char userCommandMapGroup[] = "FakeVimUserCommand";
+const char reKey[] = "RegEx";
+const char cmdKey[] = "Cmd";
+const char idKey[] = "Command";
+
+class FakeVimExCommandsMappings : public CommandMappings
 {
 public:
-    FakeVimExCommandsWidget();
+    FakeVimExCommandsMappings();
+    void apply();
 
 protected:
+    ExCommandMap exCommandMapFromWidget();
+
     void commandChanged();
     void resetToDefault();
     void defaultAction() override;
@@ -581,24 +590,18 @@ protected:
     void handleCurrentCommandChanged(QTreeWidgetItem *current);
 
 private:
-    void initialize();
-
-    ExCommandMap exCommandMapFromWidget();
-
     QGroupBox *m_commandBox;
     FancyLineEdit *m_commandEdit;
-
-    friend class FakeVimExCommandsPage; // allow the page accessing the ExCommandMaps
 };
 
-FakeVimExCommandsWidget::FakeVimExCommandsWidget()
+FakeVimExCommandsMappings::FakeVimExCommandsMappings()
 {
     setPageTitle(Tr::tr("Ex Command Mapping"));
     setTargetHeader(Tr::tr("Ex Trigger Expression"));
     setImportExportEnabled(false);
 
-    connect(this, &FakeVimExCommandsWidget::currentCommandChanged,
-            this, &FakeVimExCommandsWidget::handleCurrentCommandChanged);
+    connect(this, &FakeVimExCommandsMappings::currentCommandChanged,
+            this, &FakeVimExCommandsMappings::handleCurrentCommandChanged);
 
     m_commandBox = new QGroupBox(Tr::tr("Ex Command"), this);
     m_commandBox->setEnabled(false);
@@ -607,87 +610,17 @@ FakeVimExCommandsWidget::FakeVimExCommandsWidget()
     m_commandEdit->setFiltering(true);
     m_commandEdit->setPlaceholderText(QString());
     connect(m_commandEdit, &FancyLineEdit::textChanged,
-            this, &FakeVimExCommandsWidget::commandChanged);
+            this, &FakeVimExCommandsMappings::commandChanged);
     auto resetButton = new QPushButton(Tr::tr("Reset"), m_commandBox);
     resetButton->setToolTip(Tr::tr("Reset to default."));
     connect(resetButton, &QPushButton::clicked,
-            this, &FakeVimExCommandsWidget::resetToDefault);
+            this, &FakeVimExCommandsMappings::resetToDefault);
     boxLayout->addWidget(new QLabel(Tr::tr("Regular expression:")));
     boxLayout->addWidget(m_commandEdit);
     boxLayout->addWidget(resetButton);
 
     layout()->addWidget(m_commandBox);
 
-    initialize();
-}
-
-class FakeVimExCommandsPage : public IOptionsPage
-{
-public:
-    FakeVimExCommandsPage()
-    {
-        setId(SETTINGS_EX_CMDS_ID);
-        setDisplayName(Tr::tr("Ex Command Mapping"));
-        setCategory(SETTINGS_CATEGORY);
-    }
-
-    QWidget *widget() override
-    {
-        if (!m_widget)
-            m_widget = new FakeVimExCommandsWidget;
-        return m_widget;
-    }
-
-    void apply() override;
-    void finish() override {}
-
-private:
-    QPointer<FakeVimExCommandsWidget> m_widget;
-};
-
-
-const char exCommandMapGroup[] = "FakeVimExCommand";
-const char userCommandMapGroup[] = "FakeVimUserCommand";
-const char reKey[] = "RegEx";
-const char cmdKey[] = "Cmd";
-const char idKey[] = "Command";
-
-void FakeVimExCommandsPage::apply()
-{
-    if (!m_widget) // page has not been shown at all
-        return;
-    // now save the mappings if necessary
-    const ExCommandMap &newMapping = m_widget->exCommandMapFromWidget();
-    ExCommandMap &globalCommandMapping = dd->m_exCommandMap;
-
-    if (newMapping != globalCommandMapping) {
-        const ExCommandMap &defaultMap = dd->m_defaultExCommandMap;
-        QSettings *settings = ICore::settings();
-        settings->beginWriteArray(exCommandMapGroup);
-        int count = 0;
-        using Iterator = ExCommandMap::const_iterator;
-        const Iterator end = newMapping.constEnd();
-        for (Iterator it = newMapping.constBegin(); it != end; ++it) {
-            const QString id = it.key();
-            const QRegularExpression re = it.value();
-
-            if ((defaultMap.contains(id) && defaultMap[id] != re)
-                || (!defaultMap.contains(id) && !re.pattern().isEmpty())) {
-                settings->setArrayIndex(count);
-                settings->setValue(idKey, id);
-                settings->setValue(reKey, re.pattern());
-                ++count;
-            }
-        }
-        settings->endArray();
-        globalCommandMapping.clear();
-        globalCommandMapping.insert(defaultMap);
-        globalCommandMapping.insert(newMapping);
-    }
-}
-
-void FakeVimExCommandsWidget::initialize()
-{
     QMap<QString, QTreeWidgetItem *> sections;
 
     const QList<Command *> commands = ActionManager::commands();
@@ -727,7 +660,28 @@ void FakeVimExCommandsWidget::initialize()
     handleCurrentCommandChanged(nullptr);
 }
 
-void FakeVimExCommandsWidget::handleCurrentCommandChanged(QTreeWidgetItem *current)
+ExCommandMap FakeVimExCommandsMappings::exCommandMapFromWidget()
+{
+    ExCommandMap map;
+    int n = commandList()->topLevelItemCount();
+    for (int i = 0; i != n; ++i) {
+        QTreeWidgetItem *section = commandList()->topLevelItem(i);
+        int m = section->childCount();
+        for (int j = 0; j != m; ++j) {
+            QTreeWidgetItem *item = section->child(j);
+            const QString name = item->data(0, CommandRole).toString();
+            const QString regex = item->data(2, Qt::DisplayRole).toString();
+            const QString pattern = dd->m_defaultExCommandMap.value(name).pattern();
+            if ((regex.isEmpty() && pattern.isEmpty())
+                || (!regex.isEmpty() && pattern == regex))
+                continue;
+            map[name] = QRegularExpression(regex);
+        }
+    }
+    return map;
+}
+
+void FakeVimExCommandsMappings::handleCurrentCommandChanged(QTreeWidgetItem *current)
 {
     if (current) {
         m_commandEdit->setText(current->text(2));
@@ -738,7 +692,7 @@ void FakeVimExCommandsWidget::handleCurrentCommandChanged(QTreeWidgetItem *curre
     }
 }
 
-void FakeVimExCommandsWidget::commandChanged()
+void FakeVimExCommandsMappings::commandChanged()
 {
     QTreeWidgetItem *current = commandList()->currentItem();
     if (!current)
@@ -753,7 +707,7 @@ void FakeVimExCommandsWidget::commandChanged()
     setModified(current, regex != dd->m_defaultExCommandMap[name].pattern());
 }
 
-void FakeVimExCommandsWidget::resetToDefault()
+void FakeVimExCommandsMappings::resetToDefault()
 {
     QTreeWidgetItem *current = commandList()->currentItem();
     if (!current)
@@ -765,12 +719,12 @@ void FakeVimExCommandsWidget::resetToDefault()
     m_commandEdit->setText(regex);
 }
 
-void FakeVimExCommandsWidget::defaultAction()
+void FakeVimExCommandsMappings::defaultAction()
 {
-    int n = commandList()->topLevelItemCount();
+    const int n = commandList()->topLevelItemCount();
     for (int i = 0; i != n; ++i) {
         QTreeWidgetItem *section = commandList()->topLevelItem(i);
-        int m = section->childCount();
+        const int m = section->childCount();
         for (int j = 0; j != m; ++j) {
             QTreeWidgetItem *item = section->child(j);
             const QString name = item->data(0, CommandRole).toString();
@@ -784,6 +738,66 @@ void FakeVimExCommandsWidget::defaultAction()
         }
     }
 }
+
+void FakeVimExCommandsMappings::apply()
+{
+    // now save the mappings if necessary
+    const ExCommandMap &newMapping = exCommandMapFromWidget();
+    ExCommandMap &globalCommandMapping = dd->m_exCommandMap;
+
+    if (newMapping != globalCommandMapping) {
+        const ExCommandMap &defaultMap = dd->m_defaultExCommandMap;
+        QSettings *settings = ICore::settings();
+        settings->beginWriteArray(exCommandMapGroup);
+        int count = 0;
+        using Iterator = ExCommandMap::const_iterator;
+        const Iterator end = newMapping.constEnd();
+        for (Iterator it = newMapping.constBegin(); it != end; ++it) {
+            const QString id = it.key();
+            const QRegularExpression re = it.value();
+
+            if ((defaultMap.contains(id) && defaultMap[id] != re)
+                || (!defaultMap.contains(id) && !re.pattern().isEmpty())) {
+                settings->setArrayIndex(count);
+                settings->setValue(idKey, id);
+                settings->setValue(reKey, re.pattern());
+                ++count;
+            }
+        }
+        settings->endArray();
+        globalCommandMapping.clear();
+        globalCommandMapping.insert(defaultMap);
+        globalCommandMapping.insert(newMapping);
+    }
+}
+
+class FakeVimExCommandsPageWidget : public IOptionsPageWidget
+{
+public:
+    FakeVimExCommandsPageWidget()
+    {
+        m_exCommands = new FakeVimExCommandsMappings;
+        auto vbox = new QVBoxLayout(this);
+        vbox->addWidget(m_exCommands);
+    }
+
+private:
+    void apply() final { m_exCommands->apply(); }
+
+    FakeVimExCommandsMappings *m_exCommands;
+};
+
+class FakeVimExCommandsPage : public IOptionsPage
+{
+public:
+    FakeVimExCommandsPage()
+    {
+        setId(SETTINGS_EX_CMDS_ID);
+        setDisplayName(Tr::tr("Ex Command Mapping"));
+        setCategory(SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new FakeVimExCommandsPageWidget; });
+    }
+};
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -2086,28 +2100,6 @@ void FakeVimPluginPrivate::switchToFile(int n)
         n += size;
     EditorManager::activateEditorForEntry(DocumentModel::entries().at(n));
 }
-
-ExCommandMap FakeVimExCommandsWidget::exCommandMapFromWidget()
-{
-    ExCommandMap map;
-    int n = commandList()->topLevelItemCount();
-    for (int i = 0; i != n; ++i) {
-        QTreeWidgetItem *section = commandList()->topLevelItem(i);
-        int m = section->childCount();
-        for (int j = 0; j != m; ++j) {
-            QTreeWidgetItem *item = section->child(j);
-            const QString name = item->data(0, CommandRole).toString();
-            const QString regex = item->data(2, Qt::DisplayRole).toString();
-            const QString pattern = dd->m_defaultExCommandMap.value(name).pattern();
-            if ((regex.isEmpty() && pattern.isEmpty())
-                    || (!regex.isEmpty() && pattern == regex))
-                continue;
-            map[name] = QRegularExpression(regex);
-        }
-    }
-    return map;
-}
-
 
 
 ///////////////////////////////////////////////////////////////////////
