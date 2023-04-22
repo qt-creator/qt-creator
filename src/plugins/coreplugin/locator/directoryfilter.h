@@ -11,6 +11,7 @@
 
 namespace Core {
 
+// TODO: Don't derive from BaseFileFilter, flatten the hierarchy
 class CORE_EXPORT DirectoryFilter : public BaseFileFilter
 {
     Q_OBJECT
@@ -31,11 +32,13 @@ protected:
     void restoreState(const QJsonObject &object) override;
 
 private:
+    LocatorMatcherTasks matchers() final { return {m_cache.matcher()}; }
     void setDirectories(const Utils::FilePaths &directories);
     void handleAddDirectory();
     void handleEditDirectory();
     void handleRemoveDirectory();
     void updateOptionButtons();
+    // TODO: Remove me, replace with direct "m_cache.setFilePaths()" call
     void updateFileIterator();
 
     Utils::FilePaths m_directories;
@@ -44,8 +47,10 @@ private:
     // Our config dialog, uses in addDirectory and editDirectory
     // to give their dialogs the right parent
     class DirectoryFilterOptions *m_dialog = nullptr;
+    // TODO: Remove me, use the cache instead.
     Utils::FilePaths m_files;
     bool m_isCustomFilter = true;
+    LocatorFileCache m_cache;
 };
 
 } // namespace Core

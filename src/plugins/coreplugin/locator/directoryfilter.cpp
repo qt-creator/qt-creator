@@ -383,6 +383,7 @@ void DirectoryFilter::updateOptionButtons()
 
 void DirectoryFilter::updateFileIterator()
 {
+    m_cache.setFilePaths(m_files);
     setFileIterator(new BaseFileFilter::ListIterator(m_files));
 }
 
