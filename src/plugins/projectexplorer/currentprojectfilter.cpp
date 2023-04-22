@@ -29,6 +29,11 @@ CurrentProjectFilter::CurrentProjectFilter()
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFilter::currentProjectChanged);
+
+    m_cache.setGeneratorProvider([this] {
+        const FilePaths paths = m_project ? m_project->files(Project::SourceFiles) : FilePaths();
+        return LocatorFileCache::filePathsGenerator(paths);
+    });
 }
 
 void CurrentProjectFilter::prepareSearch(const QString &entry)
@@ -60,5 +65,6 @@ void CurrentProjectFilter::currentProjectChanged()
 
 void CurrentProjectFilter::invalidateCache()
 {
+    m_cache.invalidate();
     setFileIterator(nullptr);
 }

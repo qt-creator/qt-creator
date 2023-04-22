@@ -11,6 +11,7 @@ class Project;
 
 namespace Internal {
 
+// TODO: Don't derive from BaseFileFilter, flatten the hierarchy
 class CurrentProjectFilter : public Core::BaseFileFilter
 {
     Q_OBJECT
@@ -20,9 +21,12 @@ public:
     void prepareSearch(const QString &entry) override;
 
 private:
+    Core::LocatorMatcherTasks matchers() final { return {m_cache.matcher()}; }
     void currentProjectChanged();
+    // TODO: Remove me, replace with direct "m_cache.invalidate()" call
     void invalidateCache();
 
+    Core::LocatorFileCache m_cache;
     Project *m_project = nullptr;
 };
 
