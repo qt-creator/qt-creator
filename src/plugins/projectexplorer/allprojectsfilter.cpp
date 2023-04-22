@@ -9,7 +9,8 @@
 #include "projectmanager.h"
 
 #include <utils/algorithm.h>
-#include <utils/tasktree.h>
+
+#include <QFuture>
 
 using namespace Core;
 using namespace Utils;
@@ -29,6 +30,20 @@ AllProjectsFilter::AllProjectsFilter()
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
             this, &AllProjectsFilter::invalidateCache);
+    m_cache.setGeneratorProvider([] {
+        // This body runs in main thread
+        FilePaths filePaths;
+        for (Project *project : ProjectManager::projects())
+            filePaths.append(project->files(Project::SourceFiles));
+        return [filePaths](const QFuture<void> &future) {
+            // This body runs in non-main thread
+            FilePaths sortedPaths = filePaths;
+            if (future.isCanceled())
+                return FilePaths();
+            Utils::sort(sortedPaths);
+            return sortedPaths;
+        };
+    });
 }
 
 void AllProjectsFilter::prepareSearch(const QString &entry)
@@ -46,6 +61,7 @@ void AllProjectsFilter::prepareSearch(const QString &entry)
 
 void AllProjectsFilter::invalidateCache()
 {
+    m_cache.invalidate();
     setFileIterator(nullptr);
 }
 

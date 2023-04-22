@@ -8,6 +8,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
+// TODO: Don't derive from BaseFileFilter, flatten the hierarchy
 class AllProjectsFilter : public Core::BaseFileFilter
 {
     Q_OBJECT
@@ -17,7 +18,10 @@ public:
     void prepareSearch(const QString &entry) override;
 
 private:
+    Core::LocatorMatcherTasks matchers() final { return {m_cache.matcher()}; }
+    // TODO: Remove me, replace with direct "m_cache.invalidate()" call
     void invalidateCache();
+    Core::LocatorFileCache m_cache;
 };
 
 } // namespace Internal
