@@ -53,7 +53,7 @@ signals:
     void parsingStarted();
     void parsingFinished();
     void parsingFailed();
-    void requestRemoval(const Utils::FilePath &filePath);
+    void requestRemoval(const QSet<Utils::FilePath> &filePaths);
     void requestRemoveAllFrameworkItems();
 
 public:

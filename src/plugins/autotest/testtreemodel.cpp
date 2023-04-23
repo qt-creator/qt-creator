@@ -100,8 +100,8 @@ void TestTreeModel::setupParsingConnections()
             m_parser, &TestCodeParser::onCppDocumentUpdated, Qt::QueuedConnection);
     connect(cppMM, &CppEditor::CppModelManager::aboutToRemoveFiles,
             this, [this](const QStringList &files) {
-                const FilePaths filesToRemove = FileUtils::toFilePathList(files);
-                removeFiles(filesToRemove);
+                markForRemoval(transform<QSet>(files, &FilePath::fromString));
+                sweep();
             }, Qt::QueuedConnection);
     connect(cppMM, &CppEditor::CppModelManager::projectPartsUpdated,
             m_parser, &TestCodeParser::onProjectPartsUpdated);
@@ -109,11 +109,11 @@ void TestTreeModel::setupParsingConnections()
     QmlJS::ModelManagerInterface *qmlJsMM = QmlJS::ModelManagerInterface::instance();
     connect(qmlJsMM, &QmlJS::ModelManagerInterface::documentUpdated,
             m_parser, &TestCodeParser::onQmlDocumentUpdated, Qt::QueuedConnection);
-    connect(qmlJsMM,
-            &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
-            this,
-            &TestTreeModel::removeFiles,
-            Qt::QueuedConnection);
+    connect(qmlJsMM, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
+            this, [this](const FilePaths &filePaths) {
+                markForRemoval(Utils::toSet(filePaths));
+                sweep();
+            }, Qt::QueuedConnection);
     connectionsInitialized = true;
 }
 
@@ -463,13 +463,6 @@ void TestTreeModel::clearFailedMarks()
     m_failedStateCache.clear();
 }
 
-void TestTreeModel::removeFiles(const FilePaths &files)
-{
-    for (const FilePath &file : files)
-        markForRemoval(file);
-    sweep();
-}
-
 void TestTreeModel::markAllFrameworkItemsForRemoval()
 {
     for (TestTreeItem *frameworkRoot : frameworkRootNodes()) {
@@ -479,15 +472,12 @@ void TestTreeModel::markAllFrameworkItemsForRemoval()
     }
 }
 
-void TestTreeModel::markForRemoval(const FilePath &filePath)
+void TestTreeModel::markForRemoval(const QSet<Utils::FilePath> &filePaths)
 {
-    if (filePath.isEmpty())
-        return;
-
     for (TestTreeItem *frameworkRoot : frameworkRootNodes()) {
         for (int childRow = frameworkRoot->childCount() - 1; childRow >= 0; --childRow) {
             TestTreeItem *child = frameworkRoot->childItem(childRow);
-            child->markForRemovalRecursively(filePath);
+            child->markForRemovalRecursively(filePaths);
         }
     }
 }

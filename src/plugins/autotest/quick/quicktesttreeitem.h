@@ -35,7 +35,7 @@ public:
     bool removeOnSweepIfEmpty() const override;
     TestTreeItem *createParentGroupNode() const override;
     bool isGroupable() const override;
-    void markForRemovalRecursively(const Utils::FilePath &filePath) override;
+    void markForRemovalRecursively(const QSet<Utils::FilePath> &filePaths) override;
 private:
     TestTreeItem *findChildByFileNameAndType(const Utils::FilePath &filePath, const QString &name,
                                              Type tType);

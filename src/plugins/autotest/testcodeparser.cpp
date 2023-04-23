@@ -307,24 +307,20 @@ void TestCodeParser::scanForTests(const FilePaths &fileList, const QList<ITestPa
     TestTreeModel::instance()->updateCheckStateCache();
     if (isFullParse) {
         // remove qml files as they will be found automatically by the referencing cpp file
-        list = Utils::filtered(list, [](const FilePath &fn) {
-            return !fn.endsWith(".qml");
-        });
+        list = Utils::filtered(list, [](const FilePath &fn) { return !fn.endsWith(".qml"); });
         if (!parsers.isEmpty()) {
-            for (ITestParser *parser : parsers) {
+            for (ITestParser *parser : parsers)
                 parser->framework()->rootNode()->markForRemovalRecursively(true);
-            }
         } else {
             emit requestRemoveAllFrameworkItems();
         }
     } else if (!parsers.isEmpty()) {
+        const auto set = Utils::toSet(list);
         for (ITestParser *parser: parsers) {
-            for (const FilePath &filePath : std::as_const(list))
-                parser->framework()->rootNode()->markForRemovalRecursively(filePath);
+            parser->framework()->rootNode()->markForRemovalRecursively(set);
         }
     } else {
-        for (const FilePath &filePath : std::as_const(list))
-            emit requestRemoval(filePath);
+        emit requestRemoval(Utils::toSet(list));
     }
 
     QTC_ASSERT(!(isFullParse && list.isEmpty()), onFinished(true); return);

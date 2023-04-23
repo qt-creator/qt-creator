@@ -224,11 +224,11 @@ void TestTreeItem::markForRemovalRecursively(bool mark)
         childItem(row)->markForRemovalRecursively(mark);
 }
 
-void TestTreeItem::markForRemovalRecursively(const FilePath &filepath)
+void TestTreeItem::markForRemovalRecursively(const QSet<FilePath> &filePaths)
 {
-    bool mark = filePath() == filepath;
-    forFirstLevelChildItems([&mark, &filepath](TestTreeItem *child) {
-        child->markForRemovalRecursively(filepath);
+    bool mark = filePaths.contains(filePath());
+    forFirstLevelChildItems([&mark, &filePaths](TestTreeItem *child) {
+        child->markForRemovalRecursively(filePaths);
         mark &= child->markedForRemoval();
     });
     markForRemoval(mark);

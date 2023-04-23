@@ -389,17 +389,19 @@ QSet<QString> internalTargets(const FilePath &proFile)
     return result;
 }
 
-void QuickTestTreeItem::markForRemovalRecursively(const FilePath &filePath)
+void QuickTestTreeItem::markForRemovalRecursively(const QSet<FilePath> &filePaths)
 {
-    TestTreeItem::markForRemovalRecursively(filePath);
+    TestTreeItem::markForRemovalRecursively(filePaths);
     auto parser = static_cast<QuickTestParser *>(framework()->testParser());
-    const FilePath proFile = parser->projectFileForMainCppFile(filePath);
-    if (!proFile.isEmpty()) {
-        TestTreeItem *root = framework()->rootNode();
-        root->forAllChildItems([proFile](TestTreeItem *it) {
-            if (it->proFile() == proFile)
-                it->markForRemoval(true);
-        });
+    for (const FilePath &filePath : filePaths) {
+        const FilePath proFile = parser->projectFileForMainCppFile(filePath);
+        if (!proFile.isEmpty()) {
+            TestTreeItem *root = framework()->rootNode();
+            root->forAllChildItems([proFile](TestTreeItem *it) {
+                if (it->proFile() == proFile)
+                    it->markForRemoval(true);
+            });
+        }
     }
 }
 
