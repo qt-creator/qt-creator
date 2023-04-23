@@ -66,8 +66,8 @@ public:
     void aboutToShutdown();
 
 private:
-    bool postponed(const Utils::FilePaths &fileList);
-    void scanForTests(const Utils::FilePaths &fileList = Utils::FilePaths(),
+    bool postponed(const QSet<Utils::FilePath> &fileList);
+    void scanForTests(const QSet<Utils::FilePath> &filePaths = {},
                       const QList<ITestParser *> &parsers = {});
 
     // qml files must be handled slightly different

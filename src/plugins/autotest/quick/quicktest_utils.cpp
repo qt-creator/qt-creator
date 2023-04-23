@@ -22,7 +22,8 @@ bool isQuickTestMacro(const QByteArray &macro)
     return valid.contains(macro);
 }
 
-QHash<FilePath, FilePath> proFilesForQmlFiles(ITestFramework *framework, const FilePaths &files)
+QHash<FilePath, FilePath> proFilesForQmlFiles(ITestFramework *framework,
+                                              const QSet<FilePath> &files)
 {
     QHash<FilePath, FilePath> result;
     TestTreeItem *rootNode = framework->rootNode();

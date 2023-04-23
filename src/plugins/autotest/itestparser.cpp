@@ -24,7 +24,7 @@ CppParser::CppParser(ITestFramework *framework)
 {
 }
 
-void CppParser::init(const FilePaths &filesToParse, bool fullParse)
+void CppParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
 {
     Q_UNUSED(filesToParse)
     Q_UNUSED(fullParse)

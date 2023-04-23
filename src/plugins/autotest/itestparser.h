@@ -45,7 +45,7 @@ class ITestParser
 public:
     explicit ITestParser(ITestFramework *framework) : m_framework(framework) {}
     virtual ~ITestParser() { }
-    virtual void init(const Utils::FilePaths &filesToParse, bool fullParse) = 0;
+    virtual void init(const QSet<Utils::FilePath> &filesToParse, bool fullParse) = 0;
     virtual bool processDocument(QPromise<TestParseResultPtr> &futureInterface,
                                  const Utils::FilePath &fileName) = 0;
 
@@ -63,7 +63,7 @@ class CppParser : public ITestParser
 {
 public:
     explicit CppParser(ITestFramework *framework);
-    void init(const Utils::FilePaths &filesToParse, bool fullParse) override;
+    void init(const QSet<Utils::FilePath> &filesToParse, bool fullParse) override;
     static bool selectedForBuilding(const Utils::FilePath &fileName);
     QByteArray getFileContent(const Utils::FilePath &filePath) const;
     void release() override;

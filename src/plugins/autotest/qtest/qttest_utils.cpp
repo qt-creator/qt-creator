@@ -4,7 +4,6 @@
 #include "qttest_utils.h"
 #include "qttesttreeitem.h"
 #include "../autotestplugin.h"
-#include "../testframeworkmanager.h"
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>
@@ -27,7 +26,8 @@ bool isQTestMacro(const QByteArray &macro)
     return valid.contains(macro);
 }
 
-QHash<FilePath, TestCases> testCaseNamesForFiles(ITestFramework *framework, const FilePaths &files)
+QHash<FilePath, TestCases> testCaseNamesForFiles(ITestFramework *framework,
+                                                 const QSet<FilePath> &files)
 {
     QHash<FilePath, TestCases> result;
     TestTreeItem *rootNode = framework->rootNode();
@@ -49,7 +49,8 @@ QHash<FilePath, TestCases> testCaseNamesForFiles(ITestFramework *framework, cons
     return result;
 }
 
-QMultiHash<FilePath, FilePath> alternativeFiles(ITestFramework *framework, const FilePaths &files)
+QMultiHash<FilePath, FilePath> alternativeFiles(ITestFramework *framework,
+                                                const QSet<FilePath> &files)
 {
     QMultiHash<FilePath, FilePath> result;
     TestTreeItem *rootNode = framework->rootNode();

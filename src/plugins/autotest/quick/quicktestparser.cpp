@@ -338,7 +338,7 @@ QuickTestParser::QuickTestParser(ITestFramework *framework)
             this, &QuickTestParser::handleDirectoryChanged);
 }
 
-void QuickTestParser::init(const FilePaths &filesToParse, bool fullParse)
+void QuickTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
 {
     m_qmlSnapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
     if (!fullParse) {

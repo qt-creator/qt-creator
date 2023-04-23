@@ -414,7 +414,7 @@ QtTestParseResult *QtTestParser::createParseResult(
     return parseResult;
 }
 
-void QtTestParser::init(const FilePaths &filesToParse, bool fullParse)
+void QtTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
 {
     if (!fullParse) { // in a full parse cached information might lead to wrong results
         m_testCases = QTestUtils::testCaseNamesForFiles(framework(), filesToParse);
