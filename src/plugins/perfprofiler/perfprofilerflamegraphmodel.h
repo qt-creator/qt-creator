@@ -19,10 +19,9 @@ class PerfProfilerFlameGraphModel : public QAbstractItemModel
     Q_OBJECT
     QML_ELEMENT
     QML_UNCREATABLE("use the context property")
-    Q_DISABLE_COPY(PerfProfilerFlameGraphModel);
+    Q_DISABLE_COPY_MOVE(PerfProfilerFlameGraphModel);
+
 public:
-    PerfProfilerFlameGraphModel(PerfProfilerFlameGraphModel &&) = delete;
-    PerfProfilerFlameGraphModel &operator=(PerfProfilerFlameGraphModel &&) = delete;
 
     enum Role {
         TypeIdRole = Qt::UserRole + 1, // Sort by data, not by displayed string
