@@ -94,7 +94,6 @@ private:
     QList<ITestParser *> m_testCodeParsers; // ptrs are still owned by TestFrameworkManager
     QTimer m_reparseTimer;
     QSet<ITestParser *> m_updateParsers;
-    QThreadPool *m_threadPool = nullptr;
     Utils::FutureSynchronizer m_futureSynchronizer;
     std::unique_ptr<Utils::TaskTree> m_taskTree;
     QHash<Utils::FilePath, int> m_qmlEditorRev;

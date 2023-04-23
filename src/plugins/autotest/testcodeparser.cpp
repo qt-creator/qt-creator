@@ -39,7 +39,6 @@ static bool isProjectParsing()
 }
 
 TestCodeParser::TestCodeParser()
-    :  m_threadPool(new QThreadPool(this))
 {
     // connect to ProgressManager to postpone test parsing when CppModelManager is parsing
     ProgressManager *progressManager = ProgressManager::instance();
@@ -55,8 +54,6 @@ TestCodeParser::TestCodeParser()
     });
     m_reparseTimer.setSingleShot(true);
     connect(&m_reparseTimer, &QTimer::timeout, this, &TestCodeParser::parsePostponedFiles);
-    m_threadPool->setMaxThreadCount(std::max(QThread::idealThreadCount()/4, 1));
-    m_threadPool->setThreadPriority(QThread::LowestPriority);
     m_futureSynchronizer.setCancelOnWait(true);
 }
 
@@ -363,11 +360,11 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
 
     using namespace Tasking;
 
-    QList<TaskItem> tasks{parallel}; // TODO: use ParallelLimit(N) and add to settings?
+    QList<TaskItem> tasks{ParallelLimit(std::max(QThread::idealThreadCount() / 4, 1))};
     for (const FilePath &file : filteredFiles) {
         const auto setup = [this, codeParsers, file](AsyncTask<TestParseResultPtr> &async) {
             async.setConcurrentCallData(parseFileForTests, codeParsers, file);
-            async.setThreadPool(m_threadPool);
+            async.setPriority(QThread::LowestPriority);
             async.setFutureSynchronizer(&m_futureSynchronizer);
         };
         const auto onDone = [this](const AsyncTask<TestParseResultPtr> &async) {
