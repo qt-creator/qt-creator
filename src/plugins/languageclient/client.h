@@ -48,15 +48,11 @@ class SymbolSupport;
 class LANGUAGECLIENT_EXPORT Client : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(Client)
 
 public:
     explicit Client(BaseClientInterface *clientInterface, const Utils::Id &id = {}); // takes ownership
      ~Client() override;
-
-    Client(const Client &) = delete;
-    Client(Client &&) = delete;
-    Client &operator=(const Client &) = delete;
-    Client &operator=(Client &&) = delete;
 
     // basic properties
     Utils::Id id() const;

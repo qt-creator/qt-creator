@@ -52,14 +52,11 @@ private:
 class LANGUAGECLIENT_EXPORT StdIOClientInterface : public BaseClientInterface
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(StdIOClientInterface)
+
 public:
     StdIOClientInterface();
     ~StdIOClientInterface() override;
-
-    StdIOClientInterface(const StdIOClientInterface &) = delete;
-    StdIOClientInterface(StdIOClientInterface &&) = delete;
-    StdIOClientInterface &operator=(const StdIOClientInterface &) = delete;
-    StdIOClientInterface &operator=(StdIOClientInterface &&) = delete;
 
     void startImpl() override;
 

@@ -30,9 +30,9 @@ class LanguageClientMark;
 class LANGUAGECLIENT_EXPORT LanguageClientManager : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(LanguageClientManager)
+
 public:
-    LanguageClientManager(const LanguageClientManager &other) = delete;
-    LanguageClientManager(LanguageClientManager &&other) = delete;
     ~LanguageClientManager() override;
 
     static void init();
