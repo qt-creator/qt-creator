@@ -17,15 +17,13 @@ class ProcessInterface;
 template<typename R, typename... Params>
 class Hook
 {
+    Q_DISABLE_COPY_MOVE(Hook)
+
 public:
     using Callback = std::function<R(Params...)>;
 
 public:
     Hook() = delete;
-    Hook(const Hook &other) = delete;
-    Hook(Hook &&other) = delete;
-    Hook &operator=(const Hook &other) = delete;
-    Hook &operator=(Hook &&other) = delete;
 
     explicit Hook(Callback defaultCallback) { set(defaultCallback); }
 

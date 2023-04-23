@@ -62,17 +62,13 @@ private:
 
 class QTCREATOR_UTILS_EXPORT CompleterDelegate : public QStyledItemDelegate
 {
+    Q_DISABLE_COPY_MOVE(CompleterDelegate)
+
 public:
     CompleterDelegate(const QStringList &candidates, QObject *parent = nullptr);
     CompleterDelegate(QAbstractItemModel *model, QObject *parent = nullptr);
     CompleterDelegate(QCompleter *completer, QObject *parent = nullptr);
     ~CompleterDelegate() override;
-
-    CompleterDelegate(const CompleterDelegate &other) = delete;
-    CompleterDelegate(CompleterDelegate &&other) = delete;
-
-    CompleterDelegate &operator=(const CompleterDelegate &other) = delete;
-    CompleterDelegate &operator=(CompleterDelegate &&other) = delete;
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const override;

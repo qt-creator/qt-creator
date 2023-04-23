@@ -162,6 +162,8 @@ QTCREATOR_UTILS_EXPORT QWidget *createHr(QWidget *parent = nullptr);
 
 class QTCREATOR_UTILS_EXPORT LayoutBuilder
 {
+    Q_DISABLE_COPY(LayoutBuilder)
+
 public:
     enum LayoutType {
         HBoxLayout,
@@ -175,9 +177,7 @@ public:
 
     explicit LayoutBuilder(LayoutType layoutType, const LayoutItems &items = {});
 
-    LayoutBuilder(const LayoutBuilder &) = delete;
     LayoutBuilder(LayoutBuilder &&) = default;
-    LayoutBuilder &operator=(const LayoutBuilder &) = delete;
     LayoutBuilder &operator=(LayoutBuilder &&) = default;
 
     ~LayoutBuilder();
