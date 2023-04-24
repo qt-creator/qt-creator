@@ -6,15 +6,13 @@
 #include "texteditortr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <utils/tasktree.h>
 
 using namespace Core;
 using namespace Utils;
 
 namespace TextEditor::Internal {
 
-LineNumberFilter::LineNumberFilter(QObject *parent)
-  : ILocatorFilter(parent)
+LineNumberFilter::LineNumberFilter()
 {
     setId("Line in current document");
     setDisplayName(Tr::tr("Line in Current Document"));
@@ -68,48 +66,4 @@ LocatorMatcherTasks LineNumberFilter::matchers()
     return {{Sync(onSetup), storage}};
 }
 
-void LineNumberFilter::prepareSearch(const QString &entry)
-{
-    Q_UNUSED(entry)
-    m_hasCurrentEditor = EditorManager::currentEditor() != nullptr;
-}
-
-QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &, const QString &entry)
-{
-    QList<LocatorFilterEntry> value;
-    const QStringList lineAndColumn = entry.split(':');
-    int sectionCount = lineAndColumn.size();
-    int line = 0;
-    int column = 0;
-    bool ok = false;
-    if (sectionCount > 0)
-        line = lineAndColumn.at(0).toInt(&ok);
-    if (ok && sectionCount > 1)
-        column = lineAndColumn.at(1).toInt(&ok);
-    if (!ok)
-        return value;
-    if (m_hasCurrentEditor && (line > 0 || column > 0)) {
-        QString text;
-        if (line > 0 && column > 0)
-            text = Tr::tr("Line %1, Column %2").arg(line).arg(column);
-        else if (line > 0)
-            text = Tr::tr("Line %1").arg(line);
-        else
-            text = Tr::tr("Column %1").arg(column);
-        LocatorFilterEntry entry;
-        entry.displayName = text;
-        entry.acceptor = [line, targetColumn = column - 1] {
-            IEditor *editor = EditorManager::currentEditor();
-            if (!editor)
-                return AcceptResult();
-            EditorManager::addCurrentPositionToNavigationHistory();
-            editor->gotoLine(line < 1 ? editor->currentLine() : line, targetColumn);
-            EditorManager::activateEditor(editor);
-            return AcceptResult();
-        };
-        value.append(entry);
-    }
-    return value;
-}
-
-} // TextEditor::Internal
+} // namespace TextEditor::Internal
