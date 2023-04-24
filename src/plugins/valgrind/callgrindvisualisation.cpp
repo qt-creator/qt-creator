@@ -155,7 +155,7 @@ void FunctionGraphicsItem::paint(QPainter *painter,
     painter->save();
 
     QRectF rect = this->rect();
-    const QColor &color = brush().color();
+    const QColor color = brush().color();
     if (option->state & QStyle::State_Selected) {
         QLinearGradient gradient(0, 0, rect.width(), 0);
         gradient.setColorAt(0, color.darker(100));
