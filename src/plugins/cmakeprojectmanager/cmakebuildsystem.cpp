@@ -202,7 +202,7 @@ bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
 {
     if (dynamic_cast<CMakeTargetNode *>(context))
         return action == ProjectAction::AddNewFile || action == ProjectAction::AddExistingFile
-               || action == ProjectAction::Rename;
+               || action == ProjectAction::Rename || action == ProjectAction::RemoveFile;
 
     return BuildSystem::supportsAction(context, action, node);
 }
@@ -367,6 +367,143 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
     return BuildSystem::addFiles(context, filePaths, notAdded);
 }
 
+std::optional<CMakeBuildSystem::ProjectFileArgumentPosition>
+CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const QString &fileName)
+{
+    auto target = Utils::findOrDefault(buildTargets(), [targetName](const CMakeBuildTarget &target) {
+        return target.title == targetName;
+    });
+
+    if (target.backtrace.isEmpty())
+        return std::nullopt;
+
+    const FilePath targetCMakeFile = target.backtrace.last().path;
+
+    // Have a fresh look at the CMake file, not relying on a cached value
+    expected_str<QByteArray> fileContent = targetCMakeFile.fileContents();
+    cmListFile cmakeListFile;
+    std::string errorString;
+    if (fileContent) {
+        fileContent = fileContent->replace("\r\n", "\n");
+        if (!cmakeListFile.ParseString(fileContent->toStdString(),
+                                       targetCMakeFile.fileName().toStdString(),
+                                       errorString))
+            return std::nullopt;
+    }
+
+    const int targetDefinitionLine = target.backtrace.last().line;
+
+    auto function = std::find_if(cmakeListFile.Functions.begin(),
+                                 cmakeListFile.Functions.end(),
+                                 [targetDefinitionLine](const auto &func) {
+                                     return func.Line() == targetDefinitionLine;
+                                 });
+
+    const std::string target_name = targetName.toStdString();
+    auto targetSourcesFunc
+        = std::find_if(cmakeListFile.Functions.begin(),
+                       cmakeListFile.Functions.end(),
+                       [target_name = targetName.toStdString()](const auto &func) {
+                           return func.LowerCaseName() == "target_sources"
+                                  && func.Arguments().front().Value == target_name;
+                       });
+
+    for (const auto &func : {function, targetSourcesFunc}) {
+        if (func == cmakeListFile.Functions.end())
+            continue;
+        auto filePathArgument
+            = Utils::findOrDefault(func->Arguments(),
+                                   [file_name = fileName.toStdString()](const auto &arg) {
+                                       return arg.Delim != cmListFileArgument::Comment
+                                              && arg.Value == file_name;
+                                   });
+
+        if (!filePathArgument.Value.empty()) {
+            return ProjectFileArgumentPosition{filePathArgument, targetCMakeFile, fileName};
+        } else {
+            const auto globFunctions = std::get<0>(
+                Utils::partition(cmakeListFile.Functions, [](const auto &f) {
+                    return f.LowerCaseName() == "file" && f.Arguments().size() > 2
+                           && (f.Arguments().front().Value == "GLOB"
+                               || f.Arguments().front().Value == "GLOB_RECURSE");
+                }));
+
+            const auto globVariables = Utils::transform<QSet>(globFunctions, [](const auto &func) {
+                return std::string("${") + func.Arguments()[1].Value + "}";
+            });
+
+            const auto haveGlobbing = Utils::anyOf(func->Arguments(),
+                                                   [globVariables](const auto &arg) {
+                                                       return globVariables.contains(arg.Value)
+                                                              && arg.Delim
+                                                                     != cmListFileArgument::Comment;
+                                                   });
+
+            if (haveGlobbing)
+                return ProjectFileArgumentPosition{filePathArgument,
+                                                   targetCMakeFile,
+                                                   fileName,
+                                                   true};
+        }
+    }
+
+    return std::nullopt;
+}
+
+RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
+                                                      const FilePaths &filePaths,
+                                                      FilePaths *notRemoved)
+{
+    FilePaths badFiles;
+    if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
+        const FilePath projDir = n->filePath().canonicalPath();
+        const QString targetName = n->buildKey();
+
+        for (const auto &file : filePaths) {
+            const QString fileName
+                = file.canonicalPath().relativePathFrom(projDir).cleanPath().toString();
+
+            auto filePos = projectFileArgumentPosition(targetName, fileName);
+            if (filePos) {
+                if (!filePos.value().cmakeFile.exists()) {
+                    badFiles << file;
+                    continue;
+                }
+
+                BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
+                    Core::EditorManager::openEditorAt({filePos.value().cmakeFile,
+                                                       static_cast<int>(filePos.value().argumentPosition.Line),
+                                                       static_cast<int>(filePos.value().argumentPosition.Column
+                                                                        - 1)},
+                                                      Constants::CMAKE_EDITOR_ID,
+                                                      Core::EditorManager::DoNotMakeVisible));
+                if (!editor) {
+                    badFiles << file;
+                    continue;
+                }
+
+                if (!filePos.value().fromGlobbing)
+                    editor->replace(filePos.value().relativeFileName.length(), "");
+
+                editor->editorWidget()->autoIndent();
+                if (!Core::DocumentManager::saveDocument(editor->document())) {
+                    badFiles << file;
+                    continue;
+                }
+            } else {
+                badFiles << file;
+            }
+        }
+
+        if (notRemoved && !badFiles.isEmpty())
+            *notRemoved = badFiles;
+
+        return badFiles.isEmpty() ? RemovedFilesFromProject::Ok : RemovedFilesFromProject::Error;
+    }
+
+    return RemovedFilesFromProject::Error;
+}
+
 bool CMakeBuildSystem::canRenameFile(Node *context,
                                      const FilePath &oldFilePath,
                                      const FilePath &newFilePath)
@@ -384,88 +521,17 @@ bool CMakeBuildSystem::canRenameFile(Node *context,
             = oldFilePath.canonicalPath().relativePathFrom(projDir).cleanPath().toString();
 
         const QString targetName = n->buildKey();
-        auto target = Utils::findOrDefault(buildTargets(),
-                                           [targetName](const CMakeBuildTarget &target) {
-                                               return target.title == targetName;
-                                           });
 
-        if (target.backtrace.isEmpty()) {
+        const QString key
+            = QStringList{projDir.path(), targetName, oldFilePath.path(), newFilePath.path()}
+                  .join(";");
+
+        auto filePos = projectFileArgumentPosition(targetName, oldRelPathName);
+        if (!filePos)
             return false;
-        }
-        const FilePath targetCMakeFile = target.backtrace.last().path;
 
-        // Have a fresh look at the CMake file, not relying on a cached value
-        expected_str<QByteArray> fileContent = targetCMakeFile.fileContents();
-        cmListFile cmakeListFile;
-        std::string errorString;
-        if (fileContent) {
-            fileContent = fileContent->replace("\r\n", "\n");
-            if (!cmakeListFile.ParseString(fileContent->toStdString(),
-                                           targetCMakeFile.fileName().toStdString(),
-                                           errorString))
-                return false;
-        }
-
-        const int targetDefinitionLine = target.backtrace.last().line;
-
-        auto function = std::find_if(cmakeListFile.Functions.begin(),
-                                     cmakeListFile.Functions.end(),
-                                     [targetDefinitionLine](const auto &func) {
-                                         return func.Line() == targetDefinitionLine;
-                                     });
-
-        const std::string target_name = targetName.toStdString();
-        auto targetSourcesFunc
-            = std::find_if(cmakeListFile.Functions.begin(),
-                           cmakeListFile.Functions.end(),
-                           [target_name = targetName.toStdString()](const auto &func) {
-                               return func.LowerCaseName() == "target_sources"
-                                      && func.Arguments().front().Value == target_name;
-                           });
-
-        for (const auto &func : {function, targetSourcesFunc}) {
-            if (func == cmakeListFile.Functions.end())
-                continue;
-            auto filePathArgument
-                = Utils::findOrDefault(func->Arguments(),
-                                       [fileName = oldRelPathName.toStdString()](const auto &arg) {
-                                           return arg.Delim != cmListFileArgument::Comment
-                                                  && arg.Value == fileName;
-                                       });
-
-            const QString key
-                = QStringList{projDir.path(), targetName, oldFilePath.path(), newFilePath.path()}
-                      .join(";");
-
-            if (!filePathArgument.Value.empty()) {
-                m_filesToBeRenamed.insert(key, {filePathArgument, targetCMakeFile, oldRelPathName});
-                return true;
-            } else {
-                const auto globFunctions = std::get<0>(
-                    Utils::partition(cmakeListFile.Functions, [](const auto &f) {
-                        return f.LowerCaseName() == "file" && f.Arguments().size() > 2
-                               && (f.Arguments().front().Value == "GLOB"
-                                   || f.Arguments().front().Value == "GLOB_RECURSE");
-                    }));
-
-                const auto globVariables
-                    = Utils::transform<QSet>(globFunctions, [](const auto &func) {
-                          return std::string("${") + func.Arguments()[1].Value + "}";
-                      });
-
-                const auto haveGlobbing
-                    = Utils::anyOf(func->Arguments(), [globVariables](const auto &arg) {
-                          return globVariables.contains(arg.Value)
-                                 && arg.Delim != cmListFileArgument::Comment;
-                      });
-
-                if (haveGlobbing) {
-                    m_filesToBeRenamed
-                        .insert(key, {filePathArgument, targetCMakeFile, oldRelPathName, true});
-                    return true;
-                }
-            }
-        }
+        m_filesToBeRenamed.insert(key, filePos.value());
+        return true;
     }
     return false;
 }
@@ -499,7 +565,7 @@ bool CMakeBuildSystem::renameFile(Node *context,
             return false;
 
         if (!fileToRename.fromGlobbing)
-            editor->replace(fileToRename.oldRelativeFileName.length(), newRelPathName);
+            editor->replace(fileToRename.relativeFileName.length(), newRelPathName);
 
         editor->editorWidget()->autoIndent();
         if (!Core::DocumentManager::saveDocument(editor->document()))

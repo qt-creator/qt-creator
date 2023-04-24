@@ -48,6 +48,11 @@ public:
     bool addFiles(ProjectExplorer::Node *context,
                   const Utils::FilePaths &filePaths, Utils::FilePaths *) final;
 
+    ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *context,
+                                                         const Utils::FilePaths &filePaths,
+                                                         Utils::FilePaths *notRemoved
+                                                         = nullptr) final;
+
     bool canRenameFile(ProjectExplorer::Node *context,
                        const Utils::FilePath &oldFilePath,
                        const Utils::FilePath &newFilePath) final;
@@ -192,6 +197,16 @@ private:
 
     void runCTest();
 
+    struct ProjectFileArgumentPosition
+    {
+        cmListFileArgument argumentPosition;
+        Utils::FilePath cmakeFile;
+        QString relativeFileName;
+        bool fromGlobbing = false;
+    };
+    std::optional<ProjectFileArgumentPosition> projectFileArgumentPosition(
+        const QString &targetName, const QString &fileName);
+
     ProjectExplorer::TreeScanner m_treeScanner;
     std::shared_ptr<ProjectExplorer::FolderNode> m_allFiles;
     QHash<QString, bool> m_mimeBinaryCache;
@@ -208,14 +223,7 @@ private:
     QList<CMakeBuildTarget> m_buildTargets;
     QSet<CMakeFileInfo> m_cmakeFiles;
 
-    struct FileToBeRenamed
-    {
-        cmListFileArgument argumentPosition;
-        Utils::FilePath cmakeFile;
-        QString oldRelativeFileName;
-        bool fromGlobbing = false;
-    };
-    QHash<QString, FileToBeRenamed> m_filesToBeRenamed;
+    QHash<QString, ProjectFileArgumentPosition> m_filesToBeRenamed;
 
     // Parsing state:
     BuildDirParameters m_parameters;
