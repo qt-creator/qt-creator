@@ -27,6 +27,7 @@
 #include <QPainterPath>
 #include <QPixmap>
 #include <QPixmapCache>
+#include <QScrollArea>
 #include <QSpinBox>
 #include <QStatusBar>
 #include <QStyleFactory>
@@ -76,6 +77,9 @@ bool panelWidget(const QWidget *widget)
 
     if (qobject_cast<const QTabBar *>(widget))
         return styleEnabled(widget);
+
+    if (qobject_cast<const QScrollArea *>(widget))
+        return widget->property("panelwidget_singlerow").toBool(); // See DebuggerMainWindowPrivate
 
     const QWidget *p = widget;
     while (p) {
@@ -667,10 +671,14 @@ void ManhattanStyle::polish(QWidget *widget)
         } else if (qobject_cast<QLabel*>(widget) || qobject_cast<QSpinBox*>(widget)
                    || qobject_cast<QCheckBox*>(widget)) {
             widget->setPalette(panelPalette(widget->palette(), lightColored(widget)));
-        } else if (widget->property("panelwidget_singlerow").toBool()) {
+        } else if ((qobject_cast<QToolBar*>(widget) && !StyleHelper::isQDSTheme())
+                || widget->property("panelwidget_singlerow").toBool()) {
             widget->setFixedHeight(height);
         } else if (qobject_cast<QStatusBar*>(widget)) {
-            widget->setFixedHeight(height + 2);
+            const bool flatAndNotCompact =
+                StyleHelper::toolbarStyle() != StyleHelper::ToolbarStyleCompact
+                                           && creatorTheme()->flag(Theme::FlatToolBars);
+            widget->setFixedHeight(height + (flatAndNotCompact ? 3 : 2));
         } else if (qobject_cast<QComboBox*>(widget)) {
             const bool isLightColored = lightColored(widget);
             QPalette palette = panelPalette(widget->palette(), isLightColored);
@@ -680,6 +688,9 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setPalette(palette);
             widget->setMaximumHeight(height - 2);
             widget->setAttribute(Qt::WA_Hover);
+        } else if (qobject_cast<QScrollArea*>(widget)
+                   && widget->property("panelwidget_singlerow").toBool()) {
+            widget->setFixedHeight(height);
         }
     }
 }

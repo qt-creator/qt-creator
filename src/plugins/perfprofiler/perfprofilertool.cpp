@@ -121,6 +121,7 @@ PerfProfilerTool::PerfProfilerTool()
     options->addAction(command);
 
     m_tracePointsButton = new QToolButton;
+    StyleHelper::setPanelWidget(m_tracePointsButton);
     m_tracePointsButton->setDefaultAction(tracePointsAction);
     m_objectsToDelete << m_tracePointsButton;
 
@@ -147,10 +148,14 @@ PerfProfilerTool::PerfProfilerTool()
             this, &PerfProfilerTool::updateRunActions);
 
     m_recordButton = new QToolButton;
+    StyleHelper::setPanelWidget(m_recordButton);
     m_clearButton = new QToolButton;
+    StyleHelper::setPanelWidget(m_clearButton);
     m_filterButton = new QToolButton;
+    StyleHelper::setPanelWidget(m_filterButton);
     m_filterMenu = new QMenu(m_filterButton);
     m_aggregateButton = new QToolButton;
+    StyleHelper::setPanelWidget(m_aggregateButton);
     m_recordedLabel = new QLabel;
     StyleHelper::setPanelWidget(m_recordedLabel);
     m_delayLabel = new QLabel;

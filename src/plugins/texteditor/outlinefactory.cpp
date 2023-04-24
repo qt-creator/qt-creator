@@ -12,6 +12,7 @@
 
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QDebug>
 #include <QLabel>
@@ -63,6 +64,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
             this, &OutlineWidgetStack::toggleCursorSynchronization);
 
     m_filterButton = new QToolButton(this);
+    Utils::StyleHelper::setPanelWidget(m_filterButton);
     // The ToolButton needs a parent because updateFilterMenu() sets
     // it visible. That would open a top-level window if the button
     // did not have a parent in that moment.
@@ -75,6 +77,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_filterButton->setMenu(m_filterMenu);
 
     m_toggleSort = new QToolButton(this);
+    Utils::StyleHelper::setPanelWidget(m_toggleSort);
     m_toggleSort->setIcon(Utils::Icons::SORT_ALPHABETICALLY_TOOLBAR.icon());
     m_toggleSort->setCheckable(true);
     m_toggleSort->setChecked(false);

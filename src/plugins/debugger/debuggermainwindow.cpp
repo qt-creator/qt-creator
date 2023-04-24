@@ -233,8 +233,8 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     scrolledToolbar->setFrameStyle(QFrame::NoFrame);
     scrolledToolbar->setWidgetResizable(true);
     scrolledToolbar->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrolledToolbar->setFixedHeight(toolbar->height());
     scrolledToolbar->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    StyleHelper::setPanelWidgetSingleRow(scrolledToolbar);
 
     auto dock = new QDockWidget(Tr::tr("Toolbar"), q);
     dock->setObjectName("Toolbar");

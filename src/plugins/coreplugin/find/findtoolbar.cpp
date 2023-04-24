@@ -133,7 +133,6 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     auto verticalLayout_3 = new QVBoxLayout();
     verticalLayout_3->setSpacing(0);
     verticalLayout_3->addWidget(m_advancedButton);
-    verticalLayout_3->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
     auto gridLayout = new QGridLayout();
     gridLayout->setHorizontalSpacing(3);
