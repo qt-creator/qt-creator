@@ -14,8 +14,7 @@ class QAction;
 class QMenu;
 QT_END_NAMESPACE
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class ActionFilterEntryData
 {
@@ -30,13 +29,8 @@ public:
 
 class ActionsFilter : public ILocatorFilter
 {
-    Q_OBJECT
 public:
     ActionsFilter();
-
-    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
-                                         const QString &entry) override;
-    void prepareSearch(const QString &entry) override;
 
 private:
     LocatorMatcherTasks matchers() final;
@@ -51,11 +45,10 @@ private:
     void updateEntry(const QPointer<QAction> action, const LocatorFilterEntry &entry);
     void updateEnabledActionCache();
 
-    QList<LocatorFilterEntry> m_entries;
+    LocatorFilterEntries m_entries;
     QMap<QPointer<QAction>, int> m_indexes;
     QSet<QPointer<QAction>> m_enabledActions;
     mutable QList<ActionFilterEntryData> m_lastTriggered;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal
