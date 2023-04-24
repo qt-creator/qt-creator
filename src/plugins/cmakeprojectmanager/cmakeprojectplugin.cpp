@@ -81,8 +81,8 @@ public:
     CMakeBuildConfigurationFactory buildConfigFactory;
     CMakeEditorFactory editorFactor;
     CMakeInstallStepFactory installStepFactory;
-    BuildCMakeTargetLocatorFilter buildCMakeTargetLocatorFilter;
-    OpenCMakeTargetLocatorFilter openCMakeTargetLocationFilter;
+    CMakeBuildTargetFilter cMakeBuildTargetFilter;
+    CMakeOpenTargetFilter cMakeOpenTargetFilter;
 
     CMakeKitAspect cmakeKitAspect;
     CMakeGeneratorKitAspect cmakeGeneratorKitAspect;
