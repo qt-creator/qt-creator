@@ -5,19 +5,13 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
 class HelpIndexFilter final : public Core::ILocatorFilter
 {
-    Q_OBJECT
-
 public:
     HelpIndexFilter();
 
-    void prepareSearch(const QString &entry) override;
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
 private:
     Core::LocatorMatcherTasks matchers() final;
     void invalidateCache();
@@ -29,5 +23,4 @@ private:
     QIcon m_icon;
 };
 
-} // namespace Internal
-} // namespace Help
+} // namespace Help::Internal

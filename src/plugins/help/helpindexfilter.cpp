@@ -110,57 +110,6 @@ LocatorMatcherTasks HelpIndexFilter::matchers()
     return {{AsyncTask<QStringList>(onSetup, onDone), storage}};
 }
 
-void HelpIndexFilter::prepareSearch(const QString &entry)
-{
-    Q_UNUSED(entry)
-    if (!m_needsUpdate)
-        return;
-
-    m_needsUpdate = false;
-    LocalHelpManager::setupGuiHelpEngine();
-    m_allIndicesCache = LocalHelpManager::filterEngine()->indices({});
-    m_lastIndicesCache.clear();
-    m_lastEntry.clear();
-}
-
-QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
-                                                      const QString &entry)
-{
-    const QStringList cache = m_lastEntry.isEmpty() || !entry.contains(m_lastEntry)
-                                  ? m_allIndicesCache : m_lastIndicesCache;
-
-    const Qt::CaseSensitivity cs = caseSensitivity(entry);
-    QStringList bestKeywords;
-    QStringList worseKeywords;
-    bestKeywords.reserve(cache.size());
-    worseKeywords.reserve(cache.size());
-    for (const QString &keyword : cache) {
-        if (future.isCanceled())
-            return {};
-        if (keyword.startsWith(entry, cs))
-            bestKeywords.append(keyword);
-        else if (keyword.contains(entry, cs))
-            worseKeywords.append(keyword);
-    }
-    m_lastIndicesCache = bestKeywords + worseKeywords;
-    m_lastEntry = entry;
-
-    QList<LocatorFilterEntry> entries;
-    for (const QString &key : std::as_const(m_lastIndicesCache)) {
-        const int index = key.indexOf(entry, 0, cs);
-        LocatorFilterEntry filterEntry;
-        filterEntry.displayName = key;
-        filterEntry.acceptor = [key] {
-            HelpPlugin::showLinksInCurrentViewer(LocalHelpManager::linksForKeyword(key), key);
-            return AcceptResult();
-        };
-        filterEntry.displayIcon = m_icon;
-        filterEntry.highlightInfo = {index, int(entry.length())};
-        entries.append(filterEntry);
-    }
-    return entries;
-}
-
 void HelpIndexFilter::invalidateCache()
 {
     m_needsUpdate = true;
