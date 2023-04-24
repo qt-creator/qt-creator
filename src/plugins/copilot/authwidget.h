@@ -25,6 +25,8 @@ class AuthWidget : public QWidget
 
 public:
     explicit AuthWidget(QWidget *parent = nullptr);
+    ~AuthWidget() override;
+
     void updateClient(const Utils::FilePath &nodeJs, const Utils::FilePath &agent);
 
 private:

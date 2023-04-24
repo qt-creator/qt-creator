@@ -48,6 +48,12 @@ AuthWidget::AuthWidget(QWidget *parent)
     });
 }
 
+AuthWidget::~AuthWidget()
+{
+    if (m_client)
+        LanguageClientManager::shutdownClient(m_client);
+}
+
 void AuthWidget::setState(const QString &buttonText, bool working)
 {
     m_button->setText(buttonText);
