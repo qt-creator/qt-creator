@@ -34,10 +34,6 @@ public:
     static QStringList registeredDeviceSchemes();
 
 private:
-    static Utils::FilePaths &deviceRoots();
-    static QStringList &deviceSchemes();
-
-private:
     std::unique_ptr<Internal::FSEngineHandler> m_engineHandler;
 };
 

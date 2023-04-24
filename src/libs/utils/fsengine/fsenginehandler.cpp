@@ -56,7 +56,7 @@ QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
         const QStringList deviceSchemes = FSEngine::registeredDeviceSchemes();
         for (const QString &scheme : deviceSchemes) {
             if (fixedFileName == rootFilePath.pathAppended(scheme).toString()) {
-                const FilePaths filteredRoots = Utils::filtered(FSEngine::deviceRoots(),
+                const FilePaths filteredRoots = Utils::filtered(FSEngine::registeredDeviceRoots(),
                                                                 [scheme](const FilePath &root) {
                                                                     return root.scheme() == scheme;
                                                                 });
