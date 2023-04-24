@@ -16,6 +16,7 @@
 #include <QtTest>
 
 using namespace Core::Tests;
+using namespace Utils;
 
 namespace {
 
@@ -24,7 +25,7 @@ QTC_DECLARE_MYTESTDATADIR("../../../tests/locators/")
 class MyBaseFileFilter : public Core::BaseFileFilter
 {
 public:
-    MyBaseFileFilter(const Utils::FilePaths &theFiles)
+    MyBaseFileFilter(const FilePaths &theFiles)
     {
         setFileIterator(new BaseFileFilter::ListIterator(theFiles));
     }
@@ -51,7 +52,8 @@ void Core::Internal::CorePlugin::test_basefilefilter()
     QFETCH(QStringList, testFiles);
     QFETCH(QList<ReferenceData>, referenceDataList);
 
-    MyBaseFileFilter filter(Utils::FileUtils::toFilePathList(testFiles));
+    const FilePaths filePaths = FileUtils::toFilePathList(testFiles);
+    MyBaseFileFilter filter(filePaths);
     BasicLocatorFilterTest test(&filter);
 
     for (const ReferenceData &reference : std::as_const(referenceDataList)) {
@@ -61,12 +63,22 @@ void Core::Internal::CorePlugin::test_basefilefilter()
 //        ResultData::printFilterEntries(results);
         QCOMPARE(results, reference.results);
     }
+
+    LocatorFileCache cache;
+    cache.setFilePaths(filePaths);
+    const LocatorMatcherTasks tasks = {cache.matcher()};
+    for (const ReferenceData &reference : std::as_const(referenceDataList)) {
+        const LocatorFilterEntries filterEntries = LocatorMatcher::runBlocking(
+            tasks, reference.searchText);
+        const ResultDataList results = ResultData::fromFilterEntryList(filterEntries);
+        QCOMPARE(results, reference.results);
+    }
 }
 
 void Core::Internal::CorePlugin::test_basefilefilter_data()
 {
     auto shortNativePath = [](const QString &file) {
-        return Utils::FilePath::fromString(file).shortNativePath();
+        return FilePath::fromString(file).shortNativePath();
     };
 
     QTest::addColumn<QStringList>("testFiles");
