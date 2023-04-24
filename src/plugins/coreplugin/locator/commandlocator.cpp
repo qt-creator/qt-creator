@@ -5,7 +5,6 @@
 
 #include <coreplugin/actionmanager/command.h>
 
-#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QAction>
@@ -14,38 +13,13 @@ using namespace Utils;
 
 namespace Core {
 
-struct CommandLocatorPrivate
-{
-    QList<Command *> commands;
-    QList<QPair<QAction *, QString>> commandsData;
-};
-
-/*!
-    \class Core::CommandLocator
-    \inmodule QtCreator
-    \internal
-*/
-
-CommandLocator::CommandLocator(Id id,
-                               const QString &displayName,
-                               const QString &shortCutString,
-                               QObject *parent) :
-    ILocatorFilter(parent),
-    d(new CommandLocatorPrivate)
+CommandLocator::CommandLocator(Id id, const QString &displayName, const QString &shortCutString,
+                               QObject *parent)
+    : ILocatorFilter(parent)
 {
     setId(id);
     setDisplayName(displayName);
     setDefaultShortcutString(shortCutString);
-}
-
-CommandLocator::~CommandLocator()
-{
-    delete d;
-}
-
-void CommandLocator::appendCommand(Command *cmd)
-{
-    d->commands.push_back(cmd);
 }
 
 LocatorMatcherTasks CommandLocator::matchers()
@@ -54,7 +28,7 @@ LocatorMatcherTasks CommandLocator::matchers()
 
     TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [storage, commands = d->commands] {
+    const auto onSetup = [storage, commands = m_commands] {
         const QString input = storage->input();
         const Qt::CaseSensitivity inputCaseSensitivity = caseSensitivity(input);
         LocatorFilterEntries goodEntries;
@@ -91,58 +65,6 @@ LocatorMatcherTasks CommandLocator::matchers()
         storage->reportOutput(betterEntries + goodEntries);
     };
     return {{Sync(onSetup), storage}};
-}
-
-void CommandLocator::prepareSearch(const QString &entry)
-{
-    Q_UNUSED(entry)
-    d->commandsData = {};
-    const int count = d->commands.size();
-    // Get active, enabled actions matching text, store in list.
-    // Reference via index in extraInfo.
-    for (int i = 0; i < count; ++i) {
-        Command *command = d->commands.at(i);
-        if (!command->isActive())
-            continue;
-        QAction *action = command->action();
-        if (action && action->isEnabled())
-            d->commandsData.append({action, action->text()});
-    }
-}
-
-QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
-{
-    QList<LocatorFilterEntry> goodEntries;
-    QList<LocatorFilterEntry> betterEntries;
-    const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
-    for (const auto &pair : std::as_const(d->commandsData)) {
-        if (future.isCanceled())
-            break;
-
-        const QString text = Utils::stripAccelerator(pair.second);
-        const int index = text.indexOf(entry, 0, entryCaseSensitivity);
-        if (index >= 0) {
-            QAction *action = pair.first;
-            LocatorFilterEntry filterEntry;
-            filterEntry.displayName = text;
-            filterEntry.acceptor = [action] {
-                // avoid nested stack trace and blocking locator by delayed triggering
-                QMetaObject::invokeMethod(action, [action] {
-                    if (action->isEnabled())
-                        action->trigger();
-                }, Qt::QueuedConnection);
-                return AcceptResult();
-            };
-            filterEntry.highlightInfo = {index, int(entry.length())};
-
-            if (index == 0)
-                betterEntries.append(filterEntry);
-            else
-                goodEntries.append(filterEntry);
-        }
-    }
-    betterEntries.append(goodEntries);
-    return betterEntries;
 }
 
 }  // namespace Core
