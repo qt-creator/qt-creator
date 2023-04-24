@@ -54,7 +54,11 @@ const int LocatorEntryRole = int(HighlightingItemRole::User);
 namespace Core {
 namespace Internal {
 
-static bool isUsingLocatorMatcher() { return qtcEnvironmentVariableIsSet("QTC_USE_MATCHER"); }
+static bool isUsingLocatorMatcher()
+{
+    const QString value = qtcEnvironmentVariable("QTC_USE_MATCHER", "").toLower();
+    return !(value == "false" || value == "off");
+}
 
 bool LocatorWidget::m_shuttingDown = false;
 QFuture<void> LocatorWidget::m_sharedFuture;
@@ -975,11 +979,13 @@ static void printMatcherInfo()
     static bool printed = false;
     if (printed)
         return;
-    if (isUsingLocatorMatcher())
-        qDebug() << "QTC_USE_MATCHER env var set, using new LocatorMatcher implementation.";
-    else
-        qDebug() << "QTC_USE_MATCHER env var not set, using old matchesFor implementation.";
     printed = true;
+    if (isUsingLocatorMatcher()) {
+        qDebug() << "Using the new LocatorMatcher implementation (default). In order to switch "
+                    "back to the old implementation, set QTC_USE_MATCHER=FALSE env var.";
+        return;
+    }
+    qDebug() << "QTC_USE_MATCHER env var set to FALSE, using the old matchesFor implementation.";
 }
 
 void LocatorWidget::updateCompletionList(const QString &text)
