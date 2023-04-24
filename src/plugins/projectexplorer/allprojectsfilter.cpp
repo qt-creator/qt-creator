@@ -26,10 +26,10 @@ AllProjectsFilter::AllProjectsFilter()
                           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("a");
     setDefaultIncludedByDefault(true);
-    setRefreshRecipe(Tasking::Sync([this] { invalidateCache(); }));
+    setRefreshRecipe(Tasking::Sync([this] { m_cache.invalidate(); }));
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
-            this, &AllProjectsFilter::invalidateCache);
+            this, [this] { m_cache.invalidate(); });
     m_cache.setGeneratorProvider([] {
         // This body runs in main thread
         FilePaths filePaths;
@@ -46,23 +46,4 @@ AllProjectsFilter::AllProjectsFilter()
     });
 }
 
-void AllProjectsFilter::prepareSearch(const QString &entry)
-{
-    Q_UNUSED(entry)
-    if (!fileIterator()) {
-        FilePaths paths;
-        for (Project *project : ProjectManager::projects())
-            paths.append(project->files(Project::SourceFiles));
-        Utils::sort(paths);
-        setFileIterator(new BaseFileFilter::ListIterator(paths));
-    }
-    BaseFileFilter::prepareSearch(entry);
-}
-
-void AllProjectsFilter::invalidateCache()
-{
-    m_cache.invalidate();
-    setFileIterator(nullptr);
-}
-
-} // ProjectExplorer::Internal
+} // namespace ProjectExplorer::Internal
