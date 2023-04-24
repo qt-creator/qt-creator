@@ -22,6 +22,8 @@ public:
     explicit TimelineTheme(QObject *parent = nullptr);
 
     static void setupTheme(QQmlEngine* engine);
+    Q_INVOKABLE bool compactToolbar() const;
+    Q_INVOKABLE int toolBarHeight() const;
 };
 
 } // namespace Timeline

@@ -9,7 +9,7 @@ import QtCreator.Tracing
 Item {
     id: rangeDetails
 
-    property real titleBarHeight: 20
+    property real titleBarHeight: Theme.toolBarHeight() / 1.2
     property real borderWidth: 1
     property real outerMargin: 10
     property real innerMargin: 5

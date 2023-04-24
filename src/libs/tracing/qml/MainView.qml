@@ -156,7 +156,7 @@ Rectangle {
         anchors.top: parent.top
         anchors.left: parent.left
         width: 150
-        height: 24
+        height: Theme.toolBarHeight()
         onZoomControlChanged: zoomSliderToolBar.visible = !zoomSliderToolBar.visible
         onJumpToNext: {
             var next = timelineModelAggregator.nextItem(root.selectedModel, root.selectedItem,

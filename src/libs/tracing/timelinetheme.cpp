@@ -5,8 +5,9 @@
 
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QIcon>
 #include <QQmlContext>
@@ -90,6 +91,16 @@ TimelineTheme::TimelineTheme(QObject *parent)
 void TimelineTheme::setupTheme(QQmlEngine *engine)
 {
     engine->addImageProvider(QLatin1String("icons"), new TimelineImageIconProvider);
+}
+
+bool TimelineTheme::compactToolbar() const
+{
+    return StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact;
+}
+
+int TimelineTheme::toolBarHeight() const
+{
+    return StyleHelper::navigationWidgetHeight();
 }
 
 } // namespace Timeline
