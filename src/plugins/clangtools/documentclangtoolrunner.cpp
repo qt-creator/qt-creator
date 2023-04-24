@@ -196,8 +196,10 @@ void DocumentClangToolRunner::run()
         if (!config.isEnabled(tool) && !runSettings.hasConfigFileForSourceFile(m_fileInfo.file))
             return;
         const FilePath executable = toolExecutable(tool);
+        if (executable.isEmpty() || !executable.isExecutableFile())
+            return;
         const auto [includeDir, clangVersion] = getClangIncludeDirAndVersion(executable);
-        if (!executable.isExecutableFile() || includeDir.isEmpty() || clangVersion.isEmpty())
+        if (includeDir.isEmpty() || clangVersion.isEmpty())
             return;
         const AnalyzeUnit unit(m_fileInfo, includeDir, clangVersion);
         const AnalyzeInputData input{tool, runSettings, config, m_temporaryDir.path(), env, unit,
