@@ -117,7 +117,6 @@ void UnifiedView::beginOperation()
     DiffEditorDocument *document = m_widget->diffDocument();
     if (document && document->state() == DiffEditorDocument::LoadOK)
         m_widget->saveState();
-    m_widget->clear(Tr::tr("Waiting for data..."));
 }
 
 void UnifiedView::setDiff(const QList<FileData> &diffFileList)
@@ -126,13 +125,15 @@ void UnifiedView::setDiff(const QList<FileData> &diffFileList)
     m_widget->setDiff(diffFileList);
 }
 
-void UnifiedView::endOperation(bool success)
+void UnifiedView::setMessage(const QString &message)
+{
+    m_widget->clear(message);
+}
+
+void UnifiedView::endOperation()
 {
     QTC_ASSERT(m_widget, return);
-    if (success)
-        m_widget->restoreState();
-    else
-        m_widget->clear(Tr::tr("Retrieving data failed."));
+    m_widget->restoreState();
 }
 
 void UnifiedView::setCurrentDiffFileIndex(int index)
@@ -197,7 +198,6 @@ void SideBySideView::beginOperation()
     DiffEditorDocument *document = m_widget->diffDocument();
     if (document && document->state() == DiffEditorDocument::LoadOK)
         m_widget->saveState();
-    m_widget->clear(Tr::tr("Waiting for data..."));
 }
 
 void SideBySideView::setCurrentDiffFileIndex(int index)
@@ -212,13 +212,16 @@ void SideBySideView::setDiff(const QList<FileData> &diffFileList)
     m_widget->setDiff(diffFileList);
 }
 
-void SideBySideView::endOperation(bool success)
+void SideBySideView::setMessage(const QString &message)
 {
     QTC_ASSERT(m_widget, return);
-    if (success)
-        m_widget->restoreState();
-    else
-        m_widget->clear(Tr::tr("Retrieving data failed."));
+    m_widget->clear(message);
+}
+
+void SideBySideView::endOperation()
+{
+    QTC_ASSERT(m_widget, return);
+    m_widget->restoreState();
 }
 
 void SideBySideView::setSync(bool sync)

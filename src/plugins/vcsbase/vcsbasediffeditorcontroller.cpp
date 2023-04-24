@@ -57,6 +57,7 @@ Tasking::TaskItem VcsBaseDiffEditorController::postProcessTask()
     };
     const auto onDiffProcessorDone = [this](const AsyncTask<QList<FileData>> &async) {
         setDiffFiles(async.isResultAvailable() ? async.result() : QList<FileData>());
+        // TODO: We should set the right starting line here
     };
     const auto onDiffProcessorError = [this](const AsyncTask<QList<FileData>> &) {
         setDiffFiles({});

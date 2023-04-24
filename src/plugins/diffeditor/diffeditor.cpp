@@ -185,7 +185,7 @@ DiffEditor::DiffEditor()
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_entriesComboBox->setSizePolicy(policy);
     connect(m_entriesComboBox, &QComboBox::currentIndexChanged,
-            this, &DiffEditor::setCurrentDiffFileIndex);
+            this, &DiffEditor::currentIndexChanged);
     m_toolBar->addWidget(m_entriesComboBox);
 
     QLabel *contextLabel = new QLabel(m_toolBar);
@@ -309,7 +309,6 @@ TextEditorWidget *DiffEditor::sideEditorWidget(DiffSide side) const
     return m_sideBySideView->sideEditorWidget(side);
 }
 
-
 void DiffEditor::documentHasChanged()
 {
     GuardLocker guard(m_ignoreChanges);
@@ -319,7 +318,10 @@ void DiffEditor::documentHasChanged()
     currentView()->setDiff(diffFileList);
 
     m_entriesComboBox->clear();
-    for (const FileData &diffFile : diffFileList) {
+    const QString startupFile = m_document->startupFile();
+    int startupFileIndex = -1;
+    for (int i = 0, total = diffFileList.count(); i < total; ++i) {
+        const FileData &diffFile = diffFileList.at(i);
         const DiffFileInfo &leftEntry = diffFile.fileInfo[LeftSide];
         const DiffFileInfo &rightEntry = diffFile.fileInfo[RightSide];
         const QString leftShortFileName = FilePath::fromString(leftEntry.fileName).fileName();
@@ -332,30 +334,20 @@ void DiffEditor::documentHasChanged()
             if (leftEntry.typeInfo.isEmpty() && rightEntry.typeInfo.isEmpty()) {
                 itemToolTip = leftEntry.fileName;
             } else {
-                itemToolTip = Tr::tr("[%1] vs. [%2] %3")
-                        .arg(leftEntry.typeInfo,
-                             rightEntry.typeInfo,
-                             leftEntry.fileName);
+                itemToolTip = Tr::tr("[%1] vs. [%2] %3").arg(
+                    leftEntry.typeInfo, rightEntry.typeInfo, leftEntry.fileName);
             }
         } else {
-            if (leftShortFileName == rightShortFileName) {
+            if (leftShortFileName == rightShortFileName)
                 itemText = leftShortFileName;
-            } else {
-                itemText = Tr::tr("%1 vs. %2")
-                        .arg(leftShortFileName,
-                             rightShortFileName);
-            }
+            else
+                itemText = Tr::tr("%1 vs. %2").arg(leftShortFileName, rightShortFileName);
 
             if (leftEntry.typeInfo.isEmpty() && rightEntry.typeInfo.isEmpty()) {
-                itemToolTip = Tr::tr("%1 vs. %2")
-                        .arg(leftEntry.fileName,
-                             rightEntry.fileName);
+                itemToolTip = Tr::tr("%1 vs. %2").arg(leftEntry.fileName, rightEntry.fileName);
             } else {
-                itemToolTip = Tr::tr("[%1] %2 vs. [%3] %4")
-                        .arg(leftEntry.typeInfo,
-                             leftEntry.fileName,
-                             rightEntry.typeInfo,
-                             rightEntry.fileName);
+                itemToolTip = Tr::tr("[%1] %2 vs. [%3] %4").arg(leftEntry.typeInfo,
+                    leftEntry.fileName, rightEntry.typeInfo, rightEntry.fileName);
             }
         }
         m_entriesComboBox->addItem(itemText);
@@ -365,7 +357,21 @@ void DiffEditor::documentHasChanged()
                                        rightEntry.fileName, Qt::UserRole + 1);
         m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1,
                                        itemToolTip, Qt::ToolTipRole);
+        if (startupFileIndex < 0) {
+            const bool isStartup = m_currentFileChunk.first.isEmpty()
+                                   && m_currentFileChunk.second.isEmpty()
+                                   && startupFile.endsWith(rightEntry.fileName);
+            const bool isSame = m_currentFileChunk.first == leftEntry.fileName
+                                && m_currentFileChunk.second == rightEntry.fileName;
+            if (isStartup || isSame)
+                startupFileIndex = i;
+        }
     }
+
+    currentView()->endOperation();
+    m_currentFileChunk = {};
+    if (startupFileIndex >= 0)
+        setCurrentDiffFileIndex(startupFileIndex);
 }
 
 void DiffEditor::toggleDescription()
@@ -439,6 +445,7 @@ void DiffEditor::prepareForReload()
         m_whitespaceButtonAction->setChecked(m_document->ignoreWhitespace());
     }
     currentView()->beginOperation();
+    currentView()->setMessage(Tr::tr("Waiting for data..."));
 }
 
 void DiffEditor::reloadHasFinished(bool success)
@@ -446,29 +453,8 @@ void DiffEditor::reloadHasFinished(bool success)
     if (!currentView())
         return;
 
-    currentView()->endOperation(success);
-
-    int index = -1;
-    const QString startupFile = m_document->startupFile();
-    const QList<FileData> &diffFileList = m_document->diffFiles();
-    const int count = diffFileList.count();
-    for (int i = 0; i < count; i++) {
-        const FileData &diffFile = diffFileList.at(i);
-        const DiffFileInfo &leftEntry = diffFile.fileInfo[LeftSide];
-        const DiffFileInfo &rightEntry = diffFile.fileInfo[RightSide];
-        if ((m_currentFileChunk.first.isEmpty()
-             && m_currentFileChunk.second.isEmpty()
-             && startupFile.endsWith(rightEntry.fileName))
-                || (m_currentFileChunk.first == leftEntry.fileName
-                    && m_currentFileChunk.second == rightEntry.fileName)) {
-            index = i;
-            break;
-        }
-    }
-
-    m_currentFileChunk = {};
-    if (index >= 0)
-        setCurrentDiffFileIndex(index);
+    if (!success)
+        currentView()->setMessage(Tr::tr("Retrieving data failed."));
 }
 
 void DiffEditor::updateEntryToolTip()
@@ -478,14 +464,19 @@ void DiffEditor::updateEntryToolTip()
     m_entriesComboBox->setToolTip(toolTip);
 }
 
-void DiffEditor::setCurrentDiffFileIndex(int index)
+void DiffEditor::currentIndexChanged(int index)
 {
     if (m_ignoreChanges.isLocked())
         return;
 
+    GuardLocker guard(m_ignoreChanges);
+    setCurrentDiffFileIndex(index);
+}
+
+void DiffEditor::setCurrentDiffFileIndex(int index)
+{
     QTC_ASSERT((index < 0) != (m_entriesComboBox->count() > 0), return);
 
-    GuardLocker guard(m_ignoreChanges);
     m_currentDiffFileIndex = index;
     currentView()->setCurrentDiffFileIndex(index);
 
@@ -563,7 +554,7 @@ void DiffEditor::addView(IDiffView *view)
     if (m_views.count() == 1)
         setCurrentView(view);
 
-    connect(view, &IDiffView::currentDiffFileIndexChanged, this, &DiffEditor::setCurrentDiffFileIndex);
+    connect(view, &IDiffView::currentDiffFileIndexChanged, this, &DiffEditor::currentIndexChanged);
 }
 
 IDiffView *DiffEditor::currentView() const
