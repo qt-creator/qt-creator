@@ -65,46 +65,76 @@ public:
         setContext(Core::Context(MARKDOWNVIEWER_ID));
         setWidget(&m_widget);
 
+        auto togglePreviewVisible = new QToolButton;
+        togglePreviewVisible->setText(Tr::tr("Show Preview"));
+        togglePreviewVisible->setCheckable(true);
+        togglePreviewVisible->setChecked(true);
+
         auto toggleEditorVisible = new QToolButton;
-        toggleEditorVisible->setText(Tr::tr("Hide Editor"));
+        toggleEditorVisible->setText(Tr::tr("Show Editor"));
         toggleEditorVisible->setCheckable(true);
         toggleEditorVisible->setChecked(true);
 
         auto swapViews = new QToolButton;
         swapViews->setText(Tr::tr("Swap Views"));
 
-        auto layout = new QHBoxLayout(&m_toolbar);
-        layout->setSpacing(0);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->addStretch();
-        layout->addWidget(toggleEditorVisible);
-        layout->addWidget(swapViews);
+        auto toolbarLayout = new QHBoxLayout(&m_toolbar);
+        toolbarLayout->setSpacing(0);
+        toolbarLayout->setContentsMargins(0, 0, 0, 0);
+        toolbarLayout->addStretch();
+        if (textEditorRight) {
+            toolbarLayout->addWidget(togglePreviewVisible);
+            toolbarLayout->addWidget(toggleEditorVisible);
+        } else {
+            toolbarLayout->addWidget(toggleEditorVisible);
+            toolbarLayout->addWidget(togglePreviewVisible);
+        }
+        toolbarLayout->addWidget(swapViews);
 
         connect(m_document.data(), &TextDocument::mimeTypeChanged,
                 m_document.data(), &TextDocument::changed);
 
+        const auto viewToggled =
+            [swapViews](QWidget *view, bool visible, QWidget *otherView, QToolButton *otherButton) {
+                if (view->isVisible() == visible)
+                    return;
+                view->setVisible(visible);
+                if (visible) {
+                    view->setFocus();
+                } else if (otherView->isVisible()) {
+                    otherView->setFocus();
+                } else {
+                    // make sure at least one view is visible
+                    otherButton->toggle();
+                }
+                swapViews->setEnabled(view->isVisible() && otherView->isVisible());
+            };
+
         connect(toggleEditorVisible,
                 &QToolButton::toggled,
-                m_textEditorWidget,
-                [this, browser, toggleEditorVisible](bool editorVisible) {
-                    if (m_textEditorWidget->isVisible() == editorVisible)
-                        return;
-                    m_textEditorWidget->setVisible(editorVisible);
-                    if (editorVisible)
-                        m_textEditorWidget->setFocus();
-                    else
-                        browser->setFocus();
-
-                    toggleEditorVisible->setText(editorVisible ? Tr::tr("Hide Editor")
-                                                               : Tr::tr("Show Editor"));
+                this,
+                [this, browser, togglePreviewVisible, viewToggled](bool visible) {
+                    viewToggled(m_textEditorWidget, visible, browser, togglePreviewVisible);
+                });
+        connect(togglePreviewVisible,
+                &QToolButton::toggled,
+                this,
+                [this, browser, toggleEditorVisible, viewToggled](bool visible) {
+                    viewToggled(browser, visible, m_textEditorWidget, toggleEditorVisible);
                 });
 
-        connect(swapViews, &QToolButton::clicked, m_textEditorWidget, [this] {
+        connect(swapViews, &QToolButton::clicked, m_textEditorWidget, [this, toolbarLayout] {
             QTC_ASSERT(m_widget.count() > 1, return);
+            // switch views
             auto placeholder = std::make_unique<QWidget>();
             auto second = m_widget.replaceWidget(1, placeholder.get());
             auto first = m_widget.replaceWidget(0, second);
             m_widget.replaceWidget(1, first);
+            // switch buttons
+            const int rightIndex = toolbarLayout->count() - 2;
+            QLayoutItem *right = toolbarLayout->takeAt(rightIndex);
+            toolbarLayout->insertItem(rightIndex - 1, right);
+            // save settings
             Utils::QtcSettings *s = Core::ICore::settings();
             s->setValueWithDefault(MARKDOWNVIEWER_TEXTEDITOR_RIGHT,
                                    !s->value(MARKDOWNVIEWER_TEXTEDITOR_RIGHT,
