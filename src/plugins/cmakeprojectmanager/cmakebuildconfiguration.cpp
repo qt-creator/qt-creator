@@ -1470,7 +1470,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         // Android magic:
         if (DeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
             buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
-            const auto &bs = buildSteps()->steps().constLast();
+            const auto bs = buildSteps()->steps().constLast();
             cmd.addArg("-DANDROID_PLATFORM:STRING="
                    + bs->data(Android::Constants::AndroidNdkPlatform).toString());
             auto ndkLocation = bs->data(Android::Constants::NdkLocation).value<FilePath>();

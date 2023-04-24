@@ -211,9 +211,9 @@ static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const FileP
                 item->type = Tutorial;
                 QXmlStreamAttributes attributes = reader->attributes();
                 item->name = attributes.value(QLatin1String("name")).toString();
-                item->projectPath = projectsOffset
-                                    / attributes.value(QLatin1String("projectPath")).toString();
-                item->hasSourceCode = !item->projectPath.isEmpty();
+                const QString projectPath = attributes.value(QLatin1String("projectPath")).toString();
+                item->projectPath = projectsOffset / projectPath;
+                item->hasSourceCode = !projectPath.isEmpty();
                 item->imageUrl = Utils::StyleHelper::dpiSpecificImageFile(
                     attributes.value(QLatin1String("imageUrl")).toString());
                 QPixmapCache::remove(item->imageUrl);

@@ -397,7 +397,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     const Environment thisEnvironment = rc->environment();
     const auto tab = std::find_if(m_runControlTabs.begin(), m_runControlTabs.end(),
                                   [&](const RunControlTab &tab) {
-        if (!tab.runControl || tab.runControl->isRunning())
+        if (!tab.runControl || tab.runControl->isRunning() || tab.runControl->isStarting())
             return false;
         return thisCommand == tab.runControl->commandLine()
                 && thisWorkingDirectory == tab.runControl->workingDirectory()

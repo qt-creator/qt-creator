@@ -203,4 +203,10 @@ void ClangFormatGlobalConfigWidget::apply()
     settings.write();
 }
 
+void ClangFormatGlobalConfigWidget::finish()
+{
+    m_codeStyle->currentPreferences()->setTemporarilyReadOnly(
+        !ClangFormatSettings::instance().overrideDefaultFile());
+}
+
 } // namespace ClangFormat

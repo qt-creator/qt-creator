@@ -28,6 +28,7 @@ public:
                                            QWidget *parent = nullptr);
     ~ClangFormatGlobalConfigWidget() override;
     void apply() override;
+    void finish() override;
 
 private:
     void initCheckBoxes();
