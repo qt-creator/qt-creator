@@ -408,40 +408,19 @@ protected:
     void restoreState(const QJsonObject &object) override;
 };
 
-// TODO: Remove the base class
-class RunConfigurationLocatorFilter : public ILocatorFilter
+class RunConfigurationStartFilter final : public ILocatorFilter
 {
 public:
-    RunConfigurationLocatorFilter();
-
-    void prepareSearch(const QString &entry) override;
-    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
-                                               const QString &entry) override;
-    using RunAcceptor = std::function<void(RunConfiguration *)>;
-protected:
-    void setRunAcceptor(const RunAcceptor &acceptor) { m_acceptor = acceptor; }
-
-private:
-    void targetListUpdated();
-    QList<LocatorFilterEntry> m_result;
-    RunAcceptor m_acceptor;
-};
-
-// TODO: Don't derive, flatten the hierarchy
-class RunRunConfigurationLocatorFilter final : public RunConfigurationLocatorFilter
-{
-public:
-    RunRunConfigurationLocatorFilter();
+    RunConfigurationStartFilter();
 
 private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-// TODO: Don't derive, flatten the hierarchy
-class SwitchToRunConfigurationLocatorFilter final : public RunConfigurationLocatorFilter
+class RunConfigurationSwitchFilter final : public ILocatorFilter
 {
 public:
-    SwitchToRunConfigurationLocatorFilter();
+    RunConfigurationSwitchFilter();
 
 private:
     Core::LocatorMatcherTasks matchers() final;
@@ -682,8 +661,8 @@ public:
     AllProjectsFilter m_allProjectsFilter;
     CurrentProjectFilter m_currentProjectFilter;
     AllProjectFilesFilter m_allProjectDirectoriesFilter;
-    RunRunConfigurationLocatorFilter m_runConfigurationLocatorFilter;
-    SwitchToRunConfigurationLocatorFilter m_switchRunConfigurationLocatorFilter;
+    RunConfigurationStartFilter m_runConfigurationStartFilter;
+    RunConfigurationSwitchFilter m_runConfigurationSwitchFilter;
 
     CopyFileStepFactory m_copyFileStepFactory;
     CopyDirectoryStepFactory m_copyDirectoryFactory;
@@ -4390,13 +4369,14 @@ void AllProjectFilesFilter::restoreState(const QJsonObject &object)
     DirectoryFilter::restoreState(withoutDirectories);
 }
 
-RunConfigurationLocatorFilter::RunConfigurationLocatorFilter()
+static void setupFilter(ILocatorFilter *filter)
 {
-    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
-            this, &RunConfigurationLocatorFilter::targetListUpdated);
-
-    targetListUpdated();
+    QObject::connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
+                     filter, [filter] { filter->setEnabled(ProjectManager::startupProject()); });
+    filter->setEnabled(ProjectManager::startupProject());
 }
+
+using RunAcceptor = std::function<void(RunConfiguration *)>;
 
 static RunConfiguration *runConfigurationForDisplayName(const QString &displayName)
 {
@@ -4409,8 +4389,7 @@ static RunConfiguration *runConfigurationForDisplayName(const QString &displayNa
     });
 }
 
-static LocatorMatcherTasks runConfigurationMatchers(
-    const RunConfigurationLocatorFilter::RunAcceptor &acceptor)
+static LocatorMatcherTasks runConfigurationMatchers(const RunAcceptor &acceptor)
 {
     using namespace Tasking;
 
@@ -4442,58 +4421,23 @@ static LocatorMatcherTasks runConfigurationMatchers(
     return {{Sync(onSetup), storage}};
 }
 
-void RunConfigurationLocatorFilter::prepareSearch(const QString &entry)
-{
-    m_result.clear();
-    const Target *target = ProjectManager::startupTarget();
-    if (!target)
-        return;
-    for (auto rc : target->runConfigurations()) {
-        if (rc->displayName().contains(entry, Qt::CaseInsensitive)) {
-            LocatorFilterEntry entry;
-            entry.displayName = rc->displayName();
-            entry.acceptor = [name = entry.displayName, acceptor = m_acceptor] {
-                RunConfiguration *config = runConfigurationForDisplayName(name);
-                if (!config)
-                    return AcceptResult();
-                acceptor(config);
-                return AcceptResult();
-            };
-            m_result.append(entry);
-        }
-    }
-}
-
-QList<LocatorFilterEntry> RunConfigurationLocatorFilter::matchesFor(
-        QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
-{
-    Q_UNUSED(future)
-    Q_UNUSED(entry)
-    return m_result;
-}
-
-void RunConfigurationLocatorFilter::targetListUpdated()
-{
-    setEnabled(ProjectManager::startupProject()); // at least one project opened
-}
-
 static void runAcceptor(RunConfiguration *config)
 {
     if (!BuildManager::isBuilding(config->project()))
         ProjectExplorerPlugin::runRunConfiguration(config, Constants::NORMAL_RUN_MODE, true);
 }
 
-RunRunConfigurationLocatorFilter::RunRunConfigurationLocatorFilter()
+RunConfigurationStartFilter::RunConfigurationStartFilter()
 {
     setId("Run run configuration");
     setDisplayName(Tr::tr("Run Run Configuration"));
     setDescription(Tr::tr("Runs a run configuration of the active project."));
     setDefaultShortcutString("rr");
     setPriority(Medium);
-    setRunAcceptor(&runAcceptor);
+    setupFilter(this);
 }
 
-LocatorMatcherTasks RunRunConfigurationLocatorFilter::matchers()
+LocatorMatcherTasks RunConfigurationStartFilter::matchers()
 {
     return runConfigurationMatchers(&runAcceptor);
 }
@@ -4510,17 +4454,17 @@ static void switchAcceptor(RunConfiguration *config)
     });
 }
 
-SwitchToRunConfigurationLocatorFilter::SwitchToRunConfigurationLocatorFilter()
+RunConfigurationSwitchFilter::RunConfigurationSwitchFilter()
 {
     setId("Switch run configuration");
     setDisplayName(Tr::tr("Switch Run Configuration"));
     setDescription(Tr::tr("Switches the active run configuration of the active project."));
     setDefaultShortcutString("sr");
     setPriority(Medium);
-    setRunAcceptor(&switchAcceptor);
+    setupFilter(this);
 }
 
-LocatorMatcherTasks SwitchToRunConfigurationLocatorFilter::matchers()
+LocatorMatcherTasks RunConfigurationSwitchFilter::matchers()
 {
     return runConfigurationMatchers(&switchAcceptor);
 }
