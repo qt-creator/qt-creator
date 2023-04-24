@@ -7,8 +7,8 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QFutureWatcher>
 #include <QPointer>
+#include <QTimer>
 #include <QWidget>
 
 #include <functional>
@@ -41,8 +41,7 @@ public:
     QAbstractItemModel *model() const;
 
     void updatePlaceholderText(Command *command);
-
-    void scheduleAcceptEntry(const QModelIndex &index);
+    void acceptEntry(int row);
 
 signals:
     void showCurrentItemToolTip();
@@ -54,9 +53,7 @@ signals:
     void showPopup();
 
 private:
-    void showPopupDelayed();
     void showPopupNow();
-    void acceptEntry(int row);
     static void showConfigureDialog();
     void updateFilterList();
     bool isInMainWindow() const;
@@ -74,9 +71,6 @@ private:
     QAction *m_refreshAction = nullptr;
     QAction *m_configureAction = nullptr;
     Utils::FancyLineEdit *m_fileLineEdit = nullptr;
-    QTimer m_showPopupTimer;
-    bool m_needsClearResult = true;
-    bool m_updateRequested = false;
     bool m_possibleToolTipRequest = false;
     QWidget *m_progressIndicator = nullptr;
     QTimer m_showProgressTimer;
