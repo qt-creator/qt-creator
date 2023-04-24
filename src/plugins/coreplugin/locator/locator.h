@@ -30,8 +30,7 @@ public:
     ~Locator() override;
 
     static Locator *instance();
-    ExtensionSystem::IPlugin::ShutdownFlag aboutToShutdown(
-        const std::function<void()> &emitAsynchronousShutdownFinished);
+    void aboutToShutdown();
 
     void initialize();
     void extensionsInitialized();

@@ -350,8 +350,6 @@ Project {
                 "locatormanager.h",
                 "locator.cpp",
                 "locator.h",
-                "locatorsearchutils.cpp",
-                "locatorsearchutils.h",
                 "locatorsettingspage.cpp",
                 "locatorsettingspage.h",
                 "locatorwidget.cpp",

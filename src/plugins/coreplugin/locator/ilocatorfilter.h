@@ -229,7 +229,8 @@ public:
 
     virtual void prepareSearch(const QString &entry);
 
-    virtual QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry) = 0;
+    virtual QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &,
+                                                 const QString &) { return {}; };
 
     virtual QByteArray saveState() const;
     virtual void restoreState(const QByteArray &state);

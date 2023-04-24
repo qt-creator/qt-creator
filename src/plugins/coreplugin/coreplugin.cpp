@@ -6,7 +6,6 @@
 #include "designmode.h"
 #include "editmode.h"
 #include "foldernavigationwidget.h"
-#include "helpmanager.h"
 #include "icore.h"
 #include "idocument.h"
 #include "iwizardfactory.h"
@@ -472,8 +471,7 @@ QString CorePlugin::msgCrashpadInformation()
 ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
 {
     Find::aboutToShutdown();
-    ExtensionSystem::IPlugin::ShutdownFlag shutdownFlag = m_locator->aboutToShutdown(
-        [this] { emit asynchronousShutdownFinished(); });
+    m_locator->aboutToShutdown();
     m_mainWindow->aboutToShutdown();
-    return shutdownFlag;
+    return SynchronousShutdown;
 }

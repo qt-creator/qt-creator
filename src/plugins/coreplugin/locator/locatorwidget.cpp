@@ -7,7 +7,6 @@
 #include "locator.h"
 #include "locatorconstants.h"
 #include "locatormanager.h"
-#include "locatorsearchutils.h"
 #include "../actionmanager/actionmanager.h"
 #include "../coreplugintr.h"
 #include "../editormanager/editormanager.h"
@@ -25,7 +24,6 @@
 #include <utils/itemviews.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/stylehelper.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
@@ -53,16 +51,6 @@ const int LocatorEntryRole = int(HighlightingItemRole::User);
 
 namespace Core {
 namespace Internal {
-
-static bool isUsingLocatorMatcher()
-{
-    const QString value = qtcEnvironmentVariable("QTC_USE_MATCHER", "").toLower();
-    return !(value == "false" || value == "off");
-}
-
-bool LocatorWidget::m_shuttingDown = false;
-QFuture<void> LocatorWidget::m_sharedFuture;
-LocatorWidget *LocatorWidget::m_sharedFutureOrigin = nullptr;
 
 /* A model to represent the Locator results. */
 class LocatorModel : public QAbstractListModel
@@ -631,12 +619,6 @@ LocatorWidget::LocatorWidget(Locator *locator)
     connect(m_fileLineEdit, &QLineEdit::textChanged,
         this, &LocatorWidget::showPopupDelayed);
 
-    m_entriesWatcher = new QFutureWatcher<LocatorFilterEntry>(this);
-    connect(m_entriesWatcher, &QFutureWatcher<LocatorFilterEntry>::resultsReadyAt,
-            this, &LocatorWidget::addSearchResults);
-    connect(m_entriesWatcher, &QFutureWatcher<LocatorFilterEntry>::finished,
-            this, &LocatorWidget::handleSearchFinished);
-
     m_showPopupTimer.setInterval(100);
     m_showPopupTimer.setSingleShot(true);
     connect(&m_showPopupTimer, &QTimer::timeout, this, &LocatorWidget::showPopupNow);
@@ -664,12 +646,7 @@ LocatorWidget::LocatorWidget(Locator *locator)
     updateFilterList();
 }
 
-LocatorWidget::~LocatorWidget()
-{
-    // no need to completely finish a running search, cancel it
-    if (m_entriesWatcher->future().isRunning())
-        m_entriesWatcher->future().cancel();
-}
+LocatorWidget::~LocatorWidget() = default;
 
 void LocatorWidget::updatePlaceholderText(Command *command)
 {
@@ -878,7 +855,7 @@ void LocatorWidget::showPopupDelayed()
 void LocatorWidget::showPopupNow()
 {
     m_showPopupTimer.stop();
-    updateCompletionList(m_fileLineEdit->text());
+    runMatcher(m_fileLineEdit->text());
     emit showPopup();
 }
 
@@ -973,91 +950,6 @@ void LocatorWidget::runMatcher(const QString &text)
     m_locatorMatcher->start();
 }
 
-// TODO: Remove when switched the default into new implementation.
-static void printMatcherInfo()
-{
-    static bool printed = false;
-    if (printed)
-        return;
-    printed = true;
-    if (isUsingLocatorMatcher()) {
-        qDebug() << "Using the new LocatorMatcher implementation (default). In order to switch "
-                    "back to the old implementation, set QTC_USE_MATCHER=FALSE env var.";
-        return;
-    }
-    qDebug() << "QTC_USE_MATCHER env var set to FALSE, using the old matchesFor implementation.";
-}
-
-void LocatorWidget::updateCompletionList(const QString &text)
-{
-    if (m_shuttingDown)
-        return;
-
-    printMatcherInfo();
-
-    if (isUsingLocatorMatcher()) {
-        runMatcher(text);
-        return;
-    }
-
-    m_updateRequested = true;
-    if (m_sharedFuture.isRunning()) {
-        // Cancel the old future. We may not just block the UI thread to wait for the search to
-        // actually cancel.
-        m_requestedCompletionText = text;
-        if (m_sharedFutureOrigin == this) {
-            // This locator widget is currently running. Make handleSearchFinished trigger another
-            // update.
-            m_rerunAfterFinished = true;
-        } else {
-            // Another locator widget is running. Trigger another update when that is finished.
-            Utils::onFinished(m_sharedFuture, this, [this](const QFuture<void> &) {
-                const QString text = m_requestedCompletionText;
-                m_requestedCompletionText.clear();
-                updateCompletionList(text);
-            });
-        }
-        m_sharedFuture.cancel();
-        return;
-    }
-
-    m_showProgressTimer.start();
-    m_needsClearResult = true;
-    QString searchText;
-    const QList<ILocatorFilter *> filters = filtersFor(text, searchText);
-
-    for (ILocatorFilter *filter : filters)
-        filter->prepareSearch(searchText);
-    QFuture<LocatorFilterEntry> future = Utils::runAsync(&runSearch, filters, searchText);
-    m_sharedFuture = QFuture<void>(future);
-    m_sharedFutureOrigin = this;
-    m_entriesWatcher->setFuture(future);
-}
-
-void LocatorWidget::handleSearchFinished()
-{
-    m_showProgressTimer.stop();
-    setProgressIndicatorVisible(false);
-    m_updateRequested = false;
-    if (m_rowRequestedForAccept) {
-        acceptEntry(m_rowRequestedForAccept.value());
-        m_rowRequestedForAccept.reset();
-        return;
-    }
-    if (m_rerunAfterFinished) {
-        m_rerunAfterFinished = false;
-        const QString text = m_requestedCompletionText;
-        m_requestedCompletionText.clear();
-        updateCompletionList(text);
-        return;
-    }
-
-    if (m_needsClearResult) {
-        m_locatorModel->clear();
-        m_needsClearResult = false;
-    }
-}
-
 void LocatorWidget::scheduleAcceptEntry(const QModelIndex &index)
 {
     if (m_updateRequested) {
@@ -1065,29 +957,10 @@ void LocatorWidget::scheduleAcceptEntry(const QModelIndex &index)
         // accept will be called after the update finished
         m_rowRequestedForAccept = index.row();
         // do not wait for the rest of the search to finish
-        if (isUsingLocatorMatcher())
-            m_locatorMatcher.reset();
-        else
-            m_entriesWatcher->future().cancel();
+        m_locatorMatcher.reset();
     } else {
         acceptEntry(index.row());
     }
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag LocatorWidget::aboutToShutdown(
-    const std::function<void()> &emitAsynchronousShutdownFinished)
-{
-    m_shuttingDown = true;
-    if (m_sharedFuture.isRunning()) {
-        Utils::onFinished(m_sharedFuture,
-                          Locator::instance(),
-                          [emitAsynchronousShutdownFinished](const QFuture<void> &) {
-                              emitAsynchronousShutdownFinished();
-                          });
-        m_sharedFuture.cancel();
-        return ExtensionSystem::IPlugin::AsynchronousShutdown;
-    }
-    return ExtensionSystem::IPlugin::SynchronousShutdown;
 }
 
 void LocatorWidget::acceptEntry(int row)
@@ -1148,24 +1021,6 @@ QAbstractItemModel *LocatorWidget::model() const
 void LocatorWidget::showConfigureDialog()
 {
     ICore::showOptionsDialog(Constants::FILTER_OPTIONS_PAGE);
-}
-
-void LocatorWidget::addSearchResults(int firstIndex, int endIndex)
-{
-    if (m_needsClearResult) {
-        m_locatorModel->clear();
-        m_needsClearResult = false;
-    }
-    const bool selectFirst = m_locatorModel->rowCount() == 0;
-    QList<LocatorFilterEntry> entries;
-    for (int i = firstIndex; i < endIndex; ++i)
-        entries.append(m_entriesWatcher->resultAt(i));
-    m_locatorModel->addEntries(entries);
-    if (selectFirst) {
-        emit selectRow(0);
-        if (m_rowRequestedForAccept)
-            m_rowRequestedForAccept = 0;
-    }
 }
 
 LocatorWidget *createStaticLocatorWidget(Locator *locator)
