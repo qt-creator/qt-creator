@@ -3,23 +3,15 @@
 
 #pragma once
 
-#include "basefilefilter.h"
+#include "ilocatorfilter.h"
 
-#include <functional>
+namespace Core::Internal {
 
-namespace Core {
-namespace Internal {
-
-// TODO: Don't derive from BaseFileFilter, flatten the hierarchy
-class SpotlightLocatorFilter : public BaseFileFilter
+class SpotlightLocatorFilter : public ILocatorFilter
 {
-    Q_OBJECT
 public:
     SpotlightLocatorFilter();
 
-    void prepareSearch(const QString &entry) override;
-
-    using ILocatorFilter::openConfigDialog;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) final;
 
 protected:
@@ -28,12 +20,10 @@ protected:
 
 private:
     LocatorMatcherTasks matchers() final;
-    void reset();
 
     QString m_command;
     QString m_arguments;
     QString m_caseSensitiveArguments;
 };
 
-} // Internal
-} // Core
+} // namespace Core::Internal

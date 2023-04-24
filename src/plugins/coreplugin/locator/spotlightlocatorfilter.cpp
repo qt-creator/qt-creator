@@ -22,136 +22,12 @@
 #include <utils/variablechooser.h>
 
 #include <QFormLayout>
-#include <QJsonDocument>
 #include <QJsonObject>
-#include <QMutex>
-#include <QMutexLocker>
 #include <QRegularExpression>
-#include <QWaitCondition>
 
 using namespace Utils;
 
-namespace Core {
-namespace Internal {
-
-// #pragma mark -- SpotlightIterator
-
-class SpotlightIterator : public BaseFileFilter::Iterator
-{
-public:
-    SpotlightIterator(const CommandLine &command);
-    ~SpotlightIterator() override;
-
-    void toFront() override;
-    bool hasNext() const override;
-    Utils::FilePath next() override;
-    Utils::FilePath filePath() const override;
-
-    void scheduleKillProcess();
-    void killProcess();
-
-private:
-    void ensureNext();
-
-    std::unique_ptr<Process> m_process;
-    QMutex m_mutex;
-    QWaitCondition m_waitForItems;
-    FilePaths m_queue;
-    FilePaths m_filePaths;
-    int m_index;
-    bool m_finished;
-};
-
-SpotlightIterator::SpotlightIterator(const CommandLine &command)
-    : m_index(-1)
-    , m_finished(false)
-{
-    QTC_ASSERT(!command.isEmpty(), return );
-    m_process.reset(new Process);
-    m_process->setCommand(command);
-    m_process->setEnvironment(Utils::Environment::systemEnvironment());
-    QObject::connect(m_process.get(), &Process::done,
-                     m_process.get(), [this, exe = command.executable().toUserOutput()] {
-        if (m_process->result() != ProcessResult::FinishedWithSuccess) {
-            MessageManager::writeFlashing(Tr::tr(
-                            "Locator: Error occurred when running \"%1\".").arg(exe));
-        }
-        scheduleKillProcess();
-    });
-    QObject::connect(m_process.get(), &Process::readyReadStandardOutput,
-                     m_process.get(), [this] {
-        QString output = m_process->readAllStandardOutput();
-        output.replace("\r\n", "\n");
-        const QStringList items = output.split('\n');
-        QMutexLocker lock(&m_mutex);
-        m_queue.append(Utils::transform(items, &FilePath::fromUserInput));
-        if (m_filePaths.size() + m_queue.size() > 10000) // limit the amount of data
-            scheduleKillProcess();
-        m_waitForItems.wakeAll();
-    });
-    m_process->start();
-}
-
-SpotlightIterator::~SpotlightIterator()
-{
-    killProcess();
-}
-
-void SpotlightIterator::toFront()
-{
-    m_index = -1;
-}
-
-bool SpotlightIterator::hasNext() const
-{
-    auto that = const_cast<SpotlightIterator *>(this);
-    that->ensureNext();
-    return (m_index + 1 < m_filePaths.size());
-}
-
-Utils::FilePath SpotlightIterator::next()
-{
-    ensureNext();
-    ++m_index;
-    QTC_ASSERT(m_index < m_filePaths.size(), return FilePath());
-    return m_filePaths.at(m_index);
-}
-
-Utils::FilePath SpotlightIterator::filePath() const
-{
-    QTC_ASSERT(m_index < m_filePaths.size(), return FilePath());
-    return m_filePaths.at(m_index);
-}
-
-void SpotlightIterator::scheduleKillProcess()
-{
-    QMetaObject::invokeMethod(m_process.get(), [this] { killProcess(); }, Qt::QueuedConnection);
-}
-
-void SpotlightIterator::killProcess()
-{
-    if (!m_process)
-        return;
-    m_process->disconnect();
-    QMutexLocker lock(&m_mutex);
-    m_finished = true;
-    m_waitForItems.wakeAll();
-    m_process.reset();
-}
-
-void SpotlightIterator::ensureNext()
-{
-    if (m_index + 1 < m_filePaths.size()) // nothing to do
-        return;
-    // check if there are items in the queue, otherwise wait for some
-    QMutexLocker lock(&m_mutex);
-    if (m_queue.isEmpty() && !m_finished)
-        m_waitForItems.wait(&m_mutex);
-    m_filePaths.append(m_queue);
-    m_queue.clear();
-}
-
-// #pragma mark -- SpotlightLocatorFilter
+namespace Core::Internal {
 
 static QString defaultCommand()
 {
@@ -233,7 +109,9 @@ SpotlightLocatorFilter::SpotlightLocatorFilter()
         "\"+<number>\" or \":<number>\" to jump to the given line number. Append another "
         "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setConfigurable(true);
-    reset();
+    m_command = defaultCommand();
+    m_arguments = defaultArguments();
+    m_caseSensitiveArguments = defaultArguments(Qt::CaseSensitive);
 }
 
 static void matches(QPromise<void> &promise, const LocatorStorage &storage,
@@ -319,25 +197,6 @@ LocatorMatcherTasks SpotlightLocatorFilter::matchers()
     return {{AsyncTask<void>(onSetup), storage}};
 }
 
-void SpotlightLocatorFilter::prepareSearch(const QString &entry)
-{
-    Link link = Utils::Link::fromString(entry, true);
-    if (link.targetFilePath.isEmpty()) {
-        setFileIterator(new BaseFileFilter::ListIterator(Utils::FilePaths()));
-    } else {
-        // only pass the file name part to allow searches like "somepath/*foo"
-
-        std::unique_ptr<MacroExpander> expander(createMacroExpander(link.targetFilePath.fileName()));
-        const QString argumentString = expander->expand(
-            caseSensitivity(link.targetFilePath.toString()) == Qt::CaseInsensitive
-                ? m_arguments
-                : m_caseSensitiveArguments);
-        const CommandLine cmd(FilePath::fromString(m_command), argumentString, CommandLine::Raw);
-        setFileIterator(new SpotlightIterator(cmd));
-    }
-    BaseFileFilter::prepareSearch(entry);
-}
-
 bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 {
     Q_UNUSED(needsRefresh)
@@ -361,7 +220,7 @@ bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefres
     chooser->addMacroExpanderProvider([expander = expander.get()] { return expander; });
     chooser->addSupportedWidget(argumentsEdit);
     chooser->addSupportedWidget(caseSensitiveArgumentsEdit);
-    const bool accepted = openConfigDialog(parent, &configWidget);
+    const bool accepted = ILocatorFilter::openConfigDialog(parent, &configWidget);
     if (accepted) {
         m_command = commandEdit->rawFilePath().toString();
         m_arguments = argumentsEdit->text();
@@ -387,12 +246,4 @@ void SpotlightLocatorFilter::restoreState(const QJsonObject &obj)
     m_caseSensitiveArguments = obj.value(kCaseSensitiveKey).toString(defaultArguments(Qt::CaseSensitive));
 }
 
-void SpotlightLocatorFilter::reset()
-{
-    m_command = defaultCommand();
-    m_arguments = defaultArguments();
-    m_caseSensitiveArguments = defaultArguments(Qt::CaseSensitive);
-}
-
-} // Internal
-} // Core
+} // namespace Core::Internal
