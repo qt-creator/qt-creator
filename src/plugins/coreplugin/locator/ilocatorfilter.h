@@ -321,6 +321,8 @@ public:
     void setFilePaths(const Utils::FilePaths &filePaths);
     void setGeneratorProvider(const GeneratorProvider &provider);
 
+    std::optional<Utils::FilePaths> filePaths() const;
+
     static FilePathsGenerator filePathsGenerator(const Utils::FilePaths &filePaths);
     LocatorMatcherTask matcher() const;
 

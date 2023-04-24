@@ -1361,6 +1361,11 @@ void LocatorFileCache::setGeneratorProvider(const GeneratorProvider &provider)
     d->setGeneratorProvider(provider);
 }
 
+std::optional<FilePaths> LocatorFileCache::filePaths() const
+{
+    return d->m_filePaths;
+}
+
 /*!
     Sets the file path generator.
 
@@ -1413,6 +1418,7 @@ void LocatorFileCache::setFilePathsGenerator(const FilePathsGenerator &generator
 void LocatorFileCache::setFilePaths(const FilePaths &filePaths)
 {
     setFilePathsGenerator(filePathsGenerator(filePaths));
+    d->m_filePaths = filePaths;
 }
 
 /*!

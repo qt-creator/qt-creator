@@ -3,19 +3,14 @@
 
 #pragma once
 
-#include "basefilefilter.h"
+#include "ilocatorfilter.h"
 
 #include <coreplugin/core_global.h>
 
-#include <QByteArray>
-
 namespace Core {
 
-// TODO: Don't derive from BaseFileFilter, flatten the hierarchy
-class CORE_EXPORT DirectoryFilter : public BaseFileFilter
+class CORE_EXPORT DirectoryFilter : public ILocatorFilter
 {
-    Q_OBJECT
-
 public:
     DirectoryFilter(Utils::Id id);
     void restoreState(const QByteArray &state) override;
@@ -38,8 +33,6 @@ private:
     void handleEditDirectory();
     void handleRemoveDirectory();
     void updateOptionButtons();
-    // TODO: Remove me, replace with direct "m_cache.setFilePaths()" call
-    void updateFileIterator();
 
     Utils::FilePaths m_directories;
     QStringList m_filters;
@@ -47,8 +40,6 @@ private:
     // Our config dialog, uses in addDirectory and editDirectory
     // to give their dialogs the right parent
     class DirectoryFilterOptions *m_dialog = nullptr;
-    // TODO: Remove me, use the cache instead.
-    Utils::FilePaths m_files;
     bool m_isCustomFilter = true;
     LocatorFileCache m_cache;
 };
