@@ -8,7 +8,6 @@
 #include <coreplugin/core_global.h>
 
 #include <QDialog>
-#include <QMutex>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
@@ -21,23 +20,18 @@ namespace Core {
 
 class CORE_EXPORT UrlLocatorFilter final : public Core::ILocatorFilter
 {
-    Q_OBJECT
 public:
     UrlLocatorFilter(Utils::Id id);
     UrlLocatorFilter(const QString &displayName, Utils::Id id);
-    ~UrlLocatorFilter() final;
 
-    // ILocatorFilter
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
-    void restoreState(const QByteArray &state) override;
-    bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
+    void restoreState(const QByteArray &state) final;
+    bool openConfigDialog(QWidget *parent, bool &needsRefresh) final;
 
     void addDefaultUrl(const QString &urlTemplate);
-    QStringList remoteUrls() const;
+    QStringList remoteUrls() const { return m_remoteUrls; }
 
-    void setIsCustomFilter(bool value);
-    bool isCustomFilter() const;
+    void setIsCustomFilter(bool value) { m_isCustomFilter = value; }
+    bool isCustomFilter() const { return m_isCustomFilter; }
 
 protected:
     void saveState(QJsonObject &object) const final;
@@ -50,7 +44,6 @@ private:
     QStringList m_defaultUrls;
     QStringList m_remoteUrls;
     bool m_isCustomFilter = false;
-    mutable QMutex m_mutex;
 };
 
 namespace Internal {
@@ -81,5 +74,4 @@ private:
 };
 
 } // namespace Internal
-
 } // namespace Core

@@ -16,7 +16,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
-#include <QMutexLocker>
 #include <QPushButton>
 
 using namespace Utils;
@@ -163,8 +162,6 @@ UrlLocatorFilter::UrlLocatorFilter(const QString &displayName, Id id)
     setDefaultIncludedByDefault(false);
 }
 
-UrlLocatorFilter::~UrlLocatorFilter() = default;
-
 LocatorMatcherTasks UrlLocatorFilter::matchers()
 {
     using namespace Tasking;
@@ -189,28 +186,6 @@ LocatorMatcherTasks UrlLocatorFilter::matchers()
         storage->reportOutput(entries);
     };
     return {{Sync(onSetup), storage}};
-}
-
-QList<Core::LocatorFilterEntry> UrlLocatorFilter::matchesFor(
-    QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
-{
-    QList<Core::LocatorFilterEntry> entries;
-    const QStringList urls = remoteUrls();
-    for (const QString &url : urls) {
-        if (future.isCanceled())
-            break;
-        const QString name = url.arg(entry);
-        Core::LocatorFilterEntry filterEntry;
-        filterEntry.displayName = name;
-        filterEntry.acceptor = [name] {
-            if (!name.isEmpty())
-                QDesktopServices::openUrl(name);
-            return AcceptResult();
-        };
-        filterEntry.highlightInfo = {int(name.lastIndexOf(entry)), int(entry.length())};
-        entries.append(filterEntry);
-    }
-    return entries;
 }
 
 const char kDisplayNameKey[] = "displayName";
@@ -266,7 +241,6 @@ bool UrlLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     Q_UNUSED(needsRefresh)
     Internal::UrlFilterOptions optionsDialog(this, parent);
     if (optionsDialog.exec() == QDialog::Accepted) {
-        QMutexLocker lock(&m_mutex);
         m_remoteUrls.clear();
         setIncludedByDefault(optionsDialog.includeByDefault->isChecked());
         setShortcutString(optionsDialog.shortcutEdit->text().trimmed());
@@ -283,22 +257,6 @@ void UrlLocatorFilter::addDefaultUrl(const QString &urlTemplate)
 {
     m_remoteUrls.append(urlTemplate);
     m_defaultUrls.append(urlTemplate);
-}
-
-QStringList UrlLocatorFilter::remoteUrls() const
-{
-    QMutexLocker lock(&m_mutex);
-    return m_remoteUrls;
-}
-
-void UrlLocatorFilter::setIsCustomFilter(bool value)
-{
-    m_isCustomFilter = value;
-}
-
-bool UrlLocatorFilter::isCustomFilter() const
-{
-    return m_isCustomFilter;
 }
 
 } // namespace Core
