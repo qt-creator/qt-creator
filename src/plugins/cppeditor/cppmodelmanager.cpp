@@ -6,10 +6,10 @@
 #include "abstracteditorsupport.h"
 #include "baseeditordocumentprocessor.h"
 #include "compileroptionsbuilder.h"
+#include "cppbuiltinmodelmanagersupport.h"
 #include "cppcanonicalsymbol.h"
 #include "cppcodemodelinspectordumper.h"
 #include "cppcodemodelsettings.h"
-#include "cppcurrentdocumentfilter.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
 #include "cppfindreferences.h"
@@ -17,7 +17,6 @@
 #include "cppindexingsupport.h"
 #include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
-#include "cppbuiltinmodelmanagersupport.h"
 #include "cppprojectfile.h"
 #include "cppsourceprocessor.h"
 #include "cpptoolsjsextension.h"
@@ -890,7 +889,7 @@ void CppModelManager::initCppTools()
             &d->m_locatorData, &CppLocatorData::onAboutToRemoveFiles);
 
     // Set up builtin filters
-    setLocatorFilter(std::make_unique<CppLocatorFilter>());
+    setLocatorFilter(std::make_unique<CppAllSymbolsFilter>());
     setClassesFilter(std::make_unique<CppClassesFilter>());
     setIncludesFilter(std::make_unique<CppIncludesFilter>());
     setFunctionsFilter(std::make_unique<CppFunctionsFilter>());

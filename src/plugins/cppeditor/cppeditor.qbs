@@ -82,8 +82,6 @@ QtcPlugin {
         "cppcompletionassistprocessor.h",
         "cppcompletionassistprovider.cpp",
         "cppcompletionassistprovider.h",
-        "cppcurrentdocumentfilter.cpp",
-        "cppcurrentdocumentfilter.h",
         "cppcursorinfo.h",
         "cppdoxygen.cpp",
         "cppdoxygen.h",

@@ -4,7 +4,6 @@
 #pragma once
 
 #include "cppeditor_global.h"
-#include "indexitem.h"
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
@@ -12,50 +11,37 @@ namespace CppEditor {
 
 Core::LocatorMatcherTasks CPPEDITOR_EXPORT cppMatchers(Core::MatcherType type);
 
-class CPPEDITOR_EXPORT CppLocatorFilter : public Core::ILocatorFilter
+class CppAllSymbolsFilter : public Core::ILocatorFilter
 {
-    Q_OBJECT
-
 public:
-    explicit CppLocatorFilter();
-
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
-protected:
-    virtual IndexItem::ItemType matchTypes() const { return IndexItem::All; }
-    virtual Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info);
-
-private:
-    Core::LocatorMatcherTasks matchers() override;
-};
-
-// TODO: Don't derive, flatten the hierarchy
-class CPPEDITOR_EXPORT CppClassesFilter : public CppLocatorFilter
-{
-    Q_OBJECT
-
-public:
-    explicit CppClassesFilter();
-
-protected:
-    IndexItem::ItemType matchTypes() const override { return IndexItem::Class; }
-    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) override;
+    CppAllSymbolsFilter();
 
 private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-// TODO: Don't derive, flatten the hierarchy
-class CPPEDITOR_EXPORT CppFunctionsFilter : public CppLocatorFilter
+class CppClassesFilter : public Core::ILocatorFilter
 {
-    Q_OBJECT
-
 public:
-    explicit CppFunctionsFilter();
+    CppClassesFilter();
 
-protected:
-    IndexItem::ItemType matchTypes() const override { return IndexItem::Function; }
-    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) override;
+private:
+    Core::LocatorMatcherTasks matchers() final;
+};
+
+class CppFunctionsFilter : public Core::ILocatorFilter
+{
+public:
+    CppFunctionsFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
+};
+
+class CppCurrentDocumentFilter : public  Core::ILocatorFilter
+{
+public:
+    CppCurrentDocumentFilter();
 
 private:
     Core::LocatorMatcherTasks matchers() final;
