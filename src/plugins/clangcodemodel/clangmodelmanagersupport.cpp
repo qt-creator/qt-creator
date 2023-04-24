@@ -202,9 +202,9 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     setupClangdConfigFile();
     checkSystemForClangdSuitability();
     cppModelManager()->setCurrentDocumentFilter(std::make_unique<ClangdCurrentDocumentFilter>());
-    cppModelManager()->setLocatorFilter(std::make_unique<ClangGlobalSymbolFilter>());
-    cppModelManager()->setClassesFilter(std::make_unique<ClangClassesFilter>());
-    cppModelManager()->setFunctionsFilter(std::make_unique<ClangFunctionsFilter>());
+    cppModelManager()->setLocatorFilter(std::make_unique<ClangdAllSymbolsFilter>());
+    cppModelManager()->setClassesFilter(std::make_unique<ClangdClassesFilter>());
+    cppModelManager()->setFunctionsFilter(std::make_unique<ClangdFunctionsFilter>());
     // Setup matchers
     LocatorMatcher::addMatcherCreator(MatcherType::AllSymbols, [] {
         return LanguageClient::languageClientMatchers(

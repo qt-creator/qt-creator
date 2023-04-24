@@ -2020,13 +2020,6 @@ void CppModelManager::switchDeclDef(const CursorInEditor &data,
     instance()->modelManagerSupport(backend)->switchDeclDef(data, processLinkCallback);
 }
 
-ILocatorFilter *CppModelManager::createAuxiliaryCurrentDocumentFilter()
-{
-    const auto filter = new Internal::CppCurrentDocumentFilter;
-    filter->makeAuxiliary();
-    return filter;
-}
-
 BaseEditorDocumentProcessor *CppModelManager::createEditorDocumentProcessor(
     TextEditor::TextDocument *baseTextDocument) const
 {

@@ -196,8 +196,6 @@ public:
                                      const CPlusPlus::LookupContext &context,
                                      const Utils::LinkHandler &callback);
 
-    static Core::ILocatorFilter *createAuxiliaryCurrentDocumentFilter();
-
     CppIndexingSupport *indexingSupport();
 
     Utils::FilePaths projectFiles();

@@ -5,43 +5,30 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
-namespace LanguageClient { class WorkspaceLocatorFilter; }
+namespace ClangCodeModel::Internal {
 
-namespace ClangCodeModel {
-namespace Internal {
-
-class ClangGlobalSymbolFilter : public Core::ILocatorFilter
+class ClangdAllSymbolsFilter : public Core::ILocatorFilter
 {
 public:
-    ClangGlobalSymbolFilter();
-    ClangGlobalSymbolFilter(Core::ILocatorFilter *cppFilter,
-                            Core::ILocatorFilter *lspFilter);
-    ~ClangGlobalSymbolFilter() override;
-
-private:
-    Core::LocatorMatcherTasks matchers() override;
-    void prepareSearch(const QString &entry) override;
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
-    Core::ILocatorFilter * const m_cppFilter;
-    Core::ILocatorFilter * const m_lspFilter;
-};
-
-// TODO: Don't derive, flatten the hierarchy
-class ClangClassesFilter : public ClangGlobalSymbolFilter
-{
-public:
-    ClangClassesFilter();
+    ClangdAllSymbolsFilter();
 
 private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-// TODO: Don't derive, flatten the hierarchy
-class ClangFunctionsFilter : public ClangGlobalSymbolFilter
+class ClangdClassesFilter : public Core::ILocatorFilter
 {
 public:
-    ClangFunctionsFilter();
+    ClangdClassesFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
+};
+
+class ClangdFunctionsFilter : public Core::ILocatorFilter
+{
+public:
+    ClangdFunctionsFilter();
 
 private:
     Core::LocatorMatcherTasks matchers() final;
@@ -51,16 +38,9 @@ class ClangdCurrentDocumentFilter : public Core::ILocatorFilter
 {
 public:
     ClangdCurrentDocumentFilter();
-    ~ClangdCurrentDocumentFilter() override;
 
 private:
     Core::LocatorMatcherTasks matchers() final;
-    void prepareSearch(const QString &entry) override;
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
-    class Private;
-    Private * const d;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal
