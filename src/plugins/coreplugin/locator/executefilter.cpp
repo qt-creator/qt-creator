@@ -104,45 +104,13 @@ void ExecuteFilter::acceptCommand(const QString &cmd)
         if (result == QMessageBox::Cancel)
             return;
         if (result == QMessageBox::No) {
-            m_taskQueue.enqueue(data);
+            m_taskQueue.append(data);
             return;
         }
         removeProcess();
     }
-    m_taskQueue.enqueue(data);
+    m_taskQueue.append(data);
     runHeadCommand();
-}
-
-QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
-                                                    const QString &entry)
-{
-    QList<LocatorFilterEntry> results;
-    if (!entry.isEmpty()) { // avoid empty entry
-        LocatorFilterEntry filterEntry;
-        filterEntry.displayName = entry;
-        filterEntry.acceptor = [this, entry] { acceptCommand(entry); return AcceptResult(); };
-        results.append(filterEntry);
-    }
-    QList<LocatorFilterEntry> others;
-    const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
-    for (const QString &cmd : std::as_const(m_commandHistory)) {
-        if (future.isCanceled())
-            break;
-        if (cmd == entry) // avoid repeated entry
-            continue;
-        LocatorFilterEntry filterEntry;
-        filterEntry.displayName = cmd;
-        filterEntry.acceptor = [this, cmd] { acceptCommand(cmd); return AcceptResult(); };
-        const int index = cmd.indexOf(entry, 0, entryCaseSensitivity);
-        if (index >= 0) {
-            filterEntry.highlightInfo = {index, int(entry.length())};
-            results.append(filterEntry);
-        } else {
-            others.append(filterEntry);
-        }
-    }
-    results.append(others);
-    return results;
 }
 
 void ExecuteFilter::done()
@@ -155,7 +123,7 @@ void ExecuteFilter::done()
     runHeadCommand();
 }
 
-void ExecuteFilter::readStandardOutput()
+void ExecuteFilter::readStdOutput()
 {
     QTC_ASSERT(m_process, return);
     const QByteArray data = m_process->readAllRawStandardOutput();
@@ -163,7 +131,7 @@ void ExecuteFilter::readStandardOutput()
         QTextCodec::codecForLocale()->toUnicode(data.constData(), data.size(), &m_stdoutState));
 }
 
-void ExecuteFilter::readStandardError()
+void ExecuteFilter::readStdError()
 {
     QTC_ASSERT(m_process, return);
     const QByteArray data = m_process->readAllRawStandardError();
@@ -174,11 +142,11 @@ void ExecuteFilter::readStandardError()
 void ExecuteFilter::runHeadCommand()
 {
     if (!m_taskQueue.isEmpty()) {
-        const ExecuteData &d = m_taskQueue.head();
+        const ExecuteData &d = m_taskQueue.first();
         if (d.command.executable().isEmpty()) {
-            MessageManager::writeDisrupting(
-                Tr::tr("Could not find executable for \"%1\".").arg(d.command.executable().toUserOutput()));
-            m_taskQueue.dequeue();
+            MessageManager::writeDisrupting(Tr::tr("Could not find executable for \"%1\".")
+                                                .arg(d.command.executable().toUserOutput()));
+            m_taskQueue.removeFirst();
             runHeadCommand();
             return;
         }
@@ -199,8 +167,8 @@ void ExecuteFilter::createProcess()
     m_process = new Process;
     m_process->setEnvironment(Environment::systemEnvironment());
     connect(m_process, &Process::done, this, &ExecuteFilter::done);
-    connect(m_process, &Process::readyReadStandardOutput, this, &ExecuteFilter::readStandardOutput);
-    connect(m_process, &Process::readyReadStandardError, this, &ExecuteFilter::readStandardError);
+    connect(m_process, &Process::readyReadStandardOutput, this, &ExecuteFilter::readStdOutput);
+    connect(m_process, &Process::readyReadStandardError, this, &ExecuteFilter::readStdError);
 }
 
 void ExecuteFilter::removeProcess()
@@ -208,7 +176,7 @@ void ExecuteFilter::removeProcess()
     if (!m_process)
         return;
 
-    m_taskQueue.dequeue();
+    m_taskQueue.removeFirst();
     m_process->deleteLater();
     m_process = nullptr;
 }
@@ -231,8 +199,8 @@ QString ExecuteFilter::headCommand() const
 {
     if (m_taskQueue.isEmpty())
         return QString();
-    const ExecuteData &data = m_taskQueue.head();
+    const ExecuteData &data = m_taskQueue.first();
     return data.command.toUserOutput();
 }
 
-} // Core::Internal
+} // namespace Core::Internal

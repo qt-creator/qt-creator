@@ -7,19 +7,15 @@
 
 #include <utils/commandline.h>
 
-#include <QQueue>
 #include <QStringList>
 #include <QTextCodec>
 
 namespace Utils { class Process; }
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class ExecuteFilter : public Core::ILocatorFilter
 {
-    Q_OBJECT
-
     struct ExecuteData
     {
         Utils::CommandLine command;
@@ -29,14 +25,13 @@ class ExecuteFilter : public Core::ILocatorFilter
 public:
     ExecuteFilter();
     ~ExecuteFilter() override;
-    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
-                                         const QString &entry) override;
+
 private:
     LocatorMatcherTasks matchers() final;
     void acceptCommand(const QString &cmd);
     void done();
-    void readStandardOutput();
-    void readStandardError();
+    void readStdOutput();
+    void readStdError();
     void runHeadCommand();
 
     void createProcess();
@@ -47,12 +42,11 @@ private:
 
     QString headCommand() const;
 
-    QQueue<ExecuteData> m_taskQueue;
+    QList<ExecuteData> m_taskQueue;
     QStringList m_commandHistory;
     Utils::Process *m_process = nullptr;
     QTextCodec::ConverterState m_stdoutState;
     QTextCodec::ConverterState m_stderrState;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal
