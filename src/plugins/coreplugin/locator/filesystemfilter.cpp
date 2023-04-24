@@ -35,8 +35,7 @@
 
 using namespace Utils;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 Q_GLOBAL_STATIC(QIcon, sDeviceRootIcon);
 
@@ -132,13 +131,11 @@ FileSystemFilter::FileSystemFilter()
     *sDeviceRootIcon = qApp->style()->standardIcon(QStyle::SP_DriveHDIcon);
 }
 
-template<typename Promise>
-static LocatorFilterEntries matchesImpl(Promise &promise,
-                                        const QString &input,
-                                        const QString &shortcutString,
-                                        const FilePath &currentDocumentDir,
-                                        bool includeHidden)
+static void matches(QPromise<void> &promise, const LocatorStorage &storage,
+                    const QString &shortcutString, const FilePath &currentDocumentDir,
+                    bool includeHidden)
 {
+    const QString input = storage.input();
     LocatorFilterEntries entries[int(ILocatorFilter::MatchLevel::Count)];
 
     const Environment env = Environment::systemEnvironment();
@@ -185,7 +182,7 @@ static LocatorFilterEntries matchesImpl(Promise &promise,
     if (regExp.isValid()) {
         for (const FilePath &dir : dirs) {
             if (promise.isCanceled())
-                return {};
+                return;
 
             const QString dirString = dir.relativeChildPath(directory).nativePath();
             const QRegularExpressionMatch match = regExp.match(dirString);
@@ -212,7 +209,7 @@ static LocatorFilterEntries matchesImpl(Promise &promise,
     if (regExp.isValid()) {
         for (const FilePath &file : files) {
             if (promise.isCanceled())
-                return {};
+                return;
 
             const QString fileString = file.relativeChildPath(directory).nativePath();
             const QRegularExpressionMatch match = regExp.match(fileString);
@@ -236,7 +233,7 @@ static LocatorFilterEntries matchesImpl(Promise &promise,
         const FilePaths roots = deviceRoots();
         for (const FilePath &root : roots) {
             if (promise.isCanceled())
-                return {};
+                return;
 
             const QString displayString = root.toUserOutput();
             const QRegularExpressionMatch match = regExp.match(displayString);
@@ -305,19 +302,9 @@ static LocatorFilterEntries matchesImpl(Promise &promise,
             entries[int(ILocatorFilter::MatchLevel::Normal)].append(filterEntry);
         }
     }
-    return std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries());
-}
 
-static void matches(QPromise<void> &promise,
-                    const LocatorStorage &storage,
-                    const QString &shortcutString,
-                    const FilePath &currentDocumentDir,
-                    bool includeHidden)
-{
-    const LocatorFilterEntries result
-        = matchesImpl(promise, storage.input(), shortcutString, currentDocumentDir, includeHidden);
-    if (!result.isEmpty())
-        storage.reportOutput(result);
+    storage.reportOutput(std::accumulate(std::begin(entries), std::end(entries),
+                                         LocatorFilterEntries()));
 }
 
 LocatorMatcherTasks FileSystemFilter::matchers()
@@ -326,33 +313,14 @@ LocatorMatcherTasks FileSystemFilter::matchers()
 
     TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [this, storage](Async<void> &async) {
+    const auto onSetup = [storage, includeHidden = m_includeHidden, shortcut = shortcutString()]
+        (Async<void> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
-        async.setConcurrentCallData(matches,
-                                    *storage,
-                                    shortcutString(),
-                                    DocumentManager::fileDialogInitialDirectory(),
-                                    m_includeHidden);
+        async.setConcurrentCallData(matches, *storage, shortcut,
+                                    DocumentManager::fileDialogInitialDirectory(), includeHidden);
     };
 
     return {{AsyncTask<void>(onSetup), storage}};
-}
-
-void FileSystemFilter::prepareSearch(const QString &entry)
-{
-    Q_UNUSED(entry)
-    m_currentDocumentDirectory = DocumentManager::fileDialogInitialDirectory();
-    m_currentIncludeHidden = m_includeHidden;
-}
-
-QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
-                                                       const QString &entry)
-{
-    return matchesImpl(future,
-                       entry,
-                       shortcutString(),
-                       m_currentDocumentDirectory,
-                       m_currentIncludeHidden);
 }
 
 class FileSystemFilterOptions : public QDialog
@@ -418,13 +386,13 @@ const char kIncludeHiddenKey[] = "includeHidden";
 
 void FileSystemFilter::saveState(QJsonObject &object) const
 {
-    if (m_includeHidden != kIncludeHiddenDefault)
+    if (m_includeHidden != s_includeHiddenDefault)
         object.insert(kIncludeHiddenKey, m_includeHidden);
 }
 
 void FileSystemFilter::restoreState(const QJsonObject &object)
 {
-    m_currentIncludeHidden = object.value(kIncludeHiddenKey).toBool(kIncludeHiddenDefault);
+    m_includeHidden = object.value(kIncludeHiddenKey).toBool(s_includeHiddenDefault);
 }
 
 void FileSystemFilter::restoreState(const QByteArray &state)
@@ -448,5 +416,4 @@ void FileSystemFilter::restoreState(const QByteArray &state)
     }
 }
 
-} // Internal
-} // Core
+} // namespace Core::Internal
