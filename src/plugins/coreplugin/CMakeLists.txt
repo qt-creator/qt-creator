@@ -99,7 +99,6 @@ add_qtc_plugin(Core
     iwelcomepage.cpp iwelcomepage.h
     iwizardfactory.cpp iwizardfactory.h
     jsexpander.cpp jsexpander.h
-    locator/basefilefilter.cpp locator/basefilefilter.h
     locator/commandlocator.cpp locator/commandlocator.h
     locator/directoryfilter.cpp locator/directoryfilter.h
     locator/executefilter.cpp locator/executefilter.h
