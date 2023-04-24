@@ -184,7 +184,11 @@ Tasking::WorkflowPolicy GroupWidget::workflowPolicy() const
     return m_workflowPolicy;
 }
 
-TaskGroup::TaskGroup(QWidget *group, std::initializer_list<LayoutItem> items)
-    : Row({ group, Group { Column { items } } })
-{}
+
+void doLayout(const TaskGroup &taskGroup, LayoutBuilder &builder)
+{
+    builder.addItem(taskGroup.group);
+    builder.addItem(Group { taskGroup.items });
+    builder.finishRow();
+}
 

@@ -9,12 +9,12 @@
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QLabel>
 #include <QPushButton>
 #include <QStackedLayout>
 #include <QSplitter>
 #include <QStyle>
 #include <QTabWidget>
-#include <QWidget>
 
 namespace Utils::Layouting {
 
@@ -51,42 +51,23 @@ LayoutItem::LayoutItem()
 
 
 /*!
-    Constructs a layout item proxy for \a layout.
+    \fn  template <class T> LayoutItem(const T &t)
+
+    Constructs a layout item proxy for \a t.
+
+    T could be
+    \list
+    \li  \c {QString}
+    \li  \c {QWidget *}
+    \li  \c {QLayout *}
+    \endlist
  */
-LayoutItem::LayoutItem(QLayout *layout)
-    : layout(layout)
-{}
+
 
 /*!
-    Constructs a layout item proxy for \a widget.
+    Constructs a layout item representing something that knows how to add it
+    to a layout by itself.
  */
-LayoutItem::LayoutItem(QWidget *widget)
-    : widget(widget)
-{}
-
-/*!
-    Constructs a layout item representing a \c BaseAspect.
-
-    This ultimately uses the \a aspect's \c addToLayout(LayoutBuilder &) function,
-    which in turn can add one or more layout items to the target layout.
-
-    \sa BaseAspect::addToLayout()
- */
-LayoutItem::LayoutItem(BaseAspect &aspect)
-    : aspect(&aspect)
-{}
-
-LayoutItem::LayoutItem(BaseAspect *aspect)
-    : aspect(aspect)
-{}
-
-/*!
-    Constructs a layout item containing some static \a text.
- */
-LayoutItem::LayoutItem(const QString &text)
-    : text(text)
-{}
-
 QLayout *LayoutBuilder::createLayout() const
 {
     QLayout *layout = nullptr;
@@ -276,7 +257,7 @@ static void doLayoutHelper(QLayout *layout,
 /*!
     Constructs a layout item from the contents of another LayoutBuilder
  */
-LayoutItem::LayoutItem(const LayoutBuilder &builder)
+void LayoutItem::setBuilder(const LayoutBuilder &builder)
 {
     layout = builder.createLayout();
     doLayoutHelper(layout, builder.m_items, Layouting::WithoutMargins);
@@ -357,10 +338,8 @@ LayoutBuilder &LayoutBuilder::addRow(const LayoutItems &items)
  */
 LayoutBuilder &LayoutBuilder::addItem(const LayoutItem &item)
 {
-    if (item.aspect) {
-        item.aspect->addToLayout(*this);
-        if (m_layoutType == FormLayout || m_layoutType == VBoxLayout)
-            finishRow();
+    if (item.onAdd) {
+        item.onAdd(*this);
     } else {
         m_items.push_back(item);
     }
@@ -427,39 +406,11 @@ LayoutExtender::~LayoutExtender()
 
 // Special items
 
-Break::Break()
-{
-    specialType = SpecialType::Break;
-}
-
-Stretch::Stretch(int stretch)
-{
-    specialType = SpecialType::Stretch;
-    specialValue = stretch;
-}
-
-Space::Space(int space)
-{
-    specialType = SpecialType::Space;
-    specialValue = space;
-}
-
-Span::Span(int span_, const LayoutItem &item)
-{
-    LayoutItem::operator=(item);
-    span = span_;
-}
-
 Tab::Tab(const QString &tabName, const LayoutBuilder &item)
 {
     text = tabName;
     widget = new QWidget;
     item.attachTo(widget);
-}
-
-HorizontalRule::HorizontalRule()
-{
-    specialType = SpecialType::HorizontalRule;
 }
 
 // "Widgets"

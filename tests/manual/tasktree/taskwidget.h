@@ -76,8 +76,11 @@ private:
     Utils::Tasking::WorkflowPolicy m_workflowPolicy = Utils::Tasking::WorkflowPolicy::StopOnError;
 };
 
-class TaskGroup : public Utils::Layouting::Row
+class TaskGroup
 {
 public:
-    TaskGroup(QWidget *group, std::initializer_list<Utils::Layouting::LayoutItem> items);
+    QWidget *group;
+    Utils::Layouting::Column items;
 };
+
+void doLayout(const TaskGroup &taskGroup, Utils::Layouting::LayoutBuilder &builder);

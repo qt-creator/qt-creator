@@ -18,10 +18,7 @@ class QTabWidget;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Utils {
-class BaseAspect;
-class BoolAspect;
-} // Utils
+namespace Utils { class BoolAspect; }
 
 namespace Utils::Layouting {
 
@@ -32,6 +29,43 @@ enum AttachType {
 };
 
 class LayoutBuilder;
+class LayoutItem;
+
+// Special items
+
+class QTCREATOR_UTILS_EXPORT Space
+{
+public:
+    explicit Space(int space) : space(space) {}
+    const int space;
+};
+
+class QTCREATOR_UTILS_EXPORT Stretch
+{
+public:
+    explicit Stretch(int stretch = 1) : stretch(stretch) {}
+    const int stretch;
+};
+
+class QTCREATOR_UTILS_EXPORT Break
+{
+public:
+    Break() {}
+};
+
+class QTCREATOR_UTILS_EXPORT Span
+{
+public:
+    Span(int span, const LayoutItem &item) : span(span), item(item) {}
+    const int span;
+    const LayoutItem &item;
+};
+
+class QTCREATOR_UTILS_EXPORT HorizontalRule
+{
+public:
+    HorizontalRule() {}
+};
 
 // LayoutItem
 
@@ -52,18 +86,49 @@ public:
     };
 
     using Setter = std::function<void(QObject *target)>;
+    using OnAdder = std::function<void(LayoutBuilder &)>;
+
     LayoutItem();
-    LayoutItem(QLayout *layout);
-    LayoutItem(QWidget *widget);
-    LayoutItem(BaseAspect *aspect); // Remove
-    LayoutItem(BaseAspect &aspect);
-    LayoutItem(const QString &text);
-    LayoutItem(const LayoutBuilder &builder);
-    LayoutItem(const Setter &setter) { this->setter = setter; }
+
+    template <class T> LayoutItem(const T &t)
+    {
+        if constexpr (std::is_same_v<QString, T>) {
+            text = t;
+        } else if constexpr (std::is_same_v<Space, T>) {
+            specialType = LayoutItem::SpecialType::Space;
+            specialValue = t.space;
+        } else if constexpr (std::is_same_v<Stretch, T>) {
+            specialType = LayoutItem::SpecialType::Stretch;
+            specialValue = t.stretch;
+        } else if constexpr (std::is_same_v<Break, T>) {
+            specialType = LayoutItem::SpecialType::Break;
+        } else if constexpr (std::is_same_v<Span, T>) {
+            LayoutItem::operator=(t.item);
+            span = t.span;
+        } else if constexpr (std::is_same_v<HorizontalRule, T>) {
+            specialType = SpecialType::HorizontalRule;
+        } else if constexpr (std::is_base_of_v<LayoutBuilder, T>) {
+            setBuilder(t);
+        } else if constexpr (std::is_base_of_v<LayoutItem, T>) {
+            LayoutItem::operator=(t);
+        } else if constexpr (std::is_base_of_v<Setter, T>) {
+            setter = t;
+        } else if constexpr (std::is_base_of_v<QLayout, std::remove_pointer_t<T>>) {
+            layout = t;
+        } else if constexpr (std::is_base_of_v<QWidget, std::remove_pointer_t<T>>) {
+            widget = t;
+        } else if constexpr (std::is_pointer_v<T>) {
+            onAdd = [t](LayoutBuilder &builder) { doLayout(*t, builder); };
+        } else {
+            onAdd = [&t](LayoutBuilder &builder) { doLayout(t, builder); };
+        }
+    }
+
+    void setBuilder(const LayoutBuilder &builder);
 
     QLayout *layout = nullptr;
     QWidget *widget = nullptr;
-    BaseAspect *aspect = nullptr;
+    OnAdder onAdd;
 
     QString text; // FIXME: Use specialValue for that
     int span = 1;
@@ -73,40 +138,10 @@ public:
     QVariant specialValue;
 };
 
-class QTCREATOR_UTILS_EXPORT Space : public LayoutItem
-{
-public:
-    explicit Space(int space);
-};
-
-class QTCREATOR_UTILS_EXPORT Span : public LayoutItem
-{
-public:
-    Span(int span, const LayoutItem &item);
-};
-
-class QTCREATOR_UTILS_EXPORT Stretch : public LayoutItem
-{
-public:
-    explicit Stretch(int stretch = 1);
-};
-
 class QTCREATOR_UTILS_EXPORT Tab : public LayoutItem
 {
 public:
     Tab(const QString &tabName, const LayoutBuilder &item);
-};
-
-class QTCREATOR_UTILS_EXPORT Break : public LayoutItem
-{
-public:
-    Break();
-};
-
-class QTCREATOR_UTILS_EXPORT HorizontalRule : public LayoutItem
-{
-public:
-    HorizontalRule();
 };
 
 class QTCREATOR_UTILS_EXPORT Group : public LayoutItem

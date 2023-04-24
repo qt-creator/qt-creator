@@ -25,7 +25,11 @@ namespace Utils {
 
 class AspectContainer;
 class BoolAspect;
-namespace Layouting { class LayoutBuilder; }
+
+namespace Layouting {
+class LayoutBuilder;
+class LayoutItem;
+} // Layouting
 
 namespace Internal {
 class AspectContainerPrivate;
@@ -205,6 +209,8 @@ protected:
 private:
     std::unique_ptr<Internal::BaseAspectPrivate> d;
 };
+
+QTCREATOR_UTILS_EXPORT void doLayout(const BaseAspect &aspect, Layouting::LayoutBuilder &builder);
 
 class QTCREATOR_UTILS_EXPORT BoolAspect : public BaseAspect
 {

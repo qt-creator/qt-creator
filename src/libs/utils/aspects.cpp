@@ -421,8 +421,15 @@ QAction *BaseAspect::action()
     Adds the visual representation of this aspect to a layout using
     a layout builder.
 */
-void BaseAspect::addToLayout(Layouting::LayoutBuilder &)
+void BaseAspect::addToLayout(LayoutBuilder &)
 {
+}
+
+void doLayout(const BaseAspect &aspect, LayoutBuilder &builder)
+{
+    const_cast<BaseAspect &>(aspect).addToLayout(builder);
+    if (builder.layoutType() == LayoutBuilder::FormLayout || builder.layoutType() == LayoutBuilder::VBoxLayout)
+        builder.finishRow();
 }
 
 /*!
