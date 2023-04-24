@@ -5,23 +5,17 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
-namespace Macros {
-namespace Internal {
+namespace Macros::Internal {
 
 class MacroLocatorFilter : public Core::ILocatorFilter
 {
-    Q_OBJECT
-
 public:
     MacroLocatorFilter();
 
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
 private:
     Core::LocatorMatcherTasks matchers() final;
 
     const QIcon m_icon;
 };
 
-} // namespace Internal
-} // namespace Macros
+} // namespace Macros::Internal
