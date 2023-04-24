@@ -3,24 +3,18 @@
 
 #pragma once
 
-#include <coreplugin/locator/basefilefilter.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 namespace CppEditor::Internal {
 
-class CppIncludesFilter : public Core::BaseFileFilter
+class CppIncludesFilter : public Core::ILocatorFilter
 {
 public:
     CppIncludesFilter();
 
-public:
-    void prepareSearch(const QString &entry) override;
-
 private:
     Core::LocatorMatcherTasks matchers() final { return {m_cache.matcher()}; }
-    void invalidateCache();
-
     Core::LocatorFileCache m_cache;
-    bool m_needsUpdate = true;
 };
 
 } // namespace CppEditor::Internal
