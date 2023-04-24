@@ -116,6 +116,7 @@ public:
     using CommandLineGetter = std::function<Utils::CommandLine()>;
     void setCommandLineGetter(const CommandLineGetter &cmdGetter);
     Utils::CommandLine commandLine() const;
+    bool isPrintEnvironmentEnabled() const;
 
     using RunnableModifier = std::function<void(Runnable &)>;
     void setRunnableModifier(const RunnableModifier &extraModifier);

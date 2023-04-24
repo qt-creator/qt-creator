@@ -12,6 +12,7 @@
 using namespace Utils;
 
 namespace ProjectExplorer {
+const char PRINT_ON_RUN_KEY[] = "PE.EnvironmentAspect.PrintOnRun";
 
 // --------------------------------------------------------------------
 // EnvironmentAspect:
@@ -105,12 +106,14 @@ void EnvironmentAspect::fromMap(const QVariantMap &map)
 {
     m_base = map.value(QLatin1String(BASE_KEY), -1).toInt();
     m_userChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(CHANGES_KEY)).toStringList());
+    m_printOnRun = map.value(PRINT_ON_RUN_KEY).toBool();
 }
 
 void EnvironmentAspect::toMap(QVariantMap &data) const
 {
     data.insert(QLatin1String(BASE_KEY), m_base);
     data.insert(QLatin1String(CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userChanges));
+    data.insert(PRINT_ON_RUN_KEY, m_printOnRun);
 }
 
 QString EnvironmentAspect::currentDisplayName() const

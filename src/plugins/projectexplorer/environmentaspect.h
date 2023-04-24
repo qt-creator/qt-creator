@@ -48,6 +48,10 @@ public:
 
     bool isLocal() const { return m_isLocal; }
 
+    bool isPrintOnRunAllowed() const { return m_allowPrintOnRun; }
+    bool isPrintOnRunEnabled() const { return m_printOnRun; }
+    void setPrintOnRun(bool enabled) { m_printOnRun = enabled; }
+
     struct Data : BaseAspect::Data
     {
         Utils::Environment environment;
@@ -66,6 +70,7 @@ protected:
     void toMap(QVariantMap &map) const override;
 
     void setIsLocal(bool local) { m_isLocal = local; }
+    void setAllowPrintOnRun(bool allow) { m_allowPrintOnRun = allow; }
 
     static constexpr char BASE_KEY[] = "PE.EnvironmentAspect.Base";
     static constexpr char CHANGES_KEY[] = "PE.EnvironmentAspect.Changes";
@@ -84,6 +89,8 @@ private:
     QList<BaseEnvironment> m_baseEnvironments;
     int m_base = -1;
     bool m_isLocal = false;
+    bool m_allowPrintOnRun = true;
+    bool m_printOnRun = false;
 };
 
 } // namespace ProjectExplorer

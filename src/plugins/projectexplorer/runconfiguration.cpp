@@ -298,6 +298,13 @@ CommandLine RunConfiguration::commandLine() const
     return m_commandLineGetter();
 }
 
+bool RunConfiguration::isPrintEnvironmentEnabled() const
+{
+    if (const auto envAspect = aspect<EnvironmentAspect>())
+        return envAspect->isPrintOnRunEnabled();
+    return false;
+}
+
 void RunConfiguration::setRunnableModifier(const RunnableModifier &runnableModifier)
 {
     m_runnableModifier = runnableModifier;

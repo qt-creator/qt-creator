@@ -2284,6 +2284,7 @@ public:
 ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(ProjectExplorer::Target *target)
 {
     setIsLocal(true);
+    setAllowPrintOnRun(false);
     setConfigWidgetCreator(
         [this, target] { return new ConfigureEnvironmentAspectWidget(this, target); });
     addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});

@@ -205,6 +205,7 @@ public:
 
     void setupFormatter(Utils::OutputFormatter *formatter) const;
     Utils::Id runMode() const;
+    bool isPrintEnvironmentEnabled() const;
 
     const Runnable &runnable() const;
 

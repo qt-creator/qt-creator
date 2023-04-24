@@ -255,9 +255,9 @@ public:
     // A handle to the actual application process.
     ProcessHandle applicationProcessHandle;
 
-    RunControlState state = RunControlState::Initialized;
-
     QList<QPointer<RunWorker>> m_workers;
+    RunControlState state = RunControlState::Initialized;
+    bool printEnvironment = false;
 };
 
 class RunControlPrivate : public QObject, public RunControlPrivateData
@@ -334,6 +334,7 @@ void RunControl::copyDataFromRunConfiguration(RunConfiguration *runConfig)
     d->buildKey = runConfig->buildKey();
     d->settingsData = runConfig->settingsData();
     d->aspectData = runConfig->aspectData();
+    d->printEnvironment = runConfig->isPrintEnvironmentEnabled();
 
     setTarget(runConfig->target());
 
@@ -815,6 +816,11 @@ void RunControl::setupFormatter(OutputFormatter *formatter) const
 Utils::Id RunControl::runMode() const
 {
     return d->runMode;
+}
+
+bool RunControl::isPrintEnvironmentEnabled() const
+{
+    return d->printEnvironment;
 }
 
 const Runnable &RunControl::runnable() const
@@ -1436,6 +1442,15 @@ void SimpleTargetRunner::start()
 
     const QString msg = Tr::tr("Starting %1...").arg(d->m_command.displayName());
     appendMessage(msg, NormalMessageFormat);
+    if (runControl()->isPrintEnvironmentEnabled()) {
+        appendMessage(Tr::tr("Environment:"), NormalMessageFormat);
+        runControl()->runnable().environment
+            .forEachEntry([this](const QString &key, const QString &value, bool enabled) {
+                if (enabled)
+                    appendMessage(key + '=' + value, StdOutFormat);
+            });
+        appendMessage({}, StdOutFormat);
+    }
 
     const bool isDesktop = !d->m_command.executable().needsDevice();
     if (isDesktop && d->m_command.isEmpty()) {
