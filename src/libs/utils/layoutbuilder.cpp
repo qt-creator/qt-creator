@@ -342,17 +342,6 @@ LayoutBuilder &LayoutBuilder::finishRow()
 }
 
 /*!
-    This starts a new row containing the \a item. The row can be further extended by
-    other items using \c addItem() or \c addItems().
-
-    \sa finishRow(), addItem(), addItems()
- */
-LayoutBuilder &LayoutBuilder::addRow(const LayoutItem &item)
-{
-    return finishRow().addItem(item);
-}
-
-/*!
     This starts a new row containing \a items. The row can be further extended by
     other items using \c addItem() or \c addItems().
 

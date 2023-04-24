@@ -481,9 +481,9 @@ QWidget *QMakeStep::createConfigWidget()
     abisListWidget = new QListWidget;
 
     Layouting::Form builder;
-    builder.addRow(m_buildType);
-    builder.addRow(m_userArgs);
-    builder.addRow(m_effectiveCall);
+    builder.addRow({m_buildType});
+    builder.addRow({m_userArgs});
+    builder.addRow({m_effectiveCall});
     builder.addRow({abisLabel, abisListWidget});
     auto widget = builder.emerge(Layouting::WithoutMargins);
 

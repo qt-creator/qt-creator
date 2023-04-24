@@ -659,23 +659,23 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
     installDirChooser->setExpectedKind(PathChooser::Directory);
 
     Layouting::Form builder;
-    builder.addRow(m_qbsStep->m_buildVariant);
-    builder.addRow(m_qbsStep->m_selectedAbis);
-    builder.addRow(m_qbsStep->m_maxJobCount);
+    builder.addRow({m_qbsStep->m_buildVariant});
+    builder.addRow({m_qbsStep->m_selectedAbis});
+    builder.addRow({m_qbsStep->m_maxJobCount});
     builder.addRow({QbsProjectManager::Tr::tr("Properties:"), propertyEdit});
 
-    builder.addRow(QbsProjectManager::Tr::tr("Flags:"));
+    builder.addRow({QbsProjectManager::Tr::tr("Flags:")});
     m_qbsStep->m_keepGoing->addToLayout(builder);
     m_qbsStep->m_showCommandLines->addToLayout(builder);
     m_qbsStep->m_forceProbes->addToLayout(builder);
 
-    builder.addRow(QbsProjectManager::Tr::tr("Installation flags:"));
+    builder.addRow({QbsProjectManager::Tr::tr("Installation flags:")});
     m_qbsStep->m_install->addToLayout(builder);
     m_qbsStep->m_cleanInstallDir->addToLayout(builder);
     builder.addItem(defaultInstallDirCheckBox);
 
     builder.addRow({QbsProjectManager::Tr::tr("Installation directory:"), installDirChooser});
-    builder.addRow(m_qbsStep->m_commandLine);
+    builder.addRow({m_qbsStep->m_commandLine});
     builder.attachTo(this, Layouting::WithoutMargins);
 
     propertyEdit->setToolTip(QbsProjectManager::Tr::tr("Properties to pass to the project."));

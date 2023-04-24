@@ -560,17 +560,17 @@ QWidget *CMakeBuildStep::createConfigWidget()
             envWidget->setBaseEnvironmentText(baseEnvironmentText());
         });
 
-        builder.addRow(clearBox);
-        builder.addRow(envWidget);
+        builder.addRow({clearBox});
+        builder.addRow({envWidget});
     };
 
     Layouting::Form builder;
-    builder.addRow(m_cmakeArguments);
-    builder.addRow(m_toolArguments);
+    builder.addRow({m_cmakeArguments});
+    builder.addRow({m_toolArguments});
     builder.addRow({Tr::tr("Stage for installation:"), Layouting::Row{m_useStaging, m_stagingDir}});
 
     if (m_useiOSAutomaticProvisioningUpdates)
-        builder.addRow(m_useiOSAutomaticProvisioningUpdates);
+        builder.addRow({m_useiOSAutomaticProvisioningUpdates});
 
     builder.addRow({new QLabel(Tr::tr("Targets:")), frame});
 

@@ -174,7 +174,7 @@ QWidget *QbsInstallStep::createConfigWidget()
 
     Layouting::Form builder;
     builder.addRow({Tr::tr("Install root:"), installRootValueLabel});
-    builder.addRow(Tr::tr("Flags:"));
+    builder.addRow({Tr::tr("Flags:")});
     m_dryRun->addToLayout(builder);
     m_keepGoing->addToLayout(builder);
     m_cleanInstallRoot->addToLayout(builder);

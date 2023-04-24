@@ -188,7 +188,6 @@ public:
     LayoutBuilder &addItems(const LayoutItems &items);
 
     LayoutBuilder &finishRow();
-    LayoutBuilder &addRow(const LayoutItem &item);
     LayoutBuilder &addRow(const LayoutItems &items);
 
     LayoutType layoutType() const { return m_layoutType; }

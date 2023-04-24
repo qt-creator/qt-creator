@@ -114,7 +114,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     }
 
     form.addRow({empty, m_showShortcutsInContextMenus});
-    form.addRow(Row{m_resetWarningsButton, st});
+    form.addRow({Row{m_resetWarningsButton, st}});
     form.addRow({Tr::tr("Text codec for tools:"), m_codecBox, st});
     Column{Group{title(Tr::tr("User Interface")), form}}.attachTo(this);
 

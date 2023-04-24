@@ -48,7 +48,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
 
     setConfigWidgetCreator([this] {
         Layouting::Grid builder;
-        builder.addRow(m_cppAspect);
+        builder.addRow({m_cppAspect});
         auto info = new QLabel(
             Tr::tr("<a href=\""
                    "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
@@ -57,11 +57,11 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
         connect(info, &QLabel::linkActivated, [](const QString &link) {
             Core::HelpManager::showHelpUrl(link);
         });
-        builder.addRow(m_overrideStartupAspect);
+        builder.addRow({m_overrideStartupAspect});
 
         static const QString env = qtcEnvironmentVariable("QTC_DEBUGGER_MULTIPROCESS");
         if (env.toInt())
-            builder.addRow(m_multiProcessAspect);
+            builder.addRow({m_multiProcessAspect});
 
         auto details = new DetailsWidget;
         details->setState(DetailsWidget::Expanded);

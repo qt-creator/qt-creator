@@ -170,19 +170,18 @@ public:
             {Tr::tr("When files are externally modified:"), Span(2, Row{m_reloadBehavior, st})});
         form.addRow(
             {m_autoSaveCheckBox, Span(2, Row{Tr::tr("Interval:"), m_autoSaveInterval, st})});
-        form.addRow(Span(3, m_autoSaveRefactoringCheckBox));
+        form.addRow({Span(3, m_autoSaveRefactoringCheckBox)});
         form.addRow({m_autoSuspendCheckBox,
                      Span(2, Row{autoSuspendLabel, m_autoSuspendMinDocumentCount, st})});
-        form.addRow(Span(3, Row{m_warnBeforeOpeningBigFiles, m_bigFilesLimitSpinBox, st}));
-        form.addRow(Span(3,
+        form.addRow({Span(3, Row{m_warnBeforeOpeningBigFiles, m_bigFilesLimitSpinBox, st})});
+        form.addRow({Span(3,
                          Row{Tr::tr("Maximum number of entries in \"Recent Files\":"),
                              m_maxRecentFilesSpinBox,
-                             st}));
-        form.addRow(m_askBeforeExitCheckBox);
+                             st})});
+        form.addRow({m_askBeforeExitCheckBox});
 #ifdef ENABLE_CRASHPAD
-        form.addRow(
-            Span(3, Row{m_enableCrashReportingCheckBox, helpCrashReportingButton, st}));
-        form.addRow(Span(3, Row{m_clearCrashReportsButton, m_crashReportsSizeText, st}));
+        form.addRow({Span(3, Row{m_enableCrashReportingCheckBox, helpCrashReportingButton, st})});
+        form.addRow({Span(3, Row{m_clearCrashReportsButton, m_crashReportsSizeText, st})});
 #endif
 
         Column {
