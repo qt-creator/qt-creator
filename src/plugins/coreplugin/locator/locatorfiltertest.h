@@ -10,22 +10,6 @@
 namespace Core {
 namespace Tests {
 
-/// Runs a locator filter for a search text and returns the results.
-class CORE_EXPORT BasicLocatorFilterTest
-{
-public:
-    BasicLocatorFilterTest(ILocatorFilter *filter);
-    virtual ~BasicLocatorFilterTest();
-
-    QList<LocatorFilterEntry> matchesFor(const QString &searchText = QString());
-
-private:
-    virtual void doBeforeLocatorRun() {}
-    virtual void doAfterLocatorRun() {}
-
-    ILocatorFilter *m_filter = nullptr;
-};
-
 class CORE_EXPORT ResultData
 {
 public:

@@ -3,16 +3,13 @@
 
 #include "../coreplugin.h"
 
-#include "basefilefilter.h"
 #include "locatorfiltertest.h"
 
 #include <coreplugin/testdatadir.h>
 #include <utils/algorithm.h>
-#include <utils/filepath.h>
 #include <utils/fileutils.h>
 
 #include <QDir>
-#include <QTextStream>
 #include <QtTest>
 
 using namespace Core::Tests;
@@ -21,15 +18,6 @@ using namespace Utils;
 namespace {
 
 QTC_DECLARE_MYTESTDATADIR("../../../tests/locators/")
-
-class MyBaseFileFilter : public Core::BaseFileFilter
-{
-public:
-    MyBaseFileFilter(const FilePaths &theFiles)
-    {
-        setFileIterator(new BaseFileFilter::ListIterator(theFiles));
-    }
-};
 
 class ReferenceData
 {
@@ -52,20 +40,8 @@ void Core::Internal::CorePlugin::test_basefilefilter()
     QFETCH(QStringList, testFiles);
     QFETCH(QList<ReferenceData>, referenceDataList);
 
-    const FilePaths filePaths = FileUtils::toFilePathList(testFiles);
-    MyBaseFileFilter filter(filePaths);
-    BasicLocatorFilterTest test(&filter);
-
-    for (const ReferenceData &reference : std::as_const(referenceDataList)) {
-        const QList<LocatorFilterEntry> filterEntries = test.matchesFor(reference.searchText);
-        const ResultDataList results = ResultData::fromFilterEntryList(filterEntries);
-//        QTextStream(stdout) << "----" << endl;
-//        ResultData::printFilterEntries(results);
-        QCOMPARE(results, reference.results);
-    }
-
     LocatorFileCache cache;
-    cache.setFilePaths(filePaths);
+    cache.setFilePaths(FileUtils::toFilePathList(testFiles));
     const LocatorMatcherTasks tasks = {cache.matcher()};
     for (const ReferenceData &reference : std::as_const(referenceDataList)) {
         const LocatorFilterEntries filterEntries = LocatorMatcher::runBlocking(

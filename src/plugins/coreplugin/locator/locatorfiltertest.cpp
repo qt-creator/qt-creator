@@ -3,51 +3,10 @@
 
 #include "locatorfiltertest.h"
 
-#include "locatorsearchutils.h"
-
-#include <utils/runextensions.h>
-
-#include <QFuture>
-#include <QList>
-#include <QString>
 #include <QTextStream>
 
 using namespace Core;
 using namespace Core::Tests;
-
-/*!
-    \class Core::Tests::BasicLocatorFilterTest
-    \inmodule QtCreator
-    \internal
-*/
-
-/*!
-    \class Core::Tests::TestDataDir
-    \inmodule QtCreator
-    \internal
-*/
-
-/*!
-    \namespace Core::Tests
-    \inmodule QtCreator
-    \internal
-*/
-BasicLocatorFilterTest::BasicLocatorFilterTest(ILocatorFilter *filter) : m_filter(filter)
-{
-}
-
-BasicLocatorFilterTest::~BasicLocatorFilterTest() = default;
-
-QList<LocatorFilterEntry> BasicLocatorFilterTest::matchesFor(const QString &searchText)
-{
-    doBeforeLocatorRun();
-    m_filter->prepareSearch(searchText);
-    QFuture<LocatorFilterEntry> locatorSearch = Utils::runAsync(
-        &Internal::runSearch, QList<ILocatorFilter *>({m_filter}), searchText);
-    locatorSearch.waitForFinished();
-    doAfterLocatorRun();
-    return locatorSearch.results();
-}
 
 /*!
     \class Core::Tests::ResultData
