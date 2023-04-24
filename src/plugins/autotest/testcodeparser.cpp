@@ -7,6 +7,7 @@
 #include "autotesttr.h"
 #include "testtreemodel.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -47,6 +48,11 @@ TestCodeParser::TestCodeParser()
     connect(progressManager, &ProgressManager::allTasksFinished,
             this, &TestCodeParser::onAllTasksFinished);
     connect(this, &TestCodeParser::parsingFinished, this, &TestCodeParser::releaseParserInternals);
+    connect(EditorManager::instance(), &EditorManager::documentClosed, this, [this](IDocument *doc){
+        QTC_ASSERT(doc, return);
+        if (FilePath filePath = doc->filePath(); filePath.endsWith(".qml"))
+            m_qmlEditorRev.remove(filePath);
+    });
     m_reparseTimer.setSingleShot(true);
     connect(&m_reparseTimer, &QTimer::timeout, this, &TestCodeParser::parsePostponedFiles);
     m_threadPool->setMaxThreadCount(std::max(QThread::idealThreadCount()/4, 1));
@@ -169,12 +175,17 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
 {
     static const QStringList ignoredSuffixes{ "qbs", "ui.qml" };
     const FilePath fileName = document->fileName();
-    if (!ignoredSuffixes.contains(fileName.suffix()))
-        onDocumentUpdated(fileName, true);
+    int editorRevision = document->editorRevision();
+    if (editorRevision != m_qmlEditorRev.value(fileName, 0)) {
+        m_qmlEditorRev.insert(fileName, editorRevision);
+        if (!ignoredSuffixes.contains(fileName.suffix()))
+            onDocumentUpdated(fileName, true);
+    }
 }
 
 void TestCodeParser::onStartupProjectChanged(Project *project)
 {
+    m_qmlEditorRev.clear();
     if (m_parserState == FullParse || m_parserState == PartialParse) {
         qCDebug(LOG) << "Canceling scanForTest (startup project changed)";
         ProgressManager::cancelTasks(Constants::TASK_PARSE);

@@ -97,6 +97,7 @@ private:
     QThreadPool *m_threadPool = nullptr;
     Utils::FutureSynchronizer m_futureSynchronizer;
     std::unique_ptr<Utils::TaskTree> m_taskTree;
+    QHash<Utils::FilePath, int> m_qmlEditorRev;
 };
 
 } // namespace Internal
