@@ -236,6 +236,7 @@ if (Qt6_VERSION VERSION_GREATER_EQUAL 6.4.0)
     qt_add_qml_module(qml2puppet
         URI QmlRuntime.QmlConfiguration
         VERSION 1.0
+        RESOURCE_PREFIX "/qt-project.org"
     )
     if (QTC_STATIC_BUILD)
       qt_import_qml_plugins(qml2puppet PATH_TO_SCAN ${SRCDIR})
