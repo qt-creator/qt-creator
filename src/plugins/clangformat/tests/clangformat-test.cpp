@@ -628,10 +628,16 @@ void ClangFormatTest::testCommentBlock()
 
 void ClangFormatTest::testClassIndentStructure()
 {
-    insertLines({"class test {", "    Q_OBJECT", "    public:", "};"});
+    insertLines(
+        {"class test {", "    Q_OBJECT", "    QML_ELEMENT", "    QML_SINGLETON", "    public:", "};"});
     m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
     QCOMPARE(documentLines(),
-             (std::vector<QString>{"class test {", "    Q_OBJECT", "public:", "};"}));
+             (std::vector<QString>{"class test {",
+                                   "    Q_OBJECT",
+                                   "    QML_ELEMENT",
+                                   "    QML_SINGLETON",
+                                   "public:",
+                                   "};"}));
 }
 
 void ClangFormatTest::testIndentInitializeVector()
