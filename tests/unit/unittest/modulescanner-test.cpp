@@ -79,6 +79,19 @@ TEST_F(ModuleScanner, Version)
     ASSERT_THAT(scanner.modules(), ElementsAre(AllOf(UrlProperty("Example"), VersionProperty("1.3"))));
 }
 
+TEST_F(ModuleScanner, NoVersion)
+{
+    QmlDesigner::ModuleScanner scanner{[](QStringView moduleName) {
+                                           return moduleName.endsWith(u"impl");
+                                       },
+                                       QmlDesigner::VersionScanning::No};
+
+    scanner.scan(QStringList{TESTDATA_DIR "/modulescanner"});
+
+    ASSERT_THAT(scanner.modules(),
+                ElementsAre(AllOf(UrlProperty("Example"), VersionProperty(QString{}))));
+}
+
 TEST_F(ModuleScanner, Duplicates)
 {
     scanner.scan(QStringList{QT6_INSTALL_PREFIX});
