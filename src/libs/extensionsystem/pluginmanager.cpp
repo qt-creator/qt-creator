@@ -423,7 +423,7 @@ QString PluginManager::systemInformation()
     return result;
 }
 
-static FutureSynchronizer *PluginManager::futureSynchronizer()
+FutureSynchronizer *PluginManager::futureSynchronizer()
 {
     return d->m_futureSynchronizer.get();
 }
