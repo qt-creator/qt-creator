@@ -15,6 +15,8 @@ QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
 
+namespace Utils { class FutureSynchronizer; }
+
 namespace ExtensionSystem {
 class IPlugin;
 class PluginSpec;
@@ -132,6 +134,8 @@ public:
     static void shutdown();
 
     static QString systemInformation();
+
+    static Utils::FutureSynchronizer *futureSynchronizer();
 
 signals:
     void objectAdded(QObject *obj);

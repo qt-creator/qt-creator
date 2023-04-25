@@ -32,6 +32,7 @@
 #include <utils/benchmarker.h>
 #include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
@@ -420,6 +421,11 @@ QString PluginManager::systemInformation()
         settingspath.replace(QDir::homePath(), "~");
     result += "\nUsed settingspath: " + settingspath + "\n";
     return result;
+}
+
+static FutureSynchronizer *futureSynchronizer()
+{
+    return d->m_futureSynchronizer.get();
 }
 
 /*!
@@ -976,6 +982,8 @@ void PluginManagerPrivate::nextDelayedInitialize()
 PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
     q(pluginManager)
 {
+    m_futureSynchronizer.reset(new FutureSynchronizer);
+    m_futureSynchronizer->setCancelOnWait(true);
 }
 
 
@@ -1043,6 +1051,7 @@ void PluginManagerPrivate::stopAll()
 */
 void PluginManagerPrivate::deleteAll()
 {
+    m_futureSynchronizer.reset(); // Synchronize all futures from all plugins
     Utils::reverseForeach(loadQueue(), [this](PluginSpec *spec) {
         loadPlugin(spec, PluginSpec::Deleted);
     });
