@@ -151,7 +151,7 @@ void Qt5BakeLightsNodeInstanceServer::runDenoiser()
 #if defined(Q_OS_WIN)
     binPath += "/qlmdenoiser.exe";
 #elif defined(Q_OS_MACOS)
-    // TODO: What is the path in mac?
+    binPath += "/qlmdenoiser.app/Contents/MacOS/qlmdenoiser";
 #else
     binPath += "/qlmdenoiser";
 #endif
