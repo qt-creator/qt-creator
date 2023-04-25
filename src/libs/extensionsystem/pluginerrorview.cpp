@@ -41,7 +41,7 @@ public:
         errorString->setTabChangesFocus(true);
         errorString->setReadOnly(true);
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
 
         Form {
             Tr::tr("State:"), state, br,

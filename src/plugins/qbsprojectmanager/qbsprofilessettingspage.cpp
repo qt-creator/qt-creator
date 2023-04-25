@@ -120,7 +120,7 @@ QbsProfilesSettingsWidget::QbsProfilesSettingsWidget()
     m_profileValueLabel = new QLabel;
     m_propertiesView = new QTreeView;
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Form {
             Tr::tr("Kit:"), m_kitsComboBox, br,

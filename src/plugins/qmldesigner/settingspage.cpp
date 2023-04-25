@@ -196,7 +196,7 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
 
     m_debugPuppetComboBox = new QComboBox;
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         m_useDefaultPuppetRadioButton,

@@ -136,7 +136,7 @@ GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir, const QStr
     connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Grid {
         ::Git::Tr::tr("Push:"), workingDir.toUserOutput(), m_localBranchComboBox, br,

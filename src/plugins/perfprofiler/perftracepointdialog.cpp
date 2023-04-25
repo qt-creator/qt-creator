@@ -41,7 +41,7 @@ PerfTracePointDialog::PerfTracePointDialog()
     m_privilegesChooser->addItems({ELEVATE_METHOD_NA, ELEVATE_METHOD_PKEXEC, ELEVATE_METHOD_SUDO});
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         m_label,
         m_textEdit,

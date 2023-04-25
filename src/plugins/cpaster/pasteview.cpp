@@ -100,7 +100,7 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
     m_uiPatchList->setSortingEnabled(false);
     m_uiPatchList->setSortingEnabled(__sortingEnabled);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         m_uiPatchList,

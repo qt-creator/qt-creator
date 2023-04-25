@@ -76,7 +76,7 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(QWidget *parent)
 
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Close);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Row {
             Column {

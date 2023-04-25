@@ -135,7 +135,7 @@ Statistics::Statistics(QWidget *parent)
     m_statisticsView->setAlternatingRowColors(true);
     m_statisticsView->setSortingEnabled(true);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Grid {
         Tr::tr("File"), m_fileNameLabel, br,
         Tr::tr("Time"), m_timeLabel, br,

@@ -26,7 +26,7 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent)
     m_remove = new QPushButton(Tr::tr("Remove"));
     auto add = new QPushButton(Tr::tr("Add"));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Row {
         m_configurations,

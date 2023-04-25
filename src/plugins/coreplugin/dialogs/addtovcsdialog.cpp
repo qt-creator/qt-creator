@@ -22,7 +22,7 @@ AddToVcsDialog::AddToVcsDialog(QWidget *parent,
                                const QString &vcsDisplayName)
     : QDialog(parent)
 {
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     resize(363, 375);
     setMinimumSize({200, 200});

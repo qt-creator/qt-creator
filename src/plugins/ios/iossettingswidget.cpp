@@ -94,7 +94,7 @@ IosSettingsWidget::IosSettingsWidget()
     m_pathWidget->addButton(Tr::tr("Screenshot"), this,
                             std::bind(&IosSettingsWidget::onScreenshot, this));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Group {
             title(Tr::tr("Devices")),

@@ -59,7 +59,7 @@ CMakeFormatterOptionsPageWidget::CMakeFormatterOptionsPageWidget()
     m_command->setPromptDialogTitle(Tr::tr("%1 Command").arg(Tr::tr("Formatter")));
     m_command->setFilePath(settings->command());
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Group {

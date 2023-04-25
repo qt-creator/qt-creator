@@ -40,7 +40,7 @@ SimulatorOperationDialog::SimulatorOperationDialog(QWidget *parent) :
     m_formatter = new Utils::OutputFormatter;
     m_formatter->setPlainTextEdit(messageEdit);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         messageEdit,

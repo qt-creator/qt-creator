@@ -30,7 +30,7 @@
 #include <QSpinBox>
 #include <QTextEdit>
 
-using namespace Utils::Layouting;
+using namespace Layouting;
 
 namespace Utils {
 namespace Internal {

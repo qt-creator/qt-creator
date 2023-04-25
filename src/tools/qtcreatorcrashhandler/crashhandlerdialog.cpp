@@ -161,7 +161,7 @@ public:
             QCoreApplication::quit();
         });
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
 
         Column {
             Row { m_iconLabel, m_introLabel, st },

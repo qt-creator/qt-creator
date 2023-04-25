@@ -48,7 +48,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
 
     m_behaviorSettings = new TextEditor::BehaviorSettingsWidget(this);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Row {
         m_showWrapColumn,

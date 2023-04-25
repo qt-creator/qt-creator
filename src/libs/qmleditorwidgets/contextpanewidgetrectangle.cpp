@@ -56,7 +56,7 @@ ContextPaneWidgetRectangle::ContextPaneWidgetRectangle(QWidget *parent)
     borderButtons->addButton(m_borderSolid);
     borderButtons->addButton(m_borderNone);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Grid {
         m_gradientLabel, m_gradientLine, br,
         Tr::tr("Color"), Row { m_colorColorButton, m_colorSolid, m_colorGradient, m_colorNone, st, }, br,

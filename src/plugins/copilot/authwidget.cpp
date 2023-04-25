@@ -22,7 +22,7 @@ namespace Copilot {
 AuthWidget::AuthWidget(QWidget *parent)
     : QWidget(parent)
 {
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     m_button = new QPushButton(Tr::tr("Sign in"));
     m_button->setEnabled(false);

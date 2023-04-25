@@ -7,7 +7,7 @@
 #include <QLineEdit>
 #include <QTextEdit>
 
-using namespace Utils::Layouting;
+using namespace Layouting;
 
 int main(int argc, char *argv[])
 {

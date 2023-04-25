@@ -97,7 +97,7 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
         vRadioButtons->addButton(m_borderImage.verticalStretchRadioButton);
         vRadioButtons->addButton(m_borderImage.verticalTileRadioButtonNoCrop);
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
         Row {
             Column { m_previewLabel, m_sizeLabel, },
             Column {
@@ -146,7 +146,7 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
         m_image.cropAspectFitRadioButton = radioButton("aspect-crop-icon",
             Tr::tr("The image is scaled uniformly to fill, cropping if necessary."));
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
         Row {
             Column { m_previewLabel, m_sizeLabel, },
             Column {

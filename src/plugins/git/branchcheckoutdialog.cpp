@@ -45,7 +45,7 @@ BranchCheckoutDialog::BranchCheckoutDialog(QWidget *parent,
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         m_makeStashRadioButton,

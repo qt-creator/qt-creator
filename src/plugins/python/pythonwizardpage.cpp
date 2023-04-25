@@ -85,7 +85,7 @@ bool PythonWizardPageFactory::validateData(Id typeId, const QVariant &data, QStr
 PythonWizardPage::PythonWizardPage(const QList<QPair<QString, QVariant>> &pySideAndData,
                                    const int defaultPyside)
 {
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     m_interpreter.setSettingsDialogId(Constants::C_PYTHONOPTIONS_PAGE_ID);
     connect(PythonSettings::instance(),
             &PythonSettings::interpretersChanged,

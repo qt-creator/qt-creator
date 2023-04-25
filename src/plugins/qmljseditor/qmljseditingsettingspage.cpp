@@ -246,7 +246,7 @@ public:
         QObject::connect(useQmlls, &QCheckBox::stateChanged, this, [this](int checked) {
             useLatestQmlls->setEnabled(checked != Qt::Unchecked);
         });
-        using namespace Utils::Layouting;
+        using namespace Layouting;
         // clang-format off
         const auto formattingGroup =
             Group {

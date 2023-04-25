@@ -54,7 +54,7 @@ VcpkgSettingsPage::VcpkgSettingsPage()
         websiteButton->setIcon(Utils::Icons::ONLINE.icon());
         websiteButton->setToolTip(Constants::WEBSITE_URL);
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
         Column {
             Group {
                 title(tr("Vcpkg installation")),

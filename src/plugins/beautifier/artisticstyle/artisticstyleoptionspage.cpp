@@ -84,7 +84,7 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
                                           Tr::tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
     m_command->setFilePath(m_settings->command());
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         m_useOtherFiles,

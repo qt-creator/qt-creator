@@ -165,7 +165,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
 
     d->groupBoxMouse = new QGroupBox(Tr::tr("Mouse and Keyboard"));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     const auto indent = [](QWidget *inner) { return Row { Space(30), inner }; };
 

@@ -181,7 +181,7 @@ GitLabOptionsWidget::GitLabOptionsWidget(GitLabOptionsPage *page, GitLabParamete
     m_add = new QPushButton(Tr::tr("Add..."), this);
     m_add->setToolTip(Tr::tr("Add new GitLab server configuration."));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Grid {
         Form {

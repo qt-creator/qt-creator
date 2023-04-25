@@ -21,7 +21,7 @@ ClassDefinition::ClassDefinition(QWidget *parent) :
     QTabWidget(parent),
     m_domXmlChanged(false)
 {
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     // "Sources" tab
     auto sourceTab = new QWidget;

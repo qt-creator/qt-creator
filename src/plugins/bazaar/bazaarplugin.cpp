@@ -286,7 +286,7 @@ public:
         dryRunBtn->setToolTip(Tr::tr("Test the outcome of removing the last committed revision, without actually removing anything."));
         buttonBox->addButton(dryRunBtn, QDialogButtonBox::ApplyRole);
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
         Column {
             Form {
                 keepTagsCheckBox, br,

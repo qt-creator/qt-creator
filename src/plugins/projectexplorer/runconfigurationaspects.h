@@ -29,7 +29,7 @@ class PROJECTEXPLORER_EXPORT TerminalAspect : public Utils::BaseAspect
 public:
     TerminalAspect();
 
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     bool useTerminal() const;
     void setUseTerminalHint(bool useTerminal);
@@ -62,7 +62,7 @@ public:
     explicit WorkingDirectoryAspect(const Utils::MacroExpander *expander,
                                     EnvironmentAspect *envAspect);
 
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     Utils::FilePath workingDirectory() const;
     Utils::FilePath defaultWorkingDirectory() const;
@@ -91,7 +91,7 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public Utils::BaseAspect
 public:
     explicit ArgumentsAspect(const Utils::MacroExpander *macroExpander);
 
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     QString arguments() const;
     QString unexpandedArguments() const;
@@ -163,7 +163,7 @@ public:
 
     void setSettingsKey(const QString &key);
     void makeOverridable(const QString &overridingKey, const QString &useOverridableKey);
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
     void setLabelText(const QString &labelText);
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const QString &historyCompleterKey);
@@ -235,7 +235,7 @@ public:
 
     void fromMap(const QVariantMap &) override;
     void toMap(QVariantMap &) const override;
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     struct Data : Utils::BaseAspect::Data { Interpreter interpreter; };
 

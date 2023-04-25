@@ -48,7 +48,7 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
     m_importButton = new QPushButton(Tr::tr("Import..."));
     m_importButton->setEnabled(false);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Grid {

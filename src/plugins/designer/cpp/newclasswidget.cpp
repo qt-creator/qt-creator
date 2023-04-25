@@ -66,7 +66,7 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
 
     setNamesDelimiter(QLatin1String("::"));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Form {
         Tr::tr("&Class name:"), d->m_classLineEdit, br,
         Tr::tr("&Header file:"), d->m_headerFileLineEdit, br,

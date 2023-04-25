@@ -45,7 +45,7 @@ GeneralSettingsPage::GeneralSettingsPage()
 
     setLayouter([](QWidget *widget) {
         Settings &s = *Settings::instance();
-        using namespace Utils::Layouting;
+        using namespace Layouting;
 
         Column {
             s.autorunMeson,

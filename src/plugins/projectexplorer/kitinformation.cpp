@@ -34,7 +34,7 @@
 #include <QVBoxLayout>
 
 using namespace Utils;
-using namespace Utils::Layouting;
+using namespace Layouting;
 
 namespace ProjectExplorer {
 

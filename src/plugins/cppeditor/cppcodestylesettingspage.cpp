@@ -175,7 +175,7 @@ public:
         QObject::connect(m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
                          q, &CppCodeStylePreferencesWidget::slotTabSettingsChanged);
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
 
         const Group contentGroup {
             title(Tr::tr("Indent")),

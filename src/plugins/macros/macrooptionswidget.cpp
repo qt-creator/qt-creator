@@ -49,7 +49,7 @@ MacroOptionsWidget::MacroOptionsWidget()
 
     m_macroGroup = new QGroupBox(Tr::tr("Macro"), this);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Row {
         Tr::tr("Description:"), m_description

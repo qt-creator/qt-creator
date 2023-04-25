@@ -49,7 +49,7 @@ public:
         emailLineEdit = new QLineEdit;
         fixedBugsLineEdit = new QLineEdit;
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
         Column {
             Group {
                 title(Tr::tr("General Information")),

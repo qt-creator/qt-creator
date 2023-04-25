@@ -24,7 +24,7 @@ DeviceFactorySelectionDialog::DeviceFactorySelectionDialog(QWidget *parent) :
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     m_buttonBox->button(QDialogButtonBox::Ok)->setText(Tr::tr("Start Wizard"));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Tr::tr("Available device types:"),
         m_listWidget,

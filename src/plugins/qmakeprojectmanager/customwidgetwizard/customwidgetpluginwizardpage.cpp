@@ -34,7 +34,7 @@ CustomWidgetPluginWizardPage::CustomWidgetPluginWizardPage(QWidget *parent) :
     m_pluginNameEdit = new QLineEdit;
     m_resourceFileEdit = new QLineEdit(Tr::tr("icons.qrc"));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Tr::tr("Specify the properties of the plugin library and the collection class."),
         Space(10),

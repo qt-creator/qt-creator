@@ -86,7 +86,7 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
     else
         useCustomizedStyle->setChecked(true);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Form {
         m_usePredefinedStyle, m_predefinedStyle, br,

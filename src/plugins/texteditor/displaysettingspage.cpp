@@ -113,7 +113,7 @@ public:
         displayAnnotations = new QGroupBox(Tr::tr("Line annotations")),
         displayAnnotations->setCheckable(true);
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
 
         Column {
             leftAligned,

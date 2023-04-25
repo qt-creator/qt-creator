@@ -288,7 +288,7 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
     scrollArea->setWidgetResizable(true);
     scrollArea->setWidget(m_filesLabel);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Form {
             m_projectLabel, m_projectComboBox, br,

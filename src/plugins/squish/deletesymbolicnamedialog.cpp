@@ -63,7 +63,7 @@ DeleteSymbolicNameDialog::DeleteSymbolicNameDialog(const QString &symbolicName,
     updateDetailsLabel(symbolicName);
     populateSymbolicNamesList(names);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         m_detailsLabel,

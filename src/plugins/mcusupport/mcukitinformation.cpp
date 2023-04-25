@@ -22,7 +22,7 @@ public:
 
     void makeReadOnly() override {}
     void refresh() override {}
-    void addToLayout(Utils::Layouting::LayoutBuilder &) override {}
+    void addToLayout(Layouting::LayoutBuilder &) override {}
 };
 
 } // anonymous namespace

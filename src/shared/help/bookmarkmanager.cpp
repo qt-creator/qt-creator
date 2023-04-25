@@ -75,7 +75,7 @@ BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
     m_newFolderButton = new QPushButton(::Help::Tr::tr("New Folder"));
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Form {
             ::Help::Tr::tr("Bookmark:"), m_bookmarkEdit, br,

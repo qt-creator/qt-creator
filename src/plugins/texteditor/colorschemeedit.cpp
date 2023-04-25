@@ -202,7 +202,7 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     auto bottomSpacer = new QWidget;
     bottomSpacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Row {
         m_itemList,

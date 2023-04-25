@@ -42,7 +42,7 @@ public:
         Utils::FilePath currentFile;
     };
 
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) final;
+    void addToLayout(Layouting::LayoutBuilder &builder) final;
     void toMap(QVariantMap &map) const final;
     void fromMap(const QVariantMap &map) final;
 

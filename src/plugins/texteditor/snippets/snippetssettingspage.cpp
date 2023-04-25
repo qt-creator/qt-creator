@@ -310,7 +310,7 @@ SnippetsSettingsWidget::SnippetsSettingsWidget()
     snippetSplitter->addWidget(m_snippetsTable);
     snippetSplitter->addWidget(m_snippetsEditorStack);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Row { Tr::tr("Group:"), m_groupCombo, st },
         Row {

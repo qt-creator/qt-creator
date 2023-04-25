@@ -80,7 +80,7 @@ class TaskGroup
 {
 public:
     QWidget *group;
-    Utils::Layouting::Column items;
+    Layouting::Column items;
 };
 
-void doLayout(const TaskGroup &taskGroup, Utils::Layouting::LayoutBuilder &builder);
+void doLayout(const TaskGroup &taskGroup, Layouting::LayoutBuilder &builder);

@@ -31,7 +31,7 @@ StateView::StateView(StateItem *state, QWidget *parent)
 
     m_graphicsView = new GraphicsView;
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Row {
         PushButton{ text("Back"), onClicked([this] { closeView(); }, this) },
         stateNameLabel,

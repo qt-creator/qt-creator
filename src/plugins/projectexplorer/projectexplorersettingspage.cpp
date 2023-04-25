@@ -117,7 +117,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
                                "Disable it if you experience problems with your builds.");
     jomLabel->setWordWrap(true);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Group {
             title(Tr::tr("Projects Directory")),

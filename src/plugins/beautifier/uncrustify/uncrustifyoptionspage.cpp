@@ -86,7 +86,7 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
 
     auto options = new QGroupBox(Tr::tr("Options"));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         m_useOtherFiles,

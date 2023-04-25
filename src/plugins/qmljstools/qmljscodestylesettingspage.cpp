@@ -46,7 +46,7 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
 
     decorateEditor(TextEditorSettings::fontSettings());
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Row {
         Column {
             m_tabPreferencesWidget,

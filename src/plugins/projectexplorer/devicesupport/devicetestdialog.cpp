@@ -43,7 +43,7 @@ DeviceTestDialog::DeviceTestDialog(const IDevice::Ptr &deviceConfiguration,
     d->textEdit->setReadOnly(true);
     d->buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         d->textEdit,
         d->buttonBox,

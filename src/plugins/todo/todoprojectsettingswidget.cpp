@@ -32,7 +32,7 @@ TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *p
 
     auto addExcludedPatternButton = new QPushButton(Tr::tr("Add"));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Group {

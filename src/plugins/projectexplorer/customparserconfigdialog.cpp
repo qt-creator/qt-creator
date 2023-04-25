@@ -101,7 +101,7 @@ CustomParserConfigDialog::CustomParserConfigDialog(QWidget *parent)
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     auto tabWarning = new QWidget;
     Column {

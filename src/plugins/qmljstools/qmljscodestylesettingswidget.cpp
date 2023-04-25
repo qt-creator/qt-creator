@@ -19,7 +19,7 @@ QmlJSCodeStyleSettingsWidget::QmlJSCodeStyleSettingsWidget(QWidget *parent)
     m_lineLengthSpinBox->setMinimum(0);
     m_lineLengthSpinBox->setMaximum(999);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Group {
             title(Tr::tr("Qml JS Code Style")),

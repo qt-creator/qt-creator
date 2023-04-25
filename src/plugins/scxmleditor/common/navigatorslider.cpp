@@ -29,7 +29,7 @@ NavigatorSlider::NavigatorSlider(QWidget *parent)
         btn->setAutoRepeatInterval(10);
     }
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Row {
         zoomOut,
         m_slider,

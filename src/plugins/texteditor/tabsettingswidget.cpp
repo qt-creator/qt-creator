@@ -87,7 +87,7 @@ TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
     tabSizeLabel->setBuddy(m_tabSize);
     indentSizeLabel->setBuddy(m_indentSize);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     const auto indent = [](QWidget *inner) { return Row { Space(30), inner }; };
 
     Column {

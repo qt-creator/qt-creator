@@ -86,7 +86,7 @@ FilterDialog::FilterDialog(const Checks &checks, QWidget *parent)
     m_view->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_view->setIndentation(0);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Tr::tr("Select the diagnostics to display."),

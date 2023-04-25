@@ -40,7 +40,7 @@ OpenSquishSuitesDialog::OpenSquishSuitesDialog(QWidget *parent)
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Open);
     m_buttonBox->button(QDialogButtonBox::Open)->setEnabled(false);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         new QLabel(Tr::tr("Base directory:")),

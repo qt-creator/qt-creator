@@ -79,7 +79,7 @@ WorkspaceNameInputDialog::WorkspaceNameInputDialog(DockManager *manager, QWidget
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         label,
@@ -137,7 +137,7 @@ WorkspaceDialog::WorkspaceDialog(DockManager *manager, QWidget *parent)
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Row {

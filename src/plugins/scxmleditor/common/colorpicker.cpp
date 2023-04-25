@@ -34,7 +34,7 @@ ColorPicker::ColorPicker(const QString &key, QWidget *parent)
     m_lastUsedColorContainer = new QHBoxLayout(lastUsedColorContainer);
     m_lastUsedColorContainer->setContentsMargins(0, 0, 0, 0);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Grid colorGrid;
     for (int i = 0; i < colors.count(); ++i) {
         QWidget *button = createButton(colors[i]);

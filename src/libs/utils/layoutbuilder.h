@@ -3,13 +3,18 @@
 
 #pragma once
 
-#include "utils_global.h"
-
 #include <QList>
 #include <QString>
 #include <QVariant>
+#include <QtGlobal>
 
 #include <optional>
+
+#if defined(UTILS_LIBRARY)
+#  define QTCREATOR_UTILS_EXPORT Q_DECL_EXPORT
+#else
+#  define QTCREATOR_UTILS_EXPORT Q_DECL_IMPORT
+#endif
 
 QT_BEGIN_NAMESPACE
 class QLayout;
@@ -20,7 +25,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class BoolAspect; }
 
-namespace Utils::Layouting {
+namespace Layouting {
 
 enum AttachType {
     WithMargins,
@@ -180,7 +185,7 @@ QTCREATOR_UTILS_EXPORT extern HorizontalRule hr;
 // "Properties"
 
 QTCREATOR_UTILS_EXPORT LayoutItem::Setter title(const QString &title,
-                                                BoolAspect *checker = nullptr);
+                                                Utils::BoolAspect *checker = nullptr);
 
 QTCREATOR_UTILS_EXPORT LayoutItem::Setter text(const QString &text);
 QTCREATOR_UTILS_EXPORT LayoutItem::Setter tooltip(const QString &toolTip);
@@ -289,4 +294,4 @@ public:
     Stack(std::initializer_list<LayoutItem> items) : LayoutBuilder(StackLayout, items) {}
 };
 
-} // Utils::Layouting
+} // Layouting

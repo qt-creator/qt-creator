@@ -21,15 +21,15 @@ class QGroupBox;
 class QSettings;
 QT_END_NAMESPACE
 
-namespace Utils {
-
-class AspectContainer;
-class BoolAspect;
-
 namespace Layouting {
 class LayoutBuilder;
 class LayoutItem;
 } // Layouting
+
+namespace Utils {
+
+class AspectContainer;
+class BoolAspect;
 
 namespace Internal {
 class AspectContainerPrivate;

@@ -54,7 +54,7 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol*> &protocols, QWidget 
     listFont.setStyleHint(QFont::TypeWriter);
     m_listWidget->setFont(listFont);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Form {
             Tr::tr("Protocol:"), m_protocolBox, br,

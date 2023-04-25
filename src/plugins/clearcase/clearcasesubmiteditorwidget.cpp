@@ -69,7 +69,7 @@ void ClearCaseSubmitEditorWidget::addActivitySelector(bool isUcm)
 
     m_actSelector = new ActivitySelector;
     m_verticalLayout->insertWidget(0, m_actSelector);
-    m_verticalLayout->insertWidget(1, Utils::Layouting::createHr());
+    m_verticalLayout->insertWidget(1, Layouting::createHr());
 }
 
 QString ClearCaseSubmitEditorWidget::commitName() const

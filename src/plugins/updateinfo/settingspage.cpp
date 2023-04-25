@@ -45,7 +45,7 @@ public:
         m_nextCheckDateLabel = new QLabel;
         m_checkForNewQtVersions = new QCheckBox(Tr::tr("Check for new Qt versions"));
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
 
         Column {
             m_infoLabel,

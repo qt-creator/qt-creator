@@ -125,7 +125,7 @@ BranchAddDialog::BranchAddDialog(const QStringList &localBranches, Type type, QW
         break;
     }
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Row { branchNameLabel, m_branchNameEdit },

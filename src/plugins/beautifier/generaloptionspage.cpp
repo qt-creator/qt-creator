@@ -60,7 +60,7 @@ GeneralOptionsPageWidget::GeneralOptionsPageWidget(const QStringList &toolIds)
     const int index = m_autoFormatTool->findText(settings->autoFormatTool());
     m_autoFormatTool->setCurrentIndex(qMax(index, 0));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Group {

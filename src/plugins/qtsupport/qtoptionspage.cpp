@@ -261,7 +261,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
 
     m_errorLabel = new QLabel;
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     auto versionInfoWidget = new QWidget;
     // clang-format off

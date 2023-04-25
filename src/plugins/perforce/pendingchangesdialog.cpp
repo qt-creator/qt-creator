@@ -48,7 +48,7 @@ PendingChangesDialog::PendingChangesDialog(const QString &data, QWidget *parent)
         submitButton->setEnabled(false);
     }
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         m_listWidget,

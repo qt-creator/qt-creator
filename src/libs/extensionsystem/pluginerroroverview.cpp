@@ -42,7 +42,7 @@ PluginErrorOverview::PluginErrorOverview(QWidget *parent)
     QObject::connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     QObject::connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     auto createLabel = [this](const QString &text) {
         QLabel *label = new QLabel(text, this);

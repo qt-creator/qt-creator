@@ -1094,7 +1094,7 @@ RevertDialog::RevertDialog(const QString &title, QWidget *parent)
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Form {
         Tr::tr("Revision"), m_revisionLineEdit, br,
     }.attachTo(groupBox);

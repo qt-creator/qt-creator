@@ -52,7 +52,7 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Group {
             title(Tr::tr("Remote Location")),

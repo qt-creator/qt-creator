@@ -45,7 +45,7 @@ Search::Search(QWidget *parent)
     m_searchView->setModel(m_proxyModel);
     m_searchView->setFrameShape(QFrame::NoFrame);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         m_searchEdit,
         m_searchView,

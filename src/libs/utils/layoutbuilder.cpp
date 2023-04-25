@@ -16,7 +16,7 @@
 #include <QStyle>
 #include <QTabWidget>
 
-namespace Utils::Layouting {
+namespace Layouting {
 
 /*!
     \enum Utils::LayoutBuilder::LayoutType
@@ -464,7 +464,7 @@ TabWidget::TabWidget(QTabWidget *tabWidget, std::initializer_list<Tab> tabs)
 
 // "Properties"
 
-LayoutItem::Setter title(const QString &title, BoolAspect *checker)
+LayoutItem::Setter title(const QString &title, Utils::BoolAspect *checker)
 {
     return [title, checker](QObject *target) {
         if (auto groupBox = qobject_cast<QGroupBox *>(target)) {
@@ -528,4 +528,4 @@ Stretch st;
 Space empty(0);
 HorizontalRule hr;
 
-} // Utils::Layouting
+} // Layouting

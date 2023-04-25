@@ -34,7 +34,7 @@ ComponentNameDialog::ComponentNameDialog(QWidget *parent) :
     m_checkBox = new QCheckBox(Tr::tr("ui.qml file"));
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Form {
             Tr::tr("Component name:"), m_componentNameEdit, br,

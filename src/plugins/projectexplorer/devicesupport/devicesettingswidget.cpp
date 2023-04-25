@@ -143,7 +143,7 @@ void DeviceSettingsWidget::initGui()
     scrollArea->setWidgetResizable(true);
     scrollArea->setWidget(scrollAreaWidget);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         m_generalGroupBox,
         m_osSpecificGroupBox,

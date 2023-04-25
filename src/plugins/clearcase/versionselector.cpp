@@ -51,7 +51,7 @@ VersionSelector::VersionSelector(const QString &fileName, const QString &message
                                  "the changes (not supported by the plugin)")
                             + "</b></p></body></html>");
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         headerLabel,

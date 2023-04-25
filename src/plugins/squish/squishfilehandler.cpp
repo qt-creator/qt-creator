@@ -53,7 +53,7 @@ public:
         QWidget *widget = new QWidget(this);
         auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
         Form {
             label, &aut, br,
             arguments,

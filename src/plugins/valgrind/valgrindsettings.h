@@ -23,7 +23,7 @@ public:
     Utils::FilePaths value() const;
     void setValue(const Utils::FilePaths &val);
 
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) final;
+    void addToLayout(Layouting::LayoutBuilder &builder) final;
 
     void fromMap(const QVariantMap &map) final;
     void toMap(QVariantMap &map) const final;

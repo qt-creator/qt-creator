@@ -43,7 +43,7 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
     m_languageLabel = new QLabel(Tr::tr("Language:"));
     m_languageText = new QLineEdit;
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Row {
             addPrefixButton,

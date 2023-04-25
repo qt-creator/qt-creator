@@ -103,7 +103,7 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
     m_ignorePchCheckBox->setChecked(m_settings->pchUsage() == CppCodeModelSettings::PchUse_None);
     m_useBuiltinPreprocessorCheckBox->setChecked(m_settings->useBuiltinPreprocessor());
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Group {
@@ -401,7 +401,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         else
             Core::EditorManager::openEditor(Utils::FilePath::fromString(link));
     });
-    layout->addWidget(Utils::Layouting::createHr());
+    layout->addWidget(Layouting::createHr());
     layout->addWidget(configFilesHelpLabel);
 
     layout->addStretch(1);

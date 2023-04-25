@@ -73,7 +73,7 @@ OptionsDialog::OptionsDialog(Settings *settings, const std::function<void ()> &o
 
     m_scanInSubprojectRadioButton = new QRadioButton(Tr::tr("Scan the current subproject"));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Group {

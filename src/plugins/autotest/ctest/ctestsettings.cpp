@@ -125,7 +125,7 @@ CTestSettingsPage::CTestSettingsPage(CTestSettings *settings, Utils::Id settings
 
     setLayouter([settings](QWidget *widget) {
         CTestSettings &s = *settings;
-        using namespace Utils::Layouting;
+        using namespace Layouting;
 
         Form form {
             Row {s.outputOnFail}, br,

@@ -77,7 +77,7 @@ SessionNameInputDialog::SessionNameInputDialog(QWidget *parent)
         m_usedSwitchTo = true;
     });
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Tr::tr("Enter the name of the session:"),
         m_newSessionLineEdit,
@@ -150,7 +150,7 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
            "What is a Session?</a>"));
     whatsASessionLabel->setOpenExternalLinks(true);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Row {
