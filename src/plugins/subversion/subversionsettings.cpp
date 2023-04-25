@@ -3,12 +3,7 @@
 
 #include "subversionsettings.h"
 
-#include "subversionclient.h"
-#include "subversionplugin.h"
 #include "subversiontr.h"
-
-#include <coreplugin/icore.h>
-#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -22,8 +17,7 @@
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Subversion {
-namespace Internal {
+namespace Subversion::Internal {
 
 // SubversionSettings
 
@@ -122,5 +116,4 @@ SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
     });
 }
 
-} // Internal
-} // Subversion
+} // Subversion::Internal
