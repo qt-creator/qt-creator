@@ -81,6 +81,7 @@ void ItemLibraryView::importsChanged(const Imports &addedImports, const Imports 
         document->addSubcomponentManagerImport(import);
 
     updateImports();
+    m_widget->updatePossibleImports(model()->possibleImports());
 
     // TODO: generalize the logic below to allow adding/removing any Qml component when its import is added/removed
     bool simulinkImportAdded = std::any_of(addedImports.cbegin(), addedImports.cend(), [](const Import &import) {
