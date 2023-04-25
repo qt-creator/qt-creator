@@ -593,23 +593,6 @@ QString ILocatorFilter::shortcutString() const
 }
 
 /*!
-    Performs actions that need to be done in the main thread before actually
-    running the search for \a entry.
-
-    Called on the main thread before matchesFor() is called in a separate
-    thread.
-
-    The default implementation does nothing.
-
-    \sa matchesFor()
-*/
-void ILocatorFilter::prepareSearch(const QString &entry)
-{
-    Q_UNUSED(entry)
-}
-
-
-/*!
     Sets the refresh recipe for refreshing cached data.
 */
 void ILocatorFilter::setRefreshRecipe(const std::optional<TaskItem> &recipe)
@@ -1111,22 +1094,6 @@ bool ILocatorFilter::isOldSetting(const QByteArray &state)
     const QJsonDocument doc = QJsonDocument::fromJson(state);
     return !doc.isObject();
 }
-
-/*!
-    \fn QList<Core::LocatorFilterEntry> Core::ILocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
-
-    Returns the list of results of this filter for the search term \a entry.
-    This is run in a separate thread, but is guaranteed to only run in a single
-    thread at any given time. Quickly running preparations can be done in the
-    GUI thread in prepareSearch().
-
-    Implementations should do a case sensitive or case insensitive search
-    depending on caseSensitivity(). If \a future is \c canceled, the search
-    should be aborted.
-
-    \sa prepareSearch()
-    \sa caseSensitivity()
-*/
 
 /*!
     \enum Core::ILocatorFilter::Priority

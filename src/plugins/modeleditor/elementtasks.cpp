@@ -28,7 +28,6 @@
 #include <cppeditor/indexitem.h>
 #include <cppeditor/searchsymbols.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/locator/ilocatorfilter.h>
 #include <utils/qtcassert.h>
 
 #include <QMenu>
