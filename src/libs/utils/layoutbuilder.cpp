@@ -3,8 +3,7 @@
 
 #include "layoutbuilder.h"
 
-#include "qtcassert.h"
-
+#include <QDebug>
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -17,6 +16,14 @@
 #include <QTextEdit>
 
 namespace Layouting {
+
+// That's cut down qtcassert.{c,h} to avoid the dependency.
+#define QTC_STRINGIFY_HELPER(x) #x
+#define QTC_STRINGIFY(x) QTC_STRINGIFY_HELPER(x)
+#define QTC_STRING(cond) qDebug("SOFT ASSERT: \"%s\" in %s: %s", cond,  __FILE__, QTC_STRINGIFY(__LINE__))
+#define QTC_ASSERT(cond, action) if (Q_LIKELY(cond)) {} else { QTC_STRING(#cond); action; } do {} while (0)
+#define QTC_CHECK(cond) if (cond) {} else { QTC_STRING(#cond); } do {} while (0)
+
 
 /*!
     \enum Utils::LayoutBuilder::LayoutType
