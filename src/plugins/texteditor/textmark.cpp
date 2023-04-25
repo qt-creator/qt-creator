@@ -286,7 +286,7 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
     if (m_category.id.isValid() && !m_lineAnnotation.isEmpty()) {
         auto visibilityAction = new QAction;
         const bool isHidden = TextDocument::marksAnnotationHidden(m_category.id);
-        visibilityAction->setIcon(Utils::Icons::EYE_OPEN_TOOLBAR.icon());
+        visibilityAction->setIcon(Utils::Icons::EYE_OPEN.icon());
         const QString tooltip = (isHidden ? Tr::tr("Show inline annotations for %1")
                                           : Tr::tr("Temporarily hide inline annotations for %1"))
                                     .arg(m_category.displayName);
@@ -302,7 +302,7 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
     }
     if (m_settingsPage.isValid()) {
         auto settingsAction = new QAction;
-        settingsAction->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
+        settingsAction->setIcon(Utils::Icons::SETTINGS.icon());
         settingsAction->setToolTip(Tr::tr("Show Diagnostic Settings"));
         QObject::connect(settingsAction, &QAction::triggered, Core::ICore::instance(),
             [id = m_settingsPage] { Core::ICore::showOptionsDialog(id); },
