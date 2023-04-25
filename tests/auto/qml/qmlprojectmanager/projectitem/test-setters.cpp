@@ -114,6 +114,24 @@ TEST(QmlProjectProjectItemSetterTests, SetForceFreeType)
     testerTemplate<bool>(&QmlProjectItem::setForceFreeType, &QmlProjectItem::forceFreeType, false);
 }
 
+TEST(QmlProjectProjectItemSetterTests, SetQtVersion)
+{
+    testerTemplate<QString>(&QmlProjectItem::setVersionQt, &QmlProjectItem::versionQt, "6");
+    testerTemplate<QString>(&QmlProjectItem::setVersionQt, &QmlProjectItem::versionQt, "5.3");
+}
+
+TEST(QmlProjectProjectItemSetterTests, SetQtQuickVersion)
+{
+    testerTemplate<QString>(&QmlProjectItem::setVersionQtQuick, &QmlProjectItem::versionQtQuick, "6");
+    testerTemplate<QString>(&QmlProjectItem::setVersionQtQuick, &QmlProjectItem::versionQtQuick, "5.3");
+}
+
+TEST(QmlProjectProjectItemSetterTests, SetDesignStudio)
+{
+    testerTemplate<QString>(&QmlProjectItem::setVersionDesignStudio, &QmlProjectItem::versionDesignStudio, "6");
+    testerTemplate<QString>(&QmlProjectItem::setVersionDesignStudio, &QmlProjectItem::versionDesignStudio, "5.3");
+}
+
 /**
 TEST(QmlProjectProjectItemSetterTests, SetEnvironment)
 {
@@ -127,13 +145,6 @@ TEST(QmlProjectProjectItemSetterTests, SetEnvironment)
 //{
 //    ASSERT_EQ(dataSet.projectItem1.isQt4McuProject(), true);
 //    ASSERT_EQ(dataSet.projectItem2.isQt4McuProject(), false);
-//}
-
-// not available as of now
-//TEST(QmlProjectProjectItemSetterTests, SetQt6Project)
-//{
-//    ASSERT_EQ(dataSet.projectItem1.isQt6Project(), true);
-//    ASSERT_EQ(dataSet.projectItem2.isQt6Project(), false);
 //}
 
 // not available as of now

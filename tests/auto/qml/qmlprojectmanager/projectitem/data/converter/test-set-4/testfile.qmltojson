@@ -109,5 +109,6 @@
     "shaderTool": {
     },
     "versions": {
+        "qt": "6"
     }
 }

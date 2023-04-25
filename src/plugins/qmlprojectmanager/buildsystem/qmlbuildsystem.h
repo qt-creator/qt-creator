@@ -81,6 +81,10 @@ public:
     QStringList importPaths() const;
     Utils::FilePaths files() const;
 
+    QString versionQt() const;
+    QString versionQtQuick() const;
+    QString versionDesignStudio() const;
+
     bool addFiles(const QStringList &filePaths);
     void refreshProjectFile();
 

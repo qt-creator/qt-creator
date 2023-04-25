@@ -29,7 +29,16 @@ public:
     explicit QmlProjectItem(const Utils::FilePath &filePath);
 
     bool isQt4McuProject() const;
-    bool isQt6Project() const;
+
+
+    QString versionQt() const;
+    void setVersionQt(const QString &version);
+
+    QString versionQtQuick() const;
+    void setVersionQtQuick(const QString &version);
+
+    QString versionDesignStudio() const;
+    void setVersionDesignStudio(const QString &version);
 
     Utils::FilePath sourceDirectory() const;
     QString targetDirectory() const;

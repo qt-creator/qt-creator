@@ -135,7 +135,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
             appendBreak();
             appendString("qdsVersion", versionConfig["designStudio"].toString());
             appendString("quickVersion", versionConfig["qtQuick"].toString());
-            appendBool("qt6Project", versionConfig["qtQuick"].toString().startsWith("6."));
+            appendBool("qt6Project", versionConfig["qt"].toString() == "6");
             appendBool("qtForMCUs", rootObject["mcuConfig"].toObject().isEmpty());
             appendBreak();
             appendBool("multilanguageSupport", languageConfig["multiLanguageSupport"].toBool());
@@ -217,6 +217,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
     for (const QString &propName : rootNode->propertyNames()) {
         QJsonObject *currentObj = &rootObject;
         QString objKey = propName;
+        QJsonValue value = rootNode->property(propName).value.toJsonValue();
 
         if (propName.contains("language", Qt::CaseInsensitive)) {
             currentObj = &languageObject;
@@ -240,16 +241,21 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
             currentObj = &mcuObject;
             objKey = "mcuEnabled";
         } else if (propName.contains("qt6project", Qt::CaseInsensitive)) {
-            // we are skipping these ones in the new json format
-            continue;
+            currentObj = &versionObject;
+            objKey = "qt";
+            value = rootNode->property(propName).value.toBool() ? "6" : "5";
         }
 
-        currentObj->insert(objKey, rootNode->property(propName).value.toJsonValue());
+        currentObj->insert(objKey, value);
     }
 
     // add missing non-object props if any
     if (!runConfigObject.contains("fileSelectors")) {
         runConfigObject.insert("fileSelectors", QJsonArray{});
+    }
+
+    if (!versionObject.contains("qt")) {
+        versionObject.insert("qt", "5");
     }
 
     // convert the the object props

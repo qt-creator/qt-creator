@@ -484,7 +484,7 @@ bool QmlBuildSystem::qtForMCUs() const
 
 bool QmlBuildSystem::qt6Project() const
 {
-    return m_projectItem->isQt6Project();
+    return m_projectItem->versionQt() == "6";
 }
 
 Utils::EnvironmentItems QmlBuildSystem::environment() const
@@ -545,6 +545,21 @@ QStringList QmlBuildSystem::importPaths() const
 Utils::FilePaths QmlBuildSystem::files() const
 {
     return m_projectItem->files();
+}
+
+QString QmlBuildSystem::versionQt() const
+{
+    return m_projectItem->versionQt();
+}
+
+QString QmlBuildSystem::versionQtQuick() const
+{
+    return m_projectItem->versionQtQuick();
+}
+
+QString QmlBuildSystem::versionDesignStudio() const
+{
+    return m_projectItem->versionDesignStudio();
 }
 
 } // namespace QmlProjectManager
