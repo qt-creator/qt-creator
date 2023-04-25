@@ -8,7 +8,6 @@
 #include "../actionmanager/actionmanager.h"
 #include "../actionmanager/command.h"
 #include "../coreplugintr.h"
-#include "../icontext.h"
 #include "../icore.h"
 
 #include <utils/qtcassert.h>
@@ -28,6 +27,9 @@
 
 static const char SETTINGSKEYSECTIONNAME[] = "SearchResults";
 static const char SETTINGSKEYEXPANDRESULTS[] = "ExpandResults";
+
+// Note that this is a soft limit: If all searches are still running, none of them will be
+// removed when a new one is started.
 static const int MAX_SEARCH_HISTORY = 12;
 
 namespace Core {
@@ -474,14 +476,15 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
                 // temporarily set the index to the last but one existing
                 d->m_currentIndex = d->m_recentSearchesBox->count() - 2;
             }
-            const int toRemoveIndex = d->indexOfSearchToEvict();
-            SearchResultWidget * const widgetToRemove
-                = d->m_searchResultWidgets.takeAt(toRemoveIndex);
-            widgetToRemove->notifyVisibilityChanged(false);
-            // widget first, because that might send interesting signals to SearchResult
-            delete widgetToRemove;
-            delete d->m_searchResults.takeAt(toRemoveIndex);
-            d->m_recentSearchesBox->removeItem(toRemoveIndex + 1);
+            if (const int toRemoveIndex = d->indexOfSearchToEvict(); toRemoveIndex != -1) {
+                SearchResultWidget * const widgetToRemove
+                    = d->m_searchResultWidgets.takeAt(toRemoveIndex);
+                widgetToRemove->notifyVisibilityChanged(false);
+                // widget first, because that might send interesting signals to SearchResult
+                delete widgetToRemove;
+                delete d->m_searchResults.takeAt(toRemoveIndex);
+                d->m_recentSearchesBox->removeItem(toRemoveIndex + 1);
+            }
         }
         d->m_recentSearchesBox->insertItem(1, Tr::tr("%1 %2").arg(label, searchTerm));
     }
@@ -622,12 +625,11 @@ void SearchResultWindowPrivate::updateFilterButton()
 
 int SearchResultWindowPrivate::indexOfSearchToEvict() const
 {
-    const int lastIndex = m_searchResultWidgets.size() - 1;
-    for (int i = lastIndex; i >= 0; --i) {
+    for (int i = m_searchResultWidgets.size() - 1; i >= 0; --i) {
         if (!m_searchResultWidgets.at(i)->isSearching())
             return i;
     }
-    return lastIndex;
+    return -1;
 }
 
 QList<QWidget *> SearchResultWindowPrivate::toolBarWidgets()
