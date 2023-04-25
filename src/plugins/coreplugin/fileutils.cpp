@@ -170,8 +170,11 @@ bool FileUtils::renameFile(const FilePath &orgFilePath, const FilePath &newFileP
     if (orgFilePath == newFilePath)
         return false;
 
-    FilePath dir = orgFilePath.absolutePath();
+    const FilePath dir = orgFilePath.absolutePath();
     IVersionControl *vc = VcsManager::findVersionControlForDirectory(dir);
+    const FilePath newDir = newFilePath.absolutePath();
+    if (newDir != dir && !newDir.ensureWritableDir())
+        return false;
 
     bool result = false;
     if (vc && vc->supportsOperation(IVersionControl::MoveOperation))
