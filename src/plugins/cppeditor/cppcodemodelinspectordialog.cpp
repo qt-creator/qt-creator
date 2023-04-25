@@ -1429,7 +1429,9 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
     m_workingCopyView->setModel(m_proxyWorkingCopyModel);
 
     using namespace Layouting;
-    m_projectPartTab = qobject_cast<QTabWidget*>(TabWidget{
+
+    TabWidget projectPart {
+        bindTo(&m_projectPartTab),
         Tab("&General",
             Row {
                 m_partGeneralView,
@@ -1454,10 +1456,10 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
         ),
         Tab("&Header Paths", Column{ projectHeaderPathsView }),
         Tab("Pre&compiled Headers", Column{ m_partPrecompiledHeadersEdit }),
-    }.widget);
-    QTC_CHECK(m_projectPartTab);
+    };
 
-    m_docTab = qobject_cast<QTabWidget*>(TabWidget{
+    TabWidget docTab {
+        bindTo(&m_docTab),
         Tab("&General", Column { m_docGeneralView }),
         Tab("&Includes", Column { m_docIncludesView }),
         Tab("&Diagnostic Messages", Column { m_docDiagnosticMessagesView }),
@@ -1465,8 +1467,7 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
         Tab("P&reprocessed Source", Column { m_docPreprocessedSourceEdit }),
         Tab("&Symbols", Column { m_docSymbolsView }),
         Tab("&Tokens", Column { m_docTokensView }),
-    }.widget);
-    QTC_CHECK(m_docTab);
+    };
 
     Column {
         TabWidget {
@@ -1474,7 +1475,7 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
                 Column {
                     Splitter {
                         m_projectPartsView,
-                        m_projectPartTab,
+                        projectPart,
                     },
                 }
             ),
@@ -1485,7 +1486,7 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
                             Form { QString("Sn&apshot:"), m_snapshotSelector },
                             m_snapshotView,
                         }.emerge(Layouting::WithoutMargins),
-                        m_docTab,
+                        docTab,
                     },
                 }
             ),
@@ -1506,6 +1507,7 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
         }
     }.attachTo(this);
 
+    QTC_CHECK(m_projectPartTab);
     m_projectPartTab->setCurrentIndex(3);
 
     connect(m_snapshotView->selectionModel(),

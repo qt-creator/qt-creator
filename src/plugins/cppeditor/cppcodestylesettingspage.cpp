@@ -162,11 +162,8 @@ public:
         , m_bindStarToLeftSpecifier(createCheckBox(Tr::tr("Left const/volatile")))
         , m_bindStarToRightSpecifier(createCheckBox(Tr::tr("Right const/volatile"),
                                                     Tr::tr("This does not apply to references.")))
-        , m_categoryTab(new QTabWidget)
         , m_tabSettingsWidget(new TabSettingsWidget)
     {
-        m_categoryTab->setProperty("_q_custom_style_disabled", true);
-
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -234,7 +231,8 @@ public:
         };
 
         Row {
-            TabWidget { m_categoryTab, {
+            TabWidget {
+                bindTo(&m_categoryTab),
                 Tab { Tr::tr("General"),
                     Row { Column { m_tabSettingsWidget, st }, createPreview(0) }
                 },
@@ -243,8 +241,10 @@ public:
                 Tab { Tr::tr("\"switch\""), Row { switchGroup, createPreview(3) } },
                 Tab { Tr::tr("Alignment"), Row { alignmentGroup, createPreview(4) } },
                 Tab { Tr::tr("Pointers and References"), Row { typesGroup, createPreview(5) } }
-            } }
+            }
         }.attachTo(q);
+
+        m_categoryTab->setProperty("_q_custom_style_disabled", true);
 
         m_controllers.append(m_tabSettingsWidget);
         m_controllers.append(contentGroup.widget);

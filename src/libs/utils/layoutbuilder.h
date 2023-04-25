@@ -87,6 +87,7 @@ public:
         Stretch,
         Break,
         HorizontalRule,
+        Tab,
     };
 
     using Setter = std::function<void(QObject *target)>;
@@ -170,14 +171,12 @@ class QTCREATOR_UTILS_EXPORT Splitter : public LayoutItem
 {
 public:
     Splitter(std::initializer_list<LayoutItem> items);
-    Splitter(QSplitter *splitter, std::initializer_list<LayoutItem> items);
 };
 
 class QTCREATOR_UTILS_EXPORT TabWidget : public LayoutItem
 {
 public:
-    TabWidget(std::initializer_list<Tab> tabs);
-    TabWidget(QTabWidget *tabWidget, std::initializer_list<Tab> tabs);
+    TabWidget(std::initializer_list<LayoutItem> items);
 };
 
 // Singleton items.
@@ -189,10 +188,13 @@ QTCREATOR_UTILS_EXPORT extern HorizontalRule hr;
 
 // "Properties"
 
-QTCREATOR_UTILS_EXPORT LayoutItem::Setter title(const QString &title);
-QTCREATOR_UTILS_EXPORT LayoutItem::Setter text(const QString &text);
-QTCREATOR_UTILS_EXPORT LayoutItem::Setter tooltip(const QString &toolTip);
-QTCREATOR_UTILS_EXPORT LayoutItem::Setter onClicked(const std::function<void()> &func,
+QTCREATOR_UTILS_EXPORT LayoutItem bindTo(QTabWidget **);
+QTCREATOR_UTILS_EXPORT LayoutItem bindTo(QSplitter **);
+
+QTCREATOR_UTILS_EXPORT LayoutItem title(const QString &title);
+QTCREATOR_UTILS_EXPORT LayoutItem text(const QString &text);
+QTCREATOR_UTILS_EXPORT LayoutItem tooltip(const QString &toolTip);
+QTCREATOR_UTILS_EXPORT LayoutItem onClicked(const std::function<void()> &func,
                                                     QObject *guard = nullptr);
 
 

@@ -418,16 +418,22 @@ Tab::Tab(const QString &tabName, const LayoutBuilder &item)
     text = tabName;
     widget = new QWidget;
     item.attachTo(widget);
+    specialType = LayoutItem::SpecialType::Tab;
 }
 
 // "Widgets"
 
-static void applyItems(QWidget *widget, const QList<LayoutItem> &items)
+static void applyItems(LayoutItem *owner, QWidget *widget, const QList<LayoutItem> &items)
 {
+    owner->widget = widget;
     bool hadLayout = false;
     for (const LayoutItem &item : items) {
         if (item.setter) {
             item.setter(widget);
+        } else if (item.specialType == LayoutItem::SpecialType::Tab) {
+            auto tabWidget = qobject_cast<QTabWidget *>(widget);
+            QTC_ASSERT(tabWidget, continue);
+            tabWidget->addTab(item.widget, item.text);
         } else if (item.layout && !hadLayout) {
             hadLayout = true;
             widget->setLayout(item.layout);
@@ -439,70 +445,65 @@ static void applyItems(QWidget *widget, const QList<LayoutItem> &items)
 
 Group::Group(std::initializer_list<LayoutItem> items)
 {
-    widget = new QGroupBox;
-    applyItems(widget, items);
+    applyItems(this, new QGroupBox, items);
 }
 
 PushButton::PushButton(std::initializer_list<LayoutItem> items)
 {
-    widget = new QPushButton;
-    applyItems(widget, items);
+    applyItems(this, new QPushButton, items);
 }
 
 TextEdit::TextEdit(std::initializer_list<LayoutItem> items)
 {
-    widget = new QTextEdit;
-    applyItems(widget, items);
+    applyItems(this, new QTextEdit, items);
 }
 
 Splitter::Splitter(std::initializer_list<LayoutItem> items)
-    : Splitter(new QSplitter(Qt::Vertical), items) {}
-
-Splitter::Splitter(QSplitter *splitter, std::initializer_list<LayoutItem> items)
 {
-    widget = splitter;
-    for (const LayoutItem &item : items)
-        splitter->addWidget(item.widget);
-}
+    applyItems(this, new QSplitter(Qt::Vertical), items);
+ }
 
-TabWidget::TabWidget(std::initializer_list<Tab> tabs)
-    : TabWidget(new QTabWidget, tabs) {}
 
-TabWidget::TabWidget(QTabWidget *tabWidget, std::initializer_list<Tab> tabs)
-{
-    widget = tabWidget;
-    for (const Tab &tab : tabs)
-        tabWidget->addTab(tab.widget, tab.text);
+TabWidget::TabWidget(std::initializer_list<LayoutItem> items)
+ {
+    applyItems(this, new QTabWidget, items);
 }
 
 // "Properties"
 
-LayoutItem::Setter title(const QString &title)
+static LayoutItem setter(const LayoutItem::Setter &setter)
 {
-    return [title](QObject *target) {
+    LayoutItem item;
+    item.setter = setter;
+    return item;
+}
+
+LayoutItem title(const QString &title)
+{
+    return setter([title](QObject *target) {
         if (auto groupBox = qobject_cast<QGroupBox *>(target)) {
             groupBox->setTitle(title);
             groupBox->setObjectName(title);
         } else {
             QTC_CHECK(false);
         }
-    };
+    });
 }
 
-LayoutItem::Setter onClicked(const std::function<void ()> &func, QObject *guard)
+LayoutItem onClicked(const std::function<void ()> &func, QObject *guard)
 {
-    return [func, guard](QObject *target) {
+    return setter([func, guard](QObject *target) {
         if (auto button = qobject_cast<QAbstractButton *>(target)) {
             QObject::connect(button, &QAbstractButton::clicked, guard ? guard : target, func);
         } else {
             QTC_CHECK(false);
         }
-    };
+    });
 }
 
-LayoutItem::Setter text(const QString &text)
+LayoutItem text(const QString &text)
 {
-    return [text](QObject *target) {
+    return setter([text](QObject *target) {
         if (auto button = qobject_cast<QAbstractButton *>(target)) {
             button->setText(text);
         } else if (auto textEdit = qobject_cast<QTextEdit *>(target)) {
@@ -510,18 +511,32 @@ LayoutItem::Setter text(const QString &text)
         } else {
             QTC_CHECK(false);
         }
-    };
+    });
 }
 
-LayoutItem::Setter tooltip(const QString &toolTip)
+LayoutItem tooltip(const QString &toolTip)
 {
-    return [toolTip](QObject *target) {
+    return setter([toolTip](QObject *target) {
         if (auto widget = qobject_cast<QWidget *>(target)) {
             widget->setToolTip(toolTip);
         } else {
             QTC_CHECK(false);
         }
-    };
+    });
+}
+
+LayoutItem bindTo(QSplitter **out)
+{
+    return setter([out](QObject *target) {
+        *out = qobject_cast<QSplitter *>(target);
+    });
+}
+
+LayoutItem bindTo(QTabWidget **out)
+{
+    return setter([out](QObject *target) {
+        *out = qobject_cast<QTabWidget *>(target);
+    });
 }
 
 QWidget *createHr(QWidget *parent)
