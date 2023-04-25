@@ -15,8 +15,6 @@
 #include <QPushButton>
 #include <QWidget>
 
-using namespace Utils;
-
 using namespace ClangFormat;
 
 ClangFormatChecks::ClangFormatChecks(QWidget *parent)

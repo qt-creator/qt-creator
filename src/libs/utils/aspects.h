@@ -9,22 +9,16 @@
 #include "macroexpander.h"
 #include "pathchooser.h"
 
-#include <QCoreApplication>
-
 #include <functional>
 #include <memory>
 #include <optional>
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QGroupBox;
 class QSettings;
 QT_END_NAMESPACE
 
-namespace Layouting {
-class LayoutBuilder;
-class LayoutItem;
-} // Layouting
+namespace Layouting { class LayoutBuilder; }
 
 namespace Utils {
 
@@ -226,6 +220,7 @@ public:
     };
 
     void addToLayout(Layouting::LayoutBuilder &builder) override;
+    std::function<void(QObject *)> groupChecker();
 
     QAction *action() override;
 
@@ -242,7 +237,6 @@ public:
     void setLabel(const QString &labelText,
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
     void setLabelPlacement(LabelPlacement labelPlacement);
-    void setHandlesGroup(QGroupBox *box);
 
 signals:
     void valueChanged(bool newValue);

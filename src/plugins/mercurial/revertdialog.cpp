@@ -11,8 +11,6 @@
 #include <QGroupBox>
 #include <QLineEdit>
 
-using namespace Utils;
-
 namespace Mercurial::Internal {
 
 RevertDialog::RevertDialog(QWidget *parent)

@@ -3,7 +3,6 @@
 
 #include "layoutbuilder.h"
 
-#include "aspects.h"
 #include "qtcassert.h"
 
 #include <QFormLayout>
@@ -471,17 +470,12 @@ TabWidget::TabWidget(QTabWidget *tabWidget, std::initializer_list<Tab> tabs)
 
 // "Properties"
 
-LayoutItem::Setter title(const QString &title, Utils::BoolAspect *checker)
+LayoutItem::Setter title(const QString &title)
 {
-    return [title, checker](QObject *target) {
+    return [title](QObject *target) {
         if (auto groupBox = qobject_cast<QGroupBox *>(target)) {
             groupBox->setTitle(title);
             groupBox->setObjectName(title);
-            if (checker) {
-                groupBox->setCheckable(true);
-                groupBox->setChecked(checker->value());
-                checker->setHandlesGroup(groupBox);
-            }
         } else {
             QTC_CHECK(false);
         }

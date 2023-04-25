@@ -1423,6 +1423,16 @@ void BoolAspect::addToLayout(Layouting::LayoutBuilder &builder)
             this, &BoolAspect::volatileValueChanged);
 }
 
+std::function<void (QObject *)> BoolAspect::groupChecker()
+{
+    return [this](QObject *target) {
+        auto groupBox = qobject_cast<QGroupBox *>(target);
+        QTC_ASSERT(groupBox, return);
+        registerSubWidget(groupBox);
+        d->m_groupBox = d->m_groupBox;
+    };
+}
+
 QAction *BoolAspect::action()
 {
     if (hasAction())
@@ -1513,12 +1523,6 @@ void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacemen
 void BoolAspect::setLabelPlacement(BoolAspect::LabelPlacement labelPlacement)
 {
     d->m_labelPlacement = labelPlacement;
-}
-
-void BoolAspect::setHandlesGroup(QGroupBox *box)
-{
-    registerSubWidget(box);
-    d->m_groupBox = box;
 }
 
 /*!

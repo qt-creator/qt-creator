@@ -24,8 +24,6 @@ class QTextEdit;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Utils { class BoolAspect; }
-
 namespace Layouting {
 
 enum AttachType {
@@ -191,9 +189,7 @@ QTCREATOR_UTILS_EXPORT extern HorizontalRule hr;
 
 // "Properties"
 
-QTCREATOR_UTILS_EXPORT LayoutItem::Setter title(const QString &title,
-                                                Utils::BoolAspect *checker = nullptr);
-
+QTCREATOR_UTILS_EXPORT LayoutItem::Setter title(const QString &title);
 QTCREATOR_UTILS_EXPORT LayoutItem::Setter text(const QString &text);
 QTCREATOR_UTILS_EXPORT LayoutItem::Setter tooltip(const QString &toolTip);
 QTCREATOR_UTILS_EXPORT LayoutItem::Setter onClicked(const std::function<void()> &func,

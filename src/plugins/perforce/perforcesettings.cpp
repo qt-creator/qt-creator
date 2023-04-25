@@ -243,7 +243,8 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
         };
 
         Group environment {
-            title(Tr::tr("Environment Variables"), &s.customEnv),
+            title(Tr::tr("Environment Variables")),
+            s.customEnv.groupChecker(),
             Row { s.p4Port, s.p4Client, s.p4User }
         };
 

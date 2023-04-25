@@ -96,7 +96,8 @@ SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
             },
 
             Group {
-                title(Tr::tr("Authentication"), &s.useAuthentication),
+                title(Tr::tr("Authentication")),
+                s.useAuthentication.groupChecker(),
                 Form {
                     s.userName,
                     s.password,

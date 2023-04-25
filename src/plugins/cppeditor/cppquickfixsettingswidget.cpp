@@ -20,8 +20,6 @@
 #include <QSpinBox>
 #include <QtDebug>
 
-using namespace Utils;
-
 namespace CppEditor::Internal {
 
 class LineCountSpinBox : public QWidget
