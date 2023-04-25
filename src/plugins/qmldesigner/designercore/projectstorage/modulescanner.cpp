@@ -70,8 +70,11 @@ void ModuleScanner::scan([[maybe_unused]] std::string_view modulePath)
             if (moduleName.isEmpty() || m_skip(moduleName))
                 continue;
 
-            m_modules.push_back(
-                Import::createLibraryImport(moduleName, createVersion(parser.components())));
+            QString version = m_versionScanning == VersionScanning::Yes
+                                  ? createVersion(parser.components())
+                                  : QString{};
+
+            m_modules.push_back(Import::createLibraryImport(moduleName, version));
         }
     }
 
