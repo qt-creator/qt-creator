@@ -185,7 +185,7 @@ public:
     FileSystem fileSystem{pathCache};
     FileStatusCache fileStatusCache{fileSystem};
     QmlDocumentParser qmlDocumentParser{storage, pathCache};
-    QmlTypesParser qmlTypesParser{pathCache, storage};
+    QmlTypesParser qmlTypesParser{storage};
     ProjectStoragePathWatcher<QFileSystemWatcher, QTimer, ProjectStorageUpdater::PathCache>
         pathWatcher{pathCache, fileSystem, &updater};
     ProjectPartId projectPartId;

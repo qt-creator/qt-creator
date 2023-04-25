@@ -4,11 +4,10 @@
 #include "qmltypesparser.h"
 
 #include "projectstorage.h"
-#include "sourcepathcache.h"
 
 #include <sqlitedatabase.h>
 
-#ifdef QDS_HAS_QMLPRIVATE
+#ifdef HasQQmlJSTypeDescriptionReader
 #include <private/qqmldomtop_p.h>
 #include <private/qqmljstypedescriptionreader_p.h>
 #endif
@@ -20,7 +19,7 @@
 
 namespace QmlDesigner {
 
-#if defined(QDS_HAS_QMLPRIVATE) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#ifdef HasQQmlJSTypeDescriptionReader
 
 namespace QmlDom = QQmlJS::Dom;
 

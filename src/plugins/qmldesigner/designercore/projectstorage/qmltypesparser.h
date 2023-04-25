@@ -10,6 +10,10 @@ namespace Sqlite {
 class Database;
 }
 
+#if defined(QDS_HAS_QMLPRIVATE) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#define HasQQmlJSTypeDescriptionReader
+#endif
+
 namespace QmlDesigner {
 
 template<typename Database>
@@ -22,16 +26,13 @@ class QmlTypesParser : public QmlTypesParserInterface
 {
 public:
     using ProjectStorage = QmlDesigner::ProjectStorage<Sqlite::Database>;
-    using PathCache = QmlDesigner::SourcePathCache<ProjectStorage, NonLockingMutex>;
 
-#ifdef QDS_HAS_QMLPRIVATE
-    QmlTypesParser(PathCache &pathCache, ProjectStorage &storage)
-        : m_pathCache{pathCache}
-        , m_storage{storage}
+#ifdef HasQQmlJSTypeDescriptionReader
+    QmlTypesParser(ProjectStorage &storage)
+        : m_storage{storage}
     {}
 #else
-    QmlTypesParser(PathCache &, ProjectStorage &)
-    {}
+    QmlTypesParser(ProjectStorage &) {}
 #endif
 
     void parse(const QString &sourceContent,
@@ -40,9 +41,7 @@ public:
                const Storage::Synchronization::ProjectData &projectData) override;
 
 private:
-    // m_pathCache and m_storage are only used when compiled for QDS
-#ifdef QDS_HAS_QMLPRIVATE
-    PathCache &m_pathCache;
+#ifdef HasQQmlJSTypeDescriptionReader
     ProjectStorage &m_storage;
 #endif
 };
