@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "QbsProjectManager.QbsProject" ],
     "id": "U.QtQuickApplicationEmpty",
     "category": "D.ApplicationQt",
-    "trDescription": "Creates a Qt Quick application that contains an empty window. Optionally, you can create a Qt Design Studio project.",
+    "trDescription": "Creates a Qt Quick application that can have both QML and C++ code. You can build the application and deploy it to desktop, embedded, and mobile target platforms.\n\nYou can select an option to create a project that you can open in Qt Design Studio, which has a visual editor for Qt Quick UIs.",
     "trDisplayName": "Qt Quick Application",
     "trDisplayCategory": "Application (Qt)",
     "icon": "icon.png",

@@ -69,7 +69,7 @@
     \endlist
 
     For more information about the settings that you skipped and the other
-    wizard templates available, see \l{Creating Qt Quick Applications}.
+    wizard templates available, see \l{Qt Quick Applications}.
 
 //! [qtquick empty application]
 */

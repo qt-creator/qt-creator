@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -8,122 +8,33 @@
 
     \title Creating Files
 
-    You can use wizard templates to add individual files to your
-    \l{Creating Projects}{projects}.
-    The following table lists the wizard templates for creating files.
+    \image qtcreator-new-file.webp {New File wizard}
 
-    \table
-        \header
-            \li Category
-            \li Wizard Template
-            \li Purpose
-        \row
-            \li {1,3} C/C++
-            \li C++ Class
-            \li C++ header and source file for a new class that you can add to
-                a C++ project.
-        \row
-            \li C/C++ Source File
-            \li  C++ source file that you can add to a C++ project.
-        \row
-            \li C/C++ Header File
-            \li C++ header file that you can add to a C++ project.
-        \row
-            \li {1,3} Modeling
-            \li State Chart
-            \li State Chart XML (SCXML) file that has boilerplate
-                code for state machines. You can use the classes in the
-                \l {Qt SCXML} module to embed state machines created from
-                the files in Qt applications.
-        \row
-            \li Model
-            \li Universal Modeling Language (UML) style model with a structured
-                diagram. However, the model editor uses a variant of UML and
-                has only a subset of properties for specifying the
-                appearance of model elements. For more information, see
-                \l {Modeling}.
-        \row
-            \li Scratch Model
-            \li Scratch model using a temporary file.
-        \row
-            \li {1,7} Qt
-            \li Qt Item Model
-            \li Source and header files that you can use to create classes
-                derived from QAbstractItemModel, QAbstractTableModel, or
-                QAbstractListModel.
-        \row
-            \li \QD Form Class
-            \li \QD form and a matching class for implementing a UI based
-                on Qt widgets.
-        \row
-            \li \QD Form
-            \li \QD form for Qt widget based projects. This is useful
-                if you already have an existing class for the UI logic.
-        \row
-            \li Qt Resource File
-            \li Resource file for storing binary files in the application
-                executable.
-        \row
-            \li QML File (Qt Quick 2)
-            \li QML file that imports Qt Quick 2.0 for use in Qt Quick projects.
-        \row
-            \li Qt Quick UI File
-            \li \l{UI Files}{UI file} (\e .ui.qml) and the corresponding
-                implementation file (\e .qml) for use in Qt Quick projects.
-        \row
-            \li JS File
-            \li JavaScript file that you can use to write the application logic
-                in Qt Quick projects.
-        \row
-            \li {1,4} GLSL
-            \li Fragment Shader (OpenGL/ES 2.0)
-            \li Fragment shader that generates the final pixel colors for
-                triangles, points, and lines rendered with OpenGL. You can use
-                it in both Qt Quick projects and Qt widget based projects.
-        \row
-            \li Vertex Shader (OpenGL/ES 2.0)
-            \li Vertex shader that transforms the positions, normals, and
-                texture coordinates of triangles, points, and lines rendered
-                with OpenGL. You can use it in both Qt Quick projects and Qt
-                widget based projects.
-        \row
-            \li Fragment Shader (Desktop OpenGL)
-            \li Fragment shader for use in both Qt Quick projects and Qt
-                widget based projects.
-        \row
-            \li Vertex Shader (Desktop OpenGL)
-            \li Vertex shader for use in both Qt Quick projects and Qt
-                widget based projects.
-       \row
-            \li {1,2} General
-            \li Empty File
-            \li Empty file that you can save with any filename extension.
-        \row
-            \li Scratch Buffer
-            \li Scratch buffer that uses temporary files. You can
-                create this type of files for temporarily storing information
-                that you do not intend to save
-        \row
-            \li Java
-            \li Java File
-            \li Java class files that you can use to create Java classes.
-        \row
-            \li {1,2} Python
-            \li Python Class
-            \li Python class file.
-        \row
-            \li Python File
-            \li Python script file using UTF-8 encoding.
-        \row
-            \li {1,2} Nim (experimental)
-            \li Nim Script File
-            \li Empty Nim script file using UTF-8 encoding.
-        \row
-            \li Nim File
-            \li Empty Nim source file using UTF-8 encoding.
-    \endtable
+    Use wizard templates to add individual files to your \l{Creating Projects}
+    {projects}:
 
-    \section1 Creating C++ Classes
+    \list
+        \li \uicontrol {C/C++}: header and source files for new classes.
+        \li \uicontrol {Modeling}: State Chart XML (SCXML) files,
+            Universal Modeling Language (UML) style \l {Modeling}{models},
+            and scratch models that use a temporary file.
+        \li \uicontrol {Qt}: source and header files for item, table,
+            or list models, \QD forms and a matching classes for Qt Widgets
+            projects, Qt resource files, as well as QML and JavaScript files
+            for Qt Quick projects.
+        \li \uicontrol {GLSL}: fragment and vertex shaders.
+        \li \uicontrol {General}: markdown files, empty files that you can save
+            with any filename extension, and scratch buffers that use temporary
+            files.
+        \li \uicontrol {Java}: class files.
+        \li \uicontrol {Python}: class and script files for Python projects.
+        \li \uicontrol {Nim} (experimental): empty Nim source and script files.
+    \endlist
+
+    The \uicontrol {New File} dialog shows detailed information about each file
+    wizard template.
+
+    \section1 C++ Classes
 
     The \uicontrol {C++ Class Wizard} allows you to create a C++ header and source
     file for a new class that you can add to a C++ project. Specify the class
@@ -149,7 +60,7 @@
     You can create your own project and class wizards. For more information,
     see \l{Adding New Custom Wizards}.
 
-    \section1 Creating Resource Files
+    \section1 Resource Files
 
     \QC supports the \l{The Qt Resource System}{Qt Resource System}, which is a
     platform-independent mechanism for storing files in the application's
@@ -187,7 +98,7 @@
     The above functions are also available in the context menu in the
     \uicontrol Projects view.
 
-    \section1 Creating OpenGL Fragment and Vertex Shaders
+    \section1 OpenGL Fragment and Vertex Shaders
 
     Qt supports integration with OpenGL implementations on all
     platforms, which allows you to display hardware accelerated 3D graphics
