@@ -7,7 +7,7 @@
 #include <model.h>
 #include <nodemetainfo.h>
 #include <qmlmodelnodeproxy.h>
-#include "variantproperty.h"
+#include <variantproperty.h>
 
 #include <QFileDialog>
 #include <QDirIterator>
@@ -24,7 +24,7 @@ ItemFilterModel::ItemFilterModel(QObject *parent)
 {
     if (m_roles.empty()) {
         m_roles = QAbstractListModel::roleNames();
-        QMetaEnum roleEnum = QMetaEnum::fromType<Roles>();
+        const QMetaEnum roleEnum = QMetaEnum::fromType<Roles>();
         for (int i = 0; i < roleEnum.keyCount(); i++)
             m_roles.insert(roleEnum.value(i), roleEnum.key(i));
     }
@@ -32,7 +32,6 @@ ItemFilterModel::ItemFilterModel(QObject *parent)
 
 void ItemFilterModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 {
-
     auto modelNodeBackendObject = modelNodeBackend.value<QObject*>();
 
     const auto backendObjectCasted =
@@ -47,18 +46,22 @@ void ItemFilterModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 
 void ItemFilterModel::setTypeFilter(const QString &filter)
 {
-    if (m_typeFilter != filter) {
-        m_typeFilter = filter;
-        setupModel();
-    }
+    if (m_typeFilter == filter)
+        return;
+
+    m_typeFilter = filter;
+    setupModel();
+    emit typeFilterChanged();
 }
 
 void ItemFilterModel::setSelectionOnly(bool value)
 {
-    if (m_selectionOnly != value) {
-        m_selectionOnly = value;
-        setupModel();
-    }
+    if (m_selectionOnly == value)
+        return;
+
+    m_selectionOnly = value;
+    setupModel();
+    emit selectionOnlyChanged();
 }
 
 QString ItemFilterModel::typeFilter() const
@@ -73,12 +76,7 @@ bool ItemFilterModel::selectionOnly() const
 
 void ItemFilterModel::registerDeclarativeType()
 {
-    qmlRegisterType<ItemFilterModel>("HelperWidgets",2,0,"ItemFilterModel");
-}
-
-QModelIndex ItemFilterModel::index(int row, int column, const QModelIndex &parent) const
-{
-    return QAbstractListModel::index(row, column, parent);
+    qmlRegisterType<ItemFilterModel>("HelperWidgets", 2, 0, "ItemFilterModel");
 }
 
 int ItemFilterModel::rowCount(const QModelIndex &) const
@@ -91,7 +89,7 @@ QVariant ItemFilterModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return {};
 
-    ModelNode node = modelNodeForRow(index.row());
+    const ModelNode node = modelNodeForRow(index.row());
 
     QVariant value;
     switch (role) {
@@ -102,9 +100,8 @@ QVariant ItemFilterModel::data(const QModelIndex &index, int role) const
         value = node.variantProperty("objectName").value();
         break;
     case IdAndNameRole:
-        value = QString("%1 [%2]").arg(
-                    node.variantProperty("objectName").value().toString()
-                    ,node.id());
+        value = QString("%1 [%2]").arg(node.variantProperty("objectName").value().toString(),
+                                       node.id());
         break;
     default:
         value = node.id();
@@ -112,12 +109,6 @@ QVariant ItemFilterModel::data(const QModelIndex &index, int role) const
     }
 
     return value;
-}
-
-// TODO: Handle model data manipulation here.
-bool ItemFilterModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    return QAbstractListModel::setData(index, value, role);
 }
 
 QHash<int, QByteArray> ItemFilterModel::roleNames() const

@@ -42,9 +42,7 @@ StudioControls.ComboBox {
             currentSelectedDataIndex = root.find(root.initialModelData)
         } else {
             for (let i = 0; i < root.count; ++i) {
-                let movingModelIndex = root.model.index(i)
-                let movingModelValueData = root.model.data(movingModelIndex, root.valueRole)
-                if (movingModelValueData === root.initialModelData) {
+                if (root.valueAt(i) === root.initialModelData) {
                     currentSelectedDataIndex = i
                     break
                 }
@@ -53,14 +51,6 @@ StudioControls.ComboBox {
         root.currentIndex = currentSelectedDataIndex
         if (root.currentIndex === -1)
             root.editText = root.initialModelData
-    }
-
-    function currentData(role = root.valueRole) {
-        if (root.currentIndex !== -1) {
-            let currentModelIndex = root.model.index(root.currentIndex)
-            return root.model.data(currentModelIndex, role)
-        }
-        return root.editText
     }
 
     function availableValue() {
