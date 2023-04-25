@@ -348,7 +348,7 @@ void ItemLibraryWidget::updateModel()
 
 void ItemLibraryWidget::updatePossibleImports(const Imports &possibleImports)
 {
-    m_addModuleModel->update(possibleImports);
+    m_addModuleModel->update(difference(possibleImports, m_model->imports()));
     delayedUpdateModel();
 }
 
