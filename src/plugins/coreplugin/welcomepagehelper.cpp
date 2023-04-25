@@ -158,6 +158,26 @@ void SectionGridView::wheelEvent(QWheelEvent *e)
         GridView::wheelEvent(e);
 }
 
+bool SectionGridView::event(QEvent *e)
+{
+    if (e->type() == QEvent::Resize) {
+        const auto itemsFit = [this](const QSize &size) {
+            const int maxColumns = std::max(size.width() / ListItemDelegate::GridItemWidth, 1);
+            const int maxRows = std::max(size.height() / ListItemDelegate::GridItemHeight, 1);
+            const int maxItems = maxColumns * maxRows;
+            const int items = model()->rowCount();
+            return maxItems >= items;
+        };
+        auto resizeEvent = static_cast<QResizeEvent *>(e);
+        const bool itemsCurrentyFit = itemsFit(size());
+        if (!resizeEvent->oldSize().isValid()
+            || itemsFit(resizeEvent->oldSize()) != itemsCurrentyFit) {
+            emit itemsFitChanged(itemsCurrentyFit);
+        }
+    }
+    return GridView::event(e);
+}
+
 const QSize ListModel::defaultImageSize(214, 160);
 
 ListModel::ListModel(QObject *parent)
@@ -754,7 +774,14 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
 
     using namespace Layouting;
     auto seeAllLink = new QLabel("<a href=\"link\">" + Tr::tr("Show All") + " &gt;</a>", this);
-    seeAllLink->setVisible(gridView->maxRows().has_value());
+    if (gridView->maxRows().has_value()) {
+        seeAllLink->setVisible(true);
+        connect(gridView, &SectionGridView::itemsFitChanged, seeAllLink, [seeAllLink](bool fits) {
+            seeAllLink->setVisible(!fits);
+        });
+    } else {
+        seeAllLink->setVisible(false);
+    }
     connect(seeAllLink, &QLabel::linkActivated, this, [this, section] { zoomInSection(section); });
     QWidget *sectionLabel = Row{section.name, createSeparator(this), seeAllLink, Space(HSpacing)}
                                 .emerge(Layouting::WithoutMargins);

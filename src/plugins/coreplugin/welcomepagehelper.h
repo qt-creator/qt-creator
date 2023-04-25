@@ -48,6 +48,8 @@ protected:
 
 class CORE_EXPORT SectionGridView : public GridView
 {
+    Q_OBJECT
+
 public:
     explicit SectionGridView(QWidget *parent);
 
@@ -58,6 +60,10 @@ public:
     int heightForWidth(int width) const override;
 
     void wheelEvent(QWheelEvent *e) override;
+    bool event(QEvent *e) override;
+
+signals:
+    void itemsFitChanged(bool fit);
 
 private:
     std::optional<int> m_maxRows;
