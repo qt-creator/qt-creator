@@ -1725,7 +1725,7 @@ void QuickfixTest::testGeneric_data()
         << _(R"(const char *str = @"\xc3\xa0""f23\xd0\xb1g\xd0\xb1""1";)")
         << _(R"(const char *str = "àf23бgб1";)");
     QTest::newRow("AddLocalDeclaration_QTCREATORBUG-26004")
-        << CppQuickFixFactoryPtr(new AddLocalDeclaration)
+        << CppQuickFixFactoryPtr(new AddDeclarationForUndeclaredIdentifier)
         << _("void func() {\n"
              "  QStringList list;\n"
              "  @it = list.cbegin();\n"
@@ -3863,7 +3863,7 @@ void QuickfixTest::testInsertMemberFromInitialization()
         CppTestDocument::create("file.h", original, expected)
     });
 
-    InsertMemberFromInitialization factory;
+    AddDeclarationForUndeclaredIdentifier factory;
     QuickFixOperationTest(testDocuments, &factory);
 }
 

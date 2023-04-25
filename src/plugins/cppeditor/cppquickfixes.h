@@ -285,23 +285,6 @@ public:
 };
 
 /*!
-  Rewrites
-    a = foo();
-
-  As
-    Type a = foo();
-
-  Where Type is the return type of foo()
-
-  Activates on: the assignee, if the type of the right-hand side of the assignment is known.
-*/
-class AddLocalDeclaration: public CppQuickFixFactory
-{
-public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
   Add curly braces to a if statement that doesn't already contain a
   compound statement. I.e.
 
@@ -374,16 +357,17 @@ public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
-/*!
-  Adds a class member from an initialization in the constructor.
- */
-class InsertMemberFromInitialization : public CppQuickFixFactory
+class AddDeclarationForUndeclaredIdentifier : public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface,
                TextEditor::QuickFixOperations &result) override;
 
 private:
+    // Returns whether to still do other checks.
+    bool checkForMemberInitializer(const CppQuickFixInterface &interface,
+                                   TextEditor::QuickFixOperations &result);
+
     QString getType(
             const CppQuickFixInterface &interface,
             const CPlusPlus::MemInitializerAST *memInitializer,

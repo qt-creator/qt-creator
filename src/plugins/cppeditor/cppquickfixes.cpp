@@ -1646,42 +1646,6 @@ private:
 
 } // anonymous namespace
 
-void AddLocalDeclaration::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
-{
-    const QList<AST *> &path = interface.path();
-    CppRefactoringFilePtr file = interface.currentFile();
-
-    for (int index = path.size() - 1; index != -1; --index) {
-        if (BinaryExpressionAST *binary = path.at(index)->asBinaryExpression()) {
-            if (binary->left_expression && binary->right_expression
-                    && file->tokenAt(binary->binary_op_token).is(T_EQUAL)) {
-                IdExpressionAST *idExpr = binary->left_expression->asIdExpression();
-                if (interface.isCursorOn(binary->left_expression) && idExpr
-                        && idExpr->name->asSimpleName() != nullptr) {
-                    SimpleNameAST *nameAST = idExpr->name->asSimpleName();
-                    const QList<LookupItem> results = interface.context().lookup(nameAST->name, file->scopeAt(nameAST->firstToken()));
-                    Declaration *decl = nullptr;
-                    for (const LookupItem &r : results) {
-                        if (!r.declaration())
-                            continue;
-                        if (Declaration *d = r.declaration()->asDeclaration()) {
-                            if (!d->type()->asFunctionType()) {
-                                decl = d;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!decl) {
-                        result << new AddLocalDeclarationOp(interface, index, binary, nameAST);
-                        return;
-                    }
-                }
-            }
-        }
-    }
-}
-
 namespace {
 
 class ConvertToCamelCaseOp: public CppQuickFixOperation
@@ -2980,25 +2944,64 @@ private:
     const QString m_type;
 };
 
-void InsertMemberFromInitialization::match(const CppQuickFixInterface &interface,
+void AddDeclarationForUndeclaredIdentifier::match(const CppQuickFixInterface &interface,
                                            QuickFixOperations &result)
 {
-    // First check whether we are on a member initialization.
+    if (!checkForMemberInitializer(interface, result))
+        return;
+
+    const CppRefactoringFilePtr &file = interface.currentFile();
     const QList<AST *> path = interface.path();
+    for (int index = path.size() - 1; index != -1; --index) {
+        if (BinaryExpressionAST *binary = path.at(index)->asBinaryExpression()) {
+            if (binary->left_expression && binary->right_expression
+                && file->tokenAt(binary->binary_op_token).is(T_EQUAL)) {
+                IdExpressionAST *idExpr = binary->left_expression->asIdExpression();
+                if (interface.isCursorOn(binary->left_expression) && idExpr
+                    && idExpr->name->asSimpleName() != nullptr) {
+                    SimpleNameAST *nameAST = idExpr->name->asSimpleName();
+                    const QList<LookupItem> results = interface.context().lookup(
+                        nameAST->name, file->scopeAt(nameAST->firstToken()));
+                    Declaration *decl = nullptr;
+                    for (const LookupItem &r : results) {
+                        if (!r.declaration())
+                            continue;
+                        if (Declaration *d = r.declaration()->asDeclaration()) {
+                            if (!d->type()->asFunctionType()) {
+                                decl = d;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!decl) {
+                        result << new AddLocalDeclarationOp(interface, index, binary, nameAST);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+bool AddDeclarationForUndeclaredIdentifier::checkForMemberInitializer(
+    const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result)
+{
+    const QList<AST *> &path = interface.path();
     const int size = path.size();
     if (size < 4)
-        return;
+        return true;
     const SimpleNameAST * const name = path.at(size - 1)->asSimpleName();
     if (!name)
-        return;
+        return true;
     const MemInitializerAST * const memInitializer = path.at(size - 2)->asMemInitializer();
     if (!memInitializer)
-        return;
+        return true;
     if (!path.at(size - 3)->asCtorInitializer())
-        return;
+        return true;
     const FunctionDefinitionAST * ctor = path.at(size - 4)->asFunctionDefinition();
     if (!ctor)
-        return;
+        return false;
 
     // Now find the class.
     const Class *theClass = nullptr;
@@ -3011,30 +3014,31 @@ void InsertMemberFromInitialization::match(const CppQuickFixInterface &interface
         // Out-of-line constructor. We need to find the class.
         SymbolFinder finder;
         const QList<Declaration *> matches = finder.findMatchingDeclaration(
-                    LookupContext(interface.currentFile()->cppDocument(), interface.snapshot()),
-                    ctor->symbol);
+            LookupContext(interface.currentFile()->cppDocument(), interface.snapshot()),
+            ctor->symbol);
         if (!matches.isEmpty())
             theClass = matches.first()->enclosingClass();
     }
 
     if (!theClass)
-        return;
+        return false;
 
     // Check whether the member exists already.
     if (theClass->find(interface.currentFile()->cppDocument()->translationUnit()->identifier(
-                           name->identifier_token))) {
-        return;
+            name->identifier_token))) {
+        return false;
     }
 
     const QString type = getType(interface, memInitializer, ctor);
     const Identifier * const memberId = interface.currentFile()->cppDocument()
-            ->translationUnit()->identifier(name->identifier_token);
+                                           ->translationUnit()->identifier(name->identifier_token);
     const QString member = QString::fromUtf8(memberId->chars(), memberId->size());
 
     result << new InsertMemberFromInitializationOp(interface, theClass, member, type);
+    return false;
 }
 
-QString InsertMemberFromInitialization::getType(
+QString AddDeclarationForUndeclaredIdentifier::getType(
         const CppQuickFixInterface &interface,
         const MemInitializerAST *memInitializer,
         const FunctionDefinitionAST *ctor) const
@@ -9072,7 +9076,6 @@ void createCppQuickFixes()
     new SplitIfStatement;
     new SplitSimpleDeclaration;
 
-    new AddLocalDeclaration;
     new AddBracesToIf;
     new RearrangeParamDeclarationList;
     new ReformatPointerDeclaration;
@@ -9089,7 +9092,7 @@ void createCppQuickFixes()
     new GenerateGettersSettersForClass;
     new InsertDeclFromDef;
     new InsertDefFromDecl;
-    new InsertMemberFromInitialization;
+    new AddDeclarationForUndeclaredIdentifier;
     new InsertDefsFromDecls;
 
     new MoveFuncDefOutside;
