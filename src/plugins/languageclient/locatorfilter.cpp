@@ -5,23 +5,14 @@
 
 #include "clientrequesttask.h"
 #include "currentdocumentsymbolsrequest.h"
-#include "documentsymbolcache.h"
-#include "languageclient_global.h"
 #include "languageclientmanager.h"
 #include "languageclienttr.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <extensionsystem/pluginmanager.h>
-
-#include <languageserverprotocol/lsptypes.h>
-
-#include <texteditor/textdocument.h>
 
 #include <utils/async.h>
 #include <utils/fuzzymatcher.h>
 
-#include <QFutureWatcher>
 #include <QRegularExpression>
 
 using namespace Core;
@@ -60,7 +51,7 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
     TreeStorage<LocatorStorage> storage;
     TreeStorage<QList<SymbolInformation>> resultStorage;
 
-    const auto onQuerySetup = [=](WorkspaceSymbolRequestTask &request) {
+    const auto onQuerySetup = [storage, client, maxResultCount](WorkspaceSymbolRequestTask &request) {
         request.setClient(client);
         WorkspaceSymbolParams params;
         params.setQuery(storage->input());
@@ -75,7 +66,7 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
             *resultStorage = result->toList();
     };
 
-    const auto onFilterSetup = [=](Async<void> &async) {
+    const auto onFilterSetup = [storage, resultStorage, client, filter](Async<void> &async) {
         const QList<SymbolInformation> results = *resultStorage;
         if (results.isEmpty())
             return TaskAction::StopWithDone;
@@ -131,14 +122,14 @@ LocatorMatcherTask currentDocumentMatcher()
     TreeStorage<LocatorStorage> storage;
     TreeStorage<CurrentDocumentSymbolsData> resultStorage;
 
-    const auto onQuerySetup = [=](CurrentDocumentSymbolsRequest &request) {
+    const auto onQuerySetup = [](CurrentDocumentSymbolsRequest &request) {
         Q_UNUSED(request)
     };
     const auto onQueryDone = [resultStorage](const CurrentDocumentSymbolsRequest &request) {
         *resultStorage = request.currentDocumentSymbolsData();
     };
 
-    const auto onFilterSetup = [=](Async<void> &async) {
+    const auto onFilterSetup = [storage, resultStorage](Async<void> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(filterCurrentResults, *storage, *resultStorage);
     };
@@ -178,7 +169,7 @@ LocatorMatcherTasks languageClientMatchers(MatcherType type, const QList<Client 
     return matchers;
 }
 
-DocumentLocatorFilter::DocumentLocatorFilter()
+LanguageCurrentDocumentFilter::LanguageCurrentDocumentFilter()
 {
     setId(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_DISPLAY_NAME));
@@ -186,64 +177,15 @@ DocumentLocatorFilter::DocumentLocatorFilter()
     setDefaultShortcutString(".");
     setDefaultIncludedByDefault(false);
     setPriority(ILocatorFilter::Low);
-    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
-            this, &DocumentLocatorFilter::updateCurrentClient);
-    connect(LanguageClientManager::instance(), &LanguageClientManager::clientInitialized,
-            this, &DocumentLocatorFilter::updateCurrentClient);
 }
 
-LocatorMatcherTasks DocumentLocatorFilter::matchers()
+LocatorMatcherTasks LanguageCurrentDocumentFilter::matchers()
 {
     return {currentDocumentMatcher()};
 }
 
-void DocumentLocatorFilter::updateCurrentClient()
-{
-    resetSymbols();
-    disconnect(m_resetSymbolsConnection);
-
-    TextEditor::TextDocument *document = TextEditor::TextDocument::currentTextDocument();
-    if (Client *client = LanguageClientManager::clientForDocument(document);
-            client && (client->locatorsEnabled() || m_forced)) {
-
-        setEnabled(!m_forced);
-        if (m_symbolCache != client->documentSymbolCache()) {
-            disconnect(m_updateSymbolsConnection);
-            m_symbolCache = client->documentSymbolCache();
-            m_updateSymbolsConnection = connect(m_symbolCache, &DocumentSymbolCache::gotSymbols,
-                                                this, &DocumentLocatorFilter::updateSymbols);
-        }
-        m_resetSymbolsConnection = connect(document, &IDocument::contentsChanged,
-                                           this, &DocumentLocatorFilter::resetSymbols);
-        m_currentUri = client->hostPathToServerUri(document->filePath());
-        m_pathMapper = client->hostPathMapper();
-    } else {
-        disconnect(m_updateSymbolsConnection);
-        m_symbolCache.clear();
-        m_currentUri.clear();
-        setEnabled(false);
-        m_pathMapper = DocumentUri::PathMapper();
-    }
-}
-
-void DocumentLocatorFilter::updateSymbols(const DocumentUri &uri,
-                                          const DocumentSymbolsResult &symbols)
-{
-    if (uri != m_currentUri)
-        return;
-    QMutexLocker locker(&m_mutex);
-    m_currentSymbols = symbols;
-    emit symbolsUpToDate(QPrivateSignal());
-}
-
-void DocumentLocatorFilter::resetSymbols()
-{
-    QMutexLocker locker(&m_mutex);
-    m_currentSymbols.reset();
-}
-
 static LocatorFilterEntry entryForSymbolInfo(const SymbolInformation &info,
-                                             DocumentUri::PathMapper pathMapper)
+                                             const DocumentUri::PathMapper &pathMapper)
 {
     LocatorFilterEntry entry;
     entry.displayName = info.name();
@@ -305,78 +247,7 @@ Core::LocatorFilterEntries currentDocumentSymbols(const QString &input,
     return {};
 }
 
-void DocumentLocatorFilter::prepareSearch(const QString &/*entry*/)
-{
-    QMutexLocker locker(&m_mutex);
-    m_currentFilePath = m_pathMapper ? m_currentUri.toFilePath(m_pathMapper) : FilePath();
-    if (m_symbolCache && !m_currentSymbols.has_value()) {
-        locker.unlock();
-        m_symbolCache->requestSymbols(m_currentUri, Schedule::Now);
-    }
-}
-
-QList<LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
-    QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
-{
-    const auto docSymbolModifier = [](LocatorFilterEntry &entry, const DocumentSymbol &info,
-                                      const LocatorFilterEntry &parent) {
-        Q_UNUSED(parent)
-        entry.displayName = info.name();
-        if (std::optional<QString> detail = info.detail())
-            entry.extraInfo = *detail;
-    };
-    return matchesForImpl(future, entry, docSymbolModifier);
-}
-
-QList<LocatorFilterEntry> DocumentLocatorFilter::matchesForImpl(
-    QFutureInterface<LocatorFilterEntry> &future, const QString &entry,
-    const DocSymbolModifier &docSymbolModifier)
-{
-    const FuzzyMatcher::CaseSensitivity caseSensitivity
-        = ILocatorFilter::caseSensitivity(entry) == Qt::CaseSensitive
-              ? FuzzyMatcher::CaseSensitivity::CaseSensitive
-              : FuzzyMatcher::CaseSensitivity::CaseInsensitive;
-    const QRegularExpression regExp = FuzzyMatcher::createRegExp(entry, caseSensitivity);
-    if (!regExp.isValid())
-        return {};
-
-    QMutexLocker locker(&m_mutex);
-    if (!m_symbolCache)
-        return {};
-    if (!m_currentSymbols.has_value()) {
-        QEventLoop loop;
-        connect(this, &DocumentLocatorFilter::symbolsUpToDate, &loop, [&] { loop.exit(1); });
-        QFutureWatcher<LocatorFilterEntry> watcher;
-        connect(&watcher, &QFutureWatcher<LocatorFilterEntry>::canceled, &loop, &QEventLoop::quit);
-        watcher.setFuture(future.future());
-        locker.unlock();
-        if (!loop.exec())
-            return {};
-        locker.relock();
-    }
-
-    QTC_ASSERT(m_currentSymbols.has_value(), return {});
-
-    if (auto list = std::get_if<QList<DocumentSymbol>>(&*m_currentSymbols))
-        return entriesForDocSymbols(*list, regExp, m_currentFilePath, docSymbolModifier);
-    else if (auto list = std::get_if<QList<SymbolInformation>>(&*m_currentSymbols))
-        return entriesForSymbolsInfo(*list, regExp, m_pathMapper);
-
-    return {};
-}
-
-WorkspaceLocatorFilter::WorkspaceLocatorFilter()
-    : WorkspaceLocatorFilter(QVector<SymbolKind>())
-{}
-
-LocatorMatcherTasks WorkspaceLocatorFilter::matchers()
-{
-    return languageClientMatchers(MatcherType::AllSymbols,
-        Utils::filtered(LanguageClientManager::clients(), &Client::locatorsEnabled));
-}
-
-WorkspaceLocatorFilter::WorkspaceLocatorFilter(const QVector<SymbolKind> &filter)
-    : m_filterKinds(filter)
+LanguageAllSymbolsFilter::LanguageAllSymbolsFilter()
 {
     setId(Constants::LANGUAGECLIENT_WORKSPACE_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_FILTER_DISPLAY_NAME));
@@ -386,94 +257,13 @@ WorkspaceLocatorFilter::WorkspaceLocatorFilter(const QVector<SymbolKind> &filter
     setPriority(ILocatorFilter::Low);
 }
 
-void WorkspaceLocatorFilter::prepareSearch(const QString &entry)
+LocatorMatcherTasks LanguageAllSymbolsFilter::matchers()
 {
-    prepareSearchForClients(entry, Utils::filtered(LanguageClientManager::clients(),
-                                                   &Client::locatorsEnabled));
+    return languageClientMatchers(MatcherType::AllSymbols,
+        Utils::filtered(LanguageClientManager::clients(), &Client::locatorsEnabled));
 }
 
-void WorkspaceLocatorFilter::prepareSearchForClients(const QString &entry,
-                                                     const QList<Client *> &clients)
-{
-    m_pendingRequests.clear();
-    m_results.clear();
-
-    if (clients.isEmpty())
-        return;
-
-    WorkspaceSymbolParams params;
-    params.setQuery(entry);
-    if (m_maxResultCount > 0)
-        params.setLimit(m_maxResultCount);
-
-    QMutexLocker locker(&m_mutex);
-    for (auto client : std::as_const(clients)) {
-        if (!client->reachable())
-            continue;
-        std::optional<std::variant<bool, WorkDoneProgressOptions>> capability
-            = client->capabilities().workspaceSymbolProvider();
-        if (!capability.has_value())
-            continue;
-        if (std::holds_alternative<bool>(*capability) && !std::get<bool>(*capability))
-            continue;
-        WorkspaceSymbolRequest request(params);
-        request.setResponseCallback(
-            [this, client](const WorkspaceSymbolRequest::Response &response) {
-                handleResponse(client, response);
-            });
-        m_pendingRequests[client] = request.id();
-        client->sendMessage(request);
-    }
-}
-
-QList<LocatorFilterEntry> WorkspaceLocatorFilter::matchesFor(
-    QFutureInterface<LocatorFilterEntry> &future, const QString & /*entry*/)
-{
-    QMutexLocker locker(&m_mutex);
-    if (!m_pendingRequests.isEmpty()) {
-        QEventLoop loop;
-        connect(this, &WorkspaceLocatorFilter::allRequestsFinished, &loop, [&] { loop.exit(1); });
-        QFutureWatcher<LocatorFilterEntry> watcher;
-        connect(&watcher,
-                &QFutureWatcher<LocatorFilterEntry>::canceled,
-                &loop,
-                &QEventLoop::quit);
-        watcher.setFuture(future.future());
-        locker.unlock();
-        if (!loop.exec())
-            return {};
-
-        locker.relock();
-    }
-
-    if (!m_filterKinds.isEmpty()) {
-        m_results = Utils::filtered(m_results, [&](const SymbolInfoWithPathMapper &info) {
-            return m_filterKinds.contains(SymbolKind(info.symbol.kind()));
-        });
-    }
-    auto generateEntry = [](const SymbolInfoWithPathMapper &info) {
-        return entryForSymbolInfo(info.symbol, info.mapper);
-    };
-    return Utils::transform(m_results, generateEntry).toList();
-}
-
-void WorkspaceLocatorFilter::handleResponse(Client *client,
-                                            const WorkspaceSymbolRequest::Response &response)
-{
-    QMutexLocker locker(&m_mutex);
-    m_pendingRequests.remove(client);
-    auto result = response.result().value_or(LanguageClientArray<SymbolInformation>());
-    if (!result.isNull())
-        m_results.append(
-            Utils::transform(result.toList(), [client](const SymbolInformation &info) {
-                return SymbolInfoWithPathMapper{info, client->hostPathMapper()};
-            }));
-    if (m_pendingRequests.isEmpty())
-        emit allRequestsFinished(QPrivateSignal());
-}
-
-WorkspaceClassLocatorFilter::WorkspaceClassLocatorFilter()
-    : WorkspaceLocatorFilter({SymbolKind::Class, SymbolKind::Struct})
+LanguageClassesFilter::LanguageClassesFilter()
 {
     setId(Constants::LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_DISPLAY_NAME));
@@ -481,14 +271,13 @@ WorkspaceClassLocatorFilter::WorkspaceClassLocatorFilter()
     setDefaultShortcutString("c");
 }
 
-LocatorMatcherTasks WorkspaceClassLocatorFilter::matchers()
+LocatorMatcherTasks LanguageClassesFilter::matchers()
 {
     return languageClientMatchers(MatcherType::Classes,
         Utils::filtered(LanguageClientManager::clients(), &Client::locatorsEnabled));
 }
 
-WorkspaceMethodLocatorFilter::WorkspaceMethodLocatorFilter()
-    : WorkspaceLocatorFilter({SymbolKind::Method, SymbolKind::Function, SymbolKind::Constructor})
+LanguageFunctionsFilter::LanguageFunctionsFilter()
 {
     setId(Constants::LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_DISPLAY_NAME));
@@ -496,7 +285,7 @@ WorkspaceMethodLocatorFilter::WorkspaceMethodLocatorFilter()
     setDefaultShortcutString("m");
 }
 
-LocatorMatcherTasks WorkspaceMethodLocatorFilter::matchers()
+LocatorMatcherTasks LanguageFunctionsFilter::matchers()
 {
     return languageClientMatchers(MatcherType::Functions,
         Utils::filtered(LanguageClientManager::clients(), &Client::locatorsEnabled));

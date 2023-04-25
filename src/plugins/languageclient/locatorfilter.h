@@ -3,22 +3,15 @@
 
 #pragma once
 
-#include "client.h"
 #include "languageclient_global.h"
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
-#include <languageserverprotocol/languagefeatures.h>
-#include <languageserverprotocol/lsptypes.h>
-#include <languageserverprotocol/workspace.h>
-
-#include <QPointer>
-#include <QVector>
-
-namespace Core { class IEditor; }
+namespace LanguageServerProtocol { class DocumentSymbol; };
 
 namespace LanguageClient {
 
+class Client;
 class CurrentDocumentSymbolsData;
 
 using DocSymbolModifier = std::function<void(Core::LocatorFilterEntry &,
@@ -30,100 +23,37 @@ Core::LocatorFilterEntries LANGUAGECLIENT_EXPORT currentDocumentSymbols(const QS
 Core::LocatorMatcherTasks LANGUAGECLIENT_EXPORT languageClientMatchers(
     Core::MatcherType type, const QList<Client *> &clients = {}, int maxResultCount = 0);
 
-class LanguageClientManager;
-
-class LANGUAGECLIENT_EXPORT DocumentLocatorFilter : public Core::ILocatorFilter
-{
-    Q_OBJECT
-public:
-    DocumentLocatorFilter();
-
-    void prepareSearch(const QString &entry) override;
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
-signals:
-    void symbolsUpToDate(QPrivateSignal);
-
-protected:
-    void forceUse() { m_forced = true; }
-
-    Utils::FilePath m_currentFilePath;
-
-    QList<Core::LocatorFilterEntry> matchesForImpl(
-        QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry,
-        const DocSymbolModifier &docSymbolModifier);
-
-private:
-    Core::LocatorMatcherTasks matchers() final;
-    void updateCurrentClient();
-    void updateSymbols(const LanguageServerProtocol::DocumentUri &uri,
-                       const LanguageServerProtocol::DocumentSymbolsResult &symbols);
-    void resetSymbols();
-
-    QMutex m_mutex;
-    QMetaObject::Connection m_updateSymbolsConnection;
-    QMetaObject::Connection m_resetSymbolsConnection;
-    std::optional<LanguageServerProtocol::DocumentSymbolsResult> m_currentSymbols;
-    LanguageServerProtocol::DocumentUri::PathMapper m_pathMapper;
-    bool m_forced = false;
-    QPointer<DocumentSymbolCache> m_symbolCache;
-    LanguageServerProtocol::DocumentUri m_currentUri;
-};
-
-class LANGUAGECLIENT_EXPORT WorkspaceLocatorFilter : public Core::ILocatorFilter
-{
-    Q_OBJECT
-public:
-    WorkspaceLocatorFilter();
-
-    /// request workspace symbols for all clients with enabled locator
-    void prepareSearch(const QString &entry) override;
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
-signals:
-    void allRequestsFinished(QPrivateSignal);
-
-protected:
-    explicit WorkspaceLocatorFilter(const QVector<LanguageServerProtocol::SymbolKind> &filter);
-
-    /// force request workspace symbols for all given clients
-    void prepareSearchForClients(const QString &entry, const QList<Client *> &clients);
-    void setMaxResultCount(qint64 limit) { m_maxResultCount = limit; }
-
-private:
-    Core::LocatorMatcherTasks matchers() override;
-    void handleResponse(Client *client,
-                        const LanguageServerProtocol::WorkspaceSymbolRequest::Response &response);
-
-    QMutex m_mutex;
-
-    struct SymbolInfoWithPathMapper
-    {
-        LanguageServerProtocol::SymbolInformation symbol;
-        LanguageServerProtocol::DocumentUri::PathMapper mapper;
-    };
-
-    QMap<Client *, LanguageServerProtocol::MessageId> m_pendingRequests;
-    QVector<SymbolInfoWithPathMapper> m_results;
-    QVector<LanguageServerProtocol::SymbolKind> m_filterKinds;
-    qint64 m_maxResultCount = 0;
-};
-
-// TODO: Don't derive, flatten the hierarchy
-class LANGUAGECLIENT_EXPORT WorkspaceClassLocatorFilter : public WorkspaceLocatorFilter
+class LanguageAllSymbolsFilter : public Core::ILocatorFilter
 {
 public:
-    WorkspaceClassLocatorFilter();
+    LanguageAllSymbolsFilter();
 
 private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-// TODO: Don't derive, flatten the hierarchy
-class LANGUAGECLIENT_EXPORT WorkspaceMethodLocatorFilter : public WorkspaceLocatorFilter
+class LanguageClassesFilter : public Core::ILocatorFilter
 {
 public:
-    WorkspaceMethodLocatorFilter();
+    LanguageClassesFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
+};
+
+class LanguageFunctionsFilter : public Core::ILocatorFilter
+{
+public:
+    LanguageFunctionsFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
+};
+
+class LanguageCurrentDocumentFilter : public Core::ILocatorFilter
+{
+public:
+    LanguageCurrentDocumentFilter();
 
 private:
     Core::LocatorMatcherTasks matchers() final;

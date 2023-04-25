@@ -30,7 +30,6 @@
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
-#include <QTextBlock>
 #include <QTimer>
 
 using namespace LanguageServerProtocol;
@@ -44,10 +43,10 @@ static bool g_shuttingDown = false;
 
 class LanguageClientManagerPrivate
 {
-    DocumentLocatorFilter m_currentDocumentLocatorFilter;
-    WorkspaceLocatorFilter m_workspaceLocatorFilter;
-    WorkspaceClassLocatorFilter m_workspaceClassLocatorFilter;
-    WorkspaceMethodLocatorFilter m_workspaceMethodLocatorFilter;
+    LanguageCurrentDocumentFilter m_currentDocumentFilter;
+    LanguageAllSymbolsFilter m_allSymbolsFilter;
+    LanguageClassesFilter m_classFilter;
+    LanguageFunctionsFilter m_functionFilter;
 };
 
 LanguageClientManager::LanguageClientManager(QObject *parent)
