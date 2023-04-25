@@ -264,6 +264,9 @@
                 \li \l{Converting UI Projects to Applications}
                 \li \l{Using External Tools}
                 \li \l{\QDS on MCUs}
+                    \list
+                        \li \l {\QDS Version Compatibility with \QMCU SDKs}
+                    \endlist
             \endlist
         \li \l Help
             \list
