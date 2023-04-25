@@ -20,6 +20,7 @@ QT_BEGIN_NAMESPACE
 class QLayout;
 class QSplitter;
 class QTabWidget;
+class QTextEdit;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -153,6 +154,12 @@ class QTCREATOR_UTILS_EXPORT Group : public LayoutItem
 {
 public:
     Group(std::initializer_list<LayoutItem> items);
+};
+
+class QTCREATOR_UTILS_EXPORT TextEdit : public LayoutItem
+{
+public:
+    TextEdit(std::initializer_list<LayoutItem> items);
 };
 
 class QTCREATOR_UTILS_EXPORT PushButton : public LayoutItem

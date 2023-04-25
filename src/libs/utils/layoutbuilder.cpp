@@ -15,6 +15,7 @@
 #include <QSplitter>
 #include <QStyle>
 #include <QTabWidget>
+#include <QTextEdit>
 
 namespace Layouting {
 
@@ -442,6 +443,12 @@ PushButton::PushButton(std::initializer_list<LayoutItem> items)
     applyItems(widget, items);
 }
 
+TextEdit::TextEdit(std::initializer_list<LayoutItem> items)
+{
+    widget = new QTextEdit;
+    applyItems(widget, items);
+}
+
 Splitter::Splitter(std::initializer_list<LayoutItem> items)
     : Splitter(new QSplitter(Qt::Vertical), items) {}
 
@@ -497,6 +504,8 @@ LayoutItem::Setter text(const QString &text)
     return [text](QObject *target) {
         if (auto button = qobject_cast<QAbstractButton *>(target)) {
             button->setText(text);
+        } else if (auto textEdit = qobject_cast<QTextEdit *>(target)) {
+            textEdit->setText(text);
         } else {
             QTC_CHECK(false);
         }
