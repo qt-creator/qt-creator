@@ -149,7 +149,7 @@ protected:
     QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
         storage};
-    QmlDesigner::QmlTypesParser parser{sourcePathCache, storage};
+    QmlDesigner::QmlTypesParser parser{storage};
     Storage::Imports imports;
     Storage::Types types;
     SourceId qmltypesFileSourceId{sourcePathCache.sourceId("path/to/types.qmltypes")};
