@@ -13,12 +13,13 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <texteditor/textdocument.h>
 
 #include <utils/asynctask.h>
 #include <utils/differ.h>
 #include <utils/fileutils.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -114,8 +115,9 @@ DiffFilesController::DiffFilesController(IDocument *document)
         QList<std::optional<FileData>> *outputList = storage.activeStorage();
 
         const auto setupDiff = [this](AsyncTask<FileData> &async, const ReloadInput &reloadInput) {
-            async.setConcurrentCallData(DiffFile(ignoreWhitespace(), contextLineCount()), reloadInput);
-            async.setFutureSynchronizer(Internal::DiffEditorPlugin::futureSynchronizer());
+            async.setConcurrentCallData(
+                DiffFile(ignoreWhitespace(), contextLineCount()), reloadInput);
+            async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         };
         const auto onDiffDone = [outputList](const AsyncTask<FileData> &async, int i) {
             if (async.isResultAvailable())
@@ -415,12 +417,10 @@ public:
 
     DiffEditorFactory m_editorFactory;
     DiffEditorServiceImpl m_service;
-    FutureSynchronizer m_futureSynchronizer;
 };
 
 DiffEditorPluginPrivate::DiffEditorPluginPrivate()
 {
-    m_futureSynchronizer.setCancelOnWait(true);
     //register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     toolsContainer->insertGroup(Core::Constants::G_TOOLS_DEBUG, Constants::G_TOOLS_DIFF);
@@ -533,12 +533,6 @@ DiffEditorPlugin::~DiffEditorPlugin()
 void DiffEditorPlugin::initialize()
 {
     d = new DiffEditorPluginPrivate;
-}
-
-FutureSynchronizer *DiffEditorPlugin::futureSynchronizer()
-{
-    QTC_ASSERT(s_instance, return nullptr);
-    return &s_instance->d->m_futureSynchronizer;
 }
 
 } // namespace Internal

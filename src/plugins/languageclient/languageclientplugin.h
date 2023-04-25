@@ -8,8 +8,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <utils/futuresynchronizer.h>
-
 namespace LanguageClient {
 
 class LanguageClientPlugin : public ExtensionSystem::IPlugin
@@ -21,7 +19,6 @@ public:
     ~LanguageClientPlugin() override;
 
     static LanguageClientPlugin *instance();
-    static Utils::FutureSynchronizer *futureSynchronizer();
 
     // IPlugin interface
 private:
@@ -32,7 +29,6 @@ private:
 private:
     LanguageClientOutlineWidgetFactory m_outlineFactory;
     CallHierarchyFactory m_callHierarchyFactory;
-    Utils::FutureSynchronizer m_futureSynchronizer;
 
 #ifdef WITH_TESTS
 private slots:

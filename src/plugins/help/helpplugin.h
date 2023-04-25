@@ -10,8 +10,6 @@ QT_BEGIN_NAMESPACE
 class QUrl;
 QT_END_NAMESPACE
 
-namespace Utils { class FutureSynchronizer; }
-
 namespace Help {
 namespace Internal {
 
@@ -32,7 +30,6 @@ public:
                                          const QString &key);
     static HelpViewer *createHelpViewer();
     static HelpWidget *modeHelpWidget();
-    static Utils::FutureSynchronizer *futureSynchronizer();
 
 private:
     void initialize() final;

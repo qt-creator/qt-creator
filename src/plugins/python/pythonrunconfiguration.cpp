@@ -9,13 +9,14 @@
 #include "pysideuicextracompiler.h"
 #include "pythonconstants.h"
 #include "pythonlanguageclient.h"
-#include "pythonplugin.h"
 #include "pythonproject.h"
 #include "pythonsettings.h"
 #include "pythontr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <languageclient/languageclientmanager.h>
 
@@ -248,7 +249,7 @@ void PythonRunConfigurationPrivate::checkForPySide(const FilePath &python,
     });
     const auto future = Pip::instance(python)->info(package);
     m_watcher.setFuture(future);
-    PythonPlugin::futureSynchronizer()->addFuture(future);
+    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
 }
 
 void PythonRunConfigurationPrivate::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,

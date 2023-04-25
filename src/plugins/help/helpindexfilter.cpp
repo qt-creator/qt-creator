@@ -97,7 +97,7 @@ LocatorMatcherTasks HelpIndexFilter::matchers()
         }
         const QStringList cache = m_lastEntry.isEmpty() || !storage->input().contains(m_lastEntry)
                                       ? m_allIndicesCache : m_lastIndicesCache;
-        async.setFutureSynchronizer(HelpPlugin::futureSynchronizer());
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matches, *storage, cache, m_icon);
     };
     const auto onDone = [this, storage](const AsyncTask<QStringList> &async) {

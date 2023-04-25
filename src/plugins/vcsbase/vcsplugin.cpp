@@ -23,7 +23,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 
-#include <utils/futuresynchronizer.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -41,7 +40,6 @@ class VcsPluginPrivate
 public:
     CommonOptionsPage m_settingsPage;
     QStandardItemModel *m_nickNameModel = nullptr;
-    FutureSynchronizer m_futureSynchronizer;
 };
 
 static VcsPlugin *m_instance = nullptr;
@@ -121,12 +119,6 @@ VcsPlugin *VcsPlugin::instance()
 CommonVcsSettings &VcsPlugin::settings() const
 {
     return d->m_settingsPage.settings();
-}
-
-FutureSynchronizer *VcsPlugin::futureSynchronizer()
-{
-    QTC_ASSERT(m_instance, return nullptr);
-    return &m_instance->d->m_futureSynchronizer;
 }
 
 /* Delayed creation/update of the nick name model. */

@@ -3,12 +3,13 @@
 
 #include "filesystemfilter.h"
 
-#include "../coreplugin.h"
 #include "../coreplugintr.h"
 #include "../documentmanager.h"
 #include "../editormanager/editormanager.h"
 #include "../icore.h"
 #include "../vcsmanager.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/asynctask.h>
 #include <utils/algorithm.h>
@@ -273,7 +274,7 @@ LocatorMatcherTasks FileSystemFilter::matchers()
     TreeStorage<LocatorStorage> storage;
 
     const auto onSetup = [this, storage](AsyncTask<void> &async) {
-        async.setFutureSynchronizer(CorePlugin::futureSynchronizer());
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matches,
                                     *storage,
                                     shortcutString(),

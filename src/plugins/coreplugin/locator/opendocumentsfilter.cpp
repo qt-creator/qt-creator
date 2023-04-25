@@ -3,8 +3,9 @@
 
 #include "opendocumentsfilter.h"
 
-#include "../coreplugin.h"
 #include "../coreplugintr.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/asynctask.h>
@@ -81,7 +82,7 @@ LocatorMatcherTasks OpenDocumentsFilter::matchers()
     const auto onSetup = [storage](AsyncTask<void> &async) {
         const QList<Entry> editorsData = Utils::transform(DocumentModel::entries(),
             [](const DocumentModel::Entry *e) { return Entry{e->filePath(), e->displayName()}; });
-        async.setFutureSynchronizer(CorePlugin::futureSynchronizer());
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matchEditors, *storage, editorsData);
     };
 

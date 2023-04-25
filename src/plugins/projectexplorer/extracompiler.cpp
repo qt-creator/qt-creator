@@ -11,6 +11,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/asynctask.h>
 #include <utils/expected.h>
 #include <utils/guard.h>
@@ -45,7 +47,6 @@ public:
 
     QTimer timer;
 
-    FutureSynchronizer m_futureSynchronizer;
     std::unique_ptr<TaskTree> m_taskTree;
 };
 
@@ -291,11 +292,6 @@ Environment ExtraCompiler::buildEnvironment() const
     return env;
 }
 
-FutureSynchronizer *ExtraCompiler::futureSynchronizer() const
-{
-    return &d->m_futureSynchronizer;
-}
-
 void ExtraCompiler::setContent(const FilePath &file, const QByteArray &contents)
 {
     qCDebug(log).noquote() << Q_FUNC_INFO << contents;
@@ -333,9 +329,9 @@ Tasking::TaskItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &prov
 {
     const auto setupTask = [=](AsyncTask<FileNameToContentsHash> &async) {
         async.setThreadPool(extraCompilerThreadPool());
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&ProcessExtraCompiler::runInThread, this, command(),
                                     workingDirectory(), arguments(), provider, buildEnvironment());
-        async.setFutureSynchronizer(futureSynchronizer());
     };
     const auto taskDone = [=](const AsyncTask<FileNameToContentsHash> &async) {
         if (!async.isResultAvailable())

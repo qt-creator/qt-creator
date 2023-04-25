@@ -85,7 +85,6 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
@@ -199,7 +198,6 @@ public:
     ClangdSettingsPage *m_clangdSettingsPage = nullptr;
     CppCodeStyleSettingsPage m_cppCodeStyleSettingsPage;
     CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
-    FutureSynchronizer m_futureSynchronizer;
 };
 
 static CppEditorPlugin *m_instance = nullptr;
@@ -631,12 +629,6 @@ QString CppEditorPlugin::licenseTemplate()
 bool CppEditorPlugin::usePragmaOnce()
 {
     return m_instance->d->m_fileSettings.headerPragmaOnce;
-}
-
-FutureSynchronizer *CppEditorPlugin::futureSynchronizer()
-{
-    QTC_ASSERT(m_instance, return nullptr);
-    return &m_instance->d->m_futureSynchronizer;
 }
 
 const QStringList &CppEditorPlugin::headerSearchPaths()

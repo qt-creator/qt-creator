@@ -43,7 +43,6 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -143,7 +142,6 @@ public:
     LocalHelpManager m_localHelpManager;
 
     HelpIndexFilter helpIndexFilter;
-    FutureSynchronizer m_futureSynchronizer;
 };
 
 static HelpPluginPrivate *dd = nullptr;
@@ -395,12 +393,6 @@ HelpViewer *HelpPlugin::createHelpViewer()
 HelpWidget *HelpPlugin::modeHelpWidget()
 {
     return dd->m_centralWidget;
-}
-
-FutureSynchronizer *HelpPlugin::futureSynchronizer()
-{
-    QTC_ASSERT(dd, return nullptr);
-    return &dd->m_futureSynchronizer;
 }
 
 void HelpPluginPrivate::showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links, const QString &key)

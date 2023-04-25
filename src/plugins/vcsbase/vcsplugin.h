@@ -11,8 +11,6 @@ QT_BEGIN_NAMESPACE
 class QStandardItemModel;
 QT_END_NAMESPACE
 
-namespace Utils { class FutureSynchronizer; }
-
 namespace VcsBase {
 
 class VcsBaseSubmitEditor;
@@ -35,8 +33,6 @@ public:
     static VcsPlugin *instance();
 
     CommonVcsSettings &settings() const;
-
-    static Utils::FutureSynchronizer *futureSynchronizer();
 
     // Model of user nick names used for the submit
     // editor. Stored centrally here to achieve delayed

@@ -6,8 +6,6 @@
 #include <coreplugin/diffservice.h>
 #include <extensionsystem/iplugin.h>
 
-namespace Utils { class FutureSynchronizer; }
-
 namespace DiffEditor {
 namespace Internal {
 
@@ -33,8 +31,6 @@ public:
     ~DiffEditorPlugin();
 
     void initialize() final;
-
-    static Utils::FutureSynchronizer *futureSynchronizer();
 
 private:
     class DiffEditorPluginPrivate *d = nullptr;

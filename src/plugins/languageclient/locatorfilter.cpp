@@ -8,10 +8,11 @@
 #include "documentsymbolcache.h"
 #include "languageclient_global.h"
 #include "languageclientmanager.h"
-#include "languageclientplugin.h"
 #include "languageclienttr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <languageserverprotocol/lsptypes.h>
 
@@ -78,7 +79,7 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
         const QList<SymbolInformation> results = *resultStorage;
         if (results.isEmpty())
             return TaskAction::StopWithDone;
-        async.setFutureSynchronizer(LanguageClientPlugin::futureSynchronizer());
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(filterResults, *storage, client, results, filter);
         return TaskAction::Continue;
     };
@@ -138,7 +139,7 @@ LocatorMatcherTask currentDocumentMatcher()
     };
 
     const auto onFilterSetup = [=](AsyncTask<void> &async) {
-        async.setFutureSynchronizer(LanguageClientPlugin::futureSynchronizer());
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(filterCurrentResults, *storage, *resultStorage);
     };
 

@@ -3,8 +3,9 @@
 
 #include "ilocatorfilter.h"
 
-#include "../coreplugin.h"
 #include "../coreplugintr.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/asynctask.h>
 #include <utils/fuzzymatcher.h>
@@ -273,7 +274,7 @@ ResultsCollector::~ResultsCollector()
         return;
 
     m_deduplicator->cancel();
-    Internal::CorePlugin::futureSynchronizer()->addFuture(m_watcher->future());
+    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_watcher->future());
 }
 
 void ResultsCollector::setFilterCount(int count)

@@ -5,11 +5,12 @@
 
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
-#include "diffeditorplugin.h"
 #include "diffeditortr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
@@ -452,7 +453,7 @@ void UnifiedDiffEditorWidget::showDiff()
     }
 
     m_asyncTask.reset(new AsyncTask<UnifiedShowResult>());
-    m_asyncTask->setFutureSynchronizer(DiffEditorPlugin::futureSynchronizer());
+    m_asyncTask->setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     m_controller.setBusyShowing(true);
     connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {
         if (m_asyncTask->isCanceled() || !m_asyncTask->isResultAvailable()) {

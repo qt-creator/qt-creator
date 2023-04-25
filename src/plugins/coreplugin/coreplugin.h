@@ -8,7 +8,6 @@
 
 #include <extensionsystem/iplugin.h>
 #include <utils/environment.h>
-#include <utils/futuresynchronizer.h>
 
 QT_BEGIN_NAMESPACE
 class QMenu;
@@ -47,7 +46,6 @@ public:
                            const QString &workingDirectory,
                            const QStringList &args) override;
 
-    static Utils::FutureSynchronizer *futureSynchronizer();
     static Utils::Environment startupSystemEnvironment();
     static Utils::EnvironmentItems environmentChanges();
     static void setEnvironmentChanges(const Utils::EnvironmentItems &changes);
@@ -79,7 +77,6 @@ private:
     FolderNavigationWidgetFactory *m_folderNavigationWidgetFactory = nullptr;
     Utils::Environment m_startupSystemEnvironment;
     Utils::EnvironmentItems m_environmentChanges;
-    Utils::FutureSynchronizer m_futureSynchronizer;
 };
 
 } // namespace Internal

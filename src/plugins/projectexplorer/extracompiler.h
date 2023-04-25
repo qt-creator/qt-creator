@@ -25,10 +25,7 @@ class QPromise;
 class QThreadPool;
 QT_END_NAMESPACE
 
-namespace Utils {
-class FutureSynchronizer;
-class QtcProcess;
-}
+namespace Utils { class QtcProcess; }
 
 namespace ProjectExplorer {
 
@@ -64,7 +61,6 @@ signals:
 protected:
     static QThreadPool *extraCompilerThreadPool();
 
-    Utils::FutureSynchronizer *futureSynchronizer() const;
     void setContent(const Utils::FilePath &file, const QByteArray &content);
     void updateCompileTime();
     Utils::Environment buildEnvironment() const;

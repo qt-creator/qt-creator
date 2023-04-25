@@ -5,13 +5,14 @@
 
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
-#include "diffeditorplugin.h"
 #include "diffeditortr.h"
 
 #include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
@@ -869,7 +870,7 @@ void SideBySideDiffEditorWidget::restoreState()
 void SideBySideDiffEditorWidget::showDiff()
 {
     m_asyncTask.reset(new AsyncTask<SideBySideShowResults>());
-    m_asyncTask->setFutureSynchronizer(DiffEditorPlugin::futureSynchronizer());
+    m_asyncTask->setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     m_controller.setBusyShowing(true);
 
     connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {

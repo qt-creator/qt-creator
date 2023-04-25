@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "vcsbasediffeditorcontroller.h"
-#include "vcsplugin.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/asynctask.h>
 #include <utils/environment.h>
@@ -52,8 +53,8 @@ Tasking::TaskItem VcsBaseDiffEditorController::postProcessTask()
         QTC_ASSERT(storage, qWarning("Using postProcessTask() requires putting inputStorage() "
                                      "into task tree's root group."));
         const QString inputData = storage ? *storage : QString();
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&DiffUtils::readPatchWithPromise, inputData);
-        async.setFutureSynchronizer(Internal::VcsPlugin::futureSynchronizer());
     };
     const auto onDiffProcessorDone = [this](const AsyncTask<QList<FileData>> &async) {
         setDiffFiles(async.isResultAvailable() ? async.result() : QList<FileData>());

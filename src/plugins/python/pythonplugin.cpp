@@ -18,7 +18,6 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/theme/theme.h>
 
 using namespace ProjectExplorer;
@@ -38,7 +37,6 @@ public:
     PySideBuildConfigurationFactory buildConfigFactory;
     SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
     PythonSettings settings;
-    FutureSynchronizer m_futureSynchronizer;
 };
 
 PythonPlugin::PythonPlugin()
@@ -55,12 +53,6 @@ PythonPlugin::~PythonPlugin()
 PythonPlugin *PythonPlugin::instance()
 {
     return m_instance;
-}
-
-FutureSynchronizer *PythonPlugin::futureSynchronizer()
-{
-    QTC_ASSERT(m_instance, return nullptr);
-    return &m_instance->d->m_futureSynchronizer;
 }
 
 void PythonPlugin::initialize()
