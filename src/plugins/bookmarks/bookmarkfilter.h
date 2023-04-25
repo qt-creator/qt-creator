@@ -12,16 +12,13 @@ class BookmarkManager;
 class BookmarkFilter : public Core::ILocatorFilter
 {
 public:
-    explicit BookmarkFilter(BookmarkManager *manager);
-    void prepareSearch(const QString &entry) override;
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
+    BookmarkFilter(BookmarkManager *manager);
+
 private:
     Core::LocatorMatcherTasks matchers() final;
     Core::LocatorFilterEntries match(const QString &input) const;
 
     BookmarkManager *m_manager = nullptr; // not owned
-    QList<Core::LocatorFilterEntry> m_results;
 };
 
 } // Bookmarks::Internal

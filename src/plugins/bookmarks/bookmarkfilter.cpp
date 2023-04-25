@@ -112,17 +112,4 @@ LocatorFilterEntries BookmarkFilter::match(const QString &input) const
     return entries;
 }
 
-void BookmarkFilter::prepareSearch(const QString &entry)
-{
-    m_results = match(entry);
-}
-
-QList<LocatorFilterEntry> BookmarkFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
-                                                     const QString &entry)
-{
-    Q_UNUSED(future)
-    Q_UNUSED(entry)
-    return m_results;
-}
-
 } // Bookmarks::Internal
