@@ -30,7 +30,7 @@ bool ResultData::operator==(const ResultData &other) const
     return textColumn1 == other.textColumn1 && textColumn2 == other.textColumn2 && highlightEqual;
 }
 
-ResultData::ResultDataList ResultData::fromFilterEntryList(const QList<LocatorFilterEntry> &entries)
+ResultData::ResultDataList ResultData::fromFilterEntryList(const LocatorFilterEntries &entries)
 {
     ResultDataList result;
     for (const LocatorFilterEntry &entry : entries) {

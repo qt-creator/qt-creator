@@ -21,7 +21,7 @@ public:
 
     bool operator==(const ResultData &other) const;
 
-    static ResultDataList fromFilterEntryList(const QList<LocatorFilterEntry> &entries);
+    static ResultDataList fromFilterEntryList(const LocatorFilterEntries &entries);
 
     /// For debugging and creating reference data
     static void printFilterEntries(const ResultDataList &entries, const QString &msg = QString());

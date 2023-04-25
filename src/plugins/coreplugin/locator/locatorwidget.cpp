@@ -57,8 +57,8 @@ public:
 
     LocatorModel(QObject *parent = nullptr)
         : QAbstractListModel(parent)
-        , mBackgroundColor(Utils::creatorTheme()->color(Utils::Theme::TextColorHighlightBackground))
-        , mForegroundColor(Utils::creatorTheme()->color(Utils::Theme::TextColorNormal))
+        , m_backgroundColor(Utils::creatorTheme()->color(Utils::Theme::TextColorHighlightBackground))
+        , m_foregroundColor(Utils::creatorTheme()->color(Utils::Theme::TextColorNormal))
     {}
 
     void clear();
@@ -66,13 +66,13 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    void addEntries(const QList<LocatorFilterEntry> &entries);
+    void addEntries(const LocatorFilterEntries &entries);
 
 private:
-    mutable QList<LocatorFilterEntry> mEntries;
-    bool hasExtraInfo = false;
-    QColor mBackgroundColor;
-    QColor mForegroundColor;
+    mutable LocatorFilterEntries m_entries;
+    bool m_hasExtraInfo = false;
+    QColor m_backgroundColor;
+    QColor m_foregroundColor;
 };
 
 class CompletionDelegate : public HighlightingItemDelegate
@@ -134,8 +134,8 @@ protected:
 void LocatorModel::clear()
 {
     beginResetModel();
-    mEntries.clear();
-    hasExtraInfo = false;
+    m_entries.clear();
+    m_hasExtraInfo = false;
     endResetModel();
 }
 
@@ -143,30 +143,30 @@ int LocatorModel::rowCount(const QModelIndex & parent) const
 {
     if (parent.isValid())
         return 0;
-    return mEntries.size();
+    return m_entries.size();
 }
 
 int LocatorModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return hasExtraInfo ? ColumnCount : 1;
+    return m_hasExtraInfo ? ColumnCount : 1;
 }
 
 QVariant LocatorModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= mEntries.size())
+    if (!index.isValid() || index.row() >= m_entries.size())
         return QVariant();
 
     switch (role) {
     case Qt::DisplayRole:
         if (index.column() == DisplayNameColumn)
-            return mEntries.at(index.row()).displayName;
+            return m_entries.at(index.row()).displayName;
         else if (index.column() == ExtraInfoColumn)
-            return mEntries.at(index.row()).extraInfo;
+            return m_entries.at(index.row()).extraInfo;
         break;
     case Qt::ToolTipRole: {
-        const LocatorFilterEntry &entry = mEntries.at(index.row());
+        const LocatorFilterEntry &entry = m_entries.at(index.row());
         QString toolTip = entry.displayName;
         if (!entry.extraInfo.isEmpty())
             toolTip += "\n\n" + entry.extraInfo;
@@ -176,7 +176,7 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
     }
     case Qt::DecorationRole:
         if (index.column() == DisplayNameColumn) {
-            LocatorFilterEntry &entry = mEntries[index.row()];
+            LocatorFilterEntry &entry = m_entries[index.row()];
             if (!entry.displayIcon && !entry.filePath.isEmpty())
                 entry.displayIcon = FileIconProvider::icon(entry.filePath);
             return entry.displayIcon ? entry.displayIcon.value() : QIcon();
@@ -187,10 +187,10 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
             return QColor(Qt::darkGray);
         break;
     case LocatorEntryRole:
-        return QVariant::fromValue(mEntries.at(index.row()));
+        return QVariant::fromValue(m_entries.at(index.row()));
     case int(HighlightingItemRole::StartColumn):
     case int(HighlightingItemRole::Length): {
-        const LocatorFilterEntry &entry = mEntries[index.row()];
+        const LocatorFilterEntry &entry = m_entries[index.row()];
         auto highlights = [&](LocatorFilterEntry::HighlightInfo::DataType type){
             const bool startIndexRole = role == int(HighlightingItemRole::StartColumn);
             return startIndexRole ? QVariant::fromValue(entry.highlightInfo.starts(type))
@@ -204,7 +204,7 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
     }
     case int(HighlightingItemRole::DisplayExtra): {
         if (index.column() == LocatorFilterEntry::HighlightInfo::DisplayName) {
-            LocatorFilterEntry &entry = mEntries[index.row()];
+            LocatorFilterEntry &entry = m_entries[index.row()];
             if (!entry.displayExtra.isEmpty())
                 return QString("   (" + entry.displayExtra + ')');
         }
@@ -213,9 +213,9 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
     case int(HighlightingItemRole::DisplayExtraForeground):
         return QColor(Qt::darkGray);
     case int(HighlightingItemRole::Background):
-        return mBackgroundColor;
+        return m_backgroundColor;
     case int(HighlightingItemRole::Foreground):
-        return mForegroundColor;
+        return m_foregroundColor;
     }
 
     return QVariant();
@@ -223,14 +223,14 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
 
 void LocatorModel::addEntries(const QList<LocatorFilterEntry> &entries)
 {
-    beginInsertRows(QModelIndex(), mEntries.size(), mEntries.size() + entries.size() - 1);
-    mEntries.append(entries);
+    beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + entries.size() - 1);
+    m_entries.append(entries);
     endInsertRows();
-    if (hasExtraInfo)
+    if (m_hasExtraInfo)
         return;
     if (Utils::anyOf(entries, [](const LocatorFilterEntry &e) { return !e.extraInfo.isEmpty();})) {
         beginInsertColumns(QModelIndex(), 1, 1);
-        hasExtraInfo = true;
+        m_hasExtraInfo = true;
         endInsertColumns();
     }
 }

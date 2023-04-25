@@ -556,7 +556,7 @@ void CppModelManager::findUnusedFunctions(const FilePath &folder)
             return;
         }
         Links links;
-        const auto entries = matcher->outputData();
+        const LocatorFilterEntries entries = matcher->outputData();
         for (const LocatorFilterEntry &entry : entries) {
             static const QStringList prefixBlacklist{"main(", "~", "qHash(", "begin()", "end()",
                     "cbegin()", "cend()", "constBegin()", "constEnd()"};
