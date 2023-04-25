@@ -3409,7 +3409,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_removeFileAction->setVisible(true);
     m_duplicateFileAction->setVisible(false);
     m_deleteFileAction->setVisible(true);
-    m_runActionContextMenu->setVisible(false);
+    m_runActionContextMenu->setEnabled(false);
     m_defaultRunConfiguration.clear();
     m_diffFileAction->setVisible(DiffService::instance());
 
@@ -3438,7 +3438,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
 
         if (pn && project) {
             if (pn == project->rootProjectNode()) {
-                m_runActionContextMenu->setVisible(true);
+                m_runActionContextMenu->setEnabled(true);
             } else {
                 QList<RunConfiguration *> runConfigs;
                 if (Target *t = project->activeTarget()) {
@@ -3449,7 +3449,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
                     }
                 }
                 if (runConfigs.count() == 1) {
-                    m_runActionContextMenu->setVisible(true);
+                    m_runActionContextMenu->setEnabled(true);
                     m_defaultRunConfiguration = runConfigs.first();
                 } else if (runConfigs.count() > 1) {
                     runMenu->menu()->menuAction()->setVisible(true);
