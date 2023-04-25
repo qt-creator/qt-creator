@@ -32,6 +32,7 @@
 #include <QGlyphRun>
 #include <QLoggingCategory>
 #include <QMenu>
+#include <QMimeData>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPainterPath>
@@ -90,6 +91,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
 
     setAttribute(Qt::WA_InputMethodEnabled);
     setAttribute(Qt::WA_MouseTracking);
+    setAcceptDrops(true);
 
     setCursor(Qt::IBeamCursor);
 
@@ -1436,6 +1438,25 @@ void TerminalWidget::mouseDoubleClickEvent(QMouseEvent *event)
 
     m_lastDoubleClick = std::chrono::system_clock::now();
 
+    event->accept();
+}
+
+void TerminalWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls()) {
+        event->setDropAction(Qt::CopyAction);
+        event->accept();
+    }
+}
+
+void TerminalWidget::dropEvent(QDropEvent *event)
+{
+    QString urls = Utils::transform(event->mimeData()->urls(), [](const QUrl &url) {
+                       return QString("\"%1\"").arg(url.toDisplayString(QUrl::PreferLocalFile));
+                   }).join(" ");
+
+    writeToPty(urls.toUtf8());
+    event->setDropAction(Qt::CopyAction);
     event->accept();
 }
 

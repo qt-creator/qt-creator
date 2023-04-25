@@ -103,6 +103,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
 
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+
     void showEvent(QShowEvent *event) override;
 
     bool event(QEvent *event) override;
