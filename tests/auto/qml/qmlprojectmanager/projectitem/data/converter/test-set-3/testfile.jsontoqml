@@ -12,7 +12,7 @@ Project {
 
     qdsVersion: "3.0"
     quickVersion: ""
-    qt6Project: false
+    qt6Project: true
     qtForMCUs: true
 
     multilanguageSupport: true

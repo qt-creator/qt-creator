@@ -131,9 +131,40 @@ QJsonObject QmlProjectItem::project() const
     return m_project;
 }
 
-bool QmlProjectItem::isQt6Project() const
+QString QmlProjectItem::versionQt() const
 {
-    return m_project["versions"].toObject()["qtQuick"].toString().startsWith("6.");
+    return m_project["versions"].toObject()["qt"].toString();
+}
+
+void QmlProjectItem::setVersionQt(const QString &version)
+{
+    QJsonObject targetObj = m_project["versions"].toObject();
+    targetObj["qt"] = version;
+    insertAndUpdateProjectFile("versions", targetObj);
+}
+
+QString QmlProjectItem::versionQtQuick() const
+{
+    return m_project["versions"].toObject()["qtQuick"].toString();
+}
+
+void QmlProjectItem::setVersionQtQuick(const QString &version)
+{
+    QJsonObject targetObj = m_project["versions"].toObject();
+    targetObj["qtQuick"] = version;
+    insertAndUpdateProjectFile("versions", targetObj);
+}
+
+QString QmlProjectItem::versionDesignStudio() const
+{
+    return m_project["versions"].toObject()["designStudio"].toString();
+}
+
+void QmlProjectItem::setVersionDesignStudio(const QString &version)
+{
+    QJsonObject targetObj = m_project["versions"].toObject();
+    targetObj["designStudio"] = version;
+    insertAndUpdateProjectFile("versions", targetObj);
 }
 
 QStringList QmlProjectItem::importPaths() const

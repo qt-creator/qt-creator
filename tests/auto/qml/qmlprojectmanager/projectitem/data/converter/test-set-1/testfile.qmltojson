@@ -171,6 +171,7 @@
     },
     "versions": {
         "designStudio": "4.0",
+        "qt": "6",
         "qtQuick": "6.2"
     }
 }

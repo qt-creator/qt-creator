@@ -34,10 +34,22 @@ TEST(QmlProjectProjectItemGetterTests, GetMcuProject)
     ASSERT_EQ(dataSet.projectItem2.isQt4McuProject(), false);
 }
 
-TEST(QmlProjectProjectItemGetterTests, GetQt6Project)
+TEST(QmlProjectProjectItemGetterTests, GetQtVersion)
 {
-    ASSERT_EQ(dataSet.projectItem1.isQt6Project(), true);
-    ASSERT_EQ(dataSet.projectItem2.isQt6Project(), false);
+    ASSERT_EQ(dataSet.projectItem1.versionQt(), "6");
+    ASSERT_EQ(dataSet.projectItem2.versionQt(), "5");
+}
+
+TEST(QmlProjectProjectItemGetterTests, GetQtQuickVersion)
+{
+    ASSERT_EQ(dataSet.projectItem1.versionQtQuick(), "6.2");
+    ASSERT_EQ(dataSet.projectItem2.versionQtQuick(), QString());
+}
+
+TEST(QmlProjectProjectItemGetterTests, GetDesignStudioVersion)
+{
+    ASSERT_EQ(dataSet.projectItem1.versionDesignStudio(), "3.9");
+    ASSERT_EQ(dataSet.projectItem2.versionDesignStudio(), QString());
 }
 
 TEST(QmlProjectProjectItemGetterTests, GetSourceDirectory)

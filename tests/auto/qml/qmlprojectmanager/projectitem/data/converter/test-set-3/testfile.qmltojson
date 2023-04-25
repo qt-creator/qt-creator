@@ -155,6 +155,7 @@
     "shaderTool": {
     },
     "versions": {
-        "designStudio": "3.0"
+        "designStudio": "3.0",
+        "qt": "6"
     }
 }
