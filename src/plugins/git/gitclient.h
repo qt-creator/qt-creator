@@ -402,6 +402,7 @@ private:
     QString m_diffCommit;
     Utils::FilePaths m_updatedSubmodules;
     bool m_disableEditor = false;
+    // The synchronizer has cancelOnWait set to true by default.
     Utils::FutureSynchronizer m_synchronizer; // for commit updates
 };
 

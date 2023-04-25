@@ -542,7 +542,6 @@ SemanticHighlighter::SemanticHighlighter(QmlJSEditorDocument *document)
             this, &SemanticHighlighter::applyResults);
     connect(&m_watcher, &QFutureWatcherBase::finished,
             this, &SemanticHighlighter::finished);
-    m_futureSynchronizer.setCancelOnWait(true);
 }
 
 void SemanticHighlighter::rerun(const QmlJSTools::SemanticInfo &semanticInfo)

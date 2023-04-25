@@ -298,13 +298,6 @@ void SymbolSearcher::runSearch(QPromise<Core::SearchResultItem> &promise)
     promise.suspendIfRequested();
 }
 
-CppIndexingSupport::CppIndexingSupport()
-{
-    m_synchronizer.setCancelOnWait(true);
-}
-
-CppIndexingSupport::~CppIndexingSupport() = default;
-
 bool CppIndexingSupport::isFindErrorsIndexingActive()
 {
     return Utils::qtcEnvironmentVariable("QTC_FIND_ERRORS_INDEXING") == "1";

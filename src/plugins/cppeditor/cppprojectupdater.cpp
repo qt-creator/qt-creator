@@ -23,11 +23,7 @@ using namespace Utils;
 
 namespace CppEditor {
 
-CppProjectUpdater::CppProjectUpdater()
-{
-    m_futureSynchronizer.setCancelOnWait(true);
-}
-
+CppProjectUpdater::CppProjectUpdater() = default;
 CppProjectUpdater::~CppProjectUpdater() = default;
 
 void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo)

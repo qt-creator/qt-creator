@@ -154,8 +154,6 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget()
             this, &CppTypeHierarchyWidget::perform);
     connect(&m_futureWatcher, &QFutureWatcher<void>::finished,
             this, &CppTypeHierarchyWidget::displayHierarchy);
-
-    m_synchronizer.setCancelOnWait(true);
 }
 
 void CppTypeHierarchyWidget::perform()

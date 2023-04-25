@@ -803,7 +803,6 @@ FindReferences::FindReferences(QObject *parent)
     m_watcher.setPendingResultsLimit(1);
     connect(&m_watcher, &QFutureWatcherBase::resultsReadyAt, this, &FindReferences::displayResults);
     connect(&m_watcher, &QFutureWatcherBase::finished, this, &FindReferences::searchFinished);
-    m_synchronizer.setCancelOnWait(true);
 }
 
 FindReferences::~FindReferences() = default;

@@ -260,7 +260,6 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     if (ClangdSettings::instance().useClangd())
         new ClangdClient(nullptr, {});
 
-    m_generatorSynchronizer.setCancelOnWait(true);
     new ClangdQuickFixFactory(); // memory managed by CppEditor::g_cppQuickFixFactories
 }
 

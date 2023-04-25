@@ -787,7 +787,6 @@ IosSimulatorToolHandlerPrivate::IosSimulatorToolHandlerPrivate(const IosDeviceTy
 {
     QObject::connect(&outputLogger, &LogTailFiles::logMessage,
                      std::bind(&IosToolHandlerPrivate::appOutput, this, _1));
-    futureSynchronizer.setCancelOnWait(true);
 }
 
 void IosSimulatorToolHandlerPrivate::requestTransferApp(const QString &appBundlePath,

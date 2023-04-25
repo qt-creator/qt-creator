@@ -94,7 +94,6 @@ private:
 TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, Id id)
     : BuildStep(bsl, id)
 {
-    m_synchronizer.setCancelOnWait(true);
     connect(target(), &Target::deploymentDataChanged, this, [this] {
         m_deploymentDataModified = true;
     });

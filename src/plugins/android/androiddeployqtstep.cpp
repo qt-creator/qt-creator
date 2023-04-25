@@ -133,6 +133,7 @@ private:
     Environment m_environment;
     AndroidDeviceInfo m_deviceInfo;
 
+    // The synchronizer has cancelOnWait set to true by default.
     FutureSynchronizer m_synchronizer;
 };
 

@@ -54,7 +54,6 @@ TestCodeParser::TestCodeParser()
     });
     m_reparseTimer.setSingleShot(true);
     connect(&m_reparseTimer, &QTimer::timeout, this, &TestCodeParser::parsePostponedFiles);
-    m_futureSynchronizer.setCancelOnWait(true);
 }
 
 TestCodeParser::~TestCodeParser() = default;

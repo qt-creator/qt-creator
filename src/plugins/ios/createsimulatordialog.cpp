@@ -60,7 +60,6 @@ CreateSimulatorDialog::CreateSimulatorDialog(QWidget *parent)
         enableOk();
     });
 
-    m_futureSync.setCancelOnWait(true);
     m_futureSync.addFuture(Utils::onResultReady(SimulatorControl::updateDeviceTypes(this), this,
                                                 &CreateSimulatorDialog::populateDeviceTypes));
 

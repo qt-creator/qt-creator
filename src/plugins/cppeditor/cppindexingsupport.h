@@ -55,9 +55,6 @@ private:
 class CPPEDITOR_EXPORT CppIndexingSupport
 {
 public:
-    CppIndexingSupport();
-    ~CppIndexingSupport();
-
     static bool isFindErrorsIndexingActive();
 
     QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,

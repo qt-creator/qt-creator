@@ -983,7 +983,6 @@ PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
     q(pluginManager)
 {
     m_futureSynchronizer.reset(new FutureSynchronizer);
-    m_futureSynchronizer->setCancelOnWait(true);
 }
 
 

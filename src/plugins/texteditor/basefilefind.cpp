@@ -91,8 +91,6 @@ public:
 class BaseFileFindPrivate
 {
 public:
-    BaseFileFindPrivate() { m_futureSynchronizer.setCancelOnWait(true); }
-
     QPointer<IFindSupport> m_currentFindSupport;
 
     Utils::FutureSynchronizer m_futureSynchronizer;

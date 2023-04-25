@@ -329,6 +329,7 @@ Tasking::TaskItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &prov
 {
     const auto setupTask = [=](AsyncTask<FileNameToContentsHash> &async) {
         async.setThreadPool(extraCompilerThreadPool());
+        // The passed synchronizer has cancelOnWait set to true by default.
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&ProcessExtraCompiler::runInThread, this, command(),
                                     workingDirectory(), arguments(), provider, buildEnvironment());

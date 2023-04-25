@@ -148,7 +148,6 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<TaskTree> taskTree;
     FutureSynchronizer synchronizer;
-    synchronizer.setCancelOnWait(true);
 
     auto treeRoot = [&] {
         using namespace Tasking;

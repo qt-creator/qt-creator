@@ -400,6 +400,7 @@ void tst_AsyncTask::futureSynchonizer()
     };
 
     FutureSynchronizer synchronizer;
+    synchronizer.setCancelOnWait(false);
     {
         AsyncTask<int> task;
         task.setConcurrentCallData(lambda);
