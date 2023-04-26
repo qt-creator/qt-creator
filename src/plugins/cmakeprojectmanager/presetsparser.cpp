@@ -215,12 +215,24 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
                 item.key = cacheKey.toUtf8();
                 item.type = CMakeConfigItem::typeStringToType(
                     cacheVariableObj.value("type").toString().toUtf8());
-                item.value = cacheVariableObj.value("type").toString().toUtf8();
+                item.value = cacheVariableObj.value("value").toString().toUtf8();
                 preset.cacheVariables.value() << item;
 
             } else {
-                preset.cacheVariables.value()
-                    << CMakeConfigItem(cacheKey.toUtf8(), cacheValue.toString().toUtf8());
+                if (cacheValue.isBool()) {
+                    preset.cacheVariables.value()
+                        << CMakeConfigItem(cacheKey.toUtf8(),
+                                           CMakeConfigItem::BOOL,
+                                           cacheValue.toBool() ? "ON" : "OFF");
+                } else if (CMakeConfigItem::toBool(cacheValue.toString()).has_value()) {
+                    preset.cacheVariables.value()
+                        << CMakeConfigItem(cacheKey.toUtf8(),
+                                           CMakeConfigItem::BOOL,
+                                           cacheValue.toString().toUtf8());
+                } else {
+                    preset.cacheVariables.value()
+                        << CMakeConfigItem(cacheKey.toUtf8(), cacheValue.toString().toUtf8());
+                }
             }
         }
 
