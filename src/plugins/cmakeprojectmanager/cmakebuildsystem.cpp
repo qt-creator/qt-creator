@@ -422,6 +422,7 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
         if (!filePathArgument.Value.empty()) {
             return ProjectFileArgumentPosition{filePathArgument, targetCMakeFile, fileName};
         } else {
+            // Check if the filename is part of globbing variable result
             const auto globFunctions = std::get<0>(
                 Utils::partition(cmakeListFile.Functions, [](const auto &f) {
                     return f.LowerCaseName() == "file" && f.Arguments().size() > 2
@@ -440,11 +441,43 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
                                                                      != cmListFileArgument::Comment;
                                                    });
 
-            if (haveGlobbing)
+            if (haveGlobbing) {
                 return ProjectFileArgumentPosition{filePathArgument,
                                                    targetCMakeFile,
                                                    fileName,
                                                    true};
+            }
+
+            // Check if the filename is part of a variable set by the user
+            const auto setFunctions = std::get<0>(
+                Utils::partition(cmakeListFile.Functions, [](const auto &f) {
+                    return f.LowerCaseName() == "set" && f.Arguments().size() > 1;
+                }));
+
+            for (const auto &arg : func->Arguments()) {
+                if (arg.Delim == cmListFileArgument::Comment)
+                    continue;
+
+                auto matchedFunctions = Utils::filtered(setFunctions, [arg](const auto &f) {
+                    return arg.Value == std::string("${") + f.Arguments()[0].Value + "}";
+                });
+
+                for (const auto &f : matchedFunctions) {
+                    filePathArgument
+                        = Utils::findOrDefault(f.Arguments(),
+                                               [file_name = fileName.toStdString()](
+                                                   const auto &arg) {
+                                                   return arg.Delim != cmListFileArgument::Comment
+                                                          && arg.Value == file_name;
+                                               });
+
+                    if (!filePathArgument.Value.empty()) {
+                        return ProjectFileArgumentPosition{filePathArgument,
+                                                           targetCMakeFile,
+                                                           fileName};
+                    }
+                }
+            }
         }
     }
 
