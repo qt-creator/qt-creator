@@ -1,4 +1,5 @@
 add_qtc_plugin(Insight
+    CONDITION TARGET QtCreator::QmlDesigner
     PLUGIN_DEPENDS
         QtCreator::Core QtCreator::QtSupport QtCreator::QmlDesigner QtCreator::QmlProjectManager QtCreator::ProjectExplorer
     DEPENDS
