@@ -22,11 +22,9 @@ public:
     ModuleScanner([[maybe_unused]] SkipFunction skip,
                   [[maybe_unused]] VersionScanning versionScanning,
                   [[maybe_unused]] ExternalDependenciesInterface &externalDependencies)
-#ifdef QDS_HAS_QMLPRIVATE
         : m_skip{std::move(skip)}
         , m_versionScanning{versionScanning}
         , m_externalDependencies{externalDependencies}
-#endif
     {
         m_modules.reserve(128);
     }
@@ -40,11 +38,9 @@ private:
 
 private:
     Imports m_modules;
-#ifdef QDS_HAS_QMLPRIVATE
     SkipFunction m_skip;
     VersionScanning m_versionScanning;
     ExternalDependenciesInterface &m_externalDependencies;
-#endif
 };
 
 } // namespace QmlDesigner

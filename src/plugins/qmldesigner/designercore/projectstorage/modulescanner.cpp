@@ -3,9 +3,7 @@
 
 #include "modulescanner.h"
 
-#ifdef QDS_HAS_QMLPRIVATE
 #include <private/qqmldirparser_p.h>
-#endif
 
 #include <QDirIterator>
 #include <QFile>
@@ -15,7 +13,6 @@ namespace QmlDesigner {
 
 namespace {
 
-#ifdef QDS_HAS_QMLPRIVATE
 std::optional<QString> contentAsQString(const QString &filePath)
 {
     QFile file{filePath};
@@ -57,7 +54,6 @@ QString createCoreVersion(QStringView moduleName, ExternalDependenciesInterface 
     return {};
 }
 
-#endif
 } // namespace
 
 void ModuleScanner::scan(const QStringList &modulePaths)
@@ -68,7 +64,6 @@ void ModuleScanner::scan(const QStringList &modulePaths)
 
 void ModuleScanner::scan([[maybe_unused]] std::string_view modulePath)
 {
-#ifdef QDS_HAS_QMLPRIVATE
     if (modulePath.empty())
         return;
 
@@ -110,7 +105,6 @@ void ModuleScanner::scan([[maybe_unused]] std::string_view modulePath)
 
     std::sort(m_modules.begin(), m_modules.end());
     m_modules.erase(std::unique(m_modules.begin(), m_modules.end()), m_modules.end());
-#endif
 }
 
 } // namespace QmlDesigner

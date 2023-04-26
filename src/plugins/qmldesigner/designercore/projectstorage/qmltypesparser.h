@@ -10,10 +10,6 @@ namespace Sqlite {
 class Database;
 }
 
-#if defined(QDS_HAS_QMLPRIVATE) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-#define HasQQmlJSTypeDescriptionReader
-#endif
-
 namespace QmlDesigner {
 
 template<typename Database>
@@ -27,7 +23,7 @@ class QmlTypesParser : public QmlTypesParserInterface
 public:
     using ProjectStorage = QmlDesigner::ProjectStorage<Sqlite::Database>;
 
-#ifdef HasQQmlJSTypeDescriptionReader
+#ifdef QDS_BUILD_QMLPARSER
     QmlTypesParser(ProjectStorage &storage)
         : m_storage{storage}
     {}
@@ -41,7 +37,7 @@ public:
                const Storage::Synchronization::ProjectData &projectData) override;
 
 private:
-#ifdef HasQQmlJSTypeDescriptionReader
+#ifdef QDS_BUILD_QMLPARSER
     ProjectStorage &m_storage;
 #endif
 };
