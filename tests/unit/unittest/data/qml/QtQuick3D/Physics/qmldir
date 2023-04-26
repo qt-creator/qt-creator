@@ -1,0 +1,8 @@
+module QtQuick3D.Physics
+linktarget Qt6::qquick3dphysicsplugin
+plugin qquick3dphysicsplugin
+classname QtQuick3DPhysicsPlugin
+designersupported
+typeinfo plugins.qmltypes
+prefer :/qt-project.org/imports/QtQuick3D/Physics/
+

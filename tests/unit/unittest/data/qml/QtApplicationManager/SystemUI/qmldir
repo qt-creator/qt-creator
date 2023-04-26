@@ -1,0 +1,1 @@
+typeinfo plugins.qmltypes

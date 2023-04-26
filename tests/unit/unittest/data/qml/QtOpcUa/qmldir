@@ -1,0 +1,8 @@
+module QtOpcUa
+linktarget Qt6::DeclarativeOpcuaplugin
+optional plugin declarativeopcuaplugin
+classname QtOpcUaPlugin
+typeinfo plugins.qmltypes
+depends QtQuick
+prefer :/qt-project.org/imports/QtOpcUa/
+

@@ -1,0 +1,7 @@
+module QtInterfaceFramework
+linktarget Qt6::InterfaceFrameworkplugin
+optional plugin interfaceframeworkplugin
+classname QtInterfaceFrameworkPlugin
+typeinfo plugins.qmltypes
+prefer :/qt-project.org/imports/QtInterfaceFramework/
+
