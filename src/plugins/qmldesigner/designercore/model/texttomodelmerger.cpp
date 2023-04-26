@@ -915,14 +915,11 @@ void TextToModelMerger::setupPossibleImports()
             ModuleScanner moduleScanner{[&](QStringView moduleName) {
                                             return skipModule(moduleName, skipModuleNames);
                                         },
-                                        VersionScanning::No,
-                                        m_rewriterView->externalDependencies()};
+                                        VersionScanning::No};
             moduleScanner.scan(m_rewriterView->externalDependencies().modulePaths());
             m_possibleModules = moduleScanner.modules();
         } else {
-            ModuleScanner moduleScanner{[&](QStringView) { return false; },
-                                        VersionScanning::Yes,
-                                        m_rewriterView->externalDependencies()};
+            ModuleScanner moduleScanner{[&](QStringView) { return false; }, VersionScanning::Yes};
             m_possibleModules = createQt5Modules();
             moduleScanner.scan(externalDependencies.projectModulePaths());
             m_possibleModules.append(moduleScanner.modules());

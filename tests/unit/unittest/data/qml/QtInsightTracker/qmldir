@@ -1,7 +1,0 @@
-module QtInsightTracker
-linktarget Qt6::InsightTrackerQmlplugin
-optional plugin insighttrackerqmlplugin
-classname QtInsightTrackerPlugin
-typeinfo plugins.qmltypes
-prefer :/qt-project.org/imports/QtInsightTracker/
-

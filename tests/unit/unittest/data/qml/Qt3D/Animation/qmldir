@@ -1,9 +1,0 @@
-module Qt3D.Animation
-linktarget Qt6::quick3danimationplugin
-plugin quick3danimationplugin
-classname Qt3DQuick3DAnimationPlugin
-typeinfo plugins.qmltypes
-depends QtQml auto
-depends Qt3D.Render auto
-prefer :/qt-project.org/imports/Qt3D/Animation/
-

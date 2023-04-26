@@ -1,8 +1,0 @@
-module Qt3D.Input
-linktarget Qt6::quick3dinputplugin
-plugin quick3dinputplugin
-classname Qt3DQuick3DInputPlugin
-typeinfo plugins.qmltypes
-depends QtQml auto
-prefer :/qt-project.org/imports/Qt3D/Input/
-

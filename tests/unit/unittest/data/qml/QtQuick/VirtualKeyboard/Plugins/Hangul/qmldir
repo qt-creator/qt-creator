@@ -1,8 +1,0 @@
-module QtQuick.VirtualKeyboard.Plugins.Hangul
-linktarget Qt6::qtvkbhangulplugin
-plugin qtvkbhangulplugin
-classname QtQuick_VirtualKeyboard_Plugins_HangulPlugin
-typeinfo plugins.qmltypes
-depends QtQuick.VirtualKeyboard auto
-prefer :/qt-project.org/imports/QtQuick/VirtualKeyboard/Plugins/Hangul/
-

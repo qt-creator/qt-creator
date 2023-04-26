@@ -1,9 +1,0 @@
-module QtCore
-linktarget Qt6::qtqmlcoreplugin
-optional plugin qtqmlcoreplugin
-classname QtQmlCorePlugin
-designersupported
-typeinfo plugins.qmltypes
-depends QtQml auto
-prefer :/qt-project.org/imports/QtCore/
-

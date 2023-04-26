@@ -1,9 +1,0 @@
-module QtWebEngine
-linktarget Qt6::qtwebenginequickplugin
-plugin qtwebenginequickplugin
-classname QtWebEnginePlugin
-typeinfo plugins.qmltypes
-depends QtQuick auto
-depends QtWebChannel auto
-prefer :/qt-project.org/imports/QtWebEngine/
-

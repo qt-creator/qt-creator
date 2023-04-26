@@ -1,8 +1,0 @@
-module QtInterfaceFramework.VehicleFunctions
-linktarget Qt6::qtifvehiclefunctionsplugin
-optional plugin qtifvehiclefunctionsplugin
-classname QtIfVehicleFunctionsPlugin
-typeinfo IfVehicleFunctions.qmltypes
-import QtInterfaceFramework auto
-prefer :/qt-project.org/imports/QtInterfaceFramework/VehicleFunctions/
-

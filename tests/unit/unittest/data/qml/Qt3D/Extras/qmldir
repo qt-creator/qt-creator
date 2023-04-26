@@ -1,9 +1,0 @@
-module Qt3D.Extras
-linktarget Qt6::quick3dextrasplugin
-plugin quick3dextrasplugin
-classname Qt3DQuick3DExtrasPlugin
-typeinfo plugins.qmltypes
-depends QtQuick auto
-depends Qt3D.Logic auto
-prefer :/qt-project.org/imports/Qt3D/Extras/
-

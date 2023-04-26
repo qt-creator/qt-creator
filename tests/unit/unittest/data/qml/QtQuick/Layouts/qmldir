@@ -1,9 +1,0 @@
-module QtQuick.Layouts
-linktarget Qt6::qquicklayoutsplugin
-optional plugin qquicklayoutsplugin
-classname QtQuickLayoutsPlugin
-designersupported
-typeinfo plugins.qmltypes
-depends QtQuick auto
-prefer :/qt-project.org/imports/QtQuick/Layouts/
-

@@ -1,7 +1,0 @@
-module QtWayland.Compositor.TextureSharingExtension
-linktarget Qt6::WaylandTextureSharingExtension
-plugin waylandtexturesharingextensionplugin
-classname QWaylandTextureSharingExtensionPlugin
-typeinfo plugins.qmltypes
-prefer :/qt-project.org/imports/QtWayland/Compositor/TextureSharingExtension/
-

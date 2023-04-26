@@ -163,7 +163,6 @@ public:
     QStringList modulePaths() const override { return {}; }
     QStringList projectModulePaths() const override { return {}; }
     bool isQt6Project() const override { return {}; }
-    QString qtQuickVersion() const override { return {}; }
 
 public:
     QSettings qsettings;

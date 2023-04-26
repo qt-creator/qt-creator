@@ -267,11 +267,4 @@ bool ExternalDependencies::isQt6Project() const
     return qmlBuildSystem && qmlBuildSystem->qt6Project();
 }
 
-QString ExternalDependencies::qtQuickVersion() const
-{
-    auto [project, target, qmlBuildSystem] = activeProjectEntries();
-
-    return qmlBuildSystem ? qmlBuildSystem->versionQtQuick() : QString{};
-}
-
 } // namespace QmlDesigner

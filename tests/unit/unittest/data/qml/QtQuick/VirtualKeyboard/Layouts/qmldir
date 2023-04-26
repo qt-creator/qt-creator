@@ -1,7 +1,0 @@
-module QtQuick.VirtualKeyboard.Layouts
-linktarget Qt6::qtvkblayoutsplugin
-plugin qtvkblayoutsplugin
-classname QtQuick_VirtualKeyboard_LayoutsPlugin
-typeinfo qtvkblayoutsplugin.qmltypes
-prefer :/qt-project.org/imports/QtQuick/VirtualKeyboard/Layouts/
-

@@ -1,8 +1,0 @@
-module QtScxml
-linktarget Qt6::declarative_scxml
-optional plugin declarative_scxmlplugin
-classname QScxmlStateMachinePlugin
-typeinfo plugins.qmltypes
-depends QtQml
-prefer :/qt-project.org/imports/QtScxml/
-

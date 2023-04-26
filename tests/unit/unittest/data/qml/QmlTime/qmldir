@@ -1,4 +1,0 @@
-module QmlTime
-typeinfo qmltime.qmltypes
-prefer :/qt-project.org/imports/QmlTime/
-
