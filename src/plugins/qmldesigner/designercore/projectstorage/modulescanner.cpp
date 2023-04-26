@@ -36,7 +36,6 @@ QString createVersion(const QMultiHash<QString, QQmlDirParser::Component> &compo
 
     return {};
 }
-#endif
 
 constexpr auto coreModules = std::make_tuple(QStringView{u"QtQuick"},
                                              QStringView{u"QtQuick.Controls"},
@@ -58,6 +57,7 @@ QString createCoreVersion(QStringView moduleName, ExternalDependenciesInterface 
     return {};
 }
 
+#endif
 } // namespace
 
 void ModuleScanner::scan(const QStringList &modulePaths)
