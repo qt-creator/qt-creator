@@ -101,8 +101,8 @@ private slots:
     void testInsertQtPropertyMembers_data();
     void testInsertQtPropertyMembers();
 
-    void testInsertMemberFromInitialization_data();
-    void testInsertMemberFromInitialization();
+    void testInsertMemberFromUse_data();
+    void testInsertMemberFromUse();
 
     void testConvertQt4ConnectConnectOutOfClass();
     void testConvertQt4ConnectConnectWithinClass_data();

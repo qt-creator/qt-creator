@@ -363,15 +363,29 @@ public:
     void match(const CppQuickFixInterface &interface,
                TextEditor::QuickFixOperations &result) override;
 
+#ifdef WITH_TESTS
+    void setMembersOnly() { m_membersOnly = true; }
+#endif
+
 private:
+    void collectOperations(const CppQuickFixInterface &interface,
+                           TextEditor::QuickFixOperations &result);
+
     // Returns whether to still do other checks.
     bool checkForMemberInitializer(const CppQuickFixInterface &interface,
                                    TextEditor::QuickFixOperations &result);
+
+    void maybeAddMember(const CppQuickFixInterface &interface, CPlusPlus::Scope *scope,
+                        const QByteArray &classTypeExpr, const QString &typeString,
+                        TextEditor::QuickFixOperations &result);
 
     QString getType(
             const CppQuickFixInterface &interface,
             const CPlusPlus::MemInitializerAST *memInitializer,
             const CPlusPlus::FunctionDefinitionAST *ctor) const;
+    QString getIdentifier(const CppQuickFixInterface &interface) const;
+
+    bool m_membersOnly = false;
 };
 
 /*!

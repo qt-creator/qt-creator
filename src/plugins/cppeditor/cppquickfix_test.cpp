@@ -3780,7 +3780,7 @@ void QuickfixTest::testInsertQtPropertyMembers()
     QuickFixOperationTest({CppTestDocument::create("file.cpp", original, expected)}, &factory);
 }
 
-void QuickfixTest::testInsertMemberFromInitialization_data()
+void QuickfixTest::testInsertMemberFromUse_data()
 {
     QTest::addColumn<QByteArray>("original");
     QTest::addColumn<QByteArray>("expected");
@@ -3852,9 +3852,125 @@ void QuickfixTest::testInsertMemberFromInitialization_data()
             "    int m_x;\n"
             "};\n";
     QTest::addRow("initialization via function call") << original << expected;
+
+    original =
+        "struct S {\n\n};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.@value = v; }\n"
+        "private:\n"
+        "    S m_s;\n"
+        "};\n";
+    expected =
+        "struct S {\n\n"
+        "    int value;\n"
+        "};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.value = v; }\n"
+        "private:\n"
+        "    S m_s;\n"
+        "};\n";
+    QTest::addRow("add member to other struct") << original << expected;
+
+    original =
+        "struct S {\n\n};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { S::@value = v; }\n"
+        "};\n";
+    expected =
+        "struct S {\n\n"
+        "    static int value;\n"
+        "};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { S::value = v; }\n"
+        "};\n";
+    QTest::addRow("add static member to other struct (explicit)") << original << expected;
+
+    original =
+        "struct S {\n\n};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.@value = v; }\n"
+        "private:\n"
+        "    static S m_s;\n"
+        "};\n";
+    expected =
+        "struct S {\n\n"
+        "    static int value;\n"
+        "};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.value = v; }\n"
+        "private:\n"
+        "    static S m_s;\n"
+        "};\n";
+    QTest::addRow("add static member to other struct (implicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v);\n"
+        "};\n"
+        "void C::setValue(int v) { this->@m_value = v; }\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v);\n"
+        "private:\n"
+        "    int m_value;\n"
+        "};\n"
+        "void C::setValue(int v) { this->@m_value = v; }\n";
+    QTest::addRow("add member to this (explicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { @m_value = v; }\n"
+        "};\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_value = v; }\n"
+        "private:\n"
+        "    int m_value;\n"
+        "};\n";
+    QTest::addRow("add member to this (implicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    static void setValue(int v) { @m_value = v; }\n"
+        "};\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    static void setValue(int v) { m_value = v; }\n"
+        "private:\n"
+        "    static int m_value;\n"
+        "};\n";
+    QTest::addRow("add static member to this (inline)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    static void setValue(int v);\n"
+        "};\n"
+        "void C::setValue(int v) { @m_value = v; }\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    static void setValue(int v);\n"
+        "private:\n"
+        "    static int m_value;\n"
+        "};\n"
+        "void C::setValue(int v) { @m_value = v; }\n";
+    QTest::addRow("add static member to this (non-inline)") << original << expected;
 }
 
-void QuickfixTest::testInsertMemberFromInitialization()
+void QuickfixTest::testInsertMemberFromUse()
 {
     QFETCH(QByteArray, original);
     QFETCH(QByteArray, expected);
@@ -3864,6 +3980,7 @@ void QuickfixTest::testInsertMemberFromInitialization()
     });
 
     AddDeclarationForUndeclaredIdentifier factory;
+    factory.setMembersOnly();
     QuickFixOperationTest(testDocuments, &factory);
 }
 
