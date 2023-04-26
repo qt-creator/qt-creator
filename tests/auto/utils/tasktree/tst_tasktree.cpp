@@ -122,6 +122,32 @@ void tst_TaskTree::validConstructs()
         OnGroupDone([] {}),
         OnGroupError([] {})
     };
+
+    // When turning each of below blocks on, you should see the specific compiler error message.
+
+#if 0
+    {
+        // "Sync element: The synchronous function has to return void or bool."
+        const auto setupSync = [] { return 3; };
+        const Sync sync(setupSync);
+    }
+#endif
+
+#if 0
+    {
+        // "Sync element: The synchronous function can't take any arguments."
+        const auto setupSync = [](int) { };
+        const Sync sync(setupSync);
+    }
+#endif
+
+#if 0
+    {
+        // "Sync element: The synchronous function can't take any arguments."
+        const auto setupSync = [](int) { return true; };
+        const Sync sync(setupSync);
+    }
+#endif
 }
 
 void tst_TaskTree::processTree_data()
@@ -174,7 +200,10 @@ void tst_TaskTree::processTree_data()
     const auto groupError = [storage](int groupId) {
         return [=] { storage->m_log.append({groupId, Handler::GroupError}); };
     };
-    const auto setupSync = [storage](int syncId, bool success) {
+    const auto setupSync = [storage](int syncId) {
+        return [=] { storage->m_log.append({syncId, Handler::Sync}); };
+    };
+    const auto setupSyncWithReturn = [storage](int syncId, bool success) {
         return [=] { storage->m_log.append({syncId, Handler::Sync}); return success; };
     };
 
@@ -997,11 +1026,11 @@ void tst_TaskTree::processTree_data()
     {
         const Group root {
             Storage(storage),
-            Sync(setupSync(1, true)),
-            Sync(setupSync(2, true)),
-            Sync(setupSync(3, true)),
-            Sync(setupSync(4, true)),
-            Sync(setupSync(5, true))
+            Sync(setupSync(1)),
+            Sync(setupSync(2)),
+            Sync(setupSync(3)),
+            Sync(setupSync(4)),
+            Sync(setupSync(5))
         };
         const Log log {
             {1, Handler::Sync},
@@ -1017,12 +1046,32 @@ void tst_TaskTree::processTree_data()
     {
         const Group root {
             Storage(storage),
+            Sync(setupSyncWithReturn(1, true)),
+            Sync(setupSyncWithReturn(2, true)),
+            Sync(setupSyncWithReturn(3, true)),
+            Sync(setupSyncWithReturn(4, true)),
+            Sync(setupSyncWithReturn(5, true))
+        };
+        const Log log {
+            {1, Handler::Sync},
+            {2, Handler::Sync},
+            {3, Handler::Sync},
+            {4, Handler::Sync},
+            {5, Handler::Sync}
+        };
+        QTest::newRow("SyncWithReturn")
+            << TestData{storage, root, log, 0, OnStart::NotRunning, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            Storage(storage),
             parallel,
-            Sync(setupSync(1, true)),
-            Sync(setupSync(2, true)),
-            Sync(setupSync(3, true)),
-            Sync(setupSync(4, true)),
-            Sync(setupSync(5, true))
+            Sync(setupSync(1)),
+            Sync(setupSync(2)),
+            Sync(setupSync(3)),
+            Sync(setupSync(4)),
+            Sync(setupSync(5))
         };
         const Log log {
             {1, Handler::Sync},
@@ -1039,11 +1088,11 @@ void tst_TaskTree::processTree_data()
         const Group root {
             Storage(storage),
             parallel,
-            Sync(setupSync(1, true)),
-            Sync(setupSync(2, true)),
-            Sync(setupSync(3, false)),
-            Sync(setupSync(4, true)),
-            Sync(setupSync(5, true))
+            Sync(setupSync(1)),
+            Sync(setupSync(2)),
+            Sync(setupSyncWithReturn(3, false)),
+            Sync(setupSync(4)),
+            Sync(setupSync(5))
         };
         const Log log {
             {1, Handler::Sync},
@@ -1057,11 +1106,11 @@ void tst_TaskTree::processTree_data()
     {
         const Group root {
             Storage(storage),
-            Sync(setupSync(1, true)),
+            Sync(setupSync(1)),
             Process(setupProcess(2)),
-            Sync(setupSync(3, true)),
+            Sync(setupSync(3)),
             Process(setupProcess(4)),
-            Sync(setupSync(5, true)),
+            Sync(setupSync(5)),
             OnGroupDone(groupDone(0))
         };
         const Log log {
@@ -1074,6 +1123,26 @@ void tst_TaskTree::processTree_data()
         };
         QTest::newRow("SyncAndAsync")
             << TestData{storage, root, log, 2, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            Storage(storage),
+            Sync(setupSync(1)),
+            Process(setupProcess(2)),
+            Sync(setupSyncWithReturn(3, false)),
+            Process(setupProcess(4)),
+            Sync(setupSync(5)),
+            OnGroupError(groupError(0))
+        };
+        const Log log {
+            {1, Handler::Sync},
+            {2, Handler::Setup},
+            {3, Handler::Sync},
+            {0, Handler::GroupError}
+        };
+        QTest::newRow("SyncAndAsyncError")
+            << TestData{storage, root, log, 2, OnStart::Running, OnDone::Failure};
     }
 
     {

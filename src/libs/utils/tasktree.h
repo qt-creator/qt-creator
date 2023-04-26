@@ -306,11 +306,28 @@ public:
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
 class QTCREATOR_UTILS_EXPORT Sync : public Group
 {
+
 public:
-    using SynchronousMethod = std::function<bool()>;
-    Sync(const SynchronousMethod &sync)
-        : Group({OnGroupSetup([sync] { return sync() ? TaskAction::StopWithDone
-                                                     : TaskAction::StopWithError; })}) {}
+    template<typename Function>
+    Sync(Function &&function) : Group(init(std::forward<Function>(function))) {}
+
+private:
+    template<typename Function>
+    static QList<TaskItem> init(Function &&function) {
+        constexpr bool isInvocable = std::is_invocable_v<std::decay_t<Function>>;
+        static_assert(isInvocable,
+                      "Sync element: The synchronous function can't take any arguments.");
+        constexpr bool isBool = std::is_same_v<bool, std::invoke_result_t<std::decay_t<Function>>>;
+        constexpr bool isVoid = std::is_same_v<void, std::invoke_result_t<std::decay_t<Function>>>;
+        static_assert(isBool || isVoid,
+                      "Sync element: The synchronous function has to return void or bool.");
+        if constexpr (isBool) {
+            return {OnGroupSetup([function] { return function() ? TaskAction::StopWithDone
+                                                                : TaskAction::StopWithError; })};
+        }
+        return {OnGroupSetup([function] { function(); return TaskAction::StopWithDone; })};
+    };
+
 };
 
 QTCREATOR_UTILS_EXPORT extern ParallelLimit sequential;
