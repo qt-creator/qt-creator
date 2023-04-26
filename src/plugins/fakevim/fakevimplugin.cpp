@@ -605,12 +605,17 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
 
     m_commandBox = new QGroupBox(Tr::tr("Ex Command"), this);
     m_commandBox->setEnabled(false);
-    auto boxLayout = new QHBoxLayout(m_commandBox);
+    auto commandBoxLayout = new QVBoxLayout(m_commandBox);
+    auto boxLayout = new QHBoxLayout;
+    commandBoxLayout->addLayout(boxLayout);
     m_commandEdit = new FancyLineEdit(m_commandBox);
     m_commandEdit->setFiltering(true);
     m_commandEdit->setPlaceholderText(QString());
     connect(m_commandEdit, &FancyLineEdit::textChanged,
             this, &FakeVimExCommandsMappings::commandChanged);
+    m_commandEdit->setValidationFunction([](FancyLineEdit *e, QString *){
+        return QRegularExpression(e->text()).isValid();
+    });
     auto resetButton = new QPushButton(Tr::tr("Reset"), m_commandBox);
     resetButton->setToolTip(Tr::tr("Reset to default."));
     connect(resetButton, &QPushButton::clicked,
@@ -619,6 +624,12 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
     boxLayout->addWidget(m_commandEdit);
     boxLayout->addWidget(resetButton);
 
+    auto infoLabel = new InfoLabel(Tr::tr("Invalid regular expression."), InfoLabel::Error);
+    infoLabel->setVisible(false);
+    connect(m_commandEdit, &FancyLineEdit::validChanged, [infoLabel](bool valid){
+        infoLabel->setVisible(!valid);
+    });
+    commandBoxLayout->addWidget(infoLabel);
     layout()->addWidget(m_commandBox);
 
     QMap<QString, QTreeWidgetItem *> sections;
@@ -675,7 +686,9 @@ ExCommandMap FakeVimExCommandsMappings::exCommandMapFromWidget()
             if ((regex.isEmpty() && pattern.isEmpty())
                 || (!regex.isEmpty() && pattern == regex))
                 continue;
-            map[name] = QRegularExpression(regex);
+            const QRegularExpression expression(regex);
+            if (expression.isValid())
+                map[name] = expression;
         }
     }
     return map;
@@ -1285,7 +1298,9 @@ void FakeVimPluginPrivate::readSettings()
         settings->setArrayIndex(i);
         const QString id = settings->value(idKey).toString();
         const QString re = settings->value(reKey).toString();
-        m_exCommandMap[id] = QRegularExpression(re);
+        const QRegularExpression regEx(re);
+        if (regEx.isValid())
+            m_exCommandMap[id] = regEx;
     }
     settings->endArray();
 
