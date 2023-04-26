@@ -89,7 +89,6 @@ LocatorMatcherTasks CommandLocator::matchers()
             }
         }
         storage->reportOutput(betterEntries + goodEntries);
-        return true;
     };
     return {{Sync(onSetup), storage}};
 }

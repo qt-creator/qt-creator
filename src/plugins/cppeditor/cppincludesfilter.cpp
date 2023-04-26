@@ -107,7 +107,7 @@ CppIncludesFilter::CppIncludesFilter()
                "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("ai");
     setDefaultIncludedByDefault(true);
-    setRefreshRecipe(Tasking::Sync([this] { invalidateCache(); return true; }));
+    setRefreshRecipe(Tasking::Sync([this] { invalidateCache(); }));
     setPriority(ILocatorFilter::Low);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,

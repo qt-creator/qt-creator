@@ -79,7 +79,6 @@ LocatorMatcherTasks ExternalToolsFilter::matchers()
 
         storage->reportOutput(bestEntries + betterEntries + goodEntries
                               + LocatorFilterEntries{configEntry});
-        return true;
     };
     return {{Sync(onSetup), storage}};
 }

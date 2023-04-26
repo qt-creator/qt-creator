@@ -187,9 +187,7 @@ LocatorMatcherTasks UrlLocatorFilter::matchers()
             entries.append(entry);
         }
         storage->reportOutput(entries);
-        return true;
     };
-
     return {{Sync(onSetup), storage}};
 }
 

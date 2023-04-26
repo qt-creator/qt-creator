@@ -71,7 +71,6 @@ LocatorMatcherTasks ExecuteFilter::matchers()
             }
         }
         storage->reportOutput(entries + others);
-        return true;
     };
     return {{Sync(onSetup), storage}};
 }

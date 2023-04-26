@@ -4421,7 +4421,7 @@ static LocatorMatcherTasks runConfigurationMatchers(
         const QString input = storage->input();
         const Target *target = ProjectManager::startupTarget();
         if (!target)
-            return true;
+            return;
 
         LocatorFilterEntries entries;
         for (auto rc : target->runConfigurations()) {
@@ -4439,7 +4439,6 @@ static LocatorMatcherTasks runConfigurationMatchers(
             }
         }
         storage->reportOutput(entries);
-        return true;
     };
     return {{Sync(onSetup), storage}};
 }

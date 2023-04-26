@@ -70,9 +70,7 @@ LocatorMatcherTasks MacroLocatorFilter::matchers()
             }
         }
         storage->reportOutput(betterEntries + goodEntries);
-        return true;
     };
-
     return {{Sync(onSetup), storage}};
 }
 

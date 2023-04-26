@@ -25,7 +25,7 @@ AllProjectsFilter::AllProjectsFilter()
                           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("a");
     setDefaultIncludedByDefault(true);
-    setRefreshRecipe(Tasking::Sync([this] { invalidateCache(); return true; }));
+    setRefreshRecipe(Tasking::Sync([this] { invalidateCache(); }));
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
             this, &AllProjectsFilter::invalidateCache);

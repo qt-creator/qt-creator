@@ -73,7 +73,6 @@ static LocatorMatcherTasks cmakeMatchers(const CMakeTargetLocatorFilter::BuildAc
             }
         }
         storage->reportOutput(entries);
-        return true;
     };
     return {{Sync(onSetup), storage}};
 }

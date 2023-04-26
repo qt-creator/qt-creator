@@ -29,7 +29,7 @@ OpenDocumentsFilter::OpenDocumentsFilter()
     setPriority(High);
     setDefaultIncludedByDefault(true);
     // TODO: Remove the refresh recipe
-    setRefreshRecipe(Tasking::Sync([this] { refreshInternally(); return true; }));
+    setRefreshRecipe(Tasking::Sync([this] { refreshInternally(); }));
 
     connect(DocumentModel::model(), &QAbstractItemModel::dataChanged,
             this, &OpenDocumentsFilter::slotDataChanged);

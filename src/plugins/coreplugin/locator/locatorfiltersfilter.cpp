@@ -33,9 +33,9 @@ LocatorMatcherTasks LocatorFiltersFilter::matchers()
 
     TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [=] {
+    const auto onSetup = [storage, icon = m_icon] {
         if (!storage->input().isEmpty())
-            return true;
+            return;
 
         QMap<QString, ILocatorFilter *> uniqueFilters;
         const QList<ILocatorFilter *> allFilters = Locator::filters();
@@ -53,7 +53,7 @@ LocatorMatcherTasks LocatorFiltersFilter::matchers()
                 entry.acceptor = [shortcutString] {
                     return AcceptResult{shortcutString + ' ', int(shortcutString.size() + 1)};
                 };
-                entry.displayIcon = m_icon;
+                entry.displayIcon = icon;
                 entry.extraInfo = filter->displayName();
                 entry.toolTip = filter->description();
                 QString keyboardShortcut;
@@ -64,7 +64,6 @@ LocatorMatcherTasks LocatorFiltersFilter::matchers()
             }
         }
         storage->reportOutput(entries);
-        return true;
     };
     return {{Sync(onSetup), storage}};
 }

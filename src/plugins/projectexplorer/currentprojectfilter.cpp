@@ -25,7 +25,7 @@ CurrentProjectFilter::CurrentProjectFilter()
                           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("p");
     setDefaultIncludedByDefault(false);
-    setRefreshRecipe(Tasking::Sync([this] { invalidateCache(); return true; }));
+    setRefreshRecipe(Tasking::Sync([this] { invalidateCache(); }));
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFilter::currentProjectChanged);

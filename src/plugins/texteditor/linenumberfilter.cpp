@@ -31,7 +31,7 @@ LocatorMatcherTasks LineNumberFilter::matchers()
 
     TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [=] {
+    const auto onSetup = [storage] {
         const QStringList lineAndColumn = storage->input().split(':');
         int sectionCount = lineAndColumn.size();
         int line = 0;
@@ -42,7 +42,7 @@ LocatorMatcherTasks LineNumberFilter::matchers()
         if (ok && sectionCount > 1)
             column = lineAndColumn.at(1).toInt(&ok);
         if (!ok)
-            return true;
+            return;
         if (EditorManager::currentEditor() && (line > 0 || column > 0)) {
             QString text;
             if (line > 0 && column > 0)
@@ -64,7 +64,6 @@ LocatorMatcherTasks LineNumberFilter::matchers()
             };
             storage->reportOutput({entry});
         }
-        return true;
     };
     return {{Sync(onSetup), storage}};
 }
