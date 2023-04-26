@@ -749,7 +749,19 @@ static QWidget *createSeparator(QWidget *parent)
     QSizePolicy linePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
     linePolicy.setHorizontalStretch(2);
     line->setSizePolicy(linePolicy);
+    QPalette pal = line->palette();
+    pal.setColor(QPalette::Dark, Qt::transparent);
+    pal.setColor(QPalette::Light, themeColor(Theme::Welcome_ForegroundSecondaryColor));
+    line->setPalette(pal);
     return line;
+}
+
+static QLabel *createLinkLabel(const QString &text, QWidget *parent)
+{
+    const QString linkColor = themeColor(Theme::Welcome_LinkColor).name();
+    auto link = new QLabel("<a href=\"link\" style=\"color: " + linkColor + ";\">"
+                           + text + "</a>", parent);
+    return link;
 }
 
 ListModel *SectionedGridView::addSection(const Section &section, const QList<ListItem *> &items)
@@ -772,8 +784,7 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     m_sectionModels.insert(section, model);
     const auto it = m_gridViews.insert(section, gridView);
 
-    using namespace Layouting;
-    auto seeAllLink = new QLabel("<a href=\"link\">" + Tr::tr("Show All") + " &gt;</a>", this);
+    QLabel *seeAllLink = createLinkLabel(Tr::tr("Show All") + " &gt;", this);
     if (gridView->maxRows().has_value()) {
         seeAllLink->setVisible(true);
         connect(gridView, &SectionGridView::itemsFitChanged, seeAllLink, [seeAllLink](bool fits) {
@@ -783,6 +794,7 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
         seeAllLink->setVisible(false);
     }
     connect(seeAllLink, &QLabel::linkActivated, this, [this, section] { zoomInSection(section); });
+    using namespace Layouting;
     QWidget *sectionLabel = Row{section.name, createSeparator(this), seeAllLink, Space(HSpacing)}
                                 .emerge(Layouting::WithoutMargins);
     m_sectionLabels.append(sectionLabel);
@@ -829,13 +841,13 @@ void SectionedGridView::zoomInSection(const Section &section)
     layout->setContentsMargins(0, 0, 0, 0);
     zoomedInWidget->setLayout(layout);
 
-    using namespace Layouting;
-    auto backLink = new QLabel("<a href=\"link\">&lt; " + Tr::tr("Back") + "</a>", zoomedInWidget);
+    QLabel *backLink = createLinkLabel("&lt; " + Tr::tr("Back"), this);
     connect(backLink, &QLabel::linkActivated, this, [this, zoomedInWidget] {
         removeWidget(zoomedInWidget);
         delete zoomedInWidget;
         setCurrentIndex(0);
     });
+    using namespace Layouting;
     QWidget *sectionLabel = Row{section.name, createSeparator(this), backLink, Space(HSpacing)}
                                 .emerge(Layouting::WithoutMargins);
     sectionLabel->setContentsMargins(0, ItemGap, 0, 0);
