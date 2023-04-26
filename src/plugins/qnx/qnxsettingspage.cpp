@@ -683,8 +683,10 @@ void QnxSettingsWidget::updateInformation()
 void QnxSettingsWidget::populateConfigsCombo()
 {
     m_configsCombo->clear();
-    for (const QnxConfiguration &config : std::as_const(dd->m_configurations))
+    for (const QnxConfiguration &config : std::as_const(dd->m_configurations)) {
+        config.ensureContents();
         m_configsCombo->addItem(config.m_configName, QVariant::fromValue(config.m_envFile));
+    }
     updateInformation();
 }
 
