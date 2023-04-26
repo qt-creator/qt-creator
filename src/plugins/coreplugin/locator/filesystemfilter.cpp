@@ -8,6 +8,7 @@
 #include "../editormanager/editormanager.h"
 #include "../icore.h"
 #include "../vcsmanager.h"
+#include "locatormanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -56,33 +57,52 @@ static ILocatorFilter::MatchLevel matchLevelFor(const QRegularExpressionMatch &m
     return ILocatorFilter::MatchLevel::Normal;
 }
 
-static void createAndOpen(const FilePath &filePath)
+static bool askForCreating(const QString &title, const FilePath &filePath)
+{
+    if (CheckableMessageBox::shouldAskAgain(ICore::settings(), kAlwaysCreate)) {
+        CheckableMessageBox messageBox(ICore::dialogParent());
+        messageBox.setWindowTitle(title);
+        messageBox.setIcon(QMessageBox::Question);
+        messageBox.setText(Tr::tr("Create \"%1\"?").arg(filePath.shortNativePath()));
+        messageBox.setCheckBoxVisible(true);
+        messageBox.setCheckBoxText(Tr::tr("Always create"));
+        messageBox.setChecked(false);
+        messageBox.setStandardButtons(QDialogButtonBox::Cancel);
+        QPushButton *createButton = messageBox.addButton(Tr::tr("Create"),
+                                                         QDialogButtonBox::AcceptRole);
+        messageBox.setDefaultButton(QDialogButtonBox::Cancel);
+        messageBox.exec();
+        if (messageBox.clickedButton() != createButton)
+            return false;
+        if (messageBox.isChecked())
+            CheckableMessageBox::doNotAskAgain(ICore::settings(), kAlwaysCreate);
+    }
+    return true;
+}
+
+static void createAndOpenFile(const FilePath &filePath)
 {
     if (!filePath.exists()) {
-        if (CheckableMessageBox::shouldAskAgain(ICore::settings(), kAlwaysCreate)) {
-            CheckableMessageBox messageBox(ICore::dialogParent());
-            messageBox.setWindowTitle(Tr::tr("Create File"));
-            messageBox.setIcon(QMessageBox::Question);
-            messageBox.setText(Tr::tr("Create \"%1\"?").arg(filePath.shortNativePath()));
-            messageBox.setCheckBoxVisible(true);
-            messageBox.setCheckBoxText(Tr::tr("Always create"));
-            messageBox.setChecked(false);
-            messageBox.setStandardButtons(QDialogButtonBox::Cancel);
-            QPushButton *createButton = messageBox.addButton(Tr::tr("Create"),
-                                                             QDialogButtonBox::AcceptRole);
-            messageBox.setDefaultButton(QDialogButtonBox::Cancel);
-            messageBox.exec();
-            if (messageBox.clickedButton() != createButton)
-                return;
-            if (messageBox.isChecked())
-                CheckableMessageBox::doNotAskAgain(ICore::settings(), kAlwaysCreate);
+        if (askForCreating(Tr::tr("Create File"), filePath)) {
+            QFile file(filePath.toFSPathString());
+            file.open(QFile::WriteOnly);
+            file.close();
+            VcsManager::promptToAdd(filePath.absolutePath(), {filePath});
         }
-        QFile file(filePath.toFSPathString());
-        file.open(QFile::WriteOnly);
-        file.close();
-        VcsManager::promptToAdd(filePath.absolutePath(), {filePath});
     }
-    EditorManager::openEditor(filePath);
+    if (filePath.exists())
+        EditorManager::openEditor(filePath);
+}
+
+static bool createDirectory(const FilePath &filePath)
+{
+    if (!filePath.exists()) {
+        if (askForCreating(Tr::tr("Create Directory"), filePath))
+            filePath.createDir();
+    }
+    if (filePath.exists())
+        return true;
+    return false;
 }
 
 static FilePaths deviceRoots()
@@ -241,16 +261,46 @@ static LocatorFilterEntries matchesImpl(Promise &promise,
     const FilePath fullFilePath = directory / entryFileName;
     const bool containsWildcard = expandedEntry.contains('?') || expandedEntry.contains('*');
     if (!containsWildcard && !fullFilePath.exists() && directory.exists()) {
-        LocatorFilterEntry filterEntry;
-        filterEntry.displayName =  Tr::tr("Create and Open \"%1\"").arg(expandedEntry);
-        filterEntry.acceptor = [fullFilePath] {
-            QMetaObject::invokeMethod(EditorManager::instance(),
-                [fullFilePath] { createAndOpen(fullFilePath); }, Qt::QueuedConnection);
-            return AcceptResult();
-        };
-        filterEntry.filePath = fullFilePath;
-        filterEntry.extraInfo = directory.absoluteFilePath().shortNativePath();
-        entries[int(ILocatorFilter::MatchLevel::Normal)].append(filterEntry);
+        // create and open file
+        {
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = Tr::tr("Create and Open File \"%1\"").arg(expandedEntry);
+            filterEntry.acceptor = [fullFilePath] {
+                QMetaObject::invokeMethod(
+                    EditorManager::instance(),
+                    [fullFilePath] { createAndOpenFile(fullFilePath); },
+                    Qt::QueuedConnection);
+                return AcceptResult();
+            };
+            filterEntry.filePath = fullFilePath;
+            filterEntry.extraInfo = directory.absoluteFilePath().shortNativePath();
+            entries[int(ILocatorFilter::MatchLevel::Normal)].append(filterEntry);
+        }
+
+        // create directory
+        {
+            LocatorFilterEntry filterEntry;
+            filterEntry.displayName = Tr::tr("Create Directory \"%1\"").arg(expandedEntry);
+            filterEntry.acceptor = [fullFilePath, shortcutString] {
+                QMetaObject::invokeMethod(
+                    EditorManager::instance(),
+                    [fullFilePath, shortcutString] {
+                        if (createDirectory(fullFilePath)) {
+                            const QString value = shortcutString + ' '
+                                                  + fullFilePath.absoluteFilePath()
+                                                        .cleanPath()
+                                                        .pathAppended("/")
+                                                        .toUserOutput();
+                            LocatorManager::show(value, value.length());
+                        }
+                    },
+                    Qt::QueuedConnection);
+                return AcceptResult();
+            };
+            filterEntry.filePath = fullFilePath;
+            filterEntry.extraInfo = directory.absoluteFilePath().shortNativePath();
+            entries[int(ILocatorFilter::MatchLevel::Normal)].append(filterEntry);
+        }
     }
     return std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries());
 }
