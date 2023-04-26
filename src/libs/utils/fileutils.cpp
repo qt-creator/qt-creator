@@ -62,6 +62,10 @@ bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode)
         return false;
     }
     m_data = *contents;
+
+    if (mode & QIODevice::Text)
+        m_data = m_data.replace("\r\n", "\n");
+
     return true;
 }
 
