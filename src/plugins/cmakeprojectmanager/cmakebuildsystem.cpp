@@ -271,10 +271,19 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
         const FilePath targetCMakeFile = target.backtrace.last().path;
         const int targetDefinitionLine = target.backtrace.last().line;
 
-        auto cmakeListFile
-            = Utils::findOrDefault(m_cmakeFiles, [targetCMakeFile](const CMakeFileInfo &info) {
-                  return info.path == targetCMakeFile;
-              }).cmakeListFile;
+        // Have a fresh look at the CMake file, not relying on a cached value
+        expected_str<QByteArray> fileContent = targetCMakeFile.fileContents();
+        cmListFile cmakeListFile;
+        std::string errorString;
+        if (fileContent) {
+            fileContent = fileContent->replace("\r\n", "\n");
+            if (!cmakeListFile.ParseString(fileContent->toStdString(),
+                                           targetCMakeFile.fileName().toStdString(),
+                                           errorString)) {
+                *notAdded = filePaths;
+                return false;
+            }
+        }
 
         auto function = std::find_if(cmakeListFile.Functions.begin(),
                                      cmakeListFile.Functions.end(),
@@ -360,7 +369,8 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
 
         editor->insert(snippet);
         editor->editorWidget()->autoIndent();
-        Core::DocumentManager::saveDocument(editor->document());
+        if (!Core::DocumentManager::saveDocument(editor->document()))
+            return false;
 
         return true;
     }
