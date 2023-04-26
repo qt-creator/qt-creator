@@ -411,15 +411,25 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
                                  });
 
     const std::string target_name = targetName.toStdString();
-    auto targetSourcesFunc
-        = std::find_if(cmakeListFile.Functions.begin(),
-                       cmakeListFile.Functions.end(),
-                       [target_name = targetName.toStdString()](const auto &func) {
-                           return func.LowerCaseName() == "target_sources"
-                                  && func.Arguments().front().Value == target_name;
-                       });
+    auto targetSourcesFunc = std::find_if(cmakeListFile.Functions.begin(),
+                                          cmakeListFile.Functions.end(),
+                                          [target_name](const auto &func) {
+                                              return func.LowerCaseName() == "target_sources"
+                                                     && func.Arguments().size() > 1
+                                                     && func.Arguments().front().Value
+                                                            == target_name;
+                                          });
+    auto addQmlModuleFunc = std::find_if(cmakeListFile.Functions.begin(),
+                                         cmakeListFile.Functions.end(),
+                                         [target_name](const auto &func) {
+                                             return (func.LowerCaseName() == "qt_add_qml_module"
+                                                     || func.LowerCaseName() == "qt6_add_qml_module")
+                                                    && func.Arguments().size() > 1
+                                                    && func.Arguments().front().Value
+                                                           == target_name;
+                                         });
 
-    for (const auto &func : {function, targetSourcesFunc}) {
+    for (const auto &func : {function, targetSourcesFunc, addQmlModuleFunc}) {
         if (func == cmakeListFile.Functions.end())
             continue;
         auto filePathArgument
