@@ -5,6 +5,7 @@
 
 #include <qmldesignercorelib_global.h>
 
+#include <externaldependenciesinterface.h>
 #include <import.h>
 
 #include <optional>
@@ -18,10 +19,13 @@ class QMLDESIGNERCORE_EXPORT ModuleScanner
 public:
     using SkipFunction = std::function<bool(QStringView)>;
 
-    ModuleScanner([[maybe_unused]] SkipFunction skip, [[maybe_unused]] VersionScanning versionScanning)
+    ModuleScanner([[maybe_unused]] SkipFunction skip,
+                  [[maybe_unused]] VersionScanning versionScanning,
+                  ExternalDependenciesInterface &externalDependencies)
 #ifdef QDS_HAS_QMLPRIVATE
         : m_skip{std::move(skip)}
         , m_versionScanning{versionScanning}
+        , m_externalDependencies{externalDependencies}
 #endif
     {
         m_modules.reserve(128);
@@ -39,6 +43,7 @@ private:
 #ifdef QDS_HAS_QMLPRIVATE
     SkipFunction m_skip;
     VersionScanning m_versionScanning;
+    ExternalDependenciesInterface &m_externalDependencies;
 #endif
 };
 

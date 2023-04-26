@@ -1,0 +1,7 @@
+module Qt.test.controls
+linktarget Qt6::QuickControlsTestUtilsPrivateplugin
+optional plugin quickcontrolstestutilsprivateplugin
+classname Qt_test_controlsPlugin
+typeinfo QuickControlsTestUtilsPrivate.qmltypes
+prefer :/qt-project.org/imports/Qt/test/controls/
+

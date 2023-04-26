@@ -1,0 +1,8 @@
+module Qt3D.Render
+linktarget Qt6::quick3drenderplugin
+plugin quick3drenderplugin
+classname Qt3DQuick3DRenderPlugin
+typeinfo plugins.qmltypes
+depends QtQml auto
+prefer :/qt-project.org/imports/Qt3D/Render/
+
