@@ -39,6 +39,7 @@ public:
     QStringList modulePaths() const override;
     QStringList projectModulePaths() const override;
     bool isQt6Project() const override;
+    QString qtQuickVersion() const override;
 
 private:
     const DesignerSettings &m_designerSettings;

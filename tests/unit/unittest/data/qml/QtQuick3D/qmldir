@@ -1,0 +1,9 @@
+module QtQuick3D
+linktarget Qt6::qquick3dplugin
+plugin qquick3dplugin
+classname QQuick3DPlugin
+designersupported
+typeinfo plugins.qmltypes
+depends QtQuick auto
+prefer :/qt-project.org/imports/QtQuick3D/
+

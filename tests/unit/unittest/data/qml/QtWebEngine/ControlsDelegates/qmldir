@@ -1,0 +1,36 @@
+module QtWebEngine.ControlsDelegates
+linktarget Qt6::qtwebenginequickdelegatesplugin
+optional plugin qtwebenginequickdelegatesplugin
+classname QtWebEngine_ControlsDelegatesPlugin
+typeinfo WebEngineQuickDelegatesQml.qmltypes
+depends QtQuickControls2
+prefer :/qt-project.org/imports/QtWebEngine/ControlsDelegates/
+AlertDialog 6.0 AlertDialog.qml
+AlertDialog 1.0 AlertDialog.qml
+AuthenticationDialog 6.0 AuthenticationDialog.qml
+AuthenticationDialog 1.0 AuthenticationDialog.qml
+AutofillPopup 6.0 AutofillPopup.qml
+AutofillPopup 1.0 AutofillPopup.qml
+ColorDialog 6.0 ColorDialog.qml
+ColorDialog 1.0 ColorDialog.qml
+ConfirmDialog 6.0 ConfirmDialog.qml
+ConfirmDialog 1.0 ConfirmDialog.qml
+DirectoryPicker 6.0 DirectoryPicker.qml
+DirectoryPicker 1.0 DirectoryPicker.qml
+FilePicker 6.0 FilePicker.qml
+FilePicker 1.0 FilePicker.qml
+Menu 6.0 Menu.qml
+Menu 1.0 Menu.qml
+MenuItem 6.0 MenuItem.qml
+MenuItem 1.0 MenuItem.qml
+MenuSeparator 6.0 MenuSeparator.qml
+MenuSeparator 1.0 MenuSeparator.qml
+PromptDialog 6.0 PromptDialog.qml
+PromptDialog 1.0 PromptDialog.qml
+ToolTip 6.0 ToolTip.qml
+ToolTip 1.0 ToolTip.qml
+TouchHandle 6.0 TouchHandle.qml
+TouchHandle 1.0 TouchHandle.qml
+TouchSelectionMenu 6.0 TouchSelectionMenu.qml
+TouchSelectionMenu 1.0 TouchSelectionMenu.qml
+

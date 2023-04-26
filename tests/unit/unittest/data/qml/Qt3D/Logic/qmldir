@@ -1,0 +1,7 @@
+module Qt3D.Logic
+linktarget Qt6::quick3dlogicplugin
+plugin quick3dlogicplugin
+classname Qt3DQuick3DLogicPlugin
+typeinfo plugins.qmltypes
+prefer :/qt-project.org/imports/Qt3D/Logic/
+

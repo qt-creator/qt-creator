@@ -38,6 +38,26 @@ QString createVersion(const QMultiHash<QString, QQmlDirParser::Component> &compo
 }
 #endif
 
+constexpr auto coreModules = std::make_tuple(QStringView{u"QtQuick"},
+                                             QStringView{u"QtQuick.Controls"},
+                                             QStringView{u"QtQuick3D"},
+                                             QStringView{u"QtQuick3D.Helpers"},
+                                             QStringView{u"QtQuick3D.Particles3D"});
+
+bool isCoreVersion(QStringView moduleName)
+{
+    return std::apply([=](auto... coreModuleName) { return ((moduleName == coreModuleName) || ...); },
+                      coreModules);
+}
+
+QString createCoreVersion(QStringView moduleName, ExternalDependenciesInterface &externalDependencies)
+{
+    if (isCoreVersion(moduleName))
+        return externalDependencies.qtQuickVersion();
+
+    return {};
+}
+
 } // namespace
 
 void ModuleScanner::scan(const QStringList &modulePaths)
@@ -49,7 +69,9 @@ void ModuleScanner::scan(const QStringList &modulePaths)
 void ModuleScanner::scan([[maybe_unused]] std::string_view modulePath)
 {
 #ifdef QDS_HAS_QMLPRIVATE
-    QDirIterator dirIterator{QString::fromUtf8(modulePath), QDir::Dirs, QDirIterator::Subdirectories};
+    QDirIterator dirIterator{QString::fromUtf8(modulePath),
+                             QDir::Dirs | QDir::NoDotAndDotDot,
+                             QDirIterator::Subdirectories};
 
     while (dirIterator.hasNext()) {
         auto directoryPath = dirIterator.next();
@@ -70,8 +92,21 @@ void ModuleScanner::scan([[maybe_unused]] std::string_view modulePath)
             if (moduleName.isEmpty() || m_skip(moduleName))
                 continue;
 
+<<<<<<< HEAD   (0d4e8c QmlDesigner: Remove duplicates)
             m_modules.push_back(
                 Import::createLibraryImport(moduleName, createVersion(parser.components())));
+=======
+            QString version = m_versionScanning == VersionScanning::Yes
+                                  ? createVersion(parser.components())
+                                  : QString{};
+
+            QString coreModuleVersion = createCoreVersion(moduleName, m_externalDependencies);
+
+            if (!coreModuleVersion.isEmpty())
+                version = coreModuleVersion;
+
+            m_modules.push_back(Import::createLibraryImport(moduleName, version));
+>>>>>>> CHANGE (de2154 QmlDesigner: Add versioning for core modules)
         }
     }
 
