@@ -120,8 +120,6 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
     if (QmlProject::isQtDesignStudio()) {
         int preferedVersion = preferedQtTarget(activeTarget());
 
-        //        if (activeTarget())
-        //            removeTarget(activeTarget());
         setKitWithVersion(preferedVersion, kits);
     }
 
@@ -141,12 +139,18 @@ bool QmlProject::setKitWithVersion(const int qtMajorVersion, const QList<Kit *> 
         return (version && version->qtVersion().majorVersion() == qtMajorVersion);
     });
 
+
+    Target *target = nullptr;
+
     if (!qtVersionkits.isEmpty()) {
         if (qtVersionkits.contains(KitManager::defaultKit()))
-            addTargetForDefaultKit();
+            target = addTargetForDefaultKit();
         else
-            addTargetForKit(qtVersionkits.first());
+            target = addTargetForKit(qtVersionkits.first());
     }
+
+    if (target)
+        SessionManager::setActiveTarget(this, target, SetActive::NoCascade);
 
     return true;
 }
