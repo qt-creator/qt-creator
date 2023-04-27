@@ -202,7 +202,8 @@ bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
 {
     if (dynamic_cast<CMakeTargetNode *>(context))
         return action == ProjectAction::AddNewFile || action == ProjectAction::AddExistingFile
-               || action == ProjectAction::Rename || action == ProjectAction::RemoveFile;
+               || action == ProjectAction::AddExistingDirectory || action == ProjectAction::Rename
+               || action == ProjectAction::RemoveFile;
 
     return BuildSystem::supportsAction(context, action, node);
 }
