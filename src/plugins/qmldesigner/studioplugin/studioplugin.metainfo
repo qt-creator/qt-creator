@@ -40,7 +40,10 @@ MetaInfo {
         "Qt.test.controls",
         "QtOpcUa",
         "QtVncServer",
-        "QtTextToSpeech"
+        "QtTextToSpeech",
+        "QtQuick3D MaterialEditor",
+        "QtDataVisualization",
+        "QtQuick3D.ParticleEffects"
         ]
 
     showTagsForImports: [
