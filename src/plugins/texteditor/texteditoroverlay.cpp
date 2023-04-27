@@ -134,8 +134,10 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
         int x = line.cursorToX(pos);
         lineRect.setLeft(x - borderWidth);
         lineRect.setRight(x + borderWidth);
+        lineRect.setBottom(lineRect.bottom() + borderWidth);
         QPainterPath path;
         path.addRect(lineRect);
+        path.translate(offset);
         return path;
     }
 
@@ -250,6 +252,8 @@ void TextEditorOverlay::paintSelection(QPainter *painter,
         return;
 
     QPainterPath path = createSelectionPath(begin, end, clip);
+    if (path.isEmpty())
+        return;
 
     painter->save();
     QColor penColor = fg;
@@ -305,6 +309,8 @@ void TextEditorOverlay::fillSelection(QPainter *painter,
         return;
 
     QPainterPath path = createSelectionPath(begin, end, clip);
+    if (path.isEmpty())
+        return;
 
     painter->save();
     painter->translate(-.5, -.5);

@@ -375,8 +375,14 @@ QSet<QString> internalTargets(const FilePath &proFile)
     for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectInfo->projectParts()) {
         if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
             continue;
-        if (projectPart->projectFile == proFile.toString())
+        if (projectPart->projectFile != proFile.toString())
+            continue;
+        if (Utils::anyOf(projectPart->projectMacros, [](const ProjectExplorer::Macro &macro){
+            return macro.type == ProjectExplorer::MacroType::Define &&
+                       macro.key == "QUICK_TEST_SOURCE_DIR";
+            })) {
             result.insert(projectPart->buildSystemTarget);
+        }
     }
     return result;
 }

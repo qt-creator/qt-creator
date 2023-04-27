@@ -40138,11 +40138,11 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Buffered output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe puffern</translation>
     </message>
     <message>
         <source>Enabling improves output performance, but results in delayed output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivieren dieser Option verbessert die Leistung der Anwendung, resultiert aber in verzögerter Ausgabe.</translation>
     </message>
     <message>
         <source>Script:</source>
@@ -40162,15 +40162,15 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Executable is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei ist leer.</translation>
     </message>
     <message>
         <source>%1 does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 existiert nicht.</translation>
     </message>
     <message>
         <source>%1 is not an executable file.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ist keine ausführbare Datei.</translation>
     </message>
     <message>
         <source>&amp;Add</source>
@@ -40186,11 +40186,11 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>&amp;Clean Up</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Bereiningen</translation>
     </message>
     <message>
         <source>Remove all Python interpreters without a valid executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernt alle Python-Interpreter ohne gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Interpreters</source>
@@ -40202,43 +40202,43 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Plugins:</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugins:</translation>
     </message>
     <message>
         <source>Use Python Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Python Language Server benutzen</translation>
     </message>
     <message>
         <source>For a complete list of available options, consult the &lt;a href=&quot;https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md&quot;&gt;Python LSP Server configuration documentation&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für eine vollständige Liste der verfügbaren Optionen siehe auch die &lt;a href=&quot;https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md&quot;&gt;Dokumentation zur Python LSP-Server-Konfiguration&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">Erweitert</translation>
+        <translation>Erweitert</translation>
     </message>
     <message>
         <source>Language Server Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Language Server-Konfiguration</translation>
     </message>
     <message>
         <source> (Windowed)</source>
-        <translation type="unfinished"></translation>
+        <translation> (mit Fenster)</translation>
     </message>
     <message>
         <source>Removing Python</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Python</translation>
     </message>
     <message>
         <source>Python:</source>
-        <translation type="unfinished"></translation>
+        <translation>Python:</translation>
     </message>
     <message>
         <source>%1 installation missing for %2 (%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Installation fehlt für %2 (%3)</translation>
     </message>
     <message>
         <source>Install %1 for %2 using pip package installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere %1 für %2 mit dem pip Paket-Installationsprogramm.</translation>
     </message>
     <message>
         <source>Install</source>
@@ -40246,95 +40246,99 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Install %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>This is the header of a progress bar</translatorcomment>
+        <translation>Installiere %1</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; to install %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe &quot;%1&quot; aus, um %2 zu installieren.</translation>
     </message>
     <message>
         <source>The %1 installation was canceled by %2.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%2 can be &quot;user&quot; or &quot;time out&quot; which doesn&apos;t work in non-english... so working around that.</translatorcomment>
+        <translation>Die Installation von %1 wurde abgebrochen: %2.</translation>
     </message>
     <message>
         <source>user</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Used as %2 in &quot;Die Installation von %1 wurde abgebrochen: %2.&quot;</translatorcomment>
+        <translation>Der Nutzer hat den Prozess abgebrochen</translation>
     </message>
     <message>
         <source>time out</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Used as %2 in &quot;Die Installation von %1 wurde abgebrochen: %2.&quot;</translatorcomment>
+        <translation>Zeitüberschreitung</translation>
     </message>
     <message>
         <source>Installing the %1 failed with exit code %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation von %1 ist mit dem Rückgabewert %2 fehlgeschlagen</translation>
     </message>
     <message>
         <source>Run PySide6 project tool</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide6 Projektwerkzeug ausführen</translation>
     </message>
     <message>
         <source>PySide project tool:</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide Projektwerkzeug:</translation>
     </message>
     <message>
         <source>Enter location of PySide project tool.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Ort des PySide Projektwerkzeugs ein.</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>REPL</source>
-        <translation type="unfinished"></translation>
+        <translation>REPL</translation>
     </message>
     <message>
         <source>Open interactive Python.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interaktives Python öffnen.</translation>
     </message>
     <message>
         <source>REPL Import File</source>
-        <translation type="unfinished"></translation>
+        <translation>REPL mit Datei-Import</translation>
     </message>
     <message>
         <source>Open interactive Python and import file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interaktives Python öffnen und Datei importieren.</translation>
     </message>
     <message>
         <source>REPL Import *</source>
-        <translation type="unfinished"></translation>
+        <translation>REPL mit *-Import</translation>
     </message>
     <message>
         <source>Open interactive Python and import * from file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interaktives Python öffnen und alles (*) aus der Datei importieren.</translation>
     </message>
     <message>
         <source>Open interactive Python. Either importing nothing, importing the current file, or importing everything (*) from the current file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interaktives Python öffnen. Importiert entweder nichts, die aktuelle Datei oder alles (*) aus der aktuellen Datei.</translation>
     </message>
     <message>
         <source>No Python Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Python ausgewählt</translation>
     </message>
     <message>
         <source>Manage Python Interpreters</source>
-        <translation type="unfinished"></translation>
+        <translation>Python-Interpreter verwalten</translation>
     </message>
     <message>
         <source>Python Language Server (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Python Language Server (%1)</translation>
     </message>
     <message>
         <source>Install Python language server (PyLS) for %1 (%2). The language server provides Python specific completion and annotation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python Language Server (PyLS) für %1 (%2) installieren. Der Language Server stellt Code-Vervollständigung und Annotationen für Python zur Verfügung.</translation>
     </message>
     <message>
         <source>Searching Python binaries...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche ausführbare Python-Dateien...</translation>
     </message>
     <message>
         <source>Found &quot;%1&quot; (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; (%2) gefunden</translation>
     </message>
 </context>
 <context>

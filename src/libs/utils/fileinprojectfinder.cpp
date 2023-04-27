@@ -248,7 +248,10 @@ bool FileInProjectFinder::findFileOrDirectory(const FilePath &originalPath, File
             }
         }
         while (prefixToIgnore != -1) {
-            FilePath candidate = originalPath.resolvePath(m_projectDir);
+            QString candidateString = originalPath.toFSPathString();
+            candidateString.remove(0, prefixToIgnore);
+            candidateString.prepend(m_projectDir.toString());
+            const FilePath candidate = FilePath::fromString(candidateString);
             const int matchLength = origLength - prefixToIgnore;
             // FIXME: This might be a worse match than what we find later.
             if (checkPath(candidate, matchLength, fileHandler, directoryHandler)) {

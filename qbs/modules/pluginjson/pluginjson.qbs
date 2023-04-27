@@ -19,7 +19,7 @@ Module {
             // TODO: Could something like this be incorporated into the vcs module?
             //       Currently, the default repo dir is project.sourceDirectory, which
             //       does not make sense for Qt Creator.
-            var dir = sourceDirectory;
+            var dir = product.sourceDirectory;
             while (true) {
                 if (File.exists(FileInfo.joinPaths(dir, ".git")))
                     return dir;

@@ -122,7 +122,7 @@ static void findProcessPIDAndUser(QFutureInterface<PidUserPair> &fi, QStringList
         if (!out.isEmpty()) {
             QRegularExpressionMatch match;
             qsizetype matchPos = out.indexOf(userIdPattern, 0, &match);
-            if (matchPos >= 0 && match.hasCaptured(1) && match.capturedLength(1) > 0) {
+            if (matchPos >= 0 && match.capturedLength(1) > 0) {
                 bool ok = false;
                 processUser = match.captured(1).toInt(&ok);
                 if (!ok)

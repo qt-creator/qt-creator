@@ -108,6 +108,9 @@ void CodeStyleEditor::finish()
 {
     if (m_widget)
         m_widget->finish();
+
+    if (m_additionalGlobalSettingsWidget)
+        m_additionalGlobalSettingsWidget->finish();
 }
 
 } // TextEditor
