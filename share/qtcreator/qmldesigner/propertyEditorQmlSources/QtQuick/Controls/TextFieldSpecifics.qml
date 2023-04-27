@@ -14,11 +14,21 @@ Column {
         caption: qsTr("Text Field")
     }
 
-    CharacterSection {}
+    CharacterSection {
+        showVerticalAlignment: true
+    }
 
-    TextExtrasSection {}
+    TextInputSection {
+        isTextInput: true
+    }
 
-    FontExtrasSection {}
+    TextExtrasSection {
+        showWrapMode: true
+    }
+
+    FontExtrasSection {
+        showStyle: false
+    }
 
     PaddingSection {}
 

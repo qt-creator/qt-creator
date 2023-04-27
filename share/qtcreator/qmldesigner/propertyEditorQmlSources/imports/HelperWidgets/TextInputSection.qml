@@ -7,7 +7,7 @@ import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
 
 Section {
-    id: textInputSection
+    id: root
     anchors.left: parent.left
     anchors.right: parent.right
     caption: qsTr("Text Input")
@@ -46,7 +46,7 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
                 width: implicitWidth
                 backendValue: backendValues.mouseSelectionMode
-                scope: "TextInput"
+                scope: root.isTextInput ? "TextInput" : "TextEdit"
                 model: ["SelectCharacters", "SelectWords"]
             }
 
@@ -54,13 +54,13 @@ Section {
         }
 
         PropertyLabel {
-            visible: textInputSection.isTextInput
+            visible: root.isTextInput
             text: qsTr("Input mask")
             tooltip: qsTr("Sets the allowed characters.")
         }
 
         SecondColumnLayout {
-            visible: textInputSection.isTextInput
+            visible: root.isTextInput
 
             LineEdit {
                 backendValue: backendValues.inputMask
@@ -74,13 +74,13 @@ Section {
         }
 
         PropertyLabel {
-            visible: textInputSection.isTextInput
+            visible: root.isTextInput
             text: qsTr("Echo mode")
             tooltip: qsTr("Sets the visibility mode.")
         }
 
         SecondColumnLayout {
-            visible: textInputSection.isTextInput
+            visible: root.isTextInput
 
             ComboBox {
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
@@ -95,13 +95,13 @@ Section {
         }
 
         PropertyLabel {
-            visible: textInputSection.isTextInput
+            visible: root.isTextInput
             text: qsTr("Password character")
             tooltip: qsTr("Sets which character to display when passwords are entered.")
         }
 
         SecondColumnLayout {
-            visible: textInputSection.isTextInput
+            visible: root.isTextInput
 
             LineEdit {
                 backendValue: backendValues.passwordCharacter
@@ -115,13 +115,13 @@ Section {
         }
 
         PropertyLabel {
-            visible: !textInputSection.isTextInput
+            visible: !root.isTextInput
             text: qsTr("Tab stop distance")
             tooltip: qsTr("Default distance between tab stops in device units.")
         }
 
         SecondColumnLayout {
-            visible: !textInputSection.isTextInput
+            visible: !root.isTextInput
 
             SpinBox {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
@@ -139,13 +139,13 @@ Section {
         }
 
         PropertyLabel {
-            visible: !textInputSection.isTextInput
+            visible: !root.isTextInput
             text: qsTr("Text margin")
             tooltip: qsTr("Margin around the text in the Text Edit in pixels.")
         }
 
         SecondColumnLayout {
-            visible: !textInputSection.isTextInput
+            visible: !root.isTextInput
 
             SpinBox {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
@@ -163,13 +163,13 @@ Section {
         }
 
         PropertyLabel {
-            visible: textInputSection.isTextInput
+            visible: root.isTextInput
             text: qsTr("Maximum length")
             tooltip: qsTr("Sets the maximum length of the text.")
         }
 
         SecondColumnLayout {
-            visible: textInputSection.isTextInput
+            visible: root.isTextInput
 
             SpinBox {
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
@@ -216,13 +216,13 @@ Section {
         FlagItem { backendValue: backendValues.activeFocusOnPress }
 
         PropertyLabel {
-            visible: textInputSection.isTextInput
+            visible: root.isTextInput
             text: qsTr("Auto scroll")
             tooltip: qsTr("Toggles if the text scrolls when it exceeds its boundary.")
         }
 
         FlagItem {
-            visible: textInputSection.isTextInput
+            visible: root.isTextInput
             backendValue: backendValues.autoScroll
         }
 
@@ -248,12 +248,12 @@ Section {
         FlagItem { backendValue: backendValues.selectByMouse }
 
         PropertyLabel {
-            visible: !textInputSection.isTextInput
+            visible: !root.isTextInput
             text: qsTr("Select by keyboard")
         }
 
         FlagItem {
-            visible: !textInputSection.isTextInput
+            visible: !root.isTextInput
             backendValue: backendValues.selectByKeyboard
         }
     }
