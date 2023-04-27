@@ -157,6 +157,7 @@ public:
     Signal<void()> completionRequested;
     Signal<void()> tabPreviousRequested;
     Signal<void()> tabNextRequested;
+    Signal<void()> modeChanged;
 
 public:
     class Private;

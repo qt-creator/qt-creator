@@ -1591,6 +1591,11 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
             tew->setExtraSelections(TextEditorWidget::FakeVimSelection, selection);
     });
 
+    handler->modeChanged.connect([tew]() {
+        if (tew)
+            tew->clearSuggestion();
+    });
+
     handler->highlightMatches.connect([](const QString &needle) {
         for (IEditor *editor : EditorManager::visibleEditors()) {
             QWidget *w = editor->widget();
