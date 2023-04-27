@@ -69,11 +69,9 @@ public:
 
     void setMainFile(const QString &mainFile);
     QString mainFile() const;
-    Utils::FilePath mainFilePath() const;
 
     void setMainUiFile(const QString &mainUiFile);
     QString mainUiFile() const;
-    Utils::FilePath mainUiFilePath() const;
 
     bool widgetApp() const;
     void setWidgetApp(const bool &widgetApp);

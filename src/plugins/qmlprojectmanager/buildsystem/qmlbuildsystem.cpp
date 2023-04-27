@@ -291,7 +291,7 @@ Utils::FilePath QmlBuildSystem::mainFilePath() const
 
 Utils::FilePath QmlBuildSystem::mainUiFilePath() const
 {
-    return m_projectItem->mainUiFilePath();
+    return projectDirectory().pathAppended(mainUiFile());
 }
 
 bool QmlBuildSystem::setMainFileInProjectFile(const Utils::FilePath &newMainFilePath)
@@ -475,6 +475,11 @@ bool QmlBuildSystem::renameFile(Node *context,
 QString QmlBuildSystem::mainFile() const
 {
     return m_projectItem->mainFile();
+}
+
+QString QmlBuildSystem::mainUiFile() const
+{
+    return m_projectItem->mainUiFile();
 }
 
 bool QmlBuildSystem::qtForMCUs() const

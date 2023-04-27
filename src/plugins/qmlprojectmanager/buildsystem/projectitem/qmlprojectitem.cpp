@@ -317,11 +317,6 @@ QString QmlProjectItem::mainFile() const
     return m_project["runConfig"].toObject()["mainFile"].toString();
 }
 
-Utils::FilePath QmlProjectItem::mainFilePath() const
-{
-    return m_projectFile;
-}
-
 void QmlProjectItem::setMainUiFile(const QString &mainUiFile)
 {
     QJsonObject runConfig = m_project["runConfig"].toObject();
@@ -332,11 +327,6 @@ void QmlProjectItem::setMainUiFile(const QString &mainUiFile)
 QString QmlProjectItem::mainUiFile() const
 {
     return m_project["runConfig"].toObject()["mainUiFile"].toString();
-}
-
-Utils::FilePath QmlProjectItem::mainUiFilePath() const
-{
-    return Utils::FilePath::fromString(m_project["runConfig"].toObject()["mainUiFile"].toString());
 }
 
 bool QmlProjectItem::widgetApp() const

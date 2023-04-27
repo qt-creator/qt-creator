@@ -57,6 +57,7 @@ public:
 
     Utils::FilePath canonicalProjectDir() const;
     QString mainFile() const;
+    QString mainUiFile() const;
     Utils::FilePath mainFilePath() const;
     Utils::FilePath mainUiFilePath() const;
 
