@@ -1,0 +1,22 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage creator-editor-fakevim.html
+    \page creator-markdown-editor.html
+    \nextpage creator-language-servers.html
+
+    \title Editing Markdown Files
+
+    Open \l{https://www.markdownguide.org/basic-syntax/}{markdown} (.md) files
+    or select \uicontrol File > \uicontrol {New File} > \uicontrol {General} >
+    \uicontrol {Markdown File} to create a new file.
+
+    \image qtcreator-markdown-editor.webp {Markdown file in Preview and Editor views}
+
+    When you edit the file in the editor, you can see the changes in the preview.
+
+    To hide and show the views, select \uicontrol {Show Preview} and
+    \uicontrol {Show Editor}. To swap the places of the views, select
+    \uicontrol {Swap Views}.
+*/
