@@ -2023,6 +2023,10 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     while (idPart->next) {
         const ObjectValue *objectValue = value_cast<ObjectValue>(value);
         if (! objectValue) {
+
+        if (!objectValue && propertyName == "easing")
+            return nullptr;
+
             addMessage(ErrDoesNotHaveMembers, idPart->identifierToken, propertyName);
             return nullptr;
         }
