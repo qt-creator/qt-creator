@@ -5459,16 +5459,18 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isKey(Key_PageUp) || input.isControl('b')) {
         movePageUp();
     } else if (input.isKey(Key_Tab)) {
-        m_buffer->insertState.insertingSpaces = true;
-        if (s.expandTab.value()) {
-            const int ts = s.tabStop.value();
-            const int col = logicalCursorColumn();
-            QString str = QString(ts - col % ts, ' ');
-            insertText(str);
-        } else {
-            insertInInsertMode(input.raw());
+        if (q->tabPressedInInsertMode()) {
+            m_buffer->insertState.insertingSpaces = true;
+            if (s.expandTab.value()) {
+                const int ts = s.tabStop.value();
+                const int col = logicalCursorColumn();
+                QString str = QString(ts - col % ts, ' ');
+                insertText(str);
+            } else {
+                insertInInsertMode(input.raw());
+            }
+            m_buffer->insertState.insertingSpaces = false;
         }
-        m_buffer->insertState.insertingSpaces = false;
     } else if (input.isControl('d')) {
         // remove one level of indentation from the current line
         const int shift = s.shiftWidth.value();

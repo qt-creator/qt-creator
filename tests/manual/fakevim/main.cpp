@@ -187,12 +187,12 @@ int main(int argc, char *argv[])
     // Create FakeVimHandler instance which will emulate Vim behavior in editor widget.
     FakeVimHandler handler(editor, nullptr);
 
-    handler.commandBufferChanged.connect([&](const QString &msg, int cursorPos, int, int) {
+    handler.commandBufferChanged.set([&](const QString &msg, int cursorPos, int, int) {
         statusData.setStatusMessage(msg, cursorPos);
         mainWindow.statusBar()->showMessage(statusData.currentStatusLine());
     });
 
-    handler.selectionChanged.connect([&handler](const QList<QTextEdit::ExtraSelection> &s) {
+    handler.selectionChanged.set([&handler](const QList<QTextEdit::ExtraSelection> &s) {
         QWidget *widget = handler.widget();
         if (auto ed = qobject_cast<QPlainTextEdit *>(widget))
             ed->setExtraSelections(s);
@@ -200,21 +200,20 @@ int main(int argc, char *argv[])
             ed->setExtraSelections(s);
     });
 
-    handler.extraInformationChanged.connect([&](const QString &info) {
+    handler.extraInformationChanged.set([&](const QString &info) {
         statusData.setStatusInfo(info);
         mainWindow.statusBar()->showMessage(statusData.currentStatusLine());
     });
 
-    handler.statusDataChanged.connect([&](const QString &info) {
+    handler.statusDataChanged.set([&](const QString &info) {
         statusData.setStatusInfo(info);
         mainWindow.statusBar()->showMessage(statusData.currentStatusLine());
     });
 
-    handler.highlightMatches.connect([&](const QString &needle) {
-        highlightMatches(handler.widget(), needle);
-    });
+    handler.highlightMatches.set(
+        [&](const QString &needle) { highlightMatches(handler.widget(), needle); });
 
-    handler.handleExCommandRequested.connect([](bool *handled, const ExCommand &cmd) {
+    handler.handleExCommandRequested.set([](bool *handled, const ExCommand &cmd) {
         if (cmd.matches("q", "quit") || cmd.matches("qa", "qall")) {
             QApplication::quit();
             *handled = true;

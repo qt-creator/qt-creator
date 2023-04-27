@@ -1586,7 +1586,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     new DeferredDeleter(widget, handler);
     m_editorToHandler[editor].handler = handler;
 
-    handler->extraInformationChanged.connect([this](const QString &text) {
+    handler->extraInformationChanged.set([this](const QString &text) {
         EditorManager::splitSideBySide();
         QString title = "stdout.txt";
         IEditor *iedit = EditorManager::openEditorWithContents(Id(), &title, text.toUtf8());
@@ -1596,17 +1596,27 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         handler->handleCommand("0");
     });
 
-    handler->commandBufferChanged
-            .connect([this, handler](const QString &contents, int cursorPos, int anchorPos, int messageLevel) {
-        showCommandBuffer(handler, contents, cursorPos, anchorPos, messageLevel);
-    });
+    handler->commandBufferChanged.set(
+        [this, handler](const QString &contents, int cursorPos, int anchorPos, int messageLevel) {
+            showCommandBuffer(handler, contents, cursorPos, anchorPos, messageLevel);
+        });
 
-    handler->selectionChanged.connect([tew](const QList<QTextEdit::ExtraSelection> &selection) {
+    handler->selectionChanged.set([tew](const QList<QTextEdit::ExtraSelection> &selection) {
         if (tew)
             tew->setExtraSelections(TextEditorWidget::FakeVimSelection, selection);
     });
 
-    handler->modeChanged.connect([tew, this, editor](bool insertMode) {
+    handler->tabPressedInInsertMode.set([tew]() {
+        auto suggestion = tew->currentSuggestion();
+        if (suggestion) {
+            suggestion->apply();
+            return false;
+        }
+
+        return true;
+    });
+
+    handler->modeChanged.set([tew, this, editor](bool insertMode) {
         HandlerAndData &handlerAndData = m_editorToHandler[editor];
 
         // We don't want to show suggestions unless we are in insert mode.
@@ -1617,7 +1627,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
             tew->clearSuggestion();
     });
 
-    handler->highlightMatches.connect([](const QString &needle) {
+    handler->highlightMatches.set([](const QString &needle) {
         for (IEditor *editor : EditorManager::visibleEditors()) {
             QWidget *w = editor->widget();
             if (auto find = Aggregation::query<IFindSupport>(w))
@@ -1625,7 +1635,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         }
     });
 
-    handler->moveToMatchingParenthesis.connect([](bool *moved, bool *forward, QTextCursor *cursor) {
+    handler->moveToMatchingParenthesis.set([](bool *moved, bool *forward, QTextCursor *cursor) {
         *moved = false;
 
         bool undoFakeEOL = false;
@@ -1658,7 +1668,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         }
     });
 
-    handler->indentRegion.connect([tew](int beginBlock, int endBlock, QChar typedChar) {
+    handler->indentRegion.set([tew](int beginBlock, int endBlock, QChar typedChar) {
         if (!tew)
             return;
 
@@ -1691,17 +1701,17 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         }
     });
 
-    handler->checkForElectricCharacter.connect([tew](bool *result, QChar c) {
+    handler->checkForElectricCharacter.set([tew](bool *result, QChar c) {
         if (tew)
             *result = tew->textDocument()->indenter()->isElectricCharacter(c);
     });
 
-    handler->requestDisableBlockSelection.connect([tew] {
+    handler->requestDisableBlockSelection.set([tew] {
         if (tew)
             tew->setTextCursor(tew->textCursor());
     });
 
-    handler->requestSetBlockSelection.connect([tew](const QTextCursor &cursor) {
+    handler->requestSetBlockSelection.set([tew](const QTextCursor &cursor) {
         if (tew) {
             const TabSettings &tabs = tew->textDocument()->tabSettings();
             MultiTextCursor mtc;
@@ -1725,7 +1735,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         }
     });
 
-    handler->requestBlockSelection.connect([tew](QTextCursor *cursor) {
+    handler->requestBlockSelection.set([tew](QTextCursor *cursor) {
         if (tew && cursor) {
             MultiTextCursor mtc = tew->multiTextCursor();
             *cursor = mtc.cursors().first();
@@ -1733,16 +1743,16 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         }
     });
 
-    handler->requestHasBlockSelection.connect([tew](bool *on) {
+    handler->requestHasBlockSelection.set([tew](bool *on) {
         if (tew && on)
             *on = tew->multiTextCursor().hasMultipleCursors();
     });
 
-    handler->simpleCompletionRequested.connect([this, handler](const QString &needle, bool forward) {
+    handler->simpleCompletionRequested.set([this, handler](const QString &needle, bool forward) {
         runData->wordProvider.setActive(needle, forward, handler);
     });
 
-    handler->windowCommandRequested.connect([this, handler](const QString &map, int count) {
+    handler->windowCommandRequested.set([this, handler](const QString &map, int count) {
         // normalize mapping
         const QString key = map.toUpper();
 
@@ -1772,22 +1782,22 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
             qDebug() << "UNKNOWN WINDOW COMMAND: <C-W>" << map;
     });
 
-    handler->findRequested.connect([](bool reverse) {
+    handler->findRequested.set([](bool reverse) {
         Find::setUseFakeVim(true);
         Find::openFindToolBar(reverse ? Find::FindBackwardDirection
                                       : Find::FindForwardDirection);
     });
 
-    handler->findNextRequested.connect([](bool reverse) {
+    handler->findNextRequested.set([](bool reverse) {
         triggerAction(reverse ? Core::Constants::FIND_PREVIOUS : Core::Constants::FIND_NEXT);
     });
 
-    handler->foldToggle.connect([this, handler](int depth) {
+    handler->foldToggle.set([this, handler](int depth) {
         QTextBlock block = handler->textCursor().block();
         fold(handler, depth, !TextDocumentLayout::isFolded(block));
     });
 
-    handler->foldAll.connect([handler](bool fold) {
+    handler->foldAll.set([handler](bool fold) {
         QTextDocument *document = handler->textCursor().document();
         auto documentLayout = qobject_cast<TextDocumentLayout*>(document->documentLayout());
         QTC_ASSERT(documentLayout, return);
@@ -1802,11 +1812,9 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         documentLayout->emitDocumentSizeChanged();
     });
 
-    handler->fold.connect([this, handler](int depth, bool dofold) {
-        fold(handler, depth, dofold);
-    });
+    handler->fold.set([this, handler](int depth, bool dofold) { fold(handler, depth, dofold); });
 
-    handler->foldGoTo.connect([handler](int count, bool current) {
+    handler->foldGoTo.set([handler](int count, bool current) {
         QTextCursor tc = handler->textCursor();
         QTextBlock block = tc.block();
 
@@ -1858,7 +1866,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         }
     });
 
-    handler->requestJumpToGlobalMark.connect(
+    handler->requestJumpToGlobalMark.set(
         [this](QChar mark, bool backTickMode, const QString &fileName) {
             if (IEditor *iedit = EditorManager::openEditor(FilePath::fromString(fileName))) {
                 if (FakeVimHandler *handler = m_editorToHandler.value(iedit, {}).handler)
@@ -1866,19 +1874,15 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
             }
         });
 
-    handler->handleExCommandRequested.connect([this, handler](bool *handled, const ExCommand &cmd) {
+    handler->handleExCommandRequested.set([this, handler](bool *handled, const ExCommand &cmd) {
         handleExCommand(handler, handled, cmd);
     });
 
-    handler->tabNextRequested.connect([] {
-        triggerAction(Core::Constants::GOTONEXTINHISTORY);
-    });
+    handler->tabNextRequested.set([] { triggerAction(Core::Constants::GOTONEXTINHISTORY); });
 
-    handler->tabPreviousRequested.connect([] {
-        triggerAction(Core::Constants::GOTOPREVINHISTORY);
-    });
+    handler->tabPreviousRequested.set([] { triggerAction(Core::Constants::GOTOPREVINHISTORY); });
 
-    handler->completionRequested.connect([this, tew] {
+    handler->completionRequested.set([this, tew] {
         if (tew)
             tew->invokeAssist(Completion, &runData->wordProvider);
     });
