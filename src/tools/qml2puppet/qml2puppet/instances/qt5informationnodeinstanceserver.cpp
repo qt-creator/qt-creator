@@ -827,9 +827,11 @@ void Qt5InformationNodeInstanceServer::handleView3DDestroyed([[maybe_unused]] QO
 #ifdef QUICK3D_MODULE
     auto view = qobject_cast<QQuick3DViewport *>(obj);
     m_view3Ds.remove(obj);
-    removeNode3D(view->scene());
-    if (view && view == m_active3DView)
-        m_active3DView = nullptr;
+    if (view) {
+        removeNode3D(view->scene());
+        if (view == m_active3DView)
+            m_active3DView = nullptr;
+    }
 #endif
 }
 
