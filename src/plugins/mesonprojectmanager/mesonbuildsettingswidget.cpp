@@ -74,9 +74,9 @@ MesonBuildSettingsWidget::MesonBuildSettingsWidget(MesonBuildConfiguration *buil
         Row { configureButton, wipeButton, }
     }.attachTo(this, WithoutMargins);
 
-    Form buildDirWBuilder;
-    buildCfg->buildDirectoryAspect()->addToLayout(buildDirWBuilder);
-    buildDirWBuilder.attachTo(buildDirWidget, WithoutMargins);
+    Form {
+        buildCfg->buildDirectoryAspect(),
+    }.attachTo(buildDirWidget, WithoutMargins);
 
     parametersLineEdit->setText(buildCfg->parameters());
     optionsFilterLineEdit->setFiltering(true);

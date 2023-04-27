@@ -5,7 +5,6 @@
 
 #include <QList>
 #include <QString>
-#include <QVariant>
 #include <QtGlobal>
 
 #include <optional>
@@ -18,10 +17,9 @@
 
 QT_BEGIN_NAMESPACE
 class QLayout;
-class QSplitter;
-class QTabWidget;
-class QTextEdit;
+class QObject;
 class QWidget;
+template <class T> T qobject_cast(QObject *object);
 QT_END_NAMESPACE
 
 namespace Layouting {
@@ -34,6 +32,7 @@ enum AttachType {
 
 class LayoutBuilder;
 class LayoutItem;
+class Span;
 
 // Special items
 
@@ -51,27 +50,19 @@ public:
     const int stretch;
 };
 
-class QTCREATOR_UTILS_EXPORT Break
-{
-public:
-    Break() {}
-};
-
-class QTCREATOR_UTILS_EXPORT Span
-{
-public:
-    Span(int span, const LayoutItem &item) : span(span), item(item) {}
-    const int span;
-    const LayoutItem &item;
-};
-
-class QTCREATOR_UTILS_EXPORT HorizontalRule
-{
-public:
-    HorizontalRule() {}
-};
 
 // LayoutItem
+
+using LayoutItems = QList<LayoutItem>;
+
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const std::function<void(QObject *target)> &t);
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, QWidget *t);
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, QLayout *t);
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, LayoutItem(*t)());
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const QString &t);
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const Span &t);
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const Space &t);
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const Stretch &t);
 
 class QTCREATOR_UTILS_EXPORT LayoutItem
 {
@@ -81,72 +72,81 @@ public:
         AlignAsFormLabel,
     };
 
-    enum class SpecialType {
-        NotSpecial,
-        Space,
-        Stretch,
-        Break,
-        HorizontalRule,
-        Tab,
-    };
-
     using Setter = std::function<void(QObject *target)>;
-    using OnAdder = std::function<void(LayoutBuilder &)>;
 
     LayoutItem();
+    ~LayoutItem();
+
+    LayoutItem(const LayoutItem &t);
+    LayoutItem &operator=(const LayoutItem &t) = default;
 
     template <class T> LayoutItem(const T &t)
     {
-        if constexpr (std::is_same_v<QString, T>) {
-            text = t;
-        } else if constexpr (std::is_same_v<Space, T>) {
-            specialType = LayoutItem::SpecialType::Space;
-            specialValue = t.space;
-        } else if constexpr (std::is_same_v<Stretch, T>) {
-            specialType = LayoutItem::SpecialType::Stretch;
-            specialValue = t.stretch;
-        } else if constexpr (std::is_same_v<Break, T>) {
-            specialType = LayoutItem::SpecialType::Break;
-        } else if constexpr (std::is_same_v<Span, T>) {
-            LayoutItem::operator=(t.item);
-            span = t.span;
-        } else if constexpr (std::is_same_v<HorizontalRule, T>) {
-            specialType = SpecialType::HorizontalRule;
-        } else if constexpr (std::is_base_of_v<LayoutBuilder, T>) {
-            setBuilder(t);
-        } else if constexpr (std::is_base_of_v<LayoutItem, T>) {
+        if constexpr (std::is_base_of_v<LayoutItem, T>)
             LayoutItem::operator=(t);
-        } else if constexpr (std::is_base_of_v<Setter, T>) {
-            setter = t;
-        } else if constexpr (std::is_base_of_v<QLayout, std::remove_pointer_t<T>>) {
-            layout = t;
-        } else if constexpr (std::is_base_of_v<QWidget, std::remove_pointer_t<T>>) {
-            widget = t;
-        } else if constexpr (std::is_pointer_v<T>) {
-            onAdd = [t](LayoutBuilder &builder) { doLayout(*t, builder); };
-        } else {
-            onAdd = [&t](LayoutBuilder &builder) { doLayout(t, builder); };
-        }
+        else
+            createItem(this, t);
     }
 
-    void setBuilder(const LayoutBuilder &builder);
+    void attachTo(QWidget *w, AttachType attachType = WithMargins) const;
+    QWidget *emerge(AttachType attachType = WithMargins);
 
-    QLayout *layout = nullptr;
-    QWidget *widget = nullptr;
-    OnAdder onAdd;
+    void addItem(const LayoutItem &item);
+    void addItems(const LayoutItems &items);
+    void addRow(const LayoutItems &items);
+    void finishRow();
 
-    QString text; // FIXME: Use specialValue for that
-    int span = 1;
-    AlignmentType align = AlignmentType::DefaultAlignment;
-    Setter setter;
-    SpecialType specialType = SpecialType::NotSpecial;
-    QVariant specialValue;
+    std::function<void(LayoutBuilder &)> onAdd;
+    std::function<void(LayoutBuilder &)> onExit;
+    std::function<void(QObject *target)> setter;
+    LayoutItems subItems;
+};
+
+class QTCREATOR_UTILS_EXPORT Span
+{
+public:
+    Span(int span, const LayoutItem &item) : span(span), item(item) {}
+    const int span;
+    LayoutItem item;
+};
+
+class QTCREATOR_UTILS_EXPORT Column : public LayoutItem
+{
+public:
+    Column(std::initializer_list<LayoutItem> items);
+};
+
+class QTCREATOR_UTILS_EXPORT Row : public LayoutItem
+{
+public:
+    Row(std::initializer_list<LayoutItem> items);
+};
+
+class QTCREATOR_UTILS_EXPORT Grid : public LayoutItem
+{
+public:
+    Grid() : Grid({}) {}
+    Grid(std::initializer_list<LayoutItem> items);
+};
+
+class QTCREATOR_UTILS_EXPORT Form : public LayoutItem
+{
+public:
+    Form() : Form({}) {}
+    Form(std::initializer_list<LayoutItem> items);
+};
+
+class QTCREATOR_UTILS_EXPORT Stack : public LayoutItem
+{
+public:
+    Stack() : Stack({}) {}
+    Stack(std::initializer_list<LayoutItem> items);
 };
 
 class QTCREATOR_UTILS_EXPORT Tab : public LayoutItem
 {
 public:
-    Tab(const QString &tabName, const LayoutBuilder &item);
+    Tab(const QString &tabName, const LayoutItem &item);
 };
 
 class QTCREATOR_UTILS_EXPORT Group : public LayoutItem
@@ -179,124 +179,67 @@ public:
     TabWidget(std::initializer_list<LayoutItem> items);
 };
 
-// Singleton items.
+class QTCREATOR_UTILS_EXPORT Application : public LayoutItem
+{
+public:
+    Application(std::initializer_list<LayoutItem> items);
 
-QTCREATOR_UTILS_EXPORT extern Break br;
-QTCREATOR_UTILS_EXPORT extern Stretch st;
-QTCREATOR_UTILS_EXPORT extern Space empty;
-QTCREATOR_UTILS_EXPORT extern HorizontalRule hr;
+    int exec(int &argc, char *argv[]);
+};
+
+// "Singletons"
+
+QTCREATOR_UTILS_EXPORT LayoutItem br();
+QTCREATOR_UTILS_EXPORT LayoutItem st();
+QTCREATOR_UTILS_EXPORT LayoutItem empty();
+QTCREATOR_UTILS_EXPORT LayoutItem hr();
 
 // "Properties"
-
-QTCREATOR_UTILS_EXPORT LayoutItem bindTo(QTabWidget **);
-QTCREATOR_UTILS_EXPORT LayoutItem bindTo(QSplitter **);
 
 QTCREATOR_UTILS_EXPORT LayoutItem title(const QString &title);
 QTCREATOR_UTILS_EXPORT LayoutItem text(const QString &text);
 QTCREATOR_UTILS_EXPORT LayoutItem tooltip(const QString &toolTip);
-QTCREATOR_UTILS_EXPORT LayoutItem onClicked(const std::function<void()> &func,
-                                                    QObject *guard = nullptr);
-
+QTCREATOR_UTILS_EXPORT LayoutItem resize(int, int);
+QTCREATOR_UTILS_EXPORT LayoutItem spacing(int);
+QTCREATOR_UTILS_EXPORT LayoutItem windowTitle(const QString &windowTitle);
+QTCREATOR_UTILS_EXPORT LayoutItem onClicked(const std::function<void()> &,
+                                            QObject *guard = nullptr);
 
 // Convenience
 
 QTCREATOR_UTILS_EXPORT QWidget *createHr(QWidget *parent = nullptr);
 
+template <class T>
+LayoutItem bindTo(T **out)
+{
+    return [out](QObject *target) { *out = qobject_cast<T *>(target); };
+}
 
 // LayoutBuilder
 
 class QTCREATOR_UTILS_EXPORT LayoutBuilder
 {
-    Q_DISABLE_COPY(LayoutBuilder)
+    Q_DISABLE_COPY_MOVE(LayoutBuilder)
 
 public:
-    enum LayoutType {
-        HBoxLayout,
-        VBoxLayout,
-        FormLayout,
-        GridLayout,
-        StackLayout,
-    };
-
-    using LayoutItems = QList<LayoutItem>;
-
-    explicit LayoutBuilder(LayoutType layoutType, const LayoutItems &items = {});
-
-    LayoutBuilder(LayoutBuilder &&) = default;
-    LayoutBuilder &operator=(LayoutBuilder &&) = default;
-
+    LayoutBuilder();
     ~LayoutBuilder();
 
-    LayoutBuilder &setSpacing(int spacing);
+    void addItem(const LayoutItem &item);
+    void addItems(const LayoutItems &items);
+    void addRow(const LayoutItems &items);
 
-    LayoutBuilder &addItem(const LayoutItem &item);
-    LayoutBuilder &addItems(const LayoutItems &items);
+    bool isForm() const;
 
-    LayoutBuilder &finishRow();
-    LayoutBuilder &addRow(const LayoutItems &items);
-
-    LayoutType layoutType() const { return m_layoutType; }
-
-    void attachTo(QWidget *w, Layouting::AttachType attachType = Layouting::WithMargins) const;
-    QWidget *emerge(Layouting::AttachType attachType = Layouting::WithMargins);
-
-protected:
-    friend class LayoutItem;
-
-    explicit LayoutBuilder(); // Adds to existing layout.
-
-    QLayout *createLayout() const;
-    void doLayout(QWidget *parent, Layouting::AttachType attachType) const;
-
-    LayoutItems m_items;
-    LayoutType m_layoutType;
-    std::optional<int> m_spacing;
+    struct Slice;
+    QList<Slice> stack;
 };
 
 class QTCREATOR_UTILS_EXPORT LayoutExtender : public LayoutBuilder
 {
 public:
-    explicit LayoutExtender(QLayout *layout, Layouting::AttachType attachType);
+    explicit LayoutExtender(QLayout *layout, AttachType attachType);
     ~LayoutExtender();
-
-private:
-    QLayout *m_layout = nullptr;
-    Layouting::AttachType m_attachType = {};
-};
-
-class QTCREATOR_UTILS_EXPORT Column : public LayoutBuilder
-{
-public:
-    Column() : LayoutBuilder(VBoxLayout) {}
-    Column(std::initializer_list<LayoutItem> items) : LayoutBuilder(VBoxLayout, items) {}
-};
-
-class QTCREATOR_UTILS_EXPORT Row : public LayoutBuilder
-{
-public:
-    Row() : LayoutBuilder(HBoxLayout) {}
-    Row(std::initializer_list<LayoutItem> items) : LayoutBuilder(HBoxLayout, items) {}
-};
-
-class QTCREATOR_UTILS_EXPORT Grid : public LayoutBuilder
-{
-public:
-    Grid() : LayoutBuilder(GridLayout) {}
-    Grid(std::initializer_list<LayoutItem> items) : LayoutBuilder(GridLayout, items) {}
-};
-
-class QTCREATOR_UTILS_EXPORT Form : public LayoutBuilder
-{
-public:
-    Form() : LayoutBuilder(FormLayout) {}
-    Form(std::initializer_list<LayoutItem> items) : LayoutBuilder(FormLayout, items) {}
-};
-
-class QTCREATOR_UTILS_EXPORT Stack : public LayoutBuilder
-{
-public:
-    Stack() : LayoutBuilder(StackLayout) {}
-    Stack(std::initializer_list<LayoutItem> items) : LayoutBuilder(StackLayout, items) {}
 };
 
 } // Layouting

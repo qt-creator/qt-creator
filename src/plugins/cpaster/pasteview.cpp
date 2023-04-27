@@ -108,6 +108,7 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
     }.attachTo(groupBox);
 
     Column {
+        spacing(2),
         Form {
             Tr::tr("Protocol:"), m_protocolBox, br,
             Tr::tr("&Expires after:"), m_expirySpinBox, br,
@@ -117,7 +118,7 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
         m_uiComment,
         m_stackedWidget,
         buttonBox
-    }.setSpacing(2).attachTo(this);
+    }.attachTo(this);
 
     connect(m_uiPatchList, &QListWidget::itemChanged, this, &PasteView::contentChanged);
 

@@ -38,8 +38,10 @@ StateView::StateView(StateItem *state, QWidget *parent)
     }.attachTo(titleBar, WithoutMargins);
 
     Column {
-        titleBar, m_graphicsView
-    }.setSpacing(0).attachTo(this, WithoutMargins);
+        spacing(0),
+        titleBar,
+        m_graphicsView
+    }.attachTo(this, WithoutMargins);
 
     initScene();
 }

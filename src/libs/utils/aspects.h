@@ -18,7 +18,10 @@ class QAction;
 class QSettings;
 QT_END_NAMESPACE
 
-namespace Layouting { class LayoutBuilder; }
+namespace Layouting {
+class LayoutItem;
+class LayoutBuilder;
+}
 
 namespace Utils {
 
@@ -204,7 +207,8 @@ private:
     std::unique_ptr<Internal::BaseAspectPrivate> d;
 };
 
-QTCREATOR_UTILS_EXPORT void doLayout(const BaseAspect &aspect, Layouting::LayoutBuilder &builder);
+QTCREATOR_UTILS_EXPORT void createItem(Layouting::LayoutItem *item, const BaseAspect &aspect);
+QTCREATOR_UTILS_EXPORT void createItem(Layouting::LayoutItem *item, const BaseAspect *aspect);
 
 class QTCREATOR_UTILS_EXPORT BoolAspect : public BaseAspect
 {

@@ -91,7 +91,7 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
         Row { m_useSpecificConfigFile, m_specificConfigFile },
         m_useHomeFile,
         Row { m_useCustomStyle, m_configurations }
-    }.attachTo(options);
+    }.attachTo(options, WithoutMargins);
 
     Column {
         Group {

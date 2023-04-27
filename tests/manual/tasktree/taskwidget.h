@@ -83,4 +83,4 @@ public:
     Layouting::Column items;
 };
 
-void doLayout(const TaskGroup &taskGroup, Layouting::LayoutBuilder &builder);
+void createItem(Layouting::LayoutItem *item, const TaskGroup &taskGroup);

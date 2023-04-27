@@ -551,6 +551,11 @@ int SelectorView::padding()
 /////////
 // KitAreaWidget
 /////////
+void doLayout(KitAspectWidget *widget, Layouting::LayoutBuilder &builder)
+{
+    widget->addToLayout(builder);
+}
+
 class KitAreaWidget : public QWidget
 {
     Q_OBJECT
@@ -573,18 +578,15 @@ public:
 
         delete layout();
 
-        Layouting::LayoutBuilder builder(Layouting::LayoutBuilder::GridLayout);
+        Layouting::Grid grid;
         for (KitAspect *aspect : KitManager::kitAspects()) {
             if (k && k->isMutable(aspect->id())) {
                 KitAspectWidget *widget = aspect->createConfigWidget(k);
                 m_widgets << widget;
-                QLabel *label = new QLabel(aspect->displayName());
-                builder.addItem(label);
-                widget->addToLayout(builder);
-                builder.finishRow();
+                grid.addItems({aspect->displayName(), widget, Layouting::br});
             }
         }
-        builder.attachTo(this);
+        grid.attachTo(this);
         layout()->setContentsMargins(3, 3, 3, 3);
 
         m_kit = k;

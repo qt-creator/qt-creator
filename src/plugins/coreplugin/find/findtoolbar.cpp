@@ -147,8 +147,8 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
         m_findEdit,
         findButtonsWidget,
         br,
-        Column { m_replaceLabel, st }.setSpacing(0),
-        Column { m_replaceEdit, st }.setSpacing(0),
+        Column { spacing(0), m_replaceLabel, st },
+        Column { spacing(0), m_replaceEdit, st },
         gridLayout,
     }.attachTo(this);
 

@@ -216,9 +216,7 @@ void BaseAspect::addLabeledItem(Layouting::LayoutBuilder &builder, QWidget *widg
     if (QLabel *l = label()) {
         l->setBuddy(widget);
         builder.addItem(l);
-        LayoutItem item(widget);
-        item.span = std::max(d->m_spanX - 1, 1);
-        builder.addItem(item);
+        builder.addItem(Span(std::max(d->m_spanX - 1, 1), LayoutItem(widget)));
     } else {
         builder.addItem(LayoutItem(widget));
     }
@@ -425,12 +423,22 @@ void BaseAspect::addToLayout(LayoutBuilder &)
 {
 }
 
-void doLayout(const BaseAspect &aspect, LayoutBuilder &builder)
+void createItem(Layouting::LayoutItem *item, const BaseAspect &aspect)
 {
-    const_cast<BaseAspect &>(aspect).addToLayout(builder);
-    if (builder.layoutType() == LayoutBuilder::FormLayout || builder.layoutType() == LayoutBuilder::VBoxLayout)
-        builder.finishRow();
+    item->onAdd = [&aspect](LayoutBuilder &builder) {
+        const_cast<BaseAspect &>(aspect).addToLayout(builder);
+        builder.addItem(br);
+    };
 }
+
+void createItem(Layouting::LayoutItem *item, const BaseAspect *aspect)
+{
+    item->onAdd = [aspect](LayoutBuilder &builder) {
+        const_cast<BaseAspect *>(aspect)->addToLayout(builder);
+        builder.addItem(br);
+    };
+}
+
 
 /*!
     Updates this aspect's value from user-initiated changes in the widget.
@@ -1063,7 +1071,7 @@ void StringAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Top) {
         d->m_checker->addToLayout(builder);
-        builder.finishRow();
+        builder.addItem(br);
     }
 
     const auto useMacroExpander = [this](QWidget *w) {
@@ -1404,8 +1412,7 @@ void BoolAspect::addToLayout(Layouting::LayoutBuilder &builder)
         break;
     case LabelPlacement::AtCheckBox: {
         d->m_checkBox->setText(labelText());
-        Layouting::LayoutBuilder::LayoutType type = builder.layoutType();
-        if (type == LayoutBuilder::FormLayout)
+        if (builder.isForm())
             builder.addItem(createSubWidget<QLabel>());
         builder.addItem(d->m_checkBox.data());
         break;
@@ -1566,7 +1573,8 @@ void SelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
             button->setChecked(i == value());
             button->setEnabled(option.enabled);
             button->setToolTip(option.tooltip);
-            builder.addItems({Layouting::empty, button});
+            builder.addItem(Layouting::empty);
+            builder.addItem(button);
             d->m_buttons.append(button);
             d->m_buttonGroup->addButton(button, i);
             if (isAutoApply()) {
@@ -2284,7 +2292,7 @@ TextDisplay::~TextDisplay() = default;
 /*!
     \reimp
 */
-void TextDisplay::addToLayout(LayoutBuilder &builder)
+void TextDisplay::addToLayout(Layouting::LayoutBuilder &builder)
 {
     if (!d->m_label) {
         d->m_label = createSubWidget<InfoLabel>(d->m_message, d->m_type);

@@ -160,12 +160,12 @@ QWidget *BuildStep::doCreateConfigWidget()
 
 QWidget *BuildStep::createConfigWidget()
 {
-    Layouting::Form builder;
+    Layouting::Form form;
     for (BaseAspect *aspect : std::as_const(m_aspects)) {
         if (aspect->isVisible())
-            aspect->addToLayout(builder.finishRow());
+            form.addItem(aspect);
     }
-    auto widget = builder.emerge(Layouting::WithoutMargins);
+    auto widget = form.emerge(Layouting::WithoutMargins);
 
     if (m_addMacroExpander)
         VariableChooser::addSupportForChildWidgets(widget, macroExpander());

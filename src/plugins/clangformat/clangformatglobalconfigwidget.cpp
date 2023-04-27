@@ -44,7 +44,10 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
 
     using namespace Layouting;
 
+    QWidget *globalSettingsGroupBoxWidget = nullptr;
+
     Group globalSettingsGroupBox {
+        bindTo(&globalSettingsGroupBoxWidget),
         title(Tr::tr("ClangFormat settings:")),
             Column {
                 m_useGlobalSettings,
@@ -73,7 +76,8 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
         m_useGlobalSettings->show();
         return;
     }
-    globalSettingsGroupBox.widget->show();
+
+    globalSettingsGroupBoxWidget->show();
 }
 
 ClangFormatGlobalConfigWidget::~ClangFormatGlobalConfigWidget() = default;

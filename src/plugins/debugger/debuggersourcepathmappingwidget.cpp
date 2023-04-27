@@ -496,7 +496,7 @@ void SourcePathMapAspect::addToLayout(Layouting::LayoutBuilder &builder)
     QTC_CHECK(!d->m_widget);
     d->m_widget = createSubWidget<DebuggerSourcePathMappingWidget>();
     d->m_widget->setSourcePathMap(value());
-    builder.addRow({d->m_widget.data()});
+    builder.addItem(d->m_widget.data());
 }
 
 QVariant SourcePathMapAspect::volatileValue() const

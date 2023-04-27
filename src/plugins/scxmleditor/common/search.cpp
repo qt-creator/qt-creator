@@ -47,9 +47,10 @@ Search::Search(QWidget *parent)
 
     using namespace Layouting;
     Column {
+        spacing(0),
         m_searchEdit,
         m_searchView,
-    }.setSpacing(0).attachTo(this, WithoutMargins);
+    }.attachTo(this, WithoutMargins);
 
     connect(m_searchEdit, &Utils::FancyLineEdit::textChanged, this, &Search::setSearchText);
     connect(m_searchView, &TableView::pressed, this, &Search::rowActivated);

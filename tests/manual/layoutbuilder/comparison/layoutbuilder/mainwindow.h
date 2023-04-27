@@ -2,28 +2,23 @@
 
 #include "layoutbuilder.h"
 
-#include <QCoreApplication>
-#include <QWidget>
+#include <QApplication>
 
 using namespace Layouting;
 
-class ApplicationWindow : public QWidget
+Application app
 {
-public:
-    ApplicationWindow()
-    {
-        resize(600, 400);
-        setWindowTitle("Hello World");
+    resize(600, 400),
+    title("Hello World"),
 
-        Column {
-            TextEdit {
-                text("Hallo")
-            },
+    Column {
+        TextEdit {
+            text("Hallo")
+        },
 
-            PushButton {
-                text("Quit"),
-                onClicked([] { QCoreApplication::quit(); })
-            }
-        }.attachTo(this);
+        PushButton {
+            text("Quit"),
+            onClicked([] { QApplication::quit(); })
+        }
     }
 };

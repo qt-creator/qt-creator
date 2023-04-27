@@ -23,6 +23,6 @@ public:
         l->addWidget(pushButton);
 
         connect(pushButton, &QPushButton::clicked,
-                qApp, &QCoreApplication::quit);
+                qApp, &QApplication::quit);
     }
 };

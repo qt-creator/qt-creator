@@ -31,11 +31,12 @@ NavigatorSlider::NavigatorSlider(QWidget *parent)
 
     using namespace Layouting;
     Row {
+        spacing(0),
         zoomOut,
         m_slider,
         zoomIn,
         Space(20),
-    }.setSpacing(0).attachTo(this, WithoutMargins);
+    }.attachTo(this, WithoutMargins);
 
     connect(zoomOut, &QToolButton::clicked, this, &NavigatorSlider::zoomOut);
     connect(zoomIn, &QToolButton::clicked, this, &NavigatorSlider::zoomIn);

@@ -246,10 +246,13 @@ public:
         QObject::connect(useQmlls, &QCheckBox::stateChanged, this, [this](int checked) {
             useLatestQmlls->setEnabled(checked != Qt::Unchecked);
         });
+
         using namespace Layouting;
         // clang-format off
-        const auto formattingGroup =
+        QWidget *formattingGroup = nullptr;
+        Column {
             Group {
+                bindTo(&formattingGroup),
                 title(Tr::tr("Automatic Formatting on File Save")),
                 Column {
                     autoFormatOnSave,
@@ -260,10 +263,7 @@ public:
                         formatCommandOptionsLabel, formatCommandOptions
                     }
                 },
-            };
-
-        Column {
-            formattingGroup,
+            },
             Group {
                 title(Tr::tr("Qt Quick Toolbars")),
                 Column { pinContextPane, enableContextPane },
@@ -283,7 +283,7 @@ public:
         }.attachTo(this);
         // clang-format on
 
-        Utils::VariableChooser::addSupportForChildWidgets(formattingGroup.widget,
+        Utils::VariableChooser::addSupportForChildWidgets(formattingGroup,
                                                           Utils::globalMacroExpander());
 
         const auto updateFormatCommandState = [&, formatCommandLabel, formatCommandOptionsLabel] {

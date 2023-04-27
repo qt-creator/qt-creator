@@ -184,11 +184,8 @@ Tasking::WorkflowPolicy GroupWidget::workflowPolicy() const
     return m_workflowPolicy;
 }
 
-
-void doLayout(const TaskGroup &taskGroup, LayoutBuilder &builder)
+void createItem(Layouting::LayoutItem *item, const TaskGroup &taskGroup)
 {
-    builder.addItem(taskGroup.group);
-    builder.addItem(Group { taskGroup.items });
-    builder.finishRow();
+    item->addItems({taskGroup.group, Group { taskGroup.items }, br});
 }
 

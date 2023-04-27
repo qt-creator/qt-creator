@@ -634,9 +634,9 @@ FilePath ExecutableAspect::executable() const
 */
 void ExecutableAspect::addToLayout(LayoutBuilder &builder)
 {
-    m_executable.addToLayout(builder);
+    builder.addItem(m_executable);
     if (m_alternativeExecutable)
-        m_alternativeExecutable->addToLayout(builder.finishRow());
+        builder.addItems({br, m_alternativeExecutable});
 }
 
 /*!

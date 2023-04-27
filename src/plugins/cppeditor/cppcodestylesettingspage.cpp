@@ -175,8 +175,15 @@ public:
 
         using namespace Layouting;
 
+        QWidget *contentGroupWidget = nullptr;
+        QWidget *bracesGroupWidget = nullptr;
+        QWidget *switchGroupWidget = nullptr;
+        QWidget *alignmentGroupWidget = nullptr;
+        QWidget *typesGroupWidget = nullptr;
+
         const Group contentGroup {
             title(Tr::tr("Indent")),
+            bindTo(&contentGroupWidget),
             Column {
                 m_indentAccessSpecifiers,
                 m_indentDeclarationsRelativeToAccessSpecifiers,
@@ -189,6 +196,7 @@ public:
 
         const Group bracesGroup {
             title(Tr::tr("Indent Braces")),
+            bindTo(&bracesGroupWidget),
             Column {
                 m_indentClassBraces,
                 m_indentNamespaceBraces,
@@ -201,6 +209,7 @@ public:
 
         const Group switchGroup {
             title(Tr::tr("Indent within \"switch\"")),
+            bindTo(&switchGroupWidget),
             Column {
                 m_indentSwitchLabels,
                 m_indentCaseStatements,
@@ -212,6 +221,7 @@ public:
 
         const Group alignmentGroup {
             title(Tr::tr("Align")),
+            bindTo(&alignmentGroupWidget),
             Column {
                 m_alignAssignments,
                 m_extraPaddingConditions,
@@ -221,6 +231,7 @@ public:
 
         const Group typesGroup {
             title(Tr::tr("Bind '*' and '&&' in types/declarations to")),
+            bindTo(&typesGroupWidget),
             Column {
                 m_bindStarToIdentifier,
                 m_bindStarToTypeName,
@@ -247,11 +258,11 @@ public:
         m_categoryTab->setProperty("_q_custom_style_disabled", true);
 
         m_controllers.append(m_tabSettingsWidget);
-        m_controllers.append(contentGroup.widget);
-        m_controllers.append(bracesGroup.widget);
-        m_controllers.append(switchGroup.widget);
-        m_controllers.append(alignmentGroup.widget);
-        m_controllers.append(typesGroup.widget);
+        m_controllers.append(contentGroupWidget);
+        m_controllers.append(bracesGroupWidget);
+        m_controllers.append(switchGroupWidget);
+        m_controllers.append(alignmentGroupWidget);
+        m_controllers.append(typesGroupWidget);
     }
 
     QCheckBox *createCheckBox(const QString &text, const QString &toolTip = {})
