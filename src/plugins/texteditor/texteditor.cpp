@@ -657,6 +657,7 @@ public:
     uint m_optionalActionMask = TextEditorActionHandler::None;
     bool m_contentsChanged = false;
     bool m_lastCursorChangeWasInteresting = false;
+    std::shared_ptr<void> m_suggestionBlocker;
 
     QSharedPointer<TextDocument> m_document;
     QList<QMetaObject::Connection> m_documentConnections;
@@ -905,6 +906,7 @@ void TextEditorWidgetFind::cancelCurrentSelectAll()
 
 TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     : q(parent)
+    , m_suggestionBlocker((void *) this, [](void *) {})
     , m_overlay(new TextEditorOverlay(q))
     , m_snippetOverlay(new SnippetOverlay(q))
     , m_searchResultOverlay(new TextEditorOverlay(q))
@@ -1654,6 +1656,10 @@ void TextEditorWidgetPrivate::handleMoveBlockSelection(QTextCursor::MoveOperatio
 void TextEditorWidgetPrivate::insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion)
 {
     clearCurrentSuggestion();
+
+    if (m_suggestionBlocker.use_count() > 1)
+        return;
+
     auto cursor = q->textCursor();
     cursor.setPosition(suggestion->position());
     m_suggestionBlock = cursor.block();
@@ -6015,6 +6021,18 @@ TextSuggestion *TextEditorWidget::currentSuggestion() const
 bool TextEditorWidget::suggestionVisible() const
 {
     return currentSuggestion();
+}
+
+bool TextEditorWidget::suggestionsBlocked() const
+{
+    return d->m_suggestionBlocker.use_count() > 1;
+}
+
+TextEditorWidget::SuggestionBlocker TextEditorWidget::blockSuggestions()
+{
+    if (!suggestionsBlocked())
+        clearSuggestion();
+    return d->m_suggestionBlocker;
 }
 
 #ifdef WITH_TESTS

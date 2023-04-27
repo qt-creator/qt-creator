@@ -475,6 +475,11 @@ public:
     void clearSuggestion();
     TextSuggestion *currentSuggestion() const;
     bool suggestionVisible() const;
+    bool suggestionsBlocked() const;
+
+    using SuggestionBlocker = std::shared_ptr<void>;
+    // Returns an object that blocks suggestions until it is destroyed.
+    SuggestionBlocker blockSuggestions();
 
 #ifdef WITH_TESTS
     void processTooltipRequest(const QTextCursor &c);

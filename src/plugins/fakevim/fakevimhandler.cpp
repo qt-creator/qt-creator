@@ -5197,7 +5197,7 @@ void FakeVimHandler::Private::handleReplaceMode(const Input &input)
         moveDown();
     } else if (input.isKey(Key_Insert)) {
         g.mode = InsertMode;
-        q->modeChanged();
+        q->modeChanged(isInsertMode());
     } else if (input.isControl('o')) {
         enterCommandMode(ReplaceMode);
     } else {
@@ -5395,7 +5395,7 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         removeText(range);
     } else if (input.isKey(Key_Insert)) {
         g.mode = ReplaceMode;
-        q->modeChanged();
+        q->modeChanged(isInsertMode());
     } else if (input.isKey(Key_Left)) {
         moveLeft();
     } else if (input.isShift(Key_Left) || input.isControl(Key_Left)) {
@@ -8578,7 +8578,7 @@ void FakeVimHandler::Private::enterInsertOrReplaceMode(Mode mode)
         clearLastInsertion();
     }
 
-    q->modeChanged();
+    q->modeChanged(isInsertMode());
 }
 
 void FakeVimHandler::Private::enterVisualInsertMode(QChar command)
@@ -8655,7 +8655,7 @@ void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
     m_positionPastEnd = false;
     m_anchorPastEnd = false;
 
-    q->modeChanged();
+    q->modeChanged(isInsertMode());
 }
 
 void FakeVimHandler::Private::enterExMode(const QString &contents)
@@ -8671,7 +8671,7 @@ void FakeVimHandler::Private::enterExMode(const QString &contents)
     g.subsubmode = NoSubSubMode;
     unfocus();
 
-    q->modeChanged();
+    q->modeChanged(isInsertMode());
 }
 
 void FakeVimHandler::Private::recordJump(int position)

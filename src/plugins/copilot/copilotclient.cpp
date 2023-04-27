@@ -92,7 +92,7 @@ void CopilotClient::openDocument(TextDocument *document)
                 const int cursorPosition = widget->textCursor().position();
                 if (cursorPosition < position || cursorPosition > position + charsAdded)
                     return;
-                scheduleRequest(textEditor->editorWidget());
+                scheduleRequest(widget);
             });
 }
 

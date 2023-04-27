@@ -539,7 +539,22 @@ signals:
     void delayedQuitAllRequested(bool forced);
 
 public:
-    QHash<IEditor *, FakeVimHandler *> m_editorToHandler;
+    struct HandlerAndData
+    {
+#ifdef Q_OS_WIN
+        // We need to declare a constructor here, otherwise the MSVC 17.5.x compiler fails to parse
+        // the "{nullptr}" initializer in the definition below.
+        // This seems to be a compiler bug,
+        // see: https://developercommunity.visualstudio.com/t/10351118
+        HandlerAndData()
+            : handler(nullptr)
+        {}
+#endif
+        FakeVimHandler *handler{nullptr};
+        TextEditorWidget::SuggestionBlocker suggestionBlocker;
+    };
+
+    QHash<IEditor *, HandlerAndData> m_editorToHandler;
 
     void setActionChecked(Id id, bool check);
 
@@ -1253,7 +1268,7 @@ void FakeVimPluginPrivate::initialize()
 void FakeVimPluginPrivate::userActionTriggered(int key)
 {
     IEditor *editor = EditorManager::currentEditor();
-    FakeVimHandler *handler = m_editorToHandler[editor];
+    FakeVimHandler *handler = m_editorToHandler[editor].handler;
     if (handler) {
         // If disabled, enable FakeVim mode just for single user command.
         bool enableFakeVim = !fakeVimSettings()->useFakeVim.value();
@@ -1569,14 +1584,14 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     // the handler might have triggered the deletion of the editor:
     // make sure that it can return before being deleted itself
     new DeferredDeleter(widget, handler);
-    m_editorToHandler[editor] = handler;
+    m_editorToHandler[editor].handler = handler;
 
     handler->extraInformationChanged.connect([this](const QString &text) {
         EditorManager::splitSideBySide();
         QString title = "stdout.txt";
         IEditor *iedit = EditorManager::openEditorWithContents(Id(), &title, text.toUtf8());
         EditorManager::activateEditor(iedit);
-        FakeVimHandler *handler = m_editorToHandler.value(iedit, nullptr);
+        FakeVimHandler *handler = m_editorToHandler.value(iedit, {}).handler;
         QTC_ASSERT(handler, return);
         handler->handleCommand("0");
     });
@@ -1591,7 +1606,13 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
             tew->setExtraSelections(TextEditorWidget::FakeVimSelection, selection);
     });
 
-    handler->modeChanged.connect([tew]() {
+    handler->modeChanged.connect([tew, this, editor](bool insertMode) {
+        HandlerAndData &handlerAndData = m_editorToHandler[editor];
+
+        // We don't want to show suggestions unless we are in insert mode.
+        if (insertMode != (handlerAndData.suggestionBlocker == nullptr))
+            handlerAndData.suggestionBlocker = insertMode ? nullptr : tew->blockSuggestions();
+
         if (tew)
             tew->clearSuggestion();
     });
@@ -1840,7 +1861,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     handler->requestJumpToGlobalMark.connect(
         [this](QChar mark, bool backTickMode, const QString &fileName) {
             if (IEditor *iedit = EditorManager::openEditor(FilePath::fromString(fileName))) {
-                if (FakeVimHandler *handler = m_editorToHandler.value(iedit, nullptr))
+                if (FakeVimHandler *handler = m_editorToHandler.value(iedit, {}).handler)
                     handler->jumpToLocalMark(mark, backTickMode);
             }
         });
@@ -1887,7 +1908,7 @@ void FakeVimPluginPrivate::editorAboutToClose(IEditor *editor)
 
 void FakeVimPluginPrivate::currentEditorAboutToChange(IEditor *editor)
 {
-    if (FakeVimHandler *handler = m_editorToHandler.value(editor, 0))
+    if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler)
         handler->enterCommandMode();
 }
 
@@ -1905,9 +1926,9 @@ void FakeVimPluginPrivate::documentRenamed(
 
 void FakeVimPluginPrivate::renameFileNameInEditors(const FilePath &oldPath, const FilePath &newPath)
 {
-    for (FakeVimHandler *handler : m_editorToHandler) {
-        if (handler->currentFileName() == oldPath.toString())
-            handler->setCurrentFileName(newPath.toString());
+    for (const HandlerAndData &handlerAndData : m_editorToHandler) {
+        if (handlerAndData.handler->currentFileName() == oldPath.toString())
+            handlerAndData.handler->setCurrentFileName(newPath.toString());
     }
 }
 
@@ -1926,16 +1947,19 @@ void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
         //ICore *core = ICore::instance();
         //core->updateAdditionalContexts(Context(FAKEVIM_CONTEXT),
         // Context());
-        for (FakeVimHandler *handler : m_editorToHandler)
-            handler->setupWidget();
+        for (const HandlerAndData &handlerAndData : m_editorToHandler)
+            handlerAndData.handler->setupWidget();
     } else {
         //ICore *core = ICore::instance();
         //core->updateAdditionalContexts(Context(),
         // Context(FAKEVIM_CONTEXT));
         resetCommandBuffer();
-        for (auto it = m_editorToHandler.constBegin(); it != m_editorToHandler.constEnd(); ++it) {
-            if (auto textDocument = qobject_cast<const TextDocument *>(it.key()->document()))
-                it.value()->restoreWidget(textDocument->tabSettings().m_tabSize);
+        for (auto it = m_editorToHandler.begin(); it != m_editorToHandler.end(); ++it) {
+            if (auto textDocument = qobject_cast<const TextDocument *>(it.key()->document())) {
+                HandlerAndData &handlerAndData = it.value();
+                handlerAndData.handler->restoreWidget(textDocument->tabSettings().m_tabSize);
+                handlerAndData.suggestionBlocker.reset();
+            }
         }
     }
 }
@@ -1970,11 +1994,22 @@ void FakeVimPluginPrivate::handleExCommand(FakeVimHandler *handler, bool *handle
     if (editor)
         editor->setFocus();
 
+    auto editorFromHandler = [this, handler]() -> Core::IEditor * {
+        auto itEditor = std::find_if(m_editorToHandler.cbegin(),
+                                     m_editorToHandler.cend(),
+                                     [handler](const HandlerAndData &handlerAndData) {
+                                         return handlerAndData.handler == handler;
+                                     });
+        if (itEditor != m_editorToHandler.cend())
+            return itEditor.key();
+        return nullptr;
+    };
+
     *handled = true;
     if ((cmd.matches("w", "write") || cmd.cmd == "wq") && cmd.args.isEmpty()) {
         // :w[rite]
         bool saved = false;
-        IEditor *editor = m_editorToHandler.key(handler);
+        IEditor *editor = editorFromHandler();
         const QString fileName = handler->currentFileName();
         if (editor && editor->document()->filePath().toString() == fileName) {
             triggerAction(Core::Constants::SAVE);
@@ -1986,7 +2021,7 @@ void FakeVimPluginPrivate::handleExCommand(FakeVimHandler *handler, bool *handle
                     handler->showMessage(MessageInfo, Tr::tr("\"%1\" %2 %3L, %4C written")
                         .arg(fileName).arg(' ').arg(ba.count('\n')).arg(ba.size()));
                     if (cmd.cmd == "wq")
-                        emit delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
+                        emit delayedQuitRequested(cmd.hasBang, editor);
                 }
             }
         }
@@ -2005,7 +2040,7 @@ void FakeVimPluginPrivate::handleExCommand(FakeVimHandler *handler, bool *handle
             emit delayedQuitAllRequested(cmd.hasBang);
     } else if (cmd.matches("q", "quit")) {
         // :q[uit]
-        emit delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
+        emit delayedQuitRequested(cmd.hasBang, editorFromHandler());
     } else if (cmd.matches("qa", "qall")) {
         // :qa[ll]
         emit delayedQuitAllRequested(cmd.hasBang);
@@ -2167,7 +2202,7 @@ void FakeVimPlugin::setupTest(QString *title, FakeVimHandler **handler, QWidget 
     IEditor *iedit = EditorManager::openEditorWithContents(Id(), title);
     EditorManager::activateEditor(iedit);
     *edit = iedit->widget();
-    *handler = dd->m_editorToHandler.value(iedit, 0);
+    *handler = dd->m_editorToHandler.value(iedit, {}).handler;
     (*handler)->setupWidget();
     (*handler)->handleCommand("set startofline");
 
