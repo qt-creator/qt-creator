@@ -221,14 +221,29 @@ void DesignModeWidget::setup()
     mworkspaces->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     // Connect opening of the 'workspaces' menu with creation of the workspaces menu
     connect(mworkspaces->menu(), &QMenu::aboutToShow, this, &DesignModeWidget::aboutToShowWorkspaces);
-    // Disable workspace menu when context is different to C_DESIGN_MODE
-    connect(Core::ICore::instance(), &Core::ICore::contextChanged,
-            this, [mworkspaces](const Core::Context &context){
-                if (context.contains(Core::Constants::C_DESIGN_MODE))
+
+    Core::ActionContainer *mpanes = Core::ActionManager::actionContainer(Core::Constants::M_VIEW_PANES);
+
+    // Initially disable menus
+    mviews->menu()->setEnabled(false);
+    mworkspaces->menu()->setEnabled(false);
+    mpanes->menu()->setEnabled(false);
+
+    // Enable/disable menus when mode is different to MODE_DESIGN
+    connect(Core::ModeManager::instance(),
+            &Core::ModeManager::currentModeChanged,
+            this,
+            [mviews, mworkspaces, mpanes](Utils::Id mode, Utils::Id) {
+                if (mode == Core::Constants::MODE_DESIGN) {
+                    mviews->menu()->setEnabled(true);
                     mworkspaces->menu()->setEnabled(true);
-                else
+                    mpanes->menu()->setEnabled(true);
+                } else {
+                    mviews->menu()->setEnabled(false);
                     mworkspaces->menu()->setEnabled(false);
-                });
+                    mpanes->menu()->setEnabled(false);
+                }
+            });
 
     // Create a DockWidget for each QWidget and add them to the DockManager
     const Core::Context designContext(Core::Constants::C_DESIGN_MODE);
