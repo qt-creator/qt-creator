@@ -12,6 +12,8 @@
 #include <QSet>
 #include <QStack>
 
+namespace Utils { class QtcSettings; }
+
 namespace QmlJS {
 
 class Imports;
@@ -22,7 +24,7 @@ class QMLJS_EXPORT Check: protected AST::Visitor
 
 public:
     // prefer taking root scope chain?
-    Check(Document::Ptr doc, const ContextPtr &context);
+    Check(Document::Ptr doc, const ContextPtr &context, Utils::QtcSettings *qtcSettings = nullptr);
     ~Check();
 
     QList<StaticAnalysis::Message> operator()();
@@ -31,10 +33,12 @@ public:
     void disableMessage(StaticAnalysis::Type type);
 
     void enableQmlDesignerChecks();
-    void disableQmlDesignerChecks();
 
     void enableQmlDesignerUiFileChecks();
     void disableQmlDesignerUiFileChecks();
+
+    static QList<StaticAnalysis::Type> defaultDisabledMessages();
+    static QList<StaticAnalysis::Type> defaultDisabledMessagesForNonQuickUi();
 
 protected:
     bool preVisit(AST::Node *ast) override;

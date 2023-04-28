@@ -4,6 +4,7 @@
 #include "qmltaskmanager.h"
 #include "qmljseditorconstants.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
@@ -87,7 +88,7 @@ void QmlTaskManager::collectMessages(QPromise<FileErrorMessages> &promise,
                                                    fileName,
                                                    Constants::TASK_CATEGORY_QML_ANALYSIS);
 
-                    Check checker(document, context);
+                    Check checker(document, context, Core::ICore::settings());
                     result.tasks += convertToTasks(checker(),
                                                    fileName,
                                                    Constants::TASK_CATEGORY_QML_ANALYSIS);
