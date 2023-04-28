@@ -1,17 +1,19 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include <app/app_version.h>
-
-#include <utils/launcherinterface.h>
-#include <utils/qtcprocess.h>
-#include <utils/singleton.h>
-#include <utils/temporarydirectory.h>
+#include <utils/asynctask.h>
 
 #include <QtTest>
 
+#include <QDeadlineTimer>
+
+using namespace std::literals::chrono_literals;
+
 using namespace Utils;
 using namespace Utils::Tasking;
+
+using TestTask = AsyncTask<void>;
+using Test = Async<void>;
 
 enum class Handler {
     Setup,
@@ -37,7 +39,9 @@ private:
 };
 
 int CustomStorage::s_count = 0;
-static const char s_processIdProperty[] = "__processId";
+static const char s_taskIdProperty[] = "__taskId";
+
+static FutureSynchronizer *s_futureSynchronizer = nullptr;
 
 enum class OnStart { Running, NotRunning };
 enum class OnDone { Success, Failure };
@@ -59,66 +63,58 @@ private slots:
     void initTestCase();
 
     void validConstructs(); // compile test
-    void processTree_data();
-    void processTree();
+    void testTree_data();
+    void testTree();
     void storageOperators();
     void storageDestructor();
 
     void cleanupTestCase();
-
-private:
-    FilePath m_testAppPath;
 };
 
 void tst_TaskTree::initTestCase()
 {
-    TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
-                                                    + Core::Constants::IDE_CASED_ID + "-XXXXXX");
-    const QString libExecPath(qApp->applicationDirPath() + '/'
-                              + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
-    LauncherInterface::setPathToLauncher(libExecPath);
-    m_testAppPath = FilePath::fromString(QLatin1String(TESTAPP_PATH)
-                                       + QLatin1String("/testapp")).withExecutableSuffix();
+    s_futureSynchronizer = new FutureSynchronizer;
 }
 
 void tst_TaskTree::cleanupTestCase()
 {
-    Singleton::deleteAll();
+    delete s_futureSynchronizer;
+    s_futureSynchronizer = nullptr;
 }
 
 void tst_TaskTree::validConstructs()
 {
-    const Group process {
+    const Group task {
         parallel,
-        Process([](QtcProcess &) {}, [](const QtcProcess &) {}),
-        Process([](QtcProcess &) {}, [](const QtcProcess &) {}),
-        Process([](QtcProcess &) {}, [](const QtcProcess &) {})
+        Test([](TestTask &) {}, [](const TestTask &) {}),
+        Test([](TestTask &) {}, [](const TestTask &) {}),
+        Test([](TestTask &) {}, [](const TestTask &) {})
     };
 
     const Group group1 {
-        process
+        task
     };
 
     const Group group2 {
         parallel,
         Group {
             parallel,
-            Process([](QtcProcess &) {}, [](const QtcProcess &) {}),
+            Test([](TestTask &) {}, [](const TestTask &) {}),
             Group {
                 parallel,
-                Process([](QtcProcess &) {}, [](const QtcProcess &) {}),
+                Test([](TestTask &) {}, [](const TestTask &) {}),
                 Group {
                     parallel,
-                    Process([](QtcProcess &) {}, [](const QtcProcess &) {})
+                    Test([](TestTask &) {}, [](const TestTask &) {})
                 }
             },
             Group {
                 parallel,
-                Process([](QtcProcess &) {}, [](const QtcProcess &) {}),
+                Test([](TestTask &) {}, [](const TestTask &) {}),
                 OnGroupDone([] {})
             }
         },
-        process,
+        task,
         OnGroupDone([] {}),
         OnGroupError([] {})
     };
@@ -150,70 +146,75 @@ void tst_TaskTree::validConstructs()
 #endif
 }
 
-void tst_TaskTree::processTree_data()
+static void runTask(QPromise<void> &promise, bool success, std::chrono::milliseconds sleep)
+{
+    QDeadlineTimer deadline(sleep);
+    while (!deadline.hasExpired()) {
+        QThread::msleep(1);
+        if (promise.isCanceled())
+            return;
+    }
+    if (!success)
+        promise.future().cancel();
+}
+
+void tst_TaskTree::testTree_data()
 {
     QTest::addColumn<TestData>("testData");
 
     TreeStorage<CustomStorage> storage;
 
-    const auto setupProcessHelper = [storage, testAppPath = m_testAppPath]
-            (QtcProcess &process, const QStringList &args, int processId) {
-        process.setCommand(CommandLine(testAppPath, args));
-        process.setProperty(s_processIdProperty, processId);
-        storage->m_log.append({processId, Handler::Setup});
+    const auto setupTaskHelper = [storage](TestTask &task, int taskId, bool success = true,
+                                           std::chrono::milliseconds sleep = 0ms) {
+        task.setFutureSynchronizer(s_futureSynchronizer);
+        task.setConcurrentCallData(runTask, success, sleep);
+        task.setProperty(s_taskIdProperty, taskId);
+        storage->m_log.append({taskId, Handler::Setup});
     };
-    const auto setupProcess = [setupProcessHelper](int processId) {
-        return [=](QtcProcess &process) {
-            setupProcessHelper(process, {"-return", "0"}, processId);
-        };
+    const auto setupTask = [setupTaskHelper](int taskId) {
+        return [=](TestTask &task) { setupTaskHelper(task, taskId); };
     };
-    const auto setupCrashProcess = [setupProcessHelper](int processId) {
-        return [=](QtcProcess &process) {
-            setupProcessHelper(process, {"-crash"}, processId);
-        };
+    const auto setupFailingTask = [setupTaskHelper](int taskId) {
+        return [=](TestTask &task) { setupTaskHelper(task, taskId, false); };
     };
-    const auto setupSleepProcess = [setupProcessHelper](int processId, int msecs) {
-        return [=](QtcProcess &process) {
-            setupProcessHelper(process, {"-sleep", QString::number(msecs)}, processId);
-        };
+    const auto setupSleepingTask = [setupTaskHelper](int taskId, std::chrono::milliseconds sleep) {
+        return [=](TestTask &task) { setupTaskHelper(task, taskId, true, sleep); };
     };
-    const auto setupDynamicProcess = [setupProcessHelper](int processId, TaskAction action) {
-        return [=](QtcProcess &process) {
-            setupProcessHelper(process, {"-return", "0"}, processId);
+    const auto setupDynamicTask = [setupTaskHelper](int taskId, TaskAction action) {
+        return [=](TestTask &task) {
+            setupTaskHelper(task, taskId);
             return action;
         };
     };
-    const auto readResult = [storage](const QtcProcess &process) {
-        const int processId = process.property(s_processIdProperty).toInt();
-        storage->m_log.append({processId, Handler::Done});
+    const auto logDone = [storage](const TestTask &task) {
+        storage->m_log.append({task.property(s_taskIdProperty).toInt(), Handler::Done});
     };
-    const auto readError = [storage](const QtcProcess &process) {
-        const int processId = process.property(s_processIdProperty).toInt();
-        storage->m_log.append({processId, Handler::Error});
+    const auto logError = [storage](const TestTask &task) {
+        storage->m_log.append({task.property(s_taskIdProperty).toInt(), Handler::Error});
     };
-    const auto groupSetup = [storage](int groupId) {
-        return [=] { storage->m_log.append({groupId, Handler::GroupSetup}); };
+    const auto groupSetup = [storage](int taskId) {
+        return [=] { storage->m_log.append({taskId, Handler::GroupSetup}); };
     };
-    const auto groupDone = [storage](int groupId) {
-        return [=] { storage->m_log.append({groupId, Handler::GroupDone}); };
+    const auto groupDone = [storage](int taskId) {
+        return [=] { storage->m_log.append({taskId, Handler::GroupDone}); };
     };
-    const auto groupError = [storage](int groupId) {
-        return [=] { storage->m_log.append({groupId, Handler::GroupError}); };
+    const auto groupError = [storage](int taskId) {
+        return [=] { storage->m_log.append({taskId, Handler::GroupError}); };
     };
-    const auto setupSync = [storage](int syncId) {
-        return [=] { storage->m_log.append({syncId, Handler::Sync}); };
+    const auto setupSync = [storage](int taskId) {
+        return [=] { storage->m_log.append({taskId, Handler::Sync}); };
     };
-    const auto setupSyncWithReturn = [storage](int syncId, bool success) {
-        return [=] { storage->m_log.append({syncId, Handler::Sync}); return success; };
+    const auto setupSyncWithReturn = [storage](int taskId, bool success) {
+        return [=] { storage->m_log.append({taskId, Handler::Sync}); return success; };
     };
 
     const auto constructSimpleSequence = [=](const Workflow &policy) {
         return Group {
             Storage(storage),
             policy,
-            Process(setupProcess(1), readResult),
-            Process(setupCrashProcess(2), readResult, readError),
-            Process(setupProcess(3), readResult),
+            Test(setupTask(1), logDone),
+            Test(setupFailingTask(2), logDone, logError),
+            Test(setupTask(3), logDone),
             OnGroupDone(groupDone(0)),
             OnGroupError(groupError(0))
         };
@@ -222,13 +223,13 @@ void tst_TaskTree::processTree_data()
         return Group {
             Storage(storage),
             Group {
-                Process(setupProcess(1), readResult)
+                Test(setupTask(1), logDone)
             },
             Group {
                 OnGroupSetup([=] { return taskAction; }),
-                Process(setupProcess(2), readResult),
-                Process(setupProcess(3), readResult),
-                Process(setupProcess(4), readResult)
+                Test(setupTask(2), logDone),
+                Test(setupTask(3), logDone),
+                Test(setupTask(4), logDone)
             },
             OnGroupDone(groupDone(0)),
             OnGroupError(groupError(0))
@@ -274,8 +275,8 @@ void tst_TaskTree::processTree_data()
     {
         const Group root {
             Storage(storage),
-            Process(setupDynamicProcess(1, TaskAction::StopWithDone), readResult, readError),
-            Process(setupDynamicProcess(2, TaskAction::StopWithDone), readResult, readError)
+            Test(setupDynamicTask(1, TaskAction::StopWithDone), logDone, logError),
+            Test(setupDynamicTask(2, TaskAction::StopWithDone), logDone, logError)
         };
         const Log log {{1, Handler::Setup}, {2, Handler::Setup}};
         QTest::newRow("DynamicTaskDone")
@@ -285,8 +286,8 @@ void tst_TaskTree::processTree_data()
     {
         const Group root {
             Storage(storage),
-            Process(setupDynamicProcess(1, TaskAction::StopWithError), readResult, readError),
-            Process(setupDynamicProcess(2, TaskAction::StopWithError), readResult, readError)
+            Test(setupDynamicTask(1, TaskAction::StopWithError), logDone, logError),
+            Test(setupDynamicTask(2, TaskAction::StopWithError), logDone, logError)
         };
         const Log log {{1, Handler::Setup}};
         QTest::newRow("DynamicTaskError")
@@ -296,10 +297,10 @@ void tst_TaskTree::processTree_data()
     {
         const Group root {
             Storage(storage),
-            Process(setupDynamicProcess(1, TaskAction::Continue), readResult, readError),
-            Process(setupDynamicProcess(2, TaskAction::Continue), readResult, readError),
-            Process(setupDynamicProcess(3, TaskAction::StopWithError), readResult, readError),
-            Process(setupDynamicProcess(4, TaskAction::Continue), readResult, readError)
+            Test(setupDynamicTask(1, TaskAction::Continue), logDone, logError),
+            Test(setupDynamicTask(2, TaskAction::Continue), logDone, logError),
+            Test(setupDynamicTask(3, TaskAction::StopWithError), logDone, logError),
+            Test(setupDynamicTask(4, TaskAction::Continue), logDone, logError)
         };
         const Log log {
             {1, Handler::Setup},
@@ -316,10 +317,10 @@ void tst_TaskTree::processTree_data()
         const Group root {
             parallel,
             Storage(storage),
-            Process(setupDynamicProcess(1, TaskAction::Continue), readResult, readError),
-            Process(setupDynamicProcess(2, TaskAction::Continue), readResult, readError),
-            Process(setupDynamicProcess(3, TaskAction::StopWithError), readResult, readError),
-            Process(setupDynamicProcess(4, TaskAction::Continue), readResult, readError)
+            Test(setupDynamicTask(1, TaskAction::Continue), logDone, logError),
+            Test(setupDynamicTask(2, TaskAction::Continue), logDone, logError),
+            Test(setupDynamicTask(3, TaskAction::StopWithError), logDone, logError),
+            Test(setupDynamicTask(4, TaskAction::Continue), logDone, logError)
         };
         const Log log {
             {1, Handler::Setup},
@@ -336,12 +337,12 @@ void tst_TaskTree::processTree_data()
         const Group root {
             parallel,
             Storage(storage),
-            Process(setupDynamicProcess(1, TaskAction::Continue), readResult, readError),
-            Process(setupDynamicProcess(2, TaskAction::Continue), readResult, readError),
+            Test(setupDynamicTask(1, TaskAction::Continue), logDone, logError),
+            Test(setupDynamicTask(2, TaskAction::Continue), logDone, logError),
             Group {
-                Process(setupDynamicProcess(3, TaskAction::StopWithError), readResult, readError)
+                Test(setupDynamicTask(3, TaskAction::StopWithError), logDone, logError)
             },
-            Process(setupDynamicProcess(4, TaskAction::Continue), readResult, readError)
+            Test(setupDynamicTask(4, TaskAction::Continue), logDone, logError)
         };
         const Log log {
             {1, Handler::Setup},
@@ -358,16 +359,16 @@ void tst_TaskTree::processTree_data()
         const Group root {
             parallel,
             Storage(storage),
-            Process(setupDynamicProcess(1, TaskAction::Continue), readResult, readError),
-            Process(setupDynamicProcess(2, TaskAction::Continue), readResult, readError),
+            Test(setupDynamicTask(1, TaskAction::Continue), logDone, logError),
+            Test(setupDynamicTask(2, TaskAction::Continue), logDone, logError),
             Group {
                 OnGroupSetup([storage] {
                     storage->m_log.append({0, Handler::GroupSetup});
                     return TaskAction::StopWithError;
                 }),
-                Process(setupDynamicProcess(3, TaskAction::Continue), readResult, readError)
+                Test(setupDynamicTask(3, TaskAction::Continue), logDone, logError)
             },
-            Process(setupDynamicProcess(4, TaskAction::Continue), readResult, readError)
+            Test(setupDynamicTask(4, TaskAction::Continue), logDone, logError)
         };
         const Log log {
             {1, Handler::Setup},
@@ -388,7 +389,7 @@ void tst_TaskTree::processTree_data()
                     Group {
                         Group {
                             Group {
-                                Process(setupProcess(5), readResult, readError),
+                                Test(setupTask(5), logDone, logError),
                                 OnGroupSetup(groupSetup(5)),
                                 OnGroupDone(groupDone(5))
                             },
@@ -426,17 +427,17 @@ void tst_TaskTree::processTree_data()
     }
 
     {
-        const auto readResultAnonymous = [=](const QtcProcess &) {
+        const auto logDoneAnonymously = [=](const TestTask &) {
             storage->m_log.append({0, Handler::Done});
         };
         const Group root {
             Storage(storage),
             parallel,
-            Process(setupProcess(1), readResultAnonymous),
-            Process(setupProcess(2), readResultAnonymous),
-            Process(setupProcess(3), readResultAnonymous),
-            Process(setupProcess(4), readResultAnonymous),
-            Process(setupProcess(5), readResultAnonymous),
+            Test(setupTask(1), logDoneAnonymously),
+            Test(setupTask(2), logDoneAnonymously),
+            Test(setupTask(3), logDoneAnonymously),
+            Test(setupTask(4), logDoneAnonymously),
+            Test(setupTask(5), logDoneAnonymously),
             OnGroupDone(groupDone(0))
         };
         const Log log {
@@ -460,9 +461,9 @@ void tst_TaskTree::processTree_data()
         auto setupSubTree = [=](TaskTree &taskTree) {
             const Group nestedRoot {
                 Storage(storage),
-                Process(setupProcess(2), readResult),
-                Process(setupProcess(3), readResult),
-                Process(setupProcess(4), readResult)
+                Test(setupTask(2), logDone),
+                Test(setupTask(3), logDone),
+                Test(setupTask(4), logDone)
             };
             taskTree.setupRoot(nestedRoot);
             CustomStorage *activeStorage = storage.activeStorage();
@@ -473,27 +474,27 @@ void tst_TaskTree::processTree_data()
         };
         const Group root1 {
             Storage(storage),
-            Process(setupProcess(1), readResult),
-            Process(setupProcess(2), readResult),
-            Process(setupProcess(3), readResult),
-            Process(setupProcess(4), readResult),
-            Process(setupProcess(5), readResult),
+            Test(setupTask(1), logDone),
+            Test(setupTask(2), logDone),
+            Test(setupTask(3), logDone),
+            Test(setupTask(4), logDone),
+            Test(setupTask(5), logDone),
             OnGroupDone(groupDone(0))
         };
         const Group root2 {
             Storage(storage),
-            Group { Process(setupProcess(1), readResult) },
-            Group { Process(setupProcess(2), readResult) },
-            Group { Process(setupProcess(3), readResult) },
-            Group { Process(setupProcess(4), readResult) },
-            Group { Process(setupProcess(5), readResult) },
+            Group { Test(setupTask(1), logDone) },
+            Group { Test(setupTask(2), logDone) },
+            Group { Test(setupTask(3), logDone) },
+            Group { Test(setupTask(4), logDone) },
+            Group { Test(setupTask(5), logDone) },
             OnGroupDone(groupDone(0))
         };
         const Group root3 {
             Storage(storage),
-            Process(setupProcess(1), readResult),
+            Test(setupTask(1), logDone),
             Tree(setupSubTree),
-            Process(setupProcess(5), readResult),
+            Test(setupTask(5), logDone),
             OnGroupDone(groupDone(0))
         };
         const Log log {
@@ -521,15 +522,15 @@ void tst_TaskTree::processTree_data()
         const Group root {
             Storage(storage),
             Group {
-                Process(setupProcess(1), readResult),
+                Test(setupTask(1), logDone),
                 Group {
-                    Process(setupProcess(2), readResult),
+                    Test(setupTask(2), logDone),
                     Group {
-                        Process(setupProcess(3), readResult),
+                        Test(setupTask(3), logDone),
                         Group {
-                            Process(setupProcess(4), readResult),
+                            Test(setupTask(4), logDone),
                             Group {
-                                Process(setupProcess(5), readResult),
+                                Test(setupTask(5), logDone),
                                 OnGroupDone(groupDone(5))
                             },
                             OnGroupDone(groupDone(4))
@@ -567,11 +568,11 @@ void tst_TaskTree::processTree_data()
     {
         const Group root {
             Storage(storage),
-            Process(setupProcess(1), readResult),
-            Process(setupProcess(2), readResult),
-            Process(setupCrashProcess(3), readResult, readError),
-            Process(setupProcess(4), readResult),
-            Process(setupProcess(5), readResult),
+            Test(setupTask(1), logDone),
+            Test(setupTask(2), logDone),
+            Test(setupFailingTask(3), logDone, logError),
+            Test(setupTask(4), logDone),
+            Test(setupTask(5), logDone),
             OnGroupDone(groupDone(0)),
             OnGroupError(groupError(0))
         };
@@ -646,8 +647,8 @@ void tst_TaskTree::processTree_data()
         const Group root {
             Storage(storage),
             optional,
-            Process(setupCrashProcess(1), readResult, readError),
-            Process(setupCrashProcess(2), readResult, readError),
+            Test(setupFailingTask(1), logDone, logError),
+            Test(setupFailingTask(2), logDone, logError),
             OnGroupDone(groupDone(0)),
             OnGroupError(groupError(0))
         };
@@ -707,19 +708,19 @@ void tst_TaskTree::processTree_data()
             Storage(storage),
             Group {
                 OnGroupSetup(groupSetup(1)),
-                Process(setupProcess(1))
+                Test(setupTask(1))
             },
             Group {
                 OnGroupSetup(groupSetup(2)),
-                Process(setupProcess(2))
+                Test(setupTask(2))
             },
             Group {
                 OnGroupSetup(groupSetup(3)),
-                Process(setupProcess(3))
+                Test(setupTask(3))
             },
             Group {
                 OnGroupSetup(groupSetup(4)),
-                Process(setupProcess(4))
+                Test(setupTask(4))
             }
         };
         const Log log {
@@ -742,23 +743,23 @@ void tst_TaskTree::processTree_data()
             Storage(storage),
             Group {
                 OnGroupSetup(groupSetup(1)),
-                Process(setupProcess(1))
+                Test(setupTask(1))
             },
             Group {
                 OnGroupSetup(groupSetup(2)),
-                Process(setupProcess(2))
+                Test(setupTask(2))
             },
             Group {
                 OnGroupSetup(groupSetup(3)),
-                Process(setupDynamicProcess(3, TaskAction::StopWithDone))
+                Test(setupDynamicTask(3, TaskAction::StopWithDone))
             },
             Group {
                 OnGroupSetup(groupSetup(4)),
-                Process(setupProcess(4))
+                Test(setupTask(4))
             },
             Group {
                 OnGroupSetup(groupSetup(5)),
-                Process(setupProcess(5))
+                Test(setupTask(5))
             }
         };
         const Log log {
@@ -783,63 +784,63 @@ void tst_TaskTree::processTree_data()
             Storage(storage),
             Group {
                 OnGroupSetup(groupSetup(1)),
-                Process(setupProcess(1))
+                Test(setupTask(1))
             },
             Group {
                 OnGroupSetup(groupSetup(2)),
-                Process(setupProcess(2))
+                Test(setupTask(2))
             },
             Group {
                 OnGroupSetup(groupSetup(3)),
-                Process(setupDynamicProcess(3, TaskAction::StopWithError))
+                Test(setupDynamicTask(3, TaskAction::StopWithError))
             },
             Group {
                 OnGroupSetup(groupSetup(4)),
-                Process(setupProcess(4))
+                Test(setupTask(4))
             },
             Group {
                 OnGroupSetup(groupSetup(5)),
-                Process(setupProcess(5))
+                Test(setupTask(5))
             }
         };
 
-        // Inside this test the process 2 should finish first, then synchonously:
-        // - process 3 should exit setup with error
-        // - process 1 should be stopped as a consequence of error inside the group
-        // - processes 4 and 5 should be skipped
+        // Inside this test the task 2 should finish first, then synchonously:
+        // - task 3 should exit setup with error
+        // - task 1 should be stopped as a consequence of error inside the group
+        // - tasks 4 and 5 should be skipped
         const Group root2 {
             ParallelLimit(2),
             Storage(storage),
             Group {
                 OnGroupSetup(groupSetup(1)),
-                Process(setupSleepProcess(1, 100))
+                Test(setupSleepingTask(1, 10ms))
             },
             Group {
                 OnGroupSetup(groupSetup(2)),
-                Process(setupProcess(2))
+                Test(setupTask(2))
             },
             Group {
                 OnGroupSetup(groupSetup(3)),
-                Process(setupDynamicProcess(3, TaskAction::StopWithError))
+                Test(setupDynamicTask(3, TaskAction::StopWithError))
             },
             Group {
                 OnGroupSetup(groupSetup(4)),
-                Process(setupProcess(4))
+                Test(setupTask(4))
             },
             Group {
                 OnGroupSetup(groupSetup(5)),
-                Process(setupProcess(5))
+                Test(setupTask(5))
             }
         };
 
-        // This test ensures process 1 doesn't invoke its done handler,
-        // being ready while sleeping in process 2 done handler.
-        // Inside this test the process 2 should finish first, then synchonously:
-        // - process 3 should exit setup with error
-        // - process 1 should be stopped as a consequence of error inside the group
-        // - process 4 should be skipped
+        // This test ensures that the task 1 doesn't invoke its done handler,
+        // being ready while sleeping in the task's 2 done handler.
+        // Inside this test the task 2 should finish first, then synchonously:
+        // - task 3 should exit setup with error
+        // - task 1 should be stopped as a consequence of error inside the group
+        // - task 4 should be skipped
         // - the first child group of root should finish with error
-        // - process 5 should be started (because of root's continueOnError policy)
+        // - task 5 should be started (because of root's continueOnError policy)
         const Group root3 {
             continueOnError,
             Storage(storage),
@@ -847,24 +848,24 @@ void tst_TaskTree::processTree_data()
                 ParallelLimit(2),
                 Group {
                     OnGroupSetup(groupSetup(1)),
-                    Process(setupSleepProcess(1, 100))
+                    Test(setupSleepingTask(1, 20ms))
                 },
                 Group {
                     OnGroupSetup(groupSetup(2)),
-                    Process(setupProcess(2), [](const QtcProcess &) { QThread::msleep(200); })
+                    Test(setupTask(2), [](const TestTask &) { QThread::msleep(10); })
                 },
                 Group {
                     OnGroupSetup(groupSetup(3)),
-                    Process(setupDynamicProcess(3, TaskAction::StopWithError))
+                    Test(setupDynamicTask(3, TaskAction::StopWithError))
                 },
                 Group {
                     OnGroupSetup(groupSetup(4)),
-                    Process(setupProcess(4))
+                    Test(setupTask(4))
                 }
             },
             Group {
                 OnGroupSetup(groupSetup(5)),
-                Process(setupProcess(5))
+                Test(setupTask(5))
             }
         };
         const Log shortLog {
@@ -893,7 +894,7 @@ void tst_TaskTree::processTree_data()
                 OnGroupSetup(groupSetup(1)),
                 Group {
                     parallel,
-                    Process(setupProcess(1))
+                    Test(setupTask(1))
                 }
             },
             Group {
@@ -901,7 +902,7 @@ void tst_TaskTree::processTree_data()
                 OnGroupSetup(groupSetup(2)),
                 Group {
                     parallel,
-                    Process(setupProcess(2))
+                    Test(setupTask(2))
                 }
             },
             Group {
@@ -909,7 +910,7 @@ void tst_TaskTree::processTree_data()
                 OnGroupSetup(groupSetup(3)),
                 Group {
                     parallel,
-                    Process(setupProcess(3))
+                    Test(setupTask(3))
                 }
             },
             Group {
@@ -917,7 +918,7 @@ void tst_TaskTree::processTree_data()
                 OnGroupSetup(groupSetup(4)),
                 Group {
                     parallel,
-                    Process(setupProcess(4))
+                    Test(setupTask(4))
                 }
             }
         };
@@ -942,27 +943,27 @@ void tst_TaskTree::processTree_data()
             Group {
                 Storage(TreeStorage<CustomStorage>()),
                 OnGroupSetup(groupSetup(1)),
-                Group { Process(setupProcess(1)) }
+                Group { Test(setupTask(1)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
                 OnGroupSetup(groupSetup(2)),
-                Group { Process(setupProcess(2)) }
+                Group { Test(setupTask(2)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
                 OnGroupSetup(groupSetup(3)),
-                Group { Process(setupDynamicProcess(3, TaskAction::StopWithDone)) }
+                Group { Test(setupDynamicTask(3, TaskAction::StopWithDone)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
                 OnGroupSetup(groupSetup(4)),
-                Group { Process(setupProcess(4)) }
+                Group { Test(setupTask(4)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
                 OnGroupSetup(groupSetup(5)),
-                Group { Process(setupProcess(5)) }
+                Group { Test(setupTask(5)) }
             }
         };
         const Log log {
@@ -988,27 +989,27 @@ void tst_TaskTree::processTree_data()
             Group {
                 Storage(TreeStorage<CustomStorage>()),
                 OnGroupSetup(groupSetup(1)),
-                Group { Process(setupProcess(1)) }
+                Group { Test(setupTask(1)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
                 OnGroupSetup(groupSetup(2)),
-                Group { Process(setupProcess(2)) }
+                Group { Test(setupTask(2)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
                 OnGroupSetup(groupSetup(3)),
-                Group { Process(setupDynamicProcess(3, TaskAction::StopWithError)) }
+                Group { Test(setupDynamicTask(3, TaskAction::StopWithError)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
                 OnGroupSetup(groupSetup(4)),
-                Group { Process(setupProcess(4)) }
+                Group { Test(setupTask(4)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
                 OnGroupSetup(groupSetup(5)),
-                Group { Process(setupProcess(5)) }
+                Group { Test(setupTask(5)) }
             }
         };
         const Log log {
@@ -1107,9 +1108,9 @@ void tst_TaskTree::processTree_data()
         const Group root {
             Storage(storage),
             Sync(setupSync(1)),
-            Process(setupProcess(2)),
+            Test(setupTask(2)),
             Sync(setupSync(3)),
-            Process(setupProcess(4)),
+            Test(setupTask(4)),
             Sync(setupSync(5)),
             OnGroupDone(groupDone(0))
         };
@@ -1129,9 +1130,9 @@ void tst_TaskTree::processTree_data()
         const Group root {
             Storage(storage),
             Sync(setupSync(1)),
-            Process(setupProcess(2)),
+            Test(setupTask(2)),
             Sync(setupSyncWithReturn(3, false)),
-            Process(setupProcess(4)),
+            Test(setupTask(4)),
             Sync(setupSync(5)),
             OnGroupError(groupError(0))
         };
@@ -1148,31 +1149,41 @@ void tst_TaskTree::processTree_data()
     {
         Condition condition;
 
-        const auto setupProcessWithCondition
-            = [storage, condition, setupProcessHelper](int processId) {
-            return [storage, condition, setupProcessHelper, processId](QtcProcess &process) {
-                setupProcessHelper(process, {"-return", "0"}, processId);
+        const auto reportAndSleep = [](QPromise<bool> &promise) {
+            promise.addResult(false);
+            QThread::msleep(10);
+        };
+
+        const auto setupTaskWithCondition = [storage, condition, reportAndSleep](int taskId) {
+            return [storage, condition, reportAndSleep, taskId](AsyncTask<bool> &async) {
+                async.setFutureSynchronizer(s_futureSynchronizer);
+                async.setConcurrentCallData(reportAndSleep);
+                async.setProperty(s_taskIdProperty, taskId);
+                storage->m_log.append({taskId, Handler::Setup});
+
                 CustomStorage *currentStorage = storage.activeStorage();
                 ConditionActivator *currentActivator = condition.activator();
-                connect(&process, &QtcProcess::started, [currentStorage, currentActivator, processId] {
-                    currentStorage->m_log.append({processId, Handler::Activator});
+                connect(&async, &TestTask::resultReadyAt,
+                        [currentStorage, currentActivator, taskId](int index) {
+                    Q_UNUSED(index)
+                    currentStorage->m_log.append({taskId, Handler::Activator});
                     currentActivator->activate();
                 });
             };
         };
 
-        // Test that Activator, triggered from inside the process described by
-        // setupProcessWithCondition, placed BEFORE the group containing the WaitFor element
+        // Test that Activator, triggered from inside the task described by
+        // setupTaskWithCondition, placed BEFORE the group containing the WaitFor element
         // in the tree order, works OK in SEQUENTIAL mode.
         const Group root1 {
             Storage(storage),
             sequential,
-            Process(setupProcessWithCondition(1)),
+            Async<bool>(setupTaskWithCondition(1)),
             Group {
                 OnGroupSetup(groupSetup(2)),
                 WaitFor(condition),
-                Process(setupProcess(2)),
-                Process(setupProcess(3))
+                Test(setupTask(2)),
+                Test(setupTask(3))
             }
         };
         const Log log1 {
@@ -1183,18 +1194,18 @@ void tst_TaskTree::processTree_data()
             {3, Handler::Setup}
         };
 
-        // Test that Activator, triggered from inside the process described by
-        // setupProcessWithCondition, placed BEFORE the group containing the WaitFor element
+        // Test that Activator, triggered from inside the task described by
+        // setupTaskWithCondition, placed BEFORE the group containing the WaitFor element
         // in the tree order, works OK in PARALLEL mode.
         const Group root2 {
             Storage(storage),
             parallel,
-            Process(setupProcessWithCondition(1)),
+            Async<bool>(setupTaskWithCondition(1)),
             Group {
                 OnGroupSetup(groupSetup(2)),
                 WaitFor(condition),
-                Process(setupProcess(2)),
-                Process(setupProcess(3))
+                Test(setupTask(2)),
+                Test(setupTask(3))
             }
         };
         const Log log2 {
@@ -1205,8 +1216,8 @@ void tst_TaskTree::processTree_data()
             {3, Handler::Setup}
         };
 
-        // Test that Activator, triggered from inside the process described by
-        // setupProcessWithCondition, placed AFTER the group containing the WaitFor element
+        // Test that Activator, triggered from inside the task described by
+        // setupTaskWithCondition, placed AFTER the group containing the WaitFor element
         // in the tree order, works OK in PARALLEL mode.
         //
         // Notice: This won't work in SEQUENTIAL mode, since the Activator placed after the
@@ -1221,10 +1232,10 @@ void tst_TaskTree::processTree_data()
             Group {
                 OnGroupSetup(groupSetup(2)),
                 WaitFor(condition),
-                Process(setupProcess(2)),
-                Process(setupProcess(3))
+                Test(setupTask(2)),
+                Test(setupTask(3))
             },
-            Process(setupProcessWithCondition(1))
+            Async<bool>(setupTaskWithCondition(1))
         };
         const Log log3 {
             {2, Handler::GroupSetup},
@@ -1244,7 +1255,7 @@ void tst_TaskTree::processTree_data()
     }
 }
 
-void tst_TaskTree::processTree()
+void tst_TaskTree::testTree()
 {
     QFETCH(TestData, testData);
 
@@ -1324,12 +1335,13 @@ void tst_TaskTree::storageDestructor()
     QCOMPARE(CustomStorage::instanceCount(), 0);
     {
         TreeStorage<CustomStorage> storage;
-        const auto setupProcess = [testAppPath = m_testAppPath](QtcProcess &process) {
-            process.setCommand(CommandLine(testAppPath, {"-sleep", "1000"}));
+        const auto setupSleepingTask = [](TestTask &task) {
+            task.setFutureSynchronizer(s_futureSynchronizer);
+            task.setConcurrentCallData(runTask, true, 1000ms);
         };
         const Group root {
             Storage(storage),
-            Process(setupProcess)
+            Test(setupSleepingTask)
         };
 
         TaskTree taskTree(root);
@@ -1338,6 +1350,7 @@ void tst_TaskTree::storageDestructor()
         taskTree.onStorageDone(storage, doneHandler);
         taskTree.start();
         QCOMPARE(CustomStorage::instanceCount(), 1);
+        QThread::msleep(5); // Give the sleeping task a change to start
     }
     QCOMPARE(CustomStorage::instanceCount(), 0);
     QVERIFY(setupCalled);
