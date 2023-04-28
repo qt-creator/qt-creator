@@ -38,7 +38,6 @@ private:
     QNetworkReply *m_listReply = nullptr;
 
     QString m_fetchId;
-    int m_postId = -1;
     bool m_hostChecked = false;
 };
 

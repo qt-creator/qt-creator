@@ -764,7 +764,7 @@ void CMakeBuildStep::updateDeploymentData()
     const auto appFileNames = transform<QSet<QString>>(buildSystem()->applicationTargets(),
            [](const BuildTargetInfo &appTarget) { return appTarget.targetFilePath.fileName(); });
 
-    auto handleFile = [this, &appFileNames, startPos, &deploymentData](const FilePath &filePath) {
+    auto handleFile = [&appFileNames, startPos, &deploymentData](const FilePath &filePath) {
         const DeployableFile::Type type = appFileNames.contains(filePath.fileName())
             ? DeployableFile::TypeExecutable
             : DeployableFile::TypeNormal;

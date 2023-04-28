@@ -185,7 +185,7 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
         QAction *closeAllSuites = new QAction(Tr::tr("Close All Test Suites"), &menu);
         menu.addAction(closeAllSuites);
 
-        connect(closeAllSuites, &QAction::triggered, this, [this] {
+        connect(closeAllSuites, &QAction::triggered, this, [] {
             if (SquishMessages::simpleQuestion(Tr::tr("Close All Test Suites"),
                                                Tr::tr("Close all test suites?"
                                                       /*"\nThis will close all related files as well."*/))

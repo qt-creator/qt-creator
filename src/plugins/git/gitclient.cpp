@@ -60,7 +60,7 @@
 const char GIT_DIRECTORY[] = ".git";
 const char HEAD[] = "HEAD";
 const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
-const char BRANCHES_PREFIX[] = "Branches: ";
+[[maybe_unused]] const char BRANCHES_PREFIX[] = "Branches: ";
 const char stashNamePrefix[] = "stash@{";
 const char noColorOption[] = "--no-color";
 const char colorOption[] = "--color=always";
@@ -92,7 +92,7 @@ static QString branchesDisplay(const QString &prefix, QStringList *branches, boo
     if (*first)
         *first = false;
     else
-        output += QString(sizeof(BRANCHES_PREFIX) - 1, ' '); // Align
+        output += QString(sizeof(BRANCHES_PREFIX) - 1 /* the \0 */, ' '); // Align
     output += prefix + ": ";
     // If there are more than 'limit' branches, list limit/2 (first limit/4 and last limit/4)
     if (count > limit) {

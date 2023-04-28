@@ -29,6 +29,7 @@ public:
     QmlObjectNode(const ModelNode &modelNode)
         : QmlModelNodeFacade(modelNode)
     {}
+    virtual ~QmlObjectNode() = default;
 
     static bool isValidQmlObjectNode(const ModelNode &modelNode);
     bool isValid() const override;

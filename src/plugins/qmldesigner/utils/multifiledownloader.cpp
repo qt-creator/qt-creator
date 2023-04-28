@@ -41,6 +41,11 @@ void MultiFileDownloader::setDownloader(FileDownloader *downloader)
     });
 }
 
+FileDownloader *MultiFileDownloader::downloader()
+{
+    return m_downloader;
+}
+
 void MultiFileDownloader::start()
 {
     emit downloadStarting();

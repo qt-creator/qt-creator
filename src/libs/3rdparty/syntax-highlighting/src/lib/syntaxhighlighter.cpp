@@ -179,7 +179,7 @@ void SyntaxHighlighter::applyFolding(int offset, int length, FoldingRegion regio
 {
     Q_UNUSED(offset);
     Q_UNUSED(length);
-    Q_D(SyntaxHighlighter);
+    [[maybe_unused]] Q_D(SyntaxHighlighter);
 
     if (region.type() == FoldingRegion::Begin) {
         d->foldingRegions.push_back(region);

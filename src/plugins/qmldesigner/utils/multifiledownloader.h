@@ -13,7 +13,7 @@ class MultiFileDownloader : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(FileDownloader *downloader WRITE setDownloader)
+    Q_PROPERTY(FileDownloader *downloader READ downloader WRITE setDownloader)
     Q_PROPERTY(bool finished READ finished NOTIFY finishedChanged)
     Q_PROPERTY(int progress READ progress NOTIFY progressChanged)
     Q_PROPERTY(QUrl baseUrl READ baseUrl WRITE setBaseUrl NOTIFY baseUrlChanged)
@@ -34,6 +34,7 @@ public:
     void setTargetDirPath(const QString &path);
     QString targetDirPath() const;
     void setDownloader(FileDownloader *downloader);
+    FileDownloader *downloader();
 
     bool finished() const;
     int progress() const;

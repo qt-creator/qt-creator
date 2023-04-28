@@ -42,7 +42,7 @@ public:
 private:
     // m_pathCache and m_storage are only used when compiled for QDS
 #ifdef QDS_HAS_QMLDOM
-    PathCache &m_pathCache;
+    [[maybe_unused]] PathCache &m_pathCache;
     ProjectStorage &m_storage;
 #endif
 };
