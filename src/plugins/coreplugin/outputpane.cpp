@@ -183,6 +183,10 @@ void OutputPanePlaceHolder::showEvent(QShowEvent *)
         d->m_initialized = true;
         setHeight(Internal::OutputPaneManager::outputPaneHeightSetting());
     }
+    if (OutputPanePlaceHolderPrivate::m_current == this) {
+        Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
+        om->updateStatusButtons(true);
+    }
 }
 
 OutputPanePlaceHolder *OutputPanePlaceHolder::getCurrent()
