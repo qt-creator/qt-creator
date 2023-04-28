@@ -67,8 +67,6 @@ public:
 
     QString componentFileName() const;
 
-    bool availableInVersion(int majorVersion, int minorVersion) const;
-
     bool isBasedOn(const NodeMetaInfo &metaInfo) const;
     bool isBasedOn(const NodeMetaInfo &metaInfo1, const NodeMetaInfo &metaInfo2) const;
     bool isBasedOn(const NodeMetaInfo &metaInfo1,
