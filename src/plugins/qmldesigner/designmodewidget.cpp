@@ -251,60 +251,48 @@ void DesignModeWidget::setup()
 
     // First get all navigation views
     QList<Core::INavigationWidgetFactory *> factories = Core::INavigationWidgetFactory::allNavigationFactories();
-
-    QList<Core::Command*> viewCommands;
+    QList<Core::Command *> viewCommands;
+    const QList<Utils::Id> navigationViewIds = {"Projects", "File System", "Open Documents"};
 
     for (Core::INavigationWidgetFactory *factory : factories) {
-        Core::NavigationView navigationView;
-        navigationView.widget = nullptr;
-        QString uniqueId;
-        QString title;
+        Core::NavigationView navigationView = {nullptr, {}};
 
-        if (factory->id() == "Projects") {
-            navigationView = factory->createWidget();
-            hideToolButtons(navigationView.dockToolBarWidgets);
-            navigationView.widget->setWindowTitle(tr(factory->id().name()));
-            uniqueId = "Projects";
-            title = "Projects";
-        }
-        if (factory->id() == "File System") {
-            navigationView = factory->createWidget();
-            hideToolButtons(navigationView.dockToolBarWidgets);
-            navigationView.widget->setWindowTitle(tr(factory->id().name()));
-            uniqueId = "FileSystem";
-            title = "File System";
-        }
-        if (factory->id() == "Open Documents") {
-            navigationView = factory->createWidget();
-            hideToolButtons(navigationView.dockToolBarWidgets);
-            navigationView.widget->setWindowTitle(tr(factory->id().name()));
-            uniqueId = "OpenDocuments";
-            title = "Open Documents";
-        }
+        if (!navigationViewIds.contains(factory->id()))
+            continue;
 
-        if (navigationView.widget) {
-            // Apply stylesheet to QWidget
-            QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
-            sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
-            sheet += "QLabel { background-color: creatorTheme.DSsectionHeadBackground; }";
-            navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+        navigationView = factory->createWidget();
 
-            // Create DockWidget
-            ADS::DockWidget *dockWidget = new ADS::DockWidget(uniqueId);
-            dockWidget->setWidget(navigationView.widget);
-            dockWidget->setWindowTitle(title);
-            m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
+        if (!navigationView.widget)
+            continue;
 
-            // Set unique id as object name
-            navigationView.widget->setObjectName(uniqueId);
+        hideToolButtons(navigationView.dockToolBarWidgets);
+        navigationView.widget->setWindowTitle(tr(factory->id().name()));
 
-            // Create menu action
-            auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
-                                                               actionToggle.withSuffix(uniqueId + "Widget"),
-                                                               designContext);
-            command->setAttribute(Core::Command::CA_Hide);
-            viewCommands.append(command);
-        }
+        QString idString = factory->id().toSetting().toString();
+        const QString title = idString;
+        const QString uniqueId = idString.remove(" "); // title without whitespaces
+
+        // Apply stylesheet to QWidget
+        QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
+        sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
+        sheet += "QLabel { background-color: creatorTheme.DSsectionHeadBackground; }";
+        navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+
+        // Create DockWidget
+        ADS::DockWidget *dockWidget = new ADS::DockWidget(uniqueId);
+        dockWidget->setWidget(navigationView.widget);
+        dockWidget->setWindowTitle(title);
+        m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
+
+        // Set unique id as object name
+        navigationView.widget->setObjectName(uniqueId);
+
+        // Create menu action
+        auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
+                                                           actionToggle.withSuffix(uniqueId + "Widget"),
+                                                           designContext);
+        command->setAttribute(Core::Command::CA_Hide);
+        viewCommands.append(command);
     }
 
     // Afterwards get all the other widgets
@@ -323,7 +311,8 @@ void DesignModeWidget::setup()
 
         // Create menu action
         auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
-                                                           actionToggle.withSuffix(widgetInfo.uniqueId + "Widget"),
+                                                           actionToggle.withSuffix(
+                                                               widgetInfo.uniqueId + "Widget"),
                                                            designContext);
         command->setAttribute(Core::Command::CA_Hide);
         viewCommands.append(command);
@@ -354,7 +343,7 @@ void DesignModeWidget::setup()
                 &ADS::DockWidget::toggleView);
     }
 
-    std::sort(viewCommands.begin(), viewCommands.end(), [](Core::Command *first, Core::Command *second){
+    std::sort(viewCommands.begin(), viewCommands.end(), [](Core::Command *first, Core::Command *second) {
         return first->description() < second->description();
     });
 
@@ -367,7 +356,10 @@ void DesignModeWidget::setup()
 
         toolBar->addAction(viewManager().componentViewAction());
         toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-        DesignerActionToolBar *designerToolBar = QmlDesignerPlugin::instance()->viewManager().designerActionManager().createToolBar(m_toolBar);
+        DesignerActionToolBar *designerToolBar = QmlDesignerPlugin::instance()
+                                                     ->viewManager()
+                                                     .designerActionManager()
+                                                     .createToolBar(m_toolBar);
 
         designerToolBar->layout()->addWidget(toolBar);
 
@@ -376,8 +368,14 @@ void DesignModeWidget::setup()
         m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
         m_toolBar->setNavigationVisible(true);
 
-        connect(m_toolBar, &Core::EditorToolBar::goForwardClicked, this, &DesignModeWidget::toolBarOnGoForwardClicked);
-        connect(m_toolBar, &Core::EditorToolBar::goBackClicked, this, &DesignModeWidget::toolBarOnGoBackClicked);
+        connect(m_toolBar,
+                &Core::EditorToolBar::goForwardClicked,
+                this,
+                &DesignModeWidget::toolBarOnGoForwardClicked);
+        connect(m_toolBar,
+                &Core::EditorToolBar::goBackClicked,
+                this,
+                &DesignModeWidget::toolBarOnGoBackClicked);
 
         QToolBar* toolBarWrapper = new QToolBar();
         toolBarWrapper->addWidget(m_toolBar);
@@ -436,7 +434,8 @@ void DesignModeWidget::setup()
 
 void DesignModeWidget::aboutToShowWorkspaces()
 {
-    Core::ActionContainer *aci = Core::ActionManager::actionContainer(QmlDesigner::Constants::M_VIEW_WORKSPACES);
+    Core::ActionContainer *aci = Core::ActionManager::actionContainer(
+        QmlDesigner::Constants::M_VIEW_WORKSPACES);
     QMenu *menu = aci->menu();
     menu->clear();
 
