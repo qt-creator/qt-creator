@@ -5,7 +5,8 @@
 
 #include "utils_global.h"
 
-#include <QDialogButtonBox>
+#include "aspects.h"
+
 #include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
@@ -16,100 +17,206 @@ namespace Utils {
 
 class CheckableMessageBoxPrivate;
 
-class QTCREATOR_UTILS_EXPORT CheckableMessageBox : public QDialog
+class QTCREATOR_UTILS_EXPORT CheckableMessageBox
 {
-    Q_OBJECT
-    Q_PROPERTY(QString text READ text WRITE setText)
-    Q_PROPERTY(QMessageBox::Icon icon READ icon WRITE setIcon)
-    Q_PROPERTY(bool isChecked READ isChecked WRITE setChecked)
-    Q_PROPERTY(QString checkBoxText READ checkBoxText WRITE setCheckBoxText)
-    Q_PROPERTY(QDialogButtonBox::StandardButtons buttons READ standardButtons WRITE setStandardButtons)
-    Q_PROPERTY(QDialogButtonBox::StandardButton defaultButton READ defaultButton WRITE setDefaultButton)
-
 public:
-    explicit CheckableMessageBox(QWidget *parent);
-    ~CheckableMessageBox() override;
+    struct BoolDecision
+    {
+        QString text;
+        bool &value;
+    };
 
-    static QDialogButtonBox::StandardButton
-        question(QWidget *parent,
-                 const QString &title,
-                 const QString &question,
-                 const QString &checkBoxText,
-                 bool *checkBoxSetting,
-                 QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Yes|QDialogButtonBox::No,
-                 QDialogButtonBox::StandardButton defaultButton = QDialogButtonBox::No);
+    struct SettingsDecision
+    {
+        QString text;
+        QSettings *settings;
+        QString settingsSubKey;
+    };
 
-    static QDialogButtonBox::StandardButton
-        information(QWidget *parent,
-                 const QString &title,
-                 const QString &text,
-                 const QString &checkBoxText,
-                 bool *checkBoxSetting,
-                 QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Ok,
-                 QDialogButtonBox::StandardButton defaultButton = QDialogButtonBox::NoButton);
+    struct AspectDecision
+    {
+        QString text;
+        BoolAspect &aspect;
+    };
 
-    static QDialogButtonBox::StandardButton
-        doNotAskAgainQuestion(QWidget *parent,
-                              const QString &title,
-                              const QString &text,
-                              QSettings *settings,
-                              const QString &settingsSubKey,
-                              QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Yes|QDialogButtonBox::No,
-                              QDialogButtonBox::StandardButton defaultButton = QDialogButtonBox::No,
-                              QDialogButtonBox::StandardButton acceptButton = QDialogButtonBox::Yes);
+    using Decider = std::variant<BoolDecision, SettingsDecision, AspectDecision>;
 
-    static QDialogButtonBox::StandardButton
-        doNotShowAgainInformation(QWidget *parent,
-                                  const QString &title,
-                                  const QString &text,
-                                  QSettings *settings,
-                                  const QString &settingsSubKey,
-                                  QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Ok,
-                                  QDialogButtonBox::StandardButton defaultButton = QDialogButtonBox::NoButton);
+    static Decider make_decider(QSettings *settings,
+                                const QString &settingsSubKey,
+                                const QString &text = msgDoNotAskAgain())
+    {
+        return Decider{SettingsDecision{text, settings, settingsSubKey}};
+    }
 
-    QString text() const;
-    void setText(const QString &);
+    static Decider make_decider(bool &value, const QString &text = msgDoNotAskAgain())
+    {
+        return Decider{BoolDecision{text, value}};
+    }
 
-    bool isChecked() const;
-    void setChecked(bool s);
+    static Decider make_decider(BoolAspect &aspect, const QString &text = msgDoNotAskAgain())
+    {
+        return Decider{AspectDecision{text, aspect}};
+    }
 
-    QString checkBoxText() const;
-    void setCheckBoxText(const QString &);
+    static QMessageBox::StandardButton question(
+        QWidget *parent,
+        const QString &title,
+        const QString &question,
+        std::optional<Decider> decider = std::nullopt,
+        QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::StandardButton defaultButton = QMessageBox::No,
+        QMessageBox::StandardButton acceptButton = QMessageBox::Yes,
+        QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {});
 
-    bool isCheckBoxVisible() const;
-    void setCheckBoxVisible(bool);
+    static QMessageBox::StandardButton question(
+        QWidget *parent,
+        const QString &title,
+        const QString &question,
+        bool &value,
+        QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::StandardButton defaultButton = QMessageBox::No,
+        QMessageBox::StandardButton acceptButton = QMessageBox::Yes,
+        QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {},
+        const QString &text = msgDoNotAskAgain())
+    {
+        Decider decider = make_decider(value, text);
+        return CheckableMessageBox::question(parent,
+                                             title,
+                                             question,
+                                             decider,
+                                             buttons,
+                                             defaultButton,
+                                             acceptButton,
+                                             buttonTextOverrides);
+    }
 
-    QString detailedText() const;
-    void setDetailedText(const QString &text);
+    static QMessageBox::StandardButton question(
+        QWidget *parent,
+        const QString &title,
+        const QString &question,
+        QSettings *settings,
+        const QString &settingsSubKey,
+        QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::StandardButton defaultButton = QMessageBox::No,
+        QMessageBox::StandardButton acceptButton = QMessageBox::Yes,
+        QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {},
+        const QString &text = msgDoNotAskAgain())
+    {
+        Decider decider = make_decider(settings, settingsSubKey, text);
+        return CheckableMessageBox::question(parent,
+                                             title,
+                                             question,
+                                             decider,
+                                             buttons,
+                                             defaultButton,
+                                             acceptButton,
+                                             buttonTextOverrides);
+    }
 
-    QDialogButtonBox::StandardButtons standardButtons() const;
-    void setStandardButtons(QDialogButtonBox::StandardButtons s);
-    QPushButton *button(QDialogButtonBox::StandardButton b) const;
-    QPushButton *addButton(const QString &text, QDialogButtonBox::ButtonRole role);
+    static QMessageBox::StandardButton question(
+        QWidget *parent,
+        const QString &title,
+        const QString &question,
+        BoolAspect &aspect,
+        QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::StandardButton defaultButton = QMessageBox::No,
+        QMessageBox::StandardButton acceptButton = QMessageBox::Yes,
+        QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {},
+        const QString &text = msgDoNotAskAgain())
+    {
+        Decider decider = make_decider(aspect, text);
+        return CheckableMessageBox::question(parent,
+                                             title,
+                                             question,
+                                             decider,
+                                             buttons,
+                                             defaultButton,
+                                             acceptButton,
+                                             buttonTextOverrides);
+    }
 
-    QDialogButtonBox::StandardButton defaultButton() const;
-    void setDefaultButton(QDialogButtonBox::StandardButton s);
+    static QMessageBox::StandardButton information(
+        QWidget *parent,
+        const QString &title,
+        const QString &text,
+        std::optional<Decider> decider = std::nullopt,
+        QMessageBox::StandardButtons buttons = QMessageBox::Ok,
+        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton,
+        QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {});
 
-    QMessageBox::Icon icon() const;
-    void setIcon(QMessageBox::Icon icon);
+    static QMessageBox::StandardButton information(
+        QWidget *parent,
+        const QString &title,
+        const QString &information,
+        bool &value,
+        QMessageBox::StandardButtons buttons = QMessageBox::Ok,
+        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton,
+        QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {},
+        const QString &text = msgDoNotAskAgain())
+    {
+        Decider decider = make_decider(value, text);
+        return CheckableMessageBox::information(parent,
+                                                title,
+                                                information,
+                                                decider,
+                                                buttons,
+                                                defaultButton,
+                                                buttonTextOverrides);
+    }
 
-    // Query the result
-    QAbstractButton *clickedButton() const;
-    QDialogButtonBox::StandardButton clickedStandardButton() const;
+    static QMessageBox::StandardButton information(
+        QWidget *parent,
+        const QString &title,
+        const QString &information,
+        QSettings *settings,
+        const QString &settingsSubKey,
+        QMessageBox::StandardButtons buttons = QMessageBox::Ok,
+        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton,
+        QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {},
+        const QString &text = msgDoNotAskAgain())
+    {
+        Decider decider = make_decider(settings, settingsSubKey, text);
+        return CheckableMessageBox::information(parent,
+                                                title,
+                                                information,
+                                                decider,
+                                                buttons,
+                                                defaultButton,
+                                                buttonTextOverrides);
+    }
+
+    static QMessageBox::StandardButton information(
+        QWidget *parent,
+        const QString &title,
+        const QString &information,
+        BoolAspect &aspect,
+        QMessageBox::StandardButtons buttons = QMessageBox::Ok,
+        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton,
+        QMap<QMessageBox::StandardButton, QString> buttonTextOverrides = {},
+        const QString &text = msgDoNotAskAgain())
+    {
+        Decider decider = make_decider(aspect, text);
+        return CheckableMessageBox::information(parent,
+                                                title,
+                                                information,
+                                                decider,
+                                                buttons,
+                                                defaultButton,
+                                                buttonTextOverrides);
+    }
 
     // check and set "ask again" status
-    static bool shouldAskAgain(QSettings *settings, const QString &settingsSubKey);
-    static void doNotAskAgain(QSettings *settings, const QString &settingsSubKey);
+    static bool shouldAskAgain(const Decider &decider);
+    static void doNotAskAgain(Decider &decider);
+
+    static bool shouldAskAgain(QSettings *settings, const QString &key);
+    static void doNotAskAgain(QSettings *settings, const QString &key);
 
     // Conversion convenience
-    static QMessageBox::StandardButton dialogButtonBoxToMessageBoxButton(QDialogButtonBox::StandardButton);
     static void resetAllDoNotAskAgainQuestions(QSettings *settings);
     static bool hasSuppressedQuestions(QSettings *settings);
     static QString msgDoNotAskAgain();
     static QString msgDoNotShowAgain();
-
-private:
-    CheckableMessageBoxPrivate *d;
 };
 
 } // namespace Utils

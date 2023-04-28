@@ -138,12 +138,11 @@ QString hintAboutBuildBeforeAnalysis()
 
 void showHintAboutBuildBeforeAnalysis()
 {
-    Utils::CheckableMessageBox::doNotShowAgainInformation(
-        Core::ICore::dialogParent(),
-        Tr::tr("Info About Build the Project Before Analysis"),
-        hintAboutBuildBeforeAnalysis(),
-        Core::ICore::settings(),
-        "ClangToolsDisablingBuildBeforeAnalysisHint");
+    Utils::CheckableMessageBox::information(Core::ICore::dialogParent(),
+                                            Tr::tr("Info About Build the Project Before Analysis"),
+                                            hintAboutBuildBeforeAnalysis(),
+                                            Core::ICore::settings(),
+                                            "ClangToolsDisablingBuildBeforeAnalysisHint");
 }
 
 FilePath fullPath(const FilePath &executable)

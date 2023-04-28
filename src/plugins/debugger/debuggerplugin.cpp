@@ -2240,10 +2240,13 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName)
             "or otherwise insufficient output.</p><p>"
             "Do you want to continue and run the tool in %2 mode?</p></body></html>")
                 .arg(toolName).arg(currentMode).arg(toolModeString);
-        if (Utils::CheckableMessageBox::doNotAskAgainQuestion(ICore::dialogParent(),
-                title, message, ICore::settings(), "AnalyzerCorrectModeWarning")
-                    != QDialogButtonBox::Yes)
-            return false;
+        if (Utils::CheckableMessageBox::question(ICore::dialogParent(),
+                                                 title,
+                                                 message,
+                                                 ICore::settings(),
+                                                 "AnalyzerCorrectModeWarning")
+            != QMessageBox::Yes)
+                return false;
     }
 
     return true;

@@ -590,23 +590,18 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
 void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
 {
     auto settings = CMakeSpecificSettings::instance();
-    bool doNotAsk = !settings->askBeforeReConfigureInitialParams.value();
-    if (!doNotAsk) {
-        QDialogButtonBox::StandardButton reply = CheckableMessageBox::question(
-            Core::ICore::dialogParent(),
-            Tr::tr("Re-configure with Initial Parameters"),
-            Tr::tr("Clear CMake configuration and configure with initial parameters?"),
-            Tr::tr("Do not ask again"),
-            &doNotAsk,
-            QDialogButtonBox::Yes | QDialogButtonBox::No,
-            QDialogButtonBox::Yes);
+    QMessageBox::StandardButton reply = CheckableMessageBox::question(
+        Core::ICore::dialogParent(),
+        Tr::tr("Re-configure with Initial Parameters"),
+        Tr::tr("Clear CMake configuration and configure with initial parameters?"),
+        settings->askBeforeReConfigureInitialParams,
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::Yes);
 
-        settings->askBeforeReConfigureInitialParams.setValue(!doNotAsk);
-        settings->writeSettings(Core::ICore::settings());
+    settings->writeSettings(Core::ICore::settings());
 
-        if (reply != QDialogButtonBox::Yes) {
-            return;
-        }
+    if (reply != QMessageBox::Yes) {
+        return;
     }
 
     m_buildSystem->clearCMakeCache();

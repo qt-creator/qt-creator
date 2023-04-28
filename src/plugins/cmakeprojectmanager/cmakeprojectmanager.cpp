@@ -232,30 +232,22 @@ void CMakeManager::enableBuildFileMenus(Node *node)
 void CMakeManager::reloadCMakePresets()
 {
     auto settings = CMakeSpecificSettings::instance();
-    bool doNotAsk = !settings->askBeforePresetsReload.value();
-    if (!doNotAsk) {
-        CheckableMessageBox question(Core::ICore::dialogParent());
 
-        question.setIcon(QMessageBox::Question);
-        question.setWindowTitle(Tr::tr("Reload CMake Presets"));
-        question.setText(Tr::tr("Re-generates the CMake presets kits. The manual CMake project modifications will be lost."));
-        question.setCheckBoxText(Tr::tr("Do not ask again"));
-        question.setCheckBoxVisible(true);
-        question.setChecked(doNotAsk);
-        question.setStandardButtons(QDialogButtonBox::Cancel);
+    QMessageBox::StandardButton clickedButton
+        = CheckableMessageBox::question(Core::ICore::dialogParent(),
+                                        Tr::tr("Reload CMake Presets"),
+                                        Tr::tr("Re-generates the CMake presets kits. The manual "
+                                               "CMake project modifications will be lost."),
+                                        settings->askBeforePresetsReload,
+                                        QMessageBox::Yes | QMessageBox::Cancel,
+                                        QMessageBox::Yes,
+                                        QMessageBox::Yes,
+                                        {
+                                            {QMessageBox::Yes, Tr::tr("Reload")},
+                                        });
 
-        question.addButton(Tr::tr("Reload"), QDialogButtonBox::YesRole);
-        question.setDefaultButton(QDialogButtonBox::Yes);
-        question.exec();
-
-        doNotAsk = question.isChecked();
-
-        settings->askBeforePresetsReload.setValue(!doNotAsk);
-        settings->writeSettings(Core::ICore::settings());
-
-        if (question.clickedStandardButton() == QDialogButtonBox::Cancel)
-            return;
-    }
+    if (clickedButton == QMessageBox::Cancel)
+        return;
 
     CMakeProject *project = static_cast<CMakeProject *>(ProjectTree::currentProject());
     if (!project)

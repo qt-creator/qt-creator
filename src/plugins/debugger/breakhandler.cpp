@@ -41,6 +41,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFormLayout>
 #include <QGroupBox>
@@ -2691,14 +2692,14 @@ void BreakpointManager::gotoLocation(const GlobalBreakpoint &gbp) const
 
 void BreakpointManager::executeDeleteAllBreakpointsDialog()
 {
-    QDialogButtonBox::StandardButton pressed =
-        CheckableMessageBox::doNotAskAgainQuestion(ICore::dialogParent(),
-           Tr::tr("Remove All Breakpoints"),
-           Tr::tr("Are you sure you want to remove all breakpoints "
-                  "from all files in the current session?"),
-           ICore::settings(),
-           "RemoveAllBreakpoints");
-    if (pressed != QDialogButtonBox::Yes)
+    QMessageBox::StandardButton pressed
+        = CheckableMessageBox::question(ICore::dialogParent(),
+                                        Tr::tr("Remove All Breakpoints"),
+                                        Tr::tr("Are you sure you want to remove all breakpoints "
+                                               "from all files in the current session?"),
+                                        ICore::settings(),
+                                        "RemoveAllBreakpoints");
+    if (pressed != QMessageBox::Yes)
         return;
 
     for (GlobalBreakpoint gbp : globalBreakpoints())

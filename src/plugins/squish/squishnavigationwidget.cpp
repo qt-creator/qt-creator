@@ -296,14 +296,15 @@ void SquishNavigationWidget::onRemoveAllSharedFolderTriggered()
 
 void SquishNavigationWidget::onRecordTestCase(const QString &suiteName, const QString &testCase)
 {
-    QDialogButtonBox::StandardButton pressed = Utils::CheckableMessageBox::doNotAskAgainQuestion(
-                Core::ICore::dialogParent(),
-                Tr::tr("Record Test Case"),
-                Tr::tr("Do you want to record over the test case \"%1\"? The existing content will "
-                       "be overwritten by the recorded script.").arg(testCase),
-                Core::ICore::settings(),
-                "RecordWithoutApproval");
-    if (pressed != QDialogButtonBox::Yes)
+    QMessageBox::StandardButton pressed = Utils::CheckableMessageBox::question(
+        Core::ICore::dialogParent(),
+        Tr::tr("Record Test Case"),
+        Tr::tr("Do you want to record over the test case \"%1\"? The existing content will "
+               "be overwritten by the recorded script.")
+            .arg(testCase),
+        Core::ICore::settings(),
+        "RecordWithoutApproval");
+    if (pressed != QMessageBox::Yes)
         return;
 
     SquishFileHandler::instance()->recordTestCase(suiteName, testCase);

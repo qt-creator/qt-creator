@@ -1293,14 +1293,16 @@ QStringList GitClient::setupCheckoutArguments(const FilePath &workingDirectory,
     if (localBranches.contains(ref))
         return arguments;
 
-    if (Utils::CheckableMessageBox::doNotAskAgainQuestion(
-                ICore::dialogParent() /*parent*/,
-                Tr::tr("Create Local Branch") /*title*/,
-                Tr::tr("Would you like to create a local branch?") /*message*/,
-                ICore::settings(), "Git.CreateLocalBranchOnCheckout" /*setting*/,
-                QDialogButtonBox::Yes | QDialogButtonBox::No /*buttons*/,
-                QDialogButtonBox::No /*default button*/,
-                QDialogButtonBox::No /*button to save*/) != QDialogButtonBox::Yes) {
+    if (Utils::CheckableMessageBox::question(
+            ICore::dialogParent() /*parent*/,
+            Tr::tr("Create Local Branch") /*title*/,
+            Tr::tr("Would you like to create a local branch?") /*message*/,
+            ICore::settings(),
+            "Git.CreateLocalBranchOnCheckout" /*setting*/,
+            QMessageBox::Yes | QMessageBox::No /*buttons*/,
+            QMessageBox::No /*default button*/,
+            QMessageBox::No /*button to save*/)
+        != QMessageBox::Yes) {
         return arguments;
     }
 

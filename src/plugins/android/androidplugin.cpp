@@ -34,7 +34,6 @@
 #endif
 
 #include <coreplugin/icore.h>
-#include <utils/checkablemessagebox.h>
 #include <utils/infobar.h>
 
 #include <languageclient/languageclientsettings.h>

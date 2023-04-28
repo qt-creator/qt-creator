@@ -2722,9 +2722,11 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                                && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;
     bool warnOnInappropriateDebugger = false;
     QString detailedWarning;
+    auto shouldAskAgain = CheckableMessageBox::make_decider(coreSettings,
+                                                            warnOnInappropriateDebuggerKey);
     switch (rp.toolChainAbi.binaryFormat()) {
     case Abi::PEFormat: {
-        if (CheckableMessageBox::shouldAskAgain(coreSettings, warnOnInappropriateDebuggerKey)) {
+        if (CheckableMessageBox::shouldAskAgain(shouldAskAgain)) {
             QString preferredDebugger;
             if (rp.toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor) {
                 if (rp.cppEngineType == CdbEngineType)
@@ -2764,7 +2766,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         break;
     }
     case Abi::ElfFormat: {
-        if (CheckableMessageBox::shouldAskAgain(coreSettings, warnOnInappropriateDebuggerKey)) {
+        if (CheckableMessageBox::shouldAskAgain(shouldAskAgain)) {
             if (rp.cppEngineType == CdbEngineType) {
                 warnOnInappropriateDebugger = true;
                 detailedWarning = Tr::tr(
@@ -2870,16 +2872,14 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         return;
     }
     if (warnOnInappropriateDebugger) {
-        CheckableMessageBox::doNotShowAgainInformation(
+        CheckableMessageBox::information(
             Core::ICore::dialogParent(),
             Tr::tr("Warning"),
-            Tr::tr(
-                "The selected debugger may be inappropriate for the inferior.\n"
-                "Examining symbols and setting breakpoints by file name and line number "
-                "may fail.\n")
+            Tr::tr("The selected debugger may be inappropriate for the inferior.\n"
+                   "Examining symbols and setting breakpoints by file name and line number "
+                   "may fail.\n")
                 + '\n' + detailedWarning,
-            Core::ICore::settings(),
-            warnOnInappropriateDebuggerKey);
+            shouldAskAgain);
     } else if (warnOnRelease) {
         AsynchronousMessageBox::information(Tr::tr("Warning"),
                Tr::tr("This does not seem to be a \"Debug\" build.\n"

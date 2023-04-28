@@ -257,11 +257,13 @@ void BookmarkView::keyPressEvent(QKeyEvent *event)
 
 void BookmarkView::removeAll()
 {
-    if (CheckableMessageBox::doNotAskAgainQuestion(this,
-            Tr::tr("Remove All Bookmarks"),
-            Tr::tr("Are you sure you want to remove all bookmarks from all files in the current session?"),
-            ICore::settings(),
-            QLatin1String("RemoveAllBookmarks")) != QDialogButtonBox::Yes)
+    if (CheckableMessageBox::question(this,
+                                      Tr::tr("Remove All Bookmarks"),
+                                      Tr::tr("Are you sure you want to remove all bookmarks from "
+                                             "all files in the current session?"),
+                                      ICore::settings(),
+                                      QLatin1String("RemoveAllBookmarks"))
+        != QMessageBox::Yes)
         return;
 
     // The performance of this function could be greatly improved.

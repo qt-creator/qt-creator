@@ -752,17 +752,13 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
                 .arg(filePath.fileName())
                 .arg(fileSizeInMB, 0, 'f', 2);
 
-        CheckableMessageBox messageBox(ICore::dialogParent());
-        messageBox.setWindowTitle(title);
-        messageBox.setText(text);
-        messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::No);
-        messageBox.setDefaultButton(QDialogButtonBox::No);
-        messageBox.setIcon(QMessageBox::Question);
-        messageBox.setCheckBoxVisible(true);
-        messageBox.setCheckBoxText(CheckableMessageBox::msgDoNotAskAgain());
-        messageBox.exec();
-        setWarnBeforeOpeningBigFilesEnabled(!messageBox.isChecked());
-        return messageBox.clickedStandardButton() != QDialogButtonBox::Yes;
+        bool askAgain = true;
+        auto decider = CheckableMessageBox::make_decider(askAgain);
+
+        QMessageBox::StandardButton clickedButton
+            = CheckableMessageBox::question(ICore::dialogParent(), title, text, decider);
+        setWarnBeforeOpeningBigFilesEnabled(askAgain);
+        return clickedButton != QMessageBox::Yes;
     }
 
     return false;

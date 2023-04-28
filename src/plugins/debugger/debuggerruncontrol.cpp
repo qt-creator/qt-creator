@@ -616,14 +616,12 @@ void DebuggerRunTool::start()
 
             showMessage(warningMessage, LogWarning);
 
-            static bool checked = true;
-            if (checked)
-                CheckableMessageBox::information(Core::ICore::dialogParent(),
-                                                 Tr::tr("Debugger"),
-                                                 warningMessage,
-                                                 Tr::tr("&Show this message again."),
-                                                 &checked,
-                                                 QDialogButtonBox::Ok);
+            static bool doNotShowAgain = false;
+            CheckableMessageBox::information(Core::ICore::dialogParent(),
+                                             Tr::tr("Debugger"),
+                                             warningMessage,
+                                             doNotShowAgain,
+                                             QMessageBox::Ok);
         }
     }
 

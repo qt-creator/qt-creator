@@ -801,19 +801,19 @@ void MemcheckToolPrivate::heobAction()
         const QString dwarfstack = QString("dwarfstack%1.dll").arg(abi.wordWidth());
         const QString dwarfstackPath = dialog.path() + '/' + dwarfstack;
         if (!QFile::exists(dwarfstackPath)
-            && CheckableMessageBox::doNotShowAgainInformation(
+            && CheckableMessageBox::information(
                    Core::ICore::dialogParent(),
                    Tr::tr("Heob"),
                    Tr::tr("Heob used with MinGW projects needs the %1 DLLs for proper "
-                                    "stacktrace resolution.")
+                          "stacktrace resolution.")
                        .arg(
                            "<a "
                            "href=\"https://github.com/ssbssa/dwarfstack/releases\">Dwarfstack</a>"),
                    ICore::settings(),
                    "HeobDwarfstackInfo",
-                   QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                   QDialogButtonBox::Ok)
-                   != QDialogButtonBox::Ok)
+                   QMessageBox::Ok | QMessageBox::Cancel,
+                   QMessageBox::Ok)
+                   != QMessageBox::Ok)
             return;
     }
 

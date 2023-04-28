@@ -1051,26 +1051,23 @@ bool RunControl::showPromptToStopDialog(const QString &title,
 {
     // Show a question message box where user can uncheck this
     // question for this class.
-    Utils::CheckableMessageBox messageBox(Core::ICore::dialogParent());
-    messageBox.setWindowTitle(title);
-    messageBox.setText(text);
-    messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+    QMap<QMessageBox::StandardButton, QString> buttonTexts;
     if (!stopButtonText.isEmpty())
-        messageBox.button(QDialogButtonBox::Yes)->setText(stopButtonText);
+        buttonTexts[QMessageBox::Yes] = stopButtonText;
     if (!cancelButtonText.isEmpty())
-        messageBox.button(QDialogButtonBox::Cancel)->setText(cancelButtonText);
-    messageBox.setDefaultButton(QDialogButtonBox::Yes);
-    if (prompt) {
-        messageBox.setCheckBoxText(Utils::CheckableMessageBox::msgDoNotAskAgain());
-        messageBox.setChecked(false);
-    } else {
-        messageBox.setCheckBoxVisible(false);
-    }
-    messageBox.exec();
-    const bool close = messageBox.clickedStandardButton() == QDialogButtonBox::Yes;
-    if (close && prompt && messageBox.isChecked())
-        *prompt = false;
-    return close;
+        buttonTexts[QMessageBox::Cancel] = cancelButtonText;
+
+    std::optional<CheckableMessageBox::Decider> decider
+        = prompt ? std::nullopt : make_optional(CheckableMessageBox::make_decider(*prompt));
+
+    auto selected = CheckableMessageBox::question(Core::ICore::dialogParent(),
+                                                  title,
+                                                  text,
+                                                  decider,
+                                                  QMessageBox::Yes | QMessageBox::Cancel,
+                                                  QMessageBox::Yes);
+
+    return selected == QMessageBox::Yes;
 }
 
 void RunControl::provideAskPassEntry(Environment &env)

@@ -40,6 +40,7 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QFile>
 #include <QFloat16>
 #include <QItemDelegate>
@@ -52,8 +53,8 @@
 #include <QPainter>
 #include <QSet>
 #include <QStringDecoder>
-#include <QTableWidget>
 #include <QTabWidget>
+#include <QTableWidget>
 #include <QTextEdit>
 #include <QTimer>
 #include <QToolTip>
@@ -2571,11 +2572,13 @@ void WatchModel::clearWatches()
     if (theWatcherNames.isEmpty())
         return;
 
-    const QDialogButtonBox::StandardButton ret = CheckableMessageBox::doNotAskAgainQuestion(
-                ICore::dialogParent(), Tr::tr("Remove All Expression Evaluators"),
-                Tr::tr("Are you sure you want to remove all expression evaluators?"),
-                ICore::settings(), "RemoveAllWatchers");
-    if (ret != QDialogButtonBox::Yes)
+    const QMessageBox::StandardButton ret = CheckableMessageBox::question(
+        ICore::dialogParent(),
+        Tr::tr("Remove All Expression Evaluators"),
+        Tr::tr("Are you sure you want to remove all expression evaluators?"),
+        ICore::settings(),
+        "RemoveAllWatchers");
+    if (ret != QMessageBox::Yes)
         return;
 
     m_watchRoot->removeChildren();

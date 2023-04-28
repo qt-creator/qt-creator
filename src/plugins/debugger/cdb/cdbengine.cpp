@@ -2262,12 +2262,11 @@ void CdbEngine::checkQtSdkPdbFiles(const QString &module)
                  "symbols for the debugger.")
                   .arg(qtName);
 
-        CheckableMessageBox::doNotShowAgainInformation(
-            Core::ICore::dialogParent(),
-            Tr::tr("Missing Qt Debug Information"),
-            message,
-            Core::ICore::settings(),
-            "CdbQtSdkPdbHint");
+        CheckableMessageBox::information(Core::ICore::dialogParent(),
+                                         Tr::tr("Missing Qt Debug Information"),
+                                         message,
+                                         Core::ICore::settings(),
+                                         "CdbQtSdkPdbHint");
 
         showMessage("Missing Qt Debug Information Files package for " + qtName, LogMisc);
     };
@@ -2288,7 +2287,7 @@ void CdbEngine::parseOutputLine(QString line)
     // An extension notification (potentially consisting of several chunks)
     if (!m_initialSessionIdleHandled && line.startsWith("SECURE: File not allowed to be loaded")
         && line.endsWith("qtcreatorcdbext.dll")) {
-        CheckableMessageBox::doNotShowAgainInformation(
+        CheckableMessageBox::information(
             Core::ICore::dialogParent(),
             Tr::tr("Debugger Start Failed"),
             Tr::tr("The system prevents loading of %1, which is required for debugging. "

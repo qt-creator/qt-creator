@@ -28,8 +28,9 @@ namespace Internal {
 
 void IntroductionWidget::askUserAboutIntroduction(QWidget *parent, QSettings *settings)
 {
+    auto decider = CheckableMessageBox::make_decider(settings, kTakeTourSetting);
     // CheckableMessageBox for compatibility with Qt Creator < 4.11
-    if (!CheckableMessageBox::shouldAskAgain(settings, kTakeTourSetting)
+    if (!CheckableMessageBox::shouldAskAgain(decider)
         || !Core::ICore::infoBar()->canInfoBeAdded(kTakeTourSetting))
         return;
 

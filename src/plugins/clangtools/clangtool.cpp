@@ -599,12 +599,12 @@ static bool continueDespiteReleaseBuild(const QString &toolName)
                                     "<p>%2</p>"
                                     "</body></html>")
                                 .arg(problem, question);
-    return CheckableMessageBox::doNotAskAgainQuestion(ICore::dialogParent(),
-                                                      title,
-                                                      message,
-                                                      ICore::settings(),
-                                                      "ClangToolsCorrectModeWarning")
-           == QDialogButtonBox::Yes;
+    return CheckableMessageBox::question(ICore::dialogParent(),
+                                         title,
+                                         message,
+                                         ICore::settings(),
+                                         "ClangToolsCorrectModeWarning")
+           == QMessageBox::Yes;
 }
 
 void ClangTool::startTool(ClangTool::FileSelection fileSelection,
