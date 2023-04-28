@@ -1659,19 +1659,6 @@ const Storage::Info::Type &NodeMetaInfo::typeData() const
 }
 #endif
 
-bool NodeMetaInfo::availableInVersion(int majorVersion, int minorVersion) const
-{
-    if (!isValid())
-        return false;
-
-    if (majorVersion == -1 && minorVersion == -1)
-        return true;
-
-    return (m_privateData->majorVersion() >= majorVersion)
-           || (majorVersion == m_privateData->majorVersion()
-               && m_privateData->minorVersion() >= minorVersion);
-}
-
 bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int minorVersion) const
 {
     if (!isValid()) {
@@ -1682,7 +1669,7 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
     if (typeName().isEmpty())
         return false;
 
-    if (typeName() == type && availableInVersion(majorVersion, minorVersion))
+    if (typeName() == type)
         return true;
 
     if (m_privateData->prototypeCachePositives().contains(
@@ -1695,8 +1682,7 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
 
     const NodeMetaInfos superClassList = superClasses();
     for (const NodeMetaInfo &superClass : superClassList) {
-        if (superClass.m_privateData->cleverCheckType(type)
-            && superClass.availableInVersion(majorVersion, minorVersion)) {
+        if (superClass.m_privateData->cleverCheckType(type)) {
             m_privateData->prototypeCachePositives().insert(
                 stringIdentifier(type, majorVersion, minorVersion));
             return true;
