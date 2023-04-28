@@ -497,6 +497,9 @@ void OutputPaneManager::initialize()
     m_instance->m_titleLabel->setMinimumWidth(
         minTitleWidth + m_instance->m_titleLabel->contentsMargins().left()
         + m_instance->m_titleLabel->contentsMargins().right());
+    const int currentIdx = m_instance->currentIndex();
+    if (QTC_GUARD(currentIdx >= 0 && currentIdx < g_outputPanes.size()))
+        m_instance->m_titleLabel->setText(g_outputPanes[currentIdx].pane->displayName());
     m_instance->m_buttonsWidget->layout()->addWidget(m_instance->m_manageButton);
     connect(m_instance->m_manageButton,
             &QAbstractButton::clicked,
