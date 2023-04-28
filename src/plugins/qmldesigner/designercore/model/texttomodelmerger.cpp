@@ -101,7 +101,8 @@ QStringList knownEnumScopes()
                                      "Grid",
                                      "ItemLayer",
                                      "ImageLayer",
-                                     "SpriteLayer"};
+                                     "SpriteLayer",
+                                     "Light"};
     return list;
 }
 

@@ -14,6 +14,18 @@ Rectangle {
 
     color: StudioTheme.Values.themePanelBackground
 
+    Connections {
+        target: rootView
+        function onProgress(msg) {
+            progressText.text += progressText.text === "" ? msg : "\n" + msg
+            scrollView.ensureVisible()
+        }
+
+        function onFinished() {
+            cancelButton.text = qsTr("Close")
+        }
+    }
+
     Column {
         id: col
         padding: 5
@@ -29,8 +41,9 @@ Rectangle {
         }
 
         Rectangle {
+            id: rect
             width: root.width - 16
-            height: root.height - title.height - button.height - 20
+            height: root.height - title.height - cancelButton.height - 20
 
             color: StudioTheme.Values.themePanelBackground
             border.color: StudioTheme.Values.themeControlOutline
@@ -66,25 +79,24 @@ Rectangle {
 
         }
 
-        Connections {
-            target: rootView
-            function onProgress(msg) {
-                progressText.text += progressText.text === "" ? msg : "\n" + msg
-                scrollView.ensureVisible()
+        Row {
+            spacing: StudioTheme.Values.dialogButtonSpacing
+            height: cancelButton.height
+            anchors.right: rect.right
+
+            Button {
+                id: bakeAgainButton
+                text: qsTr("Bake Again")
+                anchors.margins: StudioTheme.Values.dialogButtonPadding
+                onClicked: rootView.rebake()
             }
 
-            function onFinished() {
-                button.text = qsTr("Close")
+            Button {
+                id: cancelButton
+                text: qsTr("Cancel")
+                anchors.margins: StudioTheme.Values.dialogButtonPadding
+                onClicked: rootView.cancel()
             }
-        }
-
-        Button {
-            id: button
-            text: qsTr("Cancel")
-            anchors.right: parent.right
-            anchors.margins: StudioTheme.Values.dialogButtonPadding
-
-            onClicked: rootView.cancel()
         }
     }
 }

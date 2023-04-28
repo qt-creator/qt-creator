@@ -600,6 +600,7 @@ extend_qtc_plugin(QmlDesigner
   edit3dvisibilitytogglesmenu.cpp edit3dvisibilitytogglesmenu.h
   backgroundcolorselection.cpp backgroundcolorselection.h
   bakelights.cpp bakelights.h
+  bakelightsdatamodel.cpp bakelightsdatamodel.h
   bakelightsconnectionmanager.cpp bakelightsconnectionmanager.h
   edit3d.qrc
 )

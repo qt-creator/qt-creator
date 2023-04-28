@@ -49,6 +49,7 @@ inline constexpr char GroupItem[] = "GroupItem";
 inline constexpr char Image[] = "Image";
 inline constexpr char InstanceListEntry[] = "InstanceListEntry";
 inline constexpr char InstanceList[] = "InstanceList";
+inline constexpr char Light[] = "Light";
 inline constexpr char IntType[] = "int";
 inline constexpr char Item[] = "Item";
 inline constexpr char KeyframeGroup[] = "KeyframeGroup";
@@ -194,6 +195,7 @@ class CommonTypeCache
                                    CacheType<QtQuick3D, Effect>,
                                    CacheType<QtQuick3D, InstanceList>,
                                    CacheType<QtQuick3D, InstanceListEntry>,
+                                   CacheType<QtQuick3D, Light>,
                                    CacheType<QtQuick3D, Material>,
                                    CacheType<QtQuick3D, Model>,
                                    CacheType<QtQuick3D, Node>,

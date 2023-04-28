@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include "modelnode.h"
 #include "qmldesignercorelib_global.h"
 
 #include <QObject>
@@ -17,6 +18,7 @@ class AbstractView;
 class BakeLightsConnectionManager;
 class NodeInstanceView;
 class RewriterView;
+class BakeLightsDataModel;
 
 class BakeLights : public QObject
 {
@@ -27,9 +29,13 @@ public:
     ~BakeLights();
 
     Q_INVOKABLE void cancel();
+    Q_INVOKABLE void bakeLights();
+    Q_INVOKABLE void apply();
+    Q_INVOKABLE void rebake();
 
     void raiseDialog();
 
+    static ModelNode resolveView3dNode(AbstractView *view);
     static QString resolveView3dId(AbstractView *view);
 
 signals:
@@ -40,13 +46,19 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
-    void bakeLights();
+    void showSetupDialog();
+    void showProgressDialog();
+    void cleanup();
 
-    QPointer<QQuickView> m_dialog;
+    // Separate dialogs for setup and progress, as setup needs to be modal
+    QPointer<QQuickView> m_setupDialog;
+    QPointer<QQuickView> m_progressDialog;
+
     QPointer<BakeLightsConnectionManager> m_connectionManager;
     QPointer<NodeInstanceView> m_nodeInstanceView;
     QPointer<RewriterView> m_rewriterView;
     QPointer<AbstractView> m_view;
+    QPointer<BakeLightsDataModel> m_dataModel;
     ModelPointer m_model;
     QString m_view3dId;
 };

@@ -2265,6 +2265,16 @@ bool NodeMetaInfo::isQtQuick3DInstanceListEntry() const
     }
 }
 
+bool NodeMetaInfo::isQtQuick3DLight() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick3D, Light>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick3D.Light");
+    }
+}
+
 bool NodeMetaInfo::isQtQuick3DInstanceList() const
 {
     if constexpr (useProjectStorage()) {

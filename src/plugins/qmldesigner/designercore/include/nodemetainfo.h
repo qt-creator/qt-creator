@@ -124,6 +124,7 @@ public:
     bool isQtQuick3DEffect() const;
     bool isQtQuick3DInstanceList() const;
     bool isQtQuick3DInstanceListEntry() const;
+    bool isQtQuick3DLight() const;
     bool isQtQuick3DMaterial() const;
     bool isQtQuick3DModel() const;
     bool isQtQuick3DNode() const;
