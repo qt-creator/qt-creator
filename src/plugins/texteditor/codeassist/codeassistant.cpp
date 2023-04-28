@@ -175,8 +175,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
     std::unique_ptr<AssistInterface> assistInterface =
             m_editorWidget->createAssistInterface(kind, reason);
-    if (!assistInterface)
-        return;
+    QTC_ASSERT(assistInterface, return);
 
     // We got an assist provider and interface so no need to reset the current context anymore
     earlyReturnContextClear.reset({});
@@ -395,8 +394,10 @@ void CodeAssistantPrivate::notifyChange()
         if (m_editorWidget->position() < m_proposalWidget->basePosition()) {
             destroyContext();
         } else {
-            m_proposalWidget->updateProposal(
-                m_editorWidget->createAssistInterface(m_assistKind, m_proposalWidget->reason()));
+            std::unique_ptr<AssistInterface> assistInterface
+                = m_editorWidget->createAssistInterface(m_assistKind, m_proposalWidget->reason());
+            QTC_ASSERT(assistInterface, destroyContext(); return);
+            m_proposalWidget->updateProposal(std::move(assistInterface));
             if (!isDisplayingProposal())
                 requestActivationCharProposal();
         }

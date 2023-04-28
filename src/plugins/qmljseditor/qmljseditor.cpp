@@ -1042,7 +1042,7 @@ std::unique_ptr<AssistInterface> QmlJSEditorWidget::createAssistInterface(
         return std::make_unique<Internal::QmlJSQuickFixAssistInterface>(
             const_cast<QmlJSEditorWidget *>(this), reason);
     }
-    return nullptr;
+    return TextEditorWidget::createAssistInterface(assistKind, reason);
 }
 
 QString QmlJSEditorWidget::foldReplacementText(const QTextBlock &block) const
