@@ -513,8 +513,13 @@ def progressBarWait(timeout=60000, warn=True):
     checkIfObjectExists(":Qt Creator_Core::Internal::ProgressBar", False, timeout)
 
 def readFile(filename):
-    with open(filename, "r") as f:
-        return f.read()
+    try:
+        with open(filename, "r") as f:
+            return f.read()
+    except:
+        # Read file as binary
+        with open(filename, "rb") as f:
+            return f.read()
 
 def simpleFileName(navigatorFileName):
     # try to find the last part of the given name, assume it's inside a (folder) structure
