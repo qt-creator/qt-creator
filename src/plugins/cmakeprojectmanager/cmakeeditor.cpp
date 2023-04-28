@@ -92,7 +92,6 @@ public:
     ~CMakeEditorWidget() final = default;
 
 private:
-    bool save(const QString &fileName = QString());
     void findLinkAt(const QTextCursor &cursor,
                     const Utils::LinkHandler &processLinkCallback,
                     bool resolveTarget = true,
