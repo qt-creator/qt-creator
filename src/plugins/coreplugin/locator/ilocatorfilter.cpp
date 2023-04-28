@@ -1179,10 +1179,10 @@ public:
     LocatorFileCache::FilePathsGenerator m_generator;
     int m_executionId = 0;
 
-    std::optional<Utils::FilePaths> m_filePaths;
+    std::optional<FilePaths> m_filePaths;
 
     QString m_lastInput;
-    std::optional<Utils::FilePaths> m_cache;
+    std::optional<FilePaths> m_cache;
 };
 
 // Clears all but provider
@@ -1242,7 +1242,7 @@ static bool containsPathSeparator(const QString &candidate)
     \internal
 
     Uses the generator to update the cache if needed and returns entries for the input.
-    Uses the cached data when no need for re-generation. Updates the cached accordingly.
+    Uses the cached data when no need for re-generation. Updates the cache accordingly.
 */
 LocatorFilterEntries LocatorFileCachePrivate::generate(const QFuture<void> &future,
                                                        const QString &input)
@@ -1265,14 +1265,14 @@ LocatorFilterEntries LocatorFileCachePrivate::generate(const QFuture<void> &futu
     const bool pathSeparatorAdded = !containsPathSeparator(m_lastInput) && hasPathSeparator;
     const bool searchInCache = m_filePaths && m_cache && containsLastInput && !pathSeparatorAdded;
 
-    if (!searchInCache && !m_filePaths) {
-        const FilePaths newPaths = m_generator(future);
+    std::optional<FilePaths> newPaths = m_filePaths;
+    if (!searchInCache && !newPaths) {
+        newPaths = m_generator(future);
         if (future.isCanceled()) // Ensure we got not canceled results from generator.
             return {};
-        m_filePaths = newPaths;
     }
 
-    const FilePaths &sourcePaths = searchInCache ? *m_cache : *m_filePaths;
+    const FilePaths &sourcePaths = searchInCache ? *m_cache : *newPaths;
     LocatorFileCache::MatchedEntries entries = {};
     const FilePaths newCache = LocatorFileCache::processFilePaths(
         future, sourcePaths, hasPathSeparator, regExp, inputLink, &entries);
@@ -1287,8 +1287,11 @@ LocatorFilterEntries LocatorFileCachePrivate::generate(const QFuture<void> &futu
     if (future.isCanceled())
         return {};
 
+    // Update all the cache data in one go
+    m_filePaths = newPaths;
     m_lastInput = newInput;
     m_cache = newCache;
+
     return std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries());
 }
 
@@ -1400,6 +1403,7 @@ void LocatorFileCache::setFilePathsGenerator(const FilePathsGenerator &generator
 
     \note This function invalidates the cache temporarily, clearing all the cached data,
           and sets it to a valid state with the new generator for the passed \a filePaths.
+          The stored generator provider is preserved.
 
     \sa setGenerator
 */
