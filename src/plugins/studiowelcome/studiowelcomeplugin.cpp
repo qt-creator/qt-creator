@@ -113,6 +113,9 @@ static Utils::FilePath getMainUiFileWithFallback()
     auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
         project->activeTarget()->buildSystem());
 
+    if (!qmlBuildSystem)
+        return {};
+
     auto mainUiFile = qmlBuildSystem->mainUiFilePath();
     if (mainUiFile.exists())
         return mainUiFile;
