@@ -51,6 +51,8 @@ Project {
             "aspects.h",
             "asynctask.cpp",
             "asynctask.h",
+            "barrier.cpp",
+            "barrier.h",
             "basetreeview.cpp",
             "basetreeview.h",
             "benchmarker.cpp",

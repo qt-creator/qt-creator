@@ -13,6 +13,7 @@ add_qtc_library(Utils
     archive.cpp archive.h
     aspects.cpp aspects.h
     asynctask.cpp asynctask.h
+    barrier.cpp barrier.h
     basetreeview.cpp basetreeview.h
     benchmarker.cpp benchmarker.h
     buildablehelperlibrary.cpp buildablehelperlibrary.h
