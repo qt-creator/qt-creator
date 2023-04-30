@@ -88,50 +88,6 @@ private:
     }
 };
 
-class QTCREATOR_UTILS_EXPORT ConditionActivator
-{
-public:
-    void activate();
-
-private:
-    ConditionActivator(TaskNode *container) : m_node(container) {}
-    TaskNode *m_node = nullptr;
-    friend class Condition;
-};
-
-class QTCREATOR_UTILS_EXPORT Condition
-{
-public:
-    Condition();
-    ConditionActivator &operator*() const noexcept { return *activator(); }
-    ConditionActivator *operator->() const noexcept { return activator(); }
-    ConditionActivator *activator() const;
-
-private:
-    int createActivator(TaskNode *node) const;
-    void deleteActivator(int id) const;
-    void activateActivator(int id) const;
-
-    friend bool operator==(const Condition &first, const Condition &second)
-    { return first.m_conditionData == second.m_conditionData; }
-
-    friend bool operator!=(const Condition &first, const Condition &second)
-    { return first.m_conditionData != second.m_conditionData; }
-
-    friend size_t qHash(const Condition &storage, uint seed = 0)
-    { return size_t(storage.m_conditionData.get()) ^ seed; }
-
-    struct ConditionData {
-        ~ConditionData();
-        QHash<int, ConditionActivator *> m_activatorHash = {};
-        int m_activeActivator = 0; // 0 means no active activator
-        int m_activatorCounter = 0;
-    };
-    QSharedPointer<ConditionData> m_conditionData;
-    friend TaskTreePrivate;
-    friend ExecutionContextActivator;
-};
-
 // WorkflowPolicy:
 // 1. When all children finished with done -> report done, otherwise:
 //    a) Report error on first error and stop executing other children (including their subtree)
@@ -188,13 +144,11 @@ public:
     TaskHandler taskHandler() const { return m_taskHandler; }
     GroupHandler groupHandler() const { return m_groupHandler; }
     QList<TaskItem> children() const { return m_children; }
-    std::optional<Condition> condition() const { return m_condition; }
     QList<TreeStorageBase> storageList() const { return m_storageList; }
 
 protected:
     enum class Type {
         Group,
-        Condition,
         Storage,
         Limit,
         Policy,
@@ -215,9 +169,6 @@ protected:
     TaskItem(const GroupHandler &handler)
         : m_type(Type::GroupHandler)
         , m_groupHandler(handler) {}
-    TaskItem(const Condition &condition)
-        : m_type(Type::Condition)
-        , m_condition{condition} {}
     TaskItem(const TreeStorageBase &storage)
         : m_type(Type::Storage)
         , m_storageList{storage} {}
@@ -229,7 +180,6 @@ private:
     WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
     TaskHandler m_taskHandler;
     GroupHandler m_groupHandler;
-    std::optional<Condition> m_condition;
     QList<TreeStorageBase> m_storageList;
     QList<TaskItem> m_children;
 };
@@ -245,12 +195,6 @@ class QTCREATOR_UTILS_EXPORT Storage : public TaskItem
 {
 public:
     Storage(const TreeStorageBase &storage) : TaskItem(storage) { }
-};
-
-class QTCREATOR_UTILS_EXPORT WaitFor : public TaskItem
-{
-public:
-    WaitFor(const Condition &condition) : TaskItem(condition) { }
 };
 
 class QTCREATOR_UTILS_EXPORT ParallelLimit : public TaskItem
