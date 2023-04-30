@@ -4,6 +4,7 @@
 #include "filestreamer.h"
 
 #include "asynctask.h"
+#include "barrier.h"
 #include "qtcprocess.h"
 
 #include <QFile>
@@ -321,7 +322,7 @@ static Group sameRemoteDeviceTransferTask(const FilePath &source, const FilePath
 static Group interDeviceTransferTask(const FilePath &source, const FilePath &destination)
 {
     struct TransferStorage { QPointer<FileStreamWriter> writer; };
-    Condition condition;
+    SingleBarrier writerReadyBarrier;
     TreeStorage<TransferStorage> storage;
 
     const auto setupReader = [=](FileStreamReader &reader) {
@@ -336,19 +337,19 @@ static Group interDeviceTransferTask(const FilePath &source, const FilePath &des
     };
     const auto setupWriter = [=](FileStreamWriter &writer) {
         writer.setFilePath(destination);
-        ConditionActivator *activator = condition.activator();
         QObject::connect(&writer, &FileStreamWriter::started,
-                         &writer, [activator] { activator->activate(); });
+                         writerReadyBarrier->barrier(), &Barrier::advance);
         QTC_CHECK(storage->writer == nullptr);
         storage->writer = &writer;
     };
 
     const Group root {
+        Storage(writerReadyBarrier),
         parallel,
         Storage(storage),
         Writer(setupWriter),
         Group {
-            WaitFor(condition),
+            WaitForBarrier(writerReadyBarrier),
             Reader(setupReader, finalizeReader, finalizeReader)
         }
     };

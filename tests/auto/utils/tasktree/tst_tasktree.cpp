@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <utils/asynctask.h>
+#include <utils/barrier.h>
 
 #include <QtTest>
 
@@ -23,7 +24,7 @@ enum class Handler {
     GroupDone,
     GroupError,
     Sync,
-    Activator,
+    BarrierAdvance,
 };
 
 using Log = QList<QPair<int, Handler>>;
@@ -1147,63 +1148,65 @@ void tst_TaskTree::testTree_data()
     }
 
     {
-        Condition condition;
+        SingleBarrier barrier;
 
         const auto reportAndSleep = [](QPromise<bool> &promise) {
             promise.addResult(false);
             QThread::msleep(10);
         };
 
-        const auto setupTaskWithCondition = [storage, condition, reportAndSleep](int taskId) {
-            return [storage, condition, reportAndSleep, taskId](AsyncTask<bool> &async) {
+        const auto setupTaskWithBarrier = [storage, barrier, reportAndSleep](int taskId) {
+            return [storage, barrier, reportAndSleep, taskId](AsyncTask<bool> &async) {
                 async.setFutureSynchronizer(s_futureSynchronizer);
                 async.setConcurrentCallData(reportAndSleep);
                 async.setProperty(s_taskIdProperty, taskId);
                 storage->m_log.append({taskId, Handler::Setup});
 
                 CustomStorage *currentStorage = storage.activeStorage();
-                ConditionActivator *currentActivator = condition.activator();
-                connect(&async, &TestTask::resultReadyAt,
-                        [currentStorage, currentActivator, taskId](int index) {
+                Barrier *sharedBarrier = barrier->barrier();
+                connect(&async, &TestTask::resultReadyAt, sharedBarrier,
+                        [currentStorage, sharedBarrier, taskId](int index) {
                     Q_UNUSED(index)
-                    currentStorage->m_log.append({taskId, Handler::Activator});
-                    currentActivator->activate();
+                    currentStorage->m_log.append({taskId, Handler::BarrierAdvance});
+                    sharedBarrier->advance();
                 });
             };
         };
 
-        // Test that Activator, triggered from inside the task described by
-        // setupTaskWithCondition, placed BEFORE the group containing the WaitFor element
+        // Test that barrier advance, triggered from inside the task described by
+        // setupTaskWithCondition, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in SEQUENTIAL mode.
         const Group root1 {
             Storage(storage),
+            Storage(barrier),
             sequential,
-            Async<bool>(setupTaskWithCondition(1)),
+            Async<bool>(setupTaskWithBarrier(1)),
             Group {
                 OnGroupSetup(groupSetup(2)),
-                WaitFor(condition),
+                WaitForBarrier(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
             }
         };
         const Log log1 {
             {1, Handler::Setup},
-            {1, Handler::Activator},
+            {1, Handler::BarrierAdvance},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
             {3, Handler::Setup}
         };
 
-        // Test that Activator, triggered from inside the task described by
-        // setupTaskWithCondition, placed BEFORE the group containing the WaitFor element
+        // Test that barrier advance, triggered from inside the task described by
+        // setupTaskWithCondition, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in PARALLEL mode.
         const Group root2 {
             Storage(storage),
+            Storage(barrier),
             parallel,
-            Async<bool>(setupTaskWithCondition(1)),
+            Async<bool>(setupTaskWithBarrier(1)),
             Group {
                 OnGroupSetup(groupSetup(2)),
-                WaitFor(condition),
+                WaitForBarrier(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
             }
@@ -1211,47 +1214,48 @@ void tst_TaskTree::testTree_data()
         const Log log2 {
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
-            {1, Handler::Activator},
+            {1, Handler::BarrierAdvance},
             {2, Handler::Setup},
             {3, Handler::Setup}
         };
 
-        // Test that Activator, triggered from inside the task described by
-        // setupTaskWithCondition, placed AFTER the group containing the WaitFor element
+        // Test that barrier advance, triggered from inside the task described by
+        // setupTaskWithCondition, placed AFTER the group containing the waitFor() element
         // in the tree order, works OK in PARALLEL mode.
         //
-        // Notice: This won't work in SEQUENTIAL mode, since the Activator placed after the
+        // Notice: This won't work in SEQUENTIAL mode, since the advancing barrier, placed after the
         // group containing the WaitFor element, has no chance to be started in SEQUENTIAL mode,
         // as in SEQUENTIAL mode the next task may only be started after the previous one finished.
-        // In this case, the previous task (Group element) awaits for the Activator's signal to
+        // In this case, the previous task (Group element) awaits for the barrier's advance to
         // come from the not yet started next task, causing a deadlock.
         // The minimal requirement for this scenario to succeed is to set ParallelLimit(2) or more.
         const Group root3 {
             Storage(storage),
+            Storage(barrier),
             parallel,
             Group {
                 OnGroupSetup(groupSetup(2)),
-                WaitFor(condition),
+                WaitForBarrier(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
             },
-            Async<bool>(setupTaskWithCondition(1))
+            Async<bool>(setupTaskWithBarrier(1))
         };
         const Log log3 {
             {2, Handler::GroupSetup},
             {1, Handler::Setup},
-            {1, Handler::Activator},
+            {1, Handler::BarrierAdvance},
             {2, Handler::Setup},
             {3, Handler::Setup}
         };
 
         // Notice the different log order for each scenario.
-        QTest::newRow("WaitForSequential")
-            << TestData{storage, root1, log1, 3, OnStart::Running, OnDone::Success};
-        QTest::newRow("WaitForParallelActivatorFirst")
-            << TestData{storage, root2, log2, 3, OnStart::Running, OnDone::Success};
-        QTest::newRow("WaitForParallelConditionFirst")
-            << TestData{storage, root3, log3, 3, OnStart::Running, OnDone::Success};
+        QTest::newRow("BarrierSequential")
+            << TestData{storage, root1, log1, 4, OnStart::Running, OnDone::Success};
+        QTest::newRow("BarrierParallelAdvanceFirst")
+            << TestData{storage, root2, log2, 4, OnStart::Running, OnDone::Success};
+        QTest::newRow("BarrierParallelWaitForFirst")
+            << TestData{storage, root3, log3, 4, OnStart::Running, OnDone::Success};
     }
 }
 
