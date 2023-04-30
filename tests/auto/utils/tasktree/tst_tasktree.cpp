@@ -162,7 +162,7 @@ static void runTask(QPromise<void> &promise, bool success, std::chrono::millisec
 static void reportAndSleep(QPromise<bool> &promise)
 {
     promise.addResult(false);
-    QThread::msleep(10);
+    QThread::msleep(5);
 };
 
 template <typename SharedBarrierType>
@@ -1253,6 +1253,64 @@ void tst_TaskTree::testTree_data()
             {3, Handler::Setup}
         };
 
+        // Test that barrier advance, triggered from inside the task described by
+        // setupBarrierAdvance, placed BEFORE the groups containing the waitFor() element
+        // in the tree order, wakes both waitFor tasks.
+        const Group root4 {
+            Storage(storage),
+            Storage(barrier),
+            parallel,
+            Async<bool>(setupBarrierAdvance(storage, barrier, 1)),
+            Group {
+                OnGroupSetup(groupSetup(2)),
+                WaitForBarrier(barrier),
+                Test(setupTask(4))
+            },
+            Group {
+                OnGroupSetup(groupSetup(3)),
+                WaitForBarrier(barrier),
+                Test(setupTask(5))
+            }
+        };
+        const Log log4 {
+            {1, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {3, Handler::GroupSetup},
+            {1, Handler::BarrierAdvance},
+            {4, Handler::Setup},
+            {5, Handler::Setup}
+        };
+
+        // Test two separate single barriers.
+
+        SingleBarrier barrier2;
+
+        const Group root5 {
+            Storage(storage),
+            Storage(barrier),
+            Storage(barrier2),
+            parallel,
+            Async<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            Async<bool>(setupBarrierAdvance(storage, barrier2, 0)),
+            Group {
+                Group {
+                    parallel,
+                    OnGroupSetup(groupSetup(1)),
+                    WaitForBarrier(barrier),
+                    WaitForBarrier(barrier2)
+                },
+                Test(setupTask(2))
+            },
+        };
+        const Log log5 {
+            {0, Handler::Setup},
+            {0, Handler::Setup},
+            {1, Handler::GroupSetup},
+            {0, Handler::BarrierAdvance},
+            {0, Handler::BarrierAdvance},
+            {2, Handler::Setup}
+        };
+
         // Notice the different log order for each scenario.
         QTest::newRow("BarrierSequential")
             << TestData{storage, root1, log1, 4, OnStart::Running, OnDone::Success};
@@ -1260,6 +1318,140 @@ void tst_TaskTree::testTree_data()
             << TestData{storage, root2, log2, 4, OnStart::Running, OnDone::Success};
         QTest::newRow("BarrierParallelWaitForFirst")
             << TestData{storage, root3, log3, 4, OnStart::Running, OnDone::Success};
+        QTest::newRow("BarrierParallelMultiWaitFor")
+            << TestData{storage, root4, log4, 5, OnStart::Running, OnDone::Success};
+        QTest::newRow("BarrierParallelTwoSingleBarriers")
+            << TestData{storage, root5, log5, 5, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        MultiBarrier<2> barrier;
+
+        // Test that multi barrier advance, triggered from inside the tasks described by
+        // setupBarrierAdvance, placed BEFORE the group containing the waitFor() element
+        // in the tree order, works OK in SEQUENTIAL mode.
+        const Group root1 {
+            Storage(storage),
+            Storage(barrier),
+            sequential,
+            Async<bool>(setupBarrierAdvance(storage, barrier, 1)),
+            Async<bool>(setupBarrierAdvance(storage, barrier, 2)),
+            Group {
+                OnGroupSetup(groupSetup(2)),
+                WaitForBarrier(barrier),
+                Test(setupTask(2)),
+                Test(setupTask(3))
+            }
+        };
+        const Log log1 {
+            {1, Handler::Setup},
+            {1, Handler::BarrierAdvance},
+            {2, Handler::Setup},
+            {2, Handler::BarrierAdvance},
+            {2, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {3, Handler::Setup}
+        };
+
+        // Test that multi barrier advance, triggered from inside the tasks described by
+        // setupBarrierAdvance, placed BEFORE the group containing the waitFor() element
+        // in the tree order, works OK in PARALLEL mode.
+        const Group root2 {
+            Storage(storage),
+            Storage(barrier),
+            parallel,
+            Async<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            Async<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            Group {
+                OnGroupSetup(groupSetup(2)),
+                WaitForBarrier(barrier),
+                Test(setupTask(2)),
+                Test(setupTask(3))
+            }
+        };
+        const Log log2 {
+            {0, Handler::Setup},
+            {0, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {0, Handler::BarrierAdvance}, // Barrier advances may come in different order in
+            {0, Handler::BarrierAdvance}, // parallel mode, that's why id = 0 (same for both).
+            {2, Handler::Setup},
+            {3, Handler::Setup}
+        };
+
+        // Test that multi barrier advance, triggered from inside the tasks described by
+        // setupBarrierAdvance, placed AFTER the group containing the waitFor() element
+        // in the tree order, works OK in PARALLEL mode.
+        //
+        // Notice: This won't work in SEQUENTIAL mode, since the advancing barriers, placed after
+        // the group containing the WaitFor element, has no chance to be started in SEQUENTIAL mode,
+        // as in SEQUENTIAL mode the next task may only be started after the previous one finished.
+        // In this case, the previous task (Group element) awaits for the barrier's advance to
+        // come from the not yet started next task, causing a deadlock.
+        // The minimal requirement for this scenario to succeed is to set ParallelLimit(2) or more.
+        const Group root3 {
+            Storage(storage),
+            Storage(barrier),
+            parallel,
+            Group {
+                OnGroupSetup(groupSetup(2)),
+                WaitForBarrier(barrier),
+                Test(setupTask(2)),
+                Test(setupTask(3))
+            },
+            Async<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            Async<bool>(setupBarrierAdvance(storage, barrier, 0))
+        };
+        const Log log3 {
+            {2, Handler::GroupSetup},
+            {0, Handler::Setup},
+            {0, Handler::Setup},
+            {0, Handler::BarrierAdvance}, // Barrier advances may come in different order in
+            {0, Handler::BarrierAdvance}, // parallel mode, that's why id = 0 (same for both).
+            {2, Handler::Setup},
+            {3, Handler::Setup}
+        };
+
+        // Test that multi barrier advance, triggered from inside the task described by
+        // setupBarrierAdvance, placed BEFORE the groups containing the waitFor() element
+        // in the tree order, wakes both waitFor tasks.
+        const Group root4 {
+            Storage(storage),
+            Storage(barrier),
+            parallel,
+            Async<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            Async<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            Group {
+                OnGroupSetup(groupSetup(2)),
+                WaitForBarrier(barrier),
+                Test(setupTask(4))
+            },
+            Group {
+                OnGroupSetup(groupSetup(3)),
+                WaitForBarrier(barrier),
+                Test(setupTask(5))
+            }
+        };
+        const Log log4 {
+            {0, Handler::Setup},
+            {0, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {3, Handler::GroupSetup},
+            {0, Handler::BarrierAdvance},
+            {0, Handler::BarrierAdvance},
+            {4, Handler::Setup},
+            {5, Handler::Setup}
+        };
+
+        // Notice the different log order for each scenario.
+        QTest::newRow("MultiBarrierSequential")
+            << TestData{storage, root1, log1, 5, OnStart::Running, OnDone::Success};
+        QTest::newRow("MultiBarrierParallelAdvanceFirst")
+            << TestData{storage, root2, log2, 5, OnStart::Running, OnDone::Success};
+        QTest::newRow("MultiBarrierParallelWaitForFirst")
+            << TestData{storage, root3, log3, 5, OnStart::Running, OnDone::Success};
+        QTest::newRow("MultiBarrierParallelMultiWaitFor")
+            << TestData{storage, root4, log4, 6, OnStart::Running, OnDone::Success};
     }
 }
 
