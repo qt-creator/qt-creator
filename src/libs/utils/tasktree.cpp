@@ -33,7 +33,12 @@ TreeStorageBase::StorageData::~StorageData()
 
 void *TreeStorageBase::activeStorageVoid() const
 {
-    QTC_ASSERT(m_storageData->m_activeStorage, return nullptr);
+    QTC_ASSERT(m_storageData->m_activeStorage, qWarning(
+        "The referenced storage is not reachable in the running tree. "
+        "A nullptr will be returned which might lead to a crash in the calling code. "
+        "It is possible that no storage was added to the tree, "
+        "or the storage is not reachable from where it is referenced.");
+        return nullptr);
     const auto it = m_storageData->m_storageHash.constFind(m_storageData->m_activeStorage);
     QTC_ASSERT(it != m_storageData->m_storageHash.constEnd(), return nullptr);
     return it.value();
