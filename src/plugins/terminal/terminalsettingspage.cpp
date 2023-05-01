@@ -434,7 +434,14 @@ public:
             });
     }
 
-    void apply() final {}
+    void apply() final
+    {
+        TerminalSettings &settings = TerminalSettings::instance();
+        if (settings.isDirty()) {
+            settings.apply();
+            settings.writeSettings(Core::ICore::settings());
+        }
+    }
 };
 
 // TerminalSettingsPage
