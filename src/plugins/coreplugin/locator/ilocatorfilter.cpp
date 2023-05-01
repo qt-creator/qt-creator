@@ -273,7 +273,11 @@ ResultsCollector::~ResultsCollector()
         return;
 
     m_deduplicator->cancel();
-    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_watcher->future());
+    if (ExtensionSystem::PluginManager::futureSynchronizer()) {
+        ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_watcher->future());
+        return;
+    }
+    m_watcher->future().waitForFinished();
 }
 
 void ResultsCollector::setFilterCount(int count)
