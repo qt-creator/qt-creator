@@ -63,7 +63,7 @@ public:
 #pragma GCC diagnostic pop
 #endif
 
-    constexpr bool isValid() const { return id >= 0; }
+    constexpr bool isValid() const { return id > 0; }
 
     explicit operator bool() const { return isValid(); }
 
@@ -74,7 +74,7 @@ public:
     [[noreturn, deprecated]] InternalIntegerType operator&() const { throw std::exception{}; }
 
 private:
-    InternalIntegerType id = -1;
+    InternalIntegerType id = 0;
 };
 
 template<typename Container>
