@@ -1533,10 +1533,9 @@ TEST(SmallString, LongPathStringMoveConstuctor)
             "text"));
 }
 
-#if __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wself-move"
-#endif
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_GCC("-Wself-move")
+QT_WARNING_DISABLE_CLANG("-Wself-move")
 
 TEST(SmallString, ShortSmallStringMoveConstuctorToSelf)
 {
@@ -1583,9 +1582,7 @@ TEST(SmallString, LongPathStringMoveConstuctorToSelf)
             "text"));
 }
 
-#if __clang__
-#pragma clang diagnostic pop
-#endif
+QT_WARNING_POP
 
 TEST(SmallString, ShortSmallStringCopyAssignment)
 {
