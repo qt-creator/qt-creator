@@ -43,8 +43,8 @@ bool CppParser::selectedForBuilding(const FilePath &fileName)
 QByteArray CppParser::getFileContent(const FilePath &filePath) const
 {
     QByteArray fileContent;
-    if (m_workingCopy.contains(filePath)) {
-        fileContent = m_workingCopy.source(filePath);
+    if (const auto source = m_workingCopy.source(filePath)) {
+        fileContent = *source;
     } else {
         QString error;
         const QTextCodec *codec = Core::EditorManager::defaultTextCodec();

@@ -105,8 +105,8 @@ namespace Internal {
 static QByteArray getSource(const Utils::FilePath &fileName,
                             const WorkingCopy &workingCopy)
 {
-    if (workingCopy.contains(fileName)) {
-        return workingCopy.source(fileName);
+    if (const auto source = workingCopy.source(fileName)) {
+        return *source;
     } else {
         QString fileContents;
         Utils::TextFileFormat format;

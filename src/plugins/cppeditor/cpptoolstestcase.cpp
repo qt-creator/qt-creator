@@ -158,7 +158,7 @@ bool VerifyCleanCppModelManager::isClean(bool testOnlyForCleanedProjects)
     if (!testOnlyForCleanedProjects) {
         RETURN_FALSE_IF_NOT(mm->snapshot().isEmpty());
         RETURN_FALSE_IF_NOT(mm->workingCopy().size() == 1);
-        RETURN_FALSE_IF_NOT(mm->workingCopy().contains(mm->configurationFileName()));
+        RETURN_FALSE_IF_NOT(mm->workingCopy().get(mm->configurationFileName()));
     }
     return true;
 }

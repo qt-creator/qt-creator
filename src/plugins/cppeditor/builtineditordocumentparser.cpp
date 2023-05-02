@@ -144,8 +144,8 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
         QSet<Utils::FilePath> toRemove;
         for (const Document::Ptr &doc : std::as_const(state.snapshot)) {
             const Utils::FilePath filePath = doc->filePath();
-            if (workingCopy.contains(filePath)) {
-                if (workingCopy.get(filePath).second != doc->editorRevision())
+            if (const auto entry = workingCopy.get(filePath)) {
+                if (entry->second != doc->editorRevision())
                     addFileAndDependencies(&state.snapshot, &toRemove, filePath);
                 continue;
             }

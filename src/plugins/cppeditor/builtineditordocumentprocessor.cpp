@@ -302,12 +302,13 @@ void BuiltinEditorDocumentProcessor::onCodeWarningsUpdated(
 
 SemanticInfo::Source BuiltinEditorDocumentProcessor::createSemanticInfoSource(bool force) const
 {
-    const WorkingCopy workingCopy = CppModelManager::instance()->workingCopy();
-    return SemanticInfo::Source(filePath().toString(),
-                                workingCopy.source(filePath()),
-                                workingCopy.revision(filePath()),
-                                m_documentSnapshot,
-                                force);
+    QByteArray source;
+    int revision = 0;
+    if (const auto entry = CppModelManager::instance()->workingCopy().get(filePath())) {
+        source = entry->first;
+        revision = entry->second;
+    }
+    return SemanticInfo::Source(filePath().toString(), source, revision, m_documentSnapshot, force);
 }
 
 } // namespace CppEditor

@@ -456,8 +456,8 @@ static Document::Ptr getParsedDocument(const FilePath &filePath,
                                        Snapshot &snapshot)
 {
     QByteArray src;
-    if (workingCopy.contains(filePath)) {
-        src = workingCopy.source(filePath);
+    if (const auto source = workingCopy.source(filePath)) {
+        src = *source;
     } else {
         Utils::FileReader reader;
         if (reader.fetch(filePath)) // ### FIXME error reporting

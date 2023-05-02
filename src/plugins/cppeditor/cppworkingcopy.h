@@ -11,6 +11,8 @@
 #include <QString>
 #include <QPair>
 
+#include <optional>
+
 namespace CppEditor {
 
 class CPPEDITOR_EXPORT WorkingCopy
@@ -21,17 +23,12 @@ public:
     void insert(const Utils::FilePath &fileName, const QByteArray &source, unsigned revision = 0)
     { _elements.insert(fileName, {source, revision}); }
 
-    bool contains(const Utils::FilePath &fileName) const
-    { return _elements.contains(fileName); }
-
-    QByteArray source(const Utils::FilePath &fileName) const
-    { return _elements.value(fileName).first; }
+    std::optional<QByteArray> source(const Utils::FilePath &fileName) const;
 
     unsigned revision(const Utils::FilePath &fileName) const
     { return _elements.value(fileName).second; }
 
-    QPair<QByteArray, unsigned> get(const Utils::FilePath &fileName) const
-    { return _elements.value(fileName); }
+    std::optional<QPair<QByteArray, unsigned>> get(const Utils::FilePath &fileName) const;
 
     using Table = QHash<Utils::FilePath, QPair<QByteArray, unsigned> >;
     const Table &elements() const

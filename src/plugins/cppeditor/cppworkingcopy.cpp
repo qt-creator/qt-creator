@@ -20,4 +20,18 @@ namespace CppEditor {
 
 WorkingCopy::WorkingCopy() = default;
 
+std::optional<QByteArray> WorkingCopy::source(const Utils::FilePath &fileName) const
+{
+    if (const auto value = get(fileName))
+        return value->first;
+    return {};
+}
+
+std::optional<QPair<QByteArray, unsigned>> WorkingCopy::get(const Utils::FilePath &fileName) const
+{
+    const auto it = _elements.constFind(fileName);
+    if (it == _elements.constEnd())
+        return {};
+    return it.value();
+}
 } // namespace CppEditor

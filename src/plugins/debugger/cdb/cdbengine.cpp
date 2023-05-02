@@ -2466,8 +2466,8 @@ static CPlusPlus::Document::Ptr getParsedDocument(const FilePath &filePath,
                                                   const CPlusPlus::Snapshot &snapshot)
 {
     QByteArray src;
-    if (workingCopy.contains(filePath))
-        src = workingCopy.source(filePath);
+    if (const auto source = workingCopy.source(filePath))
+        src = *source;
     else
         src = QString::fromLocal8Bit(filePath.fileContents().value_or(QByteArray())).toUtf8();
 
