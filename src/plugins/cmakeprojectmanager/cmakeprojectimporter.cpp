@@ -247,44 +247,66 @@ static CMakeConfig configurationFromPresetProbe(
     return config;
 }
 
-static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
+struct QMakeAndCMakePrefixPath
+{
+    FilePath qmakePath;
+    QString cmakePrefixPath; // can be a semicolon-separated list
+};
+
+static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
+                                                    const Environment &env)
 {
     // Qt4 way to define things (more convenient for us, so try this first;-)
     const FilePath qmake = config.filePathValueOf("QT_QMAKE_EXECUTABLE");
     qCDebug(cmInputLog) << "QT_QMAKE_EXECUTABLE=" << qmake.toUserOutput();
-    if (!qmake.isEmpty())
-        return qmake;
 
     // Check Qt5 settings: oh, the horror!
-    const FilePath qtCMakeDir = [config] {
-        FilePath tmp = config.filePathValueOf("Qt5Core_DIR");
-        if (tmp.isEmpty())
-            tmp = config.filePathValueOf("Qt6Core_DIR");
+    const FilePath qtCMakeDir = [config, env] {
+        FilePath tmp;
+        // Check the CMake "<package-name>_DIR" variable
+        for (const auto &var : {"Qt6", "Qt6Core", "Qt5", "Qt5Core"}) {
+            tmp = config.filePathValueOf(QByteArray(var) + "_DIR");
+            if (!tmp.isEmpty())
+                break;
+        }
         return tmp;
     }();
     qCDebug(cmInputLog) << "QtXCore_DIR=" << qtCMakeDir.toUserOutput();
     const FilePath canQtCMakeDir = FilePath::fromString(qtCMakeDir.toFileInfo().canonicalFilePath());
     qCInfo(cmInputLog) << "QtXCore_DIR (canonical)=" << canQtCMakeDir.toUserOutput();
-    QString prefixPath;
-    if (!qtCMakeDir.isEmpty()) {
-        prefixPath = canQtCMakeDir.parentDir().parentDir().parentDir().toString(); // Up 3 levels...
-    } else {
-        prefixPath = config.stringValueOf("CMAKE_PREFIX_PATH");
-    }
+
+    const QString prefixPath = [qtCMakeDir, canQtCMakeDir, config, env] {
+        QString result;
+        if (!qtCMakeDir.isEmpty()) {
+            result = canQtCMakeDir.parentDir().parentDir().parentDir().path(); // Up 3 levels...
+        } else {
+            // Check the CMAKE_PREFIX_PATH and "<package-name>_ROOT" CMake or environment variables
+            // This can be a single value or a semicolon-separated list
+            for (const auto &var : {"CMAKE_PREFIX_PATH", "Qt6_ROOT", "Qt5_ROOT"}) {
+                result = config.stringValueOf(var);
+                if (result.isEmpty())
+                    result = env.value(QString::fromUtf8(var));
+                if (!result.isEmpty())
+                    break;
+            }
+        }
+        return result;
+    }();
     qCDebug(cmInputLog) << "PrefixPath:" << prefixPath;
+
+    if (!qmake.isEmpty() && !prefixPath.isEmpty())
+        return {qmake, prefixPath};
 
     FilePath toolchainFile = config.filePathValueOf(QByteArray("CMAKE_TOOLCHAIN_FILE"));
     if (prefixPath.isEmpty() && toolchainFile.isEmpty())
-        return FilePath();
+        return {qmake, QString()};
 
     // Run a CMake project that would do qmake probing
     TemporaryDirectory qtcQMakeProbeDir("qtc-cmake-qmake-probe-XXXXXXXX");
 
-    QFile cmakeListTxt(qtcQMakeProbeDir.filePath("CMakeLists.txt").toString());
-    if (!cmakeListTxt.open(QIODevice::WriteOnly)) {
-        return FilePath();
-    }
-    cmakeListTxt.write(QByteArray(R"(
+    FilePath cmakeListTxt(qtcQMakeProbeDir.filePath("CMakeLists.txt"));
+
+    cmakeListTxt.writeFileContents(QByteArray(R"(
         cmake_minimum_required(VERSION 3.15)
 
         project(qmake-probe LANGUAGES NONE)
@@ -312,15 +334,20 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
                 OUTPUT "${CMAKE_SOURCE_DIR}/qmake-location.txt"
                 CONTENT "$<TARGET_PROPERTY:Qt${QT_VERSION_MAJOR}::qmake,IMPORTED_LOCATION>")
         endif()
+
+        # Remove a Qt CMake hack that adds lib/cmake at the end of every path in CMAKE_PREFIX_PATH
+        list(REMOVE_DUPLICATES CMAKE_PREFIX_PATH)
+        list(TRANSFORM CMAKE_PREFIX_PATH REPLACE "/lib/cmake$" "")
+        file(WRITE "${CMAKE_SOURCE_DIR}/cmake-prefix-path.txt" "${CMAKE_PREFIX_PATH}")
     )"));
-    cmakeListTxt.close();
 
     QtcProcess cmake;
     cmake.setTimeoutS(5);
     cmake.setDisableUnixTerminal();
-    Environment env = Environment::systemEnvironment();
-    env.setupEnglishOutput();
-    cmake.setEnvironment(env);
+
+    Environment cmakeEnv(env);
+    cmakeEnv.setupEnglishOutput();
+    cmake.setEnvironment(cmakeEnv);
     cmake.setTimeOutMessageBoxEnabled(false);
 
     QString cmakeGenerator = config.stringValueOf(QByteArray("CMAKE_GENERATOR"));
@@ -364,14 +391,17 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     cmake.setCommand({cmakeExecutable, args});
     cmake.runBlocking();
 
-    QFile qmakeLocationTxt(qtcQMakeProbeDir.filePath("qmake-location.txt").path());
-    if (!qmakeLocationTxt.open(QIODevice::ReadOnly)) {
-        return FilePath();
-    }
-    FilePath qmakeLocation = FilePath::fromUtf8(qmakeLocationTxt.readLine().constData());
+    const FilePath qmakeLocationTxt = qtcQMakeProbeDir.filePath("qmake-location.txt");
+    const FilePath qmakeLocation = FilePath::fromUtf8(
+        qmakeLocationTxt.fileContents().value_or(QByteArray()));
     qCDebug(cmInputLog) << "qmake location: " << qmakeLocation.toUserOutput();
 
-    return qmakeLocation;
+    const FilePath prefixPathTxt = qtcQMakeProbeDir.filePath("cmake-prefix-path.txt");
+    const QString resultedPrefixPath = QString::fromUtf8(
+        prefixPathTxt.fileContents().value_or(QByteArray()));
+    qCDebug(cmInputLog) << "PrefixPath [after qmake probe]: " << resultedPrefixPath;
+
+    return {qmakeLocation, resultedPrefixPath};
 }
 
 static QVector<ToolChainDescription> extractToolChainsFromCache(const CMakeConfig &config)
@@ -686,9 +716,14 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                           configurePreset.generator.value().toUtf8());
         }
 
-        const FilePath qmake = qmakeFromCMakeCache(config);
+        const auto [qmake, cmakePrefixPath] = qtInfoFromCMakeCache(config, env);
         if (!qmake.isEmpty())
             data->qt = findOrCreateQtVersion(qmake);
+
+        if (!cmakePrefixPath.isEmpty() && config.valueOf("CMAKE_PREFIX_PATH").isEmpty())
+            config << CMakeConfigItem("CMAKE_PREFIX_PATH",
+                                      CMakeConfigItem::PATH,
+                                      cmakePrefixPath.toUtf8());
 
         // ToolChains:
         data->toolChains = extractToolChainsFromCache(config);
@@ -746,6 +781,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             buildConfigurationTypes = buildConfigurationTypesString.split(';');
     }
 
+    const Environment env = projectDirectory().deviceEnvironment();
+
     for (auto const &buildType: std::as_const(buildConfigurationTypes)) {
         auto data = std::make_unique<DirectoryData>();
 
@@ -777,7 +814,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         data->sysroot = config.filePathValueOf("CMAKE_SYSROOT");
 
         // Qt:
-        const FilePath qmake = qmakeFromCMakeCache(config);
+        const auto [qmake, cmakePrefixPath] = qtInfoFromCMakeCache(config, env);
         if (!qmake.isEmpty())
             data->qt = findOrCreateQtVersion(qmake);
 
@@ -1021,8 +1058,9 @@ void CMakeProjectPlugin::testCMakeProjectImporterQt()
         config.append(CMakeConfigItem(key.toUtf8(), value.toUtf8()));
     }
 
-    FilePath realQmake = qmakeFromCMakeCache(config);
-    QCOMPARE(realQmake.toString(), expectedQmake);
+    auto [realQmake, cmakePrefixPath] = qtInfoFromCMakeCache(config,
+                                                             Environment::systemEnvironment());
+    QCOMPARE(realQmake.path(), expectedQmake);
 }
 void CMakeProjectPlugin::testCMakeProjectImporterToolChain_data()
 {
