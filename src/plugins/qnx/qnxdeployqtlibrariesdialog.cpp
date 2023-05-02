@@ -261,18 +261,18 @@ Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()
         return TaskAction::Continue;
     };
     const Group root {
-        OnGroupSetup(setupHandler),
+        onGroupSetup(setupHandler),
         Group {
             optional,
             checkDirTask()
         },
         Group {
-            OnGroupSetup(subGroupSetupHandler),
+            onGroupSetup(subGroupSetupHandler),
             removeDirTask(),
             uploadTask(),
             chmodTree()
         },
-        OnGroupDone(doneHandler)
+        onGroupDone(doneHandler)
     };
     return root;
 }

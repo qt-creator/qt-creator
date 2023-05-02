@@ -93,8 +93,8 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     const Group root {
         Storage(storage),
         Group(tasks),
-        OnGroupDone(onDone),
-        OnGroupError(onError)
+        onGroupDone(onDone),
+        onGroupError(onError)
     };
     m_taskTree.reset(new TaskTree(root));
     auto progress = new Core::TaskProgress(m_taskTree.get());

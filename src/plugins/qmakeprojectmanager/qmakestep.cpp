@@ -333,7 +333,7 @@ void QMakeStep::doRun()
     QList<TaskItem> processList = {ProcessTask(setupQMake, onProcessDone, onProcessError)};
     if (m_runMakeQmake)
         processList << ProcessTask(setupMakeQMake, onProcessDone, onProcessError);
-    processList << OnGroupDone(onDone);
+    processList << onGroupDone(onDone);
 
     runTaskTree(Group(processList));
 }

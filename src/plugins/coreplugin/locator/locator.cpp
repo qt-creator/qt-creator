@@ -389,7 +389,7 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
         const Group group {
             optional,
             *task,
-            OnGroupDone([this, filter] { m_refreshingFilters.removeOne(filter); })
+            onGroupDone([this, filter] { m_refreshingFilters.removeOne(filter); })
         };
         tasks.append(group);
     }

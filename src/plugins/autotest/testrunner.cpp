@@ -444,7 +444,7 @@ void TestRunner::runTestsHelper()
         const Group group {
             optional,
             Storage(storage),
-            OnGroupSetup(onSetup),
+            onGroupSetup(onSetup),
             ProcessTask(onProcessSetup, onProcessDone, onProcessDone)
         };
         tasks.append(group);

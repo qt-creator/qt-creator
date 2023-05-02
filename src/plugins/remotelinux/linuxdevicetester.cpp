@@ -225,7 +225,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTasks() const
         transferTask(FileTransferMethod::GenericCopy, storage),
         transferTask(FileTransferMethod::Sftp, storage),
         transferTask(FileTransferMethod::Rsync, storage),
-        OnGroupError([this] { emit q->errorMessage(Tr::tr("Deployment to this device will not "
+        onGroupError([this] { emit q->errorMessage(Tr::tr("Deployment to this device will not "
                                                           "work out of the box.\n"));
         })
     };
@@ -255,7 +255,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::commandTask(const QString &commandName
 TaskItem GenericLinuxDeviceTesterPrivate::commandTasks() const
 {
     QList<TaskItem> tasks {continueOnError};
-    tasks.append(OnGroupSetup([this] {
+    tasks.append(onGroupSetup([this] {
         emit q->progressMessage(Tr::tr("Checking if required commands are available..."));
     }));
     for (const QString &commandName : commandsToTest())
@@ -305,8 +305,8 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
     if (!d->m_extraTests.isEmpty())
         taskItems << Group { d->m_extraTests };
     taskItems << d->commandTasks()
-              << OnGroupDone(std::bind(allFinished, TestSuccess))
-              << OnGroupError(std::bind(allFinished, TestFailure));
+              << onGroupDone(std::bind(allFinished, TestSuccess))
+              << onGroupError(std::bind(allFinished, TestFailure));
 
     d->m_taskTree.reset(new TaskTree(taskItems));
     d->m_taskTree->start();

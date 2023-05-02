@@ -503,13 +503,13 @@ void tst_Async::mapReduce_data()
                                 const DoneHandler &doneHandler) {
         return Group {
             executeMode,
-            OnGroupSetup(initTree),
+            onGroupSetup(initTree),
             AsyncTask<int>(std::bind(setupHandler, _1, 1), handleAsync),
             AsyncTask<int>(std::bind(setupHandler, _1, 2), handleAsync),
             AsyncTask<int>(std::bind(setupHandler, _1, 3), handleAsync),
             AsyncTask<int>(std::bind(setupHandler, _1, 4), handleAsync),
             AsyncTask<int>(std::bind(setupHandler, _1, 5), handleAsync),
-            OnGroupDone(doneHandler)
+            onGroupDone(doneHandler)
         };
     };
 
@@ -539,7 +539,7 @@ void tst_Async::mapReduce_data()
     };
     const Group simpleRoot = {
         sequential,
-        OnGroupSetup([] { s_sum = 0; }),
+        onGroupSetup([] { s_sum = 0; }),
         AsyncTask<int>(std::bind(setupSimpleAsync, _1, 1), handleSimpleAsync),
         AsyncTask<int>(std::bind(setupSimpleAsync, _1, 2), handleSimpleAsync),
         AsyncTask<int>(std::bind(setupSimpleAsync, _1, 3), handleSimpleAsync)
@@ -554,7 +554,7 @@ void tst_Async::mapReduce_data()
     };
     const Group stringRoot = {
         parallel,
-        OnGroupSetup([] { s_sum = 90.0; }),
+        onGroupSetup([] { s_sum = 90.0; }),
         AsyncTask<int>(std::bind(setupStringAsync, _1, "blubb"), handleStringAsync),
         AsyncTask<int>(std::bind(setupStringAsync, _1, "foo"), handleStringAsync),
         AsyncTask<int>(std::bind(setupStringAsync, _1, "blah"), handleStringAsync)

@@ -472,9 +472,9 @@ void LocatorMatcher::start()
         const Group group {
             optional,
             Storage(storage),
-            OnGroupSetup(onSetup(storage, index)),
-            OnGroupDone(onDone(storage)),
-            OnGroupError(onDone(storage)),
+            onGroupSetup(onSetup(storage, index)),
+            onGroupDone(onDone(storage)),
+            onGroupError(onDone(storage)),
             task.task
         };
         parallelTasks << group;

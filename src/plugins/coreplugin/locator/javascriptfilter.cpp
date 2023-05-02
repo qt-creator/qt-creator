@@ -426,7 +426,7 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
     };
 
     const Group root {
-        OnGroupSetup(onSetup),
+        onGroupSetup(onSetup),
         JavaScriptRequestTask(onJavaScriptSetup, onJavaScriptDone, onJavaScriptError)
     };
 

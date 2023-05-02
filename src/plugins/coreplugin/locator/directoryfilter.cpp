@@ -95,7 +95,7 @@ DirectoryFilter::DirectoryFilter(Id id)
             m_cache.setFilePaths(async.result());
     };
     const Group root {
-        OnGroupSetup(groupSetup),
+        onGroupSetup(groupSetup),
         AsyncTask<FilePaths>(asyncSetup, asyncDone)
     };
     setRefreshRecipe(root);

@@ -111,12 +111,12 @@ void tst_Tasking::validConstructs()
             Group {
                 parallel,
                 Test([](TestTask &) {}, [](const TestTask &) {}),
-                OnGroupDone([] {})
+                onGroupDone([] {})
             }
         },
         task,
-        OnGroupDone([] {}),
-        OnGroupError([] {})
+        onGroupDone([] {}),
+        onGroupError([] {})
     };
 
     const auto setupHandler = [](TestTask &) {};
@@ -272,8 +272,8 @@ void tst_Tasking::testTree_data()
             Test(setupTask(1), logDone),
             Test(setupFailingTask(2), logDone, logError),
             Test(setupTask(3), logDone),
-            OnGroupDone(groupDone(0)),
-            OnGroupError(groupError(0))
+            onGroupDone(groupDone(0)),
+            onGroupError(groupError(0))
         };
     };
     const auto constructDynamicHierarchy = [=](TaskAction taskAction) {
@@ -283,39 +283,39 @@ void tst_Tasking::testTree_data()
                 Test(setupTask(1), logDone)
             },
             Group {
-                OnGroupSetup([=] { return taskAction; }),
+                onGroupSetup([=] { return taskAction; }),
                 Test(setupTask(2), logDone),
                 Test(setupTask(3), logDone),
                 Test(setupTask(4), logDone)
             },
-            OnGroupDone(groupDone(0)),
-            OnGroupError(groupError(0))
+            onGroupDone(groupDone(0)),
+            onGroupError(groupError(0))
         };
     };
 
     {
         const Group root1 {
             Storage(storage),
-            OnGroupDone(groupDone(0)),
-            OnGroupError(groupError(0))
+            onGroupDone(groupDone(0)),
+            onGroupError(groupError(0))
         };
         const Group root2 {
             Storage(storage),
-            OnGroupSetup([] { return TaskAction::Continue; }),
-            OnGroupDone(groupDone(0)),
-            OnGroupError(groupError(0))
+            onGroupSetup([] { return TaskAction::Continue; }),
+            onGroupDone(groupDone(0)),
+            onGroupError(groupError(0))
         };
         const Group root3 {
             Storage(storage),
-            OnGroupSetup([] { return TaskAction::StopWithDone; }),
-            OnGroupDone(groupDone(0)),
-            OnGroupError(groupError(0))
+            onGroupSetup([] { return TaskAction::StopWithDone; }),
+            onGroupDone(groupDone(0)),
+            onGroupError(groupError(0))
         };
         const Group root4 {
             Storage(storage),
-            OnGroupSetup([] { return TaskAction::StopWithError; }),
-            OnGroupDone(groupDone(0)),
-            OnGroupError(groupError(0))
+            onGroupSetup([] { return TaskAction::StopWithError; }),
+            onGroupDone(groupDone(0)),
+            onGroupError(groupError(0))
         };
         const Log logDone {{0, Handler::GroupDone}};
         const Log logError {{0, Handler::GroupError}};
@@ -410,7 +410,7 @@ void tst_Tasking::testTree_data()
             Test(setupDynamicTask(1, TaskAction::Continue), logDone, logError),
             Test(setupDynamicTask(2, TaskAction::Continue), logDone, logError),
             Group {
-                OnGroupSetup([storage] {
+                onGroupSetup([storage] {
                     storage->m_log.append({0, Handler::GroupSetup});
                     return TaskAction::StopWithError;
                 }),
@@ -438,22 +438,22 @@ void tst_Tasking::testTree_data()
                         Group {
                             Group {
                                 Test(setupTask(5), logDone, logError),
-                                OnGroupSetup(groupSetup(5)),
-                                OnGroupDone(groupDone(5))
+                                onGroupSetup(groupSetup(5)),
+                                onGroupDone(groupDone(5))
                             },
-                            OnGroupSetup(groupSetup(4)),
-                            OnGroupDone(groupDone(4))
+                            onGroupSetup(groupSetup(4)),
+                            onGroupDone(groupDone(4))
                         },
-                        OnGroupSetup(groupSetup(3)),
-                        OnGroupDone(groupDone(3))
+                        onGroupSetup(groupSetup(3)),
+                        onGroupDone(groupDone(3))
                     },
-                    OnGroupSetup(groupSetup(2)),
-                    OnGroupDone(groupDone(2))
+                    onGroupSetup(groupSetup(2)),
+                    onGroupDone(groupDone(2))
                 },
-                OnGroupSetup(groupSetup(1)),
-                OnGroupDone(groupDone(1))
+                onGroupSetup(groupSetup(1)),
+                onGroupDone(groupDone(1))
             },
-            OnGroupDone(groupDone(0))
+            onGroupDone(groupDone(0))
         };
         const Log log {
             {1, Handler::GroupSetup},
@@ -485,7 +485,7 @@ void tst_Tasking::testTree_data()
             Test(setupTask(3), logDoneAnonymously),
             Test(setupTask(4), logDoneAnonymously),
             Test(setupTask(5), logDoneAnonymously),
-            OnGroupDone(groupDone(0))
+            onGroupDone(groupDone(0))
         };
         const Log log {
             {1, Handler::Setup}, // Setup order is determined in parallel mode
@@ -525,7 +525,7 @@ void tst_Tasking::testTree_data()
             Test(setupTask(3), logDone),
             Test(setupTask(4), logDone),
             Test(setupTask(5), logDone),
-            OnGroupDone(groupDone(0))
+            onGroupDone(groupDone(0))
         };
         const Group root2 {
             Storage(storage),
@@ -534,14 +534,14 @@ void tst_Tasking::testTree_data()
             Group { Test(setupTask(3), logDone) },
             Group { Test(setupTask(4), logDone) },
             Group { Test(setupTask(5), logDone) },
-            OnGroupDone(groupDone(0))
+            onGroupDone(groupDone(0))
         };
         const Group root3 {
             Storage(storage),
             Test(setupTask(1), logDone),
             TaskTreeTask(setupSubTree),
             Test(setupTask(5), logDone),
-            OnGroupDone(groupDone(0))
+            onGroupDone(groupDone(0))
         };
         const Log log {
             {1, Handler::Setup},
@@ -575,17 +575,17 @@ void tst_Tasking::testTree_data()
                             Test(setupTask(4), logDone),
                             Group {
                                 Test(setupTask(5), logDone),
-                                OnGroupDone(groupDone(5))
+                                onGroupDone(groupDone(5))
                             },
-                            OnGroupDone(groupDone(4))
+                            onGroupDone(groupDone(4))
                         },
-                        OnGroupDone(groupDone(3))
+                        onGroupDone(groupDone(3))
                     },
-                    OnGroupDone(groupDone(2))
+                    onGroupDone(groupDone(2))
                 },
-                OnGroupDone(groupDone(1))
+                onGroupDone(groupDone(1))
             },
-            OnGroupDone(groupDone(0))
+            onGroupDone(groupDone(0))
         };
         const Log log {
             {1, Handler::Setup},
@@ -616,8 +616,8 @@ void tst_Tasking::testTree_data()
             Test(setupFailingTask(3), logDone, logError),
             Test(setupTask(4), logDone),
             Test(setupTask(5), logDone),
-            OnGroupDone(groupDone(0)),
-            OnGroupError(groupError(0))
+            onGroupDone(groupDone(0)),
+            onGroupError(groupError(0))
         };
         const Log log {
             {1, Handler::Setup},
@@ -699,8 +699,8 @@ void tst_Tasking::testTree_data()
                 Storage(storage),
                 Test(setupSleepingTask(1, firstSuccess, 1000ms), logDone, logError),
                 Test(setupSleepingTask(2, secondSuccess, 5ms), logDone, logError),
-                OnGroupDone(groupDone(0)),
-                OnGroupError(groupError(0))
+                onGroupDone(groupDone(0)),
+                onGroupError(groupError(0))
             };
         };
 
@@ -736,8 +736,8 @@ void tst_Tasking::testTree_data()
             optional,
             Test(setupFailingTask(1), logDone, logError),
             Test(setupFailingTask(2), logDone, logError),
-            OnGroupDone(groupDone(0)),
-            OnGroupError(groupError(0))
+            onGroupDone(groupDone(0)),
+            onGroupError(groupError(0))
         };
         const Log log {
             {1, Handler::Setup},
@@ -790,19 +790,19 @@ void tst_Tasking::testTree_data()
             ParallelLimit(2),
             Storage(storage),
             Group {
-                OnGroupSetup(groupSetup(1)),
+                onGroupSetup(groupSetup(1)),
                 Test(setupTask(1))
             },
             Group {
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 Test(setupTask(2))
             },
             Group {
-                OnGroupSetup(groupSetup(3)),
+                onGroupSetup(groupSetup(3)),
                 Test(setupTask(3))
             },
             Group {
-                OnGroupSetup(groupSetup(4)),
+                onGroupSetup(groupSetup(4)),
                 Test(setupTask(4))
             }
         };
@@ -824,23 +824,23 @@ void tst_Tasking::testTree_data()
             ParallelLimit(2),
             Storage(storage),
             Group {
-                OnGroupSetup(groupSetup(1)),
+                onGroupSetup(groupSetup(1)),
                 Test(setupTask(1))
             },
             Group {
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 Test(setupTask(2))
             },
             Group {
-                OnGroupSetup(groupSetup(3)),
+                onGroupSetup(groupSetup(3)),
                 Test(setupDynamicTask(3, TaskAction::StopWithDone))
             },
             Group {
-                OnGroupSetup(groupSetup(4)),
+                onGroupSetup(groupSetup(4)),
                 Test(setupTask(4))
             },
             Group {
-                OnGroupSetup(groupSetup(5)),
+                onGroupSetup(groupSetup(5)),
                 Test(setupTask(5))
             }
         };
@@ -864,23 +864,23 @@ void tst_Tasking::testTree_data()
             ParallelLimit(2),
             Storage(storage),
             Group {
-                OnGroupSetup(groupSetup(1)),
+                onGroupSetup(groupSetup(1)),
                 Test(setupTask(1))
             },
             Group {
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 Test(setupTask(2))
             },
             Group {
-                OnGroupSetup(groupSetup(3)),
+                onGroupSetup(groupSetup(3)),
                 Test(setupDynamicTask(3, TaskAction::StopWithError))
             },
             Group {
-                OnGroupSetup(groupSetup(4)),
+                onGroupSetup(groupSetup(4)),
                 Test(setupTask(4))
             },
             Group {
-                OnGroupSetup(groupSetup(5)),
+                onGroupSetup(groupSetup(5)),
                 Test(setupTask(5))
             }
         };
@@ -893,23 +893,23 @@ void tst_Tasking::testTree_data()
             ParallelLimit(2),
             Storage(storage),
             Group {
-                OnGroupSetup(groupSetup(1)),
+                onGroupSetup(groupSetup(1)),
                 Test(setupSleepingTask(1, true, 10ms))
             },
             Group {
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 Test(setupTask(2))
             },
             Group {
-                OnGroupSetup(groupSetup(3)),
+                onGroupSetup(groupSetup(3)),
                 Test(setupDynamicTask(3, TaskAction::StopWithError))
             },
             Group {
-                OnGroupSetup(groupSetup(4)),
+                onGroupSetup(groupSetup(4)),
                 Test(setupTask(4))
             },
             Group {
-                OnGroupSetup(groupSetup(5)),
+                onGroupSetup(groupSetup(5)),
                 Test(setupTask(5))
             }
         };
@@ -928,24 +928,24 @@ void tst_Tasking::testTree_data()
             Group {
                 ParallelLimit(2),
                 Group {
-                    OnGroupSetup(groupSetup(1)),
+                    onGroupSetup(groupSetup(1)),
                     Test(setupSleepingTask(1, true, 20ms))
                 },
                 Group {
-                    OnGroupSetup(groupSetup(2)),
+                    onGroupSetup(groupSetup(2)),
                     Test(setupSleepingTask(2, true, 10ms))
                 },
                 Group {
-                    OnGroupSetup(groupSetup(3)),
+                    onGroupSetup(groupSetup(3)),
                     Test(setupDynamicTask(3, TaskAction::StopWithError))
                 },
                 Group {
-                    OnGroupSetup(groupSetup(4)),
+                    onGroupSetup(groupSetup(4)),
                     Test(setupTask(4))
                 }
             },
             Group {
-                OnGroupSetup(groupSetup(5)),
+                onGroupSetup(groupSetup(5)),
                 Test(setupTask(5))
             }
         };
@@ -972,7 +972,7 @@ void tst_Tasking::testTree_data()
             Storage(storage),
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(1)),
+                onGroupSetup(groupSetup(1)),
                 Group {
                     parallel,
                     Test(setupTask(1))
@@ -980,7 +980,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 Group {
                     parallel,
                     Test(setupTask(2))
@@ -988,7 +988,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(3)),
+                onGroupSetup(groupSetup(3)),
                 Group {
                     parallel,
                     Test(setupTask(3))
@@ -996,7 +996,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(4)),
+                onGroupSetup(groupSetup(4)),
                 Group {
                     parallel,
                     Test(setupTask(4))
@@ -1022,27 +1022,27 @@ void tst_Tasking::testTree_data()
             Storage(storage),
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(1)),
+                onGroupSetup(groupSetup(1)),
                 Group { Test(setupTask(1)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 Group { Test(setupTask(2)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(3)),
+                onGroupSetup(groupSetup(3)),
                 Group { Test(setupDynamicTask(3, TaskAction::StopWithDone)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(4)),
+                onGroupSetup(groupSetup(4)),
                 Group { Test(setupTask(4)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(5)),
+                onGroupSetup(groupSetup(5)),
                 Group { Test(setupTask(5)) }
             }
         };
@@ -1068,27 +1068,27 @@ void tst_Tasking::testTree_data()
             Storage(storage),
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(1)),
+                onGroupSetup(groupSetup(1)),
                 Group { Test(setupTask(1)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 Group { Test(setupTask(2)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(3)),
+                onGroupSetup(groupSetup(3)),
                 Group { Test(setupDynamicTask(3, TaskAction::StopWithError)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(4)),
+                onGroupSetup(groupSetup(4)),
                 Group { Test(setupTask(4)) }
             },
             Group {
                 Storage(TreeStorage<CustomStorage>()),
-                OnGroupSetup(groupSetup(5)),
+                onGroupSetup(groupSetup(5)),
                 Group { Test(setupTask(5)) }
             }
         };
@@ -1188,7 +1188,7 @@ void tst_Tasking::testTree_data()
             Sync(setupSync(3)),
             Test(setupTask(4)),
             Sync(setupSync(5)),
-            OnGroupDone(groupDone(0))
+            onGroupDone(groupDone(0))
         };
         const Log log {
             {1, Handler::Sync},
@@ -1209,7 +1209,7 @@ void tst_Tasking::testTree_data()
             Sync(setupSyncWithReturn(3, false)),
             Test(setupTask(4)),
             Sync(setupSync(5)),
-            OnGroupError(groupError(0))
+            onGroupError(groupError(0))
         };
         const Log log {
             {1, Handler::Sync},
@@ -1232,7 +1232,7 @@ void tst_Tasking::testTree_data()
             sequential,
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
             Group {
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 WaitForBarrierTask(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
@@ -1255,7 +1255,7 @@ void tst_Tasking::testTree_data()
             parallel,
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
             Group {
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 WaitForBarrierTask(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
@@ -1284,7 +1284,7 @@ void tst_Tasking::testTree_data()
             Storage(barrier),
             parallel,
             Group {
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 WaitForBarrierTask(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
@@ -1308,12 +1308,12 @@ void tst_Tasking::testTree_data()
             parallel,
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
             Group {
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 WaitForBarrierTask(barrier),
                 Test(setupTask(4))
             },
             Group {
-                OnGroupSetup(groupSetup(3)),
+                onGroupSetup(groupSetup(3)),
                 WaitForBarrierTask(barrier),
                 Test(setupTask(5))
             }
@@ -1341,7 +1341,7 @@ void tst_Tasking::testTree_data()
             Group {
                 Group {
                     parallel,
-                    OnGroupSetup(groupSetup(1)),
+                    onGroupSetup(groupSetup(1)),
                     WaitForBarrierTask(barrier),
                     WaitForBarrierTask(barrier2)
                 },
@@ -1383,7 +1383,7 @@ void tst_Tasking::testTree_data()
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 2)),
             Group {
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 WaitForBarrierTask(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
@@ -1409,7 +1409,7 @@ void tst_Tasking::testTree_data()
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
             Group {
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 WaitForBarrierTask(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
@@ -1440,7 +1440,7 @@ void tst_Tasking::testTree_data()
             Storage(barrier),
             parallel,
             Group {
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 WaitForBarrierTask(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
@@ -1468,12 +1468,12 @@ void tst_Tasking::testTree_data()
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
             Group {
-                OnGroupSetup(groupSetup(2)),
+                onGroupSetup(groupSetup(2)),
                 WaitForBarrierTask(barrier),
                 Test(setupTask(4))
             },
             Group {
-                OnGroupSetup(groupSetup(3)),
+                onGroupSetup(groupSetup(3)),
                 WaitForBarrierTask(barrier),
                 Test(setupTask(5))
             }

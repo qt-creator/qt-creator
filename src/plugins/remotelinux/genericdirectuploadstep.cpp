@@ -310,7 +310,7 @@ Group GenericDirectUploadStep::deployRecipe()
             chmodTree(storage),
             statTree(storage, postFilesToStat, postStatEndHandler)
         },
-        OnGroupDone(doneHandler)
+        onGroupDone(doneHandler)
     };
     return root;
 }

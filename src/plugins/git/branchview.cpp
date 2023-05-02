@@ -560,7 +560,7 @@ TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
         parallel,
         ProcessTask(setupMergeBase, onMergeBaseDone),
         topRevisionProc,
-        OnGroupDone([storage, callback] {
+        onGroupDone([storage, callback] {
             if (storage->mergeBase == storage->topRevision)
                 callback();
         })

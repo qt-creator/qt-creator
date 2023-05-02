@@ -270,7 +270,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
             continueOnDone,
             ProcessTask(setupStaged, onStagedDone),
             ProcessTask(setupUnstaged, onUnstagedDone),
-            OnGroupDone(onStagingDone)
+            onGroupDone(onStagingDone)
         },
         postProcessTask()
     };
@@ -441,7 +441,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         };
 
         using namespace std::placeholders;
-        QList<TaskItem> tasks {parallel, continueOnDone, OnGroupError(onFollowsError)};
+        QList<TaskItem> tasks {parallel, continueOnDone, onGroupError(onFollowsError)};
         for (int i = 0, total = parents.size(); i < total; ++i) {
             tasks.append(ProcessTask(std::bind(setupFollow, _1, parents.at(i)),
                                  std::bind(onFollowDone, _1, i)));
@@ -463,14 +463,14 @@ ShowController::ShowController(IDocument *document, const QString &id)
         Storage(storage),
         Storage(diffInputStorage),
         parallel,
-        OnGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toString()); }),
+        onGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toString()); }),
         Group {
             optional,
             ProcessTask(setupDescription, onDescriptionDone),
             Group {
                 parallel,
                 optional,
-                OnGroupSetup(desciptionDetailsSetup),
+                onGroupSetup(desciptionDetailsSetup),
                 ProcessTask(setupBranches, onBranchesDone, onBranchesError),
                 ProcessTask(setupPrecedes, onPrecedesDone, onPrecedesError),
                 TaskTreeTask(setupFollows)
