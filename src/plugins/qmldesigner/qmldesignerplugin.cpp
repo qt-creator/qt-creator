@@ -186,8 +186,9 @@ static bool isDesignerMode(Utils::Id mode)
 static bool documentIsAlreadyOpen(DesignDocument *designDocument, Core::IEditor *editor, Utils::Id newMode)
 {
     return designDocument
-            && editor == designDocument->editor()
-            && isDesignerMode(newMode);
+           && editor == designDocument->editor()
+           && isDesignerMode(newMode)
+           && designDocument->fileName() == editor->document()->filePath();
 }
 
 static bool shouldAssertInException()
@@ -440,14 +441,12 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
             &Core::ModeManager::currentModeChanged,
             [this](Utils::Id newMode, Utils::Id oldMode) {
                 Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
-                if (d && currentEditor && checkIfEditorIsQtQuick(currentEditor)
+                if (isDesignerMode(newMode) && checkIfEditorIsQtQuick(currentEditor)
                     && !documentIsAlreadyOpen(currentDesignDocument(), currentEditor, newMode)) {
-                    if (isDesignerMode(newMode)) {
-                        showDesigner();
-                    } else if (currentDesignDocument()
-                               || (!isDesignerMode(newMode) && isDesignerMode(oldMode))) {
-                        hideDesigner();
-                    }
+                    showDesigner();
+                } else if (currentDesignDocument()
+                           || (!isDesignerMode(newMode) && isDesignerMode(oldMode))) {
+                    hideDesigner();
                 }
             });
 }
