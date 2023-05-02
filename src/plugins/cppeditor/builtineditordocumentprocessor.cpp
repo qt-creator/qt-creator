@@ -264,6 +264,13 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
     const auto source = createSemanticInfoSource(false);
     QTC_CHECK(source.snapshot.contains(document->filePath()));
     m_semanticInfoUpdater.updateDetached(source);
+
+    const Utils::FilePaths deps
+        = CppModelManager::instance()->snapshot().filesDependingOn(document->filePath());
+    for (const Utils::FilePath &dep : deps) {
+        if (const auto processor = CppModelManager::cppEditorDocumentProcessor(dep))
+            processor->run();
+    }
 }
 
 void BuiltinEditorDocumentProcessor::onSemanticInfoUpdated(const SemanticInfo semanticInfo)
