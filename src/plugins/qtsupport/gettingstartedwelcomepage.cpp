@@ -280,8 +280,8 @@ public:
             // for macOS dark mode
             pal.setColor(QPalette::Text, Utils::creatorTheme()->color(Theme::Welcome_TextColor));
             exampleSetSelector->setPalette(pal);
-            exampleSetSelector->setMinimumWidth(Core::ListItemDelegate::GridItemWidth);
-            exampleSetSelector->setMaximumWidth(Core::ListItemDelegate::GridItemWidth);
+            exampleSetSelector->setMinimumWidth(Core::WelcomePageHelpers::GridItemWidth);
+            exampleSetSelector->setMaximumWidth(Core::WelcomePageHelpers::GridItemWidth);
             exampleSetSelector->setModel(s_exampleSetModel);
             exampleSetSelector->setCurrentIndex(s_exampleSetModel->selectedExampleSet());
             connect(exampleSetSelector,

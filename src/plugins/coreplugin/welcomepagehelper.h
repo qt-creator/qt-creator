@@ -24,6 +24,12 @@ namespace WelcomePageHelpers {
 
 constexpr int HSpacing = 20;
 constexpr int ItemGap = 4;
+
+constexpr int GridItemGap = 3 * ItemGap;
+constexpr int GridItemWidth = 240 + GridItemGap;
+constexpr int GridItemHeight = GridItemWidth;
+constexpr QSize GridItemImageSize(214, 160);
+
 CORE_EXPORT QFont brandFont();
 CORE_EXPORT QWidget *panelBar(QWidget *parent = nullptr);
 
@@ -99,8 +105,6 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     void setPixmapFunction(const PixmapFunction &fetchPixmapAndUpdatePixmapCache);
 
-    static const QSize defaultImageSize;
-
     void setOwnsItems(bool owns);
 
 private:
@@ -141,11 +145,6 @@ public:
     ListItemDelegate();
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
-
-    static constexpr int GridItemGap = 3 * WelcomePageHelpers::ItemGap;
-    static constexpr int GridItemWidth = 240 + GridItemGap;
-    static constexpr int GridItemHeight = GridItemWidth;
-    static constexpr int TagsSeparatorY = GridItemHeight - GridItemGap - 52;
 
 signals:
     void tagClicked(const QString &tag);

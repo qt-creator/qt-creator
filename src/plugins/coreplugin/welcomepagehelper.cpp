@@ -144,10 +144,10 @@ bool SectionGridView::hasHeightForWidth() const
 
 int SectionGridView::heightForWidth(int width) const
 {
-    const int columnCount = width / Core::ListItemDelegate::GridItemWidth;
+    const int columnCount = width / Core::WelcomePageHelpers::GridItemWidth;
     const int rowCount = (model()->rowCount() + columnCount - 1) / columnCount;
     const int maxRowCount = m_maxRows ? std::min(*m_maxRows, rowCount) : rowCount;
-    return maxRowCount * Core::ListItemDelegate::GridItemHeight;
+    return maxRowCount * Core::WelcomePageHelpers::GridItemHeight;
 }
 
 void SectionGridView::wheelEvent(QWheelEvent *e)
@@ -162,8 +162,8 @@ bool SectionGridView::event(QEvent *e)
 {
     if (e->type() == QEvent::Resize) {
         const auto itemsFit = [this](const QSize &size) {
-            const int maxColumns = std::max(size.width() / ListItemDelegate::GridItemWidth, 1);
-            const int maxRows = std::max(size.height() / ListItemDelegate::GridItemHeight, 1);
+            const int maxColumns = std::max(size.width() / WelcomePageHelpers::GridItemWidth, 1);
+            const int maxRows = std::max(size.height() / WelcomePageHelpers::GridItemHeight, 1);
             const int maxItems = maxColumns * maxRows;
             const int items = model()->rowCount();
             return maxItems >= items;
@@ -177,8 +177,6 @@ bool SectionGridView::event(QEvent *e)
     }
     return GridView::event(e);
 }
-
-const QSize ListModel::defaultImageSize(214, 160);
 
 ListModel::ListModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -459,13 +457,14 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
     const QRect rc = option.rect;
     const QRect tileRect(0, 0, rc.width() - GridItemGap, rc.height() - GridItemGap);
-    const QSize thumbnailBgSize = ListModel::defaultImageSize.grownBy(QMargins(1, 1, 1, 1));
+    const QSize thumbnailBgSize = GridItemImageSize.grownBy(QMargins(1, 1, 1, 1));
     const QRect thumbnailBgRect((tileRect.width() - thumbnailBgSize.width()) / 2, GridItemGap,
                                 thumbnailBgSize.width(), thumbnailBgSize.height());
     const QRect textArea = tileRect.adjusted(GridItemGap, GridItemGap, -GridItemGap, -GridItemGap);
 
     const bool hovered = option.state & QStyle::State_MouseOver;
 
+    constexpr int TagsSeparatorY = GridItemHeight - GridItemGap - 52;
     constexpr int tagsBase = TagsSeparatorY + 17;
     constexpr int shiftY = TagsSeparatorY - 16;
     constexpr int nameY = TagsSeparatorY - 20;

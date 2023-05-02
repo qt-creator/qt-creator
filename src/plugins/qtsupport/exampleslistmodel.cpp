@@ -255,7 +255,8 @@ static QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url)
             img.convertTo(QImage::Format_RGB32);
             const int dpr = qApp->devicePixelRatio();
             // boundedTo -> don't scale thumbnails up
-            const QSize scaledSize = Core::ListModel::defaultImageSize.boundedTo(img.size()) * dpr;
+            const QSize scaledSize =
+                WelcomePageHelpers::GridItemImageSize.boundedTo(img.size()) * dpr;
             pixmap = QPixmap::fromImage(
                 img.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
             pixmap.setDevicePixelRatio(dpr);
