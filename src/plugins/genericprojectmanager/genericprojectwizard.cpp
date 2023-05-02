@@ -141,6 +141,8 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     const QDir dir(projectPath.toString());
     for (const QString &path : paths) {
         QFileInfo fileInfo(path);
+        if (fileInfo.fileName() != "include")
+            continue;
         QDir thisDir(fileInfo.absoluteFilePath());
 
         if (! thisDir.entryList(nameFilters, QDir::Files).isEmpty()) {
