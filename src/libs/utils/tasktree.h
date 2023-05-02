@@ -128,9 +128,9 @@ public:
 
     struct TaskHandler {
         TaskCreateHandler m_createHandler;
-        TaskSetupHandler m_setupHandler;
-        TaskEndHandler m_doneHandler;
-        TaskEndHandler m_errorHandler;
+        TaskSetupHandler m_setupHandler = {};
+        TaskEndHandler m_doneHandler = {};
+        TaskEndHandler m_errorHandler = {};
     };
 
     struct GroupHandler {
@@ -173,6 +173,10 @@ protected:
         : m_type(Type::Storage)
         , m_storageList{storage} {}
     void addChildren(const QList<TaskItem> &children);
+
+    void setTaskSetupHandler(const TaskSetupHandler &handler);
+    void setTaskDoneHandler(const TaskEndHandler &handler);
+    void setTaskErrorHandler(const TaskEndHandler &handler);
 
 private:
     Type m_type = Type::Group;
@@ -301,10 +305,25 @@ public:
     using Task = typename Adapter::Type;
     using EndHandler = std::function<void(const Task &)>;
     static Adapter *createAdapter() { return new Adapter; }
+    CustomTask() : TaskItem({&createAdapter}) {}
     template <typename SetupFunction>
     CustomTask(SetupFunction &&function, const EndHandler &done = {}, const EndHandler &error = {})
         : TaskItem({&createAdapter, wrapSetup(std::forward<SetupFunction>(function)),
                     wrapEnd(done), wrapEnd(error)}) {}
+
+    template <typename SetupFunction>
+    CustomTask &onSetup(SetupFunction &&function) {
+        setTaskSetupHandler(wrapSetup(std::forward<SetupFunction>(function)));
+        return *this;
+    }
+    CustomTask &onDone(const EndHandler &handler) {
+        setTaskDoneHandler(wrapEnd(handler));
+        return *this;
+    }
+    CustomTask &onError(const EndHandler &handler) {
+        setTaskErrorHandler(wrapEnd(handler));
+        return *this;
+    }
 
 private:
     template<typename SetupFunction>

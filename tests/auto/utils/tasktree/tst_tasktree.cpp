@@ -120,6 +120,35 @@ void tst_TaskTree::validConstructs()
         OnGroupError([] {})
     };
 
+    const auto setupHandler = [](TestTask &) {};
+    const auto doneHandler = [](const TestTask &) {};
+    const auto errorHandler = [](const TestTask &) {};
+
+    // Not fluent interface
+
+    const Group task2 {
+        parallel,
+        Test(setupHandler),
+        Test(setupHandler, doneHandler),
+        Test(setupHandler, doneHandler, errorHandler),
+        // need to explicitly pass empty handler for done
+        Test(setupHandler, {}, errorHandler)
+    };
+
+    // Fluent interface
+
+    const Group fluent {
+        parallel,
+        Test().onSetup(setupHandler),
+        Test().onSetup(setupHandler).onDone(doneHandler),
+        Test().onSetup(setupHandler).onDone(doneHandler).onError(errorHandler),
+        // possible to skip the empty done
+        Test().onSetup(setupHandler).onError(errorHandler),
+        // possible to set handlers in a different order
+        Test().onError(errorHandler).onDone(doneHandler).onSetup(setupHandler),
+    };
+
+
     // When turning each of below blocks on, you should see the specific compiler error message.
 
 #if 0

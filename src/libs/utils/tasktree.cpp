@@ -109,8 +109,6 @@ void TaskItem::addChildren(const QList<TaskItem> &children)
         case Type::TaskHandler:
             QTC_ASSERT(child.m_taskHandler.m_createHandler,
                        qWarning("Task Create Handler can't be null, skipping..."); return);
-            QTC_ASSERT(child.m_taskHandler.m_setupHandler,
-                       qWarning("Task Setup Handler can't be null, skipping..."); return);
             m_children.append(child);
             break;
         case Type::GroupHandler:
@@ -137,6 +135,39 @@ void TaskItem::addChildren(const QList<TaskItem> &children)
             break;
         }
     }
+}
+
+void TaskItem::setTaskSetupHandler(const TaskSetupHandler &handler)
+{
+    if (!handler) {
+        qWarning("Setting empty Setup Handler is no-op, skipping...");
+        return;
+    }
+    if (m_taskHandler.m_setupHandler)
+        qWarning("Setup Handler redefinition, overriding...");
+    m_taskHandler.m_setupHandler = handler;
+}
+
+void TaskItem::setTaskDoneHandler(const TaskEndHandler &handler)
+{
+    if (!handler) {
+        qWarning("Setting empty Done Handler is no-op, skipping...");
+        return;
+    }
+    if (m_taskHandler.m_doneHandler)
+        qWarning("Done Handler redefinition, overriding...");
+    m_taskHandler.m_doneHandler = handler;
+}
+
+void TaskItem::setTaskErrorHandler(const TaskEndHandler &handler)
+{
+    if (!handler) {
+        qWarning("Setting empty Error Handler is no-op, skipping...");
+        return;
+    }
+    if (m_taskHandler.m_errorHandler)
+        qWarning("Error Handler redefinition, overriding...");
+    m_taskHandler.m_errorHandler = handler;
 }
 
 } // namespace Tasking
@@ -258,7 +289,7 @@ public:
     void stop();
     void invokeEndHandler(bool success);
     bool isRunning() const { return m_task || m_container.isRunning(); }
-    bool isTask() const { return m_taskHandler.m_createHandler && m_taskHandler.m_setupHandler; }
+    bool isTask() const { return bool(m_taskHandler.m_createHandler); }
     int taskCount() const { return isTask() ? 1 : m_container.m_constData.m_taskCount; }
     TaskContainer *parentContainer() const { return m_container.m_constData.m_parentContainer; }
 
@@ -582,8 +613,9 @@ TaskAction TaskNode::start()
         return m_container.start();
 
     m_task.reset(m_taskHandler.m_createHandler());
-    const TaskAction startAction = invokeHandler(parentContainer(), m_taskHandler.m_setupHandler,
-                                                 *m_task.get());
+    const TaskAction startAction = m_taskHandler.m_setupHandler
+        ? invokeHandler(parentContainer(), m_taskHandler.m_setupHandler, *m_task.get())
+        : TaskAction::Continue;
     if (startAction != TaskAction::Continue) {
         m_container.m_constData.m_taskTreePrivate->advanceProgress(1);
         m_task.reset();
