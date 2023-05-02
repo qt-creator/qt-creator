@@ -46,4 +46,7 @@ private:
     bool block;
 };
 
+// Instantiates Freeze Detector when QTC_FREEZE_DETECTOR env var is set.
+QtSingleApplication *createApplication(const QString &id, int &argc, char **argv);
+
 } // namespace SharedTools

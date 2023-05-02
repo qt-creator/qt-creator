@@ -148,12 +148,10 @@ void QtSingleApplication::setActivationWindow(QWidget *aw, bool activateOnMessag
         disconnect(pidPeer, &QtLocalPeer::messageReceived, this, &QtSingleApplication::activateWindow);
 }
 
-
 QWidget* QtSingleApplication::activationWindow() const
 {
     return actWin;
 }
-
 
 void QtSingleApplication::activateWindow()
 {
@@ -162,6 +160,72 @@ void QtSingleApplication::activateWindow()
         actWin->raise();
         actWin->activateWindow();
     }
+}
+
+static const char s_freezeDetector[] = "QTC_FREEZE_DETECTOR";
+
+static std::optional<int> isUsingFreezeDetector()
+{
+    if (!qEnvironmentVariableIsSet(s_freezeDetector))
+        return {};
+
+    bool ok = false;
+    const int threshold = qEnvironmentVariableIntValue(s_freezeDetector, &ok);
+    return ok ? threshold : 100; // default value 100ms
+}
+
+class ApplicationWithFreezerDetector : public SharedTools::QtSingleApplication
+{
+public:
+    ApplicationWithFreezerDetector(const QString &id, int &argc, char **argv)
+        : QtSingleApplication(id, argc, argv)
+        , m_align(21, QChar::Space)
+    {}
+    void setFreezeTreshold(std::chrono::milliseconds freezeAbove) { m_threshold = freezeAbove; }
+
+    bool notify(QObject *receiver, QEvent *event) override {
+        using namespace std::chrono;
+        const auto start = system_clock::now();
+        const QPointer<QObject> p(receiver);
+        const QString className = QLatin1String(receiver->metaObject()->className());
+        const QString name = receiver->objectName();
+
+        const bool ret = QtSingleApplication::notify(receiver, event);
+
+        const auto end = system_clock::now();
+        const auto freeze = duration_cast<milliseconds>(end - start);
+        if (freeze > m_threshold) {
+            const QString time = QTime::currentTime().toString(Qt::ISODateWithMs);
+            qDebug().noquote() << QString("FREEZE [%1]").arg(time)
+                               << "of" << freeze.count() << "ms, on:" << event;
+            const QString receiverMessage = name.isEmpty()
+                ? QString("receiver class: %1").arg(className)
+                : QString("receiver class: %1, object name: %2").arg(className, name);
+            qDebug().noquote() << m_align << receiverMessage;
+            if (!p)
+                qDebug().noquote() << m_align << "THE RECEIVER GOT DELETED inside the event filter!";
+        }
+        return ret;
+    }
+
+private:
+    const QString m_align;
+    std::chrono::milliseconds m_threshold = std::chrono::milliseconds(100);
+};
+
+QtSingleApplication *createApplication(const QString &id, int &argc, char **argv)
+{
+    const std::optional<int> freezeDetector = isUsingFreezeDetector();
+    if (!freezeDetector)
+        return new SharedTools::QtSingleApplication(id, argc, argv);
+
+    qDebug() << s_freezeDetector << "evn var is set. The freezes of main thread, above"
+             << *freezeDetector << "ms, will be reported.";
+    qDebug() << "Change the freeze detection threshold by setting the" << s_freezeDetector
+             << "env var to a different numeric value (in ms).";
+    ApplicationWithFreezerDetector *app = new ApplicationWithFreezerDetector(id, argc, argv);
+    app->setFreezeTreshold(std::chrono::milliseconds(*freezeDetector));
+    return app;
 }
 
 } // namespace SharedTools
