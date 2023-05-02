@@ -353,7 +353,7 @@ void TestRunner::runTestsHelper()
         QTC_ASSERT(config, continue);
         const TreeStorage<TestStorage> storage;
 
-        const auto onGroupSetup = [this, config] {
+        const auto onSetup = [this, config] {
             if (!config->project())
                 return TaskAction::StopWithDone;
             if (config->testExecutable().isEmpty()) {
@@ -363,7 +363,7 @@ void TestRunner::runTestsHelper()
             }
             return TaskAction::Continue;
         };
-        const auto onSetup = [this, config, storage](Process &process) {
+        const auto onProcessSetup = [this, config, storage](Process &process) {
             TestStorage *testStorage = storage.activeStorage();
             QTC_ASSERT(testStorage, return);
             testStorage->m_outputReader.reset(config->createOutputReader(&process));
@@ -410,7 +410,7 @@ void TestRunner::runTestsHelper()
             qCInfo(runnerLog) << "Working directory:" << process.workingDirectory();
             qCDebug(runnerLog) << "Environment:" << process.environment().toStringList();
         };
-        const auto onDone = [this, config, storage](const Process &process) {
+        const auto onProcessDone = [this, config, storage](const Process &process) {
             TestStorage *testStorage = storage.activeStorage();
             QTC_ASSERT(testStorage, return);
             if (process.result() == ProcessResult::StartFailed) {
@@ -444,8 +444,8 @@ void TestRunner::runTestsHelper()
         const Group group {
             optional,
             Storage(storage),
-            OnGroupSetup(onGroupSetup),
-            ProcessTask(onSetup, onDone, onDone)
+            OnGroupSetup(onSetup),
+            ProcessTask(onProcessSetup, onProcessDone, onProcessDone)
         };
         tasks.append(group);
     }

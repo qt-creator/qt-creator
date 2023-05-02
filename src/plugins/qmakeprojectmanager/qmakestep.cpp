@@ -300,13 +300,13 @@ void QMakeStep::doRun()
         setupProcess(&process);
     };
 
-    const auto onDone = [this](const Process &) {
+    const auto onProcessDone = [this](const Process &) {
         const QString command = displayedParameters()->effectiveCommand().toUserOutput();
         emit addOutput(Tr::tr("The process \"%1\" exited normally.").arg(command),
                        OutputFormat::NormalMessage);
     };
 
-    const auto onError = [this](const Process &process) {
+    const auto onProcessError = [this](const Process &process) {
         const QString command = displayedParameters()->effectiveCommand().toUserOutput();
         if (process.result() == ProcessResult::FinishedWithError) {
             emit addOutput(Tr::tr("The process \"%1\" exited with code %2.")
@@ -326,14 +326,14 @@ void QMakeStep::doRun()
         m_needToRunQMake = true;
     };
 
-    const auto onGroupDone = [this] {
+    const auto onDone = [this] {
         emit buildConfiguration()->buildDirectoryInitialized();
     };
 
-    QList<TaskItem> processList = {ProcessTask(setupQMake, onDone, onError)};
+    QList<TaskItem> processList = {ProcessTask(setupQMake, onProcessDone, onProcessError)};
     if (m_runMakeQmake)
-        processList << ProcessTask(setupMakeQMake, onDone, onError);
-    processList << OnGroupDone(onGroupDone);
+        processList << ProcessTask(setupMakeQMake, onProcessDone, onProcessError);
+    processList << OnGroupDone(onDone);
 
     runTaskTree(Group(processList));
 }

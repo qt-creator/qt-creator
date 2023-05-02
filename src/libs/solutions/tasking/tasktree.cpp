@@ -976,11 +976,11 @@ void TaskNode::invokeEndHandler(bool success)
     tasks. The group handler doesn't take any arguments:
 
     \code
-        const auto onGroupSetup = [] {
+        const auto onSetup = [] {
             qDebug() << "Entering the group";
         };
         const Group root {
-            OnGroupSetup(onGroupSetup),
+            OnGroupSetup(onSetup),
             ProcessTask(...)
         };
     \endcode

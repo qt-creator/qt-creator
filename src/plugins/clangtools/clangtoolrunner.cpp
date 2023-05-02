@@ -121,7 +121,7 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
         return result;
     };
 
-    const auto onGroupSetup = [=] {
+    const auto onSetup = [=] {
         if (setupHandler && !setupHandler())
             return TaskAction::StopWithError;
 
@@ -184,7 +184,7 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
 
     const Group group {
         Storage(storage),
-        OnGroupSetup(onGroupSetup),
+        OnGroupSetup(onSetup),
         Group {
             optional,
             ProcessTask(onProcessSetup, onProcessDone, onProcessError)

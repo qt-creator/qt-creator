@@ -371,7 +371,7 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
         m_javaScriptEngine.reset(new JavaScriptEngine);
     QPointer<JavaScriptEngine> engine = m_javaScriptEngine.get();
 
-    const auto onGroupSetup = [storage, engine] {
+    const auto onSetup = [storage, engine] {
         if (!engine)
             return TaskAction::StopWithError;
         if (storage->input().trimmed().isEmpty()) {
@@ -391,11 +391,11 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
         return TaskAction::Continue;
     };
 
-    const auto onSetup = [storage, engine](JavaScriptRequest &request) {
+    const auto onJavaScriptSetup = [storage, engine](JavaScriptRequest &request) {
         request.setEngine(engine);
         request.setEvaluateData(storage->input());
     };
-    const auto onDone = [storage](const JavaScriptRequest &request) {
+    const auto onJavaScriptDone = [storage](const JavaScriptRequest &request) {
         const auto acceptor = [](const QString &clipboardContents) {
             return [clipboardContents] {
                 QGuiApplication::clipboard()->setText(clipboardContents);
@@ -419,15 +419,15 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
 
         storage->reportOutput({entry, copyResultEntry, copyExpressionEntry});
     };
-    const auto onError = [storage](const JavaScriptRequest &request) {
+    const auto onJavaScriptError = [storage](const JavaScriptRequest &request) {
         LocatorFilterEntry entry;
         entry.displayName = request.output().m_output;
         storage->reportOutput({entry});
     };
 
     const Group root {
-        OnGroupSetup(onGroupSetup),
-        JavaScriptRequestTask(onSetup, onDone, onError)
+        OnGroupSetup(onSetup),
+        JavaScriptRequestTask(onJavaScriptSetup, onJavaScriptDone, onJavaScriptError)
     };
 
     return {{root, storage}};

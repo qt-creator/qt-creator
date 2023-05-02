@@ -452,7 +452,7 @@ void LocatorMatcher::start()
 
     QList<TaskItem> parallelTasks { ParallelLimit(d->m_parallelLimit) };
 
-    const auto onGroupSetup = [this, collectorStorage](const TreeStorage<LocatorStorage> &storage,
+    const auto onSetup = [this, collectorStorage](const TreeStorage<LocatorStorage> &storage,
                                                     int index) {
         return [this, collectorStorage, storage, index] {
             ResultsCollector *collector = collectorStorage->m_collector;
@@ -462,7 +462,7 @@ void LocatorMatcher::start()
         };
     };
 
-    const auto onGroupDone = [](const TreeStorage<LocatorStorage> &storage) {
+    const auto onDone = [](const TreeStorage<LocatorStorage> &storage) {
         return [storage] { storage->finalize(); };
     };
 
@@ -472,9 +472,9 @@ void LocatorMatcher::start()
         const Group group {
             optional,
             Storage(storage),
-            OnGroupSetup(onGroupSetup(storage, index)),
-            OnGroupDone(onGroupDone(storage)),
-            OnGroupError(onGroupDone(storage)),
+            OnGroupSetup(onSetup(storage, index)),
+            OnGroupDone(onDone(storage)),
+            OnGroupError(onDone(storage)),
             task.task
         };
         parallelTasks << group;
