@@ -165,6 +165,7 @@ protected:
     const QColor backgroundPrimaryColor;
     const QColor backgroundSecondaryColor;
     const QColor foregroundPrimaryColor;
+    const QColor foregroundSecondaryColor;
     const QColor hoverColor;
     const QColor textColor;
 

@@ -446,6 +446,7 @@ ListItemDelegate::ListItemDelegate()
     : backgroundPrimaryColor(themeColor(Theme::Welcome_BackgroundPrimaryColor))
     , backgroundSecondaryColor(themeColor(Theme::Welcome_BackgroundSecondaryColor))
     , foregroundPrimaryColor(themeColor(Theme::Welcome_ForegroundPrimaryColor))
+    , foregroundSecondaryColor(themeColor(Theme::Welcome_ForegroundSecondaryColor))
     , hoverColor(themeColor(Theme::Welcome_HoverColor))
     , textColor(themeColor(Theme::Welcome_TextColor))
 {
@@ -567,7 +568,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         // The separator line below the example title.
         const int ll = nameRect.height() + 3;
         const QLine line = QLine(0, ll, textArea.width(), ll).translated(shiftedTextRect.topLeft());
-        painter->setPen(foregroundPrimaryColor);
+        painter->setPen(foregroundSecondaryColor);
         painter->setOpacity(animationProgress); // "fade in" separator line and description
         painter->drawLine(line);
 
@@ -586,7 +587,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     }
 
     // Separator line between text and 'Tags:' section
-    painter->setPen(foregroundPrimaryColor);
+    painter->setPen(foregroundSecondaryColor);
     painter->drawLine(QLineF(textArea.topLeft(), textArea.topRight())
                       .translated(0, TagsSeparatorY));
 
