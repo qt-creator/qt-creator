@@ -159,6 +159,33 @@ static void runTask(QPromise<void> &promise, bool success, std::chrono::millisec
         promise.future().cancel();
 }
 
+static void reportAndSleep(QPromise<bool> &promise)
+{
+    promise.addResult(false);
+    QThread::msleep(10);
+};
+
+template <typename SharedBarrierType>
+auto setupBarrierAdvance(const TreeStorage<CustomStorage> &storage,
+                         const SharedBarrierType &barrier, int taskId)
+{
+    return [storage, barrier, taskId](AsyncTask<bool> &async) {
+        async.setFutureSynchronizer(s_futureSynchronizer);
+        async.setConcurrentCallData(reportAndSleep);
+        async.setProperty(s_taskIdProperty, taskId);
+        storage->m_log.append({taskId, Handler::Setup});
+
+        CustomStorage *currentStorage = storage.activeStorage();
+        Barrier *sharedBarrier = barrier->barrier();
+        QObject::connect(&async, &TestTask::resultReadyAt, sharedBarrier,
+                         [currentStorage, sharedBarrier, taskId](int index) {
+            Q_UNUSED(index)
+            currentStorage->m_log.append({taskId, Handler::BarrierAdvance});
+            sharedBarrier->advance();
+        });
+    };
+}
+
 void tst_TaskTree::testTree_data()
 {
     QTest::addColumn<TestData>("testData");
@@ -1150,37 +1177,14 @@ void tst_TaskTree::testTree_data()
     {
         SingleBarrier barrier;
 
-        const auto reportAndSleep = [](QPromise<bool> &promise) {
-            promise.addResult(false);
-            QThread::msleep(10);
-        };
-
-        const auto setupTaskWithBarrier = [storage, barrier, reportAndSleep](int taskId) {
-            return [storage, barrier, reportAndSleep, taskId](AsyncTask<bool> &async) {
-                async.setFutureSynchronizer(s_futureSynchronizer);
-                async.setConcurrentCallData(reportAndSleep);
-                async.setProperty(s_taskIdProperty, taskId);
-                storage->m_log.append({taskId, Handler::Setup});
-
-                CustomStorage *currentStorage = storage.activeStorage();
-                Barrier *sharedBarrier = barrier->barrier();
-                connect(&async, &TestTask::resultReadyAt, sharedBarrier,
-                        [currentStorage, sharedBarrier, taskId](int index) {
-                    Q_UNUSED(index)
-                    currentStorage->m_log.append({taskId, Handler::BarrierAdvance});
-                    sharedBarrier->advance();
-                });
-            };
-        };
-
         // Test that barrier advance, triggered from inside the task described by
-        // setupTaskWithCondition, placed BEFORE the group containing the waitFor() element
+        // setupBarrierAdvance, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in SEQUENTIAL mode.
         const Group root1 {
             Storage(storage),
             Storage(barrier),
             sequential,
-            Async<bool>(setupTaskWithBarrier(1)),
+            Async<bool>(setupBarrierAdvance(storage, barrier, 1)),
             Group {
                 OnGroupSetup(groupSetup(2)),
                 WaitForBarrier(barrier),
@@ -1203,7 +1207,7 @@ void tst_TaskTree::testTree_data()
             Storage(storage),
             Storage(barrier),
             parallel,
-            Async<bool>(setupTaskWithBarrier(1)),
+            Async<bool>(setupBarrierAdvance(storage, barrier, 1)),
             Group {
                 OnGroupSetup(groupSetup(2)),
                 WaitForBarrier(barrier),
@@ -1239,7 +1243,7 @@ void tst_TaskTree::testTree_data()
                 Test(setupTask(2)),
                 Test(setupTask(3))
             },
-            Async<bool>(setupTaskWithBarrier(1))
+            Async<bool>(setupBarrierAdvance(storage, barrier, 1))
         };
         const Log log3 {
             {2, Handler::GroupSetup},
