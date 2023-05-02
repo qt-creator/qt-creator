@@ -23,5 +23,4 @@ Project  {
             return defines;
         }
     }
-    references: "testapp/testapp.qbs"
 }
