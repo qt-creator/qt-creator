@@ -63,7 +63,8 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
         m_displaySettings,
         m_behaviorSettings,
         st,
-    }.attachTo(this, WithoutMargins);
+        noMargin
+    }.attachTo(this);
 
     const EditorConfiguration *config = m_project->editorConfiguration();
     settingsToUi(config);

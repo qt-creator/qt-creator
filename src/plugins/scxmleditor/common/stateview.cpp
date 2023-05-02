@@ -35,13 +35,15 @@ StateView::StateView(StateItem *state, QWidget *parent)
     Row {
         PushButton{ text("Back"), onClicked([this] { closeView(); }, this) },
         stateNameLabel,
-    }.attachTo(titleBar, WithoutMargins);
+        noMargin
+    }.attachTo(titleBar);
 
     Column {
         spacing(0),
         titleBar,
-        m_graphicsView
-    }.attachTo(this, WithoutMargins);
+        m_graphicsView,
+        noMargin,
+    }.attachTo(this);
 
     initScene();
 }

@@ -327,7 +327,8 @@ NamedWidget *BuildConfiguration::createConfigWidget()
         if (aspect->isVisible())
             form.addItem(aspect);
     }
-    form.attachTo(widget, Layouting::WithoutMargins);
+    form.addItem(Layouting::noMargin);
+    form.attachTo(widget);
 
     return named;
 }

@@ -101,9 +101,10 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
             m_description,
             m_token,
             m_port,
-            m_secure
+            m_secure,
+            m == Edit ? normalMargin : noMargin
         },
-    }.attachTo(this, m == Edit ? WithMargins : WithoutMargins);
+    }.attachTo(this);
 }
 
 GitLabServer GitLabServerWidget::gitLabServer() const

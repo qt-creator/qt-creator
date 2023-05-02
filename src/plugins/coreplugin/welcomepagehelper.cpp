@@ -796,8 +796,13 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     }
     connect(seeAllLink, &QLabel::linkActivated, this, [this, section] { zoomInSection(section); });
     using namespace Layouting;
-    QWidget *sectionLabel = Row{section.name, createSeparator(this), seeAllLink, Space(HSpacing)}
-                                .emerge(Layouting::WithoutMargins);
+    QWidget *sectionLabel = Row {
+        section.name,
+        createSeparator(this),
+        seeAllLink,
+        Space(HSpacing),
+        noMargin
+    }.emerge();
     m_sectionLabels.append(sectionLabel);
     sectionLabel->setContentsMargins(0, ItemGap, 0, 0);
     sectionLabel->setFont(Core::WelcomePageHelpers::brandFont());
@@ -849,8 +854,13 @@ void SectionedGridView::zoomInSection(const Section &section)
         setCurrentIndex(0);
     });
     using namespace Layouting;
-    QWidget *sectionLabel = Row{section.name, createSeparator(this), backLink, Space(HSpacing)}
-                                .emerge(Layouting::WithoutMargins);
+    QWidget *sectionLabel = Row {
+        section.name,
+        createSeparator(this),
+        backLink,
+        Space(HSpacing),
+        noMargin
+    }.emerge();
     sectionLabel->setContentsMargins(0, ItemGap, 0, 0);
     sectionLabel->setFont(Core::WelcomePageHelpers::brandFont());
 

@@ -354,12 +354,14 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
                 }
             },
             configureEnvironmentAspectWidget
-        }
-    }.attachTo(details, WithoutMargins);
+        },
+        noMargin
+    }.attachTo(details);
 
     Column {
         m_configureDetailsWidget,
-    }.attachTo(this, WithoutMargins);
+        noMargin
+    }.attachTo(this);
 
     updateAdvancedCheckBox();
     setError(m_buildSystem->error());

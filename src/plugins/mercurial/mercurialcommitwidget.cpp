@@ -119,8 +119,9 @@ public:
                         Tr::tr("Email:"), m_emailLineEdit,
                     },
                 }
-            }
-        }.attachTo(this, Layouting::WithoutMargins);
+            },
+            noMargin
+        }.attachTo(this);
     }
 
     QLabel *m_repositoryLabel;

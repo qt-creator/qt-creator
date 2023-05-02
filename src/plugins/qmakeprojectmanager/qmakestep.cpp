@@ -485,7 +485,8 @@ QWidget *QMakeStep::createConfigWidget()
     builder.addRow({m_userArgs});
     builder.addRow({m_effectiveCall});
     builder.addRow({abisLabel, abisListWidget});
-    auto widget = builder.emerge(Layouting::WithoutMargins);
+    builder.addItem(Layouting::noMargin);
+    auto widget = builder.emerge();
 
     qmakeBuildConfigChanged();
 

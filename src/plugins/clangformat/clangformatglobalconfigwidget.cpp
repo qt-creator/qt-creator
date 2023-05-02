@@ -49,19 +49,20 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
     Group globalSettingsGroupBox {
         bindTo(&globalSettingsGroupBoxWidget),
         title(Tr::tr("ClangFormat settings:")),
-            Column {
-                m_useGlobalSettings,
-                Row { m_formattingModeLabel, m_indentingOrFormatting, st },
-                m_formatWhileTyping,
-                m_formatOnSave,
-                m_projectHasClangFormat,
-                m_overrideDefault
+        Column {
+            m_useGlobalSettings,
+            Row { m_formattingModeLabel, m_indentingOrFormatting, st },
+            m_formatWhileTyping,
+            m_formatOnSave,
+            m_projectHasClangFormat,
+            m_overrideDefault
         }
     };
 
     Column {
-        globalSettingsGroupBox
-    }.attachTo(this, Layouting::WithoutMargins);
+        globalSettingsGroupBox,
+        noMargin
+    }.attachTo(this);
 
     initCheckBoxes();
     initIndentationOrFormattingCombobox();

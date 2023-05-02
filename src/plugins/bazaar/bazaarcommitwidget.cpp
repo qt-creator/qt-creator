@@ -65,8 +65,9 @@ public:
                     Tr::tr("Email:"), emailLineEdit, br,
                     Tr::tr("Fixed bugs:"), fixedBugsLineEdit
                 }
-            }
-        }.attachTo(this, WithoutMargins);
+            },
+            noMargin
+        }.attachTo(this);
     }
 
     QLineEdit *branchLineEdit;

@@ -118,8 +118,9 @@ PythonWizardPage::PythonWizardPage(const QList<QPair<QString, QVariant>> &pySide
         m_interpreter, br,
         m_createVenv, br,
         m_venvPath, br,
-        m_stateLabel, br
-    }.attachTo(this, WithoutMargins);
+        m_stateLabel, br,
+        noMargin
+    }.attachTo(this);
 }
 
 void PythonWizardPage::initializePage()

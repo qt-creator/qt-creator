@@ -54,7 +54,7 @@ LineCountSpinBox::LineCountSpinBox(QWidget *parent)
     m_unitLabel = new QLabel(Tr::tr("lines"));
 
     using namespace Layouting;
-    Row { m_checkBox, m_opLabel, m_spinBox, m_unitLabel, }.attachTo(this, WithoutMargins);
+    Row { m_checkBox, m_opLabel, m_spinBox, m_unitLabel, noMargin }.attachTo(this);
 
     auto handleChange = [this] {
         updateFields();
@@ -220,7 +220,8 @@ e.g. name = "m_test_foo_":
         Tr::tr("Inside class:"), Tr::tr("Default"), Tr::tr("Default"), br,
         Tr::tr("Outside class:"), m_lines_setterOutsideClass, m_lines_getterOutsideClass, br,
         Tr::tr("In .cpp file:"), m_lines_setterInCppFile, m_lines_getterInCppFile, br,
-    }.attachTo(functionLocationsGrid, WithoutMargins);
+        noMargin,
+    }.attachTo(functionLocationsGrid);
 
     if (QGridLayout *gl = qobject_cast<QGridLayout*>(functionLocationsGrid->layout()))
         gl->setHorizontalSpacing(48);

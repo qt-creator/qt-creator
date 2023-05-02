@@ -59,8 +59,8 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
             m_exportButton,
             m_importButton
         },
-
-    }.attachTo(this, WithoutMargins);
+        noMargin,
+    }.attachTo(this);
 
     connect(m_delegateComboBox, &QComboBox::activated,
             this, &CodeStyleSelectorWidget::slotComboBoxActivated);

@@ -44,7 +44,8 @@ NimCodeStylePreferencesWidget::NimCodeStylePreferencesWidget(ICodeStylePreferenc
             st,
         },
         m_previewTextEdit,
-    }.attachTo(this, WithoutMargins);
+        noMargin,
+    }.attachTo(this);
 
     decorateEditor(TextEditorSettings::fontSettings());
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,

@@ -120,8 +120,9 @@ FossilCommitWidget::FossilCommitWidget() : m_commitPanel(new QWidget)
                 Tr::tr("Tags:"), m_tagsLineEdit, br,
                 Tr::tr("Author:"),  m_authorLineEdit, st,
             }
-        }
-    }.attachTo(m_commitPanel, WithoutMargins);
+        },
+        noMargin
+    }.attachTo(m_commitPanel);
 
     insertTopWidget(m_commitPanel);
     new FossilSubmitHighlighter(descriptionEdit());

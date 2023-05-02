@@ -73,7 +73,8 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
         Tr::tr("&Source file:"), d->m_sourceFileLineEdit, br,
         Tr::tr("&Form file:"), d->m_formFileLineEdit, br,
         Tr::tr("&Path:"), d->m_pathChooser, br,
-    }.attachTo(this, WithoutMargins);
+        noMargin
+    }.attachTo(this);
 
     connect(d->m_classLineEdit, &ClassNameValidatingLineEdit::updateFileName,
             this, &NewClassWidget::slotUpdateFileNames);

@@ -109,8 +109,8 @@ SettingsPageWidget::SettingsPageWidget()
     using namespace Layouting;
 
     Form {
-        Tr::tr("Arg&uments:"), diffArgsEdit
-    }.attachTo(diffWidget, WithoutMargins);
+        Tr::tr("Arg&uments:"), diffArgsEdit, noMargin
+    }.attachTo(diffWidget);
 
     Column {
         Group {

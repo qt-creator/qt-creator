@@ -67,9 +67,11 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, bool &isDefaultKit, bool 
 
     using namespace Layouting;
     Grid {
+        withFormAlignment,
         label, m_nameEdit, m_iconButton, br,
-        fsLabel, m_fileSystemFriendlyNameLineEdit
-    }.attachTo(this, WithFormAlignment);
+        fsLabel, m_fileSystemFriendlyNameLineEdit,
+        noMargin
+    }.attachTo(this);
 
     m_iconButton->setToolTip(Tr::tr("Kit icon."));
     auto setIconAction = new QAction(Tr::tr("Select Icon..."), this);

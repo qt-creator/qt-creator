@@ -91,8 +91,9 @@ TaskWidget::TaskWidget()
         m_infoLabel,
         m_spinBox,
         m_checkBox,
-        st
-    }.attachTo(this, WithoutMargins);
+        st,
+        noMargin,
+    }.attachTo(this);
 }
 
 void TaskWidget::setBusyTime(int seconds)
@@ -145,9 +146,10 @@ GroupWidget::GroupWidget()
             m_executeCombo,
             new QLabel("Workflow:"),
             m_workflowCombo,
-            st
+            st,
+            noMargin
         }
-    }.attachTo(this, WithoutMargins);
+    }.attachTo(this);
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 }

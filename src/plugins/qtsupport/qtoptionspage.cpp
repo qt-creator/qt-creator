@@ -268,8 +268,9 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     Form {
         Tr::tr("Name:"), m_nameEdit, br,
         Tr::tr("qmake path:"), Row { m_qmakePath, m_editPathPushButton }, br,
-        Span(2, m_errorLabel)
-    }.attachTo(versionInfoWidget, WithoutMargins);
+        Span(2, m_errorLabel),
+        noMargin
+    }.attachTo(versionInfoWidget);
     // clang-format on
 
     m_formLayout = qobject_cast<QFormLayout*>(versionInfoWidget->layout());

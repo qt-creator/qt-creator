@@ -45,8 +45,9 @@ public:
 
         Form {
             Tr::tr("State:"), state, br,
-            Tr::tr("Error message:"), errorString
-        }.attachTo(q, WithoutMargins);
+            Tr::tr("Error message:"), errorString,
+            noMargin,
+        }.attachTo(q);
     }
 
     PluginErrorView *q = nullptr;

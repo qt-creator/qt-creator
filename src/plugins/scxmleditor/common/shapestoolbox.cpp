@@ -33,7 +33,8 @@ ShapesToolbox::ShapesToolbox(QWidget *parent)
     Column {
         spacing(0),
         scrollArea,
-    }.attachTo(this, WithoutMargins);
+        noMargin,
+    }.attachTo(this);
 }
 
 void ShapesToolbox::setUIFactory(ScxmlEditor::PluginInterface::ScxmlUiFactory *factory)

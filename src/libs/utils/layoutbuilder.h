@@ -24,12 +24,6 @@ QT_END_NAMESPACE
 
 namespace Layouting {
 
-enum AttachType {
-    WithMargins,
-    WithoutMargins,
-    WithFormAlignment, // Handle Grid similar to QFormLayout, i.e. use special alignment for the first column on Mac
-};
-
 class LayoutBuilder;
 class LayoutItem;
 class Span;
@@ -88,8 +82,8 @@ public:
             createItem(this, t);
     }
 
-    void attachTo(QWidget *w, AttachType attachType = WithMargins) const;
-    QWidget *emerge(AttachType attachType = WithMargins);
+    void attachTo(QWidget *w) const;
+    QWidget *emerge();
 
     void addItem(const LayoutItem &item);
     void addItems(const LayoutItems &items);
@@ -193,6 +187,9 @@ QTCREATOR_UTILS_EXPORT LayoutItem br();
 QTCREATOR_UTILS_EXPORT LayoutItem st();
 QTCREATOR_UTILS_EXPORT LayoutItem empty();
 QTCREATOR_UTILS_EXPORT LayoutItem hr();
+QTCREATOR_UTILS_EXPORT LayoutItem noMargin();
+QTCREATOR_UTILS_EXPORT LayoutItem normalMargin();
+QTCREATOR_UTILS_EXPORT LayoutItem withFormAlignment();
 
 // "Properties"
 
@@ -238,7 +235,7 @@ public:
 class QTCREATOR_UTILS_EXPORT LayoutExtender : public LayoutBuilder
 {
 public:
-    explicit LayoutExtender(QLayout *layout, AttachType attachType);
+    explicit LayoutExtender(QLayout *layout);
     ~LayoutExtender();
 };
 

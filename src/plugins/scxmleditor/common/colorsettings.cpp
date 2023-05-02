@@ -44,7 +44,8 @@ ColorSettings::ColorSettings(QWidget *parent)
             removeTheme,
         },
         m_colorThemeView,
-    }.attachTo(this, WithoutMargins);
+        noMargin
+    }.attachTo(this);
 
     connect(m_comboColorThemes, &QComboBox::currentIndexChanged,
             this, &ColorSettings::selectTheme);

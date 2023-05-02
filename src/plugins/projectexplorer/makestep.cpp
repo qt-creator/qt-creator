@@ -324,8 +324,9 @@ QWidget *MakeStep::createConfigWidget()
     if (m_disablingForSubDirsSupported)
         builder.addRow({m_disabledForSubdirsAspect});
     builder.addRow({m_buildTargetsAspect});
+    builder.addItem(Layouting::noMargin);
 
-    auto widget = builder.emerge(Layouting::WithoutMargins);
+    auto widget = builder.emerge();
 
     VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 

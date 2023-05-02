@@ -221,8 +221,8 @@ QWidget *RunConfiguration::createConfigurationWidget()
         if (aspect->isVisible())
             form.addItem(aspect);
     }
-
-    auto widget = form.emerge(Layouting::WithoutMargins);
+    form.addItem(Layouting::noMargin);
+    auto widget = form.emerge();
 
     VariableChooser::addSupportForChildWidgets(widget, &m_expander);
 

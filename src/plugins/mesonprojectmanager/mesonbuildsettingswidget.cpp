@@ -67,16 +67,18 @@ MesonBuildSettingsWidget::MesonBuildSettingsWidget(MesonBuildConfiguration *buil
         buildDirWidget,
         optionsFilterLineEdit,
         optionsTreeView,
-    }.attachTo(details, WithoutMargins);
+        noMargin
+    }.attachTo(details);
 
     Column {
         container,
-        Row { configureButton, wipeButton, }
-    }.attachTo(this, WithoutMargins);
+        Row { configureButton, wipeButton, noMargin }
+    }.attachTo(this);
 
     Form {
         buildCfg->buildDirectoryAspect(),
-    }.attachTo(buildDirWidget, WithoutMargins);
+        noMargin
+    }.attachTo(buildDirWidget);
 
     parametersLineEdit->setText(buildCfg->parameters());
     optionsFilterLineEdit->setFiltering(true);

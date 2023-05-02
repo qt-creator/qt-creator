@@ -50,8 +50,9 @@ RunSettingsWidget::RunSettingsWidget(QWidget *parent)
                 m_analyzeOpenFiles,
                 Row { Tr::tr("Parallel jobs:"), m_parallelJobsSpinBox, st },
             }
-        }
-    }.attachTo(this, WithoutMargins);
+        },
+        noMargin
+    }.attachTo(this);
 }
 
 RunSettingsWidget::~RunSettingsWidget() = default;

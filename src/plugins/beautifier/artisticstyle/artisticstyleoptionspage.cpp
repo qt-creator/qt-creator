@@ -90,8 +90,9 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
         m_useOtherFiles,
         Row { m_useSpecificConfigFile, m_specificConfigFile },
         m_useHomeFile,
-        Row { m_useCustomStyle, m_configurations }
-    }.attachTo(options, WithoutMargins);
+        Row { m_useCustomStyle, m_configurations },
+        noMargin,
+    }.attachTo(options);
 
     Column {
         Group {

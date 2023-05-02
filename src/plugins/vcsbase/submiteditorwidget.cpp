@@ -208,8 +208,9 @@ SubmitEditorWidget::SubmitEditorWidget() :
 
     using namespace Layouting;
     Column {
-        scrollArea
-    }.attachTo(this, WithoutMargins);
+        scrollArea,
+        noMargin
+    }.attachTo(this);
 
     connect(d->description, &QWidget::customContextMenuRequested,
             this, &SubmitEditorWidget::editorCustomContextMenuRequested);

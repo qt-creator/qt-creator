@@ -32,8 +32,9 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent)
         m_configurations,
         m_edit,
         m_remove,
-        add
-    }.attachTo(this, WithoutMargins);
+        add,
+        noMargin,
+    }.attachTo(this);
 
     connect(add, &QPushButton::clicked, this, &ConfigurationPanel::add);
     connect(m_edit, &QPushButton::clicked, this, &ConfigurationPanel::edit);

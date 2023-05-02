@@ -1485,7 +1485,8 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
                         Column {
                             Form { QString("Sn&apshot:"), m_snapshotSelector },
                             m_snapshotView,
-                        }.emerge(Layouting::WithoutMargins),
+                            noMargin,
+                        }.emerge(),
                         docTab,
                     },
                 }

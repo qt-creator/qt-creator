@@ -108,8 +108,9 @@ QWidget *CMakeInstallStep::createConfigWidget()
 
     Layouting::Form builder;
     builder.addRow({m_cmakeArguments});
+    builder.addItem(Layouting::noMargin);
 
-    auto widget = builder.emerge(Layouting::WithoutMargins);
+    auto widget = builder.emerge();
 
     updateDetails();
 

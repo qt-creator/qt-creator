@@ -67,7 +67,8 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
         details->setState(DetailsWidget::Expanded);
         auto innerPane = new QWidget;
         details->setWidget(innerPane);
-        builder.attachTo(innerPane, Layouting::WithoutMargins);
+        builder.addItem(Layouting::noMargin);
+        builder.attachTo(innerPane);
 
         const auto setSummaryText = [this, details] {
             QStringList items;

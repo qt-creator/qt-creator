@@ -140,8 +140,9 @@ Statistics::Statistics(QWidget *parent)
         Tr::tr("File"), m_fileNameLabel, br,
         Tr::tr("Time"), m_timeLabel, br,
         Tr::tr("Max. levels"), m_levels, br,
-        Span(2, m_statisticsView), br
-    }.attachTo(this, WithoutMargins);
+        Span(2, m_statisticsView), br,
+        noMargin
+    }.attachTo(this);
 }
 
 void Statistics::setDocument(ScxmlDocument *doc)

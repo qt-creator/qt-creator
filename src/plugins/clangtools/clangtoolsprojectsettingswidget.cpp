@@ -84,8 +84,9 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
                     st
                 }
             }
-        }
-    }.attachTo(this, WithoutMargins);
+        },
+        noMargin
+    }.attachTo(this);
 
     setUseGlobalSettings(m_projectSettings->useGlobalSettings());
     onGlobalCustomChanged(useGlobalSettings());

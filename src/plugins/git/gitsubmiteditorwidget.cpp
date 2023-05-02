@@ -81,7 +81,8 @@ public:
                 }
             },
             editGroup,
-        }.attachTo(this, WithoutMargins);
+            noMargin,
+        }.attachTo(this);
     }
 
     QLabel *repositoryLabel;

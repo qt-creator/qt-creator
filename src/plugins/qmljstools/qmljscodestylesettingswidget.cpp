@@ -26,8 +26,9 @@ QmlJSCodeStyleSettingsWidget::QmlJSCodeStyleSettingsWidget(QWidget *parent)
             Form {
                 Tr::tr("&Line length:"), m_lineLengthSpinBox, br,
             }
-        }
-    }.attachTo(this, WithoutMargins);
+        },
+        noMargin
+    }.attachTo(this);
 
     connect(m_lineLengthSpinBox, &QSpinBox::valueChanged,
             this, &QmlJSCodeStyleSettingsWidget::slotSettingsChanged);

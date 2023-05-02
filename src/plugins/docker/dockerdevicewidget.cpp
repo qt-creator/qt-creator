@@ -247,7 +247,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             m_pathsListEdit,
         }, br,
         (dockerDevice->isAutoDetected() ? Column {} : std::move(detectionControls)),
-    }.attachTo(this, WithoutMargins);
+        noMargin,
+    }.attachTo(this);
     // clang-format on
 
     searchDirsLineEdit->setVisible(false);

@@ -677,7 +677,8 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
 
         QbsProjectManager::Tr::tr("Installation directory:"), installDirChooser, br,
         m_qbsStep->m_commandLine, br,
-    }.attachTo(this, Layouting::WithoutMargins);
+        noMargin,
+    }.attachTo(this);
 
     propertyEdit->setToolTip(QbsProjectManager::Tr::tr("Properties to pass to the project."));
     defaultInstallDirCheckBox->setText(QbsProjectManager::Tr::tr("Use default location"));

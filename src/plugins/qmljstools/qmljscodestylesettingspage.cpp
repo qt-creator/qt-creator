@@ -54,7 +54,8 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
             st,
         },
         m_previewTextEdit,
-    }.attachTo(this, WithoutMargins);
+        noMargin
+    }.attachTo(this);
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
        this, &QmlJSCodeStylePreferencesWidget::decorateEditor);

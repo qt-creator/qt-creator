@@ -36,7 +36,8 @@ NavigatorSlider::NavigatorSlider(QWidget *parent)
         m_slider,
         zoomIn,
         Space(20),
-    }.attachTo(this, WithoutMargins);
+        noMargin,
+    }.attachTo(this);
 
     connect(zoomOut, &QToolButton::clicked, this, &NavigatorSlider::zoomOut);
     connect(zoomIn, &QToolButton::clicked, this, &NavigatorSlider::zoomIn);

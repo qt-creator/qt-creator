@@ -141,14 +141,16 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
                 }
             },
             optionsButton
-        }
-    }.attachTo(m_packagesStack, WithoutMargins);
+        },
+        noMargin
+    }.attachTo(m_packagesStack);
 
     Column {
         m_outputEdit,
         Row { m_sdkLicenseLabel, m_sdkLicenseButtonBox },
         m_operationProgress,
-    }.attachTo(m_outputStack, WithoutMargins);
+        noMargin
+    }.attachTo(m_outputStack);
 
     Column {
         m_viewStack,

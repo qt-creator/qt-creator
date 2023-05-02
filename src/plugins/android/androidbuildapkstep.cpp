@@ -137,8 +137,9 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
         createSignPackageGroup(),
         createApplicationGroup(),
         createAdvancedGroup(),
-        createAdditionalLibrariesGroup()
-    }.attachTo(this, WithoutMargins);
+        createAdditionalLibrariesGroup(),
+        noMargin
+    }.attachTo(this);
 
     connect(m_step->buildConfiguration(), &BuildConfiguration::buildTypeChanged,
             this, &AndroidBuildApkWidget::updateSigningWarning);

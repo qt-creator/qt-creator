@@ -606,7 +606,8 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
     Layouting::Form builder;
     builder.addRow({m_uninstallPreviousPackage});
     builder.addRow({installCustomApkButton});
-    builder.attachTo(widget, Layouting::WithoutMargins);
+    builder.addItem(Layouting::noMargin);
+    builder.attachTo(widget);
 
     return widget;
 }

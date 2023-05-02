@@ -50,7 +50,8 @@ Search::Search(QWidget *parent)
         spacing(0),
         m_searchEdit,
         m_searchView,
-    }.attachTo(this, WithoutMargins);
+        noMargin
+    }.attachTo(this);
 
     connect(m_searchEdit, &Utils::FancyLineEdit::textChanged, this, &Search::setSearchText);
     connect(m_searchView, &TableView::pressed, this, &Search::rowActivated);

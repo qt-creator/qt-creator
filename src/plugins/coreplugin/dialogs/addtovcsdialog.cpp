@@ -33,7 +33,7 @@ AddToVcsDialog::AddToVcsDialog(QWidget *parent,
     filesListWidget->setSelectionMode(QAbstractItemView::NoSelection);
     filesListWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    QWidget *scrollAreaWidgetContents = Column{filesListWidget}.emerge(WithoutMargins);
+    QWidget *scrollAreaWidgetContents = Column{filesListWidget, noMargin}.emerge();
     scrollAreaWidgetContents->setGeometry({0, 0, 341, 300});
 
     auto scrollArea = new QScrollArea;

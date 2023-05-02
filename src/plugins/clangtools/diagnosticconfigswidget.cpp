@@ -90,13 +90,15 @@ public:
         using namespace Layouting;
 
         Column {
-            checksPrefixesTree
-        }.attachTo(checksPage, WithoutMargins);
+            checksPrefixesTree,
+            noMargin
+        }.attachTo(checksPage);
 
         Column {
             invalidExecutableLabel,
             st,
-        }.attachTo(invalidExecutablePage, WithoutMargins);
+            noMargin
+        }.attachTo(invalidExecutablePage);
 
         Column {
             Row { plainTextEditButton, filterLineEdit },
@@ -169,13 +171,15 @@ public:
 
         Column {
             label,
-            Row { groupBox, checksGroupBox }
-        }.attachTo(checksPage, WithoutMargins);
+            Row { groupBox, checksGroupBox },
+            noMargin
+        }.attachTo(checksPage);
 
         Column {
             invalidExecutableLabel,
-            st
-        }.attachTo(invalidExecutablePage, WithoutMargins);
+            st,
+            noMargin
+        }.attachTo(invalidExecutablePage);
 
         Column {
             enableLowerLevelsCheckBox,

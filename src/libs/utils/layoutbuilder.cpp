@@ -79,17 +79,19 @@ struct LayoutBuilder::Slice
     Slice() = default;
     Slice(QLayout *l) : layout(l) {}
     Slice(QWidget *w) : widget(w) {}
-    Slice(QWidget *w, AttachType a) : widget(w), attachType(a) {}
 
     QLayout *layout = nullptr;
     QWidget *widget = nullptr;
 
     void flush();
 
+    // Grid-specific
     int currentGridColumn = 0;
     int currentGridRow = 0;
+    bool isFormAlignment = false;
+    Qt::Alignment align = {}; // Can be changed to
 
-    AttachType attachType = WithMargins;
+    // Grid or Form
     QList<ResultItem> pendingItems;
 };
 
@@ -192,9 +194,6 @@ void LayoutBuilder::Slice::flush()
     } else if (auto gridLayout = qobject_cast<QGridLayout *>(layout)) {
 
         for (const ResultItem &item : std::as_const(pendingItems)) {
-             Qt::Alignment align = {};
-    //         if (attachType == Layouting::WithFormAlignment && currentGridColumn == 0)
-    //             align = Qt::Alignment(m_widget->style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
              if (item.widget)
                  gridLayout->addWidget(item.widget, currentGridRow, currentGridColumn, 1, item.span, align);
              else if (item.layout)
@@ -374,18 +373,18 @@ void LayoutItem::addItems(const LayoutItems &items)
     This operation can only be performed once per LayoutBuilder instance.
  */
 
-void LayoutItem::attachTo(QWidget *w, AttachType attachType) const
+void LayoutItem::attachTo(QWidget *w) const
 {
     LayoutBuilder builder;
 
-    builder.stack.append({w, attachType});
+    builder.stack.append(w);
     addItemHelper(builder, *this);
 }
 
-QWidget *LayoutItem::emerge(Layouting::AttachType attachType)
+QWidget *LayoutItem::emerge()
 {
     auto w = new QWidget;
-    attachTo(w, attachType);
+    attachTo(w);
     return w;
 }
 
@@ -398,8 +397,6 @@ static void layoutExit(LayoutBuilder &builder)
 {
     builder.stack.last().flush();
     QLayout *layout = builder.stack.last().layout;
-    if (builder.stack.back().attachType == WithoutMargins)
-        layout->setContentsMargins(0, 0, 0, 0);
     builder.stack.pop_back();
 
     if (QWidget *widget = builder.stack.last().widget)
@@ -411,8 +408,6 @@ static void layoutExit(LayoutBuilder &builder)
 static void widgetExit(LayoutBuilder &builder)
 {
     QWidget *widget = builder.stack.last().widget;
-    if (builder.stack.back().attachType == WithoutMargins)
-        widget->setContentsMargins(0, 0, 0, 0);
     builder.stack.pop_back();
     builder.stack.last().pendingItems.append(ResultItem(widget));
 }
@@ -464,13 +459,65 @@ LayoutItem br()
     LayoutItem item;
     item.onAdd = [](LayoutBuilder &builder) {
         builder.stack.last().flush();
-        };
+    };
     return item;
 }
 
 LayoutItem empty()
 {
     return {};
+}
+
+LayoutItem hr()
+{
+    LayoutItem item;
+    item.onAdd = [](LayoutBuilder &builder) { doAddWidget(builder, createHr()); };
+    return item;
+}
+
+LayoutItem st()
+{
+    LayoutItem item;
+    item.onAdd = [](LayoutBuilder &builder) { doAddStretch(builder, Stretch(1)); };
+    return item;
+}
+
+LayoutItem noMargin()
+{
+    LayoutItem item;
+    item.onAdd = [](LayoutBuilder &builder) {
+        if (auto layout = builder.stack.last().layout)
+            layout->setContentsMargins(0, 0, 0, 0);
+        else if (auto widget = builder.stack.last().widget)
+            widget->setContentsMargins(0, 0, 0, 0);
+    };
+    return item;
+}
+
+LayoutItem normalMargin()
+{
+    LayoutItem item;
+    item.onAdd = [](LayoutBuilder &builder) {
+        if (auto layout = builder.stack.last().layout)
+            layout->setContentsMargins(9, 9, 9, 9);
+        else if (auto widget = builder.stack.last().widget)
+            widget->setContentsMargins(9, 9, 9, 9);
+    };
+    return item;
+}
+
+LayoutItem withFormAlignment()
+{
+    LayoutItem item;
+    item.onAdd = [](LayoutBuilder &builder) {
+        if (builder.stack.size() >= 2) {
+            if (auto widget = builder.stack.at(builder.stack.size() - 2).widget) {
+                const Qt::Alignment align(widget->style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
+                builder.stack.last().align = align;
+            }
+        }
+    };
+    return item;
 }
 
 /*!
@@ -481,13 +528,12 @@ LayoutItem empty()
     new items will be added below existing ones.
  */
 
-LayoutExtender::LayoutExtender(QLayout *layout, Layouting::AttachType attachType)
+LayoutExtender::LayoutExtender(QLayout *layout)
 {
     Slice slice;
     slice.layout = layout;
     if (auto gridLayout = qobject_cast<QGridLayout *>(layout))
         slice.currentGridRow = gridLayout->rowCount();
-    slice.attachType = attachType;
     stack.append(slice);
 }
 
@@ -698,20 +744,6 @@ void createItem(LayoutItem *item, const Span &t)
         addItemHelper(builder, t.item);
         builder.stack.last().pendingItems.last().span = t.span;
     };
-}
-
-LayoutItem hr()
-{
-    LayoutItem item;
-    item.onAdd = [](LayoutBuilder &builder) { doAddWidget(builder, createHr()); };
-    return item;
-}
-
-LayoutItem st()
-{
-    LayoutItem item;
-    item.onAdd = [](LayoutBuilder &builder) { doAddStretch(builder, Stretch(1)); };
-    return item;
 }
 
 } // Layouting
