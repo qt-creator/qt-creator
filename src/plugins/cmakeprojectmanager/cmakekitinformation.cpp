@@ -105,7 +105,7 @@ private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
 
-    void addToLayout(LayoutBuilder &builder) override
+    void addToLayout(LayoutItem &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -350,11 +350,11 @@ private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
 
-    void addToLayout(LayoutBuilder &builder) override
+    void addToLayout(LayoutItem &parent) override
     {
         addMutableAction(m_label);
-        builder.addItem(m_label);
-        builder.addItem(m_changeButton);
+        parent.addItem(m_label);
+        parent.addItem(m_changeButton);
     }
 
     void refresh() override
@@ -892,11 +892,11 @@ public:
 
 private:
     // KitAspectWidget interface
-    void addToLayout(LayoutBuilder &builder) override
+    void addToLayout(LayoutItem &parent) override
     {
         addMutableAction(m_summaryLabel);
-        builder.addItem(m_summaryLabel);
-        builder.addItem(m_manageButton);
+        parent.addItem(m_summaryLabel);
+        parent.addItem(m_manageButton);
     }
 
     void makeReadOnly() override

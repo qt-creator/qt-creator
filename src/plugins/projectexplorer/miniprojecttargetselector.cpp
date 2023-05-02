@@ -551,7 +551,7 @@ int SelectorView::padding()
 /////////
 // KitAreaWidget
 /////////
-void doLayout(KitAspectWidget *widget, Layouting::LayoutBuilder &builder)
+void doLayout(KitAspectWidget *widget, Layouting::LayoutItem &builder)
 {
     widget->addToLayout(builder);
 }

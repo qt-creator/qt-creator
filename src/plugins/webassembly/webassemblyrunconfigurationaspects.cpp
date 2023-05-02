@@ -55,7 +55,7 @@ WebBrowserSelectionAspect::WebBrowserSelectionAspect(ProjectExplorer::Target *ta
     addDataExtractor(this, &WebBrowserSelectionAspect::currentBrowser, &Data::currentBrowser);
 }
 
-void WebBrowserSelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void WebBrowserSelectionAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_CHECK(!m_webBrowserComboBox);
     m_webBrowserComboBox = new QComboBox;
@@ -66,7 +66,7 @@ void WebBrowserSelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
         m_currentBrowser = m_webBrowserComboBox->currentData().toString();
         emit changed();
     });
-    builder.addItems({Tr::tr("Web browser:"), m_webBrowserComboBox});
+    parent.addItems({Tr::tr("Web browser:"), m_webBrowserComboBox});
 }
 
 void WebBrowserSelectionAspect::fromMap(const QVariantMap &map)

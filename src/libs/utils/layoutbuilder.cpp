@@ -74,7 +74,7 @@ struct ResultItem
     int span = 1;
 };
 
-struct LayoutBuilder::Slice
+struct Slice
 {
     Slice() = default;
     Slice(QLayout *l) : layout(l) {}
@@ -135,7 +135,7 @@ static void addItemToBoxLayout(QBoxLayout *layout, const ResultItem &item)
     }
 }
 
-void LayoutBuilder::Slice::flush()
+void Slice::flush()
 {
     if (pendingItems.empty())
         return;
@@ -194,13 +194,14 @@ void LayoutBuilder::Slice::flush()
     } else if (auto gridLayout = qobject_cast<QGridLayout *>(layout)) {
 
         for (const ResultItem &item : std::as_const(pendingItems)) {
-             if (item.widget)
-                 gridLayout->addWidget(item.widget, currentGridRow, currentGridColumn, 1, item.span, align);
-             else if (item.layout)
-                 gridLayout->addLayout(item.layout, currentGridRow, currentGridColumn, 1, item.span, align);
-             else if (!item.text.isEmpty())
-                 gridLayout->addWidget(createLabel(item.text), currentGridRow, currentGridColumn, 1, 1, align);
-             currentGridColumn += item.span;
+            Qt::Alignment a = currentGridColumn == 0 ? align : Qt::Alignment();
+            if (item.widget)
+                gridLayout->addWidget(item.widget, currentGridRow, currentGridColumn, 1, item.span, a);
+            else if (item.layout)
+                gridLayout->addLayout(item.layout, currentGridRow, currentGridColumn, 1, item.span, a);
+            else if (!item.text.isEmpty())
+                gridLayout->addWidget(createLabel(item.text), currentGridRow, currentGridColumn, 1, 1, a);
+            currentGridColumn += item.span;
         }
         ++currentGridRow;
         currentGridColumn = 0;
@@ -224,6 +225,25 @@ void LayoutBuilder::Slice::flush()
 
     pendingItems.clear();
 }
+
+// LayoutBuilder
+
+class LayoutBuilder
+{
+    Q_DISABLE_COPY_MOVE(LayoutBuilder)
+
+public:
+    LayoutBuilder();
+    ~LayoutBuilder();
+
+    void addItem(const LayoutItem &item);
+    void addItems(const LayoutItems &items);
+    void addRow(const LayoutItems &items);
+
+    bool isForm() const;
+
+    QList<Slice> stack;
+};
 
 static void addItemHelper(LayoutBuilder &builder, const LayoutItem &item)
 {
@@ -305,6 +325,7 @@ void doAddWidget(LayoutBuilder &builder, QWidget *widget)
 
     \sa addItem(), addItems(), addRow(), finishRow()
 */
+
 
 LayoutBuilder::LayoutBuilder() = default;
 
@@ -520,25 +541,6 @@ LayoutItem withFormAlignment()
     return item;
 }
 
-/*!
-    Constructs a layout extender to extend an existing \a layout.
-
-    This constructor can be used to continue the work of previous layout building.
-    The type of the underlying layout and previous contents will be retained,
-    new items will be added below existing ones.
- */
-
-LayoutExtender::LayoutExtender(QLayout *layout)
-{
-    Slice slice;
-    slice.layout = layout;
-    if (auto gridLayout = qobject_cast<QGridLayout *>(layout))
-        slice.currentGridRow = gridLayout->rowCount();
-    stack.append(slice);
-}
-
-LayoutExtender::~LayoutExtender() = default;
-
 // "Widgets"
 
 template <class T>
@@ -682,6 +684,17 @@ LayoutItem resize(int w, int h)
     return [w, h](QObject *target) {
         if (auto widget = qobject_cast<QWidget *>(target)) {
             widget->resize(w, h);
+        } else {
+            QTC_CHECK(false);
+        }
+    };
+}
+
+LayoutItem columnStretch(int column, int stretch)
+{
+    return [column, stretch](QObject *target) {
+        if (auto grid = qobject_cast<QGridLayout *>(target)) {
+            grid->setColumnStretch(column, stretch);
         } else {
             QTC_CHECK(false);
         }

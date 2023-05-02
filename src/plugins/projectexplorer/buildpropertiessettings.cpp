@@ -90,9 +90,9 @@ BuildPropertiesSettingsPage::BuildPropertiesSettingsPage(BuildPropertiesSettings
 
         Column {
             Form {
-                s.buildDirectoryTemplate,
-                s.separateDebugInfo,
-                s.qmlDebugging,
+                s.buildDirectoryTemplate, br,
+                s.separateDebugInfo, br,
+                s.qmlDebugging, br,
                 s.qtQuickCompiler
             },
             st

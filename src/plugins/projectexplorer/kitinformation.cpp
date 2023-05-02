@@ -65,7 +65,7 @@ public:
 private:
     void makeReadOnly() override { m_chooser->setReadOnly(true); }
 
-    void addToLayout(LayoutBuilder &builder) override
+    void addToLayout(LayoutItem &builder) override
     {
         addMutableAction(m_chooser);
         builder.addItem(Layouting::Span(2, m_chooser));
@@ -231,7 +231,7 @@ public:
     }
 
 private:
-    void addToLayout(LayoutBuilder &builder) override
+    void addToLayout(LayoutItem &builder) override
     {
         addMutableAction(m_mainWidget);
         builder.addItem(m_mainWidget);
@@ -760,7 +760,7 @@ public:
     ~DeviceTypeKitAspectWidget() override { delete m_comboBox; }
 
 private:
-    void addToLayout(LayoutBuilder &builder) override
+    void addToLayout(LayoutItem &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -896,7 +896,7 @@ public:
     }
 
 private:
-    void addToLayout(LayoutBuilder &builder) override
+    void addToLayout(LayoutItem &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -1156,7 +1156,7 @@ public:
     }
 
 private:
-    void addToLayout(LayoutBuilder &builder) override
+    void addToLayout(LayoutItem &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -1387,7 +1387,7 @@ public:
     }
 
 private:
-    void addToLayout(LayoutBuilder &builder) override
+    void addToLayout(LayoutItem &builder) override
     {
         addMutableAction(m_mainWidget);
         builder.addItem(m_mainWidget);

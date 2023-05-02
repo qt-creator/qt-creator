@@ -335,8 +335,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
 
     Column {
         Form {
-            buildDirAspect,
-            bc->aspect<BuildTypeAspect>(),
+            buildDirAspect, br,
+            bc->aspect<BuildTypeAspect>(), br,
             qmlDebugAspect
         },
         m_warningMessageLabel,
@@ -347,7 +347,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
                 Column {
                     cmakeConfiguration,
                     Row {
-                        bc->aspect<InitialCMakeArgumentsAspect>(),
+                        bc->aspect<InitialCMakeArgumentsAspect>(), br,
                         bc->aspect<AdditionalCMakeOptionsAspect>()
                     },
                     m_reconfigureButton,
@@ -665,17 +665,19 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
     CMakeGeneratorKitAspect generatorAspect;
     CMakeConfigurationKitAspect configurationKitAspect;
 
-    auto layout = new QGridLayout(dialog);
-
+    Layouting::Grid grid;
     KitAspectWidget *widget = kitAspect.createConfigWidget(m_buildSystem->kit());
     widget->setParent(dialog);
-    widget->addToLayoutWithLabel(layout->parentWidget());
+    widget->addToLayoutWithLabel(grid, dialog);
     widget = generatorAspect.createConfigWidget(m_buildSystem->kit());
     widget->setParent(dialog);
-    widget->addToLayoutWithLabel(layout->parentWidget());
+    widget->addToLayoutWithLabel(grid, dialog);
     widget = configurationKitAspect.createConfigWidget(m_buildSystem->kit());
     widget->setParent(dialog);
-    widget->addToLayoutWithLabel(layout->parentWidget());
+    widget->addToLayoutWithLabel(grid, dialog);
+    grid.attachTo(dialog);
+
+    auto layout = qobject_cast<QGridLayout *>(dialog->layout());
 
     layout->setColumnStretch(1, 1);
 

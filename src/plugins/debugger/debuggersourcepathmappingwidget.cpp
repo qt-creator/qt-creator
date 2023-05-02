@@ -491,12 +491,12 @@ void SourcePathMapAspect::toMap(QVariantMap &) const
     QTC_CHECK(false);
 }
 
-void SourcePathMapAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void SourcePathMapAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_CHECK(!d->m_widget);
     d->m_widget = createSubWidget<DebuggerSourcePathMappingWidget>();
     d->m_widget->setSourcePathMap(value());
-    builder.addItem(d->m_widget.data());
+    parent.addItem(d->m_widget.data());
 }
 
 QVariant SourcePathMapAspect::volatileValue() const

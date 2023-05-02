@@ -63,7 +63,7 @@ public:
     ArchitecturesAspect();
 
     void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
-    void addToLayout(Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutItem &parent) override;
     QStringList selectedArchitectures() const;
     void setSelectedArchitectures(const QStringList& architectures);
     bool isManagedByTarget() const { return m_isManagedByTarget; }
@@ -86,9 +86,9 @@ ArchitecturesAspect::ArchitecturesAspect()
     setAllValues(m_abisToArchMap.keys());
 }
 
-void ArchitecturesAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void ArchitecturesAspect::addToLayout(Layouting::LayoutItem &parent)
 {
-    MultiSelectionAspect::addToLayout(builder);
+    MultiSelectionAspect::addToLayout(parent);
     const auto changeHandler = [this] {
         const QtVersion *qtVersion = QtKitAspect::qtVersion(m_kit);
         if (!qtVersion) {

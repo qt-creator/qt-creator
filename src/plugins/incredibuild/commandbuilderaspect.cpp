@@ -110,7 +110,7 @@ void CommandBuilderAspectPrivate::tryToMigrate()
     }
 }
 
-void CommandBuilderAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void CommandBuilderAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     if (!d->commandBuilder) {
         d->commandBuilder = new QComboBox;
@@ -151,9 +151,9 @@ void CommandBuilderAspect::addToLayout(Layouting::LayoutBuilder &builder)
     if (!d->m_loadedFromMap)
         d->tryToMigrate();
 
-    builder.addRow({d->label.data(), d->commandBuilder.data()});
-    builder.addRow({Tr::tr("Make command:"), d->makePathChooser.data()});
-    builder.addRow({Tr::tr("Make arguments:"), d->makeArgumentsLineEdit.data()});
+    parent.addRow({d->label.data(), d->commandBuilder.data()});
+    parent.addRow({Tr::tr("Make command:"), d->makePathChooser.data()});
+    parent.addRow({Tr::tr("Make arguments:"), d->makeArgumentsLineEdit.data()});
 
     updateGui();
 }

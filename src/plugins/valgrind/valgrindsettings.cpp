@@ -128,7 +128,7 @@ void SuppressionAspect::setValue(const FilePaths &val)
     BaseAspect::setValue(Utils::transform<QStringList>(val, &FilePath::toString));
 }
 
-void SuppressionAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void SuppressionAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_CHECK(!d->addEntry);
     QTC_CHECK(!d->removeEntry);
@@ -150,12 +150,12 @@ void SuppressionAspect::addToLayout(Layouting::LayoutBuilder &builder)
     connect(d->entryList->selectionModel(), &QItemSelectionModel::selectionChanged,
             d, &SuppressionAspectPrivate::slotSuppressionSelectionChanged);
 
-    builder.addItem(Column { Tr::tr("Suppression files:"), st });
+    parent.addItem(Column { Tr::tr("Suppression files:"), st });
     Row group {
         d->entryList.data(),
         Column { d->addEntry.data(), d->removeEntry.data(), st }
     };
-    builder.addItem(Span { 2, group });
+    parent.addItem(Span { 2, group });
 
     setVolatileValue(BaseAspect::value());
 }

@@ -62,12 +62,12 @@ TerminalAspect::TerminalAspect()
 /*!
     \reimp
 */
-void TerminalAspect::addToLayout(LayoutBuilder &builder)
+void TerminalAspect::addToLayout(LayoutItem &parent)
 {
     QTC_CHECK(!m_checkBox);
     m_checkBox = new QCheckBox(Tr::tr("Run in terminal"));
     m_checkBox->setChecked(m_useTerminal);
-    builder.addItems({{}, m_checkBox.data()});
+    parent.addItems({{}, m_checkBox.data()});
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_userSet = true;
         m_useTerminal = m_checkBox->isChecked();
@@ -163,7 +163,7 @@ WorkingDirectoryAspect::WorkingDirectoryAspect(const MacroExpander *expander,
 /*!
     \reimp
 */
-void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
+void WorkingDirectoryAspect::addToLayout(LayoutItem &builder)
 {
     QTC_CHECK(!m_chooser);
     m_chooser = new PathChooser;
@@ -435,7 +435,7 @@ QWidget *ArgumentsAspect::setupChooser()
 /*!
     \reimp
 */
-void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
+void ArgumentsAspect::addToLayout(LayoutItem &builder)
 {
     QTC_CHECK(!m_chooser && !m_multiLineChooser && !m_multiLineButton);
 
@@ -632,7 +632,7 @@ FilePath ExecutableAspect::executable() const
 /*!
     \reimp
 */
-void ExecutableAspect::addToLayout(LayoutBuilder &builder)
+void ExecutableAspect::addToLayout(LayoutItem &builder)
 {
     builder.addItem(m_executable);
     if (m_alternativeExecutable)
@@ -830,7 +830,7 @@ void InterpreterAspect::toMap(QVariantMap &map) const
         saveToMap(map, m_currentId, QString(), settingsKey());
 }
 
-void InterpreterAspect::addToLayout(LayoutBuilder &builder)
+void InterpreterAspect::addToLayout(LayoutItem &builder)
 {
     if (QTC_GUARD(m_comboBox.isNull()))
         m_comboBox = new QComboBox;

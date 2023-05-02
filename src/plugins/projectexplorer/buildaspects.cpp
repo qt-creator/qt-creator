@@ -107,12 +107,12 @@ void BuildDirectoryAspect::fromMap(const QVariantMap &map)
     }
 }
 
-void BuildDirectoryAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void BuildDirectoryAspect::addToLayout(Layouting::LayoutItem &parent)
 {
-    StringAspect::addToLayout(builder);
+    StringAspect::addToLayout(parent);
     d->problemLabel = new InfoLabel({}, InfoLabel::Warning);
     d->problemLabel->setElideMode(Qt::ElideNone);
-    builder.addItems({{}, d->problemLabel.data()});
+    parent.addItems({{}, d->problemLabel.data()});
     updateProblemLabel();
     if (!d->sourceDir.isEmpty()) {
         connect(this, &StringAspect::checkedChanged, this, [this] {

@@ -60,11 +60,11 @@ public:
     }
 
 private:
-    void addToLayout(Layouting::LayoutBuilder &builder) override
+    void addToLayout(Layouting::LayoutItem &parent) override
     {
         addMutableAction(m_comboBox);
-        builder.addItem(m_comboBox);
-        builder.addItem(m_manageButton);
+        parent.addItem(m_comboBox);
+        parent.addItem(m_manageButton);
     }
 
     void makeReadOnly() override

@@ -30,7 +30,7 @@ public:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
-    void addToLayout(Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutItem &parent) override;
 
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;

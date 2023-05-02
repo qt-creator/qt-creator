@@ -40,10 +40,10 @@ public:
     ~QmakeKitAspectWidget() override { delete m_lineEdit; }
 
 private:
-    void addToLayout(Layouting::LayoutBuilder &builder) override
+    void addToLayout(Layouting::LayoutItem &parent) override
     {
         addMutableAction(m_lineEdit);
-        builder.addItem(m_lineEdit);
+        parent.addItem(m_lineEdit);
     }
 
     void makeReadOnly() override { m_lineEdit->setEnabled(false); }

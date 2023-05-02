@@ -210,15 +210,15 @@ void BaseAspect::setupLabel()
     registerSubWidget(d->m_label);
 }
 
-void BaseAspect::addLabeledItem(Layouting::LayoutBuilder &builder, QWidget *widget)
+void BaseAspect::addLabeledItem(LayoutItem &parent, QWidget *widget)
 {
     setupLabel();
     if (QLabel *l = label()) {
         l->setBuddy(widget);
-        builder.addItem(l);
-        builder.addItem(Span(std::max(d->m_spanX - 1, 1), LayoutItem(widget)));
+        parent.addItem(l);
+        parent.addItem(Span(std::max(d->m_spanX - 1, 1), LayoutItem(widget)));
     } else {
-        builder.addItem(LayoutItem(widget));
+        parent.addItem(LayoutItem(widget));
     }
 }
 
@@ -419,24 +419,18 @@ QAction *BaseAspect::action()
     Adds the visual representation of this aspect to a layout using
     a layout builder.
 */
-void BaseAspect::addToLayout(LayoutBuilder &)
+void BaseAspect::addToLayout(LayoutItem &)
 {
 }
 
 void createItem(Layouting::LayoutItem *item, const BaseAspect &aspect)
 {
-    item->onAdd = [&aspect](LayoutBuilder &builder) {
-        const_cast<BaseAspect &>(aspect).addToLayout(builder);
-        builder.addItem(br);
-    };
+    const_cast<BaseAspect &>(aspect).addToLayout(*item);
 }
 
 void createItem(Layouting::LayoutItem *item, const BaseAspect *aspect)
 {
-    item->onAdd = [aspect](LayoutBuilder &builder) {
-        const_cast<BaseAspect *>(aspect)->addToLayout(builder);
-        builder.addItem(br);
-    };
+    const_cast<BaseAspect *>(aspect)->addToLayout(*item);
 }
 
 
@@ -1067,11 +1061,11 @@ void StringAspect::setUncheckedSemantics(StringAspect::UncheckedSemantics semant
     d->m_uncheckedSemantics = semantics;
 }
 
-void StringAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void StringAspect::addToLayout(LayoutItem &parent)
 {
     if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Top) {
-        d->m_checker->addToLayout(builder);
-        builder.addItem(br);
+        d->m_checker->addToLayout(parent);
+        parent.addItem(br);
     }
 
     const auto useMacroExpander = [this](QWidget *w) {
@@ -1103,7 +1097,7 @@ void StringAspect::addToLayout(Layouting::LayoutBuilder &builder)
         if (d->m_pathChooserDisplay->lineEdit()->placeholderText().isEmpty())
             d->m_pathChooserDisplay->lineEdit()->setPlaceholderText(d->m_placeHolderText);
         d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
-        addLabeledItem(builder, d->m_pathChooserDisplay);
+        addLabeledItem(parent, d->m_pathChooserDisplay);
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());
         if (isAutoApply()) {
             if (d->m_autoApplyOnEditingFinished) {
@@ -1134,7 +1128,7 @@ void StringAspect::addToLayout(Layouting::LayoutBuilder &builder)
         d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
         d->m_lineEditDisplay->setReadOnly(isReadOnly());
         d->updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
-        addLabeledItem(builder, d->m_lineEditDisplay);
+        addLabeledItem(parent, d->m_lineEditDisplay);
         useMacroExpander(d->m_lineEditDisplay);
         if (isAutoApply()) {
             if (d->m_autoApplyOnEditingFinished) {
@@ -1164,7 +1158,7 @@ void StringAspect::addToLayout(Layouting::LayoutBuilder &builder)
             connect(d->m_lineEditDisplay, &QLineEdit::textChanged, this, [this, resetButton] {
                 resetButton->setEnabled(d->m_lineEditDisplay->text() != defaultValue());
             });
-            builder.addItem(resetButton);
+            parent.addItem(resetButton);
         }
         break;
     case TextEditDisplay:
@@ -1176,7 +1170,7 @@ void StringAspect::addToLayout(Layouting::LayoutBuilder &builder)
         d->m_textEditDisplay->setText(displayedString);
         d->m_textEditDisplay->setReadOnly(isReadOnly());
         d->updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
-        addLabeledItem(builder, d->m_textEditDisplay);
+        addLabeledItem(parent, d->m_textEditDisplay);
         useMacroExpander(d->m_textEditDisplay);
         if (isAutoApply()) {
             connect(d->m_textEditDisplay, &QTextEdit::textChanged, this, [this] {
@@ -1190,14 +1184,14 @@ void StringAspect::addToLayout(Layouting::LayoutBuilder &builder)
         d->m_labelDisplay->setTextInteractionFlags(Qt::TextSelectableByMouse);
         d->m_labelDisplay->setText(displayedString);
         d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayedString : toolTip());
-        addLabeledItem(builder, d->m_labelDisplay);
+        addLabeledItem(parent, d->m_labelDisplay);
         break;
     }
 
     validateInput();
 
     if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Right)
-        d->m_checker->addToLayout(builder);
+        d->m_checker->addToLayout(parent);
 }
 
 QVariant StringAspect::volatileValue() const
@@ -1327,11 +1321,11 @@ ColorAspect::ColorAspect(const QString &settingsKey)
 
 ColorAspect::~ColorAspect() = default;
 
-void ColorAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void ColorAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_CHECK(!d->m_colorButton);
     d->m_colorButton = createSubWidget<QtColorButton>();
-    builder.addItem(d->m_colorButton.data());
+    parent.addItem(d->m_colorButton.data());
     d->m_colorButton->setColor(value());
     if (isAutoApply()) {
         connect(d->m_colorButton.data(),
@@ -1401,24 +1395,24 @@ BoolAspect::~BoolAspect() = default;
 /*!
     \reimp
 */
-void BoolAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_CHECK(!d->m_checkBox);
     d->m_checkBox = createSubWidget<QCheckBox>();
     switch (d->m_labelPlacement) {
     case LabelPlacement::AtCheckBoxWithoutDummyLabel:
         d->m_checkBox->setText(labelText());
-        builder.addItem(d->m_checkBox.data());
+        parent.addItem(d->m_checkBox.data());
         break;
     case LabelPlacement::AtCheckBox: {
         d->m_checkBox->setText(labelText());
-        if (builder.isForm())
-            builder.addItem(createSubWidget<QLabel>());
-        builder.addItem(d->m_checkBox.data());
+//        if (parent.isForm())  FIXME
+            parent.addItem(createSubWidget<QLabel>());
+        parent.addItem(d->m_checkBox.data());
         break;
     }
     case LabelPlacement::InExtraLabel:
-        addLabeledItem(builder, d->m_checkBox);
+        addLabeledItem(parent, d->m_checkBox);
         break;
     }
     d->m_checkBox->setChecked(value());
@@ -1557,7 +1551,7 @@ SelectionAspect::~SelectionAspect() = default;
 /*!
     \reimp
 */
-void SelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void SelectionAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_CHECK(d->m_buttonGroup == nullptr);
     QTC_CHECK(!d->m_comboBox);
@@ -1573,8 +1567,8 @@ void SelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
             button->setChecked(i == value());
             button->setEnabled(option.enabled);
             button->setToolTip(option.tooltip);
-            builder.addItem(Layouting::empty);
-            builder.addItem(button);
+            parent.addItem(Layouting::empty);
+            parent.addItem(button);
             d->m_buttons.append(button);
             d->m_buttonGroup->addButton(button, i);
             if (isAutoApply()) {
@@ -1596,7 +1590,7 @@ void SelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
         connect(d->m_comboBox.data(), &QComboBox::currentIndexChanged,
                 this, &SelectionAspect::volatileValueChanged);
         d->m_comboBox->setCurrentIndex(value());
-        addLabeledItem(builder, d->m_comboBox);
+        addLabeledItem(parent, d->m_comboBox);
         break;
     }
 }
@@ -1762,7 +1756,7 @@ MultiSelectionAspect::~MultiSelectionAspect() = default;
 /*!
     \reimp
 */
-void MultiSelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void MultiSelectionAspect::addToLayout(LayoutItem &builder)
 {
     QTC_CHECK(d->m_listView == nullptr);
     if (d->m_allValues.isEmpty())
@@ -1871,7 +1865,7 @@ IntegerAspect::~IntegerAspect() = default;
 /*!
     \reimp
 */
-void IntegerAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void IntegerAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_CHECK(!d->m_spinBox);
     d->m_spinBox = createSubWidget<QSpinBox>();
@@ -1884,7 +1878,7 @@ void IntegerAspect::addToLayout(Layouting::LayoutBuilder &builder)
         d->m_spinBox->setRange(int(d->m_minimumValue.value() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.value() / d->m_displayScaleFactor));
     d->m_spinBox->setValue(int(value() / d->m_displayScaleFactor)); // Must happen after setRange()
-    addLabeledItem(builder, d->m_spinBox);
+    addLabeledItem(parent, d->m_spinBox);
 
     if (isAutoApply()) {
         connect(d->m_spinBox.data(), &QSpinBox::valueChanged,
@@ -2005,7 +1999,7 @@ DoubleAspect::~DoubleAspect() = default;
 /*!
     \reimp
 */
-void DoubleAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void DoubleAspect::addToLayout(LayoutItem &builder)
 {
     QTC_CHECK(!d->m_spinBox);
     d->m_spinBox = createSubWidget<QDoubleSpinBox>();
@@ -2159,9 +2153,9 @@ StringListAspect::~StringListAspect() = default;
 /*!
     \reimp
 */
-void StringListAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void StringListAspect::addToLayout(LayoutItem &parent)
 {
-    Q_UNUSED(builder)
+    Q_UNUSED(parent)
     // TODO - when needed.
 }
 
@@ -2229,9 +2223,9 @@ IntegersAspect::~IntegersAspect() = default;
 /*!
     \reimp
 */
-void IntegersAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void IntegersAspect::addToLayout(Layouting::LayoutItem &parent)
 {
-    Q_UNUSED(builder)
+    Q_UNUSED(parent)
     // TODO - when needed.
 }
 
@@ -2292,7 +2286,7 @@ TextDisplay::~TextDisplay() = default;
 /*!
     \reimp
 */
-void TextDisplay::addToLayout(Layouting::LayoutBuilder &builder)
+void TextDisplay::addToLayout(LayoutItem &parent)
 {
     if (!d->m_label) {
         d->m_label = createSubWidget<InfoLabel>(d->m_message, d->m_type);
@@ -2304,7 +2298,7 @@ void TextDisplay::addToLayout(Layouting::LayoutBuilder &builder)
         if (!isVisible())
             d->m_label->setVisible(false);
     }
-    builder.addItem(d->m_label.data());
+    parent.addItem(d->m_label.data());
 }
 
 /*!

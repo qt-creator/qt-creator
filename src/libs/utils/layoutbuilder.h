@@ -197,6 +197,7 @@ QTCREATOR_UTILS_EXPORT LayoutItem title(const QString &title);
 QTCREATOR_UTILS_EXPORT LayoutItem text(const QString &text);
 QTCREATOR_UTILS_EXPORT LayoutItem tooltip(const QString &toolTip);
 QTCREATOR_UTILS_EXPORT LayoutItem resize(int, int);
+QTCREATOR_UTILS_EXPORT LayoutItem columnStretch(int column, int stretch);
 QTCREATOR_UTILS_EXPORT LayoutItem spacing(int);
 QTCREATOR_UTILS_EXPORT LayoutItem windowTitle(const QString &windowTitle);
 QTCREATOR_UTILS_EXPORT LayoutItem onClicked(const std::function<void()> &,
@@ -211,32 +212,5 @@ LayoutItem bindTo(T **out)
 {
     return [out](QObject *target) { *out = qobject_cast<T *>(target); };
 }
-
-// LayoutBuilder
-
-class QTCREATOR_UTILS_EXPORT LayoutBuilder
-{
-    Q_DISABLE_COPY_MOVE(LayoutBuilder)
-
-public:
-    LayoutBuilder();
-    ~LayoutBuilder();
-
-    void addItem(const LayoutItem &item);
-    void addItems(const LayoutItems &items);
-    void addRow(const LayoutItems &items);
-
-    bool isForm() const;
-
-    struct Slice;
-    QList<Slice> stack;
-};
-
-class QTCREATOR_UTILS_EXPORT LayoutExtender : public LayoutBuilder
-{
-public:
-    explicit LayoutExtender(QLayout *layout);
-    ~LayoutExtender();
-};
 
 } // Layouting

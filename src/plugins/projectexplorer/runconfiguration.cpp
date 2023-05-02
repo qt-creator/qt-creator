@@ -218,8 +218,10 @@ QWidget *RunConfiguration::createConfigurationWidget()
 {
     Layouting::Form form;
     for (BaseAspect *aspect : std::as_const(m_aspects)) {
-        if (aspect->isVisible())
+        if (aspect->isVisible()) {
             form.addItem(aspect);
+            form.addItem(Layouting::br);
+        }
     }
     form.addItem(Layouting::noMargin);
     auto widget = form.emerge();

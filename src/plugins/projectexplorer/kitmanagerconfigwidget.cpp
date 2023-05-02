@@ -23,6 +23,7 @@
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QFileDialog>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
@@ -66,12 +67,13 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, bool &isDefaultKit, bool 
             this, &KitManagerConfigWidget::setFileSystemFriendlyName);
 
     using namespace Layouting;
-    Grid {
+    Grid page {
         withFormAlignment,
+        columnStretch(1, 2),
         label, m_nameEdit, m_iconButton, br,
-        fsLabel, m_fileSystemFriendlyNameLineEdit,
+        fsLabel, m_fileSystemFriendlyNameLineEdit, br,
         noMargin
-    }.attachTo(this);
+    };
 
     m_iconButton->setToolTip(Tr::tr("Kit icon."));
     auto setIconAction = new QAction(Tr::tr("Select Icon..."), this);
@@ -101,7 +103,9 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, bool &isDefaultKit, bool 
     chooser->addMacroExpanderProvider([this] { return m_modifiedKit->macroExpander(); });
 
     for (KitAspect *aspect : KitManager::kitAspects())
-        addAspectToWorkingCopy(aspect);
+        addAspectToWorkingCopy(page, aspect);
+
+    page.attachTo(this);
 
     updateVisibility();
 
@@ -191,14 +195,14 @@ QString KitManagerConfigWidget::validityMessage() const
     return m_modifiedKit->toHtml(tmp);
 }
 
-void KitManagerConfigWidget::addAspectToWorkingCopy(KitAspect *aspect)
+void KitManagerConfigWidget::addAspectToWorkingCopy(Layouting::LayoutItem &parent, KitAspect *aspect)
 {
     QTC_ASSERT(aspect, return);
     KitAspectWidget *widget = aspect->createConfigWidget(workingCopy());
     QTC_ASSERT(widget, return);
     QTC_ASSERT(!m_widgets.contains(widget), return);
 
-    widget->addToLayoutWithLabel(this);
+    widget->addToLayoutWithLabel(parent, this);
     m_widgets.append(widget);
 
     connect(widget->mutableAction(), &QAction::toggled,
