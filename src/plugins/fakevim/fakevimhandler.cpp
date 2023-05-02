@@ -36,8 +36,6 @@
 #include "fakevimactions.h"
 #include "fakevimtr.h"
 
-#include <utils/qtcprocess.h>
-
 #include <QDebug>
 #include <QFile>
 #include <QObject>
@@ -831,29 +829,6 @@ static void setClipboardData(const QString &content, RangeMode mode,
     data->setData(vimMimeText, bytes1);
     data->setData(vimMimeTextEncoded, bytes2);
     clipboard->setMimeData(data, clipboardMode);
-}
-
-static QByteArray toLocalEncoding(const QString &text)
-{
-#if defined(Q_OS_WIN)
-    return QString(text).replace("\n", "\r\n").toLocal8Bit();
-#else
-    return text.toLocal8Bit();
-#endif
-}
-
-static QString getProcessOutput(const QString &command, const QString &input)
-{
-    Utils::QtcProcess proc;
-    proc.setCommand(Utils::CommandLine::fromUserInput(command));
-    proc.setWriteData(toLocalEncoding(input));
-    proc.start();
-
-    // FIXME: Process should be interruptable by user.
-    //        Solution is to create a QObject for each process and emit finished state.
-    proc.waitForFinished();
-
-    return proc.cleanedStdOut();
 }
 
 static const QMap<QString, int> &vimKeyNames()
@@ -6432,7 +6407,8 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
     const QString command = QString(cmd.cmd.mid(1) + ' ' + cmd.args).trimmed();
     const QString input = replaceText ? selectText(cmd.range) : QString();
 
-    const QString result = getProcessOutput(command, input);
+    QString result;
+    q->processOutput(command, input, &result);
 
     if (replaceText) {
         setCurrentRange(cmd.range);

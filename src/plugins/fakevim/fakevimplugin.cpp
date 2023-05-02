@@ -51,7 +51,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stylehelper.h>
 
 #include <cppeditor/cppeditorconstants.h>
@@ -1885,6 +1885,18 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     handler->completionRequested.set([this, tew] {
         if (tew)
             tew->invokeAssist(Completion, &runData->wordProvider);
+    });
+
+    handler->processOutput.set([](const QString &command, const QString &input, QString *output) {
+        QtcProcess proc;
+        proc.setCommand(Utils::CommandLine::fromUserInput(command));
+        proc.setWriteData(input.toLocal8Bit());
+        proc.start();
+
+        // FIXME: Process should be interruptable by user.
+        //        Solution is to create a QObject for each process and emit finished state.
+        proc.waitForFinished();
+        *output = proc.cleanedStdOut();
     });
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,

@@ -167,6 +167,7 @@ public:
     Callback<void()> tabNextRequested;
     Callback<void(bool insertMode)> modeChanged;
     Callback<bool()> tabPressedInInsertMode;
+    Callback<void(const QString &, const QString &, QString *)> processOutput;
 
 public:
     class Private;
