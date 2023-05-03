@@ -83,7 +83,7 @@ void differenceCall(const Imports &first, const Imports &second, Callable callab
                         first.end(),
                         second.begin(),
                         second.end(),
-                        Utils::make_iterator(callable));
+                        ::Utils::make_iterator(callable));
 }
 
 } // namespace QmlDesigner
