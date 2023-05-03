@@ -39,9 +39,6 @@ public:
     }
 
 private:
-    void apply() final {}
-    void finish() final {}
-
     TextEditor::SimpleCodeStylePreferences *m_nimCodeStylePreferences;
 };
 
