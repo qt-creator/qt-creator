@@ -242,7 +242,7 @@ public:
     QString synchronousTopic(const Utils::FilePath &workingDirectory) const;
     bool synchronousRevParseCmd(const Utils::FilePath &workingDirectory, const QString &ref,
                                 QString *output, QString *errorMessage = nullptr) const;
-    Utils::Tasking::Process topRevision(
+    Utils::Tasking::ProcessTask topRevision(
         const Utils::FilePath &workingDirectory,
         const std::function<void(const QString &, const QDateTime &)> &callback);
     bool isRemoteCommit(const Utils::FilePath &workingDirectory, const QString &commit);

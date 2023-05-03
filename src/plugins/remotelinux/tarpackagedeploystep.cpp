@@ -112,7 +112,7 @@ TaskItem TarPackageDeployStep::installTask()
     const auto errorHandler = [this](const QtcProcess &process) {
         addErrorMessage(Tr::tr("Installing package failed.") + process.errorString());
     };
-    return Process(setupHandler, doneHandler, errorHandler);
+    return ProcessTask(setupHandler, doneHandler, errorHandler);
 }
 
 Group TarPackageDeployStep::deployRecipe()

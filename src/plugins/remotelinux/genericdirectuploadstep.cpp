@@ -170,7 +170,7 @@ TaskItem GenericDirectUploadStep::statTask(UploadStorage *storage,
         const QDateTime timestamp = timestampFromStat(file, proc);
         statEndHandler(storage, file, timestamp);
     };
-    return Process(setupHandler, endHandler, endHandler);
+    return ProcessTask(setupHandler, endHandler, endHandler);
 }
 
 TaskItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &storage,
@@ -245,7 +245,7 @@ TaskItem GenericDirectUploadStep::chmodTask(const DeployableFile &file)
                                   .arg(file.remoteFilePath(), process.cleanedStdErr()));
         }
     };
-    return Process(setupHandler, {}, errorHandler);
+    return ProcessTask(setupHandler, {}, errorHandler);
 }
 
 TaskItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &storage)

@@ -176,7 +176,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
 
     const Group root {
         Storage(diffInputStorage),
-        Process(setupDiff, onDiffDone),
+        ProcessTask(setupDiff, onDiffDone),
         postProcessTask()
     };
     setReloadRecipe(root);
@@ -267,8 +267,8 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
         Group {
             parallel,
             continueOnDone,
-            Process(setupStaged, onStagedDone),
-            Process(setupUnstaged, onUnstagedDone),
+            ProcessTask(setupStaged, onStagedDone),
+            ProcessTask(setupUnstaged, onUnstagedDone),
             OnGroupDone(onStagingDone)
         },
         postProcessTask()
@@ -442,7 +442,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         using namespace std::placeholders;
         QList<TaskItem> tasks {parallel, continueOnDone, OnGroupError(onFollowsError)};
         for (int i = 0, total = parents.size(); i < total; ++i) {
-            tasks.append(Process(std::bind(setupFollow, _1, parents.at(i)),
+            tasks.append(ProcessTask(std::bind(setupFollow, _1, parents.at(i)),
                                  std::bind(onFollowDone, _1, i)));
         }
         taskTree.setupRoot(tasks);
@@ -465,18 +465,18 @@ ShowController::ShowController(IDocument *document, const QString &id)
         OnGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toString()); }),
         Group {
             optional,
-            Process(setupDescription, onDescriptionDone),
+            ProcessTask(setupDescription, onDescriptionDone),
             Group {
                 parallel,
                 optional,
                 OnGroupSetup(desciptionDetailsSetup),
-                Process(setupBranches, onBranchesDone, onBranchesError),
-                Process(setupPrecedes, onPrecedesDone, onPrecedesError),
+                ProcessTask(setupBranches, onBranchesDone, onBranchesError),
+                ProcessTask(setupPrecedes, onPrecedesDone, onPrecedesError),
                 Tree(setupFollows)
             }
         },
         Group {
-            Process(setupDiff, onDiffDone),
+            ProcessTask(setupDiff, onDiffDone),
             postProcessTask()
         }
     };
@@ -1730,7 +1730,7 @@ bool GitClient::synchronousRevParseCmd(const FilePath &workingDirectory, const Q
 }
 
 // Retrieve head revision
-Utils::Tasking::Process GitClient::topRevision(
+Utils::Tasking::ProcessTask GitClient::topRevision(
     const FilePath &workingDirectory,
     const std::function<void(const QString &, const QDateTime &)> &callback)
 {
@@ -1751,7 +1751,7 @@ Utils::Tasking::Process GitClient::topRevision(
         callback(output.first(), dateTime);
     };
 
-    return Process(setupProcess, onProcessDone);
+    return ProcessTask(setupProcess, onProcessDone);
 }
 
 bool GitClient::isRemoteCommit(const FilePath &workingDirectory, const QString &commit)

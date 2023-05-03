@@ -134,7 +134,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
         d->m_updateOutput = process.cleanedStdOut();
     };
 
-    QList<TaskItem> tasks { Process(setupUpdate, updateDone) };
+    QList<TaskItem> tasks { ProcessTask(setupUpdate, updateDone) };
     if (d->m_settings.checkForQtVersions) {
         const auto setupPackages = [doSetup](QtcProcess &process) {
             doSetup(process, {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"});
@@ -142,7 +142,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
         const auto packagesDone = [this](const QtcProcess &process) {
             d->m_packagesOutput = process.cleanedStdOut();
         };
-        tasks << Process(setupPackages, packagesDone);
+        tasks << ProcessTask(setupPackages, packagesDone);
     }
 
     d->m_taskTree.reset(new TaskTree(Group{tasks}));

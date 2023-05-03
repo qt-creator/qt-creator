@@ -71,7 +71,7 @@ Group QdbStopApplicationStep::deployRecipe()
             addErrorMessage(failureMessage);
         }
     };
-    return Group { Process(setupHandler, doneHandler, errorHandler) };
+    return Group { ProcessTask(setupHandler, doneHandler, errorHandler) };
 }
 
 // QdbStopApplicationStepFactory

@@ -207,13 +207,13 @@ public:
     std::function<Environment(const FilePath &)> systemEnvironmentForBinary;
 };
 
-class QTCREATOR_UTILS_EXPORT QtcProcessAdapter : public Tasking::TaskAdapter<QtcProcess>
+class QTCREATOR_UTILS_EXPORT ProcessTaskAdapter : public Tasking::TaskAdapter<QtcProcess>
 {
 public:
-    QtcProcessAdapter();
+    ProcessTaskAdapter();
     void start() final;
 };
 
 } // namespace Utils
 
-QTC_DECLARE_CUSTOM_TASK(Process, Utils::QtcProcessAdapter);
+QTC_DECLARE_CUSTOM_TASK(ProcessTask, Utils::ProcessTaskAdapter);

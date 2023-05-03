@@ -68,7 +68,7 @@ private:
         const auto errorHandler = [this](const QtcProcess &process) {
             addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
         };
-        return Group { Process(setupHandler, doneHandler, errorHandler) };
+        return Group { ProcessTask(setupHandler, doneHandler, errorHandler) };
     }
 
     bool m_makeDefault = true;

@@ -447,7 +447,7 @@ void TestRunner::runTestsHelper()
             optional,
             Storage(storage),
             OnGroupSetup(onGroupSetup),
-            Process(onSetup, onDone, onDone)
+            ProcessTask(onSetup, onDone, onDone)
         };
         tasks.append(group);
     }

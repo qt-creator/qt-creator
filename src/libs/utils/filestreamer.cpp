@@ -93,7 +93,7 @@ private:
                 emit readyRead(processPtr->readAllRawStandardOutput());
             });
         };
-        return Process(setup);
+        return ProcessTask(setup);
     }
     TaskItem localTask() final {
         const auto setup = [this](AsyncTask<QByteArray> &async) {
@@ -264,7 +264,7 @@ private:
             delete m_writeBuffer;
             m_writeBuffer = nullptr;
         };
-        return Process(setup, finalize, finalize);
+        return ProcessTask(setup, finalize, finalize);
     }
     TaskItem localTask() final {
         const auto setup = [this](AsyncTask<void> &async) {
@@ -316,7 +316,7 @@ static Group sameRemoteDeviceTransferTask(const FilePath &source, const FilePath
         const FilePath cp = source.withNewPath("cp");
         process.setCommand({cp, args, OsType::OsTypeLinux});
     };
-    return {Process(setup)};
+    return {ProcessTask(setup)};
 }
 
 static Group interDeviceTransferTask(const FilePath &source, const FilePath &destination)

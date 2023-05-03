@@ -111,7 +111,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::echoTask(const QString &contents) cons
         else
             emit q->errorMessage(Tr::tr("echo failed.") + '\n');
     };
-    return Process(setup, done, error);
+    return ProcessTask(setup, done, error);
 }
 
 TaskItem GenericLinuxDeviceTesterPrivate::unameTask() const
@@ -132,7 +132,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::unameTask() const
     };
     return Tasking::Group {
         optional,
-        Process(setup, done, error)
+        ProcessTask(setup, done, error)
     };
 }
 
@@ -249,7 +249,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::commandTask(const QString &commandName
                 : Tr::tr("%1 not found.").arg(commandName);
         emit q->errorMessage(message);
     };
-    return Process(setup, done, error);
+    return ProcessTask(setup, done, error);
 }
 
 TaskItem GenericLinuxDeviceTesterPrivate::commandTasks() const

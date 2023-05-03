@@ -69,9 +69,9 @@ void Slog2InfoRunner::start()
     };
 
     const Tasking::Group root {
-        Process(testStartHandler, testDoneHandler, testErrorHandler),
-        Process(launchTimeStartHandler, launchTimeDoneHandler),
-        Process(logStartHandler, {}, logErrorHandler)
+        ProcessTask(testStartHandler, testDoneHandler, testErrorHandler),
+        ProcessTask(launchTimeStartHandler, launchTimeDoneHandler),
+        ProcessTask(logStartHandler, {}, logErrorHandler)
     };
 
     m_taskTree.reset(new TaskTree(root));

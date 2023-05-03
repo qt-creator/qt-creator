@@ -211,10 +211,10 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
         parallel,
         Group {
             optional,
-            Process(setupDescription, onDescriptionDone, onDescriptionError)
+            ProcessTask(setupDescription, onDescriptionDone, onDescriptionError)
         },
         Group {
-            Process(setupDiff, onDiffDone),
+            ProcessTask(setupDiff, onDiffDone),
             postProcessTask()
         }
     };

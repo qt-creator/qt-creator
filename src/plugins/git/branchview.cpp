@@ -549,7 +549,7 @@ TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
         storage->mergeBase = process.cleanedStdOut().trimmed();
     };
 
-    const Process topRevisionProc = client->topRevision(
+    const ProcessTask topRevisionProc = client->topRevision(
         m_repository,
         [storage](const QString &revision, const QDateTime &) {
             storage->topRevision = revision;
@@ -558,7 +558,7 @@ TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
     const Group root {
         Storage(storage),
         parallel,
-        Process(setupMergeBase, onMergeBaseDone),
+        ProcessTask(setupMergeBase, onMergeBaseDone),
         topRevisionProc,
         OnGroupDone([storage, callback] {
             if (storage->mergeBase == storage->topRevision)

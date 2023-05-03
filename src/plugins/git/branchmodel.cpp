@@ -414,7 +414,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
     }
 
     using namespace Tasking;
-    const Process topRevisionProc =
+    const ProcessTask topRevisionProc =
         d->client->topRevision(workingDirectory,
                                [=](const QString &ref, const QDateTime &dateTime) {
                                    d->currentSha = ref;
@@ -471,7 +471,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
 
     const Group root {
         topRevisionProc,
-        Process(setupForEachRef, forEachRefDone, forEachRefError),
+        ProcessTask(setupForEachRef, forEachRefDone, forEachRefError),
         OnGroupDone(finalize),
         OnGroupError(finalize)
     };

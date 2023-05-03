@@ -142,7 +142,7 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::checkDirTask()
         }
         m_checkResult = CheckResult::SkipRemoveDir;
     };
-    return Process(setupHandler, doneHandler, errorHandler);
+    return ProcessTask(setupHandler, doneHandler, errorHandler);
 }
 
 TaskItem QnxDeployQtLibrariesDialogPrivate::removeDirTask()
@@ -159,7 +159,7 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::removeDirTask()
         m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1")
                                            .arg(process.errorString()));
     };
-    return Process(setupHandler, {}, errorHandler);
+    return ProcessTask(setupHandler, {}, errorHandler);
 }
 
 TaskItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
@@ -212,7 +212,7 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::chmodTask(const DeployableFile &file
                                    .arg(file.remoteFilePath(), process.cleanedStdErr()));
         }
     };
-    return Process(setupHandler, {}, errorHandler);
+    return ProcessTask(setupHandler, {}, errorHandler);
 }
 
 TaskItem QnxDeployQtLibrariesDialogPrivate::chmodTree()

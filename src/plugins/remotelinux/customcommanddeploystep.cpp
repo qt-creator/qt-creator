@@ -81,7 +81,7 @@ Group CustomCommandDeployStep::deployRecipe()
                 .arg(process.exitCode()));
         }
     };
-    return Group { Process(setupHandler, doneHandler, errorHandler) };
+    return Group { ProcessTask(setupHandler, doneHandler, errorHandler) };
 }
 
 

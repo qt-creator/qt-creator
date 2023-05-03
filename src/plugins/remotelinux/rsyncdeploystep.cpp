@@ -111,7 +111,7 @@ TaskItem RsyncDeployStep::mkdirTask()
         addErrorMessage(Tr::tr("Deploy via rsync: failed to create remote directories:")
                         + '\n' + finalMessage);
     };
-    return Process(setupHandler, {}, errorHandler);
+    return ProcessTask(setupHandler, {}, errorHandler);
 }
 
 TaskItem RsyncDeployStep::transferTask()

@@ -187,7 +187,7 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
         OnGroupSetup(onGroupSetup),
         Group {
             optional,
-            Process(onProcessSetup, onProcessDone, onProcessError)
+            ProcessTask(onProcessSetup, onProcessDone, onProcessError)
         }
     };
     return group;
