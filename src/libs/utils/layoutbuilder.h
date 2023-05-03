@@ -24,48 +24,15 @@ QT_END_NAMESPACE
 
 namespace Layouting {
 
-class LayoutBuilder;
-class LayoutItem;
-class Span;
-
-// Special items
-
-class QTCREATOR_UTILS_EXPORT Space
-{
-public:
-    explicit Space(int space) : space(space) {}
-    const int space;
-};
-
-class QTCREATOR_UTILS_EXPORT Stretch
-{
-public:
-    explicit Stretch(int stretch = 1) : stretch(stretch) {}
-    const int stretch;
-};
-
-
 // LayoutItem
 
+class LayoutBuilder;
+class LayoutItem;
 using LayoutItems = QList<LayoutItem>;
-
-void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const std::function<void(QObject *target)> &t);
-void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, QWidget *t);
-void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, QLayout *t);
-void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, LayoutItem(*t)());
-void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const QString &t);
-void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const Span &t);
-void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const Space &t);
-void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const Stretch &t);
 
 class QTCREATOR_UTILS_EXPORT LayoutItem
 {
 public:
-    enum class AlignmentType {
-        DefaultAlignment,
-        AlignAsFormLabel,
-    };
-
     using Setter = std::function<void(QObject *target)>;
 
     LayoutItem();
@@ -88,12 +55,27 @@ public:
     void addItem(const LayoutItem &item);
     void addItems(const LayoutItems &items);
     void addRow(const LayoutItems &items);
-    void finishRow();
 
     std::function<void(LayoutBuilder &)> onAdd;
     std::function<void(LayoutBuilder &)> onExit;
     std::function<void(QObject *target)> setter;
     LayoutItems subItems;
+};
+
+// Special items
+
+class QTCREATOR_UTILS_EXPORT Space
+{
+public:
+    explicit Space(int space) : space(space) {}
+    const int space;
+};
+
+class QTCREATOR_UTILS_EXPORT Stretch
+{
+public:
+    explicit Stretch(int stretch = 1) : stretch(stretch) {}
+    const int stretch;
 };
 
 class QTCREATOR_UTILS_EXPORT Span
@@ -180,6 +162,17 @@ public:
 
     int exec(int &argc, char *argv[]);
 };
+
+
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const std::function<void(QObject *target)> &t);
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, QWidget *t);
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, QLayout *t);
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, LayoutItem(*t)());
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const QString &t);
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const Span &t);
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const Space &t);
+void QTCREATOR_UTILS_EXPORT createItem(LayoutItem *item, const Stretch &t);
+
 
 // "Singletons"
 
