@@ -603,11 +603,13 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
             AndroidManager::installQASIPackage(target(), packagePath);
     });
 
-    Layouting::Form builder;
-    builder.addRow({m_uninstallPreviousPackage});
-    builder.addRow({installCustomApkButton});
-    builder.addItem(Layouting::noMargin);
-    builder.attachTo(widget);
+    using namespace Layouting;
+
+    Form {
+        m_uninstallPreviousPackage, br,
+        installCustomApkButton,
+        noMargin
+    }.attachTo(widget);
 
     return widget;
 }
