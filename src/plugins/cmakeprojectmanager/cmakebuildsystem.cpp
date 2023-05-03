@@ -1257,11 +1257,11 @@ void CMakeBuildSystem::runCTest()
     QTC_ASSERT(parameters.isValid(), return);
 
     ensureBuildDirectory(parameters);
-    m_ctestProcess.reset(new QtcProcess);
+    m_ctestProcess.reset(new Process);
     m_ctestProcess->setEnvironment(buildConfiguration()->environment());
     m_ctestProcess->setWorkingDirectory(parameters.buildDirectory);
     m_ctestProcess->setCommand({m_ctestPath, { "-N", "--show-only=json-v1"}});
-    connect(m_ctestProcess.get(), &QtcProcess::done, this, [this] {
+    connect(m_ctestProcess.get(), &Process::done, this, [this] {
         if (m_ctestProcess->result() == ProcessResult::FinishedWithSuccess) {
             const QJsonDocument json
                 = QJsonDocument::fromJson(m_ctestProcess->readAllRawStandardOutput());
@@ -1735,12 +1735,12 @@ void CMakeBuildSystem::runGenerator(Id id)
             optionsAspect && !optionsAspect->value().isEmpty()) {
         cmdLine.addArgs(optionsAspect->value(), CommandLine::Raw);
     }
-    const auto proc = new QtcProcess(this);
-    connect(proc, &QtcProcess::done, proc, &QtcProcess::deleteLater);
-    connect(proc, &QtcProcess::readyReadStandardOutput, this, [proc] {
+    const auto proc = new Process(this);
+    connect(proc, &Process::done, proc, &Process::deleteLater);
+    connect(proc, &Process::readyReadStandardOutput, this, [proc] {
         Core::MessageManager::writeFlashing(QString::fromLocal8Bit(proc->readAllRawStandardOutput()));
     });
-    connect(proc, &QtcProcess::readyReadStandardError, this, [proc] {
+    connect(proc, &Process::readyReadStandardError, this, [proc] {
         Core::MessageManager::writeDisrupting(QString::fromLocal8Bit(proc->readAllRawStandardError()));
     });
     proc->setWorkingDirectory(outDir);

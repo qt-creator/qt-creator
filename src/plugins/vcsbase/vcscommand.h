@@ -20,7 +20,7 @@ QT_END_NAMESPACE
 namespace Utils {
 class CommandLine;
 class Environment;
-class QtcProcess;
+class Process;
 }
 
 namespace VcsBase {
@@ -33,7 +33,7 @@ class VCSBASE_EXPORT CommandResult
 {
 public:
     CommandResult() = default;
-    CommandResult(const Utils::QtcProcess &process);
+    CommandResult(const Utils::Process &process);
     CommandResult(const VcsCommand &command);
     CommandResult(Utils::ProcessResult result, const QString &exitMessage)
         : m_result(result), m_exitMessage(exitMessage) {}

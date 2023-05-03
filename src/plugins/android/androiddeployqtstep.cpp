@@ -381,7 +381,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
         cmd.addArgs({"install", "-r", m_apkPath.toString()});
     }
 
-    QtcProcess process;
+    Process process;
     process.setCommand(cmd);
     process.setWorkingDirectory(m_workingDirectory);
     process.setEnvironment(m_environment);
@@ -576,7 +576,7 @@ void AndroidDeployQtStep::doCancel()
 
 void AndroidDeployQtStep::runCommand(const CommandLine &command)
 {
-    QtcProcess buildProc;
+    Process buildProc;
     buildProc.setTimeoutS(2 * 60);
     emit addOutput(Tr::tr("Package deploy: Running command \"%1\".").arg(command.toUserOutput()),
                    OutputFormat::NormalMessage);

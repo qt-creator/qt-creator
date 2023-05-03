@@ -84,12 +84,12 @@ signals:
 
 private:
     TaskItem remoteTask() final {
-        const auto setup = [this](QtcProcess &process) {
+        const auto setup = [this](Process &process) {
             const QStringList args = {"if=" + m_filePath.path()};
             const FilePath dd = m_filePath.withNewPath("dd");
             process.setCommand({dd, args, OsType::OsTypeLinux});
-            QtcProcess *processPtr = &process;
-            connect(processPtr, &QtcProcess::readyReadStandardOutput, this, [this, processPtr] {
+            Process *processPtr = &process;
+            connect(processPtr, &Process::readyReadStandardOutput, this, [this, processPtr] {
                 emit readyRead(processPtr->readAllRawStandardOutput());
             });
         };
@@ -246,11 +246,11 @@ signals:
 
 private:
     TaskItem remoteTask() final {
-        const auto setup = [this](QtcProcess &process) {
+        const auto setup = [this](Process &process) {
             m_writeBuffer = new WriteBuffer(false, &process);
-            connect(m_writeBuffer, &WriteBuffer::writeRequested, &process, &QtcProcess::writeRaw);
+            connect(m_writeBuffer, &WriteBuffer::writeRequested, &process, &Process::writeRaw);
             connect(m_writeBuffer, &WriteBuffer::closeWriteChannelRequested,
-                    &process, &QtcProcess::closeWriteChannel);
+                    &process, &Process::closeWriteChannel);
             const QStringList args = {"of=" + m_filePath.path()};
             const FilePath dd = m_filePath.withNewPath("dd");
             process.setCommand({dd, args, OsType::OsTypeLinux});
@@ -258,9 +258,9 @@ private:
                 process.setProcessMode(ProcessMode::Writer);
             else
                 process.setWriteData(m_writeData);
-            connect(&process, &QtcProcess::started, this, [this] { emit started(); });
+            connect(&process, &Process::started, this, [this] { emit started(); });
         };
-        const auto finalize = [this](const QtcProcess &) {
+        const auto finalize = [this](const Process &) {
             delete m_writeBuffer;
             m_writeBuffer = nullptr;
         };
@@ -311,7 +311,7 @@ static Group sameRemoteDeviceTransferTask(const FilePath &source, const FilePath
     QTC_CHECK(destination.needsDevice());
     QTC_CHECK(source.isSameDevice(destination));
 
-    const auto setup = [source, destination](QtcProcess &process) {
+    const auto setup = [source, destination](Process &process) {
         const QStringList args = {source.path(), destination.path()};
         const FilePath cp = source.withNewPath("cp");
         process.setCommand({cp, args, OsType::OsTypeLinux});

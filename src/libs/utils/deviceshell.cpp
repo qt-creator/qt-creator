@@ -81,7 +81,7 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
     useProcess |= stdInData.size() > (1024 * 100);
 
     if (useProcess) {
-        QtcProcess proc;
+        Process proc;
         const CommandLine fallbackCmd = createFallbackCommand(cmd);
         qCDebug(deviceShellLog) << "Running fallback:" << fallbackCmd;
         proc.setCommand(fallbackCmd);
@@ -136,7 +136,7 @@ void DeviceShell::close()
  * Override this function to setup the shell process.
  * The default implementation just sets the command line to "bash"
  */
-void DeviceShell::setupShellProcess(QtcProcess *shellProcess)
+void DeviceShell::setupShellProcess(Process *shellProcess)
 {
     shellProcess->setCommand(CommandLine{"bash"});
 }
@@ -171,8 +171,8 @@ void DeviceShell::startupFailed(const CommandLine &cmdLine)
  */
 bool DeviceShell::start()
 {
-    m_shellProcess = std::make_unique<QtcProcess>();
-    connect(m_shellProcess.get(), &QtcProcess::done, m_shellProcess.get(),
+    m_shellProcess = std::make_unique<Process>();
+    connect(m_shellProcess.get(), &Process::done, m_shellProcess.get(),
             [this] { emit done(m_shellProcess->resultData()); });
     connect(&m_thread, &QThread::finished, m_shellProcess.get(), [this] { closeShellProcess(); }, Qt::DirectConnection);
 
@@ -199,11 +199,11 @@ bool DeviceShell::start()
 
             if (installShellScript()) {
                 connect(m_shellProcess.get(),
-                        &QtcProcess::readyReadStandardOutput,
+                        &Process::readyReadStandardOutput,
                         m_shellProcess.get(),
                         [this] { onReadyRead(); });
                 connect(m_shellProcess.get(),
-                        &QtcProcess::readyReadStandardError,
+                        &Process::readyReadStandardError,
                         m_shellProcess.get(),
                         [this] {
                             const QByteArray stdErr = m_shellProcess->readAllRawStandardError();
@@ -216,7 +216,7 @@ bool DeviceShell::start()
                 return false;
             }
 
-            connect(m_shellProcess.get(), &QtcProcess::done, m_shellProcess.get(), [this] {
+            connect(m_shellProcess.get(), &Process::done, m_shellProcess.get(), [this] {
                 if (m_shellProcess->resultData().m_exitCode != EXIT_SUCCESS
                     || m_shellProcess->resultData().m_exitStatus != QProcess::NormalExit) {
                     qCWarning(deviceShellLog) << "Shell exited with error code:"

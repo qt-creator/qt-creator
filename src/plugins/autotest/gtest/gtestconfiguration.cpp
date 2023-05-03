@@ -17,7 +17,7 @@ using namespace Utils;
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *GTestConfiguration::createOutputReader(QtcProcess *app) const
+TestOutputReader *GTestConfiguration::createOutputReader(Process *app) const
 {
     return new GTestOutputReader(app, buildDirectory(), projectFile());
 }

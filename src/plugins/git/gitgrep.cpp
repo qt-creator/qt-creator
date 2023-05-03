@@ -161,7 +161,7 @@ public:
                 });
         arguments << "--" << filterArgs << exclusionArgs;
 
-        QtcProcess process;
+        Process process;
         process.setEnvironment(m_environment);
         process.setCommand({m_vcsBinary, arguments});
         process.setWorkingDirectory(m_directory);

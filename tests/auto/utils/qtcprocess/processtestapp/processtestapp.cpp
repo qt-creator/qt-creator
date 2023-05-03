@@ -77,7 +77,7 @@ SubProcessConfig::SubProcessConfig(const char *envVar, const QString &envVal)
 {
 }
 
-void SubProcessConfig::setupSubProcess(QtcProcess *subProcess) const
+void SubProcessConfig::setupSubProcess(Process *subProcess) const
 {
     subProcess->setEnvironment(m_environment);
     const FilePath filePath = FilePath::fromString(s_pathToProcessTestApp
@@ -148,7 +148,7 @@ int ProcessTestApp::ChannelForwarding::main()
     qunsetenv(envVar());
 
     SubProcessConfig subConfig(StandardOutputAndErrorWriter::envVar(), {});
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
 
     process.setProcessChannelMode(channelMode);
@@ -206,7 +206,7 @@ int ProcessTestApp::RecursiveCrashingProcess::main()
         return 1;
     }
     SubProcessConfig subConfig(envVar(), QString::number(currentDepth - 1));
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
     process.start();
     process.waitForFinished();
@@ -249,7 +249,7 @@ int ProcessTestApp::RecursiveBlockingProcess::main()
         }
     }
     SubProcessConfig subConfig(envVar(), QString::number(currentDepth - 1));
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
     process.setProcessChannelMode(QProcess::ForwardedChannels);
     process.start();

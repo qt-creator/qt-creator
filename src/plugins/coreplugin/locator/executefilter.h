@@ -11,7 +11,7 @@
 #include <QStringList>
 #include <QTextCodec>
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace Core {
 namespace Internal {
@@ -49,7 +49,7 @@ private:
 
     QQueue<ExecuteData> m_taskQueue;
     QStringList m_commandHistory;
-    Utils::QtcProcess *m_process = nullptr;
+    Utils::Process *m_process = nullptr;
     QTextCodec::ConverterState m_stdoutState;
     QTextCodec::ConverterState m_stderrState;
 };

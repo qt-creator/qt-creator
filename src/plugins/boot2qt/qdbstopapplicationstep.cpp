@@ -39,7 +39,7 @@ public:
 
 Group QdbStopApplicationStep::deployRecipe()
 {
-    const auto setupHandler = [this](QtcProcess &process) {
+    const auto setupHandler = [this](Process &process) {
         const auto device = DeviceKitAspect::device(target()->kit());
         if (!device) {
             addErrorMessage(Tr::tr("No device to stop the application on."));
@@ -48,16 +48,16 @@ Group QdbStopApplicationStep::deployRecipe()
         QTC_CHECK(device);
         process.setCommand({device->filePath(Constants::AppcontrollerFilepath), {"--stop"}});
         process.setWorkingDirectory("/usr/bin");
-        QtcProcess *proc = &process;
-        connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
+        Process *proc = &process;
+        connect(proc, &Process::readyReadStandardOutput, this, [this, proc] {
             handleStdOutData(proc->readAllStandardOutput());
         });
         return TaskAction::Continue;
     };
-    const auto doneHandler = [this](const QtcProcess &) {
+    const auto doneHandler = [this](const Process &) {
         addProgressMessage(Tr::tr("Stopped the running application."));
     };
-    const auto errorHandler = [this](const QtcProcess &process) {
+    const auto errorHandler = [this](const Process &process) {
         const QString errorOutput = process.cleanedStdErr();
         const QString failureMessage = Tr::tr("Could not check and possibly stop running application.");
         if (process.exitStatus() == QProcess::CrashExit) {

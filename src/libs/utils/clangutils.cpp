@@ -13,7 +13,7 @@ namespace Utils {
 
 static QVersionNumber getClangdVersion(const FilePath &clangdFilePath)
 {
-    QtcProcess clangdProc;
+    Process clangdProc;
     clangdProc.setCommand({clangdFilePath, {"--version"}});
     clangdProc.runBlocking();
     if (clangdProc.result() != ProcessResult::FinishedWithSuccess)

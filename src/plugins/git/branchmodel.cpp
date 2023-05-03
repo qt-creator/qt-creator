@@ -421,7 +421,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
                                    d->currentDateTime = dateTime;
                                });
 
-    const auto setupForEachRef = [=](QtcProcess &process) {
+    const auto setupForEachRef = [=](Process &process) {
         d->workingDirectory = workingDirectory;
         QStringList args = {"for-each-ref",
                             "--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
@@ -433,7 +433,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         d->client->setupCommand(process, workingDirectory, args);
     };
 
-    const auto forEachRefDone = [=](const QtcProcess &process) {
+    const auto forEachRefDone = [=](const Process &process) {
         const QString output = process.stdOut();
         const QStringList lines = output.split('\n');
         for (const QString &l : lines)
@@ -454,7 +454,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         }
     };
 
-    const auto forEachRefError = [=](const QtcProcess &process) {
+    const auto forEachRefError = [=](const Process &process) {
         if (showError == ShowError::No)
             return;
         const QString message = Tr::tr("Cannot run \"%1\" in \"%2\": %3")
@@ -919,12 +919,12 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
     if (node->tracking.isEmpty())
         return;
 
-    QtcProcess *process = new QtcProcess(node);
+    Process *process = new Process(node);
     process->setEnvironment(d->client->processEnvironment());
     process->setCommand({d->client->vcsBinary(), {"rev-list", "--no-color", "--left-right",
                          "--count", node->fullRef() + "..." + node->tracking}});
     process->setWorkingDirectory(d->workingDirectory);
-    connect(process, &QtcProcess::done, this, [this, process, node] {
+    connect(process, &Process::done, this, [this, process, node] {
         process->deleteLater();
         if (process->result() != ProcessResult::FinishedWithSuccess)
             return;

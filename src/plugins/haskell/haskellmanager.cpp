@@ -87,11 +87,11 @@ void HaskellManager::openGhci(const FilePath &haskellFile)
     });
     const auto args = QStringList{"ghci"}
                       + (isHaskell ? QStringList{haskellFile.fileName()} : QStringList());
-    auto p = new QtcProcess(m_instance);
+    auto p = new Process(m_instance);
     p->setTerminalMode(TerminalMode::On);
     p->setCommand({stackExecutable(), args});
     p->setWorkingDirectory(haskellFile.absolutePath());
-    connect(p, &QtcProcess::done, p, [p] {
+    connect(p, &Process::done, p, [p] {
         if (p->result() != ProcessResult::FinishedWithSuccess) {
             Core::MessageManager::writeDisrupting(
                 Tr::tr("Failed to run GHCi: \"%1\".").arg(p->errorString()));

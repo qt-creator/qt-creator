@@ -13,7 +13,7 @@ class QtTestConfiguration : public DebuggableTestConfiguration
 public:
     explicit QtTestConfiguration(ITestFramework *framework)
         : DebuggableTestConfiguration(framework) {}
-    TestOutputReader *createOutputReader(Utils::QtcProcess *app) const override;
+    TestOutputReader *createOutputReader(Utils::Process *app) const override;
     QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const override;
     Utils::Environment filteredEnvironment(const Utils::Environment &original) const override;
 };

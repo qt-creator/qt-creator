@@ -200,7 +200,7 @@ public:
 
     QHash<QString, QTextDocument*> sourceDocuments;
     InteractiveInterpreter interpreter;
-    QtcProcess process;
+    Process process;
     QmlInspectorAgent inspectorAgent;
 
     QList<quint32> queryIds;
@@ -249,17 +249,17 @@ QmlEngine::QmlEngine()
     connect(stackHandler(), &StackHandler::currentIndexChanged,
             this, &QmlEngine::updateCurrentContext);
 
-    connect(&d->process, &QtcProcess::readyReadStandardOutput, this, [this] {
+    connect(&d->process, &Process::readyReadStandardOutput, this, [this] {
         // FIXME: Redirect to RunControl
         showMessage(d->process.readAllStandardOutput(), AppOutput);
     });
-    connect(&d->process, &QtcProcess::readyReadStandardError, this, [this] {
+    connect(&d->process, &Process::readyReadStandardError, this, [this] {
         // FIXME: Redirect to RunControl
         showMessage(d->process.readAllStandardError(), AppOutput);
     });
 
-    connect(&d->process, &QtcProcess::done, this, &QmlEngine::disconnected);
-    connect(&d->process, &QtcProcess::started, this, &QmlEngine::handleLauncherStarted);
+    connect(&d->process, &Process::done, this, &QmlEngine::disconnected);
+    connect(&d->process, &Process::started, this, &QmlEngine::handleLauncherStarted);
 
     debuggerConsole()->populateFileFinder();
     debuggerConsole()->setScriptEvaluator([this](const QString &expr) {

@@ -119,12 +119,12 @@ QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
 
 TaskItem QnxDeployQtLibrariesDialogPrivate::checkDirTask()
 {
-    const auto setupHandler = [this](QtcProcess &process) {
+    const auto setupHandler = [this](Process &process) {
         m_deployLogWindow->appendPlainText(Tr::tr("Checking existence of \"%1\"")
                                            .arg(fullRemoteDirectory()));
         process.setCommand({m_device->filePath("test"), {"-d", fullRemoteDirectory()}});
     };
-    const auto doneHandler = [this](const QtcProcess &process) {
+    const auto doneHandler = [this](const Process &process) {
         Q_UNUSED(process)
         const int answer = QMessageBox::question(q, q->windowTitle(),
                 Tr::tr("The remote directory \"%1\" already exists.\n"
@@ -133,7 +133,7 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::checkDirTask()
                        QMessageBox::Yes | QMessageBox::No);
         m_checkResult = answer == QMessageBox::Yes ? CheckResult::RemoveDir : CheckResult::Abort;
     };
-    const auto errorHandler = [this](const QtcProcess &process) {
+    const auto errorHandler = [this](const Process &process) {
         if (process.result() != ProcessResult::FinishedWithError) {
             m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1")
                                                .arg(process.errorString()));
@@ -147,14 +147,14 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::checkDirTask()
 
 TaskItem QnxDeployQtLibrariesDialogPrivate::removeDirTask()
 {
-    const auto setupHandler = [this](QtcProcess &process) {
+    const auto setupHandler = [this](Process &process) {
         if (m_checkResult != CheckResult::RemoveDir)
             return TaskAction::StopWithDone;
         m_deployLogWindow->appendPlainText(Tr::tr("Removing \"%1\"").arg(fullRemoteDirectory()));
         process.setCommand({m_device->filePath("rm"), {"-rf", fullRemoteDirectory()}});
         return TaskAction::Continue;
     };
-    const auto errorHandler = [this](const QtcProcess &process) {
+    const auto errorHandler = [this](const Process &process) {
         QTC_ASSERT(process.exitCode() == 0, return);
         m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1")
                                            .arg(process.errorString()));
@@ -198,11 +198,11 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
 
 TaskItem QnxDeployQtLibrariesDialogPrivate::chmodTask(const DeployableFile &file)
 {
-    const auto setupHandler = [=](QtcProcess &process) {
+    const auto setupHandler = [=](Process &process) {
         process.setCommand({m_device->filePath("chmod"),
                 {"a+x", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
     };
-    const auto errorHandler = [=](const QtcProcess &process) {
+    const auto errorHandler = [=](const Process &process) {
         const QString error = process.errorString();
         if (!error.isEmpty()) {
             emitWarningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")

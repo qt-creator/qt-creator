@@ -141,7 +141,7 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
 
         return TaskAction::Continue;
     };
-    const auto onProcessSetup = [=](QtcProcess &process) {
+    const auto onProcessSetup = [=](Process &process) {
         process.setEnvironment(input.environment);
         process.setUseCtrlCStub(true);
         process.setLowPriority();
@@ -158,13 +158,13 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
         qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
         process.setCommand(commandLine);
     };
-    const auto onProcessDone = [=](const QtcProcess &process) {
+    const auto onProcessDone = [=](const Process &process) {
         qCDebug(LOG).noquote() << "Output:\n" << process.cleanedStdOut();
         if (!outputHandler)
             return;
         outputHandler({true, input.unit.file, storage->outputFilePath, input.tool});
     };
-    const auto onProcessError = [=](const QtcProcess &process) {
+    const auto onProcessError = [=](const Process &process) {
         if (!outputHandler)
             return;
         const QString details = Tr::tr("Command line: %1\nProcess Error: %2\nOutput:\n%3")

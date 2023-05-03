@@ -7,7 +7,7 @@
 
 #include <utils/filepath.h>
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace ProjectExplorer {
 
@@ -45,7 +45,7 @@ public:
     AuthenticationType authenticationType = AuthenticationTypeAll;
     SshHostKeyCheckingMode hostKeyCheckingMode = SshHostKeyCheckingAllowNoMatch;
 
-    static bool setupSshEnvironment(Utils::QtcProcess *process);
+    static bool setupSshEnvironment(Utils::Process *process);
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const SshParameters &p1, const SshParameters &p2);
     friend bool operator!=(const SshParameters &p1, const SshParameters &p2) { return !(p1 == p2); }

@@ -76,7 +76,7 @@ static void processRunnerCallback(ProcessData *data)
 {
     FilePath rootPath = FilePath::fromString(data->deviceRoot);
 
-    QtcProcess proc;
+    Process proc;
     proc.setProcessChannelMode(data->processChannelMode);
     proc.setCommand({rootPath.withNewPath("/bin/sh"), {QString("-c"), data->command}});
     proc.setWorkingDirectory(FilePath::fromString(data->workingDirectory));

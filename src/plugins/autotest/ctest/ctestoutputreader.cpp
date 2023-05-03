@@ -50,7 +50,7 @@ public:
     {}
 };
 
-CTestOutputReader::CTestOutputReader(QtcProcess *testApplication,
+CTestOutputReader::CTestOutputReader(Process *testApplication,
                                      const FilePath &buildDirectory)
     : TestOutputReader(testApplication, buildDirectory)
 {

@@ -1593,12 +1593,12 @@ void QmakeBuildSystem::runGenerator(Utils::Id id)
         showError(Tr::tr("Cannot create output directory \"%1\"").arg(outDir.toUserOutput()));
         return;
     }
-    const auto proc = new QtcProcess(this);
-    connect(proc, &QtcProcess::done, proc, &QtcProcess::deleteLater);
-    connect(proc, &QtcProcess::readyReadStandardOutput, this, [proc] {
+    const auto proc = new Process(this);
+    connect(proc, &Process::done, proc, &Process::deleteLater);
+    connect(proc, &Process::readyReadStandardOutput, this, [proc] {
         Core::MessageManager::writeFlashing(QString::fromLocal8Bit(proc->readAllRawStandardOutput()));
     });
-    connect(proc, &QtcProcess::readyReadStandardError, this, [proc] {
+    connect(proc, &Process::readyReadStandardError, this, [proc] {
         Core::MessageManager::writeDisrupting(QString::fromLocal8Bit(proc->readAllRawStandardError()));
     });
     proc->setWorkingDirectory(outDir);

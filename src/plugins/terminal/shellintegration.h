@@ -21,7 +21,7 @@ public:
 
     void onOsc(int cmd, const VTermStringFragment &fragment);
 
-    void prepareProcess(Utils::QtcProcess &process);
+    void prepareProcess(Utils::Process &process);
 
 signals:
     void commandChanged(const Utils::CommandLine &command);

@@ -73,7 +73,7 @@ private:
 
     bool m_markAsPaused = false;
 
-    std::unique_ptr<Utils::QtcProcess> m_controllerProcess;
+    std::unique_ptr<Utils::Process> m_controllerProcess;
     ProjectExplorer::Runnable m_valgrindRunnable;
     qint64 m_pid = 0;
 

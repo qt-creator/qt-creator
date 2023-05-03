@@ -78,7 +78,7 @@ private:
     const FetchMode m_fetchMode;
     const Utils::FilePath m_git;
     const GerritServer m_server;
-    QtcProcess m_process;
+    Process m_process;
 };
 
 FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
@@ -93,11 +93,11 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     , m_server(server)
 {
     m_process.setUseCtrlCStub(true);
-    connect(&m_process, &QtcProcess::done, this, &FetchContext::processDone);
-    connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
+    connect(&m_process, &Process::done, this, &FetchContext::processDone);
+    connect(&m_process, &Process::readyReadStandardError, this, [this] {
         VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllRawStandardError()));
     });
-    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+    connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
         VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllRawStandardOutput()));
     });
     m_process.setWorkingDirectory(repository);

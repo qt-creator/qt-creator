@@ -80,7 +80,7 @@ private:
 
     const Utils::FilePath m_python;
     QList<PipPackage> m_packages;
-    Utils::QtcProcess m_process;
+    Utils::Process m_process;
     QFutureInterface<void> m_future;
     QFutureWatcher<void> m_watcher;
     QTimer m_killTimer;

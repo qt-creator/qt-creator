@@ -11,7 +11,7 @@ QT_BEGIN_NAMESPACE
 class QProcess;
 QT_END_NAMESPACE
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 #define SUB_PROCESS(SubProcessClass)\
 class SubProcessClass\
@@ -72,7 +72,7 @@ class SubProcessConfig
 {
 public:
     SubProcessConfig(const char *envVar, const QString &envVal);
-    void setupSubProcess(Utils::QtcProcess *subProcess) const;
+    void setupSubProcess(Utils::Process *subProcess) const;
     void setupSubProcess(QProcess *subProcess) const;
 
     static void setPathToProcessTestApp(const QString &path);

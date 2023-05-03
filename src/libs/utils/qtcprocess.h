@@ -28,13 +28,13 @@ class DeviceProcessHooks;
 class ProcessInterface;
 class ProcessResultData;
 
-class QTCREATOR_UTILS_EXPORT QtcProcess final : public QObject
+class QTCREATOR_UTILS_EXPORT Process final : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit QtcProcess(QObject *parent = nullptr);
-    ~QtcProcess();
+    explicit Process(QObject *parent = nullptr);
+    ~Process();
 
     // ProcessInterface related
 
@@ -194,7 +194,7 @@ signals:
     void textOnStandardError(const QString &text);
 
 private:
-    friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r);
+    friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const Process &r);
 
     friend class Internal::QtcProcessPrivate;
     Internal::QtcProcessPrivate *d = nullptr;
@@ -207,7 +207,7 @@ public:
     std::function<Environment(const FilePath &)> systemEnvironmentForBinary;
 };
 
-class QTCREATOR_UTILS_EXPORT ProcessTaskAdapter : public Tasking::TaskAdapter<QtcProcess>
+class QTCREATOR_UTILS_EXPORT ProcessTaskAdapter : public Tasking::TaskAdapter<Process>
 {
 public:
     ProcessTaskAdapter();

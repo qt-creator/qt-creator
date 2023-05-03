@@ -93,7 +93,7 @@ void PerfTracePointDialog::runScript()
     m_privilegesChooser->setEnabled(false);
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    m_process.reset(new QtcProcess(this));
+    m_process.reset(new Process(this));
     m_process->setWriteData(m_textEdit->toPlainText().toUtf8());
     m_textEdit->clear();
 
@@ -103,7 +103,7 @@ void PerfTracePointDialog::runScript()
     else
         m_process->setCommand({m_device->filePath("sh"), {}});
 
-    connect(m_process.get(), &QtcProcess::done, this, &PerfTracePointDialog::handleProcessDone);
+    connect(m_process.get(), &Process::done, this, &PerfTracePointDialog::handleProcessDone);
     m_process->start();
 }
 

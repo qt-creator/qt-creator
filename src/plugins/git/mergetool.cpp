@@ -23,8 +23,8 @@ namespace Git::Internal {
 
 MergeTool::MergeTool(QObject *parent) : QObject(parent)
 {
-    connect(&m_process, &QtcProcess::done, this, &MergeTool::done);
-    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, &MergeTool::readData);
+    connect(&m_process, &Process::done, this, &MergeTool::done);
+    connect(&m_process, &Process::readyReadStandardOutput, this, &MergeTool::readData);
     Environment env = Environment::systemEnvironment();
     env.set("LANG", "C");
     env.set("LANGUAGE", "C");

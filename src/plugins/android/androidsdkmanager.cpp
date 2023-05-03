@@ -93,7 +93,7 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (sync):"
                                      << CommandLine(config.sdkManagerToolPath(), newArgs)
                                         .toUserOutput();
-    QtcProcess proc;
+    Process proc;
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
     proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
@@ -121,7 +121,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                                      << CommandLine(config.sdkManagerToolPath(), newArgs)
                                         .toUserOutput();
     int offset = promise.future().progressValue();
-    QtcProcess proc;
+    Process proc;
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
     bool assertionFound = false;
     proc.setTimeoutS(timeout);
@@ -521,7 +521,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
     AndroidSdkManager::OperationOutput result;
     result.type = AndroidSdkManager::LicenseWorkflow;
 
-    QtcProcess licenseCommand;
+    Process licenseCommand;
     licenseCommand.setProcessMode(ProcessMode::Writer);
     licenseCommand.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     bool reviewingLicenses = false;

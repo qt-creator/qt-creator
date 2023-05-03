@@ -130,7 +130,7 @@ QString BinaryVersionToolTipEventFilter::toolVersion(const CommandLine &cmd)
 {
     if (cmd.executable().isEmpty())
         return QString();
-    QtcProcess proc;
+    Process proc;
     proc.setTimeoutS(1);
     proc.setCommand(cmd);
     proc.runBlocking();

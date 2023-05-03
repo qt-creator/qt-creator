@@ -420,7 +420,7 @@ static QString findQtInstallPath(const FilePath &qmakePath)
 {
     if (qmakePath.isEmpty())
         return QString();
-    QtcProcess proc;
+    Process proc;
     proc.setCommand({qmakePath, {"-query", "QT_INSTALL_HEADERS"}});
     proc.start();
     if (!proc.waitForFinished()) {

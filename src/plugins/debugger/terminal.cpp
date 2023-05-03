@@ -174,12 +174,12 @@ void TerminalRunner::start()
     QTC_ASSERT(!m_stubProc, reportFailure({}); return);
     Runnable stub = m_stubRunnable();
 
-    m_stubProc = new QtcProcess(this);
+    m_stubProc = new Process(this);
     m_stubProc->setTerminalMode(TerminalMode::Debug);
 
-    connect(m_stubProc, &QtcProcess::started,
+    connect(m_stubProc, &Process::started,
             this, &TerminalRunner::stubStarted);
-    connect(m_stubProc, &QtcProcess::done,
+    connect(m_stubProc, &Process::done,
             this, &TerminalRunner::stubDone);
 
     m_stubProc->setEnvironment(stub.environment);

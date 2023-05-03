@@ -179,7 +179,7 @@ protected:
     void updateCopyState();
 
 private:
-    std::unique_ptr<Utils::QtcProcess> m_process;
+    std::unique_ptr<Utils::Process> m_process;
     std::unique_ptr<Internal::TerminalSurface> m_surface;
     std::unique_ptr<ShellIntegration> m_shellIntegration;
 

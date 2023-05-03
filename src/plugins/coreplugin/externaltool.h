@@ -14,7 +14,7 @@
 #include <QTextCodec>
 #include <QMetaType>
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace Core {
 
@@ -127,7 +127,7 @@ private:
     QString m_resolvedInput;
     Utils::FilePath m_resolvedWorkingDirectory;
     Utils::Environment m_resolvedEnvironment;
-    Utils::QtcProcess *m_process;
+    Utils::Process *m_process;
     QTextCodec *m_outputCodec;
     QTextCodec::ConverterState m_outputCodecState;
     QTextCodec::ConverterState m_errorCodecState;

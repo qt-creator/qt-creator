@@ -80,7 +80,7 @@ FilePath getPylsModulePath(CommandLine pylsCommand)
 
     pylsCommand.addArg("-h");
 
-    QtcProcess pythonProcess;
+    Process pythonProcess;
     Environment env = pythonProcess.environment();
     env.set("PYTHONVERBOSE", "x");
     pythonProcess.setEnvironment(env);
@@ -114,7 +114,7 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
     const CommandLine pythonLShelpCommand(python, {"-m", "pylsp", "-h"});
     const FilePath &modulePath = getPylsModulePath(pythonLShelpCommand);
 
-    QtcProcess pythonProcess;
+    Process pythonProcess;
     pythonProcess.setCommand(pythonLShelpCommand);
     pythonProcess.runBlocking();
     if (pythonProcess.allOutput().contains("Python Language Server"))

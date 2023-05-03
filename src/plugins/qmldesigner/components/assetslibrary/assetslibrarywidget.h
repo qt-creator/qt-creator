@@ -23,7 +23,7 @@ QT_END_NAMESPACE
 class StudioQuickWidget;
 
 namespace Utils {
-    class QtcProcess;
+    class Process;
 }
 
 namespace QmlDesigner {

@@ -209,7 +209,7 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
             return OpenResult::ReadError;
         }
 
-        Utils::QtcProcess objectMapReader;
+        Utils::Process objectMapReader;
         objectMapReader.setCommand({exe, {"--scriptMap", "--mode", "read",
                                           "--scriptedObjectMapPath", realFileName.toUserOutput()}});
         objectMapReader.setCodec(QTextCodec::codecForName("UTF-8"));
@@ -240,7 +240,7 @@ bool ObjectsMapDocument::writeFile(const Utils::FilePath &fileName) const
     if (!exe.isExecutableFile())
         return false;
 
-    Utils::QtcProcess objectMapWriter;
+    Utils::Process objectMapWriter;
     objectMapWriter.setCommand({exe, {"--scriptMap", "--mode", "write",
                                       "--scriptedObjectMapPath", fileName.toUserOutput()}});
     objectMapWriter.setWriteData(contents());

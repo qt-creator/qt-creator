@@ -43,7 +43,7 @@ const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
 static QString getGdbConfiguration(const FilePath &command, const Environment &sysEnv)
 {
     // run gdb with the --configuration opion
-    QtcProcess proc;
+    Process proc;
     proc.setEnvironment(sysEnv);
     proc.setCommand({command, {"--configuration"}});
     proc.runBlocking();
@@ -162,7 +162,7 @@ void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *cust
     // hack below tricks it into giving us the information we want.
     env.set("QNX_TARGET", QString());
 
-    QtcProcess proc;
+    Process proc;
     proc.setEnvironment(env);
     proc.setCommand({m_command, {version}});
     proc.runBlocking();

@@ -65,7 +65,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Environment &
         return {};
     fakeIn.close();
 
-    QtcProcess cpp;
+    Process cpp;
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
     cpp.setCommand({compiler, {compilerTargetFlag(abi),  "-dM", "-E", fakeIn.fileName()}});
@@ -86,7 +86,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Environment &
     if (!compiler.exists())
         return {};
 
-    QtcProcess cpp;
+    Process cpp;
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
     cpp.setCommand({compiler, {compilerTargetFlag(abi), "--print-search-dirs"}});

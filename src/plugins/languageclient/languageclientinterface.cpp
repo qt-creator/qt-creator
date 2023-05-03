@@ -95,14 +95,14 @@ void StdIOClientInterface::startImpl()
         QTC_CHECK(!m_process->isRunning());
         delete m_process;
     }
-    m_process = new QtcProcess;
+    m_process = new Process;
     m_process->setProcessMode(ProcessMode::Writer);
-    connect(m_process, &QtcProcess::readyReadStandardError,
+    connect(m_process, &Process::readyReadStandardError,
             this, &StdIOClientInterface::readError);
-    connect(m_process, &QtcProcess::readyReadStandardOutput,
+    connect(m_process, &Process::readyReadStandardOutput,
             this, &StdIOClientInterface::readOutput);
-    connect(m_process, &QtcProcess::started, this, &StdIOClientInterface::started);
-    connect(m_process, &QtcProcess::done, this, [this] {
+    connect(m_process, &Process::started, this, &StdIOClientInterface::started);
+    connect(m_process, &Process::done, this, [this] {
         m_logFile.flush();
         if (m_process->result() != ProcessResult::FinishedWithSuccess)
             emit error(QString("%1 (see logs in \"%2\")")

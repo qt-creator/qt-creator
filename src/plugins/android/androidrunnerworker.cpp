@@ -98,7 +98,7 @@ static void findProcessPIDAndUser(QPromise<PidUserPair> &promise,
     chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
     do {
         QThread::msleep(200);
-        QtcProcess proc;
+        Process proc;
         proc.setCommand({adbPath, args});
         proc.runBlocking();
         const QString out = proc.allOutput();
@@ -117,7 +117,7 @@ static void findProcessPIDAndUser(QPromise<PidUserPair> &promise,
         args = {selector};
         args.append({"shell", "ps", "-o", "user", "-p"});
         args.append(QString::number(processPID));
-        QtcProcess proc;
+        Process proc;
         proc.setCommand({adbPath, args});
         proc.runBlocking();
         const QString out = proc.allOutput();

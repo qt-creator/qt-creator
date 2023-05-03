@@ -146,13 +146,13 @@ GdbEngine::GdbEngine()
     connect(&s.useDynamicType, &BaseAspect::changed,
             this, &GdbEngine::reloadLocals);
 
-    connect(&m_gdbProc, &QtcProcess::started,
+    connect(&m_gdbProc, &Process::started,
             this, &GdbEngine::handleGdbStarted);
-    connect(&m_gdbProc, &QtcProcess::done,
+    connect(&m_gdbProc, &Process::done,
             this, &GdbEngine::handleGdbDone);
-    connect(&m_gdbProc, &QtcProcess::readyReadStandardOutput,
+    connect(&m_gdbProc, &Process::readyReadStandardOutput,
             this, &GdbEngine::readGdbStandardOutput);
-    connect(&m_gdbProc, &QtcProcess::readyReadStandardError,
+    connect(&m_gdbProc, &Process::readyReadStandardError,
             this, &GdbEngine::readGdbStandardError);
 
     // Output
@@ -4305,7 +4305,7 @@ void GdbEngine::interruptLocalInferior(qint64 pid)
     if (runParameters().runAsRoot) {
         Environment env = Environment::systemEnvironment();
         RunControl::provideAskPassEntry(env);
-        QtcProcess proc;
+        Process proc;
         proc.setCommand(CommandLine{"sudo", {"-A", "kill", "-s", "SIGINT", QString::number(pid)}});
         proc.setEnvironment(env);
         proc.start();
@@ -5046,7 +5046,7 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const Fi
         args += {"-ex", "set osabi GNU/Linux"};
     args += {"-ex", "core " + coreFile.toUserOutput()};
 
-    QtcProcess proc;
+    Process proc;
     Environment envLang(Environment::systemEnvironment());
     envLang.setupEnglishOutput();
     proc.setEnvironment(envLang);

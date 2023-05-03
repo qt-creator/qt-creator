@@ -70,7 +70,7 @@ public:
     bool isDeploymentNecessary() const final;
     Utils::Tasking::Group deployRecipe() final;
 
-    QDateTime timestampFromStat(const DeployableFile &file, QtcProcess *statProc);
+    QDateTime timestampFromStat(const DeployableFile &file, Process *statProc);
 
     using FilesToStat = std::function<QList<DeployableFile>(UploadStorage *)>;
     using StatEndHandler
@@ -115,7 +115,7 @@ bool GenericDirectUploadStep::isDeploymentNecessary() const
 }
 
 QDateTime GenericDirectUploadStep::timestampFromStat(const DeployableFile &file,
-                                                     QtcProcess *statProc)
+                                                     Process *statProc)
 {
     bool succeeded = false;
     QString error;
@@ -160,13 +160,13 @@ TaskItem GenericDirectUploadStep::statTask(UploadStorage *storage,
                                            const DeployableFile &file,
                                            StatEndHandler statEndHandler)
 {
-    const auto setupHandler = [=](QtcProcess &process) {
+    const auto setupHandler = [=](Process &process) {
         // We'd like to use --format=%Y, but it's not supported by busybox.
         process.setCommand({deviceConfiguration()->filePath("stat"),
                             {"-t", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
     };
-    const auto endHandler = [=](const QtcProcess &process) {
-        QtcProcess *proc = const_cast<QtcProcess *>(&process);
+    const auto endHandler = [=](const Process &process) {
+        Process *proc = const_cast<Process *>(&process);
         const QDateTime timestamp = timestampFromStat(file, proc);
         statEndHandler(storage, file, timestamp);
     };
@@ -231,11 +231,11 @@ TaskItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &s
 
 TaskItem GenericDirectUploadStep::chmodTask(const DeployableFile &file)
 {
-    const auto setupHandler = [=](QtcProcess &process) {
+    const auto setupHandler = [=](Process &process) {
         process.setCommand({deviceConfiguration()->filePath("chmod"),
                 {"a+x", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
     };
-    const auto errorHandler = [=](const QtcProcess &process) {
+    const auto errorHandler = [=](const Process &process) {
         const QString error = process.errorString();
         if (!error.isEmpty()) {
             addWarningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")

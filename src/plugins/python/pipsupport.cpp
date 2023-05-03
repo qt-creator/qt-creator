@@ -27,9 +27,9 @@ const char pipInstallTaskId[] = "Python::pipInstallTask";
 PipInstallTask::PipInstallTask(const FilePath &python)
     : m_python(python)
 {
-    connect(&m_process, &QtcProcess::done, this, &PipInstallTask::handleDone);
-    connect(&m_process, &QtcProcess::readyReadStandardError, this, &PipInstallTask::handleError);
-    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, &PipInstallTask::handleOutput);
+    connect(&m_process, &Process::done, this, &PipInstallTask::handleDone);
+    connect(&m_process, &Process::readyReadStandardError, this, &PipInstallTask::handleError);
+    connect(&m_process, &Process::readyReadStandardOutput, this, &PipInstallTask::handleOutput);
     connect(&m_killTimer, &QTimer::timeout, this, &PipInstallTask::cancel);
     connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &PipInstallTask::cancel);
     m_watcher.setFuture(m_future.future());
@@ -160,7 +160,7 @@ static PipPackageInfo infoImpl(const PipPackage &package, const FilePath &python
 {
     PipPackageInfo result;
 
-    QtcProcess pip;
+    Process pip;
     pip.setCommand(CommandLine(python, {"-m", "pip", "show", "-f", package.packageName}));
     pip.runBlocking();
     QString fieldName;

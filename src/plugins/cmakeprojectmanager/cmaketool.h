@@ -12,7 +12,7 @@
 
 #include <optional>
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace CMakeProjectManager {
 
@@ -95,7 +95,7 @@ public:
 private:
     void readInformation() const;
 
-    void runCMake(Utils::QtcProcess &proc, const QStringList &args, int timeoutS = 1) const;
+    void runCMake(Utils::Process &proc, const QStringList &args, int timeoutS = 1) const;
     void parseFunctionDetailsOutput(const QString &output);
     QStringList parseVariableOutput(const QString &output);
 

@@ -106,7 +106,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     // Always use the sourceDir: If we are triggered because the build directory is getting deleted
     // then we are racing against CMakeCache.txt also getting deleted.
 
-    m_process.reset(new QtcProcess);
+    m_process.reset(new Process);
 
     m_process->setWorkingDirectory(buildDirectory);
     m_process->setEnvironment(parameters.environment);
@@ -120,7 +120,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         BuildSystem::appendBuildSystemOutput(stripTrailingNewline(s));
     });
 
-    connect(m_process.get(), &QtcProcess::done, this, [this] {
+    connect(m_process.get(), &Process::done, this, [this] {
         handleProcessDone(m_process->resultData());
     });
 

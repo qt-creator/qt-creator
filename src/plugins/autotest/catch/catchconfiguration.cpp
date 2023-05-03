@@ -15,7 +15,7 @@ using namespace Utils;
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *CatchConfiguration::createOutputReader(QtcProcess *app) const
+TestOutputReader *CatchConfiguration::createOutputReader(Process *app) const
 {
     return new CatchOutputReader(app, buildDirectory(), projectFile());
 }

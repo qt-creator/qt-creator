@@ -612,7 +612,7 @@ bool AndroidManager::checkKeystorePassword(const FilePath &keystorePath,
     const CommandLine cmd(AndroidConfigurations::currentConfig().keytoolPath(),
                           {"-list", "-keystore", keystorePath.toUserOutput(),
                            "--storepass", keystorePasswd});
-    QtcProcess proc;
+    Process proc;
     proc.setTimeoutS(10);
     proc.setCommand(cmd);
     proc.runBlocking(EventLoopMode::On);
@@ -632,7 +632,7 @@ bool AndroidManager::checkCertificatePassword(const FilePath &keystorePath,
     else
         arguments << certificatePasswd;
 
-    QtcProcess proc;
+    Process proc;
     proc.setTimeoutS(10);
     proc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
     proc.runBlocking(EventLoopMode::On);
@@ -646,7 +646,7 @@ bool AndroidManager::checkCertificateExists(const FilePath &keystorePath,
     QStringList arguments = { "-list", "-keystore", keystorePath.toUserOutput(),
                               "--storepass", keystorePasswd, "-alias", alias };
 
-    QtcProcess proc;
+    Process proc;
     proc.setTimeoutS(10);
     proc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
     proc.runBlocking(EventLoopMode::On);
@@ -681,7 +681,7 @@ SdkToolResult AndroidManager::runCommand(const CommandLine &command,
                                          const QByteArray &writeData, int timeoutS)
 {
     Android::SdkToolResult cmdResult;
-    QtcProcess cmdProc;
+    Process cmdProc;
     cmdProc.setTimeoutS(timeoutS);
     cmdProc.setWriteData(writeData);
     qCDebug(androidManagerLog) << "Running command (sync):" << command.toUserOutput();

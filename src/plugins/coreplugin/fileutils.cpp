@@ -68,9 +68,9 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
         if (!pathIn.isDir())
             param += QLatin1String("/select,");
         param += QDir::toNativeSeparators(fileInfo.canonicalFilePath());
-        QtcProcess::startDetached({explorer, param});
+        Process::startDetached({explorer, param});
     } else if (HostOsInfo::isMacHost()) {
-        QtcProcess::startDetached({"/usr/bin/open", {"-R", fileInfo.canonicalFilePath()}});
+        Process::startDetached({"/usr/bin/open", {"-R", fileInfo.canonicalFilePath()}});
     } else {
         // we cannot select a file here, because no file browser really supports it...
         const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.filePath();

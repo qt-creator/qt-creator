@@ -358,12 +358,12 @@ UvscServerProviderRunner::UvscServerProviderRunner(ProjectExplorer::RunControl *
 
     m_process.setCommand(runnable.command);
 
-    connect(&m_process, &QtcProcess::started, this, [this] {
+    connect(&m_process, &Process::started, this, [this] {
         ProcessHandle pid(m_process.processId());
         this->runControl()->setApplicationProcessHandle(pid);
         reportStarted();
     });
-    connect(&m_process, &QtcProcess::done, this, [this] {
+    connect(&m_process, &Process::done, this, [this] {
         appendMessage(m_process.exitMessage(), NormalMessageFormat);
         reportStopped();
     });

@@ -42,7 +42,7 @@ public:
 private:
     Group deployRecipe() final
     {
-        const auto setupHandler = [this](QtcProcess &process) {
+        const auto setupHandler = [this](Process &process) {
             QString remoteExe;
             if (RunConfiguration *rc = target()->activeRunConfiguration()) {
                 if (auto exeAspect = rc->aspect<ExecutableAspect>())
@@ -54,18 +54,18 @@ private:
             else
                 cmd.addArg("--remove-default");
             process.setCommand(cmd);
-            QtcProcess *proc = &process;
-            connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
+            Process *proc = &process;
+            connect(proc, &Process::readyReadStandardError, this, [this, proc] {
                 handleStdErrData(proc->readAllStandardError());
             });
         };
-        const auto doneHandler = [this](const QtcProcess &) {
+        const auto doneHandler = [this](const Process &) {
             if (m_makeDefault)
                 addProgressMessage(Tr::tr("Application set as the default one."));
             else
                 addProgressMessage(Tr::tr("Reset the default application."));
         };
-        const auto errorHandler = [this](const QtcProcess &process) {
+        const auto errorHandler = [this](const Process &process) {
             addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
         };
         return Group { ProcessTask(setupHandler, doneHandler, errorHandler) };

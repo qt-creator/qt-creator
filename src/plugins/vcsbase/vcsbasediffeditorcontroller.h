@@ -9,7 +9,7 @@
 
 namespace Utils {
 class Environment;
-class QtcProcess;
+class Process;
 } // Utils
 
 namespace VcsBase {
@@ -31,7 +31,7 @@ protected:
     Utils::Tasking::TreeStorage<QString> inputStorage() const;
     Utils::Tasking::TaskItem postProcessTask();
 
-    void setupCommand(Utils::QtcProcess &process, const QStringList &args) const;
+    void setupCommand(Utils::Process &process, const QStringList &args) const;
 
 private:
     friend class VcsBaseDiffEditorControllerPrivate;

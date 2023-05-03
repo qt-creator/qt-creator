@@ -1225,7 +1225,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     QTC_ASSERT(stdInput.isEmpty(), return PerforceResponse()); // Not supported here
 
     // Run, connect stderr to the output window
-    QtcProcess process;
+    Process process;
     const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS.value();
     process.setTimeoutS(timeOutS);
     if (outputCodec)
@@ -1283,7 +1283,7 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const FilePath &
                                                                 const QByteArray &stdInput,
                                                                 QTextCodec *outputCodec) const
 {
-    QtcProcess process;
+    Process process;
 
     if (flags & OverrideDiffEnvironment)
         process.setEnvironment(overrideDiffEnvironmentVariable());

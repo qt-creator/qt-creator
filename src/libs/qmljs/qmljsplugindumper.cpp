@@ -203,7 +203,7 @@ static void printParseWarnings(const FilePath &libraryPath, const QString &warni
                                  "%2").arg(libraryPath.toUserOutput(), warning));
 }
 
-static QString qmlPluginDumpErrorMessage(QtcProcess *process)
+static QString qmlPluginDumpErrorMessage(Process *process)
 {
     QString errorMessage;
     const QString binary = process->commandLine().executable().toUserOutput();
@@ -237,7 +237,7 @@ static QString qmlPluginDumpErrorMessage(QtcProcess *process)
     return errorMessage;
 }
 
-void PluginDumper::qmlPluginTypeDumpDone(QtcProcess *process)
+void PluginDumper::qmlPluginTypeDumpDone(Process *process)
 {
     process->deleteLater();
 
@@ -597,11 +597,11 @@ void PluginDumper::loadQmltypesFile(const FilePaths &qmltypesFilePaths,
 void PluginDumper::runQmlDump(const ModelManagerInterface::ProjectInfo &info,
     const QStringList &arguments, const FilePath &importPath)
 {
-    auto process = new QtcProcess(this);
+    auto process = new Process(this);
     process->setEnvironment(info.qmlDumpEnvironment);
     process->setWorkingDirectory(importPath);
     process->setCommand({info.qmlDumpPath, arguments});
-    connect(process, &QtcProcess::done, this, [this, process] { qmlPluginTypeDumpDone(process); });
+    connect(process, &Process::done, this, [this, process] { qmlPluginTypeDumpDone(process); });
     process->start();
     m_runningQmldumps.insert(process, importPath);
 }

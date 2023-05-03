@@ -109,7 +109,7 @@ private:
         }
 
         m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
-        connect(&m_coreUnpackProcess, &QtcProcess::done, this, [this] {
+        connect(&m_coreUnpackProcess, &Process::done, this, [this] {
             if (m_coreUnpackProcess.error() == QProcess::UnknownError) {
                 reportStopped();
                 return;
@@ -132,7 +132,7 @@ private:
             appendMessage(msg.arg(m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
             m_tempCoreFile.setFileName(m_tempCoreFilePath.path());
             m_tempCoreFile.open(QFile::WriteOnly);
-            connect(&m_coreUnpackProcess, &QtcProcess::readyReadStandardOutput, this, [this] {
+            connect(&m_coreUnpackProcess, &Process::readyReadStandardOutput, this, [this] {
                 m_tempCoreFile.write(m_coreUnpackProcess.readAllRawStandardOutput());
             });
             m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", m_coreFilePath.path()}});
@@ -148,7 +148,7 @@ private:
     QFile m_tempCoreFile;
     FilePath m_coreFilePath;
     FilePath m_tempCoreFilePath;
-    QtcProcess m_coreUnpackProcess;
+    Process m_coreUnpackProcess;
 };
 
 class DebuggerRunToolPrivate

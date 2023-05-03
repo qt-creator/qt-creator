@@ -105,10 +105,10 @@ public:
 
     void start() override
     {
-        m_process = new QtcProcess(this);
+        m_process = new Process(this);
 
-        connect(m_process, &QtcProcess::started, this, &RunWorker::reportStarted);
-        connect(m_process, &QtcProcess::done, this, [this] {
+        connect(m_process, &Process::started, this, &RunWorker::reportStarted);
+        connect(m_process, &Process::done, this, [this] {
             // The terminate() below will frequently lead to QProcess::Crashed. We're not interested
             // in that. FailedToStart is the only actual failure.
             if (m_process->error() == QProcess::FailedToStart) {
@@ -141,10 +141,10 @@ public:
             m_process->terminate();
     }
 
-    QtcProcess *recorder() { return m_process; }
+    Process *recorder() { return m_process; }
 
 private:
-    QPointer<QtcProcess> m_process;
+    QPointer<Process> m_process;
     QStringList m_perfRecordArguments;
 };
 
@@ -193,12 +193,12 @@ void PerfProfilerRunner::start()
     PerfDataReader *reader = m_perfParserWorker->reader();
     if (auto prw = qobject_cast<LocalPerfRecordWorker *>(m_perfRecordWorker)) {
         // That's the local case.
-        QtcProcess *recorder = prw->recorder();
-        connect(recorder, &QtcProcess::readyReadStandardError, this, [this, recorder] {
+        Process *recorder = prw->recorder();
+        connect(recorder, &Process::readyReadStandardError, this, [this, recorder] {
             appendMessage(QString::fromLocal8Bit(recorder->readAllRawStandardError()),
                           Utils::StdErrFormat);
         });
-        connect(recorder, &QtcProcess::readyReadStandardOutput, this, [this, reader, recorder] {
+        connect(recorder, &Process::readyReadStandardOutput, this, [this, reader, recorder] {
             if (!reader->feedParser(recorder->readAllRawStandardOutput()))
                 reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
         });

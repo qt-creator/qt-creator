@@ -29,7 +29,7 @@ static QString emSdkEnvOutput(const FilePath &sdkRoot)
     if (!emSdkEnvCache()->contains(cacheKey)) {
         const FilePath scriptFile = sdkRoot.pathAppended(QLatin1String("emsdk_env") +
                                         (isWindows ? ".bat" : ".sh"));
-        QtcProcess emSdkEnv;
+        Process emSdkEnv;
         if (isWindows) {
             emSdkEnv.setCommand(CommandLine(scriptFile));
         } else {
@@ -88,7 +88,7 @@ QVersionNumber version(const FilePath &sdkRoot)
         QLatin1String scriptFile{sdkRoot.osType() == OsType::OsTypeWindows ? "emcc.bat" : "emcc"};
         FilePath script = sdkRoot.withNewPath(scriptFile).searchInDirectories(env.path());
         const CommandLine command(script, {"-dumpversion"});
-        QtcProcess emcc;
+        Process emcc;
         emcc.setCommand(command);
         emcc.setEnvironment(env);
         emcc.runBlocking();

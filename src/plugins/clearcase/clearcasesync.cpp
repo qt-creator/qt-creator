@@ -29,7 +29,7 @@ static void runProcess(QPromise<void> &promise, const ClearCaseSettings &setting
                        std::function<void(const QString &buffer, int processed)> processLine)
 {
     const QString viewRoot = ClearCasePlugin::viewData().root;
-    QtcProcess process;
+    Process process;
     process.setWorkingDirectory(FilePath::fromString(viewRoot));
     process.setCommand({settings.ccBinaryPath, args});
     process.start();

@@ -1575,7 +1575,7 @@ CommandResult ClearCasePluginPrivate::runCleartoolProc(const FilePath &workingDi
     if (m_settings.ccBinaryPath.isEmpty())
         return CommandResult(ProcessResult::StartFailed, Tr::tr("No ClearCase executable specified."));
 
-    QtcProcess process;
+    Process process;
     Environment env = Environment::systemEnvironment();
     VcsBase::setProcessEnvironment(&env);
     process.setEnvironment(env);
@@ -2233,7 +2233,7 @@ void ClearCasePluginPrivate::diffGraphical(const QString &file1, const QString &
     args << file1;
     if (!pred)
         args << file2;
-    QtcProcess::startDetached({m_settings.ccBinaryPath, args}, m_topLevel);
+    Process::startDetached({m_settings.ccBinaryPath, args}, m_topLevel);
 }
 
 QString ClearCasePluginPrivate::runExtDiff(const FilePath &workingDir, const QStringList &arguments,
@@ -2243,7 +2243,7 @@ QString ClearCasePluginPrivate::runExtDiff(const FilePath &workingDir, const QSt
     diff.addArgs(m_settings.diffArgs.split(' ', Qt::SkipEmptyParts));
     diff.addArgs(arguments);
 
-    QtcProcess process;
+    Process process;
     process.setTimeoutS(timeOutS);
     process.setWorkingDirectory(workingDir);
     process.setCodec(outputCodec ? outputCodec : QTextCodec::codecForName("UTF-8"));

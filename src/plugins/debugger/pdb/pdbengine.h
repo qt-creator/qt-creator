@@ -87,7 +87,7 @@ private:
     void updateLocals() override;
 
     QString m_inbuffer;
-    Utils::QtcProcess m_proc;
+    Utils::Process m_proc;
     Utils::FilePath m_interpreter;
 };
 

@@ -762,7 +762,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
     FilePaths suspects;
 
     if (searchPaths.front().osType() == OsTypeMac) {
-        QtcProcess proc;
+        Process proc;
         proc.setTimeoutS(2);
         proc.setCommand({"xcrun", {"--find", "lldb"}});
         proc.runBlocking();

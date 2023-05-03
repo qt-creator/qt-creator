@@ -1684,7 +1684,7 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
     // Prevent e.g. qmake 4.x on MinGW to show annoying errors about missing dll's.
     WindowsCrashDialogBlocker crashDialogBlocker;
 
-    QtcProcess process;
+    Process process;
     process.setEnvironment(env);
     process.setCommand({binary, {"-query"}});
     process.start();

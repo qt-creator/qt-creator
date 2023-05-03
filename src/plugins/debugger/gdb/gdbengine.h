@@ -405,7 +405,7 @@ private: ////////// General Interface //////////
 
     bool usesOutputCollector() const;
 
-    Utils::QtcProcess m_gdbProc;
+    Utils::Process m_gdbProc;
     OutputCollector m_outputCollector;
     QString m_errorString;
 };

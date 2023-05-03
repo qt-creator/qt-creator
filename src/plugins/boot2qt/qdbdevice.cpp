@@ -50,7 +50,7 @@ class DeviceApplicationObserver : public QObject
 public:
     DeviceApplicationObserver(const IDevice::ConstPtr &device, const CommandLine &command)
     {
-        connect(&m_appRunner, &QtcProcess::done, this, &DeviceApplicationObserver::handleDone);
+        connect(&m_appRunner, &Process::done, this, &DeviceApplicationObserver::handleDone);
 
         QTC_ASSERT(device, return);
         m_deviceName = device->displayName();
@@ -94,7 +94,7 @@ private:
         deleteLater();
     }
 
-    QtcProcess m_appRunner;
+    Process m_appRunner;
     QString m_deviceName;
 };
 

@@ -88,7 +88,7 @@ bool RsyncDeployStep::isDeploymentNecessary() const
 
 TaskItem RsyncDeployStep::mkdirTask()
 {
-    const auto setupHandler = [this](QtcProcess &process) {
+    const auto setupHandler = [this](Process &process) {
         QStringList remoteDirs;
         for (const FileToTransfer &file : std::as_const(m_files))
             remoteDirs << file.m_target.parentDir().path();
@@ -96,11 +96,11 @@ TaskItem RsyncDeployStep::mkdirTask()
         remoteDirs.removeDuplicates();
         process.setCommand({deviceConfiguration()->filePath("mkdir"),
                             QStringList("-p") + remoteDirs});
-        connect(&process, &QtcProcess::readyReadStandardError, this, [this, proc = &process] {
+        connect(&process, &Process::readyReadStandardError, this, [this, proc = &process] {
             handleStdErrData(QString::fromLocal8Bit(proc->readAllRawStandardError()));
         });
     };
-    const auto errorHandler = [this](const QtcProcess &process) {
+    const auto errorHandler = [this](const Process &process) {
         QString finalMessage = process.errorString();
         const QString stdErr = process.cleanedStdErr();
         if (!stdErr.isEmpty()) {

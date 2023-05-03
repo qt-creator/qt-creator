@@ -30,7 +30,7 @@ private:
 
     QString run(const CommandLine &cmd)
     {
-        QtcProcess p;
+        Process p;
         p.setCommand(cmd);
         p.setEnvironment(testEnv);
         p.runBlocking();

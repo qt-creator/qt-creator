@@ -35,7 +35,7 @@ DockerApi *DockerApi::instance()
 
 bool DockerApi::canConnect()
 {
-    QtcProcess process;
+    Process process;
     FilePath dockerExe = dockerClient();
     if (dockerExe.isEmpty() || !dockerExe.isExecutableFile())
         return false;
@@ -43,7 +43,7 @@ bool DockerApi::canConnect()
     bool result = false;
 
     process.setCommand(CommandLine(dockerExe, QStringList{"info"}));
-    connect(&process, &QtcProcess::done, [&process, &result] {
+    connect(&process, &Process::done, [&process, &result] {
         qCInfo(dockerApiLog) << "'docker info' result:\n" << qPrintable(process.allOutput());
         if (process.result() == ProcessResult::FinishedWithSuccess)
             result = true;

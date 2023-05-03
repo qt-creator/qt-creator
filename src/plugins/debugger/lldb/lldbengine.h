@@ -113,7 +113,7 @@ private:
 
     QString m_inbuffer;
     QString m_scriptFileName;
-    Utils::QtcProcess m_lldbProc;
+    Utils::Process m_lldbProc;
 
     // FIXME: Make generic.
     int m_lastAgentId = 0;

@@ -17,7 +17,7 @@ using namespace Utils;
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *BoostTestConfiguration::createOutputReader(QtcProcess *app) const
+TestOutputReader *BoostTestConfiguration::createOutputReader(Process *app) const
 {
     auto settings = static_cast<BoostTestSettings *>(framework()->testSettings());
     return new BoostTestOutputReader(app, buildDirectory(), projectFile(),

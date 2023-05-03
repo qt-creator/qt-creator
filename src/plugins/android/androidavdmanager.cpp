@@ -37,7 +37,7 @@ static Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
 bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QStringList &args, QString *output)
 {
     CommandLine cmd(config.avdManagerToolPath(), args);
-    QtcProcess proc;
+    Process proc;
     Environment env = AndroidConfigurations::toolsEnvironment(config);
     proc.setEnvironment(env);
     qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
@@ -85,7 +85,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
         avdManager.addArg("-f");
 
     qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << avdManager.toUserOutput();
-    QtcProcess proc;
+    Process proc;
     proc.setProcessMode(ProcessMode::Writer);
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
     proc.setCommand(avdManager);
@@ -146,7 +146,7 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
 {
     const CommandLine command(m_config.avdManagerToolPath(), {"delete", "avd", "-n", name});
     qCDebug(avdManagerLog).noquote() << "Running command (removeAvd):" << command.toUserOutput();
-    QtcProcess proc;
+    Process proc;
     proc.setTimeoutS(5);
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     proc.setCommand(command);
@@ -232,7 +232,7 @@ static bool is32BitUserSpace()
     // Do a similar check as android's emulator is doing:
     if (HostOsInfo::isLinuxHost()) {
         if (QSysInfo::WordSize == 32) {
-            QtcProcess proc;
+            Process proc;
             proc.setTimeoutS(3);
             proc.setCommand({"getconf", {"LONG_BIT"}});
             proc.runBlocking();
@@ -262,9 +262,9 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     // after the avdProcess has started and before it has finished. Giving a parent object here
     // should solve the issue. However, AndroidAvdManager is not a QObject, so no clue what parent
     // would be the most appropriate. Preferably some object taken form android plugin...
-    QtcProcess *avdProcess = new QtcProcess;
+    Process *avdProcess = new Process;
     avdProcess->setProcessChannelMode(QProcess::MergedChannels);
-    QObject::connect(avdProcess, &QtcProcess::done, avdProcess, [avdProcess] {
+    QObject::connect(avdProcess, &Process::done, avdProcess, [avdProcess] {
         if (avdProcess->exitCode()) {
             const QString errorOutput = QString::fromLatin1(avdProcess->readAllRawStandardOutput());
             QMetaObject::invokeMethod(Core::ICore::mainWindow(), [errorOutput] {
@@ -324,7 +324,7 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
 
     const CommandLine command({m_config.adbToolPath(), arguments});
     qCDebug(avdManagerLog).noquote() << "Running command (isAvdBooted):" << command.toUserOutput();
-    QtcProcess adbProc;
+    Process adbProc;
     adbProc.setTimeoutS(10);
     adbProc.setCommand(command);
     adbProc.runBlocking();

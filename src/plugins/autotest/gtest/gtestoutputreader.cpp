@@ -17,14 +17,14 @@ using namespace Utils;
 namespace Autotest {
 namespace Internal {
 
-GTestOutputReader::GTestOutputReader(QtcProcess *testApplication,
+GTestOutputReader::GTestOutputReader(Process *testApplication,
                                      const FilePath &buildDirectory,
                                      const FilePath &projectFile)
     : TestOutputReader(testApplication, buildDirectory)
     , m_projectFile(projectFile)
 {
     if (testApplication) {
-        connect(testApplication, &QtcProcess::done, this, [this, testApplication] {
+        connect(testApplication, &Process::done, this, [this, testApplication] {
             const int exitCode = testApplication->exitCode();
             if (exitCode == 1 && !m_description.isEmpty()) {
                 createAndReportResult(Tr::tr("Running tests failed.\n %1\nExecutable: %2")

@@ -129,7 +129,7 @@ private:
 class QbsSession::Private
 {
 public:
-    QtcProcess *qbsProcess = nullptr;
+    Process *qbsProcess = nullptr;
     PacketReader *packetReader = nullptr;
     QJsonObject currentRequest;
     QJsonObject projectData;
@@ -152,16 +152,16 @@ void QbsSession::initialize()
 
     d->packetReader = new PacketReader(this);
 
-    d->qbsProcess = new QtcProcess(this);
+    d->qbsProcess = new Process(this);
     d->qbsProcess->setProcessMode(ProcessMode::Writer);
     d->qbsProcess->setEnvironment(env);
-    connect(d->qbsProcess, &QtcProcess::readyReadStandardOutput, this, [this] {
+    connect(d->qbsProcess, &Process::readyReadStandardOutput, this, [this] {
         d->packetReader->handleData(d->qbsProcess->readAllRawStandardOutput());
     });
-    connect(d->qbsProcess, &QtcProcess::readyReadStandardError, this, [this] {
+    connect(d->qbsProcess, &Process::readyReadStandardError, this, [this] {
         qCDebug(qbsPmLog) << "[qbs stderr]: " << d->qbsProcess->readAllRawStandardError();
     });
-    connect(d->qbsProcess, &QtcProcess::done, this, [this] {
+    connect(d->qbsProcess, &Process::done, this, [this] {
         if (d->qbsProcess->result() == ProcessResult::StartFailed) {
             d->eventLoop.exit(1);
             setError(Error::QbsFailedToStart);

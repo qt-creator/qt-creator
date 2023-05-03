@@ -15,7 +15,7 @@ class BoostTestOutputReader : public TestOutputReader
 {
     Q_OBJECT
 public:
-    BoostTestOutputReader(Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory,
+    BoostTestOutputReader(Utils::Process *testApplication, const Utils::FilePath &buildDirectory,
                           const Utils::FilePath &projectFile, LogLevel log, ReportLevel report);
 protected:
     void processOutputLine(const QByteArray &outputLine) override;

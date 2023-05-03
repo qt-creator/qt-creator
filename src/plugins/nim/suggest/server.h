@@ -36,7 +36,7 @@ private:
     void clearState();
 
     bool m_portAvailable = false;
-    Utils::QtcProcess m_process;
+    Utils::Process m_process;
     quint16 m_port = 0;
     QString m_projectFilePath;
     QString m_executablePath;

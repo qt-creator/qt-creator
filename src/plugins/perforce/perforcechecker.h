@@ -44,7 +44,7 @@ private:
     void parseOutput(const QString &);
     inline void resetOverrideCursor();
 
-    Utils::QtcProcess m_process;
+    Utils::Process m_process;
     Utils::FilePath m_binary;
     int m_timeOutMS = -1;
     bool m_timedOut = false;

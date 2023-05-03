@@ -116,13 +116,13 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
     };
 
     const auto args = QStringList{"-i"} + replImportArgs(file, type);
-    auto process = new QtcProcess(parent);
+    auto process = new Process(parent);
     process->setTerminalMode(TerminalMode::On);
     const FilePath pythonCommand = detectPython(file);
     process->setCommand({pythonCommand, args});
     process->setWorkingDirectory(workingDir(file));
     const QString commandLine = process->commandLine().toUserOutput();
-    QObject::connect(process, &QtcProcess::done, process, [process, commandLine] {
+    QObject::connect(process, &Process::done, process, [process, commandLine] {
         if (process->error() != QProcess::UnknownError) {
             Core::MessageManager::writeDisrupting(Tr::tr(
                   (process->error() == QProcess::FailedToStart)
@@ -142,7 +142,7 @@ QString pythonName(const FilePath &pythonPath)
         return {};
     QString name = nameForPython.value(pythonPath);
     if (name.isEmpty()) {
-        QtcProcess pythonProcess;
+        Process pythonProcess;
         pythonProcess.setTimeoutS(2);
         pythonProcess.setCommand({pythonPath, {"--version"}});
         pythonProcess.runBlocking();
@@ -174,10 +174,10 @@ void createVenv(const Utils::FilePath &python,
 
     const CommandLine command(python, QStringList{"-m", "venv", venvPath.toUserOutput()});
 
-    auto process = new QtcProcess;
+    auto process = new Process;
     auto progress = new Core::ProcessProgress(process);
     progress->setDisplayName(Tr::tr("Create Python venv"));
-    QObject::connect(process, &QtcProcess::done, [process, callback](){
+    QObject::connect(process, &Process::done, [process, callback](){
         callback(process->result() == ProcessResult::FinishedWithSuccess);
         process->deleteLater();
     });

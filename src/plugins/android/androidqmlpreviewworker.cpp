@@ -117,7 +117,7 @@ private:
     QStringList m_avdAbis;
     int m_viewerPid = -1;
     QFutureWatcher<void> m_pidFutureWatcher;
-    Utils::QtcProcess m_logcatProcess;
+    Utils::Process m_logcatProcess;
     QString m_logcatStartTimeStamp;
     UploadInfo m_uploadInfo;
 };
@@ -226,7 +226,7 @@ AndroidQmlPreviewWorker::AndroidQmlPreviewWorker(RunControl *runControl)
     connect(this, &AndroidQmlPreviewWorker::previewPidChanged,
             this, &AndroidQmlPreviewWorker::startLogcat);
 
-    connect(this, &RunWorker::stopped, &m_logcatProcess, &QtcProcess::stop);
+    connect(this, &RunWorker::stopped, &m_logcatProcess, &Process::stop);
     m_logcatProcess.setStdOutCallback([this](const QString &stdOut) {
         filterLogcatAndAppendMessage(stdOut);
     });
@@ -376,7 +376,7 @@ FilePath AndroidQmlPreviewWorker::createQmlrcFile(const FilePath &workFolder,
 {
     const QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(m_rc->kit());
     const FilePath rccBinary = qtVersion->rccFilePath();
-    QtcProcess rccProcess;
+    Process rccProcess;
     FilePath qrcPath = FilePath::fromString(basename + ".qrc4viewer");
     const FilePath qmlrcPath = FilePath::fromString(QDir::tempPath()) / (basename + packageSuffix);
 

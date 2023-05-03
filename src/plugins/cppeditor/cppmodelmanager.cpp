@@ -449,10 +449,10 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
         compilerArgs.append("/E");
     compilerArgs.append(filePath.toUserOutput());
     const CommandLine compilerCommandLine(tc->compilerCommand(), compilerArgs);
-    const auto compiler = new QtcProcess(instance());
+    const auto compiler = new Process(instance());
     compiler->setCommand(compilerCommandLine);
     compiler->setEnvironment(project->activeTarget()->activeBuildConfiguration()->environment());
-    connect(compiler, &QtcProcess::done, instance(), [compiler, outFilePath, inNextSplit,
+    connect(compiler, &Process::done, instance(), [compiler, outFilePath, inNextSplit,
                                                       useBuiltinPreprocessor, isMsvc] {
         compiler->deleteLater();
         if (compiler->result() != ProcessResult::FinishedWithSuccess) {

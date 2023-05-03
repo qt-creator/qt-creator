@@ -381,7 +381,7 @@ void ProcessExtraCompiler::runInThread(QPromise<FileNameToContentsHash> &promise
     if (sourceContents.isNull() || !prepareToRun(sourceContents))
         return;
 
-    QtcProcess process;
+    Process process;
 
     process.setEnvironment(env);
     if (!workDir.isEmpty())

@@ -464,7 +464,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->systemEnvironment();
     };
 
-    QtcProcess::setRemoteProcessHooks(processHooks);
+    Process::setRemoteProcessHooks(processHooks);
 
     Terminal::Hooks::instance().getTerminalCommandsForDevicesHook().set(
         [this]() -> QList<Terminal::NameAndCommandLine> {

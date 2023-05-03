@@ -1889,7 +1889,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     });
 
     handler->processOutput.set([](const QString &command, const QString &input, QString *output) {
-        QtcProcess proc;
+        Process proc;
         proc.setCommand(Utils::CommandLine::fromUserInput(command));
         proc.setWriteData(input.toLocal8Bit());
         proc.start();

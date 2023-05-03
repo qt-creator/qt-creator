@@ -55,7 +55,7 @@ bool PySideInstaller::missingPySideInstallation(const FilePath &pythonPath,
     if (pythonWithPyside[pythonPath].contains(pySide))
         return false;
 
-    QtcProcess pythonProcess;
+    Process pythonProcess;
     pythonProcess.setCommand({pythonPath, {"-c", "import " + pySide}});
     pythonProcess.runBlocking();
     const bool missing = pythonProcess.result() != ProcessResult::FinishedWithSuccess;

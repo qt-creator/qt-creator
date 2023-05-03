@@ -601,7 +601,7 @@ FilePath AndroidConfig::keytoolPath() const
 QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 {
     QVector<AndroidDeviceInfo> devices;
-    QtcProcess adbProc;
+    Process adbProc;
     adbProc.setTimeoutS(30);
     CommandLine cmd{adbToolPath(), {"devices"}};
     adbProc.setCommand(cmd);
@@ -670,7 +670,7 @@ QString AndroidConfig::getDeviceProperty(const QString &device, const QString &p
                     AndroidDeviceInfo::adbSelector(device));
     cmd.addArgs({"shell", "getprop", property});
 
-    QtcProcess adbProc;
+    Process adbProc;
     adbProc.setTimeoutS(10);
     adbProc.setCommand(cmd);
     adbProc.runBlocking();
@@ -747,7 +747,7 @@ QStringList AndroidConfig::getAbis(const QString &device)
     // First try via ro.product.cpu.abilist
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
     arguments << "shell" << "getprop" << "ro.product.cpu.abilist";
-    QtcProcess adbProc;
+    Process adbProc;
     adbProc.setTimeoutS(10);
     adbProc.setCommand({adbTool, arguments});
     adbProc.runBlocking();
@@ -770,7 +770,7 @@ QStringList AndroidConfig::getAbis(const QString &device)
         else
             arguments << QString::fromLatin1("ro.product.cpu.abi%1").arg(i);
 
-        QtcProcess abiProc;
+        Process abiProc;
         abiProc.setTimeoutS(10);
         abiProc.setCommand({adbTool, arguments});
         abiProc.runBlocking();
@@ -1530,7 +1530,7 @@ FilePath AndroidConfig::getJdkPath()
             args << "-c"
                  << "readlink -f $(which java)";
 
-        QtcProcess findJdkPathProc;
+        Process findJdkPathProc;
         findJdkPathProc.setCommand({"sh", args});
         findJdkPathProc.start();
         findJdkPathProc.waitForFinished();

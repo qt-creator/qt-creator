@@ -2066,7 +2066,7 @@ void NodeInstanceView::updateWatcher(const QString &path)
         m_generateQsbFilesTimer.start();
 }
 
-void NodeInstanceView::handleQsbProcessExit(Utils::QtcProcess *qsbProcess, const QString &shader)
+void NodeInstanceView::handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader)
 {
     --m_remainingQsbTargets;
 
@@ -2167,8 +2167,8 @@ void NodeInstanceView::handleShaderChanges()
         QStringList args = baseArgs;
         args.append(outPath.toString());
         args.append(shader);
-        auto qsbProcess = new Utils::QtcProcess(this);
-        connect(qsbProcess, &Utils::QtcProcess::done, this, [this, qsbProcess, shader] {
+        auto qsbProcess = new Utils::Process(this);
+        connect(qsbProcess, &Utils::Process::done, this, [this, qsbProcess, shader] {
             handleQsbProcessExit(qsbProcess, shader);
         });
         qsbProcess->setWorkingDirectory(srcPath);

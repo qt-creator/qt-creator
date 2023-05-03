@@ -24,7 +24,7 @@ class QToolBar;
 QT_END_NAMESPACE
 
 namespace Utils {
-class QtcProcess;
+class Process;
 }
 
 namespace VcsBase {
@@ -60,7 +60,7 @@ public:
     VcsCommand *createCommand(const Utils::FilePath &workingDirectory,
                               VcsBaseEditorWidget *editor = nullptr) const;
 
-    void setupCommand(Utils::QtcProcess &process,
+    void setupCommand(Utils::Process &process,
                       const Utils::FilePath &workingDirectory,
                       const QStringList &args) const;
 

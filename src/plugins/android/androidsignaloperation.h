@@ -42,7 +42,7 @@ private:
     void startAdbProcess(State state, const Utils::CommandLine &commandLine, FinishHandler handler);
 
     Utils::FilePath m_adbPath;
-    std::unique_ptr<Utils::QtcProcess> m_adbProcess;
+    std::unique_ptr<Utils::Process> m_adbProcess;
     QTimer *m_timeout;
 
     State m_state = Idle;

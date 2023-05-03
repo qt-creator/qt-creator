@@ -18,7 +18,7 @@ namespace ProjectExplorer {
     class ExtraCompiler;
     class FolderNode;
 }
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace CMakeProjectManager {
 
@@ -233,7 +233,7 @@ private:
 
     // CTest integration
     Utils::FilePath m_ctestPath;
-    std::unique_ptr<Utils::QtcProcess> m_ctestProcess;
+    std::unique_ptr<Utils::Process> m_ctestProcess;
     QList<ProjectExplorer::TestCaseInfo> m_testNames;
 
     CMakeConfig m_configurationFromCMake;

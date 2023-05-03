@@ -89,7 +89,7 @@ void TestRunner::runTest(TestRunMode mode, const ITestTreeItem *item)
         runTests(mode, {configuration});
 }
 
-static QString processInformation(const QtcProcess *proc)
+static QString processInformation(const Process *proc)
 {
     QTC_ASSERT(proc, return {});
     const CommandLine command = proc->commandLine();
@@ -365,7 +365,7 @@ void TestRunner::runTestsHelper()
             }
             return TaskAction::Continue;
         };
-        const auto onSetup = [this, config, storage](QtcProcess &process) {
+        const auto onSetup = [this, config, storage](Process &process) {
             TestStorage *testStorage = storage.activeStorage();
             QTC_ASSERT(testStorage, return);
             testStorage->m_outputReader.reset(config->createOutputReader(&process));
@@ -412,7 +412,7 @@ void TestRunner::runTestsHelper()
             qCInfo(runnerLog) << "Working directory:" << process.workingDirectory();
             qCDebug(runnerLog) << "Environment:" << process.environment().toStringList();
         };
-        const auto onDone = [this, config, storage](const QtcProcess &process) {
+        const auto onDone = [this, config, storage](const Process &process) {
             TestStorage *testStorage = storage.activeStorage();
             QTC_ASSERT(testStorage, return);
             if (process.result() == ProcessResult::StartFailed) {

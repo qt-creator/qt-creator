@@ -171,7 +171,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
 
     const TreeStorage<QString> diffInputStorage = inputStorage();
 
-    const auto setupDescription = [this](QtcProcess &process) {
+    const auto setupDescription = [this](Process &process) {
         if (m_changeNumber == 0)
             return TaskAction::StopWithDone;
         setupCommand(process, {"log", "-r", QString::number(m_changeNumber)});
@@ -181,14 +181,14 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
         setDescription(Tr::tr("Waiting for data..."));
         return TaskAction::Continue;
     };
-    const auto onDescriptionDone = [this](const QtcProcess &process) {
+    const auto onDescriptionDone = [this](const Process &process) {
         setDescription(process.cleanedStdOut());
     };
-    const auto onDescriptionError = [this](const QtcProcess &) {
+    const auto onDescriptionError = [this](const Process &) {
         setDescription({});
     };
 
-    const auto setupDiff = [this](QtcProcess &process) {
+    const auto setupDiff = [this](Process &process) {
         QStringList args = QStringList{"diff"} << "--internal-diff";
         if (ignoreWhitespace())
             args << "-x" << "-uw";
@@ -202,7 +202,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
         command << SubversionClient::AddAuthOptions();
         process.setCommand(command);
     };
-    const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
+    const auto onDiffDone = [diffInputStorage](const Process &process) {
         *diffInputStorage = process.cleanedStdOut();
     };
 

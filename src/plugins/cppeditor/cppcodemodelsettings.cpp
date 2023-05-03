@@ -340,7 +340,7 @@ static FilePath getClangHeadersPathFromClang(const FilePath &clangdFilePath)
             .withExecutableSuffix();
     if (!clangFilePath.exists())
         return {};
-    QtcProcess clang;
+    Process clang;
     clang.setCommand({clangFilePath, {"-print-resource-dir"}});
     clang.start();
     if (!clang.waitForFinished())

@@ -92,7 +92,7 @@ private:
     QStringList connectionArgs(const FilePath &binary) const;
 
     const SshParameters m_sshParameters;
-    std::unique_ptr<QtcProcess> m_masterProcess;
+    std::unique_ptr<Process> m_masterProcess;
     std::unique_ptr<QTemporaryDir> m_masterSocketDir;
     QTimer m_timer;
     int m_ref = 0;
@@ -158,11 +158,11 @@ void SshSharedConnection::connectToHost()
         return;
     }
 
-    m_masterProcess.reset(new QtcProcess);
+    m_masterProcess.reset(new Process);
     SshParameters::setupSshEnvironment(m_masterProcess.get());
     m_timer.setSingleShot(true);
     connect(&m_timer, &QTimer::timeout, this, &SshSharedConnection::autoDestructRequested);
-    connect(m_masterProcess.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
+    connect(m_masterProcess.get(), &Process::readyReadStandardOutput, this, [this] {
         const QByteArray reply = m_masterProcess->readAllRawStandardOutput();
         if (reply == "\n")
             emitConnected();
@@ -170,7 +170,7 @@ void SshSharedConnection::connectToHost()
     });
     // TODO: in case of refused connection we are getting the following on stdErr:
     // ssh: connect to host 127.0.0.1 port 22: Connection refused\r\n
-    connect(m_masterProcess.get(), &QtcProcess::done, this, [this] {
+    connect(m_masterProcess.get(), &Process::done, this, [this] {
         const ProcessResult result = m_masterProcess->result();
         const ProcessResultData resultData = m_masterProcess->resultData();
         if (result == ProcessResult::StartFailed) {
@@ -316,7 +316,7 @@ public:
     QThread m_shellThread;
     ShellThreadHandler *m_handler = nullptr;
     mutable QMutex m_shellMutex;
-    QList<QtcProcess *> m_terminals;
+    QList<Process *> m_terminals;
     LinuxDeviceFileAccess m_fileAccess{this};
 
     QReadWriteLock m_environmentCacheLock;
@@ -340,7 +340,7 @@ Environment LinuxDevicePrivate::getEnvironment()
     if (m_environmentCache.has_value())
         return m_environmentCache.value();
 
-    QtcProcess getEnvProc;
+    Process getEnvProc;
     getEnvProc.setCommand({q->filePath("env"), {}});
     getEnvProc.runBlocking();
 
@@ -388,7 +388,7 @@ public:
     // as this object is alive.
     IDevice::ConstPtr m_device;
     std::unique_ptr<SshConnectionHandle> m_connectionHandle;
-    QtcProcess m_process;
+    Process m_process;
 
     QString m_socketFilePath;
     SshParameters m_sshParameters;
@@ -435,7 +435,7 @@ qint64 SshProcessInterface::processId() const
 
 bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArray &data)
 {
-    QtcProcess process;
+    Process process;
     CommandLine cmd = {d->m_device->filePath("/bin/sh"), {"-c"}};
     QString tmp;
     ProcessArgs::addArg(&tmp, command.executable().path());
@@ -584,11 +584,11 @@ SshProcessInterfacePrivate::SshProcessInterfacePrivate(SshProcessInterface *sshI
     , m_device(device)
     , m_process(this)
 {
-    connect(&m_process, &QtcProcess::started, this, &SshProcessInterfacePrivate::handleStarted);
-    connect(&m_process, &QtcProcess::done, this, &SshProcessInterfacePrivate::handleDone);
-    connect(&m_process, &QtcProcess::readyReadStandardOutput,
+    connect(&m_process, &Process::started, this, &SshProcessInterfacePrivate::handleStarted);
+    connect(&m_process, &Process::done, this, &SshProcessInterfacePrivate::handleDone);
+    connect(&m_process, &Process::readyReadStandardOutput,
             this, &SshProcessInterfacePrivate::handleReadyReadStandardOutput);
-    connect(&m_process, &QtcProcess::readyReadStandardError,
+    connect(&m_process, &Process::readyReadStandardError,
             this, &SshProcessInterfacePrivate::handleReadyReadStandardError);
 }
 
@@ -796,7 +796,7 @@ class ShellThreadHandler : public QObject
         }
 
     private:
-        void setupShellProcess(QtcProcess *shellProcess) override
+        void setupShellProcess(Process *shellProcess) override
         {
             SshParameters::setupSshEnvironment(shellProcess);
             shellProcess->setCommand(m_cmdLine);
@@ -961,9 +961,9 @@ LinuxDevice::LinuxDevice()
     }});
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
-        QtcProcess * const proc = new QtcProcess;
+        Process * const proc = new Process;
         d->m_terminals.append(proc);
-        QObject::connect(proc, &QtcProcess::done, proc, [this, proc] {
+        QObject::connect(proc, &Process::done, proc, [this, proc] {
             if (proc->error() != QProcess::UnknownError) {
                 const QString errorString = proc->errorString();
                 QString message;
@@ -1172,10 +1172,10 @@ protected:
         , m_process(this)
     {
         SshParameters::setupSshEnvironment(&m_process);
-        connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+        connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
             emit progress(QString::fromLocal8Bit(m_process.readAllRawStandardOutput()));
         });
-        connect(&m_process, &QtcProcess::done, this, &SshTransferInterface::doneImpl);
+        connect(&m_process, &Process::done, this, &SshTransferInterface::doneImpl);
     }
 
     IDevice::ConstPtr device() const { return m_device; }
@@ -1215,7 +1215,7 @@ protected:
     QString host() const { return m_sshParameters.host(); }
     QString userAtHost() const { return m_sshParameters.userAtHost(); }
 
-    QtcProcess &process() { return m_process; }
+    Process &process() { return m_process; }
 
 private:
     virtual void startImpl() = 0;
@@ -1274,7 +1274,7 @@ private:
     QString m_socketFilePath;
     bool m_connecting = false;
 
-    QtcProcess m_process;
+    Process m_process;
 };
 
 class SftpTransferImpl : public SshTransferInterface

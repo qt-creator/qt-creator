@@ -57,7 +57,7 @@ static bool checkForTimeout(const chrono::high_resolution_clock::time_point &sta
 
 static bool runCommand(const CommandLine &command, QString *stdOutput, QString *allOutput = nullptr)
 {
-    QtcProcess p;
+    Process p;
     p.setTimeoutS(-1);
     p.setCommand(command);
     p.runBlocking();
@@ -98,7 +98,7 @@ static bool launchSimulator(const QString &simUdid) {
         }
     }
 
-    return QtcProcess::startDetached({simulatorAppPath, {"--args", "-CurrentDeviceUDID", simUdid}});
+    return Process::startDetached({simulatorAppPath, {"--args", "-CurrentDeviceUDID", simUdid}});
 }
 
 static bool isAvailable(const QJsonObject &object)

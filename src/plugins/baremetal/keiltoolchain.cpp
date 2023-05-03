@@ -113,7 +113,7 @@ static Macros dumpMcsPredefinedMacros(const FilePath &compiler, const Environmen
 
     fakeIn.close();
 
-    QtcProcess cpp;
+    Process cpp;
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
     cpp.setCommand({compiler, {fakeIn.fileName()}});
@@ -190,7 +190,7 @@ static Macros dumpC166PredefinedMacros(const FilePath &compiler, const Environme
 
     fakeIn.close();
 
-    QtcProcess cpp;
+    Process cpp;
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
@@ -255,7 +255,7 @@ static Macros dumpC166PredefinedMacros(const FilePath &compiler, const Environme
 
 static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringList &extraArgs, const Environment &env)
 {
-    QtcProcess cpp;
+    Process cpp;
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 

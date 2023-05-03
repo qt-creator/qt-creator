@@ -10,8 +10,8 @@ namespace Suggest {
 
 NimSuggestServer::NimSuggestServer(QObject *parent) : QObject(parent)
 {
-    connect(&m_process, &QtcProcess::done, this, &NimSuggestServer::onDone);
-    connect(&m_process, &QtcProcess::readyReadStandardOutput, this,
+    connect(&m_process, &Process::done, this, &NimSuggestServer::onDone);
+    connect(&m_process, &Process::readyReadStandardOutput, this,
             &NimSuggestServer::onStandardOutputAvailable);
 }
 

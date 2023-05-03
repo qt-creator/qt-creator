@@ -77,11 +77,11 @@ LldbEngine::LldbEngine()
     connect(&ds.useDynamicType, &BaseAspect::changed, this, &LldbEngine::updateLocals);
     connect(&ds.intelFlavor, &BaseAspect::changed, this, &LldbEngine::updateAll);
 
-    connect(&m_lldbProc, &QtcProcess::started, this, &LldbEngine::handleLldbStarted);
-    connect(&m_lldbProc, &QtcProcess::done, this, &LldbEngine::handleLldbDone);
-    connect(&m_lldbProc, &QtcProcess::readyReadStandardOutput,
+    connect(&m_lldbProc, &Process::started, this, &LldbEngine::handleLldbStarted);
+    connect(&m_lldbProc, &Process::done, this, &LldbEngine::handleLldbDone);
+    connect(&m_lldbProc, &Process::readyReadStandardOutput,
             this, &LldbEngine::readLldbStandardOutput);
-    connect(&m_lldbProc, &QtcProcess::readyReadStandardError,
+    connect(&m_lldbProc, &Process::readyReadStandardError,
             this, &LldbEngine::readLldbStandardError);
 
     connect(this, &LldbEngine::outputReady,
@@ -187,7 +187,7 @@ void LldbEngine::setupEngine()
         // LLDB 14 installation on Ubuntu 22.04 is broken:
         // https://bugs.launchpad.net/ubuntu/+source/llvm-defaults/+bug/1972855
         // Brush over it:
-        QtcProcess lldbPythonPathFinder;
+        Process lldbPythonPathFinder;
         lldbPythonPathFinder.setCommand({lldbCmd, {"-P"}});
         lldbPythonPathFinder.start();
         lldbPythonPathFinder.waitForFinished();

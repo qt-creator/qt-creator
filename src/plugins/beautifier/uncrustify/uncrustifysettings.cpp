@@ -124,7 +124,7 @@ QString UncrustifySettings::documentationFilePath() const
 
 void UncrustifySettings::createDocumentationFile() const
 {
-    QtcProcess process;
+    Process process;
     process.setTimeoutS(2);
     process.setCommand({command(), {"--show-config"}});
     process.runBlocking();

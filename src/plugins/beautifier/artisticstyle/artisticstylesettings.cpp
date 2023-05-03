@@ -112,7 +112,7 @@ QString ArtisticStyleSettings::documentationFilePath() const
 
 void ArtisticStyleSettings::createDocumentationFile() const
 {
-    QtcProcess process;
+    Process process;
     process.setTimeoutS(2);
     process.setCommand({command(), {"-h"}});
     process.runBlocking();

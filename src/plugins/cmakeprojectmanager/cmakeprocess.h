@@ -13,7 +13,7 @@
 
 namespace Utils {
 class ProcessResultData;
-class QtcProcess;
+class Process;
 }
 
 namespace CMakeProjectManager::Internal {
@@ -37,7 +37,7 @@ signals:
 private:
     void handleProcessDone(const Utils::ProcessResultData &resultData);
 
-    std::unique_ptr<Utils::QtcProcess> m_process;
+    std::unique_ptr<Utils::Process> m_process;
     Utils::OutputFormatter m_parser;
     QElapsedTimer m_elapsed;
 };

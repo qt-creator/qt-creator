@@ -55,11 +55,11 @@ MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document
 
     const TreeStorage<QString> diffInputStorage = inputStorage();
 
-    const auto setupDiff = [=](QtcProcess &process) {
+    const auto setupDiff = [=](Process &process) {
         setupCommand(process, {addConfigurationArguments(args)});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
-    const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
+    const auto onDiffDone = [diffInputStorage](const Process &process) {
         *diffInputStorage = process.cleanedStdOut();
     };
 

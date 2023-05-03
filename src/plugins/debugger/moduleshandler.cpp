@@ -174,7 +174,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
               moduleNameValid && !modulePath.needsDevice() && modulePath.exists()
                   && dependsCanBeFound(),
               [modulePath] {
-                  QtcProcess::startDetached({{"depends"}, {modulePath.toString()}});
+                  Process::startDetached({{"depends"}, {modulePath.toString()}});
               });
 
     addAction(this, menu, Tr::tr("Load Symbols for All Modules"),

@@ -29,7 +29,7 @@ static WebBrowserEntries emrunBrowsers(ProjectExplorer::Target *target)
         const Utils::Environment environment = bc->environment();
         const Utils::FilePath emrunPath = environment.searchInPath("emrun");
 
-        QtcProcess browserLister;
+        Process browserLister;
         browserLister.setEnvironment(environment);
         browserLister.setCommand({emrunPath, {"--list_browsers"}});
         browserLister.start();

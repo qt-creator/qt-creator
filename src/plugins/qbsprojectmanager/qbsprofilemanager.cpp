@@ -223,7 +223,7 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
     const Utils::FilePath qbsConfigExe = QbsSettings::qbsConfigFilePath();
     if (qbsConfigExe.isEmpty() || !qbsConfigExe.exists())
         return {};
-    Utils::QtcProcess qbsConfig;
+    Utils::Process qbsConfig;
     qbsConfig.setCommand({qbsConfigExe, args});
     qbsConfig.start();
     if (!qbsConfig.waitForFinished(5000)) {

@@ -71,7 +71,7 @@ protected:
     void sendData(const QByteArray &data) final;
     Utils::CommandLine m_cmd;
     Utils::FilePath m_workingDirectory;
-    Utils::QtcProcess *m_process = nullptr;
+    Utils::Process *m_process = nullptr;
     Utils::Environment m_env;
 
 private:

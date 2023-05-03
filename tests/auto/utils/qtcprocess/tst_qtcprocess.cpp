@@ -109,7 +109,7 @@ private slots:
         qDebug() << "QProcess output:" << qoutput;
         QCOMPARE(qproc.exitCode(), 0);
 
-        QtcProcess qtcproc;
+        Process qtcproc;
         qtcproc.setCommand({envPath, {}});
         qtcproc.runBlocking();
         QCOMPARE(qtcproc.exitCode(), 0);
@@ -250,7 +250,7 @@ void tst_QtcProcess::multiRead()
         QSKIP("This test uses /bin/sh.");
 
     QByteArray buffer;
-    QtcProcess process;
+    Process process;
 
     process.setCommand({"/bin/sh", {}});
     process.setProcessChannelMode(QProcess::SeparateChannels);
@@ -902,7 +902,7 @@ void tst_QtcProcess::exitCode()
 
     SubProcessConfig subConfig(ProcessTestApp::ExitCode::envVar(), QString::number(exitCode));
     {
-        QtcProcess process;
+        Process process;
         subConfig.setupSubProcess(&process);
         process.start();
         const bool finished = process.waitForFinished();
@@ -912,7 +912,7 @@ void tst_QtcProcess::exitCode()
         QCOMPARE(process.exitCode() == 0, process.result() == ProcessResult::FinishedWithSuccess);
     }
     {
-        QtcProcess process;
+        Process process;
         subConfig.setupSubProcess(&process);
         process.runBlocking();
 
@@ -949,7 +949,7 @@ void tst_QtcProcess::runBlockingStdOut()
     QFETCH(ProcessResult, expectedResult);
 
     SubProcessConfig subConfig(ProcessTestApp::RunBlockingStdOut::envVar(), withEndl ? "true" : "false");
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
 
     process.setTimeoutS(timeOutS);
@@ -980,13 +980,13 @@ void tst_QtcProcess::runBlockingSignal()
     QFETCH(ProcessResult, expectedResult);
 
     SubProcessConfig subConfig(ProcessTestApp::RunBlockingStdOut::envVar(), withEndl ? "true" : "false");
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
 
     process.setTimeoutS(timeOutS);
     bool readLastLine = false;
     process.setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
-    connect(&process, &QtcProcess::textOnStandardOutput,
+    connect(&process, &Process::textOnStandardOutput,
             this, [&readLastLine, &process](const QString &out) {
         if (out.startsWith(s_runBlockingStdOutSubProcessMagicWord)) {
             readLastLine = true;
@@ -1004,7 +1004,7 @@ void tst_QtcProcess::runBlockingSignal()
 void tst_QtcProcess::lineCallback()
 {
     SubProcessConfig subConfig(ProcessTestApp::LineCallback::envVar(), {});
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
 
     const QStringList lines = QString(s_lineCallbackData).split('|');
@@ -1027,13 +1027,13 @@ void tst_QtcProcess::lineCallback()
 void tst_QtcProcess::lineSignal()
 {
     SubProcessConfig subConfig(ProcessTestApp::LineCallback::envVar(), {});
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
 
     const QStringList lines = QString(s_lineCallbackData).split('|');
     int lineNumber = 0;
     process.setTextChannelMode(Channel::Error, TextChannelMode::SingleLine);
-    connect(&process, &QtcProcess::textOnStandardError,
+    connect(&process, &Process::textOnStandardError,
             this, [lines, &lineNumber](const QString &actual) {
         QString expected = lines.at(lineNumber);
         expected.replace("\r\n", "\n");
@@ -1052,12 +1052,12 @@ void tst_QtcProcess::lineSignal()
 void tst_QtcProcess::waitForStartedAfterStarted()
 {
     SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
 
     bool started = false;
     bool waitForStartedResult = false;
-    connect(&process, &QtcProcess::started, this, [&] {
+    connect(&process, &Process::started, this, [&] {
         started = true;
         waitForStartedResult = process.waitForStarted();
     });
@@ -1093,7 +1093,7 @@ void tst_QtcProcess::waitForStartedAfterStarted2()
 void tst_QtcProcess::waitForStartedAndFinished()
 {
     SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
 
     process.start();
@@ -1119,12 +1119,12 @@ void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
 {
     QFETCH(ProcessSignalType, signalType);
 
-    QtcProcess process;
+    Process process;
     process.setCommand({ FilePath::fromString(
               "there_is_a_big_chance_that_executable_with_that_name_does_not_exists"), {} });
 
     int doneCount = 0;
-    QObject::connect(&process, &QtcProcess::done, [&process, &doneCount]() {
+    QObject::connect(&process, &Process::done, [&process, &doneCount]() {
         ++doneCount;
         QCOMPARE(process.error(), QProcess::FailedToStart);
     });
@@ -1186,7 +1186,7 @@ void tst_QtcProcess::channelForwarding()
 
     SubProcessConfig subConfig(ProcessTestApp::ChannelForwarding::envVar(),
                                QString::number(int(channelMode)));
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
 
     process.start();
@@ -1229,7 +1229,7 @@ void tst_QtcProcess::mergedChannels()
     QFETCH(bool, errorOnError);
 
     SubProcessConfig subConfig(ProcessTestApp::StandardOutputAndErrorWriter::envVar(), {});
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
 
     process.setProcessChannelMode(channelMode);
@@ -1262,7 +1262,7 @@ void tst_QtcProcess::destroyBlockingProcess()
     SubProcessConfig subConfig(ProcessTestApp::BlockingProcess::envVar(),
                                QString::number(int(blockType)));
 
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
     process.start();
     QVERIFY(process.waitForStarted());
@@ -1272,7 +1272,7 @@ void tst_QtcProcess::destroyBlockingProcess()
 void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
 {
     SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
 
     process.start();
@@ -1297,7 +1297,7 @@ void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
 void tst_QtcProcess::crash()
 {
     SubProcessConfig subConfig(ProcessTestApp::Crash::envVar(), {});
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
 
     process.start();
@@ -1305,7 +1305,7 @@ void tst_QtcProcess::crash()
     QVERIFY(process.isRunning());
 
     QEventLoop loop;
-    connect(&process, &QtcProcess::done, &loop, &QEventLoop::quit);
+    connect(&process, &Process::done, &loop, &QEventLoop::quit);
     loop.exec();
 
     QCOMPARE(process.error(), QProcess::Crashed);
@@ -1315,7 +1315,7 @@ void tst_QtcProcess::crash()
 void tst_QtcProcess::crashAfterOneSecond()
 {
     SubProcessConfig subConfig(ProcessTestApp::CrashAfterOneSecond::envVar(), {});
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
 
     process.start();
@@ -1335,7 +1335,7 @@ void tst_QtcProcess::recursiveCrashingProcess()
     const int recursionDepth = 5; // must be at least 2
     SubProcessConfig subConfig(ProcessTestApp::RecursiveCrashingProcess::envVar(),
                                QString::number(recursionDepth));
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
     process.start();
     QVERIFY(process.waitForStarted(1000));
@@ -1367,7 +1367,7 @@ void tst_QtcProcess::recursiveBlockingProcess()
     SubProcessConfig subConfig(ProcessTestApp::RecursiveBlockingProcess::envVar(),
                                QString::number(recursionDepth));
     {
-        QtcProcess process;
+        Process process;
         subConfig.setupSubProcess(&process);
         process.start();
         QVERIFY(process.waitForStarted(1000));
@@ -1421,10 +1421,10 @@ void tst_QtcProcess::quitBlockingProcess()
     SubProcessConfig subConfig(ProcessTestApp::RecursiveBlockingProcess::envVar(),
                                QString::number(recursionDepth));
 
-    QtcProcess process;
+    Process process;
     subConfig.setupSubProcess(&process);
     bool done = false;
-    connect(&process, &QtcProcess::done, this, [&done] { done = true; });
+    connect(&process, &Process::done, this, [&done] { done = true; });
 
     process.start();
     QVERIFY(process.waitForStarted());
@@ -1472,12 +1472,12 @@ void tst_QtcProcess::tarPipe()
     if (!FilePath::fromString("tar").searchInPath().isExecutableFile())
         QSKIP("This test uses \"tar\" command.");
 
-    QtcProcess sourceProcess;
-    QtcProcess targetProcess;
+    Process sourceProcess;
+    Process targetProcess;
 
     targetProcess.setProcessMode(ProcessMode::Writer);
 
-    QObject::connect(&sourceProcess, &QtcProcess::readyReadStandardOutput,
+    QObject::connect(&sourceProcess, &Process::readyReadStandardOutput,
                      &targetProcess, [&sourceProcess, &targetProcess]() {
         targetProcess.writeRaw(sourceProcess.readAllRawStandardOutput());
     });

@@ -19,7 +19,7 @@ namespace Utils {
 
 class CommandLine;
 class ProcessResultData;
-class QtcProcess;
+class Process;
 
 class DeviceShellImpl;
 
@@ -57,7 +57,7 @@ protected:
     void close();
 
 private:
-    virtual void setupShellProcess(QtcProcess *shellProcess);
+    virtual void setupShellProcess(Process *shellProcess);
     virtual CommandLine createFallbackCommand(const CommandLine &cmdLine);
 
     bool installShellScript();
@@ -73,7 +73,7 @@ private:
         QWaitCondition *waiter;
     };
 
-    std::unique_ptr<QtcProcess> m_shellProcess;
+    std::unique_ptr<Process> m_shellProcess;
     QThread m_thread;
     int m_currentId{0};
 

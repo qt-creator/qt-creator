@@ -116,10 +116,10 @@ void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
     qputenv(Constants::enviromentLaunchedQDS, "true");
     //-a and -client arguments help to append project to open design studio application
     if (Utils::HostOsInfo::isMacHost())
-        qdsStarted = Utils::QtcProcess::startDetached(
+        qdsStarted = Utils::Process::startDetached(
             {"/usr/bin/open", {"-a", qdsPath.path(), fileName.toString()}});
     else
-        qdsStarted = Utils::QtcProcess::startDetached({qdsPath, {"-client", fileName.toString()}});
+        qdsStarted = Utils::Process::startDetached({qdsPath, {"-client", fileName.toString()}});
 
     if (!qdsStarted) {
         QMessageBox::warning(Core::ICore::dialogParent(),

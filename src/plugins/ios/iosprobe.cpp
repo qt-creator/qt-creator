@@ -40,7 +40,7 @@ void XcodeProbe::addDeveloperPath(const QString &path)
 
 void XcodeProbe::detectDeveloperPaths()
 {
-    Utils::QtcProcess selectedXcode;
+    Utils::Process selectedXcode;
     selectedXcode.setTimeoutS(5);
     selectedXcode.setCommand({"/usr/bin/xcode-select", {"--print-path"}});
     selectedXcode.runBlocking();

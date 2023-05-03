@@ -23,7 +23,7 @@ protected:
 
 private:
     Utils::FilePath tmpFile() const;
-    ProjectExplorer::FileNameToContentsHash handleProcessFinished(Utils::QtcProcess *process) override;
+    ProjectExplorer::FileNameToContentsHash handleProcessFinished(Utils::Process *process) override;
     bool prepareToRun(const QByteArray &sourceContents) override;
     ProjectExplorer::Tasks parseIssues(const QByteArray &processStderr) override;
 

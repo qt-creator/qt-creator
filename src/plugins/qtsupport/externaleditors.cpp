@@ -224,7 +224,7 @@ static bool startEditorProcess(const LaunchData &data, QString *errorMessage)
     if (debug)
         qDebug() << Q_FUNC_INFO << '\n' << data.binary << data.arguments << data.workingDirectory;
     qint64 pid = 0;
-    if (!QtcProcess::startDetached({FilePath::fromString(data.binary), data.arguments}, data.workingDirectory, &pid)) {
+    if (!Process::startDetached({FilePath::fromString(data.binary), data.arguments}, data.workingDirectory, &pid)) {
         *errorMessage = msgStartFailed(data.binary, data.arguments);
         return false;
     }

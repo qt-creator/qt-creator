@@ -102,7 +102,7 @@ void ShellIntegration::onOsc(int cmd, const VTermStringFragment &fragment)
     }
 }
 
-void ShellIntegration::prepareProcess(Utils::QtcProcess &process)
+void ShellIntegration::prepareProcess(Utils::Process &process)
 {
     Environment env = process.environment().hasChanges() ? process.environment()
                                                          : Environment::systemEnvironment();

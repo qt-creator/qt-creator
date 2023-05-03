@@ -14,7 +14,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class FileSystemWatcher;
-class QtcProcess;
+class Process;
 }
 
 namespace QmlJS {
@@ -41,7 +41,7 @@ private:
                                        const QString &importUri,
                                        const QString &importVersion);
     Q_INVOKABLE void dumpAllPlugins();
-    void qmlPluginTypeDumpDone(Utils::QtcProcess *process);
+    void qmlPluginTypeDumpDone(Utils::Process *process);
     void pluginChanged(const QString &pluginLibrary);
 
 private:
@@ -102,7 +102,7 @@ private:
 
     ModelManagerInterface *m_modelManager;
     Utils::FileSystemWatcher *m_pluginWatcher;
-    QHash<Utils::QtcProcess *, Utils::FilePath> m_runningQmldumps;
+    QHash<Utils::Process *, Utils::FilePath> m_runningQmldumps;
     QList<Plugin> m_plugins;
     QHash<Utils::FilePath, int> m_libraryToPluginIndex;
     QHash<QString, QmlJS::ModelManagerInterface::ProjectInfo> m_qtToInfo;

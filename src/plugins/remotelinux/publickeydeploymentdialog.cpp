@@ -23,7 +23,7 @@ namespace Internal {
 class PublicKeyDeploymentDialogPrivate
 {
 public:
-    QtcProcess m_process;
+    Process m_process;
     bool m_done;
 };
 } // namespace Internal;
@@ -56,7 +56,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
     setValue(0);
     connect(this, &PublicKeyDeploymentDialog::canceled, this,
             [this] { d->m_done ? accept() : reject(); });
-    connect(&d->m_process, &QtcProcess::done, this, [this] {
+    connect(&d->m_process, &Process::done, this, [this] {
         const bool succeeded = d->m_process.result() == ProcessResult::FinishedWithSuccess;
         QString finalMessage;
         if (!succeeded) {

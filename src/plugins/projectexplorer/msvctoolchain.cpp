@@ -255,7 +255,7 @@ static std::optional<VisualStudioInstallation> detectCppBuildTools2017()
 static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QString &vswhere)
 {
     QVector<VisualStudioInstallation> installations;
-    QtcProcess vsWhereProcess;
+    Process vsWhereProcess;
     vsWhereProcess.setCodec(QTextCodec::codecForName("UTF-8"));
     const int timeoutS = 5;
     vsWhereProcess.setTimeoutS(timeoutS);
@@ -649,7 +649,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
         return predefinedMacros;
     }
-    Utils::QtcProcess cpp;
+    Utils::Process cpp;
     cpp.setEnvironment(env);
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
     QStringList arguments;
@@ -1555,7 +1555,7 @@ static QVersionNumber clangClVersion(const FilePath &clangClPath)
     if (!dllversion.isEmpty())
         return QVersionNumber::fromString(dllversion);
 
-    QtcProcess clangClProcess;
+    Process clangClProcess;
     clangClProcess.setCommand({clangClPath, {"--version"}});
     clangClProcess.runBlocking();
     if (clangClProcess.result() != ProcessResult::FinishedWithSuccess)
@@ -1772,7 +1772,7 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     if (!cxxflags.contains("--driver-mode=g++"))
         return MsvcToolChain::msvcPredefinedMacros(cxxflags, env);
 
-    QtcProcess cpp;
+    Process cpp;
     cpp.setEnvironment(env);
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
 
@@ -2122,7 +2122,7 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
         return QString();
     }
 
-    Utils::QtcProcess run;
+    Utils::Process run;
 
     // As of WinSDK 7.1, there is logic preventing the path from being set
     // correctly if "ORIGINALPATH" is already set. That can cause problems

@@ -99,10 +99,10 @@ void PdbEngine::setupEngine()
     m_interpreter = runParameters().interpreter;
     QString bridge = ICore::resourcePath("debugger/pdbbridge.py").toString();
 
-    connect(&m_proc, &QtcProcess::started, this, &PdbEngine::handlePdbStarted);
-    connect(&m_proc, &QtcProcess::done, this, &PdbEngine::handlePdbDone);
-    connect(&m_proc, &QtcProcess::readyReadStandardOutput, this, &PdbEngine::readPdbStandardOutput);
-    connect(&m_proc, &QtcProcess::readyReadStandardError, this, &PdbEngine::readPdbStandardError);
+    connect(&m_proc, &Process::started, this, &PdbEngine::handlePdbStarted);
+    connect(&m_proc, &Process::done, this, &PdbEngine::handlePdbDone);
+    connect(&m_proc, &Process::readyReadStandardOutput, this, &PdbEngine::readPdbStandardOutput);
+    connect(&m_proc, &Process::readyReadStandardError, this, &PdbEngine::readPdbStandardError);
 
     const FilePath scriptFile = runParameters().mainScript;
     if (!scriptFile.isReadableFile()) {

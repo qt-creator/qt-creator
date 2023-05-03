@@ -119,7 +119,7 @@ static QString runGcc(const FilePath &gcc, const QStringList &arguments, const E
     if (!gcc.isExecutableFile())
         return {};
 
-    QtcProcess cpp;
+    Process cpp;
     Environment environment(env);
     environment.setupEnglishOutput();
 
@@ -1570,7 +1570,7 @@ bool ClangToolChain::matchesCompilerCommand(const FilePath &command) const
         m_resolvedCompilerCommand = FilePath();
         if (HostOsInfo::isMacHost()
             && compilerCommand().parentDir() == FilePath::fromString("/usr/bin")) {
-            QtcProcess xcrun;
+            Process xcrun;
             xcrun.setCommand({"/usr/bin/xcrun", {"-f", compilerCommand().fileName()}});
             xcrun.runBlocking();
             const FilePath output = FilePath::fromString(xcrun.cleanedStdOut().trimmed());

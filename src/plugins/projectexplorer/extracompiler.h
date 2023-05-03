@@ -25,7 +25,7 @@ class QPromise;
 class QThreadPool;
 QT_END_NAMESPACE
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace ProjectExplorer {
 
@@ -96,7 +96,7 @@ protected:
 
     virtual bool prepareToRun(const QByteArray &sourceContents);
 
-    virtual FileNameToContentsHash handleProcessFinished(Utils::QtcProcess *process) = 0;
+    virtual FileNameToContentsHash handleProcessFinished(Utils::Process *process) = 0;
 
     virtual Tasks parseIssues(const QByteArray &stdErr);
 

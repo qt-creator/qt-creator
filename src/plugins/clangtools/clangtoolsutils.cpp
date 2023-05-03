@@ -211,7 +211,7 @@ bool isVFSOverlaySupported(const FilePath &executable)
     static QMap<FilePath, bool> vfsCapabilities;
     auto it = vfsCapabilities.find(executable);
     if (it == vfsCapabilities.end()) {
-        QtcProcess p;
+        Process p;
         p.setCommand({executable, {"--help"}});
         p.runBlocking();
         it = vfsCapabilities.insert(executable, p.allOutput().contains("vfsoverlay"));

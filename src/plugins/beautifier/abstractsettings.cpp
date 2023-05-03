@@ -34,7 +34,7 @@ class VersionUpdater
 public:
     VersionUpdater()
     {
-        QObject::connect(&m_process, &QtcProcess::done, &m_process, [this] {
+        QObject::connect(&m_process, &Process::done, &m_process, [this] {
             if (m_process.result() != ProcessResult::FinishedWithSuccess)
                 return;
 
@@ -77,7 +77,7 @@ private:
     }
 
     QRegularExpression m_versionRegExp;
-    mutable QtcProcess m_process;
+    mutable Process m_process;
     QVersionNumber m_versionNumber;
 };
 

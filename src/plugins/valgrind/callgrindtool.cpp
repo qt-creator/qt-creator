@@ -361,7 +361,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     action->setIcon(kCachegrindIcon.icon());
     action->setToolTip(Tr::tr("Open results in KCachegrind."));
     connect(action, &QAction::triggered, this, [this, settings] {
-        QtcProcess::startDetached({FilePath::fromString(settings->kcachegrindExecutable.value()), { m_lastFileName }});
+        Process::startDetached({FilePath::fromString(settings->kcachegrindExecutable.value()), { m_lastFileName }});
     });
 
     // dump action

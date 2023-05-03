@@ -10,7 +10,7 @@ namespace Squish::Internal {
 SquishServerProcess::SquishServerProcess(QObject *parent)
     : SquishProcessBase(parent)
 {
-    connect(&m_process, &Utils::QtcProcess::readyReadStandardOutput,
+    connect(&m_process, &Utils::Process::readyReadStandardOutput,
             this, &SquishServerProcess::onStandardOutput);
 }
 
@@ -25,7 +25,7 @@ void SquishServerProcess::start(const Utils::CommandLine &commandLine,
 void SquishServerProcess::stop()
 {
     if (m_process.state() != QProcess::NotRunning && m_serverPort > 0) {
-        Utils::QtcProcess serverKiller;
+        Utils::Process serverKiller;
         QStringList args;
         args << "--stop" << "--port" << QString::number(m_serverPort);
         serverKiller.setCommand({m_process.commandLine().executable(), args});

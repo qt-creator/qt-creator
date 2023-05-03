@@ -25,18 +25,18 @@ class ValgrindRunner::Private : public QObject
 {
 public:
     Private(ValgrindRunner *owner) : q(owner) {
-        connect(&m_process, &QtcProcess::started, this, [this] {
+        connect(&m_process, &Process::started, this, [this] {
             emit q->valgrindStarted(m_process.processId());
         });
-        connect(&m_process, &QtcProcess::done, this, [this] {
+        connect(&m_process, &Process::done, this, [this] {
             if (m_process.result() != ProcessResult::FinishedWithSuccess)
                 emit q->processErrorReceived(m_process.errorString(), m_process.error());
             emit q->finished();
         });
-        connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+        connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
             emit q->appendMessage(m_process.readAllStandardOutput(), StdOutFormat);
         });
-        connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
+        connect(&m_process, &Process::readyReadStandardError, this, [this] {
             emit q->appendMessage(m_process.readAllStandardError(), StdErrFormat);
         });
 
@@ -53,7 +53,7 @@ public:
     Runnable m_debuggee;
 
     CommandLine m_command;
-    QtcProcess m_process;
+    Process m_process;
 
     QHostAddress m_localServerAddress;
 

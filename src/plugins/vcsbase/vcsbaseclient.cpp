@@ -90,7 +90,7 @@ VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
     return cmd;
 }
 
-void VcsBaseClientImpl::setupCommand(Utils::QtcProcess &process,
+void VcsBaseClientImpl::setupCommand(Utils::Process &process,
                                      const FilePath &workingDirectory,
                                      const QStringList &args) const
 {

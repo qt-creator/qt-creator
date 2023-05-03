@@ -31,7 +31,7 @@ static QString getQbsVersion(const FilePath &qbsExe)
 {
     if (qbsExe.isEmpty() || !qbsExe.exists())
         return {};
-    QtcProcess qbsProc;
+    Process qbsProc;
     qbsProc.setCommand({qbsExe, {"--version"}});
     qbsProc.start();
     if (!qbsProc.waitForFinished(5000) || qbsProc.exitCode() != 0)

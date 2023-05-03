@@ -62,7 +62,7 @@ QString convertWildcardToRegex(const QString &wildcard)
 
 bool isSilverSearcherAvailable()
 {
-    QtcProcess silverSearcherProcess;
+    Process silverSearcherProcess;
     silverSearcherProcess.setCommand({"ag", {"--version"}});
     silverSearcherProcess.start();
     if (silverSearcherProcess.waitForFinished(1000)) {
@@ -106,7 +106,7 @@ void runSilverSeacher(QPromise<FileSearchResultList> &promise, FileFindParameter
 
     arguments << "--" << parameters.text << directory.normalizedPathName().toString();
 
-    QtcProcess process;
+    Process process;
     process.setCommand({"ag", arguments});
     process.start();
     if (process.waitForFinished()) {

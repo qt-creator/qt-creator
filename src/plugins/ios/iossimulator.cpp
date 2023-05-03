@@ -52,7 +52,7 @@ Utils::Port IosSimulator::nextPort() const
         // use qrand instead?
         if (++m_lastPort >= Constants::IOS_SIMULATOR_PORT_END)
             m_lastPort = Constants::IOS_SIMULATOR_PORT_START;
-        Utils::QtcProcess portVerifier;
+        Utils::Process portVerifier;
         // this is a bit too broad (it does not check just listening sockets, but also connections
         // to that port from this computer)
         portVerifier.setCommand({"lsof", {"-n", "-P", "-i", QString(":%1").arg(m_lastPort)}});

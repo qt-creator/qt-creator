@@ -97,7 +97,7 @@ public:
     {}
 
 private:
-    void setupShellProcess(QtcProcess *shellProcess) final
+    void setupShellProcess(Process *shellProcess) final
     {
         shellProcess->setCommand({m_settings->dockerBinaryPath.filePath(),
                                   {"container", "start", "-i", "-a", m_containerId}});
@@ -226,7 +226,7 @@ private:
     // as this object is alive.
     IDevice::ConstPtr m_device;
 
-    QtcProcess m_process;
+    Process m_process;
     qint64 m_remotePID = 0;
     bool m_hasReceivedFirstOutput = false;
 };
@@ -236,7 +236,7 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
     , m_device(std::move(device))
     , m_process(this)
 {
-    connect(&m_process, &QtcProcess::started, this, [this] {
+    connect(&m_process, &Process::started, this, [this] {
         qCDebug(dockerDeviceLog) << "Process started:" << m_process.commandLine();
 
         if (m_setup.m_ptyData.has_value()) {
@@ -245,7 +245,7 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
         }
     });
 
-    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+    connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
         if (m_hasReceivedFirstOutput)
             emit readyRead(m_process.readAllRawStandardOutput(), {});
 
@@ -273,12 +273,12 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
         m_hasReceivedFirstOutput = true;
     });
 
-    connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
+    connect(&m_process, &Process::readyReadStandardError, this, [this] {
         if (m_remotePID)
             emit readyRead({}, m_process.readAllRawStandardError());
     });
 
-    connect(&m_process, &QtcProcess::done, this, [this] {
+    connect(&m_process, &Process::done, this, [this] {
         qCDebug(dockerDeviceLog) << "Process exited:" << m_process.commandLine()
                                  << "with code:" << m_process.resultData().m_exitCode;
 
@@ -437,9 +437,9 @@ DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &dat
             return;
         }
 
-        QtcProcess *proc = new QtcProcess(d);
+        Process *proc = new Process(d);
 
-        QObject::connect(proc, &QtcProcess::done, [proc] {
+        QObject::connect(proc, &Process::done, [proc] {
             if (proc->error() != QProcess::UnknownError && MessageManager::instance()) {
                 MessageManager::writeDisrupting(
                     Tr::tr("Error starting remote shell: %1").arg(proc->errorString()));
@@ -558,7 +558,7 @@ void DockerDevicePrivate::stopCurrentContainer()
         m_shell.reset();
     }
 
-    QtcProcess proc;
+    Process proc;
     proc.setCommand({m_settings->dockerBinaryPath.filePath(), {"container", "stop", m_container}});
 
     m_container.clear();
@@ -662,7 +662,7 @@ QStringList DockerDevicePrivate::createMountArgs() const
 
 bool DockerDevicePrivate::isImageAvailable() const
 {
-    QtcProcess proc;
+    Process proc;
     proc.setCommand(
         {m_settings->dockerBinaryPath.filePath(),
          {"image", "list", m_data.repoAndTag(), "--format", "{{.Repository}}:{{.Tag}}"}});
@@ -714,7 +714,7 @@ bool DockerDevicePrivate::createContainer()
     dockerCreate.addArg(m_data.repoAndTag());
 
     qCDebug(dockerDeviceLog).noquote() << "RUNNING: " << dockerCreate.toUserOutput();
-    QtcProcess createProcess;
+    Process createProcess;
     createProcess.setCommand(dockerCreate);
     createProcess.runBlocking();
 
@@ -930,7 +930,7 @@ void DockerDevicePrivate::fetchSystemEnviroment()
         return;
     }
 
-    QtcProcess proc;
+    Process proc;
     proc.setCommand(withDockerExecCmd({"env", {}}));
     proc.start();
     proc.waitForFinished();
@@ -1061,10 +1061,10 @@ public:
                         {"images", "--format", "{{.ID}}\\t{{.Repository}}\\t{{.Tag}}\\t{{.Size}}"}};
         m_log->append(Tr::tr("Running \"%1\"\n").arg(cmd.toUserOutput()));
 
-        m_process = new QtcProcess(this);
+        m_process = new Process(this);
         m_process->setCommand(cmd);
 
-        connect(m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+        connect(m_process, &Process::readyReadStandardOutput, this, [this] {
             const QString out = m_process->readAllStandardOutput().trimmed();
             m_log->append(out);
             for (const QString &line : out.split('\n')) {
@@ -1083,12 +1083,12 @@ public:
             m_log->append(Tr::tr("Done."));
         });
 
-        connect(m_process, &Utils::QtcProcess::readyReadStandardError, this, [this] {
+        connect(m_process, &Utils::Process::readyReadStandardError, this, [this] {
             const QString out = Tr::tr("Error: %1").arg(m_process->cleanedStdErr());
             m_log->append(Tr::tr("Error: %1").arg(out));
         });
 
-        connect(m_process, &QtcProcess::done, errorLabel, [errorLabel, this, statusLabel] {
+        connect(m_process, &Process::done, errorLabel, [errorLabel, this, statusLabel] {
             delete statusLabel;
             if (m_process->result() == ProcessResult::FinishedWithSuccess)
                 m_view->setEnabled(true);
@@ -1126,7 +1126,7 @@ public:
     QDialogButtonBox *m_buttons;
     DockerSettings *m_settings;
 
-    QtcProcess *m_process = nullptr;
+    Process *m_process = nullptr;
     QString m_selectedId;
 };
 

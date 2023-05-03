@@ -401,7 +401,7 @@ QString PluginManager::systemInformation()
     QString result;
     CommandLine qtDiag(FilePath::fromString(QLibraryInfo::location(QLibraryInfo::BinariesPath))
                         .pathAppended("qtdiag").withExecutableSuffix());
-    QtcProcess qtDiagProc;
+    Process qtDiagProc;
     qtDiagProc.setCommand(qtDiag);
     qtDiagProc.runBlocking();
     if (qtDiagProc.result() == ProcessResult::FinishedWithSuccess)

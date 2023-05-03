@@ -614,20 +614,20 @@ void AndroidDeviceManager::setupDevicesWatcher()
     }
 
     if (!m_adbDeviceWatcherProcess)
-        m_adbDeviceWatcherProcess.reset(new QtcProcess(this));
+        m_adbDeviceWatcherProcess.reset(new Process(this));
 
     if (m_adbDeviceWatcherProcess->isRunning()) {
         qCDebug(androidDeviceLog) << "ADB device watcher is already running.";
         return;
     }
 
-    connect(m_adbDeviceWatcherProcess.get(), &QtcProcess::done, this, [this] {
+    connect(m_adbDeviceWatcherProcess.get(), &Process::done, this, [this] {
         if (m_adbDeviceWatcherProcess->error() != QProcess::UnknownError) {
             qCDebug(androidDeviceLog) << "ADB device watcher encountered an error:"
                                       << m_adbDeviceWatcherProcess->errorString();
             if (!m_adbDeviceWatcherProcess->isRunning()) {
                 qCDebug(androidDeviceLog) << "Restarting the ADB device watcher now.";
-                QTimer::singleShot(0, m_adbDeviceWatcherProcess.get(), &QtcProcess::start);
+                QTimer::singleShot(0, m_adbDeviceWatcherProcess.get(), &Process::start);
             }
         }
         qCDebug(androidDeviceLog) << "ADB device watcher finished.";

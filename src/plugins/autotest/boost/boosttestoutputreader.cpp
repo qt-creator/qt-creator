@@ -22,7 +22,7 @@ namespace Internal {
 
 static Q_LOGGING_CATEGORY(orLog, "qtc.autotest.boost.outputreader", QtWarningMsg)
 
-BoostTestOutputReader::BoostTestOutputReader(QtcProcess *testApplication,
+BoostTestOutputReader::BoostTestOutputReader(Process *testApplication,
                                              const FilePath &buildDirectory,
                                              const FilePath &projectFile,
                                              LogLevel log, ReportLevel report)
@@ -34,7 +34,7 @@ BoostTestOutputReader::BoostTestOutputReader(QtcProcess *testApplication,
     if (!testApplication)
         return;
 
-    connect(testApplication, &QtcProcess::done, this, [this, testApplication] {
+    connect(testApplication, &Process::done, this, [this, testApplication] {
         onDone(testApplication->exitCode());
     });
 }

@@ -368,7 +368,7 @@ static void saveQtVersions()
 // Executes qtchooser with arguments in a process and returns its output
 static QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringList &arguments)
 {
-    QtcProcess p;
+    Process p;
     p.setCommand({FilePath::fromString(qtchooser), arguments});
     p.start();
     p.waitForFinished();

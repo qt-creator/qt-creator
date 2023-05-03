@@ -54,7 +54,7 @@ public:
     }
 
 private:
-    void setupShellProcess(QtcProcess *shellProcess) override
+    void setupShellProcess(Process *shellProcess) override
     {
         shellProcess->setCommand(cmdLine());
     }

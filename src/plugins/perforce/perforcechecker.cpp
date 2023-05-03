@@ -21,7 +21,7 @@ namespace Internal {
 
 PerforceChecker::PerforceChecker(QObject *parent) : QObject(parent)
 {
-    connect(&m_process, &QtcProcess::done, this, &PerforceChecker::slotDone);
+    connect(&m_process, &Process::done, this, &PerforceChecker::slotDone);
 }
 
 PerforceChecker::~PerforceChecker()

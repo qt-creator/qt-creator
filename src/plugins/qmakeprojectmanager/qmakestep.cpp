@@ -284,14 +284,14 @@ void QMakeStep::doRun()
 
     using namespace Tasking;
 
-    const auto setupQMake = [this](QtcProcess &process) {
+    const auto setupQMake = [this](Process &process) {
         m_outputFormatter->setLineParsers({new QMakeParser});
         ProcessParameters *pp = processParameters();
         pp->setCommandLine(m_qmakeCommand);
         setupProcess(&process);
     };
 
-    const auto setupMakeQMake = [this](QtcProcess &process) {
+    const auto setupMakeQMake = [this](Process &process) {
         auto *parser = new GnuMakeParser;
         parser->addSearchDir(processParameters()->workingDirectory());
         m_outputFormatter->setLineParsers({parser});
@@ -300,13 +300,13 @@ void QMakeStep::doRun()
         setupProcess(&process);
     };
 
-    const auto onDone = [this](const QtcProcess &) {
+    const auto onDone = [this](const Process &) {
         const QString command = displayedParameters()->effectiveCommand().toUserOutput();
         emit addOutput(Tr::tr("The process \"%1\" exited normally.").arg(command),
                        OutputFormat::NormalMessage);
     };
 
-    const auto onError = [this](const QtcProcess &process) {
+    const auto onError = [this](const Process &process) {
         const QString command = displayedParameters()->effectiveCommand().toUserOutput();
         if (process.result() == ProcessResult::FinishedWithError) {
             emit addOutput(Tr::tr("The process \"%1\" exited with code %2.")

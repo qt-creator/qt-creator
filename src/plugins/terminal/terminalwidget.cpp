@@ -137,7 +137,7 @@ TerminalWidget::~TerminalWidget()
 
 void TerminalWidget::setupPty()
 {
-    m_process = std::make_unique<QtcProcess>();
+    m_process = std::make_unique<Process>();
 
     CommandLine shellCommand = m_openParameters.shellCommand.value_or(
         CommandLine{TerminalSettings::instance().shell.filePath(),
@@ -163,11 +163,11 @@ void TerminalWidget::setupPty()
         m_surface->shellIntegration()->prepareProcess(*m_process.get());
     }
 
-    connect(m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this]() {
+    connect(m_process.get(), &Process::readyReadStandardOutput, this, [this]() {
         onReadyRead(false);
     });
 
-    connect(m_process.get(), &QtcProcess::done, this, [this] {
+    connect(m_process.get(), &Process::done, this, [this] {
         if (m_process) {
             if (m_process->exitCode() != 0) {
                 QByteArray msg = QString("\r\n\033[31mProcess exited with code: %1")
@@ -206,7 +206,7 @@ void TerminalWidget::setupPty()
         }
     });
 
-    connect(m_process.get(), &QtcProcess::started, this, [this] {
+    connect(m_process.get(), &Process::started, this, [this] {
         if (m_shellName.isEmpty())
             m_shellName = m_process->commandLine().executable().fileName();
         if (HostOsInfo::isWindowsHost() && m_shellName.endsWith(QTC_WIN_EXE_SUFFIX))

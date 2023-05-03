@@ -119,7 +119,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
 
     using namespace Tasking;
 
-    const auto doSetup = [this](QtcProcess &process, const QStringList &args) {
+    const auto doSetup = [this](Process &process, const QStringList &args) {
         process.setCommand({d->m_maintenanceTool, args});
     };
     const auto doCleanup = [this] {
@@ -127,19 +127,19 @@ void UpdateInfoPlugin::startCheckForUpdates()
         checkForUpdatesStopped();
     };
 
-    const auto setupUpdate = [doSetup](QtcProcess &process) {
+    const auto setupUpdate = [doSetup](Process &process) {
         doSetup(process, {"ch", "-g", "*=false,ifw.package.*=true"});
     };
-    const auto updateDone = [this](const QtcProcess &process) {
+    const auto updateDone = [this](const Process &process) {
         d->m_updateOutput = process.cleanedStdOut();
     };
 
     QList<TaskItem> tasks { ProcessTask(setupUpdate, updateDone) };
     if (d->m_settings.checkForQtVersions) {
-        const auto setupPackages = [doSetup](QtcProcess &process) {
+        const auto setupPackages = [doSetup](Process &process) {
             doSetup(process, {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"});
         };
-        const auto packagesDone = [this](const QtcProcess &process) {
+        const auto packagesDone = [this](const Process &process) {
             d->m_packagesOutput = process.cleanedStdOut();
         };
         tasks << ProcessTask(setupPackages, packagesDone);
@@ -461,7 +461,7 @@ QDate UpdateInfoPlugin::nextCheckDate(CheckUpdateInterval interval) const
 
 void UpdateInfoPlugin::startMaintenanceTool(const QStringList &args) const
 {
-    QtcProcess::startDetached(CommandLine{d->m_maintenanceTool, args});
+    Process::startDetached(CommandLine{d->m_maintenanceTool, args});
 }
 
 void UpdateInfoPlugin::startUpdater() const

@@ -164,7 +164,7 @@ static CMakeConfig configurationFromPresetProbe(
                                               "project(preset-probe)\n"
                                               "\n"));
 
-    QtcProcess cmake;
+    Process cmake;
     cmake.setTimeoutS(30);
     cmake.setDisableUnixTerminal();
 
@@ -341,7 +341,7 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
         file(WRITE "${CMAKE_SOURCE_DIR}/cmake-prefix-path.txt" "${CMAKE_PREFIX_PATH}")
     )"));
 
-    QtcProcess cmake;
+    Process cmake;
     cmake.setTimeoutS(5);
     cmake.setDisableUnixTerminal();
 

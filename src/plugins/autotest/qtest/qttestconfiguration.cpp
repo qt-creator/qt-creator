@@ -28,7 +28,7 @@ static QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode)
     });
 }
 
-TestOutputReader *QtTestConfiguration::createOutputReader(QtcProcess *app) const
+TestOutputReader *QtTestConfiguration::createOutputReader(Process *app) const
 {
     auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
     const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()

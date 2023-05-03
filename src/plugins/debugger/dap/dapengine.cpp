@@ -112,10 +112,10 @@ void DapEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
-    connect(&m_proc, &QtcProcess::started, this, &DapEngine::handleDabStarted);
-    connect(&m_proc, &QtcProcess::done, this, &DapEngine::handleDapDone);
-    connect(&m_proc, &QtcProcess::readyReadStandardOutput, this, &DapEngine::readDapStandardOutput);
-    connect(&m_proc, &QtcProcess::readyReadStandardError, this, &DapEngine::readDapStandardError);
+    connect(&m_proc, &Process::started, this, &DapEngine::handleDabStarted);
+    connect(&m_proc, &Process::done, this, &DapEngine::handleDapDone);
+    connect(&m_proc, &Process::readyReadStandardOutput, this, &DapEngine::readDapStandardOutput);
+    connect(&m_proc, &Process::readyReadStandardError, this, &DapEngine::readDapStandardError);
 
     const DebuggerRunParameters &rp = runParameters();
     const CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};

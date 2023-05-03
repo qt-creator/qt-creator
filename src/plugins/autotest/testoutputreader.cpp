@@ -21,7 +21,7 @@ FilePath TestOutputReader::constructSourceFilePath(const FilePath &path, const Q
     return filePath.isReadableFile() ? filePath : FilePath();
 }
 
-TestOutputReader::TestOutputReader(QtcProcess *testApplication, const FilePath &buildDirectory)
+TestOutputReader::TestOutputReader(Process *testApplication, const FilePath &buildDirectory)
     : m_buildDir(buildDirectory)
 {
     auto chopLineBreak = [](QByteArray line) {
@@ -33,7 +33,7 @@ TestOutputReader::TestOutputReader(QtcProcess *testApplication, const FilePath &
     };
 
     if (testApplication) {
-        connect(testApplication, &QtcProcess::started, this, [this, testApplication] {
+        connect(testApplication, &Process::started, this, [this, testApplication] {
             m_id = testApplication->commandLine().executable().toUserOutput();
         });
         testApplication->setStdOutLineCallback([this, &chopLineBreak](const QString &line) {

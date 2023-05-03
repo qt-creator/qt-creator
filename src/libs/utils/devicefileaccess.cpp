@@ -220,13 +220,13 @@ expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
     if (isSrcOrTargetQrc || !targetTar.isExecutableFile() || !sourceTar.isExecutableFile())
         return copyRecursively_fallback(src, target);
 
-    QtcProcess srcProcess;
-    QtcProcess targetProcess;
+    Process srcProcess;
+    Process targetProcess;
 
     targetProcess.setProcessMode(ProcessMode::Writer);
 
     QObject::connect(&srcProcess,
-                     &QtcProcess::readyReadStandardOutput,
+                     &Process::readyReadStandardOutput,
                      &targetProcess,
                      [&srcProcess, &targetProcess]() {
                          targetProcess.writeRaw(srcProcess.readAllRawStandardOutput());
@@ -960,7 +960,7 @@ expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &file
 #ifndef UTILS_STATIC_LIBRARY
     const FilePath dd = filePath.withNewPath("dd");
 
-    QtcProcess p;
+    Process p;
     p.setCommand({dd, args, OsType::OsTypeLinux});
     p.runBlocking();
     if (p.exitCode() != 0) {

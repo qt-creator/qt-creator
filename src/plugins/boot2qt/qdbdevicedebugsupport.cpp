@@ -34,13 +34,13 @@ public:
     {
         setId("QdbDebuggeeRunner");
 
-        connect(&m_launcher, &QtcProcess::started, this, &RunWorker::reportStarted);
-        connect(&m_launcher, &QtcProcess::done, this, &RunWorker::reportStopped);
+        connect(&m_launcher, &Process::started, this, &RunWorker::reportStarted);
+        connect(&m_launcher, &Process::done, this, &RunWorker::reportStopped);
 
-        connect(&m_launcher, &QtcProcess::readyReadStandardOutput, this, [this] {
+        connect(&m_launcher, &Process::readyReadStandardOutput, this, [this] {
                 appendMessage(m_launcher.readAllStandardOutput(), StdOutFormat);
         });
-        connect(&m_launcher, &QtcProcess::readyReadStandardError, this, [this] {
+        connect(&m_launcher, &Process::readyReadStandardError, this, [this] {
                 appendMessage(m_launcher.readAllStandardError(), StdErrFormat);
         });
 
@@ -112,7 +112,7 @@ private:
     bool m_useGdbServer;
     bool m_useQmlServer;
     QmlDebug::QmlDebugServicesPreset m_qmlServices;
-    QtcProcess m_launcher;
+    Process m_launcher;
 };
 
 // QdbDeviceRunSupport

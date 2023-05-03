@@ -175,7 +175,7 @@ void CallgrindToolRunner::run(Option option)
     // save back current running operation
     m_lastOption = option;
 
-    m_controllerProcess.reset(new QtcProcess);
+    m_controllerProcess.reset(new Process);
 
     switch (option) {
         case CallgrindToolRunner::Dump:
@@ -197,7 +197,7 @@ void CallgrindToolRunner::run(Option option)
 #if CALLGRIND_CONTROL_DEBUG
     m_controllerProcess->setProcessChannelMode(QProcess::ForwardedChannels);
 #endif
-    connect(m_controllerProcess.get(), &QtcProcess::done,
+    connect(m_controllerProcess.get(), &Process::done,
             this, &CallgrindToolRunner::controllerProcessDone);
 
     const FilePath control =

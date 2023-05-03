@@ -165,12 +165,12 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
 
     const TreeStorage<QString> diffInputStorage = inputStorage();
 
-    const auto setupDiff = [=](QtcProcess &process) {
+    const auto setupDiff = [=](Process &process) {
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), {}));
         setupCommand(process, {addConfigurationArguments(diffArgs(leftCommit, rightCommit, extraArgs))});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
-    const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
+    const auto onDiffDone = [diffInputStorage](const Process &process) {
         *diffInputStorage = process.cleanedStdOut();
     };
 
@@ -231,7 +231,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
     const TreeStorage<DiffStorage> storage;
     const TreeStorage<QString> diffInputStorage = inputStorage();
 
-    const auto setupStaged = [this, stagedFiles](QtcProcess &process) {
+    const auto setupStaged = [this, stagedFiles](Process &process) {
         if (stagedFiles.isEmpty())
             return TaskAction::StopWithError;
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), stagedFiles));
@@ -240,11 +240,11 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
         return TaskAction::Continue;
     };
-    const auto onStagedDone = [storage](const QtcProcess &process) {
+    const auto onStagedDone = [storage](const Process &process) {
         storage->m_stagedOutput = process.cleanedStdOut();
     };
 
-    const auto setupUnstaged = [this, unstagedFiles](QtcProcess &process) {
+    const auto setupUnstaged = [this, unstagedFiles](Process &process) {
         if (unstagedFiles.isEmpty())
             return TaskAction::StopWithError;
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), unstagedFiles));
@@ -253,7 +253,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
         return TaskAction::Continue;
     };
-    const auto onUnstagedDone = [storage](const QtcProcess &process) {
+    const auto onUnstagedDone = [storage](const Process &process) {
         storage->m_unstagedOutput = process.cleanedStdOut();
     };
 
@@ -321,13 +321,13 @@ ShowController::ShowController(IDocument *document, const QString &id)
         setDescription(desc);
     };
 
-    const auto setupDescription = [this, id](QtcProcess &process) {
+    const auto setupDescription = [this, id](Process &process) {
         process.setCodec(m_instance->encoding(GitClient::EncodingCommit, workingDirectory()));
         setupCommand(process, {"show", "-s", noColorOption, showFormatC, id});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
         setDescription(Tr::tr("Waiting for data..."));
     };
-    const auto onDescriptionDone = [this, storage, updateDescription](const QtcProcess &process) {
+    const auto onDescriptionDone = [this, storage, updateDescription](const Process &process) {
         ReloadStorage *data = storage.activeStorage();
         const QString output = process.cleanedStdOut();
         data->m_postProcessDescription = output.startsWith("commit ");
@@ -348,12 +348,12 @@ ShowController::ShowController(IDocument *document, const QString &id)
         return TaskAction::Continue;
     };
 
-    const auto setupBranches = [this, storage](QtcProcess &process) {
+    const auto setupBranches = [this, storage](Process &process) {
         storage->m_branches = busyMessage;
         setupCommand(process, {"branch", noColorOption, "-a", "--contains", storage->m_commit});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
-    const auto onBranchesDone = [storage, updateDescription](const QtcProcess &process) {
+    const auto onBranchesDone = [storage, updateDescription](const Process &process) {
         ReloadStorage *data = storage.activeStorage();
         data->m_branches.clear();
         const QString remotePrefix = "remotes/";
@@ -391,17 +391,17 @@ ShowController::ShowController(IDocument *document, const QString &id)
         data->m_branches = data->m_branches.trimmed();
         updateDescription(*data);
     };
-    const auto onBranchesError = [storage, updateDescription](const QtcProcess &) {
+    const auto onBranchesError = [storage, updateDescription](const Process &) {
         ReloadStorage *data = storage.activeStorage();
         data->m_branches.clear();
         updateDescription(*data);
     };
 
-    const auto setupPrecedes = [this, storage](QtcProcess &process) {
+    const auto setupPrecedes = [this, storage](Process &process) {
         storage->m_precedes = busyMessage;
         setupCommand(process, {"describe", "--contains", storage->m_commit});
     };
-    const auto onPrecedesDone = [storage, updateDescription](const QtcProcess &process) {
+    const auto onPrecedesDone = [storage, updateDescription](const Process &process) {
         ReloadStorage *data = storage.activeStorage();
         data->m_precedes = process.cleanedStdOut().trimmed();
         const int tilde = data->m_precedes.indexOf('~');
@@ -411,7 +411,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
             data->m_precedes.chop(2);
         updateDescription(*data);
     };
-    const auto onPrecedesError = [storage, updateDescription](const QtcProcess &) {
+    const auto onPrecedesError = [storage, updateDescription](const Process &) {
         ReloadStorage *data = storage.activeStorage();
         data->m_precedes.clear();
         updateDescription(*data);
@@ -427,10 +427,10 @@ ShowController::ShowController(IDocument *document, const QString &id)
         data->m_follows = {busyMessage};
         data->m_follows.resize(parents.size());
 
-        const auto setupFollow = [this](QtcProcess &process, const QString &parent) {
+        const auto setupFollow = [this](Process &process, const QString &parent) {
             setupCommand(process, {"describe", "--tags", "--abbrev=0", parent});
         };
-        const auto onFollowDone = [data, updateDescription](const QtcProcess &process, int index) {
+        const auto onFollowDone = [data, updateDescription](const Process &process, int index) {
             data->m_follows[index] = process.cleanedStdOut().trimmed();
             updateDescription(*data);
         };
@@ -448,13 +448,13 @@ ShowController::ShowController(IDocument *document, const QString &id)
         taskTree.setupRoot(tasks);
     };
 
-    const auto setupDiff = [this, id](QtcProcess &process) {
+    const auto setupDiff = [this, id](Process &process) {
         setupCommand(process, addConfigurationArguments(
                                   {"show", "--format=format:", // omit header, already generated
                                    noColorOption, decorateOption, id}));
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
-    const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
+    const auto onDiffDone = [diffInputStorage](const Process &process) {
         *diffInputStorage = process.cleanedStdOut();
     };
 
@@ -1736,10 +1736,10 @@ Utils::Tasking::ProcessTask GitClient::topRevision(
 {
     using namespace Tasking;
 
-    const auto setupProcess = [=](QtcProcess &process) {
+    const auto setupProcess = [=](Process &process) {
         setupCommand(process, workingDirectory, {"show", "-s", "--pretty=format:%H:%ct", HEAD});
     };
-    const auto onProcessDone = [=](const QtcProcess &process) {
+    const auto onProcessDone = [=](const Process &process) {
         const QStringList output = process.cleanedStdOut().trimmed().split(':');
         QDateTime dateTime;
         if (output.size() > 1) {
@@ -2424,7 +2424,7 @@ void GitClient::launchRepositoryBrowser(const FilePath &workingDirectory) const
 {
     const FilePath repBrowserBinary = settings().repositoryBrowserCmd.filePath();
     if (!repBrowserBinary.isEmpty())
-        QtcProcess::startDetached({repBrowserBinary, {workingDirectory.toString()}}, workingDirectory);
+        Process::startDetached({repBrowserBinary, {workingDirectory.toString()}}, workingDirectory);
 }
 
 static FilePath gitBinDir(const GitClient::GitKLaunchTrial trial, const FilePath &parentDir)
@@ -2471,18 +2471,18 @@ void GitClient::tryLaunchingGitK(const Environment &env,
     // This should always use QtcProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     if (!settings().path.value().isEmpty()) {
-        auto process = new QtcProcess(const_cast<GitClient*>(this));
+        auto process = new Process(const_cast<GitClient*>(this));
         process->setWorkingDirectory(workingDirectory);
         process->setEnvironment(env);
         process->setCommand({binary, arguments});
-        connect(process, &QtcProcess::done, this, [=] {
+        connect(process, &Process::done, this, [=] {
             if (process->result() == ProcessResult::StartFailed)
                 handleGitKFailedToStart(env, workingDirectory, fileName, trial, gitBinDirectory);
             process->deleteLater();
         });
         process->start();
     } else {
-        if (!QtcProcess::startDetached({binary, arguments}, workingDirectory))
+        if (!Process::startDetached({binary, arguments}, workingDirectory))
             handleGitKFailedToStart(env, workingDirectory, fileName, trial, gitBinDirectory);
     }
 }
@@ -2519,7 +2519,7 @@ bool GitClient::launchGitGui(const FilePath &workingDirectory) {
     if (gitBinary.isEmpty()) {
         success = false;
     } else {
-        success = QtcProcess::startDetached({gitBinary, {"gui"}}, workingDirectory);
+        success = Process::startDetached({gitBinary, {"gui"}}, workingDirectory);
     }
 
     if (!success)
@@ -2564,7 +2564,7 @@ bool GitClient::launchGitBash(const FilePath &workingDirectory)
         success = false;
     } else {
         const FilePath gitBash = git.absolutePath().parentDir() / "git-bash.exe";
-        success = QtcProcess::startDetached({gitBash, {}}, workingDirectory);
+        success = Process::startDetached({gitBash, {}}, workingDirectory);
     }
 
     if (!success)
@@ -3466,8 +3466,8 @@ QFuture<unsigned> GitClient::gitVersion() const
     const FilePath newGitBinary = vcsBinary();
     const bool needToRunGit = m_gitVersionForBinary != newGitBinary && !newGitBinary.isEmpty();
     if (needToRunGit) {
-        auto proc = new QtcProcess(const_cast<GitClient *>(this));
-        connect(proc, &QtcProcess::done, this, [this, proc, fi, newGitBinary]() mutable {
+        auto proc = new Process(const_cast<GitClient *>(this));
+        connect(proc, &Process::done, this, [this, proc, fi, newGitBinary]() mutable {
             if (proc->result() == ProcessResult::FinishedWithSuccess) {
                 m_cachedGitVersion = parseGitVersion(proc->cleanedStdOut());
                 m_gitVersionForBinary = newGitBinary;

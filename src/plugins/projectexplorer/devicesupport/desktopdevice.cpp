@@ -61,8 +61,8 @@ DesktopDevice::DesktopDevice()
 
         const FilePath shell = Terminal::defaultShellForDevice(path);
 
-        QtcProcess *process = new QtcProcess(d.get());
-        QObject::connect(process, &QtcProcess::done, process, &QtcProcess::deleteLater);
+        Process *process = new Process(d.get());
+        QObject::connect(process, &Process::done, process, &Process::deleteLater);
 
         process->setTerminalMode(TerminalMode::On);
         process->setEnvironment(realEnv);

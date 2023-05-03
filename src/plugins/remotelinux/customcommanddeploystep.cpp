@@ -57,22 +57,22 @@ CheckResult CustomCommandDeployStep::isDeploymentPossible() const
 
 Group CustomCommandDeployStep::deployRecipe()
 {
-    const auto setupHandler = [this](QtcProcess &process) {
+    const auto setupHandler = [this](Process &process) {
         addProgressMessage(Tr::tr("Starting remote command \"%1\"...").arg(m_commandLine));
         process.setCommand({deviceConfiguration()->filePath("/bin/sh"),
                                  {"-c", m_commandLine}});
-        QtcProcess *proc = &process;
-        connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
+        Process *proc = &process;
+        connect(proc, &Process::readyReadStandardOutput, this, [this, proc] {
             handleStdOutData(proc->readAllStandardOutput());
         });
-        connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
+        connect(proc, &Process::readyReadStandardError, this, [this, proc] {
             handleStdErrData(proc->readAllStandardError());
         });
     };
-    const auto doneHandler = [this](const QtcProcess &) {
+    const auto doneHandler = [this](const Process &) {
         addProgressMessage(Tr::tr("Remote command finished successfully."));
     };
-    const auto errorHandler = [this](const QtcProcess &process) {
+    const auto errorHandler = [this](const Process &process) {
         if (process.error() != QProcess::UnknownError
                 || process.exitStatus() != QProcess::NormalExit) {
             addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));

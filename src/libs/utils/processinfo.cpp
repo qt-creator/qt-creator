@@ -50,7 +50,7 @@ static QList<ProcessInfo> getLocalProcessesUsingProc(const FilePath &procDir)
 
     cmd.addArgs(execs, CommandLine::Raw);
 
-    QtcProcess procProcess;
+    Process procProcess;
     procProcess.setCommand(cmd);
     procProcess.runBlocking();
 
@@ -83,7 +83,7 @@ static QList<ProcessInfo> getLocalProcessesUsingProc(const FilePath &procDir)
 static QMap<qint64, QString> getLocalProcessDataUsingPs(const FilePath &deviceRoot,
                                                         const QString &column)
 {
-    QtcProcess process;
+    Process process;
     process.setCommand({deviceRoot.withNewPath("ps"), {"-e", "-o", "pid," + column}});
     process.runBlocking();
 
@@ -129,7 +129,7 @@ static QList<ProcessInfo> getLocalProcessesUsingPs(const FilePath &deviceRoot)
 
 static QList<ProcessInfo> getProcessesUsingPidin(const FilePath &pidin)
 {
-    QtcProcess process;
+    Process process;
     process.setCommand({pidin, {"-F", "%a %A {/%n}"}});
     process.runBlocking();
 

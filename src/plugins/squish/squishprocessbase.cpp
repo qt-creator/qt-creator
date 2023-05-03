@@ -8,9 +8,9 @@ namespace Squish::Internal {
 SquishProcessBase::SquishProcessBase(QObject *parent)
     : QObject(parent)
 {
-    connect(&m_process, &Utils::QtcProcess::readyReadStandardError,
+    connect(&m_process, &Utils::Process::readyReadStandardError,
             this, &SquishProcessBase::onErrorOutput);
-    connect(&m_process, &Utils::QtcProcess::done,
+    connect(&m_process, &Utils::Process::done,
             this, &SquishProcessBase::onDone);
 }
 

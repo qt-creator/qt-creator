@@ -62,7 +62,7 @@ static Interpreter createInterpreter(const FilePath &python,
     result.id = QUuid::createUuid().toString();
     result.command = python;
 
-    QtcProcess pythonProcess;
+    Process pythonProcess;
     pythonProcess.setProcessChannelMode(QProcess::MergedChannels);
     pythonProcess.setTimeoutS(1);
     pythonProcess.setCommand({python, {"--version"}});

@@ -1040,7 +1040,7 @@ void SquishTools::interruptRunner()
     QTC_ASSERT(m_primaryRunner, return);
     qint64 processId = m_primaryRunner->processId();
     const CommandLine cmd(toolsSettings.processComPath, {QString::number(processId), "break"});
-    QtcProcess process;
+    Process process;
     process.setCommand(cmd);
     process.start();
     process.waitForFinished();
@@ -1056,7 +1056,7 @@ void SquishTools::terminateRunner()
     QTC_ASSERT(m_primaryRunner, return);
     qint64 processId = m_primaryRunner->processId();
     const CommandLine cmd(toolsSettings.processComPath, {QString::number(processId), "terminate"});
-    QtcProcess process;
+    Process process;
     process.setCommand(cmd);
     process.start();
     process.waitForFinished();

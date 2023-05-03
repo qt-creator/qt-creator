@@ -142,7 +142,7 @@ private:
 
     virtual ProcessBlockingInterface *processBlockingInterface() const { return nullptr; }
 
-    friend class QtcProcess;
+    friend class Process;
     friend class Internal::QtcProcessPrivate;
 };
 

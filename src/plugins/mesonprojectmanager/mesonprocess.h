@@ -12,7 +12,7 @@
 
 namespace Utils {
 class Environment;
-class QtcProcess;
+class Process;
 }
 
 namespace MesonProjectManager {
@@ -44,7 +44,7 @@ private:
     void processStandardOutput();
     void processStandardError();
 
-    std::unique_ptr<Utils::QtcProcess> m_process;
+    std::unique_ptr<Utils::Process> m_process;
     QElapsedTimer m_elapsed;
     QByteArray m_stdo;
     QByteArray m_stderr;

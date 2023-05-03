@@ -1179,7 +1179,7 @@ public:
 
     bool m_runAsRoot = false;
 
-    QtcProcess m_process;
+    Process m_process;
 
     QTextCodec *m_outputCodec = nullptr;
     QTextCodec::ConverterState m_outputCodecState;
@@ -1216,11 +1216,11 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
     : q(parent)
 {
     m_process.setProcessChannelMode(defaultProcessChannelMode());
-    connect(&m_process, &QtcProcess::started, this, &SimpleTargetRunnerPrivate::forwardStarted);
-    connect(&m_process, &QtcProcess::done, this, &SimpleTargetRunnerPrivate::handleDone);
-    connect(&m_process, &QtcProcess::readyReadStandardError,
+    connect(&m_process, &Process::started, this, &SimpleTargetRunnerPrivate::forwardStarted);
+    connect(&m_process, &Process::done, this, &SimpleTargetRunnerPrivate::handleDone);
+    connect(&m_process, &Process::readyReadStandardError,
                 this, &SimpleTargetRunnerPrivate::handleStandardError);
-    connect(&m_process, &QtcProcess::readyReadStandardOutput,
+    connect(&m_process, &Process::readyReadStandardOutput,
                 this, &SimpleTargetRunnerPrivate::handleStandardOutput);
 
     if (WinDebugInterface::instance()) {

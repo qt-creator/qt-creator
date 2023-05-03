@@ -53,7 +53,7 @@ public:
 private:
     void ensureNext();
 
-    std::unique_ptr<QtcProcess> m_process;
+    std::unique_ptr<Process> m_process;
     QMutex m_mutex;
     QWaitCondition m_waitForItems;
     FilePaths m_queue;
@@ -67,10 +67,10 @@ SpotlightIterator::SpotlightIterator(const CommandLine &command)
     , m_finished(false)
 {
     QTC_ASSERT(!command.isEmpty(), return );
-    m_process.reset(new QtcProcess);
+    m_process.reset(new Process);
     m_process->setCommand(command);
     m_process->setEnvironment(Utils::Environment::systemEnvironment());
-    QObject::connect(m_process.get(), &QtcProcess::done,
+    QObject::connect(m_process.get(), &Process::done,
                      m_process.get(), [this, exe = command.executable().toUserOutput()] {
         if (m_process->result() != ProcessResult::FinishedWithSuccess) {
             MessageManager::writeFlashing(Tr::tr(
@@ -78,7 +78,7 @@ SpotlightIterator::SpotlightIterator(const CommandLine &command)
         }
         scheduleKillProcess();
     });
-    QObject::connect(m_process.get(), &QtcProcess::readyReadStandardOutput,
+    QObject::connect(m_process.get(), &Process::readyReadStandardOutput,
                      m_process.get(), [this] {
         QString output = m_process->readAllStandardOutput();
         output.replace("\r\n", "\n");
@@ -250,11 +250,11 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
     const bool hasPathSeparator = newInput.contains('/') || newInput.contains('*');
     LocatorFileCache::MatchedEntries entries = {};
     QEventLoop loop;
-    QtcProcess process;
+    Process process;
     process.setCommand(command);
     process.setEnvironment(Environment::systemEnvironment()); // TODO: Is it needed?
 
-    QObject::connect(&process, &QtcProcess::readyReadStandardOutput, &process,
+    QObject::connect(&process, &Process::readyReadStandardOutput, &process,
                      [&, entriesPtr = &entries] {
         QString output = process.readAllStandardOutput();
         output.replace("\r\n", "\n");
@@ -265,7 +265,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
         if (promise.isCanceled())
             loop.exit();
     });
-    QObject::connect(&process, &QtcProcess::done, &process, [&] {
+    QObject::connect(&process, &Process::done, &process, [&] {
         if (process.result() != ProcessResult::FinishedWithSuccess) {
             MessageManager::writeFlashing(Tr::tr("Locator: Error occurred when running \"%1\".")
                                               .arg(command.executable().toUserOutput()));

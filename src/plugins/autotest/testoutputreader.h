@@ -7,7 +7,7 @@
 
 #include <QObject>
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace Autotest {
 
@@ -15,7 +15,7 @@ class TestOutputReader : public QObject
 {
     Q_OBJECT
 public:
-    TestOutputReader(Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory);
+    TestOutputReader(Utils::Process *testApplication, const Utils::FilePath &buildDirectory);
     virtual ~TestOutputReader();
     void processStdOutput(const QByteArray &outputLine);
     virtual void processStdError(const QByteArray &outputLine);

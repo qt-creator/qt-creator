@@ -48,7 +48,7 @@ QStringList UicGenerator::arguments() const
     return {"-p"};
 }
 
-FileNameToContentsHash UicGenerator::handleProcessFinished(Utils::QtcProcess *process)
+FileNameToContentsHash UicGenerator::handleProcessFinished(Utils::Process *process)
 {
     FileNameToContentsHash result;
     if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)

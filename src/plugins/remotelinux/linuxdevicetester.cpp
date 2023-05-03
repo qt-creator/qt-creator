@@ -92,11 +92,11 @@ QStringList GenericLinuxDeviceTesterPrivate::commandsToTest() const
 
 TaskItem GenericLinuxDeviceTesterPrivate::echoTask(const QString &contents) const
 {
-    const auto setup = [this, contents](QtcProcess &process) {
+    const auto setup = [this, contents](Process &process) {
         emit q->progressMessage(Tr::tr("Sending echo to device..."));
         process.setCommand({m_device->filePath("echo"), {contents}});
     };
-    const auto done = [this, contents](const QtcProcess &process) {
+    const auto done = [this, contents](const Process &process) {
         const QString reply = Utils::chopIfEndsWith(process.cleanedStdOut(), '\n');
         if (reply != contents)
             emit q->errorMessage(Tr::tr("Device replied to echo with unexpected contents: \"%1\"")
@@ -104,7 +104,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::echoTask(const QString &contents) cons
         else
             emit q->progressMessage(Tr::tr("Device replied to echo with expected contents.") + '\n');
     };
-    const auto error = [this](const QtcProcess &process) {
+    const auto error = [this](const Process &process) {
         const QString stdErrOutput = process.cleanedStdErr();
         if (!stdErrOutput.isEmpty())
             emit q->errorMessage(Tr::tr("echo failed: %1").arg(stdErrOutput) + '\n');
@@ -116,14 +116,14 @@ TaskItem GenericLinuxDeviceTesterPrivate::echoTask(const QString &contents) cons
 
 TaskItem GenericLinuxDeviceTesterPrivate::unameTask() const
 {
-    const auto setup = [this](QtcProcess &process) {
+    const auto setup = [this](Process &process) {
         emit q->progressMessage(Tr::tr("Checking kernel version..."));
         process.setCommand({m_device->filePath("uname"), {"-rsm"}});
     };
-    const auto done = [this](const QtcProcess &process) {
+    const auto done = [this](const Process &process) {
         emit q->progressMessage(process.cleanedStdOut());
     };
-    const auto error = [this](const QtcProcess &process) {
+    const auto error = [this](const Process &process) {
         const QString stdErrOutput = process.cleanedStdErr();
         if (!stdErrOutput.isEmpty())
             emit q->errorMessage(Tr::tr("uname failed: %1").arg(stdErrOutput) + '\n');
@@ -233,16 +233,16 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTasks() const
 
 TaskItem GenericLinuxDeviceTesterPrivate::commandTask(const QString &commandName) const
 {
-    const auto setup = [this, commandName](QtcProcess &process) {
+    const auto setup = [this, commandName](Process &process) {
         emit q->progressMessage(Tr::tr("%1...").arg(commandName));
         CommandLine command{m_device->filePath("/bin/sh"), {"-c"}};
         command.addArgs(QLatin1String("\"command -v %1\"").arg(commandName), CommandLine::Raw);
         process.setCommand(command);
     };
-    const auto done = [this, commandName](const QtcProcess &) {
+    const auto done = [this, commandName](const Process &) {
         emit q->progressMessage(Tr::tr("%1 found.").arg(commandName));
     };
-    const auto error = [this, commandName](const QtcProcess &process) {
+    const auto error = [this, commandName](const Process &process) {
         const QString message = process.result() == ProcessResult::StartFailed
                 ? Tr::tr("An error occurred while checking for %1.").arg(commandName)
                   + '\n' + process.errorString()

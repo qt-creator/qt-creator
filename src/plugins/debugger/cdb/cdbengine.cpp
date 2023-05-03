@@ -182,8 +182,8 @@ CdbEngine::CdbEngine() :
     DebuggerSettings *s = debuggerSettings();
     connect(s->createFullBacktrace.action(), &QAction::triggered,
             this, &CdbEngine::createFullBacktrace);
-    connect(&m_process, &QtcProcess::started, this, &CdbEngine::processStarted);
-    connect(&m_process, &QtcProcess::done, this, &CdbEngine::processDone);
+    connect(&m_process, &Process::started, this, &CdbEngine::processStarted);
+    connect(&m_process, &Process::done, this, &CdbEngine::processDone);
     m_process.setStdOutLineCallback([this](const QString &line) { parseOutputLine(line); });
     m_process.setStdErrLineCallback([this](const QString &line) { parseOutputLine(line); });
     connect(&s->useDebuggingHelpers, &BaseAspect::changed,

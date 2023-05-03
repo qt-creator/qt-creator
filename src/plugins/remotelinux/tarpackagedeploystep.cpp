@@ -92,24 +92,24 @@ TaskItem TarPackageDeployStep::uploadTask()
 
 TaskItem TarPackageDeployStep::installTask()
 {
-    const auto setupHandler = [this](QtcProcess &process) {
+    const auto setupHandler = [this](Process &process) {
         const QString cmdLine = QLatin1String("cd / && tar xvf ") + remoteFilePath()
                 + " && (rm " + remoteFilePath() + " || :)";
         process.setCommand({deviceConfiguration()->filePath("/bin/sh"), {"-c", cmdLine}});
-        QtcProcess *proc = &process;
-        connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
+        Process *proc = &process;
+        connect(proc, &Process::readyReadStandardOutput, this, [this, proc] {
             handleStdOutData(proc->readAllStandardOutput());
         });
-        connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
+        connect(proc, &Process::readyReadStandardError, this, [this, proc] {
             handleStdErrData(proc->readAllStandardError());
         });
         addProgressMessage(Tr::tr("Installing package to device..."));
     };
-    const auto doneHandler = [this](const QtcProcess &) {
+    const auto doneHandler = [this](const Process &) {
         saveDeploymentTimeStamp(DeployableFile(m_packageFilePath, {}), {});
         addProgressMessage(Tr::tr("Successfully installed package file."));
     };
-    const auto errorHandler = [this](const QtcProcess &process) {
+    const auto errorHandler = [this](const Process &process) {
         addErrorMessage(Tr::tr("Installing package failed.") + process.errorString());
     };
     return ProcessTask(setupHandler, doneHandler, errorHandler);

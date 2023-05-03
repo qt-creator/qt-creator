@@ -186,7 +186,7 @@ void FileSystemAccessTest::testWorkingDirectory()
 {
     const FilePath dir = baseFilePath() / "testdir with space and 'various' \"quotes\" here";
     QVERIFY(dir.ensureWritableDir());
-    QtcProcess proc;
+    Process proc;
     proc.setCommand({"pwd", {}});
     proc.setWorkingDirectory(dir);
     proc.start();

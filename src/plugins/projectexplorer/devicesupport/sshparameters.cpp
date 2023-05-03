@@ -69,7 +69,7 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
     return args;
 }
 
-bool SshParameters::setupSshEnvironment(QtcProcess *process)
+bool SshParameters::setupSshEnvironment(Process *process)
 {
     Environment env = process->controlEnvironment();
     if (!env.hasChanges())

@@ -45,7 +45,7 @@ class ExternalTerminalProcessImpl final : public TerminalInterface
 
             if (HostOsInfo::isWindowsHost()) {
                 m_terminalProcess.setCommand(cmd);
-                QObject::connect(&m_terminalProcess, &QtcProcess::done, this, [this] {
+                QObject::connect(&m_terminalProcess, &Process::done, this, [this] {
                     m_interface->onStubExited();
                 });
                 m_terminalProcess.setCreateConsoleOnWindows(true);
@@ -82,7 +82,7 @@ class ExternalTerminalProcessImpl final : public TerminalInterface
         }
 
         ExternalTerminalProcessImpl *m_interface;
-        QtcProcess m_terminalProcess;
+        Process m_terminalProcess;
     };
 
 public:

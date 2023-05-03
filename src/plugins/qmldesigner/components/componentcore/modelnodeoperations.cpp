@@ -1667,10 +1667,10 @@ void openEffectMaker(const QString &filePath)
         if (env.osType() == Utils::OsTypeMac)
             env.appendOrSet("QSG_RHI_BACKEND", "metal");
 
-        Utils::QtcProcess *qqemProcess = new Utils::QtcProcess();
+        Utils::Process *qqemProcess = new Utils::Process();
         qqemProcess->setEnvironment(env);
         qqemProcess->setCommand({ effectMakerPath, arguments });
-        QObject::connect(qqemProcess, &Utils::QtcProcess::done, [qqemProcess]() {
+        QObject::connect(qqemProcess, &Utils::Process::done, [qqemProcess]() {
             qqemProcess->deleteLater();
         });
         qqemProcess->start();

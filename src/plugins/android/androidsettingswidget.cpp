@@ -659,7 +659,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
     openSslProgressDialog->setFixedSize(openSslProgressDialog->sizeHint());
 
     const QString openSslRepo("https://github.com/KDAB/android_openssl.git");
-    QtcProcess *gitCloner = new QtcProcess(this);
+    Process *gitCloner = new Process(this);
     CommandLine gitCloneCommand("git", {"clone", "--depth=1", openSslRepo, openSslPath.toString()});
     gitCloner->setCommand(gitCloneCommand);
 
@@ -684,7 +684,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
         openButton->deleteLater();
     };
 
-    connect(gitCloner, &QtcProcess::done, this, [=] {
+    connect(gitCloner, &Process::done, this, [=] {
         openSslProgressDialog->close();
         if (gitCloner->error() != QProcess::UnknownError) {
             if (gitCloner->error() == QProcess::FailedToStart) {

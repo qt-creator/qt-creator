@@ -14,7 +14,7 @@ class QPushButton;
 class QTableView;
 QT_END_NAMESPACE
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace PerfProfiler {
 namespace Internal {
@@ -37,7 +37,7 @@ private:
     void handleProcessDone();
 
     PerfSettings *m_settings;
-    std::unique_ptr<Utils::QtcProcess> m_process;
+    std::unique_ptr<Utils::Process> m_process;
 
     QTableView *eventsView;
     QPushButton *useTracePointsButton;

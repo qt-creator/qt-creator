@@ -177,7 +177,7 @@ QList<GenerateResource::ResourceFile> getFilesFromQrc(QFile *file, bool inProjec
 static bool runRcc(const CommandLine &command, const FilePath &workingDir,
                    const QString &resourceFile)
 {
-    Utils::QtcProcess rccProcess;
+    Utils::Process rccProcess;
     rccProcess.setWorkingDirectory(workingDir);
     rccProcess.setCommand(command);
     rccProcess.start();

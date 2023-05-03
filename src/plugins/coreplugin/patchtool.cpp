@@ -76,7 +76,7 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
         return false;
     }
 
-    QtcProcess patchProcess;
+    Process patchProcess;
     if (!workingDirectory.isEmpty())
         patchProcess.setWorkingDirectory(workingDirectory);
     Environment env = Environment::systemEnvironment();

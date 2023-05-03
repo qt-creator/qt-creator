@@ -542,10 +542,10 @@ TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
     const TreeStorage<FastForwardStorage> storage;
 
     GitClient *client = GitClient::instance();
-    const auto setupMergeBase = [=](QtcProcess &process) {
+    const auto setupMergeBase = [=](Process &process) {
         client->setupCommand(process, m_repository, {"merge-base", "HEAD", branch});
     };
-    const auto onMergeBaseDone = [storage](const QtcProcess &process) {
+    const auto onMergeBaseDone = [storage](const Process &process) {
         storage->mergeBase = process.cleanedStdOut().trimmed();
     };
 

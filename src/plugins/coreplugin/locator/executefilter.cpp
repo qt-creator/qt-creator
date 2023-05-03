@@ -196,11 +196,11 @@ void ExecuteFilter::createProcess()
     if (m_process)
         return;
 
-    m_process = new QtcProcess;
+    m_process = new Process;
     m_process->setEnvironment(Environment::systemEnvironment());
-    connect(m_process, &QtcProcess::done, this, &ExecuteFilter::done);
-    connect(m_process, &QtcProcess::readyReadStandardOutput, this, &ExecuteFilter::readStandardOutput);
-    connect(m_process, &QtcProcess::readyReadStandardError, this, &ExecuteFilter::readStandardError);
+    connect(m_process, &Process::done, this, &ExecuteFilter::done);
+    connect(m_process, &Process::readyReadStandardOutput, this, &ExecuteFilter::readStandardOutput);
+    connect(m_process, &Process::readyReadStandardError, this, &ExecuteFilter::readStandardError);
 }
 
 void ExecuteFilter::removeProcess()

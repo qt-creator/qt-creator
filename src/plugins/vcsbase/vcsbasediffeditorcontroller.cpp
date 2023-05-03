@@ -66,7 +66,7 @@ Tasking::TaskItem VcsBaseDiffEditorController::postProcessTask()
     return AsyncTask<QList<FileData>>(setupDiffProcessor, onDiffProcessorDone, onDiffProcessorError);
 }
 
-void VcsBaseDiffEditorController::setupCommand(QtcProcess &process, const QStringList &args) const
+void VcsBaseDiffEditorController::setupCommand(Process &process, const QStringList &args) const
 {
     process.setEnvironment(d->m_processEnvironment);
     process.setWorkingDirectory(workingDirectory());

@@ -162,7 +162,7 @@ bool CMakeTool::isValid() const
     return m_introspection->m_didRun && !m_introspection->m_fileApis.isEmpty();
 }
 
-void CMakeTool::runCMake(QtcProcess &cmake, const QStringList &args, int timeoutS) const
+void CMakeTool::runCMake(Process &cmake, const QStringList &args, int timeoutS) const
 {
     const FilePath executable = cmakeExecutable();
     cmake.setTimeoutS(timeoutS);
@@ -248,7 +248,7 @@ TextEditor::Keywords CMakeTool::keywords()
         return {};
 
     if (m_introspection->m_functions.isEmpty() && m_introspection->m_didRun) {
-        QtcProcess proc;
+        Process proc;
         runCMake(proc, {"--help-command-list"}, 5);
         if (proc.result() == ProcessResult::FinishedWithSuccess)
             m_introspection->m_functions = proc.cleanedStdOut().split('\n');
@@ -492,7 +492,7 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
 
 void CMakeTool::fetchFromCapabilities() const
 {
-    QtcProcess cmake;
+    Process cmake;
     runCMake(cmake, {"-E", "capabilities"});
 
     if (cmake.result() == ProcessResult::FinishedWithSuccess) {

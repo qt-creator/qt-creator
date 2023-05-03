@@ -29,7 +29,7 @@ namespace CatchXml {
     const char TestCaseResultElement[] = "OverallResult";
 }
 
-CatchOutputReader::CatchOutputReader(QtcProcess *testApplication,
+CatchOutputReader::CatchOutputReader(Process *testApplication,
                                      const FilePath &buildDirectory,
                                      const FilePath &projectFile)
     : TestOutputReader(testApplication, buildDirectory)

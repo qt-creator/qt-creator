@@ -35,7 +35,7 @@ class Icon;
 class PortList;
 class Port;
 class ProcessInterface;
-class QtcProcess;
+class Process;
 } // Utils
 
 namespace ProjectExplorer {

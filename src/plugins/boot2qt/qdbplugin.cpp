@@ -49,9 +49,9 @@ static void startFlashingWizard()
 {
     const FilePath filePath = flashWizardFilePath();
     if (HostOsInfo::isWindowsHost()) {
-        if (QtcProcess::startDetached({"explorer.exe", {filePath.toUserOutput()}}))
+        if (Process::startDetached({"explorer.exe", {filePath.toUserOutput()}}))
             return;
-    } else if (QtcProcess::startDetached({filePath, {}})) {
+    } else if (Process::startDetached({filePath, {}})) {
         return;
     }
     const QString message = Tr::tr("Flash wizard \"%1\" failed to start.");
