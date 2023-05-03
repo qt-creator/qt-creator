@@ -106,11 +106,8 @@ QWidget *CMakeInstallStep::createConfigWidget()
 
     setDisplayName(Tr::tr("Install", "ConfigWidget display name."));
 
-    Layouting::Form builder;
-    builder.addRow({m_cmakeArguments});
-    builder.addItem(Layouting::noMargin);
-
-    auto widget = builder.emerge();
+    using namespace Layouting;
+    auto widget =  Form { m_cmakeArguments,  noMargin }.emerge();
 
     updateDetails();
 
