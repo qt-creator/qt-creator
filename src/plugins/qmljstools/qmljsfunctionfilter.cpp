@@ -25,7 +25,6 @@ QmlJSFunctionsFilter::QmlJSFunctionsFilter(LocatorData *data)
     setDisplayName(Tr::tr("QML Functions"));
     setDescription(Tr::tr("Locates QML functions in any open project."));
     setDefaultShortcutString("m");
-    setDefaultIncludedByDefault(false);
 }
 
 static void matches(QPromise<void> &promise, const LocatorStorage &storage,

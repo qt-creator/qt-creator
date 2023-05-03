@@ -102,7 +102,6 @@ SpotlightLocatorFilter::SpotlightLocatorFilter()
 {
     setId("SpotlightFileNamesLocatorFilter");
     setDefaultShortcutString("md");
-    setDefaultIncludedByDefault(false);
     setDisplayName(Tr::tr("File Name Index"));
     setDescription(Tr::tr(
         "Locates files from a global file system index (Spotlight, Locate, Everything). Append "

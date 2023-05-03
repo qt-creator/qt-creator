@@ -359,7 +359,6 @@ JavaScriptFilter::JavaScriptFilter()
     setId("JavaScriptFilter");
     setDisplayName(Tr::tr("Evaluate JavaScript"));
     setDescription(Tr::tr("Evaluates arbitrary JavaScript expressions and copies the result."));
-    setDefaultIncludedByDefault(false);
     setDefaultShortcutString("=");
 }
 

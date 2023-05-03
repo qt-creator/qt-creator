@@ -175,7 +175,6 @@ LanguageCurrentDocumentFilter::LanguageCurrentDocumentFilter()
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_DISPLAY_NAME));
     setDescription(Tr::tr(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_DESCRIPTION));
     setDefaultShortcutString(".");
-    setDefaultIncludedByDefault(false);
     setPriority(ILocatorFilter::Low);
 }
 
@@ -253,7 +252,6 @@ LanguageAllSymbolsFilter::LanguageAllSymbolsFilter()
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_FILTER_DISPLAY_NAME));
     setDescription(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_FILTER_DESCRIPTION));
     setDefaultShortcutString(":");
-    setDefaultIncludedByDefault(false);
     setPriority(ILocatorFilter::Low);
 }
 

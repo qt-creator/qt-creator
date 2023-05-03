@@ -127,7 +127,6 @@ FileSystemFilter::FileSystemFilter()
                       "path. \"~\" refers to your home directory. You have the option to create a "
                       "file if it does not exist yet."));
     setDefaultShortcutString("f");
-    setDefaultIncludedByDefault(false);
     *sDeviceRootIcon = qApp->style()->standardIcon(QStyle::SP_DriveHDIcon);
 }
 

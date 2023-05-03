@@ -159,7 +159,6 @@ UrlLocatorFilter::UrlLocatorFilter(const QString &displayName, Id id)
     setId(id);
     m_defaultDisplayName = displayName;
     setDisplayName(displayName);
-    setDefaultIncludedByDefault(false);
 }
 
 LocatorMatcherTasks UrlLocatorFilter::matchers()

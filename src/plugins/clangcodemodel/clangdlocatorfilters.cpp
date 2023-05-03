@@ -37,7 +37,6 @@ ClangdAllSymbolsFilter::ClangdAllSymbolsFilter()
     setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::LOCATOR_FILTER_DISPLAY_NAME));
     setDescription(::CppEditor::Tr::tr(CppEditor::Constants::LOCATOR_FILTER_DESCRIPTION));
     setDefaultShortcutString(":");
-    setDefaultIncludedByDefault(false);
 }
 
 LocatorMatcherTasks ClangdAllSymbolsFilter::matchers()
@@ -53,7 +52,6 @@ ClangdClassesFilter::ClangdClassesFilter()
     setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::CLASSES_FILTER_DISPLAY_NAME));
     setDescription(::CppEditor::Tr::tr(CppEditor::Constants::CLASSES_FILTER_DESCRIPTION));
     setDefaultShortcutString("c");
-    setDefaultIncludedByDefault(false);
 }
 
 LocatorMatcherTasks ClangdClassesFilter::matchers()
@@ -69,7 +67,6 @@ ClangdFunctionsFilter::ClangdFunctionsFilter()
     setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
     setDescription(::CppEditor::Tr::tr(CppEditor::Constants::FUNCTIONS_FILTER_DESCRIPTION));
     setDefaultShortcutString("m");
-    setDefaultIncludedByDefault(false);
 }
 
 LocatorMatcherTasks ClangdFunctionsFilter::matchers()
@@ -86,7 +83,6 @@ ClangdCurrentDocumentFilter::ClangdCurrentDocumentFilter()
     setDescription(::CppEditor::Tr::tr(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_DESCRIPTION));
     setDefaultShortcutString(".");
     setPriority(High);
-    setDefaultIncludedByDefault(false);
     setEnabled(false);
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, [this](const IEditor *editor) { setEnabled(editor); });

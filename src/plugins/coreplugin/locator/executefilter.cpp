@@ -31,7 +31,6 @@ ExecuteFilter::ExecuteFilter()
         "environment variable if needed. Note that the command is run directly, not in a shell."));
     setDefaultShortcutString("!");
     setPriority(High);
-    setDefaultIncludedByDefault(false);
 }
 
 ExecuteFilter::~ExecuteFilter()

@@ -338,7 +338,6 @@ CppAllSymbolsFilter::CppAllSymbolsFilter()
     setDisplayName(Tr::tr(Constants::LOCATOR_FILTER_DISPLAY_NAME));
     setDescription(Tr::tr(Constants::LOCATOR_FILTER_DESCRIPTION));
     setDefaultShortcutString(":");
-    setDefaultIncludedByDefault(false);
 }
 
 LocatorMatcherTasks CppAllSymbolsFilter::matchers()
@@ -353,7 +352,6 @@ CppClassesFilter::CppClassesFilter()
     setDisplayName(Tr::tr(Constants::CLASSES_FILTER_DISPLAY_NAME));
     setDescription(Tr::tr(Constants::CLASSES_FILTER_DESCRIPTION));
     setDefaultShortcutString("c");
-    setDefaultIncludedByDefault(false);
 }
 
 LocatorMatcherTasks CppClassesFilter::matchers()
@@ -367,7 +365,6 @@ CppFunctionsFilter::CppFunctionsFilter()
     setDisplayName(Tr::tr(Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
     setDescription(Tr::tr(Constants::FUNCTIONS_FILTER_DESCRIPTION));
     setDefaultShortcutString("m");
-    setDefaultIncludedByDefault(false);
 }
 
 LocatorMatcherTasks CppFunctionsFilter::matchers()
@@ -382,7 +379,6 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter()
     setDescription(Tr::tr(Constants::CURRENT_DOCUMENT_FILTER_DESCRIPTION));
     setDefaultShortcutString(".");
     setPriority(High);
-    setDefaultIncludedByDefault(false);
 }
 
 LocatorMatcherTasks CppCurrentDocumentFilter::matchers()
