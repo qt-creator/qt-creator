@@ -3,7 +3,7 @@
 
 #include "formeditorplugin.h"
 
-#include "formeditorw.h"
+#include "formeditor.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/testdatadir.h>

@@ -5,7 +5,7 @@
 #include "designertr.h"
 #include "editordata.h"
 #include "editorwidget.h"
-#include "formeditorw.h"
+#include "formeditor.h"
 #include "formwindoweditor.h"
 #include "formwindowfile.h"
 #include "qtcreatorintegration.h"

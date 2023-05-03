@@ -5,7 +5,7 @@
 
 #include "designerconstants.h"
 #include "designertr.h"
-#include "formeditorw.h"
+#include "formeditor.h"
 #include "formwindoweditor.h"
 
 #include <widgethost.h>

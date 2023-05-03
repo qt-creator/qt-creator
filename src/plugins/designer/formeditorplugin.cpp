@@ -6,7 +6,7 @@
 #include "designerconstants.h"
 #include "designertr.h"
 #include "formeditorfactory.h"
-#include "formeditorw.h"
+#include "formeditor.h"
 #include "formtemplatewizardpage.h"
 
 #ifdef CPP_ENABLED
