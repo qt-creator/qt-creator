@@ -436,8 +436,8 @@ def iterateKits(clickOkWhenDone, alreadyOnOptionsDialog,
                 t, v, _ = sys.exc_info()
                 currResult = None
                 test.fatal("Function to additionally execute on Options Dialog could not be "
-                           "found or an exception occurred while executing it.", "%s(%s)" %
-                           (str(t), str(v)))
+                           "found or an exception occurred while executing it.", "%s: %s" %
+                           (t.__name__, str(v)))
             additionalResult.append(currResult)
     if clickOkWhenDone:
         clickButton(waitForObject(":Options.OK_QPushButton"))

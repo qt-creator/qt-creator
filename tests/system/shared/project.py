@@ -120,7 +120,7 @@ def __handleBuildSystem__(buildSystem):
             selectFromCombo(combo, buildSystem)
     except:
         t, v = sys.exc_info()[:2]
-        test.warning("Exception while handling build system", "%s(%s)" % (str(t), str(v)))
+        test.warning("Exception while handling build system", "%s: %s" % (t.__name__, str(v)))
     clickButton(waitForObject(":Next_QPushButton"))
     return buildSystem
 
@@ -131,7 +131,7 @@ def __createProjectHandleQtQuickSelection__(minimumQtVersion):
         selectFromCombo(comboBox, minimumQtVersion)
     except:
         t,v = sys.exc_info()[:2]
-        test.fatal("Exception while trying to select Qt version", "%s (%s)" % (str(t), str(v)))
+        test.fatal("Exception while trying to select Qt version", "%s :%s" % (t.__name__, str(v)))
     clickButton(waitForObject(":Next_QPushButton"))
     return minimumQtVersion
 

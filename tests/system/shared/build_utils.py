@@ -21,7 +21,7 @@ def toggleIssuesFilter(filterName, checked):
     except:
         t,v = sys.exc_info()[:2]
         test.log("Exception while toggling filter '%s'" % filterName,
-                 "%s(%s)" % (str(t), str(v)))
+                 "%s: %s" % (t.__name__, str(v)))
 
 
 def getBuildIssues(ignoreCodeModel=True):
