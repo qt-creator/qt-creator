@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include <QAbstractAnimation>
 #include <QBasicTimer>
 #include <QPointer>
 #include <QTime>
@@ -13,6 +14,7 @@
 QT_BEGIN_NAMESPACE
 class QPainter;
 class QStyleOption;
+class QTimerEvent;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -76,4 +78,78 @@ private:
     QBasicTimer animationTimer;
     QList <Animation*> animations;
 };
-}
+
+class QTCREATOR_UTILS_EXPORT QStyleAnimation : public QAbstractAnimation
+{
+    Q_OBJECT
+public:
+    QStyleAnimation(QObject *target);
+    virtual ~QStyleAnimation();
+    QObject *target() const;
+    int duration() const override;
+    void setDuration(int duration);
+    int delay() const;
+    void setDelay(int delay);
+    QTime startTime() const;
+    void setStartTime(const QTime &time);
+    enum FrameRate { DefaultFps, SixtyFps, ThirtyFps, TwentyFps, FifteenFps };
+    FrameRate frameRate() const;
+    void setFrameRate(FrameRate fps);
+    void updateTarget();
+public Q_SLOTS:
+    void start();
+
+protected:
+    virtual bool isUpdateNeeded() const;
+    virtual void updateCurrentTime(int time) override;
+
+private:
+    int m_delay;
+    int m_duration;
+    QTime m_startTime;
+    FrameRate m_fps;
+    int m_skip;
+};
+
+class QTCREATOR_UTILS_EXPORT QNumberStyleAnimation : public QStyleAnimation
+{
+    Q_OBJECT
+public:
+    QNumberStyleAnimation(QObject *target);
+    qreal startValue() const;
+    void setStartValue(qreal value);
+    qreal endValue() const;
+    void setEndValue(qreal value);
+    qreal currentValue() const;
+
+protected:
+    bool isUpdateNeeded() const override;
+
+private:
+    qreal m_start;
+    qreal m_end;
+    mutable qreal m_prev;
+};
+
+class QTCREATOR_UTILS_EXPORT QScrollbarStyleAnimation : public QNumberStyleAnimation
+{
+    Q_OBJECT
+public:
+    enum Mode { Activating, Deactivating };
+    QScrollbarStyleAnimation(Mode mode, QObject *target);
+    Mode mode() const;
+    bool wasActive() const;
+    bool wasAdjacent() const;
+    void setActive(bool active);
+    void setAdjacent(bool adjacent);
+
+private slots:
+    void updateCurrentTime(int time) override;
+
+private:
+    Mode m_mode;
+    bool m_active;
+    bool m_adjacent;
+};
+
+} // namespace Utils

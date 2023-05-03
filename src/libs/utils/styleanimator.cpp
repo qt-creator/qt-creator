@@ -5,11 +5,16 @@
 
 #include "algorithm.h"
 
+#include <QApplication>
+#include <QEvent>
 #include <QPainter>
 #include <QStyleOption>
 #include <QWidget>
 
 using namespace Utils;
+
+static const qreal ScrollBarFadeOutDuration = 200.0;
+static const qreal ScrollBarFadeOutDelay = 450.0;
 
 Animation * StyleAnimator::widgetAnimation(const QWidget *widget) const
 {
@@ -124,4 +129,188 @@ void StyleAnimator::startAnimation(Animation *t)
     animations.append(t);
     if (animations.size() > 0 && !animationTimer.isActive())
         animationTimer.start(35, this);
+}
+
+QStyleAnimation::QStyleAnimation(QObject *target)
+    : QAbstractAnimation(target)
+    , m_delay(0)
+    , m_duration(-1)
+    , m_startTime(QTime::currentTime())
+    , m_fps(ThirtyFps)
+    , m_skip(0)
+{}
+
+QStyleAnimation::~QStyleAnimation() {}
+
+QObject *QStyleAnimation::target() const
+{
+    return parent();
+}
+
+int QStyleAnimation::duration() const
+{
+    return m_duration;
+}
+
+void QStyleAnimation::setDuration(int duration)
+{
+    m_duration = duration;
+}
+
+int QStyleAnimation::delay() const
+{
+    return m_delay;
+}
+
+void QStyleAnimation::setDelay(int delay)
+{
+    m_delay = delay;
+}
+
+QTime QStyleAnimation::startTime() const
+{
+    return m_startTime;
+}
+
+void QStyleAnimation::setStartTime(const QTime &time)
+{
+    m_startTime = time;
+}
+
+QStyleAnimation::FrameRate QStyleAnimation::frameRate() const
+{
+    return m_fps;
+}
+
+void QStyleAnimation::setFrameRate(FrameRate fps)
+{
+    m_fps = fps;
+}
+
+void QStyleAnimation::updateTarget()
+{
+    QEvent event(QEvent::StyleAnimationUpdate);
+    event.setAccepted(false);
+    QCoreApplication::sendEvent(target(), &event);
+    if (!event.isAccepted())
+        stop();
+}
+
+void QStyleAnimation::start()
+{
+    m_skip = 0;
+    QAbstractAnimation::start(DeleteWhenStopped);
+}
+
+bool QStyleAnimation::isUpdateNeeded() const
+{
+    return currentTime() > m_delay;
+}
+
+void QStyleAnimation::updateCurrentTime(int)
+{
+    if (++m_skip >= m_fps) {
+        m_skip = 0;
+        if (target() && isUpdateNeeded())
+            updateTarget();
+    }
+}
+
+QNumberStyleAnimation::QNumberStyleAnimation(QObject *target)
+    : QStyleAnimation(target)
+    , m_start(0.0)
+    , m_end(1.0)
+    , m_prev(0.0)
+{
+    setDuration(250);
+}
+
+qreal QNumberStyleAnimation::startValue() const
+{
+    return m_start;
+}
+
+void QNumberStyleAnimation::setStartValue(qreal value)
+{
+    m_start = value;
+}
+
+qreal QNumberStyleAnimation::endValue() const
+{
+    return m_end;
+}
+
+void QNumberStyleAnimation::setEndValue(qreal value)
+{
+    m_end = value;
+}
+
+qreal QNumberStyleAnimation::currentValue() const
+{
+    qreal step = qreal(currentTime() - delay()) / (duration() - delay());
+    return m_start + qMax(qreal(0), step) * (m_end - m_start);
+}
+
+bool QNumberStyleAnimation::isUpdateNeeded() const
+{
+    if (QStyleAnimation::isUpdateNeeded()) {
+        qreal current = currentValue();
+        if (!qFuzzyCompare(m_prev, current)) {
+            m_prev = current;
+            return true;
+        }
+    }
+    return false;
+}
+
+QScrollbarStyleAnimation::QScrollbarStyleAnimation(Mode mode, QObject *target)
+    : QNumberStyleAnimation(target)
+    , m_mode(mode)
+    , m_active(false)
+{
+    switch (mode) {
+    case Activating:
+        setDuration(ScrollBarFadeOutDuration);
+        setStartValue(0.0);
+        setEndValue(1.0);
+        break;
+    case Deactivating:
+        setDuration(ScrollBarFadeOutDelay + ScrollBarFadeOutDuration);
+        setDelay(ScrollBarFadeOutDelay);
+        setStartValue(1.0);
+        setEndValue(0.0);
+        break;
+    }
+}
+
+QScrollbarStyleAnimation::Mode QScrollbarStyleAnimation::mode() const
+{
+    return m_mode;
+}
+
+bool QScrollbarStyleAnimation::wasActive() const
+{
+    return m_active;
+}
+
+bool QScrollbarStyleAnimation::wasAdjacent() const
+{
+    return m_adjacent;
+}
+
+void QScrollbarStyleAnimation::setActive(bool active)
+{
+    m_active = active;
+}
+
+void QScrollbarStyleAnimation::setAdjacent(bool adjacent)
+{
+    m_adjacent = adjacent;
+}
+
+void QScrollbarStyleAnimation::updateCurrentTime(int time)
+{
+    QNumberStyleAnimation::updateCurrentTime(time);
+    if (m_mode == Deactivating && qFuzzyIsNull(currentValue()))
+        target()->setProperty("visible", false);
 }

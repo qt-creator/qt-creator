@@ -19,14 +19,43 @@ QT_FORWARD_DECLARE_CLASS(QString)
 QT_FORWARD_DECLARE_CLASS(QPushButton)
 QT_FORWARD_DECLARE_CLASS(QVariantAnimation)
 QT_FORWARD_DECLARE_CLASS(QScrollBar)
+QT_FORWARD_DECLARE_CLASS(QAbstractScrollArea)
+
+namespace Utils {
+QT_FORWARD_DECLARE_CLASS(ScrollBar)
+}
 
 namespace QmlDesigner {
 
 class TimelineToolBar;
 class TimelineView;
 class TimelineGraphicsScene;
+class TimelineWidget;
 class QmlTimeline;
 class Navigation2dScrollBar;
+
+namespace TimeLineNS {
+
+class TimelineScrollAreaPrivate;
+class ScrollBarPrivate;
+
+class TimelineScrollAreaSupport : public QObject
+{
+    Q_OBJECT
+public:
+    static void support(QAbstractScrollArea *scrollArea, Utils::ScrollBar *scrollbar);
+    virtual ~TimelineScrollAreaSupport();
+
+protected:
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+
+private:
+    explicit TimelineScrollAreaSupport(QAbstractScrollArea *scrollArea, Utils::ScrollBar *scrollbar);
+
+    TimelineScrollAreaPrivate *d = nullptr;
+};
+
+} // namespace TimeLineNS
 
 class TimelineWidget : public QWidget
 {
@@ -76,7 +105,7 @@ private:
 
     QGraphicsView *m_graphicsView = nullptr;
 
-    QScrollBar *m_scrollbar = nullptr;
+    Utils::ScrollBar *m_scrollbar = nullptr;
 
     QLabel *m_statusBar = nullptr;
 

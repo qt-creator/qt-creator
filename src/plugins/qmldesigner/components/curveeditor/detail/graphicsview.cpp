@@ -87,11 +87,6 @@ GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
 
     applyZoom(m_zoomX, m_zoomY);
     update();
-
-    const QString css = Theme::replaceCssColors(
-        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
-    horizontalScrollBar()->setStyleSheet(css);
-    verticalScrollBar()->setStyleSheet(css);
 }
 
 GraphicsView::~GraphicsView()

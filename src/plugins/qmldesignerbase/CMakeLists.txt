@@ -36,6 +36,7 @@ extend_qtc_plugin(QmlDesignerBase
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/studio
   SOURCES
     studiostyle.cpp studiostyle.h
+    studiostyle_p.cpp studiostyle_p.h
     studioquickwidget.cpp studioquickwidget.h
     studiosettingspage.cpp studiosettingspage.h
 )

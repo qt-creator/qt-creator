@@ -32,6 +32,8 @@ class AutoHideSideBar;
 class ADS_EXPORT DockWidget : public QFrame
 {
     Q_OBJECT
+    Q_PROPERTY(bool focused READ isFocused WRITE setFocused)
+
 private:
     DockWidgetPrivate *d; ///< private data (pimpl)
     friend class DockWidgetPrivate;
@@ -366,6 +368,16 @@ public:
      * Returns true, if this dock widget is closed.
      */
     bool isClosed() const;
+
+    /**
+     * Sets the focus property for widget
+     */
+    void setFocused(bool focused);
+
+    /**
+     * Returns true if this dock widget is focused.
+     */
+    bool isFocused() const;
 
     /**
      * Returns a checkable action that can be used to show or close this dock widget.

@@ -82,7 +82,7 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
     , m_toolbar(new TransitionEditorToolBar(this))
     , m_rulerView(new QGraphicsView(this))
     , m_graphicsView(new QGraphicsView(this))
-    , m_scrollbar(new QScrollBar(this))
+    , m_scrollbar(new Utils::ScrollBar(this))
     , m_statusBar(new QLabel(this))
     , m_transitionEditorView(view)
     , m_graphicsScene(new TransitionEditorGraphicsScene(this))
@@ -94,11 +94,6 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
 
     m_toolbar->setStyleSheet(Theme::replaceCssColors(
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
-
-    const QString css = Theme::replaceCssColors(
-        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
-
-    m_scrollbar->setStyleSheet(css);
     m_scrollbar->setOrientation(Qt::Horizontal);
 
     QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -111,7 +106,6 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
     m_rulerView->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     m_rulerView->viewport()->installEventFilter(new Eventfilter(this));
     m_rulerView->viewport()->setFocusPolicy(Qt::NoFocus);
-    m_rulerView->setStyleSheet(css);
     m_rulerView->setFrameShape(QFrame::NoFrame);
     m_rulerView->setFrameShadow(QFrame::Plain);
     m_rulerView->setLineWidth(0);
@@ -119,7 +113,6 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
     m_rulerView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_rulerView->setScene(graphicsScene());
 
-    m_graphicsView->setStyleSheet(css);
     m_graphicsView->setObjectName("SceneView");
     m_graphicsView->setFrameShape(QFrame::NoFrame);
     m_graphicsView->setFrameShadow(QFrame::Plain);

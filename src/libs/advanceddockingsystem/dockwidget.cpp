@@ -50,6 +50,7 @@ public:
     DockAreaWidget *m_dockArea = nullptr;
     QAction *m_toggleViewAction = nullptr;
     bool m_closed = false;
+    bool m_focused = false;
     QScrollArea *m_scrollArea = nullptr;
     QToolBar *m_toolBar = nullptr;
     Qt::ToolButtonStyle m_toolBarStyleDocked = Qt::ToolButtonIconOnly;
@@ -219,6 +220,7 @@ void DockWidgetPrivate::setupScrollArea()
     m_scrollArea = new QScrollArea(q);
     m_scrollArea->setObjectName("dockWidgetScrollArea");
     m_scrollArea->setWidgetResizable(true);
+    m_scrollArea->setProperty("focused", q->isFocused());
     m_layout->addWidget(m_scrollArea);
 }
 
@@ -437,6 +439,21 @@ bool DockWidget::isInFloatingContainer() const
 bool DockWidget::isClosed() const
 {
     return d->m_closed;
+}
+
+void DockWidget::setFocused(bool focused)
+{
+    if (d->m_focused == focused)
+        return;
+
+    d->m_focused = focused;
+    if (d->m_scrollArea)
+        d->m_scrollArea->setProperty("focused", focused);
+}
+
+bool DockWidget::isFocused() const
+{
+    return d->m_focused;
 }
 
 QAction *DockWidget::toggleViewAction() const
