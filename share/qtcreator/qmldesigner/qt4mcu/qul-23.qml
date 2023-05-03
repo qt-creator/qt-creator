@@ -1,8 +1,8 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 VersionData {
-    name: "Qt for MCUs 2.0"
+    name: "Qt for MCUs 2.3"
 
     bannedItems: [
         "QtQuick.AnimatedImage",
@@ -11,7 +11,6 @@ VersionData {
         "QtQuick.FocusScope",
         "QtQuick.Grid",
         "QtQuick.GridView",
-        "QtQuick.Loader",
         "QtQuick.PathView",
         "QtQuick.TextEdit",
         "QtQuick.TextInput",
@@ -85,8 +84,8 @@ VersionData {
     }
 
     QtQuick.Flickable {
-        bannedProperties: ["boundsBehavior", "boundsMovement", "flickDeceleration",
-            "flickableDirection", "leftMargin", "rightMargin", "bottomMargin", "topMargin",
+        bannedProperties: ["boundsMovement", "flickDeceleration",
+            "leftMargin", "rightMargin", "bottomMargin", "topMargin",
             "originX", "originY", "pixelAligned", "pressDelay", "synchronousDrag"]
     }
 
@@ -111,9 +110,13 @@ VersionData {
     QtQuick.Text {
         allowChildren: false
         allowedProperties: ["rotation", "scale", "transformOrigin"]
-        bannedProperties: ["elide", "lineHeight", "lineHeightMode", "wrapMode", "style",
+        bannedProperties: ["lineHeight", "lineHeightMode", "style",
             "styleColor", "minimumPointSize", "minimumPixelSize",
             "fontSizeMode", "renderType", "renderTypeQuality", "textFormat", "maximumLineCount"]
+    }
+
+    QtQuick.Loader {
+        bannedProperties: ["asynchronous", "progress", "sourceComponent", "status"]
     }
 
     //Padding is not an actual item, but rather set of properties in Text
@@ -148,7 +151,7 @@ VersionData {
     }
 
     QtQuick.Controls.AbstractButton {
-        bannedProperties: ["display", "autoExclusive"]
+        bannedProperties: ["display", "autoExclusive", "icon"]
     }
 
     QtQuick.Controls.ProgressBar {
