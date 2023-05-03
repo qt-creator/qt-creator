@@ -19,10 +19,6 @@ public:
     Utils::StringAspect nimSuggestPath;
 
     static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
-
-private:
-    void InitializeCodeStyleSettings();
-    void TerminateCodeStyleSettings();
 };
 
 class NimToolsSettingsPage final : public Core::IOptionsPage

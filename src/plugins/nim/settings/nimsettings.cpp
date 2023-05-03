@@ -29,29 +29,6 @@ NimSettings::NimSettings()
     setAutoApply(false);
     setSettingsGroups("Nim", "NimSuggest");
 
-    InitializeCodeStyleSettings();
-
-    registerAspect(&nimSuggestPath);
-    nimSuggestPath.setSettingsKey("Command");
-    nimSuggestPath.setDisplayStyle(StringAspect::PathChooserDisplay);
-    nimSuggestPath.setExpectedKind(PathChooser::ExistingCommand);
-    nimSuggestPath.setLabelText(Tr::tr("Path:"));
-
-    readSettings(Core::ICore::settings());
-}
-
-NimSettings::~NimSettings()
-{
-    TerminateCodeStyleSettings();
-}
-
-SimpleCodeStylePreferences *NimSettings::globalCodeStyle()
-{
-    return m_globalCodeStyle;
-}
-
-void NimSettings::InitializeCodeStyleSettings()
-{
     // code style factory
     auto factory = new NimCodeStylePreferencesFactory();
     TextEditorSettings::registerCodeStyleFactory(factory);
@@ -93,9 +70,17 @@ void NimSettings::InitializeCodeStyleSettings()
                                                       Nim::Constants::C_NIMLANGUAGE_ID);
     TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_SCRIPT_MIMETYPE,
                                                       Nim::Constants::C_NIMLANGUAGE_ID);
+
+    registerAspect(&nimSuggestPath);
+    nimSuggestPath.setSettingsKey("Command");
+    nimSuggestPath.setDisplayStyle(StringAspect::PathChooserDisplay);
+    nimSuggestPath.setExpectedKind(PathChooser::ExistingCommand);
+    nimSuggestPath.setLabelText(Tr::tr("Path:"));
+
+    readSettings(Core::ICore::settings());
 }
 
-void NimSettings::TerminateCodeStyleSettings()
+NimSettings::~NimSettings()
 {
     TextEditorSettings::unregisterCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID);
     TextEditorSettings::unregisterCodeStylePool(Nim::Constants::C_NIMLANGUAGE_ID);
@@ -105,6 +90,10 @@ void NimSettings::TerminateCodeStyleSettings()
     m_globalCodeStyle = nullptr;
 }
 
+SimpleCodeStylePreferences *NimSettings::globalCodeStyle()
+{
+    return m_globalCodeStyle;
+}
 
 // NimToolSettingsPage
 
