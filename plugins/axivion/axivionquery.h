@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QObject>
 
@@ -34,7 +34,7 @@ signals:
     void resultRetrieved(const QByteArray &json);
 
 private:
-    Utils::QtcProcess m_process;
+    Utils::Process m_process;
 };
 
 } // Axivion::Internal
