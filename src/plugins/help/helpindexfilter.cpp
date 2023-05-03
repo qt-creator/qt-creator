@@ -87,7 +87,7 @@ LocatorMatcherTasks HelpIndexFilter::matchers()
 
     TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [this, storage](AsyncTask<QStringList> &async) {
+    const auto onSetup = [this, storage](Async<QStringList> &async) {
         if (m_needsUpdate) {
             m_needsUpdate = false;
             LocalHelpManager::setupGuiHelpEngine();
@@ -100,14 +100,14 @@ LocatorMatcherTasks HelpIndexFilter::matchers()
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matches, *storage, cache, m_icon);
     };
-    const auto onDone = [this, storage](const AsyncTask<QStringList> &async) {
+    const auto onDone = [this, storage](const Async<QStringList> &async) {
         if (async.isResultAvailable()) {
             m_lastIndicesCache = async.result();
             m_lastEntry = storage->input();
         }
     };
 
-    return {{Async<QStringList>(onSetup, onDone), storage}};
+    return {{AsyncTask<QStringList>(onSetup, onDone), storage}};
 }
 
 void HelpIndexFilter::prepareSearch(const QString &entry)

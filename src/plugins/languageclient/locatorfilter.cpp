@@ -75,7 +75,7 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
             *resultStorage = result->toList();
     };
 
-    const auto onFilterSetup = [=](AsyncTask<void> &async) {
+    const auto onFilterSetup = [=](Async<void> &async) {
         const QList<SymbolInformation> results = *resultStorage;
         if (results.isEmpty())
             return TaskAction::StopWithDone;
@@ -87,7 +87,7 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
     const Group root {
         Storage(resultStorage),
         SymbolRequest(onQuerySetup, onQueryDone),
-        Async<void>(onFilterSetup)
+        AsyncTask<void>(onFilterSetup)
     };
     return {root, storage};
 }
@@ -138,7 +138,7 @@ LocatorMatcherTask currentDocumentMatcher()
         *resultStorage = request.currentDocumentSymbolsData();
     };
 
-    const auto onFilterSetup = [=](AsyncTask<void> &async) {
+    const auto onFilterSetup = [=](Async<void> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(filterCurrentResults, *storage, *resultStorage);
     };
@@ -146,7 +146,7 @@ LocatorMatcherTask currentDocumentMatcher()
     const Group root {
         Storage(resultStorage),
         CurrentDocumentSymbolsRequest(onQuerySetup, onQueryDone),
-        Async<void>(onFilterSetup)
+        AsyncTask<void>(onFilterSetup)
     };
     return {root, storage};
 }

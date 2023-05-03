@@ -12,7 +12,7 @@ namespace TextEditor { class FontSettings; }
 
 namespace Utils {
 template <typename R>
-class AsyncTask;
+class Async;
 }
 
 QT_BEGIN_NAMESPACE
@@ -112,7 +112,7 @@ private:
     DiffEditorWidgetController m_controller;
     QByteArray m_state;
 
-    std::unique_ptr<Utils::AsyncTask<UnifiedShowResult>> m_asyncTask;
+    std::unique_ptr<Utils::Async<UnifiedShowResult>> m_asyncTask;
 };
 
 } // namespace Internal

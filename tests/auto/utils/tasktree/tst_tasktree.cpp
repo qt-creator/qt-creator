@@ -13,8 +13,8 @@ using namespace std::literals::chrono_literals;
 using namespace Utils;
 using namespace Utils::Tasking;
 
-using TestTask = AsyncTask<void>;
-using Test = Async<void>;
+using TestTask = Async<void>;
+using Test = AsyncTask<void>;
 
 enum class Handler {
     Setup,
@@ -198,7 +198,7 @@ template <typename SharedBarrierType>
 auto setupBarrierAdvance(const TreeStorage<CustomStorage> &storage,
                          const SharedBarrierType &barrier, int taskId)
 {
-    return [storage, barrier, taskId](AsyncTask<bool> &async) {
+    return [storage, barrier, taskId](Async<bool> &async) {
         async.setFutureSynchronizer(s_futureSynchronizer);
         async.setConcurrentCallData(reportAndSleep);
         async.setProperty(s_taskIdProperty, taskId);
@@ -1213,7 +1213,7 @@ void tst_TaskTree::testTree_data()
             Storage(storage),
             Storage(barrier),
             sequential,
-            Async<bool>(setupBarrierAdvance(storage, barrier, 1)),
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
             Group {
                 OnGroupSetup(groupSetup(2)),
                 WaitForBarrier(barrier),
@@ -1236,7 +1236,7 @@ void tst_TaskTree::testTree_data()
             Storage(storage),
             Storage(barrier),
             parallel,
-            Async<bool>(setupBarrierAdvance(storage, barrier, 1)),
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
             Group {
                 OnGroupSetup(groupSetup(2)),
                 WaitForBarrier(barrier),
@@ -1272,7 +1272,7 @@ void tst_TaskTree::testTree_data()
                 Test(setupTask(2)),
                 Test(setupTask(3))
             },
-            Async<bool>(setupBarrierAdvance(storage, barrier, 1))
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1))
         };
         const Log log3 {
             {2, Handler::GroupSetup},
@@ -1289,7 +1289,7 @@ void tst_TaskTree::testTree_data()
             Storage(storage),
             Storage(barrier),
             parallel,
-            Async<bool>(setupBarrierAdvance(storage, barrier, 1)),
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
             Group {
                 OnGroupSetup(groupSetup(2)),
                 WaitForBarrier(barrier),
@@ -1319,8 +1319,8 @@ void tst_TaskTree::testTree_data()
             Storage(barrier),
             Storage(barrier2),
             parallel,
-            Async<bool>(setupBarrierAdvance(storage, barrier, 0)),
-            Async<bool>(setupBarrierAdvance(storage, barrier2, 0)),
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier2, 0)),
             Group {
                 Group {
                     parallel,
@@ -1363,8 +1363,8 @@ void tst_TaskTree::testTree_data()
             Storage(storage),
             Storage(barrier),
             sequential,
-            Async<bool>(setupBarrierAdvance(storage, barrier, 1)),
-            Async<bool>(setupBarrierAdvance(storage, barrier, 2)),
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 2)),
             Group {
                 OnGroupSetup(groupSetup(2)),
                 WaitForBarrier(barrier),
@@ -1389,8 +1389,8 @@ void tst_TaskTree::testTree_data()
             Storage(storage),
             Storage(barrier),
             parallel,
-            Async<bool>(setupBarrierAdvance(storage, barrier, 0)),
-            Async<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
             Group {
                 OnGroupSetup(groupSetup(2)),
                 WaitForBarrier(barrier),
@@ -1428,8 +1428,8 @@ void tst_TaskTree::testTree_data()
                 Test(setupTask(2)),
                 Test(setupTask(3))
             },
-            Async<bool>(setupBarrierAdvance(storage, barrier, 0)),
-            Async<bool>(setupBarrierAdvance(storage, barrier, 0))
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0))
         };
         const Log log3 {
             {2, Handler::GroupSetup},
@@ -1448,8 +1448,8 @@ void tst_TaskTree::testTree_data()
             Storage(storage),
             Storage(barrier),
             parallel,
-            Async<bool>(setupBarrierAdvance(storage, barrier, 0)),
-            Async<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
             Group {
                 OnGroupSetup(groupSetup(2)),
                 WaitForBarrier(barrier),

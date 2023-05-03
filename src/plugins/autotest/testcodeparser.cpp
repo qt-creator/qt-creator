@@ -361,17 +361,17 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
 
     QList<TaskItem> tasks{ParallelLimit(std::max(QThread::idealThreadCount() / 4, 1))};
     for (const FilePath &file : filteredFiles) {
-        const auto setup = [this, codeParsers, file](AsyncTask<TestParseResultPtr> &async) {
+        const auto setup = [this, codeParsers, file](Async<TestParseResultPtr> &async) {
             async.setConcurrentCallData(parseFileForTests, codeParsers, file);
             async.setPriority(QThread::LowestPriority);
             async.setFutureSynchronizer(&m_futureSynchronizer);
         };
-        const auto onDone = [this](const AsyncTask<TestParseResultPtr> &async) {
+        const auto onDone = [this](const Async<TestParseResultPtr> &async) {
             const QList<TestParseResultPtr> results = async.results();
             for (const TestParseResultPtr &result : results)
                 emit testParseResultReady(result);
         };
-        tasks.append(Async<TestParseResultPtr>(setup, onDone));
+        tasks.append(AsyncTask<TestParseResultPtr>(setup, onDone));
     }
     m_taskTree.reset(new TaskTree{tasks});
     const auto onDone = [this] { m_taskTree.release()->deleteLater(); onFinished(true); };

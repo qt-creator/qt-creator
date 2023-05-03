@@ -299,7 +299,7 @@ LocatorMatcherTasks SpotlightLocatorFilter::matchers()
     TreeStorage<LocatorStorage> storage;
 
     const auto onSetup = [storage, command = m_command, insensArgs = m_arguments,
-                          sensArgs = m_caseSensitiveArguments](AsyncTask<void> &async) {
+                          sensArgs = m_caseSensitiveArguments](Async<void> &async) {
         const Link link = Link::fromString(storage->input(), true);
         const FilePath input = link.targetFilePath;
         if (input.isEmpty())
@@ -316,7 +316,7 @@ LocatorMatcherTasks SpotlightLocatorFilter::matchers()
         return TaskAction::Continue;
     };
 
-    return {{Async<void>(onSetup), storage}};
+    return {{AsyncTask<void>(onSetup), storage}};
 }
 
 void SpotlightLocatorFilter::prepareSearch(const QString &entry)

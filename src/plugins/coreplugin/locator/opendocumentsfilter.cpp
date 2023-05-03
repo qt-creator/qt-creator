@@ -79,14 +79,14 @@ LocatorMatcherTasks OpenDocumentsFilter::matchers()
 
     TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [storage](AsyncTask<void> &async) {
+    const auto onSetup = [storage](Async<void> &async) {
         const QList<Entry> editorsData = Utils::transform(DocumentModel::entries(),
             [](const DocumentModel::Entry *e) { return Entry{e->filePath(), e->displayName()}; });
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matchEditors, *storage, editorsData);
     };
 
-    return {{Async<void>(onSetup), storage}};
+    return {{AsyncTask<void>(onSetup), storage}};
 }
 
 void OpenDocumentsFilter::slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,

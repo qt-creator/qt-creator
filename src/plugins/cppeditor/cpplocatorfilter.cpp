@@ -108,11 +108,11 @@ LocatorMatcherTask locatorMatcher(IndexItem::ItemType type, const EntryFromIndex
 
     TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [=](AsyncTask<void> &async) {
+    const auto onSetup = [=](Async<void> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matchesFor, *storage, type, converter);
     };
-    return {Async<void>(onSetup), storage};
+    return {AsyncTask<void>(onSetup), storage};
 }
 
 LocatorMatcherTask allSymbolsMatcher()
@@ -304,11 +304,11 @@ LocatorMatcherTask currentDocumentMatcher()
 
     TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [=](AsyncTask<void> &async) {
+    const auto onSetup = [=](Async<void> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matchesForCurrentDocument, *storage, currentFileName());
     };
-    return {Async<void>(onSetup), storage};
+    return {AsyncTask<void>(onSetup), storage};
 }
 
 using MatcherCreator = std::function<Core::LocatorMatcherTask()>;

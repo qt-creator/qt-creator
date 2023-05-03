@@ -153,19 +153,19 @@ int main(int argc, char *argv[])
         using namespace Tasking;
 
         auto taskItem = [sync = &synchronizer, synchronizerCheckBox](TaskWidget *widget) {
-            const auto setupHandler = [=](AsyncTask<void> &task) {
+            const auto setupHandler = [=](Async<void> &task) {
                 task.setConcurrentCallData(sleepInThread, widget->busyTime(), widget->isSuccess());
                 if (synchronizerCheckBox->isChecked())
                     task.setFutureSynchronizer(sync);
                 widget->setState(State::Running);
             };
-            const auto doneHandler = [widget](const AsyncTask<void> &) {
+            const auto doneHandler = [widget](const Async<void> &) {
                 widget->setState(State::Done);
             };
-            const auto errorHandler = [widget](const AsyncTask<void> &) {
+            const auto errorHandler = [widget](const Async<void> &) {
                 widget->setState(State::Error);
             };
-            return Async<void>(setupHandler, doneHandler, errorHandler);
+            return AsyncTask<void>(setupHandler, doneHandler, errorHandler);
         };
 
         const Group root {

@@ -123,9 +123,9 @@ struct ConcurrentResultType<Function, Args...>
 
 template <typename Function, typename ...Args,
           typename ResultType = typename ConcurrentResultType<Function, Args...>::Type>
-std::shared_ptr<AsyncTask<ResultType>> createAsyncTask(Function &&function, Args &&...args)
+std::shared_ptr<Async<ResultType>> createAsyncTask(Function &&function, Args &&...args)
 {
-    auto asyncTask = std::make_shared<AsyncTask<ResultType>>();
+    auto asyncTask = std::make_shared<Async<ResultType>>();
     asyncTask->setConcurrentCallData(std::forward<Function>(function), std::forward<Args>(args)...);
     asyncTask->start();
     return asyncTask;
@@ -402,7 +402,7 @@ void tst_AsyncTask::futureSynchonizer()
     FutureSynchronizer synchronizer;
     synchronizer.setCancelOnWait(false);
     {
-        AsyncTask<int> task;
+        Async<int> task;
         task.setConcurrentCallData(lambda);
         task.setFutureSynchronizer(&synchronizer);
         task.start();
@@ -424,18 +424,18 @@ void tst_AsyncTask::taskTree()
 
     int value = 1;
 
-    const auto setupIntAsync = [&](AsyncTask<int> &task) {
+    const auto setupIntAsync = [&](Async<int> &task) {
         task.setConcurrentCallData(multiplyBy2, value);
     };
-    const auto handleIntAsync = [&](const AsyncTask<int> &task) {
+    const auto handleIntAsync = [&](const Async<int> &task) {
         value = task.result();
     };
 
     const Group root {
-        Async<int>(setupIntAsync, handleIntAsync),
-        Async<int>(setupIntAsync, handleIntAsync),
-        Async<int>(setupIntAsync, handleIntAsync),
-        Async<int>(setupIntAsync, handleIntAsync),
+        AsyncTask<int>(setupIntAsync, handleIntAsync),
+        AsyncTask<int>(setupIntAsync, handleIntAsync),
+        AsyncTask<int>(setupIntAsync, handleIntAsync),
+        AsyncTask<int>(setupIntAsync, handleIntAsync),
     };
 
     TaskTree tree(root);
@@ -473,17 +473,17 @@ void tst_AsyncTask::mapReduce_data()
         s_sum = 0;
         s_results.append(s_sum);
     };
-    const auto setupAsync = [](AsyncTask<int> &task, int input) {
+    const auto setupAsync = [](Async<int> &task, int input) {
         task.setConcurrentCallData(returnxx, input);
     };
-    const auto setupAsyncWithFI = [](AsyncTask<int> &task, int input) {
+    const auto setupAsyncWithFI = [](Async<int> &task, int input) {
         task.setConcurrentCallData(returnxxWithPromise, input);
     };
-    const auto setupAsyncWithTP = [this](AsyncTask<int> &task, int input) {
+    const auto setupAsyncWithTP = [this](Async<int> &task, int input) {
         task.setConcurrentCallData(returnxx, input);
         task.setThreadPool(&m_threadPool);
     };
-    const auto handleAsync = [](const AsyncTask<int> &task) {
+    const auto handleAsync = [](const Async<int> &task) {
         s_sum += task.result();
         s_results.append(task.result());
     };
@@ -500,7 +500,7 @@ void tst_AsyncTask::mapReduce_data()
     using namespace Tasking;
     using namespace std::placeholders;
 
-    using SetupHandler = std::function<void(AsyncTask<int> &task, int input)>;
+    using SetupHandler = std::function<void(Async<int> &task, int input)>;
     using DoneHandler = std::function<void()>;
 
     const auto createTask = [=](const TaskItem &executeMode,
@@ -509,11 +509,11 @@ void tst_AsyncTask::mapReduce_data()
         return Group {
             executeMode,
             OnGroupSetup(initTree),
-            Async<int>(std::bind(setupHandler, _1, 1), handleAsync),
-            Async<int>(std::bind(setupHandler, _1, 2), handleAsync),
-            Async<int>(std::bind(setupHandler, _1, 3), handleAsync),
-            Async<int>(std::bind(setupHandler, _1, 4), handleAsync),
-            Async<int>(std::bind(setupHandler, _1, 5), handleAsync),
+            AsyncTask<int>(std::bind(setupHandler, _1, 1), handleAsync),
+            AsyncTask<int>(std::bind(setupHandler, _1, 2), handleAsync),
+            AsyncTask<int>(std::bind(setupHandler, _1, 3), handleAsync),
+            AsyncTask<int>(std::bind(setupHandler, _1, 4), handleAsync),
+            AsyncTask<int>(std::bind(setupHandler, _1, 5), handleAsync),
             OnGroupDone(doneHandler)
         };
     };
@@ -535,34 +535,34 @@ void tst_AsyncTask::mapReduce_data()
     QTest::newRow("SequentialWithFutureInterface") << sequentialRootWithFI << defaultSum << defaultResult;
     QTest::newRow("SequentialWithThreadPool") << sequentialRootWithTP << defaultSum << defaultResult;
 
-    const auto setupSimpleAsync = [](AsyncTask<int> &task, int input) {
+    const auto setupSimpleAsync = [](Async<int> &task, int input) {
         task.setConcurrentCallData([](int input) { return input * 2; }, input);
     };
-    const auto handleSimpleAsync = [](const AsyncTask<int> &task) {
+    const auto handleSimpleAsync = [](const Async<int> &task) {
         s_sum += task.result() / 4.;
         s_results.append(s_sum);
     };
     const Group simpleRoot = {
         sequential,
         OnGroupSetup([] { s_sum = 0; }),
-        Async<int>(std::bind(setupSimpleAsync, _1, 1), handleSimpleAsync),
-        Async<int>(std::bind(setupSimpleAsync, _1, 2), handleSimpleAsync),
-        Async<int>(std::bind(setupSimpleAsync, _1, 3), handleSimpleAsync)
+        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 1), handleSimpleAsync),
+        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 2), handleSimpleAsync),
+        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 3), handleSimpleAsync)
     };
     QTest::newRow("Simple") << simpleRoot << 3.0 << QList<double>({.5, 1.5, 3.});
 
-    const auto setupStringAsync = [](AsyncTask<int> &task, const QString &input) {
+    const auto setupStringAsync = [](Async<int> &task, const QString &input) {
         task.setConcurrentCallData([](const QString &input) -> int { return input.size(); }, input);
     };
-    const auto handleStringAsync = [](const AsyncTask<int> &task) {
+    const auto handleStringAsync = [](const Async<int> &task) {
         s_sum /= task.result();
     };
     const Group stringRoot = {
         parallel,
         OnGroupSetup([] { s_sum = 90.0; }),
-        Async<int>(std::bind(setupStringAsync, _1, "blubb"), handleStringAsync),
-        Async<int>(std::bind(setupStringAsync, _1, "foo"), handleStringAsync),
-        Async<int>(std::bind(setupStringAsync, _1, "blah"), handleStringAsync)
+        AsyncTask<int>(std::bind(setupStringAsync, _1, "blubb"), handleStringAsync),
+        AsyncTask<int>(std::bind(setupStringAsync, _1, "foo"), handleStringAsync),
+        AsyncTask<int>(std::bind(setupStringAsync, _1, "blah"), handleStringAsync)
     };
     QTest::newRow("String") << stringRoot << 1.5 << QList<double>({});
 }

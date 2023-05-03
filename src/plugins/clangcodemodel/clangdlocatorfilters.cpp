@@ -443,7 +443,7 @@ LocatorMatcherTask currentDocumentMatcher()
         *resultStorage = request.currentDocumentSymbolsData();
     };
 
-    const auto onFilterSetup = [=](AsyncTask<void> &async) {
+    const auto onFilterSetup = [=](Async<void> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(filterCurrentResults, *storage, *resultStorage,
                                     TextDocument::currentTextDocument()->plainText());
@@ -452,7 +452,7 @@ LocatorMatcherTask currentDocumentMatcher()
     const Group root {
         Storage(resultStorage),
         CurrentDocumentSymbolsRequest(onQuerySetup, onQueryDone),
-        Async<void>(onFilterSetup)
+        AsyncTask<void>(onFilterSetup)
     };
     return {root, storage};
 }

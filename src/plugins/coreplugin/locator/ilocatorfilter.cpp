@@ -1529,7 +1529,7 @@ LocatorMatcherTask LocatorFileCache::matcher() const
     TreeStorage<LocatorStorage> storage;
     std::weak_ptr<LocatorFileCachePrivate> weak = d;
 
-    const auto onSetup = [storage, weak](AsyncTask<LocatorFileCachePrivate> &async) {
+    const auto onSetup = [storage, weak](Async<LocatorFileCachePrivate> &async) {
         auto that = weak.lock();
         if (!that) // LocatorMatcher is running after *this LocatorFileCache was destructed.
             return TaskAction::StopWithDone;
@@ -1543,7 +1543,7 @@ LocatorMatcherTask LocatorFileCache::matcher() const
         async.setConcurrentCallData(&filter, *storage, *that);
         return TaskAction::Continue;
     };
-    const auto onDone = [weak](const AsyncTask<LocatorFileCachePrivate> &async) {
+    const auto onDone = [weak](const Async<LocatorFileCachePrivate> &async) {
         auto that = weak.lock();
         if (!that)
             return; // LocatorMatcherTask finished after *this LocatorFileCache was destructed.
@@ -1560,7 +1560,7 @@ LocatorMatcherTask LocatorFileCache::matcher() const
         that->update(async.result());
     };
 
-    return {Async<LocatorFileCachePrivate>(onSetup, onDone), storage};
+    return {AsyncTask<LocatorFileCachePrivate>(onSetup, onDone), storage};
 }
 
 } // Core

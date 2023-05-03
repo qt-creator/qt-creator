@@ -115,7 +115,7 @@ const QFuture<T> &onFinished(const QFuture<T> &future, QObject *guard, Function 
     return future;
 }
 
-class QTCREATOR_UTILS_EXPORT AsyncTaskBase : public QObject
+class QTCREATOR_UTILS_EXPORT AsyncBase : public QObject
 {
     Q_OBJECT
 
@@ -126,15 +126,14 @@ signals:
 };
 
 template <typename ResultType>
-class AsyncTask : public AsyncTaskBase
+class Async : public AsyncBase
 {
 public:
-    AsyncTask() {
-        connect(&m_watcher, &QFutureWatcherBase::finished, this, &AsyncTaskBase::done);
-        connect(&m_watcher, &QFutureWatcherBase::resultReadyAt,
-                this, &AsyncTaskBase::resultReadyAt);
+    Async() {
+        connect(&m_watcher, &QFutureWatcherBase::finished, this, &AsyncBase::done);
+        connect(&m_watcher, &QFutureWatcherBase::resultReadyAt, this, &AsyncBase::resultReadyAt);
     }
-    ~AsyncTask()
+    ~Async()
     {
         if (isDone())
             return;
@@ -199,11 +198,11 @@ private:
 };
 
 template <typename ResultType>
-class AsyncTaskAdapter : public Tasking::TaskAdapter<AsyncTask<ResultType>>
+class AsyncTaskAdapter : public Tasking::TaskAdapter<Async<ResultType>>
 {
 public:
     AsyncTaskAdapter() {
-        this->connect(this->task(), &AsyncTaskBase::done, this, [this] {
+        this->connect(this->task(), &AsyncBase::done, this, [this] {
             emit this->done(!this->task()->isCanceled());
         });
     }
@@ -212,4 +211,4 @@ public:
 
 } // namespace Utils
 
-QTC_DECLARE_CUSTOM_TEMPLATE_TASK(Async, AsyncTaskAdapter);
+QTC_DECLARE_CUSTOM_TEMPLATE_TASK(AsyncTask, AsyncTaskAdapter);

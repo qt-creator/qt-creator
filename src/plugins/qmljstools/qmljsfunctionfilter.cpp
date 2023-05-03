@@ -82,12 +82,12 @@ LocatorMatcherTasks FunctionFilter::matchers()
 
     TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [storage, entries = m_data->entries()](AsyncTask<void> &async) {
+    const auto onSetup = [storage, entries = m_data->entries()](Async<void> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matches, *storage, entries);
     };
 
-    return {{Async<void>(onSetup), storage}};
+    return {{AsyncTask<void>(onSetup), storage}};
 }
 
 QList<LocatorFilterEntry> FunctionFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,

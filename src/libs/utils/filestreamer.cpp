@@ -96,14 +96,14 @@ private:
         return ProcessTask(setup);
     }
     TaskItem localTask() final {
-        const auto setup = [this](AsyncTask<QByteArray> &async) {
+        const auto setup = [this](Async<QByteArray> &async) {
             async.setConcurrentCallData(localRead, m_filePath);
-            AsyncTask<QByteArray> *asyncPtr = &async;
-            connect(asyncPtr, &AsyncTaskBase::resultReadyAt, this, [=](int index) {
+            Async<QByteArray> *asyncPtr = &async;
+            connect(asyncPtr, &AsyncBase::resultReadyAt, this, [=](int index) {
                 emit readyRead(asyncPtr->resultAt(index));
             });
         };
-        return Async<QByteArray>(setup);
+        return AsyncTask<QByteArray>(setup);
     }
 };
 
@@ -267,16 +267,16 @@ private:
         return ProcessTask(setup, finalize, finalize);
     }
     TaskItem localTask() final {
-        const auto setup = [this](AsyncTask<void> &async) {
+        const auto setup = [this](Async<void> &async) {
             m_writeBuffer = new WriteBuffer(isBuffered(), &async);
             async.setConcurrentCallData(localWrite, m_filePath, m_writeData, m_writeBuffer);
             emit started();
         };
-        const auto finalize = [this](const AsyncTask<void> &) {
+        const auto finalize = [this](const Async<void> &) {
             delete m_writeBuffer;
             m_writeBuffer = nullptr;
         };
-        return Async<void>(setup, finalize, finalize);
+        return AsyncTask<void>(setup, finalize, finalize);
     }
 
     bool isBuffered() const { return m_writeData.isEmpty(); }
@@ -437,10 +437,10 @@ private:
         return Writer(setup);
     }
     TaskItem transferTask() {
-        const auto setup = [this](AsyncTask<void> &async) {
+        const auto setup = [this](Async<void> &async) {
             async.setConcurrentCallData(transfer, m_source, m_destination);
         };
-        return Async<void>(setup);
+        return AsyncTask<void>(setup);
     }
 };
 

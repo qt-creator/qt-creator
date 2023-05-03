@@ -452,10 +452,10 @@ void UnifiedDiffEditorWidget::showDiff()
         return;
     }
 
-    m_asyncTask.reset(new AsyncTask<UnifiedShowResult>());
+    m_asyncTask.reset(new Async<UnifiedShowResult>());
     m_asyncTask->setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     m_controller.setBusyShowing(true);
-    connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {
+    connect(m_asyncTask.get(), &AsyncBase::done, this, [this] {
         if (m_asyncTask->isCanceled() || !m_asyncTask->isResultAvailable()) {
             setPlainText(Tr::tr("Retrieving data failed."));
         } else {

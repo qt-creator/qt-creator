@@ -114,12 +114,12 @@ DiffFilesController::DiffFilesController(IDocument *document)
     const auto setupTree = [this, storage](TaskTree &taskTree) {
         QList<std::optional<FileData>> *outputList = storage.activeStorage();
 
-        const auto setupDiff = [this](AsyncTask<FileData> &async, const ReloadInput &reloadInput) {
+        const auto setupDiff = [this](Async<FileData> &async, const ReloadInput &reloadInput) {
             async.setConcurrentCallData(
                 DiffFile(ignoreWhitespace(), contextLineCount()), reloadInput);
             async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         };
-        const auto onDiffDone = [outputList](const AsyncTask<FileData> &async, int i) {
+        const auto onDiffDone = [outputList](const Async<FileData> &async, int i) {
             if (async.isResultAvailable())
                 (*outputList)[i] = async.result();
         };
@@ -130,7 +130,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
         using namespace std::placeholders;
         QList<TaskItem> tasks {parallel, optional};
         for (int i = 0; i < inputList.size(); ++i) {
-            tasks.append(Async<FileData>(std::bind(setupDiff, _1, inputList.at(i)),
+            tasks.append(AsyncTask<FileData>(std::bind(setupDiff, _1, inputList.at(i)),
                                          std::bind(onDiffDone, _1, i)));
         }
         taskTree.setupRoot(tasks);

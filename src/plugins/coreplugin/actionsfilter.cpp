@@ -180,7 +180,7 @@ LocatorMatcherTasks ActionsFilter::matchers()
 
     TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [this, storage](AsyncTask<void> &async) {
+    const auto onSetup = [this, storage](Async<void> &async) {
         m_entries.clear();
         m_indexes.clear();
         QList<const QMenu *> processedMenus;
@@ -197,7 +197,7 @@ LocatorMatcherTasks ActionsFilter::matchers()
         return TaskAction::Continue;
     };
 
-    return {{Async<void>(onSetup), storage}};
+    return {{AsyncTask<void>(onSetup), storage}};
 }
 
 

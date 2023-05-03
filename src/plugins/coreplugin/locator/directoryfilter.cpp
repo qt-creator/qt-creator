@@ -87,17 +87,17 @@ DirectoryFilter::DirectoryFilter(Id id)
         updateFileIterator();
         return TaskAction::StopWithDone; // Group stops, skips async task
     };
-    const auto asyncSetup = [this](AsyncTask<FilePaths> &async) {
+    const auto asyncSetup = [this](Async<FilePaths> &async) {
         async.setConcurrentCallData(&refresh, m_directories, m_filters, m_exclusionFilters,
                                     displayName());
     };
-    const auto asyncDone = [this](const AsyncTask<FilePaths> &async) {
+    const auto asyncDone = [this](const Async<FilePaths> &async) {
         m_files = async.isResultAvailable() ? async.result() : FilePaths();
         updateFileIterator();
     };
     const Group root {
         OnGroupSetup(groupSetup),
-        Async<FilePaths>(asyncSetup, asyncDone)
+        AsyncTask<FilePaths>(asyncSetup, asyncDone)
     };
     setRefreshRecipe(root);
 }

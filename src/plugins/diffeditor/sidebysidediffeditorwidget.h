@@ -18,7 +18,7 @@ class TextEditorWidget;
 
 namespace Utils {
 template <typename R>
-class AsyncTask;
+class Async;
 }
 
 QT_BEGIN_NAMESPACE
@@ -141,7 +141,7 @@ private:
 
     bool m_horizontalSync = false;
 
-    std::unique_ptr<Utils::AsyncTask<SideBySideShowResults>> m_asyncTask;
+    std::unique_ptr<Utils::Async<SideBySideShowResults>> m_asyncTask;
 };
 
 } // namespace Internal

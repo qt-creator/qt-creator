@@ -249,11 +249,11 @@ void AttachCoreDialog::accepted()
 
     const Group root = {
         parallel,
-        Async<ResultType>{[=](auto &task) {
+        AsyncTask<ResultType>{[=](auto &task) {
                               task.setConcurrentCallData(copyFileAsync, this->coreFile());
                           },
                           [=](const auto &task) { d->coreFileResult = task.result(); }},
-        Async<ResultType>{[=](auto &task) {
+        AsyncTask<ResultType>{[=](auto &task) {
                               task.setConcurrentCallData(copyFileAsync, this->symbolFile());
                           },
                           [=](const auto &task) { d->symbolFileResult = task.result(); }},
