@@ -36,7 +36,6 @@ public:
 
         auto layout = new QVBoxLayout(this);
         layout->addWidget(editor);
-        layout->setContentsMargins(0, 0, 0, 0);
     }
 
 private:

@@ -25,6 +25,7 @@ public:
 
         auto vbox = new QVBoxLayout(this);
         vbox->addWidget(m_widget);
+        vbox->setContentsMargins(0, 0, 0, 0);
 
         connect(Core::HelpManager::Signals::instance(),
                 &Core::HelpManager::Signals::documentationChanged,

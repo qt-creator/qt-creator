@@ -689,6 +689,7 @@ public:
         auto inner = new ShortcutSettingsWidget;
         auto vbox = new QVBoxLayout(this);
         vbox->addWidget(inner);
+        vbox->setContentsMargins(0, 0, 0, 0);
 
         setOnApply([inner] { inner->apply(); });
     }

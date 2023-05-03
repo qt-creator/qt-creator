@@ -119,10 +119,10 @@ CommonSettingsWidget::CommonSettingsWidget(CommonOptionsPage *page)
     Column {
         Row { s.lineWrap, s.lineWrapWidth, st },
         Form {
-            s.submitMessageCheckScript,
-            s.nickNameMailMap,
-            s.nickNameFieldListFile,
-            s.sshPasswordPrompt,
+            s.submitMessageCheckScript, br,
+            s.nickNameMailMap, br,
+            s.nickNameFieldListFile, br,
+            s.sshPasswordPrompt, br,
             {}, cacheResetButton
         }
     }.attachTo(this);

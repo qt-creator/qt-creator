@@ -807,6 +807,7 @@ public:
         m_exCommands = new FakeVimExCommandsMappings;
         auto vbox = new QVBoxLayout(this);
         vbox->addWidget(m_exCommands);
+        vbox->setContentsMargins(0, 0, 0, 0);
     }
 
 private:

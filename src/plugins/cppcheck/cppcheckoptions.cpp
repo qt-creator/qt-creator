@@ -130,6 +130,7 @@ public:
 
         auto vbox = new QVBoxLayout(this);
         vbox->addWidget(m_optionWidget);
+        vbox->setContentsMargins(0, 0, 0, 0);
 
         m_optionWidget->load(m_page->m_tool.options());
     }
