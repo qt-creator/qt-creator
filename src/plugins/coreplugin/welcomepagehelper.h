@@ -26,9 +26,13 @@ constexpr int HSpacing = 20;
 constexpr int ItemGap = 4;
 
 constexpr int GridItemGap = 3 * ItemGap;
-constexpr int GridItemWidth = 240 + GridItemGap;
+constexpr int GridItemWidth = 240 + GridItemGap;               // Extra GridItemGap as "spacing"
 constexpr int GridItemHeight = GridItemWidth;
-constexpr QSize GridItemImageSize(214, 160);
+constexpr QSize GridItemImageSize(GridItemWidth - GridItemGap
+                                      - 2 * (GridItemGap + 1), // Horizontal margins + 1 pixel
+                                  GridItemHeight - GridItemGap
+                                      - GridItemGap - 1        // Upper margin + 1 pixel
+                                      - 67);                   // Bottom margin (for title + tags)
 
 CORE_EXPORT QFont brandFont();
 CORE_EXPORT QWidget *panelBar(QWidget *parent = nullptr);

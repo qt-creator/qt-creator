@@ -144,7 +144,7 @@ bool SectionGridView::hasHeightForWidth() const
 
 int SectionGridView::heightForWidth(int width) const
 {
-    const int columnCount = width / Core::WelcomePageHelpers::GridItemWidth;
+    const int columnCount = qMax(1, width / Core::WelcomePageHelpers::GridItemWidth);
     const int rowCount = (model()->rowCount() + columnCount - 1) / columnCount;
     const int maxRowCount = m_maxRows ? std::min(*m_maxRows, rowCount) : rowCount;
     return maxRowCount * Core::WelcomePageHelpers::GridItemHeight;
