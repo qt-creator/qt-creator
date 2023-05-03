@@ -107,7 +107,6 @@ SpotlightLocatorFilter::SpotlightLocatorFilter()
         "Locates files from a global file system index (Spotlight, Locate, Everything). Append "
         "\"+<number>\" or \":<number>\" to jump to the given line number. Append another "
         "\"+<number>\" or \":<number>\" to jump to the column number as well."));
-    setConfigurable(true);
     m_command = defaultCommand();
     m_arguments = defaultArguments();
     m_caseSensitiveArguments = defaultArguments(Qt::CaseSensitive);
