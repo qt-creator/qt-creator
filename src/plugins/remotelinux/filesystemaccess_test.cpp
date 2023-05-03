@@ -432,7 +432,7 @@ void FileSystemAccessTest::testFileStreamer()
             streamer.setDestination(localSourcePath);
             streamer.setWriteData(data);
         };
-        return Streamer(setup);
+        return FileStreamerTask(setup);
     };
     const auto remoteWriter = [&] {
         const auto setup = [&](FileStreamer &streamer) {
@@ -440,7 +440,7 @@ void FileSystemAccessTest::testFileStreamer()
             streamer.setDestination(remoteSourcePath);
             streamer.setWriteData(data);
         };
-        return Streamer(setup);
+        return FileStreamerTask(setup);
     };
     const auto localReader = [&] {
         const auto setup = [&](FileStreamer &streamer) {
@@ -450,7 +450,7 @@ void FileSystemAccessTest::testFileStreamer()
         const auto onDone = [&](const FileStreamer &streamer) {
             localData = streamer.readData();
         };
-        return Streamer(setup, onDone);
+        return FileStreamerTask(setup, onDone);
     };
     const auto remoteReader = [&] {
         const auto setup = [&](FileStreamer &streamer) {
@@ -460,7 +460,7 @@ void FileSystemAccessTest::testFileStreamer()
         const auto onDone = [&](const FileStreamer &streamer) {
             remoteData = streamer.readData();
         };
-        return Streamer(setup, onDone);
+        return FileStreamerTask(setup, onDone);
     };
     const auto transfer = [](const FilePath &source, const FilePath &dest,
                              std::optional<QByteArray> *result) {
@@ -476,8 +476,8 @@ void FileSystemAccessTest::testFileStreamer()
             *result = streamer.readData();
         };
         const Group root {
-            Streamer(setupTransfer),
-            Streamer(setupReader, onReaderDone)
+            FileStreamerTask(setupTransfer),
+            FileStreamerTask(setupReader, onReaderDone)
         };
         return root;
     };

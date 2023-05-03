@@ -49,14 +49,14 @@ private:
     class FileStreamerPrivate *d = nullptr;
 };
 
-class FileStreamerAdapter : public Utils::Tasking::TaskAdapter<FileStreamer>
+class FileStreamerTaskAdapter : public Utils::Tasking::TaskAdapter<FileStreamer>
 {
 public:
-    FileStreamerAdapter() { connect(task(), &FileStreamer::done, this,
+    FileStreamerTaskAdapter() { connect(task(), &FileStreamer::done, this,
                 [this] { emit done(task()->result() == StreamResult::FinishedWithSuccess); }); }
     void start() override { task()->start(); }
 };
 
 } // namespace Utils
 
-QTC_DECLARE_CUSTOM_TASK(Streamer, Utils::FileStreamerAdapter);
+QTC_DECLARE_CUSTOM_TASK(FileStreamerTask, Utils::FileStreamerTaskAdapter);
