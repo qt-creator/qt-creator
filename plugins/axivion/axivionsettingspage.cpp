@@ -71,11 +71,12 @@ DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent)
         Form {
             m_dashboardUrl,
             m_description,
-            m_token
+            m_token,
+            mode == Edit ? normalMargin : noMargin
         }
-    }.attachTo(this, mode == Edit ? WithMargins : WithoutMargins);
+    }.attachTo(this);
 
-    auto checkValidity = [this](){
+    auto checkValidity = [this] {
         bool old = m_valid;
         m_valid = isValid();
         if (old != m_valid)
