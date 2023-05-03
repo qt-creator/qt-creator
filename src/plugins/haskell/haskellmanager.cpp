@@ -10,8 +10,8 @@
 #include <utils/commandline.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
+#include <utils/process.h>
 #include <utils/processenums.h>
-#include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
 #include <QDir>

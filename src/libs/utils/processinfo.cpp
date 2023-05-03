@@ -4,7 +4,7 @@
 #include "processinfo.h"
 
 #include "algorithm.h"
-#include "qtcprocess.h"
+#include "process.h"
 
 #include <QDir>
 #include <QRegularExpression>

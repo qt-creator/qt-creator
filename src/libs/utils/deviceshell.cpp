@@ -3,9 +3,9 @@
 
 #include "deviceshell.h"
 
+#include "process.h"
 #include "processinterface.h"
 #include "qtcassert.h"
-#include "qtcprocess.h"
 
 #include <QLoggingCategory>
 #include <QScopeGuard>

@@ -13,7 +13,7 @@
 #include "utilstr.h"
 
 #ifndef UTILS_STATIC_LIBRARY
-#include "qtcprocess.h"
+#include "process.h"
 #endif
 
 #include <QCoreApplication>

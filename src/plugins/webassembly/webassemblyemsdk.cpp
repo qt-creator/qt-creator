@@ -7,7 +7,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/hostosinfo.h>
 
 #include <QCache>

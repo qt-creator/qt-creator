@@ -31,7 +31,7 @@
 
 #include <utils/async.h>
 #include <utils/infobar.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/variablechooser.h>
 
 #include <QCheckBox>

@@ -33,8 +33,8 @@
 #include <utils/async.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/mimeutils.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 

@@ -25,8 +25,8 @@
 #include <utils/dropsupport.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/pathchooser.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 

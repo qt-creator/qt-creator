@@ -4,7 +4,7 @@
 #include "iosprobe.h"
 
 #include <utils/algorithm.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QFileInfo>
 #include <QLoggingCategory>

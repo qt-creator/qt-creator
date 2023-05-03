@@ -44,9 +44,9 @@
 #include <utils/overridecursor.h>
 #include <utils/pathlisteditor.h>
 #include <utils/port.h>
+#include <utils/process.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/sortfiltermodel.h>
 #include <utils/temporaryfile.h>
 #include <utils/terminalhooks.h>

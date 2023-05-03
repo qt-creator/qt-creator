@@ -18,8 +18,8 @@
 #include <qmljstools/qmljstoolsconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QCryptographicHash>
 #include <QJSEngine>

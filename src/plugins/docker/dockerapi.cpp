@@ -7,8 +7,8 @@
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/async.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QLoggingCategory>
 

@@ -35,8 +35,8 @@
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/parameteraction.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
 #include <vcsbase/basevcseditorfactory.h>

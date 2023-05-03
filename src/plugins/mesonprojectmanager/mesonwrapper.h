@@ -9,7 +9,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/id.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QFile>
 #include <QFileInfo>

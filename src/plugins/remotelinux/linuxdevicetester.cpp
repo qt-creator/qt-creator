@@ -10,9 +10,9 @@
 #include <projectexplorer/devicesupport/filetransfer.h>
 
 #include <utils/algorithm.h>
+#include <utils/process.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 using namespace ProjectExplorer;

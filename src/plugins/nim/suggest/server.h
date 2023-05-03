@@ -7,7 +7,7 @@
 #include <QFile>
 #include <QObject>
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 namespace Nim {
 namespace Suggest {

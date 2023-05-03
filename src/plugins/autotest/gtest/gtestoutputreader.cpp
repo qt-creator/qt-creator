@@ -8,7 +8,7 @@
 #include "../autotesttr.h"
 
 #include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QRegularExpression>
 

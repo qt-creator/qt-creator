@@ -13,7 +13,7 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/stringutils.h>
 
 #include <QLoggingCategory>

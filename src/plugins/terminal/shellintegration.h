@@ -5,7 +5,7 @@
 #pragma once
 
 #include <utils/commandline.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <vterm.h>
 

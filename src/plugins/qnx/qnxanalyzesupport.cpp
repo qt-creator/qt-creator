@@ -9,8 +9,7 @@
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
 

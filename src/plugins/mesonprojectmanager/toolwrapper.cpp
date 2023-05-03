@@ -3,7 +3,7 @@
 
 #include "toolwrapper.h"
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 namespace MesonProjectManager {
 namespace Internal {

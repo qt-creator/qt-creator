@@ -28,8 +28,8 @@
 #include <utils/completingtextedit.h>
 #include <utils/fileutils.h>
 #include <utils/icon.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 #include <utils/theme/theme.h>
 

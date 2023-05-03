@@ -21,8 +21,8 @@
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QStringList>

@@ -29,9 +29,9 @@
 
 #include <remotelinux/remotelinux_constants.h>
 
-#include <utils/hostosinfo.h>
 #include <utils/fileutils.h>
-#include <utils/qtcprocess.h>
+#include <utils/hostosinfo.h>
+#include <utils/process.h>
 
 #include <QAction>
 

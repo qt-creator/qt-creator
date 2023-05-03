@@ -4,7 +4,7 @@
 #include "terminalhooks.h"
 
 #include "filepath.h"
-#include "qtcprocess.h"
+#include "process.h"
 #include "terminalcommand.h"
 #include "terminalinterface.h"
 

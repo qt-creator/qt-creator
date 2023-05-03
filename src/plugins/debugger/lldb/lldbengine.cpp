@@ -29,9 +29,9 @@
 #include <coreplugin/icore.h>
 
 #include <utils/environment.h>
+#include <utils/process.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QApplication>
 #include <QDateTime>

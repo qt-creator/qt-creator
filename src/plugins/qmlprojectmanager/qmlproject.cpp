@@ -38,8 +38,8 @@
 
 #include <utils/algorithm.h>
 #include <utils/infobar.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QLoggingCategory>

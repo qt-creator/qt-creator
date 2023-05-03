@@ -49,7 +49,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDebug>
 #include <QDir>

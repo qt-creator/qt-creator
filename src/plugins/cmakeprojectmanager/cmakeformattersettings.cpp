@@ -10,7 +10,7 @@
 #include <utils/algorithm.h>
 #include <utils/genericconstants.h>
 #include <utils/mimeutils.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 namespace CMakeProjectManager {
 namespace Internal {

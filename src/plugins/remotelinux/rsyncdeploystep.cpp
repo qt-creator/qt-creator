@@ -16,8 +16,8 @@
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
+#include <utils/process.h>
 #include <utils/processinterface.h>
-#include <utils/qtcprocess.h>
 #include <utils/tasktree.h>
 
 using namespace ProjectExplorer;

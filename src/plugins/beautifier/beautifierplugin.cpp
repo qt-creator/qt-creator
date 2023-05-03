@@ -31,8 +31,8 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/mimeutils.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 #include <utils/textutils.h>
 

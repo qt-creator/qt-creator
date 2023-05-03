@@ -75,8 +75,8 @@
 #include <qmlprojectmanager/qmlproject.h>
 
 #include <utils/algorithm.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 #include <utils/threadutils.h>
 

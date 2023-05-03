@@ -18,7 +18,7 @@
 
 #include <utils/filepath.h>
 #include <utils/port.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/url.h>
 
 using namespace ProjectExplorer;

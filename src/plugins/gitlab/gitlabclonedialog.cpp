@@ -23,8 +23,8 @@
 #include <utils/infolabel.h>
 #include <utils/mimeutils.h>
 #include <utils/pathchooser.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcscommand.h>

@@ -6,7 +6,7 @@
 #include "../beautifierconstants.h"
 
 #include <coreplugin/icore.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDateTime>
 #include <QFile>

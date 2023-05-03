@@ -33,7 +33,7 @@
 #include <utils/filepath.h>
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 using namespace Core;
 using namespace Utils;

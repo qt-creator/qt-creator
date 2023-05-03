@@ -8,8 +8,8 @@
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/futuresynchronizer.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 using namespace DiffEditor;
 using namespace Utils;

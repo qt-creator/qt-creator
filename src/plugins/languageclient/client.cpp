@@ -53,7 +53,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/mimeutils.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDebug>
 #include <QJsonDocument>

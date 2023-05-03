@@ -5,7 +5,7 @@
 
 #include "squishconstants.h"
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QObject>
 

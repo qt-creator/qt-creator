@@ -18,8 +18,8 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/detailswidget.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
 using namespace ProjectExplorer;

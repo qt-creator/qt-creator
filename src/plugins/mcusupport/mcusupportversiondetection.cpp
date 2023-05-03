@@ -3,7 +3,7 @@
 
 #include "mcusupportversiondetection.h"
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDir>
 #include <QRegularExpression>

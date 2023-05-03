@@ -11,8 +11,8 @@
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/cpptoolsreuse.h>
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QDebug>

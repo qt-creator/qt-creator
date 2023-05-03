@@ -17,8 +17,8 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QDebug>

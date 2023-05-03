@@ -13,8 +13,8 @@
 
 #include <utils/filepath.h>
 #include <utils/filestreamermanager.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QDebug>

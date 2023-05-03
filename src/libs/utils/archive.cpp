@@ -5,8 +5,8 @@
 
 #include "algorithm.h"
 #include "mimeutils.h"
+#include "process.h"
 #include "qtcassert.h"
-#include "qtcprocess.h"
 #include "utilstr.h"
 
 #include <QSettings>

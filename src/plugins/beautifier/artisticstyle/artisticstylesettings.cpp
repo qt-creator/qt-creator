@@ -7,8 +7,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/process.h>
 #include <utils/stringutils.h>
-#include <utils/qtcprocess.h>
 
 #include <QDateTime>
 #include <QFile>

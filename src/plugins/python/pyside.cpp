@@ -5,7 +5,6 @@
 
 #include "pipsupport.h"
 #include "pythonplugin.h"
-#include "pythonsettings.h"
 #include "pythontr.h"
 #include "pythonutils.h"
 
@@ -19,8 +18,8 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/infobar.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QRegularExpression>
 #include <QTextCursor>

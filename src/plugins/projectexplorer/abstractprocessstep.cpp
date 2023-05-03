@@ -12,8 +12,8 @@
 
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QTextDecoder>
 

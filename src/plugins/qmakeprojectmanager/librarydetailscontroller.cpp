@@ -13,8 +13,8 @@
 #include <projectexplorer/target.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QCheckBox>
 #include <QComboBox>

@@ -11,8 +11,8 @@
 
 #include <utils/basetreeview.h>
 #include <utils/hostosinfo.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/treemodel.h>
 
 #include <QCoreApplication>

@@ -28,7 +28,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/async.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDateTime>
 #include <QDeadlineTimer>

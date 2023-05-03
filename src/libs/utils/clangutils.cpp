@@ -4,7 +4,7 @@
 #include "clangutils.h"
 
 #include "filepath.h"
-#include "qtcprocess.h"
+#include "process.h"
 #include "utilstr.h"
 
 #include <QVersionNumber>

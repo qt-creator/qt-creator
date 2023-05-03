@@ -12,7 +12,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QCoreApplication>
 #include <QCheckBox>

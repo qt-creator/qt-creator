@@ -8,7 +8,7 @@
 #include <projectexplorer/kitinformation.h>
 
 #include <utils/port.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QMapIterator>
 

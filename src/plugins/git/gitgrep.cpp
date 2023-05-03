@@ -17,8 +17,8 @@
 #include <utils/environment.h>
 #include <utils/fancylineedit.h>
 #include <utils/filesearch.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QCheckBox>
 #include <QFuture>

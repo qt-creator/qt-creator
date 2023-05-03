@@ -11,8 +11,8 @@
 #include <utils/filepath.h>
 #include <utils/filestreamer.h>
 #include <utils/filestreamermanager.h>
+#include <utils/process.h>
 #include <utils/processinterface.h>
-#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QFile>

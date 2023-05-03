@@ -22,8 +22,8 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>

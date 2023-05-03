@@ -6,8 +6,7 @@
 #include "qnxconstants.h"
 #include "qnxtr.h"
 
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 using namespace Utils;
 

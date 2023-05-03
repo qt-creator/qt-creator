@@ -13,7 +13,7 @@
 
 #include <remotelinux/abstractremotelinuxdeploystep.h>
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

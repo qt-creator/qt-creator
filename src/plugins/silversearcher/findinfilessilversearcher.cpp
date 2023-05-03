@@ -9,8 +9,8 @@
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include "silversearcheroutputparser.h"
 #include "silversearchertr.h"

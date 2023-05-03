@@ -5,7 +5,7 @@
 
 #include "async.h"
 #include "barrier.h"
-#include "qtcprocess.h"
+#include "process.h"
 
 #include <QFile>
 #include <QMutex>

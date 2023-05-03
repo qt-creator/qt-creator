@@ -13,7 +13,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/futuresynchronizer.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QObject>
 #include <QString>

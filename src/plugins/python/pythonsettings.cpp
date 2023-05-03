@@ -27,7 +27,7 @@
 #include <utils/listmodel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 

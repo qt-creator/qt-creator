@@ -8,10 +8,10 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/launcherinterface.h>
+#include <utils/process.h>
 #include <utils/processinfo.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/singleton.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>

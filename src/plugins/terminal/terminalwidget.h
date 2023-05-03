@@ -9,7 +9,7 @@
 #include <aggregation/aggregate.h>
 
 #include <utils/link.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/terminalhooks.h>
 
 #include <QAbstractScrollArea>

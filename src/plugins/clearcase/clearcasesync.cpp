@@ -10,8 +10,8 @@
 #include <QRegularExpression>
 #include <QStringList>
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QPromise>
 

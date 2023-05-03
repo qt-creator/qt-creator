@@ -13,7 +13,7 @@
 #include <debugger/debuggerruncontrol.h>
 
 #include <utils/algorithm.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/url.h>
 
 using namespace Debugger;

@@ -22,9 +22,9 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/fileutils.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
-#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QByteArray>

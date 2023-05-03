@@ -9,21 +9,22 @@
 #include "iostr.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/project.h>
+
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/processparameters.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtparser.h>
 
-#include <utils/stringutils.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 
 #include <QGridLayout>
 #include <QLabel>

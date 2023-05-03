@@ -16,7 +16,7 @@
 #include <utils/async.h>
 #include <utils/expected.h>
 #include <utils/guard.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDateTime>
 #include <QLoggingCategory>

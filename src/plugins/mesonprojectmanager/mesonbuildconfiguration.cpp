@@ -19,7 +19,7 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/fileutils.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDir>
 

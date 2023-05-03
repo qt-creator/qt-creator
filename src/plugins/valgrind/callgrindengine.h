@@ -8,7 +8,7 @@
 #include "callgrind/callgrindparsedata.h"
 #include "callgrind/callgrindparser.h"
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 namespace Valgrind {
 namespace Internal {

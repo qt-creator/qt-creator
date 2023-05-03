@@ -10,7 +10,7 @@
 
 #include <QSettings>
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 using namespace Utils;
 

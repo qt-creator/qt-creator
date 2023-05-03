@@ -21,7 +21,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/algorithm.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/stringutils.h>
 #include <utils/tasktree.h>
 

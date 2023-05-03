@@ -9,8 +9,8 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 #include <QFutureWatcher>

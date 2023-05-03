@@ -10,8 +10,8 @@
 #include "hostosinfo.h"
 #include "macroexpander.h"
 #include "optionpushbutton.h"
+#include "process.h"
 #include "qtcassert.h"
-#include "qtcprocess.h"
 #include "utilstr.h"
 
 #include <QFileDialog>

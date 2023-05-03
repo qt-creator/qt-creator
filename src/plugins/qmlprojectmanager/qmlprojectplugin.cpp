@@ -41,7 +41,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QAction>
 #include <QDesktopServices>
