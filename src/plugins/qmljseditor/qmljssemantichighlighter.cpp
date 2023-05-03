@@ -20,7 +20,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 

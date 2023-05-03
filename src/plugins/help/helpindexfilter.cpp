@@ -11,7 +11,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/utilsicons.h>
 
 #include <QHelpEngine>

@@ -3,7 +3,7 @@
 
 #include "stringtable.h"
 
-#include "asynctask.h"
+#include "async.h"
 
 #include <QDebug>
 #include <QElapsedTimer>

@@ -5,7 +5,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>

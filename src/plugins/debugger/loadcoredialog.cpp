@@ -11,7 +11,7 @@
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/processinterface.h>

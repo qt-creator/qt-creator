@@ -13,7 +13,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/fuzzymatcher.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>

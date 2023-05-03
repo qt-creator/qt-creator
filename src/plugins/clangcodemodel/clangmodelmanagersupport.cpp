@@ -42,7 +42,7 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 

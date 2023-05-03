@@ -13,7 +13,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/expected.h>
 #include <utils/guard.h>
 #include <utils/qtcprocess.h>

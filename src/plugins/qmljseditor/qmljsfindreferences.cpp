@@ -12,7 +12,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basefilefind.h>
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/filesearch.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>

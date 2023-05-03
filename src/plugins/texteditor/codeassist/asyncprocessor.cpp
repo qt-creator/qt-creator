@@ -6,7 +6,7 @@
 #include "assistinterface.h"
 #include "iassistproposal.h"
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 
 namespace TextEditor {
 

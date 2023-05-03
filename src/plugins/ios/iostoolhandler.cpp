@@ -12,7 +12,7 @@
 
 #include <debugger/debuggerconstants.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>

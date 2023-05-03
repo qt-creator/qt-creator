@@ -21,7 +21,7 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>

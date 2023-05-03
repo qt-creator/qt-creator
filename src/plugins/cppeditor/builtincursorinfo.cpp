@@ -14,7 +14,7 @@
 #include <cplusplus/Macro.h>
 #include <cplusplus/TranslationUnit.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
 

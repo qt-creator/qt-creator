@@ -15,7 +15,7 @@
 
 #include <cplusplus/LookupContext.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>

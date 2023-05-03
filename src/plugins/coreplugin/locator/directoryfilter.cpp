@@ -7,7 +7,7 @@
 #include "../coreplugintr.h"
 
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/fileutils.h>
 #include <utils/filesearch.h>
 #include <utils/layoutbuilder.h>

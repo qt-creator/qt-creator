@@ -9,7 +9,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/fancylineedit.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/pathchooser.h>

@@ -7,7 +7,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 
 #include <QLoggingCategory>
 #include <QTimer>

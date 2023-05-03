@@ -13,7 +13,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/futuresynchronizer.h>
 
 #include <QDateTime>

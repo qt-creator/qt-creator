@@ -8,7 +8,7 @@
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/treescanner.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/mimeutils.h>
 
 #include <QCryptographicHash>

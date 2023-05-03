@@ -10,7 +10,7 @@
 
 #include <coreplugin/messagemanager.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/differ.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

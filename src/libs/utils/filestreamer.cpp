@@ -3,7 +3,7 @@
 
 #include "filestreamer.h"
 
-#include "asynctask.h"
+#include "async.h"
 #include "barrier.h"
 #include "qtcprocess.h"
 

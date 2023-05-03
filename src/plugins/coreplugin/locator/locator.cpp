@@ -27,7 +27,7 @@
 #include "../statusbarmanager.h"
 
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 

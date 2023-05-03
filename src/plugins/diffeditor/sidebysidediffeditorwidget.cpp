@@ -20,7 +20,7 @@
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/mathutils.h>
 #include <utils/tooltip/tooltip.h>
 

@@ -11,7 +11,7 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <utils/archive.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>

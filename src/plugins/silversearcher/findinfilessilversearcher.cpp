@@ -6,7 +6,7 @@
 #include <aggregation/aggregate.h>
 #include <texteditor/findinfiles.h>
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>

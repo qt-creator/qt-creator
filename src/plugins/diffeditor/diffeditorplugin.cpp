@@ -17,7 +17,7 @@
 
 #include <texteditor/textdocument.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/differ.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>

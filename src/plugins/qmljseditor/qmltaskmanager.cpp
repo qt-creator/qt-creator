@@ -12,7 +12,7 @@
 #include <qmljs/qmljsconstants.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljscheck.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 
 #include <QDebug>
 #include <QtConcurrentRun>

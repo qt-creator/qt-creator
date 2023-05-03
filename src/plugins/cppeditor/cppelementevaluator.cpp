@@ -14,7 +14,7 @@
 #include <cplusplus/Icons.h>
 #include <cplusplus/TypeOfExpression.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 
 #include <QDir>
 #include <QQueue>

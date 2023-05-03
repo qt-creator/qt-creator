@@ -18,7 +18,7 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/SimpleLexer.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
 

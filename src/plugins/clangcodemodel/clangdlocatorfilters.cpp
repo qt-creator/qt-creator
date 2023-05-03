@@ -19,7 +19,7 @@
 #include <languageclient/locatorfilter.h>
 #include <projectexplorer/projectmanager.h>
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/link.h>
 
 #include <QHash>

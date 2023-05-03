@@ -56,7 +56,7 @@
 #include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/itemviews.h>

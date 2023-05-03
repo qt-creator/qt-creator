@@ -5,7 +5,7 @@
 
 #include "cppmodelmanager.h"
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/qtcassert.h>
 
 #include <cplusplus/Control.h>

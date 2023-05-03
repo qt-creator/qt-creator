@@ -12,7 +12,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/fileinprojectfinder.h>
 
 #include <QStringList>

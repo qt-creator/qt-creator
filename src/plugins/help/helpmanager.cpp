@@ -9,7 +9,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
 

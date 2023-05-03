@@ -9,7 +9,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/fancylineedit.h>

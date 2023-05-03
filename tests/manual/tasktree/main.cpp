@@ -3,7 +3,7 @@
 
 #include "taskwidget.h"
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/layoutbuilder.h>
 #include <utils/theme/theme_p.h>

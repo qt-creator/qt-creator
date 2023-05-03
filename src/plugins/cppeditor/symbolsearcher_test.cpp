@@ -10,7 +10,7 @@
 #include <coreplugin/testdatadir.h>
 #include <coreplugin/find/searchresultwindow.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 
 #include <QtTest>
 

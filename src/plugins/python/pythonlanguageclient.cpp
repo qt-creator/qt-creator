@@ -29,7 +29,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/infobar.h>
 #include <utils/qtcprocess.h>
 #include <utils/variablechooser.h>

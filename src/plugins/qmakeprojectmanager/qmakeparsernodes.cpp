@@ -30,7 +30,7 @@
 
 #include <utils/QtConcurrentTools>
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>

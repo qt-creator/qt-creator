@@ -34,7 +34,7 @@
 
 #include <texteditor/textmark.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
