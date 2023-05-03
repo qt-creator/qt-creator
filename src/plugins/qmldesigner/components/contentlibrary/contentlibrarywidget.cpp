@@ -118,7 +118,7 @@ ContentLibraryWidget::ContentLibraryWidget()
 
     m_baseUrl = QmlDesignerPlugin::settings()
                     .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL).toString()
-                + "/textures/v1";
+                + "/textures";
 
     m_texturesUrl = m_baseUrl + "/Textures";
     m_environmentsUrl = m_baseUrl + "/Environments";
