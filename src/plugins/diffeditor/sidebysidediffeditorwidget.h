@@ -22,7 +22,6 @@ class Async;
 }
 
 QT_BEGIN_NAMESPACE
-class QFutureInterfaceBase;
 class QMenu;
 class QSplitter;
 QT_END_NAMESPACE

@@ -3,7 +3,6 @@
 
 #include <QString>
 #include <QStringList>
-#include <QFutureInterface>
 #include <QFile>
 #include <QTextStream>
 #include <QDateTime>

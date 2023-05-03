@@ -9,7 +9,6 @@
 
 #include <QAbstractItemModel>
 #include <QDialog>
-#include <QFutureInterface>
 #include <QFutureWatcher>
 #include <QLabel>
 #include <QRegularExpression>

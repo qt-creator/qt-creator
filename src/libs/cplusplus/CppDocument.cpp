@@ -26,7 +26,6 @@
 
 #include <QByteArray>
 #include <QDebug>
-#include <QFutureInterface>
 #include <QStack>
 
 /*!

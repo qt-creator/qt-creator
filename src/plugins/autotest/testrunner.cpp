@@ -39,8 +39,6 @@
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFormLayout>
-#include <QFuture>
-#include <QFutureInterface>
 #include <QLabel>
 #include <QLoggingCategory>
 #include <QPointer>

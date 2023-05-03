@@ -16,8 +16,6 @@
 #include <utils/async.h>
 #include <utils/qtcassert.h>
 
-#include <QFutureInterface>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 

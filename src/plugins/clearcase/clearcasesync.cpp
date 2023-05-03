@@ -6,7 +6,6 @@
 #include "clearcasesettings.h"
 
 #include <QDir>
-#include <QFutureInterface>
 #include <QRegularExpression>
 #include <QStringList>
 

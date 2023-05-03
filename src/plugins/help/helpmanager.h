@@ -5,7 +5,6 @@
 
 #include <coreplugin/helpmanager_implementation.h>
 
-#include <QFutureInterface>
 #include <QHelpEngineCore>
 #include <QVariant>
 

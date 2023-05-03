@@ -8,8 +8,6 @@
 QT_BEGIN_NAMESPACE
 class QDir;
 template <typename T>
-class QFutureInterface;
-template <typename T>
 class QPromise;
 QT_END_NAMESPACE
 

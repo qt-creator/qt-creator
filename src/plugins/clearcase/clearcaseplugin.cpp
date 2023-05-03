@@ -57,7 +57,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFuture>
-#include <QFutureInterface>
 #include <QInputDialog>
 #include <QLabel>
 #include <QList>

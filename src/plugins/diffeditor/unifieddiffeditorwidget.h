@@ -15,10 +15,6 @@ template <typename R>
 class Async;
 }
 
-QT_BEGIN_NAMESPACE
-class QFutureInterfaceBase;
-QT_END_NAMESPACE
-
 namespace DiffEditor {
 
 class ChunkData;
