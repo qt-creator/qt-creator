@@ -1,7 +1,7 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "currentdocumentsymbolsrequesttask.h"
+#include "currentdocumentsymbolsrequest.h"
 
 #include "documentsymbolcache.h"
 #include "languageclientmanager.h"
@@ -15,7 +15,7 @@ using namespace Utils;
 
 namespace LanguageClient {
 
-void CurrentDocumentSymbolsRequestTask::start()
+void CurrentDocumentSymbolsRequest::start()
 {
     QTC_ASSERT(!isRunning(), return);
 
@@ -58,12 +58,12 @@ void CurrentDocumentSymbolsRequestTask::start()
     symbolCache->requestSymbols(currentUri, Schedule::Now);
 }
 
-bool CurrentDocumentSymbolsRequestTask::isRunning() const
+bool CurrentDocumentSymbolsRequest::isRunning() const
 {
     return !m_connections.isEmpty();
 }
 
-void CurrentDocumentSymbolsRequestTask::clearConnections()
+void CurrentDocumentSymbolsRequest::clearConnections()
 {
     for (const QMetaObject::Connection &connection : std::as_const(m_connections))
         disconnect(connection);
@@ -72,7 +72,7 @@ void CurrentDocumentSymbolsRequestTask::clearConnections()
 
 CurrentDocumentSymbolsRequestTaskAdapter::CurrentDocumentSymbolsRequestTaskAdapter()
 {
-    connect(task(), &CurrentDocumentSymbolsRequestTask::done, this, &TaskInterface::done);
+    connect(task(), &CurrentDocumentSymbolsRequest::done, this, &TaskInterface::done);
 }
 
 void CurrentDocumentSymbolsRequestTaskAdapter::start()

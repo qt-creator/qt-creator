@@ -19,7 +19,7 @@ public:
     LanguageServerProtocol::DocumentSymbolsResult m_symbols;
 };
 
-class LANGUAGECLIENT_EXPORT CurrentDocumentSymbolsRequestTask : public QObject
+class LANGUAGECLIENT_EXPORT CurrentDocumentSymbolsRequest : public QObject
 {
     Q_OBJECT
 
@@ -39,7 +39,7 @@ private:
 };
 
 class LANGUAGECLIENT_EXPORT CurrentDocumentSymbolsRequestTaskAdapter
-    : public Utils::Tasking::TaskAdapter<CurrentDocumentSymbolsRequestTask>
+    : public Utils::Tasking::TaskAdapter<CurrentDocumentSymbolsRequest>
 {
 public:
     CurrentDocumentSymbolsRequestTaskAdapter();
@@ -48,5 +48,5 @@ public:
 
 } // namespace LanguageClient
 
-QTC_DECLARE_CUSTOM_TASK(CurrentDocumentSymbolsRequest,
+QTC_DECLARE_CUSTOM_TASK(CurrentDocumentSymbolsRequestTask,
                         LanguageClient::CurrentDocumentSymbolsRequestTaskAdapter);

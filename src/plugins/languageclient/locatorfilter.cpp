@@ -4,7 +4,7 @@
 #include "locatorfilter.h"
 
 #include "clientrequesttask.h"
-#include "currentdocumentsymbolsrequesttask.h"
+#include "currentdocumentsymbolsrequest.h"
 #include "documentsymbolcache.h"
 #include "languageclient_global.h"
 #include "languageclientmanager.h"
@@ -131,10 +131,10 @@ LocatorMatcherTask currentDocumentMatcher()
     TreeStorage<LocatorStorage> storage;
     TreeStorage<CurrentDocumentSymbolsData> resultStorage;
 
-    const auto onQuerySetup = [=](CurrentDocumentSymbolsRequestTask &request) {
+    const auto onQuerySetup = [=](CurrentDocumentSymbolsRequest &request) {
         Q_UNUSED(request)
     };
-    const auto onQueryDone = [resultStorage](const CurrentDocumentSymbolsRequestTask &request) {
+    const auto onQueryDone = [resultStorage](const CurrentDocumentSymbolsRequest &request) {
         *resultStorage = request.currentDocumentSymbolsData();
     };
 
@@ -145,7 +145,7 @@ LocatorMatcherTask currentDocumentMatcher()
 
     const Group root {
         Storage(resultStorage),
-        CurrentDocumentSymbolsRequest(onQuerySetup, onQueryDone),
+        CurrentDocumentSymbolsRequestTask(onQuerySetup, onQueryDone),
         AsyncTask<void>(onFilterSetup)
     };
     return {root, storage};
