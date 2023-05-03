@@ -85,7 +85,7 @@ CvsSettingsPage::CvsSettingsPage(CvsSettings *settings)
             Group {
                 title(Tr::tr("Configuration")),
                 Form {
-                    s.binaryPath,
+                    s.binaryPath, br,
                     s.cvsRoot
                 }
             },
@@ -93,7 +93,7 @@ CvsSettingsPage::CvsSettingsPage(CvsSettings *settings)
                 title(Tr::tr("Miscellaneous")),
                 Column {
                     Form {
-                        s.timeout,
+                        s.timeout, br,
                         s.diffOptions,
                     },
                     s.describeByCommitId,

@@ -97,10 +97,10 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
 
     Row {
         Form {
-            m_host,
-            m_description,
-            m_token,
-            m_port,
+            m_host, br,
+            m_description, br,
+            m_token, br,
+            m_port, br,
             m_secure,
             m == Edit ? normalMargin : noMargin
         },

@@ -99,7 +99,7 @@ SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
                 title(Tr::tr("Authentication")),
                 s.useAuthentication.groupChecker(),
                 Form {
-                    s.userName,
+                    s.userName, br,
                     s.password,
                  }
             },

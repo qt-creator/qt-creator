@@ -28,9 +28,9 @@ public:
 
         using namespace Layouting;
         Form {
-            s.flushEnabled,
-            s.flushInterval,
-            s.aggregateTraces
+            s.flushEnabled, br,
+            s.flushInterval, br,
+            s.aggregateTraces, br,
         }.attachTo(this);
     }
 

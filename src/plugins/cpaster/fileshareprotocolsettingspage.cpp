@@ -52,7 +52,7 @@ FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(FileShareProtocolSe
         Column {
             Form {
                 label, br,
-                s.path,
+                s.path, br,
                 s.displayCount
             },
             st

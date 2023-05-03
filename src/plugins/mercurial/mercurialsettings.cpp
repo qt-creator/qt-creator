@@ -66,7 +66,7 @@ MercurialSettingsPage::MercurialSettingsPage(MercurialSettings *settings)
             Group {
                 title(Tr::tr("User")),
                 Form {
-                    s.userName,
+                    s.userName, br,
                     s.userEmail
                 }
             },

@@ -67,8 +67,8 @@ SettingsPage::SettingsPage(Settings *settings)
 
         Column {
             Form {
-                s.protocols,
-                s.username,
+                s.protocols, br,
+                s.username, br,
                 s.expiryDays
             },
             s.copyToClipboard,
