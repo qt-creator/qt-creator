@@ -70,7 +70,7 @@ using MultiBarrier = TreeStorage<SharedBarrier<Limit>>;
 // alias template deduction only available with C++20.
 using SingleBarrier = MultiBarrier<1>;
 
-class WaitForBarrier : public BarrierTask
+class QTCREATOR_UTILS_EXPORT WaitForBarrier : public BarrierTask
 {
 public:
     template <int Limit>
