@@ -60,7 +60,6 @@ public:
 
     bool hasCustomParser() const { return {}; }
 
-    bool availableInVersion(int, int) const { return {}; }
     bool isBasedOn(const NodeMetaInfo &) const { return {}; }
     bool isBasedOn(const NodeMetaInfo &, const NodeMetaInfo &) const { return {}; }
     bool isBasedOn(const NodeMetaInfo &, const NodeMetaInfo &, const NodeMetaInfo &) const

@@ -4834,11 +4834,6 @@ void tst_TestCore::testMetaInfoSimpleType()
     QCOMPARE(itemMetaInfo.superClasses().size(), 2); // Item, QtQuick.QtObject
     QVERIFY(itemMetaInfo.isQtQuickItem());
     QVERIFY(itemMetaInfo.isQtObject());
-
-    // availableInVersion
-    QVERIFY(itemMetaInfo.availableInVersion(2, 2));
-    QVERIFY(itemMetaInfo.availableInVersion(2, 0));
-    QVERIFY(itemMetaInfo.availableInVersion(-1, -1));
 }
 
 void tst_TestCore::testMetaInfoUncreatableType()
