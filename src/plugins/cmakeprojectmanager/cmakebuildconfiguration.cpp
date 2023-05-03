@@ -1182,12 +1182,6 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
     initialArguments.removeIf(
         [presetArgument](const QString &item) { return item == presetArgument; });
 
-    // Remove the -DQTC_KIT_DEFAULT_CONFIG_HASH argument
-    const QString presetHashArgument
-        = CMakeConfigurationKitAspect::kitDefaultConfigHashItem(k).toArgument();
-    initialArguments.removeIf(
-        [presetHashArgument](const QString &item) { return item == presetHashArgument; });
-
     PresetsDetails::ConfigurePreset configurePreset
         = Utils::findOrDefault(project->presetsData().configurePresets,
                                [presetName](const PresetsDetails::ConfigurePreset &preset) {

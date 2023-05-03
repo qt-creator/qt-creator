@@ -46,7 +46,6 @@ struct DirectoryData
 
     QString cmakePresetDisplayname;
     QString cmakePreset;
-    QByteArray cmakePresetDefaultConfigHash;
 
     // Kit Stuff
     FilePath cmakeBinary;
@@ -731,9 +730,6 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         // Update QT_QMAKE_EXECUTABLE and CMAKE_C|XX_COMPILER config values
         updateConfigWithDirectoryData(config, data);
 
-        data->cmakePresetDefaultConfigHash
-            = CMakeConfigurationKitAspect::computeDefaultConfigHash(config, data->cmakeBinary);
-
         QByteArrayList buildConfigurationTypes = {cache.valueOf("CMAKE_BUILD_TYPE")};
         if (buildConfigurationTypes.front().isEmpty()) {
             buildConfigurationTypes.clear();
@@ -862,36 +858,50 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     if (data->qt.qt && QtSupport::QtKitAspect::qtVersionId(k) != data->qt.qt->uniqueId())
         return false;
 
+    const bool compilersMatch = [k, data] {
+        const QList<Id> allLanguages = ToolChainManager::allLanguages();
+        for (const ToolChainDescription &tcd : data->toolChains) {
+            if (!Utils::contains(allLanguages,
+                                 [&tcd](const Id &language) { return language == tcd.language; }))
+                continue;
+            ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
+            if ((!tc || !tc->matchesCompilerCommand(tcd.compilerPath))) {
+                return false;
+            }
+        }
+        return true;
+    }();
+    const bool noCompilers = [k, data] {
+        const QList<Id> allLanguages = ToolChainManager::allLanguages();
+        for (const ToolChainDescription &tcd : data->toolChains) {
+            if (!Utils::contains(allLanguages,
+                                 [&tcd](const Id &language) { return language == tcd.language; }))
+                continue;
+            ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
+            if (tc && tc->matchesCompilerCommand(tcd.compilerPath)) {
+                return false;
+            }
+        }
+        return true;
+    }();
+
     bool haveCMakePreset = false;
     if (!data->cmakePreset.isEmpty()) {
         const auto presetConfigItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
-        const auto kitConfigHashItem = CMakeConfigurationKitAspect::kitDefaultConfigHashItem(k);
 
         const QString presetName = presetConfigItem.expandedValue(k);
-        const bool haveSameKitConfigHash = kitConfigHashItem.isNull()
-                                               ? true
-                                               : data->cmakePresetDefaultConfigHash
-                                                     == kitConfigHashItem.value;
-
-        if (data->cmakePreset != presetName || !haveSameKitConfigHash)
+        if (data->cmakePreset != presetName)
             return false;
 
         ensureBuildDirectory(*data, k);
         haveCMakePreset = true;
     }
 
-    const QList<Id> allLanguages = ToolChainManager::allLanguages();
-    for (const ToolChainDescription &tcd : data->toolChains) {
-        if (!Utils::contains(allLanguages, [&tcd](const Id& language) {return language == tcd.language;}))
-            continue;
-        ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
-        if ((!tc || !tc->matchesCompilerCommand(tcd.compilerPath)) && !haveCMakePreset) {
-            return false;
-        }
-    }
+    if (!compilersMatch && !(haveCMakePreset && noCompilers))
+        return false;
 
     qCDebug(cmInputLog) << k->displayName()
-                          << "matches directoryData for" << data->buildDirectory.toUserOutput();
+                        << "matches directoryData for" << data->buildDirectory.toUserOutput();
     return true;
 }
 
@@ -930,7 +940,6 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
                 QString("%1 (CMake preset)").arg(data->cmakePresetDisplayname));
 
             CMakeConfigurationKitAspect::setCMakePreset(k, data->cmakePreset);
-            CMakeConfigurationKitAspect::setKitDefaultConfigHash(k);
         }
         if (!data->cmakePreset.isEmpty())
             ensureBuildDirectory(*data, k);

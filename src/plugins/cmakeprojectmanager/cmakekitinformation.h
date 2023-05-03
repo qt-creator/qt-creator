@@ -91,11 +91,6 @@ public:
     static void setCMakePreset(ProjectExplorer::Kit *k, const QString &presetName);
     static CMakeConfigItem cmakePresetConfigItem(const ProjectExplorer::Kit *k);
 
-    static void setKitDefaultConfigHash(ProjectExplorer::Kit *k);
-    static CMakeConfigItem kitDefaultConfigHashItem(const ProjectExplorer::Kit *k);
-    static QByteArray computeDefaultConfigHash(const CMakeConfig &config,
-                                               const Utils::FilePath &cmakeBinary);
-
     // KitAspect interface
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;
     void setup(ProjectExplorer::Kit *k) final;

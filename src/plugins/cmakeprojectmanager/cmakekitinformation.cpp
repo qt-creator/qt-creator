@@ -38,7 +38,6 @@
 #include <utils/variablechooser.h>
 
 #include <QComboBox>
-#include <QCryptographicHash>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QGridLayout>
@@ -874,7 +873,6 @@ const char CMAKE_CXX_TOOLCHAIN_KEY[] = "CMAKE_CXX_COMPILER";
 const char CMAKE_QMAKE_KEY[] = "QT_QMAKE_EXECUTABLE";
 const char CMAKE_PREFIX_PATH_KEY[] = "CMAKE_PREFIX_PATH";
 const char QTC_CMAKE_PRESET_KEY[] = "QTC_CMAKE_PRESET";
-const char QTC_KIT_DEFAULT_CONFIG_HASH[] = "QTC_KIT_DEFAULT_CONFIG_HASH";
 
 class CMakeConfigurationKitAspectWidget final : public KitAspectWidget
 {
@@ -1133,51 +1131,6 @@ CMakeConfigItem CMakeConfigurationKitAspect::cmakePresetConfigItem(const Project
     return Utils::findOrDefault(config, [](const CMakeConfigItem &item) {
         return item.key == QTC_CMAKE_PRESET_KEY;
     });
-}
-
-void CMakeConfigurationKitAspect::setKitDefaultConfigHash(ProjectExplorer::Kit *k)
-{
-    const CMakeConfig defaultConfigExpanded
-        = Utils::transform(defaultConfiguration(k).toList(), [k](const CMakeConfigItem &item) {
-              CMakeConfigItem expanded(item);
-              expanded.value = item.expandedValue(k).toUtf8();
-              return expanded;
-          });
-    const CMakeTool *const tool = CMakeKitAspect::cmakeTool(k);
-    const QByteArray kitHash = computeDefaultConfigHash(defaultConfigExpanded,
-                                                        tool ? tool->cmakeExecutable()
-                                                             : FilePath());
-
-    CMakeConfig config = configuration(k);
-    config.append(CMakeConfigItem(QTC_KIT_DEFAULT_CONFIG_HASH, CMakeConfigItem::INTERNAL, kitHash));
-
-    setConfiguration(k, config);
-}
-
-CMakeConfigItem CMakeConfigurationKitAspect::kitDefaultConfigHashItem(const ProjectExplorer::Kit *k)
-{
-    const CMakeConfig config = configuration(k);
-    return Utils::findOrDefault(config, [](const CMakeConfigItem &item) {
-        return item.key == QTC_KIT_DEFAULT_CONFIG_HASH;
-    });
-}
-
-QByteArray CMakeConfigurationKitAspect::computeDefaultConfigHash(const CMakeConfig &config,
-                                                                 const FilePath &cmakeBinary)
-{
-    const CMakeConfig defaultConfig = defaultConfiguration(nullptr);
-    const QByteArray configValues = std::accumulate(defaultConfig.begin(),
-                                                    defaultConfig.end(),
-                                                    QByteArray(),
-                                                    [config](QByteArray &sum,
-                                                             const CMakeConfigItem &item) {
-                                                        return sum += config.valueOf(item.key);
-                                                    });
-    return QCryptographicHash::hash(cmakeBinary.caseSensitivity() == Qt::CaseInsensitive
-                                        ? configValues.toLower()
-                                        : configValues,
-                                    QCryptographicHash::Md5)
-        .toHex();
 }
 
 QVariant CMakeConfigurationKitAspect::defaultValue(const Kit *k) const
