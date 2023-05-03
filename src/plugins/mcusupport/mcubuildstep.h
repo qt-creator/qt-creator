@@ -11,7 +11,7 @@
 
 #include <QTemporaryDir>
 
-namespace QmlProjectManager {
+namespace McuSupport::Internal {
 
 class DeployMcuProcessStep : public ProjectExplorer::AbstractProcessStep
 {
@@ -30,8 +30,8 @@ class MCUBuildStepFactory : public ProjectExplorer::BuildStepFactory
 {
 public:
     MCUBuildStepFactory();
-    static void attachToTarget(ProjectExplorer::Target *target);
     static ProjectExplorer::Kit *findMostRecentQulKit();
+    static void updateDeployStep(ProjectExplorer::Target *target, bool enabled);
 };
 
-} // namespace QmlProjectManager
+} // namespace McuSupport::Internal

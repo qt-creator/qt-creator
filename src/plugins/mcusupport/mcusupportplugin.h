@@ -7,6 +7,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <projectexplorer/target.h>
+
 namespace McuSupport::Internal {
 
 void printMessage(const QString &message, bool important);
@@ -25,6 +27,8 @@ public:
     void askUserAboutMcuSupportKitsSetup();
     static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settingsHandler);
     static void askUserAboutRemovingUninstalledTargetsKits();
+
+    Q_INVOKABLE static void updateDeployStep(ProjectExplorer::Target *target, bool enabled);
 };
 
 } // McuSupport::Internal

@@ -3,7 +3,6 @@
 
 #include "qmlbuildsystem.h"
 #include "qmlprojectconstants.h"
-#include "mcubuildstep.h"
 
 #include <QtCore5Compat/qtextcodec.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -17,6 +16,10 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
+#include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -41,6 +44,31 @@ namespace {
 Q_LOGGING_CATEGORY(infoLogger, "QmlProjectManager.QmlBuildSystem", QtInfoMsg)
 }
 
+ExtensionSystem::IPlugin *findMcuSupportPlugin()
+{
+    const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
+        ExtensionSystem::PluginManager::plugins(),
+        Utils::equal(&ExtensionSystem::PluginSpec::name, QString("McuSupport")));
+
+    if (pluginSpec)
+        return pluginSpec->plugin();
+    return nullptr;
+}
+
+void updateMcuBuildStep(Target *target, bool mcuEnabled)
+{
+    if (auto plugin = findMcuSupportPlugin()) {
+        QMetaObject::invokeMethod(
+            plugin,
+            "updateDeployStep",
+            Qt::DirectConnection,
+            Q_ARG(ProjectExplorer::Target*, target),
+            Q_ARG(bool, mcuEnabled));
+    } else if (mcuEnabled) {
+        qWarning() << "Failed to find McuSupport plugin but qtForMCUs is enabled in the project";
+    }
+}
+
 QmlBuildSystem::QmlBuildSystem(Target *target)
     : BuildSystem(target)
 {
@@ -52,11 +80,11 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
 
     connect(target->project(), &Project::activeTargetChanged, [this](Target *target) {
         refresh(RefreshOptions::NoFileRefresh);
-        if (qtForMCUs())
-            MCUBuildStepFactory::attachToTarget(target);
+        updateMcuBuildStep(target, qtForMCUs());
     });
     connect(target->project(), &Project::projectFileIsDirty, [this]() {
         refresh(RefreshOptions::Project);
+        updateMcuBuildStep(project()->activeTarget(), qtForMCUs());
     });
 
     // FIXME: Check. Probably bogus after the BuildSystem move.

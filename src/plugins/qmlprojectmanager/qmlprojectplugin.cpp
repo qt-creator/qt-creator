@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "mcubuildstep.h"
 #include "qdslandingpage.h"
 #include "qmlprojectplugin.h"
 #include "qmlproject.h"
@@ -94,7 +93,6 @@ public:
     QPointer<QMessageBox> lastMessageBox;
     QdsLandingPage *landingPage = nullptr;
     QdsLandingPageWidget *landingPageWidget = nullptr;
-    MCUBuildStepFactory mcuBuildStepFactory;
 };
 
 QmlProjectPlugin::~QmlProjectPlugin()

@@ -3,6 +3,7 @@
 
 #include "mcusupportplugin.h"
 
+#include "mcubuildstep.h"
 #include "mcukitinformation.h"
 #include "mcukitmanager.h"
 #include "mcuqmlprojectnode.h"
@@ -98,6 +99,7 @@ public:
     McuSupportOptions m_options{m_settingsHandler};
     McuSupportOptionsPage optionsPage{m_options, m_settingsHandler};
     McuDependenciesKitAspect environmentPathsKitAspect;
+    MCUBuildStepFactory mcuBuildStepFactory;
 }; // class McuSupportPluginPrivate
 
 static McuSupportPluginPrivate *dd{nullptr};
@@ -217,6 +219,11 @@ void McuSupportPlugin::askUserAboutRemovingUninstalledTargetsKits()
     });
 
     ICore::infoBar()->addInfo(info);
+}
+
+void McuSupportPlugin::updateDeployStep(ProjectExplorer::Target *target, bool enabled)
+{
+    MCUBuildStepFactory::updateDeployStep(target, enabled);
 }
 
 } // namespace McuSupport::Internal
