@@ -12,6 +12,7 @@
 #include "utils/fileextractor.h"
 
 #include <coreplugin/icore.h>
+#include <designerpaths.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
@@ -122,8 +123,7 @@ ContentLibraryWidget::ContentLibraryWidget()
     m_texturesUrl = m_baseUrl + "/Textures";
     m_environmentsUrl = m_baseUrl + "/Environments";
 
-    m_downloadPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
-                     + "/QtDesignStudio/bundles";
+    m_downloadPath = Paths::bundlesPathSetting();
 
     loadTextureBundle();
 
