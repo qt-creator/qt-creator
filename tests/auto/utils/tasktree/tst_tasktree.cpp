@@ -1216,7 +1216,7 @@ void tst_TaskTree::testTree_data()
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
             Group {
                 OnGroupSetup(groupSetup(2)),
-                WaitForBarrier(barrier),
+                WaitForBarrierTask(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
             }
@@ -1239,7 +1239,7 @@ void tst_TaskTree::testTree_data()
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
             Group {
                 OnGroupSetup(groupSetup(2)),
-                WaitForBarrier(barrier),
+                WaitForBarrierTask(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
             }
@@ -1268,7 +1268,7 @@ void tst_TaskTree::testTree_data()
             parallel,
             Group {
                 OnGroupSetup(groupSetup(2)),
-                WaitForBarrier(barrier),
+                WaitForBarrierTask(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
             },
@@ -1292,12 +1292,12 @@ void tst_TaskTree::testTree_data()
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
             Group {
                 OnGroupSetup(groupSetup(2)),
-                WaitForBarrier(barrier),
+                WaitForBarrierTask(barrier),
                 Test(setupTask(4))
             },
             Group {
                 OnGroupSetup(groupSetup(3)),
-                WaitForBarrier(barrier),
+                WaitForBarrierTask(barrier),
                 Test(setupTask(5))
             }
         };
@@ -1325,8 +1325,8 @@ void tst_TaskTree::testTree_data()
                 Group {
                     parallel,
                     OnGroupSetup(groupSetup(1)),
-                    WaitForBarrier(barrier),
-                    WaitForBarrier(barrier2)
+                    WaitForBarrierTask(barrier),
+                    WaitForBarrierTask(barrier2)
                 },
                 Test(setupTask(2))
             },
@@ -1367,7 +1367,7 @@ void tst_TaskTree::testTree_data()
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 2)),
             Group {
                 OnGroupSetup(groupSetup(2)),
-                WaitForBarrier(barrier),
+                WaitForBarrierTask(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
             }
@@ -1393,7 +1393,7 @@ void tst_TaskTree::testTree_data()
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
             Group {
                 OnGroupSetup(groupSetup(2)),
-                WaitForBarrier(barrier),
+                WaitForBarrierTask(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
             }
@@ -1424,7 +1424,7 @@ void tst_TaskTree::testTree_data()
             parallel,
             Group {
                 OnGroupSetup(groupSetup(2)),
-                WaitForBarrier(barrier),
+                WaitForBarrierTask(barrier),
                 Test(setupTask(2)),
                 Test(setupTask(3))
             },
@@ -1452,12 +1452,12 @@ void tst_TaskTree::testTree_data()
             AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
             Group {
                 OnGroupSetup(groupSetup(2)),
-                WaitForBarrier(barrier),
+                WaitForBarrierTask(barrier),
                 Test(setupTask(4))
             },
             Group {
                 OnGroupSetup(groupSetup(3)),
-                WaitForBarrier(barrier),
+                WaitForBarrierTask(barrier),
                 Test(setupTask(5))
             }
         };

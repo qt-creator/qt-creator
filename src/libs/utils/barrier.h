@@ -34,16 +34,16 @@ private:
     int m_current = -1;
 };
 
-class QTCREATOR_UTILS_EXPORT BarrierAdapter : public Tasking::TaskAdapter<Barrier>
+class QTCREATOR_UTILS_EXPORT BarrierTaskAdapter : public Tasking::TaskAdapter<Barrier>
 {
 public:
-    BarrierAdapter() { connect(task(), &Barrier::done, this, &TaskInterface::done); }
+    BarrierTaskAdapter() { connect(task(), &Barrier::done, this, &TaskInterface::done); }
     void start() final { task()->start(); }
 };
 
 } // namespace Utils
 
-QTC_DECLARE_CUSTOM_TASK(BarrierTask, Utils::BarrierAdapter);
+QTC_DECLARE_CUSTOM_TASK(BarrierTask, Utils::BarrierTaskAdapter);
 
 namespace Utils::Tasking {
 
@@ -70,11 +70,11 @@ using MultiBarrier = TreeStorage<SharedBarrier<Limit>>;
 // alias template deduction only available with C++20.
 using SingleBarrier = MultiBarrier<1>;
 
-class QTCREATOR_UTILS_EXPORT WaitForBarrier : public BarrierTask
+class QTCREATOR_UTILS_EXPORT WaitForBarrierTask : public BarrierTask
 {
 public:
     template <int Limit>
-    WaitForBarrier(const MultiBarrier<Limit> &sharedBarrier)
+    WaitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
         : BarrierTask([sharedBarrier](Barrier &barrier) {
             SharedBarrier<Limit> *activeBarrier = sharedBarrier.activeStorage();
             if (!activeBarrier) {
