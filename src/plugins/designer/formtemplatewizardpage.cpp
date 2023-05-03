@@ -58,7 +58,7 @@ bool FormPageFactory::validateData(Utils::Id typeId, const QVariant &data, QStri
 
 FormTemplateWizardPage::FormTemplateWizardPage(QWidget * parent) :
     Utils::WizardPage(parent),
-    m_newFormWidget(QDesignerNewFormWidgetInterface::createNewFormWidget(FormEditorW::designerEditor())),
+    m_newFormWidget(QDesignerNewFormWidgetInterface::createNewFormWidget(designerEditor())),
     m_templateSelected(m_newFormWidget->hasCurrentTemplate())
 {
     setTitle(Tr::tr("Choose a Form Template"));

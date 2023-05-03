@@ -28,7 +28,7 @@ EditorWidget::EditorWidget(QWidget *parent) :
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    QWidget * const*subs = FormEditorW::designerSubWindows();
+    QWidget * const * subs = designerSubWindows();
     for (int i = 0; i < DesignerSubWindowCount; i++) {
         QWidget *subWindow = subs[i];
         subWindow->setWindowTitle(subs[i]->windowTitle());

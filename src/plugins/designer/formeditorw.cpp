@@ -123,9 +123,9 @@ public:
     }
 };
 
-// --------- FormEditorW
+// FormEditorData
 
-class FormEditorData
+class FormEditorData : public QObject
 {
 public:
     FormEditorData();
@@ -173,7 +173,7 @@ public:
     QDesignerFormEditorInterface *m_formeditor = nullptr;
     QtCreatorIntegration *m_integration = nullptr;
     QDesignerFormWindowManagerInterface *m_fwm = nullptr;
-    FormEditorW::InitializationStage m_initStage = FormEditorW::RegisterPlugins;
+    InitializationStage m_initStage = RegisterPlugins;
 
     QWidget *m_designerSubWindows[DesignerSubWindowCount];
 
@@ -202,7 +202,6 @@ public:
 };
 
 static FormEditorData *d = nullptr;
-static FormEditorW *m_instance = nullptr;
 
 FormEditorData::FormEditorData() :
     m_formeditor(QDesignerComponents::createFormEditor(nullptr))
@@ -238,7 +237,7 @@ FormEditorData::FormEditorData() :
         if (editor && editor->document()->id() == Constants::K_DESIGNER_XML_EDITOR_ID) {
             FormWindowEditor *xmlEditor = qobject_cast<FormWindowEditor *>(editor);
             QTC_ASSERT(xmlEditor, return);
-            FormEditorW::ensureInitStage(FormEditorW::FullyInitialized);
+            ensureInitStage(FullyInitialized);
             SharedTools::WidgetHost *fw = m_editorWidget->formWindowEditorForXmlEditor(xmlEditor);
             QTC_ASSERT(fw, return);
             m_editorWidget->setVisibleEditor(xmlEditor);
@@ -251,7 +250,7 @@ FormEditorData::FormEditorData() :
 
 FormEditorData::~FormEditorData()
 {
-    if (m_initStage == FormEditorW::FullyInitialized) {
+    if (m_initStage == FullyInitialized) {
         QSettings *s = ICore::settings();
         s->beginGroup(settingsGroupC);
         m_editorWidget->saveSettings(s);
@@ -324,18 +323,18 @@ void FormEditorData::setupViewActions()
 
 void FormEditorData::fullInit()
 {
-    QTC_ASSERT(m_initStage == FormEditorW::RegisterPlugins, return);
+    QTC_ASSERT(m_initStage == RegisterPlugins, return);
     QElapsedTimer *initTime = nullptr;
     if (Designer::Constants::Internal::debug) {
         initTime = new QElapsedTimer;
         initTime->start();
     }
 
-    QDesignerComponents::createTaskMenu(m_formeditor, m_instance);
+    QDesignerComponents::createTaskMenu(m_formeditor, this);
     QDesignerComponents::initializePlugins(m_formeditor);
     QDesignerComponents::initializeResources();
     initDesignerSubWindows();
-    m_integration = new QtCreatorIntegration(m_formeditor, m_instance);
+    m_integration = new QtCreatorIntegration(m_formeditor, this);
     m_formeditor->setIntegration(m_integration);
     // Connect Qt Designer help request to HelpManager.
     QObject::connect(m_integration, &QtCreatorIntegration::creatorHelpRequested,
@@ -397,13 +396,13 @@ void FormEditorData::fullInit()
 
     Context designerContexts = m_contexts;
     designerContexts.add(Core::Constants::C_EDITORMANAGER);
-    ICore::addContextObject(new DesignerContext(designerContexts, m_modeWidget, m_instance));
+    ICore::addContextObject(new DesignerContext(designerContexts, m_modeWidget, this));
 
     DesignMode::registerDesignWidget(m_modeWidget, QStringList(FORM_MIMETYPE), m_contexts);
 
     setupViewActions();
 
-    m_initStage = FormEditorW::FullyInitialized;
+    m_initStage = FullyInitialized;
 }
 
 void FormEditorData::initDesignerSubWindows()
@@ -438,22 +437,21 @@ void FormEditorData::initDesignerSubWindows()
     ae->setObjectName("ActionEditor");
     m_formeditor->setActionEditor(ae);
     m_designerSubWindows[ActionEditorSubWindow] = ae;
-    m_initStage = FormEditorW::SubwindowsInitialized;
+    m_initStage = SubwindowsInitialized;
 }
 
-QList<IOptionsPage *> FormEditorW::optionsPages()
+QList<IOptionsPage *> optionsPages()
 {
     return d->m_settingsPages;
 }
 
-void FormEditorW::ensureInitStage(InitializationStage s)
+void ensureInitStage(InitializationStage s)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << s;
-    if (!d) {
-        m_instance = new FormEditorW;
+    if (!d)
         d = new FormEditorData;
-    }
+
     if (d->m_initStage >= s)
         return;
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -461,15 +459,13 @@ void FormEditorW::ensureInitStage(InitializationStage s)
     QApplication::restoreOverrideCursor();
 }
 
-void FormEditorW::deleteInstance()
+void deleteInstance()
 {
     delete d;
     d = nullptr;
-    delete m_instance;
-    m_instance = nullptr;
 }
 
-IEditor *FormEditorW::createEditor()
+IEditor *createEditor()
 {
     ensureInitStage(FullyInitialized);
     return d->createEditor();
@@ -489,7 +485,7 @@ void FormEditorData::setupActions()
     bindShortcut(ActionManager::registerAction(m_fwm->actionPaste(), Core::Constants::PASTE, m_contexts), m_fwm->actionPaste());
     bindShortcut(ActionManager::registerAction(m_fwm->actionSelectAll(), Core::Constants::SELECTALL, m_contexts), m_fwm->actionSelectAll());
 
-    m_actionPrint = new QAction(m_instance);
+    m_actionPrint = new QAction(this);
     bindShortcut(ActionManager::registerAction(m_actionPrint, Core::Constants::PRINT, m_contexts), m_actionPrint);
     QObject::connect(m_actionPrint, &QAction::triggered, [this]() { print(); });
 
@@ -502,7 +498,7 @@ void FormEditorData::setupActions()
     command->setAttribute(Command::CA_Hide);
     medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
-    m_actionGroupEditMode = new QActionGroup(m_instance);
+    m_actionGroupEditMode = new QActionGroup(this);
     m_actionGroupEditMode->setExclusive(true);
     QObject::connect(m_actionGroupEditMode, &QActionGroup::triggered,
             [this](QAction *a) { activateEditMode(a->data().toInt()); });
@@ -601,7 +597,7 @@ void FormEditorData::setupActions()
                   QString(), Core::Constants::G_DEFAULT_THREE);
 
     mformtools->addSeparator(m_contexts, Core::Constants::G_DEFAULT_THREE);
-    m_actionAboutPlugins = new QAction(Tr::tr("About Qt Designer Plugins..."), m_instance);
+    m_actionAboutPlugins = new QAction(Tr::tr("About Qt Designer Plugins..."), d);
     addToolAction(m_actionAboutPlugins, m_contexts, "FormEditor.AboutPlugins", mformtools,
                   QString(), Core::Constants::G_DEFAULT_THREE);
     QObject::connect(m_actionAboutPlugins, &QAction::triggered,
@@ -760,19 +756,19 @@ IEditor *FormEditorData::createEditor()
     return formWindowEditor;
 }
 
-QDesignerFormEditorInterface *FormEditorW::designerEditor()
+QDesignerFormEditorInterface *designerEditor()
 {
     ensureInitStage(FullyInitialized);
     return d->m_formeditor;
 }
 
-QWidget * const *FormEditorW::designerSubWindows()
+QWidget * const *designerSubWindows()
 {
     ensureInitStage(SubwindowsInitialized);
     return d->m_designerSubWindows;
 }
 
-SharedTools::WidgetHost *FormEditorW::activeWidgetHost()
+SharedTools::WidgetHost *activeWidgetHost()
 {
     ensureInitStage(FullyInitialized);
     if (d->m_editorWidget)
@@ -780,7 +776,7 @@ SharedTools::WidgetHost *FormEditorW::activeWidgetHost()
     return nullptr;
 }
 
-FormWindowEditor *FormEditorW::activeEditor()
+FormWindowEditor *activeEditor()
 {
     ensureInitStage(FullyInitialized);
     if (d->m_editorWidget)

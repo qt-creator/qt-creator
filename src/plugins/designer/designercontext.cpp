@@ -25,7 +25,7 @@ DesignerContext::DesignerContext(const Core::Context &context,
 
 void DesignerContext::contextHelp(const HelpCallback &callback) const
 {
-    const QDesignerFormEditorInterface *core = FormEditorW::designerEditor();
+    const QDesignerFormEditorInterface *core = designerEditor();
     callback(core->integration()->contextHelpId());
 }
 

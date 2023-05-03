@@ -1,9 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "settingspage.h"
+
+#include "designerconstants.h"
 #include "designertr.h"
 #include "formeditorw.h"
-#include "settingspage.h"
 
 #include <coreplugin/icontext.h>
 
@@ -54,9 +56,9 @@ QList<Core::IOptionsPage *> SettingsPageProvider::pages() const
     if (!m_initialized) {
         // get options pages from designer
         m_initialized = true;
-        FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
+        ensureInitStage(RegisterPlugins);
     }
-    return FormEditorW::optionsPages();
+    return optionsPages();
 }
 
 bool SettingsPageProvider::matches(const QRegularExpression &regex) const

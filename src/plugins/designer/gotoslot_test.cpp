@@ -147,7 +147,7 @@ public:
         waitForFilesInGlobalSnapshot({cppFile, hFile});
 
         // Execute "Go To Slot"
-        QDesignerIntegrationInterface *integration = FormEditorW::designerEditor()->integration();
+        QDesignerIntegrationInterface *integration = designerEditor()->integration();
         QVERIFY(integration);
         integration->emitNavigateToSlot("pushButton", "clicked()", QStringList());
 
