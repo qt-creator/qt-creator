@@ -25,7 +25,8 @@ def verifyChecked(objectName, checked=True):
     test.compare(object.checked, checked)
     return object
 
-def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):
+
+def ensureChecked(objectName, shouldBeChecked=True, timeout=20000, silent=False):
     if shouldBeChecked:
         targetState = Qt.Checked
         state = "checked"
@@ -39,14 +40,13 @@ def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):
         while not waitFor('widget.checkState() == targetState', 1500) and clicked < 2:
             clickButton(widget)
             clicked += 1
-        test.verify(waitFor("widget.checkState() == targetState", 1000))
+        silent or test.verify(waitFor("widget.checkState() == targetState", 1000))
     except:
         # widgets not derived from QCheckbox don't have checkState()
         if not waitFor('widget.checked == shouldBeChecked', 1500):
             mouseClick(widget)
-        test.verify(waitFor("widget.checked == shouldBeChecked", 1000))
-    test.log("New state for QCheckBox: %s" % state,
-             str(objectName))
+        silent or test.verify(waitFor("widget.checked == shouldBeChecked", 1000))
+    silent or test.log("New state for QCheckBox: %s" % state, str(objectName))
     return widget
 
 # verify that an object is in an expected enable state. Returns the object.

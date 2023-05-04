@@ -25,7 +25,7 @@ def toggleIssuesFilter(filterName, checked):
 
 
 def getBuildIssues(ignoreCodeModel=True):
-    ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
+    ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton" , silent=True)
     model = waitForObject(":Qt Creator.Issues_QListView").model()
     if ignoreCodeModel:
         # filter out possible code model issues present inside the Issues pane
