@@ -153,8 +153,7 @@ void AndroidPlugin::kitsRestored()
 
 void AndroidPlugin::askUserAboutAndroidSetup()
 {
-    if (!Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(), kSetupAndroidSetting)
-        || !Core::ICore::infoBar()->canInfoBeAdded(kSetupAndroidSetting))
+    if (!Core::ICore::infoBar()->canInfoBeAdded(kSetupAndroidSetting))
         return;
 
     Utils::InfoBarEntry
