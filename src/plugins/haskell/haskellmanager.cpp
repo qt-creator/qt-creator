@@ -87,25 +87,17 @@ void HaskellManager::openGhci(const FilePath &haskellFile)
     });
     const auto args = QStringList{"ghci"}
                       + (isHaskell ? QStringList{haskellFile.fileName()} : QStringList());
-    auto p = new Process(m_instance);
-    p->setTerminalMode(TerminalMode::On);
-    p->setCommand({stackExecutable(), args});
-    p->setWorkingDirectory(haskellFile.absolutePath());
-    connect(p, &Process::done, p, [p] {
-        if (p->result() != ProcessResult::FinishedWithSuccess) {
-            Core::MessageManager::writeDisrupting(
-                Tr::tr("Failed to run GHCi: \"%1\".").arg(p->errorString()));
-        }
-        p->deleteLater();
-    });
-    p->start();
+    Process p;
+    p.setTerminalMode(TerminalMode::Detached);
+    p.setCommand({stackExecutable(), args});
+    p.setWorkingDirectory(haskellFile.absolutePath());
+    p.start();
 }
 
 void HaskellManager::readSettings(QSettings *settings)
 {
     m_d->stackExecutable = FilePath::fromString(
-                settings->value(kStackExecutableKey,
-                                defaultStackExecutable().toString()).toString());
+        settings->value(kStackExecutableKey, defaultStackExecutable().toString()).toString());
     emit m_instance->stackExecutableChanged(m_d->stackExecutable);
 }
 

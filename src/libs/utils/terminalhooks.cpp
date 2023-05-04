@@ -7,6 +7,7 @@
 #include "process.h"
 #include "terminalcommand.h"
 #include "terminalinterface.h"
+#include "utilstr.h"
 
 #include <QMutex>
 #include <QTemporaryFile>
@@ -39,24 +40,20 @@ class ExternalTerminalProcessImpl final : public TerminalInterface
             : m_interface(interface)
         {}
 
-        void startStubProcess(const CommandLine &cmd, const ProcessSetupData &) override
+        ~ProcessStubCreator() override = default;
+
+        expected_str<qint64> startStubProcess(const CommandLine &cmd,
+                                              const ProcessSetupData &setupData) override
         {
             const TerminalCommand terminal = TerminalCommand::terminalEmulator();
 
-            if (HostOsInfo::isWindowsHost()) {
-                m_terminalProcess.setCommand(cmd);
-                QObject::connect(&m_terminalProcess, &Process::done, this, [this] {
-                    m_interface->onStubExited();
-                });
-                m_terminalProcess.setCreateConsoleOnWindows(true);
-                m_terminalProcess.setProcessMode(ProcessMode::Writer);
-                m_terminalProcess.start();
-            } else if (HostOsInfo::isMacHost() && terminal.command == "Terminal.app") {
+            if (HostOsInfo::isMacHost() && terminal.command == "Terminal.app") {
                 QTemporaryFile f;
                 f.setAutoRemove(false);
                 f.open();
                 f.setPermissions(QFile::ExeUser | QFile::ReadUser | QFile::WriteUser);
                 f.write("#!/bin/sh\n");
+                f.write(QString("cd %1\n").arg(setupData.m_workingDirectory.nativePath()).toUtf8());
                 f.write("clear\n");
                 f.write(QString("exec '%1' %2\n")
                             .arg(cmd.executable().nativePath())
@@ -69,20 +66,59 @@ class ExternalTerminalProcessImpl final : public TerminalInterface
                     = QString("tell app \"Terminal\" to do script \"'%1'; rm -f '%1'; exit\"")
                           .arg(path);
 
-                m_terminalProcess.setCommand(
-                    {"osascript", {"-e", "tell app \"Terminal\" to activate", "-e", exe}});
-                m_terminalProcess.runBlocking();
-            } else {
-                CommandLine cmdLine = {terminal.command, {terminal.executeArgs}};
-                cmdLine.addCommandLineAsArgs(cmd, CommandLine::Raw);
+                Process process;
 
-                m_terminalProcess.setCommand(cmdLine);
-                m_terminalProcess.start();
+                process.setCommand(
+                    {"osascript", {"-e", "tell app \"Terminal\" to activate", "-e", exe}});
+                process.runBlocking();
+
+                if (process.exitCode() != 0) {
+                    return make_unexpected(Tr::tr("Failed to start terminal process: \"%1\"")
+                                               .arg(process.errorString()));
+                }
+
+                return 0;
             }
+
+            bool detached = setupData.m_terminalMode == TerminalMode::Detached;
+
+            Process *process = new Process(detached ? nullptr : this);
+            if (detached)
+                QObject::connect(process, &Process::done, process, &Process::deleteLater);
+
+            QObject::connect(process,
+                             &Process::done,
+                             m_interface,
+                             &ExternalTerminalProcessImpl::onStubExited);
+
+            process->setWorkingDirectory(setupData.m_workingDirectory);
+
+            if constexpr (HostOsInfo::isWindowsHost()) {
+                process->setCommand(cmd);
+                process->setCreateConsoleOnWindows(true);
+                process->setProcessMode(ProcessMode::Writer);
+            } else {
+                QString extraArgsFromOptions = detached ? terminal.openArgs : terminal.executeArgs;
+                CommandLine cmdLine = {terminal.command, {}};
+                if (!extraArgsFromOptions.isEmpty())
+                    cmdLine.addArgs(extraArgsFromOptions, CommandLine::Raw);
+                cmdLine.addCommandLineAsArgs(cmd, CommandLine::Raw);
+                process->setCommand(cmdLine);
+            }
+
+            process->start();
+            process->waitForStarted();
+            if (process->error() != QProcess::UnknownError) {
+                return make_unexpected(
+                    Tr::tr("Failed to start terminal process: \"%1\"").arg(process->errorString()));
+            }
+
+            qint64 pid = process->processId();
+
+            return pid;
         }
 
         ExternalTerminalProcessImpl *m_interface;
-        Process m_terminalProcess;
     };
 
 public:

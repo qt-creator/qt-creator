@@ -316,7 +316,6 @@ public:
     QThread m_shellThread;
     ShellThreadHandler *m_handler = nullptr;
     mutable QMutex m_shellMutex;
-    QList<Process *> m_terminals;
     LinuxDeviceFileAccess m_fileAccess{this};
 
     QReadWriteLock m_environmentCacheLock;
@@ -961,23 +960,7 @@ LinuxDevice::LinuxDevice()
     }});
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
-        Process * const proc = new Process;
-        d->m_terminals.append(proc);
-        QObject::connect(proc, &Process::done, proc, [this, proc] {
-            if (proc->error() != QProcess::UnknownError) {
-                const QString errorString = proc->errorString();
-                QString message;
-                if (proc->error() == QProcess::FailedToStart)
-                    message = Tr::tr("Error starting remote shell.");
-                else if (errorString.isEmpty())
-                    message = Tr::tr("Error running remote shell.");
-                else
-                    message = Tr::tr("Error running remote shell: %1").arg(errorString);
-                Core::MessageManager::writeDisrupting(message);
-            }
-            proc->deleteLater();
-            d->m_terminals.removeOne(proc);
-        });
+        Process proc;
 
         // If we will not set any environment variables, we can leave out the shell executable
         // as the "ssh ..." call will automatically launch the default shell if there are
@@ -985,11 +968,11 @@ LinuxDevice::LinuxDevice()
         // specify the shell executable.
         const QString shell = env.hasChanges() ? env.value_or("SHELL", "/bin/sh") : QString();
 
-        proc->setCommand({filePath(shell), {}});
-        proc->setTerminalMode(TerminalMode::On);
-        proc->setEnvironment(env);
-        proc->setWorkingDirectory(workingDir);
-        proc->start();
+        proc.setCommand({filePath(shell), {}});
+        proc.setTerminalMode(TerminalMode::Detached);
+        proc.setEnvironment(env);
+        proc.setWorkingDirectory(workingDir);
+        proc.start();
     });
 
     addDeviceAction({Tr::tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
@@ -1069,7 +1052,6 @@ LinuxDevicePrivate::LinuxDevicePrivate(LinuxDevice *parent)
 
 LinuxDevicePrivate::~LinuxDevicePrivate()
 {
-    qDeleteAll(m_terminals);
     auto closeShell = [this] {
         m_shellThread.quit();
         m_shellThread.wait();

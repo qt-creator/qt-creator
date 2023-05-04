@@ -106,6 +106,8 @@ static QStringList replImportArgs(const FilePath &pythonFile, ReplType type)
 
 void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
 {
+    Q_UNUSED(parent)
+
     static const auto workingDir = [](const FilePath &file) {
         if (file.isEmpty()) {
             if (Project *project = ProjectManager::startupProject())
@@ -116,23 +118,21 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
     };
 
     const auto args = QStringList{"-i"} + replImportArgs(file, type);
-    auto process = new Process(parent);
-    process->setTerminalMode(TerminalMode::On);
     const FilePath pythonCommand = detectPython(file);
-    process->setCommand({pythonCommand, args});
-    process->setWorkingDirectory(workingDir(file));
-    const QString commandLine = process->commandLine().toUserOutput();
-    QObject::connect(process, &Process::done, process, [process, commandLine] {
-        if (process->error() != QProcess::UnknownError) {
-            Core::MessageManager::writeDisrupting(Tr::tr(
-                  (process->error() == QProcess::FailedToStart)
-                      ? "Failed to run Python (%1): \"%2\"."
-                      : "Error while running Python (%1): \"%2\".")
-                  .arg(commandLine, process->errorString()));
-        }
-        process->deleteLater();
-    });
-    process->start();
+
+    Process process;
+    process.setCommand({pythonCommand, args});
+    process.setWorkingDirectory(workingDir(file));
+    process.setTerminalMode(TerminalMode::Detached);
+    process.start();
+
+    if (process.error() != QProcess::UnknownError) {
+        Core::MessageManager::writeDisrupting(
+            Tr::tr((process.error() == QProcess::FailedToStart)
+                       ? "Failed to run Python (%1): \"%2\"."
+                       : "Error while running Python (%1): \"%2\".")
+                .arg(process.commandLine().toUserOutput(), process.errorString()));
+    }
 }
 
 QString pythonName(const FilePath &pythonPath)

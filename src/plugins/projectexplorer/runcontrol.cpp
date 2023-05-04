@@ -1437,7 +1437,7 @@ void SimpleTargetRunner::start()
     d->m_stopForced = false;
     d->m_stopReported = false;
     d->disconnect(this);
-    d->m_process.setTerminalMode(useTerminal ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
+    d->m_process.setTerminalMode(useTerminal ? Utils::TerminalMode::Run : Utils::TerminalMode::Off);
     d->m_runAsRoot = runAsRoot;
 
     const QString msg = Tr::tr("Starting %1...").arg(d->m_command.displayName());

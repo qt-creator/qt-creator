@@ -300,6 +300,25 @@ void TerminalInterface::start()
     if (isRunning())
         return;
 
+    if (m_setup.m_terminalMode == TerminalMode::Detached) {
+        expected_str<qint64> result;
+        QMetaObject::invokeMethod(
+            d->stubCreator,
+            [this, &result] {
+                result = d->stubCreator->startStubProcess(m_setup.m_commandLine, m_setup);
+            },
+            d->stubCreator->thread() == QThread::currentThread() ? Qt::DirectConnection
+                                                                 : Qt::BlockingQueuedConnection);
+
+        if (result) {
+            emit started(*result, 0);
+            emitFinished(0, QProcess::NormalExit);
+        } else {
+            emitError(QProcess::FailedToStart, result.error());
+        }
+        return;
+    }
+
     const expected_str<void> result = startStubServer();
     if (!result) {
         emitError(QProcess::FailedToStart, msgCommChannelFailed(result.error()));
@@ -391,6 +410,8 @@ qint64 TerminalInterface::write(const QByteArray &data)
 }
 void TerminalInterface::sendControlSignal(ControlSignal controlSignal)
 {
+    QTC_ASSERT(m_setup.m_terminalMode != TerminalMode::Detached, return);
+
     switch (controlSignal) {
     case ControlSignal::Terminate:
     case ControlSignal::Kill:

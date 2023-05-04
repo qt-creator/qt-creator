@@ -25,9 +25,9 @@
 #include <QDateTime>
 
 #ifdef Q_OS_WIN
-#include <windows.h>
-#include <stdlib.h>
 #include <cstring>
+#include <stdlib.h>
+#include <windows.h>
 #endif
 
 using namespace ProjectExplorer::Constants;
@@ -52,23 +52,21 @@ DesktopDevice::DesktopDevice()
     setMachineType(IDevice::Hardware);
     setOsType(HostOsInfo::hostOs());
 
-    const QString portRange =
-            QString::fromLatin1("%1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END);
+    const QString portRange
+        = QString::fromLatin1("%1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END);
     setFreePorts(Utils::PortList::fromString(portRange));
 
-    setOpenTerminal([this](const Environment &env, const FilePath &path) {
+    setOpenTerminal([](const Environment &env, const FilePath &path) {
         const Environment realEnv = env.hasChanges() ? env : Environment::systemEnvironment();
 
         const FilePath shell = Terminal::defaultShellForDevice(path);
 
-        Process *process = new Process(d.get());
-        QObject::connect(process, &Process::done, process, &Process::deleteLater);
-
-        process->setTerminalMode(TerminalMode::On);
-        process->setEnvironment(realEnv);
-        process->setCommand({shell, {}});
-        process->setWorkingDirectory(path);
-        process->start();
+        Process process;
+        process.setTerminalMode(TerminalMode::Detached);
+        process.setEnvironment(realEnv);
+        process.setCommand({shell, {}});
+        process.setWorkingDirectory(path);
+        process.start();
     });
 }
 

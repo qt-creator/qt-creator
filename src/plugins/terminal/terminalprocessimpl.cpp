@@ -26,7 +26,8 @@ public:
         , m_process(interface)
     {}
 
-    void startStubProcess(const CommandLine &cmd, const ProcessSetupData &setup) override
+    expected_str<qint64> startStubProcess(const CommandLine &cmd,
+                                          const ProcessSetupData &setup) override
     {
         const Id id = Id::fromString(setup.m_commandLine.executable().toUserOutput());
 
@@ -51,6 +52,8 @@ public:
             if (process->inferiorProcessId())
                 process->emitFinished(-1, QProcess::CrashExit);
         });
+
+        return 0;
     }
 
     TerminalPane *m_terminalPane;

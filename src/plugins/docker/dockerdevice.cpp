@@ -437,21 +437,17 @@ DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &dat
             return;
         }
 
-        Process *proc = new Process(d);
+        Process proc;
+        proc.setTerminalMode(TerminalMode::Detached);
+        proc.setEnvironment(env);
+        proc.setWorkingDirectory(workingDir);
+        proc.setCommand({Terminal::defaultShellForDevice(rootPath()), {}});
+        proc.start();
 
-        QObject::connect(proc, &Process::done, [proc] {
-            if (proc->error() != QProcess::UnknownError && MessageManager::instance()) {
-                MessageManager::writeDisrupting(
-                    Tr::tr("Error starting remote shell: %1").arg(proc->errorString()));
-            }
-            proc->deleteLater();
-        });
-
-        proc->setTerminalMode(TerminalMode::On);
-        proc->setEnvironment(env);
-        proc->setWorkingDirectory(workingDir);
-        proc->setCommand({Terminal::defaultShellForDevice(rootPath()), {}});
-        proc->start();
+        if (proc.error() != QProcess::UnknownError && MessageManager::instance()) {
+            MessageManager::writeDisrupting(
+                Tr::tr("Error starting remote shell: %1").arg(proc.errorString()));
+        }
     });
 
     addDeviceAction({Tr::tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
@@ -1042,6 +1038,7 @@ public:
 
         using namespace Layouting;
 
+        // clang-format off
         Column {
             Stack {
                 statusLabel,
@@ -1050,9 +1047,8 @@ public:
             m_log,
             errorLabel,
             Row{showUnnamedContainers, m_buttons},
-        }
-            .attachTo(this);
-
+        }.attachTo(this);
+        // clang-format on
         connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
         m_buttons->button(QDialogButtonBox::Ok)->setEnabled(false);

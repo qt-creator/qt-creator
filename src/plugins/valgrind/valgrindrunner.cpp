@@ -197,7 +197,7 @@ void ValgrindRunner::setLocalServerAddress(const QHostAddress &localServerAddres
 
 void ValgrindRunner::setUseTerminal(bool on)
 {
-    d->m_process.setTerminalMode(on ? TerminalMode::On : TerminalMode::Off);
+    d->m_process.setTerminalMode(on ? TerminalMode::Run : TerminalMode::Off);
 }
 
 void ValgrindRunner::waitForFinished() const
