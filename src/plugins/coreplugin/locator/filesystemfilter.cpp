@@ -12,11 +12,12 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/async.h>
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/layoutbuilder.h>
 #include <utils/link.h>
 
@@ -265,6 +266,7 @@ static LocatorFilterEntries matchesImpl(Promise &promise,
         {
             LocatorFilterEntry filterEntry;
             filterEntry.displayName = Tr::tr("Create and Open File \"%1\"").arg(expandedEntry);
+            filterEntry.displayIcon = Utils::FileIconProvider::icon(QFileIconProvider::File);
             filterEntry.acceptor = [fullFilePath] {
                 QMetaObject::invokeMethod(
                     EditorManager::instance(),
@@ -281,6 +283,7 @@ static LocatorFilterEntries matchesImpl(Promise &promise,
         {
             LocatorFilterEntry filterEntry;
             filterEntry.displayName = Tr::tr("Create Directory \"%1\"").arg(expandedEntry);
+            filterEntry.displayIcon = Utils::FileIconProvider::icon(QFileIconProvider::Folder);
             filterEntry.acceptor = [fullFilePath, shortcutString] {
                 QMetaObject::invokeMethod(
                     EditorManager::instance(),
