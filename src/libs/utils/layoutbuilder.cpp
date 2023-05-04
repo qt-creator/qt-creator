@@ -11,6 +11,7 @@
 #include <QPushButton>
 #include <QStackedLayout>
 #include <QSpacerItem>
+#include <QSpinBox>
 #include <QSplitter>
 #include <QStyle>
 #include <QTabWidget>
@@ -559,6 +560,12 @@ PushButton::PushButton(std::initializer_list<LayoutItem> items)
     setupWidget<QPushButton>(this);
 }
 
+SpinBox::SpinBox(std::initializer_list<LayoutItem> items)
+{
+    this->subItems = items;
+    setupWidget<QSpinBox>(this);
+}
+
 TextEdit::TextEdit(std::initializer_list<LayoutItem> items)
 {
     this->subItems = items;
@@ -630,17 +637,6 @@ LayoutItem title(const QString &title)
     };
 }
 
-LayoutItem onClicked(const std::function<void ()> &func, QObject *guard)
-{
-    return [func, guard](QObject *target) {
-        if (auto button = qobject_cast<QAbstractButton *>(target)) {
-            QObject::connect(button, &QAbstractButton::clicked, guard ? guard : target, func);
-        } else {
-            QTC_CHECK(false);
-        }
-    };
-}
-
 LayoutItem text(const QString &text)
 {
     return [text](QObject *target) {
@@ -697,6 +693,43 @@ LayoutItem columnStretch(int column, int stretch)
         }
     };
 }
+
+// Signals
+
+LayoutItem onClicked(const std::function<void ()> &func, QObject *guard)
+{
+    return [func, guard](QObject *target) {
+        if (auto button = qobject_cast<QAbstractButton *>(target)) {
+            QObject::connect(button, &QAbstractButton::clicked, guard ? guard : target, func);
+        } else {
+            QTC_CHECK(false);
+        }
+    };
+}
+
+LayoutItem onTextChanged(const std::function<void (const QString &)> &func, QObject *guard)
+{
+    return [func, guard](QObject *target) {
+        if (auto button = qobject_cast<QSpinBox *>(target)) {
+            QObject::connect(button, &QSpinBox::textChanged, guard ? guard : target, func);
+        } else {
+            QTC_CHECK(false);
+        }
+    };
+}
+
+LayoutItem onValueChanged(const std::function<void (int)> &func, QObject *guard)
+{
+    return [func, guard](QObject *target) {
+        if (auto button = qobject_cast<QSpinBox *>(target)) {
+            QObject::connect(button, &QSpinBox::valueChanged, guard ? guard : target, func);
+        } else {
+            QTC_CHECK(false);
+        }
+    };
+}
+
+// Convenience
 
 QWidget *createHr(QWidget *parent)
 {

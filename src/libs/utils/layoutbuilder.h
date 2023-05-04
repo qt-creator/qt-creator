@@ -143,6 +143,12 @@ public:
     PushButton(std::initializer_list<LayoutItem> items);
 };
 
+class QTCREATOR_UTILS_EXPORT SpinBox : public LayoutItem
+{
+public:
+    SpinBox(std::initializer_list<LayoutItem> items);
+};
+
 class QTCREATOR_UTILS_EXPORT Splitter : public LayoutItem
 {
 public:
@@ -193,8 +199,15 @@ QTCREATOR_UTILS_EXPORT LayoutItem resize(int, int);
 QTCREATOR_UTILS_EXPORT LayoutItem columnStretch(int column, int stretch);
 QTCREATOR_UTILS_EXPORT LayoutItem spacing(int);
 QTCREATOR_UTILS_EXPORT LayoutItem windowTitle(const QString &windowTitle);
+
+// "Signals"
+
 QTCREATOR_UTILS_EXPORT LayoutItem onClicked(const std::function<void()> &,
                                             QObject *guard = nullptr);
+QTCREATOR_UTILS_EXPORT LayoutItem onTextChanged(const std::function<void(const QString &)> &,
+                                                QObject *guard = nullptr);
+QTCREATOR_UTILS_EXPORT LayoutItem onValueChanged(const std::function<void(int)> &,
+                                                QObject *guard = nullptr);
 
 // Convenience
 
