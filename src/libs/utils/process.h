@@ -1,7 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#pragma once
+#if defined(Q_CC_MINGW) && defined(WIN_PTHREADS_H) && !defined(_INC_PROCESS)
+  // Arrived here via <pthread.h> which wants to include <process.h>
+  #include_next <process.h>
+#elif !defined(UTILS_PROCESS_H)
+#define UTILS_PROCESS_H
 
 #include "utils_global.h"
 
@@ -217,3 +221,5 @@ public:
 } // namespace Utils
 
 QTC_DECLARE_CUSTOM_TASK(ProcessTask, Utils::ProcessTaskAdapter);
+
+#endif // UTILS_PROCESS_H
