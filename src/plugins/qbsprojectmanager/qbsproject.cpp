@@ -744,6 +744,7 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
     };
     const QJsonValue &enableExceptions = getCppProp("enableExceptions");
     const QJsonValue &enableRtti = getCppProp("enableRtti");
+    const QString warningLevel = getCppProp("warningLevel").toString();
     QStringList commonFlags = arrayToStringList(getCppProp("platformCommonCompilerFlags"));
     commonFlags << arrayToStringList(getCppProp("commonCompilerFlags"))
                 << arrayToStringList(getCppProp("platformDriverFlags"))
@@ -773,6 +774,10 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
             if (!machineType.isEmpty())
                 commonFlags << ("-march=" + machineType);
         }
+        if (warningLevel == "all")
+            commonFlags << "-Wall" << "-Wextra";
+        else if (warningLevel == "none")
+            commonFlags << "-w";
         const QStringList targetOS = arrayToStringList(properties.value("qbs.targetOS"));
         if (targetOS.contains("unix")) {
             const QVariant positionIndependentCode = getCppProp("positionIndependentCode");
@@ -837,6 +842,10 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
             else if (exceptionModel == "externc")
                 commonFlags << "/EHs";
         }
+        if (warningLevel == "all")
+            commonFlags << "/Wall";
+        else if (warningLevel == "none")
+            commonFlags << "/w";
         cFlags = cxxFlags = commonFlags;
         cFlags << "/TC";
         cxxFlags << "/TP";
