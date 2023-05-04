@@ -1406,8 +1406,9 @@ void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
         break;
     case LabelPlacement::AtCheckBox: {
         d->m_checkBox->setText(labelText());
-//        if (parent.isForm())  FIXME
-            parent.addItem(createSubWidget<QLabel>());
+        // FIXME:
+        //if (parent.isForm())
+        //    parent.addItem(createSubWidget<QLabel>());
         parent.addItem(d->m_checkBox.data());
         break;
     }
