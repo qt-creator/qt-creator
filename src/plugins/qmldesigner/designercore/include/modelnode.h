@@ -58,10 +58,7 @@ inline constexpr AuxiliaryDataKeyView transitionExpandedPropery{AuxiliaryDataTyp
 
 class QMLDESIGNERCORE_EXPORT ModelNode
 {
-    friend QMLDESIGNERCORE_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
-    friend QMLDESIGNERCORE_EXPORT bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode);
     friend QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
-    friend QMLDESIGNERCORE_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
     friend QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
     friend Model;
     friend AbstractView;
@@ -254,6 +251,21 @@ public:
 
     friend auto qHash(const ModelNode &node) { return ::qHash(node.m_internalNode.get()); }
 
+    friend bool operator==(const ModelNode &firstNode, const ModelNode &secondNode)
+    {
+        return firstNode.m_internalNode == secondNode.m_internalNode;
+    }
+
+    friend bool operator!=(const ModelNode &firstNode, const ModelNode &secondNode)
+    {
+        return !(firstNode == secondNode);
+    }
+
+    friend bool operator<(const ModelNode &firstNode, const ModelNode &secondNode)
+    {
+        return firstNode.m_internalNode < secondNode.m_internalNode;
+    }
+
 private: // functions
     Internal::InternalNodePointer internalNode() const;
 
@@ -265,9 +277,6 @@ private: // variables
     QPointer<AbstractView> m_view;
 };
 
-QMLDESIGNERCORE_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
-QMLDESIGNERCORE_EXPORT bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode);
-QMLDESIGNERCORE_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
 QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
 QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const ModelNode &modelNode);
 

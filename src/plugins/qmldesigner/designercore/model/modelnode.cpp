@@ -700,29 +700,6 @@ void ModelNode::destroy()
  *  This functions interact with properties.
  */
 
-
-/*!
-  \brief Returns if the two nodes reference the same entity in the same model
-  */
-bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode)
-{
-    return firstNode.internalId() == secondNode.internalId();
-}
-
-/*!
-  \brief Returns if the two nodes do not reference the same entity in the same model
-  */
-bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode)
-{
-    return firstNode.internalId() != secondNode.internalId();
-}
-
-bool operator <(const ModelNode &firstNode, const ModelNode &secondNode)
-{
-    return firstNode.internalId() < secondNode.internalId();
-}
-
-
 Internal::InternalNodePointer ModelNode::internalNode() const
 {
     return m_internalNode;

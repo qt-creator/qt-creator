@@ -325,26 +325,6 @@ TypeName AbstractProperty::dynamicTypeName() const
     return TypeName();
 }
 
-/*!
-    Returns whether \a property1 and \a property2 reference the same property in
-    the same node.
-*/
-bool operator ==(const AbstractProperty &property1, const AbstractProperty &property2)
-{
-    return (property1.m_model == property2.m_model)
-            && (property1.m_internalNode == property2.m_internalNode)
-            && (property1.m_propertyName == property2.m_propertyName);
-}
-
-/*!
-    Returns whether \a property1 and \a property2 do not reference the same
-    property in the same node.
-  */
-bool operator !=(const AbstractProperty &property1, const AbstractProperty &property2)
-{
-    return !(property1 == property2);
-}
-
 QDebug operator<<(QDebug debug, const AbstractProperty &property)
 {
     return debug.nospace() << "AbstractProperty(" << (property.isValid() ? property.name() : PropertyName("invalid")) << ')';

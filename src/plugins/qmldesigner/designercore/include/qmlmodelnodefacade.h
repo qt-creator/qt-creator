@@ -35,6 +35,41 @@ public:
 
     static void enableUglyWorkaroundForIsValidQmlModelNodeFacadeInTests();
 
+    friend bool operator==(const QmlModelNodeFacade &firstNode, const QmlModelNodeFacade &secondNode)
+    {
+        return firstNode.m_modelNode == secondNode.m_modelNode;
+    }
+
+    friend bool operator==(const QmlModelNodeFacade &firstNode, const ModelNode &secondNode)
+    {
+        return firstNode.m_modelNode == secondNode;
+    }
+
+    friend bool operator==(const ModelNode &firstNode, const QmlModelNodeFacade &secondNode)
+    {
+        return firstNode == secondNode.m_modelNode;
+    }
+
+    friend bool operator!=(const QmlModelNodeFacade &firstNode, const QmlModelNodeFacade &secondNode)
+    {
+        return !(firstNode == secondNode);
+    }
+
+    friend bool operator!=(const QmlModelNodeFacade &firstNode, const ModelNode &secondNode)
+    {
+        return firstNode.m_modelNode != secondNode;
+    }
+
+    friend bool operator!=(const ModelNode &firstNode, const QmlModelNodeFacade &secondNode)
+    {
+        return firstNode != secondNode.m_modelNode;
+    }
+
+    friend bool operator<(const QmlModelNodeFacade &firstNode, const QmlModelNodeFacade &secondNode)
+    {
+        return firstNode.m_modelNode < secondNode.m_modelNode;
+    }
+
 protected:
     QmlModelNodeFacade(const ModelNode &modelNode)
         : m_modelNode(modelNode)
