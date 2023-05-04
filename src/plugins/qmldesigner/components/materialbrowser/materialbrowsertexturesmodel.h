@@ -55,6 +55,7 @@ public:
     Q_INVOKABLE void addNewTexture();
     Q_INVOKABLE void duplicateTexture(int idx);
     Q_INVOKABLE void deleteTexture(int idx);
+    Q_INVOKABLE void setTextureId(int idx, const QString &newId);
     Q_INVOKABLE void applyToSelectedMaterial(qint64 internalId);
     Q_INVOKABLE void applyToSelectedModel(qint64 internalId);
     Q_INVOKABLE void openTextureEditor();
@@ -91,6 +92,7 @@ private:
     enum {
         RoleTexHasDynamicProps = Qt::UserRole + 1,
         RoleTexInternalId,
+        RoleTexId,
         RoleTexSource,
         RoleTexToolTip,
         RoleTexVisible

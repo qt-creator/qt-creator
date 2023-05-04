@@ -23,6 +23,11 @@ Rectangle {
 
     signal showContextMenu()
 
+    function forceFinishEditing()
+    {
+        txtId.commitRename()
+    }
+
     MouseArea {
         id: mouseArea
 
@@ -59,13 +64,43 @@ Rectangle {
         }
     }
 
-    Image {
-        source: "image://materialBrowserTex/" + textureSource
-        asynchronous: true
-        width: root.width - 10
-        height: root.height - 10
-        anchors.centerIn: parent
-        smooth: true
-        fillMode: Image.PreserveAspectFit
+    Column {
+        anchors.fill: parent
+        spacing: 1
+
+        Item { width: 1; height: 5 } // spacer
+        Image {
+            id: img
+            source: "image://materialBrowserTex/" + textureSource
+            asynchronous: true
+            width: root.width - 10
+            height: img.width
+            anchors.horizontalCenter: parent.horizontalCenter
+            smooth: true
+            fillMode: Image.PreserveAspectFit
+        }
+
+        // Eat keys so they are not passed to parent while editing name
+        Keys.onPressed: (e) => {
+            e.accepted = true;
+        }
+
+        MaterialBrowserItemName {
+            id: txtId
+
+            text: textureId
+            width: img.width
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            onRenamed: (newId) => {
+                MaterialBrowserBackend.materialBrowserTexturesModel.setTextureId(index, newId);
+                mouseArea.forceActiveFocus()
+            }
+
+            onClicked: {
+                MaterialBrowserBackend.materialBrowserTexturesModel.selectTexture(index)
+                MaterialBrowserBackend.rootView.focusMaterialSection(false)
+            }
+        }
     }
 }
