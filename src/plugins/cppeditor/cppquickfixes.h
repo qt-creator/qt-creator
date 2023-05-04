@@ -376,14 +376,8 @@ private:
                                    TextEditor::QuickFixOperations &result);
 
     void maybeAddMember(const CppQuickFixInterface &interface, CPlusPlus::Scope *scope,
-                        const QByteArray &classTypeExpr, const QString &typeString,
+                        const QByteArray &classTypeExpr, const CPlusPlus::ExpressionAST *initExpr,
                         TextEditor::QuickFixOperations &result);
-
-    QString getType(
-            const CppQuickFixInterface &interface,
-            const CPlusPlus::MemInitializerAST *memInitializer,
-            const CPlusPlus::FunctionDefinitionAST *ctor) const;
-    QString getIdentifier(const CppQuickFixInterface &interface) const;
 
     bool m_membersOnly = false;
 };
