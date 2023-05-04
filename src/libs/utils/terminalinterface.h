@@ -14,9 +14,7 @@ class TerminalInterfacePrivate;
 class StubCreator : public QObject
 {
 public:
-    virtual expected_str<qint64> startStubProcess(const CommandLine &cmd,
-                                                  const ProcessSetupData &setup)
-        = 0;
+    virtual expected_str<qint64> startStubProcess(const ProcessSetupData &setup) = 0;
 };
 
 class QTCREATOR_UTILS_EXPORT TerminalInterface : public ProcessInterface

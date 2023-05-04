@@ -42,8 +42,7 @@ class ExternalTerminalProcessImpl final : public TerminalInterface
 
         ~ProcessStubCreator() override = default;
 
-        expected_str<qint64> startStubProcess(const CommandLine &cmd,
-                                              const ProcessSetupData &setupData) override
+        expected_str<qint64> startStubProcess(const ProcessSetupData &setupData) override
         {
             const TerminalCommand terminal = TerminalCommand::terminalEmulator();
 
@@ -56,8 +55,8 @@ class ExternalTerminalProcessImpl final : public TerminalInterface
                 f.write(QString("cd %1\n").arg(setupData.m_workingDirectory.nativePath()).toUtf8());
                 f.write("clear\n");
                 f.write(QString("exec '%1' %2\n")
-                            .arg(cmd.executable().nativePath())
-                            .arg(cmd.arguments())
+                            .arg(setupData.m_commandLine.executable().nativePath())
+                            .arg(setupData.m_commandLine.arguments())
                             .toUtf8());
                 f.close();
 
@@ -94,7 +93,7 @@ class ExternalTerminalProcessImpl final : public TerminalInterface
             process->setWorkingDirectory(setupData.m_workingDirectory);
 
             if constexpr (HostOsInfo::isWindowsHost()) {
-                process->setCommand(cmd);
+                process->setCommand(setupData.m_commandLine);
                 process->setCreateConsoleOnWindows(true);
                 process->setProcessMode(ProcessMode::Writer);
             } else {
@@ -102,7 +101,7 @@ class ExternalTerminalProcessImpl final : public TerminalInterface
                 CommandLine cmdLine = {terminal.command, {}};
                 if (!extraArgsFromOptions.isEmpty())
                     cmdLine.addArgs(extraArgsFromOptions, CommandLine::Raw);
-                cmdLine.addCommandLineAsArgs(cmd, CommandLine::Raw);
+                cmdLine.addCommandLineAsArgs(setupData.m_commandLine, CommandLine::Raw);
                 process->setCommand(cmdLine);
             }
 

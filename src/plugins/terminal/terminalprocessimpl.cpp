@@ -26,14 +26,13 @@ public:
         , m_process(interface)
     {}
 
-    expected_str<qint64> startStubProcess(const CommandLine &cmd,
-                                          const ProcessSetupData &setup) override
+    expected_str<qint64> startStubProcess(const ProcessSetupData &setup) override
     {
         const Id id = Id::fromString(setup.m_commandLine.executable().toUserOutput());
 
         TerminalWidget *terminal = m_terminalPane->stoppedTerminalWithId(id);
 
-        const OpenTerminalParameters openParameters{cmd,
+        const OpenTerminalParameters openParameters{setup.m_commandLine,
                                                     std::nullopt,
                                                     std::nullopt,
                                                     ExitBehavior::Keep,
