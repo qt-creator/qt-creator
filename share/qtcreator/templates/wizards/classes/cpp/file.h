@@ -17,6 +17,7 @@
                              ( '%{IncludeQMainWindow}' )      ? 'QtWidgets/%{IncludeQMainWindow}'          : '',
                              ( '%{IncludeQDeclarativeItem}' ) ? 'QtQuick1/%{IncludeQDeclarativeItem}'      : '',
                              ( '%{IncludeQQuickItem}' )       ? 'QtDeclarative/%{IncludeQQuickItem}'       : '',
+                             ( '%{AddQmlElementMacro}' && !'%{IncludeQQuickItem}' ) ? 'QtQml/QQmlEngine'   : '',
                              ( '%{IncludeQSharedData}' )      ? 'QtCore/QSharedDataPointer'                : '' ])}\
 %{JS: Cpp.openNamespaces('%{Class}')}
 @if '%{IncludeQSharedData}'

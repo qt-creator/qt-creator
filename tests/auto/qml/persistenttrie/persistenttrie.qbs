@@ -5,7 +5,6 @@ QtcAutotest {
     Depends { name: "QmlJS" }
     files: [ "tst_testtrie.h", "tst_testtrie.cpp" ]
     cpp.defines: base.concat([
-        'QMLJS_LIBRARY',
         'QTCREATORDIR="' + project.ide_source_tree + '"',
         'TESTSRCDIR="' + path + '"'
     ])

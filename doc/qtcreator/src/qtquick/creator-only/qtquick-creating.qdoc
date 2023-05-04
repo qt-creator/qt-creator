@@ -75,6 +75,10 @@
 
             \image qtcreator-project-qt-quick.webp {New Project dialog}
 
+            \note To use \l qmake as the build system, develop with Qt 5,
+            or add translations to the application, select
+            \uicontrol {Qt Quick Application (compat)}.
+
         \li In the \uicontrol {Project Location} dialog, \uicontrol Name field,
             enter a name for the project. Keep in mind that you cannot easily
             change the project name later.
@@ -93,8 +97,8 @@
             \QDS, select \uicontrol {Create a project that you can open in \QDS}.
 
         \li In the \uicontrol {Build system} field, select the build system to
-            use for building and running the project: \l qmake,
-            \l {Setting Up CMake}{CMake}, or \l {Setting Up Qbs}{Qbs}.
+            use for building and running the project: \l {Setting Up CMake}
+            {CMake} or \l {Setting Up Qbs}{Qbs}.
 
         \li Select \uicontrol Next to open the
             \uicontrol {Define Project Details} dialog.

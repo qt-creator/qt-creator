@@ -544,6 +544,7 @@ def checkAndCopyFiles(dataSet, fieldName, templateDir):
     files = map(lambda record:
                 os.path.normpath(os.path.join(srcPath, testData.field(record, fieldName))),
                 dataSet)
+    files = list(files)  # copy data from map object to list to make it reusable
     for currentFile in files:
         if not neededFilePresent(currentFile):
             return []
