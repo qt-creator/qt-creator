@@ -38,13 +38,15 @@ public:
         const bool textEditorRight
             = s->value(MARKDOWNVIEWER_TEXTEDITOR_RIGHT, kTextEditorRightDefault).toBool();
 
-        // Left side
+        m_splitter = new Core::MiniSplitter;
+
+        // preview
         auto browser = new QTextBrowser();
         browser->setOpenExternalLinks(true);
         browser->setFrameShape(QFrame::NoFrame);
         new Utils::MarkdownHighlighter(browser->document());
 
-        // Right side (hidable)
+        // editor
         m_textEditorWidget = new TextEditorWidget;
         m_textEditorWidget->setTextDocument(m_document);
         m_textEditorWidget->setupGenericHighlighter();
@@ -55,15 +57,22 @@ public:
         Core::ICore::addContextObject(context);
 
         if (textEditorRight) {
-            m_widget.addWidget(browser);
-            m_widget.addWidget(m_textEditorWidget);
+            m_splitter->addWidget(browser);
+            m_splitter->addWidget(m_textEditorWidget);
         } else {
-            m_widget.addWidget(m_textEditorWidget);
-            m_widget.addWidget(browser);
+            m_splitter->addWidget(m_textEditorWidget);
+            m_splitter->addWidget(browser);
         }
 
         setContext(Core::Context(MARKDOWNVIEWER_ID));
-        setWidget(&m_widget);
+
+        auto widget = new QWidget;
+        auto layout = new QVBoxLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
+        widget->setLayout(layout);
+        layout->addWidget(m_splitter);
+        setWidget(widget);
+        m_widget->installEventFilter(this);
 
         auto togglePreviewVisible = new QToolButton;
         togglePreviewVisible->setText(Tr::tr("Show Preview"));
@@ -124,12 +133,12 @@ public:
                 });
 
         connect(swapViews, &QToolButton::clicked, m_textEditorWidget, [this, toolbarLayout] {
-            QTC_ASSERT(m_widget.count() > 1, return);
+            QTC_ASSERT(m_splitter->count() > 1, return);
             // switch views
             auto placeholder = std::make_unique<QWidget>();
-            auto second = m_widget.replaceWidget(1, placeholder.get());
-            auto first = m_widget.replaceWidget(0, second);
-            m_widget.replaceWidget(1, first);
+            auto second = m_splitter->replaceWidget(1, placeholder.get());
+            auto first = m_splitter->replaceWidget(0, second);
+            m_splitter->replaceWidget(1, first);
             // switch buttons
             const int rightIndex = toolbarLayout->count() - 2;
             QLayoutItem *right = toolbarLayout->takeAt(rightIndex);
@@ -164,8 +173,20 @@ public:
     Core::IDocument *document() const override { return m_document.data(); }
     TextEditorWidget *textEditorWidget() const { return m_textEditorWidget; }
 
+    bool eventFilter(QObject *obj, QEvent *ev) override
+    {
+        if (obj == m_widget && ev->type() == QEvent::FocusIn) {
+            if (m_splitter->focusWidget())
+                m_splitter->focusWidget()->setFocus();
+            else
+                m_splitter->widget(0)->setFocus();
+            return true;
+        }
+        return Core::IEditor::eventFilter(obj, ev);
+    }
+
 private:
-    Core::MiniSplitter m_widget;
+    Core::MiniSplitter *m_splitter;
     TextEditorWidget *m_textEditorWidget;
     TextDocumentPtr m_document;
     QWidget m_toolbar;
