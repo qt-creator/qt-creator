@@ -290,7 +290,7 @@ A node might become invalid if e.g. it or one of its ancestors is deleted.
 */
 bool ModelNode::isValid() const
 {
-    return !m_model.isNull() && !m_view.isNull() && m_internalNode && m_internalNode->isValid;
+    return !m_model.isNull() && m_internalNode && m_internalNode->isValid;
 }
 
 /*!
@@ -652,7 +652,7 @@ void ModelNode::removeProperty(const PropertyName &name) const
         return;
 
     if (m_internalNode->hasProperty(name))
-        model()->d->removeProperty(m_internalNode->property(name));
+        model()->d->removePropertyAndRelatedResources(m_internalNode->property(name));
 }
 
 /*! \brief removes this node from the node tree
@@ -692,7 +692,7 @@ void ModelNode::destroy()
         return;
 
     removeModelNodeFromSelection(*this);
-    model()->d->removeNode(m_internalNode);
+    model()->d->removeNodeAndRelatedResources(m_internalNode);
 }
 //\}
 

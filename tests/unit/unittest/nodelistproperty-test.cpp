@@ -25,11 +25,6 @@ protected:
     using iterator = QmlDesigner::NodeListProperty::iterator;
     NodeListProperty()
     {
-        ModuleId modelId_QtQuick = ModuleId::create(1);
-        setModuleId("QtQuick", modelId_QtQuick);
-        setType(modelId_QtQuick, "Item", "data");
-        model = std::make_unique<QmlDesigner::Model>(projectStorageMock, "QtQuick.Item");
-
         model->attachView(&abstractViewMock);
         nodeListProperty = abstractViewMock.rootModelNode().nodeListProperty("foo");
 
@@ -82,8 +77,9 @@ protected:
     }
 
 protected:
-    NiceMock<ProjectStorageMock> projectStorageMock;
-    std::unique_ptr<QmlDesigner::Model> model;
+    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock;
+    std::unique_ptr<QmlDesigner::Model> model{
+        std::make_unique<QmlDesigner::Model>(projectStorageMock, "QtQuick.Item")};
     NiceMock<AbstractViewMock> abstractViewMock;
     QmlDesigner::NodeListProperty nodeListProperty;
     ModelNode node1;

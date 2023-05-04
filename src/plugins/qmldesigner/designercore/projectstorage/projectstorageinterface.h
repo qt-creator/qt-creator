@@ -36,7 +36,6 @@ public:
     propertyName(PropertyDeclarationId propertyDeclarationId) const = 0;
     virtual TypeIds prototypeAndSelfIds(TypeId type) const = 0;
     virtual TypeIds prototypeIds(TypeId type) const = 0;
-    virtual bool isBasedOn(TypeId) const = 0;
     virtual bool isBasedOn(TypeId, TypeId) const = 0;
     virtual bool isBasedOn(TypeId, TypeId, TypeId) const = 0;
     virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId) const = 0;

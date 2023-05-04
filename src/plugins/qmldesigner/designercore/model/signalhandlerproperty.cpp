@@ -41,7 +41,7 @@ void SignalHandlerProperty::setSource(const QString &source)
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isSignalHandlerProperty())
-        privateModel()->removeProperty(internalNode()->property(name()));
+        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
 
     privateModel()->setSignalHandlerProperty(internalNode(), name(), source);
 }
@@ -118,7 +118,7 @@ void SignalDeclarationProperty::setSignature(const QString &signature)
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isSignalDeclarationProperty())
-        privateModel()->removeProperty(internalNode()->property(name()));
+        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
 
     privateModel()->setSignalDeclarationProperty(internalNode(), name(), signature);
 }

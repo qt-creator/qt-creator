@@ -101,8 +101,14 @@ public:
                  const TypeName &type,
                  int major,
                  int minor,
-                 Model *metaInfoProxyModel);
-    ModelPrivate(Model *model, const TypeName &type, int major, int minor, Model *metaInfoProxyModel);
+                 Model *metaInfoProxyModel,
+                 std::unique_ptr<ModelResourceManagementInterface> resourceManagement);
+    ModelPrivate(Model *model,
+                 const TypeName &type,
+                 int major,
+                 int minor,
+                 Model *metaInfoProxyModel,
+                 std::unique_ptr<ModelResourceManagementInterface> resourceManagement);
 
     ~ModelPrivate() override;
 
@@ -120,6 +126,7 @@ public:
                                    bool isRootNode = false);
 
     /*factory methods for internal use in model and rewriter*/
+    void removeNodeAndRelatedResources(const InternalNodePointer &node);
     void removeNode(const InternalNodePointer &node);
     void changeNodeId(const InternalNodePointer &node, const QString &id);
     void changeNodeType(const InternalNodePointer &node, const TypeName &typeName, int majorVersion, int minorVersion);
@@ -235,6 +242,7 @@ public:
     //node state property manipulation
     void addProperty(const InternalNodePointer &node, const PropertyName &name);
     void setPropertyValue(const InternalNodePointer &node,const PropertyName &name, const QVariant &value);
+    void removePropertyAndRelatedResources(const InternalPropertyPointer &property);
     void removeProperty(const InternalPropertyPointer &property);
 
     void setBindingProperty(const InternalNodePointer &node, const PropertyName &name, const QString &expression);
@@ -282,6 +290,7 @@ private:
     QVector<ModelNode> toModelNodeVector(const QVector<InternalNodePointer> &nodeVector, AbstractView *view) const;
     QVector<InternalNodePointer> toInternalNodeVector(const QVector<ModelNode> &modelNodeVector) const;
     EnabledViewRange enabledViews() const;
+    void handleResourceSet(const ModelResourceSet &resourceSet);
 
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
@@ -300,6 +309,7 @@ private:
     InternalNodePointer m_currentStateNode;
     InternalNodePointer m_rootInternalNode;
     InternalNodePointer m_currentTimelineNode;
+    std::unique_ptr<ModelResourceManagementInterface> m_resourceManagement;
     QUrl m_fileUrl;
     QPointer<RewriterView> m_rewriterView;
     QPointer<NodeInstanceView> m_nodeInstanceView;

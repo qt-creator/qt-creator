@@ -62,9 +62,11 @@ ModelPrivate::ModelPrivate(Model *model,
                            const TypeName &typeName,
                            int major,
                            int minor,
-                           Model *metaInfoProxyModel)
+                           Model *metaInfoProxyModel,
+                           std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : projectStorage{&projectStorage}
     , m_model{model}
+    , m_resourceManagement{std::move(resourceManagement)}
 {
     m_metaInfoProxyModel = metaInfoProxyModel;
 
@@ -75,9 +77,14 @@ ModelPrivate::ModelPrivate(Model *model,
     m_currentTimelineNode = m_rootInternalNode;
 }
 
-ModelPrivate::ModelPrivate(
-    Model *model, const TypeName &typeName, int major, int minor, Model *metaInfoProxyModel)
+ModelPrivate::ModelPrivate(Model *model,
+                           const TypeName &typeName,
+                           int major,
+                           int minor,
+                           Model *metaInfoProxyModel,
+                           std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : m_model(model)
+    , m_resourceManagement{std::move(resourceManagement)}
 {
     m_metaInfoProxyModel = metaInfoProxyModel;
 
@@ -279,7 +286,9 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
     notifyNodeCreated(newNode);
 
     if (!newNode->propertyNameList().isEmpty())
-        notifyVariantPropertiesChanged(newNode, newNode->propertyNameList(), AbstractView::PropertiesAdded);
+        notifyVariantPropertiesChanged(newNode,
+                                       newNode->propertyNameList(),
+                                       AbstractView::PropertiesAdded);
 
     return newNode;
 }
@@ -303,16 +312,40 @@ EnabledViewRange ModelPrivate::enabledViews() const
     return EnabledViewRange{m_viewList};
 }
 
+void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
+{
+    for (const ModelNode &node : resourceSet.removeModelNodes) {
+        if (node)
+            removeNode(node.m_internalNode);
+    }
+
+    for (const AbstractProperty &property : resourceSet.removeProperties) {
+        if (property)
+            removeProperty(property.m_internalNode->property(property.m_propertyName));
+    }
+
+    for (const auto &[property, expression] : resourceSet.setExpressions) {
+        if (property)
+            setBindingProperty(property.m_internalNode, property.m_propertyName, expression);
+    }
+}
+
 void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
 {
     for (const InternalNodePointer &subNode : node->allSubNodes())
         removeNodeFromModel(subNode);
 }
 
+void ModelPrivate::removeNodeAndRelatedResources(const InternalNodePointer &node)
+{
+    if (m_resourceManagement)
+        handleResourceSet(m_resourceManagement->removeNode(ModelNode{node, m_model, nullptr}));
+    else
+        removeNode(node);
+}
+
 void ModelPrivate::removeNode(const InternalNodePointer &node)
 {
-    Q_ASSERT(node);
-
     AbstractView::PropertyChangeFlags propertyChangeFlags = AbstractView::NoAdditionalChanges;
 
     notifyNodeAboutToBeRemoved(node);
@@ -1088,6 +1121,15 @@ static QList<PropertyPair> toPropertyPairList(const QList<InternalPropertyPointe
     return propertyPairList;
 }
 
+void ModelPrivate::removePropertyAndRelatedResources(const InternalPropertyPointer &property)
+{
+    if (m_resourceManagement)
+        handleResourceSet(
+            m_resourceManagement->removeProperty(AbstractProperty{property, m_model, nullptr}));
+    else
+        removeProperty(property);
+}
+
 void ModelPrivate::removeProperty(const InternalPropertyPointer &property)
 {
     notifyPropertiesAboutToBeRemoved({property});
@@ -1408,13 +1450,19 @@ Model::Model(ProjectStorageType &projectStorage,
              const TypeName &typeName,
              int major,
              int minor,
-             Model *metaInfoProxyModel)
+             Model *metaInfoProxyModel,
+             std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : d(std::make_unique<Internal::ModelPrivate>(
-        this, projectStorage, typeName, major, minor, metaInfoProxyModel))
+        this, projectStorage, typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)))
 {}
 
-Model::Model(const TypeName &typeName, int major, int minor, Model *metaInfoProxyModel)
-    : d(std::make_unique<Internal::ModelPrivate>(this, typeName, major, minor, metaInfoProxyModel))
+Model::Model(const TypeName &typeName,
+             int major,
+             int minor,
+             Model *metaInfoProxyModel,
+             std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
+    : d(std::make_unique<Internal::ModelPrivate>(
+        this, typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)))
 {}
 
 Model::~Model() = default;
@@ -2154,6 +2202,11 @@ void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
         return;
 
     d->detachView(view, emitNotify);
+}
+
+QList<ModelNode> Model::allModelNodes() const
+{
+    return QmlDesigner::toModelNodeList(d->allNodes(), nullptr);
 }
 
 } // namespace QmlDesigner

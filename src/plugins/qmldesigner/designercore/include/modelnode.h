@@ -270,6 +270,8 @@ QMLDESIGNERCORE_EXPORT bool operator !=(const ModelNode &firstNode, const ModelN
 QMLDESIGNERCORE_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
 QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
 QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const ModelNode &modelNode);
+
+using ModelNodes = QList<ModelNode>;
 }
 
 Q_DECLARE_METATYPE(QmlDesigner::ModelNode)

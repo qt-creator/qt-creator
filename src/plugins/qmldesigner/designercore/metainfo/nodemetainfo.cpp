@@ -1619,16 +1619,20 @@ TypeName NodeMetaInfo::simplifiedTypeName() const
 
 int NodeMetaInfo::majorVersion() const
 {
-    if (isValid())
-        return m_privateData->majorVersion();
+    if constexpr (!useProjectStorage()) {
+        if (isValid())
+            return m_privateData->majorVersion();
+    }
 
     return -1;
 }
 
 int NodeMetaInfo::minorVersion() const
 {
-    if (isValid())
-        return m_privateData->minorVersion();
+    if constexpr (!useProjectStorage()) {
+        if (isValid())
+            return m_privateData->minorVersion();
+    }
 
     return -1;
 }

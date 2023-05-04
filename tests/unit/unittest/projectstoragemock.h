@@ -1,4 +1,4 @@
-// Copyright (C) 2017 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
@@ -14,6 +14,8 @@
 class ProjectStorageMock : public QmlDesigner::ProjectStorageInterface
 {
 public:
+    void setupQtQtuick();
+
     MOCK_METHOD(void,
                 synchronize,
                 (QmlDesigner::Storage::Synchronization::SynchronizationPackage package),
@@ -63,7 +65,6 @@ public:
                 (const, override));
     MOCK_METHOD(QmlDesigner::TypeIds, prototypeAndSelfIds, (QmlDesigner::TypeId type), (const, override));
     MOCK_METHOD(QmlDesigner::TypeIds, prototypeIds, (QmlDesigner::TypeId type), (const, override));
-    MOCK_METHOD(bool, isBasedOn, (QmlDesigner::TypeId typeId), (const, override));
     MOCK_METHOD(bool, isBasedOn, (QmlDesigner::TypeId typeId, QmlDesigner::TypeId), (const, override));
     MOCK_METHOD(bool,
                 isBasedOn,
@@ -158,3 +159,8 @@ public:
     MOCK_METHOD(std::vector<QmlDesigner::Cache::Source>, fetchAllSources, (), ());
 };
 
+class ProjectStorageMockWithQtQtuick : public ProjectStorageMock
+{
+public:
+    ProjectStorageMockWithQtQtuick() { setupQtQtuick(); }
+};

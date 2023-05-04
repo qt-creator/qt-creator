@@ -6,6 +6,7 @@
 #include <qmldesignercorelib_global.h>
 
 #include <documentmessage.h>
+#include <model/modelresourcemanagementinterface.h>
 #include <projectstorage/projectstoragefwd.h>
 
 #include <QMimeData>
@@ -40,7 +41,7 @@ class RewriterView;
 class NodeInstanceView;
 class TextModifier;
 
-using PropertyListType = QList<QPair<PropertyName, QVariant> >;
+using PropertyListType = QList<QPair<PropertyName, QVariant>>;
 
 class QMLDESIGNERCORE_EXPORT Model : public QObject
 {
@@ -61,25 +62,34 @@ public:
           const TypeName &type,
           int major = 1,
           int minor = 1,
-          Model *metaInfoProxyModel = nullptr);
-    Model(const TypeName &typeName, int major = 1, int minor = 1, Model *metaInfoProxyModel = nullptr);
+          Model *metaInfoProxyModel = nullptr,
+          std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {});
+    Model(const TypeName &typeName,
+          int major = 1,
+          int minor = 1,
+          Model *metaInfoProxyModel = nullptr,
+          std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {});
 
     ~Model();
 
     static ModelPointer create(const TypeName &typeName,
                                int major = 1,
                                int minor = 1,
-                               Model *metaInfoProxyModel = nullptr)
+                               Model *metaInfoProxyModel = nullptr,
+                               std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
     {
-        return ModelPointer(new Model(typeName, major, minor, metaInfoProxyModel));
+        return ModelPointer(
+            new Model(typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)));
     }
 
     static ModelPointer create(ProjectStorageType &projectStorage,
                                const TypeName &typeName,
                                int major = 1,
-                               int minor = 1)
+                               int minor = 1,
+                               std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
     {
-        return ModelPointer(new Model(projectStorage, typeName, major, minor));
+        return ModelPointer(
+            new Model(projectStorage, typeName, major, minor, nullptr, std::move(resourceManagement)));
     }
 
     QUrl fileUrl() const;
@@ -119,6 +129,8 @@ public:
 
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, ViewNotification emitDetachNotify = NotifyView);
+
+    QList<ModelNode> allModelNodes() const;
 
     // Editing sub-components:
 
@@ -177,4 +189,4 @@ private:
     std::unique_ptr<Internal::ModelPrivate> d;
 };
 
-}
+} // namespace QmlDesigner

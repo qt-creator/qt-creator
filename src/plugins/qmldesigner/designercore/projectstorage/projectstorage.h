@@ -242,36 +242,37 @@ public:
         return false;
     }
 
-    bool isBasedOn(TypeId id0) const override { return isBasedOn_(id0); }
+    bool isBasedOn(TypeId typeId) const { return isBasedOn_(typeId); }
 
-    bool isBasedOn(TypeId id0, TypeId id1) const override { return isBasedOn_(id0, id1); }
+    bool isBasedOn(TypeId typeId, TypeId id1) const override { return isBasedOn_(typeId, id1); }
 
-    bool isBasedOn(TypeId id0, TypeId id1, TypeId id2) const override
+    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2) const override
     {
-        return isBasedOn_(id0, id1, id2);
+        return isBasedOn_(typeId, id1, id2);
     }
 
-    bool isBasedOn(TypeId id0, TypeId id1, TypeId id2, TypeId id3) const override
+    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3) const override
     {
-        return isBasedOn_(id0, id1, id2, id3);
+        return isBasedOn_(typeId, id1, id2, id3);
     }
 
-    bool isBasedOn(TypeId id0, TypeId id1, TypeId id2, TypeId id3, TypeId id4) const override
+    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4) const override
     {
-        return isBasedOn_(id0, id1, id2, id3, id4);
+        return isBasedOn_(typeId, id1, id2, id3, id4);
     }
 
-    bool isBasedOn(TypeId id0, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5) const override
+    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5) const override
     {
-        return isBasedOn_(id0, id1, id2, id3, id4, id5);
+        return isBasedOn_(typeId, id1, id2, id3, id4, id5);
     }
 
-    bool isBasedOn(TypeId id0, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5, TypeId id6) const override
+    bool isBasedOn(
+        TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5, TypeId id6) const override
     {
-        return isBasedOn_(id0, id1, id2, id3, id4, id5, id6);
+        return isBasedOn_(typeId, id1, id2, id3, id4, id5, id6);
     }
 
-    bool isBasedOn(TypeId id0,
+    bool isBasedOn(TypeId typeId,
                    TypeId id1,
                    TypeId id2,
                    TypeId id3,
@@ -280,7 +281,7 @@ public:
                    TypeId id6,
                    TypeId id7) const override
     {
-        return isBasedOn_(id0, id1, id2, id3, id4, id5, id6, id7);
+        return isBasedOn_(typeId, id1, id2, id3, id4, id5, id6, id7);
     }
 
     TypeId fetchTypeIdByExportedName(Utils::SmallStringView name) const

@@ -64,8 +64,12 @@ RewriterTransaction AbstractView::beginRewriterTransaction(const QByteArray &ide
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName)
 {
-    const NodeMetaInfo metaInfo = model()->metaInfo(typeName);
-    return createModelNode(typeName, metaInfo.majorVersion(), metaInfo.minorVersion());
+    if constexpr (useProjectStorage()) {
+        return createModelNode(typeName, -1, -1);
+    } else {
+        const NodeMetaInfo metaInfo = model()->metaInfo(typeName);
+        return createModelNode(typeName, metaInfo.majorVersion(), metaInfo.minorVersion());
+    }
 }
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName,

@@ -56,6 +56,8 @@ add_qtc_test(unittest GTEST
     gtest-std-printing.h
     lastchangedrowid-test.cpp
     import-test.cpp
+    model-test.cpp
+    modelresourcemanagementmock.h
     matchingtext-test.cpp
     mockfutureinterface.h
     mockmutex.h
@@ -66,6 +68,7 @@ add_qtc_test(unittest GTEST
     mocktimer.cpp mocktimer.h
     nodelistproperty-test.cpp
     processevents-utilities.cpp processevents-utilities.h
+    projectstoragemock.cpp projectstoragemock.h
     sizedarray-test.cpp
     smallstring-test.cpp
     spydummy.cpp spydummy.h
@@ -258,6 +261,7 @@ extend_qtc_test(unittest
     model/model.cpp
     model/model_p.h
     model/modelnode.cpp
+    model/modelresourcemanagementinterface.h
     model/propertycontainer.cpp
     model/propertyparser.cpp
     model/nodeabstractproperty.cpp

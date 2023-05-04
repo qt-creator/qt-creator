@@ -26,9 +26,24 @@ public:
                  const QmlDesigner::NodeAbstractProperty &oldPropertyParent,
                  AbstractView::PropertyChangeFlags propertyChange),
                 (override));
+
     MOCK_METHOD(void,
                 propertiesRemoved,
                 (const QList<QmlDesigner::AbstractProperty> &propertyList),
+                (override));
+    MOCK_METHOD(void,
+                propertiesAboutToBeRemoved,
+                (const QList<QmlDesigner::AbstractProperty> &propertyList),
+                (override));
+
+    MOCK_METHOD(void,
+                bindingPropertiesChanged,
+                (const QList<QmlDesigner::BindingProperty> &propertyList,
+                 PropertyChangeFlags propertyChange),
+                (override));
+    MOCK_METHOD(void,
+                bindingPropertiesAboutToBeChanged,
+                (const QList<QmlDesigner::BindingProperty> &propertyList),
                 (override));
 
     MOCK_METHOD(void,
@@ -37,4 +52,5 @@ public:
                  const QmlDesigner::NodeAbstractProperty &parentProperty,
                  AbstractView::PropertyChangeFlags propertyChange),
                 (override));
+    MOCK_METHOD(void, nodeAboutToBeRemoved, (const QmlDesigner::ModelNode &removedNode), (override));
 };
