@@ -87,7 +87,7 @@ private:
 static constexpr char s_skipTerminateOnWindows[] =
         "Windows implementation of this test is lacking handling of WM_CLOSE message.";
 
-class tst_QtcProcess : public QObject
+class tst_Process : public QObject
 {
     Q_OBJECT
 
@@ -109,16 +109,14 @@ private slots:
         qDebug() << "QProcess output:" << qoutput;
         QCOMPARE(qproc.exitCode(), 0);
 
-        Process qtcproc;
-        qtcproc.setCommand({envPath, {}});
-        qtcproc.runBlocking();
-        QCOMPARE(qtcproc.exitCode(), 0);
-        QByteArray qtcoutput = qtcproc.readAllRawStandardOutput()
-                               + qtcproc.readAllRawStandardError();
+        Process proc;
+        proc.setCommand({envPath, {}});
+        proc.runBlocking();
+        QCOMPARE(proc.exitCode(), 0);
+        const QByteArray output = proc.readAllRawStandardOutput() + proc.readAllRawStandardError();
+        qDebug() << "Process output:" << output;
 
-        qDebug() << "QtcProcess output:" << qtcoutput;
-
-        QCOMPARE(qtcoutput.size() > 0, qoutput.size() > 0);
+        QCOMPARE(output.size() > 0, qoutput.size() > 0);
     }
 
     void multiRead();
@@ -179,7 +177,7 @@ private:
     MessageHandler *msgHandler = nullptr;
 };
 
-void tst_QtcProcess::initTestCase()
+void tst_Process::initTestCase()
 {
     msgHandler = new MessageHandler;
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
@@ -230,7 +228,7 @@ void tst_QtcProcess::initTestCase()
     mxUnix.insert("z", "");
 }
 
-void tst_QtcProcess::cleanupTestCase()
+void tst_Process::cleanupTestCase()
 {
     Utils::Singleton::deleteAll();
     const int destroyCount = msgHandler->destroyCount();
@@ -244,7 +242,7 @@ Q_DECLARE_METATYPE(ProcessArgs::SplitError)
 Q_DECLARE_METATYPE(Utils::OsType)
 Q_DECLARE_METATYPE(Utils::ProcessResult)
 
-void tst_QtcProcess::multiRead()
+void tst_Process::multiRead()
 {
     if (HostOsInfo::isWindowsHost())
         QSKIP("This test uses /bin/sh.");
@@ -272,7 +270,7 @@ void tst_QtcProcess::multiRead()
     QCOMPARE(buffer, QByteArray("you\n"));
 }
 
-void tst_QtcProcess::splitArgs_data()
+void tst_Process::splitArgs_data()
 {
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
@@ -329,7 +327,7 @@ void tst_QtcProcess::splitArgs_data()
     }
 }
 
-void tst_QtcProcess::splitArgs()
+void tst_Process::splitArgs()
 {
     QFETCH(QString, in);
     QFETCH(QString, out);
@@ -343,7 +341,7 @@ void tst_QtcProcess::splitArgs()
         QCOMPARE(outstr, out);
 }
 
-void tst_QtcProcess::prepareArgs_data()
+void tst_Process::prepareArgs_data()
 {
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
@@ -397,7 +395,7 @@ void tst_QtcProcess::prepareArgs_data()
     }
 }
 
-void tst_QtcProcess::prepareArgs()
+void tst_Process::prepareArgs()
 {
     QFETCH(QString, in);
     QFETCH(QString, out);
@@ -413,7 +411,7 @@ void tst_QtcProcess::prepareArgs()
         QCOMPARE(outstr, out);
 }
 
-void tst_QtcProcess::prepareArgsEnv_data()
+void tst_Process::prepareArgsEnv_data()
 {
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
@@ -487,7 +485,7 @@ void tst_QtcProcess::prepareArgsEnv_data()
     }
 }
 
-void tst_QtcProcess::prepareArgsEnv()
+void tst_Process::prepareArgsEnv()
 {
     QFETCH(QString, in);
     QFETCH(QString, out);
@@ -503,7 +501,7 @@ void tst_QtcProcess::prepareArgsEnv()
         QCOMPARE(outstr, out);
 }
 
-void tst_QtcProcess::expandMacros_data()
+void tst_Process::expandMacros_data()
 
 {
     QTest::addColumn<QString>("in");
@@ -737,7 +735,7 @@ void tst_QtcProcess::expandMacros_data()
     }
 }
 
-void tst_QtcProcess::expandMacros()
+void tst_Process::expandMacros()
 {
     QFETCH(QString, in);
     QFETCH(QString, out);
@@ -750,7 +748,7 @@ void tst_QtcProcess::expandMacros()
     QCOMPARE(in, out);
 }
 
-void tst_QtcProcess::iterations_data()
+void tst_Process::iterations_data()
 {
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
@@ -805,7 +803,7 @@ void tst_QtcProcess::iterations_data()
                                   << vals[i].os;
 }
 
-void tst_QtcProcess::iterations()
+void tst_Process::iterations()
 {
     QFETCH(QString, in);
     QFETCH(QString, out);
@@ -821,7 +819,7 @@ void tst_QtcProcess::iterations()
     QCOMPARE(outstr, out);
 }
 
-void tst_QtcProcess::iteratorEditsHelper(OsType osType)
+void tst_Process::iteratorEditsHelper(OsType osType)
 {
     QString in1 = "one two three", in2 = in1, in3 = in1, in4 = in1, in5 = in1;
 
@@ -872,17 +870,17 @@ void tst_QtcProcess::iteratorEditsHelper(OsType osType)
     QCOMPARE(in5, QString::fromLatin1("one two"));
 }
 
-void tst_QtcProcess::iteratorEditsWindows()
+void tst_Process::iteratorEditsWindows()
 {
     iteratorEditsHelper(OsTypeWindows);
 }
 
-void tst_QtcProcess::iteratorEditsLinux()
+void tst_Process::iteratorEditsLinux()
 {
     iteratorEditsHelper(OsTypeLinux);
 }
 
-void tst_QtcProcess::exitCode_data()
+void tst_Process::exitCode_data()
 {
     QTest::addColumn<int>("exitCode");
 
@@ -896,7 +894,7 @@ void tst_QtcProcess::exitCode_data()
         QTest::newRow(exitCode) << QString::fromLatin1(exitCode).toInt();
 }
 
-void tst_QtcProcess::exitCode()
+void tst_Process::exitCode()
 {
     QFETCH(int, exitCode);
 
@@ -921,7 +919,7 @@ void tst_QtcProcess::exitCode()
     }
 }
 
-void tst_QtcProcess::runBlockingStdOut_data()
+void tst_Process::runBlockingStdOut_data()
 {
     QTest::addColumn<bool>("withEndl");
     QTest::addColumn<int>("timeOutS");
@@ -942,7 +940,7 @@ void tst_QtcProcess::runBlockingStdOut_data()
             << false << 20 << ProcessResult::FinishedWithSuccess;
 }
 
-void tst_QtcProcess::runBlockingStdOut()
+void tst_Process::runBlockingStdOut()
 {
     QFETCH(bool, withEndl);
     QFETCH(int, timeOutS);
@@ -962,18 +960,18 @@ void tst_QtcProcess::runBlockingStdOut()
     });
     process.runBlocking();
 
-    // See also QTCREATORBUG-25667 for why it is a bad idea to use QtcProcess::runBlocking
+    // See also QTCREATORBUG-25667 for why it is a bad idea to use Process::runBlocking
     // with interactive cli tools.
     QCOMPARE(process.result(), expectedResult);
     QVERIFY2(readLastLine, "Last line was read.");
 }
 
-void tst_QtcProcess::runBlockingSignal_data()
+void tst_Process::runBlockingSignal_data()
 {
     runBlockingStdOut_data();
 }
 
-void tst_QtcProcess::runBlockingSignal()
+void tst_Process::runBlockingSignal()
 {
     QFETCH(bool, withEndl);
     QFETCH(int, timeOutS);
@@ -995,13 +993,13 @@ void tst_QtcProcess::runBlockingSignal()
     });
     process.runBlocking();
 
-    // See also QTCREATORBUG-25667 for why it is a bad idea to use QtcProcess::runBlocking
+    // See also QTCREATORBUG-25667 for why it is a bad idea to use Process::runBlocking
     // with interactive cli tools.
     QCOMPARE(process.result(), expectedResult);
     QVERIFY2(readLastLine, "Last line was read.");
 }
 
-void tst_QtcProcess::lineCallback()
+void tst_Process::lineCallback()
 {
     SubProcessConfig subConfig(ProcessTestApp::LineCallback::envVar(), {});
     Process process;
@@ -1024,7 +1022,7 @@ void tst_QtcProcess::lineCallback()
     QCOMPARE(lineNumber, lines.size());
 }
 
-void tst_QtcProcess::lineSignal()
+void tst_Process::lineSignal()
 {
     SubProcessConfig subConfig(ProcessTestApp::LineCallback::envVar(), {});
     Process process;
@@ -1049,7 +1047,7 @@ void tst_QtcProcess::lineSignal()
     QCOMPARE(lineNumber, lines.size());
 }
 
-void tst_QtcProcess::waitForStartedAfterStarted()
+void tst_Process::waitForStartedAfterStarted()
 {
     SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
     Process process;
@@ -1070,7 +1068,7 @@ void tst_QtcProcess::waitForStartedAfterStarted()
 }
 
 // This version is using QProcess
-void tst_QtcProcess::waitForStartedAfterStarted2()
+void tst_Process::waitForStartedAfterStarted2()
 {
     SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
     QProcess process;
@@ -1090,7 +1088,7 @@ void tst_QtcProcess::waitForStartedAfterStarted2()
     QVERIFY(!process.waitForStarted());
 }
 
-void tst_QtcProcess::waitForStartedAndFinished()
+void tst_Process::waitForStartedAndFinished()
 {
     SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
     Process process;
@@ -1106,7 +1104,7 @@ void tst_QtcProcess::waitForStartedAndFinished()
 
 Q_DECLARE_METATYPE(ProcessSignalType)
 
-void tst_QtcProcess::notRunningAfterStartingNonExistingProgram_data()
+void tst_Process::notRunningAfterStartingNonExistingProgram_data()
 {
     QTest::addColumn<ProcessSignalType>("signalType");
 
@@ -1115,7 +1113,7 @@ void tst_QtcProcess::notRunningAfterStartingNonExistingProgram_data()
     QTest::newRow("Done") << ProcessSignalType::Done;
 }
 
-void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
+void tst_Process::notRunningAfterStartingNonExistingProgram()
 {
     QFETCH(ProcessSignalType, signalType);
 
@@ -1165,7 +1163,7 @@ void tst_QtcProcess::notRunningAfterStartingNonExistingProgram()
 // and the error channels. Then ChannelForwarding::main() either forwards these channels
 // or not - we check it in the outer channelForwarding() test.
 
-void tst_QtcProcess::channelForwarding_data()
+void tst_Process::channelForwarding_data()
 {
     QTest::addColumn<QProcess::ProcessChannelMode>("channelMode");
     QTest::addColumn<bool>("outputForwarded");
@@ -1178,7 +1176,7 @@ void tst_QtcProcess::channelForwarding_data()
     QTest::newRow("ForwardedErrorChannel") << QProcess::ForwardedErrorChannel << false << true;
 }
 
-void tst_QtcProcess::channelForwarding()
+void tst_Process::channelForwarding()
 {
     QFETCH(QProcess::ProcessChannelMode, channelMode);
     QFETCH(bool, outputForwarded);
@@ -1199,7 +1197,7 @@ void tst_QtcProcess::channelForwarding()
     QCOMPARE(error.contains(QByteArray(s_errorData)), errorForwarded);
 }
 
-void tst_QtcProcess::mergedChannels_data()
+void tst_Process::mergedChannels_data()
 {
     QTest::addColumn<QProcess::ProcessChannelMode>("channelMode");
     QTest::addColumn<bool>("outputOnOutput");
@@ -1220,7 +1218,7 @@ void tst_QtcProcess::mergedChannels_data()
 
 }
 
-void tst_QtcProcess::mergedChannels()
+void tst_Process::mergedChannels()
 {
     QFETCH(QProcess::ProcessChannelMode, channelMode);
     QFETCH(bool, outputOnOutput);
@@ -1245,7 +1243,7 @@ void tst_QtcProcess::mergedChannels()
     QCOMPARE(error.contains(QByteArray(s_errorData)), errorOnError);
 }
 
-void tst_QtcProcess::destroyBlockingProcess_data()
+void tst_Process::destroyBlockingProcess_data()
 {
     QTest::addColumn<BlockType>("blockType");
 
@@ -1255,7 +1253,7 @@ void tst_QtcProcess::destroyBlockingProcess_data()
     QTest::newRow("EventLoop") << BlockType::EventLoop;
 }
 
-void tst_QtcProcess::destroyBlockingProcess()
+void tst_Process::destroyBlockingProcess()
 {
     QFETCH(BlockType, blockType);
 
@@ -1269,7 +1267,7 @@ void tst_QtcProcess::destroyBlockingProcess()
     QVERIFY(!process.waitForFinished(1000));
 }
 
-void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
+void tst_Process::flushFinishedWhileWaitingForReadyRead()
 {
     SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
     Process process;
@@ -1294,7 +1292,7 @@ void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
     QVERIFY(reply.contains(s_simpleTestData));
 }
 
-void tst_QtcProcess::crash()
+void tst_Process::crash()
 {
     SubProcessConfig subConfig(ProcessTestApp::Crash::envVar(), {});
     Process process;
@@ -1312,7 +1310,7 @@ void tst_QtcProcess::crash()
     QCOMPARE(process.exitStatus(), QProcess::CrashExit);
 }
 
-void tst_QtcProcess::crashAfterOneSecond()
+void tst_Process::crashAfterOneSecond()
 {
     SubProcessConfig subConfig(ProcessTestApp::CrashAfterOneSecond::envVar(), {});
     Process process;
@@ -1330,7 +1328,7 @@ void tst_QtcProcess::crashAfterOneSecond()
     QCOMPARE(process.error(), QProcess::Crashed);
 }
 
-void tst_QtcProcess::recursiveCrashingProcess()
+void tst_Process::recursiveCrashingProcess()
 {
     const int recursionDepth = 5; // must be at least 2
     SubProcessConfig subConfig(ProcessTestApp::RecursiveCrashingProcess::envVar(),
@@ -1356,7 +1354,7 @@ static int runningTestProcessCount()
     return testProcessCounter;
 }
 
-void tst_QtcProcess::recursiveBlockingProcess()
+void tst_Process::recursiveBlockingProcess()
 {
     if (HostOsInfo::isWindowsHost())
         QSKIP(s_skipTerminateOnWindows);
@@ -1395,7 +1393,7 @@ enum class QuitType {
 
 Q_DECLARE_METATYPE(QuitType)
 
-void tst_QtcProcess::quitBlockingProcess_data()
+void tst_Process::quitBlockingProcess_data()
 {
     QTest::addColumn<QuitType>("quitType");
     QTest::addColumn<bool>("doneExpected");
@@ -1407,7 +1405,7 @@ void tst_QtcProcess::quitBlockingProcess_data()
     QTest::newRow("Close") << QuitType::Close << false << true;
 }
 
-void tst_QtcProcess::quitBlockingProcess()
+void tst_Process::quitBlockingProcess()
 {
     QFETCH(QuitType, quitType);
     QFETCH(bool, doneExpected);
@@ -1467,7 +1465,7 @@ void tst_QtcProcess::quitBlockingProcess()
     }
 }
 
-void tst_QtcProcess::tarPipe()
+void tst_Process::tarPipe()
 {
     if (!FilePath::fromString("tar").searchInPath().isExecutableFile())
         QSKIP("This test uses \"tar\" command.");
@@ -1521,6 +1519,6 @@ void tst_QtcProcess::tarPipe()
     QCOMPARE(sourceFile.fileSize(), destinationFile.fileSize());
 }
 
-QTEST_GUILESS_MAIN(tst_QtcProcess)
+QTEST_GUILESS_MAIN(tst_Process)
 
-#include "tst_qtcprocess.moc"
+#include "tst_process.moc"

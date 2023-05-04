@@ -2,7 +2,7 @@ import qbs.FileInfo
 
 Project  {
     QtcAutotest {
-        name: "QtcProcess autotest"
+        name: "Process autotest"
 
         Depends { name: "Utils" }
         Depends { name: "app_version_header" }
@@ -10,7 +10,7 @@ Project  {
         files: [
             "processtestapp/processtestapp.cpp",
             "processtestapp/processtestapp.h",
-            "tst_qtcprocess.cpp",
+            "tst_process.cpp",
         ]
         cpp.defines: {
             var defines = base;

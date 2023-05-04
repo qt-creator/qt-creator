@@ -20,8 +20,6 @@ class QDebug;
 class QTextCodec;
 QT_END_NAMESPACE
 
-class tst_QtcProcess;
-
 namespace Utils {
 
 namespace Internal { class QtcProcessPrivate; }

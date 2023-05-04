@@ -16,7 +16,7 @@ Project {
         "mathutils/mathutils.qbs",
         "multicursor/multicursor.qbs",
         "persistentsettings/persistentsettings.qbs",
-        "qtcprocess/qtcprocess.qbs",
+        "process/process.qbs",
         "settings/settings.qbs",
         "stringutils/stringutils.qbs",
         "tasktree/tasktree.qbs",
