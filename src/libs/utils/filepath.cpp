@@ -2072,9 +2072,10 @@ QTCREATOR_UTILS_EXPORT bool operator>=(const FilePath &first, const FilePath &se
 
 QTCREATOR_UTILS_EXPORT size_t qHash(const FilePath &filePath, uint seed)
 {
-    if (filePath.caseSensitivity() == Qt::CaseInsensitive)
-        return qHash(filePath.path().toCaseFolded(), seed);
-    return qHash(filePath.path(), seed);
+    if (filePath.caseSensitivity() == Qt::CaseSensitive)
+        return qHash(QStringView(filePath.m_data), seed);
+    const size_t schemeHostHash = qHash(QStringView(filePath.m_data).mid(filePath.m_pathLen), seed);
+    return qHash(filePath.path().toCaseFolded(), seed) ^ schemeHostHash;
 }
 
 QTCREATOR_UTILS_EXPORT size_t qHash(const FilePath &filePath)
