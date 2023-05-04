@@ -443,15 +443,9 @@ void CheckableMessageBox::resetAllDoNotAskAgainQuestions(QSettings *settings)
 bool CheckableMessageBox::hasSuppressedQuestions(QSettings *settings)
 {
     QTC_ASSERT(settings, return false);
-    bool hasSuppressed = false;
     settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
-    const QStringList childKeys = settings->childKeys();
-    for (const QString &subKey : childKeys) {
-        if (settings->value(subKey, false).toBool()) {
-            hasSuppressed = true;
-            break;
-        }
-    }
+    const bool hasSuppressed = !settings->childKeys().isEmpty()
+                               || !settings->childGroups().isEmpty();
     settings->endGroup();
     return hasSuppressed;
 }
