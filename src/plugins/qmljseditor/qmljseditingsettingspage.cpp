@@ -21,6 +21,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QSettings>
 #include <QTextStream>
 #include <QTreeView>
@@ -43,6 +44,22 @@ const char DEFAULT_CUSTOM_FORMAT_COMMAND[] = "%{CurrentDocument:Project:QT_HOST_
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
+
+static QList<int> defaultDisabledMessages()
+{
+    static const QList<int> disabledByDefault = Utils::transform(
+                QmlJS::Check::defaultDisabledMessages(),
+                [](QmlJS::StaticAnalysis::Type t) { return int(t); });
+    return disabledByDefault;
+}
+
+static QList<int> defaultDisabledMessagesNonQuickUi()
+{
+    static const QList<int> disabledForNonQuickUi = Utils::transform(
+        QmlJS::Check::defaultDisabledMessagesForNonQuickUi(),
+        [](QmlJS::StaticAnalysis::Type t){ return int(t); });
+    return disabledForNonQuickUi;
+}
 
 void QmlJsEditingSettings::set()
 {
@@ -67,19 +84,13 @@ void QmlJsEditingSettings::fromSettings(QSettings *settings)
     m_useCustomFormatCommand = settings->value(CUSTOM_COMMAND, QVariant(false)).toBool();
     m_useCustomAnalyzer = settings->value(CUSTOM_ANALYZER, QVariant(false)).toBool();
 
-    const QList<int> disabledByDefault = Utils::transform(
-        QmlJS::Check::defaultDisabledMessages(),
-        [](QmlJS::StaticAnalysis::Type t) { return int(t); });
     m_disabledMessages = Utils::transform<QSet>(
         settings->value(DISABLED_MESSAGES,
-                        QVariant::fromValue(disabledByDefault)).toList(),
+                        QVariant::fromValue(defaultDisabledMessages())).toList(),
         [](const QVariant &v){ return v.toInt(); });
-    const QList<int> disabledForNonQuickUi = Utils::transform(
-        QmlJS::Check::defaultDisabledMessagesForNonQuickUi(),
-        [](QmlJS::StaticAnalysis::Type t){ return int(t); });
     m_disabledMessagesForNonQuickUi = Utils::transform<QSet>(
         settings->value(DISABLED_MESSAGES_NONQUICKUI,
-                        QVariant::fromValue(disabledForNonQuickUi)).toList(),
+                        QVariant::fromValue(defaultDisabledMessagesNonQuickUi())).toList(),
         [](const QVariant &v) { return v.toInt(); });
 
     settings->endGroup();
@@ -109,20 +120,14 @@ void QmlJsEditingSettings::toSettings(QSettings *settings) const
                                             CUSTOM_ANALYZER,
                                             m_useCustomAnalyzer,
                                             false);
-    const QList<int> disabledByDefault = Utils::transform(
-        QmlJS::Check::defaultDisabledMessages(),
-        [](QmlJS::StaticAnalysis::Type t){ return int(t); });
     Utils::QtcSettings::setValueWithDefault(settings,
                                             DISABLED_MESSAGES,
                                             Utils::sorted(Utils::toList(m_disabledMessages)),
-                                            disabledByDefault);
-    const QList<int> disabledNonQuickUi = Utils::transform(
-        QmlJS::Check::defaultDisabledMessagesForNonQuickUi(),
-        [](QmlJS::StaticAnalysis::Type t){ return int(t); });
+                                            defaultDisabledMessages());
     Utils::QtcSettings::setValueWithDefault(settings,
                                             DISABLED_MESSAGES_NONQUICKUI,
                                             Utils::sorted(Utils::toList(m_disabledMessagesForNonQuickUi)),
-                                            disabledNonQuickUi);
+                                            defaultDisabledMessagesNonQuickUi());
     settings->endGroup();
     QmllsSettingsManager::instance()->checkForChanges();
 }
@@ -394,7 +399,9 @@ public:
         analyzerMessagesView->setToolTip(Tr::tr("Enabled checks can be disabled for non Qt Quick UI"
                                                 " files,\nbut disabled checks cannot get explicitly"
                                                 " enabled for non Qt Quick UI files."));
-
+        analyzerMessagesView->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(analyzerMessagesView, &QTreeView::customContextMenuRequested,
+                this, &QmlJsEditingSettingsPageWidget::showContextMenu);
         using namespace Layouting;
         // clang-format off
         QWidget *formattingGroup = nullptr;
@@ -501,6 +508,20 @@ private:
 
         for (int column = 0; column < 3; ++column)
             analyzerMessagesView->resizeColumnToContents(column);
+    }
+
+    void showContextMenu(const QPoint &position)
+    {
+        QMenu menu;
+        QAction *reset = new QAction(Tr::tr("Reset to Default"), &menu);
+        menu.addAction(reset);
+        connect(reset, &QAction::triggered, this, [this](){
+            analyzerMessageModel->clear();
+            populateAnalyzerMessages(Utils::toSet(defaultDisabledMessages()),
+                                     Utils::toSet(defaultDisabledMessagesNonQuickUi()));
+
+        });
+        menu.exec(analyzerMessagesView->mapToGlobal(position));
     }
 
     QCheckBox *autoFormatOnSave;
