@@ -1,5 +1,5 @@
 add_subdirectory(ansiescapecodehandler)
-add_subdirectory(asynctask)
+add_subdirectory(async)
 add_subdirectory(commandline)
 add_subdirectory(deviceshell)
 add_subdirectory(expected)

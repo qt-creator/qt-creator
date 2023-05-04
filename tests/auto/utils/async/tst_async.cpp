@@ -8,7 +8,7 @@
 
 using namespace Utils;
 
-class tst_AsyncTask : public QObject
+class tst_Async : public QObject
 {
     Q_OBJECT
 
@@ -131,7 +131,7 @@ std::shared_ptr<Async<ResultType>> createAsyncTask(Function &&function, Args &&.
     return asyncTask;
 }
 
-void tst_AsyncTask::runAsync()
+void tst_Async::runAsync()
 {
     // free function pointer
     QCOMPARE(createAsyncTask(&report3)->results(),
@@ -282,7 +282,7 @@ void tst_AsyncTask::runAsync()
              QList<double>({0, 2, 1}));
 }
 
-void tst_AsyncTask::crefFunction()
+void tst_Async::crefFunction()
 {
     // free function pointer with promise
     auto fun = &report3;
@@ -341,7 +341,7 @@ public:
     QString value;
 };
 
-void tst_AsyncTask::onResultReady()
+void tst_Async::onResultReady()
 {
     { // lambda
         QObject context;
@@ -386,7 +386,7 @@ void tst_AsyncTask::onResultReady()
     }
 }
 
-void tst_AsyncTask::futureSynchonizer()
+void tst_Async::futureSynchonizer()
 {
     auto lambda = [](QPromise<int> &promise) {
         while (true) {
@@ -418,7 +418,7 @@ void tst_AsyncTask::futureSynchonizer()
 
 void multiplyBy2(QPromise<int> &promise, int input) { promise.addResult(input * 2); }
 
-void tst_AsyncTask::taskTree()
+void tst_Async::taskTree()
 {
     using namespace Tasking;
 
@@ -461,7 +461,7 @@ static void returnxxWithPromise(QPromise<int> &promise, int x)
 static double s_sum = 0;
 static QList<double> s_results;
 
-void tst_AsyncTask::mapReduce_data()
+void tst_Async::mapReduce_data()
 {
     using namespace Tasking;
 
@@ -567,7 +567,7 @@ void tst_AsyncTask::mapReduce_data()
     QTest::newRow("String") << stringRoot << 1.5 << QList<double>({});
 }
 
-void tst_AsyncTask::mapReduce()
+void tst_Async::mapReduce()
 {
     QThreadPool pool;
 
@@ -591,6 +591,6 @@ void tst_AsyncTask::mapReduce()
     QCOMPARE(s_sum, sum);
 }
 
-QTEST_GUILESS_MAIN(tst_AsyncTask)
+QTEST_GUILESS_MAIN(tst_Async)
 
-#include "tst_asynctask.moc"
+#include "tst_async.moc"

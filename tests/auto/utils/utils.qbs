@@ -4,7 +4,7 @@ Project {
     name: "Utils autotests"
     references: [
         "ansiescapecodehandler/ansiescapecodehandler.qbs",
-        "asynctask/asynctask.qbs",
+        "async/async.qbs",
         "commandline/commandline.qbs",
         "deviceshell/deviceshell.qbs",
         "expected/expected.qbs",
