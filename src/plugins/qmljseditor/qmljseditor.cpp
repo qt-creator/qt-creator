@@ -743,7 +743,7 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
 
     widget->setReadOnly(true);
     widget->textDocument()->setTemporary(true);
-    widget->textDocument()->setSyntaxHighlighter(new QmlJSHighlighter(widget->document()));
+    widget->textDocument()->setSyntaxHighlighterCreator([] {return new QmlJSHighlighter();});
 
     const QString buf = inspectCppComponent(cppValue);
     widget->textDocument()->setPlainText(buf);
@@ -1160,7 +1160,7 @@ QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
 
 void QmlJSEditorFactory::decorateEditor(TextEditorWidget *editor)
 {
-    editor->textDocument()->setSyntaxHighlighter(new QmlJSHighlighter);
+    editor->textDocument()->setSyntaxHighlighterCreator([] { return new QmlJSHighlighter(); });
     editor->textDocument()->setIndenter(new Internal::Indenter(editor->textDocument()->document()));
     editor->setAutoCompleter(new AutoCompleter);
 }

@@ -93,7 +93,7 @@ DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
     context->setContext(Context(Constants::C_DIFF_EDITOR_DESCRIPTION));
     ICore::addContextObject(context);
 
-    textDocument()->setSyntaxHighlighter(new SyntaxHighlighter);
+    textDocument()->setSyntaxHighlighterCreator([] { return new SyntaxHighlighter(); });
 }
 
 QSize DescriptionEditorWidget::sizeHint() const

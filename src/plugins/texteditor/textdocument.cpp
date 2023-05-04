@@ -901,11 +901,12 @@ bool TextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type
     return reload(errorString);
 }
 
-void TextDocument::setSyntaxHighlighter(SyntaxHighlighter *highlighter)
+void TextDocument::setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator)
 {
     if (d->m_highlighter)
         delete d->m_highlighter;
-    d->m_highlighter = highlighter;
+
+    d->m_highlighter = creator();
     d->m_highlighter->setParent(this);
     d->m_highlighter->setDocument(&d->m_document);
 }

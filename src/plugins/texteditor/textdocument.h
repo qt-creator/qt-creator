@@ -124,7 +124,9 @@ public:
 
     bool setPlainText(const QString &text);
     QTextDocument *document() const;
-    void setSyntaxHighlighter(SyntaxHighlighter *highlighter);
+
+    using SyntaxHighLighterCreator = std::function<SyntaxHighlighter *()>;
+    void setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator);
     SyntaxHighlighter *syntaxHighlighter() const;
 
     bool reload(QString *errorString, QTextCodec *codec);

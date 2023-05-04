@@ -246,9 +246,11 @@ void GitEditorWidget::init()
         return;
     const QChar commentChar = gitClient().commentChar(source());
     if (isCommitEditor)
-        textDocument()->setSyntaxHighlighter(new GitSubmitHighlighter(commentChar));
+        textDocument()->setSyntaxHighlighterCreator(
+            [commentChar] { return new GitSubmitHighlighter(commentChar); });
     else if (isRebaseEditor)
-        textDocument()->setSyntaxHighlighter(new GitRebaseHighlighter(commentChar));
+        textDocument()->setSyntaxHighlighterCreator(
+            [commentChar] { return new GitRebaseHighlighter(commentChar); });
 }
 
 void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)

@@ -167,7 +167,8 @@ BindingEditorFactory::BindingEditorFactory()
 
 void BindingEditorFactory::decorateEditor(TextEditor::TextEditorWidget *editor)
 {
-    editor->textDocument()->setSyntaxHighlighter(new QmlJSEditor::QmlJSHighlighter);
+    editor->textDocument()->setSyntaxHighlighterCreator(
+        [] { return new QmlJSEditor::QmlJSHighlighter(); });
     editor->textDocument()->setIndenter(new QmlJSEditor::Internal::Indenter(
                                             editor->textDocument()->document()));
     editor->setAutoCompleter(new QmlJSEditor::AutoCompleter);
