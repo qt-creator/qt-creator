@@ -87,7 +87,8 @@ void DesktopRunConfiguration::updateTargetInformation()
     BuildTargetInfo bti = buildTargetInfo();
 
     auto terminalAspect = aspect<TerminalAspect>();
-    terminalAspect->setUseTerminalHint(bti.usesTerminal);
+    terminalAspect->setUseTerminalHint(bti.targetFilePath.needsDevice() ? false : bti.usesTerminal);
+    terminalAspect->setEnabled(!bti.targetFilePath.needsDevice());
 
     if (m_kind == Qmake) {
 

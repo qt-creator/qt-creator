@@ -65,8 +65,9 @@ TerminalAspect::TerminalAspect()
 void TerminalAspect::addToLayout(LayoutItem &parent)
 {
     QTC_CHECK(!m_checkBox);
-    m_checkBox = new QCheckBox(Tr::tr("Run in terminal"));
+    m_checkBox = createSubWidget<QCheckBox>(Tr::tr("Run in terminal"));
     m_checkBox->setChecked(m_useTerminal);
+    m_checkBox->setEnabled(isEnabled());
     parent.addItems({{}, m_checkBox.data()});
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_userSet = true;
@@ -123,7 +124,7 @@ void TerminalAspect::calculateUseTerminal()
 */
 bool TerminalAspect::useTerminal() const
 {
-    return m_useTerminal;
+    return m_useTerminal && isEnabled();
 }
 
 /*!

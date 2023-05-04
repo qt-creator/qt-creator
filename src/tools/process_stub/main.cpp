@@ -137,11 +137,6 @@ void sendMsg(const QByteArray &msg)
     }
 }
 
-void sendQtcMarker(const QByteArray &marker)
-{
-    sendMsg(QByteArray("qtc: ") + marker + "\n");
-}
-
 void sendPid(int inferiorPid)
 {
     sendMsg(QString("pid %1\n").arg(inferiorPid).toUtf8());
@@ -317,31 +312,7 @@ void startProcess(const QString &executable, const QStringList &arguments, const
                      QCoreApplication::instance(),
                      &onInferiorStarted);
 
-    inferiorProcess.setProcessChannelMode(QProcess::SeparateChannels);
-
-    QObject::connect(&inferiorProcess,
-                     &QProcess::readyReadStandardOutput,
-                     QCoreApplication::instance(),
-                     [] {
-                         const QByteArray data = inferiorProcess.readAllStandardOutput();
-                         static bool isFirst = true;
-                         if (isFirst) {
-                             isFirst = false;
-                             if (data.startsWith("__qtc")) {
-                                 int lineBreak = data.indexOf("\r\n");
-                                 sendQtcMarker(data.mid(0, lineBreak));
-                                 if (lineBreak != -1)
-                                     writeToOut(data.mid(lineBreak + 2), Out::StdOut);
-                                 return;
-                             }
-                         }
-                         writeToOut(data, Out::StdOut);
-                     });
-
-    QObject::connect(&inferiorProcess,
-                     &QProcess::readyReadStandardError,
-                     QCoreApplication::instance(),
-                     [] { writeToOut(inferiorProcess.readAllStandardError(), Out::StdErr); });
+    inferiorProcess.setProcessChannelMode(QProcess::ForwardedChannels);
 
     if (!(testMode && debugMode))
         inferiorProcess.setInputChannelMode(QProcess::ForwardedInputChannel);
