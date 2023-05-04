@@ -8,6 +8,8 @@
 #include <QMutex>
 #include <QTime>
 
+#include <chrono>
+
 #if defined(Q_OS_UNIX)
 #include <stdio.h>
 #include <signal.h>
@@ -128,6 +130,32 @@ void writeAssertLocation(const char *msg)
     static int maxdepth = qEnvironmentVariableIntValue("QTC_BACKTRACE_MAXDEPTH");
     if (maxdepth != 0)
         dumpBacktrace(maxdepth);
+}
+
+using namespace std::chrono;
+
+class ScopedTimerPrivate
+{
+public:
+    const char *m_fileName = nullptr;
+    const int m_line = 0;
+    const time_point<system_clock, nanoseconds> m_start = system_clock::now();
+};
+
+ScopedTimer::ScopedTimer(const char *fileName, int line)
+    : d(new ScopedTimerPrivate{fileName, line})
+{
+    const QByteArray time = QTime::currentTime().toString(Qt::ISODateWithMs).toLatin1();
+    qDebug("SCOPED TIMER [%s] in %s:%d started", time.data(), d->m_fileName, d->m_line);
+}
+
+ScopedTimer::~ScopedTimer()
+{
+    const auto end = system_clock::now();
+    const auto elapsed = duration_cast<milliseconds>(end - d->m_start);
+    const QByteArray time = QTime::currentTime().toString(Qt::ISODateWithMs).toLatin1();
+    qDebug("SCOPED TIMER [%s] in %s:%d stopped with timeout: %ldms",
+           time.data(), d->m_fileName, d->m_line, elapsed.count());
 }
 
 } // namespace Utils
