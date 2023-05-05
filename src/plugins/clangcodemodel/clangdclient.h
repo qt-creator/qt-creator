@@ -119,7 +119,7 @@ public:
 
 signals:
     void indexingFinished();
-    void foundReferences(const QList<Utils::SearchResultItem> &items);
+    void foundReferences(const Utils::SearchResultItems &items);
     void findUsagesDone();
     void helpItemGathered(const Core::HelpItem &helpItem);
     void highlightingResultsReady(const TextEditor::HighlightingResults &results,

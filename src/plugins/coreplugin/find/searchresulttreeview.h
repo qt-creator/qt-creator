@@ -26,7 +26,7 @@ public:
     void setTabWidth(int tabWidth);
 
     SearchResultFilterModel *model() const;
-    void addResults(const QList<Utils::SearchResultItem> &items, SearchResult::AddMode mode);
+    void addResults(const Utils::SearchResultItems &items, SearchResult::AddMode mode);
     void setFilter(SearchResultFilter *filter);
     bool hasFilter() const;
     void showFilterWidget(QWidget *parent);

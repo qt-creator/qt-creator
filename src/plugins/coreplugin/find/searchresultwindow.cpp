@@ -261,7 +261,7 @@ using namespace Core::Internal;
 
 /*!
     \fn void Core::SearchResult::replaceButtonClicked(const QString &replaceText,
-                           const QList<Utils::SearchResultItem> &checkedItems,
+                           const Utils::SearchResultItems &checkedItems,
                            bool preserveCase)
 
     Indicates that the user initiated a text replace by selecting
@@ -843,7 +843,7 @@ void SearchResult::addResult(const Utils::SearchResultItem &item)
 
     \sa addResult()
 */
-void SearchResult::addResults(const QList<Utils::SearchResultItem> &items, AddMode mode)
+void SearchResult::addResults(const Utils::SearchResultItems &items, AddMode mode)
 {
     m_widget->addResults(items, mode);
     emit countChanged(m_widget->count());

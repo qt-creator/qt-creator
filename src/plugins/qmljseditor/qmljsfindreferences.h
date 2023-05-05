@@ -62,7 +62,7 @@ private:
     void searchFinished();
     void cancel();
     void setPaused(bool paused);
-    void onReplaceButtonClicked(const QString &text, const QList<Utils::SearchResultItem> &items,
+    void onReplaceButtonClicked(const QString &text, const Utils::SearchResultItems &items,
                                 bool preserveCase);
 
     QPointer<Core::SearchResult> m_currentSearch;

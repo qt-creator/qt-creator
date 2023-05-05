@@ -72,7 +72,7 @@ public:
     const Position linkAsPosition;
     const QPointer<SearchResult> search;
     const LinkHandler callback;
-    QList<SearchResultItem> declDefItems;
+    SearchResultItems declDefItems;
     bool openedExtraFileForLink = false;
     bool declHasUsedTag = false;
     bool recursiveCallDetected = false;
@@ -89,7 +89,7 @@ public:
             const SearchResult *search,
             const ReplacementData &replacementData,
             const QString &newSymbolName,
-            const QList<SearchResultItem> &checkedItems,
+            const SearchResultItems &checkedItems,
             bool preserveCase);
     void handleFindUsagesResult(const QList<Location> &locations);
     void finishSearch();
@@ -143,7 +143,7 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
         d->search->setAdditionalReplaceWidget(renameFilesCheckBox);
         const auto renameHandler =
                 [search = d->search](const QString &newSymbolName,
-                       const QList<SearchResultItem> &checkedItems,
+                       const SearchResultItems &checkedItems,
                        bool preserveCase) {
             const auto replacementData = search->userData().value<ReplacementData>();
             Private::handleRenameRequest(search, replacementData, newSymbolName, checkedItems,
@@ -151,7 +151,7 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
         };
         connect(d->search, &SearchResult::replaceButtonClicked, renameHandler);
     }
-    connect(d->search, &SearchResult::activated, [](const SearchResultItem& item) {
+    connect(d->search, &SearchResult::activated, [](const SearchResultItem &item) {
         EditorManager::openEditorAtSearchResult(item);
     });
     if (d->search->isInteractive())
@@ -243,7 +243,7 @@ void ClangdFindReferences::Private::handleRenameRequest(
         const SearchResult *search,
         const ReplacementData &replacementData,
         const QString &newSymbolName,
-        const QList<SearchResultItem> &checkedItems,
+        const SearchResultItems &checkedItems,
         bool preserveCase)
 {
     const Utils::FilePaths filePaths = BaseFileFind::replaceAll(newSymbolName, checkedItems,
@@ -391,7 +391,7 @@ static Usage::Tags getUsageType(const ClangdAstPath &path, const QString &search
 void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file,
                                                             const ReferencesFileData &fileData)
 {
-    QList<SearchResultItem> items;
+    SearchResultItems items;
     qCDebug(clangdLog) << file << "has valid AST:" << fileData.ast.isValid();
     const auto expectedDeclTypes = [this]() -> QStringList {
         if (checkUnusedData)

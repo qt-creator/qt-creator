@@ -992,7 +992,7 @@ void FindReferences::displayResults(int first, int last)
                     this, &FindReferences::onReplaceButtonClicked);
         }
         connect(m_currentSearch.data(), &SearchResult::activated,
-                [](const Utils::SearchResultItem& item) {
+                [](const Utils::SearchResultItem &item) {
                     Core::EditorManager::openEditorAtSearchResult(item);
                 });
         connect(m_currentSearch.data(), &SearchResult::canceled, this, &FindReferences::cancel);
@@ -1042,7 +1042,7 @@ void FindReferences::setPaused(bool paused)
 }
 
 void FindReferences::onReplaceButtonClicked(const QString &text,
-    const QList<Utils::SearchResultItem> &items, bool preserveCase)
+                     const Utils::SearchResultItems &items, bool preserveCase)
 {
     const Utils::FilePaths filePaths = TextEditor::BaseFileFind::replaceAll(text,
                                                                             items,

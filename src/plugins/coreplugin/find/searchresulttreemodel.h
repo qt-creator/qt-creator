@@ -25,7 +25,7 @@ public:
     void setFilter(SearchResultFilter *filter);
     void setShowReplaceUI(bool show);
     void setTextEditorFont(const QFont &font, const Utils::SearchResultColors &colors);
-    QList<QModelIndex> addResults(const QList<Utils::SearchResultItem> &items,
+    QList<QModelIndex> addResults(const Utils::SearchResultItems &items,
                                   SearchResult::AddMode mode);
     void clear();
     QModelIndex next(const QModelIndex &idx, bool includeGenerated = false,

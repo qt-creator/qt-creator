@@ -456,10 +456,8 @@ void CppFindReferences::setupSearch(Core::SearchResult *search)
             std::bind(&CppFindReferences::onReplaceButtonClicked, this, search, _1, _2, _3));
 }
 
-void CppFindReferences::onReplaceButtonClicked(Core::SearchResult *search,
-                                               const QString &text,
-                                               const QList<SearchResultItem> &items,
-                                               bool preserveCase)
+void CppFindReferences::onReplaceButtonClicked(Core::SearchResult *search, const QString &text,
+                                               const SearchResultItems &items, bool preserveCase)
 {
     const Utils::FilePaths filePaths = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
     if (!filePaths.isEmpty()) {

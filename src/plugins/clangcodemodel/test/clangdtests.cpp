@@ -191,7 +191,7 @@ void ClangdTestFindReferences::initTestCase()
     ClangdTest::initTestCase();
     CppEditor::codeModelSettings()->setCategorizeFindReferences(true);
     connect(client(), &ClangdClient::foundReferences, this,
-            [this](const QList<SearchResultItem> &results) {
+            [this](const SearchResultItems &results) {
         if (results.isEmpty())
             return;
         if (results.first().path().first().endsWith("defs.h"))
@@ -205,8 +205,7 @@ void ClangdTestFindReferences::test_data()
 {
     QTest::addColumn<QString>("fileName");
     QTest::addColumn<int>("pos");
-    using ItemList = QList<SearchResultItem>;
-    QTest::addColumn<ItemList>("expectedResults");
+    QTest::addColumn<SearchResultItems>("expectedResults");
 
     static const auto makeItem = [](int line, int column, Usage::Tags tags) {
         SearchResultItem item;
@@ -215,7 +214,7 @@ void ClangdTestFindReferences::test_data()
         return item;
     };
 
-    QTest::newRow("struct member") << "defs.h" << 55 << ItemList{
+    QTest::newRow("struct member") << "defs.h" << 55 << SearchResultItems{
         makeItem(2, 17, Usage::Tag::Read), makeItem(3, 15, Usage::Tag::Declaration),
         makeItem(6, 17, Usage::Tag::WritableRef), makeItem(8, 11, Usage::Tag::WritableRef),
         makeItem(9, 13, Usage::Tag::WritableRef), makeItem(10, 12, Usage::Tag::WritableRef),
@@ -232,23 +231,23 @@ void ClangdTestFindReferences::test_data()
         makeItem(56, 7, Usage::Tag::Write), makeItem(56, 25, Usage::Tags()),
         makeItem(58, 13, Usage::Tag::Read), makeItem(58, 25, Usage::Tag::Read),
         makeItem(59, 7, Usage::Tag::Write), makeItem(59, 24, Usage::Tag::Read)};
-    QTest::newRow("constructor member initialization") << "defs.h" << 68 << ItemList{
+    QTest::newRow("constructor member initialization") << "defs.h" << 68 << SearchResultItems{
         makeItem(2, 10, Usage::Tag::Write), makeItem(4, 8, Usage::Tag::Declaration)};
-    QTest::newRow("direct member initialization") << "defs.h" << 101 << ItemList{
+    QTest::newRow("direct member initialization") << "defs.h" << 101 << SearchResultItems{
         makeItem(5, 21, Initialization), makeItem(45, 16, Usage::Tag::Read)};
 
-    ItemList pureVirtualRefs{makeItem(17, 17, Usage::Tag::Declaration),
+    SearchResultItems pureVirtualRefs{makeItem(17, 17, Usage::Tag::Declaration),
                              makeItem(21, 9, {Usage::Tag::Declaration, Usage::Tag::Override})};
     QTest::newRow("pure virtual declaration") << "defs.h" << 420 << pureVirtualRefs;
 
-    QTest::newRow("pointer variable") << "main.cpp" << 52 << ItemList{
+    QTest::newRow("pointer variable") << "main.cpp" << 52 << SearchResultItems{
         makeItem(6, 10, Initialization), makeItem(8, 4, Usage::Tag::Write),
         makeItem(10, 4, Usage::Tag::Write), makeItem(24, 5, Usage::Tag::Write),
         makeItem(25, 11, Usage::Tag::WritableRef), makeItem(26, 11, Usage::Tag::Read),
         makeItem(27, 10, Usage::Tag::WritableRef), makeItem(28, 10, Usage::Tag::Read),
         makeItem(29, 11, Usage::Tag::Read), makeItem(30, 15, Usage::Tag::WritableRef),
         makeItem(31, 22, Usage::Tag::Read)};
-    QTest::newRow("struct variable") << "main.cpp" << 39 << ItemList{
+    QTest::newRow("struct variable") << "main.cpp" << 39 << SearchResultItems{
         makeItem(5, 7, Usage::Tag::Declaration), makeItem(6, 15, Usage::Tag::WritableRef),
         makeItem(8, 9, Usage::Tag::WritableRef), makeItem(9, 11, Usage::Tag::WritableRef),
         makeItem(11, 4, Usage::Tag::Write), makeItem(11, 11, Usage::Tag::WritableRef),
@@ -269,7 +268,7 @@ void ClangdTestFindReferences::test_data()
 
     // Some of these are conceptually questionable, as S is a type and thus we cannot "read from"
     // or "write to" it. But it probably matches the intuitive user expectation.
-    QTest::newRow("struct type") << "defs.h" << 7 << ItemList{
+    QTest::newRow("struct type") << "defs.h" << 7 << SearchResultItems{
         makeItem(1, 7, Usage::Tag::Declaration),
         makeItem(2, 4, (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::ConstructorDestructor})),
         makeItem(20, 19, Usage::Tags()), makeItem(10, 9, Usage::Tag::WritableRef),
@@ -281,24 +280,24 @@ void ClangdTestFindReferences::test_data()
         makeItem(58, 10, Usage::Tag::Read), makeItem(58, 22, Usage::Tag::Read),
         makeItem(59, 4, Usage::Tag::Write), makeItem(59, 21, Usage::Tag::Read)};
 
-    QTest::newRow("struct type 2") << "defs.h" << 450 << ItemList{
+    QTest::newRow("struct type 2") << "defs.h" << 450 << SearchResultItems{
         makeItem(20, 7, Usage::Tag::Declaration), makeItem(5, 4, Usage::Tags()),
         makeItem(13, 21, Usage::Tags()), makeItem(32, 8, Usage::Tags())};
 
-    QTest::newRow("constructor") << "defs.h" << 627 << ItemList{
+    QTest::newRow("constructor") << "defs.h" << 627 << SearchResultItems{
         makeItem(31, 4, (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::ConstructorDestructor})),
         makeItem(36, 7, Usage::Tag::ConstructorDestructor)};
 
-    QTest::newRow("subclass") << "defs.h" << 450 << ItemList{
+    QTest::newRow("subclass") << "defs.h" << 450 << SearchResultItems{
         makeItem(20, 7, Usage::Tag::Declaration), makeItem(5, 4, Usage::Tags()),
         makeItem(13, 21, Usage::Tags()), makeItem(32, 8, Usage::Tags())};
-    QTest::newRow("array variable") << "main.cpp" << 1134 << ItemList{
+    QTest::newRow("array variable") << "main.cpp" << 1134 << SearchResultItems{
         makeItem(57, 8, Usage::Tag::Declaration), makeItem(58, 4, Usage::Tag::Write),
         makeItem(59, 15, Usage::Tag::Read)};
-    QTest::newRow("free function") << "defs.h" << 510 << ItemList{
+    QTest::newRow("free function") << "defs.h" << 510 << SearchResultItems{
         makeItem(24, 5, Usage::Tag::Declaration), makeItem(19, 4, Usage::Tags()),
         makeItem(25, 4, Usage::Tags()), makeItem(60, 26, Usage::Tag::Read)};
-    QTest::newRow("member function") << "defs.h" << 192 << ItemList{
+    QTest::newRow("member function") << "defs.h" << 192 << SearchResultItems{
         makeItem(9, 12, Usage::Tag::Declaration), makeItem(40, 8, Usage::Tags())};
 }
 
@@ -309,7 +308,7 @@ void ClangdTestFindReferences::test()
 {
     QFETCH(QString, fileName);
     QFETCH(int, pos);
-    QFETCH(QList<SearchResultItem>, expectedResults);
+    QFETCH(SearchResultItems, expectedResults);
 
     TextEditor::TextDocument * const doc = document(fileName);
     QVERIFY(doc);

@@ -60,7 +60,7 @@ public:
 
 public slots:
     void addResult(const Utils::SearchResultItem &item);
-    void addResults(const QList<Utils::SearchResultItem> &items, AddMode mode);
+    void addResults(const Utils::SearchResultItems &items, AddMode mode);
     void setFilter(SearchResultFilter *filter); // Takes ownership
     void finishSearch(bool canceled, const QString &reason = {});
     void setTextToReplace(const QString &textToReplace);
@@ -71,7 +71,8 @@ public slots:
 
 signals:
     void activated(const Utils::SearchResultItem &item);
-    void replaceButtonClicked(const QString &replaceText, const QList<Utils::SearchResultItem> &checkedItems, bool preserveCase);
+    void replaceButtonClicked(const QString &replaceText,
+                              const Utils::SearchResultItems &checkedItems, bool preserveCase);
     void replaceTextChanged(const QString &replaceText);
     void canceled();
     void paused(bool paused);

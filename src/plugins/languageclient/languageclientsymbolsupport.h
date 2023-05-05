@@ -73,7 +73,7 @@ private:
                            const std::function<void()> &callback, bool preferLowerCaseFileNames);
     void handleRenameResponse(Core::SearchResult *search,
                               const LanguageServerProtocol::RenameRequest::Response &response);
-    void applyRename(const QList<Utils::SearchResultItem> &checkedItems, Core::SearchResult *search);
+    void applyRename(const Utils::SearchResultItems &checkedItems, Core::SearchResult *search);
     QString derivePlaceholder(const QString &oldSymbol, const QString &newSymbol);
 
     Client *m_client = nullptr;

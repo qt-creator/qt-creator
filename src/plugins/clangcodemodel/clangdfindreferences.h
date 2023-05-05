@@ -35,7 +35,7 @@ public:
     ~ClangdFindReferences();
 
 signals:
-    void foundReferences(const QList<Utils::SearchResultItem> &items);
+    void foundReferences(const Utils::SearchResultItems &items);
     void done();
 
 private:

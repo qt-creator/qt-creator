@@ -226,7 +226,7 @@ void SearchResultWidget::setAdditionalReplaceWidget(QWidget *widget)
     m_additionalReplaceWidget = widget;
 }
 
-void SearchResultWidget::addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode)
+void SearchResultWidget::addResults(const SearchResultItems &items, SearchResult::AddMode mode)
 {
     bool firstItems = (m_count == 0);
     m_count += items.size();
@@ -496,9 +496,9 @@ void SearchResultWidget::searchAgain()
     emit searchAgainRequested();
 }
 
-QList<SearchResultItem> SearchResultWidget::checkedItems() const
+SearchResultItems SearchResultWidget::checkedItems() const
 {
-    QList<SearchResultItem> result;
+    SearchResultItems result;
     SearchResultFilterModel *model = m_searchResultTreeView->model();
     const int fileCount = model->rowCount();
     for (int i = 0; i < fileCount; ++i) {

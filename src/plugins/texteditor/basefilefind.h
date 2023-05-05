@@ -85,8 +85,7 @@ public:
     void addSearchEngine(SearchEngine *searchEngine);
 
     /* returns the list of unique files that were passed in items */
-    static Utils::FilePaths replaceAll(const QString &txt,
-                                       const QList<Utils::SearchResultItem> &items,
+    static Utils::FilePaths replaceAll(const QString &txt, const Utils::SearchResultItems &items,
                                        bool preserveCase = false);
     virtual Utils::FileIterator *files(const QStringList &nameFilters,
                                        const QStringList &exclusionFilters,
@@ -116,9 +115,7 @@ signals:
 
 private:
     void openEditor(Core::SearchResult *result, const Utils::SearchResultItem &item);
-    void doReplace(const QString &txt,
-                   const QList<Utils::SearchResultItem> &items,
-                   bool preserveCase);
+    void doReplace(const QString &txt, const Utils::SearchResultItems &items, bool preserveCase);
     void hideHighlightAll(bool visible);
     void searchAgain(Core::SearchResult *search);
     virtual void recheckEnabled(Core::SearchResult *search);

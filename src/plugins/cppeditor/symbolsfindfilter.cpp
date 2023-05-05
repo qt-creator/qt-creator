@@ -136,7 +136,7 @@ void SymbolsFindFilter::addResults(QFutureWatcher<SearchResultItem> *watcher, in
         watcher->cancel();
         return;
     }
-    QList<SearchResultItem> items;
+    SearchResultItems items;
     for (int i = begin; i < end; ++i)
         items << watcher->resultAt(i);
     search->addResults(items, SearchResult::AddSorted);

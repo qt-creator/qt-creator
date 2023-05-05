@@ -74,7 +74,7 @@ private slots:
     void test();
 
 private:
-    QList<Utils::SearchResultItem> m_actualResults;
+    Utils::SearchResultItems m_actualResults;
 };
 
 class ClangdTestFollowSymbol : public ClangdTest

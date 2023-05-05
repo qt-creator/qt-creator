@@ -115,7 +115,10 @@ private:
     std::optional<QString> m_containingFunctionName;
 };
 
+using SearchResultItems = QList<SearchResultItem>;
+
 } // namespace Utils
 
 Q_DECLARE_METATYPE(Utils::SearchResultItem)
+Q_DECLARE_METATYPE(Utils::SearchResultItems)
 Q_DECLARE_METATYPE(Utils::Search::TextPosition)

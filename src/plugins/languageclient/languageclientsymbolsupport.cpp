@@ -216,12 +216,12 @@ QStringList SymbolSupport::getFileContents(const Utils::FilePath &filePath)
     return fileContent.split("\n");
 }
 
-QList<Utils::SearchResultItem> generateSearchResultItems(
+Utils::SearchResultItems generateSearchResultItems(
     const QMap<Utils::FilePath, QList<ItemData>> &rangesInDocument,
     Core::SearchResult *search = nullptr,
     bool limitToProjects = false)
 {
-    QList<Utils::SearchResultItem> result;
+    Utils::SearchResultItems result;
     const bool renaming = search && search->supportsReplace();
     QString oldSymbolName;
     QVariantList userData;
@@ -264,7 +264,7 @@ QList<Utils::SearchResultItem> generateSearchResultItems(
     return result;
 }
 
-QList<Utils::SearchResultItem> generateSearchResultItems(
+Utils::SearchResultItems generateSearchResultItems(
     const LanguageClientArray<Location> &locations, const DocumentUri::PathMapper &pathMapper)
 {
     if (locations.isNull())
@@ -463,7 +463,7 @@ void SymbolSupport::requestRename(const TextDocumentPositionParams &positionPara
         search->popup();
 }
 
-QList<Utils::SearchResultItem> generateReplaceItems(const WorkspaceEdit &edits,
+Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
                                                    Core::SearchResult *search,
                                                    bool limitToProjects,
                                                    const DocumentUri::PathMapper &pathMapper)
@@ -524,7 +524,7 @@ Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams
 
     connect(search, &Core::SearchResult::replaceButtonClicked, this,
             [this, search, resetConnection](const QString & /*replaceText*/,
-                                            const QList<Utils::SearchResultItem> &checkedItems) {
+                                            const Utils::SearchResultItems &checkedItems) {
                 applyRename(checkedItems, search);
                 disconnect(resetConnection);
             });
@@ -571,7 +571,7 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
     }
 }
 
-void SymbolSupport::applyRename(const QList<Utils::SearchResultItem> &checkedItems,
+void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
                                 Core::SearchResult *search)
 {
     QSet<Utils::FilePath> affectedNonOpenFilePaths;

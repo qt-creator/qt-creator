@@ -264,7 +264,7 @@ void SymbolSearcher::runSearch(QPromise<SearchResultItem> &promise)
         if (promise.isCanceled())
             break;
         if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->filePath().path())) {
-            QList<SearchResultItem> resultItems;
+            SearchResultItems resultItems;
             auto filter = [&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
                 if (matcher.match(info->symbolName()).hasMatch()) {
                     QString text = info->symbolName();

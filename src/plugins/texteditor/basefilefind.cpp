@@ -223,7 +223,7 @@ static void displayResult(QFutureWatcher<FileSearchResultList> *watcher,
                           SearchResult *search, int index)
 {
     const FileSearchResultList results = watcher->resultAt(index);
-    QList<SearchResultItem> items;
+    SearchResultItems items;
     for (const FileSearchResult &result : results) {
         SearchResultItem item;
         item.setFilePath(result.fileName);
@@ -330,8 +330,7 @@ void BaseFileFind::addSearchEngine(SearchEngine *searchEngine)
         setCurrentSearchEngine(0);
 }
 
-void BaseFileFind::doReplace(const QString &text,
-                             const QList<SearchResultItem> &items,
+void BaseFileFind::doReplace(const QString &text, const SearchResultItems &items,
                              bool preserveCase)
 {
     const FilePaths files = replaceAll(text, items, preserveCase);
@@ -472,8 +471,7 @@ void BaseFileFind::recheckEnabled(SearchResult *search)
     search->setSearchAgainEnabled(isEnabled());
 }
 
-FilePaths BaseFileFind::replaceAll(const QString &text,
-                                   const QList<SearchResultItem> &items,
+FilePaths BaseFileFind::replaceAll(const QString &text, const SearchResultItems &items,
                                    bool preserveCase)
 {
     if (items.isEmpty())
@@ -481,7 +479,7 @@ FilePaths BaseFileFind::replaceAll(const QString &text,
 
     RefactoringChanges refactoring;
 
-    QHash<FilePath, QList<SearchResultItem> > changes;
+    QHash<FilePath, SearchResultItems> changes;
     for (const SearchResultItem &item : items)
         changes[FilePath::fromUserInput(item.path().constFirst())].append(item);
 
@@ -502,7 +500,7 @@ FilePaths BaseFileFind::replaceAll(const QString &text,
 
     for (auto it = changes.cbegin(), end = changes.cend(); it != end; ++it) {
         const FilePath filePath = it.key();
-        const QList<SearchResultItem> changeItems = it.value();
+        const SearchResultItems changeItems = it.value();
 
         ChangeSet changeSet;
         RefactoringFilePtr file = refactoring.file(filePath);

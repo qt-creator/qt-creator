@@ -35,7 +35,7 @@ public:
         return m_symbolName == other.m_symbolName && m_scope == other.m_scope;
     }
 
-    static ResultDataList fromSearchResultList(const QList<Utils::SearchResultItem> &entries)
+    static ResultDataList fromSearchResultList(const Utils::SearchResultItems &entries)
     {
         ResultDataList result;
         for (const Utils::SearchResultItem &entry : entries)

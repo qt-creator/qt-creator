@@ -34,7 +34,7 @@ public:
     QWidget *additionalReplaceWidget() const;
     void setAdditionalReplaceWidget(QWidget *widget);
 
-    void addResults(const QList<Utils::SearchResultItem> &items, SearchResult::AddMode mode);
+    void addResults(const Utils::SearchResultItems &items, SearchResult::AddMode mode);
 
     int count() const;
     bool isSearching() const { return m_searching; }
@@ -79,7 +79,7 @@ public slots:
 signals:
     void activated(const Utils::SearchResultItem &item);
     void replaceButtonClicked(const QString &replaceText,
-                              const QList<Utils::SearchResultItem> &checkedItems, bool preserveCase);
+                              const Utils::SearchResultItems &checkedItems, bool preserveCase);
     void replaceTextChanged(const QString &replaceText);
     void searchAgainRequested();
     void canceled();
@@ -103,7 +103,7 @@ private:
     void continueAfterSizeWarning();
     void cancelAfterSizeWarning();
 
-    QList<Utils::SearchResultItem> checkedItems() const;
+    Utils::SearchResultItems checkedItems() const;
     void updateMatchesFoundLabel();
 
     SearchResultTreeView *m_searchResultTreeView = nullptr;

@@ -78,7 +78,7 @@ public:
 private:
     void setupSearch(Core::SearchResult *search);
     void onReplaceButtonClicked(Core::SearchResult *search, const QString &text,
-                                const QList<Utils::SearchResultItem> &items, bool preserveCase);
+                                const Utils::SearchResultItems &items, bool preserveCase);
     void searchAgain(Core::SearchResult *search);
 
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
