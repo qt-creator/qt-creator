@@ -35,8 +35,6 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
         const IDevice::Ptr &device) :
     IDeviceWidget(device)
 {
-    resize(556, 309);
-
     m_defaultAuthButton = new QRadioButton(Tr::tr("Default"), this);
 
     m_keyButton = new QRadioButton(Tr::tr("Specific &key"));

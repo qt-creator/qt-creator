@@ -17,8 +17,6 @@ namespace Beautifier::Internal {
 ConfigurationPanel::ConfigurationPanel(QWidget *parent)
     : QWidget(parent)
 {
-    resize(595, 23);
-
     m_configurations = new QComboBox;
     m_configurations->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 

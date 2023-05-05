@@ -33,8 +33,6 @@ private:
 
 GeneralOptionsPageWidget::GeneralOptionsPageWidget(const QStringList &toolIds)
 {
-    resize(817, 631);
-
     auto settings = GeneralSettings::instance();
 
     m_autoFormat = new QCheckBox(Tr::tr("Enable auto format on file save"));

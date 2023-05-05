@@ -69,8 +69,6 @@ private:
 TestSettingsWidget::TestSettingsWidget(TestSettings *settings)
     : m_settings(settings)
 {
-    resize(586, 469);
-
     m_omitInternalMsgCB = new QCheckBox(Tr::tr("Omit internal messages"));
     m_omitInternalMsgCB->setChecked(true);
     m_omitInternalMsgCB->setToolTip(Tr::tr("Hides internal messages by default. "

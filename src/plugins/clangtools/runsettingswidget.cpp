@@ -28,8 +28,6 @@ namespace ClangTools::Internal {
 RunSettingsWidget::RunSettingsWidget(QWidget *parent)
     : QWidget(parent)
 {
-    resize(383, 125);
-
     m_diagnosticWidget = new ClangDiagnosticConfigsSelectionWidget;
     m_preferConfigFile = new QCheckBox(Tr::tr("Prefer .clang-tidy file, if present"));
     m_buildBeforeAnalysis = new QCheckBox(Tr::tr("Build the project before analysis"));

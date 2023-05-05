@@ -65,8 +65,6 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     : QWidget(parent)
     , d(new BehaviorSettingsWidgetPrivate)
 {
-    resize(801, 693);
-
     d->tabPreferencesWidget = new SimpleCodeStylePreferencesWidget(this);
     d->tabPreferencesWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed); // FIXME: Desirable?
 

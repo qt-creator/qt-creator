@@ -178,7 +178,6 @@ DetailsPage::DetailsPage(AddLibraryWizard *parent)
     : QWizardPage(parent), m_libraryWizard(parent)
 {
     m_libraryDetailsWidget = new LibraryDetailsWidget(this);
-    resize(456, 438);
 
     PathChooser * const libPathChooser = m_libraryDetailsWidget->libraryPathChooser;
     libPathChooser->setHistoryCompleter("Qmake.LibDir.History");

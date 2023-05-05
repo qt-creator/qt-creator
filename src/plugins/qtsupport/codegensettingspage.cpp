@@ -39,8 +39,6 @@ private:
 
 CodeGenSettingsPageWidget::CodeGenSettingsPageWidget()
 {
-    resize(340, 232);
-
     CodeGenSettings parameters;
     parameters.fromSettings(Core::ICore::settings());
 

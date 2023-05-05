@@ -232,8 +232,6 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     , m_warningVersionIcon(Utils::Icons::WARNING.icon())
     , m_configurationWidget(nullptr)
 {
-    resize(446, 450);
-
     m_qtdirList = new QTreeView(this);
     m_qtdirList->setObjectName("qtDirList");
     m_qtdirList->setUniformRowHeights(true);

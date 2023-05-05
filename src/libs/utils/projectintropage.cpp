@@ -66,7 +66,6 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     WizardPage(parent),
     d(new ProjectIntroPagePrivate)
 {
-    resize(355, 289);
     setTitle(Tr::tr("Introduction and Project Location"));
 
     d->m_descriptionLabel = new QLabel(this);

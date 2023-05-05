@@ -50,7 +50,6 @@ QString continuationTooltip()
 TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
     QGroupBox(parent)
 {
-    resize(254, 189);
     setTitle(Tr::tr("Tabs And Indentation"));
 
     m_codingStyleWarning = new QLabel(

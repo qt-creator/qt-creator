@@ -31,8 +31,6 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
     , m_project(project)
     , m_codeStyle(codeStyle)
 {
-    resize(489, 305);
-
     m_projectHasClangFormat = new QLabel(this);
     m_formattingModeLabel = new QLabel(Tr::tr("Formatting mode:"));
     m_indentingOrFormatting = new QComboBox(this);

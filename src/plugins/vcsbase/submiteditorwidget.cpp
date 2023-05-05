@@ -127,8 +127,6 @@ struct SubmitEditorWidgetPrivate
 SubmitEditorWidget::SubmitEditorWidget() :
     d(new SubmitEditorWidgetPrivate)
 {
-    resize(507, 419);
-    setMinimumSize(QSize(0, 0));
     setWindowTitle(Tr::tr("Subversion Submit"));
 
     auto scrollAreaWidgetContents = new QWidget();

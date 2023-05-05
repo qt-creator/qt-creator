@@ -82,7 +82,6 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     d->project = project;
     d->config = std::make_unique<ClangFormatFile>(filePathToCurrentSettings(codeStyle->currentPreferences()));
 
-    resize(489, 305);
     d->fallbackConfig = new QLabel(Tr::tr("Clang-Format Style"));
     d->checksScrollArea = new QScrollArea();
     d->checksWidget = new ClangFormatChecks();

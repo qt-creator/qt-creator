@@ -212,7 +212,6 @@ bool VcsCommandPageFactory::validateData(Id typeId, const QVariant &data, QStrin
 VcsCommandPage::VcsCommandPage()
     : m_startedStatus(Tr::tr("Command started..."))
 {
-    resize(264, 200);
     auto verticalLayout = new QVBoxLayout(this);
     m_logPlainTextEdit = new QPlainTextEdit;
     m_formatter = new OutputFormatter;

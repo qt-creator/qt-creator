@@ -65,7 +65,6 @@ public:
     HighlighterSettingsPageWidget(HighlighterSettingsPagePrivate *d) : d(d)
     {
         d->ensureInitialized();
-        resize(521, 332);
 
         auto definitionsInfolabel = new QLabel(this);
         definitionsInfolabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);

@@ -48,7 +48,6 @@ bool SquishToolkitsPageFactory::validateData(Utils::Id typeId, const QVariant &,
 
 SquishToolkitsPage::SquishToolkitsPage()
 {
-    resize(400, 300);
     setTitle(Tr::tr("Create New Squish Test Suite"));
 
     auto layout = new QVBoxLayout(this);
@@ -173,7 +172,6 @@ bool SquishScriptLanguagePageFactory::validateData(Utils::Id typeId, const QVari
 
 SquishScriptLanguagePage::SquishScriptLanguagePage()
 {
-    resize(400, 300);
     setTitle(Tr::tr("Create New Squish Test Suite"));
 
     auto layout = new QHBoxLayout(this);
@@ -229,7 +227,6 @@ bool SquishAUTPageFactory::validateData(Utils::Id typeId, const QVariant &, QStr
 
 SquishAUTPage::SquishAUTPage()
 {
-    resize(400, 300);
     auto layout = new QVBoxLayout(this);
     m_autCombo = new QComboBox(this);
     layout->addWidget(m_autCombo);

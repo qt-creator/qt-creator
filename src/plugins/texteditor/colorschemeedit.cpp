@@ -121,7 +121,6 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     m_formatsModel(new FormatsModel(this))
 {
     setContentsMargins(0, layoutSpacing, 0, 0);
-    resize(513, 416);
 
     auto colorButton = [] () {
         auto tb = new Utils::QtColorButton;

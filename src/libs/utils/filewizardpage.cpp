@@ -45,7 +45,6 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     d(new FileWizardPagePrivate)
 {
     setTitle(Tr::tr("Choose the Location"));
-    resize(368, 102);
 
     d->m_defaultSuffixLabel = new QLabel;
     d->m_nameLabel = new QLabel;

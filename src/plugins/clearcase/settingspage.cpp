@@ -50,8 +50,6 @@ private:
 
 SettingsPageWidget::SettingsPageWidget()
 {
-    resize(512, 589);
-
     commandPathChooser = new PathChooser;
     commandPathChooser->setPromptDialogTitle(Tr::tr("ClearCase Command"));
     commandPathChooser->setExpectedKind(PathChooser::ExistingCommand);

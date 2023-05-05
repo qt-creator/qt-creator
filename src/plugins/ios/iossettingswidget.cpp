@@ -51,7 +51,6 @@ static void onSimOperation(const SimulatorInfo &simInfo, SimulatorOperationDialo
 
 IosSettingsWidget::IosSettingsWidget()
 {
-    resize(622, 456);
     setWindowTitle(Tr::tr("iOS Configuration"));
 
     m_deviceAskCheckBox = new QCheckBox(Tr::tr("Ask about devices not in developer mode"));

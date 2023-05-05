@@ -44,8 +44,6 @@ public:
     DisplaySettingsWidget(DisplaySettingsPagePrivate *data)
         : m_data(data)
     {
-        resize(452, 458);
-
         enableTextWrapping = new QCheckBox(Tr::tr("Enable text &wrapping"));
 
         enableTextWrappingHintLabel = new QLabel(Tr::tr("<i>Set <a href=\"font zoom\">font line spacing</a> "

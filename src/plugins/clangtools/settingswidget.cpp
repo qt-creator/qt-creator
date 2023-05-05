@@ -34,8 +34,6 @@ SettingsWidget::SettingsWidget()
 {
     m_instance = this;
 
-    resize(400, 300);
-
     auto createPathChooser = [this](ClangToolType tool)
     {
         const QString placeHolderText = toolShippedExecutable(tool).toUserOutput();

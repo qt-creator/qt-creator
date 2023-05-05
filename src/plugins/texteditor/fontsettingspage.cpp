@@ -107,8 +107,6 @@ public:
     {
         m_lastValue = m_value;
 
-        resize(639, 306);
-
         m_antialias = new QCheckBox(Tr::tr("Antialias"));
         m_antialias->setChecked(m_value.antialias());
 

@@ -45,8 +45,6 @@ private:
 UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *settings)
     : m_settings(settings)
 {
-    resize(817, 631);
-
     m_command = new Utils::PathChooser;
 
     m_mime = new QLineEdit(m_settings->supportedMimeTypesAsString());

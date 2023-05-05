@@ -33,8 +33,6 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
     , m_factory(factory)
     , m_project(project)
 {
-    resize(536, 59);
-
     m_delegateComboBox = new QComboBox(this);
     m_delegateComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
