@@ -16,6 +16,7 @@
 #include <QHBoxLayout>
 #include <QScrollBar>
 #include <QTextBrowser>
+#include <QTimer>
 #include <QToolButton>
 
 namespace TextEditor::Internal {
@@ -100,8 +101,25 @@ public:
         }
         toolbarLayout->addWidget(swapViews);
 
-        connect(m_document.data(), &TextDocument::mimeTypeChanged,
-                m_document.data(), &TextDocument::changed);
+        connect(m_document.data(),
+                &TextDocument::mimeTypeChanged,
+                m_document.data(),
+                &TextDocument::changed);
+
+        const auto updatePreview = [this, browser] {
+            QHash<QScrollBar *, int> positions;
+            const auto scrollBars = browser->findChildren<QScrollBar *>();
+
+            // save scroll positions
+            for (QScrollBar *scrollBar : scrollBars)
+                positions.insert(scrollBar, scrollBar->value());
+
+            browser->setMarkdown(m_document->plainText());
+
+            // restore scroll positions
+            for (QScrollBar *scrollBar : scrollBars)
+                scrollBar->setValue(positions.value(scrollBar));
+        };
 
         const auto viewToggled =
             [swapViews](QWidget *view, bool visible, QWidget *otherView, QToolButton *otherButton) {
@@ -128,8 +146,12 @@ public:
         connect(togglePreviewVisible,
                 &QToolButton::toggled,
                 this,
-                [this, browser, toggleEditorVisible, viewToggled](bool visible) {
+                [this, browser, toggleEditorVisible, viewToggled, updatePreview](bool visible) {
                     viewToggled(browser, visible, m_textEditorWidget, toggleEditorVisible);
+                    if (visible && m_performDelayedUpdate) {
+                        m_performDelayedUpdate = false;
+                        updatePreview();
+                    }
                 });
 
         connect(swapViews, &QToolButton::clicked, m_textEditorWidget, [this, toolbarLayout] {
@@ -152,19 +174,18 @@ public:
                                    kTextEditorRightDefault);
         });
 
-        connect(m_document->document(), &QTextDocument::contentsChanged, this, [this, browser] {
-            QHash<QScrollBar *, int> positions;
-            const auto scrollBars = browser->findChildren<QScrollBar *>();
+        // TODO directly update when we build with Qt 6.5.2
+        m_previewTimer.setInterval(500);
+        m_previewTimer.setSingleShot(true);
+        connect(&m_previewTimer, &QTimer::timeout, this, [this, togglePreviewVisible, updatePreview] {
+            if (togglePreviewVisible->isChecked())
+                updatePreview();
+            else
+                m_performDelayedUpdate = true;
+        });
 
-            // save scroll positions
-            for (QScrollBar *scrollBar : scrollBars)
-                positions.insert(scrollBar, scrollBar->value());
-
-            browser->setMarkdown(m_document->plainText());
-
-            // restore scroll positions
-            for (QScrollBar *scrollBar : scrollBars)
-                scrollBar->setValue(positions.value(scrollBar));
+        connect(m_document->document(), &QTextDocument::contentsChanged, &m_previewTimer, [this] {
+            m_previewTimer.start();
         });
     }
 
@@ -186,6 +207,8 @@ public:
     }
 
 private:
+    QTimer m_previewTimer;
+    bool m_performDelayedUpdate = false;
     Core::MiniSplitter *m_splitter;
     TextEditorWidget *m_textEditorWidget;
     TextDocumentPtr m_document;
