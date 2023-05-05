@@ -82,7 +82,7 @@ std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonVa
 
     if (type == "const") {
         condition->type = type;
-        condition->constValue = object.value("const").toBool();
+        condition->constValue = object.value("value").toBool();
         return condition;
     }
 

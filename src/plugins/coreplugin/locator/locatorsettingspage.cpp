@@ -94,7 +94,7 @@ QVariant FilterItem::data(int column, int role) const
             return m_filter->shortcutString();
         break;
     case FilterIncludedByDefault:
-        if (role == Qt::CheckStateRole || role == SortRole || role == Qt::EditRole)
+        if (role == Qt::CheckStateRole || role == SortRole)
             return m_filter->isIncludedByDefault() ? Qt::Checked : Qt::Unchecked;
         break;
     default:
@@ -113,7 +113,7 @@ Qt::ItemFlags FilterItem::flags(int column) const
     if (column == FilterPrefix)
         return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
     if (column == FilterIncludedByDefault)
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsUserCheckable;
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 

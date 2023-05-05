@@ -30,8 +30,8 @@
             {CMake} as the build system to use for building and running the
             project.
 
-            \note If you select \l qmake, the instructions for configuring the
-            project won't apply.
+            \note If you select \l {Setting Up Qbs}{Qbs}, the instructions for
+            configuring the project won't apply.
 
         \li Select \uicontrol Next to open the
             \uicontrol {Define Project Details} dialog.

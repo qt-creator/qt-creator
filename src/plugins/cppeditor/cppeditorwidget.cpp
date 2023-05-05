@@ -1267,20 +1267,16 @@ std::unique_ptr<AssistInterface> CppEditorWidget::createAssistInterface(AssistKi
 
         if (cap)
             return cap->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
-        else {
-            if (isOldStyleSignalOrSlot())
-                return CppModelManager::instance()
-                    ->completionAssistProvider()
-                    ->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
-            return TextEditorWidget::createAssistInterface(kind, reason);
+
+        if (isOldStyleSignalOrSlot()) {
+            return CppModelManager::instance()
+                ->completionAssistProvider()
+                ->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
         }
-    } else if (kind == QuickFix) {
-        if (isSemanticInfoValid())
-            return std::make_unique<CppQuickFixInterface>(const_cast<CppEditorWidget *>(this), reason);
-    } else {
-        return TextEditorWidget::createAssistInterface(kind, reason);
     }
-    return nullptr;
+    if (kind == QuickFix && isSemanticInfoValid())
+        return std::make_unique<CppQuickFixInterface>(const_cast<CppEditorWidget *>(this), reason);
+    return TextEditorWidget::createAssistInterface(kind, reason);
 }
 
 QSharedPointer<FunctionDeclDefLink> CppEditorWidget::declDefLink() const

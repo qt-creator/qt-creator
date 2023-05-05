@@ -5512,7 +5512,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Hide Sidebar</source>
-        <translation type="unfinished">隱藏邊列</translation>
+        <translation>隱藏側邊條</translation>
     </message>
     <message>
         <source>Increase Font Size</source>
@@ -13006,11 +13006,11 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>Toggle &amp;Left Sidebar</source>
-        <translation>切換左邊欄(&amp;L)</translation>
+        <translation>切換左側邊條(&amp;L)</translation>
     </message>
     <message>
         <source>Toggle &amp;Right Sidebar</source>
-        <translation>切換右邊欄(&amp;R)</translation>
+        <translation>切換右側邊條(&amp;R)</translation>
     </message>
     <message>
         <source>Projects</source>
@@ -14917,11 +14917,11 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>Hide Sidebar</source>
-        <translation>隱藏邊列</translation>
+        <translation>隱藏側邊條</translation>
     </message>
     <message>
         <source>Show Sidebar</source>
-        <translation>顯示邊列</translation>
+        <translation>顯示側邊條</translation>
     </message>
 </context>
 <context>
@@ -15671,7 +15671,7 @@ instead of its installation directory when run outside git bash.</source>
     <name>QtC::Help</name>
     <message>
         <source>Show Sidebar</source>
-        <translation>顯示邊列</translation>
+        <translation>顯示側邊條</translation>
     </message>
     <message>
         <source>Qt Creator Offline Help</source>

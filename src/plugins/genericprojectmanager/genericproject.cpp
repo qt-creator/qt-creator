@@ -330,8 +330,9 @@ bool GenericBuildSystem::addFiles(Node *, const FilePaths &filePaths_, FilePaths
     QSet<QString> toAdd;
 
     for (const QString &filePath : filePaths) {
-        const QString directory = QFileInfo(filePath).absolutePath();
-        if (!includes.contains(directory))
+        const QFileInfo fi(filePath);
+        const QString directory = fi.absolutePath();
+        if (fi.fileName() == "include" && !includes.contains(directory))
             toAdd << directory;
     }
 
