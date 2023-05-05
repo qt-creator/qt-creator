@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
                 PushButton {
                     text("Quit"),
-                    onClicked([] { QApplication::quit(); })
+                    onClicked(QApplication::quit)
                 },
              }
         }

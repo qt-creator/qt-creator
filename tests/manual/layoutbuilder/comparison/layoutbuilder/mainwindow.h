@@ -18,7 +18,7 @@ Application app
 
         PushButton {
             text("Quit"),
-            onClicked([] { QApplication::quit(); })
+            onClicked(QApplication::quit)
         }
     }
 };
