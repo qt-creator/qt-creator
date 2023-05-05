@@ -128,13 +128,6 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
     m_aggregate->add(m_search.get());
 }
 
-TerminalWidget::~TerminalWidget()
-{
-    // The Aggregate stuff tries to do clever deletion of the children, but we
-    // we don't want that.
-    m_aggregate->remove(this);
-}
-
 void TerminalWidget::setupPty()
 {
     m_process = std::make_unique<Process>();

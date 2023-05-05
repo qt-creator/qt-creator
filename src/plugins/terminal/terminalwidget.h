@@ -29,7 +29,6 @@ class TerminalWidget : public QAbstractScrollArea
 public:
     TerminalWidget(QWidget *parent = nullptr,
                    const Utils::Terminal::OpenTerminalParameters &openParameters = {});
-    ~TerminalWidget() override;
 
     void setFont(const QFont &font);
 
