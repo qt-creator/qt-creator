@@ -10,13 +10,13 @@
 #include "cppsourceprocessor.h"
 #include "searchsymbols.h"
 
-#include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cplusplus/LookupContext.h>
 
 #include <utils/async.h>
 #include <utils/filepath.h>
+#include <utils/searchresultitem.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 
@@ -54,7 +54,7 @@ class WriteTaskFileForDiagnostics
 public:
     WriteTaskFileForDiagnostics()
     {
-        const QString fileName = Utils::TemporaryDirectory::masterDirectoryPath()
+        const QString fileName = TemporaryDirectory::masterDirectoryPath()
                                  + "/qtc_findErrorsIndexing.diagnostics."
                                  + QDateTime::currentDateTime().toString("yyMMdd_HHmm") + ".tasks";
 
@@ -139,7 +139,7 @@ void indexFindErrors(QPromise<void> &promise, const ParseParams params)
         BuiltinEditorDocumentParser parser(FilePath::fromString(file));
         parser.setReleaseSourceAndAST(false);
         parser.update({CppModelManager::instance()->workingCopy(), nullptr,
-                       Utils::Language::Cxx, false});
+                       Language::Cxx, false});
         CPlusPlus::Document::Ptr document = parser.document();
         QTC_ASSERT(document, return);
 
@@ -241,7 +241,7 @@ void parse(QPromise<void> &promise, const ParseParams params)
 
 } // anonymous namespace
 
-void SymbolSearcher::runSearch(QPromise<Core::SearchResultItem> &promise)
+void SymbolSearcher::runSearch(QPromise<SearchResultItem> &promise)
 {
     promise.setProgressRange(0, m_snapshot.size());
     promise.setProgressValue(0);
@@ -264,7 +264,7 @@ void SymbolSearcher::runSearch(QPromise<Core::SearchResultItem> &promise)
         if (promise.isCanceled())
             break;
         if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->filePath().path())) {
-            QVector<Core::SearchResultItem> resultItems;
+            QList<SearchResultItem> resultItems;
             auto filter = [&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
                 if (matcher.match(info->symbolName()).hasMatch()) {
                     QString text = info->symbolName();
@@ -277,7 +277,7 @@ void SymbolSearcher::runSearch(QPromise<Core::SearchResultItem> &promise)
                         text = info->representDeclaration();
                     }
 
-                    Core::SearchResultItem item;
+                    SearchResultItem item;
                     item.setPath(scope.split(QLatin1String("::"), Qt::SkipEmptyParts));
                     item.setLineText(text);
                     item.setIcon(info->icon());
@@ -288,7 +288,7 @@ void SymbolSearcher::runSearch(QPromise<Core::SearchResultItem> &promise)
                 return IndexItem::Recurse;
             };
             search(it.value())->visitAllChildren(filter);
-            for (const Core::SearchResultItem &item : std::as_const(resultItems))
+            for (const SearchResultItem &item : std::as_const(resultItems))
                 promise.addResult(item);
         }
         ++it;

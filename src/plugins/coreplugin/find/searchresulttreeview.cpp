@@ -7,10 +7,13 @@
 #include "searchresulttreeitemdelegate.h"
 
 #include <utils/qtcassert.h>
+#include <utils/searchresultitem.h>
 
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QVBoxLayout>
+
+using namespace Utils;
 
 namespace Core {
 namespace Internal {
@@ -31,7 +34,7 @@ public:
 };
 
 SearchResultTreeView::SearchResultTreeView(QWidget *parent)
-    : Utils::TreeView(parent)
+    : TreeView(parent)
     , m_model(new SearchResultFilterModel(this))
     , m_autoExpandResults(false)
 {

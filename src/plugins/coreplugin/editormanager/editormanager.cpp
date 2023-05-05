@@ -24,7 +24,6 @@
 #include "../editormanager/ieditorfactory_p.h"
 #include "../editormanager/iexternaleditor.h"
 #include "../fileutils.h"
-#include "../find/searchresultitem.h"
 #include "../findplaceholder.h"
 #include "../icore.h"
 #include "../iversioncontrol.h"
@@ -52,6 +51,7 @@
 #include <utils/mimeutils.h>
 #include <utils/overridecursor.h>
 #include <utils/qtcassert.h>
+#include <utils/searchresultitem.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 

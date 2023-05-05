@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <coreplugin/find/searchresultitem.h>
+#include <utils/searchresultitem.h>
 
-namespace Core {
+namespace Utils {
 namespace Search {
 
 inline

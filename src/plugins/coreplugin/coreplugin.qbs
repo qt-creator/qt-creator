@@ -306,8 +306,6 @@ Project {
                 "itemviewfind.h",
                 "optionspopup.cpp",
                 "optionspopup.h",
-                "searchresultcolor.h",
-                "searchresultitem.h",
                 "searchresulttreeitemdelegate.cpp",
                 "searchresulttreeitemdelegate.h",
                 "searchresulttreeitemroles.h",

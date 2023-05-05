@@ -52,12 +52,6 @@ namespace Core {
     \internal
 */
 
-/*!
-    \class Core::SearchResultItem
-    \inmodule QtCreator
-    \internal
-*/
-
 namespace Internal {
 
     class InternalScrollArea : public QScrollArea
@@ -110,7 +104,7 @@ namespace Internal {
         QList<SearchResult *> m_searchResults;
         int m_currentIndex;
         QFont m_font;
-        SearchResultColors m_colors;
+        Utils::SearchResultColors m_colors;
         int m_tabWidth;
 
     };
@@ -260,14 +254,14 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void Core::SearchResult::activated(const Core::SearchResultItem &item)
+    \fn void Core::SearchResult::activated(const Utils::SearchResultItem &item)
     Indicates that the user activated the search result \a item by
     double-clicking it, for example.
 */
 
 /*!
     \fn void Core::SearchResult::replaceButtonClicked(const QString &replaceText,
-                           const QList<Core::SearchResultItem> &checkedItems,
+                           const QList<Utils::SearchResultItem> &checkedItems,
                            bool preserveCase)
 
     Indicates that the user initiated a text replace by selecting
@@ -577,7 +571,8 @@ void SearchResultWindow::setFocus()
 /*!
     \internal
 */
-void SearchResultWindow::setTextEditorFont(const QFont &font, const SearchResultColors &colors)
+void SearchResultWindow::setTextEditorFont(const QFont &font,
+                                           const Utils::SearchResultColors &colors)
 {
     d->m_font = font;
     d->m_colors = colors;
@@ -837,7 +832,7 @@ void SearchResult::setAdditionalReplaceWidget(QWidget *widget)
 
     \sa addResults()
 */
-void SearchResult::addResult(const SearchResultItem &item)
+void SearchResult::addResult(const Utils::SearchResultItem &item)
 {
     m_widget->addResults({item}, AddOrdered);
 }
@@ -848,7 +843,7 @@ void SearchResult::addResult(const SearchResultItem &item)
 
     \sa addResult()
 */
-void SearchResult::addResults(const QList<SearchResultItem> &items, AddMode mode)
+void SearchResult::addResults(const QList<Utils::SearchResultItem> &items, AddMode mode)
 {
     m_widget->addResults(items, mode);
     emit countChanged(m_widget->count());

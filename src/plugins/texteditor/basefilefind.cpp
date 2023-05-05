@@ -51,7 +51,7 @@ public:
     QVariant parameters() const override { return {}; }
     void readSettings(QSettings * /*settings*/) override {}
     void writeSettings(QSettings * /*settings*/) const override {}
-    QFuture<Utils::FileSearchResultList> executeSearch(
+    QFuture<FileSearchResultList> executeSearch(
             const TextEditor::FileFindParameters &parameters,
             BaseFileFind *baseFileFind) override
     {
@@ -65,7 +65,7 @@ public:
                     TextDocument::openedTextDocumentContents());
 
     }
-    Core::IEditor *openEditor(const Core::SearchResultItem &/*item*/,
+    Core::IEditor *openEditor(const SearchResultItem &/*item*/,
                               const TextEditor::FileFindParameters &/*parameters*/) override
     {
         return nullptr;

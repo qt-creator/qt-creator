@@ -743,10 +743,9 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
     setupSearch(search);
     SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 
-    connect(search, &SearchResult::activated,
-            [](const Core::SearchResultItem& item) {
-                Core::EditorManager::openEditorAtSearchResult(item);
-            });
+    connect(search, &SearchResult::activated, search, [](const SearchResultItem &item) {
+        Core::EditorManager::openEditorAtSearchResult(item);
+    });
 
     const CPlusPlus::Snapshot snapshot = m_modelManager->snapshot();
     const WorkingCopy workingCopy = m_modelManager->workingCopy();

@@ -33,7 +33,7 @@ public:
     void writeSettings(QSettings *settings) const override;
     QFuture<Utils::FileSearchResultList> executeSearch(
             const TextEditor::FileFindParameters &parameters, TextEditor::BaseFileFind *) override;
-    Core::IEditor *openEditor(const Core::SearchResultItem &item,
+    Core::IEditor *openEditor(const Utils::SearchResultItem &item,
                               const TextEditor::FileFindParameters &parameters) override;
 
 private:

@@ -6,11 +6,14 @@
 #include "searchresulttreeitemroles.h"
 
 #include <utils/algorithm.h>
+#include <utils/searchresultitem.h>
 
 #include <QApplication>
 #include <QFont>
 #include <QFontMetrics>
 #include <QDebug>
+
+using namespace Utils;
 
 namespace Core {
 namespace Internal {

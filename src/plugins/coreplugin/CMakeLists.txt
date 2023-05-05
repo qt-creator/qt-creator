@@ -72,8 +72,6 @@ add_qtc_plugin(Core
     find/ifindsupport.cpp find/ifindsupport.h
     find/itemviewfind.cpp find/itemviewfind.h
     find/optionspopup.cpp find/optionspopup.h
-    find/searchresultcolor.h
-    find/searchresultitem.h
     find/searchresulttreeitemdelegate.cpp find/searchresulttreeitemdelegate.h
     find/searchresulttreeitemroles.h
     find/searchresulttreeitems.cpp find/searchresulttreeitems.h

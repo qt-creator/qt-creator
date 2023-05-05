@@ -5,9 +5,14 @@
 
 #include <texteditor/basefilefind.h>
 
-QT_FORWARD_DECLARE_CLASS(QCheckBox);
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+QT_END_NAMESPACE
 
-namespace Utils { class FancyLineEdit; }
+namespace Utils {
+class FancyLineEdit;
+class SearchResultItem;
+}
 
 namespace Git::Internal {
 
@@ -28,7 +33,7 @@ public:
     QFuture<Utils::FileSearchResultList> executeSearch(
             const TextEditor::FileFindParameters &parameters,
             TextEditor::BaseFileFind *baseFileFind) override;
-    Core::IEditor *openEditor(const Core::SearchResultItem &item,
+    Core::IEditor *openEditor(const Utils::SearchResultItem &item,
                               const TextEditor::FileFindParameters &parameters) override;
 
 private:

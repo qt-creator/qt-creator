@@ -4,19 +4,23 @@
 #pragma once
 
 #include "texteditor_global.h"
-#include <utils/filesearch.h>
 
 #include <coreplugin/find/ifindfilter.h>
 #include <coreplugin/find/searchresultwindow.h>
 
+#include <utils/filesearch.h>
+#include <utils/searchresultitem.h>
+
 #include <QFuture>
 
-namespace Utils { class FileIterator; }
 namespace Core {
 class IEditor;
 class SearchResult;
-class SearchResultItem;
 } // namespace Core
+
+namespace Utils {
+class FileIterator;
+}
 
 namespace TextEditor {
 
@@ -54,7 +58,7 @@ public:
     virtual void writeSettings(QSettings *settings) const = 0;
     virtual QFuture<Utils::FileSearchResultList> executeSearch(
             const FileFindParameters &parameters, BaseFileFind *baseFileFind) = 0;
-    virtual Core::IEditor *openEditor(const Core::SearchResultItem &item,
+    virtual Core::IEditor *openEditor(const Utils::SearchResultItem &item,
                                       const FileFindParameters &parameters) = 0;
     bool isEnabled() const;
     void setEnabled(bool enabled);
@@ -82,7 +86,7 @@ public:
 
     /* returns the list of unique files that were passed in items */
     static Utils::FilePaths replaceAll(const QString &txt,
-                                       const QList<Core::SearchResultItem> &items,
+                                       const QList<Utils::SearchResultItem> &items,
                                        bool preserveCase = false);
     virtual Utils::FileIterator *files(const QStringList &nameFilters,
                                        const QStringList &exclusionFilters,
@@ -111,9 +115,9 @@ signals:
     void currentSearchEngineChanged();
 
 private:
-    void openEditor(Core::SearchResult *result, const Core::SearchResultItem &item);
+    void openEditor(Core::SearchResult *result, const Utils::SearchResultItem &item);
     void doReplace(const QString &txt,
-                   const QList<Core::SearchResultItem> &items,
+                   const QList<Utils::SearchResultItem> &items,
                    bool preserveCase);
     void hideHighlightAll(bool visible);
     void searchAgain(Core::SearchResult *search);

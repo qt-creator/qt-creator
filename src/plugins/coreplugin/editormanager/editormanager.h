@@ -22,18 +22,14 @@ QT_BEGIN_NAMESPACE
 class QMenu;
 QT_END_NAMESPACE
 
-namespace Utils { class MimeType; }
+namespace Utils { class SearchResultItem; }
 
 namespace Core {
 
 class IDocument;
 class LocatorFilterEntry;
-class SearchResultItem;
 
-namespace Internal {
-class EditorManagerPrivate;
-class MainWindow;
-} // namespace Internal
+namespace Internal { class MainWindow; }
 
 class CORE_EXPORT EditorManagerPlaceHolder final : public QWidget
 {
@@ -79,7 +75,7 @@ public:
                                  bool *newEditor = nullptr);
     static IEditor *openEditor(const LocatorFilterEntry &entry);
 
-    static void openEditorAtSearchResult(const SearchResultItem &item,
+    static void openEditorAtSearchResult(const Utils::SearchResultItem &item,
                                          Utils::Id editorId = {},
                                          OpenEditorFlags flags = NoFlags,
                                          bool *newEditor = nullptr);

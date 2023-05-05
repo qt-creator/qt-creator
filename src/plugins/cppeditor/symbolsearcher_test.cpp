@@ -35,10 +35,10 @@ public:
         return m_symbolName == other.m_symbolName && m_scope == other.m_scope;
     }
 
-    static ResultDataList fromSearchResultList(const QList<Core::SearchResultItem> &entries)
+    static ResultDataList fromSearchResultList(const QList<Utils::SearchResultItem> &entries)
     {
         ResultDataList result;
-        for (const Core::SearchResultItem &entry : entries)
+        for (const Utils::SearchResultItem &entry : entries)
             result << ResultData(entry.lineText(), entry.path().join(QLatin1String("::")));
         return result;
     }
@@ -77,7 +77,7 @@ public:
 
         const QScopedPointer<SymbolSearcher> symbolSearcher(
             new SymbolSearcher(searchParameters, QSet<QString>{testFile}));
-        QFuture<Core::SearchResultItem> search
+        QFuture<Utils::SearchResultItem> search
             = Utils::asyncRun(&SymbolSearcher::runSearch, symbolSearcher.data());
         search.waitForFinished();
         ResultDataList results = ResultData::fromSearchResultList(search.results());

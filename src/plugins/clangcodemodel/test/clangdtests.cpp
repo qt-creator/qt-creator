@@ -43,6 +43,7 @@ using namespace CppEditor::Tests;
 using namespace LanguageClient;
 using namespace ProjectExplorer;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -97,7 +98,7 @@ ClangdTest::~ClangdTest()
     delete m_projectDir;
 }
 
-Utils::FilePath ClangdTest::filePath(const QString &fileName) const
+FilePath ClangdTest::filePath(const QString &fileName) const
 {
     return m_projectDir->absolutePath(fileName);
 }
@@ -139,7 +140,7 @@ void ClangdTest::initTestCase()
 {
     const QString clangdFromEnv = Utils::qtcEnvironmentVariable("QTC_CLANGD");
     if (!clangdFromEnv.isEmpty())
-        CppEditor::ClangdSettings::setClangdFilePath(Utils::FilePath::fromString(clangdFromEnv));
+        CppEditor::ClangdSettings::setClangdFilePath(FilePath::fromString(clangdFromEnv));
     const auto clangd = CppEditor::ClangdSettings::instance().clangdFilePath();
     if (clangd.isEmpty() || !clangd.exists())
         QSKIP("clangd binary not found");
@@ -408,13 +409,13 @@ void ClangdTestFollowSymbol::test()
     timer.setSingleShot(true);
     QEventLoop loop;
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    Utils::Link actualLink;
-    const auto handler = [&actualLink, &loop](const Utils::Link &l) {
+    Link actualLink;
+    const auto handler = [&actualLink, &loop](const Link &l) {
         actualLink = l;
         loop.quit();
     };
     QTextCursor cursor(doc->document());
-    const int pos = Utils::Text::positionInText(doc->document(), sourceLine, sourceColumn);
+    const int pos = Text::positionInText(doc->document(), sourceLine, sourceColumn);
     cursor.setPosition(pos);
     client()->followSymbol(doc, cursor, nullptr, handler, true,
                            goToType ? FollowTo::SymbolType : FollowTo::SymbolDef, false);
@@ -520,15 +521,14 @@ void ClangdTestLocalReferences::test()
     QEventLoop loop;
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
     QList<Range> actualRanges;
-    const auto handler = [&actualRanges, &loop](const QString &symbol,
-            const Utils::Links &links, int) {
-        for (const Utils::Link &link : links)
+    const auto handler = [&actualRanges, &loop](const QString &symbol, const Links &links, int) {
+        for (const Link &link : links)
             actualRanges << Range(link.targetLine, link.targetColumn, symbol.length());
         loop.quit();
     };
 
     QTextCursor cursor(doc->document());
-    const int pos = Utils::Text::positionInText(doc->document(), sourceLine, sourceColumn);
+    const int pos = Text::positionInText(doc->document(), sourceLine, sourceColumn);
     cursor.setPosition(pos);
     client()->findLocalUsages(doc, cursor, std::move(handler));
     timer.start(10000);
@@ -659,7 +659,7 @@ void ClangdTestTooltips::test()
     connect(client(), &ClangdClient::helpItemGathered, &loop, handler);
 
     QTextCursor cursor(doc->document());
-    const int pos = Utils::Text::positionInText(doc->document(), line, column);
+    const int pos = Text::positionInText(doc->document(), line, column);
     cursor.setPosition(pos);
     editor->editorWidget()->processTooltipRequest(cursor);
 
@@ -1316,11 +1316,11 @@ void ClangdTestHighlighting::test()
 
     const TextEditor::TextDocument * const doc = document("highlighting.cpp");
     QVERIFY(doc);
-    const int startPos = Utils::Text::positionInText(doc->document(), firstLine, startColumn);
-    const int endPos = Utils::Text::positionInText(doc->document(), lastLine, endColumn);
+    const int startPos = Text::positionInText(doc->document(), firstLine, startColumn);
+    const int endPos = Text::positionInText(doc->document(), lastLine, endColumn);
 
     const auto lessThan = [=](const TextEditor::HighlightingResult &r, int) {
-        return Utils::Text::positionInText(doc->document(), r.line, r.column) < startPos;
+        return Text::positionInText(doc->document(), r.line, r.column) < startPos;
     };
     const auto findResults = [=] {
         TextEditor::HighlightingResults results;
@@ -1328,7 +1328,7 @@ void ClangdTestHighlighting::test()
         if (it == m_results.cend())
             return results;
         while (it != m_results.cend()) {
-            const int resultEndPos = Utils::Text::positionInText(doc->document(), it->line,
+            const int resultEndPos = Text::positionInText(doc->document(), it->line,
                                                                  it->column) + it->length;
             if (resultEndPos > endPos)
                 break;
@@ -1439,7 +1439,7 @@ public:
     {
         const int pos = currentPosition();
         QPair<int, int> lineAndColumn;
-        Utils::Text::convertPosition(m_doc, pos, &lineAndColumn.first, &lineAndColumn.second);
+        Text::convertPosition(m_doc, pos, &lineAndColumn.first, &lineAndColumn.second);
         return lineAndColumn;
     }
 
@@ -1864,7 +1864,7 @@ void ClangdTestCompletion::startCollectingHighlightingInfo()
 {
     m_documentsWithHighlighting.clear();
     connect(client(), &ClangdClient::highlightingResultsReady, this,
-            [this](const HighlightingResults &, const Utils::FilePath &file) {
+            [this](const HighlightingResults &, const FilePath &file) {
         m_documentsWithHighlighting.insert(file);
     });
 }
@@ -1881,7 +1881,7 @@ void ClangdTestCompletion::getProposal(const QString &fileName,
     if (cursorPos)
         *cursorPos = pos;
     int line, column;
-    Utils::Text::convertPosition(doc->document(), pos, &line, &column);
+    Text::convertPosition(doc->document(), pos, &line, &column);
     const auto editor = qobject_cast<BaseTextEditor *>(
         EditorManager::openEditorAt({doc->filePath(), line, column - 1}));
     QVERIFY(editor);

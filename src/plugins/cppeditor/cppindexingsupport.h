@@ -11,7 +11,7 @@
 
 #include <QFuture>
 
-namespace Core { class SearchResultItem; }
+namespace Utils { class SearchResultItem; }
 
 namespace CppEditor {
 
@@ -44,7 +44,7 @@ public:
     };
 
     SymbolSearcher(const SymbolSearcher::Parameters &parameters, const QSet<QString> &fileNames);
-    void runSearch(QPromise<Core::SearchResultItem> &promise);
+    void runSearch(QPromise<Utils::SearchResultItem> &promise);
 
 private:
     const CPlusPlus::Snapshot m_snapshot;
