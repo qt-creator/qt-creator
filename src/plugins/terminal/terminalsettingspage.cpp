@@ -326,7 +326,7 @@ public:
         TerminalSettings &settings = TerminalSettings::instance();
 
         QPushButton *loadThemeButton = new QPushButton(Tr::tr("Load Theme..."));
-        QPushButton *resetTheme = new QPushButton(Tr::tr("Reset Theme to default"));
+        QPushButton *resetTheme = new QPushButton(Tr::tr("Reset Theme"));
 
         connect(loadThemeButton, &QPushButton::clicked, this, [this] {
             const FilePath path = FileUtils::getOpenFilePath(
@@ -412,9 +412,12 @@ public:
                     }
                 },
             },
-            Column {
-                settings.shell,
-                settings.shellArguments,
+            Group {
+                title(Tr::tr("Default Shell")),
+                Column {
+                    settings.shell,
+                    settings.shellArguments,
+                },
             },
             st,
         }.attachTo(this);

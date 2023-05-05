@@ -70,7 +70,7 @@ TerminalSettings::TerminalSettings()
     setSettingsGroup("Terminal");
 
     enableTerminal.setSettingsKey("EnableTerminal");
-    enableTerminal.setLabelText(Tr::tr("Use internal Terminal"));
+    enableTerminal.setLabelText(Tr::tr("Use internal terminal"));
     enableTerminal.setToolTip(
         Tr::tr("If enabled, use the internal terminal when \"Run In Terminal\" is "
                "enabled and for \"Open Terminal here\"."));
@@ -98,14 +98,14 @@ TerminalSettings::TerminalSettings()
     shell.setExpectedKind(PathChooser::ExistingCommand);
     shell.setDisplayStyle(StringAspect::PathChooserDisplay);
     shell.setHistoryCompleter("Terminal.Shell.History");
-    shell.setToolTip(Tr::tr("The shell executable to be started as terminal"));
+    shell.setToolTip(Tr::tr("The shell executable to be started."));
     shell.setDefaultValue(defaultShell());
 
     shellArguments.setSettingsKey("ShellArguments");
     shellArguments.setLabelText(Tr::tr("Shell arguments:"));
     shellArguments.setDisplayStyle(StringAspect::LineEditDisplay);
     shellArguments.setHistoryCompleter("Terminal.Shell.History");
-    shellArguments.setToolTip(Tr::tr("The arguments to be passed to the shell"));
+    shellArguments.setToolTip(Tr::tr("The arguments to be passed to the shell."));
     if (!HostOsInfo::isWindowsHost())
         shellArguments.setDefaultValue(QString("-l"));
 
