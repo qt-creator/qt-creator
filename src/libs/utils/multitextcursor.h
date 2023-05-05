@@ -76,15 +76,37 @@ public:
     bool operator==(const MultiTextCursor &other) const;
     bool operator!=(const MultiTextCursor &other) const;
 
-    using iterator = std::list<QTextCursor>::iterator;
-    using const_iterator = std::list<QTextCursor>::const_iterator;
+    template <typename T, typename mapit>
+    class BaseIterator {
+    public:
+        using iterator_category = std::input_iterator_tag;
+        using difference_type = int;
+        using value_type = T;
+        using pointer = T *;
+        using reference = T &;
+        BaseIterator(const mapit &it) : internalit(it) {}
+        BaseIterator &operator++() { ++internalit; return *this; }
+        BaseIterator operator++(int) { auto result = *this; ++(*this); return result; }
+        bool operator==(BaseIterator other) const { return internalit == other.internalit; }
+        bool operator!=(BaseIterator other) const { return !(*this == other); }
+        reference operator*() const { return *(internalit->second); }
 
-    iterator begin() { return m_cursorList.begin(); }
-    iterator end() { return m_cursorList.end(); }
-    const_iterator begin() const { return m_cursorList.begin(); }
-    const_iterator end() const { return m_cursorList.end(); }
-    const_iterator constBegin() const { return m_cursorList.cbegin(); }
-    const_iterator constEnd() const { return m_cursorList.cend(); }
+    private:
+        mapit internalit;
+    };
+
+    using iterator
+        = BaseIterator<QTextCursor, std::map<int, std::list<QTextCursor>::iterator>::iterator>;
+    using const_iterator
+        = BaseIterator<const QTextCursor,
+                       std::map<int, std::list<QTextCursor>::iterator>::const_iterator>;
+
+    iterator begin() { return m_cursorMap.begin(); }
+    iterator end() { return m_cursorMap.end(); }
+    const_iterator begin() const { return m_cursorMap.begin(); }
+    const_iterator end() const { return m_cursorMap.end(); }
+    const_iterator constBegin() const { return m_cursorMap.cbegin(); }
+    const_iterator constEnd() const { return m_cursorMap.cend(); }
 
     static bool multiCursorAddEvent(QKeyEvent *e, QKeySequence::StandardKey matchKey);
 
