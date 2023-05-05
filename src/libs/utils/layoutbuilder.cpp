@@ -477,7 +477,13 @@ LayoutItem br()
 
 LayoutItem empty()
 {
-    return {};
+    LayoutItem item;
+    item.onAdd = [](LayoutBuilder &builder) {
+        ResultItem ri;
+        ri.span = 1;
+        builder.stack.last().pendingItems.append(ResultItem());
+    };
+    return item;
 }
 
 LayoutItem hr()
