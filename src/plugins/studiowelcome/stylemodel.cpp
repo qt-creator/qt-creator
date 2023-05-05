@@ -63,6 +63,12 @@ int StyleModel::filteredIndex(int actualIndex)
     if (actualIndex < 0)
         return actualIndex;
 
+    if (actualIndex >= m_items.size()) {
+        qWarning() << "Invalid actual index: " << actualIndex << "; Maximum index number permitted: "
+                   << m_items.size() - 1;
+        return -1;
+    }
+
     QStandardItem *item = m_items.at(actualIndex);
     // TODO: perhaps should add this kind of find to utils/algorithm.h
     auto it = std::find(std::cbegin(m_filteredItems), std::cend(m_filteredItems), item);
