@@ -12,10 +12,10 @@ import subprocess;
 import sys
 import errno;
 from datetime import datetime,timedelta;
-try:
-    import __builtin__                  # Python 2
-except ImportError:
-    import builtins as __builtin__      # Python 3
+if sys.version_info.major > 2:
+    import builtins as __builtin__
+else:
+    import __builtin__
 
 
 srcPath = ''
