@@ -340,33 +340,8 @@ private:
 using ExCommandMap = QMap<QString, QRegularExpression>;
 using UserCommandMap = QMap<int, QString>;
 
-class FakeVimOptionPage : public IOptionsPage
+static void layoutPage(QWidget *widget)
 {
-public:
-    FakeVimOptionPage()
-    {
-        setId(SETTINGS_ID);
-        setDisplayName(Tr::tr("General"));
-        setCategory(SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("FakeVim"));
-        setCategoryIconPath(":/fakevim/images/settingscategory_fakevim.png");
-        setLayouter([this](QWidget *widget) { return layoutPage(widget); });
-        setSettings(fakeVimSettings());
-    }
-
-private:
-    void layoutPage(QWidget *);
-    void copyTextEditorSettings();
-    void setQtStyle();
-    void setPlainStyle();
-};
-
-void FakeVimOptionPage::layoutPage(QWidget *widget)
-{
-    auto copyTextEditorSettings = new QPushButton(Tr::tr("Copy Text Editor Settings"));
-    auto setQtStyle = new QPushButton(Tr::tr("Set Qt Style"));
-    auto setPlainStyle = new QPushButton(Tr::tr("Set Plain Style"));
-
     using namespace Layouting;
     FakeVimSettings &s = *fakeVimSettings();
 
@@ -426,63 +401,73 @@ void FakeVimOptionPage::layoutPage(QWidget *widget)
             }
         },
 
-        Row { copyTextEditorSettings, setQtStyle, setPlainStyle, st },
+        Row {
+            PushButton {
+                text(Tr::tr("Copy Text Editor Settings")),
+                onClicked([&s] {
+                    TabSettings ts = TextEditorSettings::codeStyle()->tabSettings();
+                    TypingSettings tps = TextEditorSettings::typingSettings();
+                    s.expandTab.setValue(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
+                    s.tabStop.setValue(ts.m_tabSize);
+                    s.shiftWidth.setValue(ts.m_indentSize);
+                    s.smartTab.setValue(tps.m_smartBackspaceBehavior
+                                        == TypingSettings::BackspaceFollowsPreviousIndents);
+                    s.autoIndent.setValue(true);
+                    s.smartIndent.setValue(tps.m_autoIndent);
+                    s.incSearch.setValue(true);
+                }),
+            },
+            PushButton {
+                text(Tr::tr("Set Qt Style")),
+                onClicked([&s] {
+                    s.expandTab.setVolatileValue(true);
+                    s.tabStop.setVolatileValue(4);
+                    s.shiftWidth.setVolatileValue(4);
+                    s.smartTab.setVolatileValue(true);
+                    s.autoIndent.setVolatileValue(true);
+                    s.smartIndent.setVolatileValue(true);
+                    s.incSearch.setVolatileValue(true);
+                    s.backspace.setVolatileValue(QString("indent,eol,start"));
+                    s.passKeys.setVolatileValue(true);
+                }),
+            },
+            PushButton {
+                text(Tr::tr("Set Plain Style")),
+                onClicked([&s] {
+                    s.expandTab.setVolatileValue(false);
+                    s.tabStop.setVolatileValue(8);
+                    s.shiftWidth.setVolatileValue(8);
+                    s.smartTab.setVolatileValue(false);
+                    s.autoIndent.setVolatileValue(false);
+                    s.smartIndent.setVolatileValue(false);
+                    s.incSearch.setVolatileValue(false);
+                    s.backspace.setVolatileValue(QString());
+                    s.passKeys.setVolatileValue(false);
+                }),
+             },
+             st
+        },
         st
 
     }.attachTo(widget);
 
     s.vimRcPath.setEnabler(&s.readVimRc);
-
-    connect(copyTextEditorSettings, &QAbstractButton::clicked,
-            this, &FakeVimOptionPage::copyTextEditorSettings);
-    connect(setQtStyle, &QAbstractButton::clicked,
-            this, &FakeVimOptionPage::setQtStyle);
-    connect(setPlainStyle, &QAbstractButton::clicked,
-            this, &FakeVimOptionPage::setPlainStyle);
 }
 
-void FakeVimOptionPage::copyTextEditorSettings()
+class FakeVimOptionPage : public IOptionsPage
 {
-    FakeVimSettings &s = *fakeVimSettings();
-    TabSettings ts = TextEditorSettings::codeStyle()->tabSettings();
-    TypingSettings tps = TextEditorSettings::typingSettings();
-    s.expandTab.setValue(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
-    s.tabStop.setValue(ts.m_tabSize);
-    s.shiftWidth.setValue(ts.m_indentSize);
-    s.smartTab.setValue(tps.m_smartBackspaceBehavior
-                        == TypingSettings::BackspaceFollowsPreviousIndents);
-    s.autoIndent.setValue(true);
-    s.smartIndent.setValue(tps.m_autoIndent);
-    s.incSearch.setValue(true);
-}
-
-void FakeVimOptionPage::setQtStyle()
-{
-    FakeVimSettings &s = *fakeVimSettings();
-    s.expandTab.setVolatileValue(true);
-    s.tabStop.setVolatileValue(4);
-    s.shiftWidth.setVolatileValue(4);
-    s.smartTab.setVolatileValue(true);
-    s.autoIndent.setVolatileValue(true);
-    s.smartIndent.setVolatileValue(true);
-    s.incSearch.setVolatileValue(true);
-    s.backspace.setVolatileValue(QString("indent,eol,start"));
-    s.passKeys.setVolatileValue(true);
-}
-
-void FakeVimOptionPage::setPlainStyle()
-{
-    FakeVimSettings &s = *fakeVimSettings();
-    s.expandTab.setVolatileValue(false);
-    s.tabStop.setVolatileValue(8);
-    s.shiftWidth.setVolatileValue(8);
-    s.smartTab.setVolatileValue(false);
-    s.autoIndent.setVolatileValue(false);
-    s.smartIndent.setVolatileValue(false);
-    s.incSearch.setVolatileValue(false);
-    s.backspace.setVolatileValue(QString());
-    s.passKeys.setVolatileValue(false);
-}
+public:
+    FakeVimOptionPage()
+    {
+        setId(SETTINGS_ID);
+        setDisplayName(Tr::tr("General"));
+        setCategory(SETTINGS_CATEGORY);
+        setDisplayCategory(Tr::tr("FakeVim"));
+        setCategoryIconPath(":/fakevim/images/settingscategory_fakevim.png");
+        setLayouter(&layoutPage);
+        setSettings(fakeVimSettings());
+    }
+};
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -804,16 +789,10 @@ class FakeVimExCommandsPageWidget : public IOptionsPageWidget
 public:
     FakeVimExCommandsPageWidget()
     {
-        m_exCommands = new FakeVimExCommandsMappings;
-        auto vbox = new QVBoxLayout(this);
-        vbox->addWidget(m_exCommands);
-        vbox->setContentsMargins(0, 0, 0, 0);
+        auto exCommands = new FakeVimExCommandsMappings;
+        setOnApply([exCommands] { exCommands->apply(); });
+        Layouting::Column { exCommands, Layouting::noMargin }.attachTo(this);
     }
-
-private:
-    void apply() final { m_exCommands->apply(); }
-
-    FakeVimExCommandsMappings *m_exCommands;
 };
 
 class FakeVimExCommandsPage : public IOptionsPage
@@ -840,27 +819,16 @@ public:
     FakeVimUserCommandsModel() { m_commandMap = dd->m_userCommandMap; }
 
     UserCommandMap commandMap() const { return m_commandMap; }
-    int rowCount(const QModelIndex &parent) const override;
-    int columnCount(const QModelIndex &parent) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    bool setData(const QModelIndex &index, const QVariant &data, int role) override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    int rowCount(const QModelIndex &parent) const final { return parent.isValid() ? 0 : 9; }
+    int columnCount(const QModelIndex &parent) const final { return parent.isValid() ? 0 : 2; }
+    QVariant data(const QModelIndex &index, int role) const final;
+    bool setData(const QModelIndex &index, const QVariant &data, int role) final;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const final;
+    Qt::ItemFlags flags(const QModelIndex &index) const final;
 
 private:
     UserCommandMap m_commandMap;
 };
-
-int FakeVimUserCommandsModel::rowCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : 9;
-}
-
-int FakeVimUserCommandsModel::columnCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : 2;
-}
-
 
 QVariant FakeVimUserCommandsModel::headerData(int section,
     Qt::Orientation orient, int role) const
