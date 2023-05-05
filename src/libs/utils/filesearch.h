@@ -6,8 +6,8 @@
 #include "utils_global.h"
 
 #include "filepath.h"
+#include "searchresultitem.h"
 
-#include <QDir>
 #include <QMap>
 #include <QSet>
 #include <QStack>
@@ -152,54 +152,20 @@ private:
     QList<Item *> m_items;
 };
 
-class QTCREATOR_UTILS_EXPORT FileSearchResult
-{
-public:
-    FileSearchResult() = default;
-    FileSearchResult(const FilePath &fileName, int lineNumber, const QString &matchingLine,
-                     int matchStart, int matchLength,
-                     const QStringList &regexpCapturedTexts)
-            : fileName(fileName),
-            lineNumber(lineNumber),
-            matchingLine(matchingLine),
-            matchStart(matchStart),
-            matchLength(matchLength),
-            regexpCapturedTexts(regexpCapturedTexts)
-    {}
+QTCREATOR_UTILS_EXPORT QFuture<SearchResultItems> findInFiles(const QString &searchTerm,
+    FileIterator *files,
+    QTextDocument::FindFlags flags,
+    const QMap<FilePath, QString> &fileToContentsMap = {});
 
-    bool operator==(const FileSearchResult &o) const
-    {
-        return fileName == o.fileName && lineNumber == o.lineNumber
-               && matchingLine == o.matchingLine && matchStart == o.matchStart
-               && matchLength == o.matchLength && regexpCapturedTexts == o.regexpCapturedTexts;
-    }
-    bool operator!=(const FileSearchResult &o) const { return !(*this == o); }
-
-    FilePath fileName;
-    int lineNumber;
-    QString matchingLine;
-    int matchStart;
-    int matchLength;
-    QStringList regexpCapturedTexts;
-};
-
-using FileSearchResultList = QList<FileSearchResult>;
-
-QTCREATOR_UTILS_EXPORT QFuture<FileSearchResultList> findInFiles(
+QTCREATOR_UTILS_EXPORT QFuture<SearchResultItems> findInFilesRegExp(
     const QString &searchTerm,
     FileIterator *files,
     QTextDocument::FindFlags flags,
-    const QMap<FilePath, QString> &fileToContentsMap = QMap<FilePath, QString>());
+    const QMap<FilePath, QString> &fileToContentsMap = {});
 
-QTCREATOR_UTILS_EXPORT QFuture<FileSearchResultList> findInFilesRegExp(
-    const QString &searchTerm,
-    FileIterator *files,
-    QTextDocument::FindFlags flags,
-    const QMap<FilePath, QString> &fileToContentsMap = QMap<FilePath, QString>());
-
-QTCREATOR_UTILS_EXPORT QString expandRegExpReplacement(const QString &replaceText, const QStringList &capturedTexts);
-QTCREATOR_UTILS_EXPORT QString matchCaseReplacement(const QString &originalText, const QString &replaceText);
+QTCREATOR_UTILS_EXPORT QString expandRegExpReplacement(const QString &replaceText,
+                                                       const QStringList &capturedTexts);
+QTCREATOR_UTILS_EXPORT QString matchCaseReplacement(const QString &originalText,
+                                                    const QString &replaceText);
 
 } // namespace Utils
-
-Q_DECLARE_METATYPE(Utils::FileSearchResultList)

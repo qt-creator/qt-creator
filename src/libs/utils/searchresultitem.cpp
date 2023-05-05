@@ -45,15 +45,50 @@ SearchResultColor::SearchResultColor(const QColor &textBg, const QColor &textFg,
         containingFunctionForeground = textForeground;
 }
 
+static QString displayText(const QString &line)
+{
+    QString result = line;
+    auto end = result.end();
+    for (auto it = result.begin(); it != end; ++it) {
+        if (!it->isSpace() && !it->isPrint())
+            *it = QChar('?');
+    }
+    return result;
+}
+
+void SearchResultItem::setDisplayText(const QString &text)
+{
+    setLineText(displayText(text));
+}
+
+void SearchResultItem::setMainRange(int line, int column, int length)
+{
+    m_mainRange = {{line, column}, {line, column + length}};
+}
+
 QTCREATOR_UTILS_EXPORT size_t qHash(SearchResultColor::Style style, uint seed)
 {
     int a = int(style);
     return ::qHash(a, seed);
 }
 
-void SearchResultItem::setMainRange(int line, int column, int length)
+bool Search::TextPosition::operator==(const Search::TextPosition &other) const
 {
-    m_mainRange = {{line, column}, {line, column + length}};
+    return line == other.line && column == other.column;
+}
+
+bool Search::TextRange::operator==(const Search::TextRange &other) const
+{
+    return begin == other.begin && end == other.end;
+}
+
+bool SearchResultItem::operator==(const SearchResultItem &other) const
+{
+    return m_path == other.m_path && m_lineText == other.m_lineText
+        && m_userData == other.m_userData && m_mainRange == other.m_mainRange
+        && m_useTextEditorFont == other.m_useTextEditorFont
+        && m_selectForReplacement == other.m_selectForReplacement && m_style == other.m_style
+        && m_containingFunctionName == other.m_containingFunctionName;
 }
 
 } // namespace Utils

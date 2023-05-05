@@ -61,6 +61,7 @@
 #include <utils/minimizableinfobars.h>
 #include <utils/multitextcursor.h>
 #include <utils/qtcassert.h>
+#include <utils/searchresultitem.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/textutils.h>
@@ -790,7 +791,7 @@ public:
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
 
-    QFutureWatcher<FileSearchResultList> *m_searchWatcher = nullptr;
+    QFutureWatcher<SearchResultItems> *m_searchWatcher = nullptr;
     QVector<SearchResult> m_searchResults;
     QTimer m_scrollBarUpdateTimer;
     HighlightScrollBarController *m_highlightScrollBarController = nullptr;
@@ -846,10 +847,27 @@ public:
 
 private:
     TextEditorWidget * const m_editor;
-    static QFutureWatcher<FileSearchResultList> *m_selectWatcher;
+    static QFutureWatcher<SearchResultItems> *m_selectWatcher;
 };
 
-QFutureWatcher<FileSearchResultList> *TextEditorWidgetFind::m_selectWatcher = nullptr;
+static QTextCursor selectRange(QTextDocument *textDocument, const Search::TextRange &range,
+                               TextEditorWidgetPrivate::SearchResult *searchResult = nullptr)
+{
+    const int startLine = qMax(range.begin.line - 1, 0);
+    const int startColumn = qMax(range.begin.column, 0);
+    const int endLine = qMax(range.end.line - 1, 0);
+    const int endColumn = qMax(range.end.column, 0);
+    const int startPosition = textDocument->findBlockByNumber(startLine).position() + startColumn;
+    const int endPosition = textDocument->findBlockByNumber(endLine).position() + endColumn;
+    QTextCursor textCursor(textDocument);
+    textCursor.setPosition(startPosition);
+    textCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+    if (searchResult)
+        *searchResult = {startPosition + 1, endPosition + 1};
+    return textCursor;
+}
+
+QFutureWatcher<SearchResultItems> *TextEditorWidgetFind::m_selectWatcher = nullptr;
 
 void TextEditorWidgetFind::selectAll(const QString &txt, FindFlags findFlags)
 {
@@ -858,26 +876,24 @@ void TextEditorWidgetFind::selectAll(const QString &txt, FindFlags findFlags)
 
     cancelCurrentSelectAll();
 
-    m_selectWatcher = new QFutureWatcher<FileSearchResultList>();
-    connect(m_selectWatcher, &QFutureWatcher<Utils::FileSearchResultList>::finished,
-            this, [this] {
-                const QFuture<FileSearchResultList> future = m_selectWatcher->future();
-                m_selectWatcher->deleteLater();
-                m_selectWatcher = nullptr;
-                if (future.resultCount() <= 0)
-                    return;
-                const FileSearchResultList &results = future.result();
-                const QTextCursor c(m_editor->document());
-                auto cursorForResult = [c](const FileSearchResult &r) {
-                    return Utils::Text::selectAt(c, r.lineNumber, r.matchStart + 1, r.matchLength);
-                };
-                QList<QTextCursor> cursors = Utils::transform(results, cursorForResult);
-                cursors = Utils::filtered(cursors, [this](const QTextCursor &c) {
-                    return m_editor->inFindScope(c);
-                });
-                m_editor->setMultiTextCursor(MultiTextCursor(cursors));
-                m_editor->setFocus();
-            });
+    m_selectWatcher = new QFutureWatcher<SearchResultItems>();
+    connect(m_selectWatcher, &QFutureWatcher<SearchResultItems>::finished, this, [this] {
+        const QFuture<SearchResultItems> future = m_selectWatcher->future();
+        m_selectWatcher->deleteLater();
+        m_selectWatcher = nullptr;
+        if (future.resultCount() <= 0)
+            return;
+        const SearchResultItems &results = future.result();
+        const auto cursorForResult = [this](const SearchResultItem &item) {
+            return selectRange(m_editor->document(), item.mainRange());
+        };
+        QList<QTextCursor> cursors = Utils::transform(results, cursorForResult);
+        cursors = Utils::filtered(cursors, [this](const QTextCursor &c) {
+            return m_editor->inFindScope(c);
+        });
+        m_editor->setMultiTextCursor(MultiTextCursor(cursors));
+        m_editor->setFocus();
+    });
 
     const FilePath &fileName = m_editor->textDocument()->filePath();
     QMap<FilePath, QString> fileToContentsMap;
@@ -6671,16 +6687,11 @@ void TextEditorWidgetPrivate::searchResultsReady(int beginIndex, int endIndex)
 {
     QVector<SearchResult> results;
     for (int index = beginIndex; index < endIndex; ++index) {
-        const FileSearchResultList resultList = m_searchWatcher->resultAt(index);
-        for (FileSearchResult result : resultList) {
-            const QTextBlock &block = q->document()->findBlockByNumber(result.lineNumber - 1);
-            const int matchStart = block.position() + result.matchStart;
-            QTextCursor cursor(block);
-            cursor.setPosition(matchStart);
-            cursor.setPosition(matchStart + result.matchLength, QTextCursor::KeepAnchor);
-            if (!q->inFindScope(cursor))
-                continue;
-            results << SearchResult{matchStart, result.matchLength};
+        const SearchResultItems resultList = m_searchWatcher->resultAt(index);
+        for (const SearchResultItem &result : resultList) {
+            SearchResult searchResult;
+            if (q->inFindScope(selectRange(q->document(), result.mainRange(), &searchResult)))
+                results << searchResult;
         }
     }
     m_searchResults << results;
@@ -6726,10 +6737,10 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
 
     adjustScrollBarRanges();
 
-    m_searchWatcher = new QFutureWatcher<FileSearchResultList>();
-    connect(m_searchWatcher, &QFutureWatcher<FileSearchResultList>::resultsReadyAt,
+    m_searchWatcher = new QFutureWatcher<SearchResultItems>;
+    connect(m_searchWatcher, &QFutureWatcher<SearchResultItems>::resultsReadyAt,
             this, &TextEditorWidgetPrivate::searchResultsReady);
-    connect(m_searchWatcher, &QFutureWatcher<FileSearchResultList>::finished,
+    connect(m_searchWatcher, &QFutureWatcher<SearchResultItems>::finished,
             this, &TextEditorWidgetPrivate::searchFinished);
     m_searchWatcher->setPendingResultsLimit(10);
 
@@ -6775,7 +6786,7 @@ void TextEditorWidgetPrivate::addSearchResultsToScrollBar(const QVector<SearchRe
 {
     if (!m_highlightScrollBarController)
         return;
-    for (SearchResult result : results) {
+    for (const SearchResult &result : results) {
         const QTextBlock &block = q->document()->findBlock(result.start);
         if (block.isValid() && block.isVisible()) {
             const int firstLine = block.layout()->lineForTextPosition(result.start - block.position()).lineNumber();

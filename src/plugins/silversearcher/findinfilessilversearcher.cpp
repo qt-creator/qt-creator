@@ -73,7 +73,7 @@ bool isSilverSearcherAvailable()
     return false;
 }
 
-void runSilverSeacher(QPromise<FileSearchResultList> &promise, FileFindParameters parameters)
+void runSilverSeacher(QPromise<SearchResultItems> &promise, FileFindParameters parameters)
 {
     const FilePath directory = FilePath::fromUserInput(parameters.additionalParameters.toString());
     QStringList arguments = {"--parallel", "--ackmate"};
@@ -120,7 +120,7 @@ void runSilverSeacher(QPromise<FileSearchResultList> &promise, FileFindParameter
             regexp.setPatternOptions(patternOptions);
         }
         SilverSearcher::SilverSearcherOutputParser parser(process.cleanedStdOut(), regexp);
-        FileSearchResultList items = parser.parse();
+        const SearchResultItems items = parser.parse();
         if (!items.isEmpty())
             promise.addResult(items);
     } else {
@@ -189,7 +189,7 @@ void FindInFilesSilverSearcher::writeSettings(QSettings *settings) const
     settings->setValue(SearchOptionsString, m_searchOptionsLineEdit->text());
 }
 
-QFuture<FileSearchResultList> FindInFilesSilverSearcher::executeSearch(
+QFuture<SearchResultItems> FindInFilesSilverSearcher::executeSearch(
         const FileFindParameters &parameters, BaseFileFind * /*baseFileFind*/)
 {
     return Utils::asyncRun(runSilverSeacher, parameters);

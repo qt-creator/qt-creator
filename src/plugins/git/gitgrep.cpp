@@ -45,7 +45,7 @@ public:
 
 class GitGrepRunner
 {
-    using PromiseType = QPromise<FileSearchResultList>;
+    using PromiseType = QPromise<SearchResultItems>;
 
 public:
     GitGrepRunner(const TextEditor::FileFindParameters &parameters)
@@ -67,23 +67,23 @@ public:
         QStringList regexpCapturedTexts;
     };
 
-    void processLine(const QString &line, FileSearchResultList *resultList) const
+    void processLine(const QString &line, SearchResultItems *resultList) const
     {
         if (line.isEmpty())
             return;
         static const QLatin1String boldRed("\x1b[1;31m");
         static const QLatin1String resetColor("\x1b[m");
-        FileSearchResult single;
+        SearchResultItem result;
         const int lineSeparator = line.indexOf(QChar::Null);
         QString filePath = line.left(lineSeparator);
         if (!m_ref.isEmpty() && filePath.startsWith(m_ref))
             filePath.remove(0, m_ref.length());
-        single.fileName = m_directory.pathAppended(filePath);
+        result.setFilePath(m_directory.pathAppended(filePath));
         const int textSeparator = line.indexOf(QChar::Null, lineSeparator + 1);
-        single.lineNumber = line.mid(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
+        const int lineNumber = line.mid(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
         QString text = line.mid(textSeparator + 1);
         QRegularExpression regexp;
-        QVector<Match> matches;
+        QList<Match> matches;
         if (m_parameters.flags & FindRegularExpression) {
             const QRegularExpression::PatternOptions patternOptions =
                     (m_parameters.flags & FindCaseSensitively)
@@ -106,19 +106,18 @@ public:
             matches.append(match);
             text = text.left(matchStart) + matchText + text.mid(matchEnd + resetColor.size());
         }
-        single.matchingLine = text;
+        result.setDisplayText(text);
 
         for (const auto &match : std::as_const(matches)) {
-            single.matchStart = match.matchStart;
-            single.matchLength = match.matchLength;
-            single.regexpCapturedTexts = match.regexpCapturedTexts;
-            resultList->append(single);
+            result.setMainRange(lineNumber, match.matchStart, match.matchLength);
+            result.setUserData(match.regexpCapturedTexts);
+            resultList->append(result);
         }
     }
 
     void read(PromiseType &fi, const QString &text)
     {
-        FileSearchResultList resultList;
+        SearchResultItems resultList;
         QString t = text;
         QTextStream stream(&t);
         while (!stream.atEnd() && !fi.isCanceled())
@@ -272,7 +271,7 @@ void GitGrep::writeSettings(QSettings *settings) const
     settings->setValue(GitGrepRef, m_treeLineEdit->text());
 }
 
-QFuture<FileSearchResultList> GitGrep::executeSearch(const TextEditor::FileFindParameters &parameters,
+QFuture<SearchResultItems> GitGrep::executeSearch(const TextEditor::FileFindParameters &parameters,
         TextEditor::BaseFileFind * /*baseFileFind*/)
 {
     return Utils::asyncRun(GitGrepRunner(parameters));

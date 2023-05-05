@@ -38,7 +38,6 @@ add_qtc_test(unittest GTEST
     TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
   SOURCES
     abstractviewmock.h
-    compare-operators.h
     conditionally-disabled-tests.h
     dynamicastmatcherdiagnosticcontainer-matcher.h
     eventspy.cpp eventspy.h

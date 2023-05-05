@@ -13,8 +13,6 @@
 #include <gtest/gtest-printers.h>
 #include <gtest/gtest-typed-test.h>
 
-#include "compare-operators.h"
-
 #include "conditionally-disabled-tests.h"
 #include "gtest-creator-printing.h"
 #include "gtest-llvm-printing.h"

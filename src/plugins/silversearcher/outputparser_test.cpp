@@ -11,47 +11,57 @@ using namespace Utils;
 namespace SilverSearcher {
 namespace Internal {
 
+SearchResultItem searchResult(const FilePath &fileName, const QString &matchingLine,
+                              int lineNumber, int matchStart, int matchLength)
+{
+    SearchResultItem result;
+    result.setFilePath(fileName);
+    result.setLineText(matchingLine);
+    result.setMainRange(lineNumber, matchStart, matchLength);
+    return result;
+}
+
 void OutputParserTest::test_data()
 {
     QTest::addColumn<QString>("parserOutput");
-    QTest::addColumn<FileSearchResultList>("results");
+    QTest::addColumn<SearchResultItems>("results");
 
-    QTest::addRow("nothing") << QString("\n") << FileSearchResultList();
+    QTest::addRow("nothing") << QString("\n") << SearchResultItems();
     QTest::addRow("oneFileOneMatch")
-            << QString(":/file/path/to/filename.h\n"
-                       "1;1 5:match\n")
-            << FileSearchResultList({{"/file/path/to/filename.h", 1, "match", 1, 5, {}}});
+        << QString(":/file/path/to/filename.h\n"
+                   "1;1 5:match\n")
+        << SearchResultItems{searchResult("/file/path/to/filename.h", "match", 1, 1, 5)};
     QTest::addRow("multipleFilesWithOneMatch")
-            << QString(":/file/path/to/filename1.h\n"
-                       "1;1 5:match\n"
-                       "\n"
-                       ":/file/path/to/filename2.h\n"
-                       "2;2 5: match\n")
-            << FileSearchResultList({{"/file/path/to/filename1.h", 1, "match", 1, 5, {}},
-                                     {"/file/path/to/filename2.h", 2, " match", 2, 5, {}}});
+        << QString(":/file/path/to/filename1.h\n"
+                   "1;1 5:match\n"
+                   "\n"
+                   ":/file/path/to/filename2.h\n"
+                   "2;2 5: match\n")
+        << SearchResultItems{searchResult("/file/path/to/filename1.h", "match", 1, 1, 5),
+                             searchResult("/file/path/to/filename2.h", " match", 2, 2, 5)};
     QTest::addRow("oneFileMultipleMatches")
-            << QString(":/file/path/to/filename.h\n"
-                       "1;1 5,7 5:match match\n")
-            << FileSearchResultList({{"/file/path/to/filename.h", 1, "match match", 1, 5, {}},
-                                     {"/file/path/to/filename.h", 1, "match match", 7, 5, {}}});
+        << QString(":/file/path/to/filename.h\n"
+                   "1;1 5,7 5:match match\n")
+        << SearchResultItems{searchResult("/file/path/to/filename.h", "match match", 1, 1, 5),
+                             searchResult("/file/path/to/filename.h", "match match", 1, 7, 5)};
     QTest::addRow("multipleFilesWithMultipleMatches")
-            << QString(":/file/path/to/filename1.h\n"
-                       "1;1 5,7 5:match match\n"
-                       "\n"
-                       ":/file/path/to/filename2.h\n"
-                       "2;2 5,8 5: match match\n")
-            << FileSearchResultList({{"/file/path/to/filename1.h", 1, "match match", 1, 5, {}},
-                                     {"/file/path/to/filename1.h", 1, "match match", 7, 5, {}},
-                                     {"/file/path/to/filename2.h", 2, " match match", 2, 5, {}},
-                                     {"/file/path/to/filename2.h", 2, " match match", 8, 5, {}}});
+        << QString(":/file/path/to/filename1.h\n"
+                   "1;1 5,7 5:match match\n"
+                   "\n"
+                   ":/file/path/to/filename2.h\n"
+                   "2;2 5,8 5: match match\n")
+        << SearchResultItems{searchResult("/file/path/to/filename1.h", "match match", 1, 1, 5),
+                             searchResult("/file/path/to/filename1.h", "match match", 1, 7, 5),
+                             searchResult("/file/path/to/filename2.h", " match match", 2, 2, 5),
+                             searchResult("/file/path/to/filename2.h", " match match", 2, 8, 5)};
 }
 
 void OutputParserTest::test()
 {
     QFETCH(QString, parserOutput);
-    QFETCH(FileSearchResultList, results);
+    QFETCH(SearchResultItems, results);
     SilverSearcher::SilverSearcherOutputParser ssop(parserOutput);
-    const FileSearchResultList items = ssop.parse();
+    const SearchResultItems items = ssop.parse();
     QCOMPARE(items, results);
 }
 

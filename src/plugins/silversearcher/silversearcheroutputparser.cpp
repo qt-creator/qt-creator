@@ -16,7 +16,7 @@ SilverSearcherOutputParser::SilverSearcherOutputParser(
     hasRegexp = !regexp.pattern().isEmpty();
 }
 
-Utils::FileSearchResultList SilverSearcherOutputParser::parse()
+Utils::SearchResultItems SilverSearcherOutputParser::parse()
 {
     while (index < outputSize - 1) {
         if (output[index] == '\n') {
@@ -25,15 +25,15 @@ Utils::FileSearchResultList SilverSearcherOutputParser::parse()
         }
         parseFilePath();
         while (index < outputSize && output[index] != '\n') {
-            parseLineNumber();
+            const int lineNumber = parseLineNumber();
             if (index >= outputSize - 1)
                 break;
-            int matches = parseMatches();
+            int matches = parseMatches(lineNumber);
             if (index >= outputSize - 1)
                 break;
             parseText();
             for (int i = 0; i < matches; ++i)
-                items[items.size() - i - 1].matchingLine = item.matchingLine;
+                items[items.size() - i - 1].setDisplayText(item.lineText());
         }
     }
 
@@ -45,41 +45,41 @@ bool SilverSearcherOutputParser::parseFilePath()
     int startIndex = ++index;
     while (index < outputSize && output[index] != '\n')
         ++index;
-    item.fileName = Utils::FilePath::fromString(QString(output.data() + startIndex, index - startIndex));
+    item.setFilePath(Utils::FilePath::fromString(QString(output.data() + startIndex,
+                                                         index - startIndex)));
     ++index;
     return true;
 }
 
-bool SilverSearcherOutputParser::parseLineNumber()
+int SilverSearcherOutputParser::parseLineNumber()
 {
     int startIndex = index;
     while (index < outputSize && output[++index] != ';') { }
 
-    item.lineNumber = QString(output.data() + startIndex, index - startIndex).toInt();
+    const int lineNumber = QString(output.data() + startIndex, index - startIndex).toInt();
     ++index;
-    return true;
+    return lineNumber;
 }
 
-bool SilverSearcherOutputParser::parseMatchIndex()
+int SilverSearcherOutputParser::parseMatchIndex()
 {
     int startIndex = index;
     while (index < outputSize && output[++index] != ' ') { }
 
-    item.matchStart = QString(output.data() + startIndex, index - startIndex).toInt();
+    const int lineStart = QString(output.data() + startIndex, index - startIndex).toInt();
     ++index;
-    return true;
+    return lineStart;
 }
 
-bool SilverSearcherOutputParser::parseMatchLength()
+int SilverSearcherOutputParser::parseMatchLength()
 {
     int startIndex = index;
     while (index < outputSize && output[++index] != ':' && output[index] != ',') { }
 
-    item.matchLength = QString(output.data() + startIndex, index - startIndex).toInt();
-    return true;
+    return QString(output.data() + startIndex, index - startIndex).toInt();
 }
 
-int SilverSearcherOutputParser::parseMatches()
+int SilverSearcherOutputParser::parseMatches(int lineNumber)
 {
     int matches = 1;
     const int colon = output.indexOf(':', index);
@@ -94,11 +94,12 @@ int SilverSearcherOutputParser::parseMatches()
             ++matches;
             ++index;
         }
-        parseMatchIndex();
-        parseMatchLength();
+        const int lineStart = parseMatchIndex();
+        const int lineLength = parseMatchLength();
+        item.setMainRange(lineNumber, lineStart, lineLength);
         if (hasRegexp) {
-            const QString part = QString(text.mid(item.matchStart, item.matchLength));
-            item.regexpCapturedTexts = regexp.match(part).capturedTexts();
+            const QString part = QString(text.mid(lineStart, lineLength));
+            item.setUserData(regexp.match(part).capturedTexts());
         }
         items << item;
     }
@@ -111,7 +112,8 @@ bool SilverSearcherOutputParser::parseText()
 {
     int startIndex = index;
     while (index < outputSize && output[++index] != '\n') { }
-    item.matchingLine = QString(output.data() + startIndex, index - startIndex);
+
+    item.setLineText(QString(output.data() + startIndex, index - startIndex));
     ++index;
     return true;
 }

@@ -28,6 +28,8 @@ public:
 
     bool operator<(const TextPosition &other) const
     { return line < other.line || (line == other.line && column < other.column); }
+    bool operator==(const TextPosition &other) const;
+    bool operator!=(const TextPosition &other) const { return !(operator==(other)); }
 };
 
 class QTCREATOR_UTILS_EXPORT TextRange
@@ -40,6 +42,8 @@ public:
     TextPosition end;
 
     bool operator<(const TextRange &other) const { return begin < other.begin; }
+    bool operator==(const TextRange &other) const;
+    bool operator!=(const TextRange &other) const { return !(operator==(other)); }
 };
 
 } // namespace Search
@@ -76,6 +80,7 @@ public:
 
     QString lineText() const { return m_lineText; }
     void setLineText(const QString &text) { m_lineText = text; }
+    void setDisplayText(const QString &text);
 
     QIcon icon() const { return m_icon; }
     void setIcon(const QIcon &icon) { m_icon = icon; }
@@ -102,6 +107,9 @@ public:
     {
         m_containingFunctionName = containingFunctionName;
     }
+
+    bool operator==(const SearchResultItem &other) const;
+    bool operator!=(const SearchResultItem &other) const { return !(operator==(other)); }
 
 private:
     QStringList m_path; // hierarchy to the parent item of this item

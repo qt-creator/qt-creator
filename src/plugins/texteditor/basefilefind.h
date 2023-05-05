@@ -56,7 +56,7 @@ public:
     virtual QVariant parameters() const = 0;
     virtual void readSettings(QSettings *settings) = 0;
     virtual void writeSettings(QSettings *settings) const = 0;
-    virtual QFuture<Utils::FileSearchResultList> executeSearch(
+    virtual QFuture<Utils::SearchResultItems> executeSearch(
             const FileFindParameters &parameters, BaseFileFind *baseFileFind) = 0;
     virtual Core::IEditor *openEditor(const Utils::SearchResultItem &item,
                                       const FileFindParameters &parameters) = 0;
@@ -97,7 +97,7 @@ protected:
     virtual QString label() const = 0; // see Core::SearchResultWindow::startNewSearch
     virtual QString toolTip() const = 0; // see Core::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
-    QFuture<Utils::FileSearchResultList> executeSearch(const FileFindParameters &parameters);
+    QFuture<Utils::SearchResultItems> executeSearch(const FileFindParameters &parameters);
 
     void writeCommonSettings(QSettings *settings);
     void readCommonSettings(QSettings *settings, const QString &defaultFilter, const QString &defaultExclusionFilter);
