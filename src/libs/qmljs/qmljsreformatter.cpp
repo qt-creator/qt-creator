@@ -1088,7 +1088,10 @@ protected:
         out(" ");
         out(ast->lparenToken);
         accept(ast->lhs);
-        out(" in ");
+        if (ast->type == ForEachType::In)
+            out(" in ");
+        else
+            out(" of ");
         accept(ast->expression);
         out(ast->rparenToken);
         acceptBlockOrIndented(ast->statement);
