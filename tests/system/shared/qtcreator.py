@@ -382,6 +382,7 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
     substituteUnchosenTargetABIs(tmpSettingsDir)
     SettingsPath = ['-settingspath', '"%s"' % tmpSettingsDir]
 
+test.log("Test is running on Python %s" % sys.version)
 # current dir is directory holding qtcreator.py
 origSettingsDir = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "settings"))
 
