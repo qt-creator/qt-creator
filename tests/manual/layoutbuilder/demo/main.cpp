@@ -1,12 +1,16 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
+
 #include "layoutbuilder.h"
 
 #include <QApplication>
-#include <QDebug>
 
 using namespace Layouting;
 
 int main(int argc, char *argv[])
 {
+    Id textId;
+
     Application app
     {
         resize(600, 400),
@@ -14,18 +18,22 @@ int main(int argc, char *argv[])
 
         Column {
             TextEdit {
+                id(textId),
                 text("Hallo")
             },
 
-            SpinBox {
-                text("Quit"),
-                onTextChanged([](const QString &text) { qDebug() << text; })
-            },
+            Row {
+                SpinBox {
+                    onTextChanged([&](const QString &text) { setText(textId, text); })
+                },
 
-            PushButton {
-                text("Quit"),
-                onClicked([] { QApplication::quit(); })
-            },
+                Stretch(),
+
+                PushButton {
+                    text("Quit"),
+                    onClicked([] { QApplication::quit(); })
+                },
+             }
         }
     };
 

@@ -341,12 +341,13 @@ public:
 
         auto addMenu = new QMenu(addButton);
         addMenu->addAction(Tr::tr("Files in Directories"), this, [this] {
-            addCustomFilter(new DirectoryFilter(Id(Constants::CUSTOM_DIRECTORY_FILTER_BASEID)
+            addCustomFilter(new DirectoryFilter(Utils::Id(Constants::CUSTOM_DIRECTORY_FILTER_BASEID)
                                                     .withSuffix(m_customFilters.size() + 1)));
         });
         addMenu->addAction(Tr::tr("URL Template"), this, [this] {
             auto filter = new UrlLocatorFilter(
-                Id(Constants::CUSTOM_URL_FILTER_BASEID).withSuffix(m_customFilters.size() + 1));
+                Utils::Id(Constants::CUSTOM_URL_FILTER_BASEID)
+                    .withSuffix(m_customFilters.size() + 1));
             filter->setIsCustomFilter(true);
             addCustomFilter(filter);
         });

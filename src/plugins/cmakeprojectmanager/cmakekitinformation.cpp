@@ -48,7 +48,6 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
-using namespace Layouting;
 
 namespace CMakeProjectManager {
 
@@ -104,7 +103,7 @@ private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
 
-    void addToLayout(LayoutItem &builder) override
+    void addToLayout(Layouting::LayoutItem &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -349,7 +348,7 @@ private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
 
-    void addToLayout(LayoutItem &parent) override
+    void addToLayout(Layouting::LayoutItem &parent) override
     {
         addMutableAction(m_label);
         parent.addItem(m_label);
@@ -890,7 +889,7 @@ public:
 
 private:
     // KitAspectWidget interface
-    void addToLayout(LayoutItem &parent) override
+    void addToLayout(Layouting::LayoutItem &parent) override
     {
         addMutableAction(m_summaryLabel);
         parent.addItem(m_summaryLabel);

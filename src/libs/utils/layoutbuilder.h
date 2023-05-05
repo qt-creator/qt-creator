@@ -190,7 +190,7 @@ QTCREATOR_UTILS_EXPORT LayoutItem noMargin();
 QTCREATOR_UTILS_EXPORT LayoutItem normalMargin();
 QTCREATOR_UTILS_EXPORT LayoutItem withFormAlignment();
 
-// "Properties"
+// "Setters"
 
 QTCREATOR_UTILS_EXPORT LayoutItem title(const QString &title);
 QTCREATOR_UTILS_EXPORT LayoutItem text(const QString &text);
@@ -199,6 +199,19 @@ QTCREATOR_UTILS_EXPORT LayoutItem resize(int, int);
 QTCREATOR_UTILS_EXPORT LayoutItem columnStretch(int column, int stretch);
 QTCREATOR_UTILS_EXPORT LayoutItem spacing(int);
 QTCREATOR_UTILS_EXPORT LayoutItem windowTitle(const QString &windowTitle);
+
+// "Getters"
+
+class Id
+{
+public:
+    QObject *ob = nullptr;
+};
+
+QTCREATOR_UTILS_EXPORT LayoutItem id(Id &out);
+
+QTCREATOR_UTILS_EXPORT void setText(Id id, const QString &text);
+
 
 // "Signals"
 
@@ -209,6 +222,8 @@ QTCREATOR_UTILS_EXPORT LayoutItem onTextChanged(const std::function<void(const Q
 QTCREATOR_UTILS_EXPORT LayoutItem onValueChanged(const std::function<void(int)> &,
                                                 QObject *guard = nullptr);
 
+QTCREATOR_UTILS_EXPORT LayoutItem onTextChanged(Id &id, QVariant(*sig)(QObject *));
+
 // Convenience
 
 QTCREATOR_UTILS_EXPORT QWidget *createHr(QWidget *parent = nullptr);
@@ -218,5 +233,6 @@ LayoutItem bindTo(T **out)
 {
     return [out](QObject *target) { *out = qobject_cast<T *>(target); };
 }
+
 
 } // Layouting

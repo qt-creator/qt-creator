@@ -34,7 +34,6 @@
 #include <QVBoxLayout>
 
 using namespace Utils;
-using namespace Layouting;
 
 namespace ProjectExplorer {
 
@@ -65,7 +64,7 @@ public:
 private:
     void makeReadOnly() override { m_chooser->setReadOnly(true); }
 
-    void addToLayout(LayoutItem &builder) override
+    void addToLayout(Layouting::LayoutItem &builder) override
     {
         addMutableAction(m_chooser);
         builder.addItem(Layouting::Span(2, m_chooser));
@@ -142,7 +141,7 @@ void SysRootKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) con
     });
 }
 
-Id SysRootKitAspect::id()
+Utils::Id SysRootKitAspect::id()
 {
     return "PE.Profile.SysRoot";
 }
@@ -231,7 +230,7 @@ public:
     }
 
 private:
-    void addToLayout(LayoutItem &builder) override
+    void addToLayout(Layouting::LayoutItem &builder) override
     {
         addMutableAction(m_mainWidget);
         builder.addItem(m_mainWidget);
@@ -760,7 +759,7 @@ public:
     ~DeviceTypeKitAspectWidget() override { delete m_comboBox; }
 
 private:
-    void addToLayout(LayoutItem &builder) override
+    void addToLayout(Layouting::LayoutItem &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -896,7 +895,7 @@ public:
     }
 
 private:
-    void addToLayout(LayoutItem &builder) override
+    void addToLayout(Layouting::LayoutItem &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -1156,7 +1155,7 @@ public:
     }
 
 private:
-    void addToLayout(LayoutItem &builder) override
+    void addToLayout(Layouting::LayoutItem &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -1387,7 +1386,7 @@ public:
     }
 
 private:
-    void addToLayout(LayoutItem &builder) override
+    void addToLayout(Layouting::LayoutItem &builder) override
     {
         addMutableAction(m_mainWidget);
         builder.addItem(m_mainWidget);
