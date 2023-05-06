@@ -171,14 +171,22 @@ TEST_F(QmlTypesParser, Imports)
 
     parser.parse(source, imports, types, projectData);
 
-    ASSERT_THAT(
-        imports,
-        UnorderedElementsAre(
-            IsImport(storage.moduleId("QML-cppnative"), Storage::Version{}, qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtQml-cppnative"), Storage::Version{}, qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtQuick-cppnative"), Storage::Version{}, qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtQuick.Window-cppnative"), Storage::Version{}, qmltypesFileSourceId),
-            IsImport(storage.moduleId("QtFoo-cppnative"), Storage::Version{}, qmltypesFileSourceId)));
+    ASSERT_THAT(imports,
+                UnorderedElementsAre(IsImport(storage.moduleId("QML-cppnative"),
+                                              QmlDesigner::Storage::Version{},
+                                              qmltypesFileSourceId),
+                                     IsImport(storage.moduleId("QtQml-cppnative"),
+                                              QmlDesigner::Storage::Version{},
+                                              qmltypesFileSourceId),
+                                     IsImport(storage.moduleId("QtQuick-cppnative"),
+                                              QmlDesigner::Storage::Version{},
+                                              qmltypesFileSourceId),
+                                     IsImport(storage.moduleId("QtQuick.Window-cppnative"),
+                                              QmlDesigner::Storage::Version{},
+                                              qmltypesFileSourceId),
+                                     IsImport(storage.moduleId("QtFoo-cppnative"),
+                                              QmlDesigner::Storage::Version{},
+                                              qmltypesFileSourceId)));
 }
 
 TEST_F(QmlTypesParser, Types)
@@ -261,13 +269,14 @@ TEST_F(QmlTypesParser, ExportedTypes)
 
     parser.parse(source, imports, types, projectData);
 
-    ASSERT_THAT(types,
-                ElementsAre(
-                    Field(&Storage::Type::exportedTypes,
-                          UnorderedElementsAre(
-                              IsExportedType(qmlModuleId, "QtObject", Storage::Version{1, 0}),
-                              IsExportedType(qtQmlModuleId, "QtObject", Storage::Version{2, 1}),
-                              IsExportedType(qtQmlNativeModuleId, "QObject", Storage::Version{})))));
+    ASSERT_THAT(
+        types,
+        ElementsAre(Field(
+            &Storage::Type::exportedTypes,
+            UnorderedElementsAre(
+                IsExportedType(qmlModuleId, "QtObject", QmlDesigner::Storage::Version{1, 0}),
+                IsExportedType(qtQmlModuleId, "QtObject", QmlDesigner::Storage::Version{2, 1}),
+                IsExportedType(qtQmlNativeModuleId, "QObject", QmlDesigner::Storage::Version{})))));
 }
 
 TEST_F(QmlTypesParser, Properties)
@@ -567,30 +576,28 @@ TEST_F(QmlTypesParser, EnumerationIsExportedAsType)
 
     parser.parse(source, imports, types, projectData);
 
-    ASSERT_THAT(types,
-                UnorderedElementsAre(
-                    AllOf(IsType("QObject::NamedColorSpace",
-                                 Storage::ImportedType{},
-                                 Storage::ImportedType{},
-                                 QmlDesigner::Storage::TypeTraits::Value
-                                     | QmlDesigner::Storage::TypeTraits::IsEnum,
-                                 qmltypesFileSourceId),
-                          Field(&Storage::Type::exportedTypes,
-                                UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
-                                                                    "QObject::NamedColorSpace",
-                                                                    Storage::Version{})))),
-                    AllOf(IsType("QObject::VerticalLayoutDirection",
-                                 Storage::ImportedType{},
-                                 Storage::ImportedType{},
-                                 QmlDesigner::Storage::TypeTraits::Value
-                                     | QmlDesigner::Storage::TypeTraits::IsEnum,
-                                 qmltypesFileSourceId),
-                          Field(&Storage::Type::exportedTypes,
-                                UnorderedElementsAre(
-                                    IsExportedType(qtQmlNativeModuleId,
-                                                   "QObject::VerticalLayoutDirection",
-                                                   Storage::Version{})))),
-                    _));
+    ASSERT_THAT(
+        types,
+        UnorderedElementsAre(
+            AllOf(IsType("QObject::NamedColorSpace",
+                         Storage::ImportedType{},
+                         Storage::ImportedType{},
+                         QmlDesigner::Storage::TypeTraits::Value | QmlDesigner::Storage::TypeTraits::IsEnum,
+                         qmltypesFileSourceId),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
+                                                            "QObject::NamedColorSpace",
+                                                            QmlDesigner::Storage::Version{})))),
+            AllOf(IsType("QObject::VerticalLayoutDirection",
+                         Storage::ImportedType{},
+                         Storage::ImportedType{},
+                         QmlDesigner::Storage::TypeTraits::Value | QmlDesigner::Storage::TypeTraits::IsEnum,
+                         qmltypesFileSourceId),
+                  Field(&Storage::Type::exportedTypes,
+                        UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
+                                                            "QObject::VerticalLayoutDirection",
+                                                            QmlDesigner::Storage::Version{})))),
+            _));
 }
 
 TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAlias)
@@ -624,10 +631,10 @@ TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAlias)
                           Field(&Storage::Type::exportedTypes,
                                 UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
                                                                     "QObject::NamedColorSpace",
-                                                                    Storage::Version{}),
+                                                                    QmlDesigner::Storage::Version{}),
                                                      IsExportedType(qtQmlNativeModuleId,
                                                                     "QObject::NamedColorSpaces",
-                                                                    Storage::Version{})))),
+                                                                    QmlDesigner::Storage::Version{})))),
                     _));
 }
 
@@ -671,10 +678,10 @@ TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAliasToo)
                           Field(&Storage::Type::exportedTypes,
                                 UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
                                                                     "QObject::NamedColorSpace",
-                                                                    Storage::Version{}),
+                                                                    QmlDesigner::Storage::Version{}),
                                                      IsExportedType(qtQmlNativeModuleId,
                                                                     "QObject::NamedColorSpaces",
-                                                                    Storage::Version{})))),
+                                                                    QmlDesigner::Storage::Version{})))),
                     _));
 }
 

@@ -122,12 +122,12 @@ MATCHER_P3(IsExportedType,
            minorVersion,
            std::string(negation ? "isn't " : "is ")
                + PrintToString(Storage::Synchronization::ExportedType{
-                   name, Storage::Synchronization::Version{majorVersion, minorVersion}}))
+                   name, Storage::Version{majorVersion, minorVersion}}))
 {
     const Storage::Synchronization::ExportedType &type = arg;
 
     return type.name == name
-           && type.version == Storage::Synchronization::Version{majorVersion, minorVersion};
+           && type.version == Storage::Version{majorVersion, minorVersion};
 }
 
 MATCHER_P4(IsExportedType,
@@ -137,12 +137,12 @@ MATCHER_P4(IsExportedType,
            minorVersion,
            std::string(negation ? "isn't " : "is ")
                + PrintToString(Storage::Synchronization::ExportedType{
-                   moduleId, name, Storage::Synchronization::Version{majorVersion, minorVersion}}))
+                   moduleId, name, Storage::Version{majorVersion, minorVersion}}))
 {
     const Storage::Synchronization::ExportedType &type = arg;
 
     return type.moduleId == moduleId && type.name == name
-           && type.version == Storage::Synchronization::Version{majorVersion, minorVersion};
+           && type.version == Storage::Version{majorVersion, minorVersion};
 }
 
 MATCHER_P3(
@@ -284,33 +284,33 @@ protected:
     {
         SynchronizationPackage package;
 
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId1);
-        package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId1);
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId2);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId1);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId2);
         package.moduleDependencies.emplace_back(qmlNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId1);
         package.moduleDependencies.emplace_back(qtQuickNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId1);
         package.moduleDependencies.emplace_back(qmlNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId2);
         package.updatedModuleDependencySourceIds.push_back(sourceId1);
         package.updatedModuleDependencySourceIds.push_back(sourceId2);
 
-        importsSourceId1.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId1);
-        importsSourceId1.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId1);
+        importsSourceId1.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
+        importsSourceId1.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId1);
         moduleDependenciesSourceId1.emplace_back(qmlNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId1);
         moduleDependenciesSourceId1.emplace_back(qtQuickNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId1);
 
-        importsSourceId2.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId2);
+        importsSourceId2.emplace_back(qmlModuleId, Storage::Version{}, sourceId2);
         moduleDependenciesSourceId2.emplace_back(qmlNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId2);
 
         package.types.push_back(Storage::Synchronization::Type{
@@ -365,10 +365,10 @@ protected:
             sourceId2,
             {Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Object",
-                                                    Storage::Synchronization::Version{2}},
+                                                    Storage::Version{2}},
              Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Obj",
-                                                    Storage::Synchronization::Version{2}},
+                                                    Storage::Version{2}},
              Storage::Synchronization::ExportedType{qmlNativeModuleId, "QObject"}}});
 
         package.updatedSourceIds = {sourceId1, sourceId2};
@@ -380,15 +380,15 @@ protected:
     {
         SynchronizationPackage package;
 
-        package.imports.emplace_back(QMLModuleId, Storage::Synchronization::Version{}, sourceId1);
+        package.imports.emplace_back(QMLModuleId, Storage::Version{}, sourceId1);
         package.moduleDependencies.emplace_back(QMLModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId1);
         package.updatedModuleDependencySourceIds.push_back(sourceId1);
 
-        importsSourceId1.emplace_back(QMLModuleId, Storage::Synchronization::Version{}, sourceId1);
+        importsSourceId1.emplace_back(QMLModuleId, Storage::Version{}, sourceId1);
         moduleDependenciesSourceId1.emplace_back(QMLModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId1);
 
         package.types.push_back(
@@ -417,36 +417,36 @@ protected:
     {
         auto package{createSimpleSynchronizationPackage()};
 
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId3);
-        package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
         package.moduleDependencies.emplace_back(qmlNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId3);
         package.moduleDependencies.emplace_back(qtQuickNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId3);
         package.updatedModuleDependencySourceIds.push_back(sourceId3);
 
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId4);
-        package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId4);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId4);
+        package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId4);
         package.moduleDependencies.emplace_back(qmlNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId4);
         package.updatedModuleDependencySourceIds.push_back(sourceId4);
 
-        importsSourceId3.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId3);
-        importsSourceId3.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+        importsSourceId3.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
+        importsSourceId3.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
         moduleDependenciesSourceId3.emplace_back(qmlNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId3);
         moduleDependenciesSourceId3.emplace_back(qtQuickNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId3);
 
-        importsSourceId4.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId4);
-        importsSourceId4.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId4);
+        importsSourceId4.emplace_back(qmlModuleId, Storage::Version{}, sourceId4);
+        importsSourceId4.emplace_back(pathToModuleId, Storage::Version{}, sourceId4);
         moduleDependenciesSourceId4.emplace_back(qmlNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId4);
 
         package.types[1].propertyDeclarations.push_back(
@@ -498,35 +498,35 @@ protected:
     {
         SynchronizationPackage package;
 
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId1);
-        package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId1);
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId2);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId1);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId2);
 
         package.moduleDependencies.emplace_back(qmlNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId1);
         package.moduleDependencies.emplace_back(qtQuickNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId1);
         package.moduleDependencies.emplace_back(qmlNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId2);
 
         package.updatedModuleDependencySourceIds.push_back(sourceId1);
         package.updatedModuleDependencySourceIds.push_back(sourceId2);
 
-        importsSourceId1.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId1);
-        importsSourceId1.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId1);
+        importsSourceId1.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
+        importsSourceId1.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId1);
         moduleDependenciesSourceId1.emplace_back(qmlNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId1);
         moduleDependenciesSourceId1.emplace_back(qtQuickNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId1);
 
-        importsSourceId2.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId2);
+        importsSourceId2.emplace_back(qmlModuleId, Storage::Version{}, sourceId2);
         moduleDependenciesSourceId2.emplace_back(qmlNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId2);
 
         package.types.push_back(Storage::Synchronization::Type{
@@ -554,52 +554,52 @@ protected:
             sourceId2,
             {Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Object",
-                                                    Storage::Synchronization::Version{2}},
+                                                    Storage::Version{2}},
              Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Obj",
-                                                    Storage::Synchronization::Version{2}},
+                                                    Storage::Version{2}},
              Storage::Synchronization::ExportedType{qmlNativeModuleId, "QObject"}}});
 
         package.updatedSourceIds = {sourceId1, sourceId2};
 
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId3);
-        package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
         package.moduleDependencies.emplace_back(qmlNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId3);
         package.moduleDependencies.emplace_back(qtQuickNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId3);
         package.updatedModuleDependencySourceIds.push_back(sourceId3);
 
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId4);
-        package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId4);
-        package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId4);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId4);
+        package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId4);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId4);
         package.moduleDependencies.emplace_back(qmlNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId4);
         package.moduleDependencies.emplace_back(qtQuickNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId4);
         package.updatedModuleDependencySourceIds.push_back(sourceId4);
 
-        importsSourceId3.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId3);
-        importsSourceId3.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+        importsSourceId3.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
+        importsSourceId3.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
         moduleDependenciesSourceId3.emplace_back(qmlNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId3);
         moduleDependenciesSourceId3.emplace_back(qtQuickNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId3);
 
-        importsSourceId4.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId4);
-        importsSourceId4.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId4);
-        importsSourceId4.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId4);
+        importsSourceId4.emplace_back(qmlModuleId, Storage::Version{}, sourceId4);
+        importsSourceId4.emplace_back(pathToModuleId, Storage::Version{}, sourceId4);
+        importsSourceId4.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId4);
         moduleDependenciesSourceId4.emplace_back(qmlNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId4);
         moduleDependenciesSourceId4.emplace_back(qtQuickNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId4);
 
         package.types[1].propertyDeclarations.push_back(
@@ -646,7 +646,7 @@ protected:
             sourceId5,
             {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                     "Children",
-                                                    Storage::Synchronization::Version{2}},
+                                                    Storage::Version{2}},
              Storage::Synchronization::ExportedType{qtQuickNativeModuleId, "QChildren"}},
             {Storage::Synchronization::PropertyDeclaration{"items",
                                                            Storage::Synchronization::ImportedType{
@@ -658,21 +658,21 @@ protected:
                  Storage::PropertyDeclarationTraits::IsList
                      | Storage::PropertyDeclarationTraits::IsReadOnly}}});
 
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId5);
-        package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId5);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId5);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId5);
         package.moduleDependencies.emplace_back(qmlNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId5);
         package.moduleDependencies.emplace_back(qtQuickNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId5);
-        importsSourceId5.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId5);
-        importsSourceId5.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId5);
+        importsSourceId5.emplace_back(qmlModuleId, Storage::Version{}, sourceId5);
+        importsSourceId5.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId5);
         moduleDependenciesSourceId5.emplace_back(qmlNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId5);
         moduleDependenciesSourceId5.emplace_back(qtQuickNativeModuleId,
-                                                 Storage::Synchronization::Version{},
+                                                 Storage::Version{},
                                                  sourceId5);
         package.updatedModuleDependencySourceIds.push_back(sourceId5);
         package.updatedSourceIds.push_back(sourceId5);
@@ -685,7 +685,7 @@ protected:
             sourceId6,
             {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                     "Children2",
-                                                    Storage::Synchronization::Version{2}},
+                                                    Storage::Version{2}},
              Storage::Synchronization::ExportedType{qtQuickNativeModuleId, "QChildren2"}},
             {Storage::Synchronization::PropertyDeclaration{"items",
                                                            Storage::Synchronization::ImportedType{
@@ -697,14 +697,14 @@ protected:
                  Storage::PropertyDeclarationTraits::IsList
                      | Storage::PropertyDeclarationTraits::IsReadOnly}}});
 
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId6);
-        package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId6);
-        package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId6);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId6);
+        package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId6);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId6);
         package.moduleDependencies.emplace_back(qmlNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId6);
         package.moduleDependencies.emplace_back(qtQuickNativeModuleId,
-                                                Storage::Synchronization::Version{},
+                                                Storage::Version{},
                                                 sourceId6);
         package.updatedModuleDependencySourceIds.push_back(sourceId6);
         package.updatedSourceIds.push_back(sourceId6);
@@ -727,8 +727,8 @@ protected:
     {
         auto package{createSynchronizationPackageWithAliases()};
 
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId5);
-        package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId5);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId5);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId5);
 
         package.types.push_back(Storage::Synchronization::Type{
             "QAliasItem2",
@@ -769,10 +769,10 @@ protected:
             sourceId1,
             {Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Object",
-                                                    Storage::Synchronization::Version{1}},
+                                                    Storage::Version{1}},
              Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Obj",
-                                                    Storage::Synchronization::Version{1, 2}},
+                                                    Storage::Version{1, 2}},
              Storage::Synchronization::ExportedType{qmlModuleId, "BuiltInObj"},
              Storage::Synchronization::ExportedType{qmlNativeModuleId, "QObject"}}});
         package.types.push_back(Storage::Synchronization::Type{
@@ -783,10 +783,10 @@ protected:
             sourceId1,
             {Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Object",
-                                                    Storage::Synchronization::Version{2, 0}},
+                                                    Storage::Version{2, 0}},
              Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Obj",
-                                                    Storage::Synchronization::Version{2, 3}},
+                                                    Storage::Version{2, 3}},
              Storage::Synchronization::ExportedType{qmlNativeModuleId, "QObject2"}}});
         package.types.push_back(Storage::Synchronization::Type{
             "QObject3",
@@ -796,10 +796,10 @@ protected:
             sourceId1,
             {Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Object",
-                                                    Storage::Synchronization::Version{2, 11}},
+                                                    Storage::Version{2, 11}},
              Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Obj",
-                                                    Storage::Synchronization::Version{2, 11}},
+                                                    Storage::Version{2, 11}},
              Storage::Synchronization::ExportedType{qmlNativeModuleId, "QObject3"}}});
         package.types.push_back(Storage::Synchronization::Type{
             "QObject4",
@@ -809,13 +809,13 @@ protected:
             sourceId1,
             {Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Object",
-                                                    Storage::Synchronization::Version{3, 4}},
+                                                    Storage::Version{3, 4}},
              Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Obj",
-                                                    Storage::Synchronization::Version{3, 4}},
+                                                    Storage::Version{3, 4}},
              Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "BuiltInObj",
-                                                    Storage::Synchronization::Version{3, 4}},
+                                                    Storage::Version{3, 4}},
              Storage::Synchronization::ExportedType{qmlNativeModuleId, "QObject4"}}});
 
         package.updatedSourceIds.push_back(sourceId1);
@@ -829,7 +829,7 @@ protected:
     {
         SynchronizationPackage package;
 
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId1);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
 
         package.types.push_back(Storage::Synchronization::Type{
             "QObject",
@@ -839,7 +839,7 @@ protected:
             sourceId1,
             {Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Object",
-                                                    Storage::Synchronization::Version{}}},
+                                                    Storage::Version{}}},
             {Storage::Synchronization::PropertyDeclaration{"data",
                                                            Storage::Synchronization::ImportedType{"Object"},
                                                            Storage::PropertyDeclarationTraits::IsList},
@@ -858,7 +858,7 @@ protected:
             sourceId1,
             {Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Object2",
-                                                    Storage::Synchronization::Version{}}},
+                                                    Storage::Version{}}},
             {Storage::Synchronization::PropertyDeclaration{
                  "data2",
                  Storage::Synchronization::ImportedType{"Object3"},
@@ -878,7 +878,7 @@ protected:
             sourceId1,
             {Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Object3",
-                                                    Storage::Synchronization::Version{}}},
+                                                    Storage::Version{}}},
             {Storage::Synchronization::PropertyDeclaration{"data3",
                                                            Storage::Synchronization::ImportedType{
                                                                "Object2"},
@@ -902,7 +902,7 @@ protected:
     {
         SynchronizationPackage package;
 
-        package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{1}, sourceId1);
+        package.imports.emplace_back(qmlModuleId, Storage::Version{1}, sourceId1);
         package.updatedModuleIds.push_back(qtQuickModuleId);
         package.types.push_back(Storage::Synchronization::Type{
             "QQuickItem",
@@ -912,12 +912,12 @@ protected:
             sourceId1,
             {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                     "Item",
-                                                    Storage::Synchronization::Version{1, 0}}}});
+                                                    Storage::Version{1, 0}}}});
 
         package.updatedModuleIds.push_back(qmlModuleId);
         package.moduleExportedImports.emplace_back(qtQuickModuleId,
                                                    qmlModuleId,
-                                                   Storage::Synchronization::Version{},
+                                                   Storage::Version{},
                                                    Storage::Synchronization::IsAutoVersion::Yes);
         package.types.push_back(Storage::Synchronization::Type{
             "QObject",
@@ -927,12 +927,12 @@ protected:
             sourceId2,
             {Storage::Synchronization::ExportedType{qmlModuleId,
                                                     "Object",
-                                                    Storage::Synchronization::Version{1, 0}}}});
+                                                    Storage::Version{1, 0}}}});
 
-        package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{1}, sourceId3);
+        package.imports.emplace_back(qtQuickModuleId, Storage::Version{1}, sourceId3);
         package.moduleExportedImports.emplace_back(qtQuick3DModuleId,
                                                    qtQuickModuleId,
-                                                   Storage::Synchronization::Version{},
+                                                   Storage::Version{},
                                                    Storage::Synchronization::IsAutoVersion::Yes);
         package.updatedModuleIds.push_back(qtQuick3DModuleId);
         package.types.push_back(Storage::Synchronization::Type{
@@ -943,9 +943,9 @@ protected:
             sourceId3,
             {Storage::Synchronization::ExportedType{qtQuick3DModuleId,
                                                     "Item3D",
-                                                    Storage::Synchronization::Version{1, 0}}}});
+                                                    Storage::Version{1, 0}}}});
 
-        package.imports.emplace_back(qtQuick3DModuleId, Storage::Synchronization::Version{1}, sourceId4);
+        package.imports.emplace_back(qtQuick3DModuleId, Storage::Version{1}, sourceId4);
         package.types.push_back(Storage::Synchronization::Type{
             "MyItem",
             Storage::Synchronization::ImportedType{"Object"},
@@ -954,7 +954,7 @@ protected:
             sourceId4,
             {Storage::Synchronization::ExportedType{myModuleModuleId,
                                                     "MyItem",
-                                                    Storage::Synchronization::Version{1, 0}}}});
+                                                    Storage::Version{1, 0}}}});
 
         package.updatedSourceIds = {sourceId1, sourceId2, sourceId3, sourceId4};
 
@@ -1439,12 +1439,12 @@ TEST_F(ProjectStorage, SynchronizeTypesOverwritesSources)
     package.types[0].sourceId = sourceId3;
     package.types[1].sourceId = sourceId4;
     Storage::Synchronization::Imports newImports;
-    newImports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId3);
-    newImports.emplace_back(qmlNativeModuleId, Storage::Synchronization::Version{}, sourceId3);
-    newImports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
-    newImports.emplace_back(qtQuickNativeModuleId, Storage::Synchronization::Version{}, sourceId3);
-    newImports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId4);
-    newImports.emplace_back(qmlNativeModuleId, Storage::Synchronization::Version{}, sourceId4);
+    newImports.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
+    newImports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId3);
+    newImports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    newImports.emplace_back(qtQuickNativeModuleId, Storage::Version{}, sourceId3);
+    newImports.emplace_back(qmlModuleId, Storage::Version{}, sourceId4);
+    newImports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId4);
 
     storage.synchronize(SynchronizationPackage{newImports,
                                                package.types,
@@ -1560,7 +1560,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddQualifiedPrototype)
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
     package.types.push_back(Storage::Synchronization::Type{
         "QQuickObject",
@@ -1606,7 +1606,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddQualifiedExtension)
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
     package.types.push_back(Storage::Synchronization::Type{
         "QQuickObject",
@@ -1828,7 +1828,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarationQualifiedType)
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
     package.types.push_back(
         Storage::Synchronization::Type{"QQuickObject",
@@ -2018,7 +2018,7 @@ TEST_F(ProjectStorage, UsingNonExistingQualifiedExportedPropertyTypeWithWrongNam
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
         "QObject2",
         Storage::Synchronization::Import{qmlNativeModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
     package.types.pop_back();
     package.imports = importsSourceId1;
@@ -2031,7 +2031,7 @@ TEST_F(ProjectStorage, UsingNonExistingQualifiedExportedPropertyTypeWithWrongMod
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
         "QObject",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{}, sourceId1}};
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{}, sourceId1}};
     package.types.pop_back();
     package.imports = importsSourceId1;
 
@@ -2900,7 +2900,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsTypeName)
     storage.synchronize(package);
     package.types[2].propertyDeclarations[2].typeName = Storage::Synchronization::ImportedType{
         "Obj2"};
-    importsSourceId3.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId3);
+    importsSourceId3.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
 
     storage.synchronize(SynchronizationPackage{importsSourceId3, {package.types[2]}, {sourceId3}});
 
@@ -3049,7 +3049,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeAliasTargetPropertyDeclarationTypeN
     storage.synchronize(package);
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
         "Item"};
-    importsSourceId2.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId2);
+    importsSourceId2.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
 
     storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 
@@ -3117,7 +3117,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemoveTypeWithAliasTargetPropertyDeclarat
     auto package{createSynchronizationPackageWithAliases()};
     package.types[2].propertyDeclarations[2].typeName = Storage::Synchronization::ImportedType{
         "Object2"};
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
     storage.synchronize(package);
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{{sourceId4}}),
@@ -3129,7 +3129,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemoveTypeAndAliasPropertyDeclaration)
     auto package{createSynchronizationPackageWithAliases()};
     package.types[2].propertyDeclarations[2].typeName = Storage::Synchronization::ImportedType{
         "Object2"};
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
     storage.synchronize(package);
     package.types[2].propertyDeclarations.pop_back();
 
@@ -3250,8 +3250,8 @@ TEST_F(ProjectStorage, RelinkAliasProperty)
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
         "Object2"};
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId2);
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId2);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
     storage.synchronize(package);
     package.types[3].exportedTypes[0].moduleId = qtQuickModuleId;
 
@@ -3282,11 +3282,11 @@ TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForQualifiedImportedTypeName)
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
         "Object2",
-        Storage::Synchronization::Import{pathToModuleId, Storage::Synchronization::Version{}, sourceId2}};
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId2);
+        Storage::Synchronization::Import{pathToModuleId, Storage::Version{}, sourceId2}};
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
     storage.synchronize(package);
     package.types[3].exportedTypes[0].moduleId = qtQuickModuleId;
-    importsSourceId4.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId4);
+    importsSourceId4.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId4);
 
     ASSERT_THROW(storage.synchronize(
                      SynchronizationPackage{importsSourceId4, {package.types[3]}, {sourceId4}}),
@@ -3299,8 +3299,8 @@ TEST_F(ProjectStorage,
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
         "Object2",
-        Storage::Synchronization::Import{pathToModuleId, Storage::Synchronization::Version{}, sourceId2}};
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId2);
+        Storage::Synchronization::Import{pathToModuleId, Storage::Version{}, sourceId2}};
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
     package.types.push_back(Storage::Synchronization::Type{
         "QObject2",
         Storage::Synchronization::ImportedType{},
@@ -3366,8 +3366,8 @@ TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedType)
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
         "Object2"};
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId2);
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId2);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
     storage.synchronize(package);
     package.types[3].exportedTypes[0].moduleId = qtQuickModuleId;
 
@@ -3386,12 +3386,12 @@ TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedTypeAndPropertyType)
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
         "Object2"};
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId2);
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId2);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
     storage.synchronize(package);
     package.types[0].prototype = Storage::Synchronization::ImportedType{};
-    importsSourceId1.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId1);
-    importsSourceId4.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId4);
+    importsSourceId1.emplace_back(pathToModuleId, Storage::Version{}, sourceId1);
+    importsSourceId4.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId4);
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
         "Object2"};
     package.types[3].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
@@ -3409,12 +3409,12 @@ TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedTypeAndPropertyTypeName
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
         "Object2"};
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId2);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
     storage.synchronize(package);
     package.types[3].exportedTypes[0].moduleId = qtQuickModuleId;
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
         "QObject"};
-    importsSourceId4.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId4);
+    importsSourceId4.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId4);
 
     storage.synchronize(SynchronizationPackage{importsSourceId2 + importsSourceId4,
                                                {package.types[1], package.types[3]},
@@ -3432,8 +3432,8 @@ TEST_F(ProjectStorage, DoNotRelinkPropertyTypeDoesNotExists)
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
         "Object2"};
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId2);
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId2);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
     storage.synchronize(package);
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{{sourceId4}}),
@@ -3445,7 +3445,7 @@ TEST_F(ProjectStorage, DoNotRelinkAliasPropertyTypeDoesNotExists)
     auto package{createSynchronizationPackageWithAliases2()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
         "Object2"};
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId2);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
     storage.synchronize(package);
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{{sourceId1}}),
@@ -3523,7 +3523,7 @@ TEST_F(ProjectStorage, ChangeQualifiedPrototypeTypeModuleIdThrows)
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
         "Object",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{}, sourceId1}};
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{}, sourceId1}};
     storage.synchronize(package);
     package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
 
@@ -3538,7 +3538,7 @@ TEST_F(ProjectStorage, ChangeQualifiedExtensionTypeModuleIdThrows)
     std::swap(package.types.front().extension, package.types.front().prototype);
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{
         "Object",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{}, sourceId1}};
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{}, sourceId1}};
     storage.synchronize(package);
     package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
 
@@ -3552,13 +3552,13 @@ TEST_F(ProjectStorage, ChangeQualifiedPrototypeTypeModuleId)
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
         "Object",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{}, sourceId1}};
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{}, sourceId1}};
     storage.synchronize(package);
     package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
 
     storage.synchronize(SynchronizationPackage{importsSourceId1 + importsSourceId2,
@@ -3579,13 +3579,13 @@ TEST_F(ProjectStorage, ChangeQualifiedExtensionTypeModuleId)
     std::swap(package.types.front().extension, package.types.front().prototype);
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{
         "Object",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{}, sourceId1}};
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{}, sourceId1}};
     storage.synchronize(package);
     package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
 
     storage.synchronize(SynchronizationPackage{importsSourceId1 + importsSourceId2,
@@ -3688,9 +3688,9 @@ TEST_F(ProjectStorage, ThrowForPrototypeChainCycles)
         sourceId3,
         {Storage::Synchronization::ExportedType{pathToModuleId, "Object2"},
          Storage::Synchronization::ExportedType{pathToModuleId, "Obj2"}}});
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId2);
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{package.imports,
                                                             package.types,
@@ -3713,9 +3713,9 @@ TEST_F(ProjectStorage, ThrowForExtensionChainCycles)
         sourceId3,
         {Storage::Synchronization::ExportedType{pathToModuleId, "Object2"},
          Storage::Synchronization::ExportedType{pathToModuleId, "Obj2"}}});
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId2);
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
-    package.imports.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{package.imports,
                                                             package.types,
@@ -3748,7 +3748,7 @@ TEST_F(ProjectStorage, ThrowForTypeIdAndPrototypeIdAreTheSameForRelinking)
     storage.synchronize(package);
     package.types[1].prototype = Storage::Synchronization::ImportedType{"Item"};
     package.types[1].typeName = "QObject2";
-    importsSourceId2.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId2);
+    importsSourceId2.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
 
     ASSERT_THROW(storage.synchronize(
                      SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
@@ -3762,7 +3762,7 @@ TEST_F(ProjectStorage, ThrowForTypeIdAndExtenssionIdAreTheSameForRelinking)
     storage.synchronize(package);
     package.types[1].extension = Storage::Synchronization::ImportedType{"Item"};
     package.types[1].typeName = "QObject2";
-    importsSourceId2.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId2);
+    importsSourceId2.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
 
     ASSERT_THROW(storage.synchronize(
                      SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
@@ -3793,7 +3793,7 @@ TEST_F(ProjectStorage, RecursiveAliasesChangePropertyType)
     storage.synchronize(package);
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
         "Object2"};
-    importsSourceId2.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId2);
+    importsSourceId2.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
 
     storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 
@@ -3879,7 +3879,7 @@ TEST_F(ProjectStorage, UpdateAliasesAfterChangePropertyToAlias)
     package.types[1].propertyDeclarations.clear();
     package.types[1].propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
         "objects", Storage::Synchronization::ImportedType{"Object2"}, "objects"});
-    importsSourceId2.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId2);
+    importsSourceId2.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
 
     storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 
@@ -3903,7 +3903,7 @@ TEST_F(ProjectStorage, CheckForProtoTypeCycleThrows)
     package.types[1].propertyDeclarations.clear();
     package.types[1].propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
         "objects", Storage::Synchronization::ImportedType{"AliasItem2"}, "objects"});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
 
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::AliasChainCycle);
 }
@@ -3915,7 +3915,7 @@ TEST_F(ProjectStorage, CheckForProtoTypeCycleAfterUpdateThrows)
     package.types[1].propertyDeclarations.clear();
     package.types[1].propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
         "objects", Storage::Synchronization::ImportedType{"AliasItem2"}, "objects"});
-    importsSourceId2.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId2);
+    importsSourceId2.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
 
     ASSERT_THROW(storage.synchronize(
                      SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
@@ -3927,7 +3927,7 @@ TEST_F(ProjectStorage, QualifiedPrototype)
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
         "Object",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{}, sourceId1}};
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{}, sourceId1}};
     package.types.push_back(
         Storage::Synchronization::Type{"QQuickObject",
                                        Storage::Synchronization::ImportedType{},
@@ -3936,7 +3936,7 @@ TEST_F(ProjectStorage, QualifiedPrototype)
                                        sourceId3,
                                        {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                                                "Object"}}});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
@@ -3955,7 +3955,7 @@ TEST_F(ProjectStorage, QualifiedExtension)
     std::swap(package.types.front().extension, package.types.front().prototype);
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{
         "Object",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{}, sourceId1}};
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{}, sourceId1}};
     package.types.push_back(
         Storage::Synchronization::Type{"QQuickObject",
                                        Storage::Synchronization::ImportedType{},
@@ -3964,7 +3964,7 @@ TEST_F(ProjectStorage, QualifiedExtension)
                                        sourceId3,
                                        {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                                                "Object"}}});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
@@ -3983,7 +3983,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeUpperDownTheModuleChainThrows)
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
 
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
@@ -3996,7 +3996,7 @@ TEST_F(ProjectStorage, QualifiedExtensionUpperDownTheModuleChainThrows)
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
 
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
@@ -4008,7 +4008,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeUpperInTheModuleChain)
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
     package.types.push_back(
         Storage::Synchronization::Type{"QQuickObject",
@@ -4018,7 +4018,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeUpperInTheModuleChain)
                                        sourceId3,
                                        {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                                                "Object"}}});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
@@ -4038,7 +4038,7 @@ TEST_F(ProjectStorage, QualifiedExtensionUpperInTheModuleChain)
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
     package.types.push_back(
         Storage::Synchronization::Type{"QQuickObject",
@@ -4048,7 +4048,7 @@ TEST_F(ProjectStorage, QualifiedExtensionUpperInTheModuleChain)
                                        sourceId3,
                                        {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                                                "Object"}}});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
@@ -4066,7 +4066,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithWrongVersionThrows)
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
         "Object",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{4}, sourceId1}};
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{4}, sourceId1}};
     package.types.push_back(
         Storage::Synchronization::Type{"QQuickObject",
                                        Storage::Synchronization::ImportedType{},
@@ -4075,7 +4075,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithWrongVersionThrows)
                                        sourceId3,
                                        {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                                                "Object"}}});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
@@ -4087,7 +4087,7 @@ TEST_F(ProjectStorage, QualifiedExtensionWithWrongVersionThrows)
     std::swap(package.types.front().extension, package.types.front().prototype);
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{
         "Object",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{4}, sourceId1}};
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{4}, sourceId1}};
     package.types.push_back(
         Storage::Synchronization::Type{"QQuickObject",
                                        Storage::Synchronization::ImportedType{},
@@ -4096,7 +4096,7 @@ TEST_F(ProjectStorage, QualifiedExtensionWithWrongVersionThrows)
                                        sourceId3,
                                        {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                                                "Object"}}});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
@@ -4105,7 +4105,7 @@ TEST_F(ProjectStorage, QualifiedExtensionWithWrongVersionThrows)
 TEST_F(ProjectStorage, QualifiedPrototypeWithVersion)
 {
     auto package{createSimpleSynchronizationPackage()};
-    package.imports[0].version = Storage::Synchronization::Version{2};
+    package.imports[0].version = Storage::Version{2};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{"Object",
                                                                                  package.imports[0]};
     package.types.push_back(
@@ -4116,7 +4116,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersion)
                                        sourceId3,
                                        {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                                                "Object"}}});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
@@ -4133,7 +4133,7 @@ TEST_F(ProjectStorage, QualifiedExtensionWithVersion)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
-    package.imports[0].version = Storage::Synchronization::Version{2};
+    package.imports[0].version = Storage::Version{2};
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{"Object",
                                                                                  package.imports[0]};
     package.types.push_back(
@@ -4144,7 +4144,7 @@ TEST_F(ProjectStorage, QualifiedExtensionWithVersion)
                                        sourceId3,
                                        {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                                                "Object"}}});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
@@ -4160,10 +4160,10 @@ TEST_F(ProjectStorage, QualifiedExtensionWithVersion)
 TEST_F(ProjectStorage, QualifiedPrototypeWithVersionInTheProtoTypeChain)
 {
     auto package{createSimpleSynchronizationPackage()};
-    package.imports[1].version = Storage::Synchronization::Version{2};
+    package.imports[1].version = Storage::Version{2};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{"Object",
                                                                                  package.imports[1]};
-    package.types[0].exportedTypes[0].version = Storage::Synchronization::Version{2};
+    package.types[0].exportedTypes[0].version = Storage::Version{2};
     package.types.push_back(Storage::Synchronization::Type{
         "QQuickObject",
         Storage::Synchronization::ImportedType{},
@@ -4172,8 +4172,8 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersionInTheProtoTypeChain)
         sourceId3,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Object",
-                                                Storage::Synchronization::Version{2}}}});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+                                                Storage::Version{2}}}});
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
@@ -4190,10 +4190,10 @@ TEST_F(ProjectStorage, QualifiedExtensionWithVersionInTheProtoTypeChain)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
-    package.imports[1].version = Storage::Synchronization::Version{2};
+    package.imports[1].version = Storage::Version{2};
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{"Object",
                                                                                  package.imports[1]};
-    package.types[0].exportedTypes[0].version = Storage::Synchronization::Version{2};
+    package.types[0].exportedTypes[0].version = Storage::Version{2};
     package.types.push_back(Storage::Synchronization::Type{
         "QQuickObject",
         Storage::Synchronization::ImportedType{},
@@ -4202,8 +4202,8 @@ TEST_F(ProjectStorage, QualifiedExtensionWithVersionInTheProtoTypeChain)
         sourceId3,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Object",
-                                                Storage::Synchronization::Version{2}}}});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+                                                Storage::Version{2}}}});
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
@@ -4222,7 +4222,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersionDownTheProtoTypeChainThrows)
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{2},
+                                         Storage::Version{2},
                                          sourceId1}};
 
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
@@ -4235,7 +4235,7 @@ TEST_F(ProjectStorage, QualifiedExtensionWithVersionDownTheProtoTypeChainThrows)
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{2},
+                                         Storage::Version{2},
                                          sourceId1}};
 
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
@@ -4246,7 +4246,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeName)
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
         "Object",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{}, sourceId1}};
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{}, sourceId1}};
     package.types.push_back(
         Storage::Synchronization::Type{"QQuickObject",
                                        Storage::Synchronization::ImportedType{},
@@ -4255,7 +4255,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeName)
                                        sourceId3,
                                        {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                                                "Object"}}});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
@@ -4274,7 +4274,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameDownTheModuleChainThr
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
 
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
@@ -4286,7 +4286,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameInTheModuleChain)
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
     package.types.push_back(
         Storage::Synchronization::Type{"QQuickObject",
@@ -4296,7 +4296,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameInTheModuleChain)
                                        sourceId3,
                                        {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                                                "Object"}}});
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId3);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
     storage.synchronize(package);
@@ -4314,8 +4314,8 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameWithVersion)
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
         "Object",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{2}, sourceId1}};
-    package.imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{2}, sourceId1);
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{2}, sourceId1}};
+    package.imports.emplace_back(qmlModuleId, Storage::Version{2}, sourceId1);
 
     storage.synchronize(package);
 
@@ -4332,7 +4332,7 @@ TEST_F(ProjectStorage, ChangePropertyTypeModuleIdWithQualifiedTypeThrows)
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
         "Object",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{}, sourceId1}};
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{}, sourceId1}};
     storage.synchronize(package);
     package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
 
@@ -4346,15 +4346,15 @@ TEST_F(ProjectStorage, ChangePropertyTypeModuleIdWithQualifiedType)
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
         "Object",
-        Storage::Synchronization::Import{qmlModuleId, Storage::Synchronization::Version{}, sourceId1}};
+        Storage::Synchronization::Import{qmlModuleId, Storage::Version{}, sourceId1}};
     storage.synchronize(package);
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuickModuleId,
-                                         Storage::Synchronization::Version{},
+                                         Storage::Version{},
                                          sourceId1}};
     package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
 
     storage.synchronize(package);
 
@@ -4475,9 +4475,9 @@ TEST_F(ProjectStorage, FetchByMajorVersionForImportedType)
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{1},
+                                            Storage::Version{1},
                                             sourceId2};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
@@ -4492,7 +4492,7 @@ TEST_F(ProjectStorage, FetchByMajorVersionForQualifiedImportedType)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{1},
+                                            Storage::Version{1},
                                             sourceId2};
     Storage::Synchronization::Type type{
         "Item",
@@ -4502,7 +4502,7 @@ TEST_F(ProjectStorage, FetchByMajorVersionForQualifiedImportedType)
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
@@ -4523,9 +4523,9 @@ TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForImportedType)
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{1, 2},
+                                            Storage::Version{1, 2},
                                             sourceId2};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
@@ -4540,7 +4540,7 @@ TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForQualifiedImportedTyp
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{1, 2},
+                                            Storage::Version{1, 2},
                                             sourceId2};
     Storage::Synchronization::Type type{
         "Item",
@@ -4550,7 +4550,7 @@ TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForQualifiedImportedTyp
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
@@ -4572,9 +4572,9 @@ TEST_F(ProjectStorage,
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{1, 1},
+                                            Storage::Version{1, 1},
                                             sourceId2};
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
@@ -4587,7 +4587,7 @@ TEST_F(ProjectStorage,
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{1, 1},
+                                            Storage::Version{1, 1},
                                             sourceId2};
     Storage::Synchronization::Type type{
         "Item",
@@ -4597,7 +4597,7 @@ TEST_F(ProjectStorage,
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
@@ -4615,9 +4615,9 @@ TEST_F(ProjectStorage, FetchLowMinorVersionForImportedTypeThrows)
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{1, 1},
+                                            Storage::Version{1, 1},
                                             sourceId2};
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
@@ -4629,7 +4629,7 @@ TEST_F(ProjectStorage, FetchLowMinorVersionForQualifiedImportedTypeThrows)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{1, 1},
+                                            Storage::Version{1, 1},
                                             sourceId2};
     Storage::Synchronization::Type type{
         "Item",
@@ -4639,7 +4639,7 @@ TEST_F(ProjectStorage, FetchLowMinorVersionForQualifiedImportedTypeThrows)
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
@@ -4657,9 +4657,9 @@ TEST_F(ProjectStorage, FetchHigherMinorVersionForImportedType)
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{1, 3},
+                                            Storage::Version{1, 3},
                                             sourceId2};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
@@ -4674,7 +4674,7 @@ TEST_F(ProjectStorage, FetchHigherMinorVersionForQualifiedImportedType)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{1, 3},
+                                            Storage::Version{1, 3},
                                             sourceId2};
     Storage::Synchronization::Type type{
         "Item",
@@ -4684,7 +4684,7 @@ TEST_F(ProjectStorage, FetchHigherMinorVersionForQualifiedImportedType)
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
@@ -4705,9 +4705,9 @@ TEST_F(ProjectStorage, FetchDifferentMajorVersionForImportedTypeThrows)
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{3, 1},
+                                            Storage::Version{3, 1},
                                             sourceId2};
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
@@ -4719,7 +4719,7 @@ TEST_F(ProjectStorage, FetchDifferentMajorVersionForQualifiedImportedTypeThrows)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{3, 1},
+                                            Storage::Version{3, 1},
                                             sourceId2};
     Storage::Synchronization::Type type{
         "Item",
@@ -4729,7 +4729,7 @@ TEST_F(ProjectStorage, FetchDifferentMajorVersionForQualifiedImportedTypeThrows)
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
                  QmlDesigner::TypeNameDoesNotExists);
@@ -4747,9 +4747,9 @@ TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForImportedType)
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{2, 3},
+                                            Storage::Version{2, 3},
                                             sourceId2};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
@@ -4764,7 +4764,7 @@ TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForQualifiedImportedType)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{2, 3},
+                                            Storage::Version{2, 3},
                                             sourceId2};
     Storage::Synchronization::Type type{
         "Item",
@@ -4774,7 +4774,7 @@ TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForQualifiedImportedType)
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
@@ -4795,8 +4795,8 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForImportedType
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
-    Storage::Synchronization::Import import{qmlModuleId, Storage::Synchronization::Version{}, sourceId2};
+                                                Storage::Version{}}}};
+    Storage::Synchronization::Import import{qmlModuleId, Storage::Version{}, sourceId2};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
@@ -4809,7 +4809,7 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForQualifiedImp
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
-    Storage::Synchronization::Import import{qmlModuleId, Storage::Synchronization::Version{}, sourceId2};
+    Storage::Synchronization::Import import{qmlModuleId, Storage::Version{}, sourceId2};
     Storage::Synchronization::Type type{
         "Item",
         Storage::Synchronization::QualifiedImportedType{"Obj", import},
@@ -4818,7 +4818,7 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForQualifiedImp
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
@@ -4839,9 +4839,9 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForImportedTy
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{2},
+                                            Storage::Version{2},
                                             sourceId2};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
@@ -4856,7 +4856,7 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForQualifiedI
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{2},
+                                            Storage::Version{2},
                                             sourceId2};
     Storage::Synchronization::Type type{
         "Item",
@@ -4866,7 +4866,7 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForQualifiedI
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
@@ -4887,8 +4887,8 @@ TEST_F(ProjectStorage, FetchExportedTypeWithoutVersionFirstForImportedType)
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
-    Storage::Synchronization::Import import{qmlModuleId, Storage::Synchronization::Version{}, sourceId2};
+                                                Storage::Version{}}}};
+    Storage::Synchronization::Import import{qmlModuleId, Storage::Version{}, sourceId2};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
@@ -4901,7 +4901,7 @@ TEST_F(ProjectStorage, FetchExportedTypeWithoutVersionFirstForQualifiedImportedT
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
-    Storage::Synchronization::Import import{qmlModuleId, Storage::Synchronization::Version{}, sourceId2};
+    Storage::Synchronization::Import import{qmlModuleId, Storage::Version{}, sourceId2};
     Storage::Synchronization::Type type{
         "Item",
         Storage::Synchronization::QualifiedImportedType{"BuiltInObj", import},
@@ -4910,7 +4910,7 @@ TEST_F(ProjectStorage, FetchExportedTypeWithoutVersionFirstForQualifiedImportedT
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{}}}};
+                                                Storage::Version{}}}};
 
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 
@@ -4929,12 +4929,12 @@ TEST_F(ProjectStorage, EnsureThatPropertiesForRemovedTypesAreNotAnymoreRelinked)
         sourceId1,
         {Storage::Synchronization::ExportedType{qmlModuleId,
                                                 "Object",
-                                                Storage::Synchronization::Version{}}},
+                                                Storage::Version{}}},
         {Storage::Synchronization::PropertyDeclaration{"data",
                                                        Storage::Synchronization::ImportedType{
                                                            "Object"},
                                                        Storage::PropertyDeclarationTraits::IsList}}};
-    Storage::Synchronization::Import import{qmlModuleId, Storage::Synchronization::Version{}, sourceId1};
+    Storage::Synchronization::Import import{qmlModuleId, Storage::Version{}, sourceId1};
     storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId1}});
 
     ASSERT_NO_THROW(storage.synchronize(SynchronizationPackage{{sourceId1}}));
@@ -4969,7 +4969,7 @@ TEST_F(ProjectStorage, MinimalUpdates)
         sourceId1,
         {Storage::Synchronization::ExportedType{qtQuickModuleId,
                                                 "Item",
-                                                Storage::Synchronization::Version{2, 0}},
+                                                Storage::Version{2, 0}},
          Storage::Synchronization::ExportedType{qtQuickNativeModuleId, "QQuickItem"}},
         {},
         {},
@@ -5319,7 +5319,7 @@ TEST_F(ProjectStorage, ModuleExportedImportWithDifferentVersions)
     package.imports.back().version.major.value = 2;
     package.types[2].exportedTypes.front().version.major.value = 2;
     package.moduleExportedImports.back().isAutoVersion = Storage::Synchronization::IsAutoVersion::No;
-    package.moduleExportedImports.back().version = Storage::Synchronization::Version{1};
+    package.moduleExportedImports.back().version = Storage::Version{1};
 
     storage.synchronize(std::move(package));
 
@@ -5356,7 +5356,7 @@ TEST_F(ProjectStorage, ModuleExportedImportWithIndirectDifferentVersions)
     package.types[0].exportedTypes.front().version.major.value = 2;
     package.types[2].exportedTypes.front().version.major.value = 2;
     package.moduleExportedImports[0].isAutoVersion = Storage::Synchronization::IsAutoVersion::No;
-    package.moduleExportedImports[0].version = Storage::Synchronization::Version{1};
+    package.moduleExportedImports[0].version = Storage::Version{1};
 
     storage.synchronize(std::move(package));
 
@@ -5389,14 +5389,14 @@ TEST_F(ProjectStorage, ModuleExportedImportPreventCollisionIfModuleIsIndirectlyR
 {
     ModuleId qtQuick4DModuleId{storage.moduleId("QtQuick4D")};
     auto package{createModuleExportedImportSynchronizationPackage()};
-    package.imports.emplace_back(qtQuickModuleId, Storage::Synchronization::Version{1}, sourceId5);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{1}, sourceId5);
     package.moduleExportedImports.emplace_back(qtQuick4DModuleId,
                                                qtQuickModuleId,
-                                               Storage::Synchronization::Version{},
+                                               Storage::Version{},
                                                Storage::Synchronization::IsAutoVersion::Yes);
     package.moduleExportedImports.emplace_back(qtQuick4DModuleId,
                                                qmlModuleId,
-                                               Storage::Synchronization::Version{},
+                                               Storage::Version{},
                                                Storage::Synchronization::IsAutoVersion::Yes);
     package.updatedModuleIds.push_back(qtQuick4DModuleId);
     package.types.push_back(Storage::Synchronization::Type{
@@ -5407,8 +5407,8 @@ TEST_F(ProjectStorage, ModuleExportedImportPreventCollisionIfModuleIsIndirectlyR
         sourceId5,
         {Storage::Synchronization::ExportedType{qtQuick4DModuleId,
                                                 "Item4D",
-                                                Storage::Synchronization::Version{1, 0}}}});
-    package.imports.emplace_back(qtQuick4DModuleId, Storage::Synchronization::Version{1}, sourceId4);
+                                                Storage::Version{1, 0}}}});
+    package.imports.emplace_back(qtQuick4DModuleId, Storage::Version{1}, sourceId4);
 
     storage.synchronize(std::move(package));
 
@@ -5448,15 +5448,15 @@ TEST_F(ProjectStorage, DistinguishBetweenImportKinds)
     ModuleId qml1ModuleId{storage.moduleId("Qml1")};
     ModuleId qml11ModuleId{storage.moduleId("Qml11")};
     auto package{createSimpleSynchronizationPackage()};
-    package.moduleDependencies.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId1);
+    package.moduleDependencies.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
     package.moduleDependencies.emplace_back(qml1ModuleId,
-                                            Storage::Synchronization::Version{1},
+                                            Storage::Version{1},
                                             sourceId1);
-    package.imports.emplace_back(qml1ModuleId, Storage::Synchronization::Version{}, sourceId1);
+    package.imports.emplace_back(qml1ModuleId, Storage::Version{}, sourceId1);
     package.moduleDependencies.emplace_back(qml11ModuleId,
-                                            Storage::Synchronization::Version{1, 1},
+                                            Storage::Version{1, 1},
                                             sourceId1);
-    package.imports.emplace_back(qml11ModuleId, Storage::Synchronization::Version{1, 1}, sourceId1);
+    package.imports.emplace_back(qml11ModuleId, Storage::Version{1, 1}, sourceId1);
 
     storage.synchronize(std::move(package));
 
@@ -5481,7 +5481,7 @@ TEST_F(ProjectStorage, ModuleExportedImportDistinguishBetweenDependencyAndImport
 {
     auto package{createModuleExportedImportSynchronizationPackage()};
     package.moduleDependencies.emplace_back(qtQuick3DModuleId,
-                                            Storage::Synchronization::Version{1},
+                                            Storage::Version{1},
                                             sourceId4);
 
     storage.synchronize(std::move(package));
@@ -5517,7 +5517,7 @@ TEST_F(ProjectStorage, ModuleExportedImportWithQualifiedImportedType)
     package.types.back().prototype = Storage::Synchronization::QualifiedImportedType{
         "Object",
         Storage::Synchronization::Import{qtQuick3DModuleId,
-                                         Storage::Synchronization::Version{1},
+                                         Storage::Version{1},
                                          sourceId4}};
 
     storage.synchronize(std::move(package));
@@ -5659,7 +5659,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationTypeName)
     storage.synchronize(package);
     package.types[2].propertyDeclarations[1].typeName = Storage::Synchronization::ImportedType{
         "Obj2"};
-    importsSourceId3.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId3);
+    importsSourceId3.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
 
     storage.synchronize(SynchronizationPackage{
         importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
@@ -5685,7 +5685,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationTailsTypeNa
     storage.synchronize(package);
     package.types[4].propertyDeclarations[1].typeName = Storage::Synchronization::ImportedType{
         "Obj2"};
-    importsSourceId5.emplace_back(pathToModuleId, Storage::Synchronization::Version{}, sourceId5);
+    importsSourceId5.emplace_back(pathToModuleId, Storage::Version{}, sourceId5);
 
     storage.synchronize(SynchronizationPackage{
         importsSourceId5, {package.types[4]}, {sourceId5}, moduleDependenciesSourceId5, {sourceId5}});
@@ -5947,7 +5947,7 @@ TEST_F(ProjectStorage, GetTypeId)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Synchronization::Version{});
+    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{});
 
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QObject4"));
 }
@@ -5957,7 +5957,7 @@ TEST_F(ProjectStorage, GetNoTypeIdForNonExistingTypeName)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(qmlModuleId, "Object2", Storage::Synchronization::Version{});
+    auto typeId = storage.typeId(qmlModuleId, "Object2", Storage::Version{});
 
     ASSERT_FALSE(typeId);
 }
@@ -5967,7 +5967,7 @@ TEST_F(ProjectStorage, GetNoTypeIdForInvalidModuleId)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(ModuleId{}, "Object", Storage::Synchronization::Version{});
+    auto typeId = storage.typeId(ModuleId{}, "Object", Storage::Version{});
 
     ASSERT_FALSE(typeId);
 }
@@ -5977,7 +5977,7 @@ TEST_F(ProjectStorage, GetNoTypeIdForWrongModuleId)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(qtQuick3DModuleId, "Object", Storage::Synchronization::Version{});
+    auto typeId = storage.typeId(qtQuick3DModuleId, "Object", Storage::Version{});
 
     ASSERT_FALSE(typeId);
 }
@@ -5987,7 +5987,7 @@ TEST_F(ProjectStorage, GetTypeIdWithMajorVersion)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Synchronization::Version{2});
+    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{2});
 
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QObject3"));
 }
@@ -5997,7 +5997,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForNonExistingTypeName)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(qmlModuleId, "Object2", Storage::Synchronization::Version{2});
+    auto typeId = storage.typeId(qmlModuleId, "Object2", Storage::Version{2});
 
     ASSERT_FALSE(typeId);
 }
@@ -6007,7 +6007,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForInvalidModuleId)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(ModuleId{}, "Object", Storage::Synchronization::Version{2});
+    auto typeId = storage.typeId(ModuleId{}, "Object", Storage::Version{2});
 
     ASSERT_FALSE(typeId);
 }
@@ -6017,7 +6017,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForWrongModuleId)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(qtQuick3DModuleId, "Object", Storage::Synchronization::Version{2});
+    auto typeId = storage.typeId(qtQuick3DModuleId, "Object", Storage::Version{2});
 
     ASSERT_FALSE(typeId);
 }
@@ -6027,7 +6027,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForWrongVersion)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Synchronization::Version{4});
+    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{4});
 
     ASSERT_FALSE(typeId);
 }
@@ -6037,7 +6037,7 @@ TEST_F(ProjectStorage, GetTypeIdWithCompleteVersion)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Synchronization::Version{2, 0});
+    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{2, 0});
 
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QObject2"));
 }
@@ -6047,7 +6047,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionWithHigherMinorVersion)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Synchronization::Version{2, 12});
+    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{2, 12});
 
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QObject3"));
 }
@@ -6057,7 +6057,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForNonExistingTypeName)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(qmlModuleId, "Object2", Storage::Synchronization::Version{2, 0});
+    auto typeId = storage.typeId(qmlModuleId, "Object2", Storage::Version{2, 0});
 
     ASSERT_FALSE(typeId);
 }
@@ -6067,7 +6067,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForInvalidModuleId)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(ModuleId{}, "Object", Storage::Synchronization::Version{2, 0});
+    auto typeId = storage.typeId(ModuleId{}, "Object", Storage::Version{2, 0});
 
     ASSERT_FALSE(typeId);
 }
@@ -6077,7 +6077,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForWrongModuleId)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(qtQuick3DModuleId, "Object", Storage::Synchronization::Version{2, 0});
+    auto typeId = storage.typeId(qtQuick3DModuleId, "Object", Storage::Version{2, 0});
 
     ASSERT_FALSE(typeId);
 }
@@ -6087,7 +6087,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForWrongMajorVersion)
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
 
-    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Synchronization::Version{4, 0});
+    auto typeId = storage.typeId(qmlModuleId, "Object", Storage::Version{4, 0});
 
     ASSERT_FALSE(typeId);
 }

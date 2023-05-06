@@ -2084,8 +2084,7 @@ NodeMetaInfo Model::metaInfo(const TypeName &typeName, int majorVersion, int min
         ModuleId moduleId = d->projectStorage->moduleId(module);
         TypeId typeId = d->projectStorage->typeId(moduleId,
                                                   componentName,
-                                                  Storage::Synchronization::Version{majorVersion,
-                                                                                    minorVersion});
+                                                  Storage::Version{majorVersion, minorVersion});
         return NodeMetaInfo(typeId, d->projectStorage);
     } else {
         return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);

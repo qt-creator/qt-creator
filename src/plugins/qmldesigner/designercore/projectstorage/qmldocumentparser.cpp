@@ -32,9 +32,9 @@ int convertVersionNumber(qint32 versionNumber)
     return versionNumber < 0 ? -1 : versionNumber;
 }
 
-Storage::Synchronization::Version convertVersion(QmlDom::Version version)
+Storage::Version convertVersion(QmlDom::Version version)
 {
-    return Storage::Synchronization::Version{convertVersionNumber(version.majorVersion),
+    return Storage::Version{convertVersionNumber(version.majorVersion),
                                              convertVersionNumber(version.minorVersion)};
 }
 
@@ -66,7 +66,7 @@ Storage::Synchronization::Import createImport(const QmlDom::Import &qmlImport,
     if (uri.kind() == QmlUriKind::RelativePath) {
         auto path = createNormalizedPath(directoryPath, uri.localPath());
         auto moduleId = storage.moduleId(createNormalizedPath(directoryPath, uri.localPath()));
-        return Storage::Synchronization::Import(moduleId, Storage::Synchronization::Version{}, sourceId);
+        return Storage::Synchronization::Import(moduleId, Storage::Version{}, sourceId);
     }
 
     if (uri.kind() == QmlUriKind::ModuleUri) {
@@ -109,11 +109,11 @@ void addImports(Storage::Synchronization::Imports &imports,
     }
 
     auto localDirectoryModuleId = storage.moduleId(directoryPath);
-    imports.emplace_back(localDirectoryModuleId, Storage::Synchronization::Version{}, sourceId);
+    imports.emplace_back(localDirectoryModuleId, Storage::Version{}, sourceId);
     ++importCount;
 
     auto qmlModuleId = storage.moduleId("QML");
-    imports.emplace_back(qmlModuleId, Storage::Synchronization::Version{}, sourceId);
+    imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId);
     ++importCount;
 
     auto end = imports.end();

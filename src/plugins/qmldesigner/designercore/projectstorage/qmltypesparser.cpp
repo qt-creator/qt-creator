@@ -62,7 +62,7 @@ void appendImports(Storage::Synchronization::Imports &imports,
     moduleName.append("-cppnative");
     ModuleId cppModuleId = storage.moduleId(moduleName);
 
-    imports.emplace_back(cppModuleId, Storage::Synchronization::Version{}, sourceId);
+    imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
 }
 
 void addImports(Storage::Synchronization::Imports &imports,
@@ -74,10 +74,10 @@ void addImports(Storage::Synchronization::Imports &imports,
     for (const QString &dependency : dependencies)
         appendImports(imports, dependency, sourceId, storage);
 
-    imports.emplace_back(cppModuleId, Storage::Synchronization::Version{}, sourceId);
+    imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
 
     if (ModuleId qmlCppModuleId = storage.moduleId("QML-cppnative"); cppModuleId != qmlCppModuleId)
-        imports.emplace_back(qmlCppModuleId, Storage::Synchronization::Version{}, sourceId);
+        imports.emplace_back(qmlCppModuleId, Storage::Version{}, sourceId);
 }
 
 Storage::TypeTraits createTypeTraits(QQmlJSScope::AccessSemantics accessSematics)
@@ -96,9 +96,9 @@ Storage::TypeTraits createTypeTraits(QQmlJSScope::AccessSemantics accessSematics
     return Storage::TypeTraits::None;
 }
 
-Storage::Synchronization::Version createVersion(QTypeRevision qmlVersion)
+Storage::Version createVersion(QTypeRevision qmlVersion)
 {
-    return Storage::Synchronization::Version{qmlVersion.majorVersion(), qmlVersion.minorVersion()};
+    return Storage::Version{qmlVersion.majorVersion(), qmlVersion.minorVersion()};
 }
 
 Storage::Synchronization::ExportedTypes createExports(const QList<QQmlJSScope::Export> &qmlExports,

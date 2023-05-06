@@ -113,9 +113,9 @@ void addSourceIds(SourceIds &sourceIds, const Storage::Synchronization::ProjectD
         sourceIds.push_back(projectData.sourceId);
 }
 
-Storage::Synchronization::Version convertVersion(LanguageUtils::ComponentVersion version)
+Storage::Version convertVersion(LanguageUtils::ComponentVersion version)
 {
-    return Storage::Synchronization::Version{version.majorVersion(), version.minorVersion()};
+    return Storage::Version{version.majorVersion(), version.minorVersion()};
 }
 
 Storage::Synchronization::IsAutoVersion convertToIsAutoVersion(QmlDirParser::Import::Flags flags)
@@ -133,7 +133,7 @@ void addDependencies(Storage::Synchronization::Imports &dependencies,
     for (const QmlDirParser::Import &qmldirDependency : qmldirDependencies) {
         ModuleId moduleId = projectStorage.moduleId(Utils::PathString{qmldirDependency.module}
                                                     + "-cppnative");
-        dependencies.emplace_back(moduleId, Storage::Synchronization::Version{}, sourceId);
+        dependencies.emplace_back(moduleId, Storage::Version{}, sourceId);
     }
 }
 
@@ -154,7 +154,7 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
             Utils::PathString{qmldirImport.module} + "-cppnative");
         imports.emplace_back(cppModuleId,
                              exportedCppModuleId,
-                             Storage::Synchronization::Version{},
+                             Storage::Version{},
                              Storage::Synchronization::IsAutoVersion::No);
     }
 }
@@ -644,8 +644,7 @@ Storage::Synchronization::ExportedTypes createExportedTypes(ProjectStorageUpdate
     for (const ProjectStorageUpdater::Component &component : components) {
         exportedTypes.emplace_back(component.moduleId,
                                    Utils::SmallString{component.typeName},
-                                   Storage::Synchronization::Version{component.majorVersion,
-                                                                     component.minorVersion});
+                                   Storage::Version{component.majorVersion, component.minorVersion});
     }
 
     return exportedTypes;

@@ -31,7 +31,7 @@ using QmlDesigner::Storage::Synchronization::IsAutoVersion;
 using QmlDesigner::Storage::Synchronization::ModuleExportedImport;
 using QmlDesigner::Storage::Synchronization::ProjectData;
 using QmlDesigner::Storage::Synchronization::SynchronizationPackage;
-using QmlDesigner::Storage::Synchronization::Version;
+using QmlDesigner::Storage::Version;
 
 MATCHER_P5(IsStorageType,
            typeName,
@@ -71,12 +71,12 @@ MATCHER_P4(IsExportedType,
            minorVersion,
            std::string(negation ? "isn't " : "is ")
                + PrintToString(Storage::Synchronization::ExportedType{
-                   moduleId, name, Storage::Synchronization::Version{majorVersion, minorVersion}}))
+                   moduleId, name, Storage::Version{majorVersion, minorVersion}}))
 {
     const Storage::Synchronization::ExportedType &type = arg;
 
     return type.moduleId == moduleId && type.name == name
-           && type.version == Storage::Synchronization::Version{majorVersion, minorVersion};
+           && type.version == Storage::Version{majorVersion, minorVersion};
 }
 
 MATCHER_P3(IsFileStatus,
@@ -328,19 +328,19 @@ protected:
     Storage::Synchronization::Type secondType;
     Storage::Synchronization::Type thirdType;
     Storage::Synchronization::Import import1{qmlModuleId,
-                                             Storage::Synchronization::Version{2, 3},
+                                             Storage::Version{2, 3},
                                              qmlDocumentSourceId1};
     Storage::Synchronization::Import import2{qmlModuleId,
-                                             Storage::Synchronization::Version{},
+                                             Storage::Version{},
                                              qmlDocumentSourceId2};
     Storage::Synchronization::Import import3{qmlModuleId,
-                                             Storage::Synchronization::Version{2},
+                                             Storage::Version{2},
                                              qmlDocumentSourceId3};
     Storage::Synchronization::Import import4{qmlModuleId,
-                                             Storage::Synchronization::Version{2, 3},
+                                             Storage::Version{2, 3},
                                              qmltypesPathSourceId};
     Storage::Synchronization::Import import5{qmlModuleId,
-                                             Storage::Synchronization::Version{2, 3},
+                                             Storage::Version{2, 3},
                                              qmltypes2PathSourceId};
     QString qmldirContent{"module Example\ntypeinfo example.qmltypes\n"};
     QString qmltypes1{"Module {\ndependencies: [module1]}"};
@@ -456,7 +456,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeIsEmptyForNoChange)
 TEST_F(ProjectStorageUpdater, SynchronizeQmlTypes)
 {
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{2, 3},
+                                            Storage::Version{2, 3},
                                             qmltypesPathSourceId};
     QString qmltypes{"Module {\ndependencies: []}"};
     setQmlFileNames(u"/path", {});
@@ -493,7 +493,7 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypes)
 TEST_F(ProjectStorageUpdater, SynchronizeQmlTypesThrowsIfQmltpesDoesNotExists)
 {
     Storage::Synchronization::Import import{qmlModuleId,
-                                            Storage::Synchronization::Version{2, 3},
+                                            Storage::Version{2, 3},
                                             qmltypesPathSourceId};
     setFilesDontExists({qmltypesPathSourceId});
 
@@ -1329,16 +1329,16 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmldirDependencies)
                 synchronize(
                     AllOf(Field(&SynchronizationPackage::moduleDependencies,
                                 UnorderedElementsAre(Import{qmlCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             qmltypesPathSourceId},
                                                      Import{builtinCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             qmltypesPathSourceId},
                                                      Import{qmlCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             qmltypes2PathSourceId},
                                                      Import{builtinCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             qmltypes2PathSourceId})),
                           Field(&SynchronizationPackage::updatedModuleDependencySourceIds,
                                 UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
@@ -1361,16 +1361,16 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmldirDependenciesWithDoubleEntries)
                 synchronize(
                     AllOf(Field(&SynchronizationPackage::moduleDependencies,
                                 UnorderedElementsAre(Import{qmlCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             qmltypesPathSourceId},
                                                      Import{builtinCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             qmltypesPathSourceId},
                                                      Import{qmlCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             qmltypes2PathSourceId},
                                                      Import{builtinCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             qmltypes2PathSourceId})),
                           Field(&SynchronizationPackage::updatedModuleDependencySourceIds,
                                 UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
@@ -1393,16 +1393,16 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmldirDependenciesWithCollidingImports)
                 synchronize(
                     AllOf(Field(&SynchronizationPackage::moduleDependencies,
                                 UnorderedElementsAre(Import{qmlCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             qmltypesPathSourceId},
                                                      Import{builtinCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             qmltypesPathSourceId},
                                                      Import{qmlCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             qmltypes2PathSourceId},
                                                      Import{builtinCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             qmltypes2PathSourceId})),
                           Field(&SynchronizationPackage::updatedModuleDependencySourceIds,
                                 UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
@@ -1442,27 +1442,27 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmldirImports)
             Field(&SynchronizationPackage::moduleExportedImports,
                   UnorderedElementsAre(ModuleExportedImport{exampleModuleId,
                                                             qmlModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::Yes},
                                        ModuleExportedImport{exampleCppNativeModuleId,
                                                             qmlCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::No},
                                        ModuleExportedImport{exampleModuleId,
                                                             builtinModuleId,
-                                                            Storage::Synchronization::Version{2, 1},
+                                                            Storage::Version{2, 1},
                                                             IsAutoVersion::No},
                                        ModuleExportedImport{exampleCppNativeModuleId,
                                                             builtinCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::No},
                                        ModuleExportedImport{exampleModuleId,
                                                             quickModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::No},
                                        ModuleExportedImport{exampleCppNativeModuleId,
                                                             quickCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::No})),
             Field(&SynchronizationPackage::updatedModuleIds, ElementsAre(exampleModuleId)))));
 
@@ -1499,27 +1499,27 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmldirImportsWithDoubleEntries)
             Field(&SynchronizationPackage::moduleExportedImports,
                   UnorderedElementsAre(ModuleExportedImport{exampleModuleId,
                                                             qmlModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::Yes},
                                        ModuleExportedImport{exampleCppNativeModuleId,
                                                             qmlCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::No},
                                        ModuleExportedImport{exampleModuleId,
                                                             builtinModuleId,
-                                                            Storage::Synchronization::Version{2, 1},
+                                                            Storage::Version{2, 1},
                                                             IsAutoVersion::No},
                                        ModuleExportedImport{exampleCppNativeModuleId,
                                                             builtinCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::No},
                                        ModuleExportedImport{exampleModuleId,
                                                             quickModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::No},
                                        ModuleExportedImport{exampleCppNativeModuleId,
                                                             quickCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::No})),
             Field(&SynchronizationPackage::updatedModuleIds, ElementsAre(exampleModuleId)))));
 
@@ -1541,27 +1541,27 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmldirOptionalImports)
             Field(&SynchronizationPackage::moduleExportedImports,
                   UnorderedElementsAre(ModuleExportedImport{exampleModuleId,
                                                             qmlModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::Yes},
                                        ModuleExportedImport{exampleCppNativeModuleId,
                                                             qmlCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::No},
                                        ModuleExportedImport{exampleModuleId,
                                                             builtinModuleId,
-                                                            Storage::Synchronization::Version{2, 1},
+                                                            Storage::Version{2, 1},
                                                             IsAutoVersion::No},
                                        ModuleExportedImport{exampleCppNativeModuleId,
                                                             builtinCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::No},
                                        ModuleExportedImport{exampleModuleId,
                                                             quickModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::No},
                                        ModuleExportedImport{exampleCppNativeModuleId,
                                                             quickCppNativeModuleId,
-                                                            Storage::Synchronization::Version{},
+                                                            Storage::Version{},
                                                             IsAutoVersion::No})),
             Field(&SynchronizationPackage::updatedModuleIds, ElementsAre(exampleModuleId)))));
 

@@ -160,10 +160,13 @@ std::ostream &operator<<(std::ostream &out, TypeTraits traits);
 namespace Storage::Info {
 class ProjectDeclaration;
 class Type;
+class Version;
+class VersionNumber;
 
 std::ostream &operator<<(std::ostream &out, const ProjectDeclaration &declaration);
 std::ostream &operator<<(std::ostream &out, const Type &type);
-
+std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber);
+std::ostream &operator<<(std::ostream &out, Version version);
 } // namespace Storage::Info
 
 namespace Storage::Synchronization {
@@ -171,8 +174,6 @@ class Type;
 class ExportedType;
 class ImportedType;
 class QualifiedImportedType;
-class Version;
-class VersionNumber;
 class PropertyDeclaration;
 class FunctionDeclaration;
 class ParameterDeclaration;
@@ -189,8 +190,6 @@ enum class FileType : char;
 enum class ChangeLevel : char;
 class ModuleExportedImport;
 
-std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber);
-std::ostream &operator<<(std::ostream &out, Version version);
 std::ostream &operator<<(std::ostream &out, const Type &type);
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType);
 std::ostream &operator<<(std::ostream &out, const ImportedType &importedType);

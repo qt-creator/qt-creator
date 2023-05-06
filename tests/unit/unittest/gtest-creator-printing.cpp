@@ -583,6 +583,17 @@ std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits)
 
     return out << ")";
 }
+
+std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber)
+{
+    return out << versionNumber.value;
+}
+
+std::ostream &operator<<(std::ostream &out, Version version)
+{
+    return out << "(" << version.major << ", " << version.minor << ")";
+}
+
 } // namespace Storage
 
 namespace Storage::Info {
@@ -701,16 +712,6 @@ std::ostream &operator<<(std::ostream &out, const ProjectData &data)
 std::ostream &operator<<(std::ostream &out, IsQualified isQualified)
 {
     return out << isQualifiedToString(isQualified);
-}
-
-std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber)
-{
-    return out << versionNumber.value;
-}
-
-std::ostream &operator<<(std::ostream &out, Version version)
-{
-    return out << "(" << version.major << ", " << version.minor << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType)

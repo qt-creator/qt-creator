@@ -119,7 +119,7 @@ public:
 
     TypeId typeId(ModuleId moduleId,
                   Utils::SmallStringView exportedTypeName,
-                  Storage::Synchronization::Version version) const
+                  Storage::Version version) const
     {
         if (version.minor)
             return selectTypeIdByModuleIdAndExportedNameAndVersionStatement
@@ -1533,7 +1533,7 @@ private:
                                 ModuleExportedImportId moduleExportedImportId) {
                 Storage::Synchronization::Import additionImport{
                     exportedModuleId,
-                    Storage::Synchronization::Version{majorVersion, minorVersion},
+                    Storage::Version{majorVersion, minorVersion},
                     import.sourceId};
 
                 auto exportedImportKind = importKind == Storage::Synchronization::ImportKind::Import

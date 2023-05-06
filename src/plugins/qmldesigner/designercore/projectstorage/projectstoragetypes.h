@@ -13,11 +13,7 @@
 #include <variant>
 #include <vector>
 
-namespace QmlDesigner::Storage::Synchronization {
-
-enum class TypeNameKind { Exported = 1, QualifiedExported = 2 };
-
-enum class FileType : char { QmlTypes, QmlDocument };
+namespace QmlDesigner::Storage {
 
 class VersionNumber
 {
@@ -83,6 +79,12 @@ public:
     VersionNumber minor;
 };
 
+namespace Synchronization {
+
+enum class TypeNameKind { Exported = 1, QualifiedExported = 2 };
+
+enum class FileType : char { QmlTypes, QmlDocument };
+
 enum class IsQualified : int { No, Yes };
 
 inline int operator-(IsQualified first, IsQualified second)
@@ -107,7 +109,7 @@ class Import
 public:
     explicit Import() = default;
 
-    explicit Import(ModuleId moduleId, Version version, SourceId sourceId)
+    explicit Import(ModuleId moduleId, Storage::Version version, SourceId sourceId)
         : version{version}
         , moduleId{moduleId}
         , sourceId{sourceId}
@@ -132,7 +134,7 @@ public:
     }
 
 public:
-    Version version;
+    Storage::Version version;
     ModuleId moduleId;
     SourceId sourceId;
 };
@@ -162,7 +164,7 @@ public:
     ImportId importId;
     SourceId sourceId;
     ModuleId moduleId;
-    Version version;
+    Storage::Version version;
 };
 
 enum class IsAutoVersion : char { No, Yes };
@@ -177,7 +179,7 @@ class ModuleExportedImport
 public:
     explicit ModuleExportedImport(ModuleId moduleId,
                                   ModuleId exportedModuleId,
-                                  Version version,
+                                  Storage::Version version,
                                   IsAutoVersion isAutoVersion)
         : version{version}
         , moduleId{moduleId}
@@ -199,7 +201,7 @@ public:
     }
 
 public:
-    Version version;
+    Storage::Version version;
     ModuleId moduleId;
     ModuleId exportedModuleId;
     IsAutoVersion isAutoVersion = IsAutoVersion::No;
@@ -234,7 +236,7 @@ public:
 
 public:
     ModuleExportedImportId moduleExportedImportId;
-    Version version;
+    Storage::Version version;
     ModuleId moduleId;
     ModuleId exportedModuleId;
     IsAutoVersion isAutoVersion = IsAutoVersion::No;
@@ -282,18 +284,23 @@ class ExportedType
 {
 public:
     explicit ExportedType() = default;
-    explicit ExportedType(::Utils::SmallStringView name, Version version = Version{})
+    explicit ExportedType(::Utils::SmallStringView name, Storage::Version version = Storage::Version{})
         : name{name}
         , version{version}
     {}
 
-    explicit ExportedType(ModuleId moduleId, ::Utils::SmallStringView name, Version version = Version{})
+    explicit ExportedType(ModuleId moduleId,
+                          ::Utils::SmallStringView name,
+                          Storage::Version version = Storage::Version{})
         : name{name}
         , version{version}
         , moduleId{moduleId}
     {}
 
-    explicit ExportedType(::Utils::SmallStringView name, Version version, TypeId typeId, ModuleId moduleId)
+    explicit ExportedType(::Utils::SmallStringView name,
+                          Storage::Version version,
+                          TypeId typeId,
+                          ModuleId moduleId)
         : name{name}
         , version{version}
         , typeId{typeId}
@@ -322,7 +329,7 @@ public:
 
 public:
     ::Utils::SmallString name;
-    Version version;
+    Storage::Version version;
     TypeId typeId;
     ModuleId moduleId;
 };
@@ -333,7 +340,7 @@ class ExportedTypeView
 {
 public:
     explicit ExportedTypeView() = default;
-    explicit ExportedTypeView(ModuleId moduleId, ::Utils::SmallStringView name, Version version)
+    explicit ExportedTypeView(ModuleId moduleId, ::Utils::SmallStringView name, Storage::Version version)
         : name{name}
         , version{version}
         , moduleId{moduleId}
@@ -353,7 +360,7 @@ public:
 
 public:
     ::Utils::SmallStringView name;
-    Version version;
+    Storage::Version version;
     TypeId typeId;
     ModuleId moduleId;
     ExportedTypeNameId exportedTypeNameId;
@@ -858,5 +865,5 @@ public:
     ModuleIds updatedModuleIds;
 };
 
-} // namespace QmlDesigner::Storage::Synchronization
-
+} // namespace Synchronization
+} // namespace QmlDesigner::Storage
