@@ -57,7 +57,7 @@ class QMLDESIGNERCORE_EXPORT Model : public QObject
 public:
     enum ViewNotification { NotifyView, DoNotNotifyView };
 
-    Model(ProjectStorage<Sqlite::Database> &projectStorage,
+    Model(ProjectStorageType &projectStorage,
           const TypeName &type,
           int major = 1,
           int minor = 1,
@@ -72,6 +72,14 @@ public:
                                Model *metaInfoProxyModel = nullptr)
     {
         return ModelPointer(new Model(typeName, major, minor, metaInfoProxyModel));
+    }
+
+    static ModelPointer create(ProjectStorageType &projectStorage,
+                               const TypeName &typeName,
+                               int major = 1,
+                               int minor = 1)
+    {
+        return ModelPointer(new Model(projectStorage, typeName, major, minor));
     }
 
     QUrl fileUrl() const;
@@ -158,7 +166,7 @@ public:
     void startDrag(QMimeData *mimeData, const QPixmap &icon);
     void endDrag();
 
-    NotNullPointer<const ProjectStorage<Sqlite::Database>> projectStorage() const;
+    NotNullPointer<const ProjectStorageType> projectStorage() const;
 
 private:
     template<const auto &moduleName, const auto &typeName>

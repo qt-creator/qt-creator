@@ -5,9 +5,11 @@
 
 namespace Sqlite {
 class Database;
-};
+}
 
 namespace QmlDesigner {
+class ProjectStorageInterface;
+
 template<typename Database>
 class ProjectStorage;
 

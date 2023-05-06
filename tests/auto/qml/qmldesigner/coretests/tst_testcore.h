@@ -15,7 +15,7 @@ class tst_TestCore : public QObject
     Q_OBJECT
 public:
     tst_TestCore();
-
+    ~tst_TestCore();
 private slots:
     void initTestCase();
     void cleanupTestCase();
@@ -225,5 +225,6 @@ private slots:
     void readAnnotations();
 
 private:
+    class std::unique_ptr<class ExternalDependenciesFake> externalDependencies;
     ExtensionSystem::PluginManager pm; // FIXME remove
 };

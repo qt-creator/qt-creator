@@ -226,6 +226,7 @@ extend_qtc_library(QmlDesignerCore
     metainfo.h
     metainforeader.h
     model.h
+    modelfwd.h
     modelmerger.h
     modelnode.h
     modelnodepositionstorage.h
@@ -246,6 +247,7 @@ extend_qtc_library(QmlDesignerCore
     qmlchangeset.h
     qmlconnections.h
     qmldesignercorelib_global.h
+    qmldesignercorelib_exports.h
     qmlitemnode.h
     qmlmodelnodefacade.h
     qmlobjectnode.h
@@ -267,6 +269,7 @@ extend_qtc_library(QmlDesignerCore
   INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/designercore/metainfo
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/metainfo
+  DEFINES SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
   SOURCES
     itemlibraryinfo.cpp
     metainfo.cpp

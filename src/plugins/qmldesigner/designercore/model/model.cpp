@@ -57,7 +57,7 @@ namespace QmlDesigner {
 namespace Internal {
 
 ModelPrivate::ModelPrivate(Model *model,
-                           ProjectStorage<Sqlite::Database> &projectStorage,
+                           ProjectStorageType &projectStorage,
                            const TypeName &typeName,
                            int major,
                            int minor,
@@ -211,6 +211,18 @@ void ModelPrivate::changeNodeType(const InternalNodePointer &node, const TypeNam
     }
 }
 
+namespace {
+std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Utils::SmallStringView typeName)
+{
+    auto found = std::find(typeName.rbegin(), typeName.rend(), '.');
+
+    if (found == typeName.rend())
+        return {};
+
+    return {{typeName.begin(), std::prev(found.base())}, {found.base(), typeName.end()}};
+}
+} // namespace
+
 InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
                                              int majorVersion,
                                              int minorVersion,
@@ -230,6 +242,15 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
         internalId = m_internalIdCounter++;
 
     auto newNode = std::make_shared<InternalNode>(typeName, majorVersion, minorVersion, internalId);
+
+    if constexpr (useProjectStorage()) {
+        auto [moduleName, shortTypeName] = decomposeTypePath(typeName);
+        ModuleId moduleId = projectStorage->moduleId(moduleName);
+        newNode->typeId = projectStorage->typeId(moduleId,
+                                                 shortTypeName,
+                                                 Storage::Version{majorVersion, minorVersion});
+    }
+
     newNode->nodeSourceType = nodeSourceType;
 
     newNode->behaviorPropertyName = behaviorPropertyName;
@@ -1386,7 +1407,7 @@ void WriteLocker::lock(Model *model)
 
 } // namespace Internal
 
-Model::Model(ProjectStorage<Sqlite::Database> &projectStorage,
+Model::Model(ProjectStorageType &projectStorage,
              const TypeName &typeName,
              int major,
              int minor,
@@ -1631,7 +1652,7 @@ void Model::endDrag()
     d->notifyDragEnded();
 }
 
-NotNullPointer<const ProjectStorage<Sqlite::Database>> Model::projectStorage() const
+NotNullPointer<const ProjectStorageType> Model::projectStorage() const
 {
     return d->projectStorage;
 }
@@ -1808,7 +1829,7 @@ void Model::setMetaInfo(const MetaInfo &metaInfo)
 template<const auto &moduleName, const auto &typeName>
 NodeMetaInfo Model::createNodeMetaInfo() const
 {
-    auto typeId = d->projectStorage->commonTypeCache.typeId<moduleName, typeName>();
+    auto typeId = d->projectStorage->commonTypeCache().typeId<moduleName, typeName>();
 
     return {typeId, d->projectStorage};
 }

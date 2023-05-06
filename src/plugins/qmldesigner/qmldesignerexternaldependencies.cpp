@@ -274,4 +274,9 @@ QString ExternalDependencies::qtQuickVersion() const
     return qmlBuildSystem ? qmlBuildSystem->versionQtQuick() : QString{};
 }
 
+Utils::FilePath ExternalDependencies::resourcePath(const QString &relativePath) const
+{
+    return Core::ICore::resourcePath(relativePath);
+}
+
 } // namespace QmlDesigner

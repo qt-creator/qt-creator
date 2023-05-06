@@ -37,6 +37,8 @@ add_qtc_test(unittest GTEST
     TESTDATA_DIR="${CMAKE_CURRENT_BINARY_DIR}/data"
     TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
     QT6_INSTALL_PREFIX="${QT6_INSTALL_PREFIX}"
+    QDS_MODEL_USE_PROJECTSTORAGEINTERFACE
+    QDS_USE_PROJECTSTORAGE
   SOURCES
     abstractviewmock.h
     compare-operators.h
@@ -208,16 +210,27 @@ extend_qtc_test(unittest
     include/bindingproperty.h
     include/imagecacheauxiliarydata.h
     include/import.h
+    include/itemlibraryinfo.h
+    include/metainfo.h
+    include/metainforeader.h
     include/model.h
     include/modelnode.h
     include/nodeabstractproperty.h
     include/nodelistproperty.h
+    include/nodemetainfo.h
     include/nodeproperty.h
     include/projectstorageids.h
+    include/propertymetainfo.h
+    include/propertycontainer.h
+    include/propertyparser.h
     include/qmldesignercorelib_global.h
     include/signalhandlerproperty.h
     include/synchronousimagecache.h
     include/variantproperty.h
+    metainfo/itemlibraryinfo.cpp
+    metainfo/metainfo.cpp
+    metainfo/metainforeader.cpp
+    metainfo/nodemetainfo.cpp
     model/abstractproperty.cpp
     model/abstractview.cpp
     model/annotation.cpp
@@ -242,11 +255,15 @@ extend_qtc_test(unittest
     model/model.cpp
     model/model_p.h
     model/modelnode.cpp
+    model/propertycontainer.cpp
+    model/propertyparser.cpp
     model/nodeabstractproperty.cpp
     model/nodelistproperty.cpp
     model/nodeproperty.cpp
     model/signalhandlerproperty.cpp
     model/variantproperty.cpp
+    pluginmanager/widgetpluginmanager.h pluginmanager/widgetpluginmanager.cpp
+    pluginmanager/widgetpluginpath.h pluginmanager/widgetpluginpath.cpp
     projectstorage/directorypathcompressor.h
     projectstorage/filesysteminterface.h
     projectstorage/filesystem.cpp projectstorage/filesystem.h

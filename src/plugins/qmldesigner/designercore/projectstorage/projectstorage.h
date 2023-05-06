@@ -99,7 +99,7 @@ public:
 
         synchronizeProjectDatas(package.projectDatas, package.updatedProjectSourceIds);
 
-        commonTypeCache.resetTypeIds();
+        commonTypeCache_.resetTypeIds();
 
         transaction.commit();
     }
@@ -119,7 +119,7 @@ public:
 
     TypeId typeId(ModuleId moduleId,
                   Utils::SmallStringView exportedTypeName,
-                  Storage::Version version) const
+                  Storage::Version version) const override
     {
         if (version.minor)
             return selectTypeIdByModuleIdAndExportedNameAndVersionStatement
@@ -162,7 +162,7 @@ public:
     }
 
     std::optional<Storage::Info::PropertyDeclaration> propertyDeclaration(
-        PropertyDeclarationId propertyDeclarationId) const
+        PropertyDeclarationId propertyDeclarationId) const override
     {
         return selectPropertyDeclarationForPropertyDeclarationIdStatement
             .template optionalValueWithTransaction<Storage::Info::PropertyDeclaration>(
@@ -193,22 +193,27 @@ public:
             propertyDeclarationId);
     }
 
+    const Storage::Info::CommonTypeCache<ProjectStorageInterface> &commonTypeCache() const override
+    {
+        return commonTypeCache_;
+    }
+
     template<const char *moduleName, const char *typeName>
     TypeId commonTypeId() const
     {
-        return commonTypeCache.template typeId<moduleName, typeName>();
+        return commonTypeCache_.template typeId<moduleName, typeName>();
     }
 
     template<typename BuiltinType>
     TypeId builtinTypeId() const
     {
-        return commonTypeCache.template builtinTypeId<BuiltinType>();
+        return commonTypeCache_.template builtinTypeId<BuiltinType>();
     }
 
     template<const char *builtinType>
     TypeId builtinTypeId() const
     {
-        return commonTypeCache.template builtinTypeId<builtinType>();
+        return commonTypeCache_.template builtinTypeId<builtinType>();
     }
 
     TypeIds prototypeIds(TypeId type) const
@@ -224,7 +229,7 @@ public:
     }
 
     template<typename... TypeIds>
-    bool isBasedOn(TypeId typeId, TypeIds... baseTypeIds) const
+    bool isBasedOn_(TypeId typeId, TypeIds... baseTypeIds) const
     {
         static_assert(((std::is_same_v<TypeId, TypeIds>) &&...), "Parameter must be a TypeId!");
 
@@ -236,6 +241,47 @@ public:
         }
 
         return false;
+    }
+
+    bool isBasedOn(TypeId id0) const override { return isBasedOn_(id0); }
+
+    bool isBasedOn(TypeId id0, TypeId id1) const override { return isBasedOn_(id0, id1); }
+
+    bool isBasedOn(TypeId id0, TypeId id1, TypeId id2) const override
+    {
+        return isBasedOn_(id0, id1, id2);
+    }
+
+    bool isBasedOn(TypeId id0, TypeId id1, TypeId id2, TypeId id3) const override
+    {
+        return isBasedOn_(id0, id1, id2, id3);
+    }
+
+    bool isBasedOn(TypeId id0, TypeId id1, TypeId id2, TypeId id3, TypeId id4) const override
+    {
+        return isBasedOn_(id0, id1, id2, id3, id4);
+    }
+
+    bool isBasedOn(TypeId id0, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5) const override
+    {
+        return isBasedOn_(id0, id1, id2, id3, id4, id5);
+    }
+
+    bool isBasedOn(TypeId id0, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5, TypeId id6) const override
+    {
+        return isBasedOn_(id0, id1, id2, id3, id4, id5, id6);
+    }
+
+    bool isBasedOn(TypeId id0,
+                   TypeId id1,
+                   TypeId id2,
+                   TypeId id3,
+                   TypeId id4,
+                   TypeId id5,
+                   TypeId id6,
+                   TypeId id7) const override
+    {
+        return isBasedOn_(id0, id1, id2, id3, id4, id5, id6, id7);
     }
 
     TypeId fetchTypeIdByExportedName(Utils::SmallStringView name) const
@@ -2597,7 +2643,7 @@ public:
     Database &database;
     Initializer initializer;
     mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};
-    Storage::Info::CommonTypeCache<ProjectStorage<Database>> commonTypeCache{*this};
+    Storage::Info::CommonTypeCache<ProjectStorageInterface> commonTypeCache_{*this};
     ReadWriteStatement<1, 3> upsertTypeStatement{
         "INSERT INTO types(sourceId, name,  traits) VALUES(?1, ?2, ?3) ON CONFLICT DO "
         "UPDATE SET traits=excluded.traits WHERE traits IS NOT "

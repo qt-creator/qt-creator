@@ -40,6 +40,7 @@ public:
     QStringList projectModulePaths() const override;
     bool isQt6Project() const override;
     QString qtQuickVersion() const override;
+    Utils::FilePath resourcePath(const QString &relativePath) const override;
 
 private:
     const DesignerSettings &m_designerSettings;

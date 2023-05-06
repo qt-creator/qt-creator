@@ -4,6 +4,7 @@
 #include "googletest.h"
 
 #include "mocklistmodeleditorview.h"
+#include "projectstoragemock.h"
 
 #include <qmldesigner/components/listmodeleditor/listmodeleditormodel.h>
 #include <qmldesigner/designercore/include/abstractview.h>
@@ -19,6 +20,10 @@ using QmlDesigner::AbstractProperty;
 using QmlDesigner::AbstractView;
 using QmlDesigner::ListModelEditorModel;
 using QmlDesigner::ModelNode;
+using QmlDesigner::ModuleId;
+using QmlDesigner::PropertyDeclarationId;
+using QmlDesigner::TypeId;
+namespace Info = QmlDesigner::Storage::Info;
 
 MATCHER_P2(HasItem,
            name,
@@ -68,10 +73,19 @@ class ListModelEditor : public testing::Test
 public:
     ListModelEditor()
     {
+        setModuleId("QtQuick", modelId_QtQuick);
+        setType(modelId_QtQuick, "Item", "data");
+        designerModel = QmlDesigner::Model::create(projectStorageMock, "QtQuick.Item", 1, 1);
+        setModuleId("QtQml.Models", modelId_QtQml_Models);
+        setType(modelId_QtQml_Models, "ListModel", "children");
+        setType(modelId_QtQml_Models, "ListElement", "children");
+        componentModel = QmlDesigner::Model::create(projectStorageMock, "QtQml.Models.ListModel", 1, 1);
+
         designerModel->attachView(&mockView);
 
         emptyListModelNode = mockView.createModelNode("QtQml.Models.ListModel", 2, 15);
 
+        setType(modelId_QtQuick, "ListView", "data");
         listViewNode = mockView.createModelNode("QtQuick.ListView", 2, 15);
         listModelNode = mockView.createModelNode("QtQml.Models.ListModel", 2, 15);
         mockView.rootModelNode().defaultNodeListProperty().reparentHere(listModelNode);
@@ -91,7 +105,30 @@ public:
                                          mockComponentView,
                                          mockComponentView.rootModelNode());
 
-        ON_CALL(mockGoIntoComponent, Call(_)).WillByDefault([](ModelNode node) { return node; });
+        ON_CALL(goIntoComponentMock, Call(_)).WillByDefault([](ModelNode node) { return node; });
+    }
+
+    void setModuleId(Utils::SmallStringView moduleName, ModuleId moduleId)
+    {
+        ON_CALL(projectStorageMock, moduleId(Eq(moduleName))).WillByDefault(Return(moduleId));
+    }
+
+    void setType(ModuleId moduleId,
+                 Utils::SmallStringView typeName,
+                 Utils::SmallString defaultPeopertyName)
+    {
+        static int typeIdNumber = 0;
+        TypeId typeId = TypeId::create(++typeIdNumber);
+
+        static int defaultPropertyIdNumber = 0;
+        PropertyDeclarationId defaultPropertyId = PropertyDeclarationId::create(
+            ++defaultPropertyIdNumber);
+
+        ON_CALL(projectStorageMock, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
+        ON_CALL(projectStorageMock, type(Eq(typeId)))
+            .WillByDefault(Return(Info::Type{defaultPropertyId, {}}));
+        ON_CALL(projectStorageMock, propertyName(Eq(defaultPropertyId)))
+            .WillByDefault(Return(defaultPeopertyName));
     }
 
     using Entry = std::pair<QmlDesigner::PropertyName, QVariant>;
@@ -174,23 +211,25 @@ public:
     }
 
 protected:
-    MockFunction<ModelNode(const ModelNode &)> mockGoIntoComponent;
-    QmlDesigner::ModelPointer designerModel{QmlDesigner::Model::create("QtQuick.Item", 1, 1)};
+    NiceMock<ProjectStorageMock> projectStorageMock;
+    NiceMock<MockFunction<ModelNode(const ModelNode &)>> goIntoComponentMock;
+    QmlDesigner::ModelPointer designerModel;
     NiceMock<MockListModelEditorView> mockView;
     QmlDesigner::ListModelEditorModel model{
         [&] { return mockView.createModelNode("QtQml.Models.ListModel", 2, 15); },
         [&] { return mockView.createModelNode("QtQml.Models.ListElement", 2, 15); },
-        mockGoIntoComponent.AsStdFunction()};
+        goIntoComponentMock.AsStdFunction()};
     ModelNode listViewNode;
     ModelNode listModelNode;
     ModelNode emptyListModelNode;
     ModelNode element1;
     ModelNode element2;
     ModelNode element3;
-    QmlDesigner::ModelPointer componentModel{
-        QmlDesigner::Model::create("QtQml.Models.ListModel", 1, 1)};
+    QmlDesigner::ModelPointer componentModel;
     NiceMock<MockListModelEditorView> mockComponentView;
     ModelNode componentElement;
+    ModuleId modelId_QtQuick = ModuleId::create(1);
+    ModuleId modelId_QtQml_Models = ModuleId::create(2);
 };
 
 TEST_F(ListModelEditor, CreatePropertyNameSet)
@@ -1374,7 +1413,7 @@ TEST_F(ListModelEditor, AddFalseAsStringProperties)
 
 TEST_F(ListModelEditor, GoIntoComponentForBinding)
 {
-    EXPECT_CALL(mockGoIntoComponent, Call(Eq(listModelNode)))
+    EXPECT_CALL(goIntoComponentMock, Call(Eq(listModelNode)))
         .WillRepeatedly(Return(mockComponentView.rootModelNode()));
     listModelNode.setIdWithoutRefactoring("listModel");
     listViewNode.bindingProperty("model").setExpression("listModel");
@@ -1386,7 +1425,7 @@ TEST_F(ListModelEditor, GoIntoComponentForBinding)
 
 TEST_F(ListModelEditor, GoIntoComponentForModelNode)
 {
-    EXPECT_CALL(mockGoIntoComponent, Call(Eq(listModelNode)))
+    EXPECT_CALL(goIntoComponentMock, Call(Eq(listModelNode)))
         .WillRepeatedly(Return(mockComponentView.rootModelNode()));
     listViewNode.nodeProperty("model").reparentHere(listModelNode);
 

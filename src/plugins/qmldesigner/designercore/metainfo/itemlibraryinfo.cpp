@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "itemlibraryinfo.h"
+#include "../include/itemlibraryinfo.h"
 #include "nodemetainfo.h"
 #include "qregularexpression.h"
 
 #include <invalidmetainfoexception.h>
+#include <propertycontainer.h>
 
 #include <QSharedData>
 

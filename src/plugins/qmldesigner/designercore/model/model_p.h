@@ -73,7 +73,7 @@ class ModelPrivate : public QObject {
 
 public:
     ModelPrivate(Model *model,
-                 ProjectStorage<Sqlite::Database> &projectStorage,
+                 ProjectStorageType &projectStorage,
                  const TypeName &type,
                  int major,
                  int minor,
@@ -251,9 +251,6 @@ public:
 
     void updateEnabledViews();
 
-public:
-    NotNullPointer<ProjectStorage<Sqlite::Database>> projectStorage = nullptr;
-
 private:
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
     void removeAllSubNodes(const InternalNodePointer &node);
@@ -263,6 +260,9 @@ private:
     QVector<ModelNode> toModelNodeVector(const QVector<InternalNodePointer> &nodeVector, AbstractView *view) const;
     QVector<InternalNodePointer> toInternalNodeVector(const QVector<ModelNode> &modelNodeVector) const;
     const QList<QPointer<AbstractView>> enabledViews() const;
+
+public:
+    NotNullPointer<ProjectStorageType> projectStorage = nullptr;
 
 private:
     Model *m_model = nullptr;

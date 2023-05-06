@@ -292,10 +292,10 @@ bool QmlDesignerPlugin::delayedInitialize()
         Utils::transform(ExtensionSystem::PluginManager::pluginPaths(), [postfix](const QString &p) {
             return QString(p + postfix);
         });
-    MetaInfo::setPluginPaths(pluginPaths);
 
-    d->viewManager.registerView(
-        std::make_unique<ConnectionView>(d->externalDependencies));
+    MetaInfo::initializeGlobal(pluginPaths, d->externalDependencies);
+
+    d->viewManager.registerView(std::make_unique<ConnectionView>(d->externalDependencies));
 
     auto timelineView = d->viewManager.registerView(
         std::make_unique<TimelineView>(d->externalDependencies));
@@ -336,8 +336,6 @@ bool QmlDesignerPlugin::delayedInitialize()
         if (!licensee().isEmpty())
             Core::ICore::appendAboutInformation(tr("Licensee: %1").arg(licensee()));
     }
-
-    MetaInfo::global();
 
     return true;
 }
