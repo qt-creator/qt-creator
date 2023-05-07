@@ -147,6 +147,7 @@ add_qtc_library(Utils
     runextensions.cpp runextensions.h
     savefile.cpp savefile.h
     scopedswap.h
+    scopedtimer.cpp scopedtimer.h
     searchresultitem.cpp searchresultitem.h
     set_algorithm.h
     settingsaccessor.cpp settingsaccessor.h

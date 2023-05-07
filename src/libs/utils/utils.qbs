@@ -275,6 +275,8 @@ Project {
             "savefile.cpp",
             "savefile.h",
             "scopedswap.h",
+            "scopedtimer.cpp",
+            "scopedtimer.h",
             "searchresultitem.cpp",
             "searchresultitem.h",
             "set_algorithm.h",

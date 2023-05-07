@@ -5,25 +5,9 @@
 
 #include "utils_global.h"
 
-#include <memory>
-
 namespace Utils {
-
 QTCREATOR_UTILS_EXPORT void writeAssertLocation(const char *msg);
 QTCREATOR_UTILS_EXPORT void dumpBacktrace(int maxdepth);
-
-class ScopedTimerPrivate;
-
-class QTCREATOR_UTILS_EXPORT ScopedTimer
-{
-public:
-    ScopedTimer(const char *fileName, int line);
-    ~ScopedTimer();
-
-private:
-    std::unique_ptr<ScopedTimerPrivate> d;
-};
-
 } // Utils
 
 #define QTC_ASSERT_STRINGIFY_HELPER(x) #x
@@ -37,7 +21,3 @@ private:
 #define QTC_ASSERT(cond, action) if (Q_LIKELY(cond)) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)
 #define QTC_CHECK(cond) if (Q_LIKELY(cond)) {} else { QTC_ASSERT_STRING(#cond); } do {} while (0)
 #define QTC_GUARD(cond) ((Q_LIKELY(cond)) ? true : (QTC_ASSERT_STRING(#cond), false))
-
-#define QTC_CONCAT_HELPER(x, y) x ## y
-#define QTC_CONCAT(x, y) QTC_CONCAT_HELPER(x, y)
-#define QTC_SCOPED_TIMER() ::Utils::ScopedTimer QTC_CONCAT(_qtc_scoped_timer_, __LINE__)(__FILE__, __LINE__)
