@@ -716,8 +716,11 @@ void Target::updateDefaultRunConfigurations()
                 present = true;
             }
         }
-        if (!present && !rc->isCustomized())
+        if (!present &&
+            projectExplorerSettings().automaticallyCreateRunConfigurations &&
+            !rc->isCustomized()) {
             toRemove.append(rc);
+        }
     }
     configuredCount -= toRemove.count();
 
