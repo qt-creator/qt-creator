@@ -145,8 +145,6 @@ public:
     ~AndroidSettingsWidget() final;
 
 private:
-    void apply() final { AndroidConfigurations::setConfig(m_androidConfig); }
-
     void showEvent(QShowEvent *event) override;
 
     void validateJdk();
@@ -450,6 +448,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                       delete openSslOneShot;
         });
     });
+
+    setOnApply([this] { AndroidConfigurations::setConfig(m_androidConfig); });
 }
 
 AndroidSettingsWidget::~AndroidSettingsWidget()
