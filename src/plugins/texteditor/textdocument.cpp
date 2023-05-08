@@ -13,11 +13,13 @@
 #include "texteditortr.h"
 #include "textindenter.h"
 #include "typingsettings.h"
+#include "syntaxhighlighterrunner.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/diffservice.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -73,7 +75,6 @@ public:
     FontSettings m_fontSettings;
     bool m_fontSettingsNeedsApply = false; // for applying font settings delayed till an editor becomes visible
     QTextDocument m_document;
-    SyntaxHighlighter *m_highlighter = nullptr;
     CompletionAssistProvider *m_completionAssistProvider = nullptr;
     CompletionAssistProvider *m_functionHintAssistProvider = nullptr;
     IAssistProvider *m_quickFixProvider = nullptr;
@@ -92,6 +93,8 @@ public:
 
     TextMarks m_marksCache; // Marks not owned
     Utils::Guard m_modificationChangedGuard;
+
+    BaseSyntaxHighlighterRunner *m_highlighterRunner = nullptr;
 };
 
 MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cursors,
@@ -450,10 +453,8 @@ void TextDocument::applyFontSettings()
         block = block.next();
     }
     updateLayout();
-    if (d->m_highlighter) {
-        d->m_highlighter->setFontSettings(d->m_fontSettings);
-        d->m_highlighter->rehighlight();
-    }
+    if (d->m_highlighterRunner)
+        d->m_highlighterRunner->setFontSettings(d->m_fontSettings);
 }
 
 const FontSettings &TextDocument::fontSettings() const
@@ -625,9 +626,9 @@ QTextDocument *TextDocument::document() const
     return &d->m_document;
 }
 
-SyntaxHighlighter *TextDocument::syntaxHighlighter() const
+BaseSyntaxHighlighterRunner *TextDocument::syntaxHighlighterRunner() const
 {
-    return d->m_highlighter;
+    return d->m_highlighterRunner;
 }
 
 /*!
@@ -901,14 +902,18 @@ bool TextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type
     return reload(errorString);
 }
 
-void TextDocument::setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator)
+void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter *()> &creator,
+                                          bool threaded)
 {
-    if (d->m_highlighter)
-        delete d->m_highlighter;
+    if (d->m_highlighterRunner)
+        delete d->m_highlighterRunner;
 
-    d->m_highlighter = creator();
-    d->m_highlighter->setParent(this);
-    d->m_highlighter->setDocument(&d->m_document);
+    if (threaded) {
+        d->m_highlighterRunner = new ThreadedSyntaxHighlighterRunner(creator, document());
+        return;
+    }
+
+    d->m_highlighterRunner = new BaseSyntaxHighlighterRunner(creator, document());
 }
 
 void TextDocument::cleanWhitespace(const QTextCursor &cursor)

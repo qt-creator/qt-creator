@@ -19,6 +19,8 @@ class Highlighter : public SyntaxHighlighter, public KSyntaxHighlighting::Abstra
 public:
     Highlighter();
 
+    KSyntaxHighlighting::Definition getDefinition() override;
+
 protected:
     void highlightBlock(const QString &text) override;
     void applyFormat(int offset, int length, const KSyntaxHighlighting::Format &format) override;

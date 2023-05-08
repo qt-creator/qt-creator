@@ -246,10 +246,10 @@ void GitEditorWidget::init()
         return;
     const QChar commentChar = gitClient().commentChar(source());
     if (isCommitEditor)
-        textDocument()->setSyntaxHighlighterCreator(
+        textDocument()->resetSyntaxHighlighter(
             [commentChar] { return new GitSubmitHighlighter(commentChar); });
     else if (isRebaseEditor)
-        textDocument()->setSyntaxHighlighterCreator(
+        textDocument()->resetSyntaxHighlighter(
             [commentChar] { return new GitRebaseHighlighter(commentChar); });
 }
 

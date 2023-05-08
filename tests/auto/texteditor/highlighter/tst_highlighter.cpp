@@ -7,6 +7,7 @@
 
 #include <texteditor/semantichighlighter.h>
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/syntaxhighlighterrunner.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <QObject>
@@ -31,7 +32,7 @@ private slots:
 
 private:
     QTextDocument *doc = nullptr;
-    SyntaxHighlighter *highlighter = nullptr;
+    BaseSyntaxHighlighterRunner *highlighterRunner = nullptr;
     FontSettings fontsettings;
     QHash<int, QTextCharFormat> formatHash;
     QTextCharFormat whitespaceFormat;
@@ -59,7 +60,9 @@ Last)";
     doc = new QTextDocument();
     doc->setPlainText(text);
 
-    highlighter = new SyntaxHighlighter(doc, fontsettings);
+    highlighterRunner
+        = new BaseSyntaxHighlighterRunner([this] { return new SyntaxHighlighter(doc, fontsettings); },
+                                          doc);
 }
 
 static const HighlightingResults &highlightingResults()
@@ -77,7 +80,7 @@ void tst_highlighter::test_setExtraAdditionalFormats()
 {
     QCOMPARE(doc->blockCount(), 4);
 
-    SemanticHighlighter::setExtraAdditionalFormats(highlighter, highlightingResults(), formatHash);
+    SemanticHighlighter::setExtraAdditionalFormats(highlighterRunner, highlightingResults(), formatHash);
 
     for (auto block = doc->firstBlock(); block.isValid(); block = block.next()) {
         QVERIFY(block.blockNumber() < 4);
@@ -140,17 +143,17 @@ void tst_highlighter::test_clearExtraFormats()
 {
     QCOMPARE(doc->blockCount(), 4);
 
-    SemanticHighlighter::setExtraAdditionalFormats(highlighter, highlightingResults(), formatHash);
+    SemanticHighlighter::setExtraAdditionalFormats(highlighterRunner, highlightingResults(), formatHash);
 
     QTextBlock firstBlock = doc->findBlockByNumber(0);
     QTextBlock spacesLineBlock = doc->findBlockByNumber(1);
     QTextBlock emptyLineBlock = doc->findBlockByNumber(2);
     QTextBlock lastBlock = doc->findBlockByNumber(3);
 
-    highlighter->clearExtraFormats(emptyLineBlock);
+    highlighterRunner->clearExtraFormats({emptyLineBlock.blockNumber()});
     QVERIFY(emptyLineBlock.layout()->formats().isEmpty());
 
-    highlighter->clearExtraFormats(spacesLineBlock);
+    highlighterRunner->clearExtraFormats({spacesLineBlock.blockNumber()});
 
     auto formats = spacesLineBlock.layout()->formats();
     // the spaces are not extra formats and should remain when clearing extra formats
@@ -185,7 +188,7 @@ void tst_highlighter::test_clearExtraFormats()
     QCOMPARE(formats.at(1).start, 0);
     QCOMPARE(formats.at(1).length, 5);
 
-    highlighter->clearAllExtraFormats();
+    highlighterRunner->clearAllExtraFormats();
 
     QVERIFY(firstBlock.layout()->formats().isEmpty());
     QVERIFY(emptyLineBlock.layout()->formats().isEmpty());
@@ -221,7 +224,7 @@ void tst_highlighter::test_incrementalApplyAdditionalFormats()
 
     QFutureInterface<HighlightingResult> fiOld;
     fiOld.reportResults(highlightingResults());
-    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighter,
+    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighterRunner,
                                                                 fiOld.future(),
                                                                 2,
                                                                 0,
@@ -229,7 +232,7 @@ void tst_highlighter::test_incrementalApplyAdditionalFormats()
     auto formats = firstBlock.layout()->formats();
     QVERIFY(formats.isEmpty());
 
-    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighter,
+    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighterRunner,
                                                                 fiOld.future(),
                                                                 0,
                                                                 2,
@@ -254,7 +257,7 @@ void tst_highlighter::test_incrementalApplyAdditionalFormats()
     QCOMPARE(formats.at(1).start, 11);
     QCOMPARE(formats.at(1).length, 1);
 
-    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighter,
+    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighterRunner,
                                                                 fiOld.future(),
                                                                 3,
                                                                 6,
@@ -280,7 +283,7 @@ void tst_highlighter::test_incrementalApplyAdditionalFormats()
 
     QFutureInterface<HighlightingResult> fiNew;
     fiNew.reportResults(newResults);
-    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighter,
+    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighterRunner,
                                                                 fiNew.future(),
                                                                 0,
                                                                 3,
@@ -294,7 +297,7 @@ void tst_highlighter::test_incrementalApplyAdditionalFormats()
     QCOMPARE(formats.at(0).start, 0);
     QCOMPARE(formats.at(0).length, 1);
 
-    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighter,
+    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighterRunner,
                                                                 fiNew.future(),
                                                                 3,
                                                                 4,
@@ -305,14 +308,14 @@ void tst_highlighter::test_incrementalApplyAdditionalFormats()
     QVERIFY(formats.isEmpty());
 
     // QTCREATORBUG-29218
-    highlighter->clearAllExtraFormats();
+    highlighterRunner->clearAllExtraFormats();
     const HighlightingResults bug29218Results{HighlightingResult(1, 1, 2, 0),
                                               HighlightingResult(1, 3, 2, 1)};
     QFutureInterface<HighlightingResult> fi29218;
     fi29218.reportResults(bug29218Results);
     formats = firstBlock.layout()->formats();
     QVERIFY(formats.isEmpty());
-    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighter,
+    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighterRunner,
                                                                 fi29218.future(),
                                                                 0,
                                                                 1,
@@ -323,7 +326,7 @@ void tst_highlighter::test_incrementalApplyAdditionalFormats()
     QCOMPARE(formats.at(0).format.fontOverline(), false);
     QCOMPARE(formats.at(0).start, 0);
     QCOMPARE(formats.at(0).length, 2);
-    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighter,
+    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighterRunner,
                                                                 fi29218.future(),
                                                                 1,
                                                                 2,
@@ -347,7 +350,7 @@ void tst_highlighter::test_preeditText()
     QTextBlock firstBlock = doc->findBlockByNumber(0);
     firstBlock.layout()->setPreeditArea(2, "uaf");
 
-    SemanticHighlighter::setExtraAdditionalFormats(highlighter, highlightingResults(), formatHash);
+    SemanticHighlighter::setExtraAdditionalFormats(highlighterRunner, highlightingResults(), formatHash);
 
     auto formats = firstBlock.layout()->formats();
     QCOMPARE(formats.size(), 2);
@@ -366,7 +369,7 @@ void tst_highlighter::cleanup()
 {
     delete doc;
     doc = nullptr;
-    highlighter = nullptr;
+    highlighterRunner = nullptr;
 }
 
 } // namespace TextEditor

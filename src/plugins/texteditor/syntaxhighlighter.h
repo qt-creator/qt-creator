@@ -6,6 +6,9 @@
 #include "texteditor_global.h"
 
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/textdocumentlayout.h>
+
+#include <KSyntaxHighlighting/Definition>
 
 #include <QObject>
 #include <QTextLayout>
@@ -41,10 +44,6 @@ public:
     void setDocument(QTextDocument *doc);
     QTextDocument *document() const;
 
-    void setExtraFormats(const QTextBlock &block, QVector<QTextLayout::FormatRange> &&formats);
-    void clearExtraFormats(const QTextBlock &block);
-    void clearAllExtraFormats();
-
     static QList<QColor> generateColors(int n, const QColor &background);
 
     // Don't call in constructors of derived classes
@@ -53,9 +52,73 @@ public:
 
     void setNoAutomaticHighlighting(bool noAutomatic);
 
+    struct Result
+    {
+        void fillByBlock(const QTextBlock &block)
+        {
+            m_blockNumber = block.position();
+            m_userState = block.userState();
+
+            TextBlockUserData *userDate = TextDocumentLayout::textUserData(block);
+            if (!userDate)
+                return;
+
+            m_hasBlockUserData = true;
+            m_foldingIndent = userDate->foldingIndent();
+            m_folded = userDate->folded();
+            m_ifdefedOut = userDate->ifdefedOut();
+            m_foldingStartIncluded = userDate->foldingStartIncluded();
+            m_foldingEndIncluded = userDate->foldingEndIncluded();
+            m_parentheses = userDate->parentheses();
+            m_expectedRawStringSuffix = userDate->expectedRawStringSuffix();
+        }
+
+        void copyToBlock(QTextBlock &block) const
+        {
+            block.setUserState(m_userState);
+
+            if (m_hasBlockUserData) {
+                TextBlockUserData *data = TextDocumentLayout::userData(block);
+                data->setExpectedRawStringSuffix(m_expectedRawStringSuffix);
+                data->setFolded(m_folded);
+                data->setFoldingIndent(m_foldingIndent);
+                data->setFoldingStartIncluded(m_foldingStartIncluded);
+                data->setFoldingEndIncluded(m_foldingEndIncluded);
+
+                if (m_ifdefedOut)
+                    data->setIfdefedOut();
+                else
+                    data->clearIfdefedOut();
+
+                data->setParentheses(m_parentheses);
+            }
+        }
+
+        int m_blockNumber;
+        bool m_hasBlockUserData = false;
+
+        int m_foldingIndent : 16;
+        uint m_folded : 1;
+        uint m_ifdefedOut : 1;
+        uint m_foldingStartIncluded : 1;
+        uint m_foldingEndIncluded : 1;
+
+        Parentheses m_parentheses;
+        QByteArray m_expectedRawStringSuffix;
+        int m_userState = -1;
+        QList<QTextLayout::FormatRange> m_formatRanges;
+    };
+
+    void setExtraFormats(const QTextBlock &block, const QList<QTextLayout::FormatRange> &formats);
+    virtual void setLanguageFeaturesFlags(unsigned int /*flags*/) {}; // needed for CppHighlighting
+    virtual void setEnabled(bool /*enabled*/) {}; // needed for DiffAndLogHighlighter
+    virtual KSyntaxHighlighting::Definition getDefinition() { return {}; }
+
 public slots:
     virtual void rehighlight();
     void rehighlightBlock(const QTextBlock &block);
+    void clearExtraFormats(const QTextBlock &block);
+    void clearAllExtraFormats();
 
 protected:
     void setDefaultTextFormatCategories();
@@ -89,8 +152,11 @@ protected:
 protected:
     virtual void documentChanged(QTextDocument * /*oldDoc*/, QTextDocument * /*newDoc*/) {};
 
+signals:
+    void resultsReady(const QList<Result> &result);
+
 private:
-    void setTextFormatCategories(const QVector<std::pair<int, TextStyle>> &categories);
+    void setTextFormatCategories(const QList<std::pair<int, TextStyle>> &categories);
     void reformatBlocks(int from, int charsRemoved, int charsAdded);
     void delayedRehighlight();
 

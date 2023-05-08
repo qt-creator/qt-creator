@@ -23,10 +23,10 @@ public:
     ~DiffAndLogHighlighter() override;
 
     void highlightBlock(const QString &text) override;
+    void setEnabled(bool enabled) override;
 
+protected:
     void setFontSettings(const TextEditor::FontSettings &fontSettings) override;
-
-    void setEnabled(bool e);
 
 private:
     friend class DiffAndLogHighlighterPrivate;

@@ -34,6 +34,7 @@
 #include "texteditorsettings.h"
 #include "texteditortr.h"
 #include "typingsettings.h"
+#include "syntaxhighlighterrunner.h"
 
 #include <aggregation/aggregate.h>
 
@@ -1930,9 +1931,11 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
             const QString trimmedText = text.trimmed();
             QStringList commentMarker;
             QStringList docMarker;
-            if (auto highlighter = qobject_cast<Highlighter *>(
-                    q->textDocument()->syntaxHighlighter())) {
-                const HighlighterHelper::Definition def = highlighter->definition();
+            HighlighterHelper::Definition def;
+            if (BaseSyntaxHighlighterRunner *highlighter = q->textDocument()->syntaxHighlighterRunner())
+                def = highlighter->getDefinition();
+
+            if (def.isValid()) {
                 for (const QString &marker :
                      {def.singleLineCommentMarker(), def.multiLineCommentMarker().first}) {
                     if (!marker.isEmpty())
@@ -3706,12 +3709,12 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
         q->setCodeFoldingSupported(false);
     }
 
-    m_document->setSyntaxHighlighterCreator([definition] {
+    m_document->resetSyntaxHighlighter([definition] {
         auto highlighter = new Highlighter();
         if (definition.isValid())
             highlighter->setDefinition(definition);
         return highlighter;
-    });
+    }, false);
 
     m_document->setFontSettings(TextEditorSettings::fontSettings());
 }
@@ -3736,8 +3739,8 @@ void TextEditorWidgetPrivate::setupFromDefinition(const KSyntaxHighlighting::Def
 
 KSyntaxHighlighting::Definition TextEditorWidgetPrivate::currentDefinition()
 {
-    if (auto highlighter = qobject_cast<Highlighter *>(m_document->syntaxHighlighter()))
-        return highlighter->definition();
+    if (BaseSyntaxHighlighterRunner *highlighter = m_document->syntaxHighlighterRunner())
+        return highlighter->getDefinition();
     return {};
 }
 
@@ -8120,7 +8123,7 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     optionFlags.setFlag(QTextOption::AddSpaceForLineAndParagraphSeparators);
     optionFlags.setFlag(QTextOption::ShowTabsAndSpaces, ds.m_visualizeWhitespace);
     if (optionFlags != currentOptionFlags) {
-        if (SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter())
+        if (BaseSyntaxHighlighterRunner *highlighter = textDocument()->syntaxHighlighterRunner())
             highlighter->rehighlight();
         QTextOption option = document()->defaultTextOption();
         option.setFlags(optionFlags);
@@ -9259,7 +9262,7 @@ QString TextEditorWidget::textAt(int from, int to) const
 
 void TextEditorWidget::configureGenericHighlighter()
 {
-    HighlighterHelper::Definitions definitions = HighlighterHelper::definitionsForDocument(textDocument());
+    const HighlighterHelper::Definitions definitions = HighlighterHelper::definitionsForDocument(textDocument());
     d->configureGenericHighlighter(definitions.isEmpty() ? HighlighterHelper::Definition()
                                                          : definitions.first());
     d->updateSyntaxInfoBar(definitions, textDocument()->filePath().fileName());
@@ -9267,7 +9270,7 @@ void TextEditorWidget::configureGenericHighlighter()
 
 void TextEditorWidget::configureGenericHighlighter(const Utils::MimeType &mimeType)
 {
-    HighlighterHelper::Definitions definitions = HighlighterHelper::definitionsForMimeType(mimeType.name());
+    const HighlighterHelper::Definitions definitions = HighlighterHelper::definitionsForMimeType(mimeType.name());
     d->configureGenericHighlighter(definitions.isEmpty() ? HighlighterHelper::Definition()
                                                          : definitions.first());
     d->removeSyntaxInfoBar();
@@ -9275,7 +9278,7 @@ void TextEditorWidget::configureGenericHighlighter(const Utils::MimeType &mimeTy
 
 expected_str<void> TextEditorWidget::configureGenericHighlighter(const QString &definitionName)
 {
-    HighlighterHelper::Definition definition = TextEditor::HighlighterHelper::definitionForName(definitionName);
+    const HighlighterHelper::Definition definition = TextEditor::HighlighterHelper::definitionForName(definitionName);
     if (!definition.isValid())
         return make_unexpected(Tr::tr("Could not find definition."));
 
@@ -9453,7 +9456,7 @@ void TextEditorFactory::setEditorCreator(const EditorCreator &creator)
             doc->setIndenter(d->m_indenterCreator(doc->document()));
 
         if (d->m_syntaxHighlighterCreator)
-            doc->setSyntaxHighlighterCreator(d->m_syntaxHighlighterCreator);
+            doc->resetSyntaxHighlighter(d->m_syntaxHighlighterCreator);
 
         doc->setCompletionAssistProvider(d->m_completionAssistProvider ? d->m_completionAssistProvider
                                                                        : &basicSnippetProvider);

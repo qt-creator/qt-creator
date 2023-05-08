@@ -131,7 +131,7 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     d->preview->setPlainText(QLatin1String(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
     d->preview->textDocument()->setIndenter(new ClangFormatIndenter(d->preview->document()));
     d->preview->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
-    d->preview->textDocument()->setSyntaxHighlighterCreator(
+    d->preview->textDocument()->resetSyntaxHighlighter(
         [] { return new CppEditor::CppHighlighter(); });
     d->preview->textDocument()->indenter()->setFileName(fileName);
 

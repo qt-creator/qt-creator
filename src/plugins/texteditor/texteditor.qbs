@@ -124,6 +124,8 @@ QtcPlugin {
         "storagesettings.h",
         "syntaxhighlighter.cpp",
         "syntaxhighlighter.h",
+        "syntaxhighlighterrunner.cpp",
+        "syntaxhighlighterrunner.h",
         "tabsettings.cpp",
         "tabsettings.h",
         "tabsettingswidget.cpp",

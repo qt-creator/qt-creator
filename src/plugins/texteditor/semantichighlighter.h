@@ -21,6 +21,7 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class SyntaxHighlighter;
+class BaseSyntaxHighlighterRunner;
 
 class TEXTEDITOR_EXPORT HighlightingResult
 {
@@ -72,29 +73,27 @@ using Splitter = std::function<const QList<std::pair<HighlightingResult, QTextBl
 // from all lines that have no results between the (from-1).line result and
 // the (to-1).line result.
 // Requires that results of the Future are ordered by line.
-void TEXTEDITOR_EXPORT incrementalApplyExtraAdditionalFormats(
-        SyntaxHighlighter *highlighter,
-        const QFuture<HighlightingResult> &future,
-        int from, int to,
-        const QHash<int, QTextCharFormat> &kindToFormat,
-        const Splitter &splitter = {});
+void TEXTEDITOR_EXPORT
+incrementalApplyExtraAdditionalFormats(BaseSyntaxHighlighterRunner *highlighter,
+                                       const QFuture<HighlightingResult> &future,
+                                       int from,
+                                       int to,
+                                       const QHash<int, QTextCharFormat> &kindToFormat,
+                                       const Splitter &splitter = {});
 
 // Clears all extra highlights and applies the extra formats
 // indicated by Result::kind and kindToFormat to the correct location using
 // SyntaxHighlighter::setExtraFormats. In contrast to
 // incrementalApplyExtraAdditionalFormats the results do not have to be ordered by line.
-void TEXTEDITOR_EXPORT setExtraAdditionalFormats(
-    SyntaxHighlighter *highlighter,
-    const HighlightingResults &results,
-    const QHash<int, QTextCharFormat> &kindToFormat);
+void TEXTEDITOR_EXPORT setExtraAdditionalFormats(BaseSyntaxHighlighterRunner *highlighter,
+                                                 const HighlightingResults &results,
+                                                 const QHash<int, QTextCharFormat> &kindToFormat);
 
 // Cleans the extra additional formats after the last result of the Future
 // until the end of the document.
 // Requires that results of the Future are ordered by line.
 void TEXTEDITOR_EXPORT clearExtraAdditionalFormatsUntilEnd(
-        SyntaxHighlighter *highlighter,
-        const QFuture<HighlightingResult> &future);
-
+    BaseSyntaxHighlighterRunner *highlighter, const QFuture<HighlightingResult> &future);
 
 } // namespace SemanticHighlighter
 } // namespace TextEditor

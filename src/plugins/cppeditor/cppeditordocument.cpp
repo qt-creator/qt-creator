@@ -22,6 +22,7 @@
 #include <texteditor/storagesettings.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/syntaxhighlighterrunner.h>
 
 #include <utils/infobar.h>
 #include <utils/mimeconstants.h>
@@ -79,7 +80,7 @@ private:
 CppEditorDocument::CppEditorDocument()
 {
     setId(CppEditor::Constants::CPPEDITOR_ID);
-    setSyntaxHighlighterCreator([] { return new CppHighlighter(); });
+    resetSyntaxHighlighter([] { return new CppHighlighter(); });
 
     ICodeStylePreferencesFactory *factory
         = TextEditorSettings::codeStyleFactory(Constants::CPP_SETTINGS_ID);
@@ -165,7 +166,7 @@ QByteArray CppEditorDocument::contentsText() const
 
 void CppEditorDocument::applyFontSettings()
 {
-    if (TextEditor::SyntaxHighlighter *highlighter = syntaxHighlighter())
+    if (TextEditor::BaseSyntaxHighlighterRunner *highlighter = syntaxHighlighterRunner())
         highlighter->clearAllExtraFormats(); // Clear all additional formats since they may have changed
     TextDocument::applyFontSettings(); // rehighlights and updates additional formats
     if (m_processor)
@@ -409,8 +410,8 @@ BaseEditorDocumentProcessor *CppEditorDocument::processor()
         connect(m_processor.data(), &BaseEditorDocumentProcessor::cppDocumentUpdated, this,
                 [this](const CPlusPlus::Document::Ptr document) {
                     // Update syntax highlighter
-                    auto *highlighter = qobject_cast<CppHighlighter *>(syntaxHighlighter());
-                    highlighter->setLanguageFeatures(document->languageFeatures());
+                    if (BaseSyntaxHighlighterRunner *highlighter = syntaxHighlighterRunner())
+                        highlighter->setLanguageFeaturesFlags(document->languageFeatures().flags);
 
                     m_overviewModel.update(usesClangd() ? nullptr : document);
 

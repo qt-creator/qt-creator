@@ -28,6 +28,7 @@
 
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
+#include <texteditor/syntaxhighlighterrunner.h>
 
 #include <utils/algorithm.h>
 #include <utils/progressindicator.h>
@@ -761,7 +762,7 @@ void VcsBaseEditorWidget::init()
     }
     if (hasDiff()) {
         setCodeFoldingSupported(true);
-        textDocument()->setSyntaxHighlighterCreator(
+        textDocument()->resetSyntaxHighlighter(
             [diffFilePattern = d->m_diffFilePattern, logEntryPattern = d->m_logEntryPattern] {
                 return new DiffAndLogHighlighter(diffFilePattern, logEntryPattern);
             });
@@ -824,8 +825,7 @@ void VcsBaseEditorWidget::setFileLogAnnotateEnabled(bool e)
 
 void VcsBaseEditorWidget::setHighlightingEnabled(bool e)
 {
-    auto dh = static_cast<DiffAndLogHighlighter *>(textDocument()->syntaxHighlighter());
-    dh->setEnabled(e);
+    textDocument()->syntaxHighlighterRunner()->setEnabled(e);
 }
 
 FilePath VcsBaseEditorWidget::workingDirectory() const
@@ -1100,11 +1100,11 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
 
     disconnect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
 
-    if (auto ah = qobject_cast<BaseAnnotationHighlighter *>(textDocument()->syntaxHighlighter())) {
+    if (BaseSyntaxHighlighterRunner *ah = textDocument()->syntaxHighlighterRunner()) {
         ah->rehighlight();
     } else {
         BaseAnnotationHighlighterCreator creator = annotationHighlighterCreator();
-        textDocument()->setSyntaxHighlighterCreator(
+        textDocument()->resetSyntaxHighlighter(
             [creator, annotation = d->m_annotation] { return creator(annotation); });
     }
 }

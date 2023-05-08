@@ -8,6 +8,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
+#include <texteditor/syntaxhighlighterrunner.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -111,7 +112,7 @@ void SemanticHighlighter::handleHighlighterResults()
     QElapsedTimer t;
     t.start();
 
-    SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
+    BaseSyntaxHighlighterRunner *highlighter = m_baseTextDocument->syntaxHighlighterRunner();
     QTC_ASSERT(highlighter, return);
     incrementalApplyExtraAdditionalFormats(highlighter, m_watcher->future(), from, to, m_formatMap);
 
@@ -199,7 +200,7 @@ void SemanticHighlighter::onHighlighterFinished()
     t.start();
 
     if (!m_watcher->isCanceled() && documentRevision() == m_revision) {
-        SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
+        BaseSyntaxHighlighterRunner *highlighter = m_baseTextDocument->syntaxHighlighterRunner();
         if (QTC_GUARD(highlighter)) {
             qCDebug(log) << "onHighlighterFinished() - clearing formats";
             clearExtraAdditionalFormatsUntilEnd(highlighter, m_watcher->future());

@@ -51,7 +51,7 @@ NimEditorFactory::NimEditorFactory()
 
 void NimEditorFactory::decorateEditor(TextEditorWidget *editor)
 {
-    editor->textDocument()->setSyntaxHighlighterCreator([] { return new NimHighlighter();});
+    editor->textDocument()->resetSyntaxHighlighter([] { return new NimHighlighter();});
     editor->textDocument()->setIndenter(new NimIndenter(editor->textDocument()->document()));
 }
 

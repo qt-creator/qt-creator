@@ -74,6 +74,11 @@ Highlighter::Highlighter()
                             &categoryForTextStyle);
 }
 
+KSyntaxHighlighting::Definition Highlighter::getDefinition()
+{
+    return definition();
+}
+
 static bool isOpeningParenthesis(QChar c)
 {
     return c == QLatin1Char('{') || c == QLatin1Char('[') || c == QLatin1Char('(');
