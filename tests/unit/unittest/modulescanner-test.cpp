@@ -65,9 +65,23 @@ protected:
                                        externalDependenciesMock};
 };
 
-TEST_F(ModuleScanner, ReturnEmptyOptionalForWrongPath)
+TEST_F(ModuleScanner, ReturnEmptyOptionalForEmptyPath)
 {
     scanner.scan(QStringList{""});
+
+    ASSERT_THAT(scanner.modules(), IsEmpty());
+}
+
+TEST_F(ModuleScanner, ReturnEmptyOptionalForNullStringPath)
+{
+    scanner.scan(QStringList{QString{}});
+
+    ASSERT_THAT(scanner.modules(), IsEmpty());
+}
+
+TEST_F(ModuleScanner, ReturnEmptyOptionalForEmptyPaths)
+{
+    scanner.scan(QStringList{});
 
     ASSERT_THAT(scanner.modules(), IsEmpty());
 }

@@ -69,6 +69,9 @@ void ModuleScanner::scan(const QStringList &modulePaths)
 void ModuleScanner::scan([[maybe_unused]] std::string_view modulePath)
 {
 #ifdef QDS_HAS_QMLPRIVATE
+    if (modulePath.empty())
+        return;
+
     QDirIterator dirIterator{QString::fromUtf8(modulePath),
                              QDir::Dirs | QDir::NoDotAndDotDot,
                              QDirIterator::Subdirectories};
