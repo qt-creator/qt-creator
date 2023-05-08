@@ -11,8 +11,6 @@ class MimeTypeSettingsPrivate;
 
 class MimeTypeSettings : public IOptionsPage
 {
-    Q_OBJECT
-
 public:
     MimeTypeSettings();
     ~MimeTypeSettings() override;

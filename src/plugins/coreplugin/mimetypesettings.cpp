@@ -82,8 +82,6 @@ public:
 // MimeTypeSettingsModel
 class MimeTypeSettingsModel : public QAbstractTableModel
 {
-    Q_OBJECT
-
 public:
     enum class Role {
         DefaultHandler = Qt::UserRole
@@ -227,8 +225,6 @@ void MimeTypeSettingsModel::resetUserDefaults()
 // MimeTypeSettingsPrivate
 class MimeTypeSettingsPrivate : public QObject
 {
-    Q_OBJECT
-
 public:
     MimeTypeSettingsPrivate();
     ~MimeTypeSettingsPrivate() override;
@@ -787,5 +783,3 @@ void MimeEditorDelegate::setModelData(QWidget *editor,
 }
 
 } // Core::Internal
-
-#include "mimetypesettings.moc"
