@@ -19,8 +19,6 @@ public:
 
 class SettingsPageProvider : public Core::IOptionsPageProvider
 {
-    Q_OBJECT
-
 public:
     SettingsPageProvider();
 

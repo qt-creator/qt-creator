@@ -277,8 +277,7 @@ bool IOptionsPage::matches(const QRegularExpression &regexp) const
 
 static QList<IOptionsPageProvider *> g_optionsPagesProviders;
 
-IOptionsPageProvider::IOptionsPageProvider(QObject *parent)
-    : QObject(parent)
+IOptionsPageProvider::IOptionsPageProvider()
 {
     g_optionsPagesProviders.append(this);
 }

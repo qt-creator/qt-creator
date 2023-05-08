@@ -99,13 +99,13 @@ private:
     before the options pages get available.)
 */
 
-class CORE_EXPORT IOptionsPageProvider : public QObject
+class CORE_EXPORT IOptionsPageProvider
 {
-    Q_OBJECT
+    Q_DISABLE_COPY_MOVE(IOptionsPageProvider);
 
 public:
-    IOptionsPageProvider(QObject *parent = nullptr);
-    ~IOptionsPageProvider() override;
+    IOptionsPageProvider();
+    virtual ~IOptionsPageProvider();
 
     static const QList<IOptionsPageProvider *> allOptionsPagesProviders();
 
