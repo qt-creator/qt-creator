@@ -45,7 +45,7 @@ add_qtc_executable(qml2puppet
   INCLUDES
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
-    qml2puppet/main.cpp
+    qml2puppet/qml2puppetmain.cpp
     qml2puppet/qmlbase.h qml2puppet/appmetadata.h
     qml2puppet/qmlpuppet.h qml2puppet/qmlpuppet.cpp qml2puppet/configcrashpad.h
     qmlpuppet.qrc

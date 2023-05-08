@@ -7,25 +7,24 @@
 #include "runner/qmlruntime.h"
 #endif
 
-QmlBase *getQmlRunner(int &argc, char **argv)
+auto getQmlRunner(int &argc, char **argv)
 {
 #ifdef ENABLE_INTERNAL_QML_RUNTIME
+    QString qmlRuntime("--qml-runtime");
     for (int i = 0; i < argc; i++) {
-        if (!strcmp(argv[i], "--qml-runtime")){
+        if (!qmlRuntime.compare(QString::fromLocal8Bit(argv[i]))) {
             qInfo() << "Starting QML Runtime";
-            return new QmlRuntime(argc, argv);
+            return std::unique_ptr<QmlBase>(new QmlRuntime(argc, argv));
         }
     }
 #endif
     qInfo() << "Starting QML Puppet";
-    return new QmlPuppet(argc, argv);
+    return std::unique_ptr<QmlBase>(new QmlPuppet(argc, argv));
 }
 
 int main(int argc, char *argv[])
 {
     QDSMeta::Logging::registerMessageHandler();
     QDSMeta::AppInfo::registerAppInfo("Qml2Puppet");
-
-    QmlBase *qmlRunner = getQmlRunner(argc, argv);
-    return qmlRunner->run();
+    return getQmlRunner(argc, argv)->run();
 }
