@@ -264,7 +264,7 @@ void StudioSettingsPage::apply()
 StudioConfigSettingsPage::StudioConfigSettingsPage()
 {
     setId("Z.StudioConfig.Settings");
-    setDisplayName(tr("Qt Design Studio Configuration"));
+    setDisplayName(StudioSettingsPage::tr("Qt Design Studio Configuration"));
     setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
     setWidgetCreator([] { return new StudioSettingsPage; });
 }

@@ -35,8 +35,6 @@ private:
 
 class QMLDESIGNERBASE_EXPORT StudioConfigSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     StudioConfigSettingsPage();
 };
