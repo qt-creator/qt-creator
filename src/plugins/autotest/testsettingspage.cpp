@@ -37,10 +37,6 @@ class TestSettingsWidget : public Core::IOptionsPageWidget
 public:
     explicit TestSettingsWidget(TestSettings *settings);
 
-    void apply() final;
-
-    TestSettings settings() const;
-
 private:
     void populateFrameworksListWidget(const QHash<Id, bool> &frameworks,
                                       const QHash<Id, bool> &testTools);
@@ -218,27 +214,46 @@ TestSettingsWidget::TestSettingsWidget(TestSettings *settings)
     m_openResultsOnFailCB->setChecked(settings->popupOnFail);
     m_runAfterBuildCB->setCurrentIndex(int(settings->runAfterBuild));
     populateFrameworksListWidget(settings->frameworks, settings->tools);
-}
 
-TestSettings TestSettingsWidget::settings() const
-{
-    TestSettings result;
-    result.timeout = m_timeoutSpin->value() * 1000; // we display seconds
-    result.omitInternalMssg = m_omitInternalMsgCB->isChecked();
-    result.omitRunConfigWarn = m_omitRunConfigWarnCB->isChecked();
-    result.limitResultOutput = m_limitResultOutputCB->isChecked();
-    result.limitResultDescription = m_limitResultDescriptionCb->isChecked();
-    result.resultDescriptionMaxSize = m_limitResultDescriptionSpinBox->value();
-    result.autoScroll = m_autoScrollCB->isChecked();
-    result.processArgs = m_processArgsCB->isChecked();
-    result.displayApplication = m_displayAppCB->isChecked();
-    result.popupOnStart = m_openResultsOnStartCB->isChecked();
-    result.popupOnFinish = m_openResultsOnFinishCB->isChecked();
-    result.popupOnFail = m_openResultsOnFailCB->isChecked();
-    result.runAfterBuild = RunAfterBuildMode(m_runAfterBuildCB->currentIndex());
-    testSettings(result);
-    testToolsSettings(result);
-    return result;
+    setOnApply([this] {
+        TestSettings result;
+        result.timeout = m_timeoutSpin->value() * 1000; // we display seconds
+        result.omitInternalMssg = m_omitInternalMsgCB->isChecked();
+        result.omitRunConfigWarn = m_omitRunConfigWarnCB->isChecked();
+        result.limitResultOutput = m_limitResultOutputCB->isChecked();
+        result.limitResultDescription = m_limitResultDescriptionCb->isChecked();
+        result.resultDescriptionMaxSize = m_limitResultDescriptionSpinBox->value();
+        result.autoScroll = m_autoScrollCB->isChecked();
+        result.processArgs = m_processArgsCB->isChecked();
+        result.displayApplication = m_displayAppCB->isChecked();
+        result.popupOnStart = m_openResultsOnStartCB->isChecked();
+        result.popupOnFinish = m_openResultsOnFinishCB->isChecked();
+        result.popupOnFail = m_openResultsOnFailCB->isChecked();
+        result.runAfterBuild = RunAfterBuildMode(m_runAfterBuildCB->currentIndex());
+        testSettings(result);
+        testToolsSettings(result);
+
+        const QList<Utils::Id> changedIds = Utils::filtered(result.frameworksGrouping.keys(),
+           [result, this](Utils::Id id) {
+            return result.frameworksGrouping[id] != m_settings->frameworksGrouping[id];
+        });
+
+        *m_settings = result;
+        m_settings->toSettings(Core::ICore::settings());
+
+        for (ITestFramework *framework : TestFrameworkManager::registeredFrameworks()) {
+            framework->setActive(m_settings->frameworks.value(framework->id(), false));
+            framework->setGrouping(m_settings->frameworksGrouping.value(framework->id(), false));
+        }
+
+        for (ITestTool *testTool : TestFrameworkManager::registeredTestTools())
+            testTool->setActive(m_settings->tools.value(testTool->id(), false));
+
+        TestTreeModel::instance()->synchronizeTestFrameworks();
+        TestTreeModel::instance()->synchronizeTestTools();
+        if (!changedIds.isEmpty())
+            TestTreeModel::instance()->rebuild(changedIds);
+    });
 }
 
 enum TestBaseInfo
@@ -337,30 +352,6 @@ void TestSettingsWidget::onFrameworkItemChanged()
     }
     m_frameworksWarn->setVisible(!atLeastOneEnabled
                                     || (mixed == (ITestBase::Framework | ITestBase::Tool)));
-}
-
-void TestSettingsWidget::apply()
-{
-    const TestSettings newSettings = settings();
-    const QList<Id> changedIds = Utils::filtered(newSettings.frameworksGrouping.keys(),
-                                                 [newSettings, this](const Id &id) {
-        return newSettings.frameworksGrouping[id] != m_settings->frameworksGrouping[id];
-    });
-    *m_settings = newSettings;
-    m_settings->toSettings(Core::ICore::settings());
-
-    for (ITestFramework *framework : TestFrameworkManager::registeredFrameworks()) {
-        framework->setActive(m_settings->frameworks.value(framework->id(), false));
-        framework->setGrouping(m_settings->frameworksGrouping.value(framework->id(), false));
-    }
-
-    for (ITestTool *testTool : TestFrameworkManager::registeredTestTools())
-        testTool->setActive(m_settings->tools.value(testTool->id(), false));
-
-    TestTreeModel::instance()->synchronizeTestFrameworks();
-    TestTreeModel::instance()->synchronizeTestTools();
-    if (!changedIds.isEmpty())
-        TestTreeModel::instance()->rebuild(changedIds);
 }
 
 // TestSettingsPage
