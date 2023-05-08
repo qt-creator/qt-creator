@@ -104,6 +104,11 @@ GTestSettings::GTestSettings()
                      &gtestFilter, [this](int val) {
         gtestFilter.setEnabled(groupMode.itemValueForIndex(val) == GTest::Constants::GTestFilter);
     });
+
+    QObject::connect(this, &AspectContainer::applied, this, [] {
+        Id id = Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
+        TestTreeModel::instance()->rebuild({id});
+    });
 }
 
 GTestSettingsPage::GTestSettingsPage(GTestSettings *settings, Id settingsId)
@@ -112,11 +117,6 @@ GTestSettingsPage::GTestSettingsPage(GTestSettings *settings, Id settingsId)
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
     setSettings(settings);
-
-    QObject::connect(settings, &AspectContainer::applied, this, [] {
-        Id id = Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
-        TestTreeModel::instance()->rebuild({id});
-    });
 
     setLayouter([settings](QWidget *widget) {
         GTestSettings &s = *settings;
