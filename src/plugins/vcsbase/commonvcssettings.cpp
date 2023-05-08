@@ -94,61 +94,48 @@ CommonVcsSettings::CommonVcsSettings()
 class CommonSettingsWidget final : public Core::IOptionsPageWidget
 {
 public:
-    CommonSettingsWidget(CommonOptionsPage *page);
+    CommonSettingsWidget(CommonOptionsPage *page)
+    {
+        CommonVcsSettings &s = page->settings();
 
-    void apply() final;
+        auto cacheResetButton = new QPushButton(Tr::tr("Reset VCS Cache"));
+        cacheResetButton->setToolTip(Tr::tr("Reset information about which "
+                                            "version control system handles which directory."));
 
-private:
-    void updatePath();
-    CommonOptionsPage *m_page;
-};
+        auto updatePath = [&s] {
+            Environment env;
+            env.appendToPath(Core::VcsManager::additionalToolsPath());
+            s.sshPasswordPrompt.setEnvironment(env);
+        };
 
+        using namespace Layouting;
+        Column {
+            Row { s.lineWrap, s.lineWrapWidth, st },
+            Form {
+                s.submitMessageCheckScript, br,
+                s.nickNameMailMap, br,
+                s.nickNameFieldListFile, br,
+                s.sshPasswordPrompt, br,
+                {}, cacheResetButton
+            }
+        }.attachTo(this);
 
-CommonSettingsWidget::CommonSettingsWidget(CommonOptionsPage *page)
-    : m_page(page)
-{
-    CommonVcsSettings &s = m_page->settings();
+        updatePath();
 
-    auto cacheResetButton = new QPushButton(Tr::tr("Reset VCS Cache"));
-    cacheResetButton->setToolTip(Tr::tr("Reset information about which "
-        "version control system handles which directory."));
+        connect(Core::VcsManager::instance(), &Core::VcsManager::configurationChanged,
+                this, updatePath);
+        connect(cacheResetButton, &QPushButton::clicked,
+                Core::VcsManager::instance(), &Core::VcsManager::clearVersionControlCache);
 
-    updatePath();
-
-    using namespace Layouting;
-    Column {
-        Row { s.lineWrap, s.lineWrapWidth, st },
-        Form {
-            s.submitMessageCheckScript, br,
-            s.nickNameMailMap, br,
-            s.nickNameFieldListFile, br,
-            s.sshPasswordPrompt, br,
-            {}, cacheResetButton
-        }
-    }.attachTo(this);
-
-    connect(Core::VcsManager::instance(), &Core::VcsManager::configurationChanged,
-            this, &CommonSettingsWidget::updatePath);
-    connect(cacheResetButton, &QPushButton::clicked,
-            Core::VcsManager::instance(), &Core::VcsManager::clearVersionControlCache);
-}
-
-void CommonSettingsWidget::updatePath()
-{
-    Environment env;
-    env.appendToPath(Core::VcsManager::additionalToolsPath());
-    m_page->settings().sshPasswordPrompt.setEnvironment(env);
-}
-
-void CommonSettingsWidget::apply()
-{
-    CommonVcsSettings &s = m_page->settings();
-    if (s.isDirty()) {
-        s.apply();
-        s.writeSettings(Core::ICore::settings());
-        emit m_page->settingsChanged();
+        setOnApply([&s, page] {
+            if (s.isDirty()) {
+                s.apply();
+                s.writeSettings(Core::ICore::settings());
+                emit page->settingsChanged();
+            }
+        });
     }
-}
+};
 
 // CommonOptionsPage
 
