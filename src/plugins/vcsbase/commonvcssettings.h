@@ -12,6 +12,8 @@ namespace Internal {
 
 class CommonVcsSettings : public Utils::AspectContainer
 {
+    Q_OBJECT
+
 public:
     CommonVcsSettings();
 
@@ -27,19 +29,17 @@ public:
 
     Utils::BoolAspect lineWrap;
     Utils::IntegerAspect lineWrapWidth;
+
+signals:
+    void settingsChanged();
 };
 
 class CommonOptionsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    explicit CommonOptionsPage();
+    CommonOptionsPage();
 
     CommonVcsSettings &settings() { return m_settings; }
-
-signals:
-    void settingsChanged();
 
 private:
     CommonVcsSettings m_settings;

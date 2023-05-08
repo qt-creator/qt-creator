@@ -40,7 +40,7 @@ public:
     explicit VcsPluginPrivate(VcsPlugin *plugin)
         : q(plugin)
     {
-        QObject::connect(&m_settingsPage, &CommonOptionsPage::settingsChanged,
+        QObject::connect(&m_settingsPage.settings(), &CommonVcsSettings::settingsChanged,
                          [this] { slotSettingsChanged(); });
         slotSettingsChanged();
     }
@@ -101,7 +101,7 @@ void VcsPlugin::initialize()
         return result;
     });
 
-    connect(&d->m_settingsPage, &CommonOptionsPage::settingsChanged,
+    connect(&d->m_settingsPage.settings(), &CommonVcsSettings::settingsChanged,
             this, &VcsPlugin::settingsChanged);
 
     JsonWizardFactory::registerPageFactory(new Internal::VcsConfigurationPageFactory);

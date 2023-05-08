@@ -127,11 +127,11 @@ public:
         connect(cacheResetButton, &QPushButton::clicked,
                 Core::VcsManager::instance(), &Core::VcsManager::clearVersionControlCache);
 
-        setOnApply([&s, page] {
+        setOnApply([&s] {
             if (s.isDirty()) {
                 s.apply();
                 s.writeSettings(Core::ICore::settings());
-                emit page->settingsChanged();
+                emit s.settingsChanged();
             }
         });
     }
