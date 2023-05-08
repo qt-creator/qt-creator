@@ -134,7 +134,7 @@ public:
     QRect m_externalWindowState;
 
     DocSettingsPage m_docSettingsPage;
-    FilterSettingsPage m_filterSettingsPage;
+    FilterSettingsPage m_filterSettingsPage{[this] {setupHelpEngineIfNeeded(); }};
     SearchTaskHandler m_searchTaskHandler;
     GeneralSettingsPage m_generalSettingsPage;
 
@@ -197,8 +197,6 @@ HelpPluginPrivate::HelpPluginPrivate()
     connect(&m_searchTaskHandler, &SearchTaskHandler::search,
             this, &QDesktopServices::openUrl);
 
-    connect(&m_filterSettingsPage, &FilterSettingsPage::filtersChanged,
-            this, &HelpPluginPrivate::setupHelpEngineIfNeeded);
     connect(Core::HelpManager::Signals::instance(),
             &Core::HelpManager::Signals::documentationChanged,
             this,

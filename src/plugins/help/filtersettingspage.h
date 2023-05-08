@@ -9,13 +9,8 @@ namespace Help::Internal {
 
 class FilterSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    FilterSettingsPage();
-
-signals:
-    void filtersChanged();
+    explicit FilterSettingsPage(const std::function<void()> &onChanged);
 };
 
 } // Help::Internal

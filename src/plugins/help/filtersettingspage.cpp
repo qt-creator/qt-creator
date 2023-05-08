@@ -18,7 +18,7 @@ namespace Help::Internal {
 class FilterSettingsPageWidget : public Core::IOptionsPageWidget
 {
 public:
-    FilterSettingsPageWidget(FilterSettingsPage *page)
+    FilterSettingsPageWidget(const std::function<void()> &onChanged)
     {
         LocalHelpManager::setupGuiHelpEngine();
 
@@ -41,9 +41,9 @@ public:
                                   updateFilterPage);
         updateFilterPage();
 
-        setOnApply([widget, page] {
+        setOnApply([widget, onChanged] {
             if (widget->applySettings(LocalHelpManager::filterEngine()))
-                emit page->filtersChanged();
+                onChanged();
             widget->readSettings(LocalHelpManager::filterEngine());
         });
 
@@ -51,12 +51,12 @@ public:
     }
 };
 
-FilterSettingsPage::FilterSettingsPage()
+FilterSettingsPage::FilterSettingsPage(const std::function<void ()> &onChanged)
 {
     setId("D.Filters");
     setDisplayName(Tr::tr("Filters"));
     setCategory(Help::Constants::HELP_CATEGORY);
-    setWidgetCreator([this] { return new FilterSettingsPageWidget(this); });
+    setWidgetCreator([onChanged] { return new FilterSettingsPageWidget(onChanged); });
 }
 
 } // Help::Internal
