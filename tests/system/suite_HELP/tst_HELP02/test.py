@@ -41,7 +41,7 @@ def checkQtCreatorHelpVersion(expectedVersion):
                      'Verifying whether manual uses expected version.')
     except:
         t, v = sys.exc_info()[:2]
-        test.log("Exception caught", "%s(%s)" % (str(t), str(v)))
+        test.log("Exception caught", "%s: %s" % (t.__name__, str(v)))
         test.fail("Missing Qt Creator Manual.")
 
 
