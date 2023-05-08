@@ -7,12 +7,16 @@
 #include "bakelights.h"
 #include "bindingproperty.h"
 #include "enumeration.h"
+#include "externaldependenciesinterface.h"
 #include "model.h"
 #include "modelnode.h"
 #include "nodelistproperty.h"
 #include "nodemetainfo.h"
+#include "qmlobjectnode.h"
 #include "variantproperty.h"
 
+#include <utils/expected.h>
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
 #include <algorithm>
@@ -38,13 +42,15 @@ int BakeLightsDataModel::rowCount(const QModelIndex &) const
 QHash<int, QByteArray> BakeLightsDataModel::roleNames() const
 {
     static const QHash<int, QByteArray> roles {
-        {Qt::UserRole + 1, "nodeId"},
-        {Qt::UserRole + 2, "isModel"},
-        {Qt::UserRole + 3, "isEnabled"},
-        {Qt::UserRole + 4, "inUse"},
-        {Qt::UserRole + 5, "isTitle"},
-        {Qt::UserRole + 6, "resolution"},
-        {Qt::UserRole + 7, "bakeMode"}
+        {Qt::UserRole + 1, "displayId"},
+        {Qt::UserRole + 2, "nodeId"},
+        {Qt::UserRole + 3, "isModel"},
+        {Qt::UserRole + 4, "isEnabled"},
+        {Qt::UserRole + 5, "inUse"},
+        {Qt::UserRole + 6, "isTitle"},
+        {Qt::UserRole + 7, "isUnexposed"},
+        {Qt::UserRole + 8, "resolution"},
+        {Qt::UserRole + 9, "bakeMode"}
     };
     return roles;
 }
@@ -57,7 +63,7 @@ QVariant BakeLightsDataModel::data(const QModelIndex &index, int role) const
     QByteArray roleName = roleNames().value(role);
     const BakeData &bakeData = m_dataList[index.row()];
 
-    if (roleName == "nodeId") {
+    if (roleName == "displayId") {
         const QString id = bakeData.id;
         const PropertyName aliasProp = bakeData.aliasProp;
         if (aliasProp.isEmpty())
@@ -66,6 +72,9 @@ QVariant BakeLightsDataModel::data(const QModelIndex &index, int role) const
             return QVariant{id + " - " + QString::fromUtf8(aliasProp)};
         return {};
     }
+
+    if (roleName == "nodeId")
+        return bakeData.id;
 
     if (roleName == "isModel")
         return bakeData.isModel;
@@ -78,6 +87,9 @@ QVariant BakeLightsDataModel::data(const QModelIndex &index, int role) const
 
     if (roleName == "isTitle")
         return bakeData.isTitle;
+
+    if (roleName == "isUnexposed")
+        return bakeData.isUnexposed;
 
     if (roleName == "resolution")
         return bakeData.resolution;
@@ -138,11 +150,15 @@ void BakeLightsDataModel::reset()
     QList<BakeData> lightList;
     QList<BakeData> compModelList;
     QList<BakeData> compLightList;
+    QList<BakeData> unexposedList;
 
     // Note: We are always loading base state values for baking. If users want to bake
     // differently for different states, they need to setup things manually for now.
     // Same goes if they want to use any unusual bindings in baking properties.
     for (const auto &node : std::as_const(nodes)) {
+        if (QmlObjectNode(node).hasError())
+            continue;
+
         BakeData data;
         data.id = node.id();
         if (data.id.isEmpty())
@@ -177,6 +193,7 @@ void BakeLightsDataModel::reset()
         if (node.isComponent()) {
             // Every component can expose multiple aliases
             // We ignore baking properties defined inside the component (no visibility there)
+            bool hasExposedProps = false;
             const QList<AbstractProperty> props = node.properties();
             PropertyMetaInfos metaInfos = node.metaInfo().properties();
             for (const PropertyMetaInfo &mi : metaInfos) {
@@ -185,6 +202,7 @@ void BakeLightsDataModel::reset()
                     propData.id = data.id;
                     propData.aliasProp = mi.name();
                     if (mi.propertyType().isQtQuick3DModel()) {
+                        hasExposedProps = true;
                         propData.isModel = true;
                         PropertyName dotName = mi.name() + '.';
                         for (const AbstractProperty &prop : props) {
@@ -207,6 +225,7 @@ void BakeLightsDataModel::reset()
                         }
                         compModelList.append(propData);
                     } else if (mi.propertyType().isQtQuick3DLight()) {
+                        hasExposedProps = true;
                         PropertyName dotName = mi.name() + '.';
                         for (const AbstractProperty &prop : props) {
                             if (prop.name().startsWith(dotName)) {
@@ -224,6 +243,22 @@ void BakeLightsDataModel::reset()
                     }
                 }
             }
+
+            if (!hasExposedProps && node.metaInfo().isFileComponent()
+                && node.metaInfo().isQtQuick3DNode()) {
+                const QString compFile = node.metaInfo().componentFileName();
+                const QString projPath = m_view->externalDependencies().currentProjectDirPath();
+                if (compFile.startsWith(projPath)) {
+                    // Quick and dirty scan of the component source to check if it potentially has
+                    // models or lights.
+                    QByteArray src = Utils::FilePath::fromString(compFile).fileContents().value();
+                    src = src.mid(src.indexOf('{')); // Skip root element
+                    if (src.contains("Model {") || src.contains("Light {")) {
+                        data.isUnexposed = true;
+                        unexposedList.append(data);
+                    }
+                }
+            }
         }
     }
 
@@ -237,6 +272,7 @@ void BakeLightsDataModel::reset()
     sortList(lightList);
     sortList(compModelList);
     sortList(compLightList);
+    sortList(unexposedList);
 
     BakeData titleData;
     titleData.isTitle = true;
@@ -248,6 +284,12 @@ void BakeLightsDataModel::reset()
     m_dataList.append(titleData);
     m_dataList.append(modelList);
     m_dataList.append(compModelList);
+
+    if (!unexposedList.isEmpty()) {
+        titleData.id = tr("Components with unexposed models and/or lights");
+        m_dataList.append(titleData);
+        m_dataList.append(unexposedList);
+    }
 
     endResetModel();
 }
@@ -301,32 +343,20 @@ void BakeLightsDataModel::apply()
             node.variantProperty(resolvedName).setValue(value);
     };
 
-    auto setResolution = [setVariantProp](const ModelNode &node, const BakeData &data) {
-        setVariantProp(node, "lightmapBaseResolution", data.aliasProp, data.resolution, 1024);
-    };
-
-    auto setInUse = [setVariantProp](const ModelNode &node, const BakeData &data) {
-        setVariantProp(node, "usedInBakedLighting", data.aliasProp, data.inUse, false);
-    };
-
-    auto setBakeMode = [setVariantProp](const ModelNode &node, const BakeData &data) {
-        setVariantProp(node, "bakeMode", data.aliasProp,
-                       QVariant::fromValue(QmlDesigner::Enumeration(data.bakeMode)),
-                       QVariant::fromValue(QmlDesigner::Enumeration("Light", "BakeModeDisabled")));
-    };
-
     // Commits changes to scene model
     m_view->executeInTransaction(__FUNCTION__, [&]() {
         for (const BakeData &data : std::as_const(m_dataList)) {
-            if (data.isTitle)
+            if (data.isTitle || data.isUnexposed)
                 continue;
             ModelNode node = m_view->modelNodeForId(data.id);
             if (data.isModel) {
                 setBakedLightmap(node, data);
-                setResolution(node, data);
-                setInUse(node, data);
+                setVariantProp(node, "lightmapBaseResolution", data.aliasProp, data.resolution, 1024);
+                setVariantProp(node, "usedInBakedLighting", data.aliasProp, data.inUse, false);
             } else {
-                setBakeMode(node, data);
+                setVariantProp(node, "bakeMode", data.aliasProp,
+                               QVariant::fromValue(QmlDesigner::Enumeration(data.bakeMode)),
+                               QVariant::fromValue(QmlDesigner::Enumeration("Light", "BakeModeDisabled")));
             }
         }
     });

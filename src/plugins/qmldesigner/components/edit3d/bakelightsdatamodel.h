@@ -18,12 +18,13 @@ class BakeLightsDataModel : public QAbstractListModel
 
 public:
     struct BakeData {
-        QString id;             // node id. Also used as BakedLightmap.key
-        PropertyName aliasProp; // property id for component exposed models/lights
-        bool isModel = false;   // false means light
+        QString id;               // node id. Also used as BakedLightmap.key
+        PropertyName aliasProp;   // property id for component exposed models/lights
+        bool isModel = false;     // false means light
         bool enabled = false;
         bool inUse = false;
-        bool isTitle = false;   // if true, indicates a title row in UI
+        bool isTitle = false;     // if true, indicates a title row in UI
+        bool isUnexposed = false; // if true, indicates a component with unexposed models/lights
         int resolution = 1024;
         QString bakeMode;
     };

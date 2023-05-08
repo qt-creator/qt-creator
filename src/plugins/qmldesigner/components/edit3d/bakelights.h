@@ -32,6 +32,7 @@ public:
     Q_INVOKABLE void bakeLights();
     Q_INVOKABLE void apply();
     Q_INVOKABLE void rebake();
+    Q_INVOKABLE void exposeModelsAndLights(const QString &nodeId);
 
     void raiseDialog();
 

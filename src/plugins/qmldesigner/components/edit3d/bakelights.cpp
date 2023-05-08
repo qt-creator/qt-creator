@@ -6,6 +6,7 @@
 #include "abstractview.h"
 #include "bakelightsdatamodel.h"
 #include "bakelightsconnectionmanager.h"
+#include "bindingproperty.h"
 #include "documentmanager.h"
 #include "modelnode.h"
 #include "nodeabstractproperty.h"
@@ -15,17 +16,20 @@
 #include "rewriterview.h"
 #include "variantproperty.h"
 
+#include <coreplugin/icore.h>
+
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
-#include <coreplugin/icore.h>
-
 #include <QEvent>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickView>
+#include <QSaveFile>
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QTimer>
@@ -212,6 +216,85 @@ void BakeLights::rebake()
         cleanup();
         showSetupDialog();
     });
+}
+
+void BakeLights::exposeModelsAndLights(const QString &nodeId)
+{
+    ModelNode compNode = m_view->modelNodeForId(nodeId);
+    if (!compNode.isValid() || !compNode.isComponent()
+        || compNode.metaInfo().componentFileName().isEmpty()) {
+        return;
+    }
+
+    RewriterView rewriter{m_view->externalDependencies(), RewriterView::Amend};
+    ModelPointer compModel = QmlDesigner::Model::create("QtQuick/Item", 2, 1);
+    const QString compFile = compNode.metaInfo().componentFileName();
+    const Utils::FilePath compFilePath = Utils::FilePath::fromString(compFile);
+    QByteArray src = compFilePath.fileContents().value();
+
+    compModel->setFileUrl(QUrl::fromLocalFile(compFile));
+
+    auto textDocument = std::make_unique<QTextDocument>(QString::fromUtf8(src));
+    auto modifier = std::make_unique<IndentingTextEditModifier>(
+        textDocument.get(), QTextCursor{textDocument.get()});
+
+    rewriter.setTextModifier(modifier.get());
+    compModel->setRewriterView(&rewriter);
+
+    if (!rewriter.rootModelNode().isValid() || !rewriter.errors().isEmpty())
+        return;
+
+    QString originalText = modifier->text();
+    QStringList idList;
+
+    rewriter.executeInTransaction(__FUNCTION__, [&]() {
+        QList<ModelNode> nodes = rewriter.rootModelNode().allSubModelNodes();
+        for (ModelNode &node : nodes) {
+            if (node.metaInfo().isQtQuick3DModel() || node.metaInfo().isQtQuick3DLight()) {
+                QString idStr = node.id();
+                if (idStr.isEmpty()) {
+                    const QString type = node.metaInfo().isQtQuick3DModel() ? "model" : "light";
+                    idStr = compModel->generateNewId(type);
+                    node.setIdWithoutRefactoring(idStr);
+                }
+                idList.append(idStr);
+            }
+        }
+    });
+
+    rewriter.executeInTransaction(__FUNCTION__, [&]() {
+        for (const QString &id : std::as_const(idList)) {
+            ModelNode node = rewriter.modelNodeForId(id);
+            if (!node.isValid())
+                continue;
+            rewriter.rootModelNode().bindingProperty(id.toUtf8())
+                .setDynamicTypeNameAndExpression("alias", id);
+        }
+    });
+
+    rewriter.forceAmend();
+
+    QString newText = modifier->text();
+    if (newText != originalText) {
+        QSaveFile saveFile(compFile);
+        if (saveFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            saveFile.write(newText.toUtf8());
+            saveFile.commit();
+        } else {
+            qWarning() << __FUNCTION__ << "Failed to save changes to:" << compFile;
+        }
+    }
+
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    QmlJS::Document::Ptr doc = rewriter.document()->ptr();
+    modelManager->updateDocument(doc);
+
+    m_view->model()->rewriterView()->forceAmend();
+
+    compModel->setRewriterView({});
+
+    // Rebake to relaunch setup dialog with updated properties
+    rebake();
 }
 
 void BakeLights::showSetupDialog()

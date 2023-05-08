@@ -44,25 +44,42 @@ Rectangle {
                 anchors.margins: 4
 
                 clip: true
-
                 model: bakeModel
                 spacing: 5
 
                 delegate: Row {
                     spacing: 12
-
                     enabled: !manualCheckBox.checked
 
                     Text {
-                        text: nodeId
+                        text: displayId
                         color: StudioTheme.Values.themeTextColor
-                        width: 200
+                        width: isTitle ? listView.width : listView.width - 320
+
                         clip: true
                         font.bold: isTitle
                         verticalAlignment: Qt.AlignVCenter
                         horizontalAlignment: Qt.AlignLeft
                         height: bakeModeCombo.height
                         leftPadding: isTitle ? 0 : 8
+
+                        ToolTipArea {
+                            anchors.fill: parent
+                            tooltip: displayId // Useful for long ids
+                        }
+                    }
+
+                    Button {
+                        visible: isUnexposed
+                        text: qsTr("Expose models and lights")
+                        leftPadding: StudioTheme.Values.dialogButtonPadding
+                        rightPadding: StudioTheme.Values.dialogButtonPadding
+                        height: bakeModeCombo.height
+                        onClicked: {
+                            if (!manualCheckBox.checked)
+                                rootView.apply()
+                            rootView.exposeModelsAndLights(nodeId)
+                        }
                     }
 
                     StudioControls.ComboBox {
@@ -73,7 +90,7 @@ Rectangle {
                             ListElement { text: qsTr("Bake All"); value: "Light.BakeModeAll" }
                         }
 
-                        visible: !isModel && !isTitle
+                        visible: !isModel && !isTitle && !isUnexposed
                         textRole: "text"
                         valueRole: "value"
                         currentIndex: bakeMode === "Light.BakeModeAll"
@@ -88,7 +105,7 @@ Rectangle {
                     }
 
                     StudioControls.CheckBox {
-                        visible: isModel && !isTitle
+                        visible: isModel && !isTitle && !isUnexposed
                         checked: inUse
                         text: qsTr("In Use")
                         actionIndicatorVisible: false
@@ -101,7 +118,7 @@ Rectangle {
                     }
 
                     StudioControls.CheckBox {
-                        visible: isModel && !isTitle
+                        visible: isModel && !isTitle && !isUnexposed
                         checked: isEnabled
                         text: qsTr("Enabled")
                         actionIndicatorVisible: false
@@ -116,7 +133,7 @@ Rectangle {
                     Row {
                         width: resolutionLabel.width + resolutionValue.width + StudioTheme.Values.sectionRowSpacing
                         spacing: StudioTheme.Values.sectionRowSpacing
-                        visible: isModel && !isTitle
+                        visible: isModel && !isTitle && !isUnexposed
                         Text {
                             id: resolutionLabel
                             text: qsTr("Resolution:")
@@ -170,7 +187,8 @@ Rectangle {
                 Button {
                     id: cancelButton
                     text: qsTr("Cancel")
-                    anchors.margins: StudioTheme.Values.dialogButtonPadding
+                    leftPadding: StudioTheme.Values.dialogButtonPadding
+                    rightPadding: StudioTheme.Values.dialogButtonPadding
                     height: manualCheckBox.height
                     onClicked: rootView.cancel()
                 }
@@ -178,7 +196,8 @@ Rectangle {
                 Button {
                     id: applyButton
                     text: qsTr("Apply & Close")
-                    anchors.margins: StudioTheme.Values.dialogButtonPadding
+                    leftPadding: StudioTheme.Values.dialogButtonPadding
+                    rightPadding: StudioTheme.Values.dialogButtonPadding
                     height: manualCheckBox.height
                     onClicked: {
                         if (!manualCheckBox.checked)
@@ -190,7 +209,8 @@ Rectangle {
                 Button {
                     id: bakeButton
                     text: qsTr("Bake")
-                    anchors.margins: StudioTheme.Values.dialogButtonPadding
+                    leftPadding: StudioTheme.Values.dialogButtonPadding
+                    rightPadding: StudioTheme.Values.dialogButtonPadding
                     height: manualCheckBox.height
                     onClicked: {
                         if (!manualCheckBox.checked)
