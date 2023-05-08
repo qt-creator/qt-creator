@@ -122,6 +122,9 @@ void BuildCMakeTargetLocatorFilter::accept(const Core::LocatorFilterEntry &selec
         || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
+    if (BuildManager::isBuilding(cmakeProject))
+        BuildManager::cancel();
+
     // Find the make step
     BuildStepList *buildStepList =
             cmakeProject->activeTarget()->activeBuildConfiguration()->buildSteps();
