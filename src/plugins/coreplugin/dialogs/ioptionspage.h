@@ -40,13 +40,13 @@ private:
     std::function<void()> m_onFinish;
 };
 
-class CORE_EXPORT IOptionsPage : public QObject
+class CORE_EXPORT IOptionsPage
 {
-    Q_OBJECT
+    Q_DISABLE_COPY_MOVE(IOptionsPage)
 
 public:
     explicit IOptionsPage(bool registerGlobally = true);
-    ~IOptionsPage() override;
+    virtual ~IOptionsPage();
 
     static const QList<IOptionsPage *> allOptionsPages();
 
