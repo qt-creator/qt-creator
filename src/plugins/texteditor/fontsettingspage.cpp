@@ -119,7 +119,6 @@ public:
         m_zoomSpinBox->setValue(m_value.fontZoom());
 
         m_lineSpacingSpinBox = new QSpinBox;
-        m_lineSpacingSpinBox->setObjectName(QLatin1String("FontSettingsPage.LineSpacingSpinBox"));
         m_lineSpacingSpinBox->setSuffix(Tr::tr("%"));
         m_lineSpacingSpinBox->setRange(50, 3000);
         m_lineSpacingSpinBox->setValue(m_value.relativeLineSpacing());
