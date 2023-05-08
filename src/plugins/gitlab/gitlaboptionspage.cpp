@@ -134,18 +134,6 @@ class GitLabOptionsWidget : public Core::IOptionsPageWidget
 public:
     explicit GitLabOptionsWidget(GitLabOptionsPage *page, GitLabParameters *parameters);
 
-    GitLabParameters parameters() const;
-
-    void apply() final
-    {
-        GitLabParameters newParameters = parameters();
-        if (newParameters != *m_parameters) {
-            *m_parameters = newParameters;
-            m_parameters->toSettings(Core::ICore::settings());
-            emit m_page->settingsChanged();
-        }
-    }
-
 private:
     void showEditServerDialog();
     void showAddServerDialog();
@@ -154,7 +142,6 @@ private:
     void modifyCurrentServer(const GitLabServer &newServer);
     void updateButtonsState();
 
-    GitLabOptionsPage *m_page = nullptr;
     GitLabParameters *m_parameters = nullptr;
     GitLabServerWidget *m_gitLabServerWidget = nullptr;
     QPushButton *m_edit = nullptr;
@@ -165,7 +152,7 @@ private:
 };
 
 GitLabOptionsWidget::GitLabOptionsWidget(GitLabOptionsPage *page, GitLabParameters *params)
-    : m_page(page), m_parameters(params)
+    : m_parameters(params)
 {
     auto defaultLabel = new QLabel(Tr::tr("Default:"), this);
     m_defaultGitLabServer = new QComboBox(this);
@@ -213,18 +200,22 @@ GitLabOptionsWidget::GitLabOptionsWidget(GitLabOptionsPage *page, GitLabParamete
         m_gitLabServerWidget->setGitLabServer(
                     m_defaultGitLabServer->currentData().value<GitLabServer>());
     });
-}
 
-GitLabParameters GitLabOptionsWidget::parameters() const
-{
-    GitLabParameters result;
-    // get all configured gitlabservers
-    for (int i = 0, end = m_defaultGitLabServer->count(); i < end; ++i)
-        result.gitLabServers.append(m_defaultGitLabServer->itemData(i).value<GitLabServer>());
-    if (m_defaultGitLabServer->count())
-        result.defaultGitLabServer = m_defaultGitLabServer->currentData().value<GitLabServer>().id;
-    result.curl = m_curl.filePath();
-    return result;
+    setOnApply([page, this] {
+        GitLabParameters result;
+        // get all configured gitlabservers
+        for (int i = 0, end = m_defaultGitLabServer->count(); i < end; ++i)
+            result.gitLabServers.append(m_defaultGitLabServer->itemData(i).value<GitLabServer>());
+        if (m_defaultGitLabServer->count())
+            result.defaultGitLabServer = m_defaultGitLabServer->currentData().value<GitLabServer>().id;
+        result.curl = m_curl.filePath();
+
+        if (result != *m_parameters) {
+            *m_parameters = result;
+            m_parameters->toSettings(Core::ICore::settings());
+            emit page->settingsChanged();
+        }
+    });
 }
 
 void GitLabOptionsWidget::showEditServerDialog()
