@@ -572,9 +572,6 @@ public:
         selectorView->setObjectName("ProjectSelector"); // Needed for dock widget state saving
         selectorView->setWindowTitle(Tr::tr("Project Selector"));
         selectorView->setAutoFillBackground(true);
-        selectorView->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(selectorView, &QWidget::customContextMenuRequested,
-                this, &ProjectWindowPrivate::openContextMenu);
 
         auto activeLabel = new QLabel(Tr::tr("Active Project"));
         QFont font = activeLabel->font();
