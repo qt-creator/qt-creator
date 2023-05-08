@@ -414,7 +414,8 @@ void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSetti
 
 void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(ICodeStylePreferences *preferences, bool preview)
 {
-    const bool enable = !preferences->isReadOnly() && !preferences->isTemporarilyReadOnly();
+    const bool enable = !preferences->isReadOnly() && (!preferences->isTemporarilyReadOnly()
+                                                       || preferences->isAdditionalTabDisabled());
     for (QWidget *widget : d->m_controllers)
         widget->setEnabled(enable);
 

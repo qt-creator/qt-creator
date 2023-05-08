@@ -153,9 +153,20 @@ void ClangFormatGlobalConfigWidget::initOverrideCheckBox()
                                                 "can be overridden by the settings below."));
     }
 
-    auto setEnableOverrideCheckBox = [this](int index) {
+    auto setTemporarilyReadOnly = [this]() {
+        if (m_ignoreChanges.isLocked())
+            return;
+        Utils::GuardLocker locker(m_ignoreChanges);
+        m_codeStyle->currentPreferences()->setTemporarilyReadOnly(!m_overrideDefault->isChecked());
+        m_codeStyle->currentPreferences()->setIsAdditionalTabDisabled(!m_overrideDefault->isEnabled());
+        ClangFormatSettings::instance().write();
+        emit m_codeStyle->currentPreferencesChanged(m_codeStyle->currentPreferences());
+    };
+
+    auto setEnableOverrideCheckBox = [this, setTemporarilyReadOnly](int index) {
         bool isDisable = index == static_cast<int>(ClangFormatSettings::Mode::Disable);
         m_overrideDefault->setDisabled(isDisable);
+        setTemporarilyReadOnly();
     };
 
     setEnableOverrideCheckBox(m_indentingOrFormatting->currentIndex());
@@ -166,20 +177,19 @@ void ClangFormatGlobalConfigWidget::initOverrideCheckBox()
         Tr::tr("Override Clang Format configuration file with the chosen configuration."));
 
     m_overrideDefault->setChecked(getProjectOverriddenSettings(m_project));
-    m_codeStyle->currentPreferences()->setTemporarilyReadOnly(!m_overrideDefault->isChecked());
+    setTemporarilyReadOnly();
 
-    connect(m_overrideDefault, &QCheckBox::toggled, this, [this](bool checked) {
+    connect(m_overrideDefault, &QCheckBox::toggled, this, [this, setTemporarilyReadOnly](bool checked) {
         if (m_project)
             m_project->setNamedSettings(Constants::OVERRIDE_FILE_ID, checked);
-        else {
-            m_codeStyle->currentPreferences()->setTemporarilyReadOnly(!checked);
-            emit m_codeStyle->currentPreferencesChanged(m_codeStyle->currentPreferences());
-        }
+        else
+            setTemporarilyReadOnly();
     });
 
-    connect(m_codeStyle, &TextEditor::ICodeStylePreferences::currentPreferencesChanged, this, [this] {
-        m_codeStyle->currentPreferences()->setTemporarilyReadOnly(!m_overrideDefault->isChecked());
-    });
+    connect(m_codeStyle,
+            &TextEditor::ICodeStylePreferences::currentPreferencesChanged,
+            this,
+            setTemporarilyReadOnly);
 }
 
 
