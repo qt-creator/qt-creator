@@ -162,7 +162,7 @@
                                 \list
                                     \li \l{Setting Up Qt Bridge for Figma}
                                     \li \l{Using Qt Bridge for Figma}
-                                    \li \l{Using Figma Quick Control Template in Qt Design Studio}
+                                    \li \l{Using Figma Quick Control Template Components in Qt Design Studio}
                                 \endlist
                         \endlist
                         \li \l {Exporting 3D Assets}
