@@ -5,8 +5,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QFuture>
-
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
 QT_END_NAMESPACE
@@ -44,9 +42,6 @@ signals:
     void submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *e, bool *result);
 
 private:
-    void slotSettingsChanged();
-    void populateNickNameModel();
-
     class VcsPluginPrivate *d = nullptr;
 };
 
