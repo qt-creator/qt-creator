@@ -14,11 +14,6 @@ namespace CppEditor {
 
 CppEditorDocumentHandle::~CppEditorDocumentHandle() = default;
 
-SendDocumentTracker &CppEditorDocumentHandle::sendTracker()
-{
-    return m_sendTracker;
-}
-
 CppEditorDocumentHandle::RefreshReason CppEditorDocumentHandle::refreshReason() const
 {
     return m_refreshReason;

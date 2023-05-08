@@ -49,7 +49,6 @@
 #include "functionutils.h"
 #include "includeutils.h"
 #include "projectinfo_test.h"
-#include "senddocumenttracker.h"
 #include "symbolsearcher_test.h"
 #include "typehierarchybuilder_test.h"
 #endif
@@ -486,7 +485,6 @@ void CppEditorPlugin::initialize()
     addTest<ProjectFileCategorizerTest>();
     addTest<ProjectInfoGeneratorTest>();
     addTest<ProjectPartChooserTest>();
-    addTest<DocumentTrackerTest>();
     addTest<SourceProcessorTest>();
     addTest<SymbolSearcherTest>();
     addTest<TypeHierarchyBuilderTest>();
