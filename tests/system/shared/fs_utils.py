@@ -30,7 +30,7 @@ def changeFilePermissions(dirPath, readPerm, writePerm, excludeFileNames=None):
             os.chmod(filePath, permission)
         except:
             t,v = sys.exc_info()[:2]
-            test.log("Error: %s(%s)" % (str(t), str(v)))
+            test.log("%s: %s" % (t.__name__, str(v)))
             result = False
     return result
 

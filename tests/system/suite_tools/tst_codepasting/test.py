@@ -34,8 +34,8 @@ def closeHTTPStatusAndPasterDialog(protocol, pasterDialog):
         test.log("Closed dialog without expected error.", text)
     except:
         t,v = sys.exc_info()[:2]
-        test.warning("An exception occurred in closeHTTPStatusAndPasterDialog(): %s(%s)"
-                     % (str(t), str(v)))
+        test.warning("An exception occurred in closeHTTPStatusAndPasterDialog(): %s: %s"
+                     % (t.__name__, str(v)))
     return False
 
 def pasteFile(sourceFile, protocol):
@@ -167,7 +167,7 @@ def checkForMovedUrl():  # protocol may be redirected (HTTP status 30x) - check 
             test.fail("URL has moved permanently.", match[0].group(0))
     except:
         t,v,tb = sys.exc_info()
-        test.log(str(t), str(v))
+        test.log("%s: %s" % (t.__name__, str(v)))
 
 def main():
     startQC()

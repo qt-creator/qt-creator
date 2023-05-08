@@ -16,7 +16,7 @@ def startCreatorVerifyingClang(useClang):
         if strv == "startApplication() failed":
             test.fatal("%s. Creator built without ClangCodeModel?" % strv)
         else:
-            test.fatal("Exception caught", "%s(%s)" % (str(t), strv))
+            test.fatal("Exception caught", "%s: %s" % (t.__name__, strv))
         return False
     if platform.system() not in ('Microsoft', 'Windows'): # only Win uses dialogs for this
         return startedWithoutPluginError()

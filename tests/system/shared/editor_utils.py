@@ -67,7 +67,7 @@ def menuVisibleAtEditor(editor, menuInList):
         return success
     except:
         t, v = sys.exc_info()[:2]
-        test.log("Exception: %s" % str(t), str(v))
+        test.log("Exception: %s" % t.__name__, str(v))
         return False
 
 # this function checks whether the given global point (QPoint)
@@ -413,7 +413,7 @@ def openDocument(treeElement):
         return False
     except:
         t,v = sys.exc_info()[:2]
-        test.log("An exception occurred in openDocument(): %s(%s)" % (str(t), str(v)))
+        test.log("An exception occurred in openDocument(): %s: %s" % (t.__name__, str(v)))
         return False
 
 def earlyExit(details="No additional information"):
