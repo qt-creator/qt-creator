@@ -6,10 +6,13 @@
 #include "builtincursorinfo.h"
 #include "cppchecksymbols.h"
 #include "cppcodemodelsettings.h"
+#include "cppeditordocument.h"
 #include "cppeditorplugin.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
+
+#include <coreplugin/editormanager/documentmodel.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>
@@ -265,11 +268,20 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
     QTC_CHECK(source.snapshot.contains(document->filePath()));
     m_semanticInfoUpdater.updateDetached(source);
 
-    const Utils::FilePaths deps
-        = CppModelManager::instance()->snapshot().filesDependingOn(document->filePath());
-    for (const Utils::FilePath &dep : deps) {
-        if (const auto processor = CppModelManager::cppEditorDocumentProcessor(dep))
-            processor->run();
+    const QList<Core::IDocument *> openDocuments = Core::DocumentModel::openedDocuments();
+    for (Core::IDocument * const openDocument : openDocuments) {
+        const auto cppEditorDoc = qobject_cast<Internal::CppEditorDocument *>(openDocument);
+        if (!cppEditorDoc)
+            continue;
+        if (cppEditorDoc->filePath() == document->filePath())
+            continue;
+        CPlusPlus::Document::Ptr cppDoc = CppModelManager::instance()->document(
+            cppEditorDoc->filePath());
+        if (!cppDoc)
+            continue;
+        if (!cppDoc->includedFiles().contains(document->filePath()))
+            continue;
+        cppEditorDoc->scheduleProcessDocument();
     }
 }
 
