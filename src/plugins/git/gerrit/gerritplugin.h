@@ -29,11 +29,12 @@ class GerritServer;
 class GerritPlugin : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit GerritPlugin(QObject *parent = nullptr);
+    GerritPlugin();
     ~GerritPlugin() override;
 
-    void initialize(Core::ActionContainer *ac);
+    void addToMenu(Core::ActionContainer *ac);
 
     static Utils::FilePath gitBinDirectory();
     static QString branch(const Utils::FilePath &repository);

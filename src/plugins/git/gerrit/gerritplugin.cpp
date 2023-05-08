@@ -152,16 +152,15 @@ void FetchContext::checkout()
     GitClient::instance()->checkout(m_repository, "FETCH_HEAD");
 }
 
-GerritPlugin::GerritPlugin(QObject *parent)
-    : QObject(parent)
-    , m_parameters(new GerritParameters)
+GerritPlugin::GerritPlugin()
+    : m_parameters(new GerritParameters)
     , m_server(new GerritServer)
 {
 }
 
 GerritPlugin::~GerritPlugin() = default;
 
-void GerritPlugin::initialize(ActionContainer *ac)
+void GerritPlugin::addToMenu(ActionContainer *ac)
 {
     m_parameters->fromSettings(ICore::settings());
 

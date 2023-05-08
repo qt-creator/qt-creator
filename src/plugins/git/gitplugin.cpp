@@ -418,7 +418,7 @@ public:
     QVector<ParameterAction *> m_projectActions;
     QVector<QAction *> m_repositoryActions;
     ParameterAction *m_applyCurrentFilePatchAction = nullptr;
-    Gerrit::Internal::GerritPlugin *m_gerritPlugin = nullptr;
+    Gerrit::Internal::GerritPlugin m_gerritPlugin;
 
     GitSettings m_settings;
     GitClient m_gitClient{&m_settings};
@@ -1065,10 +1065,9 @@ GitPluginPrivate::GitPluginPrivate()
             this, &GitPluginPrivate::updateBranches, Qt::QueuedConnection);
 
     /* "Gerrit" */
-    m_gerritPlugin = new Gerrit::Internal::GerritPlugin(this);
-    m_gerritPlugin->initialize(remoteRepositoryMenu);
-    m_gerritPlugin->updateActions(currentState());
-    m_gerritPlugin->addToLocator(m_commandLocator);
+    m_gerritPlugin.addToMenu(remoteRepositoryMenu);
+    m_gerritPlugin.updateActions(currentState());
+    m_gerritPlugin.addToLocator(m_commandLocator);
 
     connect(&m_settings, &AspectContainer::applied, this, &GitPluginPrivate::onApplySettings);
 
@@ -1927,7 +1926,7 @@ void GitPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
     updateContinueAndAbortCommands();
     updateRepositoryBrowserAction();
 
-    m_gerritPlugin->updateActions(state);
+    m_gerritPlugin.updateActions(state);
 }
 
 void GitPluginPrivate::updateContinueAndAbortCommands()
@@ -1965,7 +1964,7 @@ void GitPluginPrivate::updateContinueAndAbortCommands()
 
 void GitPluginPrivate::delayedPushToGerrit()
 {
-    m_gerritPlugin->push(m_submitRepository);
+    m_gerritPlugin.push(m_submitRepository);
 }
 
 void GitPluginPrivate::updateBranches(const FilePath &repository)
@@ -2172,7 +2171,7 @@ void GitPlugin::updateBranches(const FilePath &repository)
 
 void GitPlugin::gerritPush(const FilePath &topLevel)
 {
-    dd->m_gerritPlugin->push(topLevel);
+    dd->m_gerritPlugin.push(topLevel);
 }
 
 bool GitPlugin::isCommitEditorOpen()
