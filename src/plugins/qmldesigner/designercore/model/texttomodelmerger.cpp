@@ -284,7 +284,7 @@ bool isComponentType(const QmlDesigner::TypeName &type)
 {
     return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component"
            || type == "QtQml.Component" || type == "<cpp>.QQmlComponent" || type == "QQmlComponent"
-           || type == "QML.Component";
+           || type == "QML.Component" || type == "QtQml.Base.Component";
 }
 
 bool isCustomParserType(const QmlDesigner::TypeName &type)
@@ -304,7 +304,8 @@ bool isPropertyChangesType(const QmlDesigner::TypeName &type)
 
 bool isConnectionsType(const QmlDesigner::TypeName &type)
 {
-    return type == "Connections" || type == "QtQuick.Connections" || type == "Qt.Connections" || type == "QtQml.Connections";
+    return type == "Connections" || type == "QtQuick.Connections" || type == "Qt.Connections"
+           || type == "QtQml.Connections" || type == "QtQml.Base.Connections";
 }
 
 bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, const QmlDesigner::TypeName &type, QmlDesigner::Model *model)
