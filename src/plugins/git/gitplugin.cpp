@@ -776,13 +776,11 @@ GitPluginPrivate::GitPluginPrivate()
 
     createProjectAction(currentProjectMenu, Tr::tr("Diff Current Project", "Avoid translating \"Diff\""),
                         Tr::tr("Diff Project \"%1\"", "Avoid translating \"Diff\""),
-                        "Git.DiffProject", context, true, &GitPluginPrivate::diffCurrentProject,
-                        QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+Shift+D") : Tr::tr("Alt+G,Alt+Shift+D")));
+                        "Git.DiffProject", context, true, &GitPluginPrivate::diffCurrentProject);
 
     createProjectAction(currentProjectMenu, Tr::tr("Log Project", "Avoid translating \"Log\""),
                         Tr::tr("Log Project \"%1\"", "Avoid translating \"Log\""),
-                        "Git.LogProject", context, true, &GitPluginPrivate::logProject,
-                        QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+K") : Tr::tr("Alt+G,Alt+K")));
+                        "Git.LogProject", context, true, &GitPluginPrivate::logProject);
 
     createProjectAction(currentProjectMenu, Tr::tr("Clean Project...", "Avoid translating \"Clean\""),
                         Tr::tr("Clean Project \"%1\"...", "Avoid translating \"Clean\""),
@@ -795,10 +793,12 @@ GitPluginPrivate::GitPluginPrivate()
     gitContainer->addMenu(localRepositoryMenu);
 
     createRepositoryAction(localRepositoryMenu, "Diff", "Git.DiffRepository",
-                           context, true, &GitClient::diffRepository);
+                           context, true, &GitClient::diffRepository,
+                           QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+Shift+D") : Tr::tr("Alt+G,Alt+Shift+D")));
 
     createRepositoryAction(localRepositoryMenu, "Log", "Git.LogRepository",
-                           context, true, std::bind(&GitPluginPrivate::logRepository, this));
+                           context, true, std::bind(&GitPluginPrivate::logRepository, this),
+                           QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+K") : Tr::tr("Alt+G,Alt+K")));
 
     createRepositoryAction(localRepositoryMenu, "Reflog", "Git.ReflogRepository",
                            context, true, std::bind(&GitPluginPrivate::reflogRepository, this));
