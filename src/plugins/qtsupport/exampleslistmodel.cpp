@@ -29,6 +29,7 @@
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 
+#include <QLoggingCategory>
 #include <algorithm>
 #include <memory>
 
@@ -37,6 +38,8 @@ using namespace Utils;
 
 namespace QtSupport {
 namespace Internal {
+
+static QLoggingCategory log = QLoggingCategory("qtc.examples", QtWarningMsg);
 
 static bool debugExamples()
 {
@@ -64,16 +67,16 @@ int ExampleSetModel::readCurrentIndexFromSettings() const
 
 ExampleSetModel::ExampleSetModel()
 {
+    if (debugExamples() && !log().isDebugEnabled())
+        log().setEnabled(QtDebugMsg, true);
     // read extra example sets settings
     QSettings *settings = Core::ICore::settings();
     const QStringList list = settings->value("Help/InstalledExamples", QStringList()).toStringList();
-    if (debugExamples())
-        qWarning() << "Reading Help/InstalledExamples from settings:" << list;
+    qCDebug(log) << "Reading Help/InstalledExamples from settings:" << list;
     for (const QString &item : list) {
         const QStringList &parts = item.split(QLatin1Char('|'));
         if (parts.size() < 3) {
-            if (debugExamples())
-                qWarning() << "Item" << item << "has less than 3 parts (separated by '|'):" << parts;
+            qCDebug(log) << "Item" << item << "has less than 3 parts (separated by '|'):" << parts;
             continue;
         }
         ExtraExampleSet set;
@@ -82,15 +85,13 @@ ExampleSetModel::ExampleSetModel()
         set.examplesPath = parts.at(2);
         QFileInfo fi(set.manifestPath);
         if (!fi.isDir() || !fi.isReadable()) {
-            if (debugExamples())
-                qWarning() << "Manifest path " << set.manifestPath << "is not a readable directory, ignoring";
+            qCDebug(log) << "Manifest path " << set.manifestPath
+                         << "is not a readable directory, ignoring";
             continue;
         }
-        if (debugExamples()) {
-            qWarning() << "Adding examples set displayName=" << set.displayName
-                       << ", manifestPath=" << set.manifestPath
-                       << ", examplesPath=" << set.examplesPath;
-        }
+        qCDebug(log) << "Adding examples set displayName=" << set.displayName
+                     << ", manifestPath=" << set.manifestPath
+                     << ", examplesPath=" << set.examplesPath;
         if (!Utils::anyOf(m_extraExampleSets, [&set](const ExtraExampleSet &s) {
                 return FilePath::fromString(s.examplesPath).cleanPath()
                            == FilePath::fromString(set.examplesPath).cleanPath()
@@ -98,8 +99,8 @@ ExampleSetModel::ExampleSetModel()
                               == FilePath::fromString(set.manifestPath).cleanPath();
             })) {
             m_extraExampleSets.append(set);
-        } else if (debugExamples()) {
-            qWarning() << "Not adding, because example set with same directories exists";
+        } else {
+            qCDebug(log) << "Not adding, because example set with same directories exists";
         }
     }
     m_extraExampleSets += pluginRegisteredExampleSets();
@@ -138,11 +139,9 @@ void ExampleSetModel::recreateModel(const QtVersions &qtVersions)
         if (extraManifestDirs.contains(version->docsPath())) {
             m_extraExampleSets[extraManifestDirs.value(version->docsPath())].qtVersion
                 = version->qtVersion();
-            if (debugExamples()) {
-                qWarning() << "Not showing Qt version because manifest path is already added "
-                              "through InstalledExamples settings:"
-                           << version->displayName();
-            }
+            qCDebug(log) << "Not showing Qt version because manifest path is already added "
+                            "through InstalledExamples settings:"
+                         << version->displayName();
             continue;
         }
         auto newItem = new QStandardItem();
@@ -319,11 +318,11 @@ static bool isValidExampleOrDemo(ExampleItem *item)
     }
     if (!ok) {
         item->tags.append(QLatin1String("broken"));
-        if (debugExamples())
-            qWarning() << QString::fromLatin1("ERROR: Item \"%1\" broken: %2").arg(item->name, reason);
+        qCDebug(log) << QString::fromLatin1("ERROR: Item \"%1\" broken: %2").arg(item->name, reason);
     }
-    if (debugExamples() && item->description.isEmpty())
-        qWarning() << QString::fromLatin1("WARNING: Item \"%1\" has no description").arg(item->name);
+    if (item->description.isEmpty())
+        qCDebug(log) << QString::fromLatin1("WARNING: Item \"%1\" has no description")
+                            .arg(item->name);
     return ok || debugExamples();
 }
 
@@ -396,10 +395,8 @@ void ExamplesViewController::updateExamples()
     QList<ExampleItem *> items;
     for (const QString &exampleSource : sources) {
         const auto manifest = FilePath::fromUserInput(exampleSource);
-        if (debugExamples()) {
-            qWarning() << QString::fromLatin1("Reading file \"%1\"...")
-                              .arg(manifest.absoluteFilePath().toUserOutput());
-        }
+        qCDebug(log) << QString::fromLatin1("Reading file \"%1\"...")
+                            .arg(manifest.absoluteFilePath().toUserOutput());
 
         const expected_str<QList<ExampleItem *>> result
             = parseExamples(manifest,
@@ -407,10 +404,8 @@ void ExamplesViewController::updateExamples()
                             FilePath::fromUserInput(demosInstallPath),
                             m_isExamples);
         if (!result) {
-            if (debugExamples()) {
-                qWarning() << "ERROR: Could not read examples from" << exampleSource << ":"
-                           << result.error();
-            }
+            qCDebug(log) << "ERROR: Could not read examples from" << exampleSource << ":"
+                         << result.error();
             continue;
         }
         items += filtered(*result, isValidExampleOrDemo);
