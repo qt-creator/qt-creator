@@ -165,14 +165,6 @@ bool FileApiReader::isParsing() const
     return m_isParsing;
 }
 
-QSet<FilePath> FileApiReader::projectFilesToWatch() const
-{
-    return Utils::transform(
-                Utils::filtered(m_cmakeFiles,
-                                [](const CMakeFileInfo &info) { return !info.isGenerated; }),
-                [](const CMakeFileInfo &info) { return info.path;});
-}
-
 QList<CMakeBuildTarget> FileApiReader::takeBuildTargets(QString &errorMessage){
     Q_UNUSED(errorMessage)
 

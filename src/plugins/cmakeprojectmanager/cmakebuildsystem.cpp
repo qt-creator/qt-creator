@@ -872,13 +872,22 @@ void CMakeBuildSystem::checkAndReportError(QString &errorMessage)
     }
 }
 
+static QSet<FilePath> projectFilesToWatch(const QSet<CMakeFileInfo> &cmakeFiles)
+{
+    return Utils::transform(Utils::filtered(cmakeFiles,
+                                            [](const CMakeFileInfo &info) {
+                                                return !info.isGenerated;
+                                            }),
+                            [](const CMakeFileInfo &info) { return info.path; });
+}
+
 void CMakeBuildSystem::updateProjectData()
 {
     qCDebug(cmakeBuildSystemLog) << "Updating CMake project data";
 
     QTC_ASSERT(m_treeScanner.isFinished() && !m_reader.isParsing(), return );
 
-    buildConfiguration()->project()->setExtraProjectFiles(m_reader.projectFilesToWatch());
+    buildConfiguration()->project()->setExtraProjectFiles(projectFilesToWatch(m_cmakeFiles));
 
     CMakeConfig patchedConfig = configurationFromCMake();
     {
