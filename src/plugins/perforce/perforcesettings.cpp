@@ -206,24 +206,24 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
     setSettings(settings);
 
-    setLayouter([settings, this](QWidget *widget) {
+    setLayouter([settings](QWidget *widget) {
         PerforceSettings &s = *settings;
         using namespace Layouting;
 
         auto errorLabel = new QLabel;
         auto testButton = new QPushButton(Tr::tr("Test"));
-        connect(testButton, &QPushButton::clicked, this, [settings, errorLabel, testButton] {
+        QObject::connect(testButton, &QPushButton::clicked, widget, [settings, errorLabel, testButton] {
             testButton->setEnabled(false);
             auto checker = new PerforceChecker(errorLabel);
             checker->setUseOverideCursor(true);
-            connect(checker, &PerforceChecker::failed, errorLabel,
+            QObject::connect(checker, &PerforceChecker::failed, errorLabel,
                     [errorLabel, testButton, checker](const QString &t) {
                 errorLabel->setStyleSheet("background-color: red");
                 errorLabel->setText(t);
                 testButton->setEnabled(true);
                 checker->deleteLater();
             });
-            connect(checker, &PerforceChecker::succeeded, errorLabel,
+            QObject::connect(checker, &PerforceChecker::succeeded, errorLabel,
                     [errorLabel, testButton, checker](const FilePath &repo) {
                 errorLabel->setStyleSheet({});
                 errorLabel->setText(Tr::tr("Test succeeded (%1).")
