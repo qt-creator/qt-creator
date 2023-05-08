@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QObject>
 #include <QPointer>
@@ -25,6 +25,7 @@ class GerritChange;
 class GerritDialog;
 class GerritParameters;
 class GerritServer;
+class GerritOptionsPage;
 
 class GerritPlugin : public QObject
 {
@@ -60,6 +61,7 @@ private:
     Core::Command *m_gerritCommand = nullptr;
     Core::Command *m_pushToGerritCommand = nullptr;
     QString m_reviewers;
+    GerritOptionsPage *m_gerritOptionsPage = nullptr;
 };
 
 } // namespace Internal

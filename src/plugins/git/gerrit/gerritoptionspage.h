@@ -13,13 +13,9 @@ class GerritParameters;
 
 class GerritOptionsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    GerritOptionsPage(const QSharedPointer<GerritParameters> &p, QObject *parent = nullptr);
-
-signals:
-    void settingsChanged();
+    GerritOptionsPage(const QSharedPointer<GerritParameters> &p,
+                      const std::function<void()> &onChanged);
 };
 
 } // Gerrit::Internal

@@ -156,13 +156,22 @@ GerritPlugin::GerritPlugin()
     : m_parameters(new GerritParameters)
     , m_server(new GerritServer)
 {
+    m_parameters->fromSettings(ICore::settings());
+
+    m_gerritOptionsPage = new GerritOptionsPage(m_parameters,
+        [this] {
+        if (m_dialog)
+            m_dialog->scheduleUpdateRemotes();
+    });
 }
 
-GerritPlugin::~GerritPlugin() = default;
+GerritPlugin::~GerritPlugin()
+{
+    delete m_gerritOptionsPage;
+}
 
 void GerritPlugin::addToMenu(ActionContainer *ac)
 {
-    m_parameters->fromSettings(ICore::settings());
 
     QAction *openViewAction = new QAction(Git::Tr::tr("Gerrit..."), this);
 
@@ -177,13 +186,6 @@ void GerritPlugin::addToMenu(ActionContainer *ac)
         ActionManager::registerAction(pushAction, Constants::GERRIT_PUSH);
     connect(pushAction, &QAction::triggered, this, [this] { push(); });
     ac->addAction(m_pushToGerritCommand);
-
-    auto options = new GerritOptionsPage(m_parameters, this);
-    connect(options, &GerritOptionsPage::settingsChanged,
-            this, [this] {
-        if (m_dialog)
-            m_dialog->scheduleUpdateRemotes();
-    });
 }
 
 void GerritPlugin::updateActions(const VcsBase::VcsBasePluginState &state)
