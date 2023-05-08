@@ -7,9 +7,10 @@
 #include "helptr.h"
 #include "localhelpmanager.h"
 
+#include <utils/layoutbuilder.h>
+
 #include <QHelpFilterEngine>
 #include <QHelpFilterSettingsWidget>
-#include <QVBoxLayout>
 #include <QVersionNumber>
 
 namespace Help::Internal {
@@ -17,48 +18,37 @@ namespace Help::Internal {
 class FilterSettingsPageWidget : public Core::IOptionsPageWidget
 {
 public:
-    FilterSettingsPageWidget(FilterSettingsPage *page) : m_page(page)
+    FilterSettingsPageWidget(FilterSettingsPage *page)
     {
         LocalHelpManager::setupGuiHelpEngine();
-        m_widget = new QHelpFilterSettingsWidget;
-        m_widget->readSettings(LocalHelpManager::filterEngine());
 
-        auto vbox = new QVBoxLayout(this);
-        vbox->addWidget(m_widget);
-        vbox->setContentsMargins(0, 0, 0, 0);
+        auto widget = new QHelpFilterSettingsWidget;
+        widget->readSettings(LocalHelpManager::filterEngine());
 
-        connect(Core::HelpManager::Signals::instance(),
-                &Core::HelpManager::Signals::documentationChanged,
-                this,
-                &FilterSettingsPageWidget::updateFilterPage);
+        Layouting::Column {
+            Layouting::noMargin,
+            widget
+        }.attachTo(this);
 
+        auto updateFilterPage = [widget] {
+            widget->setAvailableComponents(LocalHelpManager::filterEngine()->availableComponents());
+            widget->setAvailableVersions(LocalHelpManager::filterEngine()->availableVersions());
+        };
+
+        auto connection = connect(Core::HelpManager::Signals::instance(),
+                                  &Core::HelpManager::Signals::documentationChanged,
+                                  this,
+                                  updateFilterPage);
         updateFilterPage();
+
+        setOnApply([widget, page] {
+            if (widget->applySettings(LocalHelpManager::filterEngine()))
+                emit page->filtersChanged();
+            widget->readSettings(LocalHelpManager::filterEngine());
+        });
+
+        setOnFinish([connection] {  disconnect(connection); });
     }
-
-    void apply() final
-    {
-        if (m_widget->applySettings(LocalHelpManager::filterEngine()))
-            emit m_page->filtersChanged();
-
-        m_widget->readSettings(LocalHelpManager::filterEngine());
-    }
-
-    void finish() final
-    {
-        disconnect(Core::HelpManager::Signals::instance(),
-                   &Core::HelpManager::Signals::documentationChanged,
-                   this,
-                   &FilterSettingsPageWidget::updateFilterPage);
-    }
-
-    void updateFilterPage()
-    {
-        m_widget->setAvailableComponents(LocalHelpManager::filterEngine()->availableComponents());
-        m_widget->setAvailableVersions(LocalHelpManager::filterEngine()->availableVersions());
-    }
-
-    FilterSettingsPage *m_page;
-    QHelpFilterSettingsWidget *m_widget;
 };
 
 FilterSettingsPage::FilterSettingsPage()
