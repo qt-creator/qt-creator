@@ -72,7 +72,7 @@ def pasteFile(sourceFile, protocol):
     try:
         outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
         waitFor("re.search('^https://', str(outputWindow.plainText)) is not None", 20000)
-        output = filter(lambda x: len(x), str(outputWindow.plainText).splitlines())[-1]
+        output = list(filter(lambda x: len(x), str(outputWindow.plainText).splitlines()))[-1]
     except:
         output = ""
         if closeHTTPStatusAndPasterDialog(protocol, ':Send to Codepaster_CodePaster::PasteView'):
@@ -126,10 +126,11 @@ def fetchSnippet(protocol, description, pasteId, skippedPasting):
         waitFor("pasteModel.rowCount() == 1", 1000)
         waitFor("pasteModel.rowCount() > 1", 20000)
     if pasteId == invalidPasteId(protocol):
-        try:
-            pasteLine = filter(lambda str:description in str, dumpItems(pasteModel))[0]
-            pasteId = pasteLine.split(" ", 1)[0]
-        except:
+        for currentItem in dumpItems(pasteModel):
+            if description in currentItem:
+                pasteId = currentItem.split(" ", 1)[0]
+                break
+        if pasteId == invalidPasteId(protocol):
             test.fail("Could not find description line in list of pastes from %s" % protocol)
             clickButton(waitForObject(":PasteSelectDialog.Cancel_QPushButton"))
             return pasteId
@@ -242,7 +243,8 @@ def main():
     # QString QTextCursor::selectedText () const:
     # "Note: If the selection obtained from an editor spans a line break, the text will contain a
     # Unicode U+2029 paragraph separator character instead of a newline \n character."
-    selectedText = str(editor.textCursor().selectedText()).replace(unichr(0x2029), "\n")
+    newParagraph = chr(0x2029) if sys.version_info.major > 2 else unichr(0x2029)
+    selectedText = str(editor.textCursor().selectedText()).replace(newParagraph, "\n")
     invokeMenuItem("Tools", "Code Pasting", "Paste Snippet...")
     test.compare(waitForObject(":stackedWidget.plainTextEdit_QPlainTextEdit").plainText,
                  selectedText, "Verify that dialog shows selected text from the editor")
