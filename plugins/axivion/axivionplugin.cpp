@@ -102,7 +102,7 @@ AxivionPlugin::AxivionPlugin()
 
 AxivionPlugin::~AxivionPlugin()
 {
-    if (!dd->m_axivionProjectSettings.isEmpty()) {
+    if (dd && !dd->m_axivionProjectSettings.isEmpty()) {
         qDeleteAll(dd->m_axivionProjectSettings);
         dd->m_axivionProjectSettings.clear();
     }
