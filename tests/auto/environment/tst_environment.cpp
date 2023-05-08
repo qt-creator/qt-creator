@@ -363,7 +363,7 @@ void tst_Environment::pathChanges()
     QFETCH(QString, value);
     QFETCH(Environment, expected);
 
-    const QString sep = HostOsInfo::pathListSeparator();
+    const QString sep = OsSpecificAspects::pathListSeparator(environment.osType());
 
     if (prepend)
         environment.prependOrSet(variable, value, sep);
