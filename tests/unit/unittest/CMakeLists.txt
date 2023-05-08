@@ -29,6 +29,7 @@ add_qtc_test(unittest GTEST
     Qt6Core5Compat QmlJS Sqlite SqliteC
     Googletest
   DEFINES
+    GTEST_INTERNAL_HAS_STRING_VIEW
     QT_NO_CAST_TO_ASCII
     QT_RESTRICTED_CAST_FROM_ASCII
     UNIT_TESTS
