@@ -102,6 +102,13 @@ GitLabParameters::GitLabParameters()
 {
 }
 
+void GitLabParameters::assign(const GitLabParameters &other)
+{
+    curl = other.curl;
+    defaultGitLabServer = other.defaultGitLabServer;
+    gitLabServers = other.gitLabServers;
+}
+
 bool GitLabParameters::equals(const GitLabParameters &other) const
 {
     return curl == other.curl && defaultGitLabServer == other.defaultGitLabServer

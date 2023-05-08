@@ -132,7 +132,7 @@ void GitLabServerWidget::setGitLabServer(const GitLabServer &server)
 class GitLabOptionsWidget : public Core::IOptionsPageWidget
 {
 public:
-    explicit GitLabOptionsWidget(GitLabOptionsPage *page, GitLabParameters *parameters);
+    explicit GitLabOptionsWidget(GitLabParameters *parameters);
 
 private:
     void showEditServerDialog();
@@ -151,7 +151,7 @@ private:
     Utils::StringAspect m_curl;
 };
 
-GitLabOptionsWidget::GitLabOptionsWidget(GitLabOptionsPage *page, GitLabParameters *params)
+GitLabOptionsWidget::GitLabOptionsWidget(GitLabParameters *params)
     : m_parameters(params)
 {
     auto defaultLabel = new QLabel(Tr::tr("Default:"), this);
@@ -201,7 +201,7 @@ GitLabOptionsWidget::GitLabOptionsWidget(GitLabOptionsPage *page, GitLabParamete
                     m_defaultGitLabServer->currentData().value<GitLabServer>());
     });
 
-    setOnApply([page, this] {
+    setOnApply([this] {
         GitLabParameters result;
         // get all configured gitlabservers
         for (int i = 0, end = m_defaultGitLabServer->count(); i < end; ++i)
@@ -211,9 +211,9 @@ GitLabOptionsWidget::GitLabOptionsWidget(GitLabOptionsPage *page, GitLabParamete
         result.curl = m_curl.filePath();
 
         if (result != *m_parameters) {
-            *m_parameters = result;
+            m_parameters->assign(result);
             m_parameters->toSettings(Core::ICore::settings());
-            emit page->settingsChanged();
+            emit m_parameters->changed();
         }
     });
 }
@@ -304,7 +304,7 @@ GitLabOptionsPage::GitLabOptionsPage(GitLabParameters *p)
     setId(Constants::GITLAB_SETTINGS);
     setDisplayName(Tr::tr("GitLab"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setWidgetCreator([this, p] { return new GitLabOptionsWidget(this, p); });
+    setWidgetCreator([p] { return new GitLabOptionsWidget(p); });
 }
 
 } // namespace GitLab

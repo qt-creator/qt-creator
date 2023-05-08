@@ -13,13 +13,8 @@ namespace Constants { const char GITLAB_SETTINGS[] = "GitLab"; }
 
 class GitLabOptionsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     explicit GitLabOptionsPage(GitLabParameters *p);
-
-signals:
-    void settingsChanged();
 };
 
 } // GitLab

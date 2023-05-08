@@ -38,6 +38,18 @@ const char GITLAB_OPEN_VIEW[] = "GitLab.OpenView";
 class GitLabPluginPrivate : public QObject
 {
 public:
+    void setupNotificationTimer();
+    void fetchEvents();
+    void fetchUser();
+    void createAndSendEventsRequest(const QDateTime timeStamp, int page = -1);
+    void handleUser(const User &user);
+    void handleEvents(const Events &events, const QDateTime &timeStamp);
+
+    void onSettingsChanged() {
+        if (dialog)
+            dialog->updateRemotes();
+    }
+
     GitLabParameters parameters;
     GitLabOptionsPage optionsPage{&parameters};
     QHash<ProjectExplorer::Project *, GitLabProjectSettings *> projectSettings;
@@ -47,13 +59,6 @@ public:
     QString projectName;
     Utils::Id serverId;
     bool runningQuery = false;
-
-    void setupNotificationTimer();
-    void fetchEvents();
-    void fetchUser();
-    void createAndSendEventsRequest(const QDateTime timeStamp, int page = -1);
-    void handleUser(const User &user);
-    void handleEvents(const Events &events, const QDateTime &timeStamp);
 };
 
 static GitLabPluginPrivate *dd = nullptr;
@@ -89,10 +94,6 @@ void GitLabPlugin::initialize()
     connect(openViewAction, &QAction::triggered, this, &GitLabPlugin::openView);
     Core::ActionContainer *ac = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
     ac->addAction(gitlabCommand);
-    connect(&dd->optionsPage, &GitLabOptionsPage::settingsChanged, this, [] {
-        if (dd->dialog)
-            dd->dialog->updateRemotes();
-    });
     connect(ProjectExplorer::ProjectManager::instance(),
             &ProjectExplorer::ProjectManager::startupProjectChanged,
             this, &GitLabPlugin::onStartupProjectChanged);
@@ -305,7 +306,7 @@ bool GitLabPlugin::handleCertificateIssue(const Utils::Id &serverId)
         int index = dd->parameters.gitLabServers.indexOf(server);
         server.validateCert = false;
         dd->parameters.gitLabServers.replace(index, server);
-        emit dd->optionsPage.settingsChanged();
+        dd->onSettingsChanged();
         return true;
     }
     return false;
