@@ -9,8 +9,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -878,7 +876,6 @@ DebuggerItemManagerPrivate::DebuggerItemManagerPrivate()
     d = this;
     m_model = new DebuggerItemModel;
     m_optionsPage = new DebuggerOptionsPage;
-    ExtensionSystem::PluginManager::addObject(m_optionsPage);
 }
 
 void DebuggerItemManagerPrivate::extensionsInitialized()
@@ -888,7 +885,6 @@ void DebuggerItemManagerPrivate::extensionsInitialized()
 
 DebuggerItemManagerPrivate::~DebuggerItemManagerPrivate()
 {
-    ExtensionSystem::PluginManager::removeObject(m_optionsPage);
     delete m_optionsPage;
     delete m_model;
 }
