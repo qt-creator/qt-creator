@@ -258,8 +258,10 @@ void DisplaySettingsWidget::settingsToUI()
     enableTextWrapping->setChecked(displaySettings.m_textWrapping);
     showWrapColumn->setChecked(marginSettings.m_showMargin);
     tintMarginArea->setChecked(marginSettings.m_tintMarginArea);
+    tintMarginArea->setEnabled(marginSettings.m_showMargin);
     useIndenter->setChecked(marginSettings.m_useIndenter);
     wrapColumn->setValue(marginSettings.m_marginColumn);
+    wrapColumn->setEnabled(marginSettings.m_showMargin);
     visualizeWhitespace->setChecked(displaySettings.m_visualizeWhitespace);
     visualizeIndent->setChecked(displaySettings.m_visualizeIndent);
     displayFoldingMarkers->setChecked(displaySettings.m_displayFoldingMarkers);
