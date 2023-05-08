@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "texteditor_global.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 
 QT_BEGIN_NAMESPACE
@@ -23,8 +21,6 @@ class CodeStylePool;
 
 class BehaviorSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     BehaviorSettingsPage();
     ~BehaviorSettingsPage() override;
