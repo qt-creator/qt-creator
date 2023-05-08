@@ -30,7 +30,7 @@ BakeLightsDataModel::~BakeLightsDataModel()
 {
 }
 
-int BakeLightsDataModel::rowCount(const QModelIndex &parent) const
+int BakeLightsDataModel::rowCount(const QModelIndex &) const
 {
     return m_dataList.count();
 }
