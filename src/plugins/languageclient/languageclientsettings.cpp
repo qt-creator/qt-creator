@@ -293,7 +293,7 @@ LanguageClientSettingsPage::LanguageClientSettingsPage()
     setDisplayCategory(Tr::tr(Constants::LANGUAGECLIENT_SETTINGS_TR));
     setCategoryIconPath(":/languageclient/images/settingscategory_languageclient.png");
     setWidgetCreator([this] { return new LanguageClientSettingsPageWidget(m_model, m_changedSettings); });
-    connect(&m_model, &LanguageClientSettingsModel::dataChanged, [this](const QModelIndex &index) {
+    QObject::connect(&m_model, &LanguageClientSettingsModel::dataChanged, [this](const QModelIndex &index) {
         if (BaseSettings *setting = m_model.settingForIndex(index))
             m_changedSettings << setting->m_id;
     });
