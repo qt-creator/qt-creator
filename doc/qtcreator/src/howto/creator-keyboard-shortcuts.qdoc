@@ -729,7 +729,7 @@
             \li
             \li  Alt+S, Alt+D
         \row
-            \li  Diff project
+            \li  Diff project or repository
             \li
             \li
             \li  Alt+G, Alt+Shift+D
@@ -753,7 +753,7 @@
             \li  Alt+P, Alt+F
             \li
         \row
-            \li  Log project
+            \li  Log repository
             \li
             \li
             \li  Alt+G, Alt+K
