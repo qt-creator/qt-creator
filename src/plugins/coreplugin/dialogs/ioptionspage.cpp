@@ -240,8 +240,7 @@ static QList<IOptionsPage *> g_optionsPages;
     Constructs an options page with the given \a parent and registers it
     at the global options page pool if \a registerGlobally is \c true.
 */
-IOptionsPage::IOptionsPage(QObject *parent, bool registerGlobally)
-    : QObject(parent)
+IOptionsPage::IOptionsPage(bool registerGlobally)
 {
     if (registerGlobally)
         g_optionsPages.append(this);
