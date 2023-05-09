@@ -44,6 +44,7 @@ public:
             terminal->setShellName(setup.m_commandLine.executable().fileName());
             m_terminalPane->addTerminal(terminal, "App");
         } else {
+            m_terminalPane->ensureVisible(terminal);
             terminal->restart(openParameters);
         }
 

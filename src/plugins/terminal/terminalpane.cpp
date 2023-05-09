@@ -206,6 +206,14 @@ void TerminalPane::addTerminal(TerminalWidget *terminal, const QString &title)
     emit navigateStateUpdate();
 }
 
+void TerminalPane::ensureVisible(TerminalWidget *terminal)
+{
+    if (!m_isVisible)
+        emit showPage(0);
+    m_tabWidget->setCurrentWidget(terminal);
+    terminal->setFocus();
+}
+
 TerminalWidget *TerminalPane::stoppedTerminalWithId(const Id &identifier) const
 {
     QTC_ASSERT(m_tabWidget, return nullptr);

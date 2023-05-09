@@ -42,6 +42,8 @@ public:
 
     TerminalWidget *stoppedTerminalWithId(const Utils::Id &identifier) const;
 
+    void ensureVisible(TerminalWidget *terminal);
+
 private:
     TerminalWidget *currentTerminal() const;
 
