@@ -5,6 +5,7 @@
 
 #include <coreplugin/core_global.h>
 
+#include <utils/aspects.h>
 #include <utils/icon.h>
 #include <utils/id.h>
 
@@ -124,6 +125,12 @@ protected:
     Utils::Id m_category;
     QString m_displayCategory;
     Utils::Icon m_categoryIcon;
+};
+
+class CORE_EXPORT PagedSettings : public Utils::AspectContainer, public IOptionsPage
+{
+public:
+    PagedSettings() = default;
 };
 
 } // namespace Core
