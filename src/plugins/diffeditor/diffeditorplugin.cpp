@@ -150,7 +150,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
 
     const Group root = {
         Storage(storage),
-        Tree(setupTree),
+        TaskTreeTask(setupTree),
         OnGroupDone(onTreeDone),
         OnGroupError(onTreeError)
     };

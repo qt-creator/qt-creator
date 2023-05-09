@@ -550,7 +550,7 @@ void tst_TaskTree::testTree_data()
         const Group root3 {
             Storage(storage),
             Test(setupTask(1), logDone),
-            Tree(setupSubTree),
+            TaskTreeTask(setupSubTree),
             Test(setupTask(5), logDone),
             OnGroupDone(groupDone(0))
         };

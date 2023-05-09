@@ -1264,7 +1264,7 @@ void TaskNode::invokeEndHandler(bool success)
     recipe described by the Group root element.
 
     As TaskTree is also an asynchronous task, it can be a part of another TaskTree.
-    To place a nested TaskTree inside another TaskTree, insert the Tasking::Tree
+    To place a nested TaskTree inside another TaskTree, insert the Tasking::TaskTreeTask
     element into other tree's Group element.
 
     TaskTree reports progress of completed tasks when running. The progress value
@@ -1455,13 +1455,13 @@ void TaskTree::setupStorageHandler(const Tasking::TreeStorageBase &storage,
     }
 }
 
-TaskTreeAdapter::TaskTreeAdapter()
+TaskTreeTaskAdapter::TaskTreeTaskAdapter()
 {
     connect(task(), &TaskTree::done, this, [this] { emit done(true); });
     connect(task(), &TaskTree::errorOccurred, this, [this] { emit done(false); });
 }
 
-void TaskTreeAdapter::start()
+void TaskTreeTaskAdapter::start()
 {
     task()->start();
 }

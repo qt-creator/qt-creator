@@ -230,7 +230,7 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::chmodTree()
         }
         tree.setupRoot(chmodList);
     };
-    return Tree{setupChmodHandler};
+    return TaskTreeTask{setupChmodHandler};
 }
 
 Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()

@@ -186,7 +186,7 @@ TaskItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &sto
         }
         tree.setupRoot({statList});
     };
-    return Tree(setupHandler);
+    return TaskTreeTask(setupHandler);
 }
 
 TaskItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &storage)
@@ -263,7 +263,7 @@ TaskItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &st
         }
         tree.setupRoot({chmodList});
     };
-    return Tree(setupChmodHandler);
+    return TaskTreeTask(setupChmodHandler);
 }
 
 Group GenericDirectUploadStep::deployRecipe()

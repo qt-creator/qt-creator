@@ -472,7 +472,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
                 OnGroupSetup(desciptionDetailsSetup),
                 ProcessTask(setupBranches, onBranchesDone, onBranchesError),
                 ProcessTask(setupPrecedes, onPrecedesDone, onPrecedesError),
-                Tree(setupFollows)
+                TaskTreeTask(setupFollows)
             }
         },
         Group {
