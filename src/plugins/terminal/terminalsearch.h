@@ -40,7 +40,7 @@ public:
     void nextHit();
     void previousHit();
 
-    QList<SearchHit> hits() const { return m_hits; }
+    const QList<SearchHit> &hits() const { return m_hits; }
     SearchHit currentHit() const
     {
         return m_currentHit >= 0 ? m_hits.at(m_currentHit) : SearchHit{};
