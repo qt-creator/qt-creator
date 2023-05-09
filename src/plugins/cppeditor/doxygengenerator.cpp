@@ -44,16 +44,6 @@ void DoxygenGenerator::setAddLeadingAsterisks(bool add)
     m_addLeadingAsterisks = add;
 }
 
-static int lineBeforeCursor(const QTextCursor &cursor)
-{
-    int line, column;
-    const bool converted = Utils::Text::convertPosition(cursor.document(), cursor.position(), &line,
-                                                        &column);
-    QTC_ASSERT(converted, return std::numeric_limits<int>::max());
-
-    return line - 1;
-}
-
 QString DoxygenGenerator::generate(QTextCursor cursor,
                                    const CPlusPlus::Snapshot &snapshot,
                                    const Utils::FilePath &documentFilePath)
@@ -104,7 +94,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor,
 
     Document::Ptr doc = snapshot.preprocessedDocument(declCandidate.toUtf8(),
                                                       documentFilePath,
-                                                      lineBeforeCursor(initialCursor));
+                                                      cursor.blockNumber());
     doc->parse(Document::ParseDeclaration);
     doc->check(Document::FastCheck);
 

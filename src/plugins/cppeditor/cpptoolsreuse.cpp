@@ -266,10 +266,7 @@ const Macro *findCanonicalMacro(const QTextCursor &cursor, Document::Ptr documen
 {
     QTC_ASSERT(document, return nullptr);
 
-    int line, column;
-    Utils::Text::convertPosition(cursor.document(), cursor.position(), &line, &column);
-
-    if (const Macro *macro = document->findMacroDefinitionAt(line)) {
+    if (const Macro *macro = document->findMacroDefinitionAt(cursor.blockNumber() + 1)) {
         QTextCursor macroCursor = cursor;
         const QByteArray name = identifierUnderCursor(&macroCursor).toUtf8();
         if (macro->name() == name)
