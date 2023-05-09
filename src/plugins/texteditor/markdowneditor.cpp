@@ -7,6 +7,7 @@
 #include "texteditor.h"
 #include "texteditortr.h"
 
+#include <aggregation/aggregate.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/icore.h>
@@ -74,16 +75,23 @@ public:
         layout->addWidget(m_splitter);
         setWidget(widget);
         m_widget->installEventFilter(this);
+        using namespace Aggregation;
+        Aggregate *agg = Aggregate::parentAggregate(m_textEditorWidget);
+        if (!agg) {
+            agg = new Aggregate;
+            agg->add(m_textEditorWidget);
+        }
+        agg->add(m_widget.get());
 
         auto togglePreviewVisible = new QToolButton;
         togglePreviewVisible->setText(Tr::tr("Show Preview"));
         togglePreviewVisible->setCheckable(true);
         togglePreviewVisible->setChecked(true);
 
-        auto toggleEditorVisible = new QToolButton;
-        toggleEditorVisible->setText(Tr::tr("Show Editor"));
-        toggleEditorVisible->setCheckable(true);
-        toggleEditorVisible->setChecked(true);
+        m_toggleEditorVisible = new QToolButton;
+        m_toggleEditorVisible->setText(Tr::tr("Show Editor"));
+        m_toggleEditorVisible->setCheckable(true);
+        m_toggleEditorVisible->setChecked(true);
 
         auto swapViews = new QToolButton;
         swapViews->setText(Tr::tr("Swap Views"));
@@ -94,9 +102,9 @@ public:
         toolbarLayout->addStretch();
         if (textEditorRight) {
             toolbarLayout->addWidget(togglePreviewVisible);
-            toolbarLayout->addWidget(toggleEditorVisible);
+            toolbarLayout->addWidget(m_toggleEditorVisible);
         } else {
-            toolbarLayout->addWidget(toggleEditorVisible);
+            toolbarLayout->addWidget(m_toggleEditorVisible);
             toolbarLayout->addWidget(togglePreviewVisible);
         }
         toolbarLayout->addWidget(swapViews);
@@ -137,7 +145,7 @@ public:
                 swapViews->setEnabled(view->isVisible() && otherView->isVisible());
             };
 
-        connect(toggleEditorVisible,
+        connect(m_toggleEditorVisible,
                 &QToolButton::toggled,
                 this,
                 [this, browser, togglePreviewVisible, viewToggled](bool visible) {
@@ -146,8 +154,8 @@ public:
         connect(togglePreviewVisible,
                 &QToolButton::toggled,
                 this,
-                [this, browser, toggleEditorVisible, viewToggled, updatePreview](bool visible) {
-                    viewToggled(browser, visible, m_textEditorWidget, toggleEditorVisible);
+                [this, browser, viewToggled, updatePreview](bool visible) {
+                    viewToggled(browser, visible, m_textEditorWidget, m_toggleEditorVisible);
                     if (visible && m_performDelayedUpdate) {
                         m_performDelayedUpdate = false;
                         updatePreview();
@@ -193,6 +201,18 @@ public:
 
     Core::IDocument *document() const override { return m_document.data(); }
     TextEditorWidget *textEditorWidget() const { return m_textEditorWidget; }
+    int currentLine() const override { return textEditorWidget()->textCursor().blockNumber() + 1; };
+    int currentColumn() const override
+    {
+        QTextCursor cursor = textEditorWidget()->textCursor();
+        return cursor.position() - cursor.block().position() + 1;
+    }
+    void gotoLine(int line, int column, bool centerLine) override
+    {
+        if (!m_toggleEditorVisible->isChecked())
+            m_toggleEditorVisible->toggle();
+        textEditorWidget()->gotoLine(line, column, centerLine);
+    }
 
     bool eventFilter(QObject *obj, QEvent *ev) override
     {
@@ -213,6 +233,7 @@ private:
     TextEditorWidget *m_textEditorWidget;
     TextDocumentPtr m_document;
     QWidget m_toolbar;
+    QToolButton *m_toggleEditorVisible;
 };
 
 MarkdownEditorFactory::MarkdownEditorFactory()
