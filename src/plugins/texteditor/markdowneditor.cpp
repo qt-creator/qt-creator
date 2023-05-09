@@ -20,6 +20,8 @@
 #include <QTimer>
 #include <QToolButton>
 
+#include <optional>
+
 namespace TextEditor::Internal {
 
 const char MARKDOWNVIEWER_ID[] = "Editors.MarkdownViewer";
@@ -50,10 +52,10 @@ public:
         m_splitter = new Core::MiniSplitter;
 
         // preview
-        auto browser = new QTextBrowser();
-        browser->setOpenExternalLinks(true);
-        browser->setFrameShape(QFrame::NoFrame);
-        new Utils::MarkdownHighlighter(browser->document());
+        m_previewWidget = new QTextBrowser();
+        m_previewWidget->setOpenExternalLinks(true);
+        m_previewWidget->setFrameShape(QFrame::NoFrame);
+        new Utils::MarkdownHighlighter(m_previewWidget->document());
 
         // editor
         m_textEditorWidget = new TextEditorWidget;
@@ -65,13 +67,8 @@ public:
         context->setContext(Core::Context(MARKDOWNVIEWER_TEXT_CONTEXT));
         Core::ICore::addContextObject(context);
 
-        if (textEditorRight) {
-            m_splitter->addWidget(browser);
-            m_splitter->addWidget(m_textEditorWidget);
-        } else {
-            m_splitter->addWidget(m_textEditorWidget);
-            m_splitter->addWidget(browser);
-        }
+        m_splitter->addWidget(m_previewWidget);
+        m_splitter->addWidget(m_textEditorWidget);
 
         setContext(Core::Context(MARKDOWNVIEWER_ID));
 
@@ -90,11 +87,11 @@ public:
         }
         agg->add(m_widget.get());
 
-        auto togglePreviewVisible = new QToolButton;
-        togglePreviewVisible->setText(Tr::tr("Show Preview"));
-        togglePreviewVisible->setCheckable(true);
-        togglePreviewVisible->setChecked(showPreview);
-        browser->setVisible(showPreview);
+        m_togglePreviewVisible = new QToolButton;
+        m_togglePreviewVisible->setText(Tr::tr("Show Preview"));
+        m_togglePreviewVisible->setCheckable(true);
+        m_togglePreviewVisible->setChecked(showPreview);
+        m_previewWidget->setVisible(showPreview);
 
         m_toggleEditorVisible = new QToolButton;
         m_toggleEditorVisible->setText(Tr::tr("Show Editor"));
@@ -106,37 +103,33 @@ public:
         swapViews->setText(Tr::tr("Swap Views"));
         swapViews->setEnabled(showEditor && showPreview);
 
-        auto toolbarLayout = new QHBoxLayout(&m_toolbar);
-        toolbarLayout->setSpacing(0);
-        toolbarLayout->setContentsMargins(0, 0, 0, 0);
-        toolbarLayout->addStretch();
-        if (textEditorRight) {
-            toolbarLayout->addWidget(togglePreviewVisible);
-            toolbarLayout->addWidget(m_toggleEditorVisible);
-        } else {
-            toolbarLayout->addWidget(m_toggleEditorVisible);
-            toolbarLayout->addWidget(togglePreviewVisible);
-        }
-        toolbarLayout->addWidget(swapViews);
+        m_toolbarLayout = new QHBoxLayout(&m_toolbar);
+        m_toolbarLayout->setSpacing(0);
+        m_toolbarLayout->setContentsMargins(0, 0, 0, 0);
+        m_toolbarLayout->addStretch();
+        m_toolbarLayout->addWidget(m_togglePreviewVisible);
+        m_toolbarLayout->addWidget(m_toggleEditorVisible);
+        m_toolbarLayout->addWidget(swapViews);
+
+        setWidgetOrder(textEditorRight);
 
         connect(m_document.data(),
                 &TextDocument::mimeTypeChanged,
                 m_document.data(),
                 &TextDocument::changed);
 
-        const auto updatePreview = [this, browser] {
-            QHash<QScrollBar *, int> positions;
-            const auto scrollBars = browser->findChildren<QScrollBar *>();
-
+        const auto updatePreview = [this] {
             // save scroll positions
-            for (QScrollBar *scrollBar : scrollBars)
-                positions.insert(scrollBar, scrollBar->value());
+            const QPoint positions = m_previewRestoreScrollPosition
+                                         ? *m_previewRestoreScrollPosition
+                                         : QPoint(m_previewWidget->horizontalScrollBar()->value(),
+                                                  m_previewWidget->verticalScrollBar()->value());
+            m_previewRestoreScrollPosition.reset();
 
-            browser->setMarkdown(m_document->plainText());
+            m_previewWidget->setMarkdown(m_document->plainText());
 
-            // restore scroll positions
-            for (QScrollBar *scrollBar : scrollBars)
-                scrollBar->setValue(positions.value(scrollBar));
+            m_previewWidget->horizontalScrollBar()->setValue(positions.x());
+            m_previewWidget->verticalScrollBar()->setValue(positions.y());
         };
 
         const auto viewToggled =
@@ -154,10 +147,10 @@ public:
                 }
                 swapViews->setEnabled(view->isVisible() && otherView->isVisible());
             };
-        const auto saveViewSettings = [this, togglePreviewVisible] {
+        const auto saveViewSettings = [this] {
             Utils::QtcSettings *s = Core::ICore::settings();
             s->setValueWithDefault(MARKDOWNVIEWER_SHOW_PREVIEW,
-                                   togglePreviewVisible->isChecked(),
+                                   m_togglePreviewVisible->isChecked(),
                                    kShowPreviewDefault);
             s->setValueWithDefault(MARKDOWNVIEWER_SHOW_EDITOR,
                                    m_toggleEditorVisible->isChecked(),
@@ -167,15 +160,18 @@ public:
         connect(m_toggleEditorVisible,
                 &QToolButton::toggled,
                 this,
-                [this, browser, togglePreviewVisible, viewToggled, saveViewSettings](bool visible) {
-                    viewToggled(m_textEditorWidget, visible, browser, togglePreviewVisible);
+                [this, viewToggled, saveViewSettings](bool visible) {
+                    viewToggled(m_textEditorWidget,
+                                visible,
+                                m_previewWidget,
+                                m_togglePreviewVisible);
                     saveViewSettings();
                 });
-        connect(togglePreviewVisible,
+        connect(m_togglePreviewVisible,
                 &QToolButton::toggled,
                 this,
-                [this, browser, viewToggled, updatePreview, saveViewSettings](bool visible) {
-                    viewToggled(browser, visible, m_textEditorWidget, m_toggleEditorVisible);
+                [this, viewToggled, updatePreview, saveViewSettings](bool visible) {
+                    viewToggled(m_previewWidget, visible, m_textEditorWidget, m_toggleEditorVisible);
                     if (visible && m_performDelayedUpdate) {
                         m_performDelayedUpdate = false;
                         updatePreview();
@@ -183,31 +179,21 @@ public:
                     saveViewSettings();
                 });
 
-        connect(swapViews, &QToolButton::clicked, m_textEditorWidget, [this, toolbarLayout] {
-            QTC_ASSERT(m_splitter->count() > 1, return);
-            // switch views
-            auto placeholder = std::make_unique<QWidget>();
-            auto second = m_splitter->replaceWidget(1, placeholder.get());
-            auto first = m_splitter->replaceWidget(0, second);
-            m_splitter->replaceWidget(1, first);
-            // switch buttons
-            const int rightIndex = toolbarLayout->count() - 2;
-            QLayoutItem *right = toolbarLayout->takeAt(rightIndex);
-            toolbarLayout->insertItem(rightIndex - 1, right);
+        connect(swapViews, &QToolButton::clicked, m_textEditorWidget, [this] {
+            const bool textEditorRight = isTextEditorRight();
+            setWidgetOrder(!textEditorRight);
             // save settings
             Utils::QtcSettings *s = Core::ICore::settings();
             s->setValueWithDefault(MARKDOWNVIEWER_TEXTEDITOR_RIGHT,
-                                   !s->value(MARKDOWNVIEWER_TEXTEDITOR_RIGHT,
-                                             kTextEditorRightDefault)
-                                        .toBool(),
+                                   !textEditorRight,
                                    kTextEditorRightDefault);
         });
 
         // TODO directly update when we build with Qt 6.5.2
         m_previewTimer.setInterval(500);
         m_previewTimer.setSingleShot(true);
-        connect(&m_previewTimer, &QTimer::timeout, this, [this, togglePreviewVisible, updatePreview] {
-            if (togglePreviewVisible->isChecked())
+        connect(&m_previewTimer, &QTimer::timeout, this, [this, updatePreview] {
+            if (m_togglePreviewVisible->isChecked())
                 updatePreview();
             else
                 m_performDelayedUpdate = true;
@@ -216,6 +202,25 @@ public:
         connect(m_document->document(), &QTextDocument::contentsChanged, &m_previewTimer, [this] {
             m_previewTimer.start();
         });
+    }
+
+    bool isTextEditorRight() const { return m_splitter->widget(0) == m_previewWidget; }
+
+    void setWidgetOrder(bool textEditorRight)
+    {
+        QTC_ASSERT(m_splitter->count() > 1, return);
+        QWidget *left = textEditorRight ? static_cast<QWidget *>(m_previewWidget)
+                                        : m_textEditorWidget;
+        QWidget *right = textEditorRight ? static_cast<QWidget *>(m_textEditorWidget)
+                                         : m_previewWidget;
+        m_splitter->insertWidget(0, left);
+        m_splitter->insertWidget(1, right);
+        // buttons
+        QWidget *leftButton = textEditorRight ? m_togglePreviewVisible : m_toggleEditorVisible;
+        QWidget *rightButton = textEditorRight ? m_toggleEditorVisible : m_togglePreviewVisible;
+        const int rightIndex = m_toolbarLayout->count() - 2;
+        m_toolbarLayout->insertWidget(rightIndex, leftButton);
+        m_toolbarLayout->insertWidget(rightIndex, rightButton);
     }
 
     QWidget *toolBar() override { return &m_toolbar; }
@@ -247,14 +252,63 @@ public:
         return Core::IEditor::eventFilter(obj, ev);
     }
 
+    QByteArray saveState() const override
+    {
+        QByteArray state;
+        QDataStream stream(&state, QIODevice::WriteOnly);
+        stream << 1; // version number
+        stream << m_textEditorWidget->saveState();
+        stream << m_previewWidget->horizontalScrollBar()->value();
+        stream << m_previewWidget->verticalScrollBar()->value();
+        stream << isTextEditorRight();
+        stream << m_togglePreviewVisible->isChecked();
+        stream << m_toggleEditorVisible->isChecked();
+        stream << m_splitter->saveState();
+        return state;
+    }
+
+    void restoreState(const QByteArray &state) override
+    {
+        if (state.isEmpty())
+            return;
+        int version;
+        QByteArray editorState;
+        int previewHV;
+        int previewVV;
+        bool textEditorRight;
+        bool previewShown;
+        bool textEditorShown;
+        QByteArray splitterState;
+        QDataStream stream(state);
+        stream >> version;
+        stream >> editorState;
+        stream >> previewHV;
+        stream >> previewVV;
+        stream >> textEditorRight;
+        stream >> previewShown;
+        stream >> textEditorShown;
+        stream >> splitterState;
+        m_textEditorWidget->restoreState(editorState);
+        m_previewRestoreScrollPosition.emplace(previewHV, previewVV);
+        setWidgetOrder(textEditorRight);
+        m_splitter->restoreState(splitterState);
+        m_togglePreviewVisible->setChecked(previewShown);
+        // ensure at least one is shown
+        m_toggleEditorVisible->setChecked(textEditorShown || !previewShown);
+    }
+
 private:
     QTimer m_previewTimer;
     bool m_performDelayedUpdate = false;
     Core::MiniSplitter *m_splitter;
+    QTextBrowser *m_previewWidget;
     TextEditorWidget *m_textEditorWidget;
     TextDocumentPtr m_document;
     QWidget m_toolbar;
+    QHBoxLayout *m_toolbarLayout;
     QToolButton *m_toggleEditorVisible;
+    QToolButton *m_togglePreviewVisible;
+    std::optional<QPoint> m_previewRestoreScrollPosition;
 };
 
 MarkdownEditorFactory::MarkdownEditorFactory()
