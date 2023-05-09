@@ -216,6 +216,10 @@ void DebuggerRunConfigurationAspect::toMap(QVariantMap &map) const
     m_qmlAspect->toMap(map);
     m_multiProcessAspect->toMap(map);
     m_overrideStartupAspect->toMap(map);
+
+    // compatibility to old settings
+    map.insert("RunConfiguration.UseCppDebuggerAuto", m_cppAspect->value() == TriState::Default);
+    map.insert("RunConfiguration.UseQmlDebuggerAuto", m_qmlAspect->value() == TriState::Default);
 }
 
 void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
