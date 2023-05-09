@@ -72,12 +72,11 @@ file from the Copilot neovim plugin.
                 authWidget,
                 updateAuthWidget);
         updateAuthWidget();
-    }
 
-    void apply() final
-    {
-        CopilotSettings::instance().apply();
-        CopilotSettings::instance().writeSettings(Core::ICore::settings());
+        setOnApply([] {
+            CopilotSettings::instance().apply();
+            CopilotSettings::instance().writeSettings(Core::ICore::settings());
+        });
     }
 };
 
