@@ -5,15 +5,12 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
+namespace Autotest::Internal  {
 
-namespace Autotest {
-namespace Internal {
-
-class CTestSettings : public Utils::AspectContainer
+class CTestSettings : public Core::PagedSettings
 {
 public:
-    CTestSettings();
+    explicit CTestSettings(Utils::Id settingsId);
 
     QStringList activeSettingsAsOptions() const;
 
@@ -31,12 +28,5 @@ public:
     Utils::IntegerAspect threshold;
 };
 
-class CTestSettingsPage final : public Core::IOptionsPage
-{
-public:
-    CTestSettingsPage(CTestSettings *settings, Utils::Id settingsId);
-};
-
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal
 

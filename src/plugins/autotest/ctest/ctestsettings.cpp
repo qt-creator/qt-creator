@@ -8,13 +8,43 @@
 
 #include <utils/layoutbuilder.h>
 
-namespace Autotest {
-namespace Internal {
+using namespace Layouting;
+using namespace Utils;
 
-CTestSettings::CTestSettings()
+namespace Autotest::Internal {
+
+CTestSettings::CTestSettings(Id settingsId)
 {
     setSettingsGroups("Autotest", "CTest");
     setAutoApply(false);
+
+    setId(settingsId);
+    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+    setDisplayName(Tr::tr("CTest"));
+
+    setSettings(this);
+
+    setLayouter([this](QWidget *w) {
+        Column { Row { Form {
+            outputOnFail, br,
+            scheduleRandom, br,
+            stopOnFailure, br,
+            outputMode, br,
+            Group {
+                title(Tr::tr("Repeat tests")),
+                repeat.groupChecker(),
+                Row { repetitionMode, repetitionCount},
+            }, br,
+            Group {
+                title(Tr::tr("Run in parallel")),
+                parallel.groupChecker(),
+                Column {
+                    Row { jobs }, br,
+                    Row { testLoad, threshold}
+                }
+            }
+        }, st }, st }.attachTo(w);
+    });
 
     registerAspect(&outputOnFail);
     outputOnFail.setSettingsKey("OutputOnFail");
@@ -24,7 +54,7 @@ CTestSettings::CTestSettings()
     registerAspect(&outputMode);
     outputMode.setSettingsKey("OutputMode");
     outputMode.setLabelText(Tr::tr("Output mode"));
-    outputMode.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
+    outputMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     outputMode.addOption({Tr::tr("Default"), {}, 0});
     outputMode.addOption({Tr::tr("Verbose"), {}, 1});
     outputMode.addOption({Tr::tr("Very Verbose"), {}, 2});
@@ -32,7 +62,7 @@ CTestSettings::CTestSettings()
     registerAspect(&repetitionMode);
     repetitionMode.setSettingsKey("RepetitionMode");
     repetitionMode.setLabelText(Tr::tr("Repetition mode"));
-    repetitionMode.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
+    repetitionMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     repetitionMode.addOption({Tr::tr("Until Fail"), {}, 0});
     repetitionMode.addOption({Tr::tr("Until Pass"), {}, 1});
     repetitionMode.addOption({Tr::tr("After Timeout"), {}, 2});
@@ -115,41 +145,4 @@ QStringList CTestSettings::activeSettingsAsOptions() const
     return options;
 }
 
-CTestSettingsPage::CTestSettingsPage(CTestSettings *settings, Utils::Id settingsId)
-{
-    setId(settingsId);
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(Tr::tr("CTest"));
-
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        CTestSettings &s = *settings;
-        using namespace Layouting;
-
-        Form form {
-            Row {s.outputOnFail}, br,
-            Row {s.scheduleRandom}, br,
-            Row {s.stopOnFailure}, br,
-            Row {s.outputMode}, br,
-            Group {
-                title(Tr::tr("Repeat tests")),
-                s.repeat.groupChecker(),
-                Row {s.repetitionMode, s.repetitionCount},
-            }, br,
-            Group {
-                title(Tr::tr("Run in parallel")),
-                s.parallel.groupChecker(),
-                Column {
-                    Row {s.jobs}, br,
-                    Row {s.testLoad, s.threshold}
-                }
-            }
-        };
-
-        Column { Row { Column { form , st }, st } }.attachTo(widget);
-    });
-}
-
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

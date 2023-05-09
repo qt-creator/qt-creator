@@ -10,13 +10,29 @@
 
 #include <utils/layoutbuilder.h>
 
+using namespace Layouting;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
-BoostTestSettings::BoostTestSettings()
+BoostTestSettings::BoostTestSettings(Id settingsId)
 {
+    setId(settingsId);
+    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+    setDisplayName(Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+    setSettings(this);
+
+    setLayouter([this](QWidget *widget) {
+        Row { Form {
+            logLevel, br,
+            reportLevel, br,
+            randomize, Row { seed }, br,
+            systemErrors, br,
+            fpExceptions, br,
+            memLeaks,
+        }, st}.attachTo(widget);
+    });
+
     setSettingsGroups("Autotest", "BoostTest");
     setAutoApply(false);
 
@@ -81,30 +97,6 @@ BoostTestSettings::BoostTestSettings()
     memLeaks.setToolTip(Tr::tr("Enable memory leak detection."));
 }
 
-BoostTestSettingsPage::BoostTestSettingsPage(BoostTestSettings *settings, Id settingsId)
-{
-    setId(settingsId);
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        BoostTestSettings &s = *settings;
-        using namespace Layouting;
-
-        Grid grid {
-            s.logLevel, br,
-            s.reportLevel, br,
-            s.randomize, Row { s.seed }, br,
-            s.systemErrors, br,
-            s.fpExceptions, br,
-            s.memLeaks,
-        };
-
-        Column { Row { Column { grid, st }, st } }.attachTo(widget);
-    });
-}
-
 QString BoostTestSettings::logLevelToOption(const LogLevel logLevel)
 {
     switch (logLevel) {
@@ -134,5 +126,4 @@ QString BoostTestSettings::reportLevelToOption(const ReportLevel reportLevel)
     return {};
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

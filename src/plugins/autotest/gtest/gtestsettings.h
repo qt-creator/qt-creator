@@ -5,15 +5,12 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
+namespace Autotest::Internal {
 
-namespace Autotest {
-namespace Internal {
-
-class GTestSettings : public Utils::AspectContainer
+class GTestSettings : public Core::PagedSettings
 {
 public:
-    GTestSettings();
+    explicit GTestSettings(Utils::Id settingsId);
 
     Utils::IntegerAspect iterations;
     Utils::IntegerAspect seed;
@@ -26,11 +23,4 @@ public:
     Utils::StringAspect gtestFilter;
 };
 
-class GTestSettingsPage final : public Core::IOptionsPage
-{
-public:
-    GTestSettingsPage(GTestSettings *settings, Utils::Id settingsId);
-};
-
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

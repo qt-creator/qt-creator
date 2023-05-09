@@ -6,8 +6,7 @@
 #include "../itestframework.h"
 #include "ctestsettings.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class CTestTool final : public Autotest::ITestTool
 {
@@ -26,9 +25,7 @@ protected:
 private:
     ITestSettings *testSettings() override { return &m_settings; }
 
-    CTestSettings m_settings;
-    CTestSettingsPage m_settingsPage{&m_settings, settingsId()};
+    CTestSettings m_settings{settingsId()};
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

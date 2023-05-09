@@ -10,13 +10,33 @@
 
 #include <utils/layoutbuilder.h>
 
+using namespace Layouting;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
-CatchTestSettings::CatchTestSettings()
+CatchTestSettings::CatchTestSettings(Id settingsId)
 {
+    setId(settingsId);
+    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+    setDisplayName(Tr::tr("Catch Test"));
+    setSettings(this);
+
+    setLayouter([this](QWidget *widget) {
+        Column { Row { Grid {
+            showSuccess, br,
+            breakOnFailure, br,
+            noThrow, br,
+            visibleWhitespace, br,
+            abortAfterChecked, abortAfter, br,
+            samplesChecked, benchmarkSamples, br,
+            resamplesChecked, benchmarkResamples, br,
+            confidenceIntervalChecked, confidenceInterval, br,
+            warmupChecked, benchmarkWarmupTime, br,
+            noAnalysis
+        }, st }, st }.attachTo(widget);
+    });
+
     setSettingsGroups("Autotest", "Catch2");
     setAutoApply(false);
 
@@ -108,33 +128,4 @@ CatchTestSettings::CatchTestSettings()
     warnOnEmpty.setToolTip(Tr::tr("Warns if a test section does not check any assertion."));
 }
 
-CatchTestSettingsPage::CatchTestSettingsPage(CatchTestSettings *settings, Id settingsId)
-{
-    setId(settingsId);
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(Tr::tr("Catch Test"));
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        CatchTestSettings &s = *settings;
-        using namespace Layouting;
-
-        Grid col {
-            s.showSuccess, br,
-            s.breakOnFailure, br,
-            s.noThrow, br,
-            s.visibleWhitespace, br,
-            s.abortAfterChecked, s.abortAfter, br,
-            s.samplesChecked, s.benchmarkSamples, br,
-            s.resamplesChecked, s.benchmarkResamples, br,
-            s.confidenceIntervalChecked, s.confidenceInterval, br,
-            s.warmupChecked, s.benchmarkWarmupTime, br,
-            s.noAnalysis
-        };
-
-        Column { Row { col, st }, st }.attachTo(widget);
-    });
-}
-
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

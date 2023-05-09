@@ -7,8 +7,7 @@
 
 #include "qttestsettings.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class QtTestFramework : public ITestFramework
 {
@@ -24,9 +23,7 @@ private:
     ITestTreeItem *createRootNode() override;
     ITestSettings *testSettings() override { return &m_settings; }
 
-    QtTestSettings m_settings;
-    QtTestSettingsPage m_settingsPage{&m_settings, settingsId()};
+    QtTestSettings m_settings{settingsId()};
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

@@ -10,15 +10,37 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
+using namespace Layouting;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
-QtTestSettings::QtTestSettings()
+QtTestSettings::QtTestSettings(Id settingsId)
 {
     setSettingsGroups("Autotest", "QtTest");
     setAutoApply(false);
+    setId(settingsId);
+    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+    setDisplayName(Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+    setSettings(this);
+
+    setLayouter([this](QWidget *widget) {
+        Column { Row { Column {
+            noCrashHandler,
+            useXMLOutput,
+            verboseBench,
+            logSignalsSlots,
+            Row {
+                limitWarnings, maxWarnings
+            },
+            Group {
+                title(Tr::tr("Benchmark Metrics")),
+                Column { metrics }
+            },
+            br,
+            quickCheckForDerivedTests,
+        }, st }, st }.attachTo(widget);
+    });
 
     registerAspect(&metrics);
     metrics.setSettingsKey("Metrics");
@@ -99,36 +121,4 @@ QString QtTestSettings::metricsTypeToOption(const MetricsType type)
     return {};
 }
 
-QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Id settingsId)
-{
-    setId(settingsId);
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        QtTestSettings &s = *settings;
-        using namespace Layouting;
-
-        Column col {
-            s.noCrashHandler,
-            s.useXMLOutput,
-            s.verboseBench,
-            s.logSignalsSlots,
-            Row {
-                s.limitWarnings, s.maxWarnings
-            },
-            Group {
-                title(Tr::tr("Benchmark Metrics")),
-                Column { s.metrics }
-            },
-            br,
-            s.quickCheckForDerivedTests,
-        };
-
-        Column { Row { col, st }, st }.attachTo(widget);
-    });
-}
-
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

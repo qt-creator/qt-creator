@@ -7,8 +7,7 @@
 
 #include "boosttestsettings.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class BoostTestFramework : public ITestFramework
 {
@@ -23,9 +22,7 @@ private:
     ITestParser *createTestParser() override;
     ITestTreeItem *createRootNode() override;
 
-    BoostTestSettings m_settings;
-    BoostTestSettingsPage m_settingsPage{&m_settings, settingsId()};
+    BoostTestSettings m_settings{settingsId()};
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

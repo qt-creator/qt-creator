@@ -5,15 +5,12 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
+namespace Autotest::Internal {
 
-namespace Autotest {
-namespace Internal {
-
-class CatchTestSettings : public Utils::AspectContainer
+class CatchTestSettings : public Core::PagedSettings
 {
 public:
-    CatchTestSettings();
+    explicit CatchTestSettings(Utils::Id settingsId);
 
     Utils::IntegerAspect abortAfter;
     Utils::IntegerAspect benchmarkSamples;
@@ -33,11 +30,4 @@ public:
     Utils::BoolAspect warnOnEmpty;
 };
 
-class CatchTestSettingsPage : public Core::IOptionsPage
-{
-public:
-    CatchTestSettingsPage(CatchTestSettings *settings, Utils::Id settingsId);
-};
-
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

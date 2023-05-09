@@ -7,8 +7,7 @@
 
 #include "catchtestsettings.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class CatchFramework : public ITestFramework
 {
@@ -25,9 +24,7 @@ protected:
 
 private:
     ITestSettings * testSettings() override { return &m_settings; }
-    CatchTestSettings m_settings;
-    CatchTestSettingsPage m_settingsPage{&m_settings, settingsId()};
+    CatchTestSettings m_settings{settingsId()};
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

@@ -7,8 +7,7 @@
 #include "gtestconstants.h"
 #include "gtestsettings.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class GTestFramework : public ITestFramework
 {
@@ -28,9 +27,7 @@ private:
     ITestParser *createTestParser() override;
     ITestTreeItem *createRootNode() override;
 
-    GTestSettings m_settings;
-    GTestSettingsPage m_settingsPage{&m_settings, settingsId()};
+    GTestSettings m_settings{settingsId()};
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

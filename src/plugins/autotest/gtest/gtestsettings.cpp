@@ -11,15 +11,35 @@
 
 #include <utils/layoutbuilder.h>
 
+using namespace Layouting;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
-GTestSettings::GTestSettings()
+GTestSettings::GTestSettings(Utils::Id settingsId)
 {
     setSettingsGroups("Autotest", "GTest");
     setAutoApply(false);
+
+    setId(settingsId);
+    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+    setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+    setSettings(this);
+
+    setLayouter([this](QWidget *widget) {
+        Column { Row { Column {
+            Grid {
+                runDisabled, br,
+                breakOnFailure, br,
+                repeat, iterations, br,
+                shuffle, seed
+            },
+            Form {
+                groupMode,
+                gtestFilter
+            }
+        }, st }, st }.attachTo(widget);
+    });
 
     registerAspect(&iterations);
     iterations.setSettingsKey("Iterations");
@@ -111,32 +131,4 @@ GTestSettings::GTestSettings()
     });
 }
 
-GTestSettingsPage::GTestSettingsPage(GTestSettings *settings, Id settingsId)
-{
-    setId(settingsId);
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        GTestSettings &s = *settings;
-        using namespace Layouting;
-
-        Grid grid {
-            s.runDisabled, br,
-            s.breakOnFailure, br,
-            s.repeat, s.iterations, br,
-            s.shuffle, s.seed
-        };
-
-        Form form {
-            s.groupMode,
-            s.gtestFilter
-        };
-
-        Column { Row { Column { grid, form, st }, st } }.attachTo(widget);
-    });
-}
-
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal
