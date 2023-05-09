@@ -21,7 +21,6 @@
 #include <sqlitesessionchangeset.h>
 #include <sqlitevalue.h>
 #include <utils/fileutils.h>
-#include <utils/linecolumn.h>
 #include <variantproperty.h>
 #include <qmldesigner/designercore/imagecache/imagecachestorageinterface.h>
 
@@ -42,11 +41,6 @@ std::ostream &operator<<(std::ostream &out, const monostate &)
 } // namespace std
 
 namespace Utils {
-
-std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn)
-{
-    return out << "(" << lineColumn.line << ", " << lineColumn.column << ")";
-}
 namespace {
 const char * toText(Utils::Language language)
 {

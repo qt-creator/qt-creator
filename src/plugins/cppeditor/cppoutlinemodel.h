@@ -4,6 +4,7 @@
 #pragma once
 
 #include <utils/dropsupport.h>
+#include <utils/textutils.h>
 #include <utils/treemodel.h>
 
 #include <cplusplus/CppDocument.h>
@@ -44,8 +45,8 @@ public:
 
     bool isGenerated(const QModelIndex &sourceIndex) const;
     Utils::Link linkFromIndex(const QModelIndex &sourceIndex) const;
-    Utils::LineColumn lineColumnFromIndex(const QModelIndex &sourceIndex) const;
-    using Range = std::pair<Utils::LineColumn, Utils::LineColumn>;
+    Utils::Text::Position positionFromIndex(const QModelIndex &sourceIndex) const;
+    using Range = std::pair<Utils::Text::Position, Utils::Text::Position>;
     Range rangeFromIndex(const QModelIndex &sourceIndex) const;
 
     // line is 1-based and column is 0-based

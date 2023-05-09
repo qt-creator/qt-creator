@@ -72,7 +72,6 @@ class LineColumn;
 class SmallStringView;
 class FilePath;
 
-std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn);
 std::ostream &operator<<(std::ostream &out, const Utils::Language &language);
 std::ostream &operator<<(std::ostream &out, const Utils::LanguageVersion &languageVersion);
 std::ostream &operator<<(std::ostream &out, const Utils::LanguageExtension &languageExtension);

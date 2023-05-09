@@ -14,7 +14,6 @@
 #include <texteditor/textdocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <utils/linecolumn.h>
 #include <utils/treeviewcombobox.h>
 
 #include <QAction>

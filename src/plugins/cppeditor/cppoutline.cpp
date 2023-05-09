@@ -13,7 +13,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <utils/linecolumn.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -184,8 +183,8 @@ void CppOutlineWidget::updateIndexNow()
 void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
 {
     QModelIndex index = m_proxyModel->mapToSource(proxyIndex);
-    Utils::LineColumn lineColumn
-        = m_editor->cppEditorDocument()->outlineModel().lineColumnFromIndex(index);
+    Utils::Text::Position lineColumn
+        = m_editor->cppEditorDocument()->outlineModel().positionFromIndex(index);
     if (!lineColumn.isValid())
         return;
 

@@ -185,7 +185,6 @@ Project {
             "launchersocket.h",
             "layoutbuilder.cpp",
             "layoutbuilder.h",
-            "linecolumn.h",
             "link.cpp",
             "link.h",
             "listmodel.h",
