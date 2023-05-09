@@ -9,6 +9,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/aspects.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -202,6 +203,14 @@ void IOptionsPage::setSettings(AspectContainer *settings)
 void IOptionsPage::setLayouter(const std::function<void(QWidget *w)> &layouter)
 {
     m_layouter = layouter;
+}
+
+void IOptionsPage::setLayout(const Layouting::LayoutItem &layout)
+{
+    using namespace Layouting;
+    m_layouter = [layout](QWidget *widget) {
+        Column { Row { Column { layout, st }, st } }.attachTo(widget);
+    };
 }
 
 /*!

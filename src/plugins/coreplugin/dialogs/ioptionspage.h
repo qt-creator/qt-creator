@@ -16,6 +16,8 @@
 
 #include <functional>
 
+namespace Layouting { class LayoutItem; };
+
 namespace Utils { class AspectContainer; };
 
 namespace Core {
@@ -73,6 +75,7 @@ protected:
     void setCategoryIconPath(const Utils::FilePath &categoryIconPath);
     void setSettings(Utils::AspectContainer *settings);
     void setLayouter(const std::function<void(QWidget *w)> &layouter);
+    void setLayout(const Layouting::LayoutItem &layout);
 
     // Used in FontSettingsPage. FIXME?
     QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
