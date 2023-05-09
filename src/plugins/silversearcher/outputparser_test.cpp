@@ -60,8 +60,7 @@ void OutputParserTest::test()
 {
     QFETCH(QString, parserOutput);
     QFETCH(SearchResultItems, results);
-    SilverSearcher::SilverSearcherOutputParser ssop(parserOutput);
-    const SearchResultItems items = ssop.parse();
+    const SearchResultItems items = SilverSearcher::parse(parserOutput);
     QCOMPARE(items, results);
 }
 

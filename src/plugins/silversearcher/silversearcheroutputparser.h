@@ -3,36 +3,13 @@
 
 #pragma once
 
-#include <coreplugin/find/searchresultwindow.h>
-#include <utils/filesearch.h>
+#include <utils/searchresultitem.h>
 
-#include <QList>
 #include <QRegularExpression>
 
 namespace SilverSearcher {
 
-class SilverSearcherOutputParser
-{
-public:
-    SilverSearcherOutputParser(const QString &output, const QRegularExpression &regexp = {});
-
-    Utils::SearchResultItems parse();
-
-private:
-    int parseMatches(int lineNumber);
-    int parseMatchLength();
-    int parseMatchIndex();
-    int parseLineNumber();
-    bool parseFilePath();
-    bool parseText();
-
-    QString output;
-    QRegularExpression regexp;
-    bool hasRegexp = false;
-    int outputSize = 0;
-    int index = 0;
-    Utils::SearchResultItem item;
-    Utils::SearchResultItems items;
-};
+Utils::SearchResultItems parse(const QString &output,
+                               const std::optional<QRegularExpression> &regExp = {});
 
 } // namespace SilverSearcher

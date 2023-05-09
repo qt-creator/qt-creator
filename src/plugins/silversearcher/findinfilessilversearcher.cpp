@@ -110,17 +110,17 @@ void runSilverSeacher(QPromise<SearchResultItems> &promise, FileFindParameters p
     process.setCommand({"ag", arguments});
     process.start();
     if (process.waitForFinished()) {
-        QRegularExpression regexp;
+        std::optional<QRegularExpression> regExp;
         if (parameters.flags & FindRegularExpression) {
+            regExp = QRegularExpression();
             const QRegularExpression::PatternOptions patternOptions
                 = (parameters.flags & FindCaseSensitively)
                       ? QRegularExpression::NoPatternOption
                       : QRegularExpression::CaseInsensitiveOption;
-            regexp.setPattern(parameters.text);
-            regexp.setPatternOptions(patternOptions);
+            regExp->setPattern(parameters.text);
+            regExp->setPatternOptions(patternOptions);
         }
-        SilverSearcher::SilverSearcherOutputParser parser(process.cleanedStdOut(), regexp);
-        const SearchResultItems items = parser.parse();
+        const SearchResultItems items = SilverSearcher::parse(process.cleanedStdOut(), regExp);
         if (!items.isEmpty())
             promise.addResult(items);
     } else {
