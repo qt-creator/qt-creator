@@ -5,6 +5,7 @@
 
 #include "cmakebuildconfiguration.h"
 #include "cmakekitinformation.h"
+#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmaketoolmanager.h"
@@ -15,6 +16,7 @@
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -92,9 +94,9 @@ static QString uniqueCMakeToolDisplayName(CMakeTool &tool)
 
 // CMakeProjectImporter
 
-CMakeProjectImporter::CMakeProjectImporter(const FilePath &path, const PresetsData &presetsData)
+CMakeProjectImporter::CMakeProjectImporter(const FilePath &path, const CMakeProject *project)
     : QtProjectImporter(path)
-    , m_presetsData(presetsData)
+    , m_project(project)
     , m_presetsTempDir("qtc-cmake-presets-XXXXXXXX")
 {
     useTemporaryKitAspect(CMakeKitAspect::id(),
@@ -119,7 +121,7 @@ FilePaths CMakeProjectImporter::importCandidates()
         candidates << scanDirectory(shadowBuildDirectory.absolutePath(), QString());
     }
 
-    for (const auto &configPreset : m_presetsData.configurePresets) {
+    for (const auto &configPreset : m_project->presetsData().configurePresets) {
         if (configPreset.hidden.value())
             continue;
 
@@ -150,6 +152,21 @@ FilePaths CMakeProjectImporter::importCandidates()
     const FilePaths finalists = Utils::filteredUnique(candidates);
     qCInfo(cmInputLog) << "import candidates:" << finalists;
     return finalists;
+}
+
+Target *CMakeProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
+{
+    for (Kit *kit : m_project->oldPresetKits()) {
+        const bool haveKit = Utils::contains(possibleTargets, [kit](const auto &target) {
+            return target->kit() == kit;
+        });
+
+        if (!haveKit)
+            KitManager::deregisterKit(kit);
+    }
+    m_project->setOldPresetKits({});
+
+    return ProjectImporter::preferredTarget(possibleTargets);
 }
 
 static CMakeConfig configurationFromPresetProbe(
@@ -618,7 +635,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
 
         const QString presetName = importPath.fileName();
         PresetsDetails::ConfigurePreset configurePreset
-            = Utils::findOrDefault(m_presetsData.configurePresets,
+            = Utils::findOrDefault(m_project->presetsData().configurePresets,
                                    [presetName](const PresetsDetails::ConfigurePreset &preset) {
                                        return preset.name == presetName;
                                    });

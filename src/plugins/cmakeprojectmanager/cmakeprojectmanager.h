@@ -30,12 +30,14 @@ private:
     void buildFile(ProjectExplorer::Node *node = nullptr);
     void updateBuildFileAction();
     void enableBuildFileMenus(ProjectExplorer::Node *node);
+    void reloadCMakePresets();
 
     QAction *m_runCMakeAction;
     QAction *m_clearCMakeCacheAction;
     QAction *m_runCMakeActionContextMenu;
     QAction *m_rescanProjectAction;
     QAction *m_buildFileContextMenu;
+    QAction *m_reloadCMakePresetsAction;
     Utils::ParameterAction *m_buildFileAction;
 };
 

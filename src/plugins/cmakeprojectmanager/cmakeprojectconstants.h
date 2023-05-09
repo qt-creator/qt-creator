@@ -17,6 +17,7 @@ const char BUILD_FILE_CONTEXT_MENU[] = "CMakeProject.BuildFileContextMenu";
 const char BUILD_FILE[] = "CMakeProject.BuildFile";
 const char CMAKE_HOME_DIR[] = "CMakeProject.HomeDirectory";
 const char QML_DEBUG_SETTING[] = "CMakeProject.EnableQmlDebugging";
+const char RELOAD_CMAKE_PRESETS[] = "CMakeProject.ReloadCMakePresets";
 
 const char CMAKEFORMATTER_SETTINGS_GROUP[] = "CMakeFormatter";
 const char CMAKEFORMATTER_GENERAL_GROUP[] = "General";

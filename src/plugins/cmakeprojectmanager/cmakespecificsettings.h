@@ -18,6 +18,7 @@ public:
     Utils::StringAspect ninjaPath;
     Utils::BoolAspect packageManagerAutoSetup;
     Utils::BoolAspect askBeforeReConfigureInitialParams;
+    Utils::BoolAspect askBeforePresetsReload;
     Utils::BoolAspect showSourceSubFolders;
     Utils::BoolAspect showAdvancedOptionsByDefault;
 };

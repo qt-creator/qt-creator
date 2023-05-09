@@ -38,6 +38,7 @@ CMakeSpecificSettings::CMakeSpecificSettings()
             autorunCMake,
             packageManagerAutoSetup,
             askBeforeReConfigureInitialParams,
+            askBeforePresetsReload,
             showSourceSubFolders,
             showAdvancedOptionsByDefault,
             st
@@ -76,6 +77,11 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     askBeforeReConfigureInitialParams.setDefaultValue(true);
     askBeforeReConfigureInitialParams.setLabelText(::CMakeProjectManager::Tr::tr("Ask before re-configuring with "
         "initial parameters"));
+
+    registerAspect(&askBeforePresetsReload);
+    askBeforePresetsReload.setSettingsKey("AskBeforePresetsReload");
+    askBeforePresetsReload.setDefaultValue(true);
+    askBeforePresetsReload.setLabelText(::CMakeProjectManager::Tr::tr("Ask before reloading CMake Presets"));
 
     registerAspect(&showSourceSubFolders);
     showSourceSubFolders.setSettingsKey("ShowSourceSubFolders");
