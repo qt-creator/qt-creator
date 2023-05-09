@@ -14,7 +14,7 @@
 
 namespace Utils {
 
-namespace Internal { class QtcProcessPrivate; }
+namespace Internal { class ProcessPrivate; }
 
 namespace Pty {
 
@@ -104,7 +104,7 @@ private:
     // - Done is being called in Starting or Running state.
     virtual bool waitForSignal(ProcessSignalType signalType, int msecs) = 0;
 
-    friend class Internal::QtcProcessPrivate;
+    friend class Internal::ProcessPrivate;
 };
 
 class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
@@ -143,7 +143,7 @@ private:
     virtual ProcessBlockingInterface *processBlockingInterface() const { return nullptr; }
 
     friend class Process;
-    friend class Internal::QtcProcessPrivate;
+    friend class Internal::ProcessPrivate;
 };
 
 } // namespace Utils

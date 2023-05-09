@@ -9,7 +9,7 @@ namespace VcsBase {
 
 enum class RunFlags {
     None                   = 0,         // Empty.
-    // QtcProcess related
+    // Process related
     MergeOutputChannels    = (1 <<  0), // See QProcess::ProcessChannelMode::MergedChannels.
     ForceCLocale           = (1 <<  1), // Force C-locale, sets LANG and LANGUAGE env vars to "C".
     UseEventLoop           = (1 <<  2), // Use event loop when executed in UI thread with

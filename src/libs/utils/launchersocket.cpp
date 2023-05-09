@@ -228,7 +228,7 @@ void CallerHandle::start(const QString &program, const QStringList &arguments)
 
     auto startWhenRunning = [&program, &oldProgram = m_command] {
         qWarning() << "Trying to start" << program << "while" << oldProgram
-                   << "is still running for the same QtcProcess instance."
+                   << "is still running for the same Process instance."
                    << "The current call will be ignored.";
     };
     QTC_ASSERT(m_processState == QProcess::NotRunning, startWhenRunning(); return);
@@ -622,7 +622,7 @@ void LauncherSocket::handleSocketDataAvailable()
         }
     } else {
 //        qDebug() << "No handler for token" << m_packetParser.token() << m_handles;
-        // in this case the QtcProcess was canceled and deleted
+        // in this case the Process was canceled and deleted
     }
     handleSocketDataAvailable();
 }

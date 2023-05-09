@@ -1198,7 +1198,7 @@ bool SquishTools::setupRunnerPath()
 void SquishTools::setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmdLine)
 {
     QTC_ASSERT(m_primaryRunner, return);
-    // avoid crashes on fast re-usage of QtcProcess
+    // avoid crashes on fast re-usage of Process
     m_primaryRunner->closeProcess();
 
     if (m_request == RunTestRequested) {

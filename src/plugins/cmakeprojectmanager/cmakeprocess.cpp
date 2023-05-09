@@ -38,7 +38,7 @@ CMakeProcess::~CMakeProcess()
     m_parser.flush();
 }
 
-static const int failedToStartExitCode = 0xFF; // See QtcProcessPrivate::handleDone() impl
+static const int failedToStartExitCode = 0xFF; // See ProcessPrivate::handleDone() impl
 
 void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &arguments)
 {

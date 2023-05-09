@@ -74,7 +74,7 @@ void ProcessProgressPrivate::parseProgress(const QString &inputText)
     \brief The ProcessProgress class is responsible for showing progress of the running process.
 
     It's possible to cancel the running process automatically after pressing a small 'x'
-    indicator on progress panel. In this case QtcProcess::stop() method is being called.
+    indicator on progress panel. In this case Process::stop() method is being called.
 */
 
 ProcessProgress::ProcessProgress(Process *process)

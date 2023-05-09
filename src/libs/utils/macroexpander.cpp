@@ -196,7 +196,7 @@ using namespace Internal;
         you would use the one provided by the variable manager). Mostly the same as
         MacroExpander::expandedString(), but also has a variant that does the replacement inline
         instead of returning a new string.
-    \li Using Utils::QtcProcess::expandMacros(). This expands the string while conforming to the
+    \li Using Utils::CommandLine::expandMacros(). This expands the string while conforming to the
         quoting rules of the platform it is run on. Use this function with the variable manager's
         macro expander if your string will be passed as a command line parameter string to an
         external command.

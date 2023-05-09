@@ -91,7 +91,7 @@ inline bool isWindowsDriveLetter(QChar ch);
         executed on the associated OS.
 
         \note The FilePath passed as executable to a CommandLine is typically
-        not touched by user code. QtcProcess will use it to determine
+        not touched by user code. The Process will use it to determine
         the remote system and apply the necessary conversions internally.
 
     \li FilePath::toFSPathString()

@@ -2468,7 +2468,7 @@ void GitClient::tryLaunchingGitK(const Environment &env,
         arguments << "--" << fileName;
     VcsOutputWindow::appendCommand(workingDirectory, {binary, arguments});
 
-    // This should always use QtcProcess::startDetached (as not to kill
+    // This should always use Process::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     if (!settings().path.value().isEmpty()) {
         auto process = new Process(const_cast<GitClient*>(this));

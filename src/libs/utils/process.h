@@ -22,7 +22,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-namespace Internal { class QtcProcessPrivate; }
+namespace Internal { class ProcessPrivate; }
 namespace Pty { class Data; }
 
 class Environment;
@@ -131,7 +131,7 @@ public:
 
     // Other enhancements.
     // These (or some of them) may be potentially moved outside of the class.
-    // For some we may aggregate in another public utils class (or subclass of QtcProcess)?
+    // Some of them could be aggregated in another public utils class.
 
     // TODO: Unused currently? Should it serve as a compartment for contrary of remoteEnvironment?
     static Environment systemEnvironmentForBinary(const FilePath &filePath);
@@ -198,8 +198,8 @@ signals:
 private:
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const Process &r);
 
-    friend class Internal::QtcProcessPrivate;
-    Internal::QtcProcessPrivate *d = nullptr;
+    friend class Internal::ProcessPrivate;
+    Internal::ProcessPrivate *d = nullptr;
 };
 
 class DeviceProcessHooks

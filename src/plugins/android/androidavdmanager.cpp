@@ -258,7 +258,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
         return false;
     }
 
-    // TODO: Here we are potentially leaking QtcProcess instance in case when shutdown happens
+    // TODO: Here we are potentially leaking Process instance in case when shutdown happens
     // after the avdProcess has started and before it has finished. Giving a parent object here
     // should solve the issue. However, AndroidAvdManager is not a QObject, so no clue what parent
     // would be the most appropriate. Preferably some object taken form android plugin...

@@ -1375,7 +1375,7 @@ void SimpleTargetRunnerPrivate::start()
     Encapsulates processes running in a console or as GUI processes,
     captures debug output of GUI processes on Windows (outputDebugString()).
 
-    \sa Utils::QtcProcess
+    \sa Utils::Process
 */
 
 SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)

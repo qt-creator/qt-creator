@@ -171,9 +171,9 @@ enum { syncDebug = 0 };
 
 enum { defaultMaxHangTimerCount = 10 };
 
-static Q_LOGGING_CATEGORY(processLog, "qtc.utils.qtcprocess", QtWarningMsg)
-static Q_LOGGING_CATEGORY(processStdoutLog, "qtc.utils.qtcprocess.stdout", QtWarningMsg)
-static Q_LOGGING_CATEGORY(processStderrLog, "qtc.utils.qtcprocess.stderr", QtWarningMsg)
+static Q_LOGGING_CATEGORY(processLog, "qtc.utils.process", QtWarningMsg)
+static Q_LOGGING_CATEGORY(processStdoutLog, "qtc.utils.process.stdout", QtWarningMsg)
+static Q_LOGGING_CATEGORY(processStderrLog, "qtc.utils.process.stderr", QtWarningMsg)
 
 static DeviceProcessHooks s_deviceHooks;
 
@@ -454,7 +454,7 @@ private:
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
         QTC_ASSERT(QThread::currentThread()->eventDispatcher(),
-                   qWarning("QtcProcess::start(): Starting a process in a non QThread thread "
+                   qWarning("Process::start(): Starting a process in a non QThread thread "
                             "may cause infinite hang when destroying the running process."));
         ProcessStartHandler *handler = m_process->processStartHandler();
         handler->setProcessMode(m_setup.m_processMode);
@@ -684,7 +684,7 @@ private:
 class GeneralProcessBlockingImpl : public ProcessBlockingInterface
 {
 public:
-    GeneralProcessBlockingImpl(QtcProcessPrivate *parent);
+    GeneralProcessBlockingImpl(ProcessPrivate *parent);
 
     void flush() { flushSignals(takeAllSignals()); }
     bool flushFor(ProcessSignalType signalType) {
@@ -708,16 +708,16 @@ private:
     void handleReadyReadSignal(const ReadyReadSignal *launcherSignal);
     void handleDoneSignal(const DoneSignal *launcherSignal);
 
-    QtcProcessPrivate *m_caller = nullptr;
+    ProcessPrivate *m_caller = nullptr;
     std::unique_ptr<ProcessInterfaceHandler> m_processHandler;
     mutable QMutex m_mutex;
     QList<ProcessInterfaceSignal *> m_signals;
 };
 
-class QtcProcessPrivate : public QObject
+class ProcessPrivate : public QObject
 {
 public:
-    explicit QtcProcessPrivate(Process *parent)
+    explicit ProcessPrivate(Process *parent)
         : QObject(parent)
         , q(parent)
         , m_killTimer(this)
@@ -754,11 +754,11 @@ public:
         m_process.reset(process);
         m_process->setParent(this);
         connect(m_process.get(), &ProcessInterface::started,
-                this, &QtcProcessPrivate::handleStarted);
+                this, &ProcessPrivate::handleStarted);
         connect(m_process.get(), &ProcessInterface::readyRead,
-                this, &QtcProcessPrivate::handleReadyRead);
+                this, &ProcessPrivate::handleReadyRead);
         connect(m_process.get(), &ProcessInterface::done,
-                this, &QtcProcessPrivate::handleDone);
+                this, &ProcessPrivate::handleDone);
 
         m_blockingInterface.reset(process->processBlockingInterface());
         if (!m_blockingInterface)
@@ -899,7 +899,7 @@ void ProcessInterfaceHandler::appendSignal(ProcessInterfaceSignal *newSignal)
     QMetaObject::invokeMethod(m_caller, &GeneralProcessBlockingImpl::flush);
 }
 
-GeneralProcessBlockingImpl::GeneralProcessBlockingImpl(QtcProcessPrivate *parent)
+GeneralProcessBlockingImpl::GeneralProcessBlockingImpl(ProcessPrivate *parent)
     : m_caller(parent)
     , m_processHandler(new ProcessInterfaceHandler(this, parent->m_process.get()))
 {
@@ -907,7 +907,7 @@ GeneralProcessBlockingImpl::GeneralProcessBlockingImpl(QtcProcessPrivate *parent
     parent->m_process.get()->setParent(m_processHandler.get());
     m_processHandler->setParent(this);
     // So the hierarchy looks like:
-    // QtcProcessPrivate
+    // ProcessPrivate
     //  |
     //  +- GeneralProcessBlockingImpl
     //      |
@@ -1021,7 +1021,7 @@ void GeneralProcessBlockingImpl::appendSignal(ProcessInterfaceSignal *newSignal)
     m_signals.append(newSignal);
 }
 
-bool QtcProcessPrivate::waitForSignal(ProcessSignalType newSignal, int msecs)
+bool ProcessPrivate::waitForSignal(ProcessSignalType newSignal, int msecs)
 {
     const QDeadlineTimer timeout(msecs);
     const QDeadlineTimer currentKillTimeout(m_killTimer.remainingTime());
@@ -1037,13 +1037,13 @@ bool QtcProcessPrivate::waitForSignal(ProcessSignalType newSignal, int msecs)
     return result;
 }
 
-Qt::ConnectionType QtcProcessPrivate::connectionType() const
+Qt::ConnectionType ProcessPrivate::connectionType() const
 {
     return (m_process->thread() == thread()) ? Qt::DirectConnection
                                              : Qt::BlockingQueuedConnection;
 }
 
-void QtcProcessPrivate::sendControlSignal(ControlSignal controlSignal)
+void ProcessPrivate::sendControlSignal(ControlSignal controlSignal)
 {
     QTC_ASSERT(QThread::currentThread() == thread(), return);
     if (!m_process || (m_state == QProcess::NotRunning))
@@ -1057,7 +1057,7 @@ void QtcProcessPrivate::sendControlSignal(ControlSignal controlSignal)
     }, connectionType());
 }
 
-void QtcProcessPrivate::clearForRun()
+void ProcessPrivate::clearForRun()
 {
     m_hangTimerCount = 0;
     m_stdOut.clearForRun();
@@ -1073,7 +1073,7 @@ void QtcProcessPrivate::clearForRun()
     m_resultData = {};
 }
 
-ProcessResult QtcProcessPrivate::interpretExitCode(int exitCode)
+ProcessResult ProcessPrivate::interpretExitCode(int exitCode)
 {
     if (m_exitCodeInterpreter)
         return m_exitCodeInterpreter(exitCode);
@@ -1085,16 +1085,16 @@ ProcessResult QtcProcessPrivate::interpretExitCode(int exitCode)
 } // Internal
 
 /*!
-    \class Utils::QtcProcess
+    \class Utils::Process
 
-    \brief The QtcProcess class provides functionality for with processes.
+    \brief The Process class provides functionality for with processes.
 
     \sa Utils::ProcessArgs
 */
 
 Process::Process(QObject *parent)
     : QObject(parent),
-    d(new QtcProcessPrivate(this))
+    d(new ProcessPrivate(this))
 {
     qRegisterMetaType<ProcessResultData>("ProcessResultData");
     static int qProcessExitStatusMeta = qRegisterMetaType<QProcess::ExitStatus>();
@@ -1105,7 +1105,7 @@ Process::Process(QObject *parent)
 
 Process::~Process()
 {
-    QTC_ASSERT(!d->m_guard.isLocked(), qWarning("Deleting QtcProcess instance directly from "
+    QTC_ASSERT(!d->m_guard.isLocked(), qWarning("Deleting Process instance directly from "
                "one of its signal handlers will lead to crash!"));
     if (d->m_process)
         d->m_process->disconnect();
@@ -1202,7 +1202,7 @@ void Process::start()
 {
     QTC_ASSERT(state() == QProcess::NotRunning, return);
     QTC_ASSERT(!(d->m_process && d->m_guard.isLocked()),
-               qWarning("Restarting the QtcProcess directly from one of its signal handlers will "
+               qWarning("Restarting the Process directly from one of its signal handlers will "
                         "lead to crash! Consider calling close() prior to direct restart."));
     d->clearForRun();
     ProcessInterface *processImpl = nullptr;
@@ -1497,7 +1497,7 @@ bool Process::waitForStarted(int msecs)
         return true;
     if (d->m_state == QProcess::NotRunning)
         return false;
-    return s_waitForStarted.measureAndRun(&QtcProcessPrivate::waitForSignal, d,
+    return s_waitForStarted.measureAndRun(&ProcessPrivate::waitForSignal, d,
                                           ProcessSignalType::Started, msecs);
 }
 
@@ -1726,7 +1726,7 @@ const QStringList Process::stdErrLines() const
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const Process &r)
 {
     QDebug nsp = str.nospace();
-    nsp << "QtcProcess: result="
+    nsp << "Process: result="
         << int(r.d->m_result) << " ex=" << r.exitCode() << '\n'
         << r.d->m_stdOut.rawData.size() << " bytes stdout, stderr=" << r.d->m_stdErr.rawData << '\n';
     return str;
@@ -1856,7 +1856,7 @@ void Process::runBlocking(EventLoopMode eventLoopMode)
         // Do not start the event loop in that case.
         if (state() == QProcess::Starting) {
             QTimer timer(this);
-            connect(&timer, &QTimer::timeout, d, &QtcProcessPrivate::slotTimeout);
+            connect(&timer, &QTimer::timeout, d, &ProcessPrivate::slotTimeout);
             timer.setInterval(1000);
             timer.start();
 #ifdef QT_GUI_LIB
@@ -1936,7 +1936,7 @@ void Process::setTextChannelMode(Channel channel, TextChannelMode mode)
     const TextChannelCallback callback = (channel == Channel::Output) ? outputCb : errorCb;
     ChannelBuffer *buffer = channel == Channel::Output ? &d->m_stdOut : &d->m_stdErr;
     QTC_ASSERT(buffer->m_textChannelMode == TextChannelMode::Off, qWarning()
-               << "QtcProcess::setTextChannelMode(): Changing text channel mode for"
+               << "Process::setTextChannelMode(): Changing text channel mode for"
                << (channel == Channel::Output ? "Output": "Error")
                << "channel while it was previously set for this channel.");
     buffer->m_textChannelMode = mode;
@@ -1965,7 +1965,7 @@ TextChannelMode Process::textChannelMode(Channel channel) const
     return buffer->m_textChannelMode;
 }
 
-void QtcProcessPrivate::slotTimeout()
+void ProcessPrivate::slotTimeout()
 {
     if (!m_waitingForUser && (++m_hangTimerCount > m_maxHangTimerCount)) {
         if (debug)
@@ -1986,7 +1986,7 @@ void QtcProcessPrivate::slotTimeout()
     }
 }
 
-void QtcProcessPrivate::handleStarted(qint64 processId, qint64 applicationMainThreadId)
+void ProcessPrivate::handleStarted(qint64 processId, qint64 applicationMainThreadId)
 {
     QTC_CHECK(m_state == QProcess::Starting);
     m_state = QProcess::Running;
@@ -1996,7 +1996,7 @@ void QtcProcessPrivate::handleStarted(qint64 processId, qint64 applicationMainTh
     emitGuardedSignal(&Process::started);
 }
 
-void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByteArray &errorData)
+void ProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByteArray &errorData)
 {
     QTC_CHECK(m_state == QProcess::Running);
 
@@ -2025,7 +2025,7 @@ void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByt
     }
 }
 
-void QtcProcessPrivate::handleDone(const ProcessResultData &data)
+void ProcessPrivate::handleDone(const ProcessResultData &data)
 {
     m_killTimer.stop();
     const bool wasCanceled = m_resultData.m_canceledByUser;
@@ -2091,7 +2091,7 @@ static QString blockingMessage(const QVariant &variant)
     return "blocking without event loop";
 }
 
-void QtcProcessPrivate::setupDebugLog()
+void ProcessPrivate::setupDebugLog()
 {
     if (!processLog().isDebugEnabled())
         return;
@@ -2140,7 +2140,7 @@ void QtcProcessPrivate::setupDebugLog()
     });
 }
 
-void QtcProcessPrivate::storeEventLoopDebugInfo(const QVariant &value)
+void ProcessPrivate::storeEventLoopDebugInfo(const QVariant &value)
 {
     if (processLog().isDebugEnabled())
         setProperty(QTC_PROCESS_BLOCKING_TYPE, value);

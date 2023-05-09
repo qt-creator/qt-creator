@@ -893,7 +893,7 @@ bool ProcessArgs::expandMacros(QString *cmd, AbstractMacroExpander *mx, OsType o
                                     break;
                                 case CrtClosed:
                                     // Two consecutive quotes make a literal quote - and
-                                    // still close quoting. See QtcProcess::quoteArg().
+                                    // still close quoting. See Process::quoteArg().
                                     crtState = CrtInWord;
                                     break;
                                 case CrtHadQuote:

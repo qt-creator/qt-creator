@@ -35,7 +35,7 @@ public:
 
     static void invokeSubProcess();
 
-    // Many tests inside tst_qtcprocess need to start a new subprocess with custom code.
+    // Many tests inside tst_Process need to start a new subprocess with custom code.
     // In order to simplify things we produce just one separate executable - processtestapp.
     // We embed all our custom subprocesses in processtestapp and enclose them in separate
     // classes. We select desired process to run by setting the relevant environment variable.
