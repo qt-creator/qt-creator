@@ -613,12 +613,12 @@ Application::Application(std::initializer_list<LayoutItem> items)
 
 int Application::exec(int &argc, char *argv[])
 {
-    auto app = new QApplication(argc, argv);
+    QApplication app(argc, argv);
     LayoutBuilder builder;
     addItemHelper(builder, *this);
     if (QWidget *widget = builder.stack.last().widget)
         widget->show();
-    return app->exec();
+    return app.exec();
 }
 
 // "Properties"
