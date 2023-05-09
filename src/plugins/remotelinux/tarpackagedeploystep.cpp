@@ -87,7 +87,7 @@ TaskItem TarPackageDeployStep::uploadTask()
         const ProcessResultData result = transfer.resultData();
         addErrorMessage(result.m_errorString);
     };
-    return Transfer(setupHandler, doneHandler, errorHandler);
+    return FileTransferTask(setupHandler, doneHandler, errorHandler);
 }
 
 TaskItem TarPackageDeployStep::installTask()

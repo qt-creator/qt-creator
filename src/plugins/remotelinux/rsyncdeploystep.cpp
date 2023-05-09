@@ -134,7 +134,7 @@ TaskItem RsyncDeployStep::transferTask()
                             + "\n" + result.m_errorString);
         }
     };
-    return Transfer(setupHandler, {}, errorHandler);
+    return FileTransferTask(setupHandler, {}, errorHandler);
 }
 
 Group RsyncDeployStep::deployRecipe()

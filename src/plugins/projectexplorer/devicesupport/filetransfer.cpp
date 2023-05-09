@@ -193,7 +193,7 @@ QString FileTransfer::transferMethodName(FileTransferMethod method)
     return {};
 }
 
-FileTransferAdapter::FileTransferAdapter()
+FileTransferTaskAdapter::FileTransferTaskAdapter()
 {
     connect(task(), &FileTransfer::done, this, [this](const ProcessResultData &result) {
         emit done(result.m_exitStatus == QProcess::NormalExit

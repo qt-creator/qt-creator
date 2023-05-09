@@ -213,7 +213,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method
                                            .arg(generic, sftp, rsync));
         }
     };
-    return TransferTest(setup, done, error);
+    return FileTransferTestTask(setup, done, error);
 }
 
 TaskItem GenericLinuxDeviceTesterPrivate::transferTasks() const

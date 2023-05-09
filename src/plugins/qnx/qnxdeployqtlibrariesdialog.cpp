@@ -193,7 +193,7 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
     const auto errorHandler = [this](const FileTransfer &transfer) {
         emitErrorMessage(transfer.resultData().m_errorString);
     };
-    return Transfer(setupHandler, {}, errorHandler);
+    return FileTransferTask(setupHandler, {}, errorHandler);
 }
 
 TaskItem QnxDeployQtLibrariesDialogPrivate::chmodTask(const DeployableFile &file)

@@ -226,7 +226,7 @@ TaskItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &s
         addErrorMessage(transfer.resultData().m_errorString);
     };
 
-    return Transfer(setupHandler, {}, errorHandler);
+    return FileTransferTask(setupHandler, {}, errorHandler);
 }
 
 TaskItem GenericDirectUploadStep::chmodTask(const DeployableFile &file)
