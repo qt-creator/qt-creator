@@ -54,13 +54,13 @@ bool ShellIntegration::canIntegrate(const Utils::CommandLine &cmdLine)
     if (cmdLine.executable().needsDevice())
         return false; // TODO: Allow integration for remote shells
 
-    if (!cmdLine.arguments().isEmpty())
+    if (cmdLine.executable().baseName() == "zsh")
+        return true;
+
+    if (!cmdLine.arguments().isEmpty() && cmdLine.arguments() != "-l")
         return false;
 
     if (cmdLine.executable().baseName() == "bash")
-        return true;
-
-    if (cmdLine.executable().baseName() == "zsh")
         return true;
 
     if (cmdLine.executable().baseName() == "pwsh"
