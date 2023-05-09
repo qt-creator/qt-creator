@@ -10,18 +10,8 @@
 namespace Terminal::Internal {
 
 CellIterator::CellIterator(const TerminalSurface *surface, QPoint pos)
-    : m_state(State::INSIDE)
-    , m_surface(surface)
-{
-    m_pos = (pos.x()) + (pos.y() * surface->liveSize().width());
-    if (m_pos < 0)
-        m_pos = 0;
-    if (m_pos == 0)
-        m_state = State::BEGIN;
-
-    m_maxpos = surface->fullSize().width() * (surface->fullSize().height()) - 1;
-    updateChar();
-}
+    : CellIterator(surface, pos.x() + (pos.y() * surface->liveSize().width()))
+{}
 
 CellIterator::CellIterator(const TerminalSurface *surface, int pos)
     : m_state(State::INSIDE)
@@ -29,23 +19,21 @@ CellIterator::CellIterator(const TerminalSurface *surface, int pos)
 {
     m_maxpos = surface->fullSize().width() * (surface->fullSize().height()) - 1;
     m_pos = qMax(0, qMin(m_maxpos + 1, pos));
-    if (m_pos == 0) {
+
+    if (m_pos == 0)
         m_state = State::BEGIN;
-    } else if (m_pos == m_maxpos + 1) {
+    else if (m_pos == m_maxpos + 1)
         m_state = State::END;
-    }
+
     updateChar();
 }
 
-CellIterator::CellIterator(const TerminalSurface *surface, State state)
-    : m_state(state)
+CellIterator::CellIterator(const TerminalSurface *surface)
+    : m_state(State::END)
     , m_surface(surface)
-    , m_pos()
 {
     m_maxpos = surface->fullSize().width() * (surface->fullSize().height()) - 1;
-    if (state == State::END) {
-        m_pos = m_maxpos + 1;
-    }
+    m_pos = m_maxpos + 1;
 }
 
 QPoint CellIterator::gridPos() const

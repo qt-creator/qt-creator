@@ -26,7 +26,7 @@ public:
 public:
     CellIterator(const TerminalSurface *surface, QPoint pos);
     CellIterator(const TerminalSurface *surface, int pos);
-    CellIterator(const TerminalSurface *surface, State state);
+    CellIterator(const TerminalSurface *surface);
 
 public:
     QPoint gridPos() const;

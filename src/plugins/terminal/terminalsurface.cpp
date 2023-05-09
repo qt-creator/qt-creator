@@ -496,7 +496,7 @@ CellIterator TerminalSurface::begin() const
 
 CellIterator TerminalSurface::end() const
 {
-    return CellIterator(this, CellIterator::State::END);
+    return CellIterator(this);
 }
 
 std::reverse_iterator<CellIterator> TerminalSurface::rbegin() const
