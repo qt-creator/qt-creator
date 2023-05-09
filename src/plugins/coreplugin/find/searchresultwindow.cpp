@@ -12,6 +12,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -621,7 +622,7 @@ QList<QWidget *> SearchResultWindowPrivate::toolBarWidgets()
         m_historyLabel = new QLabel(Tr::tr("History:"));
     if (!m_recentSearchesBox) {
         m_recentSearchesBox = new QComboBox;
-        m_recentSearchesBox->setProperty("drawleftborder", true);
+        m_recentSearchesBox->setProperty(Utils::StyleHelper::C_DRAW_LEFT_BORDER, true);
         m_recentSearchesBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         m_recentSearchesBox->addItem(Tr::tr("New Search"));
         connect(m_recentSearchesBox, &QComboBox::activated,

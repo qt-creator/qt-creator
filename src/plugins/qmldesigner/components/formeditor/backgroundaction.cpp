@@ -3,6 +3,8 @@
 
 #include "backgroundaction.h"
 
+#include <utils/stylehelper.h>
+
 #include <QComboBox>
 #include <QPainter>
 
@@ -52,7 +54,7 @@ QWidget *BackgroundAction::createWidget(QWidget *parent)
     connect(comboBox, &QComboBox::currentIndexChanged,
             this, &BackgroundAction::emitBackgroundChanged);
 
-    comboBox->setProperty("hideborder", true);
+    comboBox->setProperty(Utils::StyleHelper::C_HIDE_BORDER, true);
     comboBox->setToolTip(tr("Set the color of the canvas."));
     m_comboBox = comboBox;
     return comboBox;

@@ -56,6 +56,7 @@
 #include <utils/infobar.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/textutils.h>
 #include <utils/utilsicons.h>
 
@@ -684,13 +685,13 @@ void CppEditorWidget::updateWidgetHighlighting(QWidget *widget, bool highlight)
     if (!widget)
         return;
 
-    widget->setProperty("highlightWidget", highlight);
+    widget->setProperty(StyleHelper::C_HIGHLIGHT_WIDGET, highlight);
     widget->update();
 }
 
 bool CppEditorWidget::isWidgetHighlighted(QWidget *widget)
 {
-    return widget ? widget->property("highlightWidget").toBool() : false;
+    return widget ? widget->property(StyleHelper::C_HIGHLIGHT_WIDGET).toBool() : false;
 }
 
 namespace {

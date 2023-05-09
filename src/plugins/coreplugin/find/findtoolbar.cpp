@@ -158,7 +158,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     mainLayout->setColumnStretch(1, 10);
 
     setFocusProxy(m_findEdit);
-    setProperty("topBorder", true);
+    setProperty(StyleHelper::C_TOP_BORDER, true);
     setSingleRow(false);
 
     QWidget::setTabOrder(m_findEdit, m_replaceEdit);

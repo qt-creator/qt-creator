@@ -669,12 +669,12 @@ QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
 
 void StyleHelper::setPanelWidget(QWidget *widget, bool value)
 {
-    widget->setProperty("panelwidget", value);
+    widget->setProperty(C_PANEL_WIDGET, value);
 }
 
 void StyleHelper::setPanelWidgetSingleRow(QWidget *widget, bool value)
 {
-    widget->setProperty("panelwidget_singlerow", value);
+    widget->setProperty(C_PANEL_WIDGET_SINGLE_ROW, value);
 }
 
 bool StyleHelper::isQDSTheme()

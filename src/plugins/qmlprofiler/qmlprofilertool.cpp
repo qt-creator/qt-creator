@@ -191,7 +191,7 @@ QmlProfilerTool::QmlProfilerTool()
     d->m_displayFeaturesButton->setIcon(Utils::Icons::FILTER.icon());
     d->m_displayFeaturesButton->setToolTip(Tr::tr("Hide or show event categories."));
     d->m_displayFeaturesButton->setPopupMode(QToolButton::InstantPopup);
-    d->m_displayFeaturesButton->setProperty("noArrow", true);
+    d->m_displayFeaturesButton->setProperty(StyleHelper::C_NO_ARROW, true);
     d->m_displayFeaturesMenu = new QMenu(d->m_displayFeaturesButton);
     d->m_displayFeaturesButton->setMenu(d->m_displayFeaturesMenu);
     connect(d->m_displayFeaturesMenu, &QMenu::triggered,

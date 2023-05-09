@@ -26,6 +26,7 @@
 #include <utils/algorithm.h>
 #include <utils/link.h>
 #include <utils/progressindicator.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -192,7 +193,7 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
     m_filterButton = new QToolButton(m_view);
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
     m_filterButton->setToolTip(Tr::tr("Filter Test Tree"));
-    m_filterButton->setProperty("noArrow", true);
+    m_filterButton->setProperty(StyleHelper::C_NO_ARROW, true);
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
     m_filterMenu = new QMenu(m_filterButton);
     initializeFilterMenu();

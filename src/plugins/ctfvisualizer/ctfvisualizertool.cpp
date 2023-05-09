@@ -15,6 +15,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <debugger/analyzer/analyzerconstants.h>
+
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -64,7 +66,7 @@ CtfVisualizerTool::CtfVisualizerTool()
     m_restrictToThreadsButton->setIcon(Utils::Icons::FILTER.icon());
     m_restrictToThreadsButton->setToolTip(Tr::tr("Restrict to Threads"));
     m_restrictToThreadsButton->setPopupMode(QToolButton::InstantPopup);
-    m_restrictToThreadsButton->setProperty("noArrow", true);
+    m_restrictToThreadsButton->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
     m_restrictToThreadsButton->setMenu(m_restrictToThreadsMenu);
     connect(m_restrictToThreadsMenu, &QMenu::triggered,
             this, &CtfVisualizerTool::toggleThreadRestriction);

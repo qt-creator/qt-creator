@@ -197,7 +197,7 @@ void TestResultsPane::createToolButtons()
     m_filterButton = new QToolButton(m_treeView);
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
     m_filterButton->setToolTip(Tr::tr("Filter Test Results"));
-    m_filterButton->setProperty("noArrow", true);
+    m_filterButton->setProperty(StyleHelper::C_NO_ARROW, true);
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
     m_filterMenu = new QMenu(m_filterButton);
     initializeFilterMenu();

@@ -8,6 +8,7 @@
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
 #include <utils/hostosinfo.h>
+#include <utils/itemviews.h>
 #include <utils/qtcassert.h>
 #include <utils/styleanimator.h>
 #include <utils/stylehelper.h>
@@ -57,7 +58,7 @@ static bool isInUnstyledDialogOrPopup(const QWidget *widget)
 {
     // Do not style contents of dialogs or popups without "panelwidget" property
     const QWidget *window = widget->window();
-    if (window->property("panelwidget").toBool())
+    if (window->property(StyleHelper::C_PANEL_WIDGET).toBool())
         return false;
     const Qt::WindowType windowType = window->windowType();
     return (windowType == Qt::Dialog || windowType == Qt::Popup);
@@ -78,15 +79,15 @@ bool panelWidget(const QWidget *widget)
     if (qobject_cast<const QTabBar *>(widget))
         return styleEnabled(widget);
 
-    if (qobject_cast<const QScrollArea *>(widget))
-        return widget->property("panelwidget_singlerow").toBool(); // See DebuggerMainWindowPrivate
+    if (qobject_cast<const QScrollArea *>(widget)) // See DebuggerMainWindowPrivate
+        return widget->property(StyleHelper::C_PANEL_WIDGET_SINGLE_ROW).toBool();
 
     const QWidget *p = widget;
     while (p) {
         if (qobject_cast<const QToolBar *>(p) ||
             qobject_cast<const QStatusBar *>(p) ||
             qobject_cast<const QMenuBar *>(p) ||
-            p->property("panelwidget").toBool())
+            p->property(StyleHelper::C_PANEL_WIDGET).toBool())
             return styleEnabled(widget);
         p = p->parentWidget();
     }
@@ -121,7 +122,7 @@ bool lightColored(const QWidget *widget)
 
     const QWidget *p = widget;
     while (p) {
-        if (p->property("lightColored").toBool())
+        if (p->property(StyleHelper::C_LIGHT_COLORED).toBool())
             return true;
         p = p->parentWidget();
     }
@@ -417,7 +418,7 @@ QSize ManhattanStyle::sizeFromContents(ContentsType type, const QStyleOption *op
 
     switch (type) {
     case CT_Splitter:
-        if (widget && widget->property("minisplitter").toBool())
+        if (widget && widget->property(StyleHelper::C_MINI_SPLITTER).toBool())
             newSize = QSize(1, 1);
         break;
     case CT_ComboBox:
@@ -538,7 +539,7 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
         break;
 #endif
     case PM_SplitterWidth:
-        if (widget && widget->property("minisplitter").toBool())
+        if (widget && widget->property(StyleHelper::C_MINI_SPLITTER).toBool())
             retval = 1;
         break;
     case PM_ToolBarIconSize:
@@ -672,7 +673,7 @@ void ManhattanStyle::polish(QWidget *widget)
                    || qobject_cast<QCheckBox*>(widget)) {
             widget->setPalette(panelPalette(widget->palette(), lightColored(widget)));
         } else if ((qobject_cast<QToolBar*>(widget) && !StyleHelper::isQDSTheme())
-                || widget->property("panelwidget_singlerow").toBool()) {
+                   || widget->property(StyleHelper::C_PANEL_WIDGET_SINGLE_ROW).toBool()) {
             widget->setFixedHeight(height);
         } else if (qobject_cast<QStatusBar*>(widget)) {
             const bool flatAndNotCompact =
@@ -689,7 +690,7 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setMaximumHeight(height - 2);
             widget->setAttribute(Qt::WA_Hover);
         } else if (qobject_cast<QScrollArea*>(widget)
-                   && widget->property("panelwidget_singlerow").toBool()) {
+                   && widget->property(StyleHelper::C_PANEL_WIDGET_SINGLE_ROW).toBool()) {
             widget->setFixedHeight(height);
         }
     }
@@ -767,7 +768,7 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
     case QStyle::SH_ItemView_ActivateItemOnSingleClick:
         // default depends on the style
         if (widget) {
-            QVariant activationMode = widget->property("ActivationMode");
+            QVariant activationMode = widget->property(activationModeC);
             if (activationMode.isValid())
                 ret = activationMode.toBool();
         }
@@ -1064,7 +1065,8 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
                 anim->paint(painter, option);
             } else {
                 const bool pressed = option->state & State_Sunken || option->state & State_On
-                                     || (widget && widget->property("highlightWidget").toBool());
+                                     || (widget && widget->property(StyleHelper::C_HIGHLIGHT_WIDGET)
+                                                       .toBool());
                 painter->setPen(StyleHelper::sidebarShadow());
                 if (pressed) {
                     StyleHelper::drawPanelBgRect(
@@ -1479,7 +1481,8 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 painter->save();
                 QRect editRect = subControlRect(CC_ComboBox, cb, SC_ComboBoxEditField, widget);
                 QPalette customPal = cb->palette;
-                bool drawIcon = !(widget && widget->property("hideicon").toBool());
+                const bool drawIcon =
+                    !(widget && widget->property(StyleHelper::C_HIDE_ICON).toBool());
 
                 if (!cb->currentIcon.isNull() && drawIcon) {
                     QIcon::Mode mode = cb->state & State_Enabled ? QIcon::Normal
@@ -1504,14 +1507,15 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 }
 
                 Qt::TextElideMode elideMode = Qt::ElideRight;
-                if (widget && widget->dynamicPropertyNames().contains("elidemode"))
-                    elideMode = widget->property("elidemode").value<Qt::TextElideMode>();
+                if (widget && widget->dynamicPropertyNames().contains(StyleHelper::C_ELIDE_MODE))
+                    elideMode = widget->property(StyleHelper::C_ELIDE_MODE)
+                                    .value<Qt::TextElideMode>();
 
                 QLatin1Char asterisk('*');
                 int elideWidth = editRect.width();
 
                 bool notElideAsterisk = elideMode == Qt::ElideRight && widget
-                                        && widget->property("notelideasterisk").toBool()
+                                        && widget->property(StyleHelper::C_NOT_ELIDE_ASTERISK).toBool()
                                         && cb->currentText.endsWith(asterisk)
                                         && option->fontMetrics.horizontalAdvance(cb->currentText)
                                                > elideWidth;
@@ -1633,7 +1637,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                             : StyleHelper::sidebarHighlight();
                     const QColor borderColor = drawLightColored
                             ? QColor(255, 255, 255, 180) : hightLight;
-                    if (widget && widget->property("topBorder").toBool()) {
+                    if (widget && widget->property(StyleHelper::C_TOP_BORDER).toBool()) {
                         painter->drawLine(borderRect.topLeft(), borderRect.topRight());
                         painter->setPen(borderColor);
                         painter->drawLine(borderRect.topLeft() + QPointF(0, 1), borderRect.topRight() + QPointF(0, 1));
@@ -1649,7 +1653,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             }
             if (creatorTheme()->flag(Theme::DrawToolBarBorders)) {
                 painter->setPen(StyleHelper::toolBarBorderColor());
-                if (widget && widget->property("topBorder").toBool())
+                if (widget && widget->property(StyleHelper::C_TOP_BORDER).toBool())
                     painter->drawLine(borderRect.topLeft(), borderRect.topRight());
                 else
                     painter->drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
@@ -1678,7 +1682,8 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
     case CC_ToolButton:
         if (const auto toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option)) {
             bool reverse = option->direction == Qt::RightToLeft;
-            bool drawborder = (widget && widget->property("showborder").toBool());
+            const bool drawborder =
+                (widget && widget->property(StyleHelper::C_SHOW_BORDER).toBool());
 
             if (drawborder)
                 drawButtonSeparator(painter, rect, reverse);
@@ -1712,7 +1717,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             QStyleOptionToolButton label = *toolbutton;
 
             label.palette = panelPalette(option->palette, lightColored(widget));
-            if (widget && widget->property("highlightWidget").toBool()) {
+            if (widget && widget->property(StyleHelper::C_HIGHLIGHT_WIDGET).toBool()) {
                 label.palette.setColor(QPalette::ButtonText,
                                        creatorTheme()->color(Theme::IconsWarningToolBarColor));
             }
@@ -1739,7 +1744,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                 tool.rect = tool.rect.adjusted(2, 2, -2, -2);
                 drawPrimitive(PE_IndicatorArrowDown, &tool, painter, widget);
             } else if (toolbutton->features & QStyleOptionToolButton::HasMenu
-                       && widget && !widget->property("noArrow").toBool()) {
+                       && widget && !widget->property(StyleHelper::C_NO_ARROW).toBool()) {
                 int arrowSize = 6;
                 QRect ir = toolbutton->rect.adjusted(1, 1, -1, -1);
                 QStyleOptionToolButton newBtn = *toolbutton;
@@ -1756,9 +1761,12 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             painter->save();
             bool isEmpty = cb->currentText.isEmpty() && cb->currentIcon.isNull();
             bool reverse = option->direction == Qt::RightToLeft;
-            bool drawborder = !(widget && widget->property("hideborder").toBool());
-            bool drawleftborder = (widget && widget->property("drawleftborder").toBool());
-            bool alignarrow = !(widget && widget->property("alignarrow").toBool());
+            const bool drawborder =
+                !(widget && widget->property(StyleHelper::C_HIDE_BORDER).toBool());
+            const bool drawleftborder =
+                (widget && widget->property(StyleHelper::C_DRAW_LEFT_BORDER).toBool());
+            const bool alignarrow =
+                !(widget && widget->property(StyleHelper::C_ALIGN_ARROW).toBool());
 
             if (drawborder) {
                 drawButtonSeparator(painter, rect, reverse);

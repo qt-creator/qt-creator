@@ -32,6 +32,7 @@
 #include <utils/removefiledialog.h>
 #include <utils/stringutils.h>
 #include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -818,7 +819,7 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     filter->setIcon(Utils::Icons::FILTER.icon());
     filter->setToolTip(Tr::tr("Options"));
     filter->setPopupMode(QToolButton::InstantPopup);
-    filter->setProperty("noArrow", true);
+    filter->setProperty(StyleHelper::C_NO_ARROW, true);
     auto filterMenu = new QMenu(filter);
     filterMenu->addAction(fnw->m_filterHiddenFilesAction);
     filterMenu->addAction(fnw->m_showBreadCrumbsAction);

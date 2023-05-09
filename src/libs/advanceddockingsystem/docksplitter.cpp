@@ -6,6 +6,8 @@
 #include "ads_globals_p.h"
 #include "dockareawidget.h"
 
+#include <utils/stylehelper.h>
+
 #include <QChildEvent>
 #include <QLoggingCategory>
 #include <QVariant>
@@ -30,7 +32,7 @@ namespace ADS
         , d(new DockSplitterPrivate(this))
     {
         //setProperty("ads-splitter", true); // TODO
-        setProperty("minisplitter", true);
+        setProperty(Utils::StyleHelper::C_MINI_SPLITTER, true);
         setChildrenCollapsible(false);
     }
 

@@ -25,6 +25,21 @@ public:
     static const unsigned int DEFAULT_BASE_COLOR = 0x666666;
     static const int progressFadeAnimationDuration = 600;
 
+    constexpr static char C_ALIGN_ARROW[] = "alignarrow";
+    constexpr static char C_DRAW_LEFT_BORDER[] = "drawleftborder";
+    constexpr static char C_ELIDE_MODE[] = "elidemode";
+    constexpr static char C_HIDE_BORDER[] = "hideborder";
+    constexpr static char C_HIDE_ICON[] = "hideicon";
+    constexpr static char C_HIGHLIGHT_WIDGET[] = "highlightWidget";
+    constexpr static char C_LIGHT_COLORED[] = "lightColored";
+    constexpr static char C_MINI_SPLITTER[] = "minisplitter";
+    constexpr static char C_NOT_ELIDE_ASTERISK[] = "notelideasterisk";
+    constexpr static char C_NO_ARROW[] = "noArrow";
+    constexpr static char C_PANEL_WIDGET[] = "panelwidget";
+    constexpr static char C_PANEL_WIDGET_SINGLE_ROW[] = "panelwidget_singlerow";
+    constexpr static char C_SHOW_BORDER[] = "showborder";
+    constexpr static char C_TOP_BORDER[] = "topBorder";
+
     enum ToolbarStyle {
         ToolbarStyleCompact,
         ToolbarStyleRelaxed,

@@ -52,6 +52,7 @@
 #include <utils/pathchooser.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -609,7 +610,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     filterButton->setIcon(Icons::FILTER.icon());
     filterButton->setText(Tr::tr("Error Filter"));
     filterButton->setPopupMode(QToolButton::InstantPopup);
-    filterButton->setProperty("noArrow", true);
+    filterButton->setProperty(StyleHelper::C_NO_ARROW, true);
 
     m_filterMenu = new QMenu(filterButton);
     for (QAction *filterAction : std::as_const(m_errorFilterActions))

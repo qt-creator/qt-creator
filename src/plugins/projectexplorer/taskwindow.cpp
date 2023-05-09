@@ -217,7 +217,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     d->m_categoriesButton = new QToolButton;
     d->m_categoriesButton->setIcon(Utils::Icons::FILTER.icon());
     d->m_categoriesButton->setToolTip(Tr::tr("Filter by categories"));
-    d->m_categoriesButton->setProperty("noArrow", true);
+    d->m_categoriesButton->setProperty(StyleHelper::C_NO_ARROW, true);
     d->m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
 
     d->m_categoriesMenu = new QMenu(d->m_categoriesButton);

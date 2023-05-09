@@ -20,6 +20,7 @@
 #include <utils/fancylineedit.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <vcsbase/vcscommand.h>
@@ -179,7 +180,7 @@ QList<QToolButton *> BranchView::createToolButtons()
     filter->setIcon(Utils::Icons::FILTER.icon());
     filter->setToolTip(Tr::tr("Filter"));
     filter->setPopupMode(QToolButton::InstantPopup);
-    filter->setProperty("noArrow", true);
+    filter->setProperty(StyleHelper::C_NO_ARROW, true);
 
     auto filterMenu = new QMenu(filter);
     filterMenu->addAction(m_includeOldEntriesAction);
@@ -188,11 +189,11 @@ QList<QToolButton *> BranchView::createToolButtons()
 
     auto addButton = new QToolButton;
     addButton->setDefaultAction(m_addAction);
-    addButton->setProperty("noArrow", true);
+    addButton->setProperty(StyleHelper::C_NO_ARROW, true);
 
     auto refreshButton = new QToolButton;
     refreshButton->setDefaultAction(m_refreshAction);
-    refreshButton->setProperty("noArrow", true);
+    refreshButton->setProperty(StyleHelper::C_NO_ARROW, true);
 
     return {filter, addButton, refreshButton};
 }

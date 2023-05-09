@@ -25,6 +25,8 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 
+#include <utils/stylehelper.h>
+
 #include <QAction>
 #include <QActionGroup>
 #include <QComboBox>
@@ -120,7 +122,7 @@ private:
 PythonEditorWidget::PythonEditorWidget(QWidget *parent) : TextEditorWidget(parent)
 {
     auto replButton = new QToolButton(this);
-    replButton->setProperty("noArrow", true);
+    replButton->setProperty(StyleHelper::C_NO_ARROW, true);
     replButton->setText(Tr::tr("REPL"));
     replButton->setPopupMode(QToolButton::InstantPopup);
     replButton->setToolTip(Tr::tr("Open interactive Python. Either importing nothing, "
@@ -175,7 +177,7 @@ void PythonEditorWidget::updateInterpretersSelector()
         m_interpreters->setMenu(new QMenu(m_interpreters));
         m_interpreters->setPopupMode(QToolButton::InstantPopup);
         m_interpreters->setToolButtonStyle(Qt::ToolButtonTextOnly);
-        m_interpreters->setProperty("noArrow", true);
+        m_interpreters->setProperty(StyleHelper::C_NO_ARROW, true);
     }
 
     QMenu *menu = m_interpreters->menu();

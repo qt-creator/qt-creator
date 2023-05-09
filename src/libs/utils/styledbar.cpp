@@ -15,7 +15,7 @@ StyledBar::StyledBar(QWidget *parent)
 {
     StyleHelper::setPanelWidget(this);
     StyleHelper::setPanelWidgetSingleRow(this);
-    setProperty("lightColored", false);
+    setProperty(StyleHelper::C_LIGHT_COLORED, false);
 }
 
 void StyledBar::setSingleRow(bool singleRow)
@@ -25,14 +25,14 @@ void StyledBar::setSingleRow(bool singleRow)
 
 bool StyledBar::isSingleRow() const
 {
-    return property("panelwidget_singlerow").toBool();
+    return property(StyleHelper::C_PANEL_WIDGET_SINGLE_ROW).toBool();
 }
 
 void StyledBar::setLightColored(bool lightColored)
 {
     if (isLightColored() == lightColored)
         return;
-    setProperty("lightColored", lightColored);
+    setProperty(StyleHelper::C_LIGHT_COLORED, lightColored);
     const QList<QWidget *> children = findChildren<QWidget *>();
     for (QWidget *childWidget : children)
         childWidget->style()->polish(childWidget);
@@ -40,7 +40,7 @@ void StyledBar::setLightColored(bool lightColored)
 
 bool StyledBar::isLightColored() const
 {
-    return property("lightColored").toBool();
+    return property(StyleHelper::C_LIGHT_COLORED).toBool();
 }
 
 void StyledBar::paintEvent(QPaintEvent *event)

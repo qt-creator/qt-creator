@@ -24,6 +24,7 @@
 #include <utils/navigationtreeview.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
 
@@ -420,7 +421,7 @@ QList<QToolButton *> ProjectTreeWidget::createToolButtons()
     filter->setIcon(Icons::FILTER.icon());
     filter->setToolTip(Tr::tr("Filter Tree"));
     filter->setPopupMode(QToolButton::InstantPopup);
-    filter->setProperty("noArrow", true);
+    filter->setProperty(StyleHelper::C_NO_ARROW, true);
 
     auto filterMenu = new QMenu(filter);
     filterMenu->addAction(m_filterProjectsAction);

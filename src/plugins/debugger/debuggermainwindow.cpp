@@ -201,7 +201,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     closeButton->setToolTip(Tr::tr("Leave Debug Mode"));
 
     auto toolbar = new Utils::StyledBar;
-    toolbar->setProperty("topBorder", true);
+    toolbar->setProperty(StyleHelper::C_TOP_BORDER, true);
 
     // "Engine switcher" style comboboxes
     auto subPerspectiveSwitcher = new QWidget;
