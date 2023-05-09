@@ -17,8 +17,6 @@ class CommonVcsSettings : public Utils::AspectContainer
 public:
     CommonVcsSettings();
 
-    friend QDebug operator<<(QDebug, const CommonVcsSettings &);
-
     Utils::StringAspect nickNameMailMap;
     Utils::StringAspect nickNameFieldListFile;
 
