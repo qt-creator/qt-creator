@@ -190,7 +190,7 @@ void StyleHelper::setBaseColor(const QColor &newcolor)
 
     if (color.isValid() && color != m_baseColor) {
         m_baseColor = color;
-        const QList<QWidget *> widgets = QApplication::topLevelWidgets();
+        const QWidgetList widgets = QApplication::allWidgets();
         for (QWidget *w : widgets)
             w->update();
     }
