@@ -5,8 +5,6 @@
 
 #include "utils_global.h"
 
-#include "linecolumn.h"
-
 #include <QString>
 
 QT_BEGIN_NAMESPACE
@@ -29,7 +27,10 @@ public:
 
     bool operator!=(const Position &other) const { return !(operator==(other)); }
 
+    bool isValid() const { return line > 0 && column >= 0; }
+
     static Position fromFileName(QStringView fileName, int &postfixPos);
+    static Position fromPositionInDocument(const QTextDocument *document, int pos);
 };
 
 class QTCREATOR_UTILS_EXPORT Range
@@ -70,8 +71,6 @@ QTCREATOR_UTILS_EXPORT void applyReplacements(QTextDocument *doc, const Replacem
 QTCREATOR_UTILS_EXPORT bool convertPosition(const QTextDocument *document,
                                             int pos,
                                             int *line, int *column);
-QTCREATOR_UTILS_EXPORT
-LineColumn convertPosition(const QTextDocument *document, int pos);
 
 // line and column are 1-based
 QTCREATOR_UTILS_EXPORT int positionInText(const QTextDocument *textDocument, int line, int column);
@@ -90,7 +89,6 @@ QTCREATOR_UTILS_EXPORT int utf8NthLineOffset(const QTextDocument *textDocument,
                                              const QByteArray &buffer,
                                              int line);
 
-QTCREATOR_UTILS_EXPORT LineColumn utf16LineColumn(const QByteArray &utf8Buffer, int utf8Offset);
 QTCREATOR_UTILS_EXPORT QString utf16LineTextInUtf8Buffer(const QByteArray &utf8Buffer,
                                                          int currentUtf8Offset);
 

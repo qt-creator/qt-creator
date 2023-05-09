@@ -47,6 +47,15 @@ Position Position::fromFileName(QStringView fileName, int &postfixPos)
     return pos;
 }
 
+Position Position::fromPositionInDocument(const QTextDocument *document, int pos)
+{
+    const QTextBlock block = document->findBlock(pos);
+    if (block.isValid())
+        return {block.blockNumber() + 1, pos - block.position()};
+
+    return {};
+}
+
 int Range::length(const QString &text) const
 {
     if (begin.line == end.line)
@@ -85,15 +94,6 @@ bool convertPosition(const QTextDocument *document, int pos, int *line, int *col
         (*column) = pos - block.position() + 1;
         return true;
     }
-}
-
-LineColumn convertPosition(const QTextDocument *document, int pos)
-{
-    const QTextBlock block = document->findBlock(pos);
-    if (block.isValid())
-        return {block.blockNumber() + 1, pos - block.position()};
-
-    return {};
 }
 
 int positionInText(const QTextDocument *textDocument, int line, int column)
@@ -199,20 +199,6 @@ int utf8NthLineOffset(const QTextDocument *textDocument, const QByteArray &buffe
         ++utf8Offset;
     }
     return utf8Offset;
-}
-
-LineColumn utf16LineColumn(const QByteArray &utf8Buffer, int utf8Offset)
-{
-    LineColumn lineColumn;
-    lineColumn.line = static_cast<int>(
-                          std::count(utf8Buffer.begin(), utf8Buffer.begin() + utf8Offset, '\n'))
-                      + 1;
-    const int startOfLineOffset = utf8Offset ? (utf8Buffer.lastIndexOf('\n', utf8Offset - 1) + 1)
-                                             : 0;
-    lineColumn.column = QString::fromUtf8(
-                            utf8Buffer.mid(startOfLineOffset, utf8Offset - startOfLineOffset))
-                            .length();
-    return lineColumn;
 }
 
 QString utf16LineTextInUtf8Buffer(const QByteArray &utf8Buffer, int currentUtf8Offset)

@@ -1030,6 +1030,7 @@ bool LanguageFilter::operator!=(const LanguageFilter &other) const
 TextEditor::BaseTextEditor *jsonEditor()
 {
     using namespace TextEditor;
+    using namespace Utils::Text;
     BaseTextEditor *editor = PlainTextEditorFactory::createPlainTextEditor();
     TextDocument *document = editor->textDocument();
     TextEditorWidget *widget = editor->editorWidget();
@@ -1052,12 +1053,11 @@ TextEditor::BaseTextEditor *jsonEditor()
         QJsonDocument::fromJson(content.toUtf8(), &error);
         if (error.error == QJsonParseError::NoError)
             return;
-        const Utils::LineColumn lineColumn
-            = Utils::Text::convertPosition(document->document(), error.offset);
-        if (!lineColumn.isValid())
+        const Position pos = Position::fromPositionInDocument(document->document(), error.offset);
+        if (!pos.isValid())
             return;
         auto mark = new TextMark(Utils::FilePath(),
-                                 lineColumn.line,
+                                 pos.line,
                                  {::LanguageClient::Tr::tr("JSON Error"), jsonMarkId});
         mark->setLineAnnotation(error.errorString());
         mark->setColor(Utils::Theme::CodeModel_Error_TextMarkColor);
