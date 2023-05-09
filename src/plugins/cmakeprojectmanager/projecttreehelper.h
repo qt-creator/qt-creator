@@ -30,6 +30,8 @@ void addCMakeInputs(ProjectExplorer::FolderNode *root,
                     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&buildInputs,
                     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&rootInputs);
 
+void addCMakePresets(ProjectExplorer::FolderNode *root, const Utils::FilePath &sourceDir);
+
 QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> addCMakeLists(
     CMakeProjectNode *root, std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&cmakeLists);
 

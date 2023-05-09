@@ -30,6 +30,15 @@ CMakeInputsNode::CMakeInputsNode(const FilePath &cmakeLists) :
     setListInProject(false);
 }
 
+CMakePresetsNode::CMakePresetsNode(const FilePath &projectPath) :
+    ProjectExplorer::ProjectNode(projectPath)
+{
+    setPriority(Node::DefaultPriority - 9);
+    setDisplayName(Tr::tr("CMake Presets"));
+    setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_PRODUCT));
+    setListInProject(false);
+}
+
 CMakeListsNode::CMakeListsNode(const FilePath &cmakeListPath) :
     ProjectExplorer::ProjectNode(cmakeListPath)
 {

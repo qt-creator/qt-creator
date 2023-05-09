@@ -711,6 +711,9 @@ std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
                        std::move(data.cmakeNodesBuild),
                        std::move(data.cmakeNodesOther));
 
+
+    addCMakePresets(result.get(), sourceDirectory);
+
     data.cmakeNodesSource.clear(); // Remove all the nullptr in the vector...
     data.cmakeNodesBuild.clear();  // Remove all the nullptr in the vector...
     data.cmakeNodesOther.clear();  // Remove all the nullptr in the vector...

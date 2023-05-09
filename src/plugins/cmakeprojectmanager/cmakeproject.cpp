@@ -93,6 +93,14 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
     result.version = cmakePresetsData.version;
     result.cmakeMinimimRequired = cmakePresetsData.cmakeMinimimRequired;
 
+    result.include = cmakePresetsData.include;
+    if (result.include) {
+        if (cmakeUserPresetsData.include)
+            result.include->append(cmakeUserPresetsData.include.value());
+    } else {
+        result.include = cmakeUserPresetsData.include;
+    }
+
     auto combinePresetsInternal = [](auto &presetsHash,
                                      auto &presets,
                                      auto &userPresets,
