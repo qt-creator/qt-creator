@@ -202,15 +202,15 @@ QTCREATOR_UTILS_EXPORT LayoutItem windowTitle(const QString &windowTitle);
 
 // "Getters"
 
-class Id
+class ID
 {
 public:
     QObject *ob = nullptr;
 };
 
-QTCREATOR_UTILS_EXPORT LayoutItem id(Id &out);
+QTCREATOR_UTILS_EXPORT LayoutItem id(ID &out);
 
-QTCREATOR_UTILS_EXPORT void setText(Id id, const QString &text);
+QTCREATOR_UTILS_EXPORT void setText(ID id, const QString &text);
 
 
 // "Signals"
@@ -222,7 +222,7 @@ QTCREATOR_UTILS_EXPORT LayoutItem onTextChanged(const std::function<void(const Q
 QTCREATOR_UTILS_EXPORT LayoutItem onValueChanged(const std::function<void(int)> &,
                                                 QObject *guard = nullptr);
 
-QTCREATOR_UTILS_EXPORT LayoutItem onTextChanged(Id &id, QVariant(*sig)(QObject *));
+QTCREATOR_UTILS_EXPORT LayoutItem onTextChanged(ID &id, QVariant(*sig)(QObject *));
 
 // Convenience
 

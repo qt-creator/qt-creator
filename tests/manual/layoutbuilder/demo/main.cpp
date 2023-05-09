@@ -9,7 +9,7 @@ using namespace Layouting;
 
 int main(int argc, char *argv[])
 {
-    Id textId;
+    ID textId;
 
     Application app
     {

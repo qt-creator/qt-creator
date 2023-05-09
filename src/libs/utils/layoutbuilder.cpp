@@ -710,12 +710,12 @@ LayoutItem columnStretch(int column, int stretch)
 
 // Id based setters
 
-LayoutItem id(Id &out)
+LayoutItem id(ID &out)
 {
     return [&out](QObject *target) { out.ob = target; };
 }
 
-void setText(Id id, const QString &text)
+void setText(ID id, const QString &text)
 {
     if (auto textEdit = qobject_cast<QTextEdit *>(id.ob))
         textEdit->setText(text);
