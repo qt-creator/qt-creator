@@ -371,6 +371,7 @@ public:
                     settings.enableTerminal, st,
                     settings.sendEscapeToTerminal, st,
                     settings.audibleBell, st,
+                    settings.allowBlinkingCursor, st,
                 },
             },
             Group {
@@ -378,12 +379,6 @@ public:
                 Row {
                     settings.font.labelText(), fontComboBox, Space(20),
                     settings.fontSize, st,
-                },
-            },
-            Group {
-                title(Tr::tr("Cursor")),
-                Row {
-                    settings.allowBlinkingCursor, st,
                 },
             },
             Group {
