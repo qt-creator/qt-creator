@@ -920,9 +920,13 @@ void TerminalWidget::paintCursor(QPainter &p) const
         QRectF cursorRect = QRectF(gridToGlobal(cursor.position),
                                    gridToGlobal({cursor.position.x() + cursorCellWidth,
                                                  cursor.position.y()},
-                                                true));
+                                                true))
+                                .toAlignedRect();
 
-        cursorRect.adjust(0, 0, 0, -1);
+        cursorRect.adjust(1, 1, -1, -1);
+
+        QPen pen(Qt::white, 0, Qt::SolidLine);
+        p.setPen(pen);
 
         if (hasFocus()) {
             QPainter::CompositionMode oldMode = p.compositionMode();
@@ -1162,14 +1166,14 @@ QRect TerminalWidget::gridToViewport(QRect rect) const
     int numRows = rect.height();
     int numCols = rect.width();
 
-    QRect r{qFloor(rect.x() * m_cellSize.width()),
-            qFloor(startRow * m_cellSize.height()),
-            qCeil(numCols * m_cellSize.width()),
-            qCeil(numRows * m_cellSize.height())};
+    QRectF r{rect.x() * m_cellSize.width(),
+             startRow * m_cellSize.height(),
+             numCols * m_cellSize.width(),
+             numRows * m_cellSize.height()};
 
     r.translate(0, topMargin());
 
-    return r;
+    return r.toAlignedRect();
 }
 
 void TerminalWidget::updateViewport()
