@@ -53,16 +53,13 @@ bool convertPosition(const QTextDocument *document, int pos, int *line, int *col
     }
 }
 
-OptionalLineColumn convertPosition(const QTextDocument *document, int pos)
+LineColumn convertPosition(const QTextDocument *document, int pos)
 {
-    OptionalLineColumn optional;
-
-    QTextBlock block = document->findBlock(pos);
-
+    const QTextBlock block = document->findBlock(pos);
     if (block.isValid())
-        optional.emplace(block.blockNumber() + 1, pos - block.position());
+        return {block.blockNumber() + 1, pos - block.position()};
 
-    return optional;
+    return {};
 }
 
 int positionInText(const QTextDocument *textDocument, int line, int column)

@@ -39,8 +39,6 @@ public:
     int column = -1;
 };
 
-using OptionalLineColumn = std::optional<LineColumn>;
-
 } // namespace Utils
 
 Q_DECLARE_METATYPE(Utils::LineColumn)

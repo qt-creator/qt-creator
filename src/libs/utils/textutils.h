@@ -69,7 +69,7 @@ QTCREATOR_UTILS_EXPORT bool convertPosition(const QTextDocument *document,
                                             int pos,
                                             int *line, int *column);
 QTCREATOR_UTILS_EXPORT
-OptionalLineColumn convertPosition(const QTextDocument *document, int pos);
+LineColumn convertPosition(const QTextDocument *document, int pos);
 
 // line and column are 1-based
 QTCREATOR_UTILS_EXPORT int positionInText(const QTextDocument *textDocument, int line, int column);

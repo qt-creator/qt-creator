@@ -1052,12 +1052,12 @@ TextEditor::BaseTextEditor *jsonEditor()
         QJsonDocument::fromJson(content.toUtf8(), &error);
         if (error.error == QJsonParseError::NoError)
             return;
-        const Utils::OptionalLineColumn lineColumn
+        const Utils::LineColumn lineColumn
             = Utils::Text::convertPosition(document->document(), error.offset);
-        if (!lineColumn.has_value())
+        if (!lineColumn.isValid())
             return;
         auto mark = new TextMark(Utils::FilePath(),
-                                 lineColumn->line,
+                                 lineColumn.line,
                                  {::LanguageClient::Tr::tr("JSON Error"), jsonMarkId});
         mark->setLineAnnotation(error.errorString());
         mark->setColor(Utils::Theme::CodeModel_Error_TextMarkColor);
