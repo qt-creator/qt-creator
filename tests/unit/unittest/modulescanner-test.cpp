@@ -118,6 +118,7 @@ TEST_F(ModuleScanner, Version)
     scanner.scan(QStringList{TESTDATA_DIR "/modulescanner"});
 
     ASSERT_THAT(scanner.modules(), ElementsAre(AllOf(UrlProperty("Example"), VersionProperty("1.3"))));
+
 }
 
 TEST_F(ModuleScanner, NoVersion)

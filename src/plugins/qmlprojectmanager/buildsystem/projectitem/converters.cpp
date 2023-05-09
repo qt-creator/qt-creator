@@ -337,7 +337,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
             targetObject.insert("files", files);
             fileGroupsObject.insert(propsPair.first, targetObject);
         } else if (childNode->name().contains("shadertool", Qt::CaseInsensitive)) {
-            QStringList quotedArgs = childNode->property("args").value.toString().split('\"');
+            QStringList quotedArgs = childNode->property("args").value.toString().split('\"', Qt::SkipEmptyParts);
             QStringList args;
             for (int i = 0; i < quotedArgs.size(); ++i) {
                 // Each odd arg in this list is a single quoted argument, which we should

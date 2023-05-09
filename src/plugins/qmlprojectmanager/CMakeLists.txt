@@ -6,7 +6,6 @@ add_qtc_plugin(QmlProjectManager
   SOURCES
     qmlprojectgen/qmlprojectgenerator.cpp qmlprojectgen/qmlprojectgenerator.h
     qmlprojectgen/templates.qrc
-
     projectfilecontenttools.cpp projectfilecontenttools.h
     qdslandingpage.cpp qdslandingpage.h
     qdslandingpagetheme.cpp qdslandingpagetheme.h
@@ -52,4 +51,18 @@ extend_qtc_plugin(QmlProjectManager
       generatecmakelists.cpp generatecmakelists.h
       generatecmakelistsconstants.h
       boilerplate.qrc
+)
+
+add_qtc_library(QmlProjectManagerLib OBJECT
+    CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3
+    EXCLUDE_FROM_INSTALL
+    DEPENDS
+        QmlJS Utils
+    INCLUDES
+        ${CMAKE_CURRENT_LIST_DIR}
+    SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/buildsystem
+    SOURCES
+        projectitem/filefilteritems.cpp projectitem/filefilteritems.h
+        projectitem/qmlprojectitem.cpp projectitem/qmlprojectitem.h
+        projectitem/converters.cpp projectitem/converters.h
 )

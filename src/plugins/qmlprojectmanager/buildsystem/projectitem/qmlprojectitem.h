@@ -26,7 +26,7 @@ class QmlProjectItem : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlProjectItem(const Utils::FilePath &filePath);
+    explicit QmlProjectItem(const Utils::FilePath &filePath, const bool skipRewrite = false);
 
     bool isQt4McuProject() const;
 
@@ -103,6 +103,7 @@ private:
     // runtime variables
     Utils::FilePath m_projectFile; // design studio project file
     QJsonObject m_project; // root project object
+    const bool m_skipRewrite;
 
     // initializing functions
     bool initProjectObject();

@@ -22,21 +22,6 @@ Test functions iterate over the "test-set-*" folders and run the tests by using 
 
 ### test-set-2
 
-* **purpose**: testing complex qmlproject file convertion
-* **origin**: material bundle example
-
-### test-set-3
-
-* **purpose**: testing complex qmlproject file convertion
-* **origin**: robot arm example
-
-### test-set-4
-
-* **purpose**: testing complex qmlproject file convertion
-* **origin**: outrun hvac example
-
-### test-set-5
-
 * **purpose**: testing fileselectors
 * **origin**: file selectors example from playground
 

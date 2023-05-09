@@ -56,5 +56,6 @@ using testing::StrEq;
 using testing::Throw;
 using testing::TypedEq;
 using testing::UnorderedElementsAre;
+using testing::UnorderedElementsAreArray;
 using testing::VariantWith;
 using testing::WithArg;

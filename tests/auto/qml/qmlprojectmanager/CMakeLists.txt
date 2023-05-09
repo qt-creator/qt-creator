@@ -1,2 +1,1 @@
 add_subdirectory(fileformat)
-add_subdirectory(projectitem)

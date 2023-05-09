@@ -37,3 +37,4 @@ if (NOT QT_CREATOR_API_DEFINED)
 endif()
 
 add_subdirectory(unittest)
+add_subdirectory(tools)

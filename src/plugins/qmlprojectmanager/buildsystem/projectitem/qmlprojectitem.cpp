@@ -18,8 +18,9 @@ namespace QmlProjectManager {
 
 //#define REWRITE_PROJECT_FILE_IN_JSON_FORMAT
 
-QmlProjectItem::QmlProjectItem(const Utils::FilePath &filePath)
+QmlProjectItem::QmlProjectItem(const Utils::FilePath &filePath, const bool skipRewrite)
     : m_projectFile(filePath)
+    , m_skipRewrite(skipRewrite)
 {
     if (initProjectObject())
         setupFileFilters();
@@ -394,9 +395,8 @@ void QmlProjectItem::addShaderToolFile(const QString &file)
 void QmlProjectItem::insertAndUpdateProjectFile(const QString &key, const QJsonValue &value)
 {
     m_project[key] = value;
-#ifndef TESTS_ENABLED_QMLPROJECTITEM
-    m_projectFile.writeFileContents(Converters::jsonToQmlProject(m_project).toUtf8());
-#endif
+    if (!m_skipRewrite)
+        m_projectFile.writeFileContents(Converters::jsonToQmlProject(m_project).toUtf8());
 }
 
 } // namespace QmlProjectManager
