@@ -574,8 +574,22 @@ TextEdit::TextEdit(std::initializer_list<LayoutItem> items)
 
 Splitter::Splitter(std::initializer_list<LayoutItem> items)
 {
-    this->subItems = items;
-    setupWidget<QSplitter>(this); // FIXME: Default was Qt::Vertical)
+    subItems = items;
+    onAdd = [](LayoutBuilder &builder) {
+        auto splitter = new QSplitter;
+        splitter->setOrientation(Qt::Vertical);
+        builder.stack.append(splitter);
+    };
+    onExit = [](LayoutBuilder &builder) {
+        const Slice slice = builder.stack.last();
+        QSplitter *splitter = qobject_cast<QSplitter *>(slice.widget);
+        for (const ResultItem &ri : slice.pendingItems) {
+            if (ri.widget)
+                splitter->addWidget(ri.widget);
+        }
+        builder.stack.pop_back();
+        builder.stack.last().pendingItems.append(ResultItem(splitter));
+    };
 }
 
 TabWidget::TabWidget(std::initializer_list<LayoutItem> items)
