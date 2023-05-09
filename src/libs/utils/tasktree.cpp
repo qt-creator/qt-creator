@@ -673,15 +673,15 @@ void TaskNode::invokeEndHandler(bool success)
            declarative way.
 
     Use the Tasking namespace to build extensible, declarative task tree
-    structures that contain possibly asynchronous tasks, such as QtcProcess,
-    FileTransfer, or AsyncTask<ReturnType>. TaskTree structures enable you
+    structures that contain possibly asynchronous tasks, such as Process,
+    FileTransfer, or Async<ReturnType>. TaskTree structures enable you
     to create a sophisticated mixture of a parallel or sequential flow of tasks
     in the form of a tree and to run it any time later.
 
     \section1 Root Element and Tasks
 
     The TaskTree has a mandatory Group root element, which may contain
-    any number of tasks of various types, such as Process, FileTransfer,
+    any number of tasks of various types, such as ProcessTask, FileTransferTask,
     or AsyncTask<ReturnType>:
 
     \code
@@ -689,9 +689,9 @@ void TaskNode::invokeEndHandler(bool success)
         using namespace Tasking;
 
         const Group root {
-            Process(...),
-            Async<int>(...),
-            Transfer(...)
+            ProcessTask(...),
+            AsyncTask<int>(...),
+            FileTransferTask(...)
         };
 
         TaskTree *taskTree = new TaskTree(root);
@@ -701,11 +701,11 @@ void TaskNode::invokeEndHandler(bool success)
     \endcode
 
     The task tree above has a top level element of the Group type that contains
-    tasks of the type QtcProcess, FileTransfer, and AsyncTask<int>.
+    tasks of the type ProcessTask, FileTransferTask, and AsyncTask<int>.
     After taskTree->start() is called, the tasks are run in a chain, starting
-    with Process. When Process finishes successfully, the Async<int> task is
+    with ProcessTask. When the ProcessTask finishes successfully, the AsyncTask<int> task is
     started. Finally, when the asynchronous task finishes successfully, the
-    FileTransfer task is started.
+    FileTransferTask task is started.
 
     When the last running task finishes with success, the task tree is considered
     to have run successfully and the TaskTree::done() signal is emitted.
@@ -723,27 +723,27 @@ void TaskNode::invokeEndHandler(bool success)
         const Group root {
             Group {
                 parallel,
-                Process(...),
-                Async<int>(...)
+                ProcessTask(...),
+                AsyncTask<int>(...)
             },
-            Transfer(...)
+            FileTransferTask(...)
         };
     \endcode
 
     The example above differs from the first example in that the root element has
-    a subgroup that contains the Process and Async<int> tasks. The subgroup is a
-    sibling element of the Transfer task in the root. The subgroup contains an
+    a subgroup that contains the ProcessTask and AsyncTask<int>. The subgroup is a
+    sibling element of the FileTransferTask in the root. The subgroup contains an
     additional \e parallel element that instructs its Group to execute its tasks
     in parallel.
 
-    So, when the tree above is started, the Process and Async<int> tasks start
+    So, when the tree above is started, the ProcessTask and AsyncTask<int> start
     immediately and run in parallel. Since the root group doesn't contain a
     \e parallel element, its direct child tasks are run in sequence. Thus, the
-    Transfer task starts when the whole subgroup finishes. The group is
+    FileTransferTask starts when the whole subgroup finishes. The group is
     considered as finished when all its tasks have finished. The order in which
     the tasks finish is not relevant.
 
-    So, depending on which task lasts longer (Process or Async<int>), the
+    So, depending on which task lasts longer (ProcessTask or AsyncTask<int>), the
     following scenarios can take place:
 
     \table
@@ -757,35 +757,35 @@ void TaskNode::invokeEndHandler(bool success)
         \li Sub Group starts
         \li Sub Group starts
     \row
-        \li Process starts
-        \li Process starts
+        \li ProcessTask starts
+        \li ProcessTask starts
     \row
-        \li Async<int> starts
-        \li Async<int> starts
-    \row
-        \li ...
-        \li ...
-    \row
-        \li \b {Process finishes}
-        \li \b {Async<int> finishes}
+        \li AsyncTask<int> starts
+        \li AsyncTask<int> starts
     \row
         \li ...
         \li ...
     \row
-        \li \b {Async<int> finishes}
-        \li \b {Process finishes}
+        \li \b {ProcessTask finishes}
+        \li \b {AsyncTask<int> finishes}
+    \row
+        \li ...
+        \li ...
+    \row
+        \li \b {AsyncTask<int> finishes}
+        \li \b {ProcessTask finishes}
     \row
         \li Sub Group finishes
         \li Sub Group finishes
     \row
-        \li Transfer starts
-        \li Transfer starts
+        \li FileTransferTask starts
+        \li FileTransferTask starts
     \row
         \li ...
         \li ...
     \row
-        \li Transfer finishes
-        \li Transfer finishes
+        \li FileTransferTask finishes
+        \li FileTransferTask finishes
     \row
         \li Root Group finishes
         \li Root Group finishes
@@ -798,24 +798,24 @@ void TaskNode::invokeEndHandler(bool success)
 
     The presented scenarios assume that all tasks run successfully. If a task
     fails during execution, the task tree finishes with an error. In particular,
-    when Process finishes with an error while Async<int> is still being executed,
-    Async<int> is automatically stopped, the subgroup finishes with an error,
-    Transfer is skipped, and the tree finishes with an error.
+    when ProcessTask finishes with an error while AsyncTask<int> is still being executed,
+    the AsyncTask<int> is automatically stopped, the subgroup finishes with an error,
+    the FileTransferTask is skipped, and the tree finishes with an error.
 
     \section1 Task Types
 
     Each task type is associated with its corresponding task class that executes
-    the task. For example, a Process task inside a task tree is associated with
-    the QtcProcess class that executes the process. The associated objects are
+    the task. For example, a ProcessTask inside a task tree is associated with
+    the Process class that executes the process. The associated objects are
     automatically created, started, and destructed exclusively by the task tree
     at the appropriate time.
 
-    If a root group consists of five sequential Process tasks, and the task tree
-    executes the group, it creates an instance of QtcProcess for the first
-    Process task and starts it. If the QtcProcess instance finishes successfully,
-    the task tree destructs it and creates a new QtcProcess instance for the
-    second Process, and so on. If the first task finishes with an error, the task
-    tree stops creating QtcProcess instances, and the root group finishes with an
+    If a root group consists of five sequential ProcessTask tasks, and the task tree
+    executes the group, it creates an instance of Process for the first
+    ProcessTask and starts it. If the Process instance finishes successfully,
+    the task tree destructs it and creates a new Process instance for the
+    second ProcessTask, and so on. If the first task finishes with an error, the task
+    tree stops creating Process instances, and the root group finishes with an
     error.
 
     The following table shows examples of task types and their corresponding task
@@ -827,19 +827,19 @@ void TaskNode::invokeEndHandler(bool success)
         \li Associated Task Class
         \li Brief Description
     \row
-        \li Process
-        \li Utils::QtcProcess
+        \li ProcessTask
+        \li Utils::Process
         \li Starts processes.
     \row
-        \li Async<ReturnType>
-        \li Utils::AsyncTask<ReturnType>
+        \li AsyncTask<ReturnType>
+        \li Utils::Async<ReturnType>
         \li Starts asynchronous tasks; run in separate thread.
     \row
-        \li Tree
+        \li TaskTreeTask
         \li Utils::TaskTree
         \li Starts a nested task tree.
     \row
-        \li Transfer
+        \li FileTransferTask
         \li ProjectExplorer::FileTransfer
         \li Starts file transfer between different devices.
     \endtable
@@ -856,15 +856,15 @@ void TaskNode::invokeEndHandler(bool success)
     handler should always take a \e reference to the associated task class object:
 
     \code
-        const auto onSetup = [](QtcProcess &process) {
+        const auto onSetup = [](Process &process) {
             process.setCommand({"sleep", {"3"}});
         };
         const Group root {
-            Process(onSetup)
+            ProcessTask(onSetup)
         };
     \endcode
 
-    You can modify the passed QtcProcess in the setup handler, so that the task
+    You can modify the passed Process in the setup handler, so that the task
     tree can start the process according to your configuration.
     You do not need to call \e {process.start();} in the setup handler,
     as the task tree calls it when needed. The setup handler is mandatory
@@ -904,21 +904,21 @@ void TaskNode::invokeEndHandler(bool success)
     to the associated task class object:
 
     \code
-        const auto onSetup = [](QtcProcess &process) {
+        const auto onSetup = [](Process &process) {
             process.setCommand({"sleep", {"3"}});
         };
-        const auto onDone = [](const QtcProcess &process) {
+        const auto onDone = [](const Process &process) {
             qDebug() << "Success" << process.cleanedStdOut();
         };
-        const auto onError = [](const QtcProcess &process) {
+        const auto onError = [](const Process &process) {
             qDebug() << "Failure" << process.cleanedStdErr();
         };
         const Group root {
-            Process(onSetup, onDone, onError)
+            ProcessTask(onSetup, onDone, onError)
         };
     \endcode
 
-    The done and error handlers may collect output data from QtcProcess, and store it
+    The done and error handlers may collect output data from Process, and store it
     for further processing or perform additional actions. The done handler is optional.
     When used, it must be the second argument of the task constructor.
     The error handler must always be the third argument.
@@ -944,7 +944,7 @@ void TaskNode::invokeEndHandler(bool success)
         };
         const Group root {
             OnGroupSetup(onGroupSetup),
-            Process(...)
+            ProcessTask(...)
         };
     \endcode
 
@@ -967,17 +967,17 @@ void TaskNode::invokeEndHandler(bool success)
             OnGroupSetup([] { qDebug() << "Root setup"; }),
             Group {
                 OnGroupSetup([] { qDebug() << "Group 1 setup"; return TaskAction::Continue; }),
-                Process(...) // Process 1
+                ProcessTask(...) // Process 1
             },
             Group {
                 OnGroupSetup([] { qDebug() << "Group 2 setup"; return TaskAction::StopWithDone; }),
-                Process(...) // Process 2
+                ProcessTask(...) // Process 2
             },
             Group {
                 OnGroupSetup([] { qDebug() << "Group 3 setup"; return TaskAction::StopWithError; }),
-                Process(...) // Process 3
+                ProcessTask(...) // Process 3
             },
-            Process(...) // Process 4
+            ProcessTask(...) // Process 4
         };
     \endcode
 
@@ -1039,7 +1039,7 @@ void TaskNode::invokeEndHandler(bool success)
     \code
         const Group root {
             OnGroupSetup([] { qDebug() << "Root setup"; }),
-            Process(...),
+            ProcessTask(...),
             OnGroupDone([] { qDebug() << "Root finished with success"; }),
             OnGroupError([] { qDebug() << "Root finished with error"; })
         };
@@ -1191,7 +1191,7 @@ void TaskNode::invokeEndHandler(bool success)
             const TreeStorage<CopyStorage> storage;
 
             const auto onLoaderSetup = [source](Async<QByteArray> &async) {
-                async.setAsyncCallData(&load, source);
+                async.setConcurrentCallData(&load, source);
             };
             // [4] runtime: task tree activates the instance from [5] before invoking handler
             const auto onLoaderDone = [storage](const Async<QByteArray> &async) {
@@ -1200,7 +1200,7 @@ void TaskNode::invokeEndHandler(bool success)
 
             // [4] runtime: task tree activates the instance from [5] before invoking handler
             const auto onSaverSetup = [storage, destination](Async<void> &async) {
-                async.setAsyncCallData(&save, destination, storage->content);
+                async.setConcurrentCallData(&save, destination, storage->content);
             };
             const auto onSaverDone = [](const Async<void> &async) {
                 qDebug() << "Save done successfully";
@@ -1209,8 +1209,8 @@ void TaskNode::invokeEndHandler(bool success)
             const Group root {
                 // [5] runtime: task tree creates an instance of CopyStorage when root is entered
                 Storage(storage),
-                Async<QByteArray>(onLoaderSetup, onLoaderDone),
-                Async<void>(onSaverSetup, onSaverDone)
+                AsyncTask<QByteArray>(onLoaderSetup, onLoaderDone),
+                AsyncTask<void>(onSaverSetup, onSaverDone)
             };
             return root;
         }
