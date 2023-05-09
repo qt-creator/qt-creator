@@ -40,18 +40,6 @@ namespace Core {
     \internal
 */
 
-/*!
-    \class Core::Search::TextPosition
-    \inmodule QtCreator
-    \internal
-*/
-
-/*!
-    \class Core::Search::TextRange
-    \inmodule QtCreator
-    \internal
-*/
-
 namespace Internal {
 
     class InternalScrollArea : public QScrollArea

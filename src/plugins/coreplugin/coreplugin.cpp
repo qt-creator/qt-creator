@@ -35,8 +35,8 @@
 #include <utils/mimeutils.h>
 #include <utils/pathchooser.h>
 #include <utils/savefile.h>
-#include <utils/searchresultitem.h>
 #include <utils/stringutils.h>
+#include <utils/textutils.h>
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
 
@@ -72,7 +72,7 @@ void CorePlugin::setupSystemEnvironment()
 CorePlugin::CorePlugin()
 {
     qRegisterMetaType<Id>();
-    qRegisterMetaType<Utils::Search::TextPosition>();
+    qRegisterMetaType<Utils::Text::Position>();
     qRegisterMetaType<Utils::CommandLine>();
     qRegisterMetaType<Utils::FilePath>();
     qRegisterMetaType<Utils::Environment>();

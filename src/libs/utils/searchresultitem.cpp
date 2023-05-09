@@ -5,26 +5,6 @@
 
 namespace Utils {
 
-int Search::TextRange::length(const QString &text) const
-{
-    if (begin.line == end.line)
-        return end.column - begin.column;
-
-    const int lineCount = end.line - begin.line;
-    int index = text.indexOf(QChar::LineFeed);
-    int currentLine = 1;
-    while (index > 0 && currentLine < lineCount) {
-        ++index;
-        index = text.indexOf(QChar::LineFeed, index);
-        ++currentLine;
-    }
-
-    if (index < 0)
-        return 0;
-
-    return index - begin.column + end.column;
-}
-
 SearchResultColor::SearchResultColor(const QColor &textBg, const QColor &textFg,
                                      const QColor &highlightBg, const QColor &highlightFg,
                                      const QColor &functionBg, const QColor &functionFg)
@@ -70,16 +50,6 @@ QTCREATOR_UTILS_EXPORT size_t qHash(SearchResultColor::Style style, uint seed)
 {
     int a = int(style);
     return ::qHash(a, seed);
-}
-
-bool Search::TextPosition::operator==(const Search::TextPosition &other) const
-{
-    return line == other.line && column == other.column;
-}
-
-bool Search::TextRange::operator==(const Search::TextRange &other) const
-{
-    return begin == other.begin && end == other.end;
 }
 
 bool SearchResultItem::operator==(const SearchResultItem &other) const

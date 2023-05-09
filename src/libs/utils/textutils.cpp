@@ -6,8 +6,37 @@
 #include <QTextDocument>
 #include <QTextBlock>
 
-namespace Utils {
-namespace Text {
+namespace Utils::Text {
+
+bool Position::operator==(const Position &other) const
+{
+    return line == other.line && column == other.column;
+}
+
+int Range::length(const QString &text) const
+{
+    if (begin.line == end.line)
+        return end.column - begin.column;
+
+    const int lineCount = end.line - begin.line;
+    int index = text.indexOf(QChar::LineFeed);
+    int currentLine = 1;
+    while (index > 0 && currentLine < lineCount) {
+        ++index;
+        index = text.indexOf(QChar::LineFeed, index);
+        ++currentLine;
+    }
+
+    if (index < 0)
+        return 0;
+
+    return index - begin.column + end.column;
+}
+
+bool Range::operator==(const Range &other) const
+{
+    return begin == other.begin && end == other.end;
+}
 
 bool convertPosition(const QTextDocument *document, int pos, int *line, int *column)
 {
@@ -211,5 +240,4 @@ void applyReplacements(QTextDocument *doc, const Replacements &replacements)
     editCursor.endEditBlock();
 }
 
-} // Text
-} // Utils
+} // namespace Utils::Text

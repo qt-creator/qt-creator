@@ -3192,7 +3192,7 @@ void EditorManager::openEditorAtSearchResult(const SearchResultItem &item,
         openEditor(FilePath::fromUserInput(item.lineText()), editorId, flags, newEditor);
         return;
     }
-    const Search::TextPosition position = item.mainRange().begin;
+    const Text::Position position = item.mainRange().begin;
     openEditorAt({FilePath::fromUserInput(path.first()), position.line, position.column},
                  editorId, flags, newEditor);
 }

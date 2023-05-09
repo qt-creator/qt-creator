@@ -43,7 +43,7 @@ public:
                       const std::function<void()> &callback = {},
                       bool preferLowerCaseFileNames = true);
 
-    static Utils::Search::TextRange convertRange(const LanguageServerProtocol::Range &range);
+    static Utils::Text::Range convertRange(const LanguageServerProtocol::Range &range);
     static QStringList getFileContents(const Utils::FilePath &filePath);
 
     using SymbolMapper = std::function<QString(const QString &)>;

@@ -17,6 +17,34 @@ QT_END_NAMESPACE
 namespace Utils {
 namespace Text {
 
+class QTCREATOR_UTILS_EXPORT Position
+{
+public:
+    int line = 0; // 1-based
+    int column = -1; // 0-based
+
+    bool operator<(const Position &other) const
+    { return line < other.line || (line == other.line && column < other.column); }
+    bool operator==(const Position &other) const;
+
+    bool operator!=(const Position &other) const { return !(operator==(other)); }
+};
+
+class QTCREATOR_UTILS_EXPORT Range
+{
+public:
+    QString mid(const QString &text) const { return text.mid(begin.column, length(text)); }
+    int length(const QString &text) const;
+
+    Position begin;
+    Position end;
+
+    bool operator<(const Range &other) const { return begin < other.begin; }
+    bool operator==(const Range &other) const;
+
+    bool operator!=(const Range &other) const { return !(operator==(other)); }
+};
+
 struct Replacement
 {
     Replacement() = default;
@@ -66,3 +94,5 @@ QTCREATOR_UTILS_EXPORT QString utf16LineTextInUtf8Buffer(const QByteArray &utf8B
 
 } // Text
 } // Utils
+
+Q_DECLARE_METATYPE(Utils::Text::Position)

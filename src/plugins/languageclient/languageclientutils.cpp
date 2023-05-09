@@ -97,11 +97,10 @@ void applyTextEdit(TextDocumentManipulatorInterface &manipulator,
                    const TextEdit &edit,
                    bool newTextIsSnippet)
 {
-    using namespace Utils::Text;
     const Range range = edit.range();
     const QTextDocument *doc = manipulator.textCursorAt(manipulator.currentPosition()).document();
-    const int start = positionInText(doc, range.start().line() + 1, range.start().character() + 1);
-    const int end = positionInText(doc, range.end().line() + 1, range.end().character() + 1);
+    const int start = Text::positionInText(doc, range.start().line() + 1, range.start().character() + 1);
+    const int end = Text::positionInText(doc, range.end().line() + 1, range.end().character() + 1);
     if (newTextIsSnippet) {
         manipulator.replace(start, end - start, {});
         manipulator.insertCodeSnippet(start, edit.newText(), &parseSnippet);

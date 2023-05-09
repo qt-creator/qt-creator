@@ -193,7 +193,7 @@ bool SymbolSupport::supportsFindUsages(TextEditor::TextDocument *document) const
 
 struct ItemData
 {
-    Utils::Search::TextRange range;
+    Utils::Text::Range range;
     QVariant userData;
 };
 
@@ -616,10 +616,10 @@ QString SymbolSupport::derivePlaceholder(const QString &oldSymbol, const QString
     return m_defaultSymbolMapper ? m_defaultSymbolMapper(oldSymbol) : oldSymbol;
 }
 
-Utils::Search::TextRange SymbolSupport::convertRange(const Range &range)
+Utils::Text::Range SymbolSupport::convertRange(const Range &range)
 {
     const auto convertPosition = [](const Position &pos) {
-        return Utils::Search::TextPosition{pos.line() + 1, pos.character()};
+        return Utils::Text::Position{pos.line() + 1, pos.character()};
     };
     return {convertPosition(range.start()), convertPosition(range.end())};
 }

@@ -850,7 +850,7 @@ private:
     static QFutureWatcher<SearchResultItems> *m_selectWatcher;
 };
 
-static QTextCursor selectRange(QTextDocument *textDocument, const Search::TextRange &range,
+static QTextCursor selectRange(QTextDocument *textDocument, const Text::Range &range,
                                TextEditorWidgetPrivate::SearchResult *searchResult = nullptr)
 {
     const int startLine = qMax(range.begin.line - 1, 0);
