@@ -169,7 +169,7 @@ void CppOutlineWidget::updateIndexNow()
 
     int line = 0, column = 0;
     m_editor->convertPosition(m_editor->position(), &line, &column);
-    QModelIndex index = m_model->indexForPosition(line, column);
+    QModelIndex index = m_model->indexForPosition(line, column - 1);
 
     if (index.isValid()) {
         m_blockCursorSync = true;
@@ -194,8 +194,7 @@ void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
     Core::EditorManager::cutForwardNavigationHistory();
     Core::EditorManager::addCurrentPositionToNavigationHistory();
 
-    // line has to be 1 based, column 0 based!
-    m_editor->gotoLine(lineColumn.line, lineColumn.column - 1, true, true);
+    m_editor->gotoLine(lineColumn.line, lineColumn.column, true, true);
     m_blockCursorSync = false;
 }
 

@@ -246,7 +246,7 @@ Utils::LineColumn OutlineModel::lineColumnFromIndex(const QModelIndex &sourceInd
     if (!symbol)
         return lineColumn;
     lineColumn.line = symbol->line();
-    lineColumn.column = symbol->column();
+    lineColumn.column = symbol->column() - 1;
     return lineColumn;
 }
 

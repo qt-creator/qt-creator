@@ -19,7 +19,7 @@ public:
 
     bool isValid() const
     {
-        return line >= 0 && column >= 0;
+        return line > 0 && column >= 0;
     }
 
     friend bool operator==(LineColumn first, LineColumn second)
@@ -35,7 +35,7 @@ public:
     static LineColumn extractFromFileName(QStringView fileName, int &postfixPos);
 
 public:
-    int line = -1;
+    int line = 0;
     int column = -1;
 };
 

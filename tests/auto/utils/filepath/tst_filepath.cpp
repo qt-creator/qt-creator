@@ -1095,7 +1095,7 @@ void tst_filepath::linkFromString_data()
     QTest::addColumn<int>("column");
 
     QTest::newRow("no-line-no-column")
-        << QString("someFile.txt") << FilePath("someFile.txt") << -1 << -1;
+        << QString("someFile.txt") << FilePath("someFile.txt") << 0 << -1;
     QTest::newRow(": at end") << QString::fromLatin1("someFile.txt:") << FilePath("someFile.txt")
                               << 0 << -1;
     QTest::newRow("+ at end") << QString::fromLatin1("someFile.txt+") << FilePath("someFile.txt")
@@ -1121,7 +1121,7 @@ void tst_filepath::linkFromString_data()
     QTest::newRow("+line-+column") << QString::fromLatin1("/some/path/file.txt+142+33")
                                    << FilePath("/some/path/file.txt") << 142 << 32;
     QTest::newRow("( at end") << QString::fromLatin1("/some/path/file.txt(")
-                              << FilePath("/some/path/file.txt") << -1 << -1;
+                              << FilePath("/some/path/file.txt") << 0 << -1;
     QTest::newRow("(42 at end") << QString::fromLatin1("/some/path/file.txt(42")
                                 << FilePath("/some/path/file.txt") << 42 << -1;
     QTest::newRow("(42) at end") << QString::fromLatin1("/some/path/file.txt(42)")

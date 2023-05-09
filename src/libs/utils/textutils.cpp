@@ -60,7 +60,7 @@ OptionalLineColumn convertPosition(const QTextDocument *document, int pos)
     QTextBlock block = document->findBlock(pos);
 
     if (block.isValid())
-        optional.emplace(block.blockNumber() + 1, pos - block.position() + 1);
+        optional.emplace(block.blockNumber() + 1, pos - block.position());
 
     return optional;
 }
@@ -180,8 +180,7 @@ LineColumn utf16LineColumn(const QByteArray &utf8Buffer, int utf8Offset)
                                              : 0;
     lineColumn.column = QString::fromUtf8(
                             utf8Buffer.mid(startOfLineOffset, utf8Offset - startOfLineOffset))
-                            .length()
-                        + 1;
+                            .length();
     return lineColumn;
 }
 
