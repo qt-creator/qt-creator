@@ -14,9 +14,6 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT LineColumn
 {
 public:
-    constexpr LineColumn() = default;
-    constexpr LineColumn(int line, int column) : line(line), column(column) {}
-
     bool isValid() const
     {
         return line > 0 && column >= 0;
@@ -31,8 +28,6 @@ public:
     {
         return !(first == second);
     }
-
-    static LineColumn extractFromFileName(QStringView fileName, int &postfixPos);
 
 public:
     int line = 0;

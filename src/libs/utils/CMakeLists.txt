@@ -89,7 +89,7 @@ add_qtc_library(Utils
     launcherpackets.cpp launcherpackets.h
     launchersocket.cpp launchersocket.h
     layoutbuilder.cpp layoutbuilder.h
-    linecolumn.cpp linecolumn.h
+    linecolumn.h
     link.cpp link.h
     listmodel.h
     listutils.h

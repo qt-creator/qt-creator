@@ -28,6 +28,8 @@ public:
     bool operator==(const Position &other) const;
 
     bool operator!=(const Position &other) const { return !(operator==(other)); }
+
+    static Position fromFileName(QStringView fileName, int &postfixPos);
 };
 
 class QTCREATOR_UTILS_EXPORT Range

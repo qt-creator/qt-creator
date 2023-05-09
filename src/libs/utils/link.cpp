@@ -3,7 +3,7 @@
 
 #include "link.h"
 
-#include "linecolumn.h"
+#include "textutils.h"
 
 namespace Utils {
 
@@ -24,10 +24,10 @@ Link Link::fromString(const QString &filePathWithNumbers, bool canContainLineNum
         link.targetFilePath = FilePath::fromUserInput(filePathWithNumbers);
     } else {
         int postfixPos = -1;
-        const LineColumn lineColumn = LineColumn::extractFromFileName(filePathWithNumbers, postfixPos);
+        const Text::Position pos = Text::Position::fromFileName(filePathWithNumbers, postfixPos);
         link.targetFilePath = FilePath::fromUserInput(filePathWithNumbers.left(postfixPos));
-        link.targetLine = lineColumn.line;
-        link.targetColumn = lineColumn.column;
+        link.targetLine = pos.line;
+        link.targetColumn = pos.column;
     }
     return link;
 }
