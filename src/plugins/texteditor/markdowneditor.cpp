@@ -26,7 +26,11 @@ const char MARKDOWNVIEWER_ID[] = "Editors.MarkdownViewer";
 const char MARKDOWNVIEWER_TEXT_CONTEXT[] = "Editors.MarkdownViewer.Text";
 const char MARKDOWNVIEWER_MIME_TYPE[] = "text/markdown";
 const char MARKDOWNVIEWER_TEXTEDITOR_RIGHT[] = "Markdown.TextEditorRight";
+const char MARKDOWNVIEWER_SHOW_EDITOR[] = "Markdown.ShowEditor";
+const char MARKDOWNVIEWER_SHOW_PREVIEW[] = "Markdown.ShowPreview";
 const bool kTextEditorRightDefault = true;
+const bool kShowEditorDefault = true;
+const bool kShowPreviewDefault = true;
 
 class MarkdownEditor : public Core::IEditor
 {
@@ -39,6 +43,9 @@ public:
         QSettings *s = Core::ICore::settings();
         const bool textEditorRight
             = s->value(MARKDOWNVIEWER_TEXTEDITOR_RIGHT, kTextEditorRightDefault).toBool();
+        const bool showPreview = s->value(MARKDOWNVIEWER_SHOW_PREVIEW, kShowPreviewDefault).toBool();
+        const bool showEditor = s->value(MARKDOWNVIEWER_SHOW_EDITOR, kShowEditorDefault).toBool()
+                                || !showPreview; // ensure at least one is visible
 
         m_splitter = new Core::MiniSplitter;
 
@@ -86,15 +93,18 @@ public:
         auto togglePreviewVisible = new QToolButton;
         togglePreviewVisible->setText(Tr::tr("Show Preview"));
         togglePreviewVisible->setCheckable(true);
-        togglePreviewVisible->setChecked(true);
+        togglePreviewVisible->setChecked(showPreview);
+        browser->setVisible(showPreview);
 
         m_toggleEditorVisible = new QToolButton;
         m_toggleEditorVisible->setText(Tr::tr("Show Editor"));
         m_toggleEditorVisible->setCheckable(true);
-        m_toggleEditorVisible->setChecked(true);
+        m_toggleEditorVisible->setChecked(showEditor);
+        m_textEditorWidget->setVisible(showEditor);
 
         auto swapViews = new QToolButton;
         swapViews->setText(Tr::tr("Swap Views"));
+        swapViews->setEnabled(showEditor && showPreview);
 
         auto toolbarLayout = new QHBoxLayout(&m_toolbar);
         toolbarLayout->setSpacing(0);
@@ -144,22 +154,33 @@ public:
                 }
                 swapViews->setEnabled(view->isVisible() && otherView->isVisible());
             };
+        const auto saveViewSettings = [this, togglePreviewVisible] {
+            Utils::QtcSettings *s = Core::ICore::settings();
+            s->setValueWithDefault(MARKDOWNVIEWER_SHOW_PREVIEW,
+                                   togglePreviewVisible->isChecked(),
+                                   kShowPreviewDefault);
+            s->setValueWithDefault(MARKDOWNVIEWER_SHOW_EDITOR,
+                                   m_toggleEditorVisible->isChecked(),
+                                   kShowEditorDefault);
+        };
 
         connect(m_toggleEditorVisible,
                 &QToolButton::toggled,
                 this,
-                [this, browser, togglePreviewVisible, viewToggled](bool visible) {
+                [this, browser, togglePreviewVisible, viewToggled, saveViewSettings](bool visible) {
                     viewToggled(m_textEditorWidget, visible, browser, togglePreviewVisible);
+                    saveViewSettings();
                 });
         connect(togglePreviewVisible,
                 &QToolButton::toggled,
                 this,
-                [this, browser, viewToggled, updatePreview](bool visible) {
+                [this, browser, viewToggled, updatePreview, saveViewSettings](bool visible) {
                     viewToggled(browser, visible, m_textEditorWidget, m_toggleEditorVisible);
                     if (visible && m_performDelayedUpdate) {
                         m_performDelayedUpdate = false;
                         updatePreview();
                     }
+                    saveViewSettings();
                 });
 
         connect(swapViews, &QToolButton::clicked, m_textEditorWidget, [this, toolbarLayout] {
