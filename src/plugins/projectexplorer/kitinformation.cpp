@@ -794,7 +794,7 @@ DeviceTypeKitAspect::DeviceTypeKitAspect()
 {
     setObjectName(QLatin1String("DeviceTypeInformation"));
     setId(DeviceTypeKitAspect::id());
-    setDisplayName(Tr::tr("Device type"));
+    setDisplayName(Tr::tr("Run device type"));
     setDescription(Tr::tr("The type of device to run applications on."));
     setPriority(33000);
     makeEssential();
@@ -941,7 +941,7 @@ DeviceKitAspect::DeviceKitAspect()
 {
     setObjectName(QLatin1String("DeviceInformation"));
     setId(DeviceKitAspect::id());
-    setDisplayName(Tr::tr("Device"));
+    setDisplayName(Tr::tr("Run device"));
     setDescription(Tr::tr("The device to run the applications on."));
     setPriority(32000);
 

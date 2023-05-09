@@ -97,8 +97,8 @@
             used for the \c CurrentKit:FileSystemName variable, which determines
             the name of the shadow build directory, for example.
     \row
-        \li \uicontrol{Device type}
-        \li Type of the device.
+        \li \uicontrol{Run device type}
+        \li Type of the run device.
 
             Double-click the icon next to the field to select the image that is
             displayed in the kit selector for this kit. You can use any
@@ -107,7 +107,7 @@
             logo as an icon allows you to easily see, which compiler is used to
             build the project for the selected kit.
     \row
-        \li \uicontrol Device
+        \li \uicontrol {Run device}
         \li The device to run applications on.
     \row
         \li \uicontrol {Build device}
