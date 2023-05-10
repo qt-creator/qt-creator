@@ -3,10 +3,31 @@
 
 #include "tasktree.h"
 
-#include "guard.h"
 #include "qtcassert.h"
 
 #include <QSet>
+
+class Guard
+{
+    Q_DISABLE_COPY(Guard)
+public:
+    Guard() = default;
+    ~Guard() { QTC_CHECK(m_lockCount == 0); }
+    bool isLocked() const { return m_lockCount; }
+private:
+    int m_lockCount = 0;
+    friend class GuardLocker;
+};
+
+class GuardLocker
+{
+    Q_DISABLE_COPY(GuardLocker)
+public:
+    GuardLocker(Guard &guard) : m_guard(guard) { ++m_guard.m_lockCount; }
+    ~GuardLocker() { --m_guard.m_lockCount; }
+private:
+    Guard &m_guard;
+};
 
 namespace Utils {
 namespace Tasking {
