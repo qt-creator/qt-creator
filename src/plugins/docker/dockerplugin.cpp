@@ -28,7 +28,6 @@ public:
 
     DockerSettings m_settings;
     DockerDeviceFactory m_deviceFactory{&m_settings};
-    DockerSettingsPage m_settingPage{&m_settings};
     DockerApi m_dockerApi{&m_settings};
 };
 

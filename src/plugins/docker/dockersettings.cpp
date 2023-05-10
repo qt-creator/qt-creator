@@ -23,6 +23,25 @@ DockerSettings::DockerSettings()
     setSettingsGroup(Constants::DOCKER);
     setAutoApply(false);
 
+    setId(Docker::Constants::DOCKER_SETTINGS_ID);
+    setDisplayName(Tr::tr("Docker"));
+    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+    setSettings(this);
+
+    setLayouter([this](QWidget *widget) {
+        using namespace Layouting;
+
+        // clang-format off
+        Column {
+            Group {
+                title(Tr::tr("Configuration")),
+                Row { dockerBinaryPath }
+            },
+            st
+        }.attachTo(widget);
+        // clang-format on
+    });
+
     FilePaths additionalPaths;
     if (HostOsInfo::isWindowsHost())
         additionalPaths.append("C:/Program Files/Docker/Docker/resources/bin");
@@ -40,31 +59,6 @@ DockerSettings::DockerSettings()
     dockerBinaryPath.setSettingsKey("cli");
 
     readSettings(Core::ICore::settings());
-}
-
-// DockerSettingsPage
-
-DockerSettingsPage::DockerSettingsPage(DockerSettings *settings)
-{
-    setId(Docker::Constants::DOCKER_SETTINGS_ID);
-    setDisplayName(Tr::tr("Docker"));
-    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        DockerSettings &s = *settings;
-        using namespace Layouting;
-
-        // clang-format off
-        Column {
-            Group {
-                title(Tr::tr("Configuration")),
-                Row { s.dockerBinaryPath }
-            },
-            st
-        }.attachTo(widget);
-        // clang-format on
-    });
 }
 
 } // Docker::Internal
