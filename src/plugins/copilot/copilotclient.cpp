@@ -164,7 +164,6 @@ void CopilotClient::handleCompletions(const GetCompletionRequest::Response &resp
             return;
         editor->insertSuggestion(
             std::make_unique<CopilotSuggestion>(completions, editor->document()));
-        m_lastCompletions[editor] = *result;
         editor->addHoverHandler(&m_hoverHandler);
     }
 }
@@ -213,11 +212,6 @@ void CopilotClient::requestSignInConfirm(
     request.setResponseCallback(callback);
 
     sendMessage(request);
-}
-
-GetCompletionResponse CopilotClient::lastCompletion(TextEditor::TextEditorWidget *editor) const
-{
-    return m_lastCompletions.value(editor);
 }
 
 } // namespace Copilot::Internal

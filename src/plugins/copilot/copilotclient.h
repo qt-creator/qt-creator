@@ -46,8 +46,6 @@ public:
         const QString &userCode,
         std::function<void(const SignInConfirmRequest::Response &response)> callback);
 
-    GetCompletionResponse lastCompletion(TextEditor::TextEditorWidget *editor) const;
-
 private:
     QMap<TextEditor::TextEditorWidget *, GetCompletionRequest> m_runningRequests;
     struct ScheduleData
@@ -57,7 +55,6 @@ private:
     };
     QMap<TextEditor::TextEditorWidget *, ScheduleData> m_scheduledRequests;
     CopilotHoverHandler m_hoverHandler;
-    QHash<TextEditor::TextEditorWidget *, GetCompletionResponse> m_lastCompletions;
 };
 
 } // namespace Copilot::Internal
