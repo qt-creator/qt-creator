@@ -4,11 +4,10 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/aspects.h>
 
 namespace Vcpkg::Internal {
 
-class VcpkgSettings : public Utils::AspectContainer
+class VcpkgSettings : public Core::PagedSettings
 {
 public:
     VcpkgSettings();
@@ -17,12 +16,6 @@ public:
     bool vcpkgRootValid() const;
 
     Utils::StringAspect vcpkgRoot;
-};
-
-class VcpkgSettingsPage final : public Core::IOptionsPage
-{
-public:
-    VcpkgSettingsPage();
 };
 
 } // namespace Vcpkg::Internal

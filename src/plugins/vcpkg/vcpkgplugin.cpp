@@ -17,7 +17,7 @@ class VcpkgPluginPrivate
 {
 public:
     VcpkgManifestEditorFactory manifestEditorFactory;
-    VcpkgSettingsPage settingsPage;
+    VcpkgSettings settings;
 };
 
 VcpkgPlugin::~VcpkgPlugin()

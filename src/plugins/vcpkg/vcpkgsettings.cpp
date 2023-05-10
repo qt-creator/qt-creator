@@ -19,9 +19,47 @@
 
 namespace Vcpkg::Internal {
 
+static VcpkgSettings *theSettings = nullptr;
+
+VcpkgSettings *VcpkgSettings::instance()
+{
+    return theSettings;
+}
+
 VcpkgSettings::VcpkgSettings()
 {
+    theSettings = this;
+
     setSettingsGroup("Vcpkg");
+
+    setId(Constants::TOOLSSETTINGSPAGE_ID);
+    setDisplayName("Vcpkg");
+    setCategory(CMakeProjectManager::Constants::Settings::CATEGORY);
+
+    setLayouter([this](QWidget *widget) {
+        using namespace Layouting;
+        auto websiteButton = new QToolButton;
+        websiteButton->setIcon(Utils::Icons::ONLINE.icon());
+        websiteButton->setToolTip(Constants::WEBSITE_URL);
+
+        // clang-format off
+        using namespace Layouting;
+        Column {
+            Group {
+                title(tr("Vcpkg installation")),
+                Form {
+                    Utils::PathChooser::label(),
+                    Span{ 2, Row{ vcpkgRoot, websiteButton} },
+                },
+            },
+            st,
+        }.attachTo(widget);
+        // clang-format on
+
+        connect(websiteButton, &QAbstractButton::clicked, [] {
+            QDesktopServices::openUrl(QUrl::fromUserInput(Constants::WEBSITE_URL));
+        });
+    });
 
     registerAspect(&vcpkgRoot);
     vcpkgRoot.setSettingsKey("VcpkgRoot");
@@ -32,52 +70,9 @@ VcpkgSettings::VcpkgSettings()
     readSettings(Core::ICore::settings());
 }
 
-VcpkgSettings *VcpkgSettings::instance()
-{
-    static VcpkgSettings s;
-    return &s;
-}
-
 bool VcpkgSettings::vcpkgRootValid() const
 {
     return (vcpkgRoot.filePath() / "vcpkg").withExecutableSuffix().isExecutableFile();
-}
-
-class VcpkgSettingsPageWidget : public Core::IOptionsPageWidget
-{
-public:
-    VcpkgSettingsPageWidget()
-    {
-        auto websiteButton = new QToolButton;
-        websiteButton->setIcon(Utils::Icons::ONLINE.icon());
-        websiteButton->setToolTip(Constants::WEBSITE_URL);
-
-        using namespace Layouting;
-        Column {
-            Group {
-                title(tr("Vcpkg installation")),
-                Form {
-                    Utils::PathChooser::label(),
-                    Span{ 2, Row{ VcpkgSettings::instance()->vcpkgRoot, websiteButton} },
-                },
-            },
-            st,
-        }.attachTo(this);
-
-        connect(websiteButton, &QAbstractButton::clicked, [] {
-            QDesktopServices::openUrl(QUrl::fromUserInput(Constants::WEBSITE_URL));
-        });
-
-        setOnApply([] {  VcpkgSettings::instance()->writeSettings(Core::ICore::settings()); });
-    }
-};
-
-VcpkgSettingsPage::VcpkgSettingsPage()
-{
-    setId(Constants::TOOLSSETTINGSPAGE_ID);
-    setDisplayName("Vcpkg");
-    setCategory(CMakeProjectManager::Constants::Settings::CATEGORY);
-    setWidgetCreator([] { return new VcpkgSettingsPageWidget; });
 }
 
 } // namespace Vcpkg::Internal
