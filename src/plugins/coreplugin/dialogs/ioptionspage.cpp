@@ -136,9 +136,6 @@ QWidget *IOptionsPage::widget()
     if (!m_widget) {
         if (m_widgetCreator) {
             m_widget = m_widgetCreator();
-        } else if (m_layouter) {
-            m_widget = new QWidget;
-            m_layouter(m_widget);
         } else {
             QTC_CHECK(false);
         }
@@ -157,9 +154,10 @@ QWidget *IOptionsPage::widget()
 
 void IOptionsPage::apply()
 {
-    if (auto widget = qobject_cast<IOptionsPageWidget *>(m_widget)) {
+    if (auto widget = qobject_cast<IOptionsPageWidget *>(m_widget))
         widget->apply();
-    } else if (m_settings) {
+
+    if (m_settings) {
         if (m_settings->isDirty()) {
             m_settings->apply();
             m_settings->writeSettings(ICore::settings());
@@ -180,7 +178,8 @@ void IOptionsPage::finish()
 {
     if (auto widget = qobject_cast<IOptionsPageWidget *>(m_widget))
         widget->finish();
-    else if (m_settings)
+
+    if (m_settings)
         m_settings->finish();
 
     delete m_widget;
@@ -202,14 +201,10 @@ void IOptionsPage::setSettings(AspectContainer *settings)
 
 void IOptionsPage::setLayouter(const std::function<void(QWidget *w)> &layouter)
 {
-    m_layouter = layouter;
-}
-
-void IOptionsPage::setLayout(const Layouting::LayoutItem &layout)
-{
-    using namespace Layouting;
-    m_layouter = [layout](QWidget *widget) {
-        Column { Row { Column { layout, st }, st } }.attachTo(widget);
+    m_widgetCreator = [layouter] {
+        auto widget = new IOptionsPageWidget;
+        layouter(widget);
+        return widget;
     };
 }
 
@@ -305,5 +300,9 @@ QIcon IOptionsPageProvider::categoryIcon() const
 {
     return m_categoryIcon.icon();
 }
+
+// PagedSettings
+
+PagedSettings::PagedSettings() = default;
 
 } // Core

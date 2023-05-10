@@ -75,7 +75,6 @@ protected:
     void setCategoryIconPath(const Utils::FilePath &categoryIconPath);
     void setSettings(Utils::AspectContainer *settings);
     void setLayouter(const std::function<void(QWidget *w)> &layouter);
-    void setLayout(const Layouting::LayoutItem &layout);
 
     // Used in FontSettingsPage. FIXME?
     QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
@@ -92,7 +91,6 @@ private:
     mutable QStringList m_keywords;
 
     Utils::AspectContainer *m_settings = nullptr;
-    std::function<void(QWidget *w)> m_layouter;
 };
 
 /*
@@ -133,7 +131,7 @@ protected:
 class CORE_EXPORT PagedSettings : public Utils::AspectContainer, public IOptionsPage
 {
 public:
-    PagedSettings() = default;
+    PagedSettings();
 };
 
 } // namespace Core
