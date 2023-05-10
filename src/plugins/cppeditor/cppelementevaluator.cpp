@@ -562,7 +562,7 @@ public:
         expression = expressionUnderCursor(m_tc);
 
         // Fetch the expression's code
-        *scope = doc->scopeAt(line, column - 1);
+        *scope = doc->scopeAt(line, column);
         return true;
     }
     QFuture<QSharedPointer<CppElement>> syncExec(const CPlusPlus::Snapshot &,

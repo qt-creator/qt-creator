@@ -102,12 +102,12 @@ bool convertPosition(const QTextDocument *document, int pos, int *line, int *col
     QTextBlock block = document->findBlock(pos);
     if (!block.isValid()) {
         (*line) = -1;
-        (*column) = -1;
+        (*column) = 0;
         return false;
     } else {
         // line and column are both 1-based
         (*line) = block.blockNumber() + 1;
-        (*column) = pos - block.position() + 1;
+        (*column) = pos - block.position();
         return true;
     }
 }

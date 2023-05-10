@@ -117,23 +117,22 @@ void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
     int line = 0;
     int column = 0;
     convertPosition(cursor.position(), &line, &column);
-    const int positionInBlock = column - 1;
 
     const QString block = cursor.block().text();
 
     // check if the current position is commented out
     const int hashPos = block.indexOf(QLatin1Char('#'));
-    if (hashPos >= 0 && hashPos < positionInBlock)
+    if (hashPos >= 0 && hashPos < column)
         return processLinkCallback(link);
 
     // find the beginning of a filename
     QString buffer;
-    int beginPos = positionInBlock - 1;
-    int endPos = positionInBlock;
+    int beginPos = column - 1;
+    int endPos = column;
 
     // Check is cursor is somewhere on $${PWD}:
-    const int chunkStart = std::max(0, positionInBlock - 7);
-    const int chunkLength = 14 + std::min(0, positionInBlock - 7);
+    const int chunkStart = std::max(0, column - 7);
+    const int chunkLength = 14 + std::min(0, column - 7);
     QString chunk = block.mid(chunkStart, chunkLength);
 
     const QString curlyPwd = "$${PWD}";
@@ -145,7 +144,7 @@ void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
     if (posCurlyPwd >= 0) {
         const int end = chunkStart + posCurlyPwd + curlyPwd.count();
         const int start = chunkStart + posCurlyPwd;
-        if (start <= positionInBlock && end >= positionInBlock) {
+        if (start <= column && end >= column) {
             buffer = pwd;
             beginPos = chunkStart + posCurlyPwd - 1;
             endPos = end;
@@ -154,7 +153,7 @@ void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
     } else if (posPwd >= 0) {
         const int end = chunkStart + posPwd + pwd.count();
         const int start = chunkStart + posPwd;
-        if (start <= positionInBlock && end >= positionInBlock) {
+        if (start <= column && end >= column) {
             buffer = pwd;
             beginPos = start - 1;
             endPos = end;
@@ -229,8 +228,8 @@ void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
         link.targetFilePath = FilePath::fromString(checkForPrfFile(buffer));
     }
     if (!link.targetFilePath.isEmpty()) {
-        link.linkTextStart = cursor.position() - positionInBlock + beginPos + 1;
-        link.linkTextEnd = cursor.position() - positionInBlock + endPos;
+        link.linkTextStart = cursor.position() - column + beginPos + 1;
+        link.linkTextEnd = cursor.position() - column + endPos;
     }
     processLinkCallback(link);
 }

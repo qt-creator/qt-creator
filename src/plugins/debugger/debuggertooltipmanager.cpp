@@ -1164,6 +1164,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
     context.fileName = document->filePath();
     context.position = pos;
     editorWidget->convertPosition(pos, &context.line, &context.column);
+    ++context.column;
     QString raw = cppExpressionAt(editorWidget, context.position, &context.line, &context.column,
                                   &context.function, &context.scopeFromLine, &context.scopeToLine);
     context.expression = fixCppExpression(raw);

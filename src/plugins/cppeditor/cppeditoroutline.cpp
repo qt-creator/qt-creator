@@ -151,7 +151,7 @@ void CppEditorOutline::updateIndexNow()
 
     int line = 0, column = 0;
     m_editorWidget->convertPosition(m_editorWidget->position(), &line, &column);
-    QModelIndex comboIndex = m_model->indexForPosition(line, column - 1);
+    QModelIndex comboIndex = m_model->indexForPosition(line, column);
 
     if (comboIndex.isValid()) {
         QSignalBlocker blocker(m_combo);

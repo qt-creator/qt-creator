@@ -322,7 +322,7 @@ QFuture<CursorInfo> BuiltinCursorInfo::run(const CursorInfoParams &cursorInfoPar
     QString expression;
     Scope *scope = canonicalSymbol.getScopeAndExpression(textCursor, &expression);
 
-    return Utils::asyncRun(&FindUses::find, document, snapshot, line, column, scope, expression);
+    return Utils::asyncRun(&FindUses::find, document, snapshot, line, column + 1, scope, expression);
 }
 
 SemanticInfo::LocalUseMap

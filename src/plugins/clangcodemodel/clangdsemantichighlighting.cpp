@@ -571,10 +571,12 @@ void ExtraHighlightingResultsCollector::insertAngleBracketInfo(int searchStart1,
     result.useTextSyles = true;
     result.textStyles.mainStyle = C_PUNCTUATION;
     Utils::Text::convertPosition(m_doc, absOpeningAngleBracketPos, &result.line, &result.column);
+    ++result.column;
     result.length = 1;
     result.kind = CppEditor::SemanticHighlighter::AngleBracketOpen;
     insertResult(result);
     Utils::Text::convertPosition(m_doc, absClosingAngleBracketPos, &result.line, &result.column);
+    ++result.column;
     result.kind = CppEditor::SemanticHighlighter::AngleBracketClose;
     insertResult(result);
 }
@@ -646,10 +648,12 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
         result.textStyles.mainStyle = C_PUNCTUATION;
         result.textStyles.mixinStyles.push_back(C_OPERATOR);
         Utils::Text::convertPosition(m_doc, absQuestionMarkPos, &result.line, &result.column);
+        ++result.column;
         result.length = 1;
         result.kind = CppEditor::SemanticHighlighter::TernaryIf;
         insertResult(result);
         Utils::Text::convertPosition(m_doc, absColonPos, &result.line, &result.column);
+        ++result.column;
         result.kind = CppEditor::SemanticHighlighter::TernaryElse;
         insertResult(result);
         return;
@@ -837,10 +841,12 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
             Utils::Text::convertPosition(m_doc,
                                          nodeStartPos + openingBracketOffset,
                                          &result.line, &result.column);
+            ++result.column;
             insertResult(result);
             Utils::Text::convertPosition(m_doc,
                                          nodeStartPos + closingBracketOffset,
                                          &result.line, &result.column);
+            ++result.column;
             insertResult(result);
         }
         return;
@@ -885,6 +891,7 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
     const int opStringOffsetInDoc = nodeStartPos + opStringOffset
             + detail.length() - opStringLen;
     Utils::Text::convertPosition(m_doc, opStringOffsetInDoc, &result.line, &result.column);
+    ++result.column;
     result.length = opStringLen;
     if (isArray || isCall)
         result.length = 1;
@@ -906,9 +913,11 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
         return;
     Utils::Text::convertPosition(m_doc, nodeStartPos + openingParenOffset,
                                  &result.line, &result.column);
+    ++result.column;
     insertResult(result);
     Utils::Text::convertPosition(m_doc, nodeStartPos + closingParenOffset,
                                  &result.line, &result.column);
+    ++result.column;
     insertResult(result);
 }
 

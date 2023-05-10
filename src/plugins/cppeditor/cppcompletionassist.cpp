@@ -1041,7 +1041,7 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
     int line = 0, column = 0;
     Utils::Text::convertPosition(interface()->textDocument(), startOfExpression, &line, &column);
     return startCompletionInternal(interface()->filePath(),
-                                   line, column - 1, expression, endOfExpression);
+                                   line, column, expression, endOfExpression);
 }
 
 bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
@@ -1074,7 +1074,7 @@ bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
     int line = 0, column = 0;
     Utils::Text::convertPosition(interface()->textDocument(), interface()->position(), &line,
                                  &column);
-    Scope *scope = thisDocument->scopeAt(line, column - 1);
+    Scope *scope = thisDocument->scopeAt(line, column);
     if (!scope)
         return false;
 
@@ -1989,7 +1989,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
         int lineSigned = 0, columnSigned = 0;
         Utils::Text::convertPosition(interface()->textDocument(), interface()->position(),
                                      &lineSigned, &columnSigned);
-        unsigned line = lineSigned, column = columnSigned - 1;
+        unsigned line = lineSigned, column = columnSigned;
 
         // find a scope that encloses the current location, starting from the lastVisibileSymbol
         // and moving outwards

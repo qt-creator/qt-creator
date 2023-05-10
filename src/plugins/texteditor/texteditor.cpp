@@ -3331,7 +3331,7 @@ void TextEditorWidget::restoreState(const QByteArray &state)
 
     d->m_lastCursorChangeWasInteresting = false; // avoid adding last position to history
     // line is 1-based, column is 0-based
-    gotoLine(lineVal, columnVal - 1);
+    gotoLine(lineVal, columnVal);
     verticalScrollBar()->setValue(vval);
     horizontalScrollBar()->setValue(hval);
 

@@ -147,18 +147,17 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     int line = 0;
     int column = 0;
     convertPosition(cursor.position(), &line, &column);
-    const int positionInBlock = column - 1;
 
     const QString block = cursor.block().text();
 
     // check if the current position is commented out
     const int hashPos = block.indexOf(QLatin1Char('#'));
-    if (hashPos >= 0 && hashPos < positionInBlock)
+    if (hashPos >= 0 && hashPos < column)
         return processLinkCallback(link);
 
     // find the beginning of a filename
     QString buffer;
-    int beginPos = positionInBlock - 1;
+    int beginPos = column - 1;
     while (beginPos >= 0) {
         if (isValidFileNameChar(block, beginPos)) {
             buffer.prepend(block.at(beginPos));
@@ -169,7 +168,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     }
 
     // find the end of a filename
-    int endPos = positionInBlock;
+    int endPos = column;
     while (endPos < block.count()) {
         if (isValidFileNameChar(block, endPos)) {
             buffer.append(block.at(endPos));
@@ -199,8 +198,8 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
                 return processLinkCallback(link);
         }
         link.targetFilePath = Utils::FilePath::fromString(fileName);
-        link.linkTextStart = cursor.position() - positionInBlock + beginPos + 1;
-        link.linkTextEnd = cursor.position() - positionInBlock + endPos;
+        link.linkTextStart = cursor.position() - column + beginPos + 1;
+        link.linkTextEnd = cursor.position() - column + endPos;
     }
     processLinkCallback(link);
 }

@@ -104,7 +104,7 @@ SelectionList UseSelectionsTestCase::toSelectionList(
         int line, column;
         const int position = qMin(selection.cursor.position(), selection.cursor.anchor());
         m_editorWidget->convertPosition(position, &line, &column);
-        result << Selection(line, column - 1, selection.cursor.selectedText().length());
+        result << Selection(line, column, selection.cursor.selectedText().length());
     }
     return result;
 }
