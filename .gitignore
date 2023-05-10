@@ -40,6 +40,7 @@ ui_*.h
 wrapper.bat
 wrapper.sh
 debug_toolchain.cmake
+CMakeUserPresets.json
 
 # qtcreator generated files
 *.creator.user*
