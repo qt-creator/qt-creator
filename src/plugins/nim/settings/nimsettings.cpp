@@ -26,15 +26,12 @@ static SimpleCodeStylePreferences *m_globalCodeStyle = nullptr;
 
 NimSettings::NimSettings()
 {
-    setAutoApply(false);
     setSettingsGroups("Nim", "NimSuggest");
-
     setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
     setDisplayName(Tr::tr("Tools"));
     setCategory(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY);
     setDisplayCategory(Tr::tr("Nim"));
     setCategoryIconPath(":/nim/images/settingscategory_nim.png");
-    setSettings(this);
 
     setLayouter([this](QWidget *widget) {
         using namespace Layouting;

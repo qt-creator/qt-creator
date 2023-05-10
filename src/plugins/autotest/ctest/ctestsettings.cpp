@@ -16,13 +16,9 @@ namespace Autotest::Internal {
 CTestSettings::CTestSettings(Id settingsId)
 {
     setSettingsGroups("Autotest", "CTest");
-    setAutoApply(false);
-
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(Tr::tr("CTest"));
-
-    setSettings(this);
 
     setLayouter([this](QWidget *w) {
         Column { Row { Form {

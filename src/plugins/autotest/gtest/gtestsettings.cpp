@@ -16,15 +16,12 @@ using namespace Utils;
 
 namespace Autotest::Internal {
 
-GTestSettings::GTestSettings(Utils::Id settingsId)
+GTestSettings::GTestSettings(Id settingsId)
 {
     setSettingsGroups("Autotest", "GTest");
-    setAutoApply(false);
-
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-    setSettings(this);
 
     setLayouter([this](QWidget *widget) {
         Column { Row { Column {

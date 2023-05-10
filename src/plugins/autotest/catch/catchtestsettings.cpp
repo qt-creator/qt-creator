@@ -20,7 +20,7 @@ CatchTestSettings::CatchTestSettings(Id settingsId)
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(Tr::tr("Catch Test"));
-    setSettings(this);
+    setSettingsGroups("Autotest", "Catch2");
 
     setLayouter([this](QWidget *widget) {
         Column { Row { Grid {
@@ -36,9 +36,6 @@ CatchTestSettings::CatchTestSettings(Id settingsId)
             noAnalysis
         }, st }, st }.attachTo(widget);
     });
-
-    setSettingsGroups("Autotest", "Catch2");
-    setAutoApply(false);
 
     registerAspect(&abortAfter);
     abortAfter.setSettingsKey("AbortAfter");

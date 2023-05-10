@@ -21,12 +21,9 @@ namespace Docker::Internal {
 DockerSettings::DockerSettings()
 {
     setSettingsGroup(Constants::DOCKER);
-    setAutoApply(false);
-
     setId(Docker::Constants::DOCKER_SETTINGS_ID);
     setDisplayName(Tr::tr("Docker"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setSettings(this);
 
     setLayouter([this](QWidget *widget) {
         using namespace Layouting;

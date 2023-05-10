@@ -31,7 +31,6 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     setDisplayCategory("CMake");
     setCategory(Constants::Settings::CATEGORY);
     setCategoryIconPath(Constants::Icons::SETTINGS_CATEGORY);
-    setSettings(this);
 
     setLayouter([this](QWidget *widget) {
         using namespace Layouting;

@@ -20,7 +20,7 @@ BoostTestSettings::BoostTestSettings(Id settingsId)
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-    setSettings(this);
+    setSettingsGroups("Autotest", "BoostTest");
 
     setLayouter([this](QWidget *widget) {
         Row { Form {
@@ -32,9 +32,6 @@ BoostTestSettings::BoostTestSettings(Id settingsId)
             memLeaks,
         }, st}.attachTo(widget);
     });
-
-    setSettingsGroups("Autotest", "BoostTest");
-    setAutoApply(false);
 
     registerAspect(&logLevel);
     logLevel.setSettingsKey("LogLevel");

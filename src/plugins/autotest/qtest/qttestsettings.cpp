@@ -18,11 +18,9 @@ namespace Autotest::Internal {
 QtTestSettings::QtTestSettings(Id settingsId)
 {
     setSettingsGroups("Autotest", "QtTest");
-    setAutoApply(false);
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-    setSettings(this);
 
     setLayouter([this](QWidget *widget) {
         Column { Row { Column {

@@ -303,6 +303,10 @@ QIcon IOptionsPageProvider::categoryIcon() const
 
 // PagedSettings
 
-PagedSettings::PagedSettings() = default;
+PagedSettings::PagedSettings()
+{
+    setSettings(this);
+    setAutoApply(false);
+}
 
 } // Core
