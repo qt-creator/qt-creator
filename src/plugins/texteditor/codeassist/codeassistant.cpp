@@ -81,6 +81,7 @@ private:
     IAssistProcessor *m_processor = nullptr;
     AssistKind m_assistKind = TextEditor::Completion;
     IAssistProposalWidget *m_proposalWidget = nullptr;
+    TextEditorWidget::SuggestionBlocker m_suggestionBlocker;
     bool m_receivedContentWhileWaiting = false;
     QTimer m_automaticProposalTimer;
     CompletionSettings m_settings;
@@ -295,6 +296,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     m_proposalWidget->setDisplayRect(m_editorWidget->cursorRect(basePosition));
     m_proposalWidget->setIsSynchronized(!m_receivedContentWhileWaiting);
     m_proposalWidget->showProposal(prefix);
+    m_suggestionBlocker = m_editorWidget->blockSuggestions();
 }
 
 void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *proposalItem)
@@ -337,6 +339,7 @@ void CodeAssistantPrivate::handlePrefixExpansion(const QString &newPrefix)
 void CodeAssistantPrivate::finalizeProposal()
 {
     stopAutomaticProposalTimer();
+    m_suggestionBlocker.reset();
     m_proposalWidget = nullptr;
     if (m_receivedContentWhileWaiting)
         m_receivedContentWhileWaiting = false;
