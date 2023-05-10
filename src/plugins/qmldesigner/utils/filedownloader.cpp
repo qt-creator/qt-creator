@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #include "filedownloader.h"
 
-#include <coreplugin/icore.h>
-
+#include <private/qqmldata_p.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/filepath.h>
 
@@ -155,15 +154,6 @@ void FileDownloader::setUrl(const QUrl &url)
 {
     if (m_url != url) {
         m_url = url;
-
-        const QString mirror = Core::ICore::settings()->value("QML/Designer/ForceDownloadMirror").toString();
-        if (!mirror.isEmpty()) {
-            qWarning() << Q_FUNC_INFO << "Alternative mirror is used:" << mirror;
-            QString replaced = url.toString();
-            replaced.replace("https://download.qt.io/", mirror);
-            m_url = QUrl::fromUserInput(replaced);
-        }
-
         emit urlChanged();
     }
 
@@ -272,6 +262,10 @@ void FileDownloader::doProbeUrl()
                            this,
                            [this](QNetworkReply::NetworkError code) {
 
+                               if (QQmlData::wasDeleted(this)) {
+                                   qDebug() << Q_FUNC_INFO << "FileDownloader was deleted.";
+                                   return;
+                               }
 
                                qDebug() << Q_FUNC_INFO << "Network error:" << code
                                         << qobject_cast<QNetworkReply *>(sender())->errorString();
