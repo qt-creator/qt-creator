@@ -493,6 +493,8 @@ bool DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) const
         if (s.st_nlink > 1)
             return true;
     }
+#else
+    Q_UNUSED(filePath)
 #endif
     return false;
 }
