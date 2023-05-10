@@ -631,8 +631,10 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
                 if (!enabled)
                     painter->setOpacity(0.75);
                 QBrush baseBrush = option->palette.base();
-                if (widget && qobject_cast<const QSpinBox *>(widget->parentWidget()))
+                if (widget && qobject_cast<const QSpinBox *>(widget->parentWidget())
+                    && StyleHelper::isQDSTheme()) {
                     baseBrush = creatorColor(Theme::DScontrolBackgroundDisabled);
+                }
                 painter->fillRect(backgroundRect, baseBrush);
                 painter->restore();
             } else {
