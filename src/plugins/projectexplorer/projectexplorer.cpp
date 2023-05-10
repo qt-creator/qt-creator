@@ -700,7 +700,6 @@ public:
 
     // Settings pages
     ProjectExplorerSettingsPage m_projectExplorerSettingsPage;
-    BuildPropertiesSettingsPage m_buildPropertiesSettingsPage{&m_buildPropertiesSettings};
     AppOutputSettingsPage m_appOutputSettingsPage;
     CompileOutputSettingsPage m_compileOutputSettingsPage;
     DeviceSettingsPage m_deviceSettingsPage;

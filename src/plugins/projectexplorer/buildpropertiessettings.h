@@ -7,11 +7,9 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
-
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT BuildPropertiesSettings : public Utils::AspectContainer
+class PROJECTEXPLORER_EXPORT BuildPropertiesSettings : public Core::PagedSettings
 {
 public:
     BuildPropertiesSettings();
@@ -34,13 +32,4 @@ public:
     QString defaultBuildDirectoryTemplate();
 };
 
-namespace Internal {
-
-class BuildPropertiesSettingsPage final : public Core::IOptionsPage
-{
-public:
-    explicit BuildPropertiesSettingsPage(BuildPropertiesSettings *settings);
-};
-
-} // namespace Internal
 } // namespace ProjectExplorer

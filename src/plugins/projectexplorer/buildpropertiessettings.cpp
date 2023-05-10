@@ -24,6 +24,25 @@ BuildPropertiesSettings::BuildPropertiesSettings()
 {
     setAutoApply(false);
 
+    setId("AB.ProjectExplorer.BuildPropertiesSettingsPage");
+    setDisplayName(Tr::tr("Default Build Properties"));
+    setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+    setSettings(this);
+
+    setLayouter([this](QWidget *widget) {
+        using namespace Layouting;
+
+        Column {
+            Form {
+                buildDirectoryTemplate, br,
+                separateDebugInfo, br,
+                qmlDebugging, br,
+                qtQuickCompiler
+            },
+            st
+        }.attachTo(widget);
+    });
+
     registerAspect(&buildDirectoryTemplate);
     buildDirectoryTemplate.setDisplayStyle(StringAspect::LineEditDisplay);
     buildDirectoryTemplate.setSettingsKey("Directories/BuildDirectory.TemplateV2");
@@ -75,30 +94,4 @@ QString BuildPropertiesSettings::defaultBuildDirectoryTemplate()
     return QString(DEFAULT_BUILD_DIRECTORY_TEMPLATE);
 }
 
-namespace Internal {
-
-BuildPropertiesSettingsPage::BuildPropertiesSettingsPage(BuildPropertiesSettings *settings)
-{
-    setId("AB.ProjectExplorer.BuildPropertiesSettingsPage");
-    setDisplayName(Tr::tr("Default Build Properties"));
-    setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        BuildPropertiesSettings &s = *settings;
-        using namespace Layouting;
-
-        Column {
-            Form {
-                s.buildDirectoryTemplate, br,
-                s.separateDebugInfo, br,
-                s.qmlDebugging, br,
-                s.qtQuickCompiler
-            },
-            st
-        }.attachTo(widget);
-    });
-}
-
-} // Internal
 } // ProjectExplorer
