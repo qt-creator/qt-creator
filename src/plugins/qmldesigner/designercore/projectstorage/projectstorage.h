@@ -136,19 +136,20 @@ public:
             .template valueWithTransaction<TypeId>(moduleId, exportedTypeName);
     }
 
-    PropertyDeclarationIds propertyDeclarationIds(TypeId typeId) const
+    PropertyDeclarationIds propertyDeclarationIds(TypeId typeId) const override
     {
         return selectPropertyDeclarationIdsForTypeStatement
             .template valuesWithTransaction<PropertyDeclarationId>(32, typeId);
     }
 
-    PropertyDeclarationIds localPropertyDeclarationIds(TypeId typeId) const
+    PropertyDeclarationIds localPropertyDeclarationIds(TypeId typeId) const override
     {
         return selectLocalPropertyDeclarationIdsForTypeStatement
             .template valuesWithTransaction<PropertyDeclarationId>(16, typeId);
     }
 
-    PropertyDeclarationId propertyDeclarationId(TypeId typeId, Utils::SmallStringView propertyName) const
+    PropertyDeclarationId propertyDeclarationId(TypeId typeId,
+                                                Utils::SmallStringView propertyName) const override
     {
         return selectPropertyDeclarationIdForTypeAndPropertyNameStatement
             .template valueWithTransaction<PropertyDeclarationId>(typeId, propertyName);
@@ -169,25 +170,25 @@ public:
                 propertyDeclarationId);
     }
 
-    std::optional<Storage::Info::Type> type(TypeId typeId) const
+    std::optional<Storage::Info::Type> type(TypeId typeId) const override
     {
         return selectInfoTypeByTypeIdStatement.template optionalValueWithTransaction<Storage::Info::Type>(
             typeId);
     }
 
-    std::vector<Utils::SmallString> signalDeclarationNames(TypeId typeId) const
+    std::vector<Utils::SmallString> signalDeclarationNames(TypeId typeId) const override
     {
         return selectSignalDeclarationNamesForTypeStatement
             .template valuesWithTransaction<Utils::SmallString>(32, typeId);
     }
 
-    std::vector<Utils::SmallString> functionDeclarationNames(TypeId typeId) const
+    std::vector<Utils::SmallString> functionDeclarationNames(TypeId typeId) const override
     {
         return selectFuncionDeclarationNamesForTypeStatement
             .template valuesWithTransaction<Utils::SmallString>(32, typeId);
     }
 
-    std::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const
+    std::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const override
     {
         return selectPropertyNameStatement.template optionalValueWithTransaction<Utils::SmallString>(
             propertyDeclarationId);
@@ -216,13 +217,13 @@ public:
         return commonTypeCache_.template builtinTypeId<builtinType>();
     }
 
-    TypeIds prototypeIds(TypeId type) const
+    TypeIds prototypeIds(TypeId type) const override
     {
         return selectPrototypeIdsForTypeIdInOrderStatement.template valuesWithTransaction<TypeId>(16,
                                                                                                   type);
     }
 
-    TypeIds prototypeAndSelfIds(TypeId type) const
+    TypeIds prototypeAndSelfIds(TypeId type) const override
     {
         return selectPrototypeAndSelfIdsForTypeIdInOrderStatement
             .template valuesWithTransaction<TypeId>(16, type);
