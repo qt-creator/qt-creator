@@ -106,12 +106,6 @@ CatchTestSettings::CatchTestSettings()
     warnOnEmpty.setSettingsKey("WarnEmpty");
     warnOnEmpty.setLabelText(Tr::tr("Warn on empty tests"));
     warnOnEmpty.setToolTip(Tr::tr("Warns if a test section does not check any assertion."));
-
-    forEachAspect([](BaseAspect *aspect) {
-        // FIXME: Make the positioning part of the LayoutBuilder later
-        if (auto boolAspect = dynamic_cast<BoolAspect *>(aspect))
-            boolAspect->setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
-    });
 }
 
 CatchTestSettingsPage::CatchTestSettingsPage(CatchTestSettings *settings, Id settingsId)
