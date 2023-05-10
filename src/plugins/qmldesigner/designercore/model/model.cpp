@@ -37,6 +37,7 @@
 #include <QHashIterator>
 #include <QPointer>
 #include <QRegularExpression>
+#include <qcompilerdetection.h>
 
 /*!
 \defgroup CoreModel
@@ -212,6 +213,9 @@ void ModelPrivate::changeNodeType(const InternalNodePointer &node, const TypeNam
 }
 
 namespace {
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_CLANG("-Wunneeded-internal-declaration")
+
 std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Utils::SmallStringView typeName)
 {
     auto found = std::find(typeName.rbegin(), typeName.rend(), '.');
@@ -221,6 +225,8 @@ std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Util
 
     return {{typeName.begin(), std::prev(found.base())}, {found.base(), typeName.end()}};
 }
+
+QT_WARNING_POP
 } // namespace
 
 InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
