@@ -26,8 +26,10 @@ PerforceChecker::PerforceChecker(QObject *parent) : QObject(parent)
 
 PerforceChecker::~PerforceChecker()
 {
-    m_process.kill();
-    m_process.waitForFinished();
+    if (m_process.isRunning()) {
+        m_process.kill();
+        m_process.waitForFinished();
+    }
     resetOverrideCursor();
 }
 
