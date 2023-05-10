@@ -180,11 +180,7 @@
                                 \li \l{Importing 3D Assets}
                             \endlist
                         \li \l{Exporting Components}
-                        \li Qt Quick Effect Maker
-                            \list
-                                \li \l{Creating Qt Quick Effect Maker Files}
-                                \li \l{Working with Effects in Qt Quick Effect Maker}
-                            \endlist
+                        \li \l{Using Qt Quick Effect Maker Effects}
                     \endlist
             \endlist
         \li \l{Motion Design}
