@@ -5,11 +5,9 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
-
 namespace CMakeProjectManager::Internal {
 
-class CMakeSpecificSettings final : public Utils::AspectContainer
+class CMakeSpecificSettings final : public Core::PagedSettings
 {
 public:
     CMakeSpecificSettings();
@@ -22,12 +20,6 @@ public:
     Utils::BoolAspect askBeforeReConfigureInitialParams;
     Utils::BoolAspect showSourceSubFolders;
     Utils::BoolAspect showAdvancedOptionsByDefault;
-};
-
-class CMakeSpecificSettingsPage final : public Core::IOptionsPage
-{
-public:
-    CMakeSpecificSettingsPage();
 };
 
 } // CMakeProjectManager::Internal

@@ -15,8 +15,36 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
+static CMakeSpecificSettings *theSettings;
+
+CMakeSpecificSettings *CMakeSpecificSettings::instance()
+{
+    return theSettings;
+}
+
 CMakeSpecificSettings::CMakeSpecificSettings()
 {
+    theSettings = this;
+
+    setId(Constants::Settings::GENERAL_ID);
+    setDisplayName(::CMakeProjectManager::Tr::tr("General"));
+    setDisplayCategory("CMake");
+    setCategory(Constants::Settings::CATEGORY);
+    setCategoryIconPath(Constants::Icons::SETTINGS_CATEGORY);
+    setSettings(this);
+
+    setLayouter([this](QWidget *widget) {
+        using namespace Layouting;
+        Column {
+            autorunCMake,
+            packageManagerAutoSetup,
+            askBeforeReConfigureInitialParams,
+            showSourceSubFolders,
+            showAdvancedOptionsByDefault,
+            st
+        }.attachTo(widget);
+    });
+
     // TODO: fixup of QTCREATORBUG-26289 , remove in Qt Creator 7 or so
     Core::ICore::settings()->remove("CMakeSpecificSettings/NinjaPath");
 
@@ -61,38 +89,8 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     showAdvancedOptionsByDefault.setDefaultValue(false);
     showAdvancedOptionsByDefault.setLabelText(
                 ::CMakeProjectManager::Tr::tr("Show advanced options by default"));
-}
 
-CMakeSpecificSettings *CMakeSpecificSettings::instance()
-{
-    static CMakeSpecificSettings theSettings;
-    return &theSettings;
-}
-
-// CMakeSpecificSettingsPage
-
-CMakeSpecificSettingsPage::CMakeSpecificSettingsPage()
-{
-    CMakeSpecificSettings *settings = CMakeSpecificSettings::instance();
-    setId(Constants::Settings::GENERAL_ID);
-    setDisplayName(::CMakeProjectManager::Tr::tr("General"));
-    setDisplayCategory("CMake");
-    setCategory(Constants::Settings::CATEGORY);
-    setCategoryIconPath(Constants::Icons::SETTINGS_CATEGORY);
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        CMakeSpecificSettings &s = *settings;
-        using namespace Layouting;
-        Column {
-            s.autorunCMake,
-            s.packageManagerAutoSetup,
-            s.askBeforeReConfigureInitialParams,
-            s.showSourceSubFolders,
-            s.showAdvancedOptionsByDefault,
-            st
-        }.attachTo(widget);
-    });
+    readSettings(Core::ICore::settings());
 }
 
 } // CMakeProjectManager::Internal
