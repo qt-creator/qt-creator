@@ -38,12 +38,6 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
-static QString currentError()
-{
-    int err = errno;
-    return QString::fromLatin1(strerror(err));
-}
-
 Terminal::Terminal(QObject *parent)
    : QObject(parent)
 {
@@ -52,6 +46,10 @@ Terminal::Terminal(QObject *parent)
 void Terminal::setup()
 {
 #ifdef DEBUGGER_USE_TERMINAL
+    const auto currentError = [] {
+        int err = errno;
+        return QString::fromLatin1(strerror(err));
+    };
     if (!qtcEnvironmentVariableIsSet("QTC_USE_PTY"))
         return;
 
