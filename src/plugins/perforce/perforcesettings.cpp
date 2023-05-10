@@ -106,6 +106,23 @@ QStringList PerforceSettings::commonP4Arguments() const
     return lst;
 }
 
+QStringList PerforceSettings::commonP4Arguments_volatile() const
+{
+    QStringList lst;
+    if (customEnv.volatileValue().toBool()) {
+        auto p4C = p4Client.volatileValue().toString();
+        if (!p4C.isEmpty())
+            lst << "-c" << p4C;
+        auto p4P = p4Port.volatileValue().toString();
+        if (!p4P.isEmpty())
+            lst << "-p" << p4P;
+        auto p4U = p4User.volatileValue().toString();
+        if (!p4U.isEmpty())
+            lst << "-u" << p4U;
+    }
+    return lst;
+}
+
 bool PerforceSettings::isValid() const
 {
     return !m_topLevel.isEmpty() && !p4BinaryPath.value().isEmpty();
@@ -234,7 +251,10 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
 
             errorLabel->setStyleSheet(QString());
             errorLabel->setText(Tr::tr("Testing..."));
-            checker->start(settings->p4BinaryPath.filePath(), {}, settings->commonP4Arguments(), 10000);
+
+            const FilePath p4Bin = FilePath::fromUserInput(
+                        settings->p4BinaryPath.volatileValue().toString());
+            checker->start(p4Bin, {}, settings->commonP4Arguments_volatile(), 10000);
         });
 
         Group config {

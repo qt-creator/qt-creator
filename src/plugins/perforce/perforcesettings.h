@@ -64,6 +64,7 @@ public:
     // Return basic arguments, including -d and server connection parameters.
     QStringList commonP4Arguments() const;
     QStringList commonP4Arguments(const QString &workingDir) const;
+    QStringList commonP4Arguments_volatile() const; // remove when auto apply is done
 
     void clearTopLevel();
 
