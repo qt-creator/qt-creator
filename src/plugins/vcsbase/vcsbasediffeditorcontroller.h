@@ -28,8 +28,8 @@ public:
     void setVcsBinary(const Utils::FilePath &path);
 
 protected:
-    Utils::Tasking::TreeStorage<QString> inputStorage() const;
-    Utils::Tasking::TaskItem postProcessTask();
+    Tasking::TreeStorage<QString> inputStorage() const;
+    Tasking::TaskItem postProcessTask();
 
     void setupCommand(Utils::Process &process, const QStringList &args) const;
 

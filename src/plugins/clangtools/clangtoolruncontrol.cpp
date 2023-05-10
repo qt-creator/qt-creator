@@ -29,6 +29,7 @@
 
 using namespace CppEditor;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runcontrol", QtWarningMsg)
@@ -183,7 +184,6 @@ void ClangToolRunWorker::start()
     m_filesAnalyzed.clear();
     m_filesNotAnalyzed.clear();
 
-    using namespace Tasking;
     QList<TaskItem> tasks{ParallelLimit(qMax(1, m_runSettings.parallelJobs()))};
     for (const AnalyzeUnit &unit : std::as_const(unitsToProcess)) {
         if (!m_diagnosticConfig.isEnabled(tool)

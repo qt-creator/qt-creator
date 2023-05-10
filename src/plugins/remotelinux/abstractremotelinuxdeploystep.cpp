@@ -19,6 +19,7 @@
 #include <QPointer>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace RemoteLinux {
@@ -204,7 +205,7 @@ bool AbstractRemoteLinuxDeployStep::isDeploymentNecessary() const
     return true;
 }
 
-Tasking::Group AbstractRemoteLinuxDeployStep::deployRecipe()
+Group AbstractRemoteLinuxDeployStep::deployRecipe()
 {
     return {};
 }

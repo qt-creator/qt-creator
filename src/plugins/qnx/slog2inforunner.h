@@ -7,7 +7,7 @@
 
 #include <QDateTime>
 
-namespace Utils { class TaskTree; }
+namespace Tasking { class TaskTree; }
 
 namespace Qnx::Internal {
 
@@ -33,7 +33,7 @@ private:
     bool m_currentLogs = false;
     QString m_remainingData;
 
-    std::unique_ptr<Utils::TaskTree> m_taskTree;
+    std::unique_ptr<Tasking::TaskTree> m_taskTree;
 };
 
 } // Qnx::Internal

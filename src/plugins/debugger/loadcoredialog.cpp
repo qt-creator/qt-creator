@@ -34,6 +34,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Debugger::Internal {
@@ -216,8 +217,6 @@ void AttachCoreDialog::accepted()
 {
     const DebuggerItem *debuggerItem = Debugger::DebuggerKitAspect::debugger(kit());
     const FilePath debuggerCommand = debuggerItem->command();
-
-    using namespace Tasking;
 
     const auto copyFile = [debuggerCommand](const FilePath &srcPath) -> expected_str<FilePath> {
         if (!srcPath.isSameDevice(debuggerCommand)) {

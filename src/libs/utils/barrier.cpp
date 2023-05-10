@@ -5,7 +5,7 @@
 
 #include "qtcassert.h"
 
-namespace Utils {
+namespace Tasking {
 
 void Barrier::setLimit(int value)
 {
@@ -44,4 +44,4 @@ void Barrier::stopWithResult(bool success)
     emit done(success);
 }
 
-} // namespace Utils
+} // namespace Tasking

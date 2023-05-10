@@ -13,7 +13,7 @@
 
 #include <functional>
 
-namespace Utils { class TaskTree; }
+namespace Tasking { class TaskTree; }
 
 namespace Core {
 namespace Internal {
@@ -74,7 +74,7 @@ private:
     QList<ILocatorFilter *> m_customFilters;
     QMap<Utils::Id, QAction *> m_filterActionMap;
     QTimer m_refreshTimer;
-    std::unique_ptr<Utils::TaskTree> m_taskTree;
+    std::unique_ptr<Tasking::TaskTree> m_taskTree;
     QList<ILocatorFilter *> m_refreshingFilters;
 };
 

@@ -44,7 +44,7 @@ private:
 };
 
 class PROJECTEXPLORER_EXPORT DeviceUsedPortsGathererAdapter
-    : public Utils::Tasking::TaskAdapter<DeviceUsedPortsGatherer>
+    : public Tasking::TaskAdapter<DeviceUsedPortsGatherer>
 {
 public:
     DeviceUsedPortsGathererAdapter();

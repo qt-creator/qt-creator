@@ -12,6 +12,7 @@
 #include <utils/qtcassert.h>
 
 using namespace DiffEditor;
+using namespace Tasking;
 using namespace Utils;
 
 namespace VcsBase {
@@ -24,7 +25,7 @@ public:
     VcsBaseDiffEditorController *q;
     Environment m_processEnvironment;
     FilePath m_vcsBinary;
-    const Tasking::TreeStorage<QString> m_inputStorage;
+    const TreeStorage<QString> m_inputStorage;
 };
 
 /////////////////////
@@ -39,15 +40,13 @@ VcsBaseDiffEditorController::~VcsBaseDiffEditorController()
     delete d;
 }
 
-Tasking::TreeStorage<QString> VcsBaseDiffEditorController::inputStorage() const
+TreeStorage<QString> VcsBaseDiffEditorController::inputStorage() const
 {
     return d->m_inputStorage;
 }
 
-Tasking::TaskItem VcsBaseDiffEditorController::postProcessTask()
+TaskItem VcsBaseDiffEditorController::postProcessTask()
 {
-    using namespace Tasking;
-
     const auto setupDiffProcessor = [this](Async<QList<FileData>> &async) {
         const QString *storage = inputStorage().activeStorage();
         QTC_ASSERT(storage, qWarning("Using postProcessTask() requires putting inputStorage() "

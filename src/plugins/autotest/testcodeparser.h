@@ -18,7 +18,7 @@ class QThreadPool;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
-namespace Utils { class TaskTree; }
+namespace Tasking { class TaskTree; }
 
 namespace Autotest {
 namespace Internal {
@@ -95,7 +95,7 @@ private:
     QTimer m_reparseTimer;
     QSet<ITestParser *> m_updateParsers;
     Utils::FutureSynchronizer m_futureSynchronizer;
-    std::unique_ptr<Utils::TaskTree> m_taskTree;
+    std::unique_ptr<Tasking::TaskTree> m_taskTree;
     QHash<Utils::FilePath, int> m_qmlEditorRev;
 };
 

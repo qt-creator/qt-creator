@@ -14,6 +14,7 @@
 #include <QTimer>
 
 using namespace Utils;
+using namespace Tasking;
 
 namespace Core {
 

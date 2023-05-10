@@ -3,8 +3,6 @@
 
 #include "async.h"
 
-#include <QCoreApplication>
-
 namespace Utils {
 
 static int s_maxThreadCount = INT_MAX;

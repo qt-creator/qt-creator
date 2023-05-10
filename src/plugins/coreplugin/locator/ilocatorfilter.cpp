@@ -25,6 +25,7 @@
 
 #include <unordered_set>
 
+using namespace Tasking;
 using namespace Utils;
 
 /*!
@@ -243,7 +244,7 @@ private:
 // When all the results are reported (the expected number of reports is set with setFilterCount()),
 // the ResultsCollector finishes. The intermediate results are reported with
 // serialOutputDataReady() signal.
-// The object of ResultsCollector is registered in Tasking namespace with Tasking::Collector name.
+// The object of ResultsCollector is registered in Tasking namespace under the Collector name.
 class ResultsCollector : public QObject
 {
     Q_OBJECT
@@ -316,7 +317,7 @@ void ResultsCollector::start()
     m_watcher->setFuture(Utils::asyncRun(deduplicate, m_deduplicator));
 }
 
-class ResultsCollectorAdapter : public Tasking::TaskAdapter<ResultsCollector>
+class ResultsCollectorAdapter : public TaskAdapter<ResultsCollector>
 {
 public:
     ResultsCollectorAdapter() {
@@ -426,8 +427,6 @@ void LocatorMatcher::start()
     QTC_ASSERT(!isRunning(), return);
     d->m_output = {};
     d->m_taskTree.reset(new TaskTree);
-
-    using namespace Tasking;
 
     struct CollectorStorage
     {
@@ -613,7 +612,7 @@ void ILocatorFilter::prepareSearch(const QString &entry)
 /*!
     Sets the refresh recipe for refreshing cached data.
 */
-void ILocatorFilter::setRefreshRecipe(const std::optional<Tasking::TaskItem> &recipe)
+void ILocatorFilter::setRefreshRecipe(const std::optional<TaskItem> &recipe)
 {
     m_refreshRecipe = recipe;
 }
@@ -622,7 +621,7 @@ void ILocatorFilter::setRefreshRecipe(const std::optional<Tasking::TaskItem> &re
     Returns the refresh recipe for refreshing cached data. By default, the locator filter has
     no recipe set, so that it won't be refreshed.
 */
-std::optional<Tasking::TaskItem> ILocatorFilter::refreshRecipe() const
+std::optional<TaskItem> ILocatorFilter::refreshRecipe() const
 {
     return m_refreshRecipe;
 }
@@ -1524,8 +1523,6 @@ static void filter(QPromise<LocatorFileCachePrivate> &promise, const LocatorStor
 */
 LocatorMatcherTask LocatorFileCache::matcher() const
 {
-    using namespace Tasking;
-
     TreeStorage<LocatorStorage> storage;
     std::weak_ptr<LocatorFileCachePrivate> weak = d;
 

@@ -20,6 +20,7 @@
 
 #include <set>
 
+using namespace Tasking;
 using namespace Utils;
 using namespace VcsBase;
 
@@ -413,7 +414,6 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         return;
     }
 
-    using namespace Tasking;
     const ProcessTask topRevisionProc =
         d->client->topRevision(workingDirectory,
                                [=](const QString &ref, const QDateTime &dateTime) {

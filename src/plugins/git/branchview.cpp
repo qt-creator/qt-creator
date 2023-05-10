@@ -37,6 +37,7 @@
 #include <QVBoxLayout>
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 using namespace VcsBase;
 
@@ -527,8 +528,6 @@ bool BranchView::reset(const QByteArray &resetType)
 
 TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
 {
-    using namespace Tasking;
-
     const QModelIndex selected = selectedIndex();
     QTC_CHECK(selected != m_model->currentBranch());
 

@@ -146,11 +146,12 @@ int main(int argc, char *argv[])
 
     // Task tree creator (takes configuation from GUI)
 
+    using namespace Tasking;
+
     std::unique_ptr<TaskTree> taskTree;
     FutureSynchronizer synchronizer;
 
     auto treeRoot = [&] {
-        using namespace Tasking;
 
         auto taskItem = [sync = &synchronizer, synchronizerCheckBox](TaskWidget *widget) {
             const auto setupHandler = [=](Async<void> &task) {

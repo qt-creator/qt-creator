@@ -46,6 +46,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Autotest {
@@ -346,7 +347,6 @@ void TestRunner::runTestsHelper()
         std::unique_ptr<TestOutputReader> m_outputReader;
     };
 
-    using namespace Tasking;
     QList<TaskItem> tasks{optional};
 
     for (ITestConfiguration *config : m_selectedTests) {

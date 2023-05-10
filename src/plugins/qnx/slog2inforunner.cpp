@@ -31,7 +31,7 @@ Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
 
 void Slog2InfoRunner::start()
 {
-    using namespace Utils::Tasking;
+    using namespace Tasking;
     QTC_CHECK(!m_taskTree);
 
     const auto testStartHandler = [this](Process &process) {
@@ -68,7 +68,7 @@ void Slog2InfoRunner::start()
                       StdErrFormat);
     };
 
-    const Tasking::Group root {
+    const Group root {
         ProcessTask(testStartHandler, testDoneHandler, testErrorHandler),
         ProcessTask(launchTimeStartHandler, launchTimeDoneHandler),
         ProcessTask(logStartHandler, {}, logErrorHandler)

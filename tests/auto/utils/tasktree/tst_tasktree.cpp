@@ -11,7 +11,7 @@
 using namespace std::literals::chrono_literals;
 
 using namespace Utils;
-using namespace Utils::Tasking;
+using namespace Tasking;
 
 using TestTask = Async<void>;
 using Test = AsyncTask<void>;

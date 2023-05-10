@@ -27,7 +27,7 @@ ExternalToolsFilter::ExternalToolsFilter()
 
 LocatorMatcherTasks ExternalToolsFilter::matchers()
 {
-    using namespace Utils::Tasking;
+    using namespace Tasking;
 
     TreeStorage<LocatorStorage> storage;
 

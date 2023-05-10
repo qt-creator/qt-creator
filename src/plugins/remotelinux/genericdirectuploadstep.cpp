@@ -22,8 +22,8 @@
 #include <QDateTime>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
-using namespace Utils::Tasking;
 
 namespace RemoteLinux::Internal {
 
@@ -68,7 +68,7 @@ public:
     }
 
     bool isDeploymentNecessary() const final;
-    Utils::Tasking::Group deployRecipe() final;
+    Group deployRecipe() final;
 
     QDateTime timestampFromStat(const DeployableFile &file, Process *statProc);
 

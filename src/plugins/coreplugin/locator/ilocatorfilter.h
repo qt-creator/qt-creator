@@ -139,10 +139,10 @@ class CORE_EXPORT LocatorMatcherTask final
 public:
     // The main task. Initial data (searchTerm) should be taken from storage.input().
     // Results reporting is done via the storage.reportOutput().
-    Utils::Tasking::TaskItem task = Utils::Tasking::Group{};
+    Tasking::TaskItem task = Tasking::Group{};
 
     // When constructing the task, don't place the storage inside the task above.
-    Utils::Tasking::TreeStorage<LocatorStorage> storage;
+    Tasking::TreeStorage<LocatorStorage> storage;
 };
 
 using LocatorMatcherTasks = QList<LocatorMatcherTask>;
@@ -275,8 +275,8 @@ protected:
     virtual void saveState(QJsonObject &object) const;
     virtual void restoreState(const QJsonObject &object);
 
-    void setRefreshRecipe(const std::optional<Utils::Tasking::TaskItem> &recipe);
-    std::optional<Utils::Tasking::TaskItem> refreshRecipe() const;
+    void setRefreshRecipe(const std::optional<Tasking::TaskItem> &recipe);
+    std::optional<Tasking::TaskItem> refreshRecipe() const;
 
     static bool isOldSetting(const QByteArray &state);
 
@@ -295,7 +295,7 @@ private:
     QString m_description;
     QString m_defaultShortcut;
     std::optional<QString> m_defaultSearchText;
-    std::optional<Utils::Tasking::TaskItem> m_refreshRecipe;
+    std::optional<Tasking::TaskItem> m_refreshRecipe;
     QKeySequence m_defaultKeySequence;
     bool m_defaultIncludedByDefault = false;
     bool m_includedByDefault = m_defaultIncludedByDefault;

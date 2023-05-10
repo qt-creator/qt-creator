@@ -9,7 +9,7 @@
 
 #include <QObject>
 
-namespace Utils { class TaskTree; }
+namespace Tasking { class TaskTree; }
 
 namespace Core {
 
@@ -20,7 +20,7 @@ class CORE_EXPORT TaskProgress : public QObject
     Q_OBJECT
 
 public:
-    TaskProgress(Utils::TaskTree *taskTree); // Makes TaskProgress a child of task tree
+    TaskProgress(Tasking::TaskTree *taskTree); // Makes TaskProgress a child of task tree
     ~TaskProgress() override;
 
     void setId(Utils::Id id);

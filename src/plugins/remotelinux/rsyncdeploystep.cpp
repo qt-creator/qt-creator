@@ -21,8 +21,8 @@
 #include <utils/tasktree.h>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
-using namespace Utils::Tasking;
 
 namespace RemoteLinux {
 
@@ -35,9 +35,9 @@ public:
 
 private:
     bool isDeploymentNecessary() const final;
-    Tasking::Group deployRecipe() final;
-    Tasking::TaskItem mkdirTask();
-    Tasking::TaskItem transferTask();
+    Group deployRecipe() final;
+    TaskItem mkdirTask();
+    TaskItem transferTask();
 
     mutable FilesToTransfer m_files;
     bool m_ignoreMissingFiles = false;

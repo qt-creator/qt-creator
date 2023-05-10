@@ -43,6 +43,7 @@ const char InstallQtUpdates[] = "UpdateInfo.InstallQtUpdates";
 const char M_MAINTENANCE_TOOL[] = "QtCreator.Menu.Tools.MaintenanceTool";
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 
 namespace UpdateInfo {

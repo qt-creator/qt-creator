@@ -60,10 +60,10 @@ public:
     GroupWidget();
 
     void setExecuteMode(ExecuteMode mode);
-    Utils::Tasking::ParallelLimit executeMode() const;
+    Tasking::ParallelLimit executeMode() const;
 
-    void setWorkflowPolicy(Utils::Tasking::WorkflowPolicy policy);
-    Utils::Tasking::WorkflowPolicy workflowPolicy() const;
+    void setWorkflowPolicy(Tasking::WorkflowPolicy policy);
+    Tasking::WorkflowPolicy workflowPolicy() const;
 
 private:
     void updateExecuteMode();
@@ -73,7 +73,7 @@ private:
     QComboBox *m_workflowCombo = nullptr;
 
     ExecuteMode m_executeMode = ExecuteMode::Sequential;
-    Utils::Tasking::WorkflowPolicy m_workflowPolicy = Utils::Tasking::WorkflowPolicy::StopOnError;
+    Tasking::WorkflowPolicy m_workflowPolicy = Tasking::WorkflowPolicy::StopOnError;
 };
 
 class TaskGroup

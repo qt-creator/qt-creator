@@ -49,7 +49,7 @@ private:
     class FileStreamerPrivate *d = nullptr;
 };
 
-class FileStreamerTaskAdapter : public Utils::Tasking::TaskAdapter<FileStreamer>
+class FileStreamerTaskAdapter : public Tasking::TaskAdapter<FileStreamer>
 {
 public:
     FileStreamerTaskAdapter() { connect(task(), &FileStreamer::done, this,

@@ -21,6 +21,7 @@
 
 using namespace Core;
 using namespace Core::Internal;
+using namespace Tasking;
 using namespace Utils;
 
 using namespace std::chrono_literals;
@@ -341,7 +342,7 @@ private:
     JavaScriptOutput m_output;
 };
 
-class JavaScriptRequestAdapter : public Tasking::TaskAdapter<JavaScriptRequest>
+class JavaScriptRequestAdapter : public TaskAdapter<JavaScriptRequest>
 {
 public:
     JavaScriptRequestAdapter() { connect(task(), &JavaScriptRequest::done,
@@ -366,8 +367,6 @@ JavaScriptFilter::~JavaScriptFilter() = default;
 
 LocatorMatcherTasks JavaScriptFilter::matchers()
 {
-    using namespace Tasking;
-
     TreeStorage<LocatorStorage> storage;
     if (!m_javaScriptEngine)
         m_javaScriptEngine.reset(new JavaScriptEngine);

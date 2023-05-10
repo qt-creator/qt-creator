@@ -10,7 +10,7 @@
 #include <utils/futuresynchronizer.h>
 
 namespace ProjectExplorer { class ExtraCompiler; }
-namespace Utils { class TaskTree; }
+namespace Tasking { class TaskTree; }
 
 namespace CppEditor {
 
@@ -44,7 +44,7 @@ public:
 
 private:
     Utils::FutureSynchronizer m_futureSynchronizer;
-    std::unique_ptr<Utils::TaskTree> m_taskTree;
+    std::unique_ptr<Tasking::TaskTree> m_taskTree;
 };
 
 } // namespace CppEditor

@@ -9,14 +9,12 @@
 #include <QObject>
 #include <QSharedPointer>
 
-namespace Utils {
+namespace Tasking {
 
 class ExecutionContextActivator;
 class TaskContainer;
 class TaskNode;
 class TaskTreePrivate;
-
-namespace Tasking {
 
 class QTCREATOR_UTILS_EXPORT TaskInterface : public QObject
 {
@@ -354,8 +352,6 @@ private:
     };
 };
 
-} // namespace Tasking
-
 class TaskTreePrivate;
 
 class QTCREATOR_UTILS_EXPORT TaskTree final : public QObject
@@ -364,10 +360,10 @@ class QTCREATOR_UTILS_EXPORT TaskTree final : public QObject
 
 public:
     TaskTree();
-    TaskTree(const Tasking::Group &root);
+    TaskTree(const Group &root);
     ~TaskTree();
 
-    void setupRoot(const Tasking::Group &root);
+    void setupRoot(const Group &root);
 
     void start();
     void stop();
@@ -378,14 +374,12 @@ public:
     int progressValue() const; // all finished / skipped / stopped tasks, groups itself excluded
 
     template <typename StorageStruct, typename StorageHandler>
-    void onStorageSetup(const Tasking::TreeStorage<StorageStruct> &storage,
-                        StorageHandler &&handler) {
+    void onStorageSetup(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
         setupStorageHandler(storage,
                             wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)), {});
     }
     template <typename StorageStruct, typename StorageHandler>
-    void onStorageDone(const Tasking::TreeStorage<StorageStruct> &storage,
-                       StorageHandler &&handler) {
+    void onStorageDone(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
         setupStorageHandler(storage,
                             {}, wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)));
     }
@@ -398,7 +392,7 @@ signals:
 
 private:
     using StorageVoidHandler = std::function<void(void *)>;
-    void setupStorageHandler(const Tasking::TreeStorageBase &storage,
+    void setupStorageHandler(const TreeStorageBase &storage,
                              StorageVoidHandler setupHandler,
                              StorageVoidHandler doneHandler);
     template <typename StorageStruct, typename StorageHandler>
@@ -413,22 +407,22 @@ private:
     TaskTreePrivate *d;
 };
 
-class QTCREATOR_UTILS_EXPORT TaskTreeTaskAdapter : public Tasking::TaskAdapter<TaskTree>
+class QTCREATOR_UTILS_EXPORT TaskTreeTaskAdapter : public TaskAdapter<TaskTree>
 {
 public:
     TaskTreeTaskAdapter();
     void start() final;
 };
 
-} // namespace Utils
+} // namespace Tasking
 
 #define QTC_DECLARE_CUSTOM_TASK(CustomTaskName, TaskAdapterClass)\
-namespace Utils::Tasking { using CustomTaskName = CustomTask<TaskAdapterClass>; }
+namespace Tasking { using CustomTaskName = CustomTask<TaskAdapterClass>; }
 
 #define QTC_DECLARE_CUSTOM_TEMPLATE_TASK(CustomTaskName, TaskAdapterClass)\
-namespace Utils::Tasking {\
+namespace Tasking {\
 template <typename ...Args>\
 using CustomTaskName = CustomTask<TaskAdapterClass<Args...>>;\
-} // namespace Utils::Tasking
+} // namespace Tasking
 
-QTC_DECLARE_CUSTOM_TASK(TaskTreeTask, Utils::TaskTreeTaskAdapter);
+QTC_DECLARE_CUSTOM_TASK(TaskTreeTask, TaskTreeTaskAdapter);

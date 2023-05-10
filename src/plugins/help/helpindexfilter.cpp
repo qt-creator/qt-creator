@@ -21,6 +21,7 @@
 using namespace Core;
 using namespace Help;
 using namespace Help::Internal;
+using namespace Tasking;
 using namespace Utils;
 
 HelpIndexFilter::HelpIndexFilter()
@@ -30,7 +31,7 @@ HelpIndexFilter::HelpIndexFilter()
     setDescription(Tr::tr("Locates help topics, for example in the Qt documentation."));
     setDefaultIncludedByDefault(false);
     setDefaultShortcutString("?");
-    setRefreshRecipe(Utils::Tasking::Sync([this] { invalidateCache(); }));
+    setRefreshRecipe(Sync([this] { invalidateCache(); }));
 
     m_icon = Utils::Icons::BOOKMARK.icon();
     connect(Core::HelpManager::Signals::instance(), &Core::HelpManager::Signals::setupFinished,
@@ -83,8 +84,6 @@ static void matches(QPromise<QStringList> &promise, const LocatorStorage &storag
 
 LocatorMatcherTasks HelpIndexFilter::matchers()
 {
-    using namespace Tasking;
-
     TreeStorage<LocatorStorage> storage;
 
     const auto onSetup = [this, storage](Async<QStringList> &async) {

@@ -15,7 +15,7 @@
 #include <QElapsedTimer>
 #include <QSet>
 
-namespace Utils { class TaskTree; }
+namespace Tasking { class TaskTree; }
 
 namespace ClangTools {
 namespace Internal {
@@ -67,7 +67,7 @@ private:
     QString m_targetTriple;
     Utils::Id m_toolChainType;
 
-    std::unique_ptr<Utils::TaskTree> m_taskTree;
+    std::unique_ptr<Tasking::TaskTree> m_taskTree;
     QSet<Utils::FilePath> m_projectFiles;
     QSet<Utils::FilePath> m_filesAnalyzed;
     QSet<Utils::FilePath> m_filesNotAnalyzed;

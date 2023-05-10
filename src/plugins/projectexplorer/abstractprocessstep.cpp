@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <memory>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -240,7 +241,7 @@ void AbstractProcessStep::setupProcess(Process *process)
     });
 }
 
-void AbstractProcessStep::runTaskTree(const Tasking::Group &recipe)
+void AbstractProcessStep::runTaskTree(const Group &recipe)
 {
     setupStreams();
 

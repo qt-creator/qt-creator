@@ -31,8 +31,8 @@
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
+using namespace Tasking;
 using namespace Utils;
-using namespace Utils::Tasking;
 
 namespace Qnx::Internal {
 

@@ -7,7 +7,7 @@
 
 #include "tasktree.h"
 
-namespace Utils {
+namespace Tasking {
 
 class QTCREATOR_UTILS_EXPORT Barrier final : public QObject
 {
@@ -41,11 +41,11 @@ public:
     void start() final { task()->start(); }
 };
 
-} // namespace Utils
+} // namespace Tasking
 
-QTC_DECLARE_CUSTOM_TASK(BarrierTask, Utils::BarrierTaskAdapter);
+QTC_DECLARE_CUSTOM_TASK(BarrierTask, Tasking::BarrierTaskAdapter);
 
-namespace Utils::Tasking {
+namespace Tasking {
 
 template <int Limit = 1>
 class SharedBarrier
@@ -94,4 +94,4 @@ public:
         }) {}
 };
 
-} // namespace Utils::Tasking
+} // namespace Tasking

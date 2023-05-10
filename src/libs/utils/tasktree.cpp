@@ -7,6 +7,8 @@
 
 #include <QSet>
 
+namespace Tasking {
+
 class Guard
 {
     Q_DISABLE_COPY(Guard)
@@ -28,9 +30,6 @@ public:
 private:
     Guard &m_guard;
 };
-
-namespace Utils {
-namespace Tasking {
 
 static TaskAction toTaskAction(bool success)
 {
@@ -190,10 +189,6 @@ void TaskItem::setTaskErrorHandler(const TaskEndHandler &handler)
         qWarning("Error Handler redefinition, overriding...");
     m_taskHandler.m_errorHandler = handler;
 }
-
-} // namespace Tasking
-
-using namespace Tasking;
 
 class TaskTreePrivate;
 class TaskNode;
@@ -686,8 +681,8 @@ void TaskNode::invokeEndHandler(bool success)
 }
 
 /*!
-    \class Utils::TaskTree
-    \inheaderfile utils/tasktree.h
+    \class TaskTree
+    \inheaderfile solutions/tasking/tasktree.h
     \inmodule QtCreator
     \ingroup mainclasses
     \brief The TaskTree class runs an async task tree structure defined in a
@@ -706,7 +701,6 @@ void TaskNode::invokeEndHandler(bool success)
     or AsyncTask<ReturnType>:
 
     \code
-        using namespace Utils;
         using namespace Tasking;
 
         const Group root {
@@ -1285,7 +1279,7 @@ void TaskNode::invokeEndHandler(bool success)
     recipe described by the Group root element.
 
     As TaskTree is also an asynchronous task, it can be a part of another TaskTree.
-    To place a nested TaskTree inside another TaskTree, insert the Tasking::TaskTreeTask
+    To place a nested TaskTree inside another TaskTree, insert the TaskTreeTask
     element into other tree's Group element.
 
     TaskTree reports progress of completed tasks when running. The progress value
@@ -1344,7 +1338,7 @@ void TaskNode::invokeEndHandler(bool success)
     asynchronous task:
 
     \code
-        class TimeoutAdapter : public Utils::Tasking::TaskAdapter<QTimer>
+        class TimeoutAdapter : public Tasking::TaskAdapter<QTimer>
         {
         public:
             TimeoutAdapter() {
@@ -1372,7 +1366,7 @@ void TaskNode::invokeEndHandler(bool success)
 
     To make QTimer accessible inside TaskTree under the \e Timeout name,
     register it with QTC_DECLARE_CUSTOM_TASK(Timeout, TimeoutAdapter). Timeout
-    becomes a new task type inside Utils::Tasking namespace, using TimeoutAdapter.
+    becomes a new task type inside Tasking namespace, using TimeoutAdapter.
 
     The new task type is now registered, and you can use it in TaskTree:
 
@@ -1416,7 +1410,7 @@ TaskTree::~TaskTree()
     delete d;
 }
 
-void TaskTree::setupRoot(const Tasking::Group &root)
+void TaskTree::setupRoot(const Group &root)
 {
     QTC_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The setupRoot() is called from one of the"
@@ -1455,7 +1449,7 @@ int TaskTree::progressValue() const
     return d->m_progressValue;
 }
 
-void TaskTree::setupStorageHandler(const Tasking::TreeStorageBase &storage,
+void TaskTree::setupStorageHandler(const TreeStorageBase &storage,
                                    StorageVoidHandler setupHandler,
                                    StorageVoidHandler doneHandler)
 {
@@ -1487,4 +1481,4 @@ void TaskTreeTaskAdapter::start()
     task()->start();
 }
 
-} // namespace Utils
+} // namespace Tasking

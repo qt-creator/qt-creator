@@ -11,8 +11,9 @@ namespace Utils {
 class CommandLine;
 enum class ProcessResult;
 class Process;
-namespace Tasking { class Group; }
 }
+
+namespace Tasking { class Group; }
 
 namespace ProjectExplorer {
 class ProcessParameters;
@@ -52,7 +53,7 @@ protected:
 
     bool checkWorkingDirectory();
     void setupProcess(Utils::Process *process);
-    void runTaskTree(const Utils::Tasking::Group &recipe);
+    void runTaskTree(const Tasking::Group &recipe);
     ProcessParameters *displayedParameters() const;
 
 private:

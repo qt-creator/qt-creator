@@ -46,7 +46,7 @@ private:
     FileTransferPrivate *d;
 };
 
-class PROJECTEXPLORER_EXPORT FileTransferTaskAdapter : public Utils::Tasking::TaskAdapter<FileTransfer>
+class PROJECTEXPLORER_EXPORT FileTransferTaskAdapter : public Tasking::TaskAdapter<FileTransfer>
 {
 public:
     FileTransferTaskAdapter();

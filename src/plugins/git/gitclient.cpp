@@ -76,6 +76,7 @@ const char showFormatC[] =
 
 using namespace Core;
 using namespace DiffEditor;
+using namespace Tasking;
 using namespace Utils;
 using namespace VcsBase;
 
@@ -1730,12 +1731,9 @@ bool GitClient::synchronousRevParseCmd(const FilePath &workingDirectory, const Q
 }
 
 // Retrieve head revision
-Utils::Tasking::ProcessTask GitClient::topRevision(
-    const FilePath &workingDirectory,
+ProcessTask GitClient::topRevision(const FilePath &workingDirectory,
     const std::function<void(const QString &, const QDateTime &)> &callback)
 {
-    using namespace Tasking;
-
     const auto setupProcess = [=](Process &process) {
         setupCommand(process, workingDirectory, {"show", "-s", "--pretty=format:%H:%ct", HEAD});
     };

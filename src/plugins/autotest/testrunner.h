@@ -19,7 +19,7 @@ class QLabel;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
-namespace Utils { class TaskTree; }
+namespace Tasking { class TaskTree; }
 
 namespace Autotest {
 
@@ -70,7 +70,7 @@ private:
     bool postponeTestRunWithEmptyExecutable(ProjectExplorer::Project *project);
     void onBuildSystemUpdated();
 
-    std::unique_ptr<Utils::TaskTree> m_taskTree;
+    std::unique_ptr<Tasking::TaskTree> m_taskTree;
 
     QList<ITestConfiguration *> m_selectedTests;
     TestRunMode m_runMode = TestRunMode::None;

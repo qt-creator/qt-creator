@@ -211,4 +211,4 @@ public:
 
 } // namespace Utils
 
-QTC_DECLARE_CUSTOM_TEMPLATE_TASK(AsyncTask, AsyncTaskAdapter);
+QTC_DECLARE_CUSTOM_TEMPLATE_TASK(AsyncTask, Utils::AsyncTaskAdapter);

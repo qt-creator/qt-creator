@@ -39,7 +39,7 @@ private:
 };
 
 class LANGUAGECLIENT_EXPORT CurrentDocumentSymbolsRequestTaskAdapter
-    : public Utils::Tasking::TaskAdapter<CurrentDocumentSymbolsRequest>
+    : public Tasking::TaskAdapter<CurrentDocumentSymbolsRequest>
 {
 public:
     CurrentDocumentSymbolsRequestTaskAdapter();

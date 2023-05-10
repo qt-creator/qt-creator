@@ -276,7 +276,7 @@ private:
     QString m_errorString;
 };
 
-class PROJECTEXPLORER_EXPORT KillerAdapter : public Utils::Tasking::TaskAdapter<DeviceProcessKiller>
+class PROJECTEXPLORER_EXPORT KillerAdapter : public Tasking::TaskAdapter<DeviceProcessKiller>
 {
 public:
     KillerAdapter();

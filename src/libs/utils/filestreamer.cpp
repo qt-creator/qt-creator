@@ -284,14 +284,14 @@ private:
     WriteBuffer *m_writeBuffer = nullptr;
 };
 
-class FileStreamReaderAdapter : public Utils::Tasking::TaskAdapter<FileStreamReader>
+class FileStreamReaderAdapter : public TaskAdapter<FileStreamReader>
 {
 public:
     FileStreamReaderAdapter() { connect(task(), &FileStreamBase::done, this, &TaskInterface::done); }
     void start() override { task()->start(); }
 };
 
-class FileStreamWriterAdapter : public Utils::Tasking::TaskAdapter<FileStreamWriter>
+class FileStreamWriterAdapter : public TaskAdapter<FileStreamWriter>
 {
 public:
     FileStreamWriterAdapter() { connect(task(), &FileStreamBase::done, this, &TaskInterface::done); }

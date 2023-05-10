@@ -17,8 +17,8 @@
 #include <utils/process.h>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
-using namespace Utils::Tasking;
 
 namespace Qdb::Internal {
 

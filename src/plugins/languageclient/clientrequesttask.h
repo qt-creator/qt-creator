@@ -67,7 +67,7 @@ public:
 };
 
 class LANGUAGECLIENT_EXPORT WorkspaceSymbolRequestTaskAdapter
-    : public Utils::Tasking::TaskAdapter<WorkspaceSymbolRequestTask>
+    : public Tasking::TaskAdapter<WorkspaceSymbolRequestTask>
 {
 public:
     WorkspaceSymbolRequestTaskAdapter();

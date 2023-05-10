@@ -35,6 +35,7 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.cftr", QtWarningMsg)
 using namespace Core;
 using namespace CppEditor;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace ClangTools {
@@ -188,7 +189,6 @@ void DocumentClangToolRunner::run()
     vfso().update();
     const ClangDiagnosticConfig config = diagnosticConfig(runSettings.diagnosticConfigId());
     const Environment env = projectBuildEnvironment(project);
-    using namespace Tasking;
     QList<TaskItem> tasks{parallel};
     const auto addClangTool = [this, &runSettings, &config, &env, &tasks](ClangToolType tool) {
         if (!toolEnabled(tool, config, runSettings))

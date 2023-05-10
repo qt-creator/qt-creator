@@ -16,8 +16,8 @@
 #include <utils/stringutils.h>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
-using namespace Utils::Tasking;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -130,7 +130,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::unameTask() const
         else
             emit q->errorMessage(Tr::tr("uname failed.") + '\n');
     };
-    return Tasking::Group {
+    return Group {
         optional,
         ProcessTask(setup, done, error)
     };
@@ -219,7 +219,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method
 TaskItem GenericLinuxDeviceTesterPrivate::transferTasks() const
 {
     TreeStorage<TransferStorage> storage;
-    return Tasking::Group {
+    return Group {
         continueOnDone,
         Storage(storage),
         transferTask(FileTransferMethod::GenericCopy, storage),
@@ -260,7 +260,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::commandTasks() const
     }));
     for (const QString &commandName : commandsToTest())
         tasks.append(commandTask(commandName));
-    return Tasking::Group {tasks};
+    return Group {tasks};
 }
 
 } // namespace Internal

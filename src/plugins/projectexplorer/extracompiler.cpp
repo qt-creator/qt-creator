@@ -24,6 +24,7 @@
 #include <QTimer>
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -136,7 +137,7 @@ QThreadPool *ExtraCompiler::extraCompilerThreadPool()
     return s_extraCompilerThreadPool();
 }
 
-Tasking::TaskItem ExtraCompiler::compileFileItem()
+TaskItem ExtraCompiler::compileFileItem()
 {
     return taskItemImpl(fromFileProvider());
 }
@@ -325,7 +326,7 @@ ProcessExtraCompiler::ProcessExtraCompiler(const Project *project, const FilePat
     ExtraCompiler(project, source, targets, parent)
 { }
 
-Tasking::TaskItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
+TaskItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
 {
     const auto setupTask = [=](Async<FileNameToContentsHash> &async) {
         async.setThreadPool(extraCompilerThreadPool());
@@ -344,7 +345,7 @@ Tasking::TaskItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &prov
             setContent(it.key(), it.value());
         updateCompileTime();
     };
-    return Tasking::AsyncTask<FileNameToContentsHash>(setupTask, taskDone);
+    return AsyncTask<FileNameToContentsHash>(setupTask, taskDone);
 }
 
 FilePath ProcessExtraCompiler::workingDirectory() const

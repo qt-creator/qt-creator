@@ -12,6 +12,7 @@
 #include <utils/qtcassert.h>
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 
 namespace DiffEditor {

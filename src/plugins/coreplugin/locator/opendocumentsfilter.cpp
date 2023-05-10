@@ -16,6 +16,7 @@
 #include <QMutexLocker>
 #include <QRegularExpression>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace Core::Internal {
@@ -29,7 +30,7 @@ OpenDocumentsFilter::OpenDocumentsFilter()
     setPriority(High);
     setDefaultIncludedByDefault(true);
     // TODO: Remove the refresh recipe
-    setRefreshRecipe(Tasking::Sync([this] { refreshInternally(); }));
+    setRefreshRecipe(Sync([this] { refreshInternally(); }));
 
     connect(DocumentModel::model(), &QAbstractItemModel::dataChanged,
             this, &OpenDocumentsFilter::slotDataChanged);
@@ -75,8 +76,6 @@ static void matchEditors(QPromise<void> &promise, const LocatorStorage &storage,
 
 LocatorMatcherTasks OpenDocumentsFilter::matchers()
 {
-    using namespace Tasking;
-
     TreeStorage<LocatorStorage> storage;
 
     const auto onSetup = [storage](Async<void> &async) {
