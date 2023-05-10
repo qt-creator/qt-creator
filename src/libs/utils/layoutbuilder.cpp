@@ -239,9 +239,6 @@ public:
 
     void addItem(const LayoutItem &item);
     void addItems(const LayoutItems &items);
-    void addRow(const LayoutItems &items);
-
-    bool isForm() const;
 
     QList<Slice> stack;
 };
@@ -324,7 +321,7 @@ void doAddWidget(LayoutBuilder &builder, QWidget *widget)
 
     A LayoutBuilder instance is typically used locally within a function and never stored.
 
-    \sa addItem(), addItems(), addRow()
+    \sa addItem(), addItems()
 */
 
 
@@ -344,12 +341,6 @@ void LayoutBuilder::addItems(const LayoutItems &items)
 {
     for (const LayoutItem &item : items)
         addItemHelper(*this, item);
-}
-
-void LayoutBuilder::addRow(const LayoutItems &items)
-{
-    addItem(br);
-    addItems(items);
 }
 
 /*!
@@ -399,11 +390,6 @@ QWidget *LayoutItem::emerge()
     auto w = new QWidget;
     attachTo(w);
     return w;
-}
-
-bool LayoutBuilder::isForm() const
-{
-    return qobject_cast<QFormLayout *>(stack.last().layout);
 }
 
 static void layoutExit(LayoutBuilder &builder)
