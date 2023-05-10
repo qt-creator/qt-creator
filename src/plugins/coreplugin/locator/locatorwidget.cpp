@@ -57,8 +57,8 @@ public:
 
     LocatorModel(QObject *parent = nullptr)
         : QAbstractListModel(parent)
-        , m_backgroundColor(Utils::creatorTheme()->color(Utils::Theme::TextColorHighlightBackground))
-        , m_foregroundColor(Utils::creatorTheme()->color(Utils::Theme::TextColorNormal))
+        , m_backgroundColor(Utils::creatorTheme()->color(Theme::TextColorHighlightBackground))
+        , m_foregroundColor(Utils::creatorTheme()->color(Theme::TextColorNormal))
     {}
 
     void clear();
@@ -83,7 +83,7 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };
 
-class CompletionList : public Utils::TreeView
+class CompletionList : public TreeView
 {
 public:
     CompletionList(QWidget *parent = nullptr);
@@ -238,7 +238,7 @@ void LocatorModel::addEntries(const QList<LocatorFilterEntry> &entries)
 // =========== CompletionList ===========
 
 CompletionList::CompletionList(QWidget *parent)
-    : Utils::TreeView(parent)
+    : TreeView(parent)
 {
     // on macOS and Windows the popup doesn't really get focus, so fake the selection color
     // which would then just be a very light gray, but should look as if it had focus
@@ -255,7 +255,7 @@ CompletionList::CompletionList(QWidget *parent)
     header()->setStretchLastSection(true);
     // This is too slow when done on all results
     //header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    if (Utils::HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isMacHost()) {
         if (horizontalScrollBar())
             horizontalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
         if (verticalScrollBar())
@@ -406,7 +406,7 @@ LocatorPopup::LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
       m_tree(new CompletionList(this)),
       m_inputWidget(locatorWidget)
 {
-    if (Utils::HostOsInfo::isMacHost())
+    if (HostOsInfo::isMacHost())
         m_tree->setFrameStyle(QFrame::NoFrame); // tool tip already includes a frame
     m_tree->setModel(locatorWidget->model());
     m_tree->setTextElideMode(Qt::ElideMiddle);
@@ -500,7 +500,7 @@ void CompletionList::keyPressEvent(QKeyEvent *event)
         return;
     case Qt::Key_P:
     case Qt::Key_N:
-        if (event->modifiers() == Qt::KeyboardModifiers(Utils::HostOsInfo::controlModifier())) {
+        if (event->modifiers() == Qt::KeyboardModifiers(HostOsInfo::controlModifier())) {
             if (event->key() == Qt::Key_P)
                 previous();
             else
@@ -519,7 +519,7 @@ void CompletionList::keyPressEvent(QKeyEvent *event)
         }
         break;
     }
-    Utils::TreeView::keyPressEvent(event);
+    TreeView::keyPressEvent(event);
 }
 
 bool CompletionList::eventFilter(QObject *watched, QEvent *event)
@@ -535,14 +535,14 @@ bool CompletionList::eventFilter(QObject *watched, QEvent *event)
             break;
         case Qt::Key_P:
         case Qt::Key_N:
-            if (ke->modifiers() == Qt::KeyboardModifiers(Utils::HostOsInfo::controlModifier())) {
+            if (ke->modifiers() == Qt::KeyboardModifiers(HostOsInfo::controlModifier())) {
                 event->accept();
                 return true;
             }
             break;
         }
     }
-    return Utils::TreeView::eventFilter(watched, event);
+    return TreeView::eventFilter(watched, event);
 }
 
 // =========== LocatorWidget ===========
@@ -553,7 +553,7 @@ LocatorWidget::LocatorWidget(Locator *locator)
     , m_centeredPopupAction(new QAction(Tr::tr("Open as Centered Popup"), this))
     , m_refreshAction(new QAction(Tr::tr("Refresh"), this))
     , m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this))
-    , m_fileLineEdit(new Utils::FancyLineEdit)
+    , m_fileLineEdit(new FancyLineEdit)
 {
     setAttribute(Qt::WA_Hover);
     setFocusProxy(m_fileLineEdit);
@@ -571,12 +571,12 @@ LocatorWidget::LocatorWidget(Locator *locator)
 
     const QIcon icon = Utils::Icons::MAGNIFIER.icon();
     m_fileLineEdit->setFiltering(true);
-    m_fileLineEdit->setButtonIcon(Utils::FancyLineEdit::Left, icon);
-    m_fileLineEdit->setButtonToolTip(Utils::FancyLineEdit::Left, Tr::tr("Options"));
+    m_fileLineEdit->setButtonIcon(FancyLineEdit::Left, icon);
+    m_fileLineEdit->setButtonToolTip(FancyLineEdit::Left, Tr::tr("Options"));
     m_fileLineEdit->setFocusPolicy(Qt::ClickFocus);
-    m_fileLineEdit->setButtonVisible(Utils::FancyLineEdit::Left, true);
+    m_fileLineEdit->setButtonVisible(FancyLineEdit::Left, true);
     // We set click focus since otherwise you will always get two popups
-    m_fileLineEdit->setButtonFocusPolicy(Utils::FancyLineEdit::Left, Qt::ClickFocus);
+    m_fileLineEdit->setButtonFocusPolicy(FancyLineEdit::Left, Qt::ClickFocus);
     m_fileLineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     m_fileLineEdit->installEventFilter(this);
@@ -602,7 +602,7 @@ LocatorWidget::LocatorWidget(Locator *locator)
     m_filterMenu->addAction(m_refreshAction);
     m_filterMenu->addAction(m_configureAction);
 
-    m_fileLineEdit->setButtonMenu(Utils::FancyLineEdit::Left, m_filterMenu);
+    m_fileLineEdit->setButtonMenu(FancyLineEdit::Left, m_filterMenu);
 
     connect(m_refreshAction, &QAction::triggered, locator, [locator] {
         locator->refresh(Locator::filters());
@@ -610,8 +610,7 @@ LocatorWidget::LocatorWidget(Locator *locator)
     connect(m_configureAction, &QAction::triggered, this, &LocatorWidget::showConfigureDialog);
     connect(m_fileLineEdit, &QLineEdit::textChanged, this, &LocatorWidget::showPopupNow);
 
-    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Small,
-                                                       m_fileLineEdit);
+    m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Small, m_fileLineEdit);
     m_progressIndicator->raise();
     m_progressIndicator->hide();
     m_showProgressTimer.setSingleShot(true);
@@ -648,11 +647,10 @@ void LocatorWidget::updatePlaceholderText(Command *command)
 void LocatorWidget::updateFilterList()
 {
     m_filterMenu->clear();
-    const QList<ILocatorFilter *> filters = Utils::sorted(Locator::filters(),
-                                                          [](ILocatorFilter *a, ILocatorFilter *b) {
-                                                              return a->displayName()
-                                                                     < b->displayName();
-                                                          });
+    const QList<ILocatorFilter *> filters = Utils::sorted(
+        Locator::filters(), [](ILocatorFilter *a, ILocatorFilter *b) {
+            return a->displayName() < b->displayName();
+        });
     for (ILocatorFilter *filter : filters) {
         if (filter->shortcutString().isEmpty() || filter->isHidden())
             continue;
@@ -701,7 +699,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         switch (keyEvent->key()) {
         case Qt::Key_P:
         case Qt::Key_N:
-            if (keyEvent->modifiers() == Qt::KeyboardModifiers(Utils::HostOsInfo::controlModifier())) {
+            if (keyEvent->modifiers() == Qt::KeyboardModifiers(HostOsInfo::controlModifier())) {
                 event->accept();
                 return true;
             }
@@ -758,7 +756,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             return true;
         case Qt::Key_Home:
         case Qt::Key_End:
-            if (Utils::HostOsInfo::isMacHost()
+            if (HostOsInfo::isMacHost()
                     != (keyEvent->modifiers() == Qt::KeyboardModifiers(Qt::ControlModifier))) {
                 emit showPopup();
                 emit handleKey(keyEvent);
@@ -780,7 +778,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             break;
         case Qt::Key_P:
         case Qt::Key_N:
-            if (keyEvent->modifiers() == Qt::KeyboardModifiers(Utils::HostOsInfo::controlModifier())) {
+            if (keyEvent->modifiers() == Qt::KeyboardModifiers(HostOsInfo::controlModifier())) {
                 emit showPopup();
                 emit handleKey(keyEvent);
                 return true;
@@ -873,7 +871,7 @@ void LocatorWidget::setProgressIndicatorVisible(bool visible)
         return;
     }
     const QSize iconSize = m_progressIndicator->sizeHint();
-    m_progressIndicator->setGeometry(m_fileLineEdit->button(Utils::FancyLineEdit::Right)->geometry().x()
+    m_progressIndicator->setGeometry(m_fileLineEdit->button(FancyLineEdit::Right)->geometry().x()
                                      - iconSize.width(),
                                      (m_fileLineEdit->height() - iconSize.height()) / 2 /*center*/,
                                      iconSize.width(),
