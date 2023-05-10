@@ -19,6 +19,7 @@ Project {
         "qmljs/qmljs.qbs",
         "qmldebug/qmldebug.qbs",
         "qtcreatorcdbext/qtcreatorcdbext.qbs",
+        "solutions/solutions.qbs",
         "sqlite/sqlite.qbs",
         "tracing/tracing.qbs",
         "utils/process_ctrlc_stub.qbs",

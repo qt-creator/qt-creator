@@ -7,7 +7,7 @@
 #include "filetransferinterface.h"
 #include "idevicefwd.h"
 
-#include <utils/tasktree.h>
+#include <solutions/tasking/tasktree.h>
 
 namespace Utils { class ProcessResultData; }
 

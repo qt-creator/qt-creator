@@ -12,8 +12,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/qtcassert.h>
-#include <utils/tasktree.h>
 
 #include <QDateTime>
 #include <QPointer>

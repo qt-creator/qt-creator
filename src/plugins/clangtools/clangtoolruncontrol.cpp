@@ -23,7 +23,6 @@
 #include <utils/algorithm.h>
 #include <utils/process.h>
 #include <utils/stringutils.h>
-#include <utils/tasktree.h>
 
 #include <QLoggingCategory>
 

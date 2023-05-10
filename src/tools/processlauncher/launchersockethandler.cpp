@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "launchersockethandler.h"
-
 #include "launcherlogging.h"
-#include "processreaper.h"
-#include "processutils.h"
+
+#include <utils/processreaper.h>
+#include <utils/processutils.h>
 
 #include <QCoreApplication>
 #include <QLocalSocket>
@@ -280,4 +280,4 @@ void LauncherSocketHandler::removeProcess(quintptr token)
 } // namespace Internal
 } // namespace Utils
 
-#include <launchersockethandler.moc>
+#include "launchersockethandler.moc"

@@ -6,7 +6,7 @@
 #include "diffeditor_global.h"
 #include "diffutils.h"
 
-#include <utils/tasktree.h>
+#include <solutions/tasking/tasktree.h>
 
 #include <QObject>
 

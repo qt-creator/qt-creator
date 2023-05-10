@@ -4,8 +4,9 @@
 #include "filestreamer.h"
 
 #include "async.h"
-#include "barrier.h"
 #include "process.h"
+
+#include <solutions/tasking/barrier.h>
 
 #include <QFile>
 #include <QMutex>

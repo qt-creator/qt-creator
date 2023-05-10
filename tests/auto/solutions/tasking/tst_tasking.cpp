@@ -1,8 +1,9 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <solutions/tasking/barrier.h>
+
 #include <utils/async.h>
-#include <utils/barrier.h>
 
 #include <QtTest>
 
@@ -56,7 +57,7 @@ struct TestData {
     OnDone onDone = OnDone::Success;
 };
 
-class tst_TaskTree : public QObject
+class tst_Tasking : public QObject
 {
     Q_OBJECT
 
@@ -72,18 +73,18 @@ private slots:
     void cleanupTestCase();
 };
 
-void tst_TaskTree::initTestCase()
+void tst_Tasking::initTestCase()
 {
     s_futureSynchronizer = new FutureSynchronizer;
 }
 
-void tst_TaskTree::cleanupTestCase()
+void tst_Tasking::cleanupTestCase()
 {
     delete s_futureSynchronizer;
     s_futureSynchronizer = nullptr;
 }
 
-void tst_TaskTree::validConstructs()
+void tst_Tasking::validConstructs()
 {
     const Group task {
         parallel,
@@ -215,7 +216,7 @@ auto setupBarrierAdvance(const TreeStorage<CustomStorage> &storage,
     };
 }
 
-void tst_TaskTree::testTree_data()
+void tst_Tasking::testTree_data()
 {
     QTest::addColumn<TestData>("testData");
 
@@ -1484,7 +1485,7 @@ void tst_TaskTree::testTree_data()
     }
 }
 
-void tst_TaskTree::testTree()
+void tst_Tasking::testTree()
 {
     QFETCH(TestData, testData);
 
@@ -1536,7 +1537,7 @@ void tst_TaskTree::testTree()
     QCOMPARE(errorCount, expectedErrorCount);
 }
 
-void tst_TaskTree::storageOperators()
+void tst_Tasking::storageOperators()
 {
     TreeStorageBase storage1 = TreeStorage<CustomStorage>();
     TreeStorageBase storage2 = TreeStorage<CustomStorage>();
@@ -1551,7 +1552,7 @@ void tst_TaskTree::storageOperators()
 // It also checks whether the destructor of a task tree deletes properly the storage created
 // while starting the task tree. When running task tree is destructed, the storage done
 // handler shouldn't be invoked.
-void tst_TaskTree::storageDestructor()
+void tst_Tasking::storageDestructor()
 {
     bool setupCalled = false;
     const auto setupHandler = [&setupCalled](CustomStorage *) {
@@ -1586,6 +1587,6 @@ void tst_TaskTree::storageDestructor()
     QVERIFY(!doneCalled);
 }
 
-QTEST_GUILESS_MAIN(tst_TaskTree)
+QTEST_GUILESS_MAIN(tst_Tasking)
 
-#include "tst_tasktree.moc"
+#include "tst_tasking.moc"

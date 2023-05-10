@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <launcherpackets.h>
+#include <utils/launcherpackets.h>
 
 #include <QByteArray>
 #include <QHash>

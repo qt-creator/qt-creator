@@ -1,7 +1,8 @@
+set(LIBSDIR "${PROJECT_SOURCE_DIR}/src/libs")
 set(UTILSDIR "${PROJECT_SOURCE_DIR}/src/libs/utils")
 
 add_qtc_executable(qtcreator_processlauncher
-  INCLUDES "${UTILSDIR}"
+  INCLUDES "${LIBSDIR}"
   DEPENDS Qt::Core Qt::Network
   DEFINES UTILS_STATIC_LIBRARY
   SOURCES

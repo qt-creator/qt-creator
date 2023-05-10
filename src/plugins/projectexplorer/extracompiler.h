@@ -10,7 +10,6 @@
 
 #include <utils/environment.h>
 #include <utils/filepath.h>
-#include <utils/tasktree.h>
 
 #include <QByteArray>
 #include <QHash>
@@ -25,6 +24,7 @@ class QPromise;
 class QThreadPool;
 QT_END_NAMESPACE
 
+namespace Tasking { class TaskItem; }
 namespace Utils { class Process; }
 
 namespace ProjectExplorer {

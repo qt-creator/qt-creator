@@ -17,7 +17,6 @@
 #include <utils/processinterface.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
-#include <utils/tasktree.h>
 #include <utils/temporaryfile.h>
 
 #include <QCheckBox>

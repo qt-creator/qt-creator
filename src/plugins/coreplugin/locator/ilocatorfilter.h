@@ -5,10 +5,11 @@
 
 #include <coreplugin/core_global.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/filepath.h>
 #include <utils/id.h>
 #include <utils/link.h>
-#include <utils/tasktree.h>
 
 #include <QIcon>
 #include <QKeySequence>

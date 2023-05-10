@@ -21,11 +21,12 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/qtcassert.h>
-#include <utils/tasktree.h>
 
 #include <QLoggingCategory>
 #include <QScopeGuard>

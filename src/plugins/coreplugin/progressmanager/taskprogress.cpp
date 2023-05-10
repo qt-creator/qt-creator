@@ -6,9 +6,10 @@
 #include "futureprogress.h"
 #include "progressmanager.h"
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/mathutils.h>
 #include <utils/qtcassert.h>
-#include <utils/tasktree.h>
 
 #include <QFutureWatcher>
 #include <QTimer>

@@ -11,7 +11,8 @@
 
 #include "commandline.h"
 #include "processenums.h"
-#include "tasktree.h"
+
+#include <solutions/tasking/tasktree.h>
 
 #include <QProcess>
 

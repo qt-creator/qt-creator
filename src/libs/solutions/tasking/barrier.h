@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include "utils_global.h"
+#include "tasking_global.h"
 
 #include "tasktree.h"
 
 namespace Tasking {
 
-class QTCREATOR_UTILS_EXPORT Barrier final : public QObject
+class TASKING_EXPORT Barrier final : public QObject
 {
     Q_OBJECT
 
@@ -34,7 +34,7 @@ private:
     int m_current = -1;
 };
 
-class QTCREATOR_UTILS_EXPORT BarrierTaskAdapter : public Tasking::TaskAdapter<Barrier>
+class TASKING_EXPORT BarrierTaskAdapter : public Tasking::TaskAdapter<Barrier>
 {
 public:
     BarrierTaskAdapter() { connect(task(), &Barrier::done, this, &TaskInterface::done); }
@@ -70,7 +70,7 @@ using MultiBarrier = TreeStorage<SharedBarrier<Limit>>;
 // alias template deduction only available with C++20.
 using SingleBarrier = MultiBarrier<1>;
 
-class QTCREATOR_UTILS_EXPORT WaitForBarrierTask : public BarrierTask
+class TASKING_EXPORT WaitForBarrierTask : public BarrierTask
 {
 public:
     template <int Limit>

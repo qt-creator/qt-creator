@@ -7,7 +7,7 @@ QtcTool {
     Depends { name: "Qt.network" }
 
     cpp.defines: base.concat("UTILS_STATIC_LIBRARY")
-    cpp.includePaths: base.concat(pathToUtils)
+    cpp.includePaths: base.concat(pathToLibs)
 
     Properties {
         condition: qbs.targetOS.contains("windows")
@@ -24,6 +24,7 @@ QtcTool {
         "processlauncher-main.cpp",
     ]
 
+    property string pathToLibs: sourceDirectory + "/../../libs"
     property string pathToUtils: sourceDirectory + "/../../libs/utils"
     Group {
         name: "protocol sources"

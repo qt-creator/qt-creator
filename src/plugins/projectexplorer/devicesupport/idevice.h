@@ -6,11 +6,12 @@
 #include "../projectexplorer_export.h"
 #include "idevicefwd.h"
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/id.h>
 #include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
-#include <utils/tasktree.h>
 
 #include <QAbstractSocket>
 #include <QCoreApplication>

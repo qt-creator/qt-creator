@@ -6,7 +6,8 @@
 #include "utils_global.h"
 
 #include "filepath.h"
-#include "tasktree.h"
+
+#include <solutions/tasking/tasktree.h>
 
 #include <QObject>
 

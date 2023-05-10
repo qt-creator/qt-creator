@@ -1,5 +1,5 @@
 add_qtc_library(Utils
-  DEPENDS Qt::Qml Qt::Xml
+  DEPENDS Tasking Qt::Qml Qt::Xml
   PUBLIC_DEPENDS
     Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets
     Qt::Core5Compat
@@ -13,7 +13,6 @@ add_qtc_library(Utils
     archive.cpp archive.h
     aspects.cpp aspects.h
     async.cpp async.h
-    barrier.cpp barrier.h
     basetreeview.cpp basetreeview.h
     benchmarker.cpp benchmarker.h
     buildablehelperlibrary.cpp buildablehelperlibrary.h
@@ -171,7 +170,6 @@ add_qtc_library(Utils
     styleanimator.cpp styleanimator.h
     styledbar.cpp styledbar.h
     stylehelper.cpp stylehelper.h
-    tasktree.cpp tasktree.h
     templateengine.cpp templateengine.h
     temporarydirectory.cpp temporarydirectory.h
     temporaryfile.cpp temporaryfile.h

@@ -19,7 +19,6 @@ Project {
         "process/process.qbs",
         "settings/settings.qbs",
         "stringutils/stringutils.qbs",
-        "tasktree/tasktree.qbs",
         "templateengine/templateengine.qbs",
         "treemodel/treemodel.qbs",
         "unixdevicefileaccess/unixdevicefileaccess.qbs",

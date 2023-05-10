@@ -18,7 +18,6 @@
 #include <utils/algorithm.h>
 #include <utils/process.h>
 #include <utils/processinterface.h>
-#include <utils/tasktree.h>
 
 using namespace ProjectExplorer;
 using namespace Tasking;

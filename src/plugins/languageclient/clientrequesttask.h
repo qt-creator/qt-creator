@@ -10,7 +10,8 @@
 #include <languageserverprotocol/lsptypes.h>
 #include <languageserverprotocol/lsputils.h>
 #include <languageserverprotocol/workspace.h>
-#include <utils/tasktree.h>
+
+#include <solutions/tasking/tasktree.h>
 
 namespace LanguageClient {
 

@@ -7,7 +7,8 @@
 
 #include <languageserverprotocol/languagefeatures.h>
 #include <languageserverprotocol/lsptypes.h>
-#include <utils/tasktree.h>
+
+#include <solutions/tasking/tasktree.h>
 
 namespace LanguageClient {
 

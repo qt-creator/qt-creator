@@ -7,7 +7,8 @@
 
 #include "futuresynchronizer.h"
 #include "qtcassert.h"
-#include "tasktree.h"
+
+#include <solutions/tasking/tasktree.h>
 
 #include <QFutureWatcher>
 #include <QtConcurrent>

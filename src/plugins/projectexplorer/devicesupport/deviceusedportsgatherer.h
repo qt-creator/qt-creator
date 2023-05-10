@@ -7,8 +7,9 @@
 
 #include <projectexplorer/runcontrol.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/portlist.h>
-#include <utils/tasktree.h>
 
 namespace ProjectExplorer {
 

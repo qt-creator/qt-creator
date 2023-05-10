@@ -1,9 +1,9 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include "utils_global.h"
+#include "tasking_global.h"
 
 #include <QHash>
 #include <QObject>
@@ -16,7 +16,7 @@ class TaskContainer;
 class TaskNode;
 class TaskTreePrivate;
 
-class QTCREATOR_UTILS_EXPORT TaskInterface : public QObject
+class TASKING_EXPORT TaskInterface : public QObject
 {
     Q_OBJECT
 
@@ -28,7 +28,7 @@ signals:
     void done(bool success);
 };
 
-class QTCREATOR_UTILS_EXPORT TreeStorageBase
+class TASKING_EXPORT TreeStorageBase
 {
 public:
     bool isValid() const;
@@ -110,7 +110,7 @@ enum class TaskAction
     StopWithError
 };
 
-class QTCREATOR_UTILS_EXPORT TaskItem
+class TASKING_EXPORT TaskItem
 {
 public:
     // Internal, provided by QTC_DECLARE_CUSTOM_TASK
@@ -186,32 +186,32 @@ private:
     QList<TaskItem> m_children;
 };
 
-class QTCREATOR_UTILS_EXPORT Group : public TaskItem
+class TASKING_EXPORT Group : public TaskItem
 {
 public:
     Group(const QList<TaskItem> &children) { addChildren(children); }
     Group(std::initializer_list<TaskItem> children) { addChildren(children); }
 };
 
-class QTCREATOR_UTILS_EXPORT Storage : public TaskItem
+class TASKING_EXPORT Storage : public TaskItem
 {
 public:
     Storage(const TreeStorageBase &storage) : TaskItem(storage) { }
 };
 
-class QTCREATOR_UTILS_EXPORT ParallelLimit : public TaskItem
+class TASKING_EXPORT ParallelLimit : public TaskItem
 {
 public:
     ParallelLimit(int parallelLimit) : TaskItem(qMax(parallelLimit, 0)) {}
 };
 
-class QTCREATOR_UTILS_EXPORT Workflow : public TaskItem
+class TASKING_EXPORT Workflow : public TaskItem
 {
 public:
     Workflow(WorkflowPolicy policy) : TaskItem(policy) {}
 };
 
-class QTCREATOR_UTILS_EXPORT OnGroupSetup : public TaskItem
+class TASKING_EXPORT OnGroupSetup : public TaskItem
 {
 public:
     template <typename SetupFunction>
@@ -237,20 +237,20 @@ private:
     };
 };
 
-class QTCREATOR_UTILS_EXPORT OnGroupDone : public TaskItem
+class TASKING_EXPORT OnGroupDone : public TaskItem
 {
 public:
     OnGroupDone(const GroupEndHandler &handler) : TaskItem({{}, handler}) {}
 };
 
-class QTCREATOR_UTILS_EXPORT OnGroupError : public TaskItem
+class TASKING_EXPORT OnGroupError : public TaskItem
 {
 public:
     OnGroupError(const GroupEndHandler &handler) : TaskItem({{}, {}, handler}) {}
 };
 
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
-class QTCREATOR_UTILS_EXPORT Sync : public Group
+class TASKING_EXPORT Sync : public Group
 {
 
 public:
@@ -276,13 +276,13 @@ private:
 
 };
 
-QTCREATOR_UTILS_EXPORT extern ParallelLimit sequential;
-QTCREATOR_UTILS_EXPORT extern ParallelLimit parallel;
-QTCREATOR_UTILS_EXPORT extern Workflow stopOnError;
-QTCREATOR_UTILS_EXPORT extern Workflow continueOnError;
-QTCREATOR_UTILS_EXPORT extern Workflow stopOnDone;
-QTCREATOR_UTILS_EXPORT extern Workflow continueOnDone;
-QTCREATOR_UTILS_EXPORT extern Workflow optional;
+TASKING_EXPORT extern ParallelLimit sequential;
+TASKING_EXPORT extern ParallelLimit parallel;
+TASKING_EXPORT extern Workflow stopOnError;
+TASKING_EXPORT extern Workflow continueOnError;
+TASKING_EXPORT extern Workflow stopOnDone;
+TASKING_EXPORT extern Workflow continueOnDone;
+TASKING_EXPORT extern Workflow optional;
 
 template <typename Task>
 class TaskAdapter : public TaskInterface
@@ -354,7 +354,7 @@ private:
 
 class TaskTreePrivate;
 
-class QTCREATOR_UTILS_EXPORT TaskTree final : public QObject
+class TASKING_EXPORT TaskTree final : public QObject
 {
     Q_OBJECT
 
@@ -407,7 +407,7 @@ private:
     TaskTreePrivate *d;
 };
 
-class QTCREATOR_UTILS_EXPORT TaskTreeTaskAdapter : public TaskAdapter<TaskTree>
+class TASKING_EXPORT TaskTreeTaskAdapter : public TaskAdapter<TaskTree>
 {
 public:
     TaskTreeTaskAdapter();
