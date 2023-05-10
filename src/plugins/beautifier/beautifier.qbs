@@ -25,8 +25,6 @@ QtcPlugin {
         "configurationeditor.h",
         "configurationpanel.cpp",
         "configurationpanel.h",
-        "generaloptionspage.cpp",
-        "generaloptionspage.h",
         "generalsettings.cpp",
         "generalsettings.h",
     ]

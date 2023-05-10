@@ -5,7 +5,6 @@
 
 #include "beautifierconstants.h"
 #include "beautifiertr.h"
-#include "generaloptionspage.h"
 #include "generalsettings.h"
 
 #include "artisticstyle/artisticstyle.h"
@@ -80,12 +79,6 @@ public:
         &uncrustifyBeautifier,
         &clangFormatBeautifier
     };
-
-    GeneralOptionsPage optionsPage {{
-        artisticStyleBeautifier.id(),
-        uncrustifyBeautifier.id(),
-        clangFormatBeautifier.id()
-    }};
 };
 
 static BeautifierPluginPrivate *dd = nullptr;
@@ -112,6 +105,9 @@ ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
 
 BeautifierPluginPrivate::BeautifierPluginPrivate()
 {
+    for (BeautifierAbstractTool *tool : m_tools)
+        generalSettings.autoFormatTools.addOption(tool->id());
+
     updateActions();
 
     const Core::EditorManager *editorManager = Core::EditorManager::instance();
@@ -129,14 +125,14 @@ void BeautifierPluginPrivate::updateActions(Core::IEditor *editor)
 
 void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
 {
-    if (!generalSettings.autoFormatOnSave())
+    if (!generalSettings.autoFormatOnSave.value())
         return;
 
-    if (!isAutoFormatApplicable(document, generalSettings.autoFormatMime()))
+    if (!isAutoFormatApplicable(document, generalSettings.allowedMimeTypes()))
         return;
 
     // Check if file is contained in the current project (if wished)
-    if (generalSettings.autoFormatOnlyCurrentProject()) {
+    if (generalSettings.autoFormatOnlyCurrentProject.value()) {
         const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
         if (!pro
             || pro->files([document](const ProjectExplorer::Node *n) {
@@ -149,7 +145,7 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
     }
 
     // Find tool to use by id and format file!
-    const QString id = generalSettings.autoFormatTool();
+    const QString id = generalSettings.autoFormatTools.stringValue();
     auto tool = std::find_if(std::begin(m_tools), std::end(m_tools),
                              [&id](const BeautifierAbstractTool *t){return t->id() == id;});
     if (tool != std::end(m_tools)) {

@@ -19,7 +19,6 @@ add_qtc_plugin(Beautifier
     configurationdialog.cpp configurationdialog.h
     configurationeditor.cpp configurationeditor.h
     configurationpanel.cpp configurationpanel.h
-    generaloptionspage.cpp generaloptionspage.h
     generalsettings.cpp generalsettings.h
     uncrustify/uncrustify.cpp uncrustify/uncrustify.h
     uncrustify/uncrustifyconstants.h
