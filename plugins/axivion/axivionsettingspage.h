@@ -42,7 +42,6 @@ private:
 
 class AxivionSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
 public:
     explicit AxivionSettingsPage(AxivionSettings *settings);
 
