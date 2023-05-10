@@ -1531,11 +1531,17 @@ void FilePath::removeDuplicates(FilePaths &files)
 
 void FilePath::sort(FilePaths &files)
 {
-    // FIXME: Improve.
-    // FIXME: This drops the osType information, which is not correct.
-    QStringList list = transform<QStringList>(files, &FilePath::toString);
-    list.sort();
-    files = FileUtils::toFilePathList(list);
+    std::sort(files.begin(), files.end(), [](const FilePath &a, const FilePath &b) {
+        const int scheme = a.scheme().compare(b.scheme());
+        if (scheme != 0)
+            return scheme < 0;
+
+        const int host = a.host().compare(b.host());
+        if (host != 0)
+            return host < 0;
+
+        return a.pathView() < b.pathView();
+    });
 }
 
 void join(QString &left, const QString &right)

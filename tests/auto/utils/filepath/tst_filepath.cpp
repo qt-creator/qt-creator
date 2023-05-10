@@ -4,6 +4,7 @@
 #include <QRandomGenerator>
 #include <QtTest>
 
+#include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/link.h>
@@ -108,6 +109,9 @@ private slots:
     void tmp_data();
 
     void searchInWithFilter();
+
+    void sort();
+    void sort_data();
 
 private:
     QTemporaryDir tempDir;
@@ -1655,6 +1659,54 @@ void tst_filepath::tmp()
         QVERIFY(result->exists());
         QVERIFY(result->removeFile());
     }
+}
+
+void tst_filepath::sort()
+{
+    QFETCH(QStringList, input);
+
+    FilePaths filePaths = Utils::transform(input, &FilePath::fromString);
+    QStringList sorted = input;
+    sorted.sort();
+
+    FilePath::sort(filePaths);
+    QStringList sortedPaths = Utils::transform(filePaths, &FilePath::toString);
+
+    QCOMPARE(sortedPaths, sorted);
+}
+
+void tst_filepath::sort_data()
+{
+    QTest::addColumn<QStringList>("input");
+
+    QTest::addRow("empty") << QStringList{};
+
+    QTest::addRow("one") << QStringList{"foo"};
+    QTest::addRow("two") << QStringList{"foo", "bar"};
+    QTest::addRow("three") << QStringList{"foo", "bar", "baz"};
+
+    QTest::addRow("one-absolute") << QStringList{"/foo"};
+    QTest::addRow("two-absolute") << QStringList{"/foo", "/bar"};
+
+    QTest::addRow("one-relative") << QStringList{"foo"};
+
+    QTest::addRow("one-absolute-one-relative") << QStringList{"/foo", "bar"};
+
+    QTest::addRow("host") << QStringList{"ssh://test/blah", "ssh://gulp/blah", "ssh://zzz/blah"};
+
+    QTest::addRow("scheme") << QStringList{"ssh://test/blah",
+                                           "ssh://gulp/blah",
+                                           "ssh://zzz/blah",
+                                           "aaa://gulp/blah",
+                                           "xyz://test/blah"};
+
+    QTest::addRow("others") << QStringList{"a://a//a",
+                                           "a://b//a",
+                                           "a://a//b",
+                                           "a://b//b",
+                                           "b://b//b"};
+    QTest::addRow("others-reversed")
+        << QStringList{"b://b//b", "a://b//b", "a://a//b", "a://b//a", "a://a//a"};
 }
 
 QTEST_GUILESS_MAIN(tst_filepath)
