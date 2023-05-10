@@ -127,14 +127,13 @@ SquishSettingsPage::SquishSettingsPage(SquishSettings *settings)
         SquishSettings &s = *settings;
         using namespace Layouting;
 
-        Grid grid {
+        Form {
             s.squishPath, br,
             s.licensePath, br,
-            Span {2, Row { s.local, s.serverHost, s.serverPort } }, br,
+            s.local, s.serverHost, s.serverPort, br,
             s.verbose, br,
             s.minimizeIDE, br,
-        };
-        Column { Row { grid }, st }.attachTo(widget);
+        }.attachTo(widget);
     });
 }
 
