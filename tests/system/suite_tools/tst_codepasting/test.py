@@ -107,7 +107,7 @@ def fetchSnippet(protocol, description, pasteId, skippedPasting):
         pasteModel = waitForObject(":PasteSelectDialog.listWidget_QListWidget").model()
     except:
         closeHTTPStatusAndPasterDialog(protocol, ':PasteSelectDialog_CodePaster::PasteSelectDialog')
-        return -1
+        return invalidPasteId(protocol)
 
     condition = "pasteModel.rowCount() > 1"
     if protocol == NAME_DPCOM: # no list support
@@ -125,7 +125,7 @@ def fetchSnippet(protocol, description, pasteId, skippedPasting):
             "window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}")
         waitFor("pasteModel.rowCount() == 1", 1000)
         waitFor("pasteModel.rowCount() > 1", 20000)
-    if pasteId == -1:
+    if pasteId == invalidPasteId(protocol):
         try:
             pasteLine = filter(lambda str:description in str, dumpItems(pasteModel))[0]
             pasteId = pasteLine.split(" ", 1)[0]
@@ -207,7 +207,7 @@ def main():
                         test.fatal(message)
                         continue
             pasteId = fetchSnippet(protocol, description, pasteId, skippedPasting)
-            if pasteId == -1:
+            if pasteId == invalidPasteId(protocol):
                 continue
             filenameCombo = waitForObject(":Qt Creator_FilenameQComboBox")
             waitFor("not filenameCombo.currentText.isEmpty()", 20000)
