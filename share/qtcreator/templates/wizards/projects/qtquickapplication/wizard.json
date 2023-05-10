@@ -81,7 +81,11 @@
                     "type": "ComboBox",
                     "data":
                     {
-                        "items": [ "6.2", "6.4", "6.5" ],
+                        "items": [
+                            { "trKey": "Qt 6.2", "value": "6.2" },
+                            { "trKey": "Qt 6.4", "value": "6.4" },
+                            { "trKey": "Qt 6.5", "value": "6.5" }
+                        ],
                         "index": 1
                     }
                 }
