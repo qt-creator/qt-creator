@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <utils/aspects.h>
 #include <utils/filepath.h>
 
 #include <QCoreApplication>
@@ -28,7 +29,7 @@ namespace Beautifier::Internal {
 
 class VersionUpdater;
 
-class AbstractSettings : public QObject
+class AbstractSettings : public Utils::AspectContainer
 {
     Q_OBJECT
 
