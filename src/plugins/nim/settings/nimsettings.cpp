@@ -29,6 +29,24 @@ NimSettings::NimSettings()
     setAutoApply(false);
     setSettingsGroups("Nim", "NimSuggest");
 
+    setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
+    setDisplayName(Tr::tr("Tools"));
+    setCategory(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY);
+    setDisplayCategory(Tr::tr("Nim"));
+    setCategoryIconPath(":/nim/images/settingscategory_nim.png");
+    setSettings(this);
+
+    setLayouter([this](QWidget *widget) {
+        using namespace Layouting;
+        Column {
+            Group {
+                title("Nimsuggest"),
+                Column { nimSuggestPath }
+            },
+            st
+        }.attachTo(widget);
+    });
+
     // code style factory
     auto factory = new NimCodeStylePreferencesFactory();
     TextEditorSettings::registerCodeStyleFactory(factory);
@@ -93,29 +111,6 @@ NimSettings::~NimSettings()
 SimpleCodeStylePreferences *NimSettings::globalCodeStyle()
 {
     return m_globalCodeStyle;
-}
-
-// NimToolSettingsPage
-
-NimToolsSettingsPage::NimToolsSettingsPage(NimSettings *settings)
-{
-    setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
-    setDisplayName(Tr::tr("Tools"));
-    setCategory(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY);
-    setDisplayCategory(Tr::tr("Nim"));
-    setCategoryIconPath(":/nim/images/settingscategory_nim.png");
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        using namespace Layouting;
-        Column {
-            Group {
-                title("Nimsuggest"),
-                Column { settings->nimSuggestPath }
-            },
-            st
-        }.attachTo(widget);
-     });
 }
 
 } // namespace Nim
