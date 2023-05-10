@@ -350,7 +350,7 @@ public:
     void start() final { task()->start(); }
 };
 
-QTC_DECLARE_CUSTOM_TASK(JavaScriptRequestTask, JavaScriptRequestAdapter);
+TASKING_DECLARE_TASK(JavaScriptRequestTask, JavaScriptRequestAdapter);
 
 namespace Core::Internal {
 

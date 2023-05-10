@@ -61,5 +61,5 @@ public:
 
 } // namespace ProjectExplorer
 
-QTC_DECLARE_CUSTOM_TASK(FileTransferTask, ProjectExplorer::FileTransferTaskAdapter);
-QTC_DECLARE_CUSTOM_TASK(FileTransferTestTask, ProjectExplorer::FileTransferTestTaskAdapter);
+TASKING_DECLARE_TASK(FileTransferTask, ProjectExplorer::FileTransferTaskAdapter);
+TASKING_DECLARE_TASK(FileTransferTestTask, ProjectExplorer::FileTransferTestTaskAdapter);

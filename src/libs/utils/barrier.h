@@ -43,7 +43,7 @@ public:
 
 } // namespace Tasking
 
-QTC_DECLARE_CUSTOM_TASK(BarrierTask, Tasking::BarrierTaskAdapter);
+TASKING_DECLARE_TASK(BarrierTask, Tasking::BarrierTaskAdapter);
 
 namespace Tasking {
 

@@ -48,5 +48,5 @@ public:
 
 } // namespace LanguageClient
 
-QTC_DECLARE_CUSTOM_TASK(CurrentDocumentSymbolsRequestTask,
+TASKING_DECLARE_TASK(CurrentDocumentSymbolsRequestTask,
                         LanguageClient::CurrentDocumentSymbolsRequestTaskAdapter);

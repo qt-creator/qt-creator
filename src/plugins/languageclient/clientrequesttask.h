@@ -76,4 +76,4 @@ public:
 
 } // namespace LanguageClient
 
-QTC_DECLARE_CUSTOM_TASK(SymbolRequest, LanguageClient::WorkspaceSymbolRequestTaskAdapter);
+TASKING_DECLARE_TASK(SymbolRequest, LanguageClient::WorkspaceSymbolRequestTaskAdapter);

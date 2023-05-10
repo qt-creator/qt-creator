@@ -285,4 +285,4 @@ public:
 
 } // namespace ProjectExplorer
 
-QTC_DECLARE_CUSTOM_TASK(Killer, ProjectExplorer::KillerAdapter);
+TASKING_DECLARE_TASK(Killer, ProjectExplorer::KillerAdapter);

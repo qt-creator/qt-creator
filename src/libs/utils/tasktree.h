@@ -416,13 +416,13 @@ public:
 
 } // namespace Tasking
 
-#define QTC_DECLARE_CUSTOM_TASK(CustomTaskName, TaskAdapterClass)\
+#define TASKING_DECLARE_TASK(CustomTaskName, TaskAdapterClass)\
 namespace Tasking { using CustomTaskName = CustomTask<TaskAdapterClass>; }
 
-#define QTC_DECLARE_CUSTOM_TEMPLATE_TASK(CustomTaskName, TaskAdapterClass)\
+#define TASKING_DECLARE_TEMPLATE_TASK(CustomTaskName, TaskAdapterClass)\
 namespace Tasking {\
 template <typename ...Args>\
 using CustomTaskName = CustomTask<TaskAdapterClass<Args...>>;\
 } // namespace Tasking
 
-QTC_DECLARE_CUSTOM_TASK(TaskTreeTask, TaskTreeTaskAdapter);
+TASKING_DECLARE_TASK(TaskTreeTask, TaskTreeTaskAdapter);

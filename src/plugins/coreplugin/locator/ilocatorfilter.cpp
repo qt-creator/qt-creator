@@ -328,7 +328,7 @@ public:
 
 } // namespace Core
 
-QTC_DECLARE_CUSTOM_TASK(Collector, Core::ResultsCollectorAdapter);
+TASKING_DECLARE_TASK(Collector, Core::ResultsCollectorAdapter);
 
 namespace Core {
 

@@ -85,4 +85,4 @@ private:
 
 } // namespace ProjectExplorer
 
-QTC_DECLARE_CUSTOM_TASK(PortGatherer, ProjectExplorer::DeviceUsedPortsGathererAdapter);
+TASKING_DECLARE_TASK(PortGatherer, ProjectExplorer::DeviceUsedPortsGathererAdapter);

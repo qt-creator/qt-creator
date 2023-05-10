@@ -59,4 +59,4 @@ public:
 
 } // namespace Utils
 
-QTC_DECLARE_CUSTOM_TASK(FileStreamerTask, Utils::FileStreamerTaskAdapter);
+TASKING_DECLARE_TASK(FileStreamerTask, Utils::FileStreamerTaskAdapter);

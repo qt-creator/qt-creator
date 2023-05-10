@@ -300,8 +300,8 @@ public:
 
 } // namespace Utils
 
-QTC_DECLARE_CUSTOM_TASK(Reader, Utils::FileStreamReaderAdapter);
-QTC_DECLARE_CUSTOM_TASK(Writer, Utils::FileStreamWriterAdapter);
+TASKING_DECLARE_TASK(Reader, Utils::FileStreamReaderAdapter);
+TASKING_DECLARE_TASK(Writer, Utils::FileStreamWriterAdapter);
 
 namespace Utils {
 

@@ -218,6 +218,6 @@ public:
 
 } // namespace Utils
 
-QTC_DECLARE_CUSTOM_TASK(ProcessTask, Utils::ProcessTaskAdapter);
+TASKING_DECLARE_TASK(ProcessTask, Utils::ProcessTaskAdapter);
 
 #endif // UTILS_PROCESS_H
