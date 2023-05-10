@@ -1431,7 +1431,9 @@ std::function<void (QObject *)> BoolAspect::groupChecker()
         auto groupBox = qobject_cast<QGroupBox *>(target);
         QTC_ASSERT(groupBox, return);
         registerSubWidget(groupBox);
-        d->m_groupBox = d->m_groupBox;
+        groupBox->setCheckable(true);
+        groupBox->setChecked(value());
+        d->m_groupBox = groupBox;
     };
 }
 
