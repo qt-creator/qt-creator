@@ -58,22 +58,30 @@ Position Position::fromPositionInDocument(const QTextDocument *document, int pos
 
 int Range::length(const QString &text) const
 {
+    if (end.line < begin.line)
+        return -1;
+
     if (begin.line == end.line)
         return end.column - begin.column;
 
-    const int lineCount = end.line - begin.line;
-    int index = text.indexOf(QChar::LineFeed);
+    int index = 0;
     int currentLine = 1;
-    while (index > 0 && currentLine < lineCount) {
-        ++index;
+    while (currentLine < begin.line) {
         index = text.indexOf(QChar::LineFeed, index);
+        if (index < 0)
+            return -1;
+        ++index;
         ++currentLine;
     }
-
-    if (index < 0)
-        return 0;
-
-    return index - begin.column + end.column;
+    const int beginIndex = index + begin.column;
+    while (currentLine < end.line) {
+        index = text.indexOf(QChar::LineFeed, index);
+        if (index < 0)
+            return -1;
+        ++index;
+        ++currentLine;
+    }
+    return index + end.column - beginIndex;
 }
 
 bool Range::operator==(const Range &other) const

@@ -322,9 +322,13 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
     case ItemDataRoles::ResultBeginColumnNumberRole:
         result = row->item.mainRange().begin.column;
         break;
-    case ItemDataRoles::SearchTermLengthRole:
-        result = row->item.mainRange().length(row->item.lineText());
+    case ItemDataRoles::SearchTermLengthRole:{
+        Text::Range range = row->item.mainRange();
+        range.end.line -= range.begin.line - 1;
+        range.begin.line = 1;
+        result = range.length(row->item.lineText());
         break;
+    }
     case ItemDataRoles::ContainingFunctionNameRole:
         result = row->item.containingFunctionName().value_or(QString{});
         break;

@@ -486,9 +486,13 @@ FilePaths BaseFileFind::replaceAll(const QString &text, const SearchResultItems 
             if (item.userData().canConvert<QStringList>() && !item.userData().toStringList().isEmpty()) {
                 replacement = Utils::expandRegExpReplacement(text, item.userData().toStringList());
             } else if (preserveCase) {
-                const QString originalText = (item.mainRange().length(item.lineText()) == 0)
-                                                 ? item.lineText()
-                                                 : item.mainRange().mid(item.lineText());
+                Text::Range range = item.mainRange();
+                range.end.line -= range.begin.line - 1;
+                range.begin.line = 1;
+                QString originalText = item.lineText();
+                const int rangeLength = range.length(item.lineText());
+                if (rangeLength > 0)
+                    originalText = originalText.mid(range.begin.column, rangeLength);
                 replacement = Utils::matchCaseReplacement(originalText, text);
             } else {
                 replacement = text;
