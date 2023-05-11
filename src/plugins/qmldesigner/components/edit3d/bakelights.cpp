@@ -190,7 +190,7 @@ void BakeLights::bakeLights()
 
     m_connectionManager->setProgressCallback(std::move(progressCallback));
     m_connectionManager->setFinishedCallback(std::move(finishedCallback));
-    m_connectionManager->setCrashCallback(std::move(crashCallback));
+    m_nodeInstanceView->setCrashCallback(std::move(crashCallback));
 
     m_model->setNodeInstanceView(m_nodeInstanceView);
 
@@ -383,7 +383,7 @@ void BakeLights::cleanup()
     if (m_connectionManager) {
         m_connectionManager->setProgressCallback({});
         m_connectionManager->setFinishedCallback({});
-        m_connectionManager->setCrashCallback({});
+        m_nodeInstanceView->setCrashCallback({});
     }
 
     if (m_model) {
