@@ -1597,7 +1597,6 @@ void SelectionAspect::addToLayout(Layouting::LayoutItem &parent)
             button->setChecked(i == value());
             button->setEnabled(option.enabled);
             button->setToolTip(option.tooltip);
-            parent.addItem(Layouting::empty);
             parent.addItem(button);
             d->m_buttons.append(button);
             d->m_buttonGroup->addButton(button, i);
