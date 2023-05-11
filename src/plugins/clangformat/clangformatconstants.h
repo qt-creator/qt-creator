@@ -13,6 +13,7 @@ static const char OVERRIDE_FILE_ID[] = "ClangFormat.OverrideFile";
 static const char FORMAT_CODE_ON_SAVE_ID[] = "ClangFormat.FormatCodeOnSave";
 static const char FORMAT_WHILE_TYPING_ID[] = "ClangFormat.FormatWhileTyping";
 static const char MODE_ID[] = "ClangFormat.Mode";
+static const char FILE_SIZE_THREDSHOLD[] = "ClangFormat.FileSizeThreshold";
 static const char USE_GLOBAL_SETTINGS[] = "ClangFormat.UseGlobalSettings";
 static const char OPEN_CURRENT_CONFIG_ID[] = "ClangFormat.OpenCurrentConfig";
 } // namespace Constants

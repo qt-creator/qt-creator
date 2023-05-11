@@ -130,7 +130,8 @@ TextEditor::Indenter *ClangFormatForwardingIndenter::currentIndenter() const
 {
     ClangFormatSettings::Mode mode = getCurrentIndentationOrFormattingSettings(m_fileName);
 
-    if (mode == ClangFormatSettings::Disable)
+    if (mode == ClangFormatSettings::Disable
+        || m_fileName.fileSize() >= ClangFormatSettings::instance().fileSizeThreshold() * 1024)
         return m_cppIndenter.get();
 
     return m_clangFormatIndenter.get();

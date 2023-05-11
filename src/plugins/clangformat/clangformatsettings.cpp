@@ -25,6 +25,8 @@ ClangFormatSettings::ClangFormatSettings()
                               .toBool();
     m_formatOnSave = settings->value(QLatin1String(Constants::FORMAT_CODE_ON_SAVE_ID), false)
                          .toBool();
+    m_fileSizeThreshold
+        = settings->value(QLatin1String(Constants::FILE_SIZE_THREDSHOLD), 1024).toInt();
 
     // Convert old settings to new ones. New settings were added to QtC 8.0
     bool isOldFormattingOn
@@ -51,6 +53,7 @@ void ClangFormatSettings::write() const
     settings->setValue(QLatin1String(Constants::FORMAT_WHILE_TYPING_ID), m_formatWhileTyping);
     settings->setValue(QLatin1String(Constants::FORMAT_CODE_ON_SAVE_ID), m_formatOnSave);
     settings->setValue(QLatin1String(Constants::MODE_ID), static_cast<int>(m_mode));
+    settings->setValue(QLatin1String(Constants::FILE_SIZE_THREDSHOLD), m_fileSizeThreshold);
     settings->endGroup();
 }
 
@@ -92,6 +95,16 @@ void ClangFormatSettings::setMode(Mode mode)
 ClangFormatSettings::Mode ClangFormatSettings::mode() const
 {
     return m_mode;
+}
+
+void ClangFormatSettings::setFileSizeThreshold(int fileSizeInKb)
+{
+    m_fileSizeThreshold = fileSizeInKb;
+}
+
+int ClangFormatSettings::fileSizeThreshold() const
+{
+    return m_fileSizeThreshold;
 }
 
 } // namespace ClangFormat
