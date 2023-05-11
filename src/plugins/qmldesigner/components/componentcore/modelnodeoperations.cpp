@@ -1650,7 +1650,11 @@ void openEffectMaker(const QString &filePath)
 
     const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (baseQtVersion) {
+        Utils::Environment env = Utils::Environment::systemEnvironment();
+
         auto effectMakerPath = baseQtVersion->binPath().pathAppended("qqem").withExecutableSuffix();
+        if (!effectMakerPath.exists() && env.osType() == Utils::OsTypeMac)
+            effectMakerPath = baseQtVersion->binPath().pathAppended("qqem.app/Contents/MacOS/qqem");
         if (!effectMakerPath.exists()) {
             qWarning() << __FUNCTION__ << "Cannot find EffectMaker app";
             return;
@@ -1663,7 +1667,6 @@ void openEffectMaker(const QString &filePath)
             arguments << "--create";
         arguments << "--exportpath" << effectResPath.toString();
 
-        Utils::Environment env = Utils::Environment::systemEnvironment();
         if (env.osType() == Utils::OsTypeMac)
             env.appendOrSet("QSG_RHI_BACKEND", "metal");
 
