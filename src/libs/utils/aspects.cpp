@@ -1712,12 +1712,14 @@ void SelectionAspect::setDefaultValue(const QString &val)
 
 QString SelectionAspect::stringValue() const
 {
-    return d->m_options.at(value()).displayName;
+    const int idx = value();
+    return idx >= 0 && idx < d->m_options.size() ? d->m_options.at(idx).displayName : QString();
 }
 
 QVariant SelectionAspect::itemValue() const
 {
-    return d->m_options.at(value()).itemData;
+    const int idx = value();
+    return idx >= 0 && idx < d->m_options.size() ? d->m_options.at(idx).itemData : QVariant();
 }
 
 void SelectionAspect::addOption(const QString &displayName, const QString &toolTip)
