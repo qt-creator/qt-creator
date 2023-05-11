@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include <QMetaType>
 #include <QString>
 
 QT_BEGIN_NAMESPACE
