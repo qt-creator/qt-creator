@@ -214,12 +214,7 @@ bool getCurrentOverriddenSettings(const Utils::FilePath &filePath)
         filePath);
 
     return getProjectUseGlobalSettings(project)
-               ? !TextEditor::TextEditorSettings::codeStyle("Cpp")
-                         ->currentPreferences()
-                         ->isTemporarilyReadOnly()
-                     && !TextEditor::TextEditorSettings::codeStyle("Cpp")
-                             ->currentPreferences()
-                             ->isAdditionalTabDisabled()
+               ? ClangFormatSettings::instance().overrideDefaultFile()
                : getProjectOverriddenSettings(project);
 }
 
