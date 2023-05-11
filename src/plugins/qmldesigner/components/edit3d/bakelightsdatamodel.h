@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include "modelnode.h"
 #include "qmldesignercorelib_global.h"
 
 #include <QAbstractListModel>
@@ -40,11 +41,14 @@ public:
     void reset();
     void apply();
 
+    ModelNode view3dNode() const { return m_view3dNode; }
+
 private:
     QString commonPrefix();
 
     QPointer<AbstractView> m_view;
     QList<BakeData> m_dataList;
+    ModelNode m_view3dNode;
 };
 
 QDebug operator<<(QDebug debug, const BakeLightsDataModel::BakeData &data);

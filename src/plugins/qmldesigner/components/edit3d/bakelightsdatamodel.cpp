@@ -138,13 +138,13 @@ void BakeLightsDataModel::reset()
     beginResetModel();
     m_dataList.clear();
 
-    ModelNode view3dNode = BakeLights::resolveView3dNode(m_view);
+    m_view3dNode = BakeLights::resolveView3dNode(m_view);
 
     // Find all models and lights in active View3D
-    QList<ModelNode> nodes = view3dNode.allSubModelNodes();
+    QList<ModelNode> nodes = m_view3dNode.allSubModelNodes();
 
-    if (view3dNode.hasBindingProperty("importScene"))
-        nodes.append(view3dNode.bindingProperty("importScene").resolveToModelNode().allSubModelNodesAndThisNode());
+    if (m_view3dNode.hasBindingProperty("importScene"))
+        nodes.append(m_view3dNode.bindingProperty("importScene").resolveToModelNode().allSubModelNodesAndThisNode());
 
     QList<BakeData> modelList;
     QList<BakeData> lightList;

@@ -76,8 +76,7 @@ Rectangle {
                         rightPadding: StudioTheme.Values.dialogButtonPadding
                         height: bakeModeCombo.height
                         onClicked: {
-                            if (!manualCheckBox.checked)
-                                rootView.apply()
+                            rootView.apply()
                             rootView.exposeModelsAndLights(nodeId)
                         }
                     }
@@ -170,13 +169,15 @@ Rectangle {
 
             StudioControls.CheckBox {
                 id: manualCheckBox
-                checked: false
+                checked: rootView.manualMode
                 text: qsTr("Setup baking manually")
                 actionIndicatorVisible: false
 
                 hoverEnabled: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("If checked, baking settings above are not applied on close or bake.\nInstead, user is expected to set baking properties manually.")
+
+                onToggled: rootView.manualMode = checked
             }
 
             Row {
@@ -200,8 +201,7 @@ Rectangle {
                     rightPadding: StudioTheme.Values.dialogButtonPadding
                     height: manualCheckBox.height
                     onClicked: {
-                        if (!manualCheckBox.checked)
-                            rootView.apply()
+                        rootView.apply()
                         rootView.cancel()
                     }
                 }
@@ -213,8 +213,7 @@ Rectangle {
                     rightPadding: StudioTheme.Values.dialogButtonPadding
                     height: manualCheckBox.height
                     onClicked: {
-                        if (!manualCheckBox.checked)
-                            rootView.apply()
+                        rootView.apply()
                         rootView.bakeLights()
                     }
                 }

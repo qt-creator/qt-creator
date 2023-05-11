@@ -4,6 +4,7 @@
 #include "bakelights.h"
 
 #include "abstractview.h"
+#include "auxiliarydataproperties.h"
 #include "bakelightsdatamodel.h"
 #include "bakelightsconnectionmanager.h"
 #include "bindingproperty.h"
@@ -114,6 +115,19 @@ void BakeLights::raiseDialog()
         m_progressDialog->raise();
 }
 
+bool BakeLights::manualMode() const
+{
+    return m_manualMode;
+}
+
+void BakeLights::setManualMode(bool enabled)
+{
+    if (m_manualMode != enabled) {
+        m_manualMode = enabled;
+        emit manualModeChanged();
+    }
+}
+
 void BakeLights::bakeLights()
 {
     if (!m_view || !m_view->model())
@@ -187,7 +201,12 @@ void BakeLights::bakeLights()
 
 void BakeLights::apply()
 {
-    m_dataModel->apply();
+    // Uninitialized QVariant stored instead of false to remove the aux property in that case
+    m_dataModel->view3dNode().setAuxiliaryData(bakeLightsManualProperty,
+                                               m_manualMode ? QVariant{true} : QVariant{});
+
+    if (!m_manualMode)
+        m_dataModel->apply();
 
     // Create folders for lightmaps if they do not exist
     PropertyName loadPrefixPropName{"loadPrefix"};
@@ -304,6 +323,10 @@ void BakeLights::showSetupDialog()
 
     m_dataModel->reset();
 
+    auto data = m_dataModel->view3dNode().auxiliaryData(bakeLightsManualProperty);
+    if (data)
+        m_manualMode = data->toBool();
+
     if (!m_setupDialog) {
         // Show non-modal progress dialog with cancel button
         QString path = qmlSourcesPath() + "/BakeLightsSetupDialog.qml";
@@ -375,6 +398,8 @@ void BakeLights::cleanup()
     delete m_nodeInstanceView;
     delete m_connectionManager;
     delete m_dataModel;
+
+    m_manualMode = false;
 }
 
 void BakeLights::cancel()

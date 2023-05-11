@@ -24,6 +24,8 @@ class BakeLights : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool manualMode READ manualMode WRITE setManualMode NOTIFY manualModeChanged)
+
 public:
     BakeLights(AbstractView *view);
     ~BakeLights();
@@ -36,12 +38,16 @@ public:
 
     void raiseDialog();
 
+    bool manualMode() const;
+    void setManualMode(bool enabled);
+
     static ModelNode resolveView3dNode(AbstractView *view);
     static QString resolveView3dId(AbstractView *view);
 
 signals:
     void finished();
     void progress(const QString &msg);
+    void manualModeChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -62,6 +68,7 @@ private:
     QPointer<BakeLightsDataModel> m_dataModel;
     ModelPointer m_model;
     QString m_view3dId;
+    bool m_manualMode = false;
 };
 
 } // namespace QmlDesigner
