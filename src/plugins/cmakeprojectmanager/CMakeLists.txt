@@ -16,8 +16,6 @@ add_qtc_plugin(CMakeProjectManager
     cmakeeditor.cpp cmakeeditor.h
     cmakefilecompletionassist.cpp cmakefilecompletionassist.h
     cmakeformatter.cpp cmakeformatter.h
-    cmakeformatteroptionspage.cpp cmakeformatteroptionspage.h
-    cmakeformattersettings.cpp cmakeformattersettings.h
     cmakeindenter.cpp cmakeindenter.h
     cmakeinstallstep.cpp cmakeinstallstep.h
     cmakekitinformation.cpp cmakekitinformation.h
