@@ -382,6 +382,9 @@ public:
 
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setPlaceHolderText(const QString &placeHolderText);
+    void setPromptDialogFilter(const QString &filter);
+    void setPromptDialogTitle(const QString &title);
+    void setCommandVersionArguments(const QStringList &arguments);
     void setHistoryCompleter(const QString &historyCompleterKey);
     void setExpectedKind(const PathChooser::Kind expectedKind);
     void setEnvironment(const Environment &env);

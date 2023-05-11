@@ -639,6 +639,9 @@ public:
 
     Qt::TextElideMode m_elideMode = Qt::ElideNone;
     QString m_placeHolderText;
+    QString m_prompDialogFilter;
+    QString m_prompDialogTitle;
+    QStringList m_commandVersionArguments;
     QString m_historyCompleterKey;
     PathChooser::Kind m_expectedKind = PathChooser::File;
     Environment m_environment;
@@ -947,6 +950,27 @@ void StringAspect::setPlaceHolderText(const QString &placeHolderText)
         d->m_textEditDisplay->setPlaceholderText(placeHolderText);
 }
 
+void StringAspect::setPromptDialogFilter(const QString &filter)
+{
+    d->m_prompDialogFilter = filter;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setPromptDialogFilter(filter);
+}
+
+void StringAspect::setPromptDialogTitle(const QString &title)
+{
+    d->m_prompDialogTitle = title;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setPromptDialogTitle(title);
+}
+
+void StringAspect::setCommandVersionArguments(const QStringList &arguments)
+{
+    d->m_commandVersionArguments = arguments;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setCommandVersionArguments(arguments);
+}
+
 /*!
     Sets \a elideMode as label elide mode.
 */
@@ -1089,6 +1113,9 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->m_pathChooserDisplay->setEnvironment(d->m_environment);
         d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
         d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
+        d->m_pathChooserDisplay->setPromptDialogFilter(d->m_prompDialogFilter);
+        d->m_pathChooserDisplay->setPromptDialogTitle(d->m_prompDialogTitle);
+        d->m_pathChooserDisplay->setCommandVersionArguments(d->m_commandVersionArguments);
         if (defaultValue() == value())
             d->m_pathChooserDisplay->setDefaultValue(defaultValue());
         else
