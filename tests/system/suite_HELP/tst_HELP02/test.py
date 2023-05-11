@@ -36,7 +36,7 @@ def checkQtCreatorHelpVersion(expectedVersion):
         helpContentWidget = waitForObject(':Qt Creator_QHelpContentWidget', 5000)
         waitFor("any(map(rightStart, dumpItems(helpContentWidget.model())))", 10000)
         items = dumpItems(helpContentWidget.model())
-        test.compare(filter(rightStart, items)[0],
+        test.compare(list(filter(rightStart, items))[0],
                      'Qt Creator Manual %s' % expectedVersion,
                      'Verifying whether manual uses expected version.')
     except:

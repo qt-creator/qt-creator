@@ -266,30 +266,25 @@ public:
 
     void expandNode(const QModelIndex &idx)
     {
+        if (!m_engine)
+            return;
+
         m_expandedINames.insert(idx.data(LocalsINameRole).toString());
-        if (canFetchMore(idx))
-            fetchMore(idx);
+        if (canFetchMore(idx)) {
+            if (!idx.isValid())
+                return;
+
+            if (auto item = dynamic_cast<ToolTipWatchItem *>(itemForIndex(idx))) {
+                WatchItem *it = m_engine->watchHandler()->findItem(item->iname);
+                if (QTC_GUARD(it))
+                    it->model()->fetchMore(it->index());
+            }
+        }
     }
 
     void collapseNode(const QModelIndex &idx)
     {
         m_expandedINames.remove(idx.data(LocalsINameRole).toString());
-    }
-
-    void fetchMore(const QModelIndex &idx) override
-    {
-        if (!idx.isValid())
-            return;
-        auto item = dynamic_cast<ToolTipWatchItem *>(itemForIndex(idx));
-        if (!item)
-            return;
-        QString iname = item->iname;
-        if (!m_engine)
-            return;
-
-        WatchItem *it = m_engine->watchHandler()->findItem(iname);
-        QTC_ASSERT(it, return);
-        it->model()->fetchMore(it->index());
     }
 
     void restoreTreeModel(QXmlStreamReader &r);

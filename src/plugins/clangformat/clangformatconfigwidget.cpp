@@ -88,8 +88,8 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
 
     d->checksScrollArea->setWidget(d->checksWidget);
     d->checksScrollArea->setWidgetResizable(true);
-    d->checksWidget->setEnabled(!codeStyle->isReadOnly()
-                                && !codeStyle->isTemporarilyReadOnly());
+    d->checksWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
+                                && !codeStyle->isAdditionalTabDisabled());
 
     FilePath fileName;
     if (d->project)
@@ -140,8 +140,8 @@ void ClangFormatConfigWidget::slotCodeStyleChanged(
     d->config->setIsReadOnly(codeStyle->isReadOnly());
     d->style = d->config->style();
 
-    d->checksWidget->setEnabled(!codeStyle->isReadOnly()
-                                && !codeStyle->isTemporarilyReadOnly());
+    d->checksWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
+                                && !codeStyle->isAdditionalTabDisabled());
 
     fillTable();
     updatePreview();

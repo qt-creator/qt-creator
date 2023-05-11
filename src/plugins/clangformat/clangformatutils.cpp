@@ -213,10 +213,14 @@ bool getCurrentOverriddenSettings(const Utils::FilePath &filePath)
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
         filePath);
 
-    return getProjectUseGlobalSettings(project) ? !TextEditor::TextEditorSettings::codeStyle("Cpp")
-                                                       ->currentPreferences()
-                                                       ->isTemporarilyReadOnly()
-                                                : getProjectOverriddenSettings(project);
+    return getProjectUseGlobalSettings(project)
+               ? !TextEditor::TextEditorSettings::codeStyle("Cpp")
+                         ->currentPreferences()
+                         ->isTemporarilyReadOnly()
+                     && !TextEditor::TextEditorSettings::codeStyle("Cpp")
+                             ->currentPreferences()
+                             ->isAdditionalTabDisabled()
+               : getProjectOverriddenSettings(project);
 }
 
 ClangFormatSettings::Mode getProjectIndentationOrFormattingSettings(
