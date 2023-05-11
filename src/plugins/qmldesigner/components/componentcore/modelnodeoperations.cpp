@@ -1673,6 +1673,11 @@ void openEffectMaker(const QString &filePath)
         Utils::QtcProcess *qqemProcess = new Utils::QtcProcess();
         qqemProcess->setEnvironment(env);
         qqemProcess->setCommand({ effectMakerPath, arguments });
+
+        // workaround that effect maker can find the images QTBUG-113531
+        if (env.osType() == Utils::OsTypeMac)
+            qqemProcess->setWorkingDirectory(baseQtVersion->qmlPath().pathAppended("QtQuickEffectMaker"));
+
         QObject::connect(qqemProcess, &Utils::QtcProcess::done, [qqemProcess]() {
             qqemProcess->deleteLater();
         });
