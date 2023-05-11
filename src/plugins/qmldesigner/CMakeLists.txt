@@ -252,6 +252,7 @@ extend_qtc_library(QmlDesignerCore
     rewriterview.h
     rewritingexception.h
     signalhandlerproperty.h
+    stringutils.h
     stylesheetmerger.h
     subcomponentmanager.h
     synchronousimagecache.h

@@ -32,8 +32,6 @@ private:
     QString propertiesToQml(const ModelNode &node, int indentDepth) const;
     QString propertyToQml(const AbstractProperty &property, int indentDepth) const;
 
-    static QString escape(const QString &value);
-
 private:
     PropertyNameList m_propertyOrder;
     TextEditor::TabSettings m_tabSettings;

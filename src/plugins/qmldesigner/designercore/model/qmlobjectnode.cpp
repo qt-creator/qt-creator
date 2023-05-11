@@ -14,6 +14,7 @@
 #include "qmlstate.h"
 #include "qmltimelinekeyframegroup.h"
 #include "qmlvisualnode.h"
+#include "stringutils.h"
 #include "variantproperty.h"
 
 #include <auxiliarydataproperties.h>
@@ -256,7 +257,7 @@ QString QmlObjectNode::stripedTranslatableText(const PropertyName &name) const
         const QRegularExpressionMatch match = regularExpressionPattern.match(
                     modelNode().bindingProperty(name).expression());
         if (match.hasMatch())
-            return match.captured(2);
+            return deescape(match.captured(2));
         return instanceValue(name).toString();
     }
     return instanceValue(name).toString();
@@ -536,15 +537,17 @@ QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const Property
 QString QmlObjectNode::generateTranslatableText([[maybe_unused]] const QString &text,
                                                 const DesignerSettings &settings)
 {
+    const QString escapedText = escape(text);
+
     if (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
         switch (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
-        case 0: return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
-        case 1: return QString(QStringLiteral("qsTrId(\"%1\")")).arg(text);
-        case 2: return QString(QStringLiteral("qsTranslate(\"%1\", \"context\")")).arg(text);
+        case 0: return QString(QStringLiteral("qsTr(\"%1\")")).arg(escapedText);
+        case 1: return QString(QStringLiteral("qsTrId(\"%1\")")).arg(escapedText);
+        case 2: return QString(QStringLiteral("qsTranslate(\"%1\", \"context\")")).arg(escapedText);
         default:
             break;
         }
-    return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
+    return QString(QStringLiteral("qsTr(\"%1\")")).arg(escapedText);
 }
 
 QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text)
@@ -553,7 +556,7 @@ QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text)
                 QLatin1String("^qsTr(|Id|anslate)\\(\"(.*)\"\\)$"));
     const QRegularExpressionMatch match = regularExpressionPattern.match(text);
     if (match.hasMatch())
-        return match.captured(2);
+        return deescape(match.captured(2));
     return text;
 }
 
