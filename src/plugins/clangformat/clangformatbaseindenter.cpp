@@ -378,14 +378,13 @@ Utils::Text::Replacements utf16Replacements(const QTextDocument *doc,
         const QString bufferLineText
             = Utils::Text::utf16LineTextInUtf8Buffer(utf8Buffer,
                                                      static_cast<int>(replacement.getOffset()));
-        if (isInsideDummyTextInLine(lineText, bufferLineText, lineColUtf16.column))
+        if (isInsideDummyTextInLine(lineText, bufferLineText, lineColUtf16.column + 1))
             continue;
 
-        lineColUtf16.column = std::min(lineColUtf16.column, int(lineText.length()) + 1);
-
+        lineColUtf16.column = std::min(lineColUtf16.column, int(lineText.length()));
         const int utf16Offset = Utils::Text::positionInText(doc,
                                                             lineColUtf16.line,
-                                                            lineColUtf16.column);
+                                                            lineColUtf16.column + 1);
         const int utf16Length = QString::fromUtf8(
                                     utf8Buffer.mid(static_cast<int>(replacement.getOffset()),
                                                    static_cast<int>(replacement.getLength())))
