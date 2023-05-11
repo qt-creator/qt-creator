@@ -3968,6 +3968,122 @@ void QuickfixTest::testInsertMemberFromUse_data()
         "};\n"
         "void C::setValue(int v) { @m_value = v; }\n";
     QTest::addRow("add static member to this (non-inline)") << original << expected;
+
+    original =
+        "struct S {\n\n};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.@setValue(v); }\n"
+        "private:\n"
+        "    S m_s;\n"
+        "};\n";
+    expected =
+        "struct S {\n\n"
+        "    void setValue(int);\n"
+        "};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.setValue(v); }\n"
+        "private:\n"
+        "    S m_s;\n"
+        "};\n";
+    QTest::addRow("add member function to other struct") << original << expected;
+
+    original =
+        "struct S {\n\n};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { S::@setValue(v); }\n"
+        "};\n";
+    expected =
+        "struct S {\n\n"
+        "    static void setValue(int);\n"
+        "};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { S::setValue(v); }\n"
+        "};\n";
+    QTest::addRow("add static member function to other struct (explicit)") << original << expected;
+
+    original =
+        "struct S {\n\n};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.@setValue(v); }\n"
+        "private:\n"
+        "    static S m_s;\n"
+        "};\n";
+    expected =
+        "struct S {\n\n"
+        "    static void setValue(int);\n"
+        "};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.setValue(v); }\n"
+        "private:\n"
+        "    static S m_s;\n"
+        "};\n";
+    QTest::addRow("add static member function to other struct (implicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v);\n"
+        "};\n"
+        "void C::setValue(int v) { this->@setValueInternal(v); }\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v);\n"
+        "private:\n"
+        "    void setValueInternal(int);\n"
+        "};\n"
+        "void C::setValue(int v) { this->setValueInternal(v); }\n";
+    QTest::addRow("add member function to this (explicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { @setValueInternal(v); }\n"
+        "};\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { setValueInternal(v); }\n"
+        "private:\n"
+        "    void setValueInternal(int);\n"
+        "};\n";
+    QTest::addRow("add member function to this (implicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    static int value() { int i = @valueInternal(); return i; }\n"
+        "};\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    static int value() { int i = @valueInternal(); return i; }\n"
+        "private:\n"
+        "    static int valueInternal();\n"
+        "};\n";
+    QTest::addRow("add static member function to this (inline)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    static int value();\n"
+        "};\n"
+        "int C::value() { return @valueInternal(); }\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    static int value();\n"
+        "private:\n"
+        "    static int valueInternal();\n"
+        "};\n"
+        "int C::value() { return valueInternal(); }\n";
+    QTest::addRow("add static member function to this (non-inline)") << original << expected;
 }
 
 void QuickfixTest::testInsertMemberFromUse()

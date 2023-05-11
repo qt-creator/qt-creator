@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
 #include "cppquickfix.h"
+
+#include <variant>
 
 ///
 /// Adding New Quick Fixes
@@ -16,6 +17,7 @@
 
 namespace CppEditor {
 namespace Internal {
+using TypeOrExpr = std::variant<const CPlusPlus::ExpressionAST *, CPlusPlus::FullySpecifiedType>;
 
 void createCppQuickFixes();
 void destroyCppQuickFixes();
@@ -370,14 +372,21 @@ public:
 private:
     void collectOperations(const CppQuickFixInterface &interface,
                            TextEditor::QuickFixOperations &result);
+    void handleCall(const CPlusPlus::CallAST *call, const CppQuickFixInterface &interface,
+                    TextEditor::QuickFixOperations &result);
 
     // Returns whether to still do other checks.
     bool checkForMemberInitializer(const CppQuickFixInterface &interface,
                                    TextEditor::QuickFixOperations &result);
 
     void maybeAddMember(const CppQuickFixInterface &interface, CPlusPlus::Scope *scope,
-                        const QByteArray &classTypeExpr, const CPlusPlus::ExpressionAST *initExpr,
-                        TextEditor::QuickFixOperations &result);
+                        const QByteArray &classTypeExpr, const TypeOrExpr &typeOrExpr,
+                        const CPlusPlus::CallAST *call, TextEditor::QuickFixOperations &result);
+
+    void maybeAddStaticMember(
+        const CppQuickFixInterface &interface, const CPlusPlus::QualifiedNameAST *qualName,
+        const TypeOrExpr &typeOrExpr, const CPlusPlus::CallAST *call,
+        TextEditor::QuickFixOperations &result);
 
     bool m_membersOnly = false;
 };
