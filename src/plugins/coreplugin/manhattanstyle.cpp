@@ -154,7 +154,7 @@ QPixmap getDeletePixmap(bool enabled,
 {
     using Utils::Theme;
     using Utils::creatorTheme;
-    using Utils::StyleHelper;
+    using namespace Utils::StyleHelper;
 
     const double xRatio = 19;
     const double yRatio = 9;

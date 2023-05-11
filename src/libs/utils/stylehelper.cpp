@@ -37,6 +37,11 @@ static int range(float x, int min, int max)
 
 namespace Utils {
 
+static StyleHelper::ToolbarStyle m_toolbarStyle = StyleHelper::defaultToolbarStyle;
+// Invalid by default, setBaseColor needs to be called at least once
+static QColor m_baseColor;
+static QColor m_requestedBaseColor;
+
 QColor StyleHelper::mergedColors(const QColor &colorA, const QColor &colorB, int factor)
 {
     const int maxFactor = 100;
@@ -57,6 +62,21 @@ QColor StyleHelper::alphaBlendedColors(const QColor &colorA, const QColor &color
                 (colorA.green() * antiAlpha + colorB.green() * alpha) / 255,
                 (colorA.blue() * antiAlpha + colorB.blue() * alpha) / 255
                 );
+}
+
+QColor StyleHelper::sidebarHighlight()
+{
+    return QColor(255, 255, 255, 40);
+}
+
+QColor StyleHelper::sidebarShadow()
+{
+    return QColor(0, 0, 0, 40);
+}
+
+QColor StyleHelper::toolBarDropShadowColor()
+{
+    return QColor(0, 0, 0, 70);
 }
 
 int StyleHelper::navigationWidgetHeight()
@@ -105,17 +125,17 @@ QColor StyleHelper::panelTextColor(bool lightColored)
         return Qt::black;
 }
 
-StyleHelper::ToolbarStyle StyleHelper::m_toolbarStyle = StyleHelper::defaultToolbarStyle;
-// Invalid by default, setBaseColor needs to be called at least once
-QColor StyleHelper::m_baseColor;
-QColor StyleHelper::m_requestedBaseColor;
-
 QColor StyleHelper::baseColor(bool lightColored)
 {
     static const QColor windowColor = QApplication::palette().color(QPalette::Window);
     static const bool windowColorAsBase = creatorTheme()->flag(Theme::WindowColorAsBase);
 
     return (lightColored || windowColorAsBase) ? windowColor : m_baseColor;
+}
+
+QColor StyleHelper::requestedBaseColor()
+{
+    return m_requestedBaseColor;
 }
 
 QColor StyleHelper::toolbarBaseColor(bool lightColored)
@@ -164,6 +184,11 @@ QColor StyleHelper::toolBarBorderColor()
     return QColor::fromHsv(base.hue(),
                            base.saturation() ,
                            clamp(base.value() * 0.80f));
+}
+
+QColor StyleHelper::buttonTextColor()
+{
+    return QColor(0x4c4c4c);
 }
 
 // We try to ensure that the actual color used are within
@@ -493,6 +518,11 @@ void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const Q
     } else {
         menuGradientHelper(painter, spanRect, clipRect);
     }
+}
+
+bool StyleHelper::usePixmapCache()
+{
+    return true;
 }
 
 QPixmap StyleHelper::disabledSideBarIcon(const QPixmap &enabledicon)
