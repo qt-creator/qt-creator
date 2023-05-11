@@ -19,7 +19,7 @@
         { "key": "TargetName", "value": "%{JS: 'app' + value('ProjectName') }" },
         { "key": "HasQSPSetup", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.2' }"},
         { "key": "HasFailureSignal", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.3' }"},
-        { "key": "UsesAutoResourcePrefix", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' && value('BuildSystem') === 'cmake' }"},
+        { "key": "UsesAutoResourcePrefix", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' }"},
         { "key": "HasLoadFromModule", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' && value('UsesAutoResourcePrefix') }"},
         { "key": "QdsWizardPath", "value": "%{IDE:ResourcePath}/qmldesigner/studio_templates/projects" },
         { "key": "NoQdsProjectStyle", "value": "%{JS: !%{QdsProjectStyle} }" },
