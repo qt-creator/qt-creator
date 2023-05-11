@@ -18,6 +18,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/linecolumn.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
 
