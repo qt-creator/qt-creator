@@ -385,10 +385,10 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
     using namespace Layouting;
     Form grid {
         &m_applicationsView, br,
-        &m_serverSettings.autTimeout,
-        &m_serverSettings.responseTimeout,
-        &m_serverSettings.postMortemWaitTime,
-        &m_serverSettings.animatedCursor,
+        &m_serverSettings.autTimeout, br,
+        &m_serverSettings.responseTimeout, br,
+        &m_serverSettings.postMortemWaitTime, br,
+        &m_serverSettings.animatedCursor, br,
     };
     Column buttonCol {
         add,
