@@ -380,14 +380,16 @@ void AbstractView::dragEnded() {}
 
 QList<ModelNode> AbstractView::toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList) const
 {
-    return QmlDesigner::toModelNodeList(nodeList, const_cast<AbstractView*>(this));
+    return QmlDesigner::toModelNodeList(nodeList, m_model, const_cast<AbstractView *>(this));
 }
 
-QList<ModelNode> toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList, AbstractView *view)
+QList<ModelNode> toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList,
+                                 Model *model,
+                                 AbstractView *view)
 {
     QList<ModelNode> newNodeList;
     for (const Internal::InternalNode::Pointer &node : nodeList)
-        newNodeList.append(ModelNode(node, view->model(), view));
+        newNodeList.append(ModelNode(node, model, view));
 
     return newNodeList;
 }
@@ -623,7 +625,12 @@ void AbstractView::setEnabled(bool b)
 QList<ModelNode> AbstractView::allModelNodes() const
 {
     QTC_ASSERT(model(), return {});
-    return toModelNodeList(model()->d->allNodes());
+    return toModelNodeList(model()->d->allNodesOrdered());
+}
+
+QList<ModelNode> AbstractView::allModelNodesUnordered() const
+{
+    return toModelNodeList(model()->d->allNodesUnordered());
 }
 
 QList<ModelNode> AbstractView::allModelNodesOfType(const NodeMetaInfo &type) const

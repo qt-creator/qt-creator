@@ -266,7 +266,8 @@ public:
     InternalNodePointer nodeForInternalId(qint32 internalId) const;
     bool hasNodeForInternalId(qint32 internalId) const;
 
-    QList<InternalNodePointer> allNodes() const;
+    QList<InternalNodePointer> allNodesUnordered() const;
+    QList<InternalNodePointer> allNodesOrdered() const;
 
     bool isWriteLocked() const;
 
@@ -305,7 +306,7 @@ private:
     QList<InternalNodePointer> m_selectedInternalNodeList;
     QHash<QString,InternalNodePointer> m_idNodeHash;
     QHash<qint32, InternalNodePointer> m_internalIdNodeHash;
-    QSet<InternalNodePointer> m_nodeSet;
+    QList<InternalNodePointer> m_nodes;
     InternalNodePointer m_currentStateNode;
     InternalNodePointer m_rootInternalNode;
     InternalNodePointer m_currentTimelineNode;

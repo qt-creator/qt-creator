@@ -140,7 +140,7 @@ QList<ModelNode> NodeAbstractProperty::allSubNodes()
         return {};
 
     Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(name());
-    return QmlDesigner::toModelNodeList(property->allSubNodes(), view());
+    return QmlDesigner::toModelNodeList(property->allSubNodes(), model(), view());
 }
 
 QList<ModelNode> NodeAbstractProperty::directSubNodes() const
@@ -150,7 +150,7 @@ QList<ModelNode> NodeAbstractProperty::directSubNodes() const
         return {};
 
     Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(name());
-    return QmlDesigner::toModelNodeList(property->directSubNodes(), view());
+    return QmlDesigner::toModelNodeList(property->directSubNodes(), model(), view());
 }
 
 /*!

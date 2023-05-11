@@ -31,6 +31,8 @@ using testing::HasSubstr;
 using testing::InSequence;
 using testing::Invoke;
 using testing::IsNull;
+using testing::IsSubsetOf;
+using testing::IsSupersetOf;
 using testing::Le;
 using testing::Lt;
 using testing::Matcher;

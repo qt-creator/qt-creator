@@ -736,7 +736,7 @@ QList<ModelNode> ModelNode::directSubModelNodes() const
     if (!isValid())
         return {};
 
-    return toModelNodeList(m_internalNode->allDirectSubNodes(), view());
+    return toModelNodeList(m_internalNode->allDirectSubNodes(), model(), view());
 }
 
 QList<ModelNode> ModelNode::directSubModelNodesOfType(const NodeMetaInfo &type) const
@@ -765,7 +765,7 @@ QList<ModelNode> ModelNode::allSubModelNodes() const
     if (!isValid())
         return {};
 
-    return toModelNodeList(internalNode()->allSubNodes(), view());
+    return toModelNodeList(internalNode()->allSubNodes(), model(), view());
 }
 
 QList<ModelNode> ModelNode::allSubModelNodesAndThisNode() const

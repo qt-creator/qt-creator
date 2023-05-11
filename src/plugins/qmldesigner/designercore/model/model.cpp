@@ -277,7 +277,7 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
     for (const auto &auxiliaryData : auxiliaryDatas)
         newNode->setAuxiliaryData(AuxiliaryDataKeyView{auxiliaryData.first}, auxiliaryData.second);
 
-    m_nodeSet.insert(newNode);
+    m_nodes.push_back(newNode);
     m_internalIdNodeHash.insert(newNode->internalId, newNode);
 
     if (!nodeSource.isNull())
@@ -303,7 +303,7 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
     if (!node->id.isEmpty())
         m_idNodeHash.remove(node->id);
     node->isValid = false;
-    m_nodeSet.remove(node);
+    m_nodes.removeOne(node);
     m_internalIdNodeHash.remove(node->internalId);
 }
 
@@ -1376,8 +1376,7 @@ bool ModelPrivate::hasNodeForInternalId(qint32 internalId) const
 {
     return m_internalIdNodeHash.contains(internalId);
 }
-
-QList<InternalNodePointer> ModelPrivate::allNodes() const
+QList<InternalNodePointer> ModelPrivate::allNodesOrdered() const
 {
     if (!m_rootInternalNode || !m_rootInternalNode->isValid)
         return {};
@@ -1388,9 +1387,13 @@ QList<InternalNodePointer> ModelPrivate::allNodes() const
     nodeList.append(m_rootInternalNode);
     nodeList.append(m_rootInternalNode->allSubNodes());
     // FIXME: This is horribly expensive compared to a loop.
-    nodeList.append(Utils::toList(m_nodeSet - Utils::toSet(nodeList)));
+    nodeList.append(Utils::toList(Utils::toSet(m_nodes) - Utils::toSet(nodeList)));
 
     return nodeList;
+}
+QList<InternalNodePointer> ModelPrivate::allNodesUnordered() const
+{
+    return m_nodes;
 }
 
 bool ModelPrivate::isWriteLocked() const
@@ -1921,6 +1924,26 @@ NodeMetaInfo Model::qtQuickPropertyAnimationMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuickPropertyChangesMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, PropertyChanges>();
+    } else {
+        return metaInfo("QtQuick.PropertyChanges");
+    }
+}
+
+NodeMetaInfo Model::flowViewFlowActionAreaMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<FlowView, FlowActionArea>();
+    } else {
+        return metaInfo("FlowView.FlowActionArea");
+    }
+}
+
 NodeMetaInfo Model::flowViewFlowDecisionMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2204,9 +2227,52 @@ void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
     d->detachView(view, emitNotify);
 }
 
-QList<ModelNode> Model::allModelNodes() const
+namespace {
+QList<ModelNode> toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList, Model *model)
 {
-    return QmlDesigner::toModelNodeList(d->allNodes(), nullptr);
+    QList<ModelNode> newNodeList;
+    for (const Internal::InternalNode::Pointer &node : nodeList)
+        newNodeList.append(ModelNode(node, model, nullptr));
+
+    return newNodeList;
+}
+} // namespace
+
+QList<ModelNode> Model::allModelNodesUnordered()
+{
+    return toModelNodeList(d->allNodesUnordered(), this);
+}
+
+ModelNode Model::rootModelNode()
+{
+    return ModelNode{d->rootNode(), this, nullptr};
+}
+
+ModelNode Model::modelNodeForId(const QString &id)
+{
+    return ModelNode(d->nodeForId(id), this, nullptr);
+}
+namespace {
+ModelNode createNode(Model *model,
+                     Internal::ModelPrivate *d,
+                     const TypeName &typeName,
+                     int majorVersion,
+                     int minorVersion)
+{
+    return ModelNode(d->createNode(typeName, majorVersion, minorVersion, {}, {}, {}, {}, {}),
+                     model,
+                     nullptr);
+}
+} // namespace
+
+ModelNode Model::createModelNode(const TypeName &typeName)
+{
+    if constexpr (useProjectStorage()) {
+        return createNode(this, d.get(), typeName, -1, -1);
+    } else {
+        const NodeMetaInfo m = metaInfo(typeName);
+        return createNode(this, d.get(), typeName, m.majorVersion(), m.minorVersion());
+    }
 }
 
 } // namespace QmlDesigner

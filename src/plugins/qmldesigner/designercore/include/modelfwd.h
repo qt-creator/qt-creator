@@ -39,4 +39,14 @@ using ProjectStorageType = ProjectStorageInterface;
 using ProjectStorageType = ProjectStorage<Sqlite::Database>;
 #endif
 
+enum class PropertyType {
+    None,
+    Variant,
+    Node,
+    NodeList,
+    Binding,
+    SignalHandler,
+    SignalDeclaration
+};
+
 } // namespace QmlDesigner

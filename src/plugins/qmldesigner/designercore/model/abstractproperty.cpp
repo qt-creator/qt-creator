@@ -29,7 +29,6 @@ AbstractProperty::AbstractProperty(const PropertyName &propertyName, const Inter
     m_model(model),
     m_view(view)
 {
-    Q_ASSERT(!m_model || m_view);
     Q_ASSERT_X(!m_propertyName.contains(' '), Q_FUNC_INFO, "a property name cannot contain a space");
 }
 
@@ -327,10 +326,11 @@ TypeName AbstractProperty::dynamicTypeName() const
 
 QDebug operator<<(QDebug debug, const AbstractProperty &property)
 {
-    return debug.nospace() << "AbstractProperty(" << (property.isValid() ? property.name() : PropertyName("invalid")) << ')';
+    return debug.nospace() << "AbstractProperty("
+                           << (property.isValid() ? property.name() : PropertyName("invalid")) << ')';
 }
 
-QTextStream& operator<<(QTextStream &stream, const AbstractProperty &property)
+QTextStream &operator<<(QTextStream &stream, const AbstractProperty &property)
 {
     stream << "AbstractProperty(" << property.name() << ')';
 
@@ -338,4 +338,3 @@ QTextStream& operator<<(QTextStream &stream, const AbstractProperty &property)
 }
 
 } // namespace QmlDesigner
-

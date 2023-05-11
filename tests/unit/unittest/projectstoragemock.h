@@ -7,6 +7,7 @@
 
 #include "sqlitedatabasemock.h"
 
+#include <projectstorage/commontypecache.h>
 #include <projectstorage/filestatus.h>
 #include <projectstorage/projectstorageinterface.h>
 #include <projectstorage/sourcepathcache.h>
@@ -15,6 +16,7 @@ class ProjectStorageMock : public QmlDesigner::ProjectStorageInterface
 {
 public:
     void setupQtQtuick();
+    void setupCommonTypeCache();
 
     MOCK_METHOD(void,
                 synchronize,
@@ -157,10 +159,16 @@ public:
                 (QmlDesigner::SourceId sourceId));
     MOCK_METHOD(std::vector<QmlDesigner::Cache::SourceContext>, fetchAllSourceContexts, (), ());
     MOCK_METHOD(std::vector<QmlDesigner::Cache::Source>, fetchAllSources, (), ());
+
+    QmlDesigner::Storage::Info::CommonTypeCache<QmlDesigner::ProjectStorageInterface> typeCache{*this};
 };
 
 class ProjectStorageMockWithQtQtuick : public ProjectStorageMock
 {
 public:
-    ProjectStorageMockWithQtQtuick() { setupQtQtuick(); }
+    ProjectStorageMockWithQtQtuick()
+    {
+        setupQtQtuick();
+        setupCommonTypeCache();
+    }
 };

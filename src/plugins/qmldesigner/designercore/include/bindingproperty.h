@@ -40,7 +40,13 @@ public:
     static QVariant convertToLiteral(const TypeName &typeName, const QString &expression);
 
 protected:
-    BindingProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
+    BindingProperty(const PropertyName &propertyName,
+                    const Internal::InternalNodePointer &internalNode,
+                    Model *model,
+                    AbstractView *view);
+
+private:
+    ModelNode resolveBinding(const QString &binding, ModelNode currentNode) const;
 };
 
 bool compareBindingProperties(const QmlDesigner::BindingProperty &bindingProperty01, const QmlDesigner::BindingProperty &bindingProperty02);

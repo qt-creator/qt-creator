@@ -342,6 +342,8 @@ extend_qtc_library(QmlDesignerCore
     modelnodepositionrecalculator.h
     modelnodepositionstorage.cpp
     modelresourcemanagementinterface.h
+    modelresourcemanagementfwd.h
+    modelresourcemanagement.cpp modelresourcemanagement.h
     modeltotextmerger.cpp
     modeltotextmerger.h
     modelutils.cpp

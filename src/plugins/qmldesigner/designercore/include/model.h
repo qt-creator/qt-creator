@@ -101,6 +101,7 @@ public:
     bool hasNodeMetaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     void setMetaInfo(const MetaInfo &metaInfo);
 
+    NodeMetaInfo flowViewFlowActionAreaMetaInfo() const;
     NodeMetaInfo flowViewFlowDecisionMetaInfo() const;
     NodeMetaInfo flowViewFlowTransitionMetaInfo() const;
     NodeMetaInfo flowViewFlowWildcardMetaInfo() const;
@@ -117,6 +118,7 @@ public:
     NodeMetaInfo qtQuickImageMetaInfo() const;
     NodeMetaInfo qtQuickItemMetaInfo() const;
     NodeMetaInfo qtQuickPropertyAnimationMetaInfo() const;
+    NodeMetaInfo qtQuickPropertyChangesMetaInfo() const;
     NodeMetaInfo qtQuickRectangleMetaInfo() const;
     NodeMetaInfo qtQuickStateGroupMetaInfo() const;
     NodeMetaInfo qtQuickTextEditMetaInfo() const;
@@ -130,7 +132,12 @@ public:
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, ViewNotification emitDetachNotify = NotifyView);
 
-    QList<ModelNode> allModelNodes() const;
+    QList<ModelNode> allModelNodesUnordered();
+    ModelNode rootModelNode();
+
+    ModelNode modelNodeForId(const QString &id);
+
+    ModelNode createModelNode(const TypeName &typeName);
 
     // Editing sub-components:
 

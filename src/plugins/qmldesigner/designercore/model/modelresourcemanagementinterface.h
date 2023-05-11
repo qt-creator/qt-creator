@@ -5,22 +5,11 @@
 
 #include <qmldesignercorelib_exports.h>
 
+#include "modelresourcemanagementfwd.h"
+
 #include <bindingproperty.h>
 
 namespace QmlDesigner {
-
-struct ModelResourceSet
-{
-    struct SetExpression
-    {
-        BindingProperty property;
-        QString expression;
-    };
-
-    QList<ModelNode> removeModelNodes;
-    QList<AbstractProperty> removeProperties;
-    QList<SetExpression> setExpressions;
-};
 
 class QMLDESIGNERCORE_EXPORT ModelResourceManagementInterface
 {

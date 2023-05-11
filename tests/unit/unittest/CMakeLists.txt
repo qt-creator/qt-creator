@@ -57,6 +57,7 @@ add_qtc_test(unittest GTEST
     lastchangedrowid-test.cpp
     import-test.cpp
     model-test.cpp
+    modelresourcemanagement-test.cpp
     modelresourcemanagementmock.h
     matchingtext-test.cpp
     mockfutureinterface.h
@@ -262,6 +263,7 @@ extend_qtc_test(unittest
     model/model_p.h
     model/modelnode.cpp
     model/modelresourcemanagementinterface.h
+    model/modelresourcemanagement.cpp model/modelresourcemanagement.h
     model/propertycontainer.cpp
     model/propertyparser.cpp
     model/nodeabstractproperty.cpp

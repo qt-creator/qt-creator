@@ -512,6 +512,19 @@ std::ostream &operator<<(std::ostream &out, const VariantProperty &property)
                << property.value() << ")";
 }
 
+std::ostream &operator<<(std::ostream &out, const AbstractProperty &property)
+{
+    if (!property.isValid())
+        return out << "(invalid)";
+
+    return out << "(" << property.parentModelNode() << ", " << property.name() << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ModelResourceSet::SetExpression &setExpression)
+{
+    return out << "(" << setExpression.property << ", " << setExpression.expression << ")";
+}
+
 namespace Cache {
 
 std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext)

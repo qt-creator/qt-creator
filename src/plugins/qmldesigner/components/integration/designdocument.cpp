@@ -9,6 +9,7 @@
 
 #include <auxiliarydataproperties.h>
 #include <metainfo.h>
+#include <model/modelresourcemanagement.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
 #include <rewritingexception.h>
@@ -62,7 +63,8 @@ namespace QmlDesigner {
   */
 DesignDocument::DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage,
                                ExternalDependenciesInterface &externalDependencies)
-    : m_documentModel(Model::create("QtQuick.Item", 1, 0))
+    : m_documentModel(
+        Model::create("QtQuick.Item", 1, 0, nullptr, std::make_unique<ModelResourceManagement>()))
     , m_subComponentManager(new SubComponentManager(m_documentModel.get(), externalDependencies))
     , m_rewriterView(new RewriterView(externalDependencies, RewriterView::Amend))
     , m_documentLoaded(false)
@@ -149,7 +151,11 @@ const AbstractView *DesignDocument::view() const
 
 ModelPointer DesignDocument::createInFileComponentModel()
 {
-    auto model = Model::create("QtQuick.Item", 1, 0);
+    auto model = Model::create("QtQuick.Item",
+                               1,
+                               0,
+                               nullptr,
+                               std::make_unique<ModelResourceManagement>());
     model->setFileUrl(m_documentModel->fileUrl());
     model->setMetaInfo(m_documentModel->metaInfo());
 

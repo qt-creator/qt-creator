@@ -60,14 +60,69 @@ bool set_intersection_compare(
             ++first1;
         } else {
             if (!comp(*first2, *first1)) {
-                if (call(*first1++, *first2))
-                    return true;
+                if constexpr (std::is_void_v<std::invoke_result_t<Callable,
+                                                                  decltype(*first1),
+                                                                  decltype(*first2)>>) {
+                    call(*first1, *first2);
+                    ++first1;
+                } else {
+                    auto success = call(*first1, *first2);
+                    ++first1;
+                    if (success)
+                        return true;
+                }
             }
             ++first2;
         }
     }
 
     return false;
+}
+
+template<class InputIt1, class InputIt2, class Callable, class Compare>
+bool set_greedy_intersection_compare(
+    InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, Callable call, Compare comp)
+{
+    while (first1 != last1 && first2 != last2) {
+        if (comp(*first1, *first2)) {
+            ++first1;
+        } else {
+            if (!comp(*first2, *first1)) {
+                if constexpr (std::is_void_v<std::invoke_result_t<Callable,
+                                                                  decltype(*first1),
+                                                                  decltype(*first2)>>) {
+                    call(*first1, *first2);
+                    ++first1;
+                } else {
+                    auto success = call(*first1, *first2);
+                    ++first1;
+                    if (success)
+                        return true;
+                }
+            } else {
+                ++first2;
+            }
+        }
+    }
+
+    return false;
+}
+
+template<typename InputIt1, typename InputIt2, typename OutputIt>
+constexpr OutputIt set_greedy_intersection(
+    InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, OutputIt result)
+{
+    while (first1 != last1 && first2 != last2)
+        if (*first1 < *first2)
+            ++first1;
+        else if (*first2 < *first1)
+            ++first2;
+        else {
+            *result = *first1;
+            ++first1;
+            ++result;
+        }
+    return result;
 }
 
 template<class InputIt1, class InputIt2, class Callable, class Compare>
