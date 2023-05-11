@@ -44,9 +44,10 @@ public:
             terminal->setShellName(setup.m_commandLine.executable().fileName());
             m_terminalPane->addTerminal(terminal, "App");
         } else {
-            m_terminalPane->ensureVisible(terminal);
             terminal->restart(openParameters);
         }
+
+        m_terminalPane->ensureVisible(terminal);
 
         connect(terminal, &TerminalWidget::destroyed, m_process, [process = m_process] {
             if (process->inferiorProcessId())

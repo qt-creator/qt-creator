@@ -175,7 +175,7 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
 {
     OpenTerminalParameters parametersCopy{parameters};
     if (!m_isVisible)
-        emit showPage(0);
+        emit showPage(IOutputPane::ModeSwitch);
 
     if (!parametersCopy.workingDirectory) {
         const std::optional<FilePath> projectDir = startupProjectDirectory();
@@ -199,7 +199,7 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
 void TerminalPane::addTerminal(TerminalWidget *terminal, const QString &title)
 {
     if (!m_isVisible)
-        emit showPage(0);
+        emit showPage(IOutputPane::ModeSwitch);
     m_tabWidget->setCurrentIndex(m_tabWidget->addTab(terminal, title));
     setupTerminalWidget(terminal);
 
@@ -209,7 +209,7 @@ void TerminalPane::addTerminal(TerminalWidget *terminal, const QString &title)
 void TerminalPane::ensureVisible(TerminalWidget *terminal)
 {
     if (!m_isVisible)
-        emit showPage(0);
+        emit showPage(IOutputPane::ModeSwitch);
     m_tabWidget->setCurrentWidget(terminal);
     terminal->setFocus();
 }
