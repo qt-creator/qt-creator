@@ -112,6 +112,12 @@ public:
     Form(std::initializer_list<LayoutItem> items);
 };
 
+class QTCREATOR_UTILS_EXPORT Widget : public LayoutItem
+{
+public:
+    Widget(std::initializer_list<LayoutItem> items);
+};
+
 class QTCREATOR_UTILS_EXPORT Stack : public LayoutItem
 {
 public:

@@ -534,6 +534,12 @@ void setupWidget(LayoutItem *item)
     item->onExit = widgetExit;
 };
 
+Widget::Widget(std::initializer_list<LayoutItem> items)
+{
+    this->subItems = items;
+    setupWidget<QWidget>(this);
+}
+
 Group::Group(std::initializer_list<LayoutItem> items)
 {
     this->subItems = items;
