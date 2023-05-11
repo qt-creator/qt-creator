@@ -350,6 +350,17 @@ bool isInsideDummyTextInLine(const QString &originalLine, const QString &modifie
                || !modifiedLine.startsWith(originalLine));
 }
 
+static Utils::Text::Position utf16LineColumn(const QByteArray &utf8Buffer, int utf8Offset)
+{
+    Utils::Text::Position position;
+    position.line = static_cast<int>(std::count(utf8Buffer.begin(),
+                                                utf8Buffer.begin() + utf8Offset, '\n')) + 1;
+    const int startOfLineOffset = utf8Offset ? (utf8Buffer.lastIndexOf('\n', utf8Offset - 1) + 1)
+                                             : 0;
+    position.column = QString::fromUtf8(utf8Buffer.mid(startOfLineOffset,
+                                                       utf8Offset - startOfLineOffset)).length();
+    return position;
+}
 Utils::Text::Replacements utf16Replacements(const QTextDocument *doc,
                                             const QByteArray &utf8Buffer,
                                             const clang::tooling::Replacements &replacements)
@@ -358,9 +369,8 @@ Utils::Text::Replacements utf16Replacements(const QTextDocument *doc,
     convertedReplacements.reserve(replacements.size());
 
     for (const clang::tooling::Replacement &replacement : replacements) {
-        Utils::LineColumn lineColUtf16 = Utils::Text::utf16LineColumn(utf8Buffer,
-                                                                      static_cast<int>(
-                                                                          replacement.getOffset()));
+        Utils::Text::Position lineColUtf16 = utf16LineColumn(
+            utf8Buffer, static_cast<int>(replacement.getOffset()));
         if (!lineColUtf16.isValid())
             continue;
 
