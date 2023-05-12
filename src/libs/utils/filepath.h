@@ -277,6 +277,7 @@ private:
     unsigned int m_pathLen = 0;
     unsigned short m_schemeLen = 0;
     unsigned short m_hostLen = 0;
+    mutable size_t m_hash = 0;
 };
 
 class QTCREATOR_UTILS_EXPORT DeviceFileHooks

@@ -441,6 +441,7 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
     if (path.length() >= 3 && path[0] == '/' && path[1] == '.' && path[2] == '/')
         path = path.mid(3);
 
+    m_hash = 0;
     m_data = path.toString() + scheme.toString() + host.toString();
     m_schemeLen = scheme.size();
     m_hostLen = host.size();
@@ -2078,10 +2079,16 @@ QTCREATOR_UTILS_EXPORT bool operator>=(const FilePath &first, const FilePath &se
 
 QTCREATOR_UTILS_EXPORT size_t qHash(const FilePath &filePath, uint seed)
 {
-    if (filePath.caseSensitivity() == Qt::CaseSensitive)
-        return qHash(QStringView(filePath.m_data), seed);
-    const size_t schemeHostHash = qHash(QStringView(filePath.m_data).mid(filePath.m_pathLen), seed);
-    return qHash(filePath.path().toCaseFolded(), seed) ^ schemeHostHash;
+    Q_UNUSED(seed);
+
+    if (filePath.m_hash == 0) {
+        if (filePath.caseSensitivity() == Qt::CaseSensitive)
+            filePath.m_hash = qHash(QStringView(filePath.m_data), 0);
+        else
+            filePath.m_hash = qHash(filePath.m_data.toCaseFolded(), 0);
+    }
+
+    return filePath.m_hash;
 }
 
 QTCREATOR_UTILS_EXPORT size_t qHash(const FilePath &filePath)
