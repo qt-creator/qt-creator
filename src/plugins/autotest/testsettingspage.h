@@ -7,12 +7,10 @@
 
 namespace Autotest::Internal {
 
-struct TestSettings;
-
 class TestSettingsPage : public Core::IOptionsPage
 {
 public:
-    explicit TestSettingsPage(TestSettings *settings);
+    TestSettingsPage();
 };
 
 } // Autotest::Internal

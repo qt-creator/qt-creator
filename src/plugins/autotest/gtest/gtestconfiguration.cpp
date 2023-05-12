@@ -6,7 +6,6 @@
 #include "gtestoutputreader.h"
 #include "gtestsettings.h"
 
-#include "../autotestplugin.h"
 #include "../itestframework.h"
 #include "../testsettings.h"
 
@@ -55,7 +54,7 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
 QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     QStringList arguments;
-    if (AutotestPlugin::settings()->processArgs) {
+    if (TestSettings::instance()->processArgs()) {
         arguments << filterInterfering(runnable().command.arguments().split(
                                            ' ', Qt::SkipEmptyParts), omitted);
     }

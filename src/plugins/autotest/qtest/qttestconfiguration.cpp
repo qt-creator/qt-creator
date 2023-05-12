@@ -7,7 +7,6 @@
 #include "qttestsettings.h"
 #include "qttest_utils.h"
 
-#include "../autotestplugin.h"
 #include "../itestframework.h"
 #include "../testsettings.h"
 
@@ -40,7 +39,7 @@ TestOutputReader *QtTestConfiguration::createOutputReader(Process *app) const
 QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     QStringList arguments;
-    if (AutotestPlugin::settings()->processArgs) {
+    if (TestSettings::instance()->processArgs()) {
         arguments.append(QTestUtils::filterInterfering(
                              runnable().command.arguments().split(' ', Qt::SkipEmptyParts),
                              omitted, false));

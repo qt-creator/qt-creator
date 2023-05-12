@@ -6,7 +6,6 @@
 #include "boosttestoutputreader.h"
 #include "boosttestsettings.h"
 
-#include "../autotestplugin.h"
 #include "../itestframework.h"
 #include "../testsettings.h"
 
@@ -106,7 +105,7 @@ QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     for (const QString &test : testCases())
         arguments << "-t" << test;
 
-    if (AutotestPlugin::settings()->processArgs) {
+    if (TestSettings::instance()->processArgs()) {
         arguments << filterInterfering(runnable().command.arguments().split(
                                            ' ', Qt::SkipEmptyParts), omitted);
     }

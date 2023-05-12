@@ -3,7 +3,6 @@
 
 #include "quicktestconfiguration.h"
 
-#include "../autotestplugin.h"
 #include "../itestframework.h"
 #include "../qtest/qttestoutputreader.h"
 #include "../qtest/qttestsettings.h"
@@ -33,7 +32,7 @@ TestOutputReader *QuickTestConfiguration::createOutputReader(Process *app) const
 QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     QStringList arguments;
-    if (AutotestPlugin::settings()->processArgs) {
+    if (TestSettings::instance()->processArgs()) {
         arguments.append(QTestUtils::filterInterfering
                          (runnable().command.arguments().split(' ', Qt::SkipEmptyParts),
                           omitted, true));

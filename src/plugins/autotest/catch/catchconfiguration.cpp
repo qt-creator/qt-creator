@@ -6,7 +6,6 @@
 #include "catchoutputreader.h"
 #include "catchtestsettings.h"
 
-#include "../autotestplugin.h"
 #include "../itestframework.h"
 #include "../testsettings.h"
 
@@ -80,7 +79,7 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
         arguments << "\"" + testCases().join("\", \"") + "\"";
     arguments << "--reporter" << "xml";
 
-    if (AutotestPlugin::settings()->processArgs) {
+    if (TestSettings::instance()->processArgs()) {
         arguments << filterInterfering(runnable().command.arguments().split(
                                            ' ', Qt::SkipEmptyParts), omitted);
     }

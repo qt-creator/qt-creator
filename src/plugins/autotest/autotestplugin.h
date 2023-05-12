@@ -18,7 +18,6 @@ namespace Autotest {
 namespace Internal {
 
 class TestProjectSettings;
-struct TestSettings;
 
 struct ChoicePair
 {
@@ -43,7 +42,6 @@ public:
     void extensionsInitialized() override;
     ShutdownFlag aboutToShutdown() override;
 
-    static TestSettings *settings();
     static TestProjectSettings *projectSettings(ProjectExplorer::Project *project);
     static TestFrameworks activeTestFrameworks();
     static void updateMenuItemsEnabledState();

@@ -258,7 +258,7 @@ static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
 
 int TestRunner::precheckTestConfigurations()
 {
-    const bool omitWarnings = AutotestPlugin::settings()->omitRunConfigWarn;
+    const bool omitWarnings = TestSettings::instance()->omitRunConfigWarn();
     int testCaseCount = 0;
     for (ITestConfiguration *itc : std::as_const(m_selectedTests)) {
         if (itc->testBase()->type() == ITestBase::Tool) {
@@ -402,7 +402,7 @@ void TestRunner::runTestsHelper()
             }
             process.setEnvironment(environment);
 
-            m_cancelTimer.setInterval(AutotestPlugin::settings()->timeout);
+            m_cancelTimer.setInterval(TestSettings::instance()->timeout());
             m_cancelTimer.start();
 
             qCInfo(runnerLog) << "Command:" << process.commandLine().executable();
@@ -465,7 +465,7 @@ void TestRunner::runTestsHelper()
         cancelCurrent(UserCanceled);
     });
 
-    if (AutotestPlugin::settings()->popupOnStart)
+    if (TestSettings::instance()->popupOnStart())
         AutotestPlugin::popupResultsPane();
 
     m_taskTree->start();
@@ -588,7 +588,7 @@ void TestRunner::debugTests()
     connect(runControl, &RunControl::stopped, this, &TestRunner::onFinished);
     m_finishDebugConnect = connect(runControl, &RunControl::finished, this, &TestRunner::onFinished);
     ProjectExplorerPlugin::startRunControl(runControl);
-    if (useOutputProcessor && AutotestPlugin::settings()->popupOnStart)
+    if (useOutputProcessor && TestSettings::instance()->popupOnStart())
         AutotestPlugin::popupResultsPane();
 }
 
@@ -669,10 +669,10 @@ static RunAfterBuildMode runAfterBuild()
         return RunAfterBuildMode::None;
 
     if (!project->namedSettings(Constants::SK_USE_GLOBAL).isValid())
-        return AutotestPlugin::settings()->runAfterBuild;
+        return TestSettings::instance()->runAfterBuildMode();
 
     TestProjectSettings *projectSettings = AutotestPlugin::projectSettings(project);
-    return projectSettings->useGlobalSettings() ? AutotestPlugin::settings()->runAfterBuild
+    return projectSettings->useGlobalSettings() ? TestSettings::instance()->runAfterBuildMode()
                                                 : projectSettings->runAfterBuild();
 }
 

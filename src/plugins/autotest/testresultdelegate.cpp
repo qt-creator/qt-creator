@@ -3,7 +3,6 @@
 
 #include "testresultdelegate.h"
 
-#include "autotestplugin.h"
 #include "testresultmodel.h"
 #include "testsettings.h"
 
@@ -162,10 +161,10 @@ void TestResultDelegate::clearCache()
 
 void TestResultDelegate::limitTextOutput(QString &output) const
 {
-    int maxLineCount = Internal::AutotestPlugin::settings()->resultDescriptionMaxSize;
+    int maxLineCount = Internal::TestSettings::instance()->resultDescriptionMaxSize();
     bool limited = false;
 
-    if (Internal::AutotestPlugin::settings()->limitResultDescription && maxLineCount > 0) {
+    if (Internal::TestSettings::instance()->limitResultDescription() && maxLineCount > 0) {
         int index = -1;
         int lastChar = output.size() - 1;
 
@@ -183,7 +182,7 @@ void TestResultDelegate::limitTextOutput(QString &output) const
         }
     }
 
-    if (AutotestPlugin::settings()->limitResultOutput && output.length() > outputLimit) {
+    if (TestSettings::instance()->limitResultOutput() && output.length() > outputLimit) {
         output = output.left(outputLimit);
         limited = true;
     }

@@ -4,7 +4,6 @@
 #include "testresultmodel.h"
 
 #include "autotesticons.h"
-#include "autotestplugin.h"
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testtreeitem.h"
@@ -274,7 +273,7 @@ void TestResultModel::addTestResult(const TestResult &testResult, bool autoExpan
 
     TestResultItem *newItem = new TestResultItem(testResult);
     TestResultItem *root = nullptr;
-    if (AutotestPlugin::settings()->displayApplication) {
+    if (TestSettings::instance()->displayApplication()) {
         const QString application = testResult.id();
         if (!application.isEmpty()) {
             root = rootItem()->findFirstLevelChild([&application](TestResultItem *child) {

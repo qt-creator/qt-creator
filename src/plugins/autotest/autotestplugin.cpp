@@ -96,7 +96,7 @@ public:
     void onRunUnderCursorTriggered(TestRunMode mode);
 
     TestSettings m_settings;
-    TestSettingsPage m_testSettingPage{&m_settings};
+    TestSettingsPage m_testSettingPage;
 
     TestCodeParser m_testCodeParser;
     TestTreeModel m_testTreeModel{&m_testCodeParser};
@@ -176,11 +176,6 @@ AutotestPluginPrivate::~AutotestPluginPrivate()
     }
 
     delete m_resultsPane;
-}
-
-TestSettings *AutotestPlugin::settings()
-{
-    return &dd->m_settings;
 }
 
 TestProjectSettings *AutotestPlugin::projectSettings(ProjectExplorer::Project *project)
