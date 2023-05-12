@@ -587,6 +587,7 @@ public:
     BoolAspect::LabelPlacement m_labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
     QPointer<QAbstractButton> m_button; // Owned by configuration widget
     QPointer<QGroupBox> m_groupBox; // For BoolAspects handling GroupBox check boxes
+    bool m_buttonIsAdopted = false;
 };
 
 class ColorAspectPrivate
@@ -1446,8 +1447,10 @@ BoolAspect::~BoolAspect() = default;
 */
 void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
 {
-    QTC_CHECK(!d->m_button);
-    d->m_button = createSubWidget<QCheckBox>();
+    if (!d->m_buttonIsAdopted) {
+        QTC_CHECK(!d->m_button);
+        d->m_button = createSubWidget<QCheckBox>();
+    }
     switch (d->m_labelPlacement) {
     case LabelPlacement::AtCheckBoxWithoutDummyLabel:
         d->m_button->setText(labelText());
@@ -1472,6 +1475,15 @@ void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
     }
     connect(d->m_button.data(), &QAbstractButton::clicked,
             this, &BoolAspect::volatileValueChanged);
+}
+
+void BoolAspect::adoptButton(QAbstractButton *button)
+{
+    QTC_ASSERT(button, return);
+    QTC_CHECK(!d->m_button);
+    d->m_button = button;
+    d->m_buttonIsAdopted = true;
+    registerSubWidget(button);
 }
 
 std::function<void (QObject *)> BoolAspect::groupChecker()

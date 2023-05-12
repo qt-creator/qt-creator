@@ -240,6 +240,8 @@ public:
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
     void setLabelPlacement(LabelPlacement labelPlacement);
 
+    void adoptButton(QAbstractButton *button);
+
 signals:
     void valueChanged(bool newValue);
     void volatileValueChanged(bool newValue);
