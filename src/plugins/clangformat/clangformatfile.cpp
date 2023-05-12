@@ -169,6 +169,12 @@ CppEditor::CppCodeStyleSettings ClangFormatFile::toCppCodeStyleSettings(
         settings.bindStarToRightSpecifier = style.PointerAlignment == FormatStyle::PAS_Right;
     }
 
+    settings.extraPaddingForConditionsIfConfusingAlign = style.BreakBeforeBinaryOperators
+                                                         == FormatStyle::BOS_All;
+    settings.alignAssignments = style.BreakBeforeBinaryOperators == FormatStyle::BOS_All
+                                || style.BreakBeforeBinaryOperators
+                                       == FormatStyle::BOS_NonAssignment;
+
     return settings;
 }
 
@@ -188,6 +194,9 @@ void ClangFormatFile::fromCppCodeStyleSettings(const CppEditor::CppCodeStyleSett
     if (settings.indentClassBraces || settings.indentEnumBraces || settings.indentBlockBraces
         || settings.indentFunctionBraces)
         m_style.BreakBeforeBraces = FormatStyle::BS_Whitesmiths;
+    else
+        m_style.BreakBeforeBraces = FormatStyle::BS_Custom;
+
 
     m_style.IndentCaseLabels = settings.indentSwitchLabels;
 #if LLVM_VERSION_MAJOR >= 11
@@ -196,11 +205,12 @@ void ClangFormatFile::fromCppCodeStyleSettings(const CppEditor::CppCodeStyleSett
                                || settings.indentControlFlowRelativeToSwitchLabels;
 #endif
 
-    if (settings.alignAssignments)
-        m_style.BreakBeforeBinaryOperators = FormatStyle::BOS_NonAssignment;
-
     if (settings.extraPaddingForConditionsIfConfusingAlign)
         m_style.BreakBeforeBinaryOperators = FormatStyle::BOS_All;
+    else if (settings.alignAssignments)
+        m_style.BreakBeforeBinaryOperators = FormatStyle::BOS_NonAssignment;
+    else
+        m_style.BreakBeforeBinaryOperators = FormatStyle::BOS_None;
 
     m_style.DerivePointerAlignment = settings.bindStarToIdentifier || settings.bindStarToTypeName
                                      || settings.bindStarToLeftSpecifier
