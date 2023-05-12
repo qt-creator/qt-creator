@@ -5,9 +5,6 @@
 
 #include "projectexplorer_export.h"
 
-// FIXME: Remove once dowstream is adjusted.
-#include "projectmanager.h"
-
 #include <utils/id.h>
 #include <utils/persistentsettings.h>
 
