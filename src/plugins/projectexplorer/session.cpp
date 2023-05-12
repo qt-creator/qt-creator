@@ -5,7 +5,6 @@
 
 #include "session_p.h"
 
-#include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 
@@ -37,6 +36,8 @@ namespace ProjectExplorer {
 
 const char DEFAULT_SESSION[] = "default";
 const char LAST_ACTIVE_TIMES_KEY[] = "LastActiveTimes";
+const char STARTUPSESSION_KEY[] = "ProjectExplorer/SessionToRestore";
+const char LASTSESSION_KEY[] = "ProjectExplorer/StartupSession";
 
 /*!
      \class ProjectExplorer::SessionManager
@@ -61,10 +62,17 @@ SessionManager::SessionManager()
             this, &SessionManager::saveActiveMode);
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, [] {
+        QtcSettings *s = ICore::settings();
         QVariantMap times;
         for (auto it = sb_d->m_lastActiveTimes.cbegin(); it != sb_d->m_lastActiveTimes.cend(); ++it)
             times.insert(it.key(), it.value());
-        ICore::settings()->setValue(LAST_ACTIVE_TIMES_KEY, times);
+        s->setValue(LAST_ACTIVE_TIMES_KEY, times);
+        if (SessionManager::isDefaultVirgin()) {
+            s->remove(STARTUPSESSION_KEY);
+        } else {
+            s->setValue(STARTUPSESSION_KEY, SessionManager::activeSession());
+            s->setValue(LASTSESSION_KEY, SessionManager::activeSession());
+        }
     });
 
     connect(EditorManager::instance(), &EditorManager::editorOpened,
@@ -266,7 +274,7 @@ void SessionManagerPrivate::restoreEditors(const PersistentSettingsReader &reade
 */
 QString SessionManager::lastSession()
 {
-    return ICore::settings()->value(Constants::LASTSESSION_KEY).toString();
+    return ICore::settings()->value(LASTSESSION_KEY).toString();
 }
 
 /*!
@@ -274,7 +282,7 @@ QString SessionManager::lastSession()
 */
 QString SessionManager::startupSession()
 {
-    return ICore::settings()->value(Constants::STARTUPSESSION_KEY).toString();
+    return ICore::settings()->value(STARTUPSESSION_KEY).toString();
 }
 
 void SessionManager::markSessionFileDirty()
