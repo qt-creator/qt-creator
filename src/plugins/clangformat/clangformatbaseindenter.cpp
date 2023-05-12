@@ -774,10 +774,28 @@ clang::format::FormatStyle overrideStyle(const Utils::FilePath &fileName)
     return currentSettingsStyle;
 }
 
-clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
+static std::chrono::milliseconds getCacheTimeout()
 {
-    if (getCurrentOverriddenSettings(m_fileName))
-        return overrideStyle(m_fileName);
+    using namespace std::chrono_literals;
+    bool ok = false;
+    const int envCacheTimeout = qEnvironmentVariableIntValue("CLANG_FORMAT_CACHE_TIMEOUT", &ok);
+    return ok ? std::chrono::milliseconds(envCacheTimeout) : 1s;
+}
+
+const clang::format::FormatStyle &ClangFormatBaseIndenter::styleForFile() const
+{
+    using namespace std::chrono_literals;
+    static const std::chrono::milliseconds cacheTimeout = getCacheTimeout();
+
+    QDateTime time = QDateTime::currentDateTime();
+    if (m_cachedStyle.expirationTime > time && !(m_cachedStyle.style == clang::format::getNoStyle()))
+        return m_cachedStyle.style;
+
+    if (getCurrentOverriddenSettings(m_fileName)) {
+        clang::format::FormatStyle style = overrideStyle(m_fileName);
+        m_cachedStyle.setCache(style, cacheTimeout);
+        return m_cachedStyle.style;
+    }
 
     llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder
         = clang::format::getStyle("file",
@@ -788,14 +806,17 @@ clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
 
     if (styleFromProjectFolder && !(*styleFromProjectFolder == clang::format::getNoStyle())) {
         addQtcStatementMacros(*styleFromProjectFolder);
-        return *styleFromProjectFolder;
+        m_cachedStyle.setCache(*styleFromProjectFolder, cacheTimeout);
+        return m_cachedStyle.style;
     }
 
     handleAllErrors(styleFromProjectFolder.takeError(), [](const llvm::ErrorInfoBase &) {
         // do nothing
     });
 
-    return qtcStyle();
+
+    m_cachedStyle.setCache(qtcStyle(), 0ms);
+    return m_cachedStyle.style;
 }
 
 } // namespace ClangFormat

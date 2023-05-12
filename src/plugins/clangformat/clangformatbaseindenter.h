@@ -46,7 +46,7 @@ public:
 
     std::optional<int> margin() const override;
 
-    clang::format::FormatStyle styleForFile() const;
+    const clang::format::FormatStyle &styleForFile() const;
 
 protected:
     virtual bool formatCodeInsteadOfIndent() const { return false; }
@@ -71,6 +71,18 @@ private:
                                            ReplacementsToKeep replacementsToKeep,
                                            const QChar &typedChar = QChar::Null,
                                            bool secondTry = false) const;
+
+    struct CachedStyle {
+        clang::format::FormatStyle style = clang::format::getNoStyle();
+        QDateTime expirationTime;
+        void setCache(clang::format::FormatStyle newStyle, std::chrono::milliseconds timeout)
+        {
+            style = newStyle;
+            expirationTime = QDateTime::currentDateTime() + timeout;
+        }
+    };
+
+    mutable CachedStyle m_cachedStyle;
 };
 
 } // namespace ClangFormat
