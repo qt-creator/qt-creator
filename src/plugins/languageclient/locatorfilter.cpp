@@ -293,11 +293,8 @@ Core::LocatorFilterEntries currentDocumentSymbols(const QString &input,
                                                   const CurrentDocumentSymbolsData &currentSymbolsData,
                                                   const DocSymbolModifier &docSymbolModifier)
 {
-    const FuzzyMatcher::CaseSensitivity caseSensitivity
-        = ILocatorFilter::caseSensitivity(input) == Qt::CaseSensitive
-              ? FuzzyMatcher::CaseSensitivity::CaseSensitive
-              : FuzzyMatcher::CaseSensitivity::CaseInsensitive;
-    const QRegularExpression regExp = FuzzyMatcher::createRegExp(input, caseSensitivity);
+    const Qt::CaseSensitivity caseSensitivity = ILocatorFilter::caseSensitivity(input);
+    const QRegularExpression regExp = ILocatorFilter::createRegExp(input, caseSensitivity);
     if (!regExp.isValid())
         return {};
 

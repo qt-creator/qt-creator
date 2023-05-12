@@ -203,7 +203,7 @@ void matchesForCurrentDocument(QPromise<void> &promise, const LocatorStorage &st
                                const FilePath &currentFileName)
 {
     const QString input = storage.input();
-    const QRegularExpression regexp = FuzzyMatcher::createRegExp(input, Qt::CaseInsensitive, false);
+    const QRegularExpression regexp = ILocatorFilter::createRegExp(input);
     if (!regexp.isValid())
         return;
 
