@@ -204,7 +204,7 @@ void VcsBaseClientImpl::vcsExecWithEditor(const Utils::FilePath &workingDirector
 
 int VcsBaseClientImpl::vcsTimeoutS() const
 {
-    return m_baseSettings->timeout.value();
+    return m_baseSettings->timeout();
 }
 
 VcsCommand *VcsBaseClientImpl::createVcsCommand(const FilePath &defaultWorkingDir,

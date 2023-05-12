@@ -224,7 +224,7 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
         m_resetTypeComboBox->addItem(Tr::tr("Hard"), "--hard");
         m_resetTypeComboBox->addItem(Tr::tr("Mixed"), "--mixed");
         m_resetTypeComboBox->addItem(Tr::tr("Soft"), "--soft");
-        m_resetTypeComboBox->setCurrentIndex(GitClient::settings().lastResetIndex.value());
+        m_resetTypeComboBox->setCurrentIndex(GitClient::settings().lastResetIndex());
         popUpLayout->addWidget(m_resetTypeComboBox);
         popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
     }

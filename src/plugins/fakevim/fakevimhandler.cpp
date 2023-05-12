@@ -2786,7 +2786,7 @@ void FakeVimHandler::Private::ensureCursorVisible()
 
 void FakeVimHandler::Private::updateEditor()
 {
-    setTabSize(s.tabStop.value());
+    setTabSize(s.tabStop());
     setupCharClass();
 }
 
@@ -5412,7 +5412,7 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
                 const Column ind = indentation(data);
                 if (col.logical <= ind.logical && col.logical
                         && startsWithWhitespace(data, col.physical)) {
-                    const int ts = s.tabStop.value();
+                    const int ts = s.tabStop();
                     const int newl = col.logical - 1 - (col.logical - 1) % ts;
                     const QString prefix = tabExpand(newl);
                     setLineContents(line, prefix + data.mid(col.physical));
@@ -5439,7 +5439,7 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         if (q->tabPressedInInsertMode()) {
             m_buffer->insertState.insertingSpaces = true;
             if (s.expandTab.value()) {
-                const int ts = s.tabStop.value();
+                const int ts = s.tabStop();
                 const int col = logicalCursorColumn();
                 QString str = QString(ts - col % ts, ' ');
                 insertText(str);
@@ -5450,8 +5450,8 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         }
     } else if (input.isControl('d')) {
         // remove one level of indentation from the current line
-        const int shift = s.shiftWidth.value();
-        const int tab = s.tabStop.value();
+        const int shift = s.shiftWidth();
+        const int tab = s.tabStop();
         int line = cursorLine() + 1;
         int pos = firstPositionInLine(line);
         QString text = lineContents(line);
@@ -6957,7 +6957,7 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
     if (s.startOfLine.value())
         targetPos = firstPositionInLine(beginLine);
 
-    const int sw = s.shiftWidth.value();
+    const int sw = s.shiftWidth();
     g.movetype = MoveLineWise;
     beginEditBlock();
     QTextBlock block = document()->findBlockByLineNumber(beginLine - 1);
@@ -7295,7 +7295,7 @@ int FakeVimHandler::Private::physicalCursorColumn() const
 int FakeVimHandler::Private::physicalToLogicalColumn
     (const int physical, const QString &line) const
 {
-    const int ts = s.tabStop.value();
+    const int ts = s.tabStop();
     int p = 0;
     int logical = 0;
     while (p < physical) {
@@ -7316,7 +7316,7 @@ int FakeVimHandler::Private::physicalToLogicalColumn
 int FakeVimHandler::Private::logicalToPhysicalColumn
     (const int logical, const QString &line) const
 {
-    const int ts = s.tabStop.value();
+    const int ts = s.tabStop();
     int physical = 0;
     for (int l = 0; l < logical && physical < line.size(); ++physical) {
         QChar c = line.at(physical);
@@ -7330,7 +7330,7 @@ int FakeVimHandler::Private::logicalToPhysicalColumn
 
 int FakeVimHandler::Private::windowScrollOffset() const
 {
-    return qMin(static_cast<int>(s.scrollOff.value()), linesOnScreen() / 2);
+    return qMin(static_cast<int>(s.scrollOff()), linesOnScreen() / 2);
 }
 
 int FakeVimHandler::Private::logicalCursorColumn() const
@@ -8684,7 +8684,7 @@ void FakeVimHandler::Private::jump(int distance)
 
 Column FakeVimHandler::Private::indentation(const QString &line) const
 {
-    int ts = s.tabStop.value();
+    int ts = s.tabStop();
     int physical = 0;
     int logical = 0;
     int n = line.size();
@@ -8703,8 +8703,8 @@ Column FakeVimHandler::Private::indentation(const QString &line) const
 
 QString FakeVimHandler::Private::tabExpand(int n) const
 {
-    int ts = s.tabStop.value();
-    if (s.expandTab.value() || ts < 1)
+    int ts = s.tabStop();
+    if (s.expandTab() || ts < 1)
         return QString(n, ' ');
     return QString(n / ts, '\t')
          + QString(n % ts, ' ');

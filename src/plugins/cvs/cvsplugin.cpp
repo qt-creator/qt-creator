@@ -1333,7 +1333,7 @@ CommandResult CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
     if (executable.isEmpty())
         return CommandResult(ProcessResult::StartFailed, Tr::tr("No CVS executable specified."));
 
-    const int timeoutS = m_settings.timeout.value() * timeoutMultiplier;
+    const int timeoutS = m_settings.timeout() * timeoutMultiplier;
     return m_client->vcsSynchronousExec(workingDirectory,
                                         {executable, m_settings.addOptions(arguments)},
                                         flags, timeoutS, outputCodec);

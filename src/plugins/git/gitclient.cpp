@@ -1085,7 +1085,7 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
     editor->setWorkingDirectory(workingDir);
 
     QStringList arguments = {"log", decorateOption};
-    int logCount = settings().logCount.value();
+    int logCount = settings().logCount();
     if (logCount > 0)
         arguments << "-n" << QString::number(logCount);
 
@@ -1142,7 +1142,7 @@ void GitClient::reflog(const FilePath &workingDirectory, const QString &ref)
 
     QStringList arguments = {"reflog", noColorOption, decorateOption};
     arguments << argWidget->arguments();
-    int logCount = settings().logCount.value();
+    int logCount = settings().logCount();
     if (logCount > 0)
         arguments << "-n" << QString::number(logCount);
 
@@ -3120,7 +3120,7 @@ void GitClient::synchronousSubversionFetch(const FilePath &workingDirectory) con
 void GitClient::subversionLog(const FilePath &workingDirectory) const
 {
     QStringList arguments = {"svn", "log"};
-    int logCount = settings().logCount.value();
+    int logCount = settings().logCount();
     if (logCount > 0)
          arguments << ("--limit=" + QString::number(logCount));
 

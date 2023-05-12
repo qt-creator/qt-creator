@@ -889,8 +889,8 @@ void PerforcePluginPrivate::filelog(const FilePath &workingDir, const QString &f
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, QStringList(fileName));
     QStringList args;
     args << QLatin1String("filelog") << QLatin1String("-li");
-    if (m_settings.logCount.value() > 0)
-        args << "-m" << QString::number(m_settings.logCount.value());
+    if (m_settings.logCount() > 0)
+        args << "-m" << QString::number(m_settings.logCount());
     if (!fileName.isEmpty())
         args.append(fileName);
     const PerforceResponse result = runP4Cmd(workingDir, args,
@@ -911,8 +911,8 @@ void PerforcePluginPrivate::changelists(const FilePath &workingDir, const QStrin
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, QStringList(fileName));
     QStringList args;
     args << QLatin1String("changelists") << QLatin1String("-lit");
-    if (m_settings.logCount.value() > 0)
-        args << "-m" << QString::number(m_settings.logCount.value());
+    if (m_settings.logCount() > 0)
+        args << "-m" << QString::number(m_settings.logCount());
     if (!fileName.isEmpty())
         args.append(fileName);
     const PerforceResponse result = runP4Cmd(workingDir, args,
@@ -1226,7 +1226,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
 
     // Run, connect stderr to the output window
     Process process;
-    const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS.value();
+    const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS();
     process.setTimeoutS(timeOutS);
     if (outputCodec)
         process.setCodec(outputCodec);
@@ -1303,7 +1303,7 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const FilePath &
 
     QByteArray stdOut;
     QByteArray stdErr;
-    const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS.value();
+    const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS();
     if (!process.readDataFromProcess(&stdOut, &stdErr, timeOutS)) {
         process.stop();
         process.waitForFinished();

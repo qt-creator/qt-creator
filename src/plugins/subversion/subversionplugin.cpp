@@ -949,10 +949,10 @@ CommandResult SubversionPluginPrivate::runSvn(const FilePath &workingDir,
                                               const CommandLine &command, RunFlags flags,
                                               QTextCodec *outputCodec, int timeoutMutiplier) const
 {
-    if (m_settings.binaryPath.value().isEmpty())
+    if (m_settings.binaryPath().isEmpty())
         return CommandResult(ProcessResult::StartFailed, Tr::tr("No subversion executable specified."));
 
-    const int timeoutS = m_settings.timeout.value() * timeoutMutiplier;
+    const int timeoutS = m_settings.timeout() * timeoutMutiplier;
     return m_client->vcsSynchronousExec(workingDir, command, flags, timeoutS, outputCodec);
 }
 

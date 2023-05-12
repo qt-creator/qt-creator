@@ -469,7 +469,7 @@ void LldbEngine::selectThread(const Thread &thread)
     DebuggerCommand cmd("selectThread");
     cmd.arg("id", thread->id());
     cmd.callback = [this](const DebuggerResponse &) {
-        fetchStack(debuggerSettings()->maximalStackDepth.value());
+        fetchStack(debuggerSettings()->maximalStackDepth());
     };
     runCommand(cmd);
 }
@@ -701,7 +701,7 @@ void LldbEngine::updateAll()
     DebuggerCommand cmd("fetchThreads");
     cmd.callback = [this](const DebuggerResponse &response) {
         threadsHandler()->setThreads(response.data);
-        fetchStack(debuggerSettings()->maximalStackDepth.value());
+        fetchStack(debuggerSettings()->maximalStackDepth());
         reloadRegisters();
     };
     runCommand(cmd);

@@ -230,8 +230,8 @@ VcsBaseSubmitEditor::~VcsBaseSubmitEditor()
 void VcsBaseSubmitEditor::slotUpdateEditorSettings()
 {
     const CommonVcsSettings &s = VcsPlugin::instance()->settings();
-    setLineWrapWidth(s.lineWrapWidth.value());
-    setLineWrap(s.lineWrap.value());
+    setLineWrapWidth(s.lineWrapWidth());
+    setLineWrap(s.lineWrap());
 }
 
 // Return a trimmed list of non-empty field texts

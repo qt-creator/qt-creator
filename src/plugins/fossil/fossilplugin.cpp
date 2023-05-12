@@ -418,10 +418,10 @@ void FossilPluginPrivate::logCurrentFile()
     QTC_ASSERT(state.hasFile(), return);
     FossilClient::SupportedFeatures features = m_client.supportedFeatures();
     QStringList extraOptions;
-    extraOptions << "-n" << QString::number(m_client.settings().logCount.value());
+    extraOptions << "-n" << QString::number(m_client.settings().logCount());
 
     if (features.testFlag(FossilClient::TimelineWidthFeature))
-        extraOptions << "-W" << QString::number(m_client.settings().timelineWidth.value());
+        extraOptions << "-W" << QString::number(m_client.settings().timelineWidth());
 
     // disable annotate context menu for older client versions, used to be supported for current revision only
     bool enableAnnotationContextMenu = features.testFlag(FossilClient::AnnotateRevisionFeature);
@@ -503,10 +503,10 @@ void FossilPluginPrivate::logRepository()
     QTC_ASSERT(state.hasTopLevel(), return);
     FossilClient::SupportedFeatures features = m_client.supportedFeatures();
     QStringList extraOptions;
-    extraOptions << "-n" << QString::number(m_client.settings().logCount.value());
+    extraOptions << "-n" << QString::number(m_client.settings().logCount());
 
     if (features.testFlag(FossilClient::TimelineWidthFeature))
-        extraOptions << "-W" << QString::number(m_client.settings().timelineWidth.value());
+        extraOptions << "-W" << QString::number(m_client.settings().timelineWidth());
 
     m_client.log(state.topLevel(), {}, extraOptions);
 }

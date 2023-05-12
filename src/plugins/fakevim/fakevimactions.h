@@ -44,18 +44,21 @@ class FvBoolAspect : public FvBaseAspect
 {
 public:
     bool value() const { return FvBaseAspect::value().toBool(); }
+    bool operator()() const { return value(); }
 };
 
 class FvIntegerAspect : public FvBaseAspect
 {
 public:
     qint64 value() const { return FvBaseAspect::value().toLongLong(); }
+    qint64 operator()() const { return value(); }
 };
 
 class FvStringAspect : public FvBaseAspect
 {
 public:
     QString value() const { return FvBaseAspect::value().toString(); }
+    QString operator()() const { return value(); }
 };
 
 class FvAspectContainer : public FvBaseAspect

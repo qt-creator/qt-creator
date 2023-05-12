@@ -488,10 +488,10 @@ void CdbEngine::handleInitialSessionIdle()
     runCommand({"sxn ibp", NoFlags}); // Do not break on initial breakpoints.
     runCommand({".asm source_line", NoFlags}); // Source line in assembly
     runCommand({m_extensionCommandPrefix
-                + "setparameter maxStringLength=" + QString::number(s.maximalStringLength.value())
-                + " maxStackDepth=" + QString::number(s.maximalStackDepth.value())
-                + " firstChance=" + (s.firstChanceExceptionTaskEntry.value() ? "1" : "0")
-                + " secondChance=" + (s.secondChanceExceptionTaskEntry.value() ? "1" : "0")
+                + "setparameter maxStringLength=" + QString::number(s.maximalStringLength())
+                + " maxStackDepth=" + QString::number(s.maximalStackDepth())
+                + " firstChance=" + (s.firstChanceExceptionTaskEntry() ? "1" : "0")
+                + " secondChance=" + (s.secondChanceExceptionTaskEntry() ? "1" : "0")
                 , NoFlags});
 
     if (s.cdbUsePythonDumper.value())

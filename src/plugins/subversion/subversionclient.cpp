@@ -277,7 +277,7 @@ void SubversionClient::log(const FilePath &workingDir,
                            const std::function<void(Utils::CommandLine &)> &addAuthOptions)
 {
     auto &settings = static_cast<SubversionSettings &>(this->settings());
-    const int logCount = settings.logCount.value();
+    const int logCount = settings.logCount();
     QStringList svnExtraOptions = extraOptions;
     if (logCount > 0)
         svnExtraOptions << QLatin1String("-l") << QString::number(logCount);

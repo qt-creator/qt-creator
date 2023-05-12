@@ -801,7 +801,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
 
 int GdbEngine::commandTimeoutTime() const
 {
-    const int time = debuggerSettings()->gdbWatchdogTimeout.value();
+    const int time = debuggerSettings()->gdbWatchdogTimeout();
     return 1000 * qMax(20, time);
 }
 
@@ -1016,7 +1016,7 @@ void GdbEngine::updateAll()
 {
     //PENDING_DEBUG("UPDATING ALL\n");
     QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
-    DebuggerCommand cmd(stackCommand(debuggerSettings()->maximalStackDepth.value()));
+    DebuggerCommand cmd(stackCommand(debuggerSettings()->maximalStackDepth()));
     cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, false); };
     runCommand(cmd);
     stackHandler()->setCurrentIndex(0);
@@ -2616,13 +2616,13 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
                     "QTC_DEBUGGER_PYTHON_VERBOSE");
                 const DebuggerSettings &s = *debuggerSettings();
                 cmd.arg("passexceptions", alwaysVerbose);
-                cmd.arg("fancy", s.useDebuggingHelpers.value());
-                cmd.arg("autoderef", s.autoDerefPointers.value());
-                cmd.arg("dyntype", s.useDynamicType.value());
-                cmd.arg("qobjectnames", s.showQObjectNames.value());
+                cmd.arg("fancy", s.useDebuggingHelpers());
+                cmd.arg("autoderef", s.autoDerefPointers());
+                cmd.arg("dyntype", s.useDynamicType());
+                cmd.arg("qobjectnames", s.showQObjectNames());
                 cmd.arg("nativemixed", isNativeMixedActive());
-                cmd.arg("stringcutoff", s.maximalStringLength.value());
-                cmd.arg("displaystringlimit", s.displayStringLimit.value());
+                cmd.arg("stringcutoff", s.maximalStringLength());
+                cmd.arg("displaystringlimit", s.displayStringLimit());
 
                 cmd.arg("spec", breakpointLocation2(requested));
                 cmd.callback = [this, bp](const DebuggerResponse &r) { handleTracepointInsert(r, bp); };

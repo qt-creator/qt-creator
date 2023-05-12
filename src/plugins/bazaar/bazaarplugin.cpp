@@ -523,7 +523,7 @@ void BazaarPluginPrivate::logRepository()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QStringList extraOptions;
-    extraOptions += "--limit=" + QString::number(m_settings.logCount.value());
+    extraOptions += "--limit=" + QString::number(m_settings.logCount());
     m_client.log(state.topLevel(), QStringList(), extraOptions);
 }
 

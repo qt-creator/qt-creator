@@ -1642,9 +1642,9 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
             return;
 
         TabSettings tabSettings;
-        tabSettings.m_indentSize = fakeVimSettings()->shiftWidth.value();
-        tabSettings.m_tabSize = fakeVimSettings()->tabStop.value();
-        tabSettings.m_tabPolicy = fakeVimSettings()->expandTab.value()
+        tabSettings.m_indentSize = fakeVimSettings()->shiftWidth();
+        tabSettings.m_tabSize = fakeVimSettings()->tabStop();
+        tabSettings.m_tabPolicy = fakeVimSettings()->expandTab()
                 ? TabSettings::SpacesOnlyTabPolicy : TabSettings::TabsOnlyTabPolicy;
         tabSettings.m_continuationAlignBehavior =
                 tew->textDocument()->tabSettings().m_continuationAlignBehavior;

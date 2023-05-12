@@ -2848,7 +2848,7 @@ QSet<QString> WatchHandler::expandedINames() const
 
 int WatchHandler::maxArrayCount(const QString &iname) const
 {
-    return m_model->m_maxArrayCount.value(iname, debuggerSettings()->defaultArraySize.value());
+    return m_model->m_maxArrayCount.value(iname, debuggerSettings()->defaultArraySize());
 }
 
 void WatchHandler::recordTypeInfo(const GdbMi &typeInfo)

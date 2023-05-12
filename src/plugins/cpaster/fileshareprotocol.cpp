@@ -141,7 +141,7 @@ void FileShareProtocol::list()
     QString errorMessage;
     const QChar blank = QLatin1Char(' ');
     const QFileInfoList entryInfoList = dir.entryInfoList();
-    const int count = qMin(int(m_settings.displayCount.value()), entryInfoList.size());
+    const int count = qMin(int(m_settings.displayCount()), entryInfoList.size());
     for (int i = 0; i < count; i++) {
         const QFileInfo& entryFi = entryInfoList.at(i);
         if (parse(entryFi.absoluteFilePath(), &errorMessage, &user, &description)) {

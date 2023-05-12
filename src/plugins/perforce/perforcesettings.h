@@ -41,8 +41,8 @@ public:
                         QString *repositoryRoot /* = 0 */,
                         QString *errorMessage);
 
-    int longTimeOutS() const { return timeOutS.value() * 10; }
-    int timeOutMS() const { return timeOutS.value() * 1000;  }
+    int longTimeOutS() const { return timeOutS() * 10; }
+    int timeOutMS() const { return timeOutS() * 1000;  }
 
     Utils::FilePath topLevel() const;
     Utils::FilePath topLevelSymLinkTarget() const;

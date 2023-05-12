@@ -247,8 +247,8 @@ void CodePasterPluginPrivate::post(QString data, const QString &mimeType)
 
     const FileDataList diffChunks = splitDiffToFiles(data);
     const int dialogResult = diffChunks.isEmpty() ?
-        view.show(username, {}, {}, m_settings.expiryDays.value(), data) :
-        view.show(username, {}, {}, m_settings.expiryDays.value(), diffChunks);
+        view.show(username, {}, {}, m_settings.expiryDays(), data) :
+        view.show(username, {}, {}, m_settings.expiryDays(), diffChunks);
 
     // Save new protocol in case user changed it.
     if (dialogResult == QDialog::Accepted && m_settings.protocols.value() != view.protocol()) {
