@@ -23,9 +23,6 @@ public:
     Utils::StringAspect path;
 
     Utils::FilePaths searchPathList() const;
-
-private:
-    QString m_settingsGroup;
 };
 
 } // namespace VcsBase
