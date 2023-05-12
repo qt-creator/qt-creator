@@ -1913,7 +1913,7 @@ void IntegerAspect::addToLayout(Layouting::LayoutItem &parent)
 
     if (isAutoApply()) {
         connect(d->m_spinBox.data(), &QSpinBox::valueChanged,
-                this, [this] { setValue(d->m_spinBox->value()); });
+                this, [this] { setValue(d->m_spinBox->value() * d->m_displayScaleFactor); });
     }
 }
 
@@ -1940,7 +1940,7 @@ void IntegerAspect::setValue(qint64 value)
 {
     if (BaseAspect::setValueQuietly(value)) {
         if (d->m_spinBox)
-            d->m_spinBox->setValue(value);
+            d->m_spinBox->setValue(value / d->m_displayScaleFactor);
         //qDebug() << "SetValue: Changing" << labelText() << " to " << value;
         emit changed();
         //QTC_CHECK(!labelText().isEmpty());
