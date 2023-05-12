@@ -41,7 +41,6 @@ add_qtc_library(3rd_cplusplus OBJECT
     TypeVisitor.cpp TypeVisitor.h
     cppassert.h
   SKIP_PCH
-  PROPERTIES POSITION_INDEPENDENT_CODE ON
 )
 
 set(export_symbol_declaration DEFINES CPLUSPLUS_BUILD_LIB)
