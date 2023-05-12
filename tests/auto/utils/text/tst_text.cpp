@@ -3,6 +3,7 @@
 
 #include <utils/textutils.h>
 
+#include <QTextDocument>
 #include <QtTest>
 
 using namespace Utils::Text;
@@ -14,6 +15,9 @@ class tst_Text : public QObject
 private slots:
     void testPositionFromFileName_data();
     void testPositionFromFileName();
+
+    void testPositionFromPositionInDocument_data();
+    void testPositionFromPositionInDocument();
 
     void testRangeLength_data();
     void testRangeLength();
@@ -105,6 +109,30 @@ void tst_Text::testPositionFromFileName()
     int postfixPos = -1;
     QCOMPARE(Position::fromFileName(fileName, postfixPos), pos);
     QCOMPARE(postfixPos, expectedPostfixPos);
+}
+
+void tst_Text::testPositionFromPositionInDocument_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<int>("documentPosition");
+    QTest::addColumn<Position>("position");
+
+    QTest::newRow("0") << QString() << 0 << Position{1, 0};
+    QTest::newRow("-1") << QString() << -1 << Position();
+    QTest::newRow("mid line") << QString("foo\n") << 1 << Position{1, 1};
+    QTest::newRow("second line") << QString("foo\n") << 4 << Position{2, 0};
+    QTest::newRow("second mid line") << QString("foo\nbar") << 5 << Position{2, 1};
+    QTest::newRow("behind content") << QString("foo\nbar") << 8 << Position();
+}
+
+void tst_Text::testPositionFromPositionInDocument()
+{
+    QFETCH(QString, text);
+    QFETCH(int, documentPosition);
+    QFETCH(Position, position);
+
+    const QTextDocument doc(text);
+    QCOMPARE(Position::fromPositionInDocument(&doc, documentPosition), position);
 }
 
 void tst_Text::testRangeLength_data()

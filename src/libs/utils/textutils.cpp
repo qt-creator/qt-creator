@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "textutils.h"
+#include "qtcassert.h"
 
 #include <QRegularExpression>
 #include <QTextBlock>
@@ -50,6 +51,7 @@ Position Position::fromFileName(QStringView fileName, int &postfixPos)
 
 Position Position::fromPositionInDocument(const QTextDocument *document, int pos)
 {
+    QTC_ASSERT(document, return {});
     const QTextBlock block = document->findBlock(pos);
     if (block.isValid())
         return {block.blockNumber() + 1, pos - block.position()};
