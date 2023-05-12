@@ -92,6 +92,8 @@ QTCREATOR_UTILS_EXPORT int utf8NthLineOffset(const QTextDocument *textDocument,
 QTCREATOR_UTILS_EXPORT QString utf16LineTextInUtf8Buffer(const QByteArray &utf8Buffer,
                                                          int currentUtf8Offset);
 
+QTCREATOR_UTILS_EXPORT QDebug &operator<<(QDebug &stream, const Position &pos);
+
 } // Text
 } // Utils
 

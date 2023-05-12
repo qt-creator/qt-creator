@@ -32,7 +32,6 @@ Position Position::fromFileName(QStringView fileName, int &postfixPos)
     Position pos;
     if (match.hasMatch()) {
         postfixPos = match.capturedStart(0);
-        pos.line = 0; // for the case that there's only a : at the end
         if (match.lastCapturedIndex() > 0) {
             pos.line = match.captured(1).toInt();
             if (match.lastCapturedIndex() > 2) // index 2 includes the + or : for the column number
@@ -44,6 +43,8 @@ Position Position::fromFileName(QStringView fileName, int &postfixPos)
         if (vsMatch.lastCapturedIndex() > 1) // index 1 includes closing )
             pos.line = vsMatch.captured(2).toInt();
     }
+    if (pos.line > 0 && pos.column < 0)
+        pos.column = 0; // if we got a valid line make sure to return a valid TextPosition
     return pos;
 }
 
@@ -262,6 +263,12 @@ void applyReplacements(QTextDocument *doc, const Replacements &replacements)
         fullOffsetShift += replacement.text.length() - replacement.length;
     }
     editCursor.endEditBlock();
+}
+
+QDebug &operator<<(QDebug &stream, const Position &pos)
+{
+    stream << "line: " << pos.line << ", column: " << pos.column;
+    return stream;
 }
 
 } // namespace Utils::Text

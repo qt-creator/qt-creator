@@ -12,9 +12,104 @@ class tst_Text : public QObject
     Q_OBJECT
 
 private slots:
+    void testPositionFromFileName_data();
+    void testPositionFromFileName();
+
     void testRangeLength_data();
     void testRangeLength();
 };
+
+void tst_Text::testPositionFromFileName_data()
+{
+    QTest::addColumn<QString>("fileName");
+    QTest::addColumn<Position>("pos");
+    QTest::addColumn<int>("expectedPostfixPos");
+
+    const QString file("/foo/bar");
+    const QString fileWin("C:\\foo\\bar");
+
+    QTest::newRow("no pos") << file << Position() << -1;
+    QTest::newRow("no pos win") << fileWin << Position() << -1;
+
+    QTest::newRow("empty:") << file + ":" << Position() << 8;
+    QTest::newRow("empty: win") << fileWin + ":" << Position() << 10;
+
+    QTest::newRow("empty+") << file + "+" << Position() << 8;
+    QTest::newRow("empty+ win") << fileWin + "+" << Position() << 10;
+
+    QTest::newRow("empty::") << file + "::" << Position() << 8;
+    QTest::newRow("empty:: win") << fileWin + "::" << Position() << 10;
+
+    QTest::newRow("empty++") << file + "++" << Position() << 8;
+    QTest::newRow("empty++ win") << fileWin + "++" << Position() << 10;
+
+    QTest::newRow("line:") << file + ":1" << Position{1, 0} << 8;
+    QTest::newRow("line: win") << fileWin + ":1" << Position{1, 0} << 10;
+
+    QTest::newRow("line+") << file + "+8" << Position{8, 0} << 8;
+    QTest::newRow("line+ win") << fileWin + "+8" << Position{8, 0} << 10;
+
+    QTest::newRow("multi digit line:") << file + ":42" << Position{42, 0} << 8;
+    QTest::newRow("multi digit line: win") << fileWin + ":42" << Position{42, 0} << 10;
+
+    QTest::newRow("multi digit line+") << file + "+1234567890" << Position{1234567890, 0} << 8;
+    QTest::newRow("multi digit line+ win")
+        << fileWin + "+1234567890" << Position{1234567890, 0} << 10;
+
+    QTest::newRow("multi digit line+") << file + "+1234567890" << Position{1234567890, 0} << 8;
+    QTest::newRow("multi digit line+ win")
+        << fileWin + "+1234567890" << Position{1234567890, 0} << 10;
+
+    QTest::newRow("line: empty column:") << file + ":1:" << Position{1, 0} << 8;
+    QTest::newRow("line: empty column: win") << fileWin + ":1:" << Position{1, 0} << 10;
+
+    QTest::newRow("line+ empty column+") << file + "+8+" << Position{8, 0} << 8;
+    QTest::newRow("line+ empty column+ win") << fileWin + "+8+" << Position{8, 0} << 10;
+
+    QTest::newRow("line: column:") << file + ":1:2" << Position{1, 1} << 8;
+    QTest::newRow("line: column: win") << fileWin + ":1:2" << Position{1, 1} << 10;
+
+    QTest::newRow("line+ column+") << file + "+8+3" << Position{8, 2} << 8;
+    QTest::newRow("line+ column+ win") << fileWin + "+8+3" << Position{8, 2} << 10;
+
+    QTest::newRow("mixed:+") << file + ":1+2" << Position{1, 1} << 8;
+    QTest::newRow("mixed:+ win") << fileWin + ":1+2" << Position{1, 1} << 10;
+
+    QTest::newRow("mixed+:") << file + "+8:3" << Position{8, 2} << 8;
+    QTest::newRow("mixed+: win") << fileWin + "+8:3" << Position{8, 2} << 10;
+
+    QTest::newRow("garbage:") << file + ":foo" << Position() << -1;
+    QTest::newRow("garbage: win") << fileWin + ":bar" << Position() << -1;
+
+    QTest::newRow("garbage+") << file + "+snu" << Position() << -1;
+    QTest::newRow("garbage+ win") << fileWin + "+snu" << Position() << -1;
+
+    QTest::newRow("msvc(") << file + "(" << Position() << 8;
+    QTest::newRow("msvc( win") << fileWin + "(" << Position() << 10;
+
+    QTest::newRow("msvc(empty)") << file + "()" << Position() << -1;
+    QTest::newRow("msvc(empty) win") << fileWin + "()" << Position() << -1;
+
+    QTest::newRow("msvc(line") << file + "(1" << Position{1, 0} << 8;
+    QTest::newRow("msvc(line win") << fileWin + "(4569871" << Position{4569871, 0} << 10;
+
+    QTest::newRow("msvc(line)") << file + "(1)" << Position{1, 0} << 8;
+    QTest::newRow("msvc(line) win") << fileWin + "(4569871)" << Position{4569871, 0} << 10;
+
+    QTest::newRow("msvc(garbage)") << file + "(foo)" << Position() << -1;
+    QTest::newRow("msvc(garbage) win") << fileWin + "(bar)" << Position() << -1;
+}
+
+void tst_Text::testPositionFromFileName()
+{
+    QFETCH(QString, fileName);
+    QFETCH(Position, pos);
+    QFETCH(int, expectedPostfixPos);
+
+    int postfixPos = -1;
+    QCOMPARE(Position::fromFileName(fileName, postfixPos), pos);
+    QCOMPARE(postfixPos, expectedPostfixPos);
+}
 
 void tst_Text::testRangeLength_data()
 {
