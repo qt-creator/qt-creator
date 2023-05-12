@@ -115,7 +115,7 @@ public:
     virtual void apply();
     virtual void cancel();
     virtual void finish();
-    bool isDirty() const;
+    virtual bool isDirty() const;
     bool hasAction() const;
 
     class QTCREATOR_UTILS_EXPORT Data
