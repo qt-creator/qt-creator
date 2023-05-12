@@ -102,6 +102,9 @@ static void buildAcceptor(const FilePath &projectPath, const QString &displayNam
         || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
+    if (BuildManager::isBuilding(cmakeProject))
+        BuildManager::cancel();
+
     // Find the make step
     const BuildStepList *buildStepList =
         cmakeProject->activeTarget()->activeBuildConfiguration()->buildSteps();

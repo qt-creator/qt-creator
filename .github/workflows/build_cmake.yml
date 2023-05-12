@@ -577,7 +577,11 @@ jobs:
         endif()
 
         if ("${{ runner.os }}" STREQUAL "macOS")
-           set(ENV{CMAKE_OSX_ARCHITECTURES} "x86_64;arm64")
+            if (${{github.ref}} MATCHES "tags/v(.*)")
+                set(ENV{CMAKE_OSX_ARCHITECTURES} "x86_64;arm64")
+            else()
+                set(ENV{CMAKE_OSX_ARCHITECTURES} "x86_64")
+            endif()
         endif()
 
         execute_process(

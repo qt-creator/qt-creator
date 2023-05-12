@@ -56,9 +56,6 @@ void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
         return;
 
     style.ColumnLimit = 0;
-#ifdef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
-    style.KeepLineBreaksForNonEmptyLines = true;
-#endif
 }
 
 llvm::StringRef clearExtraNewline(llvm::StringRef text)

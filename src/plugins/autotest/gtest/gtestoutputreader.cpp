@@ -209,7 +209,7 @@ void GTestOutputReader::handleDescriptionAndReportResult(const TestResult &testR
              }
         }
         result.setDescription(resultDescription.join('\n'));
-        reportResult(testResult);
+        reportResult(result);
         resultDescription.clear();
 
         result = createDefaultResult();
