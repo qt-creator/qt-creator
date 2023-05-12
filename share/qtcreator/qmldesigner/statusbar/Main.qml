@@ -6,6 +6,7 @@ import QtQuick.Controls
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 import "../toolbar"
+import HelperWidgets 2.0
 
 import ToolBar 1.0
 
@@ -35,6 +36,7 @@ Item {
                 buttonIcon: StudioTheme.Constants.settings_medium
                 onClicked: backend.triggerProjectSettings()
                 enabled: backend.isInDesignMode || (backend.isInEditMode && backend.projectOpened)
+                tooltip: qsTr("Set runtime configuration for the project.")
             }
 
             Text {
@@ -45,6 +47,10 @@ Item {
                 horizontalAlignment: Text.AlignRight
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
+                ToolTipArea {
+                    anchors.fill: parent
+                    tooltip: qsTr("Choose a predefined kit for the runtime configuration of the project.")
+                }
             }
 
             StudioControls.TopLevelComboBox {
@@ -67,6 +73,10 @@ Item {
                 horizontalAlignment: Text.AlignRight
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
+                ToolTipArea {
+                    anchors.fill: parent
+                    tooltip: qsTr("Choose a style for the Qt Quick Controls of the project.")
+                }
             }
 
             StudioControls.TopLevelComboBox {
