@@ -2042,6 +2042,9 @@ DeviceFileHooks &DeviceFileHooks::instance()
 
 QTCREATOR_UTILS_EXPORT bool operator==(const FilePath &first, const FilePath &second)
 {
+    if (first.m_hash != 0 && second.m_hash != 0 && first.m_hash != second.m_hash)
+        return false;
+
     return first.pathView().compare(second.pathView(), first.caseSensitivity()) == 0
         && first.host() == second.host()
         && first.scheme() == second.scheme();
