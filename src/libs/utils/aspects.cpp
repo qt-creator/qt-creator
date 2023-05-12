@@ -585,7 +585,7 @@ class BoolAspectPrivate
 {
 public:
     BoolAspect::LabelPlacement m_labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
-    QPointer<QCheckBox> m_checkBox; // Owned by configuration widget
+    QPointer<QAbstractButton> m_button; // Owned by configuration widget
     QPointer<QGroupBox> m_groupBox; // For BoolAspects handling GroupBox check boxes
 };
 
@@ -1424,31 +1424,31 @@ BoolAspect::~BoolAspect() = default;
 */
 void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
 {
-    QTC_CHECK(!d->m_checkBox);
-    d->m_checkBox = createSubWidget<QCheckBox>();
+    QTC_CHECK(!d->m_button);
+    d->m_button = createSubWidget<QCheckBox>();
     switch (d->m_labelPlacement) {
     case LabelPlacement::AtCheckBoxWithoutDummyLabel:
-        d->m_checkBox->setText(labelText());
-        parent.addItem(d->m_checkBox.data());
+        d->m_button->setText(labelText());
+        parent.addItem(d->m_button.data());
         break;
     case LabelPlacement::AtCheckBox: {
-        d->m_checkBox->setText(labelText());
+        d->m_button->setText(labelText());
         // FIXME:
         //if (parent.isForm())
         //    parent.addItem(createSubWidget<QLabel>());
-        parent.addItem(d->m_checkBox.data());
+        parent.addItem(d->m_button.data());
         break;
     }
     case LabelPlacement::InExtraLabel:
-        addLabeledItem(parent, d->m_checkBox);
+        addLabeledItem(parent, d->m_button);
         break;
     }
-    d->m_checkBox->setChecked(value());
+    d->m_button->setChecked(value());
     if (isAutoApply()) {
-        connect(d->m_checkBox.data(), &QAbstractButton::clicked,
+        connect(d->m_button.data(), &QAbstractButton::clicked,
                 this, [this](bool val) { setValue(val); });
     }
-    connect(d->m_checkBox.data(), &QAbstractButton::clicked,
+    connect(d->m_button.data(), &QAbstractButton::clicked,
             this, &BoolAspect::volatileValueChanged);
 }
 
@@ -1486,8 +1486,8 @@ QAction *BoolAspect::action()
 QVariant BoolAspect::volatileValue() const
 {
     QTC_CHECK(!isAutoApply());
-    if (d->m_checkBox)
-        return d->m_checkBox->isChecked();
+    if (d->m_button)
+        return d->m_button->isChecked();
     if (d->m_groupBox)
         return d->m_groupBox->isChecked();
     QTC_CHECK(false);
@@ -1497,8 +1497,8 @@ QVariant BoolAspect::volatileValue() const
 void BoolAspect::setVolatileValue(const QVariant &val)
 {
     QTC_CHECK(!isAutoApply());
-    if (d->m_checkBox)
-        d->m_checkBox->setChecked(val.toBool());
+    if (d->m_button)
+        d->m_button->setChecked(val.toBool());
     else if (d->m_groupBox)
         d->m_groupBox->setChecked(val.toBool());
 }
@@ -1521,8 +1521,8 @@ bool BoolAspect::value() const
 void BoolAspect::setValue(bool value)
 {
     if (BaseAspect::setValueQuietly(value)) {
-        if (d->m_checkBox)
-            d->m_checkBox->setChecked(value);
+        if (d->m_button)
+            d->m_button->setChecked(value);
         //qDebug() << "SetValue: Changing" << labelText() << " to " << value;
         emit changed();
         //QTC_CHECK(!labelText().isEmpty());
