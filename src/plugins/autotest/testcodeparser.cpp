@@ -334,6 +334,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
     // use only a single parser or all current active?
     const QList<ITestParser *> codeParsers = parsers.isEmpty() ? m_testCodeParsers : parsers;
     qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "StartParsing";
+    m_parsingTimer.restart();
     QSet<QString> extensions;
     const auto cppSnapshot = CppEditor::CppModelManager::instance()->snapshot();
 
@@ -438,6 +439,7 @@ void TestCodeParser::onFinished(bool success)
             m_updateParsers.clear();
             emit parsingFinished();
             qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "ParsingFin";
+            qCDebug(LOG) << "Parsing took:" << m_parsingTimer.elapsed() << "ms";
         }
         m_dirty = false;
         break;

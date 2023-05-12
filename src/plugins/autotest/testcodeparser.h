@@ -97,6 +97,8 @@ private:
     Utils::FutureSynchronizer m_futureSynchronizer;
     std::unique_ptr<Tasking::TaskTree> m_taskTree;
     QHash<Utils::FilePath, int> m_qmlEditorRev;
+
+    QElapsedTimer m_parsingTimer;
 };
 
 } // namespace Internal
