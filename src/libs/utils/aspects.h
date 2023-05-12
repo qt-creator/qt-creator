@@ -229,6 +229,7 @@ public:
     void setVolatileValue(const QVariant &val) override;
     void emitChangedValue() override;
 
+    bool operator()() const { return value(); }
     bool value() const;
     void setValue(bool val);
     bool defaultValue() const;
@@ -372,6 +373,8 @@ public:
     // Hook between UI and StringAspect:
     using ValueAcceptor = std::function<std::optional<QString>(const QString &, const QString &)>;
     void setValueAcceptor(ValueAcceptor &&acceptor);
+
+    QString operator()() const { return value(); }
     QString value() const;
     void setValue(const QString &val);
 
@@ -449,6 +452,7 @@ public:
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
 
+    qint64 operator()() const { return value(); }
     qint64 value() const;
     void setValue(qint64 val);
 
@@ -486,6 +490,7 @@ public:
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
 
+    double operator()() const { return value(); }
     double value() const;
     void setValue(double val);
 
