@@ -150,7 +150,7 @@ void Qt5BakeLightsNodeInstanceServer::runDenoiser()
     QString binPath = QLibraryInfo::path(QLibraryInfo::BinariesPath);
 #if defined(Q_OS_WIN)
     binPath += "/qlmdenoiser.exe";
-#elif
+#else
     binPath += "/qlmdenoiser";
 #endif
 
