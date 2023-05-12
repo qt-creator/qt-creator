@@ -2475,10 +2475,15 @@ void AspectContainer::setSettingsGroups(const QString &groupKey, const QString &
 
 void AspectContainer::apply()
 {
+    const bool willChange = isDirty();
+
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->apply();
 
     emit applied();
+
+    if (willChange)
+        emit changed();
 }
 
 void AspectContainer::cancel()

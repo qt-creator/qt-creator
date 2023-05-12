@@ -695,6 +695,7 @@ public:
 
 signals:
     void applied();
+    void changed();
     void fromMapFinished();
 
 private:
