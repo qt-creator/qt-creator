@@ -688,9 +688,9 @@ void TaskView::mouseMoveEvent(QMouseEvent *e)
     if (m_hoverAnchor != anchor) {
         m_hoverAnchor = anchor;
         if (!m_hoverAnchor.isEmpty())
-            QApplication::setOverrideCursor(QCursor(Qt::PointingHandCursor));
+            setCursor(Qt::PointingHandCursor);
         else
-            QApplication::restoreOverrideCursor();
+            unsetCursor();
     }
 }
 
