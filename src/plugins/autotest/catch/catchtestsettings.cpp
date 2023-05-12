@@ -23,7 +23,7 @@ CatchTestSettings::CatchTestSettings(Id settingsId)
     setSettingsGroups("Autotest", "Catch2");
 
     setLayouter([this](QWidget *widget) {
-        Column { Row { Grid {
+        Row { Form {
             showSuccess, br,
             breakOnFailure, br,
             noThrow, br,
@@ -34,7 +34,7 @@ CatchTestSettings::CatchTestSettings(Id settingsId)
             confidenceIntervalChecked, confidenceInterval, br,
             warmupChecked, benchmarkWarmupTime, br,
             noAnalysis
-        }, st }, st }.attachTo(widget);
+        }, st }.attachTo(widget);
     });
 
     registerAspect(&abortAfter);

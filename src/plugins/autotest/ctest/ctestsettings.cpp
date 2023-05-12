@@ -21,7 +21,7 @@ CTestSettings::CTestSettings(Id settingsId)
     setDisplayName(Tr::tr("CTest"));
 
     setLayouter([this](QWidget *w) {
-        Column { Row { Form {
+        Row { Form {
             outputOnFail, br,
             scheduleRandom, br,
             stopOnFailure, br,
@@ -39,7 +39,7 @@ CTestSettings::CTestSettings(Id settingsId)
                     Row { testLoad, threshold}
                 }
             }
-        }, st }, st }.attachTo(w);
+        }, st }.attachTo(w);
     });
 
     registerAspect(&outputOnFail);
@@ -95,7 +95,7 @@ CTestSettings::CTestSettings(Id settingsId)
     testLoad.setSettingsKey("TestLoad");
     testLoad.setLabelText(Tr::tr("Test load"));
     testLoad.setToolTip(Tr::tr("Try not to start tests when they may cause CPU load to pass a "
-                           "threshold."));
+                               "threshold."));
 
     registerAspect(&threshold);
     threshold.setSettingsKey("Threshold");

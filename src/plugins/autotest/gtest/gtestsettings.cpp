@@ -24,18 +24,14 @@ GTestSettings::GTestSettings(Id settingsId)
     setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
 
     setLayouter([this](QWidget *widget) {
-        Column { Row { Column {
-            Grid {
+        Row { Form {
                 runDisabled, br,
                 breakOnFailure, br,
                 repeat, iterations, br,
-                shuffle, seed
-            },
-            Form {
-                groupMode,
-                gtestFilter
-            }
-        }, st }, st }.attachTo(widget);
+                shuffle, seed, br,
+                groupMode, br,
+                gtestFilter, br
+            }, st }.attachTo(widget);
     });
 
     registerAspect(&iterations);
@@ -66,7 +62,8 @@ GTestSettings::GTestSettings(Id settingsId)
     registerAspect(&repeat);
     repeat.setSettingsKey("Repeat");
     repeat.setLabelText(Tr::tr("Repeat tests"));
-    repeat.setToolTip(Tr::tr("Repeats a test run (you might be required to increase the timeout to avoid canceling the tests)."));
+    repeat.setToolTip(Tr::tr("Repeats a test run (you might be required to increase the timeout to "
+                             "avoid canceling the tests)."));
 
     registerAspect(&throwOnFailure);
     throwOnFailure.setSettingsKey("ThrowOnFailure");
@@ -110,8 +107,8 @@ GTestSettings::GTestSettings(Id settingsId)
     });
     gtestFilter.setEnabled(false);
     gtestFilter.setLabelText(Tr::tr("Active filter:"));
-    gtestFilter.setToolTip(Tr::tr("Set the GTest filter to be used for grouping.\n"
-        "See Google Test documentation for further information on GTest filters."));
+    gtestFilter.setToolTip(Tr::tr("Set the GTest filter to be used for grouping.\nSee Google Test "
+                                  "documentation for further information on GTest filters."));
 
     gtestFilter.setValidationFunction([](FancyLineEdit *edit, QString * /*error*/) {
         return edit && GTestUtils::isValidGTestFilter(edit->text());

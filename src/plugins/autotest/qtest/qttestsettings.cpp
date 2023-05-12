@@ -23,21 +23,18 @@ QtTestSettings::QtTestSettings(Id settingsId)
     setDisplayName(Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
 
     setLayouter([this](QWidget *widget) {
-        Column { Row { Column {
-            noCrashHandler,
-            useXMLOutput,
-            verboseBench,
-            logSignalsSlots,
-            Row {
-                limitWarnings, maxWarnings
-            },
+        Row { Form {
+            noCrashHandler, br,
+            useXMLOutput, br,
+            verboseBench, br,
+            logSignalsSlots, br,
+            limitWarnings, maxWarnings, br,
             Group {
                 title(Tr::tr("Benchmark Metrics")),
                 Column { metrics }
-            },
-            br,
-            quickCheckForDerivedTests,
-        }, st }, st }.attachTo(widget);
+            }, br,
+            quickCheckForDerivedTests, br
+        }, st }.attachTo(widget);
     });
 
     registerAspect(&metrics);
@@ -68,8 +65,8 @@ QtTestSettings::QtTestSettings(Id settingsId)
     useXMLOutput.setDefaultValue(true);
     useXMLOutput.setLabelText(Tr::tr("Use XML output"));
     useXMLOutput.setToolTip(Tr::tr("XML output is recommended, because it avoids parsing issues, "
-        "while plain text is more human readable.\n\n"
-        "Warning: Plain text misses some information, such as duration."));
+                                   "while plain text is more human readable.\n\nWarning: "
+                                   "Plain text misses some information, such as duration."));
 
     registerAspect(&verboseBench);
     verboseBench.setSettingsKey("VerboseBench");

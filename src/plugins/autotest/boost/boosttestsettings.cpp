@@ -65,7 +65,7 @@ BoostTestSettings::BoostTestSettings(Id settingsId)
     seed.setEnabled(false);
     seed.setLabelText(Tr::tr("Seed:"));
     seed.setToolTip(Tr::tr("A seed of 0 means no randomization. A value of 1 uses the current "
-        "time, any other value is used as random seed generator."));
+                           "time, any other value is used as random seed generator."));
     seed.setEnabler(&randomize);
 
     registerAspect(&randomize);
