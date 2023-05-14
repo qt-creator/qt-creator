@@ -11,7 +11,7 @@ QT_END_NAMESPACE
 
 namespace Autotest {
 namespace Internal {
-struct TestSettings;
+class TestSettings;
 }
 
 class TestFrameworkManager final
