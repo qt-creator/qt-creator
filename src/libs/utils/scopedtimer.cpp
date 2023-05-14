@@ -3,7 +3,6 @@
 
 #include "scopedtimer.h"
 
-#include <QByteArray>
 #include <QDebug>
 #include <QTime>
 
@@ -15,25 +14,31 @@ static QString currentTime() { return QTime::currentTime().toString(Qt::ISODateW
 
 using namespace std::chrono;
 
-class ScopedTimerPrivate
-{
-public:
-    const char *m_fileName = nullptr;
-    const int m_line = 0;
-    std::atomic<int64_t> *m_cumulative = nullptr;
-    const time_point<system_clock, nanoseconds> m_start = system_clock::now();
-};
-
 static const char s_scoped[] = "SCOPED TIMER";
 static const char s_scopedCumulative[] = "STATIC SCOPED TIMER";
 
-ScopedTimer::ScopedTimer(const char *fileName, int line, std::atomic<int64_t> *cumulative)
-    : d(new ScopedTimerPrivate{fileName, line, cumulative})
+class ScopedTimerPrivate
 {
-    if (d->m_cumulative)
+public:
+    QString header() const {
+        const char *scopedTimerType = m_data.m_cumulative ? s_scopedCumulative : s_scoped;
+        const QString prefix = QLatin1String(scopedTimerType) + " [" + currentTime() + "] ";
+        const QString infix = m_data.m_message.isEmpty()
+            ? QLatin1String(m_data.m_fileName) + ':' + QString::number(m_data.m_line)
+            : m_data.m_message;
+        return prefix + infix + ' ';
+    }
+
+    const ScopedTimerData m_data;
+    const time_point<system_clock, nanoseconds> m_start = system_clock::now();
+};
+
+ScopedTimer::ScopedTimer(const ScopedTimerData &data)
+    : d(new ScopedTimerPrivate{data})
+{
+    if (d->m_data.m_cumulative)
         return;
-    qDebug().noquote().nospace() << s_scoped << " [" << currentTime() << "] in " << d->m_fileName
-                                 << ':' << d->m_line << " started";
+    qDebug().noquote().nospace() << d->header() << "started";
 }
 
 static int64_t toMs(int64_t ns) { return ns / 1000000; }
@@ -42,8 +47,8 @@ ScopedTimer::~ScopedTimer()
 {
     const auto elapsed = duration_cast<nanoseconds>(system_clock::now() - d->m_start);
     QString suffix;
-    if (d->m_cumulative) {
-        const int64_t nsOld = d->m_cumulative->fetch_add(elapsed.count());
+    if (d->m_data.m_cumulative) {
+        const int64_t nsOld = d->m_data.m_cumulative->fetch_add(elapsed.count());
         const int64_t msOld = toMs(nsOld);
         const int64_t nsNew = nsOld + elapsed.count();
         const int64_t msNew = toMs(nsNew);
@@ -52,13 +57,11 @@ ScopedTimer::~ScopedTimer()
         if (nsOld != 0 && msOld / 10 == msNew / 10)
             return;
 
-        suffix = " cumulative timeout: " + QString::number(msNew) + "ms";
+        suffix = "cumulative timeout: " + QString::number(msNew) + "ms";
     } else {
-        suffix = " stopped with timeout: " + QString::number(toMs(elapsed.count())) + "ms";
+        suffix = "stopped with timeout: " + QString::number(toMs(elapsed.count())) + "ms";
     }
-    const char *header = d->m_cumulative ? s_scopedCumulative : s_scoped;
-    qDebug().noquote().nospace() << header << " [" << currentTime() << "] in " << d->m_fileName
-                                 << ':' << d->m_line << suffix;
+    qDebug().noquote().nospace() << d->header() << suffix;
 }
 
 } // namespace Utils
