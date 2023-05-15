@@ -23,10 +23,12 @@ public:
     Utils::BoolAspect logVerbose;
 };
 
+SubversionSettings &settings();
+
 class SubversionSettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit SubversionSettingsPage(SubversionSettings *settings);
+    SubversionSettingsPage();
 };
 
 } // Subversion::Internal

@@ -18,7 +18,7 @@ class SubversionClient : public VcsBase::VcsBaseClient
     Q_OBJECT
 
 public:
-    SubversionClient(SubversionSettings *settings);
+    SubversionClient();
 
     bool doCommit(const Utils::FilePath &repositoryRoot,
                   const QStringList &files,

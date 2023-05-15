@@ -261,7 +261,6 @@ private:
 
     const QStringList m_svnDirectories;
 
-    SubversionSettings m_settings;
     SubversionClient *m_client = nullptr;
     QString m_commitMessageFileName;
     FilePath m_commitRepository;
@@ -289,7 +288,7 @@ private:
 
     QAction *m_menuAction = nullptr;
 
-    SubversionSettingsPage m_settingsPage{&m_settings};
+    SubversionSettingsPage m_settingsPage;
 
 public:
     VcsSubmitEditorFactory submitEditorFactory {
@@ -358,7 +357,7 @@ SubversionPluginPrivate::SubversionPluginPrivate()
 {
     dd = this;
 
-    m_client = new SubversionClient(&m_settings);
+    m_client = new SubversionClient();
 
     setTopicCache(new SubversionTopicCache(this));
 
@@ -524,7 +523,7 @@ SubversionPluginPrivate::SubversionPluginPrivate()
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    connect(&m_settings, &AspectContainer::applied, this, &IVersionControl::configurationChanged);
+    connect(&settings(), &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 }
 
 bool SubversionPluginPrivate::isVcsDirectory(const FilePath &fileName) const
@@ -640,7 +639,7 @@ void SubversionPluginPrivate::revertAll()
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
     // NoteL: Svn "revert ." doesn not work.
-    CommandLine args{m_settings.binaryPath.filePath(), {"revert"}};
+    CommandLine args{settings().binaryPath.filePath(), {"revert"}};
     args << SubversionClient::AddAuthOptions();
     args << QLatin1String("--recursive") << state.topLevel().toString();
     const auto revertResponse = runSvn(state.topLevel(), args, RunFlags::ShowStdOut);
@@ -657,7 +656,7 @@ void SubversionPluginPrivate::revertCurrentFile()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
 
-    CommandLine diffArgs{m_settings.binaryPath.filePath(), {"diff"}};
+    CommandLine diffArgs{settings().binaryPath.filePath(), {"diff"}};
     diffArgs << SubversionClient::AddAuthOptions();
     diffArgs << SubversionClient::escapeFile(state.relativeCurrentFile());
 
@@ -675,7 +674,7 @@ void SubversionPluginPrivate::revertCurrentFile()
     FileChangeBlocker fcb(state.currentFile());
 
     // revert
-    CommandLine args{m_settings.binaryPath.filePath(), {"revert"}};
+    CommandLine args{settings().binaryPath.filePath(), {"revert"}};
     args << SubversionClient::AddAuthOptions();
     args << SubversionClient::escapeFile(state.relativeCurrentFile());
 
@@ -736,7 +735,7 @@ void SubversionPluginPrivate::startCommit(const FilePath &workingDir, const QStr
         return;
     }
 
-    CommandLine args{m_settings.binaryPath.filePath(), {"status"}};
+    CommandLine args{settings().binaryPath.filePath(), {"status"}};
     args << SubversionClient::AddAuthOptions();
     args << SubversionClient::escapeFiles(files);
 
@@ -815,7 +814,7 @@ void SubversionPluginPrivate::svnStatus(const FilePath &workingDir, const QStrin
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    CommandLine args{m_settings.binaryPath.filePath(), {"status"}};
+    CommandLine args{settings().binaryPath.filePath(), {"status"}};
     args << SubversionClient::AddAuthOptions();
     if (!relativePath.isEmpty())
         args << SubversionClient::escapeFile(relativePath);
@@ -841,7 +840,7 @@ void SubversionPluginPrivate::updateProject()
 
 void SubversionPluginPrivate::svnUpdate(const FilePath &workingDir, const QString &relativePath)
 {
-    CommandLine args{m_settings.binaryPath.filePath(), {"update"}};
+    CommandLine args{settings().binaryPath.filePath(), {"update"}};
     args << SubversionClient::AddAuthOptions();
     args << Constants::NON_INTERACTIVE_OPTION;
     if (!relativePath.isEmpty())
@@ -865,9 +864,9 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
     QTextCodec *codec = VcsBaseEditor::getCodec(source);
 
-    CommandLine args{m_settings.binaryPath.filePath(), {"annotate"}};
+    CommandLine args{settings().binaryPath.filePath(), {"annotate"}};
     args << SubversionClient::AddAuthOptions();
-    if (m_settings.spaceIgnorantAnnotation.value())
+    if (settings().spaceIgnorantAnnotation.value())
         args << "-x" << "-uw";
     if (!revision.isEmpty())
         args << "-r" << revision;
@@ -949,10 +948,10 @@ CommandResult SubversionPluginPrivate::runSvn(const FilePath &workingDir,
                                               const CommandLine &command, RunFlags flags,
                                               QTextCodec *outputCodec, int timeoutMutiplier) const
 {
-    if (m_settings.binaryPath().isEmpty())
+    if (settings().binaryPath().isEmpty())
         return CommandResult(ProcessResult::StartFailed, Tr::tr("No subversion executable specified."));
 
-    const int timeoutS = m_settings.timeout() * timeoutMutiplier;
+    const int timeoutS = settings().timeout() * timeoutMutiplier;
     return m_client->vcsSynchronousExec(workingDir, command, flags, timeoutS, outputCodec);
 }
 
@@ -1008,7 +1007,7 @@ QString SubversionPluginPrivate::synchronousTopic(const FilePath &repository) co
 bool SubversionPluginPrivate::vcsAdd(const FilePath &workingDir, const QString &rawFileName)
 {
     const QString file = QDir::toNativeSeparators(SubversionClient::escapeFile(rawFileName));
-    CommandLine args{m_settings.binaryPath.filePath()};
+    CommandLine args{settings().binaryPath.filePath()};
     args << "add" << SubversionClient::AddAuthOptions() << "--parents" << file;
     return runSvn(workingDir, args, RunFlags::ShowStdOut).result()
             == ProcessResult::FinishedWithSuccess;
@@ -1018,7 +1017,7 @@ bool SubversionPluginPrivate::vcsDelete(const FilePath &workingDir, const QStrin
 {
     const QString file = QDir::toNativeSeparators(SubversionClient::escapeFile(rawFileName));
 
-    CommandLine args{m_settings.binaryPath.filePath()};
+    CommandLine args{settings().binaryPath.filePath()};
     args << "delete" << SubversionClient::AddAuthOptions() << "--force" << file;
 
     return runSvn(workingDir, args, RunFlags::ShowStdOut).result()
@@ -1027,7 +1026,7 @@ bool SubversionPluginPrivate::vcsDelete(const FilePath &workingDir, const QStrin
 
 bool SubversionPluginPrivate::vcsMove(const FilePath &workingDir, const QString &from, const QString &to)
 {
-    CommandLine args{m_settings.binaryPath.filePath(), {"move"}};
+    CommandLine args{settings().binaryPath.filePath(), {"move"}};
     args << SubversionClient::AddAuthOptions()
          << QDir::toNativeSeparators(SubversionClient::escapeFile(from))
          << QDir::toNativeSeparators(SubversionClient::escapeFile(to));
@@ -1040,7 +1039,7 @@ bool SubversionPluginPrivate::vcsCheckout(const FilePath &directory, const QByte
     QUrl tempUrl = QUrl::fromEncoded(url);
     const QString username = tempUrl.userName();
     const QString password = tempUrl.password();
-    CommandLine args{m_settings.binaryPath.filePath(), {"checkout"}};
+    CommandLine args{settings().binaryPath.filePath(), {"checkout"}};
     args << Constants::NON_INTERACTIVE_OPTION;
 
     if (!username.isEmpty()) {
@@ -1087,7 +1086,7 @@ bool SubversionPluginPrivate::managesDirectory(const FilePath &directory, FilePa
 
 bool SubversionPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    CommandLine args{m_settings.binaryPath.filePath()};
+    CommandLine args{settings().binaryPath.filePath()};
     args << "status" << SubversionClient::AddAuthOptions()
          << QDir::toNativeSeparators(SubversionClient::escapeFile(fileName));
     const QString output = runSvn(workingDirectory, args).cleanedStdOut();
@@ -1126,7 +1125,7 @@ bool SubversionPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) con
 
 bool SubversionPluginPrivate::isConfigured() const
 {
-    const FilePath binary = m_settings.binaryPath.filePath();
+    const FilePath binary = settings().binaryPath.filePath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -1189,7 +1188,7 @@ VcsCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString 
                                                                   const QString &localName,
                                                                   const QStringList &extraArgs)
 {
-    CommandLine args{m_settings.binaryPath.filePath()};
+    CommandLine args{settings().binaryPath.filePath()};
     args << "checkout";
     args << SubversionClient::AddAuthOptions();
     args << Subversion::Constants::NON_INTERACTIVE_OPTION << extraArgs << url << localName;

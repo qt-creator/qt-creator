@@ -34,27 +34,22 @@ using namespace VcsBase;
 namespace Subversion {
 namespace Internal {
 
-static SubversionSettings *s_settings = nullptr;
-
 class SubversionLogConfig : public VcsBaseEditorConfig
 {
     Q_OBJECT
 public:
-    SubversionLogConfig(SubversionSettings &settings, QToolBar *toolBar) :
-        VcsBaseEditorConfig(toolBar)
+    explicit SubversionLogConfig(QToolBar *toolBar)
+        : VcsBaseEditorConfig(toolBar)
     {
         mapSetting(addToggleButton("--verbose", Tr::tr("Verbose"),
                                    Tr::tr("Show files changed in each revision")),
-                   &settings.logVerbose);
+                   &settings().logVerbose);
     }
 };
 
-SubversionClient::SubversionClient(SubversionSettings *settings) : VcsBaseClient(settings)
+SubversionClient::SubversionClient() : VcsBaseClient(&Internal::settings())
 {
-    s_settings = settings;
-    setLogConfigCreator([settings](QToolBar *toolBar) {
-        return new SubversionLogConfig(*settings, toolBar);
-    });
+    setLogConfigCreator([](QToolBar *toolBar) { return new SubversionLogConfig(toolBar); });
 }
 
 bool SubversionClient::doCommit(const FilePath &repositoryRoot,
@@ -101,11 +96,11 @@ Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
 // Add authorization options to the command line arguments.
 CommandLine &operator<<(Utils::CommandLine &command, SubversionClient::AddAuthOptions)
 {
-    if (!s_settings->hasAuthentication())
+    if (!settings().hasAuthentication())
         return command;
 
-    const QString userName = s_settings->userName.value();
-    const QString password = s_settings->password.value();
+    const QString userName = settings().userName();
+    const QString password = settings().password();
 
     if (userName.isEmpty())
         return command;
@@ -239,7 +234,7 @@ void SubversionDiffEditorController::setChangeNumber(int changeNumber)
 SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const QString &documentId,
     const FilePath &source, const QString &title, const FilePath &workingDirectory)
 {
-    auto &settings = static_cast<SubversionSettings &>(this->settings());
+    SubversionSettings &settings = Internal::settings();
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     auto controller = qobject_cast<SubversionDiffEditorController *>(
                 DiffEditorController::controller(document));

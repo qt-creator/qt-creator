@@ -78,15 +78,15 @@ bool SubversionSettings::hasAuthentication() const
     return useAuthentication.value() && !userName.value().isEmpty();
 }
 
-SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
+SubversionSettingsPage::SubversionSettingsPage()
 {
     setId(VcsBase::Constants::VCS_ID_SUBVERSION);
     setDisplayName(Tr::tr("Subversion"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(settings);
+    setSettings(&settings());
 
-    setLayouter([settings](QWidget *widget) {
-        SubversionSettings &s = *settings;
+    setLayouter([](QWidget *widget) {
+        SubversionSettings &s = settings();
         using namespace Layouting;
 
         Column {
@@ -115,6 +115,12 @@ SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
             st
         }.attachTo(widget);
     });
+}
+
+SubversionSettings &settings()
+{
+    static SubversionSettings theSettings;
+    return theSettings;
 }
 
 } // Subversion::Internal
