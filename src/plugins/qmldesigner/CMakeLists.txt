@@ -743,6 +743,7 @@ extend_qtc_plugin(QmlDesigner
     designerpropertymap.cpp designerpropertymap.h
     fileresourcesmodel.cpp fileresourcesmodel.h
     itemfiltermodel.cpp itemfiltermodel.h
+    listvalidator.cpp listvalidator.h
     gradientmodel.cpp gradientmodel.h
     dynamicpropertiesproxymodel.cpp dynamicpropertiesproxymodel.h
     gradientpresetcustomlistmodel.cpp gradientpresetcustomlistmodel.h

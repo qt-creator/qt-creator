@@ -51,4 +51,21 @@ StudioControls.ComboBox {
 
         return root.editText
     }
+
+    // Checks if the given parameter can be found as a value or text (valueRole vs. textRole). If
+    // both searches result an index !== -1 the text is preferred, otherwise index will be returned
+    // or -1 if not found.
+    // Text is preferred due to the fact that usually the users use the autocomplete functionality
+    // of an editable ComboBox hence there will be more hits on text search then on value.
+    function indexOfString(text) {
+        let textIndex = root.find(text)
+        if (textIndex !== -1)
+            return textIndex
+
+        let valueIndex = root.indexOfValue(text)
+        if (valueIndex !== -1)
+            return valueIndex
+
+        return -1
+    }
 }

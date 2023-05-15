@@ -34,6 +34,8 @@ T.ComboBox {
 
     property int maximumPopupHeight: control.style.maxComboBoxPopupHeight
 
+    property string preFocusText: ""
+
     signal compressedActivated(int index, int reason)
 
     enum ActivatedReason { EditingFinished, Other }
@@ -53,7 +55,7 @@ T.ComboBox {
 
     onActiveFocusChanged: {
         if (control.activeFocus)
-            comboBoxInput.preFocusText = control.editText
+            control.preFocusText = control.editText
     }
 
     ActionIndicator {
@@ -68,8 +70,6 @@ T.ComboBox {
 
     contentItem: ComboBoxInput {
         id: comboBoxInput
-
-        property string preFocusText: ""
 
         style: control.style
         __parentControl: control
@@ -332,8 +332,8 @@ T.ComboBox {
 
     Keys.onPressed: function(event) {
         if (event.key === Qt.Key_Escape) {
-            control.editText = comboBoxInput.preFocusText
-            control.dirty = true
+            control.editText = control.preFocusText
+            control.dirty = false
             control.focus = false
         }
     }
