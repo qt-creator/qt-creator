@@ -33,14 +33,14 @@ struct RepositorySettings
     QString user;
     QString sslIdentityFile;
     AutosyncMode autosync = AutosyncOn;
-};
 
-inline bool operator==(const RepositorySettings &lh, const RepositorySettings &rh)
-{
-    return (lh.user == rh.user &&
-            lh.sslIdentityFile == rh.sslIdentityFile &&
-            lh.autosync == rh.autosync);
-}
+    friend bool operator==(const RepositorySettings &lh, const RepositorySettings &rh)
+    {
+        return lh.user == rh.user
+            && lh.sslIdentityFile == rh.sslIdentityFile
+            && lh.autosync == rh.autosync;
+    }
+};
 
 class OptionsPage : public Core::IOptionsPage
 {
