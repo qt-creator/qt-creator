@@ -46,15 +46,15 @@ MercurialSettings::MercurialSettings()
 
 // MercurialSettingsPage
 
-MercurialSettingsPage::MercurialSettingsPage(MercurialSettings *settings)
+MercurialSettingsPage::MercurialSettingsPage()
 {
     setId(VcsBase::Constants::VCS_ID_MERCURIAL);
     setDisplayName(Tr::tr("Mercurial"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(settings);
+    setSettings(&settings());
 
-    setLayouter([settings](QWidget *widget) {
-        MercurialSettings &s = *settings;
+    setLayouter([](QWidget *widget) {
+        MercurialSettings &s = settings();
         using namespace Layouting;
 
         Column {
@@ -83,6 +83,12 @@ MercurialSettingsPage::MercurialSettingsPage(MercurialSettings *settings)
             st
         }.attachTo(widget);
     });
+}
+
+MercurialSettings &settings()
+{
+    static MercurialSettings theSettings;
+    return theSettings;
 }
 
 } // Mercurial::Internal

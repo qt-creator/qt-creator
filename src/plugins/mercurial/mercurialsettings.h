@@ -18,10 +18,12 @@ public:
     Utils::StringAspect diffIgnoreBlankLines;
 };
 
+MercurialSettings &settings();
+
 class MercurialSettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit MercurialSettingsPage(MercurialSettings *settings);
+    MercurialSettingsPage();
 };
 
 } // Mercurial::Internal

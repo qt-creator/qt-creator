@@ -81,7 +81,8 @@ QStringList MercurialDiffEditorController::addConfigurationArguments(const QStri
 
 /////////////////////////////////////////////////////////////
 
-MercurialClient::MercurialClient(MercurialSettings *settings) : VcsBaseClient(settings)
+MercurialClient::MercurialClient()
+    : VcsBaseClient(&Internal::settings())
 {
 }
 
