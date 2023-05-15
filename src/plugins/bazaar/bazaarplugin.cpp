@@ -215,9 +215,8 @@ public:
     void createRepositoryActions(const Core::Context &context);
 
     // Variables
-    BazaarSettings m_settings;
-    BazaarClient m_client{&m_settings};
-    BazaarSettingsPage m_settingPage{&m_settings};
+    BazaarClient m_client;
+    BazaarSettingsPage m_settingPage;
 
     VcsSubmitEditorFactory m_submitEditorFactory {
         submitEditorParameters,
@@ -372,7 +371,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     toolsMenu->addMenu(m_bazaarContainer);
     m_menuAction = m_bazaarContainer->menu()->menuAction();
 
-    connect(&m_settings, &AspectContainer::applied, this, &IVersionControl::configurationChanged);
+    connect(&settings(), &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 }
 
 void BazaarPluginPrivate::createFileActions(const Context &context)
@@ -523,7 +522,7 @@ void BazaarPluginPrivate::logRepository()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QStringList extraOptions;
-    extraOptions += "--limit=" + QString::number(m_settings.logCount());
+    extraOptions += "--limit=" + QString::number(settings().logCount());
     m_client.log(state.topLevel(), QStringList(), extraOptions);
 }
 
@@ -705,8 +704,8 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
 
     const BranchInfo branch = m_client.synchronousBranchQuery(m_submitRepository);
     commitEditor->setFields(m_submitRepository, branch,
-                            m_settings.userName.value(),
-                            m_settings.userEmail.value(), status);
+                            settings().userName(),
+                            settings().userEmail(), status);
 }
 
 void BazaarPluginPrivate::diffFromEditorSelected(const QStringList &files)
@@ -872,7 +871,7 @@ bool BazaarPluginPrivate::managesFile(const FilePath &workingDirectory, const QS
 
 bool BazaarPluginPrivate::isConfigured() const
 {
-    const FilePath binary = m_settings.binaryPath.filePath();
+    const FilePath binary = settings().binaryPath.filePath();
     return !binary.isEmpty() && binary.isExecutableFile();
 }
 

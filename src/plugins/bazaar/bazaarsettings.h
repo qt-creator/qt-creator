@@ -22,10 +22,12 @@ public:
     Utils::StringAspect logFormat;
 };
 
+BazaarSettings &settings();
+
 class BazaarSettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit BazaarSettingsPage(BazaarSettings *settings);
+    BazaarSettingsPage();
 };
 
 } // Bazaar::Internal

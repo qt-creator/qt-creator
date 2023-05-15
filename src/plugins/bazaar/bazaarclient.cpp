@@ -29,13 +29,13 @@ namespace Bazaar::Internal {
 class BazaarDiffConfig : public VcsBaseEditorConfig
 {
 public:
-    BazaarDiffConfig(BazaarSettings &settings, QToolBar *toolBar) :
-        VcsBaseEditorConfig(toolBar)
+    explicit BazaarDiffConfig(QToolBar *toolBar)
+        : VcsBaseEditorConfig(toolBar)
     {
         mapSetting(addToggleButton("-w", Tr::tr("Ignore Whitespace")),
-                   &settings.diffIgnoreWhiteSpace);
+                   &settings().diffIgnoreWhiteSpace);
         mapSetting(addToggleButton("-B", Tr::tr("Ignore Blank Lines")),
-                   &settings.diffIgnoreBlankLines);
+                   &settings().diffIgnoreBlankLines);
     }
 
     QStringList arguments() const override
@@ -54,18 +54,18 @@ public:
 class BazaarLogConfig : public VcsBaseEditorConfig
 {
 public:
-    BazaarLogConfig(BazaarSettings &settings, QToolBar *toolBar) :
-        VcsBaseEditorConfig(toolBar)
+    BazaarLogConfig(QToolBar *toolBar)
+        : VcsBaseEditorConfig(toolBar)
     {
         mapSetting(addToggleButton("--verbose", Tr::tr("Verbose"),
                                    Tr::tr("Show files changed in each revision.")),
-                   &settings.logVerbose);
+                   &settings().logVerbose);
         mapSetting(addToggleButton("--forward", Tr::tr("Forward"),
                                    Tr::tr("Show from oldest to newest.")),
-                   &settings.logForward);
+                   &settings().logForward);
         mapSetting(addToggleButton("--include-merges", Tr::tr("Include Merges"),
                                    Tr::tr("Show merged revisions.")),
-                   &settings.logIncludeMerges);
+                   &settings().logIncludeMerges);
 
         const QList<ChoiceItem> logChoices = {
             {Tr::tr("Detailed"), "long"},
@@ -74,18 +74,14 @@ public:
             {Tr::tr("GNU Change Log"), "gnu-changelog"}
         };
         mapSetting(addChoices(Tr::tr("Format"), { "--log-format=%1" }, logChoices),
-                   &settings.logFormat);
+                   &settings().logFormat);
     }
 };
 
-BazaarClient::BazaarClient(BazaarSettings *settings) : VcsBaseClient(settings)
+BazaarClient::BazaarClient() : VcsBaseClient(&Internal::settings())
 {
-    setDiffConfigCreator([settings](QToolBar *toolBar) {
-        return new BazaarDiffConfig(*settings, toolBar);
-    });
-    setLogConfigCreator([settings](QToolBar *toolBar) {
-        return new BazaarLogConfig(*settings, toolBar);
-    });
+    setDiffConfigCreator([](QToolBar *toolBar) { return new BazaarDiffConfig(toolBar); });
+    setLogConfigCreator([](QToolBar *toolBar) { return new BazaarLogConfig(toolBar); });
 }
 
 BranchInfo BazaarClient::synchronousBranchQuery(const FilePath &repositoryRoot) const

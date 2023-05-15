@@ -70,15 +70,15 @@ BazaarSettings::BazaarSettings()
 
 // BazaarSettingsPage
 
-BazaarSettingsPage::BazaarSettingsPage(BazaarSettings *settings)
+BazaarSettingsPage::BazaarSettingsPage()
 {
     setId(VcsBase::Constants::VCS_ID_BAZAAR);
     setDisplayName(Tr::tr("Bazaar"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(settings);
+    setSettings(&settings());
 
-    setLayouter([settings](QWidget *widget) {
-        BazaarSettings &s = *settings;
+    setLayouter([](QWidget *widget) {
+        BazaarSettings &s = settings();
         using namespace Layouting;
 
         Column {
@@ -106,6 +106,12 @@ BazaarSettingsPage::BazaarSettingsPage(BazaarSettings *settings)
             st
         }.attachTo(widget);
     });
+}
+
+BazaarSettings &settings()
+{
+    static BazaarSettings theSettings;
+    return theSettings;
 }
 
 } // Bazaar::Internal
