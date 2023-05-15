@@ -15,4 +15,6 @@ public:
     Utils::FilePathAspect conanFilePath;
 };
 
+ConanSettings &settings();
+
 } // Conan::Internal

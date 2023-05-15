@@ -3,14 +3,22 @@
 
 #include "conansettings.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/hostosinfo.h>
 
 using namespace Utils;
 
 namespace Conan::Internal {
 
+static ConanSettings *theSettings;
+
+ConanSettings &settings() { return *theSettings; }
+
 ConanSettings::ConanSettings()
 {
+    theSettings = this;
+
     setSettingsGroup("ConanSettings");
     setAutoApply(false);
 
@@ -18,6 +26,8 @@ ConanSettings::ConanSettings()
     conanFilePath.setSettingsKey("ConanFilePath");
     conanFilePath.setExpectedKind(PathChooser::ExistingCommand);
     conanFilePath.setDefaultValue(HostOsInfo::withExecutableSuffix("conan"));
+
+    readSettings(Core::ICore::settings());
 }
 
 } // Conan::Internal
