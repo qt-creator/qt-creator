@@ -12,21 +12,23 @@ namespace Cvs::Internal {
 class CvsSettings : public VcsBase::VcsBaseSettings
 {
 public:
+    CvsSettings();
+
     Utils::StringAspect cvsRoot;
     Utils::StringAspect diffOptions;
     Utils::BoolAspect diffIgnoreWhiteSpace;
     Utils::BoolAspect diffIgnoreBlankLines;
     Utils::BoolAspect describeByCommitId;
 
-    CvsSettings();
-
     QStringList addOptions(const QStringList &args) const;
 };
+
+CvsSettings &settings();
 
 class CvsSettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit CvsSettingsPage(CvsSettings *settings);
+    CvsSettingsPage();
 };
 
 } // Cvs::Internal

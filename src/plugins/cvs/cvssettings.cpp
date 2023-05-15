@@ -70,15 +70,15 @@ QStringList CvsSettings::addOptions(const QStringList &args) const
     return rc;
 }
 
-CvsSettingsPage::CvsSettingsPage(CvsSettings *settings)
+CvsSettingsPage::CvsSettingsPage()
 {
     setId(VcsBase::Constants::VCS_ID_CVS);
     setDisplayName(Tr::tr("CVS"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(settings);
+    setSettings(&settings());
 
-    setLayouter([settings](QWidget *widget) {
-        CvsSettings &s = *settings;
+    setLayouter([](QWidget *widget) {
+        CvsSettings &s = settings();
         using namespace Layouting;
 
         Column {
@@ -102,6 +102,12 @@ CvsSettingsPage::CvsSettingsPage(CvsSettings *settings)
             st
         }.attachTo(widget);
     });
+}
+
+CvsSettings &settings()
+{
+    static CvsSettings theSettings;
+    return theSettings;
 }
 
 } // Cvs::Internal

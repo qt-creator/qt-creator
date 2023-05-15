@@ -137,34 +137,28 @@ static inline bool messageBoxQuestion(const QString &title, const QString &quest
 class CvsDiffConfig : public VcsBaseEditorConfig
 {
 public:
-    CvsDiffConfig(CvsSettings &settings, QToolBar *toolBar) :
-        VcsBaseEditorConfig(toolBar),
-        m_settings(settings)
+    CvsDiffConfig(QToolBar *toolBar)
+        : VcsBaseEditorConfig(toolBar)
     {
         mapSetting(addToggleButton("-w", Tr::tr("Ignore Whitespace")),
-                   &settings.diffIgnoreWhiteSpace);
+                   &settings().diffIgnoreWhiteSpace);
         mapSetting(addToggleButton("-B", Tr::tr("Ignore Blank Lines")),
-                   &settings.diffIgnoreBlankLines);
+                   &settings().diffIgnoreBlankLines);
     }
 
     QStringList arguments() const override
     {
-        return m_settings.diffOptions.value().split(' ', Qt::SkipEmptyParts)
+        return settings().diffOptions.value().split(' ', Qt::SkipEmptyParts)
                + VcsBaseEditorConfig::arguments();
     }
-
-private:
-    CvsSettings &m_settings;
 };
 
 class CvsClient : public VcsBaseClient
 {
 public:
-    explicit CvsClient(CvsSettings *settings) : VcsBaseClient(settings)
+    explicit CvsClient() : VcsBaseClient(&Internal::settings())
     {
-        setDiffConfigCreator([settings](QToolBar *toolBar) {
-            return new CvsDiffConfig(*settings, toolBar);
-        });
+        setDiffConfigCreator([](QToolBar *toolBar) { return new CvsDiffConfig(toolBar); });
     }
 
     ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const override
@@ -294,7 +288,6 @@ private:
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();
 
-    CvsSettings m_settings;
     CvsClient *m_client = nullptr;
 
     QString m_commitMessageFileName;
@@ -327,7 +320,7 @@ private:
 
     QAction *m_menuAction = nullptr;
 
-    CvsSettingsPage m_settingsPage{&m_settings};
+    CvsSettingsPage m_settingsPage;
 
 public:
     VcsSubmitEditorFactory submitEditorFactory {
@@ -374,7 +367,7 @@ bool CvsPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &filePath) con
 
 bool CvsPluginPrivate::isConfigured() const
 {
-    const Utils::FilePath binary = m_settings.binaryPath.filePath();
+    const FilePath binary = settings().binaryPath.filePath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -447,7 +440,7 @@ VcsCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString &url,
 
     auto command = VcsBaseClient::createVcsCommand(baseDirectory, Environment::systemEnvironment());
     command->setDisplayName(Tr::tr("CVS Checkout"));
-    command->addJob({m_settings.binaryPath.filePath(), m_settings.addOptions(args)}, -1);
+    command->addJob({settings().binaryPath.filePath(), settings().addOptions(args)}, -1);
     return command;
 }
 
@@ -497,7 +490,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     dd = this;
 
     Context context(CVS_CONTEXT);
-    m_client = new CvsClient(&m_settings);
+    m_client = new CvsClient;
 
     const QString prefix = QLatin1String("cvs");
     m_commandLocator = new CommandLocator("CVS", prefix, prefix, this);
@@ -692,7 +685,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    connect(&m_settings, &AspectContainer::applied, this, &IVersionControl::configurationChanged);
+    connect(&settings(), &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 }
 
 void CvsPluginPrivate::vcsDescribe(const FilePath &source, const QString &changeNr)
@@ -1230,7 +1223,7 @@ bool CvsPluginPrivate::describe(const FilePath &toplevel, const QString &file,
         *errorMessage = Tr::tr("Parsing of the log output failed.");
         return false;
     }
-    if (m_settings.describeByCommitId.value()) {
+    if (settings().describeByCommitId()) {
         // Run a log command over the repo, filtering by the commit date
         // and commit id, collecting all files touched by the commit.
         const QString commitId = fileLog.front().revisions.front().commitId;
@@ -1286,7 +1279,7 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
     for (QList<CvsLogEntry>::iterator it = entries.begin(); it != lend; ++it) {
         const QString &revision = it->revisions.front().revision;
         if (!isFirstRevision(revision)) {
-            const QStringList args{"diff", m_settings.diffOptions.value(),
+            const QStringList args{"diff", settings().diffOptions(),
                                    "-r", previousRevision(revision),
                                    "-r", it->revisions.front().revision, it->file};
             const auto diffResponse = runCvs(repositoryPath, args, RunFlags::None, codec);
@@ -1329,13 +1322,13 @@ CommandResult CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
                                        const QStringList &arguments, RunFlags flags,
                                        QTextCodec *outputCodec, int timeoutMultiplier) const
 {
-    const FilePath executable = m_settings.binaryPath.filePath();
+    const FilePath executable = settings().binaryPath.filePath();
     if (executable.isEmpty())
         return CommandResult(ProcessResult::StartFailed, Tr::tr("No CVS executable specified."));
 
-    const int timeoutS = m_settings.timeout() * timeoutMultiplier;
+    const int timeoutS = settings().timeout() * timeoutMultiplier;
     return m_client->vcsSynchronousExec(workingDirectory,
-                                        {executable, m_settings.addOptions(arguments)},
+                                        {executable, settings().addOptions(arguments)},
                                         flags, timeoutS, outputCodec);
 }
 
