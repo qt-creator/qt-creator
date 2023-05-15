@@ -141,6 +141,17 @@ QVariant SessionManager::value(const QString &name)
     return (it == sb_d->m_values.constEnd()) ? QVariant() : *it;
 }
 
+void SessionManager::setSessionValue(const QString &name, const QVariant &value)
+{
+    sb_d->m_sessionValues.insert(name, value);
+}
+
+QVariant SessionManager::sessionValue(const QString &name, const QVariant &defaultValue)
+{
+    auto it = sb_d->m_sessionValues.constFind(name);
+    return (it == sb_d->m_sessionValues.constEnd()) ? defaultValue : *it;
+}
+
 QString SessionManager::activeSession()
 {
     return sb_d->m_sessionName;
@@ -382,12 +393,24 @@ void SessionManagerPrivate::restoreValues(const PersistentSettingsReader &reader
     }
 }
 
-void SessionManagerPrivate::restoreEditors(const PersistentSettingsReader &reader)
+void SessionManagerPrivate::restoreSessionValues(const PersistentSettingsReader &reader)
 {
-    const QVariant editorsettings = reader.restoreValue(QLatin1String("EditorSettings"));
+    const QVariantMap values = reader.restoreValues();
+    // restore toplevel items that are not restored by restoreValues
+    const auto end = values.constEnd();
+    for (auto it = values.constBegin(); it != end; ++it) {
+        if (it.key() == "valueKeys" || it.key().startsWith("value-"))
+            continue;
+        m_sessionValues.insert(it.key(), it.value());
+    }
+}
+
+void SessionManagerPrivate::restoreEditors()
+{
+    const QVariant editorsettings = m_sessionValues.value("EditorSettings");
     if (editorsettings.isValid()) {
         EditorManager::restoreState(QByteArray::fromBase64(editorsettings.toByteArray()));
-        sessionLoadingProgress();
+        SessionManager::sessionLoadingProgress();
     }
 }
 
@@ -412,10 +435,15 @@ void SessionManager::markSessionFileDirty()
     sb_d->m_virginSession = false;
 }
 
-void SessionManagerPrivate::sessionLoadingProgress()
+void SessionManager::sessionLoadingProgress()
 {
-    m_future.setProgressValue(m_future.progressValue() + 1);
+    sb_d->m_future.setProgressValue(sb_d->m_future.progressValue() + 1);
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+}
+
+void SessionManager::addSessionLoadingSteps(int steps)
+{
+    sb_d->m_future.setProgressRange(0, sb_d->m_future.progressMaximum() + steps);
 }
 
 } // namespace ProjectExplorer

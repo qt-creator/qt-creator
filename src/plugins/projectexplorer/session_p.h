@@ -15,8 +15,8 @@ public:
     void restoreStartupSession();
 
     void restoreValues(const PersistentSettingsReader &reader);
-    void restoreEditors(const PersistentSettingsReader &reader);
-    void sessionLoadingProgress();
+    void restoreSessionValues(const PersistentSettingsReader &reader);
+    void restoreEditors();
 
     bool isStartupSessionRestored();
     void saveSettings();
@@ -38,6 +38,7 @@ public:
     QHash<QString, QDateTime> m_lastActiveTimes;
 
     QMap<QString, QVariant> m_values;
+    QMap<QString, QVariant> m_sessionValues;
     QFutureInterface<void> m_future;
     PersistentSettingsWriter *m_writer = nullptr;
 };

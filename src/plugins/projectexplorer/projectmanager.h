@@ -82,8 +82,6 @@ public:
 
     static Utils::FilePaths projectsForSessionName(const QString &session);
 
-    static void reportProjectLoadingProgress();
-
     static bool loadSession(const QString &session, bool initial = false);
 
 signals:
