@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Mercurial::Internal {
@@ -19,11 +17,5 @@ public:
 };
 
 MercurialSettings &settings();
-
-class MercurialSettingsPage final : public Core::IOptionsPage
-{
-public:
-    MercurialSettingsPage();
-};
 
 } // Mercurial::Internal

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Bazaar::Internal {
@@ -23,11 +21,5 @@ public:
 };
 
 BazaarSettings &settings();
-
-class BazaarSettingsPage final : public Core::IOptionsPage
-{
-public:
-    BazaarSettingsPage();
-};
 
 } // Bazaar::Internal

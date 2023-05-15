@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Cvs::Internal {
@@ -24,11 +22,5 @@ public:
 };
 
 CvsSettings &settings();
-
-class CvsSettingsPage final : public Core::IOptionsPage
-{
-public:
-    CvsSettingsPage();
-};
 
 } // Cvs::Internal

@@ -17,11 +17,21 @@ using namespace Utils;
 
 namespace Cvs::Internal {
 
-// CvsSettings
+static CvsSettings *theSettings;
+
+CvsSettings &settings()
+{
+    return *theSettings;
+}
 
 CvsSettings::CvsSettings()
 {
+    theSettings = this;
     setSettingsGroup("CVS");
+
+    setId(VcsBase::Constants::VCS_ID_CVS);
+    setDisplayName(Tr::tr("CVS"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 
     registerAspect(&binaryPath);
     binaryPath.setDefaultValue("cvs" QTC_HOST_EXE_SUFFIX);
@@ -55,6 +65,30 @@ CvsSettings::CvsSettings()
 
     registerAspect(&diffIgnoreBlankLines);
     diffIgnoreBlankLines.setSettingsKey("DiffIgnoreBlankLines");
+
+    setLayouter([this](QWidget *widget) {
+        using namespace Layouting;
+        Column {
+            Group {
+                title(Tr::tr("Configuration")),
+                Form {
+                    binaryPath, br,
+                    cvsRoot
+                }
+            },
+            Group {
+                title(Tr::tr("Miscellaneous")),
+                Column {
+                    Form {
+                        timeout, br,
+                        diffOptions,
+                    },
+                    describeByCommitId,
+                }
+            },
+            st
+        }.attachTo(widget);
+    });
 }
 
 QStringList CvsSettings::addOptions(const QStringList &args) const
@@ -68,46 +102,6 @@ QStringList CvsSettings::addOptions(const QStringList &args) const
     rc.push_back(cvsRoot);
     rc.append(args);
     return rc;
-}
-
-CvsSettingsPage::CvsSettingsPage()
-{
-    setId(VcsBase::Constants::VCS_ID_CVS);
-    setDisplayName(Tr::tr("CVS"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(&settings());
-
-    setLayouter([](QWidget *widget) {
-        CvsSettings &s = settings();
-        using namespace Layouting;
-
-        Column {
-            Group {
-                title(Tr::tr("Configuration")),
-                Form {
-                    s.binaryPath, br,
-                    s.cvsRoot
-                }
-            },
-            Group {
-                title(Tr::tr("Miscellaneous")),
-                Column {
-                    Form {
-                        s.timeout, br,
-                        s.diffOptions,
-                    },
-                    s.describeByCommitId,
-                }
-            },
-            st
-        }.attachTo(widget);
-    });
-}
-
-CvsSettings &settings()
-{
-    static CvsSettings theSettings;
-    return theSettings;
 }
 
 } // Cvs::Internal

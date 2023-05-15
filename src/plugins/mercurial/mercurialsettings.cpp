@@ -14,8 +14,22 @@ using namespace Utils;
 
 namespace Mercurial::Internal {
 
+static MercurialSettings *theSettings;
+
+MercurialSettings &settings()
+{
+    return *theSettings;
+}
+
 MercurialSettings::MercurialSettings()
 {
+    theSettings = this;
+
+    setId(VcsBase::Constants::VCS_ID_MERCURIAL);
+    setDisplayName(Tr::tr("Mercurial"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+    setSettings(&settings());
+
     setSettingsGroup("Mercurial");
     setAutoApply(false);
 
@@ -42,53 +56,32 @@ MercurialSettings::MercurialSettings()
 
     registerAspect(&diffIgnoreBlankLines);
     diffIgnoreBlankLines.setSettingsKey("diffIgnoreBlankLines");
-}
 
-// MercurialSettingsPage
-
-MercurialSettingsPage::MercurialSettingsPage()
-{
-    setId(VcsBase::Constants::VCS_ID_MERCURIAL);
-    setDisplayName(Tr::tr("Mercurial"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(&settings());
-
-    setLayouter([](QWidget *widget) {
-        MercurialSettings &s = settings();
+    setLayouter([this](QWidget *widget) {
         using namespace Layouting;
 
         Column {
             Group {
                 title(Tr::tr("Configuration")),
-                Row { s.binaryPath }
+                Row { binaryPath }
             },
 
             Group {
                 title(Tr::tr("User")),
                 Form {
-                    s.userName, br,
-                    s.userEmail
+                    userName, br,
+                    userEmail
                 }
             },
 
             Group {
                 title(Tr::tr("Miscellaneous")),
-                Row {
-                    s.logCount,
-                    s.timeout,
-                    st
-                }
+                Row { logCount, timeout, st }
             },
 
             st
         }.attachTo(widget);
     });
-}
-
-MercurialSettings &settings()
-{
-    static MercurialSettings theSettings;
-    return theSettings;
 }
 
 } // Mercurial::Internal

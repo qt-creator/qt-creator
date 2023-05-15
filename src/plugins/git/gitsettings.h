@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Git::Internal {
@@ -47,11 +46,5 @@ public:
 };
 
 GitSettings &settings();
-
-class GitSettingsPage final : public Core::IOptionsPage
-{
-public:
-    GitSettingsPage();
-};
 
 } // Git::Internal

@@ -17,10 +17,21 @@ using namespace Utils;
 
 namespace Fossil::Internal {
 
+static FossilSettings *theSettings;
+
+FossilSettings &settings()
+{
+    return *theSettings;
+}
+
 FossilSettings::FossilSettings()
 {
+    theSettings = this;
+
     setSettingsGroup(Constants::FOSSIL);
-    setAutoApply(false);
+    setId(Constants::VCS_ID_FOSSIL);
+    setDisplayName(Tr::tr("Fossil"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 
     registerAspect(&binaryPath);
     binaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
@@ -94,69 +105,38 @@ FossilSettings::FossilSettings()
     logCount.setLabelText(Tr::tr("Log count:"));
     logCount.setToolTip(Tr::tr("The number of recent commit log entries to show. "
         "Choose 0 to see all entries."));
-}
 
-// OptionsPage
-
-class OptionsPageWidget final : public Core::IOptionsPageWidget
-{
-public:
-    OptionsPageWidget()
-    {
-        FossilSettings &s = settings();
-
+    setLayouter([this](QWidget *widget) {
         using namespace Layouting;
-
         Column {
             Group {
                 title(Tr::tr("Configuration")),
-                        Row { s.binaryPath }
+                Row { binaryPath }
             },
 
             Group {
                 title(Tr::tr("Local Repositories")),
-                        Row { s.defaultRepoPath }
+                Row { defaultRepoPath }
             },
+
             Group {
                 title(Tr::tr("User")),
-                        Form {
-                    s.userName, br,
-                            s.sslIdentityFile
+                Form {
+                    userName, br,
+                    sslIdentityFile
                 }
             },
 
             Group {
                 title(Tr::tr("Miscellaneous")),
-                        Column {
-                    Row {
-                        s.logCount,
-                                s.timelineWidth,
-                                s.timeout,
-                                st
-                    },
-                    s.disableAutosync
+                Column {
+                    Row { logCount, timelineWidth, timeout, st },
+                    disableAutosync
                 },
             },
             st
-
-        }.attachTo(this);
-
-        setOnApply([] { settings().apply(); });
-    }
-};
-
-OptionsPage::OptionsPage()
-{
-    setId(Constants::VCS_ID_FOSSIL);
-    setDisplayName(Tr::tr("Fossil"));
-    setWidgetCreator([] { return new OptionsPageWidget; });
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-}
-
-FossilSettings &settings()
-{
-    static FossilSettings theSettings;
-    return theSettings;
+        }.attachTo(widget);
+    });
 }
 
 } // Fossil::Internal

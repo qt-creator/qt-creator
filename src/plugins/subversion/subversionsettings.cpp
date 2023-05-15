@@ -5,25 +5,31 @@
 
 #include "subversiontr.h"
 
-#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QSettings>
-
 using namespace Utils;
 using namespace VcsBase;
 
 namespace Subversion::Internal {
 
-// SubversionSettings
+static SubversionSettings *theSettings;
+
+SubversionSettings &settings()
+{
+    return *theSettings;
+}
 
 SubversionSettings::SubversionSettings()
 {
-    setAutoApply(false);
+    theSettings = this;
+
+    setId(VcsBase::Constants::VCS_ID_SUBVERSION);
+    setDisplayName(Tr::tr("Subversion"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
     setSettingsGroup("Subversion");
 
     registerAspect(&binaryPath);
@@ -68,47 +74,33 @@ SubversionSettings::SubversionSettings()
     timeout.setSuffix(Tr::tr("s"));
 
     QObject::connect(&useAuthentication, &BaseAspect::changed, this, [this] {
-        userName.setEnabled(useAuthentication.value());
-        password.setEnabled(useAuthentication.value());
+        userName.setEnabled(useAuthentication());
+        password.setEnabled(useAuthentication());
     });
-}
 
-bool SubversionSettings::hasAuthentication() const
-{
-    return useAuthentication.value() && !userName.value().isEmpty();
-}
-
-SubversionSettingsPage::SubversionSettingsPage()
-{
-    setId(VcsBase::Constants::VCS_ID_SUBVERSION);
-    setDisplayName(Tr::tr("Subversion"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(&settings());
-
-    setLayouter([](QWidget *widget) {
-        SubversionSettings &s = settings();
+    setLayouter([this](QWidget *widget) {
         using namespace Layouting;
 
         Column {
             Group {
                 title(Tr::tr("Configuration")),
-                Column { s.binaryPath }
+                Column { binaryPath }
             },
 
             Group {
                 title(Tr::tr("Authentication")),
-                s.useAuthentication.groupChecker(),
+                useAuthentication.groupChecker(),
                 Form {
-                    s.userName, br,
-                    s.password,
+                    userName, br,
+                    password,
                  }
             },
 
             Group {
                 title(Tr::tr("Miscellaneous")),
                 Column {
-                    Row { s.logCount, s.timeout, st },
-                    s.spaceIgnorantAnnotation,
+                    Row { logCount, timeout, st },
+                    spaceIgnorantAnnotation,
                 }
             },
 
@@ -117,10 +109,9 @@ SubversionSettingsPage::SubversionSettingsPage()
     });
 }
 
-SubversionSettings &settings()
+bool SubversionSettings::hasAuthentication() const
 {
-    static SubversionSettings theSettings;
-    return theSettings;
+    return useAuthentication() && !userName().isEmpty();
 }
 
 } // Subversion::Internal

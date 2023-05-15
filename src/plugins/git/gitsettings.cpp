@@ -17,8 +17,21 @@ using namespace VcsBase;
 
 namespace Git::Internal {
 
+static GitSettings *theSettings;
+
+GitSettings &settings()
+{
+    return *theSettings;
+}
+
 GitSettings::GitSettings()
 {
+    theSettings = this;
+
+    setId(VcsBase::Constants::VCS_ID_GIT);
+    setDisplayName(Tr::tr("Git"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+
     setSettingsGroup("Git");
 
     path.setDisplayStyle(StringAspect::LineEditDisplay);
@@ -117,6 +130,44 @@ GitSettings::GitSettings()
 
     timeout.setDefaultValue(Utils::HostOsInfo::isWindowsHost() ? 60 : 30);
 
+    setLayouter([this](QWidget *widget) {
+        using namespace Layouting;
+
+        Column {
+            Group {
+                title(Tr::tr("Configuration")),
+                Column {
+                    Row { path },
+                    winSetHomeEnvironment,
+                }
+            },
+
+            Group {
+                title(Tr::tr("Miscellaneous")),
+                Column {
+                    Row { logCount, timeout, st },
+                    pullRebase
+                }
+            },
+
+            Group {
+                title(Tr::tr("Gitk")),
+                Row { gitkOptions }
+            },
+
+            Group {
+                title(Tr::tr("Repository Browser")),
+                Row { repositoryBrowserCmd }
+            },
+
+            Group {
+                title(Tr::tr("Instant Blame")),
+                Row { instantBlame }
+            },
+
+            st
+        }.attachTo(widget);
+    });
     connect(&binaryPath, &StringAspect::valueChanged, this, [this] { tryResolve = true; });
     connect(&path, &StringAspect::valueChanged, this, [this] { tryResolve = true; });
 }
@@ -144,62 +195,6 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
                 .arg(binaryPath.value(), path.value());
     }
     return resolvedBinPath;
-}
-
-// GitSettingsPage
-
-GitSettingsPage::GitSettingsPage()
-{
-    setId(VcsBase::Constants::VCS_ID_GIT);
-    setDisplayName(Tr::tr("Git"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(&settings());
-
-    setLayouter([](QWidget *widget) {
-        GitSettings &s = settings();
-        using namespace Layouting;
-
-        Column {
-            Group {
-                title(Tr::tr("Configuration")),
-                Column {
-                    Row { s.path },
-                    s.winSetHomeEnvironment,
-                }
-            },
-
-            Group {
-                title(Tr::tr("Miscellaneous")),
-                Column {
-                    Row { s.logCount, s.timeout, st },
-                    s.pullRebase
-                }
-            },
-
-            Group {
-                title(Tr::tr("Gitk")),
-                Row { s.gitkOptions }
-            },
-
-            Group {
-                title(Tr::tr("Repository Browser")),
-                Row { s.repositoryBrowserCmd }
-            },
-
-            Group {
-                title(Tr::tr("Instant Blame")),
-                Row { s.instantBlame }
-            },
-
-            st
-        }.attachTo(widget);
-    });
-}
-
-GitSettings &settings()
-{
-    static GitSettings theSettings;
-    return theSettings;
 }
 
 } // Git::Internal

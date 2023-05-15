@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Subversion::Internal {
@@ -24,11 +22,5 @@ public:
 };
 
 SubversionSettings &settings();
-
-class SubversionSettingsPage final : public Core::IOptionsPage
-{
-public:
-    SubversionSettingsPage();
-};
 
 } // Subversion::Internal

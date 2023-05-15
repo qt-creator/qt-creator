@@ -288,6 +288,7 @@ private:
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();
 
+    CvsSettings m_setting;
     CvsClient *m_client = nullptr;
 
     QString m_commitMessageFileName;
@@ -319,8 +320,6 @@ private:
     QAction *m_statusRepositoryAction = nullptr;
 
     QAction *m_menuAction = nullptr;
-
-    CvsSettingsPage m_settingsPage;
 
 public:
     VcsSubmitEditorFactory submitEditorFactory {

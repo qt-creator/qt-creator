@@ -261,6 +261,7 @@ private:
 
     const QStringList m_svnDirectories;
 
+    SubversionSettings m_settings;
     SubversionClient *m_client = nullptr;
     QString m_commitMessageFileName;
     FilePath m_commitRepository;
@@ -287,8 +288,6 @@ private:
     QAction *m_describeAction = nullptr;
 
     QAction *m_menuAction = nullptr;
-
-    SubversionSettingsPage m_settingsPage;
 
 public:
     VcsSubmitEditorFactory submitEditorFactory {

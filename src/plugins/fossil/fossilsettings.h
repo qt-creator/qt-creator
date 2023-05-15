@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Fossil::Internal {
@@ -42,12 +41,6 @@ struct RepositorySettings
             && lh.sslIdentityFile == rh.sslIdentityFile
             && lh.autosync == rh.autosync;
     }
-};
-
-class OptionsPage : public Core::IOptionsPage
-{
-public:
-    OptionsPage();
 };
 
 } // Fossil::Internal

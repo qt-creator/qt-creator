@@ -16,10 +16,21 @@ using namespace Utils;
 
 namespace Bazaar::Internal {
 
+static BazaarSettings *theSettings;
+
+BazaarSettings &settings()
+{
+    return *theSettings;
+}
+
 BazaarSettings::BazaarSettings()
 {
+    theSettings = this;
+
     setSettingsGroup(Constants::BAZAAR);
-    setAutoApply(false);
+    setId(VcsBase::Constants::VCS_ID_BAZAAR);
+    setDisplayName(Tr::tr("Bazaar"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 
     registerAspect(&binaryPath);
     binaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
@@ -66,52 +77,31 @@ BazaarSettings::BazaarSettings()
     registerAspect(&logCount);
     timeout.setLabelText(Tr::tr("Timeout:"));
     timeout.setSuffix(Tr::tr("s"));
-}
 
-// BazaarSettingsPage
-
-BazaarSettingsPage::BazaarSettingsPage()
-{
-    setId(VcsBase::Constants::VCS_ID_BAZAAR);
-    setDisplayName(Tr::tr("Bazaar"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(&settings());
-
-    setLayouter([](QWidget *widget) {
-        BazaarSettings &s = settings();
+    setLayouter([this](QWidget *widget) {
         using namespace Layouting;
 
         Column {
             Group {
                 title(Tr::tr("Configuration")),
-                Row { s.binaryPath }
+                Row { binaryPath }
             },
 
             Group {
                 title(Tr::tr("User")),
                 Form {
-                    s.userName, br,
-                    s.userEmail
+                    userName, br,
+                    userEmail
                 }
             },
 
             Group {
                 title(Tr::tr("Miscellaneous")),
-                Row {
-                    s.logCount,
-                    s.timeout,
-                    st
-                }
+                Row { logCount, timeout, st }
             },
             st
         }.attachTo(widget);
     });
-}
-
-BazaarSettings &settings()
-{
-    static BazaarSettings theSettings;
-    return theSettings;
 }
 
 } // Bazaar::Internal

@@ -397,6 +397,7 @@ public:
 
     void onApplySettings();
 
+    GitSettings setting;
     CommandLocator *m_commandLocator = nullptr;
 
     QAction *m_menuAction = nullptr;
@@ -432,8 +433,6 @@ public:
     QTimer *m_cursorPositionChangedTimer = nullptr;
     std::unique_ptr<BlameMark> m_blameMark;
     QMetaObject::Connection m_blameCursorPosConn;
-
-    GitSettingsPage settingPage;
 
     GitGrep gitGrep{&m_gitClient};
 
