@@ -115,11 +115,7 @@ public:
 
     void emitReadyRead()
     {
-        //for emit signal from PtyBuffer own thread
-        QTimer::singleShot(1, this, [this]()
-        {
-             emit readyRead();
-        });
+        emit readyRead();
     }
 
 private:

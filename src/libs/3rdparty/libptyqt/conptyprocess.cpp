@@ -184,7 +184,7 @@ bool ConPtyProcess::startProcess(const QString &executable,
                          if (!m_aboutToDestruct)
                              emit notifier()->aboutToClose();
                          m_shellCloseWaitNotifier->setEnabled(false);
-                     });
+                     }, Qt::QueuedConnection);
 
     //this code runned in separate thread
     m_readThread = QThread::create([this]() {
