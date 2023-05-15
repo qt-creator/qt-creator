@@ -56,8 +56,8 @@ void CopilotPlugin::extensionsInitialized()
 void CopilotPlugin::restartClient()
 {
     LanguageClient::LanguageClientManager::shutdownClient(m_client);
-    m_client = new CopilotClient(CopilotSettings::instance().nodeJsPath.filePath(),
-                                 CopilotSettings::instance().distPath.filePath());
+    m_client = new CopilotClient(CopilotSettings::instance().nodeJsPath(),
+                                 CopilotSettings::instance().distPath());
 }
 
 } // namespace Internal

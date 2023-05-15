@@ -12,7 +12,7 @@ class ConanSettings : public Utils::AspectContainer
 public:
     ConanSettings();
 
-    Utils::StringAspect conanFilePath;
+    Utils::FilePathAspect conanFilePath;
 };
 
 } // Conan::Internal

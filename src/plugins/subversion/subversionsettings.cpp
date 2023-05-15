@@ -33,7 +33,6 @@ SubversionSettings::SubversionSettings()
     setSettingsGroup("Subversion");
 
     registerAspect(&binaryPath);
-    binaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setHistoryCompleter("Subversion.Command.History");
     binaryPath.setDefaultValue("svn" QTC_HOST_EXE_SUFFIX);

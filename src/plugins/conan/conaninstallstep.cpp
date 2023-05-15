@@ -68,7 +68,7 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
         const QString buildType = bt == BuildConfiguration::Release ? QString("Release")
                                                                     : QString("Debug");
 
-        CommandLine cmd(ConanPlugin::conanSettings()->conanFilePath.filePath());
+        CommandLine cmd(ConanPlugin::conanSettings()->conanFilePath());
         cmd.addArgs({"install", "-s", "build_type=" + buildType});
         if (buildMissing->value())
             cmd.addArg("--build=missing");

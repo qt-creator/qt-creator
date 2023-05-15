@@ -36,10 +36,10 @@ CopilotSettings::CopilotSettings()
         return fp.exists();
     });
 
+    registerAspect(&nodeJsPath);
     nodeJsPath.setExpectedKind(PathChooser::ExistingCommand);
     nodeJsPath.setDefaultFilePath(nodeFromPath);
     nodeJsPath.setSettingsKey("Copilot.NodeJsPath");
-    nodeJsPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     nodeJsPath.setLabelText(Tr::tr("Node.js path:"));
     nodeJsPath.setHistoryCompleter("Copilot.NodePath.History");
     nodeJsPath.setDisplayName(Tr::tr("Node.js Path"));
@@ -47,26 +47,23 @@ CopilotSettings::CopilotSettings()
         Tr::tr("Select path to node.js executable. See https://nodejs.org/de/download/"
                "for installation instructions."));
 
+    registerAspect(&distPath);
     distPath.setExpectedKind(PathChooser::File);
     distPath.setDefaultFilePath(distFromVim);
     distPath.setSettingsKey("Copilot.DistPath");
-    distPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     distPath.setLabelText(Tr::tr("Path to agent.js:"));
+    distPath.setHistoryCompleter("Copilot.DistPath.History");
+    distPath.setDisplayName(Tr::tr("Agent.js path"));
     distPath.setToolTip(Tr::tr(
         "Select path to agent.js in copilot neovim plugin. See "
         "https://github.com/github/copilot.vim#getting-started for installation instructions."));
-    distPath.setHistoryCompleter("Copilot.DistPath.History");
-    distPath.setDisplayName(Tr::tr("Agent.js path"));
 
+    registerAspect(&autoComplete);
     autoComplete.setDisplayName(Tr::tr("Auto Complete"));
     autoComplete.setLabelText(Tr::tr("Request completions automatically"));
     autoComplete.setDefaultValue(true);
     autoComplete.setToolTip(Tr::tr("Automatically request suggestions for the current text cursor "
                                    "position after changes to the document"));
-
-    registerAspect(&nodeJsPath);
-    registerAspect(&distPath);
-    registerAspect(&autoComplete);
 }
 
 } // namespace Copilot
