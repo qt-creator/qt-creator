@@ -9546,6 +9546,11 @@ bool FakeVimHandler::jumpToLocalMark(QChar mark, bool backTickMode)
     return d->jumpToMark(mark, backTickMode);
 }
 
+bool FakeVimHandler::inFakeVimMode()
+{
+    return d->m_inFakeVim;
+}
+
 } // namespace Internal
 } // namespace FakeVim
 

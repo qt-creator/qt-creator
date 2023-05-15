@@ -136,6 +136,8 @@ public:
 
     bool jumpToLocalMark(QChar mark, bool backTickMode);
 
+    bool inFakeVimMode();
+
     bool eventFilter(QObject *ob, QEvent *ev) override;
 
     Callback<void(const QString &msg, int cursorPos, int anchorPos, int messageLevel)>
