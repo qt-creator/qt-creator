@@ -15,8 +15,7 @@
 
 using namespace Utils;
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 FossilSettings::FossilSettings()
 {
@@ -95,80 +94,63 @@ FossilSettings::FossilSettings()
     logCount.setLabelText(Tr::tr("Log count:"));
     logCount.setToolTip(Tr::tr("The number of recent commit log entries to show. "
         "Choose 0 to see all entries."));
-};
+}
 
 // OptionsPage
 
 class OptionsPageWidget final : public Core::IOptionsPageWidget
 {
 public:
-    OptionsPageWidget(const std::function<void()> &onApply, FossilSettings *settings);
-    void apply() final;
+    OptionsPageWidget(FossilSettings *settings)
+    {
+        FossilSettings &s = *settings;
 
-private:
-    const std::function<void()> m_onApply;
-    FossilSettings *m_settings;
+        using namespace Layouting;
+
+        Column {
+            Group {
+                title(Tr::tr("Configuration")),
+                        Row { s.binaryPath }
+            },
+
+            Group {
+                title(Tr::tr("Local Repositories")),
+                        Row { s.defaultRepoPath }
+            },
+            Group {
+                title(Tr::tr("User")),
+                        Form {
+                    s.userName, br,
+                            s.sslIdentityFile
+                }
+            },
+
+            Group {
+                title(Tr::tr("Miscellaneous")),
+                        Column {
+                    Row {
+                        s.logCount,
+                                s.timelineWidth,
+                                s.timeout,
+                                st
+                    },
+                    s.disableAutosync
+                },
+            },
+            st
+
+        }.attachTo(this);
+
+        setOnApply([settings] { settings->apply(); });
+    }
 };
 
-void OptionsPageWidget::apply()
-{
-    if (!m_settings->isDirty())
-        return;
-
-    m_settings->apply();
-    m_onApply();
-}
-
-OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, FossilSettings *settings) :
-    m_onApply(onApply),
-    m_settings(settings)
-{
-    FossilSettings &s = *m_settings;
-
-    using namespace Layouting;
-
-    Column {
-        Group {
-            title(Tr::tr("Configuration")),
-            Row { s.binaryPath }
-        },
-
-        Group {
-            title(Tr::tr("Local Repositories")),
-            Row { s.defaultRepoPath }
-        },
-        Group {
-            title(Tr::tr("User")),
-            Form {
-                s.userName, br,
-                s.sslIdentityFile
-            }
-        },
-
-        Group {
-            title(Tr::tr("Miscellaneous")),
-            Column {
-                Row {
-                s.logCount,
-                s.timelineWidth,
-                s.timeout,
-                st
-                },
-                s.disableAutosync
-            },
-        },
-        st
-
-    }.attachTo(this);
-}
-
-OptionsPage::OptionsPage(const std::function<void()> &onApply, FossilSettings *settings)
+OptionsPage::OptionsPage(FossilSettings *settings)
 {
     setId(Constants::VCS_ID_FOSSIL);
     setDisplayName(Tr::tr("Fossil"));
-    setWidgetCreator([onApply, settings]() { return new OptionsPageWidget(onApply, settings); });
+    setWidgetCreator([settings] { return new OptionsPageWidget(settings); });
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 }
 
-} // Internal
-} // Fossil
+} // Fossil::Internal

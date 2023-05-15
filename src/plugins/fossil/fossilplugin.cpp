@@ -190,7 +190,7 @@ public:
     FossilSettings m_fossilSettings;
     FossilClient m_client{&m_fossilSettings};
 
-    OptionsPage optionPage{[this] { configurationChanged(); }, &m_fossilSettings};
+    OptionsPage optionPage{&m_fossilSettings};
 
     VcsSubmitEditorFactory submitEditorFactory {
         submitEditorParameters,
@@ -299,6 +299,9 @@ FossilPluginPrivate::FossilPluginPrivate()
     Core::JsExpander::registerGlobalObject("Fossil", [this] {
         return new FossilJsExtension(&m_fossilSettings);
     });
+
+    connect(&m_fossilSettings, &AspectContainer::changed,
+            this, &IVersionControl::configurationChanged);
 
     createMenu(context);
 }
