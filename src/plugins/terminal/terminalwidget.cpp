@@ -1313,8 +1313,11 @@ void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
                 m_scrollTimer.setInterval(scrollInterval);
         }
 
+        QPoint posBoundedToViewport = event->pos();
+        posBoundedToViewport.setX(qBound(0, posBoundedToViewport.x(), viewport()->width()));
+
         int start = m_surface->gridToPos(globalToGrid(m_activeMouseSelect.start));
-        int newEnd = m_surface->gridToPos(globalToGrid(viewportToGlobal(event->pos())));
+        int newEnd = m_surface->gridToPos(globalToGrid(viewportToGlobal(posBoundedToViewport)));
 
         if (start > newEnd) {
             std::swap(start, newEnd);
