@@ -9,6 +9,11 @@
 #include <QObject>
 #include <QSharedPointer>
 
+QT_BEGIN_NAMESPACE
+template <class T>
+class QFuture;
+QT_END_NAMESPACE
+
 namespace Tasking {
 
 class ExecutionContextActivator;
@@ -368,6 +373,12 @@ public:
     void start();
     void stop();
     bool isRunning() const;
+
+    // Helper methods. They execute a local event loop with ExcludeUserInputEvents.
+    // The passed future is used for listening to the cancel event.
+    // Don't use it in main thread. To be used in non-main threads or in auto tests.
+    bool runBlocking(const QFuture<void> &future, int timeoutMs = 0);
+    bool runBlocking(int timeoutMs = 0);
 
     int taskCount() const;
     int progressMaximum() const { return taskCount(); }
