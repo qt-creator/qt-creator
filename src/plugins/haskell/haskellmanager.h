@@ -7,30 +7,15 @@
 
 #include <utils/fileutils.h>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Haskell::Internal {
 
-namespace Haskell {
-namespace Internal {
-
-class HaskellManager : public QObject
+class HaskellManager
 {
-    Q_OBJECT
-
 public:
     static HaskellManager *instance();
 
     static Utils::FilePath findProjectDirectory(const Utils::FilePath &filePath);
-    static Utils::FilePath stackExecutable();
-    static void setStackExecutable(const Utils::FilePath &filePath);
     static void openGhci(const Utils::FilePath &haskellFile);
-    static void readSettings(QSettings *settings);
-    static void writeSettings(QSettings *settings);
-
-signals:
-    void stackExecutableChanged(const Utils::FilePath &filePath);
 };
 
-} // namespace Internal
-} // namespace Haskell
+} // Haskell::Internal

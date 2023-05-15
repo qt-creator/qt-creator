@@ -9,8 +9,8 @@
 #include "haskellmanager.h"
 #include "haskellproject.h"
 #include "haskellrunconfiguration.h"
+#include "haskellsettings.h"
 #include "haskelltr.h"
-#include "optionspage.h"
 #include "stackbuildstep.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -28,8 +28,8 @@ namespace Internal {
 class HaskellPluginPrivate
 {
 public:
+    HaskellSettings settings;
     HaskellEditorFactory editorFactory;
-    OptionsPage optionsPage;
     HaskellBuildConfigurationFactory buildConfigFactory;
     StackBuildStepFactory stackBuildStepFactory;
     HaskellRunConfigurationFactory runConfigFactory;
@@ -41,11 +41,11 @@ HaskellPlugin::~HaskellPlugin()
     delete d;
 }
 
-static void registerGhciAction()
+static void registerGhciAction(QObject *guard)
 {
-    QAction *action = new QAction(Tr::tr("Run GHCi"), HaskellManager::instance());
+    QAction *action = new QAction(Tr::tr("Run GHCi"), guard);
     Core::ActionManager::registerAction(action, Constants::A_RUN_GHCI);
-    QObject::connect(action, &QAction::triggered, HaskellManager::instance(), [] {
+    QObject::connect(action, &QAction::triggered, guard, [] {
         if (Core::IDocument *doc = Core::EditorManager::currentDocument())
             HaskellManager::openGhci(doc->filePath());
     });
@@ -63,13 +63,7 @@ bool HaskellPlugin::initialize(const QStringList &arguments, QString *errorStrin
     TextEditor::SnippetProvider::registerGroup(Constants::C_HASKELLSNIPPETSGROUP_ID,
                                                Tr::tr("Haskell", "SnippetProvider"));
 
-    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested, this, [] {
-        HaskellManager::writeSettings(Core::ICore::settings());
-    });
-
-    registerGhciAction();
-
-    HaskellManager::readSettings(Core::ICore::settings());
+    registerGhciAction(this);
 
     ProjectExplorer::JsonWizardFactory::addWizardPath(":/haskell/share/wizards/");
     return true;

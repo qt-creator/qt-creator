@@ -4,7 +4,7 @@
 #include "stackbuildstep.h"
 
 #include "haskellconstants.h"
-#include "haskellmanager.h"
+#include "haskellsettings.h"
 #include "haskelltr.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -38,7 +38,7 @@ bool StackBuildStep::init()
     if (AbstractProcessStep::init()) {
         const auto projectDir = QDir(project()->projectDirectory().toString());
         processParameters()->setCommandLine(
-            {HaskellManager::stackExecutable(),
+            {settings().stackPath.filePath(),
              {"build", "--work-dir", projectDir.relativeFilePath(buildDirectory().toString())}});
         processParameters()->setEnvironment(buildEnvironment());
     }

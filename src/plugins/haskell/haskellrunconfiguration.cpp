@@ -4,9 +4,9 @@
 #include "haskellrunconfiguration.h"
 
 #include "haskellconstants.h"
-#include "haskellmanager.h"
 #include "haskellproject.h"
 #include "haskelltr.h"
+#include "haskellsettings.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/localenvironmentaspect.h>
@@ -68,7 +68,7 @@ Runnable HaskellRunConfiguration::runnable() const
 
     r.workingDirectory = projectDirectory;
     r.environment = aspect<LocalEnvironmentAspect>()->environment();
-    r.command = {r.environment.searchInPath(HaskellManager::stackExecutable().toString()), args};
+    r.command = {r.environment.searchInPath(settings().stackPath()), args};
     return r;
 }
 

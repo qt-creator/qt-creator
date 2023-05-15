@@ -7,10 +7,14 @@
 
 namespace Haskell::Internal {
 
-class OptionsPage : public Core::IOptionsPage
+class HaskellSettings : public Core::PagedSettings
 {
 public:
-    OptionsPage();
+    HaskellSettings();
+
+    Utils::StringAspect stackPath;
 };
+
+HaskellSettings &settings();
 
 } // Haskell::Internal
