@@ -240,7 +240,7 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
                 DiffEditorController::controller(document));
     if (!controller) {
         controller = new SubversionDiffEditorController(document);
-        controller->setVcsBinary(settings.binaryPath.filePath());
+        controller->setVcsBinary(settings.binaryPath());
         controller->setProcessEnvironment(processEnvironment());
         controller->setWorkingDirectory(workingDirectory);
     }

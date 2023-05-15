@@ -366,7 +366,7 @@ bool CvsPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &filePath) con
 
 bool CvsPluginPrivate::isConfigured() const
 {
-    const FilePath binary = settings().binaryPath.filePath();
+    const FilePath binary = settings().binaryPath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -439,7 +439,7 @@ VcsCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString &url,
 
     auto command = VcsBaseClient::createVcsCommand(baseDirectory, Environment::systemEnvironment());
     command->setDisplayName(Tr::tr("CVS Checkout"));
-    command->addJob({settings().binaryPath.filePath(), settings().addOptions(args)}, -1);
+    command->addJob({settings().binaryPath(), settings().addOptions(args)}, -1);
     return command;
 }
 
@@ -1321,7 +1321,7 @@ CommandResult CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
                                        const QStringList &arguments, RunFlags flags,
                                        QTextCodec *outputCodec, int timeoutMultiplier) const
 {
-    const FilePath executable = settings().binaryPath.filePath();
+    const FilePath executable = settings().binaryPath();
     if (executable.isEmpty())
         return CommandResult(ProcessResult::StartFailed, Tr::tr("No CVS executable specified."));
 

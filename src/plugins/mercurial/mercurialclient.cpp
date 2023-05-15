@@ -428,7 +428,7 @@ void MercurialClient::requestReload(const QString &documentId, const FilePath &s
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     QTC_ASSERT(document, return);
     auto controller = new MercurialDiffEditorController(document, args);
-    controller->setVcsBinary(settings().binaryPath.filePath());
+    controller->setVcsBinary(settings().binaryPath());
     controller->setProcessEnvironment(processEnvironment());
     controller->setWorkingDirectory(workingDirectory);
 

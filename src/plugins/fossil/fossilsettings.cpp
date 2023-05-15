@@ -34,7 +34,6 @@ FossilSettings::FossilSettings()
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 
     registerAspect(&binaryPath);
-    binaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setDefaultValue(Constants::FOSSILDEFAULT);
     binaryPath.setDisplayName(Tr::tr("Fossil Command"));

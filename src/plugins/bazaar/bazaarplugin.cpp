@@ -871,7 +871,7 @@ bool BazaarPluginPrivate::managesFile(const FilePath &workingDirectory, const QS
 
 bool BazaarPluginPrivate::isConfigured() const
 {
-    const FilePath binary = settings().binaryPath.filePath();
+    const FilePath binary = settings().binaryPath();
     return !binary.isEmpty() && binary.isExecutableFile();
 }
 

@@ -15,7 +15,7 @@ public:
     VcsBaseSettings();
     ~VcsBaseSettings();
 
-    Utils::StringAspect binaryPath;
+    Utils::FilePathAspect binaryPath;
     Utils::StringAspect userName;
     Utils::StringAspect userEmail;
     Utils::IntegerAspect logCount;

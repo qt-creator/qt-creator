@@ -35,7 +35,6 @@ CvsSettings::CvsSettings()
 
     registerAspect(&binaryPath);
     binaryPath.setDefaultValue("cvs" QTC_HOST_EXE_SUFFIX);
-    binaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setHistoryCompleter(QLatin1String("Cvs.Command.History"));
     binaryPath.setDisplayName(Tr::tr("CVS Command"));

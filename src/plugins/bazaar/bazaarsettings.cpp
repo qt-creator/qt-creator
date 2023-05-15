@@ -33,7 +33,6 @@ BazaarSettings::BazaarSettings()
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 
     registerAspect(&binaryPath);
-    binaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setDefaultValue(Constants::BAZAARDEFAULT);
     binaryPath.setDisplayName(Tr::tr("Bazaar Command"));

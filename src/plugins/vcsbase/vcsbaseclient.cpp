@@ -69,7 +69,7 @@ VcsBaseSettings &VcsBaseClientImpl::settings() const
 
 FilePath VcsBaseClientImpl::vcsBinary() const
 {
-    return m_baseSettings->binaryPath.filePath();
+    return m_baseSettings->binaryPath();
 }
 
 VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,

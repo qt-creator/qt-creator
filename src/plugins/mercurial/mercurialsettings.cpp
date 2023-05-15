@@ -34,7 +34,6 @@ MercurialSettings::MercurialSettings()
     setAutoApply(false);
 
     registerAspect(&binaryPath);
-    binaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setDefaultValue(Constants::MERCURIALDEFAULT);
     binaryPath.setDisplayName(Tr::tr("Mercurial Command"));
