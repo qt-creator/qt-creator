@@ -333,8 +333,8 @@ static Group interDeviceTransferTask(const FilePath &source, const FilePath &des
                          storage->writer, &FileStreamWriter::write);
     };
     const auto finalizeReader = [=](const FileStreamReader &) {
-        QTC_CHECK(storage->writer != nullptr);
-        storage->writer->closeWriteChannel();
+        if (storage->writer) // writer may be deleted before the reader on TaskTree::stop().
+            storage->writer->closeWriteChannel();
     };
     const auto setupWriter = [=](FileStreamWriter &writer) {
         writer.setFilePath(destination);
@@ -370,33 +370,8 @@ static void transfer(QPromise<void> &promise, const FilePath &source, const File
     if (promise.isCanceled())
         return;
 
-    std::unique_ptr<TaskTree> taskTree(new TaskTree(transferTask(source, destination)));
-
-    QEventLoop eventLoop;
-    bool finalized = false;
-    const auto finalize = [loop = &eventLoop, &taskTree, &finalized](int exitCode) {
-        if (finalized) // finalize only once
-            return;
-        finalized = true;
-        // Give the tree a chance to delete later all tasks that have finished and caused
-        // emission of tree's done or errorOccurred signal.
-        // TODO: maybe these signals should be sent queued already?
-        QMetaObject::invokeMethod(loop, [loop, &taskTree, exitCode] {
-            taskTree.reset();
-            loop->exit(exitCode);
-        }, Qt::QueuedConnection);
-    };
-    QTimer timer;
-    timer.setInterval(50);
-    QObject::connect(&timer, &QTimer::timeout, [&promise, finalize] {
-        if (promise.isCanceled())
-            finalize(2);
-    });
-    QObject::connect(taskTree.get(), &TaskTree::done, &eventLoop, [=] { finalize(0); });
-    QObject::connect(taskTree.get(), &TaskTree::errorOccurred, &eventLoop, [=] { finalize(1); });
-    taskTree->start();
-    timer.start();
-    if (eventLoop.exec())
+    TaskTree taskTree(transferTask(source, destination));
+    if (!taskTree.runBlocking(promise.future()))
         promise.future().cancel();
 }
 

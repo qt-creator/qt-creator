@@ -13,6 +13,7 @@
 #include <utils/filestreamermanager.h>
 #include <utils/process.h>
 #include <utils/processinterface.h>
+#include <utils/scopedtimer.h>
 
 #include <QDebug>
 #include <QFile>
@@ -390,8 +391,7 @@ void FileSystemAccessTest::testFileStreamer_data()
 
 void FileSystemAccessTest::testFileStreamer()
 {
-    QElapsedTimer timer;
-    timer.start();
+    QTC_SCOPED_TIMER("testFileStreamer");
 
     QFETCH(QString, fileName);
     QFETCH(QByteArray, data);
@@ -503,35 +503,8 @@ void FileSystemAccessTest::testFileStreamer()
         }
     };
 
-    QEventLoop eventLoop;
     TaskTree taskTree(root);
-    int doneCount = 0;
-    int errorCount = 0;
-    connect(&taskTree, &TaskTree::done, this, [&doneCount, &eventLoop] {
-        ++doneCount;
-        eventLoop.quit();
-    });
-    connect(&taskTree, &TaskTree::errorOccurred, this, [&errorCount, &eventLoop] {
-        ++errorCount;
-        eventLoop.quit();
-    });
-    taskTree.start();
-    QVERIFY(taskTree.isRunning());
-
-    QTimer timeoutTimer;
-    bool timedOut = false;
-    connect(&timeoutTimer, &QTimer::timeout, &eventLoop, [&eventLoop, &timedOut] {
-        timedOut = true;
-        eventLoop.quit();
-    });
-    timeoutTimer.setInterval(10000);
-    timeoutTimer.setSingleShot(true);
-    timeoutTimer.start();
-    eventLoop.exec();
-    QCOMPARE(timedOut, false);
-    QCOMPARE(taskTree.isRunning(), false);
-    QCOMPARE(doneCount, 1);
-    QCOMPARE(errorCount, 0);
+    QVERIFY(taskTree.runBlocking(10000));
 
     QVERIFY(localData);
     QCOMPARE(*localData, data);
@@ -546,8 +519,6 @@ void FileSystemAccessTest::testFileStreamer()
     QCOMPARE(*remoteLocalData, data);
     QVERIFY(remoteRemoteData);
     QCOMPARE(*remoteRemoteData, data);
-
-    qDebug() << "Elapsed time:" << timer.elapsed() << "ms.";
 }
 
 void FileSystemAccessTest::testFileStreamerManager_data()
@@ -557,8 +528,7 @@ void FileSystemAccessTest::testFileStreamerManager_data()
 
 void FileSystemAccessTest::testFileStreamerManager()
 {
-    QElapsedTimer timer;
-    timer.start();
+    QTC_SCOPED_TIMER("testFileStreamerManager");
 
     QFETCH(QString, fileName);
     QFETCH(QByteArray, data);
@@ -660,8 +630,6 @@ void FileSystemAccessTest::testFileStreamerManager()
     QCOMPARE(*remoteLocalData, data);
     QVERIFY(remoteRemoteData);
     QCOMPARE(*remoteRemoteData, data);
-
-    qDebug() << "Elapsed time:" << timer.elapsed() << "ms.";
 }
 
 } // Internal
