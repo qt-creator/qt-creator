@@ -26,7 +26,6 @@
 #include <utils/qtcassert.h>
 #include <utils/url.h>
 
-#include <QEventLoop>
 #include <QFormLayout>
 #include <QInputDialog>
 #include <QLoggingCategory>
