@@ -38,7 +38,7 @@ public:
 
     virtual unsigned capabilities() const = 0;
     virtual bool hasSettings() const;
-    virtual Core::IOptionsPage *settingsPage() const;
+    virtual const Core::IOptionsPage *settingsPage() const;
 
     virtual bool checkConfiguration(QString *errorMessage = nullptr);
     virtual void fetch(const QString &id) = 0;

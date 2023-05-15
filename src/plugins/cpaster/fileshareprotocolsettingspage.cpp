@@ -15,8 +15,10 @@ namespace CodePaster {
 
 FileShareProtocolSettings::FileShareProtocolSettings()
 {
+    setId("X.CodePaster.FileSharePaster");
+    setDisplayName(Tr::tr("Fileshare"));
+    setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
     setSettingsGroup("FileSharePasterSettings");
-    setAutoApply(false);
 
     registerAspect(&path);
     path.setSettingsKey("Path");
@@ -30,18 +32,8 @@ FileShareProtocolSettings::FileShareProtocolSettings()
     displayCount.setDefaultValue(10);
     displayCount.setSuffix(' ' + Tr::tr("entries"));
     displayCount.setLabelText(Tr::tr("&Display:"));
-}
 
-// Settings page
-
-FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(FileShareProtocolSettings *settings)
-{
-    setId("X.CodePaster.FileSharePaster");
-    setDisplayName(Tr::tr("Fileshare"));
-    setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
-    setSettings(settings);
-
-    setLayouter([&s = *settings](QWidget *widget) {
+    setLayouter([this](QWidget *widget) {
         using namespace Layouting;
 
         auto label = new QLabel(Tr::tr(
@@ -52,12 +44,14 @@ FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(FileShareProtocolSe
         Column {
             Form {
                 label, br,
-                s.path, br,
-                s.displayCount
+                path, br,
+                displayCount
             },
             st
         }.attachTo(widget);
     });
+
+    readSettings();
 }
 
 } // namespace CodePaster
