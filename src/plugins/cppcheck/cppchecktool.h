@@ -31,10 +31,10 @@ class CppcheckTool final : public QObject
     Q_OBJECT
 
 public:
-    CppcheckTool(CppcheckDiagnosticManager &manager, const Utils::Id &progressId);
+    CppcheckTool(CppcheckOptions &options, CppcheckDiagnosticManager &manager, const Utils::Id &progressId);
     ~CppcheckTool() override;
 
-    void updateOptions(const CppcheckOptions &options);
+    void updateOptions();
     void setProject(ProjectExplorer::Project *project);
     void check(const Utils::FilePaths &files);
     void stop(const Utils::FilePaths &files);
@@ -44,15 +44,13 @@ public:
     void parseErrorLine(const QString &line);
     void finishParsing();
 
-    const CppcheckOptions &options() const;
-
 private:
     void updateArguments();
     void addToQueue(const Utils::FilePaths &files, const CppEditor::ProjectPart &part);
     QStringList additionalArguments(const CppEditor::ProjectPart &part) const;
 
+    CppcheckOptions &m_options;
     CppcheckDiagnosticManager &m_manager;
-    CppcheckOptions m_options;
     QPointer<ProjectExplorer::Project> m_project;
     std::unique_ptr<CppcheckRunner> m_runner;
     std::unique_ptr<QFutureInterface<void>> m_progress;

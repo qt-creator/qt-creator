@@ -4,80 +4,35 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/filepath.h>
-
-QT_BEGIN_NAMESPACE
-class QLineEdit;
-class QCheckBox;
-QT_END_NAMESPACE
-
-namespace Utils { class PathChooser; }
 
 namespace Cppcheck::Internal {
 
 class CppcheckTool;
 class CppcheckTrigger;
-class OptionsWidget;
 
-class CppcheckOptions final
+class CppcheckOptions final : public Core::PagedSettings
 {
 public:
-    Utils::FilePath binary;
+    CppcheckOptions();
 
-    bool warning = true;
-    bool style = true;
-    bool performance = true;
-    bool portability = true;
-    bool information = true;
-    bool unusedFunction = false;
-    bool missingInclude = false;
-    bool inconclusive = false;
-    bool forceDefines = false;
+    std::function<void(QWidget *widget)> layouter();
 
-    QString customArguments;
-    QString ignoredPatterns;
-    bool showOutput = false;
-    bool addIncludePaths = false;
-    bool guessArguments = true;
-};
+    Utils::StringAspect binary;
+    Utils::BoolAspect warning;
+    Utils::BoolAspect style;
+    Utils::BoolAspect performance;
+    Utils::BoolAspect portability;
+    Utils::BoolAspect information;
+    Utils::BoolAspect unusedFunction;
+    Utils::BoolAspect missingInclude;
+    Utils::BoolAspect inconclusive;
+    Utils::BoolAspect forceDefines;
 
-class OptionsWidget final : public QWidget
-{
-public:
-    explicit OptionsWidget(QWidget *parent = nullptr);
-    void load(const CppcheckOptions &options);
-    void save(CppcheckOptions &options) const;
-
-private:
-    Utils::PathChooser *m_binary = nullptr;
-    QLineEdit *m_customArguments = nullptr;
-    QLineEdit *m_ignorePatterns = nullptr;
-    QCheckBox *m_warning = nullptr;
-    QCheckBox *m_style = nullptr;
-    QCheckBox *m_performance = nullptr;
-    QCheckBox *m_portability = nullptr;
-    QCheckBox *m_information = nullptr;
-    QCheckBox *m_unusedFunction = nullptr;
-    QCheckBox *m_missingInclude = nullptr;
-    QCheckBox *m_inconclusive = nullptr;
-    QCheckBox *m_forceDefines = nullptr;
-    QCheckBox *m_showOutput = nullptr;
-    QCheckBox *m_addIncludePaths = nullptr;
-    QCheckBox *m_guessArguments = nullptr;
-};
-
-class CppcheckOptionsPage final : public Core::IOptionsPage
-{
-public:
-    explicit CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &trigger);
-
-private:
-    friend class CppcheckOptionsPageWidget;
-    void save(const CppcheckOptions &options) const;
-    void load(CppcheckOptions &options) const;
-
-    CppcheckTool &m_tool;
-    CppcheckTrigger &m_trigger;
+    Utils::StringAspect customArguments;
+    Utils::StringAspect ignoredPatterns;
+    Utils::BoolAspect showOutput;
+    Utils::BoolAspect addIncludePaths;
+    Utils::BoolAspect guessArguments;
 };
 
 } // Cppcheck::Internal
