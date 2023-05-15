@@ -439,6 +439,14 @@ protected:
     std::unique_ptr<Internal::StringAspectPrivate> d;
 };
 
+class QTCREATOR_UTILS_EXPORT FilePathAspect : public StringAspect
+{
+public:
+    FilePathAspect();
+
+    FilePath operator()() const { return filePath(); }
+};
+
 class QTCREATOR_UTILS_EXPORT IntegerAspect : public BaseAspect
 {
     Q_OBJECT

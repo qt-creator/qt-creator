@@ -1325,6 +1325,28 @@ void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
     update();
 }
 
+
+/*!
+    \class Utils::FilePathAspect
+    \inmodule QtCreator
+
+    \brief A file path aspect is shallow wrapper around a Utils::StringAspect that
+    represents a file in the file system.
+
+    It is displayed by default using Utils::PathChooser.
+
+    The visual representation often contains a label in front of the display
+    of the actual value.
+
+    \sa Utils::StringAspect
+*/
+
+
+FilePathAspect::FilePathAspect()
+{
+    setDisplayStyle(PathChooserDisplay);
+}
+
 /*!
     \class Utils::ColorAspect
     \inmodule QtCreator
