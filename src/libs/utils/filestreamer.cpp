@@ -223,6 +223,11 @@ public:
     ~FileStreamWriter() { // TODO: should d'tor remove unfinished file write leftovers?
         if (m_writeBuffer && isBuffered())
             m_writeBuffer->cancel();
+        // m_writeBuffer is a child of either Process or Async<void>. So, if m_writeBuffer
+        // is still alive now (in case when TaskTree::stop() was called), the FileStreamBase
+        // d'tor is going to delete m_writeBuffer later. In case of Async<void>, coming from
+        // localTask(), the d'tor of Async<void>, run by FileStreamBase, busy waits for the
+        // already canceled here WriteBuffer to finish before deleting WriteBuffer child.
     }
 
     void setWriteData(const QByteArray &writeData) {
