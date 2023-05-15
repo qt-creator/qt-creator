@@ -148,15 +148,15 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
 
 // GitSettingsPage
 
-GitSettingsPage::GitSettingsPage(GitSettings *settings)
+GitSettingsPage::GitSettingsPage()
 {
     setId(VcsBase::Constants::VCS_ID_GIT);
     setDisplayName(Tr::tr("Git"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(settings);
+    setSettings(&settings());
 
-    setLayouter([settings](QWidget *widget) {
-        GitSettings &s = *settings;
+    setLayouter([](QWidget *widget) {
+        GitSettings &s = settings();
         using namespace Layouting;
 
         Column {
@@ -194,6 +194,12 @@ GitSettingsPage::GitSettingsPage(GitSettings *settings)
             st
         }.attachTo(widget);
     });
+}
+
+GitSettings &settings()
+{
+    static GitSettings theSettings;
+    return theSettings;
 }
 
 } // Git::Internal

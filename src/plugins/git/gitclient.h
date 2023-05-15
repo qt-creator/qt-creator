@@ -115,9 +115,8 @@ public:
         PushAction m_pushAction = NoPush;
     };
 
-    explicit GitClient(GitSettings *settings);
+    GitClient();
     static GitClient *instance();
-    static GitSettings &settings();
 
     Utils::FilePath vcsBinary() const override;
     QFuture<unsigned> gitVersion() const;
@@ -350,6 +349,8 @@ public:
     QTextCodec *encoding(EncodingType encodingType, const Utils::FilePath &source = {}) const;
 
 private:
+    static GitSettings &settings();
+
     void finishSubmoduleUpdate();
     void chunkActionsRequested(DiffEditor::DiffEditorController *controller,
                                QMenu *menu, int fileIndex, int chunkIndex,

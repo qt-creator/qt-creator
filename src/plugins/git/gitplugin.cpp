@@ -420,8 +420,7 @@ public:
     ParameterAction *m_applyCurrentFilePatchAction = nullptr;
     Gerrit::Internal::GerritPlugin m_gerritPlugin;
 
-    GitSettings m_settings;
-    GitClient m_gitClient{&m_settings};
+    GitClient m_gitClient;
     QPointer<StashDialog> m_stashDialog;
     BranchViewFactory m_branchViewFactory;
     QPointer<RemoteDialog> m_remoteDialog;
@@ -434,7 +433,7 @@ public:
     std::unique_ptr<BlameMark> m_blameMark;
     QMetaObject::Connection m_blameCursorPosConn;
 
-    GitSettingsPage settingPage{&m_settings};
+    GitSettingsPage settingPage;
 
     GitGrep gitGrep{&m_gitClient};
 
@@ -524,7 +523,7 @@ void GitPluginPrivate::onApplySettings()
     updateRepositoryBrowserAction();
     bool gitFoundOk;
     QString errorMessage;
-    m_settings.gitExecutable(&gitFoundOk, &errorMessage);
+    settings().gitExecutable(&gitFoundOk, &errorMessage);
     if (!gitFoundOk) {
         QTimer::singleShot(0, this, [errorMessage] {
             AsynchronousMessageBox::warning(Tr::tr("Git Settings"), errorMessage);
@@ -553,11 +552,6 @@ GitClient *GitPlugin::client()
 IVersionControl *GitPlugin::versionControl()
 {
     return dd;
-}
-
-const GitSettings &GitPlugin::settings()
-{
-    return dd->m_settings;
 }
 
 const VcsBasePluginState &GitPlugin::currentState()
@@ -1069,7 +1063,7 @@ GitPluginPrivate::GitPluginPrivate()
     m_gerritPlugin.updateActions(currentState());
     m_gerritPlugin.addToLocator(m_commandLocator);
 
-    connect(&m_settings, &AspectContainer::applied, this, &GitPluginPrivate::onApplySettings);
+    connect(&settings(), &AspectContainer::applied, this, &GitPluginPrivate::onApplySettings);
 
     setupInstantBlame();
 }
@@ -1439,7 +1433,7 @@ void GitPluginPrivate::setupInstantBlame()
             return;
         }
 
-        if (!GitClient::instance()->settings().instantBlame.value()) {
+        if (!settings().instantBlame.value()) {
             m_lastVisitedEditorLine = -1;
             stopInstantBlame();
             return;
@@ -1459,7 +1453,7 @@ void GitPluginPrivate::setupInstantBlame()
 
         m_blameCursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged, this,
                                 [this] {
-            if (!GitClient::instance()->settings().instantBlame.value()) {
+            if (!settings().instantBlame.value()) {
                 disconnect(m_blameCursorPosConn);
                 return;
             }
@@ -1470,8 +1464,8 @@ void GitPluginPrivate::setupInstantBlame()
         instantBlame();
     };
 
-    connect(&GitClient::instance()->settings().instantBlame,
-            &BoolAspect::valueChanged, this, [this, setupBlameForEditor](bool enabled) {
+    connect(&settings().instantBlame, &BoolAspect::valueChanged, this,
+            [this, setupBlameForEditor](bool enabled) {
         if (enabled)
             setupBlameForEditor(EditorManager::currentEditor());
         else
@@ -1520,7 +1514,7 @@ CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePath &fil
 
 void GitPluginPrivate::instantBlameOnce()
 {
-    if (!GitClient::instance()->settings().instantBlame.value()) {
+    if (!settings().instantBlame.value()) {
         const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
         if (!widget)
             return;
@@ -1682,7 +1676,7 @@ void GitPluginPrivate::pull()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     FilePath topLevel = state.topLevel();
-    bool rebase = m_settings.pullRebase.value();
+    bool rebase = settings().pullRebase.value();
 
     if (!rebase) {
         QString currentBranch = m_gitClient.synchronousCurrentLocalBranch(topLevel);
@@ -1993,7 +1987,7 @@ QObject *GitPlugin::remoteCommand(const QStringList &options, const QString &wor
 void GitPluginPrivate::updateRepositoryBrowserAction()
 {
     const bool repositoryEnabled = currentState().hasTopLevel();
-    const bool hasRepositoryBrowserCmd = !m_settings.repositoryBrowserCmd.value().isEmpty();
+    const bool hasRepositoryBrowserCmd = !settings().repositoryBrowserCmd.value().isEmpty();
     m_repositoryBrowserAction->setEnabled(repositoryEnabled && hasRepositoryBrowserCmd);
 }
 
@@ -2099,7 +2093,7 @@ GitPluginPrivate::RepoUrl GitPluginPrivate::getRepoUrl(const QString &location) 
 
 FilePaths GitPluginPrivate::additionalToolsPath() const
 {
-    FilePaths res = m_gitClient.settings().searchPathList();
+    FilePaths res = settings().searchPathList();
     const FilePath binaryPath = m_gitClient.gitBinDirectory();
     if (!binaryPath.isEmpty() && !res.contains(binaryPath))
         res << binaryPath;

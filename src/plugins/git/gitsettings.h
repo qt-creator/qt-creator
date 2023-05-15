@@ -46,10 +46,12 @@ public:
     Utils::FilePath gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
 };
 
+GitSettings &settings();
+
 class GitSettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit GitSettingsPage(GitSettings *settings);
+    GitSettingsPage();
 };
 
 } // Git::Internal

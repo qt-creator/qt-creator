@@ -428,7 +428,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
                             "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)",
                             "refs/heads/**",
                             "refs/remotes/**"};
-        if (d->client->settings().showTags.value())
+        if (settings().showTags())
             args << "refs/tags/**";
         d->client->setupCommand(process, workingDirectory, args);
     };
@@ -805,7 +805,7 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
         const qint64 age = dateTime.daysTo(QDateTime::currentDateTime());
         isOld = age > Constants::OBSOLETE_COMMIT_AGE_IN_DAYS;
     }
-    const bool showTags = client->settings().showTags.value();
+    const bool showTags = settings().showTags();
 
     // insert node into tree:
     QStringList nameParts = fullName.split('/');
