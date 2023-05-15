@@ -62,6 +62,9 @@ public:
 
     static void sessionLoadingProgress();
     static void addSessionLoadingSteps(int steps);
+
+    static bool loadSession(const QString &session, bool initial = false);
+
 signals:
     void startupSessionRestored();
     void aboutToUnloadSession(QString sessionName);

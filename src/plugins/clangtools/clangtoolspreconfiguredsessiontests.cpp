@@ -91,7 +91,7 @@ void PreconfiguredSessionTests::initTestCase()
     // Load session
     const FilePaths projects = ProjectManager::projectsForSessionName(preconfiguredSessionName);
     WaitForParsedProjects waitForParsedProjects(projects);
-    QVERIFY(ProjectManager::loadSession(preconfiguredSessionName));
+    QVERIFY(SessionManager::loadSession(preconfiguredSessionName));
     QVERIFY(waitForParsedProjects.wait());
 }
 

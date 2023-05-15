@@ -4013,7 +4013,7 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
 
 void ProjectExplorerPluginPrivate::setSession(QAction *action)
 {
-    ProjectManager::loadSession(action->data().toString());
+    SessionManager::loadSession(action->data().toString());
 }
 
 void ProjectExplorerPlugin::setProjectExplorerSettings(const ProjectExplorerSettings &pes)

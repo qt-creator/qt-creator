@@ -213,7 +213,7 @@ bool SessionManager::renameSession(const QString &original, const QString &newNa
     if (!cloneSession(original, newName))
         return false;
     if (original == activeSession())
-        ProjectManager::loadSession(newName);
+        loadSession(newName);
     emit instance()->sessionRenamed(original, newName);
     return deleteSession(original);
 }
@@ -341,7 +341,7 @@ void SessionManagerPrivate::restoreStartupSession()
     }     // !arguments.isEmpty()
 
     // Restore latest session or what was passed on the command line
-    ProjectManager::loadSession(!sessionToRestoreAtStartup.isEmpty() ? sessionToRestoreAtStartup
+    SessionManager::loadSession(!sessionToRestoreAtStartup.isEmpty() ? sessionToRestoreAtStartup
                                                                      : QString(),
                                 true);
 
@@ -444,6 +444,131 @@ void SessionManager::sessionLoadingProgress()
 void SessionManager::addSessionLoadingSteps(int steps)
 {
     sb_d->m_future.setProgressRange(0, sb_d->m_future.progressMaximum() + steps);
+}
+
+/*
+ * ========== Notes on storing and loading the default session ==========
+ * The default session comes in two flavors: implicit and explicit. The implicit one,
+ * also referred to as "default virgin" in the code base, is the one that is active
+ * at start-up, if no session has been explicitly loaded due to command-line arguments
+ * or the "restore last session" setting in the session manager.
+ * The implicit default session silently turns into the explicit default session
+ * by loading a project or a file or changing settings in the Dependencies panel. The explicit
+ * default session can also be loaded by the user via the Welcome Screen.
+ * This mechanism somewhat complicates the handling of session-specific settings such as
+ * the ones in the task pane: Users expect that changes they make there become persistent, even
+ * when they are in the implicit default session. However, we can't just blindly store
+ * the implicit default session, because then we'd overwrite the project list of the explicit
+ * default session. Therefore, we use the following logic:
+ *     - Upon start-up, if no session is to be explicitly loaded, we restore the parts of the
+ *       explicit default session that are not related to projects, editors etc; the
+ *       "general settings" of the session, so to speak.
+ *     - When storing the implicit default session, we overwrite only these "general settings"
+ *       of the explicit default session and keep the others as they are.
+ *     - When switching from the implicit to the explicit default session, we keep the
+ *       "general settings" and load everything else from the session file.
+ * This guarantees that user changes are properly transferred and nothing gets lost from
+ * either the implicit or the explicit default session.
+ *
+ */
+bool SessionManager::loadSession(const QString &session, bool initial)
+{
+    const bool loadImplicitDefault = session.isEmpty();
+    const bool switchFromImplicitToExplicitDefault = session == DEFAULT_SESSION
+                                                     && sb_d->m_sessionName == DEFAULT_SESSION
+                                                     && !initial;
+
+    // Do nothing if we have that session already loaded,
+    // exception if the session is the default virgin session
+    // we still want to be able to load the default session
+    if (session == sb_d->m_sessionName && !SessionManager::isDefaultVirgin())
+        return true;
+
+    if (!loadImplicitDefault && !SessionManager::sessions().contains(session))
+        return false;
+
+    // Try loading the file
+    FilePath fileName = SessionManager::sessionNameToFileName(loadImplicitDefault ? DEFAULT_SESSION
+                                                                                  : session);
+    PersistentSettingsReader reader;
+    if (fileName.exists()) {
+        if (!reader.load(fileName)) {
+            QMessageBox::warning(ICore::dialogParent(),
+                                 Tr::tr("Error while restoring session"),
+                                 Tr::tr("Could not restore session %1").arg(fileName.toUserOutput()));
+
+            return false;
+        }
+
+        if (loadImplicitDefault) {
+            sb_d->restoreValues(reader);
+            emit SessionManager::instance()->sessionLoaded(DEFAULT_SESSION);
+            return true;
+        }
+    } else if (loadImplicitDefault) {
+        return true;
+    }
+
+    sb_d->m_loadingSession = true;
+
+    // Allow everyone to set something in the session and before saving
+    emit SessionManager::instance()->aboutToUnloadSession(sb_d->m_sessionName);
+
+    if (!ProjectManager::save()) {
+        sb_d->m_loadingSession = false;
+        return false;
+    }
+
+    // Clean up
+    if (!EditorManager::closeAllEditors()) {
+        sb_d->m_loadingSession = false;
+        return false;
+    }
+
+    if (!switchFromImplicitToExplicitDefault)
+        sb_d->m_values.clear();
+    sb_d->m_sessionValues.clear();
+
+    sb_d->m_sessionName = session;
+    delete sb_d->m_writer;
+    sb_d->m_writer = nullptr;
+    EditorManager::updateWindowTitles();
+
+    sb_d->m_virginSession = false;
+
+    ProgressManager::addTask(sb_d->m_future.future(),
+                             Tr::tr("Loading Session"),
+                             "ProjectExplorer.SessionFile.Load");
+
+    sb_d->m_future.setProgressRange(0, 1 /*initialization*/ + 1 /*editors*/);
+    sb_d->m_future.setProgressValue(0);
+
+    if (fileName.exists()) {
+        if (!switchFromImplicitToExplicitDefault)
+            sb_d->restoreValues(reader);
+        sb_d->restoreSessionValues(reader);
+    }
+
+    QColor c = QColor(SessionManager::sessionValue("Color").toString());
+    if (c.isValid())
+        StyleHelper::setBaseColor(c);
+
+    SessionManager::sessionLoadingProgress();
+
+    sb_d->restoreEditors();
+
+    // let other code restore the session
+    emit SessionManager::instance()->aboutToLoadSession(session);
+
+    sb_d->m_future.reportFinished();
+    sb_d->m_future = QFutureInterface<void>();
+
+    sb_d->m_lastActiveTimes.insert(session, QDateTime::currentDateTime());
+
+    emit SessionManager::instance()->sessionLoaded(session);
+
+    sb_d->m_loadingSession = false;
+    return true;
 }
 
 } // namespace ProjectExplorer

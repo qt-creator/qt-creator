@@ -241,7 +241,7 @@ void SessionModel::renameSession(QWidget *parent, const QString &session)
 
 void SessionModel::switchToSession(const QString &session)
 {
-    ProjectManager::loadSession(session);
+    SessionManager::loadSession(session);
     emit sessionSwitched();
 }
 

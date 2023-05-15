@@ -82,8 +82,6 @@ public:
 
     static Utils::FilePaths projectsForSessionName(const QString &session);
 
-    static bool loadSession(const QString &session, bool initial = false);
-
 signals:
     void targetAdded(ProjectExplorer::Target *target);
     void targetRemoved(ProjectExplorer::Target *target);
