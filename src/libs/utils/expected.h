@@ -9,23 +9,10 @@
 
 namespace Utils {
 
-template<class T, class E>
-using expected = tl::expected<T, E>;
+using namespace tl;
 
 template<class T>
 using expected_str = tl::expected<T, QString>;
-
-template<class E>
-using unexpected = tl::unexpected<E>;
-using unexpect_t = tl::unexpect_t;
-
-static constexpr unexpect_t unexpect{};
-
-template<class E>
-constexpr unexpected<std::decay_t<E>> make_unexpected(E &&e)
-{
-    return tl::make_unexpected(e);
-}
 
 } // namespace Utils
 
