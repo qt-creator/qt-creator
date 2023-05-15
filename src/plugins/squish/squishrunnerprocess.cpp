@@ -161,7 +161,7 @@ void SquishRunnerProcess::handleMultiLineOutput(OutputMode mode)
     if (mode == MultiLineProperties) {
         emit propertiesFetched(m_multiLineContent);
     } else if (mode == MultiLineChildren) {
-        // TODO
+        emit updateChildren(m_context, m_multiLineContent);
     }
 }
 

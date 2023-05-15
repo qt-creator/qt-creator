@@ -642,6 +642,8 @@ void SquishTools::setupAndStartInspector()
             this, &SquishTools::logOutputReceived);
     connect(m_secondaryRunner, &SquishRunnerProcess::objectPicked,
             this, &SquishTools::objectPicked);
+    connect(m_secondaryRunner, &SquishRunnerProcess::updateChildren,
+            this, &SquishTools::updateChildren);
     connect(m_secondaryRunner, &SquishRunnerProcess::propertiesFetched,
             this, &SquishTools::propertiesFetched);
     qCDebug(LOG) << "Inspector starting:" << cmd.toUserOutput();

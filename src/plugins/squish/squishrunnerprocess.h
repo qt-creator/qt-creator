@@ -47,6 +47,7 @@ signals:
     void localsUpdated(const QString &output);
     void propertiesFetched(const QStringList &properties);
     void objectPicked(const QString &output);
+    void updateChildren(const QString &name, const QStringList &children);
     void runnerError(RunnerError error);
     void autIdRetrieved();
 

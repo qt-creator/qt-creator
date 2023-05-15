@@ -75,6 +75,7 @@ signals:
     void configChangesWritten();
     void localsUpdated(const QString &output);
     void objectPicked(const QString &output);
+    void updateChildren(const QString &realName, const QStringList &children);
     void propertiesFetched(const QStringList &properties);
     void shutdownFinished();
 
