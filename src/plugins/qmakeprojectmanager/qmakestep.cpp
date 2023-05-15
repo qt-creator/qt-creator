@@ -225,7 +225,7 @@ bool QMakeStep::init()
     }
 
     // Check whether we need to run qmake
-    if (m_forced || QmakeSettings::alwaysRunQmake()
+    if (m_forced || settings().alwaysRunQmake()
             || qmakeBc->compareToImportFrom(makeFile) != QmakeBuildConfiguration::MakefileMatches) {
         m_needToRunQMake = true;
     }

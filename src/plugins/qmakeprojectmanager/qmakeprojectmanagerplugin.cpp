@@ -80,7 +80,7 @@ public:
 
     ProFileEditorFactory profileEditorFactory;
 
-    QmakeSettingsPage settingsPage;
+    QmakeSettings settings;
 
     QmakeProject *m_previousStartupProject = nullptr;
     Target *m_previousTarget = nullptr;
