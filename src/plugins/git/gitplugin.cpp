@@ -394,6 +394,7 @@ public:
     void instantBlameOnce();
     void instantBlame();
     void stopInstantBlame();
+    bool refreshWorkingDirectory(const FilePath &workingDirectory);
 
     void onApplySettings();
 
@@ -428,6 +429,8 @@ public:
     FilePath m_submitRepository;
     QString m_commitMessageFileName;
 
+    FilePath m_workingDirectory;
+    QTextCodec *m_codec = nullptr;
     Author m_author;
     int m_lastVisitedEditorLine = -1;
     QTimer *m_cursorPositionChangedTimer = nullptr;
@@ -1439,9 +1442,8 @@ void GitPluginPrivate::setupInstantBlame()
         }
 
         const Utils::FilePath workingDirectory = GitPlugin::currentState().currentFileTopLevel();
-        if (workingDirectory.isEmpty())
+        if (!refreshWorkingDirectory(workingDirectory))
             return;
-        m_author = GitClient::instance()->getAuthor(workingDirectory);
 
         const TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
         if (!widget)
@@ -1524,9 +1526,8 @@ void GitPluginPrivate::instantBlameOnce()
                 this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
 
         const Utils::FilePath workingDirectory = GitPlugin::currentState().topLevel();
-        if (workingDirectory.isEmpty())
+        if (!refreshWorkingDirectory(workingDirectory))
             return;
-        m_author = GitClient::instance()->getAuthor(workingDirectory);
     }
 
     m_lastVisitedEditorLine = -1;
@@ -1574,10 +1575,9 @@ void GitPluginPrivate::instantBlame()
         const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, m_author);
         m_blameMark.reset(new BlameMark(filePath, line, info));
     };
-    QTextCodec *codec = GitClient::instance()->encoding(GitClient::EncodingCommit, workingDirectory);
     GitClient::instance()->vcsExecWithHandler(workingDirectory,
                            {"blame", "-p", "-L", lineString, "--", filePath.toString()},
-                           this, commandHandler, RunFlags::NoOutput, codec);
+                           this, commandHandler, RunFlags::NoOutput, m_codec);
 }
 
 void GitPluginPrivate::stopInstantBlame()
@@ -1585,6 +1585,21 @@ void GitPluginPrivate::stopInstantBlame()
     m_blameMark.reset();
     m_cursorPositionChangedTimer->stop();
     disconnect(m_blameCursorPosConn);
+}
+
+bool GitPluginPrivate::refreshWorkingDirectory(const FilePath &workingDirectory)
+{
+    if (workingDirectory.isEmpty())
+        return false;
+
+    if (m_workingDirectory == workingDirectory)
+        return true;
+
+    m_workingDirectory = workingDirectory;
+    m_author = GitClient::instance()->getAuthor(workingDirectory);
+    m_codec = GitClient::instance()->encoding(GitClient::EncodingCommit, workingDirectory);
+
+    return true;
 }
 
 IEditor *GitPluginPrivate::openSubmitEditor(const QString &fileName, const CommitData &cd)
