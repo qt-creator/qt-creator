@@ -187,10 +187,9 @@ public:
     bool pullOrPush(SyncMode mode);
 
     // Variables
-    FossilSettings m_fossilSettings;
-    FossilClient m_client{&m_fossilSettings};
+    FossilClient m_client;
 
-    OptionsPage optionPage{&m_fossilSettings};
+    OptionsPage optionPage;
 
     VcsSubmitEditorFactory submitEditorFactory {
         submitEditorParameters,
@@ -274,11 +273,6 @@ void FossilPlugin::extensionsInitialized()
     dd->extensionsInitialized();
 }
 
-const FossilSettings &FossilPlugin::settings()
-{
-    return dd->m_fossilSettings;
-}
-
 FossilClient *FossilPlugin::client()
 {
     return &dd->m_client;
@@ -296,11 +290,9 @@ FossilPluginPrivate::FossilPluginPrivate()
     m_commandLocator->setDescription(Tr::tr("Triggers a Fossil version control operation."));
 
     ProjectExplorer::JsonWizardFactory::addWizardPath(Utils::FilePath::fromString(Constants::WIZARD_PATH));
-    Core::JsExpander::registerGlobalObject("Fossil", [this] {
-        return new FossilJsExtension(&m_fossilSettings);
-    });
+    Core::JsExpander::registerGlobalObject("Fossil", [] { return new FossilJsExtension; });
 
-    connect(&m_fossilSettings, &AspectContainer::changed,
+    connect(&settings(), &AspectContainer::changed,
             this, &IVersionControl::configurationChanged);
 
     createMenu(context);

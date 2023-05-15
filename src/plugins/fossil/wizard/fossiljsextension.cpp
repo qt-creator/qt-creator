@@ -17,19 +17,6 @@ using namespace Core;
 namespace Fossil {
 namespace Internal {
 
-class FossilJsExtensionPrivate {
-public:
-    FossilJsExtensionPrivate(FossilSettings *settings) :
-        m_vscId(Constants::VCS_ID_FOSSIL),
-        m_settings(settings)
-    {
-    }
-
-    Utils::Id m_vscId;
-    FossilSettings *m_settings;
-};
-
-
 QMap<QString, QString> FossilJsExtension::parseArgOptions(const QStringList &args)
 {
     QMap<QString, QString> options;
@@ -42,24 +29,19 @@ QMap<QString, QString> FossilJsExtension::parseArgOptions(const QStringList &arg
     return options;
 }
 
-FossilJsExtension::FossilJsExtension(FossilSettings *settings) :
-    d(new FossilJsExtensionPrivate(settings))
-{ }
+FossilJsExtension::FossilJsExtension() = default;
 
-FossilJsExtension::~FossilJsExtension()
-{
-    delete d;
-}
+FossilJsExtension::~FossilJsExtension() = default;
 
 bool FossilJsExtension::isConfigured() const
 {
-    IVersionControl *vc = VcsManager::versionControl(d->m_vscId);
+    IVersionControl *vc = VcsManager::versionControl(Constants::VCS_ID_FOSSIL);
     return vc && vc->isConfigured();
 }
 
 QString FossilJsExtension::displayName() const
 {
-    IVersionControl *vc = VcsManager::versionControl(d->m_vscId);
+    IVersionControl *vc = VcsManager::versionControl(Constants::VCS_ID_FOSSIL);
     return vc ? vc->displayName() : QString();
 }
 
@@ -68,7 +50,7 @@ QString FossilJsExtension::defaultAdminUser() const
     if (!isConfigured())
         return QString();
 
-    return d->m_settings->userName.value();
+    return settings().userName.value();
 }
 
 QString FossilJsExtension::defaultSslIdentityFile() const
@@ -76,7 +58,7 @@ QString FossilJsExtension::defaultSslIdentityFile() const
     if (!isConfigured())
         return QString();
 
-    return d->m_settings->sslIdentityFile.value();
+    return settings().sslIdentityFile.value();
 }
 
 QString FossilJsExtension::defaultLocalRepoPath() const
@@ -84,7 +66,7 @@ QString FossilJsExtension::defaultLocalRepoPath() const
     if (!isConfigured())
         return QString();
 
-    return d->m_settings->defaultRepoPath.value();
+    return settings().defaultRepoPath.value();
 }
 
 bool FossilJsExtension::defaultDisableAutosync() const
@@ -92,7 +74,7 @@ bool FossilJsExtension::defaultDisableAutosync() const
     if (!isConfigured())
         return false;
 
-    return d->m_settings->disableAutosync.value();
+    return settings().disableAutosync.value();
 }
 
 } // namespace Internal

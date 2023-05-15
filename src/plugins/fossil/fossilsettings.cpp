@@ -101,9 +101,9 @@ FossilSettings::FossilSettings()
 class OptionsPageWidget final : public Core::IOptionsPageWidget
 {
 public:
-    OptionsPageWidget(FossilSettings *settings)
+    OptionsPageWidget()
     {
-        FossilSettings &s = *settings;
+        FossilSettings &s = settings();
 
         using namespace Layouting;
 
@@ -141,16 +141,22 @@ public:
 
         }.attachTo(this);
 
-        setOnApply([settings] { settings->apply(); });
+        setOnApply([] { settings().apply(); });
     }
 };
 
-OptionsPage::OptionsPage(FossilSettings *settings)
+OptionsPage::OptionsPage()
 {
     setId(Constants::VCS_ID_FOSSIL);
     setDisplayName(Tr::tr("Fossil"));
-    setWidgetCreator([settings] { return new OptionsPageWidget(settings); });
+    setWidgetCreator([] { return new OptionsPageWidget; });
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+}
+
+FossilSettings &settings()
+{
+    static FossilSettings theSettings;
+    return theSettings;
 }
 
 } // Fossil::Internal

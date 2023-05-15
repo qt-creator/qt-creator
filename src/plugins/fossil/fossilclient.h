@@ -41,7 +41,7 @@ public:
     static unsigned makeVersionNumber(int major, int minor, int patch);
     static QString makeVersionString(unsigned version);
 
-    explicit FossilClient(FossilSettings *settings);
+    FossilClient();
     FossilSettings &settings() const;
 
     unsigned int synchronousBinaryVersion() const;
@@ -107,7 +107,6 @@ private:
     VcsBase::VcsBaseEditorConfig *createLogEditor(VcsBase::VcsBaseEditorWidget *editor);
 
     friend class FossilPluginPrivate;
-    FossilSettings *m_settings = nullptr;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(FossilClient::SupportedFeatures)

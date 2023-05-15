@@ -55,9 +55,9 @@ public:
         addReloadButton();
         if (features.testFlag(FossilClient::DiffIgnoreWhiteSpaceFeature)) {
             mapSetting(addToggleButton("-w", Tr::tr("Ignore All Whitespace")),
-                       &client->settings().diffIgnoreAllWhiteSpace);
+                       &settings().diffIgnoreAllWhiteSpace);
             mapSetting(addToggleButton("--strip-trailing-cr", Tr::tr("Strip Trailing CR")),
-                       &client->settings().diffStripTrailingCR);
+                       &settings().diffStripTrailingCR);
         }
     }
 };
@@ -73,20 +73,19 @@ public:
     {
         QTC_ASSERT(client, return);
 
-        FossilSettings &settings = client->settings();
         FossilClient::SupportedFeatures features = client->supportedFeatures();
 
         if (features.testFlag(FossilClient::AnnotateBlameFeature)) {
             mapSetting(addToggleButton("|BLAME|", Tr::tr("Show Committers")),
-                       &settings.annotateShowCommitters);
+                       &settings().annotateShowCommitters);
         }
 
         // Force listVersions setting to false by default.
         // This way the annotated line number would not get offset by the version list.
-        settings.annotateListVersions.setValue(false);
+        settings().annotateListVersions.setValue(false);
 
         mapSetting(addToggleButton("--log", Tr::tr("List Versions")),
-                   &settings.annotateListVersions);
+                   &settings().annotateListVersions);
     }
 };
 
@@ -122,8 +121,6 @@ public:
 
     void addLineageComboBox()
     {
-        FossilSettings &settings = m_client->settings();
-
         // ancestors/descendants filter
         // This is a positional argument not an option.
         // Normally it takes the checkin/branch/tag as an additional parameter
@@ -137,23 +134,19 @@ public:
             ChoiceItem(Tr::tr("Unfiltered"), "")
         };
         mapSetting(addChoices(Tr::tr("Lineage"), QStringList("|LINEAGE|%1|current"), lineageFilterChoices),
-                   &settings.timelineLineageFilter);
+                   &settings().timelineLineageFilter);
     }
 
     void addVerboseToggleButton()
     {
-        FossilSettings &settings = m_client->settings();
-
         // show files
         mapSetting(addToggleButton("-showfiles", Tr::tr("Verbose"),
                                    Tr::tr("Show files changed in each revision")),
-                   &settings.timelineVerbose);
+                   &settings().timelineVerbose);
     }
 
     void addItemTypeComboBox()
     {
-        FossilSettings &settings = m_client->settings();
-
         // option: -t <val>
         const QList<ChoiceItem> itemTypeChoices = {
             ChoiceItem(Tr::tr("All Items"), "all"),
@@ -169,7 +162,7 @@ public:
         // Fossil expects separate arguments for option and value ( i.e. "-t" "all")
         // so we need to handle the splitting explicitly in arguments().
         mapSetting(addChoices(Tr::tr("Item Types"), QStringList("-t %1"), itemTypeChoices),
-                   &settings.timelineItemType);
+                   &settings().timelineItemType);
     }
 
     QStringList arguments() const final
@@ -224,17 +217,17 @@ QString FossilClient::makeVersionString(unsigned version)
                     .arg(versionPart(version));
 }
 
-FossilClient::FossilClient(FossilSettings *settings)
-    : VcsBaseClient(settings), m_settings(settings)
+FossilSettings &FossilClient::settings() const
+{
+    return Internal::settings();
+}
+
+FossilClient::FossilClient()
+    : VcsBaseClient(&Internal::settings())
 {
     setDiffConfigCreator([this](QToolBar *toolBar) {
         return new FossilDiffConfig(this, toolBar);
     });
-}
-
-FossilSettings &FossilClient::settings() const
-{
-    return *m_settings;
 }
 
 unsigned int FossilClient::synchronousBinaryVersion() const

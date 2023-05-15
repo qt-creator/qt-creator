@@ -26,6 +26,8 @@ public:
     Utils::BoolAspect disableAutosync;
 };
 
+FossilSettings &settings();
+
 struct RepositorySettings
 {
     enum AutosyncMode {AutosyncOff, AutosyncOn, AutosyncPullOnly};
@@ -45,7 +47,7 @@ struct RepositorySettings
 class OptionsPage : public Core::IOptionsPage
 {
 public:
-    explicit OptionsPage(FossilSettings *settings);
+    OptionsPage();
 };
 
 } // Fossil::Internal
