@@ -12,14 +12,24 @@ namespace ProjectExplorer {
 class SessionManagerPrivate
 {
 public:
+    void restoreStartupSession();
+
     void restoreValues(const PersistentSettingsReader &reader);
     void restoreEditors(const PersistentSettingsReader &reader);
     void sessionLoadingProgress();
+
+    bool isStartupSessionRestored();
+    void saveSettings();
+    void restoreSettings();
+    bool isAutoRestoreLastSession();
+    void setAutoRestoreLastSession(bool restore);
 
     static QString windowTitleAddition(const FilePath &filePath);
     static QString sessionTitle(const FilePath &filePath);
 
     QString m_sessionName = "default";
+    bool m_isStartupSessionRestored = false;
+    bool m_isAutoRestoreLastSession = false;
     bool m_virginSession = true;
     bool m_loadingSession = false;
 

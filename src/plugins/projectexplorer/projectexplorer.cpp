@@ -35,8 +35,8 @@
 #include "dependenciespanel.h"
 #include "devicesupport/desktopdevice.h"
 #include "devicesupport/desktopdevicefactory.h"
-#include "devicesupport/devicemanager.h"
 #include "devicesupport/devicecheckbuildstep.h"
+#include "devicesupport/devicemanager.h"
 #include "devicesupport/devicesettingspage.h"
 #include "devicesupport/sshsettings.h"
 #include "devicesupport/sshsettingspage.h"
@@ -69,6 +69,7 @@
 #include "sanitizerparser.h"
 #include "selectablefilesmodel.h"
 #include "session.h"
+#include "session_p.h"
 #include "sessiondialog.h"
 #include "showineditortaskhandler.h"
 #include "simpleprojectwizard.h"
@@ -257,7 +258,6 @@ const char BUILD_BEFORE_DEPLOY_SETTINGS_KEY[] = "ProjectExplorer/Settings/BuildB
 const char DEPLOY_BEFORE_RUN_SETTINGS_KEY[] = "ProjectExplorer/Settings/DeployBeforeRun";
 const char SAVE_BEFORE_BUILD_SETTINGS_KEY[] = "ProjectExplorer/Settings/SaveBeforeBuild";
 const char USE_JOM_SETTINGS_KEY[] = "ProjectExplorer/Settings/UseJom";
-const char AUTO_RESTORE_SESSION_SETTINGS_KEY[] = "ProjectExplorer/Settings/AutoRestoreLastSession";
 const char ADD_LIBRARY_PATHS_TO_RUN_ENV_SETTINGS_KEY[] =
         "ProjectExplorer/Settings/AddLibraryPathsToRunEnv";
 const char PROMPT_TO_STOP_RUN_CONTROL_SETTINGS_KEY[] =
@@ -457,8 +457,6 @@ public:
     void updateSessionMenu();
     void setSession(QAction *action);
 
-    void determineSessionToRestoreAtStartup();
-    void restoreSession();
     void runProjectContextMenu(RunConfiguration *rc);
     void savePersistentSettings();
 
@@ -584,7 +582,6 @@ public:
     QAction *m_runSubProject;
 
     ProjectWindow *m_proWindow = nullptr;
-    QString m_sessionToRestoreAtStartup;
 
     QStringList m_profileMimeTypes;
     int m_activeRunControlCount = 0;
@@ -607,7 +604,6 @@ public:
     Id m_runMode = Constants::NO_RUN_MODE;
 
     ToolChainManager *m_toolChainManager = nullptr;
-    QStringList m_arguments;
 
 #ifdef WITH_JOURNALD
     JournaldWatcher m_journalWatcher;
@@ -1675,10 +1671,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
               .toBool();
     dd->m_projectExplorerSettings.useJom
         = s->value(Constants::USE_JOM_SETTINGS_KEY, defaultSettings.useJom).toBool();
-    dd->m_projectExplorerSettings.autorestoreLastSession
-        = s->value(Constants::AUTO_RESTORE_SESSION_SETTINGS_KEY,
-                   defaultSettings.autorestoreLastSession)
-              .toBool();
     dd->m_projectExplorerSettings.addLibraryPathsToRunEnv
         = s->value(Constants::ADD_LIBRARY_PATHS_TO_RUN_ENV_SETTINGS_KEY,
                    defaultSettings.addLibraryPathsToRunEnv)
@@ -1720,6 +1712,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
               .toBool();
 
     dd->m_buildPropertiesSettings.readSettings(s);
+    sb_d->restoreSettings();
 
     const int customParserCount = s->value(Constants::CUSTOM_PARSER_COUNT_KEY).toInt();
     for (int i = 0; i < customParserCount; ++i) {
@@ -1913,6 +1906,18 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         dd->updateContextMenuActions(ProjectTree::currentNode());
     });
 
+    connect(ModeManager::instance(),
+            &ModeManager::currentModeChanged,
+            dd,
+            &ProjectExplorerPluginPrivate::currentModeChanged);
+    connect(&dd->m_welcomePage,
+            &ProjectWelcomePage::requestProject,
+            m_instance,
+            &ProjectExplorerPlugin::openProjectWelcomePage);
+    connect(SessionManager::instance(),
+            &SessionManager::startupSessionRestored,
+            m_instance,
+            &ProjectExplorerPlugin::finishedInitialization);
     dd->updateWelcomePage();
 
     MacroExpander *expander = Utils::globalMacroExpander();
@@ -2155,11 +2160,12 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
 void ProjectExplorerPlugin::restoreKits()
 {
-    dd->determineSessionToRestoreAtStartup();
     ExtraAbi::load(); // Load this before Toolchains!
     ToolChainManager::restoreToolChains();
     KitManager::restoreKits();
-    QTimer::singleShot(0, dd, &ProjectExplorerPluginPrivate::restoreSession); // delay a bit...
+    // restoring startup session is supposed to be done as a result of ICore::coreOpened,
+    // and that is supposed to happen after restoring kits:
+    QTC_CHECK(!sb_d->isStartupSessionRestored());
 }
 
 void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()
@@ -2208,9 +2214,9 @@ void ProjectExplorerPluginPrivate::showSessionManager()
 {
     ProjectManager::save();
     SessionDialog sessionDialog(ICore::dialogParent());
-    sessionDialog.setAutoLoadSession(dd->m_projectExplorerSettings.autorestoreLastSession);
+    sessionDialog.setAutoLoadSession(sb_d->isAutoRestoreLastSession());
     sessionDialog.exec();
-    dd->m_projectExplorerSettings.autorestoreLastSession = sessionDialog.autoLoadSession();
+    sb_d->setAutoRestoreLastSession(sessionDialog.autoLoadSession());
 
     updateActions();
 
@@ -2284,9 +2290,6 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValueWithDefault(Constants::USE_JOM_SETTINGS_KEY,
                            dd->m_projectExplorerSettings.useJom,
                            defaultSettings.useJom);
-    s->setValueWithDefault(Constants::AUTO_RESTORE_SESSION_SETTINGS_KEY,
-                           dd->m_projectExplorerSettings.autorestoreLastSession,
-                           defaultSettings.autorestoreLastSession);
     s->setValueWithDefault(Constants::ADD_LIBRARY_PATHS_TO_RUN_ENV_SETTINGS_KEY,
                            dd->m_projectExplorerSettings.addLibraryPathsToRunEnv,
                            defaultSettings.addLibraryPathsToRunEnv);
@@ -2318,6 +2321,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
                            int(defaultSettings.stopBeforeBuild));
 
     dd->m_buildPropertiesSettings.writeSettings(s);
+    sb_d->saveSettings();
 
     s->setValueWithDefault(Constants::CUSTOM_PARSER_COUNT_KEY, int(dd->m_customParsers.count()), 0);
     for (int i = 0; i < dd->m_customParsers.count(); ++i) {
@@ -2468,33 +2472,6 @@ void ProjectExplorerPluginPrivate::currentModeChanged(Id mode, Id oldMode)
         updateWelcomePage();
 }
 
-void ProjectExplorerPluginPrivate::determineSessionToRestoreAtStartup()
-{
-    // Process command line arguments first:
-    const bool lastSessionArg =
-        ExtensionSystem::PluginManager::specForPlugin(m_instance)->arguments().contains("-lastsession");
-    m_sessionToRestoreAtStartup = lastSessionArg ? SessionManager::startupSession() : QString();
-    const QStringList arguments = ExtensionSystem::PluginManager::arguments();
-    if (!lastSessionArg) {
-        QStringList sessions = SessionManager::sessions();
-        // We have command line arguments, try to find a session in them
-        // Default to no session loading
-        for (const QString &arg : arguments) {
-            if (sessions.contains(arg)) {
-                // Session argument
-                m_sessionToRestoreAtStartup = arg;
-                break;
-            }
-        }
-    }
-    // Handle settings only after command line arguments:
-    if (m_sessionToRestoreAtStartup.isEmpty() && m_projectExplorerSettings.autorestoreLastSession)
-        m_sessionToRestoreAtStartup = SessionManager::startupSession();
-
-    if (!m_sessionToRestoreAtStartup.isEmpty())
-        ModeManager::activateMode(Core::Constants::MODE_EDIT);
-}
-
 // Return a list of glob patterns for project files ("*.pro", etc), use first, main pattern only.
 QStringList ProjectExplorerPlugin::projectFileGlobs()
 {
@@ -2518,70 +2495,6 @@ QThreadPool *ProjectExplorerPlugin::sharedThreadPool()
 MiniProjectTargetSelector *ProjectExplorerPlugin::targetSelector()
 {
     return dd->m_targetSelector;
-}
-
-/*!
-    This function is connected to the ICore::coreOpened signal.  If
-    there was no session explicitly loaded, it creates an empty new
-    default session and puts the list of recent projects and sessions
-    onto the welcome page.
-*/
-void ProjectExplorerPluginPrivate::restoreSession()
-{
-    // We have command line arguments, try to find a session in them
-    QStringList arguments = ExtensionSystem::PluginManager::arguments();
-    if (!dd->m_sessionToRestoreAtStartup.isEmpty() && !arguments.isEmpty())
-        arguments.removeOne(dd->m_sessionToRestoreAtStartup);
-
-    // Massage the argument list.
-    // Be smart about directories: If there is a session of that name, load it.
-    //   Other than that, look for project files in it. The idea is to achieve
-    //   'Do what I mean' functionality when starting Creator in a directory with
-    //   the single command line argument '.' and avoid editor warnings about not
-    //   being able to open directories.
-    // In addition, convert "filename" "+45" or "filename" ":23" into
-    //   "filename+45"   and "filename:23".
-    if (!arguments.isEmpty()) {
-        const QStringList sessions = SessionManager::sessions();
-        for (int a = 0; a < arguments.size(); ) {
-            const QString &arg = arguments.at(a);
-            const QFileInfo fi(arg);
-            if (fi.isDir()) {
-                const QDir dir(fi.absoluteFilePath());
-                // Does the directory name match a session?
-                if (dd->m_sessionToRestoreAtStartup.isEmpty()
-                    && sessions.contains(dir.dirName())) {
-                    dd->m_sessionToRestoreAtStartup = dir.dirName();
-                    arguments.removeAt(a);
-                    continue;
-                }
-            } // Done directories.
-            // Converts "filename" "+45" or "filename" ":23" into "filename+45" and "filename:23"
-            if (a && (arg.startsWith(QLatin1Char('+')) || arg.startsWith(QLatin1Char(':')))) {
-                arguments[a - 1].append(arguments.takeAt(a));
-                continue;
-            }
-            ++a;
-        } // for arguments
-    } // !arguments.isEmpty()
-    // Restore latest session or what was passed on the command line
-
-    ProjectManager::loadSession(!dd->m_sessionToRestoreAtStartup.isEmpty()
-                                ? dd->m_sessionToRestoreAtStartup : QString(), true);
-
-    // update welcome page
-    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
-            dd, &ProjectExplorerPluginPrivate::currentModeChanged);
-    connect(&dd->m_welcomePage, &ProjectWelcomePage::requestProject,
-            m_instance, &ProjectExplorerPlugin::openProjectWelcomePage);
-    dd->m_arguments = arguments;
-    // delay opening projects from the command line even more
-    QTimer::singleShot(0, m_instance, [] {
-        ICore::openFiles(Utils::transform(dd->m_arguments, &FilePath::fromUserInput),
-                         ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers | ICore::SwitchMode));
-        emit m_instance->finishedInitialization();
-    });
-    updateActions();
 }
 
 void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, Id runMode)

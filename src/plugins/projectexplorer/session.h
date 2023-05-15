@@ -54,6 +54,7 @@ public:
     static void markSessionFileDirty();
 
 signals:
+    void startupSessionRestored();
     void aboutToUnloadSession(QString sessionName);
     void aboutToLoadSession(QString sessionName);
     void sessionLoaded(QString sessionName);

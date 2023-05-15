@@ -5,8 +5,12 @@
 
 #include "session_p.h"
 
+#include "projectexplorer.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
+
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -28,6 +32,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTimer>
 
 using namespace Core;
 using namespace Utils;
@@ -38,6 +43,8 @@ const char DEFAULT_SESSION[] = "default";
 const char LAST_ACTIVE_TIMES_KEY[] = "LastActiveTimes";
 const char STARTUPSESSION_KEY[] = "ProjectExplorer/SessionToRestore";
 const char LASTSESSION_KEY[] = "ProjectExplorer/StartupSession";
+const char AUTO_RESTORE_SESSION_SETTINGS_KEY[] = "ProjectExplorer/Settings/AutoRestoreLastSession";
+static bool kIsAutoRestoreLastSessionDefault = false;
 
 /*!
      \class ProjectExplorer::SessionManager
@@ -57,6 +64,8 @@ SessionManager::SessionManager()
 {
     m_instance = this;
     sb_d = new SessionManagerPrivate;
+
+    connect(ICore::instance(), &ICore::coreOpened, this, [] { sb_d->restoreStartupSession(); });
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &SessionManager::saveActiveMode);
@@ -249,6 +258,119 @@ bool SessionManager::cloneSession(const QString &original, const QString &clone)
         return true;
     }
     return false;
+}
+
+static QString determineSessionToRestoreAtStartup()
+{
+    // TODO (session) move argument to core
+    // Process command line arguments first:
+    const bool lastSessionArg = ExtensionSystem::PluginManager::specForPlugin(
+                                    ProjectExplorerPlugin::instance())
+                                    ->arguments()
+                                    .contains("-lastsession");
+    if (lastSessionArg && !SessionManager::startupSession().isEmpty())
+        return SessionManager::startupSession();
+    const QStringList arguments = ExtensionSystem::PluginManager::arguments();
+    QStringList sessions = SessionManager::sessions();
+    // We have command line arguments, try to find a session in them
+    // Default to no session loading
+    for (const QString &arg : arguments) {
+        if (sessions.contains(arg)) {
+            // Session argument
+            return arg;
+        }
+    }
+    // Handle settings only after command line arguments:
+    if (sb_d->m_isAutoRestoreLastSession)
+        return SessionManager::startupSession();
+    return {};
+}
+
+void SessionManagerPrivate::restoreStartupSession()
+{
+    m_isStartupSessionRestored = true;
+    QString sessionToRestoreAtStartup = determineSessionToRestoreAtStartup();
+    if (!sessionToRestoreAtStartup.isEmpty())
+        ModeManager::activateMode(Core::Constants::MODE_EDIT);
+
+    // We have command line arguments, try to find a session in them
+    QStringList arguments = ExtensionSystem::PluginManager::arguments();
+    if (!sessionToRestoreAtStartup.isEmpty() && !arguments.isEmpty())
+        arguments.removeOne(sessionToRestoreAtStartup);
+
+    // Massage the argument list.
+    // Be smart about directories: If there is a session of that name, load it.
+    //   Other than that, look for project files in it. The idea is to achieve
+    //   'Do what I mean' functionality when starting Creator in a directory with
+    //   the single command line argument '.' and avoid editor warnings about not
+    //   being able to open directories.
+    // In addition, convert "filename" "+45" or "filename" ":23" into
+    //   "filename+45"   and "filename:23".
+    if (!arguments.isEmpty()) {
+        const QStringList sessions = SessionManager::sessions();
+        for (int a = 0; a < arguments.size();) {
+            const QString &arg = arguments.at(a);
+            const QFileInfo fi(arg);
+            if (fi.isDir()) {
+                const QDir dir(fi.absoluteFilePath());
+                // Does the directory name match a session?
+                if (sessionToRestoreAtStartup.isEmpty() && sessions.contains(dir.dirName())) {
+                    sessionToRestoreAtStartup = dir.dirName();
+                    arguments.removeAt(a);
+                    continue;
+                }
+            } // Done directories.
+            // Converts "filename" "+45" or "filename" ":23" into "filename+45" and "filename:23"
+            if (a && (arg.startsWith(QLatin1Char('+')) || arg.startsWith(QLatin1Char(':')))) {
+                arguments[a - 1].append(arguments.takeAt(a));
+                continue;
+            }
+            ++a;
+        } // for arguments
+    }     // !arguments.isEmpty()
+
+    // Restore latest session or what was passed on the command line
+    ProjectManager::loadSession(!sessionToRestoreAtStartup.isEmpty() ? sessionToRestoreAtStartup
+                                                                     : QString(),
+                                true);
+
+    // delay opening projects from the command line even more
+    QTimer::singleShot(0, m_instance, [arguments] {
+        ICore::openFiles(Utils::transform(arguments, &FilePath::fromUserInput),
+                         ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers
+                                               | ICore::SwitchMode));
+        emit m_instance->startupSessionRestored();
+    });
+}
+
+bool SessionManagerPrivate::isStartupSessionRestored()
+{
+    return sb_d->m_isStartupSessionRestored;
+}
+
+void SessionManagerPrivate::saveSettings()
+{
+    ICore::settings()->setValueWithDefault(AUTO_RESTORE_SESSION_SETTINGS_KEY,
+                                           sb_d->m_isAutoRestoreLastSession,
+                                           kIsAutoRestoreLastSessionDefault);
+}
+
+void SessionManagerPrivate::restoreSettings()
+{
+    sb_d->m_isAutoRestoreLastSession = ICore::settings()
+                                           ->value(AUTO_RESTORE_SESSION_SETTINGS_KEY,
+                                                   kIsAutoRestoreLastSessionDefault)
+                                           .toBool();
+}
+
+bool SessionManagerPrivate::isAutoRestoreLastSession()
+{
+    return sb_d->m_isAutoRestoreLastSession;
+}
+
+void SessionManagerPrivate::setAutoRestoreLastSession(bool restore)
+{
+    sb_d->m_isAutoRestoreLastSession = restore;
 }
 
 void SessionManagerPrivate::restoreValues(const PersistentSettingsReader &reader)
