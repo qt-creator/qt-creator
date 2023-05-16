@@ -4,8 +4,6 @@
 #include "qmakesettings.h"
 #include "qmakeprojectmanagertr.h"
 
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/hostosinfo.h>
@@ -63,7 +61,7 @@ QmakeSettings::QmakeSettings()
         }.attachTo(widget);
     });
 
-    readSettings(Core::ICore::settings());
+    readSettings();
 }
 
 } // QmakeProjectManager::Internal

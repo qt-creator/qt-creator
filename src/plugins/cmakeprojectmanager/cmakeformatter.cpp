@@ -14,7 +14,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
 #include <projectexplorer/project.h>
@@ -112,7 +111,7 @@ public:
         connect(EditorManager::instance(), &EditorManager::aboutToSave,
                 this, &CMakeFormatterPrivate::applyIfNecessary);
 
-        readSettings(ICore::settings());
+        readSettings();
     }
 
     bool isApplicable(const IDocument *document) const;

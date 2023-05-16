@@ -95,7 +95,7 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     showAdvancedOptionsByDefault.setLabelText(
                 ::CMakeProjectManager::Tr::tr("Show advanced options by default"));
 
-    readSettings(Core::ICore::settings());
+    readSettings();
 }
 
 } // CMakeProjectManager::Internal

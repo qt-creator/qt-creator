@@ -57,7 +57,7 @@ namespace VcsBase {
 VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseSettings *baseSettings)
     : m_baseSettings(baseSettings)
 {
-    m_baseSettings->readSettings(ICore::settings());
+    m_baseSettings->readSettings();
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &VcsBaseClientImpl::saveSettings);
 }

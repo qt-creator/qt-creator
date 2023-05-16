@@ -309,4 +309,9 @@ PagedSettings::PagedSettings()
     setAutoApply(false);
 }
 
+void PagedSettings::readSettings()
+{
+    return AspectContainer::readSettings(Core::ICore::settings());
+}
+
 } // Core

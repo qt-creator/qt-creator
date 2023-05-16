@@ -6,8 +6,6 @@
 #include "dockerconstants.h"
 #include "dockertr.h"
 
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/filepath.h>
@@ -55,7 +53,7 @@ DockerSettings::DockerSettings()
     dockerBinaryPath.setLabelText(Tr::tr("Command:"));
     dockerBinaryPath.setSettingsKey("cli");
 
-    readSettings(Core::ICore::settings());
+    readSettings();
 }
 
 } // Docker::Internal

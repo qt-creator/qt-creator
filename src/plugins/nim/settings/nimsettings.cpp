@@ -92,7 +92,7 @@ NimSettings::NimSettings()
     nimSuggestPath.setExpectedKind(PathChooser::ExistingCommand);
     nimSuggestPath.setLabelText(Tr::tr("Path:"));
 
-    readSettings(Core::ICore::settings());
+    readSettings();
 }
 
 NimSettings::~NimSettings()

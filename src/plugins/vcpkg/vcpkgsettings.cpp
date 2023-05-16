@@ -5,8 +5,6 @@
 
 #include "vcpkgconstants.h"
 
-#include <coreplugin/icore.h>
-
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <utils/aspects.h>
@@ -67,7 +65,7 @@ VcpkgSettings::VcpkgSettings()
     vcpkgRoot.setExpectedKind(Utils::PathChooser::ExistingDirectory);
     vcpkgRoot.setDefaultValue(Utils::qtcEnvironmentVariable(Constants::ENVVAR_VCPKG_ROOT));
 
-    readSettings(Core::ICore::settings());
+    readSettings();
 }
 
 bool VcpkgSettings::vcpkgRootValid() const

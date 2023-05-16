@@ -121,7 +121,7 @@ CppcheckOptions::CppcheckOptions()
 
     setLayouter(layouter());
 
-    readSettings(Core::ICore::settings());
+    readSettings();
 }
 
 std::function<void(QWidget *widget)> CppcheckOptions::layouter()
