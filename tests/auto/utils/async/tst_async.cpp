@@ -439,12 +439,7 @@ void tst_Async::taskTree()
     };
 
     TaskTree tree(root);
-
-    QEventLoop eventLoop;
-    connect(&tree, &TaskTree::done, &eventLoop, &QEventLoop::quit);
-    tree.start();
-    eventLoop.exec();
-
+    QVERIFY(tree.runBlocking(1000));
     QCOMPARE(value, 16);
 }
 
@@ -581,12 +576,7 @@ void tst_Async::mapReduce()
     QFETCH(QList<double>, results);
 
     TaskTree tree(root);
-
-    QEventLoop eventLoop;
-    connect(&tree, &TaskTree::done, &eventLoop, &QEventLoop::quit);
-    tree.start();
-    eventLoop.exec();
-
+    QVERIFY(tree.runBlocking(1000));
     QCOMPARE(s_results, results);
     QCOMPARE(s_sum, sum);
 }
