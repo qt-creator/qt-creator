@@ -22,10 +22,12 @@ CellIterator::CellIterator(const TerminalSurface *surface, int pos)
 
     if (m_pos == 0) {
         m_state = State::BEGIN;
-        updateChar();
     } else if (m_pos == m_maxpos + 1) {
         m_state = State::END;
     }
+
+    if (m_state != State::END)
+        updateChar();
 }
 
 CellIterator::CellIterator(const TerminalSurface *surface)
