@@ -56,10 +56,6 @@ void tst_Text::testPositionFromFileName_data()
     QTest::newRow("multi digit line+ win")
         << fileWin + "+1234567890" << Position{1234567890, 0} << 10;
 
-    QTest::newRow("multi digit line+") << file + "+1234567890" << Position{1234567890, 0} << 8;
-    QTest::newRow("multi digit line+ win")
-        << fileWin + "+1234567890" << Position{1234567890, 0} << 10;
-
     QTest::newRow("line: empty column:") << file + ":1:" << Position{1, 0} << 8;
     QTest::newRow("line: empty column: win") << fileWin + ":1:" << Position{1, 0} << 10;
 
