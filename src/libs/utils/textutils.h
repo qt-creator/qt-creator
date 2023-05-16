@@ -32,6 +32,7 @@ public:
 
     static Position fromFileName(QStringView fileName, int &postfixPos);
     static Position fromPositionInDocument(const QTextDocument *document, int pos);
+    static Position fromCursor(const QTextCursor &cursor);
 };
 
 class QTCREATOR_UTILS_EXPORT Range

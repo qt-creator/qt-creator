@@ -59,6 +59,11 @@ Position Position::fromPositionInDocument(const QTextDocument *document, int pos
     return {};
 }
 
+Position Position::fromCursor(const QTextCursor &c)
+{
+    return c.isNull() ? Position{} : Position{c.blockNumber() + 1, c.positionInBlock()};
+}
+
 int Range::length(const QString &text) const
 {
     if (end.line < begin.line)

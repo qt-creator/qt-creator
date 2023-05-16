@@ -3,6 +3,7 @@
 
 #include <utils/textutils.h>
 
+#include <QTextCursor>
 #include <QTextDocument>
 #include <QtTest>
 
@@ -18,6 +19,9 @@ private slots:
 
     void testPositionFromPositionInDocument_data();
     void testPositionFromPositionInDocument();
+
+    void testPositionFromCursor_data();
+    void testPositionFromCursor();
 
     void testRangeLength_data();
     void testRangeLength();
@@ -133,6 +137,36 @@ void tst_Text::testPositionFromPositionInDocument()
 
     const QTextDocument doc(text);
     QCOMPARE(Position::fromPositionInDocument(&doc, documentPosition), position);
+}
+
+void tst_Text::testPositionFromCursor_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<int>("documentPosition");
+    QTest::addColumn<Position>("position");
+
+    QTest::newRow("0") << QString() << 0 << Position{1, 0};
+    QTest::newRow("-1") << QString() << -1 << Position{};
+    QTest::newRow("mid line") << QString("foo\n") << 1 << Position{1, 1};
+    QTest::newRow("second line") << QString("foo\n") << 4 << Position{2, 0};
+    QTest::newRow("second mid line") << QString("foo\nbar") << 5 << Position{2, 1};
+    QTest::newRow("behind content") << QString("foo\nbar") << 8 << Position{1, 0};
+}
+
+void tst_Text::testPositionFromCursor()
+{
+    QFETCH(QString, text);
+    QFETCH(int, documentPosition);
+    QFETCH(Position, position);
+
+    if (documentPosition < 0) {// test invalid Cursor {
+        QCOMPARE(Position::fromCursor(QTextCursor()), position);
+    } else {
+        QTextDocument doc(text);
+        QTextCursor cursor(&doc);
+        cursor.setPosition(documentPosition);
+        QCOMPARE(Position::fromCursor(cursor), position);
+    }
 }
 
 void tst_Text::testRangeLength_data()
