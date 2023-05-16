@@ -115,7 +115,16 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
                                              && left.inherits.value() == right.inherits.value();
                 const bool leftInheritsRight = left.inherits
                                                && left.inherits.value().contains(right.name);
-                if ((left.inherits && !right.inherits) || leftInheritsRight || sameInheritance)
+
+                const bool inheritsGreater = left.inherits && right.inherits
+                                             && left.inherits.value().first()
+                                                    > right.inherits.value().first();
+
+                const bool noInheritsGreater = !left.inherits && !right.inherits
+                                               && left.name > right.name;
+
+                if ((left.inherits && !right.inherits) || leftInheritsRight || sameInheritance
+                    || inheritsGreater || noInheritsGreater)
                     return false;
                 return true;
             });
