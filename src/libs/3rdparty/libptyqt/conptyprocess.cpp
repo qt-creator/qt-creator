@@ -83,6 +83,8 @@ HRESULT ConPtyProcess::initializeStartupInfoAttachedToPseudoConsole(STARTUPINFOE
     return hr;
 }
 
+Q_DECLARE_METATYPE(HANDLE)
+
 ConPtyProcess::ConPtyProcess()
     : IPtyProcess()
     , m_ptyHandler { INVALID_HANDLE_VALUE }
@@ -90,7 +92,7 @@ ConPtyProcess::ConPtyProcess()
     , m_hPipeOut { INVALID_HANDLE_VALUE }
     , m_readThread(nullptr)
 {
-
+   qRegisterMetaType<HANDLE>("HANDLE");
 }
 
 ConPtyProcess::~ConPtyProcess()
