@@ -1548,7 +1548,7 @@ void GitPluginPrivate::instantBlame()
     const QTextCursor cursor = widget->textCursor();
     const QTextBlock block = cursor.block();
     const int line = block.blockNumber() + 1;
-    const int lines = widget->document()->lineCount();
+    const int lines = widget->document()->blockCount();
 
     if (line >= lines) {
         m_blameMark.reset();
