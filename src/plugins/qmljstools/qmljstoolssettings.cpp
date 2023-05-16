@@ -71,45 +71,6 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     QSettings *s = Core::ICore::settings();
     m_globalCodeStyle->fromSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
 
-    // legacy handling start (Qt Creator Version < 2.4)
-    const bool legacyTransformed =
-                s->value(QLatin1String("QmlJSTabPreferences/LegacyTransformed"), false).toBool();
-
-    if (!legacyTransformed) {
-        // creator 2.4 didn't mark yet the transformation (first run of creator 2.4)
-
-        // we need to transform the settings only if at least one from
-        // below settings was already written - otherwise we use
-        // defaults like it would be the first run of creator 2.4 without stored settings
-        const QStringList groups = s->childGroups();
-        const bool needTransform = groups.contains(QLatin1String("textTabPreferences")) ||
-                                   groups.contains(QLatin1String("QmlJSTabPreferences"));
-
-        if (needTransform) {
-            const QString currentFallback = s->value(QLatin1String("QmlJSTabPreferences/CurrentFallback")).toString();
-            TabSettings legacyTabSettings;
-            if (currentFallback == QLatin1String("QmlJSGlobal")) {
-                // no delegate, global overwritten
-                Utils::fromSettings(QLatin1String("QmlJSTabPreferences"),
-                                    QString(), s, &legacyTabSettings);
-            } else {
-                // delegating to global
-                legacyTabSettings = TextEditorSettings::codeStyle()->currentTabSettings();
-            }
-
-            // create custom code style out of old settings
-            ICodeStylePreferences *oldCreator = pool->createCodeStyle(
-                     "legacy", legacyTabSettings, QVariant(), Tr::tr("Old Creator"));
-
-            // change the current delegate and save
-            m_globalCodeStyle->setCurrentDelegate(oldCreator);
-            m_globalCodeStyle->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
-        }
-        // mark old settings as transformed
-        s->setValue(QLatin1String("QmlJSTabPreferences/LegacyTransformed"), true);
-        // legacy handling stop
-    }
-
     // mimetypes to be handled
     TextEditorSettings::registerMimeTypeForLanguageId(Constants::QML_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
     TextEditorSettings::registerMimeTypeForLanguageId(Constants::QMLUI_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
