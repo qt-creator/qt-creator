@@ -514,6 +514,8 @@ public:
     void handleDelayedQuit(bool forced, Core::IEditor *editor);
     void userActionTriggered(int key);
 
+    void updateAllHightLights();
+
     void switchToFile(int n);
     int currentFile() const;
 
@@ -556,6 +558,8 @@ public:
 
     MiniBuffer *m_miniBuffer = nullptr;
     FakeVimPluginRunData *runData = nullptr;
+
+    QString m_lastHighlight;
 
     int m_savedCursorFlashTime = 0;
 };
@@ -1252,6 +1256,16 @@ void FakeVimPluginPrivate::userActionTriggered(int key)
     }
 }
 
+void FakeVimPluginPrivate::updateAllHightLights()
+{
+    const QList<IEditor *> editors = EditorManager::visibleEditors();
+    for (IEditor *editor : editors) {
+        QWidget *w = editor->widget();
+        if (auto find = Aggregation::query<IFindSupport>(w))
+            find->highlightAll(m_lastHighlight, FindRegularExpression | FindCaseSensitively);
+    }
+}
+
 void FakeVimPluginPrivate::createRelativeNumberWidget(IEditor *editor)
 {
     if (auto textEditor = TextEditorWidget::fromEditor(editor)) {
@@ -1598,7 +1612,8 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
             tew->clearSuggestion();
     });
 
-    handler->highlightMatches.set([](const QString &needle) {
+    handler->highlightMatches.set([this](const QString &needle) {
+        m_lastHighlight = needle;
         for (IEditor *editor : EditorManager::visibleEditors()) {
             QWidget *w = editor->widget();
             if (auto find = Aggregation::query<IFindSupport>(w))
@@ -2034,9 +2049,11 @@ void FakeVimPluginPrivate::handleExCommand(FakeVimHandler *handler, bool *handle
     } else if (cmd.matches("sp", "split")) {
         // :sp[lit]
         triggerAction(Core::Constants::SPLIT);
+        updateAllHightLights();
     } else if (cmd.matches("vs", "vsplit")) {
         // :vs[plit]
         triggerAction(Core::Constants::SPLIT_SIDE_BY_SIDE);
+        updateAllHightLights();
     } else if (cmd.matches("mak", "make")) {
         // :mak[e][!] [arguments]
         triggerAction(ProjectExplorer::Constants::BUILD);
