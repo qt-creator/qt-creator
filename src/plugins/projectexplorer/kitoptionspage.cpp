@@ -25,7 +25,9 @@ namespace Internal {
 
 // KitOptionsPageWidget
 
-static KitOptionsPageWidget *kitOptionsPageWidget = nullptr;
+class KitOptionsPageWidget;
+
+static QPointer<KitOptionsPageWidget> kitOptionsPageWidget;
 
 class KitOptionsPageWidget : public Core::IOptionsPageWidget
 {
@@ -242,11 +244,8 @@ QModelIndex KitOptionsPageWidget::currentIndex() const
 // KitOptionsPage:
 // --------------------------------------------------------------------------
 
-static KitOptionsPage *theKitOptionsPage = nullptr;
-
 KitOptionsPage::KitOptionsPage()
 {
-    theKitOptionsPage = this;
     setId(Constants::KITS_SETTINGS_PAGE_ID);
     setDisplayName(Tr::tr("Kits"));
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
@@ -261,7 +260,8 @@ void KitOptionsPage::showKit(Kit *k)
         return;
 
     Internal::KitOptionsPageWidget *widget = Internal::kitOptionsPageWidget;
-    QTC_ASSERT(widget, return);
+    if (!widget)
+        return;
 
     QModelIndex index = widget->m_model->indexOf(k);
     widget->m_selectionModel->select(index,
@@ -269,11 +269,6 @@ void KitOptionsPage::showKit(Kit *k)
                                 | QItemSelectionModel::SelectCurrent
                                 | QItemSelectionModel::Rows);
     widget->m_kitsView->scrollTo(index);
-}
-
-KitOptionsPage *KitOptionsPage::instance()
-{
-    return theKitOptionsPage;
 }
 
 } // namespace ProjectExplorer

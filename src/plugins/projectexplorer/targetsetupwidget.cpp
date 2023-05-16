@@ -180,10 +180,8 @@ void TargetSetupWidget::manageKit()
     if (!m_kit)
         return;
 
-    if (auto kitPage = KitOptionsPage::instance()) {
-        kitPage->showKit(m_kit);
-        Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, parentWidget());
-    }
+    KitOptionsPage::showKit(m_kit);
+    Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, parentWidget());
 }
 
 void TargetSetupWidget::setProjectPath(const FilePath &projectPath)

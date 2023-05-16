@@ -743,8 +743,7 @@ public:
     void handleManageKits()
     {
         if (ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0)) {
-            if (auto kitPage = KitOptionsPage::instance())
-                kitPage->showKit(KitManager::kit(Id::fromSetting(projectItem->data(0, KitIdRole))));
+            KitOptionsPage::showKit(KitManager::kit(Id::fromSetting(projectItem->data(0, KitIdRole))));
         }
         ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID);
     }
