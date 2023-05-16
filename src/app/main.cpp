@@ -518,11 +518,6 @@ int main(int argc, char **argv)
         QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
     }
 
-    if (Utils::HostOsInfo::isRunningUnderRosetta()) {
-        // work around QTBUG-97085: QRegularExpression jitting is not reentrant under Rosetta
-        qputenv("QT_ENABLE_REGEXP_JIT", "0");
-    }
-
     if (Utils::HostOsInfo::isLinuxHost() && !qEnvironmentVariableIsSet("GTK_THEME"))
         // Work around QTCREATORBUG-28497:
         // Prevent Qt's GTK3 platform theme plugin from enforcing a dark palette
