@@ -22,8 +22,6 @@
 
 #include <QApplication>
 
-#define VALGRIND_DEBUG_OUTPUT 0
-
 using namespace Debugger;
 using namespace Core;
 using namespace Utils;
@@ -55,23 +53,22 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
 
 void ValgrindToolRunner::start()
 {
+    FilePath valgrindExecutable = m_settings.valgrindExecutable.filePath();
+    if (IDevice::ConstPtr dev = DeviceKitAspect::device(runControl()->kit()))
+        valgrindExecutable = dev->filePath(valgrindExecutable.path());
+    if (!valgrindExecutable.isExecutableFile()) {
+        reportFailure(Tr::tr("Valgrind executable \"%1\" not found or not executable.\n"
+                             "Check settings or ensure valgrind is installed and available in PATH.")
+                      .arg(valgrindExecutable.toUserOutput()));
+        return;
+    }
+
     FutureProgress *fp = ProgressManager::addTimedTask(m_progress, progressTitle(), "valgrind", 100);
     connect(fp, &FutureProgress::canceled,
             this, &ValgrindToolRunner::handleProgressCanceled);
     connect(fp, &FutureProgress::finished,
             this, &ValgrindToolRunner::handleProgressFinished);
     m_progress.reportStarted();
-
-#if VALGRIND_DEBUG_OUTPUT
-    emit outputReceived(Tr::tr("Valgrind options: %1").arg(toolArguments().join(' ')), LogMessageFormat);
-    emit outputReceived(Tr::tr("Working directory: %1").arg(runnable().workingDirectory), LogMessageFormat);
-    emit outputReceived(Tr::tr("Command line arguments: %1").arg(runnable().debuggeeArgs), LogMessageFormat);
-#endif
-
-
-    FilePath valgrindExecutable = m_settings.valgrindExecutable.filePath();
-    if (IDevice::ConstPtr dev = DeviceKitAspect::device(runControl()->kit()))
-        valgrindExecutable = dev->filePath(valgrindExecutable.path());
 
     CommandLine valgrind{valgrindExecutable};
     valgrind.addArgs(m_settings.valgrindArguments.value(), CommandLine::Raw);

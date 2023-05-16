@@ -258,7 +258,8 @@ void CallgrindToolRunner::triggerParse()
     }
 
     const auto afterCopy = [this](expected_str<void> res) {
-        QTC_ASSERT_EXPECTED(res, return);
+        if (!res) // failed to run callgrind
+            return;
         showStatusMessage(Tr::tr("Parsing Profile Data..."));
         m_parser.parse(m_hostOutputFile);
     };

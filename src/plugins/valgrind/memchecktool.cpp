@@ -7,7 +7,6 @@
 #include "valgrindengine.h"
 #include "valgrindrunner.h"
 #include "valgrindsettings.h"
-#include "valgrindsettings.h"
 #include "valgrindtr.h"
 
 #include "xmlprotocol/error.h"
