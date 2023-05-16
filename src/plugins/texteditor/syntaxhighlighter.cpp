@@ -23,8 +23,12 @@ class SyntaxHighlighterPrivate
     Q_DECLARE_PUBLIC(SyntaxHighlighter)
 public:
     SyntaxHighlighterPrivate()
+        : SyntaxHighlighterPrivate(TextEditorSettings::fontSettings())
+    { }
+
+    SyntaxHighlighterPrivate(const FontSettings &fontSettings)
     {
-        updateFormats(TextEditorSettings::fontSettings());
+        updateFormats(fontSettings);
     }
 
     QPointer<QTextDocument> doc;
@@ -75,6 +79,16 @@ void SyntaxHighlighter::delayedRehighlight()
     d->rehighlightPending = false;
     rehighlight();
 }
+
+#ifdef WITH_TESTS
+SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent, const FontSettings &fontsettings)
+    : QObject(parent), d_ptr(new SyntaxHighlighterPrivate(fontsettings))
+{
+    d_ptr->q_ptr = this;
+    if (parent)
+        setDocument(parent);
+}
+#endif
 
 void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, int charsAdded)
 {

@@ -91,6 +91,11 @@ private:
     void delayedRehighlight();
 
     QScopedPointer<SyntaxHighlighterPrivate> d_ptr;
+
+#ifdef WITH_TESTS
+    friend class tst_highlighter;
+    SyntaxHighlighter(QTextDocument *parent, const FontSettings &fontsettings);
+#endif
 };
 
 } // namespace TextEditor
