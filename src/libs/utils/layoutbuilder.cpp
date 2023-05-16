@@ -27,6 +27,153 @@ namespace Layouting {
 #define QTC_ASSERT(cond, action) if (Q_LIKELY(cond)) {} else { QTC_STRING(#cond); action; } do {} while (0)
 #define QTC_CHECK(cond) if (cond) {} else { QTC_STRING(#cond); } do {} while (0)
 
+class FlowLayout final : public QLayout
+{
+    Q_OBJECT
+
+public:
+    explicit FlowLayout(QWidget *parent, int margin = -1, int hSpacing = -1, int vSpacing = -1)
+        : QLayout(parent), m_hSpace(hSpacing), m_vSpace(vSpacing)
+    {
+        setContentsMargins(margin, margin, margin, margin);
+    }
+
+    FlowLayout(int margin = -1, int hSpacing = -1, int vSpacing = -1)
+        : m_hSpace(hSpacing), m_vSpace(vSpacing)
+    {
+        setContentsMargins(margin, margin, margin, margin);
+    }
+
+    ~FlowLayout() override
+    {
+        QLayoutItem *item;
+        while ((item = takeAt(0)))
+            delete item;
+    }
+
+    void addItem(QLayoutItem *item) override { itemList.append(item); }
+
+    int horizontalSpacing() const
+    {
+        if (m_hSpace >= 0)
+            return m_hSpace;
+        else
+            return smartSpacing(QStyle::PM_LayoutHorizontalSpacing);
+    }
+
+    int verticalSpacing() const
+    {
+        if (m_vSpace >= 0)
+            return m_vSpace;
+        else
+            return smartSpacing(QStyle::PM_LayoutVerticalSpacing);
+    }
+
+    Qt::Orientations expandingDirections() const override
+    {
+        return {};
+    }
+
+    bool hasHeightForWidth() const override { return true; }
+
+    int heightForWidth(int width) const override
+    {
+        int height = doLayout(QRect(0, 0, width, 0), true);
+        return height;
+    }
+
+    int count() const override { return itemList.size(); }
+
+    QLayoutItem *itemAt(int index) const override
+    {
+        return itemList.value(index);
+    }
+
+    QSize minimumSize() const override
+    {
+        QSize size;
+        for (QLayoutItem *item : itemList)
+            size = size.expandedTo(item->minimumSize());
+
+        int left, top, right, bottom;
+        getContentsMargins(&left, &top, &right, &bottom);
+        size += QSize(left + right, top + bottom);
+        return size;
+    }
+
+    void setGeometry(const QRect &rect) override
+    {
+        QLayout::setGeometry(rect);
+        doLayout(rect, false);
+    }
+
+    QSize sizeHint() const override
+    {
+        return minimumSize();
+    }
+
+    QLayoutItem *takeAt(int index) override
+    {
+        if (index >= 0 && index < itemList.size())
+            return itemList.takeAt(index);
+        else
+            return nullptr;
+    }
+
+private:
+    int doLayout(const QRect &rect, bool testOnly) const
+    {
+        int left, top, right, bottom;
+        getContentsMargins(&left, &top, &right, &bottom);
+        QRect effectiveRect = rect.adjusted(+left, +top, -right, -bottom);
+        int x = effectiveRect.x();
+        int y = effectiveRect.y();
+        int lineHeight = 0;
+
+        for (QLayoutItem *item : itemList) {
+            QWidget *wid = item->widget();
+            int spaceX = horizontalSpacing();
+            if (spaceX == -1)
+                spaceX = wid->style()->layoutSpacing(
+                            QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Horizontal);
+            int spaceY = verticalSpacing();
+            if (spaceY == -1)
+                spaceY = wid->style()->layoutSpacing(
+                            QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Vertical);
+            int nextX = x + item->sizeHint().width() + spaceX;
+            if (nextX - spaceX > effectiveRect.right() && lineHeight > 0) {
+                x = effectiveRect.x();
+                y = y + lineHeight + spaceY;
+                nextX = x + item->sizeHint().width() + spaceX;
+                lineHeight = 0;
+            }
+
+            if (!testOnly)
+                item->setGeometry(QRect(QPoint(x, y), item->sizeHint()));
+
+            x = nextX;
+            lineHeight = qMax(lineHeight, item->sizeHint().height());
+        }
+        return y + lineHeight - rect.y() + bottom;
+    }
+
+    int smartSpacing(QStyle::PixelMetric pm) const
+    {
+        QObject *parent = this->parent();
+        if (!parent) {
+            return -1;
+        } else if (parent->isWidgetType()) {
+            auto pw = static_cast<QWidget *>(parent);
+            return pw->style()->pixelMetric(pm, nullptr, pw);
+        } else {
+            return static_cast<QLayout *>(parent)->spacing();
+        }
+    }
+
+    QList<QLayoutItem *> itemList;
+    int m_hSpace;
+    int m_vSpace;
+};
 
 /*!
     \class Layouting::LayoutItem
@@ -136,6 +283,23 @@ static void addItemToBoxLayout(QBoxLayout *layout, const ResultItem &item)
     }
 }
 
+static void addItemToFlowLayout(FlowLayout *layout, const ResultItem &item)
+{
+    if (QWidget *w = item.widget) {
+        layout->addWidget(w);
+    } else if (QLayout *l = item.layout) {
+        layout->addItem(l);
+//    } else if (item.stretch != -1) {
+//        layout->addStretch(item.stretch);
+//    } else if (item.space != -1) {
+//        layout->addSpacing(item.space);
+    } else if (!item.text.isEmpty()) {
+        layout->addWidget(createLabel(item.text));
+    } else {
+        QTC_CHECK(false);
+    }
+}
+
 void Slice::flush()
 {
     if (pendingItems.empty())
@@ -211,6 +375,11 @@ void Slice::flush()
 
         for (const ResultItem &item : std::as_const(pendingItems))
             addItemToBoxLayout(boxLayout, item);
+
+    } else if (auto flowLayout = qobject_cast<FlowLayout *>(layout)) {
+
+        for (const ResultItem &item : std::as_const(pendingItems))
+            addItemToFlowLayout(flowLayout, item);
 
     } else if (auto stackLayout = qobject_cast<QStackedLayout *>(layout)) {
         for (const ResultItem &item : std::as_const(pendingItems)) {
@@ -422,6 +591,13 @@ Row::Row(std::initializer_list<LayoutItem> items)
 {
     subItems = items;
     onAdd = [](LayoutBuilder &builder) { builder.stack.append(new QHBoxLayout); };
+    onExit = layoutExit;
+}
+
+Flow::Flow(std::initializer_list<LayoutItem> items)
+{
+    subItems = items;
+    onAdd = [](LayoutBuilder &builder) { builder.stack.append(new FlowLayout); };
     onExit = layoutExit;
 }
 
@@ -809,3 +985,5 @@ void createItem(LayoutItem *item, const Span &t)
 }
 
 } // Layouting
+
+#include "layoutbuilder.moc"

@@ -98,6 +98,12 @@ public:
     Row(std::initializer_list<LayoutItem> items);
 };
 
+class QTCREATOR_UTILS_EXPORT Flow : public LayoutItem
+{
+public:
+    Flow(std::initializer_list<LayoutItem> items);
+};
+
 class QTCREATOR_UTILS_EXPORT Grid : public LayoutItem
 {
 public:
