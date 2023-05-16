@@ -45,7 +45,6 @@ static const char s_taskIdProperty[] = "__taskId";
 
 static FutureSynchronizer *s_futureSynchronizer = nullptr;
 
-enum class OnStart { Running, NotRunning };
 enum class OnDone { Success, Failure };
 
 struct TestData {
@@ -53,7 +52,6 @@ struct TestData {
     Group root;
     Log expectedLog;
     int taskCount = 0;
-    OnStart onStart = OnStart::Running;
     OnDone onDone = OnDone::Success;
 };
 
@@ -320,14 +318,10 @@ void tst_Tasking::testTree_data()
         };
         const Log logDone {{0, Handler::GroupDone}};
         const Log logError {{0, Handler::GroupError}};
-        QTest::newRow("Empty")
-            << TestData{storage, root1, logDone, 0, OnStart::NotRunning, OnDone::Success};
-        QTest::newRow("EmptyContinue")
-            << TestData{storage, root2, logDone, 0, OnStart::NotRunning, OnDone::Success};
-        QTest::newRow("EmptyDone")
-            << TestData{storage, root3, logDone, 0, OnStart::NotRunning, OnDone::Success};
-        QTest::newRow("EmptyError")
-            << TestData{storage, root4, logError, 0, OnStart::NotRunning, OnDone::Failure};
+        QTest::newRow("Empty") << TestData{storage, root1, logDone, 0, OnDone::Success};
+        QTest::newRow("EmptyContinue") << TestData{storage, root2, logDone, 0, OnDone::Success};
+        QTest::newRow("EmptyDone") << TestData{storage, root3, logDone, 0, OnDone::Success};
+        QTest::newRow("EmptyError") << TestData{storage, root4, logError, 0, OnDone::Failure};
     }
 
     {
@@ -337,8 +331,7 @@ void tst_Tasking::testTree_data()
             Test(setupDynamicTask(2, TaskAction::StopWithDone), logDone, logError)
         };
         const Log log {{1, Handler::Setup}, {2, Handler::Setup}};
-        QTest::newRow("DynamicTaskDone")
-                << TestData{storage, root, log, 2, OnStart::NotRunning, OnDone::Success};
+        QTest::newRow("DynamicTaskDone") << TestData{storage, root, log, 2, OnDone::Success};
     }
 
     {
@@ -348,8 +341,7 @@ void tst_Tasking::testTree_data()
             Test(setupDynamicTask(2, TaskAction::StopWithError), logDone, logError)
         };
         const Log log {{1, Handler::Setup}};
-        QTest::newRow("DynamicTaskError")
-                << TestData{storage, root, log, 2, OnStart::NotRunning, OnDone::Failure};
+        QTest::newRow("DynamicTaskError") << TestData{storage, root, log, 2, OnDone::Failure};
     }
 
     {
@@ -367,8 +359,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Done},
             {3, Handler::Setup}
         };
-        QTest::newRow("DynamicMixed")
-                << TestData{storage, root, log, 4, OnStart::Running, OnDone::Failure};
+        QTest::newRow("DynamicMixed") << TestData{storage, root, log, 4, OnDone::Failure};
     }
 
     {
@@ -387,8 +378,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Error},
             {2, Handler::Error}
         };
-        QTest::newRow("DynamicParallel")
-                << TestData{storage, root, log, 4, OnStart::NotRunning, OnDone::Failure};
+        QTest::newRow("DynamicParallel") << TestData{storage, root, log, 4, OnDone::Failure};
     }
 
     {
@@ -409,8 +399,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Error},
             {2, Handler::Error}
         };
-        QTest::newRow("DynamicParallelGroup")
-                << TestData{storage, root, log, 4, OnStart::NotRunning, OnDone::Failure};
+        QTest::newRow("DynamicParallelGroup") << TestData{storage, root, log, 4, OnDone::Failure};
     }
 
     {
@@ -436,7 +425,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Error}
         };
         QTest::newRow("DynamicParallelGroupSetup")
-                << TestData{storage, root, log, 4, OnStart::NotRunning, OnDone::Failure};
+            << TestData{storage, root, log, 4, OnDone::Failure};
     }
 
     {
@@ -480,8 +469,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::GroupDone},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("Nested")
-                << TestData{storage, root, log, 1, OnStart::Running, OnDone::Success};
+        QTest::newRow("Nested") << TestData{storage, root, log, 1, OnDone::Success};
     }
 
     {
@@ -511,8 +499,7 @@ void tst_Tasking::testTree_data()
             {0, Handler::Done},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("Parallel")
-                << TestData{storage, root, log, 5, OnStart::Running, OnDone::Success};
+        QTest::newRow("Parallel") << TestData{storage, root, log, 5, OnDone::Success};
     }
 
     {
@@ -568,12 +555,10 @@ void tst_Tasking::testTree_data()
             {5, Handler::Done},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("Sequential")
-                << TestData{storage, root1, log, 5, OnStart::Running, OnDone::Success};
-        QTest::newRow("SequentialEncapsulated")
-                << TestData{storage, root2, log, 5, OnStart::Running, OnDone::Success};
-        QTest::newRow("SequentialSubTree") // We don't inspect subtrees, so taskCount is 3, not 5.
-                << TestData{storage, root3, log, 3, OnStart::Running, OnDone::Success};
+        QTest::newRow("Sequential") << TestData{storage, root1, log, 5, OnDone::Success};
+        QTest::newRow("SequentialEncapsulated") << TestData{storage, root2, log, 5, OnDone::Success};
+        // We don't inspect subtrees, so taskCount is 3, not 5.
+        QTest::newRow("SequentialSubTree") << TestData{storage, root3, log, 3, OnDone::Success};
     }
 
     {
@@ -619,8 +604,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::GroupDone},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("SequentialNested")
-                << TestData{storage, root, log, 5, OnStart::Running, OnDone::Success};
+        QTest::newRow("SequentialNested") << TestData{storage, root, log, 5, OnDone::Success};
     }
 
     {
@@ -643,8 +627,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Error},
             {0, Handler::GroupError}
         };
-        QTest::newRow("SequentialError")
-                << TestData{storage, root, log, 5, OnStart::Running, OnDone::Failure};
+        QTest::newRow("SequentialError") << TestData{storage, root, log, 5, OnDone::Failure};
     }
 
     {
@@ -656,8 +639,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Error},
             {0, Handler::GroupError}
         };
-        QTest::newRow("StopOnError")
-                << TestData{storage, root, log, 3, OnStart::Running, OnDone::Failure};
+        QTest::newRow("StopOnError") << TestData{storage, root, log, 3, OnDone::Failure};
     }
 
     {
@@ -671,8 +653,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Done},
             {0, Handler::GroupError}
         };
-        QTest::newRow("ContinueOnError")
-                << TestData{storage, root, log, 3, OnStart::Running, OnDone::Failure};
+        QTest::newRow("ContinueOnError") << TestData{storage, root, log, 3, OnDone::Failure};
     }
 
     {
@@ -682,8 +663,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Done},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("StopOnDone")
-                << TestData{storage, root, log, 3, OnStart::Running, OnDone::Success};
+        QTest::newRow("StopOnDone") << TestData{storage, root, log, 3, OnDone::Success};
     }
 
     {
@@ -697,8 +677,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Done},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("ContinueOnDone")
-                << TestData{storage, root, log, 3, OnStart::Running, OnDone::Success};
+        QTest::newRow("ContinueOnDone") << TestData{storage, root, log, 3, OnDone::Success};
     }
 
     {
@@ -717,8 +696,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Error},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("Optional")
-                << TestData{storage, root, log, 2, OnStart::Running, OnDone::Success};
+        QTest::newRow("Optional") << TestData{storage, root, log, 2, OnDone::Success};
     }
 
     {
@@ -728,8 +706,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Done},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("DynamicSetupDone")
-                << TestData{storage, root, log, 4, OnStart::Running, OnDone::Success};
+        QTest::newRow("DynamicSetupDone") << TestData{storage, root, log, 4, OnDone::Success};
     }
 
     {
@@ -739,8 +716,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Done},
             {0, Handler::GroupError}
         };
-        QTest::newRow("DynamicSetupError")
-                << TestData{storage, root, log, 4, OnStart::Running, OnDone::Failure};
+        QTest::newRow("DynamicSetupError") << TestData{storage, root, log, 4, OnDone::Failure};
     }
 
     {
@@ -756,8 +732,7 @@ void tst_Tasking::testTree_data()
             {4, Handler::Done},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("DynamicSetupContinue")
-                << TestData{storage, root, log, 4, OnStart::Running, OnDone::Success};
+        QTest::newRow("DynamicSetupContinue") << TestData{storage, root, log, 4, OnDone::Success};
     }
 
     {
@@ -791,8 +766,7 @@ void tst_Tasking::testTree_data()
             {4, Handler::GroupSetup},
             {4, Handler::Setup}
         };
-        QTest::newRow("NestedParallel")
-            << TestData{storage, root, log, 4, OnStart::Running, OnDone::Success};
+        QTest::newRow("NestedParallel") << TestData{storage, root, log, 4, OnDone::Success};
     }
 
     {
@@ -832,8 +806,7 @@ void tst_Tasking::testTree_data()
             {5, Handler::GroupSetup},
             {5, Handler::Setup}
         };
-        QTest::newRow("NestedParallelDone")
-            << TestData{storage, root, log, 5, OnStart::Running, OnDone::Success};
+        QTest::newRow("NestedParallelDone") << TestData{storage, root, log, 5, OnDone::Success};
     }
 
     {
@@ -936,11 +909,11 @@ void tst_Tasking::testTree_data()
         };
         const Log longLog = shortLog + Log {{5, Handler::GroupSetup}, {5, Handler::Setup}};
         QTest::newRow("NestedParallelError1")
-            << TestData{storage, root1, shortLog, 5, OnStart::Running, OnDone::Failure};
+            << TestData{storage, root1, shortLog, 5, OnDone::Failure};
         QTest::newRow("NestedParallelError2")
-            << TestData{storage, root2, shortLog, 5, OnStart::Running, OnDone::Failure};
+            << TestData{storage, root2, shortLog, 5, OnDone::Failure};
         QTest::newRow("NestedParallelError3")
-            << TestData{storage, root3, longLog, 5, OnStart::Running, OnDone::Failure};
+            << TestData{storage, root3, longLog, 5, OnDone::Failure};
     }
 
     {
@@ -990,8 +963,7 @@ void tst_Tasking::testTree_data()
             {4, Handler::GroupSetup},
             {4, Handler::Setup}
         };
-        QTest::newRow("DeeplyNestedParallel")
-            << TestData{storage, root, log, 4, OnStart::Running, OnDone::Success};
+        QTest::newRow("DeeplyNestedParallel") << TestData{storage, root, log, 4, OnDone::Success};
     }
 
     {
@@ -1037,7 +1009,7 @@ void tst_Tasking::testTree_data()
             {5, Handler::Setup}
         };
         QTest::newRow("DeeplyNestedParallelDone")
-            << TestData{storage, root, log, 5, OnStart::Running, OnDone::Success};
+            << TestData{storage, root, log, 5, OnDone::Success};
     }
 
     {
@@ -1079,7 +1051,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Setup}
         };
         QTest::newRow("DeeplyNestedParallelError")
-            << TestData{storage, root, log, 5, OnStart::Running, OnDone::Failure};
+            << TestData{storage, root, log, 5, OnDone::Failure};
     }
 
     {
@@ -1098,8 +1070,7 @@ void tst_Tasking::testTree_data()
             {4, Handler::Sync},
             {5, Handler::Sync}
         };
-        QTest::newRow("SyncSequential")
-            << TestData{storage, root, log, 0, OnStart::NotRunning, OnDone::Success};
+        QTest::newRow("SyncSequential") << TestData{storage, root, log, 0, OnDone::Success};
     }
 
     {
@@ -1118,8 +1089,7 @@ void tst_Tasking::testTree_data()
             {4, Handler::Sync},
             {5, Handler::Sync}
         };
-        QTest::newRow("SyncWithReturn")
-            << TestData{storage, root, log, 0, OnStart::NotRunning, OnDone::Success};
+        QTest::newRow("SyncWithReturn") << TestData{storage, root, log, 0, OnDone::Success};
     }
 
     {
@@ -1139,8 +1109,7 @@ void tst_Tasking::testTree_data()
             {4, Handler::Sync},
             {5, Handler::Sync}
         };
-        QTest::newRow("SyncParallel")
-            << TestData{storage, root, log, 0, OnStart::NotRunning, OnDone::Success};
+        QTest::newRow("SyncParallel") << TestData{storage, root, log, 0, OnDone::Success};
     }
 
     {
@@ -1158,8 +1127,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Sync},
             {3, Handler::Sync}
         };
-        QTest::newRow("SyncError")
-            << TestData{storage, root, log, 0, OnStart::NotRunning, OnDone::Failure};
+        QTest::newRow("SyncError") << TestData{storage, root, log, 0, OnDone::Failure};
     }
 
     {
@@ -1180,8 +1148,7 @@ void tst_Tasking::testTree_data()
             {5, Handler::Sync},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("SyncAndAsync")
-            << TestData{storage, root, log, 2, OnStart::Running, OnDone::Success};
+        QTest::newRow("SyncAndAsync") << TestData{storage, root, log, 2, OnDone::Success};
     }
 
     {
@@ -1200,8 +1167,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Sync},
             {0, Handler::GroupError}
         };
-        QTest::newRow("SyncAndAsyncError")
-            << TestData{storage, root, log, 2, OnStart::Running, OnDone::Failure};
+        QTest::newRow("SyncAndAsyncError") << TestData{storage, root, log, 2, OnDone::Failure};
     }
 
     {
@@ -1343,15 +1309,15 @@ void tst_Tasking::testTree_data()
 
         // Notice the different log order for each scenario.
         QTest::newRow("BarrierSequential")
-            << TestData{storage, root1, log1, 4, OnStart::Running, OnDone::Success};
+            << TestData{storage, root1, log1, 4, OnDone::Success};
         QTest::newRow("BarrierParallelAdvanceFirst")
-            << TestData{storage, root2, log2, 4, OnStart::Running, OnDone::Success};
+            << TestData{storage, root2, log2, 4, OnDone::Success};
         QTest::newRow("BarrierParallelWaitForFirst")
-            << TestData{storage, root3, log3, 4, OnStart::Running, OnDone::Success};
+            << TestData{storage, root3, log3, 4, OnDone::Success};
         QTest::newRow("BarrierParallelMultiWaitFor")
-            << TestData{storage, root4, log4, 5, OnStart::Running, OnDone::Success};
+            << TestData{storage, root4, log4, 5, OnDone::Success};
         QTest::newRow("BarrierParallelTwoSingleBarriers")
-            << TestData{storage, root5, log5, 5, OnStart::Running, OnDone::Success};
+            << TestData{storage, root5, log5, 5, OnDone::Success};
     }
 
     {
@@ -1475,13 +1441,13 @@ void tst_Tasking::testTree_data()
 
         // Notice the different log order for each scenario.
         QTest::newRow("MultiBarrierSequential")
-            << TestData{storage, root1, log1, 5, OnStart::Running, OnDone::Success};
+            << TestData{storage, root1, log1, 5, OnDone::Success};
         QTest::newRow("MultiBarrierParallelAdvanceFirst")
-            << TestData{storage, root2, log2, 5, OnStart::Running, OnDone::Success};
+            << TestData{storage, root2, log2, 5, OnDone::Success};
         QTest::newRow("MultiBarrierParallelWaitForFirst")
-            << TestData{storage, root3, log3, 5, OnStart::Running, OnDone::Success};
+            << TestData{storage, root3, log3, 5, OnDone::Success};
         QTest::newRow("MultiBarrierParallelMultiWaitFor")
-            << TestData{storage, root4, log4, 6, OnStart::Running, OnDone::Success};
+            << TestData{storage, root4, log4, 6, OnDone::Success};
     }
 }
 
@@ -1489,52 +1455,20 @@ void tst_Tasking::testTree()
 {
     QFETCH(TestData, testData);
 
-    QEventLoop eventLoop;
     TaskTree taskTree(testData.root);
     QCOMPARE(taskTree.taskCount(), testData.taskCount);
-    int doneCount = 0;
-    int errorCount = 0;
-    connect(&taskTree, &TaskTree::done, this, [&doneCount, &eventLoop] {
-        ++doneCount;
-        eventLoop.quit();
-    });
-    connect(&taskTree, &TaskTree::errorOccurred, this, [&errorCount, &eventLoop] {
-        ++errorCount;
-        eventLoop.quit();
-    });
     Log actualLog;
-    auto collectLog = [&actualLog](CustomStorage *storage){
-        actualLog = storage->m_log;
-    };
+    const auto collectLog = [&actualLog](CustomStorage *storage) { actualLog = storage->m_log; };
     taskTree.onStorageDone(testData.storage, collectLog);
-    taskTree.start();
-    const bool expectRunning = testData.onStart == OnStart::Running;
-    QCOMPARE(taskTree.isRunning(), expectRunning);
-
-    if (expectRunning) {
-        QTimer timer;
-        bool timedOut = false;
-        connect(&timer, &QTimer::timeout, &eventLoop, [&eventLoop, &timedOut] {
-            timedOut = true;
-            eventLoop.quit();
-        });
-        timer.setInterval(2000);
-        timer.setSingleShot(true);
-        timer.start();
-        eventLoop.exec();
-        QCOMPARE(timedOut, false);
-        QCOMPARE(taskTree.isRunning(), false);
-    }
+    const int result = taskTree.runBlocking(2000);
+    QCOMPARE(taskTree.isRunning(), false);
 
     QCOMPARE(taskTree.progressValue(), testData.taskCount);
     QCOMPARE(actualLog, testData.expectedLog);
     QCOMPARE(CustomStorage::instanceCount(), 0);
 
     const bool expectSuccess = testData.onDone == OnDone::Success;
-    const int expectedDoneCount = expectSuccess ? 1 : 0;
-    const int expectedErrorCount = expectSuccess ? 0 : 1;
-    QCOMPARE(doneCount, expectedDoneCount);
-    QCOMPARE(errorCount, expectedErrorCount);
+    QCOMPARE(result, expectSuccess);
 }
 
 void tst_Tasking::storageOperators()
