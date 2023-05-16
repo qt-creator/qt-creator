@@ -48,7 +48,7 @@ ArtisticStyle::ArtisticStyle()
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
-    connect(&m_settings, &ArtisticStyleSettings::supportedMimeTypesChanged,
+    connect(&m_settings.supportedMimeTypes, &Utils::BaseAspect::changed,
             this, [this] { updateActions(Core::EditorManager::currentEditor()); });
 }
 

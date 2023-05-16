@@ -3,16 +3,24 @@
 
 #include "artisticstylesettings.h"
 
+#include "artisticstyleconstants.h"
 #include "../beautifierconstants.h"
+#include "../beautifierplugin.h"
+#include "../beautifiertr.h"
+#include "../configurationpanel.h"
 
 #include <coreplugin/icore.h>
 
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/process.h>
 #include <utils/stringutils.h>
 
+#include <QApplication>
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
+#include <QGroupBox>
 #include <QRegularExpression>
 #include <QXmlStreamWriter>
 
@@ -20,94 +28,50 @@ using namespace Utils;
 
 namespace Beautifier::Internal {
 
-const char USE_OTHER_FILES[]          = "useOtherFiles";
-const char USE_SPECIFIC_CONFIG_FILE[] = "useSpecificConfigFile";
-const char SPECIFIC_CONFIG_FILE[]     = "specificConfigFile";
-const char USE_HOME_FILE[]            = "useHomeFile";
-const char USE_CUSTOM_STYLE[]         = "useCustomStyle";
-const char CUSTOM_STYLE[]             = "customStyle";
 const char SETTINGS_NAME[]            = "artisticstyle";
 
-ArtisticStyleSettings::ArtisticStyleSettings() :
-    AbstractSettings(SETTINGS_NAME, ".astyle")
+ArtisticStyleSettings::ArtisticStyleSettings()
+    : AbstractSettings(SETTINGS_NAME, ".astyle")
 {
     setVersionRegExp(QRegularExpression("([2-9]{1})\\.([0-9]{1,2})(\\.[1-9]{1})?$"));
-    setCommand("astyle");
-    m_settings.insert(USE_OTHER_FILES, QVariant(true));
-    m_settings.insert(USE_SPECIFIC_CONFIG_FILE, QVariant(false));
-    m_settings.insert(SPECIFIC_CONFIG_FILE, QVariant());
-    m_settings.insert(USE_HOME_FILE, QVariant(false));
-    m_settings.insert(USE_CUSTOM_STYLE, QVariant(false));
-    m_settings.insert(CUSTOM_STYLE, QVariant());
+    command.setLabelText(Tr::tr("Artistic Style command:"));
+    command.setDefaultValue("astyle");
+    command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
+                                     Tr::tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
+
+    registerAspect(&useOtherFiles);
+    useOtherFiles.setSettingsKey("useOtherFiles");
+    useOtherFiles.setLabelText(Tr::tr("Use file *.astylerc defined in project files"));
+    useOtherFiles.setDefaultValue(true);
+
+    registerAspect(&useSpecificConfigFile);
+    useSpecificConfigFile.setSettingsKey("useSpecificConfigFile");
+    useSpecificConfigFile.setLabelText(Tr::tr("Use specific config file:"));
+
+    registerAspect(&specificConfigFile);
+    specificConfigFile.setSettingsKey("specificConfigFile");
+    specificConfigFile.setExpectedKind(PathChooser::File);
+    specificConfigFile.setPromptDialogFilter(Tr::tr("AStyle (*.astylerc)"));
+
+    registerAspect(&useHomeFile);
+    useHomeFile.setSettingsKey("useHomeFile");
+    useHomeFile.setLabelText(Tr::tr("Use file .astylerc or astylerc in HOME").
+               replace("HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
+
+    registerAspect(&useCustomStyle);
+    useCustomStyle.setSettingsKey("useCustomStyle");
+    useCustomStyle.setLabelText(Tr::tr("Use customized style:"));
+
+    registerAspect(&customStyle);
+    customStyle.setSettingsKey("customStyle");
+
+    documentationFilePath.setFilePath(
+        Core::ICore::userResourcePath(Beautifier::Constants::SETTINGS_DIRNAME)
+            .pathAppended(Beautifier::Constants::DOCUMENTATION_DIRNAME)
+            .pathAppended(SETTINGS_NAME)
+            .stringAppended(".xml"));
+
     read();
-}
-
-bool ArtisticStyleSettings::useOtherFiles() const
-{
-    return m_settings.value(USE_OTHER_FILES).toBool();
-}
-
-void ArtisticStyleSettings::setUseOtherFiles(bool useOtherFiles)
-{
-    m_settings.insert(USE_OTHER_FILES, QVariant(useOtherFiles));
-}
-
-bool ArtisticStyleSettings::useSpecificConfigFile() const
-{
-    return m_settings.value(USE_SPECIFIC_CONFIG_FILE).toBool();
-}
-
-void ArtisticStyleSettings::setUseSpecificConfigFile(bool useSpecificConfigFile)
-{
-    m_settings.insert(USE_SPECIFIC_CONFIG_FILE, QVariant(useSpecificConfigFile));
-}
-
-FilePath ArtisticStyleSettings::specificConfigFile() const
-{
-    return FilePath::fromString(m_settings.value(SPECIFIC_CONFIG_FILE).toString());
-}
-
-void ArtisticStyleSettings::setSpecificConfigFile(const FilePath &specificConfigFile)
-{
-    m_settings.insert(SPECIFIC_CONFIG_FILE, QVariant(specificConfigFile.toString()));
-}
-
-bool ArtisticStyleSettings::useHomeFile() const
-{
-    return m_settings.value(USE_HOME_FILE).toBool();
-}
-
-void ArtisticStyleSettings::setUseHomeFile(bool useHomeFile)
-{
-    m_settings.insert(USE_HOME_FILE, QVariant(useHomeFile));
-}
-
-bool ArtisticStyleSettings::useCustomStyle() const
-{
-    return m_settings.value(USE_CUSTOM_STYLE).toBool();
-}
-
-void ArtisticStyleSettings::setUseCustomStyle(bool useCustomStyle)
-{
-    m_settings.insert(USE_CUSTOM_STYLE, QVariant(useCustomStyle));
-}
-
-QString ArtisticStyleSettings::customStyle() const
-{
-    return m_settings.value(CUSTOM_STYLE).toString();
-}
-
-void ArtisticStyleSettings::setCustomStyle(const QString &customStyle)
-{
-    m_settings.insert(CUSTOM_STYLE, QVariant(customStyle));
-}
-
-QString ArtisticStyleSettings::documentationFilePath() const
-{
-    return (Core::ICore::userResourcePath(Beautifier::Constants::SETTINGS_DIRNAME)
-                / Beautifier::Constants::DOCUMENTATION_DIRNAME / SETTINGS_NAME)
-            .stringAppended(".xml")
-        .toString();
 }
 
 void ArtisticStyleSettings::createDocumentationFile() const
@@ -119,7 +83,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
     if (process.result() != ProcessResult::FinishedWithSuccess)
         return;
 
-    QFile file(documentationFilePath());
+    QFile file(documentationFilePath().toFSPathString());
     const QFileInfo fi(file);
     if (!fi.exists())
         fi.dir().mkpath(fi.absolutePath());
@@ -181,6 +145,63 @@ void ArtisticStyleSettings::createDocumentationFile() const
         file.close();
         file.remove();
     }
+}
+
+class ArtisticStyleOptionsPageWidget : public Core::IOptionsPageWidget
+{
+public:
+    explicit ArtisticStyleOptionsPageWidget(ArtisticStyleSettings *settings)
+    {
+        QGroupBox *options = nullptr;
+
+        auto configurations = new ConfigurationPanel(this);
+        configurations->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        configurations->setSettings(settings);
+        configurations->setCurrentConfiguration(settings->customStyle());
+
+        using namespace Layouting;
+
+        ArtisticStyleSettings &s = *settings;
+
+        Column {
+            Group {
+                title(Tr::tr("Configuration")),
+                Form {
+                    s.command, br,
+                    s.supportedMimeTypes
+                }
+            },
+            Group {
+                title(Tr::tr("Options")),
+                bindTo(&options),
+                Column {
+                    s.useOtherFiles,
+                    Row { s.useSpecificConfigFile, s.specificConfigFile },
+                    s.useHomeFile,
+                    Row { s.useCustomStyle, configurations },
+                }
+            },
+            st
+        }.attachTo(this);
+
+        setOnApply([&s, configurations] {
+            s.customStyle.setValue(configurations->currentConfiguration());
+            s.save();
+        });
+
+        s.read();
+
+        connect(s.command.pathChooser(), &PathChooser::validChanged, options, &QWidget::setEnabled);
+        options->setEnabled(s.command.pathChooser()->isValid());
+    }
+};
+
+ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settings)
+{
+    setId("ArtisticStyle");
+    setDisplayName(Tr::tr("Artistic Style"));
+    setCategory(Constants::OPTION_CATEGORY);
+    setWidgetCreator([settings] { return new ArtisticStyleOptionsPageWidget(settings); });
 }
 
 } // Beautifier::Internal

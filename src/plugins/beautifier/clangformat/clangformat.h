@@ -5,7 +5,6 @@
 
 #include "../beautifierabstracttool.h"
 
-#include "clangformatoptionspage.h"
 #include "clangformatsettings.h"
 
 namespace Beautifier::Internal {

@@ -5,7 +5,6 @@
 
 #include "../beautifierabstracttool.h"
 
-#include "artisticstyleoptionspage.h"
 #include "artisticstylesettings.h"
 
 namespace Beautifier::Internal {

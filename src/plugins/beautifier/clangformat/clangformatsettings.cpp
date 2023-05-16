@@ -4,43 +4,80 @@
 #include "clangformatsettings.h"
 
 #include "../beautifierconstants.h"
+#include "../beautifierplugin.h"
 #include "../beautifiertr.h"
-
-#include <QDateTime>
-#include <QXmlStreamWriter>
+#include "../configurationpanel.h"
 
 #include <coreplugin/icore.h>
 
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
+
+#include <QDateTime>
+#include <QXmlStreamWriter>
+#include <QButtonGroup>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QRadioButton>
+
+using namespace Utils;
+
 namespace Beautifier::Internal {
 
-const char USE_PREDEFINED_STYLE[]        = "usePredefinedStyle";
-const char PREDEFINED_STYLE[]            = "predefinedStyle";
-const char FALLBACK_STYLE[]              = "fallbackStyle";
-const char CUSTOM_STYLE[]                = "customStyle";
 const char SETTINGS_NAME[]               = "clangformat";
 
-ClangFormatSettings::ClangFormatSettings() :
-    AbstractSettings(SETTINGS_NAME, ".clang-format")
+ClangFormatSettings::ClangFormatSettings()
+    : AbstractSettings(SETTINGS_NAME, ".clang-format")
 {
-    setCommand("clang-format");
-    m_settings.insert(USE_PREDEFINED_STYLE, QVariant(true));
-    m_settings.insert(PREDEFINED_STYLE, "LLVM");
-    m_settings.insert(FALLBACK_STYLE, "Default");
-    m_settings.insert(CUSTOM_STYLE, QVariant());
-    read();
-}
+    command.setDefaultValue("clang-format");
+    command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle("Clang Format"));
+    command.setLabelText(Tr::tr("Clang Format command:"));
 
-QString ClangFormatSettings::documentationFilePath() const
-{
-    return (Core::ICore::userResourcePath() / Beautifier::Constants::SETTINGS_DIRNAME
-                / Beautifier::Constants::DOCUMENTATION_DIRNAME / SETTINGS_NAME)
-            .stringAppended(".xml")
-        .toString();
+    registerAspect(&usePredefinedStyle);
+    usePredefinedStyle.setSettingsKey("usePredefinedStyle");
+    usePredefinedStyle.setLabelText(Tr::tr("Use predefined style:"));
+    usePredefinedStyle.setDefaultValue(true);
+
+    registerAspect(&predefinedStyle);
+    predefinedStyle.setSettingsKey("predefinedStyle");
+    predefinedStyle.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    predefinedStyle.addOption("LLVM");
+    predefinedStyle.addOption("Google");
+    predefinedStyle.addOption("Chromium");
+    predefinedStyle.addOption("Mozilla");
+    predefinedStyle.addOption("WebKit");
+    predefinedStyle.addOption("File");
+    predefinedStyle.setDefaultValue("LLVM");
+
+    registerAspect(&fallbackStyle);
+    fallbackStyle.setSettingsKey("fallbackStyle");
+    fallbackStyle.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    fallbackStyle.addOption("Default");
+    fallbackStyle.addOption("None");
+    fallbackStyle.addOption("LLVM");
+    fallbackStyle.addOption("Google");
+    fallbackStyle.addOption("Chromium");
+    fallbackStyle.addOption("Mozilla");
+    fallbackStyle.addOption("WebKit");
+    fallbackStyle.setDefaultValue("Default");
+
+    registerAspect(&predefinedStyle);
+    predefinedStyle.setSettingsKey("predefinedStyle");
+    predefinedStyle.setDefaultValue("LLVM");
+
+    registerAspect(&customStyle);
+    customStyle.setSettingsKey("customStyle");
+
+    documentationFilePath.setFilePath(Core::ICore::userResourcePath(Constants::SETTINGS_DIRNAME)
+        .pathAppended(Constants::DOCUMENTATION_DIRNAME)
+        .pathAppended(SETTINGS_NAME).stringAppended(".xml"));
+
+    read();
 }
 
 void ClangFormatSettings::createDocumentationFile() const
 {
-    QFile file(documentationFilePath());
+    QFile file(documentationFilePath().toFSPathString());
     const QFileInfo fi(file);
     if (!fi.exists())
         fi.dir().mkpath(fi.absolutePath());
@@ -144,60 +181,6 @@ QStringList ClangFormatSettings::completerWords()
     };
 }
 
-bool ClangFormatSettings::usePredefinedStyle() const
-{
-    return m_settings.value(USE_PREDEFINED_STYLE).toBool();
-}
-
-void ClangFormatSettings::setUsePredefinedStyle(bool usePredefinedStyle)
-{
-    m_settings.insert(USE_PREDEFINED_STYLE, QVariant(usePredefinedStyle));
-}
-
-QString ClangFormatSettings::predefinedStyle() const
-{
-    return m_settings.value(PREDEFINED_STYLE).toString();
-}
-
-void ClangFormatSettings::setPredefinedStyle(const QString &predefinedStyle)
-{
-    const QStringList test = predefinedStyles();
-    if (test.contains(predefinedStyle))
-        m_settings.insert(PREDEFINED_STYLE, QVariant(predefinedStyle));
-}
-
-QString ClangFormatSettings::fallbackStyle() const
-{
-    return m_settings.value(FALLBACK_STYLE).toString();
-}
-
-void ClangFormatSettings::setFallbackStyle(const QString &fallbackStyle)
-{
-    const QStringList test = fallbackStyles();
-    if (test.contains(fallbackStyle))
-        m_settings.insert(FALLBACK_STYLE, QVariant(fallbackStyle));
-}
-
-QString ClangFormatSettings::customStyle() const
-{
-    return m_settings.value(CUSTOM_STYLE).toString();
-}
-
-void ClangFormatSettings::setCustomStyle(const QString &customStyle)
-{
-    m_settings.insert(CUSTOM_STYLE, QVariant(customStyle));
-}
-
-QStringList ClangFormatSettings::predefinedStyles() const
-{
-    return {"LLVM", "Google", "Chromium", "Mozilla", "WebKit", "File"};
-}
-
-QStringList ClangFormatSettings::fallbackStyles() const
-{
-    return {"Default", "None", "LLVM", "Google", "Chromium", "Mozilla", "WebKit"};
-}
-
 QString ClangFormatSettings::styleFileName(const QString &key) const
 {
     return m_styleDir.absolutePath() + '/' + key + '/' + m_ending;
@@ -211,6 +194,88 @@ void ClangFormatSettings::readStyles()
         if (file.open(QIODevice::ReadOnly))
             m_styles.insert(dir, QString::fromLocal8Bit(file.readAll()));
     }
+}
+
+class ClangFormatOptionsPageWidget : public Core::IOptionsPageWidget
+{
+public:
+    explicit ClangFormatOptionsPageWidget(ClangFormatSettings *settings)
+    {
+        ClangFormatSettings &s = *settings;
+        QGroupBox *options = nullptr;
+
+        auto predefinedStyleButton = new QRadioButton;
+        s.usePredefinedStyle.adoptButton(predefinedStyleButton);
+
+        auto customizedStyleButton = new QRadioButton(Tr::tr("Use customized style:"));
+
+        auto styleButtonGroup = new QButtonGroup;
+        styleButtonGroup->addButton(predefinedStyleButton);
+        styleButtonGroup->addButton(customizedStyleButton);
+
+        auto configurations = new ConfigurationPanel(this);
+        configurations->setSettings(&s);
+        configurations->setCurrentConfiguration(s.customStyle());
+
+        using namespace Layouting;
+
+        auto fallbackBlob = Row { noMargin, Tr::tr("Fallback style:"), s.fallbackStyle }.emerge();
+
+        auto predefinedBlob = Column { noMargin, s.predefinedStyle, fallbackBlob }.emerge();
+
+        Column {
+            Group {
+                title(Tr::tr("Configuration")),
+                Form {
+                    s.command, br,
+                    s.supportedMimeTypes
+                }
+            },
+            Group {
+                title(Tr::tr("Options")),
+                bindTo(&options),
+                Form {
+                    s.usePredefinedStyle, predefinedBlob, br,
+                    customizedStyleButton, configurations,
+                },
+            },
+            st
+        }.attachTo(this);
+
+        if (s.usePredefinedStyle.value())
+            predefinedStyleButton->click();
+        else
+            customizedStyleButton->click();
+
+        const auto updateEnabled = [&s, styleButtonGroup, predefinedBlob, fallbackBlob,
+                                    configurations, predefinedStyleButton] {
+            const bool predefSelected = styleButtonGroup->checkedButton() == predefinedStyleButton;
+            predefinedBlob->setEnabled(predefSelected);
+            fallbackBlob->setEnabled(predefSelected && s.predefinedStyle.volatileValue().toInt() == 5); // File
+            configurations->setEnabled(!predefSelected);
+        };
+        updateEnabled();
+        connect(styleButtonGroup, &QButtonGroup::buttonClicked, this, updateEnabled);
+        connect(&s.predefinedStyle, &SelectionAspect::volatileValueChanged, this, updateEnabled);
+
+        setOnApply([settings, configurations] {
+            settings->customStyle.setValue(configurations->currentConfiguration());
+            settings->save();
+        });
+
+        s.read();
+
+        connect(s.command.pathChooser(), &PathChooser::validChanged, options, &QWidget::setEnabled);
+        options->setEnabled(s.command.pathChooser()->isValid());
+    }
+};
+
+ClangFormatOptionsPage::ClangFormatOptionsPage(ClangFormatSettings *settings)
+{
+    setId("ClangFormat");
+    setDisplayName(Tr::tr("Clang Format"));
+    setCategory(Constants::OPTION_CATEGORY);
+    setWidgetCreator([settings] { return new ClangFormatOptionsPageWidget(settings); });
 }
 
 } // Beautifier::Internal
