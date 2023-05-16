@@ -14,7 +14,6 @@ namespace PerfProfiler {
 class PERFPROFILER_EXPORT PerfSettings final : public ProjectExplorer::ISettingsAspect
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList perfRecordArguments READ perfRecordArguments NOTIFY changed)
 
 public:
     explicit PerfSettings(ProjectExplorer::Target *target = nullptr);
@@ -23,7 +22,7 @@ public:
     void readGlobalSettings();
     void writeGlobalSettings() const;
 
-    QStringList perfRecordArguments() const;
+    void addPerfRecordArguments(Utils::CommandLine *cmd) const;
 
     void resetToDefault();
 

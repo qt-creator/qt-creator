@@ -95,16 +95,15 @@ public:
         : RunWorker(runControl)
     {
         setId("LocalPerfRecordWorker");
-
-        auto perfAspect = runControl->aspect<PerfRunConfigurationAspect>();
-        QTC_ASSERT(perfAspect, return);
-        PerfSettings *settings = static_cast<PerfSettings *>(perfAspect->currentSettings);
-        QTC_ASSERT(settings, return);
-        m_perfRecordArguments = settings->perfRecordArguments();
     }
 
     void start() override
     {
+        auto perfAspect = runControl()->aspect<PerfRunConfigurationAspect>();
+        QTC_ASSERT(perfAspect, reportFailure(); return);
+        PerfSettings *settings = static_cast<PerfSettings *>(perfAspect->currentSettings);
+        QTC_ASSERT(settings, reportFailure(); return);
+
         m_process = new Process(this);
 
         connect(m_process, &Process::started, this, &RunWorker::reportStarted);
@@ -125,7 +124,7 @@ public:
         });
 
         CommandLine cmd({device()->filePath("perf"), {"record"}});
-        cmd.addArgs(m_perfRecordArguments);
+        settings->addPerfRecordArguments(&cmd);
         cmd.addArgs({"-o", "-", "--"});
         cmd.addCommandLineAsArgs(runControl()->commandLine(), CommandLine::Raw);
 
@@ -145,7 +144,6 @@ public:
 
 private:
     QPointer<Process> m_process;
-    QStringList m_perfRecordArguments;
 };
 
 

@@ -103,7 +103,7 @@ void PerfSettings::writeGlobalSettings() const
     settings->endGroup();
 }
 
-QStringList PerfSettings::perfRecordArguments() const
+void PerfSettings::addPerfRecordArguments(CommandLine *cmd) const
 {
     QString callgraphArg = callgraphMode.itemValue().toString();
     if (callgraphArg == Constants::PerfCallgraphDwarf)
@@ -118,11 +118,11 @@ QStringList PerfSettings::perfRecordArguments() const
         }
     }
 
-    return QStringList({"-e", events,
-                        "--call-graph", callgraphArg,
-                        sampleMode.itemValue().toString(),
-                        QString::number(period.value())})
-         + ProcessArgs::splitArgs(extraArguments.value(), HostOsInfo::hostOs());
+    cmd->addArgs({"-e", events,
+                  "--call-graph", callgraphArg,
+                  sampleMode.itemValue().toString(),
+                  QString::number(period.value())});
+    cmd->addArgs(extraArguments(), CommandLine::Raw);
 }
 
 void PerfSettings::resetToDefault()
