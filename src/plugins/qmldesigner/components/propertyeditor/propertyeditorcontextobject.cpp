@@ -7,6 +7,7 @@
 #include <abstractview.h>
 #include <nodemetainfo.h>
 #include <rewritingexception.h>
+#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlmodelnodeproxy.h>
 #include <qmlobjectnode.h>
@@ -408,7 +409,13 @@ QQmlComponent *PropertyEditorContextObject::specificQmlComponent()
 
     m_qmlComponent = new QQmlComponent(m_qmlContext->engine(), this);
 
-    m_qmlComponent->setData(m_specificQmlData.toUtf8(), QUrl::fromLocalFile(QStringLiteral("specfics.qml")));
+    m_qmlComponent->setData(m_specificQmlData.toUtf8(), QUrl::fromLocalFile("specifics.qml"));
+
+    const bool showError = qEnvironmentVariableIsSet(Constants::ENVIRONMENT_SHOW_QML_ERRORS);
+    if (showError && !m_specificQmlData.isEmpty() && !m_qmlComponent->errors().isEmpty()) {
+        const QString errMsg = m_qmlComponent->errors().constFirst().toString();
+        Core::AsynchronousMessageBox::warning(tr("Invalid QML source"), errMsg);
+    }
 
     return m_qmlComponent;
 }

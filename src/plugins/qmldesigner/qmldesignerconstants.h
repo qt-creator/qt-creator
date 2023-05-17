@@ -162,6 +162,8 @@ const char OBJECT_NAME_NEW_DIALOG[] = "QQuickWidgetQDSNewDialog";
 const char OBJECT_NAME_SPLASH_SCREEN[] = "QQuickWidgetSplashScreen";
 const char OBJECT_NAME_WELCOME_PAGE[] = "QQuickWidgetQDSWelcomePage";
 
+const char ENVIRONMENT_SHOW_QML_ERRORS[] = "QMLDESIGNER_SHOW_QML_ERRORS";
+
 namespace Internal {
     enum { debug = 0 };
 }

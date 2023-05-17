@@ -19,6 +19,7 @@
 #include <theme.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -372,23 +373,35 @@ void PropertyEditorQmlBackend::setExpression(const PropertyName &propName, const
         propertyValue->setExpression(exp);
 }
 
-QQmlContext *PropertyEditorQmlBackend::context() {
+QQmlContext *PropertyEditorQmlBackend::context()
+{
     return m_view->rootContext();
 }
 
-PropertyEditorContextObject* PropertyEditorQmlBackend::contextObject() {
+PropertyEditorContextObject *PropertyEditorQmlBackend::contextObject()
+{
     return m_contextObject.data();
 }
 
-QQuickWidget *PropertyEditorQmlBackend::widget() {
+QQuickWidget *PropertyEditorQmlBackend::widget()
+{
     return m_view;
 }
 
-void PropertyEditorQmlBackend::setSource(const QUrl& url) {
+void PropertyEditorQmlBackend::setSource(const QUrl &url)
+{
     m_view->setSource(url);
+
+    const bool showError = qEnvironmentVariableIsSet(Constants::ENVIRONMENT_SHOW_QML_ERRORS);
+
+    if (showError && !m_view->errors().isEmpty()) {
+        const QString errMsg = m_view->errors().constFirst().toString();
+        Core::AsynchronousMessageBox::warning(PropertyEditorView::tr("Invalid QML source"), errMsg);
+    }
 }
 
-Internal::QmlAnchorBindingProxy &PropertyEditorQmlBackend::backendAnchorBinding() {
+Internal::QmlAnchorBindingProxy &PropertyEditorQmlBackend::backendAnchorBinding()
+{
     return m_backendAnchorBinding;
 }
 
