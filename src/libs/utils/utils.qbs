@@ -471,6 +471,7 @@ Project {
 
         Export {
             Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
+            Depends { name: "Tasking" }
             cpp.includePaths: base.concat("mimetypes2")
         }
     }
