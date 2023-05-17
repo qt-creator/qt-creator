@@ -70,7 +70,7 @@ static QMessageBox::StandardButton exec(
                 using T = std::decay_t<decltype(decider)>;
                 msgBox.checkBox()->setText(decider.text);
                 if constexpr (std::is_same_v<T, CheckableMessageBox::BoolDecision>) {
-                    msgBox.checkBox()->setChecked(decider.value);
+                    msgBox.checkBox()->setChecked(decider.doNotAskAgain);
                 } else if constexpr (std::is_same_v<T, CheckableMessageBox::SettingsDecision>) {
                     msgBox.checkBox()->setChecked(
                         decider.settings->value(decider.settingsSubKey, false).toBool());
@@ -142,7 +142,7 @@ void CheckableMessageBox::doNotAskAgain(Decider &decider)
         [](auto &&decider) {
             using T = std::decay_t<decltype(decider)>;
             if constexpr (std::is_same_v<T, BoolDecision>) {
-                decider.value = true;
+                decider.doNotAskAgain = true;
             } else if constexpr (std::is_same_v<T, SettingsDecision>) {
                 decider.settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
                 decider.settings->setValue(decider.settingsSubKey, true);
@@ -160,7 +160,7 @@ bool CheckableMessageBox::shouldAskAgain(const Decider &decider)
         [](auto &&decider) {
             using T = std::decay_t<decltype(decider)>;
             if constexpr (std::is_same_v<T, BoolDecision>) {
-                return !decider.value;
+                return !decider.doNotAskAgain;
             } else if constexpr (std::is_same_v<T, SettingsDecision>) {
                 decider.settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
                 bool shouldNotAsk = decider.settings->value(decider.settingsSubKey, false).toBool();

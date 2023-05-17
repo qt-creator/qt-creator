@@ -23,7 +23,7 @@ public:
     struct BoolDecision
     {
         QString text;
-        bool &value;
+        bool &doNotAskAgain;
     };
 
     struct SettingsDecision
@@ -48,9 +48,9 @@ public:
         return Decider{SettingsDecision{text, settings, settingsSubKey}};
     }
 
-    static Decider make_decider(bool &value, const QString &text = msgDoNotAskAgain())
+    static Decider make_decider(bool &doNotAskAgain, const QString &text = msgDoNotAskAgain())
     {
-        return Decider{BoolDecision{text, value}};
+        return Decider{BoolDecision{text, doNotAskAgain}};
     }
 
     static Decider make_decider(BoolAspect &aspect, const QString &text = msgDoNotAskAgain())
