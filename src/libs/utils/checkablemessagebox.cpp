@@ -64,19 +64,11 @@ static QMessageBox::StandardButton exec(
             return acceptButton;
 
         msgBox.setCheckBox(new QCheckBox);
+        msgBox.checkBox()->setChecked(false);
 
         std::visit(
             [&msgBox](auto &&decider) {
-                using T = std::decay_t<decltype(decider)>;
                 msgBox.checkBox()->setText(decider.text);
-                if constexpr (std::is_same_v<T, CheckableMessageBox::BoolDecision>) {
-                    msgBox.checkBox()->setChecked(decider.doNotAskAgain);
-                } else if constexpr (std::is_same_v<T, CheckableMessageBox::SettingsDecision>) {
-                    msgBox.checkBox()->setChecked(
-                        decider.settings->value(decider.settingsSubKey, false).toBool());
-                } else if constexpr (std::is_same_v<T, CheckableMessageBox::AspectDecision>) {
-                    msgBox.checkBox()->setChecked(decider.aspect.value());
-                }
             },
             *decider);
     }
