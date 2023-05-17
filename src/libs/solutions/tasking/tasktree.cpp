@@ -990,14 +990,14 @@ void TaskNode::invokeEndHandler(bool success)
             qDebug() << "Entering the group";
         };
         const Group root {
-            OnGroupSetup(onSetup),
+            onGroupSetup(onSetup),
             ProcessTask(...)
         };
     \endcode
 
     The group setup handler is optional. To define a group setup handler, add an
-    OnGroupSetup element to a group. The argument of OnGroupSetup is a user
-    handler. If you add more than one OnGroupSetup element to a group, an assert
+    onGroupSetup element to a group. The argument of onGroupSetup is a user
+    handler. If you add more than one onGroupSetup element to a group, an assert
     is triggered at runtime that includes an error message.
 
     Like the task start handler, the group start handler may return TaskAction.
@@ -1011,17 +1011,17 @@ void TaskNode::invokeEndHandler(bool success)
 
     \code
         const Group root {
-            OnGroupSetup([] { qDebug() << "Root setup"; }),
+            onGroupSetup([] { qDebug() << "Root setup"; }),
             Group {
-                OnGroupSetup([] { qDebug() << "Group 1 setup"; return TaskAction::Continue; }),
+                onGroupSetup([] { qDebug() << "Group 1 setup"; return TaskAction::Continue; }),
                 ProcessTask(...) // Process 1
             },
             Group {
-                OnGroupSetup([] { qDebug() << "Group 2 setup"; return TaskAction::StopWithDone; }),
+                onGroupSetup([] { qDebug() << "Group 2 setup"; return TaskAction::StopWithDone; }),
                 ProcessTask(...) // Process 2
             },
             Group {
-                OnGroupSetup([] { qDebug() << "Group 3 setup"; return TaskAction::StopWithError; }),
+                onGroupSetup([] { qDebug() << "Group 3 setup"; return TaskAction::StopWithError; }),
                 ProcessTask(...) // Process 3
             },
             ProcessTask(...) // Process 4
@@ -1080,20 +1080,20 @@ void TaskNode::invokeEndHandler(bool success)
     execution of its tasks, respectively. The final value reported by the
     group depends on its \l {Workflow Policy}. The handlers can apply other
     necessary actions. The done and error handlers are defined inside the
-    OnGroupDone and OnGroupError elements of a group, respectively. They do not
+    onGroupDone and onGroupError elements of a group, respectively. They do not
     take arguments:
 
     \code
         const Group root {
-            OnGroupSetup([] { qDebug() << "Root setup"; }),
+            onGroupSetup([] { qDebug() << "Root setup"; }),
             ProcessTask(...),
-            OnGroupDone([] { qDebug() << "Root finished with success"; }),
-            OnGroupError([] { qDebug() << "Root finished with error"; })
+            onGroupDone([] { qDebug() << "Root finished with success"; }),
+            onGroupError([] { qDebug() << "Root finished with error"; })
         };
     \endcode
 
     The group done and error handlers are optional. If you add more than one
-    OnGroupDone or OnGroupError each to a group, an assert is triggered at
+    onGroupDone or onGroupError each to a group, an assert is triggered at
     runtime that includes an error message.
 
     \note Even if the group setup handler returns StopWithDone or StopWithError,

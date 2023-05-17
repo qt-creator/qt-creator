@@ -259,44 +259,6 @@ public:
     Workflow(WorkflowPolicy policy) : TaskItem(policy) {}
 };
 
-class TASKING_EXPORT OnGroupSetup : public TaskItem
-{
-public:
-    template <typename SetupFunction>
-    OnGroupSetup(SetupFunction &&function)
-        : TaskItem({wrapSetup(std::forward<SetupFunction>(function))}) {}
-
-private:
-    template<typename SetupFunction>
-    static TaskItem::GroupSetupHandler wrapSetup(SetupFunction &&function) {
-        static constexpr bool isDynamic = std::is_same_v<TaskAction,
-                std::invoke_result_t<std::decay_t<SetupFunction>>>;
-        constexpr bool isVoid = std::is_same_v<void,
-                std::invoke_result_t<std::decay_t<SetupFunction>>>;
-        static_assert(isDynamic || isVoid,
-                "Group setup handler needs to take no arguments and has to return "
-                "void or TaskAction. The passed handler doesn't fulfill these requirements.");
-        return [=] {
-            if constexpr (isDynamic)
-                return std::invoke(function);
-            std::invoke(function);
-            return TaskAction::Continue;
-        };
-    };
-};
-
-class TASKING_EXPORT OnGroupDone : public TaskItem
-{
-public:
-    OnGroupDone(const GroupEndHandler &handler) : TaskItem({{}, handler}) {}
-};
-
-class TASKING_EXPORT OnGroupError : public TaskItem
-{
-public:
-    OnGroupError(const GroupEndHandler &handler) : TaskItem({{}, {}, handler}) {}
-};
-
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
 class TASKING_EXPORT Sync : public Group
 {
