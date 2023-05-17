@@ -84,9 +84,11 @@ class CPPEDITOR_EXPORT ClangdSettings : public QObject
     Q_OBJECT
 public:
     enum class IndexingPriority { Off, Background, Normal, Low, };
+    enum class HeaderSourceSwitchMode { BuiltinOnly, ClangdOnly, Both };
 
     static QString priorityToString(const IndexingPriority &priority);
     static QString priorityToDisplayString(const IndexingPriority &priority);
+    static QString headerSourceSwitchModeToDisplayString(HeaderSourceSwitchMode mode);
 
     class CPPEDITOR_EXPORT Data
     {
@@ -103,6 +105,7 @@ public:
                     && s1.diagnosticConfigId == s2.diagnosticConfigId
                     && s1.workerThreadLimit == s2.workerThreadLimit
                     && s1.indexingPriority == s2.indexingPriority
+                    && s1.headerSourceSwitchMode == s2.headerSourceSwitchMode
                     && s1.autoIncludeHeaders == s2.autoIncludeHeaders
                     && s1.documentUpdateThreshold == s2.documentUpdateThreshold
                     && s1.sizeThresholdEnabled == s2.sizeThresholdEnabled
@@ -123,6 +126,7 @@ public:
         qint64 sizeThresholdInKb = 1024;
         bool useClangd = true;
         IndexingPriority indexingPriority = IndexingPriority::Low;
+        HeaderSourceSwitchMode headerSourceSwitchMode = HeaderSourceSwitchMode::Both;
         bool autoIncludeHeaders = false;
         bool sizeThresholdEnabled = false;
         bool haveCheckedHardwareReqirements = false;
@@ -143,6 +147,7 @@ public:
     static void setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
     Utils::FilePath clangdFilePath() const;
     IndexingPriority indexingPriority() const { return m_data.indexingPriority; }
+    HeaderSourceSwitchMode headerSourceSwitchMode() const { return m_data.headerSourceSwitchMode; }
     bool autoIncludeHeaders() const { return m_data.autoIncludeHeaders; }
     int workerThreadLimit() const { return m_data.workerThreadLimit; }
     int documentUpdateThreshold() const { return m_data.documentUpdateThreshold; }

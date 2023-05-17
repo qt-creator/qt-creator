@@ -352,10 +352,24 @@ void ClangModelManagerSupport::findUsages(const CursorInEditor &cursor) const
 
 void ClangModelManagerSupport::switchHeaderSource(const FilePath &filePath, bool inNextSplit)
 {
-    if (ClangdClient * const client = clientForFile(filePath))
-        client->switchHeaderSource(filePath, inNextSplit);
-    else
-        CppModelManager::switchHeaderSource(inNextSplit, CppModelManager::Backend::Builtin);
+    if (ClangdClient * const client = clientForFile(filePath)) {
+        switch (ClangdProjectSettings(client->project()).settings().headerSourceSwitchMode) {
+        case ClangdSettings::HeaderSourceSwitchMode::BuiltinOnly:
+            CppModelManager::switchHeaderSource(inNextSplit, CppModelManager::Backend::Builtin);
+            return;
+        case ClangdSettings::HeaderSourceSwitchMode::ClangdOnly:
+            client->switchHeaderSource(filePath, inNextSplit);
+            return;
+        case ClangdSettings::HeaderSourceSwitchMode::Both:
+            const FilePath otherFile = correspondingHeaderOrSource(filePath);
+            if (!otherFile.isEmpty())
+                openEditor(otherFile, inNextSplit);
+            else
+                client->switchHeaderSource(filePath, inNextSplit);
+            return;
+        }
+    }
+    CppModelManager::switchHeaderSource(inNextSplit, CppModelManager::Backend::Builtin);
 }
 
 void ClangModelManagerSupport::checkUnused(const Link &link, SearchResult *search,

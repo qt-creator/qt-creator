@@ -192,6 +192,7 @@ class ClangdSettingsWidget::Private
 public:
     QCheckBox useClangdCheckBox;
     QComboBox indexingComboBox;
+    QComboBox headerSourceSwitchComboBox;
     QCheckBox autoIncludeHeadersCheckBox;
     QCheckBox sizeThresholdCheckBox;
     QSpinBox threadLimitSpinBox;
@@ -220,6 +221,12 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "cores unused.</p>"
         "<p>Normal Priority: Reduced priority compared to interactive work.</p>"
         "Low Priority: Same priority as other clangd work.");
+    const QString headerSourceSwitchToolTip = Tr::tr(
+        "<p>Which C/C++ backend to use when switching between header and source file."
+        "<p>The clangd implementation has more capabilities, but also has some bugs not present "
+        "in the built-in variant."
+        "<p>When \"Try Both\" is selected, clangd will be employed only if the built-in variant "
+        "does not find anything.");
     const QString workerThreadsToolTip = Tr::tr(
         "Number of worker threads used by clangd. Background indexing also uses this many "
         "worker threads.");
@@ -249,6 +256,15 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             d->indexingComboBox.setCurrentIndex(d->indexingComboBox.count() - 1);
     }
     d->indexingComboBox.setToolTip(indexingToolTip);
+    using SwitchMode = ClangdSettings::HeaderSourceSwitchMode;
+    for (SwitchMode mode : {SwitchMode::BuiltinOnly, SwitchMode::ClangdOnly, SwitchMode::Both}) {
+        d->headerSourceSwitchComboBox.addItem(
+            ClangdSettings::headerSourceSwitchModeToDisplayString(mode), int(mode));
+        if (mode == settings.headerSourceSwitchMode())
+            d->headerSourceSwitchComboBox.setCurrentIndex(
+                d->headerSourceSwitchComboBox.count() - 1);
+    }
+    d->headerSourceSwitchComboBox.setToolTip(headerSourceSwitchToolTip);
     d->autoIncludeHeadersCheckBox.setText(Tr::tr("Insert header files on completion"));
     d->autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
     d->autoIncludeHeadersCheckBox.setToolTip(autoIncludeToolTip);
@@ -293,6 +309,13 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     const auto indexingPriorityLabel = new QLabel(Tr::tr("Background indexing:"));
     indexingPriorityLabel->setToolTip(indexingToolTip);
     formLayout->addRow(indexingPriorityLabel, indexingPriorityLayout);
+
+    const auto headerSourceSwitchLayout = new QHBoxLayout;
+    headerSourceSwitchLayout->addWidget(&d->headerSourceSwitchComboBox);
+    headerSourceSwitchLayout->addStretch(1);
+    const auto headerSourceSwitchLabel = new QLabel(Tr::tr("Header/source switch mode:"));
+    headerSourceSwitchLabel->setToolTip(headerSourceSwitchToolTip);
+    formLayout->addRow(headerSourceSwitchLabel, headerSourceSwitchLayout);
 
     const auto threadLimitLayout = new QHBoxLayout;
     threadLimitLayout->addWidget(&d->threadLimitSpinBox);
@@ -449,6 +472,8 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->indexingComboBox, &QComboBox::currentIndexChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&d->headerSourceSwitchComboBox, &QComboBox::currentIndexChanged,
+            this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->autoIncludeHeadersCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->threadLimitSpinBox, &QSpinBox::valueChanged,
@@ -479,6 +504,8 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
     data.executableFilePath = d->clangdChooser.filePath();
     data.indexingPriority = ClangdSettings::IndexingPriority(
         d->indexingComboBox.currentData().toInt());
+    data.headerSourceSwitchMode = ClangdSettings::HeaderSourceSwitchMode(
+        d->headerSourceSwitchComboBox.currentData().toInt());
     data.autoIncludeHeaders = d->autoIncludeHeadersCheckBox.isChecked();
     data.workerThreadLimit = d->threadLimitSpinBox.value();
     data.documentUpdateThreshold = d->documentUpdateThreshold.value();

@@ -64,6 +64,9 @@ static QString useClangdKey() { return QLatin1String("UseClangdV7"); }
 static QString clangdPathKey() { return QLatin1String("ClangdPath"); }
 static QString clangdIndexingKey() { return QLatin1String("ClangdIndexing"); }
 static QString clangdIndexingPriorityKey() { return QLatin1String("ClangdIndexingPriority"); }
+static QString clangdHeaderSourceSwitchModeKey() {
+    return QLatin1String("ClangdHeaderSourceSwitchMode");
+}
 static QString clangdHeaderInsertionKey() { return QLatin1String("ClangdHeaderInsertion"); }
 static QString clangdThreadLimitKey() { return QLatin1String("ClangdThreadLimit"); }
 static QString clangdDocumentThresholdKey() { return QLatin1String("ClangdDocumentThreshold"); }
@@ -225,6 +228,16 @@ QString ClangdSettings::priorityToDisplayString(const IndexingPriority &priority
     case IndexingPriority::Normal: return Tr::tr("Normal Priority");
     case IndexingPriority::Low: return Tr::tr("Low Priority");
     case IndexingPriority::Off: return Tr::tr("Off");
+    }
+    return {};
+}
+
+QString ClangdSettings::headerSourceSwitchModeToDisplayString(HeaderSourceSwitchMode mode)
+{
+    switch (mode) {
+    case HeaderSourceSwitchMode::BuiltinOnly: return Tr::tr("Use Built-in Only");
+    case HeaderSourceSwitchMode::ClangdOnly: return Tr::tr("Use Clangd Only");
+    case HeaderSourceSwitchMode::Both: return Tr::tr("Try Both");
     }
     return {};
 }
@@ -528,6 +541,7 @@ QVariantMap ClangdSettings::Data::toMap() const
                                                               : QString());
     map.insert(clangdIndexingKey(), indexingPriority != IndexingPriority::Off);
     map.insert(clangdIndexingPriorityKey(), int(indexingPriority));
+    map.insert(clangdHeaderSourceSwitchModeKey(), int(headerSourceSwitchMode));
     map.insert(clangdHeaderInsertionKey(), autoIncludeHeaders);
     map.insert(clangdThreadLimitKey(), workerThreadLimit);
     map.insert(clangdDocumentThresholdKey(), documentUpdateThreshold);
@@ -549,6 +563,8 @@ void ClangdSettings::Data::fromMap(const QVariantMap &map)
     const auto it = map.find(clangdIndexingKey());
     if (it != map.end() && !it->toBool())
         indexingPriority = IndexingPriority::Off;
+    headerSourceSwitchMode = HeaderSourceSwitchMode(map.value(clangdHeaderSourceSwitchModeKey(),
+                                                              int(headerSourceSwitchMode)).toInt());
     autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), false).toBool();
     workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
     documentUpdateThreshold = map.value(clangdDocumentThresholdKey(), 500).toInt();
