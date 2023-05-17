@@ -15,7 +15,7 @@ public:
     static CMakeSpecificSettings *instance();
 
     Utils::BoolAspect autorunCMake;
-    Utils::StringAspect ninjaPath;
+    Utils::FilePathAspect ninjaPath;
     Utils::BoolAspect packageManagerAutoSetup;
     Utils::BoolAspect askBeforeReConfigureInitialParams;
     Utils::BoolAspect askBeforePresetsReload;

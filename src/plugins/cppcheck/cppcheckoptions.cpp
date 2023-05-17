@@ -36,7 +36,6 @@ CppcheckOptions::CppcheckOptions()
 
     registerAspect(&binary);
     binary.setSettingsKey("binary");
-    binary.setDisplayStyle(StringAspect::PathChooserDisplay);
     binary.setExpectedKind(PathChooser::ExistingCommand);
     binary.setCommandVersionArguments({"--version"});
     binary.setLabelText(Tr::tr("Binary:"));

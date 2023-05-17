@@ -232,7 +232,7 @@ FossilClient::FossilClient()
 
 unsigned int FossilClient::synchronousBinaryVersion() const
 {
-    if (settings().binaryPath.value().isEmpty())
+    if (settings().binaryPath().isEmpty())
         return 0;
 
     const CommandResult result = vcsSynchronousExec({}, QStringList{"version"});

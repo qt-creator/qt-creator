@@ -6,10 +6,7 @@
 #include "haskellconstants.h"
 #include "haskelltr.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/hostosinfo.h>
-#include <utils/pathchooser.h>
 #include <utils/layoutbuilder.h>
 
 using namespace Utils;
@@ -46,18 +43,18 @@ HaskellSettings::HaskellSettings()
         ? FilePath::fromString("/usr/local/bin/stack")
         : FilePath::fromString("stack"));
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
-        Column {
+        return Column {
             Group {
                 title(Tr::tr("General")),
                 Row { Tr::tr("Stack executable:"), stackPath }
             },
             st,
-        }.attachTo(widget);
+        };
     });
 
-    readSettings(Core::ICore::settings());
+    readSettings();
 }
 
 } // Haskell::Internal

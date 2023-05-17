@@ -8,7 +8,6 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
@@ -23,17 +22,16 @@ DockerSettings::DockerSettings()
     setDisplayName(Tr::tr("Docker"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
-
         // clang-format off
-        Column {
+        return Column {
             Group {
                 title(Tr::tr("Configuration")),
                 Row { dockerBinaryPath }
             },
             st
-        }.attachTo(widget);
+        };
         // clang-format on
     });
 
@@ -44,7 +42,6 @@ DockerSettings::DockerSettings()
         additionalPaths.append("/usr/local/bin");
 
     registerAspect(&dockerBinaryPath);
-    dockerBinaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     dockerBinaryPath.setExpectedKind(PathChooser::ExistingCommand);
     dockerBinaryPath.setDefaultFilePath(
         FilePath::fromString("docker").searchInPath(additionalPaths));

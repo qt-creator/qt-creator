@@ -148,7 +148,7 @@ private:
     QPushButton *m_remove = nullptr;
     QPushButton *m_add = nullptr;
     QComboBox *m_defaultGitLabServer = nullptr;
-    Utils::StringAspect m_curl;
+    FilePathAspect m_curl;
 };
 
 GitLabOptionsWidget::GitLabOptionsWidget(GitLabParameters *params)
@@ -156,9 +156,8 @@ GitLabOptionsWidget::GitLabOptionsWidget(GitLabParameters *params)
 {
     auto defaultLabel = new QLabel(Tr::tr("Default:"), this);
     m_defaultGitLabServer = new QComboBox(this);
-    m_curl.setDisplayStyle(Utils::StringAspect::DisplayStyle::PathChooserDisplay);
     m_curl.setLabelText(Tr::tr("curl:"));
-    m_curl.setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_curl.setExpectedKind(PathChooser::ExistingCommand);
 
     m_gitLabServerWidget = new GitLabServerWidget(GitLabServerWidget::Display, this);
 
@@ -208,7 +207,7 @@ GitLabOptionsWidget::GitLabOptionsWidget(GitLabParameters *params)
             result.gitLabServers.append(m_defaultGitLabServer->itemData(i).value<GitLabServer>());
         if (m_defaultGitLabServer->count())
             result.defaultGitLabServer = m_defaultGitLabServer->currentData().value<GitLabServer>().id;
-        result.curl = m_curl.filePath();
+        result.curl = m_curl();
 
         if (result != *m_parameters) {
             m_parameters->assign(result);

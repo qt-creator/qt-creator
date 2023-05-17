@@ -99,7 +99,7 @@ public:
 private:
     void setupShellProcess(Process *shellProcess) final
     {
-        shellProcess->setCommand({m_settings->dockerBinaryPath.filePath(),
+        shellProcess->setCommand({m_settings->dockerBinaryPath(),
                                   {"container", "start", "-i", "-a", m_containerId}});
     }
 
@@ -498,7 +498,7 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
     if (!updateContainerAccess())
         return {};
 
-    CommandLine dockerCmd{m_settings->dockerBinaryPath.filePath(), {"exec"}};
+    CommandLine dockerCmd{m_settings->dockerBinaryPath(), {"exec"}};
 
     if (interactive)
         dockerCmd.addArg("-i");
@@ -555,7 +555,7 @@ void DockerDevicePrivate::stopCurrentContainer()
     }
 
     Process proc;
-    proc.setCommand({m_settings->dockerBinaryPath.filePath(), {"container", "stop", m_container}});
+    proc.setCommand({m_settings->dockerBinaryPath(), {"container", "stop", m_container}});
 
     m_container.clear();
 
@@ -660,7 +660,7 @@ bool DockerDevicePrivate::isImageAvailable() const
 {
     Process proc;
     proc.setCommand(
-        {m_settings->dockerBinaryPath.filePath(),
+        {m_settings->dockerBinaryPath(),
          {"image", "list", m_data.repoAndTag(), "--format", "{{.Repository}}:{{.Tag}}"}});
     proc.runBlocking();
     if (proc.result() != ProcessResult::FinishedWithSuccess)
@@ -682,7 +682,7 @@ bool DockerDevicePrivate::createContainer()
 
     const QString display = HostOsInfo::isLinuxHost() ? QString(":0")
                                                       : QString("host.docker.internal:0");
-    CommandLine dockerCreate{m_settings->dockerBinaryPath.filePath(),
+    CommandLine dockerCreate{m_settings->dockerBinaryPath(),
                              {"create",
                               "-i",
                               "--rm",
@@ -1053,7 +1053,7 @@ public:
         connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
         m_buttons->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-        CommandLine cmd{m_settings->dockerBinaryPath.filePath(),
+        CommandLine cmd{m_settings->dockerBinaryPath(),
                         {"images", "--format", "{{.ID}}\\t{{.Repository}}\\t{{.Tag}}\\t{{.Size}}"}};
         m_log->append(Tr::tr("Running \"%1\"\n").arg(cmd.toUserOutput()));
 

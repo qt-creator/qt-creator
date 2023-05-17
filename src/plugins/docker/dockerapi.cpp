@@ -103,7 +103,7 @@ std::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
 
 FilePath DockerApi::dockerClient()
 {
-    return FilePath::fromString(m_settings->dockerBinaryPath.value());
+    return m_settings->dockerBinaryPath();
 }
 
 } // Docker::Internal

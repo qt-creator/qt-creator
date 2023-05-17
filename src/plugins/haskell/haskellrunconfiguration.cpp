@@ -68,7 +68,7 @@ Runnable HaskellRunConfiguration::runnable() const
 
     r.workingDirectory = projectDirectory;
     r.environment = aspect<LocalEnvironmentAspect>()->environment();
-    r.command = {r.environment.searchInPath(settings().stackPath()), args};
+    r.command = {r.environment.searchInPath(settings().stackPath().path()), args};
     return r;
 }
 

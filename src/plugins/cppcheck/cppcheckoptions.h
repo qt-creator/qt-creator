@@ -17,7 +17,7 @@ public:
 
     std::function<void(QWidget *widget)> layouter();
 
-    Utils::StringAspect binary;
+    Utils::FilePathAspect binary;
     Utils::BoolAspect warning;
     Utils::BoolAspect style;
     Utils::BoolAspect performance;

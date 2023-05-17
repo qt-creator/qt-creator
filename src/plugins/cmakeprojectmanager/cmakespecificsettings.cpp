@@ -32,9 +32,9 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     setCategory(Constants::Settings::CATEGORY);
     setCategoryIconPath(Constants::Icons::SETTINGS_CATEGORY);
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
-        Column {
+        return Column {
             autorunCMake,
             packageManagerAutoSetup,
             askBeforeReConfigureInitialParams,
@@ -42,7 +42,7 @@ CMakeSpecificSettings::CMakeSpecificSettings()
             showSourceSubFolders,
             showAdvancedOptionsByDefault,
             st
-        }.attachTo(widget);
+        };
     });
 
     // TODO: fixup of QTCREATORBUG-26289 , remove in Qt Creator 7 or so

@@ -30,7 +30,7 @@ public:
     Utils::BoolAspect winSetHomeEnvironment;
     Utils::StringAspect gitkOptions;
     Utils::BoolAspect logDiff;
-    Utils::StringAspect repositoryBrowserCmd;
+    Utils::FilePathAspect repositoryBrowserCmd;
     Utils::BoolAspect graphLog;
     Utils::BoolAspect colorLog;
     Utils::BoolAspect firstParent;

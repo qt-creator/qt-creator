@@ -46,7 +46,7 @@ void HaskellManager::openGhci(const FilePath &haskellFile)
                       + (isHaskell ? QStringList{haskellFile.fileName()} : QStringList());
     Process p;
     p.setTerminalMode(TerminalMode::Detached);
-    p.setCommand({settings().stackPath.filePath(), args});
+    p.setCommand({settings().stackPath(), args});
     p.setWorkingDirectory(haskellFile.absolutePath());
     p.start();
 }

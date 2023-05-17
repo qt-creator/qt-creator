@@ -12,7 +12,7 @@ class HaskellSettings : public Core::PagedSettings
 public:
     HaskellSettings();
 
-    Utils::StringAspect stackPath;
+    Utils::FilePathAspect stackPath;
 };
 
 HaskellSettings &settings();

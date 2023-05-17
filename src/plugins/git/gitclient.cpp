@@ -2422,7 +2422,7 @@ void GitClient::launchGitK(const FilePath &workingDirectory, const QString &file
 
 void GitClient::launchRepositoryBrowser(const FilePath &workingDirectory) const
 {
-    const FilePath repBrowserBinary = settings().repositoryBrowserCmd.filePath();
+    const FilePath repBrowserBinary = settings().repositoryBrowserCmd();
     if (!repBrowserBinary.isEmpty())
         Process::startDetached({repBrowserBinary, {workingDirectory.toString()}}, workingDirectory);
 }

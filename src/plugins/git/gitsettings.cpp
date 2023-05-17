@@ -94,7 +94,6 @@ GitSettings::GitSettings()
     logDiff.setToolTip(Tr::tr("Note that huge amount of commits might take some time."));
 
     registerAspect(&repositoryBrowserCmd);
-    repositoryBrowserCmd.setDisplayStyle(StringAspect::PathChooserDisplay);
     repositoryBrowserCmd.setSettingsKey("RepositoryBrowserCmd");
     repositoryBrowserCmd.setExpectedKind(PathChooser::ExistingCommand);
     repositoryBrowserCmd.setHistoryCompleter("Git.RepoCommand.History");
@@ -130,10 +129,9 @@ GitSettings::GitSettings()
 
     timeout.setDefaultValue(Utils::HostOsInfo::isWindowsHost() ? 60 : 30);
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
-
-        Column {
+        return Column {
             Group {
                 title(Tr::tr("Configuration")),
                 Column {
@@ -166,7 +164,7 @@ GitSettings::GitSettings()
             },
 
             st
-        }.attachTo(widget);
+        };
     });
     connect(&binaryPath, &StringAspect::valueChanged, this, [this] { tryResolve = true; });
     connect(&path, &StringAspect::valueChanged, this, [this] { tryResolve = true; });
@@ -181,7 +179,7 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
         errorMessage->clear();
 
     if (tryResolve) {
-        resolvedBinPath = binaryPath.filePath();
+        resolvedBinPath = binaryPath();
         if (!resolvedBinPath.isAbsolutePath())
             resolvedBinPath = resolvedBinPath.searchInPath({path.filePath()}, FilePath::PrependToPath);
         tryResolve = false;

@@ -38,7 +38,7 @@ bool StackBuildStep::init()
     if (AbstractProcessStep::init()) {
         const auto projectDir = QDir(project()->projectDirectory().toString());
         processParameters()->setCommandLine(
-            {settings().stackPath.filePath(),
+            {settings().stackPath(),
              {"build", "--work-dir", projectDir.relativeFilePath(buildDirectory().toString())}});
         processParameters()->setEnvironment(buildEnvironment());
     }

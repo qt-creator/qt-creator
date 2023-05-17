@@ -22,8 +22,6 @@ GeneralSettings::GeneralSettings()
     setDisplayCategory(Tr::tr("Beautifier"));
     setCategoryIconPath(":/beautifier/images/settingscategory_beautifier.png");
     setSettingsGroups("Beautifier", "General");
-    setSettings(this);
-    setAutoApply(false);
 
     registerAspect(&autoFormatOnSave);
     autoFormatOnSave.setSettingsKey(Utils::Constants::BEAUTIFIER_AUTO_FORMAT_ON_SAVE);
@@ -47,9 +45,9 @@ GeneralSettings::GeneralSettings()
     autoFormatMime.setLabelText(Tr::tr("Restrict to MIME types:"));
     autoFormatMime.setDisplayStyle(StringAspect::LineEditDisplay);
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
-        Column {
+        return Column {
             Group {
                 title(Tr::tr("Automatic Formatting on File Save")),
                 autoFormatOnSave.groupChecker(),
@@ -60,7 +58,7 @@ GeneralSettings::GeneralSettings()
                 }
             },
             st
-        }.attachTo(widget);
+        };
     });
 }
 

@@ -863,7 +863,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
     QTextCodec *codec = VcsBaseEditor::getCodec(source);
 
-    CommandLine args{settings().binaryPath.filePath(), {"annotate"}};
+    CommandLine args{settings().binaryPath(), {"annotate"}};
     args << SubversionClient::AddAuthOptions();
     if (settings().spaceIgnorantAnnotation.value())
         args << "-x" << "-uw";
@@ -1006,7 +1006,7 @@ QString SubversionPluginPrivate::synchronousTopic(const FilePath &repository) co
 bool SubversionPluginPrivate::vcsAdd(const FilePath &workingDir, const QString &rawFileName)
 {
     const QString file = QDir::toNativeSeparators(SubversionClient::escapeFile(rawFileName));
-    CommandLine args{settings().binaryPath.filePath()};
+    CommandLine args{settings().binaryPath()};
     args << "add" << SubversionClient::AddAuthOptions() << "--parents" << file;
     return runSvn(workingDir, args, RunFlags::ShowStdOut).result()
             == ProcessResult::FinishedWithSuccess;
@@ -1016,7 +1016,7 @@ bool SubversionPluginPrivate::vcsDelete(const FilePath &workingDir, const QStrin
 {
     const QString file = QDir::toNativeSeparators(SubversionClient::escapeFile(rawFileName));
 
-    CommandLine args{settings().binaryPath.filePath()};
+    CommandLine args{settings().binaryPath()};
     args << "delete" << SubversionClient::AddAuthOptions() << "--force" << file;
 
     return runSvn(workingDir, args, RunFlags::ShowStdOut).result()
@@ -1025,7 +1025,7 @@ bool SubversionPluginPrivate::vcsDelete(const FilePath &workingDir, const QStrin
 
 bool SubversionPluginPrivate::vcsMove(const FilePath &workingDir, const QString &from, const QString &to)
 {
-    CommandLine args{settings().binaryPath.filePath(), {"move"}};
+    CommandLine args{settings().binaryPath(), {"move"}};
     args << SubversionClient::AddAuthOptions()
          << QDir::toNativeSeparators(SubversionClient::escapeFile(from))
          << QDir::toNativeSeparators(SubversionClient::escapeFile(to));
@@ -1038,7 +1038,7 @@ bool SubversionPluginPrivate::vcsCheckout(const FilePath &directory, const QByte
     QUrl tempUrl = QUrl::fromEncoded(url);
     const QString username = tempUrl.userName();
     const QString password = tempUrl.password();
-    CommandLine args{settings().binaryPath.filePath(), {"checkout"}};
+    CommandLine args{settings().binaryPath(), {"checkout"}};
     args << Constants::NON_INTERACTIVE_OPTION;
 
     if (!username.isEmpty()) {
@@ -1085,7 +1085,7 @@ bool SubversionPluginPrivate::managesDirectory(const FilePath &directory, FilePa
 
 bool SubversionPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    CommandLine args{settings().binaryPath.filePath()};
+    CommandLine args{settings().binaryPath()};
     args << "status" << SubversionClient::AddAuthOptions()
          << QDir::toNativeSeparators(SubversionClient::escapeFile(fileName));
     const QString output = runSvn(workingDirectory, args).cleanedStdOut();
@@ -1124,7 +1124,7 @@ bool SubversionPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) con
 
 bool SubversionPluginPrivate::isConfigured() const
 {
-    const FilePath binary = settings().binaryPath.filePath();
+    const FilePath binary = settings().binaryPath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -1187,7 +1187,7 @@ VcsCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString 
                                                                   const QString &localName,
                                                                   const QStringList &extraArgs)
 {
-    CommandLine args{settings().binaryPath.filePath()};
+    CommandLine args{settings().binaryPath()};
     args << "checkout";
     args << SubversionClient::AddAuthOptions();
     args << Subversion::Constants::NON_INTERACTIVE_OPTION << extraArgs << url << localName;

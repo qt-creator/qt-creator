@@ -52,7 +52,6 @@ public:
 
         registerAspect(&command);
         command.setSettingsKey("autoFormatCommand");
-        command.setDisplayStyle(StringAspect::PathChooserDisplay);
         command.setDefaultValue("cmake-format");
         command.setExpectedKind(PathChooser::ExistingCommand);
 
@@ -121,14 +120,14 @@ public:
     TextEditor::Command formatCommand() const
     {
         TextEditor::Command cmd;
-        cmd.setExecutable(command.filePath());
+        cmd.setExecutable(command());
         cmd.setProcessing(TextEditor::Command::FileProcessing);
         cmd.addOption("--in-place");
         cmd.addOption("%file");
         return cmd;
     }
 
-    StringAspect command;
+    FilePathAspect command;
     BoolAspect autoFormatOnSave;
     BoolAspect autoFormatOnlyCurrentProject;
     StringAspect autoFormatMime;

@@ -12,7 +12,7 @@ class DockerSettings final : public Core::PagedSettings
 public:
     DockerSettings();
 
-    Utils::StringAspect dockerBinaryPath;
+    Utils::FilePathAspect dockerBinaryPath;
 };
 
 } // Docker::Internal

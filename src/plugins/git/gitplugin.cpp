@@ -2001,7 +2001,7 @@ QObject *GitPlugin::remoteCommand(const QStringList &options, const QString &wor
 void GitPluginPrivate::updateRepositoryBrowserAction()
 {
     const bool repositoryEnabled = currentState().hasTopLevel();
-    const bool hasRepositoryBrowserCmd = !settings().repositoryBrowserCmd.value().isEmpty();
+    const bool hasRepositoryBrowserCmd = !settings().repositoryBrowserCmd().isEmpty();
     m_repositoryBrowserAction->setEnabled(repositoryEnabled && hasRepositoryBrowserCmd);
 }
 

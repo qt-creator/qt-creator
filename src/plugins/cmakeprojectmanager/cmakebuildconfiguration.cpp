@@ -2079,8 +2079,8 @@ void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
         return;
 
     auto settings = CMakeSpecificSettings::instance();
-    if (!settings->ninjaPath.filePath().isEmpty()) {
-        const Utils::FilePath ninja = settings->ninjaPath.filePath();
+    if (!settings->ninjaPath().isEmpty()) {
+        const Utils::FilePath ninja = settings->ninjaPath();
         env.appendOrSetPath(ninja.isFile() ? ninja.parentDir() : ninja);
     }
 }

@@ -783,7 +783,7 @@ VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &
     QStringList args;
     args << QLatin1String("clone") << extraArgs << url << localName;
     auto command = VcsBaseClient::createVcsCommand(baseDirectory, m_client.processEnvironment());
-    command->addJob({settings().binaryPath.filePath(), args}, -1);
+    command->addJob({settings().binaryPath(), args}, -1);
     return command;
 }
 
