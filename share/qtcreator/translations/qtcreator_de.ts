@@ -13850,315 +13850,315 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     <name>QtC::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
-        <translation type="unfinished">Annotation für Revision &quot;%1&quot;</translation>
+        <translation>Annotation für Revision &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Ignore Whitespace</source>
-        <translation type="unfinished">Leerzeichen ignorieren</translation>
+        <translation>Leerzeichen ignorieren</translation>
     </message>
     <message>
         <source>Ignore Blank Lines</source>
-        <translation type="unfinished">Leerzeilen ignorieren</translation>
+        <translation>Leerzeilen ignorieren</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>B&amp;earbeiten</translation>
     </message>
     <message>
         <source>CVS Checkout</source>
-        <translation type="unfinished">CVS-Checkout</translation>
+        <translation>CVS-Checkout</translation>
     </message>
     <message>
         <source>Triggers a CVS version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des CVS-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>&amp;CVS</source>
-        <translation type="unfinished">&amp;CVS</translation>
+        <translation>&amp;CVS</translation>
     </message>
     <message>
         <source>Diff Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff für aktuelle Datei</translation>
     </message>
     <message>
         <source>Diff &quot;%1&quot;</source>
-        <translation type="unfinished">Diff für &quot;%1&quot;</translation>
+        <translation>Diff für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Meta+C,Meta+D</source>
-        <translation type="unfinished">Meta+C,Meta+D</translation>
+        <translation>Meta+C,Meta+D</translation>
     </message>
     <message>
         <source>Alt+C,Alt+D</source>
-        <translation type="unfinished">Alt+C,Alt+D</translation>
+        <translation>Alt+C,Alt+D</translation>
     </message>
     <message>
         <source>Filelog Current File</source>
-        <translation type="unfinished">Filelog für Datei</translation>
+        <translation>Filelog für aktuelle Datei</translation>
     </message>
     <message>
         <source>Filelog &quot;%1&quot;</source>
-        <translation type="unfinished">Filelog für &quot;%1&quot;</translation>
+        <translation>Filelog für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
-        <translation type="unfinished">Annotation für Datei</translation>
+        <translation>Annotation für aktuelle Datei</translation>
     </message>
     <message>
         <source>Annotate &quot;%1&quot;</source>
-        <translation type="unfinished">Annotation für &quot;%1&quot;</translation>
+        <translation>Annotation für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Add &quot;%1&quot;</source>
-        <translation type="unfinished">&quot;%1&quot; hinzufügen</translation>
+        <translation>&quot;%1&quot; hinzufügen</translation>
     </message>
     <message>
         <source>Meta+C,Meta+A</source>
-        <translation type="unfinished">Meta+C,Meta+A</translation>
+        <translation>Meta+C,Meta+A</translation>
     </message>
     <message>
         <source>Alt+C,Alt+A</source>
-        <translation type="unfinished">Alt+C,Alt+A</translation>
+        <translation>Alt+C,Alt+A</translation>
     </message>
     <message>
         <source>Commit Current File</source>
-        <translation type="unfinished">Commit der aktuellen Datei</translation>
+        <translation>Commit der aktuellen Datei</translation>
     </message>
     <message>
         <source>Commit &quot;%1&quot;</source>
-        <translation type="unfinished">Commit von &quot;%1&quot;</translation>
+        <translation>Commit von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Meta+C,Meta+C</source>
-        <translation type="unfinished">Meta+C,Meta+C</translation>
+        <translation>Meta+C,Meta+C</translation>
     </message>
     <message>
         <source>Alt+C,Alt+C</source>
-        <translation type="unfinished">Alt+C,Alt+C</translation>
+        <translation>Alt+C,Alt+C</translation>
     </message>
     <message>
         <source>Delete...</source>
-        <translation type="unfinished">Löschen...</translation>
+        <translation>Löschen...</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;...</source>
-        <translation type="unfinished">Lösche &quot;%1&quot;...</translation>
+        <translation>Lösche &quot;%1&quot;...</translation>
     </message>
     <message>
         <source>Revert...</source>
-        <translation type="unfinished">Rückgängig machen...</translation>
+        <translation>Rückgängig machen...</translation>
     </message>
     <message>
         <source>Revert &quot;%1&quot;...</source>
-        <translation type="unfinished">Änderungen in &quot;%1&quot; rückgängig machen...</translation>
+        <translation>Änderungen in &quot;%1&quot; rückgängig machen...</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfordern (edit)</translation>
     </message>
     <message>
         <source>Edit &quot;%1&quot;</source>
-        <translation type="unfinished">&quot;%1&quot; anfordern</translation>
+        <translation>&quot;%1&quot; anfordern (edit)</translation>
     </message>
     <message>
         <source>Unedit</source>
-        <translation type="unfinished">Anforderung zurücknehmen</translation>
+        <translation>Anforderung zurücknehmen (unedit)</translation>
     </message>
     <message>
         <source>Unedit &quot;%1&quot;</source>
-        <translation type="unfinished">Anforderung der Datei &apos;%1&quot; zurücknehmen</translation>
+        <translation>Anforderung der Datei &apos;%1&quot; zurücknehmen (unedit)</translation>
     </message>
     <message>
         <source>Unedit Repository</source>
-        <translation type="unfinished">Anforderung im gesamten Repository zurücknehmen</translation>
+        <translation>Anforderung im gesamten Repository zurücknehmen (unedit)</translation>
     </message>
     <message>
         <source>Diff Project</source>
-        <translation type="unfinished">Diff für Projekt</translation>
+        <translation>Diff für Projekt</translation>
     </message>
     <message>
         <source>Diff Project &quot;%1&quot;</source>
-        <translation type="unfinished">Diff für Projekt &quot;%1&quot;</translation>
+        <translation>Diff für Projekt &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Project Status</source>
-        <translation type="unfinished">Status des Projekts (status)</translation>
+        <translation>Status des Projekts</translation>
     </message>
     <message>
         <source>Status of Project &quot;%1&quot;</source>
-        <translation type="unfinished">Status des Projekts &quot;%1&quot;</translation>
+        <translation>Status des Projekts &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log Project</source>
-        <translation type="unfinished">Log für Projekt</translation>
+        <translation>Log für Projekt</translation>
     </message>
     <message>
         <source>Log Project &quot;%1&quot;</source>
-        <translation type="unfinished">Log für Projekt &quot;%1&quot;</translation>
+        <translation>Log für Projekt &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Update Project</source>
-        <translation type="unfinished">Projekt auf aktuellen Stand bringen</translation>
+        <translation>Projekt auf aktuellen Stand bringen</translation>
     </message>
     <message>
         <source>Update Project &quot;%1&quot;</source>
-        <translation type="unfinished">Projekt &quot;%1&quot;auf aktuellen Stand bringen</translation>
+        <translation>Projekt &quot;%1&quot; auf aktuellen Stand bringen</translation>
     </message>
     <message>
         <source>Commit Project</source>
-        <translation type="unfinished">Commit des Projekts</translation>
+        <translation>Commit des Projekts</translation>
     </message>
     <message>
         <source>Commit Project &quot;%1&quot;</source>
-        <translation type="unfinished">Commit des Projekts &quot;%1&quot;</translation>
+        <translation>Commit des Projekts &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Update Directory</source>
-        <translation type="unfinished">Verzeichnis aktualisieren</translation>
+        <translation>Verzeichnis aktualisieren</translation>
     </message>
     <message>
         <source>Update Directory &quot;%1&quot;</source>
-        <translation type="unfinished">Verzeichnis &quot;%1&quot; aktualisieren</translation>
+        <translation>Verzeichnis &quot;%1&quot; aktualisieren</translation>
     </message>
     <message>
         <source>Commit Directory</source>
-        <translation type="unfinished">Commit des Verzeichnisses</translation>
+        <translation>Commit des Verzeichnisses</translation>
     </message>
     <message>
         <source>Commit Directory &quot;%1&quot;</source>
-        <translation type="unfinished">Commit des Verzeichnisses &quot;%1&quot;</translation>
+        <translation>Commit des Verzeichnisses &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Diff Repository</source>
-        <translation type="unfinished">Diff des Repositorys</translation>
+        <translation>Diff des Repositorys</translation>
     </message>
     <message>
         <source>Repository Status</source>
-        <translation type="unfinished">Status des Repositorys</translation>
+        <translation>Status des Repositorys</translation>
     </message>
     <message>
         <source>Repository Log</source>
-        <translation type="unfinished">Log des Repositorys</translation>
+        <translation>Log des Repositorys</translation>
     </message>
     <message>
         <source>Update Repository</source>
-        <translation type="unfinished">Repository auf den aktuellen Stand bringen</translation>
+        <translation>Repository auf den aktuellen Stand bringen</translation>
     </message>
     <message>
         <source>Commit All Files</source>
-        <translation type="unfinished">Commit aller Dateien</translation>
+        <translation>Commit aller Dateien</translation>
     </message>
     <message>
         <source>Revert Repository...</source>
-        <translation type="unfinished">Änderungen im gesamten Repository rückgängig machen...</translation>
+        <translation>Änderungen im gesamten Repository rückgängig machen...</translation>
     </message>
     <message>
         <source>Revert Repository</source>
-        <translation type="unfinished">Alle Änderungen rückgängig machen</translation>
+        <translation>Änderungen im gesamten Repository rückgängig machen</translation>
     </message>
     <message>
         <source>Revert all pending changes to the repository?</source>
-        <translation type="unfinished">Möchten Sie alle ausstehenden Änderungen des Repositorys verwerfen?</translation>
+        <translation>Möchten Sie alle ausstehenden Änderungen des Repositorys verwerfen?</translation>
     </message>
     <message>
         <source>Revert failed: %1</source>
-        <translation type="unfinished">Fehler beim Rücksetzen der Änderungen: %1</translation>
+        <translation>Fehler beim Rückgängigmachen der Änderungen: %1</translation>
     </message>
     <message>
         <source>The file has been changed. Do you want to revert it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei wurde geändert. Möchten Sie die Änderungen rückgängig machen?</translation>
     </message>
     <message>
         <source>Another commit is currently being executed.</source>
-        <translation type="unfinished">Es läuft bereits ein Commit-Vorgang.</translation>
+        <translation>Es läuft bereits ein Commit-Vorgang.</translation>
     </message>
     <message>
         <source>There are no modified files.</source>
-        <translation type="unfinished">Es gibt keine geänderten Dateien.</translation>
+        <translation>Es gibt keine geänderten Dateien.</translation>
     </message>
     <message>
         <source>Would you like to discard your changes to the repository &quot;%1&quot;?</source>
-        <translation type="unfinished">Möchten Sie alle ausstehenden Änderungen des Repositorys &quot;%1&quot; verwerfen?</translation>
+        <translation>Möchten Sie alle ausstehenden Änderungen des Repositorys &quot;%1&quot; verwerfen?</translation>
     </message>
     <message>
         <source>Would you like to discard your changes to the file &quot;%1&quot;?</source>
-        <translation type="unfinished">Möchten Sie alle ausstehenden Änderungen in der Datei &quot;%1&quot; verwerfen?</translation>
+        <translation>Möchten Sie alle ausstehenden Änderungen in der Datei &quot;%1&quot; verwerfen?</translation>
     </message>
     <message>
         <source>Project status</source>
-        <translation type="unfinished">Status des Projekts</translation>
+        <translation>Status des Projekts</translation>
     </message>
     <message>
         <source>Repository status</source>
-        <translation type="unfinished">Status des Repositorys</translation>
+        <translation>Status des Repositorys</translation>
     </message>
     <message>
         <source>Cannot find repository for &quot;%1&quot;.</source>
-        <translation type="unfinished">Kann das Repository für &quot;%1&quot; nicht finden.</translation>
+        <translation>Kann das Repository für &quot;%1&quot; nicht finden.</translation>
     </message>
     <message>
         <source>The initial revision %1 cannot be described.</source>
-        <translation type="unfinished">Die erste Version (%1) kann nicht weiter beschrieben werden.</translation>
+        <translation>Die erste Version (%1) kann nicht beschrieben werden.</translation>
     </message>
     <message>
         <source>Parsing of the log output failed.</source>
-        <translation type="unfinished">Die Log-Ausgabe konnte nicht ausgewertet werden.</translation>
+        <translation>Die Log-Ausgabe konnte nicht ausgewertet werden.</translation>
     </message>
     <message>
         <source>Could not find commits of id &quot;%1&quot; on %2.</source>
-        <translation type="unfinished">Es konnten keine Commits des Datums %2 mit der ID &quot;%1&quot; gefunden werden.</translation>
+        <translation>Es konnten keine Commits des Datums %2 mit der ID &quot;%1&quot; gefunden werden.</translation>
     </message>
     <message>
         <source>No CVS executable specified.</source>
-        <translation type="unfinished">Es wurde keine ausführbare Datei für CVS angegeben.</translation>
+        <translation>Es wurde keine ausführbare Datei für CVS angegeben.</translation>
     </message>
     <message>
         <source>CVS Command</source>
-        <translation type="unfinished">CVS-Kommando</translation>
+        <translation>CVS-Kommando</translation>
     </message>
     <message>
         <source>CVS command:</source>
-        <translation type="unfinished">CVS-Kommando:</translation>
+        <translation>CVS-Kommando:</translation>
     </message>
     <message>
         <source>CVS root:</source>
-        <translation type="unfinished">CVS-Quelle (CVSROOT):</translation>
+        <translation>CVS-Quelle (CVSROOT):</translation>
     </message>
     <message>
         <source>Describe all files matching commit id</source>
-        <translation type="unfinished">Alle zur Commit-ID gehörenden Dateien beschreiben</translation>
+        <translation>Alle zur Commit-ID gehörenden Dateien beschreiben</translation>
     </message>
     <message>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit ID). Otherwise, only the respective file will be displayed.</source>
-        <translation type="unfinished">Wenn die Option aktiviert ist, werden beim Klick auf die Revisionsnummer in der Annotationsansicht alle Dateien angezeigt, die zu einem Commit gehören (mittels Commit-ID bestimmt). Ansonsten wird nur die betreffende Datei angezeigt.</translation>
+        <translation>Wenn die Option aktiviert ist, werden beim Klick auf die Revisionsnummer in der Annotationsansicht alle Dateien angezeigt, die zu einem Commit gehören (mittels Commit-ID bestimmt). Ansonsten wird nur die betreffende Datei angezeigt.</translation>
     </message>
     <message>
         <source>CVS</source>
-        <translation type="unfinished">CVS</translation>
+        <translation>CVS</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">Konfiguration</translation>
+        <translation>Konfiguration</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation type="unfinished">Sonstige Einstellungen</translation>
+        <translation>Sonstige Einstellungen</translation>
     </message>
     <message>
         <source>Added</source>
-        <translation type="unfinished">Hinzugefügt</translation>
+        <translation>Hinzugefügt</translation>
     </message>
     <message>
         <source>Removed</source>
-        <translation type="unfinished">Gelöscht</translation>
+        <translation>Gelöscht</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished">Geändert</translation>
+        <translation>Geändert</translation>
     </message>
 </context>
 <context>
@@ -29091,7 +29091,7 @@ Nicht markiert - Die Änderung ist kein Entwurf.</translation>
     </message>
     <message>
         <source>Filter log entries by text in the commit message.</source>
-        <translation>Log-Einträge nach Nachrichtentext filtern.</translation>
+        <translation>Log-Einträge nach Beschreibung filtern.</translation>
     </message>
     <message>
         <source>Filter by content</source>
@@ -34170,7 +34170,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Update Project &quot;%1&quot;</source>
-        <translation>Projekt &quot;%1&quot;auf aktuellen Stand bringen</translation>
+        <translation>Projekt &quot;%1&quot; auf aktuellen Stand bringen</translation>
     </message>
     <message>
         <source>Describe...</source>
@@ -47616,7 +47616,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
     <message>
         <source>Update Project &quot;%1&quot;</source>
-        <translation>Projekt &quot;%1&quot;auf aktuellen Stand bringen</translation>
+        <translation>Projekt &quot;%1&quot; auf aktuellen Stand bringen</translation>
     </message>
     <message>
         <source>Revert Repository...</source>
@@ -53075,7 +53075,7 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>Clean Repository</source>
-        <translation type="unfinished">Repository bereinigen</translation>
+        <translation>Repository bereinigen</translation>
     </message>
     <message>
         <source>Delete...</source>
@@ -53190,25 +53190,25 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>Warning: The commit subject is very short.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung: Der Titel des Commits ist sehr kurz.</translation>
     </message>
     <message>
         <source>Warning: The commit subject is too long.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung: Der Titel des Commits ist zu lang.</translation>
     </message>
     <message>
         <source>Hint: Aim for a shorter commit subject.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis: Versuchen Sie, einen kürzeren Titel zu vergeben.</translation>
     </message>
     <message>
         <source>Hint: The second line of a commit message should be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis: Die zweite Zeile der Beschreibung sollte leer sein.</translation>
     </message>
     <message numerus="yes">
         <source>&lt;p&gt;Writing good commit messages&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Avoid very short commit messages.&lt;/li&gt;&lt;li&gt;Consider the first line as subject (like in email) and keep it shorter than %n characters.&lt;/li&gt;&lt;li&gt;After an empty second line, a longer description can be added.&lt;/li&gt;&lt;li&gt;Describe why the change was done, not how it was done.&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;p&gt;Gute Beschreibungen für Commits schreiben&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Vermeiden Sie sehr kurze Beschreibungen.&lt;/li&gt;&lt;li&gt;Betrachten Sie die erste Zeile als Betreff (wie in einer E-Mail) und halten Sie sie kürzer als ein Zeichen.&lt;/li&gt;&lt;li&gt;Eine längere Beschreibung kann nach einer leeren zweiten Zeile folgen.&lt;/li&gt;&lt;li&gt;Beschreiben Sie, weshalb die Änderung vorgenommen wurde, nicht wie sie vorgenommen wurde.&lt;/li&gt;&lt;/ul&gt;</numerusform>
+            <numerusform>&lt;p&gt;Gute Beschreibungen für Commits schreiben&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Vermeiden Sie sehr kurze Beschreibungen.&lt;/li&gt;&lt;li&gt;Betrachten Sie die erste Zeile als Betreff (wie in einer E-Mail) und halten Sie sie kürzer als %n Zeichen.&lt;/li&gt;&lt;li&gt;Eine längere Beschreibung kann nach einer leeren zweiten Zeile folgen.&lt;/li&gt;&lt;li&gt;Beschreiben Sie, weshalb die Änderung vorgenommen wurde, nicht wie sie vorgenommen wurde.&lt;/li&gt;&lt;/ul&gt;</numerusform>
         </translation>
     </message>
     <message>
@@ -53263,11 +53263,11 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>Running: %1</source>
-        <translation type="unfinished">Führe aus: %1</translation>
+        <translation>Führe aus: %1</translation>
     </message>
     <message>
         <source>Running in %1: %2</source>
-        <translation type="unfinished">Führe in %1 aus: %2 {1:?}</translation>
+        <translation>Führe in %1 aus: %2</translation>
     </message>
     <message>
         <source>Failed to retrieve data.</source>
@@ -53307,7 +53307,7 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>Command started...</source>
-        <translation type="unfinished">Kommando gestartet...</translation>
+        <translation>Kommando gestartet...</translation>
     </message>
     <message>
         <source>Checkout</source>
@@ -53315,15 +53315,15 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>No job running, please abort.</source>
-        <translation type="unfinished">Kein laufender Job, bitte brechen Sie ab.</translation>
+        <translation>Kein laufender Job, bitte brechen Sie ab.</translation>
     </message>
     <message>
         <source>Succeeded.</source>
-        <translation type="unfinished">Erfolgreich beendet.</translation>
+        <translation>Erfolgreich beendet.</translation>
     </message>
     <message>
         <source>Failed.</source>
-        <translation type="unfinished">Fehlgeschlagen.</translation>
+        <translation>Fehlgeschlagen.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; (%2) not found.</source>
@@ -53404,91 +53404,91 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>User/&amp;alias configuration file:</source>
-        <translation type="unfinished">Nutzer/&amp;Alias-Konfigurationsdatei:</translation>
+        <translation>Nutzer/&amp;Alias-Konfigurationsdatei:</translation>
     </message>
     <message>
         <source>A file listing nicknames in a 4-column mailmap format:
 &apos;name &lt;email&gt; alias &lt;email&gt;&apos;.</source>
-        <translation type="unfinished">Eine Datei, die Nutzernamen in einem vierspaltigen Format (mailmap) enthält:
+        <translation>Eine Datei, die Nutzernamen in einem vierspaltigen Format (mailmap) enthält:
 &apos;Name &lt;E-Mail&gt; Alias &lt;E-Mail&gt;&apos;.</translation>
     </message>
     <message>
         <source>User &amp;fields configuration file:</source>
-        <translation type="unfinished">Nutzer&amp;feld-Konfigurationsdatei:</translation>
+        <translation>Nutzer&amp;feld-Konfigurationsdatei:</translation>
     </message>
     <message>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="unfinished">Eine Datei, die Zeilen mit Feldnamen (zum Beispiel &quot;Reviewed-By:&quot;) enthält, die im Abgabefenster unter der Beschreibung erscheinen.</translation>
+        <translation>Eine Datei, die Zeilen mit Feldnamen (zum Beispiel &quot;Reviewed-By:&quot;) enthält, die im Abgabefenster unter der Beschreibung erscheinen.</translation>
     </message>
     <message>
         <source>Submit message &amp;check script:</source>
-        <translation type="unfinished">Skript zur &amp;Überprüfung der Beschreibung:</translation>
+        <translation>Skript zur &amp;Überprüfung der Beschreibung:</translation>
     </message>
     <message>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="unfinished">Eine ausführbare Datei, die mit der Beschreibung in einer temporären Datei als erstem Kommandozeilenparameter aufgerufen wird. Bei Fehlschlag sollte sie einen Rückgabewert ungleich Null mit einer entsprechende Nachricht auf der Fehlerausgabe zurückgeben.</translation>
+        <translation>Eine ausführbare Datei, die mit der Beschreibung in einer temporären Datei als erstem Kommandozeilenparameter aufgerufen wird. Bei Fehlschlag sollte sie einen Rückgabewert ungleich Null mit einer entsprechenden Nachricht auf der Fehlerausgabe zurückgeben.</translation>
     </message>
     <message>
         <source>&amp;SSH prompt command:</source>
-        <translation type="unfinished">Graphische &amp;SSH-Passwortabfrage:</translation>
+        <translation>Graphische &amp;SSH-Passwortabfrage:</translation>
     </message>
     <message>
         <source>Specifies a command that is executed to graphically prompt for a password,
 should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
-        <translation type="unfinished">Kommando zur graphischen Passwortabfrage bei SSH-Authorisierung eines Repositorys
+        <translation>Kommando zur graphischen Passwortabfrage bei SSH-Authorisierung eines Repositorys
 (siehe SSH-Dokumentation zur Umgebungsvariable SSH-ASKPASS).</translation>
     </message>
     <message>
         <source>Wrap submit message at:</source>
-        <translation type="unfinished">Beschreibung umbrechen bei:</translation>
+        <translation>Beschreibung umbrechen bei:</translation>
     </message>
     <message>
         <source> characters</source>
-        <translation type="unfinished"> Zeichen</translation>
+        <translation> Zeichen</translation>
     </message>
     <message>
         <source>Reset VCS Cache</source>
-        <translation type="unfinished">VCS-Cache zurücksetzen</translation>
+        <translation>VCS-Cache zurücksetzen</translation>
     </message>
     <message>
         <source>Reset information about which version control system handles which directory.</source>
-        <translation type="unfinished">Die Zuordnung, welches Versionsverwaltungssystem welches Verzeichnis behandelt, zurücksetzen.</translation>
+        <translation>Die Zuordnung zurücksetzen, welches Versionsverwaltungssystem welches Verzeichnis behandelt.</translation>
     </message>
     <message>
         <source>Log count:</source>
-        <translation type="unfinished">Log-Anzeige beschränken auf:</translation>
+        <translation>Log-Anzeige beschränken auf:</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">Zeitlimit:</translation>
+        <translation>Zeitlimit:</translation>
     </message>
     <message>
         <source>s</source>
-        <translation type="unfinished">s</translation>
+        <translation>s</translation>
     </message>
     <message>
         <source>&amp;Open &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; ö&amp;ffnen</translation>
     </message>
     <message>
         <source>&amp;Copy to clipboard: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>In die Zwischenablage &amp;kopieren: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Fossil File Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Fossil Datei-Log-Editor</translation>
     </message>
     <message>
         <source>Fossil Annotation Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Fossil Annotations-Editor</translation>
     </message>
     <message>
         <source>Fossil Diff Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Fossil Diff-Editor</translation>
     </message>
     <message>
         <source>Fossil Commit Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Fossil Commit-Log-Editor</translation>
     </message>
 </context>
 <context>
