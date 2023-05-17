@@ -53,11 +53,18 @@ def main():
         template = list(current.values())[0]
         with TestSection("Testing project template %s -> %s" % (category, template)):
             displayedPlatforms = __createProject__(category, template)
-            if template == "Qt Quick Application":
-                qtVersionsForQuick = ["6.2"]
+            if template.startswith("Qt Quick Application"):
+                if "(compat)" in template:  # QTCREATORBUG-29126
+                    qtVersionsForQuick = ["Qt 5.14", "Qt 6.2"]
+                else:
+                    qtVersionsForQuick = ["6.2"]
                 for counter, qtVersion in enumerate(qtVersionsForQuick):
                     def additionalFunc(displayedPlatforms, qtVersion):
                         requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)
+                        if sys.version_info.major > 2:
+                            requiredQtVersion = requiredQtVersion.removeprefix("Qt ")
+                        else:
+                            requiredQtVersion = requiredQtVersion.lstrip("Qt ")
                         __modifyAvailableTargets__(displayedPlatforms, requiredQtVersion, True)
                     handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
                                                 additionalFunc, qtVersion)
@@ -120,7 +127,7 @@ def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
         clickButton(waitForObject(":Next_QPushButton"))
         if specialHandlingFunc:
             specialHandlingFunc(displayedPlatforms, *args)
-        if not ('Plain C' in template or 'Qt Quick' in template):
+        if not ('Plain C' in template or template == 'Qt Quick Application'):
             __createProjectHandleTranslationSelection__()
         verifyKitCheckboxes(kits, displayedPlatforms)
         safeClickButton("Cancel")

@@ -39,6 +39,7 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
     m_overrideDefault = new QCheckBox(Tr::tr("Override .clang-format file"));
     m_useGlobalSettings = new QCheckBox(Tr::tr("Use global settings"));
     m_useGlobalSettings->hide();
+    m_overrideDefaultFile = ClangFormatSettings::instance().overrideDefaultFile();
 
     using namespace Layouting;
 
@@ -190,10 +191,12 @@ void ClangFormatGlobalConfigWidget::initOverrideCheckBox()
     setTemporarilyReadOnly();
 
     connect(m_overrideDefault, &QCheckBox::toggled, this, [this, setTemporarilyReadOnly](bool checked) {
-        if (m_project)
+        if (m_project) {
             m_project->setNamedSettings(Constants::OVERRIDE_FILE_ID, checked);
-        else
+        } else {
+            ClangFormatSettings::instance().setOverrideDefaultFile(checked);
             setTemporarilyReadOnly();
+        }
     });
 
     connect(m_codeStyle,
@@ -212,12 +215,14 @@ void ClangFormatGlobalConfigWidget::apply()
         settings.setMode(
             static_cast<ClangFormatSettings::Mode>(m_indentingOrFormatting->currentIndex()));
         settings.setOverrideDefaultFile(m_overrideDefault->isChecked());
+        m_overrideDefaultFile = m_overrideDefault->isChecked();
     }
     settings.write();
 }
 
 void ClangFormatGlobalConfigWidget::finish()
 {
+    ClangFormatSettings::instance().setOverrideDefaultFile(m_overrideDefaultFile);
     m_codeStyle->currentPreferences()->setTemporarilyReadOnly(
         !ClangFormatSettings::instance().overrideDefaultFile());
 }
