@@ -93,19 +93,22 @@ private:
 
 // WorkflowPolicy:
 // 1. When all children finished with done -> report done, otherwise:
-//    a) Report error on first error and stop executing other children (including their subtree)
-//    b) On first error - continue executing all children and report error afterwards
+//    a) Report error on first error and stop executing other children (including their subtree).
+//    b) On first error - continue executing all children and report error afterwards.
 // 2. When all children finished with error -> report error, otherwise:
-//    a) Report done on first done and stop executing other children (including their subtree)
-//    b) On first done - continue executing all children and report done afterwards
-// 3. Always run all children, ignore their result and report done afterwards
+//    a) Report done on first done and stop executing other children (including their subtree).
+//    b) On first done - continue executing all children and report done afterwards.
+// 3. Stops on first finished child. In sequential mode it will never run other children then the first one.
+//    Useful only in parallel mode.
+// 4. Always run all children, ignore their result and report done afterwards.
 
 enum class WorkflowPolicy {
-    StopOnError,     // 1a - Reports error on first child error, otherwise done (if all children were done)
-    ContinueOnError, // 1b - The same, but children execution continues. When no children it reports done.
-    StopOnDone,      // 2a - Reports done on first child done, otherwise error (if all children were error)
-    ContinueOnDone,  // 2b - The same, but children execution continues. When no children it reports done. (?)
-    Optional         // 3 - Always reports done after all children finished
+    StopOnError,     // 1a - Reports error on first child error, otherwise done (if all children were done).
+    ContinueOnError, // 1b - The same, but children execution continues. Reports done when no children.
+    StopOnDone,      // 2a - Reports done on first child done, otherwise error (if all children were error).
+    ContinueOnDone,  // 2b - The same, but children execution continues. Reports error when no children.
+    StopOnFinished,  // 3  - Stops on first finished child and report its result.
+    Optional         // 4  - Reports done after all children finished.
 };
 
 enum class TaskAction
@@ -287,6 +290,7 @@ TASKING_EXPORT extern Workflow stopOnError;
 TASKING_EXPORT extern Workflow continueOnError;
 TASKING_EXPORT extern Workflow stopOnDone;
 TASKING_EXPORT extern Workflow continueOnDone;
+TASKING_EXPORT extern Workflow stopOnFinished;
 TASKING_EXPORT extern Workflow optional;
 
 template <typename Task>

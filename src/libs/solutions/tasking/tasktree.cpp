@@ -114,6 +114,7 @@ Workflow stopOnError(WorkflowPolicy::StopOnError);
 Workflow continueOnError(WorkflowPolicy::ContinueOnError);
 Workflow stopOnDone(WorkflowPolicy::StopOnDone);
 Workflow continueOnDone(WorkflowPolicy::ContinueOnDone);
+Workflow stopOnFinished(WorkflowPolicy::StopOnFinished);
 Workflow optional(WorkflowPolicy::Optional);
 
 void TaskItem::addChildren(const QList<TaskItem> &children)
@@ -511,6 +512,10 @@ bool TaskContainer::RuntimeData::updateSuccessBit(bool success)
 {
     if (m_constData.m_workflowPolicy == WorkflowPolicy::Optional)
         return m_successBit;
+    if (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished) {
+        m_successBit = success;
+        return m_successBit;
+    }
 
     const bool donePolicy = m_constData.m_workflowPolicy == WorkflowPolicy::StopOnDone
                          || m_constData.m_workflowPolicy == WorkflowPolicy::ContinueOnDone;
@@ -595,8 +600,9 @@ TaskAction TaskContainer::childDone(bool success)
 {
     QTC_CHECK(isRunning());
     const int limit = m_runtimeData->currentLimit(); // Read before bumping m_doneCount and stop()
-    const bool shouldStop = (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnDone && success)
-                         || (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnError && !success);
+    const bool shouldStop = m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished
+                        || (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnDone && success)
+                        || (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnError && !success);
     if (shouldStop)
         stop();
 
@@ -1146,15 +1152,15 @@ void TaskNode::invokeEndHandler(bool success)
     \row
         \li stopOnError
         \li Default. If a task finishes with an error, the group:
-        \list 1
-            \li Stops the running tasks (if any - for example, in parallel
-                mode).
-            \li Skips executing tasks it has not started (for example, in the
-                sequential mode).
-            \li Immediately finishes with an error.
-        \endlist
-        If all child tasks finish successfully or the group is empty, the group
-        finishes with success.
+            \list 1
+                \li Stops the running tasks (if any - for example, in parallel
+                    mode).
+                \li Skips executing tasks it has not started (for example, in the
+                    sequential mode).
+                \li Immediately finishes with an error.
+            \endlist
+            If all child tasks finish successfully or the group is empty, the group
+            finishes with success.
     \row
         \li continueOnError
         \li Similar to stopOnError, but in case any child finishes with
@@ -1162,22 +1168,22 @@ void TaskNode::invokeEndHandler(bool success)
             and the group reports an error afterwards, even when some other
             tasks in group finished with success.
             If a task finishes with an error, the group:
-        \list 1
-            \li Continues executing the tasks that are running or have not
-                started yet.
-            \li Finishes with an error when all tasks finish.
-        \endlist
-        If all tasks finish successfully or the group is empty, the group
-        finishes with success.
+            \list 1
+                \li Continues executing the tasks that are running or have not
+                    started yet.
+                \li Finishes with an error when all tasks finish.
+            \endlist
+            If all tasks finish successfully or the group is empty, the group
+            finishes with success.
     \row
         \li stopOnDone
         \li If a task finishes with success, the group:
-        \list 1
-            \li Stops running tasks and skips those that it has not started.
-            \li Immediately finishes with success.
-        \endlist
-        If all tasks finish with an error or the group is empty, the group
-        finishes with an error.
+            \list 1
+                \li Stops running tasks and skips those that it has not started.
+                \li Immediately finishes with success.
+            \endlist
+            If all tasks finish with an error or the group is empty, the group
+            finishes with an error.
     \row
         \li continueOnDone
         \li Similar to stopOnDone, but in case any child finishes
@@ -1185,13 +1191,21 @@ void TaskNode::invokeEndHandler(bool success)
             and the group reports success afterwards, even when some other
             tasks in group finished with an error.
             If a task finishes with success, the group:
-        \list 1
-            \li Continues executing the tasks that are running or have not
-                started yet.
-            \li Finishes with success when all tasks finish.
-        \endlist
-        If all tasks finish with an error or the group is empty, the group
-        finishes with an error.
+            \list 1
+                \li Continues executing the tasks that are running or have not
+                    started yet.
+                \li Finishes with success when all tasks finish.
+            \endlist
+            If all tasks finish with an error or the group is empty, the group
+            finishes with an error.
+    \row
+        \li stopOnFinished
+        \li The group starts as many tasks as it can. When a task finishes
+            the group stops and reports the task's result.
+            When the group is empty, it finishes immediately with success.
+            Useful only in parallel mode.
+            In sequential mode, only the first task is started, and when finished,
+            the group finishes too, so the other tasks are ignored.
     \row
         \li optional
         \li The group executes all tasks and ignores their return state. If all

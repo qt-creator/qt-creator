@@ -233,8 +233,9 @@ void tst_Tasking::testTree_data()
     const auto setupFailingTask = [setupTaskHelper](int taskId) {
         return [=](TestTask &task) { setupTaskHelper(task, taskId, false); };
     };
-    const auto setupSleepingTask = [setupTaskHelper](int taskId, std::chrono::milliseconds sleep) {
-        return [=](TestTask &task) { setupTaskHelper(task, taskId, true, sleep); };
+    const auto setupSleepingTask = [setupTaskHelper](int taskId, bool success,
+                                                     std::chrono::milliseconds sleep) {
+        return [=](TestTask &task) { setupTaskHelper(task, taskId, success, sleep); };
     };
     const auto setupDynamicTask = [setupTaskHelper](int taskId, TaskAction action) {
         return [=](TestTask &task) {
@@ -681,6 +682,55 @@ void tst_Tasking::testTree_data()
     }
 
     {
+        const Group root = constructSimpleSequence(stopOnFinished);
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {0, Handler::GroupDone}
+        };
+        QTest::newRow("StopOnFinished") << TestData{storage, root, log, 3, OnDone::Success};
+    }
+
+    {
+        const auto setupRoot = [=](bool firstSuccess, bool secondSuccess) {
+            return Group {
+                parallel,
+                stopOnFinished,
+                Storage(storage),
+                Test(setupSleepingTask(1, firstSuccess, 1000ms), logDone, logError),
+                Test(setupSleepingTask(2, secondSuccess, 5ms), logDone, logError),
+                OnGroupDone(groupDone(0)),
+                OnGroupError(groupError(0))
+            };
+        };
+
+        const Group root1 = setupRoot(true, true);
+        const Group root2 = setupRoot(true, false);
+        const Group root3 = setupRoot(false, true);
+        const Group root4 = setupRoot(false, false);
+
+        const Log success {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {2, Handler::Done},
+            {1, Handler::Error},
+            {0, Handler::GroupDone}
+        };
+        const Log failure {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {2, Handler::Error},
+            {1, Handler::Error},
+            {0, Handler::GroupError}
+        };
+
+        QTest::newRow("StopOnFinished1") << TestData{storage, root1, success, 2, OnDone::Success};
+        QTest::newRow("StopOnFinished2") << TestData{storage, root2, failure, 2, OnDone::Failure};
+        QTest::newRow("StopOnFinished3") << TestData{storage, root3, success, 2, OnDone::Success};
+        QTest::newRow("StopOnFinished4") << TestData{storage, root4, failure, 2, OnDone::Failure};
+    }
+
+    {
         const Group root {
             Storage(storage),
             optional,
@@ -837,14 +887,14 @@ void tst_Tasking::testTree_data()
 
         // Inside this test the task 2 should finish first, then synchonously:
         // - task 3 should exit setup with error
-        // - task 1 should be stopped as a consequence of error inside the group
+        // - task 1 should be stopped as a consequence of the error inside the group
         // - tasks 4 and 5 should be skipped
         const Group root2 {
             ParallelLimit(2),
             Storage(storage),
             Group {
                 OnGroupSetup(groupSetup(1)),
-                Test(setupSleepingTask(1, 10ms))
+                Test(setupSleepingTask(1, true, 10ms))
             },
             Group {
                 OnGroupSetup(groupSetup(2)),
@@ -879,11 +929,11 @@ void tst_Tasking::testTree_data()
                 ParallelLimit(2),
                 Group {
                     OnGroupSetup(groupSetup(1)),
-                    Test(setupSleepingTask(1, 20ms))
+                    Test(setupSleepingTask(1, true, 20ms))
                 },
                 Group {
                     OnGroupSetup(groupSetup(2)),
-                    Test(setupTask(2), [](const TestTask &) { QThread::msleep(10); })
+                    Test(setupSleepingTask(2, true, 10ms))
                 },
                 Group {
                     OnGroupSetup(groupSetup(3)),
