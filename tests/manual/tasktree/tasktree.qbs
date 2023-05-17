@@ -4,6 +4,7 @@ QtcManualtest {
     name: "Manual TaskTree test"
     type: ["application"]
 
+    Depends { name: "Tasking" }
     Depends { name: "Utils" }
 
     files: [
