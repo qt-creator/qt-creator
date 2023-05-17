@@ -1,9 +1,11 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "webassemblytoolchain.h"
+
 #include "webassemblyconstants.h"
 #include "webassemblyemsdk.h"
-#include "webassemblytoolchain.h"
+#include "webassemblysettings.h"
 #include "webassemblytr.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -49,7 +51,8 @@ static void addRegisteredMinGWToEnvironment(Environment &env)
 
 void WebAssemblyToolChain::addToEnvironment(Environment &env) const
 {
-    WebAssemblyEmSdk::addToEnvironment(WebAssemblyEmSdk::registeredEmSdk(), env);
+    const FilePath emSdk = WebAssemblySettings::instance()->emSdk();
+    WebAssemblyEmSdk::addToEnvironment(emSdk, env);
     if (env.osType() == OsTypeWindows)
         addRegisteredMinGWToEnvironment(env);
 }
@@ -92,7 +95,7 @@ const QVersionNumber &WebAssemblyToolChain::minimumSupportedEmSdkVersion()
 
 static Toolchains doAutoDetect(const ToolchainDetector &detector)
 {
-    const FilePath sdk = WebAssemblyEmSdk::registeredEmSdk();
+    const FilePath sdk = WebAssemblySettings::instance()->emSdk();
     if (!WebAssemblyEmSdk::isValid(sdk))
         return {};
 

@@ -16,8 +16,6 @@ bool isValid(const Utils::FilePath &sdkRoot);
 void parseEmSdkEnvOutputAndAddToEnv(const QString &output, Utils::Environment &env);
 void addToEnvironment(const Utils::FilePath &sdkRoot, Utils::Environment &env);
 QVersionNumber version(const Utils::FilePath &sdkRoot);
-void registerEmSdk(const Utils::FilePath &sdkRoot);
-Utils::FilePath registeredEmSdk();
 void clearCaches();
 
 } // WebAssembly::Internal::WebAssemblyEmSdk

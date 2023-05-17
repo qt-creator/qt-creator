@@ -11,7 +11,6 @@
 #include <utils/hostosinfo.h>
 
 #include <QCache>
-#include <QSettings>
 
 using namespace Utils;
 
@@ -97,21 +96,6 @@ QVersionNumber version(const FilePath &sdkRoot)
                                     new QVersionNumber(QVersionNumber::fromString(version)));
     }
     return *emSdkVersionCache()->object(cacheKey);
-}
-
-void registerEmSdk(const FilePath &sdkRoot)
-{
-    QSettings *s = Core::ICore::settings();
-    s->setValue(QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                + QLatin1String(Constants::SETTINGS_KEY_EMSDK), sdkRoot.toString());
-}
-
-FilePath registeredEmSdk()
-{
-    QSettings *s = Core::ICore::settings();
-    const QString path = s->value(QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                     + QLatin1String(Constants::SETTINGS_KEY_EMSDK)).toString();
-    return FilePath::fromUserInput(path);
 }
 
 void clearCaches()
