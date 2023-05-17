@@ -20,6 +20,7 @@ Project {
         "settings/settings.qbs",
         "stringutils/stringutils.qbs",
         "templateengine/templateengine.qbs",
+        "text/text.qbs",
         "treemodel/treemodel.qbs",
         "unixdevicefileaccess/unixdevicefileaccess.qbs",
     ]
