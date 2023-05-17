@@ -1104,8 +1104,8 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
         ah->setChangeNumbers(changes);
         ah->rehighlight();
     } else {
-        BaseAnnotationHighlighter *highlighter = createAnnotationHighlighter(changes);
-        textDocument()->setSyntaxHighlighterCreator([highlighter] { return highlighter; });
+        BaseAnnotationHighlighterCreator creator = annotationHighlighterCreator();
+        textDocument()->setSyntaxHighlighterCreator([creator, changes] { return creator(changes); });
     }
 }
 

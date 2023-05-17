@@ -89,10 +89,9 @@ QStringList FossilEditorWidget::annotationPreviousVersions(const QString &revisi
     return revisions;
 }
 
-VcsBase::BaseAnnotationHighlighter *FossilEditorWidget::createAnnotationHighlighter(
-        const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighterCreator FossilEditorWidget::annotationHighlighterCreator() const
 {
-    return new FossilAnnotationHighlighter(changes);
+    return [](const QSet<QString> &changes) { return new FossilAnnotationHighlighter(changes); };
 }
 
 } // namespace Fossil::Internal

@@ -109,6 +109,9 @@ public:
     void finalizeInitialization() override;
 };
 
+using BaseAnnotationHighlighterCreator
+    = std::function<BaseAnnotationHighlighter *(const QSet<QString> &)>;
+
 class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
@@ -223,7 +226,7 @@ protected:
     // Implement to identify a change number at the cursor position
     virtual QString changeUnderCursor(const QTextCursor &) const = 0;
     // Factory functions for highlighters
-    virtual BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const = 0;
+    virtual BaseAnnotationHighlighterCreator annotationHighlighterCreator() const = 0;
     // Returns a local file name from the diff file specification
     // (text cursor at position above change hunk)
     QString fileNameFromDiffSpecification(const QTextBlock &inBlock, QString *header = nullptr) const;

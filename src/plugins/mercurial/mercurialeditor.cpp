@@ -48,9 +48,9 @@ QString MercurialEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) co
     return {};
 }
 
-VcsBase::BaseAnnotationHighlighter *MercurialEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighterCreator MercurialEditorWidget::annotationHighlighterCreator() const
 {
-    return new MercurialAnnotationHighlighter(changes);
+    return [](const QSet<QString> &changes) { return new MercurialAnnotationHighlighter(changes); };
 }
 
 QString MercurialEditorWidget::decorateVersion(const QString &revision) const

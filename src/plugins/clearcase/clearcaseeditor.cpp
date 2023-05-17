@@ -42,9 +42,9 @@ QString ClearCaseEditorWidget::changeUnderCursor(const QTextCursor &c) const
     return QString();
 }
 
-VcsBase::BaseAnnotationHighlighter *ClearCaseEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighterCreator ClearCaseEditorWidget::annotationHighlighterCreator() const
 {
-    return new ClearCaseAnnotationHighlighter(changes);
+    return [](const QSet<QString> &changes) { return new ClearCaseAnnotationHighlighter(changes); };
 }
 
 } // ClearCase::Internal

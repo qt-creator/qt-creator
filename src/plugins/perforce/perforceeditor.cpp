@@ -51,9 +51,9 @@ QString PerforceEditorWidget::changeUnderCursor(const QTextCursor &c) const
     return m_changeNumberPattern.match(change).hasMatch() ? change : QString();
 }
 
-VcsBase::BaseAnnotationHighlighter *PerforceEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighterCreator PerforceEditorWidget::annotationHighlighterCreator() const
 {
-    return new PerforceAnnotationHighlighter(changes);
+    return [](const QSet<QString> &changes) { return new PerforceAnnotationHighlighter(changes); };
 }
 
 QString PerforceEditorWidget::findDiffFile(const QString &f) const

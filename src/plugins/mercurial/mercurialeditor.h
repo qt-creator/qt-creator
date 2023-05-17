@@ -18,8 +18,7 @@ public:
 
 private:
     QString changeUnderCursor(const QTextCursor &cursor) const override;
-    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
-            const QSet<QString> &changes) const override;
+    VcsBase::BaseAnnotationHighlighterCreator annotationHighlighterCreator() const override;
     QString decorateVersion(const QString &revision) const override;
     QStringList annotationPreviousVersions(const QString &revision) const override;
 
