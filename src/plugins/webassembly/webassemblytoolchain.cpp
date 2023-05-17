@@ -96,7 +96,8 @@ static Toolchains doAutoDetect(const ToolchainDetector &detector)
     if (!WebAssemblyEmSdk::isValid(sdk))
         return {};
 
-    if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+    if (detector.device
+        && detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // Only detect toolchains from the emsdk installation device
         const FilePath deviceRoot = detector.device->rootPath();
         if (deviceRoot.host() != sdk.host())
