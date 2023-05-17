@@ -205,12 +205,10 @@ CrashHandlerDialog::~CrashHandlerDialog()
 bool CrashHandlerDialog::runDebuggerWhileBacktraceNotFinished()
 {
     // Check settings.
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+    QSettings settings(QSettings::IniFormat,
+                       QSettings::UserScope,
                        QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
                        QLatin1String(SettingsApplication));
-    if (settings.value(QLatin1String(SettingsKeySkipWarningAbortingBacktrace), false).toBool())
-        return true;
-
     // Ask user.
     const QString title = tr("Run Debugger And Abort Collecting Backtrace?");
     const QString message = tr(
@@ -219,15 +217,18 @@ bool CrashHandlerDialog::runDebuggerWhileBacktraceNotFinished()
           "<p>You have requested to run the debugger while collecting the backtrace was not "
           "finished.</p>"
         "</body></html>");
-    const QString checkBoxText = tr("Do not &ask again.");
-    bool checkBoxSetting = false;
-    const QDialogButtonBox::StandardButton button = Utils::CheckableMessageBox::question(this,
-        title, message, checkBoxText, &checkBoxSetting,
-        QDialogButtonBox::Yes | QDialogButtonBox::No, QDialogButtonBox::No);
-    if (checkBoxSetting)
-        settings.setValue(QLatin1String(SettingsKeySkipWarningAbortingBacktrace), checkBoxSetting);
 
-    return button == QDialogButtonBox::Yes;
+    const QMessageBox::StandardButton button
+        = Utils::CheckableMessageBox::question(this,
+                                               title,
+                                               message,
+                                               &settings,
+                                               QLatin1String(
+                                                   SettingsKeySkipWarningAbortingBacktrace),
+                                               QMessageBox::Yes | QMessageBox::No,
+                                               QMessageBox::No);
+
+    return button == QMessageBox::Yes;
 }
 
 void CrashHandlerDialog::setToFinalState()
