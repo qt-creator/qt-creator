@@ -1224,7 +1224,6 @@ void StringAspect::addToLayout(LayoutItem &parent)
 
 QVariant StringAspect::volatileValue() const
 {
-    QTC_CHECK(!isAutoApply());
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
         QTC_ASSERT(d->m_pathChooserDisplay, return {});
@@ -1519,7 +1518,6 @@ QAction *BoolAspect::action()
 
 QVariant BoolAspect::volatileValue() const
 {
-    QTC_CHECK(!isAutoApply());
     if (d->m_button)
         return d->m_button->isChecked();
     if (d->m_groupBox)
@@ -1530,7 +1528,6 @@ QVariant BoolAspect::volatileValue() const
 
 void BoolAspect::setVolatileValue(const QVariant &val)
 {
-    QTC_CHECK(!isAutoApply());
     if (d->m_button)
         d->m_button->setChecked(val.toBool());
     else if (d->m_groupBox)
@@ -1660,7 +1657,6 @@ void SelectionAspect::addToLayout(Layouting::LayoutItem &parent)
 
 QVariant SelectionAspect::volatileValue() const
 {
-    QTC_CHECK(!isAutoApply());
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons:
         QTC_ASSERT(d->m_buttonGroup, return {});
@@ -1674,7 +1670,6 @@ QVariant SelectionAspect::volatileValue() const
 
 void SelectionAspect::setVolatileValue(const QVariant &val)
 {
-    QTC_CHECK(!isAutoApply());
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons: {
         if (d->m_buttonGroup) {
