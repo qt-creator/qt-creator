@@ -40,6 +40,16 @@ private:
     Guard &m_guard;
 };
 
+TaskItem onGroupDone(const TaskItem::GroupEndHandler &handler)
+{
+    return Group::onGroupDone(handler);
+}
+
+TaskItem onGroupError(const TaskItem::GroupEndHandler &handler)
+{
+    return Group::onGroupError(handler);
+}
+
 static TaskAction toTaskAction(bool success)
 {
     return success ? TaskAction::StopWithDone : TaskAction::StopWithError;

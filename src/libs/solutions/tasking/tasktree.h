@@ -183,6 +183,7 @@ protected:
     void setTaskSetupHandler(const TaskSetupHandler &handler);
     void setTaskDoneHandler(const TaskEndHandler &handler);
     void setTaskErrorHandler(const TaskEndHandler &handler);
+    static TaskItem createGroupHandler(const GroupHandler &handler) { return TaskItem(handler); }
 
 private:
     Type m_type = Type::Group;
@@ -199,7 +200,46 @@ class TASKING_EXPORT Group : public TaskItem
 public:
     Group(const QList<TaskItem> &children) { addChildren(children); }
     Group(std::initializer_list<TaskItem> children) { addChildren(children); }
+
+    template <typename SetupHandler>
+    static TaskItem onGroupSetup(SetupHandler &&handler) {
+        return createGroupHandler({wrapGroupSetup(std::forward<SetupHandler>(handler))});
+    }
+    static TaskItem onGroupDone(const GroupEndHandler &handler) {
+        return createGroupHandler({{}, handler});
+    }
+    static TaskItem onGroupError(const GroupEndHandler &handler) {
+        return createGroupHandler({{}, {}, handler});
+    }
+
+private:
+    template<typename SetupHandler>
+    static GroupSetupHandler wrapGroupSetup(SetupHandler &&handler)
+    {
+        static constexpr bool isDynamic
+            = std::is_same_v<TaskAction, std::invoke_result_t<std::decay_t<SetupHandler>>>;
+        constexpr bool isVoid
+            = std::is_same_v<void, std::invoke_result_t<std::decay_t<SetupHandler>>>;
+        static_assert(isDynamic || isVoid,
+                      "Group setup handler needs to take no arguments and has to return "
+                      "void or TaskAction. The passed handler doesn't fulfill these requirements.");
+        return [=] {
+            if constexpr (isDynamic)
+                return std::invoke(handler);
+            std::invoke(handler);
+            return TaskAction::Continue;
+        };
+    };
 };
+
+template <typename SetupHandler>
+static TaskItem onGroupSetup(SetupHandler &&handler)
+{
+    return Group::onGroupSetup(std::forward<SetupHandler>(handler));
+}
+
+TASKING_EXPORT TaskItem onGroupDone(const TaskItem::GroupEndHandler &handler);
+TASKING_EXPORT TaskItem onGroupError(const TaskItem::GroupEndHandler &handler);
 
 class TASKING_EXPORT Storage : public TaskItem
 {
@@ -276,10 +316,10 @@ private:
         static_assert(isBool || isVoid,
                       "Sync element: The synchronous function has to return void or bool.");
         if constexpr (isBool) {
-            return {OnGroupSetup([function] { return function() ? TaskAction::StopWithDone
+            return {onGroupSetup([function] { return function() ? TaskAction::StopWithDone
                                                                 : TaskAction::StopWithError; })};
         }
-        return {OnGroupSetup([function] { function(); return TaskAction::StopWithDone; })};
+        return {onGroupSetup([function] { function(); return TaskAction::StopWithDone; })};
     };
 
 };
