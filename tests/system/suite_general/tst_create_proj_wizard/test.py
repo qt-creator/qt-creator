@@ -54,18 +54,15 @@ def main():
         with TestSection("Testing project template %s -> %s" % (category, template)):
             displayedPlatforms = __createProject__(category, template)
             if template.startswith("Qt Quick Application"):
-                if "(compat)" in template:  # QTCREATORBUG-29126
-                    qtVersionsForQuick = ["Qt 5.14", "Qt 6.2"]
-                else:
-                    qtVersionsForQuick = ["6.2"]
+                qtVersionsForQuick = ["6.2"]
+                if "(compat)" in template:
+                    qtVersionsForQuick += ["5.14"]
                 for counter, qtVersion in enumerate(qtVersionsForQuick):
+
                     def additionalFunc(displayedPlatforms, qtVersion):
                         requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)
-                        if sys.version_info.major > 2:
-                            requiredQtVersion = requiredQtVersion.removeprefix("Qt ")
-                        else:
-                            requiredQtVersion = requiredQtVersion.lstrip("Qt ")
                         __modifyAvailableTargets__(displayedPlatforms, requiredQtVersion, True)
+
                     handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
                                                 additionalFunc, qtVersion)
                     # are there more Quick combinations - then recreate this project
