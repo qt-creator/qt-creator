@@ -298,7 +298,7 @@ public:
     std::optional<RuntimeData> m_runtimeData;
 };
 
-class TaskNode : public QObject
+class TaskNode
 {
 public:
     TaskNode(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
@@ -316,6 +316,7 @@ public:
     bool isTask() const { return bool(m_taskHandler.m_createHandler); }
     int taskCount() const { return isTask() ? 1 : m_container.m_constData.m_taskCount; }
     TaskContainer *parentContainer() const { return m_container.m_constData.m_parentContainer; }
+    TaskTree *taskTree() const { return m_container.m_constData.m_taskTreePrivate->q; }
 
 private:
     const TaskItem::TaskHandler m_taskHandler;
@@ -647,9 +648,9 @@ TaskAction TaskNode::start()
     }
     const std::shared_ptr<TaskAction> unwindAction
         = std::make_shared<TaskAction>(TaskAction::Continue);
-    connect(m_task.get(), &TaskInterface::done, this, [=](bool success) {
+    QObject::connect(m_task.get(), &TaskInterface::done, taskTree(), [=](bool success) {
         invokeEndHandler(success);
-        disconnect(m_task.get(), &TaskInterface::done, this, nullptr);
+        QObject::disconnect(m_task.get(), &TaskInterface::done, taskTree(), nullptr);
         m_task.release()->deleteLater();
         QTC_ASSERT(parentContainer() && parentContainer()->isRunning(), return);
         if (parentContainer()->isStarting())
