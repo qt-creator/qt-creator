@@ -22,15 +22,15 @@ BoostTestSettings::BoostTestSettings(Id settingsId)
     setDisplayName(Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
     setSettingsGroups("Autotest", "BoostTest");
 
-    setLayouter([this](QWidget *widget) {
-        Row { Form {
+    setLayouter([this] {
+        return Row { Form {
             logLevel, br,
             reportLevel, br,
             randomize, Row { seed }, br,
             systemErrors, br,
             fpExceptions, br,
             memLeaks,
-        }, st}.attachTo(widget);
+        }, st};
     });
 
     registerAspect(&logLevel);

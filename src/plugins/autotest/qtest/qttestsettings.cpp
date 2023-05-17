@@ -22,8 +22,8 @@ QtTestSettings::QtTestSettings(Id settingsId)
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
 
-    setLayouter([this](QWidget *widget) {
-        Row { Form {
+    setLayouter([this] {
+        return Row { Form {
             noCrashHandler, br,
             useXMLOutput, br,
             verboseBench, br,
@@ -34,7 +34,7 @@ QtTestSettings::QtTestSettings(Id settingsId)
                 Column { metrics }
             }, br,
             quickCheckForDerivedTests, br
-        }, st }.attachTo(widget);
+        }, st };
     });
 
     registerAspect(&metrics);

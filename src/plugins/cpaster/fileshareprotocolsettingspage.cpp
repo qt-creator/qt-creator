@@ -33,7 +33,7 @@ FileShareProtocolSettings::FileShareProtocolSettings()
     displayCount.setSuffix(' ' + Tr::tr("entries"));
     displayCount.setLabelText(Tr::tr("&Display:"));
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
 
         auto label = new QLabel(Tr::tr(
@@ -41,14 +41,14 @@ FileShareProtocolSettings::FileShareProtocolSettings()
             "simple files on a shared network drive. Files are never deleted."));
         label->setWordWrap(true);
 
-        Column {
+        return Column {
             Form {
                 label, br,
                 path, br,
                 displayCount
             },
             st
-        }.attachTo(widget);
+        };
     });
 
     readSettings();

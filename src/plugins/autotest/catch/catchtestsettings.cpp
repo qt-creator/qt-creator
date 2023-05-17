@@ -6,8 +6,6 @@
 #include "../autotestconstants.h"
 #include "../autotesttr.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/layoutbuilder.h>
 
 using namespace Layouting;
@@ -22,8 +20,8 @@ CatchTestSettings::CatchTestSettings(Id settingsId)
     setDisplayName(Tr::tr("Catch Test"));
     setSettingsGroups("Autotest", "Catch2");
 
-    setLayouter([this](QWidget *widget) {
-        Row { Form {
+    setLayouter([this] {
+        return Row { Form {
             showSuccess, br,
             breakOnFailure, br,
             noThrow, br,
@@ -34,7 +32,7 @@ CatchTestSettings::CatchTestSettings(Id settingsId)
             confidenceIntervalChecked, confidenceInterval, br,
             warmupChecked, benchmarkWarmupTime, br,
             noAnalysis
-        }, st }.attachTo(widget);
+        }, st };
     });
 
     registerAspect(&abortAfter);

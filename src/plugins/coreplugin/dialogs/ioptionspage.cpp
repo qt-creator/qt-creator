@@ -208,6 +208,15 @@ void IOptionsPage::setLayouter(const std::function<void(QWidget *w)> &layouter)
     };
 }
 
+void IOptionsPage::setLayouter(const std::function<Layouting::LayoutItem ()> &layouter)
+{
+    m_widgetCreator = [layouter] {
+        auto widget = new IOptionsPageWidget;
+        layouter().attachTo(widget);
+        return widget;
+    };
+}
+
 /*!
     \fn void Core::IOptionsPage::setId(Utils::Id id)
 

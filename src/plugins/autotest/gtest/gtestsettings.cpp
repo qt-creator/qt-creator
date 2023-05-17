@@ -23,15 +23,15 @@ GTestSettings::GTestSettings(Id settingsId)
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
 
-    setLayouter([this](QWidget *widget) {
-        Row { Form {
+    setLayouter([this] {
+        return Row { Form {
                 runDisabled, br,
                 breakOnFailure, br,
                 repeat, iterations, br,
                 shuffle, seed, br,
                 groupMode, br,
                 gtestFilter, br
-            }, st }.attachTo(widget);
+            }, st };
     });
 
     registerAspect(&iterations);
