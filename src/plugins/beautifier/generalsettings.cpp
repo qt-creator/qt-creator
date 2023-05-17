@@ -14,17 +14,8 @@ using namespace Utils;
 
 namespace Beautifier::Internal {
 
-static GeneralSettings *m_instance;
-
-GeneralSettings *GeneralSettings::instance()
-{
-    return m_instance;
-}
-
 GeneralSettings::GeneralSettings()
 {
-    m_instance = this;
-
     setId(Constants::OPTION_GENERAL_ID);
     setDisplayName(Tr::tr("General"));
     setCategory(Constants::OPTION_CATEGORY);

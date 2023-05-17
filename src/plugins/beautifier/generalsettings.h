@@ -14,8 +14,6 @@ class GeneralSettings : public Core::PagedSettings
 public:
     GeneralSettings();
 
-    static GeneralSettings *instance();
-
     QList<Utils::MimeType> allowedMimeTypes() const;
 
     Utils::BoolAspect autoFormatOnSave;
