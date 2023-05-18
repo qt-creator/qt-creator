@@ -116,12 +116,6 @@ void DeviceUsedPortsGatherer::handleProcessDone()
     stop();
 }
 
-DeviceUsedPortsGathererAdapter::DeviceUsedPortsGathererAdapter()
-{
-    connect(task(), &DeviceUsedPortsGatherer::portListReady, this, [this] { emit done(true); });
-    connect(task(), &DeviceUsedPortsGatherer::error, this, [this] { emit done(false); });
-}
-
 // PortGatherer
 
 PortsGatherer::PortsGatherer(RunControl *runControl)

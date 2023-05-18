@@ -44,11 +44,14 @@ private:
     Internal::DeviceUsedPortsGathererPrivate * const d;
 };
 
-class PROJECTEXPLORER_EXPORT DeviceUsedPortsGathererAdapter
+class PROJECTEXPLORER_EXPORT DeviceUsedPortsGathererTaskAdapter
     : public Tasking::TaskAdapter<DeviceUsedPortsGatherer>
 {
 public:
-    DeviceUsedPortsGathererAdapter();
+    DeviceUsedPortsGathererTaskAdapter() {
+        connect(task(), &DeviceUsedPortsGatherer::portListReady, this, [this] { emit done(true); });
+        connect(task(), &DeviceUsedPortsGatherer::error, this, [this] { emit done(false); });
+    }
     void start() final { task()->start(); }
 };
 
@@ -86,4 +89,5 @@ private:
 
 } // namespace ProjectExplorer
 
-TASKING_DECLARE_TASK(PortGatherer, ProjectExplorer::DeviceUsedPortsGathererAdapter);
+TASKING_DECLARE_TASK(DeviceUsedPortsGathererTask,
+                     ProjectExplorer::DeviceUsedPortsGathererTaskAdapter);

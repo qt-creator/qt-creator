@@ -277,13 +277,14 @@ private:
     QString m_errorString;
 };
 
-class PROJECTEXPLORER_EXPORT KillerAdapter : public Tasking::TaskAdapter<DeviceProcessKiller>
+class PROJECTEXPLORER_EXPORT DeviceProcessKillerTaskAdapter
+    : public Tasking::TaskAdapter<DeviceProcessKiller>
 {
 public:
-    KillerAdapter();
+    DeviceProcessKillerTaskAdapter();
     void start() final;
 };
 
 } // namespace ProjectExplorer
 
-TASKING_DECLARE_TASK(Killer, ProjectExplorer::KillerAdapter);
+TASKING_DECLARE_TASK(DeviceProcessKillerTask, ProjectExplorer::DeviceProcessKillerTaskAdapter);

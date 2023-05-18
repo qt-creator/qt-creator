@@ -244,7 +244,8 @@ private:
 // When all the results are reported (the expected number of reports is set with setFilterCount()),
 // the ResultsCollector finishes. The intermediate results are reported with
 // serialOutputDataReady() signal.
-// The object of ResultsCollector is registered in Tasking namespace under the Collector name.
+// The object of ResultsCollector is registered in Tasking namespace under the
+// ResultsCollectorTask name.
 class ResultsCollector : public QObject
 {
     Q_OBJECT
@@ -317,10 +318,10 @@ void ResultsCollector::start()
     m_watcher->setFuture(Utils::asyncRun(deduplicate, m_deduplicator));
 }
 
-class ResultsCollectorAdapter : public TaskAdapter<ResultsCollector>
+class ResultsCollectorTaskAdapter : public TaskAdapter<ResultsCollector>
 {
 public:
-    ResultsCollectorAdapter() {
+    ResultsCollectorTaskAdapter() {
         connect(task(), &ResultsCollector::done, this, [this] { emit done(true); });
     }
     void start() final { task()->start(); }
@@ -328,7 +329,7 @@ public:
 
 } // namespace Core
 
-TASKING_DECLARE_TASK(Collector, Core::ResultsCollectorAdapter);
+TASKING_DECLARE_TASK(ResultsCollectorTask, Core::ResultsCollectorTaskAdapter);
 
 namespace Core {
 
@@ -483,7 +484,7 @@ void LocatorMatcher::start()
     const Group root {
         parallel,
         Storage(collectorStorage),
-        Collector(onCollectorSetup, onCollectorDone, onCollectorDone),
+        ResultsCollectorTask(onCollectorSetup, onCollectorDone, onCollectorDone),
         Group {
             parallelTasks
         }

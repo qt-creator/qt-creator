@@ -695,12 +695,12 @@ void DeviceProcessKiller::start()
     m_signalOperation->killProcess(m_processPath.path());
 }
 
-KillerAdapter::KillerAdapter()
+DeviceProcessKillerTaskAdapter::DeviceProcessKillerTaskAdapter()
 {
-    connect(task(), &DeviceProcessKiller::done, this, &KillerAdapter::done);
+    connect(task(), &DeviceProcessKiller::done, this, &TaskInterface::done);
 }
 
-void KillerAdapter::start()
+void DeviceProcessKillerTaskAdapter::start()
 {
     task()->start();
 }

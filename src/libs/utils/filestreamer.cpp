@@ -306,8 +306,8 @@ public:
 
 } // namespace Utils
 
-TASKING_DECLARE_TASK(Reader, Utils::FileStreamReaderAdapter);
-TASKING_DECLARE_TASK(Writer, Utils::FileStreamWriterAdapter);
+TASKING_DECLARE_TASK(FileStreamReaderTask, Utils::FileStreamReaderAdapter);
+TASKING_DECLARE_TASK(FileStreamWriterTask, Utils::FileStreamWriterAdapter);
 
 namespace Utils {
 
@@ -353,10 +353,10 @@ static Group interDeviceTransferTask(const FilePath &source, const FilePath &des
         Storage(writerReadyBarrier),
         parallel,
         Storage(storage),
-        Writer(setupWriter),
+        FileStreamWriterTask(setupWriter),
         Group {
             WaitForBarrierTask(writerReadyBarrier),
-            Reader(setupReader, finalizeReader, finalizeReader)
+            FileStreamReaderTask(setupReader, finalizeReader, finalizeReader)
         }
     };
 
@@ -408,14 +408,14 @@ private:
                 m_readBuffer += data;
             });
         };
-        return Reader(setup);
+        return FileStreamReaderTask(setup);
     }
     TaskItem writerTask() {
         const auto setup = [this](FileStreamWriter &writer) {
             writer.setFilePath(m_destination);
             writer.setWriteData(m_writeBuffer);
         };
-        return Writer(setup);
+        return FileStreamWriterTask(setup);
     }
     TaskItem transferTask() {
         const auto setup = [this](Async<void> &async) {

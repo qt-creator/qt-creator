@@ -160,7 +160,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::gathererTask() const
 
     return Group {
         optional,
-        PortGatherer(setup, done, error)
+        DeviceUsedPortsGathererTask(setup, done, error)
     };
 }
 
