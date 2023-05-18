@@ -235,8 +235,7 @@ bool AndroidDeployQtStep::init()
             return false;
         }
 
-        const bool abiListNotEmpty = !selectedAbis.isEmpty() && !dev->supportedAbis().isEmpty();
-        if (abiListNotEmpty && !dev->canSupportAbis(selectedAbis)) {
+        if (!dev->canSupportAbis(selectedAbis)) {
             const QString error = Tr::tr("The deployment device \"%1\" does not support the "
                                          "architectures used by the kit.\n"
                                          "The kit supports \"%2\", but the device uses \"%3\".")
