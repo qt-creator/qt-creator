@@ -724,7 +724,13 @@ void TaskNode::invokeEndHandler(bool success)
 }
 
 /*!
-    \class TaskTree
+    \namespace Tasking
+    The Tasking namespace contains a general purpose TaskTree solution.
+    It depends on Qt only, and doesn't depend on any \QC specific code.
+*/
+
+/*!
+    \class Tasking::TaskTree
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule QtCreator
     \ingroup mainclasses
