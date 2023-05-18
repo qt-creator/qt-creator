@@ -450,7 +450,7 @@ void LocatorMatcher::start()
         collectorStorage->m_collector = nullptr;
     };
 
-    QList<TaskItem> parallelTasks { ParallelLimit(d->m_parallelLimit) };
+    QList<TaskItem> parallelTasks {parallelLimit(d->m_parallelLimit)};
 
     const auto onSetup = [this, collectorStorage](const TreeStorage<LocatorStorage> &storage,
                                                     int index) {

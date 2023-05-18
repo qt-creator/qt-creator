@@ -61,7 +61,7 @@ public:
     GroupWidget();
 
     void setExecuteMode(ExecuteMode mode);
-    Tasking::ParallelLimit executeMode() const;
+    Tasking::TaskItem executeMode() const;
 
     void setWorkflowPolicy(Tasking::WorkflowPolicy policy);
     Tasking::WorkflowPolicy workflowPolicy() const;

@@ -171,14 +171,14 @@ int main(int argc, char *argv[])
 
         const Group root {
             rootGroup->executeMode(),
-            Workflow(rootGroup->workflowPolicy()),
+            workflowPolicy(rootGroup->workflowPolicy()),
             onGroupSetup([rootGroup] { rootGroup->setState(State::Running); }),
             onGroupDone([rootGroup] { rootGroup->setState(State::Done); }),
             onGroupError([rootGroup] { rootGroup->setState(State::Error); }),
 
             Group {
                 groupTask_1->executeMode(),
-                Workflow(groupTask_1->workflowPolicy()),
+                workflowPolicy(groupTask_1->workflowPolicy()),
                 onGroupSetup([groupTask_1] { groupTask_1->setState(State::Running); }),
                 onGroupDone([groupTask_1] { groupTask_1->setState(State::Done); }),
                 onGroupError([groupTask_1] { groupTask_1->setState(State::Error); }),
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
             taskItem(task_3),
             Group {
                 groupTask_4->executeMode(),
-                Workflow(groupTask_4->workflowPolicy()),
+                workflowPolicy(groupTask_4->workflowPolicy()),
                 onGroupSetup([groupTask_4] { groupTask_4->setState(State::Running); }),
                 onGroupDone([groupTask_4] { groupTask_4->setState(State::Done); }),
                 onGroupError([groupTask_4] { groupTask_4->setState(State::Error); }),
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
                 taskItem(task_4_2),
                 Group {
                     groupTask_4_3->executeMode(),
-                    Workflow(groupTask_4_3->workflowPolicy()),
+                    workflowPolicy(groupTask_4_3->workflowPolicy()),
                     onGroupSetup([groupTask_4_3] { groupTask_4_3->setState(State::Running); }),
                     onGroupDone([groupTask_4_3] { groupTask_4_3->setState(State::Done); }),
                     onGroupError([groupTask_4_3] { groupTask_4_3->setState(State::Error); }),

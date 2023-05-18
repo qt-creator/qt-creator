@@ -265,10 +265,10 @@ void tst_Tasking::testTree_data()
         return [=] { storage->m_log.append({taskId, Handler::Sync}); return success; };
     };
 
-    const auto constructSimpleSequence = [=](const Workflow &policy) {
+    const auto constructSimpleSequence = [=](WorkflowPolicy policy) {
         return Group {
             Storage(storage),
-            policy,
+            workflowPolicy(policy),
             Test(setupTask(1), logDone),
             Test(setupFailingTask(2), logDone, logError),
             Test(setupTask(3), logDone),
@@ -632,7 +632,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const Group root = constructSimpleSequence(stopOnError);
+        const Group root = constructSimpleSequence(WorkflowPolicy::StopOnError);
         const Log log {
             {1, Handler::Setup},
             {1, Handler::Done},
@@ -644,7 +644,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const Group root = constructSimpleSequence(continueOnError);
+        const Group root = constructSimpleSequence(WorkflowPolicy::ContinueOnError);
         const Log log {
             {1, Handler::Setup},
             {1, Handler::Done},
@@ -658,7 +658,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const Group root = constructSimpleSequence(stopOnDone);
+        const Group root = constructSimpleSequence(WorkflowPolicy::StopOnDone);
         const Log log {
             {1, Handler::Setup},
             {1, Handler::Done},
@@ -668,7 +668,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const Group root = constructSimpleSequence(continueOnDone);
+        const Group root = constructSimpleSequence(WorkflowPolicy::ContinueOnDone);
         const Log log {
             {1, Handler::Setup},
             {1, Handler::Done},
@@ -682,7 +682,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const Group root = constructSimpleSequence(stopOnFinished);
+        const Group root = constructSimpleSequence(WorkflowPolicy::StopOnFinished);
         const Log log {
             {1, Handler::Setup},
             {1, Handler::Done},
@@ -787,7 +787,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            ParallelLimit(2),
+            parallelLimit(2),
             Storage(storage),
             Group {
                 onGroupSetup(groupSetup(1)),
@@ -821,7 +821,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            ParallelLimit(2),
+            parallelLimit(2),
             Storage(storage),
             Group {
                 onGroupSetup(groupSetup(1)),
@@ -861,7 +861,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root1 {
-            ParallelLimit(2),
+            parallelLimit(2),
             Storage(storage),
             Group {
                 onGroupSetup(groupSetup(1)),
@@ -890,7 +890,7 @@ void tst_Tasking::testTree_data()
         // - task 1 should be stopped as a consequence of the error inside the group
         // - tasks 4 and 5 should be skipped
         const Group root2 {
-            ParallelLimit(2),
+            parallelLimit(2),
             Storage(storage),
             Group {
                 onGroupSetup(groupSetup(1)),
@@ -926,7 +926,7 @@ void tst_Tasking::testTree_data()
             continueOnError,
             Storage(storage),
             Group {
-                ParallelLimit(2),
+                parallelLimit(2),
                 Group {
                     onGroupSetup(groupSetup(1)),
                     Test(setupSleepingTask(1, true, 20ms))
@@ -968,7 +968,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            ParallelLimit(2),
+            parallelLimit(2),
             Storage(storage),
             Group {
                 Storage(TreeStorage<CustomStorage>()),
@@ -1018,7 +1018,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            ParallelLimit(2),
+            parallelLimit(2),
             Storage(storage),
             Group {
                 Storage(TreeStorage<CustomStorage>()),
@@ -1064,7 +1064,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            ParallelLimit(2),
+            parallelLimit(2),
             Storage(storage),
             Group {
                 Storage(TreeStorage<CustomStorage>()),
@@ -1278,7 +1278,7 @@ void tst_Tasking::testTree_data()
         // as in SEQUENTIAL mode the next task may only be started after the previous one finished.
         // In this case, the previous task (Group element) awaits for the barrier's advance to
         // come from the not yet started next task, causing a deadlock.
-        // The minimal requirement for this scenario to succeed is to set ParallelLimit(2) or more.
+        // The minimal requirement for this scenario to succeed is to set parallelLimit(2) or more.
         const Group root3 {
             Storage(storage),
             Storage(barrier),
@@ -1434,7 +1434,7 @@ void tst_Tasking::testTree_data()
         // as in SEQUENTIAL mode the next task may only be started after the previous one finished.
         // In this case, the previous task (Group element) awaits for the barrier's advance to
         // come from the not yet started next task, causing a deadlock.
-        // The minimal requirement for this scenario to succeed is to set ParallelLimit(2) or more.
+        // The minimal requirement for this scenario to succeed is to set parallelLimit(2) or more.
         const Group root3 {
             Storage(storage),
             Storage(barrier),

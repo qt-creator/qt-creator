@@ -223,7 +223,7 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::chmodTree()
             if (file.isExecutable())
                 filesToChmod << file;
         }
-        QList<TaskItem> chmodList{optional, ParallelLimit(MaxConcurrentStatCalls)};
+        QList<TaskItem> chmodList{optional, parallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(filesToChmod)) {
             QTC_ASSERT(file.isValid(), continue);
             chmodList.append(chmodTask(file));

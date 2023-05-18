@@ -165,7 +165,7 @@ void GroupWidget::updateExecuteMode()
     m_executeCombo->setCurrentIndex(m_executeCombo->findData((int)m_executeMode));
 }
 
-Tasking::ParallelLimit GroupWidget::executeMode() const
+Tasking::TaskItem GroupWidget::executeMode() const
 {
     return m_executeMode == ExecuteMode::Sequential ? Tasking::sequential : Tasking::parallel;
 }

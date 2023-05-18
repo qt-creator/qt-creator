@@ -50,6 +50,25 @@ TaskItem onGroupError(const TaskItem::GroupEndHandler &handler)
     return Group::onGroupError(handler);
 }
 
+TaskItem parallelLimit(int limit)
+{
+    return Group::parallelLimit(qMax(limit, 0));
+}
+
+TaskItem workflowPolicy(WorkflowPolicy policy)
+{
+    return Group::workflowPolicy(policy);
+}
+
+const TaskItem sequential = parallelLimit(1);
+const TaskItem parallel = parallelLimit(0);
+const TaskItem stopOnError = workflowPolicy(WorkflowPolicy::StopOnError);
+const TaskItem continueOnError = workflowPolicy(WorkflowPolicy::ContinueOnError);
+const TaskItem stopOnDone = workflowPolicy(WorkflowPolicy::StopOnDone);
+const TaskItem continueOnDone = workflowPolicy(WorkflowPolicy::ContinueOnDone);
+const TaskItem stopOnFinished = workflowPolicy(WorkflowPolicy::StopOnFinished);
+const TaskItem optional = workflowPolicy(WorkflowPolicy::Optional);
+
 static TaskAction toTaskAction(bool success)
 {
     return success ? TaskAction::StopWithDone : TaskAction::StopWithError;
@@ -118,15 +137,6 @@ void TreeStorageBase::activateStorage(int id) const
     m_storageData->m_activeStorage = id;
 }
 
-ParallelLimit sequential(1);
-ParallelLimit parallel(0);
-Workflow stopOnError(WorkflowPolicy::StopOnError);
-Workflow continueOnError(WorkflowPolicy::ContinueOnError);
-Workflow stopOnDone(WorkflowPolicy::StopOnDone);
-Workflow continueOnDone(WorkflowPolicy::ContinueOnDone);
-Workflow stopOnFinished(WorkflowPolicy::StopOnFinished);
-Workflow optional(WorkflowPolicy::Optional);
-
 void TaskItem::addChildren(const QList<TaskItem> &children)
 {
     QTC_ASSERT(m_type == Type::Group, qWarning("Only Group may have children, skipping...");
@@ -136,39 +146,40 @@ void TaskItem::addChildren(const QList<TaskItem> &children)
         case Type::Group:
             m_children.append(child);
             break;
-        case Type::Limit:
-            QTC_ASSERT(m_type == Type::Group, qWarning("Execution Mode may only be a child of a "
-                                                       "Group, skipping..."); return);
-            m_parallelLimit = child.m_parallelLimit; // TODO: Assert on redefinition?
-            break;
-        case Type::Policy:
-            QTC_ASSERT(m_type == Type::Group, qWarning("Workflow Policy may only be a child of a "
-                                                       "Group, skipping..."); return);
-            m_workflowPolicy = child.m_workflowPolicy; // TODO: Assert on redefinition?
+        case Type::GroupData:
+            if (child.m_groupData.m_groupHandler.m_setupHandler) {
+                QTC_ASSERT(!m_groupData.m_groupHandler.m_setupHandler,
+                           qWarning("Group Setup Handler redefinition, overriding..."));
+                m_groupData.m_groupHandler.m_setupHandler
+                    = child.m_groupData.m_groupHandler.m_setupHandler;
+            }
+            if (child.m_groupData.m_groupHandler.m_doneHandler) {
+                QTC_ASSERT(!m_groupData.m_groupHandler.m_doneHandler,
+                           qWarning("Group Done Handler redefinition, overriding..."));
+                m_groupData.m_groupHandler.m_doneHandler
+                    = child.m_groupData.m_groupHandler.m_doneHandler;
+            }
+            if (child.m_groupData.m_groupHandler.m_errorHandler) {
+                QTC_ASSERT(!m_groupData.m_groupHandler.m_errorHandler,
+                           qWarning("Group Error Handler redefinition, overriding..."));
+                m_groupData.m_groupHandler.m_errorHandler
+                    = child.m_groupData.m_groupHandler.m_errorHandler;
+            }
+            if (child.m_groupData.m_parallelLimit) {
+                QTC_ASSERT(!m_groupData.m_parallelLimit,
+                           qWarning("Group Execution Mode redefinition, overriding..."));
+                m_groupData.m_parallelLimit = child.m_groupData.m_parallelLimit;
+            }
+            if (child.m_groupData.m_workflowPolicy) {
+                QTC_ASSERT(!m_groupData.m_workflowPolicy,
+                           qWarning("Group Workflow Policy redefinition, overriding..."));
+                m_groupData.m_workflowPolicy = child.m_groupData.m_workflowPolicy;
+            }
             break;
         case Type::TaskHandler:
             QTC_ASSERT(child.m_taskHandler.m_createHandler,
                        qWarning("Task Create Handler can't be null, skipping..."); return);
             m_children.append(child);
-            break;
-        case Type::GroupHandler:
-            QTC_ASSERT(m_type == Type::Group, qWarning("Group Handler may only be a "
-                       "child of a Group, skipping..."); break);
-            QTC_ASSERT(!child.m_groupHandler.m_setupHandler
-                       || !m_groupHandler.m_setupHandler,
-                       qWarning("Group Setup Handler redefinition, overriding..."));
-            QTC_ASSERT(!child.m_groupHandler.m_doneHandler
-                       || !m_groupHandler.m_doneHandler,
-                       qWarning("Group Done Handler redefinition, overriding..."));
-            QTC_ASSERT(!child.m_groupHandler.m_errorHandler
-                       || !m_groupHandler.m_errorHandler,
-                       qWarning("Group Error Handler redefinition, overriding..."));
-            if (child.m_groupHandler.m_setupHandler)
-                m_groupHandler.m_setupHandler = child.m_groupHandler.m_setupHandler;
-            if (child.m_groupHandler.m_doneHandler)
-                m_groupHandler.m_doneHandler = child.m_groupHandler.m_doneHandler;
-            if (child.m_groupHandler.m_errorHandler)
-                m_groupHandler.m_errorHandler = child.m_groupHandler.m_errorHandler;
             break;
         case Type::Storage:
             m_storageList.append(child.m_storageList);
@@ -472,9 +483,9 @@ TaskContainer::ConstData::ConstData(TaskTreePrivate *taskTreePrivate, const Task
     : m_taskTreePrivate(taskTreePrivate)
     , m_parentNode(parentNode)
     , m_parentContainer(parentContainer)
-    , m_parallelLimit(task.parallelLimit())
-    , m_workflowPolicy(task.workflowPolicy())
-    , m_groupHandler(task.groupHandler())
+    , m_parallelLimit(task.groupData().m_parallelLimit.value_or(1))
+    , m_workflowPolicy(task.groupData().m_workflowPolicy.value_or(WorkflowPolicy::StopOnError))
+    , m_groupHandler(task.groupData().m_groupHandler)
     , m_storageList(taskTreePrivate->addStorages(task.storageList()))
     , m_children(createChildren(taskTreePrivate, thisContainer, task))
     , m_taskCount(std::accumulate(m_children.cbegin(), m_children.cend(), 0,
@@ -1130,7 +1141,7 @@ void TaskNode::invokeEndHandler(bool success)
             started, without waiting for the previous tasks to finish. In this
             mode, all tasks run simultaneously.
     \row
-        \li ParallelLimit(int limit)
+        \li parallelLimit(int limit)
         \li In this mode, a limited number of direct child tasks run simultaneously.
             The \e limit defines the maximum number of tasks running in parallel
             in a group. When the group is started, the first batch tasks is

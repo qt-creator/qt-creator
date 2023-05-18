@@ -18,7 +18,6 @@ namespace Tasking {
 
 class ExecutionContextActivator;
 class TaskContainer;
-class TaskNode;
 class TaskTreePrivate;
 
 class TASKING_EXPORT TaskInterface : public QObject
@@ -68,9 +67,9 @@ private:
         int m_storageCounter = 0;
     };
     QSharedPointer<StorageData> m_storageData;
+    friend ExecutionContextActivator;
     friend TaskContainer;
     friend TaskTreePrivate;
-    friend ExecutionContextActivator;
 };
 
 template <typename StorageStruct>
@@ -145,54 +144,50 @@ public:
         GroupEndHandler m_errorHandler = {};
     };
 
-    int parallelLimit() const { return m_parallelLimit; }
-    WorkflowPolicy workflowPolicy() const { return m_workflowPolicy; }
-    TaskHandler taskHandler() const { return m_taskHandler; }
-    GroupHandler groupHandler() const { return m_groupHandler; }
+    struct GroupData {
+        GroupHandler m_groupHandler = {};
+        std::optional<int> m_parallelLimit = {};
+        std::optional<WorkflowPolicy> m_workflowPolicy = {};
+    };
+
     QList<TaskItem> children() const { return m_children; }
+    GroupData groupData() const { return m_groupData; }
     QList<TreeStorageBase> storageList() const { return m_storageList; }
+    TaskHandler taskHandler() const { return m_taskHandler; }
 
 protected:
     enum class Type {
         Group,
+        GroupData,
         Storage,
-        Limit,
-        Policy,
-        TaskHandler,
-        GroupHandler
+        TaskHandler
     };
 
     TaskItem() = default;
-    TaskItem(int parallelLimit)
-        : m_type(Type::Limit)
-        , m_parallelLimit(parallelLimit) {}
-    TaskItem(WorkflowPolicy policy)
-        : m_type(Type::Policy)
-        , m_workflowPolicy(policy) {}
-    TaskItem(const TaskHandler &handler)
-        : m_type(Type::TaskHandler)
-        , m_taskHandler(handler) {}
-    TaskItem(const GroupHandler &handler)
-        : m_type(Type::GroupHandler)
-        , m_groupHandler(handler) {}
+    TaskItem(const GroupData &data)
+        : m_type(Type::GroupData)
+        , m_groupData(data) {}
     TaskItem(const TreeStorageBase &storage)
         : m_type(Type::Storage)
         , m_storageList{storage} {}
+    TaskItem(const TaskHandler &handler)
+        : m_type(Type::TaskHandler)
+        , m_taskHandler(handler) {}
     void addChildren(const QList<TaskItem> &children);
 
     void setTaskSetupHandler(const TaskSetupHandler &handler);
     void setTaskDoneHandler(const TaskEndHandler &handler);
     void setTaskErrorHandler(const TaskEndHandler &handler);
-    static TaskItem createGroupHandler(const GroupHandler &handler) { return TaskItem(handler); }
+    static TaskItem groupHandler(const GroupHandler &handler) { return TaskItem({handler}); }
+    static TaskItem parallelLimit(int limit) { return TaskItem({{}, limit}); }
+    static TaskItem workflowPolicy(WorkflowPolicy policy) { return TaskItem({{}, {}, policy}); }
 
 private:
     Type m_type = Type::Group;
-    int m_parallelLimit = 1; // 0 means unlimited
-    WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
-    TaskHandler m_taskHandler;
-    GroupHandler m_groupHandler;
-    QList<TreeStorageBase> m_storageList;
     QList<TaskItem> m_children;
+    GroupData m_groupData;
+    QList<TreeStorageBase> m_storageList;
+    TaskHandler m_taskHandler;
 };
 
 class TASKING_EXPORT Group : public TaskItem
@@ -201,16 +196,19 @@ public:
     Group(const QList<TaskItem> &children) { addChildren(children); }
     Group(std::initializer_list<TaskItem> children) { addChildren(children); }
 
+    // GroupData related:
     template <typename SetupHandler>
     static TaskItem onGroupSetup(SetupHandler &&handler) {
-        return createGroupHandler({wrapGroupSetup(std::forward<SetupHandler>(handler))});
+        return groupHandler({wrapGroupSetup(std::forward<SetupHandler>(handler))});
     }
     static TaskItem onGroupDone(const GroupEndHandler &handler) {
-        return createGroupHandler({{}, handler});
+        return groupHandler({{}, handler});
     }
     static TaskItem onGroupError(const GroupEndHandler &handler) {
-        return createGroupHandler({{}, {}, handler});
+        return groupHandler({{}, {}, handler});
     }
+    using TaskItem::parallelLimit;  // Default: 1 (sequential). 0 means unlimited (parallel).
+    using TaskItem::workflowPolicy; // Default: WorkflowPolicy::StopOnError.
 
 private:
     template<typename SetupHandler>
@@ -240,23 +238,22 @@ static TaskItem onGroupSetup(SetupHandler &&handler)
 
 TASKING_EXPORT TaskItem onGroupDone(const TaskItem::GroupEndHandler &handler);
 TASKING_EXPORT TaskItem onGroupError(const TaskItem::GroupEndHandler &handler);
+TASKING_EXPORT TaskItem parallelLimit(int limit);
+TASKING_EXPORT TaskItem workflowPolicy(WorkflowPolicy policy);
+
+TASKING_EXPORT extern const TaskItem sequential;
+TASKING_EXPORT extern const TaskItem parallel;
+TASKING_EXPORT extern const TaskItem stopOnError;
+TASKING_EXPORT extern const TaskItem continueOnError;
+TASKING_EXPORT extern const TaskItem stopOnDone;
+TASKING_EXPORT extern const TaskItem continueOnDone;
+TASKING_EXPORT extern const TaskItem stopOnFinished;
+TASKING_EXPORT extern const TaskItem optional;
 
 class TASKING_EXPORT Storage : public TaskItem
 {
 public:
     Storage(const TreeStorageBase &storage) : TaskItem(storage) { }
-};
-
-class TASKING_EXPORT ParallelLimit : public TaskItem
-{
-public:
-    ParallelLimit(int parallelLimit) : TaskItem(qMax(parallelLimit, 0)) {}
-};
-
-class TASKING_EXPORT Workflow : public TaskItem
-{
-public:
-    Workflow(WorkflowPolicy policy) : TaskItem(policy) {}
 };
 
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
@@ -283,17 +280,7 @@ private:
         }
         return {onGroupSetup([function] { function(); return TaskAction::StopWithDone; })};
     };
-
 };
-
-TASKING_EXPORT extern ParallelLimit sequential;
-TASKING_EXPORT extern ParallelLimit parallel;
-TASKING_EXPORT extern Workflow stopOnError;
-TASKING_EXPORT extern Workflow continueOnError;
-TASKING_EXPORT extern Workflow stopOnDone;
-TASKING_EXPORT extern Workflow continueOnDone;
-TASKING_EXPORT extern Workflow stopOnFinished;
-TASKING_EXPORT extern Workflow optional;
 
 template <typename Task>
 class TaskAdapter : public TaskInterface

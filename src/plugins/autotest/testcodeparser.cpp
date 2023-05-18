@@ -360,7 +360,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
 
     using namespace Tasking;
 
-    QList<TaskItem> tasks{ParallelLimit(std::max(QThread::idealThreadCount() / 4, 1))};
+    QList<TaskItem> tasks{parallelLimit(std::max(QThread::idealThreadCount() / 4, 1))};
     for (const FilePath &file : filteredFiles) {
         const auto setup = [this, codeParsers, file](Async<TestParseResultPtr> &async) {
             async.setConcurrentCallData(parseFileForTests, codeParsers, file);
