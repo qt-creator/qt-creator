@@ -77,8 +77,7 @@ QString SubversionEditorWidget::changeUnderCursor(const QTextCursor &c) const
 
 VcsBase::BaseAnnotationHighlighterCreator SubversionEditorWidget::annotationHighlighterCreator() const
 {
-    return
-        [](const QSet<QString> &changes) { return new SubversionAnnotationHighlighter(changes); };
+    return VcsBase::getAnnotationHighlighterCreator<SubversionAnnotationHighlighter>();
 }
 
 QStringList SubversionEditorWidget::annotationPreviousVersions(const QString &v) const

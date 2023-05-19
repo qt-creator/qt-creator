@@ -27,6 +27,7 @@ class VcsBaseEditorConfig;
 class VcsBaseEditorWidget;
 class VcsCommand;
 class VcsEditorFactory;
+class Annotation;
 
 // Documentation inside
 enum EditorContentType
@@ -110,7 +111,12 @@ public:
 };
 
 using BaseAnnotationHighlighterCreator
-    = std::function<BaseAnnotationHighlighter *(const QSet<QString> &)>;
+    = std::function<BaseAnnotationHighlighter *(const VcsBase::Annotation &annotation)>;
+template<typename T>
+BaseAnnotationHighlighterCreator getAnnotationHighlighterCreator()
+{
+    return [](const VcsBase::Annotation &annotation) { return new T(annotation); };
+}
 
 class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::TextEditorWidget
 {

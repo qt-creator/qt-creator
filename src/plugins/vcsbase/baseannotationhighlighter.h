@@ -7,8 +7,17 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
+#include <QRegularExpression>
+
 namespace VcsBase {
 class BaseAnnotationHighlighterPrivate;
+
+class Annotation
+{
+public:
+    QRegularExpression separatorPattern;
+    QRegularExpression entryPattern;
+};
 
 class VCSBASE_EXPORT BaseAnnotationHighlighter : public TextEditor::SyntaxHighlighter
 {
@@ -17,19 +26,26 @@ class VCSBASE_EXPORT BaseAnnotationHighlighter : public TextEditor::SyntaxHighli
 public:
     typedef  QSet<QString> ChangeNumbers;
 
-    explicit BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
+    explicit BaseAnnotationHighlighter(const Annotation &annotation,
                                        QTextDocument *document = nullptr);
     ~BaseAnnotationHighlighter() override;
 
-    void setChangeNumbers(const ChangeNumbers &changeNumbers);
 
     void highlightBlock(const QString &text) override;
 
     void setFontSettings(const TextEditor::FontSettings &fontSettings) override;
 
+public slots:
+    void rehighlight() override;
+
+protected:
+    void documentChanged(QTextDocument *oldDoc, QTextDocument *newDoc) override;
+
 private:
     // Implement this to return the change number of a line
     virtual QString changeNumber(const QString &block) const = 0;
+    void setChangeNumbers(const ChangeNumbers &changeNumbers);
+    void setChangeNumbersForAnnotation();
 
     BaseAnnotationHighlighterPrivate *const d;
     friend class BaseAnnotationHighlighterPrivate;

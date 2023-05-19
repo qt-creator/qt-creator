@@ -13,7 +13,7 @@ class GitAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
     Q_OBJECT
 public:
-    explicit GitAnnotationHighlighter(const ChangeNumbers &changeNumbers,
+    explicit GitAnnotationHighlighter(const VcsBase::Annotation &annotation,
                                       QTextDocument *document = nullptr);
 
 private:

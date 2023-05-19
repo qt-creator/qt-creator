@@ -54,7 +54,7 @@ public:
     void setNoAutomaticHighlighting(bool noAutomatic);
 
 public slots:
-    void rehighlight();
+    virtual void rehighlight();
     void rehighlightBlock(const QTextBlock &block);
 
 protected:
@@ -85,6 +85,9 @@ protected:
     QTextBlockUserData *currentBlockUserData() const;
 
     QTextBlock currentBlock() const;
+
+protected:
+    virtual void documentChanged(QTextDocument * /*oldDoc*/, QTextDocument * /*newDoc*/) {};
 
 private:
     void setTextFormatCategories(const QVector<std::pair<int, TextStyle>> &categories);

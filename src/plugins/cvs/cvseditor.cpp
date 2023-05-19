@@ -25,10 +25,10 @@ namespace Cvs::Internal {
 class CvsAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
-    explicit CvsAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                      QTextDocument *document = nullptr) :
-        VcsBase::BaseAnnotationHighlighter(changeNumbers, document)
-    { }
+    explicit CvsAnnotationHighlighter(const VcsBase::Annotation &annotation,
+                                      QTextDocument *document = nullptr)
+        : VcsBase::BaseAnnotationHighlighter(annotation, document)
+    {}
 
 private:
     QString changeNumber(const QString &block) const override
@@ -95,7 +95,7 @@ QString CvsEditorWidget::changeUnderCursor(const QTextCursor &c) const
 
 VcsBase::BaseAnnotationHighlighterCreator CvsEditorWidget::annotationHighlighterCreator() const
 {
-    return [](const QSet<QString> &changes) { return new CvsAnnotationHighlighter(changes); };
+    return VcsBase::getAnnotationHighlighterCreator<CvsAnnotationHighlighter>();
 }
 
 QStringList CvsEditorWidget::annotationPreviousVersions(const QString &revision) const

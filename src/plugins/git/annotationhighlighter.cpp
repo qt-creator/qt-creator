@@ -6,11 +6,10 @@
 namespace Git {
 namespace Internal {
 
-GitAnnotationHighlighter::GitAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                   QTextDocument *document) :
-    VcsBase::BaseAnnotationHighlighter(changeNumbers, document)
-{
-}
+GitAnnotationHighlighter::GitAnnotationHighlighter(const VcsBase::Annotation &annotation,
+                                                   QTextDocument *document)
+    : VcsBase::BaseAnnotationHighlighter(annotation, document)
+{}
 
 QString GitAnnotationHighlighter::changeNumber(const QString &block) const
 {

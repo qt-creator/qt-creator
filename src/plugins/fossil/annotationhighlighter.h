@@ -4,7 +4,6 @@
 #pragma once
 
 #include <vcsbase/baseannotationhighlighter.h>
-#include <QRegularExpression>
 
 namespace Fossil {
 namespace Internal {
@@ -12,7 +11,7 @@ namespace Internal {
 class FossilAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
-    explicit FossilAnnotationHighlighter(const ChangeNumbers &changeNumbers,
+    explicit FossilAnnotationHighlighter(const VcsBase::Annotation &annotation,
                                          QTextDocument *document = nullptr);
 
 private:

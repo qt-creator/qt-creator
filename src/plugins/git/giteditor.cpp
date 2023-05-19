@@ -119,7 +119,7 @@ QString GitEditorWidget::changeUnderCursor(const QTextCursor &c) const
 
 VcsBase::BaseAnnotationHighlighterCreator GitEditorWidget::annotationHighlighterCreator() const
 {
-    return [](const QSet<QString> &changes) { return new GitAnnotationHighlighter(changes); };
+    return VcsBase::getAnnotationHighlighterCreator<GitAnnotationHighlighter>();
 }
 
 /* Remove the date specification from annotation, which is tabular:

@@ -6,10 +6,10 @@
 
 namespace Mercurial::Internal {
 
-MercurialAnnotationHighlighter::MercurialAnnotationHighlighter(const ChangeNumbers &changeNumbers,
+MercurialAnnotationHighlighter::MercurialAnnotationHighlighter(const VcsBase::Annotation &annotation,
                                                                QTextDocument *document)
-    : VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
-    changeset(QLatin1String(Constants::CHANGESETID12))
+    : VcsBase::BaseAnnotationHighlighter(annotation, document)
+    , changeset(QLatin1String(Constants::CHANGESETID12))
 {
 }
 

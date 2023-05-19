@@ -5,14 +5,12 @@
 
 #include <vcsbase/baseannotationhighlighter.h>
 
-#include <QRegularExpression>
-
 namespace Bazaar::Internal {
 
 class BazaarAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
-    explicit BazaarAnnotationHighlighter(const ChangeNumbers &changeNumbers,
+    explicit BazaarAnnotationHighlighter(const VcsBase::Annotation &annotation,
                                          QTextDocument *document = nullptr);
 
 private:

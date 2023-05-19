@@ -549,8 +549,8 @@ public:
 
     QRegularExpression m_diffFilePattern;
     QRegularExpression m_logEntryPattern;
-    QRegularExpression m_annotationEntryPattern;
-    QRegularExpression m_annotationSeparatorPattern;
+    VcsBase::Annotation m_annotation;
+
     QList<int> m_entrySections; // line number where this section starts
     int m_cursorLine = -1;
     int m_firstLineNumber = -1;
@@ -665,12 +665,12 @@ void VcsBaseEditorWidget::setLogEntryPattern(const QString &pattern)
 
 void VcsBaseEditorWidget::setAnnotationEntryPattern(const QString &pattern)
 {
-    regexpFromString(pattern, &d->m_annotationEntryPattern, QRegularExpression::MultilineOption);
+    regexpFromString(pattern, &d->m_annotation.entryPattern, QRegularExpression::MultilineOption);
 }
 
 void VcsBaseEditorWidget::setAnnotationSeparatorPattern(const QString &pattern)
 {
-    regexpFromString(pattern, &d->m_annotationSeparatorPattern);
+    regexpFromString(pattern, &d->m_annotation.separatorPattern);
 }
 
 bool VcsBaseEditorWidget::supportChangeLinks() const
@@ -1101,11 +1101,11 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
     disconnect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
 
     if (auto ah = qobject_cast<BaseAnnotationHighlighter *>(textDocument()->syntaxHighlighter())) {
-        ah->setChangeNumbers(changes);
         ah->rehighlight();
     } else {
         BaseAnnotationHighlighterCreator creator = annotationHighlighterCreator();
-        textDocument()->setSyntaxHighlighterCreator([creator, changes] { return creator(changes); });
+        textDocument()->setSyntaxHighlighterCreator(
+            [creator, annotation = d->m_annotation] { return creator(annotation); });
     }
 }
 
@@ -1550,12 +1550,12 @@ QSet<QString> VcsBaseEditorWidget::annotationChanges() const
     QStringView txt = QStringView(text);
     if (txt.isEmpty())
         return changes;
-    if (!d->m_annotationSeparatorPattern.pattern().isEmpty()) {
-        const QRegularExpressionMatch match = d->m_annotationSeparatorPattern.match(txt);
+    if (!d->m_annotation.separatorPattern.pattern().isEmpty()) {
+        const QRegularExpressionMatch match = d->m_annotation.separatorPattern.match(txt);
         if (match.hasMatch())
             txt.truncate(match.capturedStart());
     }
-    QRegularExpressionMatchIterator i = d->m_annotationEntryPattern.globalMatch(txt);
+    QRegularExpressionMatchIterator i = d->m_annotation.entryPattern.globalMatch(txt);
     while (i.hasNext()) {
         const QRegularExpressionMatch match = i.next();
         changes.insert(match.captured(1));

@@ -9,10 +9,10 @@
 namespace Fossil {
 namespace Internal {
 
-FossilAnnotationHighlighter::FossilAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                         QTextDocument *document) :
-    VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
-    m_changesetIdPattern(Constants::CHANGESET_ID)
+FossilAnnotationHighlighter::FossilAnnotationHighlighter(const VcsBase::Annotation &annotation,
+                                                         QTextDocument *document)
+    : VcsBase::BaseAnnotationHighlighter(annotation, document)
+    , m_changesetIdPattern(Constants::CHANGESET_ID)
 {
     QTC_CHECK(m_changesetIdPattern.isValid());
 }

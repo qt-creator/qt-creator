@@ -308,6 +308,9 @@ SyntaxHighlighter::~SyntaxHighlighter()
 void SyntaxHighlighter::setDocument(QTextDocument *doc)
 {
     Q_D(SyntaxHighlighter);
+    if (d->doc == doc)
+        return;
+
     if (d->doc) {
         disconnect(d->doc, &QTextDocument::contentsChange, this, &SyntaxHighlighter::reformatBlocks);
 
@@ -317,7 +320,9 @@ void SyntaxHighlighter::setDocument(QTextDocument *doc)
             blk.layout()->clearFormats();
         cursor.endEditBlock();
     }
+    QTextDocument *oldDoc = d->doc;
     d->doc = doc;
+    documentChanged(oldDoc, d->doc);
     if (d->doc) {
         if (!d->noAutomaticHighlighting) {
             connect(d->doc, &QTextDocument::contentsChange, this, &SyntaxHighlighter::reformatBlocks);

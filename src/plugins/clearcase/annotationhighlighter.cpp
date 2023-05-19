@@ -5,10 +5,10 @@
 
 namespace ClearCase::Internal {
 
-ClearCaseAnnotationHighlighter::ClearCaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                               QTextDocument *document) :
-    VcsBase::BaseAnnotationHighlighter(changeNumbers, document)
-{ }
+ClearCaseAnnotationHighlighter::ClearCaseAnnotationHighlighter(const VcsBase::Annotation &annotation,
+                                                               QTextDocument *document)
+    : VcsBase::BaseAnnotationHighlighter(annotation, document)
+{}
 
 QString ClearCaseAnnotationHighlighter::changeNumber(const QString &block) const
 {
@@ -16,4 +16,4 @@ QString ClearCaseAnnotationHighlighter::changeNumber(const QString &block) const
     return pos > 1 ? block.left(pos) : QString();
 }
 
-} // ClearCase::Internal
+} // namespace ClearCase::Internal
