@@ -203,6 +203,8 @@ class TaskNode;
 
 class TaskTreePrivate
 {
+    Q_DISABLE_COPY_MOVE(TaskTreePrivate)
+
 public:
     TaskTreePrivate(TaskTree *taskTree)
         : q(taskTree) {}
@@ -249,6 +251,8 @@ public:
 
 class TaskContainer
 {
+    Q_DISABLE_COPY_MOVE(TaskContainer)
+
 public:
     TaskContainer(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
                   TaskNode *parentNode, TaskContainer *parentContainer)
@@ -300,6 +304,8 @@ public:
 
 class TaskNode
 {
+    Q_DISABLE_COPY_MOVE(TaskNode)
+
 public:
     TaskNode(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
              TaskContainer *parentContainer)
