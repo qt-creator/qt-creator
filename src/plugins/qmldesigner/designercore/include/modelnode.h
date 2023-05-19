@@ -80,6 +80,10 @@ public:
     ModelNode();
     ModelNode(const Internal::InternalNodePointer &internalNode, Model *model, const AbstractView *view);
     ModelNode(const ModelNode &modelNode, AbstractView *view);
+    ModelNode(const ModelNode &) = default;
+    ModelNode &operator=(const ModelNode &) = default;
+    ModelNode(ModelNode &&) = default;
+    ModelNode &operator=(ModelNode &&) noexcept = default;
     ~ModelNode();
 
     TypeName type() const;

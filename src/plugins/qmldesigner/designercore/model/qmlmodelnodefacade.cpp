@@ -29,8 +29,6 @@ const NodeInstanceView *QmlModelNodeFacade::nodeInstanceView() const
     return nodeInstanceView(m_modelNode);
 }
 
-QmlModelNodeFacade::~QmlModelNodeFacade() = default;
-
 bool QmlModelNodeFacade::hasModelNode() const
 {
     return m_modelNode.isValid();

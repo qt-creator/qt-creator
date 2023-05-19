@@ -20,7 +20,6 @@ public:
     static bool isValidQmlModelNodeFacade(const ModelNode &modelNode);
     virtual bool isValid() const;
     explicit operator bool() const { return isValid(); }
-    virtual ~QmlModelNodeFacade();
     QmlModelNodeFacade() = default;
 
     AbstractView *view() const;
