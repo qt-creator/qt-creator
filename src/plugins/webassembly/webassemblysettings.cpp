@@ -64,6 +64,8 @@ WebAssemblySettings::WebAssemblySettings()
     emSdk.setExpectedKind(Utils::PathChooser::ExistingDirectory);
     emSdk.setDefaultFilePath(FileUtils::homePath());
 
+    connect(this, &Utils::AspectContainer::applied, &WebAssemblyToolChain::registerToolChains);
+
     setLayouter([this](QWidget *widget) {
         auto instruction = new QLabel(
             Tr::tr("Select the root directory of an installed %1. "
@@ -120,12 +122,6 @@ WebAssemblySettings::WebAssemblySettings()
     });
 
     readSettings();
-}
-
-void WebAssemblySettings::apply()
-{
-    WebAssemblyToolChain::registerToolChains();
-    Core::IOptionsPage::apply();
 }
 
 void WebAssemblySettings::updateStatus()

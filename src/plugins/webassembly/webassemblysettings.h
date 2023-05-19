@@ -18,7 +18,6 @@ public:
     WebAssemblySettings();
 
     static WebAssemblySettings *instance();
-    void apply() final;
 
     Utils::FilePathAspect emSdk;
 
