@@ -2243,8 +2243,7 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName)
         if (Utils::CheckableMessageBox::question(ICore::dialogParent(),
                                                  title,
                                                  message,
-                                                 ICore::settings(),
-                                                 "AnalyzerCorrectModeWarning")
+                                                 QString("AnalyzerCorrectModeWarning"))
             != QMessageBox::Yes)
                 return false;
     }

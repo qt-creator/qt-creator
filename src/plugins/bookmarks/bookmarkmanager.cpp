@@ -261,8 +261,7 @@ void BookmarkView::removeAll()
                                       Tr::tr("Remove All Bookmarks"),
                                       Tr::tr("Are you sure you want to remove all bookmarks from "
                                              "all files in the current session?"),
-                                      ICore::settings(),
-                                      QLatin1String("RemoveAllBookmarks"))
+                                      QString("RemoveAllBookmarks"))
         != QMessageBox::Yes)
         return;
 

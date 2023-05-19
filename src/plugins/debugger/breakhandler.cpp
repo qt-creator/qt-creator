@@ -2697,8 +2697,7 @@ void BreakpointManager::executeDeleteAllBreakpointsDialog()
                                         Tr::tr("Remove All Breakpoints"),
                                         Tr::tr("Are you sure you want to remove all breakpoints "
                                                "from all files in the current session?"),
-                                        ICore::settings(),
-                                        "RemoveAllBreakpoints");
+                                        QString("RemoveAllBreakpoints"));
     if (pressed != QMessageBox::Yes)
         return;
 

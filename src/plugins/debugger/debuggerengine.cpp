@@ -2716,17 +2716,14 @@ Context CppDebuggerEngine::languageContext() const
 void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
 {
     static const QString warnOnInappropriateDebuggerKey = "DebuggerWarnOnInappropriateDebugger";
-    QtcSettings *coreSettings = Core::ICore::settings();
 
     const bool warnOnRelease = debuggerSettings()->warnOnReleaseBuilds.value()
                                && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;
     bool warnOnInappropriateDebugger = false;
     QString detailedWarning;
-    auto shouldAskAgain = CheckableMessageBox::make_decider(coreSettings,
-                                                            warnOnInappropriateDebuggerKey);
     switch (rp.toolChainAbi.binaryFormat()) {
     case Abi::PEFormat: {
-        if (CheckableMessageBox::shouldAskAgain(shouldAskAgain)) {
+        if (CheckableDecider(warnOnInappropriateDebuggerKey).shouldAskAgain()) {
             QString preferredDebugger;
             if (rp.toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor) {
                 if (rp.cppEngineType == CdbEngineType)
@@ -2766,7 +2763,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         break;
     }
     case Abi::ElfFormat: {
-        if (CheckableMessageBox::shouldAskAgain(shouldAskAgain)) {
+        if (CheckableDecider(warnOnInappropriateDebuggerKey).shouldAskAgain()) {
             if (rp.cppEngineType == CdbEngineType) {
                 warnOnInappropriateDebugger = true;
                 detailedWarning = Tr::tr(
@@ -2879,7 +2876,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                    "Examining symbols and setting breakpoints by file name and line number "
                    "may fail.\n")
                 + '\n' + detailedWarning,
-            shouldAskAgain);
+            warnOnInappropriateDebuggerKey);
     } else if (warnOnRelease) {
         AsynchronousMessageBox::information(Tr::tr("Warning"),
                Tr::tr("This does not seem to be a \"Debug\" build.\n"

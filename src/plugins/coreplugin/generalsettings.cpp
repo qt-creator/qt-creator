@@ -226,14 +226,13 @@ void GeneralSettingsWidget::resetInterfaceColor()
 void GeneralSettingsWidget::resetWarnings()
 {
     InfoBar::clearGloballySuppressed();
-    CheckableMessageBox::resetAllDoNotAskAgainQuestions(ICore::settings());
+    CheckableMessageBox::resetAllDoNotAskAgainQuestions();
     m_resetWarningsButton->setEnabled(false);
 }
 
 bool GeneralSettingsWidget::canResetWarnings()
 {
-    return InfoBar::anyGloballySuppressed()
-        || CheckableMessageBox::hasSuppressedQuestions(ICore::settings());
+    return InfoBar::anyGloballySuppressed() || CheckableMessageBox::hasSuppressedQuestions();
 }
 
 void GeneralSettingsWidget::resetLanguage()

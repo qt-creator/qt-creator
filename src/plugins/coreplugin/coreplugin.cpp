@@ -148,6 +148,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Theme::setInitialPalette(theme); // Initialize palette before setting it
     setCreatorTheme(theme);
     InfoBar::initialize(ICore::settings());
+    CheckableMessageBox::initialize(ICore::settings());
     new ActionManager(this);
     ActionManager::setPresentationModeEnabled(args.presentationMode);
     m_mainWindow = new MainWindow;

@@ -31,16 +31,19 @@ static const char kDoNotAskAgainKey[] = "DoNotAskAgain";
 
 namespace Utils {
 
+static QSettings *theSettings;
+
 static QMessageBox::StandardButton exec(
     QWidget *parent,
     QMessageBox::Icon icon,
     const QString &title,
     const QString &text,
-    std::optional<CheckableMessageBox::Decider> decider,
+    const CheckableDecider &decider,
     QMessageBox::StandardButtons buttons,
     QMessageBox::StandardButton defaultButton,
     QMessageBox::StandardButton acceptButton,
-    QMap<QMessageBox::StandardButton, QString> buttonTextOverrides)
+    QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
+    const QString &msg)
 {
     QMessageBox msgBox(parent);
     msgBox.setWindowTitle(title);
@@ -59,18 +62,13 @@ static QMessageBox::StandardButton exec(
         }
     }
 
-    if (decider) {
-        if (!CheckableMessageBox::shouldAskAgain(*decider))
+    if (decider.shouldAskAgain) {
+        if (!decider.shouldAskAgain())
             return acceptButton;
 
         msgBox.setCheckBox(new QCheckBox);
         msgBox.checkBox()->setChecked(false);
-
-        std::visit(
-            [&msgBox](auto &&decider) {
-                msgBox.checkBox()->setText(decider.text);
-            },
-            *decider);
+        msgBox.checkBox()->setText(msg);
     }
 
     msgBox.setStandardButtons(buttons);
@@ -81,21 +79,44 @@ static QMessageBox::StandardButton exec(
 
     QMessageBox::StandardButton clickedBtn = msgBox.standardButton(msgBox.clickedButton());
 
-    if (decider && msgBox.checkBox()->isChecked()
+    if (decider.doNotAskAgain && msgBox.checkBox()->isChecked()
         && (acceptButton == QMessageBox::NoButton || clickedBtn == acceptButton))
-        CheckableMessageBox::doNotAskAgain(*decider);
+        decider.doNotAskAgain();
     return clickedBtn;
+}
+
+CheckableDecider::CheckableDecider(const QString &settingsSubKey)
+{
+    QTC_ASSERT(theSettings, return);
+    shouldAskAgain = [settingsSubKey] {
+        theSettings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+        bool shouldNotAsk = theSettings->value(settingsSubKey, false).toBool();
+        theSettings->endGroup();
+        return !shouldNotAsk;
+    };
+    doNotAskAgain =  [settingsSubKey] {
+        theSettings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+        theSettings->setValue(settingsSubKey, true);
+        theSettings->endGroup();
+    };
+}
+
+CheckableDecider::CheckableDecider(bool *storage)
+{
+    shouldAskAgain = [storage] { return !*storage; };
+    doNotAskAgain = [storage] { *storage = true; };
 }
 
 QMessageBox::StandardButton CheckableMessageBox::question(
     QWidget *parent,
     const QString &title,
     const QString &question,
-    std::optional<Decider> decider,
+    const CheckableDecider &decider,
     QMessageBox::StandardButtons buttons,
     QMessageBox::StandardButton defaultButton,
     QMessageBox::StandardButton acceptButton,
-    QMap<QMessageBox::StandardButton, QString> buttonTextOverrides)
+    QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
+    const QString &msg)
 {
     return exec(parent,
                 QMessageBox::Question,
@@ -105,17 +126,19 @@ QMessageBox::StandardButton CheckableMessageBox::question(
                 buttons,
                 defaultButton,
                 acceptButton,
-                buttonTextOverrides);
+                buttonTextOverrides,
+                msg.isEmpty() ? msgDoNotAskAgain() : msg);
 }
 
 QMessageBox::StandardButton CheckableMessageBox::information(
     QWidget *parent,
     const QString &title,
     const QString &text,
-    std::optional<Decider> decider,
+    const CheckableDecider &decider,
     QMessageBox::StandardButtons buttons,
     QMessageBox::StandardButton defaultButton,
-    QMap<QMessageBox::StandardButton, QString> buttonTextOverrides)
+    QMap<QMessageBox::StandardButton, QString> buttonTextOverrides,
+    const QString &msg)
 {
     return exec(parent,
                 QMessageBox::Information,
@@ -125,82 +148,33 @@ QMessageBox::StandardButton CheckableMessageBox::information(
                 buttons,
                 defaultButton,
                 QMessageBox::NoButton,
-                buttonTextOverrides);
-}
-
-void CheckableMessageBox::doNotAskAgain(Decider &decider)
-{
-    std::visit(
-        [](auto &&decider) {
-            using T = std::decay_t<decltype(decider)>;
-            if constexpr (std::is_same_v<T, BoolDecision>) {
-                decider.doNotAskAgain = true;
-            } else if constexpr (std::is_same_v<T, SettingsDecision>) {
-                decider.settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
-                decider.settings->setValue(decider.settingsSubKey, true);
-                decider.settings->endGroup();
-            } else if constexpr (std::is_same_v<T, AspectDecision>) {
-                decider.aspect.setValue(true);
-            }
-        },
-        decider);
-}
-
-bool CheckableMessageBox::shouldAskAgain(const Decider &decider)
-{
-    bool result = std::visit(
-        [](auto &&decider) {
-            using T = std::decay_t<decltype(decider)>;
-            if constexpr (std::is_same_v<T, BoolDecision>) {
-                return !decider.doNotAskAgain;
-            } else if constexpr (std::is_same_v<T, SettingsDecision>) {
-                decider.settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
-                bool shouldNotAsk = decider.settings->value(decider.settingsSubKey, false).toBool();
-                decider.settings->endGroup();
-                return !shouldNotAsk;
-            } else if constexpr (std::is_same_v<T, AspectDecision>) {
-                return !decider.aspect.value();
-            }
-        },
-        decider);
-
-    return result;
-}
-
-bool CheckableMessageBox::shouldAskAgain(QSettings *settings, const QString &key)
-{
-    return shouldAskAgain(make_decider(settings, key));
-}
-
-void CheckableMessageBox::doNotAskAgain(QSettings *settings, const QString &key)
-{
-    Decider decider = make_decider(settings, key);
-    return doNotAskAgain(decider);
+                buttonTextOverrides,
+                msg.isEmpty() ? msgDoNotShowAgain() : msg);
 }
 
 /*!
-    Resets all suppression settings for doNotAskAgainQuestion() found in \a settings,
+    Resets all suppression settings for doNotAskAgainQuestion()
     so all these message boxes are shown again.
  */
-void CheckableMessageBox::resetAllDoNotAskAgainQuestions(QSettings *settings)
+void CheckableMessageBox::resetAllDoNotAskAgainQuestions()
 {
-    QTC_ASSERT(settings, return);
-    settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
-    settings->remove(QString());
-    settings->endGroup();
+    QTC_ASSERT(theSettings, return);
+    theSettings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+    theSettings->remove(QString());
+    theSettings->endGroup();
 }
 
 /*!
     Returns whether any message boxes from doNotAskAgainQuestion() are suppressed
-    in the \a settings.
+    in the settings.
 */
-bool CheckableMessageBox::hasSuppressedQuestions(QSettings *settings)
+bool CheckableMessageBox::hasSuppressedQuestions()
 {
-    QTC_ASSERT(settings, return false);
-    settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
-    const bool hasSuppressed = !settings->childKeys().isEmpty()
-                               || !settings->childGroups().isEmpty();
-    settings->endGroup();
+    QTC_ASSERT(theSettings, return false);
+    theSettings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+    const bool hasSuppressed = !theSettings->childKeys().isEmpty()
+                               || !theSettings->childGroups().isEmpty();
+    theSettings->endGroup();
     return hasSuppressed;
 }
 
@@ -220,6 +194,11 @@ QString CheckableMessageBox::msgDoNotAskAgain()
 QString CheckableMessageBox::msgDoNotShowAgain()
 {
     return Tr::tr("Do not &show again");
+}
+
+void CheckableMessageBox::initialize(QSettings *settings)
+{
+    theSettings = settings;
 }
 
 } // namespace Utils

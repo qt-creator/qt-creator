@@ -620,7 +620,7 @@ void DebuggerRunTool::start()
             CheckableMessageBox::information(Core::ICore::dialogParent(),
                                              Tr::tr("Debugger"),
                                              warningMessage,
-                                             doNotShowAgain,
+                                             &doNotShowAgain,
                                              QMessageBox::Ok);
         }
     }

@@ -2265,8 +2265,7 @@ void CdbEngine::checkQtSdkPdbFiles(const QString &module)
         CheckableMessageBox::information(Core::ICore::dialogParent(),
                                          Tr::tr("Missing Qt Debug Information"),
                                          message,
-                                         Core::ICore::settings(),
-                                         "CdbQtSdkPdbHint");
+                                         QString("CdbQtSdkPdbHint"));
 
         showMessage("Missing Qt Debug Information Files package for " + qtName, LogMisc);
     };
@@ -2294,8 +2293,7 @@ void CdbEngine::parseOutputLine(QString line)
                    "Make sure that your antivirus solution is up to date and if that does not work "
                    "consider adding an exception for %1.")
                 .arg(m_extensionFileName),
-            Core::ICore::settings(),
-            "SecureInfoCdbextCannotBeLoaded");
+            QString("SecureInfoCdbextCannotBeLoaded"));
         notifyEngineSetupFailed();
     }
     static const QString creatorExtPrefix = "<qtcreatorcdbext>|";

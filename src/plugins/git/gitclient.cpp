@@ -1297,8 +1297,7 @@ QStringList GitClient::setupCheckoutArguments(const FilePath &workingDirectory,
             ICore::dialogParent() /*parent*/,
             Tr::tr("Create Local Branch") /*title*/,
             Tr::tr("Would you like to create a local branch?") /*message*/,
-            ICore::settings(),
-            "Git.CreateLocalBranchOnCheckout" /*setting*/,
+            QString("Git.CreateLocalBranchOnCheckout"), /* decider */
             QMessageBox::Yes | QMessageBox::No /*buttons*/,
             QMessageBox::No /*default button*/,
             QMessageBox::No /*button to save*/)

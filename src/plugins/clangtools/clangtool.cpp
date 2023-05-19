@@ -602,8 +602,7 @@ static bool continueDespiteReleaseBuild(const QString &toolName)
     return CheckableMessageBox::question(ICore::dialogParent(),
                                          title,
                                          message,
-                                         ICore::settings(),
-                                         "ClangToolsCorrectModeWarning")
+                                         QString("ClangToolsCorrectModeWarning"))
            == QMessageBox::Yes;
 }
 

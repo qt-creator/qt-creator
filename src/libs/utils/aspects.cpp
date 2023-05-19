@@ -4,6 +4,7 @@
 #include "aspects.h"
 
 #include "algorithm.h"
+#include "checkablemessagebox.h"
 #include "environment.h"
 #include "fancylineedit.h"
 #include "layoutbuilder.h"
@@ -1358,11 +1359,10 @@ FilePathAspect::FilePathAspect()
     The color aspect is displayed using a QtColorButton.
 */
 
-ColorAspect::ColorAspect(const QString &settingsKey)
+ColorAspect::ColorAspect()
     : d(new Internal::ColorAspectPrivate)
 {
     setDefaultValue(QColor::fromRgb(0, 0, 0));
-    setSettingsKey(settingsKey);
     setSpan(1, 1);
 
     addDataExtractor(this, &ColorAspect::value, &Data::value);
@@ -1585,6 +1585,14 @@ void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacemen
 void BoolAspect::setLabelPlacement(BoolAspect::LabelPlacement labelPlacement)
 {
     d->m_labelPlacement = labelPlacement;
+}
+
+CheckableDecider BoolAspect::checkableDecider()
+{
+    return CheckableDecider(
+        [this] { return !value(); },
+        [this] { setValue(true); }
+    );
 }
 
 /*!

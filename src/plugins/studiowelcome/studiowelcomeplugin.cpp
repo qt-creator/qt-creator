@@ -489,8 +489,7 @@ private:
 
 void StudioWelcomePlugin::closeSplashScreen()
 {
-    Utils::CheckableMessageBox::doNotAskAgain(Core::ICore::settings(),
-                                              DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY);
+    Utils::CheckableDecider(DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY).doNotAskAgain();
     if (!s_viewWindow.isNull())
         s_viewWindow->deleteLater();
 
@@ -538,8 +537,7 @@ static bool showSplashScreen()
         return true;
     }
 
-    return Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(),
-                                                      DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY);
+    return Utils::CheckableDecider(DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY).shouldAskAgain();
 }
 
 void StudioWelcomePlugin::extensionsInitialized()

@@ -24,6 +24,7 @@ namespace Utils {
 
 class AspectContainer;
 class BoolAspect;
+class CheckableDecider;
 
 namespace Internal {
 class AspectContainerPrivate;
@@ -222,6 +223,7 @@ public:
 
     void addToLayout(Layouting::LayoutItem &parent) override;
     std::function<void(QObject *)> groupChecker();
+    Utils::CheckableDecider checkableDecider();
 
     QAction *action() override;
 
@@ -255,7 +257,7 @@ class QTCREATOR_UTILS_EXPORT ColorAspect : public BaseAspect
     Q_OBJECT
 
 public:
-    explicit ColorAspect(const QString &settingsKey = QString());
+    ColorAspect();
     ~ColorAspect() override;
 
     struct Data : BaseAspect::Data

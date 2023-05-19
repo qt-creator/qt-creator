@@ -209,6 +209,8 @@ bool CrashHandlerDialog::runDebuggerWhileBacktraceNotFinished()
                        QSettings::UserScope,
                        QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
                        QLatin1String(SettingsApplication));
+    Utils::CheckableMessageBox::initialize(&settings);
+
     // Ask user.
     const QString title = tr("Run Debugger And Abort Collecting Backtrace?");
     const QString message = tr(
@@ -222,9 +224,7 @@ bool CrashHandlerDialog::runDebuggerWhileBacktraceNotFinished()
         = Utils::CheckableMessageBox::question(this,
                                                title,
                                                message,
-                                               &settings,
-                                               QLatin1String(
-                                                   SettingsKeySkipWarningAbortingBacktrace),
+                                               QString(SettingsKeySkipWarningAbortingBacktrace),
                                                QMessageBox::Yes | QMessageBox::No,
                                                QMessageBox::No);
 

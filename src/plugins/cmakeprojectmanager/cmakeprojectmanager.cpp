@@ -238,7 +238,7 @@ void CMakeManager::reloadCMakePresets()
                                         Tr::tr("Reload CMake Presets"),
                                         Tr::tr("Re-generates the CMake presets kits. The manual "
                                                "CMake project modifications will be lost."),
-                                        settings->askBeforePresetsReload,
+                                        settings->askBeforePresetsReload.checkableDecider(),
                                         QMessageBox::Yes | QMessageBox::Cancel,
                                         QMessageBox::Yes,
                                         QMessageBox::Yes,

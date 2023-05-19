@@ -663,8 +663,7 @@ AlignDistribute::Dimension AlignDistribute::getDimension(Target target) const
 
 bool AlignDistribute::executePixelPerfectDialog() const
 {
-    auto decider = Utils::CheckableMessageBox::make_decider(Core::ICore::settings(),
-                                                            "WarnAboutPixelPerfectDistribution");
+    Utils::CheckableDecider decider(QString("WarnAboutPixelPerfectDistribution"));
 
     QMessageBox::StandardButton pressed = Utils::CheckableMessageBox::question(
         Core::ICore::dialogParent(),

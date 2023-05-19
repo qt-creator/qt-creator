@@ -132,8 +132,7 @@ public:
 
         if (!arguments.contains("-notour")) {
             connect(ICore::instance(), &ICore::coreOpened, this, []() {
-                IntroductionWidget::askUserAboutIntroduction(ICore::dialogParent(),
-                                                             ICore::settings());
+                IntroductionWidget::askUserAboutIntroduction(ICore::dialogParent());
             }, Qt::QueuedConnection);
         }
 

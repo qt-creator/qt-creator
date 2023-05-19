@@ -753,7 +753,7 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
                 .arg(fileSizeInMB, 0, 'f', 2);
 
         bool askAgain = true;
-        auto decider = CheckableMessageBox::make_decider(askAgain);
+        CheckableDecider decider(&askAgain);
 
         QMessageBox::StandardButton clickedButton
             = CheckableMessageBox::question(ICore::dialogParent(), title, text, decider);

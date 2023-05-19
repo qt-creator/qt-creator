@@ -808,8 +808,7 @@ void MemcheckToolPrivate::heobAction()
                        .arg(
                            "<a "
                            "href=\"https://github.com/ssbssa/dwarfstack/releases\">Dwarfstack</a>"),
-                   ICore::settings(),
-                   "HeobDwarfstackInfo",
+                   QString("HeobDwarfstackInfo"),
                    QMessageBox::Ok | QMessageBox::Cancel,
                    QMessageBox::Ok)
                    != QMessageBox::Ok)

@@ -11,7 +11,6 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
-class QSettings;
 QT_END_NAMESPACE
 
 namespace Welcome {
@@ -31,7 +30,7 @@ class IntroductionWidget : public QWidget
 public:
     explicit IntroductionWidget(QWidget *parent = nullptr);
 
-    static void askUserAboutIntroduction(QWidget *parent, QSettings *settings);
+    static void askUserAboutIntroduction(QWidget *parent);
 
 protected:
     bool event(QEvent *e) override;

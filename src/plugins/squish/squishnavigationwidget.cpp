@@ -302,8 +302,7 @@ void SquishNavigationWidget::onRecordTestCase(const QString &suiteName, const QS
         Tr::tr("Do you want to record over the test case \"%1\"? The existing content will "
                "be overwritten by the recorded script.")
             .arg(testCase),
-        Core::ICore::settings(),
-        "RecordWithoutApproval");
+        QString("RecordWithoutApproval"));
     if (pressed != QMessageBox::Yes)
         return;
 
