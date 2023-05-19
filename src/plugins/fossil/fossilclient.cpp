@@ -107,12 +107,9 @@ class FossilLogConfig : public VcsBaseEditorConfig
     Q_OBJECT
 
 public:
-    FossilLogConfig(FossilClient *client, QToolBar *toolBar) :
-        VcsBaseEditorConfig(toolBar),
-        m_client(client)
+    FossilLogConfig(QToolBar *toolBar)
+        : VcsBaseEditorConfig(toolBar)
     {
-        QTC_ASSERT(client, return);
-
         addReloadButton();
         addLineageComboBox();
         addVerboseToggleButton();
@@ -192,9 +189,6 @@ public:
         }
         return args;
     }
-
-private:
-    FossilClient *m_client;
 };
 
 unsigned FossilClient::makeVersionNumber(int major, int minor, int patch)
@@ -1170,7 +1164,7 @@ VcsBaseEditorConfig *FossilClient::createLogCurrentFileEditor(VcsBaseEditorWidge
 
 VcsBaseEditorConfig *FossilClient::createLogEditor(VcsBaseEditorWidget *editor)
 {
-    return new FossilLogConfig(this, editor->toolBar());
+    return new FossilLogConfig(editor->toolBar());
 }
 
 } // namespace Internal
