@@ -61,7 +61,6 @@ VcpkgSettings::VcpkgSettings()
 
     registerAspect(&vcpkgRoot);
     vcpkgRoot.setSettingsKey("VcpkgRoot");
-    vcpkgRoot.setDisplayStyle(Utils::StringAspect::PathChooserDisplay);
     vcpkgRoot.setExpectedKind(Utils::PathChooser::ExistingDirectory);
     vcpkgRoot.setDefaultValue(Utils::qtcEnvironmentVariable(Constants::ENVVAR_VCPKG_ROOT));
 
@@ -70,7 +69,7 @@ VcpkgSettings::VcpkgSettings()
 
 bool VcpkgSettings::vcpkgRootValid() const
 {
-    return (vcpkgRoot.filePath() / "vcpkg").withExecutableSuffix().isExecutableFile();
+    return (vcpkgRoot() / "vcpkg").withExecutableSuffix().isExecutableFile();
 }
 
 } // namespace Vcpkg::Internal

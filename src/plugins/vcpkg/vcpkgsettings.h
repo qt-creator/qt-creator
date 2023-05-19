@@ -15,7 +15,7 @@ public:
     static VcpkgSettings *instance();
     bool vcpkgRootValid() const;
 
-    Utils::StringAspect vcpkgRoot;
+    Utils::FilePathAspect vcpkgRoot;
 };
 
 } // namespace Vcpkg::Internal
