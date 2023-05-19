@@ -5,6 +5,7 @@
 
 #include <QEventLoop>
 #include <QFutureWatcher>
+#include <QPromise>
 #include <QSet>
 #include <QTimer>
 
