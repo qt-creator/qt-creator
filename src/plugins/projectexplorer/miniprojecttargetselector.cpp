@@ -389,6 +389,12 @@ private:
         TreeView::mouseReleaseEvent(event);
     }
 
+    void showEvent(QShowEvent* event) override
+    {
+        scrollTo(currentIndex());
+        TreeView::showEvent(event);
+    }
+
     QObject *objectAt(const QModelIndex &index) const
     {
         return theModel()->itemForIndex(index)->object();
