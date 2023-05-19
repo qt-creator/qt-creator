@@ -40,8 +40,13 @@ QString msgFilePatternLabel();
 QTCREATOR_UTILS_EXPORT
 QString msgExclusionPatternLabel();
 
+enum class InclusionType {
+    Included,
+    Excluded
+};
+
 QTCREATOR_UTILS_EXPORT
-QString msgFilePatternToolTip();
+QString msgFilePatternToolTip(InclusionType inclusionType = InclusionType::Included);
 
 class QTCREATOR_UTILS_EXPORT FileIterator
 {

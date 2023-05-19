@@ -316,7 +316,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     m_dialog->filePattern->setText(Utils::transform(m_filters, &QDir::toNativeSeparators).join(','));
     m_dialog->exclusionPatternLabel->setText(Utils::msgExclusionPatternLabel());
     m_dialog->exclusionPatternLabel->setBuddy(m_dialog->exclusionPattern);
-    m_dialog->exclusionPattern->setToolTip(Utils::msgFilePatternToolTip());
+    m_dialog->exclusionPattern->setToolTip(Utils::msgFilePatternToolTip(InclusionType::Excluded));
     m_dialog->exclusionPattern->setText(
         Utils::transform(m_exclusionFilters, &QDir::toNativeSeparators).join(','));
     m_dialog->shortcutEdit->setText(shortcutString());
