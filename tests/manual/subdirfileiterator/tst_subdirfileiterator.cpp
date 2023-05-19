@@ -19,15 +19,26 @@
 using namespace Tasking;
 using namespace Utils;
 
-static const int s_subDirsCount = 8;
-static const int s_subFilesCount = 8;
-static const int s_treeDepth = 4;
+static const int s_topLevelSubDirsCount = 128;
+static const int s_subDirsCount = 4;
+static const int s_subFilesCount = 4;
+static const int s_treeDepth = 5;
 
 static const QDir::Filters s_filters = QDir::Dirs | QDir::Files | QDir::Hidden
                                      | QDir::NoDotAndDotDot;
 
 static const char s_dirPrefix[] = "dir_";
 static const char s_filePrefix[] = "file_";
+
+static QString dirName(int suffix)
+{
+    return QString("%1%2").arg(s_dirPrefix).arg(suffix);
+}
+
+static QString fileName(int suffix)
+{
+    return QString("%1%2.txt").arg(s_filePrefix).arg(suffix);
+}
 
 static int expectedDirsCountHelper(int depth)
 {
@@ -36,9 +47,9 @@ static int expectedDirsCountHelper(int depth)
     return expectedDirsCountHelper(depth - 1) * s_subDirsCount + 1; // +1 -> dir itself
 }
 
-static int expectedDirsCount(int tasksCount)
+static int expectedDirsCount()
 {
-    return expectedDirsCountHelper(s_treeDepth) * tasksCount + 1; // +1 -> root temp dir
+    return expectedDirsCountHelper(s_treeDepth) * s_topLevelSubDirsCount;
 }
 
 static int expectedFilesCountHelper(int depth)
@@ -48,45 +59,49 @@ static int expectedFilesCountHelper(int depth)
     return expectedFilesCountHelper(depth - 1) * s_subDirsCount + s_subFilesCount;
 }
 
-static int expectedFilesCount(int tasksCount)
+static int expectedFilesCount()
 {
-    return expectedFilesCountHelper(s_treeDepth) * tasksCount + 1; // +1 -> fileTemplate.txt
+    return expectedFilesCountHelper(s_treeDepth) * s_topLevelSubDirsCount + 1; // +1 -> fileTemplate.txt
 }
 
-static void generate(QPromise<void> &promise, const QString &parentPath,
-                     const QString &templateFile, int depth)
+static int threadsCount()
+{
+    return qMax(QThread::idealThreadCount() - 1, 1); // "- 1" -> left for main thread
+}
+
+static bool generateOriginal(const QString &parentPath, const QString &templateFile, int depth)
 {
     const QDir parentDir(parentPath);
     for (int i = 0; i < s_subFilesCount; ++i)
-        QFile::copy(templateFile, parentDir.filePath(QString("%1%2").arg(s_filePrefix).arg(i)));
+        QFile::copy(templateFile, parentDir.filePath(fileName(i)));
 
     if (depth == 0)
-        return;
+        return true;
 
-    if (promise.isCanceled())
-        return;
+    const QString originalDirName = dirName(0);
+    if (!parentDir.mkdir(originalDirName))
+        return false;
 
-    const QString templateDir("dirTemplate");
-    if (!parentDir.mkdir(templateDir)) {
+    const QString originalDirPath = parentDir.filePath(originalDirName);
+    if (!generateOriginal(originalDirPath, templateFile, depth - 1))
+        return false;
+
+    for (int i = 1; i < s_subDirsCount; ++i) {
+        const FilePath source = FilePath::fromString(originalDirPath);
+        const FilePath destination = FilePath::fromString(parentDir.filePath(dirName(i)));
+        if (!source.copyRecursively(destination))
+            return false;
+    }
+    return true;
+}
+
+static void generateCopy(QPromise<void> &promise, const QString &sourcePath,
+                         const QString &destPath)
+{
+    const FilePath source = FilePath::fromString(sourcePath);
+    const FilePath destination = FilePath::fromString(destPath);
+    if (!source.copyRecursively(destination))
         promise.future().cancel();
-        return;
-    }
-
-    const QString templateDirPath = parentDir.filePath(templateDir);
-    generate(promise, templateDirPath, templateFile, depth - 1);
-
-    if (promise.isCanceled())
-        return;
-
-    for (int i = 0; i < s_subDirsCount - 1; ++i) {
-        const QString dirName = QString("%1%2").arg(s_dirPrefix).arg(i);
-        const FilePath source = FilePath::fromString(templateDirPath);
-        const FilePath destination = FilePath::fromString(parentDir.filePath(dirName));
-        if (!source.copyRecursively(destination)) {
-            promise.future().cancel();
-            return;
-        }
-    }
 }
 
 class tst_SubDirFileIterator : public QObject
@@ -106,11 +121,11 @@ private slots:
         qDebug() << "This manual test compares the performance of the SubDirFileIterator with "
                     "a manually written iterator using QDir::entryInfoList().";
         QTC_SCOPED_TIMER("GENERATING TEMPORARY FILES TREE");
-        const int tasksCount = QThread::idealThreadCount();
-        m_filesCount = expectedFilesCount(tasksCount);
-        m_dirsCount = expectedDirsCount(tasksCount);
+        m_threadsCount = threadsCount();
+        m_filesCount = expectedFilesCount();
+        m_dirsCount = expectedDirsCount();
         m_tempDir.reset(new QTemporaryDir);
-        qDebug() << "Generating on" << tasksCount << "cores...";
+        qDebug() << "Generating on" << m_threadsCount << "cores...";
         qDebug() << "Generating" << m_filesCount << "files...";
         qDebug() << "Generating" << m_dirsCount << "dirs...";
         qDebug() << "Generating inside" << m_tempDir->path() << "dir...";
@@ -121,20 +136,25 @@ private slots:
             file.write("X");
         }
 
-        // Parallelize tree generation
         const QDir parentDir(m_tempDir->path());
-        const auto onSetup = [](const QString &parentPath, const QString &templateFile) {
-            return [parentPath, templateFile](Async<void> &async) {
-                async.setConcurrentCallData(generate, parentPath, templateFile, s_treeDepth);
+        const QString sourceDirName = dirName(0);
+        QVERIFY(parentDir.mkdir(sourceDirName));
+        QVERIFY(generateOriginal(parentDir.filePath(sourceDirName), templateFile, s_treeDepth));
+
+        const auto onCopySetup = [](const QString &sourcePath, const QString &destPath) {
+            return [sourcePath, destPath](Async<void> &async) {
+                async.setConcurrentCallData(generateCopy, sourcePath, destPath);
             };
         };
-        QList<TaskItem> tasks {parallel};
-        for (int i = 0; i < tasksCount; ++i) {
-            const QString dirName = QString("%1%2").arg(s_dirPrefix).arg(i);
-            QVERIFY(parentDir.mkdir(dirName));
-            tasks.append(AsyncTask<void>(onSetup(parentDir.filePath(dirName), templateFile)));
-        }
 
+        // Parallelize tree generation
+        QList<TaskItem> tasks{parallelLimit(m_threadsCount)};
+        for (int i = 1; i < s_topLevelSubDirsCount; ++i) {
+            const QString destDirName = dirName(i);
+            QVERIFY(parentDir.mkdir(destDirName));
+            tasks.append(AsyncTask<void>(onCopySetup(parentDir.filePath(sourceDirName),
+                                                     parentDir.filePath(destDirName))));
+        }
         TaskTree taskTree(tasks);
         QVERIFY(taskTree.runBlocking());
     }
@@ -148,18 +168,15 @@ private slots:
             FilePath::fromString(parentPath).removeRecursively();
         };
 
-        const QDir parentDir(m_tempDir->path());
         const auto onSetup = [removeTree](const QString &parentPath) {
             return [parentPath, removeTree](Async<void> &async) {
                 async.setConcurrentCallData(removeTree, parentPath);
             };
         };
-        QList<TaskItem> tasks {parallel};
-        const int tasksCount = QThread::idealThreadCount();
-        for (int i = 0; i < tasksCount; ++i) {
-            const QString dirName = QString("%1%2").arg(s_dirPrefix).arg(i);
-            tasks.append(AsyncTask<void>(onSetup(parentDir.filePath(dirName))));
-        }
+        const QDir parentDir(m_tempDir->path());
+        QList<TaskItem> tasks {parallelLimit(m_threadsCount)};
+        for (int i = 0; i < s_topLevelSubDirsCount; ++i)
+            tasks.append(AsyncTask<void>(onSetup(parentDir.filePath(dirName(i)))));
 
         TaskTree taskTree(tasks);
         QVERIFY(taskTree.runBlocking());
@@ -184,7 +201,7 @@ private slots:
                     qDebug() << filesCount << '/' << m_filesCount << "files visited so far...";
             }
         }
-        qDebug() << "Visited" << filesCount << "files.";
+        QCOMPARE(filesCount, m_filesCount);
     }
 
     void testManualIterator()
@@ -198,7 +215,6 @@ private slots:
             std::unordered_set<QString> visitedDirs;
             visitedDirs.emplace(root.absolutePath());
             QFileInfoList workingList = root.entryInfoList(s_filters);
-            ++dirsCount; // for root itself
             while (!workingList.isEmpty()) {
                 const QFileInfo fi = workingList.takeLast();
                 const QString absoluteFilePath = fi.absoluteFilePath();
@@ -220,7 +236,8 @@ private slots:
                 }
             }
         }
-        qDebug() << "Visited" << filesCount << "files and" << dirsCount << "directories.";
+        QCOMPARE(filesCount, m_filesCount);
+        QCOMPARE(dirsCount, m_dirsCount);
     }
 
     void testQDirIterator()
@@ -229,7 +246,6 @@ private slots:
         int filesCount = 0;
         int dirsCount = 0;
         {
-            ++dirsCount; // for root itself
             QDirIterator it(m_tempDir->path(), s_filters, QDirIterator::Subdirectories
                                                               | QDirIterator::FollowSymlinks);
             while (it.hasNext()) {
@@ -248,10 +264,12 @@ private slots:
                 }
             }
         }
-        qDebug() << "Visited" << filesCount << "files and" << dirsCount << "directories.";
+        QCOMPARE(filesCount, m_filesCount);
+        QCOMPARE(dirsCount, m_dirsCount);
     }
 
 private:
+    int m_threadsCount = 1;
     int m_dirsCount = 0;
     int m_filesCount = 0;
     std::unique_ptr<QTemporaryDir> m_tempDir;
