@@ -42,13 +42,13 @@ class InternalNodeAbstractProperty;
 class InternalNodeListProperty;
 
 using InternalNodePointer = std::shared_ptr<InternalNode>;
-using InternalPropertyPointer = QSharedPointer<InternalProperty>;
-using InternalBindingPropertyPointer = QSharedPointer<InternalBindingProperty>;
-using InternalSignalHandlerPropertyPointer = QSharedPointer<InternalSignalHandlerProperty>;
-using InternalSignalDeclarationPropertyPointer = QSharedPointer<InternalSignalDeclarationProperty>;
-using InternalVariantPropertyPointer = QSharedPointer<InternalVariantProperty>;
-using InternalNodeAbstractPropertyPointer = QSharedPointer<InternalNodeAbstractProperty>;
-using InternalNodeListPropertyPointer = QSharedPointer<InternalNodeListProperty>;
+using InternalPropertyPointer = std::shared_ptr<InternalProperty>;
+using InternalBindingPropertyPointer = std::shared_ptr<InternalBindingProperty>;
+using InternalSignalHandlerPropertyPointer = std::shared_ptr<InternalSignalHandlerProperty>;
+using InternalSignalDeclarationPropertyPointer = std::shared_ptr<InternalSignalDeclarationProperty>;
+using InternalVariantPropertyPointer = std::shared_ptr<InternalVariantProperty>;
+using InternalNodeAbstractPropertyPointer = std::shared_ptr<InternalNodeAbstractProperty>;
+using InternalNodeListPropertyPointer = std::shared_ptr<InternalNodeListProperty>;
 using PropertyPair = QPair<InternalNodePointer, PropertyName>;
 
 class ModelPrivate;

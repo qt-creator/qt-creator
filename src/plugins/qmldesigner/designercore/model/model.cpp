@@ -935,7 +935,7 @@ void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &node,
         if (!oldPropertyName.isEmpty() && oldParent->isValid)
             oldProperty = NodeAbstractProperty(oldPropertyName, oldParent, m_model, view);
 
-        if (!newPropertyParent.isNull())
+        if (newPropertyParent)
             newProperty = NodeAbstractProperty(newPropertyParent, m_model, view);
 
         ModelNode modelNode(node, m_model, view);
@@ -956,7 +956,7 @@ void ModelPrivate::notifyNodeReparent(const InternalNodePointer &node,
         if (!oldPropertyName.isEmpty() && oldParent->isValid)
             oldProperty = NodeAbstractProperty(oldPropertyName, oldParent, m_model, view);
 
-        if (!newPropertyParent.isNull())
+        if (newPropertyParent)
             newProperty = NodeAbstractProperty(newPropertyParent, m_model, view);
         ModelNode modelNode(node, m_model, view);
 
@@ -1250,7 +1250,7 @@ void ModelPrivate::reparentNode(const InternalNodePointer &parentNode,
     }
 
     InternalNodeAbstractPropertyPointer newParentProperty(parentNode->nodeAbstractProperty(name));
-    Q_ASSERT(!newParentProperty.isNull());
+    Q_ASSERT(newParentProperty);
 
     notifyNodeAboutToBeReparent(childNode, newParentProperty, oldParentNode, oldParentPropertyName, propertyChange);
 
@@ -1305,7 +1305,7 @@ void ModelPrivate::setNodeSource(const InternalNodePointer &node, const QString 
 void ModelPrivate::changeNodeOrder(const InternalNodePointer &parentNode, const PropertyName &listPropertyName, int from, int to)
 {
     InternalNodeListPropertyPointer nodeList(parentNode->nodeListProperty(listPropertyName));
-    Q_ASSERT(!nodeList.isNull());
+    Q_ASSERT(nodeList);
     nodeList->slide(from, to);
 
     const InternalNodePointer internalNode = nodeList->nodeList().at(to);

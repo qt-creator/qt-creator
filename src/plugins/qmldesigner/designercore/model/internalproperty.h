@@ -25,10 +25,10 @@ class InternalNode;
 
 using InternalNodePointer = std::shared_ptr<InternalNode>;
 
-class QMLDESIGNERCORE_EXPORT InternalProperty
+class QMLDESIGNERCORE_EXPORT InternalProperty : public std::enable_shared_from_this<InternalProperty>
 {
 public:
-    using Pointer = QSharedPointer<InternalProperty>;
+    using Pointer = std::shared_ptr<InternalProperty>;
 
     InternalProperty();
     virtual ~InternalProperty();
@@ -45,13 +45,13 @@ public:
     virtual bool isSignalHandlerProperty() const;
     virtual bool isSignalDeclarationProperty() const;
 
-    QSharedPointer<InternalBindingProperty> toBindingProperty() const;
-    QSharedPointer<InternalVariantProperty> toVariantProperty() const;
-    QSharedPointer<InternalNodeListProperty> toNodeListProperty() const;
-    QSharedPointer<InternalNodeProperty> toNodeProperty() const;
-    QSharedPointer<InternalNodeAbstractProperty> toNodeAbstractProperty() const;
-    QSharedPointer<InternalSignalHandlerProperty> toSignalHandlerProperty() const;
-    QSharedPointer<InternalSignalDeclarationProperty> toSignalDeclarationProperty() const;
+    std::shared_ptr<InternalBindingProperty> toBindingProperty();
+    std::shared_ptr<InternalVariantProperty> toVariantProperty();
+    std::shared_ptr<InternalNodeListProperty> toNodeListProperty();
+    std::shared_ptr<InternalNodeProperty> toNodeProperty();
+    std::shared_ptr<InternalNodeAbstractProperty> toNodeAbstractProperty();
+    std::shared_ptr<InternalSignalHandlerProperty> toSignalHandlerProperty();
+    std::shared_ptr<InternalSignalDeclarationProperty> toSignalDeclarationProperty();
 
     InternalNodePointer propertyOwner() const;
 
@@ -63,11 +63,8 @@ public:
 
 protected: // functions
     InternalProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
-    Pointer internalPointer() const;
-    void setInternalWeakPointer(const Pointer &pointer);
     void setDynamicTypeName(const TypeName &name);
 private:
-    QWeakPointer<InternalProperty> m_internalPointer;
     PropertyName m_name;
     TypeName m_dynamicType;
     std::weak_ptr<InternalNode> m_propertyOwner;

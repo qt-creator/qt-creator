@@ -34,7 +34,7 @@ class InternalProperty;
 class InternalNode;
 
 using InternalNodePointer = std::shared_ptr<InternalNode>;
-using InternalPropertyPointer = QSharedPointer<InternalProperty>;
+using InternalPropertyPointer = std::shared_ptr<InternalProperty>;
 
 class InternalNode : public std::enable_shared_from_this<InternalNode>
 {

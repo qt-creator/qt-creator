@@ -28,7 +28,7 @@ namespace Internal {
     class InternalProperty;
 
     using InternalNodePointer = std::shared_ptr<InternalNode>;
-    using InternalPropertyPointer = QSharedPointer<InternalProperty>;
+    using InternalPropertyPointer = std::shared_ptr<InternalProperty>;
 }
 class NodeMetaInfo;
 class BindingProperty;

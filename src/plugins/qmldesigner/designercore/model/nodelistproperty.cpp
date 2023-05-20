@@ -162,7 +162,7 @@ NodeListProperty::iterator NodeListProperty::rotate(NodeListProperty::iterator f
 
     privateModel()->notifyNodeOrderChanged(m_internalNodeListProperty);
 
-    return {iter - begin, internalNodeListProperty().data(), model(), view()};
+    return {iter - begin, internalNodeListProperty().get(), model(), view()};
 }
 
 void NodeListProperty::reverse(NodeListProperty::iterator first, NodeListProperty::iterator last)
@@ -212,7 +212,7 @@ Internal::NodeListPropertyIterator NodeListProperty::end()
 
 Internal::NodeListPropertyIterator NodeListProperty::begin() const
 {
-    return {0, internalNodeListProperty().data(), model(), view()};
+    return {0, internalNodeListProperty().get(), model(), view()};
 }
 
 Internal::NodeListPropertyIterator NodeListProperty::end() const
@@ -220,7 +220,7 @@ Internal::NodeListPropertyIterator NodeListProperty::end() const
     auto nodeListProperty = internalNodeListProperty();
     auto size = nodeListProperty ? nodeListProperty->size() : 0;
 
-    return {size, nodeListProperty.data(), model(), view()};
+    return {size, nodeListProperty.get(), model(), view()};
 }
 
 } // namespace QmlDesigner

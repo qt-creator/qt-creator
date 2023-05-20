@@ -12,16 +12,6 @@ InternalNodeProperty::InternalNodeProperty(const PropertyName &name, const Inter
 {
 }
 
-InternalNodeProperty::Pointer InternalNodeProperty::create(const PropertyName &name, const InternalNode::Pointer &propertyOwner)
-{
-    auto newPointer = new InternalNodeProperty(name, propertyOwner);
-    InternalNodeProperty::Pointer smartPointer(newPointer);
-
-    newPointer->setInternalWeakPointer(smartPointer);
-
-    return smartPointer;
-}
-
 bool InternalNodeProperty::isEmpty() const
 {
     return !m_node;

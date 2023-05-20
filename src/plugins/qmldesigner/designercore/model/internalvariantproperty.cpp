@@ -11,16 +11,6 @@ InternalVariantProperty::InternalVariantProperty(const PropertyName &name, const
 {
 }
 
-InternalVariantProperty::Pointer InternalVariantProperty::create(const PropertyName &name, const InternalNodePointer &propertyOwner)
-{
-    auto newPointer(new InternalVariantProperty(name, propertyOwner));
-    InternalVariantProperty::Pointer smartPointer(newPointer);
-
-    newPointer->setInternalWeakPointer(smartPointer);
-
-    return smartPointer;
-}
-
 QVariant InternalVariantProperty::value() const
 {
     return m_value;

@@ -11,9 +11,9 @@ namespace Internal  {
 class InternalNodeProperty : public InternalNodeAbstractProperty
 {
 public:
-    using Pointer = QSharedPointer<InternalNodeProperty>;
+    using Pointer = std::shared_ptr<InternalNodeProperty>;
 
-    static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
+    InternalNodeProperty(const PropertyName &name, const InternalNodePointer &node);
 
     bool isValid() const override;
     bool isEmpty() const override;
@@ -26,9 +26,7 @@ public:
 
     InternalNodePointer node() const;
 
-
 protected:
-    InternalNodeProperty(const PropertyName &name, const InternalNodePointer &node);
     void add(const InternalNodePointer &node) override;
     void remove(const InternalNodePointer &node) override;
 

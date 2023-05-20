@@ -323,7 +323,7 @@ NodeAbstractProperty ModelNode::parentProperty() const
     if (!isValid())
         return {};
 
-    if (m_internalNode->parentProperty().isNull())
+    if (!m_internalNode->parentProperty())
         return {};
 
     return NodeAbstractProperty(m_internalNode->parentProperty()->name(), m_internalNode->parentProperty()->propertyOwner(), m_model.data(), view());
@@ -387,7 +387,7 @@ bool ModelNode::hasParentProperty() const
     if (!isValid())
         return false;
 
-    if (m_internalNode->parentProperty().isNull())
+    if (!m_internalNode->parentProperty())
         return false;
 
     return true;

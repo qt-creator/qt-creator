@@ -11,9 +11,9 @@ namespace Internal {
 class InternalVariantProperty : public InternalProperty
 {
 public:
-    using Pointer = QSharedPointer<InternalVariantProperty>;
+    using Pointer = std::shared_ptr<InternalVariantProperty>;
 
-    static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
+    InternalVariantProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
     bool isValid() const override;
 
@@ -24,8 +24,6 @@ public:
 
     bool isVariantProperty() const override;
 
-protected:
-    InternalVariantProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
 private:
     QVariant m_value;

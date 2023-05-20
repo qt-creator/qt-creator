@@ -25,19 +25,6 @@ InternalProperty::InternalProperty(const PropertyName &name, const InternalNode:
     Q_ASSERT_X(!name.isEmpty(), Q_FUNC_INFO, "Name of property cannot be empty");
 }
 
-InternalProperty::Pointer InternalProperty::internalPointer() const
-{
-    Q_ASSERT(!m_internalPointer.isNull());
-    return m_internalPointer.toStrongRef();
-}
-
-void InternalProperty::setInternalWeakPointer(const Pointer &pointer)
-{
-    Q_ASSERT(!pointer.isNull());
-    m_internalPointer = pointer;
-}
-
-
 bool InternalProperty::isValid() const
 {
     return !m_propertyOwner.expired() && !m_name.isEmpty();
@@ -58,10 +45,10 @@ bool InternalProperty::isVariantProperty() const
     return false;
 }
 
-QSharedPointer<InternalBindingProperty> InternalProperty::toBindingProperty() const
+std::shared_ptr<InternalBindingProperty> InternalProperty::toBindingProperty()
 {
-    Q_ASSERT(internalPointer().dynamicCast<InternalBindingProperty>());
-    return internalPointer().staticCast<InternalBindingProperty>();
+    Q_ASSERT(std::dynamic_pointer_cast<InternalBindingProperty>(shared_from_this()));
+    return std::static_pointer_cast<InternalBindingProperty>(shared_from_this());
 }
 
 
@@ -90,11 +77,11 @@ bool InternalProperty::isSignalDeclarationProperty() const
     return false;
 }
 
-QSharedPointer<InternalVariantProperty> InternalProperty::toVariantProperty() const
+std::shared_ptr<InternalVariantProperty> InternalProperty::toVariantProperty()
 
 {
-    Q_ASSERT(internalPointer().dynamicCast<InternalVariantProperty>());
-    return internalPointer().staticCast<InternalVariantProperty>();
+    Q_ASSERT(std::dynamic_pointer_cast<InternalVariantProperty>(shared_from_this()));
+    return std::static_pointer_cast<InternalVariantProperty>(shared_from_this());
 }
 
 InternalNode::Pointer InternalProperty::propertyOwner() const
@@ -102,34 +89,34 @@ InternalNode::Pointer InternalProperty::propertyOwner() const
     return m_propertyOwner.lock();
 }
 
-QSharedPointer<InternalNodeListProperty> InternalProperty::toNodeListProperty() const
+std::shared_ptr<InternalNodeListProperty> InternalProperty::toNodeListProperty()
 {
-    Q_ASSERT(internalPointer().dynamicCast<InternalNodeListProperty>());
-    return internalPointer().staticCast<InternalNodeListProperty>();
+    Q_ASSERT(std::dynamic_pointer_cast<InternalNodeListProperty>(shared_from_this()));
+    return std::static_pointer_cast<InternalNodeListProperty>(shared_from_this());
 }
 
-QSharedPointer<InternalNodeProperty> InternalProperty::toNodeProperty() const
+std::shared_ptr<InternalNodeProperty> InternalProperty::toNodeProperty()
 {
-    Q_ASSERT(internalPointer().dynamicCast<InternalNodeProperty>());
-    return internalPointer().staticCast<InternalNodeProperty>();
+    Q_ASSERT(std::dynamic_pointer_cast<InternalNodeProperty>(shared_from_this()));
+    return std::static_pointer_cast<InternalNodeProperty>(shared_from_this());
 }
 
-QSharedPointer<InternalNodeAbstractProperty> InternalProperty::toNodeAbstractProperty() const
+std::shared_ptr<InternalNodeAbstractProperty> InternalProperty::toNodeAbstractProperty()
 {
-    Q_ASSERT(internalPointer().dynamicCast<InternalNodeAbstractProperty>());
-    return internalPointer().staticCast<InternalNodeAbstractProperty>();
+    Q_ASSERT(std::dynamic_pointer_cast<InternalNodeAbstractProperty>(shared_from_this()));
+    return std::static_pointer_cast<InternalNodeAbstractProperty>(shared_from_this());
 }
 
-QSharedPointer<InternalSignalHandlerProperty> InternalProperty::toSignalHandlerProperty() const
+std::shared_ptr<InternalSignalHandlerProperty> InternalProperty::toSignalHandlerProperty()
 {
-    Q_ASSERT(internalPointer().dynamicCast<InternalSignalHandlerProperty>());
-    return internalPointer().staticCast<InternalSignalHandlerProperty>();
+    Q_ASSERT(std::dynamic_pointer_cast<InternalSignalHandlerProperty>(shared_from_this()));
+    return std::static_pointer_cast<InternalSignalHandlerProperty>(shared_from_this());
 }
 
-QSharedPointer<InternalSignalDeclarationProperty> InternalProperty::toSignalDeclarationProperty() const
+std::shared_ptr<InternalSignalDeclarationProperty> InternalProperty::toSignalDeclarationProperty()
 {
-    Q_ASSERT(internalPointer().dynamicCast<InternalSignalDeclarationProperty>());
-    return internalPointer().staticCast<InternalSignalDeclarationProperty>();
+    Q_ASSERT(std::dynamic_pointer_cast<InternalSignalDeclarationProperty>(shared_from_this()));
+    return std::static_pointer_cast<InternalSignalDeclarationProperty>(shared_from_this());
 }
 
 void InternalProperty::remove()

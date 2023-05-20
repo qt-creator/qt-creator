@@ -14,8 +14,8 @@ class InternalNodeAbstractProperty : public InternalProperty
     friend InternalNode;
 
 public:
-    using Pointer = QSharedPointer<InternalNodeAbstractProperty>;
-    using WeakPointer = QWeakPointer<InternalNodeAbstractProperty>;
+    using Pointer = std::shared_ptr<InternalNodeAbstractProperty>;
+    using WeakPointer = std::weak_ptr<InternalNodeAbstractProperty>;
 
     bool isNodeAbstractProperty() const override;
 
