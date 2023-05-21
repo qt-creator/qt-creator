@@ -45,63 +45,61 @@ public:
 
     void synchronize(Storage::Synchronization::SynchronizationPackage package) override
     {
-        Sqlite::ImmediateTransaction transaction{database};
+        Sqlite::withImmediateTransaction(database, [&] {
+            AliasPropertyDeclarations insertedAliasPropertyDeclarations;
+            AliasPropertyDeclarations updatedAliasPropertyDeclarations;
 
-        AliasPropertyDeclarations insertedAliasPropertyDeclarations;
-        AliasPropertyDeclarations updatedAliasPropertyDeclarations;
+            AliasPropertyDeclarations relinkableAliasPropertyDeclarations;
+            PropertyDeclarations relinkablePropertyDeclarations;
+            Prototypes relinkablePrototypes;
+            Prototypes relinkableExtensions;
+            TypeIds deletedTypeIds;
 
-        AliasPropertyDeclarations relinkableAliasPropertyDeclarations;
-        PropertyDeclarations relinkablePropertyDeclarations;
-        Prototypes relinkablePrototypes;
-        Prototypes relinkableExtensions;
-        TypeIds deletedTypeIds;
+            TypeIds updatedTypeIds;
+            updatedTypeIds.reserve(package.types.size());
 
-        TypeIds updatedTypeIds;
-        updatedTypeIds.reserve(package.types.size());
+            TypeIds typeIdsToBeDeleted;
 
-        TypeIds typeIdsToBeDeleted;
+            std::sort(package.updatedSourceIds.begin(), package.updatedSourceIds.end());
 
-        std::sort(package.updatedSourceIds.begin(), package.updatedSourceIds.end());
+            synchronizeFileStatuses(package.fileStatuses, package.updatedFileStatusSourceIds);
+            synchronizeImports(package.imports,
+                               package.updatedSourceIds,
+                               package.moduleDependencies,
+                               package.updatedModuleDependencySourceIds,
+                               package.moduleExportedImports,
+                               package.updatedModuleIds);
+            synchronizeTypes(package.types,
+                             updatedTypeIds,
+                             insertedAliasPropertyDeclarations,
+                             updatedAliasPropertyDeclarations,
+                             relinkableAliasPropertyDeclarations,
+                             relinkablePropertyDeclarations,
+                             relinkablePrototypes,
+                             relinkableExtensions,
+                             package.updatedSourceIds);
 
-        synchronizeFileStatuses(package.fileStatuses, package.updatedFileStatusSourceIds);
-        synchronizeImports(package.imports,
-                           package.updatedSourceIds,
-                           package.moduleDependencies,
-                           package.updatedModuleDependencySourceIds,
-                           package.moduleExportedImports,
-                           package.updatedModuleIds);
-        synchronizeTypes(package.types,
-                         updatedTypeIds,
-                         insertedAliasPropertyDeclarations,
-                         updatedAliasPropertyDeclarations,
-                         relinkableAliasPropertyDeclarations,
-                         relinkablePropertyDeclarations,
-                         relinkablePrototypes,
-                         relinkableExtensions,
-                         package.updatedSourceIds);
+            deleteNotUpdatedTypes(updatedTypeIds,
+                                  package.updatedSourceIds,
+                                  typeIdsToBeDeleted,
+                                  relinkableAliasPropertyDeclarations,
+                                  relinkablePropertyDeclarations,
+                                  relinkablePrototypes,
+                                  relinkableExtensions,
+                                  deletedTypeIds);
 
-        deleteNotUpdatedTypes(updatedTypeIds,
-                              package.updatedSourceIds,
-                              typeIdsToBeDeleted,
-                              relinkableAliasPropertyDeclarations,
-                              relinkablePropertyDeclarations,
-                              relinkablePrototypes,
-                              relinkableExtensions,
-                              deletedTypeIds);
+            relink(relinkableAliasPropertyDeclarations,
+                   relinkablePropertyDeclarations,
+                   relinkablePrototypes,
+                   relinkableExtensions,
+                   deletedTypeIds);
 
-        relink(relinkableAliasPropertyDeclarations,
-               relinkablePropertyDeclarations,
-               relinkablePrototypes,
-               relinkableExtensions,
-               deletedTypeIds);
+            linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
 
-        linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
+            synchronizeProjectDatas(package.projectDatas, package.updatedProjectSourceIds);
 
-        synchronizeProjectDatas(package.projectDatas, package.updatedProjectSourceIds);
-
-        commonTypeCache_.resetTypeIds();
-
-        transaction.commit();
+            commonTypeCache_.resetTypeIds();
+        });
     }
 
     ModuleId moduleId(Utils::SmallStringView moduleName) const override
@@ -304,38 +302,35 @@ public:
 
     Storage::Synchronization::Type fetchTypeByTypeId(TypeId typeId)
     {
-        Sqlite::DeferredTransaction transaction{database};
+        return Sqlite::withDeferredTransaction(database, [&] {
+            auto type = selectTypeByTypeIdStatement.template value<Storage::Synchronization::Type>(
+                typeId);
 
-        auto type = selectTypeByTypeIdStatement.template value<Storage::Synchronization::Type>(typeId);
-
-        type.exportedTypes = fetchExportedTypes(typeId);
-        type.propertyDeclarations = fetchPropertyDeclarations(type.typeId);
-        type.functionDeclarations = fetchFunctionDeclarations(type.typeId);
-        type.signalDeclarations = fetchSignalDeclarations(type.typeId);
-        type.enumerationDeclarations = fetchEnumerationDeclarations(type.typeId);
-
-        transaction.commit();
-
-        return type;
-    }
-
-    Storage::Synchronization::Types fetchTypes()
-    {
-        Sqlite::DeferredTransaction transaction{database};
-
-        auto types = selectTypesStatement.template values<Storage::Synchronization::Type>(64);
-
-        for (Storage::Synchronization::Type &type : types) {
-            type.exportedTypes = fetchExportedTypes(type.typeId);
+            type.exportedTypes = fetchExportedTypes(typeId);
             type.propertyDeclarations = fetchPropertyDeclarations(type.typeId);
             type.functionDeclarations = fetchFunctionDeclarations(type.typeId);
             type.signalDeclarations = fetchSignalDeclarations(type.typeId);
             type.enumerationDeclarations = fetchEnumerationDeclarations(type.typeId);
-        }
 
-        transaction.commit();
+            return type;
+        });
+    }
 
-        return types;
+    Storage::Synchronization::Types fetchTypes()
+    {
+        return Sqlite::withDeferredTransaction(database, [&] {
+            auto types = selectTypesStatement.template values<Storage::Synchronization::Type>(64);
+
+            for (Storage::Synchronization::Type &type : types) {
+                type.exportedTypes = fetchExportedTypes(type.typeId);
+                type.propertyDeclarations = fetchPropertyDeclarations(type.typeId);
+                type.functionDeclarations = fetchFunctionDeclarations(type.typeId);
+                type.signalDeclarations = fetchSignalDeclarations(type.typeId);
+                type.enumerationDeclarations = fetchEnumerationDeclarations(type.typeId);
+            }
+
+            return types;
+        });
     }
 
     bool fetchIsProtype(TypeId type, TypeId prototype)
@@ -358,13 +353,9 @@ public:
     SourceContextId fetchSourceContextId(Utils::SmallStringView sourceContextPath)
     {
         try {
-            Sqlite::DeferredTransaction transaction{database};
-
-            auto sourceContextId = fetchSourceContextIdUnguarded(sourceContextPath);
-
-            transaction.commit();
-
-            return sourceContextId;
+            return Sqlite::withDeferredTransaction(database, [&] {
+                return fetchSourceContextIdUnguarded(sourceContextPath);
+            });
         } catch (const Sqlite::ConstraintPreventsModification &) {
             return fetchSourceContextId(sourceContextPath);
         }
@@ -372,18 +363,16 @@ public:
 
     Utils::PathString fetchSourceContextPath(SourceContextId sourceContextId) const
     {
-        Sqlite::DeferredTransaction transaction{database};
+        return Sqlite::withDeferredTransaction(database, [&] {
+            auto optionalSourceContextPath = selectSourceContextPathFromSourceContextsBySourceContextIdStatement
+                                                 .template optionalValue<Utils::PathString>(
+                                                     sourceContextId);
 
-        auto optionalSourceContextPath = selectSourceContextPathFromSourceContextsBySourceContextIdStatement
-                                             .template optionalValue<Utils::PathString>(
-                                                 sourceContextId);
+            if (!optionalSourceContextPath)
+                throw SourceContextIdDoesNotExists();
 
-        if (!optionalSourceContextPath)
-            throw SourceContextIdDoesNotExists();
-
-        transaction.commit();
-
-        return std::move(*optionalSourceContextPath);
+            return std::move(*optionalSourceContextPath);
+        });
     }
 
     auto fetchAllSourceContexts() const
@@ -394,13 +383,9 @@ public:
 
     SourceId fetchSourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName)
     {
-        Sqlite::DeferredTransaction transaction{database};
-
-        auto sourceId = fetchSourceIdUnguarded(sourceContextId, sourceName);
-
-        transaction.commit();
-
-        return sourceId;
+        return Sqlite::withDeferredTransaction(database, [&] {
+            return fetchSourceIdUnguarded(sourceContextId, sourceName);
+        });
     }
 
     auto fetchSourceNameAndSourceContextId(SourceId sourceId) const
@@ -416,12 +401,10 @@ public:
 
     void clearSources()
     {
-        Sqlite::ImmediateTransaction transaction{database};
-
-        deleteAllSourceContextsStatement.execute();
-        deleteAllSourcesStatement.execute();
-
-        transaction.commit();
+        Sqlite::withImmediateTransaction(database, [&] {
+            deleteAllSourceContextsStatement.execute();
+            deleteAllSourcesStatement.execute();
+        });
     }
 
     SourceContextId fetchSourceContextId(SourceId sourceId) const
@@ -523,24 +506,15 @@ private:
 
     ModuleId fetchModuleId(Utils::SmallStringView moduleName)
     {
-        Sqlite::DeferredTransaction transaction{database};
-
-        ModuleId moduleId = fetchModuleIdUnguarded(moduleName);
-
-        transaction.commit();
-
-        return moduleId;
+        return Sqlite::withDeferredTransaction(database,
+                                               [&] { return fetchModuleIdUnguarded(moduleName); });
     }
 
     auto fetchModuleName(ModuleId id)
     {
-        Sqlite::DeferredTransaction transaction{database};
-
-        auto moduleName = fetchModuleNameUnguarded(id);
-
-        transaction.commit();
-
-        return moduleName;
+        return Sqlite::withDeferredTransaction(database, [&] {
+            return fetchModuleNameUnguarded(id);
+        });
     }
 
     auto fetchAllModules() const
