@@ -95,7 +95,8 @@ TEST_F(SqliteDatabase, CreateDatabaseWithLockingModeNormal)
 
     Sqlite::Database database{path, JournalMode::Wal, Sqlite::LockingMode::Normal};
 
-    ASSERT_THAT(database.lockingMode(), Sqlite::LockingMode::Normal);
+    ASSERT_THAT(Sqlite::withImmediateTransaction(database, [&] { return database.lockingMode(); }),
+                Sqlite::LockingMode::Normal);
 }
 
 TEST_F(SqliteDatabase, ExclusivelyLockedDatabaseIsLockedForSecondConnection)

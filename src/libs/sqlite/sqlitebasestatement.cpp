@@ -274,6 +274,9 @@ void BaseStatement::bind(int index, ValueView value)
 
 void BaseStatement::prepare(Utils::SmallStringView sqlStatement)
 {
+    if (!m_database.isLocked())
+        throw DatabaseIsNotLocked{};
+
     int resultCode;
 
     do {

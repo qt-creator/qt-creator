@@ -38,8 +38,13 @@ public:
 
     ProjectStorage(Database &database, bool isInitialized)
         : database{database}
+        , exclusiveTransaction{database}
         , initializer{database, isInitialized}
     {
+        exclusiveTransaction.commit();
+
+        database.walCheckpointFull();
+
         moduleCache.populate();
     }
 
@@ -2242,8 +2247,6 @@ private:
         Initializer(Database &database, bool isInitialized)
         {
             if (!isInitialized) {
-                Sqlite::ExclusiveTransaction transaction{database};
-
                 auto moduleIdColumn = createModulesTable(database);
                 createSourceContextsTable(database);
                 createSourcesTable(database);
@@ -2257,10 +2260,6 @@ private:
                 createDocumentImportsTable(database, moduleIdColumn);
                 createFileStatusesTable(database);
                 createProjectDatasTable(database);
-
-                transaction.commit();
-
-                database.walCheckpointFull();
             }
             database.setIsInitialized(true);
         }
@@ -2598,6 +2597,7 @@ private:
 
 public:
     Database &database;
+    Sqlite::ExclusiveNonThrowingDestructorTransaction<Database> exclusiveTransaction;
     Initializer initializer;
     mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};
     Storage::Info::CommonTypeCache<ProjectStorageInterface> commonTypeCache_{*this};
