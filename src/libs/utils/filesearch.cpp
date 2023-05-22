@@ -22,6 +22,15 @@ Q_LOGGING_CATEGORY(searchLog, "qtc.utils.filesearch", QtWarningMsg)
 
 using namespace Utils;
 
+const int MAX_LINE_SIZE = 400;
+
+static QString clippedText(const QString &text, int maxLength)
+{
+    if (text.length() > maxLength)
+        return text.left(maxLength) + QChar(0x2026); // '...'
+    return text;
+}
+
 QTextDocument::FindFlags Utils::textDocumentFlagsForFindFlags(FindFlags flags)
 {
     QTextDocument::FindFlags textDocFlags;
@@ -32,6 +41,167 @@ QTextDocument::FindFlags Utils::textDocumentFlagsForFindFlags(FindFlags flags)
     if (flags & FindWholeWords)
         textDocFlags |= QTextDocument::FindWholeWords;
     return textDocFlags;
+}
+
+static SearchResultItems searchWithoutRegExp(const QFuture<void> &future, const QString &searchTerm,
+                                             FindFlags flags, const FilePath &filePath,
+                                             const QString &contents)
+{
+    const bool caseSensitive = (flags & QTextDocument::FindCaseSensitively);
+    const bool wholeWord = (flags & QTextDocument::FindWholeWords);
+    const QString searchTermLower = searchTerm.toLower();
+    const QString searchTermUpper = searchTerm.toUpper();
+    const int termMaxIndex = searchTerm.length() - 1;
+    const QChar *termData = searchTerm.constData();
+    const QChar *termDataLower = searchTermLower.constData();
+    const QChar *termDataUpper = searchTermUpper.constData();
+
+    SearchResultItems results;
+    QString copy = contents;
+    QTextStream stream(&copy);
+    int lineNr = 0;
+
+    while (!stream.atEnd()) {
+        ++lineNr;
+        const QString chunk = stream.readLine();
+        const int chunkLength = chunk.length();
+        const QChar *chunkPtr = chunk.constData();
+        const QChar *chunkEnd = chunkPtr + chunkLength - 1;
+        for (const QChar *regionPtr = chunkPtr; regionPtr + termMaxIndex <= chunkEnd; ++regionPtr) {
+            const QChar *regionEnd = regionPtr + termMaxIndex;
+            if ( /* optimization check for start and end of region */
+                // case sensitive
+                (caseSensitive && *regionPtr == termData[0]
+                 && *regionEnd == termData[termMaxIndex])
+                ||
+                // case insensitive
+                (!caseSensitive && (*regionPtr == termDataLower[0]
+                                    || *regionPtr == termDataUpper[0])
+                 && (*regionEnd == termDataLower[termMaxIndex]
+                     || *regionEnd == termDataUpper[termMaxIndex]))
+                ) {
+                bool equal = true;
+
+                // whole word check
+                const QChar *beforeRegion = regionPtr - 1;
+                const QChar *afterRegion = regionEnd + 1;
+                if (wholeWord
+                    && (((beforeRegion >= chunkPtr)
+                         && (beforeRegion->isLetterOrNumber()
+                             || ((*beforeRegion) == QLatin1Char('_'))))
+                        ||
+                        ((afterRegion <= chunkEnd)
+                         && (afterRegion->isLetterOrNumber()
+                             || ((*afterRegion) == QLatin1Char('_'))))
+                        )) {
+                    equal = false;
+                } else {
+                    // check all chars
+                    int regionIndex = 1;
+                    for (const QChar *regionCursor = regionPtr + 1;
+                         regionCursor < regionEnd;
+                         ++regionCursor, ++regionIndex) {
+                        if (  // case sensitive
+                            (caseSensitive
+                             && *regionCursor != termData[regionIndex])
+                            ||
+                            // case insensitive
+                            (!caseSensitive
+                             && *regionCursor != termDataLower[regionIndex]
+                             && *regionCursor != termDataUpper[regionIndex])
+                            ) {
+                            equal = false;
+                            break;
+                        }
+                    }
+                }
+                if (equal) {
+                    SearchResultItem result;
+                    result.setFilePath(filePath);
+                    result.setMainRange(lineNr, regionPtr - chunkPtr, termMaxIndex + 1);
+                    result.setDisplayText(clippedText(chunk, MAX_LINE_SIZE));
+                    result.setUserData(QStringList());
+                    result.setUseTextEditorFont(true);
+                    results << result;
+                    regionPtr += termMaxIndex; // another +1 done by for-loop
+                }
+            }
+        }
+        if (future.isCanceled())
+            return {};
+    }
+    if (future.isCanceled())
+        return {};
+    return results;
+}
+
+static SearchResultItems searchWithRegExp(const QFuture<void> &future, const QString &searchTerm,
+                                          FindFlags flags, const FilePath &filePath,
+                                          const QString &contents)
+{
+    const QString term = flags & QTextDocument::FindWholeWords
+        ? QString::fromLatin1("\\b%1\\b").arg(searchTerm) : searchTerm;
+    const QRegularExpression::PatternOptions patternOptions = (flags & FindCaseSensitively)
+        ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
+    const QRegularExpression expression = QRegularExpression(term, patternOptions);
+    if (!expression.isValid()) {
+        QFuture<void> nonConstFuture = future;
+        nonConstFuture.cancel();
+        return {};
+    }
+
+    SearchResultItems results;
+    QString copy = contents;
+    QTextStream stream(&copy);
+    int lineNr = 0;
+
+    QRegularExpressionMatch match;
+    while (!stream.atEnd()) {
+        ++lineNr;
+        const QString line = stream.readLine();
+        const QString resultItemText = clippedText(line, MAX_LINE_SIZE);
+        int lengthOfLine = line.size();
+        int pos = 0;
+        while ((match = expression.match(line, pos)).hasMatch()) {
+            pos = match.capturedStart();
+            SearchResultItem result;
+            result.setFilePath(filePath);
+            result.setMainRange(lineNr, pos, match.capturedLength());
+            result.setDisplayText(resultItemText);
+            result.setUserData(match.capturedTexts());
+            result.setUseTextEditorFont(true);
+            results << result;
+            if (match.capturedLength() == 0)
+                break;
+            pos += match.capturedLength();
+            if (pos >= lengthOfLine)
+                break;
+        }
+        if (future.isCanceled())
+            return {};
+    }
+    if (future.isCanceled())
+        return {};
+    return results;
+}
+
+static SearchResultItems searchInContents(const QFuture<void> &future, const QString &searchTerm,
+                                          FindFlags flags, const FilePath &filePath,
+                                          const QString &contents)
+{
+    if (flags & FindRegularExpression)
+        return searchWithRegExp(future, searchTerm, flags, filePath, contents);
+    return searchWithoutRegExp(future, searchTerm, flags, filePath, contents);
+}
+
+void searchInContents(QPromise<SearchResultItems> &promise, const QString &searchTerm,
+                      FindFlags flags, const FilePath &filePath, const QString &contents)
+{
+    const QFuture<void> future(promise.future());
+    const SearchResultItems results = searchInContents(future, searchTerm, flags, filePath,
+                                                       contents);
+    if (!promise.isCanceled())
+        promise.addResult(results);
 }
 
 static inline QString msgCanceled(const QString &searchTerm, int numMatches, int numFilesSearched)
@@ -47,15 +217,6 @@ static inline QString msgFound(const QString &searchTerm, int numMatches, int nu
 }
 
 namespace {
-
-const int MAX_LINE_SIZE = 400;
-
-QString clippedText(const QString &text, int maxLength)
-{
-    if (text.length() > maxLength)
-        return text.left(maxLength) + QChar(0x2026); // '...'
-    return text;
-}
 
 // returns success
 static bool getFileContent(const FilePath &filePath,
