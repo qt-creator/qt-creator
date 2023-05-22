@@ -54,14 +54,12 @@ public:
     QFuture<SearchResultItems> executeSearch(const TextEditor::FileFindParameters &parameters,
                                              BaseFileFind *baseFileFind) override
     {
-        const auto func = parameters.flags & FindRegularExpression ? Utils::findInFilesRegExp
-                                                                   : Utils::findInFiles;
-
-        return func(parameters.text,
-                    baseFileFind->files(parameters.nameFilters, parameters.exclusionFilters,
-                                        parameters.additionalParameters),
-                    Utils::textDocumentFlagsForFindFlags(parameters.flags),
-                    TextDocument::openedTextDocumentContents());
+        return Utils::findInFiles(parameters.text,
+                                  baseFileFind->files(parameters.nameFilters,
+                                                      parameters.exclusionFilters,
+                                                      parameters.additionalParameters),
+                                  parameters.flags,
+                                  TextDocument::openedTextDocumentContents());
 
     }
     Core::IEditor *openEditor(const SearchResultItem &/*item*/,

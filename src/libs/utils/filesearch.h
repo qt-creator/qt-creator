@@ -171,15 +171,7 @@ private:
 };
 
 QTCREATOR_UTILS_EXPORT QFuture<SearchResultItems> findInFiles(const QString &searchTerm,
-    FileIterator *files,
-    QTextDocument::FindFlags flags,
-    const QMap<FilePath, QString> &fileToContentsMap = {});
-
-QTCREATOR_UTILS_EXPORT QFuture<SearchResultItems> findInFilesRegExp(
-    const QString &searchTerm,
-    FileIterator *files,
-    QTextDocument::FindFlags flags,
-    const QMap<FilePath, QString> &fileToContentsMap = {});
+    FileIterator *files, FindFlags flags, const QMap<FilePath, QString> &fileToContentsMap);
 
 QTCREATOR_UTILS_EXPORT QString expandRegExpReplacement(const QString &replaceText,
                                                        const QStringList &capturedTexts);
