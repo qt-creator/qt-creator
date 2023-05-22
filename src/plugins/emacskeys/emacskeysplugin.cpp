@@ -135,11 +135,6 @@ void EmacsKeysPlugin::extensionsInitialized()
 {
 }
 
-ExtensionSystem::IPlugin::ShutdownFlag EmacsKeysPlugin::aboutToShutdown()
-{
-    return SynchronousShutdown;
-}
-
 void EmacsKeysPlugin::editorAboutToClose(IEditor *editor)
 {
     auto w = qobject_cast<QPlainTextEdit*>(editor->widget());

@@ -26,6 +26,8 @@
 #include "../settingsdatabase.h"
 #include "../statusbarmanager.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/qtcassert.h>
@@ -147,7 +149,6 @@ bool Locator::delayedInitialize()
 
 void Locator::aboutToShutdown()
 {
-    m_shuttingDown = true;
     m_refreshTimer.stop();
     m_taskTree.reset();
 }
@@ -373,7 +374,7 @@ void Locator::setUseCenteredPopupForShortcut(bool center)
 
 void Locator::refresh(const QList<ILocatorFilter *> &filters)
 {
-    if (m_shuttingDown)
+    if (ExtensionSystem::PluginManager::isShuttingDown())
         return;
 
     m_taskTree.reset(); // Superfluous, just for clarity. The next reset() below is enough.

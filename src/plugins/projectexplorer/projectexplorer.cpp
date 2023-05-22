@@ -177,6 +177,7 @@
 */
 
 using namespace Core;
+using namespace ExtensionSystem;
 using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
@@ -600,7 +601,6 @@ public:
     BuildPropertiesSettings m_buildPropertiesSettings;
     QList<CustomParserSettings> m_customParsers;
     bool m_shouldHaveRunConfiguration = false;
-    bool m_shuttingDown = false;
     Id m_runMode = Constants::NO_RUN_MODE;
 
     ToolChainManager *m_toolChainManager = nullptr;
@@ -1632,11 +1632,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             dd, &ProjectExplorerPluginPrivate::savePersistentSettings);
     connect(EditorManager::instance(), &EditorManager::autoSaved, this, [] {
-        if (!dd->m_shuttingDown && !SessionManager::loadingSession())
+        if (!PluginManager::isShuttingDown() && !SessionManager::loadingSession())
             SessionManager::saveSession();
     });
     connect(qApp, &QApplication::applicationStateChanged, this, [](Qt::ApplicationState state) {
-        if (!dd->m_shuttingDown && state == Qt::ApplicationActive)
+        if (!PluginManager::isShuttingDown() && state == Qt::ApplicationActive)
             dd->updateWelcomePage();
     });
 
@@ -2173,15 +2173,13 @@ void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()
     m_runWithoutDeployAction->setVisible(m_projectExplorerSettings.deployBeforeRun);
 }
 
-ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
+IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
 {
     disconnect(ModeManager::instance(), &ModeManager::currentModeChanged,
                dd, &ProjectExplorerPluginPrivate::currentModeChanged);
     ProjectTree::aboutToShutDown();
     ToolChainManager::aboutToShutdown();
     ProjectManager::closeAllProjects();
-
-    dd->m_shuttingDown = true;
 
     // Attempt to synchronously shutdown all run controls.
     // If that fails, fall back to asynchronous shutdown (Debugger run controls
@@ -2251,7 +2249,7 @@ bool ProjectExplorerPluginPrivate::closeAllFilesInProject(const Project *project
 
 void ProjectExplorerPluginPrivate::savePersistentSettings()
 {
-    if (dd->m_shuttingDown)
+    if (PluginManager::isShuttingDown())
         return;
 
     if (!SessionManager::loadingSession())  {
@@ -2560,7 +2558,7 @@ void ProjectExplorerPluginPrivate::checkForShutdown()
 {
     --m_activeRunControlCount;
     QTC_ASSERT(m_activeRunControlCount >= 0, m_activeRunControlCount = 0);
-    if (m_shuttingDown && m_activeRunControlCount == 0)
+    if (PluginManager::isShuttingDown() && m_activeRunControlCount == 0)
         emit m_instance->asynchronousShutdownFinished();
 }
 
