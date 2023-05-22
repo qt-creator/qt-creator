@@ -122,7 +122,7 @@ private:
     QMap<QString, FilePath> m_filesToPull;
 
     QStringList m_androidABIs;
-    BoolAspect *m_uninstallPreviousPackage = nullptr;
+    BoolAspect m_uninstallPreviousPackage{this};
     bool m_uninstallPreviousPackageRun = false;
     bool m_useAndroiddeployqt = false;
     bool m_askForUninstall = false;
@@ -142,18 +142,18 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
 {
     setImmutable(true);
     setUserExpanded(true);
+    setOwnsSubAspects(false);
 
-    m_uninstallPreviousPackage = addAspect<BoolAspect>();
-    m_uninstallPreviousPackage->setSettingsKey(UninstallPreviousPackageKey);
-    m_uninstallPreviousPackage->setLabel(Tr::tr("Uninstall the existing app before deployment"),
-                                         BoolAspect::LabelPlacement::AtCheckBox);
-    m_uninstallPreviousPackage->setValue(false);
+    m_uninstallPreviousPackage.setSettingsKey(UninstallPreviousPackageKey);
+    m_uninstallPreviousPackage.setLabel(Tr::tr("Uninstall the existing app before deployment"),
+                                        BoolAspect::LabelPlacement::AtCheckBox);
+    m_uninstallPreviousPackage.setValue(false);
 
     const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
     const bool forced = qt && qt->qtVersion() < QVersionNumber(5, 4, 0);
     if (forced) {
-        m_uninstallPreviousPackage->setValue(true);
-        m_uninstallPreviousPackage->setEnabled(false);
+        m_uninstallPreviousPackage.setValue(true);
+        m_uninstallPreviousPackage.setEnabled(false);
     }
 
     connect(this, &AndroidDeployQtStep::askForUninstall,
@@ -274,7 +274,7 @@ bool AndroidDeployQtStep::init()
 
     emit addOutput(Tr::tr("Deploying to %1").arg(m_serialNumber), OutputFormat::NormalMessage);
 
-    m_uninstallPreviousPackageRun = m_uninstallPreviousPackage->value();
+    m_uninstallPreviousPackageRun = m_uninstallPreviousPackage();
     if (m_uninstallPreviousPackageRun)
         m_manifestName = AndroidManager::manifestPath(target());
 
