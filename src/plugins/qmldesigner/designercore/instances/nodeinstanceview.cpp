@@ -625,7 +625,7 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty &listProperty)
     m_nodeInstanceServer->reparentInstances(ReparentInstancesCommand(containerList));
 }
 
-void NodeInstanceView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
+void NodeInstanceView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)
 {
     restartProcess();
 }
@@ -1570,6 +1570,11 @@ void NodeInstanceView::setTarget(ProjectExplorer::Target *newTarget)
 
         restartProcess();
     }
+}
+
+ProjectExplorer::Target *NodeInstanceView::target() const
+{
+    return m_currentTarget;
 }
 
 void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedCommand &command)

@@ -1,0 +1,7 @@
+module QtWayland.Compositor.PresentationTime
+linktarget Qt6::WaylandCompositorPresentationTime
+plugin waylandcompositorpresentationtimeplugin
+classname QWaylandCompositorPresentationTimePlugin
+typeinfo plugins.qmltypes
+prefer :/qt-project.org/imports/QtWayland/Compositor/PresentationTime/
+

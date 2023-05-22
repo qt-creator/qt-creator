@@ -60,8 +60,8 @@ public:
     void switchToComponentsView();
     void delayedUpdateModel();
     void updateModel();
-    void updatePossibleImports(const QList<Import> &possibleImports);
-    void updateUsedImports(const QList<Import> &usedImports);
+    void updatePossibleImports(const Imports &possibleImports);
+    void updateUsedImports(const Imports &usedImports);
 
     void setModel(Model *model);
     void setFlowMode(bool b);

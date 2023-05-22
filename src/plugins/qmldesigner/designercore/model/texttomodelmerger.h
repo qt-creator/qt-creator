@@ -37,7 +37,7 @@ public:
     bool isActive() const;
 
     void setupImports(const QmlJS::Document::Ptr &doc, DifferenceHandler &differenceHandler);
-    void setupPossibleImports(const QmlJS::Snapshot &snapshot, const QmlJS::ViewerContext &viewContext);
+    void setupPossibleImports();
     void setupUsedImports();
     bool load(const QString &data, DifferenceHandler &differenceHandler);
 
@@ -137,8 +137,6 @@ private:
                           const QmlJS::SourceLocation &from,
                           const QmlJS::SourceLocation &to);
 
-    QString getHighestPossibleImport(const QString &importName) const;
-
 private:
     RewriterView *m_rewriterView;
     bool m_isActive;
@@ -150,8 +148,8 @@ private:
     QSet<ModelNode> m_clearImplicitComponentList;
     QmlJS::ViewerContext m_vContext;
     QSet<QPair<QString, QString> > m_qrcMapping;
-    QSet<QmlJS::ImportKey> m_possibleImportKeys;
-    int m_previousPossibleImportsSize = -1;
+    Imports m_possibleModules;
+    int m_previousPossibleModulesSize = -1;
     bool m_hasVersionlessImport = false;
 };
 

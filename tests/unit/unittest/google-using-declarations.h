@@ -5,7 +5,6 @@
 
 #include <gmock/gmock.h>
 
-
 using testing::_;
 using testing::A;
 using testing::AllOf;
@@ -21,15 +20,16 @@ using testing::ByRef;
 using testing::ContainerEq;
 using testing::Contains;
 using testing::ElementsAre;
+using testing::EndsWith;
 using testing::Eq;
 using testing::Exactly;
 using testing::Field;
+using testing::FieldsAre;
 using testing::Ge;
 using testing::Gt;
 using testing::HasSubstr;
 using testing::InSequence;
 using testing::Invoke;
-using testing::IsEmpty;
 using testing::IsNull;
 using testing::Le;
 using testing::Lt;
@@ -56,5 +56,6 @@ using testing::StrEq;
 using testing::Throw;
 using testing::TypedEq;
 using testing::UnorderedElementsAre;
+using testing::UnorderedElementsAreArray;
 using testing::VariantWith;
 using testing::WithArg;

@@ -491,7 +491,7 @@ QStringList SubComponentManager::qmlFiles() const
     return m_watcher.files();
 }
 
-void SubComponentManager::update(const QUrl &filePath, const QList<Import> &imports)
+void SubComponentManager::update(const QUrl &filePath, const Imports &imports)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << filePath << imports.size();

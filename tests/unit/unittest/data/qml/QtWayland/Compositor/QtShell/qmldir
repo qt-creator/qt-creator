@@ -1,0 +1,7 @@
+module QtWayland.Compositor.QtShell
+linktarget Qt6::WaylandCompositorQtShell
+plugin waylandcompositorqtshellplugin
+classname QWaylandQtShellPlugin
+typeinfo plugins.qmltypes
+prefer :/qt-project.org/imports/QtWayland/Compositor/QtShell/
+

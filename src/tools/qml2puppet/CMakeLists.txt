@@ -43,7 +43,7 @@ add_qtc_executable(qml2puppet
   INCLUDES
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
-    qml2puppet/main.cpp
+    qml2puppet/qml2puppetmain.cpp
     qml2puppet/qmlbase.h
     qml2puppet/appmetadata.cpp qml2puppet/appmetadata.h
     qml2puppet/qmlpuppet.h qml2puppet/qmlpuppet.cpp qml2puppet/configcrashpad.h
@@ -177,6 +177,7 @@ extend_qtc_executable(qml2puppet
     qmlstatenodeinstance.cpp qmlstatenodeinstance.h
     qmltransitionnodeinstance.cpp qmltransitionnodeinstance.h
     qt3dpresentationnodeinstance.cpp qt3dpresentationnodeinstance.h
+    qt5bakelightsnodeinstanceserver.cpp qt5bakelightsnodeinstanceserver.h
     qt5informationnodeinstanceserver.cpp qt5informationnodeinstanceserver.h
     qt5nodeinstanceclientproxy.cpp qt5nodeinstanceclientproxy.h
     qt5nodeinstanceserver.cpp qt5nodeinstanceserver.h
@@ -237,6 +238,7 @@ if (Qt6_VERSION VERSION_GREATER_EQUAL 6.4.0)
     qt_add_qml_module(qml2puppet
         URI QmlRuntime.QmlConfiguration
         VERSION 1.0
+        RESOURCE_PREFIX "/qt-project.org/imports"
     )
     if (QTC_STATIC_BUILD)
       qt_import_qml_plugins(qml2puppet PATH_TO_SCAN ${SRCDIR})

@@ -14,22 +14,22 @@ namespace QmlDesigner {
 class AsynchronousImageCacheInterface
 {
 public:
-    virtual void requestImage(Utils::PathString name,
+    virtual void requestImage(Utils::SmallStringView name,
                               ImageCache::CaptureImageCallback captureCallback,
                               ImageCache::AbortCallback abortCallback,
-                              Utils::SmallString extraId = {},
+                              Utils::SmallStringView extraId = {},
                               ImageCache::AuxiliaryData auxiliaryData = {})
         = 0;
-    virtual void requestMidSizeImage(Utils::PathString name,
+    virtual void requestMidSizeImage(Utils::SmallStringView name,
                                      ImageCache::CaptureImageCallback captureCallback,
                                      ImageCache::AbortCallback abortCallback,
-                                     Utils::SmallString extraId = {},
+                                     Utils::SmallStringView extraId = {},
                                      ImageCache::AuxiliaryData auxiliaryData = {})
         = 0;
-    virtual void requestSmallImage(Utils::PathString name,
+    virtual void requestSmallImage(Utils::SmallStringView name,
                                    ImageCache::CaptureImageCallback captureCallback,
                                    ImageCache::AbortCallback abortCallback,
-                                   Utils::SmallString extraId = {},
+                                   Utils::SmallStringView extraId = {},
                                    ImageCache::AuxiliaryData auxiliaryData = {})
         = 0;
 

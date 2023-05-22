@@ -47,10 +47,10 @@
         \li Creates a project that uses default and 3D components such as
             cameras, lights, 3D models, and materials.
     \row
-        \li Qt for MCUs
+        \li \QMCU
         \li MCU
         \li Creates an application that uses a subset of default components
-            (as supported by Qt for MCUs) that you can deploy, run, and debug
+            (as supported by \QMCU) that you can deploy, run, and debug
             on MCU boards.
     \row
         \li {1,3} Mobile

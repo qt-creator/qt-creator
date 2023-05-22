@@ -95,4 +95,9 @@ const char *FileStatusHasInvalidSourceId::what() const noexcept
     return "The source id in file status is invalid!";
 }
 
+const char *ProjectStorageError::what() const noexcept
+{
+    return "Project storage error!";
+}
+
 } // namespace QmlDesigner

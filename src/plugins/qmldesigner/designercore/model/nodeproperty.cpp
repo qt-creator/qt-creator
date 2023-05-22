@@ -32,7 +32,7 @@ void NodeProperty::setModelNode(const ModelNode &modelNode)
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isNodeProperty())
-        privateModel()->removeProperty(internalNode()->property(name()));
+        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
 
     privateModel()->reparentNode(internalNode(), name(), modelNode.internalNode(), false); //### we have to add a flag that this is not a list
 }

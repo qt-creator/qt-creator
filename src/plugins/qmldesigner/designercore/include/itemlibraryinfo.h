@@ -6,9 +6,10 @@
 #include "qmldesignercorelib_global.h"
 
 #include "propertycontainer.h"
+#include <memory>
+#include <QIcon>
 #include <QPointer>
 #include <QSet>
-#include <memory>
 
 namespace QmlDesigner {
 

@@ -3,14 +3,18 @@
 
 #pragma once
 
+#include <QToolBar>
+
+#include <utils/uniqueobjectptr.h>
+
 namespace QmlDesigner {
 
 class ToolBar
 {
 
 public:
-    static void create();
-    static void createStatusBar();
+    static Utils::UniqueObjectPtr<QToolBar> create();
+    static Utils::UniqueObjectPtr<QWidget> createStatusBar();
     static bool isVisible();
 };
 

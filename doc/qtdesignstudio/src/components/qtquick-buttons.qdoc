@@ -19,11 +19,7 @@
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New File} >
-            \if defined(qtcreator)
-            \uicontrol Qt > \uicontrol {Qt Quick UI File} >
-            \else
             \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick UI File} >
-            \endif
             \uicontrol Choose to create a \l{UI Files}{UI file} called
             Button.ui.qml (for example).
 
@@ -105,11 +101,7 @@
 /*!
     \previouspage quick-buttons.html
     \page quick-scalable-image.html
-    \if defined(qtdesignstudio)
     \nextpage qtquick-properties.html
-    \else
-    \nextpage studio-optimized-3d-scenes.html
-    \endif
 
     \title Creating Scalable Buttons and Borders
 
@@ -136,11 +128,8 @@
 
     To create a button component, select \uicontrol File >
     \uicontrol {New File} >
-    \if defined(qtcreator)
-    \uicontrol Qt > \uicontrol {Qt Quick UI File} >
-    \else
     \uicontrol {Qt Quick Files} > \uicontrol {Qt Quick UI File} >
-    \endif
+
     \uicontrol Choose to create a \l{UI Files}{UI file} called Button.ui.qml
     (for example).
 

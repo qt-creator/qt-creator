@@ -8,7 +8,7 @@ import StudioTheme 1.0 as StudioTheme
 
 Section {
     id: root
-    caption: qsTr("Analytics")
+    caption: qsTr("Insight")
 
     anchors.left: parent.left
     anchors.right: parent.right
@@ -80,6 +80,25 @@ Section {
                     }
                 }
                 Component.onCompleted: comboBox.invalidate()
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: qsTr("Object name")
+            tooltip: qsTr("Sets the object name of the component.")
+        }
+
+        SecondColumnLayout {
+            LineEdit {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: StudioTheme.Values.singleControlColumnWidth
+                backendValue: backendValues.objectName
+                text: backendValues.objectName.value
+                showTranslateCheckBox: false
+                enabled: !modelNodeBackend.multiSelection
             }
 
             ExpandingSpacer {}

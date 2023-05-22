@@ -1,21 +1,9 @@
 add_qtc_plugin(QmlProjectManager
   CONDITION TARGET Qt::QuickWidgets
-  PROPERTIES COMPILE_WARNING_AS_ERROR ON
   PLUGIN_CLASS QmlProjectPlugin
-  DEPENDS QmlJS Qt::QuickWidgets
+  DEPENDS QmlJS Qt::QuickWidgets Utils
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport QmlDesignerBase
   SOURCES
-    fileformat/filefilteritems.cpp fileformat/filefilteritems.h
-    fileformat/qmlprojectfileformat.cpp fileformat/qmlprojectfileformat.h
-    fileformat/qmlprojectitem.cpp fileformat/qmlprojectitem.h
-    cmakegen/checkablefiletreeitem.cpp cmakegen/checkablefiletreeitem.h
-    cmakegen/cmakegeneratordialog.cpp cmakegen/cmakegeneratordialog.h
-    cmakegen/cmakegeneratordialogtreemodel.cpp cmakegen/cmakegeneratordialogtreemodel.h
-    cmakegen/cmakeprojectconverter.cpp cmakegen/cmakeprojectconverter.h
-    cmakegen/cmakeprojectconverterdialog.cpp cmakegen/cmakeprojectconverterdialog.h
-    cmakegen/generatecmakelists.cpp cmakegen/generatecmakelists.h
-    cmakegen/generatecmakelistsconstants.h
-    cmakegen/boilerplate.qrc
     qmlprojectgen/qmlprojectgenerator.cpp qmlprojectgen/qmlprojectgenerator.h
     qmlprojectgen/templates.qrc
     projectfilecontenttools.cpp projectfilecontenttools.h
@@ -29,8 +17,52 @@ add_qtc_plugin(QmlProjectManager
     qmlprojectmanager_global.h
     qmlprojectmanagertr.h
     qmlprojectmanagerconstants.h
-    qmlprojectnodes.cpp qmlprojectnodes.h
     qmlprojectplugin.cpp qmlprojectplugin.h
     qmlprojectrunconfiguration.cpp qmlprojectrunconfiguration.h
+    buildsystem/qmlbuildsystem.cpp buildsystem/qmlbuildsystem.h
+
     "${PROJECT_SOURCE_DIR}/src/share/3rdparty/studiofonts/studiofonts.qrc"
+)
+
+extend_qtc_plugin(QmlProjectManager
+    CONDITION NOT DISABLE_COMPILE_WARNING_AS_ERROR
+    PROPERTIES COMPILE_WARNING_AS_ERROR ON
+)
+
+extend_qtc_plugin(QmlProjectManager
+  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/buildsystem
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/buildsystem
+  SOURCES
+      projectitem/filefilteritems.cpp projectitem/filefilteritems.h
+      projectitem/qmlprojectitem.cpp projectitem/qmlprojectitem.h
+      projectitem/converters.h projectitem/converters.cpp
+      projectnode/qmlprojectnodes.cpp projectnode/qmlprojectnodes.h
+)
+
+extend_qtc_plugin(QmlProjectManager
+  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/cmakegen
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/cmakegen
+  SOURCES
+      checkablefiletreeitem.cpp checkablefiletreeitem.h
+      cmakegeneratordialog.cpp cmakegeneratordialog.h
+      cmakegeneratordialogtreemodel.cpp cmakegeneratordialogtreemodel.h
+      cmakeprojectconverter.cpp cmakeprojectconverter.h
+      cmakeprojectconverterdialog.cpp cmakeprojectconverterdialog.h
+      generatecmakelists.cpp generatecmakelists.h
+      generatecmakelistsconstants.h
+      boilerplate.qrc
+)
+
+add_qtc_library(QmlProjectManagerLib OBJECT
+    CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3
+    EXCLUDE_FROM_INSTALL
+    DEPENDS
+        QmlJS Utils
+    INCLUDES
+        ${CMAKE_CURRENT_LIST_DIR}
+    SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/buildsystem
+    SOURCES
+        projectitem/filefilteritems.cpp projectitem/filefilteritems.h
+        projectitem/qmlprojectitem.cpp projectitem/qmlprojectitem.h
+        projectitem/converters.cpp projectitem/converters.h
 )

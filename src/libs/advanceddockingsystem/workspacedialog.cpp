@@ -13,102 +13,10 @@
 #include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QLabel>
-#include <QLineEdit>
 #include <QPushButton>
-#include <QRegularExpression>
-#include <QValidator>
+#include <QLineEdit>
 
 namespace ADS {
-
-class WorkspaceValidator : public QValidator
-{
-public:
-    WorkspaceValidator(QObject *parent, const QStringList &workspaces);
-    void fixup(QString &input) const override;
-    QValidator::State validate(QString &input, int &pos) const override;
-
-private:
-    QStringList m_workspaces;
-};
-
-WorkspaceValidator::WorkspaceValidator(QObject *parent, const QStringList &workspaces)
-    : QValidator(parent)
-    , m_workspaces(workspaces)
-{}
-
-QValidator::State WorkspaceValidator::validate(QString &input, int &pos) const
-{
-    Q_UNUSED(pos)
-
-    static const QRegularExpression rx("^[a-zA-Z0-9 ()\\-]*$");
-
-    if (!rx.match(input).hasMatch())
-        return QValidator::Invalid;
-
-    if (m_workspaces.contains(input))
-        return QValidator::Intermediate;
-    else
-        return QValidator::Acceptable;
-}
-
-void WorkspaceValidator::fixup(QString &input) const
-{
-    int i = 2;
-    QString copy;
-    do {
-        copy = input + QLatin1String(" (") + QString::number(i) + QLatin1Char(')');
-        ++i;
-    } while (m_workspaces.contains(copy));
-    input = copy;
-}
-
-WorkspaceNameInputDialog::WorkspaceNameInputDialog(DockManager *manager, QWidget *parent)
-    : QDialog(parent)
-    , m_manager(manager)
-{
-    auto label = new QLabel(Tr::tr("Enter the name of the workspace:"), this);
-    m_newWorkspaceLineEdit = new QLineEdit(this);
-    m_newWorkspaceLineEdit->setValidator(new WorkspaceValidator(this, m_manager->workspaces()));
-    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                                        Qt::Horizontal,
-                                        this);
-    m_okButton = buttons->button(QDialogButtonBox::Ok);
-    m_switchToButton = new QPushButton;
-    buttons->addButton(m_switchToButton, QDialogButtonBox::AcceptRole);
-    connect(m_switchToButton, &QPushButton::clicked, this, [this] { m_usedSwitchTo = true; });
-    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
-    using namespace Layouting;
-
-    Column {
-        label,
-        m_newWorkspaceLineEdit,
-        buttons
-    }.attachTo(this);
-}
-
-void WorkspaceNameInputDialog::setActionText(const QString &actionText,
-                                             const QString &openActionText)
-{
-    m_okButton->setText(actionText);
-    m_switchToButton->setText(openActionText);
-}
-
-void WorkspaceNameInputDialog::setValue(const QString &value)
-{
-    m_newWorkspaceLineEdit->setText(value);
-}
-
-QString WorkspaceNameInputDialog::value() const
-{
-    return m_newWorkspaceLineEdit->text();
-}
-
-bool WorkspaceNameInputDialog::isSwitchToRequested() const
-{
-    return m_usedSwitchTo;
-}
 
 WorkspaceDialog::WorkspaceDialog(DockManager *manager, QWidget *parent)
     : QDialog(parent)
@@ -122,9 +30,12 @@ WorkspaceDialog::WorkspaceDialog(DockManager *manager, QWidget *parent)
     , m_btSwitch(new QPushButton(Tr::tr("&Switch To")))
     , m_btImport(new QPushButton(Tr::tr("Import")))
     , m_btExport(new QPushButton(Tr::tr("Export")))
+    , m_btUp(new QPushButton(Tr::tr("Move Up")))
+    , m_btDown(new QPushButton(Tr::tr("Move Down")))
     , m_autoLoadCheckBox(new QCheckBox(Tr::tr("Restore last workspace on startup")))
 {
     setWindowTitle(Tr::tr("Workspace Manager"));
+    resize(550, 380);
 
     m_workspaceView->setActivationMode(Utils::DoubleClickActivation);
 
@@ -139,34 +50,27 @@ WorkspaceDialog::WorkspaceDialog(DockManager *manager, QWidget *parent)
 
     using namespace Layouting;
 
-    Column {
-        Row {
-            Column {
-                m_workspaceView,
-                m_autoLoadCheckBox
-            },
-            Column {
-                m_btCreateNew,
-                m_btRename,
-                m_btClone,
-                m_btDelete,
-                m_btReset,
-                m_btSwitch,
-                st,
-                m_btImport,
-                m_btExport
-            }
-        },
-        hr,
-        Row {
-            whatsAWorkspaceLabel,
-            buttonBox
-        }
-    }.attachTo(this);
+    Column{Row{Column{m_workspaceView, m_autoLoadCheckBox},
+               Column{m_btCreateNew,
+                      m_btRename,
+                      m_btClone,
+                      m_btDelete,
+                      m_btReset,
+                      m_btSwitch,
+                      st,
+                      m_btUp,
+                      m_btDown,
+                      st,
+                      m_btImport,
+                      m_btExport}},
+           hr,
+           Row{whatsAWorkspaceLabel, buttonBox}}
+        .attachTo(this);
 
-
-    connect(m_btCreateNew, &QAbstractButton::clicked,
-            m_workspaceView, &WorkspaceView::createNewWorkspace);
+    connect(m_btCreateNew,
+            &QAbstractButton::clicked,
+            m_workspaceView,
+            &WorkspaceView::createNewWorkspace);
     connect(m_btClone, &QAbstractButton::clicked,
             m_workspaceView, &WorkspaceView::cloneCurrentWorkspace);
     connect(m_btDelete, &QAbstractButton::clicked,
@@ -183,10 +87,15 @@ WorkspaceDialog::WorkspaceDialog(DockManager *manager, QWidget *parent)
             this, &WorkspaceDialog::updateActions);
     connect(m_btImport, &QAbstractButton::clicked,
             m_workspaceView, &WorkspaceView::importWorkspace);
-    connect(m_btExport, &QAbstractButton::clicked,
-            m_workspaceView, &WorkspaceView::exportCurrentWorkspace);
+    connect(m_btExport,
+            &QAbstractButton::clicked,
+            m_workspaceView,
+            &WorkspaceView::exportCurrentWorkspace);
 
-   updateActions(m_workspaceView->selectedWorkspaces());
+    connect(m_btUp, &QAbstractButton::clicked, m_workspaceView, &WorkspaceView::moveWorkspaceUp);
+    connect(m_btDown, &QAbstractButton::clicked, m_workspaceView, &WorkspaceView::moveWorkspaceDown);
+
+    updateActions(m_workspaceView->selectedWorkspaces());
 }
 
 void WorkspaceDialog::setAutoLoadWorkspace(bool check)
@@ -204,29 +113,50 @@ DockManager *WorkspaceDialog::dockManager() const
     return m_manager;
 }
 
-void WorkspaceDialog::updateActions(const QStringList &workspaces)
+void WorkspaceDialog::updateActions(const QStringList &fileNames)
 {
-    if (workspaces.isEmpty()) {
+    if (fileNames.isEmpty()) {
         m_btDelete->setEnabled(false);
         m_btRename->setEnabled(false);
         m_btClone->setEnabled(false);
         m_btReset->setEnabled(false);
         m_btSwitch->setEnabled(false);
+        m_btUp->setEnabled(false);
+        m_btDown->setEnabled(false);
         m_btExport->setEnabled(false);
         return;
     }
-    const bool presetIsSelected = Utils::anyOf(workspaces, [this](const QString &workspace) {
-        return m_manager->isWorkspacePreset(workspace);
+    const bool presetIsSelected = Utils::anyOf(fileNames, [this](const QString &fileName) {
+        Workspace *workspace = m_manager->workspace(fileName);
+        if (!workspace)
+            return false;
+
+        return workspace->isPreset();
     });
-    const bool activeIsSelected = Utils::anyOf(workspaces, [this](const QString &workspace) {
-        return workspace == m_manager->activeWorkspace();
+    const bool activeIsSelected = Utils::anyOf(fileNames, [this](const QString &fileName) {
+        Workspace *workspace = m_manager->workspace(fileName);
+        if (!workspace)
+            return false;
+
+        return *workspace == *m_manager->activeWorkspace();
     });
+    const bool canMoveUp = Utils::anyOf(fileNames, [this](const QString &fileName) {
+        return m_manager->workspaceIndex(fileName) > 0;
+    });
+    const int count = m_manager->workspaces().count();
+    const bool canMoveDown = Utils::anyOf(fileNames, [this, &count](const QString &fileName) {
+        const int i = m_manager->workspaceIndex(fileName);
+        return i < (count - 1);
+    });
+
     m_btDelete->setEnabled(!activeIsSelected && !presetIsSelected);
-    m_btRename->setEnabled(workspaces.size() == 1 && !presetIsSelected);
-    m_btClone->setEnabled(workspaces.size() == 1);
+    m_btRename->setEnabled(fileNames.size() == 1 && !presetIsSelected);
+    m_btClone->setEnabled(fileNames.size() == 1);
     m_btReset->setEnabled(presetIsSelected);
-    m_btSwitch->setEnabled(workspaces.size() == 1);
-    m_btExport->setEnabled(workspaces.size() == 1);
+    m_btSwitch->setEnabled(fileNames.size() == 1 && !activeIsSelected);
+    m_btUp->setEnabled(fileNames.size() == 1 && canMoveUp);
+    m_btDown->setEnabled(fileNames.size() == 1 && canMoveDown);
+    m_btExport->setEnabled(fileNames.size() == 1);
 }
 
 } // namespace ADS

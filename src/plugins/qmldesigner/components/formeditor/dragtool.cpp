@@ -77,8 +77,6 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry,
                                  const QmlItemNode &parentNode,
                                  const QPointF &scenePosition)
 {
-    MetaInfo metaInfo = MetaInfo::global();
-
     FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
     const QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform().inverted().map(scenePosition);
     QPointF itemPos = positonInItemSpace;
@@ -107,8 +105,6 @@ void DragTool::createQmlItemNodeFromImage(const QString &imagePath,
                                           const QPointF &scenePosition)
 {
     if (parentNode.isValid()) {
-        MetaInfo metaInfo = MetaInfo::global();
-
         FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
         QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform().inverted().map(scenePosition);
 
@@ -121,8 +117,6 @@ void DragTool::createQmlItemNodeFromFont(const QString &fontPath,
                                          const QPointF &scenePos)
 {
     if (parentNode.isValid()) {
-        MetaInfo metaInfo = MetaInfo::global();
-
         FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
         QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform()
                 .inverted().map(scenePos);

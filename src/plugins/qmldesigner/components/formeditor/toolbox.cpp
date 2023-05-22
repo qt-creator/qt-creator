@@ -20,6 +20,8 @@ ToolBox::ToolBox(QWidget *parentWidget)
     , m_rightToolBar(new QToolBar(QLatin1String("RightSidebar"), this))
 {
     Utils::StyleHelper::setPanelWidget(this, false);
+    Utils::StyleHelper::setPanelWidgetSingleRow(this, false);
+    setFixedHeight(Theme::toolbarSize());
 
     m_leftToolBar->setFloatable(true);
     m_leftToolBar->setMovable(true);
@@ -28,8 +30,6 @@ ToolBox::ToolBox(QWidget *parentWidget)
     auto horizontalLayout = new QHBoxLayout(this);
     horizontalLayout->setContentsMargins(0, 0, 0, 0);
     horizontalLayout->setSpacing(0);
-
-    setFixedHeight(Theme::toolbarSize());
 
     Utils::StyleHelper::setPanelWidget(m_leftToolBar, false);
     Utils::StyleHelper::setPanelWidgetSingleRow(m_leftToolBar, false);

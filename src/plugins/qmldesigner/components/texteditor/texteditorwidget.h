@@ -3,6 +3,7 @@
 #pragma once
 
 #include <texteditor/texteditor.h>
+#include <utils/uniqueobjectptr.h>
 
 #include <QTimer>
 #include <QVBoxLayout>
@@ -25,7 +26,7 @@ class TextEditorWidget : public QWidget {
 public:
     TextEditorWidget(TextEditorView *textEditorView);
 
-    void setTextEditor(TextEditor::BaseTextEditor *textEditor);
+    void setTextEditor(Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor> textEditor);
 
     TextEditor::BaseTextEditor *textEditor() const
     {
@@ -51,7 +52,7 @@ protected:
 private:
     void updateSelectionByCursorPosition();
 
-    std::unique_ptr<TextEditor::BaseTextEditor> m_textEditor;
+    Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor> m_textEditor;
     QPointer<TextEditorView> m_textEditorView;
     QTimer m_updateSelectionTimer;
     TextEditorStatusBar *m_statusBar = nullptr;

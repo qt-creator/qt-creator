@@ -1,0 +1,8 @@
+module QtInterfaceFramework.Media
+linktarget Qt6::IfMediaplugin
+optional plugin ifmediaplugin
+classname QIfMediaPlugin
+typeinfo plugins.qmltypes
+import QtInterfaceFramework auto
+prefer :/qt-project.org/imports/QtInterfaceFramework/Media/
+

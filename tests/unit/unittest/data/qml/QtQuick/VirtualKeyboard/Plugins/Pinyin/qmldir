@@ -1,0 +1,8 @@
+module QtQuick.VirtualKeyboard.Plugins.Pinyin
+linktarget Qt6::qtvkbpinyinplugin
+plugin qtvkbpinyinplugin
+classname QtQuick_VirtualKeyboard_Plugins_PinyinPlugin
+typeinfo plugins.qmltypes
+depends QtQuick.VirtualKeyboard auto
+prefer :/qt-project.org/imports/QtQuick/VirtualKeyboard/Plugins/Pinyin/
+

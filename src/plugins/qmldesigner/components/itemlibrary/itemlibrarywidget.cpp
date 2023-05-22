@@ -18,6 +18,7 @@
 #include <itemlibrarymodel.h>
 #include <metainfo.h>
 #include <model.h>
+#include <model/modelutils.h>
 #include <rewritingexception.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
@@ -59,7 +60,7 @@ namespace QmlDesigner {
 static QString propertyEditorResourcesPath()
 {
 #ifdef SHARE_QML_PATH
-    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+    if (::Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
@@ -80,26 +81,16 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 ItemLibraryEntry entry = m_itemToDrag.value<ItemLibraryEntry>();
                 // For drag to be handled correctly, we must have the component properly imported
                 // beforehand, so we import the module immediately when the drag starts
-                if (!entry.requiredImport().isEmpty()) {
-                    // We don't know if required import is library of file import, so try both.
-                    Import libImport = Import::createLibraryImport(entry.requiredImport());
-                    Import fileImport = Import::createFileImport(entry.requiredImport());
-                    if (!m_model->hasImport(libImport, true, true)
-                            && !m_model->hasImport(fileImport, true, true)) {
-                        const QList<Import> possImports = m_model->possibleImports();
-                        for (const auto &possImport : possImports) {
-                            if ((!possImport.url().isEmpty() && possImport.url() == libImport.url())
-                                || (!possImport.file().isEmpty() && possImport.file() == fileImport.file())) {
-                                m_model->changeImports({possImport}, {});
-                                break;
-                            }
-                        }
-                    }
+                if (!entry.requiredImport().isEmpty()
+                    && !Utils::addImportWithCheck(entry.requiredImport(), m_model)) {
+                    qWarning() << __FUNCTION__ << "Required import adding failed:"
+                               << entry.requiredImport();
                 }
 
                 if (model) {
                     model->startDrag(m_itemLibraryModel->getMimeData(entry),
-                                     Utils::StyleHelper::dpiSpecificImageFile(entry.libraryEntryIconPath()));
+                                     ::Utils::StyleHelper::dpiSpecificImageFile(
+                                         entry.libraryEntryIconPath()));
                 }
 
                 m_itemToDrag = {};
@@ -154,7 +145,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     updateSearch();
 
     setStyleSheet(Theme::replaceCssColors(
-        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
+        QString::fromUtf8(::Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
 
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F5), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &ItemLibraryWidget::reloadQmlSource);
@@ -176,9 +167,8 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
                         {"itemLibraryIconHeight", m_itemIconSize.height()},
                         {"rootView", QVariant::fromValue(this)},
                         {"widthLimit", HORIZONTAL_LAYOUT_WIDTH_LIMIT},
-                        {"highlightColor", Utils::StyleHelper::notTooBrightHighlightColor()},
+                        {"highlightColor", ::Utils::StyleHelper::notTooBrightHighlightColor()},
                         {"tooltipBackend", QVariant::fromValue(m_previewTooltipBackend.get())}});
-
 
     reloadQmlSource();
 }
@@ -246,7 +236,7 @@ void ItemLibraryWidget::handleAddImport(int index)
                                                + importStr);
     }
 
-    QList<Import> imports;
+    Imports imports;
     const QString dependency = getDependencyImport(import);
 
     auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
@@ -303,7 +293,7 @@ void ItemLibraryWidget::setModel(Model *model)
 QString ItemLibraryWidget::qmlSourcesPath()
 {
 #ifdef SHARE_QML_PATH
-    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+    if (::Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/itemLibraryQmlSources";
 #endif
     return Core::ICore::resourcePath("qmldesigner/itemLibraryQmlSources").toString();
@@ -346,13 +336,13 @@ void ItemLibraryWidget::updateModel()
     updateSearch();
 }
 
-void ItemLibraryWidget::updatePossibleImports(const QList<Import> &possibleImports)
+void ItemLibraryWidget::updatePossibleImports(const Imports &possibleImports)
 {
-    m_addModuleModel->update(possibleImports);
+    m_addModuleModel->update(difference(possibleImports, m_model->imports()));
     delayedUpdateModel();
 }
 
-void ItemLibraryWidget::updateUsedImports(const QList<Import> &usedImports)
+void ItemLibraryWidget::updateUsedImports(const Imports &usedImports)
 {
     m_itemLibraryModel->updateUsedImports(usedImports);
 }
@@ -368,7 +358,7 @@ void ItemLibraryWidget::handlePriorityImportsChanged()
 {
     if (!m_itemLibraryInfo.isNull()) {
         m_addModuleModel->setPriorityImports(m_itemLibraryInfo->priorityImports());
-        m_addModuleModel->update(m_model->possibleImports());
+        m_addModuleModel->update(difference(m_model->possibleImports(), m_model->imports()));
     }
 }
 

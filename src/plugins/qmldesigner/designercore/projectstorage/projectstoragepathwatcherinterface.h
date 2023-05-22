@@ -19,6 +19,9 @@ public:
     ProjectStoragePathWatcherInterface &operator=(const ProjectStoragePathWatcherInterface &) = delete;
 
     virtual void updateIdPaths(const std::vector<IdPaths> &idPaths) = 0;
+    virtual void updateContextIdPaths(const std::vector<IdPaths> &idPaths,
+                                      const SourceContextIds &sourceContextIds)
+        = 0;
     virtual void removeIds(const ProjectPartIds &ids) = 0;
 
     virtual void setNotifier(ProjectStoragePathWatcherNotifierInterface *notifier) = 0;

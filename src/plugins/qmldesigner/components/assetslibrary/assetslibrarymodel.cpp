@@ -136,7 +136,7 @@ bool AssetsLibraryModel::renameFolder(const QString &folderPath, const QString &
     return dir.rename(oldName, newName);
 }
 
-bool AssetsLibraryModel::addNewFolder(const QString &folderPath)
+QString AssetsLibraryModel::addNewFolder(const QString &folderPath)
 {
     QString iterPath = folderPath;
     QDir dir{folderPath};
@@ -147,7 +147,7 @@ bool AssetsLibraryModel::addNewFolder(const QString &folderPath)
         dir.setPath(iterPath);
     }
 
-    return dir.mkpath(iterPath);
+    return dir.mkpath(iterPath) ? iterPath : "";
 }
 
 bool AssetsLibraryModel::urlPathExistsInModel(const QUrl &url) const

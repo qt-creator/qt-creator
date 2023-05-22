@@ -95,7 +95,7 @@ void DesignerActionManagerView::nodeOrderChanged(const NodeListProperty &)
     setupContext(SelectionContext::UpdateMode::NodeHierachy);
 }
 
-void DesignerActionManagerView::importsChanged(const QList<Import> &, const QList<Import> &)
+void DesignerActionManagerView::importsChanged(const Imports &, const Imports &)
 {
     setupContext();
 }

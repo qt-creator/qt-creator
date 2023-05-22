@@ -1,0 +1,7 @@
+module QtQuick.Scene2D
+linktarget Qt6::qtquickscene2dplugin
+plugin qtquickscene2dplugin
+classname QtQuickScene2DPlugin
+typeinfo plugins.qmltypes
+prefer :/qt-project.org/imports/QtQuick/Scene2D/
+

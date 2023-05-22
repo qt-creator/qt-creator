@@ -3,17 +3,20 @@
 
 #pragma once
 
+#include "qmldesignercorelib_global.h"
+
+#include "abstractview.h"
+#include "metainfo.h"
+#include "modelnode.h"
+#include "skipiterator.h"
+
 #include <QList>
 #include <QPointer>
 #include <QSet>
 #include <QUrl>
 #include <QVector3D>
 
-#include "modelnode.h"
-#include "abstractview.h"
-#include "metainfo.h"
-
-#include "qmldesignercorelib_global.h"
+#include <algorithm>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
@@ -64,7 +67,28 @@ private:
     QPointer<ModelPrivate> m_model;
 };
 
-class ModelPrivate : public QObject {
+struct Increment
+{
+    using iterator = QList<QPointer<AbstractView>>::const_iterator;
+    auto operator()(iterator current) {
+        return std::find_if(std::next(current),
+                            end,
+                            [] (iterator::reference &view) { return view && view->isEnabled(); });
+    }
+
+   iterator end;
+};
+
+class EnabledViewRange : public SkipRange<QList<QPointer<AbstractView>>, Increment>
+{
+public:
+    EnabledViewRange(const container &views)
+        : base{views, Increment{views.end()}}
+    {}
+};
+
+class ModelPrivate : public QObject
+{
     Q_OBJECT
 
     friend Model;
@@ -73,12 +97,18 @@ class ModelPrivate : public QObject {
 
 public:
     ModelPrivate(Model *model,
-                 ProjectStorage<Sqlite::Database> &projectStorage,
+                 ProjectStorageType &projectStorage,
                  const TypeName &type,
                  int major,
                  int minor,
-                 Model *metaInfoProxyModel);
-    ModelPrivate(Model *model, const TypeName &type, int major, int minor, Model *metaInfoProxyModel);
+                 Model *metaInfoProxyModel,
+                 std::unique_ptr<ModelResourceManagementInterface> resourceManagement);
+    ModelPrivate(Model *model,
+                 const TypeName &type,
+                 int major,
+                 int minor,
+                 Model *metaInfoProxyModel,
+                 std::unique_ptr<ModelResourceManagementInterface> resourceManagement);
 
     ~ModelPrivate() override;
 
@@ -96,6 +126,7 @@ public:
                                    bool isRootNode = false);
 
     /*factory methods for internal use in model and rewriter*/
+    void removeNodeAndRelatedResources(const InternalNodePointer &node);
     void removeNode(const InternalNodePointer &node);
     void changeNodeId(const InternalNodePointer &node, const QString &id);
     void changeNodeType(const InternalNodePointer &node, const TypeName &typeName, int majorVersion, int minorVersion);
@@ -202,17 +233,16 @@ public:
     void resetModelByRewriter(const QString &description);
 
     // Imports:
-    const QList<Import> &imports() const { return m_imports; }
-    void addImport(const Import &import);
-    void removeImport(const Import &import);
-    void changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importToBeRemoved);
-    void notifyImportsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
-    void notifyPossibleImportsChanged(const QList<Import> &possibleImports);
-    void notifyUsedImportsChanged(const QList<Import> &usedImportsChanged);
+    const Imports &imports() const { return m_imports; }
+    void changeImports(const Imports &importsToBeAdded, const Imports &importToBeRemoved);
+    void notifyImportsChanged(const Imports &addedImports, const Imports &removedImports);
+    void notifyPossibleImportsChanged(const Imports &possibleImports);
+    void notifyUsedImportsChanged(const Imports &usedImportsChanged);
 
     //node state property manipulation
     void addProperty(const InternalNodePointer &node, const PropertyName &name);
     void setPropertyValue(const InternalNodePointer &node,const PropertyName &name, const QVariant &value);
+    void removePropertyAndRelatedResources(const InternalPropertyPointer &property);
     void removeProperty(const InternalPropertyPointer &property);
 
     void setBindingProperty(const InternalNodePointer &node, const PropertyName &name, const QString &expression);
@@ -251,11 +281,6 @@ public:
     InternalNodePointer currentStateNode() const;
     InternalNodePointer currentTimelineNode() const;
 
-    void updateEnabledViews();
-
-public:
-    NotNullPointer<ProjectStorage<Sqlite::Database>> projectStorage = nullptr;
-
 private:
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
     void removeAllSubNodes(const InternalNodePointer &node);
@@ -264,16 +289,19 @@ private:
     QList<ModelNode> toModelNodeList(const QList<InternalNodePointer> &nodeList, AbstractView *view) const;
     QVector<ModelNode> toModelNodeVector(const QVector<InternalNodePointer> &nodeVector, AbstractView *view) const;
     QVector<InternalNodePointer> toInternalNodeVector(const QVector<ModelNode> &modelNodeVector) const;
-    const QList<QPointer<AbstractView>> enabledViews() const;
+    EnabledViewRange enabledViews() const;
+    void handleResourceSet(const ModelResourceSet &resourceSet);
+
+public:
+    NotNullPointer<ProjectStorageType> projectStorage = nullptr;
 
 private:
     Model *m_model = nullptr;
     MetaInfo m_metaInfo;
-    QList<Import> m_imports;
-    QList<Import> m_possibleImportList;
-    QList<Import> m_usedImportList;
+    Imports m_imports;
+    Imports m_possibleImportList;
+    Imports m_usedImportList;
     QList<QPointer<AbstractView>> m_viewList;
-    QList<QPointer<AbstractView>> m_enabledViewList;
     QList<InternalNodePointer> m_selectedInternalNodeList;
     QHash<QString,InternalNodePointer> m_idNodeHash;
     QHash<qint32, InternalNodePointer> m_internalIdNodeHash;
@@ -281,6 +309,7 @@ private:
     InternalNodePointer m_currentStateNode;
     InternalNodePointer m_rootInternalNode;
     InternalNodePointer m_currentTimelineNode;
+    std::unique_ptr<ModelResourceManagementInterface> m_resourceManagement;
     QUrl m_fileUrl;
     QPointer<RewriterView> m_rewriterView;
     QPointer<NodeInstanceView> m_nodeInstanceView;

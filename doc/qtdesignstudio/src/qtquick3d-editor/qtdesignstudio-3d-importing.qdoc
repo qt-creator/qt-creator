@@ -3,11 +3,8 @@
 
 /*!
     \page studio-importing-3d.html
-    \if defined(qtdesignstudio)
+
     \previouspage qtquick-fonts.html
-    \else
-    \previouspage exporting-from-maya.html
-    \endif
     \nextpage creator-exporting-qml.html
 
     \title Importing 3D Assets

@@ -38,6 +38,20 @@
 #include <QShortcut>
 #include <QColorDialog>
 
+namespace {
+QSize maxSize(const std::initializer_list<QSize> &sizeList)
+{
+    QSize result;
+    for (const QSize &size : sizeList) {
+        if (size.width() > result.width())
+            result.setWidth(size.width());
+        if (size.height() > result.height())
+            result.setHeight(size.height());
+    }
+    return result;
+}
+}
+
 namespace QmlDesigner {
 
 MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDependencies)
@@ -64,7 +78,6 @@ MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDe
     m_typeUpdateTimer.setInterval(500);
     connect(&m_typeUpdateTimer, &QTimer::timeout, this, &MaterialEditorView::updatePossibleTypes);
 
-    m_stackedWidget->setMinimumWidth(250);
     QmlDesignerPlugin::trackWidgetFocusTime(m_stackedWidget, Constants::EVENT_MATERIALEDITOR_TIME);
 
     MaterialEditorDynamicPropertiesProxyModel::registerDeclarativeType();
@@ -594,6 +607,14 @@ void MaterialEditorView::setupQmlBackend()
     initPreviewData();
 
     m_stackedWidget->setCurrentWidget(m_qmlBackEnd->widget());
+    if (m_qmlBackEnd->widget()) {
+        m_stackedWidget->setMinimumSize(maxSize({m_qmlBackEnd->widget()->sizeHint(),
+                                                 m_qmlBackEnd->widget()->initialSize(),
+                                                 m_qmlBackEnd->widget()->minimumSizeHint(),
+                                                 m_qmlBackEnd->widget()->minimumSize()}));
+    } else {
+        m_stackedWidget->setMinimumSize({400, 300});
+    }
 }
 
 void MaterialEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
@@ -974,8 +995,8 @@ void MaterialEditorView::modelNodePreviewPixmapChanged(const ModelNode &node, co
         m_qmlBackEnd->updateMaterialPreview(pixmap);
 }
 
-void MaterialEditorView::importsChanged([[maybe_unused]] const QList<Import> &addedImports,
-                                        [[maybe_unused]] const QList<Import> &removedImports)
+void MaterialEditorView::importsChanged([[maybe_unused]] const Imports &addedImports,
+                                        [[maybe_unused]] const Imports &removedImports)
 {
     m_hasQuick3DImport = model()->hasImport("QtQuick3D");
     m_qmlBackEnd->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);

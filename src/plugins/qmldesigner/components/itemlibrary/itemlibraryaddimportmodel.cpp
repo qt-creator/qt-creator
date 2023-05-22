@@ -56,14 +56,14 @@ QHash<int, QByteArray> ItemLibraryAddImportModel::roleNames() const
     return m_roleNames;
 }
 
-void ItemLibraryAddImportModel::update(const QList<Import> &possibleImports)
+void ItemLibraryAddImportModel::update(const Imports &possibleImports)
 {
     beginResetModel();
     m_importList.clear();
 
     const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
     const bool isQtForMCUs = mcuManager.isMCUProject();
-    QList<Import> filteredImports;
+    Imports filteredImports;
     if (isQtForMCUs) {
         const QStringList mcuAllowedList = mcuManager.allowedImports();
         const QStringList mcuBannedList = mcuManager.bannedImports();

@@ -31,14 +31,16 @@
     \list 1
         \li Copy the \QBPS ZXP package from
             \c {Qt\Tools\QtDesignStudio\photoshop_bridge} to the
-            \c Documents directory in your user directory.
+            \c Documents directory in your user directory. The \c {file-name}
+            should look similar to: \c {qt.QtBridge}.
         \li Open Windows PowerShell.
-        \li Enter the following commands:
+        \li Enter the following commands, replacing
+            \c {<bridge-installation-file-name>} with the \c {file-name}:
         \badcode
             cd "$env:UserProfile\Documents"
-            mv .\io.qt.QtBridge.zxp .\io.qt.QtBridge.zip
-            expand-archive .\io.qt.QtBridge.zip
-            xcopy /E /I .\io.qt.QtBridge  "$env:APPDATA\Adobe\CEP\extensions\io.qt.QtBridge"
+            mv .\<bridge-installation-file-name>.zxp .\<bridge-installation-file-name>.zip
+            expand-archive .\<bridge-installation-file-name>.zip
+            xcopy /E /I .\<bridge-installation-file-name> "$env:APPDATA\Adobe\CEP\extensions\<bridge-installation-file-name>"
         \endcode
     \endlist
 
@@ -49,14 +51,16 @@
     \list 1
         \li Copy the \QBPS ZXP package from
             \c {Qt/QtDesignStudio/photoshop_bridge}
-            to your \c Documents directory.
+            to your \c Documents directory. The \c {file-name}
+            should look similar to: \c {qt.QtBridge}.
         \li Open Terminal.
-        \li Enter the following commands:
+        \li Enter the following commands, replacing
+            \c {<bridge-installation-file-name>} with the \c {file-name}:
         \badcode
             cd ~/Documents
-            unzip io.qt.QtBridge.zxp -d io.qt.QtBridge
+            unzip <bridge-installation-file-name>.zxp -d <bridge-installation-file-name>
             sudo mkdir -p /Library/Application\ Support/Adobe/CEP/extensions
-            sudo cp -R ./io.qt.QtBridge /Library/Application\ Support/Adobe/CEP/extensions
+            sudo cp -R ./<bridge-installation-file-name> /Library/Application\ Support/Adobe/CEP/extensions
         \endcode
     \endlist
 

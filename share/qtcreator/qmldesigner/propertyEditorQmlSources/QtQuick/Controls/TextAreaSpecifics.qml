@@ -16,6 +16,8 @@ Column {
         showVerticalAlignment: true
     }
 
+    TextInputSection {}
+
     TextExtrasSection {
         showWrapMode: true
         showFormatProperty: true

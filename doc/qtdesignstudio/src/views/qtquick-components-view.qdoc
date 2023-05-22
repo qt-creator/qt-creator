@@ -36,10 +36,8 @@
         \li \l {UI Controls}
         \li \l {User Interaction Methods}
         \li \l {Lists and Other Data Models}
-        \if defined(qtdesignstudio)
         \li \l {2D Effects}
         \li \l {Logic Helpers}
-        \endif
         \li \l Animations
         \li \l{3D Views}
         \li \l{Node}

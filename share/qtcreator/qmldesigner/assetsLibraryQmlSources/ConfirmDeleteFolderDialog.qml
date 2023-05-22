@@ -5,9 +5,10 @@ import QtQuick
 import QtQuick.Controls
 import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
+import StudioControls as StudioControls
 import AssetsLibraryBackend
 
-Dialog {
+StudioControls.Dialog {
     id: root
 
     title: qsTr("Folder Not Empty")

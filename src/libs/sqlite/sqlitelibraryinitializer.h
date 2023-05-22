@@ -14,7 +14,7 @@ public:
 
 private:
     LibraryInitializer();
-    ~LibraryInitializer();
+    ~LibraryInitializer() noexcept(false);
 };
 
 } // namespace Sqlite

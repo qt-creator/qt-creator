@@ -67,7 +67,7 @@ void Sessions::create()
 {
     sqlite3_session *newSession = nullptr;
     int resultCode = sqlite3session_create(database.backend().sqliteDatabaseHandle(),
-                                           std::string(databaseName.data()).c_str(),
+                                           std::string(databaseName).c_str(),
                                            &newSession);
     session.reset(newSession);
 

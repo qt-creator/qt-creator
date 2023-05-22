@@ -15,7 +15,7 @@ QQuickImageResponse *MidSizeImageCacheProvider::requestImageResponse(const QStri
     auto response = std::make_unique<ImageCacheImageResponse>(m_defaultImage);
 
     m_cache.requestMidSizeImage(
-        id,
+        Utils::PathString{id},
         [response = QPointer<ImageCacheImageResponse>(response.get())](const QImage &image) {
             QMetaObject::invokeMethod(
                 response,

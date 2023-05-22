@@ -58,15 +58,18 @@ add_subdirectory(scxmleditor)
 add_subdirectory(subversion)
 add_subdirectory(compilationdatabaseprojectmanager)
 add_subdirectory(languageclient)
-add_subdirectory(qmldesignerbase)
-
+if (WITH_QMLDESIGNER)
+  add_subdirectory(qmldesignerbase)
+endif()
 
 # Level 6:
 add_subdirectory(cmakeprojectmanager)
 add_subdirectory(debugger)
 add_subdirectory(coco)
 add_subdirectory(gitlab)
-add_subdirectory(qmlprojectmanager)
+if (WITH_QMLDESIGNER)
+  add_subdirectory(qmlprojectmanager)
+endif()
 
 # Level 7:
 add_subdirectory(android)
@@ -91,14 +94,17 @@ add_subdirectory(squish)
 
 # Level 8:
 add_subdirectory(boot2qt)
-unset(qmldesigner_builddir)
-if (WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  # Workaround for @CMakeFiles\QmlDesigner.rsp ld.lld.exe: The filename or extension is too long.
-  # Clang on Windows is having problems with QmlDesigner.rsp which is bigger than 32KiB
-  set(qmldesigner_builddir ${PROJECT_BINARY_DIR}/qmldsgnr)
+if (WITH_QMLDESIGNER)
+  unset(qmldesigner_builddir)
+  if (WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # Workaround for @CMakeFiles\QmlDesigner.rsp ld.lld.exe: The filename or extension is too long.
+    # Clang on Windows is having problems with QmlDesigner.rsp which is bigger than 32KiB
+    set(qmldesigner_builddir ${PROJECT_BINARY_DIR}/qmldsgnr)
+  endif()
+  add_subdirectory(qmldesigner ${qmldesigner_builddir})
+  add_subdirectory(studiowelcome)
+  add_subdirectory(insight)
 endif()
-add_subdirectory(qmldesigner ${qmldesigner_builddir})
-add_subdirectory(studiowelcome)
 add_subdirectory(qnx)
 add_subdirectory(webassembly)
 add_subdirectory(mcusupport)

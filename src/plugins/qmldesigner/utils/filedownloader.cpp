@@ -253,22 +253,22 @@ void FileDownloader::doProbeUrl()
 
         m_available = true;
         emit availableChanged();
+
+        reply->deleteLater();
     });
 
     QNetworkReply::connect(reply,
                            &QNetworkReply::errorOccurred,
                            this,
-                           [this](QNetworkReply::NetworkError) {
-                               QQmlData *data = QQmlData::get(this, false);
-                               if (!data) {
-                                   qDebug() << Q_FUNC_INFO << "FileDownloader is nullptr.";
-                                   return;
-                               }
+                           [this](QNetworkReply::NetworkError code) {
 
                                if (QQmlData::wasDeleted(this)) {
                                    qDebug() << Q_FUNC_INFO << "FileDownloader was deleted.";
                                    return;
                                }
+
+                               qDebug() << Q_FUNC_INFO << "Network error:" << code
+                                        << qobject_cast<QNetworkReply *>(sender())->errorString();
 
                                m_available = false;
                                emit availableChanged();

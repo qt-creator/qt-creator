@@ -17,3 +17,43 @@
     \externalpage https://doc.qt.io/qtdesignstudio/studio-optimized-3d-scenes.html
     \title Creating Optimized 3D Scenes
 */
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/
+    \title \QMCU documentation
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-qsg-traveoii-designui.html
+    \title Designing a UI for Infineon Traveo II
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-qsg-miimxrt1170-designui.html
+    \title Designing a UI for NXP i.MX RT1170
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-qsg-ra6m3g-designui.html
+    \title Designing a UI for Renesas RA6M3G
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-qsg-rh850-designui.html
+    \title Designing a UI for Renesas RH850-D1M1A
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-developing-mcu.html
+    \title Connecting MCUs
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-infineon-traevoii-qsg.html
+    \title Infineon Traveo II quick start guide
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-nxp-rt1170-qsg.html
+    \title NXP i.MX RT1170 quick start guide
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-renesas-ra6-qsg.html
+    \title Renesas EK-RA6M3G quick start guide
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-renesas-rh850-qsg.html
+    \title Renesas RH850-D1M1A quick start guide
+*/

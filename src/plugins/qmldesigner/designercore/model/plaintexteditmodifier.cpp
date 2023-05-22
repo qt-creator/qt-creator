@@ -3,12 +3,16 @@
 
 #include "plaintexteditmodifier.h"
 
-#include <utils/changeset.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QPlainTextEdit>
+#include <qmljstools/qmljscodestylepreferences.h>
+#include <qmljstools/qmljsindenter.h>
+#include <qmljstools/qmljstoolssettings.h>
+
+#include <utils/changeset.h>
 
 #include <QDebug>
+#include <QPlainTextEdit>
 
 using namespace Utils;
 using namespace QmlDesigner;
@@ -161,3 +165,41 @@ void PlainTextEditModifier::reactivateChangeSignals()
         emit textChanged();
     }
 }
+
+IndentingTextEditModifier::IndentingTextEditModifier(QTextDocument *document, const QTextCursor &textCursor)
+    : NotIndentingTextEditModifier{document, textCursor}
+{
+    m_tabSettings = QmlJSTools::QmlJSToolsSettings::globalCodeStyle()->tabSettings();
+}
+
+void IndentingTextEditModifier::indent(int offset, int length)
+{
+    if (length == 0 || offset < 0 || offset + length >= text().length())
+        return;
+
+    int startLine = getLineInDocument(textDocument(), offset);
+    int endLine = getLineInDocument(textDocument(), offset + length);
+
+    if (startLine > -1 && endLine > -1)
+        indentLines(startLine, endLine);
+}
+
+void IndentingTextEditModifier::indentLines(int startLine, int endLine)
+{
+    if (startLine < 0)
+        return;
+
+    QTextCursor tc(textDocument());
+
+    tc.beginEditBlock();
+    for (int i = startLine; i <= endLine; i++) {
+        QTextBlock start = textDocument()->findBlockByNumber(i);
+
+        if (start.isValid()) {
+            QmlJSEditor::Internal::Indenter indenter(textDocument());
+            indenter.indentBlock(start, QChar::Null, m_tabSettings);
+        }
+    }
+    tc.endEditBlock();
+}
+

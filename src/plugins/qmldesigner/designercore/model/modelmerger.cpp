@@ -173,7 +173,7 @@ ModelNode ModelMerger::insertModel(const ModelNode &modelNode, const MergePredic
         return {};
     RewriterTransaction transaction(view()->beginRewriterTransaction(QByteArrayLiteral("ModelMerger::insertModel")));
 
-    QList<Import> newImports;
+    Imports newImports;
 
     for (const Import &import : modelNode.model()->imports()) {
         if (!view()->model()->hasImport(import, true, true))

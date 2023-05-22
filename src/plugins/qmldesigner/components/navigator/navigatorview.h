@@ -50,7 +50,7 @@ public:
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
 
-    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
+    void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
 
     void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
     void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange) override;

@@ -38,13 +38,11 @@
     to define how their properties will animate when they change due to a
     state change.
 
-    \if defined(qtdesignstudio)
     The \l{Log In UI - States} example illustrates using states to create
     two UI screens and signals emitted by buttons to apply the states.
     The button components also switch states when they are pressed down.
 
     \image loginui3.gif "Clicking buttons to switch between screens"
-    \endif
 
     Using property aliases and states to create the differences in your
     component instances enables you to reuse components instead of duplicating
@@ -57,7 +55,6 @@
     instances of the controls into custom components and specify new properties
     for them.
 
-    \if defined(qtdesignstudio)
     To have your UI perform certain operations, you might need to write
     JavaScript expressions for conditions or convert numbers to strings.
     To make this easier, \QDS provides preset components called
@@ -74,7 +71,6 @@
     to implement the UI logic.
 
     \image studio-logic-helper-combining-example.gif "Logic helper example application"
-    \endif
 
     The following table summarizes some typical use cases with links to more
     information.
@@ -107,11 +103,9 @@
     \row
         \li Using preset UI controls that have default properties and states
         \li \l{UI Controls}
-    \if defined(qtdesignstudio)
     \row
         \li Creating conditional conditions
         \li \l{Logic Helpers}
-    \endif
     \row
         \li Adding custom properties for a particular component type
         \li \l{Specifying Custom Properties}

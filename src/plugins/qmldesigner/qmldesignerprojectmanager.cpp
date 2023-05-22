@@ -39,6 +39,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <QDirIterator>
 #include <QFileSystemWatcher>
 #include <QQmlEngine>
 
@@ -175,24 +176,27 @@ class ProjectStorageData
 public:
     ProjectStorageData(::ProjectExplorer::Project *project)
         : database{project->projectDirectory().pathAppended("projectstorage.db").toString()}
+        , projectPartId{ProjectPartId::create(
+              pathCache.sourceId(SourcePath{project->projectDirectory().toString() + "/."}).internalId())}
     {}
-
     Sqlite::Database database;
     ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
     ProjectStorageUpdater::PathCache pathCache{storage};
     FileSystem fileSystem{pathCache};
     FileStatusCache fileStatusCache{fileSystem};
     QmlDocumentParser qmlDocumentParser{storage, pathCache};
-    QmlTypesParser qmlTypesParser{pathCache, storage};
+    QmlTypesParser qmlTypesParser{storage};
     ProjectStoragePathWatcher<QFileSystemWatcher, QTimer, ProjectStorageUpdater::PathCache>
         pathWatcher{pathCache, fileSystem, &updater};
+    ProjectPartId projectPartId;
     ProjectStorageUpdater updater{fileSystem,
                                   storage,
                                   fileStatusCache,
                                   pathCache,
                                   qmlDocumentParser,
                                   qmlTypesParser,
-                                  pathWatcher};
+                                  pathWatcher,
+                                  projectPartId};
 };
 
 std::unique_ptr<ProjectStorageData> createProjectStorageData(::ProjectExplorer::Project *project)
@@ -339,18 +343,25 @@ void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPa
         qmldirPaths.push_back(QDir::cleanPath(pojectDirectory.absoluteFilePath(importPath))
                               + "/qmldir");
 }
-#ifdef QDS_HAS_QMLDOM
-bool skipPath(const std::filesystem::path &path)
-{
-    auto directory = path.filename();
-    qDebug() << path.string().data();
 
-    bool skip = directory == "QtApplicationManager" || directory == "QtInterfaceFramework"
-                || directory == "QtOpcUa" || directory == "Qt3D" || directory == "Qt3D"
-                || directory == "Scene2D" || directory == "Scene3D" || directory == "QtWayland"
-                || directory == "Qt5Compat";
-    if (skip)
-        qDebug() << "skip" << path.string().data();
+#ifdef QDS_HAS_QMLPRIVATE
+QStringView currentDirectoryName(const QString &path)
+{
+    auto found = std::find(path.rbegin(), path.rend(), u'/');
+
+    if (found == path.rend())
+        return {};
+
+    return QStringView{found.base(), path.end()};
+}
+bool skipPath(const QString &path)
+{
+    auto directory = currentDirectoryName(path);
+
+    bool skip = directory == u"QtApplicationManager" || directory == u"QtInterfaceFramework"
+                || directory == u"QtOpcUa" || directory == u"Qt3D" || directory == u"Qt3D"
+                || directory == u"Scene2D" || directory == u"Scene3D" || directory == u"QtWayland"
+                || directory == u"Qt5Compat";
 
     return skip;
 }
@@ -359,22 +370,17 @@ bool skipPath(const std::filesystem::path &path)
 void qtQmldirPaths([[maybe_unused]] ::ProjectExplorer::Target *target,
                    [[maybe_unused]] QStringList &qmldirPaths)
 {
-#ifdef QDS_HAS_QMLDOM
-    const QString installDirectory = qmlPath(target).toString();
+#ifdef QDS_HAS_QMLPRIVATE
+    if (useProjectStorage()) {
+        const QString installDirectory = qmlPath(target).toString();
+        QDirIterator dirIterator{installDirectory, QDir::Dirs, QDirIterator::Subdirectories};
 
-    const std::filesystem::path installDirectoryPath{installDirectory.toStdString()};
+        while (dirIterator.hasNext()) {
+            auto directoryPath = dirIterator.next();
 
-    auto current = std::filesystem::recursive_directory_iterator{installDirectoryPath};
-    auto end = std::filesystem::end(current);
-    for (; current != end; ++current) {
-        const auto &entry = *current;
-        auto path = entry.path();
-        if (current.depth() < 3 && !current->is_regular_file() && skipPath(path)) {
-            current.disable_recursion_pending();
-            continue;
-        }
-        if (path.filename() == "qmldir") {
-            qmldirPaths.push_back(QString::fromStdU16String(path.generic_u16string()));
+            QString qmldirPath = directoryPath + "/qmldir";
+            if (!skipPath(directoryPath) && QFileInfo::exists(qmldirPath))
+                qmldirPaths.push_back(directoryPath);
         }
     }
 #endif

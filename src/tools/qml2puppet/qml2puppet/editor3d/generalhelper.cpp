@@ -215,6 +215,7 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
             if (auto renderModel = static_cast<QSSGRenderModel *>(targetPriv->spatialNode)) {
                 QWindow *window = static_cast<QWindow *>(viewPort->window());
                 if (window) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 1)
                     QSSGRef<QSSGRenderContextInterface> context;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
                     context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
@@ -222,12 +223,17 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
                     context = targetPriv->sceneManager->rci;
 #endif
                     if (!context.isNull()) {
+#else
+                    const auto &sm = targetPriv->sceneManager;
+                    auto context = sm->wattached ? sm->wattached->rci().get() : nullptr;
+                    if (context) {
+#endif
                         QSSGBounds3 bounds;
                         auto geometry = qobject_cast<SelectionBoxGeometry *>(model->geometry());
                         if (geometry) {
                             bounds = geometry->bounds();
                         } else {
-                            auto bufferManager = context->bufferManager();
+                            const auto &bufferManager(context->bufferManager());
 #if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
                             bounds = renderModel->getModelBounds(bufferManager);
 #else
@@ -889,6 +895,7 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
         if (auto renderModel = static_cast<QSSGRenderModel *>(renderNode)) {
             QWindow *window = static_cast<QWindow *>(view3D->window());
             if (window) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 1)
                 QSSGRef<QSSGRenderContextInterface> context;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
                 context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
@@ -896,7 +903,12 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
                 context = QQuick3DObjectPrivate::get(node)->sceneManager->rci;
 #endif
                 if (!context.isNull()) {
-                    auto bufferManager = context->bufferManager();
+#else
+                const auto &sm = QQuick3DObjectPrivate::get(node)->sceneManager;
+                auto context = sm->wattached ? sm->wattached->rci().get() : nullptr;
+                if (context) {
+#endif
+                    const auto &bufferManager(context->bufferManager());
 #if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
                     QSSGBounds3 bounds = renderModel->getModelBounds(bufferManager);
 #else

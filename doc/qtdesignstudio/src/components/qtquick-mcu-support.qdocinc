@@ -6,9 +6,9 @@
 
     \section1 Creating UIs for MCUs
 
-    \l{Qt for MCUs} enables you to use subsets of components to create UIs for
+    \l{\QMCU} enables you to use subsets of components to create UIs for
     devices that are powered by microcontroller units (MCU). The subset of
-    supported components depends on the Qt for MCUs version that you use for
+    supported components depends on the \QMCU version that you use for
     development. In this manual, we indicate which components are supported at
     the time of writing.
 
@@ -21,7 +21,7 @@
     \image qmldesigner-mcu-support.png "Components and Text properties supported for MCUs"
 
     For more information about the supported components and their properties,
-    see \l{Qt for MCUs - All QML Types}.
+    see \l{\QMCU - All QML Types}.
 
 //! [mcu qtquick components]
 */
