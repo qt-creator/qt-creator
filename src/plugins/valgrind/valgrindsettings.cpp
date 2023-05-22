@@ -207,7 +207,6 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     registerAspect(&valgrindExecutable);
     valgrindExecutable.setSettingsKey(base + "ValgrindExecutable");
     valgrindExecutable.setDefaultValue("valgrind");
-    valgrindExecutable.setDisplayStyle(StringAspect::PathChooserDisplay);
     valgrindExecutable.setExpectedKind(PathChooser::Command);
     valgrindExecutable.setHistoryCompleter("Valgrind.Command.History");
     valgrindExecutable.setDisplayName(Tr::tr("Valgrind Command"));
