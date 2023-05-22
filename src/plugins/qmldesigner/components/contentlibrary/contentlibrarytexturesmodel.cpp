@@ -4,8 +4,8 @@
 #include "contentlibrarytexturesmodel.h"
 
 #include "contentlibrarytexturescategory.h"
-#include "qmldesignerplugin.h"
 
+#include <designerpaths.h>
 #include <qmldesignerbase/qmldesignerbaseplugin.h>
 
 #include <utils/algorithm.h>
@@ -119,8 +119,10 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &remoteUrl, co
         for (const QFileInfo &tex : texFiles) {
             QString fullRemoteUrl = QString("%1/%2/%3.zip").arg(remoteUrl, dir.fileName(),
                                                                 tex.baseName());
-            QString localDownloadPath = QString("%1/%2/%3").arg(QmlDesignerBasePlugin::bundlesPathSetting(),
-                                                                m_category, dir.fileName());
+            QString localDownloadPath = QString("%1/%2/%3")
+                                            .arg(Paths::bundlesPathSetting(),
+                                                 m_category,
+                                                 dir.fileName());
             QString key = QString("%1/%2/%3").arg(m_category, dir.fileName(), tex.baseName());
             QString fileExt;
             QSize dimensions;

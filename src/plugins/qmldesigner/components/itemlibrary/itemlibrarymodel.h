@@ -38,7 +38,7 @@ public:
     ItemLibraryImport *importByUrl(const QString &importName) const;
 
     void update(ItemLibraryInfo *itemLibraryInfo, Model *model);
-    void updateUsedImports(const QList<Import> &usedImports);
+    void updateUsedImports(const Imports &usedImports);
 
     QMimeData *getMimeData(const ItemLibraryEntry &itemLibraryEntry);
 

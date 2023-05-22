@@ -34,12 +34,14 @@ QtcPlugin {
     }
 
     Group {
-        name: "File Format"
-        prefix: "fileformat/"
+        name: "Build System"
+        prefix: "buildsystem/"
         files: [
-            "filefilteritems.cpp", "filefilteritems.h",
-            "qmlprojectfileformat.cpp", "qmlprojectfileformat.h",
-            "qmlprojectitem.cpp", "qmlprojectitem.h",
+            "qmlbuildsystem.cpp", "qmlbuildsystem.h",
+            "projectitem/filefilteritems.cpp", "projectitem/filefilteritems.h",
+            "projectitem/qmlprojectitem.cpp", "projectitem/qmlprojectitem.h",
+            "projectitem/converters.h",
+            "projectnode/qmlprojectnodes.cpp", "projectnode/qmlprojectnodes.h"
         ]
     }
 
@@ -56,7 +58,7 @@ QtcPlugin {
             "cmakeprojectconverterdialog.cpp", "cmakeprojectconverterdialog.h",
         ]
     }
-    
+
     Group {
         name: "QML Project File Generator"
         prefix: "qmlprojectgen/"

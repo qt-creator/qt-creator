@@ -57,6 +57,7 @@ using QHashValueType = size_t;
     friend class Qt4PreviewNodeInstanceServer;
     friend class Qt5InformationNodeInstanceServer;
     friend class Qt5NodeInstanceServer;
+    friend class Qt5BakeLightsNodeInstanceServer;
     friend class Qt5PreviewNodeInstanceServer;
     friend class Qt5CapturePreviewNodeInstanceServer;
     friend class Qt5TestNodeInstanceServer;

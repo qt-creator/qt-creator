@@ -1,0 +1,8 @@
+module QtVncServer
+linktarget Qt6::qquickvncplugin
+plugin qquickvncplugin
+classname QQuickVncPlugin
+typeinfo plugins.qmltypes
+depends QtQuick
+prefer :/qt-project.org/imports/QtVncServer/
+

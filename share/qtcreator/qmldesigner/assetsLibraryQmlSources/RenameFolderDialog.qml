@@ -8,7 +8,7 @@ import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import AssetsLibraryBackend
 
-Dialog {
+StudioControls.Dialog {
     id: root
 
     title: qsTr("Rename Folder")

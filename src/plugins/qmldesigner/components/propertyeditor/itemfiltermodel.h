@@ -16,43 +16,43 @@ class ItemFilterModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString typeFilter READ typeFilter WRITE setTypeFilter)
-    Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend NOTIFY modelNodeBackendChanged)
+    Q_PROPERTY(QString typeFilter READ typeFilter WRITE setTypeFilter NOTIFY typeFilterChanged)
+    Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend
+                   NOTIFY modelNodeBackendChanged)
     Q_PROPERTY(QStringList itemModel READ itemModel NOTIFY itemModelChanged)
-    Q_PROPERTY(bool selectionOnly READ selectionOnly WRITE setSelectionOnly NOTIFY selectionOnlyChanged)
+    Q_PROPERTY(
+        bool selectionOnly READ selectionOnly WRITE setSelectionOnly NOTIFY selectionOnlyChanged)
+    Q_PROPERTY(QStringList selectedItems READ selectedItems WRITE setSelectedItems NOTIFY
+                   selectedItemsChanged)
 
 public:
-    enum Roles {
-        IdRole = Qt::UserRole + 1,
-        NameRole,
-        IdAndNameRole
-    };
-    Q_ENUM(Roles)
+    enum { IdRole = Qt::DisplayRole, NameRole = Qt::UserRole, IdAndNameRole, EnabledRole };
 
     explicit ItemFilterModel(QObject *parent = nullptr);
 
     void setModelNodeBackend(const QVariant &modelNodeBackend);
     void setTypeFilter(const QString &typeFilter);
     void setSelectionOnly(bool value);
+    void setSelectedItems(const QStringList &selectedItems);
     QString typeFilter() const;
     bool selectionOnly() const;
+    QStringList selectedItems() const;
     void setupModel();
     QStringList itemModel() const;
 
     static void registerDeclarativeType();
 
-    // Make index accessible for Qml side since it's not accessible by default in QAbstractListModel
-    Q_INVOKABLE QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const override;
-    Q_INVOKABLE virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    Q_INVOKABLE virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    Q_INVOKABLE virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    virtual QHash<int,QByteArray> roleNames() const override;
+    virtual QHash<int, QByteArray> roleNames() const override;
 
 signals:
+    void typeFilterChanged();
     void modelNodeBackendChanged();
     void itemModelChanged();
     void selectionOnlyChanged();
+    void selectedItemsChanged();
 
 private:
     QVariant modelNodeBackend() const;
@@ -63,7 +63,7 @@ private:
     QList<qint32> m_modelInternalIds;
     QmlDesigner::ModelNode m_modelNode;
     bool m_selectionOnly;
-    static QHash<int, QByteArray> m_roles;
+    QStringList m_selectedItems;
 };
 
 QML_DECLARE_TYPE(ItemFilterModel)

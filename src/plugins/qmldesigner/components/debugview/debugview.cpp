@@ -65,7 +65,7 @@ void DebugView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void DebugView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
+void DebugView::importsChanged(const Imports &addedImports, const Imports &removedImports)
 {
     if (isDebugViewEnabled()) {
         QString message;

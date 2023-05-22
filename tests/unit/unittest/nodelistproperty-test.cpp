@@ -3,6 +3,7 @@
 
 #include "abstractviewmock.h"
 #include "googletest.h"
+#include "projectstoragemock.h"
 
 #include <model.h>
 #include <modelnode.h>
@@ -13,6 +14,10 @@
 namespace {
 
 using QmlDesigner::ModelNode;
+using QmlDesigner::ModuleId;
+using QmlDesigner::PropertyDeclarationId;
+using QmlDesigner::TypeId;
+namespace Info = QmlDesigner::Storage::Info;
 
 class NodeListProperty : public testing::Test
 {
@@ -38,6 +43,29 @@ protected:
 
     ~NodeListProperty() { model->detachView(&abstractViewMock); }
 
+    void setModuleId(Utils::SmallStringView moduleName, ModuleId moduleId)
+    {
+        ON_CALL(projectStorageMock, moduleId(Eq(moduleName))).WillByDefault(Return(moduleId));
+    }
+
+    void setType(ModuleId moduleId,
+                 Utils::SmallStringView typeName,
+                 Utils::SmallString defaultPeopertyName)
+    {
+        static int typeIdNumber = 0;
+        TypeId typeId = TypeId::create(++typeIdNumber);
+
+        static int defaultPropertyIdNumber = 0;
+        PropertyDeclarationId defaultPropertyId = PropertyDeclarationId::create(
+            ++defaultPropertyIdNumber);
+
+        ON_CALL(projectStorageMock, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
+        ON_CALL(projectStorageMock, type(Eq(typeId)))
+            .WillByDefault(Return(Info::Type{defaultPropertyId, {}}));
+        ON_CALL(projectStorageMock, propertyName(Eq(defaultPropertyId)))
+            .WillByDefault(Return(defaultPeopertyName));
+    }
+
     std::vector<ModelNode> nodes() const
     {
         return std::vector<ModelNode>{nodeListProperty.begin(), nodeListProperty.end()};
@@ -49,7 +77,9 @@ protected:
     }
 
 protected:
-    std::unique_ptr<QmlDesigner::Model> model{std::make_unique<QmlDesigner::Model>("QtQuick.Item")};
+    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock;
+    std::unique_ptr<QmlDesigner::Model> model{
+        std::make_unique<QmlDesigner::Model>(projectStorageMock, "QtQuick.Item")};
     NiceMock<AbstractViewMock> abstractViewMock;
     QmlDesigner::NodeListProperty nodeListProperty;
     ModelNode node1;

@@ -147,9 +147,6 @@ Item {
                 if (root.downloadState !== "" && root.downloadState !== "failed")
                     return
 
-                if (!ContentLibraryBackend.rootView.markTextureDownloading())
-                    return
-
                 progressBar.visible = true
                 tooltip.visible = false
                 root.progressText = qsTr("Downloading...")
@@ -223,14 +220,20 @@ Item {
             root.progressValue = 0
 
             root.downloadState = ""
-
-            ContentLibraryBackend.rootView.markNoTextureDownloading()
         }
 
         onDownloadFailed: {
             root.downloadState = "failed"
+        }
+    }
 
-            ContentLibraryBackend.rootView.markNoTextureDownloading()
+    Timer {
+        id: delayedFinish
+        interval: 200
+
+        onTriggered: {
+            modelData.setDownloaded()
+            root.downloadState = modelData.isDownloaded() ? "downloaded" : "failed"
         }
     }
 
@@ -242,10 +245,7 @@ Item {
         alwaysCreateDir: false
         clearTargetPathContents: false
         onFinishedChanged: {
-            modelData.setDownloaded()
-            root.downloadState = modelData.isDownloaded() ? "downloaded" : "failed"
-
-            ContentLibraryBackend.rootView.markNoTextureDownloading()
+            delayedFinish.restart()
         }
     }
 }

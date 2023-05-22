@@ -78,42 +78,30 @@ void AsynchronousExplicitImageCache::wait()
         m_backgroundThread.join();
 }
 
-void AsynchronousExplicitImageCache::requestImage(Utils::PathString name,
+void AsynchronousExplicitImageCache::requestImage(Utils::SmallStringView name,
                                                   ImageCache::CaptureImageCallback captureCallback,
                                                   ImageCache::AbortCallback abortCallback,
-                                                  Utils::SmallString extraId)
+                                                  Utils::SmallStringView extraId)
 {
-    addEntry(std::move(name),
-             std::move(extraId),
-             std::move(captureCallback),
-             std::move(abortCallback),
-             RequestType::Image);
+    addEntry(name, extraId, std::move(captureCallback), std::move(abortCallback), RequestType::Image);
     m_condition.notify_all();
 }
 
-void AsynchronousExplicitImageCache::requestMidSizeImage(Utils::PathString name,
+void AsynchronousExplicitImageCache::requestMidSizeImage(Utils::SmallStringView name,
                                                          ImageCache::CaptureImageCallback captureCallback,
                                                          ImageCache::AbortCallback abortCallback,
-                                                         Utils::SmallString extraId)
+                                                         Utils::SmallStringView extraId)
 {
-    addEntry(std::move(name),
-             std::move(extraId),
-             std::move(captureCallback),
-             std::move(abortCallback),
-             RequestType::MidSizeImage);
+    addEntry(name, extraId, std::move(captureCallback), std::move(abortCallback), RequestType::MidSizeImage);
     m_condition.notify_all();
 }
 
-void AsynchronousExplicitImageCache::requestSmallImage(Utils::PathString name,
+void AsynchronousExplicitImageCache::requestSmallImage(Utils::SmallStringView name,
                                                        ImageCache::CaptureImageCallback captureCallback,
                                                        ImageCache::AbortCallback abortCallback,
-                                                       Utils::SmallString extraId)
+                                                       Utils::SmallStringView extraId)
 {
-    addEntry(std::move(name),
-             std::move(extraId),
-             std::move(captureCallback),
-             std::move(abortCallback),
-             RequestType::SmallImage);
+    addEntry(name, extraId, std::move(captureCallback), std::move(abortCallback), RequestType::SmallImage);
     m_condition.notify_all();
 }
 

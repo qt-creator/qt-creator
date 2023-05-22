@@ -29,14 +29,13 @@ GradientModel::GradientModel(QObject *parent) :
 
 int GradientModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    if (m_itemNode.isValid()) {
-        if (m_itemNode.modelNode().hasNodeProperty(gradientPropertyName().toUtf8())) {
-            QmlDesigner::ModelNode gradientNode =
-                    m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
+    if (m_itemNode.modelNode().hasNodeProperty(gradientPropertyName().toUtf8())) {
+        QmlDesigner::ModelNode gradientNode = m_itemNode.modelNode()
+                                                  .nodeProperty(gradientPropertyName().toUtf8())
+                                                  .modelNode();
 
-            if (gradientNode.hasNodeListProperty("stops"))
-                return gradientNode.nodeListProperty("stops").toModelNodeList().count();
-        }
+        if (gradientNode.hasNodeListProperty("stops"))
+            return gradientNode.nodeListProperty("stops").count();
     }
 
     return 0;

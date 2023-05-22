@@ -53,6 +53,7 @@ public:
         AnchorsIcon,
         AnnotationIcon,
         ArrangeIcon,
+        BackspaceIcon,
         CameraIcon,
         CameraOrthographicIcon,
         CameraPerspectiveIcon,

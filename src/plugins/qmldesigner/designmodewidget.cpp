@@ -20,6 +20,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/modemanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
+#include <qmldesignerbase/qmldesignerbaseplugin.h>
 
 #include <coreplugin/outputpane.h>
 #include <coreplugin/modemanager.h>
@@ -39,6 +40,7 @@
 #include <utils/stylehelper.h>
 
 #include <QActionGroup>
+#include <QApplication>
 #include <QBoxLayout>
 #include <QComboBox>
 #include <QDir>
@@ -92,6 +94,8 @@ DesignModeWidget::DesignModeWidget()
     , m_crumbleBar(new CrumbleBar(this))
 {
     setAcceptDrops(true);
+    if (Utils::StyleHelper::isQDSTheme())
+        qApp->setStyle(QmlDesignerBasePlugin::style());
 }
 
 DesignModeWidget::~DesignModeWidget()
@@ -182,6 +186,7 @@ void DesignModeWidget::setup()
         Core::ICore::resourcePath("qmldesigner/workspacePresets/").toString());
 
     QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/dockwidgets.css"));
+    sheet += QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css"));
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
 
     // Setup icons
@@ -216,14 +221,29 @@ void DesignModeWidget::setup()
     mworkspaces->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     // Connect opening of the 'workspaces' menu with creation of the workspaces menu
     connect(mworkspaces->menu(), &QMenu::aboutToShow, this, &DesignModeWidget::aboutToShowWorkspaces);
-    // Disable workspace menu when context is different to C_DESIGN_MODE
-    connect(Core::ICore::instance(), &Core::ICore::contextChanged,
-            this, [mworkspaces](const Core::Context &context){
-                if (context.contains(Core::Constants::C_DESIGN_MODE))
+
+    Core::ActionContainer *mpanes = Core::ActionManager::actionContainer(Core::Constants::M_VIEW_PANES);
+
+    // Initially disable menus
+    mviews->menu()->setEnabled(false);
+    mworkspaces->menu()->setEnabled(false);
+    mpanes->menu()->setEnabled(false);
+
+    // Enable/disable menus when mode is different to MODE_DESIGN
+    connect(Core::ModeManager::instance(),
+            &Core::ModeManager::currentModeChanged,
+            this,
+            [mviews, mworkspaces, mpanes](Utils::Id mode, Utils::Id) {
+                if (mode == Core::Constants::MODE_DESIGN) {
+                    mviews->menu()->setEnabled(true);
                     mworkspaces->menu()->setEnabled(true);
-                else
+                    mpanes->menu()->setEnabled(true);
+                } else {
+                    mviews->menu()->setEnabled(false);
                     mworkspaces->menu()->setEnabled(false);
-                });
+                    mpanes->menu()->setEnabled(false);
+                }
+            });
 
     // Create a DockWidget for each QWidget and add them to the DockManager
     const Core::Context designContext(Core::Constants::C_DESIGN_MODE);
@@ -231,60 +251,48 @@ void DesignModeWidget::setup()
 
     // First get all navigation views
     QList<Core::INavigationWidgetFactory *> factories = Core::INavigationWidgetFactory::allNavigationFactories();
-
-    QList<Core::Command*> viewCommands;
+    QList<Core::Command *> viewCommands;
+    const QList<Utils::Id> navigationViewIds = {"Projects", "File System", "Open Documents"};
 
     for (Core::INavigationWidgetFactory *factory : factories) {
-        Core::NavigationView navigationView;
-        navigationView.widget = nullptr;
-        QString uniqueId;
-        QString title;
+        Core::NavigationView navigationView = {nullptr, {}};
 
-        if (factory->id() == "Projects") {
-            navigationView = factory->createWidget();
-            hideToolButtons(navigationView.dockToolBarWidgets);
-            navigationView.widget->setWindowTitle(tr(factory->id().name()));
-            uniqueId = "Projects";
-            title = "Projects";
-        }
-        if (factory->id() == "File System") {
-            navigationView = factory->createWidget();
-            hideToolButtons(navigationView.dockToolBarWidgets);
-            navigationView.widget->setWindowTitle(tr(factory->id().name()));
-            uniqueId = "FileSystem";
-            title = "File System";
-        }
-        if (factory->id() == "Open Documents") {
-            navigationView = factory->createWidget();
-            hideToolButtons(navigationView.dockToolBarWidgets);
-            navigationView.widget->setWindowTitle(tr(factory->id().name()));
-            uniqueId = "OpenDocuments";
-            title = "Open Documents";
-        }
+        if (!navigationViewIds.contains(factory->id()))
+            continue;
 
-        if (navigationView.widget) {
-            // Apply stylesheet to QWidget
-            QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
-            sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
-            sheet += "QLabel { background-color: creatorTheme.DSsectionHeadBackground; }";
-            navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+        navigationView = factory->createWidget();
 
-            // Create DockWidget
-            ADS::DockWidget *dockWidget = new ADS::DockWidget(uniqueId);
-            dockWidget->setWidget(navigationView.widget);
-            dockWidget->setWindowTitle(title);
-            m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
+        if (!navigationView.widget)
+            continue;
 
-            // Set unique id as object name
-            navigationView.widget->setObjectName(uniqueId);
+        hideToolButtons(navigationView.dockToolBarWidgets);
+        navigationView.widget->setWindowTitle(tr(factory->id().name()));
 
-            // Create menu action
-            auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
-                                                               actionToggle.withSuffix(uniqueId + "Widget"),
-                                                               designContext);
-            command->setAttribute(Core::Command::CA_Hide);
-            viewCommands.append(command);
-        }
+        QString idString = factory->id().toSetting().toString();
+        const QString title = idString;
+        const QString uniqueId = idString.remove(" "); // title without whitespaces
+
+        // Apply stylesheet to QWidget
+        QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
+        sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
+        sheet += "QLabel { background-color: creatorTheme.DSsectionHeadBackground; }";
+        navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+
+        // Create DockWidget
+        ADS::DockWidget *dockWidget = new ADS::DockWidget(uniqueId);
+        dockWidget->setWidget(navigationView.widget);
+        dockWidget->setWindowTitle(title);
+        m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
+
+        // Set unique id as object name
+        navigationView.widget->setObjectName(uniqueId);
+
+        // Create menu action
+        auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
+                                                           actionToggle.withSuffix(uniqueId + "Widget"),
+                                                           designContext);
+        command->setAttribute(Core::Command::CA_Hide);
+        viewCommands.append(command);
     }
 
     // Afterwards get all the other widgets
@@ -303,7 +311,8 @@ void DesignModeWidget::setup()
 
         // Create menu action
         auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
-                                                           actionToggle.withSuffix(widgetInfo.uniqueId + "Widget"),
+                                                           actionToggle.withSuffix(
+                                                               widgetInfo.uniqueId + "Widget"),
                                                            designContext);
         command->setAttribute(Core::Command::CA_Hide);
         viewCommands.append(command);
@@ -328,22 +337,13 @@ void DesignModeWidget::setup()
         command->setAttribute(Core::Command::CA_Hide);
         viewCommands.append(command);
 
-        connect(command->action(), &QAction::triggered, this, [command]() {
-            if (!command->action()->isChecked())
-                return;
-
-            auto cmd = Core::ActionManager::command("QtCreator.Pane.ApplicationOutput");
-            QTC_ASSERT(cmd, return);
-            cmd->action()->trigger();
-        });
-
         connect(outputPanePlaceholder,
                 &Core::OutputPanePlaceHolder::visibilityChangeRequested,
                 m_outputPaneDockWidget,
                 &ADS::DockWidget::toggleView);
     }
 
-    std::sort(viewCommands.begin(), viewCommands.end(), [](Core::Command *first, Core::Command *second){
+    std::sort(viewCommands.begin(), viewCommands.end(), [](Core::Command *first, Core::Command *second) {
         return first->description() < second->description();
     });
 
@@ -356,7 +356,10 @@ void DesignModeWidget::setup()
 
         toolBar->addAction(viewManager().componentViewAction());
         toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-        DesignerActionToolBar *designerToolBar = QmlDesignerPlugin::instance()->viewManager().designerActionManager().createToolBar(m_toolBar);
+        DesignerActionToolBar *designerToolBar = QmlDesignerPlugin::instance()
+                                                     ->viewManager()
+                                                     .designerActionManager()
+                                                     .createToolBar(m_toolBar);
 
         designerToolBar->layout()->addWidget(toolBar);
 
@@ -365,9 +368,14 @@ void DesignModeWidget::setup()
         m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
         m_toolBar->setNavigationVisible(true);
 
-        connect(m_toolBar, &Core::EditorToolBar::goForwardClicked, this, &DesignModeWidget::toolBarOnGoForwardClicked);
-        connect(m_toolBar, &Core::EditorToolBar::goBackClicked, this, &DesignModeWidget::toolBarOnGoBackClicked);
-
+        connect(m_toolBar,
+                &Core::EditorToolBar::goForwardClicked,
+                this,
+                &DesignModeWidget::toolBarOnGoForwardClicked);
+        connect(m_toolBar,
+                &Core::EditorToolBar::goBackClicked,
+                this,
+                &DesignModeWidget::toolBarOnGoBackClicked);
 
         QToolBar* toolBarWrapper = new QToolBar();
         toolBarWrapper->addWidget(m_toolBar);
@@ -375,31 +383,7 @@ void DesignModeWidget::setup()
         toolBarWrapper->setMovable(false);
         addToolBar(Qt::TopToolBarArea, toolBarWrapper);
 
-
         addSpacerToToolBar(toolBar);
-
-        auto workspaceComboBox = new QComboBox();
-        workspaceComboBox->setMinimumWidth(120);
-        workspaceComboBox->setToolTip(tr("Switch the active workspace."));
-        auto sortedWorkspaces = m_dockManager->workspaces();
-        Utils::sort(sortedWorkspaces);
-        workspaceComboBox->addItems(sortedWorkspaces);
-        workspaceComboBox->setCurrentText(m_dockManager->activeWorkspace());
-        toolBar->addWidget(workspaceComboBox);
-
-        connect(m_dockManager, &ADS::DockManager::workspaceListChanged,
-                workspaceComboBox, [this, workspaceComboBox]() {
-                    workspaceComboBox->clear();
-                    auto sortedWorkspaces = m_dockManager->workspaces();
-                    Utils::sort(sortedWorkspaces);
-                    workspaceComboBox->addItems(sortedWorkspaces);
-                    workspaceComboBox->setCurrentText(m_dockManager->activeWorkspace());
-        });
-        connect(m_dockManager, &ADS::DockManager::workspaceLoaded, workspaceComboBox, &QComboBox::setCurrentText);
-        connect(workspaceComboBox, &QComboBox::activated,
-                m_dockManager, [this, workspaceComboBox]([[maybe_unused]] int index) {
-                    m_dockManager->openWorkspace(workspaceComboBox->currentText());
-                });
 
         const QIcon gaIcon = Utils::StyleHelper::getIconFromIconFont(
                     fontName, Theme::getIconUnicode(Theme::Icon::annotationBubble),
@@ -412,7 +396,6 @@ void DesignModeWidget::setup()
                 m_globalAnnotationEditor.showWidget();
             }
         });
-
     }
 
     if (currentDesignDocument())
@@ -444,8 +427,6 @@ void DesignModeWidget::setup()
                 }
             });
 
-
-
     viewManager().enableWidgets();
     readSettings();
     show();
@@ -453,15 +434,15 @@ void DesignModeWidget::setup()
 
 void DesignModeWidget::aboutToShowWorkspaces()
 {
-    Core::ActionContainer *aci = Core::ActionManager::actionContainer(QmlDesigner::Constants::M_VIEW_WORKSPACES);
+    Core::ActionContainer *aci = Core::ActionManager::actionContainer(
+        QmlDesigner::Constants::M_VIEW_WORKSPACES);
     QMenu *menu = aci->menu();
     menu->clear();
 
     auto *ag = new QActionGroup(menu);
 
     connect(ag, &QActionGroup::triggered, this, [this](QAction *action) {
-        QString workspace = action->data().toString();
-        m_dockManager->openWorkspace(workspace);
+        m_dockManager->openWorkspace(action->data().toString());
     });
 
     QAction *action = menu->addAction(tr("Manage..."));
@@ -469,21 +450,18 @@ void DesignModeWidget::aboutToShowWorkspaces()
 
     QAction *resetWorkspace = menu->addAction(tr("Reset Active"));
     connect(resetWorkspace, &QAction::triggered, this, [this]() {
-        if (m_dockManager->resetWorkspacePreset(m_dockManager->activeWorkspace()))
+        if (m_dockManager->resetWorkspacePreset(m_dockManager->activeWorkspace()->fileName()))
             m_dockManager->reloadActiveWorkspace();
     });
 
     menu->addSeparator();
 
-    // Sort the list of workspaces
-    auto sortedWorkspaces = m_dockManager->workspaces();
-    Utils::sort(sortedWorkspaces);
-
-    for (const auto &workspace : std::as_const(sortedWorkspaces)) {
-        QAction *action = ag->addAction(workspace);
-        action->setData(workspace);
+    auto workspaces = m_dockManager->workspaces();
+    for (const auto &workspace : std::as_const(workspaces)) {
+        QAction *action = ag->addAction(workspace.name());
+        action->setData(workspace.fileName());
         action->setCheckable(true);
-        if (workspace == m_dockManager->activeWorkspace())
+        if (workspace == *m_dockManager->activeWorkspace())
             action->setChecked(true);
     }
     menu->addActions(ag->actions());

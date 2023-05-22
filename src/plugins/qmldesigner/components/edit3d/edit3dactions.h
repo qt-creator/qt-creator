@@ -122,4 +122,19 @@ private:
     SeekerSliderAction *m_seeker = nullptr;
 };
 
+class Edit3DBakeLightsAction : public Edit3DAction
+{
+public:
+    Edit3DBakeLightsAction(const QIcon &icon,
+                           Edit3DView *view,
+                           SelectionContextOperation selectionAction);
+
+protected:
+    bool isVisible(const SelectionContext &) const override;
+    bool isEnabled(const SelectionContext &) const override;
+
+private:
+    Edit3DView *m_view = nullptr;
+};
+
 } // namespace QmlDesigner

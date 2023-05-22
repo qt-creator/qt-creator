@@ -9,8 +9,6 @@
 #include <utils/smallstringio.h>
 #include <utils/smallstringvector.h>
 
-using namespace ::testing;
-
 using Utils::PathString;
 using Utils::SmallString;
 using Utils::SmallStringLiteral;
@@ -125,7 +123,7 @@ TEST(SmallString, MaximumShortSmallString)
 {
     SmallString maximumShortText("very very very very short text", 30);
 
-    ASSERT_THAT(maximumShortText.constData(), StrEq("very very very very short text"));
+    ASSERT_THAT(maximumShortText, StrEq("very very very very short text"));
 }
 
 TEST(SmallString, LongConstExpressionSmallStringIsReference)
@@ -221,21 +219,21 @@ TEST(SmallString, SmallStringLiteralShortSmallStringDataAccess)
 {
     SmallStringLiteral literalText("very very very very very very very very very very very long string");
 
-    ASSERT_THAT(literalText.data(), StrEq("very very very very very very very very very very very long string"));
+    ASSERT_THAT(literalText, StrEq("very very very very very very very very very very very long string"));
 }
 
 TEST(SmallString, SmallStringLiteralLongSmallStringDataAccess)
 {
     SmallStringLiteral literalText("short string");
 
-    ASSERT_THAT(literalText.data(), StrEq("short string"));
+    ASSERT_THAT(literalText, StrEq("short string"));
 }
 
 TEST(SmallString, ReferenceDataAccess)
 {
     SmallString literalText("short string");
 
-    ASSERT_THAT(literalText.constData(), StrEq("short string"));
+    ASSERT_THAT(literalText, StrEq("short string"));
 }
 
 TEST(SmallString, ShortDataAccess)
@@ -243,7 +241,7 @@ TEST(SmallString, ShortDataAccess)
     const char *shortCString = "short string";
     auto shortText = SmallString::fromUtf8(shortCString);
 
-    ASSERT_THAT(shortText.constData(), StrEq("short string"));
+    ASSERT_THAT(shortText, StrEq("short string"));
 }
 
 TEST(SmallString, LongDataAccess)
@@ -251,7 +249,7 @@ TEST(SmallString, LongDataAccess)
     const char *longCString = "very very very very very very very very very very very long string";
     auto longText = SmallString::fromUtf8(longCString);
 
-    ASSERT_THAT(longText.constData(), StrEq(longCString));
+    ASSERT_THAT(longText, StrEq(longCString));
 }
 
 TEST(SmallString, LongSmallStringHasShortSmallStringSizeZero)
@@ -964,8 +962,8 @@ TEST(SmallString, EqualCStringArrayOperator)
 
 TEST(SmallString, EqualCStringPointerOperator)
 {
-    ASSERT_TRUE(SmallString("text") == SmallString("text").data());
-    ASSERT_FALSE(SmallString("text") == SmallString("text2").data());
+    ASSERT_TRUE(SmallString("text") == std::string("text").data());
+    ASSERT_FALSE(SmallString("text") == std::string("text2").data());
 }
 
 TEST(SmallString, EqualSmallStringViewOperator)
@@ -994,8 +992,8 @@ TEST(SmallString, UnequalCStringArrayOperator)
 
 TEST(SmallString, UnequalCStringPointerOperator)
 {
-    ASSERT_FALSE(SmallString("text") != SmallString("text").data());
-    ASSERT_TRUE(SmallString("text") != SmallString("text2").data());
+    ASSERT_FALSE(SmallString("text") != std::string("text").data());
+    ASSERT_TRUE(SmallString("text") != std::string("text2").data());
 }
 
 TEST(SmallString, UnequalSmallStringViewArrayOperator)
@@ -1535,10 +1533,9 @@ TEST(SmallString, LongPathStringMoveConstuctor)
             "text"));
 }
 
-#if __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wself-move"
-#endif
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_GCC("-Wself-move")
+QT_WARNING_DISABLE_CLANG("-Wself-move")
 
 TEST(SmallString, ShortSmallStringMoveConstuctorToSelf)
 {
@@ -1585,9 +1582,7 @@ TEST(SmallString, LongPathStringMoveConstuctorToSelf)
             "text"));
 }
 
-#if __clang__
-#pragma clang diagnostic pop
-#endif
+QT_WARNING_POP
 
 TEST(SmallString, ShortSmallStringCopyAssignment)
 {

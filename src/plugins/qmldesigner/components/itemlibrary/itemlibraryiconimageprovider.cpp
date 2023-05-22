@@ -20,7 +20,7 @@ QQuickImageResponse *ItemLibraryIconImageProvider::requestImageResponse(const QS
         Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/item-default-icon.png")});
 
     m_cache.requestSmallImage(
-        id,
+        Utils::PathString{id},
         [response = QPointer<ImageCacheImageResponse>(response.get())](const QImage &image) {
             QMetaObject::invokeMethod(
                 response,

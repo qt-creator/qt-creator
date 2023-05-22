@@ -23,18 +23,18 @@ public:
 
     AsynchronousExplicitImageCache(ImageCacheStorageInterface &storage);
 
-    void requestImage(Utils::PathString name,
+    void requestImage(Utils::SmallStringView name,
                       ImageCache::CaptureImageCallback captureCallback,
                       ImageCache::AbortCallback abortCallback,
-                      Utils::SmallString extraId = {});
-    void requestMidSizeImage(Utils::PathString name,
+                      Utils::SmallStringView extraId = {});
+    void requestMidSizeImage(Utils::SmallStringView name,
                              ImageCache::CaptureImageCallback captureCallback,
                              ImageCache::AbortCallback abortCallback,
-                             Utils::SmallString extraId = {});
-    void requestSmallImage(Utils::PathString name,
+                             Utils::SmallStringView extraId = {});
+    void requestSmallImage(Utils::SmallStringView name,
                            ImageCache::CaptureImageCallback captureCallback,
                            ImageCache::AbortCallback abortCallback,
-                           Utils::SmallString extraId = {});
+                           Utils::SmallStringView extraId = {});
 
     void clean();
 

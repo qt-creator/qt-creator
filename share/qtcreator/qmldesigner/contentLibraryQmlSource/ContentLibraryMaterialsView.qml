@@ -12,6 +12,7 @@ HelperWidgets.ScrollView {
 
     clip: true
     interactive: !ctxMenu.opened && !ContentLibraryBackend.rootView.isDragging
+                 && !HelperWidgets.Controller.contextMenuOpened
 
     readonly property int cellWidth: 100
     readonly property int cellHeight: 120

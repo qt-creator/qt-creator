@@ -497,6 +497,9 @@ void OutputPaneManager::initialize()
     m_instance->m_titleLabel->setMinimumWidth(
         minTitleWidth + m_instance->m_titleLabel->contentsMargins().left()
         + m_instance->m_titleLabel->contentsMargins().right());
+    const int currentIdx = m_instance->currentIndex();
+    if (QTC_GUARD(currentIdx >= 0 && currentIdx < g_outputPanes.size()))
+        m_instance->m_titleLabel->setText(g_outputPanes[currentIdx].pane->displayName());
     m_instance->m_buttonsWidget->layout()->addWidget(m_instance->m_manageButton);
     connect(m_instance->m_manageButton,
             &QAbstractButton::clicked,
@@ -575,7 +578,12 @@ void OutputPaneManager::readSettings()
     }
     settings->endArray();
 
-    m_outputPaneHeightSetting = settings->value(QLatin1String("OutputPanePlaceHolder/Height"), 0).toInt();
+    m_outputPaneHeightSetting
+        = settings->value(QLatin1String("OutputPanePlaceHolder/Height"), 0).toInt();
+    const int currentIdx
+        = settings->value(QLatin1String("OutputPanePlaceHolder/CurrentIndex"), 0).toInt();
+    if (QTC_GUARD(currentIdx >= 0 && currentIdx < g_outputPanes.size()))
+        setCurrentIndex(currentIdx);
 }
 
 void OutputPaneManager::slotNext()
@@ -682,7 +690,8 @@ void OutputPaneManager::setCurrentIndex(int idx)
         OutputPaneData &data = g_outputPanes[idx];
         IOutputPane *pane = data.pane;
         data.button->show();
-        pane->visibilityChanged(true);
+        if (OutputPanePlaceHolder::isCurrentVisible())
+            pane->visibilityChanged(true);
 
         bool canNavigate = pane->canNavigate();
         m_prevAction->setEnabled(canNavigate && pane->canPrevious());
@@ -737,6 +746,7 @@ void OutputPaneManager::saveSettings() const
     if (OutputPanePlaceHolder *curr = OutputPanePlaceHolder::getCurrent())
         heightSetting = curr->nonMaximizedSize();
     settings->setValue(QLatin1String("OutputPanePlaceHolder/Height"), heightSetting);
+    settings->setValue(QLatin1String("OutputPanePlaceHolder/CurrentIndex"), currentIndex());
 }
 
 void OutputPaneManager::clearPage()

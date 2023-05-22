@@ -214,7 +214,6 @@
     use of solid color fills or images. Consider using gradients only for
     static components in a UI.
 
-    \if defined(qtdesignstudio)
     \section2 Setting Gradient Properties
 
     \image qtquick-designer-gradient-types.png "Available gradient types"
@@ -262,7 +261,6 @@
     in the \uicontrol Angle field.
 
     \image qtquick-designer-gradient-properties-conical.png "Conical gradient properties"
-    \endif
 
     \section2 Selecting Web Gradients
 

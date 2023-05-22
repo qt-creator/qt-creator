@@ -47,7 +47,7 @@ void VariantProperty::setValue(const QVariant &value)
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isVariantProperty())
-        privateModel()->removeProperty(internalNode()->property(name()));
+        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
 
     privateModel()->setVariantProperty(internalNode(), name(), value);
 }
@@ -96,7 +96,7 @@ void VariantProperty::setDynamicTypeNameAndValue(const TypeName &type, const QVa
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isVariantProperty())
-        privateModel()->removeProperty(internalNode()->property(name()));
+        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
 
    privateModel()->setDynamicVariantProperty(internalNode(), name(), type, value);
 }

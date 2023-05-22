@@ -25,6 +25,7 @@ HEADERS += $$PWD/qt5nodeinstanceserver.h \
     $$PWD/qt5captureimagenodeinstanceserver.h \
     $$PWD/qt5capturepreviewnodeinstanceserver.h \
     $$PWD/qt5testnodeinstanceserver.h \
+    $$PWD/qt5bakelightsnodeinstanceserver.h \
     $$PWD/qt5informationnodeinstanceserver.h \
     $$PWD/qt5rendernodeinstanceserver.h \
     $$PWD/qt5previewnodeinstanceserver.h \
@@ -60,6 +61,7 @@ SOURCES += $$PWD/qt5nodeinstanceserver.cpp \
     $$PWD/qt5captureimagenodeinstanceserver.cpp \
     $$PWD/qt5capturepreviewnodeinstanceserver.cpp \
     $$PWD/qt5testnodeinstanceserver.cpp \
+    $$PWD/qt5bakelightsnodeinstanceserver.cpp \
     $$PWD/qt5informationnodeinstanceserver.cpp \
     $$PWD/qt5rendernodeinstanceserver.cpp \
     $$PWD/qt5previewnodeinstanceserver.cpp \

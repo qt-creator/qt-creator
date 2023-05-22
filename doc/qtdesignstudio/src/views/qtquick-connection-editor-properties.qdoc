@@ -4,11 +4,8 @@
 /*!
     \page quick-dynamic-properties.html
     \previouspage quick-property-bindings.html
-    \if defined(qtdesignstudio)
     \nextpage quick-states.html
-    \else
-    \nextpage quick-connections-backend.html
-    \endif
+
     \sa {Specifying Component Properties}
     \title Specifying Custom Properties
 

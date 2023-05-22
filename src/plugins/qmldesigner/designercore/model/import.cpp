@@ -5,9 +5,9 @@
 
 #include <QHash>
 
-namespace QmlDesigner {
+#include <QStringView>
 
-Import::Import() = default;
+namespace QmlDesigner {
 
 Import Import::createLibraryImport(const QString &url, const QString &version, const QString &alias, const QStringList &importPaths)
 {
@@ -62,11 +62,6 @@ QString Import::toString(bool skipAlias, bool skipVersion) const
     return result;
 }
 
-bool Import::operator==(const Import &other) const
-{
-    return url() == other.url() && file() == other.file() && (version() == other.version() || version().isEmpty() || other.version().isEmpty());
-}
-
 bool Import::isSameModule(const Import &other) const
 {
     if (isLibraryImport())
@@ -85,21 +80,56 @@ int Import::minorVersion() const
     return minorFromVersion(m_version);
 }
 
+Version Import::toVersion() const
+{
+    auto found = std::find(m_version.begin(), m_version.end(), u'.');
+    if (found == m_version.end())
+        return {};
+
+    QStringView majorVersionToken{m_version.begin(), found};
+    bool canConvertMajor = false;
+    int majorVersion = majorVersionToken.toInt(&canConvertMajor);
+
+    QStringView minorVersionToken{std::next(found), m_version.end()};
+    bool canConvertMinor = false;
+    int minorVersion = minorVersionToken.toInt(&canConvertMinor);
+
+    if (canConvertMajor && canConvertMinor)
+        return {majorVersion, minorVersion};
+
+    return {};
+}
+
 int Import::majorFromVersion(const QString &version)
 {
-    if (version.isEmpty())
+    auto found = std::find(version.begin(), version.end(), u'.');
+    if (found == version.end())
         return -1;
-    return version.split('.').first().toInt();
+
+    QStringView majorVersionToken{version.begin(), found};
+    bool canConvert = false;
+    int majorVersion = majorVersionToken.toInt(&canConvert);
+
+    if (canConvert)
+        return majorVersion;
+
+    return -1;
 }
 
 int Import::minorFromVersion(const QString &version)
 {
-    if (version.isEmpty())
+    auto found = std::find(version.begin(), version.end(), u'.');
+    if (found == version.end())
         return -1;
-    const QStringList parts = version.split('.');
-    if (parts.size() < 2)
-        return -1;
-    return parts[1].toInt();
+
+    QStringView minorVersionToken{std::next(found), version.end()};
+    bool canConvert = false;
+    int minorVersion = minorVersionToken.toInt(&canConvert);
+
+    if (canConvert)
+        return minorVersion;
+
+    return -1;
 }
 
 size_t qHash(const Import &import)
@@ -107,4 +137,17 @@ size_t qHash(const Import &import)
     return ::qHash(import.url()) ^ ::qHash(import.file()) ^ ::qHash(import.version()) ^ ::qHash(import.alias());
 }
 
+Imports difference(const Imports &first, const Imports &second)
+{
+    Imports difference;
+    difference.reserve(first.size());
+
+    std::set_difference(first.begin(),
+                        first.end(),
+                        second.begin(),
+                        second.end(),
+                        std::back_inserter(difference));
+
+    return difference;
+}
 } // namespace QmlDesigner

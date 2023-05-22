@@ -304,28 +304,6 @@ Import ItemLibraryModel::entryToImport(const ItemLibraryEntry &entry)
 
 }
 
-// Returns true if first import version is higher or equal to second import version
-static bool compareVersions(const QString &version1, const QString &version2)
-{
-    if (version2.isEmpty() || version1 == version2)
-        return true;
-    const QStringList version1List = version1.split(QLatin1Char('.'));
-    const QStringList version2List = version2.split(QLatin1Char('.'));
-    if (version1List.count() == 2 && version2List.count() == 2) {
-        int major1 = version1List.constFirst().toInt();
-        int major2 = version2List.constFirst().toInt();
-        if (major1 > major2) {
-            return true;
-        } else if (major1 == major2) {
-            int minor1 = version1List.constLast().toInt();
-            int minor2 = version2List.constLast().toInt();
-            if (minor1 >= minor2)
-                return true;
-        }
-    }
-    return false;
-}
-
 void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 {
     if (!model)
@@ -343,7 +321,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     materialBundlePrefix.append(".MaterialBundle");
 
     // create import sections
-    const QList<Import> usedImports = model->usedImports();
+    const Imports usedImports = model->usedImports();
     QHash<QString, ItemLibraryImport *> importHash;
     for (const Import &import : model->imports()) {
         if (import.url() != projectName) {
@@ -363,7 +341,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                 addNew = false; // add only 1 Quick3DAssets import section
             } else if (oldImport && oldImport->importEntry().url() == import.url()) {
                 // Retain the higher version if multiples exist
-                if (compareVersions(oldImport->importEntry().version(), import.version()))
+                if (oldImport->importEntry().toVersion() >= import.toVersion() || import.hasVersion())
                     addNew = false;
                 else
                     delete oldImport;
@@ -550,7 +528,7 @@ ItemLibraryImport *ItemLibraryModel::importByUrl(const QString &importUrl) const
     return nullptr;
 }
 
-void ItemLibraryModel::updateUsedImports(const QList<Import> &usedImports)
+void ItemLibraryModel::updateUsedImports(const Imports &usedImports)
 {
     // imports in the excludeList are not marked used and thus can always be removed even when in use.
     const QList<QString> excludeList = {"SimulinkConnector"};

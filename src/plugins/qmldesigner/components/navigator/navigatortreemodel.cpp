@@ -9,23 +9,24 @@
 #include "qmldesignerplugin.h"
 #include "assetslibrarywidget.h"
 
+#include <abstractview.h>
 #include <bindingproperty.h>
+#include <coreplugin/icore.h>
+#include <designeractionmanager.h>
 #include <designersettings.h>
+#include <import.h>
+#include <invalididexception.h>
+#include <materialutils.h>
+#include <metainfo.h>
+#include <model/modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodehints.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
-#include <variantproperty.h>
-#include <metainfo.h>
-#include <materialutils.h>
-#include <abstractview.h>
-#include <invalididexception.h>
 #include <rewritingexception.h>
+#include <variantproperty.h>
 #include <qmldesignerconstants.h>
 #include <qmlitemnode.h>
-#include <designeractionmanager.h>
-#include <import.h>
-#include <coreplugin/icore.h>
 
 #include <qmlprojectmanager/qmlproject.h>
 
@@ -210,7 +211,7 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
             return modelNode.displayName();
         } else if (role == Qt::DecorationRole) {
             if (currentQmlObjectNode.hasError())
-                return Utils::Icons::WARNING.icon();
+                return ::Utils::Icons::WARNING.icon();
 
             return modelNode.typeIcon();
 
@@ -314,14 +315,14 @@ QList<ModelNode> NavigatorTreeModel::filteredList(const NodeListProperty &proper
     if (m_nameFilter.isEmpty()) {
         nameFilteredList = propertyNodes;
     } else {
-        nameFilteredList.append(Utils::filtered(propertyNodes, [&] (const ModelNode &arg){
+        nameFilteredList.append(::Utils::filtered(propertyNodes, [&](const ModelNode &arg) {
             const bool value = m_nameFilteredList.contains(arg);
             return value;
         }));
     }
 
     if (filter) {
-        list.append(Utils::filtered(nameFilteredList, [] (const ModelNode &arg) {
+        list.append(::Utils::filtered(nameFilteredList, [](const ModelNode &arg) {
             const bool value = (QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator())
                                && arg.id() != Constants::MATERIAL_LIB_ID;
             return value;
@@ -899,17 +900,8 @@ ModelNode NavigatorTreeModel::handleItemLibraryFontDrop(const QString &fontFamil
 
 void NavigatorTreeModel::addImport(const QString &importName)
 {
-    Import import = Import::createLibraryImport(importName);
-    if (!m_view->model()->hasImport(import, true, true)) {
-        const QList<Import> possImports = m_view->model()->possibleImports();
-        for (const auto &possImport : possImports) {
-            if (possImport.url() == import.url()) {
-                import = possImport;
-                m_view->model()->changeImports({import}, {});
-                break;
-            }
-        }
-    }
+    if (!Utils::addImportWithCheck(importName, m_view->model()))
+        qWarning() << __FUNCTION__ << "Adding import failed:" << importName;
 }
 
 bool QmlDesigner::NavigatorTreeModel::moveNodeToParent(const NodeAbstractProperty &targetProperty,
@@ -1268,12 +1260,12 @@ static QList<ModelNode> collectParents(const QList<ModelNode> &modelNodes)
         }
     }
 
-    return Utils::toList(parents);
+    return ::Utils::toList(parents);
 }
 
 QList<QPersistentModelIndex> NavigatorTreeModel::nodesToPersistentIndex(const QList<ModelNode> &modelNodes)
 {
-    return Utils::transform(modelNodes, [this](const ModelNode &modelNode) {
+    return ::Utils::transform(modelNodes, [this](const ModelNode &modelNode) {
         return QPersistentModelIndex(indexForModelNode(modelNode));
     });
 }

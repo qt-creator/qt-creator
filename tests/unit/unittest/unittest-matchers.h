@@ -7,7 +7,7 @@
 
 #include <utils/smallstringio.h>
 
-namespace UnitTests {
+namespace Internal {
 
 template <typename StringType>
 class EndsWithMatcher
@@ -46,10 +46,68 @@ private:
     const StringType m_suffix;
 };
 
-inline
-testing::PolymorphicMatcher<EndsWithMatcher<Utils::SmallString> >
-EndsWith(const Utils::SmallString &suffix)
+class QStringEndsWithMatcher
 {
-  return testing::MakePolymorphicMatcher(EndsWithMatcher<Utils::SmallString>(suffix));
+public:
+    explicit QStringEndsWithMatcher(const QString &suffix)
+        : m_suffix(suffix)
+    {}
+
+    template<typename MatcheeStringType>
+    bool MatchAndExplain(const MatcheeStringType &s, testing::MatchResultListener * /* listener */) const
+    {
+        return s.endsWith(m_suffix);
+    }
+
+    void DescribeTo(::std::ostream *os) const
+    {
+        *os << "ends with " << testing::PrintToString(m_suffix);
+    }
+
+    void DescribeNegationTo(::std::ostream *os) const
+    {
+        *os << "doesn't end with " << testing::PrintToString(m_suffix);
+    }
+
+private:
+    const QString m_suffix;
+};
+
+class IsEmptyMatcher : public testing::internal::IsEmptyMatcher
+{
+public:
+    using Base = testing::internal::IsEmptyMatcher;
+
+    using Base::MatchAndExplain;
+
+    bool MatchAndExplain(const QString &s, testing::MatchResultListener *listener) const
+    {
+        if (s.isEmpty()) {
+            return true;
+        }
+
+        *listener << "whose size is " << s.size();
+        return false;
+    }
+
+    void DescribeTo(std::ostream *os) const { *os << "is empty"; }
+
+    void DescribeNegationTo(std::ostream *os) const { *os << "isn't empty"; }
+};
+
+} // namespace Internal
+
+inline auto EndsWith(const Utils::SmallString &suffix)
+{
+    return Internal::EndsWithMatcher(suffix);
 }
+
+inline auto EndsWith(const QStringView &suffix)
+{
+    return ::testing::PolymorphicMatcher(Internal::QStringEndsWithMatcher(suffix.toString()));
+}
+
+inline auto IsEmpty()
+{
+    return ::testing::PolymorphicMatcher(Internal::IsEmptyMatcher());
 }

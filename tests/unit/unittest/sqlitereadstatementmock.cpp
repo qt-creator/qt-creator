@@ -8,6 +8,7 @@
 SqliteReadStatementMockBase::SqliteReadStatementMockBase(Utils::SmallStringView sqlStatement,
                                                          SqliteDatabaseMock &databaseMock)
     : sqlStatement(sqlStatement)
+    , databaseMock(databaseMock)
 {
     databaseMock.prepare(sqlStatement);
 }

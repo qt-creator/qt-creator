@@ -1,1 +1,60 @@
-<?xml version="1.0" encoding="UTF-8"?><QtAdvancedDockingSystem version="1" userVersion="0" containers="1"><container floating="false"><splitter orientation="Horizontal" count="2"><splitter orientation="Vertical" count="2"><splitter orientation="Horizontal" count="3"><area tabs="4" current="Components"><widget name="Components" closed="false"/><widget name="Assets" closed="false"/><widget name="MaterialBrowser" closed="false"/><widget name="ContentLibrary" closed="false"/></area><area tabs="2" current="Editor3D"><widget name="Editor3D" closed="false"/><widget name="FormEditor" closed="false"/></area><area tabs="1" current="TranslationsView"><widget name="TranslationsView" closed="true"/></area><sizes>688 2515 0</sizes></splitter><splitter orientation="Vertical" count="2"><splitter orientation="Horizontal" count="2"><area tabs="3" current="StatesEditor"><widget name="StatesEditor" closed="false"/><widget name="TransitionEditor" closed="false"/><widget name="CurveEditorId" closed="false"/></area><area tabs="1" current="Timelines"><widget name="Timelines" closed="false"/></area><sizes>1604 1599</sizes></splitter><area tabs="3" current="OutputPane"><widget name="OutputPane" closed="false"/><widget name="TextEditor" closed="false"/><widget name="ConnectionView" closed="true"/></area><sizes>544 42</sizes></splitter><sizes>1426 587</sizes></splitter><splitter orientation="Vertical" count="2"><area tabs="4" current="Navigator"><widget name="Navigator" closed="false"/><widget name="Projects" closed="false"/><widget name="FileSystem" closed="false"/><widget name="OpenDocuments" closed="true"/></area><area tabs="3" current="Properties"><widget name="Properties" closed="false"/><widget name="MaterialEditor" closed="false"/><widget name="TextureEditor" closed="false"/></area><sizes>994 1019</sizes></splitter><sizes>3204 635</sizes></splitter></container></QtAdvancedDockingSystem>
+<?xml version="1.0" encoding="UTF-8"?>
+<QtAdvancedDockingSystem version="1" userVersion="0" containers="1" displayName="3D Animation">
+  <container floating="false">
+    <splitter orientation="Horizontal" count="2">
+      <splitter orientation="Vertical" count="2">
+        <splitter orientation="Horizontal" count="3">
+          <area tabs="4" current="Components">
+            <widget name="Components" closed="false"/>
+            <widget name="Assets" closed="false"/>
+            <widget name="MaterialBrowser" closed="false"/>
+            <widget name="ContentLibrary" closed="false"/>
+          </area>
+          <area tabs="2" current="Editor3D">
+            <widget name="Editor3D" closed="false"/>
+            <widget name="FormEditor" closed="false"/>
+          </area>
+          <area tabs="1" current="TranslationsView">
+            <widget name="TranslationsView" closed="true"/>
+          </area>
+          <sizes>688 2515 0</sizes>
+        </splitter>
+        <splitter orientation="Vertical" count="2">
+          <splitter orientation="Horizontal" count="2">
+            <area tabs="3" current="StatesEditor">
+              <widget name="StatesEditor" closed="false"/>
+              <widget name="TransitionEditor" closed="false"/>
+              <widget name="CurveEditorId" closed="false"/>
+            </area>
+            <area tabs="1" current="Timelines">
+              <widget name="Timelines" closed="false"/>
+            </area>
+            <sizes>1604 1599</sizes>
+          </splitter>
+          <area tabs="3" current="OutputPane">
+            <widget name="OutputPane" closed="false"/>
+            <widget name="TextEditor" closed="false"/>
+            <widget name="ConnectionView" closed="true"/>
+          </area>
+          <sizes>544 42</sizes>
+        </splitter>
+        <sizes>1426 587</sizes>
+      </splitter>
+      <splitter orientation="Vertical" count="2">
+        <area tabs="4" current="Navigator">
+          <widget name="Navigator" closed="false"/>
+          <widget name="Projects" closed="false"/>
+          <widget name="FileSystem" closed="false"/>
+          <widget name="OpenDocuments" closed="true"/>
+        </area>
+        <area tabs="3" current="Properties">
+          <widget name="Properties" closed="false"/>
+          <widget name="MaterialEditor" closed="false"/>
+          <widget name="TextureEditor" closed="false"/>
+        </area>
+        <sizes>994 1019</sizes>
+      </splitter>
+      <sizes>3204 635</sizes>
+    </splitter>
+  </container>
+</QtAdvancedDockingSystem>

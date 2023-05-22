@@ -79,12 +79,6 @@
     For more information, see
     \l {Internationalization and Localization with Qt Quick}.
 
-    \if defined(qtcreator)
-    When you \l{Creating Qt Quick Projects}{create a new project}, you can
-    automatically generate a translation source file (TS) for one language.
-    You can add other languages later by editing the project file.
-    \endif
-
     \section1 Character Properties
 
     You can set font properties in the \uicontrol Character section

@@ -76,7 +76,7 @@ bool QmlModelStateOperation::isValid() const
 
 bool QmlModelStateOperation::isValidQmlModelStateOperation(const ModelNode &modelNode)
 {
-    return isValidQmlModelNodeFacade(modelNode) && modelNode.metaInfo().isQuickStateOperation();
+    return isValidQmlModelNodeFacade(modelNode) && modelNode.metaInfo().isQtQuickStateOperation();
 }
 
 void QmlPropertyChanges::removeProperty(const PropertyName &name)

@@ -162,7 +162,7 @@
                                 \list
                                     \li \l{Setting Up Qt Bridge for Figma}
                                     \li \l{Using Qt Bridge for Figma}
-                                    \li \l{Using Figma Quick Control Template in Qt Design Studio}
+                                    \li \l{Using Figma Quick Control Template Components in Qt Design Studio}
                                 \endlist
                         \endlist
                         \li \l {Exporting 3D Assets}
@@ -180,11 +180,7 @@
                                 \li \l{Importing 3D Assets}
                             \endlist
                         \li \l{Exporting Components}
-                        \li Qt Quick Effect Maker
-                            \list
-                                \li \l{Creating Qt Quick Effect Maker Files}
-                                \li \l{Working with Effects in Qt Quick Effect Maker}
-                            \endlist
+                        \li \l{Using Qt Quick Effect Maker Effects}
                     \endlist
             \endlist
         \li \l{Motion Design}
@@ -263,6 +259,10 @@
                 \li \l{Converting Qt 5 Projects into Qt 6 Projects}
                 \li \l{Converting UI Projects to Applications}
                 \li \l{Using External Tools}
+                \li \l{\QDS on MCUs}
+                    \list
+                        \li \l {\QDS Version Compatibility with \QMCU SDKs}
+                    \endlist
             \endlist
         \li \l Help
             \list

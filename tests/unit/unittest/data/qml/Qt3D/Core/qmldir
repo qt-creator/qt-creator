@@ -1,0 +1,8 @@
+module Qt3D.Core
+linktarget Qt6::quick3dcoreplugin
+plugin quick3dcoreplugin
+classname Qt3DQuick3DCorePlugin
+typeinfo plugins.qmltypes
+depends QtQuick auto
+prefer :/qt-project.org/imports/Qt3D/Core/
+

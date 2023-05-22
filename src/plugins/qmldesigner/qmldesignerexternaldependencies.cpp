@@ -15,6 +15,7 @@
 #include <qmlpuppetpaths.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 
 #include <coreplugin/icore.h>
 
@@ -184,6 +185,97 @@ Utils::FilePath ExternalDependencies::qmlPuppetPath() const
     auto target = ProjectExplorer::ProjectManager::startupTarget();
     auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target, m_designerSettings);
     return puppetPath;
+}
+
+namespace {
+
+QString qmlPath(ProjectExplorer::Target *target)
+{
+    auto kit = target->kit();
+
+    if (!kit)
+        return {};
+
+    auto qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
+    if (!qtVersion)
+        return {};
+
+    return qtVersion->qmlPath().toString();
+}
+
+std::tuple<ProjectExplorer::Project *, ProjectExplorer::Target *, QmlProjectManager::QmlBuildSystem *>
+activeProjectEntries()
+{
+    auto project = ProjectExplorer::ProjectManager::startupProject();
+
+    if (!project)
+        return {};
+
+    auto target = project->activeTarget();
+
+    if (!target)
+        return {};
+
+    const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+        target->buildSystem());
+
+    if (qmlBuildSystem)
+        return std::make_tuple(project, target, qmlBuildSystem);
+
+    return {};
+}
+} // namespace
+
+QStringList ExternalDependencies::modulePaths() const
+{
+    auto [project, target, qmlBuildSystem] = activeProjectEntries();
+
+    if (project && target && qmlBuildSystem) {
+        QStringList modulePaths;
+
+        if (auto path = qmlPath(target); !path.isEmpty())
+            modulePaths.push_back(path);
+
+        for (const QString &modulePath : qmlBuildSystem->customImportPaths())
+            modulePaths.append(project->projectDirectory().pathAppended(modulePath).toString());
+
+        return modulePaths;
+    }
+
+    return {};
+}
+
+QStringList ExternalDependencies::projectModulePaths() const
+{
+    auto [project, target, qmlBuildSystem] = activeProjectEntries();
+
+    if (project && target && qmlBuildSystem) {
+        QStringList modulePaths;
+
+        for (const QString &modulePath : qmlBuildSystem->customImportPaths())
+            modulePaths.append(project->projectDirectory().pathAppended(modulePath).toString());
+    }
+
+    return {};
+}
+
+bool ExternalDependencies::isQt6Project() const
+{
+    auto [project, target, qmlBuildSystem] = activeProjectEntries();
+
+    return qmlBuildSystem && qmlBuildSystem->qt6Project();
+}
+
+QString ExternalDependencies::qtQuickVersion() const
+{
+    auto [project, target, qmlBuildSystem] = activeProjectEntries();
+
+    return qmlBuildSystem ? qmlBuildSystem->versionQtQuick() : QString{};
+}
+
+Utils::FilePath ExternalDependencies::resourcePath(const QString &relativePath) const
+{
+    return Core::ICore::resourcePath(relativePath);
 }
 
 } // namespace QmlDesigner

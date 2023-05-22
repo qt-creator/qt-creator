@@ -3,11 +3,7 @@
 
 /*!
     \page qtquick-prototyping.html
-    \if defined(qtdesignstudio)
     \previouspage qtquick-annotations.html
-    \else
-    \previouspage creator-quick-ui-forms.html
-    \endif
     \nextpage qtquick-creating-ui-logic.html
 
     \title Prototyping
@@ -39,10 +35,8 @@
             You can connect UIs to different forms of data from various
             sources, such as QML-based data models, JavaScript files, and
             backend services.
-            \if defined(qtdesignstudio)
             You can also connect your UI to Simulink to load live data from
             a Simulink simulation.
-            \endif
 
         \li \l {Dynamic Behaviors}
 
@@ -50,7 +44,6 @@
             communicate with each other. The connections can be triggered by
             changes in component property values or in UI states.
 
-        \if defined(qtdesignstudio)
         \li \l {Validating with Target Hardware}
 
             You can use the live preview feature to preview a UI file or the
@@ -63,25 +56,6 @@
             Describes how to export designs containing 2D and 3D assets into
             files that you can import to projects in \QDS, how to import them,
             and how to export them from \QDS back to the metadata format.
-
-        \else
-        \li \l {Exporting 3D Assets}
-
-            You can export assets from 3D graphics applications into several
-            widely-used formats, such as .blend, .dae, .fbx, .glb, .gltf, .obj,
-            .uia, or .uip.
-
-        \li \l {Importing 3D Assets}
-
-            You can import exported assets into \QDS. For a list of formats
-            supported by each \l{Qt Quick 3D} version, see the module
-            documentation.
-
-        \li \l {Exporting Components}
-
-            You can export components contained in \l{UI Files}{UI files}
-            (.ui.qml) to JSON metadata format and PNG assets.
-        \endif
 
     \endlist
 */

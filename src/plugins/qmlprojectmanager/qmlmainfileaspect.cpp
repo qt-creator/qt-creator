@@ -181,7 +181,7 @@ void QmlMainFileAspect::setScriptSource(MainScriptSource source, const QString &
 FilePath QmlMainFileAspect::mainScript() const
 {
     if (!qmlBuildSystem()->mainFile().isEmpty()) {
-        const FilePath pathInProject = qmlBuildSystem()->mainFile();
+        const FilePath pathInProject = qmlBuildSystem()->mainFilePath();
         return qmlBuildSystem()->canonicalProjectDir().resolvePath(pathInProject);
     }
 

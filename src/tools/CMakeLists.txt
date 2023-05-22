@@ -27,7 +27,9 @@ if (APPLE)
 endif()
 
 add_subdirectory(processlauncher)
-add_subdirectory(qml2puppet)
+if (WITH_QMLDESIGNER)
+  add_subdirectory(qml2puppet)
+endif()
 add_subdirectory(qtcdebugger) ## windows only
 # add_subdirectory(qtcrashhandler)
 add_subdirectory(qtc-askpass)

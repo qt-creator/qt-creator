@@ -3,11 +3,7 @@
 
 /*!
     \page quick-components.html
-    \if defined(qtdesignstudio)
     \previouspage studio-flow-external-events.html
-    \else
-    \previouspage creator-using-qt-quick-designer.html
-    \endif
     \nextpage quick-preset-components.html
 
     \title Using Components

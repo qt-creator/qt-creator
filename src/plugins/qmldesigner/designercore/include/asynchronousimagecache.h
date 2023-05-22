@@ -28,20 +28,20 @@ public:
                            ImageCacheGeneratorInterface &generator,
                            TimeStampProviderInterface &timeStampProvider);
 
-    void requestImage(Utils::PathString name,
+    void requestImage(Utils::SmallStringView name,
                       ImageCache::CaptureImageCallback captureCallback,
                       ImageCache::AbortCallback abortCallback,
-                      Utils::SmallString extraId = {},
+                      Utils::SmallStringView extraId = {},
                       ImageCache::AuxiliaryData auxiliaryData = {}) override;
-    void requestMidSizeImage(Utils::PathString name,
+    void requestMidSizeImage(Utils::SmallStringView name,
                              ImageCache::CaptureImageCallback captureCallback,
                              ImageCache::AbortCallback abortCallback,
-                             Utils::SmallString extraId = {},
+                             Utils::SmallStringView extraId = {},
                              ImageCache::AuxiliaryData auxiliaryData = {}) override;
-    void requestSmallImage(Utils::PathString name,
+    void requestSmallImage(Utils::SmallStringView name,
                            ImageCache::CaptureImageCallback captureCallback,
                            ImageCache::AbortCallback abortCallback,
-                           Utils::SmallString extraId = {},
+                           Utils::SmallStringView extraId = {},
                            ImageCache::AuxiliaryData auxiliaryData = {}) override;
 
     void clean();

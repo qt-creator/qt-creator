@@ -51,6 +51,10 @@ QVariant MaterialBrowserTexturesModel::data(const QModelIndex &index, int role) 
     if (role == RoleTexInternalId)
         return m_textureList.at(index.row()).internalId();
 
+    if (role == RoleTexId) {
+        return m_textureList.at(index.row()).id();
+    }
+
     if (role == RoleTexToolTip) {
         QString source = data(index, RoleTexSource).toString(); // absolute path
         if (source.isEmpty())
@@ -88,6 +92,7 @@ QHash<int, QByteArray> MaterialBrowserTexturesModel::roleNames() const
     static const QHash<int, QByteArray> roles {
         {RoleTexHasDynamicProps, "hasDynamicProperties"},
         {RoleTexInternalId,      "textureInternalId"},
+        {RoleTexId,              "textureId"},
         {RoleTexSource,          "textureSource"},
         {RoleTexToolTip,         "textureToolTip"},
         {RoleTexVisible,         "textureVisible"}
@@ -291,6 +296,21 @@ void MaterialBrowserTexturesModel::deleteTexture(int idx)
         ModelNode node = m_textureList[idx];
         if (node.isValid())
             QmlObjectNode(node).destroy();
+    }
+}
+
+void MaterialBrowserTexturesModel::setTextureId(int idx, const QString &newId)
+{
+    if (!isValidIndex(idx))
+        return;
+
+    ModelNode node = m_textureList[idx];
+    if (!node.isValid())
+        return;
+
+    if (node.id() != newId) {
+        node.setIdWithRefactoring(newId);
+        emit dataChanged(index(idx, 0), index(idx, 0), {RoleTexId});
     }
 }
 

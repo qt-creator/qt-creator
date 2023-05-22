@@ -121,7 +121,7 @@ T.SpinBox {
         height: control.spinBoxIndicatorVisible ? control.__spinBoxIndicatorHeight : 0
 
         realEnabled: (control.realFrom < control.realTo) ? (control.realValue < control.realTo)
-                                                             : (control.realValue > control.realTo)
+                                                         : (control.realValue > control.realTo)
     }
 
     down.indicator: RealSpinBoxIndicator {
@@ -138,7 +138,7 @@ T.SpinBox {
         height: control.spinBoxIndicatorVisible ? control.__spinBoxIndicatorHeight : 0
 
         realEnabled: (control.realFrom < control.realTo) ? (control.realValue > control.realFrom)
-                                                             : (control.realValue < control.realFrom)
+                                                         : (control.realValue < control.realFrom)
     }
 
     contentItem: RealSpinBoxInput {
@@ -284,26 +284,26 @@ T.SpinBox {
         control.setRealValue(control.realValue) // sanitize and clamp realValue
         spinBoxInput.text = control.textFromValue(control.realValue, control.locale)
         control.value = 0 // Without setting value back to 0, it can happen that one of
-                            // the indicator will be disabled due to range logic.
+                          // the indicator will be disabled due to range logic.
     }
     onRealValueModified: myTimer.restart()
     onFocusChanged: {
-        if (control.focus) {
+        if (control.focus)
             control.dirty = false
-        } else {
-            // Make sure displayed value is correct after focus loss, as onEditingFinished
-            // doesn't trigger when value is something validator doesn't accept.
-            spinBoxInput.text = control.textFromValue(control.realValue, control.locale)
-
-            if (control.dirty)
-                spinBoxInput.handleEditingFinished()
-        }
     }
     onDisplayTextChanged: spinBoxInput.text = control.displayText
     onActiveFocusChanged: {
         if (control.activeFocus) { // QTBUG-75862 && mySpinBox.focusReason === Qt.TabFocusReason)
             control.preFocusText = spinBoxInput.text
             spinBoxInput.selectAll()
+        } else {
+            // Make sure displayed value is correct after focus loss, as onEditingFinished
+            // doesn't trigger when value is something validator doesn't accept.
+            if (spinBoxInput.text === "")
+                spinBoxInput.text = control.textFromValue(control.realValue, control.locale)
+
+            if (control.dirty)
+                spinBoxInput.handleEditingFinished()
         }
     }
 
@@ -373,8 +373,8 @@ T.SpinBox {
             value = Math.round(value)
 
         control.realValue = control.clamp(value,
-                                              control.validator.bottom,
-                                              control.validator.top)
+                                          control.validator.bottom,
+                                          control.validator.top)
     }
 
     function realDecrease() {

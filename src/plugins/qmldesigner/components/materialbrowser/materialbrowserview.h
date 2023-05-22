@@ -44,7 +44,7 @@ public:
     void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
     void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty,
                      PropertyChangeFlags propertyChange) override;
-    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
+    void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
@@ -66,6 +66,7 @@ protected:
 
 private:
     void refreshModel(bool updateImages);
+    void updateMaterialsPreview();
     bool isMaterial(const ModelNode &node) const;
     bool isTexture(const ModelNode &node) const;
     void loadPropertyGroups();

@@ -11,7 +11,7 @@
     \page creator-editor-external.html
     \if defined(qtdesignstudio)
     \previouspage quick-converting-ui-projects.html
-    \nextpage studio-help.html
+    \nextpage studio-on-mcus.html
     \else
     \previouspage creator-keyboard-shortcuts.html
     \nextpage creator-task-lists.html

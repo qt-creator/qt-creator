@@ -9144,11 +9144,11 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
     return editor;
 }
 
-IEditor *BaseTextEditor::duplicate()
+BaseTextEditor *BaseTextEditor::duplicate()
 {
     // Use new standard setup if that's available.
     if (d->m_origin) {
-        IEditor *dup = d->m_origin->duplicateTextEditor(this);
+        BaseTextEditor *dup = d->m_origin->duplicateTextEditor(this);
         emit editorDuplicated(dup);
         return dup;
     }

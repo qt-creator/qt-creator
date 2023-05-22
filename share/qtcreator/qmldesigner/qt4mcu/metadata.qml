@@ -5,7 +5,7 @@
 Metadata {
     id: metadataFile
 
-    defaultVersion: v22
+    defaultVersion: v24
 
     VersionData {
         id: v14
@@ -47,5 +47,17 @@ Metadata {
         id: v22
         name: "Qt for MCUs 2.2"
         path: "qul-22.qml"
+    }
+
+    VersionData {
+        id: v23
+        name: "Qt for MCUs 2.3"
+        path: "qul-23.qml"
+    }
+
+    VersionData {
+        id: v24
+        name: "Qt for MCUs 2.4"
+        path: "qul-24.qml"
     }
 }

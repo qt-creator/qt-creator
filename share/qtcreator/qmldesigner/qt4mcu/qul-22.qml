@@ -1,28 +1,26 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-//differences from 2.0:
-//2.1: + text.elide
-//2.2: + text.wrapMode
-
 VersionData {
     name: "Qt for MCUs 2.2"
 
-    bannedItems: ["QtQuick.AnimatedImage",
-        "QtQuick.FocusScope",
-        "QtQuick.TextInput",
-        "QtQuick.TextEdit",
+    bannedItems: [
+        "QtQuick.AnimatedImage",
+        "QtQuick.AnimatedSprite",
         "QtQuick.Flow",
+        "QtQuick.FocusScope",
         "QtQuick.Grid",
         "QtQuick.GridView",
-        "QtQuick.PathView",
         "QtQuick.Loader",
+        "QtQuick.PathView",
+        "QtQuick.TextEdit",
+        "QtQuick.TextInput",
         "QtQuick.Controls",
         "QtQuick.Controls.BusyIndicator",
         "QtQuick.Controls.ButtonGroup",
         "QtQuick.Controls.CheckDelegate",
-        "QtQuick.Controls.Container",
         "QtQuick.Controls.ComboBox",
+        "QtQuick.Controls.Container",
         "QtQuick.Controls.DelayButton",
         "QtQuick.Controls.Frame",
         "QtQuick.Controls.GroupBox",
@@ -39,25 +37,28 @@ VersionData {
         "QtQuick.Controls.StackView",
         "QtQuick.Controls.SwipeDelegate",
         "QtQuick.Controls.SwitchDelegate",
-        "QtQuick.Controls.ToolBar",
-        "QtQuick.Controls.ToolButton",
         "QtQuick.Controls.TabBar",
         "QtQuick.Controls.TabButton",
         "QtQuick.Controls.TextArea",
         "QtQuick.Controls.TextField",
+        "QtQuick.Controls.ToolBar",
+        "QtQuick.Controls.ToolButton",
         "QtQuick.Controls.ToolSeparator",
         "QtQuick.Controls.Tumbler",
         "QtQuick.Shapes.ConicalGradient",
         "QtQuick.Shapes.LinearGradient",
         "QtQuick.Shapes.RadialGradient",
-        "QtQuick.Shapes.ShapeGradient"]
+        "QtQuick.Shapes.ShapeGradient"
+    ]
 
-    allowedImports: ["QtQuick",
-        "QtQuick.Shapes",
+    allowedImports: [
+        "QtQuick",
         "QtQuick.Controls",
+        "QtQuick.Shapes",
         "QtQuick.Timeline",
         "QtQuickUltralite.Extras",
-        "QtQuickUltralite.Layers"]
+        "QtQuickUltralite.Layers"
+    ]
 
     bannedImports: ["FlowView"]
 
@@ -67,6 +68,10 @@ VersionData {
         bannedProperties: ["wordSpacing", "letterSpacing", "hintingPreference",
             "kerning", "preferShaping",  "capitalization",
             "strikeout", "underline", "styleName"]
+    }
+
+    QtQml.Timer {
+        bannedProperties: ["triggeredOnStart"]
     }
 
     QtQuick.Item {

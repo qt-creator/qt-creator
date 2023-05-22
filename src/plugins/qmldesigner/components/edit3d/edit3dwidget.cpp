@@ -261,6 +261,12 @@ void Edit3DWidget::createContextMenu()
         view()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
     });
 
+    m_bakeLightsAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::LightIcon),  // TODO: placeholder icon
+                tr("Bake Lights"), [&] {
+        view()->bakeLightsAction()->action()->trigger();
+    });
+
     m_contextMenu->addSeparator();
 
     m_selectParentAction = m_contextMenu->addAction(
@@ -466,6 +472,8 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_alignViewAction->setEnabled(isCamera);
     m_selectParentAction->setEnabled(selectionExcludingRoot);
     m_toggleGroupAction->setEnabled(true);
+    m_bakeLightsAction->setVisible(view()->bakeLightsAction()->action()->isVisible());
+    m_bakeLightsAction->setEnabled(view()->bakeLightsAction()->action()->isEnabled());
 
     m_contextMenu->popup(mapToGlobal(pos));
 }

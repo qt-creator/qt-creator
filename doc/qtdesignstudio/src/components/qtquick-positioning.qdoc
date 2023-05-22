@@ -4,11 +4,7 @@
 /*!
     \page qtquick-positioning.html
     \previouspage qtquick-properties.html
-    \if defined(qtdesignstudio)
     \nextpage qtquick-annotations.html
-    \else
-    \nextpage qtquick-fonts.html
-    \endif
 
     \title Scalable Layouts
 
@@ -386,13 +382,9 @@
 
     \section2 Using Layouts
 
-    \if defined(qtcreator)
-    Since Qt 5.1, you can use QML types in the \l{qtquicklayouts-index.html}
-    {Qt Quick Layouts} module to arrange components in UIs.
-    \else
     You can use the components available in \uicontrol Components
     > \uicontrol {Qt Quick Layouts} to arrange components in UIs.
-    \endif
+
     Unlike positioners, layouts manage both the positions and sizes of their
     child components, and are therefore well suited for dynamic and resizable
     UIs. However, this means that you should not specify fixed positions and
@@ -502,10 +494,8 @@
 
     You can use the \uicontrol Frame and \uicontrol {Group Box} controls to
     draw frames around groups of controls.
-    \if defined(qtdesignstudio)
-    If you don't want a frame, use the \uicontrol Group component instead.
-    \endif
 
+    If you don't want a frame, use the \uicontrol Group component instead.
 
     The following table lists the UI controls that you can use to organize
     components in UIs (since Qt 5.7). The \e Location column indicates the
@@ -522,13 +512,11 @@
         \li \l [QtQuickControls]{Frame}
         \li Qt Quick Controls
         \li A visual frame around a group of controls.
-    \if defined(qtdesignstudio)
     \row
         \li \inlineimage icons/group-16px.png
         \li Group
         \li Qt Quick Studio Components
         \li Enables handling the selected components as a group.
-    \endif
     \row
         \li \inlineimage icons/groupbox-icon16.png
         \li \l [QtQuickControls]{GroupBox}{Group Box}

@@ -166,10 +166,11 @@ TEST_F(QmlDocumentParser, QualifiedPrototype)
     auto type = parser.parse(text, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type,
-                HasPrototype(Storage::QualifiedImportedType("Item",
-                                                            Storage::Import{exampleModuleId,
-                                                                            Storage::Version{2, 1},
-                                                                            qmlFileSourceId})));
+                HasPrototype(
+                    Storage::QualifiedImportedType("Item",
+                                                   Storage::Import{exampleModuleId,
+                                                                   QmlDesigner::Storage::Version{2, 1},
+                                                                   qmlFileSourceId})));
 }
 
 TEST_F(QmlDocumentParser, Properties)
@@ -198,7 +199,7 @@ TEST_F(QmlDocumentParser, QualifiedProperties)
                     "foo",
                     Storage::QualifiedImportedType("Foo",
                                                    Storage::Import{exampleModuleId,
-                                                                   Storage::Version{2, 1},
+                                                                   QmlDesigner::Storage::Version{2, 1},
                                                                    qmlFileSourceId}),
                     QmlDesigner::Storage::PropertyDeclarationTraits::None)));
 }
@@ -233,7 +234,7 @@ TEST_F(QmlDocumentParser, QualifiedEnumerationInProperties)
                     "foo",
                     Storage::QualifiedImportedType("Enumeration.Foo",
                                                    Storage::Import{exampleModuleId,
-                                                                   Storage::Version{2, 1},
+                                                                   QmlDesigner::Storage::Version{2, 1},
                                                                    qmlFileSourceId}),
                     QmlDesigner::Storage::PropertyDeclarationTraits::None)));
 }
@@ -251,12 +252,13 @@ TEST_F(QmlDocumentParser, Imports)
                              qmlFileSourceId,
                              directoryPath);
 
-    ASSERT_THAT(imports,
-                UnorderedElementsAre(
-                    Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
-                    Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
-                    Storage::Import{qmlModuleId, Storage::Version{}, qmlFileSourceId},
-                    Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
+    ASSERT_THAT(
+        imports,
+        UnorderedElementsAre(
+            Storage::Import{directoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
+            Storage::Import{fooDirectoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
+            Storage::Import{qmlModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
+            Storage::Import{qtQuickModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId}));
 }
 
 TEST_F(QmlDocumentParser, ImportsWithVersion)
@@ -272,12 +274,13 @@ TEST_F(QmlDocumentParser, ImportsWithVersion)
                              qmlFileSourceId,
                              directoryPath);
 
-    ASSERT_THAT(imports,
-                UnorderedElementsAre(
-                    Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
-                    Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
-                    Storage::Import{qmlModuleId, Storage::Version{}, qmlFileSourceId},
-                    Storage::Import{qtQuickModuleId, Storage::Version{2, 1}, qmlFileSourceId}));
+    ASSERT_THAT(
+        imports,
+        UnorderedElementsAre(
+            Storage::Import{directoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
+            Storage::Import{fooDirectoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
+            Storage::Import{qmlModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
+            Storage::Import{qtQuickModuleId, QmlDesigner::Storage::Version{2, 1}, qmlFileSourceId}));
 }
 
 TEST_F(QmlDocumentParser, ImportsWithExplictDirectory)
@@ -293,11 +296,11 @@ TEST_F(QmlDocumentParser, ImportsWithExplictDirectory)
                              qmlFileSourceId,
                              directoryPath);
 
-    ASSERT_THAT(
-        imports,
-        UnorderedElementsAre(Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
-                             Storage::Import{qmlModuleId, Storage::Version{}, qmlFileSourceId},
-                             Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
+    ASSERT_THAT(imports,
+                UnorderedElementsAre(
+                    Storage::Import{directoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qmlModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qtQuickModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId}));
 }
 
 TEST_F(QmlDocumentParser, Functions)
@@ -373,13 +376,14 @@ TEST_F(QmlDocumentParser, DISABLED_DuplicateImportsAreRemoved)
                              qmlFileSourceId,
                              directoryPath);
 
-    ASSERT_THAT(imports,
-                UnorderedElementsAre(
-                    Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
-                    Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
-                    Storage::Import{qmlModuleId, Storage::Version{1, 0}, qmlFileSourceId},
-                    Storage::Import{qtQmlModuleId, Storage::Version{6, 0}, qmlFileSourceId},
-                    Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
+    ASSERT_THAT(
+        imports,
+        UnorderedElementsAre(
+            Storage::Import{directoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
+            Storage::Import{fooDirectoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
+            Storage::Import{qmlModuleId, QmlDesigner::Storage::Version{1, 0}, qmlFileSourceId},
+            Storage::Import{qtQmlModuleId, QmlDesigner::Storage::Version{6, 0}, qmlFileSourceId},
+            Storage::Import{qtQuickModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId}));
 }
 
 TEST_F(QmlDocumentParser, AliasItemProperties)
@@ -510,7 +514,7 @@ TEST_F(QmlDocumentParser, QualifiedListProperty)
                     "foos",
                     Storage::QualifiedImportedType{"Foo",
                                                    Storage::Import{exampleModuleId,
-                                                                   Storage::Version{2, 1},
+                                                                   QmlDesigner::Storage::Version{2, 1},
                                                                    qmlFileSourceId}},
                     QmlDesigner::Storage::PropertyDeclarationTraits::IsList)));
 }

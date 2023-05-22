@@ -25,10 +25,12 @@ public:
     PropertyMetaInfo() = default;
     PropertyMetaInfo(QSharedPointer<class NodeMetaInfoPrivate> nodeMetaInfoPrivateData,
                      const PropertyName &propertyName);
-    PropertyMetaInfo(PropertyDeclarationId id,
-                     NotNullPointer<const ProjectStorage<Sqlite::Database>> projectStorage)
-        : m_id{id}
-        , m_projectStorage{projectStorage}
+    PropertyMetaInfo([[maybe_unused]] PropertyDeclarationId id,
+                     [[maybe_unused]] NotNullPointer<const ProjectStorageType> projectStorage)
+#ifdef QDS_USE_PROJECTSTORAGE
+        : m_projectStorage{projectStorage}
+        , m_id{id}
+#endif
     {}
     ~PropertyMetaInfo();
 
@@ -36,11 +38,11 @@ public:
 
     bool isValid() const
     {
-        if (useProjectStorage()) {
-            return bool(m_id);
-        } else {
-            return bool(m_nodeMetaInfoPrivateData);
-        }
+#ifdef QDS_USE_PROJECTSTORAGE
+        return bool(m_id);
+#else
+        return bool(m_nodeMetaInfoPrivateData);
+#endif
     }
     PropertyName name() const;
     NodeMetaInfo propertyType() const;
@@ -53,20 +55,28 @@ public:
 
     friend bool operator==(const PropertyMetaInfo &first, const PropertyMetaInfo &second)
     {
+#ifdef QDS_USE_PROJECTSTORAGE
+        return first.m_id == second.m_id;
+#else
         return first.m_nodeMetaInfoPrivateData == second.m_nodeMetaInfoPrivateData
                && first.name() == second.name();
+#endif
     }
 
 private:
     const Storage::Info::PropertyDeclaration &propertyData() const;
     TypeName propertyTypeName() const;
+    const NodeMetaInfoPrivate *nodeMetaInfoPrivateData() const;
+    const PropertyName &propertyName() const;
 
 private:
+    NotNullPointer<const ProjectStorageType> m_projectStorage;
+    mutable std::optional<Storage::Info::PropertyDeclaration> m_propertyData;
+    PropertyDeclarationId m_id;
+#ifndef QDS_USE_PROJECTSTORAGE
     QSharedPointer<class NodeMetaInfoPrivate> m_nodeMetaInfoPrivateData;
     PropertyName m_propertyName;
-    PropertyDeclarationId m_id;
-    NotNullPointer<const ProjectStorage<Sqlite::Database>> m_projectStorage;
-    mutable std::optional<Storage::Info::PropertyDeclaration> m_propertyData;
+#endif
 };
 
 using PropertyMetaInfos = std::vector<PropertyMetaInfo>;

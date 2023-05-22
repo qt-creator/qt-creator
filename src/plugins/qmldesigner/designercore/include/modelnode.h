@@ -80,6 +80,10 @@ public:
     ModelNode();
     ModelNode(const Internal::InternalNodePointer &internalNode, Model *model, const AbstractView *view);
     ModelNode(const ModelNode &modelNode, AbstractView *view);
+    ModelNode(const ModelNode &) = default;
+    ModelNode &operator=(const ModelNode &) = default;
+    ModelNode(ModelNode &&) = default;
+    ModelNode &operator=(ModelNode &&) noexcept = default;
     ~ModelNode();
 
     TypeName type() const;
@@ -266,6 +270,8 @@ QMLDESIGNERCORE_EXPORT bool operator !=(const ModelNode &firstNode, const ModelN
 QMLDESIGNERCORE_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
 QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
 QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const ModelNode &modelNode);
+
+using ModelNodes = QList<ModelNode>;
 }
 
 Q_DECLARE_METATYPE(QmlDesigner::ModelNode)

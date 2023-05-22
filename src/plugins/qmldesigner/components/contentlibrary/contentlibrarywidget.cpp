@@ -12,6 +12,7 @@
 #include "utils/fileextractor.h"
 
 #include <coreplugin/icore.h>
+#include <designerpaths.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
@@ -117,13 +118,12 @@ ContentLibraryWidget::ContentLibraryWidget()
 
     m_baseUrl = QmlDesignerPlugin::settings()
                     .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL).toString()
-                + "/textures/v1";
+                + "/textures";
 
     m_texturesUrl = m_baseUrl + "/Textures";
     m_environmentsUrl = m_baseUrl + "/Environments";
 
-    m_downloadPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
-                     + "/QtDesignStudio/bundles";
+    m_downloadPath = Paths::bundlesPathSetting();
 
     loadTextureBundle();
 
@@ -434,20 +434,6 @@ QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::texturesModel() cons
 QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::environmentsModel() const
 {
     return m_environmentsModel;
-}
-
-bool ContentLibraryWidget::markTextureDownloading()
-{
-    if (m_anyTextureBeingDownloaded)
-        return false;
-
-    m_anyTextureBeingDownloaded = true;
-    return true; // let the caller know it can begin download
-}
-
-void ContentLibraryWidget::markNoTextureDownloading()
-{
-    m_anyTextureBeingDownloaded = false; // allow other textures to be downloaded
 }
 
 } // namespace QmlDesigner

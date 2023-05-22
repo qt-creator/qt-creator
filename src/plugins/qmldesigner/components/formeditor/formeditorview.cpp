@@ -253,7 +253,7 @@ void FormEditorView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void FormEditorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
+void FormEditorView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)
 {
     reset();
 }

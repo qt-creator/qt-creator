@@ -71,7 +71,7 @@ void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNode
         return;
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isNodeAbstractProperty())
-        privateModel()->removeProperty(internalNode()->property(name()));
+        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
 
     if (modelNode.hasParentProperty()) {
         Internal::InternalNodeAbstractProperty::Pointer oldParentProperty = modelNode.internalNode()->parentProperty();

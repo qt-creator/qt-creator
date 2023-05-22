@@ -27,7 +27,7 @@ public:
     explicit SubComponentManager(Model *model,
                                  class ExternalDependenciesInterface &externalDependencies);
 
-    void update(const QUrl &fileUrl, const QList<Import> &imports);
+    void update(const QUrl &fileUrl, const Imports &imports);
     void addAndParseImport(const Import &import);
 
     QStringList qmlFiles() const;
@@ -53,7 +53,7 @@ private: // functions
 
 private: // variables
     QFileSystemWatcher m_watcher;
-    QList<Import> m_imports;
+    Imports m_imports;
     // key: canonical directory path
     QMultiHash<QString,QString> m_dirToQualifier;
     QUrl m_filePath;

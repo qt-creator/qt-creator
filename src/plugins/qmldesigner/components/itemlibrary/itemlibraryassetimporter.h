@@ -107,7 +107,7 @@ private:
     int m_currentImportId = 0;
     QHash<int, ParseData> m_parseData;
     QString m_progressTitle;
-    QList<Import> m_requiredImports;
+    QStringList m_requiredImports;
     QList<int> m_puppetQueue;
 };
 } // QmlDesigner

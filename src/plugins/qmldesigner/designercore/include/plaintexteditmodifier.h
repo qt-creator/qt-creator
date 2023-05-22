@@ -91,8 +91,17 @@ public:
     TextEditor::TabSettings tabSettings() const override
     { return m_tabSettings; }
 
-private:
+protected:
     TextEditor::TabSettings m_tabSettings;
+};
+
+class QMLDESIGNERCORE_EXPORT IndentingTextEditModifier : public NotIndentingTextEditModifier
+{
+public:
+    IndentingTextEditModifier(QTextDocument *document, const QTextCursor &textCursor);
+
+    void indent(int offset, int length) override;
+    void indentLines(int startLine, int endLine) override;
 };
 
 }

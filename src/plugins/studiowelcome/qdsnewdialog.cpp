@@ -183,6 +183,11 @@ void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandar
     if (styleModel)
         m_styleModel->setBackendModel(styleModel);
 
+    if (!m_currentPreset) {
+        qWarning() << "Wizard has been created but there is no Preset selected!";
+        return;
+    }
+
     auto userPreset = m_currentPreset->asUserPreset();
 
     if (m_qmlDetailsLoaded) {

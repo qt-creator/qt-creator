@@ -1,0 +1,44 @@
+import QmlProject
+
+Project {
+    mainFile: ""
+    mainUiFile: ""
+    
+    qt6Project: false
+    widgetApp: false
+    qtForMCUs: false
+    forceFreeType: false
+    
+    importPaths: [ ]
+    targetDirectory: ""
+    fileSelectors: [ ]
+
+    qdsVersion: ""
+    quickVersion: ""
+
+    multilanguageSupport: false
+    supportedLanguages: [ ]
+    primaryLanguage: ""
+    
+    QmlFiles {
+        directory: ""
+    }
+
+    JavaScriptFiles {
+        directory: ""
+    }
+
+    ImageFiles {
+        directory: ""
+    }
+
+    Files {
+        filter: "*.testcontent"
+        files: [ ]
+    }
+
+    ShaderTool {
+        args: ""
+        files: [ ]
+    }
+}
