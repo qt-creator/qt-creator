@@ -33,6 +33,7 @@ QDebug operator<<(QDebug d, const TextFileFormat &format)
 
 /*!
     \class Utils::TextFileFormat
+    \inmodule QtCreator
 
     \brief The TextFileFormat class describes the format of a text file and
     provides autodetection.

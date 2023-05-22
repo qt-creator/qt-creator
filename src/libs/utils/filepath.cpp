@@ -37,7 +37,9 @@ static DeviceFileHooks s_deviceHooks;
 inline bool isWindowsDriveLetter(QChar ch);
 
 
-/*! \class Utils::FilePath
+/*!
+    \class Utils::FilePath
+    \inmodule QtCreator
 
     \brief The FilePath class is an abstraction for handles to objects
     in a (possibly remote) file system, similar to a URL or, in the local

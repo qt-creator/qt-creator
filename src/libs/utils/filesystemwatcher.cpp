@@ -28,6 +28,7 @@ static inline quint64 getFileLimit()
 
 /*!
     \class Utils::FileSystemWatcher
+    \inmodule QtCreator
     \brief The FileSystemWatcher class is a file watcher that internally uses
            a centralized QFileSystemWatcher
            and enforces limits on Mac OS.

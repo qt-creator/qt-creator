@@ -5,6 +5,7 @@
 
 /*!
    \class Utils::TreeView
+   \inmodule QtCreator
 
     \brief The TreeView adds setActivationMode to QTreeView
     to allow for single click/double click behavior on
@@ -15,6 +16,7 @@
 
 /*!
    \class Utils::TreeWidget
+   \inmodule QtCreator
 
     \brief The TreeWidget adds setActivationMode to QTreeWidget
     to allow for single click/double click behavior on
@@ -25,6 +27,7 @@
 
 /*!
    \class Utils::ListView
+   \inmodule QtCreator
 
     \brief The ListView adds setActivationMode to QListView
     to allow for single click/double click behavior on
@@ -35,6 +38,7 @@
 
 /*!
    \class Utils::ListWidget
+   \inmodule QtCreator
 
     \brief The ListWidget adds setActivationMode to QListWidget
     to allow for single click/double click behavior on

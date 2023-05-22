@@ -91,6 +91,7 @@ void TaskProgressPrivate::updateProgress()
 
 /*!
     \class Core::TaskProgress
+    \inmodule QtCreator
 
     \brief The TaskProgress class is responsible for showing progress of the running task tree.
 

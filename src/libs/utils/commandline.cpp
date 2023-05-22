@@ -41,6 +41,7 @@ namespace Utils {
 
 /*!
     \class Utils::ProcessArgs
+    \inmodule QtCreator
 
     \brief The ProcessArgs class provides functionality for dealing with
     shell-quoted process arguments.
@@ -1398,6 +1399,7 @@ QString ProcessArgs::toString() const
 
 /*!
     \class Utils::CommandLine
+    \inmodule QtCreator
 
     \brief The CommandLine class represents a command line of a QProcess or
     similar utility.

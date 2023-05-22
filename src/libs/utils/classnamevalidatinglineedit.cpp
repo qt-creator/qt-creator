@@ -10,6 +10,7 @@
 
 /*!
     \class Utils::ClassNameValidatingLineEdit
+    \inmodule QtCreator
 
     \brief The ClassNameValidatingLineEdit class implements a line edit that
     validates a C++ class name and emits a signal

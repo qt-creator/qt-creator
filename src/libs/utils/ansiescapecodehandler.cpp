@@ -9,6 +9,7 @@ namespace Utils {
 
 /*!
     \class Utils::AnsiEscapeCodeHandler
+    \inmodule QtCreator
 
     \brief The AnsiEscapeCodeHandler class parses text and extracts ANSI escape codes from it.
 

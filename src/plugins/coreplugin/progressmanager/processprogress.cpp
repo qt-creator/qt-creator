@@ -70,6 +70,7 @@ void ProcessProgressPrivate::parseProgress(const QString &inputText)
 
 /*!
     \class Core::ProcessProgress
+    \inmodule QtCreator
 
     \brief The ProcessProgress class is responsible for showing progress of the running process.
 

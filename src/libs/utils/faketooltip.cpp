@@ -8,6 +8,7 @@
 
 /*!
     \class Utils::FakeToolTip
+    \inmodule QtCreator
 
     \brief The FakeToolTip class is a widget that pretends to be a tooltip.
 

@@ -9,6 +9,7 @@
 
 /*!
     \class Utils::ElidingLabel
+    \inmodule QtCreator
 
     \brief The ElidingLabel class is a label suitable for displaying elided
     text.
