@@ -213,7 +213,7 @@ class QTCREATOR_UTILS_EXPORT BoolAspect : public BaseAspect
     Q_OBJECT
 
 public:
-    explicit BoolAspect(const QString &settingsKey = QString());
+    BoolAspect();
     ~BoolAspect() override;
 
     struct Data : BaseAspect::Data

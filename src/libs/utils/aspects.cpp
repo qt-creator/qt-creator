@@ -1426,11 +1426,10 @@ void ColorAspect::setVolatileValue(const QVariant &val)
 */
 
 
-BoolAspect::BoolAspect(const QString &settingsKey)
+BoolAspect::BoolAspect()
     : d(new Internal::BoolAspectPrivate)
 {
     setDefaultValue(false);
-    setSettingsKey(settingsKey);
     setSpan(2, 1);
 
     addDataExtractor(this, &BoolAspect::value, &Data::value);
