@@ -712,20 +712,39 @@ bool FilePath::isSameFile(const FilePath &other) const
     return false;
 }
 
-static FilePaths appendExeExtensions(const Environment &env, const FilePath &executable)
+static FilePaths appendExeExtensions(const FilePath &executable,
+                                     FilePath::MatchScope matchScope)
 {
-    FilePaths execs = {executable};
-    if (executable.osType() == OsTypeWindows) {
-        // Check all the executable extensions on windows:
-        // PATHEXT is only used if the executable has no extension
-        if (executable.suffixView().isEmpty()) {
-            const QStringList extensions = env.expandedValueForKey("PATHEXT").split(';');
-
-            for (const QString &ext : extensions)
-                execs << executable.stringAppended(ext.toLower());
+    FilePaths result = {executable};
+    const QStringView suffix = executable.suffixView();
+    if (executable.osType() == OsTypeWindows && suffix.isEmpty()) {
+        switch (matchScope) {
+            case FilePath::ExactMatchOnly:
+                break;
+            case FilePath::WithExeSuffix:
+                result.append(executable.stringAppended(".exe"));
+                break;
+            case FilePath::WithBatSuffix:
+                result.append(executable.stringAppended(".bat"));
+                break;
+            case FilePath::WithExeOrBatSuffix:
+                result.append(executable.stringAppended(".exe"));
+                result.append(executable.stringAppended(".bat"));
+                break;
+            case FilePath::WithAnySuffix: {
+                // Check all the executable extensions on windows:
+                // PATHEXT is only used if the executable has no extension
+                static const QStringList extensions = Environment::systemEnvironment()
+                    .expandedValueForKey("PATHEXT").split(';');
+                for (const QString &ext : extensions)
+                    result.append(executable.stringAppended(ext.toLower()));
+                break;
+            }
+            default:
+                break;
         }
     }
-    return execs;
+    return result;
 }
 
 bool FilePath::isSameExecutable(const FilePath &other) const
@@ -736,9 +755,8 @@ bool FilePath::isSameExecutable(const FilePath &other) const
     if (!isSameDevice(other))
         return false;
 
-    const Environment env = other.deviceEnvironment();
-    const FilePaths exe1List = appendExeExtensions(env, *this);
-    const FilePaths exe2List = appendExeExtensions(env, other);
+    const FilePaths exe1List = appendExeExtensions(*this, WithAnySuffix);
+    const FilePaths exe2List = appendExeExtensions(other, WithAnySuffix);
     for (const FilePath &f1 : exe1List) {
         for (const FilePath &f2 : exe2List) {
             if (f1.isSameFile(f2))
@@ -1480,32 +1498,63 @@ FilePath FilePath::withNewPath(const QString &newPath) const
         assert(fullPath == FilePath::fromUrl("docker://123/usr/bin/make"))
     \endcode
 */
-FilePath FilePath::searchInDirectories(const FilePaths &dirs, const FilePathPredicate &filter) const
+
+FilePath FilePath::searchInDirectories(const FilePaths &dirs,
+                                       const FilePathPredicate &filter,
+                                       const MatchScope &matchScope) const
 {
-    if (isAbsolutePath())
-        return *this;
-    return deviceEnvironment().searchInDirectories(path(), dirs, filter);
+    if (isEmpty())
+        return {};
+
+    const FilePaths execs = appendExeExtensions(*this, matchScope);
+
+    if (isAbsolutePath()) {
+        for (const FilePath &filePath : execs) {
+            if (filePath.isExecutableFile() && (!filter || filter(filePath)))
+                return filePath;
+        }
+        return {};
+    }
+
+    QSet<FilePath> alreadyCheckedDirectories;
+
+    for (const FilePath &dir : dirs) {
+        // Compare the initial size of the set with the size after insertion to check
+        // if the directory was already checked.
+        const int initialCount = alreadyCheckedDirectories.count();
+        alreadyCheckedDirectories.insert(dir);
+        const bool wasAlreadyChecked = alreadyCheckedDirectories.count() == initialCount;
+
+        if (dir.isEmpty() || wasAlreadyChecked)
+            continue;
+
+        for (const FilePath &exe : execs) {
+            const FilePath filePath = dir / exe.path();
+            if (filePath.isExecutableFile() && (!filter || filter(filePath)))
+                return filePath;
+        }
+    }
+
+    return {};
 }
 
 FilePath FilePath::searchInPath(const FilePaths &additionalDirs,
                                 PathAmending amending,
-                                const FilePathPredicate &filter) const
+                                const FilePathPredicate &filter,
+                                const MatchScope &matchScope) const
 {
     if (isAbsolutePath())
         return *this;
-    FilePaths directories = deviceEnvironment().path();
-    if (needsDevice()) {
-        directories = Utils::transform(directories, [this](const FilePath &filePath) {
-            return withNewPath(filePath.path());
-        });
-    }
+
+    FilePaths directories = devicePathEnvironmentVariable();
+
     if (!additionalDirs.isEmpty()) {
         if (amending == AppendToPath)
             directories.append(additionalDirs);
         else
             directories = additionalDirs + directories;
     }
-    return searchInDirectories(directories, filter);
+    return searchInDirectories(directories, filter, matchScope);
 }
 
 Environment FilePath::deviceEnvironment() const
@@ -1515,6 +1564,16 @@ Environment FilePath::deviceEnvironment() const
         return s_deviceHooks.environment(*this);
     }
     return Environment::systemEnvironment();
+}
+
+FilePaths FilePath::devicePathEnvironmentVariable() const
+{
+    FilePaths result = deviceEnvironment().path();
+    if (needsDevice()) {
+        for (FilePath &dir : result)
+            dir.setParts(this->scheme(), this->host(), dir.path());
+    }
+    return result;
 }
 
 QString FilePath::formatFilePaths(const FilePaths &files, const QString &separator)
