@@ -23,14 +23,14 @@ public:
 
     static QString metricsTypeToOption(const MetricsType type);
 
-    Utils::SelectionAspect metrics;
-    Utils::BoolAspect noCrashHandler;
-    Utils::BoolAspect useXMLOutput;
-    Utils::BoolAspect verboseBench;
-    Utils::BoolAspect logSignalsSlots;
-    Utils::BoolAspect limitWarnings;
-    Utils::IntegerAspect maxWarnings;
-    Utils::BoolAspect quickCheckForDerivedTests;
+    Utils::SelectionAspect metrics{this};
+    Utils::BoolAspect noCrashHandler{this};
+    Utils::BoolAspect useXMLOutput{this};
+    Utils::BoolAspect verboseBench{this};
+    Utils::BoolAspect logSignalsSlots{this};
+    Utils::BoolAspect limitWarnings{this};
+    Utils::IntegerAspect maxWarnings{this};
+    Utils::BoolAspect quickCheckForDerivedTests{this};
 };
 
 } // Autotest::Internal

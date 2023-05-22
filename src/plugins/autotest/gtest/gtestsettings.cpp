@@ -34,14 +34,12 @@ GTestSettings::GTestSettings(Id settingsId)
             }, st };
     });
 
-    registerAspect(&iterations);
     iterations.setSettingsKey("Iterations");
     iterations.setDefaultValue(1);
     iterations.setEnabled(false);
     iterations.setLabelText(Tr::tr("Iterations:"));
     iterations.setEnabler(&repeat);
 
-    registerAspect(&seed);
     seed.setSettingsKey("Seed");
     seed.setSpecialValueText({});
     seed.setEnabled(false);
@@ -49,34 +47,28 @@ GTestSettings::GTestSettings(Id settingsId)
     seed.setToolTip(Tr::tr("A seed of 0 generates a seed based on the current timestamp."));
     seed.setEnabler(&shuffle);
 
-    registerAspect(&runDisabled);
     runDisabled.setSettingsKey("RunDisabled");
     runDisabled.setLabelText(Tr::tr("Run disabled tests"));
     runDisabled.setToolTip(Tr::tr("Executes disabled tests when performing a test run."));
 
-    registerAspect(&shuffle);
     shuffle.setSettingsKey("Shuffle");
     shuffle.setLabelText(Tr::tr("Shuffle tests"));
     shuffle.setToolTip(Tr::tr("Shuffles tests automatically on every iteration by the given seed."));
 
-    registerAspect(&repeat);
     repeat.setSettingsKey("Repeat");
     repeat.setLabelText(Tr::tr("Repeat tests"));
     repeat.setToolTip(Tr::tr("Repeats a test run (you might be required to increase the timeout to "
                              "avoid canceling the tests)."));
 
-    registerAspect(&throwOnFailure);
     throwOnFailure.setSettingsKey("ThrowOnFailure");
     throwOnFailure.setLabelText(Tr::tr("Throw on failure"));
     throwOnFailure.setToolTip(Tr::tr("Turns assertion failures into C++ exceptions."));
 
-    registerAspect(&breakOnFailure);
     breakOnFailure.setSettingsKey("BreakOnFailure");
     breakOnFailure.setDefaultValue(true);
     breakOnFailure.setLabelText(Tr::tr("Break on failure while debugging"));
     breakOnFailure.setToolTip(Tr::tr("Turns failures into debugger breakpoints."));
 
-    registerAspect(&groupMode);
     groupMode.setSettingsKey("GroupMode");
     groupMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     groupMode.setFromSettingsTransformation([this](const QVariant &savedValue) -> QVariant {
@@ -94,7 +86,6 @@ GTestSettings::GTestSettings(Id settingsId)
     groupMode.setLabelText(Tr::tr("Group mode:"));
     groupMode.setToolTip(Tr::tr("Select on what grouping the tests should be based."));
 
-    registerAspect(&gtestFilter);
     gtestFilter.setSettingsKey("GTestFilter");
     gtestFilter.setDisplayStyle(StringAspect::LineEditDisplay);
     gtestFilter.setDefaultValue(GTest::Constants::DEFAULT_FILTER);

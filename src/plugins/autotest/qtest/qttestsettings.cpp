@@ -37,7 +37,6 @@ QtTestSettings::QtTestSettings(Id settingsId)
         }, st };
     });
 
-    registerAspect(&metrics);
     metrics.setSettingsKey("Metrics");
     metrics.setDefaultValue(Walltime);
     metrics.addOption(Tr::tr("Walltime"), Tr::tr("Uses walltime metrics for executing benchmarks (default)."));
@@ -54,13 +53,11 @@ QtTestSettings::QtTestSettings(Id settingsId)
         HostOsInfo::isLinuxHost() // according to docs perf Linux only
     });
 
-    registerAspect(&noCrashHandler);
     noCrashHandler.setSettingsKey("NoCrashhandlerOnDebug");
     noCrashHandler.setDefaultValue(true);
     noCrashHandler.setLabelText(Tr::tr("Disable crash handler while debugging"));
     noCrashHandler.setToolTip(Tr::tr("Enables interrupting tests on assertions."));
 
-    registerAspect(&useXMLOutput);
     useXMLOutput.setSettingsKey("UseXMLOutput");
     useXMLOutput.setDefaultValue(true);
     useXMLOutput.setLabelText(Tr::tr("Use XML output"));
@@ -68,29 +65,24 @@ QtTestSettings::QtTestSettings(Id settingsId)
                                    "while plain text is more human readable.\n\nWarning: "
                                    "Plain text misses some information, such as duration."));
 
-    registerAspect(&verboseBench);
     verboseBench.setSettingsKey("VerboseBench");
     verboseBench.setLabelText(Tr::tr("Verbose benchmarks"));
 
-    registerAspect(&logSignalsSlots);
     logSignalsSlots.setSettingsKey("LogSignalsSlots");
     logSignalsSlots.setLabelText(Tr::tr("Log signals and slots"));
     logSignalsSlots.setToolTip(Tr::tr("Log every signal emission and resulting slot invocations."));
 
-    registerAspect(&limitWarnings);
     limitWarnings.setSettingsKey("LimitWarnings");
     limitWarnings.setLabelText(Tr::tr("Limit warnings"));
     limitWarnings.setToolTip(Tr::tr("Set the maximum number of warnings. 0 means that the number "
                                 "is not limited."));
 
-    registerAspect(&maxWarnings);
     maxWarnings.setSettingsKey("MaxWarnings");
     maxWarnings.setRange(0, 10000);
     maxWarnings.setDefaultValue(2000);
     maxWarnings.setSpecialValueText(Tr::tr("Unlimited"));
     maxWarnings.setEnabler(&limitWarnings);
 
-    registerAspect(&quickCheckForDerivedTests);
     quickCheckForDerivedTests.setSettingsKey("QuickCheckForDerivedTests");
     quickCheckForDerivedTests.setDefaultValue(false);
     quickCheckForDerivedTests.setLabelText(Tr::tr("Check for derived Qt Quick tests"));
