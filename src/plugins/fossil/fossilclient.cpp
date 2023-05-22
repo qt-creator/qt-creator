@@ -592,7 +592,7 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
     // use the configured default user for admin
 
     const QString repoName = workingDirectory.fileName().simplified();
-    const QString repoPath = settings().defaultRepoPath.value();
+    const FilePath repoPath = settings().defaultRepoPath();
     const QString adminUser = settings().userName.value();
 
     if (repoName.isEmpty() || repoPath.isEmpty())
@@ -602,8 +602,7 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
     // @TODO: what about --template options?
 
     const FilePath fullRepoName = FilePath::fromStringWithExtension(repoName, Constants::FOSSIL_FILE_SUFFIX);
-    const FilePath repoFilePath = FilePath::fromString(repoPath)
-            .pathAppended(fullRepoName.toString());
+    const FilePath repoFilePath = repoPath.pathAppended(fullRepoName.toString());
     QStringList args(vcsCommandString(CreateRepositoryCommand));
     if (!adminUser.isEmpty())
         args << "--admin-user" << adminUser;

@@ -42,7 +42,6 @@ FossilSettings::FossilSettings()
 
     registerAspect(&defaultRepoPath);
     defaultRepoPath.setSettingsKey("defaultRepoPath");
-    defaultRepoPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     defaultRepoPath.setExpectedKind(PathChooser::Directory);
     defaultRepoPath.setDisplayName(Tr::tr("Fossil Repositories"));
     defaultRepoPath.setLabelText(Tr::tr("Default path:"));
@@ -55,7 +54,6 @@ FossilSettings::FossilSettings()
 
     registerAspect(&sslIdentityFile);
     sslIdentityFile.setSettingsKey("sslIdentityFile");
-    sslIdentityFile.setDisplayStyle(StringAspect::PathChooserDisplay);
     sslIdentityFile.setExpectedKind(PathChooser::File);
     sslIdentityFile.setDisplayName(Tr::tr("SSL/TLS Identity Key"));
     sslIdentityFile.setLabelText(Tr::tr("SSL/TLS identity:"));

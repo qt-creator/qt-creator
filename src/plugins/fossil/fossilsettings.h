@@ -12,8 +12,8 @@ class FossilSettings : public VcsBase::VcsBaseSettings
 public:
     FossilSettings();
 
-    Utils::StringAspect defaultRepoPath;
-    Utils::StringAspect sslIdentityFile;
+    Utils::FilePathAspect defaultRepoPath;
+    Utils::FilePathAspect sslIdentityFile;
     Utils::BoolAspect diffIgnoreAllWhiteSpace;
     Utils::BoolAspect diffStripTrailingCR;
     Utils::BoolAspect annotateShowCommitters;
