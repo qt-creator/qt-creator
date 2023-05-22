@@ -70,17 +70,6 @@ public:
     }
 };
 
-class AndroidRunConfigurationFactory : public RunConfigurationFactory
-{
-public:
-    AndroidRunConfigurationFactory()
-    {
-        registerRunConfiguration<Android::AndroidRunConfiguration>
-                ("Qt4ProjectManager.AndroidRunConfiguration:");
-        addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
-    }
-};
-
 class AndroidPluginPrivate : public QObject
 {
 public:

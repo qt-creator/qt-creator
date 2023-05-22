@@ -9,11 +9,10 @@
 
 namespace Android {
 
-class ANDROID_EXPORT AndroidRunConfiguration : public ProjectExplorer::RunConfiguration
+class AndroidRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
-    Q_OBJECT
 public:
-    explicit AndroidRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
+    AndroidRunConfigurationFactory();
 };
 
 } // namespace Android
