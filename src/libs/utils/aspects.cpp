@@ -92,9 +92,11 @@ public:
 /*!
     Constructs a BaseAspect.
 */
-BaseAspect::BaseAspect()
+BaseAspect::BaseAspect(AspectContainer *container)
     : d(new Internal::BaseAspectPrivate)
 {
+    if (container)
+        container->registerAspect(this);
     addDataExtractor(this, &BaseAspect::value, &Data::value);
 }
 
@@ -766,8 +768,8 @@ public:
     Constructs a StringAspect.
  */
 
-StringAspect::StringAspect()
-    : d(new Internal::StringAspectPrivate)
+StringAspect::StringAspect(AspectContainer *container)
+    : BaseAspect(container), d(new Internal::StringAspectPrivate)
 {
     setDefaultValue(QString());
     setSpan(2, 1); // Default: Label + something
@@ -1359,8 +1361,8 @@ FilePathAspect::FilePathAspect()
     The color aspect is displayed using a QtColorButton.
 */
 
-ColorAspect::ColorAspect()
-    : d(new Internal::ColorAspectPrivate)
+ColorAspect::ColorAspect(AspectContainer *container)
+    : BaseAspect(container), d(new Internal::ColorAspectPrivate)
 {
     setDefaultValue(QColor::fromRgb(0, 0, 0));
     setSpan(1, 1);
@@ -1426,8 +1428,8 @@ void ColorAspect::setVolatileValue(const QVariant &val)
 */
 
 
-BoolAspect::BoolAspect()
-    : d(new Internal::BoolAspectPrivate)
+BoolAspect::BoolAspect(AspectContainer *container)
+    : BaseAspect(container), d(new Internal::BoolAspectPrivate)
 {
     setDefaultValue(false);
     setSpan(2, 1);
@@ -1605,8 +1607,8 @@ CheckableDecider BoolAspect::checkableDecider()
     QRadioButtons in a QButtonGroup.
 */
 
-SelectionAspect::SelectionAspect()
-    : d(new Internal::SelectionAspectPrivate)
+SelectionAspect::SelectionAspect(AspectContainer *container)
+    : BaseAspect(container), d(new Internal::SelectionAspectPrivate)
 {
     setSpan(2, 1);
 }
@@ -1808,8 +1810,8 @@ QVariant SelectionAspect::itemValueForIndex(int index) const
     checkable items.
 */
 
-MultiSelectionAspect::MultiSelectionAspect()
-    : d(new Internal::MultiSelectionAspectPrivate(this))
+MultiSelectionAspect::MultiSelectionAspect(AspectContainer *container)
+    : BaseAspect(container), d(new Internal::MultiSelectionAspectPrivate(this))
 {
     setDefaultValue(QStringList());
     setSpan(2, 1);
@@ -1915,8 +1917,8 @@ void MultiSelectionAspect::setValue(const QStringList &value)
 
 // IntegerAspect
 
-IntegerAspect::IntegerAspect()
-    : d(new Internal::IntegerAspectPrivate)
+IntegerAspect::IntegerAspect(AspectContainer *container)
+    : BaseAspect(container), d(new Internal::IntegerAspectPrivate)
 {
     setDefaultValue(qint64(0));
     setSpan(2, 1);
@@ -2051,8 +2053,8 @@ void IntegerAspect::setSingleStep(qint64 step)
     the display of the spin box.
 */
 
-DoubleAspect::DoubleAspect()
-    : d(new Internal::DoubleAspectPrivate)
+DoubleAspect::DoubleAspect(AspectContainer *container)
+    : BaseAspect(container), d(new Internal::DoubleAspectPrivate)
 {
     setDefaultValue(double(0));
     setSpan(2, 1);
@@ -2206,8 +2208,8 @@ TriState TriState::fromVariant(const QVariant &variant)
     that is a list of strings.
 */
 
-StringListAspect::StringListAspect()
-    : d(new Internal::StringListAspectPrivate)
+StringListAspect::StringListAspect(AspectContainer *container)
+    : BaseAspect(container), d(new Internal::StringListAspectPrivate)
 {
     setDefaultValue(QStringList());
 }
