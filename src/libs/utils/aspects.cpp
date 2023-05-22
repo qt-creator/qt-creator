@@ -2441,7 +2441,7 @@ void AspectContainer::registerAspects(const AspectContainer &aspects)
 /*!
     Retrieves a BaseAspect with a given \a id, or nullptr if no such aspect is contained.
 
-    \sa BaseAspect.
+    \sa BaseAspect
 */
 BaseAspect *AspectContainer::aspect(Id id) const
 {
