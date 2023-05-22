@@ -4,6 +4,7 @@
 #include "session.h"
 
 #include "session_p.h"
+#include "sessiondialog.h"
 
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
@@ -204,6 +205,7 @@ bool SessionManager::createSession(const QString &session)
     Q_ASSERT(sb_d->m_sessions.size() > 0);
     sb_d->m_sessions.insert(1, session);
     sb_d->m_lastActiveTimes.insert(session, QDateTime::currentDateTime());
+    emit instance()->sessionCreated(session);
     return true;
 }
 
@@ -217,6 +219,14 @@ bool SessionManager::renameSession(const QString &original, const QString &newNa
     return deleteSession(original);
 }
 
+void SessionManager::showSessionManager()
+{
+    saveSession();
+    Internal::SessionDialog sessionDialog(ICore::dialogParent());
+    sessionDialog.setAutoLoadSession(sb_d->isAutoRestoreLastSession());
+    sessionDialog.exec();
+    sb_d->setAutoRestoreLastSession(sessionDialog.autoLoadSession());
+}
 
 /*!
     \brief Shows a dialog asking the user to confirm deleting the session \p session
@@ -265,6 +275,8 @@ bool SessionManager::cloneSession(const QString &original, const QString &clone)
     if (!sessionFile.exists() || sessionFile.copyFile(sessionNameToFileName(clone))) {
         sb_d->m_sessions.insert(1, clone);
         sb_d->m_sessionDateTimes.insert(clone, sessionNameToFileName(clone).lastModified());
+        emit instance()->sessionCreated(clone);
+
         return true;
     }
     return false;

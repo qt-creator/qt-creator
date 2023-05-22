@@ -40,6 +40,7 @@ public:
 
     static bool cloneSession(const QString &original, const QString &clone);
     static bool renameSession(const QString &original, const QString &newName);
+    static void showSessionManager();
 
     static Utils::FilePath sessionNameToFileName(const QString &session);
 
@@ -75,6 +76,7 @@ signals:
     void sessionLoaded(QString sessionName);
     void aboutToSaveSession();
 
+    void sessionCreated(const QString &name);
     void sessionRenamed(const QString &oldName, const QString &newName);
     void sessionRemoved(const QString &name);
 

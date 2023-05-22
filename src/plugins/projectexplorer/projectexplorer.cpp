@@ -454,7 +454,6 @@ public:
     void unloadProjectContextMenu();
     void unloadOtherProjectsContextMenu();
     void closeAllProjects();
-    void showSessionManager();
     void updateSessionMenu();
     void setSession(QAction *action);
 
@@ -815,9 +814,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
     IWizardFactory::registerFactoryCreator([] { return new SimpleProjectWizard; });
 
-    connect(&dd->m_welcomePage, &ProjectWelcomePage::manageSessions,
-            dd, &ProjectExplorerPluginPrivate::showSessionManager);
-
     ProjectManager *sessionManager = &dd->m_sessionManager;
     connect(sessionManager, &ProjectManager::projectAdded,
             this, &ProjectExplorerPlugin::fileListChanged);
@@ -839,6 +835,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             dd, &ProjectExplorerPluginPrivate::loadSesssionTasks);
+    connect(SessionManager::instance(), &SessionManager::sessionCreated,
+            dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
+    connect(SessionManager::instance(), &SessionManager::sessionRenamed,
+            dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
+    connect(SessionManager::instance(), &SessionManager::sessionRemoved,
+            dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
 
     ProjectTree *tree = &dd->m_projectTree;
     connect(tree, &ProjectTree::currentProjectChanged, dd, [] {
@@ -1728,8 +1730,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(buildManager, &BuildManager::buildQueueFinished,
             dd, &ProjectExplorerPluginPrivate::buildQueueFinished, Qt::QueuedConnection);
 
-    connect(dd->m_sessionManagerAction, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::showSessionManager);
+    connect(dd->m_sessionManagerAction,
+            &QAction::triggered,
+            SessionManager::instance(),
+            &SessionManager::showSessionManager);
     connect(dd->m_newAction, &QAction::triggered,
             dd, &ProjectExplorerPlugin::openNewProjectDialog);
     connect(dd->m_loadAction, &QAction::triggered,
@@ -2192,11 +2196,6 @@ IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     return AsynchronousShutdown;
 }
 
-void ProjectExplorerPlugin::showSessionManager()
-{
-    dd->showSessionManager();
-}
-
 void ProjectExplorerPlugin::openNewProjectDialog()
 {
     if (!ICore::isNewItemDialogRunning()) {
@@ -2206,20 +2205,6 @@ void ProjectExplorerPlugin::openNewProjectDialog()
     } else {
         ICore::raiseWindow(ICore::newItemDialog());
     }
-}
-
-void ProjectExplorerPluginPrivate::showSessionManager()
-{
-    SessionManager::saveSession();
-    SessionDialog sessionDialog(ICore::dialogParent());
-    sessionDialog.setAutoLoadSession(sb_d->isAutoRestoreLastSession());
-    sessionDialog.exec();
-    sb_d->setAutoRestoreLastSession(sessionDialog.autoLoadSession());
-
-    updateActions();
-
-    if (ModeManager::currentModeId() == Core::Constants::MODE_WELCOME)
-        updateWelcomePage();
 }
 
 void ProjectExplorerPluginPrivate::setStartupProject(Project *project)
