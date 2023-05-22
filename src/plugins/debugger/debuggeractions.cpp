@@ -364,7 +364,6 @@ DebuggerSettings::DebuggerSettings()
                         + "</p></body></html>");
 
     extraDumperFile.setSettingsKey(debugModeGroup, "ExtraDumperFile");
-    extraDumperFile.setDisplayStyle(StringAspect::PathChooserDisplay);
     extraDumperFile.setDisplayName(Tr::tr("Extra Debugging Helpers"));
     // Label text is intentional empty in the GUI.
     extraDumperFile.setToolTip(Tr::tr("Path to a Python file containing additional data dumpers."));
