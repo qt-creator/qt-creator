@@ -1633,7 +1633,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::savePersistentSettings);
     connect(EditorManager::instance(), &EditorManager::autoSaved, this, [] {
         if (!dd->m_shuttingDown && !SessionManager::loadingSession())
-            ProjectManager::save();
+            SessionManager::saveSession();
     });
     connect(qApp, &QApplication::applicationStateChanged, this, [](Qt::ApplicationState state) {
         if (!dd->m_shuttingDown && state == Qt::ApplicationActive)
@@ -2212,7 +2212,7 @@ void ProjectExplorerPlugin::openNewProjectDialog()
 
 void ProjectExplorerPluginPrivate::showSessionManager()
 {
-    ProjectManager::save();
+    SessionManager::saveSession();
     SessionDialog sessionDialog(ICore::dialogParent());
     sessionDialog.setAutoLoadSession(sb_d->isAutoRestoreLastSession());
     sessionDialog.exec();
@@ -2258,7 +2258,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
         for (Project *pro : ProjectManager::projects())
             pro->saveSettings();
 
-        ProjectManager::save();
+        SessionManager::saveSession();
     }
 
     QtcSettings *s = ICore::settings();
