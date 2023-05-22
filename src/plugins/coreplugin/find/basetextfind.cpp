@@ -13,6 +13,8 @@
 #include <QTextBlock>
 #include <QTextCursor>
 
+using namespace Utils;
+
 namespace Core {
 
 QRegularExpression BaseTextFind::regularExpression(const QString &txt, FindFlags flags)
@@ -73,7 +75,7 @@ BaseTextFindPrivate::BaseTextFindPrivate(QPlainTextEdit *editor)
 */
 
 /*!
-    \fn void Core::BaseTextFind::highlightAllRequested(const QString &txt, Core::FindFlags findFlags)
+    \fn void Core::BaseTextFind::highlightAllRequested(const QString &txt, Utils::FindFlags findFlags)
 
     This signal is emitted when the search results for \a txt using the given
     \a findFlags should be highlighted in the editor widget.
@@ -329,7 +331,8 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFl
     bool usesRegExp = (findFlags & FindRegularExpression);
     bool preserveCase = (findFlags & FindPreserveCase);
     QRegularExpression regexp = regularExpression(before, findFlags);
-    QTextCursor found = findOne(regexp, editCursor, textDocumentFlagsForFindFlags(findFlags));
+    QTextCursor found = findOne(regexp, editCursor,
+                                Utils::textDocumentFlagsForFindFlags(findFlags));
     bool first = true;
     while (!found.isNull()) {
         if (found == editCursor && !first) {
@@ -342,7 +345,7 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFl
             newPosCursor.movePosition(findFlags & FindBackward ?
                                           QTextCursor::PreviousCharacter :
                                           QTextCursor::NextCharacter);
-            found = findOne(regexp, newPosCursor, textDocumentFlagsForFindFlags(findFlags));
+            found = findOne(regexp, newPosCursor, Utils::textDocumentFlagsForFindFlags(findFlags));
             continue;
         }
         if (first)
@@ -360,7 +363,7 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFl
         else
             realAfter = after;
         insertTextAfterSelection(realAfter, editCursor);
-        found = findOne(regexp, editCursor, textDocumentFlagsForFindFlags(findFlags));
+        found = findOne(regexp, editCursor, Utils::textDocumentFlagsForFindFlags(findFlags));
     }
     editCursor.endEditBlock();
     return count;
@@ -373,7 +376,7 @@ bool BaseTextFind::find(const QString &txt, FindFlags findFlags, QTextCursor sta
         return true;
     }
     QRegularExpression regexp = regularExpression(txt, findFlags);
-    QTextCursor found = findOne(regexp, start, textDocumentFlagsForFindFlags(findFlags));
+    QTextCursor found = findOne(regexp, start, Utils::textDocumentFlagsForFindFlags(findFlags));
     if (wrapped)
         *wrapped = false;
 
@@ -382,7 +385,7 @@ bool BaseTextFind::find(const QString &txt, FindFlags findFlags, QTextCursor sta
             start.movePosition(QTextCursor::Start);
         else
             start.movePosition(QTextCursor::End);
-        found = findOne(regexp, start, textDocumentFlagsForFindFlags(findFlags));
+        found = findOne(regexp, start, Utils::textDocumentFlagsForFindFlags(findFlags));
         if (found.isNull())
             return false;
         if (wrapped)

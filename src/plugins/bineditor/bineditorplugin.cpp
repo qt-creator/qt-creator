@@ -71,7 +71,8 @@ public:
 
     void highlightAll(const QString &txt, FindFlags findFlags) override
     {
-        m_widget->highlightSearchResults(txt.toLatin1(), textDocumentFlagsForFindFlags(findFlags));
+        m_widget->highlightSearchResults(txt.toLatin1(),
+                                         Utils::textDocumentFlagsForFindFlags(findFlags));
     }
 
     void clearHighlights() override
@@ -88,10 +89,10 @@ public:
             return pos;
         }
 
-        int res = m_widget->find(pattern, pos, textDocumentFlagsForFindFlags(findFlags));
+        int res = m_widget->find(pattern, pos, Utils::textDocumentFlagsForFindFlags(findFlags));
         if (res < 0) {
             pos = (findFlags & FindBackward) ? -1 : 0;
-            res = m_widget->find(pattern, pos, textDocumentFlagsForFindFlags(findFlags));
+            res = m_widget->find(pattern, pos, Utils::textDocumentFlagsForFindFlags(findFlags));
             if (res < 0)
                 return res;
             if (wrapped)
@@ -119,7 +120,8 @@ public:
         Result result;
         if (found >= 0) {
             result = Found;
-            m_widget->highlightSearchResults(pattern, textDocumentFlagsForFindFlags(findFlags));
+            m_widget->highlightSearchResults(pattern,
+                                             Utils::textDocumentFlagsForFindFlags(findFlags));
             m_contPos = -1;
         } else {
             if (found == -2) {
@@ -154,8 +156,10 @@ public:
             result = Found;
             m_incrementalStartPos = found;
             m_contPos = -1;
-            if (wasReset)
-                m_widget->highlightSearchResults(pattern, textDocumentFlagsForFindFlags(findFlags));
+            if (wasReset) {
+                m_widget->highlightSearchResults(pattern,
+                                                 Utils::textDocumentFlagsForFindFlags(findFlags));
+            }
         } else if (found == -2) {
             result = NotYetFound;
             m_contPos += findFlags & FindBackward

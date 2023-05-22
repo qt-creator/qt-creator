@@ -8,6 +8,7 @@
 
 using namespace Core;
 using namespace Help::Internal;
+using namespace Utils;
 
 HelpViewerFindSupport::HelpViewerFindSupport(HelpViewer *viewer)
     : m_viewer(viewer)

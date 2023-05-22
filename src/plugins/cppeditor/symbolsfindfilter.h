@@ -36,7 +36,7 @@ public:
     QString displayName() const override;
     bool isEnabled() const override;
 
-    void findAll(const QString &txt, Core::FindFlags findFlags) override;
+    void findAll(const QString &txt, Utils::FindFlags findFlags) override;
 
     QWidget *createConfigWidget() override;
     void writeSettings(QSettings *settings) override;
@@ -62,7 +62,7 @@ private:
     void onAllTasksFinished(Utils::Id type);
 
     QString label() const;
-    QString toolTip(Core::FindFlags findFlags) const;
+    QString toolTip(Utils::FindFlags findFlags) const;
     void startSearch(Core::SearchResult *search);
 
     CppModelManager *m_manager;

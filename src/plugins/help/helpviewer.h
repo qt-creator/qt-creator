@@ -5,6 +5,8 @@
 
 #include <coreplugin/find/textfindconstants.h>
 
+#include <utils/filesearch.h>
+
 #include <QFont>
 #include <QMenu>
 #include <QPrinter>
@@ -52,7 +54,7 @@ public:
     void setActionVisible(Action action, bool visible);
     bool isActionVisible(Action action);
 
-    virtual bool findText(const QString &text, Core::FindFlags flags,
+    virtual bool findText(const QString &text, Utils::FindFlags flags,
         bool incremental, bool fromSearch, bool *wrapped = nullptr) = 0;
 
     bool handleForwardBackwardMouseButtons(QMouseEvent *e);

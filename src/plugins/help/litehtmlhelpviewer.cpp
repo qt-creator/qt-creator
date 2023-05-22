@@ -209,11 +209,11 @@ void LiteHtmlHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
 }
 
 bool LiteHtmlHelpViewer::findText(
-    const QString &text, Core::FindFlags flags, bool incremental, bool fromSearch, bool *wrapped)
+    const QString &text, Utils::FindFlags flags, bool incremental, bool fromSearch, bool *wrapped)
 {
     Q_UNUSED(fromSearch)
     return m_viewer->findText(text,
-                              Core::textDocumentFlagsForFindFlags(flags),
+                              Utils::textDocumentFlagsForFindFlags(flags),
                               incremental,
                               wrapped);
 }

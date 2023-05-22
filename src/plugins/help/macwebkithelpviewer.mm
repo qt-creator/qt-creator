@@ -700,7 +700,7 @@ DOMRange *MacWebKitHelpViewer::findText(NSString *text, bool forward, bool caseS
     return nil;
 }
 
-bool MacWebKitHelpViewer::findText(const QString &text, Core::FindFlags flags, bool incremental,
+bool MacWebKitHelpViewer::findText(const QString &text, FindFlags flags, bool incremental,
                                    bool fromSearch, bool *wrapped)
 {
     Q_UNUSED(incremental);
@@ -708,8 +708,8 @@ bool MacWebKitHelpViewer::findText(const QString &text, Core::FindFlags flags, b
     @autoreleasepool {
         if (wrapped)
             *wrapped = false;
-        bool forward = !(flags & Core::FindBackward);
-        bool caseSensitive = (flags & Core::FindCaseSensitively);
+        bool forward = !(flags & FindBackward);
+        bool caseSensitive = (flags & FindCaseSensitively);
         WebView *webView = m_widget->webView();
 
         // WebView searchFor:.... grabs first responder, and when losing first responder afterwards,

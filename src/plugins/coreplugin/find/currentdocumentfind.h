@@ -5,6 +5,8 @@
 
 #include "ifindsupport.h"
 
+#include <utils/filesearch.h>
+
 #include <QPointer>
 
 namespace Core {
@@ -21,19 +23,19 @@ public:
     void clearHighlights();
     bool supportsReplace() const;
     bool supportsSelectAll() const;
-    FindFlags supportedFindFlags() const;
+    Utils::FindFlags supportedFindFlags() const;
     QString currentFindString() const;
     QString completedFindString() const;
 
     bool isEnabled() const;
     IFindSupport *candidate() const;
-    void highlightAll(const QString &txt, FindFlags findFlags);
-    IFindSupport::Result findIncremental(const QString &txt, FindFlags findFlags);
-    IFindSupport::Result findStep(const QString &txt, FindFlags findFlags);
-    void selectAll(const QString &txt, FindFlags findFlags);
-    void replace(const QString &before, const QString &after, FindFlags findFlags);
-    bool replaceStep(const QString &before, const QString &after, FindFlags findFlags);
-    int replaceAll(const QString &before, const QString &after, FindFlags findFlags);
+    void highlightAll(const QString &txt, Utils::FindFlags findFlags);
+    IFindSupport::Result findIncremental(const QString &txt, Utils::FindFlags findFlags);
+    IFindSupport::Result findStep(const QString &txt, Utils::FindFlags findFlags);
+    void selectAll(const QString &txt, Utils::FindFlags findFlags);
+    void replace(const QString &before, const QString &after, Utils::FindFlags findFlags);
+    bool replaceStep(const QString &before, const QString &after, Utils::FindFlags findFlags);
+    int replaceAll(const QString &before, const QString &after, Utils::FindFlags findFlags);
     void defineFindScope();
     void clearFindScope();
     void acceptCandidate();

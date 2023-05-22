@@ -14,6 +14,8 @@
 #include <QApplication>
 #include <QWidget>
 
+using namespace Utils;
+
 namespace Core::Internal {
 
 CurrentDocumentFind::CurrentDocumentFind()
@@ -126,9 +128,8 @@ int CurrentDocumentFind::replaceAll(const QString &before, const QString &after,
     QTC_ASSERT(m_currentFind, return 0);
     QTC_CHECK(m_currentWidget);
     int count = m_currentFind->replaceAll(before, after, findFlags);
-    Utils::FadingIndicator::showText(m_currentWidget,
-                                     Tr::tr("%n occurrences replaced.", nullptr, count),
-                                     Utils::FadingIndicator::SmallText);
+    FadingIndicator::showText(m_currentWidget, Tr::tr("%n occurrences replaced.", nullptr, count),
+                              FadingIndicator::SmallText);
     return count;
 }
 

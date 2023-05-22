@@ -7,6 +7,7 @@
 #include <utils/stylehelper.h>
 
 using namespace Core;
+using namespace Utils;
 
 /*!
     \class Core::IFindSupport
@@ -54,16 +55,16 @@ bool IFindSupport::supportsSelectAll() const
 }
 
 /*!
-    \fn Core::FindFlags Core::IFindSupport::supportedFindFlags() const
+    \fn Utils::FindFlags Core::IFindSupport::supportedFindFlags() const
     Returns the find flags, such as whole words or regular expressions,
     that this find filter supports.
 
     Depending on the returned value, the default find option widgets are
     enabled or disabled.
 
-    The default is Core::FindBackward, Core::FindCaseSensitively,
-    Core::FindRegularExpression, Core::FindWholeWords, and
-    Core::FindPreserveCase.
+    The default is Uitls::FindBackward, Utils::FindCaseSensitively,
+    Uitls::FindRegularExpression, Uitls::FindWholeWords, and
+    Uitls::FindPreserveCase.
 */
 
 /*!
@@ -87,17 +88,17 @@ bool IFindSupport::supportsSelectAll() const
 */
 
 /*!
-    \fn void Core::IFindSupport::highlightAll(const QString &txt, Core::FindFlags findFlags)
+    \fn void Core::IFindSupport::highlightAll(const QString &txt, Utils::FindFlags findFlags)
     Highlights all search hits for \a txt when using \a findFlags.
 */
 
 /*!
-    \fn Core::IFindSupport::Result Core::IFindSupport::findIncremental(const QString &txt, Core::FindFlags findFlags)
+    \fn Core::IFindSupport::Result Core::IFindSupport::findIncremental(const QString &txt, Utils::FindFlags findFlags)
     Performs an incremental search of the search term \a txt using \a findFlags.
 */
 
 /*!
-    \fn Core::IFindSupport::Result Core::IFindSupport::findStep(const QString &txt, Core::FindFlags findFlags)
+    \fn Core::IFindSupport::Result Core::IFindSupport::findStep(const QString &txt, Utils::FindFlags findFlags)
     Searches for \a txt using \a findFlags.
 */
 
@@ -166,6 +167,6 @@ void IFindSupport::selectAll(const QString &txt, FindFlags findFlags)
 */
 void IFindSupport::showWrapIndicator(QWidget *parent)
 {
-    Utils::FadingIndicator::showPixmap(parent, Utils::StyleHelper::dpiSpecificImageFile(
-                                           QLatin1String(":/find/images/wrapindicator.png")));
+    FadingIndicator::showPixmap(parent, StyleHelper::dpiSpecificImageFile(
+                                            ":/find/images/wrapindicator.png"));
 }

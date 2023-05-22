@@ -36,7 +36,7 @@ public:
     TerminalSearch(Internal::TerminalSurface *surface);
 
     void setCurrentSelection(std::optional<SearchHitWithText> selection);
-    void setSearchString(const QString &searchString, Core::FindFlags findFlags);
+    void setSearchString(const QString &searchString, Utils::FindFlags findFlags);
     void nextHit();
     void previousHit();
 
@@ -48,15 +48,15 @@ public:
 
 public:
     bool supportsReplace() const override { return false; }
-    Core::FindFlags supportedFindFlags() const override;
+    Utils::FindFlags supportedFindFlags() const override;
     void resetIncrementalSearch() override;
     void clearHighlights() override;
     QString currentFindString() const override;
     QString completedFindString() const override;
-    Result findIncremental(const QString &txt, Core::FindFlags findFlags) override;
-    Result findStep(const QString &txt, Core::FindFlags findFlags) override;
+    Result findIncremental(const QString &txt, Utils::FindFlags findFlags) override;
+    Result findStep(const QString &txt, Utils::FindFlags findFlags) override;
 
-    void highlightAll(const QString &, Core::FindFlags) override;
+    void highlightAll(const QString &, Utils::FindFlags) override;
 
 signals:
     void hitsChanged();
@@ -71,7 +71,7 @@ protected:
 private:
     std::optional<SearchHitWithText> m_currentSelection;
     QString m_currentSearchString;
-    Core::FindFlags m_findFlags;
+    Utils::FindFlags m_findFlags;
     Internal::TerminalSurface *m_surface;
 
     int m_currentHit{-1};

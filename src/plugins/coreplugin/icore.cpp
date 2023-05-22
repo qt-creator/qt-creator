@@ -30,7 +30,7 @@
 */
 
 /*!
-    \enum Core::FindFlag
+    \enum Utils::FindFlag
     This enum holds the find flags.
 
     \value FindBackward

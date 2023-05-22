@@ -65,7 +65,7 @@ public:
     void addForwardHistoryItems(QMenu *forwardMenu) override;
     void setActionVisible(bool visible);
 
-    bool findText(const QString &text, Core::FindFlags flags,
+    bool findText(const QString &text, Utils::FindFlags flags,
         bool incremental, bool fromSearch, bool *wrapped = nullptr) override;
 
     MacWebKitHelpWidget *widget() const { return m_widget; }

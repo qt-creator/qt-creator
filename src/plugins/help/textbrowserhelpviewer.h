@@ -38,7 +38,7 @@ public:
     void addBackHistoryItems(QMenu *backMenu) override;
     void addForwardHistoryItems(QMenu *forwardMenu) override;
 
-    bool findText(const QString &text, Core::FindFlags flags,
+    bool findText(const QString &text, Utils::FindFlags flags,
                   bool incremental, bool fromSearch, bool *wrapped = nullptr) override;
 
     void copy() override;

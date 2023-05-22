@@ -23,6 +23,18 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+enum FindFlag {
+    FindBackward = 0x01,
+    FindCaseSensitively = 0x02,
+    FindWholeWords = 0x04,
+    FindRegularExpression = 0x08,
+    FindPreserveCase = 0x10
+};
+Q_DECLARE_FLAGS(FindFlags, FindFlag)
+
+QTCREATOR_UTILS_EXPORT
+QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags);
+
 QTCREATOR_UTILS_EXPORT
 std::function<FilePaths(const FilePaths &)> filterFilesFunction(const QStringList &filters,
                                                                 const QStringList &exclusionFilters);
@@ -170,3 +182,6 @@ QTCREATOR_UTILS_EXPORT QString matchCaseReplacement(const QString &originalText,
                                                     const QString &replaceText);
 
 } // namespace Utils
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::FindFlags)
+Q_DECLARE_METATYPE(Utils::FindFlags)

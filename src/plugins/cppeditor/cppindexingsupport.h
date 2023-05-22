@@ -38,7 +38,7 @@ public:
     struct Parameters
     {
         QString text;
-        Core::FindFlags flags;
+        Utils::FindFlags flags;
         SymbolTypes types;
         SearchScope scope;
     };

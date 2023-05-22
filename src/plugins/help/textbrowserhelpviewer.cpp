@@ -143,7 +143,7 @@ void TextBrowserHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
     }
 }
 
-bool TextBrowserHelpViewer::findText(const QString &text, Core::FindFlags flags,
+bool TextBrowserHelpViewer::findText(const QString &text, Utils::FindFlags flags,
     bool incremental, bool fromSearch, bool *wrapped)
 {
     if (wrapped)
@@ -157,10 +157,10 @@ bool TextBrowserHelpViewer::findText(const QString &text, Core::FindFlags flags,
     if (incremental)
         cursor.setPosition(position);
 
-    QTextDocument::FindFlags f = Core::textDocumentFlagsForFindFlags(flags);
+    QTextDocument::FindFlags f = Utils::textDocumentFlagsForFindFlags(flags);
     QTextCursor found = doc->find(text, cursor, f);
     if (found.isNull()) {
-        if ((flags & Core::FindBackward) == 0)
+        if ((flags & Utils::FindBackward) == 0)
             cursor.movePosition(QTextCursor::Start);
         else
             cursor.movePosition(QTextCursor::End);

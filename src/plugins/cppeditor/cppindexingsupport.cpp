@@ -251,11 +251,11 @@ void SymbolSearcher::runSearch(QPromise<SearchResultItem> &promise)
     search.setSymbolsToSearchFor(m_parameters.types);
     CPlusPlus::Snapshot::const_iterator it = m_snapshot.begin();
 
-    QString findString = (m_parameters.flags & Core::FindRegularExpression
+    QString findString = (m_parameters.flags & FindRegularExpression
                               ? m_parameters.text : QRegularExpression::escape(m_parameters.text));
-    if (m_parameters.flags & Core::FindWholeWords)
+    if (m_parameters.flags & FindWholeWords)
         findString = QString::fromLatin1("\\b%1\\b").arg(findString);
-    QRegularExpression matcher(findString, (m_parameters.flags & Core::FindCaseSensitively
+    QRegularExpression matcher(findString, (m_parameters.flags & FindCaseSensitively
                                                 ? QRegularExpression::NoPatternOption
                                                 : QRegularExpression::CaseInsensitiveOption));
     matcher.optimize();

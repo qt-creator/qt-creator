@@ -156,7 +156,7 @@ class FindPrivate : public QObject
 public:
     bool isAnyFilterEnabled() const;
     void writeSettings();
-    void setFindFlag(Core::FindFlag flag, bool enabled);
+    void setFindFlag(FindFlag flag, bool enabled);
     static void updateCompletion(const QString &text, QStringList &completions,
                                  QStringListModel *model);
     void setupMenu();
@@ -450,19 +450,6 @@ QAbstractListModel *Find::findCompletionModel()
 QStringListModel *Find::replaceCompletionModel()
 {
     return &(d->m_replaceCompletionModel);
-}
-
-// declared in textfindconstants.h
-QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags)
-{
-    QTextDocument::FindFlags textDocFlags;
-    if (flags & FindBackward)
-        textDocFlags |= QTextDocument::FindBackward;
-    if (flags & FindCaseSensitively)
-        textDocFlags |= QTextDocument::FindCaseSensitively;
-    if (flags & FindWholeWords)
-        textDocFlags |= QTextDocument::FindWholeWords;
-    return textDocFlags;
 }
 
 } // namespace Core

@@ -28,43 +28,47 @@ public:
     ~BaseTextFind() override;
 
     bool supportsReplace() const override;
-    FindFlags supportedFindFlags() const override;
+    Utils::FindFlags supportedFindFlags() const override;
     void resetIncrementalSearch() override;
     void clearHighlights() override;
     QString currentFindString() const override;
     QString completedFindString() const override;
 
-    Result findIncremental(const QString &txt, FindFlags findFlags) override;
-    Result findStep(const QString &txt, FindFlags findFlags) override;
-    void replace(const QString &before, const QString &after, FindFlags findFlags) override;
-    bool replaceStep(const QString &before, const QString &after, FindFlags findFlags) override;
-    int replaceAll(const QString &before, const QString &after, FindFlags findFlags) override;
+    Result findIncremental(const QString &txt, Utils::FindFlags findFlags) override;
+    Result findStep(const QString &txt, Utils::FindFlags findFlags) override;
+    void replace(const QString &before, const QString &after, Utils::FindFlags findFlags) override;
+    bool replaceStep(const QString &before, const QString &after,
+                     Utils::FindFlags findFlags) override;
+    int replaceAll(const QString &before, const QString &after,
+                   Utils::FindFlags findFlags) override;
 
     void defineFindScope() override;
     void clearFindScope() override;
 
-    void highlightAll(const QString &txt, FindFlags findFlags) override;
+    void highlightAll(const QString &txt, Utils::FindFlags findFlags) override;
 
     using CursorProvider = std::function<Utils::MultiTextCursor ()>;
     void setMultiTextCursorProvider(const CursorProvider &provider);
     bool inScope(const QTextCursor &candidate) const;
 
-    static QRegularExpression regularExpression(const QString &txt, FindFlags flags);
+    static QRegularExpression regularExpression(const QString &txt, Utils::FindFlags flags);
 
 signals:
-    void highlightAllRequested(const QString &txt, Core::FindFlags findFlags);
+    void highlightAllRequested(const QString &txt, Utils::FindFlags findFlags);
     void findScopeChanged(const Utils::MultiTextCursor &cursor);
 
 private:
-    bool find(const QString &txt, FindFlags findFlags, QTextCursor start, bool *wrapped);
-    QTextCursor replaceInternal(const QString &before, const QString &after, FindFlags findFlags);
+    bool find(const QString &txt, Utils::FindFlags findFlags, QTextCursor start, bool *wrapped);
+    QTextCursor replaceInternal(const QString &before, const QString &after,
+                                Utils::FindFlags findFlags);
 
     Utils::MultiTextCursor multiTextCursor() const;
     QTextCursor textCursor() const;
     void setTextCursor(const QTextCursor&);
     QTextDocument *document() const;
     bool isReadOnly() const;
-    QTextCursor findOne(const QRegularExpression &expr, QTextCursor from, QTextDocument::FindFlags options) const;
+    QTextCursor findOne(const QRegularExpression &expr, QTextCursor from,
+                        QTextDocument::FindFlags options) const;
 
     BaseTextFindPrivate *d;
 };

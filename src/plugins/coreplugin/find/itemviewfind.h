@@ -33,22 +33,22 @@ public:
     ~ItemViewFind() override;
 
     bool supportsReplace() const override;
-    FindFlags supportedFindFlags() const override;
+    Utils::FindFlags supportedFindFlags() const override;
     void resetIncrementalSearch() override;
     void clearHighlights() override;
     QString currentFindString() const override;
     QString completedFindString() const override;
 
-    void highlightAll(const QString &txt, FindFlags findFlags) override;
-    Result findIncremental(const QString &txt, FindFlags findFlags) override;
-    Result findStep(const QString &txt, FindFlags findFlags) override;
+    void highlightAll(const QString &txt, Utils::FindFlags findFlags) override;
+    Result findIncremental(const QString &txt, Utils::FindFlags findFlags) override;
+    Result findStep(const QString &txt, Utils::FindFlags findFlags) override;
 
     static QFrame *createSearchableWrapper(QAbstractItemView *treeView, ColorOption colorOption = DarkColored,
                                            FetchOption option = DoNotFetchMoreWhileSearching);
     static QFrame *createSearchableWrapper(ItemViewFind *finder, ColorOption colorOption = DarkColored);
 
 private:
-    Result find(const QString &txt, FindFlags findFlags,
+    Result find(const QString &txt, Utils::FindFlags findFlags,
                 bool startFromCurrentIndex, bool *wrapped);
     QModelIndex nextIndex(const QModelIndex &idx, bool *wrapped) const;
     QModelIndex prevIndex(const QModelIndex &idx, bool *wrapped) const;

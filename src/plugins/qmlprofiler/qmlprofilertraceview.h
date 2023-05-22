@@ -61,17 +61,17 @@ public:
     TraceViewFindSupport(QmlProfilerTraceView *view, QmlProfilerModelManager *manager);
 
     bool supportsReplace() const override;
-    Core::FindFlags supportedFindFlags() const override;
+    Utils::FindFlags supportedFindFlags() const override;
     void resetIncrementalSearch() override;
     void clearHighlights() override;
     QString currentFindString() const override;
     QString completedFindString() const override;
-    Result findIncremental(const QString &txt, Core::FindFlags findFlags) override;
-    Result findStep(const QString &txt, Core::FindFlags findFlags) override;
+    Result findIncremental(const QString &txt, Utils::FindFlags findFlags) override;
+    Result findStep(const QString &txt, Utils::FindFlags findFlags) override;
 
 private:
-    bool find(const QString &txt, Core::FindFlags findFlags, int start, bool *wrapped);
-    bool findOne(const QString &txt, Core::FindFlags findFlags, int start);
+    bool find(const QString &txt, Utils::FindFlags findFlags, int start, bool *wrapped);
+    bool findOne(const QString &txt, Utils::FindFlags findFlags, int start);
 
     QmlProfilerTraceView *m_view;
     QmlProfilerModelManager *m_modelManager;

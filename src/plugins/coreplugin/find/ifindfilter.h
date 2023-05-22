@@ -5,6 +5,8 @@
 
 #include "textfindconstants.h"
 
+#include <utils/filesearch.h>
+
 QT_BEGIN_NAMESPACE
 class QWidget;
 class QSettings;
@@ -32,18 +34,18 @@ public:
     virtual QKeySequence defaultShortcut() const;
     virtual bool isReplaceSupported() const { return false; }
     virtual bool showSearchTermInput() const { return true; }
-    virtual FindFlags supportedFindFlags() const;
+    virtual Utils::FindFlags supportedFindFlags() const;
 
-    virtual void findAll(const QString &txt, FindFlags findFlags) = 0;
-    virtual void replaceAll(const QString &txt, FindFlags findFlags)
+    virtual void findAll(const QString &txt, Utils::FindFlags findFlags) = 0;
+    virtual void replaceAll(const QString &txt, Utils::FindFlags findFlags)
     { Q_UNUSED(txt) Q_UNUSED(findFlags) }
 
     virtual QWidget *createConfigWidget() { return nullptr; }
     virtual void writeSettings(QSettings *settings) { Q_UNUSED(settings) }
     virtual void readSettings(QSettings *settings) { Q_UNUSED(settings) }
 
-    static QPixmap pixmapForFindFlags(FindFlags flags);
-    static QString descriptionForFindFlags(FindFlags flags);
+    static QPixmap pixmapForFindFlags(Utils::FindFlags flags);
+    static QString descriptionForFindFlags(Utils::FindFlags flags);
 signals:
     void enabledChanged(bool enabled);
     void validChanged(bool valid);

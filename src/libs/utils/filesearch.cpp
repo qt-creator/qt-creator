@@ -22,6 +22,18 @@ Q_LOGGING_CATEGORY(searchLog, "qtc.utils.filesearch", QtWarningMsg)
 
 using namespace Utils;
 
+QTextDocument::FindFlags Utils::textDocumentFlagsForFindFlags(FindFlags flags)
+{
+    QTextDocument::FindFlags textDocFlags;
+    if (flags & FindBackward)
+        textDocFlags |= QTextDocument::FindBackward;
+    if (flags & FindCaseSensitively)
+        textDocFlags |= QTextDocument::FindCaseSensitively;
+    if (flags & FindWholeWords)
+        textDocFlags |= QTextDocument::FindWholeWords;
+    return textDocFlags;
+}
+
 static inline QString msgCanceled(const QString &searchTerm, int numMatches, int numFilesSearched)
 {
     return Tr::tr("%1: canceled. %n occurrences found in %2 files.",

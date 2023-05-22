@@ -12,6 +12,8 @@
 
 Q_LOGGING_CATEGORY(terminalSearchLog, "qtc.terminal.search", QtWarningMsg)
 
+using namespace Utils;
+
 using namespace std::chrono_literals;
 
 namespace Terminal {
@@ -44,7 +46,7 @@ void TerminalSearch::setCurrentSelection(std::optional<SearchHitWithText> select
     m_currentSelection = selection;
 }
 
-void TerminalSearch::setSearchString(const QString &searchString, Core::FindFlags findFlags)
+void TerminalSearch::setSearchString(const QString &searchString, FindFlags findFlags)
 {
     if (m_currentSearchString != searchString || m_findFlags != findFlags) {
         m_currentSearchString = searchString;
@@ -99,7 +101,7 @@ QList<SearchHit> TerminalSearch::search()
 
     std::function<bool(char32_t, char32_t)> compare;
 
-    if (m_findFlags.testFlag(Core::FindFlag::FindCaseSensitively)) {
+    if (m_findFlags.testFlag(FindFlag::FindCaseSensitively)) {
         compare = [](char32_t a, char32_t b) { return a == b || isSpace(a, b); };
     } else {
         compare = [](char32_t a, char32_t b) {
@@ -111,7 +113,7 @@ QList<SearchHit> TerminalSearch::search()
         const QList<uint> asUcs4 = m_currentSearchString.toUcs4();
         std::u32string searchString(asUcs4.begin(), asUcs4.end());
 
-        if (m_findFlags.testFlag(Core::FindFlag::FindWholeWords)) {
+        if (m_findFlags.testFlag(FindFlag::FindWholeWords)) {
             searchString.push_back(std::numeric_limits<char32_t>::max());
             searchString.insert(searchString.begin(), std::numeric_limits<char32_t>::max());
         }
@@ -123,7 +125,7 @@ QList<SearchHit> TerminalSearch::search()
             if (it != m_surface->end()) {
                 auto hit = SearchHit{it.position(),
                                      static_cast<int>(it.position() + searchString.size())};
-                if (m_findFlags.testFlag(Core::FindFlag::FindWholeWords)) {
+                if (m_findFlags.testFlag(FindFlag::FindWholeWords)) {
                     hit.start++;
                     hit.end--;
                 }
@@ -153,7 +155,7 @@ QList<SearchHit> TerminalSearch::searchRegex()
     }
 
     QRegularExpression re(m_currentSearchString,
-                          m_findFlags.testFlag(Core::FindFlag::FindCaseSensitively)
+                          m_findFlags.testFlag(FindFlag::FindCaseSensitively)
                               ? QRegularExpression::NoPatternOption
                               : QRegularExpression::CaseInsensitiveOption);
 
@@ -191,7 +193,7 @@ void TerminalSearch::debouncedUpdateHits()
 
     m_currentHit = -1;
 
-    const bool regex = m_findFlags.testFlag(Core::FindFlag::FindRegularExpression);
+    const bool regex = m_findFlags.testFlag(FindFlag::FindRegularExpression);
 
     QList<SearchHit> hits = regex ? searchRegex() : search();
 
@@ -212,10 +214,10 @@ void TerminalSearch::debouncedUpdateHits()
         qCDebug(terminalSearchLog) << "Search took" << t.elapsed() << "ms";
 }
 
-Core::FindFlags TerminalSearch::supportedFindFlags() const
+FindFlags TerminalSearch::supportedFindFlags() const
 {
-    return Core::FindFlag::FindCaseSensitively | Core::FindFlag::FindBackward
-           | Core::FindFlag::FindRegularExpression | Core::FindFlag::FindWholeWords;
+    return FindFlag::FindCaseSensitively | FindFlag::FindBackward
+           | FindFlag::FindRegularExpression | FindFlag::FindWholeWords;
 }
 
 void TerminalSearch::resetIncrementalSearch()
@@ -241,8 +243,7 @@ QString TerminalSearch::completedFindString() const
     return {};
 }
 
-Core::IFindSupport::Result TerminalSearch::findIncremental(const QString &txt,
-                                                           Core::FindFlags findFlags)
+Core::IFindSupport::Result TerminalSearch::findIncremental(const QString &txt, FindFlags findFlags)
 {
     if (txt == m_currentSearchString) {
         if (m_debounceTimer.isActive())
@@ -257,7 +258,7 @@ Core::IFindSupport::Result TerminalSearch::findIncremental(const QString &txt,
     return Result::NotYetFound;
 }
 
-Core::IFindSupport::Result TerminalSearch::findStep(const QString &txt, Core::FindFlags findFlags)
+Core::IFindSupport::Result TerminalSearch::findStep(const QString &txt, FindFlags findFlags)
 {
     if (txt == m_currentSearchString) {
         if (m_debounceTimer.isActive())
@@ -265,7 +266,7 @@ Core::IFindSupport::Result TerminalSearch::findStep(const QString &txt, Core::Fi
         else if (m_hits.isEmpty())
             return Result::NotFound;
 
-        if (findFlags.testFlag(Core::FindFlag::FindBackward))
+        if (findFlags.testFlag(FindFlag::FindBackward))
             previousHit();
         else
             nextHit();
@@ -276,7 +277,7 @@ Core::IFindSupport::Result TerminalSearch::findStep(const QString &txt, Core::Fi
     return findIncremental(txt, findFlags);
 }
 
-void TerminalSearch::highlightAll(const QString &txt, Core::FindFlags findFlags)
+void TerminalSearch::highlightAll(const QString &txt, FindFlags findFlags)
 {
     setSearchString(txt, findFlags);
 }

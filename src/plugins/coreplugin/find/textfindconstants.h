@@ -40,19 +40,4 @@ const char TASK_SEARCH[]       = "Find.Task.Search";
 
 } // namespace Constants
 
-enum FindFlag {
-    FindBackward = 0x01,
-    FindCaseSensitively = 0x02,
-    FindWholeWords = 0x04,
-    FindRegularExpression = 0x08,
-    FindPreserveCase = 0x10
-};
-Q_DECLARE_FLAGS(FindFlags, FindFlag)
-
-// defined in findplugin.cpp
-QTextDocument::FindFlags CORE_EXPORT textDocumentFlagsForFindFlags(FindFlags flags);
-
 } // namespace Core
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::FindFlags)
-Q_DECLARE_METATYPE(Core::FindFlags)

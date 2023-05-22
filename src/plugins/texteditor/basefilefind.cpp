@@ -60,7 +60,7 @@ public:
         return func(parameters.text,
                     baseFileFind->files(parameters.nameFilters, parameters.exclusionFilters,
                                         parameters.additionalParameters),
-                    textDocumentFlagsForFindFlags(parameters.flags),
+                    Utils::textDocumentFlagsForFindFlags(parameters.flags),
                     TextDocument::openedTextDocumentContents());
 
     }

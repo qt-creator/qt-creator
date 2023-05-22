@@ -38,7 +38,7 @@ public:
     QVariant additionalParameters;
     QVariant searchEngineParameters;
     int searchEngineIndex;
-    Core::FindFlags flags;
+    Utils::FindFlags flags;
 };
 
 class BaseFileFind;
@@ -80,8 +80,8 @@ public:
 
     bool isEnabled() const override;
     bool isReplaceSupported() const override { return true; }
-    void findAll(const QString &txt, Core::FindFlags findFlags) override;
-    void replaceAll(const QString &txt, Core::FindFlags findFlags) override;
+    void findAll(const QString &txt, Utils::FindFlags findFlags) override;
+    void replaceAll(const QString &txt, Utils::FindFlags findFlags) override;
     void addSearchEngine(SearchEngine *searchEngine);
 
     /* returns the list of unique files that were passed in items */
@@ -120,7 +120,7 @@ private:
     void searchAgain(Core::SearchResult *search);
     virtual void recheckEnabled(Core::SearchResult *search);
 
-    void runNewSearch(const QString &txt, Core::FindFlags findFlags,
+    void runNewSearch(const QString &txt, Utils::FindFlags findFlags,
                       Core::SearchResultWindow::SearchMode searchMode);
     void runSearch(Core::SearchResult *search);
 

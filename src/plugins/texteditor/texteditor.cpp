@@ -902,7 +902,7 @@ void TextEditorWidgetFind::selectAll(const QString &txt, FindFlags findFlags)
     FileListIterator *it = new FileListIterator({fileName},
                                                 {const_cast<QTextCodec *>(
                                                     m_editor->textDocument()->codec())});
-    const QTextDocument::FindFlags findFlags2 = textDocumentFlagsForFindFlags(findFlags);
+    const QTextDocument::FindFlags findFlags2 = Utils::textDocumentFlagsForFindFlags(findFlags);
 
     if (findFlags & FindRegularExpression)
         m_selectWatcher->setFuture(findInFilesRegExp(txt, it, findFlags2, fileToContentsMap));
@@ -6744,7 +6744,7 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
             this, &TextEditorWidgetPrivate::searchFinished);
     m_searchWatcher->setPendingResultsLimit(10);
 
-    const QTextDocument::FindFlags findFlags = textDocumentFlagsForFindFlags(m_findFlags);
+    const QTextDocument::FindFlags findFlags = Utils::textDocumentFlagsForFindFlags(m_findFlags);
 
     const FilePath &fileName = m_document->filePath();
     FileListIterator *it =
@@ -7291,7 +7291,7 @@ void TextEditorWidgetPrivate::addSelectionNextFindMatch()
         return;
     }
 
-    const QTextDocument::FindFlags findFlags = textDocumentFlagsForFindFlags(m_findFlags);
+    const QTextDocument::FindFlags findFlags = Utils::textDocumentFlagsForFindFlags(m_findFlags);
 
     int searchFrom = cursors.last().selectionEnd();
     while (true) {
