@@ -1058,7 +1058,7 @@ bool RunControl::showPromptToStopDialog(const QString &title,
         buttonTexts[QMessageBox::Cancel] = cancelButtonText;
 
     std::optional<CheckableMessageBox::Decider> decider
-        = prompt ? std::nullopt : make_optional(CheckableMessageBox::make_decider(*prompt));
+        = prompt ? make_optional(CheckableMessageBox::make_decider(*prompt)) : std::nullopt;
 
     auto selected = CheckableMessageBox::question(Core::ICore::dialogParent(),
                                                   title,
