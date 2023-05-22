@@ -185,25 +185,25 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     IAssistProcessor *processor = provider->createProcessor(assistInterface.get());
     processor->setAsyncCompletionAvailableHandler([this, reason, processor](
                                                   IAssistProposal *newProposal) {
+        if (processor == m_processor) {
+            invalidateCurrentRequestData();
+            if (processor->needsRestart() && m_receivedContentWhileWaiting) {
+                delete newProposal;
+                m_receivedContentWhileWaiting = false;
+                requestProposal(reason, m_assistKind, m_requestProvider);
+            } else {
+                displayProposal(newProposal, reason);
+                if (processor->running())
+                    m_processor = processor;
+                else
+                    emit q->finished();
+            }
+        }
         if (!processor->running()) {
             // do not delete this processor directly since this function is called from within the processor
             QMetaObject::invokeMethod(QCoreApplication::instance(), [processor] {
                 delete processor;
             }, Qt::QueuedConnection);
-        }
-        if (processor != m_processor)
-            return;
-        invalidateCurrentRequestData();
-        if (processor->needsRestart() && m_receivedContentWhileWaiting) {
-            delete newProposal;
-            m_receivedContentWhileWaiting = false;
-            requestProposal(reason, m_assistKind, m_requestProvider);
-        } else {
-            displayProposal(newProposal, reason);
-            if (processor->running())
-                m_processor = processor;
-            else
-                emit q->finished();
         }
     });
 
