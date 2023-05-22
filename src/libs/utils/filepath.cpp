@@ -1327,11 +1327,11 @@ bool FilePath::startsWithDriveLetter() const
 /*!
     \brief Relative path from \a parent to this.
 
-    Returns a empty FilePath if this is not a child of \p parent.
+    Returns a empty \c FilePath if this is not a child of \a parent.
+    \a parent is the Parent to calculate the relative path to.
     That is, this never returns a path starting with "../"
-    \param parent The Parent to calculate the relative path to.
 
-    Returns The relative path of this to \p parent if this is a child of \p parent.
+    Returns the relative path of this to \a parent if this is a child of \a parent.
 */
 FilePath FilePath::relativeChildPath(const FilePath &parent) const
 {
@@ -1728,16 +1728,16 @@ qint64 FilePath::bytesAvailable() const
 }
 
 /*!
-    \brief Checks if this is newer than \p timeStamp
+    \brief Checks if this is newer than \a timeStamp.
 
-    \param timeStamp The time stamp to compare with
-    Returns true if this is newer than \p timeStamp.
-     If this is a directory, the function will recursively check all files and return
-     true if one of them is newer than \a timeStamp. If this is a single file, true will
-     be returned if the file is newer than \a timeStamp.
+    The time stamp \a timeStamp to compare with.
+    Returns \c true if this is newer than \a timeStamp.
+    If this is a directory, the function will recursively check all files and return
+    \c true if one of them is newer than \a timeStamp. If this is a single file, \c true will
+    be returned if the file is newer than \a timeStamp.
 
      Returns whether at least one file in \a filePath has a newer date than
-     \p timeStamp.
+     \a timeStamp.
 */
 bool FilePath::isNewerThan(const QDateTime &timeStamp) const
 {
@@ -1907,7 +1907,7 @@ QString FilePath::shortNativePath() const
 }
 
 /*!
-    \brief Checks whether the path is relative
+    \brief Checks whether the path is relative.
 
     Returns true if the path is relative.
 */
@@ -1924,11 +1924,9 @@ bool FilePath::isRelativePath() const
 }
 
 /*!
-    \brief Appends the tail to this, if the tail is a relative path.
+    \brief Appends the \a tail to this, if the tail is a relative path.
 
-    \param tail The tail to append.
-
-    Returns tail if tail is absolute, otherwise this + tail.
+    Returns the tail if the tail is absolute, otherwise this + tail.
 */
 FilePath FilePath::resolvePath(const FilePath &tail) const
 {
@@ -1940,11 +1938,9 @@ FilePath FilePath::resolvePath(const FilePath &tail) const
 }
 
 /*!
-    \brief Appends the tail to this, if the tail is a relative path.
+    \brief Appends the \a tail to this, if the tail is a relative path.
 
-    \param tail The tail to append.
-
-    Returns tail if tail is absolute, otherwise this + tail.
+    Returns the tail if the tail is absolute, otherwise this + tail.
 */
 FilePath FilePath::resolvePath(const QString &tail) const
 {
@@ -1962,7 +1958,7 @@ expected_str<FilePath> FilePath::localSource() const
 }
 
 /*!
-    \brief Cleans path part similar to QDir::cleanPath()
+    \brief Cleans path part similar to \c QDir::cleanPath().
 
     \list
     \li directory separators normalized (that is, platform-native
