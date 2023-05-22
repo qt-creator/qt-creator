@@ -174,6 +174,8 @@ static bool buildAndRunOnSameDevice(Kit *kit)
 {
     IDeviceConstPtr runDevice = DeviceKitAspect::device(kit);
     IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit);
+    QTC_ASSERT(runDevice, return false);
+    QTC_ASSERT(buildDevice, return false);
     return runDevice->id() == buildDevice->id();
 }
 
