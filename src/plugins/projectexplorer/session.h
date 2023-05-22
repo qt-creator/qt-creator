@@ -80,6 +80,9 @@ signals:
     void sessionRenamed(const QString &oldName, const QString &newName);
     void sessionRemoved(const QString &name);
 
+public: // internal
+    static bool isStartupSessionRestored();
+
 private:
     static void saveActiveMode(Utils::Id mode);
 };

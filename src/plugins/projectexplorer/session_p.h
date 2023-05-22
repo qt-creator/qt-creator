@@ -18,7 +18,6 @@ public:
     void restoreSessionValues(const PersistentSettingsReader &reader);
     void restoreEditors();
 
-    bool isStartupSessionRestored();
     void saveSettings();
     void restoreSettings();
     bool isAutoRestoreLastSession();

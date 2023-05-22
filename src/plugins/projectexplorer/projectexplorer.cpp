@@ -69,7 +69,6 @@
 #include "sanitizerparser.h"
 #include "selectablefilesmodel.h"
 #include "session.h"
-#include "session_p.h"
 #include "sessiondialog.h"
 #include "showineditortaskhandler.h"
 #include "simpleprojectwizard.h"
@@ -1633,10 +1632,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             dd, &ProjectExplorerPluginPrivate::savePersistentSettings);
-    connect(EditorManager::instance(), &EditorManager::autoSaved, this, [] {
-        if (!PluginManager::isShuttingDown() && !SessionManager::loadingSession())
-            SessionManager::saveSession();
-    });
     connect(qApp, &QApplication::applicationStateChanged, this, [](Qt::ApplicationState state) {
         if (!PluginManager::isShuttingDown() && state == Qt::ApplicationActive)
             dd->updateWelcomePage();
@@ -1714,7 +1709,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
               .toBool();
 
     dd->m_buildPropertiesSettings.readSettings(s);
-    sb_d->restoreSettings();
 
     const int customParserCount = s->value(Constants::CUSTOM_PARSER_COUNT_KEY).toInt();
     for (int i = 0; i < customParserCount; ++i) {
@@ -2169,7 +2163,7 @@ void ProjectExplorerPlugin::restoreKits()
     KitManager::restoreKits();
     // restoring startup session is supposed to be done as a result of ICore::coreOpened,
     // and that is supposed to happen after restoring kits:
-    QTC_CHECK(!sb_d->isStartupSessionRestored());
+    QTC_CHECK(!SessionManager::isStartupSessionRestored());
 }
 
 void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()
@@ -2304,7 +2298,6 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
                            int(defaultSettings.stopBeforeBuild));
 
     dd->m_buildPropertiesSettings.writeSettings(s);
-    sb_d->saveSettings();
 
     s->setValueWithDefault(Constants::CUSTOM_PARSER_COUNT_KEY, int(dd->m_customParsers.count()), 0);
     for (int i = 0; i < dd->m_customParsers.count(); ++i) {

@@ -3,7 +3,6 @@
 
 #include "projectmanager.h"
 
-#include "session_p.h"
 #include "session.h"
 
 #include "buildconfiguration.h"
@@ -280,7 +279,7 @@ void ProjectManager::addProject(Project *pro)
     QTC_CHECK(!pro->displayName().isEmpty());
     QTC_CHECK(pro->id().isValid());
 
-    sb_d->m_virginSession = false;
+    SessionManager::markSessionFileDirty();
     QTC_ASSERT(!d->m_projects.contains(pro), return);
 
     d->m_projects.append(pro);
@@ -314,7 +313,7 @@ void ProjectManager::addProject(Project *pro)
 
 void ProjectManager::removeProject(Project *project)
 {
-    sb_d->m_virginSession = false;
+    SessionManager::markSessionFileDirty();
     QTC_ASSERT(project, return);
     removeProjects({project});
 }
@@ -396,7 +395,8 @@ void ProjectManagerPrivate::dependencies(const FilePath &proName, FilePaths &res
 
 QString ProjectManagerPrivate::sessionTitle(const FilePath &filePath)
 {
-    if (SessionManager::isDefaultSession(sb_d->m_sessionName)) {
+    const QString sessionName = SessionManager::activeSession();
+    if (SessionManager::isDefaultSession(sessionName)) {
         if (filePath.isEmpty()) {
             // use single project's name if there is only one loaded.
             const QList<Project *> projects = ProjectManager::projects();
@@ -404,10 +404,7 @@ QString ProjectManagerPrivate::sessionTitle(const FilePath &filePath)
                 return projects.first()->displayName();
         }
     } else {
-        QString sessionName = sb_d->m_sessionName;
-        if (sessionName.isEmpty())
-            sessionName = Tr::tr("Untitled");
-        return sessionName;
+        return sessionName.isEmpty() ? Tr::tr("Untitled") : sessionName;
     }
     return QString();
 }
