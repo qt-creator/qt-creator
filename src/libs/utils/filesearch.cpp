@@ -194,8 +194,8 @@ static SearchResultItems searchInContents(const QFuture<void> &future, const QSt
     return searchWithoutRegExp(future, searchTerm, flags, filePath, contents);
 }
 
-void searchInContents(QPromise<SearchResultItems> &promise, const QString &searchTerm,
-                      FindFlags flags, const FilePath &filePath, const QString &contents)
+void Utils::searchInContents(QPromise<SearchResultItems> &promise, const QString &searchTerm,
+                             FindFlags flags, const FilePath &filePath, const QString &contents)
 {
     const QFuture<void> future(promise.future());
     const SearchResultItems results = searchInContents(future, searchTerm, flags, filePath,

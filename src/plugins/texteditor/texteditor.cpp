@@ -48,6 +48,7 @@
 #include <coreplugin/manhattanstyle.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/camelcasecursor.h>
 #include <utils/dropsupport.h>
 #include <utils/executeondestruction.h>
@@ -895,19 +896,9 @@ void TextEditorWidgetFind::selectAll(const QString &txt, FindFlags findFlags)
         m_editor->setFocus();
     });
 
-    const FilePath &fileName = m_editor->textDocument()->filePath();
-    QMap<FilePath, QString> fileToContentsMap;
-    fileToContentsMap[fileName] = m_editor->textDocument()->plainText();
-
-    FileListIterator *it = new FileListIterator({fileName},
-                                                {const_cast<QTextCodec *>(
-                                                    m_editor->textDocument()->codec())});
-    const QTextDocument::FindFlags findFlags2 = Utils::textDocumentFlagsForFindFlags(findFlags);
-
-    if (findFlags & FindRegularExpression)
-        m_selectWatcher->setFuture(findInFilesRegExp(txt, it, findFlags2, fileToContentsMap));
-    else
-        m_selectWatcher->setFuture(findInFiles(txt, it, findFlags2, fileToContentsMap));
+    m_selectWatcher->setFuture(Utils::asyncRun(Utils::searchInContents, txt, findFlags,
+                                               m_editor->textDocument()->filePath(),
+                                               m_editor->textDocument()->plainText()));
 }
 
 void TextEditorWidgetFind::cancelCurrentSelectAll()
@@ -6743,19 +6734,8 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
     connect(m_searchWatcher, &QFutureWatcher<SearchResultItems>::finished,
             this, &TextEditorWidgetPrivate::searchFinished);
     m_searchWatcher->setPendingResultsLimit(10);
-
-    const QTextDocument::FindFlags findFlags = Utils::textDocumentFlagsForFindFlags(m_findFlags);
-
-    const FilePath &fileName = m_document->filePath();
-    FileListIterator *it =
-            new FileListIterator({fileName} , {const_cast<QTextCodec *>(m_document->codec())});
-    QMap<FilePath, QString> fileToContentsMap;
-    fileToContentsMap[fileName] = m_document->plainText();
-
-    if (m_findFlags & FindRegularExpression)
-        m_searchWatcher->setFuture(findInFilesRegExp(txt, it, findFlags, fileToContentsMap));
-    else
-        m_searchWatcher->setFuture(findInFiles(txt, it, findFlags, fileToContentsMap));
+    m_searchWatcher->setFuture(Utils::asyncRun(Utils::searchInContents, txt, m_findFlags,
+                                               m_document->filePath(), m_document->plainText()));
 }
 
 void TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar()
