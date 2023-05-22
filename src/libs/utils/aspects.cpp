@@ -1134,7 +1134,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
                     if (d->m_blockAutoApply)
                         return;
                     d->m_blockAutoApply = true;
-                    setValue(d->m_pathChooserDisplay->filePath().toString());
+                    setValueQuietly(d->m_pathChooserDisplay->filePath().toString());
                     d->m_blockAutoApply = false;
                 };
                 connect(d->m_pathChooserDisplay, &PathChooser::editingFinished, this, setPathChooserValue);
@@ -1142,7 +1142,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
             } else {
                 connect(d->m_pathChooserDisplay, &PathChooser::textChanged,
                         this, [this](const QString &path) {
-                    setValue(path);
+                    setValueQuietly(path);
                 });
             }
         }
