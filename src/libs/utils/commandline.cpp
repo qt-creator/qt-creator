@@ -218,7 +218,7 @@ static QStringList doSplitArgsWin(const QString &args, ProcessArgs::SplitError *
     If \a err is not NULL, stores a status code at the pointer target. For more
     information, see \l SplitError.
 
-    If \env is not NULL, performs variable substitution with the
+    If \a env is not NULL, performs variable substitution with the
     given environment.
 
     Returns a list of unquoted words or an empty list if an error occurred.
@@ -253,7 +253,6 @@ static QStringList doSplitArgsWin(const QString &args, ProcessArgs::SplitError *
     semantics, you need a command line like \c{"foo "\^"" bar"} to get
     \c{foo " bar}.
  */
-
 
 static QStringList splitArgsWin(const QString &_args, bool abortOnMeta,
                                 ProcessArgs::SplitError *err,
