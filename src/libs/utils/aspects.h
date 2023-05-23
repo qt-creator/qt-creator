@@ -446,7 +446,7 @@ protected:
 class QTCREATOR_UTILS_EXPORT FilePathAspect : public StringAspect
 {
 public:
-    FilePathAspect();
+    FilePathAspect(AspectContainer *container = nullptr);
 
     FilePath operator()() const { return filePath(); }
 };

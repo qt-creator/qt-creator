@@ -1347,7 +1347,8 @@ void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
 */
 
 
-FilePathAspect::FilePathAspect()
+FilePathAspect::FilePathAspect(AspectContainer *container)
+    : StringAspect(container)
 {
     setDisplayStyle(PathChooserDisplay);
 }
