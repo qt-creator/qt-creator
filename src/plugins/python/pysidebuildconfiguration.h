@@ -17,10 +17,9 @@ public:
     void updatePySideProjectPath(const Utils::FilePath &pySideProjectPath);
 
 private:
-    Utils::StringAspect *m_pysideProject;
-
-private:
     void doRun() override;
+
+    Utils::FilePathAspect m_pysideProject{this};
 };
 
 class PySideBuildStepFactory : public ProjectExplorer::BuildStepFactory

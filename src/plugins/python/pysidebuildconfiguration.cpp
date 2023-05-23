@@ -34,31 +34,30 @@ PySideBuildStepFactory::PySideBuildStepFactory()
 PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
-    m_pysideProject = addAspect<StringAspect>();
-    m_pysideProject->setSettingsKey("Python.PySideProjectTool");
-    m_pysideProject->setLabelText(Tr::tr("PySide project tool:"));
-    m_pysideProject->setToolTip(Tr::tr("Enter location of PySide project tool."));
-    m_pysideProject->setDisplayStyle(StringAspect::PathChooserDisplay);
-    m_pysideProject->setExpectedKind(PathChooser::Command);
-    m_pysideProject->setHistoryCompleter("Python.PySideProjectTool.History");
+    setOwnsSubAspects(false);
 
-    const FilePath pySideProjectPath = Environment::systemEnvironment().searchInPath(
-        "pyside6-project");
+    m_pysideProject.setSettingsKey("Python.PySideProjectTool");
+    m_pysideProject.setLabelText(Tr::tr("PySide project tool:"));
+    m_pysideProject.setToolTip(Tr::tr("Enter location of PySide project tool."));
+    m_pysideProject.setExpectedKind(PathChooser::Command);
+    m_pysideProject.setHistoryCompleter("Python.PySideProjectTool.History");
+
+    const FilePath pySideProjectPath = FilePath("pyside6-project").searchInPath();
     if (pySideProjectPath.isExecutableFile())
-        m_pysideProject->setFilePath(pySideProjectPath);
+        m_pysideProject.setFilePath(pySideProjectPath);
 
-    setCommandLineProvider([this] { return CommandLine(m_pysideProject->filePath(), {"build"}); });
+    setCommandLineProvider([this] { return CommandLine(m_pysideProject(), {"build"}); });
     setWorkingDirectoryProvider([this] {
-        return m_pysideProject->filePath().withNewMappedPath(target()->project()->projectDirectory()); // FIXME: new path needed?
+        return m_pysideProject().withNewMappedPath(project()->projectDirectory()); // FIXME: new path needed?
     });
     setEnvironmentModifier([this](Environment &env) {
-        env.prependOrSetPath(m_pysideProject->filePath().parentDir());
+        env.prependOrSetPath(m_pysideProject().parentDir());
     });
 }
 
-void PySideBuildStep::updatePySideProjectPath(const Utils::FilePath &pySideProjectPath)
+void PySideBuildStep::updatePySideProjectPath(const FilePath &pySideProjectPath)
 {
-    m_pysideProject->setFilePath(pySideProjectPath);
+    m_pysideProject.setFilePath(pySideProjectPath);
 }
 
 void PySideBuildStep::doRun()
