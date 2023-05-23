@@ -41,7 +41,7 @@ SubversionSettings::SubversionSettings()
 
     registerAspect(&useAuthentication);
     useAuthentication.setSettingsKey("Authentication");
-    useAuthentication.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    useAuthentication.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
     registerAspect(&userName);
     userName.setSettingsKey("User");

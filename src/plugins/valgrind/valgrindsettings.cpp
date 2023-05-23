@@ -244,19 +244,19 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     filterExternalIssues.setSettingsKey(base + "FilterExternalIssues");
     filterExternalIssues.setDefaultValue(true);
     filterExternalIssues.setIcon(Icons::FILTER.icon());
-    filterExternalIssues.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    filterExternalIssues.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     filterExternalIssues.setLabelText(Tr::tr("Show Project Costs Only"));
     filterExternalIssues.setToolTip(Tr::tr("Show only profiling info that originated from this project source."));
 
     registerAspect(&trackOrigins);
     trackOrigins.setSettingsKey(base + "TrackOrigins");
     trackOrigins.setDefaultValue(true);
-    trackOrigins.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    trackOrigins.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     trackOrigins.setLabelText(Tr::tr("Track origins of uninitialized memory"));
 
     registerAspect(&showReachable);
     showReachable.setSettingsKey(base + "ShowReachable");
-    showReachable.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    showReachable.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     showReachable.setLabelText(Tr::tr("Show reachable and indirectly lost blocks"));
 
     registerAspect(&leakCheckOnFinish);
@@ -291,12 +291,12 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     registerAspect(&enableEventToolTips);
     enableEventToolTips.setDefaultValue(true);
     enableEventToolTips.setSettingsKey(base + "Callgrind.EnableEventToolTips");
-    enableEventToolTips.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    enableEventToolTips.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     enableEventToolTips.setLabelText(Tr::tr("Show additional information for events in tooltips"));
 
     registerAspect(&enableCacheSim);
     enableCacheSim.setSettingsKey(base + "Callgrind.EnableCacheSim");
-    enableCacheSim.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    enableCacheSim.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     enableCacheSim.setLabelText(Tr::tr("Enable cache simulation"));
     enableCacheSim.setToolTip("<html><head/><body>" + Tr::tr(
         "<p>Does full cache simulation.</p>\n"
@@ -310,7 +310,7 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
 
     registerAspect(&enableBranchSim);
     enableBranchSim.setSettingsKey(base + "Callgrind.EnableBranchSim");
-    enableBranchSim.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    enableBranchSim.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     enableBranchSim.setLabelText(Tr::tr("Enable branch prediction simulation"));
     enableBranchSim.setToolTip("<html><head/><body>\n" + Tr::tr(
         "<p>Does branch prediction simulation.</p>\n"
@@ -322,12 +322,12 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
 
     registerAspect(&collectSystime);
     collectSystime.setSettingsKey(base + "Callgrind.CollectSystime");
-    collectSystime.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    collectSystime.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     collectSystime.setLabelText(Tr::tr("Collect system call time"));
     collectSystime.setToolTip(Tr::tr("Collects information for system call times."));
 
     registerAspect(&collectBusEvents);
-    collectBusEvents.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    collectBusEvents.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     collectBusEvents.setSettingsKey(base + "Callgrind.CollectBusEvents");
     collectBusEvents.setLabelText(Tr::tr("Collect global bus events"));
     collectBusEvents.setToolTip(Tr::tr("Collect the number of global bus events that are executed. "

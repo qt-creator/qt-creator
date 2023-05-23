@@ -194,7 +194,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
 
     m_useStaging = addAspect<BoolAspect>();
     m_useStaging->setSettingsKey(USE_STAGING_KEY);
-    m_useStaging->setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    m_useStaging->setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     m_useStaging->setDefaultValue(!buildAndRunOnSameDevice(kit()));
 
     m_stagingDir = addAspect<FilePathAspect>();
