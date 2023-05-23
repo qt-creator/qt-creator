@@ -7,12 +7,11 @@
 
 #include <utils/aspects.h>
 
-namespace Utils { class FilePath; }
-
 namespace ProjectExplorer {
+
 class BuildConfiguration;
 
-class PROJECTEXPLORER_EXPORT BuildDirectoryAspect : public Utils::StringAspect
+class PROJECTEXPLORER_EXPORT BuildDirectoryAspect : public Utils::FilePathAspect
 {
     Q_OBJECT
 public:
