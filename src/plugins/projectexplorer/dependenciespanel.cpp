@@ -6,9 +6,9 @@
 #include "project.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
-#include "session.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
@@ -37,7 +37,7 @@ DependenciesModel::DependenciesModel(Project *project, QObject *parent)
             this, &DependenciesModel::resetModel);
     connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, &DependenciesModel::resetModel);
-    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
+    connect(Core::SessionManager::instance(), &Core::SessionManager::sessionLoaded,
             this, &DependenciesModel::resetModel);
 }
 

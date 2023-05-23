@@ -11,6 +11,7 @@
 #include "iwizardfactory.h"
 #include "mainwindow.h"
 #include "modemanager.h"
+#include "session.h"
 #include "themechooser.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -159,8 +160,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_mainWindow->init();
     m_editMode = new EditMode;
     ModeManager::activateMode(m_editMode->id());
-
     m_folderNavigationWidgetFactory = new FolderNavigationWidgetFactory;
+    m_sessionManager.reset(new SessionManager);
 
     IWizardFactory::initialize();
 

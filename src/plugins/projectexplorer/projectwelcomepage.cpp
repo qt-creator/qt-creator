@@ -3,8 +3,6 @@
 
 #include "projectwelcomepage.h"
 
-#include "session.h"
-#include "sessionmodel.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
@@ -16,6 +14,8 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwizardfactory.h>
+#include <coreplugin/session.h>
+#include <coreplugin/sessionmodel.h>
 #include <coreplugin/welcomepagehelper.h>
 
 #include <utils/algorithm.h>

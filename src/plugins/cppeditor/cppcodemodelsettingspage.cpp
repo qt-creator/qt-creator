@@ -10,8 +10,7 @@
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/icore.h>
-
-#include <projectexplorer/session.h>
+#include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/infolabel.h>
@@ -392,7 +391,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
 
         connect(addButton, &QPushButton::clicked, this, [this, sessionsView] {
             QInputDialog dlg(sessionsView);
-            QStringList sessions = ProjectExplorer::SessionManager::sessions();
+            QStringList sessions = Core::SessionManager::sessions();
             QStringList currentSessions = d->sessionsModel.stringList();
             for (const QString &s : std::as_const(currentSessions))
                 sessions.removeOne(s);

@@ -1,10 +1,8 @@
-// Copyright (C) 2016 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sessionmodel.h"
 
-#include "projectexplorertr.h"
-#include "projectmanager.h"
 #include "session.h"
 #include "sessiondialog.h"
 
@@ -17,11 +15,17 @@
 #include <QFileInfo>
 #include <QDir>
 
-using namespace Core;
 using namespace Utils;
+using namespace Core::Internal;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace Core {
+
+namespace PE {
+struct Tr
+{
+    Q_DECLARE_TR_FUNCTIONS(QtC::ProjectExplorer)
+};
+} // namespace PE
 
 SessionModel::SessionModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -48,9 +52,11 @@ QVariant SessionModel::headerData(int section, Qt::Orientation orientation, int 
         switch (role) {
         case Qt::DisplayRole:
             switch (section) {
-            case 0: result = Tr::tr("Session");
+            case 0:
+                result = PE::Tr::tr("Session");
                 break;
-            case 1: result = Tr::tr("Last Modified");
+            case 1:
+                result = PE::Tr::tr("Last Modified");
                 break;
             } // switch (section)
             break;
@@ -118,10 +124,6 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
             return SessionManager::lastSession() == sessionName;
         case ActiveSessionRole:
             return SessionManager::activeSession() == sessionName;
-        case ProjectsPathRole:
-            return pathsWithTildeHomePath(ProjectManager::projectsForSessionName(sessionName));
-        case ProjectsDisplayRole:
-            return pathsToBaseNames(ProjectManager::projectsForSessionName(sessionName));
         case ShortcutRole: {
             const Id sessionBase = SESSION_BASE_ID;
             if (Command *cmd = ActionManager::command(sessionBase.withSuffix(index.row() + 1)))
@@ -134,14 +136,10 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> SessionModel::roleNames() const
 {
-    static const QHash<int, QByteArray> extraRoles{
-        {Qt::DisplayRole, "sessionName"},
-        {DefaultSessionRole, "defaultSession"},
-        {ActiveSessionRole, "activeSession"},
-        {LastSessionRole, "lastSession"},
-        {ProjectsPathRole, "projectsPath"},
-        {ProjectsDisplayRole, "projectsName"}
-    };
+    static const QHash<int, QByteArray> extraRoles{{Qt::DisplayRole, "sessionName"},
+                                                   {DefaultSessionRole, "defaultSession"},
+                                                   {ActiveSessionRole, "activeSession"},
+                                                   {LastSessionRole, "lastSession"}};
     QHash<int, QByteArray> roles = QAbstractTableModel::roleNames();
     Utils::addToHash(&roles, extraRoles);
     return roles;
@@ -189,8 +187,8 @@ void SessionModel::resetSessions()
 void SessionModel::newSession(QWidget *parent)
 {
     SessionNameInputDialog sessionInputDialog(parent);
-    sessionInputDialog.setWindowTitle(Tr::tr("New Session Name"));
-    sessionInputDialog.setActionText(Tr::tr("&Create"), Tr::tr("Create and &Open"));
+    sessionInputDialog.setWindowTitle(PE::Tr::tr("New Session Name"));
+    sessionInputDialog.setActionText(PE::Tr::tr("&Create"), PE::Tr::tr("Create and &Open"));
 
     runSessionNameInputDialog(&sessionInputDialog, [](const QString &newName) {
         SessionManager::createSession(newName);
@@ -200,8 +198,8 @@ void SessionModel::newSession(QWidget *parent)
 void SessionModel::cloneSession(QWidget *parent, const QString &session)
 {
     SessionNameInputDialog sessionInputDialog(parent);
-    sessionInputDialog.setWindowTitle(Tr::tr("New Session Name"));
-    sessionInputDialog.setActionText(Tr::tr("&Clone"), Tr::tr("Clone and &Open"));
+    sessionInputDialog.setWindowTitle(PE::Tr::tr("New Session Name"));
+    sessionInputDialog.setActionText(PE::Tr::tr("&Clone"), PE::Tr::tr("Clone and &Open"));
     sessionInputDialog.setValue(session + " (2)");
 
     runSessionNameInputDialog(&sessionInputDialog, [session](const QString &newName) {
@@ -223,8 +221,8 @@ void SessionModel::deleteSessions(const QStringList &sessions)
 void SessionModel::renameSession(QWidget *parent, const QString &session)
 {
     SessionNameInputDialog sessionInputDialog(parent);
-    sessionInputDialog.setWindowTitle(Tr::tr("Rename Session"));
-    sessionInputDialog.setActionText(Tr::tr("&Rename"), Tr::tr("Rename and &Open"));
+    sessionInputDialog.setWindowTitle(PE::Tr::tr("Rename Session"));
+    sessionInputDialog.setActionText(PE::Tr::tr("&Rename"), PE::Tr::tr("Rename and &Open"));
     sessionInputDialog.setValue(session);
 
     runSessionNameInputDialog(&sessionInputDialog, [session](const QString &newName) {
@@ -238,7 +236,8 @@ void SessionModel::switchToSession(const QString &session)
     emit sessionSwitched();
 }
 
-void SessionModel::runSessionNameInputDialog(SessionNameInputDialog *sessionInputDialog, std::function<void(const QString &)> createSession)
+void SessionModel::runSessionNameInputDialog(SessionNameInputDialog *sessionInputDialog,
+                                             std::function<void(const QString &)> createSession)
 {
     if (sessionInputDialog->exec() == QDialog::Accepted) {
         QString newSession = sessionInputDialog->value();
@@ -256,5 +255,4 @@ void SessionModel::runSessionNameInputDialog(SessionNameInputDialog *sessionInpu
     }
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace Core

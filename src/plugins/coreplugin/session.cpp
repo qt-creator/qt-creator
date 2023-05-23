@@ -1,27 +1,22 @@
-// Copyright (C) 2016 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "session.h"
-
 #include "session_p.h"
+
 #include "sessiondialog.h"
 
-#include "projectexplorer.h"
-#include "projectexplorertr.h"
+#include "actionmanager/actioncontainer.h"
+#include "actionmanager/actionmanager.h"
+#include "coreconstants.h"
+#include "coreplugin.h"
+#include "editormanager/editormanager.h"
+#include "icore.h"
+#include "modemanager.h"
+#include "progressmanager/progressmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
-
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/foldernavigationwidget.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/imode.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <texteditor/texteditor.h>
 
@@ -40,11 +35,17 @@
 #include <QPushButton>
 #include <QTimer>
 
-using namespace Core;
 using namespace ExtensionSystem;
 using namespace Utils;
 
-namespace ProjectExplorer {
+namespace Core {
+
+namespace PE {
+struct Tr
+{
+    Q_DECLARE_TR_FUNCTIONS(QtC::ProjectExplorer)
+};
+} // namespace PE
 
 const char DEFAULT_SESSION[] = "default";
 const char LAST_ACTIVE_TIMES_KEY[] = "LastActiveTimes";
@@ -96,14 +97,14 @@ SessionManager::SessionManager()
     // session menu
     ActionContainer *mfile = ActionManager::actionContainer(Core::Constants::M_FILE);
     ActionContainer *msession = ActionManager::createMenu(M_SESSION);
-    msession->menu()->setTitle(Tr::tr("S&essions"));
+    msession->menu()->setTitle(PE::Tr::tr("S&essions"));
     msession->setOnAllDisabledBehavior(ActionContainer::Show);
     mfile->addMenu(msession, Core::Constants::G_FILE_OPEN);
     sb_d->m_sessionMenu = msession->menu();
     connect(mfile->menu(), &QMenu::aboutToShow, this, [] { sb_d->updateSessionMenu(); });
 
     // session manager action
-    sb_d->m_sessionManagerAction = new QAction(Tr::tr("&Manage..."), this);
+    sb_d->m_sessionManagerAction = new QAction(PE::Tr::tr("&Manage..."), this);
     sb_d->m_sessionMenu->addAction(sb_d->m_sessionManagerAction);
     sb_d->m_sessionMenu->addSeparator();
     Command *cmd = ActionManager::registerAction(sb_d->m_sessionManagerAction,
@@ -115,10 +116,13 @@ SessionManager::SessionManager()
             &SessionManager::showSessionManager);
 
     MacroExpander *expander = Utils::globalMacroExpander();
-    expander->registerFileVariables("Session", Tr::tr("File where current session is saved."), [] {
-        return SessionManager::sessionNameToFileName(SessionManager::activeSession());
-    });
-    expander->registerVariable("Session:Name", Tr::tr("Name of current session."), [] {
+    expander->registerFileVariables("Session",
+                                    PE::Tr::tr("File where current session is saved."),
+                                    [] {
+                                        return SessionManager::sessionNameToFileName(
+                                            SessionManager::activeSession());
+                                    });
+    expander->registerVariable("Session:Name", PE::Tr::tr("Name of current session."), [] {
         return SessionManager::activeSession();
     });
 
@@ -268,10 +272,12 @@ void SessionManager::showSessionManager()
 */
 bool SessionManager::confirmSessionDelete(const QStringList &sessions)
 {
-    const QString title = sessions.size() == 1 ? Tr::tr("Delete Session") : Tr::tr("Delete Sessions");
-    const QString question = sessions.size() == 1
-            ? Tr::tr("Delete session %1?").arg(sessions.first())
-            : Tr::tr("Delete these sessions?\n    %1").arg(sessions.join("\n    "));
+    const QString title = sessions.size() == 1 ? PE::Tr::tr("Delete Session")
+                                               : PE::Tr::tr("Delete Sessions");
+    const QString question
+        = sessions.size() == 1
+              ? PE::Tr::tr("Delete session %1?").arg(sessions.first())
+              : PE::Tr::tr("Delete these sessions?\n    %1").arg(sessions.join("\n    "));
     return QMessageBox::question(ICore::dialogParent(),
                                  title,
                                  question,
@@ -321,7 +327,7 @@ static QString determineSessionToRestoreAtStartup()
 {
     // TODO (session) move argument to core
     // Process command line arguments first:
-    const bool lastSessionArg = PluginManager::specForPlugin(ProjectExplorerPlugin::instance())
+    const bool lastSessionArg = PluginManager::specForPlugin(Internal::CorePlugin::instance())
                                     ->arguments()
                                     .contains("-lastsession");
     if (lastSessionArg && !SessionManager::startupSession().isEmpty())
@@ -580,8 +586,9 @@ bool SessionManager::loadSession(const QString &session, bool initial)
     if (fileName.exists()) {
         if (!reader.load(fileName)) {
             QMessageBox::warning(ICore::dialogParent(),
-                                 Tr::tr("Error while restoring session"),
-                                 Tr::tr("Could not restore session %1").arg(fileName.toUserOutput()));
+                                 PE::Tr::tr("Error while restoring session"),
+                                 PE::Tr::tr("Could not restore session %1")
+                                     .arg(fileName.toUserOutput()));
 
             return false;
         }
@@ -623,7 +630,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
     sb_d->m_virginSession = false;
 
     ProgressManager::addTask(sb_d->m_future.future(),
-                             Tr::tr("Loading Session"),
+                             PE::Tr::tr("Loading Session"),
                              "ProjectExplorer.SessionFile.Load");
 
     sb_d->m_future.setProgressRange(0, 1 /*initialization*/ + 1 /*editors*/);
@@ -670,8 +677,8 @@ bool SessionManager::saveSession()
             PersistentSettingsReader reader;
             if (!reader.load(filePath)) {
                 QMessageBox::warning(ICore::dialogParent(),
-                                     Tr::tr("Error while saving session"),
-                                     Tr::tr("Could not save session %1")
+                                     PE::Tr::tr("Error while saving session"),
+                                     PE::Tr::tr("Could not save session %1")
                                          .arg(filePath.toUserOutput()));
                 return false;
             }
@@ -712,8 +719,8 @@ bool SessionManager::saveSession()
                                             QDateTime::currentDateTime());
     } else {
         QMessageBox::warning(ICore::dialogParent(),
-                             Tr::tr("Error while saving session"),
-                             Tr::tr("Could not save session to file %1")
+                             PE::Tr::tr("Error while saving session"),
+                             PE::Tr::tr("Could not save session to file %1")
                                  .arg(sb_d->m_writer->fileName().toUserOutput()));
     }
 
@@ -725,4 +732,4 @@ bool SessionManager::isStartupSessionRestored()
     return sb_d->m_isStartupSessionRestored;
 }
 
-} // namespace ProjectExplorer
+} // namespace Core

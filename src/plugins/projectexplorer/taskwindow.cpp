@@ -6,7 +6,6 @@
 #include "itaskhandler.h"
 #include "projectexplorericons.h"
 #include "projectexplorertr.h"
-#include "session.h"
 #include "task.h"
 #include "taskhub.h"
 #include "taskmodel.h"
@@ -17,8 +16,9 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileinprojectfinder.h>
@@ -43,6 +43,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+using namespace Core;
 using namespace Utils;
 
 const char SESSION_FILTER_CATEGORIES[] = "TaskWindow.Categories";

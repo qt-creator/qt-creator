@@ -41,7 +41,6 @@ enum class SetActive : int;
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Project : public QObject
 {
-    friend class SessionManager; // for setActiveTarget
     Q_OBJECT
 
 public:

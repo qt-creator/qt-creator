@@ -1,20 +1,21 @@
-// Copyright (C) 2016 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
+
+#include "core_global.h"
 
 #include <QAbstractTableModel>
 
 #include <functional>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace Core {
 
 const char SESSION_BASE_ID[] = "Welcome.OpenSession";
 
-class SessionNameInputDialog;
+namespace Internal { class SessionNameInputDialog; }
 
-class SessionModel : public QAbstractTableModel
+class CORE_EXPORT SessionModel : public QAbstractTableModel
 {
     Q_OBJECT
 
@@ -23,8 +24,6 @@ public:
         DefaultSessionRole = Qt::UserRole+1,
         LastSessionRole,
         ActiveSessionRole,
-        ProjectsPathRole,
-        ProjectsDisplayRole,
         ShortcutRole
     };
 
@@ -56,12 +55,12 @@ public slots:
     void switchToSession(const QString &session);
 
 private:
-    void runSessionNameInputDialog(ProjectExplorer::Internal::SessionNameInputDialog *sessionInputDialog, std::function<void(const QString &)> createSession);
+    void runSessionNameInputDialog(Internal::SessionNameInputDialog *sessionInputDialog,
+                                   std::function<void(const QString &)> createSession);
 
     QStringList m_sortedSessions;
     int m_currentSortColumn = 0;
     Qt::SortOrder m_currentSortOrder = Qt::AscendingOrder;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace Core

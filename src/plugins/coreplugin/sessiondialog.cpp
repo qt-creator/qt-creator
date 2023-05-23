@@ -1,9 +1,8 @@
-// Copyright (C) 2016 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sessiondialog.h"
 
-#include "projectexplorertr.h"
 #include "session.h"
 #include "sessionview.h"
 
@@ -11,13 +10,21 @@
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
+#include <QCoreApplication>
 #include <QDialogButtonBox>
 #include <QInputDialog>
 #include <QLabel>
 #include <QPushButton>
 #include <QValidator>
 
-namespace ProjectExplorer::Internal {
+namespace Core::Internal {
+
+namespace PE {
+struct Tr
+{
+    Q_DECLARE_TR_FUNCTIONS(QtC::ProjectExplorer)
+};
+} // namespace PE
 
 class SessionValidator : public QValidator
 {
@@ -77,12 +84,14 @@ SessionNameInputDialog::SessionNameInputDialog(QWidget *parent)
         m_usedSwitchTo = true;
     });
 
+    // clang-format off
     using namespace Layouting;
     Column {
-        Tr::tr("Enter the name of the session:"),
+        PE::Tr::tr("Enter the name of the session:"),
         m_newSessionLineEdit,
         buttons,
     }.attachTo(this);
+    // clang-format on
 
     connect(m_newSessionLineEdit, &QLineEdit::textChanged, [this](const QString &text) {
         m_okButton->setEnabled(!text.isEmpty());
@@ -120,24 +129,23 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
 {
     setObjectName("ProjectExplorer.SessionDialog");
     resize(550, 400);
-    setWindowTitle(Tr::tr("Session Manager"));
-
+    setWindowTitle(PE::Tr::tr("Session Manager"));
 
     auto sessionView = new SessionView(this);
     sessionView->setObjectName("sessionView");
     sessionView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     sessionView->setActivationMode(Utils::DoubleClickActivation);
 
-    auto createNewButton = new QPushButton(Tr::tr("&New"));
+    auto createNewButton = new QPushButton(PE::Tr::tr("&New"));
     createNewButton->setObjectName("btCreateNew");
 
-    m_openButton = new QPushButton(Tr::tr("&Open"));
+    m_openButton = new QPushButton(PE::Tr::tr("&Open"));
     m_openButton->setObjectName("btOpen");
-    m_renameButton = new QPushButton(Tr::tr("&Rename"));
-    m_cloneButton = new QPushButton(Tr::tr("C&lone"));
-    m_deleteButton = new QPushButton(Tr::tr("&Delete"));
+    m_renameButton = new QPushButton(PE::Tr::tr("&Rename"));
+    m_cloneButton = new QPushButton(PE::Tr::tr("C&lone"));
+    m_deleteButton = new QPushButton(PE::Tr::tr("&Delete"));
 
-    m_autoLoadCheckBox = new QCheckBox(Tr::tr("Restore last session on startup"));
+    m_autoLoadCheckBox = new QCheckBox(PE::Tr::tr("Restore last session on startup"));
 
     auto buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::Close);
@@ -145,7 +153,8 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
     m_openButton->setDefault(true);
 
     auto whatsASessionLabel = new QLabel(QString("<a href=\"qthelp://org.qt-project.qtcreator/doc/"
-            "creator-project-managing-sessions.html\">%1</a>").arg(Tr::tr("What is a Session?")));
+                                                 "creator-project-managing-sessions.html\">%1</a>")
+                                             .arg(PE::Tr::tr("What is a Session?")));
     whatsASessionLabel->setOpenExternalLinks(true);
 
     using namespace Layouting;
@@ -218,4 +227,4 @@ void SessionDialog::updateActions(const QStringList &sessions)
     m_deleteButton->setEnabled(!defaultIsSelected && !activeIsSelected);
 }
 
-} // ProjectExplorer::Internal
+} // namespace Core::Internal

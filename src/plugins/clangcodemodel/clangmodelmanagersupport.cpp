@@ -16,6 +16,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/session.h>
 
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -37,7 +38,6 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 

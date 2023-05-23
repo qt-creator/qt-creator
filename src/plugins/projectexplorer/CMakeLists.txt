@@ -158,10 +158,6 @@ add_qtc_plugin(ProjectExplorer
     runsettingspropertiespage.cpp runsettingspropertiespage.h
     sanitizerparser.cpp sanitizerparser.h
     selectablefilesmodel.cpp selectablefilesmodel.h
-    session.cpp session.h session_p.h
-    sessiondialog.cpp sessiondialog.h
-    sessionmodel.cpp sessionmodel.h
-    sessionview.cpp sessionview.h
     showineditortaskhandler.cpp showineditortaskhandler.h
     showoutputtaskhandler.cpp showoutputtaskhandler.h
     simpleprojectwizard.cpp simpleprojectwizard.h

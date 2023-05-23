@@ -10,7 +10,6 @@
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "projecttree.h"
-#include "session.h"
 #include "target.h"
 
 #include <app/app_version.h>
@@ -18,6 +17,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
+#include <coreplugin/session.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/utilsicons.h>

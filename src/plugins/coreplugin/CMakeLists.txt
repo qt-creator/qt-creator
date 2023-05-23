@@ -272,6 +272,15 @@ add_qtc_plugin(Core
     progressmanager/taskprogress.h
     rightpane.cpp
     rightpane.h
+    session.cpp
+    session.h
+    session_p.h
+    sessiondialog.cpp
+    sessiondialog.h
+    sessionmodel.cpp
+    sessionmodel.h
+    sessionview.cpp
+    sessionview.h
     settingsdatabase.cpp
     settingsdatabase.h
     sidebar.cpp

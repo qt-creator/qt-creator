@@ -6,11 +6,11 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
-#include "session.h"
 #include "taskhub.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
@@ -20,6 +20,7 @@
 #include <QAction>
 #include <QMessageBox>
 
+using namespace Core;
 using namespace Utils;
 
 namespace ProjectExplorer {

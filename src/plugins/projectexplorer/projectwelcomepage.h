@@ -12,10 +12,11 @@
 #include <QAbstractListModel>
 #include <QCoreApplication>
 
+namespace Core { class SessionModel; }
+
 namespace ProjectExplorer {
 namespace Internal {
 
-class SessionModel;
 class SessionsPage;
 
 class ProjectModel : public QAbstractListModel
@@ -63,7 +64,7 @@ private:
     void createActions();
 
     friend class SessionsPage;
-    SessionModel *m_sessionModel = nullptr;
+    Core::SessionModel *m_sessionModel = nullptr;
     ProjectModel *m_projectModel = nullptr;
 };
 

@@ -7,14 +7,12 @@
 #include "bookmarks_global.h"
 #include "bookmarkstr.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <coreplugin/session.h>
 
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
@@ -40,7 +38,6 @@
 
 Q_DECLARE_METATYPE(Bookmarks::Internal::Bookmark*)
 
-using namespace ProjectExplorer;
 using namespace Core;
 using namespace Utils;
 

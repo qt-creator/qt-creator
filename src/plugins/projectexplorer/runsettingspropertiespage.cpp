@@ -10,8 +10,9 @@
 #include "projectconfigurationmodel.h"
 #include "projectexplorertr.h"
 #include "runconfiguration.h"
-#include "session.h"
 #include "target.h"
+
+#include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

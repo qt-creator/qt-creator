@@ -24,14 +24,6 @@
             \"Name\" : \"-ensure-kit-for-binary\",
             \"Parameter\" : \"file path\",
             \"Description\" : \"Create kit with architecture matching a given application or library\"
-        },
-        {
-            \"Name\" : \"-lastsession\",
-            \"Description\" : \"Restore the last session\"
-        },
-        {
-            \"Name\" : \"<session>\",
-            \"Description\" : \"Restore a saved session\"
         }
     ],
     $$dependencyList,

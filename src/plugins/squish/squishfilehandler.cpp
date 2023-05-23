@@ -15,9 +15,9 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/session.h>
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
@@ -32,6 +32,8 @@
 #include <QPushButton>
 #include <QTimer>
 #include <QVBoxLayout>
+
+using namespace Core;
 
 namespace Squish {
 namespace Internal {
@@ -95,7 +97,7 @@ SquishFileHandler::SquishFileHandler(QObject *parent)
     : QObject(parent)
 {
     m_instance = this;
-    connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::sessionLoaded,
+    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             this, &SquishFileHandler::onSessionLoaded);
 }
 
@@ -259,7 +261,7 @@ void SquishFileHandler::openTestSuites()
         }
     }
     emit suitesOpened();
-    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
+    SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
 }
 
 void SquishFileHandler::openTestSuite(const Utils::FilePath &suiteConfPath, bool isReopen)
@@ -289,7 +291,7 @@ void SquishFileHandler::openTestSuite(const Utils::FilePath &suiteConfPath, bool
         m_suites.insert(suiteName, suiteConfPath);
         emit testTreeItemCreated(item);
     }
-    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
+    SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
 }
 
 static void closeOpenedEditorsFor(const Utils::FilePath &filePath, bool askAboutModifiedEditors)
@@ -311,13 +313,13 @@ void SquishFileHandler::closeTestSuite(const QString &suiteName)
     // TODO remove file watcher
     m_suites.remove(suiteName);
     emit suiteTreeItemRemoved(suiteName);
-    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
+    SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
 }
 
 void SquishFileHandler::closeAllTestSuites()
 {
     closeAllInternal();
-    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
+    SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
 }
 
 void SquishFileHandler::deleteTestCase(const QString &suiteName, const QString &testCaseName)
@@ -539,7 +541,7 @@ void SquishFileHandler::onSessionLoaded()
     // remove currently opened "silently" (without storing into session)
     closeAllInternal();
 
-    const QVariant variant = ProjectExplorer::SessionManager::value(SK_OpenSuites);
+    const QVariant variant = SessionManager::value(SK_OpenSuites);
     const Utils::FilePaths suitePaths = Utils::transform(variant.toStringList(),
                                                          &Utils::FilePath::fromString);
 
