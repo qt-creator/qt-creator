@@ -70,13 +70,12 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
     setUseEnglishOutput();
     setDisplayName(Tr::tr("Conan install"));
 
-    auto conanFile = addAspect<StringAspect>();
+    auto conanFile = addAspect<FilePathAspect>();
     conanFile->setSettingsKey("ConanPackageManager.InstallStep.ConanFile");
     conanFile->setFilePath(conanFilePath(project(),
                            project()->projectDirectory() / "conanfile.txt"));
     conanFile->setLabelText(Tr::tr("Conan file:"));
     conanFile->setToolTip(Tr::tr("Enter location of conanfile.txt or conanfile.py."));
-    conanFile->setDisplayStyle(StringAspect::PathChooserDisplay);
     conanFile->setExpectedKind(PathChooser::File);
 
     auto additionalArguments = addAspect<StringAspect>();
