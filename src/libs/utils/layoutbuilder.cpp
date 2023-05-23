@@ -549,7 +549,7 @@ void LayoutItem::addItems(const LayoutItems &items)
 }
 
 /*!
-    Attach the constructed layout to the provided \c QWidget \a parent.
+    Attaches the constructed layout to the provided QWidget \a w.
 
     This operation can only be performed once per LayoutBuilder instance.
  */
