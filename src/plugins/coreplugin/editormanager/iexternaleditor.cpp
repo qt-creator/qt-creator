@@ -18,21 +18,6 @@ namespace Core {
 */
 
 /*!
-    \fn QString Core::IExternalEditor::displayName() const
-    Returns a user-visible description of the editor type.
-*/
-
-/*!
-    \fn Utils::Id Core::IExternalEditor::id() const
-    Returns the ID of the factory or editor type.
-*/
-
-/*!
-    \fn QStringList Core::IExternalEditor::mimeTypes() const
-    Returns a list of MIME types that the editor supports
-*/
-
-/*!
     \fn bool Core::IExternalEditor::startEditor(const Utils::FilePath &fileName, QString *errorMessage)
 
     Opens the editor with \a fileName. Returns \c true on success or \c false
