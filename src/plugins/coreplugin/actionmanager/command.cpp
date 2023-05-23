@@ -289,6 +289,15 @@ QAction *Command::action() const
     return d->m_action;
 }
 
+QAction *Command::actionForContext(const Utils::Id &contextId) const
+{
+    auto it = d->m_contextActionMap.find(contextId);
+    if (it == d->m_contextActionMap.end())
+        return nullptr;
+
+    return *it;
+}
+
 QString Command::stringWithAppendedShortcut(const QString &str) const
 {
     return Utils::ProxyAction::stringWithAppendedShortcut(str, keySequence());
