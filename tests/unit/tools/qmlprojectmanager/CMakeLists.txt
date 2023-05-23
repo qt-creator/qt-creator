@@ -1,3 +1,7 @@
+if(NOT TARGET QmlProjectManagerLib)
+    return()
+endif()
+
 project(QmlProjectManagerConverterDataCreator)
 
 add_compile_definitions(QT_CREATOR)

@@ -519,7 +519,7 @@ TEST_F(QmlProjectItem, SetDesignStudioVersion)
     ASSERT_EQ(projectItemSetters->versionDesignStudio(), "6");
 }
 
-// TODO: We should move this one into the integration tests
+// TODO: We should move these 2 tests into the integration tests
 TEST_F(QmlProjectItem, TestFileFilters)
 {
     // GIVEN
@@ -534,6 +534,30 @@ TEST_F(QmlProjectItem, TestFileFilters)
 
     // THEN
     ASSERT_THAT(filePaths, UnorderedElementsAreArray(expectedAbsoluteFilePaths));
+}
+
+TEST_F(QmlProjectItem, MatchesFile)
+{
+    // GIVEN
+    auto fileSearched = localTestDataDir + "/file-filters/content/MaterialNames.qml";
+
+    // WHEN
+    auto fileFound = projectItemFileFilters->matchesFile(fileSearched);
+
+    // THEN
+    ASSERT_TRUE(fileFound);
+}
+
+TEST_F(QmlProjectItem, NotMatchesFile)
+{
+    // GIVEN
+    auto fileSearched = localTestDataDir + "/file-filters/content/non-existing-file.qwerty";
+
+    // WHEN
+    auto fileFound = projectItemFileFilters->matchesFile(fileSearched);
+
+    // THEN
+    ASSERT_FALSE(fileFound);
 }
 
 } // namespace
