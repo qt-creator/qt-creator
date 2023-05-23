@@ -112,7 +112,7 @@ bool SquishToolkitsPage::handleReject()
 void SquishToolkitsPage::delayedInitialize()
 {
     const auto s = SquishPlugin::squishSettings();
-    const Utils::FilePath server = s->squishPath.filePath().pathAppended(
+    const Utils::FilePath server = s->squishPath().pathAppended(
                 Utils::HostOsInfo::withExecutableSuffix("bin/squishserver"));
     if (server.isExecutableFile())
         fetchServerSettings();
