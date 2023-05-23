@@ -26,7 +26,6 @@ QtcPlugin {
             "qmlprojectconstants.h",
             "qmlprojectmanager_global.h", "qmlprojectmanagertr.h",
             "qmlprojectmanagerconstants.h",
-            "qmlprojectnodes.cpp", "qmlprojectnodes.h",
             "qmlprojectplugin.cpp", "qmlprojectplugin.h",
             "qmlprojectrunconfiguration.cpp", "qmlprojectrunconfiguration.h",
             project.ide_source_tree + "/src/share/3rdparty/studiofonts/studiofonts.qrc"

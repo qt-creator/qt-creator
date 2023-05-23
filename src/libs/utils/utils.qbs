@@ -337,7 +337,7 @@ Project {
             "headerviewstretcher.h",
             "uncommentselection.cpp",
             "uncommentselection.h",
-            "uniqueobjectptr.h"
+            "uniqueobjectptr.h",
             "unixutils.cpp",
             "unixutils.h",
             "url.cpp",

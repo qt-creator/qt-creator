@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "qmldesignerbase_global.h"
+#include "../qmldesignerbase_global.h"
 
 #include <QProxyStyle>
 
