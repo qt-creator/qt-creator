@@ -27,10 +27,10 @@
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
-#include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -78,14 +78,18 @@ SessionManager::SessionManager()
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &SessionManager::saveActiveMode);
 
-    connect(ICore::instance(), &ICore::saveSettingsRequested, this, [] { sb_d->saveSettings(); });
+    connect(ICore::instance(), &ICore::saveSettingsRequested, this, [] {
+        if (!SessionManager::isLoadingSession())
+            SessionManager::saveSession();
+        sb_d->saveSettings();
+    });
 
     connect(EditorManager::instance(), &EditorManager::editorOpened,
             this, &SessionManager::markSessionFileDirty);
     connect(EditorManager::instance(), &EditorManager::editorsClosed,
             this, &SessionManager::markSessionFileDirty);
     connect(EditorManager::instance(), &EditorManager::autoSaved, this, [] {
-        if (!PluginManager::isShuttingDown() && !SessionManager::loadingSession())
+        if (!PluginManager::isShuttingDown() && !SessionManager::isLoadingSession())
             SessionManager::saveSession();
     });
 
@@ -109,6 +113,14 @@ SessionManager::SessionManager()
             &QAction::triggered,
             SessionManager::instance(),
             &SessionManager::showSessionManager);
+
+    MacroExpander *expander = Utils::globalMacroExpander();
+    expander->registerFileVariables("Session", Tr::tr("File where current session is saved."), [] {
+        return SessionManager::sessionNameToFileName(SessionManager::activeSession());
+    });
+    expander->registerVariable("Session:Name", Tr::tr("Name of current session."), [] {
+        return SessionManager::activeSession();
+    });
 
     sb_d->restoreSettings();
 }
@@ -142,7 +154,7 @@ void SessionManager::saveActiveMode(Id mode)
         setValue(QLatin1String("ActiveMode"), mode.toString());
 }
 
-bool SessionManager::loadingSession()
+bool SessionManager::isLoadingSession()
 {
     return sb_d->m_loadingSession;
 }

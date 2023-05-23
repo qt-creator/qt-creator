@@ -58,7 +58,7 @@ public:
     static void setSessionValue(const QString &name, const QVariant &value);
     static QVariant sessionValue(const QString &name, const QVariant &defaultValue = {});
 
-    static bool loadingSession();
+    static bool isLoadingSession();
     static void markSessionFileDirty();
 
     static void sessionLoadingProgress();

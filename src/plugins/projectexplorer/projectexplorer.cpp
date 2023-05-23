@@ -1935,15 +1935,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
              return Environment::systemEnvironment();
          }});
 
-    const auto fileHandler = [] {
-        return SessionManager::sessionNameToFileName(SessionManager::activeSession());
-    };
-    expander->registerFileVariables("Session", Tr::tr("File where current session is saved."),
-                                    fileHandler);
-    expander->registerVariable("Session:Name", Tr::tr("Name of current session."), [] {
-        return SessionManager::activeSession();
-    });
-
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
 
     if (auto sanitizerTester = SanitizerParser::testCreator())
@@ -2204,11 +2195,9 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     if (PluginManager::isShuttingDown())
         return;
 
-    if (!SessionManager::loadingSession())  {
+    if (!SessionManager::isLoadingSession()) {
         for (Project *pro : ProjectManager::projects())
             pro->saveSettings();
-
-        SessionManager::saveSession();
     }
 
     QtcSettings *s = ICore::settings();
