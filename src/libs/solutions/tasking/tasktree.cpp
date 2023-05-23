@@ -726,8 +726,10 @@ void TaskNode::invokeEndHandler(bool success)
 /*!
     \namespace Tasking
     \inmodule QtCreator
-    The Tasking namespace contains a general purpose TaskTree solution.
-    It depends on Qt only, and doesn't depend on any \QC specific code.
+    \brief The Tasking namespace contains a general purpose TaskTree solution.
+
+    The Tasking namespace depends on Qt only, and doesn't depend on any \QC
+    specific code.
 */
 
 /*!
