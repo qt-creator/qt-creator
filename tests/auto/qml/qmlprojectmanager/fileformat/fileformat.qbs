@@ -10,6 +10,8 @@ QtcAutotest {
         name: "Files from QmlProjectManager"
         prefix: product.fileFormatDir + '/'
         files: [
+            "converters.cpp",
+            "converters.h",
             "filefilteritems.cpp",
             "filefilteritems.h",
             "qmlprojectitem.cpp",

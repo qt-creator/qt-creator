@@ -248,7 +248,7 @@ bool QmlProject::allowOnlySingleProject()
 {
     QSettings *settings = Core::ICore::settings();
     auto key = "QML/Designer/AllowMultipleProjects";
-    return !settings->value(key, false).toBool();
+    return !settings->value(QString::fromUtf8(key), false).toBool();
 }
 
 } // namespace QmlProjectManager

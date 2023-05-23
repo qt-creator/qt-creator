@@ -37,6 +37,8 @@
 
 #include "texteditor/textdocument.h"
 
+#include <QAction>
+
 using namespace ProjectExplorer;
 namespace QmlProjectManager {
 
