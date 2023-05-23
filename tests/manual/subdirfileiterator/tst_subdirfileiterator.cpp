@@ -204,6 +204,25 @@ private slots:
         QCOMPARE(filesCount, m_filesCount);
     }
 
+    void testSubDirFileContainer()
+    {
+        QTC_SCOPED_TIMER("ITERATING with FileContainer");
+        int filesCount = 0;
+        {
+            const FilePath root(FilePath::fromString(m_tempDir->path()));
+            FileContainer container = SubDirFileContainer({root}, {}, {});
+            auto it = container.begin();
+            const auto end = container.end();
+            while (it != end) {
+                ++filesCount;
+                ++it;
+                if (filesCount % 100000 == 0)
+                    qDebug() << filesCount << '/' << m_filesCount << "files visited so far...";
+            }
+        }
+        QCOMPARE(filesCount, m_filesCount);
+    }
+
     void testManualIterator()
     {
         QTC_SCOPED_TIMER("ITERATING with manual iterator");

@@ -61,6 +61,103 @@ enum class InclusionType {
 QTCREATOR_UTILS_EXPORT
 QString msgFilePatternToolTip(InclusionType inclusionType = InclusionType::Included);
 
+class FileContainer;
+
+class QTCREATOR_UTILS_EXPORT FileContainerIterator
+{
+public:
+    class Item
+    {
+    public:
+        FilePath filePath {};
+        QTextCodec *encoding = nullptr;
+    };
+
+    class Data;
+    using Advancer = std::function<void(Data *)>;
+
+    class Data
+    {
+    public:
+        const FileContainer *m_container = nullptr;
+        int m_progressValue = 0;
+        Advancer m_advancer = {};
+        int m_index = -1; // end iterator
+        Item m_value = {};
+    };
+
+    using value_type = Item;
+    using pointer = const value_type *;
+    using reference = const value_type &;
+    using iterator_category = std::forward_iterator_tag;
+    using difference_type = std::ptrdiff_t;
+
+    FileContainerIterator() = default;
+
+    reference operator*() const { return m_data.m_value; }
+    pointer operator->() const { return &m_data.m_value; }
+    void operator++();
+
+    bool operator==(const FileContainerIterator &other) const {
+        return m_data.m_container == other.m_data.m_container
+               && m_data.m_index == other.m_data.m_index;
+    }
+    bool operator!=(const FileContainerIterator &other) const { return !operator==(other); }
+    int progressValue() const { return m_data.m_progressValue; }
+    int progressMaximum() const;
+
+private:
+    friend class FileContainer;
+    FileContainerIterator(const Data &data) : m_data(data) {}
+    Data m_data;
+};
+
+class QTCREATOR_UTILS_EXPORT FileContainer
+{
+public:
+    using AdvancerProvider = std::function<FileContainerIterator::Advancer()>;
+
+    FileContainer() = default;
+
+    FileContainerIterator begin() const {
+        if (!m_provider)
+            return end();
+        const FileContainerIterator::Advancer advancer = m_provider();
+        if (!advancer)
+            return end();
+        FileContainerIterator iterator({this, 0, advancer});
+        advancer(&iterator.m_data);
+        return iterator;
+    }
+    FileContainerIterator end() const { return FileContainerIterator({this, m_progressMaximum}); }
+    int progressMaximum() const { return m_progressMaximum; }
+
+protected:
+    FileContainer(const AdvancerProvider &provider, int progressMaximum)
+        : m_provider(provider)
+        , m_progressMaximum(progressMaximum) {}
+
+private:
+    friend class FileContainerIterator;
+    AdvancerProvider m_provider;
+    int m_progressMaximum = 0;
+};
+
+class QTCREATOR_UTILS_EXPORT FileListContainer : public FileContainer
+{
+public:
+    FileListContainer(const FilePaths &fileList, const QList<QTextCodec *> &encodings);
+};
+
+class QTCREATOR_UTILS_EXPORT SubDirFileContainer : public FileContainer
+{
+public:
+    SubDirFileContainer(const FilePaths &directories,
+                        const QStringList &filters,
+                        const QStringList &exclusionFilters,
+                        QTextCodec *encoding = nullptr);
+};
+
 class QTCREATOR_UTILS_EXPORT FileIterator
 {
 public:

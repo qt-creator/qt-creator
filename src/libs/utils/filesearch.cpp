@@ -550,6 +550,196 @@ FileIterator::const_iterator FileIterator::end() const
 
 // #pragma mark -- FileListIterator
 
+void FileContainerIterator::operator++()
+{
+    QTC_ASSERT(m_data.m_container, return);
+    QTC_ASSERT(m_data.m_index >= 0, return);
+    QTC_ASSERT(m_data.m_advancer, return);
+    m_data.m_advancer(&m_data);
+}
+
+int FileContainerIterator::progressMaximum() const
+{
+    return m_data.m_container ? m_data.m_container->progressMaximum() : 0;
+}
+
+static QList<FileContainerIterator::Item> toFileListCache(const FilePaths &fileList,
+                                                          const QList<QTextCodec *> &encodings)
+{
+    QList<FileContainerIterator::Item> items;
+    items.reserve(fileList.size());
+    QTextCodec *defaultEncoding = QTextCodec::codecForLocale();
+    for (int i = 0; i < fileList.size(); ++i)
+        items.append({fileList.at(i), encodings.value(i, defaultEncoding)});
+    return items;
+}
+
+static FileContainerIterator::Advancer fileListAdvancer(
+    const QList<FileContainerIterator::Item> &items)
+{
+    return [items](FileContainerIterator::Data *iterator) {
+        ++iterator->m_index;
+        if (iterator->m_index >= items.size() || iterator->m_index < 0) {
+            iterator->m_value = {};
+            iterator->m_index = -1;
+            iterator->m_progressValue = items.size();
+            return;
+        }
+        iterator->m_value = items.at(iterator->m_index);
+        iterator->m_progressValue = iterator->m_index;
+    };
+}
+
+static FileContainer::AdvancerProvider fileListAdvancerProvider(const FilePaths &fileList,
+    const QList<QTextCodec *> &encodings)
+{
+    const auto initialCache = toFileListCache(fileList, encodings);
+    return [=] { return fileListAdvancer(initialCache); };
+}
+
+FileListContainer::FileListContainer(const FilePaths &fileList,
+                                     const QList<QTextCodec *> &encodings)
+    : FileContainer(fileListAdvancerProvider(fileList, encodings), fileList.size()) {}
+
+const int s_progressMaximum = 1000;
+
+struct SubDirCache
+{
+    SubDirCache(const FilePaths &directories, const QStringList &filters,
+                const QStringList &exclusionFilters, QTextCodec *encoding);
+
+    std::optional<FileContainerIterator::Item> updateCache(int advanceIntoIndex,
+                                                           const SubDirCache &initialCache);
+
+    std::function<FilePaths(const FilePaths &)> m_filterFiles;
+    QTextCodec *m_encoding = nullptr;
+    QStack<FilePath> m_dirs;
+    QSet<FilePath> m_knownDirs;
+    QStack<qreal> m_progressValues;
+    QStack<bool> m_processedValues;
+    qreal m_progress = 0;
+    QList<FileContainerIterator::Item> m_items;
+    // When forward iterating, we construct some results for the future iterations
+    // and keep them in m_items cache. Later, when we iterated over all from the cache,
+    // we don't want to keep the cache anymore, so we are clearing it.
+    // In order to match the iterator's index with the position inside m_items cache,
+    // we need to remember how many items were removed from the cache and subtract
+    // this value from the iterator's index when a new advance comes.
+    int m_removedItemsCount = 0;
+};
+
+SubDirCache::SubDirCache(const FilePaths &directories, const QStringList &filters,
+                         const QStringList &exclusionFilters, QTextCodec *encoding)
+    : m_filterFiles(filterFilesFunction(filters, exclusionFilters))
+    , m_encoding(encoding == nullptr ? QTextCodec::codecForLocale() : encoding)
+{
+    const qreal maxPer = qreal(s_progressMaximum) / directories.count();
+    for (const FilePath &directoryEntry : directories) {
+        if (!directoryEntry.isEmpty()) {
+            const FilePath canonicalPath = directoryEntry.canonicalPath();
+            if (!canonicalPath.isEmpty() && directoryEntry.exists()) {
+                m_dirs.push(directoryEntry);
+                m_knownDirs.insert(canonicalPath);
+                m_progressValues.push(maxPer);
+                m_processedValues.push(false);
+            }
+        }
+    }
+}
+
+std::optional<FileContainerIterator::Item> SubDirCache::updateCache(int advanceIntoIndex,
+    const SubDirCache &initialCache)
+{
+    QTC_ASSERT(advanceIntoIndex >= 0, return {});
+    if (advanceIntoIndex < m_removedItemsCount)
+        *this = initialCache; // Regenerate the cache from scratch
+    const int currentIndex = advanceIntoIndex - m_removedItemsCount;
+    if (currentIndex < m_items.size())
+        return m_items.at(currentIndex);
+
+    m_removedItemsCount += m_items.size();
+    m_items.clear();
+    const int newCurrentIndex = advanceIntoIndex - m_removedItemsCount;
+
+    while (!m_dirs.isEmpty() && newCurrentIndex >= m_items.size()) {
+        const FilePath dir = m_dirs.pop();
+        const qreal dirProgressMax = m_progressValues.pop();
+        const bool processed = m_processedValues.pop();
+        if (dir.exists()) {
+            using Dir = FilePath;
+            using CanonicalDir = FilePath;
+            std::vector<std::pair<Dir, CanonicalDir>> subDirs;
+            if (!processed) {
+                const FilePaths entries = dir.dirEntries(QDir::Dirs | QDir::Hidden
+                                                         | QDir::NoDotAndDotDot);
+                for (const FilePath &entry : entries) {
+                    const FilePath canonicalDir = entry.canonicalPath();
+                    if (!m_knownDirs.contains(canonicalDir))
+                        subDirs.emplace_back(entry, canonicalDir);
+                }
+            }
+            if (subDirs.empty()) {
+                const FilePaths allFilePaths = dir.dirEntries(QDir::Files | QDir::Hidden);
+                const FilePaths filePaths = m_filterFiles(allFilePaths);
+                m_items.reserve(m_items.size() + filePaths.size());
+                Utils::reverseForeach(filePaths, [this](const FilePath &file) {
+                    m_items.append({file, m_encoding});
+                });
+                m_progress += dirProgressMax;
+            } else {
+                const qreal subProgress = dirProgressMax / (subDirs.size() + 1);
+                m_dirs.push(dir);
+                m_progressValues.push(subProgress);
+                m_processedValues.push(true);
+                Utils::reverseForeach(subDirs,
+                                      [this, subProgress](const std::pair<Dir, CanonicalDir> &dir) {
+                                          m_dirs.push(dir.first);
+                                          m_knownDirs.insert(dir.second);
+                                          m_progressValues.push(subProgress);
+                                          m_processedValues.push(false);
+                                      });
+            }
+        } else {
+            m_progress += dirProgressMax;
+        }
+    }
+    if (newCurrentIndex < m_items.size())
+        return m_items.at(newCurrentIndex);
+
+    m_progress = s_progressMaximum;
+    return {};
+}
+
+static FileContainerIterator::Advancer subDirAdvancer(const SubDirCache &initialCache)
+{
+    const std::shared_ptr<SubDirCache> sharedCache(new SubDirCache(initialCache));
+    return [=](FileContainerIterator::Data *iterator) {
+        ++iterator->m_index;
+        const std::optional<FileContainerIterator::Item> item
+            = sharedCache->updateCache(iterator->m_index, initialCache);
+        if (!item) {
+            iterator->m_value = {};
+            iterator->m_index = -1;
+            iterator->m_progressValue = s_progressMaximum;
+            return;
+        }
+        iterator->m_value = *item;
+        iterator->m_progressValue = qMin(qRound(sharedCache->m_progress), s_progressMaximum);
+    };
+}
+
+static FileContainer::AdvancerProvider subDirAdvancerProvider(const FilePaths &directories,
+    const QStringList &filters, const QStringList &exclusionFilters, QTextCodec *encoding)
+{
+    const SubDirCache initialCache(directories, filters, exclusionFilters, encoding);
+    return [=] { return subDirAdvancer(initialCache); };
+}
+
+SubDirFileContainer::SubDirFileContainer(const FilePaths &directories, const QStringList &filters,
+                                         const QStringList &exclusionFilters, QTextCodec *encoding)
+    : FileContainer(subDirAdvancerProvider(directories, filters, exclusionFilters, encoding),
+                    s_progressMaximum) {}
+
 QList<FileIterator::Item> constructItems(const FilePaths &fileList,
                                          const QList<QTextCodec *> &encodings)
 {
@@ -594,10 +784,6 @@ int FileListIterator::currentProgress() const
 
 // #pragma mark -- SubDirFileIterator
 
-namespace {
-    const int MAX_PROGRESS = 1000;
-}
-
 SubDirFileIterator::SubDirFileIterator(const FilePaths &directories,
                                        const QStringList &filters,
                                        const QStringList &exclusionFilters,
@@ -606,7 +792,7 @@ SubDirFileIterator::SubDirFileIterator(const FilePaths &directories,
     , m_progress(0)
 {
     m_encoding = (encoding == nullptr ? QTextCodec::codecForLocale() : encoding);
-    qreal maxPer = qreal(MAX_PROGRESS) / directories.count();
+    qreal maxPer = qreal(s_progressMaximum) / directories.count();
     for (const FilePath &directoryEntry : directories) {
         if (!directoryEntry.isEmpty()) {
             const FilePath canonicalPath = directoryEntry.canonicalPath();
@@ -672,7 +858,7 @@ void SubDirFileIterator::update(int index)
         }
     }
     if (index >= m_items.size())
-        m_progress = MAX_PROGRESS;
+        m_progress = s_progressMaximum;
 }
 
 int SubDirFileIterator::currentFileCount() const
@@ -687,12 +873,12 @@ const FileIterator::Item &SubDirFileIterator::itemAt(int index) const
 
 int SubDirFileIterator::maxProgress() const
 {
-    return MAX_PROGRESS;
+    return s_progressMaximum;
 }
 
 int SubDirFileIterator::currentProgress() const
 {
-    return qMin(qRound(m_progress), MAX_PROGRESS);
+    return qMin(qRound(m_progress), s_progressMaximum);
 }
 
 }
