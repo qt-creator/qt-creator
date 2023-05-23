@@ -1501,7 +1501,7 @@ FilePath FilePath::withNewPath(const QString &newPath) const
 
 FilePath FilePath::searchInDirectories(const FilePaths &dirs,
                                        const FilePathPredicate &filter,
-                                       const MatchScope &matchScope) const
+                                       MatchScope matchScope) const
 {
     if (isEmpty())
         return {};
@@ -1540,7 +1540,7 @@ FilePath FilePath::searchInDirectories(const FilePaths &dirs,
 
 FilePaths FilePath::searchAllInDirectories(const FilePaths &dirs,
                                            const FilePathPredicate &filter,
-                                           const MatchScope &matchScope) const
+                                           MatchScope matchScope) const
 {
     if (isEmpty())
         return {};

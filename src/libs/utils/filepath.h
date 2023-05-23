@@ -187,10 +187,10 @@ public:
 
     [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs,
                                                const FilePathPredicate &filter = {},
-                                               const MatchScope &matchScope = WithAnySuffix) const;
+                                               MatchScope matchScope = WithAnySuffix) const;
     [[nodiscard]] FilePaths searchAllInDirectories(const FilePaths &dirs,
                                                    const FilePathPredicate &filter = {},
-                                                   const MatchScope &matchScope = WithAnySuffix) const;
+                                                   MatchScope matchScope = WithAnySuffix) const;
     [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs = {},
                                         PathAmending = AppendToPath,
                                         const FilePathPredicate &filter = {},
