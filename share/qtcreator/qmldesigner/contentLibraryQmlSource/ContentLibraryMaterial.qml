@@ -178,6 +178,17 @@ Item {
         }
     } // Column
 
+    Timer {
+        id: delayedFinish
+        interval: 200
+
+        onTriggered: {
+            downloadPane.endDownload()
+
+            root.downloadState = "downloaded"
+        }
+    }
+
     MultiFileDownloader {
         id: downloader
 
@@ -191,9 +202,7 @@ Item {
         }
 
         onFinishedChanged: {
-            downloadPane.endDownload()
-
-            root.downloadState = "downloaded"
+            delayedFinish.restart()
         }
 
         onDownloadCanceled: {

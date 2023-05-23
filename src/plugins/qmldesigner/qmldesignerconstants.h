@@ -30,6 +30,7 @@ const char TOGGLE_RIGHT_SIDEBAR[] = "QmlDesigner.ToggleRightSideBar";
 const char TOGGLE_STATES_EDITOR[] = "QmlDesigner.ToggleStatesEditor";
 const char GO_INTO_COMPONENT[] = "QmlDesigner.GoIntoComponent";
 const char EXPORT_AS_IMAGE[] = "QmlDesigner.ExportAsImage";
+const char TAKE_SCREENSHOT[] = "QmlDesigner.TakeScreenshot";
 const char FORMEDITOR_REFRESH[] = "QmlDesigner.FormEditor.Refresh";
 const char FORMEDITOR_SNAPPING[] = "QmlDesigner.FormEditor.Snapping";
 const char FORMEDITOR_NO_SNAPPING[] = "QmlDesigner.FormEditor.NoSnapping";
@@ -61,7 +62,7 @@ const char EDIT3D_PARTICLES_SEEKER[]    = "QmlDesigner.Editor3D.ParticlesSeeker"
 const char EDIT3D_PARTICLES_RESTART[] = "QmlDesigner.Editor3D.ParticlesRestart";
 const char EDIT3D_VISIBILITY_TOGGLES[] = "QmlDesigner.Editor3D.VisibilityToggles";
 const char EDIT3D_BACKGROUND_COLOR_ACTIONS[] = "QmlDesigner.Editor3D.BackgroundColorActions";
-
+const char EDIT3D_BAKE_LIGHTS[] = "QmlDesigner.Editor3D.BakeLights";
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 const char COMPONENT_BUNDLES_FOLDER[] = "/ComponentBundles";

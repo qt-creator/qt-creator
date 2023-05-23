@@ -62,7 +62,7 @@ void ItemLibraryView::modelAttached(Model *model)
     m_widget->setModel(model);
     updateImports();
     if (model)
-        m_widget->updatePossibleImports(model->possibleImports());
+        m_widget->updatePossibleImports(difference(model->possibleImports(), model->imports()));
     m_hasErrors = !rewriterView()->errors().isEmpty();
     m_widget->setFlowMode(QmlItemNode(rootModelNode()).isFlowView());
 }
@@ -74,13 +74,14 @@ void ItemLibraryView::modelAboutToBeDetached(Model *model)
     m_widget->setModel(nullptr);
 }
 
-void ItemLibraryView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
+void ItemLibraryView::importsChanged(const Imports &addedImports, const Imports &removedImports)
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     for (const auto &import : addedImports)
         document->addSubcomponentManagerImport(import);
 
     updateImports();
+    m_widget->updatePossibleImports(model()->possibleImports());
 
     // TODO: generalize the logic below to allow adding/removing any Qml component when its import is added/removed
     bool simulinkImportAdded = std::any_of(addedImports.cbegin(), addedImports.cend(), [](const Import &import) {
@@ -111,7 +112,7 @@ void ItemLibraryView::importsChanged(const QList<Import> &addedImports, const QL
     }
 }
 
-void ItemLibraryView::possibleImportsChanged(const QList<Import> &possibleImports)
+void ItemLibraryView::possibleImportsChanged(const Imports &possibleImports)
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     for (const auto &import : possibleImports)
@@ -120,7 +121,7 @@ void ItemLibraryView::possibleImportsChanged(const QList<Import> &possibleImport
     m_widget->updatePossibleImports(possibleImports);
 }
 
-void ItemLibraryView::usedImportsChanged(const QList<Import> &usedImports)
+void ItemLibraryView::usedImportsChanged(const Imports &usedImports)
 {
     m_widget->updateUsedImports(usedImports);
 }

@@ -33,12 +33,6 @@
             not otherwise exist for a particular \l{Component Types}
             {component type} or your custom components.
 
-        \if defined(qtcreator)
-        \li \l{Managing C++ Backend Objects}
-
-            Application developers can access QObject objects implemented in C++
-            from QML files.
-        \endif
     \endlist
 
     For an example of using properties, bindings, and connections to create a

@@ -18,21 +18,21 @@ namespace ADS {
 WorkspaceModel::WorkspaceModel(DockManager *manager, QObject *parent)
     : QAbstractTableModel(parent)
     , m_manager(manager)
-    , m_currentSortColumn(0)
 {
-    m_sortedWorkspaces = m_manager->workspaces();
-    sort(m_currentSortColumn, m_currentSortOrder);
     connect(m_manager, &DockManager::workspaceLoaded, this, &WorkspaceModel::resetWorkspaces);
 }
 
-int WorkspaceModel::indexOfWorkspace(const QString &workspace)
+int WorkspaceModel::indexOfWorkspace(const QString &fileName)
 {
-    return m_sortedWorkspaces.indexOf(workspace);
+    return m_manager->workspaceIndex(fileName);
 }
 
 QString WorkspaceModel::workspaceAt(int row) const
 {
-    return m_sortedWorkspaces.value(row, QString());
+    if (row >= rowCount() || row < 0)
+        return {};
+
+    return m_manager->workspaces()[row].fileName();
 }
 
 QVariant WorkspaceModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -46,6 +46,9 @@ QVariant WorkspaceModel::headerData(int section, Qt::Orientation orientation, in
                 result = Tr::tr("Workspace");
                 break;
             case 1:
+                result = Tr::tr("File Name");
+                break;
+            case 2:
                 result = Tr::tr("Last Modified");
                 break;
             } // switch (section)
@@ -59,7 +62,6 @@ int WorkspaceModel::columnCount(const QModelIndex &) const
 {
     static int sectionCount = 0;
     if (sectionCount == 0) {
-        // headers sections defining possible columns
         while (!headerData(sectionCount, Qt::Horizontal, Qt::DisplayRole).isNull())
             sectionCount++;
     }
@@ -69,183 +71,79 @@ int WorkspaceModel::columnCount(const QModelIndex &) const
 
 int WorkspaceModel::rowCount(const QModelIndex &) const
 {
-    return m_sortedWorkspaces.count();
-}
-
-QStringList pathsToBaseNames(const QStringList &paths)
-{
-    return Utils::transform(paths,
-                            [](const QString &path) { return QFileInfo(path).completeBaseName(); });
+    return m_manager->workspaces().count();
 }
 
 QVariant WorkspaceModel::data(const QModelIndex &index, int role) const
 {
-    QVariant result;
-    if (index.isValid()) {
-        QString workspaceName = m_sortedWorkspaces.at(index.row());
+    if (!index.isValid() || index.row() >= rowCount())
+        return QVariant();
 
-        switch (role) {
-        case Qt::DisplayRole:
-            switch (index.column()) {
-            case 0:
-                result = workspaceName;
-                break;
-            case 1:
-                result = m_manager->workspaceDateTime(workspaceName);
-                break;
-            } // switch (section)
+    Workspace *workspace = m_manager->workspace(index.row());
+    if (!workspace)
+        return QVariant();
+
+    switch (role) {
+    case Qt::DisplayRole:
+        switch (index.column()) {
+        case 0:
+            return workspace->name();
+        case 1:
+            return workspace->fileName();
+        case 2:
+            return workspace->lastModified();
+        default:
+            qWarning("data: invalid display value column %d", index.column());
             break;
-        case Qt::FontRole: {
-            QFont font;
-            if (m_manager->isWorkspacePreset(workspaceName))
-                font.setItalic(true);
-            else
-                font.setItalic(false);
-            if (m_manager->activeWorkspace() == workspaceName)
-                font.setBold(true);
-            else
-                font.setBold(false);
-            result = font;
-        } break;
-        case PresetWorkspaceRole:
-            result = m_manager->isWorkspacePreset(workspaceName);
-            break;
-        case LastWorkspaceRole:
-            result = m_manager->lastWorkspace() == workspaceName;
-            break;
-        case ActiveWorkspaceRole:
-            result = m_manager->activeWorkspace() == workspaceName;
-            break;
-        } // switch (role)
+        }
+        break;
+    case Qt::FontRole: {
+        QFont font;
+        font.setItalic(workspace->isPreset());
+        font.setBold(*m_manager->activeWorkspace() == *workspace);
+        return font;
     }
-
-    return result;
+    case WorkspacePreset:
+        return workspace->isPreset();
+    case WorkspaceStartup:
+        return m_manager->startupWorkspace() == workspace->fileName();
+    case WorkspaceActive:
+        return *m_manager->activeWorkspace() == *workspace;
+    }
+    return QVariant();
 }
 
 QHash<int, QByteArray> WorkspaceModel::roleNames() const
 {
     static QHash<int, QByteArray> extraRoles{{Qt::DisplayRole, "workspaceName"},
-                                             {PresetWorkspaceRole, "presetWorkspace"},
-                                             {LastWorkspaceRole, "activeWorkspace"},
-                                             {ActiveWorkspaceRole, "lastWorkspace"}};
+                                             {WorkspacePreset, "presetWorkspace"},
+                                             {WorkspaceStartup, "lastWorkspace"},
+                                             {WorkspaceActive, "activeWorkspace"}};
 
     auto defaultRoles = QAbstractTableModel::roleNames();
     defaultRoles.insert(extraRoles);
     return defaultRoles;
 }
 
-void WorkspaceModel::sort(int column, Qt::SortOrder order)
+Qt::DropActions WorkspaceModel::supportedDropActions() const
 {
-    m_currentSortColumn = column;
-    m_currentSortOrder = order;
+    return Qt::MoveAction;
+}
 
-    beginResetModel();
-    const auto cmp = [this, column, order](const QString &s1, const QString &s2) {
-        bool isLess;
-        if (column == 0)
-            isLess = s1 < s2;
-        else
-            isLess = m_manager->workspaceDateTime(s1) < m_manager->workspaceDateTime(s2);
-        if (order == Qt::DescendingOrder)
-            isLess = !isLess;
-        return isLess;
-    };
-    Utils::sort(m_sortedWorkspaces, cmp);
-    endResetModel();
+Qt::ItemFlags WorkspaceModel::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
+
+    if (index.isValid())
+        return Qt::ItemIsDragEnabled | defaultFlags;
+
+    return Qt::ItemIsDropEnabled | defaultFlags;
 }
 
 void WorkspaceModel::resetWorkspaces()
 {
-    m_sortedWorkspaces = m_manager->workspaces();
-    sort(m_currentSortColumn, m_currentSortOrder);
-}
-
-void WorkspaceModel::newWorkspace(QWidget *parent)
-{
-    WorkspaceNameInputDialog workspaceInputDialog(m_manager, parent);
-    workspaceInputDialog.setWindowTitle(Tr::tr("New Workspace Name"));
-    workspaceInputDialog.setActionText(Tr::tr("&Create"), Tr::tr("Create and &Open"));
-
-    runWorkspaceNameInputDialog(&workspaceInputDialog, [this](const QString &newName) {
-        m_manager->createWorkspace(newName);
-    });
-}
-
-void WorkspaceModel::cloneWorkspace(QWidget *parent, const QString &workspace)
-{
-    WorkspaceNameInputDialog workspaceInputDialog(m_manager, parent);
-    workspaceInputDialog.setWindowTitle(Tr::tr("New Workspace Name"));
-    workspaceInputDialog.setActionText(Tr::tr("&Clone"), Tr::tr("Clone and &Open"));
-    workspaceInputDialog.setValue(workspace + " (2)");
-
-    runWorkspaceNameInputDialog(&workspaceInputDialog, [this, workspace](const QString &newName) {
-        m_manager->cloneWorkspace(workspace, newName);
-    });
-}
-
-void WorkspaceModel::deleteWorkspaces(const QStringList &workspaces)
-{
-    if (!m_manager->confirmWorkspaceDelete(workspaces))
-        return;
-
-    m_manager->deleteWorkspaces(workspaces);
-    m_sortedWorkspaces = m_manager->workspaces();
-    sort(m_currentSortColumn, m_currentSortOrder);
-}
-
-void WorkspaceModel::renameWorkspace(QWidget *parent, const QString &workspace)
-{
-    WorkspaceNameInputDialog workspaceInputDialog(m_manager, parent);
-    workspaceInputDialog.setWindowTitle(Tr::tr("Rename Workspace"));
-    workspaceInputDialog.setActionText(Tr::tr("&Rename"), Tr::tr("Rename and &Open"));
-    workspaceInputDialog.setValue(workspace);
-
-    runWorkspaceNameInputDialog(&workspaceInputDialog, [this, workspace](const QString &newName) {
-        m_manager->renameWorkspace(workspace, newName);
-    });
-}
-
-void WorkspaceModel::resetWorkspace(const QString &workspace)
-{
-    if (m_manager->resetWorkspacePreset(workspace) && workspace == m_manager->activeWorkspace())
-        m_manager->reloadActiveWorkspace();
-}
-
-void WorkspaceModel::switchToWorkspace(const QString &workspace)
-{
-    m_manager->openWorkspace(workspace);
-    emit workspaceSwitched();
-}
-
-void WorkspaceModel::importWorkspace(const QString &workspace)
-{
-    m_manager->importWorkspace(workspace);
-    m_sortedWorkspaces = m_manager->workspaces();
-    sort(m_currentSortColumn, m_currentSortOrder);
-}
-
-void WorkspaceModel::exportWorkspace(const QString &target, const QString &workspace)
-{
-    m_manager->exportWorkspace(target, workspace);
-}
-
-void WorkspaceModel::runWorkspaceNameInputDialog(WorkspaceNameInputDialog *workspaceInputDialog,
-                                                 std::function<void(const QString &)> createWorkspace)
-{
-    if (workspaceInputDialog->exec() == QDialog::Accepted) {
-        QString newWorkspace = workspaceInputDialog->value();
-        if (newWorkspace.isEmpty() || m_manager->workspaces().contains(newWorkspace))
-            return;
-
-        createWorkspace(newWorkspace);
-        m_sortedWorkspaces = m_manager->workspaces();
-        sort(m_currentSortColumn, m_currentSortOrder);
-
-        if (workspaceInputDialog->isSwitchToRequested())
-            switchToWorkspace(newWorkspace);
-
-        emit workspaceCreated(newWorkspace);
-    }
+    beginResetModel();
+    endResetModel();
 }
 
 } // namespace ADS

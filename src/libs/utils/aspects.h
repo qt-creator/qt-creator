@@ -45,7 +45,7 @@ class QTCREATOR_UTILS_EXPORT BaseAspect : public QObject
     Q_OBJECT
 
 public:
-    BaseAspect();
+    BaseAspect(AspectContainer *container = nullptr);
     ~BaseAspect() override;
 
     Id id() const;
@@ -213,7 +213,7 @@ class QTCREATOR_UTILS_EXPORT BoolAspect : public BaseAspect
     Q_OBJECT
 
 public:
-    BoolAspect();
+    BoolAspect(AspectContainer *container = nullptr);
     ~BoolAspect() override;
 
     struct Data : BaseAspect::Data
@@ -257,7 +257,7 @@ class QTCREATOR_UTILS_EXPORT ColorAspect : public BaseAspect
     Q_OBJECT
 
 public:
-    ColorAspect();
+    ColorAspect(AspectContainer *container = nullptr);
     ~ColorAspect() override;
 
     struct Data : BaseAspect::Data
@@ -282,7 +282,7 @@ class QTCREATOR_UTILS_EXPORT SelectionAspect : public BaseAspect
     Q_OBJECT
 
 public:
-    SelectionAspect();
+    SelectionAspect(AspectContainer *container = nullptr);
     ~SelectionAspect() override;
 
     void addToLayout(Layouting::LayoutItem &parent) override;
@@ -336,7 +336,7 @@ class QTCREATOR_UTILS_EXPORT MultiSelectionAspect : public BaseAspect
     Q_OBJECT
 
 public:
-    MultiSelectionAspect();
+    MultiSelectionAspect(AspectContainer *container = nullptr);
     ~MultiSelectionAspect() override;
 
     void addToLayout(Layouting::LayoutItem &parent) override;
@@ -359,7 +359,7 @@ class QTCREATOR_UTILS_EXPORT StringAspect : public BaseAspect
     Q_OBJECT
 
 public:
-    StringAspect();
+    StringAspect(AspectContainer *container = nullptr);
     ~StringAspect() override;
 
     struct Data : BaseAspect::Data
@@ -456,7 +456,7 @@ class QTCREATOR_UTILS_EXPORT IntegerAspect : public BaseAspect
     Q_OBJECT
 
 public:
-    IntegerAspect();
+    IntegerAspect(AspectContainer *container = nullptr);
     ~IntegerAspect() override;
 
     void addToLayout(Layouting::LayoutItem &parent) override;
@@ -494,7 +494,7 @@ class QTCREATOR_UTILS_EXPORT DoubleAspect : public BaseAspect
     Q_OBJECT
 
 public:
-    DoubleAspect();
+    DoubleAspect(AspectContainer *container = nullptr);
     ~DoubleAspect() override;
 
     void addToLayout(Layouting::LayoutItem &parent) override;
@@ -563,7 +563,7 @@ class QTCREATOR_UTILS_EXPORT StringListAspect : public BaseAspect
     Q_OBJECT
 
 public:
-    StringListAspect();
+    StringListAspect(AspectContainer *container = nullptr);
     ~StringListAspect() override;
 
     void addToLayout(Layouting::LayoutItem &parent) override;

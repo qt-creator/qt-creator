@@ -37,6 +37,7 @@
 #include <QHashIterator>
 #include <QPointer>
 #include <QRegularExpression>
+#include <qcompilerdetection.h>
 
 /*!
 \defgroup CoreModel
@@ -57,13 +58,15 @@ namespace QmlDesigner {
 namespace Internal {
 
 ModelPrivate::ModelPrivate(Model *model,
-                           ProjectStorage<Sqlite::Database> &projectStorage,
+                           ProjectStorageType &projectStorage,
                            const TypeName &typeName,
                            int major,
                            int minor,
-                           Model *metaInfoProxyModel)
+                           Model *metaInfoProxyModel,
+                           std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : projectStorage{&projectStorage}
     , m_model{model}
+    , m_resourceManagement{std::move(resourceManagement)}
 {
     m_metaInfoProxyModel = metaInfoProxyModel;
 
@@ -74,9 +77,14 @@ ModelPrivate::ModelPrivate(Model *model,
     m_currentTimelineNode = m_rootInternalNode;
 }
 
-ModelPrivate::ModelPrivate(
-    Model *model, const TypeName &typeName, int major, int minor, Model *metaInfoProxyModel)
+ModelPrivate::ModelPrivate(Model *model,
+                           const TypeName &typeName,
+                           int major,
+                           int minor,
+                           Model *metaInfoProxyModel,
+                           std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : m_model(model)
+    , m_resourceManagement{std::move(resourceManagement)}
 {
     m_metaInfoProxyModel = metaInfoProxyModel;
 
@@ -95,7 +103,6 @@ void ModelPrivate::detachAllViews()
         detachView(view.data(), true);
 
     m_viewList.clear();
-    updateEnabledViews();
 
     if (m_nodeInstanceView) {
         m_nodeInstanceView->modelAboutToBeDetached(m_model);
@@ -108,10 +115,10 @@ void ModelPrivate::detachAllViews()
     }
 }
 
-void ModelPrivate::changeImports(const QList<Import> &toBeAddedImportList,
-                                 const QList<Import> &toBeRemovedImportList)
+void ModelPrivate::changeImports(const Imports &toBeAddedImportList,
+                                 const Imports &toBeRemovedImportList)
 {
-    QList<Import> removedImportList;
+    Imports removedImportList;
     for (const Import &import : toBeRemovedImportList) {
         if (m_imports.contains(import)) {
             removedImportList.append(import);
@@ -119,7 +126,7 @@ void ModelPrivate::changeImports(const QList<Import> &toBeAddedImportList,
         }
     }
 
-    QList<Import> addedImportList;
+    Imports addedImportList;
     for (const Import &import : toBeAddedImportList) {
         if (!m_imports.contains(import)) {
             addedImportList.append(import);
@@ -127,12 +134,13 @@ void ModelPrivate::changeImports(const QList<Import> &toBeAddedImportList,
         }
     }
 
+    std::sort(m_imports.begin(), m_imports.end());
+
     if (!removedImportList.isEmpty() || !addedImportList.isEmpty())
         notifyImportsChanged(addedImportList, removedImportList);
 }
 
-void ModelPrivate::notifyImportsChanged(const QList<Import> &addedImports,
-                                        const QList<Import> &removedImports)
+void ModelPrivate::notifyImportsChanged(const Imports &addedImports, const Imports &removedImports)
 {
     bool resetModel = false;
     QString description;
@@ -157,7 +165,7 @@ void ModelPrivate::notifyImportsChanged(const QList<Import> &addedImports,
         resetModelByRewriter(description);
 }
 
-void ModelPrivate::notifyPossibleImportsChanged(const QList<Import> &possibleImports)
+void ModelPrivate::notifyPossibleImportsChanged(const Imports &possibleImports)
 {
     for (const QPointer<AbstractView> &view : enabledViews()) {
         Q_ASSERT(view != nullptr);
@@ -165,7 +173,7 @@ void ModelPrivate::notifyPossibleImportsChanged(const QList<Import> &possibleImp
     }
 }
 
-void ModelPrivate::notifyUsedImportsChanged(const QList<Import> &usedImports)
+void ModelPrivate::notifyUsedImportsChanged(const Imports &usedImports)
 {
     for (const QPointer<AbstractView> &view : enabledViews()) {
         Q_ASSERT(view != nullptr);
@@ -210,6 +218,23 @@ void ModelPrivate::changeNodeType(const InternalNodePointer &node, const TypeNam
     }
 }
 
+namespace {
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_CLANG("-Wunneeded-internal-declaration")
+
+std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Utils::SmallStringView typeName)
+{
+    auto found = std::find(typeName.rbegin(), typeName.rend(), '.');
+
+    if (found == typeName.rend())
+        return {};
+
+    return {{typeName.begin(), std::prev(found.base())}, {found.base(), typeName.end()}};
+}
+
+QT_WARNING_POP
+} // namespace
+
 InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
                                              int majorVersion,
                                              int minorVersion,
@@ -229,6 +254,15 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
         internalId = m_internalIdCounter++;
 
     auto newNode = std::make_shared<InternalNode>(typeName, majorVersion, minorVersion, internalId);
+
+    if constexpr (useProjectStorage()) {
+        auto [moduleName, shortTypeName] = decomposeTypePath(typeName);
+        ModuleId moduleId = projectStorage->moduleId(moduleName);
+        newNode->typeId = projectStorage->typeId(moduleId,
+                                                 shortTypeName,
+                                                 Storage::Version{majorVersion, minorVersion});
+    }
+
     newNode->nodeSourceType = nodeSourceType;
 
     newNode->behaviorPropertyName = behaviorPropertyName;
@@ -252,7 +286,9 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
     notifyNodeCreated(newNode);
 
     if (!newNode->propertyNameList().isEmpty())
-        notifyVariantPropertiesChanged(newNode, newNode->propertyNameList(), AbstractView::PropertiesAdded);
+        notifyVariantPropertiesChanged(newNode,
+                                       newNode->propertyNameList(),
+                                       AbstractView::PropertiesAdded);
 
     return newNode;
 }
@@ -271,9 +307,27 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
     m_internalIdNodeHash.remove(node->internalId);
 }
 
-const QList<QPointer<AbstractView>> ModelPrivate::enabledViews() const
+EnabledViewRange ModelPrivate::enabledViews() const
 {
-    return m_enabledViewList;
+    return EnabledViewRange{m_viewList};
+}
+
+void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
+{
+    for (const ModelNode &node : resourceSet.removeModelNodes) {
+        if (node)
+            removeNode(node.m_internalNode);
+    }
+
+    for (const AbstractProperty &property : resourceSet.removeProperties) {
+        if (property)
+            removeProperty(property.m_internalNode->property(property.m_propertyName));
+    }
+
+    for (const auto &[property, expression] : resourceSet.setExpressions) {
+        if (property)
+            setBindingProperty(property.m_internalNode, property.m_propertyName, expression);
+    }
 }
 
 void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
@@ -282,10 +336,16 @@ void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
         removeNodeFromModel(subNode);
 }
 
+void ModelPrivate::removeNodeAndRelatedResources(const InternalNodePointer &node)
+{
+    if (m_resourceManagement)
+        handleResourceSet(m_resourceManagement->removeNode(ModelNode{node, m_model, nullptr}));
+    else
+        removeNode(node);
+}
+
 void ModelPrivate::removeNode(const InternalNodePointer &node)
 {
-    Q_ASSERT(node);
-
     AbstractView::PropertyChangeFlags propertyChangeFlags = AbstractView::NoAdditionalChanges;
 
     notifyNodeAboutToBeRemoved(node);
@@ -726,7 +786,6 @@ void ModelPrivate::detachView(AbstractView *view, bool notifyView)
     if (notifyView)
         view->modelAboutToBeDetached(m_model);
     m_viewList.removeOne(view);
-    updateEnabledViews();
 }
 
 void ModelPrivate::notifyNodeCreated(const InternalNodePointer &newInternalNodePointer)
@@ -1062,6 +1121,15 @@ static QList<PropertyPair> toPropertyPairList(const QList<InternalPropertyPointe
     return propertyPairList;
 }
 
+void ModelPrivate::removePropertyAndRelatedResources(const InternalPropertyPointer &property)
+{
+    if (m_resourceManagement)
+        handleResourceSet(
+            m_resourceManagement->removeProperty(AbstractProperty{property, m_model, nullptr}));
+    else
+        removeProperty(property);
+}
+
 void ModelPrivate::removeProperty(const InternalPropertyPointer &property)
 {
     notifyPropertiesAboutToBeRemoved({property});
@@ -1289,13 +1357,6 @@ InternalNodePointer ModelPrivate::currentTimelineNode() const
     return m_currentTimelineNode;
 }
 
-void ModelPrivate::updateEnabledViews()
-{
-    m_enabledViewList = Utils::filtered(m_viewList, [](QPointer<AbstractView> view) {
-        return view->isEnabled();
-    });
-}
-
 InternalNodePointer ModelPrivate::nodeForId(const QString &id) const
 {
     return m_idNodeHash.value(id);
@@ -1385,89 +1446,80 @@ void WriteLocker::lock(Model *model)
 
 } // namespace Internal
 
-Model::Model(ProjectStorage<Sqlite::Database> &projectStorage,
+Model::Model(ProjectStorageType &projectStorage,
              const TypeName &typeName,
              int major,
              int minor,
-             Model *metaInfoProxyModel)
+             Model *metaInfoProxyModel,
+             std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : d(std::make_unique<Internal::ModelPrivate>(
-        this, projectStorage, typeName, major, minor, metaInfoProxyModel))
+        this, projectStorage, typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)))
 {}
 
-Model::Model(const TypeName &typeName, int major, int minor, Model *metaInfoProxyModel)
-    : d(std::make_unique<Internal::ModelPrivate>(this, typeName, major, minor, metaInfoProxyModel))
+Model::Model(const TypeName &typeName,
+             int major,
+             int minor,
+             Model *metaInfoProxyModel,
+             std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
+    : d(std::make_unique<Internal::ModelPrivate>(
+        this, typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)))
 {}
 
 Model::~Model() = default;
 
-const QList<Import> &Model::imports() const
+const Imports &Model::imports() const
 {
     return d->imports();
 }
 
-const QList<Import> &Model::possibleImports() const
+const Imports &Model::possibleImports() const
 {
     return d->m_possibleImportList;
 }
 
-const QList<Import> &Model::usedImports() const
+const Imports &Model::usedImports() const
 {
     return d->m_usedImportList;
 }
 
-void Model::changeImports(const QList<Import> &importsToBeAdded,
-                          const QList<Import> &importsToBeRemoved)
+void Model::changeImports(const Imports &importsToBeAdded, const Imports &importsToBeRemoved)
 {
     d->changeImports(importsToBeAdded, importsToBeRemoved);
 }
 
-void Model::setPossibleImports(const QList<Import> &possibleImports)
+void Model::setPossibleImports(Imports possibleImports)
 {
+    std::sort(possibleImports.begin(), possibleImports.end());
+
     if (d->m_possibleImportList != possibleImports) {
-        d->m_possibleImportList = possibleImports;
-        d->notifyPossibleImportsChanged(possibleImports);
+        d->m_possibleImportList = std::move(possibleImports);
+        d->notifyPossibleImportsChanged(d->m_possibleImportList);
     }
 }
 
-void Model::setUsedImports(const QList<Import> &usedImports)
+void Model::setUsedImports(Imports usedImports)
 {
+    std::sort(usedImports.begin(), usedImports.end());
+
     if (d->m_usedImportList != usedImports) {
-        d->m_usedImportList = usedImports;
-        d->notifyUsedImportsChanged(usedImports);
+        d->m_usedImportList = std::move(usedImports);
+        d->notifyUsedImportsChanged(d->m_usedImportList);
     }
 }
 
-static bool compareVersions(const QString &version1, const QString &version2, bool allowHigherVersion)
+static bool compareVersions(const Import &import1, const Import &import2, bool allowHigherVersion)
 {
+    auto version1 = import1.toVersion();
+    auto version2 = import2.toVersion();
+
     if (version2.isEmpty())
         return true;
     if (version1 == version2)
         return true;
     if (!allowHigherVersion)
         return false;
-    QStringList version1List = version1.split(QLatin1Char('.'));
-    QStringList version2List = version2.split(QLatin1Char('.'));
-    if (version1List.count() == 2 && version2List.count() == 2) {
-        bool ok;
-        int major1 = version1List.constFirst().toInt(&ok);
-        if (!ok)
-            return false;
-        int major2 = version2List.constFirst().toInt(&ok);
-        if (!ok)
-            return false;
-        if (major1 >= major2) {
-            int minor1 = version1List.constLast().toInt(&ok);
-            if (!ok)
-                return false;
-            int minor2 = version2List.constLast().toInt(&ok);
-            if (!ok)
-                return false;
-            if (minor1 >= minor2)
-                return true;
-        }
-    }
 
-    return false;
+    return version1 >= version2;
 }
 
 bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVersion) const
@@ -1485,7 +1537,7 @@ bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVe
         }
         if (existingImport.isLibraryImport() && import.isLibraryImport()) {
             if (existingImport.url() == import.url()
-                && compareVersions(existingImport.version(), import.version(), allowHigherVersion)) {
+                && compareVersions(existingImport, import, allowHigherVersion)) {
                 return true;
             }
         }
@@ -1627,7 +1679,7 @@ void Model::endDrag()
     d->notifyDragEnded();
 }
 
-NotNullPointer<const ProjectStorage<Sqlite::Database>> Model::projectStorage() const
+NotNullPointer<const ProjectStorageType> Model::projectStorage() const
 {
     return d->projectStorage;
 }
@@ -1659,7 +1711,7 @@ bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowH
 
         if (possibleImport.isLibraryImport() && import.isLibraryImport()) {
             if (possibleImport.url() == import.url()
-                && compareVersions(possibleImport.version(), import.version(), allowHigherVersion)) {
+                && compareVersions(possibleImport, import, allowHigherVersion)) {
                 return true;
             }
         }
@@ -1694,7 +1746,7 @@ Import Model::highestPossibleImport(const QString &importPath)
 
     for (const Import &import : possibleImports()) {
         if (import.url() == importPath) {
-            if (candidate.isEmpty() || compareVersions(import.version(), candidate.version(), true))
+            if (candidate.isEmpty() || compareVersions(import, candidate, true))
                 candidate = import;
         }
     }
@@ -1804,7 +1856,7 @@ void Model::setMetaInfo(const MetaInfo &metaInfo)
 template<const auto &moduleName, const auto &typeName>
 NodeMetaInfo Model::createNodeMetaInfo() const
 {
-    auto typeId = d->projectStorage->commonTypeCache.typeId<moduleName, typeName>();
+    auto typeId = d->projectStorage->commonTypeCache().typeId<moduleName, typeName>();
 
     return {typeId, d->projectStorage};
 }
@@ -1939,6 +1991,16 @@ NodeMetaInfo Model::qtQuick3DTextureMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuick3DBakedLightmapMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, BakedLightmap>();
+    } else {
+        return metaInfo("QtQuick3D.BakedLightmap");
+    }
+}
+
 NodeMetaInfo Model::qtQuick3DMaterialMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2070,8 +2132,7 @@ NodeMetaInfo Model::metaInfo(const TypeName &typeName, int majorVersion, int min
         ModuleId moduleId = d->projectStorage->moduleId(module);
         TypeId typeId = d->projectStorage->typeId(moduleId,
                                                   componentName,
-                                                  Storage::Synchronization::Version{majorVersion,
-                                                                                    minorVersion});
+                                                  Storage::Version{majorVersion, minorVersion});
         return NodeMetaInfo(typeId, d->projectStorage);
     } else {
         return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);
@@ -2141,6 +2202,11 @@ void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
         return;
 
     d->detachView(view, emitNotify);
+}
+
+QList<ModelNode> Model::allModelNodes() const
+{
+    return QmlDesigner::toModelNodeList(d->allNodes(), nullptr);
 }
 
 } // namespace QmlDesigner

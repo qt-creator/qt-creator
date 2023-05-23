@@ -94,12 +94,10 @@
 
     \image qtquickcontrols2-button.gif "Qt Quick Controls - Button"
 
-    \if defined(qtdesignstudio)
     Alternatively, you can use a wizard to create a \l{Creating Custom Controls}
     {custom button}:
 
     \image studio-custom-button.gif "Custom button"
-    \endif
 
     A button can be pushed or clicked by users. Typically, buttons
     are used to perform an action or to answer a question. For example, \e OK,
@@ -133,14 +131,12 @@
 
     \image qtquickcontrols2-button-flat.gif "Flat button"
 
-    \if defined(qtdesignstudio)
     \section3 Icon Buttons
 
     To create a button that contains an icon, use the wizard template to
     \l{Creating Custom Controls}{create a custom button} and drag-and-drop
     the icon to the button background component. For an example of using the
     wizard template, see \l{Creating a Push Button}.
-    \endif
 
     \section2 Delay Button
 
@@ -162,12 +158,10 @@
 
     \image qtquickcontrols2-checkbox.gif "Check boxes"
 
-    \if defined(qtdesignstudio)
     Alternatively, you can use a wizard to create \l{Creating Custom Controls}
     {custom check boxes}:
 
     \image studio-custom-check-box.gif "Custom check boxes"
-    \endif
 
     A check box presents an option button that can be toggled on
     (checked) or off (unchecked). Check boxes are typically used to select
@@ -255,12 +249,10 @@
 
     \image qtquickcontrols2-switch.gif "Switch"
 
-    \if defined(qtdesignstudio)
     Alternatively, you can use a wizard to create a \l{Creating Custom Controls}
     {custom switch}:
 
     \image studio-custom-switch.gif "Custom switch"
-    \endif
 
     A switch is an option button that can be dragged or toggled on
     (checked) or off (unchecked). Switches are typically used to select between
@@ -441,12 +433,10 @@
 
     \image qtquickcontrols2-slider.gif "Slider"
 
-    \if defined(qtdesignstudio)
     Alternatively, you can use a wizard to create a \l{Creating Custom Controls}
     {custom slider}:
 
     \image studio-custom-slider.gif "Custom slider"
-    \endif
 
     A slider is used to select a value by sliding a handle along a
     track, whereas \uicontrol {Range Slider} is used to select a range
@@ -463,12 +453,10 @@
 
     \image qtquickcontrols2-dial-no-wrap.gif "Dial"
 
-    \if defined(qtdesignstudio)
     Alternatively, you can use a wizard to create a \l{Creating Custom Controls}
     {custom dial}:
 
     \image studio-custom-dial.gif "Custom dial"
-    \endif
 
     In the \uicontrol From and \uicontrol To fields, set the range of the
     slider or dial. Set the value of the slide handle or dial in the
@@ -514,12 +502,10 @@
 
     \image qtquickcontrols2-spinbox.png "Spin Box"
 
-    \if defined(qtdesignstudio)
     Alternatively, you can use a wizard to create a \l{Creating Custom Controls}
     {custom spin box}:
 
     \image studio-custom-spinbox.gif "Custom spin box"
-    \endif
 
     A spin box enables users to choose an integer value by clicking
     the up or down indicator buttons, or by pressing up or down on the keyboard.
@@ -660,31 +646,6 @@
 
     For more information about how to customize a particular control, see
     \l{Customization Reference}.
-
-    \if defined(qtcreator)
-    \section1 History of Qt Quick Controls
-
-    In Qt 4, ready-made Qt Quick 1 Components were provided for creating
-    UIs with a native look and feel for a particular target platform.
-    In Qt 5.1, Qt Quick Controls, Dialogs, and Layouts were added for
-    creating classic desktop-style user interfaces using Qt Quick 2.1. The
-    Qt Quick Controls Styles could be used to customize Qt Quick Controls.
-
-    Since Qt 5.7, \l {Qt Quick Controls 2} replace Qt Quick Controls 1 and
-    Qt Labs Controls. They provide lightweight components for creating performant
-    user interfaces for \l{glossary-device}{devices}.
-
-    Qt Quick Controls 2 work in conjunction with Qt Quick and Qt Quick Layouts.
-
-    The \QC project wizards create Qt Quick applications that use Qt Quick
-    2 types or Qt Quick Controls 2 types.
-
-    Even if you use Qt Quick Controls 2, you can still write cross-platform
-    applications, by using different sets of QML files for each platform.
-
-    Some ready-made controls, such as a gauge, dial, status indicator, and
-    tumbler, are provided by the \l {Qt Quick Extras} module.
-    \endif
 
     \section1 Summary of UI Controls
 

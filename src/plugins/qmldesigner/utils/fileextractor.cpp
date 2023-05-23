@@ -51,7 +51,11 @@ FileExtractor::FileExtractor(QObject *parent)
 
             // We can not get the uncompressed size of the archive yet, that is why we use an
             // approximation. We assume a 50% compression rate.
-            int progress = std::min(100ll, currentSize * 100 / m_compressedSize * 2);
+
+            int progress = 0;
+            if (m_compressedSize > 0)
+                progress = std::min(100ll, currentSize * 100 / m_compressedSize * 2);
+
             if (progress >= 0) {
                 m_progress = progress;
                 emit progressChanged();
@@ -212,6 +216,8 @@ void FileExtractor::extract()
     m_timer.start();
     m_bytesBefore = QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
     m_compressedSize = QFileInfo(m_sourceFile.toString()).size();
+    if (m_compressedSize <= 0)
+        qWarning() << "Compressed size for file '" << m_sourceFile << "' is zero or invalid: " << m_compressedSize;
 
     QObject::connect(archive, &Utils::Archive::outputReceived, this, [this](const QString &output) {
         m_detailedText += output;

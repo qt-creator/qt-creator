@@ -238,7 +238,7 @@
                     "type": "ComboBox",
                     "data":
                     {
-                        "index": 2,
+                        "index": 4,
                         "items":
                             [
                             {
@@ -272,6 +272,14 @@
                                     'TargetQuickVersion': '6.4',
                                     'TargetQuick3DVersion': '6.4'
                                 })"
+                            },
+                            {
+                                "trKey": "Qt 6.5",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.5',
+                                    'TargetQuick3DVersion': '6.5'
+                                })"
                             }
                         ]
                     }
@@ -302,6 +310,10 @@
                 {
                     "source": "../common/qmlcomponents.tpl",
                     "target": "%{ProjectDirectory}/qmlcomponents"
+                },
+                {
+                    "source": "../common/insight.tpl",
+                    "target": "%{ProjectDirectory}/insight"
                 },
                 {
                     "source": "../common/main.qml",

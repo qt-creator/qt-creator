@@ -22,11 +22,9 @@
     \row
         \li Anchors
         \li \l{Setting Anchors and Margins}
-    \if defined(qtdesignstudio)
     \row
         \li Group
         \li \l{Organizing Components}
-    \endif
     \row
         \li Position
         \li \l{Using Positioners}
@@ -39,11 +37,9 @@
     \row
         \li Timeline
         \li \l{Creating a Timeline}
-    \if defined(qtdesignstudio)
     \row
         \li Event List
         \li \l{Simulating Events}
-    \endif
     \row
         \li Edit Color
         \li \l{Editing Properties Inline}

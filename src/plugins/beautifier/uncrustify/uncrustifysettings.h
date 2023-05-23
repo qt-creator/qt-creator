@@ -5,41 +5,30 @@
 
 #include "../abstractsettings.h"
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class UncrustifySettings : public AbstractSettings
 {
-    Q_OBJECT
-
 public:
     UncrustifySettings();
-    ~UncrustifySettings() override;
 
-    bool useOtherFiles() const;
-    void setUseOtherFiles(bool useOtherFiles);
-
-    bool useHomeFile() const;
-    void setUseHomeFile(bool useHomeFile);
-
-    bool useCustomStyle() const;
-    void setUseCustomStyle(bool useCustomStyle);
-
-    QString customStyle() const;
-    void setCustomStyle(const QString &customStyle);
-
-    bool formatEntireFileFallback() const;
-    void setFormatEntireFileFallback(bool formatEntireFileFallback);
-
-    QString documentationFilePath() const override;
     void createDocumentationFile() const override;
 
-    Utils::FilePath specificConfigFile() const;
-    void setSpecificConfigFile(const Utils::FilePath &filePath);
+    Utils::BoolAspect useOtherFiles;
+    Utils::BoolAspect useHomeFile;
+    Utils::BoolAspect useCustomStyle;
 
-    bool useSpecificConfigFile() const;
-    void setUseSpecificConfigFile(bool useConfigFile);
+    Utils::StringAspect customStyle;
+    Utils::BoolAspect formatEntireFileFallback;
+
+    Utils::FilePathAspect specificConfigFile;
+    Utils::BoolAspect useSpecificConfigFile;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+class UncrustifyOptionsPage final : public Core::IOptionsPage
+{
+public:
+    explicit UncrustifyOptionsPage(UncrustifySettings *settings);
+};
+
+} // Beautifier::Internal

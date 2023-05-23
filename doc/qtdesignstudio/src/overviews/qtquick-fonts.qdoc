@@ -3,13 +3,8 @@
 
 /*!
     \page qtquick-fonts.html
-    \if defined(qtdesignstudio)
     \previouspage studio-importing-2d.html
     \nextpage studio-importing-3d.html
-    \else
-    \previouspage qtquick-positioning.html
-    \nextpage qtquick-annotations.html
-    \endif
 
     \title Using Custom Fonts
 

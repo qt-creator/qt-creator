@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -13,13 +15,10 @@ QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 class PullOrPushDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     enum Mode {
         PullMode,
@@ -33,7 +32,7 @@ public:
     bool isRememberOptionEnabled() const;
     bool isPrivateOptionEnabled() const;
     void setDefaultRemoteLocation(const QString &url);
-    void setLocalBaseDirectory(const QString &dir);
+    void setLocalBaseDirectory(const Utils::FilePath &dir);
     // Pull-specific options
     // Push-specific options
 
@@ -47,5 +46,4 @@ private:
     QCheckBox *m_privateCheckBox;
 };
 
-} // namespace Internal
-} // namespace Fossil
+} // Fossil::Internal

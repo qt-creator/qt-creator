@@ -18,15 +18,25 @@ public:
     explicit CrumbleBarModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-
     QHash<int, QByteArray> roleNames() const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     void handleCrumblePathChanged();
 
     Q_INVOKABLE void onCrumblePathElementClicked(int i);
+};
 
-private:
+class WorkspaceModel : public QAbstractListModel
+{
+    Q_OBJECT
+    enum { DisplayNameRole = Qt::DisplayRole, FileNameRole = Qt::UserRole };
+
+public:
+    explicit WorkspaceModel(QObject *parent = nullptr);
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QHash<int, QByteArray> roleNames() const override;
+    QVariant data(const QModelIndex &index, int role = DisplayNameRole) const override;
 };
 
 class ActionSubscriber : public QObject
@@ -73,7 +83,6 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(QStringList documentModel READ documentModel NOTIFY openDocumentsChanged)
     Q_PROPERTY(int documentIndex READ documentIndex NOTIFY documentIndexChanged)
     Q_PROPERTY(QString currentWorkspace READ currentWorkspace NOTIFY currentWorkspaceChanged)
-    Q_PROPERTY(QStringList workspaces READ workspaces NOTIFY workspacesChanged)
     Q_PROPERTY(QStringList styles READ styles CONSTANT)
     Q_PROPERTY(bool isInDesignMode READ isInDesignMode NOTIFY isInDesignModeChanged)
     Q_PROPERTY(bool isInEditMode READ isInEditMode NOTIFY isInEditModeChanged)
@@ -111,11 +120,11 @@ public:
     int documentIndex() const;
 
     QString currentWorkspace() const;
-    QStringList workspaces() const;
 
     QStringList styles() const;
 
     bool isInDesignMode() const;
+    bool isInEditMode() const;
     bool isDesignModeEnabled() const;
     int currentStyle() const;
 
@@ -127,8 +136,6 @@ public:
 
     bool projectOpened() const;
 
-    bool isInEditMode() const;
-
     static void launchGlobalAnnotations();
 
 signals:
@@ -136,7 +143,6 @@ signals:
     void openDocumentsChanged();
     void documentIndexChanged();
     void currentWorkspaceChanged();
-    void workspacesChanged();
     void isInDesignModeChanged();
     void isInEditModeChanged();
     void isDesignModeEnabledChanged();
@@ -152,7 +158,6 @@ private:
     ActionInterface *m_zoomAction;
 
     QStringList m_openDocuments;
-    QStringList m_workspaces;
     QMetaObject::Connection m_kitConnection;
 };
 

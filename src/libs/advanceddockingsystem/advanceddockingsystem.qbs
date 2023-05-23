@@ -7,7 +7,7 @@ QtcLibrary {
     cpp.defines: base.concat("ADVANCEDDOCKINGSYSTEM_LIBRARY")
     cpp.includePaths: base.concat([".", linux.prefix])
 
-    Depends { name: "Qt"; submodules: ["widgets", "core", "gui"] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml"] }
     Depends { name: "Utils" }
 
     Group {
@@ -31,6 +31,7 @@ QtcLibrary {
             "floatingdockcontainer.cpp", "floatingdockcontainer.h",
             "floatingdragpreview.cpp", "floatingdragpreview.h",
             "iconprovider.cpp", "iconprovider.h",
+            "workspace.cpp", "workspace.h",
             "workspacedialog.cpp", "workspacedialog.h",
             "workspacemodel.cpp", "workspacemodel.h",
             "workspaceview.cpp", "workspaceview.h",

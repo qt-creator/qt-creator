@@ -50,6 +50,10 @@ class QMLDESIGNERCORE_EXPORT AbstractProperty
 
 public:
     AbstractProperty() = default;
+    AbstractProperty(const AbstractProperty &) = default;
+    AbstractProperty &operator=(const AbstractProperty &) = default;
+    AbstractProperty(AbstractProperty &&) = default;
+    AbstractProperty &operator=(AbstractProperty &&) noexcept = default;
     ~AbstractProperty();
     AbstractProperty(const AbstractProperty &property, AbstractView *view);
 

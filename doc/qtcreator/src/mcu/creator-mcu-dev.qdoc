@@ -8,7 +8,7 @@
 
     \title Connecting MCUs
 
-    Qt for MCU enables you to use subsets of QML and Qt Quick Controls
+    \QMCU enables you to use subsets of QML and Qt Quick Controls
     to create user interfaces for devices that are powered by microcontroller
     units (MCU). It includes a new graphics rendering engine that has a low
     memory footprint and is optimized for MCUs and other resource-constrained
@@ -21,18 +21,18 @@
     debug them using \QC.
 
     The toolchains are available for cross-compilation on Microsoft Windows,
-    Linux, and macOS. However, the Qt for MCU SDK is currently only available
+    Linux, and macOS. However, the Qt for \QMCU SDK is currently only available
     for Windows and Linux.
 
-    For a list of Qt for MCU reference implementations, see the
-    \l{Qt for MCUs - Supported Target Platforms}{Qt for MCUs} documentation.
+    For a list of \QMCU reference implementations, see the
+    \l{\QMCU - Supported Target Platforms}{\QMCU} documentation.
 
     \section1 Requirements
 
     To use \QC to develop QML applications for MCUs, you need the following:
 
     \list
-        \li Qt for MCU SDK (only available for Windows and Linux)
+        \li \QMCU SDK (only available for Windows and Linux)
         \li \l{https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm}
             {GNU ARM Embedded Toolchain}
     \endlist
@@ -55,7 +55,7 @@
 
     To be able to develop applications for MCUs, you need the MCU plugin.
     This plugin is enabled automatically by the Qt Installer when you
-    install Qt for MCUs.
+    install \QMCU.
 
     \section2 Specifying MCU Settings
 
@@ -66,9 +66,9 @@
     \image qtcreator-mcu-options.png "MCU preferences"
 
     \list 1
-        \li In the \uicontrol {Qt for MCUs SDK} field, specify the path
-            to the directory where you installed Qt for MCUs SDK.
-        \li In the \uicontrol {Targets supported by the Qt for MCUs SDK}
+        \li In the \uicontrol {\QMCU SDK} field, specify the path
+            to the directory where you installed \QMCU SDK.
+        \li In the \uicontrol {Targets supported by the \QMCU SDK}
             field, select your MCU board.
         \li In the \uicontrol Requirements section, ensure that the
             platform-specific requirements are met. This varies depending
@@ -105,7 +105,7 @@
         \li Select \uicontrol Apply to save the settings.
     \endlist
 
-    \note When updating to other versions of the Qt for MCUs SDK, \QC will
+    \note When updating to other versions of the \QMCU SDK, \QC will
     ask you if you want to replace the existing kits, or create new ones
     alongside. This can also be done manually, for each individual target,
     via \uicontrol {Update Kit} and \uicontrol {Create Kit}, respectively.
@@ -145,7 +145,7 @@
     \uicontrol Preferences > \uicontrol Kits.
 
     However, for adding new kits you should use the \uicontrol {Create Kit}
-    button in the {Qt for MCUs} settings tab. This method adds the paths to
+    button in the {\QMCU} settings tab. This method adds the paths to
     the kit's toolkits and SDKs, and keeps them synchronized when selecting
     \uicontrol Apply or \uicontrol OK.
 
@@ -156,14 +156,14 @@
 
     You can use a wizard to set up a project for developing an application that
     you can run on MCUs. The project uses a subset of QML and Qt Quick Controls
-    that are supported by Qt for MCU. For more information about developing
-    applications for MCUs, see the Qt for MCU documentation.
+    that are supported by \QMCU. For more information about developing
+    applications for MCUs, see the \QMCU documentation.
 
     To create an application and run it on a MCU board:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New Project} >
-            \uicontrol {Application (Qt for MCU)} >
+            \uicontrol {Application (\QMCU)} >
             \uicontrol {MCU Support Application} > \uicontrol Choose.
         \li Follow the instructions of the wizard to create the project.
         \li Select \uicontrol Projects > \uicontrol {Build & Run}, and then
@@ -173,17 +173,17 @@
             Usually, you can use the default settings.
     \endlist
 
-    \section1 Supported Qt for MCUs SDKs
+    \section1 Supported \QMCU SDKs
 
-    \note The Qt for MCUs SDK 2.3 requires \QC 9.0.0, or later.
+    \note The \QMCU SDK 2.3 requires \QC 9.0.0, or later.
 
     The following table lists the \QC versions you can use to develop
-    applications with particular Qt for MCUs SDK versions.
+    applications with particular \QMCU SDK versions.
 
     \table
     \header
         \li \QC version
-        \li Qt for MCUs SDK version
+        \li \QMCU SDK version
     \row
         \li 9.0.0 or later
         \li 2.0 or later

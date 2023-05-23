@@ -37,11 +37,6 @@
     custom properties that would not otherwise exist for a particular
     \l{Component Types}{component type}.
 
-    \if defined(qtcreator)
-    In addition, application developers can use the \uicontrol Backends view
-    to access QObject objects implemented in C++ from QML files.
-    \endif
-
     \section1 Summary of the Connections View Tabs
 
     \table
@@ -64,11 +59,6 @@
         \li Add custom properties that would not otherwise exist for a
             particular preset component or your own custom component.
         \li \l{Specifying Custom Properties}
-    \if defined(qtcreator)
-    \row
-        \li \uicontrol Backends
-        \li Access QObject objects implemented in C++ from QML files.
-        \li \l{Managing C++ Backend Objects}
-    \endif
+
     \endtable
 */

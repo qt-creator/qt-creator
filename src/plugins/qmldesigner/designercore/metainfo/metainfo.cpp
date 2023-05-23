@@ -7,6 +7,7 @@
 #include "metainforeader.h"
 #include "iwidgetplugin.h"
 
+#include <externaldependenciesinterface.h>
 #include <invalidmetainfoexception.h>
 
 #include <coreplugin/messagebox.h>
@@ -30,24 +31,26 @@ enum {
 namespace QmlDesigner {
 namespace Internal {
 
-
-static QString globalMetaInfoPath()
+static QString globalMetaInfoPath(const ExternalDependenciesInterface &externalDependecies)
 {
 #ifdef SHARE_QML_PATH
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/globalMetaInfo";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/globalMetaInfo").toString();
+    return externalDependecies.resourcePath("qmldesigner/globalMetaInfo").toString();
 }
 
-Utils::FilePaths allGlobalMetaInfoFiles()
+Utils::FilePaths allGlobalMetaInfoFiles(const ExternalDependenciesInterface &externalDependecies)
 {
     static Utils::FilePaths paths;
 
     if (!paths.isEmpty())
         return paths;
 
-    QDirIterator it(globalMetaInfoPath(), { "*.metainfo" }, QDir::Files, QDirIterator::Subdirectories);
+    QDirIterator it(globalMetaInfoPath(externalDependecies),
+                    {"*.metainfo"},
+                    QDir::Files,
+                    QDirIterator::Subdirectories);
     while (it.hasNext())
         paths.append(Utils::FilePath::fromString(it.next()));
 
@@ -61,9 +64,9 @@ public:
     MetaInfoPrivate(MetaInfo *q);
     void clear();
 
-    void initialize();
+    void initialize(const ExternalDependenciesInterface &externalDependencies);
 
-    void parseItemLibraryDescriptions();
+    void parseItemLibraryDescriptions(const ExternalDependenciesInterface &externalDependencies);
 
     QScopedPointer<ItemLibraryInfo> m_itemLibraryInfo;
 
@@ -90,14 +93,14 @@ namespace {
 bool enableParseItemLibraryDescriptions = true;
 }
 
-void MetaInfoPrivate::initialize()
+void MetaInfoPrivate::initialize(const ExternalDependenciesInterface &externalDependencies)
 {
     if (enableParseItemLibraryDescriptions)
-        parseItemLibraryDescriptions();
+        parseItemLibraryDescriptions(externalDependencies);
     m_isInitialized = true;
 }
 
-void MetaInfoPrivate::parseItemLibraryDescriptions()
+void MetaInfoPrivate::parseItemLibraryDescriptions(const ExternalDependenciesInterface &externalDependencies)
 {
     Internal::WidgetPluginManager pluginManager;
     for (const QString &pluginDir : std::as_const(m_q->s_pluginDirs))
@@ -107,7 +110,8 @@ void MetaInfoPrivate::parseItemLibraryDescriptions()
         Internal::MetaInfoReader reader(*m_q);
         try {
             reader.readMetaInfoFile(plugin->metaInfo());
-        } catch (const InvalidMetaInfoException &e) {
+        } catch ([[maybe_unused]] const InvalidMetaInfoException &e) {
+#ifndef UNIT_TESTS
             qWarning() << e.description();
             const QString errorMessage = plugin->metaInfo() + QLatin1Char('\n') + QLatin1Char('\n')
                                          + reader.errors().join(QLatin1Char('\n'));
@@ -115,15 +119,18 @@ void MetaInfoPrivate::parseItemLibraryDescriptions()
                 QCoreApplication::translate("QmlDesigner::Internal::MetaInfoPrivate",
                                             "Invalid meta info"),
                 errorMessage);
+#endif
         }
     }
 
-    const Utils::FilePaths allMetaInfoFiles = allGlobalMetaInfoFiles();
+    const Utils::FilePaths allMetaInfoFiles = allGlobalMetaInfoFiles(externalDependencies);
     for (const Utils::FilePath &path : allMetaInfoFiles) {
         Internal::MetaInfoReader reader(*m_q);
         try {
             reader.readMetaInfoFile(path.toString());
         } catch (const InvalidMetaInfoException &e) {
+            Q_UNUSED(e);
+#ifndef UNIT_TESTS
             qWarning() << e.description();
             const QString errorMessage = path.toString() + QLatin1Char('\n') + QLatin1Char('\n')
                                          + reader.errors().join(QLatin1Char('\n'));
@@ -131,6 +138,7 @@ void MetaInfoPrivate::parseItemLibraryDescriptions()
                 QCoreApplication::translate("QmlDesigner::Internal::MetaInfoPrivate",
                                             "Invalid meta info"),
                 errorMessage);
+#endif
         }
     }
 }
@@ -186,45 +194,26 @@ ItemLibraryInfo *MetaInfo::itemLibraryInfo() const
     return m_p->m_itemLibraryInfo.data();
 }
 
-/*!
-  Accesses the global meta information object.
-  You almost always want to use Model::metaInfo() instead.
-
-  Internally, all meta information objects share this \e global object
-  where static QML type information is stored.
-  */
-MetaInfo MetaInfo::global()
+void MetaInfo::initializeGlobal(const QStringList &pluginPaths,
+                                const ExternalDependenciesInterface &externalDependencies)
 {
     QMutexLocker locker(&s_lock);
 
     if (!s_global.m_p->m_isInitialized) {
+        s_pluginDirs = pluginPaths,
         s_global.m_p = QSharedPointer<MetaInfoPrivate>(new MetaInfoPrivate(&s_global));
-        s_global.m_p->initialize();
+        s_global.m_p->initialize(externalDependencies);
     }
-    return s_global;
-}
-
-/*!
-  Clears the global meta information object.
-
-  This function should be called once on application shutdown to free static data structures.
-  */
-void MetaInfo::clearGlobal()
-{
-    if (s_global.m_p->m_isInitialized)
-        s_global.m_p->clear();
-}
-
-void MetaInfo::setPluginPaths(const QStringList &paths)
-{
-    s_pluginDirs = paths;
-    global();
-    clearGlobal();
 }
 
 bool MetaInfo::isGlobal() const
 {
     return (this->m_p == s_global.m_p);
+}
+
+MetaInfo MetaInfo::global()
+{
+    return s_global;
 }
 
 bool operator==(const MetaInfo &first, const MetaInfo &second)

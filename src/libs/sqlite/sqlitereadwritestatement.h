@@ -34,66 +34,48 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto valueWithTransaction(const QueryTypes &...queryValues)
     {
-        ImmediateTransaction transaction{Base::database()};
-
-        auto resultValue = Base::template value<ResultType>(queryValues...);
-
-        transaction.commit();
-
-        return resultValue;
+        return withImmediateTransaction(Base::database(), [&] {
+            return Base::template value<ResultType>(queryValues...);
+        });
     }
 
     template<typename ResultType, typename... QueryTypes>
     auto optionalValueWithTransaction(const QueryTypes &...queryValues)
     {
-        ImmediateTransaction transaction{Base::database()};
-
-        auto resultValue = Base::template optionalValue<ResultType>(queryValues...);
-
-        transaction.commit();
-
-        return resultValue;
+        return withImmediateTransaction(Base::database(), [&] {
+            return Base::template optionalValue<ResultType>(queryValues...);
+        });
     }
 
     template<typename ResultType, typename... QueryTypes>
     auto valuesWithTransaction(std::size_t reserveSize, const QueryTypes &...queryValues)
     {
-        ImmediateTransaction transaction{Base::database()};
-
-        auto resultValues = Base::template values<ResultType>(reserveSize, queryValues...);
-
-        transaction.commit();
-
-        return resultValues;
+        return withImmediateTransaction(Base::database(), [&] {
+            return Base::template values<ResultType>(reserveSize, queryValues...);
+        });
     }
 
     template<typename Callable, typename... QueryTypes>
     void readCallbackWithTransaction(Callable &&callable, const QueryTypes &...queryValues)
     {
-        ImmediateTransaction transaction{Base::database()};
-
-        Base::readCallback(std::forward<Callable>(callable), queryValues...);
-
-        transaction.commit();
+        withImmediateTransaction(Base::database(), [&] {
+            Base::readCallback(std::forward<Callable>(callable), queryValues...);
+        });
     }
 
     template<typename Container, typename... QueryTypes>
     void readToWithTransaction(Container &container, const QueryTypes &...queryValues)
     {
-        ImmediateTransaction transaction{Base::database()};
-
-        Base::readTo(container, queryValues...);
-
-        transaction.commit();
+        withImmediateTransaction(Base::database(), [&] {
+            Base::readTo(container, queryValues...);
+        });
     }
 
     void executeWithTransaction()
     {
-        ImmediateTransaction transaction{Base::database()};
-
-        Base::execute();
-
-        transaction.commit();
+        withImmediateTransaction(Base::database(), [&] {
+            Base::execute();
+        });
     }
 };
 

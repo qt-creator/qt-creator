@@ -32,6 +32,9 @@
     "ArrangeIcon": {
         "iconName": "arrange_small"
     },
+    "BackspaceIcon": {
+        "iconName": "backspace_small"
+    },
     "CameraIcon": {
         "iconName": "camera_small"
     },

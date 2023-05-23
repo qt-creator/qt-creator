@@ -92,14 +92,17 @@ Column {
             PropertyLabel {
                 text: qsTr("Triggered on start")
                 tooltip: qsTr("Sets the timer to trigger when started.")
+                blockedByTemplate: !triggeredOnStartComboBox.enabled
             }
 
             SecondColumnLayout {
                 CheckBox {
+                    id: triggeredOnStartComboBox
                     text: backendValues.triggeredOnStart.valueToString
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.triggeredOnStart
+                    enabled: backendValues.triggeredOnStart.isAvailable
                 }
 
                 ExpandingSpacer {}

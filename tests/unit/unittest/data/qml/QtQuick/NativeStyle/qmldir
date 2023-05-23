@@ -1,0 +1,38 @@
+module QtQuick.NativeStyle
+linktarget Qt6::qtquickcontrols2nativestyleplugin
+plugin qtquickcontrols2nativestyleplugin
+classname QtQuickControls2NativeStylePlugin
+typeinfo plugins.qmltypes
+depends QtQuick.Controls auto
+depends QtQuick.Layouts auto
+depends QtQuick auto
+prefer :/qt-project.org/imports/QtQuick/NativeStyle/
+DefaultButton 6.0 controls/DefaultButton.qml
+DefaultButton 2.0 controls/DefaultButton.qml
+DefaultSlider 6.0 controls/DefaultSlider.qml
+DefaultSlider 2.0 controls/DefaultSlider.qml
+DefaultGroupBox 6.0 controls/DefaultGroupBox.qml
+DefaultGroupBox 2.0 controls/DefaultGroupBox.qml
+DefaultCheckBox 6.0 controls/DefaultCheckBox.qml
+DefaultCheckBox 2.0 controls/DefaultCheckBox.qml
+DefaultRadioButton 6.0 controls/DefaultRadioButton.qml
+DefaultRadioButton 2.0 controls/DefaultRadioButton.qml
+DefaultSpinBox 6.0 controls/DefaultSpinBox.qml
+DefaultSpinBox 2.0 controls/DefaultSpinBox.qml
+DefaultTextField 6.0 controls/DefaultTextField.qml
+DefaultTextField 2.0 controls/DefaultTextField.qml
+DefaultFrame 6.0 controls/DefaultFrame.qml
+DefaultFrame 2.0 controls/DefaultFrame.qml
+DefaultTextArea 6.0 controls/DefaultTextArea.qml
+DefaultTextArea 2.0 controls/DefaultTextArea.qml
+DefaultComboBox 6.0 controls/DefaultComboBox.qml
+DefaultComboBox 2.0 controls/DefaultComboBox.qml
+DefaultScrollBar 6.0 controls/DefaultScrollBar.qml
+DefaultScrollBar 2.0 controls/DefaultScrollBar.qml
+DefaultProgressBar 6.0 controls/DefaultProgressBar.qml
+DefaultProgressBar 2.0 controls/DefaultProgressBar.qml
+DefaultDial 6.0 controls/DefaultDial.qml
+DefaultDial 2.0 controls/DefaultDial.qml
+DefaultTreeViewDelegate 6.0 controls/DefaultTreeViewDelegate.qml
+DefaultTreeViewDelegate 2.0 controls/DefaultTreeViewDelegate.qml
+

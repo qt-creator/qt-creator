@@ -33,15 +33,15 @@
     In addition, all screens contain a small clock component that displays
     the current time. We implement a \e TimeDate JavaScript object to
     support this feature on \l{https://doc.qt.io/QtForMCUs/qtul-qmltypes.html}
-    {Qt for MCUs}, which does not support the \l Date component at the time of
+    {\QMCU}, which does not support the \l Date component at the time of
     writing.
 
     \section1 Creating an Application for MCUs
 
-    We use the \uicontrol {Qt for MCUs Application} project template to create
+    We use the \uicontrol {\QMCU Application} project template to create
     an application for MCUs, which support only a subset of the preset
     \l{glossary-component}{components}. We select \uicontrol File >
-    \uicontrol {New Project} > \uicontrol {Qt for MCUs Application} >
+    \uicontrol {New Project} > \uicontrol {\QMCU Application} >
     \uicontrol Choose, and follow the instructions of the wizard to create our
     project.
 
@@ -54,16 +54,16 @@
     that we can use to configure and build our example application for running
     it on MCUs.
 
-    \note This example has been tested to run using Qt for MCUs versions since
+    \note This example has been tested to run using \QMCU versions since
     1.6. You cannot run it on older versions. Also, at the time of writing,
-    Qt for MCUs only supports Qt 5.
+    \QMCU only supports Qt 5.
 
     \section1 Creating Screens
 
     For this example, we used an external tool to design the UI and then
     exported and imported our design into \QDS as assets and components
     using \QB, as instructed in \l{Exporting from Design Tools}. While
-    exporting, we only picked components supported by Qt for MCUs to use
+    exporting, we only picked components supported by \QMCU to use
     for our components. For the button components, we mostly use the
     \l {basic-image}{Image}, \l Text, and \l {Mouse Area} components. For the
     screen background, we use the \l {basic-rectangle}{Rectangle} component.
@@ -171,7 +171,7 @@
 
     \image washingmachineui-states.png "States view"
 
-    In Qt for MCU, states work differently from Qt Quick, and therefore we
+    In \QMCU, states work differently from Qt Quick, and therefore we
     sometimes use \c when conditions to determine the state to apply, and
     sometimes switch states using signals and JavaScript expressions.
 
@@ -217,7 +217,7 @@
 
     \section1 Showing the Current Time
 
-    The \l Date component is not supported on Qt for MCUs, and the
+    The \l Date component is not supported on \QMCU, and the
     \l{https://doc.qt.io/QtForMCUs/qtul-javascript-environment.html}
     {implementation of the JavaScript \c Date()} object returns elapsed
     time since when the application was started instead of the current

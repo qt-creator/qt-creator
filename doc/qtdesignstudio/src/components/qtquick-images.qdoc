@@ -187,7 +187,6 @@
 
     \youtube DVWd_xMMgvg
 
-    \if defined(qtdesignstudio)
     \section1 Iso Icon
 
     \note The Iso Icon component is not available if you selected
@@ -207,7 +206,6 @@
     set the value of \uicontrol {Icon color}.
 
     \image iso-icon-browser.png
-    \endif
 
     \section1 Summary of Images
 
@@ -243,7 +241,6 @@
         \li \inlineimage ok.png
         \li An image in one of the supported formats, including bitmap formats
             such as PNG and JPEG and vector graphics formats such as SVG.
-    \if defined(qtdesignstudio)
     \row
         \li \inlineimage icons/iso-icons-16px.png
         \li \l{Iso Icon}
@@ -253,6 +250,5 @@
             component. You can select the icon to use and its color.
 
             \note This component is not supported on Qt 6.
-    \endif
     \endtable
 */

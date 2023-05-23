@@ -1,0 +1,8 @@
+module QtQuick.VirtualKeyboard.Plugins.TCIme
+linktarget Qt6::qtvkbtcimeplugin
+plugin qtvkbtcimeplugin
+classname QtQuick_VirtualKeyboard_Plugins_TCImePlugin
+typeinfo plugins.qmltypes
+depends QtQuick.VirtualKeyboard auto
+prefer :/qt-project.org/imports/QtQuick/VirtualKeyboard/Plugins/TCIme/
+

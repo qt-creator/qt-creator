@@ -87,12 +87,10 @@
     \header
         \li Technique
         \li Use Case
-    \if defined(qtdesignstudio)
     \row
         \li \l{Designing Application Flows}{Application flows}
         \li An interactive prototype that can be clicked through to simulate
             the user experience of the application.
-    \endif
     \row
         \li \l{Transitions}{Transitions between states}
         \li Transitions between different states of the UI using a transition
@@ -100,7 +98,6 @@
             to the keyframes.
     \endtable
 
-    \if defined(qtdesignstudio)
     \section2 Application Flows
 
     You can design an application in the form of a \e {schematic diagram}
@@ -111,7 +108,6 @@
     as the base of the production version of the application.
 
     For more information, see \l{Designing Application Flows}.
-    \endif
 
     \section2 Transitions Between States
 

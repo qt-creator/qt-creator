@@ -8,7 +8,7 @@ import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import AssetsLibraryBackend
 
-Dialog {
+StudioControls.Dialog {
     id: root
 
     title: qsTr("Create New Folder")
@@ -86,8 +86,10 @@ Dialog {
                 text: qsTr("Create")
                 enabled: folderName.text !== "" && root.createdDirPath.length <= root.__maxPath
                 onClicked: {
-                    root.createdDirPath = root.dirPath + '/' + folderName.text
-                    if (AssetsLibraryBackend.assetsModel.addNewFolder(root.createdDirPath))
+                    let dirPathToCreate = root.dirPath + '/' + folderName.text
+                    root.createdDirPath = AssetsLibraryBackend.assetsModel.addNewFolder(root.createdDirPath)
+
+                    if (root.createdDirPath)
                         root.accept()
                     else
                         creationFailedDialog.open()

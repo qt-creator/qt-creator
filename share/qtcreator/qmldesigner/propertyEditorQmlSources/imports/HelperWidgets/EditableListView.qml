@@ -1,8 +1,9 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
+import QtQuick
+import QtQuick.Layouts
+import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
@@ -23,11 +24,12 @@ Item {
     property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
     property real __actionIndicatorHeight: StudioTheme.Values.height
     property string typeFilter: "QtQuick3D.Material"
-    property string textRole: "IdAndNameRole"
-    property string valueRole: "IdRole"
+    property string textRole: "idAndName"
+    property string valueRole: "id"
     property int activatedReason: ComboBox.ActivatedReason.Other
 
     property bool delegateHover: false
+    property bool allowDuplicates: true
 
     property string extraButtonIcon: "" // setting this will show an extra button
     property string extraButtonToolTip: ""
@@ -40,11 +42,19 @@ Item {
     Layout.preferredWidth: StudioTheme.Values.height * 10
     Layout.preferredHeight: myColumn.height
 
+    HelperWidgets.ItemFilterModel {
+        id: itemFilterModel
+        typeFilter: root.typeFilter
+        modelNodeBackendProperty: modelNodeBackend
+        selectedItems: root.allowDuplicates ? [] : root.model
+    }
+
     Component {
         id: myDelegate
 
         Row {
             property alias comboBox: itemFilterComboBox
+
             ListViewComboBox {
                 id: itemFilterComboBox
 
@@ -54,7 +64,7 @@ Item {
                 validator: RegExpValidator { regExp: /(^[a-z_]\w*|^[A-Z]\w*\.{1}([a-z_]\w*\.?)+)/ }
 
                 actionIndicatorVisible: false
-                typeFilter: root.typeFilter
+                model: itemFilterModel
                 initialModelData: modelData
                 textRole: root.textRole
                 valueRole: root.valueRole
@@ -96,7 +106,7 @@ Item {
                 tooltip: root.extraButtonToolTip
                 onClicked: root.extraButtonClicked(index)
                 visible: root.extraButtonIcon !== ""
-                enabled: root.model[index]
+                enabled: root.model[index] ?? false
             }
 
             IconIndicator {
@@ -188,7 +198,7 @@ Item {
                 visible: myRepeater.count === 0
                 validator: RegExpValidator { regExp: /(^[a-z_]\w*|^[A-Z]\w*\.{1}([a-z_]\w*\.?)+)/ }
                 actionIndicatorVisible: false
-                typeFilter: root.typeFilter
+                model: itemFilterModel
                 textRole: root.textRole
                 valueRole: root.valueRole
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth

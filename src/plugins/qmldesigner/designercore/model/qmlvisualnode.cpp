@@ -291,6 +291,7 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     rewriterView->setAllowComponentRoot(true);
+    rewriterView->setPossibleImportsEnabled(false);
     inputModel->setRewriterView(rewriterView.data());
 
     if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {

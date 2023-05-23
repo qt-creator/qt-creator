@@ -1,0 +1,8 @@
+module Qt.labs.lottieqt
+linktarget Qt6::lottieqtplugin
+optional plugin lottieqtplugin
+classname BodymovinPlugin
+typeinfo plugins.qmltypes
+depends QtQuick
+prefer :/qt-project.org/imports/Qt/labs/lottieqt/
+

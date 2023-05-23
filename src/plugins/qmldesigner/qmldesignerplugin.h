@@ -95,6 +95,7 @@ private slots:
     void handleFeedback(const QString &feedback, int rating);
 
 private: // functions
+    void lauchFeedbackPopupInternal(const QString &identifier);
     void integrateIntoQtCreator(QWidget *modeWidget);
     void showDesigner();
     void hideDesigner();
@@ -114,7 +115,6 @@ private: // variables
     QmlDesignerPluginPrivate *d = nullptr;
     static QmlDesignerPlugin *m_instance;
     QElapsedTimer m_usageTimer;
-    StudioConfigSettingsPage m_settingsPage;
 };
 
 } // namespace QmlDesigner

@@ -44,7 +44,7 @@ public:
     void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl) override;
 
     void nodeOrderChanged(const NodeListProperty &listProperty) override;
-    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
+    void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
 
     void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
 
@@ -197,7 +197,7 @@ void ForwardView<ViewType>::nodeOrderChanged(const NodeListProperty &listPropert
 }
 
 template <class ViewType>
-void ForwardView<ViewType>::importChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
+void ForwardView<ViewType>::importChanged(const Imports &addedImports, const Imports &removedImports)
 {
     for (const ViewTypePointer &view : std::as_const(m_targetViewList))
         view->importChanged(addedImport, removedImport);

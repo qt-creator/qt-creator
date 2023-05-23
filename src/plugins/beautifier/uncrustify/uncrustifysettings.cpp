@@ -3,14 +3,25 @@
 
 #include "uncrustifysettings.h"
 
+#include "uncrustifyconstants.h"
 #include "../beautifierconstants.h"
+#include "../beautifierplugin.h"
+#include "../beautifiertr.h"
+#include "../configurationpanel.h"
 
 #include <coreplugin/icore.h>
+
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/process.h>
 
+#include <QCheckBox>
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
 #include <QRegularExpression>
 #include <QXmlStreamWriter>
 
@@ -18,108 +29,55 @@ using namespace Utils;
 
 namespace Beautifier::Internal {
 
-const char USE_OTHER_FILES[]               = "useOtherFiles";
-const char USE_HOME_FILE[]                 = "useHomeFile";
-const char USE_SPECIFIC_CONFIG_FILE_PATH[] = "useSpecificConfigFile";
-const char SPECIFIC_CONFIG_FILE_PATH[]     = "specificConfigFile";
-const char USE_CUSTOM_STYLE[]              = "useCustomStyle";
-const char CUSTOM_STYLE[]                  = "customStyle";
-const char FORMAT_ENTIRE_FILE_FALLBACK[]   = "formatEntireFileFallback";
-const char SETTINGS_NAME[]                 = "uncrustify";
+const char SETTINGS_NAME[] = "uncrustify";
 
-UncrustifySettings::UncrustifySettings() :
-    AbstractSettings(SETTINGS_NAME, ".cfg")
+UncrustifySettings::UncrustifySettings()
+    : AbstractSettings(SETTINGS_NAME, ".cfg")
 {
     setVersionRegExp(QRegularExpression("([0-9]{1})\\.([0-9]{2})"));
-    setCommand("uncrustify");
-    m_settings.insert(USE_OTHER_FILES, QVariant(true));
-    m_settings.insert(USE_HOME_FILE, QVariant(false));
-    m_settings.insert(USE_CUSTOM_STYLE, QVariant(false));
-    m_settings.insert(USE_SPECIFIC_CONFIG_FILE_PATH, QVariant(false));
-    m_settings.insert(CUSTOM_STYLE, QVariant());
-    m_settings.insert(FORMAT_ENTIRE_FILE_FALLBACK, QVariant(true));
-    m_settings.insert(SPECIFIC_CONFIG_FILE_PATH, QVariant());
+
+    command.setDefaultValue("uncrustify");
+    command.setLabelText(Tr::tr("Uncrustify command:"));
+    command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
+                                     Tr::tr(Constants::UNCRUSTIFY_DISPLAY_NAME)));
+
+    registerAspect(&useOtherFiles);
+    useOtherFiles.setSettingsKey("useOtherFiles");
+    useOtherFiles.setDefaultValue(true);
+    useOtherFiles.setLabelText(Tr::tr("Use file uncrustify.cfg defined in project files"));
+
+    registerAspect(&useHomeFile);
+    useHomeFile.setSettingsKey("useHomeFile");
+    useHomeFile.setLabelText(Tr::tr("Use file uncrustify.cfg in HOME")
+        .replace( "HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
+
+    registerAspect(&useCustomStyle);
+    useCustomStyle.setSettingsKey("useCustomStyle");
+    useCustomStyle.setLabelText(Tr::tr("Use customized style:"));
+
+    registerAspect(&useSpecificConfigFile);
+    useSpecificConfigFile.setSettingsKey("useSpecificConfigFile");
+    useSpecificConfigFile.setLabelText(Tr::tr("Use file specific uncrustify.cfg"));
+
+    registerAspect(&customStyle);
+    customStyle.setSettingsKey("customStyle");
+
+    registerAspect(&formatEntireFileFallback);
+    formatEntireFileFallback.setSettingsKey("formatEntireFileFallback");
+    formatEntireFileFallback.setDefaultValue(true);
+    formatEntireFileFallback.setLabelText(Tr::tr("Format entire file if no text was selected"));
+    formatEntireFileFallback.setToolTip(Tr::tr("For action Format Selected Text"));
+
+    registerAspect(&specificConfigFile);
+    specificConfigFile.setSettingsKey("specificConfigFile");
+    specificConfigFile.setExpectedKind(Utils::PathChooser::File);
+    specificConfigFile.setPromptDialogFilter(Tr::tr("Uncrustify file (*.cfg)"));
+
+    documentationFilePath.setFilePath(Core::ICore::userResourcePath(Constants::SETTINGS_DIRNAME)
+        .pathAppended(Constants::DOCUMENTATION_DIRNAME)
+        .pathAppended(SETTINGS_NAME).stringAppended(".xml"));
+
     read();
-}
-
-UncrustifySettings::~UncrustifySettings() = default;
-
-bool UncrustifySettings::useOtherFiles() const
-{
-    return m_settings.value(USE_OTHER_FILES).toBool();
-}
-
-void UncrustifySettings::setUseOtherFiles(bool useOtherFiles)
-{
-    m_settings.insert(USE_OTHER_FILES, QVariant(useOtherFiles));
-}
-
-bool UncrustifySettings::useHomeFile() const
-{
-    return m_settings.value(USE_HOME_FILE).toBool();
-}
-
-void UncrustifySettings::setUseHomeFile(bool useHomeFile)
-{
-    m_settings.insert(USE_HOME_FILE, QVariant(useHomeFile));
-}
-
-FilePath UncrustifySettings::specificConfigFile() const
-{
-    return FilePath::fromString(m_settings.value(SPECIFIC_CONFIG_FILE_PATH).toString());
-}
-
-void UncrustifySettings::setSpecificConfigFile(const FilePath &filePath)
-{
-    m_settings.insert(SPECIFIC_CONFIG_FILE_PATH, QVariant(filePath.toString()));
-}
-
-bool UncrustifySettings::useSpecificConfigFile() const
-{
-    return m_settings.value(USE_SPECIFIC_CONFIG_FILE_PATH).toBool();
-}
-
-void UncrustifySettings::setUseSpecificConfigFile(bool useConfigFile)
-{
-    m_settings.insert(USE_SPECIFIC_CONFIG_FILE_PATH, QVariant(useConfigFile));
-}
-
-bool UncrustifySettings::useCustomStyle() const
-{
-    return m_settings.value(USE_CUSTOM_STYLE).toBool();
-}
-
-void UncrustifySettings::setUseCustomStyle(bool useCustomStyle)
-{
-    m_settings.insert(USE_CUSTOM_STYLE, QVariant(useCustomStyle));
-}
-
-QString UncrustifySettings::customStyle() const
-{
-    return m_settings.value(CUSTOM_STYLE).toString();
-}
-
-void UncrustifySettings::setCustomStyle(const QString &customStyle)
-{
-    m_settings.insert(CUSTOM_STYLE, QVariant(customStyle));
-}
-
-bool UncrustifySettings::formatEntireFileFallback() const
-{
-    return m_settings.value(FORMAT_ENTIRE_FILE_FALLBACK).toBool();
-}
-
-void UncrustifySettings::setFormatEntireFileFallback(bool formatEntireFileFallback)
-{
-    m_settings.insert(FORMAT_ENTIRE_FILE_FALLBACK, QVariant(formatEntireFileFallback));
-}
-
-QString UncrustifySettings::documentationFilePath() const
-{
-    return (Core::ICore::userResourcePath() / Beautifier::Constants::SETTINGS_DIRNAME
-                / Beautifier::Constants::DOCUMENTATION_DIRNAME / SETTINGS_NAME)
-            .stringAppended(".xml")
-        .toString();
 }
 
 void UncrustifySettings::createDocumentationFile() const
@@ -131,7 +89,7 @@ void UncrustifySettings::createDocumentationFile() const
     if (process.result() != ProcessResult::FinishedWithSuccess)
         return;
 
-    QFile file(documentationFilePath());
+    QFile file(documentationFilePath().toFSPathString());
     const QFileInfo fi(file);
     if (!fi.exists())
         fi.dir().mkpath(fi.absolutePath());
@@ -183,6 +141,64 @@ void UncrustifySettings::createDocumentationFile() const
         file.close();
         file.remove();
     }
+}
+
+class UncrustifyOptionsPageWidget : public Core::IOptionsPageWidget
+{
+public:
+    explicit UncrustifyOptionsPageWidget(UncrustifySettings *settings)
+    {
+        UncrustifySettings &s = *settings;
+
+        auto configurations = new ConfigurationPanel(this);
+        configurations->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        configurations->setSettings(settings);
+        configurations->setCurrentConfiguration(settings->customStyle());
+
+        QGroupBox *options = nullptr;
+
+        using namespace Layouting;
+
+        Column {
+            Group {
+                title(Tr::tr("Configuration")),
+                Form {
+                    s.command, br,
+                    s.supportedMimeTypes,
+                }
+            },
+            Group {
+                title(Tr::tr("Options")),
+                bindTo(&options),
+                Column {
+                    s.useOtherFiles,
+                    Row { s.useSpecificConfigFile, s.specificConfigFile },
+                    s.useHomeFile,
+                    Row { s.useCustomStyle, configurations },
+                    s.formatEntireFileFallback
+                },
+            },
+            st
+        }.attachTo(this);
+
+        s.read();
+
+        connect(s.command.pathChooser(), &PathChooser::validChanged, options, &QWidget::setEnabled);
+        options->setEnabled(s.command.pathChooser()->isValid());
+
+        setOnApply([&s, configurations] {
+            s.customStyle.setValue(configurations->currentConfiguration());
+            s.save();
+        });
+    }
+};
+
+UncrustifyOptionsPage::UncrustifyOptionsPage(UncrustifySettings *settings)
+{
+    setId("Uncrustify");
+    setDisplayName(Tr::tr("Uncrustify"));
+    setCategory(Constants::OPTION_CATEGORY);
+    setWidgetCreator([settings] { return new UncrustifyOptionsPageWidget(settings); });
 }
 
 } // Beautifier::Internal

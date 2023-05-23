@@ -39,7 +39,6 @@ AbstractProperty::AbstractProperty(const Internal::InternalPropertyPointer &prop
         m_model(model),
         m_view(view)
 {
-    Q_ASSERT(!m_model || m_view);
 }
 
 AbstractProperty::AbstractProperty(const AbstractProperty &property, AbstractView *view)

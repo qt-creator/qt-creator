@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprojectitem.h"
-#include "filefilteritems.h"
-#include "qmlprojectfileformat.h"
 
 #include <utils/algorithm.h>
 
@@ -43,29 +41,27 @@ tst_FileFormat::tst_FileFormat()
 const QString testDataDir = QLatin1String(SRCDIR "/data");
 const FilePath testDataDirPath = FilePath::fromString(testDataDir);
 
-static std::unique_ptr<QmlProjectItem> loadQmlProject(QString name, QString *error)
+static std::unique_ptr<QmlProjectItem> loadQmlProject(QString name)
 {
-    return QmlProjectFileFormat::parseProjectFile(
-                Utils::FilePath::fromString(testDataDir).pathAppended(name + ".qmlproject"), error);
+    return std::unique_ptr<QmlProjectItem>(new QmlProjectItem(
+                testDataDirPath.pathAppended(name + ".qmlproject")));
 }
 
 void tst_FileFormat::testFileFilter()
 {
-    QString error;
-
     //
     // Search for qml files in directory + subdirectories
     //
     {
-        auto project = loadQmlProject(QLatin1String("testFileFilter1"), &error);
+        auto project = loadQmlProject(QLatin1String("testFileFilter1"));
         QVERIFY(project);
-        QVERIFY(error.isEmpty());
+        QVERIFY(!project->project().isEmpty());
 
-        project->setSourceDirectory(testDataDirPath);
-
-        QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
-                                                << testDataDir + "/file2.qml"
-                                                << testDataDir + "/subdir/file3.qml");
+        FilePaths expectedFiles{
+            testDataDirPath / "file1.qml",
+            testDataDirPath / "file2.qml",
+            testDataDirPath / "subdir/file3.qml"
+        };
         COMPARE_AS_SETS(project->files(), expectedFiles);
     }
 
@@ -73,14 +69,11 @@ void tst_FileFormat::testFileFilter()
     // search for all qml files in directory
     //
     {
-        auto project = loadQmlProject(QLatin1String("testFileFilter2"), &error);
+        auto project = loadQmlProject(QLatin1String("testFileFilter2"));
         QVERIFY(project);
-        QVERIFY(error.isEmpty());
+        QVERIFY(!project->project().isEmpty());
 
-        project->setSourceDirectory(testDataDirPath);
-
-        QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
-                                                << testDataDir + "/file2.qml");
+        FilePaths expectedFiles{ testDataDirPath / "file1.qml", testDataDirPath / "file2.qml" };
         COMPARE_AS_SETS(project->files(), expectedFiles);
     }
 
@@ -88,13 +81,11 @@ void tst_FileFormat::testFileFilter()
     // search for all qml files in subdirectory
     //
     {
-        auto project = loadQmlProject(QLatin1String("testFileFilter3"), &error);
+        auto project = loadQmlProject(QLatin1String("testFileFilter3"));
         QVERIFY(project);
-        QVERIFY(error.isEmpty());
+        QVERIFY(!project->project().isEmpty());
 
-        project->setSourceDirectory(testDataDirPath);
-
-        QStringList expectedFiles(QStringList() <<  testDataDir + "/subdir/file3.qml");
+        FilePaths expectedFiles{ testDataDirPath / "subdir/file3.qml" };
         COMPARE_AS_SETS(project->files(), expectedFiles);
     }
 
@@ -102,15 +93,15 @@ void tst_FileFormat::testFileFilter()
     // multiple entries
     //
     {
-        auto project = loadQmlProject(QLatin1String("testFileFilter4"), &error);
+        auto project = loadQmlProject(QLatin1String("testFileFilter4"));
         QVERIFY(project);
-        QVERIFY(error.isEmpty());
+        QVERIFY(!project->project().isEmpty());
 
-        project->setSourceDirectory(testDataDirPath);
-
-        QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
-                                                << testDataDir + "/file2.qml"
-                                                << testDataDir + "/subdir/file3.qml");
+        FilePaths expectedFiles{
+            testDataDirPath / "file1.qml",
+            testDataDirPath / "file2.qml",
+            testDataDirPath / "/subdir/file3.qml"
+        };
         QCOMPARE(project->files().size(), 3);
         COMPARE_AS_SETS(project->files(), expectedFiles);
     }
@@ -119,14 +110,11 @@ void tst_FileFormat::testFileFilter()
     // include specific list
     //
     {
-        auto project = loadQmlProject(QLatin1String("testFileFilter5"), &error);
+        auto project = loadQmlProject(QLatin1String("testFileFilter5"));
         QVERIFY(project);
-        QVERIFY(error.isEmpty());
+        QVERIFY(!project->project().isEmpty());
 
-        project->setSourceDirectory(testDataDirPath);
-
-        QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
-                                                << testDataDir + "/file2.qml");
+        FilePaths expectedFiles{ testDataDirPath / "file1.qml", testDataDirPath / "file2.qml" };
         COMPARE_AS_SETS(project->files(), expectedFiles);
     }
 
@@ -134,13 +122,11 @@ void tst_FileFormat::testFileFilter()
     // include specific list
     //
     {
-        auto project = loadQmlProject(QLatin1String("testFileFilter6"), &error);
+        auto project = loadQmlProject(QLatin1String("testFileFilter6"));
         QVERIFY(project);
-        QVERIFY(error.isEmpty());
+        QVERIFY(!project->project().isEmpty());
 
-        project->setSourceDirectory(testDataDirPath);
-
-        QStringList expectedFiles(QStringList() << testDataDir + "/image.gif");
+        FilePaths expectedFiles{ testDataDirPath / "image.gif" };
         COMPARE_AS_SETS(project->files(), expectedFiles);
     }
 
@@ -148,13 +134,11 @@ void tst_FileFormat::testFileFilter()
     // use wildcards
     //
     {
-        auto project = loadQmlProject(QLatin1String("testFileFilter7"), &error);
+        auto project = loadQmlProject(QLatin1String("testFileFilter7"));
         QVERIFY(project);
-        QVERIFY(error.isEmpty());
+        QVERIFY(!project->project().isEmpty());
 
-        project->setSourceDirectory(testDataDirPath);
-
-        QStringList expectedFiles(QStringList() << testDataDir + "/image.gif");
+        FilePaths expectedFiles{ testDataDirPath / "image.gif" };
         COMPARE_AS_SETS(project->files(), expectedFiles);
     }
 
@@ -162,28 +146,23 @@ void tst_FileFormat::testFileFilter()
     // use Files element (1.1)
     //
     {
-        auto project = loadQmlProject(QLatin1String("testFileFilter8"), &error);
+        auto project = loadQmlProject(QLatin1String("testFileFilter8"));
         QVERIFY(project);
-        QVERIFY(error.isEmpty());
+        QVERIFY(!project->project().isEmpty());
 
-        project->setSourceDirectory(testDataDirPath);
-
-        QStringList expectedFiles(QStringList() << testDataDir + "/image.gif");
+        FilePaths expectedFiles{ testDataDirPath / "image.gif" };
         COMPARE_AS_SETS(project->files(), expectedFiles);
     }
 }
 
 void tst_FileFormat::testMatchesFile()
 {
-    QString error;
     //
     // search for qml files in local directory
     //
-    auto project = loadQmlProject(QLatin1String("testMatchesFile"), &error);
+    auto project = loadQmlProject(QLatin1String("testMatchesFile"));
     QVERIFY(project);
-    QVERIFY(error.isEmpty());
-
-    project->setSourceDirectory(testDataDirPath);
+    QVERIFY(!project->project().isEmpty());
 
     QVERIFY(project->matchesFile(testDataDir + "/file1.qml"));
     QVERIFY(project->matchesFile(testDataDir + "/notyetexistingfile.qml"));
@@ -194,15 +173,12 @@ void tst_FileFormat::testMatchesFile()
 
 void tst_FileFormat::testLibraryPaths()
 {
-    QString error;
     //
     // search for qml files in local directory
     //
-    auto project = loadQmlProject(QLatin1String("testLibraryPaths"), &error);
+    auto project = loadQmlProject(QLatin1String("testLibraryPaths"));
     QVERIFY(project);
-    QVERIFY(error.isEmpty());
-
-    project->setSourceDirectory(testDataDirPath);
+    QVERIFY(!project->project().isEmpty());
 
     const QDir base(testDataDir);
     const QStringList expectedPaths({base.relativeFilePath(SRCDIR "/otherLibrary"),
@@ -212,13 +188,12 @@ void tst_FileFormat::testLibraryPaths()
 
 void tst_FileFormat::testMainFile()
 {
-    QString error;
     //
     // search for qml files in local directory
     //
-    auto project = loadQmlProject(QLatin1String("testMainFile"), &error);
+    auto project = loadQmlProject(QLatin1String("testMainFile"));
     QVERIFY(project);
-    QVERIFY(error.isEmpty());
+    QVERIFY(!project->project().isEmpty());
 
     QCOMPARE(project->mainFile(), QString("file1.qml"));
 }

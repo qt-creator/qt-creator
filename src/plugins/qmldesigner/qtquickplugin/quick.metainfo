@@ -571,6 +571,7 @@ MetaInfo {
             requiredImport: "QtQuick3D"
 
             QmlSource { source: ":/qtquickplugin/source/component3d.qml" }
+            toolTip: qsTr("Allows you to define 3D components inline, within a QML document.")
         }
     }
 

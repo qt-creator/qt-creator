@@ -149,4 +149,6 @@ QmlEditorStyleObject::QmlEditorStyleObject()
     QmlEditorMenuPrivate::cascadeRight = DesignerIcons::rotateIcon(downIcon, -90);
     QmlEditorMenuPrivate::tick = DesignerActionManager::instance()
             .contextIcon(DesignerIcons::SimpleCheckIcon);
+    QmlEditorMenuPrivate::backspaceIcon = DesignerActionManager::instance()
+            .contextIcon(DesignerIcons::BackspaceIcon);
 }

@@ -174,7 +174,29 @@ Section {
         }
 
         PropertyLabel {
-            text: qsTr("Name")
+            visible: root.showState
+            text: qsTr("State")
+            tooltip: qsTr("Sets the state of the component.")
+        }
+
+        SecondColumnLayout {
+            visible: root.showState
+
+            ComboBox {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
+                width: implicitWidth
+                editable: true
+                backendValue: backendValues.state
+                model: allStateNames
+                valueType: ComboBox.String
+            }
+
+            ExpandingSpacer {}
+        }
+
+        PropertyLabel {
+            text: annotationEditor.hasAuxData ? qsTr("Annotation") : ""
             tooltip: qsTr("Adds a note with a title to explain the component.")
         }
 
@@ -226,6 +248,7 @@ Section {
                 visible: !annotationEditor.hasAuxData
                 buttonIcon: qsTr("Add Annotation")
                 iconFont: StudioTheme.Constants.font
+                tooltip: qsTr("Adds a note with a title to explain the component.")
                 onClicked: annotationEditor.showWidget()
                 onHoveredChanged: annotationEditor.checkAux()
             }
@@ -251,28 +274,6 @@ Section {
                 onAccepted: hideWidget()
                 onCanceled: hideWidget()
             }
-        }
-
-        PropertyLabel {
-            visible: root.showState
-            text: qsTr("State")
-            tooltip: qsTr("Sets the state of the component.")
-        }
-
-        SecondColumnLayout {
-            visible: root.showState
-
-            ComboBox {
-                implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                               + StudioTheme.Values.actionIndicatorWidth
-                width: implicitWidth
-                editable: true
-                backendValue: backendValues.state
-                model: allStateNames
-                valueType: ComboBox.String
-            }
-
-            ExpandingSpacer {}
         }
     }
 }

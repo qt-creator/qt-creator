@@ -67,7 +67,7 @@ public:
     void disableWidgets();
     void enableWidgets();
 
-    void pushFileOnCrumbleBar(const Utils::FilePath &fileName);
+    void pushFileOnCrumbleBar(const ::Utils::FilePath &fileName);
     void pushInFileComponentOnCrumbleBar(const ModelNode &modelNode);
     void nextFileIsCalledInternally();
 

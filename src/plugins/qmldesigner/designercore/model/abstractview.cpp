@@ -64,8 +64,12 @@ RewriterTransaction AbstractView::beginRewriterTransaction(const QByteArray &ide
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName)
 {
-    const NodeMetaInfo metaInfo = model()->metaInfo(typeName);
-    return createModelNode(typeName, metaInfo.majorVersion(), metaInfo.minorVersion());
+    if constexpr (useProjectStorage()) {
+        return createModelNode(typeName, -1, -1);
+    } else {
+        const NodeMetaInfo metaInfo = model()->metaInfo(typeName);
+        return createModelNode(typeName, metaInfo.majorVersion(), metaInfo.minorVersion());
+    }
 }
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName,
@@ -143,9 +147,6 @@ The default implementation is setting the reference of the model to the view.
 void AbstractView::modelAttached(Model *model)
 {
     setModel(model);
-
-    if (model)
-        model->d->updateEnabledViews();
 }
 
 /*!
@@ -315,15 +316,15 @@ void AbstractView::nodeTypeChanged(const ModelNode & /*node*/, const TypeName & 
 
 }
 
-void AbstractView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
+void AbstractView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)
 {
 }
 
-void AbstractView::possibleImportsChanged(const QList<Import> &/*possibleImports*/)
+void AbstractView::possibleImportsChanged(const Imports &/*possibleImports*/)
 {
 }
 
-void AbstractView::usedImportsChanged(const QList<Import> &/*usedImports*/)
+void AbstractView::usedImportsChanged(const Imports &/*usedImports*/)
 {
 }
 
@@ -617,9 +618,6 @@ bool AbstractView::isEnabled() const
 void AbstractView::setEnabled(bool b)
 {
     m_enabled = b;
-
-    if (model())
-        model()->d->updateEnabledViews();
 }
 
 QList<ModelNode> AbstractView::allModelNodes() const
@@ -893,32 +891,28 @@ QmlTimeline AbstractView::currentTimeline() const
 
 static int getMinorVersionFromImport(const Model *model)
 {
-    const QList<Import> imports = model->imports();
-    for (const Import &import : imports) {
-        if (import.isLibraryImport() && import.url() == "QtQuick") {
-            const QString versionString = import.version();
-            if (versionString.contains(".")) {
-                const QString minorVersionString = versionString.split(".").constLast();
-                return minorVersionString.toInt();
-            }
-        }
-    }
+    const Imports &imports = model->imports();
+
+    auto found = std::find_if(imports.begin(), imports.end(), [](const auto &import) {
+        return import.url() == "QtQuick";
+    });
+
+    if (found != imports.end())
+        return found->minorVersion();
 
     return -1;
 }
 
 static int getMajorVersionFromImport(const Model *model)
 {
-    const QList<Import> imports = model->imports();
-    for (const Import &import : imports) {
-        if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick")) {
-            const QString versionString = import.version();
-            if (versionString.contains(QStringLiteral("."))) {
-                const QString majorVersionString = versionString.split(QStringLiteral(".")).constFirst();
-                return majorVersionString.toInt();
-            }
-        }
-    }
+    const Imports &imports = model->imports();
+
+    auto found = std::find_if(imports.begin(), imports.end(), [](const auto &import) {
+        return import.url() == "QtQuick";
+    });
+
+    if (found != imports.end())
+        return found->majorVersion();
 
     return -1;
 }

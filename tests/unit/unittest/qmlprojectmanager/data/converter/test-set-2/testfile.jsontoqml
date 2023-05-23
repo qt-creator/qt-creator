@@ -1,0 +1,54 @@
+\\ prop: json-converted
+\\ prop: auto-generated
+
+import QmlProject
+
+Project {
+    mainFile: "fileSelectors.qml"
+    mainUiFile: ""
+    targetDirectory: "/opt/fileSelectors"
+    widgetApp: false
+    importPaths: [ "imports" ]
+
+    qdsVersion: ""
+    quickVersion: ""
+    qt6Project: false
+    qtForMCUs: true
+
+    multilanguageSupport: false
+    primaryLanguage: ""
+    supportedLanguages: [  ]
+
+    Environment {
+        QT_AUTO_SCREEN_SCALE_FACTOR: "1"
+        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
+    }
+
+    ShaderTool {
+        args: ""
+        files: [  ]
+    }
+
+    QmlFiles {
+        directory: "."
+    }
+
+    JavaScriptFiles {
+        directory: "."
+    }
+
+    ImageFiles {
+        directory: "."
+    }
+
+    Files {
+        directory: "."
+        filters: "*.conf"
+        files: [ "qtquickcontrols2.conf" ]
+    }
+
+    Files {
+        directory: "."
+        filters: "qmldir"
+    }
+}

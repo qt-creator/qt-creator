@@ -113,40 +113,6 @@ QScrollArea#dockWidgetScrollArea {
     background: creatorTheme.DStabInactiveButtonPress;
 }
 
-QScrollBar {
-    background: creatorTheme.DSscrollBarTrack;
-}
-
-QScrollBar:vertical {
-    width: 10px;
-}
-
-QScrollBar:horizontal {
-    height: 10px;
-}
-
-QScrollBar::handle {
-    background: creatorTheme.DSscrollBarHandle;
-}
-
-QScrollBar::handle:vertical {
-    min-height: 30px;
-}
-
-QScrollBar::handle:horizontal {
-    min-width: 30px;
-}
-
-QScrollBar::add-line,
-QScrollBar::sub-line,
-QScrollBar::left-arrow,
-QScrollBar::right-arrow,
-QScrollBar::add-page,
-QScrollBar::sub-page {
-    height: 0px;
-    width: 0px;
-}
-
 /* Focus related styling */
 ADS--DockWidgetTab[focused="true"] {
     background: creatorTheme.DStabFocusBackground;

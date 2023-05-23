@@ -1,0 +1,44 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+
+    \page qt-using-effect-maker-effects.html
+    \nextpage qtquick-motion-design.html
+    \previouspage creator-exporting-qml.html
+
+    \title Using Qt Quick Effect Maker Effects
+
+    \QQEM is integrated into \QDS for creating shader effects. To create an
+    effect, you first create the effect file in \QDS, and then you edit it in \QQEM.
+
+    For more information about \QQEM, see the
+    \l{https://doc.qt.io/qt-6/qtquickeffectmaker-index.html}{Qt Quick Effect Maker Manual}.
+
+    \section1 Creating an Effect File
+
+    To create an effect file in \QDS:
+
+    \list 1
+      \li Right-click in the \uicontrol Assets view and
+      select \uicontrol {New Effect}.
+      \QDS creates an effect file and opens it in \QQEM.
+      \image qt-quick-effect-maker.webp
+      \li Edit the effect.
+      \li In \QQEM, go to \uicontrol File > \uicontrol Save.
+      \li With the default settings, select \uicontrol OK.
+      \image effect-maker-export.png
+    \endlist
+
+    Now, you can close \QQEM and return to \QDS and apply the
+    effect.
+
+    \section1 Applying an Effect
+
+    You can apply effects to components in \QDS. To do so, drag the effect
+    from the \uicontrol Assets view to the component in the \uicontrol 2D or
+    \uicontrol Navigator view.
+
+    \image apply-effect-maker-effect.webp
+
+*/

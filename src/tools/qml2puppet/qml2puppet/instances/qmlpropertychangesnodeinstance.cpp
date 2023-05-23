@@ -87,5 +87,10 @@ void QmlPropertyChangesNodeInstance::reparent(const ObjectNodeInstance::Pointer 
     QmlPrivateGate::PropertyChanges::attachToState(object());
 }
 
+bool QmlPropertyChangesNodeInstance::isPropertyChange() const
+{
+    return true;
+}
+
 } // namespace Internal
 } // namespace QmlDesigner

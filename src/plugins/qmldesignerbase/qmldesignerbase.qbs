@@ -16,14 +16,25 @@ QtcPlugin {
     ]
 
     Group {
+        prefix: "studio/"
+        files: [
+            "studiosettingspage.cpp",
+            "studiosettingspage.h",
+            "studiostyle.cpp",
+            "studiostyle.h",
+            "studioquickwidget.cpp",
+            "studioquickwidget.h",
+        ]
+    }
+    Group {
         prefix: "utils/"
         files: [
+            "designerpaths.cpp",
+            "designerpaths.h",
             "designersettings.cpp",
             "designersettings.h",
             "qmlpuppetpaths.cpp",
             "qmlpuppetpaths.h",
-            "studioquickwidget.cpp",
-            "studioquickwidget.h",
         ]
     }
 }
