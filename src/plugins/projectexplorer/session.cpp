@@ -12,6 +12,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/foldernavigationwidget.h>
@@ -26,10 +28,14 @@
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/qtcassert.h>
 
+#include <QAction>
+#include <QActionGroup>
 #include <QDebug>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QTimer>
@@ -46,6 +52,7 @@ const char STARTUPSESSION_KEY[] = "ProjectExplorer/SessionToRestore";
 const char LASTSESSION_KEY[] = "ProjectExplorer/StartupSession";
 const char AUTO_RESTORE_SESSION_SETTINGS_KEY[] = "ProjectExplorer/Settings/AutoRestoreLastSession";
 static bool kIsAutoRestoreLastSessionDefault = false;
+const char M_SESSION[] = "ProjectExplorer.Menu.Session";
 
 /*!
      \class ProjectExplorer::SessionManager
@@ -81,6 +88,27 @@ SessionManager::SessionManager()
         if (!PluginManager::isShuttingDown() && !SessionManager::loadingSession())
             SessionManager::saveSession();
     });
+
+    // session menu
+    ActionContainer *mfile = ActionManager::actionContainer(Core::Constants::M_FILE);
+    ActionContainer *msession = ActionManager::createMenu(M_SESSION);
+    msession->menu()->setTitle(Tr::tr("S&essions"));
+    msession->setOnAllDisabledBehavior(ActionContainer::Show);
+    mfile->addMenu(msession, Core::Constants::G_FILE_OPEN);
+    sb_d->m_sessionMenu = msession->menu();
+    connect(mfile->menu(), &QMenu::aboutToShow, this, [] { sb_d->updateSessionMenu(); });
+
+    // session manager action
+    sb_d->m_sessionManagerAction = new QAction(Tr::tr("&Manage..."), this);
+    sb_d->m_sessionMenu->addAction(sb_d->m_sessionManagerAction);
+    sb_d->m_sessionMenu->addSeparator();
+    Command *cmd = ActionManager::registerAction(sb_d->m_sessionManagerAction,
+                                                 "ProjectExplorer.ManageSessions");
+    cmd->setDefaultKeySequence(QKeySequence());
+    connect(sb_d->m_sessionManagerAction,
+            &QAction::triggered,
+            SessionManager::instance(),
+            &SessionManager::showSessionManager);
 
     sb_d->restoreSettings();
 }
@@ -393,6 +421,41 @@ bool SessionManagerPrivate::isAutoRestoreLastSession()
 void SessionManagerPrivate::setAutoRestoreLastSession(bool restore)
 {
     sb_d->m_isAutoRestoreLastSession = restore;
+}
+
+void SessionManagerPrivate::updateSessionMenu()
+{
+    // Delete group of previous actions (the actions are owned by the group and are deleted with it)
+    auto oldGroup = m_sessionMenu->findChild<QActionGroup *>();
+    if (oldGroup)
+        delete oldGroup;
+    m_sessionMenu->clear();
+
+    m_sessionMenu->addAction(m_sessionManagerAction);
+    m_sessionMenu->addSeparator();
+    auto *ag = new QActionGroup(m_sessionMenu);
+    const QString activeSession = SessionManager::activeSession();
+    const bool isDefaultVirgin = SessionManager::isDefaultVirgin();
+
+    QStringList sessions = SessionManager::sessions();
+    std::sort(std::next(sessions.begin()), sessions.end(), [](const QString &s1, const QString &s2) {
+        return SessionManager::lastActiveTime(s1) > SessionManager::lastActiveTime(s2);
+    });
+    for (int i = 0; i < sessions.size(); ++i) {
+        const QString &session = sessions[i];
+
+        const QString actionText
+            = ActionManager::withNumberAccelerator(Utils::quoteAmpersands(session), i + 1);
+        QAction *act = ag->addAction(actionText);
+        act->setCheckable(true);
+        if (session == activeSession && !isDefaultVirgin)
+            act->setChecked(true);
+        QObject::connect(act, &QAction::triggered, SessionManager::instance(), [session] {
+            SessionManager::loadSession(session);
+        });
+    }
+    m_sessionMenu->addActions(ag->actions());
+    m_sessionMenu->setEnabled(true);
 }
 
 void SessionManagerPrivate::restoreValues(const PersistentSettingsReader &reader)

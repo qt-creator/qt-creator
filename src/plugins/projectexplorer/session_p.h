@@ -5,6 +5,11 @@
 
 #include <QFutureInterface>
 
+QT_BEGIN_NAMESPACE
+class QAction;
+class QMenu;
+QT_END_NAMESPACE
+
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -23,6 +28,8 @@ public:
     bool isAutoRestoreLastSession();
     void setAutoRestoreLastSession(bool restore);
 
+    void updateSessionMenu();
+
     static QString windowTitleAddition(const FilePath &filePath);
     static QString sessionTitle(const FilePath &filePath);
 
@@ -40,6 +47,9 @@ public:
     QMap<QString, QVariant> m_sessionValues;
     QFutureInterface<void> m_future;
     PersistentSettingsWriter *m_writer = nullptr;
+
+    QMenu *m_sessionMenu;
+    QAction *m_sessionManagerAction;
 };
 
 extern SessionManagerPrivate *sb_d;
