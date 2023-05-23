@@ -15,7 +15,7 @@ public:
     NimSettings();
     ~NimSettings();
 
-    Utils::StringAspect nimSuggestPath;
+    Utils::FilePathAspect nimSuggestPath{this};
 
     static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
 };
