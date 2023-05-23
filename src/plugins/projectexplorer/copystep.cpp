@@ -21,15 +21,13 @@ public:
     CopyStepBase(BuildStepList *bsl, Id id)
         : BuildStep(bsl, id)
     {
-        m_sourceAspect = addAspect<StringAspect>();
-        m_sourceAspect->setSettingsKey(SOURCE_KEY);
-        m_sourceAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
-        m_sourceAspect->setLabelText(Tr::tr("Source:"));
+        setOwnsSubAspects(false);
 
-        m_targetAspect = addAspect<StringAspect>();
-        m_targetAspect->setSettingsKey(TARGET_KEY);
-        m_targetAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
-        m_targetAspect->setLabelText(Tr::tr("Target:"));
+        m_sourceAspect.setSettingsKey(SOURCE_KEY);
+        m_sourceAspect.setLabelText(Tr::tr("Source:"));
+
+        m_targetAspect.setSettingsKey(TARGET_KEY);
+        m_targetAspect.setLabelText(Tr::tr("Target:"));
 
         addMacroExpander();
     }
@@ -37,8 +35,8 @@ public:
 protected:
     bool init() final
     {
-        m_source = m_sourceAspect->filePath();
-        m_target = m_targetAspect->filePath();
+        m_source = m_sourceAspect();
+        m_target = m_targetAspect();
         return m_source.exists();
     }
 
@@ -58,8 +56,8 @@ protected:
         });
     }
 
-    StringAspect *m_sourceAspect;
-    StringAspect *m_targetAspect;
+    FilePathAspect m_sourceAspect{this};
+    FilePathAspect m_targetAspect{this};
 
 private:
     FilePath m_source;
@@ -75,8 +73,8 @@ public:
         // Expected kind could be stricter in theory, but since this here is
         // a last stand fallback, better not impose extra "nice to have"
         // work on the system.
-        m_sourceAspect->setExpectedKind(PathChooser::Any); // "File"
-        m_targetAspect->setExpectedKind(PathChooser::Any); // "SaveFile"
+        m_sourceAspect.setExpectedKind(PathChooser::Any); // "File"
+        m_targetAspect.setExpectedKind(PathChooser::Any); // "SaveFile"
 
         setSummaryUpdater([] {
             return QString("<b>" + Tr::tr("Copy file") + "</b>");
@@ -90,8 +88,8 @@ public:
     CopyDirectoryStep(BuildStepList *bsl, Id id)
         : CopyStepBase(bsl, id)
      {
-        m_sourceAspect->setExpectedKind(PathChooser::Directory);
-        m_targetAspect->setExpectedKind(PathChooser::Directory);
+        m_sourceAspect.setExpectedKind(PathChooser::Directory);
+        m_targetAspect.setExpectedKind(PathChooser::Directory);
 
         setSummaryUpdater([] {
             return QString("<b>" + Tr::tr("Copy directory recursively") + "</b>");
