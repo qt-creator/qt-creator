@@ -104,6 +104,7 @@ using namespace Internal;
 
 /*!
     \class Utils::MacroExpander
+    \inmodule QtCreator
     \brief The MacroExpander class manages \QC wide variables, that a user
     can enter into many string settings. The variables are replaced by an actual value when the string
     is used, similar to how environment variables are expanded by a shell.

@@ -1268,6 +1268,7 @@ LocatorFilterEntries LocatorFileCachePrivate::generate(const QFuture<void> &futu
 
 /*!
     \class Core::LocatorFileCache
+    \inmodule QtCreator
 
     \brief The LocatorFileCache class encapsulates all the responsibilities needed for
            implementing a cache for file filters.

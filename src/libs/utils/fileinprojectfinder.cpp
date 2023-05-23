@@ -40,6 +40,7 @@ static bool checkPath(const FilePath &candidate, int matchLength,
 
 /*!
   \class Utils::FileInProjectFinder
+  \inmodule QtCreator
 
   \brief The FileInProjectFinder class is a helper class to find the \e original
   file in the project directory for a given file URL.

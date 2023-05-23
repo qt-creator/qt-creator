@@ -16,6 +16,7 @@
 
 /*!
     \class Utils::PathListEditor
+    \inmodule QtCreator
 
     \brief The PathListEditor class is a control that lets the user edit a list
     of (directory) paths

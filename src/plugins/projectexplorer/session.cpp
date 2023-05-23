@@ -7,7 +7,6 @@
 
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
-#include "projectmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -514,7 +513,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
     // Allow everyone to set something in the session and before saving
     emit SessionManager::instance()->aboutToUnloadSession(sb_d->m_sessionName);
 
-    if (!ProjectManager::save()) {
+    if (!saveSession()) {
         sb_d->m_loadingSession = false;
         return false;
     }
@@ -569,6 +568,69 @@ bool SessionManager::loadSession(const QString &session, bool initial)
 
     sb_d->m_loadingSession = false;
     return true;
+}
+
+bool SessionManager::saveSession()
+{
+    emit SessionManager::instance()->aboutToSaveSession();
+
+    const FilePath filePath = SessionManager::sessionNameToFileName(sb_d->m_sessionName);
+    QVariantMap data;
+
+    // See the explanation at loadSession() for how we handle the implicit default session.
+    if (SessionManager::isDefaultVirgin()) {
+        if (filePath.exists()) {
+            PersistentSettingsReader reader;
+            if (!reader.load(filePath)) {
+                QMessageBox::warning(ICore::dialogParent(),
+                                     Tr::tr("Error while saving session"),
+                                     Tr::tr("Could not save session %1")
+                                         .arg(filePath.toUserOutput()));
+                return false;
+            }
+            data = reader.restoreValues();
+        }
+    } else {
+        const QColor c = StyleHelper::requestedBaseColor();
+        if (c.isValid()) {
+            QString tmp = QString::fromLatin1("#%1%2%3")
+                              .arg(c.red(), 2, 16, QLatin1Char('0'))
+                              .arg(c.green(), 2, 16, QLatin1Char('0'))
+                              .arg(c.blue(), 2, 16, QLatin1Char('0'));
+            setSessionValue("Color", tmp);
+        }
+        setSessionValue("EditorSettings", EditorManager::saveState().toBase64());
+
+        const auto end = sb_d->m_sessionValues.constEnd();
+        for (auto it = sb_d->m_sessionValues.constBegin(); it != end; ++it)
+            data.insert(it.key(), it.value());
+    }
+
+    const auto end = sb_d->m_values.constEnd();
+    QStringList keys;
+    for (auto it = sb_d->m_values.constBegin(); it != end; ++it) {
+        data.insert("value-" + it.key(), it.value());
+        keys << it.key();
+    }
+    data.insert("valueKeys", keys);
+
+    if (!sb_d->m_writer || sb_d->m_writer->fileName() != filePath) {
+        delete sb_d->m_writer;
+        sb_d->m_writer = new PersistentSettingsWriter(filePath, "QtCreatorSession");
+    }
+    const bool result = sb_d->m_writer->save(data, ICore::dialogParent());
+    if (result) {
+        if (!SessionManager::isDefaultVirgin())
+            sb_d->m_sessionDateTimes.insert(SessionManager::activeSession(),
+                                            QDateTime::currentDateTime());
+    } else {
+        QMessageBox::warning(ICore::dialogParent(),
+                             Tr::tr("Error while saving session"),
+                             Tr::tr("Could not save session to file %1")
+                                 .arg(sb_d->m_writer->fileName().toUserOutput()));
+    }
+
+    return result;
 }
 
 } // namespace ProjectExplorer

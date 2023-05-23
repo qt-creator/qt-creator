@@ -7,6 +7,7 @@ namespace Utils {
 
 /*!
     \class Utils::TextFieldCheckBox
+    \inmodule QtCreator
     \brief The TextFieldCheckBox class is a aheckbox that plays with
     \c QWizard::registerField.
 

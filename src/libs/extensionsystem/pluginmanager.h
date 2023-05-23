@@ -129,6 +129,7 @@ public:
     static QString platformName();
 
     static bool isInitializationDone();
+    static bool isShuttingDown();
 
     static void remoteArguments(const QString &serializedArguments, QObject *socket);
     static void shutdown();

@@ -686,7 +686,6 @@ public:
 
     EngineManager m_engineManager;
     QTimer m_shutdownTimer;
-    bool m_shuttingDown = false;
 
     Console m_console; // ensure Debugger Console is created before settings are taken into account
     DebuggerSettings m_debuggerSettings;
@@ -1392,7 +1391,7 @@ static QVariant configValue(const QString &name)
 
 void DebuggerPluginPrivate::updatePresetState()
 {
-    if (m_shuttingDown)
+    if (PluginManager::isShuttingDown())
         return;
 
     Project *startupProject = ProjectManager::startupProject();
@@ -1996,8 +1995,6 @@ void DebuggerPluginPrivate::dumpLog()
 
 void DebuggerPluginPrivate::aboutToShutdown()
 {
-    m_shuttingDown = true;
-
     disconnect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, nullptr);
 
     m_shutdownTimer.setInterval(0);
@@ -2081,7 +2078,7 @@ QWidget *addSearch(BaseTreeView *treeView)
 
 void openTextEditor(const QString &titlePattern0, const QString &contents)
 {
-    if (dd->m_shuttingDown)
+    if (PluginManager::isShuttingDown())
         return;
     QString titlePattern = titlePattern0;
     IEditor *editor = EditorManager::openEditorWithContents(

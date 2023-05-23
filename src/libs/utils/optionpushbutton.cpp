@@ -11,6 +11,7 @@ namespace Utils {
 
 /*!
     \class Utils::OptionPushButton
+    \inmodule QtCreator
 
     \brief The OptionPushButton class implements a QPushButton for which the menu is only opened
     if the user presses the menu indicator.

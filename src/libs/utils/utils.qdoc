@@ -3,7 +3,8 @@
 
 /*!
     \namespace Utils
+    \inmodule QtCreator
 
-    The Utils namespace contains a collection of utility classes and functions for use by all
+    \brief The Utils namespace contains a collection of utility classes and functions for use by all
     plugins.
 */

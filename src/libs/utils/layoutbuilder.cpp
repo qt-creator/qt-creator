@@ -176,6 +176,14 @@ private:
 };
 
 /*!
+    \namespace Layouting
+    \inmodule QtCreator
+
+    \brief The Layouting namespace contains classes for use with layout builders.
+*/
+
+
+/*!
     \class Layouting::LayoutItem
     \inmodule QtCreator
 
@@ -469,18 +477,18 @@ void doAddWidget(LayoutBuilder &builder, QWidget *widget)
     \class Layouting::Space
     \inmodule QtCreator
 
-    \brief The Layouting::Space class represents some empty space in a layout.
+    \brief The Space class represents some empty space in a layout.
  */
 
 /*!
     \class Layouting::Stretch
     \inmodule QtCreator
 
-    \brief The Layouting::Stretch class represents some stretch in a layout.
+    \brief The Stretch class represents some stretch in a layout.
  */
 
 /*!
-    \class LayoutBuilder
+    \class Layouting::LayoutBuilder
     \inmodule QtCreator
 
     \brief The LayoutBuilder class provides a convenient way to fill \c QFormLayout

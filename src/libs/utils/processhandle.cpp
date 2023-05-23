@@ -7,6 +7,7 @@ namespace Utils {
 
 /*!
     \class Utils::ProcessHandle
+    \inmodule QtCreator
     \brief The ProcessHandle class is a helper class to describe a process.
 
     Encapsulates parameters of a running process, local (PID) or remote (to be

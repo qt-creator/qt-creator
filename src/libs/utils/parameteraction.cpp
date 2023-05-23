@@ -5,6 +5,7 @@
 
 /*!
     \class Utils::ParameterAction
+    \inmodule QtCreator
 
     \brief The ParameterAction class is intended for actions that act on a 'current',
      string-type parameter (typically a file name), for example 'Save file %1'.

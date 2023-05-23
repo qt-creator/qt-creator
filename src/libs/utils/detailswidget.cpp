@@ -20,6 +20,7 @@
 
 /*!
     \class Utils::DetailsWidget
+    \inmodule QtCreator
 
     \brief The DetailsWidget class implements a button to expand a \e Details
     area.

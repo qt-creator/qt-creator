@@ -124,6 +124,7 @@ public:
 
     bool m_isInitializationDone = false;
     bool enableCrashCheck = true;
+    bool m_isShuttingDown = false;
 
     QHash<QString, std::function<bool()>> m_scenarios;
     QString m_requestedScenario;

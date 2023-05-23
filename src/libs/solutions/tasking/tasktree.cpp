@@ -724,7 +724,16 @@ void TaskNode::invokeEndHandler(bool success)
 }
 
 /*!
-    \class TaskTree
+    \namespace Tasking
+    \inmodule QtCreator
+    \brief The Tasking namespace contains a general purpose TaskTree solution.
+
+    The Tasking namespace depends on Qt only, and doesn't depend on any \QC
+    specific code.
+*/
+
+/*!
+    \class Tasking::TaskTree
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule QtCreator
     \ingroup mainclasses
@@ -1180,8 +1189,7 @@ void TaskNode::invokeEndHandler(bool success)
                     sequential mode).
                 \li Immediately finishes with an error.
             \endlist
-            If all child tasks finish successfully or the group is empty, the group
-            finishes with success.
+            If all child tasks finish successfully, the group finishes with success.
     \row
         \li continueOnError
         \li Similar to stopOnError, but in case any child finishes with
@@ -1194,8 +1202,7 @@ void TaskNode::invokeEndHandler(bool success)
                     started yet.
                 \li Finishes with an error when all tasks finish.
             \endlist
-            If all tasks finish successfully or the group is empty, the group
-            finishes with success.
+            If all tasks finish successfully, the group finishes with success.
     \row
         \li stopOnDone
         \li If a task finishes with success, the group:
@@ -1203,8 +1210,7 @@ void TaskNode::invokeEndHandler(bool success)
                 \li Stops running tasks and skips those that it has not started.
                 \li Immediately finishes with success.
             \endlist
-            If all tasks finish with an error or the group is empty, the group
-            finishes with an error.
+            If all tasks finish with an error, the group finishes with an error.
     \row
         \li continueOnDone
         \li Similar to stopOnDone, but in case any child finishes
@@ -1217,22 +1223,22 @@ void TaskNode::invokeEndHandler(bool success)
                     started yet.
                 \li Finishes with success when all tasks finish.
             \endlist
-            If all tasks finish with an error or the group is empty, the group
-            finishes with an error.
+            If all tasks finish with an error, the group finishes with an error.
     \row
         \li stopOnFinished
         \li The group starts as many tasks as it can. When a task finishes
             the group stops and reports the task's result.
-            When the group is empty, it finishes immediately with success.
             Useful only in parallel mode.
             In sequential mode, only the first task is started, and when finished,
             the group finishes too, so the other tasks are ignored.
     \row
         \li optional
         \li The group executes all tasks and ignores their return state. If all
-            tasks finish or the group is empty, the group finishes with success.
+            tasks finish, the group finishes with success.
     \endtable
 
+    When the group is empty, it finishes immediately with success,
+    regardless of its workflow policy.
     If a child of a group is also a group (in a nested tree), the child group
     runs its tasks according to its own workflow policy.
 

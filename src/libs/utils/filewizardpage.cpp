@@ -8,6 +8,7 @@
 
 /*!
   \class Utils::FileWizardPage
+  \inmodule QtCreator
 
   \brief The FileWizardPage class is a standard wizard page for a single file
   letting the user choose name

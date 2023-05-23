@@ -210,11 +210,6 @@ void QmlJSEditorPlugin::extensionsInitialized()
     QmllsSettingsManager::instance()->setupAutoupdate();
 }
 
-ExtensionSystem::IPlugin::ShutdownFlag QmlJSEditorPlugin::aboutToShutdown()
-{
-    return IPlugin::aboutToShutdown();
-}
-
 Utils::JsonSchemaManager *QmlJSEditorPlugin::jsonManager()
 {
     return &m_instance->d->m_jsonManager;

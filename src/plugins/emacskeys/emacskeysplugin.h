@@ -57,7 +57,6 @@ public:
 
     void initialize() override;
     void extensionsInitialized() override;
-    ShutdownFlag aboutToShutdown() override;
 
 private:
     void editorAboutToClose(Core::IEditor *editor);

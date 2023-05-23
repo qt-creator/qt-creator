@@ -10,6 +10,7 @@
 
 /*!
   \class Utils::FileNameValidatingLineEdit
+  \inmodule QtCreator
 
   \brief The FileNameValidatingLineEdit class is a control that lets the user
   choose a (base) file name, based on a QLineEdit.

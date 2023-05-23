@@ -64,6 +64,7 @@ public:
     static void addSessionLoadingSteps(int steps);
 
     static bool loadSession(const QString &session, bool initial = false);
+    static bool saveSession();
 
 signals:
     void startupSessionRestored();

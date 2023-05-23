@@ -26,6 +26,7 @@
 
 /*!
     \class Utils::FancyLineEdit
+    \inmodule QtCreator
 
     \brief The FancyLineEdit class is an enhanced line edit with several
     opt-in features.

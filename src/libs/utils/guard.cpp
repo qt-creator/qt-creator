@@ -4,7 +4,9 @@
 #include "guard.h"
 #include "qtcassert.h"
 
-/*! \class Utils::Guard
+/*!
+  \class Utils::Guard
+  \inmodule QtCreator
 
   \brief The Guard class implements a recursive guard with locking mechanism.
 
