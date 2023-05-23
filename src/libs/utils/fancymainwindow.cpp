@@ -311,7 +311,9 @@ void DockWidget::handleToplevelChanged(bool floating)
 
 
 
-/*! \class Utils::FancyMainWindow
+/*!
+    \class Utils::FancyMainWindow
+    \inmodule QtCreator
 
     \brief The FancyMainWindow class is a MainWindow with dock widgets and
     additional "lock" functionality

@@ -48,7 +48,6 @@ public:
     static void deleteClient(Client *client);
 
     static void shutdown();
-    static bool isShuttingDown();
 
     static LanguageClientManager *instance();
 

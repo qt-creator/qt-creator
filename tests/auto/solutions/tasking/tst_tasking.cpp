@@ -632,6 +632,115 @@ void tst_Tasking::testTree_data()
     }
 
     {
+        const auto constructEmptyWorkflow = [=](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                workflowPolicy(policy),
+                onGroupDone(groupDone(0)),
+                onGroupError(groupError(0))
+            };
+        };
+
+        const Log log = {{0, Handler::GroupDone}};
+
+        const Group root1 = constructEmptyWorkflow(WorkflowPolicy::StopOnError);
+        QTest::newRow("EmptyStopOnError") << TestData{storage, root1, log, 0, OnDone::Success};
+
+        const Group root2 = constructEmptyWorkflow(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("EmptyContinueOnError") << TestData{storage, root2, log, 0, OnDone::Success};
+
+        const Group root3 = constructEmptyWorkflow(WorkflowPolicy::StopOnDone);
+        QTest::newRow("EmptyStopOnDone") << TestData{storage, root3, log, 0, OnDone::Success};
+
+        const Group root4 = constructEmptyWorkflow(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("EmptyContinueOnDone") << TestData{storage, root4, log, 0, OnDone::Success};
+
+        const Group root5 = constructEmptyWorkflow(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("EmptyStopOnFinished") << TestData{storage, root5, log, 0, OnDone::Success};
+
+        const Group root6 = constructEmptyWorkflow(WorkflowPolicy::Optional);
+        QTest::newRow("EmptyOptional") << TestData{storage, root6, log, 0, OnDone::Success};
+    }
+
+    {
+        const auto constructDoneWorkflow = [=](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                workflowPolicy(policy),
+                Test(setupTask(1), logDone, logError),
+                onGroupDone(groupDone(0)),
+                onGroupError(groupError(0))
+            };
+        };
+
+        const Log log = {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {0, Handler::GroupDone}
+        };
+
+        const Group root1 = constructDoneWorkflow(WorkflowPolicy::StopOnError);
+        QTest::newRow("DoneStopOnError") << TestData{storage, root1, log, 1, OnDone::Success};
+
+        const Group root2 = constructDoneWorkflow(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("DoneContinueOnError") << TestData{storage, root2, log, 1, OnDone::Success};
+
+        const Group root3 = constructDoneWorkflow(WorkflowPolicy::StopOnDone);
+        QTest::newRow("DoneStopOnDone") << TestData{storage, root3, log, 1, OnDone::Success};
+
+        const Group root4 = constructDoneWorkflow(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("DoneContinueOnDone") << TestData{storage, root4, log, 1, OnDone::Success};
+
+        const Group root5 = constructDoneWorkflow(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("DoneStopOnFinished") << TestData{storage, root5, log, 1, OnDone::Success};
+
+        const Group root6 = constructDoneWorkflow(WorkflowPolicy::Optional);
+        QTest::newRow("DoneOptional") << TestData{storage, root6, log, 1, OnDone::Success};
+    }
+
+    {
+        const auto constructErrorWorkflow = [=](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                workflowPolicy(policy),
+                Test(setupFailingTask(1), logDone, logError),
+                onGroupDone(groupDone(0)),
+                onGroupError(groupError(0))
+            };
+        };
+
+        const Log log = {
+            {1, Handler::Setup},
+            {1, Handler::Error},
+            {0, Handler::GroupError}
+        };
+
+        const Log optionalLog = {
+            {1, Handler::Setup},
+            {1, Handler::Error},
+            {0, Handler::GroupDone}
+        };
+
+        const Group root1 = constructErrorWorkflow(WorkflowPolicy::StopOnError);
+        QTest::newRow("ErrorStopOnError") << TestData{storage, root1, log, 1, OnDone::Failure};
+
+        const Group root2 = constructErrorWorkflow(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("ErrorContinueOnError") << TestData{storage, root2, log, 1, OnDone::Failure};
+
+        const Group root3 = constructErrorWorkflow(WorkflowPolicy::StopOnDone);
+        QTest::newRow("ErrorStopOnDone") << TestData{storage, root3, log, 1, OnDone::Failure};
+
+        const Group root4 = constructErrorWorkflow(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("ErrorContinueOnDone") << TestData{storage, root4, log, 1, OnDone::Failure};
+
+        const Group root5 = constructErrorWorkflow(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("ErrorStopOnFinished") << TestData{storage, root5, log, 1, OnDone::Failure};
+
+        const Group root6 = constructErrorWorkflow(WorkflowPolicy::Optional);
+        QTest::newRow("ErrorOptional") << TestData{storage, root6, optionalLog, 1, OnDone::Success};
+    }
+
+    {
         const Group root = constructSimpleSequence(WorkflowPolicy::StopOnError);
         const Log log {
             {1, Handler::Setup},

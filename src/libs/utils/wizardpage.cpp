@@ -5,7 +5,9 @@
 
 #include "wizard.h"
 
-/*! \class Utils::WizardPage
+/*!
+  \class Utils::WizardPage
+  \inmodule QtCreator
 
   \brief QWizardPage with a couple of improvements.
 

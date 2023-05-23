@@ -14,10 +14,10 @@ Q_LOGGING_CATEGORY(deviceShellLog, "qtc.utils.deviceshell", QtWarningMsg)
 
 namespace Utils {
 
-/*!
+/*
  * The multiplex script waits for input via stdin.
  *
- * To start a command, a message is send with
+ * To start a command, a message is sent with
  * the format "<cmd-id> "<base64-encoded-stdin-data>" <commandline>\n"
  * To stop the script, simply send "exit\n" via stdin
  *

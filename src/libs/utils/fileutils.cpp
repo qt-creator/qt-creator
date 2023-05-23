@@ -259,7 +259,9 @@ TempFileSaver::~TempFileSaver()
         QFile::remove(m_filePath.toString());
 }
 
-/*! \class Utils::FileUtils
+/*!
+    \class Utils::FileUtils
+    \inmodule QtCreator
 
   \brief The FileUtils class contains file and directory related convenience
   functions.

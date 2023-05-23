@@ -53,6 +53,7 @@ class ProjectManagerPrivate
 {
 public:
     void loadSession();
+    void saveSession();
     void restoreDependencies();
     void restoreStartupProject();
     void restoreProjects(const FilePaths &fileList);
@@ -108,6 +109,9 @@ ProjectManager::ProjectManager()
 
     connect(SessionManager::instance(), &SessionManager::aboutToLoadSession, this, [] {
         d->loadSession();
+    });
+    connect(SessionManager::instance(), &SessionManager::aboutToSaveSession, this, [] {
+        d->saveSession();
     });
 }
 
@@ -315,87 +319,38 @@ void ProjectManager::removeProject(Project *project)
     removeProjects({project});
 }
 
-bool ProjectManager::save()
+void ProjectManagerPrivate::saveSession()
 {
-    emit SessionManager::instance()->aboutToSaveSession();
+    // save the startup project
+    if (d->m_startupProject)
+        SessionManager::setSessionValue("StartupProject",
+                                        m_startupProject->projectFilePath().toSettings());
 
-    const FilePath filePath = SessionManager::sessionNameToFileName(sb_d->m_sessionName);
-    QVariantMap data;
-
-    // See the explanation at loadSession() for how we handle the implicit default session.
-    if (SessionManager::isDefaultVirgin()) {
-        if (filePath.exists()) {
-            PersistentSettingsReader reader;
-            if (!reader.load(filePath)) {
-                QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error while saving session"),
-                                     Tr::tr("Could not save session %1").arg(filePath.toUserOutput()));
-                return false;
-            }
-            data = reader.restoreValues();
-        }
-    } else {
-        // save the startup project
-        if (d->m_startupProject)
-            data.insert("StartupProject", d->m_startupProject->projectFilePath().toSettings());
-
-        const QColor c = StyleHelper::requestedBaseColor();
-        if (c.isValid()) {
-            QString tmp = QString::fromLatin1("#%1%2%3")
-                    .arg(c.red(), 2, 16, QLatin1Char('0'))
-                    .arg(c.green(), 2, 16, QLatin1Char('0'))
-                    .arg(c.blue(), 2, 16, QLatin1Char('0'));
-            data.insert(QLatin1String("Color"), tmp);
-        }
-
-        FilePaths projectFiles = Utils::transform(projects(), &Project::projectFilePath);
-        // Restore information on projects that failed to load:
-        // don't read projects to the list, which the user loaded
-        for (const FilePath &failed : std::as_const(d->m_failedProjects)) {
-            if (!projectFiles.contains(failed))
-                projectFiles << failed;
-        }
-
-        data.insert("ProjectList", Utils::transform<QStringList>(projectFiles,
-                                                                 &FilePath::toString));
-        data.insert("CascadeSetActive", d->m_casadeSetActive);
-
-        QVariantMap depMap;
-        auto i = d->m_depMap.constBegin();
-        while (i != d->m_depMap.constEnd()) {
-            QString key = i.key().toString();
-            QStringList values;
-            const FilePaths valueList = i.value();
-            for (const FilePath &value : valueList)
-                values << value.toString();
-            depMap.insert(key, values);
-            ++i;
-        }
-        data.insert(QLatin1String("ProjectDependencies"), QVariant(depMap));
-        data.insert(QLatin1String("EditorSettings"), EditorManager::saveState().toBase64());
+    FilePaths projectFiles = Utils::transform(m_projects, &Project::projectFilePath);
+    // Restore information on projects that failed to load:
+    // don't read projects to the list, which the user loaded
+    for (const FilePath &failed : std::as_const(m_failedProjects)) {
+        if (!projectFiles.contains(failed))
+            projectFiles << failed;
     }
 
-    const auto end = sb_d->m_values.constEnd();
-    QStringList keys;
-    for (auto it = sb_d->m_values.constBegin(); it != end; ++it) {
-        data.insert(QLatin1String("value-") + it.key(), it.value());
-        keys << it.key();
-    }
-    data.insert(QLatin1String("valueKeys"), keys);
+    SessionManager::setSessionValue("ProjectList",
+                                    Utils::transform<QStringList>(projectFiles,
+                                                                  &FilePath::toString));
+    SessionManager::setSessionValue("CascadeSetActive", m_casadeSetActive);
 
-    if (!sb_d->m_writer || sb_d->m_writer->fileName() != filePath) {
-        delete sb_d->m_writer;
-        sb_d->m_writer = new PersistentSettingsWriter(filePath, "QtCreatorSession");
+    QVariantMap depMap;
+    auto i = m_depMap.constBegin();
+    while (i != m_depMap.constEnd()) {
+        QString key = i.key().toString();
+        QStringList values;
+        const FilePaths valueList = i.value();
+        for (const FilePath &value : valueList)
+            values << value.toString();
+        depMap.insert(key, values);
+        ++i;
     }
-    const bool result = sb_d->m_writer->save(data, ICore::dialogParent());
-    if (result) {
-        if (!SessionManager::isDefaultVirgin())
-            sb_d->m_sessionDateTimes.insert(SessionManager::activeSession(), QDateTime::currentDateTime());
-    } else {
-        QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error while saving session"),
-            Tr::tr("Could not save session to file %1").arg(sb_d->m_writer->fileName().toUserOutput()));
-    }
-
-    return result;
+    SessionManager::setSessionValue(QLatin1String("ProjectDependencies"), QVariant(depMap));
 }
 
 /*!

@@ -161,9 +161,8 @@ public:
     [[nodiscard]] FilePath withExecutableSuffix() const;
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
     [[nodiscard]] FilePath relativePathFrom(const FilePath &anchor) const;
-    [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs,
-                                               const FilePathPredicate &filter = {}) const;
     [[nodiscard]] Environment deviceEnvironment() const;
+    [[nodiscard]] FilePaths devicePathEnvironmentVariable() const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
     [[nodiscard]] FilePath withNewMappedPath(const FilePath &newPath) const;
 
@@ -183,12 +182,17 @@ public:
             const FileFilter &filter);
 
     enum PathAmending { AppendToPath, PrependToPath };
-    [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs = {},
-                                        PathAmending = AppendToPath,
-                                        const FilePathPredicate &filter = {}) const;
-
     enum MatchScope { ExactMatchOnly, WithExeSuffix, WithBatSuffix,
                       WithExeOrBatSuffix, WithAnySuffix };
+
+    [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs,
+                                               const FilePathPredicate &filter = {},
+                                               const MatchScope &matchScope = {}) const;
+    [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs = {},
+                                        PathAmending = AppendToPath,
+                                        const FilePathPredicate &filter = {},
+                                        const MatchScope &matchScope = {}) const;
+
     std::optional<FilePath> refersToExecutableFile(MatchScope considerScript) const;
 
     [[nodiscard]] expected_str<FilePath> tmpDir() const;

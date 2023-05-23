@@ -14,6 +14,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/navigationwidget.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <languageserverprotocol/messages.h>
 #include <languageserverprotocol/progresssupport.h>
 
@@ -32,6 +34,7 @@
 
 #include <QTimer>
 
+using namespace ExtensionSystem;
 using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
@@ -39,7 +42,6 @@ namespace LanguageClient {
 static Q_LOGGING_CATEGORY(Log, "qtc.languageclient.manager", QtWarningMsg)
 
 static LanguageClientManager *managerInstance = nullptr;
-static bool g_shuttingDown = false;
 
 class LanguageClientManagerPrivate
 {
@@ -139,7 +141,7 @@ void LanguageClientManager::clientStarted(Client *client)
     QTC_ASSERT(client, return);
     if (client->state() != Client::Uninitialized) // do not proceed if we already received an error
         return;
-    if (g_shuttingDown) {
+    if (PluginManager::isShuttingDown()) {
         clientFinished(client);
         return;
     }
@@ -165,7 +167,7 @@ void LanguageClientManager::clientFinished(Client *client)
                                   && client->state() != Client::ShutdownRequested;
 
     if (unexpectedFinish) {
-        if (!g_shuttingDown) {
+        if (!PluginManager::isShuttingDown()) {
             const QList<TextEditor::TextDocument *> &clientDocs
                 = managerInstance->m_clientForDocument.keys(client);
             if (client->reset()) {
@@ -187,7 +189,7 @@ void LanguageClientManager::clientFinished(Client *client)
         }
     }
     deleteClient(client);
-    if (g_shuttingDown && managerInstance->m_clients.isEmpty())
+    if (PluginManager::isShuttingDown() && managerInstance->m_clients.isEmpty())
         emit managerInstance->shutdownFinished();
 }
 
@@ -236,17 +238,14 @@ void LanguageClientManager::deleteClient(Client *client)
     for (QList<Client *> &clients : managerInstance->m_clientsForSetting)
         clients.removeAll(client);
     client->deleteLater();
-    if (!g_shuttingDown)
+    if (!PluginManager::isShuttingDown())
         emit instance()->clientRemoved(client);
 }
 
 void LanguageClientManager::shutdown()
 {
     QTC_ASSERT(managerInstance, return);
-    if (g_shuttingDown)
-        return;
     qCDebug(Log) << "shutdown manager";
-    g_shuttingDown = true;
     const auto clients = managerInstance->clients();
     for (Client *client : clients)
         shutdownClient(client);
@@ -256,11 +255,6 @@ void LanguageClientManager::shutdown()
             deleteClient(client);
         emit managerInstance->shutdownFinished();
     });
-}
-
-bool LanguageClientManager::isShuttingDown()
-{
-    return g_shuttingDown;
 }
 
 LanguageClientManager *LanguageClientManager::instance()

@@ -73,7 +73,6 @@ private:
     QStringList jobArguments() const;
 
     Utils::MultiSelectionAspect *m_buildTargetsAspect = nullptr;
-    QStringList m_availableTargets; // FIXME: Unused, remove in 4.15.
     Utils::StringAspect *m_makeCommandAspect = nullptr;
     Utils::StringAspect *m_userArgumentsAspect = nullptr;
     Utils::IntegerAspect *m_userJobCountAspect = nullptr;

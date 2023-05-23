@@ -1086,6 +1086,7 @@ ProcessResult ProcessPrivate::interpretExitCode(int exitCode)
 
 /*!
     \class Utils::Process
+    \inmodule QtCreator
 
     \brief The Process class provides functionality for with processes.
 
@@ -1596,6 +1597,7 @@ QString Process::readAllStandardError()
 
 /*!
     \class Utils::SynchronousProcess
+    \inmodule QtCreator
 
     \brief The SynchronousProcess class runs a synchronous process in its own
     event loop that blocks only user input events. Thus, it allows for the GUI to

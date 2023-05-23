@@ -18,6 +18,7 @@
 
 /*!
     \class Utils::CheckableMessageBox
+    \inmodule QtCreator
 
     \brief The CheckableMessageBox class implements a message box suitable for
     questions with a

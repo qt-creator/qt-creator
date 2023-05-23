@@ -28,6 +28,8 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <languageserverprotocol/completion.h>
 #include <languageserverprotocol/diagnostics.h>
 #include <languageserverprotocol/initializemessages.h>
@@ -194,7 +196,7 @@ public:
         // temporary container needed since m_resetAssistProvider is changed in resetAssistProviders
         for (TextDocument *document : m_resetAssistProvider.keys())
             resetAssistProviders(document);
-        if (!LanguageClientManager::isShuttingDown()) {
+        if (!ExtensionSystem::PluginManager::isShuttingDown()) {
             // prevent accessing deleted editors on Creator shutdown
             const QList<Core::IEditor *> &editors = Core::DocumentModel::editorsForOpenedDocuments();
             for (Core::IEditor *editor : editors) {

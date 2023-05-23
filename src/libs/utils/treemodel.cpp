@@ -895,6 +895,7 @@ void TreeItem::propagateModel(BaseTreeModel *m)
 
 /*!
     \class Utils::TreeModel
+    \inmodule QtCreator
 
     \brief The TreeModel class is a convienience base class for models
     to use in a QTreeView.

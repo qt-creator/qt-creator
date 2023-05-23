@@ -47,7 +47,6 @@ public:
         });
     }
 
-    static bool save();
     static void closeAllProjects();
 
     static void addProject(Project *project);

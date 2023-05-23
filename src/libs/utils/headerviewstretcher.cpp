@@ -10,6 +10,7 @@ using namespace Utils;
 
 /*!
     \class Utils::HeaderViewStretcher
+    \inmodule QtCreator
 
     \brief The HeaderViewStretcher class fixes QHeaderView to resize all
     columns to contents, except one

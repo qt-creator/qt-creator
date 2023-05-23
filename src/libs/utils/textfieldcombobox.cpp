@@ -9,6 +9,7 @@ namespace Utils {
 
 /*!
     \class Utils::TextFieldComboBox
+    \inmodule QtCreator
     \brief The TextFieldComboBox class is a non-editable combo box for text
     editing purposes that plays with \c QWizard::registerField (providing a
     settable 'text' property).

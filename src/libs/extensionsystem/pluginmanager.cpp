@@ -1034,6 +1034,7 @@ void PluginManagerPrivate::readSettings()
 */
 void PluginManagerPrivate::stopAll()
 {
+    m_isShuttingDown = true;
     if (delayedInitializeTimer && delayedInitializeTimer->isActive()) {
         delayedInitializeTimer->stop();
         delete delayedInitializeTimer;
@@ -1837,6 +1838,11 @@ QString PluginManager::platformName()
 bool PluginManager::isInitializationDone()
 {
     return d->m_isInitializationDone;
+}
+
+bool PluginManager::isShuttingDown()
+{
+    return d->m_isShuttingDown;
 }
 
 /*!

@@ -2328,6 +2328,7 @@ void IntegersAspect::setDefaultValue(const QList<int> &value)
 
 /*!
     \class Utils::TextDisplay
+    \inmodule QtCreator
 
     \brief A text display is a phony aspect with the sole purpose of providing
     some text display using an Utils::InfoLabel in places where otherwise
