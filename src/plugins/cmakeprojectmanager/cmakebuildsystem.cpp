@@ -325,15 +325,21 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
 
         int line = 0;
         int column = 0;
+        int extraChars = 0;
         QString snippet;
 
-        auto afterFunctionLastArgument = [&line, &column, &snippet, newSourceFiles](const auto &f) {
-            auto lastArgument = f->Arguments().back();
+        auto afterFunctionLastArgument =
+            [&line, &column, &snippet, &extraChars, newSourceFiles](const auto &f) {
+                auto lastArgument = f->Arguments().back();
 
-            line = lastArgument.Line;
-            column = lastArgument.Column + static_cast<int>(lastArgument.Value.size()) - 1;
-            snippet = QString("\n%1").arg(newSourceFiles);
-        };
+                line = lastArgument.Line;
+                column = lastArgument.Column + static_cast<int>(lastArgument.Value.size()) - 1;
+                snippet = QString("\n%1").arg(newSourceFiles);
+
+                // Take into consideration the quotes
+                if (lastArgument.Delim == cmListFileArgument::Quoted)
+                    extraChars = 2;
+            };
 
         if (knownFunctions.contains(function->LowerCaseName())) {
             afterFunctionLastArgument(function);
@@ -359,7 +365,7 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
         }
 
         BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
-            Core::EditorManager::openEditorAt({targetCMakeFile, line, column},
+            Core::EditorManager::openEditorAt({targetCMakeFile, line, column + extraChars},
                                               Constants::CMAKE_EDITOR_ID,
                                               Core::EditorManager::DoNotMakeVisible));
         if (!editor) {
@@ -528,8 +534,13 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
                     continue;
                 }
 
+                // If quotes were used for the source file, remove the quotes too
+                int extraChars = 0;
+                if (filePos->argumentPosition.Delim == cmListFileArgument::Quoted)
+                    extraChars = 2;
+
                 if (!filePos.value().fromGlobbing)
-                    editor->replace(filePos.value().relativeFileName.length(), "");
+                    editor->replace(filePos.value().relativeFileName.length() + extraChars, "");
 
                 editor->editorWidget()->autoIndent();
                 if (!Core::DocumentManager::saveDocument(editor->document())) {
@@ -609,6 +620,10 @@ bool CMakeBuildSystem::renameFile(Node *context,
                                               Core::EditorManager::DoNotMakeVisible));
         if (!editor)
             return false;
+
+        // If quotes were used for the source file, skip the starting quote
+        if (fileToRename.argumentPosition.Delim == cmListFileArgument::Quoted)
+            editor->setCursorPosition(editor->position() + 1);
 
         if (!fileToRename.fromGlobbing)
             editor->replace(fileToRename.relativeFileName.length(), newRelPathName);
