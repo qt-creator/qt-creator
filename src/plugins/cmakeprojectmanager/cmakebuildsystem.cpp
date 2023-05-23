@@ -432,12 +432,11 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
     for (const auto &func : {function, targetSourcesFunc, addQmlModuleFunc}) {
         if (func == cmakeListFile.Functions.end())
             continue;
-        auto filePathArgument
-            = Utils::findOrDefault(func->Arguments(),
-                                   [file_name = fileName.toStdString()](const auto &arg) {
-                                       return arg.Delim != cmListFileArgument::Comment
-                                              && arg.Value == file_name;
-                                   });
+        auto filePathArgument = Utils::findOrDefault(func->Arguments(),
+                                                     [file_name = fileName.toStdString()](
+                                                         const auto &arg) {
+                                                         return arg.Value == file_name;
+                                                     });
 
         if (!filePathArgument.Value.empty()) {
             return ProjectFileArgumentPosition{filePathArgument, targetCMakeFile, fileName};
@@ -456,9 +455,7 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
 
             const auto haveGlobbing = Utils::anyOf(func->Arguments(),
                                                    [globVariables](const auto &arg) {
-                                                       return globVariables.contains(arg.Value)
-                                                              && arg.Delim
-                                                                     != cmListFileArgument::Comment;
+                                                       return globVariables.contains(arg.Value);
                                                    });
 
             if (haveGlobbing) {
@@ -475,21 +472,16 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
                 }));
 
             for (const auto &arg : func->Arguments()) {
-                if (arg.Delim == cmListFileArgument::Comment)
-                    continue;
-
                 auto matchedFunctions = Utils::filtered(setFunctions, [arg](const auto &f) {
                     return arg.Value == std::string("${") + f.Arguments()[0].Value + "}";
                 });
 
                 for (const auto &f : matchedFunctions) {
-                    filePathArgument
-                        = Utils::findOrDefault(f.Arguments(),
-                                               [file_name = fileName.toStdString()](
-                                                   const auto &arg) {
-                                                   return arg.Delim != cmListFileArgument::Comment
-                                                          && arg.Value == file_name;
-                                               });
+                    filePathArgument = Utils::findOrDefault(f.Arguments(),
+                                                            [file_name = fileName.toStdString()](
+                                                                const auto &arg) {
+                                                                return arg.Value == file_name;
+                                                            });
 
                     if (!filePathArgument.Value.empty()) {
                         return ProjectFileArgumentPosition{filePathArgument,

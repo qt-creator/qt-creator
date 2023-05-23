@@ -75,8 +75,7 @@ bool cmListFileParser::Parse()
     if (token->type == cmListFileLexer_Token_Space) {
     } else if (token->type == cmListFileLexer_Token_Newline) {
       haveNewline = true;
-    } else if (token->type == cmListFileLexer_Token_CommentBracket
-               || token->type == cmListFileLexer_Token_CommentLine) {
+    } else if (token->type == cmListFileLexer_Token_CommentBracket) {
       haveNewline = false;
     } else if (token->type == cmListFileLexer_Token_Identifier) {
       if (haveNewline) {
@@ -184,11 +183,6 @@ bool cmListFileParser::ParseFunction(const char* name, long line)
       this->Separation = SeparationWarning;
     } else if (token->type == cmListFileLexer_Token_ArgumentQuoted) {
       if (!this->AddArgument(token, cmListFileArgument::Quoted)) {
-        return false;
-      }
-      this->Separation = SeparationWarning;
-    } else if (token->type == cmListFileLexer_Token_CommentLine) {
-      if (!this->AddArgument(token, cmListFileArgument::Comment)) {
         return false;
       }
       this->Separation = SeparationWarning;

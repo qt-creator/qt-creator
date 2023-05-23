@@ -110,10 +110,7 @@ LEGACY {MAKEVAR}|{UNQUOTED}|\"({MAKEVAR}|{UNQUOTED}|[ \t[=])*\"
 }
 
 <COMMENT>[^\0\n]* {
-  lexer->token.type = cmListFileLexer_Token_CommentLine;
-  cmListFileLexerSetToken(lexer, yytext, yyleng);
   lexer->column += yyleng;
-  return 1;
 }
 
 \( {
@@ -541,8 +538,6 @@ const char* cmListFileLexer_GetTypeAsString(cmListFileLexer* lexer,
       return "unterminated bracket";
     case cmListFileLexer_Token_BadString:
       return "unterminated string";
-    case cmListFileLexer_Token_CommentLine:
-      return "line comment";
   }
   return "unknown token";
 }
