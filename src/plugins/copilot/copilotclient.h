@@ -46,6 +46,10 @@ public:
         const QString &userCode,
         std::function<void(const SignInConfirmRequest::Response &response)> callback);
 
+    bool canOpenProject(ProjectExplorer::Project *project) override;
+
+    bool isEnabled(ProjectExplorer::Project *project);
+
 private:
     QMap<TextEditor::TextEditorWidget *, GetCompletionRequest> m_runningRequests;
     struct ScheduleData
