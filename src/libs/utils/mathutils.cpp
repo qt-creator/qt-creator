@@ -5,12 +5,22 @@
 
 #include <QtMath>
 
+/*!
+    \namespace Utils::MathUtils
+    \inmodule QtCreator
+
+    \brief Contains functions for interpolation.
+*/
+
 namespace Utils::MathUtils {
 
 /*!
     Linear interpolation:
-    For x = x1 it returns y1.
-    For x = x2 it returns y2.
+
+    \list
+        \li For \a x = \a x1 it returns \a y1.
+        \li For \a x = \a x2 it returns \a y2.
+    \endlist
 */
 int interpolateLinear(int x, int x1, int x2, int y1, int y2)
 {
@@ -29,9 +39,13 @@ int interpolateLinear(int x, int x1, int x2, int y1, int y2)
 
 /*!
     Tangential interpolation:
-    For x = 0 it returns y1.
-    For x = xHalfLife it returns 50 % of the distance between y1 and y2.
-    For x = infinity it returns y2.
+
+    \list
+        \li For \a x = 0 it returns \a y1.
+        \li For \a x = \a xHalfLife it returns 50 % of the distance between
+            \a y1 and \a y2.
+        \li For \a x = infinity it returns \a y2.
+    \endlist
 */
 int interpolateTangential(int x, int xHalfLife, int y1, int y2)
 {
@@ -46,9 +60,13 @@ int interpolateTangential(int x, int xHalfLife, int y1, int y2)
 
 /*!
     Exponential interpolation:
-    For x = 0 it returns y1.
-    For x = xHalfLife it returns 50 % of the distance between y1 and y2.
-    For x = infinity it returns y2.
+
+    \list
+        \li For \a x = 0 it returns \a y1.
+        \li For \a x = \a xHalfLife it returns 50 % of the distance between
+            \a y1 and \a y2.
+        \li For \a x = infinity it returns \a y2.
+    \endlist
 */
 int interpolateExponential(int x, int xHalfLife, int y1, int y2)
 {
