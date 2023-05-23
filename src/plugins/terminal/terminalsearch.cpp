@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "terminalsearch.h"
-#include "terminalcommands.h"
 
 #include <QElapsedTimer>
 #include <QLoggingCategory>
@@ -28,15 +27,6 @@ TerminalSearch::TerminalSearch(TerminalSurface *surface)
 
     connect(surface, &TerminalSurface::invalidated, this, &TerminalSearch::updateHits);
     connect(&m_debounceTimer, &QTimer::timeout, this, &TerminalSearch::debouncedUpdateHits);
-
-    connect(&TerminalCommands::widgetActions().findNext,
-            &QAction::triggered,
-            this,
-            &TerminalSearch::nextHit);
-    connect(&TerminalCommands::widgetActions().findPrevious,
-            &QAction::triggered,
-            this,
-            &TerminalSearch::previousHit);
 }
 
 void TerminalSearch::setCurrentSelection(std::optional<SearchHitWithText> selection)

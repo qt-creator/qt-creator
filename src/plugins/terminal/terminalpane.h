@@ -3,11 +3,14 @@
 
 #pragma once
 
+#include "terminalwidget.h"
+
 #include <coreplugin/ioutputpane.h>
 
 #include <utils/terminalhooks.h>
 
 #include <QAction>
+#include <QMenu>
 #include <QTabWidget>
 #include <QToolButton>
 
@@ -49,6 +52,8 @@ private:
 
     void removeTab(int index);
     void setupTerminalWidget(TerminalWidget *terminal);
+    void initActions();
+    void createShellMenu();
 
 private:
     QTabWidget m_tabWidget;
@@ -57,6 +62,18 @@ private:
     QToolButton *m_closeTerminalButton{nullptr};
     QToolButton *m_openSettingsButton{nullptr};
     QToolButton *m_escSettingButton{nullptr};
+
+    UnlockedGlobalAction m_minMax;
+    UnlockedGlobalAction m_locate;
+
+    QAction newTerminal;
+    QAction nextTerminal;
+    QAction prevTerminal;
+    QAction closeTerminal;
+
+    QMenu m_shellMenu;
+
+    Core::Context m_context;
 
     bool m_widgetInitialized{false};
     bool m_isVisible{false};

@@ -3,9 +3,10 @@
 
 #include "terminalwidget.h"
 #include "glyphcache.h"
-#include "terminalcommands.h"
+#include "terminalconstants.h"
 #include "terminalsettings.h"
 #include "terminalsurface.h"
+#include "terminaltr.h"
 
 #include <aggregation/aggregate.h>
 
@@ -20,6 +21,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/processinterface.h>
+#include <utils/proxyaction.h>
 #include <utils/stringutils.h>
 
 #include <vterm.h>
@@ -50,6 +52,7 @@ Q_LOGGING_CATEGORY(paintLog, "qtc.terminal.paint", QtWarningMsg)
 
 using namespace Utils;
 using namespace Utils::Terminal;
+using namespace Core;
 
 namespace Terminal {
 
@@ -69,10 +72,16 @@ static constexpr std::chrono::milliseconds minRefreshInterval = 1s / 30;
 
 TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &openParameters)
     : QAbstractScrollArea(parent)
+    , m_context(Utils::Id("TerminalWidget_").withSuffix((size_t) this))
     , m_openParameters(openParameters)
     , m_lastFlush(std::chrono::system_clock::now())
     , m_lastDoubleClick(std::chrono::system_clock::now())
 {
+    auto contextObj = new IContext(this);
+    contextObj->setWidget(this);
+    contextObj->setContext(m_context);
+    ICore::addContextObject(contextObj);
+
     setupSurface();
     setupFont();
     setupColors();
@@ -245,24 +254,31 @@ void TerminalWidget::setupColors()
 
 void TerminalWidget::setupActions()
 {
-    WidgetActions &a = TerminalCommands::widgetActions();
+    ActionManager::registerAction(&m_copy, Constants::COPY, m_context);
+    ActionManager::registerAction(&m_paste, Constants::PASTE, m_context);
+    ActionManager::registerAction(&m_close, Core::Constants::CLOSE, m_context);
+    ActionManager::registerAction(&m_clearTerminal, Constants::CLEAR_TERMINAL, m_context);
+    ActionManager::registerAction(&m_clearSelection, Constants::CLEARSELECTION, m_context);
+    ActionManager::registerAction(&m_moveCursorWordLeft, Constants::MOVECURSORWORDLEFT, m_context);
+    ActionManager::registerAction(&m_moveCursorWordRight, Constants::MOVECURSORWORDRIGHT, m_context);
 
-    auto ifHasFocus = [this](void (TerminalWidget::*f)()) {
-        return [this, f] {
-            if (hasFocus())
-                (this->*f)();
-        };
-    };
+    connect(&m_copy, &QAction::triggered, this, &TerminalWidget::copyToClipboard);
+    connect(&m_paste, &QAction::triggered, this, &TerminalWidget::pasteFromClipboard);
+    connect(&m_close, &QAction::triggered, this, &TerminalWidget::closeTerminal);
+    connect(&m_clearTerminal, &QAction::triggered, this, &TerminalWidget::clearContents);
+    connect(&m_clearSelection, &QAction::triggered, this, &TerminalWidget::clearSelection);
+    connect(&m_moveCursorWordLeft, &QAction::triggered, this, &TerminalWidget::moveCursorWordLeft);
+    connect(&m_moveCursorWordRight, &QAction::triggered, this, &TerminalWidget::moveCursorWordRight);
 
-    // clang-format off
-    connect(&a.copy, &QAction::triggered, this, ifHasFocus(&TerminalWidget::copyToClipboard));
-    connect(&a.paste, &QAction::triggered, this, ifHasFocus(&TerminalWidget::pasteFromClipboard));
-    connect(&a.copyLink, &QAction::triggered, this, ifHasFocus(&TerminalWidget::copyLinkToClipboard));
-    connect(&a.clearSelection, &QAction::triggered, this, ifHasFocus(&TerminalWidget::clearSelection));
-    connect(&a.clearTerminal, &QAction::triggered, this, ifHasFocus(&TerminalWidget::clearContents));
-    connect(&a.moveCursorWordLeft, &QAction::triggered, this, ifHasFocus(&TerminalWidget::moveCursorWordLeft));
-    connect(&a.moveCursorWordRight, &QAction::triggered, this, ifHasFocus(&TerminalWidget::moveCursorWordRight));
-    // clang-format on
+    m_exit = unlockGlobalAction(Core::Constants::EXIT, m_context);
+    m_options = unlockGlobalAction(Core::Constants::OPTIONS, m_context);
+    m_settings = unlockGlobalAction("Preferences.Terminal.General", m_context);
+    m_findInDocument = unlockGlobalAction(Core::Constants::FIND_IN_DOCUMENT, m_context);
+}
+
+void TerminalWidget::closeTerminal()
+{
+    deleteLater();
 }
 
 void TerminalWidget::writeToPty(const QByteArray &data)
@@ -385,8 +401,7 @@ void TerminalWidget::updateCopyState()
     if (!hasFocus())
         return;
 
-    TerminalCommands::widgetActions().copy.setEnabled(m_selection.has_value());
-    TerminalCommands::widgetActions().copyLink.setEnabled(m_linkSelection.has_value());
+    m_copy.setEnabled(m_selection.has_value());
 }
 
 void TerminalWidget::setFont(const QFont &font)
@@ -510,6 +525,8 @@ QString TerminalWidget::textFromSelection() const
 
     Internal::CellIterator it = m_surface->iteratorAt(m_selection->start);
     Internal::CellIterator end = m_surface->iteratorAt(m_selection->end);
+
+    QTC_ASSERT(it.position() < end.position(), return {});
 
     std::u32string s;
     bool previousWasZero = false;
@@ -1078,18 +1095,13 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
         }
 
         if (m_selection)
-            TerminalCommands::widgetActions().clearSelection.trigger();
+            m_clearSelection.trigger();
         else {
-            QTC_ASSERT(Core::ActionManager::command(Core::Constants::S_RETURNTOEDITOR), return);
-            Core::ActionManager::command(Core::Constants::S_RETURNTOEDITOR)->action()->trigger();
+            QAction *returnAction = ActionManager::command(Core::Constants::S_RETURNTOEDITOR)
+                                        ->actionForContext(Core::Constants::C_GLOBAL);
+            QTC_ASSERT(returnAction, return);
+            returnAction->trigger();
         }
-        return;
-    }
-
-    auto oldSelection = m_selection;
-    if (TerminalCommands::triggerAction(event)) {
-        if (oldSelection && oldSelection == m_selection)
-            setSelection(std::nullopt);
         return;
     }
 
@@ -1236,7 +1248,7 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
             if (m_linkSelection->link.targetFilePath.isDir())
                 Core::FileUtils::showInFileSystemView(m_linkSelection->link.targetFilePath);
             else
-                Core::EditorManager::openEditorAt(m_linkSelection->link);
+                EditorManager::openEditorAt(m_linkSelection->link);
         }
         return;
     }
@@ -1261,13 +1273,18 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
     } else if (event->button() == Qt::RightButton) {
         if (event->modifiers() & Qt::ShiftModifier) {
             QMenu *contextMenu = new QMenu(this);
-            contextMenu->addAction(&TerminalCommands::widgetActions().copy);
-            contextMenu->addAction(&TerminalCommands::widgetActions().paste);
-            contextMenu->addAction(&TerminalCommands::widgetActions().copyLink);
+            QAction *configureAction = new QAction(contextMenu);
+            configureAction->setText(Tr::tr("Configure..."));
+            connect(configureAction, &QAction::triggered, this, [] {
+                ICore::showOptionsDialog("Terminal.General");
+            });
+
+            contextMenu->addAction(ActionManager::command(Constants::COPY)->action());
+            contextMenu->addAction(ActionManager::command(Constants::PASTE)->action());
             contextMenu->addSeparator();
-            contextMenu->addAction(&TerminalCommands::widgetActions().clearTerminal);
+            contextMenu->addAction(ActionManager::command(Constants::CLEAR_TERMINAL)->action());
             contextMenu->addSeparator();
-            contextMenu->addAction(TerminalCommands::openSettingsAction());
+            contextMenu->addAction(configureAction);
 
             contextMenu->popup(event->globalPos());
         } else if (m_selection) {
@@ -1472,11 +1489,10 @@ void TerminalWidget::showEvent(QShowEvent *event)
 
 bool TerminalWidget::event(QEvent *event)
 {
-    if (event->type() == QEvent::ShortcutOverride) {
-        if (hasFocus()) {
-            event->accept();
-            return true;
-        }
+    if (event->type() == QEvent::Paint) {
+        QPainter p(this);
+        p.fillRect(QRect(QPoint(0, 0), size()), m_currentColors[ColorIndex::Background]);
+        return true;
     }
 
     if (event->type() == QEvent::KeyPress) {
@@ -1490,13 +1506,63 @@ bool TerminalWidget::event(QEvent *event)
         return true;
     }
 
-    if (event->type() == QEvent::Paint) {
-        QPainter p(this);
-        p.fillRect(QRect(QPoint(0, 0), size()), m_currentColors[ColorIndex::Background]);
-        return true;
-    }
-
     return QAbstractScrollArea::event(event);
+}
+
+void TerminalWidget::initActions()
+{
+    Core::Context context(Utils::Id("TerminalWidget"));
+
+    static QAction copy;
+    static QAction paste;
+    static QAction clearSelection;
+    static QAction clearTerminal;
+    static QAction moveCursorWordLeft;
+    static QAction moveCursorWordRight;
+    static QAction close;
+
+    copy.setText(Tr::tr("Copy"));
+    paste.setText(Tr::tr("Paste"));
+    clearSelection.setText(Tr::tr("Clear Selection"));
+    clearTerminal.setText(Tr::tr("Clear Terminal"));
+    moveCursorWordLeft.setText(Tr::tr("Move Cursor Word Left"));
+    moveCursorWordRight.setText(Tr::tr("Move Cursor Word Right"));
+    close.setText(Tr::tr("Close Terminal"));
+
+    ActionManager::registerAction(&copy, Constants::COPY, context)
+        ->setDefaultKeySequences({QKeySequence(
+            HostOsInfo::isMacHost() ? QLatin1String("Ctrl+C") : QLatin1String("Ctrl+Shift+C"))});
+
+    ActionManager::registerAction(&paste, Constants::PASTE, context)
+        ->setDefaultKeySequences({QKeySequence(
+            HostOsInfo::isMacHost() ? QLatin1String("Ctrl+V") : QLatin1String("Ctrl+Shift+V"))});
+
+    ActionManager::registerAction(&clearSelection, Constants::CLEARSELECTION, context);
+
+    ActionManager::registerAction(&moveCursorWordLeft, Constants::MOVECURSORWORDLEFT, context)
+        ->setDefaultKeySequences({QKeySequence("Alt+Left")});
+
+    ActionManager::registerAction(&moveCursorWordRight, Constants::MOVECURSORWORDRIGHT, context)
+        ->setDefaultKeySequences({QKeySequence("Alt+Right")});
+
+    ActionManager::registerAction(&clearTerminal, Constants::CLEAR_TERMINAL, context);
+}
+
+UnlockedGlobalAction TerminalWidget::unlockGlobalAction(const Utils::Id &commandId,
+                                                        const Context &context)
+{
+    QAction *srcAction = ActionManager::command(commandId)->actionForContext(
+        Core::Constants::C_GLOBAL);
+
+    ProxyAction *proxy = ProxyAction::proxyActionWithIcon(srcAction, srcAction->icon());
+    ActionManager::registerAction(proxy, commandId, context);
+
+    UnlockedGlobalAction registeredAction(proxy, [commandId](QAction *a) {
+        ActionManager::unregisterAction(a, commandId);
+        delete a;
+    });
+
+    return registeredAction;
 }
 
 } // namespace Terminal
