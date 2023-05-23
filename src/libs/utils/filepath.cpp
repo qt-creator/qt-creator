@@ -1538,23 +1538,81 @@ FilePath FilePath::searchInDirectories(const FilePaths &dirs,
     return {};
 }
 
-FilePath FilePath::searchInPath(const FilePaths &additionalDirs,
-                                PathAmending amending,
-                                const FilePathPredicate &filter,
-                                const MatchScope &matchScope) const
+FilePaths FilePath::searchAllInDirectories(const FilePaths &dirs,
+                                           const FilePathPredicate &filter,
+                                           const MatchScope &matchScope) const
 {
-    if (isAbsolutePath())
-        return *this;
+    if (isEmpty())
+        return {};
 
-    FilePaths directories = devicePathEnvironmentVariable();
+    const FilePaths execs = appendExeExtensions(*this, matchScope);
+
+    FilePaths result;
+    if (isAbsolutePath()) {
+        for (const FilePath &filePath : execs) {
+            if (filePath.isExecutableFile() && (!filter || filter(filePath)))
+                result.append(filePath);
+        }
+        return result;
+    }
+
+    QSet<FilePath> alreadyCheckedDirectories;
+
+    for (const FilePath &dir : dirs) {
+        // Compare the initial size of the set with the size after insertion to check
+        // if the directory was already checked.
+        const int initialCount = alreadyCheckedDirectories.count();
+        alreadyCheckedDirectories.insert(dir);
+        const bool wasAlreadyChecked = alreadyCheckedDirectories.count() == initialCount;
+
+        if (dir.isEmpty() || wasAlreadyChecked)
+            continue;
+
+        for (const FilePath &exe : execs) {
+            const FilePath filePath = dir / exe.path();
+            if (filePath.isExecutableFile() && (!filter || filter(filePath)))
+                result.append(filePath);
+        }
+    }
+
+    return result;
+}
+
+static FilePaths dirsFromPath(const FilePath &anchor,
+                              const FilePaths &additionalDirs,
+                              FilePath::PathAmending amending)
+{
+    FilePaths directories = anchor.devicePathEnvironmentVariable();
 
     if (!additionalDirs.isEmpty()) {
-        if (amending == AppendToPath)
+        if (amending == FilePath::AppendToPath)
             directories.append(additionalDirs);
         else
             directories = additionalDirs + directories;
     }
+
+    return directories;
+}
+
+FilePath FilePath::searchInPath(const FilePaths &additionalDirs,
+                                PathAmending amending,
+                                const FilePathPredicate &filter,
+                                MatchScope matchScope) const
+{
+    if (isAbsolutePath())
+        return *this;
+
+    const FilePaths directories = dirsFromPath(*this, additionalDirs, amending);
     return searchInDirectories(directories, filter, matchScope);
+}
+
+FilePaths FilePath::searchAllInPath(const FilePaths &additionalDirs,
+                                    PathAmending amending,
+                                    const FilePathPredicate &filter,
+                                    MatchScope matchScope) const
+{
+    const FilePaths directories = dirsFromPath(*this, additionalDirs, amending);
+    return searchAllInDirectories(directories, filter, matchScope);
 }
 
 Environment FilePath::deviceEnvironment() const

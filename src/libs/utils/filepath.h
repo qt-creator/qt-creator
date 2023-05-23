@@ -187,11 +187,18 @@ public:
 
     [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs,
                                                const FilePathPredicate &filter = {},
-                                               const MatchScope &matchScope = {}) const;
+                                               const MatchScope &matchScope = WithAnySuffix) const;
+    [[nodiscard]] FilePaths searchAllInDirectories(const FilePaths &dirs,
+                                                   const FilePathPredicate &filter = {},
+                                                   const MatchScope &matchScope = WithAnySuffix) const;
     [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs = {},
                                         PathAmending = AppendToPath,
                                         const FilePathPredicate &filter = {},
-                                        const MatchScope &matchScope = {}) const;
+                                        MatchScope matchScope = WithAnySuffix) const;
+    [[nodiscard]] FilePaths searchAllInPath(const FilePaths &additionalDirs = {},
+                                            PathAmending = AppendToPath,
+                                            const FilePathPredicate &filter = {},
+                                            MatchScope matchScope = WithAnySuffix) const;
 
     std::optional<FilePath> refersToExecutableFile(MatchScope considerScript) const;
 
