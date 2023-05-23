@@ -90,7 +90,9 @@ public:
 */
 
 /*!
-    Constructs a BaseAspect.
+    Constructs a base aspect.
+
+    If \a container is non-null, the aspect is made known to the container.
 */
 BaseAspect::BaseAspect(AspectContainer *container)
     : d(new Internal::BaseAspectPrivate)
@@ -124,9 +126,9 @@ QVariant BaseAspect::value() const
 }
 
 /*!
-    Sets value.
+    Sets \a value.
 
-    Emits changed() if the value changed.
+    Emits \c changed() if the value changed.
 */
 void BaseAspect::setValue(const QVariant &value)
 {
@@ -137,7 +139,7 @@ void BaseAspect::setValue(const QVariant &value)
 }
 
 /*!
-    Sets value without emitting changed()
+    Sets \a value without emitting \c changed().
 
     Returns whether the value changed.
 */
@@ -155,7 +157,7 @@ QVariant BaseAspect::defaultValue() const
 }
 
 /*!
-    Sets a default value and the current value for this aspect.
+    Sets a default \a value and the current value for this aspect.
 
     \note The current value will be set silently to the same value.
     It is reasonable to only set default values in the setup phase
@@ -339,7 +341,7 @@ bool BaseAspect::isAutoApply() const
 }
 
 /*!
-    Sets auto-apply mode. When auto-apply mode is on, user interaction to this
+    Sets auto-apply mode. When auto-apply mode is \a on, user interaction to this
     aspect's widget will not modify the \c value of the aspect until \c apply()
     is called programmatically.
 
@@ -370,7 +372,7 @@ QString BaseAspect::settingsKey() const
 }
 
 /*!
-    Sets the key to be used when accessing the settings.
+    Sets the \a key to be used when accessing the settings.
 
     \sa settingsKey()
 */
@@ -380,7 +382,7 @@ void BaseAspect::setSettingsKey(const QString &key)
 }
 
 /*!
-    Sets the key and group to be used when accessing the settings.
+    Sets the \a key and \a group to be used when accessing the settings.
 
     \sa settingsKey()
 */
@@ -419,8 +421,8 @@ QAction *BaseAspect::action()
 }
 
 /*!
-    Adds the visual representation of this aspect to a layout using
-    a layout builder.
+    Adds the visual representation of this aspect to the layout with the
+    specified \a parent using a layout builder.
 */
 void BaseAspect::addToLayout(LayoutItem &)
 {
@@ -528,7 +530,7 @@ void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value,
 }
 
 /*!
-    Retrieves the internal value of this BaseAspect from a \c QVariantMap.
+    Retrieves the internal value of this BaseAspect from the QVariantMap \a map.
 */
 void BaseAspect::fromMap(const QVariantMap &map)
 {
@@ -537,7 +539,7 @@ void BaseAspect::fromMap(const QVariantMap &map)
 }
 
 /*!
-    Stores the internal value of this BaseAspect into a \c QVariantMap.
+    Stores the internal value of this BaseAspect into the QVariantMap \a map.
 */
 void BaseAspect::toMap(QVariantMap &map) const
 {
@@ -765,7 +767,7 @@ public:
 */
 
 /*!
-    Constructs a StringAspect.
+    Constructs the string aspect \a container.
  */
 
 StringAspect::StringAspect(AspectContainer *container)
@@ -800,7 +802,7 @@ QString StringAspect::value() const
 }
 
 /*!
-    Sets the \a value of this StringAspect from an ordinary \c QString.
+    Sets the value, \a val, of this StringAspect from an ordinary \c QString.
 */
 void StringAspect::setValue(const QString &val)
 {
@@ -2149,7 +2151,7 @@ void DoubleAspect::setSingleStep(double step)
 
 
 /*!
-    \class Utils::BaseTristateAspect
+    \class Utils::TriStateAspect
     \inmodule QtCreator
 
     \brief A tristate aspect is a property of some object that can have
@@ -2273,6 +2275,7 @@ void StringListAspect::removeValues(const QStringList &values)
 
 /*!
     \class Utils::IntegerListAspect
+    \internal
     \inmodule QtCreator
 
     \brief A string list aspect represents a property of some object
