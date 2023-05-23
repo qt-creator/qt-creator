@@ -319,25 +319,6 @@ FilePath Environment::searchInPath(const QString &executable,
     return result;
 }
 
-FilePaths Environment::findAllInPath(const QString &executable,
-                                     const FilePaths &additionalDirs,
-                                     const FilePathPredicate &func) const
-{
-    QSet<FilePath> result;
-    searchInDirectoriesHelper(
-        [&result](const FilePath &path) {
-            result.insert(path);
-            return IterationPolicy::Continue;
-        },
-        *this,
-        executable,
-        additionalDirs,
-        func,
-        true);
-
-    return result.values();
-}
-
 FilePaths Environment::path() const
 {
     return pathListValue("PATH");
