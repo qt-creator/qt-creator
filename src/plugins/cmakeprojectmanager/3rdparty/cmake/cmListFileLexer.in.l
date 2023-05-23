@@ -7,7 +7,7 @@ This file must be translated to C and modified to build everywhere.
 
 Run flex >= 2.6 like this:
 
-  flex --nounistd -DFLEXINT_H --noline -ocmListFileLexer.c cmListFileLexer.in.l
+  flex --nounistd -DFLEXINT_H --noline -ocmListFileLexer.cxx cmListFileLexer.in.l
 
 Modify cmListFileLexer.c:
   - remove trailing whitespace:              sed -i 's/\s*$//' cmListFileLexer.c
@@ -309,7 +309,7 @@ static void cmListFileLexerAppend(cmListFileLexer* lexer, const char* text,
   }
 
   /* We need to extend the buffer.  */
-  temp = malloc(newSize);
+  temp = (char *)malloc(newSize);
   if (lexer->token.text) {
     memcpy(temp, lexer->token.text, lexer->token.length);
     free(lexer->token.text);
