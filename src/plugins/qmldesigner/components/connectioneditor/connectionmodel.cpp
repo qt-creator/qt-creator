@@ -38,10 +38,7 @@ QStringList propertyNameListToStringList(const QmlDesigner::PropertyNameList &pr
 
 bool isConnection(const QmlDesigner::ModelNode &modelNode)
 {
-    return (modelNode.type() == "Connections"
-            || modelNode.type() == "QtQuick.Connections"
-            || modelNode.type() == "Qt.Connections"
-            || modelNode.type() == "QtQml.Connections");
+    return (modelNode.metaInfo().simplifiedTypeName() == "Connections");
 }
 
 } //namespace

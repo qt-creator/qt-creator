@@ -1,1 +1,75 @@
-<?xml version="1.0" encoding="UTF-8"?><QtAdvancedDockingSystem version="1" userVersion="0" containers="1"><container floating="false"><splitter orientation="Vertical" count="2"><splitter orientation="Horizontal" count="3"><splitter orientation="Vertical" count="3"><area tabs="2" current="Navigator"><widget name="Navigator" closed="false"/><widget name="Projects" closed="false"/></area><area tabs="2" current="OpenDocuments"><widget name="FileSystem" closed="true"/><widget name="OpenDocuments" closed="true"/></area><area tabs="2" current="Components"><widget name="Components" closed="false"/><widget name="Assets" closed="false"/></area><sizes>439 0 433</sizes></splitter><splitter orientation="Vertical" count="2"><splitter orientation="Horizontal" count="2"><splitter orientation="Vertical" count="2"><area tabs="1" current="FormEditor"><widget name="FormEditor" closed="false"/></area><area tabs="1" current="Editor3D"><widget name="Editor3D" closed="true"/></area><sizes>873 0</sizes></splitter><splitter orientation="Vertical" count="2"><area tabs="1" current="TextEditor"><widget name="TextEditor" closed="true"/></area><area tabs="1" current="OutputPane"><widget name="OutputPane" closed="true"/></area><sizes>0 0</sizes></splitter><sizes>1291 0</sizes></splitter><splitter orientation="Horizontal" count="2"><area tabs="1" current=""><widget name="Timelines" closed="true"/></area><area tabs="2" current="TransitionEditor"><widget name="CurveEditorId" closed="true"/><widget name="TransitionEditor" closed="true"/></area><sizes>1291 0</sizes></splitter><sizes>873 0</sizes></splitter><splitter orientation="Vertical" count="3"><area tabs="1" current="Properties"><widget name="Properties" closed="false"/></area><area tabs="1" current="TranslationsView"><widget name="TranslationsView" closed="true"/></area><area tabs="1" current="ConnectionView"><widget name="ConnectionView" closed="false"/></area><sizes>637 0 235</sizes></splitter><sizes>438 1291 573</sizes></splitter><area tabs="1" current="StatesEditor"><widget name="StatesEditor" closed="false"/></area><sizes>873 276</sizes></splitter></container></QtAdvancedDockingSystem>
+<?xml version="1.0" encoding="UTF-8"?>
+<QtAdvancedDockingSystem version="1" userVersion="0" containers="1" displayName="Design">
+  <container floating="false">
+    <splitter orientation="Vertical" count="2">
+      <splitter orientation="Horizontal" count="3">
+        <splitter orientation="Vertical" count="3">
+          <area tabs="2" current="Navigator">
+            <widget name="Navigator" closed="false"/>
+            <widget name="Projects" closed="false"/>
+          </area>
+          <area tabs="2" current="OpenDocuments">
+            <widget name="FileSystem" closed="true"/>
+            <widget name="OpenDocuments" closed="true"/>
+          </area>
+          <area tabs="2" current="Components">
+            <widget name="Components" closed="false"/>
+            <widget name="Assets" closed="false"/>
+          </area>
+          <sizes>439 0 433</sizes>
+        </splitter>
+        <splitter orientation="Vertical" count="2">
+          <splitter orientation="Horizontal" count="2">
+            <splitter orientation="Vertical" count="2">
+              <area tabs="1" current="FormEditor">
+                <widget name="FormEditor" closed="false"/>
+              </area>
+              <area tabs="1" current="Editor3D">
+                <widget name="Editor3D" closed="true"/>
+              </area>
+              <sizes>873 0</sizes>
+            </splitter>
+            <splitter orientation="Vertical" count="2">
+              <area tabs="1" current="TextEditor">
+                <widget name="TextEditor" closed="true"/>
+              </area>
+              <area tabs="1" current="OutputPane">
+                <widget name="OutputPane" closed="true"/>
+              </area>
+              <sizes>0 0</sizes>
+            </splitter>
+            <sizes>1291 0</sizes>
+          </splitter>
+          <splitter orientation="Horizontal" count="2">
+            <area tabs="1" current="">
+              <widget name="Timelines" closed="true"/>
+            </area>
+            <area tabs="2" current="TransitionEditor">
+              <widget name="CurveEditorId" closed="true"/>
+              <widget name="TransitionEditor" closed="true"/>
+            </area>
+            <sizes>1291 0</sizes>
+          </splitter>
+          <sizes>873 0</sizes>
+        </splitter>
+        <splitter orientation="Vertical" count="3">
+          <area tabs="1" current="Properties">
+            <widget name="Properties" closed="false"/>
+          </area>
+          <area tabs="1" current="TranslationsView">
+            <widget name="TranslationsView" closed="true"/>
+          </area>
+          <area tabs="1" current="ConnectionView">
+            <widget name="ConnectionView" closed="false"/>
+          </area>
+          <sizes>637 0 235</sizes>
+        </splitter>
+        <sizes>438 1291 573</sizes>
+      </splitter>
+      <area tabs="1" current="StatesEditor">
+        <widget name="StatesEditor" closed="false"/>
+      </area>
+      <sizes>873 276</sizes>
+    </splitter>
+  </container>
+</QtAdvancedDockingSystem>

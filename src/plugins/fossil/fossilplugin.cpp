@@ -592,7 +592,7 @@ bool FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
     QTC_ASSERT(state.hasTopLevel(), return false);
 
     PullOrPushDialog dialog(pullOrPushMode, Core::ICore::dialogParent());
-    dialog.setLocalBaseDirectory(m_client.settings().defaultRepoPath.value());
+    dialog.setLocalBaseDirectory(m_client.settings().defaultRepoPath());
     const QString defaultURL(m_client.synchronousGetRepositoryURL(state.topLevel()));
     dialog.setDefaultRemoteLocation(defaultURL);
     if (dialog.exec() != QDialog::Accepted)
@@ -868,24 +868,19 @@ bool FossilPluginPrivate::managesFile(const FilePath &workingDirectory, const QS
 
 bool FossilPluginPrivate::isConfigured() const
 {
-    const Utils::FilePath binary = m_client.vcsBinary();
+    const FilePath binary = m_client.vcsBinary();
     if (binary.isEmpty())
         return false;
 
-    const QFileInfo fi = binary.toFileInfo();
-    if ( !(fi.exists() && fi.isFile() && fi.isExecutable()) )
+    if (!binary.isExecutableFile())
         return false;
 
     // Local repositories default path must be set and exist
-    const QString repoPath = m_client.settings().defaultRepoPath.value();
+    const FilePath repoPath = m_client.settings().defaultRepoPath();
     if (repoPath.isEmpty())
         return false;
 
-    const QDir dir(repoPath);
-    if (!dir.exists())
-        return false;
-
-    return true;
+    return repoPath.isReadableDir();
 }
 
 bool FossilPluginPrivate::supportsOperation(Operation operation) const

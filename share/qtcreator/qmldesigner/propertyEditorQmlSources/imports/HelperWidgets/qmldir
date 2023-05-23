@@ -67,6 +67,7 @@ Spacer 2.0 Spacer.qml
 SpinBox 2.0 SpinBox.qml
 StandardTextSection 2.0 StandardTextSection.qml
 TextExtrasSection 2.0 TextExtrasSection.qml
+TextInputSection 2.0 TextInputSection.qml
 ToolTipArea 2.0 ToolTipArea.qml
 UrlChooser 2.0 UrlChooser.qml
 VerticalScrollBar 2.0 VerticalScrollBar.qml

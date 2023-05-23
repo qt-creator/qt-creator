@@ -1,0 +1,10 @@
+module QtQml
+linktarget Qt6::QmlMeta
+optional plugin qmlmetaplugin
+classname QtQmlMetaPlugin
+designersupported
+import QtQml.Base auto
+import QtQml.Models auto
+import QtQml.WorkerScript auto
+prefer :/qt-project.org/imports/QtQml/
+

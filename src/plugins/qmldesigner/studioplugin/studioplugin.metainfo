@@ -34,7 +34,16 @@ MetaInfo {
         "QtQuick.Templates",
         "QtQuick.Shapes",
         "QtQuick.Studio.EventSystem",
-        "QtQuick.Studio.EventSimulator"
+        "QtQuick.Studio.EventSimulator",
+        "QtQuick.Pdf",
+        "QmlTime",
+        "Qt.test.controls",
+        "QtOpcUa",
+        "QtVncServer",
+        "QtTextToSpeech",
+        "QtQuick3D MaterialEditor",
+        "QtDataVisualization",
+        "QtQuick3D.ParticleEffects"
         ]
 
     showTagsForImports: [

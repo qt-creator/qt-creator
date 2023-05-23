@@ -3,6 +3,7 @@
 
 #include "nodeinstanceserverdispatcher.h"
 
+#include "qt5bakelightsnodeinstanceserver.h"
 #include "qt5captureimagenodeinstanceserver.h"
 #include "qt5capturepreviewnodeinstanceserver.h"
 #include "qt5informationnodeinstanceserver.h"
@@ -170,6 +171,8 @@ std::unique_ptr<NodeInstanceServer> createNodeInstanceServer(
         return std::make_unique<Qt5InformationNodeInstanceServer>(nodeInstanceClient);
     else if (serverName == "previewmode")
         return std::make_unique<Qt5PreviewNodeInstanceServer>(nodeInstanceClient);
+    else if (serverName == "bakelightsmode")
+        return std::make_unique<Qt5BakeLightsNodeInstanceServer>(nodeInstanceClient);
 
     return {};
 }

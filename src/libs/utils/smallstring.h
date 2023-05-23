@@ -278,11 +278,6 @@ public:
         return Q_LIKELY(isShortString()) ? m_data.shortString : m_data.reference.pointer;
     }
 
-    const char *constData() const noexcept
-    {
-        return data();
-    }
-
     iterator begin() noexcept
     {
         return data();
@@ -315,7 +310,7 @@ public:
 
     const_iterator begin() const noexcept
     {
-        return constData();
+        return data();
     }
 
     const_iterator end() const noexcept

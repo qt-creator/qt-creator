@@ -56,7 +56,7 @@ void BindingProperty::setExpression(const QString &expression)
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isBindingProperty())
-        privateModel()->removeProperty(internalNode()->property(name()));
+        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
 
     privateModel()->setBindingProperty(internalNode(), name(), expression);
 }
@@ -341,7 +341,7 @@ void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, 
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isBindingProperty())
-        privateModel()->removeProperty(internalNode()->property(name()));
+        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
 
      privateModel()->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
 }

@@ -32,6 +32,7 @@
 #include <coreplugin/modemanager.h>
 
 #include <QAction>
+#include <QCollator>
 #include <QGuiApplication>
 #include <QItemDelegate>
 #include <QKeyEvent>
@@ -141,8 +142,15 @@ private:
 
 static bool compareItems(const TreeItem *ti1, const TreeItem *ti2)
 {
-    const int result = caseFriendlyCompare(static_cast<const GenericItem *>(ti1)->rawDisplayName(),
-                                           static_cast<const GenericItem *>(ti2)->rawDisplayName());
+    static const QCollator collator = [] {
+        QCollator collator;
+        collator.setNumericMode(true);
+        collator.setCaseSensitivity(Qt::CaseInsensitive);
+        return collator;
+    }();
+
+    const int result = collator.compare(static_cast<const GenericItem *>(ti1)->rawDisplayName(),
+                                        static_cast<const GenericItem *>(ti2)->rawDisplayName());
     if (result != 0)
         return result < 0;
     return ti1 < ti2;
@@ -387,6 +395,12 @@ private:
             return;
         }
         TreeView::mouseReleaseEvent(event);
+    }
+
+    void showEvent(QShowEvent* event) override
+    {
+        scrollTo(currentIndex());
+        TreeView::showEvent(event);
     }
 
     QObject *objectAt(const QModelIndex &index) const

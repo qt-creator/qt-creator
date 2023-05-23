@@ -1,4 +1,4 @@
-import QtQuick 2.15
+import QtQuick 6.5
 import Constants 1.0
 
 Item {

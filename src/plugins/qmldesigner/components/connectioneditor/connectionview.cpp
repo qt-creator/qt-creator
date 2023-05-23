@@ -183,7 +183,7 @@ void ConnectionView::auxiliaryDataChanged([[maybe_unused]] const ModelNode &node
         selectionModel->clearSelection();
 }
 
-void ConnectionView::importsChanged(const QList<Import> & /*addedImports*/, const QList<Import> & /*removedImports*/)
+void ConnectionView::importsChanged(const Imports & /*addedImports*/, const Imports & /*removedImports*/)
 {
     backendModel()->resetModel();
 }

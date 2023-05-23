@@ -123,24 +123,23 @@ static void initializeMetaTypeSystem(const QString &resourcePath)
         qWarning() << qPrintable(errorAndWarning);
 }
 
-namespace {
 
 class ExternalDependenciesFake : public QObject, public ExternalDependenciesInterface
 {
 public:
-    ExternalDependenciesFake(Model &model)
+    ExternalDependenciesFake(Model *model)
         : model{model}
     {}
 
     double formEditorDevicePixelRatio() const override { return 1.; }
     QString currentProjectDirPath() const override
     {
-        return QFileInfo(model.fileUrl().toLocalFile()).absolutePath();
+        return QFileInfo(model->fileUrl().toLocalFile()).absolutePath();
     }
 
     QUrl currentResourcePath() const override
     {
-        return QUrl::fromLocalFile(QFileInfo(model.fileUrl().toLocalFile()).absolutePath());
+        return QUrl::fromLocalFile(QFileInfo(model->fileUrl().toLocalFile()).absolutePath());
     }
 
     QString defaultPuppetFallbackDirectory() const override { return {}; }
@@ -160,12 +159,19 @@ public:
     PuppetStartData puppetStartData(const class Model &) const override { return {}; }
     bool instantQmlTextUpdate() const override { return true; }
     Utils::FilePath qmlPuppetPath() const override { return {}; }
+    QStringList modulePaths() const override { return {}; }
+    QStringList projectModulePaths() const override { return {}; }
+    bool isQt6Project() const override { return {}; }
+    QString qtQuickVersion() const override { return {}; }
+    Utils::FilePath resourcePath(const QString &) const override { return {}; }
 
 public:
     QSettings qsettings;
     QmlDesigner::DesignerSettings settings{&qsettings};
-    Model &model;
+    Model *model;
 };
+
+namespace {
 
 ModelPointer createModel(const QString &typeName,
                          int major = 2,
@@ -187,7 +193,7 @@ ModelPointer createModel(const QString &typeName,
     NotIndentingTextEditModifier *modifier = new NotIndentingTextEditModifier(textEdit);
     modifier->setParent(textEdit);
 
-    auto externalDependencies = new ExternalDependenciesFake{*model};
+    auto externalDependencies = new ExternalDependenciesFake{model.get()};
     externalDependencies->setParent(model.get());
 
     auto rewriterView = new QmlDesigner::RewriterView(*externalDependencies,
@@ -204,7 +210,7 @@ ModelPointer createModel(const QString &typeName,
 auto createTextRewriterView(
     Model &model, RewriterView::DifferenceHandling differenceHandling = RewriterView::Amend)
 {
-    auto externalDependencies = new ExternalDependenciesFake{model};
+    auto externalDependencies = new ExternalDependenciesFake{&model};
     auto rewriter = std::make_unique<TestRewriterView>(*externalDependencies, differenceHandling);
     externalDependencies->setParent(rewriter.get());
 
@@ -214,12 +220,14 @@ auto createTextRewriterView(
 } // namespace
 
 tst_TestCore::tst_TestCore()
-    : QObject()
+    : externalDependencies{std::make_unique<ExternalDependenciesFake>(nullptr)}
 {
     QLoggingCategory::setFilterRules(QStringLiteral("qtc.qmljs.imports=false"));
     //QLoggingCategory::setFilterRules(QStringLiteral("*.info=false\n*.debug=false\n*.warning=false"));
     QLoggingCategory::setFilterRules(QStringLiteral("*.warning=false"));
 }
+
+tst_TestCore::~tst_TestCore() = default;
 
 void tst_TestCore::initTestCase()
 {
@@ -250,7 +258,8 @@ void tst_TestCore::initTestCase()
 
     qDebug() << pluginPath;
     Q_ASSERT(QFileInfo::exists(pluginPath));
-    MetaInfo::setPluginPaths(QStringList() << pluginPath);
+
+    MetaInfo::initializeGlobal({pluginPath}, *externalDependencies);
 
     QFileInfo builtins(IDE_DATA_PATH "/qml-type-descriptions/builtins.qmltypes");
     QStringList errors, warnings;
@@ -259,7 +268,6 @@ void tst_TestCore::initTestCase()
 
 void tst_TestCore::cleanupTestCase()
 {
-    MetaInfo::clearGlobal();
 }
 
 void tst_TestCore::init()
@@ -1072,10 +1080,10 @@ void tst_TestCore::testRewriterChangeImports()
     //
     Import webkitImport = Import::createLibraryImport("QtWebKit", "1.0");
 
-    QList<Import> importList;
+    Imports importList;
     importList << webkitImport;
 
-    model->changeImports(importList, QList<Import>());
+    model->changeImports(importList, Imports());
 
     const QLatin1String qmlWithImport("\n"
                                       "import QtQuick 2.1\n"
@@ -1084,7 +1092,7 @@ void tst_TestCore::testRewriterChangeImports()
                                       "Rectangle {}\n");
     QCOMPARE(textEdit.toPlainText(), qmlWithImport);
 
-    model->changeImports(QList<Import>(), importList);
+    model->changeImports(Imports(), importList);
 
     QCOMPARE(model->imports().size(), 1);
     QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "2.1"));
@@ -1098,7 +1106,7 @@ void tst_TestCore::testRewriterChangeImports()
 
     Import webkitImportAlias = Import::createLibraryImport("QtWebKit", "1.0", "Web");
 
-    model->changeImports(QList<Import>() << webkitImportAlias, QList<Import>() <<  webkitImport);
+    model->changeImports(Imports() << webkitImportAlias, Imports() <<  webkitImport);
 
     const QLatin1String qmlWithAliasImport("\n"
                                            "import QtQuick 2.1\n"
@@ -1107,7 +1115,7 @@ void tst_TestCore::testRewriterChangeImports()
                                            "Rectangle {}\n");
     QCOMPARE(textEdit.toPlainText(), qmlWithAliasImport);
 
-    model->changeImports(QList<Import>(), QList<Import>() << webkitImportAlias);
+    model->changeImports(Imports(), Imports() << webkitImportAlias);
     QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "2.1"));
 
     QCOMPARE(textEdit.toPlainText(), qmlString);
@@ -2547,7 +2555,7 @@ void tst_TestCore::testModelRemoveNode()
     model->attachView(view.data());
 
     TestConnectionManager connectionManager;
-    ExternalDependenciesFake externalDependenciesFake{*model};
+    ExternalDependenciesFake externalDependenciesFake{model.get()};
     NodeInstanceView nodeInstanceView{connectionManager, externalDependenciesFake};
     model->attachView(&nodeInstanceView);
 
@@ -4522,7 +4530,7 @@ void tst_TestCore::testSubComponentManager()
 
     auto model(createModel("QtQuick.Rectangle", 2, 15));
     model->setFileUrl(QUrl::fromLocalFile(fileName));
-    ExternalDependenciesFake externalDependenciesFake{*model};
+    ExternalDependenciesFake externalDependenciesFake{model.get()};
     QScopedPointer<SubComponentManager> subComponentManager(
         new SubComponentManager(model.get(), externalDependenciesFake));
     subComponentManager->update(QUrl::fromLocalFile(fileName), model->imports());
@@ -4828,11 +4836,6 @@ void tst_TestCore::testMetaInfoSimpleType()
     QCOMPARE(itemMetaInfo.superClasses().size(), 2); // Item, QtQuick.QtObject
     QVERIFY(itemMetaInfo.isQtQuickItem());
     QVERIFY(itemMetaInfo.isQtObject());
-
-    // availableInVersion
-    QVERIFY(itemMetaInfo.availableInVersion(2, 2));
-    QVERIFY(itemMetaInfo.availableInVersion(2, 0));
-    QVERIFY(itemMetaInfo.availableInVersion(-1, -1));
 }
 
 void tst_TestCore::testMetaInfoUncreatableType()
@@ -6714,7 +6717,7 @@ void tst_TestCore::testInstancesAttachToExistingModel()
     // Attach NodeInstanceView
 
     TestConnectionManager connectionManager;
-    ExternalDependenciesFake externalDependenciesFake{*model};
+    ExternalDependenciesFake externalDependenciesFake{model.get()};
     NodeInstanceView instanceView{connectionManager, externalDependenciesFake};
 
     model->attachView(&instanceView);

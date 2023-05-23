@@ -59,7 +59,7 @@ constexpr TypeTraits operator&(TypeTraits first, TypeTraits second)
     return static_cast<TypeTraits>(static_cast<int>(first) & static_cast<int>(second));
 }
 
-using TypeNameString = Utils::BasicSmallString<63>;
+using TypeNameString = ::Utils::BasicSmallString<63>;
 
 } // namespace QmlDesigner::Storage
 
@@ -69,7 +69,7 @@ class PropertyDeclaration
 {
 public:
     PropertyDeclaration(TypeId typeId,
-                        Utils::SmallStringView name,
+                        ::Utils::SmallStringView name,
                         PropertyDeclarationTraits traits,
                         TypeId propertyTypeId)
         : typeId{typeId}
@@ -79,7 +79,7 @@ public:
     {}
 
     TypeId typeId;
-    Utils::SmallString name;
+    ::Utils::SmallString name;
     PropertyDeclarationTraits traits;
     TypeId propertyTypeId;
 };

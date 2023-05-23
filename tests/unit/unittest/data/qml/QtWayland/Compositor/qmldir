@@ -1,0 +1,12 @@
+module QtWayland.Compositor
+linktarget Qt6::qwaylandcompositorplugin
+optional plugin qwaylandcompositorplugin
+classname QWaylandCompositorPlugin
+typeinfo WaylandCompositor.qmltypes
+depends QtQuick
+prefer :/qt-project.org/imports/QtWayland/Compositor/
+WaylandCursorItem 6.0 qmlfiles/WaylandCursorItem.qml
+WaylandCursorItem 1.0 qmlfiles/WaylandCursorItem.qml
+WaylandOutputWindow 6.0 qmlfiles/WaylandOutputWindow.qml
+WaylandOutputWindow 1.0 qmlfiles/WaylandOutputWindow.qml
+

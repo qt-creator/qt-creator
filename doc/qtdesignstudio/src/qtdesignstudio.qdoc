@@ -81,6 +81,7 @@
                 \li \l{Converting Qt 5 Projects into Qt 6 Projects}
                 \li \l{Converting UI Projects to Applications}
                 \li \l{Using External Tools}
+                \li \l{\QDS on MCUs}
             \endlist
         \li \b {\l Help}
             \list

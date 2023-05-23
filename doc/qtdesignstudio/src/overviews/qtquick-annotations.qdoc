@@ -3,13 +3,8 @@
 
 /*!
     \page qtquick-annotations.html
-    \if defined(qtdesignstudio)
     \previouspage qtquick-positioning.html
     \nextpage qtquick-prototyping.html
-    \else
-    \previouspage qtquick-fonts.html
-    \nextpage creator-quick-ui-forms.html
-    \endif
 
     \title Annotating Designs
 

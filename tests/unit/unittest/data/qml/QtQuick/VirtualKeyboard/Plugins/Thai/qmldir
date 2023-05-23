@@ -1,0 +1,8 @@
+module QtQuick.VirtualKeyboard.Plugins.Thai
+linktarget Qt6::qtvkbthaiplugin
+plugin qtvkbthaiplugin
+classname QtQuick_VirtualKeyboard_Plugins_ThaiPlugin
+typeinfo plugins.qmltypes
+depends QtQuick.VirtualKeyboard auto
+prefer :/qt-project.org/imports/QtQuick/VirtualKeyboard/Plugins/Thai/
+

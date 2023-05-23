@@ -106,6 +106,8 @@ inline constexpr AuxiliaryDataKeyView globalAnnotationStatus{AuxiliaryDataType::
 inline constexpr AuxiliaryDataKeyView rotBlockProperty{AuxiliaryDataType::NodeInstanceAuxiliary,
                                                        "rotBlock"};
 inline constexpr AuxiliaryDataKeyView languageProperty{AuxiliaryDataType::Temporary, "language"};
+inline constexpr AuxiliaryDataKeyView bakeLightsManualProperty{AuxiliaryDataType::Document,
+                                                               "bakeLightsManual"};
 
 // Most material preview aux properties are duplicated as document and instance types, as they
 // are both required to be persistent and used at runtime to control material preview rendering

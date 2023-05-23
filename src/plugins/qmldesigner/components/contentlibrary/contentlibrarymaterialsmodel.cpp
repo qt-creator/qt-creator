@@ -7,6 +7,8 @@
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialscategory.h"
 #include "contentlibrarywidget.h"
+
+#include <designerpaths.h>
 #include "filedownloader.h"
 #include "fileextractor.h"
 #include "multifiledownloader.h"
@@ -30,8 +32,7 @@ ContentLibraryMaterialsModel::ContentLibraryMaterialsModel(ContentLibraryWidget 
     : QAbstractListModel(parent)
     , m_widget(parent)
 {
-    m_downloadPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
-                     + "/QtDesignStudio/bundles/Materials";
+    m_downloadPath = Paths::bundlesPathSetting() + "/Materials";
 
     m_baseUrl = QmlDesignerPlugin::settings()
                     .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL)

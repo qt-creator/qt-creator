@@ -193,7 +193,7 @@
                     "type": "ComboBox",
                     "data":
                     {
-                        "index": 1,
+                        "index": 4,
                         "items":
                             [
                             {
@@ -222,6 +222,13 @@
                                 "value":
                                 "({
                                     'TargetQuickVersion': '6.4'
+                                })"
+                            },
+                            {
+                                "trKey": "Qt 6.5",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.5'
                                 })"
                             }
                         ]
@@ -252,6 +259,10 @@
                 {
                     "source": "../common/qmlcomponents.tpl",
                     "target": "%{ProjectDirectory}/qmlcomponents"
+                },
+                {
+                    "source": "../common/insight.tpl",
+                    "target": "%{ProjectDirectory}/insight"
                 },
                 {
                     "source": "../common/main.qml",

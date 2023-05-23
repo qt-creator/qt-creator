@@ -114,8 +114,4 @@
     To remove the current transition, select the \inlineimage icons/minus.png
     (\uicontrol {Remove Transition}) button.
 
-    \if defined(qtcreator)
-    For an example of animating transitions between states, see
-    \l {Creating a Qt Quick Application}.
-    \endif
 */

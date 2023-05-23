@@ -4,11 +4,7 @@
 /*!
     \page exporting-from-maya.html
     \previouspage exporting-from-blender.html
-    \if defined (qtdesignstudio)
     \nextpage exporting-from-qt3ds.html
-    \else
-    \nextpage studio-importing-3d.html
-    \endif
 
     \title Exporting from Maya
 

@@ -59,11 +59,6 @@
         \li \c released()
     \endlist
 
-    \if defined(qtcreator)
-    A more modern way of handling events from all pointing devices, including
-    mouse and touchscreen, is via \l {Qt Quick Input Handlers}.
-    \endif
-
     \section2 Mouse Area Properties
 
     A \uicontrol {Mouse Area} is an invisible component that is typically used

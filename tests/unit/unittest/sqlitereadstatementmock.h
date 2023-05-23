@@ -11,6 +11,7 @@
 #include <projectstorageids.h>
 #include <sqliteblob.h>
 #include <sqlitetimestamp.h>
+#include <sqlitetransaction.h>
 #include <utils/smallstring.h>
 
 #include <QImage>
@@ -198,7 +199,9 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto optionalValueWithTransaction(const QueryTypes &...queryValues)
     {
-        return optionalValue<ResultType>(queryValues...);
+        return Sqlite::withDeferredTransaction(databaseMock, [&] {
+            return optionalValue<ResultType>(queryValues...);
+        });
     }
 
     template<typename ResultType, typename... QueryType>
@@ -261,6 +264,7 @@ public:
 
 public:
     Utils::SmallString sqlStatement;
+    SqliteDatabaseMock &databaseMock;
 };
 
 template<int ResultCount, int BindParameterCount = 0>

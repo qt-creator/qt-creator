@@ -8,7 +8,6 @@
 
     \title Shapes
 
-    \if defined(qtdesignstudio)
     \QDS is a UI design tool rather than a generic drawing tool, and therefore,
     the focus is on providing ready-made UI controls that you can modify
     according to your needs. The values of some properties of the controls are
@@ -21,12 +20,6 @@
     the \uicontrol {2D} view.
 
     \image studio-shapes.png "Shapes in the 2D view"
-
-    \else
-    You can use the Rectangle component to draw basic shapes in
-    the \l {2D} view.
-    \image qml-shapes.png "Shapes in the 2D view"
-    \endif
 
     Most visual components in \uicontrol Components are based on the \l [QtQuick]
     {Item} component. Even though it has no visual appearance itself (similarly
@@ -48,9 +41,7 @@
     The basic \l [QtQuick] {Rectangle} component is used for drawing shapes
     with four sides and corners, as well as a solid border.
 
-    \if defined(qtdesignstudio)
     \image qml-shapes-rectangle.png "A rectangle and its properties"
-    \endif
 
     Rectangles can be filled either with a solid fill color or a linear
     gradient that you set in the \uicontrol {Fill color} field. You can
@@ -74,7 +65,6 @@
     check box in the \uicontrol Advanced section to improve the appearance of
     your shape.
 
-    \if defined(qtdesignstudio)
     \target studio-rectangle
     \section2 Studio Rectangle
 
@@ -279,5 +269,4 @@
         \li A triangle with different dimensions and shapes that is
             enclosed in an invisible rectangle.
     \endtable
-    \endif
 */

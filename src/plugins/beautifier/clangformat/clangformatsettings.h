@@ -12,29 +12,25 @@ class ClangFormatSettings : public AbstractSettings
 public:
     explicit ClangFormatSettings();
 
-    QString documentationFilePath() const override;
     void createDocumentationFile() const override;
+
     QStringList completerWords() override;
 
-    bool usePredefinedStyle() const;
-    void setUsePredefinedStyle(bool usePredefinedStyle);
-
-    QString predefinedStyle() const;
-    void setPredefinedStyle(const QString &predefinedStyle);
-
-    QString fallbackStyle() const;
-    void setFallbackStyle(const QString &fallbackStyle);
-
-    QString customStyle() const;
-    void setCustomStyle(const QString &customStyle);
-
-    QStringList predefinedStyles() const;
-    QStringList fallbackStyles() const;
+    Utils::BoolAspect usePredefinedStyle;
+    Utils::SelectionAspect predefinedStyle;
+    Utils::SelectionAspect fallbackStyle;
+    Utils::StringAspect customStyle;
 
     QString styleFileName(const QString &key) const override;
 
 private:
     void readStyles() override;
+};
+
+class ClangFormatOptionsPage final : public Core::IOptionsPage
+{
+public:
+    explicit ClangFormatOptionsPage(ClangFormatSettings *settings);
 };
 
 } // Beautifier::Internal

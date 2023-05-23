@@ -334,7 +334,7 @@ Item {
         {
             // commit rename upon changing selection
             if (root.currMaterialItem)
-                root.currMaterialItem.commitRename();
+                root.currMaterialItem.forceFinishEditing();
 
             root.currMaterialItem = materialRepeater.itemAt(materialBrowserModel.selectedIndex);
 
@@ -609,6 +609,7 @@ Item {
             clip: true
             visible: root.enableUiElements
             interactive: !ctxMenu.opened && !ctxMenuTextures.opened && !rootView.isDragging
+                         && !HelperWidgets.Controller.contextMenuOpened
 
             Behavior on contentY {
                 id: contentYBehavior
@@ -770,7 +771,7 @@ Item {
                                 model: materialBrowserTexturesModel
                                 delegate: TextureItem {
                                     width: root.cellWidth
-                                    height: root.cellWidth
+                                    height: root.cellHeight
 
                                     onShowContextMenu: {
                                         ctxMenuTextures.popupMenu(model)

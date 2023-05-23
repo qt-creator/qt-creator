@@ -534,7 +534,17 @@ namespace ADS
 
     QSize DockWidget::minimumSizeHint() const
     {
-        if (d->m_minimumSizeHintMode == DockWidget::MinimumSizeHintFromDockWidget || !d->m_widget)
+        if (!d->m_widget)
+            return QSize(60, 40);
+
+        DockContainerWidget *container = this->dockContainer();
+        if (!container || container->isFloating()) {
+            const QSize sh = d->m_widget->minimumSizeHint();
+            const QSize s = d->m_widget->minimumSize();
+            return {std::max(s.width(), sh.width()), std::max(s.height(), sh.height())};
+        }
+
+        if (d->m_minimumSizeHintMode == DockWidget::MinimumSizeHintFromDockWidget)
             return QSize(60, 40);
         else
             return d->m_widget->minimumSizeHint();

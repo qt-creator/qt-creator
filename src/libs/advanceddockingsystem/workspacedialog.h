@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-2.1-or-later OR GPL-3.0-or-later
 
 #pragma once
@@ -7,7 +7,6 @@
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
-class QLineEdit;
 class QPushButton;
 QT_END_NAMESPACE
 
@@ -29,7 +28,7 @@ public:
     DockManager *dockManager() const;
 
 private:
-    void updateActions(const QStringList &workspaces);
+    void updateActions(const QStringList &fileNames);
 
     DockManager *m_manager = nullptr;
 
@@ -42,28 +41,9 @@ private:
     QPushButton *m_btSwitch = nullptr;
     QPushButton *m_btImport = nullptr;
     QPushButton *m_btExport = nullptr;
+    QPushButton *m_btUp = nullptr;
+    QPushButton *m_btDown = nullptr;
     QCheckBox *m_autoLoadCheckBox = nullptr;
-};
-
-class WorkspaceNameInputDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit WorkspaceNameInputDialog(DockManager *manager, QWidget *parent);
-
-    void setActionText(const QString &actionText, const QString &openActionText);
-    void setValue(const QString &value);
-    QString value() const;
-    bool isSwitchToRequested() const;
-
-private:
-    QLineEdit *m_newWorkspaceLineEdit = nullptr;
-    QPushButton *m_switchToButton = nullptr;
-    QPushButton *m_okButton = nullptr;
-    bool m_usedSwitchTo = false;
-
-    DockManager *m_manager;
 };
 
 } // namespace ADS

@@ -250,7 +250,6 @@
     create a timeline for the Item, and set the rotation property for the start
     and end keyframes.
 
-    \if defined(qtdesignstudio)
     \section1 Animating Shapes
 
     You can use the \uicontrol {Qt Quick Studio Components} to animate the
@@ -263,5 +262,5 @@
         \li \l Rectangle
         \li \l Triangle
     \endlist
-    \endif
+
 */

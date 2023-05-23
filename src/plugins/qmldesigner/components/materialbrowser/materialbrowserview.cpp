@@ -264,12 +264,17 @@ void MaterialBrowserView::refreshModel(bool updateImages)
     m_widget->materialBrowserTexturesModel()->setTextures(textures);
     m_widget->materialBrowserModel()->setHasMaterialLibrary(matLib.isValid());
 
-    if (updateImages) {
-        for (const ModelNode &node : std::as_const(materials))
-            m_previewRequests.insert(node);
-        if (!m_previewRequests.isEmpty())
-            m_previewTimer.start(0);
-    }
+    if (updateImages)
+        updateMaterialsPreview();
+}
+
+void MaterialBrowserView::updateMaterialsPreview()
+{
+    const QList<ModelNode> materials = m_widget->materialBrowserModel()->materials();
+    for (const ModelNode &node : materials)
+        m_previewRequests.insert(node);
+    if (!m_previewRequests.isEmpty())
+        m_previewTimer.start(0);
 }
 
 bool MaterialBrowserView::isMaterial(const ModelNode &node) const
@@ -469,8 +474,8 @@ ModelNode MaterialBrowserView::getMaterialOfModel(const ModelNode &model, int id
     return mat;
 }
 
-void MaterialBrowserView::importsChanged([[maybe_unused]] const QList<Import> &addedImports,
-                                         [[maybe_unused]] const QList<Import> &removedImports)
+void MaterialBrowserView::importsChanged([[maybe_unused]] const Imports &addedImports,
+                                         [[maybe_unused]] const Imports &removedImports)
 {
     bool hasQuick3DImport = model()->hasImport("QtQuick3D");
 
@@ -541,6 +546,7 @@ void MaterialBrowserView::active3DSceneChanged(qint32 sceneId)
 void MaterialBrowserView::currentStateChanged([[maybe_unused]] const ModelNode &node)
 {
     m_widget->materialBrowserTexturesModel()->updateAllTexturesSources();
+    updateMaterialsPreview();
 }
 
 void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completedNodeList)

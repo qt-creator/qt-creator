@@ -46,10 +46,7 @@
 
     \youtube V3Po15bNErw
 
-    \if defined(qtdesignstudio)
     To try it yourself, follow the \l{Log In UI - Timeline} tutorial.
-    \endif
-
 
     For more information about creating timeline animations, see
     \l{Creating Timeline Animations}.

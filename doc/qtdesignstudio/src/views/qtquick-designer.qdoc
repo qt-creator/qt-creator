@@ -9,13 +9,9 @@
 
 /*!
     \page creator-using-qt-quick-designer.html
-    \if defined(qtdesignstudio)
+
     \previouspage creator-modes.html
     \nextpage qtquick-form-editor.html
-    \else
-    \previouspage quick-projects.html
-    \nextpage quick-uis.html
-    \endif
 
     \title Design Views
 
@@ -151,7 +147,6 @@
         \li Keyboard Shortcut
         \li Read More
 
-    \if defined(qtdesignstudio)
     \row
         \li \inlineimage icons/home.png
         \li \uicontrol {Home}: opens the welcome page.
@@ -168,7 +163,6 @@
           make to the UI are instantly visible to you in the preview.
       \li \key Alt+P (\key Opt+P on \macos)
       \li \l{Validating with Target Hardware}
-    \endif
 
     \row
         \li Currently open file

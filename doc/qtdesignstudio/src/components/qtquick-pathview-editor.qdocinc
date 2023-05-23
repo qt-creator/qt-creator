@@ -49,10 +49,8 @@
     In the \uicontrol {Path View Highlight} section, you can specify properties
     for \l{View Highlight}{highlighting} path objects.
 
-    \if defined(qtdesignstudio)
     \note You can also use the \l {SVG Path Item} Studio Component to specify an
     SVG path data string that draws a path.
-    \endif
 
 //! [pathview]
 

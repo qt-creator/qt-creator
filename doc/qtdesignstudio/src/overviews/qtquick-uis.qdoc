@@ -3,13 +3,8 @@
 
 /*!
     \page quick-uis.html
-    \if defined(qtdesignstudio)
     \previouspage {Examples}
     \nextpage studio-app-flows.html
-    \else
-    \previouspage qtquick-text-editor.html
-    \nextpage quick-components.html
-    \endif
 
     \title Wireframing
 
@@ -44,7 +39,6 @@
 
     \list
 
-        \if defined(qtdesignstudio)
         \li \l {Designing Application Flows}
 
             You can design an application in the form of a \e {schematic diagram}
@@ -52,7 +46,6 @@
             interconnections by means of symbols. This results in an
             interactive prototype that can be clicked through to simulate
             the user experience of the application.
-        \endif
 
         \li \l {Using Components}
 
@@ -79,31 +72,10 @@
             methods, such as anchors, layouts, positioners, and property
             bindings, for dynamic UIs.
 
-        \if defined(qtcreator)
-        \li \l {Using Custom Fonts}
-
-            You can load custom fonts to \QC and use them in your designs.
-        \endif
-
         \li \l {Annotating Designs}
 
             You can annotate your designs to provide reviewers or developers
             with additional information about them.
-
-        \if defined(qtcreator)
-        \li \l {Loading Placeholder Data}
-
-            You can create QML files that contain placeholder data, so that
-            you can test grid, list, or path views, even though you don't
-            have access to real data.
-
-        \li \l{UI Files}
-
-            Some of the wizards create projects that contain UI files
-            (.ui.qml). You should always edit UI files in the \l {2D}
-            and \l Properties view, to avoid breaking the code.
-
-        \endif
 
     \endlist
 */

@@ -15,8 +15,7 @@
 #include <QLineEdit>
 #include <QRadioButton>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
     : QDialog(parent)
@@ -106,10 +105,9 @@ void PullOrPushDialog::setDefaultRemoteLocation(const QString &url)
     m_urlLineEdit->setText(url);
 }
 
-void PullOrPushDialog::setLocalBaseDirectory(const QString &dir)
+void PullOrPushDialog::setLocalBaseDirectory(const Utils::FilePath &dir)
 {
-    m_localPathChooser->setBaseDirectory(Utils::FilePath::fromString(dir));
+    m_localPathChooser->setBaseDirectory(dir);
 }
 
-} // namespace Internal
-} // namespace Fossil
+} // Fossil::Internal

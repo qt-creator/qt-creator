@@ -3,13 +3,8 @@
 
 /*!
     \page quick-states.html
-    \if defined(qtdesignstudio)
     \previouspage quick-dynamic-properties.html
     \nextpage creator-live-preview.html
-    \else
-    \previouspage quick-connections-backend.html
-    \nextpage exporting-3d-assets.html
-    \endif
 
     \title Working with States
 
@@ -32,13 +27,11 @@
     > \uicontrol {Qt Quick Controls} > \uicontrol Controls has predefined
     \e normal and \e down states.
 
-    \if defined(qtdesignstudio)
     This also applies to the custom button component that you can create
     by using a \l{Creating Custom Controls}{wizard template}. For more
     information about editing the states within the button component and
     hiding and showing buttons to create several screens, see
     \l{Log In UI - Components} and \l{Log In UI - States}.
-    \endif
 
     To add motion to a screen, you can change the position of a component
     instance in the \uicontrol {2D} view and then add animation to the change
@@ -122,11 +115,9 @@
     when: control.pressed || control.checked && !control.hovered
     \endcode
 
-    \if defined(qtdesignstudio)
     If you are not familiar with writing expressions, you can use preset
     \l{Logic Helpers}{logic helpers} from \uicontrol Components
     > \uicontrol {Qt Quick Studio Logic Helper}.
-    \endif
 
     \section1 Using States
 
@@ -168,10 +159,6 @@
         \li To determine which state is applied when the application starts,
             select \uicontrol Default.
     \endlist
-
-    \if defined(qtcreator)
-    \include qtquick-states-scxml.qdocinc scxml state machines
-    \endif
 
     \section1 State Groups
 

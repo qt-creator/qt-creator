@@ -29,6 +29,8 @@ public:
 
     void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty) override;
 
+    bool isPropertyChange() const override;
+
 protected:
     QmlPropertyChangesNodeInstance(QObject *object);
 };

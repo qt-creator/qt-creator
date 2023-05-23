@@ -14,13 +14,17 @@ class NodeInstanceView;
 class QMLDESIGNERCORE_EXPORT QmlModelNodeFacade
 {
 public:
+    QmlModelNodeFacade(const QmlModelNodeFacade &) = default;
+    QmlModelNodeFacade &operator=(const QmlModelNodeFacade &) = default;
+    QmlModelNodeFacade(QmlModelNodeFacade &&) noexcept = default;
+    QmlModelNodeFacade &operator=(QmlModelNodeFacade &&) noexcept = default;
+    virtual ~QmlModelNodeFacade() = default;
     operator ModelNode() const { return m_modelNode; }
     ModelNode modelNode() const { return m_modelNode; }
     bool hasModelNode() const;
     static bool isValidQmlModelNodeFacade(const ModelNode &modelNode);
     virtual bool isValid() const;
     explicit operator bool() const { return isValid(); }
-    virtual ~QmlModelNodeFacade();
     QmlModelNodeFacade() = default;
 
     AbstractView *view() const;

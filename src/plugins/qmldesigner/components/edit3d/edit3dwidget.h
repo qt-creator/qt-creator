@@ -75,6 +75,7 @@ private:
     QPointer<QMenu> m_visibilityTogglesMenu;
     QPointer<QMenu> m_backgroundColorMenu;
     QPointer<QMenu> m_contextMenu;
+    QPointer<QAction> m_bakeLightsAction;
     QPointer<QAction> m_editComponentAction;
     QPointer<QAction> m_editMaterialAction;
     QPointer<QAction> m_duplicateAction;

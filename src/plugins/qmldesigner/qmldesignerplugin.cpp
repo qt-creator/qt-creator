@@ -31,7 +31,6 @@
 #include <texttool/texttool.h>
 #include <timelineeditor/timelineview.h>
 #include <transitioneditor/transitioneditorview.h>
-
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljseditor/qmljseditordocument.h>
@@ -66,6 +65,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/uniqueobjectptr.h>
 
 #include <QAction>
 #include <QApplication>
@@ -144,6 +144,8 @@ public:
     DesignModeWidget mainWidget;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
     bool blockEditorChange = false;
+    Utils::UniqueObjectPtr<QToolBar> toolBar;
+    Utils::UniqueObjectPtr<QWidget> statusBar;
 };
 
 QmlDesignerPlugin *QmlDesignerPlugin::m_instance = nullptr;
@@ -184,8 +186,9 @@ static bool isDesignerMode(Utils::Id mode)
 static bool documentIsAlreadyOpen(DesignDocument *designDocument, Core::IEditor *editor, Utils::Id newMode)
 {
     return designDocument
-            && editor == designDocument->editor()
-            && isDesignerMode(newMode);
+           && editor == designDocument->editor()
+           && isDesignerMode(newMode)
+           && designDocument->fileName() == editor->document()->filePath();
 }
 
 static bool shouldAssertInException()
@@ -241,7 +244,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
         ->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
 
     connect(action, &QAction::triggered, this, [this] {
-        lauchFeedbackPopup(Core::Constants::IDE_DISPLAY_NAME);
+        lauchFeedbackPopupInternal(Core::Constants::IDE_DISPLAY_NAME);
     });
 
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
@@ -273,8 +276,8 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     });
 
     if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
-        ToolBar::create();
-        ToolBar::createStatusBar();
+        d->toolBar = ToolBar::create();
+        d->statusBar = ToolBar::createStatusBar();
     }
 
     return true;
@@ -289,10 +292,10 @@ bool QmlDesignerPlugin::delayedInitialize()
         Utils::transform(ExtensionSystem::PluginManager::pluginPaths(), [postfix](const QString &p) {
             return QString(p + postfix);
         });
-    MetaInfo::setPluginPaths(pluginPaths);
 
-    d->viewManager.registerView(
-        std::make_unique<ConnectionView>(d->externalDependencies));
+    MetaInfo::initializeGlobal(pluginPaths, d->externalDependencies);
+
+    d->viewManager.registerView(std::make_unique<ConnectionView>(d->externalDependencies));
 
     auto timelineView = d->viewManager.registerView(
         std::make_unique<TimelineView>(d->externalDependencies));
@@ -333,8 +336,6 @@ bool QmlDesignerPlugin::delayedInitialize()
         if (!licensee().isEmpty())
             Core::ICore::appendAboutInformation(tr("Licensee: %1").arg(licensee()));
     }
-
-    MetaInfo::global();
 
     return true;
 }
@@ -438,14 +439,12 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
             &Core::ModeManager::currentModeChanged,
             [this](Utils::Id newMode, Utils::Id oldMode) {
                 Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
-                if (d && currentEditor && checkIfEditorIsQtQuick(currentEditor)
+                if (isDesignerMode(newMode) && checkIfEditorIsQtQuick(currentEditor)
                     && !documentIsAlreadyOpen(currentDesignDocument(), currentEditor, newMode)) {
-                    if (isDesignerMode(newMode)) {
-                        showDesigner();
-                    } else if (currentDesignDocument()
-                               || (!isDesignerMode(newMode) && isDesignerMode(oldMode))) {
-                        hideDesigner();
-                    }
+                    showDesigner();
+                } else if (currentDesignDocument()
+                           || (!isDesignerMode(newMode) && isDesignerMode(oldMode))) {
+                    hideDesigner();
                 }
             });
 }
@@ -731,6 +730,18 @@ void QmlDesignerPlugin::trackWidgetFocusTime(QWidget *widget, const QString &ide
 
 void QmlDesignerPlugin::lauchFeedbackPopup(const QString &identifier)
 {
+    if (Core::ModeManager::currentModeId() == Core::Constants::MODE_DESIGN)
+        lauchFeedbackPopupInternal(identifier);
+}
+
+void QmlDesignerPlugin::handleFeedback(const QString &feedback, int rating)
+{
+    const QString identifier = sender()->property("identifier").toString();
+    emit usageStatisticsInsertFeedback(identifier, feedback, rating);
+}
+
+void QmlDesignerPlugin::lauchFeedbackPopupInternal(const QString &identifier)
+{
     m_feedbackWidget = new QQuickWidget(Core::ICore::dialogParent());
     m_feedbackWidget->setObjectName(Constants::OBJECT_NAME_TOP_FEEDBACK);
 
@@ -765,12 +776,6 @@ void QmlDesignerPlugin::lauchFeedbackPopup(const QString &identifier)
                      SLOT(handleFeedback(QString, int)));
 
     m_feedbackWidget->show();
-}
-
-void QmlDesignerPlugin::handleFeedback(const QString &feedback, int rating)
-{
-    const QString identifier = sender()->property("identifier").toString();
-    emit usageStatisticsInsertFeedback(identifier, feedback, rating);
 }
 
 void QmlDesignerPlugin::closeFeedbackPopup()

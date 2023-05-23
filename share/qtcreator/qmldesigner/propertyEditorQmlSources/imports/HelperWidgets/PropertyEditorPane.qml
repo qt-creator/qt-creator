@@ -34,6 +34,8 @@ Rectangle {
         clip: true
         anchors.fill: parent
 
+        interactive: !Controller.contextMenuOpened
+
         Column {
             id: mainColumn
             y: -1

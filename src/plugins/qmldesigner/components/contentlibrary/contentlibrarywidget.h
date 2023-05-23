@@ -61,8 +61,6 @@ public:
     Q_INVOKABLE void addTexture(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void addLightProbe(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void updateSceneEnvState();
-    Q_INVOKABLE bool markTextureDownloading();
-    Q_INVOKABLE void markNoTextureDownloading();
 
 signals:
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);
@@ -102,7 +100,6 @@ private:
     bool m_hasMaterialLibrary = false;
     bool m_hasQuick3DImport = false;
     bool m_isDragging = false;
-    bool m_anyTextureBeingDownloaded = false;
     QString m_baseUrl;
     QString m_texturesUrl;
     QString m_environmentsUrl;

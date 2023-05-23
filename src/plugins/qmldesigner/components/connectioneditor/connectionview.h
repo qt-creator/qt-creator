@@ -50,7 +50,7 @@ public:
                               AuxiliaryDataKeyView key,
                               const QVariant &data) override;
 
-    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
+    void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
 
     void currentStateChanged(const ModelNode &node) override;
 

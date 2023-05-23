@@ -49,6 +49,7 @@ private:
     void addMultiLanguageDatatbase() const;
     void addImportPaths() const;
     void addCustomFileSelectors() const;
+    void addDisableDeferredProperties() const;
 
 private:
     ProjectExplorer::Target *m_target = nullptr;

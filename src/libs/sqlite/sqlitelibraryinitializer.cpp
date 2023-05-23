@@ -17,7 +17,7 @@ LibraryInitializer::LibraryInitializer()
     DatabaseBackend::initializeSqliteLibrary();
 }
 
-LibraryInitializer::~LibraryInitializer()
+LibraryInitializer::~LibraryInitializer() noexcept(false)
 {
     DatabaseBackend::shutdownSqliteLibrary();
 }

@@ -45,63 +45,61 @@ public:
 
     void synchronize(Storage::Synchronization::SynchronizationPackage package) override
     {
-        Sqlite::ImmediateTransaction transaction{database};
+        Sqlite::withImmediateTransaction(database, [&] {
+            AliasPropertyDeclarations insertedAliasPropertyDeclarations;
+            AliasPropertyDeclarations updatedAliasPropertyDeclarations;
 
-        AliasPropertyDeclarations insertedAliasPropertyDeclarations;
-        AliasPropertyDeclarations updatedAliasPropertyDeclarations;
+            AliasPropertyDeclarations relinkableAliasPropertyDeclarations;
+            PropertyDeclarations relinkablePropertyDeclarations;
+            Prototypes relinkablePrototypes;
+            Prototypes relinkableExtensions;
+            TypeIds deletedTypeIds;
 
-        AliasPropertyDeclarations relinkableAliasPropertyDeclarations;
-        PropertyDeclarations relinkablePropertyDeclarations;
-        Prototypes relinkablePrototypes;
-        Prototypes relinkableExtensions;
-        TypeIds deletedTypeIds;
+            TypeIds updatedTypeIds;
+            updatedTypeIds.reserve(package.types.size());
 
-        TypeIds updatedTypeIds;
-        updatedTypeIds.reserve(package.types.size());
+            TypeIds typeIdsToBeDeleted;
 
-        TypeIds typeIdsToBeDeleted;
+            std::sort(package.updatedSourceIds.begin(), package.updatedSourceIds.end());
 
-        std::sort(package.updatedSourceIds.begin(), package.updatedSourceIds.end());
+            synchronizeFileStatuses(package.fileStatuses, package.updatedFileStatusSourceIds);
+            synchronizeImports(package.imports,
+                               package.updatedSourceIds,
+                               package.moduleDependencies,
+                               package.updatedModuleDependencySourceIds,
+                               package.moduleExportedImports,
+                               package.updatedModuleIds);
+            synchronizeTypes(package.types,
+                             updatedTypeIds,
+                             insertedAliasPropertyDeclarations,
+                             updatedAliasPropertyDeclarations,
+                             relinkableAliasPropertyDeclarations,
+                             relinkablePropertyDeclarations,
+                             relinkablePrototypes,
+                             relinkableExtensions,
+                             package.updatedSourceIds);
 
-        synchronizeFileStatuses(package.fileStatuses, package.updatedFileStatusSourceIds);
-        synchronizeImports(package.imports,
-                           package.updatedSourceIds,
-                           package.moduleDependencies,
-                           package.updatedModuleDependencySourceIds,
-                           package.moduleExportedImports,
-                           package.updatedModuleIds);
-        synchronizeTypes(package.types,
-                         updatedTypeIds,
-                         insertedAliasPropertyDeclarations,
-                         updatedAliasPropertyDeclarations,
-                         relinkableAliasPropertyDeclarations,
-                         relinkablePropertyDeclarations,
-                         relinkablePrototypes,
-                         relinkableExtensions,
-                         package.updatedSourceIds);
+            deleteNotUpdatedTypes(updatedTypeIds,
+                                  package.updatedSourceIds,
+                                  typeIdsToBeDeleted,
+                                  relinkableAliasPropertyDeclarations,
+                                  relinkablePropertyDeclarations,
+                                  relinkablePrototypes,
+                                  relinkableExtensions,
+                                  deletedTypeIds);
 
-        deleteNotUpdatedTypes(updatedTypeIds,
-                              package.updatedSourceIds,
-                              typeIdsToBeDeleted,
-                              relinkableAliasPropertyDeclarations,
-                              relinkablePropertyDeclarations,
-                              relinkablePrototypes,
-                              relinkableExtensions,
-                              deletedTypeIds);
+            relink(relinkableAliasPropertyDeclarations,
+                   relinkablePropertyDeclarations,
+                   relinkablePrototypes,
+                   relinkableExtensions,
+                   deletedTypeIds);
 
-        relink(relinkableAliasPropertyDeclarations,
-               relinkablePropertyDeclarations,
-               relinkablePrototypes,
-               relinkableExtensions,
-               deletedTypeIds);
+            linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
 
-        linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
+            synchronizeProjectDatas(package.projectDatas, package.updatedProjectSourceIds);
 
-        synchronizeProjectDatas(package.projectDatas, package.updatedProjectSourceIds);
-
-        commonTypeCache.resetTypeIds();
-
-        transaction.commit();
+            commonTypeCache_.resetTypeIds();
+        });
     }
 
     ModuleId moduleId(Utils::SmallStringView moduleName) const override
@@ -119,7 +117,7 @@ public:
 
     TypeId typeId(ModuleId moduleId,
                   Utils::SmallStringView exportedTypeName,
-                  Storage::Synchronization::Version version) const
+                  Storage::Version version) const override
     {
         if (version.minor)
             return selectTypeIdByModuleIdAndExportedNameAndVersionStatement
@@ -136,19 +134,20 @@ public:
             .template valueWithTransaction<TypeId>(moduleId, exportedTypeName);
     }
 
-    PropertyDeclarationIds propertyDeclarationIds(TypeId typeId) const
+    PropertyDeclarationIds propertyDeclarationIds(TypeId typeId) const override
     {
         return selectPropertyDeclarationIdsForTypeStatement
             .template valuesWithTransaction<PropertyDeclarationId>(32, typeId);
     }
 
-    PropertyDeclarationIds localPropertyDeclarationIds(TypeId typeId) const
+    PropertyDeclarationIds localPropertyDeclarationIds(TypeId typeId) const override
     {
         return selectLocalPropertyDeclarationIdsForTypeStatement
             .template valuesWithTransaction<PropertyDeclarationId>(16, typeId);
     }
 
-    PropertyDeclarationId propertyDeclarationId(TypeId typeId, Utils::SmallStringView propertyName) const
+    PropertyDeclarationId propertyDeclarationId(TypeId typeId,
+                                                Utils::SmallStringView propertyName) const override
     {
         return selectPropertyDeclarationIdForTypeAndPropertyNameStatement
             .template valueWithTransaction<PropertyDeclarationId>(typeId, propertyName);
@@ -162,69 +161,74 @@ public:
     }
 
     std::optional<Storage::Info::PropertyDeclaration> propertyDeclaration(
-        PropertyDeclarationId propertyDeclarationId) const
+        PropertyDeclarationId propertyDeclarationId) const override
     {
         return selectPropertyDeclarationForPropertyDeclarationIdStatement
             .template optionalValueWithTransaction<Storage::Info::PropertyDeclaration>(
                 propertyDeclarationId);
     }
 
-    std::optional<Storage::Info::Type> type(TypeId typeId) const
+    std::optional<Storage::Info::Type> type(TypeId typeId) const override
     {
         return selectInfoTypeByTypeIdStatement.template optionalValueWithTransaction<Storage::Info::Type>(
             typeId);
     }
 
-    std::vector<Utils::SmallString> signalDeclarationNames(TypeId typeId) const
+    std::vector<Utils::SmallString> signalDeclarationNames(TypeId typeId) const override
     {
         return selectSignalDeclarationNamesForTypeStatement
             .template valuesWithTransaction<Utils::SmallString>(32, typeId);
     }
 
-    std::vector<Utils::SmallString> functionDeclarationNames(TypeId typeId) const
+    std::vector<Utils::SmallString> functionDeclarationNames(TypeId typeId) const override
     {
         return selectFuncionDeclarationNamesForTypeStatement
             .template valuesWithTransaction<Utils::SmallString>(32, typeId);
     }
 
-    std::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const
+    std::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const override
     {
         return selectPropertyNameStatement.template optionalValueWithTransaction<Utils::SmallString>(
             propertyDeclarationId);
     }
 
+    const Storage::Info::CommonTypeCache<ProjectStorageInterface> &commonTypeCache() const override
+    {
+        return commonTypeCache_;
+    }
+
     template<const char *moduleName, const char *typeName>
     TypeId commonTypeId() const
     {
-        return commonTypeCache.template typeId<moduleName, typeName>();
+        return commonTypeCache_.template typeId<moduleName, typeName>();
     }
 
     template<typename BuiltinType>
     TypeId builtinTypeId() const
     {
-        return commonTypeCache.template builtinTypeId<BuiltinType>();
+        return commonTypeCache_.template builtinTypeId<BuiltinType>();
     }
 
     template<const char *builtinType>
     TypeId builtinTypeId() const
     {
-        return commonTypeCache.template builtinTypeId<builtinType>();
+        return commonTypeCache_.template builtinTypeId<builtinType>();
     }
 
-    TypeIds prototypeIds(TypeId type) const
+    TypeIds prototypeIds(TypeId type) const override
     {
         return selectPrototypeIdsForTypeIdInOrderStatement.template valuesWithTransaction<TypeId>(16,
                                                                                                   type);
     }
 
-    TypeIds prototypeAndSelfIds(TypeId type) const
+    TypeIds prototypeAndSelfIds(TypeId type) const override
     {
         return selectPrototypeAndSelfIdsForTypeIdInOrderStatement
             .template valuesWithTransaction<TypeId>(16, type);
     }
 
     template<typename... TypeIds>
-    bool isBasedOn(TypeId typeId, TypeIds... baseTypeIds) const
+    bool isBasedOn_(TypeId typeId, TypeIds... baseTypeIds) const
     {
         static_assert(((std::is_same_v<TypeId, TypeIds>) &&...), "Parameter must be a TypeId!");
 
@@ -236,6 +240,48 @@ public:
         }
 
         return false;
+    }
+
+    bool isBasedOn(TypeId typeId) const { return isBasedOn_(typeId); }
+
+    bool isBasedOn(TypeId typeId, TypeId id1) const override { return isBasedOn_(typeId, id1); }
+
+    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2) const override
+    {
+        return isBasedOn_(typeId, id1, id2);
+    }
+
+    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3) const override
+    {
+        return isBasedOn_(typeId, id1, id2, id3);
+    }
+
+    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4) const override
+    {
+        return isBasedOn_(typeId, id1, id2, id3, id4);
+    }
+
+    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5) const override
+    {
+        return isBasedOn_(typeId, id1, id2, id3, id4, id5);
+    }
+
+    bool isBasedOn(
+        TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5, TypeId id6) const override
+    {
+        return isBasedOn_(typeId, id1, id2, id3, id4, id5, id6);
+    }
+
+    bool isBasedOn(TypeId typeId,
+                   TypeId id1,
+                   TypeId id2,
+                   TypeId id3,
+                   TypeId id4,
+                   TypeId id5,
+                   TypeId id6,
+                   TypeId id7) const override
+    {
+        return isBasedOn_(typeId, id1, id2, id3, id4, id5, id6, id7);
     }
 
     TypeId fetchTypeIdByExportedName(Utils::SmallStringView name) const
@@ -257,38 +303,35 @@ public:
 
     Storage::Synchronization::Type fetchTypeByTypeId(TypeId typeId)
     {
-        Sqlite::DeferredTransaction transaction{database};
+        return Sqlite::withDeferredTransaction(database, [&] {
+            auto type = selectTypeByTypeIdStatement.template value<Storage::Synchronization::Type>(
+                typeId);
 
-        auto type = selectTypeByTypeIdStatement.template value<Storage::Synchronization::Type>(typeId);
-
-        type.exportedTypes = fetchExportedTypes(typeId);
-        type.propertyDeclarations = fetchPropertyDeclarations(type.typeId);
-        type.functionDeclarations = fetchFunctionDeclarations(type.typeId);
-        type.signalDeclarations = fetchSignalDeclarations(type.typeId);
-        type.enumerationDeclarations = fetchEnumerationDeclarations(type.typeId);
-
-        transaction.commit();
-
-        return type;
-    }
-
-    Storage::Synchronization::Types fetchTypes()
-    {
-        Sqlite::DeferredTransaction transaction{database};
-
-        auto types = selectTypesStatement.template values<Storage::Synchronization::Type>(64);
-
-        for (Storage::Synchronization::Type &type : types) {
-            type.exportedTypes = fetchExportedTypes(type.typeId);
+            type.exportedTypes = fetchExportedTypes(typeId);
             type.propertyDeclarations = fetchPropertyDeclarations(type.typeId);
             type.functionDeclarations = fetchFunctionDeclarations(type.typeId);
             type.signalDeclarations = fetchSignalDeclarations(type.typeId);
             type.enumerationDeclarations = fetchEnumerationDeclarations(type.typeId);
-        }
 
-        transaction.commit();
+            return type;
+        });
+    }
 
-        return types;
+    Storage::Synchronization::Types fetchTypes()
+    {
+        return Sqlite::withDeferredTransaction(database, [&] {
+            auto types = selectTypesStatement.template values<Storage::Synchronization::Type>(64);
+
+            for (Storage::Synchronization::Type &type : types) {
+                type.exportedTypes = fetchExportedTypes(type.typeId);
+                type.propertyDeclarations = fetchPropertyDeclarations(type.typeId);
+                type.functionDeclarations = fetchFunctionDeclarations(type.typeId);
+                type.signalDeclarations = fetchSignalDeclarations(type.typeId);
+                type.enumerationDeclarations = fetchEnumerationDeclarations(type.typeId);
+            }
+
+            return types;
+        });
     }
 
     bool fetchIsProtype(TypeId type, TypeId prototype)
@@ -311,13 +354,9 @@ public:
     SourceContextId fetchSourceContextId(Utils::SmallStringView sourceContextPath)
     {
         try {
-            Sqlite::DeferredTransaction transaction{database};
-
-            auto sourceContextId = fetchSourceContextIdUnguarded(sourceContextPath);
-
-            transaction.commit();
-
-            return sourceContextId;
+            return Sqlite::withDeferredTransaction(database, [&] {
+                return fetchSourceContextIdUnguarded(sourceContextPath);
+            });
         } catch (const Sqlite::ConstraintPreventsModification &) {
             return fetchSourceContextId(sourceContextPath);
         }
@@ -325,18 +364,16 @@ public:
 
     Utils::PathString fetchSourceContextPath(SourceContextId sourceContextId) const
     {
-        Sqlite::DeferredTransaction transaction{database};
+        return Sqlite::withDeferredTransaction(database, [&] {
+            auto optionalSourceContextPath = selectSourceContextPathFromSourceContextsBySourceContextIdStatement
+                                                 .template optionalValue<Utils::PathString>(
+                                                     sourceContextId);
 
-        auto optionalSourceContextPath = selectSourceContextPathFromSourceContextsBySourceContextIdStatement
-                                             .template optionalValue<Utils::PathString>(
-                                                 sourceContextId);
+            if (!optionalSourceContextPath)
+                throw SourceContextIdDoesNotExists();
 
-        if (!optionalSourceContextPath)
-            throw SourceContextIdDoesNotExists();
-
-        transaction.commit();
-
-        return std::move(*optionalSourceContextPath);
+            return std::move(*optionalSourceContextPath);
+        });
     }
 
     auto fetchAllSourceContexts() const
@@ -347,13 +384,9 @@ public:
 
     SourceId fetchSourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName)
     {
-        Sqlite::DeferredTransaction transaction{database};
-
-        auto sourceId = fetchSourceIdUnguarded(sourceContextId, sourceName);
-
-        transaction.commit();
-
-        return sourceId;
+        return Sqlite::withDeferredTransaction(database, [&] {
+            return fetchSourceIdUnguarded(sourceContextId, sourceName);
+        });
     }
 
     auto fetchSourceNameAndSourceContextId(SourceId sourceId) const
@@ -369,12 +402,10 @@ public:
 
     void clearSources()
     {
-        Sqlite::ImmediateTransaction transaction{database};
-
-        deleteAllSourceContextsStatement.execute();
-        deleteAllSourcesStatement.execute();
-
-        transaction.commit();
+        Sqlite::withImmediateTransaction(database, [&] {
+            deleteAllSourceContextsStatement.execute();
+            deleteAllSourcesStatement.execute();
+        });
     }
 
     SourceContextId fetchSourceContextId(SourceId sourceId) const
@@ -414,16 +445,22 @@ public:
             sourceId);
     }
 
+    std::optional<Storage::Synchronization::ProjectData> fetchProjectData(SourceId sourceId) const override
+    {
+        return selectProjectDataForSourceIdStatement
+            .template optionalValueWithTransaction<Storage::Synchronization::ProjectData>(sourceId);
+    }
+
     Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId projectSourceId) const override
     {
-        return selectProjectDatasForModuleIdStatement
+        return selectProjectDatasForSourceIdStatement
             .template valuesWithTransaction<Storage::Synchronization::ProjectData>(64,
                                                                                    projectSourceId);
     }
 
     Storage::Synchronization::ProjectDatas fetchProjectDatas(const SourceIds &projectSourceIds) const
     {
-        return selectProjectDatasForModuleIdsStatement.template valuesWithTransaction<
+        return selectProjectDatasForSourceIdsStatement.template valuesWithTransaction<
             Storage::Synchronization::ProjectData>(64, toIntegers(projectSourceIds));
     }
 
@@ -470,24 +507,15 @@ private:
 
     ModuleId fetchModuleId(Utils::SmallStringView moduleName)
     {
-        Sqlite::DeferredTransaction transaction{database};
-
-        ModuleId moduleId = fetchModuleIdUnguarded(moduleName);
-
-        transaction.commit();
-
-        return moduleId;
+        return Sqlite::withDeferredTransaction(database,
+                                               [&] { return fetchModuleIdUnguarded(moduleName); });
     }
 
     auto fetchModuleName(ModuleId id)
     {
-        Sqlite::DeferredTransaction transaction{database};
-
-        auto moduleName = fetchModuleNameUnguarded(id);
-
-        transaction.commit();
-
-        return moduleName;
+        return Sqlite::withDeferredTransaction(database, [&] {
+            return fetchModuleNameUnguarded(id);
+        });
     }
 
     auto fetchAllModules() const
@@ -712,7 +740,7 @@ private:
                    < std::tie(second.projectSourceId, second.sourceId);
         });
 
-        auto range = selectProjectDatasForModuleIdsStatement
+        auto range = selectProjectDatasForSourceIdsStatement
                          .template range<Storage::Synchronization::ProjectData>(
                              toIntegers(updatedProjectSourceIds));
 
@@ -1527,7 +1555,7 @@ private:
                                 ModuleExportedImportId moduleExportedImportId) {
                 Storage::Synchronization::Import additionImport{
                     exportedModuleId,
-                    Storage::Synchronization::Version{majorVersion, minorVersion},
+                    Storage::Version{majorVersion, minorVersion},
                     import.sourceId};
 
                 auto exportedImportKind = importKind == Storage::Synchronization::ImportKind::Import
@@ -2581,6 +2609,7 @@ private:
             table.addColumn("fileType", Sqlite::StrictColumnType::Integer);
 
             table.addPrimaryKeyContraint({projectSourceIdColumn, sourceIdColumn});
+            table.addUniqueIndex({sourceIdColumn});
 
             table.initialize(database);
         }
@@ -2590,7 +2619,7 @@ public:
     Database &database;
     Initializer initializer;
     mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};
-    Storage::Info::CommonTypeCache<ProjectStorage<Database>> commonTypeCache{*this};
+    Storage::Info::CommonTypeCache<ProjectStorageInterface> commonTypeCache_{*this};
     ReadWriteStatement<1, 3> upsertTypeStatement{
         "INSERT INTO types(sourceId, name,  traits) VALUES(?1, ?2, ?3) ON CONFLICT DO "
         "UPDATE SET traits=excluded.traits WHERE traits IS NOT "
@@ -3082,7 +3111,7 @@ public:
         "DELETE FROM exportedTypeNames WHERE exportedTypeNameId=?", database};
     WriteStatement<2> updateExportedTypeNameTypeIdStatement{
         "UPDATE exportedTypeNames SET typeId=?2 WHERE exportedTypeNameId=?1", database};
-    mutable ReadStatement<4, 1> selectProjectDatasForModuleIdsStatement{
+    mutable ReadStatement<4, 1> selectProjectDatasForSourceIdsStatement{
         "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
         "projectSourceId IN carray(?1) ORDER BY projectSourceId, sourceId",
         database};
@@ -3095,9 +3124,13 @@ public:
     WriteStatement<4> updateProjectDataStatement{
         "UPDATE projectDatas SET moduleId=?3, fileType=?4 WHERE projectSourceId=?1 AND sourceId=?2",
         database};
-    mutable ReadStatement<4, 1> selectProjectDatasForModuleIdStatement{
+    mutable ReadStatement<4, 1> selectProjectDatasForSourceIdStatement{
         "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
         "projectSourceId=?1",
+        database};
+    mutable ReadStatement<4, 1> selectProjectDataForSourceIdStatement{
+        "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
+        "sourceId=?1 LIMIT 1",
         database};
     mutable ReadStatement<1, 1> selectTypeIdsForSourceIdsStatement{
         "SELECT typeId FROM types WHERE sourceId IN carray(?1)", database};

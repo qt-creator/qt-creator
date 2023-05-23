@@ -4,11 +4,7 @@
 /*!
     \page qtquick-text-editor.html
     \previouspage qtquick-curve-editor.html
-    \if defined(qtdesignstudio)
     \nextpage creator-projects-view.html
-    \else
-    \nextpage quick-uis.html
-    \endif
 
     \title Code
 

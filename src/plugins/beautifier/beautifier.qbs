@@ -36,8 +36,6 @@ QtcPlugin {
             "artisticstyle.cpp",
             "artisticstyle.h",
             "artisticstyleconstants.h",
-            "artisticstyleoptionspage.cpp",
-            "artisticstyleoptionspage.h",
             "artisticstylesettings.cpp",
             "artisticstylesettings.h"
         ]
@@ -50,8 +48,6 @@ QtcPlugin {
             "clangformat.cpp",
             "clangformat.h",
             "clangformatconstants.h",
-            "clangformatoptionspage.cpp",
-            "clangformatoptionspage.h",
             "clangformatsettings.cpp",
             "clangformatsettings.h"
         ]
@@ -64,8 +60,6 @@ QtcPlugin {
             "uncrustify.cpp",
             "uncrustify.h",
             "uncrustifyconstants.h",
-            "uncrustifyoptionspage.cpp",
-            "uncrustifyoptionspage.h",
             "uncrustifysettings.cpp",
             "uncrustifysettings.h"
         ]
