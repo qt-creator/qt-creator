@@ -19,10 +19,10 @@ QtcPlugin {
         "commandbuilderaspect.h",
         "ibconsolebuildstep.cpp",
         "ibconsolebuildstep.h",
-        "incredibuild_global.h", "incredibuildtr.h",
+        "incredibuild_global.h",
         "incredibuildconstants.h",
         "incredibuildplugin.cpp",
-        "incredibuildplugin.h",
+        "incredibuildtr.h",
         "makecommandbuilder.cpp",
         "makecommandbuilder.h",
     ]
