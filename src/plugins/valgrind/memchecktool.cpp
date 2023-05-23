@@ -185,14 +185,14 @@ QStringList MemcheckToolRunner::toolArguments() const
 {
     QStringList arguments = {"--tool=memcheck", "--gen-suppressions=all"};
 
-    if (m_settings.trackOrigins.value())
+    if (m_settings.trackOrigins())
         arguments << "--track-origins=yes";
 
-    if (m_settings.showReachable.value())
+    if (m_settings.showReachable())
         arguments << "--show-reachable=yes";
 
     QString leakCheckValue;
-    switch (m_settings.leakCheckOnFinish.value()) {
+    switch (m_settings.leakCheckOnFinish()) {
     case ValgrindBaseSettings::LeakCheckOnFinishNo:
         leakCheckValue = "no";
         break;
@@ -206,22 +206,22 @@ QStringList MemcheckToolRunner::toolArguments() const
     }
     arguments << "--leak-check=" + leakCheckValue;
 
-    for (const FilePath &file : m_settings.suppressions.value())
+    for (const FilePath &file : m_settings.suppressions())
         arguments << QString("--suppressions=%1").arg(file.path());
 
-    arguments << QString("--num-callers=%1").arg(m_settings.numCallers.value());
+    arguments << QString("--num-callers=%1").arg(m_settings.numCallers());
 
     if (m_withGdb)
         arguments << "--vgdb=yes" << "--vgdb-error=0";
 
-    arguments << ProcessArgs::splitArgs(m_settings.memcheckArguments.value(), HostOsInfo::hostOs());
+    arguments << ProcessArgs::splitArgs(m_settings.memcheckArguments(), HostOsInfo::hostOs());
 
     return arguments;
 }
 
 const FilePaths MemcheckToolRunner::suppressionFiles() const
 {
-    return m_settings.suppressions.value();
+    return m_settings.suppressions();
 }
 
 void MemcheckToolRunner::startDebugger(qint64 valgrindPid)
@@ -916,22 +916,22 @@ void MemcheckToolPrivate::updateFromSettings()
         for (const QVariant &v : actions) {
             bool ok;
             int kind = v.toInt(&ok);
-            if (ok && !m_settings->visibleErrorKinds.value().contains(kind))
+            if (ok && !m_settings->visibleErrorKinds().contains(kind))
                 contained = false;
         }
         action->setChecked(contained);
     }
 
-    m_filterProjectAction->setChecked(!m_settings->filterExternalIssues.value());
+    m_filterProjectAction->setChecked(!m_settings->filterExternalIssues());
     m_errorView->settingsChanged(m_settings);
 
     connect(&m_settings->visibleErrorKinds, &IntegersAspect::valueChanged,
             &m_errorProxyModel, &MemcheckErrorFilterProxyModel::setAcceptedKinds);
-    m_errorProxyModel.setAcceptedKinds(m_settings->visibleErrorKinds.value());
+    m_errorProxyModel.setAcceptedKinds(m_settings->visibleErrorKinds());
 
     connect(&m_settings->filterExternalIssues, &BoolAspect::valueChanged,
             &m_errorProxyModel, &MemcheckErrorFilterProxyModel::setFilterExternalIssues);
-    m_errorProxyModel.setFilterExternalIssues(m_settings->filterExternalIssues.value());
+    m_errorProxyModel.setFilterExternalIssues(m_settings->filterExternalIssues());
 }
 
 void MemcheckToolPrivate::maybeActiveRunConfigurationChanged()

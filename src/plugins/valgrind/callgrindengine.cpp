@@ -65,16 +65,16 @@ QStringList CallgrindToolRunner::toolArguments() const
 {
     QStringList arguments = {"--tool=callgrind"};
 
-    if (m_settings.enableCacheSim.value())
+    if (m_settings.enableCacheSim())
         arguments << "--cache-sim=yes";
 
-    if (m_settings.enableBranchSim.value())
+    if (m_settings.enableBranchSim())
         arguments << "--branch-sim=yes";
 
-    if (m_settings.collectBusEvents.value())
+    if (m_settings.collectBusEvents())
         arguments << "--collect-bus=yes";
 
-    if (m_settings.collectSystime.value())
+    if (m_settings.collectSystime())
         arguments << "--collect-systime=yes";
 
     if (m_markAsPaused)
@@ -86,7 +86,7 @@ QStringList CallgrindToolRunner::toolArguments() const
 
     arguments << "--callgrind-out-file=" + m_valgrindOutputFile.path();
 
-    arguments << ProcessArgs::splitArgs(m_settings.callgrindArguments.value(), HostOsInfo::hostOs());
+    arguments << ProcessArgs::splitArgs(m_settings.callgrindArguments(), HostOsInfo::hostOs());
 
     return arguments;
 }
