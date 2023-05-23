@@ -653,17 +653,15 @@ static void addPythonsFromRegistry(QList<Interpreter> &pythons)
 
 static void addPythonsFromPath(QList<Interpreter> &pythons)
 {
-    const auto &env = Environment::systemEnvironment();
-
     if (HostOsInfo::isWindowsHost()) {
-        for (const FilePath &executable : env.findAllInPath("python")) {
+        for (const FilePath &executable : FilePath("python").searchAllInPath()) {
             // Windows creates empty redirector files that may interfere
             if (executable.toFileInfo().size() == 0)
                 continue;
             if (executable.exists() && !alreadyRegistered(pythons, executable))
                 pythons << createInterpreter(executable, "Python from Path");
         }
-        for (const FilePath &executable : env.findAllInPath("pythonw")) {
+        for (const FilePath &executable : FilePath("pythonw").searchAllInPath()) {
             if (executable.exists() && !alreadyRegistered(pythons, executable))
                 pythons << createInterpreter(executable, "Python from Path", "(Windowed)");
         }
@@ -672,7 +670,8 @@ static void addPythonsFromPath(QList<Interpreter> &pythons)
                                      "python[1-9].[0-9]",
                                      "python[1-9].[1-9][0-9]",
                                      "python[1-9]"};
-        for (const FilePath &path : env.path()) {
+        const FilePaths dirs = Environment::systemEnvironment().path();
+        for (const FilePath &path : dirs) {
             const QDir dir(path.toString());
             for (const QFileInfo &fi : dir.entryInfoList(filters)) {
                 const FilePath executable = Utils::FilePath::fromFileInfo(fi);
@@ -685,9 +684,9 @@ static void addPythonsFromPath(QList<Interpreter> &pythons)
 
 static QString idForPythonFromPath(const QList<Interpreter> &pythons)
 {
-    FilePath pythonFromPath = Environment::systemEnvironment().searchInPath("python3");
+    FilePath pythonFromPath = FilePath("python3").searchInPath();
     if (pythonFromPath.isEmpty())
-        pythonFromPath = Environment::systemEnvironment().searchInPath("python");
+        pythonFromPath = FilePath("python").searchInPath();
     if (pythonFromPath.isEmpty())
         return {};
     const Interpreter &defaultInterpreter
