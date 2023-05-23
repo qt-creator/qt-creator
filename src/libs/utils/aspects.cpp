@@ -2283,7 +2283,8 @@ void StringListAspect::removeValues(const QStringList &values)
     that is a list of strings.
 */
 
-IntegersAspect::IntegersAspect()
+IntegersAspect::IntegersAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     setDefaultValue({});
 }
