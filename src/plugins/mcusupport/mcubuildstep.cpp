@@ -2,18 +2,21 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "mcubuildstep.h"
+
 #include "mcukitmanager.h"
 #include "mculegacyconstants.h"
 #include "mcusupportconstants.h"
 
 #include <cmakeprojectmanager/cmakekitinformation.h>
 
-#include <projectexplorer/buildstep.h>
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
@@ -23,11 +26,24 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/aspects.h>
-#include <utils/filepath.h>
 
+#include <QTemporaryDir>
 #include <QVersionNumber>
 
 namespace McuSupport::Internal {
+
+class DeployMcuProcessStep : public ProjectExplorer::AbstractProcessStep
+{
+public:
+    static const Utils::Id id;
+    static void showError(const QString &text);
+
+    DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, Utils::Id id);
+
+private:
+    QString findKitInformation(ProjectExplorer::Kit *kit, const QString &key);
+    QTemporaryDir m_tmpDir;
+};
 
 const Utils::Id DeployMcuProcessStep::id = "QmlProject.Mcu.DeployStep";
 
@@ -117,13 +133,6 @@ QString DeployMcuProcessStep::findKitInformation(ProjectExplorer::Kit *kit, cons
     return {};
 }
 
-MCUBuildStepFactory::MCUBuildStepFactory()
-    : BuildStepFactory()
-{
-    setDisplayName(QmlProjectManager::Tr::tr("Qt for MCUs Deploy Step"));
-    registerStep<DeployMcuProcessStep>(DeployMcuProcessStep::id);
-}
-
 ProjectExplorer::Kit *MCUBuildStepFactory::findMostRecentQulKit()
 {
     ProjectExplorer::Kit *mcuKit = nullptr;
@@ -164,6 +173,13 @@ void MCUBuildStepFactory::updateDeployStep(ProjectExplorer::Target *target, bool
             return;
         step->setEnabled(enabled);
     }
+}
+
+
+MCUBuildStepFactory::MCUBuildStepFactory()
+{
+    setDisplayName(QmlProjectManager::Tr::tr("Qt for MCUs Deploy Step"));
+    registerStep<DeployMcuProcessStep>(DeployMcuProcessStep::id);
 }
 
 } // namespace McuSupport::Internal
