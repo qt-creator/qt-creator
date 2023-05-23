@@ -45,36 +45,26 @@ const char CMAKE_TOOL_FILENAME[] = "cmaketools.xml";
 
 static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
 {
-    Environment env = Environment::systemEnvironment();
-
-    FilePaths path = env.path();
-    path = Utils::filteredUnique(path);
+    FilePaths extraDirs;
 
     if (HostOsInfo::isWindowsHost()) {
         for (const auto &envVar : QStringList{"ProgramFiles", "ProgramFiles(x86)", "ProgramW6432"}) {
             if (qtcEnvironmentVariableIsSet(envVar)) {
                 const QString progFiles = qtcEnvironmentVariable(envVar);
-                path.append(FilePath::fromUserInput(progFiles + "/CMake"));
-                path.append(FilePath::fromUserInput(progFiles + "/CMake/bin"));
+                extraDirs.append(FilePath::fromUserInput(progFiles + "/CMake"));
+                extraDirs.append(FilePath::fromUserInput(progFiles + "/CMake/bin"));
             }
         }
     }
 
     if (HostOsInfo::isMacHost()) {
-        path.append("/Applications/CMake.app/Contents/bin");
-        path.append("/usr/local/bin");    // homebrew intel
-        path.append("/opt/homebrew/bin"); // homebrew arm
-        path.append("/opt/local/bin");    // macports
+        extraDirs.append("/Applications/CMake.app/Contents/bin");
+        extraDirs.append("/usr/local/bin");    // homebrew intel
+        extraDirs.append("/opt/homebrew/bin"); // homebrew arm
+        extraDirs.append("/opt/local/bin");    // macports
     }
 
-    FilePaths suspects;
-    for (const FilePath &base : std::as_const(path)) {
-        if (base.isEmpty())
-            continue;
-        const FilePath suspect = base / "cmake";
-        if (std::optional<FilePath> foundExe = suspect.refersToExecutableFile(FilePath::WithAnySuffix))
-            suspects << *foundExe;
-    }
+    const FilePaths suspects = FilePath("cmake").searchAllInPath(extraDirs);
 
     std::vector<std::unique_ptr<CMakeTool>> found;
     for (const FilePath &command : std::as_const(suspects)) {
