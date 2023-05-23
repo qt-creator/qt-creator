@@ -108,7 +108,7 @@ private:
     Utils::StringAspect *m_toolArguments = nullptr;
     Utils::BoolAspect *m_useiOSAutomaticProvisioningUpdates = nullptr;
     Utils::BoolAspect *m_useStaging = nullptr;
-    Utils::StringAspect *m_stagingDir = nullptr;
+    Utils::FilePathAspect *m_stagingDir = nullptr;
 
     QString m_allTarget = "all";
     QString m_installTarget = "install";
