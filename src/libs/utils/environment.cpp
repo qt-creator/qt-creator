@@ -300,25 +300,6 @@ static void searchInDirectoriesHelper(const SearchResultCallback &resultCallback
     return;
 }
 
-FilePath Environment::searchInDirectories(const QString &executable,
-                                          const FilePaths &dirs,
-                                          const FilePathPredicate &func) const
-{
-    FilePath result;
-    searchInDirectoriesHelper(
-        [&result](const FilePath &path) {
-            result = path;
-            return IterationPolicy::Stop;
-        },
-        *this,
-        executable,
-        dirs,
-        func,
-        false);
-
-    return result;
-}
-
 FilePath Environment::searchInPath(const QString &executable,
                                    const FilePaths &additionalDirs,
                                    const FilePathPredicate &func) const

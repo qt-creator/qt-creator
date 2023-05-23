@@ -61,9 +61,6 @@ public:
     FilePath searchInPath(const QString &executable,
                           const FilePaths &additionalDirs = FilePaths(),
                           const FilePathPredicate &func = {}) const;
-    FilePath searchInDirectories(const QString &executable,
-                                 const FilePaths &dirs,
-                                 const FilePathPredicate &func = {}) const;
     FilePaths findAllInPath(const QString &executable,
                             const FilePaths &additionalDirs = {},
                             const FilePathPredicate &func = {}) const;
