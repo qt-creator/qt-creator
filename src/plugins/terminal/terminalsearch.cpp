@@ -99,12 +99,13 @@ QList<SearchHit> TerminalSearch::search()
 
     std::function<bool(char32_t, char32_t)> compare;
 
-    if (m_findFlags.testFlag(Core::FindFlag::FindCaseSensitively))
+    if (m_findFlags.testFlag(Core::FindFlag::FindCaseSensitively)) {
+        compare = [](char32_t a, char32_t b) { return a == b || isSpace(a, b); };
+    } else {
         compare = [](char32_t a, char32_t b) {
             return std::tolower(a) == std::tolower(b) || isSpace(a, b);
         };
-    else
-        compare = [](char32_t a, char32_t b) { return a == b || isSpace(a, b); };
+    }
 
     if (!m_currentSearchString.isEmpty()) {
         const QList<uint> asUcs4 = m_currentSearchString.toUcs4();
