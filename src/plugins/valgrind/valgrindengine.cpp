@@ -74,9 +74,9 @@ void ValgrindToolRunner::start()
     m_progress.reportStarted();
 
     CommandLine valgrind{valgrindExecutable};
-    valgrind.addArgs(m_settings.valgrindArguments.value(), CommandLine::Raw);
+    valgrind.addArgs(m_settings.valgrindArguments(), CommandLine::Raw);
     valgrind.addArgs(genericToolArguments());
-    valgrind.addArgs(toolArguments());
+    addToolArguments(valgrind);
 
     m_runner.setValgrindCommand(valgrind);
     m_runner.setDebuggee(runControl()->runnable());

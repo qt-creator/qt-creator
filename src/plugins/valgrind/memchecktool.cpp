@@ -111,7 +111,7 @@ signals:
 
 private:
     QString progressTitle() const override;
-    QStringList toolArguments() const override;
+    void addToolArguments(CommandLine &cmd) const override;
 
     void startDebugger(qint64 valgrindPid);
     void appendLog(const QByteArray &data);
@@ -181,15 +181,15 @@ void MemcheckToolRunner::stop()
     ValgrindToolRunner::stop();
 }
 
-QStringList MemcheckToolRunner::toolArguments() const
+void MemcheckToolRunner::addToolArguments(CommandLine &cmd) const
 {
-    QStringList arguments = {"--tool=memcheck", "--gen-suppressions=all"};
+    cmd << "--tool=memcheck" << "--gen-suppressions=all";
 
     if (m_settings.trackOrigins())
-        arguments << "--track-origins=yes";
+        cmd << "--track-origins=yes";
 
     if (m_settings.showReachable())
-        arguments << "--show-reachable=yes";
+        cmd << "--show-reachable=yes";
 
     QString leakCheckValue;
     switch (m_settings.leakCheckOnFinish()) {
@@ -204,19 +204,17 @@ QStringList MemcheckToolRunner::toolArguments() const
         leakCheckValue = "summary";
         break;
     }
-    arguments << "--leak-check=" + leakCheckValue;
+    cmd << "--leak-check=" + leakCheckValue;
 
     for (const FilePath &file : m_settings.suppressions())
-        arguments << QString("--suppressions=%1").arg(file.path());
+        cmd << QString("--suppressions=%1").arg(file.path());
 
-    arguments << QString("--num-callers=%1").arg(m_settings.numCallers());
+    cmd << QString("--num-callers=%1").arg(m_settings.numCallers());
 
     if (m_withGdb)
-        arguments << "--vgdb=yes" << "--vgdb-error=0";
+        cmd << "--vgdb=yes" << "--vgdb-error=0";
 
-    arguments << ProcessArgs::splitArgs(m_settings.memcheckArguments(), HostOsInfo::hostOs());
-
-    return arguments;
+    cmd.addArgs(m_settings.memcheckArguments(), CommandLine::Raw);
 }
 
 const FilePaths MemcheckToolRunner::suppressionFiles() const

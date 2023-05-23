@@ -61,34 +61,32 @@ CallgrindToolRunner::~CallgrindToolRunner()
     cleanupTempFile();
 }
 
-QStringList CallgrindToolRunner::toolArguments() const
+void CallgrindToolRunner::addToolArguments(CommandLine &cmd) const
 {
-    QStringList arguments = {"--tool=callgrind"};
+    cmd << "--tool=callgrind";
 
     if (m_settings.enableCacheSim())
-        arguments << "--cache-sim=yes";
+        cmd << "--cache-sim=yes";
 
     if (m_settings.enableBranchSim())
-        arguments << "--branch-sim=yes";
+        cmd << "--branch-sim=yes";
 
     if (m_settings.collectBusEvents())
-        arguments << "--collect-bus=yes";
+        cmd << "--collect-bus=yes";
 
     if (m_settings.collectSystime())
-        arguments << "--collect-systime=yes";
+        cmd << "--collect-systime=yes";
 
     if (m_markAsPaused)
-        arguments << "--instr-atstart=no";
+        cmd << "--instr-atstart=no";
 
     // add extra arguments
     if (!m_argumentForToggleCollect.isEmpty())
-        arguments << m_argumentForToggleCollect;
+        cmd << m_argumentForToggleCollect;
 
-    arguments << "--callgrind-out-file=" + m_valgrindOutputFile.path();
+    cmd << "--callgrind-out-file=" + m_valgrindOutputFile.path();
 
-    arguments << ProcessArgs::splitArgs(m_settings.callgrindArguments(), HostOsInfo::hostOs());
-
-    return arguments;
+    cmd.addArgs(m_settings.callgrindArguments(), CommandLine::Raw);
 }
 
 QString CallgrindToolRunner::progressTitle() const

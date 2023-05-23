@@ -6,7 +6,6 @@
 #include "valgrindsettings.h"
 
 #include <projectexplorer/runcontrol.h>
-#include <utils/environment.h>
 #include <valgrind/valgrindrunner.h>
 
 #include <QFutureInterface>
@@ -23,7 +22,7 @@ public:
 
 protected:
     virtual QString progressTitle() const = 0;
-    virtual QStringList toolArguments() const = 0;
+    virtual void addToolArguments(Utils::CommandLine &cmd) const = 0;
 
     ValgrindProjectSettings m_settings;
     QFutureInterface<void> m_progress;
