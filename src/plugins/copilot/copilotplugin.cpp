@@ -60,5 +60,13 @@ void CopilotPlugin::restartClient()
                                  CopilotSettings::instance().distPath());
 }
 
+ExtensionSystem::IPlugin::ShutdownFlag CopilotPlugin::aboutToShutdown()
+{
+    if (!m_client)
+        return SynchronousShutdown;
+    connect(m_client, &QObject::destroyed, this, &IPlugin::asynchronousShutdownFinished);
+    return AsynchronousShutdown;
+}
+
 } // namespace Internal
 } // namespace Copilot

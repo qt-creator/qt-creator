@@ -21,6 +21,7 @@ public:
     void initialize() override;
     void extensionsInitialized() override;
     void restartClient();
+    ShutdownFlag aboutToShutdown() override;
 
 private:
     QPointer<CopilotClient> m_client;

@@ -237,7 +237,13 @@ void LanguageClientManager::deleteClient(Client *client)
     managerInstance->m_clients.removeAll(client);
     for (QList<Client *> &clients : managerInstance->m_clientsForSetting)
         clients.removeAll(client);
-    client->deleteLater();
+
+    // a deleteLater is not sufficient here as it pastes the delete later event at the end
+    // of the main event loop and when the plugins are shutdown we spawn an additional eventloop
+    // that will not handle the delete later event. Use invokeMethod with Qt::QueuedConnection
+    // instead.
+    QMetaObject::invokeMethod(client, [client] {delete client;}, Qt::QueuedConnection);
+
     if (!PluginManager::isShuttingDown())
         emit instance()->clientRemoved(client);
 }
