@@ -58,9 +58,8 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, U
     QString root = findKitInformation(kit, Internal::Legacy::Constants::QUL_CMAKE_VAR);
     auto rootPath = Utils::FilePath::fromString(root);
 
-    auto cmd = addAspect<Utils::StringAspect>();
+    auto cmd = addAspect<Utils::FilePathAspect>();
     cmd->setSettingsKey("QmlProject.Mcu.ProcessStep.Command");
-    cmd->setDisplayStyle(Utils::StringAspect::PathChooserDisplay);
     cmd->setExpectedKind(Utils::PathChooser::Command);
     cmd->setLabelText(QmlProjectManager::Tr::tr("Command:"));
     cmd->setFilePath(rootPath.pathAppended("/bin/qmlprojectexporter"));
@@ -87,9 +86,8 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, U
     args->setLabelText(QmlProjectManager::Tr::tr("Arguments:"));
     args->setValue(Utils::ProcessArgs::joinArgs(arguments));
 
-    auto outDir = addAspect<Utils::StringAspect>();
+    auto outDir = addAspect<Utils::FilePathAspect>();
     outDir->setSettingsKey("QmlProject.Mcu.ProcessStep.BuildDirectory");
-    outDir->setDisplayStyle(Utils::StringAspect::PathChooserDisplay);
     outDir->setExpectedKind(Utils::PathChooser::Directory);
     outDir->setLabelText(QmlProjectManager::Tr::tr("Build directory:"));
     outDir->setPlaceHolderText(m_tmpDir.path());
