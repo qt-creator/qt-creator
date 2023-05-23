@@ -23,20 +23,6 @@ namespace Python::Internal {
 
 const char pySideBuildStep[] = "Python.PysideBuildStep";
 
-PySideBuildConfigurationFactory::PySideBuildConfigurationFactory()
-{
-    registerBuildConfiguration<PySideBuildConfiguration>("Python.PySideBuildConfiguration");
-    setSupportedProjectType(PythonProjectId);
-    setSupportedProjectMimeTypeName(Constants::C_PY_MIMETYPE);
-    setBuildGenerator([](const Kit *, const FilePath &projectPath, bool) {
-        BuildInfo info;
-        info.displayName = "build";
-        info.typeName = "build";
-        info.buildDirectory = projectPath.parentDir();
-        return QList<BuildInfo>{info};
-    });
-}
-
 PySideBuildStepFactory::PySideBuildStepFactory()
 {
     registerStep<PySideBuildStep>(pySideBuildStep);
@@ -83,17 +69,38 @@ void PySideBuildStep::doRun()
         emit finished(true);
 }
 
-PySideBuildConfiguration::PySideBuildConfiguration(Target *target, Id id)
-    : BuildConfiguration(target, id)
+
+// PySideBuildConfiguration
+
+class PySideBuildConfiguration : public BuildConfiguration
 {
-    setConfigWidgetDisplayName(Tr::tr("General"));
+public:
+    PySideBuildConfiguration(Target *target, Id id)
+        : BuildConfiguration(target, id)
+    {
+        setConfigWidgetDisplayName(Tr::tr("General"));
 
-    setInitializer([this](const BuildInfo &) {
-        buildSteps()->appendStep(pySideBuildStep);
+        setInitializer([this](const BuildInfo &) {
+            buildSteps()->appendStep(pySideBuildStep);
+            updateCacheAndEmitEnvironmentChanged();
+        });
+
         updateCacheAndEmitEnvironmentChanged();
-    });
+    }
+};
 
-    updateCacheAndEmitEnvironmentChanged();
+PySideBuildConfigurationFactory::PySideBuildConfigurationFactory()
+{
+    registerBuildConfiguration<PySideBuildConfiguration>("Python.PySideBuildConfiguration");
+    setSupportedProjectType(PythonProjectId);
+    setSupportedProjectMimeTypeName(Constants::C_PY_MIMETYPE);
+    setBuildGenerator([](const Kit *, const FilePath &projectPath, bool) {
+        BuildInfo info;
+        info.displayName = "build";
+        info.typeName = "build";
+        info.buildDirectory = projectPath.parentDir();
+        return QList<BuildInfo>{info};
+    });
 }
 
 } // Python::Internal
