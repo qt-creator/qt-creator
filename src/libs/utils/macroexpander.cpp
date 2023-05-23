@@ -275,7 +275,7 @@ QString MacroExpander::expand(const QString &stringWithVariables) const
 FilePath MacroExpander::expand(const FilePath &fileNameWithVariables) const
 {
     // We want single variables to expand to fully qualified strings.
-    return FilePath::fromString(expand(fileNameWithVariables.toString()));
+    return FilePath::fromUserInput(expand(fileNameWithVariables.toString()));
 }
 
 QByteArray MacroExpander::expand(const QByteArray &stringWithVariables) const
