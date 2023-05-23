@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include <QMap>
 #include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
