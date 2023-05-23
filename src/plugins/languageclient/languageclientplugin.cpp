@@ -60,12 +60,12 @@ void LanguageClientPlugin::extensionsInitialized()
 ExtensionSystem::IPlugin::ShutdownFlag LanguageClientPlugin::aboutToShutdown()
 {
     LanguageClientManager::shutdown();
-    if (LanguageClientManager::clients().isEmpty())
+    if (LanguageClientManager::isShutdownFinished())
         return ExtensionSystem::IPlugin::SynchronousShutdown;
     QTC_ASSERT(LanguageClientManager::instance(),
                return ExtensionSystem::IPlugin::SynchronousShutdown);
     connect(LanguageClientManager::instance(), &LanguageClientManager::shutdownFinished,
-            this, &ExtensionSystem::IPlugin::asynchronousShutdownFinished, Qt::QueuedConnection);
+            this, &ExtensionSystem::IPlugin::asynchronousShutdownFinished);
     return ExtensionSystem::IPlugin::AsynchronousShutdown;
 }
 

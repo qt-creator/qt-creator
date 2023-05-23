@@ -48,6 +48,7 @@ public:
     static void deleteClient(Client *client);
 
     static void shutdown();
+    static bool isShutdownFinished();
 
     static LanguageClientManager *instance();
 
@@ -96,6 +97,8 @@ private:
     void updateProject(ProjectExplorer::Project *project);
     void projectAdded(ProjectExplorer::Project *project);
 
+    void trackClientDeletion(Client *client);
+
     QList<Client *> reachableClients();
 
     QList<Client *> m_clients;
@@ -105,6 +108,7 @@ private:
     QHash<TextEditor::TextDocument *, QPointer<Client>> m_clientForDocument;
     std::unique_ptr<LanguageClientManagerPrivate> d;
     LspInspector m_inspector;
+    QSet<Utils::Id> m_scheduledForDeletion;
 };
 
 template<typename T> bool LanguageClientManager::hasClients()
