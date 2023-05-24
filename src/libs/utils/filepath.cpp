@@ -119,7 +119,7 @@ inline bool isWindowsDriveLetter(QChar ch);
         Converts the FilePath to the slash convention of the associated
         OS and adds the scheme and host as a " on <device>" suffix.
 
-        This is useful for static user-facing output in he GUI
+        This is useful for static user-facing output in the GUI.
 
     \li FilePath::fromVariant(), FilePath::toVariant()
 
@@ -157,7 +157,7 @@ FilePath::FilePath()
 }
 
 /*!
-   Constructs a FilePath from \a info
+   Constructs a FilePath from \a info.
 */
 FilePath FilePath::fromFileInfo(const QFileInfo &info)
 {
@@ -172,6 +172,11 @@ QFileInfo FilePath::toFileInfo() const
     return QFileInfo(toFSPathString());
 }
 
+/*!
+    Constructs a FilePath from \a variant.
+
+    \sa toVariant()
+*/
 FilePath FilePath::fromVariant(const QVariant &variant)
 {
     return fromSettings(variant); // FIXME: Use variant.value<FilePath>()
@@ -281,7 +286,7 @@ QUrl FilePath::toUrl() const
 }
 
 /*!
-    returns a QString to display to the user, including the device prefix
+    Returns a QString to display to the user, including the device prefix.
 
     Converts the separators to the native format of the system
     this path belongs to.
@@ -491,6 +496,9 @@ bool FilePath::ensureExistingFile() const
     return fileAccess()->ensureExistingFile(*this);
 }
 
+/*!
+    Returns a bool indicating whether this is an executable file.
+*/
 bool FilePath::isExecutableFile() const
 {
     return fileAccess()->isExecutableFile(*this);
@@ -498,10 +506,11 @@ bool FilePath::isExecutableFile() const
 
 /*!
     Returns a bool indicating on whether a process with this FilePath's
-    .nativePath() is likely to start.
+    native path is likely to start.
 
-    This is equivalent to \c isExecutableFile() in general.
-    On Windows, it will check appending various suffixes, too.
+    This is equivalent to \l isExecutableFile() in general.
+    On Windows, it might append various suffixes depending on
+    \a matchScope.
 */
 std::optional<FilePath> FilePath::refersToExecutableFile(MatchScope matchScope) const
 {
@@ -578,7 +587,7 @@ bool FilePath::hasHardLinks() const
     Returns true if the directory could be created, false if not,
     even if it existed before.
 
-    \sa ensureWriteableDir()
+    \sa ensureWritableDir()
 */
 bool FilePath::createDir() const
 {
@@ -616,9 +625,7 @@ FilePaths FilePath::dirEntries(QDir::Filters filters) const
 }
 
 /*!
-   This runs \a callBack on each directory entry matching all \a filters and
-   either of the specified \a nameFilters.
-   An empty \nameFilters list matches every name.
+    Runs \a callBack on each directory entry matching the \a filter.
 */
 
 void FilePath::iterateDirectory(const IterateDirCallback &callBack, const FileFilter &filter) const
@@ -966,12 +973,13 @@ QString doCleanPath(const QString &input_)
     return input.left(prefixLen) + path;
 }
 
-/*! Find the parent directory of a given directory.
+/*!
+    Finds the parent directory of the file path.
 
-    Returns an empty FilePath if the current directory is already
+    Returns an empty file path if the file path is already
     a root level directory.
 
-    Returns \a FilePath with the last segment removed.
+    Returns a file path with the last segment removed.
 */
 FilePath FilePath::parentDir() const
 {
@@ -1039,6 +1047,15 @@ FilePath FilePath::normalizedPathName() const
     return result;
 }
 
+/*!
+    Converts the file path to the slash convention of the associated
+    OS and adds the scheme and host as a " on <device>" suffix.
+
+    This is useful for static user-facing output in the GUI.
+
+    If \a args is not empty, it is added to the output after the file path:
+    "<path> <args> on <device>".
+*/
 QString FilePath::displayName(const QString &args) const
 {
     QString deviceName;
@@ -1201,10 +1218,10 @@ bool FilePath::hasFileAccess() const
 }
 
 /*!
-    Constructs a FilePath from \a filePath. The \a defaultExtension is appended
-    to \a filePath if that does not have an extension already.
+    Constructs a FilePath from \a filepath. The \a defaultExtension is appended
+    to \a filepath if that does not have an extension already.
 
-    \a filePath is not checked for validity.
+    \a filepath is not checked for validity.
 */
 FilePath FilePath::fromStringWithExtension(const QString &filepath, const QString &defaultExtension)
 {
@@ -1225,7 +1242,7 @@ FilePath FilePath::fromStringWithExtension(const QString &filepath, const QStrin
 /*!
     Constructs a FilePath from \a filePath
 
-    The path \a filePath is cleaned and ~ replaces by the home path.
+    The path \a filePath is cleaned, and ~ is replaced by the home path.
 */
 FilePath FilePath::fromUserInput(const QString &filePath)
 {
@@ -1236,9 +1253,10 @@ FilePath FilePath::fromUserInput(const QString &filePath)
 }
 
 /*!
-    Constructs a FilePath from \a filePath, which is encoded as UTF-8.
+    Constructs a FilePath from \a filename with \a filenameSize, which is
+    encoded as UTF-8.
 
-   \a filePath is not checked for validity.
+   \a filename is not checked for validity.
 */
 FilePath FilePath::fromUtf8(const char *filename, int filenameSize)
 {
@@ -1259,6 +1277,12 @@ QVariant FilePath::toSettings() const
     return toString();
 }
 
+/*!
+    Returns the FilePath as a variant.
+
+    To be used for type-agnostic internal interfaces like storage in
+    QAbstractItemModels.
+*/
 QVariant FilePath::toVariant() const
 {
     // FIXME: Use qVariantFromValue
@@ -1391,7 +1415,7 @@ FilePath FilePath::relativePathFrom(const FilePath &anchor) const
 }
 
 /*!
-    Returns the relativePath of \a absolutePath to given \a absoluteAnchorPath.
+    Returns the relative path of \a absolutePath to given \a absoluteAnchorPath.
     Both paths must be an absolute path to a directory.
 
     Example usage:
@@ -1402,7 +1426,7 @@ FilePath FilePath::relativePathFrom(const FilePath &anchor) const
 
     The debug output will be "../b/ar".
 
-    \see FilePath::relativePath
+    \see FilePath::isRelativePath(), FilePath::relativePathFrom(), FilePath::relativeChildPath()
 */
 QString FilePath::calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath)
 {
@@ -1488,8 +1512,9 @@ FilePath FilePath::withNewPath(const QString &newPath) const
 }
 
 /*!
-    Search for a binary corresponding to this object in the PATH of
-    the device implied by this object's scheme and host.
+    Search for a binary corresponding to this object on each directory entry
+    specified by \a dirs matching the \a filter with the \a matchScope of the
+    file path.
 
     Example usage:
     \code
@@ -1794,7 +1819,7 @@ qint64 FilePath::bytesAvailable() const
     \c true if one of them is newer than \a timeStamp. If this is a single file, \c true will
     be returned if the file is newer than \a timeStamp.
 
-     Returns whether at least one file in \a filePath has a newer date than
+     Returns whether at least one file in the file path has a newer date than
      \a timeStamp.
 */
 bool FilePath::isNewerThan(const QDateTime &timeStamp) const
@@ -1874,12 +1899,13 @@ FilePath FilePath::resolveSymlinks() const
 }
 
 /*!
-*  \brief Recursively resolves possibly present symlinks in this file name.
-*  On Windows, also resolves SUBST and re-mounted NTFS drives.
-*  Unlike QFileInfo::canonicalFilePath(), this function will not return an empty
-*  string if path doesn't exist.
-*
-*  Returns the canonical path.
+    Recursively resolves possibly present symlinks in this file name.
+
+    On Windows, also resolves SUBST and re-mounted NTFS drives.
+    Unlike QFileInfo::canonicalFilePath(), this function will not return an empty
+    string if path doesn't exist.
+
+    Returns the canonical path.
 */
 FilePath FilePath::canonicalPath() const
 {
