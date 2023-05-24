@@ -25,7 +25,8 @@ class QMLDESIGNERCORE_EXPORT Qml3DNode : public QmlVisualNode
 public:
     Qml3DNode() : QmlVisualNode() {}
     Qml3DNode(const ModelNode &modelNode)  : QmlVisualNode(modelNode) {}
-    bool isValid() const override;
+    bool isValid() const;
+    explicit operator bool() const { return isValid(); }
     static bool isValidQml3DNode(const ModelNode &modelNode);
     static bool isValidVisualRoot(const ModelNode &modelNode);
 

@@ -48,7 +48,7 @@ public:
 
     QmlVisualNode() = default;
     QmlVisualNode(const ModelNode &modelNode)  : QmlObjectNode(modelNode) {}
-    bool isValid() const override;
+    bool isValid() const;
     explicit operator bool() const { return isValid(); }
     static bool isValidQmlVisualNode(const ModelNode &modelNode);
     bool isRootNode() const;

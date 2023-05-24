@@ -20,7 +20,8 @@ public:
     QmlConnections();
     QmlConnections(const ModelNode &modelNode);
 
-    bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
+    bool isValid() const;
     static bool isValidQmlConnections(const ModelNode &modelNode);
     void destroy();
 

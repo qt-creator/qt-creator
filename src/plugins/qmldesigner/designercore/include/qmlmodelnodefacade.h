@@ -18,12 +18,12 @@ public:
     QmlModelNodeFacade &operator=(const QmlModelNodeFacade &) = default;
     QmlModelNodeFacade(QmlModelNodeFacade &&) noexcept = default;
     QmlModelNodeFacade &operator=(QmlModelNodeFacade &&) noexcept = default;
-    virtual ~QmlModelNodeFacade() = default;
+    ~QmlModelNodeFacade() = default;
     operator ModelNode() const { return m_modelNode; }
     ModelNode modelNode() const { return m_modelNode; }
     bool hasModelNode() const;
     static bool isValidQmlModelNodeFacade(const ModelNode &modelNode);
-    virtual bool isValid() const;
+    bool isValid() const;
     explicit operator bool() const { return isValid(); }
     QmlModelNodeFacade() = default;
 
