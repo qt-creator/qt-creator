@@ -43,7 +43,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
     auto appendBreak = [&ts]() { ts << Qt::endl; };
 
     auto appendComment = [&ts, &indentationLevel](const QString &comment) {
-        ts << QString(" ").repeated(indentationLevel * 4) << "\\\\ " << comment << Qt::endl;
+        ts << QString(" ").repeated(indentationLevel * 4) << "// " << comment << Qt::endl;
     };
 
     auto appendItem =
