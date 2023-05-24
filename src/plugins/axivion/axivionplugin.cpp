@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "axivionplugin.h"
 
@@ -29,10 +29,6 @@
 
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
-
-#ifdef LICENSECHECKER
-#  include <licensechecker/licensecheckerplugin.h>
-#endif
 
 #include <QAction>
 #include <QMessageBox>
@@ -119,14 +115,6 @@ bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessa
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
-
-#ifdef LICENSECHECKER
-    LicenseChecker::LicenseCheckerPlugin *licenseChecker
-            = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
-
-    if (!licenseChecker || !licenseChecker->hasValidLicense() || !licenseChecker->enterpriseFeatures())
-        return true;
-#endif // LICENSECHECKER
 
     dd = new AxivionPluginPrivate;
     dd->m_axivionSettings.fromSettings(Core::ICore::settings());
