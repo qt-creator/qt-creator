@@ -33,6 +33,7 @@ QtcLibrary {
             "iconprovider.cpp", "iconprovider.h",
             "workspace.cpp", "workspace.h",
             "workspacedialog.cpp", "workspacedialog.h",
+            "workspaceinputdialog.cpp", "workspaceinputdialog.h",
             "workspacemodel.cpp", "workspacemodel.h",
             "workspaceview.cpp", "workspaceview.h",
         ]
