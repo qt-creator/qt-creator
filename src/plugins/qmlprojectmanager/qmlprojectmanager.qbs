@@ -39,7 +39,7 @@ QtcPlugin {
             "qmlbuildsystem.cpp", "qmlbuildsystem.h",
             "projectitem/filefilteritems.cpp", "projectitem/filefilteritems.h",
             "projectitem/qmlprojectitem.cpp", "projectitem/qmlprojectitem.h",
-            "projectitem/converters.h",
+            "projectitem/converters.cpp", "projectitem/converters.h",
             "projectnode/qmlprojectnodes.cpp", "projectnode/qmlprojectnodes.h"
         ]
     }
