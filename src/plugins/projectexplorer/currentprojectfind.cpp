@@ -57,17 +57,17 @@ QVariant CurrentProjectFind::additionalParameters() const
     return QVariant();
 }
 
-FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
+FileContainer CurrentProjectFind::files(const QStringList &nameFilters,
                                         const QStringList &exclusionFilters,
                                         const QVariant &additionalParameters) const
 {
-    QTC_ASSERT(additionalParameters.isValid(), return new FileListIterator);
+    QTC_ASSERT(additionalParameters.isValid(), return {});
     const FilePath projectFile = FilePath::fromVariant(additionalParameters);
     for (Project *project : ProjectManager::projects()) {
         if (project && projectFile == project->projectFilePath())
             return filesForProjects(nameFilters, exclusionFilters, {project});
     }
-    return new FileListIterator;
+    return {};
 }
 
 QString CurrentProjectFind::label() const

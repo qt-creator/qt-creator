@@ -14,6 +14,8 @@
 
 #include <QSettings>
 
+using namespace Utils;
+
 namespace TextEditor::Internal {
 
 FindInOpenFiles::FindInOpenFiles()
@@ -34,20 +36,20 @@ QString FindInOpenFiles::displayName() const
     return Tr::tr("Open Documents");
 }
 
-Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
-                                            const QStringList &exclusionFilters,
-                                            const QVariant &additionalParameters) const
+FileContainer FindInOpenFiles::files(const QStringList &nameFilters,
+                                     const QStringList &exclusionFilters,
+                                     const QVariant &additionalParameters) const
 {
     Q_UNUSED(nameFilters)
     Q_UNUSED(exclusionFilters)
     Q_UNUSED(additionalParameters)
-    QMap<Utils::FilePath, QTextCodec *> openEditorEncodings
+    QMap<FilePath, QTextCodec *> openEditorEncodings
         = TextDocument::openedTextDocumentEncodings();
-    Utils::FilePaths fileNames;
+    FilePaths fileNames;
     QList<QTextCodec *> codecs;
     const QList<Core::DocumentModel::Entry *> entries = Core::DocumentModel::entries();
     for (Core::DocumentModel::Entry *entry : entries) {
-        const Utils::FilePath fileName = entry->filePath();
+        const FilePath fileName = entry->filePath();
         if (!fileName.isEmpty()) {
             fileNames.append(fileName);
             QTextCodec *codec = openEditorEncodings.value(fileName);
@@ -57,12 +59,12 @@ Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
         }
     }
 
-    return new Utils::FileListIterator(fileNames, codecs);
+    return FileListContainer(fileNames, codecs);
 }
 
 QVariant FindInOpenFiles::additionalParameters() const
 {
-    return QVariant();
+    return {};
 }
 
 QString FindInOpenFiles::label() const

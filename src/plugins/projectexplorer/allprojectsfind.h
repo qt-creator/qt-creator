@@ -30,10 +30,10 @@ public:
     void readSettings(QSettings *settings) override;
 
 protected:
-    Utils::FileIterator *files(const QStringList &nameFilters,
+    Utils::FileContainer files(const QStringList &nameFilters,
                                const QStringList &exclusionFilters,
                                const QVariant &additionalParameters) const override;
-    Utils::FileIterator *filesForProjects(const QStringList &nameFilters,
+    Utils::FileContainer filesForProjects(const QStringList &nameFilters,
                                           const QStringList &exclusionFilters,
                                           const QList<Project *> &projects) const;
 

@@ -58,14 +58,12 @@ QString FindInFiles::displayName() const
     return Tr::tr("Files in File System");
 }
 
-FileIterator *FindInFiles::files(const QStringList &nameFilters,
+FileContainer FindInFiles::files(const QStringList &nameFilters,
                                  const QStringList &exclusionFilters,
                                  const QVariant &additionalParameters) const
 {
-    return new SubDirFileIterator({FilePath::fromVariant(additionalParameters)},
-                                  nameFilters,
-                                  exclusionFilters,
-                                  EditorManager::defaultTextCodec());
+    return SubDirFileContainer({FilePath::fromVariant(additionalParameters)}, nameFilters,
+                               exclusionFilters, EditorManager::defaultTextCodec());
 }
 
 QVariant FindInFiles::additionalParameters() const

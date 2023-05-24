@@ -18,10 +18,7 @@ class IEditor;
 class SearchResult;
 } // namespace Core
 
-namespace Utils {
-class FileIterator;
-class Process;
-}
+namespace Utils { class Process; }
 
 namespace TextEditor {
 
@@ -98,7 +95,7 @@ public:
     /* returns the list of unique files that were passed in items */
     static Utils::FilePaths replaceAll(const QString &txt, const Utils::SearchResultItems &items,
                                        bool preserveCase = false);
-    virtual Utils::FileIterator *files(const QStringList &nameFilters,
+    virtual Utils::FileContainer files(const QStringList &nameFilters,
                                        const QStringList &exclusionFilters,
                                        const QVariant &additionalParameters) const = 0;
 

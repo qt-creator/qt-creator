@@ -148,11 +148,10 @@ public:
     QFuture<SearchResultItems> executeSearch(const TextEditor::FileFindParameters &parameters,
                                              BaseFileFind *baseFileFind) override
     {
-        return Utils::findInFiles(parameters.text,
-                                  baseFileFind->files(parameters.nameFilters,
-                                                      parameters.exclusionFilters,
-                                                      parameters.additionalParameters),
-                                  parameters.flags,
+        const FileContainer container = baseFileFind->files(parameters.nameFilters,
+                                                            parameters.exclusionFilters,
+                                                            parameters.additionalParameters);
+        return Utils::findInFiles(parameters.text, container, parameters.flags,
                                   TextDocument::openedTextDocumentContents());
 
     }

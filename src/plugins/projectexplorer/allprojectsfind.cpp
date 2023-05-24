@@ -47,7 +47,7 @@ bool AllProjectsFind::isEnabled() const
     return BaseFileFind::isEnabled() && ProjectManager::hasProjects();
 }
 
-FileIterator *AllProjectsFind::files(const QStringList &nameFilters,
+FileContainer AllProjectsFind::files(const QStringList &nameFilters,
                                      const QStringList &exclusionFilters,
                                      const QVariant &additionalParameters) const
 {
@@ -55,7 +55,7 @@ FileIterator *AllProjectsFind::files(const QStringList &nameFilters,
     return filesForProjects(nameFilters, exclusionFilters, ProjectManager::projects());
 }
 
-FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFilters,
+FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
                                                 const QStringList &exclusionFilters,
                                                 const QList<Project *> &projects) const
 {
@@ -77,7 +77,7 @@ FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFilters,
             encodings.insert(fileName, codec);
         }
     }
-    return new FileListIterator(encodings.keys(), encodings.values());
+    return FileListContainer(encodings.keys(), encodings.values());
 }
 
 QVariant AllProjectsFind::additionalParameters() const

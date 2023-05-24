@@ -22,7 +22,7 @@ public:
     void readSettings(QSettings *settings) override;
 
 protected:
-    Utils::FileIterator *files(const QStringList &nameFilters,
+    Utils::FileContainer files(const QStringList &nameFilters,
                                const QStringList &exclusionFilters,
                                const QVariant &additionalParameters) const override;
     QVariant additionalParameters() const override;

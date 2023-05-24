@@ -15,6 +15,8 @@
 
 #include <QSettings>
 
+using namespace Utils;
+
 namespace TextEditor::Internal {
 
 FindInCurrentFile::FindInCurrentFile()
@@ -34,19 +36,18 @@ QString FindInCurrentFile::displayName() const
     return Tr::tr("Current File");
 }
 
-Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
-                                              const QStringList &exclusionFilters,
-                                              const QVariant &additionalParameters) const
+FileContainer FindInCurrentFile::files(const QStringList &nameFilters,
+                                       const QStringList &exclusionFilters,
+                                       const QVariant &additionalParameters) const
 {
     Q_UNUSED(nameFilters)
     Q_UNUSED(exclusionFilters)
-    const auto fileName = Utils::FilePath::fromVariant(additionalParameters);
-    QMap<Utils::FilePath, QTextCodec *> openEditorEncodings
-        = TextDocument::openedTextDocumentEncodings();
+    const auto fileName = FilePath::fromVariant(additionalParameters);
+    QMap<FilePath, QTextCodec *> openEditorEncodings = TextDocument::openedTextDocumentEncodings();
     QTextCodec *codec = openEditorEncodings.value(fileName);
     if (!codec)
         codec = Core::EditorManager::defaultTextCodec();
-    return new Utils::FileListIterator({fileName}, {codec});
+    return FileListContainer({fileName}, {codec});
 }
 
 QVariant FindInCurrentFile::additionalParameters() const
