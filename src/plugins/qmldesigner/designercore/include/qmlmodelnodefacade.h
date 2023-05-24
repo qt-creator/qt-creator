@@ -18,7 +18,7 @@ public:
     QmlModelNodeFacade &operator=(const QmlModelNodeFacade &) = default;
     QmlModelNodeFacade(QmlModelNodeFacade &&) noexcept = default;
     QmlModelNodeFacade &operator=(QmlModelNodeFacade &&) noexcept = default;
-    ~QmlModelNodeFacade() = default;
+
     operator ModelNode() const { return m_modelNode; }
     ModelNode modelNode() const { return m_modelNode; }
     bool hasModelNode() const;

@@ -30,6 +30,8 @@ public:
         : QmlModelNodeFacade(modelNode)
     {}
 
+    virtual ~QmlObjectNode() = default;
+
     static bool isValidQmlObjectNode(const ModelNode &modelNode);
     bool isValid() const;
     explicit operator bool() const { return isValid(); }
