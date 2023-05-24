@@ -76,6 +76,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 setFormat(0, text.length(), formatForCategory(C_VISUAL_WHITESPACE));
         }
         TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
+        TextDocumentLayout::setExpectedRawStringSuffix(currentBlock(), inheritedRawStringSuffix);
         return;
     }
 
