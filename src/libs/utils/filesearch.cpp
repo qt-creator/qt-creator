@@ -4,6 +4,7 @@
 #include "filesearch.h"
 
 #include "algorithm.h"
+#include "async.h"
 #include "filepath.h"
 #include "mapreduce.h"
 #include "qtcassert.h"
@@ -13,6 +14,7 @@
 
 #include <QLoggingCategory>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QTextCodec>
 
 #include <cctype>
@@ -331,9 +333,134 @@ void cleanUpFileSearch(QFutureInterface<SearchResultItems> &futureInterface,
 
 } // namespace
 
-QFuture<SearchResultItems> Utils::findInFiles(const QString &searchTerm, FileIterator *files,
-                                              FindFlags flags,
+static void fileSearch(QPromise<SearchResultItems> &promise,
+                       const FileContainerIterator::Item &item, const QString &searchTerm,
+                       FindFlags flags, const QMap<FilePath, QString> &fileToContentsMap)
+{
+    if (promise.isCanceled())
+        return;
+    qCDebug(searchLog) << "Searching in" << item.filePath;
+    promise.setProgressRange(0, 1);
+    promise.setProgressValue(0);
+    QString contents;
+    if (!getFileContent(item.filePath, item.encoding, &contents, fileToContentsMap)) {
+        qCDebug(searchLog) << "- failed to get content for" << item.filePath;
+        promise.future().cancel(); // failure
+        return;
+    }
+
+    const QFuture<void> future(promise.future());
+    const SearchResultItems results = searchInContents(future, searchTerm, flags, item.filePath,
+                                                       contents);
+    if (!promise.isCanceled()) {
+        promise.addResult(results);
+        promise.setProgressValue(1);
+    }
+    qCDebug(searchLog) << "- finished searching in" << item.filePath;
+}
+
+static void findInFilesImpl(QPromise<SearchResultItems> &promise, const QString &searchTerm,
+                            const FileContainer &container, FindFlags flags,
+                            const QMap<FilePath, QString> &fileToContentsMap)
+{
+    QEventLoop loop;
+    // The states transition exactly in this order:
+    enum State { BelowLimit, AboveLimit, Resumed };
+    State state = BelowLimit;
+    int reportedItemsCount = 0;
+    int searchedFilesCount = 0;
+
+    const int progressMaximum = container.progressMaximum();
+    promise.setProgressRange(0, progressMaximum);
+    promise.setProgressValueAndText(0, msgFound(searchTerm, 0, 0));
+    const int threadsCount = qMax(1, QThread::idealThreadCount() / 2);
+    QSet<QFutureWatcher<SearchResultItems> *> watchers;
+    FutureSynchronizer futureSynchronizer;
+
+    const auto cleanup = qScopeGuard([&] {
+        qDeleteAll(watchers);
+        const QString message = promise.isCanceled()
+                              ? msgCanceled(searchTerm, reportedItemsCount, searchedFilesCount)
+                              : msgFound(searchTerm, reportedItemsCount, searchedFilesCount);
+        promise.setProgressValueAndText(progressMaximum, message);
+    });
+
+    FileContainerIterator it = container.begin();
+    const FileContainerIterator itEnd = container.end();
+    if (it == itEnd)
+        return;
+
+    std::function<void()> scheduleNext;
+    scheduleNext = [&] {
+        if (promise.isCanceled() || (it == itEnd && watchers.isEmpty())) {
+            loop.quit();
+            return;
+        }
+        if (it == itEnd)
+            return;
+
+        if (state == AboveLimit)
+            return;
+
+        if (watchers.size() == threadsCount)
+            return;
+
+        const FileContainerIterator::Item item = *it;
+        const int progress = it.progressValue();
+        ++it;
+        const QFuture<SearchResultItems> future
+            = Utils::asyncRun(fileSearch, item, searchTerm, flags, fileToContentsMap);
+        QFutureWatcher<SearchResultItems> *watcher = new QFutureWatcher<SearchResultItems>;
+        QObject::connect(watcher, &QFutureWatcherBase::finished, &loop,
+                [watcher, progress, &searchTerm, &reportedItemsCount, &searchedFilesCount, &state,
+                 &watchers, &promise, &scheduleNext] {
+            const QFuture<SearchResultItems> future = watcher->future();
+            if (future.resultCount()) {
+                const SearchResultItems items = future.result();
+                reportedItemsCount += items.size();
+                if (state == BelowLimit && reportedItemsCount > 200000)
+                    state = AboveLimit;
+                if (!items.isEmpty())
+                    promise.addResult(items);
+            }
+            ++searchedFilesCount;
+            promise.setProgressValueAndText(progress, msgFound(searchTerm, reportedItemsCount,
+                                                               searchedFilesCount));
+            watcher->deleteLater();
+            watchers.remove(watcher);
+            scheduleNext();
+        });
+        watcher->setFuture(future);
+        futureSynchronizer.addFuture(future);
+        watchers.insert(watcher);
+        scheduleNext();
+    };
+
+    QFutureWatcher<void> watcher;
+    QObject::connect(&watcher, &QFutureWatcherBase::canceled, &loop, &QEventLoop::quit);
+    QObject::connect(&watcher, &QFutureWatcherBase::resumed, &loop, [&state, &scheduleNext] {
+        state = Resumed;
+        scheduleNext();
+    });
+
+    watcher.setFuture(QFuture<void>(promise.future()));
+
+    if (promise.isCanceled())
+        return;
+
+    QTimer::singleShot(0, &loop, scheduleNext);
+    loop.exec(QEventLoop::ExcludeUserInputEvents);
+}
+
+QFuture<SearchResultItems> Utils::findInFiles(const QString &searchTerm,
+                                              const FileContainer &container, FindFlags flags,
                                               const QMap<FilePath, QString> &fileToContentsMap)
+{
+    return Utils::asyncRun(findInFilesImpl, searchTerm, container, flags, fileToContentsMap);
+}
+
+QFuture<SearchResultItems> Utils::findInFiles(const QString &searchTerm, FileIterator *files,
+    FindFlags flags, const QMap<FilePath, QString> &fileToContentsMap)
 {
     return mapReduce(files->begin(), files->end(),
                      [searchTerm, files](QFutureInterface<SearchResultItems> &futureInterface) {
