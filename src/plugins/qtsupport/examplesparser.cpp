@@ -319,16 +319,22 @@ QList<std::pair<QString, QList<ExampleItem *>>> getCategories(const QList<Exampl
     QList<ExampleItem *> other;
     QMap<QString, QList<ExampleItem *>> categoryMap;
     if (useCategories) {
+        // Append copies of the items and delete the original ones,
+        // because items might be added to multiple categories and that needs individual items
         for (ExampleItem *item : items) {
-            const QStringList itemCategories = item->metaData.value("category");
+            const QStringList itemCategories = Utils::filteredUnique(
+                item->metaData.value("category"));
             for (const QString &category : itemCategories)
-                categoryMap[category].append(item);
+                categoryMap[category].append(new ExampleItem(*item));
             if (itemCategories.isEmpty())
-                other.append(item);
+                other.append(new ExampleItem(*item));
         }
     }
     QList<std::pair<QString, QList<ExampleItem *>>> categories;
     if (categoryMap.isEmpty()) {
+        // If we tried sorting into categories, but none were defined, we copied the items
+        // into "other", which we don't use here. Get rid of them again.
+        qDeleteAll(other);
         // The example set doesn't define categories. Consider the "highlighted" ones as "featured"
         QList<ExampleItem *> featured;
         QList<ExampleItem *> allOther;
@@ -340,6 +346,8 @@ QList<std::pair<QString, QList<ExampleItem *>>> getCategories(const QList<Exampl
         if (!allOther.isEmpty())
             categories.append({otherDisplayName, allOther});
     } else {
+        // All original items have been copied into a category or other, delete.
+        qDeleteAll(items);
         const auto end = categoryMap.constKeyValueEnd();
         for (auto it = categoryMap.constKeyValueBegin(); it != end; ++it)
             categories.append(*it);
