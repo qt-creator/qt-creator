@@ -163,6 +163,7 @@ CPlusPlus::LanguageFeatures ProjectPart::deriveLanguageFeatures() const
     CPlusPlus::LanguageFeatures features;
     features.cxx11Enabled = languageVersion >= Utils::LanguageVersion::CXX11;
     features.cxx14Enabled = languageVersion >= Utils::LanguageVersion::CXX14;
+    features.cxx17Enabled = languageVersion >= Utils::LanguageVersion::CXX17;
     features.cxx20Enabled = languageVersion >= Utils::LanguageVersion::CXX20;
     features.cxxEnabled = hasCxx;
     features.c99Enabled = languageVersion >= Utils::LanguageVersion::C99;

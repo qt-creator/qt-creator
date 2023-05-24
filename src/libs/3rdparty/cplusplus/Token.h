@@ -455,6 +455,7 @@ struct LanguageFeatures
             unsigned int cxxEnabled : 1;
             unsigned int cxx11Enabled : 1;
             unsigned int cxx14Enabled : 1;
+            unsigned int cxx17Enabled : 1;
             unsigned int cxx20Enabled : 1;
             unsigned int objCEnabled : 1;
             unsigned int c99Enabled : 1;

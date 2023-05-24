@@ -1779,6 +1779,8 @@ public:
     int if_token = 0;
     int constexpr_token = 0;
     int lparen_token = 0;
+    DeclarationAST *initDecl = nullptr;
+    StatementAST *initStmt = nullptr;
     ExpressionAST *condition = nullptr;
     int rparen_token = 0;
     StatementAST *statement = nullptr;

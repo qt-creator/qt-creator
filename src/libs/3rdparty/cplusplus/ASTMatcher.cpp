@@ -1318,6 +1318,16 @@ bool ASTMatcher::match(IfStatementAST *node, IfStatementAST *pattern)
 
     pattern->lparen_token = node->lparen_token;
 
+    if (!pattern->initDecl)
+        pattern->initDecl = node->initDecl;
+    else if (!AST::match(node->initDecl, pattern->initDecl, this))
+        return false;
+
+    if (!pattern->initStmt)
+        pattern->initStmt = node->initStmt;
+    else if (!AST::match(node->initStmt, pattern->initStmt, this))
+        return false;
+
     if (! pattern->condition)
         pattern->condition = node->condition;
     else if (! AST::match(node->condition, pattern->condition, this))
