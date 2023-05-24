@@ -28,7 +28,6 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <utils/QtConcurrentTools>
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/filesystemwatcher.h>

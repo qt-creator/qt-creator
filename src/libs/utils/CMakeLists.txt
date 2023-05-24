@@ -6,7 +6,6 @@ add_qtc_library(Utils
   SOURCES
     ../3rdparty/span/span.hpp
     ../3rdparty/tl_expected/include/tl/expected.hpp
-    QtConcurrentTools
     algorithm.h
     ansiescapecodehandler.cpp ansiescapecodehandler.h
     appinfo.cpp appinfo.h
@@ -66,7 +65,6 @@ add_qtc_library(Utils
     flowlayout.cpp flowlayout.h
     fsengine/fsengine.cpp fsengine/fsengine.h
     fsengine/fileiconprovider.cpp fsengine/fileiconprovider.h
-    functiontraits.h
     futuresynchronizer.cpp futuresynchronizer.h
     fuzzymatcher.cpp fuzzymatcher.h
     genericconstants.h
@@ -93,7 +91,6 @@ add_qtc_library(Utils
     listmodel.h
     listutils.h
     macroexpander.cpp macroexpander.h
-    mapreduce.h
     mathutils.cpp mathutils.h
     mimeutils.h
     minimizableinfobars.cpp
@@ -143,7 +140,6 @@ add_qtc_library(Utils
     ranges.h
     reloadpromptutils.cpp reloadpromptutils.h
     removefiledialog.cpp removefiledialog.h
-    runextensions.cpp runextensions.h
     savefile.cpp savefile.h
     scopedswap.h
     scopedtimer.cpp scopedtimer.h

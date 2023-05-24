@@ -20,7 +20,6 @@ Project {
         "languageserverprotocol/languageserverprotocol.qbs",
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",
-        "runextensions/runextensions.qbs",
         "sdktool/sdktool.qbs",
         "solutions/solutions.qbs",
         "texteditor/texteditor.qbs",

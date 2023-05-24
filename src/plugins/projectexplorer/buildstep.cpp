@@ -39,7 +39,7 @@
     \c init() is called in the GUI thread and can be used to query the
     project for any information you need.
 
-    \c run() is run via Utils::runAsync in a separate thread. If you need an
+    \c run() is run via Utils::asyncRun in a separate thread. If you need an
     event loop, you need to create it yourself.
 */
 
