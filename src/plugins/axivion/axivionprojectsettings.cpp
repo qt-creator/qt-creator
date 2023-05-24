@@ -163,7 +163,7 @@ void AxivionProjectSettingsWidget::updateUi()
 
 void AxivionProjectSettingsWidget::updateEnabledStates()
 {
-    const bool hasDashboardSettings = m_globalSettings->curl.isExecutableFile()
+    const bool hasDashboardSettings = m_globalSettings->curl().isExecutableFile()
             && !m_globalSettings->server.dashboard.isEmpty()
             && !m_globalSettings->server.token.isEmpty();
     const bool linked = !m_projectSettings->dashboardProjectName().isEmpty();

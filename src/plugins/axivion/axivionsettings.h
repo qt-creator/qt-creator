@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/filepath.h>
+#include <utils/aspects.h>
 #include <utils/id.h>
 
 #include <QtGlobal>
@@ -37,7 +37,7 @@ public:
     bool validateCert = true;
 };
 
-class AxivionSettings
+class AxivionSettings : public Utils::AspectContainer
 {
 public:
     AxivionSettings();
@@ -45,7 +45,7 @@ public:
     void fromSettings(QSettings *s);
 
     AxivionServer server; // shall we have more than one?
-    Utils::FilePath curl;
+    Utils::FilePathAspect curl{this};
 };
 
 } // Axivion::Internal

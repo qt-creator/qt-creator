@@ -3,6 +3,9 @@
 
 #include "axivionsettings.h"
 
+#include "axiviontr.h"
+
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 
 #include <QJsonDocument>
@@ -11,8 +14,6 @@
 #include <QStandardPaths>
 
 namespace Axivion::Internal {
-
-const char curlKeyC[] = "Curl";
 
 AxivionServer::AxivionServer(const Utils::Id &id, const QString &dashboard,
                              const QString &description, const QString &token)
@@ -73,6 +74,11 @@ QStringList AxivionServer::curlArguments() const
 
 AxivionSettings::AxivionSettings()
 {
+    setSettingsGroup("Axivion");
+
+    curl.setSettingsKey("Curl");
+    curl.setLabelText(Tr::tr("curl:"));
+    curl.setExpectedKind(Utils::PathChooser::ExistingCommand);
 }
 
 static Utils::FilePath tokensFilePath(const QSettings *s)
@@ -106,25 +112,19 @@ static AxivionServer readTokenFile(const Utils::FilePath &filePath)
 void AxivionSettings::toSettings(QSettings *s) const
 {
     writeTokenFile(tokensFilePath(s), server);
-
-    s->beginGroup("Axivion");
-    s->setValue(curlKeyC, curl.toVariant());
-    s->endGroup();
+    Utils::AspectContainer::writeSettings(s);
 }
 
 void AxivionSettings::fromSettings(QSettings *s)
 {
-    s->beginGroup("Axivion");
-    curl = Utils::FilePath::fromVariant(curlKeyC);
-    s->endGroup();
-
+    Utils::AspectContainer::readSettings(s);
     server = readTokenFile(tokensFilePath(s));
 
-    if (curl.isEmpty() || !curl.exists()) {
+    if (curl().isEmpty() || !curl().exists()) {
         const QString curlPath = QStandardPaths::findExecutable(
                     Utils::HostOsInfo::withExecutableSuffix("curl"));
         if (!curlPath.isEmpty())
-            curl = Utils::FilePath::fromString(curlPath);
+            curl.setFilePath(Utils::FilePath::fromString(curlPath));
     }
 }
 
