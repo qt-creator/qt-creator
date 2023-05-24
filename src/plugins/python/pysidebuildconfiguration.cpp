@@ -34,8 +34,6 @@ PySideBuildStepFactory::PySideBuildStepFactory()
 PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
-    setOwnsSubAspects(false);
-
     m_pysideProject.setSettingsKey("Python.PySideProjectTool");
     m_pysideProject.setLabelText(Tr::tr("PySide project tool:"));
     m_pysideProject.setToolTip(Tr::tr("Enter location of PySide project tool."));

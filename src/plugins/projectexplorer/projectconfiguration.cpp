@@ -22,8 +22,6 @@ ProjectConfiguration::ProjectConfiguration(QObject *parent, Utils::Id id)
     : AspectContainer(parent)
     , m_id(id)
 {
-    setOwnsSubAspects(true);
-
     QTC_CHECK(parent);
     QTC_CHECK(id.isValid());
     setObjectName(id.toString());

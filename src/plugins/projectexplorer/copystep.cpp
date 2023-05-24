@@ -21,8 +21,6 @@ public:
     CopyStepBase(BuildStepList *bsl, Id id)
         : BuildStep(bsl, id)
     {
-        setOwnsSubAspects(false);
-
         m_sourceAspect.setSettingsKey(SOURCE_KEY);
         m_sourceAspect.setLabelText(Tr::tr("Source:"));
 
