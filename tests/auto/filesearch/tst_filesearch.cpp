@@ -37,6 +37,7 @@ SearchResultItem searchResult(const FilePath &fileName, const QString &matchingL
 void test_helper(const FilePath &filePath, const SearchResultItems &expectedResults,
                  const QString &term, Utils::FindFlags flags = {})
 {
+    {
     FileIterator *it = new FileListIterator({filePath}, {QTextCodec::codecForLocale()});
     QFutureWatcher<SearchResultItems> watcher;
     QSignalSpy ready(&watcher, &QFutureWatcherBase::resultsReadyAt);
@@ -48,6 +49,21 @@ void test_helper(const FilePath &filePath, const SearchResultItems &expectedResu
     QCOMPARE(results.count(), expectedResults.count());
     for (int i = 0; i < expectedResults.size(); ++i)
         QCOMPARE(results.at(i), expectedResults.at(i));
+    }
+
+    {
+    const FileListContainer container({filePath}, {QTextCodec::codecForLocale()});
+    QFutureWatcher<SearchResultItems> watcher;
+    QSignalSpy ready(&watcher, &QFutureWatcherBase::resultsReadyAt);
+    watcher.setFuture(Utils::findInFiles(term, container, flags, {}));
+    watcher.future().waitForFinished();
+    QTest::qWait(100); // process events
+    QCOMPARE(ready.count(), 1);
+    SearchResultItems results = watcher.resultAt(0);
+    QCOMPARE(results.count(), expectedResults.count());
+    for (int i = 0; i < expectedResults.size(); ++i)
+        QCOMPARE(results.at(i), expectedResults.at(i));
+    }
 }
 
 void tst_FileSearch::multipleResults()
