@@ -511,11 +511,13 @@ void Client::initialize()
     if (d->m_project)
         params.setRootUri(hostPathToServerUri(d->m_project->projectDirectory()));
 
+    auto projectFilter = [this](Project *project) { return canOpenProject(project); };
+    auto toWorkSpaceFolder = [this](Project *pro) {
+        return WorkSpaceFolder(hostPathToServerUri(pro->projectDirectory()), pro->displayName());
+    };
     const QList<WorkSpaceFolder> workspaces
-        = Utils::transform(ProjectManager::projects(), [this](Project *pro) {
-              return WorkSpaceFolder(hostPathToServerUri(pro->projectDirectory()),
-                                     pro->displayName());
-          });
+        = Utils::transform(Utils::filtered(ProjectManager::projects(), projectFilter),
+                           toWorkSpaceFolder);
     if (workspaces.isEmpty())
         params.setWorkSpaceFolders(nullptr);
     else
@@ -1353,6 +1355,7 @@ ProjectExplorer::Project *Client::project() const
 
 void Client::setCurrentProject(ProjectExplorer::Project *project)
 {
+    QTC_ASSERT(canOpenProject(project), return);
     if (d->m_project == project)
         return;
     if (d->m_project)
@@ -1369,7 +1372,7 @@ void Client::setCurrentProject(ProjectExplorer::Project *project)
 
 void Client::projectOpened(ProjectExplorer::Project *project)
 {
-    if (!d->sendWorkspceFolderChanges())
+    if (!d->sendWorkspceFolderChanges() || !canOpenProject(project))
         return;
     WorkspaceFoldersChangeEvent event;
     event.setAdded({WorkSpaceFolder(hostPathToServerUri(project->projectDirectory()),
@@ -1382,7 +1385,7 @@ void Client::projectOpened(ProjectExplorer::Project *project)
 
 void Client::projectClosed(ProjectExplorer::Project *project)
 {
-    if (d->sendWorkspceFolderChanges()) {
+    if (d->sendWorkspceFolderChanges() && canOpenProject(project)) {
         WorkspaceFoldersChangeEvent event;
         event.setRemoved({WorkSpaceFolder(hostPathToServerUri(project->projectDirectory()),
                                           project->displayName())});
@@ -1400,6 +1403,12 @@ void Client::projectClosed(ProjectExplorer::Project *project)
         }
         d->m_project = nullptr;
     }
+}
+
+bool Client::canOpenProject(ProjectExplorer::Project *project)
+{
+    Q_UNUSED(project);
+    return true;
 }
 
 void Client::updateConfiguration(const QJsonValue &configuration)

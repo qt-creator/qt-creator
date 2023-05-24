@@ -132,6 +132,7 @@ public:
     ProjectExplorer::Project *project() const;
     virtual void projectOpened(ProjectExplorer::Project *project);
     virtual void projectClosed(ProjectExplorer::Project *project);
+    virtual bool canOpenProject(ProjectExplorer::Project *project);
     void updateConfiguration(const QJsonValue &configuration);
 
     // commands
