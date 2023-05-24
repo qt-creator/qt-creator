@@ -525,7 +525,7 @@ QList<QmlModelStateOperation> QmlObjectNode::allAffectingStatesOperations() cons
     return returnList;
 }
 
-static QList<QmlVisualNode> allQmlVisualNodesRecursive(const QmlItemNode &qmlItemNode)
+static QList<QmlVisualNode> allQmlVisualNodesRecursive(const QmlVisualNode &qmlItemNode)
 {
     QList<QmlVisualNode> qmlVisualNodeList;
 
