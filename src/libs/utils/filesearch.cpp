@@ -10,7 +10,6 @@
 #include "searchresultitem.h"
 #include "stringutils.h"
 #include "utilstr.h"
-#include "utiltypes.h"
 
 #include <QLoggingCategory>
 #include <QMutex>
@@ -497,15 +496,6 @@ static bool isFileIncluded(const QList<QRegularExpression> &filterRegs,
 {
     const bool isIncluded = filterRegs.isEmpty() || matches(filterRegs, filePath);
     return isIncluded && (exclusionRegs.isEmpty() || !matches(exclusionRegs, filePath));
-}
-
-FilePathPredicate filterFileFunction(const QStringList &filters, const QStringList &exclusionFilters)
-{
-    const QList<QRegularExpression> filterRegs = filtersToRegExps(filters);
-    const QList<QRegularExpression> exclusionRegs = filtersToRegExps(exclusionFilters);
-    return [filterRegs, exclusionRegs](const FilePath &filePath) {
-        return isFileIncluded(filterRegs, exclusionRegs, filePath);
-    };
 }
 
 std::function<FilePaths(const FilePaths &)> filterFilesFunction(const QStringList &filters,
