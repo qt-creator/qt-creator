@@ -14,7 +14,7 @@ Project {
         "proparser/testreader.qbs",
         "shootout/shootout.qbs",
         "spinner/spinner.qbs",
-        "subdirfileiterator/subdirfileiterator.qbs",
+        "subdirfilecontainer/subdirfilecontainer.qbs",
         "tasking/demo/demo.qbs",
         "tasking/imagescaling/imagescaling.qbs",
         "widgets/widgets.qbs",

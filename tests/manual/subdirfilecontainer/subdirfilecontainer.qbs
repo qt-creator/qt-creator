@@ -1,14 +1,14 @@
 import qbs.FileInfo
 
 QtcManualtest {
-    name: "Manual SubDirFileIterator test"
+    name: "Manual SubDirFileContainer test"
     type: ["application"]
 
     Depends { name: "Utils" }
     Depends { name: "app_version_header" }
 
     files: [
-        "tst_subdirfileiterator.cpp",
+        "tst_subdirfilecontainer.cpp",
     ]
 
     cpp.defines: {

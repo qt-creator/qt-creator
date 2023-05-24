@@ -104,7 +104,7 @@ static void generateCopy(QPromise<void> &promise, const QString &sourcePath,
         promise.future().cancel();
 }
 
-class tst_SubDirFileIterator : public QObject
+class tst_SubDirFileContainer : public QObject
 {
     Q_OBJECT
 
@@ -118,8 +118,8 @@ private slots:
                                   + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
         LauncherInterface::setPathToLauncher(libExecPath);
 
-        qDebug() << "This manual test compares the performance of the SubDirFileIterator with "
-                    "a manually written iterator using QDir::entryInfoList().";
+        qDebug() << "This manual test compares the performance of the SubDirFileContainer with a "
+                    "manually written iterator using QDir::entryInfoList() and with QDirIterator.";
         QTC_SCOPED_TIMER("GENERATING TEMPORARY FILES TREE");
         m_threadsCount = threadsCount();
         m_filesCount = expectedFilesCount();
@@ -181,25 +181,6 @@ private slots:
 
         m_tempDir.reset();
         Singleton::deleteAll();
-    }
-
-    void testSubDirFileIterator()
-    {
-        QTC_SCOPED_TIMER("ITERATING with SubDirFileIterator");
-        int filesCount = 0;
-        {
-            const FilePath root(FilePath::fromString(m_tempDir->path()));
-            SubDirFileIterator it({root}, {}, {});
-            auto i = it.begin();
-            const auto e = it.end();
-            while (i != e) {
-                ++filesCount;
-                ++i;
-                if (filesCount % 100000 == 0)
-                    qDebug() << filesCount << '/' << m_filesCount << "files visited so far...";
-            }
-        }
-        QCOMPARE(filesCount, m_filesCount);
     }
 
     void testSubDirFileContainer()
@@ -292,6 +273,6 @@ private:
     std::unique_ptr<QTemporaryDir> m_tempDir;
 };
 
-QTEST_GUILESS_MAIN(tst_SubDirFileIterator)
+QTEST_GUILESS_MAIN(tst_SubDirFileContainer)
 
-#include "tst_subdirfileiterator.moc"
+#include "tst_subdirfilecontainer.moc"
