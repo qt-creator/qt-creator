@@ -62,9 +62,6 @@ public:
         LeakCheckOnFinishYes
     };
 
-signals:
-    void changed(); // sent when multiple values have changed simulatenously (e.g. fromMap)
-
 /**
  * Base valgrind settings
  */
