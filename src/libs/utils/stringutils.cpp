@@ -458,7 +458,7 @@ QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QString &text)
 
 /*!
     Joins all the not empty string list's \a strings into a single string with each element
-    separated by the given separator (which can be an empty string).
+    separated by the given \a separator (which can be an empty string).
 */
 QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QChar separator)
 {

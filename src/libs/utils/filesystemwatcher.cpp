@@ -188,7 +188,7 @@ void FileSystemWatcherPrivate::autoReloadPostponed(bool postponed)
 }
 
 /*!
-    Adds directories to watcher 0.
+    Creates a file system watcher with the ID 0 and the owner \a parent.
 */
 
 FileSystemWatcher::FileSystemWatcher(QObject *parent) :
@@ -198,7 +198,7 @@ FileSystemWatcher::FileSystemWatcher(QObject *parent) :
 }
 
 /*!
-    Adds directories to a watcher with the specified \a id.
+    Creates a file system watcher with the ID \a id and the owner \a parent.
 */
 
 FileSystemWatcher::FileSystemWatcher(int id, QObject *parent) :
