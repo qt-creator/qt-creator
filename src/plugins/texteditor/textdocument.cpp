@@ -717,6 +717,12 @@ bool TextDocument::setContents(const QByteArray &contents)
     return setPlainText(QString::fromUtf8(contents));
 }
 
+void TextDocument::formatContents()
+{
+    d->m_indenter->format({{document()->firstBlock().blockNumber() + 1,
+                            document()->lastBlock().blockNumber() + 1}});
+}
+
 bool TextDocument::shouldAutoSave() const
 {
     return d->m_autoSaveRevision != d->m_document.revision();

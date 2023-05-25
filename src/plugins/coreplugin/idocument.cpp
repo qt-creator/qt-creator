@@ -402,6 +402,13 @@ bool IDocument::setContents(const QByteArray &contents)
 }
 
 /*!
+    Formats the contents of the document, if the implementation supports such functionality.
+*/
+void IDocument::formatContents()
+{
+}
+
+/*!
     Returns the absolute path of the file that this document refers to. May be
     empty for documents that are not backed by a file.
 

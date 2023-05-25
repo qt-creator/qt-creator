@@ -76,11 +76,13 @@
 #include <QTextCodec>
 #include <QTimer>
 #include <QVBoxLayout>
-#include <algorithm>
 
 #if defined(WITH_TESTS)
 #include <QTest>
 #endif
+
+#include <algorithm>
+#include <memory>
 
 enum { debugEditorManager=0 };
 
@@ -2973,6 +2975,27 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
         }
     }
     menu->setEnabled(anyMatches);
+}
+
+void EditorManager::runWithTemporaryEditor(const Utils::FilePath &filePath,
+                                           const std::function<void (IEditor *)> &callback)
+{
+    const MimeType mt = mimeTypeForFile(filePath, MimeMatchMode::MatchDefaultAndRemote);
+    const QList<IEditorFactory *> factories = Utils::transform(
+        EditorType::defaultEditorTypes(mt), [](EditorType *t) {
+            return t->asEditorFactory(); });
+    for (IEditorFactory * const factory : factories) {
+        if (!factory)
+            continue;
+        std::unique_ptr<IEditor> editor(factory->createEditor());
+        if (!editor)
+            continue;
+        editor->document()->setTemporary(true);
+        if (editor->document()->open(nullptr, filePath, filePath) != IDocument::OpenResult::Success)
+            continue;
+        callback(editor.get());
+        break;
+    }
 }
 
 /*!

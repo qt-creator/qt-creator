@@ -72,6 +72,7 @@ public:
 
     virtual QByteArray contents() const;
     virtual bool setContents(const QByteArray &contents);
+    virtual void formatContents();
 
     const Utils::FilePath &filePath() const;
     virtual void setFilePath(const Utils::FilePath &filePath);

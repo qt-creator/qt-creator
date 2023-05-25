@@ -165,12 +165,16 @@ bool BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l, QSt
 {
     for (const GeneratedFile &file : std::as_const(l)) {
         if (file.attributes() & GeneratedFile::OpenEditorAttribute) {
-            if (!EditorManager::openEditor(file.filePath(), file.editorId())) {
-                if (errorMessage)
-                    *errorMessage = Tr::tr("Failed to open an editor for \"%1\".").
-                        arg(file.filePath().toUserOutput());
+            IEditor * const editor = EditorManager::openEditor(file.filePath(), file.editorId());
+            if (!editor) {
+                if (errorMessage) {
+                    *errorMessage = Tr::tr("Failed to open an editor for \"%1\".")
+                                        .arg(file.filePath().toUserOutput());
+                }
                 return false;
             }
+            editor->document()->formatContents();
+            editor->document()->save(nullptr);
         }
     }
     return true;

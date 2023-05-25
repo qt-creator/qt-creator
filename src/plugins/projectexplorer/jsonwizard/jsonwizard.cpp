@@ -424,6 +424,10 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
 {
     QString errorMessage;
     bool openedSomething = stringValue("DoNotOpenFile") == "true";
+    static const auto formatFile = [](Core::IEditor *editor) {
+        editor->document()->formatContents();
+        editor->document()->save(nullptr);
+    };
     for (const JsonWizard::GeneratorFile &f : files) {
         const Core::GeneratedFile &file = f.file;
         if (!file.filePath().exists()) {
@@ -454,8 +458,12 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
                 break;
             } else if (file.attributes() & Core::GeneratedFile::TemporaryFile) {
                 editor->document()->setTemporary(true);
+            } else {
+                formatFile(editor);
             }
             openedSomething = true;
+        } else if (file.filePath().fileSize() < 100 * 1024 ) {
+            Core::EditorManager::runWithTemporaryEditor(file.filePath(), formatFile);
         }
     }
 

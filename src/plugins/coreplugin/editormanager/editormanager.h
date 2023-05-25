@@ -143,6 +143,9 @@ public:
     static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
     static void populateOpenWithMenu(QMenu *menu, const Utils::FilePath &filePath);
 
+    static void runWithTemporaryEditor(const Utils::FilePath &filePath,
+                                       const std::function<void(IEditor *)> &callback);
+
 public: // for tests
     static IDocument::ReloadSetting reloadSetting();
     static void setReloadSetting(IDocument::ReloadSetting behavior);
