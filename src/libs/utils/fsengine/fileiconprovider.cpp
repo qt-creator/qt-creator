@@ -28,6 +28,7 @@ Q_LOGGING_CATEGORY(fileIconProvider, "qtc.core.fileiconprovider", QtWarningMsg)
 
 /*!
   \class Utils::FileIconProvider
+  \internal
   \inmodule QtCreator
   \brief Provides functions for registering custom overlay icons for system
   icons.
@@ -220,6 +221,7 @@ QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
 }
 
 /*!
+  \internal
   Returns the icon associated with the file suffix in \a filePath. If there is none,
   the default icon of the operating system is returned.
   */
@@ -230,14 +232,16 @@ QIcon icon(const FilePath &filePath)
 }
 
 /*!
- * \overload
- */
+    \internal
+    \overload
+*/
 QIcon icon(QFileIconProvider::IconType type)
 {
     return instance()->icon(type);
 }
 
 /*!
+  \internal
   Creates a pixmap with \a baseIcon and lays \a overlayIcon over it.
   */
 QPixmap overlayIcon(const QPixmap &baseIcon, const QIcon &overlayIcon)
@@ -249,6 +253,7 @@ QPixmap overlayIcon(const QPixmap &baseIcon, const QIcon &overlayIcon)
 }
 
 /*!
+  \internal
   Creates a pixmap with \a baseIcon at \a size and \a overlay.
   */
 QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlay, const QSize &size)
@@ -257,6 +262,7 @@ QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlay, const
 }
 
 /*!
+  \internal
   Registers an icon at \a path for a given \a suffix, overlaying the system
   file icon.
  */
@@ -266,6 +272,7 @@ void registerIconOverlayForSuffix(const QString &path, const QString &suffix)
 }
 
 /*!
+  \internal
   Registers \a icon for all the suffixes of a the mime type \a mimeType,
   overlaying the system file icon.
   */
@@ -275,7 +282,8 @@ void registerIconOverlayForMimeType(const QIcon &icon, const QString &mimeType)
 }
 
 /*!
- * \overload
+    \internal
+    \overload
  */
 void registerIconOverlayForMimeType(const QString &path, const QString &mimeType)
 {
