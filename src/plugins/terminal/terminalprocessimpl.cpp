@@ -4,7 +4,9 @@
 #include "terminalprocessimpl.h"
 #include "terminalwidget.h"
 
-#include <QCoreApplication>
+#include <utils/externalterminalprocessimpl.h>
+
+#include <QApplication>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QLoggingCategory>
@@ -24,10 +26,16 @@ public:
     ProcessStubCreator(TerminalProcessImpl *interface, TerminalPane *terminalPane)
         : m_terminalPane(terminalPane)
         , m_process(interface)
+        , m_interface(interface)
     {}
 
     expected_str<qint64> startStubProcess(const ProcessSetupData &setup) override
     {
+        if (QApplication::activeModalWidget()) {
+            m_fallbackStubCreator = std::make_unique<Utils::ProcessStubCreator>(m_interface);
+            return m_fallbackStubCreator->startStubProcess(setup);
+        }
+
         const Id id = Id::fromString(setup.m_commandLine.executable().toUserOutput());
 
         TerminalWidget *terminal = m_terminalPane->stoppedTerminalWithId(id);
@@ -59,6 +67,8 @@ public:
 
     TerminalPane *m_terminalPane;
     TerminalProcessImpl *m_process;
+    TerminalInterface *m_interface;
+    std::unique_ptr<Utils::ProcessStubCreator> m_fallbackStubCreator;
 };
 
 TerminalProcessImpl::TerminalProcessImpl(TerminalPane *terminalPane)
