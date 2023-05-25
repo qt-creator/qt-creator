@@ -40,11 +40,133 @@ private:
     Guard &m_guard;
 };
 
+/*!
+    \class Tasking::TaskItem
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule QtCreator
+    \ingroup mainclasses
+    \brief The TaskItem class represents the basic element for composing nested tree structures.
+*/
+
+/*!
+    \enum Tasking::TaskAction
+
+    This enum is optionally returned from the group's or task's setup handler function.
+    It instructs the running task tree on how to proceed after the setup handler's execution
+    finished.
+    \value Continue
+           Default. The group's or task's execution continues nomally.
+           When a group's or task's setup handler returns void, it's assumed that
+           it returned Continue.
+    \value StopWithDone
+           The group's or task's execution stops immediately with success.
+           When returned from the group's setup handler, all child tasks are skipped,
+           and the group's onGroupDone handler is invoked (if provided).
+           When returned from the task's setup handler, the task isn't started,
+           its done handler isn't invoked, and the task reports success to its parent.
+    \value StopWithError
+           The group's or task's execution stops immediately with an error.
+           When returned from the group's setup handler, all child tasks are skipped,
+           and the group's onGroupError handler is invoked (if provided).
+           When returned from the task's setup handler, the task isn't started,
+           its error handler isn't invoked, and the task reports an error to its parent.
+*/
+
+/*!
+    \typealias TaskItem::GroupSetupHandler
+
+    Type alias for \c std::function<TaskAction()>.
+
+    The GroupSetupHandler is used when constructing the onGroupSetup element.
+    Any function with the above signature, when passed as a group setup handler,
+    will be called by the running task tree when the group executions starts.
+
+    The return value of the handler instructs the running group on how to proceed
+    after the handler's invocation is finished. The default return value of TaskAction::Continue
+    instructs the group to continue running, i.e. to start executing its child tasks.
+    The return value of TaskAction::StopWithDone or TaskAction::StopWithError
+    instructs the group to skip the child tasks' execution and finish immediately with
+    success or an error, respectively.
+
+    When the return type is either TaskAction::StopWithDone
+    of TaskAction::StopWithError, the group's done or error handler (if provided)
+    is called synchronously immediately afterwards.
+
+    \note Even if the group setup handler returns StopWithDone or StopWithError,
+    one of the group's done or error handlers is invoked. This behavior differs
+    from that of task handlers and might change in the future.
+
+    The onGroupSetup accepts also functions in the shortened form of \c std::function<void()>,
+    i.e. the return value is void. In this case it's assumed that the return value
+    is TaskAction::Continue by default.
+
+    \sa onGroupSetup
+*/
+
+/*!
+    \typealias TaskItem::GroupEndHandler
+
+    Type alias for \c std::function\<void()\>.
+
+    The GroupEndHandler is used when constructing the onGroupDone and onGroupError elements.
+    Any function with the above signature, when passed as a group done or error handler,
+    will be called by the running task tree when the group ends with success or an error,
+    respectively.
+
+    \sa onGroupDone, onGroupError
+*/
+
+/*!
+    \fn template <typename SetupHandler> TaskItem onGroupSetup(SetupHandler &&handler)
+
+    Constructs a group's element holding the group setup handler.
+    The \a handler is invoked whenever the group starts.
+
+    The passed \a handler is either of \c std::function<TaskAction()> or \c std::function<void()>
+    type. For more information on possible argument type, refer to \l {TaskItem::GroupSetupHandler}.
+
+    When the \a handler is invoked, none of the group's child tasks are running yet.
+
+    If a group contains the Storage elements, the \a handler is invoked
+    after the storages are constructed, so that the \a handler may already
+    perform some initial modifications to the active storages.
+
+    \sa TaskItem::GroupSetupHandler, onGroupDone, onGroupError
+*/
+
+/*!
+    Constructs a group's element holding the group done handler.
+    The \a handler is invoked whenever the group finishes with success.
+    Depending on the group's workflow policy, this handler may also be called
+    when the running group is stopped (e.g. when optional element was used).
+
+    When the \a handler is invoked, all of the group's child tasks are already finished.
+
+    If a group contains the Storage elements, the \a handler is invoked
+    before the storages are destructed, so that the \a handler may still
+    perform a last read of the active storages' data.
+
+    \sa TaskItem::GroupEndHandler, onGroupSetup, onGroupError
+*/
 TaskItem onGroupDone(const TaskItem::GroupEndHandler &handler)
 {
     return Group::onGroupDone(handler);
 }
 
+/*!
+    Constructs a group's element holding the group error handler.
+    The \a handler is invoked whenever the group finishes with an error.
+    Depending on the group's workflow policy, this handler may also be called
+    when the running group is stopped (e.g. when stopOnError element was used).
+
+    When the \a handler is invoked, all of the group's child tasks are already finished.
+
+    If a group contains the Storage elements, the \a handler is invoked
+    before the storages are destructed, so that the \a handler may still
+    perform a last read of the active storages' data.
+
+    \sa TaskItem::GroupEndHandler, onGroupSetup, onGroupDone
+*/
 TaskItem onGroupError(const TaskItem::GroupEndHandler &handler)
 {
     return Group::onGroupError(handler);
