@@ -414,6 +414,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     } else {
         currentTextEditor->convertPosition(targetTestFile->m_targetCursorPosition,
                                            &expectedLine, &expectedColumn);
+        ++expectedColumn;
         if (useClangd && (tag == "classDestructor" || tag == "fromDestructorDefinitionSymbol"
                 || tag == "fromDestructorBody")) {
             --expectedColumn; // clangd goes before the ~, built-in code model after
