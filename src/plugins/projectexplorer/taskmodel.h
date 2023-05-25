@@ -44,7 +44,7 @@ public:
     int sizeOfLineNumber(const QFont &font);
     void setFileNotFound(const QModelIndex &index, bool b);
 
-    enum Roles { Description = Qt::UserRole, };
+    enum Roles { Description = Qt::UserRole, Type};
 
     int taskCount(Utils::Id categoryId);
     int errorTaskCount(Utils::Id categoryId);

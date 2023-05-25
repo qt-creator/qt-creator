@@ -273,6 +273,8 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
         return task.summary;
     case TaskModel::Description:
         return task.description();
+    case TaskModel::Type:
+        return int(task.type);
     }
     return {};
 }

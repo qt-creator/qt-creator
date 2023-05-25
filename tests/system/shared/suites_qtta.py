@@ -20,9 +20,9 @@ def checkSyntaxError(issuesView, expectedTextsArray, warnIfMoreIssues = True):
     if(warnIfMoreIssues and issuesModel.rowCount() > 1):
         test.warning("More than one expected issues reported")
     # iterate issues and check if there exists "Unexpected token" message
-    for description, type in zip(dumpItems(issuesModel, role=Qt.UserRole + 3),
-                                 dumpItems(issuesModel, role=Qt.UserRole + 5)):
-        # enum Roles { File = Qt::UserRole, Line, MovedLine, Description, FileNotFound, Type, Category, Icon, Task_t };
+    for description, type in zip(dumpItems(issuesModel, role=Qt.UserRole),
+                                 dumpItems(issuesModel, role=Qt.UserRole + 1)):
+        # enum Roles { Description = Qt::UserRole, Type};
         # check if at least one of expected texts found in issue text
         for expectedText in expectedTextsArray:
             if expectedText in description:
