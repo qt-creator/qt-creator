@@ -58,7 +58,6 @@ QtcPlugin {
         "mcuhelpers.h",
         "settingshandler.h",
         "settingshandler.cpp",
-        "dialogs/mcukitcreationdialog.ui",
         "dialogs/mcukitcreationdialog.h",
         "dialogs/mcukitcreationdialog.cpp",
     ]
