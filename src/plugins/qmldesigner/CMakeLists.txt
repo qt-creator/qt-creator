@@ -521,17 +521,12 @@ function(get_and_add_as_subdirectory name repository git_tag build_dir source_di
 endfunction()
 
 if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
-  get_target_property(_designerType Qt5::Designer TYPE)
-  if (${_designerType} STREQUAL "STATIC_LIBRARY")
-    extend_qtc_target(QmlDesigner PUBLIC_DEFINES QT_DESIGNER_STATIC)
-  endif()
   get_target_property(_designerType Qt::Designer TYPE)
   if (${_designerType} STREQUAL "STATIC_LIBRARY")
     extend_qtc_target(QmlDesigner PUBLIC_DEFINES QT_DESIGNER_STATIC)
   endif()
   extend_qtc_target(QmlDesigner PUBLIC_DEPENDS TextEditor)
 endif()
-
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components
