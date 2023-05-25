@@ -91,9 +91,13 @@ void AuthWidget::updateClient(const Utils::FilePath &nodeJs, const Utils::FilePa
 {
     LanguageClientManager::shutdownClient(m_client);
     m_client = nullptr;
-    setState(Tr::tr("Sign in"), true);
-    if (!nodeJs.exists() || !agent.exists())
+    setState(Tr::tr("Sign in"), false);
+    m_button->setEnabled(false);
+    if (!nodeJs.exists() || !agent.exists()) {
         return;
+    }
+
+    setState(Tr::tr("Sign in"), true);
 
     m_client = new CopilotClient(nodeJs, agent);
     connect(m_client, &Client::initialized, this, &AuthWidget::checkStatus);
