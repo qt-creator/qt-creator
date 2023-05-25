@@ -280,7 +280,6 @@ tmp/
 /tests/manual/ssh/shell/shell
 /tests/tools/qml-ast2dot/qml-ast2dot
 /tests/unit/echoserver/echo
-/tests/unit/unittest/unittest
 
 # qbs builds
 /*-debug/

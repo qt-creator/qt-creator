@@ -1,0 +1,35 @@
+extend_qtc_test(unittest
+  SOURCES
+    abstractviewmock.h
+    externaldependenciesmock.h
+    filesystemmock.h
+    imagecachecollectormock.h
+    mockimagecachegenerator.h
+    mockimagecachestorage.h
+    mocklistmodeleditorview.h
+    mockmutex.h
+    mockqfilesystemwatcher.h
+    mocksqlitestatement.h
+    mocksqlitetransactionbackend.h
+    mocksyntaxhighligher.h
+    mocktimer.cpp
+    mocktimer.h
+    mocktimestampprovider.h
+    modelresourcemanagementmock.h
+    projectstoragemock.cpp
+    projectstoragemock.h
+    projectstoragepathwatchermock.h
+    projectstoragepathwatchernotifiermock.h
+    qmldocumentparsermock.h
+    qmltypesparsermock.h
+    sourcepathcachemock.h
+    sqlitedatabasemock.h
+    sqlitereadstatementmock.cpp
+    sqlitereadstatementmock.h
+    sqlitereadwritestatementmock.cpp
+    sqlitereadwritestatementmock.h
+    sqlitestatementmock.h
+    sqlitetransactionbackendmock.h
+    sqlitewritestatementmock.cpp
+    sqlitewritestatementmock.h
+)
