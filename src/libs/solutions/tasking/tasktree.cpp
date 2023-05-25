@@ -916,7 +916,7 @@ void TaskNode::invokeEndHandler(bool success)
     Use Task handlers to set up a task for execution and to enable reading
     the output data from the task when it finishes with success or an error.
 
-    \section2 Task Start Handler
+    \section2 Task's Start Handler
 
     When a corresponding task class object is created and before it's started,
     the task tree invokes a mandatory user-provided setup handler. The setup
@@ -933,9 +933,9 @@ void TaskNode::invokeEndHandler(bool success)
 
     You can modify the passed Process in the setup handler, so that the task
     tree can start the process according to your configuration.
-    You do not need to call \e {process.start();} in the setup handler,
-    as the task tree calls it when needed. The setup handler is mandatory
-    and must be the first argument of the task's constructor.
+    You should not call \e {process.start();} in the setup handler,
+    as the task tree calls it when needed. The setup handler is optional. When used,
+    it must be the first argument of the task's constructor.
 
     Optionally, the setup handler may return a TaskAction. The returned
     TaskAction influences the further start behavior of a given task. The
@@ -947,7 +947,7 @@ void TaskNode::invokeEndHandler(bool success)
         \li Brief Description
     \row
         \li Continue
-        \li The task is started normally. This is the default behavior when the
+        \li The task will be started normally. This is the default behavior when the
             setup handler doesn't return TaskAction (that is, its return type is
             void).
     \row
@@ -960,7 +960,7 @@ void TaskNode::invokeEndHandler(bool success)
 
     This is useful for running a task only when a condition is met and the data
     needed to evaluate this condition is not known until previously started tasks
-    finish. This way, the setup handler dynamically decides whether to start the
+    finish. In this way, the setup handler dynamically decides whether to start the
     corresponding task normally or skip it and report success or an error.
     For more information about inter-task data exchange, see \l Storage.
 
@@ -987,8 +987,8 @@ void TaskNode::invokeEndHandler(bool success)
 
     The done and error handlers may collect output data from Process, and store it
     for further processing or perform additional actions. The done handler is optional.
-    When used, it must be the second argument of the task constructor.
-    The error handler must always be the third argument.
+    When used, it must be the second argument of the task's constructor.
+    The error handler is also optional. When used, it must always be the third argument.
     You can omit the handlers or substitute the ones that you do not need with curly braces ({}).
 
     \note If the task setup handler returns StopWithDone or StopWithError,
@@ -1020,7 +1020,7 @@ void TaskNode::invokeEndHandler(bool success)
     handler. If you add more than one onGroupSetup element to a group, an assert
     is triggered at runtime that includes an error message.
 
-    Like the task start handler, the group start handler may return TaskAction.
+    Like the task's start handler, the group start handler may return TaskAction.
     The returned TaskAction value affects the start behavior of the
     whole group. If you do not specify a group start handler or its return type
     is void, the default group's action is TaskAction::Continue, so that all
@@ -1117,7 +1117,7 @@ void TaskNode::invokeEndHandler(bool success)
     runtime that includes an error message.
 
     \note Even if the group setup handler returns StopWithDone or StopWithError,
-    one of the task's done or error handlers is invoked. This behavior differs
+    one of the group's done or error handlers is invoked. This behavior differs
     from that of task handlers and might change in the future.
 
     \section1 Other Group Elements
@@ -1173,7 +1173,7 @@ void TaskNode::invokeEndHandler(bool success)
     \section2 Workflow Policy
 
     The workflow policy element in a Group specifies how the group should behave
-    when its direct child tasks finish:
+    when any of its \e direct child's tasks finish:
 
     \table
     \header
@@ -1185,8 +1185,8 @@ void TaskNode::invokeEndHandler(bool success)
             \list 1
                 \li Stops the running tasks (if any - for example, in parallel
                     mode).
-                \li Skips executing tasks it has not started (for example, in the
-                    sequential mode).
+                \li Skips executing tasks it has not started yet (for example, in the
+                    sequential mode - those, that are placed after the failed task).
                 \li Immediately finishes with an error.
             \endlist
             If all child tasks finish successfully, the group finishes with success.
@@ -1207,7 +1207,10 @@ void TaskNode::invokeEndHandler(bool success)
         \li stopOnDone
         \li If a task finishes with success, the group:
             \list 1
-                \li Stops running tasks and skips those that it has not started.
+                \li Stops the running tasks (if any - for example, in parallel
+                    mode).
+                \li Skips executing tasks it has not started yet (for example, in the
+                    sequential mode - those, that are placed after the successfully finished task).
                 \li Immediately finishes with success.
             \endlist
             If all tasks finish with an error, the group finishes with an error.
@@ -1226,27 +1229,27 @@ void TaskNode::invokeEndHandler(bool success)
             If all tasks finish with an error, the group finishes with an error.
     \row
         \li stopOnFinished
-        \li The group starts as many tasks as it can. When a task finishes
+        \li The group starts as many tasks as it can. When a task finishes,
             the group stops and reports the task's result.
             Useful only in parallel mode.
             In sequential mode, only the first task is started, and when finished,
             the group finishes too, so the other tasks are ignored.
     \row
         \li optional
-        \li The group executes all tasks and ignores their return state. If all
+        \li The group executes all tasks and ignores their return state. When all
             tasks finish, the group finishes with success.
     \endtable
 
-    When the group is empty, it finishes immediately with success,
+    When a Group is empty, it finishes immediately with success,
     regardless of its workflow policy.
-    If a child of a group is also a group (in a nested tree), the child group
+    If a child of a group is also a group, the child group
     runs its tasks according to its own workflow policy.
 
     \section2 Storage
 
     Use the Storage element to exchange information between tasks. Especially,
-    in the sequential execution mode, when a task needs data from another task
-    before it can start. For example, a task tree that copies data by reading
+    in the sequential execution mode, when a task needs data from another,
+    already finished task, before it can start. For example, a task tree that copies data by reading
     it from a source and writing it to a destination might look as follows:
 
     \code
@@ -1265,21 +1268,22 @@ void TaskNode::invokeEndHandler(bool success)
             const auto onLoaderSetup = [source](Async<QByteArray> &async) {
                 async.setConcurrentCallData(&load, source);
             };
-            // [4] runtime: task tree activates the instance from [5] before invoking handler
+            // [4] runtime: task tree activates the instance from [7] before invoking handler
             const auto onLoaderDone = [storage](const Async<QByteArray> &async) {
-                storage->content = async.result();
+                storage->content = async.result(); // [5] loader stores the result in storage
             };
 
-            // [4] runtime: task tree activates the instance from [5] before invoking handler
+            // [4] runtime: task tree activates the instance from [7] before invoking handler
             const auto onSaverSetup = [storage, destination](Async<void> &async) {
-                async.setConcurrentCallData(&save, destination, storage->content);
+                const QByteArray content = storage->content; // [6] saver takes data from storage
+                async.setConcurrentCallData(&save, destination, content);
             };
             const auto onSaverDone = [](const Async<void> &async) {
                 qDebug() << "Save done successfully";
             };
 
             const Group root {
-                // [5] runtime: task tree creates an instance of CopyStorage when root is entered
+                // [7] runtime: task tree creates an instance of CopyStorage when root is entered
                 Storage(storage),
                 AsyncTask<QByteArray>(onLoaderSetup, onLoaderDone),
                 AsyncTask<void>(onSaverSetup, onSaverDone)
@@ -1291,11 +1295,11 @@ void TaskNode::invokeEndHandler(bool success)
     In the example above, the inter-task data consists of a QByteArray content
     variable [2] enclosed in a CopyStorage custom struct [1]. If the loader
     finishes successfully, it stores the data in a CopyStorage::content
-    variable. The saver then uses the variable to configure the saving task.
+    variable [5]. The saver then uses the variable to configure the saving task [6].
 
     To enable a task tree to manage the CopyStorage struct, an instance of
     TreeStorage<CopyStorage> is created [3]. If a copy of this object is
-    inserted as group's child task [5], an instance of CopyStorage struct is
+    inserted as group's child task [7], an instance of CopyStorage struct is
     created dynamically when the task tree enters this group. When the task
     tree leaves this group, the existing instance of CopyStorage struct is
     destructed as it's no longer needed.
@@ -1310,12 +1314,12 @@ void TaskNode::invokeEndHandler(bool success)
     copy of the TreeStorage<CopyStorage> object to the handler (for example, in
     a lambda capture) [4].
 
-    When the task tree invokes a handler in a subtree containing the storage [5],
+    When the task tree invokes a handler in a subtree containing the storage [7],
     the task tree activates its own CopyStorage instance inside the
     TreeStorage<CopyStorage> object. Therefore, the CopyStorage struct may be
     accessed only from within the handler body. To access the currently active
-    CopyStorage from within TreeStorage<CopyStorage>, use the TreeStorage::operator->()
-    or TreeStorage::activeStorage() method.
+    CopyStorage from within TreeStorage<CopyStorage>, use the TreeStorage::operator->(),
+    TreeStorage::operator*() or TreeStorage::activeStorage() method.
 
     The following list summarizes how to employ a Storage object into the task
     tree:
@@ -1323,7 +1327,8 @@ void TaskNode::invokeEndHandler(bool success)
         \li Define the custom structure MyStorage with custom data [1], [2]
         \li Create an instance of TreeStorage<MyStorage> storage [3]
         \li Pass the TreeStorage<MyStorage> instance to handlers [4]
-        \li Insert the TreeStorage<MyStorage> instance into a group [5]
+        \li Access the MyStorage instance in handlers [5], [6]
+        \li Insert the TreeStorage<MyStorage> instance into a group [7]
     \endlist
 
     \note The current implementation assumes that all running task trees
@@ -1395,10 +1400,10 @@ void TaskNode::invokeEndHandler(bool success)
     asynchronous task:
 
     \code
-        class TimeoutAdapter : public Tasking::TaskAdapter<QTimer>
+        class TimeoutTaskAdapter : public Tasking::TaskAdapter<QTimer>
         {
         public:
-            TimeoutAdapter() {
+            TimeoutTaskAdapter() {
                 task()->setSingleShot(true);
                 task()->setInterval(1000);
                 connect(task(), &QTimer::timeout, this, [this] { emit done(true); });
@@ -1406,7 +1411,7 @@ void TaskNode::invokeEndHandler(bool success)
             void start() final { task()->start(); }
         };
 
-        QTC_DECLARE_CUSTOM_TASK(Timeout, TimeoutAdapter);
+        QTC_DECLARE_CUSTOM_TASK(TimeoutTask, TimeoutTaskAdapter);
     \endcode
 
     You must derive the custom adapter from the TaskAdapter class template
@@ -1415,15 +1420,15 @@ void TaskNode::invokeEndHandler(bool success)
     later as an argument to the task's handlers. The instance of this class
     parameter automatically becomes a member of the TaskAdapter template, and is
     accessible through the TaskAdapter::task() method. The constructor
-    of TimeoutAdapter initially configures the QTimer object and connects
-    to the QTimer::timeout signal. When the signal is triggered, TimeoutAdapter
+    of TimeoutTaskAdapter initially configures the QTimer object and connects
+    to the QTimer::timeout signal. When the signal is triggered, TimeoutTaskAdapter
     emits the done(true) signal to inform the task tree that the task finished
     successfully. If it emits done(false), the task finished with an error.
     The TaskAdapter::start() method starts the timer.
 
-    To make QTimer accessible inside TaskTree under the \e Timeout name,
-    register it with QTC_DECLARE_CUSTOM_TASK(Timeout, TimeoutAdapter). Timeout
-    becomes a new task type inside Tasking namespace, using TimeoutAdapter.
+    To make QTimer accessible inside TaskTree under the \e TimeoutTask name,
+    register it with QTC_DECLARE_CUSTOM_TASK(TimeoutTask, TimeoutTaskAdapter).
+    TimeoutTask becomes a new task type inside Tasking namespace, using TimeoutTaskAdapter.
 
     The new task type is now registered, and you can use it in TaskTree:
 
@@ -1436,7 +1441,7 @@ void TaskNode::invokeEndHandler(bool success)
         };
 
         const Group root {
-            Timeout(onTimeoutSetup, onTimeoutDone)
+            TimeoutTask(onTimeoutSetup, onTimeoutDone)
         };
     \endcode
 
