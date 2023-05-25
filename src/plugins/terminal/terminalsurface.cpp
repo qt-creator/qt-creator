@@ -12,9 +12,9 @@
 
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(log, "qtc.terminal.surface", QtWarningMsg);
-
 namespace Terminal::Internal {
+
+Q_LOGGING_CATEGORY(log, "qtc.terminal.surface", QtWarningMsg);
 
 QColor toQColor(const VTermColor &c)
 {
