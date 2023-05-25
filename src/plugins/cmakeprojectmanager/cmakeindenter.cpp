@@ -52,7 +52,8 @@ static bool lineStartsBlock(const QString &line)
             lineContainsFunction(line, QStringLiteral("while")) ||
             lineContainsFunction(line, QStringLiteral("if")) ||
             lineContainsFunction(line, QStringLiteral("elseif")) ||
-            lineContainsFunction(line, QStringLiteral("else"));
+            lineContainsFunction(line, QStringLiteral("else")) ||
+            lineContainsFunction(line, QStringLiteral("block"));
 }
 static bool lineEndsBlock(const QString &line)
 {
@@ -62,7 +63,8 @@ static bool lineEndsBlock(const QString &line)
             lineContainsFunction(line, QStringLiteral("endwhile")) ||
             lineContainsFunction(line, QStringLiteral("endif")) ||
             lineContainsFunction(line, QStringLiteral("elseif")) ||
-            lineContainsFunction(line, QStringLiteral("else"));
+            lineContainsFunction(line, QStringLiteral("else")) ||
+            lineContainsFunction(line, QStringLiteral("endblock"));
 }
 static bool lineIsEmpty(const QString &line)
 {
