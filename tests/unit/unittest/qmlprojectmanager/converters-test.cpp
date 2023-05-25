@@ -57,7 +57,7 @@ private:
     Utils::FilePath m_qmlProjectToJsonFile;
 };
 
-INSTANTIATE_TEST_SUITE_P(ConverterTests,
+INSTANTIATE_TEST_SUITE_P(QmlProjectItem,
                          DataSet,
                          ::testing::Values(QString("test-set-1"), QString("test-set-2")));
 
