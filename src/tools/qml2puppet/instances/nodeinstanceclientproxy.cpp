@@ -79,6 +79,7 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     : QObject(parent)
     , m_inputIoDevice(nullptr)
     , m_outputIoDevice(nullptr)
+    , m_localSocket(nullptr)
     , m_writeCommandCounter(0)
     , m_synchronizeId(-1)
 {
@@ -101,6 +102,7 @@ void NodeInstanceClientProxy::initializeSocket()
 
     m_inputIoDevice = localSocket;
     m_outputIoDevice = localSocket;
+    m_localSocket = localSocket;
 }
 
 void NodeInstanceClientProxy::initializeCapturedStream(const QString &fileName)
@@ -288,6 +290,8 @@ void NodeInstanceClientProxy::sceneCreated(const SceneCreatedCommand &command)
 
 void NodeInstanceClientProxy::flush()
 {
+    if (m_localSocket)
+        m_localSocket->flush();
 }
 
 void NodeInstanceClientProxy::synchronizeWithClientProcess()

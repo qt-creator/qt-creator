@@ -117,6 +117,7 @@ private:
     QTimer m_puppetAliveTimer;
     QIODevice *m_inputIoDevice;
     QIODevice *m_outputIoDevice;
+    QLocalSocket *m_localSocket;
     std::unique_ptr<NodeInstanceServerInterface> m_nodeInstanceServer;
     quint32 m_writeCommandCounter;
     int m_synchronizeId;
