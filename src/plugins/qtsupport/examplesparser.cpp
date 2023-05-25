@@ -3,7 +3,10 @@
 
 #include "examplesparser.h"
 
+#include "qtsupporttr.h"
+
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/stylehelper.h>
 
@@ -296,6 +299,70 @@ expected_str<QList<ExampleItem *>> parseExamples(const QByteArray &manifestData,
                                    .arg(reader.errorString()));
     }
     return items;
+}
+
+static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)
+{
+    if (first->isHighlighted && !second->isHighlighted)
+        return true;
+    if (!first->isHighlighted && second->isHighlighted)
+        return false;
+    return first->name.compare(second->name, Qt::CaseInsensitive) < 0;
+}
+
+QList<std::pair<Core::Section, QList<ExampleItem *>>> getCategories(const QList<ExampleItem *> &items,
+                                                              bool sortIntoCategories)
+{
+    static const QString otherDisplayName = Tr::tr("Other", "Category for all other examples");
+    const bool useCategories = sortIntoCategories
+                               || qtcEnvironmentVariableIsSet("QTC_USE_EXAMPLE_CATEGORIES");
+    QList<ExampleItem *> other;
+    QMap<QString, QList<ExampleItem *>> categoryMap;
+    if (useCategories) {
+        // Append copies of the items and delete the original ones,
+        // because items might be added to multiple categories and that needs individual items
+        for (ExampleItem *item : items) {
+            const QStringList itemCategories = Utils::filteredUnique(
+                item->metaData.value("category"));
+            for (const QString &category : itemCategories)
+                categoryMap[category].append(new ExampleItem(*item));
+            if (itemCategories.isEmpty())
+                other.append(new ExampleItem(*item));
+        }
+    }
+    QList<std::pair<Core::Section, QList<ExampleItem *>>> categories;
+    if (categoryMap.isEmpty()) {
+        // If we tried sorting into categories, but none were defined, we copied the items
+        // into "other", which we don't use here. Get rid of them again.
+        qDeleteAll(other);
+        // The example set doesn't define categories. Consider the "highlighted" ones as "featured"
+        QList<ExampleItem *> featured;
+        QList<ExampleItem *> allOther;
+        std::tie(featured, allOther) = Utils::partition(items, [](ExampleItem *i) {
+            return i->isHighlighted;
+        });
+        if (!featured.isEmpty()) {
+            categories.append(
+                {{Tr::tr("Featured", "Category for highlighted examples"), 0}, featured});
+        }
+        if (!allOther.isEmpty())
+            categories.append({{otherDisplayName, 1}, allOther});
+    } else {
+        // All original items have been copied into a category or other, delete.
+        qDeleteAll(items);
+        int index = 0;
+        const auto end = categoryMap.constKeyValueEnd();
+        for (auto it = categoryMap.constKeyValueBegin(); it != end; ++it) {
+            categories.append({{it->first, index, /*maxRows=*/index == 0 ? 2 : 1}, it->second});
+            ++index;
+        }
+        if (!other.isEmpty())
+            categories.append({{otherDisplayName, index, /*maxRows=*/1}, other});
+    }
+    const auto end = categories.end();
+    for (auto it = categories.begin(); it != end; ++it)
+        sort(it->second, sortByHighlightedAndName);
+    return categories;
 }
 
 } // namespace QtSupport::Internal
