@@ -115,7 +115,6 @@ add_qtc_plugin(ProjectExplorer
     ldparser.cpp ldparser.h
     lldparser.cpp lldparser.h
     linuxiccparser.cpp linuxiccparser.h
-    localenvironmentaspect.cpp localenvironmentaspect.h
     makestep.cpp makestep.h
     miniprojecttargetselector.cpp miniprojecttargetselector.h
     msvcparser.cpp msvcparser.h

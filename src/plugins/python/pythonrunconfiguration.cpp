@@ -24,7 +24,6 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -190,7 +189,8 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     scriptAspect->setLabelText(Tr::tr("Script:"));
     scriptAspect->setDisplayStyle(StringAspect::LabelDisplay);
 
-    addAspect<LocalEnvironmentAspect>(target);
+    auto envAspect = addAspect<EnvironmentAspect>();
+    envAspect->setSupportForBuildEnvironment(target);
 
     auto argumentsAspect = addAspect<ArgumentsAspect>(macroExpander());
 

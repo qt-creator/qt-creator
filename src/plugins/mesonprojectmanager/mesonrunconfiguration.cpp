@@ -8,7 +8,6 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/desktoprunconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -24,7 +23,8 @@ namespace Internal {
 MesonRunConfiguration::MesonRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration{target, id}
 {
-    auto envAspect = addAspect<LocalEnvironmentAspect>(target);
+    auto envAspect = addAspect<EnvironmentAspect>();
+    envAspect->setSupportForBuildEnvironment(target);
 
     addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
     addAspect<ArgumentsAspect>(macroExpander());
@@ -65,7 +65,7 @@ void MesonRunConfiguration::updateTargetInformation()
     aspect<TerminalAspect>()->setUseTerminalHint(bti.usesTerminal);
     aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
     aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
-    emit aspect<LocalEnvironmentAspect>()->environmentChanged();
+    emit aspect<EnvironmentAspect>()->environmentChanged();
 }
 
 MesonRunConfigurationFactory::MesonRunConfigurationFactory()
