@@ -46,49 +46,59 @@ public:
     }
 };
 
-AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
-    : RunConfiguration(target, id)
+class AndroidRunConfiguration : public RunConfiguration
 {
-    auto envAspect = addAspect<EnvironmentAspect>();
-    envAspect->addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
+public:
+    AndroidRunConfiguration(Target *target, Id id)
+        : RunConfiguration(target, id)
+    {
+        auto envAspect = addAspect<EnvironmentAspect>();
+        envAspect->addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
 
-    auto extraAppArgsAspect = addAspect<ArgumentsAspect>(macroExpander());
+        auto extraAppArgsAspect = addAspect<ArgumentsAspect>(macroExpander());
 
-    connect(extraAppArgsAspect, &BaseAspect::changed, this, [target, extraAppArgsAspect] {
-        if (target->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {
-            const QString buildKey = target->activeBuildKey();
-            target->buildSystem()->setExtraData(buildKey,
-                                            Android::Constants::AndroidApplicationArgs,
-                                            extraAppArgsAspect->arguments());
-        }
-    });
+        connect(extraAppArgsAspect, &BaseAspect::changed, this, [target, extraAppArgsAspect] {
+            if (target->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {
+                const QString buildKey = target->activeBuildKey();
+                target->buildSystem()->setExtraData(buildKey,
+                                                    Android::Constants::AndroidApplicationArgs,
+                                                    extraAppArgsAspect->arguments());
+            }
+        });
 
-    auto amStartArgsAspect = addAspect<StringAspect>();
-    amStartArgsAspect->setId(Constants::ANDROID_AM_START_ARGS);
-    amStartArgsAspect->setSettingsKey("Android.AmStartArgsKey");
-    amStartArgsAspect->setLabelText(Tr::tr("Activity manager start arguments:"));
-    amStartArgsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
-    amStartArgsAspect->setHistoryCompleter("Android.AmStartArgs.History");
+        auto amStartArgsAspect = addAspect<StringAspect>();
+        amStartArgsAspect->setId(Constants::ANDROID_AM_START_ARGS);
+        amStartArgsAspect->setSettingsKey("Android.AmStartArgsKey");
+        amStartArgsAspect->setLabelText(Tr::tr("Activity manager start arguments:"));
+        amStartArgsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
+        amStartArgsAspect->setHistoryCompleter("Android.AmStartArgs.History");
 
-    auto preStartShellCmdAspect = addAspect<BaseStringListAspect>();
-    preStartShellCmdAspect->setDisplayStyle(StringAspect::TextEditDisplay);
-    preStartShellCmdAspect->setId(Constants::ANDROID_PRESTARTSHELLCMDLIST);
-    preStartShellCmdAspect->setSettingsKey("Android.PreStartShellCmdListKey");
-    preStartShellCmdAspect->setLabelText(Tr::tr("Pre-launch on-device shell commands:"));
+        auto preStartShellCmdAspect = addAspect<BaseStringListAspect>();
+        preStartShellCmdAspect->setDisplayStyle(StringAspect::TextEditDisplay);
+        preStartShellCmdAspect->setId(Constants::ANDROID_PRESTARTSHELLCMDLIST);
+        preStartShellCmdAspect->setSettingsKey("Android.PreStartShellCmdListKey");
+        preStartShellCmdAspect->setLabelText(Tr::tr("Pre-launch on-device shell commands:"));
 
-    auto postStartShellCmdAspect = addAspect<BaseStringListAspect>();
-    postStartShellCmdAspect->setDisplayStyle(StringAspect::TextEditDisplay);
-    postStartShellCmdAspect->setId(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
-    postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
-    postStartShellCmdAspect->setLabelText(Tr::tr("Post-quit on-device shell commands:"));
+        auto postStartShellCmdAspect = addAspect<BaseStringListAspect>();
+        postStartShellCmdAspect->setDisplayStyle(StringAspect::TextEditDisplay);
+        postStartShellCmdAspect->setId(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
+        postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
+        postStartShellCmdAspect->setLabelText(Tr::tr("Post-quit on-device shell commands:"));
 
-    setUpdater([this] {
-        const BuildTargetInfo bti = buildTargetInfo();
-        setDisplayName(bti.displayName);
-        setDefaultDisplayName(bti.displayName);
-    });
+        setUpdater([this] {
+            const BuildTargetInfo bti = buildTargetInfo();
+            setDisplayName(bti.displayName);
+            setDefaultDisplayName(bti.displayName);
+        });
 
-    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    }
+};
+
+AndroidRunConfigurationFactory::AndroidRunConfigurationFactory()
+{
+    registerRunConfiguration<AndroidRunConfiguration>("Qt4ProjectManager.AndroidRunConfiguration:");
+    addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
 }
 
 } // namespace Android

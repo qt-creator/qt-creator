@@ -29,7 +29,9 @@ sourcedirs              = . \
                           ../../../src/plugins/coreplugin
 
 
-excludedirs             = ../../../src/libs/aggregation/examples
+excludedirs             = ../../../src/libs/aggregation/examples \
+                          ../../../src/libs/utils/mimetypes2
+
 
 # -- Uncomment following option to generate complete documentation
 #    instead of public API documentation only.

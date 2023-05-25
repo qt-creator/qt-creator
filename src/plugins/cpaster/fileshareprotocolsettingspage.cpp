@@ -22,7 +22,6 @@ FileShareProtocolSettings::FileShareProtocolSettings()
 
     registerAspect(&path);
     path.setSettingsKey("Path");
-    path.setDisplayStyle(StringAspect::PathChooserDisplay);
     path.setExpectedKind(PathChooser::ExistingDirectory);
     path.setDefaultValue(TemporaryDirectory::masterDirectoryPath());
     path.setLabelText(Tr::tr("&Path:"));

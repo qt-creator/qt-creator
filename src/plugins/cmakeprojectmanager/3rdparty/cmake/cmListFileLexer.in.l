@@ -7,7 +7,7 @@ This file must be translated to C and modified to build everywhere.
 
 Run flex >= 2.6 like this:
 
-  flex --nounistd -DFLEXINT_H --noline -ocmListFileLexer.c cmListFileLexer.in.l
+  flex --nounistd -DFLEXINT_H --noline -ocmListFileLexer.cxx cmListFileLexer.in.l
 
 Modify cmListFileLexer.c:
   - remove trailing whitespace:              sed -i 's/\s*$//' cmListFileLexer.c
@@ -110,10 +110,7 @@ LEGACY {MAKEVAR}|{UNQUOTED}|\"({MAKEVAR}|{UNQUOTED}|[ \t[=])*\"
 }
 
 <COMMENT>[^\0\n]* {
-  lexer->token.type = cmListFileLexer_Token_CommentLine;
-  cmListFileLexerSetToken(lexer, yytext, yyleng);
   lexer->column += yyleng;
-  return 1;
 }
 
 \( {
@@ -309,7 +306,7 @@ static void cmListFileLexerAppend(cmListFileLexer* lexer, const char* text,
   }
 
   /* We need to extend the buffer.  */
-  temp = malloc(newSize);
+  temp = (char *)malloc(newSize);
   if (lexer->token.text) {
     memcpy(temp, lexer->token.text, lexer->token.length);
     free(lexer->token.text);
@@ -541,8 +538,6 @@ const char* cmListFileLexer_GetTypeAsString(cmListFileLexer* lexer,
       return "unterminated bracket";
     case cmListFileLexer_Token_BadString:
       return "unterminated string";
-    case cmListFileLexer_Token_CommentLine:
-      return "line comment";
   }
   return "unknown token";
 }

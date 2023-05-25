@@ -168,7 +168,7 @@ void CppOutlineWidget::updateIndexNow()
 
     int line = 0, column = 0;
     m_editor->convertPosition(m_editor->position(), &line, &column);
-    QModelIndex index = m_model->indexForPosition(line, column - 1);
+    QModelIndex index = m_model->indexForPosition(line, column);
 
     if (index.isValid()) {
         m_blockCursorSync = true;

@@ -98,7 +98,7 @@ QtcPlugin {
         files: [
             "cmListFileCache.cxx",
             "cmListFileCache.h",
-            "cmListFileLexer.c",
+            "cmListFileLexer.cxx",
             "cmListFileLexer.h",
             "cmStandardLexer.h",
         ]

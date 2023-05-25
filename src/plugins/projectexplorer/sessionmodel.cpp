@@ -88,17 +88,16 @@ QStringList pathsWithTildeHomePath(const FilePaths &paths)
 
 QVariant SessionModel::data(const QModelIndex &index, int role) const
 {
-    QVariant result;
     if (index.isValid()) {
         QString sessionName = m_sortedSessions.at(index.row());
 
         switch (role) {
         case Qt::DisplayRole:
             switch (index.column()) {
-            case 0: result = sessionName;
-                break;
-            case 1: result = SessionManager::sessionDateTime(sessionName);
-                break;
+            case 0:
+                return sessionName;
+            case 1:
+                return SessionManager::sessionDateTime(sessionName);
             } // switch (section)
             break;
         case Qt::FontRole: {
@@ -111,32 +110,26 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
                 font.setBold(true);
             else
                 font.setBold(false);
-            result = font;
-        } break;
+            return font;
+        }
         case DefaultSessionRole:
-            result = SessionManager::isDefaultSession(sessionName);
-            break;
+            return SessionManager::isDefaultSession(sessionName);
         case LastSessionRole:
-            result = SessionManager::lastSession() == sessionName;
-            break;
+            return SessionManager::lastSession() == sessionName;
         case ActiveSessionRole:
-            result = SessionManager::activeSession() == sessionName;
-            break;
+            return SessionManager::activeSession() == sessionName;
         case ProjectsPathRole:
-            result = pathsWithTildeHomePath(ProjectManager::projectsForSessionName(sessionName));
-            break;
+            return pathsWithTildeHomePath(ProjectManager::projectsForSessionName(sessionName));
         case ProjectsDisplayRole:
-            result = pathsToBaseNames(ProjectManager::projectsForSessionName(sessionName));
-            break;
+            return pathsToBaseNames(ProjectManager::projectsForSessionName(sessionName));
         case ShortcutRole: {
             const Id sessionBase = SESSION_BASE_ID;
             if (Command *cmd = ActionManager::command(sessionBase.withSuffix(index.row() + 1)))
-                result = cmd->keySequence().toString(QKeySequence::NativeText);
+                return cmd->keySequence().toString(QKeySequence::NativeText);
         } break;
         } // switch (role)
     }
-
-    return result;
+    return {};
 }
 
 QHash<int, QByteArray> SessionModel::roleNames() const

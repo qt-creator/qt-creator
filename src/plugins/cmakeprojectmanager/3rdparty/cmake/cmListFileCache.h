@@ -22,8 +22,7 @@ struct cmListFileArgument
   {
     Unquoted,
     Quoted,
-    Bracket,
-    Comment
+    Bracket
   };
   cmListFileArgument() = default;
   cmListFileArgument(std::string v, Delimiter d, long line, long column)

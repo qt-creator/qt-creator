@@ -40,7 +40,7 @@ public:
     void openTerminal(const Utils::Terminal::OpenTerminalParameters &parameters);
     void addTerminal(TerminalWidget *terminal, const QString &title);
 
-    TerminalWidget *stoppedTerminalWithId(const Utils::Id &identifier) const;
+    TerminalWidget *stoppedTerminalWithId(Utils::Id identifier) const;
 
     void ensureVisible(TerminalWidget *terminal);
 
@@ -51,7 +51,7 @@ private:
     void setupTerminalWidget(TerminalWidget *terminal);
 
 private:
-    QTabWidget *m_tabWidget{nullptr};
+    QTabWidget m_tabWidget;
 
     QToolButton *m_newTerminalButton{nullptr};
     QToolButton *m_closeTerminalButton{nullptr};

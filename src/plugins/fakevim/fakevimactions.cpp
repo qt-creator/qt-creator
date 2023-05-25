@@ -173,7 +173,7 @@ void FakeVimSettings::setup(FvBaseAspect *aspect,
     registerAspect(aspect);
 
     if (auto boolAspect = dynamic_cast<FvBoolAspect *>(aspect))
-        boolAspect->setLabelPlacement(FvBoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+        boolAspect->setLabelPlacement(FvBoolAspect::LabelPlacement::AtCheckBox);
 #else
     Q_UNUSED(labelText)
 #endif

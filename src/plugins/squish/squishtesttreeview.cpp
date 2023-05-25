@@ -166,7 +166,6 @@ static bool copyScriptTemplates(const SuiteConf &suiteConf, const Utils::FilePat
     const SquishSettings *s = SquishPlugin::squishSettings();
     QTC_ASSERT(s, return false);
     // copy template files
-    const Utils::FilePath squishPath = s->squishPath.filePath();
 
     bool ok = destination.ensureWritableDir();
     QTC_ASSERT(ok, return false);

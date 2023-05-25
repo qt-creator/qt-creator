@@ -19,10 +19,10 @@ const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayNam
 // ProjectConfiguration
 
 ProjectConfiguration::ProjectConfiguration(QObject *parent, Utils::Id id)
-    : QObject(parent)
+    : AspectContainer(parent)
     , m_id(id)
 {
-    m_aspects.setOwnsSubAspects(true);
+    setOwnsSubAspects(true);
 
     QTC_CHECK(parent);
     QTC_CHECK(id.isValid());
@@ -89,7 +89,7 @@ QVariantMap ProjectConfiguration::toMap() const
     QVariantMap map;
     map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
     m_displayName.toMap(map, DISPLAY_NAME_KEY);
-    m_aspects.toMap(map);
+    AspectContainer::toMap(map);
     return map;
 }
 
@@ -106,13 +106,8 @@ bool ProjectConfiguration::fromMap(const QVariantMap &map)
     QTC_ASSERT(id.toString().startsWith(m_id.toString()), return false);
 
     m_displayName.fromMap(map, DISPLAY_NAME_KEY);
-    m_aspects.fromMap(map);
+    AspectContainer::fromMap(map);
     return true;
-}
-
-BaseAspect *ProjectConfiguration::aspect(Id id) const
-{
-    return m_aspects.aspect(id);
 }
 
 FilePath ProjectConfiguration::mapFromBuildDeviceToGlobalPath(const FilePath &path) const

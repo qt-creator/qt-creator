@@ -21,7 +21,7 @@ class Kit;
 class Project;
 class Target;
 
-class PROJECTEXPLORER_EXPORT ProjectConfiguration : public QObject
+class PROJECTEXPLORER_EXPORT ProjectConfiguration : public Utils::AspectContainer
 {
     Q_OBJECT
 
@@ -54,25 +54,11 @@ public:
 
     static QString settingsIdKey();
 
-    template<class Aspect, typename ...Args>
-    Aspect *addAspect(Args && ...args)
-    {
-        return m_aspects.addAspect<Aspect>(std::forward<Args>(args)...);
-    }
-
-    const Utils::AspectContainer &aspects() const { return m_aspects; }
-
-    Utils::BaseAspect *aspect(Utils::Id id) const;
-    template <typename T> T *aspect() const { return m_aspects.aspect<T>(); }
-
     Utils::FilePath mapFromBuildDeviceToGlobalPath(const Utils::FilePath &path) const;
 
 signals:
     void displayNameChanged();
     void toolTipChanged();
-
-protected:
-    Utils::AspectContainer m_aspects;
 
 private:
     QPointer<Target> m_target;

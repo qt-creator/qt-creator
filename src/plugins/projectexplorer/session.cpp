@@ -4,6 +4,7 @@
 #include "session.h"
 
 #include "session_p.h"
+#include "sessiondialog.h"
 
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
@@ -11,6 +12,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/foldernavigationwidget.h>
@@ -24,16 +27,21 @@
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/stylehelper.h>
-#include <utils/qtcassert.h>
 
+#include <QAction>
+#include <QActionGroup>
 #include <QDebug>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QTimer>
 
 using namespace Core;
+using namespace ExtensionSystem;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -44,6 +52,7 @@ const char STARTUPSESSION_KEY[] = "ProjectExplorer/SessionToRestore";
 const char LASTSESSION_KEY[] = "ProjectExplorer/StartupSession";
 const char AUTO_RESTORE_SESSION_SETTINGS_KEY[] = "ProjectExplorer/Settings/AutoRestoreLastSession";
 static bool kIsAutoRestoreLastSessionDefault = false;
+const char M_SESSION[] = "ProjectExplorer.Menu.Session";
 
 /*!
      \class ProjectExplorer::SessionManager
@@ -70,23 +79,50 @@ SessionManager::SessionManager()
             this, &SessionManager::saveActiveMode);
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, [] {
-        QtcSettings *s = ICore::settings();
-        QVariantMap times;
-        for (auto it = sb_d->m_lastActiveTimes.cbegin(); it != sb_d->m_lastActiveTimes.cend(); ++it)
-            times.insert(it.key(), it.value());
-        s->setValue(LAST_ACTIVE_TIMES_KEY, times);
-        if (SessionManager::isDefaultVirgin()) {
-            s->remove(STARTUPSESSION_KEY);
-        } else {
-            s->setValue(STARTUPSESSION_KEY, SessionManager::activeSession());
-            s->setValue(LASTSESSION_KEY, SessionManager::activeSession());
-        }
+        if (!SessionManager::isLoadingSession())
+            SessionManager::saveSession();
+        sb_d->saveSettings();
     });
 
     connect(EditorManager::instance(), &EditorManager::editorOpened,
             this, &SessionManager::markSessionFileDirty);
     connect(EditorManager::instance(), &EditorManager::editorsClosed,
             this, &SessionManager::markSessionFileDirty);
+    connect(EditorManager::instance(), &EditorManager::autoSaved, this, [] {
+        if (!PluginManager::isShuttingDown() && !SessionManager::isLoadingSession())
+            SessionManager::saveSession();
+    });
+
+    // session menu
+    ActionContainer *mfile = ActionManager::actionContainer(Core::Constants::M_FILE);
+    ActionContainer *msession = ActionManager::createMenu(M_SESSION);
+    msession->menu()->setTitle(Tr::tr("S&essions"));
+    msession->setOnAllDisabledBehavior(ActionContainer::Show);
+    mfile->addMenu(msession, Core::Constants::G_FILE_OPEN);
+    sb_d->m_sessionMenu = msession->menu();
+    connect(mfile->menu(), &QMenu::aboutToShow, this, [] { sb_d->updateSessionMenu(); });
+
+    // session manager action
+    sb_d->m_sessionManagerAction = new QAction(Tr::tr("&Manage..."), this);
+    sb_d->m_sessionMenu->addAction(sb_d->m_sessionManagerAction);
+    sb_d->m_sessionMenu->addSeparator();
+    Command *cmd = ActionManager::registerAction(sb_d->m_sessionManagerAction,
+                                                 "ProjectExplorer.ManageSessions");
+    cmd->setDefaultKeySequence(QKeySequence());
+    connect(sb_d->m_sessionManagerAction,
+            &QAction::triggered,
+            SessionManager::instance(),
+            &SessionManager::showSessionManager);
+
+    MacroExpander *expander = Utils::globalMacroExpander();
+    expander->registerFileVariables("Session", Tr::tr("File where current session is saved."), [] {
+        return SessionManager::sessionNameToFileName(SessionManager::activeSession());
+    });
+    expander->registerVariable("Session:Name", Tr::tr("Name of current session."), [] {
+        return SessionManager::activeSession();
+    });
+
+    sb_d->restoreSettings();
 }
 
 SessionManager::~SessionManager()
@@ -118,7 +154,7 @@ void SessionManager::saveActiveMode(Id mode)
         setValue(QLatin1String("ActiveMode"), mode.toString());
 }
 
-bool SessionManager::loadingSession()
+bool SessionManager::isLoadingSession()
 {
     return sb_d->m_loadingSession;
 }
@@ -204,6 +240,7 @@ bool SessionManager::createSession(const QString &session)
     Q_ASSERT(sb_d->m_sessions.size() > 0);
     sb_d->m_sessions.insert(1, session);
     sb_d->m_lastActiveTimes.insert(session, QDateTime::currentDateTime());
+    emit instance()->sessionCreated(session);
     return true;
 }
 
@@ -217,6 +254,14 @@ bool SessionManager::renameSession(const QString &original, const QString &newNa
     return deleteSession(original);
 }
 
+void SessionManager::showSessionManager()
+{
+    saveSession();
+    Internal::SessionDialog sessionDialog(ICore::dialogParent());
+    sessionDialog.setAutoLoadSession(sb_d->isAutoRestoreLastSession());
+    sessionDialog.exec();
+    sb_d->setAutoRestoreLastSession(sessionDialog.autoLoadSession());
+}
 
 /*!
     \brief Shows a dialog asking the user to confirm deleting the session \p session
@@ -265,6 +310,8 @@ bool SessionManager::cloneSession(const QString &original, const QString &clone)
     if (!sessionFile.exists() || sessionFile.copyFile(sessionNameToFileName(clone))) {
         sb_d->m_sessions.insert(1, clone);
         sb_d->m_sessionDateTimes.insert(clone, sessionNameToFileName(clone).lastModified());
+        emit instance()->sessionCreated(clone);
+
         return true;
     }
     return false;
@@ -274,13 +321,12 @@ static QString determineSessionToRestoreAtStartup()
 {
     // TODO (session) move argument to core
     // Process command line arguments first:
-    const bool lastSessionArg = ExtensionSystem::PluginManager::specForPlugin(
-                                    ProjectExplorerPlugin::instance())
+    const bool lastSessionArg = PluginManager::specForPlugin(ProjectExplorerPlugin::instance())
                                     ->arguments()
                                     .contains("-lastsession");
     if (lastSessionArg && !SessionManager::startupSession().isEmpty())
         return SessionManager::startupSession();
-    const QStringList arguments = ExtensionSystem::PluginManager::arguments();
+    const QStringList arguments = PluginManager::arguments();
     QStringList sessions = SessionManager::sessions();
     // We have command line arguments, try to find a session in them
     // Default to no session loading
@@ -304,7 +350,7 @@ void SessionManagerPrivate::restoreStartupSession()
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
 
     // We have command line arguments, try to find a session in them
-    QStringList arguments = ExtensionSystem::PluginManager::arguments();
+    QStringList arguments = PluginManager::arguments();
     if (!sessionToRestoreAtStartup.isEmpty() && !arguments.isEmpty())
         arguments.removeOne(sessionToRestoreAtStartup);
 
@@ -353,16 +399,22 @@ void SessionManagerPrivate::restoreStartupSession()
     });
 }
 
-bool SessionManagerPrivate::isStartupSessionRestored()
-{
-    return sb_d->m_isStartupSessionRestored;
-}
-
 void SessionManagerPrivate::saveSettings()
 {
-    ICore::settings()->setValueWithDefault(AUTO_RESTORE_SESSION_SETTINGS_KEY,
-                                           sb_d->m_isAutoRestoreLastSession,
-                                           kIsAutoRestoreLastSessionDefault);
+    QtcSettings *s = ICore::settings();
+    QVariantMap times;
+    for (auto it = sb_d->m_lastActiveTimes.cbegin(); it != sb_d->m_lastActiveTimes.cend(); ++it)
+        times.insert(it.key(), it.value());
+    s->setValue(LAST_ACTIVE_TIMES_KEY, times);
+    if (SessionManager::isDefaultVirgin()) {
+        s->remove(STARTUPSESSION_KEY);
+    } else {
+        s->setValue(STARTUPSESSION_KEY, SessionManager::activeSession());
+        s->setValue(LASTSESSION_KEY, SessionManager::activeSession());
+    }
+    s->setValueWithDefault(AUTO_RESTORE_SESSION_SETTINGS_KEY,
+                           sb_d->m_isAutoRestoreLastSession,
+                           kIsAutoRestoreLastSessionDefault);
 }
 
 void SessionManagerPrivate::restoreSettings()
@@ -381,6 +433,41 @@ bool SessionManagerPrivate::isAutoRestoreLastSession()
 void SessionManagerPrivate::setAutoRestoreLastSession(bool restore)
 {
     sb_d->m_isAutoRestoreLastSession = restore;
+}
+
+void SessionManagerPrivate::updateSessionMenu()
+{
+    // Delete group of previous actions (the actions are owned by the group and are deleted with it)
+    auto oldGroup = m_sessionMenu->findChild<QActionGroup *>();
+    if (oldGroup)
+        delete oldGroup;
+    m_sessionMenu->clear();
+
+    m_sessionMenu->addAction(m_sessionManagerAction);
+    m_sessionMenu->addSeparator();
+    auto *ag = new QActionGroup(m_sessionMenu);
+    const QString activeSession = SessionManager::activeSession();
+    const bool isDefaultVirgin = SessionManager::isDefaultVirgin();
+
+    QStringList sessions = SessionManager::sessions();
+    std::sort(std::next(sessions.begin()), sessions.end(), [](const QString &s1, const QString &s2) {
+        return SessionManager::lastActiveTime(s1) > SessionManager::lastActiveTime(s2);
+    });
+    for (int i = 0; i < sessions.size(); ++i) {
+        const QString &session = sessions[i];
+
+        const QString actionText
+            = ActionManager::withNumberAccelerator(Utils::quoteAmpersands(session), i + 1);
+        QAction *act = ag->addAction(actionText);
+        act->setCheckable(true);
+        if (session == activeSession && !isDefaultVirgin)
+            act->setChecked(true);
+        QObject::connect(act, &QAction::triggered, SessionManager::instance(), [session] {
+            SessionManager::loadSession(session);
+        });
+    }
+    m_sessionMenu->addActions(ag->actions());
+    m_sessionMenu->setEnabled(true);
 }
 
 void SessionManagerPrivate::restoreValues(const PersistentSettingsReader &reader)
@@ -631,6 +718,11 @@ bool SessionManager::saveSession()
     }
 
     return result;
+}
+
+bool SessionManager::isStartupSessionRestored()
+{
+    return sb_d->m_isStartupSessionRestored;
 }
 
 } // namespace ProjectExplorer

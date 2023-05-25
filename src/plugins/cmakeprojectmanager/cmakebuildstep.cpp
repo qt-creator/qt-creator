@@ -194,13 +194,12 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
 
     m_useStaging = addAspect<BoolAspect>();
     m_useStaging->setSettingsKey(USE_STAGING_KEY);
-    m_useStaging->setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    m_useStaging->setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     m_useStaging->setDefaultValue(!buildAndRunOnSameDevice(kit()));
 
-    m_stagingDir = addAspect<StringAspect>();
+    m_stagingDir = addAspect<FilePathAspect>();
     m_stagingDir->setSettingsKey(STAGING_DIR_KEY);
     m_stagingDir->setLabelText(Tr::tr("Staging directory:"));
-    m_stagingDir->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_stagingDir->setDefaultValue(initialStagingDir());
 
     Kit *kit = buildConfiguration()->kit();

@@ -138,6 +138,7 @@ public:
         return nullptr;
     }
 
+    using ProjectConfiguration::registerAspect;
     using AspectFactory = std::function<Utils::BaseAspect *(Target *)>;
     template <class T> static void registerAspect()
     {

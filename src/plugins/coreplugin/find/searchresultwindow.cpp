@@ -276,7 +276,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void Core::SearchResult::cancelled()
+    \fn void Core::SearchResult::canceled()
     This signal is emitted if the user cancels the search.
 */
 

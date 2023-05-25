@@ -660,7 +660,7 @@ DebuggerSettings::DebuggerSettings()
         aspect->setAutoApply(false);
         // FIXME: Make the positioning part of the LayoutBuilder later
         if (auto boolAspect = dynamic_cast<BoolAspect *>(aspect))
-            boolAspect->setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+            boolAspect->setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     });
 }
 

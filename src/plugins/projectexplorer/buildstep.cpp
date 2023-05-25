@@ -147,7 +147,7 @@ QWidget *BuildStep::doCreateConfigWidget()
             setSummaryText(m_summaryUpdater());
     };
 
-    for (BaseAspect *aspect : std::as_const(m_aspects))
+    for (BaseAspect *aspect : std::as_const(*this))
         connect(aspect, &BaseAspect::changed, widget, recreateSummary);
 
     connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
@@ -161,7 +161,7 @@ QWidget *BuildStep::doCreateConfigWidget()
 QWidget *BuildStep::createConfigWidget()
 {
     Layouting::Form form;
-    for (BaseAspect *aspect : std::as_const(m_aspects)) {
+    for (BaseAspect *aspect : std::as_const(*this)) {
         if (aspect->isVisible())
             form.addItem(aspect);
     }

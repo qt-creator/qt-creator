@@ -8,15 +8,12 @@
 #include <utils/aspects.h>
 #include <utils/filepath.h>
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QHash>
 #include <QMap>
-#include <QObject>
 #include <QSet>
 #include <QString>
 #include <QStringList>
-#include <QVector>
 
 #include <memory>
 
@@ -33,8 +30,6 @@ class VersionUpdater;
 
 class AbstractSettings : public Utils::AspectContainer
 {
-    Q_OBJECT
-
 public:
     explicit AbstractSettings(const QString &name, const QString &ending);
     ~AbstractSettings() override;

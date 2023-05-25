@@ -224,7 +224,7 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     m_keepGoing->setToolTip(
                 QbsProjectManager::Tr::tr("Keep going when errors occur (if at all possible)."));
     m_keepGoing->setLabel(QbsProjectManager::Tr::tr("Keep going"),
-                          BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+                          BoolAspect::LabelPlacement::AtCheckBox);
 
     m_maxJobCount = addAspect<IntegerAspect>();
     m_maxJobCount->setSettingsKey(QBS_MAXJOBCOUNT);
@@ -235,22 +235,22 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     m_showCommandLines = addAspect<BoolAspect>();
     m_showCommandLines->setSettingsKey(QBS_SHOWCOMMANDLINES);
     m_showCommandLines->setLabel(QbsProjectManager::Tr::tr("Show command lines"),
-                                 BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+                                 BoolAspect::LabelPlacement::AtCheckBox);
 
     m_install = addAspect<BoolAspect>();
     m_install->setSettingsKey(QBS_INSTALL);
     m_install->setValue(true);
-    m_install->setLabel(QbsProjectManager::Tr::tr("Install"), BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    m_install->setLabel(QbsProjectManager::Tr::tr("Install"), BoolAspect::LabelPlacement::AtCheckBox);
 
     m_cleanInstallDir = addAspect<BoolAspect>();
     m_cleanInstallDir->setSettingsKey(QBS_CLEAN_INSTALL_ROOT);
     m_cleanInstallDir->setLabel(QbsProjectManager::Tr::tr("Clean install root"),
-                                BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+                                BoolAspect::LabelPlacement::AtCheckBox);
 
     m_forceProbes = addAspect<BoolAspect>();
     m_forceProbes->setSettingsKey("Qbs.forceProbesKey");
     m_forceProbes->setLabel(QbsProjectManager::Tr::tr("Force probes"),
-                            BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+                            BoolAspect::LabelPlacement::AtCheckBox);
 
     m_commandLine = addAspect<StringAspect>();
     m_commandLine->setDisplayStyle(StringAspect::TextEditDisplay);

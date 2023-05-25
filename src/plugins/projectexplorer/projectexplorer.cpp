@@ -69,8 +69,6 @@
 #include "sanitizerparser.h"
 #include "selectablefilesmodel.h"
 #include "session.h"
-#include "session_p.h"
-#include "sessiondialog.h"
 #include "showineditortaskhandler.h"
 #include "simpleprojectwizard.h"
 #include "target.h"
@@ -245,7 +243,6 @@ const int  P_ACTION_BUILDPROJECT   = 80;
 // Menus
 const char M_RECENTPROJECTS[]     = "ProjectExplorer.Menu.Recent";
 const char M_UNLOADPROJECTS[]     = "ProjectExplorer.Menu.Unload";
-const char M_SESSION[]            = "ProjectExplorer.Menu.Session";
 const char M_GENERATORS[]         = "ProjectExplorer.Menu.Generators";
 
 const char RUNMENUCONTEXTMENU[]   = "Project.RunMenu";
@@ -454,9 +451,6 @@ public:
     void unloadProjectContextMenu();
     void unloadOtherProjectsContextMenu();
     void closeAllProjects();
-    void showSessionManager();
-    void updateSessionMenu();
-    void setSession(QAction *action);
 
     void runProjectContextMenu(RunConfiguration *rc);
     void savePersistentSettings();
@@ -509,12 +503,10 @@ public:
     void extendFolderNavigationWidgetFactory();
 
 public:
-    QMenu *m_sessionMenu;
     QMenu *m_openWithMenu;
     QMenu *m_openTerminalMenu;
 
     QMultiMap<int, QObject*> m_actionMap;
-    QAction *m_sessionManagerAction;
     QAction *m_newAction;
     QAction *m_loadAction;
     ParameterAction *m_unloadAction;
@@ -815,9 +807,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
     IWizardFactory::registerFactoryCreator([] { return new SimpleProjectWizard; });
 
-    connect(&dd->m_welcomePage, &ProjectWelcomePage::manageSessions,
-            dd, &ProjectExplorerPluginPrivate::showSessionManager);
-
     ProjectManager *sessionManager = &dd->m_sessionManager;
     connect(sessionManager, &ProjectManager::projectAdded,
             this, &ProjectExplorerPlugin::fileListChanged);
@@ -839,6 +828,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             dd, &ProjectExplorerPluginPrivate::loadSesssionTasks);
+    connect(SessionManager::instance(), &SessionManager::sessionCreated,
+            dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
+    connect(SessionManager::instance(), &SessionManager::sessionRenamed,
+            dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
+    connect(SessionManager::instance(), &SessionManager::sessionRemoved,
+            dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
 
     ProjectTree *tree = &dd->m_projectTree;
     connect(tree, &ProjectTree::currentProjectChanged, dd, [] {
@@ -1155,23 +1150,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfile->addMenu(mrecent, Core::Constants::G_FILE_OPEN);
     connect(mfile->menu(), &QMenu::aboutToShow,
             dd, &ProjectExplorerPluginPrivate::updateRecentProjectMenu);
-
-    // session menu
-    ActionContainer *msession = ActionManager::createMenu(Constants::M_SESSION);
-    msession->menu()->setTitle(Tr::tr("S&essions"));
-    msession->setOnAllDisabledBehavior(ActionContainer::Show);
-    mfile->addMenu(msession, Core::Constants::G_FILE_OPEN);
-    dd->m_sessionMenu = msession->menu();
-    connect(mfile->menu(), &QMenu::aboutToShow,
-            dd, &ProjectExplorerPluginPrivate::updateSessionMenu);
-
-    // session manager action
-    dd->m_sessionManagerAction = new QAction(Tr::tr("&Manage..."), this);
-    dd->m_sessionMenu->addAction(dd->m_sessionManagerAction);
-    dd->m_sessionMenu->addSeparator();
-    cmd = ActionManager::registerAction(dd->m_sessionManagerAction,
-                                        "ProjectExplorer.ManageSessions");
-    cmd->setDefaultKeySequence(QKeySequence());
 
     // unload action
     dd->m_unloadAction = new ParameterAction(Tr::tr("Close Project"), Tr::tr("Close Pro&ject \"%1\""),
@@ -1631,10 +1609,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             dd, &ProjectExplorerPluginPrivate::savePersistentSettings);
-    connect(EditorManager::instance(), &EditorManager::autoSaved, this, [] {
-        if (!PluginManager::isShuttingDown() && !SessionManager::loadingSession())
-            SessionManager::saveSession();
-    });
     connect(qApp, &QApplication::applicationStateChanged, this, [](Qt::ApplicationState state) {
         if (!PluginManager::isShuttingDown() && state == Qt::ApplicationActive)
             dd->updateWelcomePage();
@@ -1712,7 +1686,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
               .toBool();
 
     dd->m_buildPropertiesSettings.readSettings(s);
-    sb_d->restoreSettings();
 
     const int customParserCount = s->value(Constants::CUSTOM_PARSER_COUNT_KEY).toInt();
     for (int i = 0; i < customParserCount; ++i) {
@@ -1728,8 +1701,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(buildManager, &BuildManager::buildQueueFinished,
             dd, &ProjectExplorerPluginPrivate::buildQueueFinished, Qt::QueuedConnection);
 
-    connect(dd->m_sessionManagerAction, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::showSessionManager);
     connect(dd->m_newAction, &QAction::triggered,
             dd, &ProjectExplorerPlugin::openNewProjectDialog);
     connect(dd->m_loadAction, &QAction::triggered,
@@ -1964,15 +1935,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
              return Environment::systemEnvironment();
          }});
 
-    const auto fileHandler = [] {
-        return SessionManager::sessionNameToFileName(SessionManager::activeSession());
-    };
-    expander->registerFileVariables("Session", Tr::tr("File where current session is saved."),
-                                    fileHandler);
-    expander->registerVariable("Session:Name", Tr::tr("Name of current session."), [] {
-        return SessionManager::activeSession();
-    });
-
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
 
     if (auto sanitizerTester = SanitizerParser::testCreator())
@@ -2165,7 +2127,7 @@ void ProjectExplorerPlugin::restoreKits()
     KitManager::restoreKits();
     // restoring startup session is supposed to be done as a result of ICore::coreOpened,
     // and that is supposed to happen after restoring kits:
-    QTC_CHECK(!sb_d->isStartupSessionRestored());
+    QTC_CHECK(!SessionManager::isStartupSessionRestored());
 }
 
 void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()
@@ -2192,11 +2154,6 @@ IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     return AsynchronousShutdown;
 }
 
-void ProjectExplorerPlugin::showSessionManager()
-{
-    dd->showSessionManager();
-}
-
 void ProjectExplorerPlugin::openNewProjectDialog()
 {
     if (!ICore::isNewItemDialogRunning()) {
@@ -2206,20 +2163,6 @@ void ProjectExplorerPlugin::openNewProjectDialog()
     } else {
         ICore::raiseWindow(ICore::newItemDialog());
     }
-}
-
-void ProjectExplorerPluginPrivate::showSessionManager()
-{
-    SessionManager::saveSession();
-    SessionDialog sessionDialog(ICore::dialogParent());
-    sessionDialog.setAutoLoadSession(sb_d->isAutoRestoreLastSession());
-    sessionDialog.exec();
-    sb_d->setAutoRestoreLastSession(sessionDialog.autoLoadSession());
-
-    updateActions();
-
-    if (ModeManager::currentModeId() == Core::Constants::MODE_WELCOME)
-        updateWelcomePage();
 }
 
 void ProjectExplorerPluginPrivate::setStartupProject(Project *project)
@@ -2252,11 +2195,9 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     if (PluginManager::isShuttingDown())
         return;
 
-    if (!SessionManager::loadingSession())  {
+    if (!SessionManager::isLoadingSession()) {
         for (Project *pro : ProjectManager::projects())
             pro->saveSettings();
-
-        SessionManager::saveSession();
     }
 
     QtcSettings *s = ICore::settings();
@@ -2319,7 +2260,6 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
                            int(defaultSettings.stopBeforeBuild));
 
     dd->m_buildPropertiesSettings.writeSettings(s);
-    sb_d->saveSettings();
 
     s->setValueWithDefault(Constants::CUSTOM_PARSER_COUNT_KEY, int(dd->m_customParsers.count()), 0);
     for (int i = 0; i < dd->m_customParsers.count(); ++i) {
@@ -3977,41 +3917,6 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
 void ProjectExplorerPluginPrivate::handleSetStartupProject()
 {
     setStartupProject(ProjectTree::currentProject());
-}
-
-void ProjectExplorerPluginPrivate::updateSessionMenu()
-{
-    m_sessionMenu->clear();
-    dd->m_sessionMenu->addAction(dd->m_sessionManagerAction);
-    dd->m_sessionMenu->addSeparator();
-    auto *ag = new QActionGroup(m_sessionMenu);
-    connect(ag, &QActionGroup::triggered, this, &ProjectExplorerPluginPrivate::setSession);
-    const QString activeSession = SessionManager::activeSession();
-    const bool isDefaultVirgin = SessionManager::isDefaultVirgin();
-
-    QStringList sessions = SessionManager::sessions();
-    std::sort(std::next(sessions.begin()), sessions.end(), [](const QString &s1, const QString &s2) {
-        return SessionManager::lastActiveTime(s1) > SessionManager::lastActiveTime(s2);
-    });
-    for (int i = 0; i < sessions.size(); ++i) {
-        const QString &session = sessions[i];
-
-        const QString actionText = ActionManager::withNumberAccelerator(Utils::quoteAmpersands(
-                                                                            session),
-                                                                        i + 1);
-        QAction *act = ag->addAction(actionText);
-        act->setData(session);
-        act->setCheckable(true);
-        if (session == activeSession && !isDefaultVirgin)
-            act->setChecked(true);
-    }
-    m_sessionMenu->addActions(ag->actions());
-    m_sessionMenu->setEnabled(true);
-}
-
-void ProjectExplorerPluginPrivate::setSession(QAction *action)
-{
-    SessionManager::loadSession(action->data().toString());
 }
 
 void ProjectExplorerPlugin::setProjectExplorerSettings(const ProjectExplorerSettings &pes)

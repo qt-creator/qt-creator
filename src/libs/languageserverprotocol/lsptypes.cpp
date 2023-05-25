@@ -275,7 +275,7 @@ Position Position::withOffset(int offset, const QTextDocument *doc) const
     int line;
     int character;
     Utils::Text::convertPosition(doc, toPositionInDocument(doc) + offset, &line, &character);
-    return Position(line - 1, character - 1);
+    return Position(line - 1, character);
 }
 
 Range::Range(const Position &start, const Position &end)
@@ -288,11 +288,11 @@ Range::Range(const QTextCursor &cursor)
 {
     int line, character = 0;
     Utils::Text::convertPosition(cursor.document(), cursor.selectionStart(), &line, &character);
-    if (line <= 0 || character <= 0)
+    if (line <= 0 || character < 0)
         return;
     setStart(Position(line - 1, character - 1));
     Utils::Text::convertPosition(cursor.document(), cursor.selectionEnd(), &line, &character);
-    if (line <= 0 || character <= 0)
+    if (line <= 0 || character < 0)
         return;
     setEnd(Position(line - 1, character - 1));
 }

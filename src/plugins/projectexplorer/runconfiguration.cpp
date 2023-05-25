@@ -217,7 +217,7 @@ bool RunConfiguration::isEnabled() const
 QWidget *RunConfiguration::createConfigurationWidget()
 {
     Layouting::Form form;
-    for (BaseAspect *aspect : std::as_const(m_aspects)) {
+    for (BaseAspect *aspect : std::as_const(*this)) {
         if (aspect->isVisible()) {
             form.addItem(aspect);
             form.addItem(Layouting::br);
@@ -247,7 +247,7 @@ void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
 QMap<Utils::Id, QVariantMap> RunConfiguration::settingsData() const
 {
     QMap<Utils::Id, QVariantMap> data;
-    for (BaseAspect *aspect : m_aspects)
+    for (BaseAspect *aspect : *this)
         aspect->toActiveMap(data[aspect->id()]);
     return data;
 }
@@ -255,7 +255,7 @@ QMap<Utils::Id, QVariantMap> RunConfiguration::settingsData() const
 AspectContainerData RunConfiguration::aspectData() const
 {
     AspectContainerData data;
-    for (BaseAspect *aspect : m_aspects)
+    for (BaseAspect *aspect : *this)
         data.append(aspect->extractData());
     return data;
 }
@@ -566,7 +566,7 @@ RunConfiguration *RunConfigurationFactory::create(Target *target) const
 
     // Add the universal aspects.
     for (const RunConfiguration::AspectFactory &factory : theAspectFactories)
-        rc->m_aspects.registerAspect(factory(target));
+        rc->registerAspect(factory(target));
 
     return rc;
 }

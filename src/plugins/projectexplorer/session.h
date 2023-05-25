@@ -40,6 +40,7 @@ public:
 
     static bool cloneSession(const QString &original, const QString &clone);
     static bool renameSession(const QString &original, const QString &newName);
+    static void showSessionManager();
 
     static Utils::FilePath sessionNameToFileName(const QString &session);
 
@@ -57,7 +58,7 @@ public:
     static void setSessionValue(const QString &name, const QVariant &value);
     static QVariant sessionValue(const QString &name, const QVariant &defaultValue = {});
 
-    static bool loadingSession();
+    static bool isLoadingSession();
     static void markSessionFileDirty();
 
     static void sessionLoadingProgress();
@@ -75,8 +76,12 @@ signals:
     void sessionLoaded(QString sessionName);
     void aboutToSaveSession();
 
+    void sessionCreated(const QString &name);
     void sessionRenamed(const QString &oldName, const QString &newName);
     void sessionRemoved(const QString &name);
+
+public: // internal
+    static bool isStartupSessionRestored();
 
 private:
     static void saveActiveMode(Utils::Id mode);

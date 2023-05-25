@@ -76,10 +76,9 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     addAspect<TextDisplay>("<b>" + Tr::tr("IncrediBuild Distribution Control"));
 
-    auto profileXml = addAspect<StringAspect>();
+    auto profileXml = addAspect<FilePathAspect>();
     profileXml->setSettingsKey("IncrediBuild.BuildConsole.ProfileXml");
     profileXml->setLabelText(Tr::tr("Profile.xml:"));
-    profileXml->setDisplayStyle(StringAspect::PathChooserDisplay);
     profileXml->setExpectedKind(PathChooser::Kind::File);
     profileXml->setBaseFileName(PathChooser::homePath());
     profileXml->setHistoryCompleter("IncrediBuild.BuildConsole.ProfileXml.History");
@@ -138,10 +137,9 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
                              "beginning of the build output text. This title will also be used "
                              "for the Build History and Build Monitor displays."));
 
-    auto monFile = addAspect<StringAspect>();
+    auto monFile = addAspect<FilePathAspect>();
     monFile->setSettingsKey("IncrediBuild.BuildConsole.MonFile");
     monFile->setLabelText(Tr::tr("Save IncrediBuild monitor file:"));
-    monFile->setDisplayStyle(StringAspect::PathChooserDisplay);
     monFile->setExpectedKind(PathChooser::Kind::Any);
     monFile->setBaseFileName(PathChooser::homePath());
     monFile->setHistoryCompleter(QLatin1String("IncrediBuild.BuildConsole.MonFile.History"));
@@ -155,10 +153,9 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     suppressStdOut->setLabel(Tr::tr("Suppress STDOUT:"));
     suppressStdOut->setToolTip(Tr::tr("Does not write anything to the standard output."));
 
-    auto logFile = addAspect<StringAspect>();
+    auto logFile = addAspect<FilePathAspect>();
     logFile->setSettingsKey("IncrediBuild.BuildConsole.LogFile");
     logFile->setLabelText(Tr::tr("Output Log file:"));
-    logFile->setDisplayStyle(StringAspect::PathChooserDisplay);
     logFile->setExpectedKind(PathChooser::Kind::SaveFile);
     logFile->setBaseFileName(PathChooser::homePath());
     logFile->setHistoryCompleter(QLatin1String("IncrediBuild.BuildConsole.LogFile.History"));

@@ -169,7 +169,7 @@ struct SquishToolsSettings
     {
         const SquishSettings *squishSettings = SquishPlugin::squishSettings();
         QTC_ASSERT(squishSettings, return);
-        squishPath = squishSettings->squishPath.filePath();
+        squishPath = squishSettings->squishPath();
 
         if (!squishPath.isEmpty()) {
             const FilePath squishBin(squishPath.pathAppended("bin"));
@@ -181,12 +181,12 @@ struct SquishToolsSettings
                         HostOsInfo::withExecutableSuffix("processcomm")).absoluteFilePath();
         }
 
-        isLocalServer = squishSettings->local.value();
-        serverHost = squishSettings->serverHost.value();
-        serverPort = squishSettings->serverPort.value();
-        verboseLog = squishSettings->verbose.value();
-        licenseKeyPath = squishSettings->licensePath.filePath();
-        minimizeIDE = squishSettings->minimizeIDE.value();
+        isLocalServer = squishSettings->local();
+        serverHost = squishSettings->serverHost();
+        serverPort = squishSettings->serverPort();
+        verboseLog = squishSettings->verbose();
+        licenseKeyPath = squishSettings->licensePath();
+        minimizeIDE = squishSettings->minimizeIDE();
     }
 };
 
@@ -642,6 +642,8 @@ void SquishTools::setupAndStartInspector()
             this, &SquishTools::logOutputReceived);
     connect(m_secondaryRunner, &SquishRunnerProcess::objectPicked,
             this, &SquishTools::objectPicked);
+    connect(m_secondaryRunner, &SquishRunnerProcess::updateChildren,
+            this, &SquishTools::updateChildren);
     connect(m_secondaryRunner, &SquishRunnerProcess::propertiesFetched,
             this, &SquishTools::propertiesFetched);
     qCDebug(LOG) << "Inspector starting:" << cmd.toUserOutput();

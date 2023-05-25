@@ -48,7 +48,7 @@ QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Utils::Id id)
     setDisplayName(Tr::tr("Qbs Install"));
     setSummaryText(Tr::tr("<b>Qbs:</b> %1").arg("install"));
 
-    const auto labelPlacement = BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel;
+    const auto labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
     m_dryRun = addAspect<BoolAspect>();
     m_dryRun->setSettingsKey(QBS_DRY_RUN);
     m_dryRun->setLabel(Tr::tr("Dry run"), labelPlacement);

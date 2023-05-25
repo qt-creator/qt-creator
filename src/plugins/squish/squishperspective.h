@@ -36,6 +36,7 @@ public:
     QVariant data(int column, int role) const override;
     QString value;
     QString type;
+    QString fullName; // FIXME this might be non-unique
     bool expanded = false;
 };
 
@@ -83,6 +84,7 @@ private:
     void onPausePlayTriggered();
     void onLocalsUpdated(const QString &output);
     void onObjectPicked(const QString &output);
+    void onUpdateChildren(const QString &name, const QStringList &children);
     void onPropertiesFetched(const QStringList &properties);
 
     QAction *m_stopRecordAction = nullptr;

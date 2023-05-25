@@ -7,6 +7,7 @@ Project {
         "android/android.qbs",
         "autotest/autotest.qbs",
         "autotoolsprojectmanager/autotoolsprojectmanager.qbs",
+        "axivion/axivion.qbs",
         "baremetal/baremetal.qbs",
         "bazaar/bazaar.qbs",
         "beautifier/beautifier.qbs",

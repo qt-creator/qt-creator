@@ -86,9 +86,7 @@ NimSettings::NimSettings()
     TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_SCRIPT_MIMETYPE,
                                                       Nim::Constants::C_NIMLANGUAGE_ID);
 
-    registerAspect(&nimSuggestPath);
     nimSuggestPath.setSettingsKey("Command");
-    nimSuggestPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     nimSuggestPath.setExpectedKind(PathChooser::ExistingCommand);
     nimSuggestPath.setLabelText(Tr::tr("Path:"));
 

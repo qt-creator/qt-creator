@@ -155,7 +155,6 @@ public:
     static QThreadPool *sharedThreadPool();
     static Internal::MiniProjectTargetSelector *targetSelector();
 
-    static void showSessionManager();
     static void openNewProjectDialog();
     static void openOpenProjectDialog();
 

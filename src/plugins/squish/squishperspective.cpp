@@ -389,6 +389,8 @@ void SquishPerspective::initPerspective()
 
     connect(SquishTools::instance(), &SquishTools::objectPicked,
             this, &SquishPerspective::onObjectPicked);
+    connect(SquishTools::instance(), &SquishTools::updateChildren,
+            this, &SquishPerspective::onUpdateChildren);
     connect(SquishTools::instance(), &SquishTools::propertiesFetched,
             this, &SquishPerspective::onPropertiesFetched);
     connect(SquishTools::instance(), &SquishTools::autIdRetrieved,
@@ -402,7 +404,7 @@ void SquishPerspective::initPerspective()
             if (item->expanded)
                 return;
             item->expanded = true;
-            SquishTools::instance()->requestExpansionForObject(item->value);
+            SquishTools::instance()->requestExpansionForObject(item->fullName);
         }
     });
     connect(m_objectsView->selectionModel(), &QItemSelectionModel::currentChanged,
@@ -411,7 +413,7 @@ void SquishPerspective::initPerspective()
                 InspectedObjectItem *item = m_objectsModel.itemForIndex(current);
                 if (!item)
                     return;
-                SquishTools::instance()->requestPropertiesForObject(item->value);
+                SquishTools::instance()->requestPropertiesForObject(item->fullName);
             });
 }
 
@@ -488,16 +490,11 @@ void SquishPerspective::onObjectPicked(const QString &output)
     const QRegularExpressionMatch match = regex.match(output);
     if (!match.hasMatch())
         return;
-    InspectedObjectItem *parent = nullptr;
     const QString content = match.captured("content");
-    parent = m_objectsModel.findNonRootItem([content](InspectedObjectItem *it) {
-        return it->value == content;
-    });
-    if (!parent) {
-        m_objectsModel.clear();
-        parent = m_objectsModel.rootItem();
-    }
+    m_objectsModel.clear();
+    InspectedObjectItem *parent = m_objectsModel.rootItem();
     InspectedObjectItem *obj = new InspectedObjectItem(content, match.captured("type"));
+    obj->fullName = content;
     if (match.captured("exp") == "+")
         obj->appendChild(new InspectedObjectItem); // add pseudo child
     parent->appendChild(obj);
@@ -505,6 +502,27 @@ void SquishPerspective::onObjectPicked(const QString &output)
     const QModelIndex idx = m_objectsModel.indexForItem(obj);
     if (idx.isValid())
         m_objectsView->setCurrentIndex(idx);
+}
+
+void SquishPerspective::onUpdateChildren(const QString &name, const QStringList &children)
+{
+    InspectedObjectItem *item = m_objectsModel.findNonRootItem([name](InspectedObjectItem *it) {
+        return it->fullName == name;
+    });
+    if (!item)
+        return;
+
+    item->removeChildren(); // remove former dummy child
+    static const QRegularExpression regex("(?<exp>[-+])(?<symbolicName>.+)\t(?<type>.+)");
+    for (const QString &child : children) {
+        const QRegularExpressionMatch match = regex.match(child);
+        QTC_ASSERT(match.hasMatch(), continue);
+        const QString symbolicName = match.captured("symbolicName");
+        auto childItem = new InspectedObjectItem(symbolicName, match.captured("type"));
+        childItem->fullName = name + '.' + symbolicName;
+        childItem->appendChild(new InspectedObjectItem); // add dummy child
+        item->appendChild(childItem);
+    }
 }
 
 void SquishPerspective::onPropertiesFetched(const QStringList &properties)
@@ -612,6 +630,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_inspectAction->setEnabled(false);
         m_localsModel.clear();
         m_objectsModel.clear();
+        m_propertiesModel.clear();
         break;
     default:
         break;

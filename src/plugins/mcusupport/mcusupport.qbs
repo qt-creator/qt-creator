@@ -20,6 +20,8 @@ QtcPlugin {
 
     files: [
         "mcuabstractpackage.h",
+        "mcubuildstep.cpp",
+        "mcubuildstep.h",
         "mcupackage.cpp",
         "mcupackage.h",
         "mcutarget.cpp",

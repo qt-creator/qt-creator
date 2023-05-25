@@ -12,6 +12,13 @@
 #include <QReadWriteLock>
 #include <QSet>
 
+/*!
+    \class Utils::Environment
+    \inmodule QtCreator
+
+    \brief The Environment class sets \QC's system environment.
+*/
+
 namespace Utils {
 
 static QReadWriteLock s_envMutex;
@@ -183,6 +190,14 @@ void Environment::prependOrSetLibrarySearchPaths(const FilePaths &values)
         prependOrSetLibrarySearchPath(value);
     });
 }
+
+/*!
+    Returns \QC's system environment.
+
+    This can be different from the system environment that \QC started in if the
+    user changed it in \uicontrol Preferences > \uicontrol Environment >
+    \uicontrol System > \uicontrol Environment.
+*/
 
 Environment Environment::systemEnvironment()
 {

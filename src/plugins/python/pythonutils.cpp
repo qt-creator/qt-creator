@@ -36,7 +36,7 @@ FilePath detectPython(const FilePath &documentPath)
     if (!project)
         project = ProjectManager::startupProject();
 
-    Environment env = Environment::systemEnvironment();
+    FilePaths dirs = Environment::systemEnvironment().path();
 
     if (project) {
         if (auto target = project->activeTarget()) {
@@ -44,7 +44,7 @@ FilePath detectPython(const FilePath &documentPath)
                 if (auto interpreter = runConfig->aspect<InterpreterAspect>())
                     return interpreter->currentInterpreter().command;
                 if (auto environmentAspect = runConfig->aspect<EnvironmentAspect>())
-                    env = environmentAspect->environment();
+                    dirs = environmentAspect->environment().path();
             }
         }
     }
@@ -62,8 +62,9 @@ FilePath detectPython(const FilePath &documentPath)
     if (defaultInterpreter.exists())
         return defaultInterpreter;
 
-    auto pythonFromPath = [=](const QString toCheck) {
-        for (const FilePath &python : env.findAllInPath(toCheck)) {
+    auto pythonFromPath = [dirs](const FilePath &toCheck) {
+        const FilePaths found = toCheck.searchAllInDirectories(dirs);
+        for (const FilePath &python : found) {
             // Windows creates empty redirector files that may interfere
             if (python.exists() && python.osType() == OsTypeWindows && python.fileSize() != 0)
                 return python;

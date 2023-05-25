@@ -580,7 +580,7 @@ public:
         auto manageSessionsButton = new WelcomePageButton(this);
         manageSessionsButton->setText(Tr::tr("Manage..."));
         manageSessionsButton->setWithAccentColor(true);
-        manageSessionsButton->setOnClicked([] { ProjectExplorerPlugin::showSessionManager(); });
+        manageSessionsButton->setOnClicked([] { SessionManager::showSessionManager(); });
 
         auto sessionsLabel = new QLabel(this);
         sessionsLabel->setFont(brandFont());

@@ -53,10 +53,13 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
 
 void ValgrindToolRunner::start()
 {
-    FilePath valgrindExecutable = m_settings.valgrindExecutable.filePath();
+    FilePath valgrindExecutable = m_settings.valgrindExecutable();
     if (IDevice::ConstPtr dev = DeviceKitAspect::device(runControl()->kit()))
         valgrindExecutable = dev->filePath(valgrindExecutable.path());
-    if (!valgrindExecutable.isExecutableFile()) {
+
+    const FilePath found = valgrindExecutable.searchInPath();
+
+    if (!found.isExecutableFile()) {
         reportFailure(Tr::tr("Valgrind executable \"%1\" not found or not executable.\n"
                              "Check settings or ensure valgrind is installed and available in PATH.")
                       .arg(valgrindExecutable.toUserOutput()));

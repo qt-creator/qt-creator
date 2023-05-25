@@ -63,6 +63,7 @@ static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
     value.replace("${presetName}", preset.name);
+    value.replace("${hostSystemName}", getHostSystemName(sourceDirectory.osType()));
     value.replace("${pathListSep}",
                   Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
 }

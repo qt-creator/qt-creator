@@ -237,7 +237,7 @@ public:
     bool defaultValue() const;
     void setDefaultValue(bool val);
 
-    enum class LabelPlacement { AtCheckBox, AtCheckBoxWithoutDummyLabel, InExtraLabel };
+    enum class LabelPlacement { AtCheckBox, InExtraLabel };
     void setLabel(const QString &labelText,
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
     void setLabelPlacement(LabelPlacement labelPlacement);
@@ -290,6 +290,7 @@ public:
     void setVolatileValue(const QVariant &val) override;
     void finish() override;
 
+    int operator()() const { return value(); }
     int value() const;
     void setValue(int val);
 
@@ -446,7 +447,7 @@ protected:
 class QTCREATOR_UTILS_EXPORT FilePathAspect : public StringAspect
 {
 public:
-    FilePathAspect();
+    FilePathAspect(AspectContainer *container = nullptr);
 
     FilePath operator()() const { return filePath(); }
 };
@@ -585,12 +586,13 @@ class QTCREATOR_UTILS_EXPORT IntegersAspect : public BaseAspect
     Q_OBJECT
 
 public:
-    IntegersAspect();
+    IntegersAspect(AspectContainer *container = nullptr);
     ~IntegersAspect() override;
 
     void addToLayout(Layouting::LayoutItem &parent) override;
     void emitChangedValue() override;
 
+    QList<int> operator()() const { return value(); }
     QList<int> value() const;
     void setValue(const QList<int> &value);
 

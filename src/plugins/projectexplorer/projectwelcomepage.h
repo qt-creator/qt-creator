@@ -56,7 +56,6 @@ public slots:
 
 signals:
     void requestProject(const Utils::FilePath &project);
-    void manageSessions();
 
 private:
     void openSessionAt(int index);

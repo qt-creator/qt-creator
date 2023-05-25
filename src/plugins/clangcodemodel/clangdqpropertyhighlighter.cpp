@@ -394,10 +394,10 @@ void QPropertyHighlighter::Private::addResult(TextStyle textStyle, int symbolOff
     const Symbol &s = parser.symbol_lookup(symbolOffset);
     int line, column;
     Utils::Text::convertPosition(document, position + s.from, &line, &column);
-    if (line > 0 && column > 0) {
+    if (line > 0 && column >= 0) {
         TextStyles styles;
         styles.mainStyle = textStyle;
-        results << HighlightingResult(line, column, s.len, styles);
+        results << HighlightingResult(line, column + 1, s.len, styles);
     }
 }
 

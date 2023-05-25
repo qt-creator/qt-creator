@@ -68,7 +68,7 @@ signals:
  * Base valgrind settings
  */
 public:
-    Utils::StringAspect valgrindExecutable;
+    Utils::FilePathAspect valgrindExecutable;
     Utils::StringAspect valgrindArguments;
     Utils::SelectionAspect selfModifyingCodeDetection;
 

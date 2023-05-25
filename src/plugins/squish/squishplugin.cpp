@@ -109,7 +109,7 @@ bool SquishPluginPrivate::initializeGlobalScripts()
     QTC_ASSERT(dd->m_squishTools, return false);
     SquishFileHandler::instance()->setSharedFolders({});
 
-    const Utils::FilePath squishserver = dd->m_squishSettings.squishPath.filePath().pathAppended(
+    const Utils::FilePath squishserver = dd->m_squishSettings.squishPath().pathAppended(
                 Utils::HostOsInfo::withExecutableSuffix("bin/squishserver"));
     if (!squishserver.isExecutableFile())
         return false;
@@ -134,8 +134,7 @@ void SquishPlugin::initialize()
 
 bool SquishPlugin::delayedInitialize()
 {
-
-    connect(&dd->m_squishSettings, &SquishSettings::squishPathChanged,
+    connect(&dd->m_squishSettings.squishPath, &Utils::BaseAspect::changed,
             dd, &SquishPluginPrivate::initializeGlobalScripts);
 
     return dd->initializeGlobalScripts();
