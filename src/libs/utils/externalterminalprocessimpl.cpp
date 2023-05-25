@@ -69,7 +69,7 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
         process->setCreateConsoleOnWindows(true);
         process->setProcessMode(ProcessMode::Writer);
     } else {
-        QString extraArgsFromOptions = detached ? terminal.openArgs : terminal.executeArgs;
+        QString extraArgsFromOptions = terminal.executeArgs;
         CommandLine cmdLine = {terminal.command, {}};
         if (!extraArgsFromOptions.isEmpty())
             cmdLine.addArgs(extraArgsFromOptions, CommandLine::Raw);
