@@ -151,7 +151,6 @@ TerminalPane::TerminalPane(QObject *parent)
 
     connect(m_escSettingButton, &QToolButton::toggled, this, [this] {
         TerminalSettings::instance().sendEscapeToTerminal.setValue(m_escSettingButton->isChecked());
-        TerminalSettings::instance().apply();
         TerminalSettings::instance().writeSettings(Core::ICore::settings());
     });
 
