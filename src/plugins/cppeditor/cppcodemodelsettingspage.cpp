@@ -72,8 +72,10 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
     m_bigFilesLimitSpinBox->setValue(m_settings->indexerFileSizeLimitInMb());
 
     m_ignoreFilesCheckBox = new QCheckBox(Tr::tr("Ignore files"));
-    m_ignoreFilesCheckBox->setToolTip(Tr::tr(
-        "<html><head/><body><p>Ignore files that match these wildcard patterns, one wildcard per line.</p></body></html>"));
+    m_ignoreFilesCheckBox->setToolTip(
+        "<html><head/><body><p>"
+        + Tr::tr("Ignore files that match these wildcard patterns, one wildcard per line.")
+        + "</p></body></html>");
 
     m_ignoreFilesCheckBox->setChecked(m_settings->ignoreFiles());
     m_ignorePatternTextEdit = new QPlainTextEdit(m_settings->ignorePattern());

@@ -20339,8 +20339,8 @@ z.B. name = &quot;m_test_foo_&quot;:
         <translation>Dateien ignorieren</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ignore files that match these wildcard patterns, one wildcard per line.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dateien ignorieren, die diesen Platzhalter-Filtern entsprechen. Ein Filter pro Zeile.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>Ignore files that match these wildcard patterns, one wildcard per line.</source>
+        <translation>Dateien ignorieren, die diesen Platzhalter-Filtern entsprechen. Ein Filter pro Zeile.</translation>
     </message>
     <message>
         <source>Ignore precompiled headers</source>
@@ -25092,8 +25092,8 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <translation>Schriftgröße des Debuggers mit Editor synchronisieren</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation>&lt;p&gt;Nicht aus allen Quellcode-Zeilen wird ausführbarer Code erzeugt. Wenn man dort einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre, aus der Maschinencode erzeugt wurde. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall an die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
+        <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
+        <translation>Nicht aus allen Quellcode-Zeilen wird ausführbarer Code erzeugt. Wenn man dort einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre, aus der Maschinencode erzeugt wurde. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall an die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
     </message>
     <message>
         <source>Stopping and stepping in the debugger will automatically open views associated with the current location.</source>
