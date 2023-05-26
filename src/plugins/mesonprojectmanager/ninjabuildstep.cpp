@@ -44,7 +44,7 @@ NinjaBuildStep::NinjaBuildStep(BuildStepList *bsl, Id id)
     setUseEnglishOutput();
 
     connect(target(), &ProjectExplorer::Target::parsingFinished, this, &NinjaBuildStep::update);
-    connect(&Settings::instance()->verboseNinja, &BaseAspect::changed,
+    connect(&settings().verboseNinja, &BaseAspect::changed,
             this, &NinjaBuildStep::commandChanged);
 }
 
@@ -119,17 +119,15 @@ QWidget *NinjaBuildStep::createConfigWidget()
 // --verbose is only supported since
 // https://github.com/ninja-build/ninja/commit/bf7517505ad1def03e13bec2b4131399331bc5c4
 // TODO check when to switch back to --verbose
-Utils::CommandLine NinjaBuildStep::command()
+CommandLine NinjaBuildStep::command()
 {
-    Utils::CommandLine cmd = [this] {
-        auto tool = NinjaToolKitAspect::ninjaTool(kit());
-        if (tool)
-            return Utils::CommandLine{tool->exe()};
-        return Utils::CommandLine{};
-    }();
+    CommandLine cmd;
+    if (auto tool = NinjaToolKitAspect::ninjaTool(kit()))
+        cmd.setExecutable(tool->exe());
+
     if (!m_commandArgs.isEmpty())
-        cmd.addArgs(m_commandArgs, Utils::CommandLine::RawType::Raw);
-    if (Settings::instance()->verboseNinja.value())
+        cmd.addArgs(m_commandArgs, CommandLine::RawType::Raw);
+    if (settings().verboseNinja())
         cmd.addArg("-v");
     cmd.addArg(m_targetName);
     return cmd;
