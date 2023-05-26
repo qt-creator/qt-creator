@@ -1412,10 +1412,10 @@ void TaskNode::invokeEndHandler(bool success)
     it from a source and writing it to a destination might look as follows:
 
     \code
-        static QByteArray load(const FilePath &fileName) { ... }
-        static void save(const FilePath &fileName, const QByteArray &array) { ... }
+        static QByteArray load(const QString &fileName) { ... }
+        static void save(const QString &fileName, const QByteArray &array) { ... }
 
-        static TaskItem diffRecipe(const FilePath &source, const FilePath &destination)
+        static TaskItem copyRecipe(const QString &source, const QString &destination)
         {
             struct CopyStorage { // [1] custom inter-task struct
                 QByteArray content; // [2] custom inter-task data
@@ -1449,6 +1449,13 @@ void TaskNode::invokeEndHandler(bool success)
             };
             return root;
         }
+
+        const QString source = ...;
+        const QString destination = ...;
+        TaskTree taskTree(copyRecipe(source, destination));
+        connect(&taskTree, &TaskTree::done,
+                &taskTree, [] { qDebug() << "The copying finished successfully."; });
+        tasktree.start();
     \endcode
 
     In the example above, the inter-task data consists of a QByteArray content
