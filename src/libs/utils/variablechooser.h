@@ -13,6 +13,8 @@ namespace Utils {
 
 class MacroExpander;
 
+using MacroExpanderProvider = std::function<MacroExpander *()>;
+
 namespace Internal { class VariableChooserPrivate; }
 
 class QTCREATOR_UTILS_EXPORT VariableChooser : public QWidget
@@ -23,7 +25,7 @@ public:
     explicit VariableChooser(QWidget *parent = nullptr);
     ~VariableChooser() override;
 
-    void addMacroExpanderProvider(const std::function<MacroExpander *()> &provider);
+    void addMacroExpanderProvider(const MacroExpanderProvider &provider);
     void addSupportedWidget(QWidget *textcontrol, const QByteArray &ownName = QByteArray());
 
     static void addSupportForChildWidgets(QWidget *parent, MacroExpander *expander);
