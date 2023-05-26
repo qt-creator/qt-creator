@@ -326,6 +326,8 @@ public:
         unpin,
         upDownIcon,
         upDownSquare2,
+        updateAvailable_medium,
+        updateContent_medium,
         visibilityOff,
         visibilityOn,
         visible_medium,
