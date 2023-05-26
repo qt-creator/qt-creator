@@ -92,7 +92,7 @@ namespace Internal {
 class TaskView : public TreeView
 {
 public:
-    TaskView() { setMouseTracking(true); }
+    TaskView();
     void resizeColumns();
 
 private:
@@ -658,6 +658,12 @@ bool TaskDelegate::needsSpecialHandling(const QModelIndex &index) const
     if (const auto proxyModel = qobject_cast<const QAbstractProxyModel *>(index.model()))
         sourceIndex = proxyModel->mapToSource(index);
     return sourceIndex.internalId();
+}
+
+TaskView::TaskView()
+{
+    setMouseTracking(true);
+    setVerticalScrollMode(ScrollPerPixel);
 }
 
 void TaskView::resizeColumns()
