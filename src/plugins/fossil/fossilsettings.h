@@ -12,17 +12,17 @@ class FossilSettings : public VcsBase::VcsBaseSettings
 public:
     FossilSettings();
 
-    Utils::FilePathAspect defaultRepoPath;
-    Utils::FilePathAspect sslIdentityFile;
-    Utils::BoolAspect diffIgnoreAllWhiteSpace;
-    Utils::BoolAspect diffStripTrailingCR;
-    Utils::BoolAspect annotateShowCommitters;
-    Utils::BoolAspect annotateListVersions;
-    Utils::IntegerAspect timelineWidth;
-    Utils::StringAspect timelineLineageFilter;
-    Utils::BoolAspect timelineVerbose;
-    Utils::StringAspect timelineItemType;
-    Utils::BoolAspect disableAutosync;
+    Utils::FilePathAspect defaultRepoPath{this};
+    Utils::FilePathAspect sslIdentityFile{this};
+    Utils::BoolAspect diffIgnoreAllWhiteSpace{this};
+    Utils::BoolAspect diffStripTrailingCR{this};
+    Utils::BoolAspect annotateShowCommitters{this};
+    Utils::BoolAspect annotateListVersions{this};
+    Utils::IntegerAspect timelineWidth{this};
+    Utils::StringAspect timelineLineageFilter{this};
+    Utils::BoolAspect timelineVerbose{this};
+    Utils::StringAspect timelineItemType{this};
+    Utils::BoolAspect disableAutosync{this};
 };
 
 FossilSettings &settings();

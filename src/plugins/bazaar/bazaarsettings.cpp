@@ -32,48 +32,37 @@ BazaarSettings::BazaarSettings()
     setDisplayName(Tr::tr("Bazaar"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 
-    registerAspect(&binaryPath);
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setDefaultValue(Constants::BAZAARDEFAULT);
     binaryPath.setDisplayName(Tr::tr("Bazaar Command"));
     binaryPath.setHistoryCompleter("Bazaar.Command.History");
     binaryPath.setLabelText(Tr::tr("Command:"));
 
-    registerAspect(&diffIgnoreWhiteSpace);
     diffIgnoreWhiteSpace.setSettingsKey("diffIgnoreWhiteSpace");
 
-    registerAspect(&diffIgnoreBlankLines);
     diffIgnoreBlankLines.setSettingsKey("diffIgnoreBlankLines");
 
-    registerAspect(&logVerbose);
     logVerbose.setSettingsKey("logVerbose");
 
-    registerAspect(&logFormat);
     logForward.setSettingsKey("logForward");
 
-    registerAspect(&logIncludeMerges);
     logIncludeMerges.setSettingsKey("logIncludeMerges");
 
-    registerAspect(&logFormat);
     logFormat.setDisplayStyle(StringAspect::LineEditDisplay);
     logFormat.setSettingsKey("logFormat");
     logFormat.setDefaultValue("long");
 
-    registerAspect(&userName);
     userName.setDisplayStyle(StringAspect::LineEditDisplay);
     userName.setLabelText(Tr::tr("Default username:"));
     userName.setToolTip(Tr::tr("Username to use by default on commit."));
 
-    registerAspect(&userEmail);
     userEmail.setDisplayStyle(StringAspect::LineEditDisplay);
     userEmail.setLabelText(Tr::tr("Default email:"));
     userEmail.setToolTip(Tr::tr("Email to use by default on commit."));
 
-    registerAspect(&logCount);
     logCount.setLabelText(Tr::tr("Log count:"));
     logCount.setToolTip(Tr::tr("The number of recent commit logs to show. Choose 0 to see all entries."));
 
-    registerAspect(&logCount);
     timeout.setLabelText(Tr::tr("Timeout:"));
     timeout.setSuffix(Tr::tr("s"));
 

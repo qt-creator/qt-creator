@@ -20,8 +20,7 @@
 
 using namespace Utils;
 
-namespace VcsBase {
-namespace Internal {
+namespace VcsBase::Internal {
 
 // Return default for the ssh-askpass command (default to environment)
 static QString sshPasswordPromptDefault()
@@ -39,7 +38,6 @@ CommonVcsSettings::CommonVcsSettings()
     setSettingsGroup("VCS");
     setAutoApply(false);
 
-    registerAspect(&nickNameMailMap);
     nickNameMailMap.setSettingsKey("NickNameMailMap");
     nickNameMailMap.setDisplayStyle(StringAspect::PathChooserDisplay);
     nickNameMailMap.setExpectedKind(PathChooser::File);
@@ -48,7 +46,6 @@ CommonVcsSettings::CommonVcsSettings()
     nickNameMailMap.setToolTip(Tr::tr("A file listing nicknames in a 4-column mailmap format:\n"
         "'name <email> alias <email>'."));
 
-    registerAspect(&nickNameFieldListFile);
     nickNameFieldListFile.setSettingsKey("NickNameFieldListFile");
     nickNameFieldListFile.setDisplayStyle(StringAspect::PathChooserDisplay);
     nickNameFieldListFile.setExpectedKind(PathChooser::File);
@@ -57,7 +54,6 @@ CommonVcsSettings::CommonVcsSettings()
     nickNameFieldListFile.setToolTip(Tr::tr("A simple file containing lines with field names like "
         "\"Reviewed-By:\" which will be added below the submit editor."));
 
-    registerAspect(&submitMessageCheckScript);
     submitMessageCheckScript.setSettingsKey("SubmitMessageCheckScript");
     submitMessageCheckScript.setDisplayStyle(StringAspect::PathChooserDisplay);
     submitMessageCheckScript.setExpectedKind(PathChooser::ExistingCommand);
@@ -67,7 +63,6 @@ CommonVcsSettings::CommonVcsSettings()
         "in a temporary file as first argument. It should return with an exit != 0 and a message "
         "on standard error to indicate failure."));
 
-    registerAspect(&sshPasswordPrompt);
     sshPasswordPrompt.setSettingsKey("SshPasswordPrompt");
     sshPasswordPrompt.setDisplayStyle(StringAspect::PathChooserDisplay);
     sshPasswordPrompt.setExpectedKind(PathChooser::ExistingCommand);
@@ -78,12 +73,10 @@ CommonVcsSettings::CommonVcsSettings()
         "for a password,\nshould a repository require SSH-authentication "
         "(see documentation on SSH and the environment variable SSH_ASKPASS)."));
 
-    registerAspect(&lineWrap);
     lineWrap.setSettingsKey("LineWrap");
     lineWrap.setDefaultValue(true);
     lineWrap.setLabelText(Tr::tr("Wrap submit message at:"));
 
-    registerAspect(&lineWrapWidth);
     lineWrapWidth.setSettingsKey("LineWrapWidth");
     lineWrapWidth.setSuffix(Tr::tr(" characters"));
     lineWrapWidth.setDefaultValue(72);
@@ -152,5 +145,4 @@ CommonOptionsPage::CommonOptionsPage()
     setWidgetCreator([this] { return new CommonSettingsWidget(this); });
 }
 
-} // namespace Internal
-} // namespace VcsBase
+} // VcsBase::Internal

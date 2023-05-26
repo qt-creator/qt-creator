@@ -12,8 +12,8 @@ class MercurialSettings : public VcsBase::VcsBaseSettings
 public:
     MercurialSettings();
 
-    Utils::StringAspect diffIgnoreWhiteSpace;
-    Utils::StringAspect diffIgnoreBlankLines;
+    Utils::StringAspect diffIgnoreWhiteSpace{this};
+    Utils::StringAspect diffIgnoreBlankLines{this};
 };
 
 MercurialSettings &settings();
