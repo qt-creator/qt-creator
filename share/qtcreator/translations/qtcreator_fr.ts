@@ -28505,8 +28505,8 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <translation>Faire un diff de &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
-        <translation>ALT+Z, Alt+D</translation>
+        <source>Alt+Z,Alt+D</source>
+        <translation>Alt+Z, Alt+D</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+D</source>
@@ -28521,8 +28521,8 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <translation>Réaliser un log de &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
-        <translation>ALT+Z, Alt+L</translation>
+        <source>Alt+Z,Alt+L</source>
+        <translation>Alt+Z,Alt+L</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+L</source>
@@ -28537,8 +28537,8 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <translation>Statut &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
-        <translation>ALT+Z, Alt+S</translation>
+        <source>Alt+Z,Alt+S</source>
+        <translation>Alt+Z,Alt+S</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+S</source>
@@ -28601,8 +28601,8 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <translation>Commit...</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
-        <translation>ALT+Z, Alt+C</translation>
+        <source>Alt+Z,Alt+C</source>
+        <translation>Alt+Z,Alt+C</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+C</source>

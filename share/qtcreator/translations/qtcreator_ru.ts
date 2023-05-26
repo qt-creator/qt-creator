@@ -4180,7 +4180,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>Состояние «%1»</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
+        <source>Alt+Z,Alt+D</source>
         <translation></translation>
     </message>
     <message>
@@ -4188,7 +4188,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>Meta+Z,Meta+D</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
+        <source>Alt+Z,Alt+L</source>
         <translation></translation>
     </message>
     <message>
@@ -4196,7 +4196,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>Meta+Z,Meta+L</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
+        <source>Alt+Z,Alt+S</source>
         <translation></translation>
     </message>
     <message>
@@ -4260,7 +4260,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>Фиксировать...</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
+        <source>Alt+Z,Alt+C</source>
         <translation></translation>
     </message>
     <message>

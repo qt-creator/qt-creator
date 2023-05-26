@@ -13881,8 +13881,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>Pokaż różnice w &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
-        <translation>ALT+Z,Alt+D</translation>
+        <source>Alt+Z,Alt+D</source>
+        <translation>Alt+Z,Alt+D</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+D</source>
@@ -13897,8 +13897,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>Log &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
-        <translation>ALT+Z,Alt+L</translation>
+        <source>Alt+Z,Alt+L</source>
+        <translation>Alt+Z,Alt+L</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+L</source>
@@ -13913,8 +13913,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>Stan &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
-        <translation>ALT+Z,Alt+S</translation>
+        <source>Alt+Z,Alt+S</source>
+        <translation>Alt+Z,Alt+S</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+S</source>
@@ -13977,8 +13977,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>Utwórz poprawkę...</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
-        <translation>ALT+Z,Alt+C</translation>
+        <source>Alt+Z,Alt+C</source>
+        <translation>Alt+Z,Alt+C</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+C</source>

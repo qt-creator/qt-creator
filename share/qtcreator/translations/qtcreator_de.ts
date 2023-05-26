@@ -12047,8 +12047,8 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
         <translation>Status von &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
-        <translation>ALT+Z,Alt+D</translation>
+        <source>Alt+Z,Alt+D</source>
+        <translation>Alt+Z,Alt+D</translation>
     </message>
     <message>
         <source>Triggers a Bazaar version control operation.</source>
@@ -12059,16 +12059,16 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
         <translation>Meta+Z,Meta+D</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
-        <translation>ALT+Z,Alt+L</translation>
+        <source>Alt+Z,Alt+L</source>
+        <translation>Alt+Z,Alt+L</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+L</source>
         <translation>Meta+Z,Meta+L</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
-        <translation>ALT+Z,Alt+S</translation>
+        <source>Alt+Z,Alt+S</source>
+        <translation>Alt+Z,Alt+S</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+S</source>
@@ -12131,8 +12131,8 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
         <translation>Commit...</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
-        <translation>ALT+Z,Alt+C</translation>
+        <source>Alt+Z,Alt+C</source>
+        <translation>Alt+Z,Alt+C</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+C</source>
@@ -27270,8 +27270,8 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>Meta+I,Meta+D</translation>
     </message>
     <message>
-        <source>ALT+I,Alt+D</source>
-        <translation>ALT+I,Alt+D</translation>
+        <source>Alt+I,Alt+D</source>
+        <translation>Alt+I,Alt+D</translation>
     </message>
     <message>
         <source>Timeline Current File</source>
@@ -27286,8 +27286,8 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>Meta+I,Meta+L</translation>
     </message>
     <message>
-        <source>ALT+I,Alt+L</source>
-        <translation>ALT+I,Alt+L</translation>
+        <source>Alt+I,Alt+L</source>
+        <translation>Alt+I,Alt+L</translation>
     </message>
     <message>
         <source>Status Current File</source>
@@ -27302,8 +27302,8 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>Meta+I,Meta+S</translation>
     </message>
     <message>
-        <source>ALT+I,Alt+S</source>
-        <translation>ALT+I,Alt+S</translation>
+        <source>Alt+I,Alt+S</source>
+        <translation>Alt+I,Alt+S</translation>
     </message>
     <message>
         <source>Add Current File</source>
@@ -27342,8 +27342,8 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>Meta+I,Meta+T</translation>
     </message>
     <message>
-        <source>ALT+I,Alt+T</source>
-        <translation>ALT+I,Alt+T</translation>
+        <source>Alt+I,Alt+T</source>
+        <translation>Alt+I,Alt+T</translation>
     </message>
     <message>
         <source>Revert...</source>
@@ -27374,8 +27374,8 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>Meta+I,Meta+U</translation>
     </message>
     <message>
-        <source>ALT+I,Alt+U</source>
-        <translation>ALT+I,Alt+U</translation>
+        <source>Alt+I,Alt+U</source>
+        <translation>Alt+I,Alt+U</translation>
     </message>
     <message>
         <source>Commit...</source>
@@ -27386,8 +27386,8 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>Meta+I,Meta+C</translation>
     </message>
     <message>
-        <source>ALT+I,Alt+C</source>
-        <translation>ALT+I,Alt+C</translation>
+        <source>Alt+I,Alt+C</source>
+        <translation>Alt+I,Alt+C</translation>
     </message>
     <message>
         <source>Settings...</source>

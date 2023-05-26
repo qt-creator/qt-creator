@@ -17607,8 +17607,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>比較 &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
-        <translation>ALT+Z,Alt+D</translation>
+        <source>Alt+Z,Alt+D</source>
+        <translation>Alt+Z,Alt+D</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+D</source>
@@ -17623,8 +17623,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>&quot;%1&quot; 的紀錄</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
-        <translation>ALT+Z,Alt+L</translation>
+        <source>Alt+Z,Alt+L</source>
+        <translation>Alt+Z,Alt+L</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+L</source>
@@ -17639,8 +17639,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>&quot;%1&quot; 的狀態</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
-        <translation>ALT+Z,Alt+S</translation>
+        <source>Alt+Z,Alt+S</source>
+        <translation>Alt+Z,Alt+S</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+S</source>
@@ -17703,8 +17703,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>提交...</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
-        <translation>ALT+Z,Alt+C</translation>
+        <source>Alt+Z,Alt+C</source>
+        <translation>Alt+Z,Alt+C</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+C</source>

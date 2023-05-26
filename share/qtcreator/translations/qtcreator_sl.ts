@@ -19894,8 +19894,8 @@ Seznam za strežnik je: %2.</translation>
         <translation>Razlike v »%1«</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
-        <translation>ALT+Z,Alt+D</translation>
+        <source>Alt+Z,Alt+D</source>
+        <translation>Alt+Z,Alt+D</translation>
     </message>
     <message>
         <source>Log Current File</source>
@@ -19906,8 +19906,8 @@ Seznam za strežnik je: %2.</translation>
         <translation>Dnevnik za »%1«</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
-        <translation>ALT+Z,Alt+L</translation>
+        <source>Alt+Z,Alt+L</source>
+        <translation>Alt+Z,Alt+L</translation>
     </message>
     <message>
         <source>Status Current File</source>
@@ -19918,8 +19918,8 @@ Seznam za strežnik je: %2.</translation>
         <translation>Stanje za »%1«</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
-        <translation>ALT+Z,Alt+S</translation>
+        <source>Alt+Z,Alt+S</source>
+        <translation>Alt+Z,Alt+S</translation>
     </message>
     <message>
         <source>Add</source>
@@ -19978,8 +19978,8 @@ Seznam za strežnik je: %2.</translation>
         <translation>Zapiši ...</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
-        <translation>ALT+Z,Alt+C</translation>
+        <source>Alt+Z,Alt+C</source>
+        <translation>Alt+Z,Alt+C</translation>
     </message>
     <message>
         <source>Create Repository...</source>
