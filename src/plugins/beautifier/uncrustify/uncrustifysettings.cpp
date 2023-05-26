@@ -66,9 +66,9 @@ UncrustifySettings::UncrustifySettings()
     specificConfigFile.setExpectedKind(Utils::PathChooser::File);
     specificConfigFile.setPromptDialogFilter(Tr::tr("Uncrustify file (*.cfg)"));
 
-    documentationFilePath.setFilePath(Core::ICore::userResourcePath(Constants::SETTINGS_DIRNAME)
+    documentationFilePath = Core::ICore::userResourcePath(Constants::SETTINGS_DIRNAME)
         .pathAppended(Constants::DOCUMENTATION_DIRNAME)
-        .pathAppended(SETTINGS_NAME).stringAppended(".xml"));
+        .pathAppended(SETTINGS_NAME).stringAppended(".xml");
 
     read();
 }
@@ -82,7 +82,7 @@ void UncrustifySettings::createDocumentationFile() const
     if (process.result() != ProcessResult::FinishedWithSuccess)
         return;
 
-    QFile file(documentationFilePath().toFSPathString());
+    QFile file(documentationFilePath.toFSPathString());
     const QFileInfo fi(file);
     if (!fi.exists())
         fi.dir().mkpath(fi.absolutePath());

@@ -59,11 +59,11 @@ ArtisticStyleSettings::ArtisticStyleSettings()
 
     customStyle.setSettingsKey("customStyle");
 
-    documentationFilePath.setFilePath(
+    documentationFilePath =
         Core::ICore::userResourcePath(Beautifier::Constants::SETTINGS_DIRNAME)
             .pathAppended(Beautifier::Constants::DOCUMENTATION_DIRNAME)
             .pathAppended(SETTINGS_NAME)
-            .stringAppended(".xml"));
+            .stringAppended(".xml");
 
     read();
 }
@@ -77,7 +77,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
     if (process.result() != ProcessResult::FinishedWithSuccess)
         return;
 
-    QFile file(documentationFilePath().toFSPathString());
+    QFile file(documentationFilePath.toFSPathString());
     const QFileInfo fi(file);
     if (!fi.exists())
         fi.dir().mkpath(fi.absolutePath());

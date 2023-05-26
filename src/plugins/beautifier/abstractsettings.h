@@ -51,7 +51,8 @@ public:
 
     Utils::FilePathAspect command{this};
     Utils::StringAspect supportedMimeTypes{this};
-    Utils::FilePathAspect documentationFilePath; // Intentionally not saved.
+
+    Utils::FilePath documentationFilePath;
 
     QVersionNumber version() const;
 

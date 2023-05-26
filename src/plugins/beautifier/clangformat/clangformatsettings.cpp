@@ -63,16 +63,16 @@ ClangFormatSettings::ClangFormatSettings()
 
     customStyle.setSettingsKey("customStyle");
 
-    documentationFilePath.setFilePath(Core::ICore::userResourcePath(Constants::SETTINGS_DIRNAME)
+    documentationFilePath = Core::ICore::userResourcePath(Constants::SETTINGS_DIRNAME)
         .pathAppended(Constants::DOCUMENTATION_DIRNAME)
-        .pathAppended(SETTINGS_NAME).stringAppended(".xml"));
+        .pathAppended(SETTINGS_NAME).stringAppended(".xml");
 
     read();
 }
 
 void ClangFormatSettings::createDocumentationFile() const
 {
-    QFile file(documentationFilePath().toFSPathString());
+    QFile file(documentationFilePath.toFSPathString());
     const QFileInfo fi(file);
     if (!fi.exists())
         fi.dir().mkpath(fi.absolutePath());
