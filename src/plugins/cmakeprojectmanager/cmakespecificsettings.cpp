@@ -51,20 +51,17 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     setSettingsGroup("CMakeSpecificSettings");
     setAutoApply(false);
 
-    registerAspect(&autorunCMake);
     autorunCMake.setSettingsKey("AutorunCMake");
     autorunCMake.setDefaultValue(true);
     autorunCMake.setLabelText(::CMakeProjectManager::Tr::tr("Autorun CMake"));
     autorunCMake.setToolTip(::CMakeProjectManager::Tr::tr(
         "Automatically run CMake after changes to CMake project files."));
 
-    registerAspect(&ninjaPath);
     ninjaPath.setSettingsKey("NinjaPath");
     // never save this to the settings:
     ninjaPath.setToSettingsTransformation(
         [](const QVariant &) { return QVariant::fromValue(QString()); });
 
-    registerAspect(&packageManagerAutoSetup);
     packageManagerAutoSetup.setSettingsKey("PackageManagerAutoSetup");
     packageManagerAutoSetup.setDefaultValue(true);
     packageManagerAutoSetup.setLabelText(::CMakeProjectManager::Tr::tr("Package manager auto setup"));
@@ -72,24 +69,20 @@ CMakeSpecificSettings::CMakeSpecificSettings()
         "pointing to a CMake script that will install dependencies from the conanfile.txt, "
         "conanfile.py, or vcpkg.json file from the project source directory."));
 
-    registerAspect(&askBeforeReConfigureInitialParams);
     askBeforeReConfigureInitialParams.setSettingsKey("AskReConfigureInitialParams");
     askBeforeReConfigureInitialParams.setDefaultValue(true);
     askBeforeReConfigureInitialParams.setLabelText(::CMakeProjectManager::Tr::tr("Ask before re-configuring with "
         "initial parameters"));
 
-    registerAspect(&askBeforePresetsReload);
     askBeforePresetsReload.setSettingsKey("AskBeforePresetsReload");
     askBeforePresetsReload.setDefaultValue(true);
     askBeforePresetsReload.setLabelText(::CMakeProjectManager::Tr::tr("Ask before reloading CMake Presets"));
 
-    registerAspect(&showSourceSubFolders);
     showSourceSubFolders.setSettingsKey("ShowSourceSubFolders");
     showSourceSubFolders.setDefaultValue(true);
     showSourceSubFolders.setLabelText(
                 ::CMakeProjectManager::Tr::tr("Show subfolders inside source group folders"));
 
-    registerAspect(&showAdvancedOptionsByDefault);
     showAdvancedOptionsByDefault.setSettingsKey("ShowAdvancedOptionsByDefault");
     showAdvancedOptionsByDefault.setDefaultValue(false);
     showAdvancedOptionsByDefault.setLabelText(
