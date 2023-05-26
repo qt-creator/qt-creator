@@ -75,8 +75,6 @@ add_qtc_plugin(MesonProjectManager
   toolssettingsaccessor.h
   toolssettingspage.cpp
   toolssettingspage.h
-  toolssettingswidget.cpp
-  toolssettingswidget.h
   tooltreeitem.cpp
   tooltreeitem.h
   toolwrapper.cpp
