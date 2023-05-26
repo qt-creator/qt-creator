@@ -54,6 +54,7 @@ signals:
 private:
     void updateVisibility();
     bool showSaveDialog();
+    void popElement();
 
 private:
     bool m_isInternalCalled = false;
