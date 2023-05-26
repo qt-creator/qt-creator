@@ -55,8 +55,6 @@ private:
 int CustomStorage::s_count = 0;
 static const char s_taskIdProperty[] = "__taskId";
 
-static FutureSynchronizer *s_futureSynchronizer = nullptr;
-
 struct TestData {
     TreeStorage<CustomStorage> storage;
     Group root;
@@ -70,27 +68,12 @@ class tst_Tasking : public QObject
     Q_OBJECT
 
 private slots:
-    void initTestCase();
-
     void validConstructs(); // compile test
     void testTree_data();
     void testTree();
     void storageOperators();
     void storageDestructor();
-
-    void cleanupTestCase();
 };
-
-void tst_Tasking::initTestCase()
-{
-    s_futureSynchronizer = new FutureSynchronizer;
-}
-
-void tst_Tasking::cleanupTestCase()
-{
-    delete s_futureSynchronizer;
-    s_futureSynchronizer = nullptr;
-}
 
 void tst_Tasking::validConstructs()
 {
@@ -208,7 +191,6 @@ auto setupBarrierAdvance(const TreeStorage<CustomStorage> &storage,
                          const SharedBarrierType &barrier, int taskId)
 {
     return [storage, barrier, taskId](Async<bool> &async) {
-        async.setFutureSynchronizer(s_futureSynchronizer);
         async.setConcurrentCallData(reportAndSleep);
         async.setProperty(s_taskIdProperty, taskId);
         storage->m_log.append({taskId, Handler::Setup});
@@ -232,7 +214,6 @@ void tst_Tasking::testTree_data()
 
     const auto setupTaskHelper = [storage](TestTask &task, int taskId, bool success = true,
                                            std::chrono::milliseconds sleep = 0ms) {
-        task.setFutureSynchronizer(s_futureSynchronizer);
         task.setConcurrentCallData(runTask, success, sleep);
         task.setProperty(s_taskIdProperty, taskId);
         storage->m_log.append({taskId, Handler::Setup});
@@ -1668,7 +1649,6 @@ void tst_Tasking::storageDestructor()
     {
         TreeStorage<CustomStorage> storage;
         const auto setupSleepingTask = [](TestTask &task) {
-            task.setFutureSynchronizer(s_futureSynchronizer);
             task.setConcurrentCallData(runTask, true, 1000ms);
         };
         const Group root {
