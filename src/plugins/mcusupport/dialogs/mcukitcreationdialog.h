@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include "mcusupport_global.h"
-#include "settingshandler.h"
+#include "../mcusupport_global.h"
+#include "../settingshandler.h"
+
 #include <QDialog>
 #include <QPushButton>
 

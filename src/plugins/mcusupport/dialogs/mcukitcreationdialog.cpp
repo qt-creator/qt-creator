@@ -4,9 +4,9 @@
 #include "mcukitcreationdialog.h"
 #include "ui_mcukitcreationdialog.h"
 
-#include "mcuabstractpackage.h"
-#include "mcusupportconstants.h"
-#include "mcusupporttr.h"
+#include "../mcuabstractpackage.h"
+#include "../mcusupportconstants.h"
+#include "../mcusupporttr.h"
 
 #include <utils/filepath.h>
 #include <utils/icon.h>
@@ -15,9 +15,7 @@
 
 #include <QCheckBox>
 #include <QDesktopServices>
-#include <QPushButton>
 #include <QStyle>
-#include <QPushButton>
 
 namespace McuSupport::Internal {
 
