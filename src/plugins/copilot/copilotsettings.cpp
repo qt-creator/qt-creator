@@ -32,11 +32,8 @@ CopilotSettings::CopilotSettings()
            FilePath::fromUserInput(
                "~/AppData/Local/nvim/pack/github/start/copilot.vim/copilot/dist/agent.js")};
 
-    const FilePath distFromVim = Utils::findOrDefault(searchDirs, [](const FilePath &fp) {
-        return fp.exists();
-    });
+    const FilePath distFromVim = Utils::findOrDefault(searchDirs, &FilePath::exists);
 
-    registerAspect(&nodeJsPath);
     nodeJsPath.setExpectedKind(PathChooser::ExistingCommand);
     nodeJsPath.setDefaultFilePath(nodeFromPath);
     nodeJsPath.setSettingsKey("Copilot.NodeJsPath");
@@ -47,7 +44,6 @@ CopilotSettings::CopilotSettings()
         Tr::tr("Select path to node.js executable. See https://nodejs.org/de/download/"
                "for installation instructions."));
 
-    registerAspect(&distPath);
     distPath.setExpectedKind(PathChooser::File);
     distPath.setDefaultFilePath(distFromVim);
     distPath.setSettingsKey("Copilot.DistPath");
@@ -58,7 +54,6 @@ CopilotSettings::CopilotSettings()
         "Select path to agent.js in copilot neovim plugin. See "
         "https://github.com/github/copilot.vim#getting-started for installation instructions."));
 
-    registerAspect(&autoComplete);
     autoComplete.setDisplayName(Tr::tr("Auto Complete"));
     autoComplete.setLabelText(Tr::tr("Request completions automatically"));
     autoComplete.setDefaultValue(true);

@@ -14,9 +14,9 @@ public:
 
     static CopilotSettings &instance();
 
-    Utils::FilePathAspect nodeJsPath;
-    Utils::FilePathAspect distPath;
-    Utils::BoolAspect autoComplete;
+    Utils::FilePathAspect nodeJsPath{this};
+    Utils::FilePathAspect distPath{this};
+    Utils::BoolAspect autoComplete{this};
 };
 
 } // namespace Copilot
