@@ -47,6 +47,9 @@ void SignalHandlerProperty::setSource(const QString &source)
 
 QString SignalHandlerProperty::source() const
 {
+    if (!isValid())
+        return {};
+
     if (internalNode()->hasProperty(name())
         && internalNode()->property(name())->isSignalHandlerProperty())
         return internalNode()->signalHandlerProperty(name())->source();
@@ -123,7 +126,10 @@ void SignalDeclarationProperty::setSignature(const QString &signature)
 
 QString SignalDeclarationProperty::signature() const
 {
-    if (internalNode() && internalNode()->hasProperty(name())
+    if (!isValid())
+        return {};
+
+    if (internalNode()->hasProperty(name())
         && internalNode()->property(name())->isSignalDeclarationProperty())
         return internalNode()->signalDeclarationProperty(name())->signature();
 

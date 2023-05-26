@@ -15,6 +15,9 @@ namespace QmlDesigner {
 
 Internal::NodeListPropertyIterator::value_type Internal::NodeListPropertyIterator::operator*() const
 {
+    if (!m_nodeListProperty)
+        return {};
+
     return {m_nodeListProperty->at(m_currentIndex), m_model, m_view};
 }
 
@@ -208,11 +211,17 @@ Internal::NodeListPropertyIterator NodeListProperty::end()
 
 Internal::NodeListPropertyIterator NodeListProperty::begin() const
 {
+    if (!isValid())
+        return {};
+
     return {0, internalNodeListProperty().get(), model(), view()};
 }
 
 Internal::NodeListPropertyIterator NodeListProperty::end() const
 {
+    if (!isValid())
+        return {};
+
     auto nodeListProperty = internalNodeListProperty();
     auto size = nodeListProperty ? nodeListProperty->size() : 0;
 

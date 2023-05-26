@@ -44,7 +44,6 @@ public:
     using Pointer = std::shared_ptr<InternalNode>;
     using WeakPointer = std::weak_ptr<InternalNode>;
 
-    InternalNode() = default;
     explicit InternalNode(TypeName typeName, int majorVersion, int minorVersion, qint32 internalId)
         : typeName(std::move(typeName))
         , majorVersion(majorVersion)

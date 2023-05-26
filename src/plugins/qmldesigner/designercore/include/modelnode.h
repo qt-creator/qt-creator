@@ -253,7 +253,7 @@ public:
 
     friend bool operator==(const ModelNode &firstNode, const ModelNode &secondNode)
     {
-        return firstNode.internalId() == secondNode.internalId();
+        return firstNode.m_internalNode == secondNode.m_internalNode;
     }
 
     friend bool operator!=(const ModelNode &firstNode, const ModelNode &secondNode)

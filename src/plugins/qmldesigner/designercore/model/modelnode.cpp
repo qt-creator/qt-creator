@@ -75,7 +75,6 @@ ModelNode::ModelNode(const ModelNode &modelNode, AbstractView *view)
 \see invalid
 */
 ModelNode::ModelNode()
-    : m_internalNode(std::make_shared<InternalNode>())
 {
 }
 
@@ -1406,11 +1405,17 @@ QList<ModelNode> ModelNode::pruneChildren(const QList<ModelNode> &nodes)
 
 void  ModelNode::setScriptFunctions(const QStringList &scriptFunctionList)
 {
+    if (!isValid())
+        return;
+
     model()->d->setScriptFunctions(m_internalNode, scriptFunctionList);
 }
 
 QStringList  ModelNode::scriptFunctions() const
 {
+    if (!isValid())
+        return {};
+
     return m_internalNode->scriptFunctions;
 }
 
