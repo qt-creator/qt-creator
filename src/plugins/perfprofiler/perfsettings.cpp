@@ -62,8 +62,6 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
         stackSize.setEnabled(index == 0);
     });
 
-    connect(this, &AspectContainer::fromMapFinished, this, &PerfSettings::changed);
-
     readGlobalSettings();
 }
 

@@ -32,9 +32,6 @@ public:
     Utils::SelectionAspect callgraphMode{this};
     Utils::StringListAspect events{this};
     Utils::StringAspect extraArguments{this};
-
-signals:
-    void changed();
 };
 
 } // namespace PerfProfiler
