@@ -74,8 +74,8 @@ ModelNode::ModelNode(const ModelNode &modelNode, AbstractView *view)
 \return invalid node
 \see invalid
 */
-ModelNode::ModelNode():
-        m_internalNode(new InternalNode)
+ModelNode::ModelNode()
+    : m_internalNode(std::make_shared<InternalNode>())
 {
 }
 
