@@ -936,8 +936,6 @@ private:
                               std::move(aliasPropertyNameTail));
 
             updateAliasPropertyDeclarationToNullStatement.write(propertyDeclarationId);
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement.readCallback(callback,
@@ -955,8 +953,6 @@ private:
     {
         auto callback = [&](TypeId typeId, ImportedTypeNameId prototypeNameId) {
             relinkablePrototypes.emplace_back(typeId, prototypeNameId);
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         updatePrototypeIdToNullStatement.readCallback(callback, prototypeId);
@@ -966,8 +962,6 @@ private:
     {
         auto callback = [&](TypeId typeId, ImportedTypeNameId extensionNameId) {
             relinkableExtensions.emplace_back(typeId, extensionNameId);
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         updateExtensionIdToNullStatement.readCallback(callback, extensionId);
@@ -1080,7 +1074,6 @@ private:
                        relinkablePropertyDeclarations,
                        relinkablePrototypes,
                        relinkableExtensions);
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectNotUpdatedTypesInSourcesStatement.readCallback(callback,
@@ -1566,8 +1559,6 @@ private:
                                      exportedImportKind,
                                      import.moduleId,
                                      moduleExportedImportId);
-
-                return Sqlite::CallbackControl::Continue;
             };
 
             selectModuleExportedImportsForModuleIdStatement.readCallback(callback,
@@ -1964,8 +1955,6 @@ private:
         auto callback = [=](TypeId currentTypeId) {
             if (typeId == currentTypeId)
                 throw PrototypeChainCycle{};
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectTypeIdsForPrototypeChainIdStatement.readCallback(callback, typeId);
@@ -1976,8 +1965,6 @@ private:
         auto callback = [=](PropertyDeclarationId currentPropertyDeclarationId) {
             if (propertyDeclarationId == currentPropertyDeclarationId)
                 throw AliasChainCycle{};
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectPropertyDeclarationIdsForAliasChainStatement.readCallback(callback,
@@ -2209,8 +2196,6 @@ private:
             auto &functionDeclaration = functionDeclarations.emplace_back(name, returnType);
             functionDeclaration.parameters = selectFunctionParameterDeclarationsStatement.template values<
                 Storage::Synchronization::ParameterDeclaration>(8, functionDeclarationId);
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectFunctionDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, typeId);
@@ -2226,8 +2211,6 @@ private:
             auto &signalDeclaration = signalDeclarations.emplace_back(name);
             signalDeclaration.parameters = selectSignalParameterDeclarationsStatement.template values<
                 Storage::Synchronization::ParameterDeclaration>(8, signalDeclarationId);
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectSignalDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, typeId);
@@ -2245,8 +2228,6 @@ private:
                 name,
                 selectEnumeratorDeclarationStatement.template values<
                     Storage::Synchronization::EnumeratorDeclaration>(8, enumerationDeclarationId));
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectEnumerationDeclarationsForTypeIdWithoutEnumeratorDeclarationsStatement

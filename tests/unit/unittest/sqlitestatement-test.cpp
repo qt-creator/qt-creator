@@ -1443,6 +1443,18 @@ TEST_F(SqliteStatement, ReadCallback)
     statement.readCallback(callbackMock.AsStdFunction());
 }
 
+TEST_F(SqliteStatement, ReadCallbackWithoutControl)
+{
+    MockFunction<void(Utils::SmallStringView, long long)> callbackMock;
+    ReadStatement<2> statement("SELECT name, value FROM test", database);
+
+    EXPECT_CALL(callbackMock, Call(Eq("bar"), Eq(1)));
+    EXPECT_CALL(callbackMock, Call(Eq("foo"), Eq(2)));
+    EXPECT_CALL(callbackMock, Call(Eq("poo"), Eq(3)));
+
+    statement.readCallback(callbackMock.AsStdFunction());
+}
+
 TEST_F(SqliteStatement, ReadCallbackCalledWithArguments)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
