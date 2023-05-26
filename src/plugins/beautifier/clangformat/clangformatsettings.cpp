@@ -33,12 +33,10 @@ ClangFormatSettings::ClangFormatSettings()
     command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle("Clang Format"));
     command.setLabelText(Tr::tr("Clang Format command:"));
 
-    registerAspect(&usePredefinedStyle);
     usePredefinedStyle.setSettingsKey("usePredefinedStyle");
     usePredefinedStyle.setLabelText(Tr::tr("Use predefined style:"));
     usePredefinedStyle.setDefaultValue(true);
 
-    registerAspect(&predefinedStyle);
     predefinedStyle.setSettingsKey("predefinedStyle");
     predefinedStyle.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     predefinedStyle.addOption("LLVM");
@@ -49,7 +47,6 @@ ClangFormatSettings::ClangFormatSettings()
     predefinedStyle.addOption("File");
     predefinedStyle.setDefaultValue("LLVM");
 
-    registerAspect(&fallbackStyle);
     fallbackStyle.setSettingsKey("fallbackStyle");
     fallbackStyle.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     fallbackStyle.addOption("Default");
@@ -61,11 +58,9 @@ ClangFormatSettings::ClangFormatSettings()
     fallbackStyle.addOption("WebKit");
     fallbackStyle.setDefaultValue("Default");
 
-    registerAspect(&predefinedStyle);
     predefinedStyle.setSettingsKey("predefinedStyle");
     predefinedStyle.setDefaultValue("LLVM");
 
-    registerAspect(&customStyle);
     customStyle.setSettingsKey("customStyle");
 
     documentationFilePath.setFilePath(Core::ICore::userResourcePath(Constants::SETTINGS_DIRNAME)

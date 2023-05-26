@@ -14,15 +14,15 @@ public:
 
     void createDocumentationFile() const override;
 
-    Utils::BoolAspect useOtherFiles;
-    Utils::BoolAspect useHomeFile;
-    Utils::BoolAspect useCustomStyle;
+    Utils::BoolAspect useOtherFiles{this};
+    Utils::BoolAspect useHomeFile{this};
+    Utils::BoolAspect useCustomStyle{this};
 
-    Utils::StringAspect customStyle;
-    Utils::BoolAspect formatEntireFileFallback;
+    Utils::StringAspect customStyle{this};
+    Utils::BoolAspect formatEntireFileFallback{this};
 
-    Utils::FilePathAspect specificConfigFile;
-    Utils::BoolAspect useSpecificConfigFile;
+    Utils::FilePathAspect specificConfigFile{this};
+    Utils::BoolAspect useSpecificConfigFile{this};
 };
 
 class UncrustifyOptionsPage final : public Core::IOptionsPage

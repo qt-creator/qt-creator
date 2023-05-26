@@ -12,12 +12,12 @@ class ArtisticStyleSettings : public AbstractSettings
 public:
     ArtisticStyleSettings();
 
-    Utils::BoolAspect useOtherFiles;
-    Utils::BoolAspect useSpecificConfigFile;
-    Utils::FilePathAspect specificConfigFile;
-    Utils::BoolAspect useHomeFile;
-    Utils::BoolAspect useCustomStyle;
-    Utils::StringAspect customStyle;
+    Utils::BoolAspect useOtherFiles{this};
+    Utils::BoolAspect useSpecificConfigFile{this};
+    Utils::FilePathAspect specificConfigFile{this};
+    Utils::BoolAspect useHomeFile{this};
+    Utils::BoolAspect useCustomStyle{this};
+    Utils::StringAspect customStyle{this};
 
     void createDocumentationFile() const override;
 };

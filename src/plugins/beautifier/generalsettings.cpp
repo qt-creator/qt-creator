@@ -23,23 +23,19 @@ GeneralSettings::GeneralSettings()
     setCategoryIconPath(":/beautifier/images/settingscategory_beautifier.png");
     setSettingsGroups("Beautifier", "General");
 
-    registerAspect(&autoFormatOnSave);
     autoFormatOnSave.setSettingsKey(Utils::Constants::BEAUTIFIER_AUTO_FORMAT_ON_SAVE);
     autoFormatOnSave.setDefaultValue(false);
     autoFormatOnSave.setLabelText(Tr::tr("Enable auto format on file save"));
 
-    registerAspect(&autoFormatOnlyCurrentProject);
     autoFormatOnlyCurrentProject.setSettingsKey("autoFormatOnlyCurrentProject");
     autoFormatOnlyCurrentProject.setDefaultValue(true);
     autoFormatOnlyCurrentProject.setLabelText(Tr::tr("Restrict to files contained in the current project"));
 
-    registerAspect(&autoFormatTools);
     autoFormatTools.setSettingsKey("autoFormatTool");
     autoFormatTools.setLabelText(Tr::tr("Tool:"));
     autoFormatTools.setDefaultValue(0);
     autoFormatTools.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
 
-    registerAspect(&autoFormatMime);
     autoFormatMime.setSettingsKey("autoFormatMime");
     autoFormatMime.setDefaultValue("text/x-c++src;text/x-c++hdr");
     autoFormatMime.setLabelText(Tr::tr("Restrict to MIME types:"));

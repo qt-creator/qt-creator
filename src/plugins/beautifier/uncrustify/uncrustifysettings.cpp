@@ -41,34 +41,27 @@ UncrustifySettings::UncrustifySettings()
     command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
                                      Tr::tr(Constants::UNCRUSTIFY_DISPLAY_NAME)));
 
-    registerAspect(&useOtherFiles);
     useOtherFiles.setSettingsKey("useOtherFiles");
     useOtherFiles.setDefaultValue(true);
     useOtherFiles.setLabelText(Tr::tr("Use file uncrustify.cfg defined in project files"));
 
-    registerAspect(&useHomeFile);
     useHomeFile.setSettingsKey("useHomeFile");
     useHomeFile.setLabelText(Tr::tr("Use file uncrustify.cfg in HOME")
         .replace( "HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
 
-    registerAspect(&useCustomStyle);
     useCustomStyle.setSettingsKey("useCustomStyle");
     useCustomStyle.setLabelText(Tr::tr("Use customized style:"));
 
-    registerAspect(&useSpecificConfigFile);
     useSpecificConfigFile.setSettingsKey("useSpecificConfigFile");
     useSpecificConfigFile.setLabelText(Tr::tr("Use file specific uncrustify.cfg"));
 
-    registerAspect(&customStyle);
     customStyle.setSettingsKey("customStyle");
 
-    registerAspect(&formatEntireFileFallback);
     formatEntireFileFallback.setSettingsKey("formatEntireFileFallback");
     formatEntireFileFallback.setDefaultValue(true);
     formatEntireFileFallback.setLabelText(Tr::tr("Format entire file if no text was selected"));
     formatEntireFileFallback.setToolTip(Tr::tr("For action Format Selected Text"));
 
-    registerAspect(&specificConfigFile);
     specificConfigFile.setSettingsKey("specificConfigFile");
     specificConfigFile.setExpectedKind(Utils::PathChooser::File);
     specificConfigFile.setPromptDialogFilter(Tr::tr("Uncrustify file (*.cfg)"));
