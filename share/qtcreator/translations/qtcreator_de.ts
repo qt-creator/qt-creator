@@ -20157,8 +20157,8 @@ z.B. name = &quot;m_test_foo_&quot;:
         <translation>Diagnosekonfigurationen</translation>
     </message>
     <message>
-        <source>For appropriate options, consult the GCC or Clang manual pages or the %1 GCC online documentation&lt;/a&gt;.</source>
-        <translation>Für passende Optionen lesen Sie das GCC- oder Clang-Handbuch oder auch die %1 GCC-Onlinedokumentation&lt;/a&gt;.</translation>
+        <source>For appropriate options, consult the GCC or Clang manual pages or the [GCC online documentation](%1).</source>
+        <translation>Für passende Optionen lesen Sie das GCC- oder Clang-Handbuch oder auch die [GCC-Onlinedokumentation](%1).</translation>
     </message>
     <message>
         <source>Copy...</source>

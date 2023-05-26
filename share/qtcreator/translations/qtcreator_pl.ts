@@ -34259,8 +34259,8 @@ Te pliki są zabezpieczone.</numerusform>
         <translation>Usuń</translation>
     </message>
     <message>
-        <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
-        <translation>Sposoby konfigurowania opisane są w podręczniku GCC lub Clang lub w &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;dokumentacji online GCC&lt;/a&gt;.</translation>
+        <source>For appropriate options, consult the GCC or Clang manual pages or the [GCC online documentation](%1).</source>
+        <translation>Sposoby konfigurowania opisane są w podręczniku GCC lub Clang lub w [dokumentacji online GCC](%1).</translation>
     </message>
     <message>
         <source>Copy Diagnostic Configuration</source>

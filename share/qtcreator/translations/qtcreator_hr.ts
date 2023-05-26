@@ -2809,8 +2809,8 @@ p, li { white-space: pre-wrap; }
         <translation>Dodatne C++ predprocesorske direktive za %1:</translation>
     </message>
     <message>
-        <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
-        <translation>Odgovarajuće opcije potraži na stranicama GCC ili Clang priručnika ili na &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online dokumentaciji&lt;/a&gt;.</translation>
+        <source>For appropriate options, consult the GCC or Clang manual pages or the [GCC online documentation](%1).</source>
+        <translation>Odgovarajuće opcije potraži na stranicama GCC ili Clang priručnika ili na [GCC online dokumentaciji](%1).</translation>
     </message>
     <message>
         <source>Use diagnostic flags from build system</source>

@@ -42730,8 +42730,8 @@ the program.</source>
         <translation>Видалити</translation>
     </message>
     <message>
-        <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
-        <translation>Для відповідних опцій, переглянть сторінки man до GCC або Clang або ж &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;документацію GCC в мережі&lt;/a&gt;.</translation>
+        <source>For appropriate options, consult the GCC or Clang manual pages or the [GCC online documentation](%1).</source>
+        <translation>Для відповідних опцій, переглянть сторінки man до GCC або Clang або ж [документацію GCC в мережі](%1).</translation>
     </message>
     <message>
         <source>Copy Diagnostic Configuration</source>

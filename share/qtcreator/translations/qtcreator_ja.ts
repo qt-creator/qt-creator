@@ -33563,8 +33563,8 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
         <translation>削除</translation>
     </message>
     <message>
-        <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
-        <translation>オプションの詳細は GCC や Clang のマニュアル、または &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC のオンラインドキュメント&lt;/a&gt; を参照してください。</translation>
+        <source>For appropriate options, consult the GCC or Clang manual pages or the [GCC online documentation](%1).</source>
+        <translation>オプションの詳細は GCC や Clang のマニュアル、または [GCC のオンラインドキュメント](%1) を参照してください。</translation>
     </message>
     <message>
         <source>Copy Diagnostic Configuration</source>

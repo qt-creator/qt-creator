@@ -120,9 +120,11 @@ class ClangBaseChecksWidget : public QWidget
 public:
     ClangBaseChecksWidget()
     {
-        auto label = new QLabel(Tr::tr("For appropriate options, consult the GCC or Clang manual "
-            "pages or the %1 GCC online documentation</a>.")
-                .arg("<a href=\"https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html\">"));
+        auto label = new QLabel;
+        label->setTextFormat(Qt::MarkdownText);
+        label->setText(Tr::tr("For appropriate options, consult the GCC or Clang manual "
+                              "pages or the [GCC online documentation](%1).")
+                           .arg("https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html"));
         label->setOpenExternalLinks(true);
 
         useFlagsFromBuildSystemCheckBox = new QCheckBox(Tr::tr("Use diagnostic flags from build system"));
