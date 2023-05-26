@@ -49,6 +49,32 @@ private:
 */
 
 /*!
+    \variable sequential
+    A convenient global group's element describing the sequential execution mode.
+
+    This is the default execution mode of the Group element.
+
+    When a Group has no execution mode, it runs in the sequential mode.
+    All the direct child tasks of a group are started in a chain, so that when one task finishes,
+    the next one starts. This enables you to pass the results from the previous task
+    as input to the next task before it starts. This mode guarantees that the next task
+    is started only after the previous task finishes.
+
+    \sa parallel, parallelLimit
+*/
+
+/*!
+    \variable parallel
+    A convenient global group's element describing the parallel execution mode.
+
+    All the direct child tasks of a group are started after the group is started,
+    without waiting for the previous child tasks to finish.
+    In this mode, all child tasks run simultaneously.
+
+    \sa sequential, parallelLimit
+*/
+
+/*!
     \enum Tasking::TaskAction
 
     This enum is optionally returned from the group's or task's setup handler function.
@@ -172,6 +198,47 @@ TaskItem onGroupError(const TaskItem::GroupEndHandler &handler)
     return Group::onGroupError(handler);
 }
 
+/*!
+    Constructs a group's element describing the \l{Execution Mode}{execution mode}.
+
+    The execution mode element in a Group specifies how the direct child tasks of
+    the Group are started.
+
+    For convenience, when appropriate, the \l sequential or \l parallel global elements
+    may be used instead.
+
+    The \a limit defines the maximum number of direct child tasks running in parallel:
+
+    \list
+        \li When \a limit equals to 0, there is no limit, and all direct child tasks are started
+        together, in the oder in which they appear in a group. This means the fully parallel
+        execution, and the \l parallel element may be used instead.
+
+        \li When \a limit equals to 1, it means that only one child task may run at the time.
+        This means the sequential execution, and the \l sequential element may be used instead.
+        In this case child tasks run in chain, so the next child task starts after
+        the previous child task has finished.
+
+        \li When other positive number is passed as \a limit, the group's child tasks run
+        in parallel, but with a limited number of tasks running simultanously.
+        The \e limit defines the maximum number of tasks running in parallel in a group.
+        When the group is started, the first batch of tasks is started
+        (the number of tasks in a batch equals to the passed \a limit, at most),
+        while the others are kept waiting. When any running task finishes,
+        the group starts the next remaining one, so that the \e limit of simultaneously
+        running tasks inside a group isn't exceeded. This repeats on every child task's
+        finish until all child tasks are started. This enables you to limit the maximum
+        number of tasks that run simultaneously, for example if running too many processes might
+        block the machine for a long time.
+    \endlist
+
+    In all execution modes, a group starts tasks in the oder in which they appear.
+
+    If a child of a group is also a group, the child group runs its tasks according
+    to its own execution mode.
+
+    \sa sequential, parallel
+*/
 TaskItem parallelLimit(int limit)
 {
     return Group::parallelLimit(qMax(limit, 0));
@@ -1252,45 +1319,14 @@ void TaskNode::invokeEndHandler(bool success)
     \section2 Execution Mode
 
     The execution mode element in a Group specifies how the direct child tasks of
-    the Group are started.
-
-    \table
-    \header
-        \li Execution Mode
-        \li Description
-    \row
-        \li sequential
-        \li Default. When a Group has no execution mode, it runs in the
-            sequential mode. All the direct child tasks of a group are started
-            in a chain, so that when one task finishes, the next one starts.
-            This enables you to pass the results from the previous task
-            as input to the next task before it starts. This mode guarantees
-            that the next task is started only after the previous task finishes.
-    \row
-        \li parallel
-        \li All the direct child tasks of a group are started after the group is
-            started, without waiting for the previous tasks to finish. In this
-            mode, all tasks run simultaneously.
-    \row
-        \li parallelLimit(int limit)
-        \li In this mode, a limited number of direct child tasks run simultaneously.
-            The \e limit defines the maximum number of tasks running in parallel
-            in a group. When the group is started, the first batch tasks is
-            started (the number of tasks in batch equals to passed limit, at most),
-            while the others are kept waiting. When a running task finishes,
-            the group starts the next remaining one, so that the \e limit
-            of simultaneously running tasks inside a group isn't exceeded.
-            This repeats on every child task's finish until all child tasks are started.
-            This enables you to limit the maximum number of tasks that
-            run simultaneously, for example if running too many processes might
-            block the machine for a long time. The value 1 means \e sequential
-            execution. The value 0 means unlimited and equals \e parallel.
-    \endtable
+    the Group are started. The most common execution modes are \l sequential and
+    \l parallel. It's also possible to specify the limit of tasks running
+    in parallel by using the parallelLimit function.
 
     In all execution modes, a group starts tasks in the oder in which they appear.
 
-    If a child of a group is also a group (in a nested tree), the child group
-    runs its tasks according to its own execution mode.
+    If a child of a group is also a group, the child group runs its tasks
+    according to its own execution mode.
 
     \section2 Workflow Policy
 
