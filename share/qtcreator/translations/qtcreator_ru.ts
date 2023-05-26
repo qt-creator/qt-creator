@@ -32,14 +32,12 @@
         <translation>Удалить сессии</translation>
     </message>
     <message>
-        <source>Delete workspace %1?</source>
-        <translation>Удалить сессию %1?</translation>
+        <source>Delete workspace &quot;%1&quot;?</source>
+        <translation>Удалить сессию &quot;%1&quot;?</translation>
     </message>
     <message>
-        <source>Delete these workspaces?
-    %1</source>
-        <translation>Удалить следующие сессии?
-    %1</translation>
+        <source>Delete these workspaces?</source>
+        <translation>Удалить следующие сессии?</translation>
     </message>
     <message>
         <source>Cannot Restore Workspace</source>
@@ -10566,8 +10564,8 @@ Double-click to edit item.</source>
         <translation>Команда patch, настроенная в общих настройках «Среды», отсутствует.</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Выполняется в %1: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3</source>
+        <translation>Выполняется в &quot;%1&quot;: %2 %3</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -32162,8 +32160,8 @@ These files are preserved.</source>
         <translation>Ошибка при сохранении сессии</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Не удалось сохранить сессию %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Не удалось сохранить сессию &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -47662,8 +47660,8 @@ What do you want to do?</source>
         <translation>Исполнение: %1 %2</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Исполнение в %1: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3</source>
+        <translation>Исполнение в &quot;%1&quot;: %2 %3</translation>
     </message>
     <message>
         <source>&amp;Undo</source>

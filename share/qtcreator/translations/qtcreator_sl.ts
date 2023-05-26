@@ -7426,8 +7426,8 @@ v sistem za nadzor različic (%2)?</translation>
         <translation>Napaka med shranjevanjem seje</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Ni bilo moč shraniti seje v datoteko %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Ni bilo moč shraniti seje v datoteko &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Untitled</source>

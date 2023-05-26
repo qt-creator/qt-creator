@@ -197,15 +197,15 @@ expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
                                                      const FilePath &target) const
 {
     if (!src.isDir()) {
-        return make_unexpected(Tr::tr("Cannot copy from %1, it is not a directory.")
-                                   .arg(src.toUserOutput())
-                                   .arg(target.toUserOutput()));
+        return make_unexpected(
+            Tr::tr("Cannot copy from \"%1\", it is not a directory.").arg(src.toUserOutput()));
     }
 
     if (!target.ensureWritableDir()) {
-        return make_unexpected(Tr::tr("Cannot copy %1 to %2, it is not a writable directory.")
-                                   .arg(src.toUserOutput())
-                                   .arg(target.toUserOutput()));
+        return make_unexpected(
+            Tr::tr("Cannot copy \"%1\" to \"%2\", it is not a writable directory.")
+                .arg(src.toUserOutput())
+                .arg(target.toUserOutput()));
     }
 
 #ifdef UTILS_STATIC_LIBRARY

@@ -24418,8 +24418,8 @@ to project &quot;%2&quot;.</source>
         <translation>セッション %1 を保存できませんでした</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>セッション %1 を保存できません</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>セッション &quot;%1&quot; を保存できません</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -42568,14 +42568,12 @@ Output:
         <translation>ワークスペースを削除する</translation>
     </message>
     <message>
-        <source>Delete workspace %1?</source>
-        <translation>ワークスペース %1 を削除しますか？</translation>
+        <source>Delete workspace &quot;%1&quot;?</source>
+        <translation>ワークスペース &quot;%1&quot; を削除しますか？</translation>
     </message>
     <message>
-        <source>Delete these workspaces?
-    %1</source>
-        <translation>これらのワークスペースを削除しますか？
-    %1</translation>
+        <source>Delete these workspaces?</source>
+        <translation>これらのワークスペースを削除しますか？</translation>
     </message>
     <message>
         <source>Cannot Restore Workspace</source>

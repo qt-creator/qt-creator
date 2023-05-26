@@ -7967,8 +7967,8 @@ do projektu &quot;%2&quot;.</translation>
         <translation>Błąd podczas zachowywania sesji</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Nie można zachować sesji w pliku %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Nie można zachować sesji w pliku &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -28622,8 +28622,8 @@ Do you want to check them out now?</source>
         <translation>Brak skonfigurowanej komendy &quot;patch&quot; w głównych ustawieniach środowiska.</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Uruchamianie w %1: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3</source>
+        <translation>Uruchamianie w &quot;%1&quot;: %2 %3</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -31184,8 +31184,8 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <translation>Uruchamianie: %1 %2</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Uruchamianie w %1: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3</source>
+        <translation>Uruchamianie w &quot;%1&quot;: %2 %3</translation>
     </message>
 </context>
 <context>

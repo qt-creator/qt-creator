@@ -18572,8 +18572,8 @@ Do you want to kill it?</source>
         <translation>U općim postavkama za „Okruženje” konfigurirana zakrpna naredba ne postoji.</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Pokrenuto u %1: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3</source>
+        <translation>Pokrenuto u &quot;%1&quot;: %2 %3</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -35830,8 +35830,8 @@ What do you want to do?</source>
         <translation>Radi: %1 %2</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Radi u %1: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3</source>
+        <translation>Radi u &quot;%1&quot;: %2 %3</translation>
     </message>
     <message>
         <source>Name of the version control system in use by the current project.</source>

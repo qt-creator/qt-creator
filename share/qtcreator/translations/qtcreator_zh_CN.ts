@@ -32,14 +32,12 @@
         <translation>删除工作区</translation>
     </message>
     <message>
-        <source>Delete workspace %1?</source>
-        <translation>删除 %1 工作区？</translation>
+        <source>Delete workspace &quot;%1&quot;?</source>
+        <translation>删除 &quot;%1&quot; 工作区？</translation>
     </message>
     <message>
-        <source>Delete these workspaces?
-    %1</source>
-        <translation>删除这些工作区？
-    %1</translation>
+        <source>Delete these workspaces?</source>
+        <translation>删除这些工作区？</translation>
     </message>
     <message>
         <source>Cannot Restore Workspace</source>
@@ -30031,8 +30029,8 @@ These files are preserved.</source>
         <translation>保存会话时发生错误</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>无法将会话保存到文件 %1 </translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>无法将会话保存到文件 &quot;%1&quot; </translation>
     </message>
     <message>
         <source>Untitled</source>

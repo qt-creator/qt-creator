@@ -13043,8 +13043,8 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>%1 konnte nicht geladen werden: %2</translation>
     </message>
     <message>
-        <source>Attempt to include %1 which was already parsed.</source>
-        <translation>Versuch, die Datei %1 einzufügen, welche schon ausgewertet wurde.</translation>
+        <source>Attempt to include &quot;%1&quot; which was already parsed.</source>
+        <translation>Versuch, die Datei &quot;%1&quot; einzufügen, welche schon ausgewertet wurde.</translation>
     </message>
     <message>
         <source>yes</source>
@@ -13408,8 +13408,8 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
         <translation>Keine gültige ausführbare CMake-Datei</translation>
     </message>
     <message>
-        <source>Running in %1: %2</source>
-        <translation>Führe in %1 aus: %2</translation>
+        <source>Running in &quot;%1&quot;: %2</source>
+        <translation>Führe in &quot;%1&quot; aus: %2</translation>
     </message>
     <message>
         <source>&lt;No CMake Tool available&gt;</source>
@@ -16566,8 +16566,8 @@ Trotzdem fortfahren?</translation>
         <translation>Das in den allgemeinen Umgebungseinstellungen konfigurierte patch-Kommando existiert nicht.</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Führe in %1 aus: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3</source>
+        <translation>Führe in &quot;%1&quot; aus: %2 %3</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -20465,8 +20465,8 @@ Dies ist normalerweise nicht empfehlenswert, da die Datei wahrscheinlich währen
         <translation>Möchten Sie stattdessen &quot;%1&quot; bearbeiten?</translation>
     </message>
     <message>
-        <source>Open %1</source>
-        <translation>%1 öffnen</translation>
+        <source>Open &quot;%1&quot;</source>
+        <translation>&quot;%1&quot; öffnen</translation>
     </message>
     <message>
         <source>&amp;Refactor</source>
@@ -35824,8 +35824,8 @@ Rename %2 to %3 anyway?</source>
         <translation>Fehler beim Speichern der Sitzung</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Die Sitzung konnte nicht unter %1 gespeichert werden</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Die Sitzung konnte nicht unter &quot;%1&quot; gespeichert werden</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -40167,12 +40167,12 @@ fails because Clang does not understand the target architecture.</source>
         <translation>Ausführbare Datei ist leer.</translation>
     </message>
     <message>
-        <source>%1 does not exist.</source>
-        <translation>%1 existiert nicht.</translation>
+        <source>&quot;%1&quot; does not exist.</source>
+        <translation>&quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
-        <source>%1 is not an executable file.</source>
-        <translation>%1 ist keine ausführbare Datei.</translation>
+        <source>&quot;%1&quot; is not an executable file.</source>
+        <translation>&quot;%1&quot; ist keine ausführbare Datei.</translation>
     </message>
     <message>
         <source>&amp;Add</source>
@@ -41539,8 +41539,8 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <translation>Das Ausgabeverzeichnis &quot;%1&quot; konnte nicht angelegt werden</translation>
     </message>
     <message>
-        <source>Running in %1: %2</source>
-        <translation>Führe in %1 aus: %2</translation>
+        <source>Running in &quot;%1&quot;: %2</source>
+        <translation>Führe in &quot;%1&quot; aus: %2</translation>
     </message>
     <message>
         <source>Build</source>
@@ -51138,12 +51138,12 @@ Die Trace-Daten sind verloren.</translation>
         <translation>copyFile ist für &quot;%1&quot; nicht implementiert</translation>
     </message>
     <message>
-        <source>Cannot copy from %1, it is not a directory.</source>
-        <translation>%1 kann nicht kopiert werden, da es kein Verzeichnis ist.</translation>
+        <source>Cannot copy from &quot;%1&quot;, it is not a directory.</source>
+        <translation>&quot;%1&quot; kann nicht kopiert werden, da es kein Verzeichnis ist.</translation>
     </message>
     <message>
-        <source>Cannot copy %1 to %2, it is not a writable directory.</source>
-        <translation>%1 kann nicht nach %2 kopiert werden, da es kein schreibbares Verzeichnis ist.</translation>
+        <source>Cannot copy &quot;%1&quot; to &quot;%2&quot;, it is not a writable directory.</source>
+        <translation>&quot;%1&quot; kann nicht nach &quot;%2&quot; kopiert werden, da es kein schreibbares Verzeichnis ist.</translation>
     </message>
     <message>
         <source>Failed to copy recursively from &quot;%1&quot; to &quot;%2&quot; while trying to create tar archive from source: %3</source>
@@ -51254,14 +51254,12 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Arbeitsbereiche löschen</translation>
     </message>
     <message>
-        <source>Delete workspace %1?</source>
-        <translation>Arbeitsbereich %1 löschen?</translation>
+        <source>Delete workspace &quot;%1&quot;?</source>
+        <translation>Arbeitsbereich &quot;%1&quot; löschen?</translation>
     </message>
     <message>
-        <source>Delete these workspaces?
-    %1</source>
-        <translation>Diese Arbeitsbereiche löschen?
-    %1</translation>
+        <source>Delete these workspaces?</source>
+        <translation>Diese Arbeitsbereiche löschen?</translation>
     </message>
     <message>
         <source>File Error</source>
@@ -53268,8 +53266,8 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
         <translation>Führe aus: %1</translation>
     </message>
     <message>
-        <source>Running in %1: %2</source>
-        <translation>Führe in %1 aus: %2</translation>
+        <source>Running in &quot;%1&quot;: %2</source>
+        <translation>Führe in &quot;%1&quot; aus: %2</translation>
     </message>
     <message>
         <source>Failed to retrieve data.</source>

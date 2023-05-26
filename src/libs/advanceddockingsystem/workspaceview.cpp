@@ -325,10 +325,10 @@ bool WorkspaceView::confirmWorkspaceDelete(const QStringList &fileNames)
 {
     const QString title = fileNames.size() == 1 ? Tr::tr("Delete Workspace")
                                                 : Tr::tr("Delete Workspaces");
-    const QString question
-        = fileNames.size() == 1
-              ? Tr::tr("Delete workspace %1?").arg(fileNames.first())
-              : Tr::tr("Delete these workspaces?\n    %1").arg(fileNames.join("\n    "));
+    const QString question = fileNames.size() == 1
+                                 ? Tr::tr("Delete workspace \"%1\"?").arg(fileNames.first())
+                                 : Tr::tr("Delete these workspaces?")
+                                       + QString("\n    %1").arg(fileNames.join("\n    "));
     return QMessageBox::question(parentWidget(), title, question, QMessageBox::Yes | QMessageBox::No)
            == QMessageBox::Yes;
 }

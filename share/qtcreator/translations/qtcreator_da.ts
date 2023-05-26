@@ -7810,8 +7810,8 @@ Vil du dræbe den?</translation>
         <translation>Patch-kommandoen konfigureret i de generelle &quot;Miljø&quot;-indstillinger findes ikke.</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Kører om %1: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3</source>
+        <translation>Kører om &quot;%1&quot;: %2 %3</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -24940,8 +24940,8 @@ Disse filer bevares.</numerusform>
         <translation>Fejl ved gemning af session</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Kunne ikke gemme session til filen %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Kunne ikke gemme session til filen &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Untitled</source>

@@ -171,9 +171,10 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
             if (interpreter.command.isEmpty())
                 return Tr::tr("Executable is empty.");
             if (!interpreter.command.exists())
-                return Tr::tr("%1 does not exist.").arg(interpreter.command.toUserOutput());
+                return Tr::tr("\"%1\" does not exist.").arg(interpreter.command.toUserOutput());
             if (!interpreter.command.isExecutableFile())
-                return Tr::tr("%1 is not an executable file.").arg(interpreter.command.toUserOutput());
+                return Tr::tr("\"%1\" is not an executable file.")
+                    .arg(interpreter.command.toUserOutput());
             break;
         case Qt::DecorationRole:
             if (column == 0 && !interpreter.command.isExecutableFile())

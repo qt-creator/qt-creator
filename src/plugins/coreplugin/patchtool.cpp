@@ -93,7 +93,8 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
     if (patchAction == PatchAction::Revert)
         args << "-R";
     args << "--binary";
-    MessageManager::writeDisrupting(Tr::tr("Running in %1: %2 %3")
+    MessageManager::writeDisrupting(
+        Tr::tr("Running in \"%1\": %2 %3")
             .arg(workingDirectory.toUserOutput(), patch.toUserOutput(), args.join(' ')));
     patchProcess.setCommand({patch, args});
     patchProcess.setWriteData(input);

@@ -238,7 +238,7 @@ void CMakeProject::readPresets()
                         if (includeStack.contains(includePath)) {
                             TaskHub::addTask(BuildSystemTask(
                                 Task::TaskType::Warning,
-                                Tr::tr("Attempt to include %1 which was already parsed.")
+                                Tr::tr("Attempt to include \"%1\" which was already parsed.")
                                     .arg(includePath.path()),
                                 Utils::FilePath(),
                                 -1));

@@ -7218,8 +7218,8 @@ to version control (%2)?</source>
         <translation>儲存工作階段時發生錯誤</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>無法儲存工作階段至檔案 %1 </translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>無法儲存工作階段至檔案 &quot;%1&quot; </translation>
     </message>
     <message>
         <source>Untitled</source>

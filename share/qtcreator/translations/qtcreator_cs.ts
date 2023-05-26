@@ -10547,8 +10547,8 @@ přidat do správy verzí (%2)?</translation>
         <translation>Při ukládání sezení se vyskytla chyba</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Sezení se nepodařilo uložit do souboru %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Sezení se nepodařilo uložit do souboru &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Untitled</source>

@@ -7179,8 +7179,8 @@ al control de versiones (%2)?</translation>
         <translation>Error guardando sesión</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>No se pudo guardar la sesion al archivo %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>No se pudo guardar la sesion al archivo &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Qt Creator</source>

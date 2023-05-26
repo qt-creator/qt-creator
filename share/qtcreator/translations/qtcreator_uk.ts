@@ -14143,8 +14143,8 @@ Reason: %2</source>
         <translation>Помилка при збереженні сесії</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Не вдалось зберегти сесію до файлу %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Не вдалось зберегти сесію до файлу &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Untitled</source>

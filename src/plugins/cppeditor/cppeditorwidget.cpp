@@ -780,11 +780,11 @@ void CppEditorWidget::showRenameWarningIfFileIsGenerated(const Utils::FilePath &
         static const Id infoId("cppeditor.renameWarning");
         InfoBarEntry info(infoId, warning);
         if (ec) {
-            info.addCustomButton(CppEditor::Tr::tr("Open %1").arg(ec->source().fileName()),
-                [source = ec->source()] {
-                EditorManager::openEditor(source);
-                ICore::infoBar()->removeInfo(infoId);
-            });
+            info.addCustomButton(CppEditor::Tr::tr("Open \"%1\"").arg(ec->source().fileName()),
+                                 [source = ec->source()] {
+                                     EditorManager::openEditor(source);
+                                     ICore::infoBar()->removeInfo(infoId);
+                                 });
         }
         ICore::infoBar()->addInfo(info);
         return;

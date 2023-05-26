@@ -720,7 +720,7 @@ bool SessionManager::saveSession()
     } else {
         QMessageBox::warning(ICore::dialogParent(),
                              PE::Tr::tr("Error while saving session"),
-                             PE::Tr::tr("Could not save session to file %1")
+                             PE::Tr::tr("Could not save session to file \"%1\"")
                                  .arg(sb_d->m_writer->fileName().toUserOutput()));
     }
 

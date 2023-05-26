@@ -1604,8 +1604,8 @@ void QmakeBuildSystem::runGenerator(Utils::Id id)
     proc->setWorkingDirectory(outDir);
     proc->setEnvironment(buildConfiguration()->environment());
     proc->setCommand(cmdLine);
-    Core::MessageManager::writeFlashing(Tr::tr("Running in %1: %2")
-                                        .arg(outDir.toUserOutput(), cmdLine.toUserOutput()));
+    Core::MessageManager::writeFlashing(
+        Tr::tr("Running in \"%1\": %2").arg(outDir.toUserOutput(), cmdLine.toUserOutput()));
     proc->start();
 }
 
