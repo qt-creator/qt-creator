@@ -559,7 +559,7 @@ void FossilPluginPrivate::createRepositoryActions(const Core::Context &context)
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(Tr::tr("Settings ..."), this);
+    action = new QAction(Tr::tr("Settings..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::CONFIGURE_REPOSITORY, context);
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::configureRepository);

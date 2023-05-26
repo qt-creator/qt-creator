@@ -622,7 +622,7 @@ void LoggingViewManagerWidget::saveLoggingsToFile() const
 void LoggingViewManagerWidget::saveEnabledCategoryPreset() const
 {
     Utils::FilePath fp = Utils::FileUtils::getSaveFilePath(ICore::dialogParent(),
-                                                           Tr::tr("Save Enabled Categories As"));
+                                                           Tr::tr("Save Enabled Categories As..."));
     if (fp.isEmpty())
         return;
     const QList<LoggingCategoryItem> enabled = m_categoryModel->enabledCategories();

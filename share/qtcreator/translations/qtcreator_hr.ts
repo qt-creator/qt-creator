@@ -10705,8 +10705,8 @@ will also disable the following plugins:
         <translation>Očekivana vrsta %1, ali vrijednost je sadržavala %2</translation>
     </message>
     <message>
-        <source>Could not parse JSON message &quot;%1&quot;.</source>
-        <translation>Nije moguće obraditi JSON poruku &quot;%1&quot;.</translation>
+        <source>Could not parse JSON message: &quot;%1&quot;.</source>
+        <translation>Nije moguće obraditi JSON poruku: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Expected a JSON object, but got a JSON &quot;%1&quot;.</source>

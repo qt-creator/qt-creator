@@ -69,8 +69,7 @@ static FormatTask format(FormatTask task)
         process.setCommand({executable, options});
         process.runBlocking();
         if (process.result() != ProcessResult::FinishedWithSuccess) {
-            task.error = Tr::tr("TextEditor", "Failed to format: %1.")
-                             .arg(process.exitMessage());
+            task.error = Tr::tr("Failed to format: %1.").arg(process.exitMessage());
             return task;
         }
         const QString output = process.cleanedStdErr();
@@ -249,8 +248,7 @@ void updateEditorText(QPlainTextEdit *editor, const QString &text)
 
 static void showError(const QString &error)
 {
-    Core::MessageManager::writeFlashing(Tr::tr("TextEditor", "Error in text formatting: %1")
-                .arg(error.trimmed()));
+    Core::MessageManager::writeFlashing(Tr::tr("Error in text formatting: %1").arg(error.trimmed()));
 }
 
 /**

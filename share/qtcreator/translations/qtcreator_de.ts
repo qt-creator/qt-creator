@@ -18989,8 +18989,8 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <translation>Datei &quot;%1&quot; konnte nicht zum Schreiben der Protokolle geöffnet werden.</translation>
     </message>
     <message>
-        <source>Save Enabled Categories As</source>
-        <translation>Ausgewählte Kategorien speichern unter</translation>
+        <source>Save Enabled Categories As...</source>
+        <translation>Ausgewählte Kategorien speichern unter...</translation>
     </message>
     <message>
         <source>Failed to write preset file &quot;%1&quot;.</source>
@@ -27390,7 +27390,7 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>ALT+I,Alt+C</translation>
     </message>
     <message>
-        <source>Settings ...</source>
+        <source>Settings...</source>
         <translation>Einstellungen...</translation>
     </message>
     <message>
@@ -31889,8 +31889,8 @@ Beispiel: *.cpp%1*.h</translation>
         <translation>In die Zwischenablage kopieren</translation>
     </message>
     <message>
-        <source>Cannot handle MIME type of message %1</source>
-        <translation>MIME type %1 der Nachricht kann nicht verarbeitet werden</translation>
+        <source>Cannot handle MIME type &quot;%1&quot; of message.</source>
+        <translation>MIME type &quot;%1&quot; der Nachricht kann nicht verarbeitet werden.</translation>
     </message>
     <message>
         <source>Generic StdIO Language Server</source>
@@ -32025,7 +32025,7 @@ Beispiel: *.cpp%1*.h</translation>
         <translation>In &quot;%1&quot; ist keine ID angegeben.</translation>
     </message>
     <message>
-        <source>Could not parse JSON message &quot;%1&quot;.</source>
+        <source>Could not parse JSON message: &quot;%1&quot;.</source>
         <translation>Die JSON-Nachricht konnte nicht ausgewertet werden: &quot;%1&quot;.</translation>
     </message>
     <message>
@@ -38801,7 +38801,7 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
         <translation>%1: Vollständiger Pfad zur Hauptdatei.</translation>
     </message>
     <message>
-        <source>%1: The name the active kit.</source>
+        <source>%1: The name of the active kit.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
         <translation>%1: Der Name des aktiven Kits.</translation>
     </message>
@@ -44979,7 +44979,7 @@ wirklich löschen?</translation>
         <translation>Vollständiger Pfad zum Ziel-&quot;bin&quot;-Verzeichnis der Qt-Version des aktiven Kits des aktiven Projekts.&lt;br&gt;Wahrscheinlich sollten Sie stattdessen %1 nutzen.</translation>
     </message>
     <message>
-        <source>Full path to the libexec bin directory of the Qt version in the active kit of the active project.</source>
+        <source>Full path to the libexec directory of the Qt version in the active kit of the active project.</source>
         <translation>Vollständiger Pfad zum Host-&quot;libexec&quot;-Verzeichnis der Qt-Version des aktiven Kits des aktiven Projekts.</translation>
     </message>
     <message>
