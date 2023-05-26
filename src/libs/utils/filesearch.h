@@ -24,10 +24,6 @@ QT_END_NAMESPACE
 namespace Utils {
 
 QTCREATOR_UTILS_EXPORT
-std::function<bool(const FilePath &)> filterFileFunction(const QStringList &filterRegs,
-                                                         const QStringList &exclusionRegs);
-
-QTCREATOR_UTILS_EXPORT
 std::function<FilePaths(const FilePaths &)> filterFilesFunction(const QStringList &filters,
                                                                 const QStringList &exclusionFilters);
 

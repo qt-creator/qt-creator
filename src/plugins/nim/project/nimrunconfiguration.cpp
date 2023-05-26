@@ -8,7 +8,6 @@
 #include "../nimtr.h"
 
 #include <projectexplorer/buildsystem.h>
-#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/qtcassert.h>
@@ -27,7 +26,9 @@ public:
     NimRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
-        auto envAspect = addAspect<LocalEnvironmentAspect>(target);
+        auto envAspect = addAspect<EnvironmentAspect>();
+        envAspect->setSupportForBuildEnvironment(target);
+
         addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
         addAspect<ArgumentsAspect>(macroExpander());
         addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);

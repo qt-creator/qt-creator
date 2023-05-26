@@ -3511,12 +3511,14 @@ bool Parser::parseExpressionStatement(StatementAST *&node)
 
     ExpressionAST *expression = nullptr;
     if (parseExpression(expression)) {
-        ExpressionStatementAST *ast = new (previousPool) ExpressionStatementAST;
-        if (expression)
-            ast->expression = expression->clone(previousPool);
-        match(T_SEMICOLON, &ast->semicolon_token);
-        node = ast;
-        parsed = true;
+        if (LA() == T_SEMICOLON) {
+            ExpressionStatementAST *ast = new (previousPool) ExpressionStatementAST;
+            ast->semicolon_token = consumeToken();
+            if (expression)
+                ast->expression = expression->clone(previousPool);
+            node = ast;
+            parsed = true;
+        }
     }
 
     _inExpressionStatement = wasInExpressionStatement;
@@ -4072,6 +4074,19 @@ bool Parser::parseIfStatement(StatementAST *&node)
             ast->constexpr_token = consumeToken();
         }
         match(T_LPAREN, &ast->lparen_token);
+
+        // C++17: init-statement
+        if (_languageFeatures.cxx17Enabled) {
+            const int savedCursor = cursor();
+            const bool savedBlockErrors = _translationUnit->blockErrors(true);
+            if (!parseSimpleDeclaration(ast->initDecl)) {
+                rewind(savedCursor);
+                if (!parseExpressionStatement(ast->initStmt))
+                    rewind(savedCursor);
+            }
+            _translationUnit->blockErrors(savedBlockErrors);
+        }
+
         parseCondition(ast->condition);
         match(T_RPAREN, &ast->rparen_token);
         if (! parseStatement(ast->statement))

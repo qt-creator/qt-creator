@@ -7,6 +7,7 @@
 #include "clangtoolsdiagnostic.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/session.h>
 
 #include <cppeditor/compileroptionsbuilder.h>
 #include <cppeditor/projectinfo.h>
@@ -16,7 +17,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -31,6 +31,7 @@
 
 #include <functional>
 
+using namespace Core;
 using namespace CppEditor;
 using namespace ProjectExplorer;
 using namespace Utils;

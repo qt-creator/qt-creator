@@ -23,6 +23,7 @@ Project {
         "runextensions/runextensions.qbs",
         "sdktool/sdktool.qbs",
         "solutions/solutions.qbs",
+        "texteditor/texteditor.qbs",
         "toolchaincache/toolchaincache.qbs",
         "tracing/tracing.qbs",
         "treeviewfind/treeviewfind.qbs",

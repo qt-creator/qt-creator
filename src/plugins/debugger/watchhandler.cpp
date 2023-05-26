@@ -21,11 +21,10 @@
 #include "watchdelegatewidgets.h"
 #include "watchutils.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
-
-#include <projectexplorer/session.h>
+#include <coreplugin/session.h>
 
 #include <texteditor/syntaxhighlighter.h>
 

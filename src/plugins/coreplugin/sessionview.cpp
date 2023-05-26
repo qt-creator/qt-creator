@@ -1,4 +1,4 @@
-// Copyright (C) 2016 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sessionview.h"
@@ -12,7 +12,7 @@
 #include <QStringList>
 #include <QStyledItemDelegate>
 
-namespace ProjectExplorer {
+namespace Core {
 namespace Internal {
 
 // custom item delegate class
@@ -149,4 +149,4 @@ QStringList SessionView::selectedSessions() const
 }
 
 } // namespace Internal
-} // namespace ProjectExplorer
+} // namespace Core

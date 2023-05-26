@@ -5,17 +5,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace MesonProjectManager {
-namespace Internal {
-
-class MesonRunConfiguration final : public ProjectExplorer::RunConfiguration
-{
-public:
-    MesonRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-
-private:
-    void updateTargetInformation();
-};
+namespace MesonProjectManager::Internal {
 
 class MesonRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
@@ -23,5 +13,4 @@ public:
     MesonRunConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

@@ -3,7 +3,6 @@
 
 #include "projectmanager.h"
 
-#include "session.h"
 
 #include "buildconfiguration.h"
 #include "editorconfiguration.h"
@@ -23,6 +22,7 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/session.h>
 
 #include <texteditor/texteditor.h>
 

@@ -16,8 +16,7 @@
 #include "cppquickfixassistant.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-
-#include <projectexplorer/session.h>
+#include <coreplugin/session.h>
 
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/storagesettings.h>
@@ -217,7 +216,7 @@ void CppEditorDocument::reparseWithPreferredParseContext(const QString &parseCon
 
     // Remember the setting
     const QString key = Constants::PREFERRED_PARSE_CONTEXT + filePath().toString();
-    ProjectExplorer::SessionManager::setValue(key, parseContextId);
+    Core::SessionManager::setValue(key, parseContextId);
 
     // Reprocess
     scheduleProcessDocument();
@@ -284,7 +283,7 @@ void CppEditorDocument::applyPreferredParseContextFromSettings()
         return;
 
     const QString key = Constants::PREFERRED_PARSE_CONTEXT + filePath().toString();
-    const QString parseContextId = ProjectExplorer::SessionManager::value(key).toString();
+    const QString parseContextId = Core::SessionManager::value(key).toString();
 
     setPreferredParseContext(parseContextId);
 }
@@ -295,7 +294,7 @@ void CppEditorDocument::applyExtraPreprocessorDirectivesFromSettings()
         return;
 
     const QString key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + filePath().toString();
-    const QByteArray directives = ProjectExplorer::SessionManager::value(key).toString().toUtf8();
+    const QByteArray directives = Core::SessionManager::value(key).toString().toUtf8();
 
     setExtraPreprocessorDirectives(directives);
 }

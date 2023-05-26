@@ -39,6 +39,8 @@ public:
     int addPreferredBaseEnvironment(const QString &displayName,
                                     const std::function<Utils::Environment()> &getter);
 
+    void setSupportForBuildEnvironment(Target *target);
+
     QString currentDisplayName() const;
 
     const QStringList displayNames() const;

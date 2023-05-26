@@ -228,10 +228,10 @@ void LldbEngine::handleLldbStarted()
     if (!commands.isEmpty())
         executeCommand(commands);
 
-    const QString path = debuggerSettings()->extraDumperFile.value();
-    if (!path.isEmpty() && QFileInfo(path).isReadable()) {
+    const FilePath path = debuggerSettings()->extraDumperFile();
+    if (!path.isEmpty() && path.isReadableFile()) {
         DebuggerCommand cmd("addDumperModule");
-        cmd.arg("path", path);
+        cmd.arg("path", path.path());
         runCommand(cmd);
     }
 

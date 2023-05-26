@@ -3,7 +3,6 @@
 
 #include "customexecutablerunconfiguration.h"
 
-#include "localenvironmentaspect.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
@@ -24,7 +23,8 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    auto envAspect = addAspect<LocalEnvironmentAspect>(target);
+    auto envAspect = addAspect<EnvironmentAspect>();
+    envAspect->setSupportForBuildEnvironment(target);
 
     auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::HostDevice);
     exeAspect->setSettingsKey("ProjectExplorer.CustomExecutableRunConfiguration.Executable");

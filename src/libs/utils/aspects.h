@@ -651,14 +651,14 @@ public:
     AspectContainer(const AspectContainer &) = delete;
     AspectContainer &operator=(const AspectContainer &) = delete;
 
-    void registerAspect(BaseAspect *aspect);
+    void registerAspect(BaseAspect *aspect, bool takeOwnership = false);
     void registerAspects(const AspectContainer &aspects);
 
     template <class Aspect, typename ...Args>
     Aspect *addAspect(Args && ...args)
     {
         auto aspect = new Aspect(args...);
-        registerAspect(aspect);
+        registerAspect(aspect, true);
         return aspect;
     }
 
@@ -679,7 +679,6 @@ public:
     bool equals(const AspectContainer &other) const;
     void copyFrom(const AspectContainer &other);
     void setAutoApply(bool on);
-    void setOwnsSubAspects(bool on);
     bool isDirty() const;
 
     template <typename T> T *aspect() const

@@ -43,6 +43,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <coreplugin/session.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kitinformation.h>
@@ -54,7 +56,6 @@
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/textdocument.h>

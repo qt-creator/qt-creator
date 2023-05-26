@@ -18,8 +18,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-
-#include <projectexplorer/session.h>
+#include <coreplugin/session.h>
 
 #include <texteditor/textmark.h>
 #include <texteditor/texteditor.h>

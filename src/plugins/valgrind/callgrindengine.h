@@ -48,7 +48,7 @@ public:
     Q_ENUM(Option)
 
 protected:
-    QStringList toolArguments() const override;
+    void addToolArguments(Utils::CommandLine &cmd) const override;
     QString progressTitle() const override;
 
 signals:

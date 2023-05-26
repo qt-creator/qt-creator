@@ -10,10 +10,10 @@
 #include "project.h"
 #include "projectconfigurationmodel.h"
 #include "projectexplorertr.h"
-#include "session.h"
 #include "target.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

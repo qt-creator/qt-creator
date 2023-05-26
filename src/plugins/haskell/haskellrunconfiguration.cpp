@@ -9,7 +9,6 @@
 #include "haskellsettings.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
@@ -35,7 +34,8 @@ HaskellExecutableAspect::HaskellExecutableAspect()
 HaskellRunConfiguration::HaskellRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
 {
-    auto envAspect = addAspect<LocalEnvironmentAspect>(target);
+    auto envAspect = addAspect<EnvironmentAspect>();
+    envAspect->setSupportForBuildEnvironment(target);
 
     addAspect<HaskellExecutableAspect>();
     addAspect<ArgumentsAspect>(macroExpander());
@@ -67,7 +67,7 @@ Runnable HaskellRunConfiguration::runnable() const
         args << "--" << arguments;
 
     r.workingDirectory = projectDirectory;
-    r.environment = aspect<LocalEnvironmentAspect>()->environment();
+    r.environment = aspect<EnvironmentAspect>()->environment();
     r.command = {r.environment.searchInPath(settings().stackPath().path()), args};
     return r;
 }

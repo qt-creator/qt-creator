@@ -21,8 +21,8 @@
     \inmodule QtCreator
 
     \brief The CheckableMessageBox class implements a message box suitable for
-    questions with a
-     "Do not ask me again" checkbox.
+    questions with a \uicontrol {Do not ask again} or \uicontrol {Do not show again}
+    checkbox.
 
     Emulates the QMessageBox API with
     static conveniences. The message label can open external URLs.
@@ -180,8 +180,7 @@ bool CheckableMessageBox::hasSuppressedQuestions()
 }
 
 /*!
-    Returns the standard \gui {Do not ask again} check box text.
-    \sa doNotAskAgainQuestion()
+    Returns the standard \uicontrol {Do not ask again} check box text.
 */
 QString CheckableMessageBox::msgDoNotAskAgain()
 {
@@ -189,8 +188,7 @@ QString CheckableMessageBox::msgDoNotAskAgain()
 }
 
 /*!
-    Returns the standard \gui {Do not show again} check box text.
-    \sa doNotShowAgainInformation()
+    Returns the standard \uicontrol {Do not show again} check box text.
 */
 QString CheckableMessageBox::msgDoNotShowAgain()
 {

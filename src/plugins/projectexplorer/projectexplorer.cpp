@@ -68,7 +68,6 @@
 #include "removetaskhandler.h"
 #include "sanitizerparser.h"
 #include "selectablefilesmodel.h"
-#include "session.h"
 #include "showineditortaskhandler.h"
 #include "simpleprojectwizard.h"
 #include "target.h"
@@ -109,6 +108,7 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/outputpane.h>
+#include <coreplugin/session.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -640,7 +640,6 @@ public:
     RemoveTaskHandler m_removeTaskHandler;
     ConfigTaskHandler m_configTaskHandler{Task::compilerMissingTask(), Constants::KITS_SETTINGS_PAGE_ID};
 
-    SessionManager m_sessionBase;
     ProjectManager m_sessionManager;
     AppOutputPane m_outputPane;
 

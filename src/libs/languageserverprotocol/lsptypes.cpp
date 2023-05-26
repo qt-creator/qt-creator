@@ -290,11 +290,11 @@ Range::Range(const QTextCursor &cursor)
     Utils::Text::convertPosition(cursor.document(), cursor.selectionStart(), &line, &character);
     if (line <= 0 || character < 0)
         return;
-    setStart(Position(line - 1, character - 1));
+    setStart(Position(line - 1, character));
     Utils::Text::convertPosition(cursor.document(), cursor.selectionEnd(), &line, &character);
     if (line <= 0 || character < 0)
         return;
-    setEnd(Position(line - 1, character - 1));
+    setEnd(Position(line - 1, character));
 }
 
 bool Range::contains(const Range &other) const

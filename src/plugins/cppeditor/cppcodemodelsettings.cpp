@@ -9,9 +9,9 @@
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/session.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -251,15 +251,18 @@ ClangdSettings &ClangdSettings::instance()
 ClangdSettings::ClangdSettings()
 {
     loadSettings();
-    const auto sessionMgr = ProjectExplorer::SessionManager::instance();
-    connect(sessionMgr, &ProjectExplorer::SessionManager::sessionRemoved,
-            this, [this](const QString &name) { m_data.sessionsWithOneClangd.removeOne(name); });
-    connect(sessionMgr, &ProjectExplorer::SessionManager::sessionRenamed,
-            this, [this](const QString &oldName, const QString &newName) {
-        const auto index = m_data.sessionsWithOneClangd.indexOf(oldName);
-        if (index != -1)
-            m_data.sessionsWithOneClangd[index] = newName;
+    const auto sessionMgr = Core::SessionManager::instance();
+    connect(sessionMgr, &Core::SessionManager::sessionRemoved, this, [this](const QString &name) {
+        m_data.sessionsWithOneClangd.removeOne(name);
     });
+    connect(sessionMgr,
+            &Core::SessionManager::sessionRenamed,
+            this,
+            [this](const QString &oldName, const QString &newName) {
+                const auto index = m_data.sessionsWithOneClangd.indexOf(oldName);
+                if (index != -1)
+                    m_data.sessionsWithOneClangd[index] = newName;
+            });
 }
 
 bool ClangdSettings::useClangd() const
@@ -333,7 +336,7 @@ ClangDiagnosticConfig ClangdSettings::diagnosticConfig() const
 
 ClangdSettings::Granularity ClangdSettings::granularity() const
 {
-    if (m_data.sessionsWithOneClangd.contains(ProjectExplorer::SessionManager::activeSession()))
+    if (m_data.sessionsWithOneClangd.contains(Core::SessionManager::activeSession()))
         return Granularity::Session;
     return Granularity::Project;
 }

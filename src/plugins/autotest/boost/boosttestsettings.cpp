@@ -33,7 +33,6 @@ BoostTestSettings::BoostTestSettings(Id settingsId)
         }, st};
     });
 
-    registerAspect(&logLevel);
     logLevel.setSettingsKey("LogLevel");
     logLevel.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     logLevel.addOption("All");
@@ -50,7 +49,6 @@ BoostTestSettings::BoostTestSettings(Id settingsId)
     logLevel.setDefaultValue(int(LogLevel::Warning));
     logLevel.setLabelText(Tr::tr("Log format:"));
 
-    registerAspect(&reportLevel);
     reportLevel.setSettingsKey("ReportLevel");
     reportLevel.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     reportLevel.addOption("Confirm");
@@ -60,7 +58,6 @@ BoostTestSettings::BoostTestSettings(Id settingsId)
     reportLevel.setDefaultValue(int(ReportLevel::Confirm));
     reportLevel.setLabelText(Tr::tr("Report level:"));
 
-    registerAspect(&seed);
     seed.setSettingsKey("Seed");
     seed.setEnabled(false);
     seed.setLabelText(Tr::tr("Seed:"));
@@ -68,25 +65,21 @@ BoostTestSettings::BoostTestSettings(Id settingsId)
                            "time, any other value is used as random seed generator."));
     seed.setEnabler(&randomize);
 
-    registerAspect(&randomize);
     randomize.setSettingsKey("Randomize");
     randomize.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     randomize.setLabelText(Tr::tr("Randomize"));
     randomize.setToolTip(Tr::tr("Randomize execution order."));
 
-    registerAspect(&systemErrors);
     systemErrors.setSettingsKey("SystemErrors");
     systemErrors.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     systemErrors.setLabelText(Tr::tr("Catch system errors"));
     systemErrors.setToolTip(Tr::tr("Catch or ignore system errors."));
 
-    registerAspect(&fpExceptions);
     fpExceptions.setSettingsKey("FPExceptions");
     fpExceptions.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     fpExceptions.setLabelText(Tr::tr("Floating point exceptions"));
     fpExceptions.setToolTip(Tr::tr("Enable floating point exception traps."));
 
-    registerAspect(&memLeaks);
     memLeaks.setSettingsKey("MemoryLeaks");
     memLeaks.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     memLeaks.setDefaultValue(true);

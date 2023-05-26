@@ -45,6 +45,7 @@ add_qtc_library(Utils
     execmenu.cpp execmenu.h
     executeondestruction.h
     expected.h
+    externalterminalprocessimpl.cpp externalterminalprocessimpl.h
     fadingindicator.cpp fadingindicator.h
     faketooltip.cpp faketooltip.h
     fancylineedit.cpp fancylineedit.h

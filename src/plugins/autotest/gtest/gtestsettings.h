@@ -12,15 +12,15 @@ class GTestSettings : public Core::PagedSettings
 public:
     explicit GTestSettings(Utils::Id settingsId);
 
-    Utils::IntegerAspect iterations;
-    Utils::IntegerAspect seed;
-    Utils::BoolAspect runDisabled;
-    Utils::BoolAspect shuffle;
-    Utils::BoolAspect repeat;
-    Utils::BoolAspect throwOnFailure;
-    Utils::BoolAspect breakOnFailure;
-    Utils::SelectionAspect groupMode;
-    Utils::StringAspect gtestFilter;
+    Utils::IntegerAspect iterations{this};
+    Utils::IntegerAspect seed{this};
+    Utils::BoolAspect runDisabled{this};
+    Utils::BoolAspect shuffle{this};
+    Utils::BoolAspect repeat{this};
+    Utils::BoolAspect throwOnFailure{this};
+    Utils::BoolAspect breakOnFailure{this};
+    Utils::SelectionAspect groupMode{this};
+    Utils::StringAspect gtestFilter{this};
 };
 
 } // Autotest::Internal

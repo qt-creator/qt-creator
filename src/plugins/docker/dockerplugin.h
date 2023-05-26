@@ -3,11 +3,7 @@
 
 #pragma once
 
-#include "dockerapi.h"
-
 #include <extensionsystem/iplugin.h>
-
-#include <optional>
 
 namespace Docker::Internal {
 
@@ -18,8 +14,6 @@ class DockerPlugin final : public ExtensionSystem::IPlugin
 
 public:
     DockerPlugin();
-
-    static DockerApi *dockerApi();
 
 private:
     ~DockerPlugin() final;

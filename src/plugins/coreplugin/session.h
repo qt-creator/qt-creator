@@ -1,9 +1,9 @@
-// Copyright (C) 2016 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include "projectexplorer_export.h"
+#include "core_global.h"
 
 #include <utils/id.h>
 #include <utils/persistentsettings.h>
@@ -12,9 +12,9 @@
 #include <QString>
 #include <QStringList>
 
-namespace ProjectExplorer {
+namespace Core {
 
-class PROJECTEXPLORER_EXPORT SessionManager : public QObject
+class CORE_EXPORT SessionManager : public QObject
 {
     Q_OBJECT
 
@@ -87,4 +87,4 @@ private:
     static void saveActiveMode(Utils::Id mode);
 };
 
-} // namespace ProjectExplorer
+} // namespace Core

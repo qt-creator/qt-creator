@@ -65,7 +65,7 @@ AxivionQueryRunner::AxivionQueryRunner(const AxivionQuery &query, QObject *paren
     url += query.toString();
     args << url;
 
-    m_process.setCommand({settings->curl, args});
+    m_process.setCommand({settings->curl(), args});
     connect(&m_process, &Process::done, this, [this]{
         if (m_process.result() != ProcessResult::FinishedWithSuccess) {
             const int exitCode = m_process.exitCode();

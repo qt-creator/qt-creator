@@ -189,7 +189,7 @@ void LanguageClientManager::clientFinished(Client *client)
         }
     }
     deleteClient(client);
-    if (PluginManager::isShuttingDown() && managerInstance->m_clients.isEmpty())
+    if (isShutdownFinished())
         emit managerInstance->shutdownFinished();
 }
 
@@ -243,6 +243,7 @@ void LanguageClientManager::deleteClient(Client *client)
     // that will not handle the delete later event. Use invokeMethod with Qt::QueuedConnection
     // instead.
     QMetaObject::invokeMethod(client, [client] {delete client;}, Qt::QueuedConnection);
+    managerInstance->trackClientDeletion(client);
 
     if (!PluginManager::isShuttingDown())
         emit instance()->clientRemoved(client);
@@ -606,6 +607,26 @@ void LanguageClientManager::projectAdded(ProjectExplorer::Project *project)
     const QList<Client *> &clients = reachableClients();
     for (Client *client : clients)
         client->projectOpened(project);
+}
+
+void LanguageClientManager::trackClientDeletion(Client *client)
+{
+    QTC_ASSERT(!m_scheduledForDeletion.contains(client->id()), return);
+    m_scheduledForDeletion.insert(client->id());
+    connect(client, &QObject::destroyed, [this, id = client->id()](){
+        m_scheduledForDeletion.remove(id);
+        if (isShutdownFinished())
+            emit shutdownFinished();
+    });
+}
+
+bool LanguageClientManager::isShutdownFinished()
+{
+    if (!PluginManager::isShuttingDown())
+        return false;
+    QTC_ASSERT(managerInstance, return true);
+    return managerInstance->m_clients.isEmpty()
+           && managerInstance->m_scheduledForDeletion.isEmpty();
 }
 
 } // namespace LanguageClient

@@ -12,7 +12,6 @@
 
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
-#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/taskhub.h>

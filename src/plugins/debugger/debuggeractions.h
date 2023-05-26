@@ -106,7 +106,7 @@ public:
     Utils::BoolAspect useDebuggingHelpers;
     Utils::BoolAspect useCodeModel;
     Utils::BoolAspect showThreadNames;
-    Utils::StringAspect extraDumperFile;     // For loading a file. Recommended.
+    Utils::FilePathAspect extraDumperFile;   // For loading a file. Recommended.
     Utils::StringAspect extraDumperCommands; // To modify an existing setup.
 
     Utils::BoolAspect showStdNamespace;

@@ -30,9 +30,7 @@ HaskellSettings::HaskellSettings()
     setDisplayCategory(Tr::tr("Haskell"));
     setCategoryIconPath(":/haskell/images/settingscategory_haskell.png");
 
-    registerAspect(&stackPath);
     stackPath.setSettingsKey("Haskell/StackExecutable");
-    stackPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     stackPath.setExpectedKind(PathChooser::ExistingCommand);
     stackPath.setPromptDialogTitle(Tr::tr("Choose Stack Executable"));
     stackPath.setCommandVersionArguments({"--version"});

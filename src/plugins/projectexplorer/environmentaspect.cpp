@@ -3,8 +3,11 @@
 
 #include "environmentaspect.h"
 
+#include "buildconfiguration.h"
 #include "environmentaspectwidget.h"
+#include "kit.h"
 #include "projectexplorertr.h"
+#include "target.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -100,6 +103,27 @@ int EnvironmentAspect::addPreferredBaseEnvironment(const QString &displayName,
     setBaseEnvironmentBase(index);
 
     return index;
+}
+
+void EnvironmentAspect::setSupportForBuildEnvironment(Target *target)
+{
+    setIsLocal(true);
+    addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
+
+    addSupportedBaseEnvironment(Tr::tr("System Environment"), [] {
+        return Environment::systemEnvironment();
+    });
+    addPreferredBaseEnvironment(Tr::tr("Build Environment"), [target] {
+        if (BuildConfiguration *bc = target->activeBuildConfiguration())
+            return bc->environment();
+        // Fallback for targets without buildconfigurations:
+        return target->kit()->buildEnvironment();
+    });
+
+    connect(target, &Target::activeBuildConfigurationChanged,
+            this, &EnvironmentAspect::environmentChanged);
+    connect(target, &Target::buildEnvironmentChanged,
+            this, &EnvironmentAspect::environmentChanged);
 }
 
 void EnvironmentAspect::fromMap(const QVariantMap &map)

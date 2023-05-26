@@ -38,13 +38,13 @@ public:
     static QString logLevelToOption(const LogLevel logLevel);
     static QString reportLevelToOption(const ReportLevel reportLevel);
 
-    Utils::SelectionAspect logLevel;
-    Utils::SelectionAspect reportLevel;
-    Utils::IntegerAspect seed;
-    Utils::BoolAspect randomize;
-    Utils::BoolAspect systemErrors;
-    Utils::BoolAspect fpExceptions;
-    Utils::BoolAspect memLeaks;
+    Utils::SelectionAspect logLevel{this};
+    Utils::SelectionAspect reportLevel{this};
+    Utils::IntegerAspect seed{this};
+    Utils::BoolAspect randomize{this};
+    Utils::BoolAspect systemErrors{this};
+    Utils::BoolAspect fpExceptions{this};
+    Utils::BoolAspect memLeaks{this};
 };
 
 } // Autotest::Internal

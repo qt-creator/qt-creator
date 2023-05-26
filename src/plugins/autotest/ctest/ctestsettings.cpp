@@ -42,12 +42,10 @@ CTestSettings::CTestSettings(Id settingsId)
         }, st }.attachTo(w);
     });
 
-    registerAspect(&outputOnFail);
     outputOnFail.setSettingsKey("OutputOnFail");
     outputOnFail.setLabelText(Tr::tr("Output on failure"));
     outputOnFail.setDefaultValue(true);
 
-    registerAspect(&outputMode);
     outputMode.setSettingsKey("OutputMode");
     outputMode.setLabelText(Tr::tr("Output mode"));
     outputMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
@@ -55,7 +53,6 @@ CTestSettings::CTestSettings(Id settingsId)
     outputMode.addOption({Tr::tr("Verbose"), {}, 1});
     outputMode.addOption({Tr::tr("Very Verbose"), {}, 2});
 
-    registerAspect(&repetitionMode);
     repetitionMode.setSettingsKey("RepetitionMode");
     repetitionMode.setLabelText(Tr::tr("Repetition mode"));
     repetitionMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
@@ -63,41 +60,33 @@ CTestSettings::CTestSettings(Id settingsId)
     repetitionMode.addOption({Tr::tr("Until Pass"), {}, 1});
     repetitionMode.addOption({Tr::tr("After Timeout"), {}, 2});
 
-    registerAspect(&repetitionCount);
     repetitionCount.setSettingsKey("RepetitionCount");
     repetitionCount.setDefaultValue(1);
     repetitionCount.setLabelText(Tr::tr("Count"));
     repetitionCount.setToolTip(Tr::tr("Number of re-runs for the test."));
     repetitionCount.setRange(1, 10000);
 
-    registerAspect(&repeat);
     repeat.setSettingsKey("Repeat");
 
-    registerAspect(&scheduleRandom);
     scheduleRandom.setSettingsKey("ScheduleRandom");
     scheduleRandom.setLabelText(Tr::tr("Schedule random"));
 
-    registerAspect(&stopOnFailure);
     stopOnFailure.setSettingsKey("StopOnFail");
     stopOnFailure.setLabelText(Tr::tr("Stop on failure"));
 
-    registerAspect(&parallel);
     parallel.setSettingsKey("Parallel");
     parallel.setToolTip(Tr::tr("Run tests in parallel mode using given number of jobs."));
 
-    registerAspect(&jobs);
     jobs.setSettingsKey("Jobs");
     jobs.setLabelText(Tr::tr("Jobs"));
     jobs.setDefaultValue(1);
     jobs.setRange(1, 128);
 
-    registerAspect(&testLoad);
     testLoad.setSettingsKey("TestLoad");
     testLoad.setLabelText(Tr::tr("Test load"));
     testLoad.setToolTip(Tr::tr("Try not to start tests when they may cause CPU load to pass a "
                                "threshold."));
 
-    registerAspect(&threshold);
     threshold.setSettingsKey("Threshold");
     threshold.setLabelText(Tr::tr("Threshold"));
     threshold.setDefaultValue(1);

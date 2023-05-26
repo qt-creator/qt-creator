@@ -14,8 +14,6 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QStandardPaths>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -180,10 +178,10 @@ FilePath nimPathFromKit(Kit *kit)
 FilePath nimblePathFromKit(Kit *kit)
 {
     // There's no extra setting for "nimble", derive it from the "nim" path.
-    const QString nimbleFromPath = QStandardPaths::findExecutable("nimble");
+    const FilePath nimbleFromPath = FilePath("nimble").searchInPath();
     const FilePath nimPath = nimPathFromKit(kit);
     const FilePath nimbleFromKit = nimPath.pathAppended("nimble").withExecutableSuffix();
-    return nimbleFromKit.exists() ? nimbleFromKit.canonicalPath() : FilePath::fromString(nimbleFromPath);
+    return nimbleFromKit.exists() ? nimbleFromKit.canonicalPath() : nimbleFromPath;
 }
 
 bool NimBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const

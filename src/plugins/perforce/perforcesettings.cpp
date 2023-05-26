@@ -8,6 +8,7 @@
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
@@ -227,7 +228,9 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
         PerforceSettings &s = *settings;
         using namespace Layouting;
 
-        auto errorLabel = new QLabel;
+        auto errorLabel = new InfoLabel({}, InfoLabel::None);
+        errorLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+        errorLabel->setFilled(true);
         auto testButton = new QPushButton(Tr::tr("Test"));
         QObject::connect(testButton, &QPushButton::clicked, widget, [settings, errorLabel, testButton] {
             testButton->setEnabled(false);
@@ -235,21 +238,21 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
             checker->setUseOverideCursor(true);
             QObject::connect(checker, &PerforceChecker::failed, errorLabel,
                     [errorLabel, testButton, checker](const QString &t) {
-                errorLabel->setStyleSheet("background-color: red");
+                errorLabel->setType(InfoLabel::Error);
                 errorLabel->setText(t);
                 testButton->setEnabled(true);
                 checker->deleteLater();
             });
             QObject::connect(checker, &PerforceChecker::succeeded, errorLabel,
                     [errorLabel, testButton, checker](const FilePath &repo) {
-                errorLabel->setStyleSheet({});
+                errorLabel->setType(InfoLabel::Ok);
                 errorLabel->setText(Tr::tr("Test succeeded (%1).")
                                         .arg(repo.toUserOutput()));
                 testButton->setEnabled(true);
                 checker->deleteLater();
             });
 
-            errorLabel->setStyleSheet(QString());
+            errorLabel->setType(InfoLabel::Information);
             errorLabel->setText(Tr::tr("Testing..."));
 
             const FilePath p4Bin = FilePath::fromUserInput(

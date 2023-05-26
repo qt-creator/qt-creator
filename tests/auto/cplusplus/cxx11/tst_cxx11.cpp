@@ -150,6 +150,7 @@ private Q_SLOTS:
     void requiresClause();
     void coroutines();
     void genericLambdas();
+    void ifStatementWithInitialization();
 };
 
 
@@ -539,6 +540,28 @@ int main()
     auto h = []<typename T1, C1 T2> requires C2<sizeof(T1) + sizeof(T2)>
          (T1 a1, T1 b1, T2 a2, auto a3, auto a4) requires C3<decltype(a4), T2> {
     };
+}
+)";
+    QByteArray errors;
+    Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
+    processDocument(doc, source.toUtf8(), features, &errors);
+    const bool hasErrors = !errors.isEmpty();
+    if (hasErrors)
+        qDebug().noquote() << errors;
+    QVERIFY(!hasErrors);
+}
+
+void tst_cxx11::ifStatementWithInitialization()
+{
+    LanguageFeatures features;
+    features.cxxEnabled = true;
+    features.cxx11Enabled = features.cxx14Enabled = features.cxx17Enabled = true;
+
+    const QString source = R"(
+int main()
+{
+    if (bool b = true; b)
+        b = false;
 }
 )";
     QByteArray errors;

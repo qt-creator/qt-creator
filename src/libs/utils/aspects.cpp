@@ -2399,9 +2399,9 @@ namespace Internal {
 class AspectContainerPrivate
 {
 public:
-    QList<BaseAspect *> m_items; // Not owned
+    QList<BaseAspect *> m_items; // Both owned and non-owned.
+    QList<BaseAspect *> m_ownedItems; // Owned only.
     bool m_autoApply = true;
-    bool m_ownsSubAspects = false;
     QStringList m_settingsGroup;
 };
 
@@ -2416,17 +2416,18 @@ AspectContainer::AspectContainer(QObject *parent)
 */
 AspectContainer::~AspectContainer()
 {
-    if (d->m_ownsSubAspects)
-        qDeleteAll(d->m_items);
+    qDeleteAll(d->m_ownedItems);
 }
 
 /*!
     \internal
 */
-void AspectContainer::registerAspect(BaseAspect *aspect)
+void AspectContainer::registerAspect(BaseAspect *aspect, bool takeOwnership)
 {
     aspect->setAutoApply(d->m_autoApply);
     d->m_items.append(aspect);
+    if (takeOwnership)
+        d->m_ownedItems.append(aspect);
 }
 
 void AspectContainer::registerAspects(const AspectContainer &aspects)
@@ -2545,11 +2546,6 @@ void AspectContainer::setAutoApply(bool on)
     d->m_autoApply = on;
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->setAutoApply(on);
-}
-
-void AspectContainer::setOwnsSubAspects(bool on)
-{
-    d->m_ownsSubAspects = on;
 }
 
 bool AspectContainer::isDirty() const

@@ -13,15 +13,14 @@
 #include "stackhandler.h"
 #include "watchhandler.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/session.h>
 
 #include <cppeditor/cppprojectfile.h>
-
-#include <projectexplorer/session.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
