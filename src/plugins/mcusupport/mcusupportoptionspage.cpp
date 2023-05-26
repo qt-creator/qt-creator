@@ -316,6 +316,9 @@ void McuSupportOptionsWidget::apply()
     m_settingsHandler->setAutomaticKitCreation(m_options.automaticKitCreationEnabled());
     m_options.sdkRepository.expandVariablesAndWildcards();
 
+    if (m_mcuTargetsComboBox->count() == 0)
+        return;
+
     QMessageBox warningPopup(QMessageBox::Icon::Warning,
                              Tr::tr("Warning"),
                              Tr::tr("Unable to apply changes in Devices > MCU."),
