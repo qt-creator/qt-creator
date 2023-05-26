@@ -636,9 +636,20 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
 
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
             m_locked = true;
-            PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(QString::fromUtf8(property.name()));
-            if (value)
+
+            PropertyName propertyName = property.name();
+            propertyName.replace('.', '_');
+
+            PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(
+                QString::fromUtf8(propertyName));
+
+            if (value) {
                 value->resetValue();
+                m_qmlBackEndForCurrentType
+                    ->setValue(m_selectedNode,
+                               property.name(),
+                               QmlObjectNode(m_selectedNode).instanceValue(property.name()));
+            }
             m_locked = false;
 
             if (propertyIsAttachedLayoutProperty(property.name())) {
