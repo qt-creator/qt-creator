@@ -18199,16 +18199,16 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Bytes</translation>
     </message>
     <message>
-        <source>KB</source>
-        <translation>KB</translation>
+        <source>KiB</source>
+        <translation>KiB</translation>
     </message>
     <message>
-        <source>GB</source>
-        <translation>GB</translation>
+        <source>GiB</source>
+        <translation>GiB</translation>
     </message>
     <message>
-        <source>TB</source>
-        <translation>TB</translation>
+        <source>TiB</source>
+        <translation>TiB</translation>
     </message>
     <message>
         <source>Enable crash reporting</source>
