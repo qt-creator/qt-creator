@@ -56,7 +56,8 @@ static bool kIsAutoRestoreLastSessionDefault = false;
 const char M_SESSION[] = "ProjectExplorer.Menu.Session";
 
 /*!
-     \class ProjectExplorer::SessionManager
+     \class Core::SessionManager
+     \inmodule QtCreator
 
      \brief The SessionManager class manages sessions.
 
@@ -164,7 +165,8 @@ bool SessionManager::isLoadingSession()
 }
 
 /*!
-    Lets other plugins store persistent values within the session file.
+    Lets other plugins store persistent values specified by \a name and \a value
+    within the session file.
 */
 
 void SessionManager::setValue(const QString &name, const QVariant &value)
@@ -235,6 +237,9 @@ FilePath SessionManager::sessionNameToFileName(const QString &session)
 
 /*!
     Creates \a session, but does not actually create the file.
+
+    Returns whether the creation was successful.
+
 */
 
 bool SessionManager::createSession(const QString &session)
@@ -268,7 +273,10 @@ void SessionManager::showSessionManager()
 }
 
 /*!
-    \brief Shows a dialog asking the user to confirm deleting the session \p session
+    Shows a dialog asking the user to confirm the deletion of the specified
+    \a sessions.
+
+    Returns whether the user confirmed the deletion.
 */
 bool SessionManager::confirmSessionDelete(const QStringList &sessions)
 {
@@ -286,6 +294,8 @@ bool SessionManager::confirmSessionDelete(const QStringList &sessions)
 
 /*!
      Deletes \a session name from session list and the file from disk.
+
+     Returns whether the deletion was successful.
 */
 bool SessionManager::deleteSession(const QString &session)
 {
@@ -515,7 +525,7 @@ QString SessionManager::lastSession()
 }
 
 /*!
-    Returns the session that was active when Qt Creator was last closed, if any.
+    Returns the session that was active when \QC was last closed, if any.
 */
 QString SessionManager::startupSession()
 {

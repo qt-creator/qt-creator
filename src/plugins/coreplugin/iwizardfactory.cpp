@@ -67,6 +67,17 @@
 */
 
 /*!
+    \enum Core::IWizardFactory::WizardFlag
+
+    Holds information about the created projects and files.
+
+    \value PlatformIndependent
+        The wizard creates projects that run on all platforms.
+    \value ForceCapitalLetterForFileName
+        The wizard uses an initial capital letter for the names of new files.
+*/
+
+/*!
     \fn Core::IWizardFactory::WizardKind Core::IWizardFactory::kind() const
     Returns what kind of objects are created by the wizard.
 */
@@ -237,6 +248,9 @@ FilePath IWizardFactory::runPath(const FilePath &defaultPath) const
     The \a path argument is a suggestion for the location where files should be
     created. The wizard should fill this in its path selection elements as a
     default path.
+
+    When \a showWizard is \c false, the wizard instance is created and set up
+    but not actually shown.
 */
 Wizard *IWizardFactory::runWizard(const FilePath &path, QWidget *parent, Id platform,
                                   const QVariantMap &variables,

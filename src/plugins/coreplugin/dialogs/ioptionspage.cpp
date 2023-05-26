@@ -250,7 +250,7 @@ void IOptionsPage::setLayouter(const std::function<Layouting::LayoutItem ()> &la
 static QList<IOptionsPage *> g_optionsPages;
 
 /*!
-    Constructs an options page with the given \a parent and registers it
+    Constructs an options page and registers it
     at the global options page pool if \a registerGlobally is \c true.
 */
 IOptionsPage::IOptionsPage(bool registerGlobally)

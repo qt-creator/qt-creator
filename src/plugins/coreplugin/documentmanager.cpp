@@ -1027,6 +1027,10 @@ void DocumentManager::showFilePropertiesDialog(const FilePath &filePath)
     and \a selectedFilter arguments are interpreted like in
     QFileDialog::getOpenFileNames(). \a pathIn specifies a path to open the
     dialog in if that is not overridden by the user's policy.
+
+    The \a options argument holds various options about how to run the dialog.
+    See the QFileDialog::Option enum for more information about the flags you
+    can pass.
 */
 
 FilePaths DocumentManager::getOpenFileNames(const QString &filters,
