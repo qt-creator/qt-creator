@@ -52,7 +52,7 @@
             \li Add support for a new version control system.
             \li Version control systems integrated in \QC are Bazaar, CVS, Git,
                 Mecurial, Perforce, and Subversion.
-            \li \l{Core::IVersionControl}
+            \li \c{Core::IVersionControl}
 
         \row
             \li Add a view to the navigation sidebar.
@@ -94,7 +94,7 @@
             \li For a text typed in by the user you provide a list of things to
                 show in the popup. When the user selects an entry you are
                 requested to do whatever you want.
-            \li \l{Core::ILocatorFilter}, \l{Core::BaseFileFilter}
+            \li \l{Core::ILocatorFilter}
 
         \row
             \li Show a progress indicator for a concurrently running task.

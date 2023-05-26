@@ -202,7 +202,7 @@
     One way to handle that would be to let the tool create an output file, which
     is then opened within \QC. You provide an editor (probably read-only) for
     handling this file. For lists of issues, consider creating task list files
-    which are shown in \l Issues.
+    which are shown in \uicontrol Issues.
 
     \list
         \li \l{https://doc.qt.io/qtcreator/creator-task-lists.html}

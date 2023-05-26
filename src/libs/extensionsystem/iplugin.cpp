@@ -248,7 +248,8 @@ void IPlugin::tryCreateObjects()
 }
 
 /*!
-    Registers a function object that creates a test object.
+    Registers a function object that creates a test object with the owner
+    \a creator.
 
     The created objects are meant to be passed on to \l QTest::qExec().
 
@@ -264,9 +265,7 @@ void IPlugin::addTestCreator(const TestCreator &creator)
 }
 
 /*!
-    \deprecated [10.0] Use addTest() instead
-
-    \sa addTest()
+    \deprecated [10.0] Use \c addTest() instead.
 */
 QVector<QObject *> IPlugin::createTestObjects() const
 {
