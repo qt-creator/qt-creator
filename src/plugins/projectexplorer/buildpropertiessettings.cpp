@@ -51,10 +51,6 @@ BuildPropertiesSettings::BuildPropertiesSettings()
     buildDirectoryTemplate.setUseGlobalMacroExpander();
     buildDirectoryTemplate.setUseResetButton();
 
-    registerAspect(&buildDirectoryTemplateOld); // TODO: Remove in ~4.16
-    buildDirectoryTemplateOld.setSettingsKey("Directories/BuildDirectory.Template");
-    buildDirectoryTemplateOld.setDefaultValue(DEFAULT_BUILD_DIRECTORY_TEMPLATE);
-
     registerAspect(&separateDebugInfo);
     separateDebugInfo.setSettingsKey("ProjectExplorer/Settings/SeparateDebugInfo");
     separateDebugInfo.setLabelText(Tr::tr("Separate debug info:"));
@@ -71,22 +67,6 @@ BuildPropertiesSettings::BuildPropertiesSettings()
                      &qmlDebugging, &BaseAspect::setVisible);
     QObject::connect(&showQtSettings, &BoolAspect::valueChanged,
                      &qtQuickCompiler, &BaseAspect::setVisible);
-}
-
-void BuildPropertiesSettings::readSettings(QSettings *s)
-{
-    AspectContainer::readSettings(s);
-
-    // TODO: Remove in ~4.16
-    QString v = buildDirectoryTemplate.value();
-    if (v.isEmpty())
-        v = buildDirectoryTemplateOld.value();
-    if (v.isEmpty())
-        v = DEFAULT_BUILD_DIRECTORY_TEMPLATE;
-    v.replace("%{CurrentProject:Name}", "%{Project:Name}");
-    v.replace("%{CurrentKit:FileSystemName}", "%{Kit:FileSystemName}");
-    v.replace("%{CurrentBuild:Name}", "%{BuildConfig:Name}");
-    buildDirectoryTemplate.setValue(v);
 }
 
 QString BuildPropertiesSettings::defaultBuildDirectoryTemplate()

@@ -21,13 +21,10 @@ public:
     };
 
     Utils::StringAspect buildDirectoryTemplate;
-    Utils::StringAspect buildDirectoryTemplateOld; // TODO: Remove in ~4.16
     BuildTriStateAspect separateDebugInfo;
     BuildTriStateAspect qmlDebugging;
     BuildTriStateAspect qtQuickCompiler;
     Utils::BoolAspect showQtSettings;
-
-    void readSettings(QSettings *settings);
 
     QString defaultBuildDirectoryTemplate();
 };
