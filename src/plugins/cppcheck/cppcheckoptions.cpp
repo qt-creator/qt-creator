@@ -34,7 +34,6 @@ CppcheckOptions::CppcheckOptions()
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
     setSettingsGroup("Cppcheck");
 
-    registerAspect(&binary);
     binary.setSettingsKey("binary");
     binary.setExpectedKind(PathChooser::ExistingCommand);
     binary.setCommandVersionArguments({"--version"});
@@ -48,71 +47,57 @@ CppcheckOptions::CppcheckOptions()
         binary.setDefaultValue(programFiles.pathAppended("Cppcheck/cppcheck.exe").toString());
     }
 
-    registerAspect(&warning);
     warning.setSettingsKey("warning");
     warning.setDefaultValue(true);
     warning.setLabelText(Tr::tr("Warnings"));
 
-    registerAspect(&style);
     style.setSettingsKey("style");
     style.setDefaultValue(true);
     style.setLabelText(Tr::tr("Style"));
 
-    registerAspect(&performance);
     performance.setSettingsKey("performance");
     performance.setDefaultValue(true);
     performance.setLabelText(Tr::tr("Performance"));
 
-    registerAspect(&portability);
     portability.setSettingsKey("portability");
     portability.setDefaultValue(true);
     portability.setLabelText(Tr::tr("Portability"));
 
-    registerAspect(&information);
     information.setSettingsKey("information");
     information.setDefaultValue(true);
     information.setLabelText(Tr::tr("Information"));
 
-    registerAspect(&unusedFunction);
     unusedFunction.setSettingsKey("unusedFunction");
     unusedFunction.setLabelText(Tr::tr("Unused functions"));
     unusedFunction.setToolTip(Tr::tr("Disables multithreaded check."));
 
-    registerAspect(&missingInclude);
     missingInclude.setSettingsKey("missingInclude");
     missingInclude.setLabelText(Tr::tr("Missing includes"));
 
-    registerAspect(&inconclusive);
     inconclusive.setSettingsKey("inconclusive");
     inconclusive.setLabelText(Tr::tr("Inconclusive errors"));
 
-    registerAspect(&forceDefines);
     forceDefines.setSettingsKey("forceDefines");
     forceDefines.setLabelText(Tr::tr("Check all define combinations"));
 
-    registerAspect(&customArguments);
     customArguments.setSettingsKey("customArguments");
     customArguments.setDisplayStyle(StringAspect::LineEditDisplay);
     customArguments.setLabelText(Tr::tr("Custom arguments:"));
 
-    registerAspect(&ignoredPatterns);
     ignoredPatterns.setSettingsKey("ignoredPatterns");
     ignoredPatterns.setDisplayStyle(StringAspect::LineEditDisplay);
     ignoredPatterns.setLabelText(Tr::tr("Ignored file patterns:"));
     ignoredPatterns.setToolTip(Tr::tr("Comma-separated wildcards of full file paths. "
                                       "Files still can be checked if others include them."));
 
-    registerAspect(&showOutput);
     showOutput.setSettingsKey("showOutput");
     showOutput.setLabelText(Tr::tr("Show raw output"));
 
-    registerAspect(&addIncludePaths);
     addIncludePaths.setSettingsKey("addIncludePaths");
     addIncludePaths.setLabelText(Tr::tr("Add include paths"));
     addIncludePaths.setToolTip(Tr::tr("Can find missing includes but makes "
                                       "checking slower. Use only when needed."));
 
-    registerAspect(&guessArguments);
     guessArguments.setSettingsKey("guessArguments");
     guessArguments.setDefaultValue(true);
     guessArguments.setLabelText(Tr::tr("Calculate additional arguments"));
