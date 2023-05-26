@@ -1528,9 +1528,7 @@ bool Bind::visit(IfStatementAST *ast)
     ast->symbol = block;
 
     Scope *previousScope = switchScope(block);
-    if (ast->initDecl)
-        this->declaration(ast->initDecl);
-    else if (ast->initStmt)
+    if (ast->initStmt)
         this->statement(ast->initStmt);
     /*ExpressionTy condition =*/ this->expression(ast->condition);
     this->statement(ast->statement);

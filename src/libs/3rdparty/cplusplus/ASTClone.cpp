@@ -785,8 +785,6 @@ IfStatementAST *IfStatementAST::clone(MemoryPool *pool) const
     ast->if_token = if_token;
     ast->constexpr_token = constexpr_token;
     ast->lparen_token = lparen_token;
-    if (initDecl)
-        ast->initDecl = initDecl->clone(pool);
     if (initStmt)
         ast->initStmt = initStmt->clone(pool);
     if (condition)

@@ -3511,14 +3511,12 @@ bool Parser::parseExpressionStatement(StatementAST *&node)
 
     ExpressionAST *expression = nullptr;
     if (parseExpression(expression)) {
-        if (LA() == T_SEMICOLON) {
-            ExpressionStatementAST *ast = new (previousPool) ExpressionStatementAST;
-            ast->semicolon_token = consumeToken();
-            if (expression)
-                ast->expression = expression->clone(previousPool);
-            node = ast;
-            parsed = true;
-        }
+        ExpressionStatementAST *ast = new (previousPool) ExpressionStatementAST;
+        if (expression)
+            ast->expression = expression->clone(previousPool);
+        match(T_SEMICOLON, &ast->semicolon_token);
+        node = ast;
+        parsed = true;
     }
 
     _inExpressionStatement = wasInExpressionStatement;
@@ -4079,14 +4077,26 @@ bool Parser::parseIfStatement(StatementAST *&node)
         if (_languageFeatures.cxx17Enabled) {
             const int savedCursor = cursor();
             const bool savedBlockErrors = _translationUnit->blockErrors(true);
-            if (!parseSimpleDeclaration(ast->initDecl)) {
+            bool foundInitStmt = parseExpressionOrDeclarationStatement(ast->initStmt);
+            if (foundInitStmt)
+                foundInitStmt = ast->initStmt;
+            if (foundInitStmt) {
+                if (const auto exprStmt = ast->initStmt->asExpressionStatement()) {
+                    foundInitStmt = exprStmt->semicolon_token;
+                } else if (const auto declStmt = ast->initStmt->asDeclarationStatement()) {
+                    foundInitStmt = declStmt->declaration
+                            && declStmt->declaration->asSimpleDeclaration()
+                            && declStmt->declaration->asSimpleDeclaration()->semicolon_token;
+                } else {
+                    foundInitStmt = false;
+                }
+            }
+            if (!foundInitStmt) {
+                ast->initStmt = nullptr;
                 rewind(savedCursor);
-                if (!parseExpressionStatement(ast->initStmt))
-                    rewind(savedCursor);
             }
             _translationUnit->blockErrors(savedBlockErrors);
         }
-
         parseCondition(ast->condition);
         match(T_RPAREN, &ast->rparen_token);
         if (! parseStatement(ast->statement))

@@ -563,7 +563,6 @@ void ForStatementAST::accept0(ASTVisitor *visitor)
 void IfStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        accept(initDecl, visitor);
         accept(initStmt, visitor);
         accept(condition, visitor);
         accept(statement, visitor);
