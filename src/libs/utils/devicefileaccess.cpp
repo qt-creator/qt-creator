@@ -161,7 +161,7 @@ expected_str<void> DeviceFileAccess::copyFile(const FilePath &filePath, const Fi
     Q_UNUSED(target)
     QTC_CHECK(false);
     return make_unexpected(
-        Tr::tr("copyFile is not implemented for \"%1\"").arg(filePath.toUserOutput()));
+        Tr::tr("copyFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
 expected_str<void> copyRecursively_fallback(const FilePath &src, const FilePath &target)
@@ -305,7 +305,7 @@ expected_str<QByteArray> DeviceFileAccess::fileContents(const FilePath &filePath
     Q_UNUSED(offset)
     QTC_CHECK(false);
     return make_unexpected(
-        Tr::tr("fileContents is not implemented for \"%1\"").arg(filePath.toUserOutput()));
+        Tr::tr("fileContents is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
 expected_str<qint64> DeviceFileAccess::writeFileContents(const FilePath &filePath,
@@ -317,7 +317,7 @@ expected_str<qint64> DeviceFileAccess::writeFileContents(const FilePath &filePat
     Q_UNUSED(offset)
     QTC_CHECK(false);
     return make_unexpected(
-        Tr::tr("writeFileContents is not implemented for \"%1\"").arg(filePath.toUserOutput()));
+        Tr::tr("writeFileContents is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
 FilePathInfo DeviceFileAccess::filePathInfo(const FilePath &filePath) const
@@ -382,8 +382,8 @@ expected_str<FilePath> DeviceFileAccess::createTempFile(const FilePath &filePath
 {
     Q_UNUSED(filePath)
     QTC_CHECK(false);
-    return make_unexpected(Tr::tr("createTempFile is not implemented for \"%1\"")
-                               .arg(filePath.toUserOutput()));
+    return make_unexpected(
+        Tr::tr("createTempFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
 
@@ -658,10 +658,10 @@ expected_str<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &f
     const QString path = filePath.path();
     QFile f(path);
     if (!f.exists())
-        return make_unexpected(Tr::tr("File \"%1\" does not exist").arg(path));
+        return make_unexpected(Tr::tr("File \"%1\" does not exist.").arg(path));
 
     if (!f.open(QFile::ReadOnly))
-        return make_unexpected(Tr::tr("Could not open File \"%1\"").arg(path));
+        return make_unexpected(Tr::tr("Could not open File \"%1\".").arg(path));
 
     if (offset != 0)
         f.seek(offset);
@@ -686,14 +686,14 @@ expected_str<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &
     const bool isOpened = file.open(QFile::WriteOnly | QFile::Truncate);
     if (!isOpened)
         return make_unexpected(
-            Tr::tr("Could not open file \"%1\" for writing").arg(filePath.toUserOutput()));
+            Tr::tr("Could not open file \"%1\" for writing.").arg(filePath.toUserOutput()));
 
     if (offset != 0)
         file.seek(offset);
     qint64 res = file.write(data);
     if (res != data.size())
         return make_unexpected(
-            Tr::tr("Could not write to file \"%1\" (only %2 of %3 bytes written)")
+            Tr::tr("Could not write to file \"%1\" (only %2 of %3 bytes written).")
                 .arg(filePath.toUserOutput())
                 .arg(res)
                 .arg(data.size()));
@@ -705,8 +705,9 @@ expected_str<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &f
     QTemporaryFile file(filePath.path());
     file.setAutoRemove(false);
     if (!file.open()) {
-        return make_unexpected(Tr::tr("Could not create temporary file in \"%1\" (%2)")
-            .arg(filePath.toUserOutput()).arg(file.errorString()));
+        return make_unexpected(Tr::tr("Could not create temporary file in \"%1\" (%2).")
+                                   .arg(filePath.toUserOutput())
+                                   .arg(file.errorString()));
     }
     return filePath.withNewPath(file.fileName());
 }
@@ -1039,7 +1040,7 @@ expected_str<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &file
         }
         newPath = filePath.withNewPath(tmplate);
         if (--maxTries == 0) {
-            return make_unexpected(Tr::tr("Failed creating temporary file \"%1\" (too many tries)")
+            return make_unexpected(Tr::tr("Failed creating temporary file \"%1\" (too many tries).")
                                        .arg(filePath.toUserOutput()));
         }
     } while (newPath.exists());

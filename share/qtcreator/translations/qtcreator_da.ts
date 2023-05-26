@@ -7810,8 +7810,8 @@ Vil du dræbe den?</translation>
         <translation>Patch-kommandoen konfigureret i de generelle &quot;Miljø&quot;-indstillinger findes ikke.</translation>
     </message>
     <message>
-        <source>Running in &quot;%1&quot;: %2 %3</source>
-        <translation>Kører om &quot;%1&quot;: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3.</source>
+        <translation>Kører om &quot;%1&quot;: %2 %3.</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -38022,8 +38022,8 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <translation>Kører: %1 %2</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Kører om %1: %2 %3</translation>
+        <source>Running in %1: %2 %3.</source>
+        <translation>Kører om %1: %2 %3.</translation>
     </message>
 </context>
 <context>

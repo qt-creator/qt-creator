@@ -9342,8 +9342,8 @@ will also disable the following plugins:
         <translation>パッケージをインポートするにはバージョン番号が含まれている必要があります</translation>
     </message>
     <message>
-        <source>Nested inline components are not supported</source>
-        <translation>インラインコンポーネントのネストはサポートされていません</translation>
+        <source>Nested inline components are not supported.</source>
+        <translation>インラインコンポーネントのネストはサポートされていません。</translation>
     </message>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>

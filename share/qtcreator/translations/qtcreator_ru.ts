@@ -10564,8 +10564,8 @@ Double-click to edit item.</source>
         <translation>Команда patch, настроенная в общих настройках «Среды», отсутствует.</translation>
     </message>
     <message>
-        <source>Running in &quot;%1&quot;: %2 %3</source>
-        <translation>Выполняется в &quot;%1&quot;: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3.</source>
+        <translation>Выполняется в &quot;%1&quot;: %2 %3.</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -47660,8 +47660,8 @@ What do you want to do?</source>
         <translation>Исполнение: %1 %2</translation>
     </message>
     <message>
-        <source>Running in &quot;%1&quot;: %2 %3</source>
-        <translation>Исполнение в &quot;%1&quot;: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3.</source>
+        <translation>Исполнение в &quot;%1&quot;: %2 %3.</translation>
     </message>
     <message>
         <source>&amp;Undo</source>

@@ -656,7 +656,7 @@ void LoggingViewManagerWidget::loadAndUpdateFromPreset()
     if (!contents) {
         QMessageBox::critical(ICore::dialogParent(),
                               Tr::tr("Error"),
-                              Tr::tr("Failed to open preset file \"%1\" for reading")
+                              Tr::tr("Failed to open preset file \"%1\" for reading.")
                                   .arg(fp.toUserOutput()));
         return;
     }

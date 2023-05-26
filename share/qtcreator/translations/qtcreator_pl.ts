@@ -28622,8 +28622,8 @@ Do you want to check them out now?</source>
         <translation>Brak skonfigurowanej komendy &quot;patch&quot; w głównych ustawieniach środowiska.</translation>
     </message>
     <message>
-        <source>Running in &quot;%1&quot;: %2 %3</source>
-        <translation>Uruchamianie w &quot;%1&quot;: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3.</source>
+        <translation>Uruchamianie w &quot;%1&quot;: %2 %3.</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -31184,8 +31184,8 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <translation>Uruchamianie: %1 %2</translation>
     </message>
     <message>
-        <source>Running in &quot;%1&quot;: %2 %3</source>
-        <translation>Uruchamianie w &quot;%1&quot;: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3.</source>
+        <translation>Uruchamianie w &quot;%1&quot;: %2 %3.</translation>
     </message>
 </context>
 <context>

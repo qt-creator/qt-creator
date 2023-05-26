@@ -13396,20 +13396,20 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
         <translation>CMake-Generator fehlgeschlagen: %1.</translation>
     </message>
     <message>
-        <source>Kit does not have a cmake binary set</source>
-        <translation>Das Kit hat keine ausführbare CMake-Datei gesetzt</translation>
+        <source>Kit does not have a cmake binary set.</source>
+        <translation>Das Kit hat keine ausführbare CMake-Datei gesetzt.</translation>
     </message>
     <message>
-        <source>Cannot create output directory &quot;%1&quot;</source>
-        <translation>Das Ausgabeverzeichnis &quot;%1&quot; konnte nicht angelegt werden</translation>
+        <source>Cannot create output directory &quot;%1&quot;.</source>
+        <translation>Das Ausgabeverzeichnis &quot;%1&quot; konnte nicht angelegt werden.</translation>
     </message>
     <message>
-        <source>No valid cmake executable</source>
-        <translation>Keine gültige ausführbare CMake-Datei</translation>
+        <source>No valid cmake executable.</source>
+        <translation>Keine gültige ausführbare CMake-Datei.</translation>
     </message>
     <message>
-        <source>Running in &quot;%1&quot;: %2</source>
-        <translation>Führe in &quot;%1&quot; aus: %2</translation>
+        <source>Running in &quot;%1&quot;: %2.</source>
+        <translation>Führe in &quot;%1&quot; aus: %2.</translation>
     </message>
     <message>
         <source>&lt;No CMake Tool available&gt;</source>
@@ -16566,8 +16566,8 @@ Trotzdem fortfahren?</translation>
         <translation>Das in den allgemeinen Umgebungseinstellungen konfigurierte patch-Kommando existiert nicht.</translation>
     </message>
     <message>
-        <source>Running in &quot;%1&quot;: %2 %3</source>
-        <translation>Führe in &quot;%1&quot; aus: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3.</source>
+        <translation>Führe in &quot;%1&quot; aus: %2 %3.</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -19001,8 +19001,8 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <translation>Ausgewählte Kategorien laden</translation>
     </message>
     <message>
-        <source>Failed to open preset file &quot;%1&quot; for reading</source>
-        <translation>Datei &quot;%1&quot; konnte nicht zum Lesen der Voreinstellung geöffnet werden</translation>
+        <source>Failed to open preset file &quot;%1&quot; for reading.</source>
+        <translation>Datei &quot;%1&quot; konnte nicht zum Lesen der Voreinstellung geöffnet werden.</translation>
     </message>
     <message>
         <source>Failed to read preset file &quot;%1&quot;: %2</source>
@@ -37953,7 +37953,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Leeres Fenster</translation>
     </message>
     <message>
-        <source>Creates a Qt for Python application that includes a Qt Designer-based widget (ui file) - Requires .ui to Python conversion</source>
+        <source>Creates a Qt for Python application that includes a Qt Designer-based widget (ui file). Requires .ui to Python conversion.</source>
         <translation>Erstellt eine Qt for Python-Anwendung, die ein Qt Designer-basiertes Widget (ui-Datei) enthält. Erfordert Umwandlung von .ui nach Python.</translation>
     </message>
     <message>
@@ -38089,16 +38089,16 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
         <translation>Nimble-Anwendung</translation>
     </message>
     <message>
-        <source>Create a project that you can open in Qt Design Studio</source>
-        <translation>Erstellt ein Projekt, das in Qt Design Studio geöffnet werden kann</translation>
+        <source>Creates a project that you can open in Qt Design Studio.</source>
+        <translation>Erstellt ein Projekt, das in Qt Design Studio geöffnet werden kann.</translation>
     </message>
     <message>
-        <source>Create a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
+        <source>Creates a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
         <translation>Erstellt ein Projekt mit einer Struktur, die sowohl mit Qt Design Studio (via qmlproject) als auch mit Qt Creator (via CMakeLists.txt) kompatibel ist. Es enthält ein .ui.qml-Formular, das in Qt Design Studio visuell bearbeitet werden kann.</translation>
     </message>
     <message>
-        <source>The minimum version of Qt you want to build the application for</source>
-        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung benutzen wollen</translation>
+        <source>The minimum version of Qt you want to build the application for.</source>
+        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung benutzen wollen.</translation>
     </message>
     <message>
         <source>Creates a Qt Quick application that contains an empty window. Optionally, you can create a Qt Design Studio project.</source>
@@ -41535,12 +41535,12 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <translation>Kein qmake-Build-Schritt in der aktiven Build-Konfiguration</translation>
     </message>
     <message>
-        <source>Cannot create output directory &quot;%1&quot;</source>
-        <translation>Das Ausgabeverzeichnis &quot;%1&quot; konnte nicht angelegt werden</translation>
+        <source>Cannot create output directory &quot;%1&quot;.</source>
+        <translation>Das Ausgabeverzeichnis &quot;%1&quot; konnte nicht angelegt werden.</translation>
     </message>
     <message>
-        <source>Running in &quot;%1&quot;: %2</source>
-        <translation>Führe in &quot;%1&quot; aus: %2</translation>
+        <source>Running in &quot;%1&quot;: %2.</source>
+        <translation>Führe in &quot;%1&quot; aus: %2.</translation>
     </message>
     <message>
         <source>Build</source>
@@ -41993,8 +41993,8 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
         <translation>Package-Import erfordert eine Versionsnummer</translation>
     </message>
     <message>
-        <source>Nested inline components are not supported</source>
-        <translation>Verschachtelte Inline-Komponenten werden nicht unterstützt</translation>
+        <source>Nested inline components are not supported.</source>
+        <translation>Verschachtelte Inline-Komponenten werden nicht unterstützt.</translation>
     </message>
     <message>
         <source>Errors while loading qmltypes from %1:
@@ -51134,8 +51134,8 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Der Rückgabewert des Prozesses konnte nicht erhalten werden: %1</translation>
     </message>
     <message>
-        <source>copyFile is not implemented for &quot;%1&quot;</source>
-        <translation>copyFile ist für &quot;%1&quot; nicht implementiert</translation>
+        <source>copyFile is not implemented for &quot;%1&quot;.</source>
+        <translation>copyFile ist für &quot;%1&quot; nicht implementiert.</translation>
     </message>
     <message>
         <source>Cannot copy from &quot;%1&quot;, it is not a directory.</source>
@@ -51154,16 +51154,16 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Rekursives Kopieren von &quot;%1&quot; nach &quot;%2&quot; beim Auspacken des Tar-Archivs am Ziel fehlgeschlagen: %3</translation>
     </message>
     <message>
-        <source>fileContents is not implemented for &quot;%1&quot;</source>
-        <translation>fileContents ist für &quot;%1&quot; nicht implementiert</translation>
+        <source>fileContents is not implemented for &quot;%1&quot;.</source>
+        <translation>fileContents ist für &quot;%1&quot; nicht implementiert.</translation>
     </message>
     <message>
-        <source>writeFileContents is not implemented for &quot;%1&quot;</source>
-        <translation>writeFileContents ist für &quot;%1&quot; nicht implementiert</translation>
+        <source>writeFileContents is not implemented for &quot;%1&quot;.</source>
+        <translation>writeFileContents ist für &quot;%1&quot; nicht implementiert.</translation>
     </message>
     <message>
-        <source>createTempFile is not implemented for &quot;%1&quot;</source>
-        <translation>createTempFile ist für &quot;%1&quot; nicht implementiert</translation>
+        <source>createTempFile is not implemented for &quot;%1&quot;.</source>
+        <translation>createTempFile ist für &quot;%1&quot; nicht implementiert.</translation>
     </message>
     <message>
         <source>Refusing to remove root directory.</source>
@@ -51186,28 +51186,28 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Kopieren der Datei &quot;%1&quot; nach &quot;%2&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
-        <source>File &quot;%1&quot; does not exist</source>
-        <translation>Datei &quot;%1&quot; existiert nicht</translation>
+        <source>File &quot;%1&quot; does not exist.</source>
+        <translation>Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
-        <source>Could not open File &quot;%1&quot;</source>
-        <translation>Die Datei &quot;%1&quot; konnte nicht geöffnet werden</translation>
+        <source>Could not open File &quot;%1&quot;.</source>
+        <translation>Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Cannot read &quot;%1&quot;: %2</source>
         <translation>&quot;%1&quot; kann nicht gelesen werden: %2</translation>
     </message>
     <message>
-        <source>Could not open file &quot;%1&quot; for writing</source>
-        <translation>Die Datei &quot;%1&quot; konnte nicht zum Schreiben geöffnet werden</translation>
+        <source>Could not open file &quot;%1&quot; for writing.</source>
+        <translation>Die Datei &quot;%1&quot; konnte nicht zum Schreiben geöffnet werden.</translation>
     </message>
     <message>
-        <source>Could not write to file &quot;%1&quot; (only %2 of %3 bytes written)</source>
-        <translation>Die Datei &quot;%1&quot; konnte nicht geschrieben werden (es wurden nur %2 von %3 Bytes geschrieben)</translation>
+        <source>Could not write to file &quot;%1&quot; (only %2 of %3 bytes written).</source>
+        <translation>Die Datei &quot;%1&quot; konnte nicht geschrieben werden (es wurden nur %2 von %3 Bytes geschrieben).</translation>
     </message>
     <message>
-        <source>Could not create temporary file in &quot;%1&quot; (%2)</source>
-        <translation>Es konnte keine temporäre Datei in &quot;%1&quot; erstellt werden (%2)</translation>
+        <source>Could not create temporary file in &quot;%1&quot; (%2).</source>
+        <translation>Es konnte keine temporäre Datei in &quot;%1&quot; erstellt werden (%2).</translation>
     </message>
     <message>
         <source>Failed to copy file &quot;%1&quot; to &quot;%2&quot;: %3</source>
@@ -51226,8 +51226,8 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
     </message>
     <message>
-        <source>Failed creating temporary file &quot;%1&quot; (too many tries)</source>
-        <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden (zu viele Versuche)</translation>
+        <source>Failed creating temporary file &quot;%1&quot; (too many tries).</source>
+        <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden (zu viele Versuche).</translation>
     </message>
     <message>
         <source>Failed to create directory &quot;%1&quot;.</source>
@@ -53266,8 +53266,8 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
         <translation>Führe aus: %1</translation>
     </message>
     <message>
-        <source>Running in &quot;%1&quot;: %2</source>
-        <translation>Führe in &quot;%1&quot; aus: %2</translation>
+        <source>Running in &quot;%1&quot;: %2.</source>
+        <translation>Führe in &quot;%1&quot; aus: %2.</translation>
     </message>
     <message>
         <source>Failed to retrieve data.</source>
