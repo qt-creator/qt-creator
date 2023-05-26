@@ -38,13 +38,14 @@ public:
             Core::ICore::showOptionsDialog(Constants::TOOLSSETTINGSPAGE_ID);
         });
 
-        connect(&VcpkgSettings::instance()->vcpkgRoot, &Utils::BaseAspect::changed,
+        connect(&settings().vcpkgRoot, &Utils::BaseAspect::changed,
                 this, &VcpkgManifestEditorWidget::updateToolBar);
     }
 
     void updateToolBar()
     {
-        m_searchPkgAction->setEnabled(VcpkgSettings::instance()->vcpkgRootValid());
+        Utils::FilePath vcpkg = settings().vcpkgRoot().pathAppended("vcpkg").withExecutableSuffix();
+        m_searchPkgAction->setEnabled(vcpkg.isExecutableFile());
     }
 
 private:

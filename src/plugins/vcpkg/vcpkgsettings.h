@@ -12,10 +12,9 @@ class VcpkgSettings : public Core::PagedSettings
 public:
     VcpkgSettings();
 
-    static VcpkgSettings *instance();
-    bool vcpkgRootValid() const;
-
-    Utils::FilePathAspect vcpkgRoot;
+    Utils::FilePathAspect vcpkgRoot{this};
 };
 
-} // namespace Vcpkg::Internal
+VcpkgSettings &settings();
+
+} // Vcpkg::Internal
