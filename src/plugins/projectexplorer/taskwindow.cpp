@@ -169,6 +169,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 {
     d->m_model = new Internal::TaskModel(this);
     d->m_filter = new Internal::TaskFilterModel(d->m_model);
+    d->m_filter->setAutoAcceptChildRows(true);
 
     auto agg = new Aggregation::Aggregate;
     agg->add(&d->m_treeView);

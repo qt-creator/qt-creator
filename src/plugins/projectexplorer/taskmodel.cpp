@@ -409,7 +409,8 @@ void TaskFilterModel::updateFilterProperties(
 
 bool TaskFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    Q_UNUSED(source_parent)
+    if (source_parent.isValid())
+        return true;
     return filterAcceptsTask(taskModel()->tasks().at(source_row));
 }
 
