@@ -32,19 +32,19 @@ public:
     void toSettings(QSettings *s) const;
     void fromSettings(QSettings *s);
 
-    Utils::IntegerAspect timeout;
-    Utils::BoolAspect omitInternalMsg;
-    Utils::BoolAspect omitRunConfigWarn;
-    Utils::BoolAspect limitResultOutput;
-    Utils::BoolAspect limitResultDescription;
-    Utils::IntegerAspect resultDescriptionMaxSize;
-    Utils::BoolAspect autoScroll;
-    Utils::BoolAspect processArgs;
-    Utils::BoolAspect displayApplication;
-    Utils::BoolAspect popupOnStart;
-    Utils::BoolAspect popupOnFinish;
-    Utils::BoolAspect popupOnFail;
-    Utils::SelectionAspect runAfterBuild;
+    Utils::IntegerAspect timeout{this};
+    Utils::BoolAspect omitInternalMsg{this};
+    Utils::BoolAspect omitRunConfigWarn{this};
+    Utils::BoolAspect limitResultOutput{this};
+    Utils::BoolAspect limitResultDescription{this};
+    Utils::IntegerAspect resultDescriptionMaxSize{this};
+    Utils::BoolAspect autoScroll{this};
+    Utils::BoolAspect processArgs{this};
+    Utils::BoolAspect displayApplication{this};
+    Utils::BoolAspect popupOnStart{this};
+    Utils::BoolAspect popupOnFinish{this};
+    Utils::BoolAspect popupOnFail{this};
+    Utils::SelectionAspect runAfterBuild{this};
 
     RunAfterBuildMode runAfterBuildMode() const;
 };
