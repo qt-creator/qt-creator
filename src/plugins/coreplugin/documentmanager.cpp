@@ -856,7 +856,7 @@ FilePath DocumentManager::getSaveFileNameWithExtension(const QString &title, con
 FilePath DocumentManager::getSaveAsFileName(const IDocument *document)
 {
     QTC_ASSERT(document, return {});
-    const QString filter = allDocumentFactoryFiltersString();
+    QString filter = allDocumentFactoryFiltersString();
     const FilePath filePath = document->filePath();
     QString selectedFilter;
     FilePath fileDialogPath = filePath;
@@ -875,6 +875,9 @@ FilePath DocumentManager::getSaveAsFileName(const IDocument *document)
     }
     if (selectedFilter.isEmpty())
         selectedFilter = Utils::mimeTypeForName(document->mimeType()).filterString();
+
+    if (!filter.contains(selectedFilter))
+        filter.prepend(selectedFilter + QLatin1String(";;"));
 
     return getSaveFileName(Tr::tr("Save File As"),
                            fileDialogPath,
