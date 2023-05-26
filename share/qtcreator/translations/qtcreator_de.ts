@@ -40211,8 +40211,8 @@ fails because Clang does not understand the target architecture.</source>
         <translation>Python Language Server benutzen</translation>
     </message>
     <message>
-        <source>For a complete list of available options, consult the &lt;a href=&quot;https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md&quot;&gt;Python LSP Server configuration documentation&lt;/a&gt;.</source>
-        <translation>Für eine vollständige Liste der verfügbaren Optionen siehe auch die &lt;a href=&quot;https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md&quot;&gt;Dokumentation zur Python LSP-Server-Konfiguration&lt;/a&gt;.</translation>
+        <source>For a complete list of available options, consult the [Python LSP Server configuration documentation](%1).</source>
+        <translation>Für eine vollständige Liste der verfügbaren Optionen siehe auch die [Dokumentation zur Python LSP-Server-Konfiguration](%1).</translation>
     </message>
     <message>
         <source>Advanced</source>
