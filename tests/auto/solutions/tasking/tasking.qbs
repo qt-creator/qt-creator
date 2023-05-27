@@ -1,7 +1,7 @@
 QtcAutotest {
     name: "Tasking autotest"
 
-    Depends { name: "Utils" }
+    Depends { name: "Tasking" }
 
     files: "tst_tasking.cpp"
 }
