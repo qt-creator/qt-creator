@@ -567,6 +567,23 @@ void TaskItem::setTaskErrorHandler(const TaskEndHandler &handler)
     m_taskHandler.m_errorHandler = handler;
 }
 
+TaskItem TaskItem::withTimeout(const TaskItem &item, milliseconds timeout,
+                               const GroupEndHandler &handler)
+{
+    const TimeoutTask::EndHandler taskHandler = handler
+        ? [handler](const milliseconds &) { handler(); } : TimeoutTask::EndHandler();
+    return Group {
+        parallel,
+        stopOnFinished,
+        Group {
+            finishAllAndError,
+            TimeoutTask([timeout](milliseconds &timeoutData) { timeoutData = timeout; },
+                        taskHandler)
+        },
+        item
+    };
+}
+
 class TaskTreePrivate;
 class TaskNode;
 

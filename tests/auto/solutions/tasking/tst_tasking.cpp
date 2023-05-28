@@ -25,7 +25,8 @@ enum class Handler {
     GroupDone,
     GroupError,
     Sync,
-    BarrierAdvance
+    BarrierAdvance,
+    Timeout
 };
 Q_ENUM_NS(Handler);
 
@@ -242,6 +243,12 @@ void tst_Tasking::testTree_data()
     const auto setupError = [storage](int taskId) {
         return [storage, taskId](const TaskObject &) {
             storage->m_log.append({taskId, Handler::Error});
+        };
+    };
+
+    const auto setupTimeout = [storage](int taskId) {
+        return [storage, taskId] {
+            storage->m_log.append({taskId, Handler::Timeout});
         };
     };
 
@@ -2082,6 +2089,112 @@ void tst_Tasking::testTree_data()
             << TestData{storage, root3, log3, 5, OnDone::Success};
         QTest::newRow("MultiBarrierParallelMultiWaitFor")
             << TestData{storage, root4, log4, 6, OnDone::Success};
+    }
+
+    {
+        // Test CustomTask::withTimeout() combinations:
+        // 1. When the timeout has triggered or not.
+        // 2. With and without timeout handler.
+        const Group root1 {
+            Storage(storage),
+            TestTask(setupTask(1, 1000ms), setupDone(1), setupError(1))
+                .withTimeout(1ms)
+        };
+        const Log log1 {
+            {1, Handler::Setup},
+            {1, Handler::Error}
+        };
+        QTest::newRow("TaskErrorWithTimeout") << TestData{storage, root1, log1, 2,
+                                                          OnDone::Failure};
+
+        const Group root2 {
+            Storage(storage),
+            TestTask(setupTask(1, 1000ms), setupDone(1), setupError(1))
+                .withTimeout(1ms, setupTimeout(1))
+        };
+        const Log log2 {
+            {1, Handler::Setup},
+            {1, Handler::Timeout},
+            {1, Handler::Error}
+        };
+        QTest::newRow("TaskErrorWithTimeoutHandler") << TestData{storage, root2, log2, 2,
+                                                                 OnDone::Failure};
+
+        const Group root3 {
+            Storage(storage),
+            TestTask(setupTask(1, 1ms), setupDone(1), setupError(1))
+                .withTimeout(1000ms)
+        };
+        const Log doneLog {
+            {1, Handler::Setup},
+            {1, Handler::Done}
+        };
+        QTest::newRow("TaskDoneWithTimeout") << TestData{storage, root3, doneLog, 2,
+                                                         OnDone::Success};
+
+        const Group root4 {
+            Storage(storage),
+            TestTask(setupTask(1, 1ms), setupDone(1), setupError(1))
+                .withTimeout(1000ms, setupTimeout(1))
+        };
+        QTest::newRow("TaskDoneWithTimeoutHandler") << TestData{storage, root4, doneLog, 2,
+                                                                OnDone::Success};
+    }
+
+    {
+        // Test Group::withTimeout() combinations:
+        // 1. When the timeout has triggered or not.
+        // 2. With and without timeout handler.
+        const Group root1 {
+            Storage(storage),
+            Group {
+                createSuccessTask(1, 1000ms)
+            }.withTimeout(1ms)
+        };
+        const Log log1 {
+            {1, Handler::Setup},
+            {1, Handler::Error}
+        };
+        QTest::newRow("GroupErrorWithTimeout") << TestData{storage, root1, log1, 2,
+                                                           OnDone::Failure};
+
+        // Test Group::withTimeout(), passing custom handler
+        const Group root2 {
+            Storage(storage),
+            Group {
+                createSuccessTask(1, 1000ms)
+            }.withTimeout(1ms, setupTimeout(1))
+        };
+        const Log log2 {
+            {1, Handler::Setup},
+            {1, Handler::Timeout},
+            {1, Handler::Error}
+        };
+        QTest::newRow("GroupErrorWithTimeoutHandler") << TestData{storage, root2, log2, 2,
+                                                                  OnDone::Failure};
+
+        const Group root3 {
+            Storage(storage),
+            Group {
+                createSuccessTask(1, 1ms)
+            }.withTimeout(1000ms)
+        };
+        const Log doneLog {
+            {1, Handler::Setup},
+            {1, Handler::Done}
+        };
+        QTest::newRow("GroupDoneWithTimeout") << TestData{storage, root3, doneLog, 2,
+                                                          OnDone::Success};
+
+        // Test Group::withTimeout(), passing custom handler
+        const Group root4 {
+            Storage(storage),
+            Group {
+                createSuccessTask(1, 1ms)
+            }.withTimeout(1000ms, setupTimeout(1))
+        };
+        QTest::newRow("GroupDoneWithTimeoutHandler") << TestData{storage, root4, doneLog, 2,
+                                                                 OnDone::Success};
     }
 }
 

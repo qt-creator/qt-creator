@@ -187,6 +187,8 @@ protected:
     static TaskItem groupHandler(const GroupHandler &handler) { return TaskItem({handler}); }
     static TaskItem parallelLimit(int limit) { return TaskItem({{}, limit}); }
     static TaskItem workflowPolicy(WorkflowPolicy policy) { return TaskItem({{}, {}, policy}); }
+    static TaskItem withTimeout(const TaskItem &item, std::chrono::milliseconds timeout,
+                                const GroupEndHandler &handler = {});
 
 private:
     Type m_type = Type::Group;
@@ -215,6 +217,11 @@ public:
     }
     using TaskItem::parallelLimit;  // Default: 1 (sequential). 0 means unlimited (parallel).
     using TaskItem::workflowPolicy; // Default: WorkflowPolicy::StopOnError.
+
+    TaskItem withTimeout(std::chrono::milliseconds timeout,
+                         const GroupEndHandler &handler = {}) const {
+        return TaskItem::withTimeout(*this, timeout, handler);
+    }
 
 private:
     template<typename SetupHandler>
@@ -327,6 +334,11 @@ public:
     CustomTask &onError(const EndHandler &handler) {
         setTaskErrorHandler(wrapEnd(handler));
         return *this;
+    }
+
+    TaskItem withTimeout(std::chrono::milliseconds timeout,
+                         const GroupEndHandler &handler = {}) const {
+        return TaskItem::withTimeout(*this, timeout, handler);
     }
 
 private:
