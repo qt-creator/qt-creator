@@ -426,6 +426,13 @@ public:
     void start() final;
 };
 
+class TASKING_EXPORT TimeoutTaskAdapter : public TaskAdapter<std::chrono::milliseconds>
+{
+public:
+    TimeoutTaskAdapter();
+    void start() final;
+};
+
 } // namespace Tasking
 
 #define TASKING_DECLARE_TASK(CustomTaskName, TaskAdapterClass)\
@@ -438,3 +445,4 @@ using CustomTaskName = CustomTask<TaskAdapterClass<Args...>>;\
 } // namespace Tasking
 
 TASKING_DECLARE_TASK(TaskTreeTask, TaskTreeTaskAdapter);
+TASKING_DECLARE_TASK(TimeoutTask, TimeoutTaskAdapter);

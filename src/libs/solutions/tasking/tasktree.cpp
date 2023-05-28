@@ -1848,4 +1848,14 @@ void TaskTreeTaskAdapter::start()
     task()->start();
 }
 
+TimeoutTaskAdapter::TimeoutTaskAdapter()
+{
+    *task() = std::chrono::milliseconds::zero();
+}
+
+void TimeoutTaskAdapter::start()
+{
+    QTimer::singleShot(*task(), this, [this] { emit done(true); });
+}
+
 } // namespace Tasking

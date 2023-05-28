@@ -3,26 +3,15 @@
 
 #include <tasking/barrier.h>
 
-#include <QTimer>
 #include <QtTest>
+
+using namespace Tasking;
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
-using namespace Tasking;
-
-template <bool SuccessOnDone>
-class DurationTaskAdapter : public TaskAdapter<std::chrono::milliseconds>
-{
-public:
-    DurationTaskAdapter() { *task() = std::chrono::milliseconds{0}; }
-    void start() final { QTimer::singleShot(*task(), this, [this] { emit done(SuccessOnDone); }); }
-};
-
-TASKING_DECLARE_TASK(SuccessTask, DurationTaskAdapter<true>);
-TASKING_DECLARE_TASK(FailingTask, DurationTaskAdapter<false>);
-
 using TaskObject = milliseconds;
+using TestTask = TimeoutTask;
 
 namespace PrintableEnums {
 
@@ -86,9 +75,9 @@ void tst_Tasking::validConstructs()
 {
     const Group task {
         parallel,
-        SuccessTask([](TaskObject &) {}, [](const TaskObject &) {}),
-        SuccessTask([](TaskObject &) {}, [](const TaskObject &) {}),
-        SuccessTask([](TaskObject &) {}, [](const TaskObject &) {})
+        TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
+        TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
+        TestTask([](TaskObject &) {}, [](const TaskObject &) {})
     };
 
     const Group group1 {
@@ -99,18 +88,18 @@ void tst_Tasking::validConstructs()
         parallel,
         Group {
             parallel,
-            SuccessTask([](TaskObject &) {}, [](const TaskObject &) {}),
+            TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
             Group {
                 parallel,
-                SuccessTask([](TaskObject &) {}, [](const TaskObject &) {}),
+                TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
                 Group {
                     parallel,
-                    SuccessTask([](TaskObject &) {}, [](const TaskObject &) {})
+                    TestTask([](TaskObject &) {}, [](const TaskObject &) {})
                 }
             },
             Group {
                 parallel,
-                SuccessTask([](TaskObject &) {}, [](const TaskObject &) {}),
+                TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
                 onGroupDone([] {})
             }
         },
@@ -127,24 +116,24 @@ void tst_Tasking::validConstructs()
 
     const Group task2 {
         parallel,
-        SuccessTask(setupHandler),
-        SuccessTask(setupHandler, doneHandler),
-        SuccessTask(setupHandler, doneHandler, errorHandler),
+        TestTask(setupHandler),
+        TestTask(setupHandler, doneHandler),
+        TestTask(setupHandler, doneHandler, errorHandler),
         // need to explicitly pass empty handler for done
-        SuccessTask(setupHandler, {}, errorHandler)
+        TestTask(setupHandler, {}, errorHandler)
     };
 
     // Fluent interface
 
     const Group fluent {
         parallel,
-        SuccessTask().onSetup(setupHandler),
-        SuccessTask().onSetup(setupHandler).onDone(doneHandler),
-        SuccessTask().onSetup(setupHandler).onDone(doneHandler).onError(errorHandler),
+        TestTask().onSetup(setupHandler),
+        TestTask().onSetup(setupHandler).onDone(doneHandler),
+        TestTask().onSetup(setupHandler).onDone(doneHandler).onError(errorHandler),
         // possible to skip the empty done
-        SuccessTask().onSetup(setupHandler).onError(errorHandler),
+        TestTask().onSetup(setupHandler).onError(errorHandler),
         // possible to set handlers in a different order
-        SuccessTask().onError(errorHandler).onDone(doneHandler).onSetup(setupHandler),
+        TestTask().onError(errorHandler).onDone(doneHandler).onSetup(setupHandler),
     };
 
 
@@ -259,8 +248,14 @@ void tst_Tasking::testTree_data()
     const auto createTask = [storage, setupTask, setupDone, setupError](
             int taskId, bool successTask, milliseconds timeout = 0ms) -> TaskItem {
         if (successTask)
-            return SuccessTask(setupTask(taskId, timeout), setupDone(taskId), setupError(taskId));
-        return FailingTask(setupTask(taskId, timeout), setupDone(taskId), setupError(taskId));
+            return TestTask(setupTask(taskId, timeout), setupDone(taskId), setupError(taskId));
+        const Group root {
+            finishAllAndError,
+            TestTask(setupTask(taskId, timeout)),
+            onGroupDone([storage, taskId] { storage->m_log.append({taskId, Handler::Done}); }),
+            onGroupError([storage, taskId] { storage->m_log.append({taskId, Handler::Error}); })
+        };
+        return root;
     };
 
     const auto createSuccessTask = [createTask](int taskId, milliseconds timeout = 0ms) {
@@ -273,7 +268,7 @@ void tst_Tasking::testTree_data()
 
     const auto createDynamicTask = [storage, setupDynamicTask, setupDone, setupError](
                                        int taskId, TaskAction action) {
-        return SuccessTask(setupDynamicTask(taskId, action), setupDone(taskId), setupError(taskId));
+        return TestTask(setupDynamicTask(taskId, action), setupDone(taskId), setupError(taskId));
     };
 
     const auto groupSetup = [storage](int taskId) {
@@ -2142,7 +2137,7 @@ void tst_Tasking::storageDestructor()
         };
         const Group root {
             Storage(storage),
-            SuccessTask(setupSleepingTask)
+            TestTask(setupSleepingTask)
         };
 
         TaskTree taskTree(root);
