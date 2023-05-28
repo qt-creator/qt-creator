@@ -2202,15 +2202,15 @@ void tst_Tasking::testTree()
 {
     QFETCH(TestData, testData);
 
-    TaskTree taskTree(testData.root);
-    QCOMPARE(taskTree.taskCount(), testData.taskCount);
+    TaskTree taskTree({testData.root.withTimeout(1000ms)});
+    QCOMPARE(taskTree.taskCount() - 1, testData.taskCount); // -1 for the timeout task above
     Log actualLog;
     const auto collectLog = [&actualLog](CustomStorage *storage) { actualLog = storage->m_log; };
     taskTree.onStorageDone(testData.storage, collectLog);
-    const OnDone result = taskTree.runBlocking(2000) ? OnDone::Success : OnDone::Failure;
+    const OnDone result = taskTree.runBlocking() ? OnDone::Success : OnDone::Failure;
     QCOMPARE(taskTree.isRunning(), false);
 
-    QCOMPARE(taskTree.progressValue(), testData.taskCount);
+    QCOMPARE(taskTree.progressValue(), taskTree.progressMaximum());
     QCOMPARE(actualLog, testData.expectedLog);
     QCOMPARE(CustomStorage::instanceCount(), 0);
 

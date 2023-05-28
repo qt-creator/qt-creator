@@ -135,8 +135,7 @@ private slots:
             tasks.append(AsyncTask<void>(onSetup(parentDir.filePath(dirName), templateFile)));
         }
 
-        TaskTree taskTree(tasks);
-        QVERIFY(taskTree.runBlocking());
+        QVERIFY(TaskTree::runBlocking(tasks));
     }
 
     void cleanupTestCase()
@@ -161,8 +160,7 @@ private slots:
             tasks.append(AsyncTask<void>(onSetup(parentDir.filePath(dirName))));
         }
 
-        TaskTree taskTree(tasks);
-        QVERIFY(taskTree.runBlocking());
+        QVERIFY(TaskTree::runBlocking(tasks));
 
         m_tempDir.reset();
         Singleton::deleteAll();

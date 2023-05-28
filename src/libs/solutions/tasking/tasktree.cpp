@@ -1791,9 +1791,16 @@ bool TaskTree::isRunning() const
     return d->m_root && d->m_root->isRunning();
 }
 
-bool TaskTree::runBlocking(const QFuture<void> &future, int timeoutMs)
+bool TaskTree::runBlocking()
 {
-    if (isRunning() || future.isCanceled())
+    QPromise<void> dummy;
+    dummy.start();
+    return runBlocking(dummy.future());
+}
+
+bool TaskTree::runBlocking(const QFuture<void> &future)
+{
+    if (future.isCanceled())
         return false;
 
     bool ok = false;
@@ -1812,17 +1819,7 @@ bool TaskTree::runBlocking(const QFuture<void> &future, int timeoutMs)
 
     connect(this, &TaskTree::done, &loop, [finalize] { finalize(true); });
     connect(this, &TaskTree::errorOccurred, &loop, [finalize] { finalize(false); });
-    start();
-    if (!isRunning())
-        return ok;
-
-    QTimer timer;
-    if (timeoutMs) {
-        timer.setSingleShot(true);
-        timer.setInterval(timeoutMs);
-        connect(&timer, &QTimer::timeout, this, &TaskTree::stop);
-        timer.start();
-    }
+    QTimer::singleShot(0, this, &TaskTree::start);
 
     loop.exec(QEventLoop::ExcludeUserInputEvents);
     if (!ok) {
@@ -1832,11 +1829,19 @@ bool TaskTree::runBlocking(const QFuture<void> &future, int timeoutMs)
     return ok;
 }
 
-bool TaskTree::runBlocking(int timeoutMs)
+bool TaskTree::runBlocking(const Group &recipe, milliseconds timeout)
 {
     QPromise<void> dummy;
     dummy.start();
-    return runBlocking(dummy.future(), timeoutMs);
+    return TaskTree::runBlocking(recipe, dummy.future(), timeout);
+}
+
+bool TaskTree::runBlocking(const Group &recipe, const QFuture<void> &future, milliseconds timeout)
+{
+    const Group root = timeout == milliseconds::max() ? recipe
+                                                      : Group { recipe.withTimeout(timeout) };
+    TaskTree taskTree(root);
+    return taskTree.runBlocking(future);
 }
 
 int TaskTree::taskCount() const

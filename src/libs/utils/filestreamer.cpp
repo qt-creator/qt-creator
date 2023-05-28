@@ -375,8 +375,7 @@ static void transfer(QPromise<void> &promise, const FilePath &source, const File
     if (promise.isCanceled())
         return;
 
-    TaskTree taskTree(transferTask(source, destination));
-    if (!taskTree.runBlocking(promise.future()))
+    if (!TaskTree::runBlocking(transferTask(source, destination), promise.future()))
         promise.future().cancel();
 }
 
