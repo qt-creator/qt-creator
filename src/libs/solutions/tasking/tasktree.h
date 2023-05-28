@@ -102,6 +102,7 @@ private:
 // 3. Stops on first finished child. In sequential mode it will never run other children then the first one.
 //    Useful only in parallel mode.
 // 4. Always run all children, let them finish, ignore their results and report done afterwards.
+// 5. Always run all children, let them finish, ignore their results and report error afterwards.
 
 enum class WorkflowPolicy {
     StopOnError,      // 1a - Reports error on first child error, otherwise done (if all children were done).
@@ -109,7 +110,8 @@ enum class WorkflowPolicy {
     StopOnDone,       // 2a - Reports done on first child done, otherwise error (if all children were error).
     ContinueOnDone,   // 2b - The same, but children execution continues. Reports error when no children.
     StopOnFinished,   // 3  - Stops on first finished child and report its result.
-    FinishAllAndDone  // 4  - Reports done after all children finished.
+    FinishAllAndDone, // 4  - Reports done after all children finished.
+    FinishAllAndError // 5  - Reports error after all children finished.
 };
 Q_ENUM_NS(WorkflowPolicy);
 
@@ -247,12 +249,14 @@ TASKING_EXPORT TaskItem workflowPolicy(WorkflowPolicy policy);
 
 TASKING_EXPORT extern const TaskItem sequential;
 TASKING_EXPORT extern const TaskItem parallel;
+
 TASKING_EXPORT extern const TaskItem stopOnError;
 TASKING_EXPORT extern const TaskItem continueOnError;
 TASKING_EXPORT extern const TaskItem stopOnDone;
 TASKING_EXPORT extern const TaskItem continueOnDone;
 TASKING_EXPORT extern const TaskItem stopOnFinished;
 TASKING_EXPORT extern const TaskItem finishAllAndDone;
+TASKING_EXPORT extern const TaskItem finishAllAndError;
 
 class TASKING_EXPORT Storage : public TaskItem
 {

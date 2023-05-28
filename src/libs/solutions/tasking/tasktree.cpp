@@ -404,12 +404,14 @@ TaskItem workflowPolicy(WorkflowPolicy policy)
 
 const TaskItem sequential = parallelLimit(1);
 const TaskItem parallel = parallelLimit(0);
+
 const TaskItem stopOnError = workflowPolicy(WorkflowPolicy::StopOnError);
 const TaskItem continueOnError = workflowPolicy(WorkflowPolicy::ContinueOnError);
 const TaskItem stopOnDone = workflowPolicy(WorkflowPolicy::StopOnDone);
 const TaskItem continueOnDone = workflowPolicy(WorkflowPolicy::ContinueOnDone);
 const TaskItem stopOnFinished = workflowPolicy(WorkflowPolicy::StopOnFinished);
 const TaskItem finishAllAndDone = workflowPolicy(WorkflowPolicy::FinishAllAndDone);
+const TaskItem finishAllAndError = workflowPolicy(WorkflowPolicy::FinishAllAndError);
 
 static TaskAction toTaskAction(bool success)
 {
@@ -859,7 +861,8 @@ TaskContainer::RuntimeData::RuntimeData(const ConstData &constData)
     , m_storageIdList(createStorages(constData))
 {
     m_successBit = m_constData.m_workflowPolicy != WorkflowPolicy::StopOnDone
-                && m_constData.m_workflowPolicy != WorkflowPolicy::ContinueOnDone;
+                && m_constData.m_workflowPolicy != WorkflowPolicy::ContinueOnDone
+                && m_constData.m_workflowPolicy != WorkflowPolicy::FinishAllAndError;
 }
 
 TaskContainer::RuntimeData::~RuntimeData()
@@ -873,7 +876,8 @@ TaskContainer::RuntimeData::~RuntimeData()
 
 bool TaskContainer::RuntimeData::updateSuccessBit(bool success)
 {
-    if (m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndDone)
+    if (m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndDone
+        || m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndError)
         return m_successBit;
     if (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished) {
         m_successBit = success;
