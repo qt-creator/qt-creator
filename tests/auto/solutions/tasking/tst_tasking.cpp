@@ -739,6 +739,376 @@ void tst_Tasking::testTree_data()
     }
 
     {
+        // These tests check whether the proper root's group end handler is called
+        // when the group is stopped. Test it with different workflow policies.
+        // The root starts one short failing task together with one long task.
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
+                                 groupError](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                parallel,
+                workflowPolicy(policy),
+                createFailingTask(1, 1ms),
+                createSuccessTask(2, 2ms),
+                groupDone(0),
+                groupError(0)
+            };
+        };
+
+        const Log errorErrorLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Error},
+            {0, Handler::GroupError}
+        };
+
+        const Log errorDoneLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Done},
+            {0, Handler::GroupError}
+        };
+
+        const Log doneLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Done},
+            {0, Handler::GroupDone}
+        };
+
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("StopRootWithStopOnError")
+            << TestData{storage, root1, errorErrorLog, 2, OnDone::Failure};
+
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("StopRootWithContinueOnError")
+            << TestData{storage, root2, errorDoneLog, 2, OnDone::Failure};
+
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("StopRootWithStopOnDone")
+            << TestData{storage, root3, doneLog, 2, OnDone::Success};
+
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("StopRootWithContinueOnDone")
+            << TestData{storage, root4, doneLog, 2, OnDone::Success};
+
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("StopRootWithStopOnFinished")
+            << TestData{storage, root5, errorErrorLog, 2, OnDone::Failure};
+
+        const Group root6 = createRoot(WorkflowPolicy::Optional);
+        QTest::newRow("StopRootWithOptional")
+            << TestData{storage, root6, doneLog, 2, OnDone::Success};
+    }
+
+    {
+        // These tests check whether the proper root's group end handler is called
+        // when the group is stopped. Test it with different workflow policies.
+        // The root starts in parallel: one very short successful task, one short failing task
+        // and one long task.
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
+                                 groupError](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                parallel,
+                workflowPolicy(policy),
+                createSuccessTask(1),
+                createFailingTask(2, 1ms),
+                createSuccessTask(3, 2ms),
+                groupDone(0),
+                groupError(0)
+            };
+        };
+
+        const Log errorErrorLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Error},
+            {3, Handler::Error},
+            {0, Handler::GroupError}
+        };
+
+        const Log errorDoneLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Error},
+            {3, Handler::Done},
+            {0, Handler::GroupError}
+        };
+
+        const Log doneErrorLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Error},
+            {3, Handler::Error},
+            {0, Handler::GroupDone}
+        };
+
+        const Log doneDoneLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Error},
+            {3, Handler::Done},
+            {0, Handler::GroupDone}
+        };
+
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("StopRootAfterDoneWithStopOnError")
+            << TestData{storage, root1, errorErrorLog, 3, OnDone::Failure};
+
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("StopRootAfterDoneWithContinueOnError")
+            << TestData{storage, root2, errorDoneLog, 3, OnDone::Failure};
+
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("StopRootAfterDoneWithStopOnDone")
+            << TestData{storage, root3, doneErrorLog, 3, OnDone::Success};
+
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("StopRootAfterDoneWithContinueOnDone")
+            << TestData{storage, root4, doneDoneLog, 3, OnDone::Success};
+
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("StopRootAfterDoneWithStopOnFinished")
+            << TestData{storage, root5, doneErrorLog, 3, OnDone::Success};
+
+        const Group root6 = createRoot(WorkflowPolicy::Optional);
+        QTest::newRow("StopRootAfterDoneWithOptional")
+            << TestData{storage, root6, doneDoneLog, 3, OnDone::Success};
+    }
+
+    {
+        // These tests check whether the proper subgroup's end handler is called
+        // when the group is stopped. Test it with different workflow policies.
+        // The subgroup starts one long task.
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
+                                 groupError](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                parallel,
+                Group {
+                    workflowPolicy(policy),
+                    createSuccessTask(1, 1000ms),
+                    groupDone(1),
+                    groupError(1)
+                },
+                createFailingTask(2, 1ms),
+                groupDone(2),
+                groupError(2)
+            };
+        };
+
+        const Log errorLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {2, Handler::Error},
+            {1, Handler::Error},
+            {1, Handler::GroupError},
+            {2, Handler::GroupError}
+        };
+
+        const Log doneLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {2, Handler::Error},
+            {1, Handler::Error},
+            {1, Handler::GroupDone},
+            {2, Handler::GroupError}
+        };
+
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("StopGroupWithStopOnError")
+            << TestData{storage, root1, errorLog, 2, OnDone::Failure};
+
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("StopGroupWithContinueOnError")
+            << TestData{storage, root2, errorLog, 2, OnDone::Failure};
+
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("StopGroupWithStopOnDone")
+            << TestData{storage, root3, errorLog, 2, OnDone::Failure};
+
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("StopGroupWithContinueOnDone")
+            << TestData{storage, root4, errorLog, 2, OnDone::Failure};
+
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("StopGroupWithStopOnFinished")
+            << TestData{storage, root5, errorLog, 2, OnDone::Failure};
+
+        const Group root6 = createRoot(WorkflowPolicy::Optional);
+        QTest::newRow("StopGroupWithOptional")
+            << TestData{storage, root6, doneLog, 2, OnDone::Failure};
+    }
+
+    {
+        // These tests check whether the proper subgroup's end handler is called
+        // when the group is stopped. Test it with different workflow policies.
+        // The sequential subgroup starts one short successful task followed by one long task.
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
+                                 groupError](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                parallel,
+                Group {
+                    workflowPolicy(policy),
+                    createSuccessTask(1),
+                    createSuccessTask(2, 1000ms),
+                    groupDone(1),
+                    groupError(1)
+                },
+                createFailingTask(3, 1ms),
+                groupDone(2),
+                groupError(2)
+            };
+        };
+
+        const Log errorLog = {
+            {1, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Setup},
+            {3, Handler::Error},
+            {2, Handler::Error},
+            {1, Handler::GroupError},
+            {2, Handler::GroupError}
+        };
+
+        const Log shortDoneLog = {
+            {1, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {1, Handler::GroupDone},
+            {3, Handler::Error},
+            {2, Handler::GroupError}
+        };
+
+        const Log longDoneLog = {
+            {1, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Setup},
+            {3, Handler::Error},
+            {2, Handler::Error},
+            {1, Handler::GroupDone},
+            {2, Handler::GroupError}
+        };
+
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("StopGroupAfterDoneWithStopOnError")
+            << TestData{storage, root1, errorLog, 3, OnDone::Failure};
+
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("StopGroupAfterDoneWithContinueOnError")
+            << TestData{storage, root2, errorLog, 3, OnDone::Failure};
+
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("StopGroupAfterDoneWithStopOnDone")
+            << TestData{storage, root3, shortDoneLog, 3, OnDone::Failure};
+
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("StopGroupAfterDoneWithContinueOnDone")
+            << TestData{storage, root4, longDoneLog, 3, OnDone::Failure};
+
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("StopGroupAfterDoneWithStopOnFinished")
+            << TestData{storage, root5, shortDoneLog, 3, OnDone::Failure};
+
+        const Group root6 = createRoot(WorkflowPolicy::Optional);
+        QTest::newRow("StopGroupAfterDoneWithOptional")
+            << TestData{storage, root6, longDoneLog, 3, OnDone::Failure};
+    }
+
+    {
+        // These tests check whether the proper subgroup's end handler is called
+        // when the group is stopped. Test it with different workflow policies.
+        // The sequential subgroup starts one short failing task followed by one long task.
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
+                                 groupError](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                parallel,
+                Group {
+                    workflowPolicy(policy),
+                    createFailingTask(1),
+                    createSuccessTask(2, 1000ms),
+                    groupDone(1),
+                    groupError(1)
+                },
+                createFailingTask(3, 1ms),
+                groupDone(2),
+                groupError(2)
+            };
+        };
+
+        const Log shortErrorLog = {
+            {1, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Error},
+            {1, Handler::GroupError},
+            {3, Handler::Error},
+            {2, Handler::GroupError}
+        };
+
+        const Log longErrorLog = {
+            {1, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Setup},
+            {3, Handler::Error},
+            {2, Handler::Error},
+            {1, Handler::GroupError},
+            {2, Handler::GroupError}
+        };
+
+        const Log doneLog = {
+            {1, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Setup},
+            {3, Handler::Error},
+            {2, Handler::Error},
+            {1, Handler::GroupDone},
+            {2, Handler::GroupError}
+        };
+
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("StopGroupAfterErrorWithStopOnError")
+            << TestData{storage, root1, shortErrorLog, 3, OnDone::Failure};
+
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("StopGroupAfterErrorWithContinueOnError")
+            << TestData{storage, root2, longErrorLog, 3, OnDone::Failure};
+
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("StopGroupAfterErrorWithStopOnDone")
+            << TestData{storage, root3, longErrorLog, 3, OnDone::Failure};
+
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("StopGroupAfterErrorWithContinueOnDone")
+            << TestData{storage, root4, longErrorLog, 3, OnDone::Failure};
+
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("StopGroupAfterErrorWithStopOnFinished")
+            << TestData{storage, root5, shortErrorLog, 3, OnDone::Failure};
+
+        const Group root6 = createRoot(WorkflowPolicy::Optional);
+        QTest::newRow("StopGroupAfterErrorWithOptional")
+            << TestData{storage, root6, doneLog, 3, OnDone::Failure};
+    }
+
+    {
         const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
                                  groupError](WorkflowPolicy policy) {
             return Group {

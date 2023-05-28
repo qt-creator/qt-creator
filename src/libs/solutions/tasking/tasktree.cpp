@@ -893,6 +893,7 @@ void TaskNode::stop()
 
     if (!m_task) {
         m_container.stop();
+        m_container.m_runtimeData->updateSuccessBit(false);
         m_container.invokeEndHandler();
         return;
     }
