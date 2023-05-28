@@ -128,7 +128,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
         outputList->resize(inputList.size());
 
         using namespace std::placeholders;
-        QList<TaskItem> tasks {parallel, optional};
+        QList<TaskItem> tasks {parallel, finishAllAndDone};
         for (int i = 0; i < inputList.size(); ++i) {
             tasks.append(AsyncTask<FileData>(std::bind(setupDiff, _1, inputList.at(i)),
                                          std::bind(onDiffDone, _1, i)));

@@ -133,7 +133,7 @@ GroupWidget::GroupWidget()
     m_workflowCombo->addItem("Cont On Error", (int)Tasking::WorkflowPolicy::ContinueOnError);
     m_workflowCombo->addItem("Stop On Done", (int)Tasking::WorkflowPolicy::StopOnDone);
     m_workflowCombo->addItem("Cont On Done", (int)Tasking::WorkflowPolicy::ContinueOnDone);
-    m_workflowCombo->addItem("Optional", (int)Tasking::WorkflowPolicy::Optional);
+    m_workflowCombo->addItem("Optional", (int)Tasking::WorkflowPolicy::FinishAllAndDone);
     updateWorkflowPolicy();
     connect(m_workflowCombo, &QComboBox::currentIndexChanged, this, [this](int index) {
         m_workflowPolicy = (Tasking::WorkflowPolicy)m_workflowCombo->itemData(index).toInt();

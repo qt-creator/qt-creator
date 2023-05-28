@@ -164,7 +164,7 @@ private:
     Constructs a group's element holding the group done handler.
     The \a handler is invoked whenever the group finishes with success.
     Depending on the group's workflow policy, this handler may also be called
-    when the running group is stopped (e.g. when optional element was used).
+    when the running group is stopped (e.g. when finishAllAndDone element was used).
 
     When the \a handler is invoked, all of the group's child tasks are already finished.
 
@@ -256,7 +256,7 @@ const TaskItem continueOnError = workflowPolicy(WorkflowPolicy::ContinueOnError)
 const TaskItem stopOnDone = workflowPolicy(WorkflowPolicy::StopOnDone);
 const TaskItem continueOnDone = workflowPolicy(WorkflowPolicy::ContinueOnDone);
 const TaskItem stopOnFinished = workflowPolicy(WorkflowPolicy::StopOnFinished);
-const TaskItem optional = workflowPolicy(WorkflowPolicy::Optional);
+const TaskItem finishAllAndDone = workflowPolicy(WorkflowPolicy::FinishAllAndDone);
 
 static TaskAction toTaskAction(bool success)
 {
@@ -720,7 +720,7 @@ TaskContainer::RuntimeData::~RuntimeData()
 
 bool TaskContainer::RuntimeData::updateSuccessBit(bool success)
 {
-    if (m_constData.m_workflowPolicy == WorkflowPolicy::Optional)
+    if (m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndDone)
         return m_successBit;
     if (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished) {
         m_successBit = success;
@@ -1394,7 +1394,7 @@ void TaskNode::invokeEndHandler(bool success)
             In sequential mode, only the first task is started, and when finished,
             the group finishes too, so the other tasks are ignored.
     \row
-        \li optional
+        \li finishAllAndDone
         \li The group executes all tasks and ignores their return state. When all
             tasks finish, the group finishes with success.
     \endtable

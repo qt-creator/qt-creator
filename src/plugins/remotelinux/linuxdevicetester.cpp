@@ -131,7 +131,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::unameTask() const
             emit q->errorMessage(Tr::tr("uname failed.") + '\n');
     };
     return Group {
-        optional,
+        finishAllAndDone,
         ProcessTask(setup, done, error)
     };
 }
@@ -159,7 +159,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::gathererTask() const
     };
 
     return Group {
-        optional,
+        finishAllAndDone,
         DeviceUsedPortsGathererTask(setup, done, error)
     };
 }

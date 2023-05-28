@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     task_4_4->setBusyTime(3);
 
     groupTask_1->setWorkflowPolicy(Tasking::WorkflowPolicy::ContinueOnDone);
-    groupTask_4->setWorkflowPolicy(Tasking::WorkflowPolicy::Optional);
+    groupTask_4->setWorkflowPolicy(Tasking::WorkflowPolicy::FinishAllAndDone);
     groupTask_4_3->setExecuteMode(ExecuteMode::Parallel);
     groupTask_4_3->setWorkflowPolicy(Tasking::WorkflowPolicy::StopOnError);
 

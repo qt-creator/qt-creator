@@ -465,11 +465,11 @@ ShowController::ShowController(IDocument *document, const QString &id)
         parallel,
         onGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toString()); }),
         Group {
-            optional,
+            finishAllAndDone,
             ProcessTask(setupDescription, onDescriptionDone),
             Group {
                 parallel,
-                optional,
+                finishAllAndDone,
                 onGroupSetup(desciptionDetailsSetup),
                 ProcessTask(setupBranches, onBranchesDone, onBranchesError),
                 ProcessTask(setupPrecedes, onPrecedesDone, onPrecedesError),

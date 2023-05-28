@@ -99,15 +99,15 @@ private:
 //    b) On first done - continue executing all children and report done afterwards.
 // 3. Stops on first finished child. In sequential mode it will never run other children then the first one.
 //    Useful only in parallel mode.
-// 4. Always run all children, ignore their result and report done afterwards.
+// 4. Always run all children, let them finish, ignore their results and report done afterwards.
 
 enum class WorkflowPolicy {
-    StopOnError,     // 1a - Reports error on first child error, otherwise done (if all children were done).
-    ContinueOnError, // 1b - The same, but children execution continues. Reports done when no children.
-    StopOnDone,      // 2a - Reports done on first child done, otherwise error (if all children were error).
-    ContinueOnDone,  // 2b - The same, but children execution continues. Reports error when no children.
-    StopOnFinished,  // 3  - Stops on first finished child and report its result.
-    Optional         // 4  - Reports done after all children finished.
+    StopOnError,      // 1a - Reports error on first child error, otherwise done (if all children were done).
+    ContinueOnError,  // 1b - The same, but children execution continues. Reports done when no children.
+    StopOnDone,       // 2a - Reports done on first child done, otherwise error (if all children were error).
+    ContinueOnDone,   // 2b - The same, but children execution continues. Reports error when no children.
+    StopOnFinished,   // 3  - Stops on first finished child and report its result.
+    FinishAllAndDone  // 4  - Reports done after all children finished.
 };
 
 enum class TaskAction
@@ -248,7 +248,7 @@ TASKING_EXPORT extern const TaskItem continueOnError;
 TASKING_EXPORT extern const TaskItem stopOnDone;
 TASKING_EXPORT extern const TaskItem continueOnDone;
 TASKING_EXPORT extern const TaskItem stopOnFinished;
-TASKING_EXPORT extern const TaskItem optional;
+TASKING_EXPORT extern const TaskItem finishAllAndDone;
 
 class TASKING_EXPORT Storage : public TaskItem
 {
