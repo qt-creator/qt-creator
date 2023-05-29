@@ -701,7 +701,7 @@ void TaskView::mouseMoveEvent(QMouseEvent *e)
 
 void TaskView::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (m_clickAnchor.isEmpty()) {
+    if (m_clickAnchor.isEmpty() || e->button() == Qt::RightButton) {
         TreeView::mouseReleaseEvent(e);
         return;
     }
