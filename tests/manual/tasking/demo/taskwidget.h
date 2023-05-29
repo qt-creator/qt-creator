@@ -62,10 +62,10 @@ public:
     GroupWidget();
 
     void setExecuteMode(ExecuteMode mode);
-    Tasking::TaskItem executeMode() const;
+    Tasking::GroupItem executeMode() const;
 
     void setWorkflowPolicy(Tasking::WorkflowPolicy policy);
-    Tasking::TaskItem workflowPolicy() const;
+    Tasking::GroupItem workflowPolicy() const;
 
 private:
     void updateExecuteMode();

@@ -75,13 +75,13 @@ public:
     using FilesToStat = std::function<QList<DeployableFile>(UploadStorage *)>;
     using StatEndHandler
           = std::function<void(UploadStorage *, const DeployableFile &, const QDateTime &)>;
-    TaskItem statTask(UploadStorage *storage, const DeployableFile &file,
-                      StatEndHandler statEndHandler);
-    TaskItem statTree(const TreeStorage<UploadStorage> &storage, FilesToStat filesToStat,
-                      StatEndHandler statEndHandler);
-    TaskItem uploadTask(const TreeStorage<UploadStorage> &storage);
-    TaskItem chmodTask(const DeployableFile &file);
-    TaskItem chmodTree(const TreeStorage<UploadStorage> &storage);
+    GroupItem statTask(UploadStorage *storage, const DeployableFile &file,
+                       StatEndHandler statEndHandler);
+    GroupItem statTree(const TreeStorage<UploadStorage> &storage, FilesToStat filesToStat,
+                       StatEndHandler statEndHandler);
+    GroupItem uploadTask(const TreeStorage<UploadStorage> &storage);
+    GroupItem chmodTask(const DeployableFile &file);
+    GroupItem chmodTree(const TreeStorage<UploadStorage> &storage);
 
     IncrementalDeployment m_incremental = IncrementalDeployment::NotSupported;
     bool m_ignoreMissingFiles = false;
@@ -156,9 +156,9 @@ QDateTime GenericDirectUploadStep::timestampFromStat(const DeployableFile &file,
     return QDateTime::fromSecsSinceEpoch(secsSinceEpoch);
 }
 
-TaskItem GenericDirectUploadStep::statTask(UploadStorage *storage,
-                                           const DeployableFile &file,
-                                           StatEndHandler statEndHandler)
+GroupItem GenericDirectUploadStep::statTask(UploadStorage *storage,
+                                            const DeployableFile &file,
+                                            StatEndHandler statEndHandler)
 {
     const auto setupHandler = [=](Process &process) {
         // We'd like to use --format=%Y, but it's not supported by busybox.
@@ -173,13 +173,13 @@ TaskItem GenericDirectUploadStep::statTask(UploadStorage *storage,
     return ProcessTask(setupHandler, endHandler, endHandler);
 }
 
-TaskItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &storage,
-                                           FilesToStat filesToStat, StatEndHandler statEndHandler)
+GroupItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &storage,
+                                            FilesToStat filesToStat, StatEndHandler statEndHandler)
 {
     const auto setupHandler = [=](TaskTree &tree) {
         UploadStorage *storagePtr = storage.activeStorage();
         const QList<DeployableFile> files = filesToStat(storagePtr);
-        QList<TaskItem> statList{finishAllAndDone, parallelLimit(MaxConcurrentStatCalls)};
+        QList<GroupItem> statList{finishAllAndDone, parallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(files)) {
             QTC_ASSERT(file.isValid(), continue);
             statList.append(statTask(storagePtr, file, statEndHandler));
@@ -189,7 +189,7 @@ TaskItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &sto
     return TaskTreeTask(setupHandler);
 }
 
-TaskItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &storage)
+GroupItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &storage)
 {
     const auto setupHandler = [this, storage](FileTransfer &transfer) {
         if (storage->filesToUpload.isEmpty()) {
@@ -229,7 +229,7 @@ TaskItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &s
     return FileTransferTask(setupHandler, {}, errorHandler);
 }
 
-TaskItem GenericDirectUploadStep::chmodTask(const DeployableFile &file)
+GroupItem GenericDirectUploadStep::chmodTask(const DeployableFile &file)
 {
     const auto setupHandler = [=](Process &process) {
         process.setCommand({deviceConfiguration()->filePath("chmod"),
@@ -248,7 +248,7 @@ TaskItem GenericDirectUploadStep::chmodTask(const DeployableFile &file)
     return ProcessTask(setupHandler, {}, errorHandler);
 }
 
-TaskItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &storage)
+GroupItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &storage)
 {
     const auto setupChmodHandler = [=](TaskTree &tree) {
         QList<DeployableFile> filesToChmod;
@@ -256,7 +256,7 @@ TaskItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &st
             if (file.isExecutable())
                 filesToChmod << file;
         }
-        QList<TaskItem> chmodList{finishAllAndDone, parallelLimit(MaxConcurrentStatCalls)};
+        QList<GroupItem> chmodList{finishAllAndDone, parallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(filesToChmod)) {
             QTC_ASSERT(file.isValid(), continue);
             chmodList.append(chmodTask(file));

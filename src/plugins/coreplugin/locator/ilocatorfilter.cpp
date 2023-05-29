@@ -450,7 +450,7 @@ void LocatorMatcher::start()
         collectorStorage->m_collector = nullptr;
     };
 
-    QList<TaskItem> parallelTasks {parallelLimit(d->m_parallelLimit)};
+    QList<GroupItem> parallelTasks {parallelLimit(d->m_parallelLimit)};
 
     const auto onSetup = [this, collectorStorage](const TreeStorage<LocatorStorage> &storage,
                                                     int index) {
@@ -597,7 +597,7 @@ QString ILocatorFilter::shortcutString() const
     \internal
     Sets the refresh recipe for refreshing cached data.
 */
-void ILocatorFilter::setRefreshRecipe(const std::optional<TaskItem> &recipe)
+void ILocatorFilter::setRefreshRecipe(const std::optional<GroupItem> &recipe)
 {
     m_refreshRecipe = recipe;
 }
@@ -606,7 +606,7 @@ void ILocatorFilter::setRefreshRecipe(const std::optional<TaskItem> &recipe)
     Returns the refresh recipe for refreshing cached data. By default, the locator filter has
     no recipe set, so that it won't be refreshed.
 */
-std::optional<TaskItem> ILocatorFilter::refreshRecipe() const
+std::optional<GroupItem> ILocatorFilter::refreshRecipe() const
 {
     return m_refreshRecipe;
 }

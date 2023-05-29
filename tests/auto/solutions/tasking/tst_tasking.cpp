@@ -197,8 +197,8 @@ public:
 TASKING_DECLARE_TASK(TickAndDoneTask, TickAndDoneTaskAdapter);
 
 template <typename SharedBarrierType>
-TaskItem createBarrierAdvance(const TreeStorage<CustomStorage> &storage,
-                              const SharedBarrierType &barrier, int taskId)
+GroupItem createBarrierAdvance(const TreeStorage<CustomStorage> &storage,
+                               const SharedBarrierType &barrier, int taskId)
 {
     return TickAndDoneTask([storage, barrier, taskId](TickAndDone &tickAndDone) {
         tickAndDone.setInterval(1ms);
@@ -253,7 +253,7 @@ void tst_Tasking::testTree_data()
     };
 
     const auto createTask = [storage, setupTask, setupDone, setupError](
-            int taskId, bool successTask, milliseconds timeout = 0ms) -> TaskItem {
+            int taskId, bool successTask, milliseconds timeout = 0ms) -> GroupItem {
         if (successTask)
             return TestTask(setupTask(taskId, timeout), setupDone(taskId), setupError(taskId));
         const Group root {

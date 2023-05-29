@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<TaskTree> taskTree;
 
-    const auto createTask = [](TaskWidget *widget) -> TaskItem {
+    const auto createTask = [](TaskWidget *widget) -> GroupItem {
         const auto setupTask = [](TaskWidget *widget) {
             return [widget](milliseconds &taskObject) {
                 taskObject = milliseconds{widget->busyTime() * 1000};

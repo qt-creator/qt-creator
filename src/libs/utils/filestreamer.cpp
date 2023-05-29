@@ -30,7 +30,7 @@ public:
     void start() {
         QTC_ASSERT(!m_taskTree, return);
 
-        const TaskItem task = m_filePath.needsDevice() ? remoteTask() : localTask();
+        const GroupItem task = m_filePath.needsDevice() ? remoteTask() : localTask();
         m_taskTree.reset(new TaskTree({task}));
         const auto finalize = [this](bool success) {
             m_taskTree.release()->deleteLater();
@@ -49,8 +49,8 @@ protected:
     std::unique_ptr<TaskTree> m_taskTree;
 
 private:
-    virtual TaskItem remoteTask() = 0;
-    virtual TaskItem localTask() = 0;
+    virtual GroupItem remoteTask() = 0;
+    virtual GroupItem localTask() = 0;
 };
 
 static void localRead(QPromise<QByteArray> &promise, const FilePath &filePath)
@@ -84,7 +84,7 @@ signals:
     void readyRead(const QByteArray &newData);
 
 private:
-    TaskItem remoteTask() final {
+    GroupItem remoteTask() final {
         const auto setup = [this](Process &process) {
             const QStringList args = {"if=" + m_filePath.path()};
             const FilePath dd = m_filePath.withNewPath("dd");
@@ -96,7 +96,7 @@ private:
         };
         return ProcessTask(setup);
     }
-    TaskItem localTask() final {
+    GroupItem localTask() final {
         const auto setup = [this](Async<QByteArray> &async) {
             async.setConcurrentCallData(localRead, m_filePath);
             Async<QByteArray> *asyncPtr = &async;
@@ -251,7 +251,7 @@ signals:
     void started();
 
 private:
-    TaskItem remoteTask() final {
+    GroupItem remoteTask() final {
         const auto setup = [this](Process &process) {
             m_writeBuffer = new WriteBuffer(false, &process);
             connect(m_writeBuffer, &WriteBuffer::writeRequested, &process, &Process::writeRaw);
@@ -272,7 +272,7 @@ private:
         };
         return ProcessTask(setup, finalize, finalize);
     }
-    TaskItem localTask() final {
+    GroupItem localTask() final {
         const auto setup = [this](Async<void> &async) {
             m_writeBuffer = new WriteBuffer(isBuffered(), &async);
             async.setConcurrentCallData(localWrite, m_filePath, m_writeData, m_writeBuffer);
@@ -390,7 +390,7 @@ public:
     StreamResult m_streamResult = StreamResult::FinishedWithError;
     std::unique_ptr<TaskTree> m_taskTree;
 
-    TaskItem task() {
+    GroupItem task() {
         if (m_streamerMode == StreamMode::Reader)
             return readerTask();
         if (m_streamerMode == StreamMode::Writer)
@@ -399,7 +399,7 @@ public:
     }
 
 private:
-    TaskItem readerTask() {
+    GroupItem readerTask() {
         const auto setup = [this](FileStreamReader &reader) {
             m_readBuffer.clear();
             reader.setFilePath(m_source);
@@ -409,14 +409,14 @@ private:
         };
         return FileStreamReaderTask(setup);
     }
-    TaskItem writerTask() {
+    GroupItem writerTask() {
         const auto setup = [this](FileStreamWriter &writer) {
             writer.setFilePath(m_destination);
             writer.setWriteData(m_writeBuffer);
         };
         return FileStreamWriterTask(setup);
     }
-    TaskItem transferTask() {
+    GroupItem transferTask() {
         const auto setup = [this](Async<void> &async) {
             async.setConcurrentCallData(transfer, m_source, m_destination);
         };

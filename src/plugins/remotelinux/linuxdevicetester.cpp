@@ -34,20 +34,20 @@ public:
 
     QStringList commandsToTest() const;
 
-    TaskItem echoTask(const QString &contents) const;
-    TaskItem unameTask() const;
-    TaskItem gathererTask() const;
-    TaskItem transferTask(FileTransferMethod method,
-                          const TreeStorage<TransferStorage> &storage) const;
-    TaskItem transferTasks() const;
-    TaskItem commandTask(const QString &commandName) const;
-    TaskItem commandTasks() const;
+    GroupItem echoTask(const QString &contents) const;
+    GroupItem unameTask() const;
+    GroupItem gathererTask() const;
+    GroupItem transferTask(FileTransferMethod method,
+                           const TreeStorage<TransferStorage> &storage) const;
+    GroupItem transferTasks() const;
+    GroupItem commandTask(const QString &commandName) const;
+    GroupItem commandTasks() const;
 
     GenericLinuxDeviceTester *q = nullptr;
     IDevice::Ptr m_device;
     std::unique_ptr<TaskTree> m_taskTree;
     QStringList m_extraCommands;
-    QList<TaskItem> m_extraTests;
+    QList<GroupItem> m_extraTests;
 };
 
 QStringList GenericLinuxDeviceTesterPrivate::commandsToTest() const
@@ -90,7 +90,7 @@ QStringList GenericLinuxDeviceTesterPrivate::commandsToTest() const
     return commands;
 }
 
-TaskItem GenericLinuxDeviceTesterPrivate::echoTask(const QString &contents) const
+GroupItem GenericLinuxDeviceTesterPrivate::echoTask(const QString &contents) const
 {
     const auto setup = [this, contents](Process &process) {
         emit q->progressMessage(Tr::tr("Sending echo to device..."));
@@ -114,7 +114,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::echoTask(const QString &contents) cons
     return ProcessTask(setup, done, error);
 }
 
-TaskItem GenericLinuxDeviceTesterPrivate::unameTask() const
+GroupItem GenericLinuxDeviceTesterPrivate::unameTask() const
 {
     const auto setup = [this](Process &process) {
         emit q->progressMessage(Tr::tr("Checking kernel version..."));
@@ -136,7 +136,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::unameTask() const
     };
 }
 
-TaskItem GenericLinuxDeviceTesterPrivate::gathererTask() const
+GroupItem GenericLinuxDeviceTesterPrivate::gathererTask() const
 {
     const auto setup = [this](DeviceUsedPortsGatherer &gatherer) {
         emit q->progressMessage(Tr::tr("Checking if specified ports are available..."));
@@ -164,8 +164,8 @@ TaskItem GenericLinuxDeviceTesterPrivate::gathererTask() const
     };
 }
 
-TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method,
-                                          const TreeStorage<TransferStorage> &storage) const
+GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method,
+                                           const TreeStorage<TransferStorage> &storage) const
 {
     const auto setup = [this, method](FileTransfer &transfer) {
         emit q->progressMessage(Tr::tr("Checking whether \"%1\" works...")
@@ -216,7 +216,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method
     return FileTransferTestTask(setup, done, error);
 }
 
-TaskItem GenericLinuxDeviceTesterPrivate::transferTasks() const
+GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
 {
     TreeStorage<TransferStorage> storage;
     return Group {
@@ -231,7 +231,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTasks() const
     };
 }
 
-TaskItem GenericLinuxDeviceTesterPrivate::commandTask(const QString &commandName) const
+GroupItem GenericLinuxDeviceTesterPrivate::commandTask(const QString &commandName) const
 {
     const auto setup = [this, commandName](Process &process) {
         emit q->progressMessage(Tr::tr("%1...").arg(commandName));
@@ -252,9 +252,9 @@ TaskItem GenericLinuxDeviceTesterPrivate::commandTask(const QString &commandName
     return ProcessTask(setup, done, error);
 }
 
-TaskItem GenericLinuxDeviceTesterPrivate::commandTasks() const
+GroupItem GenericLinuxDeviceTesterPrivate::commandTasks() const
 {
-    QList<TaskItem> tasks {continueOnError};
+    QList<GroupItem> tasks {continueOnError};
     tasks.append(onGroupSetup([this] {
         emit q->progressMessage(Tr::tr("Checking if required commands are available..."));
     }));
@@ -279,7 +279,7 @@ void GenericLinuxDeviceTester::setExtraCommandsToTest(const QStringList &extraCo
     d->m_extraCommands = extraCommands;
 }
 
-void GenericLinuxDeviceTester::setExtraTests(const QList<TaskItem> &extraTests)
+void GenericLinuxDeviceTester::setExtraTests(const QList<GroupItem> &extraTests)
 {
     d->m_extraTests = extraTests;
 }
@@ -295,7 +295,7 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
         d->m_taskTree.release()->deleteLater();
     };
 
-    QList<TaskItem> taskItems = {
+    QList<GroupItem> taskItems = {
         d->echoTask("Hello"), // No quoting necessary
         d->echoTask("Hello Remote World!"), // Checks quoting, too.
         d->unameTask(),

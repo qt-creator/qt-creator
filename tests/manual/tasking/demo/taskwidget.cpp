@@ -158,7 +158,7 @@ void GroupWidget::updateExecuteMode()
     m_executeCombo->setCurrentIndex(m_executeCombo->findData((int)m_executeMode));
 }
 
-TaskItem GroupWidget::executeMode() const
+GroupItem GroupWidget::executeMode() const
 {
     return m_executeMode == ExecuteMode::Sequential ? sequential : parallel;
 }
@@ -174,7 +174,7 @@ void GroupWidget::updateWorkflowPolicy()
     m_workflowCombo->setCurrentIndex(m_workflowCombo->findData((int)m_workflowPolicy));
 }
 
-TaskItem GroupWidget::workflowPolicy() const
+GroupItem GroupWidget::workflowPolicy() const
 {
     return Tasking::workflowPolicy(m_workflowPolicy);
 }

@@ -10,7 +10,7 @@
 
 #include <utils/environment.h>
 
-namespace Tasking { class TaskItem; }
+namespace Tasking { class GroupItem; }
 
 namespace ClangTools {
 namespace Internal {
@@ -50,9 +50,9 @@ struct AnalyzeOutputData
 using AnalyzeSetupHandler = std::function<bool()>;
 using AnalyzeOutputHandler = std::function<void(const AnalyzeOutputData &)>;
 
-Tasking::TaskItem clangToolTask(const AnalyzeInputData &input,
-                                const AnalyzeSetupHandler &setupHandler,
-                                const AnalyzeOutputHandler &outputHandler);
+Tasking::GroupItem clangToolTask(const AnalyzeInputData &input,
+                                 const AnalyzeSetupHandler &setupHandler,
+                                 const AnalyzeOutputHandler &outputHandler);
 
 } // namespace Internal
 } // namespace ClangTools

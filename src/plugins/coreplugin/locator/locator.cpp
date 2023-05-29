@@ -381,7 +381,7 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
     m_refreshingFilters = Utils::filteredUnique(m_refreshingFilters + filters);
 
     using namespace Tasking;
-    QList<TaskItem> tasks{parallel};
+    QList<GroupItem> tasks{parallel};
     for (ILocatorFilter *filter : std::as_const(m_refreshingFilters)) {
         const auto task = filter->refreshRecipe();
         if (!task.has_value())

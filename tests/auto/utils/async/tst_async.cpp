@@ -500,7 +500,7 @@ void tst_Async::mapReduce_data()
     using SetupHandler = std::function<void(Async<int> &task, int input)>;
     using DoneHandler = std::function<void()>;
 
-    const auto createTask = [=](const TaskItem &executeMode,
+    const auto createTask = [=](const GroupItem &executeMode,
                                 const SetupHandler &setupHandler,
                                 const DoneHandler &doneHandler) {
         return Group {
