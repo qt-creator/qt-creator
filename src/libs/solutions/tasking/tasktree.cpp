@@ -49,6 +49,114 @@ private:
 */
 
 /*!
+    \enum Tasking::WorkflowPolicy
+
+    This enum describes the possible behavior of the Group element when any group's child task
+    finishes its execution. It's also used when the running Group is stopped.
+
+    \value StopOnError
+        Default. Corresponds to the stopOnError global element.
+        If any child task finishes with an error, the group stops and finishes with an error.
+        If all child tasks finished with success, the group finishes with success.
+        If a group is empty, it finishes with success.
+    \value ContinueOnError
+        Corresponds to the continueOnError global element.
+        Similar to stopOnError, but in case any child finishes with an error,
+        the execution continues until all tasks finish, and the group reports an error
+        afterwards, even when some other tasks in the group finished with success.
+        If all child tasks finish successfully, the group finishes with success.
+        If a group is empty, it finishes with success.
+    \value StopOnDone
+        Corresponds to the stopOnDone global element.
+        If any child task finishes with success, the group stops and finishes with success.
+        If all child tasks finished with an error, the group finishes with an error.
+        If a group is empty, it finishes with an error.
+    \value ContinueOnDone
+        Corresponds to the continueOnDone global element.
+        Similar to stopOnDone, but in case any child finishes successfully,
+        the execution continues until all tasks finish, and the group reports success
+        afterwards, even when some other tasks in the group finished with an error.
+        If all child tasks finish with an error, the group finishes with an error.
+        If a group is empty, it finishes with an error.
+    \value StopOnFinished
+        Corresponds to the stopOnFinished global element.
+        The group starts as many tasks as it can. When any task finishes,
+        the group stops and reports the task's result.
+        Useful only in parallel mode.
+        In sequential mode, only the first task is started, and when finished,
+        the group finishes too, so the other tasks are always skipped.
+        If a group is empty, it finishes with an error.
+    \value FinishAllAndDone
+        Corresponds to the finishAllAndDone global element.
+        The group executes all tasks and ignores their return results. When all
+        tasks finished, the group finishes with success.
+        If a group is empty, it finishes with success.
+    \value FinishAllAndError
+        Corresponds to the finishAllAndError global element.
+        The group executes all tasks and ignores their return results. When all
+        tasks finished, the group finishes with an error.
+        If a group is empty, it finishes with an error.
+
+    Whenever a child task's result causes the Group to stop,
+    i.e. in case of StopOnError, StopOnDone, or StopOnFinished policies,
+    the Group stops the other running child tasks (if any - for example in parallel mode),
+    and skips executing tasks it has not started yet (for example, in the sequential mode -
+    those, that are placed after the failed task). Both stopping and skipping child tasks
+    may happen when parallelLimit is used.
+
+    The table below summarizes the differences between various workflow policies:
+
+    \table
+    \header
+        \li \l WorkflowPolicy
+        \li Executes all child tasks
+        \li Result
+        \li Result when the group is empty
+    \row
+        \li StopOnError
+        \li Stops when any child task finished with an error and reports an error
+        \li An error when at least one child task failed, success otherwise
+        \li Success
+    \row
+        \li ContinueOnError
+        \li Yes
+        \li An error when at least one child task failed, success otherwise
+        \li Success
+    \row
+        \li StopOnDone
+        \li Stops when any child task finished with success and reports success
+        \li Success when at least one child task succeeded, an error otherwise
+        \li An error
+    \row
+        \li ContinueOnDone
+        \li Yes
+        \li Success when at least one child task succeeded, an error otherwise
+        \li An error
+    \row
+        \li StopOnFinished
+        \li Stops when any child task finished and reports child task's result
+        \li Success or an error, depending on the finished child task's result
+        \li An error
+    \row
+        \li FinishAllAndDone
+        \li Yes
+        \li Success
+        \li Success
+    \row
+        \li FinishAllAndError
+        \li Yes
+        \li An error
+        \li An error
+    \endtable
+
+    If a child of a group is also a group, the child group runs its tasks according to its own
+    workflow policy. When a parent group stops the running child group because
+    of parent group's workflow policy, i.e. when the StopOnError, StopOnDone, or StopOnFinished
+    policy was used for the parent, the child group's result is reported according to the
+    \b Result column and to the \b {child group's workflow policy} row in the table above.
+*/
+
+/*!
     \variable sequential
     A convenient global group's element describing the sequential execution mode.
 
@@ -72,6 +180,43 @@ private:
     In this mode, all child tasks run simultaneously.
 
     \sa sequential, parallelLimit
+*/
+
+/*!
+    \variable stopOnError
+    A convenient global group's element describing the StopOnError workflow policy.
+
+    This is the default workflow policy of the Group element.
+*/
+
+/*!
+    \variable continueOnError
+    A convenient global group's element describing the ContinueOnError workflow policy.
+*/
+
+/*!
+    \variable stopOnDone
+    A convenient global group's element describing the StopOnDone workflow policy.
+*/
+
+/*!
+    \variable continueOnDone
+    A convenient global group's element describing the ContinueOnDone workflow policy.
+*/
+
+/*!
+    \variable stopOnFinished
+    A convenient global group's element describing the StopOnFinished workflow policy.
+*/
+
+/*!
+    \variable finishAllAndDone
+    A convenient global group's element describing the FinishAllAndDone workflow policy.
+*/
+
+/*!
+    \variable finishAllAndError
+    A convenient global group's element describing the FinishAllAndError workflow policy.
 */
 
 /*!
@@ -244,6 +389,14 @@ TaskItem parallelLimit(int limit)
     return Group::parallelLimit(qMax(limit, 0));
 }
 
+/*!
+    Constructs a group's workflow policy element for a given \a policy.
+
+    For convenience, global elements may be used instead.
+
+    \sa stopOnError, continueOnError, stopOnDone, continueOnDone, stopOnFinished, finishAllAndDone,
+        finishAllAndError, WorkflowPolicy
+*/
 TaskItem workflowPolicy(WorkflowPolicy policy)
 {
     return Group::workflowPolicy(policy);
@@ -1332,77 +1485,11 @@ void TaskNode::invokeEndHandler(bool success)
     \section2 Workflow Policy
 
     The workflow policy element in a Group specifies how the group should behave
-    when any of its \e direct child's tasks finish:
+    when any of its \e direct child's tasks finish. For a detailed description of possible
+    policies, refer to WorkflowPolicy.
 
-    \table
-    \header
-        \li Workflow Policy
-        \li Description
-    \row
-        \li stopOnError
-        \li Default. If a task finishes with an error, the group:
-            \list 1
-                \li Stops the running tasks (if any - for example, in parallel
-                    mode).
-                \li Skips executing tasks it has not started yet (for example, in the
-                    sequential mode - those, that are placed after the failed task).
-                \li Immediately finishes with an error.
-            \endlist
-            If all child tasks finish successfully, the group finishes with success.
-    \row
-        \li continueOnError
-        \li Similar to stopOnError, but in case any child finishes with
-            an error, the execution continues until all tasks finish,
-            and the group reports an error afterwards, even when some other
-            tasks in group finished with success.
-            If a task finishes with an error, the group:
-            \list 1
-                \li Continues executing the tasks that are running or have not
-                    started yet.
-                \li Finishes with an error when all tasks finish.
-            \endlist
-            If all tasks finish successfully, the group finishes with success.
-    \row
-        \li stopOnDone
-        \li If a task finishes with success, the group:
-            \list 1
-                \li Stops the running tasks (if any - for example, in parallel
-                    mode).
-                \li Skips executing tasks it has not started yet (for example, in the
-                    sequential mode - those, that are placed after the successfully finished task).
-                \li Immediately finishes with success.
-            \endlist
-            If all tasks finish with an error, the group finishes with an error.
-    \row
-        \li continueOnDone
-        \li Similar to stopOnDone, but in case any child finishes
-            successfully, the execution continues until all tasks finish,
-            and the group reports success afterwards, even when some other
-            tasks in group finished with an error.
-            If a task finishes with success, the group:
-            \list 1
-                \li Continues executing the tasks that are running or have not
-                    started yet.
-                \li Finishes with success when all tasks finish.
-            \endlist
-            If all tasks finish with an error, the group finishes with an error.
-    \row
-        \li stopOnFinished
-        \li The group starts as many tasks as it can. When a task finishes,
-            the group stops and reports the task's result.
-            Useful only in parallel mode.
-            In sequential mode, only the first task is started, and when finished,
-            the group finishes too, so the other tasks are ignored.
-    \row
-        \li finishAllAndDone
-        \li The group executes all tasks and ignores their return state. When all
-            tasks finish, the group finishes with success.
-    \endtable
-
-    When a Group is empty, it finishes immediately with success,
-    regardless of its workflow policy.
-    If a child of a group is also a group, the child group
-    runs its tasks according to its own workflow policy.
+    If a child of a group is also a group, the child group runs its tasks
+    according to its own workflow policy.
 
     \section2 Storage
 
