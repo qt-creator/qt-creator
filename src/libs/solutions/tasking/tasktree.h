@@ -16,6 +16,8 @@ QT_END_NAMESPACE
 
 namespace Tasking {
 
+Q_NAMESPACE
+
 class ExecutionContextActivator;
 class TaskContainer;
 class TaskTreePrivate;
@@ -109,6 +111,7 @@ enum class WorkflowPolicy {
     StopOnFinished,   // 3  - Stops on first finished child and report its result.
     FinishAllAndDone  // 4  - Reports done after all children finished.
 };
+Q_ENUM_NS(WorkflowPolicy);
 
 enum class TaskAction
 {
@@ -116,6 +119,7 @@ enum class TaskAction
     StopWithDone,
     StopWithError
 };
+Q_ENUM_NS(TaskAction);
 
 class TASKING_EXPORT TaskItem
 {
