@@ -1,9 +1,10 @@
-// Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
-#include <solutions/tasking/tasktree.h>
+#ifndef TASKWIDGET_H
+#define TASKWIDGET_H
 
-#include <utils/layoutbuilder.h>
+#include <tasking/tasktree.h>
 
 #include <QWidget>
 
@@ -64,7 +65,7 @@ public:
     Tasking::TaskItem executeMode() const;
 
     void setWorkflowPolicy(Tasking::WorkflowPolicy policy);
-    Tasking::WorkflowPolicy workflowPolicy() const;
+    Tasking::TaskItem workflowPolicy() const;
 
 private:
     void updateExecuteMode();
@@ -77,11 +78,4 @@ private:
     Tasking::WorkflowPolicy m_workflowPolicy = Tasking::WorkflowPolicy::StopOnError;
 };
 
-class TaskGroup
-{
-public:
-    QWidget *group;
-    Layouting::Column items;
-};
-
-void createItem(Layouting::LayoutItem *item, const TaskGroup &taskGroup);
+#endif // TASKWIDGET_H
