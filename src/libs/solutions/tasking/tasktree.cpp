@@ -679,8 +679,8 @@ public:
 
         const ConstData &m_constData;
         const QList<int> m_storageIdList;
-        int m_doneCount = 0;
         bool m_successBit = true;
+        int m_doneCount = 0;
         Guard m_startGuard;
     };
 
@@ -875,14 +875,28 @@ void TaskContainer::RuntimeData::callStorageDoneHandlers()
     }
 }
 
+static bool initialSuccessBit(WorkflowPolicy workflowPolicy)
+{
+    switch (workflowPolicy) {
+    case WorkflowPolicy::StopOnError:
+    case WorkflowPolicy::ContinueOnError:
+    case WorkflowPolicy::FinishAllAndDone:
+        return true;
+    case WorkflowPolicy::StopOnDone:
+    case WorkflowPolicy::ContinueOnDone:
+    case WorkflowPolicy::StopOnFinished:
+    case WorkflowPolicy::FinishAllAndError:
+        return false;
+    }
+    QTC_CHECK(false);
+    return false;
+}
+
 TaskContainer::RuntimeData::RuntimeData(const ConstData &constData)
     : m_constData(constData)
     , m_storageIdList(createStorages(constData))
-{
-    m_successBit = m_constData.m_workflowPolicy != WorkflowPolicy::StopOnDone
-                && m_constData.m_workflowPolicy != WorkflowPolicy::ContinueOnDone
-                && m_constData.m_workflowPolicy != WorkflowPolicy::FinishAllAndError;
-}
+    , m_successBit(initialSuccessBit(m_constData.m_workflowPolicy))
+{}
 
 TaskContainer::RuntimeData::~RuntimeData()
 {
@@ -896,10 +910,10 @@ TaskContainer::RuntimeData::~RuntimeData()
 bool TaskContainer::RuntimeData::updateSuccessBit(bool success)
 {
     if (m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndDone
-        || m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndError)
-        return m_successBit;
-    if (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished) {
-        m_successBit = success;
+        || m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndError
+        || m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished) {
+        if (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished)
+            m_successBit = success;
         return m_successBit;
     }
 
@@ -929,7 +943,7 @@ TaskAction TaskContainer::start()
     }
     if (startAction == TaskAction::Continue) {
         if (m_constData.m_children.isEmpty())
-            startAction = TaskAction::StopWithDone;
+            startAction = toTaskAction(m_runtimeData->m_successBit);
     }
     return continueStart(startAction, 0);
 }

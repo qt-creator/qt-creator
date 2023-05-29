@@ -651,16 +651,16 @@ void tst_Tasking::testTree_data()
                                                           OnDone::Success};
 
         const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
-        QTest::newRow("EmptyStopOnDone") << TestData{storage, root3, doneLog, 0,
-                                                     OnDone::Success};
+        QTest::newRow("EmptyStopOnDone") << TestData{storage, root3, errorLog, 0,
+                                                     OnDone::Failure};
 
         const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
-        QTest::newRow("EmptyContinueOnDone") << TestData{storage, root4, doneLog, 0,
-                                                         OnDone::Success};
+        QTest::newRow("EmptyContinueOnDone") << TestData{storage, root4, errorLog, 0,
+                                                         OnDone::Failure};
 
         const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
-        QTest::newRow("EmptyStopOnFinished") << TestData{storage, root5, doneLog, 0,
-                                                         OnDone::Success};
+        QTest::newRow("EmptyStopOnFinished") << TestData{storage, root5, errorLog, 0,
+                                                         OnDone::Failure};
 
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
         QTest::newRow("EmptyFinishAllAndDone") << TestData{storage, root6, doneLog, 0,
