@@ -200,7 +200,7 @@ ProgressIndicator::ProgressIndicator(ProgressIndicatorSize size, QWidget *parent
 /*!
     Changes the size of the progress indicator to \a size.
 
-    \sa indicatorSize
+    \sa ProgressIndicatorPainter::indicatorSize()
 */
 void ProgressIndicator::setIndicatorSize(ProgressIndicatorSize size)
 {
@@ -211,7 +211,7 @@ void ProgressIndicator::setIndicatorSize(ProgressIndicatorSize size)
 /*!
     Returns the size of the indicator in device independent pixels.
 
-    \sa indicatorSize
+    \sa ProgressIndicatorPainter::indicatorSize()
 */
 QSize ProgressIndicator::sizeHint() const
 {

@@ -332,7 +332,7 @@ void FossilPluginPrivate::createFileActions(const Core::Context &context)
     command = Core::ActionManager::registerAction(m_diffFile, Constants::DIFF, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+D")
-                                                                      : Tr::tr("ALT+I,Alt+D")));
+                                                                      : Tr::tr("Alt+I,Alt+D")));
     connect(m_diffFile, &QAction::triggered, this, &FossilPluginPrivate::diffCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -341,7 +341,7 @@ void FossilPluginPrivate::createFileActions(const Core::Context &context)
     command = Core::ActionManager::registerAction(m_logFile, Constants::LOG, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+L")
-                                                                      : Tr::tr("ALT+I,Alt+L")));
+                                                                      : Tr::tr("Alt+I,Alt+L")));
     connect(m_logFile, &QAction::triggered, this, &FossilPluginPrivate::logCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -350,7 +350,7 @@ void FossilPluginPrivate::createFileActions(const Core::Context &context)
     command = Core::ActionManager::registerAction(m_statusFile, Constants::STATUS, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+S")
-                                                                      : Tr::tr("ALT+I,Alt+S")));
+                                                                      : Tr::tr("Alt+I,Alt+S")));
     connect(m_statusFile, &QAction::triggered, this, &FossilPluginPrivate::statusCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -463,7 +463,7 @@ void FossilPluginPrivate::createDirectoryActions(const Core::Context &context)
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::LOGMULTI, context);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+T")
-                                                                      : Tr::tr("ALT+I,Alt+T")));
+                                                                      : Tr::tr("Alt+I,Alt+T")));
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::logRepository);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -545,7 +545,7 @@ void FossilPluginPrivate::createRepositoryActions(const Core::Context &context)
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::UPDATE, context);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+U")
-                                                                      : Tr::tr("ALT+I,Alt+U")));
+                                                                      : Tr::tr("Alt+I,Alt+U")));
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::update);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -554,12 +554,12 @@ void FossilPluginPrivate::createRepositoryActions(const Core::Context &context)
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::COMMIT, context);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+C")
-                                                                      : Tr::tr("ALT+I,Alt+C")));
+                                                                      : Tr::tr("Alt+I,Alt+C")));
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::commit);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(Tr::tr("Settings ..."), this);
+    action = new QAction(Tr::tr("Settings..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::CONFIGURE_REPOSITORY, context);
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::configureRepository);

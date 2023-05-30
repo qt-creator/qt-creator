@@ -91,14 +91,14 @@
     case, use book style capitalization and do not add a period after the tool
     tip.
 
-    \image qtcreator-tooltip.png "Tooltip"
+    \image qtcreator-tooltip.png {Tooltip}
 
     Tooltips can also contain full sentences. Try to make them as short and
     concise as possible, while still making them grammatically correct. Use
     sentence style capitalization and punctuation as you would for any
     sentence.
 
-    \image qtcreator-tooltip-long.png "Sentence as a tooltip"
+    \image qtcreator-tooltip-long.png {Sentence as a tooltip}
 
     \section3 Writing Tooltips in Design Mode
 
@@ -333,7 +333,7 @@
 
             \li Opens when users right-click on the screen. Contents depend on
                 the context.
-                \image qtcreator-context-menu.png "Context menu"
+                \image qtcreator-context-menu.png {Context menu}
 
             \li You can add menu items that are relevant in a particular
                 context. Follow the conventions for naming menu items.
@@ -343,7 +343,7 @@
             \li  User interface element that usually contains a number of
                  choices or allows the user to give input to the application.
                  Opens when users select a menu item or button.
-                 \image qtcreator-dialog.png "Dialog"
+                 \image qtcreator-dialog.png {Dialog}
             \li  Use the menu item or button name as the dialog name. You can
                  also combine the menu item or button name and the name of the
                  object that is managed in the dialog. For example, the \uicontrol Add
@@ -354,7 +354,7 @@
 
             \li Allows you to browse not only files, but any items defined by
                 locator filters.
-                \image qtcreator-locator.png "Locator"
+                \image qtcreator-locator.webp {Locator}
 
             \li You can add locator filters. Check that the filter is not
                 already in use and give the filter a descriptive name.
@@ -365,7 +365,7 @@
             \li Contains menu items that represent commands or options and that
                 are logically grouped and displayed. A menu can also contain
                 submenus.
-                \image qtcreator-menu.png "Menu"
+                \image qtcreator-menu.png {Menu}
 
             \li You can create new menus. Use short, but descriptive names that
                 are consistent with existing menu names. Use unambigious names.
@@ -373,7 +373,7 @@
         \row
             \li  Menu item
             \li  Represents a command or an option for users to choose.
-                 \image qtcreator-menu-item.png "Menu item"
+                 \image qtcreator-menu-item.png {Menu item}
             \li  You can add new items to menus. Use short, but descriptive
                  names that are consistent with existing menu names. Use
                  unambigious names.
@@ -381,7 +381,7 @@
             \li  Message box
             \li  Dialog that provides feedback to users, in the form of status
                  information, a warning, or an error message.
-                 \image qtcreator-error-message.png "Message box"
+                 \image qtcreator-error-message.png {Message box}
                  Output from Qt Creator should be displayed in output views,
                  instead.
             \li  Use the event as the title and provide a solution in the
@@ -390,21 +390,21 @@
             \li  Mode
             \li  Modes correspond to complete screens of controls, specialized
                  for a task.
-                 \image qtcreator-mode-selector.png "Mode selector"
+                 \image qtcreator-mode-selector.png {Mode selector}
             \li  You can add a mode for a new type of editor, for example.
                  Use descriptive, but short mode names. They have to fit in the
                  \uicontrol {Mode selector}.
         \row
             \li  Output
             \li  Views to display output from Qt Creator.
-                 \image qtcreator-output-pane.png "Output"
+                 \image qtcreator-output-pane.png {Output}
             \li  Use descriptive names for output views.
         \row
             \li  Sidebar
             \li  A view available in the \uicontrol Edit and \uicontrol Debug modes that
                  you can use to browse projects, files, and bookmarks, and to
                  view the class hierarchy.
-                 \image qtcreator-sidebar-menu.png "Sidebar"
+                 \image qtcreator-sidebar-menu.png {Sidebar}
             \li  You can add views to the sidebar menu. Use descriptive names
                  for them.
         \row
@@ -413,7 +413,7 @@
                  provides them with functions for managing the information.
                  Available in \uicontrol Debug mode, for interaction with the program
                  that is running under the control of the debugger.
-                 \image qtcreator-debugger-views.webp "Views"
+                 \image qtcreator-debugger-views.webp {Views}
             \li  Use descriptive names for views.
     \endtable
 

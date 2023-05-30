@@ -5,26 +5,18 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
-
 namespace CodePaster {
 
-class Settings : public Utils::AspectContainer
+class Settings : public Core::PagedSettings
 {
 public:
     Settings();
 
-    Utils::StringAspect username;
-    Utils::SelectionAspect protocols;
-    Utils::IntegerAspect expiryDays;
-    Utils::BoolAspect copyToClipboard;
-    Utils::BoolAspect displayOutput;
-};
-
-class SettingsPage final : public Core::IOptionsPage
-{
-public:
-    SettingsPage(Settings *settings);
+    Utils::StringAspect username{this};
+    Utils::SelectionAspect protocols{this};
+    Utils::IntegerAspect expiryDays{this};
+    Utils::BoolAspect copyToClipboard{this};
+    Utils::BoolAspect displayOutput{this};
 };
 
 } // CodePaster

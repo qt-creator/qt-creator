@@ -279,15 +279,24 @@ void Highlighter::highlightBlock(const QString &text)
         return;
     }
     QTextBlock block = currentBlock();
-    KSyntaxHighlighting::State state;
-    TextDocumentLayout::setBraceDepth(block, TextDocumentLayout::braceDepth(block.previous()));
+    const QTextBlock previousBlock = block.previous();
+    TextDocumentLayout::setBraceDepth(block, TextDocumentLayout::braceDepth(previousBlock));
+    KSyntaxHighlighting::State previousLineState;
+    if (TextBlockUserData *data = TextDocumentLayout::textUserData(previousBlock))
+        previousLineState = data->syntaxState();
+    KSyntaxHighlighting::State oldState;
     if (TextBlockUserData *data = TextDocumentLayout::textUserData(block)) {
-        state = data->syntaxState();
+        oldState = data->syntaxState();
         data->setFoldingStartIncluded(false);
         data->setFoldingEndIncluded(false);
     }
-    state = highlightLine(text, state);
-    const QTextBlock nextBlock = block.next();
+    KSyntaxHighlighting::State state = highlightLine(text, previousLineState);
+    if (oldState != state) {
+        TextBlockUserData *data = TextDocumentLayout::userData(block);
+        data->setSyntaxState(state);
+        // Toggles the LSB of current block's userState. It forces rehighlight of next block.
+        setCurrentBlockState(currentBlockState() ^ 1);
+    }
 
     Parentheses parentheses;
     int pos = 0;
@@ -300,13 +309,9 @@ void Highlighter::highlightBlock(const QString &text)
     }
     TextDocumentLayout::setParentheses(currentBlock(), parentheses);
 
+    const QTextBlock nextBlock = block.next();
     if (nextBlock.isValid()) {
         TextBlockUserData *data = TextDocumentLayout::userData(nextBlock);
-        if (data->syntaxState() != state) {
-            data->setSyntaxState(state);
-            // Toggles the LSB of current block's userState. It forces rehighlight of next block.
-            setCurrentBlockState(currentBlockState() ^ 1);
-        }
         data->setFoldingIndent(TextDocumentLayout::braceDepth(block));
     }
 

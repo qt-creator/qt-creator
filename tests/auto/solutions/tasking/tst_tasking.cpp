@@ -17,6 +17,10 @@ using namespace Tasking;
 using TestTask = Async<void>;
 using Test = AsyncTask<void>;
 
+namespace PrintableEnums {
+
+Q_NAMESPACE
+
 enum class Handler {
     Setup,
     Done,
@@ -25,8 +29,16 @@ enum class Handler {
     GroupDone,
     GroupError,
     Sync,
-    BarrierAdvance,
+    BarrierAdvance
 };
+Q_ENUM_NS(Handler);
+
+enum class OnDone { Success, Failure };
+Q_ENUM_NS(OnDone);
+
+} // namespace PrintableEnums
+
+using namespace PrintableEnums;
 
 using Log = QList<QPair<int, Handler>>;
 
@@ -44,8 +56,6 @@ int CustomStorage::s_count = 0;
 static const char s_taskIdProperty[] = "__taskId";
 
 static FutureSynchronizer *s_futureSynchronizer = nullptr;
-
-enum class OnDone { Success, Failure };
 
 struct TestData {
     TreeStorage<CustomStorage> storage;
@@ -1619,15 +1629,14 @@ void tst_Tasking::testTree()
     Log actualLog;
     const auto collectLog = [&actualLog](CustomStorage *storage) { actualLog = storage->m_log; };
     taskTree.onStorageDone(testData.storage, collectLog);
-    const int result = taskTree.runBlocking(2000);
+    const OnDone result = taskTree.runBlocking(2000) ? OnDone::Success : OnDone::Failure;
     QCOMPARE(taskTree.isRunning(), false);
 
     QCOMPARE(taskTree.progressValue(), testData.taskCount);
     QCOMPARE(actualLog, testData.expectedLog);
     QCOMPARE(CustomStorage::instanceCount(), 0);
 
-    const bool expectSuccess = testData.onDone == OnDone::Success;
-    QCOMPARE(result, expectSuccess);
+    QCOMPARE(result, testData.onDone);
 }
 
 void tst_Tasking::storageOperators()

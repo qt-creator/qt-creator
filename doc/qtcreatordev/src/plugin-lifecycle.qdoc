@@ -28,8 +28,7 @@
             tracks the state of the plugin.
             You can get the \l{ExtensionSystem::PluginSpec} instances via the
             plugin manager's \l{ExtensionSystem::PluginManager::plugins()}{plugins()}
-            function, or, after a plugin is loaded, through the plugin's
-            \l{ExtensionSystem::IPlugin::pluginSpec()}{pluginSpec()} function.
+            function.
 
         \li Sets the plugins to \c Read state.
 

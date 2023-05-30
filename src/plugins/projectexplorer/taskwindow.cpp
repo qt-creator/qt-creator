@@ -143,7 +143,6 @@ public:
     Internal::TaskFilterModel *m_filter;
     TaskView m_treeView;
     Core::IContext *m_taskWindowContext;
-    QMenu *m_contextMenu;
     QMap<const QAction *, ITaskHandler *> m_actionToHandlerMap;
     ITaskHandler *m_defaultHandler = nullptr;
     QToolButton *m_filterWarningsButton;
@@ -206,8 +205,6 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
             action->setEnabled(h && h->canHandle(tasks));
         }
     });
-
-    d->m_contextMenu = new QMenu(&d->m_treeView);
 
     d->m_treeView.setContextMenuPolicy(Qt::ActionsContextMenu);
 

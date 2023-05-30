@@ -28,7 +28,6 @@ TestSettings::TestSettings()
 
     setSettingsGroup(Constants::SETTINGSGROUP);
 
-    registerAspect(&timeout);
     timeout.setSettingsKey("Timeout");
     timeout.setDefaultValue(defaultTimeout);
     timeout.setRange(5000, 36'000'000); // 36 Mio ms = 36'000 s = 10 h
@@ -37,44 +36,37 @@ TestSettings::TestSettings()
     timeout.setToolTip(Tr::tr("Timeout used when executing test cases. This will apply "
                               "for each test case on its own, not the whole project."));
 
-    registerAspect(&omitInternalMsg);
     omitInternalMsg.setSettingsKey("OmitInternal");
     omitInternalMsg.setDefaultValue(true);
     omitInternalMsg.setLabelText(Tr::tr("Omit internal messages"));
     omitInternalMsg.setToolTip(Tr::tr("Hides internal messages by default. "
         "You can still enable them by using the test results filter."));
 
-    registerAspect(&omitRunConfigWarn);
     omitRunConfigWarn.setSettingsKey("OmitRCWarnings");
     omitRunConfigWarn.setLabelText(Tr::tr("Omit run configuration warnings"));
     omitRunConfigWarn.setToolTip(Tr::tr("Hides warnings related to a deduced run configuration."));
 
-    registerAspect(&limitResultOutput);
     limitResultOutput.setSettingsKey("LimitResultOutput");
     limitResultOutput.setDefaultValue(true);
     limitResultOutput.setLabelText(Tr::tr("Limit result output"));
     limitResultOutput.setToolTip(Tr::tr("Limits result output to 100000 characters."));
 
-    registerAspect(&limitResultDescription);
     limitResultDescription.setSettingsKey("LimitResultDescription");
     limitResultDescription.setLabelText(Tr::tr("Limit result description:"));
     limitResultDescription.setToolTip(
         Tr::tr("Limit number of lines shown in test result tooltip and description."));
 
-    registerAspect(&resultDescriptionMaxSize);
     resultDescriptionMaxSize.setSettingsKey("ResultDescriptionMaxSize");
     resultDescriptionMaxSize.setDefaultValue(10);
     resultDescriptionMaxSize.setRange(1, 100000);
     resultDescriptionMaxSize.setEnabler(&limitResultDescription);
 
-    registerAspect(&autoScroll);
     autoScroll.setSettingsKey("AutoScrollResults");
     autoScroll.setDefaultValue(true);
     autoScroll.setLabelText(Tr::tr("Automatically scroll results"));
     autoScroll.setToolTip(Tr::tr("Automatically scrolls down when new items are added "
                                  "and scrollbar is at bottom."));
 
-    registerAspect(&processArgs);
     processArgs.setSettingsKey("ProcessArgs");
     processArgs.setLabelText(Tr::tr("Process arguments"));
     processArgs.setToolTip(
@@ -82,31 +74,26 @@ TestSettings::TestSettings()
                "Warning: this is an experimental feature and might lead to failing to "
                "execute the test executable."));
 
-    registerAspect(&displayApplication);
     displayApplication.setSettingsKey("DisplayApp");
     displayApplication.setLabelText(Tr::tr("Group results by application"));
 
-    registerAspect(&popupOnStart);
     popupOnStart.setSettingsKey("PopupOnStart");
     popupOnStart.setLabelText(Tr::tr("Open results when tests start"));
     popupOnStart.setToolTip(
         Tr::tr("Displays test results automatically when tests are started."));
 
-    registerAspect(&popupOnFinish);
     popupOnFinish.setSettingsKey("PopupOnFinish");
     popupOnFinish.setDefaultValue(true);
     popupOnFinish.setLabelText(Tr::tr("Open results when tests finish"));
     popupOnFinish.setToolTip(
         Tr::tr("Displays test results automatically when tests are finished."));
 
-    registerAspect(&popupOnFail);
     popupOnFail.setSettingsKey("PopupOnFail");
     popupOnFail.setLabelText(Tr::tr("Only for unsuccessful test runs"));
     popupOnFail.setEnabler(&popupOnFinish);
     popupOnFail.setToolTip(Tr::tr("Displays test results only if the test run contains "
                                   "failed, fatal or unexpectedly passed tests."));
 
-    registerAspect(&runAfterBuild);
     runAfterBuild.setSettingsKey("RunAfterBuild");
     runAfterBuild.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
     runAfterBuild.setToolTip(Tr::tr("Runs chosen tests automatically if a build succeeded."));

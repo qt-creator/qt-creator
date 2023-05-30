@@ -11592,8 +11592,8 @@ a verziókövetőhöz (%2)?</translation>
         <translation>Hiba történt a szakasz mentése közben</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Nem sikerült a szakasz %1 fájlba mentése</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Nem sikerült a szakasz &quot;%1&quot; fájlba mentése</translation>
     </message>
     <message>
         <source>Qt Creator</source>

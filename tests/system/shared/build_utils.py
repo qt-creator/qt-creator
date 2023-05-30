@@ -39,8 +39,7 @@ def getBuildIssues(ignoreCodeModel=True):
 # this method checks the last build (if there's one) and logs the number of errors, warnings and
 # lines within the Issues output
 # param expectedToFail can be used to tell this function if the build was expected to fail or not
-# param createTasksFileOnError whether a tasks file should be created when building ends with errors
-def checkLastBuild(expectedToFail=False, createTasksFileOnError=True):
+def checkLastBuild(expectedToFail=False):
     try:
         # can't use waitForObject() 'cause visible is always 0
         findObject("{type='ProjectExplorer::Internal::BuildProgress' unnamed='1' }")
@@ -53,9 +52,6 @@ def checkLastBuild(expectedToFail=False, createTasksFileOnError=True):
     warnings = types.count("2")
     gotErrors = errors != 0
     test.verify(not (gotErrors ^ expectedToFail), "Errors: %s | Warnings: %s" % (errors, warnings))
-    # additional stuff - could be removed... or improved :)
-    if gotErrors and createTasksFileOnError:
-        createTasksFile(buildIssues)
     return not gotErrors
 
 # helper function to check the compilation when build wasn't successful
@@ -96,52 +92,6 @@ def dumpBuildIssues(listModel):
                            in range(Qt.UserRole, Qt.UserRole + 6)]])
     return issueDump
 
-# counter for written tasks files
-tasksFileCount = 0
-
-# helper method that writes a tasks file
-def createTasksFile(buildIssues):
-    # currently used directory for tasks files
-    tasksFileDir = None
-    global tasksFileCount
-    if tasksFileDir == None:
-            tasksFileDir = os.getcwd() + "/tasks"
-            tasksFileDir = os.path.abspath(tasksFileDir)
-    if not os.path.exists(tasksFileDir):
-        try:
-            os.makedirs(tasksFileDir)
-        except OSError:
-            test.log("Could not create %s - falling back to a temporary directory" % tasksFileDir)
-            tasksFileDir = tempDir()
-
-    tasksFileCount += 1
-    outfile = os.path.join(tasksFileDir, os.path.basename(squishinfo.testCase)+"_%d.tasks" % tasksFileCount)
-    file = codecs.open(outfile, "w", "utf-8")
-    test.log("Writing tasks file - can take some time (according to number of issues)")
-    rows = len(buildIssues)
-    if os.environ.get("SYSTEST_DEBUG") == "1":
-        firstrow = 0
-    else:
-        firstrow = max(0, rows - 100)
-    for issue in buildIssues[firstrow:rows]:
-        # the following is currently a bad work-around
-        fData = issue[0] # file
-        lData = issue[1] # line -> linenumber or empty
-        tData = issue[5] # type -> 1==error 2==warning
-        dData = issue[3] # description
-        if lData == "":
-            lData = "-1"
-        if tData == "1":
-            tData = "error"
-        elif tData == "2":
-            tData = "warning"
-        else:
-            tData = "unknown"
-        if str(fData).strip() == "" and lData == "-1" and str(dData).strip() == "":
-            test.fatal("Found empty task.")
-        file.write("%s\t%s\t%s\t%s\n" % (fData, lData, tData, dData))
-    file.close()
-    test.log("Written tasks file %s" % outfile)
 
 # returns a list of pairs each containing the ID of a kit (see class Targets)
 # and the name of the matching build configuration

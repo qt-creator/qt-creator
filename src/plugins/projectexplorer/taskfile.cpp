@@ -10,6 +10,7 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
@@ -148,6 +149,10 @@ static bool parseTaskFile(QString *errorString, const FilePath &name)
         }
         description = unescape(description);
 
+        if (description.trimmed().isEmpty()) {
+            MessageManager::writeFlashing(Tr::tr("Ignoring invalid task (no text)."));
+            continue;
+        }
         TaskHub::addTask(Task(type, description, FilePath::fromUserInput(file), line,
                               Constants::TASK_CATEGORY_TASKLIST_ID));
     }

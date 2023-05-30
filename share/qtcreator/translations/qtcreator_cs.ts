@@ -10547,8 +10547,8 @@ přidat do správy verzí (%2)?</translation>
         <translation>Při ukládání sezení se vyskytla chyba</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Sezení se nepodařilo uložit do souboru %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Sezení se nepodařilo uložit do souboru &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -28914,8 +28914,8 @@ Server: %2.</translation>
         <translation>Rozdíly pro &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
-        <translation>ALT+Z,Alt+D</translation>
+        <source>Alt+Z,Alt+D</source>
+        <translation>Alt+Z,Alt+D</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+D</source>
@@ -28930,8 +28930,8 @@ Server: %2.</translation>
         <translation>Záznamy pro &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
-        <translation>ALT+Z,Alt+L</translation>
+        <source>Alt+Z,Alt+L</source>
+        <translation>Alt+Z,Alt+L</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+L</source>
@@ -28946,8 +28946,8 @@ Server: %2.</translation>
         <translation>Stav &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
-        <translation>ALT+Z,Alt+S</translation>
+        <source>Alt+Z,Alt+S</source>
+        <translation>Alt+Z,Alt+S</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+S</source>
@@ -29011,8 +29011,8 @@ Server: %2.</translation>
         <translation>Zapsat-odevzdat (commit)...</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
-        <translation>ALT+Z,Alt+C</translation>
+        <source>Alt+Z,Alt+C</source>
+        <translation>Alt+Z,Alt+C</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+C</source>

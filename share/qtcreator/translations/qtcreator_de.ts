@@ -12047,8 +12047,8 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
         <translation>Status von &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
-        <translation>ALT+Z,Alt+D</translation>
+        <source>Alt+Z,Alt+D</source>
+        <translation>Alt+Z,Alt+D</translation>
     </message>
     <message>
         <source>Triggers a Bazaar version control operation.</source>
@@ -12059,16 +12059,16 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
         <translation>Meta+Z,Meta+D</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
-        <translation>ALT+Z,Alt+L</translation>
+        <source>Alt+Z,Alt+L</source>
+        <translation>Alt+Z,Alt+L</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+L</source>
         <translation>Meta+Z,Meta+L</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
-        <translation>ALT+Z,Alt+S</translation>
+        <source>Alt+Z,Alt+S</source>
+        <translation>Alt+Z,Alt+S</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+S</source>
@@ -12131,8 +12131,8 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
         <translation>Commit...</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
-        <translation>ALT+Z,Alt+C</translation>
+        <source>Alt+Z,Alt+C</source>
+        <translation>Alt+Z,Alt+C</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+C</source>
@@ -13043,8 +13043,8 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>%1 konnte nicht geladen werden: %2</translation>
     </message>
     <message>
-        <source>Attempt to include %1 which was already parsed.</source>
-        <translation>Versuch, die Datei %1 einzufügen, welche schon ausgewertet wurde.</translation>
+        <source>Attempt to include &quot;%1&quot; which was already parsed.</source>
+        <translation>Versuch, die Datei &quot;%1&quot; einzufügen, welche schon ausgewertet wurde.</translation>
     </message>
     <message>
         <source>yes</source>
@@ -13396,20 +13396,20 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
         <translation>CMake-Generator fehlgeschlagen: %1.</translation>
     </message>
     <message>
-        <source>Kit does not have a cmake binary set</source>
-        <translation>Das Kit hat keine ausführbare CMake-Datei gesetzt</translation>
+        <source>Kit does not have a cmake binary set.</source>
+        <translation>Das Kit hat keine ausführbare CMake-Datei gesetzt.</translation>
     </message>
     <message>
-        <source>Cannot create output directory &quot;%1&quot;</source>
-        <translation>Das Ausgabeverzeichnis &quot;%1&quot; konnte nicht angelegt werden</translation>
+        <source>Cannot create output directory &quot;%1&quot;.</source>
+        <translation>Das Ausgabeverzeichnis &quot;%1&quot; konnte nicht angelegt werden.</translation>
     </message>
     <message>
-        <source>No valid cmake executable</source>
-        <translation>Keine gültige ausführbare CMake-Datei</translation>
+        <source>No valid cmake executable.</source>
+        <translation>Keine gültige ausführbare CMake-Datei.</translation>
     </message>
     <message>
-        <source>Running in %1: %2</source>
-        <translation>Führe in %1 aus: %2</translation>
+        <source>Running in &quot;%1&quot;: %2.</source>
+        <translation>Führe in &quot;%1&quot; aus: %2.</translation>
     </message>
     <message>
         <source>&lt;No CMake Tool available&gt;</source>
@@ -16566,8 +16566,8 @@ Trotzdem fortfahren?</translation>
         <translation>Das in den allgemeinen Umgebungseinstellungen konfigurierte patch-Kommando existiert nicht.</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Führe in %1 aus: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3.</source>
+        <translation>Führe in &quot;%1&quot; aus: %2 %3.</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -18989,8 +18989,8 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <translation>Datei &quot;%1&quot; konnte nicht zum Schreiben der Protokolle geöffnet werden.</translation>
     </message>
     <message>
-        <source>Save Enabled Categories As</source>
-        <translation>Ausgewählte Kategorien speichern unter</translation>
+        <source>Save Enabled Categories As...</source>
+        <translation>Ausgewählte Kategorien speichern unter...</translation>
     </message>
     <message>
         <source>Failed to write preset file &quot;%1&quot;.</source>
@@ -19001,8 +19001,8 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <translation>Ausgewählte Kategorien laden</translation>
     </message>
     <message>
-        <source>Failed to open preset file &quot;%1&quot; for reading</source>
-        <translation>Datei &quot;%1&quot; konnte nicht zum Lesen der Voreinstellung geöffnet werden</translation>
+        <source>Failed to open preset file &quot;%1&quot; for reading.</source>
+        <translation>Datei &quot;%1&quot; konnte nicht zum Lesen der Voreinstellung geöffnet werden.</translation>
     </message>
     <message>
         <source>Failed to read preset file &quot;%1&quot;: %2</source>
@@ -20157,8 +20157,8 @@ z.B. name = &quot;m_test_foo_&quot;:
         <translation>Diagnosekonfigurationen</translation>
     </message>
     <message>
-        <source>For appropriate options, consult the GCC or Clang manual pages or the %1 GCC online documentation&lt;/a&gt;.</source>
-        <translation>Für passende Optionen lesen Sie das GCC- oder Clang-Handbuch oder auch die %1 GCC-Onlinedokumentation&lt;/a&gt;.</translation>
+        <source>For appropriate options, consult the GCC or Clang manual pages or the [GCC online documentation](%1).</source>
+        <translation>Für passende Optionen lesen Sie das GCC- oder Clang-Handbuch oder auch die [GCC-Onlinedokumentation](%1).</translation>
     </message>
     <message>
         <source>Copy...</source>
@@ -20339,8 +20339,8 @@ z.B. name = &quot;m_test_foo_&quot;:
         <translation>Dateien ignorieren</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ignore files that match these wildcard patterns, one wildcard per line.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dateien ignorieren, die diesen Platzhalter-Filtern entsprechen. Ein Filter pro Zeile.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>Ignore files that match these wildcard patterns, one wildcard per line.</source>
+        <translation>Dateien ignorieren, die diesen Platzhalter-Filtern entsprechen. Ein Filter pro Zeile.</translation>
     </message>
     <message>
         <source>Ignore precompiled headers</source>
@@ -20465,8 +20465,8 @@ Dies ist normalerweise nicht empfehlenswert, da die Datei wahrscheinlich währen
         <translation>Möchten Sie stattdessen &quot;%1&quot; bearbeiten?</translation>
     </message>
     <message>
-        <source>Open %1</source>
-        <translation>%1 öffnen</translation>
+        <source>Open &quot;%1&quot;</source>
+        <translation>&quot;%1&quot; öffnen</translation>
     </message>
     <message>
         <source>&amp;Refactor</source>
@@ -25092,8 +25092,8 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <translation>Schriftgröße des Debuggers mit Editor synchronisieren</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation>&lt;p&gt;Nicht aus allen Quellcode-Zeilen wird ausführbarer Code erzeugt. Wenn man dort einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre, aus der Maschinencode erzeugt wurde. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall an die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
+        <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
+        <translation>Nicht aus allen Quellcode-Zeilen wird ausführbarer Code erzeugt. Wenn man dort einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre, aus der Maschinencode erzeugt wurde. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall an die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
     </message>
     <message>
         <source>Stopping and stepping in the debugger will automatically open views associated with the current location.</source>
@@ -27270,8 +27270,8 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>Meta+I,Meta+D</translation>
     </message>
     <message>
-        <source>ALT+I,Alt+D</source>
-        <translation>ALT+I,Alt+D</translation>
+        <source>Alt+I,Alt+D</source>
+        <translation>Alt+I,Alt+D</translation>
     </message>
     <message>
         <source>Timeline Current File</source>
@@ -27286,8 +27286,8 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>Meta+I,Meta+L</translation>
     </message>
     <message>
-        <source>ALT+I,Alt+L</source>
-        <translation>ALT+I,Alt+L</translation>
+        <source>Alt+I,Alt+L</source>
+        <translation>Alt+I,Alt+L</translation>
     </message>
     <message>
         <source>Status Current File</source>
@@ -27302,8 +27302,8 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>Meta+I,Meta+S</translation>
     </message>
     <message>
-        <source>ALT+I,Alt+S</source>
-        <translation>ALT+I,Alt+S</translation>
+        <source>Alt+I,Alt+S</source>
+        <translation>Alt+I,Alt+S</translation>
     </message>
     <message>
         <source>Add Current File</source>
@@ -27342,8 +27342,8 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>Meta+I,Meta+T</translation>
     </message>
     <message>
-        <source>ALT+I,Alt+T</source>
-        <translation>ALT+I,Alt+T</translation>
+        <source>Alt+I,Alt+T</source>
+        <translation>Alt+I,Alt+T</translation>
     </message>
     <message>
         <source>Revert...</source>
@@ -27374,8 +27374,8 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>Meta+I,Meta+U</translation>
     </message>
     <message>
-        <source>ALT+I,Alt+U</source>
-        <translation>ALT+I,Alt+U</translation>
+        <source>Alt+I,Alt+U</source>
+        <translation>Alt+I,Alt+U</translation>
     </message>
     <message>
         <source>Commit...</source>
@@ -27386,11 +27386,11 @@ Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht
         <translation>Meta+I,Meta+C</translation>
     </message>
     <message>
-        <source>ALT+I,Alt+C</source>
-        <translation>ALT+I,Alt+C</translation>
+        <source>Alt+I,Alt+C</source>
+        <translation>Alt+I,Alt+C</translation>
     </message>
     <message>
-        <source>Settings ...</source>
+        <source>Settings...</source>
         <translation>Einstellungen...</translation>
     </message>
     <message>
@@ -31889,8 +31889,8 @@ Beispiel: *.cpp%1*.h</translation>
         <translation>In die Zwischenablage kopieren</translation>
     </message>
     <message>
-        <source>Cannot handle MIME type of message %1</source>
-        <translation>MIME type %1 der Nachricht kann nicht verarbeitet werden</translation>
+        <source>Cannot handle MIME type &quot;%1&quot; of message.</source>
+        <translation>MIME type &quot;%1&quot; der Nachricht kann nicht verarbeitet werden.</translation>
     </message>
     <message>
         <source>Generic StdIO Language Server</source>
@@ -32025,7 +32025,7 @@ Beispiel: *.cpp%1*.h</translation>
         <translation>In &quot;%1&quot; ist keine ID angegeben.</translation>
     </message>
     <message>
-        <source>Could not parse JSON message &quot;%1&quot;.</source>
+        <source>Could not parse JSON message: &quot;%1&quot;.</source>
         <translation>Die JSON-Nachricht konnte nicht ausgewertet werden: &quot;%1&quot;.</translation>
     </message>
     <message>
@@ -35824,8 +35824,8 @@ Rename %2 to %3 anyway?</source>
         <translation>Fehler beim Speichern der Sitzung</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Die Sitzung konnte nicht unter %1 gespeichert werden</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Die Sitzung konnte nicht unter &quot;%1&quot; gespeichert werden</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -37953,7 +37953,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Leeres Fenster</translation>
     </message>
     <message>
-        <source>Creates a Qt for Python application that includes a Qt Designer-based widget (ui file) - Requires .ui to Python conversion</source>
+        <source>Creates a Qt for Python application that includes a Qt Designer-based widget (ui file). Requires .ui to Python conversion.</source>
         <translation>Erstellt eine Qt for Python-Anwendung, die ein Qt Designer-basiertes Widget (ui-Datei) enthält. Erfordert Umwandlung von .ui nach Python.</translation>
     </message>
     <message>
@@ -38089,16 +38089,16 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
         <translation>Nimble-Anwendung</translation>
     </message>
     <message>
-        <source>Create a project that you can open in Qt Design Studio</source>
-        <translation>Erstellt ein Projekt, das in Qt Design Studio geöffnet werden kann</translation>
+        <source>Creates a project that you can open in Qt Design Studio.</source>
+        <translation>Erstellt ein Projekt, das in Qt Design Studio geöffnet werden kann.</translation>
     </message>
     <message>
-        <source>Create a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
+        <source>Creates a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
         <translation>Erstellt ein Projekt mit einer Struktur, die sowohl mit Qt Design Studio (via qmlproject) als auch mit Qt Creator (via CMakeLists.txt) kompatibel ist. Es enthält ein .ui.qml-Formular, das in Qt Design Studio visuell bearbeitet werden kann.</translation>
     </message>
     <message>
-        <source>The minimum version of Qt you want to build the application for</source>
-        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung benutzen wollen</translation>
+        <source>The minimum version of Qt you want to build the application for.</source>
+        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung benutzen wollen.</translation>
     </message>
     <message>
         <source>Creates a Qt Quick application that contains an empty window. Optionally, you can create a Qt Design Studio project.</source>
@@ -38801,7 +38801,7 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
         <translation>%1: Vollständiger Pfad zur Hauptdatei.</translation>
     </message>
     <message>
-        <source>%1: The name the active kit.</source>
+        <source>%1: The name of the active kit.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
         <translation>%1: Der Name des aktiven Kits.</translation>
     </message>
@@ -40167,12 +40167,12 @@ fails because Clang does not understand the target architecture.</source>
         <translation>Ausführbare Datei ist leer.</translation>
     </message>
     <message>
-        <source>%1 does not exist.</source>
-        <translation>%1 existiert nicht.</translation>
+        <source>&quot;%1&quot; does not exist.</source>
+        <translation>&quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
-        <source>%1 is not an executable file.</source>
-        <translation>%1 ist keine ausführbare Datei.</translation>
+        <source>&quot;%1&quot; is not an executable file.</source>
+        <translation>&quot;%1&quot; ist keine ausführbare Datei.</translation>
     </message>
     <message>
         <source>&amp;Add</source>
@@ -40211,8 +40211,8 @@ fails because Clang does not understand the target architecture.</source>
         <translation>Python Language Server benutzen</translation>
     </message>
     <message>
-        <source>For a complete list of available options, consult the &lt;a href=&quot;https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md&quot;&gt;Python LSP Server configuration documentation&lt;/a&gt;.</source>
-        <translation>Für eine vollständige Liste der verfügbaren Optionen siehe auch die &lt;a href=&quot;https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md&quot;&gt;Dokumentation zur Python LSP-Server-Konfiguration&lt;/a&gt;.</translation>
+        <source>For a complete list of available options, consult the [Python LSP Server configuration documentation](%1).</source>
+        <translation>Für eine vollständige Liste der verfügbaren Optionen siehe auch die [Dokumentation zur Python LSP-Server-Konfiguration](%1).</translation>
     </message>
     <message>
         <source>Advanced</source>
@@ -41535,12 +41535,12 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <translation>Kein qmake-Build-Schritt in der aktiven Build-Konfiguration</translation>
     </message>
     <message>
-        <source>Cannot create output directory &quot;%1&quot;</source>
-        <translation>Das Ausgabeverzeichnis &quot;%1&quot; konnte nicht angelegt werden</translation>
+        <source>Cannot create output directory &quot;%1&quot;.</source>
+        <translation>Das Ausgabeverzeichnis &quot;%1&quot; konnte nicht angelegt werden.</translation>
     </message>
     <message>
-        <source>Running in %1: %2</source>
-        <translation>Führe in %1 aus: %2</translation>
+        <source>Running in &quot;%1&quot;: %2.</source>
+        <translation>Führe in &quot;%1&quot; aus: %2.</translation>
     </message>
     <message>
         <source>Build</source>
@@ -41993,8 +41993,8 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
         <translation>Package-Import erfordert eine Versionsnummer</translation>
     </message>
     <message>
-        <source>Nested inline components are not supported</source>
-        <translation>Verschachtelte Inline-Komponenten werden nicht unterstützt</translation>
+        <source>Nested inline components are not supported.</source>
+        <translation>Verschachtelte Inline-Komponenten werden nicht unterstützt.</translation>
     </message>
     <message>
         <source>Errors while loading qmltypes from %1:
@@ -44979,7 +44979,7 @@ wirklich löschen?</translation>
         <translation>Vollständiger Pfad zum Ziel-&quot;bin&quot;-Verzeichnis der Qt-Version des aktiven Kits des aktiven Projekts.&lt;br&gt;Wahrscheinlich sollten Sie stattdessen %1 nutzen.</translation>
     </message>
     <message>
-        <source>Full path to the libexec bin directory of the Qt version in the active kit of the active project.</source>
+        <source>Full path to the libexec directory of the Qt version in the active kit of the active project.</source>
         <translation>Vollständiger Pfad zum Host-&quot;libexec&quot;-Verzeichnis der Qt-Version des aktiven Kits des aktiven Projekts.</translation>
     </message>
     <message>
@@ -51134,16 +51134,16 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Der Rückgabewert des Prozesses konnte nicht erhalten werden: %1</translation>
     </message>
     <message>
-        <source>copyFile is not implemented for &quot;%1&quot;</source>
-        <translation>copyFile ist für &quot;%1&quot; nicht implementiert</translation>
+        <source>copyFile is not implemented for &quot;%1&quot;.</source>
+        <translation>copyFile ist für &quot;%1&quot; nicht implementiert.</translation>
     </message>
     <message>
-        <source>Cannot copy from %1, it is not a directory.</source>
-        <translation>%1 kann nicht kopiert werden, da es kein Verzeichnis ist.</translation>
+        <source>Cannot copy from &quot;%1&quot;, it is not a directory.</source>
+        <translation>&quot;%1&quot; kann nicht kopiert werden, da es kein Verzeichnis ist.</translation>
     </message>
     <message>
-        <source>Cannot copy %1 to %2, it is not a writable directory.</source>
-        <translation>%1 kann nicht nach %2 kopiert werden, da es kein schreibbares Verzeichnis ist.</translation>
+        <source>Cannot copy &quot;%1&quot; to &quot;%2&quot;, it is not a writable directory.</source>
+        <translation>&quot;%1&quot; kann nicht nach &quot;%2&quot; kopiert werden, da es kein schreibbares Verzeichnis ist.</translation>
     </message>
     <message>
         <source>Failed to copy recursively from &quot;%1&quot; to &quot;%2&quot; while trying to create tar archive from source: %3</source>
@@ -51154,16 +51154,16 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Rekursives Kopieren von &quot;%1&quot; nach &quot;%2&quot; beim Auspacken des Tar-Archivs am Ziel fehlgeschlagen: %3</translation>
     </message>
     <message>
-        <source>fileContents is not implemented for &quot;%1&quot;</source>
-        <translation>fileContents ist für &quot;%1&quot; nicht implementiert</translation>
+        <source>fileContents is not implemented for &quot;%1&quot;.</source>
+        <translation>fileContents ist für &quot;%1&quot; nicht implementiert.</translation>
     </message>
     <message>
-        <source>writeFileContents is not implemented for &quot;%1&quot;</source>
-        <translation>writeFileContents ist für &quot;%1&quot; nicht implementiert</translation>
+        <source>writeFileContents is not implemented for &quot;%1&quot;.</source>
+        <translation>writeFileContents ist für &quot;%1&quot; nicht implementiert.</translation>
     </message>
     <message>
-        <source>createTempFile is not implemented for &quot;%1&quot;</source>
-        <translation>createTempFile ist für &quot;%1&quot; nicht implementiert</translation>
+        <source>createTempFile is not implemented for &quot;%1&quot;.</source>
+        <translation>createTempFile ist für &quot;%1&quot; nicht implementiert.</translation>
     </message>
     <message>
         <source>Refusing to remove root directory.</source>
@@ -51186,28 +51186,28 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Kopieren der Datei &quot;%1&quot; nach &quot;%2&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
-        <source>File &quot;%1&quot; does not exist</source>
-        <translation>Datei &quot;%1&quot; existiert nicht</translation>
+        <source>File &quot;%1&quot; does not exist.</source>
+        <translation>Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
-        <source>Could not open File &quot;%1&quot;</source>
-        <translation>Die Datei &quot;%1&quot; konnte nicht geöffnet werden</translation>
+        <source>Could not open File &quot;%1&quot;.</source>
+        <translation>Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Cannot read &quot;%1&quot;: %2</source>
         <translation>&quot;%1&quot; kann nicht gelesen werden: %2</translation>
     </message>
     <message>
-        <source>Could not open file &quot;%1&quot; for writing</source>
-        <translation>Die Datei &quot;%1&quot; konnte nicht zum Schreiben geöffnet werden</translation>
+        <source>Could not open file &quot;%1&quot; for writing.</source>
+        <translation>Die Datei &quot;%1&quot; konnte nicht zum Schreiben geöffnet werden.</translation>
     </message>
     <message>
-        <source>Could not write to file &quot;%1&quot; (only %2 of %3 bytes written)</source>
-        <translation>Die Datei &quot;%1&quot; konnte nicht geschrieben werden (es wurden nur %2 von %3 Bytes geschrieben)</translation>
+        <source>Could not write to file &quot;%1&quot; (only %2 of %3 bytes written).</source>
+        <translation>Die Datei &quot;%1&quot; konnte nicht geschrieben werden (es wurden nur %2 von %3 Bytes geschrieben).</translation>
     </message>
     <message>
-        <source>Could not create temporary file in &quot;%1&quot; (%2)</source>
-        <translation>Es konnte keine temporäre Datei in &quot;%1&quot; erstellt werden (%2)</translation>
+        <source>Could not create temporary file in &quot;%1&quot; (%2).</source>
+        <translation>Es konnte keine temporäre Datei in &quot;%1&quot; erstellt werden (%2).</translation>
     </message>
     <message>
         <source>Failed to copy file &quot;%1&quot; to &quot;%2&quot;: %3</source>
@@ -51226,8 +51226,8 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
     </message>
     <message>
-        <source>Failed creating temporary file &quot;%1&quot; (too many tries)</source>
-        <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden (zu viele Versuche)</translation>
+        <source>Failed creating temporary file &quot;%1&quot; (too many tries).</source>
+        <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden (zu viele Versuche).</translation>
     </message>
     <message>
         <source>Failed to create directory &quot;%1&quot;.</source>
@@ -51254,14 +51254,12 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Arbeitsbereiche löschen</translation>
     </message>
     <message>
-        <source>Delete workspace %1?</source>
-        <translation>Arbeitsbereich %1 löschen?</translation>
+        <source>Delete workspace &quot;%1&quot;?</source>
+        <translation>Arbeitsbereich &quot;%1&quot; löschen?</translation>
     </message>
     <message>
-        <source>Delete these workspaces?
-    %1</source>
-        <translation>Diese Arbeitsbereiche löschen?
-    %1</translation>
+        <source>Delete these workspaces?</source>
+        <translation>Diese Arbeitsbereiche löschen?</translation>
     </message>
     <message>
         <source>File Error</source>
@@ -53268,8 +53266,8 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
         <translation>Führe aus: %1</translation>
     </message>
     <message>
-        <source>Running in %1: %2</source>
-        <translation>Führe in %1 aus: %2</translation>
+        <source>Running in &quot;%1&quot;: %2.</source>
+        <translation>Führe in &quot;%1&quot; aus: %2.</translation>
     </message>
     <message>
         <source>Failed to retrieve data.</source>

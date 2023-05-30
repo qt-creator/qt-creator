@@ -205,6 +205,7 @@ LayoutItem::~LayoutItem() = default;
 
 /*!
     \fn  template <class T> LayoutItem(const T &t)
+    \internal
 
     Constructs a layout item proxy for \a t.
 
@@ -489,6 +490,7 @@ void doAddWidget(LayoutBuilder &builder, QWidget *widget)
 
 /*!
     \class Layouting::LayoutBuilder
+    \internal
     \inmodule QtCreator
 
     \brief The LayoutBuilder class provides a convenient way to fill \c QFormLayout
@@ -505,6 +507,7 @@ void doAddWidget(LayoutBuilder &builder, QWidget *widget)
 LayoutBuilder::LayoutBuilder() = default;
 
 /*!
+    \internal
     Destructs a layout builder.
  */
 LayoutBuilder::~LayoutBuilder() = default;
@@ -521,7 +524,7 @@ void LayoutBuilder::addItems(const LayoutItems &items)
 }
 
 /*!
-    This starts a new row containing \a items. The row can be further extended by
+    Starts a new row containing \a items. The row can be further extended by
     other items using \c addItem() or \c addItems().
 
     \sa addItem(), addItems()

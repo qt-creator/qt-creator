@@ -20,24 +20,24 @@ class GitSettings : public VcsBase::VcsBaseSettings
 public:
     GitSettings();
 
-    Utils::BoolAspect pullRebase;
-    Utils::BoolAspect showTags;
-    Utils::BoolAspect omitAnnotationDate;
-    Utils::BoolAspect ignoreSpaceChangesInDiff;
-    Utils::BoolAspect ignoreSpaceChangesInBlame;
-    Utils::IntegerAspect blameMoveDetection;
-    Utils::BoolAspect diffPatience;
-    Utils::BoolAspect winSetHomeEnvironment;
-    Utils::StringAspect gitkOptions;
-    Utils::BoolAspect logDiff;
-    Utils::FilePathAspect repositoryBrowserCmd;
-    Utils::BoolAspect graphLog;
-    Utils::BoolAspect colorLog;
-    Utils::BoolAspect firstParent;
-    Utils::BoolAspect followRenames;
-    Utils::IntegerAspect lastResetIndex;
-    Utils::BoolAspect refLogShowDate;
-    Utils::BoolAspect instantBlame;
+    Utils::BoolAspect pullRebase{this};
+    Utils::BoolAspect showTags{this};
+    Utils::BoolAspect omitAnnotationDate{this};
+    Utils::BoolAspect ignoreSpaceChangesInDiff{this};
+    Utils::BoolAspect ignoreSpaceChangesInBlame{this};
+    Utils::IntegerAspect blameMoveDetection{this};
+    Utils::BoolAspect diffPatience{this};
+    Utils::BoolAspect winSetHomeEnvironment{this};
+    Utils::StringAspect gitkOptions{this};
+    Utils::BoolAspect logDiff{this};
+    Utils::FilePathAspect repositoryBrowserCmd{this};
+    Utils::BoolAspect graphLog{this};
+    Utils::BoolAspect colorLog{this};
+    Utils::BoolAspect firstParent{this};
+    Utils::BoolAspect followRenames{this};
+    Utils::IntegerAspect lastResetIndex{this};
+    Utils::BoolAspect refLogShowDate{this};
+    Utils::BoolAspect instantBlame{this};
 
     mutable Utils::FilePath resolvedBinPath;
     mutable bool tryResolve = true;

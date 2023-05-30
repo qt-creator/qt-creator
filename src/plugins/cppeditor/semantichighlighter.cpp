@@ -63,15 +63,20 @@ void SemanticHighlighter::run()
     connectWatcher();
 
     m_revision = documentRevision();
+    m_seenBlocks.clear();
     qCDebug(log) << "starting runner for document revision" << m_revision;
     m_watcher->setFuture(m_highlightingRunner());
 }
 
-static Parentheses getClearedParentheses(const QTextBlock &block)
+Parentheses SemanticHighlighter::getClearedParentheses(const QTextBlock &block)
 {
-    return Utils::filtered(TextDocumentLayout::parentheses(block), [](const Parenthesis &p) {
-        return p.source != parenSource();
-    });
+    Parentheses parens = TextDocumentLayout::parentheses(block);
+    if (m_seenBlocks.insert(block.blockNumber()).second) {
+        parens = Utils::filtered(parens, [](const Parenthesis &p) {
+            return p.source != parenSource();
+        });
+    }
+    return parens;
 }
 
 void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)

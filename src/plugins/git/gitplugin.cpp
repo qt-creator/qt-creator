@@ -392,6 +392,7 @@ public:
 
     void setupInstantBlame();
     void instantBlameOnce();
+    void forceInstantBlame();
     void instantBlame();
     void stopInstantBlame();
     bool refreshWorkingDirectory(const FilePath &workingDirectory);
@@ -705,6 +706,7 @@ GitPluginPrivate::GitPluginPrivate()
     m_fileActions.reserve(10);
     m_projectActions.reserve(10);
     m_repositoryActions.reserve(50);
+    m_codec = GitClient::instance()->defaultCommitEncoding();
 
     Context context(Constants::GIT_CONTEXT);
 
@@ -1441,16 +1443,16 @@ void GitPluginPrivate::setupInstantBlame()
             return;
         }
 
-        const Utils::FilePath workingDirectory = GitPlugin::currentState().currentFileTopLevel();
-        if (!refreshWorkingDirectory(workingDirectory))
-            return;
-
         const TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
         if (!widget)
             return;
 
         if (qobject_cast<const VcsBaseEditorWidget *>(widget))
             return; // Skip in VCS editors like log or blame
+
+        const Utils::FilePath workingDirectory = GitPlugin::currentState().currentFileTopLevel();
+        if (!refreshWorkingDirectory(workingDirectory))
+            return;
 
         m_blameCursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged, this,
                                 [this] {
@@ -1461,8 +1463,7 @@ void GitPluginPrivate::setupInstantBlame()
             m_cursorPositionChangedTimer->start(500);
         });
 
-        m_lastVisitedEditorLine = -1;
-        instantBlame();
+        forceInstantBlame();
     };
 
     connect(&settings().instantBlame, &BoolAspect::valueChanged, this,
@@ -1530,6 +1531,11 @@ void GitPluginPrivate::instantBlameOnce()
             return;
     }
 
+    forceInstantBlame();
+}
+
+void GitPluginPrivate::forceInstantBlame()
+{
     m_lastVisitedEditorLine = -1;
     instantBlame();
 }
@@ -1596,8 +1602,38 @@ bool GitPluginPrivate::refreshWorkingDirectory(const FilePath &workingDirectory)
         return true;
 
     m_workingDirectory = workingDirectory;
-    m_author = GitClient::instance()->getAuthor(workingDirectory);
-    m_codec = GitClient::instance()->encoding(GitClient::EncodingCommit, workingDirectory);
+
+    const auto commitCodecHandler = [this, workingDirectory](const CommandResult &result) {
+        QTextCodec *codec = nullptr;
+
+        if (result.result() == ProcessResult::FinishedWithSuccess) {
+            const QString codecName = result.cleanedStdOut().trimmed();
+            codec = QTextCodec::codecForName(codecName.toUtf8());
+        } else {
+            codec = GitClient::instance()->defaultCommitEncoding();
+        }
+
+        if (m_codec != codec) {
+            m_codec = codec;
+            forceInstantBlame();
+        }
+    };
+    GitClient::instance()->readConfigAsync(workingDirectory, {"config", "i18n.commitEncoding"},
+                                           commitCodecHandler);
+
+    const auto authorHandler = [this, workingDirectory](const CommandResult &result) {
+        if (result.result() == ProcessResult::FinishedWithSuccess) {
+            const QString authorInfo = result.cleanedStdOut().trimmed();
+            const Author author = GitClient::instance()->parseAuthor(authorInfo);
+
+            if (m_author != author) {
+                m_author = author;
+                forceInstantBlame();
+            }
+        }
+    };
+    GitClient::instance()->readConfigAsync(workingDirectory, {"var", "GIT_AUTHOR_IDENT"},
+                                           authorHandler);
 
     return true;
 }

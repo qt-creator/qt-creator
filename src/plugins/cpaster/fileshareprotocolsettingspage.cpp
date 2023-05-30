@@ -20,13 +20,11 @@ FileShareProtocolSettings::FileShareProtocolSettings()
     setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
     setSettingsGroup("FileSharePasterSettings");
 
-    registerAspect(&path);
     path.setSettingsKey("Path");
     path.setExpectedKind(PathChooser::ExistingDirectory);
     path.setDefaultValue(TemporaryDirectory::masterDirectoryPath());
     path.setLabelText(Tr::tr("&Path:"));
 
-    registerAspect(&displayCount);
     displayCount.setSettingsKey("DisplayCount");
     displayCount.setDefaultValue(10);
     displayCount.setSuffix(' ' + Tr::tr("entries"));

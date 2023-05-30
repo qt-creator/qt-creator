@@ -41,7 +41,6 @@ DockerSettings::DockerSettings()
     else
         additionalPaths.append("/usr/local/bin");
 
-    registerAspect(&dockerBinaryPath);
     dockerBinaryPath.setExpectedKind(PathChooser::ExistingCommand);
     dockerBinaryPath.setDefaultFilePath(
         FilePath::fromString("docker").searchInPath(additionalPaths));

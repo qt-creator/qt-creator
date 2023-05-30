@@ -594,6 +594,7 @@ QString ILocatorFilter::shortcutString() const
 }
 
 /*!
+    \internal
     Sets the refresh recipe for refreshing cached data.
 */
 void ILocatorFilter::setRefreshRecipe(const std::optional<TaskItem> &recipe)
@@ -1277,8 +1278,6 @@ LocatorFilterEntries LocatorFileCachePrivate::generate(const QFuture<void> &futu
 */
 
 /*!
-    \fn LocatorFileCache
-
     Constructs an invalid cache.
 
     The cache is considered to be in an invalid state after a call to invalidate(),
@@ -1382,7 +1381,7 @@ void LocatorFileCache::setFilePathsGenerator(const FilePathsGenerator &generator
           and sets it to a valid state with the new generator for the passed \a filePaths.
           The stored generator provider is preserved.
 
-    \sa setGenerator
+    \sa setGeneratorProvider
 */
 void LocatorFileCache::setFilePaths(const FilePaths &filePaths)
 {

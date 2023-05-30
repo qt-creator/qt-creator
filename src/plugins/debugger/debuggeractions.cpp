@@ -242,7 +242,7 @@ DebuggerSettings::DebuggerSettings()
     adjustBreakpointLocations.setDisplayName(Tr::tr("Adjust Breakpoint Locations"));
     adjustBreakpointLocations.setToolTip(
         "<p>"
-        + Tr::tr("<p>Not all source code lines generate "
+        + Tr::tr("Not all source code lines generate "
                  "executable code. Putting a breakpoint on such a line acts as "
                  "if the breakpoint was set on the next line that generated code. "
                  "Selecting 'Adjust Breakpoint Locations' shifts the red "

@@ -1441,7 +1441,7 @@ BoolAspect::BoolAspect(AspectContainer *container)
 }
 
 /*!
-    \reimp
+    \internal
 */
 BoolAspect::~BoolAspect() = default;
 
@@ -1537,7 +1537,7 @@ void BoolAspect::emitChangedValue()
 
 
 /*!
-    \reimp
+    Returns the value of the boolean aspect as a boolean value.
 */
 
 bool BoolAspect::value() const
@@ -1609,7 +1609,7 @@ SelectionAspect::SelectionAspect(AspectContainer *container)
 }
 
 /*!
-    \reimp
+    \internal
 */
 SelectionAspect::~SelectionAspect() = default;
 
@@ -1813,7 +1813,7 @@ MultiSelectionAspect::MultiSelectionAspect(AspectContainer *container)
 }
 
 /*!
-    \reimp
+    \internal
 */
 MultiSelectionAspect::~MultiSelectionAspect() = default;
 
@@ -1922,7 +1922,7 @@ IntegerAspect::IntegerAspect(AspectContainer *container)
 }
 
 /*!
-    \reimp
+    \internal
 */
 IntegerAspect::~IntegerAspect() = default;
 
@@ -2056,7 +2056,7 @@ DoubleAspect::DoubleAspect(AspectContainer *container)
 }
 
 /*!
-    \reimp
+    \internal
 */
 DoubleAspect::~DoubleAspect() = default;
 
@@ -2210,7 +2210,7 @@ StringListAspect::StringListAspect(AspectContainer *container)
 }
 
 /*!
-    \reimp
+    \internal
 */
 StringListAspect::~StringListAspect() = default;
 
@@ -2282,7 +2282,7 @@ IntegersAspect::IntegersAspect(AspectContainer *container)
 }
 
 /*!
-    \reimp
+    \internal
 */
 IntegersAspect::~IntegersAspect() = default;
 
@@ -2346,7 +2346,7 @@ TextDisplay::TextDisplay(const QString &message, InfoLabel::InfoType type)
 }
 
 /*!
-    \reimp
+    \internal
 */
 TextDisplay::~TextDisplay() = default;
 
@@ -2412,7 +2412,7 @@ AspectContainer::AspectContainer(QObject *parent)
 {}
 
 /*!
-    \reimp
+    \internal
 */
 AspectContainer::~AspectContainer()
 {

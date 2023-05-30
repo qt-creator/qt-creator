@@ -31,42 +31,32 @@ GitSettings::GitSettings()
     setId(VcsBase::Constants::VCS_ID_GIT);
     setDisplayName(Tr::tr("Git"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-
     setSettingsGroup("Git");
 
     path.setDisplayStyle(StringAspect::LineEditDisplay);
     path.setLabelText(Tr::tr("Prepend to PATH:"));
 
-    registerAspect(&binaryPath);
     binaryPath.setDefaultValue("git");
 
-    registerAspect(&pullRebase);
     pullRebase.setSettingsKey("PullRebase");
     pullRebase.setLabelText(Tr::tr("Pull with rebase"));
 
-    registerAspect(&showTags);
     showTags.setSettingsKey("ShowTags");
 
-    registerAspect(&omitAnnotationDate);
     omitAnnotationDate.setSettingsKey("OmitAnnotationDate");
 
-    registerAspect(&ignoreSpaceChangesInDiff);
     ignoreSpaceChangesInDiff.setSettingsKey("SpaceIgnorantDiff");
     ignoreSpaceChangesInDiff.setDefaultValue(true);
 
-    registerAspect(&ignoreSpaceChangesInBlame);
     ignoreSpaceChangesInBlame.setSettingsKey("SpaceIgnorantBlame");
     ignoreSpaceChangesInBlame.setDefaultValue(true);
 
-    registerAspect(&blameMoveDetection);
     blameMoveDetection.setSettingsKey("BlameDetectMove");
     blameMoveDetection.setDefaultValue(0);
 
-    registerAspect(&diffPatience);
     diffPatience.setSettingsKey("DiffPatience");
     diffPatience.setDefaultValue(true);
 
-    registerAspect(&winSetHomeEnvironment);
     winSetHomeEnvironment.setSettingsKey("WinSetHomeEnvironment");
     winSetHomeEnvironment.setDefaultValue(true);
     winSetHomeEnvironment.setLabelText(Tr::tr("Set \"HOME\" environment variable"));
@@ -84,47 +74,37 @@ GitSettings::GitSettings()
         winSetHomeEnvironment.setVisible(false);
     }
 
-    registerAspect(&gitkOptions);
     gitkOptions.setDisplayStyle(StringAspect::LineEditDisplay);
     gitkOptions.setSettingsKey("GitKOptions");
     gitkOptions.setLabelText(Tr::tr("Arguments:"));
 
-    registerAspect(&logDiff);
     logDiff.setSettingsKey("LogDiff");
     logDiff.setToolTip(Tr::tr("Note that huge amount of commits might take some time."));
 
-    registerAspect(&repositoryBrowserCmd);
     repositoryBrowserCmd.setSettingsKey("RepositoryBrowserCmd");
     repositoryBrowserCmd.setExpectedKind(PathChooser::ExistingCommand);
     repositoryBrowserCmd.setHistoryCompleter("Git.RepoCommand.History");
     repositoryBrowserCmd.setDisplayName(Tr::tr("Git Repository Browser Command"));
     repositoryBrowserCmd.setLabelText(Tr::tr("Command:"));
 
-    registerAspect(&instantBlame);
     instantBlame.setSettingsKey("Git Instant");
     instantBlame.setDefaultValue(true);
     instantBlame.setLabelText(Tr::tr("Add instant blame annotations to editor"));
     instantBlame.setToolTip(Tr::tr("Directly annotate each line in the editor "
                                    "when scrolling through the document."));
 
-    registerAspect(&graphLog);
     graphLog.setSettingsKey("GraphLog");
 
-    registerAspect(&colorLog);
     colorLog.setSettingsKey("ColorLog");
     colorLog.setDefaultValue(true);
 
-    registerAspect(&firstParent);
     firstParent.setSettingsKey("FirstParent");
 
-    registerAspect(&followRenames);
     followRenames.setSettingsKey("FollowRenames");
     followRenames.setDefaultValue(true);
 
-    registerAspect(&lastResetIndex);
     lastResetIndex.setSettingsKey("LastResetIndex");
 
-    registerAspect(&refLogShowDate);
     refLogShowDate.setSettingsKey("RefLogShowDate");
 
     timeout.setDefaultValue(Utils::HostOsInfo::isWindowsHost() ? 60 : 30);

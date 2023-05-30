@@ -8,13 +8,20 @@
 #include <QFutureWatcher>
 #include <QScopedPointer>
 #include <QTextCharFormat>
+#include <QVector>
 
 #include <functional>
+#include <set>
 
 namespace TextEditor {
 class HighlightingResult;
+class Parenthesis;
 class TextDocument;
 }
+
+QT_BEGIN_NAMESPACE
+class QTextBlock;
+QT_END_NAMESPACE
 
 namespace CppEditor {
 
@@ -66,6 +73,7 @@ private:
     void disconnectWatcher();
 
     unsigned documentRevision() const;
+    QVector<TextEditor::Parenthesis> getClearedParentheses(const QTextBlock &block);
 
 private:
     TextEditor::TextDocument *m_baseTextDocument;
@@ -73,6 +81,7 @@ private:
     unsigned m_revision = 0;
     QScopedPointer<QFutureWatcher<TextEditor::HighlightingResult>> m_watcher;
     QHash<int, QTextCharFormat> m_formatMap;
+    std::set<int> m_seenBlocks;
 
     HighlightingRunner m_highlightingRunner;
 };

@@ -16,10 +16,10 @@ public:
 
     QList<Utils::MimeType> allowedMimeTypes() const;
 
-    Utils::BoolAspect autoFormatOnSave;
-    Utils::BoolAspect autoFormatOnlyCurrentProject;
-    Utils::SelectionAspect autoFormatTools;
-    Utils::StringAspect autoFormatMime;
+    Utils::BoolAspect autoFormatOnSave{this};
+    Utils::BoolAspect autoFormatOnlyCurrentProject{this};
+    Utils::SelectionAspect autoFormatTools{this};
+    Utils::StringAspect autoFormatMime{this};
 };
 
 } // Beautifier::Internal

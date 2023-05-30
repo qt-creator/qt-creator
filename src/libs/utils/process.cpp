@@ -1595,37 +1595,6 @@ QString Process::readAllStandardError()
     return QString::fromUtf8(readAllRawStandardError());
 }
 
-/*!
-    \class Utils::SynchronousProcess
-    \inmodule QtCreator
-
-    \brief The SynchronousProcess class runs a synchronous process in its own
-    event loop that blocks only user input events. Thus, it allows for the GUI to
-    repaint and append output to log windows.
-
-    The callbacks set with setStdOutCallback(), setStdErrCallback() are called
-    with complete lines based on the '\\n' marker.
-    They would typically be used for log windows.
-
-    Alternatively you can used setStdOutLineCallback() and setStdErrLineCallback()
-    to process the output line by line.
-
-    There is a timeout handling that takes effect after the last data have been
-    read from stdout/stdin (as opposed to waitForFinished(), which measures time
-    since it was invoked). It is thus also suitable for slow processes that
-    continuously output data (like version system operations).
-
-    The property timeOutMessageBoxEnabled influences whether a message box is
-    shown asking the user if they want to kill the process on timeout (default: false).
-
-    There are also static utility functions for dealing with fully synchronous
-    processes, like reading the output with correct timeout handling.
-
-    Caution: This class should NOT be used if there is a chance that the process
-    triggers opening dialog boxes (for example, by file watchers triggering),
-    as this will cause event loop problems.
-*/
-
 QString Process::exitMessage() const
 {
     const QString fullCmd = commandLine().toUserOutput();

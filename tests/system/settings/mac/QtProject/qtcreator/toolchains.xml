@@ -11,7 +11,7 @@
     <value type="QString">x86-linux-generic-elf-32bit</value>
     <value type="QString">x86-darwin-generic-mach_o-64bit</value>
    </valuelist>
-   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">SET_BY_SQUISH</value>
+   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">x86-darwin-generic-mach_o-64bit</value>
    <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
    <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">GCC</value>
    <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
@@ -26,7 +26,7 @@
     <value type="QString">x86-darwin-generic-mach_o-64bit</value>
     <value type="QString">x86-darwin-generic-mach_o-32bit</value>
    </valuelist>
-   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">SET_BY_SQUISH</value>
+   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">x86-darwin-generic-mach_o-64bit</value>
    <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
    <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">Clang (x86 64bit)</value>
    <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Clang:{6afe7dea-8caa-424e-b370-b7b0a34015fb}</value>
@@ -41,7 +41,7 @@
     <value type="QString">x86-darwin-generic-mach_o-64bit</value>
     <value type="QString">x86-darwin-generic-mach_o-32bit</value>
    </valuelist>
-   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">SET_BY_SQUISH</value>
+   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">x86-darwin-generic-mach_o-64bit</value>
    <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
    <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">Clang [C]</value>
    <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Clang:{0db093b8-890b-4fad-a4bc-9078124fe866}</value>
@@ -57,7 +57,7 @@
     <value type="QString">x86-linux-generic-elf-32bit</value>
     <value type="QString">x86-darwin-generic-mach_o-64bit</value>
    </valuelist>
-   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">SET_BY_SQUISH</value>
+   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">x86-darwin-generic-mach_o-64bit</value>
    <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
    <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">GCC [C]</value>
    <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Gcc:{461bb8dc-22ff-461f-82fe-ebe8b21b697f}</value>

@@ -94,7 +94,7 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(QWidget *parent)
         m_buttonBox,
     }.attachTo(this);
 
-    m_allPackages = vcpkgManifests(VcpkgSettings::instance()->vcpkgRoot());
+    m_allPackages = vcpkgManifests(settings().vcpkgRoot());
 
     listPackages({});
 

@@ -12,12 +12,12 @@ class BazaarSettings final : public VcsBase::VcsBaseSettings
 public:
     BazaarSettings();
 
-    Utils::BoolAspect diffIgnoreWhiteSpace;
-    Utils::BoolAspect diffIgnoreBlankLines;
-    Utils::BoolAspect logVerbose;
-    Utils::BoolAspect logForward;
-    Utils::BoolAspect logIncludeMerges;
-    Utils::StringAspect logFormat;
+    Utils::BoolAspect diffIgnoreWhiteSpace{this};
+    Utils::BoolAspect diffIgnoreBlankLines{this};
+    Utils::BoolAspect logVerbose{this};
+    Utils::BoolAspect logForward{this};
+    Utils::BoolAspect logIncludeMerges{this};
+    Utils::StringAspect logFormat{this};
 };
 
 BazaarSettings &settings();

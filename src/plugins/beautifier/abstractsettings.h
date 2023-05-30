@@ -49,9 +49,9 @@ public:
     void replaceStyle(const QString &oldKey, const QString &newKey, const QString &value);
     virtual QString styleFileName(const QString &key) const;
 
-    Utils::FilePathAspect command;
-    Utils::StringAspect supportedMimeTypes;
-    Utils::FilePathAspect documentationFilePath;
+    Utils::FilePathAspect command{this};
+    Utils::StringAspect supportedMimeTypes{this};
+    Utils::FilePathAspect documentationFilePath; // Intentionally not saved.
 
     QVersionNumber version() const;
 

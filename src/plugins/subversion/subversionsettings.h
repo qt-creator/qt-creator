@@ -14,11 +14,11 @@ public:
 
     bool hasAuthentication() const;
 
-    Utils::BoolAspect useAuthentication;
-    Utils::StringAspect password;
-    Utils::BoolAspect spaceIgnorantAnnotation;
-    Utils::BoolAspect diffIgnoreWhiteSpace;
-    Utils::BoolAspect logVerbose;
+    Utils::BoolAspect useAuthentication{this};
+    Utils::StringAspect password{this};
+    Utils::BoolAspect spaceIgnorantAnnotation{this};
+    Utils::BoolAspect diffIgnoreWhiteSpace{this};
+    Utils::BoolAspect logVerbose{this};
 };
 
 SubversionSettings &settings();

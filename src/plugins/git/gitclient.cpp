@@ -822,14 +822,19 @@ FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
     return res;
 }
 
+QTextCodec *GitClient::defaultCommitEncoding() const
+{
+    // Set default commit encoding to 'UTF-8', when it's not set,
+    // to solve displaying error of commit log with non-latin characters.
+    return QTextCodec::codecForName("UTF-8");
+}
+
 QTextCodec *GitClient::encoding(GitClient::EncodingType encodingType, const FilePath &source) const
 {
     auto codec = [this](const FilePath &workingDirectory, const QString &configVar) {
         const QString codecName = readConfigValue(workingDirectory, configVar).trimmed();
-        // Set default commit encoding to 'UTF-8', when it's not set,
-        // to solve displaying error of commit log with non-latin characters.
         if (codecName.isEmpty())
-            return QTextCodec::codecForName("UTF-8");
+            return defaultCommitEncoding();
         return QTextCodec::codecForName(codecName.toUtf8());
     };
 
@@ -2618,11 +2623,10 @@ bool GitClient::readDataFromCommit(const FilePath &repoDirectory, const QString 
     return true;
 }
 
-Author GitClient::getAuthor(const Utils::FilePath &workingDirectory)
+Author GitClient::parseAuthor(const QString &authorInfo)
 {
     // The format is:
     // Joe Developer <joedev@example.com> unixtimestamp +HHMM
-    const QString authorInfo = readGitVar(workingDirectory, "GIT_AUTHOR_IDENT");
     int lt = authorInfo.lastIndexOf('<');
     int gt = authorInfo.lastIndexOf('>');
     if (gt == -1 || uint(lt) > uint(gt)) {
@@ -2632,6 +2636,12 @@ Author GitClient::getAuthor(const Utils::FilePath &workingDirectory)
 
     const Author result {authorInfo.left(lt - 1), authorInfo.mid(lt + 1, gt - lt - 1)};
     return result;
+}
+
+Author GitClient::getAuthor(const Utils::FilePath &workingDirectory)
+{
+    const QString authorInfo = readGitVar(workingDirectory, "GIT_AUTHOR_IDENT");
+    return parseAuthor(authorInfo);
 }
 
 bool GitClient::getCommitData(const FilePath &workingDirectory,
@@ -3425,19 +3435,31 @@ QString GitClient::readGitVar(const FilePath &workingDirectory, const QString &c
     return readOneLine(workingDirectory, {"var", configVar});
 }
 
-QString GitClient::readOneLine(const FilePath &workingDirectory, const QStringList &arguments) const
+static QTextCodec *configFileCodec()
 {
     // Git for Windows always uses UTF-8 for configuration:
     // https://github.com/msysgit/msysgit/wiki/Git-for-Windows-Unicode-Support#convert-config-files
     static QTextCodec *codec = HostOsInfo::isWindowsHost()
             ? QTextCodec::codecForName("UTF-8")
             : QTextCodec::codecForLocale();
+    return codec;
+}
 
+QString GitClient::readOneLine(const FilePath &workingDirectory, const QStringList &arguments) const
+{
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments,
-                                                    RunFlags::NoOutput, vcsTimeoutS(), codec);
+                                                    RunFlags::NoOutput, vcsTimeoutS(),
+                                                    configFileCodec());
     if (result.result() == ProcessResult::FinishedWithSuccess)
         return result.cleanedStdOut().trimmed();
     return {};
+}
+
+void GitClient::readConfigAsync(const FilePath &workingDirectory, const QStringList &arguments,
+                                const CommandHandler &handler) const
+{
+    vcsExecWithHandler(workingDirectory, arguments, this, handler, RunFlags::NoOutput,
+                       configFileCodec());
 }
 
 static unsigned parseGitVersion(const QString &output)

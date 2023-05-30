@@ -197,7 +197,7 @@ void QtSupportPlugin::extensionsInitialized()
 
     expander->registerVariable(
         "ActiveProject::QT_HOST_LIBEXECS",
-        Tr::tr("Full path to the libexec bin directory of the Qt version in the active kit "
+        Tr::tr("Full path to the libexec directory of the Qt version in the active kit "
                "of the active project."),
         []() {
             const QtVersion *const qt = activeQtVersion();

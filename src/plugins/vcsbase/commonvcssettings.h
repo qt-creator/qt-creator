@@ -7,8 +7,7 @@
 
 #include <utils/aspects.h>
 
-namespace VcsBase {
-namespace Internal {
+namespace VcsBase::Internal {
 
 class CommonVcsSettings : public Utils::AspectContainer
 {
@@ -17,16 +16,16 @@ class CommonVcsSettings : public Utils::AspectContainer
 public:
     CommonVcsSettings();
 
-    Utils::StringAspect nickNameMailMap;
-    Utils::StringAspect nickNameFieldListFile;
+    Utils::StringAspect nickNameMailMap{this};
+    Utils::StringAspect nickNameFieldListFile{this};
 
-    Utils::StringAspect submitMessageCheckScript;
+    Utils::StringAspect submitMessageCheckScript{this};
 
     // Executable run to graphically prompt for a SSH-password.
-    Utils::StringAspect sshPasswordPrompt;
+    Utils::StringAspect sshPasswordPrompt{this};
 
-    Utils::BoolAspect lineWrap;
-    Utils::IntegerAspect lineWrapWidth;
+    Utils::BoolAspect lineWrap{this};
+    Utils::IntegerAspect lineWrapWidth{this};
 
 signals:
     void settingsChanged();
@@ -43,5 +42,4 @@ private:
     CommonVcsSettings m_settings;
 };
 
-} // namespace Internal
-} // namespace VcsBase
+} // VcsBase::Internal

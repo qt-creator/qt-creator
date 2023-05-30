@@ -27,5 +27,8 @@ public:
 
     virtual bool isAutomaticKitCreationEnabled() const;
     void setAutomaticKitCreation(bool isEnabled);
+    void setInitialPlatformName(const QString &platform);
+    QString initialPlatformName() const;
+
 }; //class SettingsHandler
 } // namespace McuSupport::Internal

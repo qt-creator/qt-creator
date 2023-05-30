@@ -1712,20 +1712,20 @@ void CMakeBuildSystem::runGenerator(Id id)
     const CMakeTool * const cmakeTool
             = CMakeKitAspect::cmakeTool(buildConfiguration()->target()->kit());
     if (!cmakeTool) {
-        showError(Tr::tr("Kit does not have a cmake binary set"));
+        showError(Tr::tr("Kit does not have a cmake binary set."));
         return;
     }
     const QString generator = id.toSetting().toString();
     const FilePath outDir = buildConfiguration()->buildDirectory()
             / ("qtc_" + FileUtils::fileSystemFriendlyName(generator));
     if (!outDir.ensureWritableDir()) {
-        showError(Tr::tr("Cannot create output directory \"%1\"").arg(outDir.toString()));
+        showError(Tr::tr("Cannot create output directory \"%1\".").arg(outDir.toString()));
         return;
     }
     CommandLine cmdLine(cmakeTool->cmakeExecutable(), {"-S", buildConfiguration()->target()
                         ->project()->projectDirectory().toUserOutput(), "-G", generator});
     if (!cmdLine.executable().isExecutableFile()) {
-        showError(Tr::tr("No valid cmake executable"));
+        showError(Tr::tr("No valid cmake executable."));
         return;
     }
     const auto itemFilter = [](const CMakeConfigItem &item) {
@@ -1762,8 +1762,8 @@ void CMakeBuildSystem::runGenerator(Id id)
     proc->setWorkingDirectory(outDir);
     proc->setEnvironment(buildConfiguration()->environment());
     proc->setCommand(cmdLine);
-    Core::MessageManager::writeFlashing(Tr::tr("Running in %1: %2")
-                                        .arg(outDir.toUserOutput(), cmdLine.toUserOutput()));
+    Core::MessageManager::writeFlashing(
+        Tr::tr("Running in %1: %2.").arg(outDir.toUserOutput(), cmdLine.toUserOutput()));
     proc->start();
 }
 

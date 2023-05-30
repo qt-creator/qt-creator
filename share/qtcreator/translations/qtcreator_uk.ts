@@ -456,8 +456,8 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>Зміни в &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
-        <translation>ALT+Z,Alt+D</translation>
+        <source>Alt+Z,Alt+D</source>
+        <translation>Alt+Z,Alt+D</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+D</source>
@@ -472,8 +472,8 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>Історія &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
-        <translation>ALT+Z,Alt+L</translation>
+        <source>Alt+Z,Alt+L</source>
+        <translation>Alt+Z,Alt+L</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+L</source>
@@ -488,8 +488,8 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
-        <translation>ALT+Z,Alt+S</translation>
+        <source>Alt+Z,Alt+S</source>
+        <translation>Alt+Z,Alt+S</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+S</source>
@@ -552,8 +552,8 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
-        <translation>ALT+Z,Alt+C</translation>
+        <source>Alt+Z,Alt+C</source>
+        <translation>Alt+Z,Alt+C</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+C</source>
@@ -14143,8 +14143,8 @@ Reason: %2</source>
         <translation>Помилка при збереженні сесії</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Не вдалось зберегти сесію до файлу %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Не вдалось зберегти сесію до файлу &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -42730,8 +42730,8 @@ the program.</source>
         <translation>Видалити</translation>
     </message>
     <message>
-        <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
-        <translation>Для відповідних опцій, переглянть сторінки man до GCC або Clang або ж &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;документацію GCC в мережі&lt;/a&gt;.</translation>
+        <source>For appropriate options, consult the GCC or Clang manual pages or the [GCC online documentation](%1).</source>
+        <translation>Для відповідних опцій, переглянть сторінки man до GCC або Clang або ж [документацію GCC в мережі](%1).</translation>
     </message>
     <message>
         <source>Copy Diagnostic Configuration</source>

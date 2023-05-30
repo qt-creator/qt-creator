@@ -16,10 +16,10 @@ public:
 
     QStringList completerWords() override;
 
-    Utils::BoolAspect usePredefinedStyle;
-    Utils::SelectionAspect predefinedStyle;
-    Utils::SelectionAspect fallbackStyle;
-    Utils::StringAspect customStyle;
+    Utils::BoolAspect usePredefinedStyle{this};
+    Utils::SelectionAspect predefinedStyle{this};
+    Utils::SelectionAspect fallbackStyle{this};
+    Utils::StringAspect customStyle{this};
 
     QString styleFileName(const QString &key) const override;
 

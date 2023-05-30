@@ -1183,7 +1183,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                     });
     expander->registerVariable(fullPrefix + "Kit:Name",
                                //: %1 is something like "Active project"
-                               Tr::tr("%1: The name the active kit.").arg(descriptor),
+                               Tr::tr("%1: The name of the active kit.").arg(descriptor),
                                [targetGetter]() -> QString {
                                    if (const Target *const target = targetGetter())
                                        return target->kit()->displayName();

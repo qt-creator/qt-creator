@@ -79,6 +79,12 @@ public:
 };
 
 struct Author {
+    bool operator==(const Author &other) const {
+        return name == other.name && email == other.email;
+    }
+    bool operator!=(const Author &other) const {
+        return !operator==(other);
+    }
     QString name;
     QString email;
 };
@@ -343,10 +349,15 @@ public:
     Core::IEditor *openShowEditor(const Utils::FilePath &workingDirectory, const QString &ref,
                                   const Utils::FilePath &path, ShowEditor showSetting = ShowEditor::Always);
 
+    Author parseAuthor(const QString &authorInfo);
     Author getAuthor(const Utils::FilePath &workingDirectory);
 
+    QTextCodec *defaultCommitEncoding() const;
     enum EncodingType { EncodingSource, EncodingLogOutput, EncodingCommit, EncodingDefault };
     QTextCodec *encoding(EncodingType encodingType, const Utils::FilePath &source = {}) const;
+
+    void readConfigAsync(const Utils::FilePath &workingDirectory, const QStringList &arguments,
+                         const VcsBase::CommandHandler &handler) const;
 
 private:
     static GitSettings &settings();

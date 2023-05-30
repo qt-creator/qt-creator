@@ -17,8 +17,9 @@
 
 namespace TextEditor {
 
-struct TEXTEDITOR_EXPORT Parenthesis
+class TEXTEDITOR_EXPORT Parenthesis
 {
+public:
     enum Type : char { Opened, Closed };
 
     Parenthesis() = default;

@@ -30,4 +30,13 @@ static const QVersionNumber newVersion{2, 3};
 using Targets = QList<McuTargetPtr>;
 using Packages = QSet<McuPackagePtr>;
 
+struct McuSupportMessage
+{
+    QString packageName;
+    QString platform;
+    QString message;
+    enum Status { Warning, Error } status = Status::Error;
+};
+using MessagesList = QList<McuSupportMessage>;
+
 } // namespace McuSupport::Internal

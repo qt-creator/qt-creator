@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "copilotclient.h"
+#include "copilotconstants.h"
 #include "copilotsettings.h"
 #include "copilotsuggestion.h"
 
@@ -9,7 +10,10 @@
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientsettings.h>
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/filepath.h>
 
@@ -19,10 +23,13 @@
 #include <languageserverprotocol/lsptypes.h>
 
 #include <QTimer>
+#include <QToolButton>
 
 using namespace LanguageServerProtocol;
 using namespace TextEditor;
 using namespace Utils;
+using namespace ProjectExplorer;
+using namespace Core;
 
 namespace Copilot::Internal {
 
@@ -47,27 +54,27 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
     setSupportedLanguage(langFilter);
     start();
 
-    auto openDoc = [this](Core::IDocument *document) {
+    auto openDoc = [this](IDocument *document) {
         if (auto *textDocument = qobject_cast<TextDocument *>(document))
             openDocument(textDocument);
     };
 
-    connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened, this, openDoc);
-    connect(Core::EditorManager::instance(),
-            &Core::EditorManager::documentClosed,
+    connect(EditorManager::instance(), &EditorManager::documentOpened, this, openDoc);
+    connect(EditorManager::instance(),
+            &EditorManager::documentClosed,
             this,
-            [this](Core::IDocument *document) {
+            [this](IDocument *document) {
                 if (auto textDocument = qobject_cast<TextDocument *>(document))
                     closeDocument(textDocument);
             });
 
-    for (Core::IDocument *doc : Core::DocumentModel::openedDocuments())
+    for (IDocument *doc : DocumentModel::openedDocuments())
         openDoc(doc);
 }
 
 CopilotClient::~CopilotClient()
 {
-    for (Core::IEditor *editor : Core::DocumentModel::editorsForOpenedDocuments()) {
+    for (IEditor *editor : DocumentModel::editorsForOpenedDocuments()) {
         if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
             textEditor->editorWidget()->removeHoverHandler(&m_hoverHandler);
     }
@@ -75,14 +82,23 @@ CopilotClient::~CopilotClient()
 
 void CopilotClient::openDocument(TextDocument *document)
 {
+    auto project = ProjectManager::projectForFile(document->filePath());
+    if (!isEnabled(project))
+        return;
+
     Client::openDocument(document);
     connect(document,
             &TextDocument::contentsChangedWithPosition,
             this,
             [this, document](int position, int charsRemoved, int charsAdded) {
                 Q_UNUSED(charsRemoved)
-                if (!CopilotSettings::instance().autoComplete.value())
+                if (!CopilotSettings::instance().autoComplete())
                     return;
+
+                auto project = ProjectManager::projectForFile(document->filePath());
+                if (!isEnabled(project))
+                    return;
+
                 auto textEditor = BaseTextEditor::currentTextEditor();
                 if (!textEditor || textEditor->document() != document)
                     return;
@@ -123,6 +139,11 @@ void CopilotClient::scheduleRequest(TextEditorWidget *editor)
 
 void CopilotClient::requestCompletions(TextEditorWidget *editor)
 {
+    auto project = ProjectManager::projectForFile(editor->textDocument()->filePath());
+
+    if (!isEnabled(project))
+        return;
+
     Utils::MultiTextCursor cursor = editor->multiTextCursor();
     if (cursor.hasMultipleCursors() || cursor.hasSelection() || editor->suggestionVisible())
         return;
@@ -212,6 +233,20 @@ void CopilotClient::requestSignInConfirm(
     request.setResponseCallback(callback);
 
     sendMessage(request);
+}
+
+bool CopilotClient::canOpenProject(Project *project)
+{
+    return isEnabled(project);
+}
+
+bool CopilotClient::isEnabled(Project *project)
+{
+    if (!project)
+        return CopilotSettings::instance().enableCopilot();
+
+    CopilotProjectSettings settings(project);
+    return settings.isEnabled();
 }
 
 } // namespace Copilot::Internal

@@ -1,11 +1,12 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "mcutarget.h"
 #include "mcukitmanager.h"
 #include "mcupackage.h"
+#include "mcusupport_global.h"
 #include "mcusupportplugin.h"
 #include "mcusupporttr.h"
-#include "mcutarget.h"
 
 #include <utils/algorithm.h>
 
@@ -82,22 +83,33 @@ QString McuTarget::desktopCompilerId() const
     return QLatin1String("invalid");
 }
 
-void McuTarget::printPackageProblems() const
+void McuTarget::handlePackageProblems(MessagesList &messages) const
 {
     for (auto package : packages()) {
         package->updateStatus();
-        if (!package->isValidStatus())
+        if (!package->isValidStatus()) {
             printMessage(Tr::tr("Error creating kit for target %1, package %2: %3")
                              .arg(McuKitManager::generateKitNameFromTarget(this),
                                   package->label(),
                                   package->statusText()),
                          true);
-        if (package->status() == McuAbstractPackage::Status::ValidPackageMismatchedVersion)
+            messages.push_back({package->label(),
+                                this->platform().name,
+                                package->statusText(),
+                                McuSupportMessage::Error});
+        }
+        if (package->status() == McuAbstractPackage::Status::ValidPackageMismatchedVersion) {
             printMessage(Tr::tr("Warning creating kit for target %1, package %2: %3")
                              .arg(McuKitManager::generateKitNameFromTarget(this),
                                   package->label(),
                                   package->statusText()),
                          false);
+
+            messages.push_back({package->label(),
+                                this->platform().name,
+                                package->statusText(),
+                                McuSupportMessage::Warning});
+        }
     }
 }
 

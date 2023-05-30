@@ -200,10 +200,7 @@ def substituteDefaultCompiler(settingsDir):
     if platform.system() == 'Darwin':
         compiler = "clang_64"
     elif platform.system() == 'Linux':
-        if __is64BitOS__():
-            compiler = "gcc_64"
-        else:
-            compiler = "gcc"
+        compiler = "gcc_64"
     else:
         test.warning("Called substituteDefaultCompiler() on wrong platform.",
                      "This is a script error.")
@@ -280,71 +277,6 @@ def prependWindowsKit(settingsDir, targetBitness=64):
     __substitute__(profilesPath, "SQUISH_ENV_MODIFICATION", "")
 
 
-def __guessABI__(supportedABIs, use64Bit):
-    if platform.system() == 'Linux':
-        supportedABIs = filter(lambda x: 'linux' in x, supportedABIs)
-    elif platform.system() == 'Darwin':
-        supportedABIs = filter(lambda x: 'darwin' in x, supportedABIs)
-    if use64Bit:
-        searchFor = "64bit"
-    else:
-        searchFor = "32bit"
-    for abi in supportedABIs:
-        if searchFor in abi:
-            return abi
-    if use64Bit:
-        test.log("Supported ABIs do not include an ABI supporting 64bit - trying 32bit now")
-        return __guessABI__(supportedABIs, False)
-    test.fatal('Could not guess ABI!',
-               'Given ABIs: %s' % str(supportedABIs))
-    return ''
-
-def __is64BitOS__():
-    if platform.system() in ('Microsoft', 'Windows'):
-        machine = os.getenv("PROCESSOR_ARCHITEW6432", os.getenv("PROCESSOR_ARCHITECTURE"))
-    else:
-        machine = platform.machine()
-    if machine:
-        return '64' in machine
-    else:
-        return False
-
-def substituteUnchosenTargetABIs(settingsDir):
-    class ReadState:
-        NONE = 0
-        READING = 1
-        CLOSED = 2
-
-    on64Bit = __is64BitOS__()
-    toolchains = os.path.join(settingsDir, "QtProject", 'qtcreator', 'toolchains.xml')
-    origToolchains = toolchains + "_orig"
-    os.rename(toolchains, origToolchains)
-    origFile = open(origToolchains, "r")
-    modifiedFile = open(toolchains, "w")
-    supported = []
-    readState = ReadState.NONE
-    for line in origFile:
-        if readState == ReadState.NONE:
-            if "SupportedAbis" in line:
-                supported = []
-                readState = ReadState.READING
-        elif readState == ReadState.READING:
-            if "</valuelist>" in line:
-                readState = ReadState.CLOSED
-            else:
-                supported.append(line.split(">", 1)[1].rsplit("<", 1)[0])
-        elif readState == ReadState.CLOSED:
-            if "SupportedAbis" in line:
-                supported = []
-                readState = ReadState.READING
-            elif "SET_BY_SQUISH" in line:
-                line = line.replace("SET_BY_SQUISH", __guessABI__(supported, on64Bit))
-        modifiedFile.write(line)
-    origFile.close()
-    modifiedFile.close()
-    os.remove(origToolchains)
-    test.log("Substituted unchosen ABIs inside toolchains.xml...")
-
 def copySettingsToTmpDir(destination=None, omitFiles=[]):
     global tmpSettingsDir, SettingsPath, origSettingsDir
     if destination:
@@ -379,7 +311,6 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
         substituteMsvcPaths(tmpSettingsDir, '2019', 64)
         prependWindowsKit(tmpSettingsDir, 32)
     substituteOnlineInstallerPath(tmpSettingsDir)
-    substituteUnchosenTargetABIs(tmpSettingsDir)
     SettingsPath = ['-settingspath', '"%s"' % tmpSettingsDir]
 
 test.log("Test is running on Python %s" % sys.version)

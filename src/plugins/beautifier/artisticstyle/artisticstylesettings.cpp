@@ -39,30 +39,24 @@ ArtisticStyleSettings::ArtisticStyleSettings()
     command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
                                      Tr::tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
 
-    registerAspect(&useOtherFiles);
     useOtherFiles.setSettingsKey("useOtherFiles");
     useOtherFiles.setLabelText(Tr::tr("Use file *.astylerc defined in project files"));
     useOtherFiles.setDefaultValue(true);
 
-    registerAspect(&useSpecificConfigFile);
     useSpecificConfigFile.setSettingsKey("useSpecificConfigFile");
     useSpecificConfigFile.setLabelText(Tr::tr("Use specific config file:"));
 
-    registerAspect(&specificConfigFile);
     specificConfigFile.setSettingsKey("specificConfigFile");
     specificConfigFile.setExpectedKind(PathChooser::File);
     specificConfigFile.setPromptDialogFilter(Tr::tr("AStyle (*.astylerc)"));
 
-    registerAspect(&useHomeFile);
     useHomeFile.setSettingsKey("useHomeFile");
     useHomeFile.setLabelText(Tr::tr("Use file .astylerc or astylerc in HOME").
                replace("HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
 
-    registerAspect(&useCustomStyle);
     useCustomStyle.setSettingsKey("useCustomStyle");
     useCustomStyle.setLabelText(Tr::tr("Use customized style:"));
 
-    registerAspect(&customStyle);
     customStyle.setSettingsKey("customStyle");
 
     documentationFilePath.setFilePath(

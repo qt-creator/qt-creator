@@ -239,6 +239,10 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
     \value SwitchSplitIfAlreadyVisible
            Switches to another split if the document is already
            visible there.
+    \value DoNotRaise
+           Prevents raising the \QC window to the foreground.
+    \value AllowExternalEditor
+           Allows opening the file in an external editor.
 */
 
 /*!
@@ -3246,7 +3250,11 @@ void EditorManager::addCloseEditorListener(const std::function<bool (IEditor *)>
 /*!
     Asks the user for a list of files to open and returns the choice.
 
-    \sa DocumentManager::getOpenFileNames()
+    The \a options argument holds various options about how to run the dialog.
+    See the QFileDialog::Options enum for more information about the flags you
+    can pass.
+
+    \sa DocumentManager::getOpenFileNames(), QFileDialog::Options
 */
 FilePaths EditorManager::getOpenFilePaths(QFileDialog::Options options)
 {

@@ -247,7 +247,6 @@ QString MacroExpander::value(const QByteArray &variable, bool *found) const
  * See the MacroExpander overview documentation for other ways to expand variables.
  *
  * \sa MacroExpander
- * \sa macroExpander()
  */
 QString MacroExpander::expand(const QString &stringWithVariables) const
 {
@@ -323,10 +322,11 @@ static QByteArray fullPrefix(const QByteArray &prefix)
  * Makes the given string-valued \a prefix known to the variable manager,
  * together with a localized \a description.
  *
- * The \a value PrefixFunction will be called and gets the full variable name
- * with the prefix stripped as input.
+ * The \a value \c PrefixFunction will be called and gets the full variable name
+ * with the prefix stripped as input. It is displayed to users if \a visible is
+ * \c true.
  *
- * \sa registerVariables(), registerIntVariable(), registerFileVariables()
+ * \sa registerVariable(), registerIntVariable(), registerFileVariables()
  */
 void MacroExpander::registerPrefix(const QByteArray &prefix, const QString &description,
                                    const MacroExpander::PrefixFunction &value, bool visible)
@@ -341,6 +341,9 @@ void MacroExpander::registerPrefix(const QByteArray &prefix, const QString &desc
  * Makes the given string-valued \a variable known to the variable manager,
  * together with a localized \a description.
  *
+ * The \a value \c StringFunction is called to retrieve the current value of the
+ * variable. It is displayed to users if \a visibleInChooser is \c true.
+ *
  * \sa registerFileVariables(), registerIntVariable(), registerPrefix()
  */
 void MacroExpander::registerVariable(const QByteArray &variable,
@@ -354,6 +357,9 @@ void MacroExpander::registerVariable(const QByteArray &variable,
 /*!
  * Makes the given integral-valued \a variable known to the variable manager,
  * together with a localized \a description.
+ *
+ * The \a value \c IntFunction is called to retrieve the current value of the
+ * variable.
  *
  * \sa registerVariable(), registerFileVariables(), registerPrefix()
  */
@@ -372,6 +378,10 @@ void MacroExpander::registerIntVariable(const QByteArray &variable,
  * For example \c{registerFileVariables("CurrentDocument", tr("Current Document"))} registers
  * variables such as \c{CurrentDocument:FilePath} with description
  * "Current Document: Full path including file name."
+ *
+ * Takes a function that returns a FilePath as a \a base.
+ *
+ * The variable is displayed to users if \a visibleInChooser is \c true.
  *
  * \sa registerVariable(), registerIntVariable(), registerPrefix()
  */

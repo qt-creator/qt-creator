@@ -68,14 +68,14 @@ public:
 
     void clearTopLevel();
 
-    Utils::StringAspect p4BinaryPath;
-    Utils::StringAspect p4Port;
-    Utils::StringAspect p4Client;
-    Utils::StringAspect p4User;
-    Utils::IntegerAspect logCount;
-    Utils::BoolAspect customEnv;
-    Utils::IntegerAspect timeOutS;
-    Utils::BoolAspect autoOpen;
+    Utils::StringAspect p4BinaryPath{this};
+    Utils::StringAspect p4Port{this};
+    Utils::StringAspect p4Client{this};
+    Utils::StringAspect p4User{this};
+    Utils::IntegerAspect logCount{this};
+    Utils::BoolAspect customEnv{this};
+    Utils::IntegerAspect timeOutS{this};
+    Utils::BoolAspect autoOpen{this};
 
 private:
     QStringList workingDirectoryArguments(const QString &workingDir) const;

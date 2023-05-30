@@ -1590,7 +1590,7 @@ void QmakeBuildSystem::runGenerator(Utils::Id id)
         QTC_ASSERT(false, return);
     }
     if (!outDir.ensureWritableDir()) {
-        showError(Tr::tr("Cannot create output directory \"%1\"").arg(outDir.toUserOutput()));
+        showError(Tr::tr("Cannot create output directory \"%1\".").arg(outDir.toUserOutput()));
         return;
     }
     const auto proc = new Process(this);
@@ -1604,8 +1604,8 @@ void QmakeBuildSystem::runGenerator(Utils::Id id)
     proc->setWorkingDirectory(outDir);
     proc->setEnvironment(buildConfiguration()->environment());
     proc->setCommand(cmdLine);
-    Core::MessageManager::writeFlashing(Tr::tr("Running in %1: %2")
-                                        .arg(outDir.toUserOutput(), cmdLine.toUserOutput()));
+    Core::MessageManager::writeFlashing(
+        Tr::tr("Running in \"%1\": %2.").arg(outDir.toUserOutput(), cmdLine.toUserOutput()));
     proc->start();
 }
 

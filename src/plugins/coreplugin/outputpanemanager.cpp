@@ -167,9 +167,14 @@ void IOutputPane::setFilteringEnabled(bool enable)
 
 void IOutputPane::setupContext(const char *context, QWidget *widget)
 {
+    return setupContext(Context(context), widget);
+}
+
+void IOutputPane::setupContext(const Context &context, QWidget *widget)
+{
     QTC_ASSERT(!m_context, return);
     m_context = new IContext(this);
-    m_context->setContext(Context(context));
+    m_context->setContext(context);
     m_context->setWidget(widget);
     ICore::addContextObject(m_context);
 

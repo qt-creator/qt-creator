@@ -4,6 +4,7 @@
 #include "copilotoptionspage.h"
 
 #include "authwidget.h"
+#include "copilotconstants.h"
 #include "copilotsettings.h"
 #include "copilottr.h"
 
@@ -47,6 +48,7 @@ file from the Copilot neovim plugin.
 
         Column {
             authWidget, br,
+            CopilotSettings::instance().enableCopilot, br,
             CopilotSettings::instance().nodeJsPath, br,
             CopilotSettings::instance().distPath, br,
             CopilotSettings::instance().autoComplete, br,
@@ -82,10 +84,10 @@ file from the Copilot neovim plugin.
 
 CopilotOptionsPage::CopilotOptionsPage()
 {
-    setId("Copilot.General");
+    setId(Constants::COPILOT_GENERAL_OPTIONS_ID);
     setDisplayName("Copilot");
-    setCategory("ZY.Copilot");
-    setDisplayCategory("Copilot");
+    setCategory(Constants::COPILOT_GENERAL_OPTIONS_CATEGORY);
+    setDisplayCategory(Constants::COPILOT_GENERAL_OPTIONS_DISPLAY_CATEGORY);
     setCategoryIconPath(":/copilot/images/settingscategory_copilot.png");
     setWidgetCreator([] { return new CopilotOptionsPageWidget; });
 }

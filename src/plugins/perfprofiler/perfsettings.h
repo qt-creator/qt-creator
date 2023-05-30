@@ -26,15 +26,12 @@ public:
 
     void resetToDefault();
 
-    Utils::IntegerAspect period;
-    Utils::IntegerAspect stackSize;
-    Utils::SelectionAspect sampleMode;
-    Utils::SelectionAspect callgraphMode;
-    Utils::StringListAspect events;
-    Utils::StringAspect extraArguments;
-
-signals:
-    void changed();
+    Utils::IntegerAspect period{this};
+    Utils::IntegerAspect stackSize{this};
+    Utils::SelectionAspect sampleMode{this};
+    Utils::SelectionAspect callgraphMode{this};
+    Utils::StringListAspect events{this};
+    Utils::StringAspect extraArguments{this};
 };
 
 } // namespace PerfProfiler

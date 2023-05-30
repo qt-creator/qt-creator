@@ -35,7 +35,6 @@ PerforceSettings::PerforceSettings()
     setSettingsGroup("Perforce");
     setAutoApply(false);
 
-    registerAspect(&p4BinaryPath);
     p4BinaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     p4BinaryPath.setSettingsKey("Command");
     p4BinaryPath.setDefaultValue(
@@ -45,28 +44,23 @@ PerforceSettings::PerforceSettings()
     p4BinaryPath.setDisplayName(Tr::tr("Perforce Command"));
     p4BinaryPath.setLabelText(Tr::tr("P4 command:"));
 
-    registerAspect(&p4Port);
     p4Port.setDisplayStyle(StringAspect::LineEditDisplay);
     p4Port.setSettingsKey("Port");
     p4Port.setLabelText(Tr::tr("P4 port:"));
 
-    registerAspect(&p4Client);
     p4Client.setDisplayStyle(StringAspect::LineEditDisplay);
     p4Client.setSettingsKey("Client");
     p4Client.setLabelText(Tr::tr("P4 client:"));
 
-    registerAspect(&p4User);
     p4User.setDisplayStyle(StringAspect::LineEditDisplay);
     p4User.setSettingsKey("User");
     p4User.setLabelText(Tr::tr("P4 user:"));
 
-    registerAspect(&logCount);
     logCount.setSettingsKey("LogCount");
     logCount.setRange(1000, 10000);
     logCount.setDefaultValue(1000);
     logCount.setLabelText(Tr::tr("Log count:"));
 
-    registerAspect(&customEnv);
     // The settings value has been stored with the opposite meaning for a while.
     // Avoid changing the stored value, but flip it on read/write:
     customEnv.setSettingsKey("Default");
@@ -74,14 +68,12 @@ PerforceSettings::PerforceSettings()
     customEnv.setFromSettingsTransformation(invertBoolVariant);
     customEnv.setToSettingsTransformation(invertBoolVariant);
 
-    registerAspect(&timeOutS);
     timeOutS.setSettingsKey("TimeOut");
     timeOutS.setRange(1, 360);
     timeOutS.setDefaultValue(30);
     timeOutS.setLabelText(Tr::tr("Timeout:"));
     timeOutS.setSuffix(Tr::tr("s"));
 
-    registerAspect(&autoOpen);
     autoOpen.setSettingsKey("PromptToOpen");
     autoOpen.setDefaultValue(true);
     autoOpen.setLabelText(Tr::tr("Automatically open files when editing"));

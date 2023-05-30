@@ -7,7 +7,6 @@
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
-#include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 #include <utils/utilsicons.h>
@@ -19,9 +18,9 @@ namespace Vcpkg::Internal {
 
 static VcpkgSettings *theSettings = nullptr;
 
-VcpkgSettings *VcpkgSettings::instance()
+VcpkgSettings &settings()
 {
-    return theSettings;
+    return *theSettings;
 }
 
 VcpkgSettings::VcpkgSettings()
@@ -29,20 +28,27 @@ VcpkgSettings::VcpkgSettings()
     theSettings = this;
 
     setSettingsGroup("Vcpkg");
-
     setId(Constants::TOOLSSETTINGSPAGE_ID);
     setDisplayName("Vcpkg");
     setCategory(CMakeProjectManager::Constants::Settings::CATEGORY);
 
-    setLayouter([this](QWidget *widget) {
+    vcpkgRoot.setSettingsKey("VcpkgRoot");
+    vcpkgRoot.setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    vcpkgRoot.setDefaultValue(Utils::qtcEnvironmentVariable(Constants::ENVVAR_VCPKG_ROOT));
+
+    setLayouter([this] {
         using namespace Layouting;
         auto websiteButton = new QToolButton;
         websiteButton->setIcon(Utils::Icons::ONLINE.icon());
         websiteButton->setToolTip(Constants::WEBSITE_URL);
 
+        connect(websiteButton, &QAbstractButton::clicked, [] {
+            QDesktopServices::openUrl(QUrl::fromUserInput(Constants::WEBSITE_URL));
+        });
+
         // clang-format off
         using namespace Layouting;
-        Column {
+        return Column {
             Group {
                 title(tr("Vcpkg installation")),
                 Form {
@@ -51,25 +57,11 @@ VcpkgSettings::VcpkgSettings()
                 },
             },
             st,
-        }.attachTo(widget);
+        };
         // clang-format on
-
-        connect(websiteButton, &QAbstractButton::clicked, [] {
-            QDesktopServices::openUrl(QUrl::fromUserInput(Constants::WEBSITE_URL));
-        });
     });
-
-    registerAspect(&vcpkgRoot);
-    vcpkgRoot.setSettingsKey("VcpkgRoot");
-    vcpkgRoot.setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    vcpkgRoot.setDefaultValue(Utils::qtcEnvironmentVariable(Constants::ENVVAR_VCPKG_ROOT));
 
     readSettings();
 }
 
-bool VcpkgSettings::vcpkgRootValid() const
-{
-    return (vcpkgRoot() / "vcpkg").withExecutableSuffix().isExecutableFile();
-}
-
-} // namespace Vcpkg::Internal
+} // Vcpkg::Internal

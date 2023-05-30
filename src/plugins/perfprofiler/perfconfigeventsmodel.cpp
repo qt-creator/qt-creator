@@ -8,13 +8,16 @@
 
 #include <QMetaEnum>
 
+using namespace Utils;
+
 namespace PerfProfiler {
 namespace Internal {
 
 PerfConfigEventsModel::PerfConfigEventsModel(PerfSettings *settings, QObject *parent) :
     QAbstractTableModel(parent), m_settings(settings)
 {
-    connect(m_settings, &PerfSettings::changed, this, &PerfConfigEventsModel::reset);
+    connect(m_settings, &AspectContainer::changed, this, &PerfConfigEventsModel::reset);
+    connect(m_settings, &AspectContainer::fromMapFinished, this, &PerfConfigEventsModel::reset);
 }
 
 int PerfConfigEventsModel::rowCount(const QModelIndex &parent) const

@@ -87,13 +87,11 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
 {
     setSettingsGroups(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP, name);
 
-    registerAspect(&command);
     command.setSettingsKey("command");
     command.setExpectedKind(Utils::PathChooser::ExistingCommand);
     command.setCommandVersionArguments({"--version"});
     command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle("Clang Format"));
 
-    registerAspect(&supportedMimeTypes);
     supportedMimeTypes.setDisplayStyle(StringAspect::LineEditDisplay);
     supportedMimeTypes.setSettingsKey("supportedMime");
     supportedMimeTypes.setLabelText(Tr::tr("Restrict to MIME types:"));

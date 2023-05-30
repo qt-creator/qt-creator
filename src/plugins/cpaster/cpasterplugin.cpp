@@ -75,8 +75,6 @@ public:
         &dpasteProto
     };
 
-    SettingsPage m_settingsPage{&m_settings};
-
     QStringList m_fetchedSnippets;
 
     UrlOpenProtocol m_urlOpen;

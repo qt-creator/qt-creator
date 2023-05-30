@@ -196,6 +196,7 @@ static QStringList doSplitArgsWin(const QString &args, ProcessArgs::SplitError *
 }
 
 /*!
+    \internal
     Splits \a _args according to system shell word splitting and quoting rules.
 
     \section1 Unix

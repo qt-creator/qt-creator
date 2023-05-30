@@ -12,8 +12,8 @@ class FileShareProtocolSettings : public Core::PagedSettings
 public:
     FileShareProtocolSettings();
 
-    Utils::FilePathAspect path;
-    Utils::IntegerAspect displayCount;
+    Utils::FilePathAspect path{this};
+    Utils::IntegerAspect displayCount{this};
 };
 
 } // CodePaster

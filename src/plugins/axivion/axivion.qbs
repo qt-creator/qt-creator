@@ -1,6 +1,6 @@
 import qbs
 
-QtcCommercialPlugin {
+QtcPlugin {
     name: "Axivion"
 
     Depends { name: "Core" }

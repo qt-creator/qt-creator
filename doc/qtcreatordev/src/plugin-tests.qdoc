@@ -41,8 +41,8 @@
     failure.
 
     To add plugin tests, add a QObject based class with private slots for your
-    tests, and register it with \l{ExtensionSystem::IPlugin::addTest()} in your
-    plugin's \l{ExtensionSystem::IPlugin::initialized()} method. Guard all test
+    tests, and register it with \c{ExtensionSystem::IPlugin::addTest()} in your
+    plugin's \l{ExtensionSystem::IPlugin::initialize()} method. Guard all test
     related code with a check for \c{WITH_TESTS}, to avoid shipping a binary
     release of your plugin with test functions.
 

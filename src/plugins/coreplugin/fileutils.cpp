@@ -57,7 +57,7 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
     const QFileInfo fileInfo = pathIn.toFileInfo();
     // Mac, Windows support folder or file.
     if (HostOsInfo::isWindowsHost()) {
-        const FilePath explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
+        const FilePath explorer = FilePath("explorer.exe").searchInPath();
         if (explorer.isEmpty()) {
             QMessageBox::warning(parent,
                                  Tr::tr("Launching Windows Explorer Failed"),

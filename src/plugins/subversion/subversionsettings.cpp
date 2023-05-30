@@ -32,43 +32,34 @@ SubversionSettings::SubversionSettings()
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
     setSettingsGroup("Subversion");
 
-    registerAspect(&binaryPath);
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setHistoryCompleter("Subversion.Command.History");
     binaryPath.setDefaultValue("svn" QTC_HOST_EXE_SUFFIX);
     binaryPath.setDisplayName(Tr::tr("Subversion Command"));
     binaryPath.setLabelText(Tr::tr("Subversion command:"));
 
-    registerAspect(&useAuthentication);
     useAuthentication.setSettingsKey("Authentication");
     useAuthentication.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
-    registerAspect(&userName);
     userName.setSettingsKey("User");
     userName.setDisplayStyle(StringAspect::LineEditDisplay);
     userName.setLabelText(Tr::tr("Username:"));
 
-    registerAspect(&password);
     password.setSettingsKey("Password");
     password.setDisplayStyle(StringAspect::LineEditDisplay);
     password.setLabelText(Tr::tr("Password:"));
 
-    registerAspect(&spaceIgnorantAnnotation);
     spaceIgnorantAnnotation.setSettingsKey("SpaceIgnorantAnnotation");
     spaceIgnorantAnnotation.setDefaultValue(true);
     spaceIgnorantAnnotation.setLabelText(Tr::tr("Ignore whitespace changes in annotation"));
 
-    registerAspect(&diffIgnoreWhiteSpace);
     diffIgnoreWhiteSpace.setSettingsKey("DiffIgnoreWhiteSpace");
 
-    registerAspect(&logVerbose);
     logVerbose.setSettingsKey("LogVerbose");
 
-    registerAspect(&logCount);
     logCount.setDefaultValue(1000);
     logCount.setLabelText(Tr::tr("Log count:"));
 
-    registerAspect(&timeout);
     timeout.setLabelText(Tr::tr("Timeout:"));
     timeout.setSuffix(Tr::tr("s"));
 

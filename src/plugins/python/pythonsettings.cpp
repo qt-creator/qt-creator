@@ -171,9 +171,10 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
             if (interpreter.command.isEmpty())
                 return Tr::tr("Executable is empty.");
             if (!interpreter.command.exists())
-                return Tr::tr("%1 does not exist.").arg(interpreter.command.toUserOutput());
+                return Tr::tr("\"%1\" does not exist.").arg(interpreter.command.toUserOutput());
             if (!interpreter.command.isExecutableFile())
-                return Tr::tr("%1 is not an executable file.").arg(interpreter.command.toUserOutput());
+                return Tr::tr("\"%1\" is not an executable file.")
+                    .arg(interpreter.command.toUserOutput());
             break;
         case Qt::DecorationRole:
             if (column == 0 && !interpreter.command.isExecutableFile())
@@ -413,11 +414,11 @@ public:
 
         mainGroupLayout->addWidget(m_pluginsGroup);
 
-        const QString labelText = Tr::tr(
-            "For a complete list of available options, consult the <a "
-            "href=\"https://github.com/python-lsp/python-lsp-server/blob/develop/"
-            "CONFIGURATION.md\">Python LSP Server configuration documentation</a>.");
-
+        const QString labelText = Tr::tr("For a complete list of available options, consult the "
+                                         "[Python LSP Server configuration documentation](%1).")
+                                      .arg("https://github.com/python-lsp/python-lsp-server/blob/"
+                                           "develop/CONFIGURATION.md");
+        m_advancedLabel->setTextFormat(Qt::MarkdownText);
         m_advancedLabel->setText(labelText);
         m_advancedLabel->setOpenExternalLinks(true);
         mainGroupLayout->addWidget(m_advancedLabel);

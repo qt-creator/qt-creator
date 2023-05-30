@@ -12,11 +12,11 @@ class CvsSettings : public VcsBase::VcsBaseSettings
 public:
     CvsSettings();
 
-    Utils::StringAspect cvsRoot;
-    Utils::StringAspect diffOptions;
-    Utils::BoolAspect diffIgnoreWhiteSpace;
-    Utils::BoolAspect diffIgnoreBlankLines;
-    Utils::BoolAspect describeByCommitId;
+    Utils::StringAspect cvsRoot{this};
+    Utils::StringAspect diffOptions{this};
+    Utils::BoolAspect diffIgnoreWhiteSpace{this};
+    Utils::BoolAspect diffIgnoreBlankLines{this};
+    Utils::BoolAspect describeByCommitId{this};
 
     QStringList addOptions(const QStringList &args) const;
 };

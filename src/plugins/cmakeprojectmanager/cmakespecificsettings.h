@@ -14,13 +14,13 @@ public:
 
     static CMakeSpecificSettings *instance();
 
-    Utils::BoolAspect autorunCMake;
-    Utils::FilePathAspect ninjaPath;
-    Utils::BoolAspect packageManagerAutoSetup;
-    Utils::BoolAspect askBeforeReConfigureInitialParams;
-    Utils::BoolAspect askBeforePresetsReload;
-    Utils::BoolAspect showSourceSubFolders;
-    Utils::BoolAspect showAdvancedOptionsByDefault;
+    Utils::BoolAspect autorunCMake{this};
+    Utils::FilePathAspect ninjaPath{this};
+    Utils::BoolAspect packageManagerAutoSetup{this};
+    Utils::BoolAspect askBeforeReConfigureInitialParams{this};
+    Utils::BoolAspect askBeforePresetsReload{this};
+    Utils::BoolAspect showSourceSubFolders{this};
+    Utils::BoolAspect showAdvancedOptionsByDefault{this};
 };
 
 } // CMakeProjectManager::Internal

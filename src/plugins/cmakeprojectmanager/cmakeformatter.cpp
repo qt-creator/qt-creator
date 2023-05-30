@@ -50,21 +50,17 @@ public:
         setDisplayCategory("CMake");
         setCategory(Constants::Settings::CATEGORY);
 
-        registerAspect(&command);
         command.setSettingsKey("autoFormatCommand");
         command.setDefaultValue("cmake-format");
         command.setExpectedKind(PathChooser::ExistingCommand);
 
-        registerAspect(&autoFormatOnSave);
         autoFormatOnSave.setSettingsKey("autoFormatOnSave");
         autoFormatOnSave.setLabelText(Tr::tr("Enable auto format on file save"));
 
-        registerAspect(&autoFormatOnlyCurrentProject);
         autoFormatOnlyCurrentProject.setSettingsKey("autoFormatOnlyCurrentProject");
         autoFormatOnlyCurrentProject.setDefaultValue(true);
         autoFormatOnlyCurrentProject.setLabelText(Tr::tr("Restrict to files contained in the current project"));
 
-        registerAspect(&autoFormatMime);
         autoFormatMime.setSettingsKey("autoFormatMime");
         autoFormatMime.setDefaultValue("text/x-cmake");
         autoFormatMime.setLabelText(Tr::tr("Restrict to MIME types:"));
@@ -127,10 +123,10 @@ public:
         return cmd;
     }
 
-    FilePathAspect command;
-    BoolAspect autoFormatOnSave;
-    BoolAspect autoFormatOnlyCurrentProject;
-    StringAspect autoFormatMime;
+    FilePathAspect command{this};
+    BoolAspect autoFormatOnSave{this};
+    BoolAspect autoFormatOnlyCurrentProject{this};
+    StringAspect autoFormatMime{this};
 
     QAction formatFile{Tr::tr("Format &Current File")};
 };
