@@ -223,7 +223,8 @@ FilePath Environment::searchInPath(const QString &executable,
                                    const FilePathPredicate &filter) const
 {
     const FilePath exec = FilePath::fromUserInput(expandVariables(executable));
-    return exec.searchInPath(additionalDirs, {}, filter, FilePath::WithAnySuffix);
+    const FilePaths dirs = path() + additionalDirs;
+    return exec.searchInDirectories(dirs, filter, FilePath::WithAnySuffix);
 }
 
 FilePaths Environment::path() const
