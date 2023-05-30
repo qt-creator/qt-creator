@@ -166,7 +166,7 @@ void ResourcePreviewHoverHandler::operateTooltip(TextEditorWidget *editorWidget,
 {
     const QString tt = makeTooltip();
     if (!tt.isEmpty())
-        Utils::ToolTip::show(point, tt, editorWidget);
+        Utils::ToolTip::show(point, tt, Qt::MarkdownText, editorWidget);
     else
         Utils::ToolTip::hide();
 }
@@ -180,7 +180,7 @@ QString ResourcePreviewHoverHandler::makeTooltip() const
 
     const Utils::MimeType mimeType = Utils::mimeTypeForFile(m_resPath);
     if (mimeType.name().startsWith("image", Qt::CaseInsensitive))
-        ret += QString("<img src=\"file:///%1\" /><br/>").arg(m_resPath);
+        ret += QString("![image](%1)  \n").arg(m_resPath);
 
     ret += QString("<a href=\"file:///%1\">%2</a>")
                .arg(m_resPath, QDir::toNativeSeparators(m_resPath));
