@@ -483,7 +483,7 @@ TerminalSettings::TerminalSettings()
         auto loadThemeButton = new QPushButton(Tr::tr("Load Theme..."));
         auto resetTheme = new QPushButton(Tr::tr("Reset Theme"));
 
-        connect(loadThemeButton, &QPushButton::clicked, this, [this] {
+        connect(loadThemeButton, &QPushButton::clicked, this, [] {
             const FilePath path = FileUtils::getOpenFilePath(
                 Core::ICore::dialogParent(),
                 "Open Theme",
