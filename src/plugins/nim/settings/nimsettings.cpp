@@ -33,15 +33,15 @@ NimSettings::NimSettings()
     setDisplayCategory(Tr::tr("Nim"));
     setCategoryIconPath(":/nim/images/settingscategory_nim.png");
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
-        Column {
+        return Column {
             Group {
                 title("Nimsuggest"),
                 Column { nimSuggestPath }
             },
             st
-        }.attachTo(widget);
+        };
     });
 
     // code style factory

@@ -29,10 +29,10 @@ BuildPropertiesSettings::BuildPropertiesSettings()
     setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setSettings(this);
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
 
-        Column {
+        return Column {
             Form {
                 buildDirectoryTemplate, br,
                 separateDebugInfo, br,
@@ -40,7 +40,7 @@ BuildPropertiesSettings::BuildPropertiesSettings()
                 qtQuickCompiler
             },
             st
-        }.attachTo(widget);
+        };
     });
 
     registerAspect(&buildDirectoryTemplate);

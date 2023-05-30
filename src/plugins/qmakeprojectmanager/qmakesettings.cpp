@@ -51,14 +51,14 @@ QmakeSettings::QmakeSettings()
     ignoreSystemFunction.setFromSettingsTransformation(invertBoolVariant);
     ignoreSystemFunction.setToSettingsTransformation(invertBoolVariant);
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
-        Column {
+        return Column {
             warnAgainstUnalignedBuildDir,
             alwaysRunQmake,
             ignoreSystemFunction,
             st
-        }.attachTo(widget);
+        };
     });
 
     readSettings();

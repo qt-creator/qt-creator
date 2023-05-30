@@ -20,8 +20,8 @@ CTestSettings::CTestSettings(Id settingsId)
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayName(Tr::tr("CTest"));
 
-    setLayouter([this](QWidget *w) {
-        Row { Form {
+    setLayouter([this] {
+        return Row { Form {
             outputOnFail, br,
             scheduleRandom, br,
             stopOnFailure, br,
@@ -39,7 +39,7 @@ CTestSettings::CTestSettings(Id settingsId)
                     Row { testLoad, threshold}
                 }
             }
-        }, st }.attachTo(w);
+        }, st };
     });
 
     outputOnFail.setSettingsKey("OutputOnFail");
