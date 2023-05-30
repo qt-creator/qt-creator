@@ -82,26 +82,28 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(SyntaxHighlight
     if (to <= from)
         return;
 
-    const int firstResultBlockNumber = int(future.resultAt(from).line) - 1;
+    const int resultStartLine = future.resultAt(from).line;
+    int formattingStartLine = 1;
 
-    // blocks between currentBlockNumber and the last block with results will
-    // be cleaned of additional extra formats if they have no results
-    int currentBlockNumber = 0;
+    // Find the line on which to start formatting, where "formatting" means to either
+    // clear out formats from outdated document versions (if there is no current result
+    // on that line), or apply the format corresponding to the respective result.
+    // Note that if there are earlier results on the same line, we have to make sure they
+    // get re-applied by adapting the from variable accordingly.
     for (int i = from - 1; i >= 0; --i) {
         const HighlightingResult &result = future.resultAt(i);
-        const int blockNumber = int(result.line) - 1;
-        if (blockNumber < firstResultBlockNumber) {
-            // stop! found where last format stopped
-            currentBlockNumber = blockNumber + 1;
-            // add previous results for the same line to avoid undoing their formats
+        if (result.line == resultStartLine) {
+            from = i;
+        } else if (result.line < resultStartLine) {
+            formattingStartLine = result.line + 1;
             from = i + 1;
             break;
         }
     }
 
     QTextDocument *doc = highlighter->document();
-    QTC_ASSERT(currentBlockNumber < doc->blockCount(), return);
-    QTextBlock currentBlock = doc->findBlockByNumber(currentBlockNumber);
+    QTC_ASSERT(formattingStartLine <= doc->blockCount(), return);
+    QTextBlock currentBlock = doc->findBlockByNumber(formattingStartLine - 1);
 
     std::map<QTextBlock, QVector<QTextLayout::FormatRange>> formatRanges;
     for (int i = from; i < to; ++i) {
