@@ -315,17 +315,8 @@ QStringList TextureEditorContextObject::allStatesForId(const QString &id)
       return {};
 }
 
-bool TextureEditorContextObject::isBlocked(const QString &propName) const
+bool TextureEditorContextObject::isBlocked(const QString &) const
 {
-    if (!m_selectedTexture.isValid())
-        return false;
-
-    if (!m_model || !m_model->rewriterView())
-        return false;
-
-    if (QmlObjectNode(m_selectedTexture).isBlocked(propName.toUtf8()))
-        return true;
-
     return false;
 }
 

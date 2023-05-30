@@ -84,7 +84,7 @@ public:
     bool instanceHasAnchors() const;
     bool instanceHasShowContent() const;
 
-    bool instanceCanReparent() const override;
+    bool instanceCanReparent() const;
     bool instanceIsAnchoredBySibling() const;
     bool instanceIsAnchoredByChildren() const;
     bool instanceIsMovable() const;

@@ -623,16 +623,13 @@ void PropertyEditorNodeWrapper::changeValue(const QString &propertyName)
     if (name.isNull())
         return;
 
-    if (m_modelNode.isValid()) {
-        QScopedPointer<QmlObjectNode> qmlObjectNode{
-                QmlObjectNode::getQmlObjectNodeOfCorrectType(m_modelNode)};
-
+    if (auto qmlObjectNode = QmlObjectNode{m_modelNode}) {
         auto valueObject = qvariant_cast<PropertyEditorValue *>(m_valuesPropertyMap.value(QString::fromLatin1(name)));
 
         if (valueObject->value().isValid())
-            qmlObjectNode->setVariantProperty(name, valueObject->value());
+            qmlObjectNode.setVariantProperty(name, valueObject->value());
         else
-            qmlObjectNode->removeProperty(name);
+            qmlObjectNode.removeProperty(name);
     }
 }
 

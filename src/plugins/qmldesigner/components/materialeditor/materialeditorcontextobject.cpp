@@ -510,18 +510,9 @@ QStringList MaterialEditorContextObject::allStatesForId(const QString &id)
       return {};
 }
 
-bool MaterialEditorContextObject::isBlocked(const QString &propName) const
+bool MaterialEditorContextObject::isBlocked(const QString &) const
 {
-    if (!m_selectedMaterial.isValid())
-        return false;
-
-    if (!m_model || !m_model->rewriterView())
-        return false;
-
-    if (QmlObjectNode(m_selectedMaterial).isBlocked(propName.toUtf8()))
-        return true;
-
-    return false;
+      return false;
 }
 
 void MaterialEditorContextObject::goIntoComponent()

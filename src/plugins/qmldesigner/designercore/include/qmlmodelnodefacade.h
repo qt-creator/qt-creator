@@ -4,7 +4,9 @@
 #pragma once
 
 #include <qmldesignercorelib_global.h>
+
 #include <modelnode.h>
+#include <nodemetainfo.h>
 
 namespace QmlDesigner {
 
@@ -14,11 +16,6 @@ class NodeInstanceView;
 class QMLDESIGNERCORE_EXPORT QmlModelNodeFacade
 {
 public:
-    QmlModelNodeFacade(const QmlModelNodeFacade &) = default;
-    QmlModelNodeFacade &operator=(const QmlModelNodeFacade &) = default;
-    QmlModelNodeFacade(QmlModelNodeFacade &&) noexcept = default;
-    QmlModelNodeFacade &operator=(QmlModelNodeFacade &&) noexcept = default;
-
     operator ModelNode() const { return m_modelNode; }
     ModelNode modelNode() const { return m_modelNode; }
     bool hasModelNode() const;
@@ -29,6 +26,7 @@ public:
 
     AbstractView *view() const;
     Model *model() const;
+    NodeMetaInfo metaInfo() const { return m_modelNode.metaInfo(); }
     static const NodeInstanceView *nodeInstanceView(const ModelNode &modelNode);
     const NodeInstanceView *nodeInstanceView() const;
     bool isRootNode() const;

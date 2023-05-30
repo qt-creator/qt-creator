@@ -335,9 +335,8 @@ void TimelinePropertyItem::changePropertyValue(const QVariant &value)
         QTimer::singleShot(0, deferredFunc);
 
     } else {
-        QScopedPointer<QmlObjectNode> objectNode {
-            QmlObjectNode::getQmlObjectNodeOfCorrectType(m_frames.target())};
-        objectNode->setVariantProperty(m_frames.propertyName(), value);
+        if (auto qmlObjectNode = QmlObjectNode(m_frames.target()))
+            qmlObjectNode.setVariantProperty(m_frames.propertyName(), value);
     }
 }
 

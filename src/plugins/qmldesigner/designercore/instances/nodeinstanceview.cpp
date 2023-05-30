@@ -1463,10 +1463,10 @@ void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
-                QScopedPointer<QmlObjectNode> node {
-                    QmlObjectNode::getQmlObjectNodeOfCorrectType(instance.modelNode())};
-                if (node->modelValue(container.name()) != container.value())
-                    node->setVariantProperty(container.name(), container.value());
+                if (auto qmlObjectNode = QmlObjectNode(instance.modelNode())) {
+                    if (qmlObjectNode.modelValue(container.name()) != container.value())
+                        qmlObjectNode.setVariantProperty(container.name(), container.value());
+                }
             }
         }
     }

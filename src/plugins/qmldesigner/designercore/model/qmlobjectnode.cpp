@@ -34,6 +34,9 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
     if (!isValid())
         return;
 
+    if (metaInfo().isQtQuick3DNode() && !Qml3DNode(modelNode()).handleEulerRotation(name))
+        return;
+
     if (timelineIsActive() && currentTimeline().isRecording()) {
         modelNode().validId();
 
@@ -76,6 +79,9 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
 void QmlObjectNode::setBindingProperty(const PropertyName &name, const QString &expression)
 {
     if (!isValid())
+        return;
+
+    if (metaInfo().isQtQuick3DNode() && !Qml3DNode(modelNode()).handleEulerRotation(name))
         return;
 
     if (isInBaseState()) {
@@ -295,7 +301,10 @@ bool QmlObjectNode::timelineIsActive() const
 
 bool QmlObjectNode::instanceCanReparent() const
 {
-    return isInBaseState();
+    if (auto qmlItemNode = QmlItemNode{modelNode()})
+        return qmlItemNode.instanceCanReparent();
+    else
+        return isInBaseState();
 }
 
 QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState() const
@@ -835,21 +844,6 @@ QString QmlObjectNode::simplifiedTypeName() const
 QStringList QmlObjectNode::allStateNames() const
 {
     return nodeInstance().allStateNames();
-}
-
-QmlObjectNode *QmlObjectNode::getQmlObjectNodeOfCorrectType(const ModelNode &modelNode)
-{
-    // Create QmlObjectNode of correct type for the modelNode
-    // Note: Currently we are only interested in differentiating 3D nodes, so no check for
-    // visual nodes is done for efficiency reasons
-    if (modelNode.isValid() && modelNode.metaInfo().isQtQuick3DNode())
-        return new Qml3DNode(modelNode);
-    return new QmlObjectNode(modelNode);
-}
-
-bool QmlObjectNode::isBlocked([[maybe_unused]] const PropertyName &propName) const
-{
-    return false;
 }
 
 } //QmlDesigner

@@ -8,6 +8,7 @@
 #include <nodemetainfo.h>
 #include <rewritingexception.h>
 #include <qmldesignerconstants.h>
+#include <qml3dnode.h>
 #include <qmldesignerplugin.h>
 #include <qmlmodelnodeproxy.h>
 #include <qmlobjectnode.h>
@@ -597,10 +598,8 @@ bool PropertyEditorContextObject::isBlocked(const QString &propName) const
 {
     if (m_model && m_model->rewriterView()) {
         const QList<ModelNode> nodes = m_model->rewriterView()->selectedModelNodes();
-        QScopedPointer<QmlObjectNode> objNode;
         for (const auto &node : nodes) {
-            objNode.reset(QmlObjectNode::getQmlObjectNodeOfCorrectType(node));
-            if (objNode->isBlocked(propName.toUtf8()))
+              if (Qml3DNode qml3DNode{node}; qml3DNode.isBlocked(propName.toUtf8()))
                 return true;
         }
     }

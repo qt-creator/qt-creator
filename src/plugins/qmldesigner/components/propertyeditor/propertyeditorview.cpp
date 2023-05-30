@@ -248,7 +248,7 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
         PropertyName underscoreName(name);
         underscoreName.replace('.', '_');
 
-        QScopedPointer<QmlObjectNode> qmlObjectNode {QmlObjectNode::getQmlObjectNodeOfCorrectType(m_selectedNode)};
+        QmlObjectNode qmlObjectNode{m_selectedNode};
         PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(QString::fromLatin1(underscoreName));
 
         if (!value) {
@@ -256,46 +256,46 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
             return;
         }
 
-        if (auto property = qmlObjectNode->modelNode().metaInfo().property(name)) {
+        if (auto property = qmlObjectNode.modelNode().metaInfo().property(name)) {
             const auto &propertType = property.propertyType();
             if (propertType.isColor()) {
                 if (QColor(value->expression().remove('"')).isValid()) {
-                    qmlObjectNode->setVariantProperty(name, QColor(value->expression().remove('"')));
+                    qmlObjectNode.setVariantProperty(name, QColor(value->expression().remove('"')));
                     return;
                 }
             } else if (propertType.isBool()) {
                 if (isTrueFalseLiteral(value->expression())) {
                     if (value->expression().compare("true", Qt::CaseInsensitive) == 0)
-                        qmlObjectNode->setVariantProperty(name, true);
+                        qmlObjectNode.setVariantProperty(name, true);
                     else
-                        qmlObjectNode->setVariantProperty(name, false);
+                        qmlObjectNode.setVariantProperty(name, false);
                     return;
                 }
             } else if (propertType.isInteger()) {
                 bool ok;
                 int intValue = value->expression().toInt(&ok);
                 if (ok) {
-                    qmlObjectNode->setVariantProperty(name, intValue);
+                    qmlObjectNode.setVariantProperty(name, intValue);
                     return;
                 }
             } else if (propertType.isFloat()) {
                 bool ok;
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
-                    qmlObjectNode->setVariantProperty(name, realValue);
+                    qmlObjectNode.setVariantProperty(name, realValue);
                     return;
                 }
             } else if (propertType.isVariant()) {
                 bool ok;
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
-                    qmlObjectNode->setVariantProperty(name, realValue);
+                    qmlObjectNode.setVariantProperty(name, realValue);
                     return;
                 } else if (isTrueFalseLiteral(value->expression())) {
                     if (value->expression().compare("true", Qt::CaseInsensitive) == 0)
-                        qmlObjectNode->setVariantProperty(name, true);
+                        qmlObjectNode.setVariantProperty(name, true);
                     else
-                        qmlObjectNode->setVariantProperty(name, false);
+                        qmlObjectNode.setVariantProperty(name, false);
                     return;
                 }
             }
@@ -306,9 +306,9 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
             return;
         }
 
-        if (qmlObjectNode->expression(name) != value->expression()
-            || !qmlObjectNode->propertyAffectedByCurrentState(name))
-            qmlObjectNode->setBindingProperty(name, value->expression());
+        if (qmlObjectNode.expression(name) != value->expression()
+            || !qmlObjectNode.propertyAffectedByCurrentState(name))
+            qmlObjectNode.setBindingProperty(name, value->expression());
     }); /* end of transaction */
 }
 
@@ -476,13 +476,10 @@ void PropertyEditorView::setupQmlBackend()
         m_stackedWidget->addWidget(currentQmlBackend->widget());
         m_qmlBackendHash.insert(qmlFile.toString(), currentQmlBackend);
 
-        QScopedPointer<QmlObjectNode> qmlObjectNode;
         if (m_selectedNode.isValid()) {
-            qmlObjectNode.reset(QmlObjectNode::getQmlObjectNodeOfCorrectType(m_selectedNode));
-            Q_ASSERT(qmlObjectNode->isValid());
-            currentQmlBackend->setup(*qmlObjectNode, currentStateName, qmlSpecificsFile, this);
-        } else {
-            qmlObjectNode.reset(new QmlObjectNode);
+            QmlObjectNode qmlObjectNode{m_selectedNode};
+            Q_ASSERT(qmlObjectNode.isValid());
+            currentQmlBackend->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
         }
 
         if (specificQmlData.isEmpty())
@@ -491,15 +488,11 @@ void PropertyEditorView::setupQmlBackend()
         currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
         currentQmlBackend->setSource(qmlFile);
     } else {
-        QScopedPointer<QmlObjectNode> qmlObjectNode;
-        if (m_selectedNode.isValid())
-            qmlObjectNode.reset(QmlObjectNode::getQmlObjectNodeOfCorrectType(m_selectedNode));
-        else
-            qmlObjectNode.reset(new QmlObjectNode);
+        QmlObjectNode qmlObjectNode{m_selectedNode};
 
         if (specificQmlData.isEmpty())
             currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
-        currentQmlBackend->setup(*qmlObjectNode, currentStateName, qmlSpecificsFile, this);
+        currentQmlBackend->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
         currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
     }
 
@@ -526,10 +519,8 @@ void PropertyEditorView::commitVariantValueToModel(const PropertyName &propertyN
         RewriterTransaction transaction = beginRewriterTransaction("PropertyEditorView::commitVariantValueToMode");
 
         for (const ModelNode &node : m_selectedNode.view()->selectedModelNodes()) {
-            if (QmlObjectNode::isValidQmlObjectNode(node)) {
-                QScopedPointer<QmlObjectNode>{QmlObjectNode::getQmlObjectNodeOfCorrectType(node)}
-                    ->setVariantProperty(propertyName, value);
-            }
+            if (auto qmlObjectNode = QmlObjectNode(node))
+                qmlObjectNode.setVariantProperty(propertyName, value);
         }
         transaction.commit();
     }
