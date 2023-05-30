@@ -365,13 +365,11 @@ TerminalSettings::TerminalSettings()
 {
     s_instance = this;
 
-    setAutoApply(false);
     setSettingsGroup("Terminal");
     setId("Terminal.General");
     setDisplayName("Terminal");
     setCategory("ZY.Terminal");
     setDisplayCategory("Terminal");
-    setSettings(&TerminalSettings::instance());
     setCategoryIconPath(":/terminal/images/settingscategory_terminal.png");
 
     enableTerminal.setSettingsKey("EnableTerminal");
