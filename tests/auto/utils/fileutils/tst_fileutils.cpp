@@ -136,6 +136,9 @@ void tst_fileutils::filePathInfoFromTriple_data()
                                                     FilePathInfo::ReadOwnerPerm
                                                     | FilePathInfo::WriteOwnerPerm
                                                     | FilePathInfo::ExeOwnerPerm
+                                                    | FilePathInfo::ReadUserPerm
+                                                    | FilePathInfo::WriteUserPerm
+                                                    | FilePathInfo::ExeUserPerm
                                                     | FilePathInfo::ReadGroupPerm
                                                     | FilePathInfo::ExeGroupPerm
                                                     | FilePathInfo::ReadOtherPerm
@@ -149,10 +152,11 @@ void tst_fileutils::filePathInfoFromTriple_data()
         << FilePathInfo{808104,
                         FilePathInfo::FileFlags(
                             FilePathInfo::ReadOwnerPerm | FilePathInfo::WriteOwnerPerm
-                            | FilePathInfo::ExeOwnerPerm | FilePathInfo::ReadGroupPerm
-                            | FilePathInfo::ExeGroupPerm | FilePathInfo::ReadOtherPerm
-                            | FilePathInfo::ExeOtherPerm | FilePathInfo::FileType
-                            | FilePathInfo::ExistsFlag),
+                            | FilePathInfo::ExeOwnerPerm | FilePathInfo::ReadUserPerm
+                            | FilePathInfo::WriteUserPerm | FilePathInfo::ExeUserPerm
+                            | FilePathInfo::ReadGroupPerm | FilePathInfo::ExeGroupPerm
+                            | FilePathInfo::ReadOtherPerm | FilePathInfo::ExeOtherPerm
+                            | FilePathInfo::FileType | FilePathInfo::ExistsFlag),
                         QDateTime::fromSecsSinceEpoch(1668852790)};
 
     QTest::newRow("linux-disk") << QString("61b0 1651167746 0")
@@ -160,6 +164,8 @@ void tst_fileutils::filePathInfoFromTriple_data()
                                                 FilePathInfo::FileFlags(
                                                     FilePathInfo::ReadOwnerPerm
                                                     | FilePathInfo::WriteOwnerPerm
+                                                    | FilePathInfo::ReadUserPerm
+                                                    | FilePathInfo::WriteUserPerm
                                                     | FilePathInfo::ReadGroupPerm
                                                     | FilePathInfo::WriteGroupPerm
                                                     | FilePathInfo::LocalDiskFlag
