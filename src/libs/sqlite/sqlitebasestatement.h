@@ -49,6 +49,7 @@ public:
 
     BaseStatement(const BaseStatement &) = delete;
     BaseStatement &operator=(const BaseStatement &) = delete;
+    BaseStatement(BaseStatement &&) = default;
 
     bool next() const;
     void step() const;
@@ -146,6 +147,7 @@ class StatementImplementation : public BaseStatement
 
 public:
     using BaseStatement::BaseStatement;
+    StatementImplementation(StatementImplementation &&) = default;
 
     void execute()
     {
