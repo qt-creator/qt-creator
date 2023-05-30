@@ -239,6 +239,8 @@ private:
 
     void refresh() override
     {
+        IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
+
         const GuardLocker locker(m_ignoreChanges);
         const QList<Id> keys = m_languageComboboxMap.keys();
         for (const Id l : keys) {
@@ -248,8 +250,21 @@ private:
             cb->clear();
             cb->addItem(Tr::tr("<No compiler>"), QByteArray());
 
-            for (ToolChain *tc : ltcList)
-                cb->addItem(tc->displayName(), tc->id());
+            const QList<ToolChain *> same = Utils::filtered(ltcList, [device](ToolChain *tc) {
+                return tc->compilerCommand().isSameDevice(device->rootPath());
+            });
+            const QList<ToolChain *> other = Utils::filtered(ltcList, [device](ToolChain *tc) {
+                return !tc->compilerCommand().isSameDevice(device->rootPath());
+            });
+
+            for (ToolChain *item : same)
+                cb->addItem(item->displayName(), item->id());
+
+            if (!same.isEmpty() && !other.isEmpty())
+                cb->insertSeparator(cb->count());
+
+            for (ToolChain *item : other)
+                cb->addItem(item->displayName(), item->id());
 
             cb->setEnabled(cb->count() > 1 && !m_isReadOnly);
             const int index = indexOf(cb, ToolChainKitAspect::toolChain(m_kit, l));
@@ -471,10 +486,9 @@ void ToolChainKitAspect::setup(Kit *k)
         // ID is not found: Might be an ABI string...
         lockToolchains = false;
         const QString abi = QString::fromUtf8(id);
-        const Toolchains possibleTcs = ToolChainManager::toolchains(
-            [abi, l](const ToolChain *t) {
-                return t->targetAbi().toString() == abi && t->language() == l;
-            });
+        const Toolchains possibleTcs = ToolChainManager::toolchains([abi, l](const ToolChain *t) {
+            return t->targetAbi().toString() == abi && t->language() == l;
+        });
         ToolChain *bestTc = nullptr;
         for (ToolChain *tc : possibleTcs) {
             if (!bestTc || tc->priority() > bestTc->priority())
