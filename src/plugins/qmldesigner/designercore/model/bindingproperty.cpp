@@ -110,7 +110,12 @@ ModelNode BindingProperty::resolveToModelNode() const
     if (!isValid())
         return {};
 
-    return resolveBinding(expression(), parentModelNode());
+    QString binding = expression();
+
+    if (binding.isEmpty())
+        return {};
+
+    return resolveBinding(binding, parentModelNode());
 }
 
 static inline QStringList commaSeparatedSimplifiedStringList(const QString &string)
@@ -129,6 +134,10 @@ AbstractProperty BindingProperty::resolveToProperty() const
         return {};
 
     QString binding = expression();
+
+    if (binding.isEmpty())
+        return {};
+
     ModelNode node = parentModelNode();
     QString element;
     if (binding.contains(QLatin1Char('.'))) {
@@ -159,12 +168,16 @@ QList<ModelNode> BindingProperty::resolveToModelNodeList() const
     if (!isValid())
         return {};
 
+    QString binding = expression();
+
+    if (binding.isEmpty())
+        return {};
+
     QList<ModelNode> returnList;
     if (isList()) {
-        QString string = expression();
-        string.chop(1);
-        string.remove(0, 1);
-        const QStringList simplifiedList = commaSeparatedSimplifiedStringList(string);
+        binding.chop(1);
+        binding.remove(0, 1);
+        const QStringList simplifiedList = commaSeparatedSimplifiedStringList(binding);
         for (const QString &nodeId : simplifiedList) {
             if (auto internalNode = privateModel()->nodeForId(nodeId))
                 returnList.append(ModelNode{internalNode, model(), view()});
