@@ -83,8 +83,6 @@
         ],
         "mainFile": "fileSelectors.qml"
     },
-    "shaderTool": {
-    },
     "versions": {
         "qt": "5"
     }

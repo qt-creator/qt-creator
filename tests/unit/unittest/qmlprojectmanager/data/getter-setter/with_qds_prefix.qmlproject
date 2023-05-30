@@ -1,0 +1,96 @@
+import QmlProject
+
+Project {
+    QDS.mainFile: "content/App.qml"
+    QDS.mainUiFile: "Screen01.ui.qml"
+
+    QDS.qt6Project: true
+    QDS.widgetApp: true
+    QDS.qtForMCUs: true
+    QDS.forceFreeType: true
+
+    QDS.importPaths: [ "imports", "asset_imports" ]
+    QDS.targetDirectory: "/opt/targetDirectory"
+    QDS.fileSelectors: [ "WXGA", "darkTheme", "ShowIndicator"]
+
+    QDS.qdsVersion: "3.9"
+    QDS.quickVersion: "6.2"
+
+    QDS.multilanguageSupport: true
+    QDS.supportedLanguages: ["en" , "fr"]
+    QDS.primaryLanguage: "en"
+
+    QDS.QmlFiles {
+        directory: "content"
+    }
+
+    QDS.QmlFiles {
+        directory: "imports"
+    }
+
+    QDS.JavaScriptFiles {
+        directory: "content"
+    }
+
+    QDS.JavaScriptFiles {
+        directory: "imports"
+    }
+
+    QDS.ImageFiles {
+        directory: "content"
+    }
+
+    QDS.Files {
+        filter: "*.conf"
+        files: ["qtquickcontrols2.conf"]
+    }
+
+    QDS.Files {
+        filter: "qmldir"
+        directory: "."
+    }
+
+    QDS.Files {
+        filter: "*.ttf;*.otf"
+    }
+
+    QDS.Files {
+        filter: "*.wav;*.mp3"
+    }
+
+    QDS.Files {
+        filter: "*.mp4"
+    }
+
+    QDS.Files {
+        filter: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag"
+    }
+
+    QDS.Files {
+        filter: "*.mesh"
+        directory: "asset_imports"
+    }
+
+    QDS.Files {
+        filter: "*.mesh"
+        directory: "content"
+    }
+
+    QDS.Files {
+        filter: "*.qml"
+        directory: "asset_imports"
+    }
+
+    QDS.ImageFiles {
+        directory: "asset_imports"
+    }
+
+    QDS.Environment {
+        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
+    }
+
+    QDS.ShaderTool {
+        args: "-s --glsl \"100 es,120,150\" --hlsl 50 --msl 12"
+        files: [ "content/shaders/*" ]
+    }
+}

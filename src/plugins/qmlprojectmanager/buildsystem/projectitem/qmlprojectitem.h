@@ -7,11 +7,11 @@
 
 #include <utils/environment.h>
 
+#include <QJsonObject>
 #include <QObject>
 #include <QSet>
-#include <QStringList>
 #include <QSharedPointer>
-#include <QJsonObject>
+#include <QStringList>
 
 #include <memory>
 #include <vector>
@@ -29,7 +29,6 @@ public:
     explicit QmlProjectItem(const Utils::FilePath &filePath, const bool skipRewrite = false);
 
     bool isQt4McuProject() const;
-
 
     QString versionQt() const;
     void setVersionQt(const QString &version);
@@ -102,7 +101,7 @@ private:
 
     // runtime variables
     Utils::FilePath m_projectFile; // design studio project file
-    QJsonObject m_project; // root project object
+    QJsonObject m_project;         // root project object
     const bool m_skipRewrite;
 
     // initializing functions

@@ -24,11 +24,6 @@ Project {
         QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
     }
 
-    ShaderTool {
-        args: ""
-        files: [  ]
-    }
-
     QmlFiles {
         directory: "."
     }

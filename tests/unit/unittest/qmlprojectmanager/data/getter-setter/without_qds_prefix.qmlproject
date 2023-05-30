@@ -3,12 +3,12 @@ import QmlProject
 Project {
     mainFile: "content/App.qml"
     mainUiFile: "Screen01.ui.qml"
-    
+
     qt6Project: true
     widgetApp: true
     qtForMCUs: true
     forceFreeType: true
-    
+
     importPaths: [ "imports", "asset_imports" ]
     targetDirectory: "/opt/targetDirectory"
     fileSelectors: [ "WXGA", "darkTheme", "ShowIndicator"]
@@ -19,7 +19,7 @@ Project {
     multilanguageSupport: true
     supportedLanguages: ["en" , "fr"]
     primaryLanguage: "en"
-    
+
     QmlFiles {
         directory: "content"
     }

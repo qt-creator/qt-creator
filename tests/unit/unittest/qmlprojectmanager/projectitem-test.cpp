@@ -1,8 +1,8 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "googletest.h" // IWYU pragma: keep
 #include "google-using-declarations.h"
+#include "googletest.h" // IWYU pragma: keep
 
 #include <qmlprojectmanager/buildsystem/projectitem/qmlprojectitem.h>
 
@@ -19,28 +19,39 @@ protected:
         projectItemEmpty = std::make_unique<const QmlProjectManager::QmlProjectItem>(
             Utils::FilePath::fromString(localTestDataDir + "/getter-setter/empty.qmlproject"), true);
 
-        projectItemNotEmpty = std::make_unique<const QmlProjectManager::QmlProjectItem>(
-            Utils::FilePath::fromString(localTestDataDir + "/getter-setter/notEmpty.qmlproject"),
+        projectItemWithQdsPrefix = std::make_unique<const QmlProjectManager::QmlProjectItem>(
+            Utils::FilePath::fromString(localTestDataDir
+                                        + "/getter-setter/with_qds_prefix.qmlproject"),
+            true);
+
+        projectItemWithoutQdsPrefix = std::make_unique<const QmlProjectManager::QmlProjectItem>(
+            Utils::FilePath::fromString(localTestDataDir
+                                        + "/getter-setter/without_qds_prefix.qmlproject"),
             true);
 
         projectItemFileFilters = std::make_unique<const QmlProjectManager::QmlProjectItem>(
-            Utils::FilePath::fromString(localTestDataDir + "/file-filters/MaterialBundle.qmlproject"),
+            Utils::FilePath::fromString(localTestDataDir
+                                        + "/file-filters/MaterialBundle.qmlproject"),
             true);
     }
 
     static void TearDownTestSuite()
     {
         projectItemEmpty.reset();
-        projectItemNotEmpty.reset();
+        projectItemWithQdsPrefix.reset();
+        projectItemWithoutQdsPrefix.reset();
         projectItemFileFilters.reset();
     }
 
 protected:
     static inline std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemEmpty;
-    static inline std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemNotEmpty;
-    std::unique_ptr<QmlProjectManager::QmlProjectItem>
-        projectItemSetters = std::make_unique<QmlProjectManager::QmlProjectItem>(
-            Utils::FilePath::fromString(localTestDataDir + "/getter-setter/empty.qmlproject"), true);
+    static inline std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemWithQdsPrefix;
+    static inline std::unique_ptr<const QmlProjectManager::QmlProjectItem>
+        projectItemWithoutQdsPrefix;
+    std::unique_ptr<QmlProjectManager::QmlProjectItem> projectItemSetters = std::make_unique<
+        QmlProjectManager::QmlProjectItem>(Utils::FilePath::fromString(
+                                               localTestDataDir + "/getter-setter/empty.qmlproject"),
+                                           true);
     static inline std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemFileFilters;
 };
 
@@ -51,111 +62,111 @@ auto createAbsoluteFilePaths(const QStringList &fileList)
     });
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyMainFileProject)
+TEST_F(QmlProjectItem, GetWithQdsPrefixMainFileProject)
 {
-    auto mainFile = projectItemNotEmpty->mainFile();
+    auto mainFile = projectItemWithQdsPrefix->mainFile();
 
     ASSERT_THAT(mainFile, Eq("content/App.qml"));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyMainUIFileProject)
+TEST_F(QmlProjectItem, GetWithQdsPrefixMainUIFileProject)
 {
-    auto mainUiFile = projectItemNotEmpty->mainUiFile();
+    auto mainUiFile = projectItemWithQdsPrefix->mainUiFile();
 
     ASSERT_THAT(mainUiFile, Eq("Screen01.ui.qml"));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyMcuProject)
+TEST_F(QmlProjectItem, GetWithQdsPrefixMcuProject)
 {
-    auto isMcuProject = projectItemNotEmpty->isQt4McuProject();
+    auto isMcuProject = projectItemWithQdsPrefix->isQt4McuProject();
 
     ASSERT_TRUE(isMcuProject);
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyQtVersion)
+TEST_F(QmlProjectItem, GetWithQdsPrefixQtVersion)
 {
-    auto qtVersion = projectItemNotEmpty->versionQt();
+    auto qtVersion = projectItemWithQdsPrefix->versionQt();
 
     ASSERT_THAT(qtVersion, Eq("6"));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyQtQuickVersion)
+TEST_F(QmlProjectItem, GetWithQdsPrefixQtQuickVersion)
 {
-    auto qtQuickVersion = projectItemNotEmpty->versionQtQuick();
+    auto qtQuickVersion = projectItemWithQdsPrefix->versionQtQuick();
 
     ASSERT_THAT(qtQuickVersion, Eq("6.2"));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyDesignStudioVersion)
+TEST_F(QmlProjectItem, GetWithQdsPrefixDesignStudioVersion)
 {
-    auto designStudioVersion = projectItemNotEmpty->versionDesignStudio();
+    auto designStudioVersion = projectItemWithQdsPrefix->versionDesignStudio();
 
     ASSERT_THAT(designStudioVersion, Eq("3.9"));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptySourceDirectory)
+TEST_F(QmlProjectItem, GetWithQdsPrefixSourceDirectory)
 {
-    auto sourceDirectory = projectItemNotEmpty->sourceDirectory().path();
+    auto sourceDirectory = projectItemWithQdsPrefix->sourceDirectory().path();
 
     auto expectedSourceDir = localTestDataDir + "/getter-setter";
 
     ASSERT_THAT(sourceDirectory, Eq(expectedSourceDir));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyTarGetNotEmptyDirectory)
+TEST_F(QmlProjectItem, GetWithQdsPrefixTarGetWithQdsPrefixDirectory)
 {
-    auto targetDirectory = projectItemNotEmpty->targetDirectory();
+    auto targetDirectory = projectItemWithQdsPrefix->targetDirectory();
 
     ASSERT_THAT(targetDirectory, Eq("/opt/targetDirectory"));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyImportPaths)
+TEST_F(QmlProjectItem, GetWithQdsPrefixImportPaths)
 {
-    auto importPaths = projectItemNotEmpty->importPaths();
+    auto importPaths = projectItemWithQdsPrefix->importPaths();
 
     ASSERT_THAT(importPaths, UnorderedElementsAre("imports", "asset_imports"));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyFileSelectors)
+TEST_F(QmlProjectItem, GetWithQdsPrefixFileSelectors)
 {
-    auto fileSelectors = projectItemNotEmpty->fileSelectors();
+    auto fileSelectors = projectItemWithQdsPrefix->fileSelectors();
 
     ASSERT_THAT(fileSelectors, UnorderedElementsAre("WXGA", "darkTheme", "ShowIndicator"));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyMultiLanguageSupport)
+TEST_F(QmlProjectItem, GetWithQdsPrefixMultiLanguageSupport)
 {
-    auto multilanguageSupport = projectItemNotEmpty->multilanguageSupport();
+    auto multilanguageSupport = projectItemWithQdsPrefix->multilanguageSupport();
 
     ASSERT_TRUE(multilanguageSupport);
 }
 
-TEST_F(QmlProjectItem, GetNotEmptySupportedLanguages)
+TEST_F(QmlProjectItem, GetWithQdsPrefixSupportedLanguages)
 {
-    auto supportedLanguages = projectItemNotEmpty->supportedLanguages();
+    auto supportedLanguages = projectItemWithQdsPrefix->supportedLanguages();
 
     ASSERT_THAT(supportedLanguages, UnorderedElementsAre("en", "fr"));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyPrimaryLanguage)
+TEST_F(QmlProjectItem, GetWithQdsPrefixPrimaryLanguage)
 {
-    auto primaryLanguage = projectItemNotEmpty->primaryLanguage();
+    auto primaryLanguage = projectItemWithQdsPrefix->primaryLanguage();
     ;
 
     ASSERT_THAT(primaryLanguage, Eq("en"));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyWidgetApp)
+TEST_F(QmlProjectItem, GetWithQdsPrefixWidgetApp)
 {
-    auto widgetApp = projectItemNotEmpty->widgetApp();
+    auto widgetApp = projectItemWithQdsPrefix->widgetApp();
 
     ASSERT_TRUE(widgetApp);
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyFileList)
+TEST_F(QmlProjectItem, GetWithQdsPrefixFileList)
 {
     QStringList fileList;
-    for (const auto &file : projectItemNotEmpty->files()) {
+    for (const auto &file : projectItemWithQdsPrefix->files()) {
         fileList.append(file.path());
     }
 
@@ -164,33 +175,179 @@ TEST_F(QmlProjectItem, GetNotEmptyFileList)
     ASSERT_THAT(fileList, UnorderedElementsAre(expectedFileList));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyShaderToolArgs)
+TEST_F(QmlProjectItem, GetWithQdsPrefixShaderToolArgs)
 {
-    auto shaderToolArgs = projectItemNotEmpty->shaderToolArgs();
+    auto shaderToolArgs = projectItemWithQdsPrefix->shaderToolArgs();
 
-    ASSERT_THAT(shaderToolArgs,
-                UnorderedElementsAre("-s", "--glsl", "\"100 es,120,150\"", "--hlsl", "50", "--msl", "12"));
+    ASSERT_THAT(
+        shaderToolArgs,
+        UnorderedElementsAre("-s", "--glsl", "\"100 es,120,150\"", "--hlsl", "50", "--msl", "12"));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyShaderToolFiles)
+TEST_F(QmlProjectItem, GetWithQdsPrefixShaderToolFiles)
 {
-    auto shaderToolFiles = projectItemNotEmpty->shaderToolFiles();
+    auto shaderToolFiles = projectItemWithQdsPrefix->shaderToolFiles();
 
     ASSERT_THAT(shaderToolFiles, UnorderedElementsAre("content/shaders/*"));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyEnvironment)
+TEST_F(QmlProjectItem, GetWithQdsPrefixEnvironment)
 {
-    auto env = projectItemNotEmpty->environment();
+    auto env = projectItemWithQdsPrefix->environment();
 
     ASSERT_THAT(env,
                 UnorderedElementsAre(
                     Utils::EnvironmentItem("QT_QUICK_CONTROLS_CONF", "qtquickcontrols2.conf")));
 }
 
-TEST_F(QmlProjectItem, GetNotEmptyForceFreeType)
+TEST_F(QmlProjectItem, GetWithQdsPrefixForceFreeType)
 {
-    auto forceFreeType = projectItemNotEmpty->forceFreeType();
+    auto forceFreeType = projectItemWithQdsPrefix->forceFreeType();
+
+    ASSERT_TRUE(forceFreeType);
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixMainFileProject)
+{
+    auto mainFile = projectItemWithoutQdsPrefix->mainFile();
+
+    ASSERT_THAT(mainFile, Eq("content/App.qml"));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixMainUIFileProject)
+{
+    auto mainUiFile = projectItemWithoutQdsPrefix->mainUiFile();
+
+    ASSERT_THAT(mainUiFile, Eq("Screen01.ui.qml"));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixMcuProject)
+{
+    auto isMcuProject = projectItemWithoutQdsPrefix->isQt4McuProject();
+
+    ASSERT_TRUE(isMcuProject);
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixQtVersion)
+{
+    auto qtVersion = projectItemWithoutQdsPrefix->versionQt();
+
+    ASSERT_THAT(qtVersion, Eq("6"));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixQtQuickVersion)
+{
+    auto qtQuickVersion = projectItemWithoutQdsPrefix->versionQtQuick();
+
+    ASSERT_THAT(qtQuickVersion, Eq("6.2"));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixDesignStudioVersion)
+{
+    auto designStudioVersion = projectItemWithoutQdsPrefix->versionDesignStudio();
+
+    ASSERT_THAT(designStudioVersion, Eq("3.9"));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixSourceDirectory)
+{
+    auto sourceDirectory = projectItemWithoutQdsPrefix->sourceDirectory().path();
+
+    auto expectedSourceDir = localTestDataDir + "/getter-setter";
+
+    ASSERT_THAT(sourceDirectory, Eq(expectedSourceDir));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixTarGetWithoutQdsPrefixDirectory)
+{
+    auto targetDirectory = projectItemWithoutQdsPrefix->targetDirectory();
+
+    ASSERT_THAT(targetDirectory, Eq("/opt/targetDirectory"));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixImportPaths)
+{
+    auto importPaths = projectItemWithoutQdsPrefix->importPaths();
+
+    ASSERT_THAT(importPaths, UnorderedElementsAre("imports", "asset_imports"));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixFileSelectors)
+{
+    auto fileSelectors = projectItemWithoutQdsPrefix->fileSelectors();
+
+    ASSERT_THAT(fileSelectors, UnorderedElementsAre("WXGA", "darkTheme", "ShowIndicator"));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixMultiLanguageSupport)
+{
+    auto multilanguageSupport = projectItemWithoutQdsPrefix->multilanguageSupport();
+
+    ASSERT_TRUE(multilanguageSupport);
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixSupportedLanguages)
+{
+    auto supportedLanguages = projectItemWithoutQdsPrefix->supportedLanguages();
+
+    ASSERT_THAT(supportedLanguages, UnorderedElementsAre("en", "fr"));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixPrimaryLanguage)
+{
+    auto primaryLanguage = projectItemWithoutQdsPrefix->primaryLanguage();
+    ;
+
+    ASSERT_THAT(primaryLanguage, Eq("en"));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixWidgetApp)
+{
+    auto widgetApp = projectItemWithoutQdsPrefix->widgetApp();
+
+    ASSERT_TRUE(widgetApp);
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixFileList)
+{
+    QStringList fileList;
+    for (const auto &file : projectItemWithoutQdsPrefix->files()) {
+        fileList.append(file.path());
+    }
+
+    auto expectedFileList = localTestDataDir + "/getter-setter/qtquickcontrols2.conf";
+
+    ASSERT_THAT(fileList, UnorderedElementsAre(expectedFileList));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixShaderToolArgs)
+{
+    auto shaderToolArgs = projectItemWithoutQdsPrefix->shaderToolArgs();
+
+    ASSERT_THAT(
+        shaderToolArgs,
+        UnorderedElementsAre("-s", "--glsl", "\"100 es,120,150\"", "--hlsl", "50", "--msl", "12"));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixShaderToolFiles)
+{
+    auto shaderToolFiles = projectItemWithoutQdsPrefix->shaderToolFiles();
+
+    ASSERT_THAT(shaderToolFiles, UnorderedElementsAre("content/shaders/*"));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixEnvironment)
+{
+    auto env = projectItemWithoutQdsPrefix->environment();
+
+    ASSERT_THAT(env,
+                UnorderedElementsAre(
+                    Utils::EnvironmentItem("QT_QUICK_CONTROLS_CONF", "qtquickcontrols2.conf")));
+}
+
+TEST_F(QmlProjectItem, GetWithoutQdsPrefixForceFreeType)
+{
+    auto forceFreeType = projectItemWithoutQdsPrefix->forceFreeType();
 
     ASSERT_TRUE(forceFreeType);
 }
@@ -524,9 +681,8 @@ TEST_F(QmlProjectItem, TestFileFilters)
 {
     // GIVEN
     auto fileListPath = Utils::FilePath::fromString(localTestDataDir + "/file-filters/filelist.txt");
-    QStringList fileNameList = QString::fromUtf8(fileListPath.fileContents().value())
-                                   .replace("\r\n", "\n")
-                                   .split("\n");
+    QStringList fileNameList
+        = QString::fromUtf8(fileListPath.fileContents().value()).replace("\r\n", "\n").split("\n");
     auto expectedAbsoluteFilePaths = createAbsoluteFilePaths(fileNameList);
 
     // WHEN
