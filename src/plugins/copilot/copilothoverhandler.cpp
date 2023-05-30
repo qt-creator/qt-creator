@@ -147,8 +147,12 @@ void CopilotHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const Q
     auto tooltipWidget = new CopilotCompletionToolTip(suggestion->completions(),
                                                       suggestion->currentCompletion(),
                                                       editorWidget);
-    const qreal deltay = 2 * editorWidget->textDocument()->fontSettings().lineSpacing();
-    ToolTip::show(point - QPoint{0, int(deltay)}, tooltipWidget, editorWidget);
+
+    const QRect cursorRect = editorWidget->cursorRect(editorWidget->textCursor());
+    QPoint pos = editorWidget->viewport()->mapToGlobal(cursorRect.topLeft())
+                 - Utils::ToolTip::offsetFromPosition();
+    pos.ry() -= tooltipWidget->sizeHint().height();
+    ToolTip::show(pos, tooltipWidget, editorWidget);
 }
 
 } // namespace Copilot::Internal
