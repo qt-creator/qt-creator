@@ -364,7 +364,6 @@ const char MENU_GROUP_SPECIAL[]              = "Debugger.Group.Special";
 const char MENU_GROUP_START_QML[]            = "Debugger.Group.Start.Qml";
 
 void addCdbOptionPages(QList<IOptionsPage*> *opts);
-void addGdbOptionPages(QList<IOptionsPage*> *opts);
 
 static QIcon startIcon(bool toolBarStyle)
 {
@@ -1126,7 +1125,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 //    });
 
     m_optionPages.append(new LocalsAndExpressionsOptionsPage);
-    addGdbOptionPages(&m_optionPages);
     addCdbOptionPages(&m_optionPages);
 
     connect(ModeManager::instance(), &ModeManager::currentModeAboutToChange, this, [] {

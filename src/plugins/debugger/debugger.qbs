@@ -104,7 +104,7 @@ Project {
             prefix: "gdb/"
             files: [
                 "gdbengine.cpp", "gdbengine.h",
-                "gdboptionspage.cpp",
+                "gdbsettings.cpp", "gdbsettings.h",
             ]
         }
 

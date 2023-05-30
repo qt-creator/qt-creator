@@ -3,12 +3,12 @@
 
 #pragma once
 
+#include <gdb/gdbsettings.h>
+
 #include <QCoreApplication>
 #include <QHash>
 #include <QMap>
 #include <QVector>
-
-#include <utils/aspects.h>
 
 namespace Debugger::Internal {
 
@@ -50,7 +50,7 @@ class GeneralSettings
     ~GeneralSettings();
 };
 
-class DebuggerSettings
+class DebuggerSettings : public GdbSettings
 {
 public:
     explicit DebuggerSettings();
@@ -76,31 +76,6 @@ public:
     Utils::BoolAspect forceLoggingToConsole;
 
     SourcePathMapAspect sourcePathMap;
-
-    // Page 2: GDB
-    Utils::IntegerAspect gdbWatchdogTimeout;
-    Utils::BoolAspect skipKnownFrames;
-    Utils::BoolAspect useMessageBoxForSignals;
-    Utils::BoolAspect adjustBreakpointLocations;
-    Utils::BoolAspect useDynamicType;
-    Utils::BoolAspect loadGdbInit;
-    Utils::BoolAspect loadGdbDumpers;
-    Utils::BoolAspect intelFlavor;
-    Utils::BoolAspect usePseudoTracepoints;
-    Utils::BoolAspect useIndexCache;
-    Utils::StringAspect gdbStartupCommands;
-    Utils::StringAspect gdbPostAttachCommands;
-
-    // Page 3: GDB Extended
-    Utils::BoolAspect targetAsync;
-    Utils::BoolAspect autoEnrichParameters;
-    Utils::BoolAspect breakOnThrow;
-    Utils::BoolAspect breakOnCatch;
-    Utils::BoolAspect breakOnWarning;
-    Utils::BoolAspect breakOnFatal;
-    Utils::BoolAspect breakOnAbort;
-    Utils::BoolAspect enableReverseDebugging;
-    Utils::BoolAspect multiInferior;
 
     // Page 4: Locals and expressions
     Utils::BoolAspect useDebuggingHelpers;
@@ -163,7 +138,6 @@ public:
 
     Utils::AspectContainer all; // All
     Utils::AspectContainer page1; // General
-    Utils::AspectContainer page2; // GDB
     Utils::AspectContainer page4; // Locals & Expressions
     Utils::AspectContainer page5; // CDB
     Utils::AspectContainer page6; // CDB Paths

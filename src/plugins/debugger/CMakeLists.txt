@@ -51,7 +51,7 @@ add_qtc_plugin(Debugger
     disassembleragent.cpp disassembleragent.h
     disassemblerlines.cpp disassemblerlines.h
     gdb/gdbengine.cpp gdb/gdbengine.h
-    gdb/gdboptionspage.cpp
+    gdb/gdbsettings.cpp gdb/gdbsettings.h
     imageviewer.cpp imageviewer.h
     enginemanager.cpp enginemanager.h
     lldb/lldbengine.cpp lldb/lldbengine.h
