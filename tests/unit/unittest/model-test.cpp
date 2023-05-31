@@ -93,11 +93,11 @@ protected:
 
 TEST_F(Model, ModelNodeDestroyIsCallingModelResourceManagementRemoveNode)
 {
-        auto node = createNodeWithParent(rootNode);
+    auto node = createNodeWithParent(rootNode);
 
-        EXPECT_CALL(resourceManagementMock, removeNodes(ElementsAre(node), &model));
+    EXPECT_CALL(resourceManagementMock, removeNodes(ElementsAre(node), &model));
 
-        node.destroy();
+    node.destroy();
 }
 
 TEST_F(Model, ModelNodeRemoveProperyIsCallingModelResourceManagementRemoveProperty)
@@ -570,7 +570,6 @@ TEST_F(Model, RemoveModelNodesBypassesModelResourceManagement)
     auto property = createProperty(rootNode, "foo");
     auto property2 = createBindingProperty(rootNode, "bar");
     auto property3 = createProperty(rootNode, "oh");
-
     ON_CALL(resourceManagementMock,
             removeNodes(AllOf(UnorderedElementsAre(node, node2), IsSorted()), &model))
         .WillByDefault(
@@ -578,6 +577,8 @@ TEST_F(Model, RemoveModelNodesBypassesModelResourceManagement)
 
     EXPECT_CALL(viewMock, nodeAboutToBeRemoved(node));
     EXPECT_CALL(viewMock, nodeAboutToBeRemoved(node2));
+    EXPECT_CALL(viewMock, propertiesAboutToBeRemoved(_)).Times(0);
+    EXPECT_CALL(viewMock, bindingPropertiesChanged(_, _)).Times(0);
 
     model.removeModelNodes({node, node2}, QmlDesigner::BypassModelResourceManagement::Yes);
 }
@@ -647,13 +648,14 @@ TEST_F(Model, RemovePropertiesBypassesModelResourceManagement)
     auto property = createProperty(rootNode, "foo");
     auto property2 = createBindingProperty(rootNode, "bar");
     auto property3 = createProperty(rootNode, "oh");
-
     ON_CALL(resourceManagementMock,
             removeProperties(AllOf(UnorderedElementsAre(property, property3), IsSorted()), &model))
         .WillByDefault(
             Return(ModelResourceSet{{node, node2}, {property, property3}, {{property2, "bar"}}}));
 
+    EXPECT_CALL(viewMock, nodeAboutToBeRemoved(_)).Times(0);
     EXPECT_CALL(viewMock, propertiesAboutToBeRemoved(UnorderedElementsAre(property, property3)));
+    EXPECT_CALL(viewMock, bindingPropertiesChanged(_, _)).Times(0);
 
     model.removeProperties({property, property3}, QmlDesigner::BypassModelResourceManagement::Yes);
 }

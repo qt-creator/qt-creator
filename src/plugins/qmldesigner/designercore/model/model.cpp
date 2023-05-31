@@ -1168,6 +1168,9 @@ void ModelPrivate::removeProperty(const InternalPropertyPointer &property)
 
 void ModelPrivate::removeProperties(const QList<InternalPropertyPointer> &properties)
 {
+    if (properties.isEmpty())
+        return;
+
     notifyPropertiesAboutToBeRemoved(properties);
 
     const QList<PropertyPair> propertyPairList = toPropertyPairList(properties);
@@ -1196,6 +1199,9 @@ void ModelPrivate::setBindingProperty(const InternalNodePointer &node,
 
 void ModelPrivate::setBindingProperties(const ModelResourceSet::SetExpressions &setExpressions)
 {
+    if (setExpressions.isEmpty())
+        return;
+
     AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
 
     auto bindingPropertiesWithExpressions = toInternalBindingProperties(setExpressions);
@@ -2333,7 +2339,7 @@ void Model::removeModelNodes(ModelNodes nodes, BypassModelResourceManagement byp
 
     ModelResourceSet set;
 
-    if (d->m_resourceManagement || bypass == BypassModelResourceManagement::Yes)
+    if (d->m_resourceManagement && bypass == BypassModelResourceManagement::No)
         set = d->m_resourceManagement->removeNodes(std::move(nodes), this);
     else
         set = {std::move(nodes), {}, {}};
@@ -2347,7 +2353,7 @@ void Model::removeProperties(AbstractProperties properties, BypassModelResourceM
 
     ModelResourceSet set;
 
-    if (d->m_resourceManagement || bypass == BypassModelResourceManagement::Yes)
+    if (d->m_resourceManagement && bypass == BypassModelResourceManagement::No)
         set = d->m_resourceManagement->removeProperties(std::move(properties), this);
     else
         set = {{}, std::move(properties), {}};
