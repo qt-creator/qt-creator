@@ -531,6 +531,22 @@ TEST_F(Model, RemoveModelNodes)
     model.removeModelNodes({node, node2});
 }
 
+TEST_F(Model, RemoveModelNodesFiltersInvalidModelNodes)
+{
+    auto node = createNodeWithParent(rootNode, "yi");
+
+    EXPECT_CALL(resourceManagementMock, removeNodes(UnorderedElementsAre(node), &model));
+
+    model.removeModelNodes({{}, node});
+}
+
+TEST_F(Model, RemoveModelNodesForOnlyInvalidModelNodesDoesNothing)
+{
+    EXPECT_CALL(resourceManagementMock, removeNodes(_, _)).Times(0);
+
+    model.removeModelNodes({{}});
+}
+
 TEST_F(Model, RemoveModelNodesReverse)
 {
     auto node = createNodeWithParent(rootNode, "yi");
@@ -607,6 +623,22 @@ TEST_F(Model, RemoveProperties)
                 removeProperties(AllOf(UnorderedElementsAre(property, property2), IsSorted()), &model));
 
     model.removeProperties({property, property2});
+}
+
+TEST_F(Model, RemovePropertiesFiltersInvalidProperties)
+{
+    auto property = createProperty(rootNode, "yi");
+
+    EXPECT_CALL(resourceManagementMock, removeProperties(UnorderedElementsAre(property), &model));
+
+    model.removeProperties({{}, property});
+}
+
+TEST_F(Model, RemovePropertiesForOnlyInvalidPropertiesDoesNothing)
+{
+    EXPECT_CALL(resourceManagementMock, removeProperties(_, _)).Times(0);
+
+    model.removeProperties({{}});
 }
 
 TEST_F(Model, RemovePropertiesReverse)

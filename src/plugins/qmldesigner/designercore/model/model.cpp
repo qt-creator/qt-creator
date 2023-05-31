@@ -2335,6 +2335,12 @@ ModelNode Model::createModelNode(const TypeName &typeName)
 
 void Model::removeModelNodes(ModelNodes nodes, BypassModelResourceManagement bypass)
 {
+    nodes.erase(std::remove_if(nodes.begin(), nodes.end(), [](auto &&node) { return !node; }),
+                nodes.end());
+
+    if (nodes.empty())
+        return;
+
     std::sort(nodes.begin(), nodes.end());
 
     ModelResourceSet set;
@@ -2349,6 +2355,14 @@ void Model::removeModelNodes(ModelNodes nodes, BypassModelResourceManagement byp
 
 void Model::removeProperties(AbstractProperties properties, BypassModelResourceManagement bypass)
 {
+    properties.erase(std::remove_if(properties.begin(),
+                                    properties.end(),
+                                    [](auto &&property) { return !property; }),
+                     properties.end());
+
+    if (properties.empty())
+        return;
+
     std::sort(properties.begin(), properties.end());
 
     ModelResourceSet set;
