@@ -262,6 +262,7 @@
                 \li \l{\QDS on MCUs}
                     \list
                         \li \l {\QDS Version Compatibility with \QMCU SDKs}
+                        \li \l {\QDS Features on MCU Projects}
                     \endlist
             \endlist
         \li \l Help
