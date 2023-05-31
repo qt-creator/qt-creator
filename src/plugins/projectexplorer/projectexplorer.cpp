@@ -57,7 +57,6 @@
 #include "project.h"
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
-#include "projectexplorersettingspage.h"
 #include "projectexplorertr.h"
 #include "projectfilewizardextension.h"
 #include "projectmanager.h"

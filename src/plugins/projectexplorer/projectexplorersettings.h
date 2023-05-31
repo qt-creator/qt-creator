@@ -4,6 +4,8 @@
 #pragma once
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/hostosinfo.h>
 
 #include <QUuid>
@@ -78,6 +80,12 @@ public:
     bool popUp = false;
     bool wrapOutput = false;
     int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
+};
+
+class ProjectExplorerSettingsPage : public Core::IOptionsPage
+{
+public:
+    ProjectExplorerSettingsPage();
 };
 
 } // namespace Internal

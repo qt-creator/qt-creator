@@ -134,8 +134,7 @@ add_qtc_plugin(ProjectExplorer
     projectexplorerconstants.cpp
     projectexplorerconstants.h
     projectexplorericons.cpp projectexplorericons.h
-    projectexplorersettings.h
-    projectexplorersettingspage.cpp projectexplorersettingspage.h
+    projectexplorersettings.cpp projectexplorersettings.h
     projectexplorertr.h
     projectfilewizardextension.cpp projectfilewizardextension.h
     projectimporter.cpp projectimporter.h
