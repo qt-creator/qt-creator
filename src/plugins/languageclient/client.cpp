@@ -356,6 +356,7 @@ void Client::setName(const QString &name)
 QString Client::name() const
 {
     if (d->m_project && !d->m_project->displayName().isEmpty())
+        //: <language client> for <project>
         return Tr::tr("%1 for %2").arg(d->m_displayName, d->m_project->displayName());
     return d->m_displayName;
 }
@@ -555,11 +556,17 @@ Client::State Client::state() const
 QString Client::stateString() const
 {
     switch (d->m_state){
+    //: language client state
     case Uninitialized: return Tr::tr("uninitialized");
+    //: language client state
     case InitializeRequested: return Tr::tr("initialize requested");
+    //: language client state
     case Initialized: return Tr::tr("initialized");
+    //: language client state
     case ShutdownRequested: return Tr::tr("shutdown requested");
+    //: language client state
     case Shutdown: return Tr::tr("shut down");
+    //: language client state
     case Error: return Tr::tr("error");
     }
     return {};
@@ -1970,7 +1977,7 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
     if (std::optional<ResponseError<InitializeError>> error = initResponse.error()) {
         if (std::optional<InitializeError> data = error->data()) {
             if (data->retry()) {
-                const QString title(Tr::tr("Language Server \"%1\" Initialize Error").arg(m_displayName));
+                const QString title(Tr::tr("Language Server \"%1\" Initialization Error").arg(m_displayName));
                 auto result = QMessageBox::warning(Core::ICore::dialogParent(),
                                                    title,
                                                    error->message(),
@@ -1983,7 +1990,7 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
                 }
             }
         }
-        q->setError(Tr::tr("Initialize error: ") + error->message());
+        q->setError(Tr::tr("Initialization error: %1.").arg(error->message()));
         emit q->finished();
         return;
     }
