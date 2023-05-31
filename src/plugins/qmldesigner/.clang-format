@@ -63,6 +63,7 @@ IncludeIsMainRegex: '(Test)?$'
 IndentCaseLabels: false
 IndentWidth:     4
 IndentWrappedFunctionNames: false
+InsertBraces : false
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
