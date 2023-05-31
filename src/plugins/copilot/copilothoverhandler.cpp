@@ -139,6 +139,7 @@ void CopilotHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
 
 void CopilotHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
+    Q_UNUSED(point)
     auto *suggestion = dynamic_cast<CopilotSuggestion *>(TextDocumentLayout::suggestion(m_block));
 
     if (!suggestion)
