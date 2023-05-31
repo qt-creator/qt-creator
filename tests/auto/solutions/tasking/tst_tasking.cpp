@@ -12,7 +12,7 @@ using namespace std::chrono_literals;
 using namespace Tasking;
 
 template <bool SuccessOnDone>
-class TASKING_EXPORT DurationTaskAdapter : public TaskAdapter<std::chrono::milliseconds>
+class DurationTaskAdapter : public TaskAdapter<std::chrono::milliseconds>
 {
 public:
     DurationTaskAdapter() { *task() = std::chrono::milliseconds{0}; }
