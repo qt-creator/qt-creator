@@ -20,6 +20,7 @@
 
 #include <QGroupBox>
 #include <QTextBrowser>
+#include <QTimer>
 
 using namespace Utils;
 
@@ -66,7 +67,7 @@ WebAssemblySettings::WebAssemblySettings()
 
     connect(this, &Utils::AspectContainer::applied, &WebAssemblyToolChain::registerToolChains);
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         auto instruction = new QLabel(
             Tr::tr("Select the root directory of an installed %1. "
                    "Ensure that the activated SDK version is compatible with the %2 "
@@ -96,7 +97,7 @@ WebAssemblySettings::WebAssemblySettings()
 
         // _clang-format off
         using namespace Layouting;
-        Column {
+        Column col {
             Group {
                 title(Tr::tr("Emscripten SDK path:")),
                 Column {
@@ -113,12 +114,17 @@ WebAssemblySettings::WebAssemblySettings()
                 },
             },
             m_qtVersionDisplay,
-        }.attachTo(widget);
+        };
         // _clang-format on
 
-        updateStatus();
         connect(emSdk.pathChooser(), &Utils::PathChooser::textChanged,
                 this, &WebAssemblySettings::updateStatus);
+
+        // updateStatus() uses m_emSdkEnvGroupBox which only exists
+        // after this here emerges. So delay the update a bit.
+        QTimer::singleShot(0, this, &WebAssemblySettings::updateStatus);
+
+        return col;
     });
 
     readSettings();
@@ -131,6 +137,8 @@ void WebAssemblySettings::updateStatus()
     const Utils::FilePath newEmSdk = emSdk.pathChooser()->filePath();
     const bool sdkValid = newEmSdk.exists() && WebAssemblyEmSdk::isValid(newEmSdk);
 
+    QTC_ASSERT(m_emSdkVersionDisplay, return);
+    QTC_ASSERT(m_emSdkEnvGroupBox, return);
     m_emSdkVersionDisplay->setVisible(sdkValid);
     m_emSdkEnvGroupBox->setEnabled(sdkValid);
 
