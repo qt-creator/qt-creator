@@ -340,134 +340,6 @@ private:
 using ExCommandMap = QMap<QString, QRegularExpression>;
 using UserCommandMap = QMap<int, QString>;
 
-static void layoutPage(QWidget *widget)
-{
-    using namespace Layouting;
-    FakeVimSettings &s = *fakeVimSettings();
-
-    Row bools {
-        Column {
-            s.autoIndent,
-            s.smartIndent,
-            s.expandTab,
-            s.smartTab,
-            s.hlSearch,
-            s.showCmd,
-            s.startOfLine,
-            s.passKeys,
-            s.blinkingCursor
-        },
-        Column {
-            s.incSearch,
-            s.useCoreSearch,
-            s.ignoreCase,
-            s.smartCase,
-            s.wrapScan,
-            s.showMarks,
-            s.passControlKey,
-            s.relativeNumber,
-            s.tildeOp
-        }
-    };
-
-    Row ints { s.shiftWidth, s.tabStop, s.scrollOff, st };
-
-    Column strings {
-        s.backspace,
-        s.isKeyword,
-        Row {s.readVimRc, s.vimRcPath}
-    };
-
-    Column {
-        s.useFakeVim,
-
-        Group {
-            title(Tr::tr("Vim Behavior")),
-            Column {
-                bools,
-                ints,
-                strings
-            }
-        },
-
-        Group {
-            title(Tr::tr("Plugin Emulation")),
-            Column {
-                s.emulateVimCommentary,
-                s.emulateReplaceWithRegister,
-                s.emulateArgTextObj,
-                s.emulateExchange,
-                s.emulateSurround
-            }
-        },
-
-        Row {
-            PushButton {
-                text(Tr::tr("Copy Text Editor Settings")),
-                onClicked([&s] {
-                    TabSettings ts = TextEditorSettings::codeStyle()->tabSettings();
-                    TypingSettings tps = TextEditorSettings::typingSettings();
-                    s.expandTab.setValue(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
-                    s.tabStop.setValue(ts.m_tabSize);
-                    s.shiftWidth.setValue(ts.m_indentSize);
-                    s.smartTab.setValue(tps.m_smartBackspaceBehavior
-                                        == TypingSettings::BackspaceFollowsPreviousIndents);
-                    s.autoIndent.setValue(true);
-                    s.smartIndent.setValue(tps.m_autoIndent);
-                    s.incSearch.setValue(true);
-                }),
-            },
-            PushButton {
-                text(Tr::tr("Set Qt Style")),
-                onClicked([&s] {
-                    s.expandTab.setVolatileValue(true);
-                    s.tabStop.setVolatileValue(4);
-                    s.shiftWidth.setVolatileValue(4);
-                    s.smartTab.setVolatileValue(true);
-                    s.autoIndent.setVolatileValue(true);
-                    s.smartIndent.setVolatileValue(true);
-                    s.incSearch.setVolatileValue(true);
-                    s.backspace.setVolatileValue(QString("indent,eol,start"));
-                    s.passKeys.setVolatileValue(true);
-                }),
-            },
-            PushButton {
-                text(Tr::tr("Set Plain Style")),
-                onClicked([&s] {
-                    s.expandTab.setVolatileValue(false);
-                    s.tabStop.setVolatileValue(8);
-                    s.shiftWidth.setVolatileValue(8);
-                    s.smartTab.setVolatileValue(false);
-                    s.autoIndent.setVolatileValue(false);
-                    s.smartIndent.setVolatileValue(false);
-                    s.incSearch.setVolatileValue(false);
-                    s.backspace.setVolatileValue(QString());
-                    s.passKeys.setVolatileValue(false);
-                }),
-             },
-             st
-        },
-        st
-
-    }.attachTo(widget);
-
-    s.vimRcPath.setEnabler(&s.readVimRc);
-}
-
-class FakeVimOptionPage : public IOptionsPage
-{
-public:
-    FakeVimOptionPage()
-    {
-        setId(SETTINGS_ID);
-        setDisplayName(Tr::tr("General"));
-        setCategory(SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("FakeVim"));
-        setCategoryIconPath(":/fakevim/images/settingscategory_fakevim.png");
-        setLayouter(&layoutPage);
-        setSettings(fakeVimSettings());
-    }
-};
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -1107,7 +979,7 @@ IAssistProcessor *FakeVimCompletionAssistProvider::createProcessor(const AssistI
 class FakeVimPluginRunData
 {
 public:
-    FakeVimOptionPage optionsPage;
+    FakeVimSettings settings;
     FakeVimExCommandsPage exCommandsPage;
     FakeVimUserCommandsPage userCommandsPage;
 

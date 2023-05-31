@@ -4,7 +4,7 @@
 #pragma once
 
 #ifndef FAKEVIM_STANDALONE
-#   include <utils/aspects.h>
+#   include <coreplugin/dialogs/ioptionspage.h>
 #endif
 
 #include <QCoreApplication>
@@ -68,7 +68,7 @@ public:
 
 #else
 
-using FvAspectContainer = Utils::AspectContainer;
+using FvAspectContainer = Core::PagedSettings;
 using FvBaseAspect = Utils::BaseAspect;
 using FvBoolAspect = Utils::BoolAspect;
 using FvIntegerAspect = Utils::IntegerAspect;
