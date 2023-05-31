@@ -18,6 +18,7 @@ SearchResultItem searchResult(const FilePath &fileName, const QString &matchingL
     result.setFilePath(fileName);
     result.setLineText(matchingLine);
     result.setMainRange(lineNumber, matchStart, matchLength);
+    result.setUseTextEditorFont(true);
     return result;
 }
 

@@ -128,6 +128,7 @@ SearchResultItems parse(const QString &output, const std::optional<QRegularExpre
             SearchResultItem item;
             item.setFilePath(filePath);
             item.setDisplayText(hitLine.toString());
+            item.setUseTextEditorFont(true);
             for (const QPair<int, int> &hit : hits) {
                 item.setMainRange(lineNumber, hit.first, hit.second);
                 item.setUserData(
