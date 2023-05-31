@@ -593,7 +593,25 @@ bool VcsBasePluginPrivate::enableMenuAction(ActionState as, QAction *menuAction)
 
 QString VcsBasePluginPrivate::commitDisplayName() const
 {
+    //: Name of the "commit" action of the VCS
     return Tr::tr("Commit", "name of \"commit\" action of the VCS.");
+}
+
+QString VcsBasePluginPrivate::commitAbortTitle() const
+{
+    return Tr::tr("Close Commit Editor");
+}
+
+QString VcsBasePluginPrivate::commitAbortMessage() const
+{
+    return Tr::tr("Closing this editor will abort the commit.");
+}
+
+QString VcsBasePluginPrivate::commitErrorMessage(const QString &error) const
+{
+    if (error.isEmpty())
+        return Tr::tr("Cannot commit.");
+    return Tr::tr("Cannot commit: %1.").arg(error);
 }
 
 void VcsBasePluginPrivate::commitFromEditor()

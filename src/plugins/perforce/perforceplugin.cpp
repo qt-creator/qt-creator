@@ -226,6 +226,10 @@ public:
     void discardCommit() override { cleanCommitMessageFile(); }
 
     QString commitDisplayName() const final;
+    QString commitAbortTitle() const final;
+    QString commitAbortMessage() const final;
+    QString commitErrorMessage(const QString &error) const final;
+
     void p4Diff(const PerforceDiffParameters &p);
 
     void openCurrentFile();
@@ -1443,7 +1447,25 @@ void PerforceDiffConfig::triggerReRun()
 
 QString PerforcePluginPrivate::commitDisplayName() const
 {
+    //: Name of the "commit" action of the VCS
     return Tr::tr("Submit");
+}
+
+QString PerforcePluginPrivate::commitAbortTitle() const
+{
+    return Tr::tr("Close Submit Editor");
+}
+
+QString PerforcePluginPrivate::commitAbortMessage() const
+{
+    return Tr::tr("Closing this editor will abort the submit.");
+}
+
+QString PerforcePluginPrivate::commitErrorMessage(const QString &error) const
+{
+    if (error.isEmpty())
+        return Tr::tr("Cannot submit.");
+    return Tr::tr("Cannot submit: %1.").arg(error);
 }
 
 void PerforcePluginPrivate::p4Diff(const FilePath &workingDir, const QStringList &files)

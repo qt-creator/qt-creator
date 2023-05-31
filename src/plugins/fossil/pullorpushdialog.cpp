@@ -34,7 +34,7 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
     m_localPathChooser->setPromptDialogFilter(Tr::tr(Constants::FOSSIL_FILE_FILTER));
 
     m_urlButton = new QRadioButton(Tr::tr("Specify URL:"));
-    m_urlButton->setToolTip(Tr::tr("For example: https://[user[:pass]@]host[:port]/[path]"));
+    m_urlButton->setToolTip(Tr::tr("For example: \"https://[user[:pass]@]host[:port]/[path]\"."));
 
     m_urlLineEdit = new QLineEdit;
     m_urlLineEdit->setEnabled(false);

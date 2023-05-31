@@ -453,11 +453,7 @@ void VcsBaseSubmitEditor::accept(VcsBasePluginPrivate *plugin)
     QString errorMessage;
     const bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit(&errorMessage);
     if (!canCommit) {
-        VcsOutputWindow::appendError(
-                    Tr::tr("Cannot %1%2.",
-                       "%2 is an optional error message with ': ' prefix. Don't add space in front.")
-                    .arg(plugin->commitDisplayName().toLower(),
-                         errorMessage.isEmpty() ? errorMessage : ": " + errorMessage));
+        VcsOutputWindow::appendError(plugin->commitErrorMessage(errorMessage));
     } else if (plugin->activateCommit()) {
         close();
     }
@@ -480,12 +476,10 @@ bool VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
     if (!submitWidget->isEnabled() || !submitWidget->isEdited())
         return true;
 
-    const QString commitName = plugin->commitDisplayName();
     QMessageBox mb(Core::ICore::dialogParent());
-    mb.setWindowTitle(Tr::tr("Close %1 %2 Editor").arg(plugin->displayName(), commitName));
+    mb.setWindowTitle(plugin->commitAbortTitle());
     mb.setIcon(QMessageBox::Warning);
-    mb.setText(Tr::tr("Closing this editor will abort the %1.")
-                   .arg(commitName.toLower()));
+    mb.setText(plugin->commitAbortMessage());
     mb.setStandardButtons(QMessageBox::Close | QMessageBox::Cancel);
     // On Windows there is no mnemonic for Close. Set it explicitly.
     mb.button(QMessageBox::Close)->setText(Tr::tr("&Close"));
