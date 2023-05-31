@@ -112,8 +112,10 @@ SearchResultItems parse(const QString &output, const std::optional<QRegularExpre
 
         const FilePath filePath = FilePath::fromPathPart(filePathLine.mid(1));
 
-        QStringView hitLine = nextLine(&remainingOutput);
-        while (!hitLine.isEmpty()) {
+        while (true) {
+            QStringView hitLine = nextLine(&remainingOutput);
+            if (hitLine.isEmpty())
+                break;
             int lineNumber = -1;
             if (!parseLineNumber(&hitLine, &lineNumber))
                 break;
@@ -133,7 +135,6 @@ SearchResultItems parse(const QString &output, const std::optional<QRegularExpre
                            : QVariant());
                 items.append(item);
             }
-            hitLine = nextLine(&remainingOutput);
         }
     }
     return items;
