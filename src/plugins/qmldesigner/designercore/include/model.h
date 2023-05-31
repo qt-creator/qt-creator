@@ -43,6 +43,8 @@ class TextModifier;
 
 using PropertyListType = QList<QPair<PropertyName, QVariant>>;
 
+enum class BypassModelResourceManagement { No, Yes };
+
 class QMLDESIGNERCORE_EXPORT Model : public QObject
 {
     friend ModelNode;
@@ -138,6 +140,11 @@ public:
     ModelNode modelNodeForId(const QString &id);
 
     ModelNode createModelNode(const TypeName &typeName);
+
+    void removeModelNodes(ModelNodes nodes,
+                          BypassModelResourceManagement = BypassModelResourceManagement::No);
+    void removeProperties(AbstractProperties properties,
+                          BypassModelResourceManagement = BypassModelResourceManagement::No);
 
     // Editing sub-components:
 

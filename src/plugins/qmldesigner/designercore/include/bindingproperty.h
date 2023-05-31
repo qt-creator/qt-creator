@@ -49,6 +49,8 @@ private:
     ModelNode resolveBinding(const QString &binding, ModelNode currentNode) const;
 };
 
+using BindingProperties = QList<BindingProperty>;
+
 bool compareBindingProperties(const QmlDesigner::BindingProperty &bindingProperty01, const QmlDesigner::BindingProperty &bindingProperty02);
 
 QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const BindingProperty &property);

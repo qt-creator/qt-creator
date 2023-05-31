@@ -244,8 +244,12 @@ public:
     void setPropertyValue(const InternalNodePointer &node,const PropertyName &name, const QVariant &value);
     void removePropertyAndRelatedResources(const InternalPropertyPointer &property);
     void removeProperty(const InternalPropertyPointer &property);
+    void removeProperties(const QList<InternalPropertyPointer> &properties);
 
-    void setBindingProperty(const InternalNodePointer &node, const PropertyName &name, const QString &expression);
+    void setBindingProperty(const InternalNodePointer &node,
+                            const PropertyName &name,
+                            const QString &expression);
+    void setBindingProperties(const ModelResourceSet::SetExpressions &setExpressions);
     void setSignalHandlerProperty(const InternalNodePointer &node, const PropertyName &name, const QString &source);
     void setSignalDeclarationProperty(const InternalNodePointer &node, const PropertyName &name, const QString &signature);
     void setVariantProperty(const InternalNodePointer &node, const PropertyName &name, const QVariant &value);
@@ -282,6 +286,8 @@ public:
     InternalNodePointer currentStateNode() const;
     InternalNodePointer currentTimelineNode() const;
 
+    void handleResourceSet(const ModelResourceSet &resourceSet);
+
 private:
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
     void removeAllSubNodes(const InternalNodePointer &node);
@@ -290,8 +296,10 @@ private:
     QList<ModelNode> toModelNodeList(const QList<InternalNodePointer> &nodeList, AbstractView *view) const;
     QVector<ModelNode> toModelNodeVector(const QVector<InternalNodePointer> &nodeVector, AbstractView *view) const;
     QVector<InternalNodePointer> toInternalNodeVector(const QVector<ModelNode> &modelNodeVector) const;
+    static QList<InternalPropertyPointer> toInternalProperties(const AbstractProperties &properties);
+    static QList<std::tuple<InternalBindingPropertyPointer, QString>> toInternalBindingProperties(
+        const ModelResourceSet::SetExpressions &setExpressions);
     EnabledViewRange enabledViews() const;
-    void handleResourceSet(const ModelResourceSet &resourceSet);
 
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;

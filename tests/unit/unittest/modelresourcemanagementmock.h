@@ -12,12 +12,12 @@ class ModelResourceManagementMock : public QmlDesigner::ModelResourceManagementI
 {
 public:
     MOCK_METHOD(QmlDesigner::ModelResourceSet,
-                removeNode,
-                (const QmlDesigner::ModelNode &),
+                removeNodes,
+                (QmlDesigner::ModelNodes, QmlDesigner::Model *),
                 (const, override));
     MOCK_METHOD(QmlDesigner::ModelResourceSet,
-                removeProperty,
-                (const QmlDesigner::AbstractProperty &),
+                removeProperties,
+                (QmlDesigner::AbstractProperties, QmlDesigner::Model *),
                 (const, override));
 };
 
@@ -28,14 +28,16 @@ public:
         : mock{mock}
     {}
 
-    QmlDesigner::ModelResourceSet removeNode(const QmlDesigner::ModelNode &node) const override
+    QmlDesigner::ModelResourceSet removeNodes(QmlDesigner::ModelNodes nodes,
+                                              QmlDesigner::Model *model) const override
     {
-        return mock.removeNode(node);
+        return mock.removeNodes(std::move(nodes), model);
     }
 
-    QmlDesigner::ModelResourceSet removeProperty(const QmlDesigner::AbstractProperty &property) const override
+    QmlDesigner::ModelResourceSet removeProperties(QmlDesigner::AbstractProperties properties,
+                                                   QmlDesigner::Model *model) const override
     {
-        return mock.removeProperty(property);
+        return mock.removeProperties(std::move(properties), model);
     }
 
     ModelResourceManagementMock &mock;

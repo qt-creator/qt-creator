@@ -32,7 +32,7 @@ struct Base
         , nodeActions{nodeActions}
     {}
 
-    void removeNodes(QList<ModelNode> newModelNodes, CheckRecursive checkRecursive)
+    void removeNodes(ModelNodes newModelNodes, CheckRecursive checkRecursive)
     {
         if (newModelNodes.empty())
             return;
@@ -43,7 +43,7 @@ struct Base
             checkNewModelNodes(newModelNodes, oldModelNodes);
     }
 
-    void checkModelNodes(QList<ModelNode> newModelNodes)
+    void checkModelNodes(ModelNodes newModelNodes)
     {
         if (newModelNodes.empty())
             return;
@@ -111,8 +111,7 @@ private:
         return oldProperties;
     }
 
-    void checkNewModelNodes(const QList<ModelNode> &newModelNodes,
-                            const QList<ModelNode> &oldModelNodes)
+    void checkNewModelNodes(const ModelNodes &newModelNodes, const ModelNodes &oldModelNodes)
     {
         ModelNodes addedModelNodes;
         addedModelNodes.reserve(newModelNodes.size());
@@ -651,10 +650,9 @@ void forEachAction(NodeActions &nodeActions, ActionCall actionCall)
 
 } // namespace
 
-ModelResourceSet ModelResourceManagement::removeNode(const ModelNode &node) const
+ModelResourceSet ModelResourceManagement::removeNodes(ModelNodes nodes, Model *model) const
 {
     ModelResourceSet resourceSet;
-    Model *model = node.model();
 
     DependenciesSet set = createDependenciesSet(model);
 
@@ -670,17 +668,17 @@ ModelResourceSet ModelResourceManagement::removeNode(const ModelNode &node) cons
                                                     std::move(set.targetsDependencies),
                                                     std::move(set.targetsNodesProperties)}};
 
-    Base{resourceSet, nodeActions}.removeNodes({node}, CheckRecursive::Yes);
+    Base{resourceSet, nodeActions}.removeNodes(nodes, CheckRecursive::Yes);
 
     forEachAction(nodeActions, [&](auto &action) { action.finally(); });
 
     return resourceSet;
 }
 
-ModelResourceSet ModelResourceManagement::removeProperty(const AbstractProperty &property) const
+ModelResourceSet ModelResourceManagement::removeProperties(AbstractProperties properties,
+                                                           Model *model) const
 {
     ModelResourceSet resourceSet;
-    Model *model = property.model();
 
     DependenciesSet set = createDependenciesSet(model);
 
@@ -696,7 +694,7 @@ ModelResourceSet ModelResourceManagement::removeProperty(const AbstractProperty 
                                                     std::move(set.targetsDependencies),
                                                     std::move(set.targetsNodesProperties)}};
 
-    Base{resourceSet, nodeActions}.removeProperties({property}, CheckRecursive::Yes);
+    Base{resourceSet, nodeActions}.removeProperties(properties, CheckRecursive::Yes);
 
     forEachAction(nodeActions, [&](auto &action) { action.finally(); });
 

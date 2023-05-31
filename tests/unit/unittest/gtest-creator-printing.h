@@ -135,6 +135,7 @@ std::ostream &operator<<(std::ostream &out, SourceType sourceType);
 std::ostream &operator<<(std::ostream &out, const FileStatus &fileStatus);
 std::ostream &operator<<(std::ostream &out, const Import &import);
 std::ostream &operator<<(std::ostream &out, const ModelResourceSet::SetExpression &setExpression);
+std::ostream &operator<<(std::ostream &out, const ModelResourceSet &modelResourceSet);
 
 namespace Cache {
 class SourceContext;

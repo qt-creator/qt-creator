@@ -525,6 +525,12 @@ std::ostream &operator<<(std::ostream &out, const ModelResourceSet::SetExpressio
     return out << "(" << setExpression.property << ", " << setExpression.expression << ")";
 }
 
+std::ostream &operator<<(std::ostream &out, const ModelResourceSet &set)
+{
+    return out << "(" << set.removeModelNodes << ", " << set.removeProperties << ", "
+               << set.setExpressions << ")";
+}
+
 namespace Cache {
 
 std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext)

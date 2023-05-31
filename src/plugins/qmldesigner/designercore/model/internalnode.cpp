@@ -119,7 +119,7 @@ InternalProperty::Pointer InternalNode::property(const PropertyName &name) const
 InternalBindingProperty::Pointer InternalNode::bindingProperty(const PropertyName &name) const
 {
     InternalProperty::Pointer property =  m_namePropertyHash.value(name);
-    if (property->isBindingProperty())
+    if (property && property->isBindingProperty())
         return std::static_pointer_cast<InternalBindingProperty>(property);
 
     return InternalBindingProperty::Pointer();

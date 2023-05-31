@@ -13,8 +13,8 @@ namespace QmlDesigner {
 class ModelResourceManagement final : public ModelResourceManagementInterface
 {
 public:
-    ModelResourceSet removeNode(const ModelNode &node) const;
-    ModelResourceSet removeProperty(const AbstractProperty &property) const;
+    ModelResourceSet removeNodes(ModelNodes nodes, Model *model) const override;
+    ModelResourceSet removeProperties(AbstractProperties properties, Model *model) const override;
 };
 
 } // namespace QmlDesigner

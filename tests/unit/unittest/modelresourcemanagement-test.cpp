@@ -69,23 +69,45 @@ protected:
     ModelNode rootNode;
 };
 
-TEST_F(ModelResourceManagement, RemoveNode)
+TEST_F(ModelResourceManagement, RemoveProperty)
 {
     auto layerEnabledProperty = rootNode.variantProperty("layer.enabled");
     layerEnabledProperty.setValue(true);
 
-    auto resources = management.removeProperty(layerEnabledProperty);
+    auto resources = management.removeProperties({layerEnabledProperty}, &model);
 
     ASSERT_THAT(resources.removeProperties, Contains(layerEnabledProperty));
 }
 
-TEST_F(ModelResourceManagement, RemoveProperty)
+TEST_F(ModelResourceManagement, RemoveMultipleProperties)
+{
+    auto layerEnabledProperty = rootNode.variantProperty("layer.enabled");
+    layerEnabledProperty.setValue(true);
+    auto layerHiddenProperty = rootNode.variantProperty("layer.hidden");
+    layerHiddenProperty.setValue(true);
+
+    auto resources = management.removeProperties({layerEnabledProperty, layerHiddenProperty}, &model);
+
+    ASSERT_THAT(resources.removeProperties, IsSupersetOf({layerEnabledProperty, layerHiddenProperty}));
+}
+
+TEST_F(ModelResourceManagement, RemoveNode)
 {
     auto node = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
 
-    auto resources = management.removeNode(node);
+    auto resources = management.removeNodes({node}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, Contains(node));
+}
+
+TEST_F(ModelResourceManagement, RemoveMultipleNodes)
+{
+    auto node = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
+    auto node2 = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
+
+    auto resources = management.removeNodes({node, node2}, &model);
+
+    ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({node, node2}));
 }
 
 TEST_F(ModelResourceManagement, DontRemoveChildNodes)
@@ -93,7 +115,7 @@ TEST_F(ModelResourceManagement, DontRemoveChildNodes)
     auto node = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
     auto childNode = createNodeWithParent("QtQuick.Item", node.defaultNodeListProperty());
 
-    auto resources = management.removeNode(node);
+    auto resources = management.removeNodes({node}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, Not(Contains(childNode)));
 }
@@ -104,7 +126,7 @@ TEST_F(ModelResourceManagement, RemovePropertyLayerEnabled)
     auto layerEnabledProperty = rootNode.variantProperty("layer.enabled");
     layerEnabledProperty.setValue(true);
 
-    auto resources = management.removeNode(node);
+    auto resources = management.removeNodes({node}, &model);
 
     ASSERT_THAT(resources.removeProperties, Contains(layerEnabledProperty));
 }
@@ -116,7 +138,7 @@ TEST_F(ModelResourceManagement, RemovePropertyLayerEnabledIfLayerEffectPropertyI
     auto layerEnabledProperty = rootNode.variantProperty("layer.enabled");
     layerEnabledProperty.setValue(true);
 
-    auto resources = management.removeProperty(layerEffectProperty);
+    auto resources = management.removeProperties({layerEffectProperty}, &model);
 
     ASSERT_THAT(resources.removeProperties, Contains(layerEnabledProperty));
 }
@@ -126,7 +148,7 @@ TEST_F(ModelResourceManagement, DontRemovePropertyLayerEnabledIfNotExists)
     auto node = createNodeWithParent("QtQuick.Item", rootNode.nodeProperty("layer.effect"));
     auto layerEnabledProperty = rootNode.variantProperty("layer.enabled");
 
-    auto resources = management.removeNode(node);
+    auto resources = management.removeNodes({node}, &model);
 
     ASSERT_THAT(resources.removeProperties, Not(Contains(layerEnabledProperty)));
 }
@@ -137,7 +159,7 @@ TEST_F(ModelResourceManagement, RemoveAliasExportProperty)
     auto aliasExportProperty = rootNode.bindingProperty("foo");
     aliasExportProperty.setDynamicTypeNameAndExpression("alias", "foo");
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeProperties, Contains(aliasExportProperty));
 }
@@ -149,7 +171,7 @@ TEST_F(ModelResourceManagement, RemoveAliasForChildExportProperty)
     auto aliasExportProperty = rootNode.bindingProperty("foo");
     aliasExportProperty.setDynamicTypeNameAndExpression("alias", "foo");
 
-    auto resources = management.removeNode(node);
+    auto resources = management.removeNodes({node}, &model);
 
     ASSERT_THAT(resources.removeProperties, Contains(aliasExportProperty));
 }
@@ -162,7 +184,7 @@ TEST_F(ModelResourceManagement, RemoveAliasForGrandChildExportProperty)
     auto aliasExportProperty = rootNode.bindingProperty("foo");
     aliasExportProperty.setDynamicTypeNameAndExpression("alias", "foo");
 
-    auto resources = management.removeNode(node);
+    auto resources = management.removeNodes({node}, &model);
 
     ASSERT_THAT(resources.removeProperties, Contains(aliasExportProperty));
 }
@@ -173,7 +195,7 @@ TEST_F(ModelResourceManagement, DontRemoveNonAliasExportProperty)
     auto aliasExportProperty = rootNode.bindingProperty("foo");
     aliasExportProperty.setDynamicTypeNameAndExpression("int", "foo");
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeProperties, Not(Contains(aliasExportProperty)));
 }
@@ -221,7 +243,7 @@ TEST_P(ForTarget, Remove)
     sourceTargetProperty.setExpression("foo");
     source2TargetProperty.setExpression("foo");
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({source, source2}));
 }
@@ -230,14 +252,14 @@ TEST_P(ForTarget, DontRemoveForDifferentTarget)
 {
     sourceTargetProperty.setExpression("bar");
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, Not(Contains(source)));
 }
 
 TEST_P(ForTarget, DontRemoveKeyIfTargetIsNotSet)
 {
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, Not(Contains(source)));
 }
@@ -246,7 +268,7 @@ TEST_P(ForTarget, DontRemoveIfTargetCannotBeResolved)
 {
     sourceTargetProperty.setExpression("not_exists");
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, Not(Contains(source)));
 }
@@ -291,7 +313,7 @@ TEST_P(ForTargets, Remove)
     sourceTargetsProperty.setExpression("[foo]");
     source2TargetsProperty.setExpression("[foo]");
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({source, source2}));
 }
@@ -301,7 +323,7 @@ TEST_P(ForTargets, HandleInvalidBinding)
     sourceTargetsProperty.setExpression("[foo, broken]");
     source2TargetsProperty.setExpression("[foo, fail]");
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({source, source2}));
 }
@@ -314,7 +336,7 @@ TEST_P(ForTargets, RemoveIndirectly)
     sourceTargetsProperty.setExpression("[foo, bar]");
     source2TargetsProperty.setExpression("[bar, foo]");
 
-    auto resources = management.removeNode(parenNode);
+    auto resources = management.removeNodes({parenNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({source, source2}));
 }
@@ -324,7 +346,7 @@ TEST_P(ForTargets, DontRemoveTargetIfThereAreStillAnOtherTargets)
     sourceTargetsProperty.setExpression("[foo, bar]");
     source2TargetsProperty.setExpression("[foo, bar]");
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, AllOf(Not(Contains(source)), Not(Contains(source2))));
 }
@@ -334,7 +356,7 @@ TEST_P(ForTargets, ChangeExpressionIfThereAreStillAnOtherTargets)
     sourceTargetsProperty.setExpression("[foo, bar]");
     source2TargetsProperty.setExpression("[foo, bar]");
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.setExpressions,
                 UnorderedElementsAre(SetExpression(sourceTargetsProperty, "[bar]"),
@@ -345,7 +367,7 @@ TEST_P(ForTargets, DontChangeOrderInExpression)
 {
     sourceTargetsProperty.setExpression("[yi, foo, er, san]");
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.setExpressions,
                 UnorderedElementsAre(SetExpression(sourceTargetsProperty, "[yi, er, san]")));
@@ -403,7 +425,7 @@ TEST_P(ForState, Remove)
     sourceStateProperty.setValue(QString{"foo"});
     source2StateProperty.setValue(QString{"foo"});
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({source, source2}));
 }
@@ -413,7 +435,7 @@ TEST_P(ForState, DontRemoveForStarState)
     fooNode.variantProperty("name").setValue("*");
     sourceStateProperty.setValue(QString{"*"});
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, Not(Contains(source)));
 }
@@ -423,7 +445,7 @@ TEST_P(ForState, DontRemoveForEmptyState)
     fooNode.variantProperty("name").setValue("");
     sourceStateProperty.setValue(QString{""});
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, Not(Contains(source)));
 }
@@ -433,7 +455,7 @@ TEST_P(ForState, DontRemoveForDifferentState)
     sourceStateProperty.setValue(QString{"foo"});
     source2StateProperty.setValue(QString{"bar"});
 
-    auto resources = management.removeNode(fooNode);
+    auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({source}));
 }
