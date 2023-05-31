@@ -1096,7 +1096,7 @@ extend_qtc_plugin(assetexporterplugin
 extend_qtc_plugin(assetexporterplugin
   SOURCES_PREFIX assetexporterplugin
   SOURCES
-    assetexportdialog.h assetexportdialog.cpp assetexportdialog.ui
+    assetexportdialog.h assetexportdialog.cpp
     assetexporter.h assetexporter.cpp
     assetexporterplugin.h assetexporterplugin.cpp
     assetexporterview.h assetexporterview.cpp
