@@ -107,6 +107,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     Form form;
     form.addRow({Tr::tr("Color:"), m_colorButton, resetColorButton, st});
     form.addRow({Tr::tr("Theme:"), m_themeChooser});
+    form.addRow({Tr::tr("Toolbar style:"), m_toolbarStyleBox, st});
     form.addRow({Tr::tr("Language:"), m_languageBox, st});
 
     if (!Utils::HostOsInfo::isMacHost()) {
@@ -125,7 +126,6 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     form.addRow({empty, m_showShortcutsInContextMenus});
     form.addRow({Row{m_resetWarningsButton, st}});
     form.addRow({Tr::tr("Text codec for tools:"), m_codecBox, st});
-    form.addRow({Tr::tr("Toolbar Style:"), m_toolbarStyleBox, st});
     Column{Group{title(Tr::tr("User Interface")), form}}.attachTo(this);
 
     fillLanguageBox();
