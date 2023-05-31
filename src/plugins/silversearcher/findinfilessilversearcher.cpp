@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "findinfilessilversearcher.h"
+#include "silversearcherparser.h"
+#include "silversearchertr.h"
 
 #include <texteditor/findinfiles.h>
 #include <utils/async.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
-
-#include "silversearcheroutputparser.h"
-#include "silversearchertr.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
