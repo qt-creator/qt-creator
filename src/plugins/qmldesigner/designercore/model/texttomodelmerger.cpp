@@ -387,6 +387,11 @@ bool smartVeryFuzzyCompare(const QVariant &value1, const QVariant &value2)
     return false;
 }
 
+    void removeModelNode(const QmlDesigner::ModelNode &modelNode)
+    {
+        modelNode.model()->removeModelNodes({modelNode},
+                                            QmlDesigner::BypassModelResourceManagement::Yes);
+    }
 bool smartColorCompare(const QVariant &value1, const QVariant &value2)
 {
     if ((value1.type() == QVariant::Color) || (value2.type() == QVariant::Color))
@@ -394,6 +399,11 @@ bool smartColorCompare(const QVariant &value1, const QVariant &value2)
     return false;
 }
 
+    void removeProperty(const QmlDesigner::AbstractProperty &modelProperty)
+    {
+        modelProperty.model()->removeProperties({modelProperty},
+                                                QmlDesigner::BypassModelResourceManagement::Yes);
+    }
 bool equals(const QVariant &a, const QVariant &b)
 {
     if (a.canConvert<QmlDesigner::Enumeration>() && b.canConvert<QmlDesigner::Enumeration>())
@@ -2074,7 +2084,7 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
 
 void ModelAmender::modelNodeAbsentFromQml(ModelNode &modelNode)
 {
-    modelNode.destroy();
+    removeModelNode(modelNode);
 }
 
 ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProperty,
@@ -2151,7 +2161,7 @@ void ModelAmender::typeDiffers(bool isRootNode,
             Q_ASSERT(nodeIndex >= 0);
         }
 
-        modelNode.destroy();
+        removeModelNode(modelNode);
 
         const ModelNode &newNode = m_merger->createModelNode(typeName,
                                                              majorVersion,
@@ -2171,7 +2181,7 @@ void ModelAmender::typeDiffers(bool isRootNode,
 
 void ModelAmender::propertyAbsentFromQml(AbstractProperty &modelProperty)
 {
-    modelProperty.parentModelNode().removeProperty(modelProperty.name());
+    removeProperty(modelProperty);
 }
 
 void ModelAmender::idsDiffer(ModelNode &modelNode, const QString &qmlId)
