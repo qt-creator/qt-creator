@@ -781,7 +781,7 @@ void tst_Tasking::testTree_data()
                 parallel,
                 workflowPolicy(policy),
                 createFailingTask(1, 1ms),
-                createSuccessTask(2, 2ms),
+                createSuccessTask(2, 1ms),
                 groupDone(0),
                 groupError(0)
             };
@@ -853,7 +853,7 @@ void tst_Tasking::testTree_data()
                 workflowPolicy(policy),
                 createSuccessTask(1),
                 createFailingTask(2, 1ms),
-                createSuccessTask(3, 2ms),
+                createSuccessTask(3, 1ms),
                 groupDone(0),
                 groupError(0)
             };

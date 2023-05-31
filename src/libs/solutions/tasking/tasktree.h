@@ -430,7 +430,11 @@ class TASKING_EXPORT TimeoutTaskAdapter : public TaskAdapter<std::chrono::millis
 {
 public:
     TimeoutTaskAdapter();
+    ~TimeoutTaskAdapter();
     void start() final;
+
+private:
+    std::optional<int> m_timerId;
 };
 
 } // namespace Tasking

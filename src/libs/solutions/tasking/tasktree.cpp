@@ -9,6 +9,8 @@
 #include <QSet>
 #include <QTimer>
 
+using namespace std::chrono;
+
 namespace Tasking {
 
 // That's cut down qtcassert.{c,h} to avoid the dependency.
@@ -1848,14 +1850,95 @@ void TaskTreeTaskAdapter::start()
     task()->start();
 }
 
+using TimeoutCallback = std::function<void()>;
+
+struct TimerData
+{
+    system_clock::time_point m_deadline;
+    QPointer<QObject> m_context;
+    TimeoutCallback m_callback;
+};
+
+QMutex s_mutex;
+std::atomic_int s_timerId = 0;
+QHash<int, TimerData> s_timerIdToTimerData = {};
+QMultiMap<system_clock::time_point, int> s_deadlineToTimerId = {};
+
+static QList<TimerData> prepareForActivation(int timerId)
+{
+    QMutexLocker lock(&s_mutex);
+    const auto it = s_timerIdToTimerData.constFind(timerId);
+    if (it == s_timerIdToTimerData.cend())
+        return {}; // the timer was already activated
+
+    const system_clock::time_point deadline = it->m_deadline;
+    QList<TimerData> toActivate;
+    auto itMap = s_deadlineToTimerId.cbegin();
+    while (itMap != s_deadlineToTimerId.cend()) {
+        if (itMap.key() > deadline)
+            break;
+
+        const auto it = s_timerIdToTimerData.constFind(itMap.value());
+        if (it != s_timerIdToTimerData.cend()) {
+            toActivate.append(it.value());
+            s_timerIdToTimerData.erase(it);
+        }
+        itMap = s_deadlineToTimerId.erase(itMap);
+    }
+    return toActivate;
+}
+
+static void removeTimerId(int timerId)
+{
+    QMutexLocker lock(&s_mutex);
+    const auto it = s_timerIdToTimerData.constFind(timerId);
+    QTC_ASSERT(it != s_timerIdToTimerData.cend(),
+               qWarning("Removing active timerId failed."); return);
+
+    const system_clock::time_point deadline = it->m_deadline;
+    s_timerIdToTimerData.erase(it);
+
+    const int removedCount = s_deadlineToTimerId.remove(deadline, timerId);
+    QTC_ASSERT(removedCount == 1, qWarning("Removing active timerId failed."); return);
+}
+
+static void handleTimeout(int timerId)
+{
+    const QList<TimerData> toActivate = prepareForActivation(timerId);
+    for (const TimerData &timerData : toActivate) {
+        if (timerData.m_context)
+            QMetaObject::invokeMethod(timerData.m_context.get(), timerData.m_callback);
+    }
+}
+
+static int scheduleTimeout(milliseconds timeout, QObject *context, const TimeoutCallback &callback)
+{
+    const int timerId = s_timerId.fetch_add(1) + 1;
+    const system_clock::time_point deadline = system_clock::now() + timeout;
+    QTimer::singleShot(timeout, context, [timerId] { handleTimeout(timerId); });
+    QMutexLocker lock(&s_mutex);
+    s_timerIdToTimerData.emplace(timerId, TimerData{deadline, context, callback});
+    s_deadlineToTimerId.insert(deadline, timerId);
+    return timerId;
+}
+
 TimeoutTaskAdapter::TimeoutTaskAdapter()
 {
     *task() = std::chrono::milliseconds::zero();
 }
 
+TimeoutTaskAdapter::~TimeoutTaskAdapter()
+{
+    if (m_timerId)
+        removeTimerId(*m_timerId);
+}
+
 void TimeoutTaskAdapter::start()
 {
-    QTimer::singleShot(*task(), this, [this] { emit done(true); });
+    if (*task() == milliseconds::zero())
+        QTimer::singleShot(0, this, [this] { emit done(true); });
+    else
+        m_timerId = scheduleTimeout(*task(), this, [this] { m_timerId = {}; emit done(true); });
 }
 
 } // namespace Tasking
