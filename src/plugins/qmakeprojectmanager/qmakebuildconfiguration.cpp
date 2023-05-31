@@ -57,7 +57,8 @@ class RunSystemAspect : public TriStateAspect
 {
     Q_OBJECT
 public:
-    RunSystemAspect() : TriStateAspect(Tr::tr("Run"), Tr::tr("Ignore"), Tr::tr("Use global setting"))
+    RunSystemAspect()
+        : TriStateAspect(nullptr, Tr::tr("Run"), Tr::tr("Ignore"), Tr::tr("Use global setting"))
     {
         setSettingsKey("RunSystemFunction");
         setDisplayName(Tr::tr("qmake system() behavior when parsing:"));

@@ -17,13 +17,13 @@ public:
     class BuildTriStateAspect : public Utils::TriStateAspect
     {
     public:
-        BuildTriStateAspect();
+        explicit BuildTriStateAspect(AspectContainer *container);
     };
 
-    Utils::StringAspect buildDirectoryTemplate;
-    BuildTriStateAspect separateDebugInfo;
-    BuildTriStateAspect qmlDebugging;
-    BuildTriStateAspect qtQuickCompiler;
+    Utils::StringAspect buildDirectoryTemplate{this};
+    BuildTriStateAspect separateDebugInfo{this};
+    BuildTriStateAspect qmlDebugging{this};
+    BuildTriStateAspect qtQuickCompiler{this};
     Utils::BoolAspect showQtSettings;
 
     QString defaultBuildDirectoryTemplate();

@@ -549,7 +549,8 @@ class QTCREATOR_UTILS_EXPORT TriStateAspect : public SelectionAspect
     Q_OBJECT
 
 public:
-    TriStateAspect(const QString &onString = {},
+    TriStateAspect(AspectContainer *container = nullptr,
+                   const QString &onString = {},
                    const QString &offString = {},
                    const QString &defaultString = {});
 

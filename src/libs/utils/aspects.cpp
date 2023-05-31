@@ -2162,8 +2162,11 @@ void DoubleAspect::setSingleStep(double step)
     Its visual representation is a QComboBox with three items.
 */
 
-TriStateAspect::TriStateAspect(const QString &onString, const QString &offString,
+TriStateAspect::TriStateAspect(AspectContainer *container,
+                               const QString &onString,
+                               const QString &offString,
                                const QString &defaultString)
+    : SelectionAspect(container)
 {
     setDisplayStyle(DisplayStyle::ComboBox);
     setDefaultValue(TriState::Default);
