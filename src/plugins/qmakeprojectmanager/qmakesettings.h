@@ -14,9 +14,9 @@ public:
 
     bool runSystemFunction() { return !ignoreSystemFunction(); }
 
-    Utils::BoolAspect warnAgainstUnalignedBuildDir;
-    Utils::BoolAspect alwaysRunQmake;
-    Utils::BoolAspect ignoreSystemFunction;
+    Utils::BoolAspect warnAgainstUnalignedBuildDir{this};
+    Utils::BoolAspect alwaysRunQmake{this};
+    Utils::BoolAspect ignoreSystemFunction{this};
 };
 
 QmakeSettings &settings();

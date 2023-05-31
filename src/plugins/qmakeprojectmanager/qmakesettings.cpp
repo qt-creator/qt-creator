@@ -26,7 +26,6 @@ QmakeSettings::QmakeSettings()
     setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setSettingsGroup("QmakeProjectManager");
 
-    registerAspect(&warnAgainstUnalignedBuildDir);
     warnAgainstUnalignedBuildDir.setSettingsKey("WarnAgainstUnalignedBuildDir");
     warnAgainstUnalignedBuildDir.setDefaultValue(HostOsInfo::isWindowsHost());
     warnAgainstUnalignedBuildDir.setLabelText(Tr::tr("Warn if a project's source and "
@@ -34,13 +33,11 @@ QmakeSettings::QmakeSettings()
     warnAgainstUnalignedBuildDir.setToolTip(Tr::tr("Qmake has subtle bugs that "
         "can be triggered if source and build directory are not at the same level."));
 
-    registerAspect(&alwaysRunQmake);
     alwaysRunQmake.setSettingsKey("AlwaysRunQmake");
     alwaysRunQmake.setLabelText(Tr::tr("Run qmake on every build"));
     alwaysRunQmake.setToolTip(Tr::tr("This option can help to prevent failures on "
         "incremental builds, but might slow them down unnecessarily in the general case."));
 
-    registerAspect(&ignoreSystemFunction);
     ignoreSystemFunction.setSettingsKey("RunSystemFunction");
     ignoreSystemFunction.setLabelText(Tr::tr("Ignore qmake's system() function when parsing a project"));
     ignoreSystemFunction.setToolTip(Tr::tr("Checking this option avoids unwanted side effects, "
