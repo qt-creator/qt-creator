@@ -10,12 +10,10 @@
 #include <QStringList>
 
 namespace ProjectExplorer {
-class RunConfiguration;
 
-namespace Internal { class CompileOutputSettings; }
-
-class Task;
 class Project;
+class RunConfiguration;
+class Task;
 
 enum class BuildForRunConfigStatus { Building, NotBuilding, BuildFailed };
 enum class ConfigSelection { All, Active };
@@ -65,9 +63,6 @@ public:
     static void appendStep(BuildStep *step, const QString &name);
 
     static int getErrorTaskCount();
-
-    static void setCompileOutputSettings(const Internal::CompileOutputSettings &settings);
-    static const Internal::CompileOutputSettings &compileOutputSettings();
 
     static QString displayNameForStepId(Utils::Id stepId);
 

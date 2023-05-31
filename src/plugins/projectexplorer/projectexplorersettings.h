@@ -74,14 +74,6 @@ public:
     int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
 };
 
-class CompileOutputSettings
-{
-public:
-    bool popUp = false;
-    bool wrapOutput = false;
-    int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
-};
-
 class ProjectExplorerSettingsPage : public Core::IOptionsPage
 {
 public:

@@ -666,7 +666,6 @@ public:
     // Settings pages
     ProjectExplorerSettingsPage m_projectExplorerSettingsPage;
     AppOutputSettingsPage m_appOutputSettingsPage;
-    CompileOutputSettingsPage m_compileOutputSettingsPage;
     DeviceSettingsPage m_deviceSettingsPage;
     SshSettingsPage m_sshSettingsPage;
     CustomParsersSettingsPage m_customParsersSettingsPage;
