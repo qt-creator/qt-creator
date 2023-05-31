@@ -9,6 +9,8 @@
 
 #include <QObject>
 
+namespace ProjectExplorer { class Project; }
+
 namespace CppEditor {
 
 class CppModelManager;
@@ -30,8 +32,10 @@ public:
     void notifyAboutUpdatedContents() const;
     unsigned revision() const { return m_revision; }
 
-    static QString licenseTemplate(const Utils::FilePath &filePath = {}, const QString &className = {});
-    static bool usePragmaOnce();
+    static QString licenseTemplate(ProjectExplorer::Project *project,
+                                   const Utils::FilePath &filePath = {},
+                                   const QString &className = {});
+    static bool usePragmaOnce(ProjectExplorer::Project *project);
 
 private:
     CppModelManager *m_modelmanager;

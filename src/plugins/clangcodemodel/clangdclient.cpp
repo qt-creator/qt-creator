@@ -570,7 +570,8 @@ void ClangdClient::findUsages(const CppEditor::CursorInEditor &cursor,
 
         if (useClangdForRenaming) {
             symbolSupport().renameSymbol(cursor.textDocument(), adjustedCursor, *replacement,
-                                         renameCallback, CppEditor::preferLowerCaseFileNames());
+                                         renameCallback,
+                                         CppEditor::preferLowerCaseFileNames(project()));
             return;
         }
     }

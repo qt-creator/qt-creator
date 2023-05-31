@@ -26,6 +26,12 @@ public:
     // Generate header guard:
     Q_INVOKABLE QString headerGuard(const QString &in) const;
 
+    // Generate license template:
+    Q_INVOKABLE QString licenseTemplate() const;
+
+    // Use #pragma once:
+    Q_INVOKABLE bool usePragmaOnce() const;
+
     // Work with classes:
     Q_INVOKABLE QStringList namespaces(const QString &klass) const;
     Q_INVOKABLE bool hasNamespaces(const QString &klass) const;
@@ -45,6 +51,10 @@ public:
             const QStringList &specialClasses,
             const QString &pathOfIncludingFile
             );
+
+    // File suffixes:
+    Q_INVOKABLE QString cxxHeaderSuffix() const;
+    Q_INVOKABLE QString cxxSourceSuffix() const;
 
 private:
     CppLocatorData * const m_locatorData;

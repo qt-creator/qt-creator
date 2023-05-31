@@ -10,10 +10,12 @@
 #include <coreplugin/icore.h>
 
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cpptoolsreuse.h>
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/targetsetuppage.h>
 #include <projectexplorer/task.h>
 
@@ -39,12 +41,12 @@ QtWizard::QtWizard()
 
 QString QtWizard::sourceSuffix()
 {
-    return preferredSuffix(QLatin1String(ProjectExplorer::Constants::CPP_SOURCE_MIMETYPE));
+    return CppEditor::preferredCxxSourceSuffix(ProjectTree::currentProject());
 }
 
 QString QtWizard::headerSuffix()
 {
-    return preferredSuffix(QLatin1String(ProjectExplorer::Constants::CPP_HEADER_MIMETYPE));
+    return CppEditor::preferredCxxHeaderSuffix(ProjectTree::currentProject());
 }
 
 QString QtWizard::formSuffix()

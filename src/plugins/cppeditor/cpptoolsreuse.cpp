@@ -611,9 +611,19 @@ void openEditor(const Utils::FilePath &filePath, bool inNextSplit, Utils::Id edi
                                                               : EditorManager::NoFlags);
 }
 
-bool preferLowerCaseFileNames()
+bool preferLowerCaseFileNames(ProjectExplorer::Project *project)
 {
-    return Internal::CppEditorPlugin::fileSettings()->lowerCaseFiles;
+    return Internal::CppEditorPlugin::fileSettings(project).lowerCaseFiles;
+}
+
+QString preferredCxxHeaderSuffix(ProjectExplorer::Project *project)
+{
+    return Internal::CppEditorPlugin::fileSettings(project).headerSuffix;
+}
+
+QString preferredCxxSourceSuffix(ProjectExplorer::Project *project)
+{
+    return Internal::CppEditorPlugin::fileSettings(project).sourceSuffix;
 }
 
 namespace Internal {

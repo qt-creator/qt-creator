@@ -5,12 +5,13 @@
 #include "formtemplatewizardpage.h"
 #include <designer/cpp/formclasswizardparameters.h>
 
-#include <utils/codegeneration.h>
+#include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 #include <cppeditor/abstracteditorsupport.h>
+#include <projectexplorer/projecttree.h>
 #include <qtsupport/codegenerator.h>
 #include <qtsupport/codegensettings.h>
-#include <extensionsystem/pluginmanager.h>
+#include <utils/codegeneration.h>
 
 #include <QTextStream>
 #include <QSettings>
@@ -70,12 +71,11 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
 
     const QString unqualifiedClassName = namespaceList.takeLast();
 
-    const QString headerLicense =
-            CppEditor::AbstractEditorSupport::licenseTemplate(
-                FilePath::fromString(parameters.headerFile), parameters.className);
-    const QString sourceLicense =
-            CppEditor::AbstractEditorSupport::licenseTemplate(
-                FilePath::fromString(parameters.sourceFile), parameters.className);
+    ProjectExplorer::Project * const project = ProjectExplorer::ProjectTree::currentProject();
+    const QString headerLicense = CppEditor::AbstractEditorSupport::licenseTemplate(
+        project, FilePath::fromString(parameters.headerFile), parameters.className);
+    const QString sourceLicense = CppEditor::AbstractEditorSupport::licenseTemplate(
+        project, FilePath::fromString(parameters.sourceFile), parameters.className);
     // Include guards
     const QString guard = Utils::headerGuard(parameters.headerFile, namespaceList);
 

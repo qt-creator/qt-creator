@@ -398,6 +398,8 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
     parameters.symbolId = fullIdForSymbol(symbol);
     parameters.symbolFilePath = symbol->filePath();
     parameters.categorize = codeModelSettings()->categorizeFindReferences();
+    parameters.preferLowerCaseFileNames = preferLowerCaseFileNames(
+        ProjectManager::projectForFile(symbol->filePath()));
 
     if (symbol->asClass() || symbol->asForwardClassDeclaration()) {
         CPlusPlus::Overview overview;
@@ -475,7 +477,7 @@ void CppFindReferences::onReplaceButtonClicked(Core::SearchResult *search, const
 
     ProjectExplorerPlugin::renameFilesForSymbol(
                 parameters.prettySymbolName, text, parameters.filesToRename,
-                preferLowerCaseFileNames());
+                parameters.preferLowerCaseFileNames);
 }
 
 void CppFindReferences::searchAgain(SearchResult *search)

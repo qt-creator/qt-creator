@@ -67,7 +67,9 @@ void CPPEDITOR_EXPORT openEditor(const Utils::FilePath &filePath, bool inNextSpl
 class CppCodeModelSettings;
 CppCodeModelSettings CPPEDITOR_EXPORT *codeModelSettings();
 
-bool CPPEDITOR_EXPORT preferLowerCaseFileNames();
+QString CPPEDITOR_EXPORT preferredCxxHeaderSuffix(ProjectExplorer::Project *project);
+QString CPPEDITOR_EXPORT preferredCxxSourceSuffix(ProjectExplorer::Project *project);
+bool CPPEDITOR_EXPORT preferLowerCaseFileNames(ProjectExplorer::Project *project);
 
 UsePrecompiledHeaders CPPEDITOR_EXPORT getPchUsage();
 

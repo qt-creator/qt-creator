@@ -90,7 +90,8 @@ public:
             const ReplacementData &replacementData,
             const QString &newSymbolName,
             const SearchResultItems &checkedItems,
-            bool preserveCase);
+            bool preserveCase,
+            bool preferLowerCaseFileNames);
     void handleFindUsagesResult(const QList<Location> &locations);
     void finishSearch();
     void reportAllSearchResultsAndFinish();
@@ -141,13 +142,14 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
         const auto renameFilesCheckBox = new QCheckBox;
         renameFilesCheckBox->setVisible(false);
         d->search->setAdditionalReplaceWidget(renameFilesCheckBox);
-        const auto renameHandler =
-                [search = d->search](const QString &newSymbolName,
-                       const SearchResultItems &checkedItems,
-                       bool preserveCase) {
+        const bool preferLowerCase = CppEditor::preferLowerCaseFileNames(client->project());
+        const auto renameHandler = [search = d->search, preferLowerCase](
+                                       const QString &newSymbolName,
+                                       const SearchResultItems &checkedItems,
+                                       bool preserveCase) {
             const auto replacementData = search->userData().value<ReplacementData>();
             Private::handleRenameRequest(search, replacementData, newSymbolName, checkedItems,
-                                         preserveCase);
+                                         preserveCase, preferLowerCase);
         };
         connect(d->search, &SearchResult::replaceButtonClicked, renameHandler);
     }
@@ -244,7 +246,8 @@ void ClangdFindReferences::Private::handleRenameRequest(
         const ReplacementData &replacementData,
         const QString &newSymbolName,
         const SearchResultItems &checkedItems,
-        bool preserveCase)
+        bool preserveCase,
+        bool preferLowerCaseFileNames)
 {
     const Utils::FilePaths filePaths = BaseFileFind::replaceAll(newSymbolName, checkedItems,
                                                                 preserveCase);
@@ -261,7 +264,7 @@ void ClangdFindReferences::Private::handleRenameRequest(
     ProjectExplorerPlugin::renameFilesForSymbol(
                 replacementData.oldSymbolName, newSymbolName,
                 Utils::toList(replacementData.fileRenameCandidates),
-                CppEditor::preferLowerCaseFileNames());
+                preferLowerCaseFileNames);
 }
 
 void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location> &locations)

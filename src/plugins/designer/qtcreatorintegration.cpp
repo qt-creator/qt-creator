@@ -12,6 +12,7 @@
 #include <designer/cpp/formclasswizardpage.h>
 
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppeditorplugin.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cppsemanticinfo.h>
@@ -795,6 +796,6 @@ void QtCreatorIntegration::handleSymbolRenameStage2(
 void QtCreatorIntegration::slotSyncSettingsToDesigner()
 {
     // Set promotion-relevant parameters on integration.
-    setHeaderSuffix(Utils::mimeTypeForName(CppEditor::Constants::CPP_HEADER_MIMETYPE).preferredSuffix());
+    setHeaderSuffix(CppEditor::preferredCxxHeaderSuffix(ProjectTree::currentProject()));
     setHeaderLowercase(FormClassWizardPage::lowercaseHeaderFiles());
 }

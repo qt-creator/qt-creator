@@ -3,6 +3,7 @@
 
 #include "cpptoolsjsextension.h"
 
+#include "cppeditorplugin.h"
 #include "cppfilesettingspage.h"
 #include "cpplocatordata.h"
 #include "cppworkingcopy.h"
@@ -12,6 +13,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTPath.h>
@@ -27,6 +29,13 @@
 
 namespace CppEditor::Internal {
 
+static CppFileSettings fileSettings()
+{
+    // Note that the user can set a different project in the wizard *after* the file names
+    // have been determined. There's nothing we can do about that here.
+    return CppEditorPlugin::fileSettings(ProjectExplorer::ProjectTree::currentProject());
+}
+
 static QString fileName(const QString &path, const QString &extension)
 {
     return Utils::FilePath::fromStringWithExtension(path, extension).toString();
@@ -35,6 +44,16 @@ static QString fileName(const QString &path, const QString &extension)
 QString CppToolsJsExtension::headerGuard(const QString &in) const
 {
     return Utils::headerGuard(in);
+}
+
+QString CppToolsJsExtension::licenseTemplate() const
+{
+    return fileSettings().licenseTemplate();
+}
+
+bool CppToolsJsExtension::usePragmaOnce() const
+{
+    return fileSettings().headerPragmaOnce;
 }
 
 static QStringList parts(const QString &klass)
@@ -63,8 +82,7 @@ QString CppToolsJsExtension::className(const QString &klass) const
 QString CppToolsJsExtension::classToFileName(const QString &klass, const QString &extension) const
 {
     const QString raw = fileName(className(klass), extension);
-    CppFileSettings settings;
-    settings.fromSettings(Core::ICore::settings());
+    const CppFileSettings &settings = fileSettings();
     if (!settings.lowerCaseFiles)
         return raw;
 
@@ -247,6 +265,16 @@ QString CppToolsJsExtension::includeStatement(
         }
     }
     return {};
+}
+
+QString CppToolsJsExtension::cxxHeaderSuffix() const
+{
+    return fileSettings().headerSuffix;
+}
+
+QString CppToolsJsExtension::cxxSourceSuffix() const
+{
+    return fileSettings().sourceSuffix;
 }
 
 } // namespace CppEditor::Internal

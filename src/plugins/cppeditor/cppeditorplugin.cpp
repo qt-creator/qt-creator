@@ -72,6 +72,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projecttree.h>
 
@@ -261,17 +262,18 @@ void CppEditorPlugin::initialize()
             this, [] { CppModelManager::switchHeaderSource(true); });
 
     MacroExpander *expander = globalMacroExpander();
+
+    // TODO: Per-project variants of these three?
     expander->registerVariable("Cpp:LicenseTemplate",
                                Tr::tr("The license template."),
-                               []() { return CppEditorPlugin::licenseTemplate(); });
+                               []() { return CppEditorPlugin::licenseTemplate(nullptr); });
     expander->registerFileVariables("Cpp:LicenseTemplatePath",
                                     Tr::tr("The configured path to the license template"),
-                                    []() { return CppEditorPlugin::licenseTemplatePath(); });
-
+                                    []() { return CppEditorPlugin::licenseTemplatePath(nullptr); });
     expander->registerVariable(
                 "Cpp:PragmaOnce",
                 Tr::tr("Insert \"#pragma once\" instead of \"#ifndef\" include guards into header file"),
-                [] { return usePragmaOnce() ? QString("true") : QString(); });
+                [] { return usePragmaOnce(nullptr) ? QString("true") : QString(); });
 
     const auto quickFixSettingsPanelFactory = new ProjectPanelFactory;
     quickFixSettingsPanelFactory->setPriority(100);
@@ -505,6 +507,14 @@ void CppEditorPlugin::extensionsInitialized()
     if (!d->m_fileSettings.applySuffixesToMimeDB())
         qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
 
+    const auto fileNamesPanelFactory = new ProjectPanelFactory;
+    fileNamesPanelFactory->setPriority(99);
+    fileNamesPanelFactory->setDisplayName(Tr::tr("C++ File Naming"));
+    fileNamesPanelFactory->setCreateWidgetFunction([](Project *project) {
+        return new CppFileSettingsForProjectWidget(project);
+    });
+    ProjectPanelFactory::registerFactory(fileNamesPanelFactory);
+
     if (CppModelManager::instance()->isClangCodeModelActive()) {
         d->m_clangdSettingsPage = new ClangdSettingsPage;
         const auto clangdPanelFactory = new ProjectPanelFactory;
@@ -614,39 +624,19 @@ void CppEditorPlugin::clearHeaderSourceCache()
     m_headerSourceMapping.clear();
 }
 
-FilePath CppEditorPlugin::licenseTemplatePath()
+FilePath CppEditorPlugin::licenseTemplatePath(Project *project)
 {
-    return FilePath::fromString(m_instance->d->m_fileSettings.licenseTemplatePath);
+    return FilePath::fromString(fileSettings(project).licenseTemplatePath);
 }
 
-QString CppEditorPlugin::licenseTemplate()
+QString CppEditorPlugin::licenseTemplate(Project *project)
 {
-    return CppFileSettings::licenseTemplate();
+    return fileSettings(project).licenseTemplate();
 }
 
-bool CppEditorPlugin::usePragmaOnce()
+bool CppEditorPlugin::usePragmaOnce(Project *project)
 {
-    return m_instance->d->m_fileSettings.headerPragmaOnce;
-}
-
-const QStringList &CppEditorPlugin::headerSearchPaths()
-{
-    return m_instance->d->m_fileSettings.headerSearchPaths;
-}
-
-const QStringList &CppEditorPlugin::sourceSearchPaths()
-{
-    return m_instance->d->m_fileSettings.sourceSearchPaths;
-}
-
-const QStringList &CppEditorPlugin::headerPrefixes()
-{
-    return m_instance->d->m_fileSettings.headerPrefixes;
-}
-
-const QStringList &CppEditorPlugin::sourcePrefixes()
-{
-    return m_instance->d->m_fileSettings.sourcePrefixes;
+    return fileSettings(project).headerPragmaOnce;
 }
 
 CppCodeModelSettings *CppEditorPlugin::codeModelSettings()
@@ -654,10 +644,19 @@ CppCodeModelSettings *CppEditorPlugin::codeModelSettings()
     return &d->m_codeModelSettings;
 }
 
-CppFileSettings *CppEditorPlugin::fileSettings()
+CppFileSettings CppEditorPlugin::fileSettings(Project *project)
 {
-    return &instance()->d->m_fileSettings;
+    if (!project)
+        return instance()->d->m_fileSettings;
+    return CppFileSettingsForProject(project).settings();
 }
+
+#ifdef WITH_TESTS
+void CppEditorPlugin::setGlobalFileSettings(const CppFileSettings &settings)
+{
+    instance()->d->m_fileSettings = settings;
+}
+#endif
 
 static QStringList findFilesInProject(const QString &name, const Project *project)
 {
@@ -721,11 +720,12 @@ static QStringList baseNameWithAllSuffixes(const QString &baseName, const QStrin
     return result;
 }
 
-static QStringList baseNamesWithAllPrefixes(const QStringList &baseNames, bool isHeader)
+static QStringList baseNamesWithAllPrefixes(const CppFileSettings &settings,
+                                            const QStringList &baseNames, bool isHeader)
 {
     QStringList result;
-    const QStringList &sourcePrefixes = m_instance->sourcePrefixes();
-    const QStringList &headerPrefixes = m_instance->headerPrefixes();
+    const QStringList &sourcePrefixes = settings.sourcePrefixes;
+    const QStringList &headerPrefixes = settings.headerPrefixes;
 
     for (const QString &name : baseNames) {
         for (const QString &prefix : isHeader ? headerPrefixes : sourcePrefixes) {
@@ -812,6 +812,9 @@ FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, 
     if (m_headerSourceMapping.contains(fi.absoluteFilePath()))
         return FilePath::fromString(m_headerSourceMapping.value(fi.absoluteFilePath()));
 
+    Project * const projectForFile = ProjectManager::projectForFile(filePath);
+    const CppFileSettings settings = CppEditorPlugin::fileSettings(projectForFile);
+
     if (debug)
         qDebug() << Q_FUNC_INFO << fileName <<  kind;
 
@@ -838,11 +841,11 @@ FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, 
     const QDir absoluteDir = fi.absoluteDir();
     QStringList candidateDirs(absoluteDir.absolutePath());
     // If directory is not root, try matching against its siblings
-    const QStringList searchPaths = isHeader ? m_instance->sourceSearchPaths()
-                                             : m_instance->headerSearchPaths();
+    const QStringList searchPaths = isHeader ? settings.sourceSearchPaths
+                                             : settings.headerSearchPaths;
     candidateDirs += baseDirWithAllDirectories(absoluteDir, searchPaths);
 
-    candidateFileNames += baseNamesWithAllPrefixes(candidateFileNames, isHeader);
+    candidateFileNames += baseNamesWithAllPrefixes(settings, candidateFileNames, isHeader);
 
     // Try to find a file in the same or sibling directories first
     for (const QString &candidateDir : std::as_const(candidateDirs)) {
@@ -862,7 +865,9 @@ FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, 
     }
 
     // Find files in the current project
-    Project *currentProject = ProjectTree::currentProject();
+    Project *currentProject = projectForFile;
+    if (!projectForFile)
+        currentProject = ProjectTree::currentProject();
     if (currentProject) {
         const FilePath path = correspondingHeaderOrSourceInProject(fi, candidateFileNames,
                                                                   currentProject, cacheUsage);

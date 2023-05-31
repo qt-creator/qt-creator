@@ -13,7 +13,7 @@
     "options": [
         { "key": "TargetPath", "value": "%{Path}" },
         { "key": "QmlFileName", "value": "%{JS: Util.fileName(value('QmlSrcFile').startsWith('tst_') ? value('QmlSrcFile') : 'tst_' + value('QmlSrcFile'), '.qml')}" },
-        { "key": "CppFileName", "value": "%{JS: Util.fileName(value('CppSrcFile'), Util.preferredSuffix('text/x-c++src'))}" }
+        { "key": "CppFileName", "value": "%{JS: Util.fileName(value('CppSrcFile'), Cpp.cxxSourceSuffix())}" }
     ],
 
     "pages" :
@@ -91,7 +91,7 @@
                     "trDisplayName": "Source file:",
                     "mandatory": true,
                     "visible": "%{JS: value('TestFrameWork') !== 'QtQuickTest' }",
-                    "data": { "trText": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.' + Util.preferredSuffix('text/x-c++src')}" }
+                    "data": { "trText": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.' + Cpp.cxxSourceSuffix()}" }
                 },
                 {
                     "name": "QmlSrcFile",

@@ -7,7 +7,7 @@
 
 #include <coreplugin/generatedfile.h>
 #include <cppeditor/abstracteditorsupport.h>
-
+#include <projectexplorer/projecttree.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
@@ -82,6 +82,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
     // First create the widget wrappers (plugins) and - if requested - skeletons
     // for the widgets.
     const int widgetCount = options.widgetOptions.size();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
     for (int i = 0; i < widgetCount; i++) {
         const PluginOptions::WidgetOptions &wo = options.widgetOptions.at(i);
         sm.clear();
@@ -95,7 +96,8 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile pluginHeader(baseDir / wo.pluginHeaderFile);
         pluginHeader.setContents(CppEditor::AbstractEditorSupport::licenseTemplate(
-                                     FilePath::fromString(wo.pluginHeaderFile), wo.pluginClassName)
+                                     project, FilePath::fromString(wo.pluginHeaderFile),
+                                     wo.pluginClassName)
                                  + pluginHeaderContents);
         rc.push_back(pluginHeader);
 
@@ -122,6 +124,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile pluginSource(baseDir / wo.pluginSourceFile);
         pluginSource.setContents(CppEditor::AbstractEditorSupport::licenseTemplate(
+                                     project,
                                      FilePath::fromString(wo.pluginSourceFile), wo.pluginClassName)
                                  + pluginSourceContents);
         if (i == 0 && widgetCount == 1) // Open first widget unless collection
@@ -169,6 +172,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
                 return QList<Core::GeneratedFile>();
             Core::GeneratedFile widgetHeader(baseDir / wo.widgetHeaderFile);
             widgetHeader.setContents(CppEditor::AbstractEditorSupport::licenseTemplate(
+                                         project,
                                          FilePath::fromString(wo.widgetHeaderFile),
                                          wo.widgetClassName)
                                      + widgetHeaderContents);
@@ -181,6 +185,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
                 return QList<Core::GeneratedFile>();
             Core::GeneratedFile widgetSource(baseDir / wo.widgetSourceFile);
             widgetSource.setContents(CppEditor::AbstractEditorSupport::licenseTemplate(
+                                         project,
                                          FilePath::fromString(wo.widgetSourceFile),
                                          wo.widgetClassName)
                                      + widgetSourceContents);
@@ -218,6 +223,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile collectionHeader(baseDir / options.collectionHeaderFile);
         collectionHeader.setContents(CppEditor::AbstractEditorSupport::licenseTemplate(
+                                         project,
                                          FilePath::fromString(options.collectionHeaderFile),
                                          options.collectionClassName)
                                      + collectionHeaderContents);
@@ -235,6 +241,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile collectionSource(baseDir / options.collectionSourceFile);
         collectionSource.setContents(CppEditor::AbstractEditorSupport::licenseTemplate(
+                                         project,
                                          FilePath::fromString(options.collectionSourceFile),
                                          options.collectionClassName)
                                      + collectionSourceFileContents);
