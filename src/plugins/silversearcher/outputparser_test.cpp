@@ -24,7 +24,7 @@ SearchResultItem searchResult(const FilePath &fileName, const QString &matchingL
 
 void OutputParserTest::test_data()
 {
-    QTest::addColumn<QString>("parserOutput");
+    QTest::addColumn<QString>("input");
     QTest::addColumn<SearchResultItems>("results");
 
     QTest::addRow("nothing") << QString("\n") << SearchResultItems();
@@ -59,9 +59,9 @@ void OutputParserTest::test_data()
 
 void OutputParserTest::test()
 {
-    QFETCH(QString, parserOutput);
+    QFETCH(QString, input);
     QFETCH(SearchResultItems, results);
-    const SearchResultItems items = SilverSearcher::parse(parserOutput);
+    const SearchResultItems items = SilverSearcher::parse(input);
     QCOMPARE(items, results);
 }
 

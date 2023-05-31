@@ -19,16 +19,16 @@ namespace SilverSearcher {
 10;8 2,35 2:PropertyAbstractContainer::PropertyAbstractContainer()
 */
 
-static QStringView nextLine(QStringView *remainingOutput)
+static QStringView nextLine(QStringView *remainingInput)
 {
-    const int newLinePos = remainingOutput->indexOf('\n');
+    const int newLinePos = remainingInput->indexOf('\n');
     if (newLinePos < 0) {
-        QStringView ret = *remainingOutput;
-        *remainingOutput = QStringView();
+        QStringView ret = *remainingInput;
+        *remainingInput = QStringView();
         return ret;
     }
-    QStringView ret = remainingOutput->left(newLinePos);
-    *remainingOutput = remainingOutput->mid(newLinePos + 1);
+    QStringView ret = remainingInput->left(newLinePos);
+    *remainingInput = remainingInput->mid(newLinePos + 1);
     return ret;
 }
 
@@ -45,16 +45,16 @@ static bool parseNumber(QStringView numberString, int *number)
     return ok;
 }
 
-static bool parseLineNumber(QStringView *remainingOutput, int *lineNumber)
+static bool parseLineNumber(QStringView *remainingInput, int *lineNumber)
 {
-    const int lineNumberDelimiterPos = remainingOutput->indexOf(';');
+    const int lineNumberDelimiterPos = remainingInput->indexOf(';');
     if (lineNumberDelimiterPos < 0)
         return false;
 
-    if (!parseNumber(remainingOutput->left(lineNumberDelimiterPos), lineNumber))
+    if (!parseNumber(remainingInput->left(lineNumberDelimiterPos), lineNumber))
         return false;
 
-    *remainingOutput = remainingOutput->mid(lineNumberDelimiterPos + 1);
+    *remainingInput = remainingInput->mid(lineNumberDelimiterPos + 1);
     return true;
 }
 
@@ -76,13 +76,13 @@ static bool parseLineHit(QStringView hitString, QPair<int, int> *hit)
     return true;
 }
 
-static bool parseLineHits(QStringView *remainingOutput, QList<QPair<int, int>> *hits)
+static bool parseLineHits(QStringView *remainingInput, QList<QPair<int, int>> *hits)
 {
-    const int hitsDelimiterPos = remainingOutput->indexOf(':');
+    const int hitsDelimiterPos = remainingInput->indexOf(':');
     if (hitsDelimiterPos < 0)
         return false;
 
-    const QStringView hitsString = remainingOutput->left(hitsDelimiterPos);
+    const QStringView hitsString = remainingInput->left(hitsDelimiterPos);
     const QList<QStringView> hitStrings = hitsString.split(',', Qt::SkipEmptyParts);
     for (const auto hitString : hitStrings) {
         QPair<int, int> hit;
@@ -90,20 +90,20 @@ static bool parseLineHits(QStringView *remainingOutput, QList<QPair<int, int>> *
             return false;
         hits->append(hit);
     }
-    *remainingOutput = remainingOutput->mid(hitsDelimiterPos + 1);
+    *remainingInput = remainingInput->mid(hitsDelimiterPos + 1);
     return true;
 }
 
-SearchResultItems parse(const QString &output, const std::optional<QRegularExpression> &regExp)
+SearchResultItems parse(const QString &input, const std::optional<QRegularExpression> &regExp)
 {
     SearchResultItems items;
 
-    QStringView remainingOutput(output);
+    QStringView remainingInput(input);
     while (true) {
-        if (remainingOutput.isEmpty())
+        if (remainingInput.isEmpty())
             break;
 
-        const QStringView filePathLine = nextLine(&remainingOutput);
+        const QStringView filePathLine = nextLine(&remainingInput);
         if (filePathLine.isEmpty())
             continue;
 
@@ -113,7 +113,7 @@ SearchResultItems parse(const QString &output, const std::optional<QRegularExpre
         const FilePath filePath = FilePath::fromPathPart(filePathLine.mid(1));
 
         while (true) {
-            QStringView hitLine = nextLine(&remainingOutput);
+            QStringView hitLine = nextLine(&remainingInput);
             if (hitLine.isEmpty())
                 break;
             int lineNumber = -1;
