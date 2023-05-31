@@ -67,6 +67,7 @@ public:
 
 private:
     void onHighlighterResultAvailable(int from, int to);
+    void handleHighlighterResults();
     void onHighlighterFinished();
 
     void connectWatcher();
@@ -82,6 +83,8 @@ private:
     QScopedPointer<QFutureWatcher<TextEditor::HighlightingResult>> m_watcher;
     QHash<int, QTextCharFormat> m_formatMap;
     std::set<int> m_seenBlocks;
+    int m_nextResultToHandle = 0;
+    int m_resultCount = 0;
 
     HighlightingRunner m_highlightingRunner;
 };
