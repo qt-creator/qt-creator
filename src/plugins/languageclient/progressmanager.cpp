@@ -8,6 +8,7 @@
 #include <languageserverprotocol/progresssupport.h>
 
 #include <QTime>
+#include <QTimer>
 
 using namespace LanguageServerProtocol;
 
@@ -81,9 +82,28 @@ void ProgressManager::beginProgress(const ProgressToken &token, const WorkDonePr
     auto interface = new QFutureInterface<void>();
     interface->reportStarted();
     interface->setProgressRange(0, 100); // LSP always reports percentage of the task
-    const QString title = m_titles.value(token, begin.title());
-    Core::FutureProgress *progress = Core::ProgressManager::addTask(
-            interface->future(), title, languageClientProgressId(token));
+    ProgressItem progressItem;
+    progressItem.futureInterface = interface;
+    progressItem.title = m_titles.value(token, begin.title());
+    if (LOGPROGRESS().isDebugEnabled())
+        progressItem.timer.start();
+    progressItem.showBarTimer = new QTimer();
+    progressItem.showBarTimer->setSingleShot(true);
+    progressItem.showBarTimer->setInterval(750);
+    progressItem.showBarTimer->callOnTimeout([this, token]() { spawnProgressBar(token); });
+    progressItem.showBarTimer->start();
+    m_progress[token] = progressItem;
+    reportProgress(token, begin);
+}
+
+void ProgressManager::spawnProgressBar(const LanguageServerProtocol::ProgressToken &token)
+{
+    ProgressItem &progressItem = m_progress[token];
+    QTC_ASSERT(progressItem.futureInterface, return);
+    Core::FutureProgress *progress
+        = Core::ProgressManager::addTask(progressItem.futureInterface->future(),
+                                         progressItem.title,
+                                         languageClientProgressId(token));
     const std::function<void()> clickHandler = m_clickHandlers.value(token);
     if (clickHandler)
         QObject::connect(progress, &Core::FutureProgress::clicked, clickHandler);
@@ -92,23 +112,26 @@ void ProgressManager::beginProgress(const ProgressToken &token, const WorkDonePr
         QObject::connect(progress, &Core::FutureProgress::canceled, cancelHandler);
     else
         progress->setCancelEnabled(false);
-    m_progress[token] = {progress, interface};
-    if (LOGPROGRESS().isDebugEnabled())
-        m_timer[token].start();
-    reportProgress(token, begin);
+    if (!progressItem.message.isEmpty()) {
+        progress->setSubtitle(progressItem.message);
+        progress->setSubtitleVisibleInStatusBar(true);
+    }
+    progressItem.progressInterface = progress;
 }
 
 void ProgressManager::reportProgress(const ProgressToken &token,
                                      const WorkDoneProgressReport &report)
 {
-    const LanguageClientProgress &progress = m_progress.value(token);
+    ProgressItem &progress = m_progress[token];
+    const std::optional<QString> &message = report.message();
     if (progress.progressInterface) {
-        const std::optional<QString> &message = report.message();
         if (message.has_value()) {
             progress.progressInterface->setSubtitle(*message);
             const bool showSubtitle = !message->isEmpty();
             progress.progressInterface->setSubtitleVisibleInStatusBar(showSubtitle);
         }
+    } else if (message.has_value()) {
+        progress.message = *message;
     }
     if (progress.futureInterface) {
         if (const std::optional<double> &percentage = report.percentage(); percentage.has_value())
@@ -118,7 +141,7 @@ void ProgressManager::reportProgress(const ProgressToken &token,
 
 void ProgressManager::endProgress(const ProgressToken &token, const WorkDoneProgressEnd &end)
 {
-    const LanguageClientProgress &progress = m_progress.value(token);
+    const ProgressItem &progress = m_progress.value(token);
     const QString &message = end.message().value_or(QString());
     if (progress.progressInterface) {
         if (!message.isEmpty()) {
@@ -127,11 +150,11 @@ void ProgressManager::endProgress(const ProgressToken &token, const WorkDoneProg
         }
         progress.progressInterface->setSubtitle(message);
         progress.progressInterface->setSubtitleVisibleInStatusBar(!message.isEmpty());
-        auto timer = m_timer.take(token);
-        if (timer.isValid()) {
+        if (progress.timer.isValid()) {
             qCDebug(LOGPROGRESS) << QString("%1 took %2")
                                         .arg(progress.progressInterface->title())
-                                        .arg(QTime::fromMSecsSinceStartOfDay(timer.elapsed())
+                                        .arg(QTime::fromMSecsSinceStartOfDay(
+                                                 progress.timer.elapsed())
                                                  .toString(Qt::ISODateWithMs));
         }
     }
@@ -140,7 +163,8 @@ void ProgressManager::endProgress(const ProgressToken &token, const WorkDoneProg
 
 void ProgressManager::endProgressReport(const ProgressToken &token)
 {
-    const LanguageClientProgress &progress = m_progress.take(token);
+    ProgressItem progress = m_progress.take(token);
+    delete progress.showBarTimer;
     if (progress.futureInterface)
         progress.futureInterface->reportFinished();
     delete progress.futureInterface;
