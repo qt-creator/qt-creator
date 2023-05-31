@@ -39108,7 +39108,7 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>&amp;Configure Project</source>
-        <translation>Projekt &amp;Konfigurieren</translation>
+        <translation>Projekt &amp;konfigurieren</translation>
     </message>
     <message>
         <source>Enable Kit for Project &quot;%1&quot;</source>
