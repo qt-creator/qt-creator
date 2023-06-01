@@ -126,13 +126,13 @@ public:
         }
     }
 
-    void read(QPromise<SearchResultItems> &promise, const QString &input)
+    int read(QPromise<SearchResultItems> &promise, const QString &input)
     {
         SearchResultItems items;
         QStringView remainingInput(input);
         while (true) {
             if (promise.isCanceled())
-                return;
+                return 0;
 
             if (remainingInput.isEmpty())
                 break;
@@ -145,6 +145,7 @@ public:
         }
         if (!items.isEmpty())
             promise.addResult(items);
+        return items.count();
     }
 
     void operator()(QPromise<SearchResultItems> &promise)
@@ -181,26 +182,66 @@ public:
                 });
         arguments << "--" << filterArgs << exclusionArgs;
 
+        QEventLoop loop;
+
         Process process;
         process.setEnvironment(m_environment);
         process.setCommand({m_vcsBinary, arguments});
         process.setWorkingDirectory(m_directory);
-        process.setStdOutCallback([this, &promise](const QString &text) { read(promise, text); });
-        process.start();
-        process.waitForFinished();
+        QStringList outputBuffer;
+        // The states transition exactly in this order:
+        enum State { BelowLimit, AboveLimit, Paused, Resumed };
+        State state = BelowLimit;
+        int reportedResultsCount = 0;
+        process.setStdOutCallback([this, &process, &loop, &promise, &state, &reportedResultsCount,
+                                   &outputBuffer](const QString &output) {
+            if (promise.isCanceled()) {
+                process.close();
+                loop.quit();
+                return;
+            }
+            // The SearchResultWidget is going to pause the search anyway, so start buffering
+            // the output.
+            if (state == AboveLimit || state == Paused) {
+                outputBuffer.append(output);
+            } else {
+                reportedResultsCount += read(promise, output);
+                if (state == BelowLimit && reportedResultsCount > 200000)
+                    state = AboveLimit;
+            }
+        });
+        QObject::connect(&process, &Process::done, &loop, [&loop, &promise, &state] {
+            if (state == BelowLimit || state == Resumed || promise.isCanceled())
+                loop.quit();
+        });
 
-        switch (process.result()) {
-        case ProcessResult::TerminatedAbnormally:
-        case ProcessResult::StartFailed:
-        case ProcessResult::Hang:
-            promise.future().cancel();
-            break;
-        case ProcessResult::FinishedWithSuccess:
-        case ProcessResult::FinishedWithError:
-            // When no results are found, git-grep exits with non-zero status.
-            // Do not consider this as an error.
-            break;
-        }
+        process.start();
+        if (process.state() == QProcess::NotRunning)
+            return;
+
+        QFutureWatcher<void> watcher;
+        QFuture<void> future(promise.future());
+        QObject::connect(&watcher, &QFutureWatcherBase::canceled, &loop, [&process, &loop] {
+            process.close();
+            loop.quit();
+        });
+        QObject::connect(&watcher, &QFutureWatcherBase::paused, &loop, [&state] { state = Paused; });
+        QObject::connect(&watcher, &QFutureWatcherBase::resumed, &loop,
+                         [this, &process, &loop, &promise, &state, &outputBuffer] {
+            state = Resumed;
+            for (const QString &output : outputBuffer) {
+                if (promise.isCanceled()) {
+                    process.close();
+                    loop.quit();
+                }
+                read(promise, output);
+            }
+            outputBuffer.clear();
+            if (process.state() == QProcess::NotRunning)
+                loop.quit();
+        });
+        watcher.setFuture(future);
+        loop.exec(QEventLoop::ExcludeUserInputEvents);
     }
 
 private:
