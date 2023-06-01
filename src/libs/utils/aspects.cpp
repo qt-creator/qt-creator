@@ -670,6 +670,7 @@ public:
     // Used to block recursive editingFinished signals for example when return is pressed, and
     // the validation changes focus by opening a dialog
     bool m_blockAutoApply = false;
+    bool m_allowPathFromDevice = true;
 
     template<class Widget> void updateWidgetFromCheckStatus(StringAspect *aspect, Widget *w)
     {
@@ -977,6 +978,13 @@ void StringAspect::setCommandVersionArguments(const QStringList &arguments)
         d->m_pathChooserDisplay->setCommandVersionArguments(arguments);
 }
 
+void StringAspect::setAllowPathFromDevice(bool allowPathFromDevice)
+{
+    d->m_allowPathFromDevice = allowPathFromDevice;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setAllowPathFromDevice(allowPathFromDevice);
+}
+
 /*!
     Sets \a elideMode as label elide mode.
 */
@@ -1122,6 +1130,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->m_pathChooserDisplay->setPromptDialogFilter(d->m_prompDialogFilter);
         d->m_pathChooserDisplay->setPromptDialogTitle(d->m_prompDialogTitle);
         d->m_pathChooserDisplay->setCommandVersionArguments(d->m_commandVersionArguments);
+        d->m_pathChooserDisplay->setAllowPathFromDevice(d->m_allowPathFromDevice);
         if (defaultValue() == value())
             d->m_pathChooserDisplay->setDefaultValue(defaultValue());
         else

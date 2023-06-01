@@ -406,6 +406,7 @@ public:
     void setOpenTerminalHandler(const std::function<void()> &openTerminal);
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
     void setElideMode(Qt::TextElideMode elideMode);
+    void setAllowPathFromDevice(bool allowPathFromDevice);
 
     void validateInput();
 
