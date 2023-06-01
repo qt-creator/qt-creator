@@ -38,7 +38,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-    void reset();
+    bool reset();
     void apply();
 
     ModelNode view3dNode() const { return m_view3dNode; }
