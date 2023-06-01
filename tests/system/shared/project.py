@@ -128,7 +128,7 @@ def __createProjectHandleQtQuickSelection__(minimumQtVersion):
     comboBox = waitForObject("{name?='*QtVersion' type='QComboBox' visible='1'"
                              " window=':New_ProjectExplorer::JsonWizard'}")
     try:
-        selectFromCombo(comboBox, minimumQtVersion)
+        selectFromCombo(comboBox, "Qt " + minimumQtVersion)
     except:
         t,v = sys.exc_info()[:2]
         test.fatal("Exception while trying to select Qt version", "%s: %s" % (t.__name__, str(v)))
