@@ -42,23 +42,23 @@ private:
     void doRun() final;
 
     bool m_runAutogen = false;
+    StringAspect m_arguments{this};
 };
 
 AutogenStep::AutogenStep(BuildStepList *bsl, Id id) : AbstractProcessStep(bsl, id)
 {
-    auto arguments = addAspect<StringAspect>();
-    arguments->setSettingsKey("AutotoolsProjectManager.AutogenStep.AdditionalArguments");
-    arguments->setLabelText(Tr::tr("Arguments:"));
-    arguments->setDisplayStyle(StringAspect::LineEditDisplay);
-    arguments->setHistoryCompleter("AutotoolsPM.History.AutogenStepArgs");
+    m_arguments.setSettingsKey("AutotoolsProjectManager.AutogenStep.AdditionalArguments");
+    m_arguments.setLabelText(Tr::tr("Arguments:"));
+    m_arguments.setDisplayStyle(StringAspect::LineEditDisplay);
+    m_arguments.setHistoryCompleter("AutotoolsPM.History.AutogenStepArgs");
 
-    connect(arguments, &BaseAspect::changed, this, [this] { m_runAutogen = true; });
+    connect(&m_arguments, &BaseAspect::changed, this, [this] { m_runAutogen = true; });
 
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
 
-    setCommandLineProvider([this, arguments] {
+    setCommandLineProvider([this] {
         return CommandLine(project()->projectDirectory() / "autogen.sh",
-                           arguments->value(),
+                           m_arguments(),
                            CommandLine::Raw);
     });
 
