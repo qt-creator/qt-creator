@@ -132,6 +132,20 @@ QtQuickDesignerFactory::QtQuickDesignerFactory()
 
 } // namespace Internal
 
+struct TraceIdentifierData
+{
+    TraceIdentifierData(const QString &_identifier, const QString &_newIdentifer, int _duration)
+        : identifier(_identifier), newIdentifer(_newIdentifer), maxDuration(_duration)
+    {}
+
+    TraceIdentifierData() = default;
+
+    QString identifier;
+    QString newIdentifer;
+    int maxDuration;
+    int time = 0;
+};
+
 class QmlDesignerPluginPrivate
 {
 public:
@@ -146,6 +160,9 @@ public:
     bool blockEditorChange = false;
     Utils::UniqueObjectPtr<QToolBar> toolBar;
     Utils::UniqueObjectPtr<QWidget> statusBar;
+    QHash<QString, TraceIdentifierData> m_traceIdentifierDataHash;
+    QHash<QString, TraceIdentifierData> m_activeTraceIdentifierDataHash;
+    QElapsedTimer timer;
 };
 
 QmlDesignerPlugin *QmlDesignerPlugin::m_instance = nullptr;
@@ -250,6 +267,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
         return false;
     d = new QmlDesignerPluginPrivate;
+    d->timer.start();
     if (QmlProjectManager::QmlProject::isQtDesignStudio())
         GenerateResource::generateMenuEntry(this);
 
@@ -353,6 +371,10 @@ void QmlDesignerPlugin::extensionsInitialized()
     actionManager.createDefaultAddResourceHandler();
     actionManager.createDefaultModelNodePreviewImageHandlers();
     actionManager.polishActions();
+
+    registerCombinedTracedPoints(Constants::EVENT_STATE_ADDED,
+                                 Constants::EVENT_STATE_CLONED,
+                                 Constants::EVENT_STATE_ADDED_AND_CLONED);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()
@@ -613,6 +635,12 @@ Model *QmlDesignerPlugin::currentModel() const
     return currentDesignDocument()->currentModel();
 }
 
+QmlDesignerPluginPrivate *QmlDesignerPlugin::privateInstance()
+{
+    QTC_ASSERT(instance(), return nullptr);
+    return instance()->d;
+}
+
 DesignDocument *QmlDesignerPlugin::currentDesignDocument() const
 {
     if (d)
@@ -674,6 +702,35 @@ void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
 {
     QTC_ASSERT(instance(), return);
     emit instance()->usageStatisticsNotifier(normalizeIdentifier(identifier));
+
+    TraceIdentifierData activeData = privateInstance()->m_activeTraceIdentifierDataHash.value(
+        identifier);
+
+    if (activeData.time) {
+        const int currentTime = privateInstance()->timer.elapsed();
+        const int currentDuration = (currentTime - activeData.time);
+        if (currentDuration < activeData.maxDuration)
+            emit instance()->usageStatisticsUsageDuration(activeData.newIdentifer, currentDuration);
+
+        privateInstance()->m_activeTraceIdentifierDataHash.remove(identifier);
+    } else {
+        TraceIdentifierData data = privateInstance()->m_traceIdentifierDataHash.value(identifier);
+
+        if (!data.identifier.isEmpty()) {
+            data.time = privateInstance()->timer.elapsed();
+            privateInstance()->m_activeTraceIdentifierDataHash.insert(data.identifier, data);
+        }
+    }
+
+    const auto values = privateInstance()->m_activeTraceIdentifierDataHash.values();
+    for (const auto &activeData : values) {
+        const int currentTime = privateInstance()->timer.elapsed();
+        const int currentDuration = (currentTime - activeData.time);
+
+        if (currentDuration > activeData.maxDuration) {
+            privateInstance()->m_activeTraceIdentifierDataHash.remove(activeData.identifier);
+        }
+    }
 }
 
 void QmlDesignerPlugin::emitUsageStatisticsContextAction(const QString &identifier)
@@ -726,6 +783,18 @@ void QmlDesignerPlugin::trackWidgetFocusTime(QWidget *widget, const QString &ide
                     lastIdentifier.clear();
                 }
             });
+}
+
+void QmlDesignerPlugin::registerCombinedTracedPoints(const QString &identifierFirst,
+                                                     const QString &identifierSecond,
+                                                     const QString &newIdentifier,
+                                                     int maxDuration)
+{
+    QTC_ASSERT(privateInstance(), return );
+    privateInstance()->m_traceIdentifierDataHash.insert(identifierFirst,
+                                                        TraceIdentifierData(identifierSecond,
+                                                                            newIdentifier,
+                                                                            maxDuration));
 }
 
 void QmlDesignerPlugin::lauchFeedbackPopup(const QString &identifier)

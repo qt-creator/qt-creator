@@ -82,11 +82,18 @@ public:
     static void registerPreviewImageProvider(QQmlEngine *engine);
 
     static void trackWidgetFocusTime(QWidget *widget, const QString &identifier);
+    static void registerCombinedTracedPoints(const QString &identifierFirst,
+                                             const QString &identifierSecond,
+                                             const QString &newIdentifier,
+                                             int maxDuration = 10000);
 
 signals:
     void usageStatisticsNotifier(const QString &identifier);
     void usageStatisticsUsageTimer(const QString &identifier, int elapsed);
-    void usageStatisticsInsertFeedback(const QString &identifier, const QString &feedback, int rating);
+    void usageStatisticsUsageDuration(const QString &identifier, int elapsed);
+    void usageStatisticsInsertFeedback(const QString &identifier,
+                                       const QString &feedback,
+                                       int rating);
     void assetChanged(const QString &assetPath);
 
 private slots:
@@ -110,6 +117,7 @@ private: // functions
     RewriterView *rewriterView() const;
     Model *currentModel() const;
     QQuickWidget *m_feedbackWidget = nullptr;
+    static QmlDesignerPluginPrivate *privateInstance();
 
 private: // variables
     QmlDesignerPluginPrivate *d = nullptr;

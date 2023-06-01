@@ -99,6 +99,7 @@ const int MODELNODE_PREVIEW_IMAGE_DIMENSIONS = 150;
 const char EVENT_TIMELINE_ADDED[] = "timelineAdded";
 const char EVENT_TRANSITION_ADDED[] = "transitionAdded";
 const char EVENT_STATE_ADDED[] = "stateAdded";
+const char EVENT_STATE_ADDED_AND_CLONED[] = "stateAddedAndCloned";
 const char EVENT_STATE_CLONED[] = "stateCloned";
 const char EVENT_STATE_EXTENDED[] = "stateExtended";
 const char EVENT_CONNECTION_ADDED[] = "connectionAdded";
