@@ -23,7 +23,7 @@ QtcPlugin {
         "shellintegration.h",
         "terminal.qrc",
         "terminalconstants.h",
-        "terminalicons.h"
+        "terminalicons.h",
         "terminalpane.cpp",
         "terminalpane.h",
         "terminalplugin.cpp",
