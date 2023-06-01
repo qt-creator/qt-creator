@@ -32,7 +32,7 @@ class ProjectStorage;
 class QmlDocumentParserInterface;
 class QmlTypesParserInterface;
 
-class ProjectStorageUpdater : public ProjectStoragePathWatcherNotifierInterface
+class ProjectStorageUpdater final : public ProjectStoragePathWatcherNotifierInterface
 {
 public:
     using PathCache = SourcePathCache<ProjectStorage<Sqlite::Database>, NonLockingMutex>;

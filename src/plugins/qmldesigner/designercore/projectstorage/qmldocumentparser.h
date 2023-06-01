@@ -12,7 +12,7 @@ namespace QmlDesigner {
 template<typename ProjectStorage, typename Mutex>
 class SourcePathCache;
 
-class QmlDocumentParser : public QmlDocumentParserInterface
+class QmlDocumentParser final : public QmlDocumentParserInterface
 {
 public:
     using ProjectStorage = QmlDesigner::ProjectStorage<Sqlite::Database>;
