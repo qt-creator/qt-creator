@@ -111,6 +111,7 @@ public:
         for (const auto &match : std::as_const(matches)) {
             result.setMainRange(lineNumber, match.matchStart, match.matchLength);
             result.setUserData(match.regexpCapturedTexts);
+            result.setUseTextEditorFont(true);
             resultList->append(result);
         }
     }
