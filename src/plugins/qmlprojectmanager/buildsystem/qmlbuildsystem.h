@@ -89,9 +89,6 @@ public:
     bool addFiles(const QStringList &filePaths);
     void refreshProjectFile();
 
-    static Utils::FilePath activeMainFilePath();
-    static QStringList makeAbsolute(const Utils::FilePath &path, const QStringList &relativePaths);
-
     void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);
 
     bool blockFilesUpdate() const;
