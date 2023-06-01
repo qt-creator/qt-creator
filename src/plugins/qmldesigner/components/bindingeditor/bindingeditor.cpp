@@ -174,27 +174,38 @@ void BindingEditor::prepareBindings()
 
     QList<BindingEditorDialog::BindingOption> bindings;
 
-    const QList<TypeName> variantTypes = {"alias", "unknown", "variant", "var"};
-    const QList<TypeName> numericTypes = {"double", "real", "int"};
-    const QList<TypeName> colorTypes = {"QColor", "color"};
-    auto isVariant = [&variantTypes](const TypeName &compareType) { return variantTypes.contains(compareType); };
-    auto isNumeric = [&numericTypes](const TypeName &compareType) { return numericTypes.contains(compareType); };
-    auto isColor = [&colorTypes](const TypeName &compareType) { return colorTypes.contains(compareType); };
+    const QVarLengthArray<TypeName> variantTypes = {"alias", "unknown", "variant", "var"};
+    const QVarLengthArray<TypeName> numericTypes = {"double", "real", "int"};
+    const QVarLengthArray<TypeName> colorTypes = {"QColor", "color"};
+    const QVarLengthArray<TypeName> stringTypes = {"QString", "string"};
 
-    const bool skipTypeFiltering = isVariant(m_backendValueTypeName);
-    const bool targetTypeIsNumeric = isNumeric(m_backendValueTypeName);
+    auto isVariant = [&variantTypes](const TypeName &compareType) {
+        return variantTypes.contains(compareType);
+    };
+    auto isNumeric = [&numericTypes](const TypeName &compareType) {
+        return numericTypes.contains(compareType);
+    };
+    auto isColor = [&colorTypes](const TypeName &compareType) {
+        return colorTypes.contains(compareType);
+    };
+    auto isString = [&stringTypes](const TypeName &compareType) {
+        return stringTypes.contains(compareType);
+    };
+
+    auto compareTypes = [&](const TypeName &targetType, const TypeName &sourceType) {
+        return isVariant(targetType) || isVariant(sourceType) || (targetType == sourceType)
+               || (isNumeric(targetType) && isNumeric(sourceType))
+               || (isColor(targetType) && isColor(sourceType))
+               || (isString(targetType) && isString(sourceType));
+    };
 
     for (const auto &objnode : allNodes) {
         BindingEditorDialog::BindingOption binding;
         for (const auto &property : objnode.metaInfo().properties()) {
             const TypeName &propertyTypeName = property.propertyType().simplifiedTypeName();
 
-            if (skipTypeFiltering
-                    || (m_backendValueTypeName == propertyTypeName)
-                    || isVariant(propertyTypeName)
-                    || (targetTypeIsNumeric && isNumeric(propertyTypeName))) {
+            if (compareTypes(m_backendValueTypeName, propertyTypeName))
                 binding.properties.append(QString::fromUtf8(property.name()));
-            }
         }
 
         //dynamic properties:
@@ -202,12 +213,8 @@ void BindingEditor::prepareBindings()
             if (bindingProperty.isValid()) {
                 if (bindingProperty.isDynamic()) {
                     const TypeName dynamicTypeName = bindingProperty.dynamicTypeName();
-                    if (skipTypeFiltering
-                            || (dynamicTypeName == m_backendValueTypeName)
-                            || isVariant(dynamicTypeName)
-                            || (targetTypeIsNumeric && isNumeric(dynamicTypeName))) {
+                    if (compareTypes(m_backendValueTypeName, dynamicTypeName))
                         binding.properties.append(QString::fromUtf8(bindingProperty.name()));
-                    }
                 }
             }
         }
@@ -215,12 +222,8 @@ void BindingEditor::prepareBindings()
             if (variantProperty.isValid()) {
                 if (variantProperty.isDynamic()) {
                     const TypeName dynamicTypeName = variantProperty.dynamicTypeName();
-                    if (skipTypeFiltering
-                            || (dynamicTypeName == m_backendValueTypeName)
-                            || isVariant(dynamicTypeName)
-                            || (targetTypeIsNumeric && isNumeric(dynamicTypeName))) {
+                    if (compareTypes(m_backendValueTypeName, dynamicTypeName))
                         binding.properties.append(QString::fromUtf8(variantProperty.name()));
-                    }
                 }
             }
         }
@@ -241,15 +244,10 @@ void BindingEditor::prepareBindings()
                     BindingEditorDialog::BindingOption binding;
 
                     for (const auto &property : metaInfo.properties()) {
-                        TypeName propertyTypeName = property.propertyType().typeName();
+                        const TypeName propertyTypeName = property.propertyType().typeName();
 
-                        if (skipTypeFiltering
-                                || (m_backendValueTypeName == propertyTypeName)
-                                || (isVariant(propertyTypeName))
-                                || (targetTypeIsNumeric && isNumeric(propertyTypeName))
-                                || (isColor(m_backendValueTypeName) && isColor(propertyTypeName))) {
+                        if (compareTypes(m_backendValueTypeName, propertyTypeName))
                             binding.properties.append(QString::fromUtf8(property.name()));
-                        }
                     }
 
                     if (!binding.properties.isEmpty()) {
