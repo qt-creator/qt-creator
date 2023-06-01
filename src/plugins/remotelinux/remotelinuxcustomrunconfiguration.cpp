@@ -41,10 +41,9 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     exeAspect->setHistoryCompleter("RemoteLinux.CustomExecutable.History");
     exeAspect->setExpectedKind(PathChooser::Any);
 
-    auto symbolsAspect = addAspect<SymbolFileAspect>();
+    auto symbolsAspect = addAspect<FilePathAspect>();
     symbolsAspect->setSettingsKey("RemoteLinux.CustomRunConfig.LocalExecutable");
     symbolsAspect->setLabelText(Tr::tr("Local executable:"));
-    symbolsAspect->setDisplayStyle(SymbolFileAspect::PathChooserDisplay);
 
     addAspect<ArgumentsAspect>(macroExpander());
     addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);

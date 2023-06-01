@@ -16,13 +16,13 @@ class CommonVcsSettings : public Utils::AspectContainer
 public:
     CommonVcsSettings();
 
-    Utils::StringAspect nickNameMailMap{this};
-    Utils::StringAspect nickNameFieldListFile{this};
+    Utils::FilePathAspect nickNameMailMap{this};
+    Utils::FilePathAspect nickNameFieldListFile{this};
 
-    Utils::StringAspect submitMessageCheckScript{this};
+    Utils::FilePathAspect submitMessageCheckScript{this};
 
     // Executable run to graphically prompt for a SSH-password.
-    Utils::StringAspect sshPasswordPrompt{this};
+    Utils::FilePathAspect sshPasswordPrompt{this};
 
     Utils::BoolAspect lineWrap{this};
     Utils::IntegerAspect lineWrapWidth{this};

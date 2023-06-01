@@ -39,7 +39,6 @@ CommonVcsSettings::CommonVcsSettings()
     setAutoApply(false);
 
     nickNameMailMap.setSettingsKey("NickNameMailMap");
-    nickNameMailMap.setDisplayStyle(StringAspect::PathChooserDisplay);
     nickNameMailMap.setExpectedKind(PathChooser::File);
     nickNameMailMap.setHistoryCompleter("Vcs.NickMap.History");
     nickNameMailMap.setLabelText(Tr::tr("User/&alias configuration file:"));
@@ -47,7 +46,6 @@ CommonVcsSettings::CommonVcsSettings()
         "'name <email> alias <email>'."));
 
     nickNameFieldListFile.setSettingsKey("NickNameFieldListFile");
-    nickNameFieldListFile.setDisplayStyle(StringAspect::PathChooserDisplay);
     nickNameFieldListFile.setExpectedKind(PathChooser::File);
     nickNameFieldListFile.setHistoryCompleter("Vcs.NickFields.History");
     nickNameFieldListFile.setLabelText(Tr::tr("User &fields configuration file:"));
@@ -55,7 +53,6 @@ CommonVcsSettings::CommonVcsSettings()
         "\"Reviewed-By:\" which will be added below the submit editor."));
 
     submitMessageCheckScript.setSettingsKey("SubmitMessageCheckScript");
-    submitMessageCheckScript.setDisplayStyle(StringAspect::PathChooserDisplay);
     submitMessageCheckScript.setExpectedKind(PathChooser::ExistingCommand);
     submitMessageCheckScript.setHistoryCompleter("Vcs.MessageCheckScript.History");
     submitMessageCheckScript.setLabelText(Tr::tr("Submit message &check script:"));
@@ -64,7 +61,6 @@ CommonVcsSettings::CommonVcsSettings()
         "on standard error to indicate failure."));
 
     sshPasswordPrompt.setSettingsKey("SshPasswordPrompt");
-    sshPasswordPrompt.setDisplayStyle(StringAspect::PathChooserDisplay);
     sshPasswordPrompt.setExpectedKind(PathChooser::ExistingCommand);
     sshPasswordPrompt.setHistoryCompleter("Vcs.SshPrompt.History");
     sshPasswordPrompt.setDefaultValue(sshPasswordPromptDefault());
