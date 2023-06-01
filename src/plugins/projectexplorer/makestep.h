@@ -59,26 +59,18 @@ protected:
     void supportDisablingForSubdirs() { m_disablingForSubDirsSupported = true; }
     virtual QStringList displayArguments() const;
 
-    Utils::StringAspect *makeCommandAspect() const { return m_makeCommandAspect; }
-    Utils::MultiSelectionAspect *buildTargetsAspect() const { return m_buildTargetsAspect; }
-    Utils::StringAspect *userArgumentsAspect() const { return m_userArgumentsAspect; }
-    Utils::BoolAspect *overrideMakeflagsAspect() const { return m_overrideMakeflagsAspect; }
-    Utils::TextDisplay *nonOverrideWarning() const { return m_nonOverrideWarning; }
-    Utils::IntegerAspect *jobCountAspect() const { return m_userJobCountAspect; }
-    Utils::BoolAspect *disabledForSubdirsAspect() const { return m_disabledForSubdirsAspect; }
-
+    Utils::FilePathAspect m_makeCommandAspect{this};
+    Utils::MultiSelectionAspect m_buildTargetsAspect{this};
+    Utils::StringAspect m_userArgumentsAspect{this};
+    Utils::BoolAspect m_overrideMakeflagsAspect{this};
+    Utils::TextDisplay m_nonOverrideWarning{this};
+    Utils::IntegerAspect m_jobCountAspect{this};
+    Utils::BoolAspect m_disabledForSubdirsAspect{this};
 
 private:
     static int defaultJobCount();
     QStringList jobArguments() const;
 
-    Utils::MultiSelectionAspect *m_buildTargetsAspect = nullptr;
-    Utils::StringAspect *m_makeCommandAspect = nullptr;
-    Utils::StringAspect *m_userArgumentsAspect = nullptr;
-    Utils::IntegerAspect *m_userJobCountAspect = nullptr;
-    Utils::BoolAspect *m_overrideMakeflagsAspect = nullptr;
-    Utils::BoolAspect *m_disabledForSubdirsAspect = nullptr;
-    Utils::TextDisplay *m_nonOverrideWarning = nullptr;
     bool m_disablingForSubDirsSupported = false;
 };
 
