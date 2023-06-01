@@ -132,7 +132,7 @@ QString deEscape(const QString &value)
     result.replace(QStringLiteral("\\\\"), QStringLiteral("\\"));
     result.replace(QStringLiteral("\\\""), QStringLiteral("\""));
     result.replace(QStringLiteral("\\t"), QStringLiteral("\t"));
-    result.replace(QStringLiteral("\\r"), QStringLiteral("\\\r"));
+    result.replace(QStringLiteral("\\r"), QStringLiteral("\r"));
     result.replace(QStringLiteral("\\n"), QStringLiteral("\n"));
 
     return result;
