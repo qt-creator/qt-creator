@@ -87,13 +87,15 @@ def verifyKitCheckboxes(kits, displayedPlatforms):
     unexpectedShownKits = availableCheckboxes.difference(displayedPlatforms)
     missingKits = displayedPlatforms.difference(availableCheckboxes)
 
-    test.log("Expected kits shown on 'Kit Selection' page:\n%s" % "\n".join(expectedShownKits))
-    if len(unexpectedShownKits):
-        test.fail("Kits found on 'Kit Selection' page but not expected:\n%s"
-                  % "\n".join(unexpectedShownKits))
-    if len(missingKits):
-        test.fail("Expected kits missing on 'Kit Selection' page:\n%s"
-                  % "\n".join(missingKits))
+    if not test.verify(len(unexpectedShownKits) == 0 and len(missingKits) == 0,
+                       "No missing or unexpected kits found on 'Kit Selection' page?\n"
+                       "Found expected kits:\n%s" % "\n".join(expectedShownKits)):
+        if len(unexpectedShownKits):
+            test.log("Kits found on 'Kit Selection' page but not expected:\n%s"
+                     % "\n".join(unexpectedShownKits))
+        if len(missingKits):
+            test.log("Expected kits missing on 'Kit Selection' page:\n%s"
+                     % "\n".join(missingKits))
 
 def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
                                 specialHandlingFunc = None, *args):
