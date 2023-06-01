@@ -162,6 +162,8 @@ static void runSilverSeacher(QPromise<SearchResultItems> &promise,
             SilverSearcher::parse(promise, output, &parserState, regExp);
         }
         outputBuffer.clear();
+        if (process.state() == QProcess::NotRunning)
+            loop.quit();
     });
     watcher.setFuture(future);
     loop.exec(QEventLoop::ExcludeUserInputEvents);
