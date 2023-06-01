@@ -114,10 +114,31 @@ static void runSilverSeacher(QPromise<SearchResultItems> &promise,
     process.setCommand({"ag", arguments});
     ParserState parserState;
     const std::optional<QRegularExpression> regExp = regExpFromParameters(parameters);
-    process.setStdOutCallback([&promise, &parserState, regExp](const QString &output) {
-        SilverSearcher::parse(promise, output, &parserState, regExp);
+    QStringList outputBuffer;
+    // The states transition exactly in this order:
+    enum State { BelowLimit, AboveLimit, Paused, Resumed };
+    State state = BelowLimit;
+    process.setStdOutCallback([&process, &loop, &promise, &state, &outputBuffer, &parserState,
+                               regExp](const QString &output) {
+        if (promise.isCanceled()) {
+            process.close();
+            loop.quit();
+            return;
+        }
+        // The SearchResultWidget is going to pause the search anyway, so start buffering
+        // the output.
+        if (state == AboveLimit || state == Paused) {
+            outputBuffer.append(output);
+        } else {
+            SilverSearcher::parse(promise, output, &parserState, regExp);
+            if (state == BelowLimit && parserState.m_reportedResultsCount > 200000)
+                state = AboveLimit;
+        }
     });
-    QObject::connect(&process, &Process::done, &loop, &QEventLoop::quit);
+    QObject::connect(&process, &Process::done, &loop, [&loop, &promise, &state] {
+        if (state == BelowLimit || state == Resumed || promise.isCanceled())
+            loop.quit();
+    });
 
     process.start();
     if (process.state() == QProcess::NotRunning)
@@ -125,7 +146,23 @@ static void runSilverSeacher(QPromise<SearchResultItems> &promise,
 
     QFutureWatcher<void> watcher;
     QFuture<void> future(promise.future());
-    QObject::connect(&watcher, &QFutureWatcherBase::canceled, &loop, &QEventLoop::quit);
+    QObject::connect(&watcher, &QFutureWatcherBase::canceled, &loop, [&process, &loop] {
+        process.close();
+        loop.quit();
+    });
+    QObject::connect(&watcher, &QFutureWatcherBase::paused, &loop, [&state] { state = Paused; });
+    QObject::connect(&watcher, &QFutureWatcherBase::resumed, &loop,
+                     [&process, &loop, &promise, &state, &outputBuffer, &parserState, regExp] {
+        state = Resumed;
+        for (const QString &output : outputBuffer) {
+            if (promise.isCanceled()) {
+                process.close();
+                loop.quit();
+            }
+            SilverSearcher::parse(promise, output, &parserState, regExp);
+        }
+        outputBuffer.clear();
+    });
     watcher.setFuture(future);
     loop.exec(QEventLoop::ExcludeUserInputEvents);
 }
