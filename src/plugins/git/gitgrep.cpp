@@ -25,7 +25,6 @@
 #include <QHBoxLayout>
 #include <QRegularExpressionValidator>
 #include <QSettings>
-#include <QTextStream>
 
 using namespace Core;
 using namespace Utils;
@@ -43,10 +42,21 @@ public:
     QString id() const { return recurseSubmodules ? ref + ".Rec" : ref; }
 };
 
+static QStringView nextLine(QStringView *remainingInput)
+{
+    const int newLinePos = remainingInput->indexOf('\n');
+    if (newLinePos < 0) {
+        QStringView ret = *remainingInput;
+        *remainingInput = QStringView();
+        return ret;
+    }
+    QStringView ret = remainingInput->left(newLinePos);
+    *remainingInput = remainingInput->mid(newLinePos + 1);
+    return ret;
+}
+
 class GitGrepRunner
 {
-    using PromiseType = QPromise<SearchResultItems>;
-
 public:
     GitGrepRunner(const TextEditor::FileFindParameters &parameters)
         : m_parameters(parameters)
@@ -54,6 +64,14 @@ public:
         m_directory = FilePath::fromString(parameters.additionalParameters.toString());
         m_vcsBinary = GitClient::instance()->vcsBinary();
         m_environment = GitClient::instance()->processEnvironment();
+        if (m_parameters.flags & FindRegularExpression) {
+            const QRegularExpression::PatternOptions patternOptions
+                = m_parameters.flags & FindCaseSensitively
+                ? QRegularExpression::NoPatternOption
+                : QRegularExpression::CaseInsensitiveOption;
+            m_regexp.setPattern(m_parameters.text);
+            m_regexp.setPatternOptions(patternOptions);
+        }
     }
 
     struct Match
@@ -67,7 +85,7 @@ public:
         QStringList regexpCapturedTexts;
     };
 
-    void processLine(const QString &line, SearchResultItems *resultList) const
+    void processLine(QStringView line, SearchResultItems *resultList) const
     {
         if (line.isEmpty())
             return;
@@ -75,23 +93,15 @@ public:
         static const QLatin1String resetColor("\x1b[m");
         SearchResultItem result;
         const int lineSeparator = line.indexOf(QChar::Null);
-        QString filePath = line.left(lineSeparator);
+        QStringView filePath = line.left(lineSeparator);
         if (!m_ref.isEmpty() && filePath.startsWith(m_ref))
-            filePath.remove(0, m_ref.length());
-        result.setFilePath(m_directory.pathAppended(filePath));
+            filePath = filePath.mid(m_ref.length());
+        result.setFilePath(m_directory.pathAppended(filePath.toString()));
         const int textSeparator = line.indexOf(QChar::Null, lineSeparator + 1);
         const int lineNumber = line.mid(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
-        QString text = line.mid(textSeparator + 1);
-        QRegularExpression regexp;
+        QString text = line.mid(textSeparator + 1).toString();
         QList<Match> matches;
-        if (m_parameters.flags & FindRegularExpression) {
-            const QRegularExpression::PatternOptions patternOptions =
-                    (m_parameters.flags & FindCaseSensitively)
-                    ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
-            regexp.setPattern(m_parameters.text);
-            regexp.setPatternOptions(patternOptions);
-        }
-        for (;;) {
+        while (true) {
             const int matchStart = text.indexOf(boldRed);
             if (matchStart == -1)
                 break;
@@ -102,7 +112,7 @@ public:
             Match match(matchStart, matchLength);
             const QString matchText = text.mid(matchTextStart, matchLength);
             if (m_parameters.flags & FindRegularExpression)
-                match.regexpCapturedTexts = regexp.match(matchText).capturedTexts();
+                match.regexpCapturedTexts = m_regexp.match(matchText).capturedTexts();
             matches.append(match);
             text = text.left(matchStart) + matchText + text.mid(matchEnd + resetColor.size());
         }
@@ -116,18 +126,28 @@ public:
         }
     }
 
-    void read(PromiseType &fi, const QString &text)
+    void read(QPromise<SearchResultItems> &promise, const QString &input)
     {
-        SearchResultItems resultList;
-        QString t = text;
-        QTextStream stream(&t);
-        while (!stream.atEnd() && !fi.isCanceled())
-            processLine(stream.readLine(), &resultList);
-        if (!resultList.isEmpty() && !fi.isCanceled())
-            fi.addResult(resultList);
+        SearchResultItems items;
+        QStringView remainingInput(input);
+        while (true) {
+            if (promise.isCanceled())
+                return;
+
+            if (remainingInput.isEmpty())
+                break;
+
+            const QStringView line = nextLine(&remainingInput);
+            if (line.isEmpty())
+                continue;
+
+            processLine(line, &items);
+        }
+        if (!items.isEmpty())
+            promise.addResult(items);
     }
 
-    void operator()(PromiseType &promise)
+    void operator()(QPromise<SearchResultItems> &promise)
     {
         QStringList arguments = {
             "-c", "color.grep.match=bold red",
@@ -189,6 +209,7 @@ private:
     QString m_ref;
     TextEditor::FileFindParameters m_parameters;
     Environment m_environment;
+    QRegularExpression m_regexp;
 };
 
 static bool isGitDirectory(const FilePath &path)
