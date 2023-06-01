@@ -163,6 +163,7 @@ TerminalWidget *TerminalPane::stoppedTerminalWithId(Id identifier) const
 
 QWidget *TerminalPane::outputWidget(QWidget *parent)
 {
+    Q_UNUSED(parent)
     if (!m_widgetInitialized) {
         m_widgetInitialized = true;
         m_tabWidget.setTabBarAutoHide(false);
