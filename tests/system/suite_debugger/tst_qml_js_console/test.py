@@ -114,8 +114,7 @@ def main():
         # make sure QML Debugging is enabled
         switchViewTo(ViewConstants.PROJECTS)
         switchToBuildOrRunSettingsFor(Targets.getDefaultKit(), ProjectSettings.RUN)
-        ensureChecked("{container=':Qt Creator.scrollArea_QScrollArea' text='Enable QML' "
-                      "type='QCheckBox' unnamed='1' visible='1'}")
+        selectFromCombo(":EnableQMLDebugger_ComboBox", "Enabled")
         switchViewTo(ViewConstants.EDIT)
         # start debugging
         clickButton(fancyDebugButton)
