@@ -16,7 +16,7 @@ QT_END_NAMESPACE
 
 namespace Tasking {
 
-Q_NAMESPACE
+Q_NAMESPACE_EXPORT(TASKING_EXPORT)
 
 class ExecutionContextActivator;
 class TaskContainer;
