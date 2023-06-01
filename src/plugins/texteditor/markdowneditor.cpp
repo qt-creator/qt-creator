@@ -245,6 +245,8 @@ public:
         if (obj == m_widget && ev->type() == QEvent::FocusIn) {
             if (m_splitter->focusWidget())
                 m_splitter->focusWidget()->setFocus();
+            else if (m_textEditorWidget->isVisible())
+                m_textEditorWidget->setFocus();
             else
                 m_splitter->widget(0)->setFocus();
             return true;
