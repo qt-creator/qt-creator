@@ -13,8 +13,7 @@
 #include <QString>
 #include <QVariant>
 
-namespace FakeVim {
-namespace Internal {
+namespace FakeVim::Internal {
 
 #ifdef FAKEVIM_STANDALONE
 class FvBaseAspect
@@ -145,7 +144,6 @@ private:
     QHash<FvBaseAspect *, QString> m_aspectToName;
 };
 
-FakeVimSettings *fakeVimSettings();
+FakeVimSettings &settings();
 
-} // namespace Internal
-} // namespace FakeVim
+} // FakeVim::Internal

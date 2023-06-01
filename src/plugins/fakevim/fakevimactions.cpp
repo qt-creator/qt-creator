@@ -25,8 +25,7 @@
 
 using namespace Utils;
 
-namespace FakeVim {
-namespace Internal {
+namespace FakeVim::Internal {
 
 #ifdef FAKEVIM_STANDALONE
 FvBaseAspect::FvBaseAspect()
@@ -72,9 +71,9 @@ void setAutoApply(bool ) {}
 
 static FakeVimSettings *s_settings;
 
-FakeVimSettings *fakeVimSettings()
+FakeVimSettings &settings()
 {
-    return s_settings;
+    return *s_settings;
 }
 
 FakeVimSettings::FakeVimSettings()
@@ -327,5 +326,4 @@ void FakeVimSettings::setup(FvBaseAspect *aspect,
         m_nameToAspect[shortName] = aspect;
 }
 
-} // namespace Internal
-} // namespace FakeVim
+} // FakeVim::Internal
