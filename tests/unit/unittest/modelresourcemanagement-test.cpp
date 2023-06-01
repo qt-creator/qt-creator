@@ -302,15 +302,18 @@ protected:
     ModelNode source2 = createNodeWithParent(parameters.type,
                                              rootNode.defaultNodeListProperty(),
                                              "source2");
-    QmlDesigner::BindingProperty sourceTargetsProperty = source.bindingProperty("targets");
-    QmlDesigner::BindingProperty source2TargetsProperty = source2.bindingProperty("targets");
+    QmlDesigner::BindingProperty sourceTargetsProperty = source.bindingProperty(
+        parameters.propertyName);
+    QmlDesigner::BindingProperty source2TargetsProperty = source2.bindingProperty(
+        parameters.propertyName);
 };
 
-INSTANTIATE_TEST_SUITE_P(ModelResourceManagement,
-                         ForTargets,
-                         testing::Values(TargetData{"FlowView.FlowTransition", "FlowView.FlowDecision"},
-                                         TargetData{"FlowView.FlowTransition", "FlowView.FlowWildcard"},
-                                         TargetData{"QtQuick.Item", "QtQuick.PropertyAnimation"}));
+INSTANTIATE_TEST_SUITE_P(
+    ModelResourceManagement,
+    ForTargets,
+    testing::Values(TargetData{"FlowView.FlowTransition", "FlowView.FlowDecision", "targets"},
+                    TargetData{"FlowView.FlowTransition", "FlowView.FlowWildcard", "targets"},
+                    TargetData{"QtQuick.Item", "QtQuick.PropertyAnimation", "targets"}));
 
 TEST_P(ForTargets, Remove)
 {
