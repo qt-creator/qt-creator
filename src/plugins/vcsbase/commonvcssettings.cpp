@@ -6,18 +6,13 @@
 #include "vcsbaseconstants.h"
 #include "vcsbasetr.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
-#include <QDebug>
-#include <QPushButton>
-
+using namespace Core;
 using namespace Utils;
 
 namespace VcsBase::Internal {
@@ -33,10 +28,24 @@ static QString sshPasswordPromptDefault()
     return QLatin1String("ssh-askpass");
 }
 
+static CommonVcsSettings *s_instance;
+
+CommonVcsSettings &commonSettings()
+{
+    return *s_instance;
+}
+
 CommonVcsSettings::CommonVcsSettings()
 {
+    s_instance = this;
+
     setSettingsGroup("VCS");
-    setAutoApply(false);
+    setId(Constants::VCS_COMMON_SETTINGS_ID);
+    setDisplayName(Tr::tr("General"));
+    setCategory(Constants::VCS_SETTINGS_CATEGORY);
+    // The following act as blueprint for other pages in the same category:
+    setDisplayCategory(Tr::tr("Version Control"));
+    setCategoryIconPath(":/vcsbase/images/settingscategory_vcs.png");
 
     nickNameMailMap.setSettingsKey("NickNameMailMap");
     nickNameMailMap.setExpectedKind(PathChooser::File);
@@ -76,69 +85,37 @@ CommonVcsSettings::CommonVcsSettings()
     lineWrapWidth.setSettingsKey("LineWrapWidth");
     lineWrapWidth.setSuffix(Tr::tr(" characters"));
     lineWrapWidth.setDefaultValue(72);
-}
 
-// CommonSettingsWidget
-
-class CommonSettingsWidget final : public Core::IOptionsPageWidget
-{
-public:
-    CommonSettingsWidget(CommonOptionsPage *page)
-    {
-        CommonVcsSettings &s = page->settings();
-
-        auto cacheResetButton = new QPushButton(Tr::tr("Reset VCS Cache"));
-        cacheResetButton->setToolTip(Tr::tr("Reset information about which "
-                                            "version control system handles which directory."));
-
-        auto updatePath = [&s] {
-            Environment env;
-            env.appendToPath(Core::VcsManager::additionalToolsPath());
-            s.sshPasswordPrompt.setEnvironment(env);
-        };
-
+    setLayouter([this] {
         using namespace Layouting;
-        Column {
-            Row { s.lineWrap, s.lineWrapWidth, st },
+        return Column {
+            Row { lineWrap, lineWrapWidth, st },
             Form {
-                s.submitMessageCheckScript, br,
-                s.nickNameMailMap, br,
-                s.nickNameFieldListFile, br,
-                s.sshPasswordPrompt, br,
-                {}, cacheResetButton
+                submitMessageCheckScript, br,
+                nickNameMailMap, br,
+                nickNameFieldListFile, br,
+                sshPasswordPrompt, br,
+                empty,
+                PushButton {
+                    text(Tr::tr("Reset VCS Cache")),
+                    tooltip(Tr::tr("Reset information about which "
+                                   "version control system handles which directory.")),
+                    onClicked(&VcsManager::clearVersionControlCache)
+                }
             }
-        }.attachTo(this);
+        };
+    });
 
-        updatePath();
+    auto updatePath = [this] {
+        Environment env;
+        env.appendToPath(VcsManager::additionalToolsPath());
+        sshPasswordPrompt.setEnvironment(env);
+    };
 
-        connect(Core::VcsManager::instance(), &Core::VcsManager::configurationChanged,
-                this, updatePath);
-        connect(cacheResetButton, &QPushButton::clicked,
-                Core::VcsManager::instance(), &Core::VcsManager::clearVersionControlCache);
+    updatePath();
+    connect(VcsManager::instance(), &VcsManager::configurationChanged, this, updatePath);
 
-        setOnApply([&s] {
-            if (s.isDirty()) {
-                s.apply();
-                s.writeSettings(Core::ICore::settings());
-                emit s.settingsChanged();
-            }
-        });
-    }
-};
-
-// CommonOptionsPage
-
-CommonOptionsPage::CommonOptionsPage()
-{
-    m_settings.readSettings(Core::ICore::settings());
-
-    setId(Constants::VCS_COMMON_SETTINGS_ID);
-    setDisplayName(Tr::tr("General"));
-    setCategory(Constants::VCS_SETTINGS_CATEGORY);
-    // The following act as blueprint for other pages in the same category:
-    setDisplayCategory(Tr::tr("Version Control"));
-    setCategoryIconPath(":/vcsbase/images/settingscategory_vcs.png");
-    setWidgetCreator([this] { return new CommonSettingsWidget(this); });
+    readSettings();
 }
 
 } // VcsBase::Internal

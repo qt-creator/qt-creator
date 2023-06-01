@@ -15,8 +15,6 @@ class VcsBaseSubmitEditor;
 
 namespace Internal {
 
-class CommonVcsSettings;
-
 class VcsPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -30,15 +28,12 @@ public:
 
     static VcsPlugin *instance();
 
-    CommonVcsSettings &settings() const;
-
     // Model of user nick names used for the submit
     // editor. Stored centrally here to achieve delayed
     // initialization and updating on settings change.
     QStandardItemModel *nickNameModel();
 
 signals:
-    void settingsChanged();
     void submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *e, bool *result);
 
 private:
