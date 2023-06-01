@@ -16,6 +16,7 @@
 #include <QSettings>
 
 using namespace Core;
+using namespace SilverSearcher;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -58,6 +59,21 @@ static bool isSilverSearcherAvailable()
         && silverSearcherProcess.cleanedStdOut().contains("ag version");
 }
 
+static std::optional<QRegularExpression> regExpFromParameters(const FileFindParameters &parameters)
+{
+    if (!(parameters.flags & FindRegularExpression))
+        return {};
+
+    const QRegularExpression::PatternOptions patternOptions
+        = (parameters.flags & FindCaseSensitively)
+              ? QRegularExpression::NoPatternOption
+              : QRegularExpression::CaseInsensitiveOption;
+    QRegularExpression regExp;
+    regExp.setPattern(parameters.text);
+    regExp.setPatternOptions(patternOptions);
+    return regExp;
+}
+
 static void runSilverSeacher(QPromise<SearchResultItems> &promise,
                              const FileFindParameters &parameters)
 {
@@ -92,26 +108,26 @@ static void runSilverSeacher(QPromise<SearchResultItems> &promise,
 
     arguments << "--" << parameters.text << directory.normalizedPathName().toString();
 
+    QEventLoop loop;
+
     Process process;
     process.setCommand({"ag", arguments});
+    ParserState parserState;
+    const std::optional<QRegularExpression> regExp = regExpFromParameters(parameters);
+    process.setStdOutCallback([&promise, &parserState, regExp](const QString &output) {
+        SilverSearcher::parse(promise, output, &parserState, regExp);
+    });
+    QObject::connect(&process, &Process::done, &loop, &QEventLoop::quit);
+
     process.start();
-    if (process.waitForFinished()) {
-        std::optional<QRegularExpression> regExp;
-        if (parameters.flags & FindRegularExpression) {
-            regExp = QRegularExpression();
-            const QRegularExpression::PatternOptions patternOptions
-                = (parameters.flags & FindCaseSensitively)
-                      ? QRegularExpression::NoPatternOption
-                      : QRegularExpression::CaseInsensitiveOption;
-            regExp->setPattern(parameters.text);
-            regExp->setPatternOptions(patternOptions);
-        }
-        const SearchResultItems items = SilverSearcher::parse(process.cleanedStdOut(), regExp);
-        if (!items.isEmpty())
-            promise.addResult(items);
-    } else {
-        promise.future().cancel();
-    }
+    if (process.state() == QProcess::NotRunning)
+        return;
+
+    QFutureWatcher<void> watcher;
+    QFuture<void> future(promise.future());
+    QObject::connect(&watcher, &QFutureWatcherBase::canceled, &loop, &QEventLoop::quit);
+    watcher.setFuture(future);
+    loop.exec(QEventLoop::ExcludeUserInputEvents);
 }
 
 } // namespace

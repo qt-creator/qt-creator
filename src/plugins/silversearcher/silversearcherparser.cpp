@@ -3,6 +3,8 @@
 
 #include "silversearcherparser.h"
 
+#include <QFuture>
+
 using namespace Utils;
 
 namespace SilverSearcher {
@@ -94,23 +96,28 @@ static bool parseLineHits(QStringView *remainingInput, QList<QPair<int, int>> *h
     return true;
 }
 
-SearchResultItems parse(const QString &input, const std::optional<QRegularExpression> &regExp)
+void parse(QPromise<SearchResultItems> &promise, const QString &input,
+           ParserState *parserState, const std::optional<QRegularExpression> &regExp)
 {
+    QTC_ASSERT(parserState, return);
     SearchResultItems items;
 
     QStringView remainingInput(input);
     while (true) {
+        if (promise.isCanceled())
+            return;
+
         if (remainingInput.isEmpty())
             break;
 
         const QStringView filePathLine = nextLine(&remainingInput);
-        if (filePathLine.isEmpty())
+        if (filePathLine.isEmpty()) {
+            parserState->m_lastFilePath = {}; // Clear the parser state
             continue;
+        }
 
-        if (!filePathLine.startsWith(':'))
-            continue;
-
-        const FilePath filePath = FilePath::fromPathPart(filePathLine.mid(1));
+        if (filePathLine.startsWith(':'))
+            parserState->m_lastFilePath = FilePath::fromPathPart(filePathLine.mid(1));
 
         while (true) {
             QStringView hitLine = nextLine(&remainingInput);
@@ -126,7 +133,7 @@ SearchResultItems parse(const QString &input, const std::optional<QRegularExpres
                 break;
 
             SearchResultItem item;
-            item.setFilePath(filePath);
+            item.setFilePath(parserState->m_lastFilePath);
             item.setDisplayText(hitLine.toString());
             item.setUseTextEditorFont(true);
             for (const QPair<int, int> &hit : hits) {
@@ -138,7 +145,20 @@ SearchResultItems parse(const QString &input, const std::optional<QRegularExpres
             }
         }
     }
-    return items;
+    if (!items.isEmpty())
+        promise.addResult(items);
+
+    parserState->m_reportedResultsCount += items.count();
+}
+
+SearchResultItems parse(const QString &input, const std::optional<QRegularExpression> &regExp)
+{
+    QPromise<SearchResultItems> promise;
+    promise.start();
+    ParserState dummy;
+    SilverSearcher::parse(promise, input, &dummy, regExp);
+    promise.finish();
+    return promise.future().resultCount() ? promise.future().result() : SearchResultItems();
 }
 
 } // namespace SilverSearcher
