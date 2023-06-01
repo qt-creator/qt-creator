@@ -20,6 +20,7 @@ class SearchResult;
 
 namespace Utils {
 class FileIterator;
+class Process;
 }
 
 namespace TextEditor {
@@ -40,6 +41,16 @@ public:
     int searchEngineIndex;
     Core::FindFlags flags;
 };
+
+using ProcessSetupHandler = std::function<void(Utils::Process &)>;
+using ProcessOutputParser = std::function<Utils::SearchResultItems(
+    const QFuture<void> &, const QString &, const std::optional<QRegularExpression> &)>;
+
+// Call it from a non-main thread only, it's a blocking invocation.
+void TEXTEDITOR_EXPORT searchInProcessOutput(QPromise<Utils::SearchResultItems> &promise,
+                                             const FileFindParameters &parameters,
+                                             const ProcessSetupHandler &processSetupHandler,
+                                             const ProcessOutputParser &processOutputParser);
 
 class BaseFileFind;
 
