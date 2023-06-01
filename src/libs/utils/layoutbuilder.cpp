@@ -676,24 +676,22 @@ LayoutItem st()
 
 LayoutItem noMargin()
 {
-    LayoutItem item;
-    item.onAdd = [](LayoutBuilder &builder) {
-        if (auto layout = builder.stack.last().layout)
-            layout->setContentsMargins(0, 0, 0, 0);
-        else if (auto widget = builder.stack.last().widget)
-            widget->setContentsMargins(0, 0, 0, 0);
-    };
-    return item;
+    return customMargin({});
 }
 
 LayoutItem normalMargin()
 {
+    return customMargin({9, 9, 9, 9});
+}
+
+LayoutItem customMargin(const QMargins &margin)
+{
     LayoutItem item;
-    item.onAdd = [](LayoutBuilder &builder) {
+    item.onAdd = [margin](LayoutBuilder &builder) {
         if (auto layout = builder.stack.last().layout)
-            layout->setContentsMargins(9, 9, 9, 9);
+            layout->setContentsMargins(margin);
         else if (auto widget = builder.stack.last().widget)
-            widget->setContentsMargins(9, 9, 9, 9);
+            widget->setContentsMargins(margin);
     };
     return item;
 }
