@@ -84,6 +84,9 @@
         \li Open a terminal window in the project directory. To specify the
             terminal to use on Linux and \macos, select \uicontrol Edit >
             \uicontrol Preferences > \uicontrol Environment > \uicontrol System.
+            To use an \l{Terminal}{internal terminal}, select \uicontrol Edit >
+            \uicontrol Preferences > \uicontrol Terminal >
+            \uicontrol {Use internal terminal}.
         \li Open a terminal window in the project directory that you configured
             for building or running the project.
         \li Expand or collapse the tree view to show or hide all files and

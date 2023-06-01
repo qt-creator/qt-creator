@@ -96,7 +96,7 @@
     a build, detailed output from the compiler, status of a program when it is
     executed, debug output, or search results.
 
-    \image qtcreator-output-panes-taskbar.png "Output on the taskbar"
+    \image qtcreator-output-panes-taskbar.webp "Output on the taskbar"
 
     To view different types of output, use the following shortcuts:
 
