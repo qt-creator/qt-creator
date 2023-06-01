@@ -6,10 +6,12 @@ AlignConsecutiveDeclarations: false
 AlignEscapedNewlines: DontAlign
 AlignOperands:   true
 AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Inline
+AllowShortLambdasOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterReturnType: None
@@ -32,13 +34,16 @@ BraceWrapping:
   SplitEmptyFunction: false
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
+BreakAfterAttributes: Never
 BreakBeforeBinaryOperators: All
 BreakBeforeBraces: Custom
+BreakBeforeConceptDeclarations: Always
 BreakBeforeInheritanceComma: false
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: false
 BreakConstructorInitializers: BeforeComma
 BreakAfterJavaFieldAnnotations: false
+BreakInheritanceList: AfterComma
 BreakStringLiterals: true
 ColumnLimit:    100
 CommentPragmas:  '^ IWYU pragma:'
@@ -49,6 +54,8 @@ ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
 DerivePointerAlignment: false
 DisableFormat:   false
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
 ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
 ForEachMacros:
@@ -56,11 +63,15 @@ ForEachMacros:
   - foreach
   - Q_FOREACH
   - BOOST_FOREACH
+#IncludeBlocks: Regroup
 IncludeCategories:
   - Regex:           '^<Q.*'
     Priority:        200
 IncludeIsMainRegex: '(Test)?$'
+IndentCaseBlocks: false
 IndentCaseLabels: false
+IndentPPDirectives: AfterHash
+IndentRequiresClause: true
 IndentWidth:     4
 IndentWrappedFunctionNames: false
 InsertBraces : false
@@ -68,6 +79,7 @@ JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 # Do not add QT_BEGIN_NAMESPACE/QT_END_NAMESPACE as this will indent lines in between.
+LambdaBodyIndentation: Signature
 MacroBlockBegin: ""
 MacroBlockEnd:   ""
 MaxEmptyLinesToKeep: 1
@@ -75,6 +87,8 @@ NamespaceIndentation: None
 ObjCBlockIndentWidth: 4
 ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
+PPIndentWidth: 2
+PackConstructorInitializers: Never
 PenaltyBreakAssignment: 500
 PenaltyBreakBeforeFirstCallParameter: 150
 PenaltyBreakComment: 500
@@ -83,20 +97,40 @@ PenaltyBreakString: 600
 PenaltyExcessCharacter: 7
 PenaltyReturnTypeOnItsOwnLine: 300
 PointerAlignment: Right
+QualifierAlignment: Custom
+QualifierOrder: ['friend', 'inline', 'static', 'constexpr', 'const', 'type']
 ReflowComments:  false
-SortIncludes:    true
-SortUsingDeclarations: true
+ReferenceAlignment: Right
+RequiresClausePosition: OwnLine
+SeparateDefinitionBlocks: Always
+ShortNamespaceLines: 1
+SortIncludes: CaseInsensitive
+SortUsingDeclarations: Lexicographic
 SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: false
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
 SpaceInEmptyParentheses: false
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatementsExceptControlMacros
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
 SpacesBeforeTrailingComments: 1
-SpacesInAngles:  false
+SpacesInAngles:  Never
+SpacesInConditionalStatement: false
 SpacesInContainerLiterals: false
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: -1
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-Standard:        Cpp11
+Standard:        Latest
+StatementAttributeLikeMacros: [emit]
+StatementMacros: [Q_UNUSED]
 TabWidth:        4
 UseTab:          Never
