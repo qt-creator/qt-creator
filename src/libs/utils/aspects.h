@@ -610,6 +610,7 @@ class QTCREATOR_UTILS_EXPORT TextDisplay : public BaseAspect
     Q_OBJECT
 
 public:
+    explicit TextDisplay(AspectContainer *container);
     TextDisplay(const QString &message = {},
                 InfoLabel::InfoType type = InfoLabel::None);
     ~TextDisplay() override;
