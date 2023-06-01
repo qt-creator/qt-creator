@@ -59,114 +59,51 @@ static bool isSilverSearcherAvailable()
         && silverSearcherProcess.cleanedStdOut().contains("ag version");
 }
 
-static std::optional<QRegularExpression> regExpFromParameters(const FileFindParameters &parameters)
-{
-    if (!(parameters.flags & FindRegularExpression))
-        return {};
-
-    const QRegularExpression::PatternOptions patternOptions
-        = (parameters.flags & FindCaseSensitively)
-              ? QRegularExpression::NoPatternOption
-              : QRegularExpression::CaseInsensitiveOption;
-    QRegularExpression regExp;
-    regExp.setPattern(parameters.text);
-    regExp.setPatternOptions(patternOptions);
-    return regExp;
-}
-
 static void runSilverSeacher(QPromise<SearchResultItems> &promise,
                              const FileFindParameters &parameters)
 {
-    const FilePath directory = FilePath::fromUserInput(parameters.additionalParameters.toString());
-    QStringList arguments = {"--parallel", "--ackmate"};
+    const auto setupProcess = [parameters](Process &process) {
+        const FilePath directory
+            = FilePath::fromUserInput(parameters.additionalParameters.toString());
+        QStringList arguments = {"--parallel", "--ackmate"};
 
-    if (parameters.flags & FindCaseSensitively)
-        arguments << "-s";
-    else
-        arguments << "-i";
+        if (parameters.flags & FindCaseSensitively)
+            arguments << "-s";
+        else
+            arguments << "-i";
 
-    if (parameters.flags & FindWholeWords)
-        arguments << "-w";
+        if (parameters.flags & FindWholeWords)
+            arguments << "-w";
 
-    if (!(parameters.flags & FindRegularExpression))
-        arguments << "-Q";
+        if (!(parameters.flags & FindRegularExpression))
+            arguments << "-Q";
 
-    for (const QString &filter : std::as_const(parameters.exclusionFilters))
-        arguments << "--ignore" << filter;
+        for (const QString &filter : std::as_const(parameters.exclusionFilters))
+            arguments << "--ignore" << filter;
 
-    QString nameFiltersAsRegExp;
-    for (const QString &filter : std::as_const(parameters.nameFilters))
-        nameFiltersAsRegExp += QString("(%1)|").arg(convertWildcardToRegex(filter));
-    nameFiltersAsRegExp.remove(nameFiltersAsRegExp.length() - 1, 1);
+        QString nameFiltersAsRegExp;
+        for (const QString &filter : std::as_const(parameters.nameFilters))
+            nameFiltersAsRegExp += QString("(%1)|").arg(convertWildcardToRegex(filter));
+        nameFiltersAsRegExp.remove(nameFiltersAsRegExp.length() - 1, 1);
 
-    arguments << "-G" << nameFiltersAsRegExp;
+        arguments << "-G" << nameFiltersAsRegExp;
 
-    const SilverSearcherSearchOptions params = parameters.searchEngineParameters
-                                                   .value<SilverSearcherSearchOptions>();
-    if (!params.searchOptions.isEmpty())
-        arguments << params.searchOptions.split(' ');
+        const SilverSearcherSearchOptions params = parameters.searchEngineParameters
+                                                       .value<SilverSearcherSearchOptions>();
+        if (!params.searchOptions.isEmpty())
+            arguments << params.searchOptions.split(' ');
 
-    arguments << "--" << parameters.text << directory.normalizedPathName().toString();
+        arguments << "--" << parameters.text << directory.normalizedPathName().toString();
+        process.setCommand({"ag", arguments});
+    };
 
-    QEventLoop loop;
+    FilePath lastFilePath;
+    const auto outputParser = [&lastFilePath](const QFuture<void> &future, const QString &input,
+                                              const std::optional<QRegularExpression> &regExp) {
+        return SilverSearcher::parse(future, input, regExp, &lastFilePath);
+    };
 
-    Process process;
-    process.setCommand({"ag", arguments});
-    ParserState parserState;
-    const std::optional<QRegularExpression> regExp = regExpFromParameters(parameters);
-    QStringList outputBuffer;
-    // The states transition exactly in this order:
-    enum State { BelowLimit, AboveLimit, Paused, Resumed };
-    State state = BelowLimit;
-    process.setStdOutCallback([&process, &loop, &promise, &state, &outputBuffer, &parserState,
-                               regExp](const QString &output) {
-        if (promise.isCanceled()) {
-            process.close();
-            loop.quit();
-            return;
-        }
-        // The SearchResultWidget is going to pause the search anyway, so start buffering
-        // the output.
-        if (state == AboveLimit || state == Paused) {
-            outputBuffer.append(output);
-        } else {
-            SilverSearcher::parse(promise, output, &parserState, regExp);
-            if (state == BelowLimit && parserState.m_reportedResultsCount > 200000)
-                state = AboveLimit;
-        }
-    });
-    QObject::connect(&process, &Process::done, &loop, [&loop, &promise, &state] {
-        if (state == BelowLimit || state == Resumed || promise.isCanceled())
-            loop.quit();
-    });
-
-    process.start();
-    if (process.state() == QProcess::NotRunning)
-        return;
-
-    QFutureWatcher<void> watcher;
-    QFuture<void> future(promise.future());
-    QObject::connect(&watcher, &QFutureWatcherBase::canceled, &loop, [&process, &loop] {
-        process.close();
-        loop.quit();
-    });
-    QObject::connect(&watcher, &QFutureWatcherBase::paused, &loop, [&state] { state = Paused; });
-    QObject::connect(&watcher, &QFutureWatcherBase::resumed, &loop,
-                     [&process, &loop, &promise, &state, &outputBuffer, &parserState, regExp] {
-        state = Resumed;
-        for (const QString &output : outputBuffer) {
-            if (promise.isCanceled()) {
-                process.close();
-                loop.quit();
-            }
-            SilverSearcher::parse(promise, output, &parserState, regExp);
-        }
-        outputBuffer.clear();
-        if (process.state() == QProcess::NotRunning)
-            loop.quit();
-    });
-    watcher.setFuture(future);
-    loop.exec(QEventLoop::ExcludeUserInputEvents);
+    TextEditor::searchInProcessOutput(promise, parameters, setupProcess, outputParser);
 }
 
 } // namespace
