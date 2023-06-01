@@ -12,6 +12,8 @@ import StudioTheme as StudioTheme
 Rectangle {
     id: root
 
+    property int toolTipDelay: 1000
+
     color: StudioTheme.Values.themePanelBackground
 
     Column {
@@ -99,6 +101,7 @@ Rectangle {
                         hoverEnabled: true
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("The baking mode applied to this light.")
+                        ToolTip.delay: root.toolTipDelay
 
                         onActivated: bakeMode = currentValue
                     }
@@ -112,6 +115,7 @@ Rectangle {
                         hoverEnabled: true
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("If checked, this model contributes to baked lighting,\nfor example in form of casting shadows or indirect light.")
+                        ToolTip.delay: root.toolTipDelay
 
                         onToggled: inUse = checked
                     }
@@ -125,6 +129,7 @@ Rectangle {
                         hoverEnabled: true
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("If checked, baked lightmap texture is generated and rendered for this model.")
+                        ToolTip.delay: root.toolTipDelay
 
                         onToggled: isEnabled = checked
                     }
@@ -155,6 +160,7 @@ Rectangle {
                             hoverEnabled: true
                             ToolTip.visible: hovered
                             ToolTip.text: qsTr("Generated lightmap resolution for this model.")
+                            ToolTip.delay: root.toolTipDelay
 
                             onRealValueChanged: resolution = realValue
                         }
@@ -176,6 +182,7 @@ Rectangle {
                 hoverEnabled: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("If checked, baking settings above are not applied on close or bake.\nInstead, user is expected to set baking properties manually.")
+                ToolTip.delay: root.toolTipDelay
 
                 onToggled: rootView.manualMode = checked
             }
