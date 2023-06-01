@@ -277,7 +277,12 @@ def createNewQtQuickApplication(workingDir, projectName=None,
                                 buildSystem=None):
     available = __createProjectOrFileSelectType__("  Application (Qt)", template, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
-    __handleBuildSystem__(buildSystem)
+    if template == "Qt Quick Application":
+        if buildSystem:
+            test.warning("Build system set explicitly for a template which can't change it.",
+                         "Template: %s, Build System: %s" % (template, buildSystem))
+    else:
+        __handleBuildSystem__(buildSystem)
     requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
     __modifyAvailableTargets__(available, requiredQt)
     checkedTargets = __chooseTargets__(targets, available)
