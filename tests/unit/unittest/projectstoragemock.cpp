@@ -124,6 +124,7 @@ void ProjectStorageMock::setupQtQtuick()
     QmlDesigner::createObject(*this, flowViewModuleId, "FlowWildcard", "data", {qtObjectId});
     QmlDesigner::createObject(*this, flowViewModuleId, "FlowDecision", "", {qtObjectId});
     QmlDesigner::createObject(*this, flowViewModuleId, "FlowTransition", "", {qtObjectId});
+    QmlDesigner::createObject(*this, flowViewModuleId, "FlowItem", "data", {qtObjectId, itemId});
 }
 
 void ProjectStorageMock::setupCommonTypeCache()

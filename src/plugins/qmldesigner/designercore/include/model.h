@@ -105,6 +105,7 @@ public:
 
     NodeMetaInfo flowViewFlowActionAreaMetaInfo() const;
     NodeMetaInfo flowViewFlowDecisionMetaInfo() const;
+    NodeMetaInfo flowViewFlowItemMetaInfo() const;
     NodeMetaInfo flowViewFlowTransitionMetaInfo() const;
     NodeMetaInfo flowViewFlowWildcardMetaInfo() const;
     NodeMetaInfo fontMetaInfo() const;
@@ -127,6 +128,7 @@ public:
     NodeMetaInfo qtQuickTextMetaInfo() const;
     NodeMetaInfo qtQuickTimelineKeyframeGroupMetaInfo() const;
     NodeMetaInfo qtQuickTimelineTimelineMetaInfo() const;
+    NodeMetaInfo qtQuickTransistionMetaInfo() const;
     NodeMetaInfo vector2dMetaInfo() const;
     NodeMetaInfo vector3dMetaInfo() const;
     NodeMetaInfo vector4dMetaInfo() const;

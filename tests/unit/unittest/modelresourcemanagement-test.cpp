@@ -204,6 +204,7 @@ struct TargetData
 {
     QmlDesigner::TypeName targetType;
     QmlDesigner::TypeName type;
+    QmlDesigner::PropertyName propertyName;
 
     // printer function for TargetData - don't remove
     friend std::ostream &operator<<(std::ostream &os, const TargetData &data)
@@ -226,17 +227,20 @@ protected:
     ModelNode source2 = createNodeWithParent(parameters.type,
                                              rootNode.defaultNodeListProperty(),
                                              "source2");
-    QmlDesigner::BindingProperty sourceTargetProperty = source.bindingProperty("target");
-    QmlDesigner::BindingProperty source2TargetProperty = source2.bindingProperty("target");
+    QmlDesigner::BindingProperty sourceTargetProperty = source.bindingProperty(parameters.propertyName);
+    QmlDesigner::BindingProperty source2TargetProperty = source2.bindingProperty(
+        parameters.propertyName);
 };
 
-INSTANTIATE_TEST_SUITE_P(ModelResourceManagement,
-                         ForTarget,
-                         testing::Values(TargetData{"QtQuick.Item", "QtQuick.PropertyChanges"},
-                                         TargetData{"QtQuick.Item", "QtQuick.Timeline.KeyframeGroup"},
-                                         TargetData{"FlowView.FlowTransition",
-                                                    "FlowView.FlowActionArea"},
-                                         TargetData{"QtQuick.Item", "QtQuick.PropertyAnimation"}));
+INSTANTIATE_TEST_SUITE_P(
+    ModelResourceManagement,
+    ForTarget,
+    testing::Values(TargetData{"QtQuick.Item", "QtQuick.PropertyChanges", "target"},
+                    TargetData{"QtQuick.Item", "QtQuick.Timeline.KeyframeGroup", "target"},
+                    TargetData{"FlowView.FlowTransition", "FlowView.FlowActionArea", "target"},
+                    TargetData{"QtQuick.Item", "QtQuick.PropertyAnimation", "target"},
+                    TargetData{"FlowView.FlowItem", "FlowView.FlowTransition", "to"},
+                    TargetData{"FlowView.FlowItem", "FlowView.FlowTransition", "from"}));
 
 TEST_P(ForTarget, Remove)
 {

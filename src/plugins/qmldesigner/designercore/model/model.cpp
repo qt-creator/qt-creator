@@ -2012,6 +2012,16 @@ NodeMetaInfo Model::flowViewFlowDecisionMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::flowViewFlowItemMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<FlowView, FlowItem>();
+    } else {
+        return metaInfo("FlowView.FlowItem");
+    }
+}
+
 NodeMetaInfo Model::flowViewFlowWildcardMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2119,6 +2129,16 @@ NodeMetaInfo Model::qtQuickTimelineTimelineMetaInfo() const
         return createNodeMetaInfo<QtQuick_Timeline, Timeline>();
     } else {
         return metaInfo("QtQuick.Timeline.Timeline");
+    }
+}
+
+NodeMetaInfo Model::qtQuickTransistionMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, Transition>();
+    } else {
+        return metaInfo("QtQuick.Transition");
     }
 }
 

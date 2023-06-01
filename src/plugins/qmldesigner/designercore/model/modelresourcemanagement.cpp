@@ -443,36 +443,62 @@ struct DependenciesSet
     NodesProperties targetsNodesProperties;
 };
 
-template<typename Predicate>
 struct TargetFilter
 {
-    TargetFilter(Predicate predicate, NodeDependencies &dependencies)
-        : predicate{std::move(predicate)}
+    TargetFilter(NodeDependencies &dependencies, Model *model)
+        : flowViewFlowActionAreaMetaInfo{model->flowViewFlowActionAreaMetaInfo()}
+        , flowViewFlowTransitionMetaInfo{model->flowViewFlowTransitionMetaInfo()}
+        , qtQuickPropertyChangesMetaInfo{model->qtQuickPropertyChangesMetaInfo()}
+        , qtQuickTimelineKeyframeGroupMetaInfo{model->qtQuickTimelineKeyframeGroupMetaInfo()}
+        , qtQuickPropertyAnimationMetaInfo{model->qtQuickPropertyAnimationMetaInfo()}
         , dependencies{dependencies}
     {}
 
-    static std::optional<ModelNode> resolveTarget(const ModelNode &node)
+    static std::optional<ModelNode> resolveBinding(const ModelNode &node,
+                                                   const PropertyName &propertyName)
     {
-        auto targetProperty = node.bindingProperty("target");
-        if (targetProperty.exists()) {
-            if (ModelNode targetNode = targetProperty.resolveToModelNode())
+        auto property = node.bindingProperty(propertyName);
+        if (property.exists()) {
+            if (ModelNode targetNode = property.resolveToModelNode())
                 return targetNode;
         }
 
         return {};
     }
 
+    bool hasTargetProperty(const NodeMetaInfo &metaInfo) const
+    {
+        return metaInfo.isBasedOn(qtQuickPropertyChangesMetaInfo,
+                                  qtQuickTimelineKeyframeGroupMetaInfo,
+                                  flowViewFlowActionAreaMetaInfo,
+                                  qtQuickPropertyAnimationMetaInfo);
+    }
+
+    bool hasToOrFromProperty(const NodeMetaInfo &metaInfo)
+    {
+        return metaInfo.isBasedOn(flowViewFlowTransitionMetaInfo);
+    }
+
     void operator()(const NodeMetaInfo &metaInfo, const ModelNode &node)
     {
-        if (predicate(metaInfo)) {
-            if (auto targetNode = resolveTarget(node))
+        if (hasTargetProperty(metaInfo)) {
+            if (auto targetNode = resolveBinding(node, "target"))
                 dependencies.push_back({std::move(*targetNode), node});
+        } else if (hasToOrFromProperty(metaInfo)) {
+            if (auto toNode = resolveBinding(node, "to"))
+                dependencies.push_back({std::move(*toNode), node});
+            if (auto fromNode = resolveBinding(node, "from"))
+                dependencies.push_back({std::move(*fromNode), node});
         }
     }
 
     void finally() { std::sort(dependencies.begin(), dependencies.end()); }
 
-    Predicate predicate;
+    NodeMetaInfo flowViewFlowActionAreaMetaInfo;
+    NodeMetaInfo flowViewFlowTransitionMetaInfo;
+    NodeMetaInfo qtQuickPropertyChangesMetaInfo;
+    NodeMetaInfo qtQuickTimelineKeyframeGroupMetaInfo;
+    NodeMetaInfo qtQuickPropertyAnimationMetaInfo;
     NodeDependencies &dependencies;
 };
 
@@ -597,13 +623,7 @@ DependenciesSet createDependenciesSet(Model *model)
     auto qtQuickPropertyAnimationMetaInfo = model->qtQuickPropertyAnimationMetaInfo();
 
     auto filters = std::make_tuple(
-        TargetFilter{[&](auto &&metaInfo) {
-                         return metaInfo.isBasedOn(qtQuickPropertyChangesMetaInfo,
-                                                   qtQuickTimelineKeyframeGroupMetaInfo,
-                                                   flowViewFlowActionAreaMetaInfo,
-                                                   qtQuickPropertyAnimationMetaInfo);
-                     },
-                     set.nodeDependencies},
+        TargetFilter{set.nodeDependencies, model},
         TargetsFilter{[&](auto &&metaInfo) {
                           return metaInfo.isBasedOn(flowViewFlowDecisionMetaInfo,
                                                     flowViewFlowWildcardMetaInfo,
