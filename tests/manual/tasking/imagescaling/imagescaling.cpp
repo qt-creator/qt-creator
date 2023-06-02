@@ -3,19 +3,24 @@
 
 #include "imagescaling.h"
 #include "downloaddialog.h"
+#include <tasking/concurrentcall.h>
+#include <tasking/networkquery.h>
 
-#include <QNetworkReply>
+using namespace Tasking;
 
 Images::Images(QWidget *parent) : QWidget(parent), downloadDialog(new DownloadDialog(this))
 {
     resize(800, 600);
 
-    addUrlsButton = new QPushButton(tr("Add URLs"));
+    QPushButton *addUrlsButton = new QPushButton(tr("Add URLs"));
     connect(addUrlsButton, &QPushButton::clicked, this, &Images::process);
 
     cancelButton = new QPushButton(tr("Cancel"));
     cancelButton->setEnabled(false);
-    connect(cancelButton, &QPushButton::clicked, this, &Images::cancel);
+    connect(cancelButton, &QPushButton::clicked, this, [this] {
+        statusBar->showMessage(tr("Canceled."));
+        taskTree.reset();
+    });
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(addUrlsButton);
@@ -32,141 +37,77 @@ Images::Images(QWidget *parent) : QWidget(parent), downloadDialog(new DownloadDi
     mainLayout->addStretch();
     mainLayout->addWidget(statusBar);
     setLayout(mainLayout);
-
-    connect(&scalingWatcher, &QFutureWatcher<QList<QImage>>::finished,
-            this, &Images::scaleFinished);
 }
 
-Images::~Images()
+static void scale(QPromise<QImage> &promise, const QByteArray &data)
 {
-    cancel();
+    const auto image = QImage::fromData(data);
+    if (image.isNull())
+        promise.future().cancel();
+    else
+        promise.addResult(image.scaled(100, 100, Qt::KeepAspectRatio));
 }
 
 void Images::process()
 {
-    // Clean previous state
-    replies.clear();
-    addUrlsButton->setEnabled(false);
+    if (downloadDialog->exec() != QDialog::Accepted)
+        return;
 
-    if (downloadDialog->exec() == QDialog::Accepted) {
+    const auto urls = downloadDialog->getUrls();
+    initLayout(urls.size());
 
-        const auto urls = downloadDialog->getUrls();
-        if (urls.empty())
-            return;
-
+    const auto onRootSetup = [this] {
+        statusBar->showMessage(tr("Downloading and Scaling..."));
         cancelButton->setEnabled(true);
+    };
+    const auto onRootDone = [this] {
+        statusBar->showMessage(tr("Finished."));
+        cancelButton->setEnabled(false);
+    };
+    QList<GroupItem> tasks {
+        finishAllAndDone,
+        parallel,
+        onGroupSetup(onRootSetup),
+        onGroupDone(onRootDone)
+    };
 
-        initLayout(urls.size());
+    int i = 0;
+    for (const QUrl &url : urls) {
+        TreeStorage<QByteArray> storage;
 
-        downloadFuture = download(urls);
-        statusBar->showMessage(tr("Downloading..."));
+        const auto onDownloadSetup = [this, url](NetworkQuery &query) {
+            query.setNetworkAccessManager(&qnam);
+            query.setRequest(QNetworkRequest(url));
+        };
+        const auto onDownloadDone = [storage](const NetworkQuery &query) {
+            *storage = query.reply()->readAll();
+        };
+        const auto onDownloadError = [this, i](const NetworkQuery &query) {
+            labels[i]->setText(tr("Download\nError.\nCode: %1.").arg(query.reply()->error()));
+        };
 
-        downloadFuture
-                .then([this](auto) {
-                    cancelButton->setEnabled(false);
-                    updateStatus(tr("Scaling..."));
-                    scalingWatcher.setFuture(QtConcurrent::run(Images::scaled,
-                                                               downloadFuture.results()));
-                })
-                .onCanceled([this] {
-                    updateStatus(tr("Download has been canceled."));
-                })
-                .onFailed([this](QNetworkReply::NetworkError error) {
-                    updateStatus(tr("Download finished with error: %1").arg(error));
-                    // Abort all pending requests
-                    abortDownload();
-                })
-                .onFailed([this](const std::exception &ex) {
-                    updateStatus(tr(ex.what()));
-                })
-                .then([this]() {
-                    cancelButton->setEnabled(false);
-                    addUrlsButton->setEnabled(true);
-                });
-    }
-}
+        const auto onScalingSetup = [storage](ConcurrentCall<QImage> &data) {
+            data.setConcurrentCallData(&scale, *storage);
+        };
+        const auto onScalingDone = [this, i](const ConcurrentCall<QImage> &data) {
+            labels[i]->setPixmap(QPixmap::fromImage(data.result()));
+        };
+        const auto onScalingError = [this, i](const ConcurrentCall<QImage> &) {
+            labels[i]->setText(tr("Image\nData\nError."));
+        };
 
-void Images::cancel()
-{
-    statusBar->showMessage(tr("Canceling..."));
-
-    downloadFuture.cancel();
-    abortDownload();
-}
-
-void Images::scaleFinished()
-{
-    const OptionalImages result = scalingWatcher.result();
-    if (result.has_value()) {
-        const auto scaled = result.value();
-        showImages(scaled);
-        updateStatus(tr("Finished"));
-    } else {
-        updateStatus(tr("Failed to extract image data."));
-    }
-    addUrlsButton->setEnabled(true);
-}
-
-QFuture<QByteArray> Images::download(const QList<QUrl> &urls)
-{
-    QSharedPointer<QPromise<QByteArray>> promise(new QPromise<QByteArray>());
-    promise->start();
-
-    for (const auto &url : urls) {
-        QSharedPointer<QNetworkReply> reply(qnam.get(QNetworkRequest(url)));
-        replies.push_back(reply);
-
-        QtFuture::connect(reply.get(), &QNetworkReply::finished).then([=] {
-            if (promise->isCanceled()) {
-                if (!promise->future().isFinished())
-                    promise->finish();
-                return;
-            }
-
-            if (reply->error() != QNetworkReply::NoError) {
-                if (!promise->future().isFinished())
-                    throw reply->error();
-            }
-            promise->addResult(reply->readAll());
-
-            // Report finished on the last download
-            if (promise->future().resultCount() == urls.size())
-                promise->finish();
-        }).onFailed([promise] (QNetworkReply::NetworkError error) {
-            promise->setException(std::make_exception_ptr(error));
-            promise->finish();
-        }).onFailed([promise] {
-            const auto ex = std::make_exception_ptr(
-                        std::runtime_error("Unknown error occurred while downloading."));
-            promise->setException(ex);
-            promise->finish();
-        });
+        const Group group {
+            Storage(storage),
+            NetworkQueryTask(onDownloadSetup, onDownloadDone, onDownloadError),
+            ConcurrentCallTask<QImage>(onScalingSetup, onScalingDone, onScalingError)
+        };
+        tasks.append(group);
+        ++i;
     }
 
-    return promise->future();
-}
-
-Images::OptionalImages Images::scaled(const QList<QByteArray> &data)
-{
-    QList<QImage> scaled;
-    for (const auto &imgData : data) {
-        QImage image;
-        image.loadFromData(imgData);
-        if (image.isNull())
-            return std::nullopt;
-
-        scaled.push_back(image.scaled(100, 100, Qt::KeepAspectRatio));
-    }
-
-    return scaled;
-}
-
-void Images::showImages(const QList<QImage> &images)
-{
-    for (int i = 0; i < images.size(); ++i) {
-        labels[i]->setAlignment(Qt::AlignCenter);
-        labels[i]->setPixmap(QPixmap::fromImage(images[i]));
-    }
+    taskTree.reset(new TaskTree(tasks));
+    connect(taskTree.get(), &TaskTree::done, this, [this] { taskTree.release()->deleteLater(); });
+    taskTree->start();
 }
 
 void Images::initLayout(qsizetype count)
@@ -186,19 +127,9 @@ void Images::initLayout(qsizetype count)
         for (int j = 0; j < dim; ++j) {
             QLabel *imageLabel = new QLabel;
             imageLabel->setFixedSize(100, 100);
+            imageLabel->setAlignment(Qt::AlignCenter);
             imagesLayout->addWidget(imageLabel, i, j);
             labels.append(imageLabel);
         }
     }
-}
-
-void Images::updateStatus(const QString &msg)
-{
-    statusBar->showMessage(msg);
-}
-
-void Images::abortDownload()
-{
-    for (auto reply : replies)
-        reply->abort();
 }
