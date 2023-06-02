@@ -1,0 +1,71 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
+    "id": "M.McuSupportApplicationEmpty",
+    "category": "D.ApplicationMCU",
+    "trDescription": "Suitable for Qt for MCUs versions 2.4 and later. Creates an empty application that you can deploy, run and debug on MCU boards",
+    "trDisplayName": "Qt for MCUs Empty Application",
+    "trDisplayCategory": "QmlProject Application (Qt for MCUs)",
+    "icon": "../icon.png",
+    "iconKind": "Themed",
+    "enabled": true,
+
+    "options":
+    [
+        { "key": "CorrectedProjectName", "value": "%{JS: '%{ProjectName}'.replace(/-/g, '_')}"},
+        { "key": "MainQmlFile", "value": "%{CorrectedProjectName}.qml" },
+        { "key": "QmlProjectFile", "value": "%{CorrectedProjectName}.qmlproject" },
+        { "key": "CMakeFile", "value": "%{CorrectedProjectName}/CMakeLists.txt" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: !value('IsSubproject')}",
+            "data": {
+                "projectFilePath": "%{CMakeFile}"
+            }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "CMakeLists.txt",
+                    "openAsProject": true
+                },
+                {
+                    "source": "project.qmlproject.tpl",
+                    "target": "%{ProjectDirectory}/%{QmlProjectFile}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "main.qml.tpl",
+                    "target": "%{ProjectDirectory}/%{MainQmlFile}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "%{IDE:ResourcePath}/templates/wizards/projects/git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}
