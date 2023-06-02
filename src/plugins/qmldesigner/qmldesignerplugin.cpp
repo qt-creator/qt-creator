@@ -710,16 +710,16 @@ void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
         const int currentTime = privateInstance()->timer.elapsed();
         const int currentDuration = (currentTime - activeData.time);
         if (currentDuration < activeData.maxDuration)
-            emit instance()->usageStatisticsUsageDuration(activeData.newIdentifer, currentDuration);
+            instance()->emitUsageStatisticsUsageDuration(activeData.newIdentifer, currentDuration);
 
         privateInstance()->m_activeTraceIdentifierDataHash.remove(identifier);
-    } else {
-        TraceIdentifierData data = privateInstance()->m_traceIdentifierDataHash.value(identifier);
+    }
 
-        if (!data.identifier.isEmpty()) {
-            data.time = privateInstance()->timer.elapsed();
-            privateInstance()->m_activeTraceIdentifierDataHash.insert(data.identifier, data);
-        }
+    TraceIdentifierData data = privateInstance()->m_traceIdentifierDataHash.value(identifier);
+
+    if (!data.identifier.isEmpty()) {
+        data.time = privateInstance()->timer.elapsed();
+        privateInstance()->m_activeTraceIdentifierDataHash.insert(data.identifier, data);
     }
 
     const auto values = privateInstance()->m_activeTraceIdentifierDataHash.values();
@@ -860,6 +860,12 @@ void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int e
 
     QTC_ASSERT(instance(), return);
     emit instance()->usageStatisticsUsageTimer(normalizeIdentifier(identifier), elapsed);
+}
+
+void QmlDesignerPlugin::emitUsageStatisticsUsageDuration(const QString &identifier, int elapsed)
+{
+    QTC_ASSERT(instance(), return );
+    emit instance()->usageStatisticsUsageDuration(identifier, elapsed);
 }
 
 QmlDesignerPlugin *QmlDesignerPlugin::instance()
