@@ -13,7 +13,7 @@ namespace QtSupport::Internal {
 
 enum InstructionalType { Example = 0, Demo, Tutorial };
 
-class QTSUPPORT_EXPORT ExampleItem : public Core::ListItem
+class QTSUPPORT_TEST_EXPORT ExampleItem : public Core::ListItem
 {
 public:
     Utils::FilePath projectPath;
@@ -31,18 +31,21 @@ public:
     QHash<QString, QStringList> metaData;
 };
 
-QTSUPPORT_EXPORT Utils::expected_str<QList<ExampleItem *>> parseExamples(
+QTSUPPORT_TEST_EXPORT Utils::expected_str<QList<ExampleItem *>> parseExamples(
     const Utils::FilePath &manifest,
     const Utils::FilePath &examplesInstallPath,
     const Utils::FilePath &demosInstallPath,
     bool examples);
 
-QTSUPPORT_EXPORT Utils::expected_str<QList<ExampleItem *>> parseExamples(
+QTSUPPORT_TEST_EXPORT Utils::expected_str<QList<ExampleItem *>> parseExamples(
     const QByteArray &manifestData,
     const Utils::FilePath &manifestPath,
     const Utils::FilePath &examplesInstallPath,
     const Utils::FilePath &demosInstallPath,
     bool examples);
+
+QTSUPPORT_TEST_EXPORT QList<std::pair<Core::Section, QList<ExampleItem *>>> getCategories(
+    const QList<ExampleItem *> &items, bool sortIntoCategories);
 
 } // namespace QtSupport::Internal
 

@@ -5,6 +5,8 @@
 
 #include "debuggertr.h"
 
+#include <cppeditor/cppmodelmanager.h>
+
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -20,6 +22,7 @@
 
 #include <qtsupport/qtbuildaspects.h>
 
+#include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 
@@ -28,117 +31,10 @@
 #include <QLabel>
 #include <QTextEdit>
 
-using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Debugger {
-namespace Internal {
-
-enum DebuggerLanguageStatus {
-    DisabledLanguage = 0,
-    EnabledLanguage,
-    AutoEnabledLanguage
-};
-
-class DebuggerLanguageAspect : public BaseAspect
-{
-public:
-    DebuggerLanguageAspect() = default;
-
-    void addToLayout(Layouting::LayoutBuilder &builder) override;
-
-    bool value() const;
-    void setValue(bool val);
-
-    void setAutoSettingsKey(const QString &settingsKey);
-    void setLabel(const QString &label);
-    void setInfoLabelText(const QString &text) { m_infoLabelText = text; }
-
-    void setClickCallBack(const std::function<void (bool)> &clickCallBack)
-    {
-        m_clickCallBack = clickCallBack;
-    }
-
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
-
-public:
-    DebuggerLanguageStatus m_value = AutoEnabledLanguage;
-    bool m_defaultValue = false;
-    QString m_label;
-    QString m_infoLabelText;
-    QPointer<QCheckBox> m_checkBox; // Owned by configuration widget
-    QPointer<QLabel> m_infoLabel; // Owned by configuration widget
-    QString m_autoSettingsKey;
-
-    std::function<void(bool)> m_clickCallBack;
-};
-
-void DebuggerLanguageAspect::addToLayout(Layouting::LayoutBuilder &builder)
-{
-    QTC_CHECK(!m_checkBox);
-    m_checkBox = new QCheckBox(m_label);
-    m_checkBox->setChecked(m_value);
-    m_checkBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-
-    QTC_CHECK(m_clickCallBack);
-    connect(m_checkBox, &QAbstractButton::clicked, this, m_clickCallBack, Qt::QueuedConnection);
-
-    connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
-        m_value = m_checkBox->isChecked() ? EnabledLanguage : DisabledLanguage;
-        emit changed();
-    });
-    builder.addItem(QString());
-    builder.addItem(m_checkBox.data());
-
-    if (!m_infoLabelText.isEmpty()) {
-        QTC_CHECK(!m_infoLabel);
-        m_infoLabel = new QLabel(m_infoLabelText);
-        connect(m_infoLabel, &QLabel::linkActivated, [](const QString &link) {
-            Core::HelpManager::showHelpUrl(link);
-        });
-        builder.addItem(m_infoLabel.data());
-    }
-}
-
-void DebuggerLanguageAspect::setAutoSettingsKey(const QString &settingsKey)
-{
-    m_autoSettingsKey = settingsKey;
-}
-
-void DebuggerLanguageAspect::fromMap(const QVariantMap &map)
-{
-    const bool val = map.value(settingsKey(), false).toBool();
-    const bool autoVal = map.value(m_autoSettingsKey, false).toBool();
-    m_value = autoVal ? AutoEnabledLanguage : val ? EnabledLanguage : DisabledLanguage;
-}
-
-void DebuggerLanguageAspect::toMap(QVariantMap &data) const
-{
-    data.insert(settingsKey(), m_value == EnabledLanguage);
-    data.insert(m_autoSettingsKey, m_value == AutoEnabledLanguage);
-}
-
-
-bool DebuggerLanguageAspect::value() const
-{
-    return m_value;
-}
-
-void DebuggerLanguageAspect::setValue(bool value)
-{
-    m_value = value ? EnabledLanguage : DisabledLanguage;
-    if (m_checkBox)
-        m_checkBox->setChecked(m_value);
-}
-
-void DebuggerLanguageAspect::setLabel(const QString &label)
-{
-    m_label = label;
-}
-
-} // Internal
 
 /*!
     \class Debugger::DebuggerRunConfigurationAspect
@@ -151,15 +47,53 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
     setDisplayName(Tr::tr("Debugger settings"));
 
     setConfigWidgetCreator([this] {
-        Layouting::Form builder;
-        builder.addRow(m_cppAspect);
-        builder.addRow(m_qmlAspect);
-        builder.addRow(m_overrideStartupAspect);
+        Layouting::Grid builder;
+        builder.addRow({m_cppAspect});
+        auto info = new QLabel(
+            Tr::tr("<a href=\""
+                   "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
+                   "\">What are the prerequisites?</a>"));
+        builder.addRow({m_qmlAspect, info});
+        connect(info, &QLabel::linkActivated, [](const QString &link) {
+            Core::HelpManager::showHelpUrl(link);
+        });
+        builder.addRow({m_overrideStartupAspect});
 
         static const QString env = qtcEnvironmentVariable("QTC_DEBUGGER_MULTIPROCESS");
         if (env.toInt())
-            builder.addRow(m_multiProcessAspect);
-        return builder.emerge(Layouting::WithoutMargins);
+            builder.addRow({m_multiProcessAspect});
+
+        auto details = new DetailsWidget;
+        details->setState(DetailsWidget::Expanded);
+        auto innerPane = new QWidget;
+        details->setWidget(innerPane);
+        builder.addItem(Layouting::noMargin);
+        builder.attachTo(innerPane);
+
+        const auto setSummaryText = [this, details] {
+            QStringList items;
+            if (m_cppAspect->value() == TriState::Enabled)
+                items.append(Tr::tr("Enable C++ debugger"));
+            else if (m_cppAspect->value() == TriState::Default)
+                items.append(Tr::tr("Try to determine need for C++ debugger"));
+
+            if (m_qmlAspect->value() == TriState::Enabled)
+                items.append(Tr::tr("Enable QML debugger"));
+            else if (m_qmlAspect->value() == TriState::Default)
+                items.append(Tr::tr("Try to determine need for QML debugger"));
+
+            items.append(m_overrideStartupAspect->value().isEmpty()
+                             ? Tr::tr("Without additional startup commands")
+                             : Tr::tr("With additional startup commands"));
+            details->setSummaryText(items.join(". "));
+        };
+        setSummaryText();
+
+        connect(m_cppAspect, &BaseAspect::changed, this, setSummaryText);
+        connect(m_qmlAspect, &BaseAspect::changed, this, setSummaryText);
+        connect(m_overrideStartupAspect, &BaseAspect::changed, this, setSummaryText);
+
+        return details;
     });
 
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useCppDebugger, &Data::useCppDebugger);
@@ -167,28 +101,24 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useMultiProcess, &Data::useMultiProcess);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::overrideStartup, &Data::overrideStartup);
 
-    m_cppAspect = new DebuggerLanguageAspect;
-    m_cppAspect->setLabel(Tr::tr("Enable C++"));
+    m_cppAspect = new TriStateAspect(nullptr, Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
+    m_cppAspect->setLabelText(Tr::tr("C++ debugger:"));
     m_cppAspect->setSettingsKey("RunConfiguration.UseCppDebugger");
-    m_cppAspect->setAutoSettingsKey("RunConfiguration.UseCppDebuggerAuto");
 
-    m_qmlAspect = new DebuggerLanguageAspect;
-    m_qmlAspect->setLabel(Tr::tr("Enable QML"));
+    m_qmlAspect = new TriStateAspect(nullptr, Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
+    m_qmlAspect->setLabelText(Tr::tr("QML debugger:"));
     m_qmlAspect->setSettingsKey("RunConfiguration.UseQmlDebugger");
-    m_qmlAspect->setAutoSettingsKey("RunConfiguration.UseQmlDebuggerAuto");
-    m_qmlAspect->setInfoLabelText(Tr::tr("<a href=\""
-        "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
-        "\">What are the prerequisites?</a>"));
 
     // Make sure at least one of the debuggers is set to be active.
-    m_cppAspect->setClickCallBack([this](bool on) {
-        if (!on && !m_qmlAspect->value())
-            m_qmlAspect->setValue(true);
+    connect(m_cppAspect, &TriStateAspect::changed, this, [this]{
+        if (m_cppAspect->value() == TriState::Disabled && m_qmlAspect->value() == TriState::Disabled)
+            m_qmlAspect->setValue(TriState::Default);
     });
-    m_qmlAspect->setClickCallBack([this](bool on) {
-        if (!on && !m_cppAspect->value())
-            m_cppAspect->setValue(true);
+    connect(m_qmlAspect, &TriStateAspect::changed, this, [this]{
+        if (m_qmlAspect->value() == TriState::Disabled && m_cppAspect->value() == TriState::Disabled)
+            m_cppAspect->setValue(TriState::Default);
     });
+
 
     m_multiProcessAspect = new BoolAspect;
     m_multiProcessAspect->setSettingsKey("RunConfiguration.UseMultiProcess");
@@ -211,23 +141,37 @@ DebuggerRunConfigurationAspect::~DebuggerRunConfigurationAspect()
 
 void DebuggerRunConfigurationAspect::setUseQmlDebugger(bool value)
 {
-    m_qmlAspect->setValue(value);
+    m_qmlAspect->setValue(value ? TriState::Enabled : TriState::Disabled);
 }
 
 bool DebuggerRunConfigurationAspect::useCppDebugger() const
 {
-    if (m_cppAspect->m_value == AutoEnabledLanguage)
+    if (m_cppAspect->value() == TriState::Default)
         return m_target->project()->projectLanguages().contains(
                     ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    return m_cppAspect->m_value == EnabledLanguage;
+    return m_cppAspect->value() == TriState::Enabled;
+}
+
+static bool projectHasQmlDefines(ProjectExplorer::Project *project)
+{
+    auto projectInfo = CppEditor::CppModelManager::instance()->projectInfo(project);
+    QTC_ASSERT(projectInfo, return false);
+    return Utils::anyOf(projectInfo->projectParts(),
+                        [](const CppEditor::ProjectPart::ConstPtr &part){
+                            return Utils::anyOf(part->projectMacros, [](const Macro &macro){
+                                return macro.key == "QT_DECLARATIVE_LIB"
+                                       || macro.key == "QT_QUICK_LIB"
+                                       || macro.key == "QT_QML_LIB";
+                            });
+                        });
 }
 
 bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
-    if (m_qmlAspect->m_value == AutoEnabledLanguage) {
+    if (m_qmlAspect->value() == TriState::Default) {
         const Core::Context languages = m_target->project()->projectLanguages();
         if (!languages.contains(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID))
-            return false;
+            return projectHasQmlDefines(m_target->project());
 
         //
         // Try to find a build configuration to check whether qml debugging is enabled there
@@ -238,7 +182,7 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 
         return !languages.contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     }
-    return m_qmlAspect->m_value == EnabledLanguage;
+    return m_qmlAspect->value() == TriState::Enabled;
 }
 
 bool DebuggerRunConfigurationAspect::useMultiProcess() const
@@ -272,12 +216,23 @@ void DebuggerRunConfigurationAspect::toMap(QVariantMap &map) const
     m_qmlAspect->toMap(map);
     m_multiProcessAspect->toMap(map);
     m_overrideStartupAspect->toMap(map);
+
+    // compatibility to old settings
+    map.insert("RunConfiguration.UseCppDebuggerAuto", m_cppAspect->value() == TriState::Default);
+    map.insert("RunConfiguration.UseQmlDebuggerAuto", m_qmlAspect->value() == TriState::Default);
 }
 
 void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
 {
     m_cppAspect->fromMap(map);
     m_qmlAspect->fromMap(map);
+
+    // respect old project settings
+    if (map.value("RunConfiguration.UseCppDebuggerAuto", false).toBool())
+        m_cppAspect->setValue(TriState::Default);
+    if (map.value("RunConfiguration.UseQmlDebuggerAuto", false).toBool())
+        m_qmlAspect->setValue(TriState::Default);
+
     m_multiProcessAspect->fromMap(map);
     m_overrideStartupAspect->fromMap(map);
 }

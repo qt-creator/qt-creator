@@ -6,17 +6,19 @@
 #include <tracing/timelinemodel_p.h>
 #include <tracing/timelinemodelaggregator.h>
 
+using namespace Timeline;
+
 static const int NumItems = 32;
 static const qint64 ItemDuration = 1 << 19;
 static const qint64 ItemSpacing = 1 << 20;
 
-class DummyModel : public Timeline::TimelineModel
+class DummyModel : public TimelineModel
 {
     Q_OBJECT
     friend class tst_TimelineModel;
 public:
-    DummyModel(Timeline::TimelineModelAggregator *parent);
-    DummyModel(QString displayName, Timeline::TimelineModelAggregator *parent);
+    DummyModel(TimelineModelAggregator *parent);
+    DummyModel(QString displayName, TimelineModelAggregator *parent);
     int expandedRow(int) const { return 2; }
     int collapsedRow(int) const { return 1; }
 
@@ -57,15 +59,15 @@ private slots:
     void parentingOfEqualStarts();
 
 private:
-    Timeline::TimelineModelAggregator aggregator;
+    TimelineModelAggregator aggregator;
 };
 
-DummyModel::DummyModel(Timeline::TimelineModelAggregator *parent) :
-    Timeline::TimelineModel(parent)
+DummyModel::DummyModel(TimelineModelAggregator *parent) :
+    TimelineModel(parent)
 {
 }
 
-DummyModel::DummyModel(QString displayName, Timeline::TimelineModelAggregator *parent) :
+DummyModel::DummyModel(QString displayName, TimelineModelAggregator *parent) :
     TimelineModel(parent)
 {
     setDisplayName(displayName);
@@ -90,7 +92,7 @@ void DummyModel::loadData()
 }
 
 tst_TimelineModel::tst_TimelineModel() :
-    DefaultRowHeight(Timeline::TimelineModel::defaultRowHeight())
+    DefaultRowHeight(TimelineModel::defaultRowHeight())
 {
 }
 
@@ -147,7 +149,7 @@ void tst_TimelineModel::rowHeight()
     QCOMPARE(dummy.rowHeight(0), 100);
     QCOMPARE(dummy.rowHeight(1), 50);
 
-    QSignalSpy expandedSpy(&dummy, SIGNAL(expandedRowHeightChanged(int,int)));
+    QSignalSpy expandedSpy(&dummy, &TimelineModel::expandedRowHeightChanged);
     dummy.clear();
     QCOMPARE(expandedSpy.count(), 1);
 }
@@ -194,7 +196,7 @@ void tst_TimelineModel::height()
     DummyModel dummy(&aggregator);
     int heightAfterLastSignal = 0;
     int heightChangedSignals = 0;
-    connect(&dummy, &Timeline::TimelineModel::heightChanged, [&](){
+    connect(&dummy, &TimelineModel::heightChanged, [&] {
         ++heightChangedSignals;
         heightAfterLastSignal = dummy.height();
     });
@@ -237,7 +239,7 @@ void tst_TimelineModel::count()
     QCOMPARE(dummy.count(), 0);
     dummy.loadData();
     QCOMPARE(dummy.count(), NumItems);
-    QSignalSpy emptySpy(&dummy, SIGNAL(contentChanged()));
+    QSignalSpy emptySpy(&dummy, &TimelineModel::contentChanged);
     dummy.clear();
     QCOMPARE(emptySpy.count(), 1);
     QCOMPARE(dummy.count(), 0);
@@ -283,7 +285,7 @@ void tst_TimelineModel::firstLast()
 void tst_TimelineModel::expand()
 {
     DummyModel dummy(&aggregator);
-    QSignalSpy spy(&dummy, SIGNAL(expandedChanged()));
+    QSignalSpy spy(&dummy, &TimelineModel::expandedChanged);
     QVERIFY(!dummy.expanded());
     dummy.setExpanded(true);
     QVERIFY(dummy.expanded());
@@ -302,7 +304,7 @@ void tst_TimelineModel::expand()
 void tst_TimelineModel::hide()
 {
     DummyModel dummy(&aggregator);
-    QSignalSpy spy(&dummy, SIGNAL(hiddenChanged()));
+    QSignalSpy spy(&dummy, &TimelineModel::hiddenChanged);
     QVERIFY(!dummy.hidden());
     dummy.setHidden(true);
     QVERIFY(dummy.hidden());
@@ -322,7 +324,7 @@ void tst_TimelineModel::displayName()
 {
     QLatin1String name("testest");
     DummyModel dummy(name, &aggregator);
-    QSignalSpy spy(&dummy, SIGNAL(displayNameChanged()));
+    QSignalSpy spy(&dummy, &TimelineModel::displayNameChanged);
     QCOMPARE(dummy.displayName(), name);
     QCOMPARE(spy.count(), 0);
     dummy.setDisplayName(name);
@@ -336,7 +338,7 @@ void tst_TimelineModel::displayName()
 
 void tst_TimelineModel::defaultValues()
 {
-    Timeline::TimelineModel dummy(&aggregator);
+    TimelineModel dummy(&aggregator);
     QCOMPARE(dummy.location(0), QVariantMap());
     QCOMPARE(dummy.handlesTypeId(0), false);
     QCOMPARE(dummy.relativeHeight(0), 1.0);
@@ -361,7 +363,7 @@ void tst_TimelineModel::row()
 
 void tst_TimelineModel::colorByHue()
 {
-    Timeline::TimelineModelAggregator aggregator;
+    TimelineModelAggregator aggregator;
     DummyModel dummy(&aggregator);
     QCOMPARE(dummy.colorByHue(10), QColor::fromHsl(10, 150, 166).rgb());
     QCOMPARE(dummy.colorByHue(500), QColor::fromHsl(140, 150, 166).rgb());
@@ -410,7 +412,7 @@ void tst_TimelineModel::insertStartEnd()
 void tst_TimelineModel::rowCount()
 {
     DummyModel dummy(&aggregator);
-    QSignalSpy contentSpy(&dummy, SIGNAL(contentChanged()));
+    QSignalSpy contentSpy(&dummy, &TimelineModel::contentChanged);
     QCOMPARE(dummy.rowCount(), 1);
     dummy.setExpanded(true);
     QCOMPARE(dummy.rowCount(), 1);

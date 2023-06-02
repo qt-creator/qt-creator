@@ -53,7 +53,7 @@ public:
         , license(createTextEdit())
         , dependencies(new QListWidget(q))
     {
-        using namespace Utils::Layouting;
+        using namespace Layouting;
 
         // clang-format off
         Form {
@@ -68,8 +68,9 @@ public:
             Tr::tr("Description:"), description, br,
             Tr::tr("Copyright:"), copyright, br,
             Tr::tr("License:"), license, br,
-            Tr::tr("Dependencies:"), dependencies
-        }.attachTo(q, WithoutMargins);
+            Tr::tr("Dependencies:"), dependencies,
+            noMargin
+        }.attachTo(q);
         // clang-format on
     }
 

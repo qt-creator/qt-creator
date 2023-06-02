@@ -94,15 +94,11 @@ QtcPlugin {
         }
     }
 
-    Group {
-        name: "Tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         prefix: "test/"
         files: [
             "activationsequenceprocessortest.cpp",
             "activationsequenceprocessortest.h",
-            "clangbatchfileprocessor.cpp",
-            "clangbatchfileprocessor.h",
             "clangdtests.cpp",
             "clangdtests.h",
             "clangfixittest.cpp",

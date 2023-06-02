@@ -39,7 +39,7 @@ CustomWidgetWidgetsWizardPage::CustomWidgetWidgetsWizardPage(QWidget *parent) :
     dummy->setEnabled(false);
     m_tabStackLayout->addWidget(dummy);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Tr::tr("Specify the list of custom widgets and their properties."),
         Space(10),

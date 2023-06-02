@@ -45,7 +45,7 @@ private:
         Utils::FilePath fileName;
         ProjectExplorer::Tasks tasks;
     };
-    static void collectMessages(QFutureInterface<FileErrorMessages> &future,
+    static void collectMessages(QPromise<FileErrorMessages> &promise,
                                 QmlJS::Snapshot snapshot,
                                 const QList<QmlJS::ModelManagerInterface::ProjectInfo> &projectInfos,
                                 QmlJS::ViewerContext vContext,

@@ -57,8 +57,8 @@ CppRefactoringFilePtr CppRefactoringChanges::file(const FilePath &filePath) cons
 CppRefactoringFileConstPtr CppRefactoringChanges::fileNoEditor(const FilePath &filePath) const
 {
     QTextDocument *document = nullptr;
-    if (data()->m_workingCopy.contains(filePath))
-        document = new QTextDocument(QString::fromUtf8(data()->m_workingCopy.source(filePath)));
+    if (const auto source = data()->m_workingCopy.source(filePath))
+        document = new QTextDocument(QString::fromUtf8(*source));
     CppRefactoringFilePtr result(new CppRefactoringFile(document, filePath));
     result->m_data = m_data;
 

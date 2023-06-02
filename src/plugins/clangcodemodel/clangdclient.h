@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include <coreplugin/find/searchresultitem.h>
 #include <cppeditor/baseeditordocumentparser.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cursorineditor.h>
 #include <languageclient/client.h>
 #include <utils/link.h>
+#include <utils/searchresultitem.h>
 
 #include <QVersionNumber>
 
@@ -119,7 +119,7 @@ public:
 
 signals:
     void indexingFinished();
-    void foundReferences(const QList<Core::SearchResultItem> &items);
+    void foundReferences(const Utils::SearchResultItems &items);
     void findUsagesDone();
     void helpItemGathered(const Core::HelpItem &helpItem);
     void highlightingResultsReady(const TextEditor::HighlightingResults &results,
@@ -137,6 +137,8 @@ private:
     const CustomInspectorTabs createCustomInspectorTabs() override;
     TextEditor::RefactoringChangesData *createRefactoringChangesBackend() const override;
     LanguageClient::DiagnosticManager *createDiagnosticManager() override;
+    LanguageClient::LanguageClientOutlineItem *createOutlineItem(
+        const LanguageServerProtocol::DocumentSymbol &symbol) override;
     bool referencesShadowFile(const TextEditor::TextDocument *doc,
                               const Utils::FilePath &candidate) override;
     bool fileBelongsToProject(const Utils::FilePath &filePath) const override;

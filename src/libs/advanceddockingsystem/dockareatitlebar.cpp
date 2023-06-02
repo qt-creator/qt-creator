@@ -4,6 +4,7 @@
 #include "dockareatitlebar.h"
 
 #include "ads_globals.h"
+#include "ads_globals_p.h"
 #include "advanceddockingsystemtr.h"
 #include "dockareatabbar.h"
 #include "dockareawidget.h"
@@ -27,8 +28,6 @@
 #include <QStyle>
 
 #include <iostream>
-
-static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg)
 
 namespace ADS
 {

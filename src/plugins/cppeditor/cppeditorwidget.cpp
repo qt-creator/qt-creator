@@ -30,9 +30,9 @@
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/extracompiler.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/basefilefind.h>
@@ -56,6 +56,7 @@
 #include <utils/infobar.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/textutils.h>
 #include <utils/utilsicons.h>
 
@@ -684,13 +685,13 @@ void CppEditorWidget::updateWidgetHighlighting(QWidget *widget, bool highlight)
     if (!widget)
         return;
 
-    widget->setProperty("highlightWidget", highlight);
+    widget->setProperty(StyleHelper::C_HIGHLIGHT_WIDGET, highlight);
     widget->update();
 }
 
 bool CppEditorWidget::isWidgetHighlighted(QWidget *widget)
 {
-    return widget ? widget->property("highlightWidget").toBool() : false;
+    return widget ? widget->property(StyleHelper::C_HIGHLIGHT_WIDGET).toBool() : false;
 }
 
 namespace {
@@ -755,7 +756,7 @@ void CppEditorWidget::showRenameWarningIfFileIsGenerated(const Utils::FilePath &
 {
     if (filePath.isEmpty())
         return;
-    for (const Project * const project : SessionManager::projects()) {
+    for (const Project * const project : ProjectManager::projects()) {
         const Node * const node = project->nodeForFilePath(filePath);
         if (!node)
             continue;
@@ -779,11 +780,11 @@ void CppEditorWidget::showRenameWarningIfFileIsGenerated(const Utils::FilePath &
         static const Id infoId("cppeditor.renameWarning");
         InfoBarEntry info(infoId, warning);
         if (ec) {
-            info.addCustomButton(CppEditor::Tr::tr("Open %1").arg(ec->source().fileName()),
-                [source = ec->source()] {
-                EditorManager::openEditor(source);
-                ICore::infoBar()->removeInfo(infoId);
-            });
+            info.addCustomButton(CppEditor::Tr::tr("Open \"%1\"").arg(ec->source().fileName()),
+                                 [source = ec->source()] {
+                                     EditorManager::openEditor(source);
+                                     ICore::infoBar()->removeInfo(infoId);
+                                 });
         }
         ICore::infoBar()->addInfo(info);
         return;
@@ -989,7 +990,7 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
             const QString fileName = filePath.fileName();
             if (fileName.startsWith("ui_") && fileName.endsWith(".h")) {
                 const QString uiFileName = fileName.mid(3, fileName.length() - 4) + "ui";
-                for (const Project * const project : SessionManager::projects()) {
+                for (const Project * const project : ProjectManager::projects()) {
                     const auto nodeMatcher = [uiFileName](Node *n) {
                         return n->filePath().fileName() == uiFileName;
                     };

@@ -27,6 +27,7 @@
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QCoreApplication>
@@ -382,6 +383,7 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget()
             this, &CppIncludeHierarchyWidget::perform);
 
     m_toggleSync = new QToolButton(this);
+    StyleHelper::setPanelWidget(m_toggleSync);
     m_toggleSync->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setToolTip(Tr::tr("Synchronize with Editor"));

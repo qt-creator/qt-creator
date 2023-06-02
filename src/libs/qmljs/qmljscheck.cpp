@@ -12,6 +12,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 
 #include <QColor>
 #include <QDir>
@@ -639,7 +640,46 @@ Q_GLOBAL_STATIC(UnsupportedRootObjectTypesByVisualDesigner, unsupportedRootObjec
 Q_GLOBAL_STATIC(UnsupportedRootObjectTypesByQmlUi, unsupportedRootObjectTypesByQmlUi)
 Q_GLOBAL_STATIC(UnsupportedTypesByQmlUi, unsupportedTypesByQmlUi)
 
-Check::Check(Document::Ptr doc, const ContextPtr &context)
+QList<StaticAnalysis::Type> Check::defaultDisabledMessages()
+{
+    static const QList<StaticAnalysis::Type> disabled = Utils::sorted(QList<StaticAnalysis::Type>{
+        HintAnonymousFunctionSpacing,
+        HintDeclareVarsInOneLine,
+        HintDeclarationsShouldBeAtStartOfFunction,
+        HintBinaryOperatorSpacing,
+        HintOneStatementPerLine,
+        HintExtraParentheses,
+
+        // QmlDesigner related
+        WarnImperativeCodeNotEditableInVisualDesigner,
+        WarnUnsupportedTypeInVisualDesigner,
+        WarnReferenceToParentItemNotSupportedByVisualDesigner,
+        WarnUndefinedValueForVisualDesigner,
+        WarnStatesOnlyInRootItemForVisualDesigner,
+        ErrUnsupportedRootTypeInVisualDesigner,
+        ErrInvalidIdeInVisualDesigner,
+
+    });
+    return disabled;
+}
+
+QList<StaticAnalysis::Type> Check::defaultDisabledMessagesForNonQuickUi()
+{
+    static const QList<StaticAnalysis::Type> disabled = Utils::sorted(QList<StaticAnalysis::Type>{
+        // QmlDesigner related
+        ErrUnsupportedRootTypeInQmlUi,
+        ErrUnsupportedTypeInQmlUi,
+        ErrFunctionsNotSupportedInQmlUi,
+        ErrBlocksNotSupportedInQmlUi,
+        ErrBehavioursNotSupportedInQmlUi,
+        ErrStatesOnlyInRootItemInQmlUi,
+        ErrReferenceToParentItemNotSupportedInQmlUi,
+        ErrDoNotMixTranslationFunctionsInQmlUi,
+    });
+    return disabled;
+}
+
+Check::Check(Document::Ptr doc, const ContextPtr &context, Utils::QtcSettings *qtcSettings)
     : _doc(doc)
     , _context(context)
     , _scopeChain(doc, _context)
@@ -655,16 +695,25 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     }
 
     _enabledMessages = Utils::toSet(Message::allMessageTypes());
-    disableMessage(HintAnonymousFunctionSpacing);
-    disableMessage(HintDeclareVarsInOneLine);
-    disableMessage(HintDeclarationsShouldBeAtStartOfFunction);
-    disableMessage(HintBinaryOperatorSpacing);
-    disableMessage(HintOneStatementPerLine);
-    disableMessage(HintExtraParentheses);
+    if (qtcSettings && qtcSettings->value("J.QtQuick/QmlJSEditor.useCustomAnalyzer").toBool()) {
+        auto disabled = qtcSettings->value("J.QtQuick/QmlJSEditor.disabledMessages").toList();
+        for (const QVariant &disabledNumber : disabled)
+            disableMessage(StaticAnalysis::Type(disabledNumber.toInt()));
 
-    disableQmlDesignerChecks();
-    if (!isQtQuick2Ui())
-        disableQmlDesignerUiFileChecks();
+        if (!isQtQuick2Ui()) {
+            auto disabled = qtcSettings->value("J.QtQuick/QmlJSEditor.disabledMessagesNonQuickUI").toList();
+            for (const QVariant &disabledNumber : disabled)
+                disableMessage(StaticAnalysis::Type(disabledNumber.toInt()));
+        }
+    } else {
+        for (auto type : defaultDisabledMessages())
+            disableMessage(type);
+
+        if (!isQtQuick2Ui()) {
+            for (auto type : defaultDisabledMessagesForNonQuickUi())
+                disableMessage(type);
+        }
+    }
 }
 
 Check::~Check()
@@ -700,17 +749,6 @@ void Check::enableQmlDesignerChecks()
     enableMessage(ErrUnsupportedRootTypeInVisualDesigner);
     enableMessage(ErrInvalidIdeInVisualDesigner);
     //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
-}
-
-void Check::disableQmlDesignerChecks()
-{
-    disableMessage(WarnImperativeCodeNotEditableInVisualDesigner);
-    disableMessage(WarnUnsupportedTypeInVisualDesigner);
-    disableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
-    disableMessage(WarnUndefinedValueForVisualDesigner);
-    disableMessage(WarnStatesOnlyInRootItemForVisualDesigner);
-    disableMessage(ErrUnsupportedRootTypeInVisualDesigner);
-    disableMessage(ErrInvalidIdeInVisualDesigner);
 }
 
 void Check::enableQmlDesignerUiFileChecks()

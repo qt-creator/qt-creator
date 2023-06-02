@@ -16,9 +16,9 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/process.h>
 #include <utils/processenums.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
 #include <QSyntaxHighlighter>
@@ -55,9 +55,9 @@ public:
         addReloadButton();
         if (features.testFlag(FossilClient::DiffIgnoreWhiteSpaceFeature)) {
             mapSetting(addToggleButton("-w", Tr::tr("Ignore All Whitespace")),
-                       &client->settings().diffIgnoreAllWhiteSpace);
+                       &settings().diffIgnoreAllWhiteSpace);
             mapSetting(addToggleButton("--strip-trailing-cr", Tr::tr("Strip Trailing CR")),
-                       &client->settings().diffStripTrailingCR);
+                       &settings().diffStripTrailingCR);
         }
     }
 };
@@ -73,20 +73,19 @@ public:
     {
         QTC_ASSERT(client, return);
 
-        FossilSettings &settings = client->settings();
         FossilClient::SupportedFeatures features = client->supportedFeatures();
 
         if (features.testFlag(FossilClient::AnnotateBlameFeature)) {
             mapSetting(addToggleButton("|BLAME|", Tr::tr("Show Committers")),
-                       &settings.annotateShowCommitters);
+                       &settings().annotateShowCommitters);
         }
 
         // Force listVersions setting to false by default.
         // This way the annotated line number would not get offset by the version list.
-        settings.annotateListVersions.setValue(false);
+        settings().annotateListVersions.setValue(false);
 
         mapSetting(addToggleButton("--log", Tr::tr("List Versions")),
-                   &settings.annotateListVersions);
+                   &settings().annotateListVersions);
     }
 };
 
@@ -108,12 +107,9 @@ class FossilLogConfig : public VcsBaseEditorConfig
     Q_OBJECT
 
 public:
-    FossilLogConfig(FossilClient *client, QToolBar *toolBar) :
-        VcsBaseEditorConfig(toolBar),
-        m_client(client)
+    FossilLogConfig(QToolBar *toolBar)
+        : VcsBaseEditorConfig(toolBar)
     {
-        QTC_ASSERT(client, return);
-
         addReloadButton();
         addLineageComboBox();
         addVerboseToggleButton();
@@ -122,8 +118,6 @@ public:
 
     void addLineageComboBox()
     {
-        FossilSettings &settings = m_client->settings();
-
         // ancestors/descendants filter
         // This is a positional argument not an option.
         // Normally it takes the checkin/branch/tag as an additional parameter
@@ -137,23 +131,19 @@ public:
             ChoiceItem(Tr::tr("Unfiltered"), "")
         };
         mapSetting(addChoices(Tr::tr("Lineage"), QStringList("|LINEAGE|%1|current"), lineageFilterChoices),
-                   &settings.timelineLineageFilter);
+                   &settings().timelineLineageFilter);
     }
 
     void addVerboseToggleButton()
     {
-        FossilSettings &settings = m_client->settings();
-
         // show files
         mapSetting(addToggleButton("-showfiles", Tr::tr("Verbose"),
                                    Tr::tr("Show files changed in each revision")),
-                   &settings.timelineVerbose);
+                   &settings().timelineVerbose);
     }
 
     void addItemTypeComboBox()
     {
-        FossilSettings &settings = m_client->settings();
-
         // option: -t <val>
         const QList<ChoiceItem> itemTypeChoices = {
             ChoiceItem(Tr::tr("All Items"), "all"),
@@ -169,7 +159,7 @@ public:
         // Fossil expects separate arguments for option and value ( i.e. "-t" "all")
         // so we need to handle the splitting explicitly in arguments().
         mapSetting(addChoices(Tr::tr("Item Types"), QStringList("-t %1"), itemTypeChoices),
-                   &settings.timelineItemType);
+                   &settings().timelineItemType);
     }
 
     QStringList arguments() const final
@@ -199,9 +189,6 @@ public:
         }
         return args;
     }
-
-private:
-    FossilClient *m_client;
 };
 
 unsigned FossilClient::makeVersionNumber(int major, int minor, int patch)
@@ -224,22 +211,22 @@ QString FossilClient::makeVersionString(unsigned version)
                     .arg(versionPart(version));
 }
 
-FossilClient::FossilClient(FossilSettings *settings)
-    : VcsBaseClient(settings), m_settings(settings)
+FossilSettings &FossilClient::settings() const
+{
+    return Internal::settings();
+}
+
+FossilClient::FossilClient()
+    : VcsBaseClient(&Internal::settings())
 {
     setDiffConfigCreator([this](QToolBar *toolBar) {
         return new FossilDiffConfig(this, toolBar);
     });
 }
 
-FossilSettings &FossilClient::settings() const
-{
-    return *m_settings;
-}
-
 unsigned int FossilClient::synchronousBinaryVersion() const
 {
-    if (settings().binaryPath.value().isEmpty())
+    if (settings().binaryPath().isEmpty())
         return 0;
 
     const CommandResult result = vcsSynchronousExec({}, QStringList{"version"});
@@ -599,7 +586,7 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
     // use the configured default user for admin
 
     const QString repoName = workingDirectory.fileName().simplified();
-    const QString repoPath = settings().defaultRepoPath.value();
+    const FilePath repoPath = settings().defaultRepoPath();
     const QString adminUser = settings().userName.value();
 
     if (repoName.isEmpty() || repoPath.isEmpty())
@@ -609,8 +596,7 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
     // @TODO: what about --template options?
 
     const FilePath fullRepoName = FilePath::fromStringWithExtension(repoName, Constants::FOSSIL_FILE_SUFFIX);
-    const FilePath repoFilePath = FilePath::fromString(repoPath)
-            .pathAppended(fullRepoName.toString());
+    const FilePath repoFilePath = repoPath.pathAppended(fullRepoName.toString());
     QStringList args(vcsCommandString(CreateRepositoryCommand));
     if (!adminUser.isEmpty())
         args << "--admin-user" << adminUser;
@@ -1177,7 +1163,7 @@ VcsBaseEditorConfig *FossilClient::createLogCurrentFileEditor(VcsBaseEditorWidge
 
 VcsBaseEditorConfig *FossilClient::createLogEditor(VcsBaseEditorWidget *editor)
 {
-    return new FossilLogConfig(this, editor->toolBar());
+    return new FossilLogConfig(editor->toolBar());
 }
 
 } // namespace Internal

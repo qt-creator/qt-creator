@@ -36,6 +36,8 @@
         <file>images/unlocked@2x.png</file>
         <file>images/pinned.png</file>
         <file>images/pinned@2x.png</file>
+        <file>images/pinned_small.png</file>
+        <file>images/pinned_small@2x.png</file>
         <file>images/broken.png</file>
         <file>images/broken@2x.png</file>
         <file>images/notloaded.png</file>
@@ -173,6 +175,8 @@
         <file>images/iconoverlay_add@2x.png</file>
         <file>images/iconoverlay_add_background.png</file>
         <file>images/iconoverlay_add_background@2x.png</file>
+        <file>images/iconoverlay_close_small.png</file>
+        <file>images/iconoverlay_close_small@2x.png</file>
         <file>images/iconoverlay_error.png</file>
         <file>images/iconoverlay_error@2x.png</file>
         <file>images/iconoverlay_error_background.png</file>

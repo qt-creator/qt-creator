@@ -933,6 +933,11 @@ bool Bind::visit(ParameterDeclarationClauseAST *ast)
     return false;
 }
 
+bool Bind::visit(RequiresExpressionAST *)
+{
+    return false;
+}
+
 void Bind::parameterDeclarationClause(ParameterDeclarationClauseAST *ast, int lparen_token, Function *fun)
 {
     if (! ast)
@@ -1523,6 +1528,8 @@ bool Bind::visit(IfStatementAST *ast)
     ast->symbol = block;
 
     Scope *previousScope = switchScope(block);
+    if (ast->initStmt)
+        this->statement(ast->initStmt);
     /*ExpressionTy condition =*/ this->expression(ast->condition);
     this->statement(ast->statement);
     this->statement(ast->else_statement);
@@ -2524,6 +2531,11 @@ bool Bind::visit(TemplateTypeParameterAST *ast)
     ast->symbol = arg;
     _scope->addMember(arg);
 
+    return false;
+}
+
+bool Bind::visit(TypeConstraintAST *)
+{
     return false;
 }
 

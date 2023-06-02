@@ -12,10 +12,10 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "projectnodes.h"
 #include "runconfigurationaspects.h"
 #include "runcontrol.h"
-#include "session.h"
 #include "target.h"
 
 #include <coreplugin/icontext.h>
@@ -33,7 +33,6 @@
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
 
-#include <QDir>
 #include <QHash>
 #include <QPushButton>
 #include <QTimer>
@@ -217,13 +216,15 @@ bool RunConfiguration::isEnabled() const
 
 QWidget *RunConfiguration::createConfigurationWidget()
 {
-    Layouting::Form builder;
-    for (BaseAspect *aspect : std::as_const(m_aspects)) {
-        if (aspect->isVisible())
-            aspect->addToLayout(builder.finishRow());
+    Layouting::Form form;
+    for (BaseAspect *aspect : std::as_const(*this)) {
+        if (aspect->isVisible()) {
+            form.addItem(aspect);
+            form.addItem(Layouting::br);
+        }
     }
-
-    auto widget = builder.emerge(Layouting::WithoutMargins);
+    form.addItem(Layouting::noMargin);
+    auto widget = form.emerge();
 
     VariableChooser::addSupportForChildWidgets(widget, &m_expander);
 
@@ -246,7 +247,7 @@ void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
 QMap<Utils::Id, QVariantMap> RunConfiguration::settingsData() const
 {
     QMap<Utils::Id, QVariantMap> data;
-    for (BaseAspect *aspect : m_aspects)
+    for (BaseAspect *aspect : *this)
         aspect->toActiveMap(data[aspect->id()]);
     return data;
 }
@@ -254,7 +255,7 @@ QMap<Utils::Id, QVariantMap> RunConfiguration::settingsData() const
 AspectContainerData RunConfiguration::aspectData() const
 {
     AspectContainerData data;
-    for (BaseAspect *aspect : m_aspects)
+    for (BaseAspect *aspect : *this)
         data.append(aspect->extractData());
     return data;
 }
@@ -299,6 +300,13 @@ CommandLine RunConfiguration::commandLine() const
     return m_commandLineGetter();
 }
 
+bool RunConfiguration::isPrintEnvironmentEnabled() const
+{
+    if (const auto envAspect = aspect<EnvironmentAspect>())
+        return envAspect->isPrintOnRunEnabled();
+    return false;
+}
+
 void RunConfiguration::setRunnableModifier(const RunnableModifier &runnableModifier)
 {
     m_runnableModifier = runnableModifier;
@@ -313,7 +321,7 @@ void RunConfiguration::update()
 
     const bool isActive = target()->isActive() && target()->activeRunConfiguration() == this;
 
-    if (isActive && project() == SessionManager::startupProject())
+    if (isActive && project() == ProjectManager::startupProject())
         ProjectExplorerPlugin::updateRunActions();
 }
 
@@ -392,7 +400,7 @@ Runnable RunConfiguration::runnable() const
     Runnable r;
     r.command = commandLine();
     if (auto workingDirectoryAspect = aspect<WorkingDirectoryAspect>())
-        r.workingDirectory = workingDirectoryAspect->workingDirectory().onDevice(r.command.executable());
+        r.workingDirectory = r.command.executable().withNewPath(workingDirectoryAspect->workingDirectory().path());
     if (auto environmentAspect = aspect<EnvironmentAspect>())
         r.environment = environmentAspect->environment();
     if (m_runnableModifier)
@@ -558,7 +566,7 @@ RunConfiguration *RunConfigurationFactory::create(Target *target) const
 
     // Add the universal aspects.
     for (const RunConfiguration::AspectFactory &factory : theAspectFactories)
-        rc->m_aspects.registerAspect(factory(target));
+        rc->registerAspect(factory(target));
 
     return rc;
 }

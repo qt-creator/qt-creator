@@ -88,6 +88,7 @@
             (\uicontrol {Synchronize with Editor}).
     \endlist
 
+    \if defined(qtcreator)
     \section1 Viewing the Class Hierarchy
 
     The \uicontrol {Class View} shows the class hierarchy of the currently
@@ -144,4 +145,5 @@
     To keep the view synchronized with the file currently open in the editor,
     select \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize with Editor}).
+    \endif
 */

@@ -63,15 +63,21 @@ void SemanticHighlighter::run()
     connectWatcher();
 
     m_revision = documentRevision();
+    m_seenBlocks.clear();
+    m_nextResultToHandle = m_resultCount = 0;
     qCDebug(log) << "starting runner for document revision" << m_revision;
     m_watcher->setFuture(m_highlightingRunner());
 }
 
-static Parentheses getClearedParentheses(const QTextBlock &block)
+Parentheses SemanticHighlighter::getClearedParentheses(const QTextBlock &block)
 {
-    return Utils::filtered(TextDocumentLayout::parentheses(block), [](const Parenthesis &p) {
-        return p.source != parenSource();
-    });
+    Parentheses parens = TextDocumentLayout::parentheses(block);
+    if (m_seenBlocks.insert(block.blockNumber()).second) {
+        parens = Utils::filtered(parens, [](const Parenthesis &p) {
+            return p.source != parenSource();
+        });
+    }
+    return parens;
 }
 
 void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
@@ -86,6 +92,21 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
         qCDebug(log) << "ignoring results: future was canceled";
         return;
     }
+
+    QTC_CHECK(from == m_resultCount);
+    m_resultCount = to;
+    if (to - m_nextResultToHandle >= 100) {
+        handleHighlighterResults();
+        m_nextResultToHandle = to;
+    }
+}
+
+void SemanticHighlighter::handleHighlighterResults()
+{
+    int from = m_nextResultToHandle;
+    const int to = m_resultCount;
+    if (from >= to)
+        return;
 
     QElapsedTimer t;
     t.start();
@@ -171,6 +192,8 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
 void SemanticHighlighter::onHighlighterFinished()
 {
     QTC_ASSERT(m_watcher, return);
+
+    handleHighlighterResults();
 
     QElapsedTimer t;
     t.start();

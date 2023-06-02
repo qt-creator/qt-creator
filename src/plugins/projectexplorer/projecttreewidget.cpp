@@ -6,10 +6,10 @@
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "projectmodels.h"
 #include "projectnodes.h"
 #include "projecttree.h"
-#include "session.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -24,6 +24,7 @@
 #include <utils/navigationtreeview.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
 
@@ -343,7 +344,7 @@ Node *ProjectTreeWidget::nodeForFile(const FilePath &fileName)
     int bestNodeExpandCount = INT_MAX;
 
     // FIXME: Looks like this could be done with less cycles.
-    for (Project *project : SessionManager::projects()) {
+    for (Project *project : ProjectManager::projects()) {
         if (ProjectNode *projectNode = project->rootProjectNode()) {
             projectNode->forEachGenericNode([&](Node *node) {
                 if (node->filePath() == fileName) {
@@ -420,7 +421,7 @@ QList<QToolButton *> ProjectTreeWidget::createToolButtons()
     filter->setIcon(Icons::FILTER.icon());
     filter->setToolTip(Tr::tr("Filter Tree"));
     filter->setPopupMode(QToolButton::InstantPopup);
-    filter->setProperty("noArrow", true);
+    filter->setProperty(StyleHelper::C_NO_ARROW, true);
 
     auto filterMenu = new QMenu(filter);
     filterMenu->addAction(m_filterProjectsAction);

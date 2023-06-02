@@ -15,7 +15,6 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-
 class QMLDESIGNERBASE_EXPORT QmlDesignerBasePlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT

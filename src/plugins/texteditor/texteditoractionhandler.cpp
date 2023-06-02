@@ -116,6 +116,7 @@ public:
     QAction *m_followSymbolAction = nullptr;
     QAction *m_followSymbolInNextSplitAction = nullptr;
     QAction *m_findUsageAction = nullptr;
+    QAction *m_openCallHierarchyAction = nullptr;
     QAction *m_renameSymbolAction = nullptr;
     QAction *m_jumpToFileAction = nullptr;
     QAction *m_jumpToFileInNextSplitAction = nullptr;
@@ -228,6 +229,8 @@ void TextEditorActionHandlerPrivate::createActions()
     m_jumpToFileInNextSplitAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT,
             [] (TextEditorWidget *w) { w->openLinkUnderCursorInNextSplit(); }, true, Tr::tr("Jump to File Under Cursor in Next Split"),
             QKeySequence(Utils::HostOsInfo::isMacHost() ? Tr::tr("Meta+E, F2") : Tr::tr("Ctrl+E, F2")).toString());
+    m_openCallHierarchyAction = registerAction(OPEN_CALL_HIERARCHY,
+            [] (TextEditorWidget *w) { w->openCallHierarchy(); }, true, Tr::tr("Open Call Hierarchy"));
 
     registerAction(VIEW_PAGE_UP,
             [] (TextEditorWidget *w) { w->viewPageUp(); }, true, Tr::tr("Move the View a Page Up and Keep the Cursor Position"),
@@ -484,6 +487,8 @@ void TextEditorActionHandlerPrivate::updateOptionalActions()
         optionalActions & TextEditorActionHandler::UnCollapseAll);
     m_renameSymbolAction->setEnabled(
         optionalActions & TextEditorActionHandler::RenameSymbol);
+    m_openCallHierarchyAction->setEnabled(
+        optionalActions & TextEditorActionHandler::CallHierarchy);
 
     bool formatEnabled = (optionalActions & TextEditorActionHandler::Format)
                          && m_currentEditorWidget && !m_currentEditorWidget->isReadOnly();

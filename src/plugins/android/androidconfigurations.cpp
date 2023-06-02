@@ -19,7 +19,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <debugger/debuggeritemmanager.h>
@@ -34,8 +34,8 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 #include <QApplication>
@@ -306,7 +306,7 @@ void AndroidConfig::parseDependenciesJson()
 
     auto fillQtVersionsRange = [](const QString &shortVersion) {
         QList<QVersionNumber> versions;
-        const QRegularExpression re(R"(([0-9]\.[0-9]+\.)\[([0-9]+)\-([0-9]+)\])");
+        static const QRegularExpression re(R"(([0-9]\.[0-9]+\.)\[([0-9]+)\-([0-9]+)\])");
         QRegularExpressionMatch match = re.match(shortVersion);
         if (match.hasMatch() && match.lastCapturedIndex() == 3)
             for (int i = match.captured(2).toInt(); i <= match.captured(3).toInt(); ++i)
@@ -432,8 +432,12 @@ QStringList AndroidConfig::apiLevelNamesFor(const SdkPlatformList &platforms)
 
 QString AndroidConfig::apiLevelNameFor(const SdkPlatform *platform)
 {
-    return platform && platform->apiLevel() > 0 ?
-                QString("android-%1").arg(platform->apiLevel()) : "";
+    if (platform && platform->apiLevel() > 0) {
+        QString sdkStylePath = platform->sdkStylePath();
+        return sdkStylePath.remove("platforms;");
+    }
+
+    return {};
 }
 
 FilePath AndroidConfig::adbToolPath() const
@@ -597,7 +601,7 @@ FilePath AndroidConfig::keytoolPath() const
 QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 {
     QVector<AndroidDeviceInfo> devices;
-    QtcProcess adbProc;
+    Process adbProc;
     adbProc.setTimeoutS(30);
     CommandLine cmd{adbToolPath(), {"devices"}};
     adbProc.setCommand(cmd);
@@ -666,7 +670,7 @@ QString AndroidConfig::getDeviceProperty(const QString &device, const QString &p
                     AndroidDeviceInfo::adbSelector(device));
     cmd.addArgs({"shell", "getprop", property});
 
-    QtcProcess adbProc;
+    Process adbProc;
     adbProc.setTimeoutS(10);
     adbProc.setCommand(cmd);
     adbProc.runBlocking();
@@ -743,7 +747,7 @@ QStringList AndroidConfig::getAbis(const QString &device)
     // First try via ro.product.cpu.abilist
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
     arguments << "shell" << "getprop" << "ro.product.cpu.abilist";
-    QtcProcess adbProc;
+    Process adbProc;
     adbProc.setTimeoutS(10);
     adbProc.setCommand({adbTool, arguments});
     adbProc.runBlocking();
@@ -766,7 +770,7 @@ QStringList AndroidConfig::getAbis(const QString &device)
         else
             arguments << QString::fromLatin1("ro.product.cpu.abi%1").arg(i);
 
-        QtcProcess abiProc;
+        Process abiProc;
         abiProc.setTimeoutS(10);
         abiProc.setCommand({adbTool, arguments});
         abiProc.runBlocking();
@@ -892,7 +896,7 @@ QVersionNumber AndroidConfig::ndkVersion(const FilePath &ndkPath)
             // r6a
             // r10e (64 bit)
             QString content = QString::fromUtf8(reader.data());
-            QRegularExpression re("(r)(?<major>[0-9]{1,2})(?<minor>[a-z]{1,1})");
+            static const QRegularExpression re("(r)(?<major>[0-9]{1,2})(?<minor>[a-z]{1,1})");
             QRegularExpressionMatch match = re.match(content);
             if (match.hasMatch()) {
                 QString major = match.captured("major");
@@ -1169,7 +1173,7 @@ void AndroidConfigurations::removeUnusedDebuggers()
             uniqueNdks.append(ndkLocation);
     }
 
-    uniqueNdks.append(FileUtils::toFilePathList(currentConfig().getCustomNdkList()).toVector());
+    uniqueNdks.append(FileUtils::toFilePathList(currentConfig().getCustomNdkList()));
 
     const QList<Debugger::DebuggerItem> allDebuggers = Debugger::DebuggerItemManager::debuggers();
     for (const Debugger::DebuggerItem &debugger : allDebuggers) {
@@ -1526,7 +1530,7 @@ FilePath AndroidConfig::getJdkPath()
             args << "-c"
                  << "readlink -f $(which java)";
 
-        QtcProcess findJdkPathProc;
+        Process findJdkPathProc;
         findJdkPathProc.setCommand({"sh", args});
         findJdkPathProc.start();
         findJdkPathProc.waitForFinished();

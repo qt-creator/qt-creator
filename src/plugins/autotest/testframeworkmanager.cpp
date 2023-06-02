@@ -3,7 +3,6 @@
 
 #include "testframeworkmanager.h"
 
-#include "autotestplugin.h"
 #include "testsettings.h"
 
 #include <utils/aspects.h>
@@ -98,7 +97,7 @@ ITestTool *TestFrameworkManager::testToolForBuildSystemId(Id buildSystemId)
 
 void TestFrameworkManager::synchronizeSettings(QSettings *s)
 {
-    Internal::AutotestPlugin::settings()->fromSettings(s);
+    Internal::TestSettings::instance()->fromSettings(s);
     for (ITestFramework *framework : std::as_const(m_registeredFrameworks)) {
         if (ITestSettings *fSettings = framework->testSettings())
             fSettings->readSettings(s);

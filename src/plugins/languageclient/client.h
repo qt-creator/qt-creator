@@ -31,7 +31,6 @@ class Unregistration;
 } // namespace LanguageServerProtocol
 
 namespace LanguageClient {
-
 class BaseClientInterface;
 class ClientPrivate;
 class DiagnosticManager;
@@ -40,6 +39,7 @@ class DynamicCapabilities;
 class HoverHandler;
 class InterfaceController;
 class LanguageClientCompletionAssistProvider;
+class LanguageClientOutlineItem;
 class LanguageClientQuickFixProvider;
 class LanguageFilter;
 class ProgressManager;
@@ -48,15 +48,11 @@ class SymbolSupport;
 class LANGUAGECLIENT_EXPORT Client : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(Client)
 
 public:
     explicit Client(BaseClientInterface *clientInterface, const Utils::Id &id = {}); // takes ownership
      ~Client() override;
-
-    Client(const Client &) = delete;
-    Client(Client &&) = delete;
-    Client &operator=(const Client &) = delete;
-    Client &operator=(Client &&) = delete;
 
     // basic properties
     Utils::Id id() const;
@@ -136,6 +132,7 @@ public:
     ProjectExplorer::Project *project() const;
     virtual void projectOpened(ProjectExplorer::Project *project);
     virtual void projectClosed(ProjectExplorer::Project *project);
+    virtual bool canOpenProject(ProjectExplorer::Project *project);
     void updateConfiguration(const QJsonValue &configuration);
 
     // commands
@@ -160,13 +157,13 @@ public:
                        const LanguageServerProtocol::Diagnostic &diag) const;
     bool hasDiagnostics(const TextEditor::TextDocument *document) const;
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
-    void setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier);
-    LanguageServerProtocol::SymbolStringifier symbolStringifier() const;
     void setSnippetsGroup(const QString &group);
     void setCompletionAssistProvider(LanguageClientCompletionAssistProvider *provider);
     void setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider);
     virtual bool supportsDocumentSymbols(const TextEditor::TextDocument *doc) const;
     virtual bool fileBelongsToProject(const Utils::FilePath &filePath) const;
+    virtual LanguageClientOutlineItem *createOutlineItem(
+        const LanguageServerProtocol::DocumentSymbol &symbol);
 
     LanguageServerProtocol::DocumentUri::PathMapper hostPathMapper() const;
     Utils::FilePath serverUriToHostPath(const LanguageServerProtocol::DocumentUri &uri) const;

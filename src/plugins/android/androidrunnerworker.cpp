@@ -11,8 +11,8 @@
 #include <debugger/debuggerrunconfigurationaspect.h>
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
@@ -20,10 +20,10 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/async.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
+#include <utils/process.h>
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
 #include <utils/url.h>
@@ -78,8 +78,10 @@ static qint64 extractPID(const QString &output, const QString &packageName)
     return pid;
 }
 
-static void findProcessPIDAndUser(QFutureInterface<PidUserPair> &fi, QStringList selector,
-                                  const QString &packageName, bool preNougat)
+static void findProcessPIDAndUser(QPromise<PidUserPair> &promise,
+                                  QStringList selector,
+                                  const QString &packageName,
+                                  bool preNougat)
 {
     if (packageName.isEmpty())
         return;
@@ -96,7 +98,7 @@ static void findProcessPIDAndUser(QFutureInterface<PidUserPair> &fi, QStringList
     chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
     do {
         QThread::msleep(200);
-        QtcProcess proc;
+        Process proc;
         proc.setCommand({adbPath, args});
         proc.runBlocking();
         const QString out = proc.allOutput();
@@ -106,16 +108,16 @@ static void findProcessPIDAndUser(QFutureInterface<PidUserPair> &fi, QStringList
             if (!out.isEmpty())
                 processPID = out.trimmed().toLongLong();
         }
-    } while ((processPID == -1 || processPID == 0) && !isTimedOut(start) && !fi.isCanceled());
+    } while ((processPID == -1 || processPID == 0) && !isTimedOut(start) && !promise.isCanceled());
 
     qCDebug(androidRunWorkerLog) << "PID found:" << processPID << ", PreNougat:" << preNougat;
 
     qint64 processUser = 0;
-    if (processPID > 0 && !fi.isCanceled()) {
+    if (processPID > 0 && !promise.isCanceled()) {
         args = {selector};
         args.append({"shell", "ps", "-o", "user", "-p"});
         args.append(QString::number(processPID));
-        QtcProcess proc;
+        Process proc;
         proc.setCommand({adbPath, args});
         proc.runBlocking();
         const QString out = proc.allOutput();
@@ -133,8 +135,8 @@ static void findProcessPIDAndUser(QFutureInterface<PidUserPair> &fi, QStringList
 
     qCDebug(androidRunWorkerLog) << "USER found:" << processUser;
 
-    if (!fi.isCanceled())
-        fi.reportResult(PidUserPair(processPID, processUser));
+    if (!promise.isCanceled())
+        promise.addResult(PidUserPair(processPID, processUser));
 }
 
 static void deleter(QProcess *p)
@@ -724,8 +726,11 @@ void AndroidRunnerWorker::asyncStart()
 {
     asyncStartHelper();
 
-    m_pidFinder = Utils::onResultReady(Utils::runAsync(findProcessPIDAndUser, selector(),
-                                                       m_packageName, m_isPreNougat),
+    m_pidFinder = Utils::onResultReady(Utils::asyncRun(findProcessPIDAndUser,
+                                                       selector(),
+                                                       m_packageName,
+                                                       m_isPreNougat),
+                                       this,
                                        bind(&AndroidRunnerWorker::onProcessIdChanged, this, _1));
 }
 

@@ -43,7 +43,7 @@ public:
                 ());
 
     template<typename ResultType, typename... QueryTypes>
-    auto optionalValue(const QueryTypes &...queryValues)
+    auto optionalValue([[maybe_unused]] const QueryTypes &...queryValues)
     {
             static_assert(!std::is_same_v<ResultType, ResultType>,
                           "SqliteReadStatementMock::value does not handle result type!");

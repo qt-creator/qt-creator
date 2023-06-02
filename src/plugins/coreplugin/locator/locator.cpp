@@ -26,8 +26,10 @@
 #include "../settingsdatabase.h"
 #include "../statusbarmanager.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -66,6 +68,7 @@ public:
 
 LocatorData::LocatorData()
 {
+    m_urlFilter.setDescription(Tr::tr("Triggers a web search with the selected search engine."));
     m_urlFilter.setDefaultShortcutString("r");
     m_urlFilter.addDefaultUrl("https://www.bing.com/search?q=%1");
     m_urlFilter.addDefaultUrl("https://www.google.com/search?q=%1");
@@ -75,6 +78,7 @@ LocatorData::LocatorData()
         "http://en.cppreference.com/mwiki/index.php?title=Special%3ASearch&search=%1");
     m_urlFilter.addDefaultUrl("https://en.wikipedia.org/w/index.php?search=%1");
 
+    m_bugFilter.setDescription(Tr::tr("Triggers a search in the Qt bug tracker."));
     m_bugFilter.setDefaultShortcutString("bug");
     m_bugFilter.addDefaultUrl("https://bugreports.qt.io/secure/QuickSearch.jspa?searchString=%1");
 }
@@ -143,13 +147,10 @@ bool Locator::delayedInitialize()
     return true;
 }
 
-ExtensionSystem::IPlugin::ShutdownFlag Locator::aboutToShutdown(
-    const std::function<void()> &emitAsynchronousShutdownFinished)
+void Locator::aboutToShutdown()
 {
-    m_shuttingDown = true;
     m_refreshTimer.stop();
     m_taskTree.reset();
-    return LocatorWidget::aboutToShutdown(emitAsynchronousShutdownFinished);
 }
 
 void Locator::loadSettings()
@@ -373,7 +374,7 @@ void Locator::setUseCenteredPopupForShortcut(bool center)
 
 void Locator::refresh(const QList<ILocatorFilter *> &filters)
 {
-    if (m_shuttingDown)
+    if (ExtensionSystem::PluginManager::isShuttingDown())
         return;
 
     m_taskTree.reset(); // Superfluous, just for clarity. The next reset() below is enough.
@@ -382,14 +383,16 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
     using namespace Tasking;
     QList<TaskItem> tasks{parallel};
     for (ILocatorFilter *filter : std::as_const(m_refreshingFilters)) {
-        const auto setupRefresh = [filter](AsyncTask<void> &async) {
-            async.setAsyncCallData(&ILocatorFilter::refresh, filter);
+        const auto task = filter->refreshRecipe();
+        if (!task.has_value())
+            continue;
+
+        const Group group {
+            finishAllAndDone,
+            *task,
+            onGroupDone([this, filter] { m_refreshingFilters.removeOne(filter); })
         };
-        const auto onRefreshDone = [this, filter](const AsyncTask<void> &async) {
-            Q_UNUSED(async)
-            m_refreshingFilters.removeOne(filter);
-        };
-        tasks.append(Async<void>(setupRefresh, onRefreshDone));
+        tasks.append(group);
     }
 
     m_taskTree.reset(new TaskTree{tasks});

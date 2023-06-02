@@ -14,8 +14,8 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpptoolsreuse.h>
 
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/selectablefilesmodel.h>
-#include <projectexplorer/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -56,7 +56,6 @@ QString removeClazyCheck(const QString &checks, const QString &check);
 class TidyChecksWidget : public QWidget
 {
 public:
-    QComboBox *tidyMode;
     QPushButton *plainTextEditButton;
     FancyLineEdit *filterLineEdit;
     QTreeView *checksPrefixesTree;
@@ -65,10 +64,6 @@ public:
 
     TidyChecksWidget()
     {
-        tidyMode = new QComboBox;
-        tidyMode->addItem(Tr::tr("Select Checks"));
-        tidyMode->addItem(Tr::tr("Use .clang-tidy config file"));
-
         plainTextEditButton = new QPushButton(Tr::tr("Edit Checks as String..."));
 
         filterLineEdit = new FancyLineEdit;
@@ -95,16 +90,18 @@ public:
         using namespace Layouting;
 
         Column {
-            checksPrefixesTree
-        }.attachTo(checksPage, WithoutMargins);
+            checksPrefixesTree,
+            noMargin
+        }.attachTo(checksPage);
 
         Column {
             invalidExecutableLabel,
             st,
-        }.attachTo(invalidExecutablePage, WithoutMargins);
+            noMargin
+        }.attachTo(invalidExecutablePage);
 
         Column {
-            Row { tidyMode, plainTextEditButton, filterLineEdit },
+            Row { plainTextEditButton, filterLineEdit },
             stackedWidget,
         }.attachTo(this);
     }
@@ -174,13 +171,15 @@ public:
 
         Column {
             label,
-            Row { groupBox, checksGroupBox }
-        }.attachTo(checksPage, WithoutMargins);
+            Row { groupBox, checksGroupBox },
+            noMargin
+        }.attachTo(checksPage);
 
         Column {
             invalidExecutableLabel,
-            st
-        }.attachTo(invalidExecutablePage, WithoutMargins);
+            st,
+            noMargin
+        }.attachTo(invalidExecutablePage);
 
         Column {
             enableLowerLevelsCheckBox,
@@ -1107,32 +1106,18 @@ void DiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticConfig &
 
     disconnectClangTidyItemChanged();
 
-    const ClangDiagnosticConfig::TidyMode tidyMode = config.clangTidyMode();
-    switch (tidyMode) {
-    case ClangDiagnosticConfig::TidyMode::UseConfigFile:
-        m_tidyChecks->tidyMode->setCurrentIndex(1);
+    if (m_tidyInfo.supportedChecks.isEmpty()) {
         m_tidyChecks->plainTextEditButton->setVisible(false);
         m_tidyChecks->filterLineEdit->setVisible(false);
-        m_tidyChecks->stackedWidget->setCurrentIndex(TidyPages::EmptyPage);
-        break;
-    case ClangDiagnosticConfig::TidyMode::UseCustomChecks:
-    case ClangDiagnosticConfig::TidyMode::UseDefaultChecks:
-        m_tidyChecks->tidyMode->setCurrentIndex(0);
-        if (m_tidyInfo.supportedChecks.isEmpty()) {
-            m_tidyChecks->plainTextEditButton->setVisible(false);
-            m_tidyChecks->filterLineEdit->setVisible(false);
-            m_tidyChecks->stackedWidget->setCurrentIndex(TidyPages::InvalidExecutablePage);
-        } else {
-            m_tidyChecks->plainTextEditButton->setVisible(true);
-            m_tidyChecks->filterLineEdit->setVisible(true);
-            m_tidyChecks->stackedWidget->setCurrentIndex(TidyPages::ChecksPage);
-            syncTidyChecksToTree(config);
-        }
-        break;
+        m_tidyChecks->stackedWidget->setCurrentIndex(TidyPages::InvalidExecutablePage);
+    } else {
+        m_tidyChecks->plainTextEditButton->setVisible(true);
+        m_tidyChecks->filterLineEdit->setVisible(true);
+        m_tidyChecks->stackedWidget->setCurrentIndex(TidyPages::ChecksPage);
+        syncTidyChecksToTree(config);
     }
 
     const bool enabled = !config.isReadOnly();
-    m_tidyChecks->tidyMode->setEnabled(enabled);
     m_tidyChecks->plainTextEditButton->setText(enabled ? Tr::tr("Edit Checks as String...")
                                                        : Tr::tr("View Checks as String..."));
     m_tidyTreeModel->setEnabled(enabled);
@@ -1189,16 +1174,12 @@ void DiagnosticConfigsWidget::syncExtraWidgets(const ClangDiagnosticConfig &conf
 
 void DiagnosticConfigsWidget::connectClangTidyItemChanged()
 {
-    connect(m_tidyChecks->tidyMode, &QComboBox::currentIndexChanged,
-            this, &DiagnosticConfigsWidget::onClangTidyModeChanged);
     connect(m_tidyTreeModel.get(), &TidyChecksTreeModel::dataChanged,
             this, &DiagnosticConfigsWidget::onClangTidyTreeChanged);
 }
 
 void DiagnosticConfigsWidget::disconnectClangTidyItemChanged()
 {
-    disconnect(m_tidyChecks->tidyMode, &QComboBox::currentIndexChanged,
-               this, &DiagnosticConfigsWidget::onClangTidyModeChanged);
     disconnect(m_tidyTreeModel.get(), &TidyChecksTreeModel::dataChanged,
                this, &DiagnosticConfigsWidget::onClangTidyTreeChanged);
 }
@@ -1213,18 +1194,6 @@ void DiagnosticConfigsWidget::disconnectClazyItemChanged()
 {
     disconnect(m_clazyTreeModel.get(), &ClazyChecksTreeModel::dataChanged,
                this, &DiagnosticConfigsWidget::onClazyTreeChanged);
-}
-
-void DiagnosticConfigsWidget::onClangTidyModeChanged(int index)
-{
-    const ClangDiagnosticConfig::TidyMode tidyMode
-        = index == 0 ? ClangDiagnosticConfig::TidyMode::UseCustomChecks
-                     : ClangDiagnosticConfig::TidyMode::UseConfigFile;
-
-    ClangDiagnosticConfig config = currentConfig();
-    config.setClangTidyMode(tidyMode);
-    updateConfig(config);
-    syncClangTidyWidgets(config);
 }
 
 void DiagnosticConfigsWidget::onClangTidyTreeChanged()
@@ -1294,7 +1263,7 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
     Utils::Id activeConfigId = settings->runSettings().diagnosticConfigId();
     ClangToolsProjectSettings::ClangToolsProjectSettingsPtr projectSettings;
 
-    if (ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(
+    if (ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
             diagnostics.first().location.filePath)) {
         projectSettings = ClangToolsProjectSettings::getSettings(project);
         if (!projectSettings->useGlobalSettings())
@@ -1330,7 +1299,7 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
             }
             config.setChecks(ClangToolType::Clazy,
                              removeClazyCheck(config.checks(ClangToolType::Clazy), diag.name));
-        } else if (config.clangTidyMode() != ClangDiagnosticConfig::TidyMode::UseConfigFile) {
+        } else if (!settings->runSettings().preferConfigFile()){
             if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseDefaultChecks) {
                 config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
                 const ClangTidyInfo tidyInfo(toolExecutable(ClangToolType::Tidy));

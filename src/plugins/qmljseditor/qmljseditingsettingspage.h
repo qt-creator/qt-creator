@@ -52,11 +52,20 @@ public:
     bool useCustomFormatCommand() const;
     void setUseCustomFormatCommand(bool customCommand);
 
-    QmllsSettings &qmllsSettigs();
-    const QmllsSettings &qmllsSettigs() const;
+    QmllsSettings &qmllsSettings();
+    const QmllsSettings &qmllsSettings() const;
 
     const QString uiQmlOpenMode() const;
     void setUiQmlOpenMode(const QString &mode);
+
+    bool useCustomAnalyzer() const;
+    void setUseCustomAnalyzer(bool customAnalyzer);
+
+    QSet<int> disabledMessages() const;
+    void setDisabledMessages(const QSet<int> &disabled);
+
+    QSet<int> disabledMessagesForNonQuickUi() const;
+    void setDisabledMessagesForNonQuickUi(const QSet<int> &disabled);
 
     friend bool operator==(const QmlJsEditingSettings &s1, const QmlJsEditingSettings &s2)
     { return s1.equals(s2); }
@@ -70,10 +79,13 @@ private:
     bool m_autoFormatOnlyCurrentProject = false;
     bool m_foldAuxData = true;
     bool m_useCustomFormatCommand = false;
+    bool m_useCustomAnalyzer = false;
     QmllsSettings m_qmllsSettings;
     QString m_uiQmlOpenMode;
     QString m_formatCommand;
     QString m_formatCommandOptions;
+    QSet<int> m_disabledMessages;
+    QSet<int> m_disabledMessagesForNonQuickUi;
 };
 
 namespace Internal {

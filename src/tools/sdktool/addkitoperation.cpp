@@ -15,6 +15,7 @@
 
 #include "settings.h"
 
+#include <QDir>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
@@ -685,8 +686,7 @@ QVariantMap AddKitData::addKit(const QVariantMap &map,
     if (!m_buildDevice.isNull())
         data << KeyValuePair({kit, DATA, BUILDDEVICE_ID}, QVariant(m_buildDevice));
     if (!m_sysRoot.isNull())
-        data << KeyValuePair({kit, DATA, SYSROOT},
-                             Utils::FilePath::fromUserInput(m_sysRoot).toSettings());
+        data << KeyValuePair({kit, DATA, SYSROOT}, QVariant(QDir::cleanPath(m_sysRoot)));
     for (auto i = m_tcs.constBegin(); i != m_tcs.constEnd(); ++i)
         data << KeyValuePair({kit, DATA, TOOLCHAIN, i.key()}, QVariant(i.value()));
     if (!qtId.isNull())

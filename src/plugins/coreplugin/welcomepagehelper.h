@@ -24,6 +24,16 @@ namespace WelcomePageHelpers {
 
 constexpr int HSpacing = 20;
 constexpr int ItemGap = 4;
+
+constexpr int GridItemGap = 3 * ItemGap;
+constexpr int GridItemWidth = 240 + GridItemGap;               // Extra GridItemGap as "spacing"
+constexpr int GridItemHeight = GridItemWidth;
+constexpr QSize GridItemImageSize(GridItemWidth - GridItemGap
+                                      - 2 * (GridItemGap + 1), // Horizontal margins + 1 pixel
+                                  GridItemHeight - GridItemGap
+                                      - GridItemGap - 1        // Upper margin + 1 pixel
+                                      - 67);                   // Bottom margin (for title + tags)
+
 CORE_EXPORT QFont brandFont();
 CORE_EXPORT QWidget *panelBar(QWidget *parent = nullptr);
 
@@ -40,7 +50,7 @@ public:
 class CORE_EXPORT GridView : public QListView
 {
 public:
-    explicit GridView(QWidget *parent);
+    explicit GridView(QWidget *parent = nullptr);
 
 protected:
     void leaveEvent(QEvent *) final;
@@ -48,11 +58,25 @@ protected:
 
 class CORE_EXPORT SectionGridView : public GridView
 {
+    Q_OBJECT
+
 public:
     explicit SectionGridView(QWidget *parent);
 
-    bool hasHeightForWidth() const;
-    int heightForWidth(int width) const;
+    void setMaxRows(std::optional<int> max);
+    std::optional<int> maxRows() const;
+
+    bool hasHeightForWidth() const override;
+    int heightForWidth(int width) const override;
+
+    void wheelEvent(QWheelEvent *e) override;
+    bool event(QEvent *e) override;
+
+signals:
+    void itemsFitChanged(bool fit);
+
+private:
+    std::optional<int> m_maxRows;
 };
 
 using OptModelIndex = std::optional<QModelIndex>;
@@ -74,7 +98,7 @@ public:
 
     using PixmapFunction = std::function<QPixmap(QString)>;
 
-    explicit ListModel(QObject *parent);
+    explicit ListModel(QObject *parent = nullptr);
     ~ListModel() override;
 
     void appendItems(const QList<ListItem *> &items);
@@ -84,8 +108,6 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     void setPixmapFunction(const PixmapFunction &fetchPixmapAndUpdatePixmapCache);
-
-    static const QSize defaultImageSize;
 
     void setOwnsItems(bool owns);
 
@@ -128,11 +150,6 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
 
-    static constexpr int GridItemGap = 3 * WelcomePageHelpers::ItemGap;
-    static constexpr int GridItemWidth = 240 + GridItemGap;
-    static constexpr int GridItemHeight = GridItemWidth;
-    static constexpr int TagsSeparatorY = GridItemHeight - GridItemGap - 52;
-
 signals:
     void tagClicked(const QString &tag);
 
@@ -151,6 +168,7 @@ protected:
     const QColor backgroundPrimaryColor;
     const QColor backgroundSecondaryColor;
     const QColor foregroundPrimaryColor;
+    const QColor foregroundSecondaryColor;
     const QColor hoverColor;
     const QColor textColor;
 
@@ -165,6 +183,9 @@ private:
 class CORE_EXPORT Section
 {
 public:
+    Section(const QString &name, int priority);
+    Section(const QString &name, int priority, std::optional<int> maxRows);
+
     friend bool operator<(const Section &lhs, const Section &rhs)
     {
         if (lhs.priority < rhs.priority)
@@ -179,6 +200,7 @@ public:
 
     QString name;
     int priority;
+    std::optional<int> maxRows;
 };
 
 class CORE_EXPORT SectionedGridView : public QStackedWidget
@@ -196,12 +218,16 @@ public:
     void clear();
 
 private:
+    void zoomInSection(const Section &section);
+
     QMap<Section, Core::ListModel *> m_sectionModels;
     QList<QWidget *> m_sectionLabels;
     QMap<Section, Core::GridView *> m_gridViews;
-    Core::GridView *m_allItemsView = nullptr;
-    Core::ListModelFilter *m_filteredAllItemsModel = nullptr;
+    std::unique_ptr<Core::ListModel> m_allItemsModel;
+    std::unique_ptr<Core::GridView> m_allItemsView;
+    QPointer<QWidget> m_zoomedInWidget;
     Core::ListModel::PixmapFunction m_pixmapFunction;
+    QAbstractItemDelegate *m_itemDelegate = nullptr;
 };
 
 } // namespace Core

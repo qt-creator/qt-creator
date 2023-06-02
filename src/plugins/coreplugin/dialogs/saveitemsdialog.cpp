@@ -59,7 +59,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent, const QList<IDocument *> &item
 
     m_saveBeforeBuildCheckBox->setVisible(false);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     // clang-format off
     Column {
         m_msgLabel,

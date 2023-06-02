@@ -11,6 +11,7 @@
 #include "utilsicons.h"
 #include "utilstr.h"
 
+#include <QApplication>
 #include <QKeyEvent>
 #include <QKeySequence>
 #include <QMenu>
@@ -26,6 +27,7 @@
 
 /*!
     \class Utils::FancyLineEdit
+    \inmodule QtCreator
 
     \brief The FancyLineEdit class is an enhanced line edit with several
     opt-in features.
@@ -115,6 +117,7 @@ public:
 
     const QColor m_okTextColor;
     const QColor m_errorTextColor;
+    const QColor m_placeholderTextColor;
     QString m_errorMessage;
 };
 
@@ -123,7 +126,9 @@ FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     m_lineEdit(parent),
     m_completionShortcut(completionShortcut()->key(), parent),
     m_okTextColor(creatorTheme()->color(Theme::TextColorNormal)),
-    m_errorTextColor(creatorTheme()->color(Theme::TextColorError))
+    m_errorTextColor(creatorTheme()->color(Theme::TextColorError)),
+    m_placeholderTextColor(QApplication::palette().color(QPalette::PlaceholderText))
+
 {
     m_completionShortcut.setContext(Qt::WidgetShortcut);
     connect(completionShortcut(), &CompletionShortcut::keyChanged,
@@ -172,7 +177,6 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
     CompletingLineEdit(parent),
     d(new FancyLineEditPrivate(this))
 {
-    ensurePolished();
     updateMargins();
 
     connect(d->m_iconbutton[Left], &QAbstractButton::clicked, this, [this] {
@@ -486,15 +490,18 @@ void FancyLineEdit::validate()
         setToolTip(d->m_errorMessage);
         d->m_toolTipSet = true;
     }
-    // Changed..figure out if valid changed. DisplayingPlaceholderText is not valid,
-    // but should not show error color. Also trigger on the first change.
+    // Changed..figure out if valid changed. Also trigger on the first change.
+    // Invalid DisplayingPlaceholderText shows also error color.
     if (newState != d->m_state || d->m_firstChange) {
         const bool validHasChanged = (d->m_state == Valid) != (newState == Valid);
         d->m_state = newState;
         d->m_firstChange = false;
 
         QPalette p = palette();
-        p.setColor(QPalette::Active, QPalette::Text, newState == Invalid ? d->m_errorTextColor : d->m_okTextColor);
+        p.setColor(QPalette::Active, QPalette::Text,
+            newState == Invalid ? d->m_errorTextColor : d->m_okTextColor);
+        p.setColor(QPalette::Active, QPalette::PlaceholderText,
+            validates ? d->m_placeholderTextColor : d->m_errorTextColor);
         setPalette(p);
 
         if (validHasChanged)

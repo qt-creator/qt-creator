@@ -38,11 +38,14 @@ public:
     bool validateCert = true;
 };
 
-class GitLabParameters
+class GitLabParameters : public QObject
 {
+    Q_OBJECT
+
 public:
     GitLabParameters();
 
+    void assign(const GitLabParameters &other);
     bool equals(const GitLabParameters &other) const;
     bool isValid() const;
 
@@ -52,6 +55,10 @@ public:
     GitLabServer currentDefaultServer() const;
     GitLabServer serverForId(const Utils::Id &id) const;
 
+signals:
+    void changed();
+
+public:
     friend bool operator==(const GitLabParameters &p1, const GitLabParameters &p2)
     {
         return p1.equals(p2);

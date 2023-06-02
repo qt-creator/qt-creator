@@ -7033,8 +7033,8 @@ al VCS (%2)?</translation>
         <translation>Errore durante il salvataggio della sessione</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Impossibile salvare la sessione sul file %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Impossibile salvare la sessione sul file &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Qt Creator</source>

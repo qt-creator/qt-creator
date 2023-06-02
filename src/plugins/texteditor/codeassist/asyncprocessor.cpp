@@ -6,7 +6,7 @@
 #include "assistinterface.h"
 #include "iassistproposal.h"
 
-#include <utils/runextensions.h>
+#include <utils/async.h>
 
 namespace TextEditor {
 
@@ -21,7 +21,7 @@ IAssistProposal *AsyncProcessor::perform()
 {
     IAssistProposal *result = immediateProposal();
     interface()->prepareForAsyncUse();
-    m_watcher.setFuture(Utils::runAsync([this] {
+    m_watcher.setFuture(Utils::asyncRun([this] {
         interface()->recreateTextDocument();
         return performAsync();
     }));

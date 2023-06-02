@@ -86,7 +86,7 @@
                 {
                     "name": "Repo",
                     "trDisplayName": "Remote repository:",
-                    "trToolTip": "For example: https://[user[:pass]@]host[:port]/[path]",
+                    "trToolTip": "For example: \"https://[user[:pass]@]host[:port]/[path]\".",
                     "type": "LineEdit",
                     "enabled": "%{isCloneRepo}",
                     "mandatory": false

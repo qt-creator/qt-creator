@@ -1,9 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "designertr.h"
-#include "formeditorw.h"
 #include "settingspage.h"
+
+#include "designerconstants.h"
+#include "designertr.h"
+#include "formeditor.h"
 
 #include <coreplugin/icontext.h>
 
@@ -11,38 +13,34 @@
 
 #include <QDesignerOptionsPageInterface>
 #include <QCoreApplication>
+#include <QVBoxLayout>
 
-using namespace Designer::Internal;
+namespace Designer::Internal {
 
-SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
-    Core::IOptionsPage(nullptr, false),
-    m_designerPage(designerPage)
+class SettingsPageWidget : public Core::IOptionsPageWidget
 {
-    setId(Utils::Id::fromString(m_designerPage->name()));
-    setDisplayName(m_designerPage->name());
+public:
+    explicit SettingsPageWidget(QDesignerOptionsPageInterface *designerPage)
+        : m_designerPage(designerPage)
+    {
+        auto vbox = new QVBoxLayout(this);
+        vbox->addWidget(m_designerPage->createPage(nullptr));
+    }
+
+    void apply() { m_designerPage->apply(); }
+    void finish() { m_designerPage->finish(); }
+
+    QDesignerOptionsPageInterface *m_designerPage;
+};
+
+
+SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage)
+    : Core::IOptionsPage(false)
+{
+    setId(Utils::Id::fromString(designerPage->name()));
+    setDisplayName(designerPage->name());
     setCategory(Designer::Constants::SETTINGS_CATEGORY);
-}
-
-QWidget *SettingsPage::widget()
-{
-    m_initialized = true;
-    if (!m_widget)
-        m_widget = m_designerPage->createPage(nullptr);
-    return m_widget;
-
-}
-
-void SettingsPage::apply()
-{
-    if (m_initialized)
-        m_designerPage->apply();
-}
-
-void SettingsPage::finish()
-{
-    if (m_initialized)
-        m_designerPage->finish();
-    delete m_widget;
+    setWidgetCreator([designerPage] { return new SettingsPageWidget(designerPage); });
 }
 
 SettingsPageProvider::SettingsPageProvider()
@@ -58,9 +56,9 @@ QList<Core::IOptionsPage *> SettingsPageProvider::pages() const
     if (!m_initialized) {
         // get options pages from designer
         m_initialized = true;
-        FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
+        ensureInitStage(RegisterPlugins);
     }
-    return FormEditorW::optionsPages();
+    return optionsPages();
 }
 
 bool SettingsPageProvider::matches(const QRegularExpression &regex) const
@@ -102,3 +100,5 @@ bool SettingsPageProvider::matches(const QRegularExpression &regex) const
     }
     return false;
 }
+
+} // Designer::Internal

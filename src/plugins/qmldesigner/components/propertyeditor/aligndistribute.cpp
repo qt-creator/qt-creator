@@ -663,14 +663,15 @@ AlignDistribute::Dimension AlignDistribute::getDimension(Target target) const
 
 bool AlignDistribute::executePixelPerfectDialog() const
 {
-    QDialogButtonBox::StandardButton pressed = Utils::CheckableMessageBox::doNotAskAgainQuestion(
+    Utils::CheckableDecider decider(QString("WarnAboutPixelPerfectDistribution"));
+
+    QMessageBox::StandardButton pressed = Utils::CheckableMessageBox::question(
         Core::ICore::dialogParent(),
         tr("Cannot Distribute Perfectly"),
         tr("These objects cannot be distributed to equal pixel values. "
            "Do you want to distribute to the nearest possible values?"),
-        Core::ICore::settings(),
-        "WarnAboutPixelPerfectDistribution");
-    return (pressed == QDialogButtonBox::Yes) ? true : false;
+        decider);
+    return (pressed == QMessageBox::Yes) ? true : false;
 }
 
 } // namespace QmlDesigner

@@ -32,6 +32,8 @@ enum class FileType : quint16 {
     Resource,
     QML,
     Project,
+    App,
+    Lib,
     FileTypeSize
 };
 
@@ -228,11 +230,13 @@ public:
                      const std::function<bool(const FolderNode *)> &folderFilterTask = {}) const;
     void forEachGenericNode(const std::function<void(Node *)> &genericTask) const;
     void forEachProjectNode(const std::function<void(const ProjectNode *)> &genericTask) const;
-    ProjectNode *findProjectNode(const std::function<bool(const ProjectNode *)> &predicate);
+    void forEachFileNode(const std::function<void(FileNode *)> &fileTask) const;
+    void forEachFolderNode(const std::function<void(FolderNode *)> &folderTask) const;
+    ProjectNode *findProjectNode(const std::function<bool(const ProjectNode *)> &predicate); // recursive
+    FolderNode *findChildFolderNode(const std::function<bool (FolderNode *)> &predicate) const; // non-recursive
+    FileNode *findChildFileNode(const std::function<bool (FileNode *)> &predicate) const; // non-recursive
     const QList<Node *> nodes() const;
-    QList<FileNode *> fileNodes() const;
     FileNode *fileNode(const Utils::FilePath &file) const;
-    QList<FolderNode *> folderNodes() const;
     FolderNode *folderNode(const Utils::FilePath &directory) const;
 
     using FolderNodeFactory = std::function<std::unique_ptr<FolderNode>(const Utils::FilePath &)>;

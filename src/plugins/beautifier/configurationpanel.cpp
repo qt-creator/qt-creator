@@ -17,8 +17,6 @@ namespace Beautifier::Internal {
 ConfigurationPanel::ConfigurationPanel(QWidget *parent)
     : QWidget(parent)
 {
-    resize(595, 23);
-
     m_configurations = new QComboBox;
     m_configurations->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
@@ -26,14 +24,15 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent)
     m_remove = new QPushButton(Tr::tr("Remove"));
     auto add = new QPushButton(Tr::tr("Add"));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Row {
         m_configurations,
         m_edit,
         m_remove,
-        add
-    }.attachTo(this, WithoutMargins);
+        add,
+        noMargin,
+    }.attachTo(this);
 
     connect(add, &QPushButton::clicked, this, &ConfigurationPanel::add);
     connect(m_edit, &QPushButton::clicked, this, &ConfigurationPanel::edit);

@@ -107,7 +107,8 @@ void SuppressionAspectPrivate::slotSuppressionSelectionChanged()
 // SuppressionAspect
 //
 
-SuppressionAspect::SuppressionAspect(bool global)
+SuppressionAspect::SuppressionAspect(AspectContainer *container, bool global)
+    : BaseAspect(container)
 {
     d = new SuppressionAspectPrivate(this, global);
     setSettingsKey("Analyzer.Valgrind.SuppressionFiles");
@@ -128,7 +129,7 @@ void SuppressionAspect::setValue(const FilePaths &val)
     BaseAspect::setValue(Utils::transform<QStringList>(val, &FilePath::toString));
 }
 
-void SuppressionAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void SuppressionAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_CHECK(!d->addEntry);
     QTC_CHECK(!d->removeEntry);
@@ -150,12 +151,12 @@ void SuppressionAspect::addToLayout(Layouting::LayoutBuilder &builder)
     connect(d->entryList->selectionModel(), &QItemSelectionModel::selectionChanged,
             d, &SuppressionAspectPrivate::slotSuppressionSelectionChanged);
 
-    builder.addItem(Column { Tr::tr("Suppression files:"), st });
+    parent.addItem(Column { Tr::tr("Suppression files:"), st });
     Row group {
         d->entryList.data(),
         Column { d->addEntry.data(), d->removeEntry.data(), st }
     };
-    builder.addItem(Span { 2, group });
+    parent.addItem(Span { 2, group });
 
     setVolatileValue(BaseAspect::value());
 }
@@ -195,19 +196,15 @@ void SuppressionAspect::setVolatileValue(const QVariant &val)
 //////////////////////////////////////////////////////////////////
 
 ValgrindBaseSettings::ValgrindBaseSettings(bool global)
-    : suppressions(global)
+    : suppressions(this, global)
 {
     // Note that this is used twice, once for project settings in the .user files
     // and once for global settings in QtCreator.ini. This uses intentionally
     // the same key to facilitate copying using fromMap/toMap.
     QString base = "Analyzer.Valgrind.";
 
-    registerAspect(&suppressions);
-
-    registerAspect(&valgrindExecutable);
     valgrindExecutable.setSettingsKey(base + "ValgrindExecutable");
     valgrindExecutable.setDefaultValue("valgrind");
-    valgrindExecutable.setDisplayStyle(StringAspect::PathChooserDisplay);
     valgrindExecutable.setExpectedKind(PathChooser::Command);
     valgrindExecutable.setHistoryCompleter("Valgrind.Command.History");
     valgrindExecutable.setDisplayName(Tr::tr("Valgrind Command"));
@@ -220,12 +217,10 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
         //valgrindExecutable. ... buttonAtIndex(0)->hide();
     }
 
-    registerAspect(&valgrindArguments);
     valgrindArguments.setSettingsKey(base + "ValgrindArguments");
     valgrindArguments.setDisplayStyle(StringAspect::LineEditDisplay);
     valgrindArguments.setLabelText(Tr::tr("Valgrind arguments:"));
 
-    registerAspect(&selfModifyingCodeDetection);
     selfModifyingCodeDetection.setSettingsKey(base + "SelfModifyingCodeDetection");
     selfModifyingCodeDetection.setDefaultValue(DetectSmcStackOnly);
     selfModifyingCodeDetection.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
@@ -236,31 +231,26 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     selfModifyingCodeDetection.setLabelText(Tr::tr("Detect self-modifying code:"));
 
     // Memcheck
-    registerAspect(&memcheckArguments);
     memcheckArguments.setSettingsKey(base + "Memcheck.Arguments");
     memcheckArguments.setDisplayStyle(StringAspect::LineEditDisplay);
     memcheckArguments.setLabelText(Tr::tr("Extra MemCheck arguments:"));
 
-    registerAspect(&filterExternalIssues);
     filterExternalIssues.setSettingsKey(base + "FilterExternalIssues");
     filterExternalIssues.setDefaultValue(true);
     filterExternalIssues.setIcon(Icons::FILTER.icon());
-    filterExternalIssues.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    filterExternalIssues.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     filterExternalIssues.setLabelText(Tr::tr("Show Project Costs Only"));
     filterExternalIssues.setToolTip(Tr::tr("Show only profiling info that originated from this project source."));
 
-    registerAspect(&trackOrigins);
     trackOrigins.setSettingsKey(base + "TrackOrigins");
     trackOrigins.setDefaultValue(true);
-    trackOrigins.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    trackOrigins.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     trackOrigins.setLabelText(Tr::tr("Track origins of uninitialized memory"));
 
-    registerAspect(&showReachable);
     showReachable.setSettingsKey(base + "ShowReachable");
-    showReachable.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    showReachable.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     showReachable.setLabelText(Tr::tr("Show reachable and indirectly lost blocks"));
 
-    registerAspect(&leakCheckOnFinish);
     leakCheckOnFinish.setSettingsKey(base + "LeakCheckOnFinish");
     leakCheckOnFinish.setDefaultValue(LeakCheckOnFinishSummaryOnly);
     leakCheckOnFinish.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
@@ -269,35 +259,29 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     leakCheckOnFinish.addOption(Tr::tr("Full"));
     leakCheckOnFinish.setLabelText(Tr::tr("Check for leaks on finish:"));
 
-    registerAspect(&numCallers);
     numCallers.setSettingsKey(base + "NumCallers");
     numCallers.setDefaultValue(25);
     numCallers.setLabelText(Tr::tr("Backtrace frame count:"));
 
     // Callgrind
 
-    registerAspect(&kcachegrindExecutable);
     kcachegrindExecutable.setSettingsKey(base + "KCachegrindExecutable");
     kcachegrindExecutable.setDefaultValue("kcachegrind");
-    kcachegrindExecutable.setDisplayStyle(StringAspect::PathChooserDisplay);
     kcachegrindExecutable.setLabelText(Tr::tr("KCachegrind executable:"));
     kcachegrindExecutable.setExpectedKind(Utils::PathChooser::Command);
     kcachegrindExecutable.setDisplayName(Tr::tr("KCachegrind Command"));
 
-    registerAspect(&callgrindArguments);
     callgrindArguments.setSettingsKey(base + "Callgrind.Arguments");
     callgrindArguments.setDisplayStyle(StringAspect::LineEditDisplay);
     callgrindArguments.setLabelText(Tr::tr("Extra CallGrind arguments:"));
 
-    registerAspect(&enableEventToolTips);
     enableEventToolTips.setDefaultValue(true);
     enableEventToolTips.setSettingsKey(base + "Callgrind.EnableEventToolTips");
-    enableEventToolTips.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    enableEventToolTips.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     enableEventToolTips.setLabelText(Tr::tr("Show additional information for events in tooltips"));
 
-    registerAspect(&enableCacheSim);
     enableCacheSim.setSettingsKey(base + "Callgrind.EnableCacheSim");
-    enableCacheSim.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    enableCacheSim.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     enableCacheSim.setLabelText(Tr::tr("Enable cache simulation"));
     enableCacheSim.setToolTip("<html><head/><body>" + Tr::tr(
         "<p>Does full cache simulation.</p>\n"
@@ -309,9 +293,8 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
         "<li>Data write accesses (\"Dw\") and related cache misses (\"D1mw\"/\"D2mw\").</li></ul>\n"
         "</p>") + "</body></html>");
 
-    registerAspect(&enableBranchSim);
     enableBranchSim.setSettingsKey(base + "Callgrind.EnableBranchSim");
-    enableBranchSim.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    enableBranchSim.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     enableBranchSim.setLabelText(Tr::tr("Enable branch prediction simulation"));
     enableBranchSim.setToolTip("<html><head/><body>\n" + Tr::tr(
         "<p>Does branch prediction simulation.</p>\n"
@@ -321,20 +304,17 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
         "<li>Executed indirect jumps and related misses of the jump address predictor (\n"
         "\"Bi\"/\"Bim\").)</li></ul>") + "</body></html>");
 
-    registerAspect(&collectSystime);
     collectSystime.setSettingsKey(base + "Callgrind.CollectSystime");
-    collectSystime.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    collectSystime.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     collectSystime.setLabelText(Tr::tr("Collect system call time"));
     collectSystime.setToolTip(Tr::tr("Collects information for system call times."));
 
-    registerAspect(&collectBusEvents);
-    collectBusEvents.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    collectBusEvents.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     collectBusEvents.setSettingsKey(base + "Callgrind.CollectBusEvents");
     collectBusEvents.setLabelText(Tr::tr("Collect global bus events"));
     collectBusEvents.setToolTip(Tr::tr("Collect the number of global bus events that are executed. "
         "The event type \"Ge\" is used for these events."));
 
-    registerAspect(&minimumInclusiveCostRatio);
     minimumInclusiveCostRatio.setSettingsKey(base + "Callgrind.MinimumCostRatio");
     minimumInclusiveCostRatio.setDefaultValue(0.01);
     minimumInclusiveCostRatio.setSuffix(Tr::tr("%"));
@@ -342,13 +322,11 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     minimumInclusiveCostRatio.setToolTip(Tr::tr("Limits the amount of results the profiler gives you. "
          "A lower limit will likely increase performance."));
 
-    registerAspect(&visualizationMinimumInclusiveCostRatio);
     visualizationMinimumInclusiveCostRatio.setSettingsKey(base + "Callgrind.VisualisationMinimumCostRatio");
     visualizationMinimumInclusiveCostRatio.setDefaultValue(10.0);
     visualizationMinimumInclusiveCostRatio.setLabelText(Tr::tr("Visualization: Minimum event cost:"));
     visualizationMinimumInclusiveCostRatio.setSuffix(Tr::tr("%"));
 
-    registerAspect(&visibleErrorKinds);
     visibleErrorKinds.setSettingsKey(base + "VisibleErrorKinds");
     QList<int> defaultErrorKinds;
     for (int i = 0; i < Valgrind::XmlProtocol::MemcheckErrorKindCount; ++i)
@@ -372,25 +350,20 @@ ValgrindGlobalSettings::ValgrindGlobalSettings()
 
     const QString base = "Analyzer.Valgrind";
 
-    registerAspect(&lastSuppressionDirectory);
     lastSuppressionDirectory.setSettingsKey(base + "LastSuppressionDirectory");
 
-    registerAspect(&lastSuppressionHistory);
     lastSuppressionHistory.setSettingsKey(base + "LastSuppressionHistory");
 
-    registerAspect(&detectCycles);
     detectCycles.setSettingsKey(base + "Callgrind.CycleDetection");
     detectCycles.setDefaultValue(true);
     detectCycles.setLabelText("O"); // FIXME: Create a real icon
     detectCycles.setToolTip(Tr::tr("Enable cycle detection to properly handle recursive "
         "or circular function calls."));
 
-    registerAspect(&costFormat);
     costFormat.setSettingsKey(base + "Callgrind.CostFormat");
     costFormat.setDefaultValue(CostDelegate::FormatRelative);
     costFormat.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
 
-    registerAspect(&shortenTemplates);
     shortenTemplates.setSettingsKey(base + "Callgrind.ShortenTemplates");
     shortenTemplates.setDefaultValue(true);
     shortenTemplates.setLabelText("<>"); // FIXME: Create a real icon

@@ -15,6 +15,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/commandline.h>
 #include <utils/devicefileaccess.h>
 #include <utils/displayname.h>
 #include <utils/icon.h>
@@ -92,6 +93,7 @@ static Id newId()
 
 const char DisplayNameKey[] = "Name";
 const char TypeKey[] = "OsType";
+const char ClientOsTypeKey[] = "ClientOsType";
 const char IdKey[] = "InternalId";
 const char OriginKey[] = "Origin";
 const char MachineTypeKey[] = "Type";
@@ -369,6 +371,27 @@ const QList<IDevice::DeviceAction> IDevice::deviceActions() const
     return d->deviceActions;
 }
 
+PortsGatheringMethod IDevice::portsGatheringMethod() const
+{
+    return {[this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
+                // We might encounter the situation that protocol is given IPv6
+                // but the consumer of the free port information decides to open
+                // an IPv4(only) port. As a result the next IPv6 scan will
+                // report the port again as open (in IPv6 namespace), while the
+                // same port in IPv4 namespace might still be blocked, and
+                // re-use of this port fails.
+                // GDBserver behaves exactly like this.
+
+                Q_UNUSED(protocol)
+
+                if (filePath("/proc/net").isReadableDir())
+                    return {filePath("/bin/sh"), {"-c", "cat /proc/net/tcp*"}};
+
+                return {filePath("netstat"), {"-a", "-n"}};
+            },
+            &Port::parseFromCommandOutput};
+};
+
 DeviceProcessList *IDevice::createProcessListModel(QObject *parent) const
 {
     Q_UNUSED(parent)
@@ -425,6 +448,8 @@ void IDevice::fromMap(const QVariantMap &map)
     d->type = typeFromMap(map);
     d->displayName.fromMap(map, DisplayNameKey);
     d->id = Id::fromSetting(map.value(QLatin1String(IdKey)));
+    d->osType = osTypeFromString(
+        map.value(QLatin1String(ClientOsTypeKey), osTypeToString(OsTypeLinux)).toString());
     if (!d->id.isValid())
         d->id = newId();
     d->origin = static_cast<Origin>(map.value(QLatin1String(OriginKey), ManuallyAdded).toInt());
@@ -471,6 +496,7 @@ QVariantMap IDevice::toMap() const
     QVariantMap map;
     d->displayName.toMap(map, DisplayNameKey);
     map.insert(QLatin1String(TypeKey), d->type.toString());
+    map.insert(QLatin1String(ClientOsTypeKey), osTypeToString(d->osType));
     map.insert(QLatin1String(IdKey), d->id.toSetting());
     map.insert(QLatin1String(OriginKey), d->origin);
 
@@ -503,9 +529,6 @@ IDevice::Ptr IDevice::clone() const
     device->d->deviceState = d->deviceState;
     device->d->deviceActions = d->deviceActions;
     device->d->deviceIcons = d->deviceIcons;
-    // Os type is only set in the constructor, always to the same value.
-    // But make sure we notice if that changes in the future (which it shouldn't).
-    QTC_CHECK(device->d->osType == d->osType);
     device->d->osType = d->osType;
     device->fromMap(toMap());
     return device;
@@ -576,16 +599,6 @@ FilePath IDevice::debugServerPath() const
 void IDevice::setDebugServerPath(const FilePath &path)
 {
     d->debugServerPath = path;
-}
-
-FilePath IDevice::debugDumperPath() const
-{
-    return d->debugDumperPath;
-}
-
-void IDevice::setDebugDumperPath(const FilePath &path)
-{
-    d->debugDumperPath = path;
 }
 
 FilePath IDevice::qmlRunCommand() const
@@ -682,12 +695,12 @@ void DeviceProcessKiller::start()
     m_signalOperation->killProcess(m_processPath.path());
 }
 
-KillerAdapter::KillerAdapter()
+DeviceProcessKillerTaskAdapter::DeviceProcessKillerTaskAdapter()
 {
-    connect(task(), &DeviceProcessKiller::done, this, &KillerAdapter::done);
+    connect(task(), &DeviceProcessKiller::done, this, &TaskInterface::done);
 }
 
-void KillerAdapter::start()
+void DeviceProcessKillerTaskAdapter::start()
 {
     task()->start();
 }

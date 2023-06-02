@@ -9,7 +9,7 @@
 
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/texteditorsettings.h>
@@ -56,9 +56,6 @@ void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
         return;
 
     style.ColumnLimit = 0;
-#ifdef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
-    style.KeepLineBreaksForNonEmptyLines = true;
-#endif
 }
 
 llvm::StringRef clearExtraNewline(llvm::StringRef text)
@@ -349,6 +346,17 @@ bool isInsideDummyTextInLine(const QString &originalLine, const QString &modifie
                || !modifiedLine.startsWith(originalLine));
 }
 
+static Utils::Text::Position utf16LineColumn(const QByteArray &utf8Buffer, int utf8Offset)
+{
+    Utils::Text::Position position;
+    position.line = static_cast<int>(std::count(utf8Buffer.begin(),
+                                                utf8Buffer.begin() + utf8Offset, '\n')) + 1;
+    const int startOfLineOffset = utf8Offset ? (utf8Buffer.lastIndexOf('\n', utf8Offset - 1) + 1)
+                                             : 0;
+    position.column = QString::fromUtf8(utf8Buffer.mid(startOfLineOffset,
+                                                       utf8Offset - startOfLineOffset)).length();
+    return position;
+}
 Utils::Text::Replacements utf16Replacements(const QTextDocument *doc,
                                             const QByteArray &utf8Buffer,
                                             const clang::tooling::Replacements &replacements)
@@ -357,9 +365,8 @@ Utils::Text::Replacements utf16Replacements(const QTextDocument *doc,
     convertedReplacements.reserve(replacements.size());
 
     for (const clang::tooling::Replacement &replacement : replacements) {
-        Utils::LineColumn lineColUtf16 = Utils::Text::utf16LineColumn(utf8Buffer,
-                                                                      static_cast<int>(
-                                                                          replacement.getOffset()));
+        Utils::Text::Position lineColUtf16 = utf16LineColumn(
+            utf8Buffer, static_cast<int>(replacement.getOffset()));
         if (!lineColUtf16.isValid())
             continue;
 
@@ -367,14 +374,13 @@ Utils::Text::Replacements utf16Replacements(const QTextDocument *doc,
         const QString bufferLineText
             = Utils::Text::utf16LineTextInUtf8Buffer(utf8Buffer,
                                                      static_cast<int>(replacement.getOffset()));
-        if (isInsideDummyTextInLine(lineText, bufferLineText, lineColUtf16.column))
+        if (isInsideDummyTextInLine(lineText, bufferLineText, lineColUtf16.column + 1))
             continue;
 
-        lineColUtf16.column = std::min(lineColUtf16.column, int(lineText.length()) + 1);
-
+        lineColUtf16.column = std::min(lineColUtf16.column, int(lineText.length()));
         const int utf16Offset = Utils::Text::positionInText(doc,
                                                             lineColUtf16.line,
-                                                            lineColUtf16.column);
+                                                            lineColUtf16.column + 1);
         const int utf16Length = QString::fromUtf8(
                                     utf8Buffer.mid(static_cast<int>(replacement.getOffset()),
                                                    static_cast<int>(replacement.getLength())))
@@ -744,7 +750,7 @@ void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
 clang::format::FormatStyle overrideStyle(const Utils::FilePath &fileName)
 {
     const ProjectExplorer::Project *projectForFile
-        = ProjectExplorer::SessionManager::projectForFile(fileName);
+        = ProjectExplorer::ProjectManager::projectForFile(fileName);
 
     const TextEditor::ICodeStylePreferences *preferences
         = projectForFile

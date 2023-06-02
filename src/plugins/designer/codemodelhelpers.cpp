@@ -9,7 +9,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <QCoreApplication>
@@ -30,7 +30,7 @@ static const char setupUiC[] = "setupUi";
 // Find the generated "ui_form.h" header of the form via project.
 static FilePath generatedHeaderOf(const FilePath &uiFileName)
 {
-    if (const Project *uiProject = SessionManager::projectForFile(uiFileName)) {
+    if (const Project *uiProject = ProjectManager::projectForFile(uiFileName)) {
         if (Target *t = uiProject->activeTarget()) {
             if (BuildSystem *bs = t->buildSystem()) {
                 FilePaths files = bs->filesGeneratedFrom(uiFileName);

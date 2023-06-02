@@ -70,7 +70,7 @@ public:
         ReadOk             // Dwarf index available.
     };
     QString moduleName;
-    QString modulePath;
+    Utils::FilePath modulePath;
     QString hostPath;
     SymbolReadState symbolsRead = UnknownReadState;
     quint64 startAddress = 0;
@@ -99,7 +99,7 @@ public:
 
     QAbstractItemModel *model() const;
 
-    void removeModule(const QString &modulePath);
+    void removeModule(const Utils::FilePath &modulePath);
     void updateModule(const Module &module);
 
     void beginUpdateAll();
@@ -109,7 +109,7 @@ public:
     const Modules modules() const;
 
 private:
-    ModuleItem *moduleFromPath(const QString &modulePath) const;
+    ModuleItem *moduleFromPath(const Utils::FilePath &modulePath) const;
 
     ModulesModel *m_model;
     QSortFilterProxyModel *m_proxyModel;

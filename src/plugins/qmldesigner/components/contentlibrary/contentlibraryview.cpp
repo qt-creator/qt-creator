@@ -20,7 +20,7 @@
 
 #ifndef QMLDESIGNER_TEST
 #include <projectexplorer/kit.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -371,7 +371,7 @@ void ContentLibraryView::updateBundleMaterialsQuick3DVersion()
 #ifndef QMLDESIGNER_TEST
     if (hasImport && major == -1) {
         // Import without specifying version, so we take the kit version
-        auto target = ProjectExplorer::SessionManager::startupTarget();
+        auto target = ProjectExplorer::ProjectManager::startupTarget();
         if (target) {
             QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
             if (qtVersion) {

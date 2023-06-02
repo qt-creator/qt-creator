@@ -10,10 +10,38 @@
 #include "processenums.h"
 
 #include <QProcess>
+#include <QSize>
 
 namespace Utils {
 
-namespace Internal { class QtcProcessPrivate; }
+namespace Internal { class ProcessPrivate; }
+
+namespace Pty {
+
+using ResizeHandler = std::function<void(const QSize &)>;
+
+class QTCREATOR_UTILS_EXPORT SharedData
+{
+public:
+    ResizeHandler m_handler;
+};
+
+class QTCREATOR_UTILS_EXPORT Data
+{
+public:
+    Data() : m_data(new SharedData) {}
+
+    void setResizeHandler(const ResizeHandler &handler) { m_data->m_handler = handler; }
+
+    QSize size() const { return m_size; }
+    void resize(const QSize &size);
+
+private:
+    QSize m_size{80, 60};
+    QSharedPointer<SharedData> m_data;
+};
+
+} // namespace Pty
 
 class QTCREATOR_UTILS_EXPORT ProcessSetupData
 {
@@ -22,6 +50,7 @@ public:
     ProcessMode m_processMode = ProcessMode::Reader;
     TerminalMode m_terminalMode = TerminalMode::Off;
 
+    std::optional<Pty::Data> m_ptyData;
     CommandLine m_commandLine;
     FilePath m_workingDirectory;
     Environment m_environment;
@@ -39,6 +68,7 @@ public:
     bool m_unixTerminalDisabled = false;
     bool m_useCtrlCStub = false;
     bool m_belowNormalPriority = false; // internal, dependent on other fields and specific code path
+    bool m_createConsoleOnWindows = false;
 };
 
 class QTCREATOR_UTILS_EXPORT ProcessResultData
@@ -74,7 +104,7 @@ private:
     // - Done is being called in Starting or Running state.
     virtual bool waitForSignal(ProcessSignalType signalType, int msecs) = 0;
 
-    friend class Internal::QtcProcessPrivate;
+    friend class Internal::ProcessPrivate;
 };
 
 class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
@@ -112,8 +142,8 @@ private:
 
     virtual ProcessBlockingInterface *processBlockingInterface() const { return nullptr; }
 
-    friend class QtcProcess;
-    friend class Internal::QtcProcessPrivate;
+    friend class Process;
+    friend class Internal::ProcessPrivate;
 };
 
 } // namespace Utils

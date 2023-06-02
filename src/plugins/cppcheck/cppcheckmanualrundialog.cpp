@@ -18,11 +18,9 @@
 
 namespace Cppcheck::Internal {
 
-ManualRunDialog::ManualRunDialog(const CppcheckOptions &options,
+ManualRunDialog::ManualRunDialog(QWidget *optionsWidget,
                                  const ProjectExplorer::Project *project)
-    : QDialog(),
-    m_options(new OptionsWidget(this)),
-    m_model(new ProjectExplorer::SelectableFilesFromDirModel(this))
+    : m_model(new ProjectExplorer::SelectableFilesFromDirModel(this))
 {
     QTC_ASSERT(project, return );
 
@@ -55,21 +53,12 @@ ManualRunDialog::ManualRunDialog(const CppcheckOptions &options,
     });
 
     auto layout = new QVBoxLayout(this);
-    layout->addWidget(m_options);
+    layout->addWidget(optionsWidget);
     layout->addWidget(view);
     layout->addWidget(buttons);
 
-    if (auto layout = m_options->layout())
+    if (auto layout = optionsWidget->layout())
         layout->setContentsMargins(0, 0, 0, 0);
-
-    m_options->load(options);
-}
-
-CppcheckOptions ManualRunDialog::options() const
-{
-    CppcheckOptions result;
-    m_options->save(result);
-    return result;
 }
 
 Utils::FilePaths ManualRunDialog::filePaths() const

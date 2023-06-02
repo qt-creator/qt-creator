@@ -68,6 +68,10 @@
 
     \list
 
+        \li \l{Editing Markdown Files}
+
+            Edit and preview markdown (.md) files.
+
         \li \l{Using Language Servers}
 
             The language client offers code completion, highlighting of the

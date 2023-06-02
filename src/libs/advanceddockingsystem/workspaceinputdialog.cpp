@@ -69,7 +69,7 @@ WorkspaceNameInputDialog::WorkspaceNameInputDialog(DockManager *manager, QWidget
         m_switchToButton->setEnabled(m_newWorkspaceLineEdit->hasAcceptableInput());
     });
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         label,

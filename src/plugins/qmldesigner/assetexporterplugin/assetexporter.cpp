@@ -10,11 +10,12 @@
 #include "rewriterview.h"
 #include "qmlitemnode.h"
 #include "qmlobjectnode.h"
-#include "coreplugin/editormanager/editormanager.h"
-#include "utils/qtcassert.h"
-#include "utils/runextensions.h"
-#include "projectexplorer/session.h"
-#include "projectexplorer/project.h"
+
+#include <coreplugin/editormanager/editormanager.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+#include <utils/async.h>
+#include <utils/qtcassert.h>
 
 #include <auxiliarydataproperties.h>
 
@@ -69,7 +70,7 @@ public:
 
 private:
     void addAsset(const QPixmap &p, const Utils::FilePath &path);
-    void doDumping(QFutureInterface<void> &fi);
+    void doDumping(QPromise<void> &promise);
     void savePixmap(const QPixmap &p, Utils::FilePath &path) const;
 
     QFuture<void> m_dumpFuture;
@@ -406,7 +407,7 @@ void AssetExporter::writeMetadata() const
 
     m_currentState.change(ParsingState::WritingJson);
 
-    auto const startupProject = ProjectExplorer::SessionManager::startupProject();
+    auto const startupProject = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(startupProject, return);
     const QString projectName = startupProject->displayName();
 
@@ -452,7 +453,7 @@ QDebug operator<<(QDebug os, const AssetExporter::ParsingState &s)
 AssetDumper::AssetDumper():
     m_quitDumper(false)
 {
-    m_dumpFuture = Utils::runAsync(&AssetDumper::doDumping, this);
+    m_dumpFuture = Utils::asyncRun(&AssetDumper::doDumping, this);
 }
 
 AssetDumper::~AssetDumper()
@@ -489,7 +490,7 @@ void AssetDumper::addAsset(const QPixmap &p, const Utils::FilePath &path)
     m_assets.push({p, path});
 }
 
-void AssetDumper::doDumping(QFutureInterface<void> &fi)
+void AssetDumper::doDumping(QPromise<void> &promise)
 {
     auto haveAsset = [this] (std::pair<QPixmap, Utils::FilePath> *asset) {
         QMutexLocker locker(&m_queueMutex);
@@ -503,7 +504,7 @@ void AssetDumper::doDumping(QFutureInterface<void> &fi)
     forever {
         std::pair<QPixmap, Utils::FilePath> asset;
         if (haveAsset(&asset)) {
-            if (fi.isCanceled())
+            if (promise.isCanceled())
                 break;
             savePixmap(asset.first, asset.second);
         } else {
@@ -513,10 +514,9 @@ void AssetDumper::doDumping(QFutureInterface<void> &fi)
             m_queueCondition.wait(&m_queueMutex);
         }
 
-        if (fi.isCanceled())
+        if (promise.isCanceled())
             break;
     }
-    fi.reportFinished();
 }
 
 void AssetDumper::savePixmap(const QPixmap &p, Utils::FilePath &path) const

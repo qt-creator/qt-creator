@@ -94,6 +94,8 @@ Project {
             "linenumberfilter.h",
             "marginsettings.cpp",
             "marginsettings.h",
+            "markdowneditor.cpp",
+            "markdowneditor.h",
             "outlinefactory.cpp",
             "outlinefactory.h",
             "plaintexteditorfactory.cpp",
@@ -220,10 +222,10 @@ Project {
             ]
         }
 
-        Group {
-            name: "Tests"
-            condition: qtc.testsEnabled
+        QtcTestFiles {
             files: [
+                "codeassist/codeassist_test.cpp",
+                "codeassist/codeassist_test.h",
                 "texteditor_test.cpp",
             ]
         }

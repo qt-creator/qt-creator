@@ -36,8 +36,6 @@ class GitSubmitPanel : public QWidget
 public:
     GitSubmitPanel()
     {
-        resize(364, 269);
-
         repositoryLabel = new QLabel(Tr::tr("repository"));
         branchLabel = new QLabel(Tr::tr("branch")); // FIXME: Isn't this overwritten soon?
         showHeadLabel = new QLabel("<a href=\"head\">" + Tr::tr("Show HEAD") + "</a>");
@@ -81,7 +79,8 @@ public:
                 }
             },
             editGroup,
-        }.attachTo(this, WithoutMargins);
+            noMargin,
+        }.attachTo(this);
     }
 
     QLabel *repositoryLabel;

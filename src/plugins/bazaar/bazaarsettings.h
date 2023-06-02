@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Bazaar::Internal {
@@ -14,18 +12,14 @@ class BazaarSettings final : public VcsBase::VcsBaseSettings
 public:
     BazaarSettings();
 
-    Utils::BoolAspect diffIgnoreWhiteSpace;
-    Utils::BoolAspect diffIgnoreBlankLines;
-    Utils::BoolAspect logVerbose;
-    Utils::BoolAspect logForward;
-    Utils::BoolAspect logIncludeMerges;
-    Utils::StringAspect logFormat;
+    Utils::BoolAspect diffIgnoreWhiteSpace{this};
+    Utils::BoolAspect diffIgnoreBlankLines{this};
+    Utils::BoolAspect logVerbose{this};
+    Utils::BoolAspect logForward{this};
+    Utils::BoolAspect logIncludeMerges{this};
+    Utils::StringAspect logFormat{this};
 };
 
-class BazaarSettingsPage final : public Core::IOptionsPage
-{
-public:
-    explicit BazaarSettingsPage(BazaarSettings *settings);
-};
+BazaarSettings &settings();
 
 } // Bazaar::Internal

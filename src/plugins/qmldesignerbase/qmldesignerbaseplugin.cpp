@@ -3,7 +3,7 @@
 
 #include "qmldesignerbaseplugin.h"
 
-#include "studiosettingspage.h"
+#include "studio/studiosettingspage.h"
 
 #include "studio/studiostyle.h"
 #include "utils/designersettings.h"

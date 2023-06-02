@@ -37,6 +37,7 @@ signals:
 
 private:
     CppEditor::ClangDiagnosticConfigsSelectionWidget *m_diagnosticWidget;
+    QCheckBox *m_preferConfigFile;
     QCheckBox *m_buildBeforeAnalysis;
     QCheckBox *m_analyzeOpenFiles;
     QSpinBox *m_parallelJobsSpinBox;

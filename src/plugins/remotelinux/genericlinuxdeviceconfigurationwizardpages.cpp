@@ -9,14 +9,15 @@
 
 #include <projectexplorer/devicesupport/sshparameters.h>
 
+#include <utils/filepath.h>
 #include <utils/fileutils.h>
+#include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/utilsicons.h>
 
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QSpinBox>
 
@@ -29,10 +30,10 @@ namespace Internal {
 class GenericLinuxDeviceConfigurationWizardSetupPagePrivate
 {
 public:
-    QLineEdit *nameLineEdit;
-    QLineEdit *hostNameLineEdit;
+    FancyLineEdit *nameLineEdit;
+    FancyLineEdit *hostNameLineEdit;
     QSpinBox *sshPortSpinBox;
-    QLineEdit *userNameLineEdit;
+    FancyLineEdit *userNameLineEdit;
 
     LinuxDevice::Ptr device;
 };
@@ -52,10 +53,16 @@ GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationW
     setTitle(Tr::tr("Connection"));
     setWindowTitle(Tr::tr("WizardPage"));
 
-    d->nameLineEdit = new QLineEdit(this);
-    d->hostNameLineEdit = new QLineEdit(this);
+    d->nameLineEdit = new FancyLineEdit(this);
+    d->nameLineEdit->setHistoryCompleter("DeviceName");
+
+    d->hostNameLineEdit = new FancyLineEdit(this);
+    d->hostNameLineEdit->setHistoryCompleter("HostName");
+
     d->sshPortSpinBox = new QSpinBox(this);
-    d->userNameLineEdit = new QLineEdit(this);
+
+    d->userNameLineEdit = new FancyLineEdit(this);
+    d->userNameLineEdit->setHistoryCompleter("UserName");
 
     using namespace Layouting;
     Form {
@@ -97,7 +104,9 @@ bool GenericLinuxDeviceConfigurationWizardSetupPage::validatePage()
 {
     d->device->setDisplayName(configurationName());
     SshParameters sshParams = d->device->sshParameters();
-    sshParams.url = url();
+    sshParams.setHost(d->hostNameLineEdit->text().trimmed());
+    sshParams.setUserName(d->userNameLineEdit->text().trimmed());
+    sshParams.setPort(d->sshPortSpinBox->value());
     d->device->setSshParameters(sshParams);
     return true;
 }
@@ -105,15 +114,6 @@ bool GenericLinuxDeviceConfigurationWizardSetupPage::validatePage()
 QString GenericLinuxDeviceConfigurationWizardSetupPage::configurationName() const
 {
     return d->nameLineEdit->text().trimmed();
-}
-
-QUrl GenericLinuxDeviceConfigurationWizardSetupPage::url() const
-{
-    QUrl url;
-    url.setHost(d->hostNameLineEdit->text().trimmed());
-    url.setUserName(d->userNameLineEdit->text().trimmed());
-    url.setPort(d->sshPortSpinBox->value());
-    return url;
 }
 
 void GenericLinuxDeviceConfigurationWizardSetupPage::setDevice(const LinuxDevice::Ptr &device)

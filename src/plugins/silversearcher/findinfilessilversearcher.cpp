@@ -2,19 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "findinfilessilversearcher.h"
-
-#include <aggregation/aggregate.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <texteditor/findinfiles.h>
-#include <utils/algorithm.h>
-#include <utils/environment.h>
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
-
-#include "silversearcheroutputparser.h"
+#include "silversearcherparser.h"
 #include "silversearchertr.h"
+
+#include <texteditor/findinfiles.h>
+#include <utils/async.h>
+#include <utils/process.h>
+#include <utils/qtcassert.h>
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -22,17 +16,13 @@
 #include <QSettings>
 
 using namespace Core;
+using namespace SilverSearcher;
 using namespace TextEditor;
 using namespace Utils;
 
 namespace {
-const QLatin1String silverSearcherName("Silver Searcher");
-
-using FutureInterfaceType = QFutureInterface<FileSearchResultList>;
-
-const QString metacharacters = "+()^$.{}[]|\\";
-
-const QString SearchOptionsString = "SearchOptionsString";
+const QLatin1String s_metaCharacters = QLatin1String("+()^$.{}[]|\\");
+const QLatin1String s_searchOptionsString = QLatin1String("SearchOptionsString");
 
 class SilverSearcherSearchOptions
 {
@@ -40,96 +30,80 @@ public:
     QString searchOptions;
 };
 
-QString convertWildcardToRegex(const QString &wildcard)
+static QString convertWildcardToRegex(const QString &wildcard)
 {
     QString regex;
     const int wildcardSize = wildcard.size();
     regex.append('^');
     for (int i = 0; i < wildcardSize; ++i) {
         const QChar ch = wildcard[i];
-        if (ch == '*') {
+        if (ch == '*')
             regex.append(".*");
-        } else if (ch == '?') {
+        else if (ch == '?')
             regex.append('.');
-        } else if (metacharacters.indexOf(ch) != -1) {
-            regex.append('\\');
+        else if (s_metaCharacters.indexOf(ch) != -1)
+            regex.append('\\' + ch);
+        else
             regex.append(ch);
-        } else {
-            regex.append(ch);
-        }
     }
     regex.append('$');
-
     return regex;
 }
 
-bool isSilverSearcherAvailable()
+static bool isSilverSearcherAvailable()
 {
-    QtcProcess silverSearcherProcess;
+    Process silverSearcherProcess;
     silverSearcherProcess.setCommand({"ag", {"--version"}});
     silverSearcherProcess.start();
-    if (silverSearcherProcess.waitForFinished(1000)) {
-        if (silverSearcherProcess.cleanedStdOut().contains("ag version"))
-            return true;
-    }
-
-    return false;
+    return silverSearcherProcess.waitForFinished(1000)
+        && silverSearcherProcess.cleanedStdOut().contains("ag version");
 }
 
-void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
+static void runSilverSeacher(QPromise<SearchResultItems> &promise,
+                             const FileFindParameters &parameters)
 {
-    ProgressTimer progress(fi, 5);
-    const FilePath directory = FilePath::fromUserInput(parameters.additionalParameters.toString());
-    QStringList arguments = {"--parallel", "--ackmate"};
+    const auto setupProcess = [parameters](Process &process) {
+        const FilePath directory
+            = FilePath::fromUserInput(parameters.additionalParameters.toString());
+        QStringList arguments = {"--parallel", "--ackmate"};
 
-    if (parameters.flags & FindCaseSensitively)
-        arguments << "-s";
-    else
-        arguments << "-i";
+        if (parameters.flags & FindCaseSensitively)
+            arguments << "-s";
+        else
+            arguments << "-i";
 
-    if (parameters.flags & FindWholeWords)
-        arguments << "-w";
+        if (parameters.flags & FindWholeWords)
+            arguments << "-w";
 
-    if (!(parameters.flags & FindRegularExpression))
-        arguments << "-Q";
+        if (!(parameters.flags & FindRegularExpression))
+            arguments << "-Q";
 
-    for (const QString &filter : std::as_const(parameters.exclusionFilters))
-        arguments << "--ignore" << filter;
+        for (const QString &filter : std::as_const(parameters.exclusionFilters))
+            arguments << "--ignore" << filter;
 
-    QString nameFiltersAsRegex;
-    for (const QString &filter : std::as_const(parameters.nameFilters))
-        nameFiltersAsRegex += QString("(%1)|").arg(convertWildcardToRegex(filter));
-    nameFiltersAsRegex.remove(nameFiltersAsRegex.length() - 1, 1);
+        QString nameFiltersAsRegExp;
+        for (const QString &filter : std::as_const(parameters.nameFilters))
+            nameFiltersAsRegExp += QString("(%1)|").arg(convertWildcardToRegex(filter));
+        nameFiltersAsRegExp.remove(nameFiltersAsRegExp.length() - 1, 1);
 
-    arguments << "-G" << nameFiltersAsRegex;
+        arguments << "-G" << nameFiltersAsRegExp;
 
-    SilverSearcherSearchOptions params = parameters.searchEngineParameters
-                                             .value<SilverSearcherSearchOptions>();
-    if (!params.searchOptions.isEmpty())
-        arguments << params.searchOptions.split(' ');
+        const SilverSearcherSearchOptions params = parameters.searchEngineParameters
+                                                       .value<SilverSearcherSearchOptions>();
+        if (!params.searchOptions.isEmpty())
+            arguments << params.searchOptions.split(' ');
 
-    arguments << "--" << parameters.text << directory.normalizedPathName().toString();
+        arguments << "--" << parameters.text << directory.normalizedPathName().toString();
+        process.setCommand({"ag", arguments});
+    };
 
-    QtcProcess process;
-    process.setCommand({"ag", arguments});
-    process.start();
-    if (process.waitForFinished()) {
-        QRegularExpression regexp;
-        if (parameters.flags & FindRegularExpression) {
-            const QRegularExpression::PatternOptions patternOptions
-                = (parameters.flags & FindCaseSensitively)
-                      ? QRegularExpression::NoPatternOption
-                      : QRegularExpression::CaseInsensitiveOption;
-            regexp.setPattern(parameters.text);
-            regexp.setPatternOptions(patternOptions);
-        }
-        SilverSearcher::SilverSearcherOutputParser parser(process.cleanedStdOut(), regexp);
-        FileSearchResultList items = parser.parse();
-        if (!items.isEmpty())
-            fi.reportResult(items);
-    } else {
-        fi.reportCanceled();
-    }
+    FilePath lastFilePath;
+    const auto outputParser = [&lastFilePath](const QFuture<void> &future, const QString &input,
+                                              const std::optional<QRegularExpression> &regExp) {
+        return SilverSearcher::parse(future, input, regExp, &lastFilePath);
+    };
+
+    TextEditor::searchInProcessOutput(promise, parameters, setupProcess, outputParser);
 }
 
 } // namespace
@@ -154,16 +128,13 @@ FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
     QTC_ASSERT(findInFiles, return);
     findInFiles->addSearchEngine(this);
 
+    // TODO: Make disabled by default and run isSilverSearcherAvailable asynchronously
     setEnabled(isSilverSearcherAvailable());
     if (!isEnabled()) {
         QLabel *label = new QLabel(Tr::tr("Silver Searcher is not available on the system."));
         label->setStyleSheet("QLabel { color : red; }");
         layout->addWidget(label);
     }
-}
-
-FindInFilesSilverSearcher::~FindInFilesSilverSearcher()
-{
 }
 
 QVariant FindInFilesSilverSearcher::parameters() const
@@ -175,12 +146,12 @@ QVariant FindInFilesSilverSearcher::parameters() const
 
 QString FindInFilesSilverSearcher::title() const
 {
-    return silverSearcherName;
+    return "Silver Searcher";
 }
 
 QString FindInFilesSilverSearcher::toolTip() const
 {
-    return QString();
+    return {};
 }
 
 QWidget *FindInFilesSilverSearcher::widget() const
@@ -190,13 +161,13 @@ QWidget *FindInFilesSilverSearcher::widget() const
 
 void FindInFilesSilverSearcher::writeSettings(QSettings *settings) const
 {
-    settings->setValue(SearchOptionsString, m_searchOptionsLineEdit->text());
+    settings->setValue(s_searchOptionsString, m_searchOptionsLineEdit->text());
 }
 
-QFuture<FileSearchResultList> FindInFilesSilverSearcher::executeSearch(
+QFuture<SearchResultItems> FindInFilesSilverSearcher::executeSearch(
         const FileFindParameters &parameters, BaseFileFind * /*baseFileFind*/)
 {
-    return Utils::runAsync(runSilverSeacher, parameters);
+    return Utils::asyncRun(runSilverSeacher, parameters);
 }
 
 IEditor *FindInFilesSilverSearcher::openEditor(const SearchResultItem & /*item*/,
@@ -207,7 +178,7 @@ IEditor *FindInFilesSilverSearcher::openEditor(const SearchResultItem & /*item*/
 
 void FindInFilesSilverSearcher::readSettings(QSettings *settings)
 {
-    m_searchOptionsLineEdit->setText(settings->value(SearchOptionsString).toString());
+    m_searchOptionsLineEdit->setText(settings->value(s_searchOptionsString).toString());
 }
 
 } // namespace SilverSearcher

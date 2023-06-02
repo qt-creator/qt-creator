@@ -21,7 +21,7 @@ StatisticsDialog::StatisticsDialog(QWidget *parent)
     m_statistics = new Statistics;
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         m_statistics,
         buttonBox,

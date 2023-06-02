@@ -24,10 +24,9 @@ enum class ProcessImpl {
 
 enum class TerminalMode {
     Off,
-    Run,
-    Debug,
-    Suspend,
-    On = Run // Default mode for terminal set to on
+    Run,      // Start with process stub enabled
+    Debug,    // Start with process stub enabled and wait for debugger to attach
+    Detached, // Start in a terminal, without process stub.
 };
 
 // Miscellaneous, not process core

@@ -45,16 +45,6 @@ void ProcessStartHandler::handleProcessStarted()
     }
 }
 
-void ProcessStartHandler::setBelowNormalPriority()
-{
-#ifdef Q_OS_WIN
-    m_process->setCreateProcessArgumentsModifier(
-        [](QProcess::CreateProcessArguments *args) {
-            args->flags |= BELOW_NORMAL_PRIORITY_CLASS;
-    });
-#endif // Q_OS_WIN
-}
-
 void ProcessStartHandler::setNativeArguments(const QString &arguments)
 {
 #ifdef Q_OS_WIN
@@ -63,6 +53,29 @@ void ProcessStartHandler::setNativeArguments(const QString &arguments)
 #else
     Q_UNUSED(arguments)
 #endif // Q_OS_WIN
+}
+
+void ProcessStartHandler::setWindowsSpecificStartupFlags(bool belowNormalPriority,
+                                                         bool createConsoleWindow)
+{
+#ifdef Q_OS_WIN
+    if (!belowNormalPriority && !createConsoleWindow)
+        return;
+
+    m_process->setCreateProcessArgumentsModifier(
+        [belowNormalPriority, createConsoleWindow](QProcess::CreateProcessArguments *args) {
+            if (createConsoleWindow) {
+                args->flags |= CREATE_NEW_CONSOLE;
+                args->startupInfo->dwFlags &= ~STARTF_USESTDHANDLES;
+            }
+
+            if (belowNormalPriority)
+                args->flags |= BELOW_NORMAL_PRIORITY_CLASS;
+        });
+#else // Q_OS_WIN
+    Q_UNUSED(belowNormalPriority)
+    Q_UNUSED(createConsoleWindow)
+#endif
 }
 
 #ifdef Q_OS_WIN
@@ -94,7 +107,18 @@ ProcessHelper::ProcessHelper(QObject *parent)
     : QProcess(parent), m_processStartHandler(this)
 {
 #if defined(Q_OS_UNIX)
-    setChildProcessModifier([this] { setupChildProcess_impl(); });
+    setChildProcessModifier([this] {
+        // nice value range is -20 to +19 where -20 is highest, 0 default and +19 is lowest
+        if (m_lowPriority) {
+            errno = 0;
+            if (::nice(5) == -1 && errno != 0)
+                perror("Failed to set nice value");
+        }
+
+        // Disable terminal by becoming a session leader.
+        if (m_unixTerminalDisabled)
+            setsid();
+    });
 #endif
 }
 
@@ -138,22 +162,6 @@ void ProcessHelper::interruptProcess(QProcess *process)
     ProcessHelper *helper = qobject_cast<ProcessHelper *>(process);
     if (helper && helper->m_useCtrlCStub)
         ProcessHelper::interruptPid(process->processId());
-}
-
-void ProcessHelper::setupChildProcess_impl()
-{
-#if defined Q_OS_UNIX
-    // nice value range is -20 to +19 where -20 is highest, 0 default and +19 is lowest
-    if (m_lowPriority) {
-        errno = 0;
-        if (::nice(5) == -1 && errno != 0)
-            perror("Failed to set nice value");
-    }
-
-    // Disable terminal by becoming a session leader.
-    if (m_unixTerminalDisabled)
-        setsid();
-#endif
 }
 
 } // namespace Utils

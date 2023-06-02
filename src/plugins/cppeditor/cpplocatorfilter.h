@@ -4,58 +4,47 @@
 #pragma once
 
 #include "cppeditor_global.h"
-#include "cpplocatordata.h"
-#include "searchsymbols.h"
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
 namespace CppEditor {
 
-class CPPEDITOR_EXPORT CppLocatorFilter : public Core::ILocatorFilter
+Core::LocatorMatcherTasks CPPEDITOR_EXPORT cppMatchers(Core::MatcherType type);
+
+class CppAllSymbolsFilter : public Core::ILocatorFilter
 {
-    Q_OBJECT
-
 public:
-    explicit CppLocatorFilter(CppLocatorData *locatorData);
-    ~CppLocatorFilter() override;
+    CppAllSymbolsFilter();
 
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
-    void accept(const Core::LocatorFilterEntry &selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
-
-protected:
-    virtual IndexItem::ItemType matchTypes() const { return IndexItem::All; }
-    virtual Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info);
-
-protected:
-    CppLocatorData *m_data = nullptr;
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
-class CPPEDITOR_EXPORT CppClassesFilter : public CppLocatorFilter
+class CppClassesFilter : public Core::ILocatorFilter
 {
-    Q_OBJECT
-
 public:
-    explicit CppClassesFilter(CppLocatorData *locatorData);
-    ~CppClassesFilter() override;
+    CppClassesFilter();
 
-protected:
-    IndexItem::ItemType matchTypes() const override { return IndexItem::Class; }
-    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) override;
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
-class CPPEDITOR_EXPORT CppFunctionsFilter : public CppLocatorFilter
+class CppFunctionsFilter : public Core::ILocatorFilter
 {
-    Q_OBJECT
-
 public:
-    explicit CppFunctionsFilter(CppLocatorData *locatorData);
-    ~CppFunctionsFilter() override;
+    CppFunctionsFilter();
 
-protected:
-    IndexItem::ItemType matchTypes() const override { return IndexItem::Function; }
-    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) override;
+private:
+    Core::LocatorMatcherTasks matchers() final;
+};
+
+class CppCurrentDocumentFilter : public  Core::ILocatorFilter
+{
+public:
+    CppCurrentDocumentFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
 } // namespace CppEditor

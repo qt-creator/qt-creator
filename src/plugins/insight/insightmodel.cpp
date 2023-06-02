@@ -12,8 +12,8 @@
 #include <qmldesignerplugin.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -211,8 +211,8 @@ InsightModel::InsightModel(InsightView *view, ExternalDependenciesInterface &ext
     , m_externalDependencies(externalDependencies)
     , m_fileSystemWatcher(new Utils::FileSystemWatcher(this))
 {
-    QObject::connect(ProjectExplorer::SessionManager::instance(),
-                     &ProjectExplorer::SessionManager::startupProjectChanged,
+    QObject::connect(ProjectExplorer::ProjectManager::instance(),
+                     &ProjectExplorer::ProjectManager::startupProjectChanged,
                      this,
                      [&](ProjectExplorer::Project *project) {
                          if (project)

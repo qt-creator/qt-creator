@@ -5,8 +5,8 @@
 
 #include "algorithm.h"
 #include "mimeutils.h"
+#include "process.h"
 #include "qtcassert.h"
-#include "qtcprocess.h"
 #include "utilstr.h"
 
 #include <QSettings>
@@ -160,12 +160,12 @@ void Archive::unarchive()
 
     m_workingDirectory.ensureWritableDir();
 
-    m_process.reset(new QtcProcess);
+    m_process.reset(new Process);
     m_process->setProcessChannelMode(QProcess::MergedChannels);
-    QObject::connect(m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
+    QObject::connect(m_process.get(), &Process::readyReadStandardOutput, this, [this] {
         emit outputReceived(m_process->readAllStandardOutput());
     });
-    QObject::connect(m_process.get(), &QtcProcess::done, this, [this] {
+    QObject::connect(m_process.get(), &Process::done, this, [this] {
         const bool successfulFinish = m_process->result() == ProcessResult::FinishedWithSuccess;
         if (!successfulFinish)
             emit outputReceived(Tr::tr("Command failed."));

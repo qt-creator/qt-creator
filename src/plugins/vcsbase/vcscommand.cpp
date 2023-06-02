@@ -10,8 +10,8 @@
 
 #include <utils/environment.h>
 #include <utils/globalfilechangeblocker.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/threadutils.h>
 
 #include <QTextCodec>
@@ -55,10 +55,10 @@ public:
 
     void setup();
     void cleanup();
-    void setupProcess(QtcProcess *process, const Job &job);
-    void installStdCallbacks(QtcProcess *process);
+    void setupProcess(Process *process, const Job &job);
+    void installStdCallbacks(Process *process);
     EventLoopMode eventLoopMode() const;
-    void handleDone(QtcProcess *process);
+    void handleDone(Process *process);
     void startAll();
     void startNextJob();
     void processDone();
@@ -73,7 +73,7 @@ public:
     QList<Job> m_jobs;
 
     int m_currentJob = 0;
-    std::unique_ptr<QtcProcess> m_process;
+    std::unique_ptr<Process> m_process;
     QString m_stdOut;
     QString m_stdErr;
     ProcessResult m_result = ProcessResult::StartFailed;
@@ -99,7 +99,7 @@ void VcsCommandPrivate::cleanup()
         GlobalFileChangeBlocker::instance()->forceBlocked(false);
 }
 
-void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
+void VcsCommandPrivate::setupProcess(Process *process, const Job &job)
 {
     process->setExitCodeInterpreter(job.exitCodeInterpreter);
     process->setTimeoutS(job.timeoutS);
@@ -127,12 +127,12 @@ void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
         progress->setProgressParser(m_progressParser);
 }
 
-void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
+void VcsCommandPrivate::installStdCallbacks(Process *process)
 {
     if (!(m_flags & RunFlags::MergeOutputChannels) && (m_flags & RunFlags::ProgressiveOutput
                               || m_progressParser || !(m_flags & RunFlags::SuppressStdErr))) {
         process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
-        connect(process, &QtcProcess::textOnStandardError, this, [this](const QString &text) {
+        connect(process, &Process::textOnStandardError, this, [this](const QString &text) {
             if (!(m_flags & RunFlags::SuppressStdErr))
                 VcsOutputWindow::appendError(text);
             if (m_flags & RunFlags::ProgressiveOutput)
@@ -142,7 +142,7 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
     if (m_progressParser || m_flags & RunFlags::ProgressiveOutput
                          || m_flags & RunFlags::ShowStdOut) {
         process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
-        connect(process, &QtcProcess::textOnStandardOutput, this, [this](const QString &text) {
+        connect(process, &Process::textOnStandardOutput, this, [this](const QString &text) {
             if (m_flags & RunFlags::ShowStdOut)
                 VcsOutputWindow::append(text);
             if (m_flags & RunFlags::ProgressiveOutput)
@@ -158,7 +158,7 @@ EventLoopMode VcsCommandPrivate::eventLoopMode() const
     return EventLoopMode::Off;
 }
 
-void VcsCommandPrivate::handleDone(QtcProcess *process)
+void VcsCommandPrivate::handleDone(Process *process)
 {
     // Success/Fail message in appropriate window?
     if (process->result() == ProcessResult::FinishedWithSuccess) {
@@ -187,8 +187,8 @@ void VcsCommandPrivate::startAll()
 void VcsCommandPrivate::startNextJob()
 {
     QTC_ASSERT(m_currentJob < m_jobs.count(), return);
-    m_process.reset(new QtcProcess);
-    connect(m_process.get(), &QtcProcess::done, this, &VcsCommandPrivate::processDone);
+    m_process.reset(new Process);
+    connect(m_process.get(), &Process::done, this, &VcsCommandPrivate::processDone);
     setupProcess(m_process.get(), m_jobs.at(m_currentJob));
     m_process->start();
 }
@@ -297,7 +297,7 @@ CommandResult VcsCommand::runBlocking(const Utils::FilePath &workingDirectory,
 
 CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int timeoutS)
 {
-    QtcProcess process;
+    Process process;
     if (command.executable().isEmpty())
         return {};
 
@@ -321,7 +321,7 @@ void VcsCommand::setProgressParser(const ProgressParser &parser)
     d->m_progressParser = parser;
 }
 
-CommandResult::CommandResult(const QtcProcess &process)
+CommandResult::CommandResult(const Process &process)
     : m_result(process.result())
     , m_exitCode(process.exitCode())
     , m_exitMessage(process.exitMessage())

@@ -18,7 +18,7 @@ class QTSUPPORT_EXPORT QmlDebuggingAspect : public Utils::TriStateAspect
 public:
     explicit QmlDebuggingAspect(ProjectExplorer::BuildConfiguration *buildConfig);
 
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutItem &parent) override;
 
 private:
     const ProjectExplorer::BuildConfiguration *m_buildConfig = nullptr;
@@ -32,7 +32,7 @@ public:
     QtQuickCompilerAspect(ProjectExplorer::BuildConfiguration *buildConfig);
 
 private:
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutItem &parent) override;
 
     const ProjectExplorer::BuildConfiguration *m_buildConfig = nullptr;
 };

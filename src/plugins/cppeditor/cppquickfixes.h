@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
 #include "cppquickfix.h"
+
+#include <variant>
 
 ///
 /// Adding New Quick Fixes
@@ -16,6 +17,7 @@
 
 namespace CppEditor {
 namespace Internal {
+using TypeOrExpr = std::variant<const CPlusPlus::ExpressionAST *, CPlusPlus::FullySpecifiedType>;
 
 void createCppQuickFixes();
 void destroyCppQuickFixes();
@@ -285,23 +287,6 @@ public:
 };
 
 /*!
-  Rewrites
-    a = foo();
-
-  As
-    Type a = foo();
-
-  Where Type is the return type of foo()
-
-  Activates on: the assignee, if the type of the right-hand side of the assignment is known.
-*/
-class AddLocalDeclaration: public CppQuickFixFactory
-{
-public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
   Add curly braces to a if statement that doesn't already contain a
   compound statement. I.e.
 
@@ -374,20 +359,36 @@ public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
-/*!
-  Adds a class member from an initialization in the constructor.
- */
-class InsertMemberFromInitialization : public CppQuickFixFactory
+class AddDeclarationForUndeclaredIdentifier : public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface,
                TextEditor::QuickFixOperations &result) override;
 
+#ifdef WITH_TESTS
+    void setMembersOnly() { m_membersOnly = true; }
+#endif
+
 private:
-    QString getType(
-            const CppQuickFixInterface &interface,
-            const CPlusPlus::MemInitializerAST *memInitializer,
-            const CPlusPlus::FunctionDefinitionAST *ctor) const;
+    void collectOperations(const CppQuickFixInterface &interface,
+                           TextEditor::QuickFixOperations &result);
+    void handleCall(const CPlusPlus::CallAST *call, const CppQuickFixInterface &interface,
+                    TextEditor::QuickFixOperations &result);
+
+    // Returns whether to still do other checks.
+    bool checkForMemberInitializer(const CppQuickFixInterface &interface,
+                                   TextEditor::QuickFixOperations &result);
+
+    void maybeAddMember(const CppQuickFixInterface &interface, CPlusPlus::Scope *scope,
+                        const QByteArray &classTypeExpr, const TypeOrExpr &typeOrExpr,
+                        const CPlusPlus::CallAST *call, TextEditor::QuickFixOperations &result);
+
+    void maybeAddStaticMember(
+        const CppQuickFixInterface &interface, const CPlusPlus::QualifiedNameAST *qualName,
+        const TypeOrExpr &typeOrExpr, const CPlusPlus::CallAST *call,
+        TextEditor::QuickFixOperations &result);
+
+    bool m_membersOnly = false;
 };
 
 /*!

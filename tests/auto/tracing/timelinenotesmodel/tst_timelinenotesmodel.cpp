@@ -63,7 +63,7 @@ void tst_TimelineNotesModel::addRemove()
     TestModel model(&aggregator);
     notes.addTimelineModel(&model);
 
-    QSignalSpy spy(&notes, SIGNAL(changed(int,int,int)));
+    QSignalSpy spy(&notes, &TestNotesModel::changed);
     int id = notes.add(model.modelId(), 0, QLatin1String("xyz"));
     QCOMPARE(spy.count(), 1);
     QCOMPARE(notes.isModified(), true);
@@ -129,7 +129,7 @@ void tst_TimelineNotesModel::modify()
     TestNotesModel notes;
     TestModel model(&aggregator);
     notes.addTimelineModel(&model);
-    QSignalSpy spy(&notes, SIGNAL(changed(int,int,int)));
+    QSignalSpy spy(&notes, &TestNotesModel::changed);
     int id = notes.add(model.modelId(), 0, QLatin1String("a"));
     QCOMPARE(spy.count(), 1);
     notes.resetModified();

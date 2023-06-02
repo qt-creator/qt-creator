@@ -25,7 +25,8 @@ BasicBundleProvider::BasicBundleProvider(QObject *parent) :
     IBundleProvider(parent)
 { }
 
-QmlBundle BasicBundleProvider::defaultBundle(const QString &bundleInfoName)
+QmlBundle BasicBundleProvider::defaultBundle(const QString &bundleInfoName,
+                                             QtSupport::QtVersion *qtVersion)
 {
     static bool wroteErrors = false;
     QmlBundle res;
@@ -37,7 +38,8 @@ QmlBundle BasicBundleProvider::defaultBundle(const QString &bundleInfoName)
         return res;
     }
     QStringList errors;
-    if (!res.readFrom(defaultBundlePath.toString(), &errors) && !wroteErrors) {
+    bool stripVersions = qtVersion && qtVersion->qtVersion().majorVersion() > 5;
+    if (!res.readFrom(defaultBundlePath.toString(), stripVersions, &errors) && !wroteErrors) {
         qWarning() << "BasicBundleProvider: ERROR reading " << defaultBundlePath
                    << " : " << errors;
         wroteErrors = true;
@@ -45,24 +47,31 @@ QmlBundle BasicBundleProvider::defaultBundle(const QString &bundleInfoName)
     return res;
 }
 
-QmlBundle BasicBundleProvider::defaultQt5QtQuick2Bundle()
+QmlBundle BasicBundleProvider::defaultQt5QtQuick2Bundle(QtSupport::QtVersion *qtVersion)
 {
-    return defaultBundle(QLatin1String("qt5QtQuick2-bundle.json"));
+    QmlBundle result = defaultBundle(QLatin1String("qt5QtQuick2-bundle.json"), qtVersion);
+    if (!qtVersion || qtVersion->qtVersion().majorVersion() < 6)
+        return result;
+    if (Utils::HostOsInfo::isMacHost())
+        result.merge(defaultBundle(QLatin1String("qt5QtQuick2ext-macos-bundle.json"), qtVersion));
+    if (Utils::HostOsInfo::isWindowsHost())
+        result.merge(defaultBundle(QLatin1String("qt5QtQuick2ext-win-bundle.json"), qtVersion));
+    return result;
 }
 
 QmlBundle BasicBundleProvider::defaultQbsBundle()
 {
-    return defaultBundle(QLatin1String("qbs-bundle.json"));
+    return defaultBundle(QLatin1String("qbs-bundle.json"), nullptr);
 }
 
 QmlBundle BasicBundleProvider::defaultQmltypesBundle()
 {
-    return defaultBundle(QLatin1String("qmltypes-bundle.json"));
+    return defaultBundle(QLatin1String("qmltypes-bundle.json"), nullptr);
 }
 
 QmlBundle BasicBundleProvider::defaultQmlprojectBundle()
 {
-    return defaultBundle(QLatin1String("qmlproject-bundle.json"));
+    return defaultBundle(QLatin1String("qmlproject-bundle.json"), nullptr);
 }
 
 void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
@@ -77,7 +86,7 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
 
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
     if (!qtVersion) {
-        QmlBundle b2(defaultQt5QtQuick2Bundle());
+        QmlBundle b2(defaultQt5QtQuick2Bundle(qtVersion));
         bundles.mergeBundleForLanguage(Dialect::Qml, b2);
         bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2, b2);
         bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2Ui, b2);
@@ -90,17 +99,18 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
     qtQuick2Bundles.setNameFilters(QStringList(QLatin1String("*-bundle.json")));
     QmlBundle qtQuick2Bundle;
     QFileInfoList list = qtQuick2Bundles.entryInfoList();
+    bool stripVersions = qtVersion->qtVersion().majorVersion() > 5;
     for (int i = 0; i < list.size(); ++i) {
         QmlBundle bAtt;
         QStringList errors;
-        if (!bAtt.readFrom(list.value(i).filePath(), &errors))
+        if (!bAtt.readFrom(list.value(i).filePath(), stripVersions, &errors))
             qWarning() << "BasicBundleProvider: ERROR reading " << list[i].filePath() << " : "
                        << errors;
         qtQuick2Bundle.merge(bAtt);
     }
     if (!qtQuick2Bundle.supportedImports().contains(QLatin1String("QtQuick 2."),
                                                     PersistentTrie::Partial)) {
-        qtQuick2Bundle.merge(defaultQt5QtQuick2Bundle());
+        qtQuick2Bundle.merge(defaultQt5QtQuick2Bundle(qtVersion));
     }
     qtQuick2Bundle.replaceVars(myReplacements);
     bundles.mergeBundleForLanguage(Dialect::Qml, qtQuick2Bundle);

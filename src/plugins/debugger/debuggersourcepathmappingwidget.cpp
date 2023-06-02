@@ -12,8 +12,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/variablechooser.h>
 
 #include <QFileDialog>
@@ -420,7 +420,7 @@ static QString findQtInstallPath(const FilePath &qmakePath)
 {
     if (qmakePath.isEmpty())
         return QString();
-    QtcProcess proc;
+    Process proc;
     proc.setCommand({qmakePath, {"-query", "QT_INSTALL_HEADERS"}});
     proc.start();
     if (!proc.waitForFinished()) {
@@ -491,12 +491,12 @@ void SourcePathMapAspect::toMap(QVariantMap &) const
     QTC_CHECK(false);
 }
 
-void SourcePathMapAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void SourcePathMapAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_CHECK(!d->m_widget);
     d->m_widget = createSubWidget<DebuggerSourcePathMappingWidget>();
     d->m_widget->setSourcePathMap(value());
-    builder.addRow(d->m_widget.data());
+    parent.addItem(d->m_widget.data());
 }
 
 QVariant SourcePathMapAspect::volatileValue() const

@@ -9,6 +9,7 @@
 #include <cppeditor/cppmodelmanager.h>
 
 #include <QMap>
+#include <QPromise>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
@@ -96,7 +97,7 @@ static BoostTestParseResult *createParseResult(const QString &name, const FilePa
 
 }
 
-bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
+bool BoostTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
                                       const FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
@@ -148,7 +149,7 @@ bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
                                                                  locationAndType.m_type,
                                                                  tmpInfo);
             currentSuite->children.append(funcResult);
-            futureInterface.reportResult(TestParseResultPtr(topLevelSuite));
+            promise.addResult(TestParseResultPtr(topLevelSuite));
         }
     }
     return true;

@@ -21,9 +21,7 @@ QtcPlugin {
         "compilationdbparser.h",
     ]
 
-    Group {
-        name: "Tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         files: [
             "compilationdatabasetests.cpp",
             "compilationdatabasetests.h",

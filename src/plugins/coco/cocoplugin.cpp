@@ -40,12 +40,13 @@ void CocoPluginPrivate::startCoco()
     auto layout = new QFormLayout();
 
     const Environment env = Environment::systemEnvironment();
-    FilePath squishCocoPath = FilePath::fromString(env.value("SQUISHCOCO"));
-    const FilePaths candidates = env.findAllInPath("coveragebrowser", {squishCocoPath});
+    const FilePath squishCocoPath = FilePath::fromUserInput(env.value("SQUISHCOCO"));
+    const FilePath candidate = FilePath("coveragebrowser").searchInPath({squishCocoPath},
+                                                                        FilePath::PrependToPath);
 
     PathChooser cocoChooser;
-    if (!candidates.isEmpty())
-        cocoChooser.setFilePath(candidates.first());
+    if (!candidate.isEmpty())
+        cocoChooser.setFilePath(candidate);
     cocoChooser.setExpectedKind(PathChooser::Command);
     cocoChooser.setPromptDialogTitle(Tr::tr("Select a Squish Coco CoverageBrowser Executable"));
 

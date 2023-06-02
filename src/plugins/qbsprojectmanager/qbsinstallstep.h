@@ -25,7 +25,7 @@ public:
     QbsInstallStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
     ~QbsInstallStep() override;
 
-    QString installRoot() const;
+    Utils::FilePath installRoot() const;
     QbsBuildStepData stepData() const;
 
 private:

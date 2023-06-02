@@ -8,6 +8,7 @@
 #include "environmentfwd.h"
 #include "filepath.h"
 #include "namevaluedictionary.h"
+#include "utiltypes.h"
 
 #include <functional>
 #include <optional>
@@ -21,28 +22,25 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT Environment final
 {
 public:
-    Environment() : m_dict(HostOsInfo::hostOs()) {}
-    explicit Environment(OsType osType) : m_dict(osType) {}
-    explicit Environment(const QStringList &env, OsType osType = HostOsInfo::hostOs())
-        : m_dict(env, osType) {}
-    explicit Environment(const NameValuePairs &nameValues) : m_dict(nameValues) {}
-    explicit Environment(const NameValueDictionary &dict) : m_dict(dict) {}
+    Environment();
+    explicit Environment(OsType osType);
+    explicit Environment(const QStringList &env, OsType osType = HostOsInfo::hostOs());
+    explicit Environment(const NameValuePairs &nameValues);
+    explicit Environment(const NameValueDictionary &dict);
 
-    QString value(const QString &key) const { return m_dict.value(key); }
-    QString value_or(const QString &key, const QString &defaultValue) const
-    {
-        return m_dict.hasKey(key) ? m_dict.value(key) : defaultValue;
-    }
-    bool hasKey(const QString &key) const { return m_dict.hasKey(key); }
+    QString value(const QString &key) const;
+    QString value_or(const QString &key, const QString &defaultValue) const;
+    bool hasKey(const QString &key) const;
 
-    void set(const QString &key, const QString &value, bool enabled = true) { m_dict.set(key, value, enabled); }
-    void unset(const QString &key) { m_dict.unset(key); }
-    void modify(const NameValueItems &items) { m_dict.modify(items); }
+    void set(const QString &key, const QString &value, bool enabled = true);
+    void setFallback(const QString &key, const QString &value);
+    void unset(const QString &key);
+    void modify(const NameValueItems &items);
 
     bool hasChanges() const;
-    void clear() { return m_dict.clear(); }
 
-    QStringList toStringList() const { return m_dict.toStringList(); }
+    OsType osType() const;
+    QStringList toStringList() const;
     QProcessEnvironment toProcessEnvironment() const;
 
     void appendOrSet(const QString &key, const QString &value, const QString &sep = QString());
@@ -54,18 +52,15 @@ public:
     void prependOrSetLibrarySearchPath(const FilePath &value);
     void prependOrSetLibrarySearchPaths(const FilePaths &values);
 
-    void setupEnglishOutput();
+    void prependToPath(const FilePaths &values);
+    void appendToPath(const FilePaths &values);
 
-    using PathFilter = std::function<bool(const FilePath &)>;
+    void setupEnglishOutput();
+    void setupSudoAskPass(const FilePath &askPass);
+
     FilePath searchInPath(const QString &executable,
                           const FilePaths &additionalDirs = FilePaths(),
-                          const PathFilter &func = PathFilter()) const;
-    FilePath searchInDirectories(const QString &executable,
-                                 const FilePaths &dirs,
-                                 const PathFilter &func = {}) const;
-    FilePaths findAllInPath(const QString &executable,
-                            const FilePaths &additionalDirs = {},
-                            const PathFilter &func = {}) const;
+                          const FilePathPredicate &func = {}) const;
 
     FilePaths path() const;
     FilePaths pathListValue(const QString &varName) const;
@@ -75,79 +70,61 @@ public:
     FilePath expandVariables(const FilePath &input) const;
     QStringList expandVariables(const QStringList &input) const;
 
-    OsType osType() const { return m_dict.osType(); }
-    QString userName() const;
-
-    using const_iterator = NameValueMap::const_iterator; // FIXME: avoid
-    NameValueDictionary toDictionary() const { return m_dict; } // FIXME: avoid
+    NameValueDictionary toDictionary() const; // FIXME: avoid
     NameValueItems diff(const Environment &other, bool checkAppendPrepend = false) const; // FIXME: avoid
 
-    QString key(const_iterator it) const { return m_dict.key(it); } // FIXME: avoid
-    QString value(const_iterator it) const { return m_dict.value(it); } // FIXME: avoid
-    bool isEnabled(const_iterator it) const { return m_dict.isEnabled(it); } // FIXME: avoid
+    struct Entry { QString key; QString value; bool enabled; };
+    using FindResult = std::optional<Entry>;
+    FindResult find(const QString &name) const; // Note res->key may differ in case from name.
 
-    void setCombineWithDeviceEnvironment(bool combine) { m_combineWithDeviceEnvironment = combine; }
-    bool combineWithDeviceEnvironment() const { return m_combineWithDeviceEnvironment; }
+    void forEachEntry(const std::function<void (const QString &, const QString &, bool)> &callBack) const;
 
-    const_iterator constBegin() const { return m_dict.constBegin(); } // FIXME: avoid
-    const_iterator constEnd() const { return m_dict.constEnd(); } // FIXME: avoid
-    const_iterator constFind(const QString &name) const { return m_dict.constFind(name); } // FIXME: avoid
-
-    friend bool operator!=(const Environment &first, const Environment &second)
-    {
-        return first.m_dict != second.m_dict;
-    }
-
-    friend bool operator==(const Environment &first, const Environment &second)
-    {
-        return first.m_dict == second.m_dict;
-    }
+    bool operator!=(const Environment &other) const;
+    bool operator==(const Environment &other) const;
 
     static Environment systemEnvironment();
 
     static void modifySystemEnvironment(const EnvironmentItems &list); // use with care!!!
     static void setSystemEnvironment(const Environment &environment);  // don't use at all!!!
 
-private:
-    NameValueDictionary m_dict;
-    bool m_combineWithDeviceEnvironment = true;
-};
-
-class QTCREATOR_UTILS_EXPORT EnvironmentChange final
-{
-public:
-    EnvironmentChange() = default;
-
     enum Type {
         SetSystemEnvironment,
         SetFixedDictionary,
         SetValue,
+        SetFallbackValue,
         UnsetValue,
-        PrependToPath,
-        AppendToPath,
+        PrependOrSet,
+        AppendOrSet,
+        Modify,
+        SetupEnglishOutput
     };
 
     using Item = std::variant<
-        std::monostate,          // SetSystemEnvironment dummy
-        NameValueDictionary,     // SetFixedDictionary
-        QPair<QString, QString>, // SetValue
-        QString,                 // UnsetValue
-        FilePath,                // PrependToPath
-        FilePath                 // AppendToPath
+        std::monostate,                          // SetSystemEnvironment dummy
+        NameValueDictionary,                     // SetFixedDictionary
+        std::tuple<QString, QString, bool>,      // SetValue (key, value, enabled)
+        std::tuple<QString, QString>,            // SetFallbackValue (key, value)
+        QString,                                 // UnsetValue (key)
+        std::tuple<QString, QString, QString>,   // PrependOrSet (key, value, separator)
+        std::tuple<QString, QString, QString>,   // AppendOrSet (key, value, separator)
+        NameValueItems,                          // Modify
+        std::monostate,                          // SetupEnglishOutput
+        FilePath                                 // SetupSudoAskPass (file path of qtc-askpass or ssh-askpass)
     >;
 
-    static EnvironmentChange fromDictionary(const NameValueDictionary &dict);
+    void addItem(const Item &item);
 
-    void applyToEnvironment(Environment &) const;
+    Environment appliedToEnvironment(const Environment &base) const;
 
-    void addSetValue(const QString &key, const QString &value);
-    void addUnsetValue(const QString &key);
-    void addPrependToPath(const FilePaths &values);
-    void addAppendToPath(const FilePaths &values);
+    const NameValueDictionary &resolved() const;
 
 private:
-    QList<Item> m_changeItems;
+    mutable QList<Item> m_changeItems;
+    mutable NameValueDictionary m_dict; // Latest resolved.
+    mutable bool m_fullDict = false;
 };
+
+using EnviromentChange = Environment;
 
 class QTCREATOR_UTILS_EXPORT EnvironmentProvider
 {

@@ -6,7 +6,7 @@
 #include "cpptoolstestcase.h"
 #include "projectinfo.h"
 
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
 
@@ -59,7 +59,7 @@ void ModelManagerTestHelper::cleanup()
     CppModelManager *mm = CppModelManager::instance();
     QList<ProjectInfo::ConstPtr> pies = mm->projectInfos();
     for (Project * const p : std::as_const(m_projects)) {
-        ProjectExplorer::SessionManager::removeProject(p);
+        ProjectExplorer::ProjectManager::removeProject(p);
         emit aboutToRemoveProject(p);
     }
 
@@ -72,7 +72,7 @@ ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(
 {
     auto tp = new TestProject(name, this, filePath);
     m_projects.push_back(tp);
-    ProjectExplorer::SessionManager::addProject(tp);
+    ProjectExplorer::ProjectManager::addProject(tp);
     emit projectAdded(tp);
     return tp;
 }

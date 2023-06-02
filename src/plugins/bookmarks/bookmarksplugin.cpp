@@ -128,14 +128,16 @@ BookmarksPluginPrivate::BookmarksPluginPrivate()
     mbm->addAction(cmd);
 
     connect(&m_toggleAction, &QAction::triggered, this, [this] {
-        BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
-        if (editor && !editor->document()->isTemporary())
+        IEditor *editor = EditorManager::currentEditor();
+        auto widget = TextEditorWidget::fromEditor(editor);
+        if (widget && editor && !editor->document()->isTemporary())
             m_bookmarkManager.toggleBookmark(editor->document()->filePath(), editor->currentLine());
     });
 
     connect(&m_editAction, &QAction::triggered, this, [this] {
-        BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
-        if (editor && !editor->document()->isTemporary()) {
+        IEditor *editor = EditorManager::currentEditor();
+        auto widget = TextEditorWidget::fromEditor(editor);
+        if (widget && editor && !editor->document()->isTemporary()) {
             const FilePath filePath = editor->document()->filePath();
             const int line = editor->currentLine();
             if (!m_bookmarkManager.hasBookmarkInPosition(filePath, line))

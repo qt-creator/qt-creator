@@ -4,7 +4,6 @@
 #pragma once
 
 #include "cppeditor_global.h"
-#include "senddocumenttracker.h"
 
 namespace Utils { class FilePath; }
 
@@ -35,10 +34,7 @@ public:
 
     virtual void resetProcessor() = 0;
 
-    SendDocumentTracker &sendTracker();
-
 private:
-    SendDocumentTracker m_sendTracker;
     RefreshReason m_refreshReason = None;
 };
 

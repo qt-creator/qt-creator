@@ -36,11 +36,11 @@ class ProjectImporter;
 class ProjectNode;
 class ProjectPrivate;
 class Target;
+enum class SetActive : int;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Project : public QObject
 {
-    friend class SessionManager; // for setActiveTarget
     Q_OBJECT
 
 public:
@@ -89,6 +89,8 @@ public:
     Target *activeTarget() const;
     Target *target(Utils::Id id) const;
     Target *target(Kit *k) const;
+    void setActiveTarget(Target *target, SetActive cascade);
+
     virtual Tasks projectIssues(const Kit *k) const;
 
     static bool copySteps(Target *sourceTarget, Target *newTarget);
@@ -107,6 +109,7 @@ public:
     bool isKnownFile(const Utils::FilePath &filename) const;
     const Node *nodeForFilePath(const Utils::FilePath &filePath,
                                 const NodeMatcher &extraMatcher = {}) const;
+    Utils::FilePaths binariesForSourceFile(const Utils::FilePath &sourceFile) const;
 
     virtual QVariantMap toMap() const;
 
@@ -226,7 +229,7 @@ private:
     void removeProjectLanguage(Utils::Id id);
 
     void handleSubTreeChanged(FolderNode *node);
-    void setActiveTarget(Target *target);
+    void setActiveTargetHelper(Target *target);
 
     friend class ContainerNode;
     ProjectPrivate *d;

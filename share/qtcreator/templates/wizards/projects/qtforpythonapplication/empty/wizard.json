@@ -26,20 +26,28 @@
         {
             "trDisplayName": "Define Project Details",
             "trShortTitle": "Details",
-            "typeId": "Fields",
-            "data" :
-            [
-                {
-                    "name": "PySideVersion",
-                    "trDisplayName": "PySide version:",
-                    "type": "ComboBox",
-                    "data":
+            "typeId": "PythonConfiguration",
+            "data":
+            {
+                "index": 0,
+                "items":
+                [
                     {
-                        "index": 1,
-                        "items": [ "PySide2", "PySide6" ]
+                        "trKey": "PySide 6",
+                        "value":
+                        {
+                            "PySideVersion": "PySide6"
+                        }
+                    },
+                    {
+                        "trKey": "PySide 2",
+                        "value":
+                        {
+                            "PySideVersion": "PySide2"
+                        }
                     }
-                }
-            ]
+                ]
+            }
         },
         {
             "trDisplayName": "Project Management",

@@ -66,33 +66,7 @@ add_qtc_library(sdktoolLib
     rmqtoperation.cpp rmqtoperation.h
     rmtoolchainoperation.cpp rmtoolchainoperation.h
     settings.cpp settings.h
-)
-
-extend_qtc_library(sdktoolLib
-  SOURCES_PREFIX "${UtilsSourcesDir}"
-  PUBLIC_DEFINES UTILS_STATIC_LIBRARY
-  SOURCES
-    commandline.cpp commandline.h
-    devicefileaccess.cpp devicefileaccess.h
-    environment.cpp environment.h
-    filepath.cpp filepath.h
-    fileutils.cpp fileutils.h
-    hostosinfo.cpp hostosinfo.h
-    macroexpander.cpp macroexpander.h
-    namevaluedictionary.cpp namevaluedictionary.h
-    namevalueitem.cpp namevalueitem.h
-    persistentsettings.cpp persistentsettings.h
-    qtcassert.cpp qtcassert.h
-    savefile.cpp savefile.h
-    stringutils.cpp stringutils.h
-)
-
-extend_qtc_library(sdktoolLib CONDITION APPLE
-  SOURCES_PREFIX "${UtilsSourcesDir}"
-  SOURCES
-    fileutils_mac.mm fileutils_mac.h
-  PUBLIC_DEPENDS
-    ${FWFoundation}
+    sdkpersistentsettings.cpp sdkpersistentsettings.h
 )
 
 if (MSVC)
@@ -120,7 +94,7 @@ add_qtc_executable(sdktool
     main.cpp
 )
 
-if (MSVC AND TARGET sdktool AND Qt5_VERSION VERSION_LESS 6.0.0)
+if (MSVC AND TARGET sdktool AND TARGET Qt5::Core)
   # find out if Qt is static and set /MT if so
   get_target_property(_input_type Qt5::Core TYPE)
   if (${_input_type} STREQUAL "STATIC_LIBRARY")

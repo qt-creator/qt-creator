@@ -5,11 +5,7 @@
 
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
-#include "cppquickfixsettings.h"
 #include "cppquickfixsettingswidget.h"
-
-#include <QCoreApplication>
-#include <QtDebug>
 
 namespace CppEditor::Internal {
 
@@ -18,27 +14,7 @@ CppQuickFixSettingsPage::CppQuickFixSettingsPage()
     setId(Constants::QUICK_FIX_SETTINGS_ID);
     setDisplayName(Tr::tr(Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
-}
-
-QWidget *CppQuickFixSettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new CppQuickFixSettingsWidget;
-        m_widget->loadSettings(CppQuickFixSettings::instance());
-    }
-    return m_widget;
-}
-
-void CppQuickFixSettingsPage::apply()
-{
-    const auto s = CppQuickFixSettings::instance();
-    m_widget->saveSettings(s);
-    s->saveAsGlobalSettings();
-}
-
-void CppQuickFixSettingsPage::finish()
-{
-    delete m_widget;
+    setWidgetCreator([] { return new CppQuickFixSettingsWidget; });
 }
 
 } // CppEditor::Internal

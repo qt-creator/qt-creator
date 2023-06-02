@@ -7,7 +7,7 @@
 #include "filetransferinterface.h"
 #include "idevicefwd.h"
 
-#include <utils/tasktree.h>
+#include <solutions/tasking/tasktree.h>
 
 namespace Utils { class ProcessResultData; }
 
@@ -46,14 +46,14 @@ private:
     FileTransferPrivate *d;
 };
 
-class PROJECTEXPLORER_EXPORT FileTransferAdapter : public Utils::Tasking::TaskAdapter<FileTransfer>
+class PROJECTEXPLORER_EXPORT FileTransferTaskAdapter : public Tasking::TaskAdapter<FileTransfer>
 {
 public:
-    FileTransferAdapter();
+    FileTransferTaskAdapter();
     void start() override { task()->start(); }
 };
 
-class PROJECTEXPLORER_EXPORT FileTransferTestAdapter : public FileTransferAdapter
+class PROJECTEXPLORER_EXPORT FileTransferTestTaskAdapter : public FileTransferTaskAdapter
 {
 public:
     void start() final { task()->test(); }
@@ -61,5 +61,5 @@ public:
 
 } // namespace ProjectExplorer
 
-QTC_DECLARE_CUSTOM_TASK(Transfer, ProjectExplorer::FileTransferAdapter);
-QTC_DECLARE_CUSTOM_TASK(TransferTest, ProjectExplorer::FileTransferTestAdapter);
+TASKING_DECLARE_TASK(FileTransferTask, ProjectExplorer::FileTransferTaskAdapter);
+TASKING_DECLARE_TASK(FileTransferTestTask, ProjectExplorer::FileTransferTestTaskAdapter);

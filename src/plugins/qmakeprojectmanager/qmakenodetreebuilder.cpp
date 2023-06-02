@@ -195,14 +195,29 @@ static void createTree(QmakeBuildSystem *buildSystem,
                     fileNode->setEnabled(fn.second == FileOrigin::ExactParse);
                     vfolder->addNestedNode(std::move(fileNode));
                 }
-                for (FolderNode *fn : vfolder->folderNodes())
-                    fn->compress();
+                vfolder->forEachFolderNode([](FolderNode *fn) { fn->compress(); });
             }
             node->addNode(std::move(vfolder));
         }
     }
 
-    if (!generatedFiles.empty()) {
+    FileType targetFileType = FileType::Unknown;
+    FilePath targetBinary;
+    if (proFile && proFile->targetInformation().valid) {
+        if (proFile->projectType() == ProjectType::ApplicationTemplate) {
+            targetFileType = FileType::App;
+            targetBinary = buildSystem->executableFor(proFile);
+        } else if (proFile->projectType() == ProjectType::SharedLibraryTemplate
+                   || proFile->projectType() == ProjectType::StaticLibraryTemplate) {
+            targetFileType = FileType::Lib;
+            const FilePaths libs = Utils::sorted(buildSystem->allLibraryTargetFiles(proFile),
+                                                 [](const FilePath &fp1, const FilePath &fp2) {
+                return fp1.fileName().length() < fp2.fileName().length(); });
+            if (!libs.isEmpty())
+                targetBinary = libs.last(); // Longest file name is the one that's not a symlink.
+        }
+    }
+    if (!generatedFiles.empty() || !targetBinary.isEmpty()) {
         QTC_CHECK(proFile);
         const FilePath baseDir = generatedFiles.size() == 1 ? generatedFiles.first().parentDir()
                                                             : buildSystem->buildDir(proFile->filePath());
@@ -213,6 +228,11 @@ static void createTree(QmakeBuildSystem *buildSystem,
             auto fileNode = std::make_unique<FileNode>(fp, FileNode::fileTypeForFileName(fp));
             fileNode->setIsGenerated(true);
             genFolder->addNestedNode(std::move(fileNode));
+        }
+        if (!targetBinary.isEmpty()) {
+            auto targetFileNode = std::make_unique<FileNode>(targetBinary, targetFileType);
+            targetFileNode->setIsGenerated(true);
+            genFolder->addNestedNode(std::move(targetFileNode));
         }
         node->addNode(std::move(genFolder));
     }

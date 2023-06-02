@@ -39,8 +39,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/session.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -49,6 +49,7 @@
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/url.h>
 #include <utils/utilsicons.h>
 
@@ -190,14 +191,14 @@ QmlProfilerTool::QmlProfilerTool()
     d->m_displayFeaturesButton->setIcon(Utils::Icons::FILTER.icon());
     d->m_displayFeaturesButton->setToolTip(Tr::tr("Hide or show event categories."));
     d->m_displayFeaturesButton->setPopupMode(QToolButton::InstantPopup);
-    d->m_displayFeaturesButton->setProperty("noArrow", true);
+    d->m_displayFeaturesButton->setProperty(StyleHelper::C_NO_ARROW, true);
     d->m_displayFeaturesMenu = new QMenu(d->m_displayFeaturesButton);
     d->m_displayFeaturesButton->setMenu(d->m_displayFeaturesMenu);
     connect(d->m_displayFeaturesMenu, &QMenu::triggered,
             this, &QmlProfilerTool::toggleVisibleFeature);
 
     d->m_timeLabel = new QLabel();
-    d->m_timeLabel->setProperty("panelwidget", true);
+    StyleHelper::setPanelWidget(d->m_timeLabel);
     d->m_timeLabel->setIndent(10);
     updateTimeDisplay();
     connect(d->m_timeLabel, &QObject::destroyed, &d->m_recordingTimer, &QTimer::stop);
@@ -540,7 +541,7 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
     d->m_viewContainer->perspective()->select();
 
     auto runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    runControl->copyDataFromRunConfiguration(SessionManager::startupRunConfiguration());
+    runControl->copyDataFromRunConfiguration(ProjectManager::startupRunConfiguration());
     auto profiler = new QmlProfilerRunner(runControl);
     profiler->setServerUrl(serverUrl);
 

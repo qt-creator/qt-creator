@@ -9,8 +9,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <utils/async.h>
 #include <utils/layoutbuilder.h>
-#include <utils/runextensions.h>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -38,10 +38,10 @@ enum { nameColumn, columnCount };
 enum { fileNameRole = Qt::UserRole, isDirectoryRole = Qt::UserRole + 1 };
 
 // Helper for recursively removing files.
-static void removeFileRecursion(QFutureInterface<void> &futureInterface,
-                                const QFileInfo &f, QString *errorMessage)
+static void removeFileRecursion(QPromise<void> &promise, const QFileInfo &f,
+                                QString *errorMessage)
 {
-    if (futureInterface.isCanceled())
+    if (promise.isCanceled())
         return;
     // The version control system might list files/directory in arbitrary
     // order, causing files to be removed from parent directories.
@@ -51,7 +51,7 @@ static void removeFileRecursion(QFutureInterface<void> &futureInterface,
         const QDir dir(f.absoluteFilePath());
         const QList<QFileInfo> infos = dir.entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden);
         for (const QFileInfo &fi : infos)
-            removeFileRecursion(futureInterface, fi, errorMessage);
+            removeFileRecursion(promise, fi, errorMessage);
         QDir parent = f.absoluteDir();
         if (!parent.rmdir(f.fileName()))
             errorMessage->append(Tr::tr("The directory %1 could not be deleted.")
@@ -67,18 +67,19 @@ static void removeFileRecursion(QFutureInterface<void> &futureInterface,
 }
 
 // Cleaning files in the background
-static void runCleanFiles(QFutureInterface<void> &futureInterface,
-                          const FilePath &repository, const QStringList &files,
+static void runCleanFiles(QPromise<void> &promise, const FilePath &repository,
+                          const QStringList &files,
                           const std::function<void(const QString&)> &errorHandler)
 {
     QString errorMessage;
-    futureInterface.setProgressRange(0, files.size());
-    futureInterface.setProgressValue(0);
+    promise.setProgressRange(0, files.size());
+    promise.setProgressValue(0);
+    int fileIndex = 0;
     for (const QString &name : files) {
-        removeFileRecursion(futureInterface, QFileInfo(name), &errorMessage);
-        if (futureInterface.isCanceled())
+        removeFileRecursion(promise, QFileInfo(name), &errorMessage);
+        if (promise.isCanceled())
             break;
-        futureInterface.setProgressValue(futureInterface.progressValue() + 1);
+        promise.setProgressValue(++fileIndex);
     }
     if (!errorMessage.isEmpty()) {
         // Format and emit error.
@@ -258,8 +259,8 @@ bool CleanDialog::promptToDelete()
         return false;
 
     // Remove in background
-    QFuture<void> task = runAsync(Internal::runCleanFiles, d->m_workingDirectory,
-                                  selectedFiles, Internal::handleError);
+    QFuture<void> task = Utils::asyncRun(Internal::runCleanFiles, d->m_workingDirectory,
+                                         selectedFiles, Internal::handleError);
 
     const QString taskName = Tr::tr("Cleaning \"%1\"").arg(d->m_workingDirectory.toUserOutput());
     Core::ProgressManager::addTask(task, taskName, "VcsBase.cleanRepository");

@@ -5,9 +5,9 @@
 #include "iosconfigurations.h"
 
 #include <utils/algorithm.h>
-#include <utils/runextensions.h>
+#include <utils/async.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #ifdef Q_OS_MAC
 #include <CoreFoundation/CoreFoundation.h>
@@ -57,7 +57,7 @@ static bool checkForTimeout(const chrono::high_resolution_clock::time_point &sta
 
 static bool runCommand(const CommandLine &command, QString *stdOutput, QString *allOutput = nullptr)
 {
-    QtcProcess p;
+    Process p;
     p.setTimeoutS(-1);
     p.setCommand(command);
     p.runBlocking();
@@ -98,7 +98,7 @@ static bool launchSimulator(const QString &simUdid) {
         }
     }
 
-    return QtcProcess::startDetached({simulatorAppPath, {"--args", "-CurrentDeviceUDID", simUdid}});
+    return Process::startDetached({simulatorAppPath, {"--args", "-CurrentDeviceUDID", simUdid}});
 }
 
 static bool isAvailable(const QJsonObject &object)
@@ -162,30 +162,30 @@ static SimulatorInfo deviceInfo(const QString &simUdid);
 static QString bundleIdentifier(const Utils::FilePath &bundlePath);
 static QString bundleExecutable(const Utils::FilePath &bundlePath);
 
-static void startSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi,
+static void startSimulator(QPromise<SimulatorControl::ResponseData> &promise,
                            const QString &simUdid);
-static void installApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
+static void installApp(QPromise<SimulatorControl::ResponseData> &promise,
                        const QString &simUdid,
                        const Utils::FilePath &bundlePath);
-static void launchApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
+static void launchApp(QPromise<SimulatorControl::ResponseData> &promise,
                       const QString &simUdid,
                       const QString &bundleIdentifier,
                       bool waitForDebugger,
                       const QStringList &extraArgs,
                       const QString &stdoutPath,
                       const QString &stderrPath);
-static void deleteSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi,
+static void deleteSimulator(QPromise<SimulatorControl::ResponseData> &promise,
                             const QString &simUdid);
-static void resetSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi,
+static void resetSimulator(QPromise<SimulatorControl::ResponseData> &promise,
                            const QString &simUdid);
-static void renameSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi,
+static void renameSimulator(QPromise<SimulatorControl::ResponseData> &promise,
                             const QString &simUdid,
                             const QString &newName);
-static void createSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi,
+static void createSimulator(QPromise<SimulatorControl::ResponseData> &promise,
                             const QString &name,
                             const DeviceTypeInfo &deviceType,
                             const RuntimeInfo &runtime);
-static void takeSceenshot(QFutureInterface<SimulatorControl::ResponseData> &fi,
+static void takeSceenshot(QPromise<SimulatorControl::ResponseData> &promise,
                           const QString &simUdid,
                           const QString &filePath);
 
@@ -234,10 +234,10 @@ static QList<SimulatorInfo> getAvailableSimulators()
     return availableDevices;
 }
 
-QFuture<QList<DeviceTypeInfo> > SimulatorControl::updateDeviceTypes()
+QFuture<QList<DeviceTypeInfo>> SimulatorControl::updateDeviceTypes(QObject *context)
 {
-    QFuture< QList<DeviceTypeInfo> > future = Utils::runAsync(getAvailableDeviceTypes);
-    Utils::onResultReady(future, [](const QList<DeviceTypeInfo> &deviceTypes) {
+    QFuture<QList<DeviceTypeInfo>> future = Utils::asyncRun(getAvailableDeviceTypes);
+    Utils::onResultReady(future, context, [](const QList<DeviceTypeInfo> &deviceTypes) {
         s_availableDeviceTypes = deviceTypes;
     });
     return future;
@@ -248,20 +248,21 @@ QList<RuntimeInfo> SimulatorControl::availableRuntimes()
     return s_availableRuntimes;
 }
 
-QFuture<QList<RuntimeInfo> > SimulatorControl::updateRuntimes()
+QFuture<QList<RuntimeInfo>> SimulatorControl::updateRuntimes(QObject *context)
 {
-    QFuture< QList<RuntimeInfo> > future = Utils::runAsync(getAvailableRuntimes);
-    Utils::onResultReady(future, [](const QList<RuntimeInfo> &runtimes) {
+    QFuture<QList<RuntimeInfo>> future = Utils::asyncRun(getAvailableRuntimes);
+    Utils::onResultReady(future, context, [](const QList<RuntimeInfo> &runtimes) {
         s_availableRuntimes = runtimes;
     });
     return future;
 }
 
-QFuture< QList<SimulatorInfo> > SimulatorControl::updateAvailableSimulators()
+QFuture<QList<SimulatorInfo>> SimulatorControl::updateAvailableSimulators(QObject *context)
 {
-    QFuture< QList<SimulatorInfo> > future = Utils::runAsync(getAvailableSimulators);
-    Utils::onResultReady(future,
-                         [](const QList<SimulatorInfo> &devices) { s_availableDevices = devices; });
+    QFuture<QList<SimulatorInfo>> future = Utils::asyncRun(getAvailableSimulators);
+    Utils::onResultReady(future, context, [](const QList<SimulatorInfo> &devices) {
+        s_availableDevices = devices;
+    });
     return future;
 }
 
@@ -284,13 +285,13 @@ QString SimulatorControl::bundleExecutable(const Utils::FilePath &bundlePath)
 
 QFuture<SimulatorControl::ResponseData> SimulatorControl::startSimulator(const QString &simUdid)
 {
-    return Utils::runAsync(Internal::startSimulator, simUdid);
+    return Utils::asyncRun(Internal::startSimulator, simUdid);
 }
 
 QFuture<SimulatorControl::ResponseData> SimulatorControl::installApp(
     const QString &simUdid, const Utils::FilePath &bundlePath)
 {
-    return Utils::runAsync(Internal::installApp, simUdid, bundlePath);
+    return Utils::asyncRun(Internal::installApp, simUdid, bundlePath);
 }
 
 QFuture<SimulatorControl::ResponseData> SimulatorControl::launchApp(const QString &simUdid,
@@ -300,7 +301,7 @@ QFuture<SimulatorControl::ResponseData> SimulatorControl::launchApp(const QStrin
                                                                     const QString &stdoutPath,
                                                                     const QString &stderrPath)
 {
-    return Utils::runAsync(Internal::launchApp,
+    return Utils::asyncRun(Internal::launchApp,
                            simUdid,
                            bundleIdentifier,
                            waitForDebugger,
@@ -311,18 +312,18 @@ QFuture<SimulatorControl::ResponseData> SimulatorControl::launchApp(const QStrin
 
 QFuture<SimulatorControl::ResponseData> SimulatorControl::deleteSimulator(const QString &simUdid)
 {
-    return Utils::runAsync(Internal::deleteSimulator, simUdid);
+    return Utils::asyncRun(Internal::deleteSimulator, simUdid);
 }
 
 QFuture<SimulatorControl::ResponseData> SimulatorControl::resetSimulator(const QString &simUdid)
 {
-    return Utils::runAsync(Internal::resetSimulator, simUdid);
+    return Utils::asyncRun(Internal::resetSimulator, simUdid);
 }
 
 QFuture<SimulatorControl::ResponseData> SimulatorControl::renameSimulator(const QString &simUdid,
                                                                           const QString &newName)
 {
-    return Utils::runAsync(Internal::renameSimulator, simUdid, newName);
+    return Utils::asyncRun(Internal::renameSimulator, simUdid, newName);
 }
 
 QFuture<SimulatorControl::ResponseData>
@@ -330,13 +331,13 @@ SimulatorControl::createSimulator(const QString &name,
                                   const DeviceTypeInfo &deviceType,
                                   const RuntimeInfo &runtime)
 {
-    return Utils::runAsync(Internal::createSimulator, name, deviceType, runtime);
+    return Utils::asyncRun(Internal::createSimulator, name, deviceType, runtime);
 }
 
 QFuture<SimulatorControl::ResponseData> SimulatorControl::takeSceenshot(const QString &simUdid,
                                                                         const QString &filePath)
 {
-    return Utils::runAsync(Internal::takeSceenshot, simUdid, filePath);
+    return Utils::asyncRun(Internal::takeSceenshot, simUdid, filePath);
 }
 
 // Static members
@@ -392,7 +393,7 @@ QString bundleExecutable(const Utils::FilePath &bundlePath)
     return executable;
 }
 
-void startSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi, const QString &simUdid)
+void startSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
     SimulatorInfo simInfo = deviceInfo(simUdid);
@@ -420,7 +421,7 @@ void startSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi, const 
 
     if (simInfo.isShutdown()) {
         if (launchSimulator(simUdid)) {
-            if (fi.isCanceled())
+            if (promise.isCanceled())
                 return;
             // At this point the sim device exists, available and was not running.
             // So the simulator is started and we'll wait for it to reach to a state
@@ -429,13 +430,11 @@ void startSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi, const 
             SimulatorInfo info;
             do {
                 info = deviceInfo(simUdid);
-                if (fi.isCanceled())
+                if (promise.isCanceled())
                     return;
-            } while (!info.isBooted()
-                     && !checkForTimeout(start, simulatorStartTimeout));
-            if (info.isBooted()) {
+            } while (!info.isBooted() && !checkForTimeout(start, simulatorStartTimeout));
+            if (info.isBooted())
                 response.success = true;
-            }
         } else {
             qCDebug(simulatorLog) << "Error starting simulator.";
         }
@@ -444,14 +443,12 @@ void startSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi, const 
                              << simInfo;
     }
 
-    if (!fi.isCanceled()) {
-        fi.reportResult(response);
-    }
+    if (!promise.isCanceled())
+        promise.addResult(response);
 }
 
-void installApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
-                const QString &simUdid,
-                const Utils::FilePath &bundlePath)
+void installApp(QPromise<SimulatorControl::ResponseData> &promise,
+                const QString &simUdid, const Utils::FilePath &bundlePath)
 {
     QTC_CHECK(bundlePath.exists());
 
@@ -459,11 +456,11 @@ void installApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
     response.success = runSimCtlCommand({"install", simUdid, bundlePath.toString()},
                                         nullptr,
                                         &response.commandOutput);
-    if (!fi.isCanceled())
-        fi.reportResult(response);
+    if (!promise.isCanceled())
+        promise.addResult(response);
 }
 
-void launchApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
+void launchApp(QPromise<SimulatorControl::ResponseData> &promise,
                const QString &simUdid,
                const QString &bundleIdentifier,
                bool waitForDebugger,
@@ -472,7 +469,7 @@ void launchApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
                const QString &stderrPath)
 {
     SimulatorControl::ResponseData response(simUdid);
-    if (!bundleIdentifier.isEmpty() && !fi.isCanceled()) {
+    if (!bundleIdentifier.isEmpty() && !promise.isCanceled()) {
         QStringList args({"launch", simUdid, bundleIdentifier});
 
         // simctl usage documentation : Note: Log output is often directed to stderr, not stdout.
@@ -499,30 +496,29 @@ void launchApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
         }
     }
 
-    if (!fi.isCanceled()) {
-        fi.reportResult(response);
-    }
+    if (!promise.isCanceled())
+        promise.addResult(response);
 }
 
-void deleteSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi, const QString &simUdid)
+void deleteSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
     response.success = runSimCtlCommand({"delete", simUdid}, nullptr, &response.commandOutput);
 
-    if (!fi.isCanceled())
-        fi.reportResult(response);
+    if (!promise.isCanceled())
+        promise.addResult(response);
 }
 
-void resetSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi, const QString &simUdid)
+void resetSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
     response.success = runSimCtlCommand({"erase", simUdid}, nullptr, &response.commandOutput);
 
-    if (!fi.isCanceled())
-        fi.reportResult(response);
+    if (!promise.isCanceled())
+        promise.addResult(response);
 }
 
-void renameSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi,
+void renameSimulator(QPromise<SimulatorControl::ResponseData> &promise,
                      const QString &simUdid,
                      const QString &newName)
 {
@@ -530,12 +526,11 @@ void renameSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi,
     response.success = runSimCtlCommand({"rename", simUdid, newName},
                                         nullptr,
                                         &response.commandOutput);
-
-    if (!fi.isCanceled())
-        fi.reportResult(response);
+    if (!promise.isCanceled())
+        promise.addResult(response);
 }
 
-void createSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi,
+void createSimulator(QPromise<SimulatorControl::ResponseData> &promise,
                      const QString &name,
                      const DeviceTypeInfo &deviceType,
                      const RuntimeInfo &runtime)
@@ -550,11 +545,11 @@ void createSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi,
         response.simUdid = response.success ? stdOutput.trimmed() : QString();
     }
 
-    if (!fi.isCanceled())
-        fi.reportResult(response);
+    if (!promise.isCanceled())
+        promise.addResult(response);
 }
 
-void takeSceenshot(QFutureInterface<SimulatorControl::ResponseData> &fi,
+void takeSceenshot(QPromise<SimulatorControl::ResponseData> &promise,
                    const QString &simUdid,
                    const QString &filePath)
 {
@@ -562,8 +557,8 @@ void takeSceenshot(QFutureInterface<SimulatorControl::ResponseData> &fi,
     response.success = runSimCtlCommand({"io", simUdid, "screenshot", filePath},
                                         nullptr,
                                         &response.commandOutput);
-    if (!fi.isCanceled())
-        fi.reportResult(response);
+    if (!promise.isCanceled())
+        promise.addResult(response);
 }
 
 QDebug &operator<<(QDebug &stream, const SimulatorInfo &info)

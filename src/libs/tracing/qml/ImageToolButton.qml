@@ -22,10 +22,12 @@ ToolButton {
         smooth: false
     }
 
-    background: Rectangle {
+    background: PaddedRectangle {
+        padding: Theme.compactToolbar() ? 0 : 3
+        radius: Theme.compactToolbar() ? 0 : 5
         color: (parent.checked || parent.pressed)
                ? Theme.color(Theme.FancyToolButtonSelectedColor)
-               : parent.hovered
+               : (parent.hovered && parent.enabled)
                  ? Theme.color(Theme.FancyToolButtonHoverColor)
                  : "#00000000"
     }

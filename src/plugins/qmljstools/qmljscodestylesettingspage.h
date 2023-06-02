@@ -6,16 +6,8 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 
-#include <QWidget>
-#include <QPointer>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace TextEditor {
     class FontSettings;
-    class CodeStyleEditor;
     class SimpleCodeStylePreferencesWidget;
     class SnippetEditorWidget;
 }
@@ -54,14 +46,6 @@ class QmlJSCodeStyleSettingsPage : public Core::IOptionsPage
 {
 public:
     QmlJSCodeStyleSettingsPage();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QmlJSCodeStylePreferences *m_preferences = nullptr;
-    QPointer<TextEditor::CodeStyleEditor> m_widget;
 };
 
 } // namespace Internal

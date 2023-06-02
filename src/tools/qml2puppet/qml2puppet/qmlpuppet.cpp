@@ -8,6 +8,7 @@
 #include <sqlitelibraryinitializer.h>
 #endif
 
+#include <app/app_version.h>
 #include <qml2puppet/iconrenderer/iconrenderer.h>
 #include <qml2puppet/import3d/import3d.h>
 

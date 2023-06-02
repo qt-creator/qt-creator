@@ -28,6 +28,7 @@ static inline quint64 getFileLimit()
 
 /*!
     \class Utils::FileSystemWatcher
+    \inmodule QtCreator
     \brief The FileSystemWatcher class is a file watcher that internally uses
            a centralized QFileSystemWatcher
            and enforces limits on Mac OS.
@@ -187,7 +188,7 @@ void FileSystemWatcherPrivate::autoReloadPostponed(bool postponed)
 }
 
 /*!
-    Adds directories to watcher 0.
+    Creates a file system watcher with the ID 0 and the owner \a parent.
 */
 
 FileSystemWatcher::FileSystemWatcher(QObject *parent) :
@@ -197,7 +198,7 @@ FileSystemWatcher::FileSystemWatcher(QObject *parent) :
 }
 
 /*!
-    Adds directories to a watcher with the specified \a id.
+    Creates a file system watcher with the ID \a id and the owner \a parent.
 */
 
 FileSystemWatcher::FileSystemWatcher(int id, QObject *parent) :
@@ -276,15 +277,19 @@ void FileSystemWatcher::addFiles(const QStringList &files, WatchMode wm)
         const int count = ++d->m_staticData->m_fileCount[file];
         Q_ASSERT(count > 0);
 
-        if (count == 1)
+        if (count == 1) {
             toAdd << file;
 
-        const QString directory = QFileInfo(file).path();
-        const int dirCount = ++d->m_staticData->m_directoryCount[directory];
-        Q_ASSERT(dirCount > 0);
+            QFileInfo fi(file);
+            if (!fi.exists()) {
+                const QString directory = fi.path();
+                const int dirCount = ++d->m_staticData->m_directoryCount[directory];
+                Q_ASSERT(dirCount > 0);
 
-        if (dirCount == 1)
-            toAdd << directory;
+                if (dirCount == 1)
+                    toAdd << directory;
+            }
+        }
     }
 
     if (!toAdd.isEmpty())
@@ -312,15 +317,19 @@ void FileSystemWatcher::removeFiles(const QStringList &files)
         const int count = --(d->m_staticData->m_fileCount[file]);
         Q_ASSERT(count >= 0);
 
-        if (!count)
+        if (!count) {
             toRemove << file;
 
-        const QString directory = QFileInfo(file).path();
-        const int dirCount = --d->m_staticData->m_directoryCount[directory];
-        Q_ASSERT(dirCount >= 0);
+            QFileInfo fi(file);
+            if (!fi.exists()) {
+                const QString directory = fi.path();
+                const int dirCount = --d->m_staticData->m_directoryCount[directory];
+                Q_ASSERT(dirCount >= 0);
 
-        if (!dirCount)
-            toRemove << directory;
+                if (!dirCount)
+                    toRemove << directory;
+            }
+        }
     }
 
     if (!toRemove.isEmpty())
@@ -419,13 +428,27 @@ QStringList FileSystemWatcher::directories() const
 void FileSystemWatcher::slotFileChanged(const QString &path)
 {
     const auto it = d->m_files.find(path);
+    QStringList toAdd;
     if (it != d->m_files.end() && it.value().trigger(path)) {
         qCDebug(fileSystemWatcherLog)
             << this << "triggers on file" << it.key()
             << it.value().watchMode
             << it.value().modifiedTime.toString(Qt::ISODate);
         d->fileChanged(path);
+
+        QFileInfo fi(path);
+        if (!fi.exists()) {
+            const QString directory = fi.path();
+            const int dirCount = ++d->m_staticData->m_directoryCount[directory];
+            Q_ASSERT(dirCount > 0);
+
+            if (dirCount == 1)
+                toAdd << directory;
+        }
     }
+
+    if (!toAdd.isEmpty())
+        d->m_staticData->m_watcher->addPaths(toAdd);
 }
 
 void FileSystemWatcher::slotDirectoryChanged(const QString &path)
@@ -451,9 +474,20 @@ void FileSystemWatcher::slotDirectoryChanged(const QString &path)
         for (const QString &rejected : d->m_staticData->m_watcher->addPaths(toReadd))
             toReadd.removeOne(rejected);
 
+        QStringList toRemove;
         // If we've successfully added the file, that means it was deleted and replaced.
-        for (const QString &reAdded : std::as_const(toReadd))
+        for (const QString &reAdded : std::as_const(toReadd)) {
             d->fileChanged(reAdded);
+            const QString directory = QFileInfo(reAdded).path();
+            const int dirCount = --d->m_staticData->m_directoryCount[directory];
+            Q_ASSERT(dirCount >= 0);
+
+            if (!dirCount)
+                toRemove << directory;
+        }
+
+        if (!toRemove.isEmpty())
+            d->m_staticData->m_watcher->removePaths(toRemove);
     }
 }
 

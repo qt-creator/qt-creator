@@ -3,6 +3,7 @@
 
 #include "fileapidataextractor.h"
 
+#include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
@@ -13,8 +14,8 @@
 
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
 #include <projectexplorer/projecttree.h>
@@ -26,6 +27,8 @@ using namespace Utils;
 using namespace CMakeProjectManager::Internal::FileApiDetails;
 
 namespace CMakeProjectManager::Internal {
+
+static Q_LOGGING_CATEGORY(cmakeLogger, "qtc.cmake.fileApiExtractor", QtWarningMsg);
 
 // --------------------------------------------------------------------
 // Helpers:
@@ -53,7 +56,24 @@ CMakeFileResult extractCMakeFilesData(const std::vector<CMakeFileInfo> &cmakefil
         const int oldCount = result.cmakeFiles.count();
         CMakeFileInfo absolute(info);
         absolute.path = sfn;
+
+        const auto mimeType = Utils::mimeTypeForFile(info.path);
+        if (mimeType.matchesName(Constants::CMAKE_MIMETYPE)
+            || mimeType.matchesName(Constants::CMAKE_PROJECT_MIMETYPE)) {
+            expected_str<QByteArray> fileContent = sfn.fileContents();
+            std::string errorString;
+            if (fileContent) {
+                fileContent = fileContent->replace("\r\n", "\n");
+                if (!absolute.cmakeListFile.ParseString(fileContent->toStdString(),
+                                                        sfn.fileName().toStdString(),
+                                                        errorString))
+                    qCWarning(cmakeLogger)
+                        << "Failed to parse:" << sfn.path() << QString::fromLatin1(errorString);
+            }
+        }
+
         result.cmakeFiles.insert(absolute);
+
         if (oldCount < result.cmakeFiles.count()) {
             if (info.isCMake && !info.isCMakeListsDotTxt) {
                 // Skip files that cmake considers to be part of the installation -- but include
@@ -245,7 +265,7 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                         continue;
 
                     // CMake sometimes mixes several shell-escaped pieces into one fragment. Disentangle that again:
-                    const QStringList parts = ProcessArgs::splitArgs(f.fragment);
+                    const QStringList parts = ProcessArgs::splitArgs(f.fragment, HostOsInfo::hostOs());
                     for (QString part : parts) {
                         // Library search paths that are added with target_link_directories are added as
                         // -LIBPATH:... (Windows/MSVC), or
@@ -264,7 +284,7 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                             continue;
 
                         const FilePath buildDir = haveLibrariesRelativeToBuildDirectory ? buildDirectory : currentBuildDir;
-                        FilePath tmp = buildDir.resolvePath(FilePath::fromUserInput(part).onDevice(buildDir));
+                        FilePath tmp = buildDir.resolvePath(part);
 
                         if (f.role == "libraries")
                             tmp = tmp.parentDir();
@@ -306,7 +326,7 @@ static QStringList splitFragments(const QStringList &fragments)
 {
     QStringList result;
     for (const QString &f : fragments) {
-        result += ProcessArgs::splitArgs(f);
+        result += ProcessArgs::splitArgs(f, HostOsInfo::hostOs());
     }
     return result;
 }
@@ -497,11 +517,8 @@ FolderNode *createSourceGroupNode(const QString &sourceGroupName,
         const QStringList parts = sourceGroupName.split("\\");
 
         for (const QString &p : parts) {
-            FolderNode *existingNode = Utils::findOrDefault(currentNode->folderNodes(),
-                                                            [&p](const FolderNode *fn) {
-                                                                return fn->displayName() == p;
-                                                            });
-
+            FolderNode *existingNode = currentNode->findChildFolderNode(
+                [&p](const FolderNode *fn) { return fn->displayName() == p; });
             if (!existingNode) {
                 auto node = createCMakeVFolder(sourceDirectory, Node::DefaultFolderPriority + 5, p);
                 node->setListInProject(false);
@@ -605,6 +622,28 @@ void addCompileGroups(ProjectNode *targetRoot,
                     std::move(otherFileNodes));
 }
 
+static void addGeneratedFilesNode(ProjectNode *targetRoot, const FilePath &topLevelBuildDir,
+                                  const TargetDetails &td)
+{
+    if (td.artifacts.isEmpty())
+        return;
+    FileType type = FileType::Unknown;
+    if (td.type == "EXECUTABLE")
+        type = FileType::App;
+    else if (td.type == "SHARED_LIBRARY" || td.type == "STATIC_LIBRARY")
+        type = FileType::Lib;
+    if (type == FileType::Unknown)
+        return;
+    std::vector<std::unique_ptr<FileNode>> nodes;
+    const FilePath buildDir = topLevelBuildDir.resolvePath(td.buildDir);
+    for (const FilePath &artifact : td.artifacts) {
+        nodes.emplace_back(new FileNode(buildDir.resolvePath(artifact), type));
+        type = FileType::Unknown;
+        nodes.back()->setIsGenerated(true);
+    }
+    addCMakeVFolder(targetRoot, buildDir, 10, Tr::tr("<Generated Files>"), std::move(nodes));
+}
+
 void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                 const Configuration &config,
                 const std::vector<TargetDetails> &targetDetails,
@@ -635,6 +674,7 @@ void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cm
         tNode->setBuildDirectory(directoryBuildDir(config, buildDir, t.directory));
 
         addCompileGroups(tNode, sourceDir, dir, tNode->buildDirectory(), td);
+        addGeneratedFilesNode(tNode, buildDir, td);
     }
 }
 
@@ -670,6 +710,9 @@ std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
                        std::move(data.cmakeNodesSource),
                        std::move(data.cmakeNodesBuild),
                        std::move(data.cmakeNodesOther));
+
+
+    addCMakePresets(result.get(), sourceDirectory);
 
     data.cmakeNodesSource.clear(); // Remove all the nullptr in the vector...
     data.cmakeNodesBuild.clear();  // Remove all the nullptr in the vector...

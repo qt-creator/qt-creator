@@ -22,5 +22,7 @@ const char SETTINGS_GROUP[]{"McuSupport"};
 const char SETTINGS_KEY_PACKAGE_PREFIX[]{"Package_"};
 const char SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK[]{"QtForMCUsSdk"}; // Key known by SDK installer
 const char SETTINGS_KEY_AUTOMATIC_KIT_CREATION[]{"AutomaticKitCreation"};
+// Used to decide which platform will be displayed first in the MCU Options page
+const char SETTINGS_KEY_INITIAL_PLATFORM_KEY[]{"McuSupport.InitialPlatform"};
 
 } // namespace McuSupport::Internal::Constants

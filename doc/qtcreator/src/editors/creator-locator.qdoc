@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -15,7 +15,9 @@
     To open it as a centered popup, click \inlineimage icons/magnifier.png
     (\uicontrol Options) in it and select \uicontrol {Open as Centered Popup}.
 
-    \image qtcreator-locator.png "List of locator filters"
+    \image qtcreator-locator.webp "List of locator filters"
+
+    \section1 Activating the Locator
 
     To activate the locator:
 
@@ -32,43 +34,35 @@
 
     \endlist
 
-    To open a QML file called \e HelloWorld.qml in the currently open project
-    using the locator:
+    \section1 Using Locator Filters
 
-    \list 1
+    You can locate not only files, but any items defined by \e{locator filters},
+    as well as trigger global actions and perform other tasks, such as build
+    projects or run external tools.
 
-        \li Activate the locator by pressing \key {Ctrl+K}.
+    The filters that are available depend on the file type. For more information
+    about what a particular locator filter does, see the tooltips that appear
+    when you hover over a filter in the locator. For longer descriptions of the
+    filters, select \uicontrol Configure to open the \uicontrol Locator
+    \l{Creating Locator Filters}{preferences}.
 
-        \li Start typing the filename.
+    To use a locator filter, type its prefix followed by \key Space. The prefix
+    is usually short, from one to three characters. Then type the search string
+    (for example, a filename or class name) or the command to execute.
 
-            \image qtcreator-locator-open.png "List of files found in the locator"
+    You can also double-click a locator filter in the filter list to use it. Use
+    the up and down arrow keys or the \key Ctrl+P and \key Ctrl+N
+    keyboard shortcuts to move up and down the list, and then press \key Enter
+    to use the selected filter.
 
-        \li Move to the filename in the list and press \key Enter.
-
-            The file opens in the editor.
-
-        \li To move to a line in the file, enter the line number in the locator.
-
-    \endlist
-
-    To move directly to a particular line and column in the document when you
-    open the document, append them to the file name in the locator, separated by
-    plus signs (+) or colons (:). For example, to open \e HelloWorld.qml to line
-    41 and column 2, enter: \c {HelloWorld.qml:41:2}.
-
-    If the path to a file is very long, it might not fit into the locator
-    window. To view the full path, press \key Alt when the filename is selected
-    or use the handle next to the locator window to increase the window width.
-
-    It is also possible to enter only a part of a search string. As you type,
+    As you type a search string,
     the locator shows the occurrences of that string regardless of where in the
     name of an component it appears. Some locator filters, such as colon, \c m,
     and \c t, support \e fuzzy matching, which means that you can enter the
     uppercase letters to locate a symbol when using camel case or the letters
     after the underscore when using snake case.
 
-    To narrow down the search results, you can use the following wildcard
-    characters:
+    To narrow down the search results, use the following wildcard characters:
 
     \list
 
@@ -78,117 +72,69 @@
 
     \endlist
 
-    \section1 Using Locator Filters
+    \section2 Locating Files
 
-    The locator enables you to browse not only files, but any items defined by
-    \b{locator filters}. The filters that are available depend on the file type:
+    For example, to open a QML file called \e HelloWorld.qml in the currently
+    open project using the locator:
 
-    \list
+    \list 1
 
-        \li Locating any open document (\c {o})
+        \li Press \key {Ctrl+K} to activate the locator.
 
-        \li Locating files anywhere on your file system (\c {f}). You can use
-            environment variables in the \c {f} filter. For example, use
-            \c {f $ENVVAR} to expand the environment variable \c ENVVAR on Unix
-            systems and \c {f %ENVVAR%} to expand it on Windows systems.
+        \li Start typing the filename.
 
-        \li Locating files belonging to your project (\c {p}), such as source,
-            header, resource, and \c {.ui} files, or to any project (\c {a})
+            \image qtcreator-locator-open.webp "List of files found in the locator"
 
-        \if defined(qtcreator)
-        \li Locating bookmarks (\c {b}).
-            For more information, see \l{Using Bookmarks}.
+        \li Use the arrow keys to move to the filename in the list and press
+            \key Enter.
 
-        \li Locating class (\c {c}), enum, function (\c {m}), and type alias
-            definitions in your project or anywhere referenced from your
-            project (\c {:})
-        \endif
+            The file opens in the editor.
 
-        \li Locating QML methods (\c {m})
-
-        \li Locating symbols in the current document (\c {.})
-
-        \li Locating a specific line and column in the document displayed in
-            your editor (\c {l <line_number>:<column_number>})
-
-        \li Opening help topics, including Qt documentation (\c {?})
-
-        \li Performing web searches (\c {r})
-
-        \if defined(qtcreator)
-        \li Running text editing macros that you record and save (\c {rm}). For
-            more information, see \l{Using Text Editing Macros}
-        \endif
-
-        \li Executing JavaScript (\c {=}), especially useful for calculations.
-            For more information, see \l{Executing JavaScript}.
-
-        \li Executing shell commands (\c {!})
-
-        \li Executing version control system commands
-            \if defined(qtcreator)
-            (\c {bzr}, \c {cvs}, \c {git}, \c {hg}, or \c {svn}).
-            For more information, see \l{Using Version Control Systems}.
-            \else
-            (\c {git}). For more information, see \l{Using Git}.
-            \endif
-
-        \li Triggering actions (\c {t})
-
-        \li Searching for issues from the \l{https://bugreports.qt.io/}
-            {Qt Project Bug Tracker} (\c bug).
-
-        \li Searching for applications, documents, and other files by using
-            platform-specific external tools or commands (\c md). The following
-            tools are used by default, but you can configure the locator to
-            use any other command:
-
-            \list
-                \li On \macOS: using Spotlight
-                \li On Windows: using \l{https://www.voidtools.com/downloads/}
-                    {Everything}
-                \li On Linux: using the \c Locate command
-            \endlist
-
-        \if defined(qtcreator)
-        \li Running external tools (\c x)
-        \li Using CMake to build the project for the current run configuration
-            (\c {cm}). For more information, see \l {Setting up CMake}.
-        \li Opening the CMakeLists.txt file for the current run configuration in
-            the editor (\c {cmo}). This is the same build target as when you
-            select \uicontrol Build > \uicontrol {Build for Run Configuration}.
-        \li Running a particular run configuration (\c {rr} \e {<name>})
-        \li Switching to a particular run configuration (\c {sr} \e {<name>})
-        \endif
+        \li To move to a line in the file, enter the line number in the locator.
 
     \endlist
 
-    To use a specific locator filter, type the assigned prefix followed by
-    \key Space. The prefix is usually a single character. Then type the search
-    string (typically, a filename or class name) or the command to execute.
-
-    You can also double-click a locator filter in the filter list to use it. You
-    can use the up and down arrow keys or the \key Ctrl+P and \key Ctrl+N
-    keyboard shortcuts to move up and down the list, and then press \key Enter
-    to use the selected filter.
+    If the path to a file is very long, it might not fit into the locator
+    window. To view the full path, press \key Alt when the filename is selected
+    or use the handle next to the locator window to increase the window width.
 
     \if defined(qtcreator)
-    For example, to locate symbols matching QDataStream:
+    If the locator does not find some files, see \l{Specifying Project Contents}
+    for how to make them known to the locator.
+    \endif
+
+    \section2 Locating Lines and Columns
+
+    To move directly to a particular line and column in the document when you
+    open the document, append the line and column number to the file name in
+    the locator, separated by plus signs (+) or colons (:).
+
+    For example, to open \e HelloWorld.qml to line
+    41 and column 2, enter:
+
+    \code
+    HelloWorld.qml:41:2
+    \endcode
+
+    \if defined(qtcreator)
+    \section2 Locating Symbols
+
+    For example, to locate symbols matching \c {QGuiApplication}:
 
     \list 1
 
         \li Activate the locator.
 
         \li Enter a colon (:) followed by a space and the upper case letters in
-            the symbol name (QDataStream):
+            the symbol name (here, \c {QGuiApplication}):
 
             \code
-            : qds
+            : qga
             \endcode
 
             The locator lists the results.
 
-            \image qtcreator-locator-example.png "List of files matching the locator filter"
+            \image qtcreator-locator-example.webp "List of files matching the locator filter"
 
     \endlist
 
@@ -197,16 +143,21 @@
     such as \c {Utils::*View}.
     \endif
 
-    For example, to create a new file and open it in the editor, type \c f
+    \section2 Creating Files from Locator
+
+    To create a new file and open it in the editor, type \c f
     followed by \key Space, followed by path and file name, and then press
     \key Enter.
 
-    You can use the filter that triggers menu commands to open sessions. Enter
+    You can use the filter that triggers menu commands to open
+    \l{Managing Sessions}{sessions}. Enter
     \c {t yoursess} or \c {t sess yoursess} to trigger \uicontrol File >
     \uicontrol Sessions > \e yoursessionname.
 
-    By default, the following filters are enabled and you do not need to use
-    their prefixes explicitly:
+    \section2 Default Filters
+
+    By default, you can use the following preset locator filters without a
+    prefix:
 
     \list
 
@@ -218,16 +169,11 @@
 
     \endlist
 
-    \if defined(qtcreator)
-    If locator does not find some files, see \l{Specifying Project Contents}
-    for how to make them known to the locator.
-    \endif
+    \section1 Changing Locator Filters
 
-    \section1 Configuring Locator Filters
-
-    If the default filters do not match your use case, you can check whether you
-    can change them. For all filters, you can change the filter prefix and
-    restrict the search to items that match the filter.
+    You can change the preset locator filters to match your use case. For
+    example, you can change the filter prefix and restrict the search to
+    items that match the filter.
 
     To configure a locator filter:
 
@@ -266,11 +212,11 @@
 
         \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol Environment > \uicontrol Locator >
-            \uicontrol {Web Search (prefix: r)} > \uicontrol Edit.
+            \uicontrol {Web Search} > \uicontrol Edit.
 
         \li Select \uicontrol Add to add a new entry to the list.
 
-            \image qtcreator-add-online-doc.png "List of URLs in Filter Configuration dialog"
+            \image qtcreator-add-online-doc.webp "List of URLs in Filter Configuration dialog"
 
         \li Double-click the new entry to specify a URL and a search command.
             For example, \c {http://www.google.com/search?q=%1}.
@@ -281,7 +227,7 @@
 
     \section1 Creating Locator Filters
 
-    You can create custom locator filters for finding in a directory structure
+    You can create custom locator filters for searching in a directory structure
     or on the web.
 
     To quickly access files not directly mentioned in your project, you can
@@ -295,7 +241,7 @@
         \li In the locator, select \uicontrol Options >
             \uicontrol Configure to open the \uicontrol Locator preferences.
 
-            \image qtcreator-locator-customize.png "Locator preferences"
+            \image qtcreator-locator-customize.webp "Locator preferences"
 
         \li Select \uicontrol Add > \uicontrol {Files in Directories} to add
             a directory filter or \uicontrol {URL Template} to add a URL
@@ -310,7 +256,7 @@
 
         \li In the \uicontrol {File pattern} field, specify file patterns to
             restrict the search to files that match the pattern.
-            Use a comma separated list. For example, to search for all
+            Separate the patterns with commas. For example, to search for all
             \c {.qml} and \c {.ui.qml} files, enter \c{*.qml,*.ui.qml}
 
         \li In the \uicontrol {Exclusion pattern} field, specify file
@@ -329,9 +275,9 @@
     \section1 Configuring Locator Cache
 
     The locator searches the files matching your file pattern in the directories
-    you have selected and caches that information. The cache for all default
-    filters is updated as you write your code. By default, \QC updates the
-    filters created by you once an hour.
+    you have selected and caches that information. \QC updates the cache for all
+    preset filters as you write code. By default, \QC updates your custom
+    filters once an hour.
 
     To update the cached information manually, select \uicontrol Options >
     \uicontrol Refresh in the locator.
@@ -349,8 +295,7 @@
 
     \section1 Executing JavaScript
 
-    The locator has a JavaScript interpreter that you can use to
-    perform calculations.
+    The locator has a JavaScript interpreter for performing calculations.
 
     Beside simple mathematical operations, like ((1 + 2) * 3), the following
     built-in functions exist:

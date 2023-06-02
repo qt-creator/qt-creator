@@ -8,6 +8,7 @@
 
 /*!
   \class Utils::FileWizardPage
+  \inmodule QtCreator
 
   \brief The FileWizardPage class is a standard wizard page for a single file
   letting the user choose name
@@ -45,7 +46,6 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     d(new FileWizardPagePrivate)
 {
     setTitle(Tr::tr("Choose the Location"));
-    resize(368, 102);
 
     d->m_defaultSuffixLabel = new QLabel;
     d->m_nameLabel = new QLabel;

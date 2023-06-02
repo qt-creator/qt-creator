@@ -101,22 +101,23 @@ public:
         _hadEmptyLine = false;
         _binaryExpDepth = 0;
 
-
+        const QString &source = _doc->source();
         // emit directives
         if (_doc->bind()->isJsLibrary()) {
-            out(QLatin1String(".pragma library"));
+            const QString pragmaLine(".pragma library");
+            out(pragmaLine, SourceLocation(source.indexOf(".pragma"), pragmaLine.length()));
             newLine();
         }
         const QList<SourceLocation> &directives = _doc->jsDirectives();
         for (const auto &d: directives) {
-            quint32 line = 1;
-            int i = 0;
-            while (line++ < d.startLine && i++ >= 0)
-                i = _doc->source().indexOf(QChar('\n'), i);
+            quint32 line = 0;
+            int i = -1;
+            while (++line < d.startLine)
+                i = source.indexOf(QChar('\n'), i + 1);
             quint32 offset = static_cast<quint32>(i) + d.startColumn;
-            int endline = _doc->source().indexOf('\n', static_cast<int>(offset) + 1);
-            int end = endline == -1 ? _doc->source().length() : endline;
-            quint32 length =  static_cast<quint32>(end) - offset;
+            int endline = source.indexOf('\n', static_cast<int>(offset) + 1);
+            int end = endline == -1 ? source.length() : endline;
+            quint32 length = static_cast<quint32>(end) - offset + 1;
             out(SourceLocation(offset, length, d.startLine, d.startColumn));
         }
         if (!directives.isEmpty())
@@ -1087,7 +1088,10 @@ protected:
         out(" ");
         out(ast->lparenToken);
         accept(ast->lhs);
-        out(" in ");
+        if (ast->type == ForEachType::In)
+            out(" in ");
+        else
+            out(" of ");
         accept(ast->expression);
         out(ast->rparenToken);
         acceptBlockOrIndented(ast->statement);

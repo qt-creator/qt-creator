@@ -51,13 +51,9 @@ public:
                                                    : Tr::tr("Warning"));
         setPriority(task.type == Task::Error ? TextEditor::TextMark::NormalPriority
                                              : TextEditor::TextMark::LowPriority);
-        if (task.category == Constants::TASK_CATEGORY_COMPILE) {
-            setToolTip("<html><body><b>" + Tr::tr("Build Issue")
-                       + "</b><br/><code style=\"white-space:pre;font-family:monospace\">"
-                       + task.description().toHtmlEscaped() + "</code></body></html>");
-        } else {
-            setToolTip(task.description());
-        }
+        setToolTip(task.formattedDescription({Task::WithSummary | Task::WithLinks},
+                                             task.category == Constants::TASK_CATEGORY_COMPILE
+                                                 ? Tr::tr("Build Issue") : QString()));
         setIcon(task.icon());
         setVisible(!task.icon().isNull());
     }

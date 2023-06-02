@@ -15,7 +15,7 @@
 #include <debugger/outputcollector.h>
 
 #include <utils/id.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QProcess>
 #include <QTextCodec>
@@ -210,23 +210,23 @@ private: ////////// General Interface //////////
     void handleBkpt(const GdbMi &bkpt, const Breakpoint &bp);
     QString breakpointLocation(const BreakpointParameters &data); // For gdb/MI.
     QString breakpointLocation2(const BreakpointParameters &data); // For gdb/CLI fallback.
-    QString breakLocation(const QString &file) const;
+    QString breakLocation(const Utils::FilePath &file) const;
     void updateTracepointCaptures(const Breakpoint &bp);
 
     //
     // Modules specific stuff
     //
-    void loadSymbols(const QString &moduleName) final;
+    void loadSymbols(const Utils::FilePath &moduleName) final;
     void loadAllSymbols() final;
     void loadSymbolsForStack() final;
-    void requestModuleSymbols(const QString &moduleName) final;
-    void requestModuleSections(const QString &moduleName) final;
+    void requestModuleSymbols(const Utils::FilePath &moduleName) final;
+    void requestModuleSections(const Utils::FilePath &moduleName) final;
     void reloadModules() final;
     void examineModules() final;
 
     void reloadModulesInternal();
     void handleModulesList(const DebuggerResponse &response);
-    void handleShowModuleSections(const DebuggerResponse &response, const QString &moduleName);
+    void handleShowModuleSections(const DebuggerResponse &response, const Utils::FilePath &moduleName);
 
     //
     // Snapshot specific stuff
@@ -265,13 +265,13 @@ private: ////////// General Interface //////////
     void reloadSourceFilesInternal();
     void handleQuerySources(const DebuggerResponse &response);
 
-    QString fullName(const QString &fileName);
-    QString cleanupFullName(const QString &fileName);
+    Utils::FilePath fullName(const QString &fileName);
+    Utils::FilePath cleanupFullName(const QString &fileName);
 
     // awful hack to keep track of used files
-    QMap<QString, QString> m_shortToFullName;
-    QMap<QString, QString> m_fullToShortName;
-    QMultiMap<QString, QString> m_baseNameToFullName;
+    QMap<QString, Utils::FilePath> m_shortToFullName;
+    QMap<Utils::FilePath, QString> m_fullToShortName;
+    QMultiMap<QString, Utils::FilePath> m_baseNameToFullName;
 
     bool m_sourcesListUpdating = false;
 
@@ -405,7 +405,7 @@ private: ////////// General Interface //////////
 
     bool usesOutputCollector() const;
 
-    Utils::QtcProcess m_gdbProc;
+    Utils::Process m_gdbProc;
     OutputCollector m_outputCollector;
     QString m_errorString;
 };

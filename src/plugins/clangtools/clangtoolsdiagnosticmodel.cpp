@@ -10,14 +10,14 @@
 #include "diagnosticmark.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
+
 #include <texteditor/textmark.h>
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-#include <QFileInfo>
 #include <QLoggingCategory>
 
 #include <tuple>
@@ -484,8 +484,8 @@ DiagnosticFilterModel::DiagnosticFilterModel(QObject *parent)
 {
     // So that when a user closes and re-opens a project and *then* clicks "Suppress",
     // we enter that information into the project settings.
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::projectAdded, this,
+    connect(ProjectExplorer::ProjectManager::instance(),
+            &ProjectExplorer::ProjectManager::projectAdded, this,
             [this](ProjectExplorer::Project *project) {
                 if (!m_project && project->projectDirectory() == m_lastProjectDirectory)
                     setProject(project);

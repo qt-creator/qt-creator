@@ -6,7 +6,7 @@
 #include "diffeditor_global.h"
 #include "diffutils.h"
 
-#include <utils/tasktree.h>
+#include <solutions/tasking/tasktree.h>
 
 #include <QObject>
 
@@ -61,7 +61,7 @@ signals:
 
 protected:
     // Core functions:
-    void setReloadRecipe(const Utils::Tasking::Group &recipe) { m_reloadRecipe = recipe; }
+    void setReloadRecipe(const Tasking::Group &recipe) { m_reloadRecipe = recipe; }
     void setDiffFiles(const QList<FileData> &diffFileList);
     // Optional:
     void setDisplayName(const QString &name) { m_displayName = name; }
@@ -74,8 +74,8 @@ private:
 
     Internal::DiffEditorDocument *const m_document;
     QString m_displayName;
-    std::unique_ptr<Utils::TaskTree> m_taskTree;
-    Utils::Tasking::Group m_reloadRecipe;
+    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+    Tasking::Group m_reloadRecipe;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(DiffEditorController::PatchOptions)

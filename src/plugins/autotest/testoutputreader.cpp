@@ -4,17 +4,12 @@
 #include "testoutputreader.h"
 
 #include "autotesttr.h"
-#include "testresult.h"
-#include "testresultspane.h"
 #include "testtreeitem.h"
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
-#include <QDebug>
-#include <QDir>
-#include <QFileInfo>
-#include <QProcess>
+#include <QRegularExpression>
 
 using namespace Utils;
 
@@ -26,11 +21,8 @@ FilePath TestOutputReader::constructSourceFilePath(const FilePath &path, const Q
     return filePath.isReadableFile() ? filePath : FilePath();
 }
 
-TestOutputReader::TestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                                   QtcProcess *testApplication, const FilePath &buildDirectory)
-    : m_futureInterface(futureInterface)
-    , m_buildDir(buildDirectory)
-    , m_id(testApplication ? testApplication->commandLine().executable().toUserOutput() : QString())
+TestOutputReader::TestOutputReader(Process *testApplication, const FilePath &buildDirectory)
+    : m_buildDir(buildDirectory)
 {
     auto chopLineBreak = [](QByteArray line) {
         if (line.endsWith('\n'))
@@ -41,6 +33,9 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResult> &futureInt
     };
 
     if (testApplication) {
+        connect(testApplication, &Process::started, this, [this, testApplication] {
+            m_id = testApplication->commandLine().executable().toUserOutput();
+        });
         testApplication->setStdOutLineCallback([this, &chopLineBreak](const QString &line) {
             processStdOutput(chopLineBreak(line.toUtf8()));
         });

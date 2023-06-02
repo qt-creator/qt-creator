@@ -10,7 +10,6 @@
 
 #ifdef WITH_TESTS
 #  include "test/activationsequenceprocessortest.h"
-#  include "test/clangbatchfileprocessor.h"
 #  include "test/clangdtests.h"
 #  include "test/clangfixittest.h"
 #endif
@@ -28,15 +27,16 @@
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
 #include <texteditor/textmark.h>
 
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 
 using namespace Core;
@@ -49,7 +49,7 @@ void ClangCodeModelPlugin::generateCompilationDB()
 {
     using namespace CppEditor;
 
-    Target *target = SessionManager::startupTarget();
+    Target *target = ProjectManager::startupTarget();
     if (!target)
         return;
 
@@ -61,7 +61,7 @@ void ClangCodeModelPlugin::generateCompilationDB()
         baseDir = TemporaryDirectory::masterDirectoryFilePath();
 
     QFuture<GenerateCompilationDbResult> task
-            = Utils::runAsync(&Internal::generateCompilationDB, ProjectInfoList{projectInfo},
+            = Utils::asyncRun(&Internal::generateCompilationDB, ProjectInfoList{projectInfo},
                               baseDir, CompilationDbPurpose::Project,
                               warningsConfigForProject(target->project()),
                               globalClangOptions(),
@@ -78,15 +78,8 @@ ClangCodeModelPlugin::~ClangCodeModelPlugin()
 void ClangCodeModelPlugin::initialize()
 {
     TaskHub::addCategory(Constants::TASK_CATEGORY_DIAGNOSTICS, Tr::tr("Clang Code Model"));
-
-    connect(ProjectExplorerPlugin::instance(),
-            &ProjectExplorerPlugin::finishedInitialization,
-            this,
-            &ClangCodeModelPlugin::maybeHandleBatchFileAndExit);
-
     CppEditor::CppModelManager::instance()->activateClangCodeModel(
-                std::make_unique<ClangModelManagerSupport>());
-
+        std::make_unique<ClangModelManagerSupport>());
     createCompilationDBAction();
 
 #ifdef WITH_TESTS
@@ -109,7 +102,7 @@ void ClangCodeModelPlugin::createCompilationDBAction()
                 Tr::tr("Generate Compilation Database"),
                 Tr::tr("Generate Compilation Database for \"%1\""),
                 ParameterAction::AlwaysEnabled, this);
-    Project *startupProject = SessionManager::startupProject();
+    Project *startupProject = ProjectManager::startupProject();
     if (startupProject)
         m_generateCompilationDBAction->setParameter(startupProject->displayName());
     Command *command = ActionManager::registerAction(m_generateCompilationDBAction,
@@ -136,7 +129,7 @@ void ClangCodeModelPlugin::createCompilationDBAction()
                                             "Generator is already running.");
             return;
         }
-        Project * const project = SessionManager::startupProject();
+        Project * const project = ProjectManager::startupProject();
         if (!project) {
             MessageManager::writeDisrupting("Cannot generate compilation database: "
                                             "No active project.");
@@ -154,21 +147,21 @@ void ClangCodeModelPlugin::createCompilationDBAction()
     });
     connect(CppEditor::CppModelManager::instance(), &CppEditor::CppModelManager::projectPartsUpdated,
             this, [this](Project *project) {
-        if (project != SessionManager::startupProject())
+        if (project != ProjectManager::startupProject())
             return;
         m_generateCompilationDBAction->setParameter(project->displayName());
     });
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             this, [this](Project *project) {
         m_generateCompilationDBAction->setParameter(project ? project->displayName() : "");
     });
-    connect(SessionManager::instance(), &SessionManager::projectDisplayNameChanged,
+    connect(ProjectManager::instance(), &ProjectManager::projectDisplayNameChanged,
             this, [this](Project *project) {
-        if (project != SessionManager::startupProject())
+        if (project != ProjectManager::startupProject())
             return;
         m_generateCompilationDBAction->setParameter(project->displayName());
     });
-    connect(SessionManager::instance(), &SessionManager::projectAdded,
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, [this](Project *project) {
         project->registerGenerator(Constants::GENERATE_COMPILATION_DB,
                                    m_generateCompilationDBAction->text(),
@@ -176,16 +169,4 @@ void ClangCodeModelPlugin::createCompilationDBAction()
     });
 }
 
-// For e.g. creation of profile-guided optimization builds.
-void ClangCodeModelPlugin::maybeHandleBatchFileAndExit() const
-{
-#ifdef WITH_TESTS
-    const QString batchFilePath = qtcEnvironmentVariable("QTC_CLANG_BATCH");
-    if (!batchFilePath.isEmpty() && QTC_GUARD(QFileInfo::exists(batchFilePath))) {
-        const bool runSucceeded = runClangBatchFile(batchFilePath);
-        QCoreApplication::exit(!runSucceeded);
-    }
-#endif
-}
-
-} // ClangCodeModel::Internal
+} // namespace ClangCodeModel::Internal

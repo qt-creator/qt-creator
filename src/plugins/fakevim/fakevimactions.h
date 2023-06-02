@@ -4,7 +4,7 @@
 #pragma once
 
 #ifndef FAKEVIM_STANDALONE
-#   include <utils/aspects.h>
+#   include <coreplugin/dialogs/ioptionspage.h>
 #endif
 
 #include <QCoreApplication>
@@ -13,8 +13,7 @@
 #include <QString>
 #include <QVariant>
 
-namespace FakeVim {
-namespace Internal {
+namespace FakeVim::Internal {
 
 #ifdef FAKEVIM_STANDALONE
 class FvBaseAspect
@@ -44,18 +43,21 @@ class FvBoolAspect : public FvBaseAspect
 {
 public:
     bool value() const { return FvBaseAspect::value().toBool(); }
+    bool operator()() const { return value(); }
 };
 
 class FvIntegerAspect : public FvBaseAspect
 {
 public:
     qint64 value() const { return FvBaseAspect::value().toLongLong(); }
+    qint64 operator()() const { return value(); }
 };
 
 class FvStringAspect : public FvBaseAspect
 {
 public:
     QString value() const { return FvBaseAspect::value().toString(); }
+    QString operator()() const { return value(); }
 };
 
 class FvAspectContainer : public FvBaseAspect
@@ -65,7 +67,7 @@ public:
 
 #else
 
-using FvAspectContainer = Utils::AspectContainer;
+using FvAspectContainer = Core::PagedSettings;
 using FvBaseAspect = Utils::BaseAspect;
 using FvBoolAspect = Utils::BoolAspect;
 using FvIntegerAspect = Utils::IntegerAspect;
@@ -142,7 +144,6 @@ private:
     QHash<FvBaseAspect *, QString> m_aspectToName;
 };
 
-FakeVimSettings *fakeVimSettings();
+FakeVimSettings &settings();
 
-} // namespace Internal
-} // namespace FakeVim
+} // FakeVim::Internal

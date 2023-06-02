@@ -9,7 +9,7 @@
 
 #include <QObject>
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace Core {
 
@@ -20,7 +20,7 @@ class ProcessProgressPrivate;
 class CORE_EXPORT ProcessProgress : public QObject
 {
 public:
-    ProcessProgress(Utils::QtcProcess *process); // Makes ProcessProgress a child of process
+    ProcessProgress(Utils::Process *process); // Makes ProcessProgress a child of process
     ~ProcessProgress() override;
 
     void setDisplayName(const QString &name);

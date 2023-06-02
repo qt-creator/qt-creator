@@ -6,17 +6,17 @@
 #include "pysidebuildconfiguration.h"
 #include "pythoneditor.h"
 #include "pythonproject.h"
-#include "pythonsettings.h"
 #include "pythonrunconfiguration.h"
+#include "pythonsettings.h"
+#include "pythonwizardpage.h"
 
 #include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/localenvironmentaspect.h>
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/taskhub.h>
 
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/theme/theme.h>
 
 using namespace ProjectExplorer;
@@ -36,7 +36,6 @@ public:
     PySideBuildConfigurationFactory buildConfigFactory;
     SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
     PythonSettings settings;
-    FutureSynchronizer m_futureSynchronizer;
 };
 
 PythonPlugin::PythonPlugin()
@@ -55,17 +54,13 @@ PythonPlugin *PythonPlugin::instance()
     return m_instance;
 }
 
-FutureSynchronizer *PythonPlugin::futureSynchronizer()
-{
-    QTC_ASSERT(m_instance, return nullptr);
-    return &m_instance->d->m_futureSynchronizer;
-}
-
 void PythonPlugin::initialize()
 {
     d = new PythonPluginPrivate;
 
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
+    ProjectManager::registerProjectType<PythonProject>(PythonMimeTypeLegacy);
+    JsonWizardFactory::registerPageFactory(new PythonWizardPageFactory);
 }
 
 void PythonPlugin::extensionsInitialized()

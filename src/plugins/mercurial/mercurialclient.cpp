@@ -12,8 +12,8 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <vcsbase/vcsbasediffeditorcontroller.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -55,17 +55,17 @@ MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document
 
     const TreeStorage<QString> diffInputStorage = inputStorage();
 
-    const auto setupDiff = [=](QtcProcess &process) {
+    const auto setupDiff = [=](Process &process) {
         setupCommand(process, {addConfigurationArguments(args)});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
-    const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
-        *diffInputStorage.activeStorage() = process.cleanedStdOut();
+    const auto onDiffDone = [diffInputStorage](const Process &process) {
+        *diffInputStorage = process.cleanedStdOut();
     };
 
     const Group root {
         Storage(diffInputStorage),
-        Process(setupDiff, onDiffDone),
+        ProcessTask(setupDiff, onDiffDone),
         postProcessTask()
     };
     setReloadRecipe(root);
@@ -81,7 +81,8 @@ QStringList MercurialDiffEditorController::addConfigurationArguments(const QStri
 
 /////////////////////////////////////////////////////////////
 
-MercurialClient::MercurialClient(MercurialSettings *settings) : VcsBaseClient(settings)
+MercurialClient::MercurialClient()
+    : VcsBaseClient(&Internal::settings())
 {
 }
 
@@ -427,7 +428,7 @@ void MercurialClient::requestReload(const QString &documentId, const FilePath &s
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     QTC_ASSERT(document, return);
     auto controller = new MercurialDiffEditorController(document, args);
-    controller->setVcsBinary(settings().binaryPath.filePath());
+    controller->setVcsBinary(settings().binaryPath());
     controller->setProcessEnvironment(processEnvironment());
     controller->setWorkingDirectory(workingDirectory);
 

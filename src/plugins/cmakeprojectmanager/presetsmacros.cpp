@@ -10,6 +10,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/osspecificaspects.h>
 
+using namespace Utils;
+
 namespace CMakeProjectManager::Internal::CMakePresets::Macros {
 
 static QString getHostSystemName(Utils::OsType osType)
@@ -61,6 +63,7 @@ static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
     value.replace("${presetName}", preset.name);
+    value.replace("${hostSystemName}", getHostSystemName(sourceDirectory.osType()));
     value.replace("${pathListSep}",
                   Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
 }
@@ -107,32 +110,26 @@ static QString expandMacroEnv(const QString &macroPrefix,
     return result;
 }
 
-static Utils::Environment getEnvCombined(const std::optional<Utils::Environment> &optPresetEnv,
-                                         const Utils::Environment &env)
+static Environment getEnvCombined(const std::optional<Environment> &optPresetEnv,
+                                  const Environment &env)
 {
-    Utils::Environment result = env;
+    Environment result = env;
 
-    if (!optPresetEnv)
-        return result;
-
-    Utils::Environment presetEnv = optPresetEnv.value();
-    for (auto it = presetEnv.constBegin(); it != presetEnv.constEnd(); ++it) {
-        result.set(it.key().name, it.value().first);
+    if (optPresetEnv) {
+        optPresetEnv->forEachEntry([&result](const QString &key, const QString &value, bool) {
+            result.set(key, value);
+        });
     }
 
     return result;
 }
 
 template<class PresetType>
-void expand(const PresetType &preset,
-            Utils::Environment &env,
-            const Utils::FilePath &sourceDirectory)
+void expand(const PresetType &preset, Environment &env, const FilePath &sourceDirectory)
 {
-    const Utils::Environment presetEnv = getEnvCombined(preset.environment, env);
-    for (auto it = presetEnv.constBegin(); it != presetEnv.constEnd(); ++it) {
-        const QString key = it.key().name;
-        QString value = it.value().first;
-
+    const Environment presetEnv = getEnvCombined(preset.environment, env);
+    presetEnv.forEachEntry([&](const QString &key, const QString &value_, bool) {
+        QString value = value_;
         expandAllButEnv(preset, sourceDirectory, value);
         value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
             return presetEnv.value(macroName);
@@ -141,7 +138,7 @@ void expand(const PresetType &preset,
         QString sep;
         bool append = true;
         if (key.compare("PATH", Qt::CaseInsensitive) == 0) {
-            sep = Utils::OsSpecificAspects::pathListSeparator(env.osType());
+            sep = OsSpecificAspects::pathListSeparator(env.osType());
             const int index = value.indexOf("$penv{PATH}", 0, Qt::CaseInsensitive);
             if (index != 0)
                 append = false;
@@ -159,20 +156,15 @@ void expand(const PresetType &preset,
             env.appendOrSet(key, value, sep);
         else
             env.prependOrSet(key, value, sep);
-    }
+    });
 }
 
 template<class PresetType>
-void expand(const PresetType &preset,
-            Utils::EnvironmentItems &envItems,
-            const Utils::FilePath &sourceDirectory)
+void expand(const PresetType &preset, EnvironmentItems &envItems, const FilePath &sourceDirectory)
 {
-    const Utils::Environment presetEnv = preset.environment ? preset.environment.value()
-                                                            : Utils::Environment();
-    for (auto it = presetEnv.constBegin(); it != presetEnv.constEnd(); ++it) {
-        const QString key = it.key().name;
-        QString value = it.value().first;
-
+    const Environment presetEnv = preset.environment ? *preset.environment : Environment();
+    presetEnv.forEachEntry([&](const QString &key, const QString &value_, bool) {
+        QString value = value_;
         expandAllButEnv(preset, sourceDirectory, value);
         value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
             if (presetEnv.hasKey(macroName))
@@ -180,12 +172,12 @@ void expand(const PresetType &preset,
             return QString("${%1}").arg(macroName);
         });
 
-        auto operation = Utils::EnvironmentItem::Operation::SetEnabled;
+        auto operation = EnvironmentItem::Operation::SetEnabled;
         if (key.compare("PATH", Qt::CaseInsensitive) == 0) {
-            operation = Utils::EnvironmentItem::Operation::Append;
+            operation = EnvironmentItem::Operation::Append;
             const int index = value.indexOf("$penv{PATH}", 0, Qt::CaseInsensitive);
             if (index != 0)
-                operation = Utils::EnvironmentItem::Operation::Prepend;
+                operation = EnvironmentItem::Operation::Prepend;
             value.replace("$penv{PATH}", "", Qt::CaseInsensitive);
         }
 
@@ -197,7 +189,7 @@ void expand(const PresetType &preset,
         expandAllButEnv(preset, sourceDirectory, value);
 
         envItems.emplace_back(Utils::EnvironmentItem(key, value, operation));
-    }
+    });
 }
 
 template<class PresetType>

@@ -11,7 +11,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 
-#include <utils/portlist.h>
 #include <utils/fileutils.h>
 
 using namespace ProjectExplorer;
@@ -45,13 +44,6 @@ GenericLinuxDeviceConfigurationWizard::GenericLinuxDeviceConfigurationWizard(QWi
     setPage(Internal::FinalPageId, &d->finalPage);
     d->finalPage.setCommitPage(true);
     d->device = LinuxDevice::create();
-    d->device->setupId(IDevice::ManuallyAdded, Utils::Id());
-    d->device->setType(Constants::GenericLinuxOsType);
-    d->device->setMachineType(IDevice::Hardware);
-    d->device->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
-    SshParameters sshParams;
-    sshParams.timeout = 10;
-    d->device->setSshParameters(sshParams);
     d->setupPage.setDevice(d->device);
     d->keyDeploymentPage.setDevice(d->device);
 }

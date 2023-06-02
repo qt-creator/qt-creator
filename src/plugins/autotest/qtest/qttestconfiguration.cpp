@@ -2,16 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qttestconfiguration.h"
-#include "qttestconstants.h"
+
 #include "qttestoutputreader.h"
 #include "qttestsettings.h"
 #include "qttest_utils.h"
-#include "../autotestplugin.h"
+
 #include "../itestframework.h"
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>
-#include <utils/stringutils.h>
 
 using namespace Utils;
 
@@ -28,20 +27,19 @@ static QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode)
     });
 }
 
-TestOutputReader *QtTestConfiguration::createOutputReader(const QFutureInterface<TestResult> &fi,
-                                                          QtcProcess *app) const
+TestOutputReader *QtTestConfiguration::createOutputReader(Process *app) const
 {
     auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
     const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()
             ? QtTestOutputReader::XML
             : QtTestOutputReader::PlainText;
-    return new QtTestOutputReader(fi, app, buildDirectory(), projectFile(), mode, TestType::QtTest);
+    return new QtTestOutputReader(app, buildDirectory(), projectFile(), mode, TestType::QtTest);
 }
 
 QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     QStringList arguments;
-    if (AutotestPlugin::settings()->processArgs) {
+    if (TestSettings::instance()->processArgs()) {
         arguments.append(QTestUtils::filterInterfering(
                              runnable().command.arguments().split(' ', Qt::SkipEmptyParts),
                              omitted, false));

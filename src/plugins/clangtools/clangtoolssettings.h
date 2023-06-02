@@ -31,6 +31,9 @@ public:
     Utils::Id diagnosticConfigId() const;
     void setDiagnosticConfigId(const Utils::Id &id) { m_diagnosticConfigId = id; }
 
+    bool preferConfigFile() const { return m_preferConfigFile; }
+    void setPreferConfigFile(bool yesno) { m_preferConfigFile = yesno; }
+
     bool buildBeforeAnalysis() const { return m_buildBeforeAnalysis; }
     void setBuildBeforeAnalysis(bool yesno) { m_buildBeforeAnalysis = yesno; }
 
@@ -42,9 +45,12 @@ public:
 
     bool operator==(const RunSettings &other) const;
 
+    bool hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) const;
+
 private:
     Utils::Id m_diagnosticConfigId;
     int m_parallelJobs = -1;
+    bool m_preferConfigFile = true;
     bool m_buildBeforeAnalysis = true;
     bool m_analyzeOpenFiles = true;
 };

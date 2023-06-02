@@ -30,7 +30,7 @@ public:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutItem &parent) override;
 
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
@@ -106,7 +106,7 @@ public:
     Utils::BoolAspect useDebuggingHelpers;
     Utils::BoolAspect useCodeModel;
     Utils::BoolAspect showThreadNames;
-    Utils::StringAspect extraDumperFile;     // For loading a file. Recommended.
+    Utils::FilePathAspect extraDumperFile;   // For loading a file. Recommended.
     Utils::StringAspect extraDumperCommands; // To modify an existing setup.
 
     Utils::BoolAspect showStdNamespace;
@@ -146,6 +146,7 @@ public:
     Utils::BoolAspect autoDerefPointers;
     Utils::IntegerAspect maximalStringLength;
     Utils::IntegerAspect displayStringLimit;
+    Utils::IntegerAspect defaultArraySize;
     Utils::BoolAspect sortStructMembers;
     Utils::BoolAspect useToolTipsInLocalsView;
 

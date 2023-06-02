@@ -4,6 +4,7 @@
 #include "seekerslider.h"
 
 #include <utils/icon.h>
+#include <utils/stylehelper.h>
 
 #include <QMouseEvent>
 #include <QStyleOption>
@@ -15,8 +16,8 @@ namespace QmlDesigner {
 SeekerSlider::SeekerSlider(QWidget *parent)
     : QSlider(parent)
 {
-    setProperty("panelwidget", true);
-    setProperty("panelwidget_singlerow", true);
+    Utils::StyleHelper::setPanelWidget(this);
+    Utils::StyleHelper::setPanelWidgetSingleRow(this);
     setOrientation(Qt::Horizontal);
     setFixedWidth(120);
     setMaxValue(30);

@@ -35,6 +35,11 @@
                 object pool.
 
         \row
+            \li \l{Tasking}
+            \li A solution containing a TaskTree and other classes for writing
+                declarative trees of asynchronous task flows.
+
+        \row
             \li \l{Utils}
             \li Useful classes that are reused in a lot of places in Qt Creator code.
     \omit

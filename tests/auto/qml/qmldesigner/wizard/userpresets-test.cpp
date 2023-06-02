@@ -44,8 +44,6 @@ void PrintTo(const std::vector<UserPresetData> &presets, std::ostream *os)
 
 using namespace StudioWelcome;
 
-constexpr char ARRAY_NAME[] = "UserPresets";
-
 class FakeStoreIo : public StoreIo
 {
 public:

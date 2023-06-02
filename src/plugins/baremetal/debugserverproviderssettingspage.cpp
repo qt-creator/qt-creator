@@ -257,8 +257,6 @@ class DebugServerProvidersSettingsWidget final : public Core::IOptionsPageWidget
 public:
     DebugServerProvidersSettingsWidget();
 
-    void apply() final { m_model.apply(); }
-
     void providerSelectionChanged();
     void removeProvider();
     void updateState();
@@ -363,6 +361,8 @@ DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
             this, &DebugServerProvidersSettingsWidget::removeProvider);
 
     updateState();
+
+    setOnApply([this] { m_model.apply(); });
 }
 
 void DebugServerProvidersSettingsWidget::providerSelectionChanged()

@@ -11,7 +11,9 @@
 #include "../itestframework.h"
 
 #include <cppeditor/cppmodelmanager.h>
-#include <projectexplorer/session.h>
+
+#include <projectexplorer/projectmanager.h>
+
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
@@ -156,7 +158,7 @@ static QString handleSpecialFunctionNames(const QString &name)
 QList<ITestConfiguration *> BoostTestTreeItem::getAllTestConfigurations() const
 {
     QList<ITestConfiguration *> result;
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 
@@ -200,7 +202,7 @@ QList<ITestConfiguration *> BoostTestTreeItem::getTestConfigurations(
         std::function<bool(BoostTestTreeItem *)> predicate) const
 {
     QList<ITestConfiguration *> result;
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 
@@ -261,7 +263,7 @@ QList<ITestConfiguration *> BoostTestTreeItem::getFailedTestConfigurations() con
 
 ITestConfiguration *BoostTestTreeItem::testConfiguration() const
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return nullptr);
     const auto cppMM = CppEditor::CppModelManager::instance();
     QTC_ASSERT(cppMM, return nullptr);

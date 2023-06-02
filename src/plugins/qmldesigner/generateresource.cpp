@@ -12,8 +12,8 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/qmlprojectmanagerconstants.h>
@@ -22,9 +22,9 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/fileutils.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
-#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QByteArray>
@@ -177,7 +177,7 @@ QList<GenerateResource::ResourceFile> getFilesFromQrc(QFile *file, bool inProjec
 static bool runRcc(const CommandLine &command, const FilePath &workingDir,
                    const QString &resourceFile)
 {
-    Utils::QtcProcess rccProcess;
+    Utils::Process rccProcess;
     rccProcess.setWorkingDirectory(workingDir);
     rccProcess.setCommand(command);
     rccProcess.start();
@@ -223,16 +223,16 @@ void GenerateResource::generateMenuEntry(QObject *parent)
     auto action = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                           "Generate QRC Resource File..."),
                               parent);
-    action->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
+    action->setEnabled(ProjectExplorer::ProjectManager::startupProject() != nullptr);
     // todo make it more intelligent when it gets enabled
-    QObject::connect(ProjectExplorer::SessionManager::instance(),
-        &ProjectExplorer::SessionManager::startupProjectChanged, [action]() {
-            action->setEnabled(ProjectExplorer::SessionManager::startupProject());
+    QObject::connect(ProjectExplorer::ProjectManager::instance(),
+        &ProjectExplorer::ProjectManager::startupProjectChanged, [action]() {
+            action->setEnabled(ProjectExplorer::ProjectManager::startupProject());
     });
 
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.CreateResource");
     QObject::connect(action, &QAction::triggered, [] () {
-        auto currentProject = ProjectExplorer::SessionManager::startupProject();
+        auto currentProject = ProjectExplorer::ProjectManager::startupProject();
         QTC_ASSERT(currentProject, return);
         const FilePath projectPath = currentProject->projectFilePath().parentDir();
 
@@ -331,16 +331,16 @@ void GenerateResource::generateMenuEntry(QObject *parent)
     auto rccAction = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource",
                                                              "Generate Deployable Package..."),
                                  parent);
-    rccAction->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
-    QObject::connect(ProjectExplorer::SessionManager::instance(),
-        &ProjectExplorer::SessionManager::startupProjectChanged, [rccAction]() {
-            rccAction->setEnabled(ProjectExplorer::SessionManager::startupProject());
+    rccAction->setEnabled(ProjectExplorer::ProjectManager::startupProject() != nullptr);
+    QObject::connect(ProjectExplorer::ProjectManager::instance(),
+        &ProjectExplorer::ProjectManager::startupProjectChanged, [rccAction]() {
+            rccAction->setEnabled(ProjectExplorer::ProjectManager::startupProject());
     });
 
     Core::Command *cmd2 = Core::ActionManager::registerAction(rccAction,
                                          "QmlProject.CreateRCCResource");
     QObject::connect(rccAction, &QAction::triggered, []() {
-        auto currentProject = ProjectExplorer::SessionManager::startupProject();
+        auto currentProject = ProjectExplorer::ProjectManager::startupProject();
         QTC_ASSERT(currentProject, return);
         const FilePath projectPath = currentProject->projectFilePath().parentDir();
 

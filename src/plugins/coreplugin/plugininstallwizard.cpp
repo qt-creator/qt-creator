@@ -11,13 +11,14 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <utils/archive.h>
+#include <utils/async.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 #include <utils/wizard.h>
 #include <utils/wizardpage.h>
@@ -33,7 +34,6 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QTextEdit>
-#include <QVBoxLayout>
 
 #include <memory>
 
@@ -80,19 +80,15 @@ public:
         , m_data(data)
     {
         setTitle(Tr::tr("Source"));
-        auto vlayout = new QVBoxLayout;
-        setLayout(vlayout);
 
         auto label = new QLabel(
             "<p>"
             + Tr::tr("Choose source location. This can be a plugin library file or a zip file.")
             + "</p>");
         label->setWordWrap(true);
-        vlayout->addWidget(label);
 
         auto chooser = new PathChooser;
         chooser->setExpectedKind(PathChooser::Any);
-        vlayout->addWidget(chooser);
         connect(chooser, &PathChooser::textChanged, this, [this, chooser] {
             m_data->sourcePath = chooser->filePath();
             updateWarnings();
@@ -101,7 +97,8 @@ public:
         m_info = new InfoLabel;
         m_info->setType(InfoLabel::Error);
         m_info->setVisible(false);
-        vlayout->addWidget(m_info);
+
+        Layouting::Column { label, chooser, m_info }.attachTo(this);
     }
 
     void updateWarnings()
@@ -153,8 +150,6 @@ public:
         , m_data(data)
     {
         setTitle(Tr::tr("Check Archive"));
-        auto vlayout = new QVBoxLayout;
-        setLayout(vlayout);
 
         m_label = new InfoLabel;
         m_label->setElideMode(Qt::ElideNone);
@@ -163,13 +158,11 @@ public:
         m_output = new QTextEdit;
         m_output->setReadOnly(true);
 
-        auto hlayout = new QHBoxLayout;
-        hlayout->addWidget(m_label, 1);
-        hlayout->addStretch();
-        hlayout->addWidget(m_cancelButton);
-
-        vlayout->addLayout(hlayout);
-        vlayout->addWidget(m_output);
+        using namespace Layouting;
+        Column {
+            Row { m_label, st, m_cancelButton },
+            m_output,
+        }.attachTo(this);
     }
 
     void initializePage() final
@@ -221,8 +214,8 @@ public:
                 m_label->setText(Tr::tr("There was an error while unarchiving."));
             }
         } else { // unarchiving was successful, run a check
-            m_archiveCheck = Utils::runAsync(
-                [this](QFutureInterface<ArchiveIssue> &fi) { return checkContents(fi); });
+            m_archiveCheck = Utils::asyncRun([this](QPromise<ArchiveIssue> &promise)
+                                             { return checkContents(promise); });
             Utils::onFinished(m_archiveCheck, this, [this](const QFuture<ArchiveIssue> &f) {
                 m_cancelButton->setVisible(false);
                 m_cancelButton->disconnect();
@@ -248,7 +241,7 @@ public:
     }
 
     // Async. Result is set if any issue was found.
-    void checkContents(QFutureInterface<ArchiveIssue> &fi)
+    void checkContents(QPromise<ArchiveIssue> &promise)
     {
         QTC_ASSERT(m_tempDir.get(), return );
 
@@ -260,7 +253,7 @@ public:
                         QDir::Files | QDir::NoSymLinks,
                         QDirIterator::Subdirectories);
         while (it.hasNext()) {
-            if (fi.isCanceled())
+            if (promise.isCanceled())
                 return;
             it.next();
             PluginSpec *spec = PluginSpec::read(it.filePath());
@@ -275,18 +268,18 @@ public:
                                                 });
                 if (found != dependencies.constEnd()) {
                     if (!coreplugin->provides(found->name, found->version)) {
-                        fi.reportResult({Tr::tr("Plugin requires an incompatible version of %1 (%2).")
-                                             .arg(Constants::IDE_DISPLAY_NAME)
-                                             .arg(found->version),
-                                         InfoLabel::Error});
+                        promise.addResult(ArchiveIssue{
+                            Tr::tr("Plugin requires an incompatible version of %1 (%2).")
+                                .arg(Constants::IDE_DISPLAY_NAME).arg(found->version),
+                            InfoLabel::Error});
                         return;
                     }
                 }
                 return; // successful / no error
             }
         }
-        fi.reportResult({Tr::tr("Did not find %1 plugin.").arg(Constants::IDE_DISPLAY_NAME),
-                         InfoLabel::Error});
+        promise.addResult(ArchiveIssue{Tr::tr("Did not find %1 plugin.")
+                                           .arg(Constants::IDE_DISPLAY_NAME), InfoLabel::Error});
     }
 
     void cleanupPage() final
@@ -322,13 +315,9 @@ public:
         , m_data(data)
     {
         setTitle(Tr::tr("Install Location"));
-        auto vlayout = new QVBoxLayout;
-        setLayout(vlayout);
 
         auto label = new QLabel("<p>" + Tr::tr("Choose install location.") + "</p>");
         label->setWordWrap(true);
-        vlayout->addWidget(label);
-        vlayout->addSpacing(10);
 
         auto localInstall = new QRadioButton(Tr::tr("User plugins"));
         localInstall->setChecked(!m_data->installIntoApplication);
@@ -337,10 +326,6 @@ public:
                 .arg(Constants::IDE_DISPLAY_NAME));
         localLabel->setWordWrap(true);
         localLabel->setAttribute(Qt::WA_MacSmallSize, true);
-
-        vlayout->addWidget(localInstall);
-        vlayout->addWidget(localLabel);
-        vlayout->addSpacing(10);
 
         auto appInstall = new QRadioButton(
             Tr::tr("%1 installation").arg(Constants::IDE_DISPLAY_NAME));
@@ -351,8 +336,11 @@ public:
                 .arg(Constants::IDE_DISPLAY_NAME));
         appLabel->setWordWrap(true);
         appLabel->setAttribute(Qt::WA_MacSmallSize, true);
-        vlayout->addWidget(appInstall);
-        vlayout->addWidget(appLabel);
+
+        using namespace Layouting;
+        Column {
+            label, Space(10), localInstall, localLabel, Space(10), appInstall, appLabel,
+        }.attachTo(this);
 
         auto group = new QButtonGroup(this);
         group->addButton(localInstall);
@@ -375,12 +363,9 @@ public:
     {
         setTitle(Tr::tr("Summary"));
 
-        auto vlayout = new QVBoxLayout;
-        setLayout(vlayout);
-
         m_summaryLabel = new QLabel(this);
         m_summaryLabel->setWordWrap(true);
-        vlayout->addWidget(m_summaryLabel);
+        Layouting::Column { m_summaryLabel }.attachTo(this);
     }
 
     void initializePage() final
@@ -403,7 +388,7 @@ static std::function<void(FilePath)> postCopyOperation()
             return;
         // On macOS, downloaded files get a quarantine flag, remove it, otherwise it is a hassle
         // to get it loaded as a plugin in Qt Creator.
-        QtcProcess xattr;
+        Process xattr;
         xattr.setTimeoutS(1);
         xattr.setCommand({"/usr/bin/xattr", {"-d", "com.apple.quarantine", filePath.absoluteFilePath().toString()}});
         xattr.runBlocking();

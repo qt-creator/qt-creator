@@ -7,6 +7,7 @@
 
 #include <utils/filepath.h>
 #include <utils/futuresynchronizer.h>
+#include <utils/searchresultitem.h>
 
 #include <QObject>
 #include <QFutureWatcher>
@@ -14,10 +15,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
-namespace Core {
-class SearchResultItem;
-class SearchResult;
-} // namespace Core
+namespace Core { class SearchResult; }
 
 namespace QmlJSEditor {
 
@@ -64,7 +62,8 @@ private:
     void searchFinished();
     void cancel();
     void setPaused(bool paused);
-    void onReplaceButtonClicked(const QString &text, const QList<Core::SearchResultItem> &items, bool preserveCase);
+    void onReplaceButtonClicked(const QString &text, const Utils::SearchResultItems &items,
+                                bool preserveCase);
 
     QPointer<Core::SearchResult> m_currentSearch;
     QFutureWatcher<Usage> m_watcher;

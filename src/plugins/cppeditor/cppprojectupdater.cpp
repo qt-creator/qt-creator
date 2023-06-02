@@ -13,21 +13,15 @@
 #include <projectexplorer/extracompiler.h>
 
 #include <utils/algorithm.h>
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/qtcassert.h>
-
-#include <QFutureInterface>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CppEditor {
 
-CppProjectUpdater::CppProjectUpdater()
-{
-    m_futureSynchronizer.setCancelOnWait(true);
-}
-
+CppProjectUpdater::CppProjectUpdater() = default;
 CppProjectUpdater::~CppProjectUpdater() = default;
 
 void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo)
@@ -49,12 +43,12 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     using namespace ProjectExplorer;
 
     // Run the project info generator in a worker thread and continue if that one is finished.
-    const auto infoGenerator = [=](QFutureInterface<ProjectInfo::ConstPtr> &futureInterface) {
+    const auto infoGenerator = [=](QPromise<ProjectInfo::ConstPtr> &promise) {
         ProjectUpdateInfo fullProjectUpdateInfo = projectUpdateInfo;
         if (fullProjectUpdateInfo.rppGenerator)
             fullProjectUpdateInfo.rawProjectParts = fullProjectUpdateInfo.rppGenerator();
-        Internal::ProjectInfoGenerator generator(futureInterface, fullProjectUpdateInfo);
-        futureInterface.reportResult(generator.generate());
+        Internal::ProjectInfoGenerator generator(fullProjectUpdateInfo);
+        promise.addResult(generator.generate(promise));
     };
 
     using namespace Tasking;
@@ -62,16 +56,16 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
         ProjectInfo::ConstPtr projectInfo = nullptr;
     };
     const TreeStorage<UpdateStorage> storage;
-    const auto setupInfoGenerator = [=](AsyncTask<ProjectInfo::ConstPtr> &async) {
-        async.setAsyncCallData(infoGenerator);
+    const auto setupInfoGenerator = [=](Async<ProjectInfo::ConstPtr> &async) {
+        async.setConcurrentCallData(infoGenerator);
         async.setFutureSynchronizer(&m_futureSynchronizer);
     };
-    const auto onInfoGeneratorDone = [=](const AsyncTask<ProjectInfo::ConstPtr> &async) {
+    const auto onInfoGeneratorDone = [=](const Async<ProjectInfo::ConstPtr> &async) {
         if (async.isResultAvailable())
             storage->projectInfo = async.result();
     };
     QList<TaskItem> tasks{parallel};
-    tasks.append(Async<ProjectInfo::ConstPtr>(setupInfoGenerator, onInfoGeneratorDone));
+    tasks.append(AsyncTask<ProjectInfo::ConstPtr>(setupInfoGenerator, onInfoGeneratorDone));
     for (QPointer<ExtraCompiler> compiler : compilers) {
         if (compiler && compiler->isDirty())
             tasks.append(compiler->compileFileItem());
@@ -99,8 +93,8 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     const Group root {
         Storage(storage),
         Group(tasks),
-        OnGroupDone(onDone),
-        OnGroupError(onError)
+        onGroupDone(onDone),
+        onGroupError(onError)
     };
     m_taskTree.reset(new TaskTree(root));
     auto progress = new Core::TaskProgress(m_taskTree.get());

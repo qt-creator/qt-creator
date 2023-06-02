@@ -6,8 +6,8 @@
 #include "progressmanager.h"
 #include "../coreplugintr.h"
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QFutureWatcher>
 
@@ -18,13 +18,13 @@ namespace Core {
 class ProcessProgressPrivate : public QObject
 {
 public:
-    explicit ProcessProgressPrivate(ProcessProgress *progress, QtcProcess *process);
+    explicit ProcessProgressPrivate(ProcessProgress *progress, Process *process);
     ~ProcessProgressPrivate();
 
     QString displayName() const;
     void parseProgress(const QString &inputText);
 
-    QtcProcess *m_process = nullptr;
+    Process *m_process = nullptr;
     ProgressParser m_parser = {};
     QFutureWatcher<void> m_watcher;
     QFutureInterface<void> m_futureInterface;
@@ -33,7 +33,7 @@ public:
     FutureProgress::KeepOnFinishType m_keep = FutureProgress::HideOnFinish;
 };
 
-ProcessProgressPrivate::ProcessProgressPrivate(ProcessProgress *progress, QtcProcess *process)
+ProcessProgressPrivate::ProcessProgressPrivate(ProcessProgress *progress, Process *process)
     : QObject(progress)
     , m_process(process)
 {
@@ -70,21 +70,22 @@ void ProcessProgressPrivate::parseProgress(const QString &inputText)
 
 /*!
     \class Core::ProcessProgress
+    \inmodule QtCreator
 
     \brief The ProcessProgress class is responsible for showing progress of the running process.
 
     It's possible to cancel the running process automatically after pressing a small 'x'
-    indicator on progress panel. In this case QtcProcess::stop() method is being called.
+    indicator on progress panel. In this case Process::stop() method is being called.
 */
 
-ProcessProgress::ProcessProgress(QtcProcess *process)
+ProcessProgress::ProcessProgress(Process *process)
     : QObject(process)
     , d(new ProcessProgressPrivate(this, process))
 {
     connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, [this] {
         d->m_process->stop(); // TODO: See TaskProgress::setAutoStopOnCancel
     });
-    connect(d->m_process, &QtcProcess::starting, this, [this] {
+    connect(d->m_process, &Process::starting, this, [this] {
         d->m_futureInterface = QFutureInterface<void>();
         d->m_futureInterface.setProgressRange(0, 1);
         d->m_watcher.setFuture(d->m_futureInterface.future());
@@ -100,7 +101,7 @@ ProcessProgress::ProcessProgress(QtcProcess *process)
         }
         d->m_futureProgress->setKeepOnFinish(d->m_keep);
     });
-    connect(d->m_process, &QtcProcess::done, this, [this] {
+    connect(d->m_process, &Process::done, this, [this] {
         if (d->m_process->result() != ProcessResult::FinishedWithSuccess)
             d->m_futureInterface.reportCanceled();
         d->m_futureInterface.reportFinished();
@@ -124,9 +125,9 @@ void ProcessProgress::setKeepOnFinish(FutureProgress::KeepOnFinishType keepType)
 void ProcessProgress::setProgressParser(const ProgressParser &parser)
 {
     if (d->m_parser) {
-        disconnect(d->m_process, &QtcProcess::textOnStandardOutput,
+        disconnect(d->m_process, &Process::textOnStandardOutput,
                    d.get(), &ProcessProgressPrivate::parseProgress);
-        disconnect(d->m_process, &QtcProcess::textOnStandardError,
+        disconnect(d->m_process, &Process::textOnStandardError,
                    d.get(), &ProcessProgressPrivate::parseProgress);
     }
     d->m_parser = parser;
@@ -137,9 +138,9 @@ void ProcessProgress::setProgressParser(const ProgressParser &parser)
                qWarning() << "Setting progress parser on a process without changing process' "
                "text channel mode is no-op.");
 
-    connect(d->m_process, &QtcProcess::textOnStandardOutput,
+    connect(d->m_process, &Process::textOnStandardOutput,
             d.get(), &ProcessProgressPrivate::parseProgress);
-    connect(d->m_process, &QtcProcess::textOnStandardError,
+    connect(d->m_process, &Process::textOnStandardError,
             d.get(), &ProcessProgressPrivate::parseProgress);
 }
 

@@ -3,9 +3,12 @@
 
 #pragma once
 
+#include "hostosinfo.h"
 #include "utils_global.h"
 
 #include "fileutils.h"
+
+class tst_unixdevicefileaccess; // For testing.
 
 namespace Utils {
 
@@ -19,6 +22,7 @@ public:
 
 protected:
     friend class FilePath;
+    friend class ::tst_unixdevicefileaccess; // For testing.
 
     virtual QString mapToDevicePath(const QString &hostPath) const;
 
@@ -30,6 +34,7 @@ protected:
     virtual bool isFile(const FilePath &filePath) const;
     virtual bool isDirectory(const FilePath &filePath) const;
     virtual bool isSymLink(const FilePath &filePath) const;
+    virtual bool hasHardLinks(const FilePath &filePath) const;
     virtual bool ensureWritableDirectory(const FilePath &filePath) const;
     virtual bool ensureExistingFile(const FilePath &filePath) const;
     virtual bool createDirectory(const FilePath &filePath) const;
@@ -41,7 +46,6 @@ protected:
                                                const FilePath &target) const;
     virtual bool renameFile(const FilePath &filePath, const FilePath &target) const;
 
-    virtual OsType osType(const FilePath &filePath) const;
     virtual FilePath symLinkTarget(const FilePath &filePath) const;
     virtual FilePathInfo filePathInfo(const FilePath &filePath) const;
     virtual QDateTime lastModified(const FilePath &filePath) const;
@@ -68,20 +72,6 @@ protected:
                                                    const QByteArray &data,
                                                    qint64 offset) const;
 
-    virtual void asyncFileContents(const FilePath &filePath,
-                                   const Continuation<expected_str<QByteArray>> &cont,
-                                   qint64 limit,
-                                   qint64 offset) const;
-
-    virtual void asyncWriteFileContents(const FilePath &filePath,
-                                        const Continuation<expected_str<qint64>> &cont,
-                                        const QByteArray &data,
-                                        qint64 offset) const;
-
-    virtual void asyncCopyFile(const FilePath &filePath,
-                               const Continuation<expected_str<void>> &cont,
-                               const FilePath &target) const;
-
     virtual expected_str<FilePath> createTempFile(const FilePath &filePath);
 };
 
@@ -101,6 +91,7 @@ protected:
     bool isFile(const FilePath &filePath) const override;
     bool isDirectory(const FilePath &filePath) const override;
     bool isSymLink(const FilePath &filePath) const override;
+    bool hasHardLinks(const FilePath &filePath) const override;
     bool ensureWritableDirectory(const FilePath &filePath) const override;
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
@@ -110,7 +101,6 @@ protected:
     expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
     bool renameFile(const FilePath &filePath, const FilePath &target) const override;
 
-    OsType osType(const FilePath &filePath) const override;
     FilePath symLinkTarget(const FilePath &filePath) const override;
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
     QDateTime lastModified(const FilePath &filePath) const override;
@@ -160,6 +150,7 @@ protected:
     bool isFile(const FilePath &filePath) const override;
     bool isDirectory(const FilePath &filePath) const override;
     bool isSymLink(const FilePath &filePath) const override;
+    bool hasHardLinks(const FilePath &filePath) const override;
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
@@ -169,7 +160,6 @@ protected:
     bool renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
-    OsType osType(const FilePath &filePath) const override;
     FilePath symLinkTarget(const FilePath &filePath) const override;
     QDateTime lastModified(const FilePath &filePath) const override;
     QFile::Permissions permissions(const FilePath &filePath) const override;
@@ -203,6 +193,10 @@ private:
             const QString &current,
             const FileFilter &filter,
             QStringList *found) const;
+
+    QStringList statArgs(const FilePath &filePath,
+                         const QString &linuxFormat,
+                         const QString &macFormat) const;
 
     mutable bool m_tryUseFind = true;
     mutable std::optional<bool> m_hasMkTemp;

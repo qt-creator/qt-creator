@@ -7,6 +7,7 @@
 #include "filepath.h"
 #include "mapreduce.h"
 #include "qtcassert.h"
+#include "searchresultitem.h"
 #include "stringutils.h"
 #include "utilstr.h"
 
@@ -68,7 +69,7 @@ public:
     FileSearch(const QString &searchTerm,
                QTextDocument::FindFlags flags,
                const QMap<FilePath, QString> &fileToContentsMap);
-    void operator()(QFutureInterface<FileSearchResultList> &futureInterface,
+    void operator()(QFutureInterface<SearchResultItems> &futureInterface,
                     const FileIterator::Item &item) const;
 
 private:
@@ -90,7 +91,7 @@ public:
                      QTextDocument::FindFlags flags,
                      const QMap<FilePath, QString> &fileToContentsMap);
     FileSearchRegExp(const FileSearchRegExp &other);
-    void operator()(QFutureInterface<FileSearchResultList> &futureInterface,
+    void operator()(QFutureInterface<SearchResultItems> &futureInterface,
                     const FileIterator::Item &item) const;
 
 private:
@@ -116,7 +117,7 @@ FileSearch::FileSearch(const QString &searchTerm,
     termDataUpper = searchTermUpper.constData();
 }
 
-void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterface,
+void FileSearch::operator()(QFutureInterface<SearchResultItems> &futureInterface,
                             const FileIterator::Item &item) const
 {
     if (futureInterface.isCanceled())
@@ -124,7 +125,7 @@ void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterf
     qCDebug(searchLog) << "Searching in" << item.filePath;
     futureInterface.setProgressRange(0, 1);
     futureInterface.setProgressValue(0);
-    FileSearchResultList results;
+    SearchResultItems results;
     QString tempString;
     if (!getFileContent(item.filePath, item.encoding, &tempString, fileToContentsMap)) {
         qCDebug(searchLog) << "- failed to get content for" << item.filePath;
@@ -189,13 +190,13 @@ void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterf
                     }
                 }
                 if (equal) {
-                    const QString resultItemText = clippedText(chunk, MAX_LINE_SIZE);
-                    results << FileSearchResult(item.filePath,
-                                                lineNr,
-                                                resultItemText,
-                                                regionPtr - chunkPtr,
-                                                termMaxIndex + 1,
-                                                QStringList());
+                    SearchResultItem result;
+                    result.setFilePath(item.filePath);
+                    result.setMainRange(lineNr, regionPtr - chunkPtr, termMaxIndex + 1);
+                    result.setDisplayText(clippedText(chunk, MAX_LINE_SIZE));
+                    result.setUserData(QStringList());
+                    result.setUseTextEditorFont(true);
+                    results << result;
                     regionPtr += termMaxIndex; // another +1 done by for-loop
                 }
             }
@@ -237,7 +238,7 @@ QRegularExpressionMatch FileSearchRegExp::doGuardedMatch(const QString &line, in
     return expression.match(line, offset);
 }
 
-void FileSearchRegExp::operator()(QFutureInterface<FileSearchResultList> &futureInterface,
+void FileSearchRegExp::operator()(QFutureInterface<SearchResultItems> &futureInterface,
                                   const FileIterator::Item &item) const
 {
     if (!expression.isValid()) {
@@ -249,7 +250,7 @@ void FileSearchRegExp::operator()(QFutureInterface<FileSearchResultList> &future
     qCDebug(searchLog) << "Searching in" << item.filePath;
     futureInterface.setProgressRange(0, 1);
     futureInterface.setProgressValue(0);
-    FileSearchResultList results;
+    SearchResultItems results;
     QString tempString;
     if (!getFileContent(item.filePath, item.encoding, &tempString, fileToContentsMap)) {
         qCDebug(searchLog) << "- failed to get content for" << item.filePath;
@@ -269,12 +270,13 @@ void FileSearchRegExp::operator()(QFutureInterface<FileSearchResultList> &future
         int pos = 0;
         while ((match = doGuardedMatch(line, pos)).hasMatch()) {
             pos = match.capturedStart();
-            results << FileSearchResult(item.filePath,
-                                        lineNr,
-                                        resultItemText,
-                                        pos,
-                                        match.capturedLength(),
-                                        match.capturedTexts());
+            SearchResultItem result;
+            result.setFilePath(item.filePath);
+            result.setMainRange(lineNr, pos, match.capturedLength());
+            result.setDisplayText(resultItemText);
+            result.setUserData(match.capturedTexts());
+            result.setUseTextEditorFont(true);
+            results << result;
             if (match.capturedLength() == 0)
                 break;
             pos += match.capturedLength();
@@ -298,12 +300,12 @@ struct SearchState
     SearchState(const QString &term, FileIterator *iterator) : searchTerm(term), files(iterator) {}
     QString searchTerm;
     FileIterator *files = nullptr;
-    FileSearchResultList cachedResults;
+    SearchResultItems cachedResults;
     int numFilesSearched = 0;
     int numMatches = 0;
 };
 
-SearchState initFileSearch(QFutureInterface<FileSearchResultList> &futureInterface,
+SearchState initFileSearch(QFutureInterface<SearchResultItems> &futureInterface,
                            const QString &searchTerm, FileIterator *files)
 {
     futureInterface.setProgressRange(0, files->maxProgress());
@@ -311,9 +313,9 @@ SearchState initFileSearch(QFutureInterface<FileSearchResultList> &futureInterfa
     return SearchState(searchTerm, files);
 }
 
-void collectSearchResults(QFutureInterface<FileSearchResultList> &futureInterface,
+void collectSearchResults(QFutureInterface<SearchResultItems> &futureInterface,
                           SearchState &state,
-                          const FileSearchResultList &results)
+                          const SearchResultItems &results)
 {
     state.numMatches += results.size();
     state.cachedResults << results;
@@ -332,7 +334,7 @@ void collectSearchResults(QFutureInterface<FileSearchResultList> &futureInterfac
     }
 }
 
-void cleanUpFileSearch(QFutureInterface<FileSearchResultList> &futureInterface,
+void cleanUpFileSearch(QFutureInterface<SearchResultItems> &futureInterface,
                        SearchState &state)
 {
     if (!state.cachedResults.isEmpty()) {
@@ -355,13 +357,13 @@ void cleanUpFileSearch(QFutureInterface<FileSearchResultList> &futureInterface,
 
 } // namespace
 
-QFuture<FileSearchResultList> Utils::findInFiles(const QString &searchTerm,
-                                                 FileIterator *files,
-                                                 QTextDocument::FindFlags flags,
-                                                 const QMap<FilePath, QString> &fileToContentsMap)
+QFuture<SearchResultItems> Utils::findInFiles(const QString &searchTerm,
+                                              FileIterator *files,
+                                              QTextDocument::FindFlags flags,
+                                              const QMap<FilePath, QString> &fileToContentsMap)
 {
     return mapReduce(files->begin(), files->end(),
-                     [searchTerm, files](QFutureInterface<FileSearchResultList> &futureInterface) {
+                     [searchTerm, files](QFutureInterface<SearchResultItems> &futureInterface) {
                          return initFileSearch(futureInterface, searchTerm, files);
                      },
                      FileSearch(searchTerm, flags, fileToContentsMap),
@@ -369,14 +371,14 @@ QFuture<FileSearchResultList> Utils::findInFiles(const QString &searchTerm,
                      &cleanUpFileSearch);
 }
 
-QFuture<FileSearchResultList> Utils::findInFilesRegExp(
+QFuture<SearchResultItems> Utils::findInFilesRegExp(
     const QString &searchTerm,
     FileIterator *files,
     QTextDocument::FindFlags flags,
     const QMap<FilePath, QString> &fileToContentsMap)
 {
     return mapReduce(files->begin(), files->end(),
-                     [searchTerm, files](QFutureInterface<FileSearchResultList> &futureInterface) {
+                     [searchTerm, files](QFutureInterface<SearchResultItems> &futureInterface) {
                          return initFileSearch(futureInterface, searchTerm, files);
                      },
                      FileSearchRegExp(searchTerm, flags, fileToContentsMap),
@@ -496,16 +498,6 @@ static bool isFileIncluded(const QList<QRegularExpression> &filterRegs,
     return isIncluded && (exclusionRegs.isEmpty() || !matches(exclusionRegs, filePath));
 }
 
-std::function<bool(const FilePath &)> filterFileFunction(const QStringList &filters,
-                                                         const QStringList &exclusionFilters)
-{
-    const QList<QRegularExpression> filterRegs = filtersToRegExps(filters);
-    const QList<QRegularExpression> exclusionRegs = filtersToRegExps(exclusionFilters);
-    return [filterRegs, exclusionRegs](const FilePath &filePath) {
-        return isFileIncluded(filterRegs, exclusionRegs, filePath);
-    };
-}
-
 std::function<FilePaths(const FilePaths &)> filterFilesFunction(const QStringList &filters,
                                                                 const QStringList &exclusionFilters)
 {
@@ -538,10 +530,12 @@ QString msgExclusionPatternLabel()
     return Tr::tr("Excl&usion pattern:");
 }
 
-QString msgFilePatternToolTip()
+QString msgFilePatternToolTip(InclusionType inclusionType)
 {
-    return Tr::tr("List of comma separated wildcard filters. "
-                  "Files with file name or full file path matching any filter are included.");
+    return Tr::tr("List of comma separated wildcard filters. ")
+        + (inclusionType == InclusionType::Included
+            ? Tr::tr("Files with file name or full file path matching any filter are included.")
+            : Tr::tr("Files with file name or full file path matching any filter are excluded."));
 }
 
 QString matchCaseReplacement(const QString &originalText, const QString &replaceText)
@@ -598,19 +592,20 @@ FileIterator::const_iterator FileIterator::end() const
 
 // #pragma mark -- FileListIterator
 
-QTextCodec *encodingAt(const QList<QTextCodec *> &encodings, int index)
+QList<FileIterator::Item> constructItems(const FilePaths &fileList,
+                                         const QList<QTextCodec *> &encodings)
 {
-    if (index >= 0 && index < encodings.size())
-        return encodings.at(index);
-    return QTextCodec::codecForLocale();
+    QList<FileIterator::Item> items;
+    items.reserve(fileList.size());
+    QTextCodec *defaultEncoding = QTextCodec::codecForLocale();
+    for (int i = 0; i < fileList.size(); ++i)
+        items.append(FileIterator::Item(fileList.at(i), encodings.value(i, defaultEncoding)));
+    return items;
 }
 
-FileListIterator::FileListIterator(const FilePaths &fileList, const QList<QTextCodec *> encodings)
-    : m_maxIndex(-1)
+FileListIterator::FileListIterator(const FilePaths &fileList, const QList<QTextCodec *> &encodings)
+    : m_items(constructItems(fileList, encodings))
 {
-    m_items.reserve(fileList.size());
-    for (int i = 0; i < fileList.size(); ++i)
-        m_items.append(Item(fileList.at(i), encodingAt(encodings, i)));
 }
 
 void FileListIterator::update(int requestedIndex)

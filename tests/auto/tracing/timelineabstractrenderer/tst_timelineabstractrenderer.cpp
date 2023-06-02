@@ -36,7 +36,7 @@ void tst_TimelineAbstractRenderer::privateCtor()
 void tst_TimelineAbstractRenderer::selectionLocked()
 {
     TimelineAbstractRenderer renderer;
-    QSignalSpy spy(&renderer, SIGNAL(selectionLockedChanged(bool)));
+    QSignalSpy spy(&renderer, &TimelineAbstractRenderer::selectionLockedChanged);
     QCOMPARE(spy.count(), 0);
     QVERIFY(renderer.selectionLocked());
     renderer.setSelectionLocked(false);
@@ -50,7 +50,7 @@ void tst_TimelineAbstractRenderer::selectionLocked()
 void tst_TimelineAbstractRenderer::selectedItem()
 {
     TimelineAbstractRenderer renderer;
-    QSignalSpy spy(&renderer, SIGNAL(selectedItemChanged(int)));
+    QSignalSpy spy(&renderer, &TimelineAbstractRenderer::selectedItemChanged);
     QCOMPARE(spy.count(), 0);
     QCOMPARE(renderer.selectedItem(), -1);
     renderer.setSelectedItem(12);
@@ -62,7 +62,7 @@ void tst_TimelineAbstractRenderer::model()
 {
     TimelineAbstractRenderer renderer;
     TimelineModelAggregator aggregator;
-    QSignalSpy spy(&renderer, SIGNAL(modelChanged(TimelineModel*)));
+    QSignalSpy spy(&renderer, &TimelineAbstractRenderer::modelChanged);
     QVERIFY(!renderer.modelDirty());
     QCOMPARE(spy.count(), 0);
     TimelineModel model(&aggregator);
@@ -80,7 +80,7 @@ void tst_TimelineAbstractRenderer::model()
 void tst_TimelineAbstractRenderer::notes()
 {
     TimelineAbstractRenderer renderer;
-    QSignalSpy spy(&renderer, SIGNAL(notesChanged(TimelineNotesModel*)));
+    QSignalSpy spy(&renderer, &TimelineAbstractRenderer::notesChanged);
     QVERIFY(!renderer.notesDirty());
     QCOMPARE(spy.count(), 0);
     TimelineNotesModel notes;
@@ -98,7 +98,7 @@ void tst_TimelineAbstractRenderer::notes()
 void tst_TimelineAbstractRenderer::zoomer()
 {
     TimelineAbstractRenderer renderer;
-    QSignalSpy spy(&renderer, SIGNAL(zoomerChanged(TimelineZoomControl*)));
+    QSignalSpy spy(&renderer, &TimelineAbstractRenderer::zoomerChanged);
     QCOMPARE(spy.count(), 0);
     TimelineZoomControl zoomer;
     QCOMPARE(renderer.zoomer(), static_cast<TimelineZoomControl *>(0));

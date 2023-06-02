@@ -42,15 +42,16 @@ class HighlightScrollBarController;
 }
 
 namespace TextEditor {
-class TextDocument;
-class TextMark;
-class BaseHoverHandler;
-class RefactorOverlay;
-class SyntaxHighlighter;
 class AssistInterface;
+class BaseHoverHandler;
+class CompletionAssistProvider;
 class IAssistProvider;
 class ICodeStylePreferences;
-class CompletionAssistProvider;
+class RefactorOverlay;
+class SyntaxHighlighter;
+class TextDocument;
+class TextMark;
+class TextSuggestion;
 using RefactorMarkers = QList<RefactorMarker>;
 using TextMarks = QList<TextMark *>;
 
@@ -437,6 +438,7 @@ public:
 
     virtual void findUsages();
     virtual void renameSymbolUnderCursor();
+    virtual void openCallHierarchy();
 
     /// Abort code assistant if it is running.
     void abortAssist();
@@ -469,6 +471,16 @@ public:
     void addHoverHandler(BaseHoverHandler *handler);
     void removeHoverHandler(BaseHoverHandler *handler);
 
+    void insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion);
+    void clearSuggestion();
+    TextSuggestion *currentSuggestion() const;
+    bool suggestionVisible() const;
+    bool suggestionsBlocked() const;
+
+    using SuggestionBlocker = std::shared_ptr<void>;
+    // Returns an object that blocks suggestions until it is destroyed.
+    SuggestionBlocker blockSuggestions();
+
 #ifdef WITH_TESTS
     void processTooltipRequest(const QTextCursor &c);
 #endif
@@ -483,6 +495,7 @@ signals:
                        bool resolveTarget, bool inNextSplit);
     void requestUsages(const QTextCursor &cursor);
     void requestRename(const QTextCursor &cursor);
+    void requestCallHierarchy(const QTextCursor &cursor);
     void optionalActionMaskChanged();
     void toolbarOutlineChanged(QWidget *newOutline);
 

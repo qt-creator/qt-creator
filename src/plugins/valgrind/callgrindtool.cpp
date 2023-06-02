@@ -47,13 +47,13 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/taskhub.h>
 
 #include <utils/fancymainwindow.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
@@ -256,7 +256,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     menu->addAction(ActionManager::registerAction(action, CallgrindRemoteActionId),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this, action] {
-        auto runConfig = SessionManager::startupRunConfiguration();
+        auto runConfig = ProjectManager::startupRunConfiguration();
         if (!runConfig) {
             showCannotStartDialog(action->text());
             return;
@@ -361,7 +361,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     action->setIcon(kCachegrindIcon.icon());
     action->setToolTip(Tr::tr("Open results in KCachegrind."));
     connect(action, &QAction::triggered, this, [this, settings] {
-        QtcProcess::startDetached({FilePath::fromString(settings->kcachegrindExecutable.value()), { m_lastFileName }});
+        Process::startDetached({FilePath::fromString(settings->kcachegrindExecutable.value()), { m_lastFileName }});
     });
 
     // dump action

@@ -2,12 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "catchoutputreader.h"
+
 #include "catchresult.h"
 
 #include "../autotesttr.h"
-
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
 
 using namespace Utils;
 
@@ -31,11 +29,10 @@ namespace CatchXml {
     const char TestCaseResultElement[] = "OverallResult";
 }
 
-CatchOutputReader::CatchOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                                     QtcProcess *testApplication,
+CatchOutputReader::CatchOutputReader(Process *testApplication,
                                      const FilePath &buildDirectory,
                                      const FilePath &projectFile)
-    : TestOutputReader (futureInterface, testApplication, buildDirectory)
+    : TestOutputReader(testApplication, buildDirectory)
     , m_projectFile(projectFile)
 {
 }

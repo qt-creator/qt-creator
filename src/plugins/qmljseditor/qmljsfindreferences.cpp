@@ -12,8 +12,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basefilefind.h>
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/filesearch.h>
-#include <utils/runextensions.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsbind.h>
@@ -26,18 +26,9 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljstools/qmljsmodelmanager.h>
 
-#include "qmljseditorconstants.h"
-
-#include <QApplication>
 #include <QDebug>
-#include <QDir>
 #include <QFuture>
-#include <QLabel>
-#include <QTime>
-#include <QTimer>
 #include <QtConcurrentMap>
-
-#include <functional>
 
 using namespace Core;
 using namespace QmlJS;
@@ -704,7 +695,7 @@ class ProcessFile
     using Usage = FindReferences::Usage;
     const QString name;
     const ObjectValue *scope;
-    QFutureInterface<Usage> *future;
+    QPromise<Usage> &m_promise;
 
 public:
     // needed by QtConcurrent
@@ -714,16 +705,15 @@ public:
     ProcessFile(const ContextPtr &context,
                 const QString &name,
                 const ObjectValue *scope,
-                QFutureInterface<Usage> *future)
-        : context(context), name(name), scope(scope), future(future)
+                QPromise<Usage> &promise)
+        : context(context), name(name), scope(scope), m_promise(promise)
     { }
 
     QList<Usage> operator()(const Utils::FilePath &fileName)
     {
         QList<Usage> usages;
-        if (future->isPaused())
-            future->waitForResume();
-        if (future->isCanceled())
+        m_promise.suspendIfRequested();
+        if (m_promise.isCanceled())
             return usages;
         ModelManagerInterface *modelManager = ModelManagerInterface::instance();
         Document::Ptr doc = context->snapshot().document(fileName);
@@ -739,8 +729,7 @@ public:
                                 loc.startLine,
                                 loc.startColumn - 1,
                                 loc.length));
-        if (future->isPaused())
-            future->waitForResume();
+        m_promise.suspendIfRequested();
         return usages;
     }
 };
@@ -751,7 +740,7 @@ class SearchFileForType
     using Usage = FindReferences::Usage;
     const QString name;
     const ObjectValue *scope;
-    QFutureInterface<Usage> *future;
+    QPromise<Usage> &m_promise;
 
 public:
     // needed by QtConcurrent
@@ -761,16 +750,15 @@ public:
     SearchFileForType(const ContextPtr &context,
                       const QString &name,
                       const ObjectValue *scope,
-                      QFutureInterface<Usage> *future)
-        : context(context), name(name), scope(scope), future(future)
+                      QPromise<Usage> &promise)
+        : context(context), name(name), scope(scope), m_promise(promise)
     { }
 
     QList<Usage> operator()(const Utils::FilePath &fileName)
     {
         QList<Usage> usages;
-        if (future->isPaused())
-            future->waitForResume();
-        if (future->isCanceled())
+        m_promise.suspendIfRequested();
+        if (m_promise.isCanceled())
             return usages;
         Document::Ptr doc = context->snapshot().document(fileName);
         if (!doc)
@@ -781,8 +769,7 @@ public:
         const FindTypeUsages::Result results = findUsages(name, scope);
         for (const SourceLocation &loc : results)
             usages.append(Usage(fileName, matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
-        if (future->isPaused())
-            future->waitForResume();
+        m_promise.suspendIfRequested();
         return usages;
     }
 };
@@ -790,7 +777,7 @@ public:
 class UpdateUI
 {
     using Usage = FindReferences::Usage;
-    QFutureInterface<Usage> *future;
+    QPromise<Usage> &m_promise;
 
 public:
     // needed by QtConcurrent
@@ -798,14 +785,13 @@ public:
     using second_argument_type = const QList<Usage> &;
     using result_type = void;
 
-    UpdateUI(QFutureInterface<Usage> *future): future(future) {}
+    UpdateUI(QPromise<Usage> &promise): m_promise(promise) {}
 
     void operator()(QList<Usage> &, const QList<Usage> &usages)
     {
         for (const Usage &u : usages)
-            future->reportResult(u);
-
-        future->setProgressValue(future->progressValue() + 1);
+            m_promise.addResult(u);
+        m_promise.setProgressValue(m_promise.future().progressValue() + 1);
     }
 };
 
@@ -817,12 +803,11 @@ FindReferences::FindReferences(QObject *parent)
     m_watcher.setPendingResultsLimit(1);
     connect(&m_watcher, &QFutureWatcherBase::resultsReadyAt, this, &FindReferences::displayResults);
     connect(&m_watcher, &QFutureWatcherBase::finished, this, &FindReferences::searchFinished);
-    m_synchronizer.setCancelOnWait(true);
 }
 
 FindReferences::~FindReferences() = default;
 
-static void find_helper(QFutureInterface<FindReferences::Usage> &future,
+static void find_helper(QPromise<FindReferences::Usage> &promise,
                         const ModelManagerInterface::WorkingCopy &workingCopy,
                         Snapshot snapshot,
                         const Utils::FilePath &fileName,
@@ -885,7 +870,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     }
     files = Utils::filteredUnique(files);
 
-    future.setProgressRange(0, files.size());
+    promise.setProgressRange(0, files.size());
 
     // report a dummy usage to indicate the search is starting
     FindReferences::Usage searchStarting(Utils::FilePath::fromString(replacement), name, 0, 0, 0);
@@ -894,10 +879,10 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         const ObjectValue *typeValue = value_cast<ObjectValue>(findTarget.targetValue());
         if (!typeValue)
             return;
-        future.reportResult(searchStarting);
+        promise.addResult(searchStarting);
 
-        SearchFileForType process(context, name, typeValue, &future);
-        UpdateUI reduce(&future);
+        SearchFileForType process(context, name, typeValue, promise);
+        UpdateUI reduce(promise);
 
         QtConcurrent::blockingMappedReduced<QList<FindReferences::Usage> > (files, process, reduce);
     } else {
@@ -909,21 +894,21 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
             return;
         if (!scope->className().isEmpty())
             searchStarting.lineText.prepend(scope->className() + QLatin1Char('.'));
-        future.reportResult(searchStarting);
+        promise.addResult(searchStarting);
 
-        ProcessFile process(context, name, scope, &future);
-        UpdateUI reduce(&future);
+        ProcessFile process(context, name, scope, promise);
+        UpdateUI reduce(promise);
 
         QtConcurrent::blockingMappedReduced<QList<FindReferences::Usage> > (files, process, reduce);
     }
-    future.setProgressValue(files.size());
+    promise.setProgressValue(files.size());
 }
 
 void FindReferences::findUsages(const Utils::FilePath &fileName, quint32 offset)
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
-    QFuture<Usage> result = Utils::runAsync(&find_helper, ModelManagerInterface::workingCopy(),
+    QFuture<Usage> result = Utils::asyncRun(&find_helper, ModelManagerInterface::workingCopy(),
                                             modelManager->snapshot(), fileName, offset, QString());
     m_watcher.setFuture(result);
     m_synchronizer.addFuture(result);
@@ -940,7 +925,7 @@ void FindReferences::renameUsages(const Utils::FilePath &fileName,
     if (newName.isNull())
         newName = QLatin1String("");
 
-    QFuture<Usage> result = Utils::runAsync(&find_helper, ModelManagerInterface::workingCopy(),
+    QFuture<Usage> result = Utils::asyncRun(&find_helper, ModelManagerInterface::workingCopy(),
                                             modelManager->snapshot(), fileName, offset, newName);
     m_watcher.setFuture(result);
     m_synchronizer.addFuture(result);
@@ -1007,7 +992,7 @@ void FindReferences::displayResults(int first, int last)
                     this, &FindReferences::onReplaceButtonClicked);
         }
         connect(m_currentSearch.data(), &SearchResult::activated,
-                [](const Core::SearchResultItem& item) {
+                [](const Utils::SearchResultItem &item) {
                     Core::EditorManager::openEditorAtSearchResult(item);
                 });
         connect(m_currentSearch.data(), &SearchResult::canceled, this, &FindReferences::cancel);
@@ -1028,7 +1013,7 @@ void FindReferences::displayResults(int first, int last)
     }
     for (int index = first; index != last; ++index) {
         Usage result = m_watcher.future().resultAt(index);
-        SearchResultItem item;
+        Utils::SearchResultItem item;
         item.setFilePath(result.path);
         item.setLineText(result.lineText);
         item.setMainRange(result.line, result.col, result.len);
@@ -1056,7 +1041,8 @@ void FindReferences::setPaused(bool paused)
         m_watcher.setPaused(paused);
 }
 
-void FindReferences::onReplaceButtonClicked(const QString &text, const QList<SearchResultItem> &items, bool preserveCase)
+void FindReferences::onReplaceButtonClicked(const QString &text,
+                     const Utils::SearchResultItems &items, bool preserveCase)
 {
     const Utils::FilePaths filePaths = TextEditor::BaseFileFind::replaceAll(text,
                                                                             items,

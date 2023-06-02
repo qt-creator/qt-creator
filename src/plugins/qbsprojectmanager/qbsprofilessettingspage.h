@@ -5,22 +5,12 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace QbsProjectManager {
-namespace Internal {
-class QbsProfilesSettingsWidget;
+namespace QbsProjectManager::Internal {
 
 class QbsProfilesSettingsPage : public Core::IOptionsPage
 {
 public:
     QbsProfilesSettingsPage();
-
-private:
-    QWidget *widget() override;
-    void apply() override { }
-    void finish() override;
-
-    QbsProfilesSettingsWidget *m_widget = nullptr;
 };
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // QbsProjectManager::Internal

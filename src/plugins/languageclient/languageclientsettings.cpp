@@ -14,7 +14,7 @@
 #include <coreplugin/idocument.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <texteditor/plaintexteditorfactory.h>
 #include <texteditor/textmark.h>
@@ -104,17 +104,39 @@ private:
     QList<BaseSettings *> m_removed;
 };
 
-class LanguageClientSettingsPageWidget : public QWidget
+class LanguageClientSettingsPageWidget : public Core::IOptionsPageWidget
 {
 public:
-    LanguageClientSettingsPageWidget(LanguageClientSettingsModel &settings);
+    LanguageClientSettingsPageWidget(LanguageClientSettingsModel &settings,
+                                     QSet<QString> &changedSettings);
+
     void currentChanged(const QModelIndex &index);
     int currentRow() const;
     void resetCurrentSettings(int row);
     void applyCurrentSettings();
 
+    void apply() final
+    {
+        applyCurrentSettings();
+        LanguageClientManager::applySettings();
+
+        for (BaseSettings *setting : m_model.removed()) {
+            for (Client *client : LanguageClientManager::clientsForSetting(setting))
+                LanguageClientManager::shutdownClient(client);
+        }
+
+        int row = currentRow();
+        m_model.reset(LanguageClientManager::currentSettings());
+        resetCurrentSettings(row);
+    }
+
+    void finish()
+    {
+        m_settings.reset(LanguageClientManager::currentSettings());
+        m_changedSettings.clear();
+    }
+
 private:
-    LanguageClientSettingsModel &m_settings;
     QTreeView *m_view = nullptr;
     struct CurrentSettings {
         BaseSettings *setting = nullptr;
@@ -123,30 +145,10 @@ private:
 
     void addItem(const Utils::Id &clientTypeId);
     void deleteItem();
-};
 
-class LanguageClientSettingsPage : public Core::IOptionsPage
-{
-public:
-    LanguageClientSettingsPage();
-    ~LanguageClientSettingsPage() override;
-
-    void init();
-
-    // IOptionsPage interface
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-    QList<BaseSettings *> settings() const;
-    QList<BaseSettings *> changedSettings() const;
-    void addSettings(BaseSettings *settings);
-    void enableSettings(const QString &id, bool enable = true);
-
-private:
+    LanguageClientSettingsModel &m_settings;
+    QSet<QString> &m_changedSettings;
     LanguageClientSettingsModel m_model;
-    QSet<QString> m_changedSettings;
-    QPointer<LanguageClientSettingsPageWidget> m_widget;
 };
 
 QMap<Utils::Id, ClientType> &clientTypes()
@@ -155,9 +157,11 @@ QMap<Utils::Id, ClientType> &clientTypes()
     return types;
 }
 
-LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClientSettingsModel &settings)
-    : m_settings(settings)
-    , m_view(new QTreeView())
+LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClientSettingsModel &settings,
+                                                                   QSet<QString> &changedSettings)
+    : m_view(new QTreeView())
+    , m_settings(settings)
+    , m_changedSettings(changedSettings)
 {
     auto mainLayout = new QVBoxLayout();
     auto layout = new QHBoxLayout();
@@ -264,6 +268,23 @@ void LanguageClientSettingsPageWidget::deleteItem()
     m_settings.removeRows(index.row());
 }
 
+class LanguageClientSettingsPage : public Core::IOptionsPage
+{
+public:
+    LanguageClientSettingsPage();
+
+    void init();
+
+    QList<BaseSettings *> settings() const;
+    QList<BaseSettings *> changedSettings() const;
+    void addSettings(BaseSettings *settings);
+    void enableSettings(const QString &id, bool enable = true);
+
+private:
+    LanguageClientSettingsModel m_model;
+    QSet<QString> m_changedSettings;
+};
+
 LanguageClientSettingsPage::LanguageClientSettingsPage()
 {
     setId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
@@ -271,16 +292,11 @@ LanguageClientSettingsPage::LanguageClientSettingsPage()
     setCategory(Constants::LANGUAGECLIENT_SETTINGS_CATEGORY);
     setDisplayCategory(Tr::tr(Constants::LANGUAGECLIENT_SETTINGS_TR));
     setCategoryIconPath(":/languageclient/images/settingscategory_languageclient.png");
-    connect(&m_model, &LanguageClientSettingsModel::dataChanged, [this](const QModelIndex &index) {
+    setWidgetCreator([this] { return new LanguageClientSettingsPageWidget(m_model, m_changedSettings); });
+    QObject::connect(&m_model, &LanguageClientSettingsModel::dataChanged, [this](const QModelIndex &index) {
         if (BaseSettings *setting = m_model.settingForIndex(index))
             m_changedSettings << setting->m_id;
     });
-}
-
-LanguageClientSettingsPage::~LanguageClientSettingsPage()
-{
-    if (m_widget)
-        delete m_widget;
 }
 
 void LanguageClientSettingsPage::init()
@@ -288,39 +304,6 @@ void LanguageClientSettingsPage::init()
     m_model.reset(LanguageClientSettings::fromSettings(Core::ICore::settings()));
     apply();
     finish();
-}
-
-QWidget *LanguageClientSettingsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new LanguageClientSettingsPageWidget(m_model);
-    return m_widget;
-}
-
-void LanguageClientSettingsPage::apply()
-{
-    if (m_widget)
-        m_widget->applyCurrentSettings();
-    LanguageClientManager::applySettings();
-
-    for (BaseSettings *setting : m_model.removed()) {
-        for (Client *client : LanguageClientManager::clientsForSetting(setting))
-            LanguageClientManager::shutdownClient(client);
-    }
-
-    if (m_widget) {
-        int row = m_widget->currentRow();
-        m_model.reset(LanguageClientManager::currentSettings());
-        m_widget->resetCurrentSettings(row);
-    } else {
-        m_model.reset(LanguageClientManager::currentSettings());
-    }
-}
-
-void LanguageClientSettingsPage::finish()
-{
-    m_model.reset(LanguageClientManager::currentSettings());
-    m_changedSettings.clear();
 }
 
 QList<BaseSettings *> LanguageClientSettingsPage::settings() const
@@ -1047,6 +1030,7 @@ bool LanguageFilter::operator!=(const LanguageFilter &other) const
 TextEditor::BaseTextEditor *jsonEditor()
 {
     using namespace TextEditor;
+    using namespace Utils::Text;
     BaseTextEditor *editor = PlainTextEditorFactory::createPlainTextEditor();
     TextDocument *document = editor->textDocument();
     TextEditorWidget *widget = editor->editorWidget();
@@ -1069,12 +1053,11 @@ TextEditor::BaseTextEditor *jsonEditor()
         QJsonDocument::fromJson(content.toUtf8(), &error);
         if (error.error == QJsonParseError::NoError)
             return;
-        const Utils::OptionalLineColumn lineColumn
-            = Utils::Text::convertPosition(document->document(), error.offset);
-        if (!lineColumn.has_value())
+        const Position pos = Position::fromPositionInDocument(document->document(), error.offset);
+        if (!pos.isValid())
             return;
         auto mark = new TextMark(Utils::FilePath(),
-                                 lineColumn->line,
+                                 pos.line,
                                  {::LanguageClient::Tr::tr("JSON Error"), jsonMarkId});
         mark->setLineAnnotation(error.errorString());
         mark->setColor(Utils::Theme::CodeModel_Error_TextMarkColor);

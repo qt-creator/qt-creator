@@ -5,17 +5,19 @@
 
 #include "projectinfo.h"
 
-#include <QFutureInterface>
+QT_BEGIN_NAMESPACE
+template <class T>
+class QPromise;
+QT_END_NAMESPACE
 
 namespace CppEditor::Internal {
 
 class ProjectInfoGenerator
 {
 public:
-    ProjectInfoGenerator(const QFutureInterface<ProjectInfo::ConstPtr> &futureInterface,
-                         const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo);
+    ProjectInfoGenerator(const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo);
 
-    ProjectInfo::ConstPtr generate();
+    ProjectInfo::ConstPtr generate(const QPromise<ProjectInfo::ConstPtr> &promise);
 
 private:
     const QVector<ProjectPart::ConstPtr> createProjectParts(
@@ -29,7 +31,6 @@ private:
                                        Utils::LanguageExtensions languageExtensions);
 
 private:
-    const QFutureInterface<ProjectInfo::ConstPtr> m_futureInterface;
     const ProjectExplorer::ProjectUpdateInfo &m_projectUpdateInfo;
     bool m_cToolchainMissing = false;
     bool m_cxxToolchainMissing = false;

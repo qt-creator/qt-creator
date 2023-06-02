@@ -8,18 +8,10 @@
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT DeviceCheckBuildStep : public BuildStep
+class PROJECTEXPLORER_EXPORT DeviceCheckBuildStepFactory : public BuildStepFactory
 {
-    Q_OBJECT
-
 public:
-    DeviceCheckBuildStep(BuildStepList *bsl, Utils::Id id);
-
-    bool init() override;
-    void doRun() override;
-
-    static Utils::Id stepId();
-    static QString displayName();
+    DeviceCheckBuildStepFactory();
 };
 
-} // namespace ProjectExplorer
+} // ProjectExplorer

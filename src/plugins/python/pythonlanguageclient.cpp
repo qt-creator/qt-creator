@@ -23,15 +23,15 @@
 #include <languageserverprotocol/workspace.h>
 
 #include <projectexplorer/extracompiler.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/async.h>
 #include <utils/infobar.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
+#include <utils/process.h>
 #include <utils/variablechooser.h>
 
 #include <QCheckBox>
@@ -80,7 +80,7 @@ FilePath getPylsModulePath(CommandLine pylsCommand)
 
     pylsCommand.addArg("-h");
 
-    QtcProcess pythonProcess;
+    Process pythonProcess;
     Environment env = pythonProcess.environment();
     env.set("PYTHONVERBOSE", "x");
     pythonProcess.setEnvironment(env);
@@ -114,7 +114,7 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
     const CommandLine pythonLShelpCommand(python, {"-m", "pylsp", "-h"});
     const FilePath &modulePath = getPylsModulePath(pythonLShelpCommand);
 
-    QtcProcess pythonProcess;
+    Process pythonProcess;
     pythonProcess.setCommand(pythonLShelpCommand);
     pythonProcess.runBlocking();
     if (pythonProcess.allOutput().contains("Python Language Server"))
@@ -305,7 +305,7 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
         install->deleteLater();
     });
 
-    install->setPackage(PipPackage{"python-lsp-server[all]", "Python Language Server"});
+    install->setPackages({PipPackage{"python-lsp-server[all]", "Python Language Server"}});
     install->run();
 }
 
@@ -341,7 +341,7 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
                 instance()->handlePyLSState(python, watcher->result(), document);
                 watcher->deleteLater();
             });
-    watcher->setFuture(Utils::runAsync(&checkPythonLanguageServer, python));
+    watcher->setFuture(Utils::asyncRun(&checkPythonLanguageServer, python));
 }
 
 void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,

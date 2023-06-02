@@ -26,10 +26,10 @@ const char kTakeTourSetting[] = "TakeUITour";
 namespace Welcome {
 namespace Internal {
 
-void IntroductionWidget::askUserAboutIntroduction(QWidget *parent, QSettings *settings)
+void IntroductionWidget::askUserAboutIntroduction(QWidget *parent)
 {
     // CheckableMessageBox for compatibility with Qt Creator < 4.11
-    if (!CheckableMessageBox::shouldAskAgain(settings, kTakeTourSetting)
+    if (!CheckableDecider(QString(kTakeTourSetting)).shouldAskAgain()
         || !Core::ICore::infoBar()->canInfoBeAdded(kTakeTourSetting))
         return;
 

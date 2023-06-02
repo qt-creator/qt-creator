@@ -36,7 +36,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
 
@@ -225,7 +225,7 @@ bool QMakeStep::init()
     }
 
     // Check whether we need to run qmake
-    if (m_forced || QmakeSettings::alwaysRunQmake()
+    if (m_forced || settings().alwaysRunQmake()
             || qmakeBc->compareToImportFrom(makeFile) != QmakeBuildConfiguration::MakefileMatches) {
         m_needToRunQMake = true;
     }
@@ -284,14 +284,14 @@ void QMakeStep::doRun()
 
     using namespace Tasking;
 
-    const auto setupQMake = [this](QtcProcess &process) {
+    const auto setupQMake = [this](Process &process) {
         m_outputFormatter->setLineParsers({new QMakeParser});
         ProcessParameters *pp = processParameters();
         pp->setCommandLine(m_qmakeCommand);
         setupProcess(&process);
     };
 
-    const auto setupMakeQMake = [this](QtcProcess &process) {
+    const auto setupMakeQMake = [this](Process &process) {
         auto *parser = new GnuMakeParser;
         parser->addSearchDir(processParameters()->workingDirectory());
         m_outputFormatter->setLineParsers({parser});
@@ -300,13 +300,13 @@ void QMakeStep::doRun()
         setupProcess(&process);
     };
 
-    const auto onDone = [this](const QtcProcess &) {
+    const auto onProcessDone = [this](const Process &) {
         const QString command = displayedParameters()->effectiveCommand().toUserOutput();
         emit addOutput(Tr::tr("The process \"%1\" exited normally.").arg(command),
                        OutputFormat::NormalMessage);
     };
 
-    const auto onError = [this](const QtcProcess &process) {
+    const auto onProcessError = [this](const Process &process) {
         const QString command = displayedParameters()->effectiveCommand().toUserOutput();
         if (process.result() == ProcessResult::FinishedWithError) {
             emit addOutput(Tr::tr("The process \"%1\" exited with code %2.")
@@ -326,14 +326,14 @@ void QMakeStep::doRun()
         m_needToRunQMake = true;
     };
 
-    const auto onGroupDone = [this] {
+    const auto onDone = [this] {
         emit buildConfiguration()->buildDirectoryInitialized();
     };
 
-    QList<TaskItem> processList = {Process(setupQMake, onDone, onError)};
+    QList<TaskItem> processList = {ProcessTask(setupQMake, onProcessDone, onProcessError)};
     if (m_runMakeQmake)
-        processList << Process(setupMakeQMake, onDone, onError);
-    processList << OnGroupDone(onGroupDone);
+        processList << ProcessTask(setupMakeQMake, onProcessDone, onProcessError);
+    processList << onGroupDone(onDone);
 
     runTaskTree(Group(processList));
 }
@@ -455,21 +455,6 @@ bool QMakeStep::fromMap(const QVariantMap &map)
 {
     m_forced = map.value(QMAKE_FORCED_KEY, false).toBool();
     m_selectedAbis = map.value(QMAKE_SELECTED_ABIS_KEY).toStringList();
-
-    // Backwards compatibility with < Creator 4.12.
-    const QVariant separateDebugInfo
-            = map.value("QtProjectManager.QMakeBuildStep.SeparateDebugInfo");
-    if (separateDebugInfo.isValid())
-        qmakeBuildConfiguration()->forceSeparateDebugInfo(separateDebugInfo.toBool());
-    const QVariant qmlDebugging
-            = map.value("QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibrary");
-    if (qmlDebugging.isValid())
-        qmakeBuildConfiguration()->forceQmlDebugging(qmlDebugging.toBool());
-    const QVariant useQtQuickCompiler
-            = map.value("QtProjectManager.QMakeBuildStep.UseQtQuickCompiler");
-    if (useQtQuickCompiler.isValid())
-        qmakeBuildConfiguration()->forceQtQuickCompiler(useQtQuickCompiler.toBool());
-
     return BuildStep::fromMap(map);
 }
 
@@ -481,11 +466,12 @@ QWidget *QMakeStep::createConfigWidget()
     abisListWidget = new QListWidget;
 
     Layouting::Form builder;
-    builder.addRow(m_buildType);
-    builder.addRow(m_userArgs);
-    builder.addRow(m_effectiveCall);
+    builder.addRow({m_buildType});
+    builder.addRow({m_userArgs});
+    builder.addRow({m_effectiveCall});
     builder.addRow({abisLabel, abisListWidget});
-    auto widget = builder.emerge(Layouting::WithoutMargins);
+    builder.addItem(Layouting::noMargin);
+    auto widget = builder.emerge();
 
     qmakeBuildConfigChanged();
 
@@ -744,7 +730,7 @@ QMakeStepFactory::QMakeStepFactory()
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     //: QMakeStep default display name
     setDisplayName(::QmakeProjectManager::Tr::tr("qmake")); // Fully qualifying for lupdate
-    setFlags(BuildStepInfo::UniqueStep);
+    setFlags(BuildStep::UniqueStep);
 }
 
 QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &, const QtVersion *)

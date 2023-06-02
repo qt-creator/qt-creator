@@ -7,6 +7,17 @@
 
 namespace Utils {
 
+namespace Pty {
+
+void Data::resize(const QSize &size)
+{
+    m_size = size;
+    if (m_data->m_handler)
+        m_data->m_handler(size);
+}
+
+} // namespace Pty
+
 /*!
  * \brief controlSignalToInt
  * \param controlSignal
@@ -18,8 +29,10 @@ int ProcessInterface::controlSignalToInt(ControlSignal controlSignal)
     case ControlSignal::Terminate: return 15;
     case ControlSignal::Kill:      return 9;
     case ControlSignal::Interrupt: return 2;
-    case ControlSignal::KickOff:   QTC_CHECK(false); return 0;
-    case ControlSignal::CloseWriteChannel:   QTC_CHECK(false); return 0;
+    case ControlSignal::KickOff:   return 19;
+    case ControlSignal::CloseWriteChannel:
+        QTC_CHECK(false);
+        return 0;
     }
     return 0;
 }

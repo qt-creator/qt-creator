@@ -4,12 +4,20 @@
 #include "environment.h"
 
 #include "algorithm.h"
+#include "filepath.h"
 #include "qtcassert.h"
 
 #include <QDir>
 #include <QProcessEnvironment>
 #include <QReadWriteLock>
 #include <QSet>
+
+/*!
+    \class Utils::Environment
+    \inmodule QtCreator
+
+    \brief The Environment class sets \QC's system environment.
+*/
 
 namespace Utils {
 
@@ -18,83 +26,149 @@ Q_GLOBAL_STATIC_WITH_ARGS(Environment, staticSystemEnvironment,
                           (QProcessEnvironment::systemEnvironment().toStringList()))
 Q_GLOBAL_STATIC(QVector<EnvironmentProvider>, environmentProviders)
 
+Environment::Environment()
+    : m_dict(HostOsInfo::hostOs())
+{}
+
+Environment::Environment(OsType osType)
+    : m_dict(osType)
+{}
+
+Environment::Environment(const QStringList &env, OsType osType)
+    : m_dict(osType)
+{
+    m_changeItems.append(NameValueDictionary(env, osType));
+}
+
+Environment::Environment(const NameValuePairs &nameValues)
+{
+    m_changeItems.append(NameValueDictionary(nameValues));
+}
+
+Environment::Environment(const NameValueDictionary &dict)
+{
+    m_changeItems.append(dict);
+}
+
 NameValueItems Environment::diff(const Environment &other, bool checkAppendPrepend) const
 {
-    return m_dict.diff(other.m_dict, checkAppendPrepend);
+    const NameValueDictionary &dict = resolved();
+    const NameValueDictionary &otherDict = other.resolved();
+    return dict.diff(otherDict, checkAppendPrepend);
+}
+
+Environment::FindResult Environment::find(const QString &name) const
+{
+    const NameValueDictionary &dict = resolved();
+    const auto it = dict.constFind(name);
+    if (it == dict.constEnd())
+        return {};
+     return Entry{it.key().name, it.value().first, it.value().second};
+}
+
+void Environment::forEachEntry(const std::function<void(const QString &, const QString &, bool)> &callBack) const
+{
+    const NameValueDictionary &dict = resolved();
+    for (auto it = dict.m_values.constBegin(); it != dict.m_values.constEnd(); ++it)
+        callBack(it.key().name, it.value().first, it.value().second);
+}
+
+bool Environment::operator==(const Environment &other) const
+{
+    const NameValueDictionary &dict = resolved();
+    const NameValueDictionary &otherDict = other.resolved();
+    return dict == otherDict;
+}
+
+bool Environment::operator!=(const Environment &other) const
+{
+    const NameValueDictionary &dict = resolved();
+    const NameValueDictionary &otherDict = other.resolved();
+    return dict != otherDict;
+}
+
+QString Environment::value(const QString &key) const
+{
+    const NameValueDictionary &dict = resolved();
+    return dict.value(key);
+}
+
+QString Environment::value_or(const QString &key, const QString &defaultValue) const
+{
+    const NameValueDictionary &dict = resolved();
+    return dict.hasKey(key) ? dict.value(key) : defaultValue;
+}
+
+bool Environment::hasKey(const QString &key) const
+{
+    const NameValueDictionary &dict = resolved();
+    return dict.hasKey(key);
 }
 
 bool Environment::hasChanges() const
 {
-    return m_dict.size() != 0;
+    const NameValueDictionary &dict = resolved();
+    return dict.size() != 0;
+}
+
+OsType Environment::osType() const
+{
+    return m_dict.m_osType;
+}
+
+QStringList Environment::toStringList() const
+{
+    const NameValueDictionary &dict = resolved();
+    return dict.toStringList();
 }
 
 QProcessEnvironment Environment::toProcessEnvironment() const
 {
+    const NameValueDictionary &dict = resolved();
     QProcessEnvironment result;
-    for (auto it = m_dict.m_values.constBegin(); it != m_dict.m_values.constEnd(); ++it) {
+    for (auto it = dict.m_values.constBegin(); it != dict.m_values.constEnd(); ++it) {
         if (it.value().second)
-            result.insert(it.key().name, expandedValueForKey(key(it)));
+            result.insert(it.key().name, expandedValueForKey(dict.key(it)));
     }
     return result;
 }
 
 void Environment::appendOrSetPath(const FilePath &value)
 {
-    QTC_CHECK(value.osType() == osType());
+    QTC_CHECK(value.osType() == m_dict.m_osType);
     if (value.isEmpty())
         return;
-    appendOrSet("PATH", value.nativePath(),
-                QString(OsSpecificAspects::pathListSeparator(osType())));
+    appendOrSet("PATH", value.nativePath(), OsSpecificAspects::pathListSeparator(osType()));
 }
 
 void Environment::prependOrSetPath(const FilePath &value)
 {
-    QTC_CHECK(value.osType() == osType());
+    QTC_CHECK(value.osType() == m_dict.m_osType);
     if (value.isEmpty())
         return;
-    prependOrSet("PATH", value.nativePath(),
-                 QString(OsSpecificAspects::pathListSeparator(osType())));
+    prependOrSet("PATH", value.nativePath(), OsSpecificAspects::pathListSeparator(osType()));
 }
 
 void Environment::appendOrSet(const QString &key, const QString &value, const QString &sep)
 {
-    QTC_ASSERT(!key.contains('='), return );
-    const auto it = m_dict.findKey(key);
-    if (it == m_dict.m_values.end()) {
-        m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
-    } else {
-        // Append unless it is already there
-        const QString toAppend = sep + value;
-        if (!it.value().first.endsWith(toAppend))
-            it.value().first.append(toAppend);
-    }
+    addItem(Item{std::in_place_index_t<AppendOrSet>(), key, value, sep});
 }
 
 void Environment::prependOrSet(const QString &key, const QString &value, const QString &sep)
 {
-    QTC_ASSERT(!key.contains('='), return );
-    const auto it = m_dict.findKey(key);
-    if (it == m_dict.m_values.end()) {
-        m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
-    } else {
-        // Prepend unless it is already there
-        const QString toPrepend = value + sep;
-        if (!it.value().first.startsWith(toPrepend))
-            it.value().first.prepend(toPrepend);
-    }
+    addItem(Item{std::in_place_index_t<PrependOrSet>(), key, value, sep});
 }
 
 void Environment::prependOrSetLibrarySearchPath(const FilePath &value)
 {
     QTC_CHECK(value.osType() == osType());
+    const QChar sep = OsSpecificAspects::pathListSeparator(osType());
     switch (osType()) {
     case OsTypeWindows: {
-        const QChar sep = ';';
-        prependOrSet("PATH", value.nativePath(), QString(sep));
+        prependOrSet("PATH", value.nativePath(), sep);
         break;
     }
     case OsTypeMac: {
-        const QString sep =  ":";
         const QString nativeValue = value.nativePath();
         prependOrSet("DYLD_LIBRARY_PATH", nativeValue, sep);
         prependOrSet("DYLD_FRAMEWORK_PATH", nativeValue, sep);
@@ -102,8 +176,7 @@ void Environment::prependOrSetLibrarySearchPath(const FilePath &value)
     }
     case OsTypeLinux:
     case OsTypeOtherUnix: {
-        const QChar sep = ':';
-        prependOrSet("LD_LIBRARY_PATH", value.nativePath(), QString(sep));
+        prependOrSet("LD_LIBRARY_PATH", value.nativePath(), sep);
         break;
     }
     default:
@@ -118,6 +191,14 @@ void Environment::prependOrSetLibrarySearchPaths(const FilePaths &values)
     });
 }
 
+/*!
+    Returns \QC's system environment.
+
+    This can be different from the system environment that \QC started in if the
+    user changed it in \uicontrol Preferences > \uicontrol Environment >
+    \uicontrol System > \uicontrol Environment.
+*/
+
 Environment Environment::systemEnvironment()
 {
     QReadLocker lock(&s_envMutex);
@@ -126,144 +207,24 @@ Environment Environment::systemEnvironment()
 
 void Environment::setupEnglishOutput()
 {
-    m_dict.set("LC_MESSAGES", "en_US.utf8");
-    m_dict.set("LANGUAGE", "en_US:en");
+    addItem(Item{std::in_place_index_t<SetupEnglishOutput>()});
 }
 
-static FilePath searchInDirectory(const QStringList &execs,
-                                  const FilePath &directory,
-                                  QSet<FilePath> &alreadyChecked)
-{
-    const int checkedCount = alreadyChecked.count();
-    alreadyChecked.insert(directory);
-
-    if (directory.isEmpty() || alreadyChecked.count() == checkedCount)
-        return FilePath();
-
-    for (const QString &exec : execs) {
-        const FilePath filePath = directory.pathAppended(exec);
-        if (filePath.isExecutableFile())
-            return filePath;
-    }
-    return FilePath();
-}
-
-static QStringList appendExeExtensions(const Environment &env, const QString &executable)
-{
-    QStringList execs(executable);
-    if (env.osType() == OsTypeWindows) {
-        const QFileInfo fi(executable);
-        // Check all the executable extensions on windows:
-        // PATHEXT is only used if the executable has no extension
-        if (fi.suffix().isEmpty()) {
-            const QStringList extensions = env.expandedValueForKey("PATHEXT").split(';');
-
-            for (const QString &ext : extensions)
-                execs << executable + ext.toLower();
-        }
-    }
-    return execs;
-}
+using SearchResultCallback = std::function<IterationPolicy(const FilePath &)>;
 
 QString Environment::expandedValueForKey(const QString &key) const
 {
-    return expandVariables(m_dict.value(key));
-}
-
-static FilePath searchInDirectoriesHelper(const Environment &env,
-                                          const QString &executable,
-                                          const FilePaths &dirs,
-                                          const Environment::PathFilter &func,
-                                          bool usePath)
-{
-    if (executable.isEmpty())
-        return FilePath();
-
-    const QString exec = QDir::cleanPath(env.expandVariables(executable));
-    const QFileInfo fi(exec);
-
-    const QStringList execs = appendExeExtensions(env, exec);
-
-    if (fi.isAbsolute()) {
-        for (const QString &path : execs) {
-            QFileInfo pfi = QFileInfo(path);
-            if (pfi.isFile() && pfi.isExecutable())
-                return FilePath::fromString(path);
-        }
-        return FilePath::fromString(exec);
-    }
-
-    QSet<FilePath> alreadyChecked;
-    for (const FilePath &dir : dirs) {
-        FilePath tmp = searchInDirectory(execs, dir, alreadyChecked);
-        if (!tmp.isEmpty() && (!func || func(tmp)))
-            return tmp;
-    }
-
-    if (usePath) {
-        if (executable.contains('/'))
-            return FilePath();
-
-        for (const FilePath &p : env.path()) {
-            FilePath tmp = searchInDirectory(execs, p, alreadyChecked);
-            if (!tmp.isEmpty() && (!func || func(tmp)))
-                return tmp;
-        }
-    }
-    return FilePath();
-}
-
-FilePath Environment::searchInDirectories(const QString &executable,
-                                          const FilePaths &dirs,
-                                          const PathFilter &func) const
-{
-    return searchInDirectoriesHelper(*this, executable, dirs, func, false);
+    const NameValueDictionary &dict = resolved();
+    return expandVariables(dict.value(key));
 }
 
 FilePath Environment::searchInPath(const QString &executable,
                                    const FilePaths &additionalDirs,
-                                   const PathFilter &func) const
+                                   const FilePathPredicate &filter) const
 {
-    return searchInDirectoriesHelper(*this, executable, additionalDirs, func, true);
-}
-
-FilePaths Environment::findAllInPath(const QString &executable,
-                                        const FilePaths &additionalDirs,
-                                        const Environment::PathFilter &func) const
-{
-    if (executable.isEmpty())
-        return {};
-
-    const QString exec = QDir::cleanPath(expandVariables(executable));
-    const QFileInfo fi(exec);
-
-    const QStringList execs = appendExeExtensions(*this, exec);
-
-    if (fi.isAbsolute()) {
-        for (const QString &path : execs) {
-            QFileInfo pfi = QFileInfo(path);
-            if (pfi.isFile() && pfi.isExecutable())
-                return {FilePath::fromString(path)};
-        }
-        return {FilePath::fromString(exec)};
-    }
-
-    QSet<FilePath> result;
-    QSet<FilePath> alreadyChecked;
-    for (const FilePath &dir : additionalDirs) {
-        FilePath tmp = searchInDirectory(execs, dir, alreadyChecked);
-        if (!tmp.isEmpty() && (!func || func(tmp)))
-            result << tmp;
-    }
-
-    if (!executable.contains('/')) {
-        for (const FilePath &p : path()) {
-            FilePath tmp = searchInDirectory(execs, p, alreadyChecked);
-            if (!tmp.isEmpty() && (!func || func(tmp)))
-                result << tmp;
-        }
-    }
-    return result.values();
+    const FilePath exec = FilePath::fromUserInput(expandVariables(executable));
+    const FilePaths dirs = path() + additionalDirs;
+    return exec.searchInDirectories(dirs, filter, FilePath::WithAnySuffix);
 }
 
 FilePaths Environment::path() const
@@ -299,14 +260,16 @@ void Environment::setSystemEnvironment(const Environment &environment)
  */
 QString Environment::expandVariables(const QString &input) const
 {
+    const NameValueDictionary &dict = resolved();
+
     QString result = input;
 
     if (osType() == OsTypeWindows) {
         for (int vStart = -1, i = 0; i < result.length(); ) {
             if (result.at(i++) == '%') {
                 if (vStart > 0) {
-                    const auto it = m_dict.findKey(result.mid(vStart, i - vStart - 1));
-                    if (it != m_dict.m_values.constEnd()) {
+                    const auto it = dict.findKey(result.mid(vStart, i - vStart - 1));
+                    if (it != dict.m_values.constEnd()) {
                         result.replace(vStart - 1, i - vStart + 1, it->first);
                         i = vStart - 1 + it->first.length();
                         vStart = -1;
@@ -339,28 +302,30 @@ QString Environment::expandVariables(const QString &input) const
                 }
             } else if (state == BRACEDVARIABLE) {
                 if (c == '}') {
-                    const_iterator it = constFind(result.mid(vStart, i - 1 - vStart));
-                    if (it != constEnd()) {
-                        result.replace(vStart - 2, i - vStart + 2, it->first);
-                        i = vStart - 2 + it->first.length();
+                    const QString key = result.mid(vStart, i - 1 - vStart);
+                    const Environment::FindResult res = find(key);
+                    if (res) {
+                        result.replace(vStart - 2, i - vStart + 2, res->value);
+                        i = vStart - 2 + res->value.length();
                     }
                     state = BASE;
                 }
             } else if (state == VARIABLE) {
                 if (!c.isLetterOrNumber() && c != '_') {
-                    const_iterator it = constFind(result.mid(vStart, i - vStart - 1));
-                    if (it != constEnd()) {
-                        result.replace(vStart - 1, i - vStart, it->first);
-                        i = vStart - 1 + it->first.length();
+                    const QString key = result.mid(vStart, i - vStart - 1);
+                    const Environment::FindResult res = find(key);
+                    if (res) {
+                        result.replace(vStart - 1, i - vStart, res->value);
+                        i = vStart - 1 + res->value.length();
                     }
                     state = BASE;
                 }
             }
         }
         if (state == VARIABLE) {
-            const_iterator it = constFind(result.mid(vStart));
-            if (it != constEnd())
-                result.replace(vStart - 1, result.length() - vStart + 1, it->first);
+            const Environment::FindResult res = find(result.mid(vStart));
+            if (res)
+                result.replace(vStart - 1, result.length() - vStart + 1, res->value);
         }
     }
     return result;
@@ -374,6 +339,12 @@ FilePath Environment::expandVariables(const FilePath &variables) const
 QStringList Environment::expandVariables(const QStringList &variables) const
 {
     return transform(variables, [this](const QString &i) { return expandVariables(i); });
+}
+
+NameValueDictionary Environment::toDictionary() const
+{
+    const NameValueDictionary &dict = resolved();
+    return dict;
 }
 
 void EnvironmentProvider::addProvider(EnvironmentProvider &&provider)
@@ -394,63 +365,145 @@ std::optional<EnvironmentProvider> EnvironmentProvider::provider(const QByteArra
     return std::nullopt;
 }
 
-void EnvironmentChange::addSetValue(const QString &key, const QString &value)
+void Environment::addItem(const Item &item)
 {
-    m_changeItems.append(Item{std::in_place_index_t<SetValue>(), QPair<QString, QString>{key, value}});
+    m_dict.clear();
+    m_changeItems.append(item);
 }
 
-void EnvironmentChange::addUnsetValue(const QString &key)
+void Environment::set(const QString &key, const QString &value, bool enabled)
 {
-    m_changeItems.append(Item{std::in_place_index_t<UnsetValue>(), key});
+    addItem(Item{std::in_place_index_t<SetValue>(),
+                 std::tuple<QString, QString, bool>{key, value, enabled}});
 }
 
-void EnvironmentChange::addPrependToPath(const FilePaths &values)
+void Environment::setFallback(const QString &key, const QString &value)
 {
+    addItem(Item{std::in_place_index_t<SetFallbackValue>(),
+                 std::tuple<QString, QString>{key, value}});
+}
+
+void Environment::unset(const QString &key)
+{
+    addItem(Item{std::in_place_index_t<UnsetValue>(), key});
+}
+
+void Environment::modify(const NameValueItems &items)
+{
+    addItem(Item{std::in_place_index_t<Modify>(), items});
+}
+
+void Environment::prependToPath(const FilePaths &values)
+{
+    m_dict.clear();
     for (int i = values.size(); --i >= 0; ) {
         const FilePath value = values.at(i);
-        m_changeItems.append(Item{std::in_place_index_t<PrependToPath>(), value});
+        m_changeItems.append(Item{
+            std::in_place_index_t<PrependOrSet>(),
+            QString("PATH"),
+            value.nativePath(),
+            value.pathListSeparator()
+        });
     }
 }
 
-void EnvironmentChange::addAppendToPath(const FilePaths &values)
+void Environment::appendToPath(const FilePaths &values)
 {
-    for (const FilePath &value : values)
-        m_changeItems.append(Item{std::in_place_index_t<AppendToPath>(), value});
+    m_dict.clear();
+    for (const FilePath &value : values) {
+        m_changeItems.append(Item{
+            std::in_place_index_t<AppendOrSet>(),
+            QString("PATH"),
+            value.nativePath(),
+            value.pathListSeparator()
+        });
+    }
 }
 
-EnvironmentChange EnvironmentChange::fromDictionary(const NameValueDictionary &dict)
+const NameValueDictionary &Environment::resolved() const
 {
-    EnvironmentChange change;
-    change.m_changeItems.append(Item{std::in_place_index_t<SetFixedDictionary>(), dict});
-    return change;
-}
+    if (m_dict.size() != 0)
+        return m_dict;
 
-void EnvironmentChange::applyToEnvironment(Environment &env) const
-{
+    m_fullDict = false;
     for (const Item &item : m_changeItems) {
         switch (item.index()) {
         case SetSystemEnvironment:
-            env = Environment::systemEnvironment();
+            m_dict = Environment::systemEnvironment().toDictionary();
+            m_fullDict = true;
             break;
         case SetFixedDictionary:
-            env = Environment(std::get<SetFixedDictionary>(item));
+            m_dict = std::get<SetFixedDictionary>(item);
+            m_fullDict = true;
             break;
         case SetValue: {
-            const QPair<QString, QString> data = std::get<SetValue>(item);
-            env.set(data.first, data.second);
+            auto [key, value, enabled] = std::get<SetValue>(item);
+            m_dict.set(key, value, enabled);
+            break;
+        }
+        case SetFallbackValue: {
+            auto [key, value] = std::get<SetFallbackValue>(item);
+            if (m_fullDict) {
+                if (m_dict.value(key).isEmpty())
+                    m_dict.set(key, value, true);
+            } else {
+                QTC_ASSERT(false, qDebug() << "operating on partial dictionary");
+                m_dict.set(key, value, true);
+            }
             break;
         }
         case UnsetValue:
-            env.unset(std::get<UnsetValue>(item));
+            m_dict.unset(std::get<UnsetValue>(item));
             break;
-        case PrependToPath:
-            env.prependOrSetPath(std::get<PrependToPath>(item));
+        case PrependOrSet: {
+            auto [key, value, sep] = std::get<PrependOrSet>(item);
+            QTC_ASSERT(!key.contains('='), return m_dict);
+            const auto it = m_dict.findKey(key);
+            if (it == m_dict.m_values.end()) {
+                m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
+            } else {
+                // Prepend unless it is already there
+                const QString toPrepend = value + sep;
+                if (!it.value().first.startsWith(toPrepend))
+                    it.value().first.prepend(toPrepend);
+            }
             break;
-        case AppendToPath:
-            env.appendOrSetPath(std::get<AppendToPath>(item));
+        }
+        case AppendOrSet: {
+            auto [key, value, sep] = std::get<AppendOrSet>(item);
+            QTC_ASSERT(!key.contains('='), return m_dict);
+            const auto it = m_dict.findKey(key);
+            if (it == m_dict.m_values.end()) {
+                m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
+            } else {
+                // Prepend unless it is already there
+                const QString toAppend = sep + value;
+                if (!it.value().first.endsWith(toAppend))
+                    it.value().first.append(toAppend);
+            }
+            break;
+        }
+        case Modify: {
+            NameValueItems items = std::get<Modify>(item);
+            m_dict.modify(items);
+            break;
+        }
+        case SetupEnglishOutput:
+            m_dict.set("LC_MESSAGES", "en_US.utf8");
+            m_dict.set("LANGUAGE", "en_US:en");
             break;
         }
     }
+
+    return m_dict;
+}
+
+Environment Environment::appliedToEnvironment(const Environment &base) const
+{
+    Environment res = base;
+    res.m_dict.clear();
+    res.m_changeItems.append(m_changeItems);
+    return res;
 }
 
 /*!

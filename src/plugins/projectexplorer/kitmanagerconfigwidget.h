@@ -25,7 +25,7 @@ class KitManagerConfigWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit KitManagerConfigWidget(Kit *k);
+    explicit KitManagerConfigWidget(Kit *k, bool &isDefaultKit, bool &hasUniqueName);
     ~KitManagerConfigWidget() override;
 
     QString displayName() const;
@@ -35,18 +35,13 @@ public:
     void discard();
     bool isDirty() const;
     QString validityMessage() const;
-    void addAspectToWorkingCopy(KitAspect *aspect);
+    void addAspectToWorkingCopy(Layouting::LayoutItem &parent, KitAspect *aspect);
     void makeStickySubWidgetsReadOnly();
 
     Kit *workingCopy() const;
-    bool configures(Kit *k) const;
     bool isRegistering() const { return m_isRegistering; }
-    void setIsDefaultKit(bool d);
     bool isDefaultKit() const;
-    void removeKit();
     void updateVisibility();
-
-    void setHasUniqueName(bool unique);
 
 signals:
     void dirty();
@@ -74,9 +69,9 @@ private:
     QList<KitAspectWidget *> m_widgets;
     Kit *m_kit;
     std::unique_ptr<Kit> m_modifiedKit;
-    bool m_isDefaultKit = false;
+    bool &m_isDefaultKit;
     bool m_fixingKit = false;
-    bool m_hasUniqueName = true;
+    bool &m_hasUniqueName;
     bool m_isRegistering = false;
     mutable QString m_cachedDisplayName;
 };

@@ -163,7 +163,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
 
         QCOMPARE(DocumentModel::openedDocuments().size(), 1);
         QVERIFY(m_modelManager->isCppEditor(editor));
-        QVERIFY(m_modelManager->workingCopy().contains(filePath));
+        QVERIFY(m_modelManager->workingCopy().get(filePath));
 
         // Rehighlight
         waitForRehighlightedSemanticDocument(editorWidget);

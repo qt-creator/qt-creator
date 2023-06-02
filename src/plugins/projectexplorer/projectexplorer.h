@@ -155,7 +155,6 @@ public:
     static QThreadPool *sharedThreadPool();
     static Internal::MiniProjectTargetSelector *targetSelector();
 
-    static void showSessionManager();
     static void openNewProjectDialog();
     static void openOpenProjectDialog();
 
@@ -260,6 +259,9 @@ private slots:
     void testProject_parsingFail();
     void testProject_projectTree();
     void testProject_multipleBuildConfigs();
+
+    void testSourceToBinaryMapping();
+    void testSourceToBinaryMapping_data();
 
     void testSessionSwitch();
 #endif // WITH_TESTS

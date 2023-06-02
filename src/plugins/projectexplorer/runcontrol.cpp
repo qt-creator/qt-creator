@@ -25,9 +25,9 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/outputformatter.h>
+#include <utils/process.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
 #include <coreplugin/icontext.h>
@@ -255,9 +255,9 @@ public:
     // A handle to the actual application process.
     ProcessHandle applicationProcessHandle;
 
-    RunControlState state = RunControlState::Initialized;
-
     QList<QPointer<RunWorker>> m_workers;
+    RunControlState state = RunControlState::Initialized;
+    bool printEnvironment = false;
 };
 
 class RunControlPrivate : public QObject, public RunControlPrivateData
@@ -334,6 +334,7 @@ void RunControl::copyDataFromRunConfiguration(RunConfiguration *runConfig)
     d->buildKey = runConfig->buildKey();
     d->settingsData = runConfig->settingsData();
     d->aspectData = runConfig->aspectData();
+    d->printEnvironment = runConfig->isPrintEnvironmentEnabled();
 
     setTarget(runConfig->target());
 
@@ -817,6 +818,11 @@ Utils::Id RunControl::runMode() const
     return d->runMode;
 }
 
+bool RunControl::isPrintEnvironmentEnabled() const
+{
+    return d->printEnvironment;
+}
+
 const Runnable &RunControl::runnable() const
 {
     return d->runnable;
@@ -1045,35 +1051,31 @@ bool RunControl::showPromptToStopDialog(const QString &title,
 {
     // Show a question message box where user can uncheck this
     // question for this class.
-    Utils::CheckableMessageBox messageBox(Core::ICore::dialogParent());
-    messageBox.setWindowTitle(title);
-    messageBox.setText(text);
-    messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+    QMap<QMessageBox::StandardButton, QString> buttonTexts;
     if (!stopButtonText.isEmpty())
-        messageBox.button(QDialogButtonBox::Yes)->setText(stopButtonText);
+        buttonTexts[QMessageBox::Yes] = stopButtonText;
     if (!cancelButtonText.isEmpty())
-        messageBox.button(QDialogButtonBox::Cancel)->setText(cancelButtonText);
-    messageBox.setDefaultButton(QDialogButtonBox::Yes);
-    if (prompt) {
-        messageBox.setCheckBoxText(Utils::CheckableMessageBox::msgDoNotAskAgain());
-        messageBox.setChecked(false);
-    } else {
-        messageBox.setCheckBoxVisible(false);
-    }
-    messageBox.exec();
-    const bool close = messageBox.clickedStandardButton() == QDialogButtonBox::Yes;
-    if (close && prompt && messageBox.isChecked())
-        *prompt = false;
-    return close;
+        buttonTexts[QMessageBox::Cancel] = cancelButtonText;
+
+    CheckableDecider decider;
+    if (prompt)
+        decider = CheckableDecider(prompt);
+
+    auto selected = CheckableMessageBox::question(Core::ICore::dialogParent(),
+                                                  title,
+                                                  text,
+                                                  decider,
+                                                  QMessageBox::Yes | QMessageBox::Cancel,
+                                                  QMessageBox::Yes);
+
+    return selected == QMessageBox::Yes;
 }
 
 void RunControl::provideAskPassEntry(Environment &env)
 {
-    if (env.value("SUDO_ASKPASS").isEmpty()) {
-        const FilePath askpass = SshSettings::askpassFilePath();
-        if (askpass.exists())
-            env.set("SUDO_ASKPASS", askpass.toUserOutput());
-    }
+    const FilePath askpass = SshSettings::askpassFilePath();
+    if (askpass.exists())
+        env.setFallback("SUDO_ASKPASS", askpass.toUserOutput());
 }
 
 bool RunControlPrivate::isAllowedTransition(RunControlState from, RunControlState to)
@@ -1175,7 +1177,7 @@ public:
 
     bool m_runAsRoot = false;
 
-    QtcProcess m_process;
+    Process m_process;
 
     QTextCodec *m_outputCodec = nullptr;
     QTextCodec::ConverterState m_outputCodecState;
@@ -1212,11 +1214,11 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
     : q(parent)
 {
     m_process.setProcessChannelMode(defaultProcessChannelMode());
-    connect(&m_process, &QtcProcess::started, this, &SimpleTargetRunnerPrivate::forwardStarted);
-    connect(&m_process, &QtcProcess::done, this, &SimpleTargetRunnerPrivate::handleDone);
-    connect(&m_process, &QtcProcess::readyReadStandardError,
+    connect(&m_process, &Process::started, this, &SimpleTargetRunnerPrivate::forwardStarted);
+    connect(&m_process, &Process::done, this, &SimpleTargetRunnerPrivate::handleDone);
+    connect(&m_process, &Process::readyReadStandardError,
                 this, &SimpleTargetRunnerPrivate::handleStandardError);
-    connect(&m_process, &QtcProcess::readyReadStandardOutput,
+    connect(&m_process, &Process::readyReadStandardOutput,
                 this, &SimpleTargetRunnerPrivate::handleStandardOutput);
 
     if (WinDebugInterface::instance()) {
@@ -1371,7 +1373,7 @@ void SimpleTargetRunnerPrivate::start()
     Encapsulates processes running in a console or as GUI processes,
     captures debug output of GUI processes on Windows (outputDebugString()).
 
-    \sa Utils::QtcProcess
+    \sa Utils::Process
 */
 
 SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
@@ -1433,11 +1435,20 @@ void SimpleTargetRunner::start()
     d->m_stopForced = false;
     d->m_stopReported = false;
     d->disconnect(this);
-    d->m_process.setTerminalMode(useTerminal ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
+    d->m_process.setTerminalMode(useTerminal ? Utils::TerminalMode::Run : Utils::TerminalMode::Off);
     d->m_runAsRoot = runAsRoot;
 
     const QString msg = Tr::tr("Starting %1...").arg(d->m_command.displayName());
     appendMessage(msg, NormalMessageFormat);
+    if (runControl()->isPrintEnvironmentEnabled()) {
+        appendMessage(Tr::tr("Environment:"), NormalMessageFormat);
+        runControl()->runnable().environment
+            .forEachEntry([this](const QString &key, const QString &value, bool enabled) {
+                if (enabled)
+                    appendMessage(key + '=' + value, StdOutFormat);
+            });
+        appendMessage({}, StdOutFormat);
+    }
 
     const bool isDesktop = !d->m_command.executable().needsDevice();
     if (isDesktop && d->m_command.isEmpty()) {
@@ -1653,9 +1664,9 @@ void RunWorker::reportFailure(const QString &msg)
  * Appends a message in the specified \a format to
  * the owning RunControl's \uicontrol{Application Output} pane.
  */
-void RunWorker::appendMessage(const QString &msg, OutputFormat format)
+void RunWorker::appendMessage(const QString &msg, OutputFormat format, bool appendNewLine)
 {
-    if (msg.endsWith('\n'))
+    if (!appendNewLine || msg.endsWith('\n'))
         emit d->runControl->appendMessage(msg, format);
     else
         emit d->runControl->appendMessage(msg + '\n', format);

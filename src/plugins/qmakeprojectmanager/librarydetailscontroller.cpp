@@ -3,24 +3,25 @@
 
 #include "librarydetailscontroller.h"
 
-#include "qmakebuildconfiguration.h"
 #include "qmakeparsernodes.h"
 #include "qmakeproject.h"
 #include "qmakeprojectmanagertr.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
 #include <QFileInfo>
 #include <QGroupBox>
+#include <QLabel>
 #include <QRadioButton>
 #include <QTextStream>
 
@@ -868,7 +869,7 @@ QString PackageLibraryDetailsController::snippet() const
 
 bool PackageLibraryDetailsController::isLinkPackageGenerated() const
 {
-    const Project *project = SessionManager::projectForFile(proFile());
+    const Project *project = ProjectManager::projectForFile(proFile());
     if (!project)
         return false;
 
@@ -1016,7 +1017,7 @@ void InternalLibraryDetailsController::updateProFile()
     libraryDetailsWidget()->libraryComboBox->clear();
 
     const QmakeProject *project
-            = dynamic_cast<QmakeProject *>(SessionManager::projectForFile(proFile()));
+            = dynamic_cast<QmakeProject *>(ProjectManager::projectForFile(proFile()));
     if (!project)
         return;
 
@@ -1104,7 +1105,7 @@ QString InternalLibraryDetailsController::snippet() const
 
     // the build directory of the active build configuration
     QDir rootBuildDir = rootDir; // If the project is unconfigured use the project dir
-    if (const Project *project = SessionManager::projectForFile(proFile())) {
+    if (const Project *project = ProjectManager::projectForFile(proFile())) {
         if (ProjectExplorer::Target *t = project->activeTarget())
             if (ProjectExplorer::BuildConfiguration *bc = t->activeBuildConfiguration())
                 rootBuildDir.setPath(bc->buildDirectory().toString());

@@ -653,6 +653,14 @@
      width="100%"
      height="100%"
      transform="matrix(1.5,0,0,1.5,0,-242)" />
+  <use
+     x="0"
+     y="0"
+     xlink:href="#backgroundRect"
+     id="backgroundRect_12"
+     width="100%"
+     height="100%"
+     transform="matrix(0.75,0,0,0.75,-24,97)" />
   <rect
      y="452"
      x="-16"
@@ -2965,7 +2973,7 @@
       <use
          height="100%"
          width="100%"
-         transform="matrix(-1,0,0,1,2336,0)"
+         transform="matrix(-1,0,0,1,2338,0)"
          id="use6797"
          xlink:href="#g6795"
          y="0"
@@ -3146,6 +3154,68 @@
          style="fill:none;stroke:#ffffff"
          d="m 1078,478.85469 1.189,13.30208 m -4.1861,-1.62746 L 1086.5,495 m -17,0 9.272,-7.52758"
          sodipodi:nodetypes="cccccc" />
+    </g>
+    <g
+       id="src/plugins/terminal/images/settingscategory_terminal">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_24"
+         id="use4838"
+         width="100%"
+         height="100%"
+         transform="translate(1115,64)"
+         style="display:inline;fill:none" />
+      <rect
+         style="fill:none;stroke:#000000;stroke-opacity:1.0"
+         id="rect2040"
+         width="15"
+         height="12"
+         x="1095.5"
+         y="481.5" />
+      <path
+         id="path5004"
+         style="fill:none;stroke:#000000;stroke-opacity:1.0"
+         d="m 1100,488.5 h 3 m -5.75,-5.25 2.25,2.25 -2.25,2.25" />
+    </g>
+    <g
+       id="src/plugins/copilot/images/settingscategory_copilot">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_24"
+         id="use4838-1"
+         width="100%"
+         height="100%"
+         transform="translate(1141,64)" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/plugins/copilot/images/copilot"
+         id="use13883"
+         style="display:inline"
+         transform="matrix(1.3271416,0,0,1.27511,-1468.1838,-246.66424)" />
+    </g>
+    <g
+       id="src/plugins/haskell/images/settingscategory_haskell">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_24"
+         id="use5402"
+         width="100%"
+         height="100%"
+         transform="translate(1166,64)" />
+      <path
+         style="fill:#000000;fill-opacity:1"
+         d="m 1150,482 h 2.5 l 8.67,13 h -2.5 l -3.085,-4.625 L 1152.51,495 h -2.5 l 4.335,-6.5 z"
+         id="path7771"
+         sodipodi:nodetypes="ccccccccc" />
+      <path
+         id="path10150-5"
+         style="fill:#606060;fill-opacity:1"
+         d="m 1160,491 h 2 v -2 h -3.335 z m -2,-3 h 4 v -2 h -5.335 z m -9.5,-6 4.335,6.5 -4.335,6.5 h -2.5 l 4.335,-6.5 L 1146,482 Z"
+         sodipodi:nodetypes="ccccccccccccccccc" />
     </g>
     <g
        id="src/plugins/valgrind/images/kcachegrind"
@@ -3483,6 +3553,56 @@
          id="path2553-4"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccc" />
+    </g>
+    <g
+       id="src/plugins/terminal/images/terminal">
+      <use
+         style="display:inline"
+         transform="translate(1948,132)"
+         height="100%"
+         width="100%"
+         id="use1987"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path5004-3"
+         style="fill:none;stroke:#000000"
+         d="m 1936.25,571.25 2.25,2.25 -2.25,2.25 m -2.75,-6.25 h 8 v 8 h -8 z" />
+    </g>
+    <g
+       id="src/plugins/copilot/images/copilot"
+       transform="translate(828,88.5)"
+       style="display:inline">
+      <use
+         style="display:inline"
+         transform="translate(1137,43.5)"
+         height="100%"
+         width="100%"
+         id="use1987-3"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <g
+         id="g2022"
+         transform="translate(0,0.5)">
+        <path
+           style="fill:#000000"
+           d="m 1135,493 c 0,0 0,-4.5 0,-6 0,-2 -0.5,-6 -6,-6 v 6 c 5,2.5 6,6 6,6 z"
+           id="path5346"
+           sodipodi:nodetypes="ccccc" />
+        <path
+           id="path7819"
+           style="fill:#ffffff;stroke:none"
+           d="m 1130,484.5 c 0,1.23611 0.4442,2.26438 1.9319,2.54447 1.4877,0.28009 2.0454,-1.0336 2.0454,-1.97641 0,-0.94281 -0.4262,-1.72947 -1.9539,-2.12425 -1.5277,-0.39477 -2.0185,0.32008 -2.0234,1.55619 z m -1.002,-0.5 v 1 h 0.502 v -1 z m -0.01,2 c 0.012,4.5 1.012,3.5 5.0083,5.5 V 488 l -0.16,-0.63611 c -1.2971,1.18069 -3.8728,0.64494 -4.34,-1.36389 z"
+           sodipodi:nodetypes="zsszzccccccccccc" />
+      </g>
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g2022"
+         id="use3673"
+         transform="matrix(-1,0,0,1,2258,0)" />
     </g>
   </g>
   <g
@@ -6453,6 +6573,27 @@
          d="m 347,597.33936 0.60019,0.60645 3.49128,-3.49127 3.09695,3.09695 c 0.29088,-0.96173 0.20375,-2.0863 -0.1875,-3.07155 l 3.68179,-3.68179 0.55968,0.52841 0.75761,-0.75762 -4.51473,-4.51475 -0.80193,0.80194 0.53076,0.51509 -3.60205,3.60206 c -1.04768,-0.37523 -2.22553,-0.48941 -3.20237,-0.15625 l 3.0615,3.0615 z"
          style="fill:#000000" />
     </g>
+    <g
+       id="src/libs/utils/images/pinned_small">
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_12"
+         id="use1988"
+         width="100%"
+         height="100%"
+         transform="translate(397,160)" />
+      <g
+         id="g6007"
+         transform="rotate(45,366.14645,589.64645)">
+        <path
+           style="fill:#000000;fill-opacity:1"
+           d="m 369.5,585 v 1 h -1 l 0.5,3 h 1 v 1 h -2.5 l -0.2,5 h -0.6 l -0.2,-5 H 364 v -1 h 1 l 0.5,-3 h -1 v -1 z"
+           id="path5401"
+           sodipodi:nodetypes="ccccccccccccccccc" />
+      </g>
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
@@ -9249,6 +9390,20 @@
          id="path5157-7-5"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccccccccccccc" />
+    </g>
+    <g
+       id="src/libs/utils/images/iconoverlay_close_small">
+      <rect
+         id="rect5336"
+         height="16"
+         width="16"
+         y="363"
+         x="649"
+         style="fill:#ffffff" />
+      <path
+         id="path4779-7"
+         style="stroke:#000000;stroke-width:2"
+         d="m 656.5,370.5 7,7 m -7,0 7,-7" />
     </g>
     <g
        id="src/libs/utils/images/iconoverlay_add"

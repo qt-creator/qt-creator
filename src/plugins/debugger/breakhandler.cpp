@@ -18,8 +18,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-
-#include <projectexplorer/session.h>
+#include <coreplugin/session.h>
 
 #include <texteditor/textmark.h>
 #include <texteditor/texteditor.h>
@@ -41,6 +40,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFormLayout>
 #include <QGroupBox>
@@ -1126,9 +1126,9 @@ void BreakpointItem::addToCommand(DebuggerCommand *cmd) const
     cmd->arg("expression", requested.expression);
 }
 
-void BreakpointItem::updateFromGdbOutput(const GdbMi &bkpt)
+void BreakpointItem::updateFromGdbOutput(const GdbMi &bkpt, const FilePath &fileRoot)
 {
-    m_parameters.updateFromGdbOutput(bkpt);
+    m_parameters.updateFromGdbOutput(bkpt, fileRoot);
     adjustMarker();
 }
 
@@ -2691,14 +2691,13 @@ void BreakpointManager::gotoLocation(const GlobalBreakpoint &gbp) const
 
 void BreakpointManager::executeDeleteAllBreakpointsDialog()
 {
-    QDialogButtonBox::StandardButton pressed =
-        CheckableMessageBox::doNotAskAgainQuestion(ICore::dialogParent(),
-           Tr::tr("Remove All Breakpoints"),
-           Tr::tr("Are you sure you want to remove all breakpoints "
-                  "from all files in the current session?"),
-           ICore::settings(),
-           "RemoveAllBreakpoints");
-    if (pressed != QDialogButtonBox::Yes)
+    QMessageBox::StandardButton pressed
+        = CheckableMessageBox::question(ICore::dialogParent(),
+                                        Tr::tr("Remove All Breakpoints"),
+                                        Tr::tr("Are you sure you want to remove all breakpoints "
+                                               "from all files in the current session?"),
+                                        QString("RemoveAllBreakpoints"));
+    if (pressed != QMessageBox::Yes)
         return;
 
     for (GlobalBreakpoint gbp : globalBreakpoints())

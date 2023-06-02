@@ -8,14 +8,15 @@
 #include "pythontr.h"
 
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/progressmanager/processprogress.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -31,11 +32,11 @@ static QHash<FilePath, FilePath> &userDefinedPythonsForDocument()
 FilePath detectPython(const FilePath &documentPath)
 {
     Project *project = documentPath.isEmpty() ? nullptr
-                                              : SessionManager::projectForFile(documentPath);
+                                              : ProjectManager::projectForFile(documentPath);
     if (!project)
-        project = SessionManager::startupProject();
+        project = ProjectManager::startupProject();
 
-    Environment env = Environment::systemEnvironment();
+    FilePaths dirs = Environment::systemEnvironment().path();
 
     if (project) {
         if (auto target = project->activeTarget()) {
@@ -43,7 +44,7 @@ FilePath detectPython(const FilePath &documentPath)
                 if (auto interpreter = runConfig->aspect<InterpreterAspect>())
                     return interpreter->currentInterpreter().command;
                 if (auto environmentAspect = runConfig->aspect<EnvironmentAspect>())
-                    env = environmentAspect->environment();
+                    dirs = environmentAspect->environment().path();
             }
         }
     }
@@ -61,8 +62,9 @@ FilePath detectPython(const FilePath &documentPath)
     if (defaultInterpreter.exists())
         return defaultInterpreter;
 
-    auto pythonFromPath = [=](const QString toCheck) {
-        for (const FilePath &python : env.findAllInPath(toCheck)) {
+    auto pythonFromPath = [dirs](const FilePath &toCheck) {
+        const FilePaths found = toCheck.searchAllInDirectories(dirs);
+        for (const FilePath &python : found) {
             // Windows creates empty redirector files that may interfere
             if (python.exists() && python.osType() == OsTypeWindows && python.fileSize() != 0)
                 return python;
@@ -105,9 +107,11 @@ static QStringList replImportArgs(const FilePath &pythonFile, ReplType type)
 
 void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
 {
+    Q_UNUSED(parent)
+
     static const auto workingDir = [](const FilePath &file) {
         if (file.isEmpty()) {
-            if (Project *project = SessionManager::startupProject())
+            if (Project *project = ProjectManager::startupProject())
                 return project->projectDirectory();
             return FilePath::currentWorkingPath();
         }
@@ -115,23 +119,21 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
     };
 
     const auto args = QStringList{"-i"} + replImportArgs(file, type);
-    auto process = new QtcProcess(parent);
-    process->setTerminalMode(TerminalMode::On);
     const FilePath pythonCommand = detectPython(file);
-    process->setCommand({pythonCommand, args});
-    process->setWorkingDirectory(workingDir(file));
-    const QString commandLine = process->commandLine().toUserOutput();
-    QObject::connect(process, &QtcProcess::done, process, [process, commandLine] {
-        if (process->error() != QProcess::UnknownError) {
-            Core::MessageManager::writeDisrupting(Tr::tr(
-                  (process->error() == QProcess::FailedToStart)
-                      ? "Failed to run Python (%1): \"%2\"."
-                      : "Error while running Python (%1): \"%2\".")
-                  .arg(commandLine, process->errorString()));
-        }
-        process->deleteLater();
-    });
-    process->start();
+
+    Process process;
+    process.setCommand({pythonCommand, args});
+    process.setWorkingDirectory(workingDir(file));
+    process.setTerminalMode(TerminalMode::Detached);
+    process.start();
+
+    if (process.error() != QProcess::UnknownError) {
+        Core::MessageManager::writeDisrupting(
+            Tr::tr((process.error() == QProcess::FailedToStart)
+                       ? "Failed to run Python (%1): \"%2\"."
+                       : "Error while running Python (%1): \"%2\".")
+                .arg(process.commandLine().toUserOutput(), process.errorString()));
+    }
 }
 
 QString pythonName(const FilePath &pythonPath)
@@ -141,7 +143,7 @@ QString pythonName(const FilePath &pythonPath)
         return {};
     QString name = nameForPython.value(pythonPath);
     if (name.isEmpty()) {
-        QtcProcess pythonProcess;
+        Process pythonProcess;
         pythonProcess.setTimeoutS(2);
         pythonProcess.setCommand({pythonPath, {"--version"}});
         pythonProcess.runBlocking();
@@ -155,13 +157,33 @@ QString pythonName(const FilePath &pythonPath)
 
 PythonProject *pythonProjectForFile(const FilePath &pythonFile)
 {
-    for (Project *project : SessionManager::projects()) {
+    for (Project *project : ProjectManager::projects()) {
         if (auto pythonProject = qobject_cast<PythonProject *>(project)) {
             if (pythonProject->isKnownFile(pythonFile))
                 return pythonProject;
         }
     }
     return nullptr;
+}
+
+void createVenv(const Utils::FilePath &python,
+                const Utils::FilePath &venvPath,
+                const std::function<void(bool)> &callback)
+{
+    QTC_ASSERT(python.isExecutableFile(), callback(false); return);
+    QTC_ASSERT(!venvPath.exists() || venvPath.isDir(), callback(false); return);
+
+    const CommandLine command(python, QStringList{"-m", "venv", venvPath.toUserOutput()});
+
+    auto process = new Process;
+    auto progress = new Core::ProcessProgress(process);
+    progress->setDisplayName(Tr::tr("Create Python venv"));
+    QObject::connect(process, &Process::done, [process, callback](){
+        callback(process->result() == ProcessResult::FinishedWithSuccess);
+        process->deleteLater();
+    });
+    process->setCommand(command);
+    process->start();
 }
 
 } // Python::Internal

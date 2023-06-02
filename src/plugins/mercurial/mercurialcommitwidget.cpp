@@ -101,7 +101,7 @@ public:
         m_authorLineEdit = new QLineEdit;
         m_emailLineEdit = new QLineEdit;
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
 
         Column {
             Group {
@@ -119,8 +119,9 @@ public:
                         Tr::tr("Email:"), m_emailLineEdit,
                     },
                 }
-            }
-        }.attachTo(this, Utils::Layouting::WithoutMargins);
+            },
+            noMargin
+        }.attachTo(this);
     }
 
     QLabel *m_repositoryLabel;

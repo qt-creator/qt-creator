@@ -6,6 +6,7 @@
 
 #include <QtTest>
 
+using namespace Core;
 using namespace Utils;
 using namespace QtSupport::Internal;
 
@@ -88,6 +89,7 @@ void tst_Examples::parsing_data()
     QTest::addColumn<QString>("videoLength");
     QTest::addColumn<QStringList>("platforms");
     QTest::addColumn<MetaData>("metaData");
+    QTest::addColumn<QStringList>("categories");
 
     QTest::addRow("example")
         << QByteArray(R"raw(
@@ -102,6 +104,8 @@ void tst_Examples::parsing_data()
             <fileToOpen mainFile="true">widgets/widgets/analogclock/analogclock.cpp</fileToOpen>
             <meta>
                 <entry name="category">Graphics</entry>
+                <entry name="category">Graphics</entry>
+                <entry name="category">Foobar</entry>
                 <entry name="tags">widgets</entry>
             </meta>
         </example>
@@ -111,22 +115,38 @@ void tst_Examples::parsing_data()
         << "The Analog Clock example shows how to draw the contents of a custom widget."
         << "qthelp://org.qt-project.qtwidgets.660/qtwidgets/images/analogclock-example.png"
         << QStringList{"ios", "widgets"}
-        << FilePath::fromUserInput("manifest/widgets/widgets/analogclock/CMakeLists.txt")
+        << FilePath::fromUserInput("examples/widgets/widgets/analogclock/CMakeLists.txt")
         << "qthelp://org.qt-project.qtwidgets.660/qtwidgets/"
            "qtwidgets-widgets-analogclock-example.html"
-        << FilePaths{FilePath::fromUserInput("manifest/widgets/widgets/analogclock/main.cpp"),
-                     FilePath::fromUserInput("manifest/widgets/widgets/analogclock/analogclock.h"),
+        << FilePaths{FilePath::fromUserInput("examples/widgets/widgets/analogclock/main.cpp"),
+                     FilePath::fromUserInput("examples/widgets/widgets/analogclock/analogclock.h"),
                      FilePath::fromUserInput(
-                         "manifest/widgets/widgets/analogclock/analogclock.cpp")}
-        << FilePath::fromUserInput("manifest/widgets/widgets/analogclock/analogclock.cpp")
+                         "examples/widgets/widgets/analogclock/analogclock.cpp")}
+        << FilePath::fromUserInput("examples/widgets/widgets/analogclock/analogclock.cpp")
         << FilePaths() << Example << true << false << false << ""
-        << "" << QStringList() << MetaData({{"category", {"Graphics"}}, {"tags", {"widgets"}}});
+        << "" << QStringList()
+        << MetaData({{"category", {"Graphics", "Graphics", "Foobar"}}, {"tags", {"widgets"}}})
+        << QStringList{"Foobar", "Graphics"};
+
+    QTest::addRow("no category, highlighted")
+        << QByteArray(R"raw(
+    <examples>
+        <example name="No Category, highlighted"
+                 isHighlighted="true">
+        </example>
+    </examples>
+ )raw") << /*isExamples=*/true
+        << "No Category, highlighted" << QString() << QString() << QStringList()
+        << FilePath("examples") << QString() << FilePaths() << FilePath() << FilePaths() << Example
+        << /*hasSourceCode=*/false << false << /*isHighlighted=*/true << ""
+        << "" << QStringList() << MetaData() << QStringList{"Featured"};
 }
 
 void tst_Examples::parsing()
 {
     QFETCH(QByteArray, data);
     QFETCH(bool, isExamples);
+    QFETCH(QStringList, categories);
     const ExampleItem expected = fetchItem();
     const expected_str<QList<ExampleItem *>> result
         = parseExamples(data,
@@ -154,7 +174,17 @@ void tst_Examples::parsing()
     QCOMPARE(item.videoLength, expected.videoLength);
     QCOMPARE(item.platforms, expected.platforms);
     QCOMPARE(item.metaData, expected.metaData);
-    qDeleteAll(*result);
+
+    const QList<std::pair<Section, QList<ExampleItem *>>> resultCategories = getCategories(*result,
+                                                                                           true);
+    QCOMPARE(resultCategories.size(), categories.size());
+    for (int i = 0; i < resultCategories.size(); ++i) {
+        QCOMPARE(resultCategories.at(i).first.name, categories.at(i));
+        QCOMPARE(resultCategories.at(i).second.size(), 1);
+    }
+
+    for (const auto &category : resultCategories)
+        qDeleteAll(category.second);
 }
 
 QTEST_APPLESS_MAIN(tst_Examples)

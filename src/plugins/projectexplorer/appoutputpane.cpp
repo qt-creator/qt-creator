@@ -8,7 +8,6 @@
 #include "projectexplorericons.h"
 #include "projectexplorertr.h"
 #include "runcontrol.h"
-#include "session.h"
 #include "showoutputtaskhandler.h"
 #include "windebuginterface.h"
 
@@ -17,6 +16,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/outputwindow.h>
+#include <coreplugin/session.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
@@ -46,6 +46,7 @@
 
 static Q_LOGGING_CATEGORY(appOutputLog, "qtc.projectexplorer.appoutput", QtWarningMsg);
 
+using namespace Core;
 using namespace Utils;
 
 namespace ProjectExplorer {

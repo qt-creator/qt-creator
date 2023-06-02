@@ -41,8 +41,8 @@ public:
                         QString *repositoryRoot /* = 0 */,
                         QString *errorMessage);
 
-    int longTimeOutS() const { return timeOutS.value() * 10; }
-    int timeOutMS() const { return timeOutS.value() * 1000;  }
+    int longTimeOutS() const { return timeOutS() * 10; }
+    int timeOutMS() const { return timeOutS() * 1000;  }
 
     Utils::FilePath topLevel() const;
     Utils::FilePath topLevelSymLinkTarget() const;
@@ -64,17 +64,18 @@ public:
     // Return basic arguments, including -d and server connection parameters.
     QStringList commonP4Arguments() const;
     QStringList commonP4Arguments(const QString &workingDir) const;
+    QStringList commonP4Arguments_volatile() const; // remove when auto apply is done
 
     void clearTopLevel();
 
-    Utils::StringAspect p4BinaryPath;
-    Utils::StringAspect p4Port;
-    Utils::StringAspect p4Client;
-    Utils::StringAspect p4User;
-    Utils::IntegerAspect logCount;
-    Utils::BoolAspect customEnv;
-    Utils::IntegerAspect timeOutS;
-    Utils::BoolAspect autoOpen;
+    Utils::StringAspect p4BinaryPath{this};
+    Utils::StringAspect p4Port{this};
+    Utils::StringAspect p4Client{this};
+    Utils::StringAspect p4User{this};
+    Utils::IntegerAspect logCount{this};
+    Utils::BoolAspect customEnv{this};
+    Utils::IntegerAspect timeOutS{this};
+    Utils::BoolAspect autoOpen{this};
 
 private:
     QStringList workingDirectoryArguments(const QString &workingDir) const;

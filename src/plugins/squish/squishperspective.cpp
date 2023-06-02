@@ -26,10 +26,13 @@
 namespace Squish {
 namespace Internal {
 
-enum class IconType { StopRecord, Play, Pause, StepIn, StepOver, StepReturn, Stop };
+enum class IconType { StopRecord, Play, Pause, StepIn, StepOver, StepReturn, Stop, Inspect };
 
 static QIcon iconForType(IconType type)
 {
+    static const Utils::Icon inspectIcon({{":/squish/images/picker.png",
+                                           Utils::Theme::IconsBaseColor}});
+
     switch (type) {
     case IconType::StopRecord:
         return Debugger::Icons::RECORD_ON.icon();
@@ -45,6 +48,8 @@ static QIcon iconForType(IconType type)
         return Debugger::Icons::STEP_OUT_TOOLBAR.icon();
     case IconType::Stop:
         return Utils::Icons::STOP_SMALL.icon();
+    case IconType::Inspect:
+        return inspectIcon.icon();
     }
     return QIcon();
 }
@@ -89,6 +94,79 @@ QVariant LocalsItem::data(int column, int role) const
         }
     }
     return TreeItem::data(column, role);
+}
+
+QVariant InspectedObjectItem::data(int column, int role) const
+{
+    if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
+        switch (column) {
+        case 0: return value;
+        case 1: return type;
+        }
+    }
+    return TreeItem::data(column, role);
+}
+
+QVariant InspectedPropertyItem::data(int column, int role) const
+{
+    if (role ==Qt::DisplayRole || role == Qt::ToolTipRole) {
+        switch (column) {
+        case 0: return name;
+        case 1: return value;
+        }
+    }
+    return TreeItem::data(column, role);
+}
+
+void InspectedPropertyItem::parseAndUpdateChildren()
+{
+    const char open = '{';
+    const char close = '}';
+    const char delimiter =',';
+    const char eq = '=';
+
+    if (!value.startsWith(open) || !value.endsWith(close)) // only parse multi-property content
+        return;
+
+    int start = 1;
+    int end = value.size() - 1;
+    do {
+        int endOfName = value.indexOf(eq, start);
+        QTC_ASSERT(endOfName != -1, return);
+        int innerStart = endOfName + 2;
+        QTC_ASSERT(innerStart < end, return);
+        const QString name = value.mid(start, endOfName - start).trimmed();
+        if (value.at(innerStart) != open) {
+            int endOfItemValue = value.indexOf(delimiter, innerStart);
+            if (endOfItemValue == -1)
+                endOfItemValue = end;
+            const QString content = value.mid(innerStart, endOfItemValue - innerStart).trimmed();
+            appendChild(new InspectedPropertyItem(name, content));
+            start = endOfItemValue + 1;
+        } else {
+            int openedBraces = 1;
+            // advance until item's content is complete
+            int pos = innerStart;
+            do {
+                if (++pos > end)
+                    break;
+                if (value.at(pos) == open) {
+                    ++openedBraces;
+                    continue;
+                }
+                if (value.at(pos) == close) {
+                    --openedBraces;
+                    if (openedBraces == 0)
+                        break;
+                }
+            } while (pos < end);
+            ++pos;
+            QTC_ASSERT(pos < end, return);
+            const QString content = value.mid(innerStart, pos - innerStart).trimmed();
+            appendChild(new InspectedPropertyItem(name, content));
+            start = pos + 1;
+        }
+    } while (start < end);
 }
 
 class SquishControlBar : public QDialog
@@ -209,10 +287,14 @@ void SquishPerspective::initPerspective()
     m_stepOutAction->setEnabled(false);
     m_stopAction = Debugger::createStopAction();
     m_stopAction->setEnabled(false);
+    m_inspectAction = new QAction(this);
+    m_inspectAction->setIcon(iconForType(IconType::Inspect));
+    m_inspectAction->setToolTip(Tr::tr("Inspect"));
+    m_inspectAction->setEnabled(false);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(1);
+    QVBoxLayout *localsMainLayout = new QVBoxLayout;
+    localsMainLayout->setContentsMargins(0, 0, 0, 0);
+    localsMainLayout->setSpacing(1);
 
     m_localsModel.setHeader({Tr::tr("Name"), Tr::tr("Type"), Tr::tr("Value")});
     auto localsView = new Utils::TreeView;
@@ -220,11 +302,45 @@ void SquishPerspective::initPerspective()
     localsView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     localsView->setModel(&m_localsModel);
     localsView->setRootIsDecorated(true);
-    mainLayout->addWidget(localsView);
-    QWidget *mainWidget = new QWidget;
-    mainWidget->setObjectName("SquishLocalsView");
-    mainWidget->setWindowTitle(Tr::tr("Squish Locals"));
-    mainWidget->setLayout(mainLayout);
+    localsMainLayout->addWidget(localsView);
+    QWidget *localsWidget = new QWidget;
+    localsWidget->setObjectName("SquishLocalsView");
+    localsWidget->setWindowTitle(Tr::tr("Squish Locals"));
+    localsWidget->setLayout(localsMainLayout);
+
+    QVBoxLayout *objectsMainLayout = new QVBoxLayout;
+    objectsMainLayout->setContentsMargins(0, 0, 0, 0);
+    objectsMainLayout->setSpacing(1);
+
+    m_objectsModel.setHeader({Tr::tr("Object"), Tr::tr("Type")});
+    m_objectsView = new Utils::TreeView;
+    m_objectsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_objectsView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_objectsView->setModel(&m_objectsModel);
+    m_objectsView->setRootIsDecorated(true);
+    objectsMainLayout->addWidget(m_objectsView);
+
+    QWidget *objectWidget = new QWidget;
+    objectWidget->setObjectName("SquishObjectsView");
+    objectWidget->setWindowTitle(Tr::tr("Squish Objects"));
+    objectWidget->setLayout(objectsMainLayout);
+
+    QVBoxLayout *propertiesMainLayout = new QVBoxLayout;
+    propertiesMainLayout->setContentsMargins(0, 0, 0, 0);
+    propertiesMainLayout->setSpacing(1);
+
+    m_propertiesModel.setHeader({Tr::tr("Property"), Tr::tr("Value")});
+    auto propertiesView = new Utils::TreeView;
+    propertiesView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    propertiesView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    propertiesView->setModel(&m_propertiesModel);
+    propertiesView->setRootIsDecorated(true);
+    propertiesMainLayout->addWidget(propertiesView);
+
+    QWidget *propertiesWidget = new QWidget;
+    propertiesWidget->setObjectName("SquishPropertiesView");
+    propertiesWidget->setWindowTitle(Tr::tr("Squish Object Properties"));
+    propertiesWidget->setLayout(propertiesMainLayout);
 
     addToolBarAction(m_pausePlayAction);
     addToolBarAction(m_stepInAction);
@@ -232,10 +348,14 @@ void SquishPerspective::initPerspective()
     addToolBarAction(m_stepOutAction);
     addToolBarAction(m_stopAction);
     addToolbarSeparator();
+    addToolBarAction(m_inspectAction);
+    addToolbarSeparator();
     m_status = new QLabel;
     addToolBarWidget(m_status);
 
-    addWindow(mainWidget, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
+    addWindow(objectWidget, Perspective::SplitVertical, nullptr);
+    addWindow(propertiesWidget, Perspective::SplitHorizontal, objectWidget);
+    addWindow(localsWidget, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
 
     connect(m_pausePlayAction, &QAction::triggered, this, &SquishPerspective::onPausePlayTriggered);
     connect(m_stepInAction, &QAction::triggered, this, [this] {
@@ -250,6 +370,10 @@ void SquishPerspective::initPerspective()
     connect(m_stopAction, &QAction::triggered, this, &SquishPerspective::onStopTriggered);
     connect(m_stopRecordAction, &QAction::triggered,
             this, &SquishPerspective::onStopRecordTriggered);
+    connect(m_inspectAction, &QAction::triggered, this, [this]{
+        m_inspectAction->setEnabled(false);
+        emit inspectTriggered();
+    });
 
     connect(SquishTools::instance(), &SquishTools::localsUpdated,
             this, &SquishPerspective::onLocalsUpdated);
@@ -262,6 +386,35 @@ void SquishPerspective::initPerspective()
             SquishTools::instance()->requestExpansion(item->name);
         }
     });
+
+    connect(SquishTools::instance(), &SquishTools::objectPicked,
+            this, &SquishPerspective::onObjectPicked);
+    connect(SquishTools::instance(), &SquishTools::updateChildren,
+            this, &SquishPerspective::onUpdateChildren);
+    connect(SquishTools::instance(), &SquishTools::propertiesFetched,
+            this, &SquishPerspective::onPropertiesFetched);
+    connect(SquishTools::instance(), &SquishTools::autIdRetrieved,
+            this, [this]{
+                m_autIdKnown = true;
+                m_inspectAction->setEnabled(true);
+            });
+    connect(m_objectsView, &QTreeView::expanded, this, [this](const QModelIndex &idx) {
+        InspectedObjectItem *item = m_objectsModel.itemForIndex(idx);
+        if (QTC_GUARD(item)) {
+            if (item->expanded)
+                return;
+            item->expanded = true;
+            SquishTools::instance()->requestExpansionForObject(item->fullName);
+        }
+    });
+    connect(m_objectsView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, [this](const QModelIndex &current){
+                m_propertiesModel.clear();
+                InspectedObjectItem *item = m_objectsModel.itemForIndex(current);
+                if (!item)
+                    return;
+                SquishTools::instance()->requestPropertiesForObject(item->fullName);
+            });
 }
 
 void SquishPerspective::onStopTriggered()
@@ -269,6 +422,8 @@ void SquishPerspective::onStopTriggered()
     m_stopRecordAction->setEnabled(false);
     m_pausePlayAction->setEnabled(false);
     m_stopAction->setEnabled(false);
+    m_inspectAction->setEnabled(false);
+    m_autIdKnown = false;
     emit stopRequested();
 }
 
@@ -277,6 +432,8 @@ void SquishPerspective::onStopRecordTriggered()
     m_stopRecordAction->setEnabled(false);
     m_pausePlayAction->setEnabled(false);
     m_stopAction->setEnabled(false);
+    m_inspectAction->setEnabled(false);
+    m_autIdKnown = false;
     emit stopRecordRequested();
 }
 
@@ -326,6 +483,60 @@ void SquishPerspective::onLocalsUpdated(const QString &output)
     }
 }
 
+void SquishPerspective::onObjectPicked(const QString &output)
+{
+    // "+{container=':o_QQuickView' text='2' type='Text' unnamed='1' visible='true'}\tQQuickText_QML_1"
+    static const QRegularExpression regex("^(?<exp>[-+])(?<content>\\{.*\\})\t(?<type>.+)$");
+    const QRegularExpressionMatch match = regex.match(output);
+    if (!match.hasMatch())
+        return;
+    const QString content = match.captured("content");
+    m_objectsModel.clear();
+    InspectedObjectItem *parent = m_objectsModel.rootItem();
+    InspectedObjectItem *obj = new InspectedObjectItem(content, match.captured("type"));
+    obj->fullName = content;
+    if (match.captured("exp") == "+")
+        obj->appendChild(new InspectedObjectItem); // add pseudo child
+    parent->appendChild(obj);
+    m_inspectAction->setEnabled(true);
+    const QModelIndex idx = m_objectsModel.indexForItem(obj);
+    if (idx.isValid())
+        m_objectsView->setCurrentIndex(idx);
+}
+
+void SquishPerspective::onUpdateChildren(const QString &name, const QStringList &children)
+{
+    InspectedObjectItem *item = m_objectsModel.findNonRootItem([name](InspectedObjectItem *it) {
+        return it->fullName == name;
+    });
+    if (!item)
+        return;
+
+    item->removeChildren(); // remove former dummy child
+    static const QRegularExpression regex("(?<exp>[-+])(?<symbolicName>.+)\t(?<type>.+)");
+    for (const QString &child : children) {
+        const QRegularExpressionMatch match = regex.match(child);
+        QTC_ASSERT(match.hasMatch(), continue);
+        const QString symbolicName = match.captured("symbolicName");
+        auto childItem = new InspectedObjectItem(symbolicName, match.captured("type"));
+        childItem->fullName = name + '.' + symbolicName;
+        childItem->appendChild(new InspectedObjectItem); // add dummy child
+        item->appendChild(childItem);
+    }
+}
+
+void SquishPerspective::onPropertiesFetched(const QStringList &properties)
+{
+    static const QRegularExpression regex("(?<name>.+)=(?<exp>[-+])(?<content>.*)");
+
+    for (const QString &line : properties) {
+        const QRegularExpressionMatch match = regex.match(line);
+        QTC_ASSERT(match.hasMatch(), continue);
+        auto item = new InspectedPropertyItem(match.captured("name"), match.captured("content"));
+        m_propertiesModel.rootItem()->appendChild(item);
+    }
+}
+
 void SquishPerspective::updateStatus(const QString &status)
 {
     m_status->setText(status);
@@ -360,6 +571,12 @@ void SquishPerspective::destroyControlBar()
     m_controlBar = nullptr;
 }
 
+void SquishPerspective::resetAutId()
+{
+    m_autIdKnown = false;
+    m_inspectAction->setEnabled(false);
+}
+
 void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
 {
     if (m_mode == mode) // ignore
@@ -376,6 +593,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_stepOverAction->setEnabled(false);
         m_stepOutAction->setEnabled(false);
         m_stopAction->setEnabled(true);
+        m_inspectAction->setEnabled(false);
         break;
     case Recording:
         m_stopRecordAction->setEnabled(true);
@@ -386,6 +604,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_stepOverAction->setEnabled(false);
         m_stepOutAction->setEnabled(false);
         m_stopAction->setEnabled(true);
+        m_inspectAction->setEnabled(false);
         break;
     case Interrupted:
         m_pausePlayAction->setEnabled(true);
@@ -395,6 +614,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_stepOverAction->setEnabled(true);
         m_stepOutAction->setEnabled(true);
         m_stopAction->setEnabled(true);
+        m_inspectAction->setEnabled(m_autIdKnown);
         break;
     case Configuring:
     case Querying:
@@ -407,7 +627,10 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_stepOverAction->setEnabled(false);
         m_stepOutAction->setEnabled(false);
         m_stopAction->setEnabled(false);
+        m_inspectAction->setEnabled(false);
         m_localsModel.clear();
+        m_objectsModel.clear();
+        m_propertiesModel.clear();
         break;
     default:
         break;

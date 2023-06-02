@@ -18,8 +18,8 @@
 #include <qmljstools/qmljstoolsconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QCryptographicHash>
 #include <QJSEngine>
@@ -223,7 +223,7 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
     const Utils::FilePath qbsConfigExe = QbsSettings::qbsConfigFilePath();
     if (qbsConfigExe.isEmpty() || !qbsConfigExe.exists())
         return {};
-    Utils::QtcProcess qbsConfig;
+    Utils::Process qbsConfig;
     qbsConfig.setCommand({qbsConfigExe, args});
     qbsConfig.start();
     if (!qbsConfig.waitForFinished(5000)) {

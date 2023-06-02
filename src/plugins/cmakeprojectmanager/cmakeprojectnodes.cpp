@@ -30,6 +30,15 @@ CMakeInputsNode::CMakeInputsNode(const FilePath &cmakeLists) :
     setListInProject(false);
 }
 
+CMakePresetsNode::CMakePresetsNode(const FilePath &projectPath) :
+    ProjectExplorer::ProjectNode(projectPath)
+{
+    setPriority(Node::DefaultPriority - 9);
+    setDisplayName(Tr::tr("CMake Presets"));
+    setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_PRODUCT));
+    setListInProject(false);
+}
+
 CMakeListsNode::CMakeListsNode(const FilePath &cmakeListPath) :
     ProjectExplorer::ProjectNode(cmakeListPath)
 {
@@ -198,6 +207,10 @@ void CMakeTargetNode::setTargetInformation(const QList<FilePath> &artifacts, con
         m_tooltip += Tr::tr("Build artifacts:") + "<br>" + tmp.join("<br>");
         m_artifact = artifacts.first();
     }
+    if (type == "EXECUTABLE")
+        setProductType(ProductType::App);
+    else if (type == "SHARED_LIBRARY" || type == "STATIC_LIBRARY")
+        setProductType(ProductType::Lib);
 }
 
 } // CMakeProjectManager::Internal

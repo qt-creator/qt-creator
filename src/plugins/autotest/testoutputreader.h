@@ -5,11 +5,9 @@
 
 #include "testresult.h"
 
-#include <QFutureInterface>
 #include <QObject>
-#include <QString>
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace Autotest {
 
@@ -17,8 +15,7 @@ class TestOutputReader : public QObject
 {
     Q_OBJECT
 public:
-    TestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                     Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory);
+    TestOutputReader(Utils::Process *testApplication, const Utils::FilePath &buildDirectory);
     virtual ~TestOutputReader();
     void processStdOutput(const QByteArray &outputLine);
     virtual void processStdError(const QByteArray &outputLine);
@@ -46,7 +43,6 @@ protected:
     void sendAndResetSanitizerResult();
 
     void reportResult(const TestResult &result);
-    QFutureInterface<TestResult> m_futureInterface;
     Utils::FilePath m_buildDir;
     QString m_id;
     QHash<ResultType, int> m_summary;

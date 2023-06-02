@@ -15,7 +15,7 @@
 #include <QFileSystemWatcher>
 #include <QSettings>
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace Android {
 namespace Internal {
@@ -61,7 +61,6 @@ private:
     void addActionsIfNotFound();
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
-    bool canAutoDetectPorts() const override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
 
@@ -109,7 +108,7 @@ private:
     QFutureWatcher<AndroidDeviceInfoList> m_avdsFutureWatcher;
     QFutureWatcher<QPair<ProjectExplorer::IDevice::ConstPtr, bool>> m_removeAvdFutureWatcher;
     QFileSystemWatcher m_avdFileSystemWatcher;
-    std::unique_ptr<Utils::QtcProcess> m_adbDeviceWatcherProcess;
+    std::unique_ptr<Utils::Process> m_adbDeviceWatcherProcess;
     AndroidConfig &m_androidConfig;
     AndroidAvdManager m_avdManager;
 

@@ -26,7 +26,6 @@
 
 #include <QByteArray>
 #include <QDebug>
-#include <QFutureInterface>
 #include <QStack>
 
 /*!
@@ -297,12 +296,13 @@ void Document::setLastModified(const QDateTime &lastModified)
     _lastModified = lastModified;
 }
 
-FilePaths Document::includedFiles() const
+FilePaths Document::includedFiles(Duplicates duplicates) const
 {
     FilePaths files;
     for (const Include &i : std::as_const(_resolvedIncludes))
         files.append(i.resolvedFileName());
-    FilePath::removeDuplicates(files);
+    if (duplicates == Duplicates::Remove)
+        FilePath::removeDuplicates(files);
     return files;
 }
 
@@ -772,7 +772,7 @@ QSet<FilePath> Snapshot::allIncludesForDocument(const FilePath &filePath) const
     while (!files.isEmpty()) {
         FilePath file = files.pop();
         if (Document::Ptr doc = document(file)) {
-            const FilePaths includedFiles = doc->includedFiles();
+            const FilePaths includedFiles = doc->includedFiles(Document::Duplicates::Keep);
             for (const FilePath &inc : includedFiles) {
                 if (!result.contains(inc)) {
                     result.insert(inc);
@@ -821,16 +821,10 @@ FilePaths Snapshot::filesDependingOn(const FilePath &filePath) const
     return m_deps.filesDependingOn(filePath);
 }
 
-void Snapshot::updateDependencyTable() const
-{
-    QFutureInterfaceBase futureInterface;
-    updateDependencyTable(futureInterface);
-}
-
-void Snapshot::updateDependencyTable(QFutureInterfaceBase &futureInterface) const
+void Snapshot::updateDependencyTable(const std::optional<QFuture<void>> &future) const
 {
     if (m_deps.files.isEmpty())
-        m_deps.build(futureInterface, *this);
+        m_deps.build(future, *this);
 }
 
 bool Snapshot::operator==(const Snapshot &other) const

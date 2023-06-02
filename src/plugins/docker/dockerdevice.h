@@ -73,9 +73,7 @@ public:
 
     Utils::ProcessInterface *createProcessInterface() const override;
 
-    bool canAutoDetectPorts() const override;
-    ProjectExplorer::PortsGatheringMethod portsGatheringMethod() const override;
-    bool canCreateProcessModel() const override { return false; }
+    bool canCreateProcessModel() const override { return true; }
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const override;
     bool hasDeviceTester() const override { return false; }
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
@@ -95,7 +93,7 @@ public:
 
     void setData(const DockerDeviceData &data);
 
-    void updateContainerAccess() const;
+    bool updateContainerAccess() const;
     void setMounts(const QStringList &mounts) const;
 
     bool prepareForBuild(const ProjectExplorer::Target *target) override;

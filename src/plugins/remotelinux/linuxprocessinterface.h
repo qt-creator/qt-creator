@@ -5,32 +5,35 @@
 
 #include "remotelinux_export.h"
 
-#include "sshprocessinterface.h"
+#include "linuxdevice.h"
+
+#include <utils/processinterface.h>
 
 namespace RemoteLinux {
 
-class LinuxDevice;
 class SshProcessInterfacePrivate;
 
-class REMOTELINUX_EXPORT LinuxProcessInterface : public SshProcessInterface
+class REMOTELINUX_EXPORT SshProcessInterface : public Utils::ProcessInterface
 {
 public:
-    LinuxProcessInterface(const LinuxDevice *linuxDevice);
-    ~LinuxProcessInterface();
+    explicit SshProcessInterface(const ProjectExplorer::IDevice::ConstPtr &device);
+    ~SshProcessInterface();
+
+protected:
+    void emitStarted(qint64 processId);
+    void killIfRunning();
+    qint64 processId() const;
+    bool runInShell(const Utils::CommandLine &command, const QByteArray &data = {});
 
 private:
-    void handleSendControlSignal(Utils::ControlSignal controlSignal) override;
+    virtual void handleSendControlSignal(Utils::ControlSignal controlSignal);
 
-    void handleStarted(qint64 processId) final;
-    void handleDone(const Utils::ProcessResultData &resultData) final;
-    void handleReadyReadStandardOutput(const QByteArray &outputData) final;
-    void handleReadyReadStandardError(const QByteArray &errorData) final;
+    void start() final;
+    qint64 write(const QByteArray &data) final;
+    void sendControlSignal(Utils::ControlSignal controlSignal) final;
 
-    QString fullCommandLine(const Utils::CommandLine &commandLine) const final;
-
-    QByteArray m_output;
-    QByteArray m_error;
-    bool m_pidParsed = false;
+    friend class SshProcessInterfacePrivate;
+    SshProcessInterfacePrivate *d = nullptr;
 };
 
 } // namespace RemoteLinux

@@ -14,8 +14,7 @@ namespace Internal {
 class CatchOutputReader : public TestOutputReader
 {
 public:
-    CatchOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                      Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory,
+    CatchOutputReader(Utils::Process *testApplication, const Utils::FilePath &buildDirectory,
                       const Utils::FilePath &projectFile);
 
 protected:

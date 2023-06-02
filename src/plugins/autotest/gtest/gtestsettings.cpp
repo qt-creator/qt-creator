@@ -11,24 +11,35 @@
 
 #include <utils/layoutbuilder.h>
 
+using namespace Layouting;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
-GTestSettings::GTestSettings()
+GTestSettings::GTestSettings(Id settingsId)
 {
     setSettingsGroups("Autotest", "GTest");
-    setAutoApply(false);
+    setId(settingsId);
+    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+    setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
 
-    registerAspect(&iterations);
+    setLayouter([this] {
+        return Row { Form {
+                runDisabled, br,
+                breakOnFailure, br,
+                repeat, iterations, br,
+                shuffle, seed, br,
+                groupMode, br,
+                gtestFilter, br
+            }, st };
+    });
+
     iterations.setSettingsKey("Iterations");
     iterations.setDefaultValue(1);
     iterations.setEnabled(false);
     iterations.setLabelText(Tr::tr("Iterations:"));
     iterations.setEnabler(&repeat);
 
-    registerAspect(&seed);
     seed.setSettingsKey("Seed");
     seed.setSpecialValueText({});
     seed.setEnabled(false);
@@ -36,33 +47,28 @@ GTestSettings::GTestSettings()
     seed.setToolTip(Tr::tr("A seed of 0 generates a seed based on the current timestamp."));
     seed.setEnabler(&shuffle);
 
-    registerAspect(&runDisabled);
     runDisabled.setSettingsKey("RunDisabled");
     runDisabled.setLabelText(Tr::tr("Run disabled tests"));
     runDisabled.setToolTip(Tr::tr("Executes disabled tests when performing a test run."));
 
-    registerAspect(&shuffle);
     shuffle.setSettingsKey("Shuffle");
     shuffle.setLabelText(Tr::tr("Shuffle tests"));
     shuffle.setToolTip(Tr::tr("Shuffles tests automatically on every iteration by the given seed."));
 
-    registerAspect(&repeat);
     repeat.setSettingsKey("Repeat");
     repeat.setLabelText(Tr::tr("Repeat tests"));
-    repeat.setToolTip(Tr::tr("Repeats a test run (you might be required to increase the timeout to avoid canceling the tests)."));
+    repeat.setToolTip(Tr::tr("Repeats a test run (you might be required to increase the timeout to "
+                             "avoid canceling the tests)."));
 
-    registerAspect(&throwOnFailure);
     throwOnFailure.setSettingsKey("ThrowOnFailure");
     throwOnFailure.setLabelText(Tr::tr("Throw on failure"));
     throwOnFailure.setToolTip(Tr::tr("Turns assertion failures into C++ exceptions."));
 
-    registerAspect(&breakOnFailure);
     breakOnFailure.setSettingsKey("BreakOnFailure");
     breakOnFailure.setDefaultValue(true);
     breakOnFailure.setLabelText(Tr::tr("Break on failure while debugging"));
     breakOnFailure.setToolTip(Tr::tr("Turns failures into debugger breakpoints."));
 
-    registerAspect(&groupMode);
     groupMode.setSettingsKey("GroupMode");
     groupMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     groupMode.setFromSettingsTransformation([this](const QVariant &savedValue) -> QVariant {
@@ -80,7 +86,6 @@ GTestSettings::GTestSettings()
     groupMode.setLabelText(Tr::tr("Group mode:"));
     groupMode.setToolTip(Tr::tr("Select on what grouping the tests should be based."));
 
-    registerAspect(&gtestFilter);
     gtestFilter.setSettingsKey("GTestFilter");
     gtestFilter.setDisplayStyle(StringAspect::LineEditDisplay);
     gtestFilter.setDefaultValue(GTest::Constants::DEFAULT_FILTER);
@@ -93,8 +98,8 @@ GTestSettings::GTestSettings()
     });
     gtestFilter.setEnabled(false);
     gtestFilter.setLabelText(Tr::tr("Active filter:"));
-    gtestFilter.setToolTip(Tr::tr("Set the GTest filter to be used for grouping.\n"
-        "See Google Test documentation for further information on GTest filters."));
+    gtestFilter.setToolTip(Tr::tr("Set the GTest filter to be used for grouping.\nSee Google Test "
+                                  "documentation for further information on GTest filters."));
 
     gtestFilter.setValidationFunction([](FancyLineEdit *edit, QString * /*error*/) {
         return edit && GTestUtils::isValidGTestFilter(edit->text());
@@ -104,39 +109,11 @@ GTestSettings::GTestSettings()
                      &gtestFilter, [this](int val) {
         gtestFilter.setEnabled(groupMode.itemValueForIndex(val) == GTest::Constants::GTestFilter);
     });
-}
 
-GTestSettingsPage::GTestSettingsPage(GTestSettings *settings, Id settingsId)
-{
-    setId(settingsId);
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
-    setSettings(settings);
-
-    QObject::connect(settings, &AspectContainer::applied, this, [] {
+    QObject::connect(this, &AspectContainer::applied, this, [] {
         Id id = Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
         TestTreeModel::instance()->rebuild({id});
     });
-
-    setLayouter([settings](QWidget *widget) {
-        GTestSettings &s = *settings;
-        using namespace Layouting;
-
-        Grid grid {
-            s.runDisabled, br,
-            s.breakOnFailure, br,
-            s.repeat, s.iterations, br,
-            s.shuffle, s.seed
-        };
-
-        Form form {
-            s.groupMode,
-            s.gtestFilter
-        };
-
-        Column { Row { Column { grid, form, st }, st } }.attachTo(widget);
-    });
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

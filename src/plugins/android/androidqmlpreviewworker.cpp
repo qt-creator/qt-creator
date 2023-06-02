@@ -27,8 +27,8 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
+#include <utils/async.h>
+#include <utils/process.h>
 
 #include <QDateTime>
 #include <QDeadlineTimer>
@@ -117,7 +117,7 @@ private:
     QStringList m_avdAbis;
     int m_viewerPid = -1;
     QFutureWatcher<void> m_pidFutureWatcher;
-    Utils::QtcProcess m_logcatProcess;
+    Utils::Process m_logcatProcess;
     QString m_logcatStartTimeStamp;
     UploadInfo m_uploadInfo;
 };
@@ -163,7 +163,7 @@ bool AndroidQmlPreviewWorker::isPreviewRunning(int lastKnownPid) const
 
 void AndroidQmlPreviewWorker::startPidWatcher()
 {
-    m_pidFutureWatcher.setFuture(runAsync([this] {
+    m_pidFutureWatcher.setFuture(Utils::asyncRun([this] {
         // wait for started
         const int sleepTimeMs = 2000;
         QDeadlineTimer deadline(20000);
@@ -226,7 +226,7 @@ AndroidQmlPreviewWorker::AndroidQmlPreviewWorker(RunControl *runControl)
     connect(this, &AndroidQmlPreviewWorker::previewPidChanged,
             this, &AndroidQmlPreviewWorker::startLogcat);
 
-    connect(this, &RunWorker::stopped, &m_logcatProcess, &QtcProcess::stop);
+    connect(this, &RunWorker::stopped, &m_logcatProcess, &Process::stop);
     m_logcatProcess.setStdOutCallback([this](const QString &stdOut) {
         filterLogcatAndAppendMessage(stdOut);
     });
@@ -376,7 +376,7 @@ FilePath AndroidQmlPreviewWorker::createQmlrcFile(const FilePath &workFolder,
 {
     const QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(m_rc->kit());
     const FilePath rccBinary = qtVersion->rccFilePath();
-    QtcProcess rccProcess;
+    Process rccProcess;
     FilePath qrcPath = FilePath::fromString(basename + ".qrc4viewer");
     const FilePath qmlrcPath = FilePath::fromString(QDir::tempPath()) / (basename + packageSuffix);
 

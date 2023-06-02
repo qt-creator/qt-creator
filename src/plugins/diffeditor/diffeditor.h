@@ -53,6 +53,7 @@ private:
     void ignoreWhitespaceHasChanged();
     void prepareForReload();
     void reloadHasFinished(bool success);
+    void currentIndexChanged(int index);
     void setCurrentDiffFileIndex(int index);
     void documentStateChanged();
 

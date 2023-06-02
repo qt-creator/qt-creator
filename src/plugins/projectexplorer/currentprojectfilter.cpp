@@ -7,42 +7,28 @@
 #include "projectexplorertr.h"
 #include "projecttree.h"
 
-#include <utils/algorithm.h>
-
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
+using namespace Utils;
 
 CurrentProjectFilter::CurrentProjectFilter()
-    : BaseFileFilter()
 {
     setId("Files in current project");
     setDisplayName(Tr::tr("Files in Current Project"));
-    setDescription(Tr::tr("Matches all files from the current document's project. Append \"+<number>\" "
-                      "or \":<number>\" to jump to the given line number. Append another "
-                      "\"+<number>\" or \":<number>\" to jump to the column number as well."));
+    setDescription(Tr::tr("Locates files from the current document's project. Append \"+<number>\" "
+                          "or \":<number>\" to jump to the given line number. Append another "
+                          "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("p");
-    setDefaultIncludedByDefault(false);
+    setRefreshRecipe(Tasking::Sync([this] { invalidate(); }));
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFilter::currentProjectChanged);
-}
 
-void CurrentProjectFilter::markFilesAsOutOfDate()
-{
-    setFileIterator(nullptr);
-}
-
-void CurrentProjectFilter::prepareSearch(const QString &entry)
-{
-    Q_UNUSED(entry)
-    if (!fileIterator()) {
-        Utils::FilePaths paths;
-        if (m_project)
-            paths = m_project->files(Project::SourceFiles);
-        setFileIterator(new BaseFileFilter::ListIterator(paths));
-    }
-    BaseFileFilter::prepareSearch(entry);
+    m_cache.setGeneratorProvider([this] {
+        const FilePaths paths = m_project ? m_project->files(Project::SourceFiles) : FilePaths();
+        return LocatorFileCache::filePathsGenerator(paths);
+    });
 }
 
 void CurrentProjectFilter::currentProjectChanged()
@@ -50,21 +36,12 @@ void CurrentProjectFilter::currentProjectChanged()
     Project *project = ProjectTree::currentProject();
     if (project == m_project)
         return;
+
     if (m_project)
-        disconnect(m_project, &Project::fileListChanged,
-                   this, &CurrentProjectFilter::markFilesAsOutOfDate);
-
-    if (project)
-        connect(project, &Project::fileListChanged,
-                this, &CurrentProjectFilter::markFilesAsOutOfDate);
-
+        disconnect(m_project, &Project::fileListChanged, this, &CurrentProjectFilter::invalidate);
     m_project = project;
-    markFilesAsOutOfDate();
-}
+    if (m_project)
+        connect(m_project, &Project::fileListChanged, this, &CurrentProjectFilter::invalidate);
 
-void CurrentProjectFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-    QMetaObject::invokeMethod(this, &CurrentProjectFilter::markFilesAsOutOfDate,
-                              Qt::QueuedConnection);
+    invalidate();
 }

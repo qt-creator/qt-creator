@@ -4,10 +4,11 @@ Project {
     name: "Utils autotests"
     references: [
         "ansiescapecodehandler/ansiescapecodehandler.qbs",
-        "asynctask/asynctask.qbs",
+        "async/async.qbs",
         "commandline/commandline.qbs",
         "deviceshell/deviceshell.qbs",
         "expected/expected.qbs",
+        "filepath/filepath.qbs",
         "fileutils/fileutils.qbs",
         "fsengine/fsengine.qbs",
         "fuzzymatcher/fuzzymatcher.qbs",
@@ -15,11 +16,12 @@ Project {
         "mathutils/mathutils.qbs",
         "multicursor/multicursor.qbs",
         "persistentsettings/persistentsettings.qbs",
-        "qtcprocess/qtcprocess.qbs",
+        "process/process.qbs",
         "settings/settings.qbs",
         "stringutils/stringutils.qbs",
-        "tasktree/tasktree.qbs",
         "templateengine/templateengine.qbs",
+        "text/text.qbs",
         "treemodel/treemodel.qbs",
+        "unixdevicefileaccess/unixdevicefileaccess.qbs",
     ]
 }

@@ -7,7 +7,7 @@
 
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QCheckBox>
 #include <QDialog>
@@ -217,7 +217,8 @@ bool AndroidCreateKeystoreCertificate::checkCertificateAlias()
 
 bool AndroidCreateKeystoreCertificate::checkCountryCode()
 {
-    if (!m_countryLineEdit->text().contains(QRegularExpression("[A-Z]{2}"))) {
+    static const QRegularExpression re("[A-Z]{2}");
+    if (!m_countryLineEdit->text().contains(re)) {
         m_infoLabel->show();
         m_infoLabel->setText(Tr::tr("Invalid country code."));
         return false;
@@ -271,7 +272,7 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
                               "-keypass", certificatePassword(),
                               "-dname", distinguishedNames});
 
-    QtcProcess genKeyCertProc;
+    Process genKeyCertProc;
     genKeyCertProc.setTimeoutS(15);
     genKeyCertProc.setCommand(command);
     genKeyCertProc.runBlocking(EventLoopMode::On);

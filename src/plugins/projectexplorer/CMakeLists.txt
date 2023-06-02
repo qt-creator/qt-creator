@@ -28,6 +28,7 @@ add_qtc_plugin(ProjectExplorer
     codestylesettingspropertiespage.cpp codestylesettingspropertiespage.h
     compileoutputwindow.cpp compileoutputwindow.h
     configtaskhandler.cpp configtaskhandler.h
+    copystep.cpp copystep.h
     copytaskhandler.cpp copytaskhandler.h
     currentprojectfilter.cpp currentprojectfilter.h
     currentprojectfind.cpp currentprojectfind.h
@@ -65,8 +66,7 @@ add_qtc_plugin(ProjectExplorer
     devicesupport/idevicefactory.cpp devicesupport/idevicefactory.h
     devicesupport/idevicefwd.h
     devicesupport/idevicewidget.h
-    devicesupport/localprocesslist.cpp devicesupport/localprocesslist.h
-    devicesupport/sshdeviceprocesslist.cpp devicesupport/sshdeviceprocesslist.h
+    devicesupport/processlist.cpp devicesupport/processlist.h
     devicesupport/sshparameters.cpp devicesupport/sshparameters.h
     devicesupport/sshsettings.cpp devicesupport/sshsettings.h
     devicesupport/sshsettingspage.cpp devicesupport/sshsettingspage.h
@@ -115,7 +115,6 @@ add_qtc_plugin(ProjectExplorer
     ldparser.cpp ldparser.h
     lldparser.cpp lldparser.h
     linuxiccparser.cpp linuxiccparser.h
-    localenvironmentaspect.cpp localenvironmentaspect.h
     makestep.cpp makestep.h
     miniprojecttargetselector.cpp miniprojecttargetselector.h
     msvcparser.cpp msvcparser.h
@@ -135,13 +134,12 @@ add_qtc_plugin(ProjectExplorer
     projectexplorerconstants.cpp
     projectexplorerconstants.h
     projectexplorericons.cpp projectexplorericons.h
-    projectexplorersettings.h
-    projectexplorersettingspage.cpp projectexplorersettingspage.h
+    projectexplorersettings.cpp projectexplorersettings.h
     projectexplorertr.h
     projectfilewizardextension.cpp projectfilewizardextension.h
     projectimporter.cpp projectimporter.h
     projectmacro.cpp projectmacro.h
-    projectmanager.h
+    projectmanager.cpp projectmanager.h
     projectmodels.cpp projectmodels.h
     projectnodes.cpp projectnodes.h
     projectpanelfactory.cpp projectpanelfactory.h
@@ -159,10 +157,6 @@ add_qtc_plugin(ProjectExplorer
     runsettingspropertiespage.cpp runsettingspropertiespage.h
     sanitizerparser.cpp sanitizerparser.h
     selectablefilesmodel.cpp selectablefilesmodel.h
-    session.cpp session.h
-    sessiondialog.cpp sessiondialog.h
-    sessionmodel.cpp sessionmodel.h
-    sessionview.cpp sessionview.h
     showineditortaskhandler.cpp showineditortaskhandler.h
     showoutputtaskhandler.cpp showoutputtaskhandler.h
     simpleprojectwizard.cpp simpleprojectwizard.h

@@ -10,12 +10,13 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/session.h>
 
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/Overview.h>
+
 #include <utils/codegeneration.h>
 #include <utils/fileutils.h>
 
@@ -134,13 +135,13 @@ bool CppToolsJsExtension::hasQObjectParent(const QString &klassName) const
     // Find class in AST.
     const CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
     const WorkingCopy workingCopy = CppModelManager::instance()->workingCopy();
-    QByteArray source = workingCopy.source(item->filePath());
-    if (source.isEmpty()) {
+    std::optional<QByteArray> source = workingCopy.source(item->filePath());
+    if (!source) {
         const Utils::expected_str<QByteArray> contents = item->filePath().fileContents();
         QTC_ASSERT_EXPECTED(contents, return false);
         source = *contents;
     }
-    const auto doc = snapshot.preprocessedDocument(source, item->filePath());
+    const auto doc = snapshot.preprocessedDocument(*source, item->filePath());
     if (!doc)
         return false;
     doc->check();
@@ -234,7 +235,7 @@ QString CppToolsJsExtension::includeStatement(
         }
         return false;
     };
-    for (const Project * const p : SessionManager::projects()) {
+    for (const Project * const p : ProjectManager::projects()) {
         const Node *theNode = p->rootProjectNode()->findNode(nodeMatchesFileName);
         if (theNode) {
             const bool sameDir = pathOfIncludingFile == theNode->filePath().toFileInfo().path();

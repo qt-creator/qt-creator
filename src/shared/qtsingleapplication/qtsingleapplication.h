@@ -1,6 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#pragma once
+
 #include <QApplication>
 
 QT_FORWARD_DECLARE_CLASS(QSharedMemory)
@@ -43,5 +45,8 @@ private:
     QString appId;
     bool block;
 };
+
+// Instantiates Freeze Detector when QTC_FREEZE_DETECTOR env var is set.
+QtSingleApplication *createApplication(const QString &id, int &argc, char **argv);
 
 } // namespace SharedTools

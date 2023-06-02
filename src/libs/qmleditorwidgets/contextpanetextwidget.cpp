@@ -80,7 +80,7 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
     vAlignButtons->addButton(m_centerVAlignmentButton);
     vAlignButtons->addButton(m_bottomAlignmentButton);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Row { m_fontComboBox, m_colorButton, m_fontSizeSpinBox, },
         Row {

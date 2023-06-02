@@ -5,7 +5,6 @@
 
 #include "cmakeprocess.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "fileapidataextractor.h"
 #include "fileapiparser.h"
@@ -15,8 +14,8 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
 #include <QLoggingCategory>
 
@@ -166,18 +165,17 @@ bool FileApiReader::isParsing() const
     return m_isParsing;
 }
 
-QSet<FilePath> FileApiReader::projectFilesToWatch() const
-{
-    return Utils::transform(
-                Utils::filtered(m_cmakeFiles,
-                                [](const CMakeFileInfo &info) { return !info.isGenerated; }),
-                [](const CMakeFileInfo &info) { return info.path;});
-}
-
 QList<CMakeBuildTarget> FileApiReader::takeBuildTargets(QString &errorMessage){
     Q_UNUSED(errorMessage)
 
     return std::exchange(m_buildTargets, {});
+}
+
+QSet<CMakeFileInfo> FileApiReader::takeCMakeFileInfos(QString &errorMessage)
+{
+    Q_UNUSED(errorMessage)
+
+    return std::exchange(m_cmakeFiles, {});
 }
 
 CMakeConfig FileApiReader::takeParsedConfiguration(QString &errorMessage)
@@ -235,11 +233,11 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
 
     m_lastReplyTimestamp = replyFilePath.lastModified();
 
-    m_future = runAsync(ProjectExplorerPlugin::sharedThreadPool(),
+    m_future = Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
                         [replyFilePath, sourceDirectory, buildDirectory, cmakeBuildType](
-                            QFutureInterface<std::shared_ptr<FileApiQtcData>> &fi) {
+                            QPromise<std::shared_ptr<FileApiQtcData>> &promise) {
                             auto result = std::make_shared<FileApiQtcData>();
-                            FileApiData data = FileApiParser::parseData(fi,
+                            FileApiData data = FileApiParser::parseData(promise,
                                                                         replyFilePath,
                                                                         cmakeBuildType,
                                                                         result->errorMessage);
@@ -248,7 +246,7 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
                             else
                                 qWarning() << result->errorMessage;
 
-                            fi.reportResult(result);
+                            promise.addResult(result);
                         });
     onResultReady(m_future.value(),
                   this,

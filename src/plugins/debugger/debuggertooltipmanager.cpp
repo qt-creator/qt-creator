@@ -13,15 +13,14 @@
 #include "stackhandler.h"
 #include "watchhandler.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/session.h>
 
 #include <cppeditor/cppprojectfile.h>
-
-#include <projectexplorer/session.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
@@ -266,30 +265,25 @@ public:
 
     void expandNode(const QModelIndex &idx)
     {
+        if (!m_engine)
+            return;
+
         m_expandedINames.insert(idx.data(LocalsINameRole).toString());
-        if (canFetchMore(idx))
-            fetchMore(idx);
+        if (canFetchMore(idx)) {
+            if (!idx.isValid())
+                return;
+
+            if (auto item = dynamic_cast<ToolTipWatchItem *>(itemForIndex(idx))) {
+                WatchItem *it = m_engine->watchHandler()->findItem(item->iname);
+                if (QTC_GUARD(it))
+                    it->model()->fetchMore(it->index());
+            }
+        }
     }
 
     void collapseNode(const QModelIndex &idx)
     {
         m_expandedINames.remove(idx.data(LocalsINameRole).toString());
-    }
-
-    void fetchMore(const QModelIndex &idx) override
-    {
-        if (!idx.isValid())
-            return;
-        auto item = dynamic_cast<ToolTipWatchItem *>(itemForIndex(idx));
-        if (!item)
-            return;
-        QString iname = item->iname;
-        if (!m_engine)
-            return;
-
-        WatchItem *it = m_engine->watchHandler()->findItem(iname);
-        QTC_ASSERT(it, return);
-        it->model()->fetchMore(it->index());
     }
 
     void restoreTreeModel(QXmlStreamReader &r);
@@ -519,7 +513,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
     setAttribute(Qt::WA_DeleteOnClose);
 
     isPinned = false;
-    const QIcon pinIcon(":/debugger/images/pin.xpm");
+    const QIcon pinIcon = Utils::Icons::PINNED_SMALL.icon();
 
     pinButton = new QToolButton;
     pinButton->setIcon(pinIcon);
@@ -534,9 +528,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
 
     auto toolBar = new QToolBar(this);
     toolBar->setProperty("_q_custom_style_disabled", QVariant(true));
-    const QList<QSize> pinIconSizes = pinIcon.availableSizes();
-    if (!pinIconSizes.isEmpty())
-        toolBar->setIconSize(pinIconSizes.front());
+    toolBar->setIconSize({12, 12});
     toolBar->addWidget(pinButton);
     toolBar->addWidget(copyButton);
     toolBar->addWidget(titleLabel);
@@ -1171,6 +1163,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
     context.fileName = document->filePath();
     context.position = pos;
     editorWidget->convertPosition(pos, &context.line, &context.column);
+    ++context.column;
     QString raw = cppExpressionAt(editorWidget, context.position, &context.line, &context.column,
                                   &context.function, &context.scopeFromLine, &context.scopeToLine);
     context.expression = fixCppExpression(raw);

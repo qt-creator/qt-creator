@@ -235,7 +235,7 @@ def qdump__Utils__Port(d, value):
 
 
 
-def qdump__Utils__Environment(d, value):
+def x_qdump__Utils__Environment(d, value):
     qdump__Utils__NameValueDictionary(d, value)
 
 
@@ -243,7 +243,7 @@ def qdump__Utils__DictKey(d, value):
     d.putStringValue(value["name"])
 
 
-def qdump__Utils__NameValueDictionary(d, value):
+def x_qdump__Utils__NameValueDictionary(d, value):
     dptr = d.extractPointer(value)
     if d.qtVersion() >= 0x60000:
         if dptr == 0:

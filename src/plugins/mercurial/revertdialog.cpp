@@ -11,8 +11,6 @@
 #include <QGroupBox>
 #include <QLineEdit>
 
-using namespace Utils;
-
 namespace Mercurial::Internal {
 
 RevertDialog::RevertDialog(QWidget *parent)
@@ -32,8 +30,8 @@ RevertDialog::RevertDialog(QWidget *parent)
     using namespace Layouting;
 
     Form {
-        Tr::tr("Revision:"), m_revisionLineEdit,
-    }.attachTo(groupBox, WithMargins);
+        Tr::tr("Revision:"), m_revisionLineEdit, normalMargin
+    }.attachTo(groupBox);
 
     Column {
         groupBox,

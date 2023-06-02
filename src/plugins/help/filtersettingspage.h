@@ -5,35 +5,12 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
-QT_BEGIN_NAMESPACE
-class QHelpFilterSettingsWidget;
-QT_END_NAMESPACE
-
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
 class FilterSettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    FilterSettingsPage();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-signals:
-    void filtersChanged();
-
-private:
-
-    void updateFilterPage();
-    QPointer<QHelpFilterSettingsWidget> m_widget;
-
+    explicit FilterSettingsPage(const std::function<void()> &onChanged);
 };
 
-} // namespace Help
-} // namespace Internal
+} // Help::Internal

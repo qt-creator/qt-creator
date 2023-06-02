@@ -3,25 +3,18 @@
 
 #pragma once
 
-#include <coreplugin/locator/basefilefilter.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
-#include <QFutureInterface>
+namespace ProjectExplorer::Internal {
 
-namespace ProjectExplorer {
-namespace Internal {
-
-class AllProjectsFilter : public Core::BaseFileFilter
+class AllProjectsFilter : public Core::ILocatorFilter
 {
-    Q_OBJECT
-
 public:
     AllProjectsFilter();
-    void refresh(QFutureInterface<void> &future) override;
-    void prepareSearch(const QString &entry) override;
 
 private:
-    void markFilesAsOutOfDate();
+    Core::LocatorMatcherTasks matchers() final { return {m_cache.matcher()}; }
+    Core::LocatorFileCache m_cache;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

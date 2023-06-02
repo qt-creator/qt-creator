@@ -18,7 +18,7 @@ QT_END_NAMESPACE
 namespace Utils {
 class CompletingLineEdit;
 class PathChooser;
-class QtcProcess;
+class Process;
 } // Utils
 
 namespace Git::Internal {
@@ -53,7 +53,7 @@ private:
 
     void enableButtons(bool b);
 
-    std::unique_ptr<Utils::QtcProcess> m_process;
+    std::unique_ptr<Utils::Process> m_process;
     Utils::FilePath m_gitExecutable;
     Utils::Environment m_gitEnvironment;
     ChangeCommand m_command = NoCommand;

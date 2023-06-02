@@ -7,7 +7,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -26,7 +26,7 @@ static QString runExecutable(const Utils::CommandLine &commandLine, QueryFailMod
     if (commandLine.executable().isEmpty() || !commandLine.executable().toFileInfo().isExecutable())
         return {};
 
-    QtcProcess cpp;
+    Process cpp;
     Environment env = Environment::systemEnvironment();
     env.setupEnglishOutput();
     cpp.setEnvironment(env);

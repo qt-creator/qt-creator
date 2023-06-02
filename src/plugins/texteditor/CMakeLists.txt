@@ -70,6 +70,7 @@ add_qtc_plugin(TextEditor
     ioutlinewidget.h
     linenumberfilter.cpp linenumberfilter.h
     marginsettings.cpp marginsettings.h
+    markdowneditor.cpp markdowneditor.h
     outlinefactory.cpp outlinefactory.h
     plaintexteditorfactory.cpp plaintexteditorfactory.h
     quickfix.cpp quickfix.h
@@ -112,5 +113,7 @@ add_qtc_plugin(TextEditor
 
 extend_qtc_plugin(TextEditor
   CONDITION WITH_TESTS
-  SOURCES texteditor_test.cpp
+  SOURCES
+    codeassist/codeassist_test.cpp codeassist/codeassist_test.h
+    texteditor_test.cpp
 )

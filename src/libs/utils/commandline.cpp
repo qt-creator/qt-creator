@@ -41,6 +41,7 @@ namespace Utils {
 
 /*!
     \class Utils::ProcessArgs
+    \inmodule QtCreator
 
     \brief The ProcessArgs class provides functionality for dealing with
     shell-quoted process arguments.
@@ -195,6 +196,7 @@ static QStringList doSplitArgsWin(const QString &args, ProcessArgs::SplitError *
 }
 
 /*!
+    \internal
     Splits \a _args according to system shell word splitting and quoting rules.
 
     \section1 Unix
@@ -217,7 +219,7 @@ static QStringList doSplitArgsWin(const QString &args, ProcessArgs::SplitError *
     If \a err is not NULL, stores a status code at the pointer target. For more
     information, see \l SplitError.
 
-    If \env is not NULL, performs variable substitution with the
+    If \a env is not NULL, performs variable substitution with the
     given environment.
 
     Returns a list of unquoted words or an empty list if an error occurred.
@@ -252,7 +254,6 @@ static QStringList doSplitArgsWin(const QString &args, ProcessArgs::SplitError *
     semantics, you need a command line like \c{"foo "\^"" bar"} to get
     \c{foo " bar}.
  */
-
 
 static QStringList splitArgsWin(const QString &_args, bool abortOnMeta,
                                 ProcessArgs::SplitError *err,
@@ -362,12 +363,12 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                         if (var == pwdName && pwd && !pwd->isEmpty()) {
                             cret += *pwd;
                         } else {
-                            Environment::const_iterator vit = env->constFind(var);
-                            if (vit == env->constEnd()) {
+                            const Environment::FindResult res = env->find(var);
+                            if (!res) {
                                 if (abortOnMeta)
                                     goto metaerr; // Assume this is a shell builtin
                             } else {
-                                cret += env->expandedValueForKey(env->key(vit));
+                                cret += env->expandedValueForKey(res->key);
                             }
                         }
                         if (!braced)
@@ -412,12 +413,12 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                 if (var == pwdName && pwd && !pwd->isEmpty()) {
                     val = *pwd;
                 } else {
-                    Environment::const_iterator vit = env->constFind(var);
-                    if (vit == env->constEnd()) {
+                    const Environment::FindResult res = env->find(var);
+                    if (!res) {
                         if (abortOnMeta)
                             goto metaerr; // Assume this is a shell builtin
                     } else {
-                        val = env->expandedValueForKey(env->key(vit));
+                        val = env->expandedValueForKey(res->key);
                     }
                 }
                 for (int i = 0; i < val.length(); i++) {
@@ -893,7 +894,7 @@ bool ProcessArgs::expandMacros(QString *cmd, AbstractMacroExpander *mx, OsType o
                                     break;
                                 case CrtClosed:
                                     // Two consecutive quotes make a literal quote - and
-                                    // still close quoting. See QtcProcess::quoteArg().
+                                    // still close quoting. See Process::quoteArg().
                                     crtState = CrtInWord;
                                     break;
                                 case CrtHadQuote:
@@ -1398,6 +1399,7 @@ QString ProcessArgs::toString() const
 
 /*!
     \class Utils::CommandLine
+    \inmodule QtCreator
 
     \brief The CommandLine class represents a command line of a QProcess or
     similar utility.
@@ -1408,6 +1410,8 @@ CommandLine::CommandLine() = default;
 CommandLine::CommandLine(const FilePath &executable)
     : m_executable(executable)
 {}
+
+CommandLine::~CommandLine() = default;
 
 CommandLine::CommandLine(const FilePath &exe, const QStringList &args)
     : m_executable(exe)
@@ -1429,16 +1433,20 @@ CommandLine::CommandLine(const FilePath &exe, const QString &args, RawType)
 
 CommandLine CommandLine::fromUserInput(const QString &cmdline, MacroExpander *expander)
 {
-    CommandLine cmd;
-    const int pos = cmdline.indexOf(' ');
-    if (pos == -1) {
-        cmd.m_executable = FilePath::fromString(cmdline);
-    } else {
-        cmd.m_executable = FilePath::fromString(cmdline.left(pos));
-        cmd.m_arguments = cmdline.right(cmdline.length() - pos - 1);
-        if (expander)
-            cmd.m_arguments = expander->expand(cmd.m_arguments);
-    }
+    if (cmdline.isEmpty())
+        return {};
+
+    QString input = cmdline.trimmed();
+
+    QStringList result = ProcessArgs::splitArgs(cmdline, HostOsInfo::hostOs());
+
+    if (result.isEmpty())
+        return {};
+
+    auto cmd = CommandLine(FilePath::fromUserInput(result.value(0)), result.mid(1));
+    if (expander)
+        cmd.m_arguments = expander->expand(cmd.m_arguments);
+
     return cmd;
 }
 

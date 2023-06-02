@@ -11,6 +11,10 @@
 #include <QFutureInterface>
 #include <QPointer>
 
+QT_BEGIN_NAMESPACE
+class QTimer;
+QT_END_NAMESPACE
+
 namespace LanguageServerProtocol {
 class ProgressParams;
 class ProgressToken;
@@ -46,15 +50,20 @@ private:
                         const LanguageServerProtocol::WorkDoneProgressReport &report);
     void endProgress(const LanguageServerProtocol::ProgressToken &token,
                      const LanguageServerProtocol::WorkDoneProgressEnd &end);
+    void spawnProgressBar(const LanguageServerProtocol::ProgressToken &token);
 
-    struct LanguageClientProgress {
+    struct ProgressItem
+    {
         QPointer<Core::FutureProgress> progressInterface = nullptr;
         QFutureInterface<void> *futureInterface = nullptr;
+        QElapsedTimer timer;
+        QTimer *showBarTimer = nullptr;
+        QString message;
+        QString title;
     };
 
-    QMap<LanguageServerProtocol::ProgressToken, LanguageClientProgress> m_progress;
+    QMap<LanguageServerProtocol::ProgressToken, ProgressItem> m_progress;
     QMap<LanguageServerProtocol::ProgressToken, QString> m_titles;
-    QMap<LanguageServerProtocol::ProgressToken, QElapsedTimer> m_timer;
     QMap<LanguageServerProtocol::ProgressToken, std::function<void()>> m_clickHandlers;
     QMap<LanguageServerProtocol::ProgressToken, std::function<void()>> m_cancelHandlers;
 };

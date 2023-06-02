@@ -9,7 +9,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/id.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QFile>
 #include <QFileInfo>
@@ -35,7 +35,7 @@ bool containsFiles(const QString &path, const File_t &file, const T &...files)
 
 inline bool run_meson(const Command &command, QIODevice *output = nullptr)
 {
-    Utils::QtcProcess process;
+    Utils::Process process;
     process.setWorkingDirectory(command.workDir());
     process.setCommand(command.cmdLine());
     process.start();

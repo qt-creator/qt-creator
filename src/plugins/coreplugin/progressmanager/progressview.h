@@ -44,6 +44,7 @@ private:
 
     QVBoxLayout *m_layout;
     QWidget *m_referenceWidget = nullptr;
+    QWidget *m_pinButton = nullptr;
 
     // dragging
     std::optional<QPointF> m_clickPosition;

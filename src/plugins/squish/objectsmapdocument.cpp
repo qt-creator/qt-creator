@@ -10,7 +10,7 @@
 #include "squishtr.h"
 
 #include <utils/fileutils.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QtCore5Compat/QTextCodec>
 
@@ -195,7 +195,7 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
 
         text = reader.data();
     } else {
-        const Utils::FilePath base = SquishPlugin::squishSettings()->squishPath.filePath();
+        const Utils::FilePath base = SquishPlugin::squishSettings()->squishPath();
         if (base.isEmpty()) {
             if (error)
                 error->append(Tr::tr("Incomplete Squish settings. "
@@ -209,7 +209,7 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
             return OpenResult::ReadError;
         }
 
-        Utils::QtcProcess objectMapReader;
+        Utils::Process objectMapReader;
         objectMapReader.setCommand({exe, {"--scriptMap", "--mode", "read",
                                           "--scriptedObjectMapPath", realFileName.toUserOutput()}});
         objectMapReader.setCodec(QTextCodec::codecForName("UTF-8"));
@@ -233,14 +233,14 @@ bool ObjectsMapDocument::writeFile(const Utils::FilePath &fileName) const
     }
 
     // otherwise we need the objectmaptool to write the scripted object map again
-    const Utils::FilePath base = SquishPlugin::squishSettings()->squishPath.filePath();
+    const Utils::FilePath base = SquishPlugin::squishSettings()->squishPath();
     if (base.isEmpty())
         return false;
     const Utils::FilePath exe = base.pathAppended("lib/exec/objectmaptool").withExecutableSuffix();
     if (!exe.isExecutableFile())
         return false;
 
-    Utils::QtcProcess objectMapWriter;
+    Utils::Process objectMapWriter;
     objectMapWriter.setCommand({exe, {"--scriptMap", "--mode", "write",
                                       "--scriptedObjectMapPath", fileName.toUserOutput()}});
     objectMapWriter.setWriteData(contents());

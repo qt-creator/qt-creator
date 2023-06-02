@@ -43,7 +43,7 @@ CustomQbsPropertiesDialog::CustomQbsPropertiesDialog(const QVariantMap &properti
     m_removeButton = new QPushButton(Tr::tr("&Remove"));
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Row {
             m_propertiesTable,

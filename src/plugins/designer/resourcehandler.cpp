@@ -2,13 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "resourcehandler.h"
+
 #include "designerconstants.h"
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
+
 #include <resourceeditor/resourcenode.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -42,10 +45,10 @@ void ResourceHandler::ensureInitialized()
                 Qt::QueuedConnection);
     };
 
-    for (Project *p : SessionManager::projects())
+    for (Project *p : ProjectManager::projects())
         connector(p);
 
-    connect(SessionManager::instance(), &SessionManager::projectAdded, this, connector);
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded, this, connector);
 
     m_originalUiQrcPaths = m_form->activeResourceFilePaths();
     if (Designer::Constants::Internal::debug)
@@ -68,7 +71,7 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
         qDebug() << "ResourceHandler::updateResources()" << fileName;
 
     // Filename could change in the meantime.
-    Project *project = SessionManager::projectForFile(Utils::FilePath::fromUserInput(fileName));
+    Project *project = ProjectManager::projectForFile(Utils::FilePath::fromUserInput(fileName));
     const bool dirty = m_form->property("_q_resourcepathchanged").toBool();
     if (dirty)
         m_form->setDirty(true);

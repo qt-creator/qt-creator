@@ -17,14 +17,11 @@
 #include <extensionsystem/pluginview.h>
 
 #include <utils/fancylineedit.h>
+#include <utils/layoutbuilder.h>
 
-#include <QCheckBox>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QHBoxLayout>
-#include <QLabel>
 #include <QPushButton>
-#include <QVBoxLayout>
 
 using namespace Utils;
 
@@ -35,29 +32,27 @@ PluginDialog::PluginDialog(QWidget *parent)
     : QDialog(parent),
       m_view(new ExtensionSystem::PluginView(this))
 {
-    auto vl = new QVBoxLayout(this);
-
-    auto filterLayout = new QHBoxLayout;
-    vl->addLayout(filterLayout);
     auto filterEdit = new Utils::FancyLineEdit(this);
+    filterEdit->setFocus();
     filterEdit->setFiltering(true);
     connect(filterEdit, &Utils::FancyLineEdit::filterChanged,
             m_view, &ExtensionSystem::PluginView::setFilter);
-    filterLayout->addWidget(filterEdit);
-
-    vl->addWidget(m_view);
-
-    m_detailsButton = new QPushButton(Tr::tr("Details"), this);
-    m_errorDetailsButton = new QPushButton(Tr::tr("Error Details"), this);
-    m_installButton = new QPushButton(Tr::tr("Install Plugin..."), this);
-    m_detailsButton->setEnabled(false);
-    m_errorDetailsButton->setEnabled(false);
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    buttonBox->addButton(m_detailsButton, QDialogButtonBox::ActionRole);
-    buttonBox->addButton(m_errorDetailsButton, QDialogButtonBox::ActionRole);
-    buttonBox->addButton(m_installButton, QDialogButtonBox::ActionRole);
-    vl->addWidget(buttonBox);
+    m_detailsButton = buttonBox->addButton(Tr::tr("Details"), QDialogButtonBox::ActionRole);
+    m_detailsButton->setEnabled(false);
+    m_errorDetailsButton = buttonBox->addButton(Tr::tr("Error Details"),
+                                                QDialogButtonBox::ActionRole);
+    m_errorDetailsButton->setEnabled(false);
+    m_installButton = buttonBox->addButton(Tr::tr("Install Plugin..."),
+                                           QDialogButtonBox::ActionRole);
+
+    using namespace Layouting;
+    Column {
+        filterEdit,
+        m_view,
+        buttonBox,
+    }.attachTo(this);
 
     resize(650, 400);
     setWindowTitle(Tr::tr("Installed Plugins"));
@@ -115,13 +110,16 @@ void PluginDialog::openDetails(ExtensionSystem::PluginSpec *spec)
         return;
     QDialog dialog(this);
     dialog.setWindowTitle(Tr::tr("Plugin Details of %1").arg(spec->name()));
-    auto layout = new QVBoxLayout;
-    dialog.setLayout(layout);
     auto details = new ExtensionSystem::PluginDetailsView(&dialog);
-    layout->addWidget(details);
     details->update(spec);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, &dialog);
-    layout->addWidget(buttons);
+
+    using namespace Layouting;
+    Column {
+        details,
+        buttons,
+    }.attachTo(&dialog);
+
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     dialog.resize(400, 500);
@@ -135,13 +133,16 @@ void PluginDialog::openErrorDetails()
         return;
     QDialog dialog(this);
     dialog.setWindowTitle(Tr::tr("Plugin Errors of %1").arg(spec->name()));
-    auto layout = new QVBoxLayout;
-    dialog.setLayout(layout);
     auto errors = new ExtensionSystem::PluginErrorView(&dialog);
-    layout->addWidget(errors);
     errors->update(spec);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, &dialog);
-    layout->addWidget(buttons);
+
+    using namespace Layouting;
+    Column {
+        errors,
+        buttons,
+    }.attachTo(&dialog);
+
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     dialog.resize(500, 300);

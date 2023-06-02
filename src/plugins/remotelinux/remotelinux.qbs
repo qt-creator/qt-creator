@@ -19,8 +19,6 @@ Project {
             "deploymenttimeinfo.h",
             "customcommanddeploystep.cpp",
             "customcommanddeploystep.h",
-            "genericdirectuploadservice.cpp",
-            "genericdirectuploadservice.h",
             "genericdirectuploadstep.cpp",
             "genericdirectuploadstep.h",
             "genericlinuxdeviceconfigurationwidget.cpp",
@@ -62,7 +60,6 @@ Project {
             "rsyncdeploystep.h",
             "sshkeycreationdialog.cpp",
             "sshkeycreationdialog.h",
-            "sshprocessinterface.h",
             "tarpackagecreationstep.cpp",
             "tarpackagecreationstep.h",
             "tarpackagedeploystep.cpp",
@@ -70,9 +67,7 @@ Project {
             "images/embeddedtarget.png",
         ]
 
-        Group {
-            name: "Tests"
-            condition: qtc.testsEnabled
+        QtcTestFiles {
             files: [
                 "filesystemaccess_test.cpp",
                 "filesystemaccess_test.h",

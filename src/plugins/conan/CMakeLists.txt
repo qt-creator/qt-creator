@@ -3,7 +3,7 @@ add_qtc_plugin(Conan
   SOURCES
     conanconstants.h
     conaninstallstep.cpp conaninstallstep.h
-    conanplugin.cpp conanplugin.h
+    conanplugin.cpp
     conansettings.cpp conansettings.h
     conantr.h
 )

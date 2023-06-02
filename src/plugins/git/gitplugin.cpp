@@ -42,12 +42,12 @@
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/commandline.h>
 #include <utils/infobar.h>
 #include <utils/parameteraction.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
@@ -392,11 +392,14 @@ public:
 
     void setupInstantBlame();
     void instantBlameOnce();
+    void forceInstantBlame();
     void instantBlame();
     void stopInstantBlame();
+    bool refreshWorkingDirectory(const FilePath &workingDirectory);
 
     void onApplySettings();
 
+    GitSettings setting;
     CommandLocator *m_commandLocator = nullptr;
 
     QAction *m_menuAction = nullptr;
@@ -418,23 +421,22 @@ public:
     QVector<ParameterAction *> m_projectActions;
     QVector<QAction *> m_repositoryActions;
     ParameterAction *m_applyCurrentFilePatchAction = nullptr;
-    Gerrit::Internal::GerritPlugin *m_gerritPlugin = nullptr;
+    Gerrit::Internal::GerritPlugin m_gerritPlugin;
 
-    GitSettings m_settings;
-    GitClient m_gitClient{&m_settings};
+    GitClient m_gitClient;
     QPointer<StashDialog> m_stashDialog;
     BranchViewFactory m_branchViewFactory;
     QPointer<RemoteDialog> m_remoteDialog;
     FilePath m_submitRepository;
     QString m_commitMessageFileName;
 
+    FilePath m_workingDirectory;
+    QTextCodec *m_codec = nullptr;
     Author m_author;
     int m_lastVisitedEditorLine = -1;
     QTimer *m_cursorPositionChangedTimer = nullptr;
     std::unique_ptr<BlameMark> m_blameMark;
     QMetaObject::Connection m_blameCursorPosConn;
-
-    GitSettingsPage settingPage{&m_settings};
 
     GitGrep gitGrep{&m_gitClient};
 
@@ -524,7 +526,7 @@ void GitPluginPrivate::onApplySettings()
     updateRepositoryBrowserAction();
     bool gitFoundOk;
     QString errorMessage;
-    m_settings.gitExecutable(&gitFoundOk, &errorMessage);
+    settings().gitExecutable(&gitFoundOk, &errorMessage);
     if (!gitFoundOk) {
         QTimer::singleShot(0, this, [errorMessage] {
             AsynchronousMessageBox::warning(Tr::tr("Git Settings"), errorMessage);
@@ -553,11 +555,6 @@ GitClient *GitPlugin::client()
 IVersionControl *GitPlugin::versionControl()
 {
     return dd;
-}
-
-const GitSettings &GitPlugin::settings()
-{
-    return dd->m_settings;
 }
 
 const VcsBasePluginState &GitPlugin::currentState()
@@ -709,6 +706,7 @@ GitPluginPrivate::GitPluginPrivate()
     m_fileActions.reserve(10);
     m_projectActions.reserve(10);
     m_repositoryActions.reserve(50);
+    m_codec = GitClient::instance()->defaultCommitEncoding();
 
     Context context(Constants::GIT_CONTEXT);
 
@@ -776,13 +774,11 @@ GitPluginPrivate::GitPluginPrivate()
 
     createProjectAction(currentProjectMenu, Tr::tr("Diff Current Project", "Avoid translating \"Diff\""),
                         Tr::tr("Diff Project \"%1\"", "Avoid translating \"Diff\""),
-                        "Git.DiffProject", context, true, &GitPluginPrivate::diffCurrentProject,
-                        QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+Shift+D") : Tr::tr("Alt+G,Alt+Shift+D")));
+                        "Git.DiffProject", context, true, &GitPluginPrivate::diffCurrentProject);
 
     createProjectAction(currentProjectMenu, Tr::tr("Log Project", "Avoid translating \"Log\""),
                         Tr::tr("Log Project \"%1\"", "Avoid translating \"Log\""),
-                        "Git.LogProject", context, true, &GitPluginPrivate::logProject,
-                        QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+K") : Tr::tr("Alt+G,Alt+K")));
+                        "Git.LogProject", context, true, &GitPluginPrivate::logProject);
 
     createProjectAction(currentProjectMenu, Tr::tr("Clean Project...", "Avoid translating \"Clean\""),
                         Tr::tr("Clean Project \"%1\"...", "Avoid translating \"Clean\""),
@@ -795,10 +791,12 @@ GitPluginPrivate::GitPluginPrivate()
     gitContainer->addMenu(localRepositoryMenu);
 
     createRepositoryAction(localRepositoryMenu, "Diff", "Git.DiffRepository",
-                           context, true, &GitClient::diffRepository);
+                           context, true, &GitClient::diffRepository,
+                           QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+Shift+D") : Tr::tr("Alt+G,Alt+Shift+D")));
 
     createRepositoryAction(localRepositoryMenu, "Log", "Git.LogRepository",
-                           context, true, std::bind(&GitPluginPrivate::logRepository, this));
+                           context, true, std::bind(&GitPluginPrivate::logRepository, this),
+                           QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+K") : Tr::tr("Alt+G,Alt+K")));
 
     createRepositoryAction(localRepositoryMenu, "Reflog", "Git.ReflogRepository",
                            context, true, std::bind(&GitPluginPrivate::reflogRepository, this));
@@ -1065,12 +1063,11 @@ GitPluginPrivate::GitPluginPrivate()
             this, &GitPluginPrivate::updateBranches, Qt::QueuedConnection);
 
     /* "Gerrit" */
-    m_gerritPlugin = new Gerrit::Internal::GerritPlugin(this);
-    m_gerritPlugin->initialize(remoteRepositoryMenu);
-    m_gerritPlugin->updateActions(currentState());
-    m_gerritPlugin->addToLocator(m_commandLocator);
+    m_gerritPlugin.addToMenu(remoteRepositoryMenu);
+    m_gerritPlugin.updateActions(currentState());
+    m_gerritPlugin.addToLocator(m_commandLocator);
 
-    connect(&m_settings, &AspectContainer::applied, this, &GitPluginPrivate::onApplySettings);
+    connect(&settings(), &AspectContainer::applied, this, &GitPluginPrivate::onApplySettings);
 
     setupInstantBlame();
 }
@@ -1440,16 +1437,11 @@ void GitPluginPrivate::setupInstantBlame()
             return;
         }
 
-        if (!GitClient::instance()->settings().instantBlame.value()) {
+        if (!settings().instantBlame.value()) {
             m_lastVisitedEditorLine = -1;
             stopInstantBlame();
             return;
         }
-
-        const Utils::FilePath workingDirectory = GitPlugin::currentState().currentFileTopLevel();
-        if (workingDirectory.isEmpty())
-            return;
-        m_author = GitClient::instance()->getAuthor(workingDirectory);
 
         const TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
         if (!widget)
@@ -1458,21 +1450,24 @@ void GitPluginPrivate::setupInstantBlame()
         if (qobject_cast<const VcsBaseEditorWidget *>(widget))
             return; // Skip in VCS editors like log or blame
 
+        const Utils::FilePath workingDirectory = GitPlugin::currentState().currentFileTopLevel();
+        if (!refreshWorkingDirectory(workingDirectory))
+            return;
+
         m_blameCursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged, this,
                                 [this] {
-            if (!GitClient::instance()->settings().instantBlame.value()) {
+            if (!settings().instantBlame.value()) {
                 disconnect(m_blameCursorPosConn);
                 return;
             }
             m_cursorPositionChangedTimer->start(500);
         });
 
-        m_lastVisitedEditorLine = -1;
-        instantBlame();
+        forceInstantBlame();
     };
 
-    connect(&GitClient::instance()->settings().instantBlame,
-            &BoolAspect::valueChanged, this, [this, setupBlameForEditor](bool enabled) {
+    connect(&settings().instantBlame, &BoolAspect::valueChanged, this,
+            [this, setupBlameForEditor](bool enabled) {
         if (enabled)
             setupBlameForEditor(EditorManager::currentEditor());
         else
@@ -1521,7 +1516,7 @@ CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePath &fil
 
 void GitPluginPrivate::instantBlameOnce()
 {
-    if (!GitClient::instance()->settings().instantBlame.value()) {
+    if (!settings().instantBlame.value()) {
         const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
         if (!widget)
             return;
@@ -1532,11 +1527,15 @@ void GitPluginPrivate::instantBlameOnce()
                 this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
 
         const Utils::FilePath workingDirectory = GitPlugin::currentState().topLevel();
-        if (workingDirectory.isEmpty())
+        if (!refreshWorkingDirectory(workingDirectory))
             return;
-        m_author = GitClient::instance()->getAuthor(workingDirectory);
     }
 
+    forceInstantBlame();
+}
+
+void GitPluginPrivate::forceInstantBlame()
+{
     m_lastVisitedEditorLine = -1;
     instantBlame();
 }
@@ -1556,7 +1555,7 @@ void GitPluginPrivate::instantBlame()
     const QTextCursor cursor = widget->textCursor();
     const QTextBlock block = cursor.block();
     const int line = block.blockNumber() + 1;
-    const int lines = widget->document()->lineCount();
+    const int lines = widget->document()->blockCount();
 
     if (line >= lines) {
         m_blameMark.reset();
@@ -1582,10 +1581,9 @@ void GitPluginPrivate::instantBlame()
         const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, m_author);
         m_blameMark.reset(new BlameMark(filePath, line, info));
     };
-    QTextCodec *codec = GitClient::instance()->encoding(GitClient::EncodingCommit, workingDirectory);
     GitClient::instance()->vcsExecWithHandler(workingDirectory,
                            {"blame", "-p", "-L", lineString, "--", filePath.toString()},
-                           this, commandHandler, RunFlags::NoOutput, codec);
+                           this, commandHandler, RunFlags::NoOutput, m_codec);
 }
 
 void GitPluginPrivate::stopInstantBlame()
@@ -1593,6 +1591,51 @@ void GitPluginPrivate::stopInstantBlame()
     m_blameMark.reset();
     m_cursorPositionChangedTimer->stop();
     disconnect(m_blameCursorPosConn);
+}
+
+bool GitPluginPrivate::refreshWorkingDirectory(const FilePath &workingDirectory)
+{
+    if (workingDirectory.isEmpty())
+        return false;
+
+    if (m_workingDirectory == workingDirectory)
+        return true;
+
+    m_workingDirectory = workingDirectory;
+
+    const auto commitCodecHandler = [this, workingDirectory](const CommandResult &result) {
+        QTextCodec *codec = nullptr;
+
+        if (result.result() == ProcessResult::FinishedWithSuccess) {
+            const QString codecName = result.cleanedStdOut().trimmed();
+            codec = QTextCodec::codecForName(codecName.toUtf8());
+        } else {
+            codec = GitClient::instance()->defaultCommitEncoding();
+        }
+
+        if (m_codec != codec) {
+            m_codec = codec;
+            forceInstantBlame();
+        }
+    };
+    GitClient::instance()->readConfigAsync(workingDirectory, {"config", "i18n.commitEncoding"},
+                                           commitCodecHandler);
+
+    const auto authorHandler = [this, workingDirectory](const CommandResult &result) {
+        if (result.result() == ProcessResult::FinishedWithSuccess) {
+            const QString authorInfo = result.cleanedStdOut().trimmed();
+            const Author author = GitClient::instance()->parseAuthor(authorInfo);
+
+            if (m_author != author) {
+                m_author = author;
+                forceInstantBlame();
+            }
+        }
+    };
+    GitClient::instance()->readConfigAsync(workingDirectory, {"var", "GIT_AUTHOR_IDENT"},
+                                           authorHandler);
+
+    return true;
 }
 
 IEditor *GitPluginPrivate::openSubmitEditor(const QString &fileName, const CommitData &cd)
@@ -1683,7 +1726,7 @@ void GitPluginPrivate::pull()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     FilePath topLevel = state.topLevel();
-    bool rebase = m_settings.pullRebase.value();
+    bool rebase = settings().pullRebase.value();
 
     if (!rebase) {
         QString currentBranch = m_gitClient.synchronousCurrentLocalBranch(topLevel);
@@ -1927,7 +1970,7 @@ void GitPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
     updateContinueAndAbortCommands();
     updateRepositoryBrowserAction();
 
-    m_gerritPlugin->updateActions(state);
+    m_gerritPlugin.updateActions(state);
 }
 
 void GitPluginPrivate::updateContinueAndAbortCommands()
@@ -1965,7 +2008,7 @@ void GitPluginPrivate::updateContinueAndAbortCommands()
 
 void GitPluginPrivate::delayedPushToGerrit()
 {
-    m_gerritPlugin->push(m_submitRepository);
+    m_gerritPlugin.push(m_submitRepository);
 }
 
 void GitPluginPrivate::updateBranches(const FilePath &repository)
@@ -1994,7 +2037,7 @@ QObject *GitPlugin::remoteCommand(const QStringList &options, const QString &wor
 void GitPluginPrivate::updateRepositoryBrowserAction()
 {
     const bool repositoryEnabled = currentState().hasTopLevel();
-    const bool hasRepositoryBrowserCmd = !m_settings.repositoryBrowserCmd.value().isEmpty();
+    const bool hasRepositoryBrowserCmd = !settings().repositoryBrowserCmd().isEmpty();
     m_repositoryBrowserAction->setEnabled(repositoryEnabled && hasRepositoryBrowserCmd);
 }
 
@@ -2100,7 +2143,7 @@ GitPluginPrivate::RepoUrl GitPluginPrivate::getRepoUrl(const QString &location) 
 
 FilePaths GitPluginPrivate::additionalToolsPath() const
 {
-    FilePaths res = m_gitClient.settings().searchPathList();
+    FilePaths res = settings().searchPathList();
     const FilePath binaryPath = m_gitClient.gitBinDirectory();
     if (!binaryPath.isEmpty() && !res.contains(binaryPath))
         res << binaryPath;
@@ -2172,7 +2215,7 @@ void GitPlugin::updateBranches(const FilePath &repository)
 
 void GitPlugin::gerritPush(const FilePath &topLevel)
 {
-    dd->m_gerritPlugin->push(topLevel);
+    dd->m_gerritPlugin.push(topLevel);
 }
 
 bool GitPlugin::isCommitEditorOpen()

@@ -10,8 +10,8 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 static bool isMultilanguagePresent()
@@ -114,7 +114,7 @@ void QmlMultiLanguageAspect::fromMap(const QVariantMap &map)
 
 QmlMultiLanguageAspect *QmlMultiLanguageAspect::current()
 {
-    if (auto project = ProjectExplorer::SessionManager::startupProject())
+    if (auto project = ProjectExplorer::ProjectManager::startupProject())
         return current(project);
     return {};
 }

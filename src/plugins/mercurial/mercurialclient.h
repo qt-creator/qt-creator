@@ -16,8 +16,9 @@ class MercurialDiffEditorController;
 class MercurialClient : public VcsBase::VcsBaseClient
 {
     Q_OBJECT
+
 public:
-    explicit MercurialClient(MercurialSettings *settings);
+    MercurialClient();
 
     bool synchronousClone(const Utils::FilePath &workingDir,
                           const QString &srcLocation,

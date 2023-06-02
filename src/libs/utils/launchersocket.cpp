@@ -228,7 +228,7 @@ void CallerHandle::start(const QString &program, const QStringList &arguments)
 
     auto startWhenRunning = [&program, &oldProgram = m_command] {
         qWarning() << "Trying to start" << program << "while" << oldProgram
-                   << "is still running for the same QtcProcess instance."
+                   << "is still running for the same Process instance."
                    << "The current call will be ignored.";
     };
     QTC_ASSERT(m_processState == QProcess::NotRunning, startWhenRunning(); return);
@@ -246,6 +246,8 @@ void CallerHandle::start(const QString &program, const QStringList &arguments)
     p.command = m_command;
     p.arguments = m_arguments;
     p.env = m_setup->m_environment.toStringList();
+    if (p.env.isEmpty())
+        p.env = Environment::systemEnvironment().toStringList();
     p.workingDir = m_setup->m_workingDirectory.path();
     p.processMode = m_setup->m_processMode;
     p.writeData = m_setup->m_writeData;
@@ -257,6 +259,7 @@ void CallerHandle::start(const QString &program, const QStringList &arguments)
     p.unixTerminalDisabled = m_setup->m_unixTerminalDisabled;
     p.useCtrlCStub = m_setup->m_useCtrlCStub;
     p.reaperTimeout = m_setup->m_reaperTimeout;
+    p.createConsoleOnWindows = m_setup->m_createConsoleOnWindows;
     sendPacket(p);
 }
 
@@ -619,7 +622,7 @@ void LauncherSocket::handleSocketDataAvailable()
         }
     } else {
 //        qDebug() << "No handler for token" << m_packetParser.token() << m_handles;
-        // in this case the QtcProcess was canceled and deleted
+        // in this case the Process was canceled and deleted
     }
     handleSocketDataAvailable();
 }

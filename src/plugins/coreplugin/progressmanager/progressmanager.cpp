@@ -109,7 +109,7 @@ namespace Core {
     start a task concurrently in a different thread.
     QtConcurrent has several different functions to run e.g.
     a class function in a different thread. Qt Creator itself
-    adds a few more in \c{src/libs/qtconcurrent/runextensions.h}.
+    adds a few more in \c{src/libs/utils/async.h}.
     The QtConcurrent functions to run a concurrent task return a
     \c QFuture object. This is what you want to give the
     ProgressManager in the addTask() function.
@@ -737,6 +737,33 @@ FutureProgress *ProgressManager::addTimedTask(const QFutureInterface<void> &futu
     QFutureInterface<void> dummy(futureInterface); // Need mutable to access .future()
     FutureProgress *fp = m_instance->doAddTask(dummy.future(), title, type, flags);
     (void) new ProgressTimer(futureInterface, expectedSeconds, fp);
+    return fp;
+}
+
+FutureProgress *ProgressManager::addTimedTask(const QFuture<void> &future, const QString &title,
+                                              Id type, int expectedSeconds, ProgressFlags flags)
+{
+    QFutureInterface<void> dummyFutureInterface;
+    QFuture<void> dummyFuture = dummyFutureInterface.future();
+    FutureProgress *fp = m_instance->doAddTask(dummyFuture, title, type, flags);
+    (void) new ProgressTimer(dummyFutureInterface, expectedSeconds, fp);
+
+    QFutureWatcher<void> *dummyWatcher = new QFutureWatcher<void>(fp);
+    connect(dummyWatcher, &QFutureWatcher<void>::canceled, dummyWatcher, [future] {
+        QFuture<void> mutableFuture = future;
+        mutableFuture.cancel();
+    });
+    dummyWatcher->setFuture(dummyFuture);
+
+    QFutureWatcher<void> *origWatcher = new QFutureWatcher<void>(fp);
+    connect(origWatcher, &QFutureWatcher<void>::finished, origWatcher, [future, dummyFutureInterface] {
+        QFutureInterface<void> mutableDummyFutureInterface = dummyFutureInterface;
+        if (future.isCanceled())
+            mutableDummyFutureInterface.reportCanceled();
+        mutableDummyFutureInterface.reportFinished();
+    });
+    origWatcher->setFuture(future);
+
     return fp;
 }
 

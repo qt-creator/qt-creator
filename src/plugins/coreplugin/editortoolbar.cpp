@@ -16,6 +16,7 @@
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QApplication>
@@ -109,7 +110,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     d->m_lockButton->setEnabled(false);
 
-    d->m_dragHandle->setProperty("noArrow", true);
+    d->m_dragHandle->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
     d->m_dragHandle->setToolTip(Tr::tr("Drag to drag documents between splits"));
     d->m_dragHandle->installEventFilter(this);
     d->m_dragHandleMenu = new QMenu(d->m_dragHandle);
@@ -118,9 +119,9 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     connect(d->m_goBackAction, &QAction::triggered, this, &EditorToolBar::goBackClicked);
     connect(d->m_goForwardAction, &QAction::triggered, this, &EditorToolBar::goForwardClicked);
 
-    d->m_editorList->setProperty("hideicon", true);
-    d->m_editorList->setProperty("notelideasterisk", true);
-    d->m_editorList->setProperty("elidemode", Qt::ElideMiddle);
+    d->m_editorList->setProperty(Utils::StyleHelper::C_HIDE_ICON, true);
+    d->m_editorList->setProperty(Utils::StyleHelper::C_NOT_ELIDE_ASTERISK, true);
+    d->m_editorList->setProperty(Utils::StyleHelper::C_ELIDE_MODE, Qt::ElideMiddle);
     d->m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     d->m_editorList->setMinimumContentsLength(20);
     d->m_editorList->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
@@ -130,7 +131,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     d->m_closeEditorButton->setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
     d->m_closeEditorButton->setEnabled(false);
-    d->m_closeEditorButton->setProperty("showborder", true);
+    d->m_closeEditorButton->setProperty(Utils::StyleHelper::C_SHOW_BORDER, true);
 
     d->m_toolBarPlaceholder->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
@@ -141,7 +142,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_splitButton->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
     d->m_splitButton->setToolTip(Tr::tr("Split"));
     d->m_splitButton->setPopupMode(QToolButton::InstantPopup);
-    d->m_splitButton->setProperty("noArrow", true);
+    d->m_splitButton->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
     auto splitMenu = new QMenu(d->m_splitButton);
     splitMenu->addAction(d->m_horizontalSplitAction);
     splitMenu->addAction(d->m_verticalSplitAction);

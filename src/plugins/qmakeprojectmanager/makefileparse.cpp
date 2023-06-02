@@ -5,7 +5,7 @@
 
 #include <qtsupport/qtversionmanager.h>
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDebug>
 #include <QDir>
@@ -359,11 +359,12 @@ void MakeFileParse::parseCommandLine(const QString &command, const QString &proj
 // Unit tests:
 
 #ifdef WITH_TESTS
-#   include <QTest>
 
-#   include "qmakeprojectmanagerplugin.h"
+#include "qmakeprojectmanagerplugin.h"
 
-#   include "projectexplorer/outputparser_test.h"
+#include <projectexplorer/outputparser_test.h>
+
+#include <QTest>
 
 using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
@@ -479,8 +480,8 @@ void QmakeProjectManagerPlugin::testMakefileParser()
     MakeFileParse parser("/tmp/something", MakeFileParse::Mode::FilterKnownConfigValues);
     parser.parseCommandLine(command, project);
 
-    QCOMPARE(ProcessArgs::splitArgs(parser.unparsedArguments()),
-             ProcessArgs::splitArgs(unparsedArguments));
+    QCOMPARE(ProcessArgs::splitArgs(parser.unparsedArguments(), HostOsInfo::hostOs()),
+             ProcessArgs::splitArgs(unparsedArguments, HostOsInfo::hostOs()));
     QCOMPARE(parser.effectiveBuildConfig({}), effectiveBuildConfig);
 
     const QMakeStepConfig qmsc = parser.config();

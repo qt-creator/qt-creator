@@ -143,9 +143,17 @@ public:
     bool parseTemplateArgument(ExpressionAST *&node);
     bool parseTemplateArgumentList(ExpressionListAST *&node);
     bool parseTemplateDeclaration(DeclarationAST *&node);
+    bool parseConceptDeclaration(DeclarationAST *&node);
+    bool parsePlaceholderTypeSpecifier(PlaceholderTypeSpecifierAST *&node);
+    bool parseTypeConstraint(TypeConstraintAST *&node);
+    bool parseRequirement();
+    bool parseRequiresClauseOpt(RequiresClauseAST *&node);
+    bool parseRequiresExpression(ExpressionAST *&node);
     bool parseTemplateParameter(DeclarationAST *&node);
     bool parseTemplateParameterList(DeclarationListAST *&node);
     bool parseThrowExpression(ExpressionAST *&node);
+    bool parseYieldExpression(ExpressionAST *&node);
+    bool parseAwaitExpression(ExpressionAST *&node);
     bool parseNoExceptOperatorExpression(ExpressionAST *&node);
     bool parseTryBlockStatement(StatementAST *&node, CtorInitializerAST **placeholder);
     bool parseCatchClause(CatchClauseListAST *&node);

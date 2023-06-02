@@ -11,13 +11,12 @@
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/processinterface.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
-#include <utils/tasktree.h>
 #include <utils/temporaryfile.h>
 
 #include <QCheckBox>
@@ -34,6 +33,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Debugger::Internal {
@@ -217,8 +217,6 @@ void AttachCoreDialog::accepted()
     const DebuggerItem *debuggerItem = Debugger::DebuggerKitAspect::debugger(kit());
     const FilePath debuggerCommand = debuggerItem->command();
 
-    using namespace Tasking;
-
     const auto copyFile = [debuggerCommand](const FilePath &srcPath) -> expected_str<FilePath> {
         if (!srcPath.isSameDevice(debuggerCommand)) {
             const expected_str<FilePath> tmpPath = debuggerCommand.tmpDir();
@@ -243,18 +241,18 @@ void AttachCoreDialog::accepted()
 
     using ResultType = expected_str<FilePath>;
 
-    const auto copyFileAsync = [=](QFutureInterface<ResultType> &fi, const FilePath &srcPath) {
-        fi.reportResult(copyFile(srcPath));
+    const auto copyFileAsync = [=](QPromise<ResultType> &promise, const FilePath &srcPath) {
+        promise.addResult(copyFile(srcPath));
     };
 
     const Group root = {
         parallel,
-        Async<ResultType>{[=](auto &task) {
-                              task.setAsyncCallData(copyFileAsync, this->coreFile());
+        AsyncTask<ResultType>{[=](auto &task) {
+                              task.setConcurrentCallData(copyFileAsync, this->coreFile());
                           },
                           [=](const auto &task) { d->coreFileResult = task.result(); }},
-        Async<ResultType>{[=](auto &task) {
-                              task.setAsyncCallData(copyFileAsync, this->symbolFile());
+        AsyncTask<ResultType>{[=](auto &task) {
+                              task.setConcurrentCallData(copyFileAsync, this->symbolFile());
                           },
                           [=](const auto &task) { d->symbolFileResult = task.result(); }},
     };

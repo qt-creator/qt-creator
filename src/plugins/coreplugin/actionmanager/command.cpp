@@ -289,6 +289,15 @@ QAction *Command::action() const
     return d->m_action;
 }
 
+QAction *Command::actionForContext(const Utils::Id &contextId) const
+{
+    auto it = d->m_contextActionMap.find(contextId);
+    if (it == d->m_contextActionMap.end())
+        return nullptr;
+
+    return *it;
+}
+
 QString Command::stringWithAppendedShortcut(const QString &str) const
 {
     return Utils::ProxyAction::stringWithAppendedShortcut(str, keySequence());
@@ -338,8 +347,10 @@ void Internal::CommandPrivate::setCurrentContext(const Context &context)
     m_context = context;
 
     QAction *currentAction = nullptr;
-    for (int i = 0; i < m_context.size(); ++i) {
-        if (QAction *a = m_contextActionMap.value(m_context.at(i), nullptr)) {
+    for (const Id &id : std::as_const(m_context)) {
+        if (id == Constants::C_GLOBAL_CUTOFF)
+            break;
+        if (QAction *a = m_contextActionMap.value(id, nullptr)) {
             currentAction = a;
             break;
         }

@@ -18,7 +18,7 @@
 #include <cplusplus/LookupContext.h>
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/executeondestruction.h>
 #include <utils/hostosinfo.h>
@@ -649,7 +649,7 @@ void ModelManagerTest::testGcIfLastCppeditorClosed()
     QVERIFY(editor);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
     QVERIFY(mm->isCppEditor(editor));
-    QVERIFY(mm->workingCopy().contains(file));
+    QVERIFY(mm->workingCopy().get(file));
 
     // Wait until the file is refreshed
     helper.waitForRefreshedSourceFiles();
@@ -659,7 +659,7 @@ void ModelManagerTest::testGcIfLastCppeditorClosed()
     helper.waitForFinishedGc();
 
     // Check: File is removed from the snapshpt
-    QVERIFY(!mm->workingCopy().contains(file));
+    QVERIFY(!mm->workingCopy().get(file));
     QVERIFY(!mm->snapshot().contains(file));
 }
 
@@ -684,13 +684,13 @@ void ModelManagerTest::testDontGcOpenedFiles()
     // Wait until the file is refreshed and check whether it is in the working copy
     helper.waitForRefreshedSourceFiles();
 
-    QVERIFY(mm->workingCopy().contains(file));
+    QVERIFY(mm->workingCopy().get(file));
 
     // Run the garbage collector
     mm->GC();
 
     // Check: File is still there
-    QVERIFY(mm->workingCopy().contains(file));
+    QVERIFY(mm->workingCopy().get(file));
     QVERIFY(mm->snapshot().contains(file));
 
     // Close editor
@@ -1090,7 +1090,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
     });
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
     QVERIFY(modelManager->isCppEditor(editor));
-    QVERIFY(modelManager->workingCopy().contains(mainFile));
+    QVERIFY(modelManager->workingCopy().get(mainFile));
 
     // Test the renaming of a header file where a pragma once guard is present
     QVERIFY(Core::FileUtils::renameFile(headerWithPragmaOnce,

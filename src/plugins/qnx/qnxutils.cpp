@@ -5,7 +5,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/temporaryfile.h>
 
 #include <QDebug>
@@ -15,6 +15,15 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Qnx::Internal {
+
+QnxTarget::QnxTarget(const Utils::FilePath &path, const ProjectExplorer::Abi &abi) :
+    m_path(path), m_abi(abi)
+{}
+
+QString QnxTarget::shortDescription() const
+{
+    return QnxUtils::cpuDirShortDescription(cpuDir());
+}
 
 QString QnxUtils::cpuDirFromAbi(const Abi &abi)
 {
@@ -89,7 +98,7 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
     tmpFile->writeFileContents(content.toUtf8());
 
     // running wrapper script
-    QtcProcess process;
+    Process process;
     if (isWindows)
         process.setCommand({filePath.withNewPath("cmd.exe"), {"/C", tmpFile->path()}});
     else

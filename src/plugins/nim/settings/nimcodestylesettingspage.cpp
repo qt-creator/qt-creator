@@ -36,13 +36,9 @@ public:
 
         auto layout = new QVBoxLayout(this);
         layout->addWidget(editor);
-        layout->setContentsMargins(0, 0, 0, 0);
     }
 
 private:
-    void apply() final {}
-    void finish() final {}
-
     TextEditor::SimpleCodeStylePreferences *m_nimCodeStylePreferences;
 };
 

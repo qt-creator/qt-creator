@@ -48,20 +48,8 @@ class ToolChainTreeItem : public TreeItem
 {
 public:
     ToolChainTreeItem(QStackedWidget *parentWidget, ToolChain *tc, bool c) :
-        toolChain(tc), changed(c)
-    {
-        widget = tc->createConfigurationWidget().release();
-        if (widget) {
-            parentWidget->addWidget(widget);
-            if (tc->isAutoDetected())
-                widget->makeReadOnly();
-            QObject::connect(widget, &ToolChainConfigWidget::dirty,
-                             [this] {
-                changed = true;
-                update();
-            });
-        }
-    }
+        toolChain(tc), changed(c), m_parentWidget(parentWidget)
+    {}
 
     QVariant data(int column, int role) const override
     {
@@ -93,9 +81,30 @@ public:
         return QVariant();
     }
 
+    ToolChainConfigWidget *widget()
+    {
+        if (!m_widget) {
+           m_widget = toolChain->createConfigurationWidget().release();
+           if (m_widget) {
+                m_parentWidget->addWidget(m_widget);
+                if (toolChain->isAutoDetected())
+                    m_widget->makeReadOnly();
+                QObject::connect(m_widget, &ToolChainConfigWidget::dirty,
+                                 [this] {
+                    changed = true;
+                    update();
+                });
+            }
+        }
+        return m_widget;
+    }
+
     ToolChain *toolChain;
-    ToolChainConfigWidget *widget;
     bool changed;
+
+private:
+    ToolChainConfigWidget *m_widget = nullptr;
+    QStackedWidget *m_parentWidget = nullptr;
 };
 
 class DetectionSettingsDialog : public QDialog
@@ -423,7 +432,7 @@ void ToolChainOptionsWidget::toolChainSelectionChanged()
 {
     ToolChainTreeItem *item = currentTreeItem();
 
-    QWidget *currentTcWidget = item ? item->widget : nullptr;
+    QWidget *currentTcWidget = item ? item->widget() : nullptr;
     if (currentTcWidget)
         m_widgetStack->setCurrentWidget(currentTcWidget);
     m_container->setVisible(currentTcWidget);
@@ -447,8 +456,8 @@ void ToolChainOptionsWidget::apply()
             for (TreeItem *item : *parent) {
                 auto tcItem = static_cast<ToolChainTreeItem *>(item);
                 Q_ASSERT(tcItem->toolChain);
-                if (!tcItem->toolChain->isAutoDetected() && tcItem->widget && tcItem->changed)
-                    tcItem->widget->apply();
+                if (!tcItem->toolChain->isAutoDetected() && tcItem->widget() && tcItem->changed)
+                    tcItem->widget()->apply();
                 tcItem->changed = false;
                 tcItem->update();
             }

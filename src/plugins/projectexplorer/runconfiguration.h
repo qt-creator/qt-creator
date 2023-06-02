@@ -116,6 +116,7 @@ public:
     using CommandLineGetter = std::function<Utils::CommandLine()>;
     void setCommandLineGetter(const CommandLineGetter &cmdGetter);
     Utils::CommandLine commandLine() const;
+    bool isPrintEnvironmentEnabled() const;
 
     using RunnableModifier = std::function<void(Runnable &)>;
     void setRunnableModifier(const RunnableModifier &extraModifier);
@@ -137,6 +138,7 @@ public:
         return nullptr;
     }
 
+    using ProjectConfiguration::registerAspect;
     using AspectFactory = std::function<Utils::BaseAspect *(Target *)>;
     template <class T> static void registerAspect()
     {

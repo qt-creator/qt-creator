@@ -13,15 +13,16 @@
 #include "debuggertr.h"
 
 #include "breakhandler.h"
+#include "debuggermainwindow.h"
 #include "disassembleragent.h"
+#include "enginemanager.h"
 #include "localsandexpressionswindow.h"
 #include "logwindow.h"
-#include "debuggermainwindow.h"
-#include "enginemanager.h"
 #include "memoryagent.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "peripheralregisterhandler.h"
+#include "shared/peutils.h"
 #include "sourcefileshandler.h"
 #include "sourceutils.h"
 #include "stackhandler.h"
@@ -31,7 +32,6 @@
 #include "watchhandler.h"
 #include "watchutils.h"
 #include "watchwindow.h"
-#include "debugger/shared/peutils.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -54,10 +54,10 @@
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/macroexpander.h>
+#include <utils/process.h>
 #include <utils/processhandle.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
@@ -471,7 +471,7 @@ public:
     QString m_qtNamespace;
 
     // Safety net to avoid infinite lookups.
-    QSet<QString> m_lookupRequests; // FIXME: Integrate properly.
+    QHash<QString, int> m_lookupRequests; // FIXME: Integrate properly.
     QPointer<QWidget> m_alertBox;
 
     QPointer<BaseTreeView> m_breakView;
@@ -1035,11 +1035,6 @@ void DebuggerEngine::setRunId(const QString &id)
 void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
 {
     d->m_device = runTool->device();
-
-    IDevice::ConstPtr debuggerDevice =
-        DeviceManager::deviceForPath(d->m_runParameters.debugger.command.executable());
-    if (QTC_GUARD(debuggerDevice))
-        d->m_runParameters.dumperPath = debuggerDevice->debugDumperPath();
 
     d->m_terminalRunner = runTool->terminalRunner();
 
@@ -2083,7 +2078,7 @@ void DebuggerEngine::examineModules()
 {
 }
 
-void DebuggerEngine::loadSymbols(const QString &)
+void DebuggerEngine::loadSymbols(const FilePath &)
 {
 }
 
@@ -2095,11 +2090,11 @@ void DebuggerEngine::loadSymbolsForStack()
 {
 }
 
-void DebuggerEngine::requestModuleSymbols(const QString &)
+void DebuggerEngine::requestModuleSymbols(const FilePath &)
 {
 }
 
-void DebuggerEngine::requestModuleSections(const QString &)
+void DebuggerEngine::requestModuleSections(const FilePath &)
 {
 }
 
@@ -2360,9 +2355,10 @@ bool DebuggerEngine::canHandleToolTip(const DebuggerToolTipContext &context) con
 
 void DebuggerEngine::updateItem(const QString &iname)
 {
-    if (d->m_lookupRequests.contains(iname)) {
+    WatchHandler *handler = watchHandler();
+    const int maxArrayCount = handler->maxArrayCount(iname);
+    if (d->m_lookupRequests.value(iname, -1) == maxArrayCount) {
         showMessage(QString("IGNORING REPEATED REQUEST TO EXPAND " + iname));
-        WatchHandler *handler = watchHandler();
         WatchItem *item = handler->findItem(iname);
         QTC_CHECK(item);
         WatchModelBase *model = handler->model();
@@ -2382,7 +2378,7 @@ void DebuggerEngine::updateItem(const QString &iname)
         }
         // We could legitimately end up here after expanding + closing + re-expaning an item.
     }
-    d->m_lookupRequests.insert(iname);
+    d->m_lookupRequests[iname] = maxArrayCount;
 
     UpdateParameters params;
     params.partialVariable = iname;
@@ -2591,6 +2587,7 @@ bool DebuggerRunParameters::isCppDebugging() const
     return cppEngineType == GdbEngineType
         || cppEngineType == LldbEngineType
         || cppEngineType == CdbEngineType
+        || cppEngineType == DapEngineType
         || cppEngineType == UvscEngineType;
 }
 
@@ -2651,7 +2648,7 @@ static void createNewDock(QWidget *widget)
     dockWidget->show();
 }
 
-void DebuggerEngine::showModuleSymbols(const QString &moduleName, const Symbols &symbols)
+void DebuggerEngine::showModuleSymbols(const FilePath &moduleName, const Symbols &symbols)
 {
     auto w = new QTreeWidget;
     w->setUniformRowHeights(true);
@@ -2659,7 +2656,7 @@ void DebuggerEngine::showModuleSymbols(const QString &moduleName, const Symbols 
     w->setRootIsDecorated(false);
     w->setAlternatingRowColors(true);
     w->setSortingEnabled(true);
-    w->setObjectName("Symbols." + moduleName);
+    w->setObjectName("Symbols." + moduleName.toFSPathString());
     QStringList header;
     header.append(Tr::tr("Symbol"));
     header.append(Tr::tr("Address"));
@@ -2667,7 +2664,7 @@ void DebuggerEngine::showModuleSymbols(const QString &moduleName, const Symbols 
     header.append(Tr::tr("Section"));
     header.append(Tr::tr("Name"));
     w->setHeaderLabels(header);
-    w->setWindowTitle(Tr::tr("Symbols in \"%1\"").arg(moduleName));
+    w->setWindowTitle(Tr::tr("Symbols in \"%1\"").arg(moduleName.toUserOutput()));
     for (const Symbol &s : symbols) {
         auto it = new QTreeWidgetItem;
         it->setData(0, Qt::DisplayRole, s.name);
@@ -2680,7 +2677,7 @@ void DebuggerEngine::showModuleSymbols(const QString &moduleName, const Symbols 
     createNewDock(w);
 }
 
-void DebuggerEngine::showModuleSections(const QString &moduleName, const Sections &sections)
+void DebuggerEngine::showModuleSections(const FilePath &moduleName, const Sections &sections)
 {
     auto w = new QTreeWidget;
     w->setUniformRowHeights(true);
@@ -2688,7 +2685,7 @@ void DebuggerEngine::showModuleSections(const QString &moduleName, const Section
     w->setRootIsDecorated(false);
     w->setAlternatingRowColors(true);
     w->setSortingEnabled(true);
-    w->setObjectName("Sections." + moduleName);
+    w->setObjectName("Sections." + moduleName.toFSPathString());
     QStringList header;
     header.append(Tr::tr("Name"));
     header.append(Tr::tr("From"));
@@ -2696,7 +2693,7 @@ void DebuggerEngine::showModuleSections(const QString &moduleName, const Section
     header.append(Tr::tr("Address"));
     header.append(Tr::tr("Flags"));
     w->setHeaderLabels(header);
-    w->setWindowTitle(Tr::tr("Sections in \"%1\"").arg(moduleName));
+    w->setWindowTitle(Tr::tr("Sections in \"%1\"").arg(moduleName.toUserOutput()));
     for (const Section &s : sections) {
         auto it = new QTreeWidgetItem;
         it->setData(0, Qt::DisplayRole, s.name);
@@ -2719,7 +2716,6 @@ Context CppDebuggerEngine::languageContext() const
 void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
 {
     static const QString warnOnInappropriateDebuggerKey = "DebuggerWarnOnInappropriateDebugger";
-    QtcSettings *coreSettings = Core::ICore::settings();
 
     const bool warnOnRelease = debuggerSettings()->warnOnReleaseBuilds.value()
                                && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;
@@ -2727,7 +2723,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
     QString detailedWarning;
     switch (rp.toolChainAbi.binaryFormat()) {
     case Abi::PEFormat: {
-        if (CheckableMessageBox::shouldAskAgain(coreSettings, warnOnInappropriateDebuggerKey)) {
+        if (CheckableDecider(warnOnInappropriateDebuggerKey).shouldAskAgain()) {
             QString preferredDebugger;
             if (rp.toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor) {
                 if (rp.cppEngineType == CdbEngineType)
@@ -2767,7 +2763,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         break;
     }
     case Abi::ElfFormat: {
-        if (CheckableMessageBox::shouldAskAgain(coreSettings, warnOnInappropriateDebuggerKey)) {
+        if (CheckableDecider(warnOnInappropriateDebuggerKey).shouldAskAgain()) {
             if (rp.cppEngineType == CdbEngineType) {
                 warnOnInappropriateDebugger = true;
                 detailedWarning = Tr::tr(
@@ -2873,15 +2869,13 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         return;
     }
     if (warnOnInappropriateDebugger) {
-        CheckableMessageBox::doNotShowAgainInformation(
+        CheckableMessageBox::information(
             Core::ICore::dialogParent(),
             Tr::tr("Warning"),
-            Tr::tr(
-                "The selected debugger may be inappropriate for the inferior.\n"
-                "Examining symbols and setting breakpoints by file name and line number "
-                "may fail.\n")
+            Tr::tr("The selected debugger may be inappropriate for the inferior.\n"
+                   "Examining symbols and setting breakpoints by file name and line number "
+                   "may fail.\n")
                 + '\n' + detailedWarning,
-            Core::ICore::settings(),
             warnOnInappropriateDebuggerKey);
     } else if (warnOnRelease) {
         AsynchronousMessageBox::information(Tr::tr("Warning"),

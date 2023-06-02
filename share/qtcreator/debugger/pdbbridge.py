@@ -1445,7 +1445,7 @@ class QtcInternalDumper():
         self.updateData(args)
 
     def updateData(self, args):
-        self.expandedINames = __builtins__.set(args.get('expanded', []))
+        self.expandedINames = args.get('expanded', {})
         self.typeformats = args.get('typeformats', {})
         self.formats = args.get('formats', {})
         self.output = ''

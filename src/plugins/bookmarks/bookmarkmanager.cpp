@@ -7,13 +7,13 @@
 #include "bookmarks_global.h"
 #include "bookmarkstr.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <coreplugin/session.h>
+
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/icon.h>
@@ -29,7 +29,6 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QDir>
-#include <QFileInfo>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QMenu>
@@ -39,7 +38,6 @@
 
 Q_DECLARE_METATYPE(Bookmarks::Internal::Bookmark*)
 
-using namespace ProjectExplorer;
 using namespace Core;
 using namespace Utils;
 
@@ -256,11 +254,12 @@ void BookmarkView::keyPressEvent(QKeyEvent *event)
 
 void BookmarkView::removeAll()
 {
-    if (CheckableMessageBox::doNotAskAgainQuestion(this,
-            Tr::tr("Remove All Bookmarks"),
-            Tr::tr("Are you sure you want to remove all bookmarks from all files in the current session?"),
-            ICore::settings(),
-            QLatin1String("RemoveAllBookmarks")) != QDialogButtonBox::Yes)
+    if (CheckableMessageBox::question(this,
+                                      Tr::tr("Remove All Bookmarks"),
+                                      Tr::tr("Are you sure you want to remove all bookmarks from "
+                                             "all files in the current session?"),
+                                      QString("RemoveAllBookmarks"))
+        != QMessageBox::Yes)
         return;
 
     // The performance of this function could be greatly improved.

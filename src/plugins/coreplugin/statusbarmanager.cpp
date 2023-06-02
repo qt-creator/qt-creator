@@ -59,7 +59,6 @@ static void createStatusBarManager()
     m_statusBarWidgets.append(w);
 
     QWidget *w2 = createWidget(m_splitter);
-    w2->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     m_splitter->addWidget(w2);
     // second
     w = createWidget(w2);

@@ -32,14 +32,12 @@
         <translation>Удалить сессии</translation>
     </message>
     <message>
-        <source>Delete workspace %1?</source>
-        <translation>Удалить сессию %1?</translation>
+        <source>Delete workspace &quot;%1&quot;?</source>
+        <translation>Удалить сессию &quot;%1&quot;?</translation>
     </message>
     <message>
-        <source>Delete these workspaces?
-    %1</source>
-        <translation>Удалить следующие сессии?
-    %1</translation>
+        <source>Delete these workspaces?</source>
+        <translation>Удалить следующие сессии?</translation>
     </message>
     <message>
         <source>Cannot Restore Workspace</source>
@@ -4182,7 +4180,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>Состояние «%1»</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
+        <source>Alt+Z,Alt+D</source>
         <translation></translation>
     </message>
     <message>
@@ -4190,7 +4188,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>Meta+Z,Meta+D</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
+        <source>Alt+Z,Alt+L</source>
         <translation></translation>
     </message>
     <message>
@@ -4198,7 +4196,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>Meta+Z,Meta+L</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
+        <source>Alt+Z,Alt+S</source>
         <translation></translation>
     </message>
     <message>
@@ -4262,7 +4260,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>Фиксировать...</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
+        <source>Alt+Z,Alt+C</source>
         <translation></translation>
     </message>
     <message>
@@ -10566,8 +10564,8 @@ Double-click to edit item.</source>
         <translation>Команда patch, настроенная в общих настройках «Среды», отсутствует.</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Выполняется в %1: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3.</source>
+        <translation>Выполняется в &quot;%1&quot;: %2 %3.</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -11170,8 +11168,8 @@ to version control (%2)
         <translation>Имя класса.</translation>
     </message>
     <message>
-        <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
-        <translation>Описание параметров можно найти страницах man GCC или Clang или в &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;Документации GCC&lt;/a&gt;.</translation>
+        <source>For appropriate options, consult the GCC or Clang manual pages or the [GCC online documentation](%1).</source>
+        <translation>Описание параметров можно найти страницах man GCC или Clang или в [Документации GCC](%1).</translation>
     </message>
     <message>
         <source>Use diagnostic flags from build system</source>
@@ -29153,8 +29151,8 @@ to project &quot;%2&quot;.</source>
         <translation>&amp;Удалить</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Что такое сессия?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>Что такое сессия?</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>
@@ -32162,8 +32160,8 @@ These files are preserved.</source>
         <translation>Ошибка при сохранении сессии</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Не удалось сохранить сессию %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Не удалось сохранить сессию &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -47662,8 +47660,8 @@ What do you want to do?</source>
         <translation>Исполнение: %1 %2</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Исполнение в %1: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3.</source>
+        <translation>Исполнение в &quot;%1&quot;: %2 %3.</translation>
     </message>
     <message>
         <source>&amp;Undo</source>

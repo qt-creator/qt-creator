@@ -104,6 +104,7 @@ using namespace Internal;
 
 /*!
     \class Utils::MacroExpander
+    \inmodule QtCreator
     \brief The MacroExpander class manages \QC wide variables, that a user
     can enter into many string settings. The variables are replaced by an actual value when the string
     is used, similar to how environment variables are expanded by a shell.
@@ -140,7 +141,7 @@ using namespace Internal;
         MacroExpander::registerVariable(
             "MyVariable",
             Tr::tr("The current value of whatever I want."));
-            []() -> QString {
+            [] {
                 QString value;
                 // do whatever is necessary to retrieve the value
                 [...]
@@ -196,7 +197,7 @@ using namespace Internal;
         you would use the one provided by the variable manager). Mostly the same as
         MacroExpander::expandedString(), but also has a variant that does the replacement inline
         instead of returning a new string.
-    \li Using Utils::QtcProcess::expandMacros(). This expands the string while conforming to the
+    \li Using Utils::CommandLine::expandMacros(). This expands the string while conforming to the
         quoting rules of the platform it is run on. Use this function with the variable manager's
         macro expander if your string will be passed as a command line parameter string to an
         external command.
@@ -246,7 +247,6 @@ QString MacroExpander::value(const QByteArray &variable, bool *found) const
  * See the MacroExpander overview documentation for other ways to expand variables.
  *
  * \sa MacroExpander
- * \sa macroExpander()
  */
 QString MacroExpander::expand(const QString &stringWithVariables) const
 {
@@ -274,7 +274,7 @@ QString MacroExpander::expand(const QString &stringWithVariables) const
 FilePath MacroExpander::expand(const FilePath &fileNameWithVariables) const
 {
     // We want single variables to expand to fully qualified strings.
-    return FilePath::fromString(expand(fileNameWithVariables.toString()));
+    return FilePath::fromUserInput(expand(fileNameWithVariables.toString()));
 }
 
 QByteArray MacroExpander::expand(const QByteArray &stringWithVariables) const
@@ -322,10 +322,11 @@ static QByteArray fullPrefix(const QByteArray &prefix)
  * Makes the given string-valued \a prefix known to the variable manager,
  * together with a localized \a description.
  *
- * The \a value PrefixFunction will be called and gets the full variable name
- * with the prefix stripped as input.
+ * The \a value \c PrefixFunction will be called and gets the full variable name
+ * with the prefix stripped as input. It is displayed to users if \a visible is
+ * \c true.
  *
- * \sa registerVariables(), registerIntVariable(), registerFileVariables()
+ * \sa registerVariable(), registerIntVariable(), registerFileVariables()
  */
 void MacroExpander::registerPrefix(const QByteArray &prefix, const QString &description,
                                    const MacroExpander::PrefixFunction &value, bool visible)
@@ -340,6 +341,9 @@ void MacroExpander::registerPrefix(const QByteArray &prefix, const QString &desc
  * Makes the given string-valued \a variable known to the variable manager,
  * together with a localized \a description.
  *
+ * The \a value \c StringFunction is called to retrieve the current value of the
+ * variable. It is displayed to users if \a visibleInChooser is \c true.
+ *
  * \sa registerFileVariables(), registerIntVariable(), registerPrefix()
  */
 void MacroExpander::registerVariable(const QByteArray &variable,
@@ -353,6 +357,9 @@ void MacroExpander::registerVariable(const QByteArray &variable,
 /*!
  * Makes the given integral-valued \a variable known to the variable manager,
  * together with a localized \a description.
+ *
+ * The \a value \c IntFunction is called to retrieve the current value of the
+ * variable.
  *
  * \sa registerVariable(), registerFileVariables(), registerPrefix()
  */
@@ -372,46 +379,54 @@ void MacroExpander::registerIntVariable(const QByteArray &variable,
  * variables such as \c{CurrentDocument:FilePath} with description
  * "Current Document: Full path including file name."
  *
+ * Takes a function that returns a FilePath as a \a base.
+ *
+ * The variable is displayed to users if \a visibleInChooser is \c true.
+ *
  * \sa registerVariable(), registerIntVariable(), registerPrefix()
  */
 void MacroExpander::registerFileVariables(const QByteArray &prefix,
     const QString &heading, const FileFunction &base, bool visibleInChooser)
 {
-    registerVariable(prefix + kFilePathPostfix,
-         Tr::tr("%1: Full path including file name.").arg(heading),
-         [base]() -> QString { QString tmp = base().toString(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).filePath(); },
-         visibleInChooser);
+    registerVariable(
+        prefix + kFilePathPostfix,
+        Tr::tr("%1: Full path including file name.").arg(heading),
+        [base] { return base().path(); },
+        visibleInChooser);
 
-    registerVariable(prefix + kPathPostfix,
-         Tr::tr("%1: Full path excluding file name.").arg(heading),
-         [base]() -> QString { QString tmp = base().toString(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).path(); },
-         visibleInChooser);
+    registerVariable(
+        prefix + kPathPostfix,
+        Tr::tr("%1: Full path excluding file name.").arg(heading),
+        [base] { return base().parentDir().path(); },
+        visibleInChooser);
 
-    registerVariable(prefix + kNativeFilePathPostfix,
-         Tr::tr("%1: Full path including file name, with native path separator (backslash on Windows).").arg(heading),
-         [base]() -> QString {
-             QString tmp = base().toString();
-             return tmp.isEmpty() ? QString() : QDir::toNativeSeparators(QFileInfo(tmp).filePath());
-         },
-         visibleInChooser);
+    registerVariable(
+        prefix + kNativeFilePathPostfix,
+        Tr::tr(
+            "%1: Full path including file name, with native path separator (backslash on Windows).")
+            .arg(heading),
+        [base] { return base().nativePath(); },
+        visibleInChooser);
 
-    registerVariable(prefix + kNativePathPostfix,
-         Tr::tr("%1: Full path excluding file name, with native path separator (backslash on Windows).").arg(heading),
-         [base]() -> QString {
-             QString tmp = base().toString();
-             return tmp.isEmpty() ? QString() : QDir::toNativeSeparators(QFileInfo(tmp).path());
-         },
-         visibleInChooser);
+    registerVariable(
+        prefix + kNativePathPostfix,
+        Tr::tr(
+            "%1: Full path excluding file name, with native path separator (backslash on Windows).")
+            .arg(heading),
+        [base] { return base().parentDir().nativePath(); },
+        visibleInChooser);
 
-    registerVariable(prefix + kFileNamePostfix,
-         Tr::tr("%1: File name without path.").arg(heading),
-         [base]() -> QString { QString tmp = base().toString(); return tmp.isEmpty() ? QString() : FilePath::fromString(tmp).fileName(); },
-         visibleInChooser);
+    registerVariable(
+        prefix + kFileNamePostfix,
+        Tr::tr("%1: File name without path.").arg(heading),
+        [base] { return base().fileName(); },
+        visibleInChooser);
 
-    registerVariable(prefix + kFileBaseNamePostfix,
-         Tr::tr("%1: File base name without path and suffix.").arg(heading),
-         [base]() -> QString { QString tmp = base().toString(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).baseName(); },
-         visibleInChooser);
+    registerVariable(
+        prefix + kFileBaseNamePostfix,
+        Tr::tr("%1: File base name without path and suffix.").arg(heading),
+        [base] { return base().baseName(); },
+        visibleInChooser);
 }
 
 void MacroExpander::registerExtraResolver(const MacroExpander::ResolverFunction &value)

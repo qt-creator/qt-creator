@@ -132,6 +132,10 @@ const char BUILDSTEPS_CLEAN[] = "ProjectExplorer.BuildSteps.Clean";
 const char BUILDSTEPS_BUILD[] = "ProjectExplorer.BuildSteps.Build";
 const char BUILDSTEPS_DEPLOY[] = "ProjectExplorer.BuildSteps.Deploy";
 
+const char COPY_FILE_STEP[] = "ProjectExplorer.CopyFileStep";
+const char COPY_DIRECTORY_STEP[] = "ProjectExplorer.CopyDirectoryStep";
+const char DEVICE_CHECK_STEP[] =  "ProjectExplorer.DeviceCheckBuildStep";
+
 // Language
 
 // Keep these short: These constants are exposed to the MacroExplorer!
@@ -202,8 +206,6 @@ const char FILEOVERLAY_UNKNOWN[]=":/projectexplorer/images/fileoverlay_unknown.p
 // Settings
 const char ADD_FILES_DIALOG_FILTER_HISTORY_KEY[] = "ProjectExplorer.AddFilesFilterKey";
 const char PROJECT_ROOT_PATH_KEY[] = "ProjectExplorer.Project.RootPath";
-const char STARTUPSESSION_KEY[] = "ProjectExplorer/SessionToRestore";
-const char LASTSESSION_KEY[] = "ProjectExplorer/StartupSession";
 const char SETTINGS_MENU_HIDE_BUILD[] = "Menu/HideBuild";
 const char SETTINGS_MENU_HIDE_DEBUG[] = "Menu/HideDebug";
 const char SETTINGS_MENU_HIDE_ANALYZE[] = "Menu/HideAnalyze";

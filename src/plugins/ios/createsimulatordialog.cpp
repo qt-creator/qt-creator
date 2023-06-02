@@ -7,8 +7,8 @@
 #include "simulatorcontrol.h"
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/layoutbuilder.h>
-#include <utils/runextensions.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -32,7 +32,7 @@ CreateSimulatorDialog::CreateSimulatorDialog(QWidget *parent)
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
     buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Form {
@@ -60,11 +60,10 @@ CreateSimulatorDialog::CreateSimulatorDialog(QWidget *parent)
         enableOk();
     });
 
-    m_futureSync.setCancelOnWait(true);
-    m_futureSync.addFuture(Utils::onResultReady(SimulatorControl::updateDeviceTypes(), this,
+    m_futureSync.addFuture(Utils::onResultReady(SimulatorControl::updateDeviceTypes(this), this,
                                                 &CreateSimulatorDialog::populateDeviceTypes));
 
-    QFuture<QList<RuntimeInfo>> runtimesfuture = SimulatorControl::updateRuntimes();
+    QFuture<QList<RuntimeInfo>> runtimesfuture = SimulatorControl::updateRuntimes(this);
     Utils::onResultReady(runtimesfuture, this, [this](const QList<RuntimeInfo> &runtimes) {
         m_runtimes = runtimes;
     });

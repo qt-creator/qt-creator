@@ -32,7 +32,6 @@ add_qtc_plugin(CppEditor
     cppcompletionassist.cpp cppcompletionassist.h
     cppcompletionassistprocessor.cpp cppcompletionassistprocessor.h
     cppcompletionassistprovider.cpp cppcompletionassistprovider.h
-    cppcurrentdocumentfilter.cpp cppcurrentdocumentfilter.h
     cppcursorinfo.h
     cppdoxygen.cpp cppdoxygen.h
     cppeditor.qrc
@@ -107,7 +106,6 @@ add_qtc_plugin(CppEditor
     resourcepreviewhoverhandler.cpp resourcepreviewhoverhandler.h
     searchsymbols.cpp searchsymbols.h
     semantichighlighter.cpp semantichighlighter.h
-    senddocumenttracker.cpp senddocumenttracker.h
     symbolfinder.cpp symbolfinder.h
     symbolsfindfilter.cpp symbolsfindfilter.h
     typehierarchybuilder.cpp typehierarchybuilder.h

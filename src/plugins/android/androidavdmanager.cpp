@@ -10,24 +10,20 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
-#include <QApplication>
 #include <QLoggingCategory>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QSettings>
 
 #include <chrono>
-#include <functional>
 
 using namespace Utils;
+using namespace std;
 
 namespace Android::Internal {
-
-using namespace std;
 
 const int avdCreateTimeoutMs = 30000;
 
@@ -41,7 +37,7 @@ static Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
 bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QStringList &args, QString *output)
 {
     CommandLine cmd(config.avdManagerToolPath(), args);
-    QtcProcess proc;
+    Process proc;
     Environment env = AndroidConfigurations::toolsEnvironment(config);
     proc.setEnvironment(env);
     qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
@@ -89,7 +85,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
         avdManager.addArg("-f");
 
     qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << avdManager.toUserOutput();
-    QtcProcess proc;
+    Process proc;
     proc.setProcessMode(ProcessMode::Writer);
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
     proc.setCommand(avdManager);
@@ -143,14 +139,14 @@ AndroidAvdManager::~AndroidAvdManager() = default;
 
 QFuture<CreateAvdInfo> AndroidAvdManager::createAvd(CreateAvdInfo info) const
 {
-    return runAsync(&createAvdCommand, m_config, info);
+    return Utils::asyncRun(&createAvdCommand, m_config, info);
 }
 
 bool AndroidAvdManager::removeAvd(const QString &name) const
 {
     const CommandLine command(m_config.avdManagerToolPath(), {"delete", "avd", "-n", name});
     qCDebug(avdManagerLog).noquote() << "Running command (removeAvd):" << command.toUserOutput();
-    QtcProcess proc;
+    Process proc;
     proc.setTimeoutS(5);
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     proc.setCommand(command);
@@ -221,14 +217,14 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
 
 QFuture<AndroidDeviceInfoList> AndroidAvdManager::avdList() const
 {
-    return runAsync(listVirtualDevices, m_config);
+    return Utils::asyncRun(listVirtualDevices, m_config);
 }
 
 QString AndroidAvdManager::startAvd(const QString &name) const
 {
     if (!findAvd(name).isEmpty() || startAvdAsync(name))
         return waitForAvd(name);
-    return QString();
+    return {};
 }
 
 static bool is32BitUserSpace()
@@ -236,7 +232,7 @@ static bool is32BitUserSpace()
     // Do a similar check as android's emulator is doing:
     if (HostOsInfo::isLinuxHost()) {
         if (QSysInfo::WordSize == 32) {
-            QtcProcess proc;
+            Process proc;
             proc.setTimeoutS(3);
             proc.setCommand({"getconf", {"LONG_BIT"}});
             proc.runBlocking();
@@ -262,13 +258,13 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
         return false;
     }
 
-    // TODO: Here we are potentially leaking QtcProcess instance in case when shutdown happens
+    // TODO: Here we are potentially leaking Process instance in case when shutdown happens
     // after the avdProcess has started and before it has finished. Giving a parent object here
     // should solve the issue. However, AndroidAvdManager is not a QObject, so no clue what parent
     // would be the most appropriate. Preferably some object taken form android plugin...
-    QtcProcess *avdProcess = new QtcProcess;
+    Process *avdProcess = new Process;
     avdProcess->setProcessChannelMode(QProcess::MergedChannels);
-    QObject::connect(avdProcess, &QtcProcess::done, avdProcess, [avdProcess] {
+    QObject::connect(avdProcess, &Process::done, avdProcess, [avdProcess] {
         if (avdProcess->exitCode()) {
             const QString errorOutput = QString::fromLatin1(avdProcess->readAllRawStandardOutput());
             QMetaObject::invokeMethod(Core::ICore::mainWindow(), [errorOutput] {
@@ -301,21 +297,21 @@ QString AndroidAvdManager::findAvd(const QString &avdName) const
         if (device.avdName == avdName)
             return device.serialNumber;
     }
-    return QString();
+    return {};
 }
 
 QString AndroidAvdManager::waitForAvd(const QString &avdName,
-                                      const QFutureInterfaceBase &fi) const
+                                      const std::optional<QFuture<void>> &future) const
 {
     // we cannot use adb -e wait-for-device, since that doesn't work if a emulator is already running
     // 60 rounds of 2s sleeping, two minutes for the avd to start
     QString serialNumber;
     for (int i = 0; i < 60; ++i) {
-        if (fi.isCanceled())
+        if (future && future->isCanceled())
             return {};
         serialNumber = findAvd(avdName);
         if (!serialNumber.isEmpty())
-            return waitForBooted(serialNumber, fi) ? serialNumber : QString();
+            return waitForBooted(serialNumber, future) ? serialNumber : QString();
         QThread::sleep(2);
     }
     return {};
@@ -328,7 +324,7 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
 
     const CommandLine command({m_config.adbToolPath(), arguments});
     qCDebug(avdManagerLog).noquote() << "Running command (isAvdBooted):" << command.toUserOutput();
-    QtcProcess adbProc;
+    Process adbProc;
     adbProc.setTimeoutS(10);
     adbProc.setCommand(command);
     adbProc.runBlocking();
@@ -339,11 +335,11 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
 }
 
 bool AndroidAvdManager::waitForBooted(const QString &serialNumber,
-                                      const QFutureInterfaceBase &fi) const
+                                      const std::optional<QFuture<void>> &future) const
 {
     // found a serial number, now wait until it's done booting...
     for (int i = 0; i < 60; ++i) {
-        if (fi.isCanceled())
+        if (future && future->isCanceled())
             return false;
         if (isAvdBooted(serialNumber))
             return true;

@@ -14,6 +14,7 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QPushButton>
+#include <QLineEdit>
 
 namespace ADS {
 
@@ -47,7 +48,7 @@ WorkspaceDialog::WorkspaceDialog(DockManager *manager, QWidget *parent)
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column{Row{Column{m_workspaceView, m_autoLoadCheckBox},
                Column{m_btCreateNew,

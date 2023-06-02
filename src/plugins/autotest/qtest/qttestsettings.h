@@ -5,10 +5,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
-
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 enum MetricsType
 {
@@ -19,28 +16,21 @@ enum MetricsType
     Perf
 };
 
-class QtTestSettings : public Utils::AspectContainer
+class QtTestSettings : public Core::PagedSettings
 {
 public:
-    QtTestSettings();
+    explicit QtTestSettings(Utils::Id settingsId);
 
     static QString metricsTypeToOption(const MetricsType type);
 
-    Utils::SelectionAspect metrics;
-    Utils::BoolAspect noCrashHandler;
-    Utils::BoolAspect useXMLOutput;
-    Utils::BoolAspect verboseBench;
-    Utils::BoolAspect logSignalsSlots;
-    Utils::BoolAspect limitWarnings;
-    Utils::IntegerAspect maxWarnings;
-    Utils::BoolAspect quickCheckForDerivedTests;
+    Utils::SelectionAspect metrics{this};
+    Utils::BoolAspect noCrashHandler{this};
+    Utils::BoolAspect useXMLOutput{this};
+    Utils::BoolAspect verboseBench{this};
+    Utils::BoolAspect logSignalsSlots{this};
+    Utils::BoolAspect limitWarnings{this};
+    Utils::IntegerAspect maxWarnings{this};
+    Utils::BoolAspect quickCheckForDerivedTests{this};
 };
 
-class QtTestSettingsPage final : public Core::IOptionsPage
-{
-public:
-    QtTestSettingsPage(QtTestSettings *settings, Utils::Id settingsId);
-};
-
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

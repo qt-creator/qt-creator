@@ -6,7 +6,8 @@
 #include <utils/algorithm.h>
 #include <utils/differ.h>
 
-#include <QFutureInterfaceBase>
+#include <QFuture>
+#include <QPromise>
 #include <QRegularExpression>
 #include <QStringList>
 #include <QTextStream>
@@ -556,7 +557,7 @@ static QList<RowData> readLines(QStringView patch, bool lastChunk, bool *lastChu
     int noNewLineInDelete = -1;
     int noNewLineInInsert = -1;
 
-    const QVector<QStringView> lines = patch.split(newLine);
+    const QList<QStringView> lines = patch.split(newLine);
     int i;
     for (i = 0; i < lines.size(); i++) {
         QStringView line = lines.at(i);
@@ -794,7 +795,7 @@ static QList<ChunkData> readChunks(QStringView patch, bool *lastChunkAtTheEndOfF
     QList<ChunkData> chunkDataList;
     int position = -1;
 
-    QVector<int> startingPositions; // store starting positions of @@
+    QList<int> startingPositions; // store starting positions of @@
     if (patch.startsWith(QStringLiteral("@@ -")))
         startingPositions.append(position + 1);
 
@@ -892,7 +893,7 @@ static FileData readDiffHeaderAndChunks(QStringView headerAndChunks, bool *ok)
 
 }
 
-static QList<FileData> readDiffPatch(QStringView patch, bool *ok, QFutureInterfaceBase *jobController)
+static void readDiffPatch(QPromise<QList<FileData>> &promise, QStringView patch)
 {
     const QRegularExpression diffRegExp("(?:\\n|^)"          // new line of the beginning of a patch
                                         "("                  // either
@@ -911,23 +912,20 @@ static QList<FileData> readDiffPatch(QStringView patch, bool *ok, QFutureInterfa
                                         ")");                // end of or
 
     bool readOk = false;
-
     QList<FileData> fileDataList;
-
     QRegularExpressionMatch diffMatch = diffRegExp.match(patch);
     if (diffMatch.hasMatch()) {
         readOk = true;
         int lastPos = -1;
         do {
-            if (jobController && jobController->isCanceled())
-                return {};
+            if (promise.isCanceled())
+                return;
 
             int pos = diffMatch.capturedStart();
             if (lastPos >= 0) {
                 QStringView headerAndChunks = patch.mid(lastPos, pos - lastPos);
 
-                const FileData fileData = readDiffHeaderAndChunks(headerAndChunks,
-                                                                  &readOk);
+                const FileData fileData = readDiffHeaderAndChunks(headerAndChunks, &readOk);
 
                 if (!readOk)
                     break;
@@ -942,21 +940,15 @@ static QList<FileData> readDiffPatch(QStringView patch, bool *ok, QFutureInterfa
         if (readOk) {
             QStringView headerAndChunks = patch.mid(lastPos, patch.size() - lastPos - 1);
 
-            const FileData fileData = readDiffHeaderAndChunks(headerAndChunks,
-                                                              &readOk);
+            const FileData fileData = readDiffHeaderAndChunks(headerAndChunks, &readOk);
 
             if (readOk)
                 fileDataList.append(fileData);
         }
     }
-
-    if (ok)
-        *ok = readOk;
-
     if (!readOk)
-        return {};
-
-    return fileDataList;
+        return;
+    promise.addResult(fileDataList);
 }
 
 // The git diff patch format (ChangeFile, NewFile, DeleteFile)
@@ -1203,11 +1195,11 @@ static bool detectFileData(QStringView patch, FileData *fileData, QStringView *r
     return detectIndexAndBinary(*remainingPatch, fileData, remainingPatch);
 }
 
-static QList<FileData> readGitPatch(QStringView patch, bool *ok, QFutureInterfaceBase *jobController)
+static void readGitPatch(QPromise<QList<FileData>> &promise, QStringView patch)
 {
     int position = -1;
 
-    QVector<int> startingPositions; // store starting positions of git headers
+    QList<int> startingPositions; // store starting positions of git headers
     if (patch.startsWith(QStringLiteral("diff --git ")))
         startingPositions.append(position + 1);
 
@@ -1221,13 +1213,12 @@ static QList<FileData> readGitPatch(QStringView patch, bool *ok, QFutureInterfac
     };
 
     const QChar newLine('\n');
-    bool readOk = true;
 
-    QVector<PatchInfo> patches;
+    QList<PatchInfo> patches;
     const int count = startingPositions.size();
     for (int i = 0; i < count; i++) {
-        if (jobController && jobController->isCanceled())
-            return {};
+        if (promise.isCanceled())
+            return;
 
         const int diffStart = startingPositions.at(i);
         const int diffEnd = (i < count - 1)
@@ -1242,65 +1233,53 @@ static QList<FileData> readGitPatch(QStringView patch, bool *ok, QFutureInterfac
 
         FileData fileData;
         QStringView remainingFileDiff;
-        readOk = detectFileData(fileDiff, &fileData, &remainingFileDiff);
-
-        if (!readOk)
-            break;
+        if (!detectFileData(fileDiff, &fileData, &remainingFileDiff))
+            return;
 
         patches.append(PatchInfo { remainingFileDiff, fileData });
     }
 
-    if (!readOk) {
-        if (ok)
-            *ok = readOk;
-        return {};
-    }
+    if (patches.isEmpty())
+        return;
 
-    if (jobController)
-        jobController->setProgressRange(0, patches.size());
+    promise.setProgressRange(0, patches.size());
 
     QList<FileData> fileDataList;
-    readOk = false;
     int i = 0;
     for (const auto &patchInfo : std::as_const(patches)) {
-        if (jobController) {
-            if (jobController->isCanceled())
-                return {};
-            jobController->setProgressValue(i++);
-        }
+        if (promise.isCanceled())
+            return;
+        promise.setProgressValue(i++);
 
         FileData fileData = patchInfo.fileData;
+        bool readOk = false;
         if (!patchInfo.patch.isEmpty() || fileData.fileOperation == FileData::ChangeFile)
             fileData.chunks = readChunks(patchInfo.patch, &fileData.lastChunkAtTheEndOfFile, &readOk);
         else
             readOk = true;
 
         if (!readOk)
-            break;
+            return;
 
         fileDataList.append(fileData);
     }
-
-    if (ok)
-        *ok = readOk;
-
-    if (!readOk)
-        return {};
-
-    return fileDataList;
+    promise.addResult(fileDataList);
 }
 
-QList<FileData> DiffUtils::readPatch(const QString &patch, bool *ok,
-                                     QFutureInterfaceBase *jobController)
+std::optional<QList<FileData>> DiffUtils::readPatch(const QString &patch)
 {
-    bool readOk = false;
+    QPromise<QList<FileData>> promise;
+    promise.start();
+    readPatchWithPromise(promise, patch);
+    if (promise.future().resultCount() == 0)
+        return {};
+    return promise.future().result();
+}
 
-    QList<FileData> fileDataList;
-
-    if (jobController) {
-        jobController->setProgressRange(0, 1);
-        jobController->setProgressValue(0);
-    }
+void DiffUtils::readPatchWithPromise(QPromise<QList<FileData>> &promise, const QString &patch)
+{
+    promise.setProgressRange(0, 1);
+    promise.setProgressValue(0);
     QStringView croppedPatch = QStringView(patch);
     // Crop e.g. "-- \n2.10.2.windows.1\n\n" at end of file
     const QRegularExpression formatPatchEndingRegExp("(\\n-- \\n\\S*\\n\\n$)");
@@ -1308,14 +1287,9 @@ QList<FileData> DiffUtils::readPatch(const QString &patch, bool *ok,
     if (match.hasMatch())
         croppedPatch = croppedPatch.left(match.capturedStart() + 1);
 
-    fileDataList = readGitPatch(croppedPatch, &readOk, jobController);
-    if (!readOk)
-        fileDataList = readDiffPatch(croppedPatch, &readOk, jobController);
-
-    if (ok)
-        *ok = readOk;
-
-    return fileDataList;
+    readGitPatch(promise, croppedPatch);
+    if (promise.future().resultCount() == 0)
+        readDiffPatch(promise, croppedPatch);
 }
 
 } // namespace DiffEditor

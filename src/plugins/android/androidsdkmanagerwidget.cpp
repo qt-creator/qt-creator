@@ -9,10 +9,10 @@
 
 #include <app/app_version.h>
 
+#include <utils/async.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/utilsicons.h>
 
 #include <QAbstractButton>
@@ -141,14 +141,16 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
                 }
             },
             optionsButton
-        }
-    }.attachTo(m_packagesStack, WithoutMargins);
+        },
+        noMargin
+    }.attachTo(m_packagesStack);
 
     Column {
         m_outputEdit,
         Row { m_sdkLicenseLabel, m_sdkLicenseButtonBox },
         m_operationProgress,
-    }.attachTo(m_outputStack, WithoutMargins);
+        noMargin
+    }.attachTo(m_outputStack);
 
     Column {
         m_viewStack,
@@ -644,7 +646,7 @@ OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &a
         }
     };
     m_optionsFuture = sdkManager->availableArguments();
-    Utils::onResultReady(m_optionsFuture, populateOptions);
+    Utils::onResultReady(m_optionsFuture, this, populateOptions);
 
     auto dialogButtons = new QDialogButtonBox(this);
     dialogButtons->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);

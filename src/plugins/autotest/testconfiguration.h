@@ -9,11 +9,10 @@
 #include <projectexplorer/runcontrol.h>
 #include <utils/environment.h>
 
-#include <QFutureInterface>
 #include <QPointer>
 #include <QStringList>
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace Autotest {
 namespace Internal {
@@ -40,8 +39,7 @@ public:
     Utils::FilePath executableFilePath() const;
     virtual Utils::FilePath testExecutable() const { return executableFilePath(); };
 
-    virtual TestOutputReader *createOutputReader(const QFutureInterface<TestResult> &fi,
-                                                 Utils::QtcProcess *app) const = 0;
+    virtual TestOutputReader *createOutputReader(Utils::Process *app) const = 0;
     virtual Utils::Environment filteredEnvironment(const Utils::Environment &original) const;
 
     ITestBase *testBase() const { return m_testBase; }

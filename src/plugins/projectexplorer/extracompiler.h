@@ -10,7 +10,6 @@
 
 #include <utils/environment.h>
 #include <utils/filepath.h>
-#include <utils/tasktree.h>
 
 #include <QByteArray>
 #include <QHash>
@@ -21,14 +20,12 @@
 
 QT_BEGIN_NAMESPACE
 template <typename T>
-class QFutureInterface;
+class QPromise;
 class QThreadPool;
 QT_END_NAMESPACE
 
-namespace Utils {
-class FutureSynchronizer;
-class QtcProcess;
-}
+namespace Tasking { class TaskItem; }
+namespace Utils { class Process; }
 
 namespace ProjectExplorer {
 
@@ -52,7 +49,7 @@ public:
     Utils::FilePaths targets() const;
     void forEachTarget(std::function<void(const Utils::FilePath &)> func) const;
 
-    Utils::Tasking::TaskItem compileFileItem();
+    Tasking::TaskItem compileFileItem();
     void compileFile();
     bool isDirty() const;
     void block();
@@ -64,7 +61,6 @@ signals:
 protected:
     static QThreadPool *extraCompilerThreadPool();
 
-    Utils::FutureSynchronizer *futureSynchronizer() const;
     void setContent(const Utils::FilePath &file, const QByteArray &content);
     void updateCompileTime();
     Utils::Environment buildEnvironment() const;
@@ -79,7 +75,7 @@ private:
     void compileContent(const QByteArray &content);
     void compileImpl(const ContentProvider &provider);
     void compileIfDirty();
-    virtual Utils::Tasking::TaskItem taskItemImpl(const ContentProvider &provider) = 0;
+    virtual Tasking::TaskItem taskItemImpl(const ContentProvider &provider) = 0;
 
     const std::unique_ptr<ExtraCompilerPrivate> d;
 };
@@ -100,13 +96,13 @@ protected:
 
     virtual bool prepareToRun(const QByteArray &sourceContents);
 
-    virtual FileNameToContentsHash handleProcessFinished(Utils::QtcProcess *process) = 0;
+    virtual FileNameToContentsHash handleProcessFinished(Utils::Process *process) = 0;
 
     virtual Tasks parseIssues(const QByteArray &stdErr);
 
 private:
-    Utils::Tasking::TaskItem taskItemImpl(const ContentProvider &provider) final;
-    void runInThread(QFutureInterface<FileNameToContentsHash> &futureInterface,
+    Tasking::TaskItem taskItemImpl(const ContentProvider &provider) final;
+    void runInThread(QPromise<FileNameToContentsHash> &promise,
                      const Utils::FilePath &cmd, const Utils::FilePath &workDir,
                      const QStringList &args, const ContentProvider &provider,
                      const Utils::Environment &env);

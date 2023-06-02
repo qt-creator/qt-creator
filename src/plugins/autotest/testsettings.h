@@ -3,18 +3,9 @@
 
 #pragma once
 
-#include <QHash>
+#include <utils/aspects.h>
 
-namespace Utils {
-class Id;
-}
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 enum class RunAfterBuildMode
 {
@@ -23,29 +14,39 @@ enum class RunAfterBuildMode
     Selected
 };
 
-struct TestSettings
+class NonAspectSettings
 {
-    TestSettings();
-    void toSettings(QSettings *s) const;
-    void fromSettings(QSettings *s);
-
-    int timeout;
-    bool omitInternalMssg = true;
-    bool omitRunConfigWarn = false;
-    bool limitResultOutput = true;
-    bool limitResultDescription = false;
-    int resultDescriptionMaxSize = 10;
-    bool autoScroll = true;
-    bool processArgs = false;
-    bool displayApplication = false;
-    bool popupOnStart = true;
-    bool popupOnFinish = true;
-    bool popupOnFail = false;
-    RunAfterBuildMode runAfterBuild = RunAfterBuildMode::None;
+public:
     QHash<Utils::Id, bool> frameworks;
     QHash<Utils::Id, bool> frameworksGrouping;
     QHash<Utils::Id, bool> tools;
 };
 
-} // namespace Internal
-} // namespace Autotest
+class TestSettings : public Utils::AspectContainer, public NonAspectSettings
+{
+public:
+    TestSettings();
+
+    static TestSettings *instance();
+
+    void toSettings(QSettings *s) const;
+    void fromSettings(QSettings *s);
+
+    Utils::IntegerAspect timeout{this};
+    Utils::BoolAspect omitInternalMsg{this};
+    Utils::BoolAspect omitRunConfigWarn{this};
+    Utils::BoolAspect limitResultOutput{this};
+    Utils::BoolAspect limitResultDescription{this};
+    Utils::IntegerAspect resultDescriptionMaxSize{this};
+    Utils::BoolAspect autoScroll{this};
+    Utils::BoolAspect processArgs{this};
+    Utils::BoolAspect displayApplication{this};
+    Utils::BoolAspect popupOnStart{this};
+    Utils::BoolAspect popupOnFinish{this};
+    Utils::BoolAspect popupOnFail{this};
+    Utils::SelectionAspect runAfterBuild{this};
+
+    RunAfterBuildMode runAfterBuildMode() const;
+};
+
+} // Autotest::Internal

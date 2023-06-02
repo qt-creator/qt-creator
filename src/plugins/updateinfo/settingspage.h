@@ -5,18 +5,14 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace UpdateInfo {
-namespace Internal {
+namespace UpdateInfo::Internal {
 
 class UpdateInfoPlugin;
 
 class SettingsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     explicit SettingsPage(UpdateInfoPlugin *plugin);
 };
 
-} // namespace Internal
-} // namespace UpdateInfo
+} // UpdateInfo::Internal

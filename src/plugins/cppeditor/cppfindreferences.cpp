@@ -10,25 +10,27 @@
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
 
+#include <cplusplus/Overview.h>
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
+
 #include <texteditor/basefilefind.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/textfileformat.h>
 
-#include <cplusplus/Overview.h>
 #include <QtConcurrentMap>
 #include <QCheckBox>
-#include <QDir>
 #include <QFutureWatcher>
 #include <QVBoxLayout>
 
@@ -103,8 +105,8 @@ namespace Internal {
 static QByteArray getSource(const Utils::FilePath &fileName,
                             const WorkingCopy &workingCopy)
 {
-    if (workingCopy.contains(fileName)) {
-        return workingCopy.source(fileName);
+    if (const auto source = workingCopy.source(fileName)) {
+        return *source;
     } else {
         QString fileContents;
         Utils::TextFileFormat format;
@@ -218,7 +220,7 @@ class ProcessFile
     const CPlusPlus::Snapshot snapshot;
     CPlusPlus::Document::Ptr symbolDocument;
     CPlusPlus::Symbol *symbol;
-    QFutureInterface<CPlusPlus::Usage> *future;
+    QPromise<CPlusPlus::Usage> *m_promise;
     const bool categorize;
 
 public:
@@ -230,22 +232,21 @@ public:
                 const CPlusPlus::Snapshot snapshot,
                 CPlusPlus::Document::Ptr symbolDocument,
                 CPlusPlus::Symbol *symbol,
-                QFutureInterface<CPlusPlus::Usage> *future,
+                QPromise<CPlusPlus::Usage> *promise,
                 bool categorize)
         : workingCopy(workingCopy),
           snapshot(snapshot),
           symbolDocument(symbolDocument),
           symbol(symbol),
-          future(future),
+          m_promise(promise),
           categorize(categorize)
     { }
 
     QList<CPlusPlus::Usage> operator()(const Utils::FilePath &filePath)
     {
         QList<CPlusPlus::Usage> usages;
-        if (future->isPaused())
-            future->waitForResume();
-        if (future->isCanceled())
+        m_promise->suspendIfRequested();
+        if (m_promise->isCanceled())
             return usages;
         const CPlusPlus::Identifier *symbolId = symbol->identifier();
 
@@ -275,25 +276,24 @@ public:
             usages = process.usages();
         }
 
-        if (future->isPaused())
-            future->waitForResume();
+        m_promise->suspendIfRequested();
         return usages;
     }
 };
 
 class UpdateUI
 {
-    QFutureInterface<CPlusPlus::Usage> *future;
+    QPromise<CPlusPlus::Usage> *m_promise;
 
 public:
-    explicit UpdateUI(QFutureInterface<CPlusPlus::Usage> *future): future(future) {}
+    explicit UpdateUI(QPromise<CPlusPlus::Usage> *promise): m_promise(promise) {}
 
     void operator()(QList<CPlusPlus::Usage> &, const QList<CPlusPlus::Usage> &usages)
     {
         for (const CPlusPlus::Usage &u : usages)
-            future->reportResult(u);
+            m_promise->addResult(u);
 
-        future->setProgressValue(future->progressValue() + 1);
+        m_promise->setProgressValue(m_promise->future().progressValue() + 1);
     }
 };
 
@@ -319,7 +319,7 @@ QList<int> CppFindReferences::references(CPlusPlus::Symbol *symbol,
     return references;
 }
 
-static void find_helper(QFutureInterface<CPlusPlus::Usage> &future,
+static void find_helper(QPromise<CPlusPlus::Usage> &promise,
                         const WorkingCopy workingCopy,
                         const CPlusPlus::LookupContext &context,
                         CPlusPlus::Symbol *symbol,
@@ -353,16 +353,16 @@ static void find_helper(QFutureInterface<CPlusPlus::Usage> &future,
     }
     files = Utils::filteredUnique(files);
 
-    future.setProgressRange(0, files.size());
+    promise.setProgressRange(0, files.size());
 
-    ProcessFile process(workingCopy, snapshot, context.thisDocument(), symbol, &future, categorize);
-    UpdateUI reduce(&future);
+    ProcessFile process(workingCopy, snapshot, context.thisDocument(), symbol, &promise, categorize);
+    UpdateUI reduce(&promise);
     // This thread waits for blockingMappedReduced to finish, so reduce the pool's used thread count
     // so the blockingMappedReduced can use one more thread, and increase it again afterwards.
     QThreadPool::globalInstance()->releaseThread();
     QtConcurrent::blockingMappedReduced<QList<CPlusPlus::Usage> > (files, process, reduce);
     QThreadPool::globalInstance()->reserveThread();
-    future.setProgressValue(files.size());
+    promise.setProgressValue(files.size());
 }
 
 void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
@@ -437,7 +437,7 @@ void CppFindReferences::findAll_helper(SearchResult *search, CPlusPlus::Symbol *
         SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
     const WorkingCopy workingCopy = m_modelManager->workingCopy();
     QFuture<CPlusPlus::Usage> result;
-    result = Utils::runAsync(m_modelManager->sharedThreadPool(), find_helper,
+    result = Utils::asyncRun(m_modelManager->sharedThreadPool(), find_helper,
                              workingCopy, context, symbol, categorize);
     createWatcher(result, search);
 
@@ -456,10 +456,8 @@ void CppFindReferences::setupSearch(Core::SearchResult *search)
             std::bind(&CppFindReferences::onReplaceButtonClicked, this, search, _1, _2, _3));
 }
 
-void CppFindReferences::onReplaceButtonClicked(Core::SearchResult *search,
-                                               const QString &text,
-                                               const QList<SearchResultItem> &items,
-                                               bool preserveCase)
+void CppFindReferences::onReplaceButtonClicked(Core::SearchResult *search, const QString &text,
+                                               const SearchResultItems &items, bool preserveCase)
 {
     const Utils::FilePaths filePaths = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
     if (!filePaths.isEmpty()) {
@@ -577,7 +575,7 @@ static void displayResults(SearchResult *search,
         item.setStyle(colorStyleForUsageType(result.tags));
         item.setUseTextEditorFont(true);
         if (search->supportsReplace())
-            item.setSelectForReplacement(SessionManager::projectForFile(result.path));
+            item.setSelectForReplacement(ProjectManager::projectForFile(result.path));
         search->addResult(item);
 
         if (parameters.prettySymbolName.isEmpty())
@@ -586,7 +584,7 @@ static void displayResults(SearchResult *search,
         if (parameters.filesToRename.contains(result.path))
             continue;
 
-        if (!SessionManager::projectForFile(result.path))
+        if (!ProjectManager::projectForFile(result.path))
             continue;
 
         if (result.path.baseName().compare(parameters.prettySymbolName, Qt::CaseInsensitive) == 0)
@@ -623,7 +621,7 @@ class FindMacroUsesInFile
     const WorkingCopy workingCopy;
     const CPlusPlus::Snapshot snapshot;
     const CPlusPlus::Macro &macro;
-    QFutureInterface<CPlusPlus::Usage> *future;
+    QPromise<CPlusPlus::Usage> *m_promise;
 
 public:
     // needed by QtConcurrent
@@ -633,8 +631,8 @@ public:
     FindMacroUsesInFile(const WorkingCopy &workingCopy,
                         const CPlusPlus::Snapshot snapshot,
                         const CPlusPlus::Macro &macro,
-                        QFutureInterface<CPlusPlus::Usage> *future)
-        : workingCopy(workingCopy), snapshot(snapshot), macro(macro), future(future)
+                        QPromise<CPlusPlus::Usage> *promise)
+        : workingCopy(workingCopy), snapshot(snapshot), macro(macro), m_promise(promise)
     { }
 
     QList<CPlusPlus::Usage> operator()(const Utils::FilePath &fileName)
@@ -644,9 +642,8 @@ public:
         QByteArray source;
 
 restart_search:
-        if (future->isPaused())
-            future->waitForResume();
-        if (future->isCanceled())
+        m_promise->suspendIfRequested();
+        if (m_promise->isCanceled())
             return usages;
 
         usages.clear();
@@ -674,8 +671,7 @@ restart_search:
             }
         }
 
-        if (future->isPaused())
-            future->waitForResume();
+        m_promise->suspendIfRequested();
         return usages;
     }
 
@@ -704,7 +700,7 @@ restart_search:
 
 } // end of anonymous namespace
 
-static void findMacroUses_helper(QFutureInterface<CPlusPlus::Usage> &future,
+static void findMacroUses_helper(QPromise<CPlusPlus::Usage> &promise,
                                  const WorkingCopy workingCopy,
                                  const CPlusPlus::Snapshot snapshot,
                                  const CPlusPlus::Macro macro)
@@ -713,15 +709,15 @@ static void findMacroUses_helper(QFutureInterface<CPlusPlus::Usage> &future,
     FilePaths files{sourceFile};
     files = Utils::filteredUnique(files + snapshot.filesDependingOn(sourceFile));
 
-    future.setProgressRange(0, files.size());
-    FindMacroUsesInFile process(workingCopy, snapshot, macro, &future);
-    UpdateUI reduce(&future);
+    promise.setProgressRange(0, files.size());
+    FindMacroUsesInFile process(workingCopy, snapshot, macro, &promise);
+    UpdateUI reduce(&promise);
     // This thread waits for blockingMappedReduced to finish, so reduce the pool's used thread count
     // so the blockingMappedReduced can use one more thread, and increase it again afterwards.
     QThreadPool::globalInstance()->releaseThread();
     QtConcurrent::blockingMappedReduced<QList<CPlusPlus::Usage> > (files, process, reduce);
     QThreadPool::globalInstance()->reserveThread();
-    future.setProgressValue(files.size());
+    promise.setProgressValue(files.size());
 }
 
 void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro)
@@ -745,10 +741,9 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
     setupSearch(search);
     SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 
-    connect(search, &SearchResult::activated,
-            [](const Core::SearchResultItem& item) {
-                Core::EditorManager::openEditorAtSearchResult(item);
-            });
+    connect(search, &SearchResult::activated, search, [](const SearchResultItem &item) {
+        Core::EditorManager::openEditorAtSearchResult(item);
+    });
 
     const CPlusPlus::Snapshot snapshot = m_modelManager->snapshot();
     const WorkingCopy workingCopy = m_modelManager->workingCopy();
@@ -766,12 +761,12 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
         item.setMainRange(macro.line(), column, macro.nameToQString().length());
         item.setUseTextEditorFont(true);
         if (search->supportsReplace())
-            item.setSelectForReplacement(SessionManager::projectForFile(filePath));
+            item.setSelectForReplacement(ProjectManager::projectForFile(filePath));
         search->addResult(item);
     }
 
     QFuture<CPlusPlus::Usage> result;
-    result = Utils::runAsync(m_modelManager->sharedThreadPool(), findMacroUses_helper,
+    result = Utils::asyncRun(m_modelManager->sharedThreadPool(), findMacroUses_helper,
                              workingCopy, snapshot, macro);
     createWatcher(result, search);
 
@@ -832,7 +827,7 @@ void CppFindReferences::checkUnused(Core::SearchResult *search, const Link &link
     });
     connect(search, &SearchResult::canceled, watcher, [watcher] { watcher->cancel(); });
     connect(search, &SearchResult::destroyed, watcher, [watcher] { watcher->cancel(); });
-    watcher->setFuture(Utils::runAsync(m_modelManager->sharedThreadPool(), find_helper,
+    watcher->setFuture(Utils::asyncRun(m_modelManager->sharedThreadPool(), find_helper,
                                        m_modelManager->workingCopy(), context, symbol, true));
 }
 

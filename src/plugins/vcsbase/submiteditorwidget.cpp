@@ -127,8 +127,6 @@ struct SubmitEditorWidgetPrivate
 SubmitEditorWidget::SubmitEditorWidget() :
     d(new SubmitEditorWidgetPrivate)
 {
-    resize(507, 419);
-    setMinimumSize(QSize(0, 0));
     setWindowTitle(Tr::tr("Subversion Submit"));
 
     auto scrollAreaWidgetContents = new QWidget();
@@ -208,8 +206,9 @@ SubmitEditorWidget::SubmitEditorWidget() :
 
     using namespace Layouting;
     Column {
-        scrollArea
-    }.attachTo(this, WithoutMargins);
+        scrollArea,
+        noMargin
+    }.attachTo(this);
 
     connect(d->description, &QWidget::customContextMenuRequested,
             this, &SubmitEditorWidget::editorCustomContextMenuRequested);
@@ -620,15 +619,16 @@ void SubmitEditorWidget::verifyDescription()
 
     d->descriptionHint->setText(hints.join("<br>"));
     if (!d->descriptionHint->text().isEmpty()) {
+        static_assert(MaxSubjectLength == 72); // change the translated message below when changing
         d->descriptionHint->setToolTip(
             Tr::tr("<p>Writing good commit messages</p>"
                    "<ul>"
                    "<li>Avoid very short commit messages.</li>"
-                   "<li>Consider the first line as subject (like in email) "
-                   "and keep it shorter than %n characters.</li>"
+                   "<li>Consider the first line as a subject (like in emails) "
+                   "and keep it shorter than 72 characters.</li>"
                    "<li>After an empty second line, a longer description can be added.</li>"
                    "<li>Describe why the change was done, not how it was done.</li>"
-                   "</ul>", nullptr, MaxSubjectLength));
+                   "</ul>"));
     }
 }
 

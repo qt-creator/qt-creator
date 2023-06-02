@@ -13,7 +13,7 @@
 #include <coreplugin/find/searchresultwindow.h>
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
@@ -193,7 +193,7 @@ bool SymbolSupport::supportsFindUsages(TextEditor::TextDocument *document) const
 
 struct ItemData
 {
-    Core::Search::TextRange range;
+    Utils::Text::Range range;
     QVariant userData;
 };
 
@@ -216,12 +216,12 @@ QStringList SymbolSupport::getFileContents(const Utils::FilePath &filePath)
     return fileContent.split("\n");
 }
 
-QList<Core::SearchResultItem> generateSearchResultItems(
+Utils::SearchResultItems generateSearchResultItems(
     const QMap<Utils::FilePath, QList<ItemData>> &rangesInDocument,
     Core::SearchResult *search = nullptr,
     bool limitToProjects = false)
 {
-    QList<Core::SearchResultItem> result;
+    Utils::SearchResultItems result;
     const bool renaming = search && search->supportsReplace();
     QString oldSymbolName;
     QVariantList userData;
@@ -233,11 +233,11 @@ QList<Core::SearchResultItem> generateSearchResultItems(
     for (auto it = rangesInDocument.begin(); it != rangesInDocument.end(); ++it) {
         const Utils::FilePath &filePath = it.key();
 
-        Core::SearchResultItem item;
+        Utils::SearchResultItem item;
         item.setFilePath(filePath);
         item.setUseTextEditorFont(true);
         if (renaming && limitToProjects) {
-            const bool fileBelongsToProject = ProjectExplorer::SessionManager::projectForFile(
+            const bool fileBelongsToProject = ProjectExplorer::ProjectManager::projectForFile(
                 filePath);
             item.setSelectForReplacement(fileBelongsToProject);
             if (fileBelongsToProject
@@ -264,7 +264,7 @@ QList<Core::SearchResultItem> generateSearchResultItems(
     return result;
 }
 
-QList<Core::SearchResultItem> generateSearchResultItems(
+Utils::SearchResultItems generateSearchResultItems(
     const LanguageClientArray<Location> &locations, const DocumentUri::PathMapper &pathMapper)
 {
     if (locations.isNull())
@@ -291,7 +291,7 @@ void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Re
             Tr::tr("Find References with %1 for:").arg(m_client->name()), "", wordUnderCursor);
         search->addResults(generateSearchResultItems(*result, m_client->hostPathMapper()),
                            Core::SearchResult::AddOrdered);
-        connect(search, &Core::SearchResult::activated, [](const Core::SearchResultItem &item) {
+        connect(search, &Core::SearchResult::activated, [](const Utils::SearchResultItem &item) {
             Core::EditorManager::openEditorAtSearchResult(item);
         });
         search->finishSearch(false);
@@ -463,7 +463,7 @@ void SymbolSupport::requestRename(const TextDocumentPositionParams &positionPara
         search->popup();
 }
 
-QList<Core::SearchResultItem> generateReplaceItems(const WorkspaceEdit &edits,
+Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
                                                    Core::SearchResult *search,
                                                    bool limitToProjects,
                                                    const DocumentUri::PathMapper &pathMapper)
@@ -506,7 +506,7 @@ Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams
     if (callback)
         search->makeNonInteractive(callback);
 
-    connect(search, &Core::SearchResult::activated, [](const Core::SearchResultItem &item) {
+    connect(search, &Core::SearchResult::activated, [](const Utils::SearchResultItem &item) {
         Core::EditorManager::openEditorAtSearchResult(item);
     });
     connect(search, &Core::SearchResult::replaceTextChanged, this, [this, search, positionParams]() {
@@ -524,7 +524,7 @@ Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams
 
     connect(search, &Core::SearchResult::replaceButtonClicked, this,
             [this, search, resetConnection](const QString & /*replaceText*/,
-                                            const QList<Core::SearchResultItem> &checkedItems) {
+                                            const Utils::SearchResultItems &checkedItems) {
                 applyRename(checkedItems, search);
                 disconnect(resetConnection);
             });
@@ -571,12 +571,12 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
     }
 }
 
-void SymbolSupport::applyRename(const QList<Core::SearchResultItem> &checkedItems,
+void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
                                 Core::SearchResult *search)
 {
     QSet<Utils::FilePath> affectedNonOpenFilePaths;
     QMap<Utils::FilePath, QList<TextEdit>> editsForDocuments;
-    for (const Core::SearchResultItem &item : checkedItems) {
+    for (const Utils::SearchResultItem &item : checkedItems) {
         const auto filePath = Utils::FilePath::fromString(item.path().value(0));
         if (!m_client->documentForFilePath(filePath))
             affectedNonOpenFilePaths << filePath;
@@ -616,12 +616,12 @@ QString SymbolSupport::derivePlaceholder(const QString &oldSymbol, const QString
     return m_defaultSymbolMapper ? m_defaultSymbolMapper(oldSymbol) : oldSymbol;
 }
 
-Core::Search::TextRange SymbolSupport::convertRange(const Range &range)
+Utils::Text::Range SymbolSupport::convertRange(const Range &range)
 {
-    auto convertPosition = [](const Position &pos) {
-        return Core::Search::TextPosition(pos.line() + 1, pos.character());
+    const auto convertPosition = [](const Position &pos) {
+        return Utils::Text::Position{pos.line() + 1, pos.character()};
     };
-    return Core::Search::TextRange(convertPosition(range.start()), convertPosition(range.end()));
+    return {convertPosition(range.start()), convertPosition(range.end())};
 }
 
 void SymbolSupport::setDefaultRenamingSymbolMapper(const SymbolMapper &mapper)

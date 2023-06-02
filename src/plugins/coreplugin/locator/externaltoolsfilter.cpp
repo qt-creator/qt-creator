@@ -4,6 +4,7 @@
 #include "externaltoolsfilter.h"
 
 #include "../coreconstants.h"
+#include "../coreplugin.h"
 #include "../coreplugintr.h"
 #include "../externaltool.h"
 #include "../externaltoolmanager.h"
@@ -24,64 +25,62 @@ ExternalToolsFilter::ExternalToolsFilter()
     setPriority(Medium);
 }
 
-QList<LocatorFilterEntry> ExternalToolsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &,
-                                                          const QString &)
+LocatorMatcherTasks ExternalToolsFilter::matchers()
 {
-    return m_results;
-}
+    using namespace Tasking;
 
-void ExternalToolsFilter::accept(const LocatorFilterEntry &selection,
-                                 QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
+    TreeStorage<LocatorStorage> storage;
 
-    if (!selection.internalData.isValid()) {
-        ICore::showOptionsDialog(Constants::SETTINGS_ID_TOOLS);
-        return;
-    }
+    const auto onSetup = [storage] {
+        const QString input = storage->input();
 
-    auto tool = selection.internalData.value<ExternalTool *>();
-    QTC_ASSERT(tool, return);
+        LocatorFilterEntries bestEntries;
+        LocatorFilterEntries betterEntries;
+        LocatorFilterEntries goodEntries;
+        const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(input);
+        const QMap<QString, ExternalTool *> externalToolsById = ExternalToolManager::toolsById();
+        for (ExternalTool *tool : externalToolsById) {
+            int index = tool->displayName().indexOf(input, 0, entryCaseSensitivity);
+            LocatorFilterEntry::HighlightInfo::DataType hDataType = LocatorFilterEntry::HighlightInfo::DisplayName;
+            if (index < 0) {
+                index = tool->description().indexOf(input, 0, entryCaseSensitivity);
+                hDataType = LocatorFilterEntry::HighlightInfo::ExtraInfo;
+            }
 
-    auto runner = new ExternalToolRunner(tool);
-    if (runner->hasError())
-        MessageManager::writeFlashing(runner->errorString());
-}
+            if (index >= 0) {
+                LocatorFilterEntry filterEntry;
+                filterEntry.displayName = tool->displayName();
+                filterEntry.acceptor = [tool] {
+                    auto runner = new ExternalToolRunner(tool);
+                    if (runner->hasError())
+                        MessageManager::writeFlashing(runner->errorString());
+                    return AcceptResult();
+                };
+                filterEntry.extraInfo = tool->description();
+                filterEntry.highlightInfo = LocatorFilterEntry::HighlightInfo(index, input.length(), hDataType);
 
-void ExternalToolsFilter::prepareSearch(const QString &entry)
-{
-    QList<LocatorFilterEntry> bestEntries;
-    QList<LocatorFilterEntry> betterEntries;
-    QList<LocatorFilterEntry> goodEntries;
-    const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
-    const QMap<QString, ExternalTool *> externalToolsById = ExternalToolManager::toolsById();
-    for (ExternalTool *tool : externalToolsById) {
-        int index = tool->displayName().indexOf(entry, 0, entryCaseSensitivity);
-        LocatorFilterEntry::HighlightInfo::DataType hDataType = LocatorFilterEntry::HighlightInfo::DisplayName;
-        if (index < 0) {
-            index = tool->description().indexOf(entry, 0, entryCaseSensitivity);
-            hDataType = LocatorFilterEntry::HighlightInfo::ExtraInfo;
+                if (filterEntry.displayName.startsWith(input, entryCaseSensitivity))
+                    bestEntries.append(filterEntry);
+                else if (filterEntry.displayName.contains(input, entryCaseSensitivity))
+                    betterEntries.append(filterEntry);
+                else
+                    goodEntries.append(filterEntry);
+            }
         }
+        LocatorFilterEntry configEntry;
+        configEntry.displayName = "Configure External Tool...";
+        configEntry.extraInfo = "Opens External Tool settings";
+        configEntry.acceptor = [] {
+            QMetaObject::invokeMethod(CorePlugin::instance(), [] {
+                ICore::showOptionsDialog(Constants::SETTINGS_ID_TOOLS);
+            }, Qt::QueuedConnection);
+            return AcceptResult();
+        };
 
-        if (index >= 0) {
-            LocatorFilterEntry filterEntry(this, tool->displayName(), QVariant::fromValue(tool));
-            filterEntry.extraInfo = tool->description();
-            filterEntry.highlightInfo = LocatorFilterEntry::HighlightInfo(index, entry.length(), hDataType);
-
-            if (filterEntry.displayName.startsWith(entry, entryCaseSensitivity))
-                bestEntries.append(filterEntry);
-            else if (filterEntry.displayName.contains(entry, entryCaseSensitivity))
-                betterEntries.append(filterEntry);
-            else
-                goodEntries.append(filterEntry);
-        }
-    }
-    LocatorFilterEntry configEntry(this, "Configure External Tool...", {});
-    configEntry.extraInfo = "Opens External Tool settings";
-    m_results = {};
-    m_results << bestEntries << betterEntries << goodEntries << configEntry;
+        storage->reportOutput(bestEntries + betterEntries + goodEntries
+                              + LocatorFilterEntries{configEntry});
+    };
+    return {{Sync(onSetup), storage}};
 }
 
 } // Core::Internal

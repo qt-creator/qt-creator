@@ -28,14 +28,10 @@ namespace ClangTools::Internal {
 RunSettingsWidget::RunSettingsWidget(QWidget *parent)
     : QWidget(parent)
 {
-    resize(383, 125);
-
     m_diagnosticWidget = new ClangDiagnosticConfigsSelectionWidget;
-
+    m_preferConfigFile = new QCheckBox(Tr::tr("Prefer .clang-tidy file, if present"));
     m_buildBeforeAnalysis = new QCheckBox(Tr::tr("Build the project before analysis"));
-
     m_analyzeOpenFiles = new QCheckBox(Tr::tr("Analyze open files"));
-
     m_parallelJobsSpinBox = new QSpinBox;
     m_parallelJobsSpinBox->setRange(1, 32);
 
@@ -47,12 +43,14 @@ RunSettingsWidget::RunSettingsWidget(QWidget *parent)
             title(Tr::tr("Run Options")),
             Column {
                 m_diagnosticWidget,
+                m_preferConfigFile,
                 m_buildBeforeAnalysis,
                 m_analyzeOpenFiles,
                 Row { Tr::tr("Parallel jobs:"), m_parallelJobsSpinBox, st },
             }
-        }
-    }.attachTo(this, WithoutMargins);
+        },
+        noMargin
+    }.attachTo(this);
 }
 
 RunSettingsWidget::~RunSettingsWidget() = default;
@@ -99,6 +97,9 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
     connect(m_diagnosticWidget, &ClangDiagnosticConfigsSelectionWidget::changed,
             this, &RunSettingsWidget::changed);
 
+    m_preferConfigFile->setChecked(s.preferConfigFile());
+    connect(m_preferConfigFile, &QCheckBox::toggled, this, &RunSettingsWidget::changed);
+
     disconnect(m_buildBeforeAnalysis, 0, 0, 0);
     m_buildBeforeAnalysis->setToolTip(hintAboutBuildBeforeAnalysis());
     m_buildBeforeAnalysis->setCheckState(s.buildBeforeAnalysis() ? Qt::Checked : Qt::Unchecked);
@@ -115,13 +116,13 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
     connect(m_parallelJobsSpinBox, &QSpinBox::valueChanged, this, &RunSettingsWidget::changed);
     m_analyzeOpenFiles->setChecked(s.analyzeOpenFiles());
     connect(m_analyzeOpenFiles, &QCheckBox::toggled, this, &RunSettingsWidget::changed);
-
 }
 
 RunSettings RunSettingsWidget::toSettings() const
 {
     RunSettings s;
     s.setDiagnosticConfigId(m_diagnosticWidget->currentConfigId());
+    s.setPreferConfigFile(m_preferConfigFile->isChecked());
     s.setBuildBeforeAnalysis(m_buildBeforeAnalysis->checkState() == Qt::CheckState::Checked);
     s.setParallelJobs(m_parallelJobsSpinBox->value());
     s.setAnalyzeOpenFiles(m_analyzeOpenFiles->checkState() == Qt::CheckState::Checked);

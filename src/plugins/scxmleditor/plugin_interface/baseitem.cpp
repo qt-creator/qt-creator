@@ -41,7 +41,8 @@ BaseItem::~BaseItem()
 void BaseItem::checkParentBoundingRect()
 {
     BaseItem *parentBaseItem = this->parentBaseItem();
-    if (parentBaseItem && type() >= InitialStateType && !parentBaseItem->blockUpdates()) {
+    if ((parentBaseItem && type() >= InitialStateType && !parentBaseItem->blockUpdates())
+        || (parentBaseItem && type() == StateWarningType)) {
         auto parentStateItem = qgraphicsitem_cast<StateItem*>(parentBaseItem);
         if (parentStateItem && (parentStateItem->type() >= StateType))
             parentStateItem->updateBoundingRect();

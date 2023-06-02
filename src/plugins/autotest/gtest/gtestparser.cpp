@@ -10,6 +10,7 @@
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/projectpart.h>
 
+#include <QPromise>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
@@ -70,7 +71,7 @@ static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
     return false;
 }
 
-bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
+bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
                                   const FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
@@ -124,7 +125,7 @@ bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureIn
             parseResult->children.append(testSet);
         }
 
-        futureInterface.reportResult(TestParseResultPtr(parseResult));
+        promise.addResult(TestParseResultPtr(parseResult));
     }
     return !result.isEmpty();
 }

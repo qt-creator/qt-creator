@@ -20,6 +20,8 @@ QtcPlugin {
 
     files: [
         "mcuabstractpackage.h",
+        "mcubuildstep.cpp",
+        "mcubuildstep.h",
         "mcupackage.cpp",
         "mcupackage.h",
         "mcutarget.cpp",
@@ -56,10 +58,11 @@ QtcPlugin {
         "mcuhelpers.h",
         "settingshandler.h",
         "settingshandler.cpp",
+        "dialogs/mcukitcreationdialog.h",
+        "dialogs/mcukitcreationdialog.cpp",
     ]
 
-    Group {
-        name: "McuSupport test files"
+    QtcTestFiles {
         condition: qtc.testsEnabled && (qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent)
         prefix: "test/"
         files: [

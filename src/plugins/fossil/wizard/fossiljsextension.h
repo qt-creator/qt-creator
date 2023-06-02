@@ -12,9 +12,6 @@
 namespace Fossil {
 namespace Internal {
 
-class FossilJsExtensionPrivate;
-class FossilSettings;
-
 class FossilJsExtension : public QObject
 {
     Q_OBJECT
@@ -22,7 +19,7 @@ class FossilJsExtension : public QObject
 public:
     static QMap<QString, QString> parseArgOptions(const QStringList &args);
 
-    FossilJsExtension(FossilSettings *settings);
+    FossilJsExtension();
     ~FossilJsExtension();
 
     Q_INVOKABLE bool isConfigured() const;
@@ -31,9 +28,6 @@ public:
     Q_INVOKABLE QString defaultSslIdentityFile() const;
     Q_INVOKABLE QString defaultLocalRepoPath() const;
     Q_INVOKABLE bool defaultDisableAutosync() const;
-
-private:
-    FossilJsExtensionPrivate *d = nullptr;
 };
 
 } // namespace Internal

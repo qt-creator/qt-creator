@@ -21,20 +21,6 @@
 namespace Utils {
 namespace Internal {
 
-class LauncherProcess : public QProcess
-{
-public:
-    LauncherProcess(QObject *parent) : QProcess(parent)
-    {
-#ifdef Q_OS_UNIX
-        setChildProcessModifier([this] {
-            const auto pid = static_cast<pid_t>(processId());
-            setpgid(pid, pid);
-        });
-#endif
-    }
-};
-
 static QString launcherSocketName()
 {
     return TemporaryDirectory::masterDirectoryPath()
@@ -64,7 +50,7 @@ signals:
 private:
     QLocalServer * const m_server;
     Internal::LauncherSocket *const m_socket;
-    Internal::LauncherProcess *m_process = nullptr;
+    QProcess *m_process = nullptr;
     QString m_pathToLauncher;
 };
 
@@ -89,12 +75,18 @@ void LauncherInterfacePrivate::doStart()
         emit errorOccurred(m_server->errorString());
         return;
     }
-    m_process = new LauncherProcess(this);
+    m_process = new QProcess(this);
     connect(m_process, &QProcess::errorOccurred, this, &LauncherInterfacePrivate::handleProcessError);
     connect(m_process, &QProcess::finished,
             this, &LauncherInterfacePrivate::handleProcessFinished);
     connect(m_process, &QProcess::readyReadStandardError,
             this, &LauncherInterfacePrivate::handleProcessStderr);
+#ifdef Q_OS_UNIX
+    m_process->setChildProcessModifier([] {
+        setpgid(0, 0);
+    });
+#endif
+
     m_process->start(launcherFilePath(), QStringList(m_server->fullServerName()));
 }
 

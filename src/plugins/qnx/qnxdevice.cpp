@@ -6,18 +6,21 @@
 #include "qnxconstants.h"
 #include "qnxdeployqtlibrariesdialog.h"
 #include "qnxdevicetester.h"
-#include "qnxdeviceprocesslist.h"
-#include "qnxdeviceprocesssignaloperation.h"
-#include "qnxdevicewizard.h"
 #include "qnxtr.h"
 
-#include <remotelinux/sshprocessinterface.h>
+#include <coreplugin/icore.h>
+
+#include <projectexplorer/devicesupport/sshparameters.h>
+
+#include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
+#include <remotelinux/remotelinuxsignaloperation.h>
+#include <remotelinux/linuxdevice.h>
 
 #include <utils/port.h>
+#include <utils/portlist.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-
-#include <QRegularExpression>
+#include <utils/wizard.h>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
@@ -25,149 +28,91 @@ using namespace Utils;
 
 namespace Qnx::Internal {
 
-class QnxProcessImpl final : public SshProcessInterface
+static QString signalProcessByNameQnxCommandLine(const QString &filePath, int sig)
+{
+    QString executable = filePath;
+    return QString::fromLatin1("for PID in $(ps -f -o pid,comm | grep %1 | awk '/%1/ {print $1}'); "
+        "do "
+            "kill -%2 $PID; "
+        "done").arg(executable.replace(QLatin1String("/"), QLatin1String("\\/"))).arg(sig);
+}
+
+class QnxDeviceProcessSignalOperation : public RemoteLinuxSignalOperation
 {
 public:
-    QnxProcessImpl(const LinuxDevice *linuxDevice);
-    ~QnxProcessImpl() { killIfRunning(); }
+    explicit QnxDeviceProcessSignalOperation(const IDeviceConstPtr &device)
+        : RemoteLinuxSignalOperation(device)
+    {}
 
-private:
-    QString fullCommandLine(const CommandLine &commandLine) const final;
-    void handleSendControlSignal(Utils::ControlSignal controlSignal) final;
+    QString killProcessByNameCommandLine(const QString &filePath) const override
+    {
+        return QString::fromLatin1("%1; %2").arg(signalProcessByNameQnxCommandLine(filePath, 15),
+                                                 signalProcessByNameQnxCommandLine(filePath, 9));
+    }
 
-    const QString m_pidFile;
+    QString interruptProcessByNameCommandLine(const QString &filePath) const override
+    {
+        return signalProcessByNameQnxCommandLine(filePath, 2);
+    }
 };
 
-static std::atomic_int s_pidFileCounter = 1;
-
-QnxProcessImpl::QnxProcessImpl(const LinuxDevice *linuxDevice)
-    : SshProcessInterface(linuxDevice)
-    , m_pidFile(QString("%1/qtc.%2.pid").arg(Constants::QNX_TMP_DIR).arg(s_pidFileCounter.fetch_add(1)))
+class QnxDevice final : public LinuxDevice
 {
-}
+public:
+    QnxDevice()
+    {
+        setDisplayType(Tr::tr("QNX"));
+        setDefaultDisplayName(Tr::tr("QNX Device"));
+        setOsType(OsTypeOtherUnix);
+        setupId(IDevice::ManuallyAdded);
+        setType(Constants::QNX_QNX_OS_TYPE);
+        setMachineType(IDevice::Hardware);
+        SshParameters sshParams;
+        sshParams.timeout = 10;
+        setSshParameters(sshParams);
+        setFreePorts(PortList::fromString("10000-10100"));
 
-QString QnxProcessImpl::fullCommandLine(const CommandLine &commandLine) const
-{
-    QStringList args = ProcessArgs::splitArgs(commandLine.arguments());
-    args.prepend(commandLine.executable().toString());
-    const QString cmd = ProcessArgs::createUnixArgs(args).toString();
-
-    QString fullCommandLine =
-        "test -f /etc/profile && . /etc/profile ; "
-        "test -f $HOME/profile && . $HOME/profile ; ";
-
-    if (!m_setup.m_workingDirectory.isEmpty())
-        fullCommandLine += QString::fromLatin1("cd %1 ; ").arg(
-            ProcessArgs::quoteArg(m_setup.m_workingDirectory.toString()));
-
-    const Environment env = m_setup.m_environment;
-    for (auto it = env.constBegin(); it != env.constEnd(); ++it) {
-        fullCommandLine += QString::fromLatin1("%1='%2' ")
-                .arg(env.key(it)).arg(env.expandedValueForKey(env.key(it)));
+        addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
+            QnxDeployQtLibrariesDialog dialog(device, parent);
+            dialog.exec();
+        }});
     }
 
-    fullCommandLine += QString::fromLatin1("%1 & echo $! > %2").arg(cmd).arg(m_pidFile);
-
-    return fullCommandLine;
-}
-
-void QnxProcessImpl::handleSendControlSignal(Utils::ControlSignal controlSignal)
-{
-    QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
-    const QString args = QString::fromLatin1("-%1 `cat %2`")
-            .arg(controlSignalToInt(controlSignal)).arg(m_pidFile);
-    CommandLine command = { "kill", args, CommandLine::Raw };
-    // Note: This blocking call takes up to 2 ms for local remote.
-    runInShell(command);
-}
-
-const char QnxVersionKey[] = "QnxVersion";
-
-QnxDevice::QnxDevice()
-{
-    setDisplayType(Tr::tr("QNX"));
-    setDefaultDisplayName(Tr::tr("QNX Device"));
-    setOsType(OsTypeOtherUnix);
-
-    addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
-        QnxDeployQtLibrariesDialog dialog(device, parent);
-        dialog.exec();
-    }});
-}
-
-int QnxDevice::qnxVersion() const
-{
-    if (m_versionNumber == 0)
-        updateVersionNumber();
-
-    return m_versionNumber;
-}
-
-void QnxDevice::updateVersionNumber() const
-{
-    QtcProcess versionNumberProcess;
-
-    versionNumberProcess.setCommand({filePath("uname"), {"-r"}});
-    versionNumberProcess.runBlocking(EventLoopMode::On);
-
-    QByteArray output = versionNumberProcess.readAllRawStandardOutput();
-    QString versionMessage = QString::fromLatin1(output);
-    const QRegularExpression versionNumberRegExp("(\\d+)\\.(\\d+)\\.(\\d+)");
-    const QRegularExpressionMatch match = versionNumberRegExp.match(versionMessage);
-    if (match.hasMatch()) {
-        int major = match.captured(1).toInt();
-        int minor = match.captured(2).toInt();
-        int patch = match.captured(3).toInt();
-        m_versionNumber = (major << 16)|(minor<<8)|(patch);
+    DeviceProcessSignalOperation::Ptr signalOperation() const final
+    {
+        return DeviceProcessSignalOperation::Ptr(new QnxDeviceProcessSignalOperation(sharedFromThis()));
     }
-}
 
-void QnxDevice::fromMap(const QVariantMap &map)
+    DeviceTester *createDeviceTester() const final { return new QnxDeviceTester; }
+};
+
+class QnxDeviceWizard : public Wizard
 {
-    m_versionNumber = map.value(QLatin1String(QnxVersionKey), 0).toInt();
-    LinuxDevice::fromMap(map);
-}
+public:
+    QnxDeviceWizard() : Wizard(Core::ICore::dialogParent())
+    {
+        setWindowTitle(Tr::tr("New QNX Device Configuration Setup"));
 
-QVariantMap QnxDevice::toMap() const
-{
-    QVariantMap map(LinuxDevice::toMap());
-    map.insert(QLatin1String(QnxVersionKey), m_versionNumber);
-    return map;
-}
+        addPage(&m_setupPage);
+        addPage(&m_keyDeploymentPage);
+        addPage(&m_finalPage);
+        m_finalPage.setCommitPage(true);
 
-PortsGatheringMethod QnxDevice::portsGatheringMethod() const
-{
-    return {
-        // TODO: The command is probably needlessly complicated because the parsing method
-        // used to be fixed. These two can now be matched to each other.
-        [this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
-            Q_UNUSED(protocol)
-            return {filePath("netstat"), {"-na"}};
-        },
+        m_device.reset(new QnxDevice);
 
-        &Port::parseFromNetstatOutput
-    };
-}
+        m_setupPage.setDevice(m_device);
+        m_keyDeploymentPage.setDevice(m_device);
+    }
 
-DeviceProcessList *QnxDevice::createProcessListModel(QObject *parent) const
-{
-    return new QnxDeviceProcessList(sharedFromThis(), parent);
-}
+    IDevice::Ptr device() const { return m_device; }
 
-DeviceTester *QnxDevice::createDeviceTester() const
-{
-    return new QnxDeviceTester;
-}
+private:
+    GenericLinuxDeviceConfigurationWizardSetupPage m_setupPage;
+    GenericLinuxDeviceConfigurationWizardKeyDeploymentPage m_keyDeploymentPage;
+    GenericLinuxDeviceConfigurationWizardFinalPage m_finalPage;
 
-Utils::ProcessInterface *QnxDevice::createProcessInterface() const
-{
-    return new QnxProcessImpl(this);
-}
-
-DeviceProcessSignalOperation::Ptr QnxDevice::signalOperation() const
-{
-    return DeviceProcessSignalOperation::Ptr(new QnxDeviceProcessSignalOperation(sharedFromThis()));
-}
+    LinuxDevice::Ptr m_device;
+};
 
 // Factory
 
@@ -176,7 +121,8 @@ QnxDeviceFactory::QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE
     setDisplayName(Tr::tr("QNX Device"));
     setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
                     ":/qnx/images/qnxdevice.png");
-    setConstructionFunction(&QnxDevice::create);
+    setQuickCreationAllowed(true);
+    setConstructionFunction([] { return IDevice::Ptr(new QnxDevice); });
     setCreator([] {
         QnxDeviceWizard wizard;
         if (wizard.exec() != QDialog::Accepted)

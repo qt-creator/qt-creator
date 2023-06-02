@@ -11,18 +11,19 @@
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 
+#include <QPromise>
+
 namespace ProjectExplorer {
 
 template<typename Result>
-QList<FileNode *> scanForFiles(QFutureInterface<Result> &future,
-                               const Utils::FilePath &directory,
+QList<FileNode *> scanForFiles(QPromise<Result> &promise, const Utils::FilePath &directory,
                                const std::function<FileNode *(const Utils::FilePath &)> factory);
 
 namespace Internal {
 
 template<typename Result>
 QList<FileNode *> scanForFilesRecursively(
-    QFutureInterface<Result> &future,
+    QPromise<Result> &promise,
     double progressStart,
     double progressRange,
     const Utils::FilePath &directory,
@@ -46,7 +47,7 @@ QList<FileNode *> scanForFilesRecursively(
     const double progressIncrement = progressRange / static_cast<double>(entries.count());
     int lastIntProgress = 0;
     for (const QFileInfo &entry : entries) {
-        if (future.isCanceled())
+        if (promise.isCanceled())
             return result;
 
         const Utils::FilePath entryName = Utils::FilePath::fromString(entry.absoluteFilePath());
@@ -54,7 +55,7 @@ QList<FileNode *> scanForFilesRecursively(
                 return vc->isVcsFileOrDirectory(entryName);
             })) {
             if (entry.isDir())
-                result.append(scanForFilesRecursively(future,
+                result.append(scanForFilesRecursively(promise,
                                                       progress,
                                                       progressIncrement,
                                                       entryName,
@@ -66,26 +67,25 @@ QList<FileNode *> scanForFilesRecursively(
         }
         progress += progressIncrement;
         const int intProgress = std::min(static_cast<int>(progressStart + progress),
-                                         future.progressMaximum());
+                                         promise.future().progressMaximum());
         if (lastIntProgress < intProgress) {
-            future.setProgressValue(intProgress);
+            promise.setProgressValue(intProgress);
             lastIntProgress = intProgress;
         }
     }
-    future.setProgressValue(
-        std::min(static_cast<int>(progressStart + progressRange), future.progressMaximum()));
+    promise.setProgressValue(std::min(static_cast<int>(progressStart + progressRange),
+                                      promise.future().progressMaximum()));
     return result;
 }
 } // namespace Internal
 
 template<typename Result>
-QList<FileNode *> scanForFiles(QFutureInterface<Result> &future,
-                               const Utils::FilePath &directory,
+QList<FileNode *> scanForFiles(QPromise<Result> &promise, const Utils::FilePath &directory,
                                const std::function<FileNode *(const Utils::FilePath &)> factory)
 {
     QSet<QString> visited;
-    future.setProgressRange(0, 1000000);
-    return Internal::scanForFilesRecursively(future,
+    promise.setProgressRange(0, 1000000);
+    return Internal::scanForFilesRecursively(promise,
                                              0.0,
                                              1000000.0,
                                              directory,

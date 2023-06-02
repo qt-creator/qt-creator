@@ -52,7 +52,7 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         ::Help::Tr::tr("Choose a topic for <b>%1</b>:").arg(keyword),
         m_lineEdit,

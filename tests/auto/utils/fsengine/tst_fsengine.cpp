@@ -31,6 +31,8 @@ private slots:
     void testBrokenWindowsPath();
     void testRead();
     void testWrite();
+    void testRootFromDotDot();
+    void testDirtyPaths();
 
 private:
     QString makeTestPath(QString path, bool asUrl = false);
@@ -93,6 +95,10 @@ void tst_fsengine::testRootPathContainsFakeDir()
     const QStringList schemeList = schemes.entryList();
     QVERIFY(schemeList.contains("device"));
 
+    QDir devices(FilePath::specialDeviceRootPath());
+    const QStringList deviceList = devices.entryList();
+    QVERIFY(deviceList.contains("test"));
+
     QDir deviceRoot(FilePath::specialDeviceRootPath() + "/test" + startWithSlash(QDir::rootPath()));
     const QStringList deviceRootList = deviceRoot.entryList();
     QVERIFY(!deviceRootList.isEmpty());
@@ -129,7 +135,8 @@ QString tst_fsengine::makeTestPath(QString path, bool asUrl)
         return QString("device://test%1/tst_fsengine/%2").arg(tempFolder, path);
 
     return QString(FilePath::specialDeviceRootPath() + "/test%1/tst_fsengine/%2")
-        .arg(startWithSlash(tempFolder), path);
+        .arg(startWithSlash(tempFolder))
+        .arg(path);
 }
 
 void tst_fsengine::testListDir()
@@ -207,6 +214,50 @@ void tst_fsengine::testWrite()
     QFile f(path);
     QVERIFY(f.open(QIODevice::ReadOnly));
     QCOMPARE(f.readAll(), data);
+}
+
+void tst_fsengine::testRootFromDotDot()
+{
+    const QString path = QDir::rootPath() + "some-folder/..";
+    QFileInfo fInfo(path);
+
+    QCOMPARE(fInfo.fileName(), QString(".."));
+
+    QDir dRoot(path);
+    const auto dRootEntryList = dRoot.entryList();
+    QVERIFY(dRootEntryList.contains(FilePath::specialRootName()));
+
+    QFileInfo fInfo2(FilePath::specialRootPath() + "/xyz/..");
+    QCOMPARE(fInfo2.fileName(), "..");
+
+    QDir schemesWithDotDot(FilePath::specialRootPath() + "/xyz/..");
+    const QStringList schemeWithDotDotList = schemesWithDotDot.entryList();
+    QVERIFY(schemeWithDotDotList.contains("device"));
+
+    QFileInfo fInfo3(FilePath::specialDeviceRootPath() + "/xyz/..");
+    QCOMPARE(fInfo3.fileName(), "..");
+
+    QDir devicesWithDotDot(FilePath::specialDeviceRootPath() + "/test/..");
+    const QStringList deviceListWithDotDot = devicesWithDotDot.entryList();
+    QVERIFY(deviceListWithDotDot.contains("test"));
+
+    QFileInfo fInfo4(FilePath::specialDeviceRootPath() + "/test/tmp/..");
+    QCOMPARE(fInfo4.fileName(), "..");
+}
+
+void tst_fsengine::testDirtyPaths()
+{
+    // "//__qtc_devices"
+    QVERIFY(QFileInfo("/" + FilePath::specialRootPath()).exists());
+
+    // "///__qtc_devices/device"
+    QVERIFY(QFileInfo("//" + FilePath::specialDeviceRootPath()).exists());
+
+    // "////__qtc_devices/device////test"
+    QVERIFY(QFileInfo("///" + FilePath::specialDeviceRootPath() + "////test").exists());
+
+    // "/////__qtc_devices/device/test/..."
+    QVERIFY(QFileInfo("////" + makeTestPath("")).exists());
 }
 
 QTEST_GUILESS_MAIN(tst_fsengine)

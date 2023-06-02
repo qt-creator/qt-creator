@@ -18,10 +18,11 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qmljs/qmljsbind.h>
@@ -273,9 +274,9 @@ void ModelManager::delayedInitialization()
     connect(cppModelManager, &CppEditor::CppModelManager::documentUpdated,
             this, &ModelManagerInterface::maybeQueueCppQmlTypeUpdate, Qt::DirectConnection);
 
-    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
             this, &ModelManager::removeProjectInfo);
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             this, &ModelManager::updateDefaultProjectInfo);
 
     ViewerContext qbsVContext;
@@ -323,7 +324,7 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
 void ModelManager::updateDefaultProjectInfo()
 {
     // needs to be performed in the ui thread
-    Project *currentProject = SessionManager::startupProject();
+    Project *currentProject = ProjectManager::startupProject();
     setDefaultProject(containsProject(currentProject)
                             ? projectInfo(currentProject)
                             : defaultProjectInfoForProject(currentProject, {}),

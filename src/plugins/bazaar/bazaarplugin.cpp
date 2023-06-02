@@ -215,9 +215,8 @@ public:
     void createRepositoryActions(const Core::Context &context);
 
     // Variables
-    BazaarSettings m_settings;
-    BazaarClient m_client{&m_settings};
-    BazaarSettingsPage m_settingPage{&m_settings};
+    BazaarSettings m_setting;
+    BazaarClient m_client;
 
     VcsSubmitEditorFactory m_submitEditorFactory {
         submitEditorParameters,
@@ -286,7 +285,7 @@ public:
         dryRunBtn->setToolTip(Tr::tr("Test the outcome of removing the last committed revision, without actually removing anything."));
         buttonBox->addButton(dryRunBtn, QDialogButtonBox::ApplyRole);
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
         Column {
             Form {
                 keepTagsCheckBox, br,
@@ -372,7 +371,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     toolsMenu->addMenu(m_bazaarContainer);
     m_menuAction = m_bazaarContainer->menu()->menuAction();
 
-    connect(&m_settings, &AspectContainer::applied, this, &IVersionControl::configurationChanged);
+    connect(&settings(), &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 }
 
 void BazaarPluginPrivate::createFileActions(const Context &context)
@@ -387,7 +386,8 @@ void BazaarPluginPrivate::createFileActions(const Context &context)
     m_diffFile = new ParameterAction(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_diffFile, DIFF, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Z,Meta+D") : Tr::tr("ALT+Z,Alt+D")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Z,Meta+D")
+                                                                : Tr::tr("Alt+Z,Alt+D")));
     connect(m_diffFile, &QAction::triggered, this, &BazaarPluginPrivate::diffCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -395,7 +395,8 @@ void BazaarPluginPrivate::createFileActions(const Context &context)
     m_logFile = new ParameterAction(Tr::tr("Log Current File"), Tr::tr("Log \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_logFile, LOG, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Z,Meta+L") : Tr::tr("ALT+Z,Alt+L")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Z,Meta+L")
+                                                                : Tr::tr("Alt+Z,Alt+L")));
     connect(m_logFile, &QAction::triggered, this, &BazaarPluginPrivate::logCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -403,7 +404,8 @@ void BazaarPluginPrivate::createFileActions(const Context &context)
     m_statusFile = new ParameterAction(Tr::tr("Status Current File"), Tr::tr("Status \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_statusFile, STATUS, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Z,Meta+S") : Tr::tr("ALT+Z,Alt+S")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Z,Meta+S")
+                                                                : Tr::tr("Alt+Z,Alt+S")));
     connect(m_statusFile, &QAction::triggered, this, &BazaarPluginPrivate::statusCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -523,7 +525,7 @@ void BazaarPluginPrivate::logRepository()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QStringList extraOptions;
-    extraOptions += "--limit=" + QString::number(m_settings.logCount.value());
+    extraOptions += "--limit=" + QString::number(settings().logCount());
     m_client.log(state.topLevel(), QStringList(), extraOptions);
 }
 
@@ -571,7 +573,8 @@ void BazaarPluginPrivate::createRepositoryActions(const Context &context)
     action = new QAction(Tr::tr("Commit..."), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, COMMIT, context);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Z,Meta+C") : Tr::tr("ALT+Z,Alt+C")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Z,Meta+C")
+                                                                : Tr::tr("Alt+Z,Alt+C")));
     connect(action, &QAction::triggered, this, &BazaarPluginPrivate::commit);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -705,8 +708,8 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
 
     const BranchInfo branch = m_client.synchronousBranchQuery(m_submitRepository);
     commitEditor->setFields(m_submitRepository, branch,
-                            m_settings.userName.value(),
-                            m_settings.userEmail.value(), status);
+                            settings().userName(),
+                            settings().userEmail(), status);
 }
 
 void BazaarPluginPrivate::diffFromEditorSelected(const QStringList &files)
@@ -872,7 +875,7 @@ bool BazaarPluginPrivate::managesFile(const FilePath &workingDirectory, const QS
 
 bool BazaarPluginPrivate::isConfigured() const
 {
-    const FilePath binary = m_settings.binaryPath.filePath();
+    const FilePath binary = settings().binaryPath();
     return !binary.isEmpty() && binary.isExecutableFile();
 }
 

@@ -67,7 +67,7 @@ ConfigureDialog::ConfigureDialog(QWidget *parent) : QDialog(parent),
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Group {
             title(Tr::tr("Repository User")),

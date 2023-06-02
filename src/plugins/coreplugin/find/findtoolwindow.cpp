@@ -109,7 +109,8 @@ FindToolWindow::FindToolWindow(QWidget *parent)
         m_wholeWords,
         m_regExp,
         st,
-    }.attachTo(m_optionsWidget, WithoutMargins);
+        noMargin
+    }.attachTo(m_optionsWidget);
 
     Grid {
         label, m_filterList, br,

@@ -3,10 +3,9 @@
 
 #include "stringutils.h"
 
-#include "algorithm.h"
-#include "hostosinfo.h"
-#include "qtcassert.h"
 #include "filepath.h"
+#include "qtcassert.h"
+#include "theme/theme.h"
 #include "utilstr.h"
 
 #ifdef QT_WIDGETS_LIB
@@ -15,11 +14,14 @@
 #endif
 
 #include <QDir>
+#include <QFontMetrics>
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QLocale>
 #include <QRegularExpression>
 #include <QSet>
+#include <QTextDocument>
+#include <QTextList>
 #include <QTime>
 
 #include <limits.h>
@@ -456,7 +458,7 @@ QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QString &text)
 
 /*!
     Joins all the not empty string list's \a strings into a single string with each element
-    separated by the given separator (which can be an empty string).
+    separated by the given \a separator (which can be an empty string).
 */
 QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QChar separator)
 {
@@ -525,6 +527,103 @@ QTCREATOR_UTILS_EXPORT QString appendHelper(const QString &base, int n)
 QTCREATOR_UTILS_EXPORT FilePath appendHelper(const FilePath &base, int n)
 {
     return base.stringAppended(QString::number(n));
+}
+
+QTCREATOR_UTILS_EXPORT QPair<QStringView, QStringView> splitAtFirst(const QStringView &stringView,
+                                                                    QChar ch)
+{
+    int splitIdx = stringView.indexOf(ch);
+    if (splitIdx == -1)
+        return {stringView, {}};
+
+    QStringView left = stringView.mid(0, splitIdx);
+    QStringView right = stringView.mid(splitIdx + 1);
+
+    return {left, right};
+}
+
+QTCREATOR_UTILS_EXPORT QPair<QStringView, QStringView> splitAtFirst(const QString &string, QChar ch)
+{
+    QStringView view = string;
+    return splitAtFirst(view, ch);
+}
+
+QTCREATOR_UTILS_EXPORT int endOfNextWord(const QString &string, int position)
+{
+    QTC_ASSERT(string.size() > position, return -1);
+
+    static const QString wordSeparators = QStringLiteral(" \t\n\r()[]{}<>");
+
+    const auto predicate = [](const QChar &c) { return wordSeparators.contains(c); };
+
+    auto it = string.begin() + position;
+    if (predicate(*it))
+        it = std::find_if_not(it, string.end(), predicate);
+
+    if (it == string.end())
+        return -1;
+
+    it = std::find_if(it, string.end(), predicate);
+    if (it == string.end())
+        return -1;
+
+    return std::distance(string.begin(), it);
+}
+
+MarkdownHighlighter::MarkdownHighlighter(QTextDocument *parent)
+    : QSyntaxHighlighter(parent)
+    , h2Brush(Qt::NoBrush)
+{
+    parent->setIndentWidth(30); // default value is 40
+}
+
+void MarkdownHighlighter::highlightBlock(const QString &text)
+{
+    if (text.isEmpty())
+        return;
+
+    QTextBlockFormat fmt = currentBlock().blockFormat();
+    QTextCursor cur(currentBlock());
+    if (fmt.hasProperty(QTextFormat::HeadingLevel)) {
+        fmt.setTopMargin(10);
+        fmt.setBottomMargin(10);
+
+        // Draw an underline for Heading 2, by creating a texture brush
+        // with the last pixel visible
+        if (fmt.property(QTextFormat::HeadingLevel) == 2) {
+            QTextCharFormat charFmt = currentBlock().charFormat();
+            charFmt.setBaselineOffset(15);
+            setFormat(0, text.length(), charFmt);
+
+            if (h2Brush.style() == Qt::NoBrush) {
+                const int height = QFontMetrics(charFmt.font()).height();
+                QImage image(1, height, QImage::Format_ARGB32);
+
+                image.fill(QColor(0, 0, 0, 0).rgba());
+                image.setPixel(0,
+                               height - 1,
+                               Utils::creatorTheme()->color(Theme::TextColorDisabled).rgba());
+
+                h2Brush = QBrush(image);
+            }
+            fmt.setBackground(h2Brush);
+        }
+        cur.setBlockFormat(fmt);
+    } else if (fmt.hasProperty(QTextFormat::BlockCodeLanguage) && fmt.indent() == 0) {
+        // set identation for code blocks
+        fmt.setIndent(1);
+        cur.setBlockFormat(fmt);
+    }
+
+    // Show the bulet points as filled circles
+    QTextList *list = cur.currentList();
+    if (list) {
+        QTextListFormat listFmt = list->format();
+        if (listFmt.indent() == 1 && listFmt.style() == QTextListFormat::ListCircle) {
+            listFmt.setStyle(QTextListFormat::ListDisc);
+            list->setFormat(listFmt);
+        }
+    }
 }
 
 } // namespace Utils

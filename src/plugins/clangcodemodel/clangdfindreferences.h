@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <coreplugin/find/searchresultitem.h>
 #include <cppeditor/cursorineditor.h>
 #include <utils/link.h>
+#include <utils/searchresultitem.h>
 
 #include <QObject>
 
@@ -35,7 +35,7 @@ public:
     ~ClangdFindReferences();
 
 signals:
-    void foundReferences(const QList<Core::SearchResultItem> &items);
+    void foundReferences(const Utils::SearchResultItems &items);
     void done();
 
 private:

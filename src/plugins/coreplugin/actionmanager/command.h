@@ -57,6 +57,8 @@ public:
     Utils::Id id() const;
 
     QAction *action() const;
+    QAction *actionForContext(const Utils::Id &contextId) const;
+
     Context context() const;
 
     void setAttribute(CommandAttribute attr);

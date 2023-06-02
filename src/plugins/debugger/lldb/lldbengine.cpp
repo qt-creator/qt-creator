@@ -29,9 +29,9 @@
 #include <coreplugin/icore.h>
 
 #include <utils/environment.h>
+#include <utils/process.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QApplication>
 #include <QDateTime>
@@ -77,11 +77,11 @@ LldbEngine::LldbEngine()
     connect(&ds.useDynamicType, &BaseAspect::changed, this, &LldbEngine::updateLocals);
     connect(&ds.intelFlavor, &BaseAspect::changed, this, &LldbEngine::updateAll);
 
-    connect(&m_lldbProc, &QtcProcess::started, this, &LldbEngine::handleLldbStarted);
-    connect(&m_lldbProc, &QtcProcess::done, this, &LldbEngine::handleLldbDone);
-    connect(&m_lldbProc, &QtcProcess::readyReadStandardOutput,
+    connect(&m_lldbProc, &Process::started, this, &LldbEngine::handleLldbStarted);
+    connect(&m_lldbProc, &Process::done, this, &LldbEngine::handleLldbDone);
+    connect(&m_lldbProc, &Process::readyReadStandardOutput,
             this, &LldbEngine::readLldbStandardOutput);
-    connect(&m_lldbProc, &QtcProcess::readyReadStandardError,
+    connect(&m_lldbProc, &Process::readyReadStandardError,
             this, &LldbEngine::readLldbStandardError);
 
     connect(this, &LldbEngine::outputReady,
@@ -187,7 +187,7 @@ void LldbEngine::setupEngine()
         // LLDB 14 installation on Ubuntu 22.04 is broken:
         // https://bugs.launchpad.net/ubuntu/+source/llvm-defaults/+bug/1972855
         // Brush over it:
-        QtcProcess lldbPythonPathFinder;
+        Process lldbPythonPathFinder;
         lldbPythonPathFinder.setCommand({lldbCmd, {"-P"}});
         lldbPythonPathFinder.start();
         lldbPythonPathFinder.waitForFinished();
@@ -219,7 +219,8 @@ void LldbEngine::handleLldbStarted()
 
     const DebuggerRunParameters &rp = runParameters();
 
-    executeCommand("script sys.path.insert(1, '" + rp.dumperPath.path() + "')");
+    QString dumperPath = ICore::resourcePath("debugger").path();
+    executeCommand("script sys.path.insert(1, '" + dumperPath + "')");
     // This triggers reportState("enginesetupok") or "enginesetupfailed":
     executeCommand("script from lldbbridge import *");
 
@@ -227,10 +228,10 @@ void LldbEngine::handleLldbStarted()
     if (!commands.isEmpty())
         executeCommand(commands);
 
-    const QString path = debuggerSettings()->extraDumperFile.value();
-    if (!path.isEmpty() && QFileInfo(path).isReadable()) {
+    const FilePath path = debuggerSettings()->extraDumperFile();
+    if (!path.isEmpty() && path.isReadableFile()) {
         DebuggerCommand cmd("addDumperModule");
-        cmd.arg("path", path);
+        cmd.arg("path", path.path());
         runCommand(cmd);
     }
 
@@ -267,7 +268,8 @@ void LldbEngine::handleLldbStarted()
     cmd2.arg("nativemixed", isNativeMixedActive());
     cmd2.arg("workingdirectory", rp.inferior.workingDirectory.path());
     cmd2.arg("environment", rp.inferior.environment.toStringList());
-    cmd2.arg("processargs", toHex(ProcessArgs::splitArgs(rp.inferior.command.arguments()).join(QChar(0))));
+    cmd2.arg("processargs", toHex(ProcessArgs::splitArgs(rp.inferior.command.arguments(),
+                                                         HostOsInfo::hostOs()).join(QChar(0))));
     cmd2.arg("platform", rp.platform);
     cmd2.arg("symbolfile", rp.symbolFile.path());
 
@@ -278,8 +280,8 @@ void LldbEngine::handleLldbStarted()
                 ? QString::fromLatin1("Attaching to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
                 : QString::fromLatin1("Attaching to %1").arg(attachedPID);
         showMessage(msg, LogMisc);
+        cmd2.arg("startmode", DebuggerStartMode::AttachToLocalProcess);
         cmd2.arg("attachpid", attachedPID);
-
     } else {
         cmd2.arg("startmode", rp.startMode);
         // it is better not to check the start mode on the python sid (as we would have to duplicate the
@@ -467,7 +469,7 @@ void LldbEngine::selectThread(const Thread &thread)
     DebuggerCommand cmd("selectThread");
     cmd.arg("id", thread->id());
     cmd.callback = [this](const DebuggerResponse &) {
-        fetchStack(debuggerSettings()->maximalStackDepth.value());
+        fetchStack(debuggerSettings()->maximalStackDepth());
     };
     runCommand(cmd);
 }
@@ -629,7 +631,7 @@ void LldbEngine::handleInterpreterBreakpointModified(const GdbMi &bpItem)
     updateBreakpointData(bp, bpItem, false);
 }
 
-void LldbEngine::loadSymbols(const QString &moduleName)
+void LldbEngine::loadSymbols(const FilePath &moduleName)
 {
     Q_UNUSED(moduleName)
 }
@@ -642,12 +644,13 @@ void LldbEngine::reloadModules()
 {
     DebuggerCommand cmd("fetchModules");
     cmd.callback = [this](const DebuggerResponse &response) {
+        const FilePath inferior = runParameters().inferior.command.executable();
         const GdbMi &modules = response.data["modules"];
         ModulesHandler *handler = modulesHandler();
         handler->beginUpdateAll();
         for (const GdbMi &item : modules) {
             Module module;
-            module.modulePath = item["file"].data();
+            module.modulePath = inferior.withNewPath(item["file"].data());
             module.moduleName = item["name"].data();
             module.symbolsRead = Module::UnknownReadState;
             module.startAddress = item["loaded_addr"].toAddress();
@@ -659,13 +662,13 @@ void LldbEngine::reloadModules()
     runCommand(cmd);
 }
 
-void LldbEngine::requestModuleSymbols(const QString &moduleName)
+void LldbEngine::requestModuleSymbols(const FilePath &moduleName)
 {
     DebuggerCommand cmd("fetchSymbols");
-    cmd.arg("module", moduleName);
+    cmd.arg("module", moduleName.path());
     cmd.callback = [moduleName](const DebuggerResponse &response) {
         const GdbMi &symbols = response.data["symbols"];
-        QString moduleName = response.data["module"].data();
+        const QString module = response.data["module"].data();
         Symbols syms;
         for (const GdbMi &item : symbols) {
             Symbol symbol;
@@ -676,7 +679,7 @@ void LldbEngine::requestModuleSymbols(const QString &moduleName)
             symbol.demangled = item["demangled"].data();
             syms.append(symbol);
         }
-        showModuleSymbols(moduleName, syms);
+        showModuleSymbols(moduleName.withNewPath(module), syms);
     };
     runCommand(cmd);
 }
@@ -698,7 +701,7 @@ void LldbEngine::updateAll()
     DebuggerCommand cmd("fetchThreads");
     cmd.callback = [this](const DebuggerResponse &response) {
         threadsHandler()->setThreads(response.data);
-        fetchStack(debuggerSettings()->maximalStackDepth.value());
+        fetchStack(debuggerSettings()->maximalStackDepth());
         reloadRegisters();
     };
     runCommand(cmd);

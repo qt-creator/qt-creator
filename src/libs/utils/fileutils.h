@@ -83,7 +83,7 @@ public:
 
     static qint64 bytesAvailableFromDFOutput(const QByteArray &dfOutput);
 
-    static FilePathInfo filePathInfoFromTriple(const QString &infos);
+    static FilePathInfo filePathInfoFromTriple(const QString &infos, int modeBase);
 
 #ifdef QT_WIDGETS_LIB
     static void setDialogParentGetter(const std::function<QWidget *()> &getter);
@@ -121,7 +121,6 @@ public:
                                       QString *selectedFilter = nullptr,
                                       QFileDialog::Options options = {});
 #endif
-
 };
 
 // for actually finding out if e.g. directories are writable on Windows
@@ -231,10 +230,6 @@ private:
 QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FilePath &fn);
 
 bool isRelativePathHelper(const QString &path, OsType osType);
-
-// For testing
-QTCREATOR_UTILS_EXPORT QString doCleanPath(const QString &input);
-QTCREATOR_UTILS_EXPORT QString cleanPathHelper(const QString &path);
 
 } // namespace Utils
 

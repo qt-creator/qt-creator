@@ -467,8 +467,7 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
         break;
     }
     case ScxmlDocument::TagChangeParent: {
-        auto childItem = qobject_cast<ConnectableItem*>(findItem(tag));
-
+        auto childItem = findItem(tag);
         if (childItem) {
             QTC_ASSERT(tag, break);
             BaseItem *newParentItem = findItem(tag->parentTag());
@@ -485,8 +484,11 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
 
             childItem->setParentItem(newParentItem);
             childItem->updateUIProperties();
-            childItem->updateTransitions(true);
-            childItem->updateTransitionAttributes(true);
+            if (auto childConItem = qobject_cast<ConnectableItem*>(findItem(tag))) {
+                childConItem->updateTransitions(true);
+                childConItem->updateTransitionAttributes(true);
+            }
+
             childItem->checkWarnings();
             childItem->checkInitial();
             if (newParentItem) {
@@ -495,6 +497,8 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
                 newParentItem->checkWarnings();
                 newParentItem->checkOverlapping();
                 newParentItem->updateUIProperties();
+                if (auto newConItem = qobject_cast<StateItem*>(newParentItem))
+                    newConItem->updateBoundingRect();
             }
 
             if (oldParentItem)
@@ -549,6 +553,9 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
             }
 
             if (parentItem) {
+                if (childItem == nullptr)
+                    parentItem->addChild(childTag);
+
                 parentItem->updateAttributes();
                 parentItem->updateUIProperties();
                 parentItem->checkInitial();

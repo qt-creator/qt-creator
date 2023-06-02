@@ -104,7 +104,7 @@ QmlJSTools::SemanticInfo SemanticInfoUpdater::makeNewSemanticInfo(const QmlJS::D
             semanticInfo.staticAnalysisMessages = jsonChecker(schema);
         }
     } else {
-        Check checker(doc, semanticInfo.context);
+        Check checker(doc, semanticInfo.context, Core::ICore::settings());
         semanticInfo.staticAnalysisMessages = checker();
     }
 

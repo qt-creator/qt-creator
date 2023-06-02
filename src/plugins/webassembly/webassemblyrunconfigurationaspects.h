@@ -20,7 +20,7 @@ class WebBrowserSelectionAspect : public Utils::BaseAspect
 public:
     WebBrowserSelectionAspect(ProjectExplorer::Target *target);
 
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutItem &parent) override;
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;

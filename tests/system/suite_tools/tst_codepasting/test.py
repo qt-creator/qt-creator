@@ -34,8 +34,8 @@ def closeHTTPStatusAndPasterDialog(protocol, pasterDialog):
         test.log("Closed dialog without expected error.", text)
     except:
         t,v = sys.exc_info()[:2]
-        test.warning("An exception occurred in closeHTTPStatusAndPasterDialog(): %s(%s)"
-                     % (str(t), str(v)))
+        test.warning("An exception occurred in closeHTTPStatusAndPasterDialog(): %s: %s"
+                     % (t.__name__, str(v)))
     return False
 
 def pasteFile(sourceFile, protocol):
@@ -72,7 +72,7 @@ def pasteFile(sourceFile, protocol):
     try:
         outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
         waitFor("re.search('^https://', str(outputWindow.plainText)) is not None", 20000)
-        output = filter(lambda x: len(x), str(outputWindow.plainText).splitlines())[-1]
+        output = list(filter(lambda x: len(x), str(outputWindow.plainText).splitlines()))[-1]
     except:
         output = ""
         if closeHTTPStatusAndPasterDialog(protocol, ':Send to Codepaster_CodePaster::PasteView'):
@@ -107,7 +107,7 @@ def fetchSnippet(protocol, description, pasteId, skippedPasting):
         pasteModel = waitForObject(":PasteSelectDialog.listWidget_QListWidget").model()
     except:
         closeHTTPStatusAndPasterDialog(protocol, ':PasteSelectDialog_CodePaster::PasteSelectDialog')
-        return -1
+        return invalidPasteId(protocol)
 
     condition = "pasteModel.rowCount() > 1"
     if protocol == NAME_DPCOM: # no list support
@@ -125,11 +125,12 @@ def fetchSnippet(protocol, description, pasteId, skippedPasting):
             "window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}")
         waitFor("pasteModel.rowCount() == 1", 1000)
         waitFor("pasteModel.rowCount() > 1", 20000)
-    if pasteId == -1:
-        try:
-            pasteLine = filter(lambda str:description in str, dumpItems(pasteModel))[0]
-            pasteId = pasteLine.split(" ", 1)[0]
-        except:
+    if pasteId == invalidPasteId(protocol):
+        for currentItem in dumpItems(pasteModel):
+            if description in currentItem:
+                pasteId = currentItem.split(" ", 1)[0]
+                break
+        if pasteId == invalidPasteId(protocol):
             test.fail("Could not find description line in list of pastes from %s" % protocol)
             clickButton(waitForObject(":PasteSelectDialog.Cancel_QPushButton"))
             return pasteId
@@ -167,7 +168,7 @@ def checkForMovedUrl():  # protocol may be redirected (HTTP status 30x) - check 
             test.fail("URL has moved permanently.", match[0].group(0))
     except:
         t,v,tb = sys.exc_info()
-        test.log(str(t), str(v))
+        test.log("%s: %s" % (t.__name__, str(v)))
 
 def main():
     startQC()
@@ -207,7 +208,7 @@ def main():
                         test.fatal(message)
                         continue
             pasteId = fetchSnippet(protocol, description, pasteId, skippedPasting)
-            if pasteId == -1:
+            if pasteId == invalidPasteId(protocol):
                 continue
             filenameCombo = waitForObject(":Qt Creator_FilenameQComboBox")
             waitFor("not filenameCombo.currentText.isEmpty()", 20000)
@@ -242,7 +243,8 @@ def main():
     # QString QTextCursor::selectedText () const:
     # "Note: If the selection obtained from an editor spans a line break, the text will contain a
     # Unicode U+2029 paragraph separator character instead of a newline \n character."
-    selectedText = str(editor.textCursor().selectedText()).replace(unichr(0x2029), "\n")
+    newParagraph = chr(0x2029) if sys.version_info.major > 2 else unichr(0x2029)
+    selectedText = str(editor.textCursor().selectedText()).replace(newParagraph, "\n")
     invokeMenuItem("Tools", "Code Pasting", "Paste Snippet...")
     test.compare(waitForObject(":stackedWidget.plainTextEdit_QPlainTextEdit").plainText,
                  selectedText, "Verify that dialog shows selected text from the editor")

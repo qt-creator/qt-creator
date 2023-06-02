@@ -5,7 +5,6 @@
 
 #include "../beautifierabstracttool.h"
 
-#include "uncrustifyoptionspage.h"
 #include "uncrustifysettings.h"
 
 namespace Beautifier::Internal {

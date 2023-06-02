@@ -7,11 +7,9 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
-
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT BuildPropertiesSettings : public Utils::AspectContainer
+class PROJECTEXPLORER_EXPORT BuildPropertiesSettings : public Core::PagedSettings
 {
 public:
     BuildPropertiesSettings();
@@ -19,28 +17,16 @@ public:
     class BuildTriStateAspect : public Utils::TriStateAspect
     {
     public:
-        BuildTriStateAspect();
+        explicit BuildTriStateAspect(AspectContainer *container);
     };
 
-    Utils::StringAspect buildDirectoryTemplate;
-    Utils::StringAspect buildDirectoryTemplateOld; // TODO: Remove in ~4.16
-    BuildTriStateAspect separateDebugInfo;
-    BuildTriStateAspect qmlDebugging;
-    BuildTriStateAspect qtQuickCompiler;
+    Utils::StringAspect buildDirectoryTemplate{this};
+    BuildTriStateAspect separateDebugInfo{this};
+    BuildTriStateAspect qmlDebugging{this};
+    BuildTriStateAspect qtQuickCompiler{this};
     Utils::BoolAspect showQtSettings;
-
-    void readSettings(QSettings *settings);
 
     QString defaultBuildDirectoryTemplate();
 };
 
-namespace Internal {
-
-class BuildPropertiesSettingsPage final : public Core::IOptionsPage
-{
-public:
-    explicit BuildPropertiesSettingsPage(BuildPropertiesSettings *settings);
-};
-
-} // namespace Internal
 } // namespace ProjectExplorer

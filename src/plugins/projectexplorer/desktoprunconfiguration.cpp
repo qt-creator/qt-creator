@@ -4,7 +4,6 @@
 #include "desktoprunconfiguration.h"
 
 #include "buildsystem.h"
-#include "localenvironmentaspect.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
@@ -43,7 +42,8 @@ private:
 DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Id id, Kind kind)
     : RunConfiguration(target, id), m_kind(kind)
 {
-    auto envAspect = addAspect<LocalEnvironmentAspect>(target);
+    auto envAspect = addAspect<EnvironmentAspect>();
+    envAspect->setSupportForBuildEnvironment(target);
 
     addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
     addAspect<ArgumentsAspect>(macroExpander());
@@ -87,7 +87,8 @@ void DesktopRunConfiguration::updateTargetInformation()
     BuildTargetInfo bti = buildTargetInfo();
 
     auto terminalAspect = aspect<TerminalAspect>();
-    terminalAspect->setUseTerminalHint(bti.usesTerminal);
+    terminalAspect->setUseTerminalHint(bti.targetFilePath.needsDevice() ? false : bti.usesTerminal);
+    terminalAspect->setEnabled(!bti.targetFilePath.needsDevice());
 
     if (m_kind == Qmake) {
 
@@ -121,7 +122,7 @@ void DesktopRunConfiguration::updateTargetInformation()
 
         aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
         aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
-        emit aspect<LocalEnvironmentAspect>()->environmentChanged();
+        emit aspect<EnvironmentAspect>()->environmentChanged();
 
     }
 }

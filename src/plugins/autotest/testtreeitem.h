@@ -115,7 +115,7 @@ public:
     void setProFile(const Utils::FilePath &proFile) { m_proFile = proFile; }
     void markForRemoval(bool mark);
     void markForRemovalRecursively(bool mark);
-    virtual void markForRemovalRecursively(const Utils::FilePath &filepath);
+    virtual void markForRemovalRecursively(const QSet<Utils::FilePath> &filePaths);
     virtual bool removeOnSweepIfEmpty() const { return type() == GroupNode; }
     bool markedForRemoval() const { return m_status == MarkedForRemoval; }
     bool newlyAdded() const { return m_status == NewlyAdded; }

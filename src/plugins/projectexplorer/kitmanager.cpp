@@ -747,7 +747,7 @@ KitAspectWidget::~KitAspectWidget()
     delete m_mutableAction;
 }
 
-void KitAspectWidget::addToLayoutWithLabel(QWidget *parent)
+void KitAspectWidget::addToLayoutWithLabel(Layouting::LayoutItem &parentItem, QWidget *parent)
 {
     QTC_ASSERT(parent, return);
     auto label = createSubWidget<QLabel>(m_kitInformation->displayName() + ':');
@@ -756,10 +756,9 @@ void KitAspectWidget::addToLayoutWithLabel(QWidget *parent)
         emit labelLinkActivated(link);
     });
 
-    Layouting::LayoutExtender builder(parent->layout(), Layouting::WithFormAlignment);
-    builder.finishRow();
-    builder.addItem(label);
-    addToLayout(builder);
+    parentItem.addItem(label);
+    addToLayout(parentItem);
+    parentItem.addItem(Layouting::br);
 }
 
 void KitAspectWidget::addMutableAction(QWidget *child)

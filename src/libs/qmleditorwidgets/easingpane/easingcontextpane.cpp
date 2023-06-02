@@ -145,7 +145,7 @@ EasingContextPane::EasingContextPane(QWidget *parent)
         spinBox->setMaximum(999999.9);
     }
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Row { m_graphicsView, m_playButton, },
         Row {

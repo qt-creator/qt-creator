@@ -23,6 +23,7 @@
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QFileDialog>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
@@ -36,12 +37,14 @@ using namespace Utils;
 namespace ProjectExplorer {
 namespace Internal {
 
-KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
+KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, bool &isDefaultKit, bool &hasUniqueName) :
     m_iconButton(new QToolButton),
     m_nameEdit(new QLineEdit),
     m_fileSystemFriendlyNameLineEdit(new QLineEdit),
     m_kit(k),
-    m_modifiedKit(std::make_unique<Kit>(Utils::Id(WORKING_COPY_KIT_ID)))
+    m_modifiedKit(std::make_unique<Kit>(Utils::Id(WORKING_COPY_KIT_ID))),
+    m_isDefaultKit(isDefaultKit),
+    m_hasUniqueName(hasUniqueName)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
@@ -64,10 +67,13 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
             this, &KitManagerConfigWidget::setFileSystemFriendlyName);
 
     using namespace Layouting;
-    Grid {
+    Grid page {
+        withFormAlignment,
+        columnStretch(1, 2),
         label, m_nameEdit, m_iconButton, br,
-        fsLabel, m_fileSystemFriendlyNameLineEdit
-    }.attachTo(this, WithFormAlignment);
+        fsLabel, m_fileSystemFriendlyNameLineEdit, br,
+        noMargin
+    };
 
     m_iconButton->setToolTip(Tr::tr("Kit icon."));
     auto setIconAction = new QAction(Tr::tr("Select Icon..."), this);
@@ -97,7 +103,9 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     chooser->addMacroExpanderProvider([this] { return m_modifiedKit->macroExpander(); });
 
     for (KitAspect *aspect : KitManager::kitAspects())
-        addAspectToWorkingCopy(aspect);
+        addAspectToWorkingCopy(page, aspect);
+
+    page.attachTo(this);
 
     updateVisibility();
 
@@ -187,14 +195,14 @@ QString KitManagerConfigWidget::validityMessage() const
     return m_modifiedKit->toHtml(tmp);
 }
 
-void KitManagerConfigWidget::addAspectToWorkingCopy(KitAspect *aspect)
+void KitManagerConfigWidget::addAspectToWorkingCopy(Layouting::LayoutItem &parent, KitAspect *aspect)
 {
     QTC_ASSERT(aspect, return);
     KitAspectWidget *widget = aspect->createConfigWidget(workingCopy());
     QTC_ASSERT(widget, return);
     QTC_ASSERT(!m_widgets.contains(widget), return);
 
-    widget->addToLayoutWithLabel(this);
+    widget->addToLayoutWithLabel(parent, this);
     m_widgets.append(widget);
 
     connect(widget->mutableAction(), &QAction::toggled,
@@ -213,11 +221,6 @@ void KitManagerConfigWidget::updateVisibility()
     }
 }
 
-void KitManagerConfigWidget::setHasUniqueName(bool unique)
-{
-    m_hasUniqueName = unique;
-}
-
 void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
 {
     for (KitAspectWidget *w : std::as_const(m_widgets)) {
@@ -231,29 +234,9 @@ Kit *KitManagerConfigWidget::workingCopy() const
     return m_modifiedKit.get();
 }
 
-bool KitManagerConfigWidget::configures(Kit *k) const
-{
-    return m_kit == k;
-}
-
-void KitManagerConfigWidget::setIsDefaultKit(bool d)
-{
-    if (m_isDefaultKit == d)
-        return;
-    m_isDefaultKit = d;
-    emit dirty();
-}
-
 bool KitManagerConfigWidget::isDefaultKit() const
 {
     return m_isDefaultKit;
-}
-
-void KitManagerConfigWidget::removeKit()
-{
-    if (!m_kit)
-        return;
-    KitManager::deregisterKit(m_kit);
 }
 
 void KitManagerConfigWidget::setIcon()

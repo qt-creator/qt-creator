@@ -8,6 +8,7 @@
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
@@ -34,7 +35,6 @@ PerforceSettings::PerforceSettings()
     setSettingsGroup("Perforce");
     setAutoApply(false);
 
-    registerAspect(&p4BinaryPath);
     p4BinaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     p4BinaryPath.setSettingsKey("Command");
     p4BinaryPath.setDefaultValue(
@@ -44,28 +44,23 @@ PerforceSettings::PerforceSettings()
     p4BinaryPath.setDisplayName(Tr::tr("Perforce Command"));
     p4BinaryPath.setLabelText(Tr::tr("P4 command:"));
 
-    registerAspect(&p4Port);
     p4Port.setDisplayStyle(StringAspect::LineEditDisplay);
     p4Port.setSettingsKey("Port");
     p4Port.setLabelText(Tr::tr("P4 port:"));
 
-    registerAspect(&p4Client);
     p4Client.setDisplayStyle(StringAspect::LineEditDisplay);
     p4Client.setSettingsKey("Client");
     p4Client.setLabelText(Tr::tr("P4 client:"));
 
-    registerAspect(&p4User);
     p4User.setDisplayStyle(StringAspect::LineEditDisplay);
     p4User.setSettingsKey("User");
     p4User.setLabelText(Tr::tr("P4 user:"));
 
-    registerAspect(&logCount);
     logCount.setSettingsKey("LogCount");
     logCount.setRange(1000, 10000);
     logCount.setDefaultValue(1000);
     logCount.setLabelText(Tr::tr("Log count:"));
 
-    registerAspect(&customEnv);
     // The settings value has been stored with the opposite meaning for a while.
     // Avoid changing the stored value, but flip it on read/write:
     customEnv.setSettingsKey("Default");
@@ -73,14 +68,12 @@ PerforceSettings::PerforceSettings()
     customEnv.setFromSettingsTransformation(invertBoolVariant);
     customEnv.setToSettingsTransformation(invertBoolVariant);
 
-    registerAspect(&timeOutS);
     timeOutS.setSettingsKey("TimeOut");
     timeOutS.setRange(1, 360);
     timeOutS.setDefaultValue(30);
     timeOutS.setLabelText(Tr::tr("Timeout:"));
     timeOutS.setSuffix(Tr::tr("s"));
 
-    registerAspect(&autoOpen);
     autoOpen.setSettingsKey("PromptToOpen");
     autoOpen.setDefaultValue(true);
     autoOpen.setLabelText(Tr::tr("Automatically open files when editing"));
@@ -102,6 +95,23 @@ QStringList PerforceSettings::commonP4Arguments() const
             lst << "-p" << p4Port.value();
         if (!p4User.value().isEmpty())
             lst << "-u" << p4User.value();
+    }
+    return lst;
+}
+
+QStringList PerforceSettings::commonP4Arguments_volatile() const
+{
+    QStringList lst;
+    if (customEnv.volatileValue().toBool()) {
+        auto p4C = p4Client.volatileValue().toString();
+        if (!p4C.isEmpty())
+            lst << "-c" << p4C;
+        auto p4P = p4Port.volatileValue().toString();
+        if (!p4P.isEmpty())
+            lst << "-p" << p4P;
+        auto p4U = p4User.volatileValue().toString();
+        if (!p4U.isEmpty())
+            lst << "-u" << p4U;
     }
     return lst;
 }
@@ -206,35 +216,41 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
     setSettings(settings);
 
-    setLayouter([settings, this](QWidget *widget) {
+    setLayouter([settings] {
         PerforceSettings &s = *settings;
         using namespace Layouting;
 
-        auto errorLabel = new QLabel;
+        auto errorLabel = new InfoLabel({}, InfoLabel::None);
+        errorLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+        errorLabel->setFilled(true);
         auto testButton = new QPushButton(Tr::tr("Test"));
-        connect(testButton, &QPushButton::clicked, this, [settings, errorLabel, testButton] {
+        QObject::connect(testButton, &QPushButton::clicked, errorLabel,
+                [settings, errorLabel, testButton] {
             testButton->setEnabled(false);
             auto checker = new PerforceChecker(errorLabel);
             checker->setUseOverideCursor(true);
-            connect(checker, &PerforceChecker::failed, errorLabel,
+            QObject::connect(checker, &PerforceChecker::failed, errorLabel,
                     [errorLabel, testButton, checker](const QString &t) {
-                errorLabel->setStyleSheet("background-color: red");
+                errorLabel->setType(InfoLabel::Error);
                 errorLabel->setText(t);
                 testButton->setEnabled(true);
                 checker->deleteLater();
             });
-            connect(checker, &PerforceChecker::succeeded, errorLabel,
+            QObject::connect(checker, &PerforceChecker::succeeded, errorLabel,
                     [errorLabel, testButton, checker](const FilePath &repo) {
-                errorLabel->setStyleSheet({});
+                errorLabel->setType(InfoLabel::Ok);
                 errorLabel->setText(Tr::tr("Test succeeded (%1).")
                                         .arg(repo.toUserOutput()));
                 testButton->setEnabled(true);
                 checker->deleteLater();
             });
 
-            errorLabel->setStyleSheet(QString());
+            errorLabel->setType(InfoLabel::Information);
             errorLabel->setText(Tr::tr("Testing..."));
-            checker->start(settings->p4BinaryPath.filePath(), {}, settings->commonP4Arguments(), 10000);
+
+            const FilePath p4Bin = FilePath::fromUserInput(
+                        settings->p4BinaryPath.volatileValue().toString());
+            checker->start(p4Bin, {}, settings->commonP4Arguments_volatile(), 10000);
         });
 
         Group config {
@@ -243,7 +259,8 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
         };
 
         Group environment {
-            title(Tr::tr("Environment Variables"), &s.customEnv),
+            title(Tr::tr("Environment Variables")),
+            s.customEnv.groupChecker(),
             Row { s.p4Port, s.p4Client, s.p4User }
         };
 
@@ -255,13 +272,13 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
             }
         };
 
-        Column {
+        return Column {
             config,
             environment,
             misc,
             Row { errorLabel, st, testButton },
             st
-        }.attachTo(widget);
+        };
     });
 }
 

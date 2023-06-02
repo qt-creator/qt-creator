@@ -11,8 +11,8 @@
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/cpptoolsreuse.h>
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QDebug>
@@ -52,21 +52,22 @@ static bool isClMode(const QStringList &options)
     return options.contains("--driver-mode=cl");
 }
 
-static QStringList checksArguments(ClangToolType tool,
-                                   const ClangDiagnosticConfig &diagnosticConfig)
+static QStringList checksArguments(const AnalyzeInputData &input)
 {
-    if (tool == ClangToolType::Tidy) {
-        const ClangDiagnosticConfig::TidyMode tidyMode = diagnosticConfig.clangTidyMode();
-        // The argument "-config={}" stops stating/evaluating the .clang-tidy file.
-        if (tidyMode == ClangDiagnosticConfig::TidyMode::UseDefaultChecks)
+    if (input.tool == ClangToolType::Tidy) {
+        if (input.runSettings.hasConfigFileForSourceFile(input.unit.file))
+            return {"--warnings-as-errors=-*", "-checks=-clang-diagnostic-*"};
+        switch (input.config.clangTidyMode()) {
+        case ClangDiagnosticConfig::TidyMode::UseDefaultChecks:
+            // The argument "-config={}" stops stating/evaluating the .clang-tidy file.
             return {"-config={}", "-checks=-clang-diagnostic-*"};
-        if (tidyMode == ClangDiagnosticConfig::TidyMode::UseCustomChecks)
-            return {"-config=" + diagnosticConfig.clangTidyChecksAsJson()};
-        return {"--warnings-as-errors=-*", "-checks=-clang-diagnostic-*"};
+        case ClangDiagnosticConfig::TidyMode::UseCustomChecks:
+            return {"-config=" + input.config.clangTidyChecksAsJson()};
+        }
     }
-    const QString clazyChecks = diagnosticConfig.checks(ClangToolType::Clazy);
+    const QString clazyChecks = input.config.checks(ClangToolType::Clazy);
     if (!clazyChecks.isEmpty())
-        return {"-checks=" + diagnosticConfig.checks(ClangToolType::Clazy)};
+        return {"-checks=" + input.config.checks(ClangToolType::Clazy)};
     return {};
 }
 
@@ -111,17 +112,16 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
     };
     const TreeStorage<ClangToolStorage> storage;
 
-    const auto mainToolArguments = [=](const ClangToolStorage *data)
-    {
+    const auto mainToolArguments = [=](const ClangToolStorage &data) {
         QStringList result;
-        result << "-export-fixes=" + data->outputFilePath.nativePath();
-        if (!input.overlayFilePath.isEmpty() && isVFSOverlaySupported(data->executable))
+        result << "-export-fixes=" + data.outputFilePath.nativePath();
+        if (!input.overlayFilePath.isEmpty() && isVFSOverlaySupported(data.executable))
             result << "--vfsoverlay=" + input.overlayFilePath;
         result << input.unit.file.nativePath();
         return result;
     };
 
-    const auto onGroupSetup = [=] {
+    const auto onSetup = [=] {
         if (setupHandler && !setupHandler())
             return TaskAction::StopWithError;
 
@@ -141,54 +141,53 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
 
         return TaskAction::Continue;
     };
-    const auto onProcessSetup = [=](QtcProcess &process) {
+    const auto onProcessSetup = [=](Process &process) {
         process.setEnvironment(input.environment);
         process.setUseCtrlCStub(true);
         process.setLowPriority();
         process.setWorkingDirectory(input.outputDirPath); // Current clang-cl puts log file into working dir.
 
-        const ClangToolStorage *data = storage.activeStorage();
+        const ClangToolStorage &data = *storage;
 
-        const QStringList args = checksArguments(input.tool, input.config)
+        const QStringList args = checksArguments(input)
                                  + mainToolArguments(data)
                                  + QStringList{"--"}
                                  + clangArguments(input.config, input.unit.arguments);
-        const CommandLine commandLine = {data->executable, args};
+        const CommandLine commandLine = {data.executable, args};
 
         qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
         process.setCommand(commandLine);
     };
-    const auto onProcessDone = [=](const QtcProcess &process) {
+    const auto onProcessDone = [=](const Process &process) {
         qCDebug(LOG).noquote() << "Output:\n" << process.cleanedStdOut();
         if (!outputHandler)
             return;
-        const ClangToolStorage *data = storage.activeStorage();
-        outputHandler({true, input.unit.file, data->outputFilePath, input.tool});
+        outputHandler({true, input.unit.file, storage->outputFilePath, input.tool});
     };
-    const auto onProcessError = [=](const QtcProcess &process) {
+    const auto onProcessError = [=](const Process &process) {
         if (!outputHandler)
             return;
         const QString details = Tr::tr("Command line: %1\nProcess Error: %2\nOutput:\n%3")
                                     .arg(process.commandLine().toUserOutput())
                                     .arg(process.error())
                                     .arg(process.cleanedStdOut());
-        const ClangToolStorage *data = storage.activeStorage();
+        const ClangToolStorage &data = *storage;
         QString message;
         if (process.result() == ProcessResult::StartFailed)
-            message = Tr::tr("An error occurred with the %1 process.").arg(data->name);
+            message = Tr::tr("An error occurred with the %1 process.").arg(data.name);
         else if (process.result() == ProcessResult::FinishedWithError)
-            message = Tr::tr("%1 finished with exit code: %2.").arg(data->name).arg(process.exitCode());
+            message = Tr::tr("%1 finished with exit code: %2.").arg(data.name).arg(process.exitCode());
         else
-            message = Tr::tr("%1 crashed.").arg(data->name);
-        outputHandler({false, input.unit.file, data->outputFilePath, input.tool, message, details});
+            message = Tr::tr("%1 crashed.").arg(data.name);
+        outputHandler({false, input.unit.file, data.outputFilePath, input.tool, message, details});
     };
 
     const Group group {
         Storage(storage),
-        OnGroupSetup(onGroupSetup),
+        onGroupSetup(onSetup),
         Group {
-            optional,
-            Process(onProcessSetup, onProcessDone, onProcessError)
+            finishAllAndDone,
+            ProcessTask(onProcessSetup, onProcessDone, onProcessError)
         }
     };
     return group;

@@ -74,9 +74,7 @@ QtcPlugin {
         "virtualfilesystemoverlay.h",
     ]
 
-    Group {
-        name: "Unit tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         files: [
             "clangtoolspreconfiguredsessiontests.cpp",
             "clangtoolspreconfiguredsessiontests.h",

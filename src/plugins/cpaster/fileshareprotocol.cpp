@@ -6,7 +6,6 @@
 #include "cpastertr.h"
 #include "fileshareprotocolsettingspage.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <utils/fileutils.h>
@@ -29,20 +28,13 @@ const char textElementC[] = "text";
 
 namespace CodePaster {
 
-FileShareProtocol::FileShareProtocol() :
-    m_settingsPage(new FileShareProtocolSettingsPage(&m_settings))
-{
-    m_settings.readSettings(Core::ICore::settings());
-}
+FileShareProtocol::FileShareProtocol() = default;
 
-FileShareProtocol::~FileShareProtocol()
-{
-    delete m_settingsPage;
-}
+FileShareProtocol::~FileShareProtocol() = default;
 
 QString FileShareProtocol::name() const
 {
-    return m_settingsPage->displayName();
+    return m_settings.displayName();
 }
 
 unsigned FileShareProtocol::capabilities() const
@@ -55,9 +47,9 @@ bool FileShareProtocol::hasSettings() const
     return true;
 }
 
-Core::IOptionsPage *FileShareProtocol::settingsPage() const
+const Core::IOptionsPage *FileShareProtocol::settingsPage() const
 {
-    return m_settingsPage;
+    return &m_settings;
 }
 
 static bool parse(const QString &fileName,
@@ -141,7 +133,7 @@ void FileShareProtocol::list()
     QString errorMessage;
     const QChar blank = QLatin1Char(' ');
     const QFileInfoList entryInfoList = dir.entryInfoList();
-    const int count = qMin(int(m_settings.displayCount.value()), entryInfoList.size());
+    const int count = qMin(int(m_settings.displayCount()), entryInfoList.size());
     for (int i = 0; i < count; i++) {
         const QFileInfo& entryFi = entryInfoList.at(i);
         if (parse(entryFi.absoluteFilePath(), &errorMessage, &user, &description)) {

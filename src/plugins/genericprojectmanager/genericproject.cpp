@@ -38,8 +38,8 @@
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -96,7 +96,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
-// GenericProjectNode
+// GenericBuildSystem
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -401,7 +401,7 @@ static QStringList readFlags(const QString &filePath)
         return QStringList();
     QStringList flags;
     for (const auto &line : lines)
-        flags.append(ProcessArgs::splitArgs(line));
+        flags.append(ProcessArgs::splitArgs(line, HostOsInfo::hostOs()));
     return flags;
 }
 
@@ -570,8 +570,8 @@ void GenericBuildSystem::refreshCppCodeModel()
     rpp.setQtVersion(kitInfo.projectPartQtVersion);
     rpp.setHeaderPaths(m_projectIncludePaths);
     rpp.setConfigFileName(m_configFileName);
-    rpp.setFlagsForCxx({nullptr, m_cxxflags, projectDirectory().toString()});
-    rpp.setFlagsForC({nullptr, m_cflags, projectDirectory().toString()});
+    rpp.setFlagsForCxx({nullptr, m_cxxflags, projectDirectory()});
+    rpp.setFlagsForC({nullptr, m_cflags, projectDirectory()});
 
     static const auto sourceFilesToStringList = [](const SourceFiles &sourceFiles) {
         return Utils::transform(sourceFiles, [](const SourceFile &f) {

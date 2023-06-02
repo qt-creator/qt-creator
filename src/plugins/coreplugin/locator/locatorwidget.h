@@ -7,8 +7,8 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QFutureWatcher>
 #include <QPointer>
+#include <QTimer>
 #include <QWidget>
 
 #include <functional>
@@ -28,8 +28,7 @@ namespace Internal {
 class LocatorModel;
 class CompletionList;
 
-class LocatorWidget
-  : public QWidget
+class LocatorWidget : public QWidget
 {
     Q_OBJECT
 
@@ -42,11 +41,7 @@ public:
     QAbstractItemModel *model() const;
 
     void updatePlaceholderText(Command *command);
-
-    void scheduleAcceptEntry(const QModelIndex &index);
-
-    static ExtensionSystem::IPlugin::ShutdownFlag aboutToShutdown(
-        const std::function<void()> &emitAsynchronousShutdownFinished);
+    void acceptEntry(int row);
 
 signals:
     void showCurrentItemToolTip();
@@ -58,44 +53,30 @@ signals:
     void showPopup();
 
 private:
-    void showPopupDelayed();
     void showPopupNow();
-    void acceptEntry(int row);
     static void showConfigureDialog();
-    void addSearchResults(int firstIndex, int endIndex);
-    void handleSearchFinished();
     void updateFilterList();
     bool isInMainWindow() const;
 
     void updatePreviousFocusWidget(QWidget *previous, QWidget *current);
     bool eventFilter(QObject *obj, QEvent *event) override;
 
-    void updateCompletionList(const QString &text);
+    void runMatcher(const QString &text);
     static QList<ILocatorFilter*> filtersFor(const QString &text, QString &searchText);
     void setProgressIndicatorVisible(bool visible);
 
     LocatorModel *m_locatorModel = nullptr;
-
-    static bool m_shuttingDown;
-    static QFuture<void> m_sharedFuture;
-    static LocatorWidget *m_sharedFutureOrigin;
-
     QMenu *m_filterMenu = nullptr;
     QAction *m_centeredPopupAction = nullptr;
     QAction *m_refreshAction = nullptr;
     QAction *m_configureAction = nullptr;
     Utils::FancyLineEdit *m_fileLineEdit = nullptr;
-    QTimer m_showPopupTimer;
-    QFutureWatcher<LocatorFilterEntry> *m_entriesWatcher = nullptr;
-    QString m_requestedCompletionText;
-    bool m_needsClearResult = true;
-    bool m_updateRequested = false;
-    bool m_rerunAfterFinished = false;
     bool m_possibleToolTipRequest = false;
     QWidget *m_progressIndicator = nullptr;
     QTimer m_showProgressTimer;
     std::optional<int> m_rowRequestedForAccept;
     QPointer<QWidget> m_previousFocusWidget;
+    std::unique_ptr<LocatorMatcher> m_locatorMatcher;
 };
 
 class LocatorPopup : public QWidget

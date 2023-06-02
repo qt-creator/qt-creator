@@ -7,9 +7,9 @@
 #include "extracompiler.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "runconfiguration.h"
 #include "runcontrol.h"
-#include "session.h"
 #include "target.h"
 
 #include <coreplugin/messagemanager.h>
@@ -64,7 +64,7 @@ BuildSystem::BuildSystem(Target *target)
 
     connect(&d->m_delayedParsingTimer, &QTimer::timeout, this,
             [this] {
-        if (SessionManager::hasProject(project()))
+        if (ProjectManager::hasProject(project()))
             triggerParsing();
         else
             requestDelayedParse();
@@ -325,7 +325,6 @@ void BuildSystem::setDeploymentData(const DeploymentData &deploymentData)
     if (d->m_deploymentData != deploymentData) {
         d->m_deploymentData = deploymentData;
         emit deploymentDataChanged();
-        emit applicationTargetsChanged();
         emit target()->deploymentDataChanged();
     }
 }
@@ -337,10 +336,7 @@ DeploymentData BuildSystem::deploymentData() const
 
 void BuildSystem::setApplicationTargets(const QList<BuildTargetInfo> &appTargets)
 {
-    if (Utils::toSet(appTargets) != Utils::toSet(d->m_appTargets)) {
-        d->m_appTargets = appTargets;
-        emit applicationTargetsChanged();
-    }
+    d->m_appTargets = appTargets;
 }
 
 const QList<BuildTargetInfo> BuildSystem::applicationTargets() const

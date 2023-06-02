@@ -106,6 +106,7 @@ public:
     void collectData(const QmakeProFile *file, ProjectExplorer::DeploymentData &deploymentData);
     void collectApplicationData(const QmakeProFile *file,
                                 ProjectExplorer::DeploymentData &deploymentData);
+    Utils::FilePaths allLibraryTargetFiles(const QmakeProFile *file) const;
     void collectLibraryData(const QmakeProFile *file,
             ProjectExplorer::DeploymentData &deploymentData);
     void startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay);

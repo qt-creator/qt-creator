@@ -3,23 +3,14 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
+#include <projectexplorer/buildstep.h>
 
-#include "abstractremotelinuxdeploystep.h"
+namespace RemoteLinux::Internal {
 
-namespace RemoteLinux {
-
-class REMOTELINUX_EXPORT GenericDirectUploadStep : public AbstractRemoteLinuxDeployStep
+class GenericDirectUploadStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
-    GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id,
-                            bool offerIncrementalDeployment = true);
-    ~GenericDirectUploadStep() override;
-
-    static Utils::Id stepId();
-    static QString displayName();
+    GenericDirectUploadStepFactory();
 };
 
-} //namespace RemoteLinux
+} // RemoteLinux::Internal

@@ -13,8 +13,8 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "runconfiguration.h"
-#include "session.h"
 #include "target.h"
 
 #include <utils/algorithm.h>
@@ -32,6 +32,7 @@
 #include <coreplugin/modemanager.h>
 
 #include <QAction>
+#include <QCollator>
 #include <QGuiApplication>
 #include <QItemDelegate>
 #include <QKeyEvent>
@@ -141,8 +142,15 @@ private:
 
 static bool compareItems(const TreeItem *ti1, const TreeItem *ti2)
 {
-    const int result = caseFriendlyCompare(static_cast<const GenericItem *>(ti1)->rawDisplayName(),
-                                           static_cast<const GenericItem *>(ti2)->rawDisplayName());
+    static const QCollator collator = [] {
+        QCollator collator;
+        collator.setNumericMode(true);
+        collator.setCaseSensitivity(Qt::CaseInsensitive);
+        return collator;
+    }();
+
+    const int result = collator.compare(static_cast<const GenericItem *>(ti1)->rawDisplayName(),
+                                        static_cast<const GenericItem *>(ti2)->rawDisplayName());
     if (result != 0)
         return result < 0;
     return ti1 < ti2;
@@ -253,9 +261,9 @@ public:
     explicit ProjectListView(QWidget *parent = nullptr) : SelectorView(parent)
     {
         const auto model = new GenericModel(this);
-        model->rebuild(transform<QList<QObject *>>(SessionManager::projects(),
+        model->rebuild(transform<QList<QObject *>>(ProjectManager::projects(),
                                                    [](Project *p) { return p; }));
-        connect(SessionManager::instance(), &SessionManager::projectAdded,
+        connect(ProjectManager::instance(), &ProjectManager::projectAdded,
                 this, [this, model](Project *project) {
             const GenericItem *projectItem = model->addItemForObject(project);
             QFontMetrics fn(font());
@@ -264,7 +272,7 @@ public:
                 setOptimalWidth(width);
             restoreCurrentIndex();
         });
-        connect(SessionManager::instance(), &SessionManager::aboutToRemoveProject,
+        connect(ProjectManager::instance(), &ProjectManager::aboutToRemoveProject,
                 this, [this, model](const Project *project) {
             GenericItem * const item = model->itemForObject(project);
             if (!item)
@@ -272,7 +280,7 @@ public:
             model->destroyItem(item);
             resetOptimalWidth();
         });
-        connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+        connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
                 this, [this, model](const Project *project) {
             const GenericItem * const item = model->itemForObject(project);
             if (item)
@@ -288,7 +296,7 @@ public:
                 this, [model](const QModelIndex &index) {
             const GenericItem * const item = model->itemForIndex(index);
             if (item && item->object())
-                SessionManager::setStartupProject(qobject_cast<Project *>(item->object()));
+                ProjectManager::setStartupProject(qobject_cast<Project *>(item->object()));
         });
     }
 
@@ -296,7 +304,7 @@ private:
     void restoreCurrentIndex()
     {
         const GenericItem * const itemForStartupProject
-                = theModel()->itemForObject(SessionManager::startupProject());
+                = theModel()->itemForObject(ProjectManager::startupProject());
         if (itemForStartupProject)
             setCurrentIndex(theModel()->indexForItem(itemForStartupProject));
     }
@@ -387,6 +395,12 @@ private:
             return;
         }
         TreeView::mouseReleaseEvent(event);
+    }
+
+    void showEvent(QShowEvent* event) override
+    {
+        scrollTo(currentIndex());
+        TreeView::showEvent(event);
     }
 
     QObject *objectAt(const QModelIndex &index) const
@@ -551,6 +565,11 @@ int SelectorView::padding()
 /////////
 // KitAreaWidget
 /////////
+void doLayout(KitAspectWidget *widget, Layouting::LayoutItem &builder)
+{
+    widget->addToLayout(builder);
+}
+
 class KitAreaWidget : public QWidget
 {
     Q_OBJECT
@@ -573,18 +592,15 @@ public:
 
         delete layout();
 
-        Layouting::LayoutBuilder builder(Layouting::LayoutBuilder::GridLayout);
+        Layouting::Grid grid;
         for (KitAspect *aspect : KitManager::kitAspects()) {
             if (k && k->isMutable(aspect->id())) {
                 KitAspectWidget *widget = aspect->createConfigWidget(k);
                 m_widgets << widget;
-                QLabel *label = new QLabel(aspect->displayName());
-                builder.addItem(label);
-                widget->addToLayout(builder);
-                builder.finishRow();
+                grid.addItems({aspect->displayName(), widget, Layouting::br});
             }
         }
-        builder.attachTo(this);
+        grid.attachTo(this);
         layout()->setContentsMargins(3, 3, 3, 3);
 
         m_kit = k;
@@ -653,7 +669,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     QWidget(parent),
     m_projectAction(targetSelectorAction)
 {
-    setProperty("panelwidget", true);
+    StyleHelper::setPanelWidget(this);
     setContentsMargins(QMargins(0, 1, 1, 8));
     setWindowFlags(Qt::Popup);
 
@@ -696,22 +712,22 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_listWidgets[RUN]->viewport()->setAttribute(Qt::WA_Hover);
 
     // Validate state: At this point the session is still empty!
-    Project *startup = SessionManager::startupProject();
+    Project *startup = ProjectManager::startupProject();
     QTC_CHECK(!startup);
-    QTC_CHECK(SessionManager::projects().isEmpty());
+    QTC_CHECK(ProjectManager::projects().isEmpty());
 
     connect(m_summaryLabel, &QLabel::linkActivated,
             this, &MiniProjectTargetSelector::switchToProjectsMode);
 
-    SessionManager *sessionManager = SessionManager::instance();
-    connect(sessionManager, &SessionManager::startupProjectChanged,
+    ProjectManager *sessionManager = ProjectManager::instance();
+    connect(sessionManager, &ProjectManager::startupProjectChanged,
             this, &MiniProjectTargetSelector::changeStartupProject);
 
-    connect(sessionManager, &SessionManager::projectAdded,
+    connect(sessionManager, &ProjectManager::projectAdded,
             this, &MiniProjectTargetSelector::projectAdded);
-    connect(sessionManager, &SessionManager::projectRemoved,
+    connect(sessionManager, &ProjectManager::projectRemoved,
             this, &MiniProjectTargetSelector::projectRemoved);
-    connect(sessionManager, &SessionManager::projectDisplayNameChanged,
+    connect(sessionManager, &ProjectManager::projectDisplayNameChanged,
             this, &MiniProjectTargetSelector::updateActionAndSummary);
 
     // for icon changes:
@@ -720,17 +736,17 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
 
     connect(m_listWidgets[TARGET], &GenericListWidget::changeActiveProjectConfiguration,
             this, [this](QObject *pc) {
-                SessionManager::setActiveTarget(m_project, static_cast<Target *>(pc), SetActive::Cascade);
+                m_project->setActiveTarget(static_cast<Target *>(pc), SetActive::Cascade);
             });
     connect(m_listWidgets[BUILD], &GenericListWidget::changeActiveProjectConfiguration,
             this, [this](QObject *pc) {
-                 SessionManager::setActiveBuildConfiguration(m_project->activeTarget(),
-                                                             static_cast<BuildConfiguration *>(pc), SetActive::Cascade);
+                 m_project->activeTarget()->setActiveBuildConfiguration(
+                    static_cast<BuildConfiguration *>(pc), SetActive::Cascade);
             });
     connect(m_listWidgets[DEPLOY], &GenericListWidget::changeActiveProjectConfiguration,
             this, [this](QObject *pc) {
-                 SessionManager::setActiveDeployConfiguration(m_project->activeTarget(),
-                                                              static_cast<DeployConfiguration *>(pc), SetActive::Cascade);
+                 m_project->activeTarget()->setActiveDeployConfiguration(
+                    static_cast<DeployConfiguration *>(pc), SetActive::Cascade);
             });
     connect(m_listWidgets[RUN], &GenericListWidget::changeActiveProjectConfiguration,
             this, [this](QObject *pc) {
@@ -881,7 +897,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         onlySummary = true;
     } else {
         if (visibleLineCount < 3) {
-            if (Utils::anyOf(SessionManager::projects(), &Project::needsConfiguration))
+            if (Utils::anyOf(ProjectManager::projects(), &Project::needsConfiguration))
                 visibleLineCount = 3;
         }
         if (visibleLineCount)
@@ -1126,7 +1142,7 @@ void MiniProjectTargetSelector::removedRunConfiguration(RunConfiguration *rc, bo
 
 void MiniProjectTargetSelector::updateProjectListVisible()
 {
-    int count = SessionManager::projects().size();
+    int count = ProjectManager::projects().size();
     bool visible = count > 1;
 
     m_projectListWidget->setVisible(visible);
@@ -1139,7 +1155,7 @@ void MiniProjectTargetSelector::updateProjectListVisible()
 void MiniProjectTargetSelector::updateTargetListVisible()
 {
     int maxCount = 0;
-    for (Project *p : SessionManager::projects())
+    for (Project *p : ProjectManager::projects())
         maxCount = qMax(p->targets().size(), maxCount);
 
     bool visible = maxCount > 1;
@@ -1152,7 +1168,7 @@ void MiniProjectTargetSelector::updateTargetListVisible()
 void MiniProjectTargetSelector::updateBuildListVisible()
 {
     int maxCount = 0;
-    for (Project *p : SessionManager::projects()) {
+    for (Project *p : ProjectManager::projects()) {
         const QList<Target *> targets = p->targets();
         for (Target *t : targets)
             maxCount = qMax(t->buildConfigurations().size(), maxCount);
@@ -1168,7 +1184,7 @@ void MiniProjectTargetSelector::updateBuildListVisible()
 void MiniProjectTargetSelector::updateDeployListVisible()
 {
     int maxCount = 0;
-    for (Project *p : SessionManager::projects()) {
+    for (Project *p : ProjectManager::projects()) {
         const QList<Target *> targets = p->targets();
         for (Target *t : targets)
             maxCount = qMax(t->deployConfigurations().size(), maxCount);
@@ -1184,7 +1200,7 @@ void MiniProjectTargetSelector::updateDeployListVisible()
 void MiniProjectTargetSelector::updateRunListVisible()
 {
     int maxCount = 0;
-    for (Project *p : SessionManager::projects()) {
+    for (Project *p : ProjectManager::projects()) {
         const QList<Target *> targets = p->targets();
         for (Target *t : targets)
             maxCount = qMax(t->runConfigurations().size(), maxCount);
@@ -1460,10 +1476,10 @@ void MiniProjectTargetSelector::updateActionAndSummary()
             ? Icons::DESKTOP_DEVICE.icon()
             : style()->standardIcon(QStyle::SP_ComputerIcon);
 
-    Project *project = SessionManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (project) {
         projectName = project->displayName();
-        for (Project *p : SessionManager::projects()) {
+        for (Project *p : ProjectManager::projects()) {
             if (p != project && p->displayName() == projectName) {
                 fileName = project->projectFilePath().toUserOutput();
                 break;
@@ -1515,7 +1531,7 @@ void MiniProjectTargetSelector::updateActionAndSummary()
 void MiniProjectTargetSelector::updateSummary()
 {
     QString summary;
-    if (Project *startupProject = SessionManager::startupProject()) {
+    if (Project *startupProject = ProjectManager::startupProject()) {
         if (!m_projectListWidget->isVisibleTo(this))
             summary.append(Tr::tr("Project: <b>%1</b><br/>").arg(startupProject->displayName()));
         if (Target *activeTarget = startupProject->activeTarget()) {

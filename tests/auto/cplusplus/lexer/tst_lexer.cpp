@@ -43,6 +43,7 @@ public:
 private slots:
     void basic();
     void basic_data();
+    void cxx20();
     void incremental();
     void incremental_data();
     void literals();
@@ -248,6 +249,38 @@ void tst_SimpleLexer::basic_data()
         << T_INT << T_IDENTIFIER << T_SEMICOLON << T_CPP_DOXY_COMMENT
         << T_INT << T_IDENTIFIER << T_SEMICOLON << T_CPP_DOXY_COMMENT << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
+}
+
+void tst_SimpleLexer::cxx20()
+{
+    LanguageFeatures features;
+    features.cxxEnabled = features.cxx11Enabled = features.cxx14Enabled
+        = features.cxx20Enabled = true;
+    const QString source = R"(
+template<typename T> concept IsPointer = requires(T p) { *p; };
+SomeType coroutine()
+{
+    constinit const char8_t = 'c';
+    if consteval {} else {}
+    co_await std::suspend_always{};
+    co_yield 1;
+    co_return;
+}
+)";
+    const TokenKindList expectedTokens = {
+        T_TEMPLATE, T_LESS, T_TYPENAME, T_IDENTIFIER, T_GREATER, T_CONCEPT, T_IDENTIFIER, T_EQUAL,
+        T_REQUIRES, T_LPAREN, T_IDENTIFIER, T_IDENTIFIER, T_RPAREN, T_LBRACE, T_STAR, T_IDENTIFIER,
+        T_SEMICOLON, T_RBRACE, T_SEMICOLON,
+        T_IDENTIFIER, T_IDENTIFIER, T_LPAREN, T_RPAREN,
+        T_LBRACE,
+        T_CONSTINIT, T_CONST, T_CHAR8_T, T_EQUAL, T_CHAR_LITERAL, T_SEMICOLON,
+        T_IF, T_CONSTEVAL, T_LBRACE, T_RBRACE, T_ELSE, T_LBRACE, T_RBRACE,
+        T_CO_AWAIT, T_IDENTIFIER, T_COLON_COLON, T_IDENTIFIER, T_LBRACE, T_RBRACE, T_SEMICOLON,
+        T_CO_YIELD, T_NUMERIC_LITERAL, T_SEMICOLON,
+        T_CO_RETURN, T_SEMICOLON,
+        T_RBRACE
+    };
+    run(source.toUtf8(), toTokens(expectedTokens), false, CompareKind, false, features);
 }
 
 void tst_SimpleLexer::literals()

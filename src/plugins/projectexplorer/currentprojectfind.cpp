@@ -5,8 +5,8 @@
 
 #include "project.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "projecttree.h"
-#include "session.h"
 
 #include <utils/qtcassert.h>
 #include <utils/filesearch.h>
@@ -23,7 +23,7 @@ CurrentProjectFind::CurrentProjectFind()
 {
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFind::handleProjectChanged);
-    connect(SessionManager::instance(), &SessionManager::projectDisplayNameChanged,
+    connect(ProjectManager::instance(), &ProjectManager::projectDisplayNameChanged,
             this, [this](ProjectExplorer::Project *p) {
         if (p == ProjectTree::currentProject())
             emit displayNameChanged();
@@ -61,14 +61,13 @@ FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
                                         const QStringList &exclusionFilters,
                                         const QVariant &additionalParameters) const
 {
-    QTC_ASSERT(additionalParameters.isValid(),
-               return new FileListIterator(FilePaths(), QList<QTextCodec *>()));
+    QTC_ASSERT(additionalParameters.isValid(), return new FileListIterator);
     const FilePath projectFile = FilePath::fromVariant(additionalParameters);
-    for (Project *project : SessionManager::projects()) {
+    for (Project *project : ProjectManager::projects()) {
         if (project && projectFile == project->projectFilePath())
             return filesForProjects(nameFilters, exclusionFilters, {project});
     }
-    return new FileListIterator(FilePaths(), QList<QTextCodec *>());
+    return new FileListIterator;
 }
 
 QString CurrentProjectFind::label() const
@@ -87,7 +86,7 @@ void CurrentProjectFind::handleProjectChanged()
 void CurrentProjectFind::recheckEnabled(Core::SearchResult *search)
 {
     const FilePath projectFile = FilePath::fromVariant(getAdditionalParameters(search));
-    for (Project *project : SessionManager::projects()) {
+    for (Project *project : ProjectManager::projects()) {
         if (projectFile == project->projectFilePath()) {
             search->setSearchAgainEnabled(true);
             return;

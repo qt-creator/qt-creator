@@ -7,6 +7,7 @@
 
 /*!
     \class Utils::StatusLabel
+    \inmodule QtCreator
 
     \brief The StatusLabel class displays messages for a while with a timeout.
 */

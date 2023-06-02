@@ -36,7 +36,7 @@ ColorSettings::ColorSettings(QWidget *parent)
                 s->value(Constants::C_SETTINGS_COLORSETTINGS_CURRENTCOLORTHEME).toString());
     selectTheme(m_comboColorThemes->currentIndex());
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Row {
             m_comboColorThemes,
@@ -44,7 +44,8 @@ ColorSettings::ColorSettings(QWidget *parent)
             removeTheme,
         },
         m_colorThemeView,
-    }.attachTo(this, WithoutMargins);
+        noMargin
+    }.attachTo(this);
 
     connect(m_comboColorThemes, &QComboBox::currentIndexChanged,
             this, &ColorSettings::selectTheme);

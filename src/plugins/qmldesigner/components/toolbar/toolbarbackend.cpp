@@ -24,7 +24,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/qmlproject.h>
@@ -55,7 +55,7 @@ static CrumbleBar *crumbleBar()
 
 static Utils::FilePath getMainUiFile()
 {
-    auto project = ProjectExplorer::SessionManager::startupProject();
+    auto project = ProjectExplorer::ProjectManager::startupProject();
     if (!project)
         return {};
 
@@ -327,8 +327,8 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
         emit isDesignModeEnabledChanged();
     });
 
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged,
+    connect(ProjectExplorer::ProjectManager::instance(),
+            &ProjectExplorer::ProjectManager::startupProjectChanged,
             this,
             [this](ProjectExplorer::Project *project) {
                 disconnect(m_kitConnection);
@@ -494,7 +494,7 @@ void ToolBarBackend::setCurrentStyle(int index)
 
 void ToolBarBackend::setCurrentKit(int index)
 {
-    auto project = ProjectExplorer::SessionManager::startupProject();
+    auto project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return );
 
     const auto kits = ProjectExplorer::KitManager::kits();
@@ -508,9 +508,8 @@ void ToolBarBackend::setCurrentKit(int index)
     if (!newTarget)
         newTarget = project->addTargetForKit(kit);
 
-    ProjectExplorer::SessionManager::setActiveTarget(project,
-                                                     newTarget,
-                                                     ProjectExplorer::SetActive::Cascade);
+    project->setActiveTarget(newTarget,
+                             ProjectExplorer::SetActive::Cascade);
 
     emit currentKitChanged();
 }
@@ -614,7 +613,7 @@ QStringList ToolBarBackend::kits() const
 
 int ToolBarBackend::currentKit() const
 {
-    if (auto target = ProjectExplorer::SessionManager::startupTarget()) {
+    if (auto target = ProjectExplorer::ProjectManager::startupTarget()) {
         auto kit = target->kit();
         if (kit)
             return kits().indexOf(kit->displayName());
@@ -624,11 +623,11 @@ int ToolBarBackend::currentKit() const
 
 bool ToolBarBackend::isQt6() const
 {
-    if (!ProjectExplorer::SessionManager::startupTarget())
+    if (!ProjectExplorer::ProjectManager::startupTarget())
         return false;
 
     const QmlProjectManager::QmlBuildSystem *buildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-        ProjectExplorer::SessionManager::startupTarget()->buildSystem());
+        ProjectExplorer::ProjectManager::startupTarget()->buildSystem());
     QTC_ASSERT(buildSystem, return false);
 
     const bool isQt6Project = buildSystem && buildSystem->qt6Project();
@@ -638,7 +637,7 @@ bool ToolBarBackend::isQt6() const
 
 bool ToolBarBackend::projectOpened() const
 {
-    return ProjectExplorer::SessionManager::instance()->startupProject();
+    return ProjectExplorer::ProjectManager::instance()->startupProject();
 }
 
 void ToolBarBackend::launchGlobalAnnotations()

@@ -24,14 +24,16 @@
 #include "qmt/project/project.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <cppeditor/cpplocatorfilter.h>
+#include <cppeditor/cpplocatordata.h>
 #include <cppeditor/indexitem.h>
 #include <cppeditor/searchsymbols.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/locator/ilocatorfilter.h>
 #include <utils/qtcassert.h>
 
 #include <QMenu>
+
+using namespace Core;
+using namespace CppEditor;
 
 namespace ModelEditor {
 namespace Internal {
@@ -83,23 +85,16 @@ void ElementTasks::openElement(const qmt::DElement *element, const qmt::MDiagram
 bool ElementTasks::hasClassDefinition(const qmt::MElement *element) const
 {
     if (auto klass = dynamic_cast<const qmt::MClass *>(element)) {
-        QString qualifiedClassName = klass->umlNamespace().isEmpty()
-                ? klass->name()
-                : klass->umlNamespace() + "::" + klass->name();
-
-        Core::ILocatorFilter *classesFilter
-                = CppEditor::CppModelManager::instance()->classesFilter();
-        if (!classesFilter)
+        const QString qualifiedClassName = klass->umlNamespace().isEmpty() ? klass->name()
+                                         : klass->umlNamespace() + "::" + klass->name();
+        auto *locatorData = CppModelManager::instance()->locatorData();
+        if (!locatorData)
             return false;
-
-        QFutureInterface<Core::LocatorFilterEntry> dummyInterface;
-        const QList<Core::LocatorFilterEntry> matches
-            = classesFilter->matchesFor(dummyInterface, qualifiedClassName);
-        for (const Core::LocatorFilterEntry &entry : matches) {
-            CppEditor::IndexItem::Ptr info = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
-            if (info->scopedSymbolName() != qualifiedClassName)
-                continue;
-            return true;
+        const QList<IndexItem::Ptr> matches = locatorData->findSymbols(IndexItem::Class,
+                                                                       qualifiedClassName);
+        for (const IndexItem::Ptr &info : matches) {
+            if (info->scopedSymbolName() == qualifiedClassName)
+                return true;
         }
     }
     return false;
@@ -120,26 +115,19 @@ bool ElementTasks::hasClassDefinition(const qmt::DElement *element,
 void ElementTasks::openClassDefinition(const qmt::MElement *element)
 {
     if (auto klass = dynamic_cast<const qmt::MClass *>(element)) {
-        QString qualifiedClassName = klass->umlNamespace().isEmpty()
-                ? klass->name()
-                : klass->umlNamespace() + "::" + klass->name();
+        const QString qualifiedClassName = klass->umlNamespace().isEmpty() ? klass->name()
+                                         : klass->umlNamespace() + "::" + klass->name();
 
-        Core::ILocatorFilter *classesFilter
-                = CppEditor::CppModelManager::instance()->classesFilter();
-        if (!classesFilter)
+        auto *locatorData = CppModelManager::instance()->locatorData();
+        if (!locatorData)
             return;
-
-        QFutureInterface<Core::LocatorFilterEntry> dummyInterface;
-        const QList<Core::LocatorFilterEntry> matches
-            = classesFilter->matchesFor(dummyInterface, qualifiedClassName);
-        for (const Core::LocatorFilterEntry &entry : matches) {
-            CppEditor::IndexItem::Ptr info = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
+        const QList<IndexItem::Ptr> matches = locatorData->findSymbols(IndexItem::Class,
+                                                                       qualifiedClassName);
+        for (const IndexItem::Ptr &info : matches) {
             if (info->scopedSymbolName() != qualifiedClassName)
                 continue;
-            if (Core::EditorManager::instance()->openEditorAt(
-                    {info->filePath(), info->line(), info->column()})) {
+            if (EditorManager::openEditorAt({info->filePath(), info->line(), info->column()}))
                 return;
-            }
         }
     }
 }

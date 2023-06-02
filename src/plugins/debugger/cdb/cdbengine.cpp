@@ -15,6 +15,7 @@
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerprotocol.h>
+#include <debugger/debuggersourcepathmappingwidget.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggertr.h>
 #include <debugger/disassembleragent.h>
@@ -44,9 +45,9 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/process.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/winutils.h>
 
@@ -181,8 +182,8 @@ CdbEngine::CdbEngine() :
     DebuggerSettings *s = debuggerSettings();
     connect(s->createFullBacktrace.action(), &QAction::triggered,
             this, &CdbEngine::createFullBacktrace);
-    connect(&m_process, &QtcProcess::started, this, &CdbEngine::processStarted);
-    connect(&m_process, &QtcProcess::done, this, &CdbEngine::processDone);
+    connect(&m_process, &Process::started, this, &CdbEngine::processStarted);
+    connect(&m_process, &Process::done, this, &CdbEngine::processDone);
     m_process.setStdOutLineCallback([this](const QString &line) { parseOutputLine(line); });
     m_process.setStdErrLineCallback([this](const QString &line) { parseOutputLine(line); });
     connect(&s->useDebuggingHelpers, &BaseAspect::changed,
@@ -224,7 +225,8 @@ void CdbEngine::init()
         }
     }
 
-    const SourcePathMap &sourcePathMap = debuggerSettings()->sourcePathMap.value();
+    const SourcePathMap &sourcePathMap
+        = mergePlatformQtPath(runParameters(), debuggerSettings()->sourcePathMap.value());
     if (!sourcePathMap.isEmpty()) {
         for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd(); it != cend; ++it) {
             m_sourcePathMappings.push_back({QDir::toNativeSeparators(it.key()),
@@ -419,10 +421,11 @@ void CdbEngine::setupEngine()
         inferiorEnvironment.set(qtLoggingToConsoleKey, "0");
 
     static const char cdbExtensionPathVariableC[] = "_NT_DEBUGGER_EXTENSION_PATH";
-    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionFi.absolutePath(), {";"});
+    const QString pSep = OsSpecificAspects::pathListSeparator(Utils::OsTypeWindows);
+    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionFi.absolutePath(), pSep);
     const QString oldCdbExtensionPath = qtcEnvironmentVariable(cdbExtensionPathVariableC);
     if (!oldCdbExtensionPath.isEmpty())
-        inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC, oldCdbExtensionPath, {";"});
+        inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC, oldCdbExtensionPath, pSep);
 
     m_process.setEnvironment(inferiorEnvironment);
     if (!sp.inferior.workingDirectory.isEmpty())
@@ -485,10 +488,10 @@ void CdbEngine::handleInitialSessionIdle()
     runCommand({"sxn ibp", NoFlags}); // Do not break on initial breakpoints.
     runCommand({".asm source_line", NoFlags}); // Source line in assembly
     runCommand({m_extensionCommandPrefix
-                + "setparameter maxStringLength=" + QString::number(s.maximalStringLength.value())
-                + " maxStackDepth=" + QString::number(s.maximalStackDepth.value())
-                + " firstChance=" + (s.firstChanceExceptionTaskEntry.value() ? "1" : "0")
-                + " secondChance=" + (s.secondChanceExceptionTaskEntry.value() ? "1" : "0")
+                + "setparameter maxStringLength=" + QString::number(s.maximalStringLength())
+                + " maxStackDepth=" + QString::number(s.maximalStackDepth())
+                + " firstChance=" + (s.firstChanceExceptionTaskEntry() ? "1" : "0")
+                + " secondChance=" + (s.secondChanceExceptionTaskEntry() ? "1" : "0")
                 , NoFlags});
 
     if (s.cdbUsePythonDumper.value())
@@ -954,9 +957,11 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
         return;
     }
 
-    if (dbgCmd.flags == ScriptCommand) {
+    if (dbgCmd.flags & ScriptCommand) {
         // repack script command into an extension command
         DebuggerCommand newCmd("script", ExtensionCommand, dbgCmd.callback);
+        if (dbgCmd.flags & DebuggerCommand::Silent)
+            newCmd.flags |= DebuggerCommand::Silent;
         if (!dbgCmd.args.isNull())
             newCmd.args = QString{dbgCmd.function + '(' + dbgCmd.argsToPython() + ')'};
         else
@@ -975,7 +980,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
     } else {
         const int token = ++m_nextCommandToken;
         StringInputStream str(fullCmd);
-        if (dbgCmd.flags == BuiltinCommand) {
+        if (dbgCmd.flags & BuiltinCommand) {
             // Post a built-in-command producing free-format output with a callback.
             // In order to catch the output, it is enclosed in 'echo' commands
             // printing a specially formatted token to be identifiable in the output.
@@ -986,7 +991,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
                 showMessage("Command is longer than 4096 characters execution will likely fail.",
                             LogWarning);
             }
-        } else if (dbgCmd.flags == ExtensionCommand) {
+        } else if (dbgCmd.flags & ExtensionCommand) {
 
             // Post an extension command producing one-line output with a callback,
             // pass along token for identification in hash.
@@ -1020,7 +1025,8 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
     if (debug) {
         qDebug("CdbEngine::postCommand: resulting command '%s'\n", qPrintable(fullCmd));
     }
-    showMessage(cmd, LogInput);
+    if (!(dbgCmd.flags & DebuggerCommand::Silent))
+        showMessage(cmd, LogInput);
     m_process.write(fullCmd);
 }
 
@@ -1441,15 +1447,16 @@ void CdbEngine::reloadModules()
     runCommand({"modules", ExtensionCommand, CB(handleModules)});
 }
 
-void CdbEngine::loadSymbols(const QString & /* moduleName */)
+void CdbEngine::loadSymbols(const FilePath &moduleName)
 {
+    Q_UNUSED(moduleName)
 }
 
 void CdbEngine::loadAllSymbols()
 {
 }
 
-void CdbEngine::requestModuleSymbols(const QString &moduleName)
+void CdbEngine::requestModuleSymbols(const FilePath &moduleName)
 {
     Q_UNUSED(moduleName)
 }
@@ -1487,12 +1494,13 @@ void CdbEngine::handleModules(const DebuggerResponse &response)
 {
     if (response.resultClass == ResultDone) {
         if (response.data.type() == GdbMi::List) {
+            const FilePath inferior = runParameters().inferior.command.executable();
             ModulesHandler *handler = modulesHandler();
             handler->beginUpdateAll();
             for (const GdbMi &gdbmiModule : response.data) {
                 Module module;
                 module.moduleName = gdbmiModule["name"].data();
-                module.modulePath = gdbmiModule["image"].data();
+                module.modulePath = inferior.withNewPath(gdbmiModule["image"].data());
                 module.startAddress = gdbmiModule["start"].data().toULongLong(nullptr, 0);
                 module.endAddress = gdbmiModule["end"].data().toULongLong(nullptr, 0);
                 if (gdbmiModule["deferred"].type() == GdbMi::Invalid)
@@ -2254,12 +2262,10 @@ void CdbEngine::checkQtSdkPdbFiles(const QString &module)
                  "symbols for the debugger.")
                   .arg(qtName);
 
-        CheckableMessageBox::doNotShowAgainInformation(
-            Core::ICore::dialogParent(),
-            Tr::tr("Missing Qt Debug Information"),
-            message,
-            Core::ICore::settings(),
-            "CdbQtSdkPdbHint");
+        CheckableMessageBox::information(Core::ICore::dialogParent(),
+                                         Tr::tr("Missing Qt Debug Information"),
+                                         message,
+                                         QString("CdbQtSdkPdbHint"));
 
         showMessage("Missing Qt Debug Information Files package for " + qtName, LogMisc);
     };
@@ -2280,15 +2286,14 @@ void CdbEngine::parseOutputLine(QString line)
     // An extension notification (potentially consisting of several chunks)
     if (!m_initialSessionIdleHandled && line.startsWith("SECURE: File not allowed to be loaded")
         && line.endsWith("qtcreatorcdbext.dll")) {
-        CheckableMessageBox::doNotShowAgainInformation(
+        CheckableMessageBox::information(
             Core::ICore::dialogParent(),
             Tr::tr("Debugger Start Failed"),
             Tr::tr("The system prevents loading of %1, which is required for debugging. "
                    "Make sure that your antivirus solution is up to date and if that does not work "
                    "consider adding an exception for %1.")
                 .arg(m_extensionFileName),
-            Core::ICore::settings(),
-            "SecureInfoCdbextCannotBeLoaded");
+            QString("SecureInfoCdbextCannotBeLoaded"));
         notifyEngineSetupFailed();
     }
     static const QString creatorExtPrefix = "<qtcreatorcdbext>|";
@@ -2459,8 +2464,8 @@ static CPlusPlus::Document::Ptr getParsedDocument(const FilePath &filePath,
                                                   const CPlusPlus::Snapshot &snapshot)
 {
     QByteArray src;
-    if (workingCopy.contains(filePath))
-        src = workingCopy.source(filePath);
+    if (const auto source = workingCopy.source(filePath))
+        src = *source;
     else
         src = QString::fromLocal8Bit(filePath.fileContents().value_or(QByteArray())).toUtf8();
 
@@ -2764,17 +2769,65 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         return;
     }
 
-    QString dumperPath = runParameters().dumperPath.toUserOutput();
-    dumperPath.replace('\\', "\\\\");
-    runCommand({"sys.path.insert(1, '" + dumperPath + "')", ScriptCommand});
-    runCommand({"from cdbbridge import Dumper", ScriptCommand});
-    runCommand({"print(dir())", ScriptCommand});
-    runCommand({"theDumper = Dumper()", ScriptCommand});
 
-    const QString path = debuggerSettings()->extraDumperFile.value();
-    if (!path.isEmpty() && QFileInfo(path).isReadable()) {
+    if (runParameters().startMode == AttachToRemoteServer) {
+        FilePath dumperPath = Core::ICore::resourcePath("debugger");
+        const FilePath loadOrderFile = dumperPath / "loadorder.txt";
+        const expected_str<QByteArray> toLoad = loadOrderFile.fileContents();
+        if (!toLoad) {
+            Core::AsynchronousMessageBox::critical(
+                Tr::tr("Cannot Find Debugger Initialization Script"),
+                Tr::tr("Cannot read %1: %2").arg(loadOrderFile.toUserOutput(), toLoad.error()));
+            notifyEngineSetupFailed();
+            return;
+        }
+
+        runCommand({"import sys, types", ScriptCommand});
+        QStringList moduleList;
+        for (const QByteArray &rawModuleName : toLoad->split('\n')) {
+            QString module = QString::fromUtf8(rawModuleName).trimmed();
+            if (module.startsWith('#') || module.isEmpty())
+                continue;
+            if (module == "***bridge***")
+                module = "cdbbridge";
+
+            const FilePath codeFile = dumperPath / (module + ".py");
+            const expected_str<QByteArray> code = codeFile.fileContents();
+            if (!code) {
+                qDebug() << Tr::tr("Cannot read %1: %2").arg(codeFile.toUserOutput(), code.error());
+                continue;
+            }
+
+            showMessage("Reading " + codeFile.toUserOutput(), LogInput);
+            runCommand({QString("module = types.ModuleType('%1')").arg(module), ScriptCommand});
+            runCommand({QString("code = bytes.fromhex('%1').decode('utf-8')")
+                            .arg(QString::fromUtf8(code->toHex())), ScriptCommand | DebuggerCommand::Silent});
+            runCommand({QString("exec(code, module.__dict__)"), ScriptCommand});
+            runCommand({QString("sys.modules['%1'] = module").arg(module), ScriptCommand});
+            runCommand({QString("import %1").arg(module), ScriptCommand});
+
+            if (module.endsWith("types"))
+                moduleList.append('"' + module + '"');
+        }
+
+        runCommand({"from cdbbridge import Dumper", ScriptCommand});
+        runCommand({"print(dir())", ScriptCommand});
+        runCommand({"theDumper = Dumper()", ScriptCommand});
+        runCommand({QString("theDumper.dumpermodules = [%1]").arg(moduleList.join(',')), ScriptCommand});
+
+    } else {
+        QString dumperPath = Core::ICore::resourcePath("debugger").toUserOutput();
+        dumperPath.replace('\\', "\\\\");
+        runCommand({"sys.path.insert(1, '" + dumperPath + "')", ScriptCommand});
+        runCommand({"from cdbbridge import Dumper", ScriptCommand});
+        runCommand({"print(dir())", ScriptCommand});
+        runCommand({"theDumper = Dumper()", ScriptCommand});
+    }
+
+    const FilePath path = debuggerSettings()->extraDumperFile();
+    if (!path.isEmpty() && path.isReadableFile()) {
         DebuggerCommand cmd("theDumper.addDumperModule", ScriptCommand);
-        cmd.arg("path", path);
+        cmd.arg("path", path.path());
         runCommand(cmd);
     }
     const QString commands = debuggerSettings()->extraDumperCommands.value();

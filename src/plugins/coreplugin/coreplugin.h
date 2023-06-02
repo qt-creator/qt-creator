@@ -9,6 +9,8 @@
 #include <extensionsystem/iplugin.h>
 #include <utils/environment.h>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QMenu;
 QT_END_NAMESPACE
@@ -20,6 +22,7 @@ class PathChooser;
 namespace Core {
 
 class FolderNavigationWidgetFactory;
+class SessionManager;
 
 namespace Internal {
 
@@ -52,7 +55,7 @@ public:
     static QString msgCrashpadInformation();
 
 public slots:
-    void fileOpenRequest(const QString&);
+    void fileOpenRequest(const QString &);
 
 #if defined(WITH_TESTS)
 private slots:
@@ -74,6 +77,7 @@ private:
     MainWindow *m_mainWindow = nullptr;
     EditMode *m_editMode = nullptr;
     Locator *m_locator = nullptr;
+    std::unique_ptr<SessionManager> m_sessionManager;
     FolderNavigationWidgetFactory *m_folderNavigationWidgetFactory = nullptr;
     Utils::Environment m_startupSystemEnvironment;
     Utils::EnvironmentItems m_environmentChanges;

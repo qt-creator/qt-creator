@@ -5,23 +5,26 @@
 
 #include "buildmanager.h"
 #include "kitinformation.h"
-#include "session.h"
+#include "projectmanager.h"
 #include "target.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 
-#include <utils/asynctask.h>
+#include <extensionsystem/pluginmanager.h>
+
+#include <utils/async.h>
 #include <utils/expected.h>
 #include <utils/guard.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDateTime>
-#include <QFutureInterface>
 #include <QLoggingCategory>
 #include <QThreadPool>
 #include <QTimer>
 
+using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -37,15 +40,14 @@ public:
     FilePath source;
     FileNameToContentsHash contents;
     QDateTime compileTime;
-    Core::IEditor *lastEditor = nullptr;
+    IEditor *lastEditor = nullptr;
     QMetaObject::Connection activeBuildConfigConnection;
     QMetaObject::Connection activeEnvironmentConnection;
-    Utils::Guard lock;
+    Guard lock;
     bool dirty = false;
 
     QTimer timer;
 
-    FutureSynchronizer m_futureSynchronizer;
     std::unique_ptr<TaskTree> m_taskTree;
 };
 
@@ -63,16 +65,16 @@ ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
             this, &ExtraCompiler::onTargetsBuilt);
 
-    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
             this, [this](Project *project) {
         if (project == d->project)
             deleteLater();
     });
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    connect(editorManager, &Core::EditorManager::currentEditorChanged,
+    EditorManager *editorManager = EditorManager::instance();
+    connect(editorManager, &EditorManager::currentEditorChanged,
             this, &ExtraCompiler::onEditorChanged);
-    connect(editorManager, &Core::EditorManager::editorAboutToClose,
+    connect(editorManager, &EditorManager::editorAboutToClose,
             this, &ExtraCompiler::onEditorAboutToClose);
 
     // Use existing target files, where possible. Otherwise run the compiler.
@@ -135,7 +137,7 @@ QThreadPool *ExtraCompiler::extraCompilerThreadPool()
     return s_extraCompilerThreadPool();
 }
 
-Tasking::TaskItem ExtraCompiler::compileFileItem()
+TaskItem ExtraCompiler::compileFileItem()
 {
     return taskItemImpl(fromFileProvider());
 }
@@ -228,12 +230,12 @@ void ExtraCompiler::onTargetsBuilt(Project *project)
     });
 }
 
-void ExtraCompiler::onEditorChanged(Core::IEditor *editor)
+void ExtraCompiler::onEditorChanged(IEditor *editor)
 {
     // Handle old editor
     if (d->lastEditor) {
-        Core::IDocument *doc = d->lastEditor->document();
-        disconnect(doc, &Core::IDocument::contentsChanged,
+        IDocument *doc = d->lastEditor->document();
+        disconnect(doc, &IDocument::contentsChanged,
                    this, &ExtraCompiler::setDirty);
 
         if (d->dirty) {
@@ -246,7 +248,7 @@ void ExtraCompiler::onEditorChanged(Core::IEditor *editor)
         d->lastEditor = editor;
 
         // Handle new editor
-        connect(d->lastEditor->document(), &Core::IDocument::contentsChanged,
+        connect(d->lastEditor->document(), &IDocument::contentsChanged,
                 this, &ExtraCompiler::setDirty);
     } else {
         d->lastEditor = nullptr;
@@ -259,15 +261,15 @@ void ExtraCompiler::setDirty()
     d->timer.start(1000);
 }
 
-void ExtraCompiler::onEditorAboutToClose(Core::IEditor *editor)
+void ExtraCompiler::onEditorAboutToClose(IEditor *editor)
 {
     if (d->lastEditor != editor)
         return;
 
     // Oh no our editor is going to be closed
     // get the content first
-    Core::IDocument *doc = d->lastEditor->document();
-    disconnect(doc, &Core::IDocument::contentsChanged,
+    IDocument *doc = d->lastEditor->document();
+    disconnect(doc, &IDocument::contentsChanged,
                this, &ExtraCompiler::setDirty);
     if (d->dirty) {
         d->dirty = false;
@@ -278,24 +280,17 @@ void ExtraCompiler::onEditorAboutToClose(Core::IEditor *editor)
 
 Environment ExtraCompiler::buildEnvironment() const
 {
-    if (Target *target = project()->activeTarget()) {
-        if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-            return bc->environment();
-        } else {
-            EnvironmentItems changes =
-                    EnvironmentKitAspect::environmentChanges(target->kit());
-            Environment env = Environment::systemEnvironment();
-            env.modify(changes);
-            return env;
-        }
-    }
+    Target *target = project()->activeTarget();
+    if (!target)
+        return Environment::systemEnvironment();
 
-    return Environment::systemEnvironment();
-}
+    if (BuildConfiguration *bc = target->activeBuildConfiguration())
+        return bc->environment();
 
-Utils::FutureSynchronizer *ExtraCompiler::futureSynchronizer() const
-{
-    return &d->m_futureSynchronizer;
+    const EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(target->kit());
+    Environment env = Environment::systemEnvironment();
+    env.modify(changes);
+    return env;
 }
 
 void ExtraCompiler::setContent(const FilePath &file, const QByteArray &contents)
@@ -331,15 +326,16 @@ ProcessExtraCompiler::ProcessExtraCompiler(const Project *project, const FilePat
     ExtraCompiler(project, source, targets, parent)
 { }
 
-Tasking::TaskItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
+TaskItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
 {
-    const auto setupTask = [=](AsyncTask<FileNameToContentsHash> &async) {
+    const auto setupTask = [=](Async<FileNameToContentsHash> &async) {
         async.setThreadPool(extraCompilerThreadPool());
-        async.setAsyncCallData(&ProcessExtraCompiler::runInThread, this, command(),
-                               workingDirectory(), arguments(), provider, buildEnvironment());
-        async.setFutureSynchronizer(futureSynchronizer());
+        // The passed synchronizer has cancelOnWait set to true by default.
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+        async.setConcurrentCallData(&ProcessExtraCompiler::runInThread, this, command(),
+                                    workingDirectory(), arguments(), provider, buildEnvironment());
     };
-    const auto taskDone = [=](const AsyncTask<FileNameToContentsHash> &async) {
+    const auto taskDone = [=](const Async<FileNameToContentsHash> &async) {
         if (!async.isResultAvailable())
             return;
         const FileNameToContentsHash data = async.result();
@@ -349,7 +345,7 @@ Tasking::TaskItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &prov
             setContent(it.key(), it.value());
         updateCompileTime();
     };
-    return Tasking::Async<FileNameToContentsHash>(setupTask, taskDone);
+    return AsyncTask<FileNameToContentsHash>(setupTask, taskDone);
 }
 
 FilePath ProcessExtraCompiler::workingDirectory() const
@@ -374,7 +370,7 @@ Tasks ProcessExtraCompiler::parseIssues(const QByteArray &stdErr)
     return {};
 }
 
-void ProcessExtraCompiler::runInThread(QFutureInterface<FileNameToContentsHash> &futureInterface,
+void ProcessExtraCompiler::runInThread(QPromise<FileNameToContentsHash> &promise,
                                        const FilePath &cmd, const FilePath &workDir,
                                        const QStringList &args, const ContentProvider &provider,
                                        const Environment &env)
@@ -386,7 +382,7 @@ void ProcessExtraCompiler::runInThread(QFutureInterface<FileNameToContentsHash> 
     if (sourceContents.isNull() || !prepareToRun(sourceContents))
         return;
 
-    QtcProcess process;
+    Process process;
 
     process.setEnvironment(env);
     if (!workDir.isEmpty())
@@ -397,15 +393,15 @@ void ProcessExtraCompiler::runInThread(QFutureInterface<FileNameToContentsHash> 
     if (!process.waitForStarted())
         return;
 
-    while (!futureInterface.isCanceled()) {
+    while (!promise.isCanceled()) {
         if (process.waitForFinished(200))
             break;
     }
 
-    if (futureInterface.isCanceled())
+    if (promise.isCanceled())
         return;
 
-    futureInterface.reportResult(handleProcessFinished(&process));
+    promise.addResult(handleProcessFinished(&process));
 }
 
 } // namespace ProjectExplorer

@@ -61,23 +61,30 @@ enum MessageLevel
     MessageShowCmd  // partial command
 };
 
-template <typename Type>
-class Signal
+template<typename>
+class Callback;
+
+template<typename R, typename... Params>
+class Callback<R(Params...)>
 {
 public:
-    using Callable = std::function<Type>;
+    static constexpr auto IsVoidReturnType = std::is_same_v<R, void>;
+    using Function = std::function<R(Params...)>;
+    void set(const Function &callable) { m_callable = callable; }
 
-    void connect(const Callable &callable) { m_callables.push_back(callable); }
-
-    template <typename ...Args>
-    void operator()(Args ...args) const
+    R operator()(Params... params)
     {
-        for (const Callable &callable : m_callables)
-            callable(args...);
-   }
+        if (!m_callable)
+            return R();
+
+        if constexpr (IsVoidReturnType)
+            m_callable(std::forward<Params>(params)...);
+        else
+            return m_callable(std::forward<Params>(params)...);
+    }
 
 private:
-    std::vector<Callable> m_callables;
+    Function m_callable;
 };
 
 class FakeVimHandler : public QObject
@@ -129,34 +136,40 @@ public:
 
     bool jumpToLocalMark(QChar mark, bool backTickMode);
 
+    bool inFakeVimMode();
+
     bool eventFilter(QObject *ob, QEvent *ev) override;
 
-    Signal<void(const QString &msg, int cursorPos, int anchorPos, int messageLevel)> commandBufferChanged;
-    Signal<void(const QString &msg)> statusDataChanged;
-    Signal<void(const QString &msg)> extraInformationChanged;
-    Signal<void(const QList<QTextEdit::ExtraSelection> &selection)> selectionChanged;
-    Signal<void(const QString &needle)>  highlightMatches;
-    Signal<void(bool *moved, bool *forward, QTextCursor *cursor)> moveToMatchingParenthesis;
-    Signal<void(bool *result, QChar c)> checkForElectricCharacter;
-    Signal<void(int beginLine, int endLine, QChar typedChar)> indentRegion;
-    Signal<void(const QString &needle, bool forward)> simpleCompletionRequested;
-    Signal<void(const QString &key, int count)> windowCommandRequested;
-    Signal<void(bool reverse)> findRequested;
-    Signal<void(bool reverse)> findNextRequested;
-    Signal<void(bool *handled, const ExCommand &cmd)> handleExCommandRequested;
-    Signal<void()> requestDisableBlockSelection;
-    Signal<void(const QTextCursor &cursor)> requestSetBlockSelection;
-    Signal<void(QTextCursor *cursor)> requestBlockSelection;
-    Signal<void(bool *on)> requestHasBlockSelection;
-    Signal<void(int depth)> foldToggle;
-    Signal<void(bool fold)> foldAll;
-    Signal<void(int depth, bool dofold)> fold;
-    Signal<void(int count, bool current)> foldGoTo;
-    Signal<void(QChar mark, bool backTickMode, const QString &fileName)> requestJumpToLocalMark;
-    Signal<void(QChar mark, bool backTickMode, const QString &fileName)> requestJumpToGlobalMark;
-    Signal<void()> completionRequested;
-    Signal<void()> tabPreviousRequested;
-    Signal<void()> tabNextRequested;
+    Callback<void(const QString &msg, int cursorPos, int anchorPos, int messageLevel)>
+        commandBufferChanged;
+    Callback<void(const QString &msg)> statusDataChanged;
+    Callback<void(const QString &msg)> extraInformationChanged;
+    Callback<void(const QList<QTextEdit::ExtraSelection> &selection)> selectionChanged;
+    Callback<void(const QString &needle)> highlightMatches;
+    Callback<void(bool *moved, bool *forward, QTextCursor *cursor)> moveToMatchingParenthesis;
+    Callback<void(bool *result, QChar c)> checkForElectricCharacter;
+    Callback<void(int beginLine, int endLine, QChar typedChar)> indentRegion;
+    Callback<void(const QString &needle, bool forward)> simpleCompletionRequested;
+    Callback<void(const QString &key, int count)> windowCommandRequested;
+    Callback<void(bool reverse)> findRequested;
+    Callback<void(bool reverse)> findNextRequested;
+    Callback<void(bool *handled, const ExCommand &cmd)> handleExCommandRequested;
+    Callback<void()> requestDisableBlockSelection;
+    Callback<void(const QTextCursor &cursor)> requestSetBlockSelection;
+    Callback<void(QTextCursor *cursor)> requestBlockSelection;
+    Callback<void(bool *on)> requestHasBlockSelection;
+    Callback<void(int depth)> foldToggle;
+    Callback<void(bool fold)> foldAll;
+    Callback<void(int depth, bool dofold)> fold;
+    Callback<void(int count, bool current)> foldGoTo;
+    Callback<void(QChar mark, bool backTickMode, const QString &fileName)> requestJumpToLocalMark;
+    Callback<void(QChar mark, bool backTickMode, const QString &fileName)> requestJumpToGlobalMark;
+    Callback<void()> completionRequested;
+    Callback<void()> tabPreviousRequested;
+    Callback<void()> tabNextRequested;
+    Callback<void(bool insertMode)> modeChanged;
+    Callback<bool()> tabPressedInInsertMode;
+    Callback<void(const QString &, const QString &, QString *)> processOutput;
 
 public:
     class Private;

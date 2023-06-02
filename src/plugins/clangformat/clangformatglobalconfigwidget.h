@@ -5,6 +5,8 @@
 
 #include <cppeditor/cppcodestylesettingspage.h>
 
+#include <utils/guard.h>
+
 #include <memory>
 
 QT_BEGIN_NAMESPACE
@@ -40,6 +42,8 @@ private:
 
     ProjectExplorer::Project *m_project;
     TextEditor::ICodeStylePreferences *m_codeStyle;
+    Utils::Guard m_ignoreChanges;
+    bool m_overrideDefaultFile;
 
     QLabel *m_projectHasClangFormat;
     QLabel *m_formattingModeLabel;

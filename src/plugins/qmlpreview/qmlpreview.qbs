@@ -38,9 +38,7 @@ QtcPlugin {
         ]
     }
 
-    Group {
-        name: "Unit tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         prefix: "tests/"
         files: [
             "qmlpreviewclient_test.cpp",

@@ -49,17 +49,10 @@ static Core::GeneratedFile generateIconFile(const FilePath &source,
     return rc;
 }
 
-static QString qt4PluginExport(const QString &pluginName, const QString &pluginClassName)
-{
-    return QLatin1String("#if QT_VERSION < 0x050000\nQ_EXPORT_PLUGIN2(")
-        + pluginName + QLatin1String(", ") + pluginClassName
-        + QLatin1String(")\n#endif // QT_VERSION < 0x050000");
-}
-
 static QString qt5PluginMetaData(const QString &interfaceName)
 {
-    return QLatin1String("#if QT_VERSION >= 0x050000\n    Q_PLUGIN_METADATA(IID \"org.qt-project.Qt.")
-        + interfaceName + QLatin1String("\")\n#endif // QT_VERSION >= 0x050000");
+    return QLatin1String("    Q_PLUGIN_METADATA(IID \"org.qt-project.Qt.")
+        + interfaceName + QLatin1String("\")");
 }
 
 QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationParameters& p, const PluginOptions &options,
@@ -121,10 +114,8 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         sm.insert(QLatin1String("WIDGET_TOOLTIP"), cStringQuote(wo.toolTip));
         sm.insert(QLatin1String("WIDGET_WHATSTHIS"), cStringQuote(wo.whatsThis));
         sm.insert(QLatin1String("WIDGET_ISCONTAINER"), wo.isContainer ? QLatin1String("true") : QLatin1String("false"));
-        sm.insert(QLatin1String("WIDGET_DOMXML"), cStringQuote(wo.domXml));
-        sm.insert(QLatin1String("SINGLE_PLUGIN_EXPORT"),
-            options.widgetOptions.count() == 1 ?
-                qt4PluginExport(options.pluginName, wo.pluginClassName) : QString());
+        sm.insert(QLatin1String("WIDGET_DOMXML"), QLatin1String("R\"(")
+                                + wo.domXml.trimmed() + QLatin1String(")\""));
 
         const QString pluginSourceContents = processTemplate(p.templatePath + QLatin1String("/tpl_single.cpp"), sm, errorMessage);
         if (pluginSourceContents.isEmpty())
@@ -239,7 +230,6 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
                 options.collectionHeaderFile +
                 QLatin1String("\""));
         sm.insert(QLatin1String("PLUGIN_ADDITIONS"), pluginAdditions);
-        sm.insert(QLatin1String("COLLECTION_PLUGIN_EXPORT"), qt4PluginExport(options.pluginName, options.collectionClassName));
         const QString collectionSourceFileContents = processTemplate(p.templatePath + QLatin1String("/tpl_collection.cpp"), sm, errorMessage);
         if (collectionSourceFileContents.isEmpty())
             return QList<Core::GeneratedFile>();

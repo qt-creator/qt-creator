@@ -11,18 +11,17 @@
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
-#include "session.h"
 #include "target.h"
 #include "targetsetupwidget.h"
 #include "task.h"
 
 #include <coreplugin/icore.h>
 
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/wizard.h>
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
+#include <utils/process.h>
+#include <utils/qtcassert.h>
+#include <utils/wizard.h>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -658,7 +657,7 @@ bool TargetSetupPage::setupProject(Project *project)
     if (m_importer)
         activeTarget = m_importer->preferredTarget(project->targets());
     if (activeTarget)
-        SessionManager::setActiveTarget(project, activeTarget, SetActive::NoCascade);
+        project->setActiveTarget(activeTarget, SetActive::NoCascade);
 
     return true;
 }

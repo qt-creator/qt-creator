@@ -11,8 +11,7 @@ namespace Internal {
 class GTestOutputReader : public TestOutputReader
 {
 public:
-    GTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                      Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory,
+    GTestOutputReader(Utils::Process *testApplication, const Utils::FilePath &buildDirectory,
                       const Utils::FilePath &projectFile);
 protected:
     void processOutputLine(const QByteArray &outputLine) override;

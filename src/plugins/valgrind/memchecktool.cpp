@@ -7,7 +7,6 @@
 #include "valgrindengine.h"
 #include "valgrindrunner.h"
 #include "valgrindsettings.h"
-#include "valgrindsettings.h"
 #include "valgrindtr.h"
 
 #include "xmlprotocol/error.h"
@@ -30,8 +29,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -50,8 +49,9 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fancymainwindow.h>
 #include <utils/pathchooser.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -111,7 +111,7 @@ signals:
 
 private:
     QString progressTitle() const override;
-    QStringList toolArguments() const override;
+    void addToolArguments(CommandLine &cmd) const override;
 
     void startDebugger(qint64 valgrindPid);
     void appendLog(const QByteArray &data);
@@ -129,9 +129,9 @@ public:
     void start() override
     {
         QTC_ASSERT(!m_process, return);
-        m_process.reset(new QtcProcess);
+        m_process.reset(new Process);
         m_process->setCommand({device()->filePath("echo"), "-n $SSH_CLIENT", CommandLine::Raw});
-        connect(m_process.get(), &QtcProcess::done, this, [this] {
+        connect(m_process.get(), &Process::done, this, [this] {
             if (m_process->error() != QProcess::UnknownError) {
                 reportFailure();
                 return;
@@ -159,7 +159,7 @@ public:
     }
 
 private:
-    std::unique_ptr<QtcProcess> m_process = nullptr;
+    std::unique_ptr<Process> m_process = nullptr;
     QHostAddress *m_localServerAddress = nullptr;
 };
 
@@ -181,18 +181,18 @@ void MemcheckToolRunner::stop()
     ValgrindToolRunner::stop();
 }
 
-QStringList MemcheckToolRunner::toolArguments() const
+void MemcheckToolRunner::addToolArguments(CommandLine &cmd) const
 {
-    QStringList arguments = {"--tool=memcheck", "--gen-suppressions=all"};
+    cmd << "--tool=memcheck" << "--gen-suppressions=all";
 
-    if (m_settings.trackOrigins.value())
-        arguments << "--track-origins=yes";
+    if (m_settings.trackOrigins())
+        cmd << "--track-origins=yes";
 
-    if (m_settings.showReachable.value())
-        arguments << "--show-reachable=yes";
+    if (m_settings.showReachable())
+        cmd << "--show-reachable=yes";
 
     QString leakCheckValue;
-    switch (m_settings.leakCheckOnFinish.value()) {
+    switch (m_settings.leakCheckOnFinish()) {
     case ValgrindBaseSettings::LeakCheckOnFinishNo:
         leakCheckValue = "no";
         break;
@@ -204,24 +204,22 @@ QStringList MemcheckToolRunner::toolArguments() const
         leakCheckValue = "summary";
         break;
     }
-    arguments << "--leak-check=" + leakCheckValue;
+    cmd << "--leak-check=" + leakCheckValue;
 
-    for (const FilePath &file : m_settings.suppressions.value())
-        arguments << QString("--suppressions=%1").arg(file.path());
+    for (const FilePath &file : m_settings.suppressions())
+        cmd << QString("--suppressions=%1").arg(file.path());
 
-    arguments << QString("--num-callers=%1").arg(m_settings.numCallers.value());
+    cmd << QString("--num-callers=%1").arg(m_settings.numCallers());
 
     if (m_withGdb)
-        arguments << "--vgdb=yes" << "--vgdb-error=0";
+        cmd << "--vgdb=yes" << "--vgdb-error=0";
 
-    arguments << Utils::ProcessArgs::splitArgs(m_settings.memcheckArguments.value());
-
-    return arguments;
+    cmd.addArgs(m_settings.memcheckArguments(), CommandLine::Raw);
 }
 
 const FilePaths MemcheckToolRunner::suppressionFiles() const
 {
-    return m_settings.suppressions.value();
+    return m_settings.suppressions();
 }
 
 void MemcheckToolRunner::startDebugger(qint64 valgrindPid)
@@ -337,7 +335,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         // ALGORITHM: look at last five stack frames, if none of these is inside any open projects,
         // assume this error was created by an external library
         QSet<QString> validFolders;
-        for (Project *project : SessionManager::projects()) {
+        for (Project *project : ProjectManager::projects()) {
             validFolders << project->projectDirectory().toString();
             const QList<Target *> targets = project->targets();
             for (const Target *target : targets) {
@@ -609,7 +607,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     filterButton->setIcon(Icons::FILTER.icon());
     filterButton->setText(Tr::tr("Error Filter"));
     filterButton->setPopupMode(QToolButton::InstantPopup);
-    filterButton->setProperty("noArrow", true);
+    filterButton->setProperty(StyleHelper::C_NO_ARROW, true);
 
     m_filterMenu = new QMenu(filterButton);
     for (QAction *filterAction : std::as_const(m_errorFilterActions))
@@ -676,7 +674,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     menu->addAction(ActionManager::registerAction(action, "Memcheck.Remote"),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this, action] {
-        RunConfiguration *runConfig = SessionManager::startupRunConfiguration();
+        RunConfiguration *runConfig = ProjectManager::startupRunConfiguration();
         if (!runConfig) {
             showCannotStartDialog(action->text());
             return;
@@ -718,7 +716,7 @@ void MemcheckToolPrivate::heobAction()
     Abi abi;
     bool hasLocalRc = false;
     Kit *kit = nullptr;
-    if (Target *target = SessionManager::startupTarget()) {
+    if (Target *target = ProjectManager::startupTarget()) {
         if (RunConfiguration *rc = target->activeRunConfiguration()) {
             kit = target->kit();
             if (kit) {
@@ -800,19 +798,18 @@ void MemcheckToolPrivate::heobAction()
         const QString dwarfstack = QString("dwarfstack%1.dll").arg(abi.wordWidth());
         const QString dwarfstackPath = dialog.path() + '/' + dwarfstack;
         if (!QFile::exists(dwarfstackPath)
-            && CheckableMessageBox::doNotShowAgainInformation(
+            && CheckableMessageBox::information(
                    Core::ICore::dialogParent(),
                    Tr::tr("Heob"),
                    Tr::tr("Heob used with MinGW projects needs the %1 DLLs for proper "
-                                    "stacktrace resolution.")
+                          "stacktrace resolution.")
                        .arg(
                            "<a "
                            "href=\"https://github.com/ssbssa/dwarfstack/releases\">Dwarfstack</a>"),
-                   ICore::settings(),
-                   "HeobDwarfstackInfo",
-                   QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                   QDialogButtonBox::Ok)
-                   != QDialogButtonBox::Ok)
+                   QString("HeobDwarfstackInfo"),
+                   QMessageBox::Ok | QMessageBox::Cancel,
+                   QMessageBox::Ok)
+                   != QMessageBox::Ok)
             return;
     }
 
@@ -917,22 +914,22 @@ void MemcheckToolPrivate::updateFromSettings()
         for (const QVariant &v : actions) {
             bool ok;
             int kind = v.toInt(&ok);
-            if (ok && !m_settings->visibleErrorKinds.value().contains(kind))
+            if (ok && !m_settings->visibleErrorKinds().contains(kind))
                 contained = false;
         }
         action->setChecked(contained);
     }
 
-    m_filterProjectAction->setChecked(!m_settings->filterExternalIssues.value());
+    m_filterProjectAction->setChecked(!m_settings->filterExternalIssues());
     m_errorView->settingsChanged(m_settings);
 
     connect(&m_settings->visibleErrorKinds, &IntegersAspect::valueChanged,
             &m_errorProxyModel, &MemcheckErrorFilterProxyModel::setAcceptedKinds);
-    m_errorProxyModel.setAcceptedKinds(m_settings->visibleErrorKinds.value());
+    m_errorProxyModel.setAcceptedKinds(m_settings->visibleErrorKinds());
 
     connect(&m_settings->filterExternalIssues, &BoolAspect::valueChanged,
             &m_errorProxyModel, &MemcheckErrorFilterProxyModel::setFilterExternalIssues);
-    m_errorProxyModel.setFilterExternalIssues(m_settings->filterExternalIssues.value());
+    m_errorProxyModel.setFilterExternalIssues(m_settings->filterExternalIssues());
 }
 
 void MemcheckToolPrivate::maybeActiveRunConfigurationChanged()
@@ -940,7 +937,7 @@ void MemcheckToolPrivate::maybeActiveRunConfigurationChanged()
     updateRunActions();
 
     ValgrindBaseSettings *settings = nullptr;
-    if (Project *project = SessionManager::startupProject())
+    if (Project *project = ProjectManager::startupProject())
         if (Target *target = project->activeTarget())
             if (RunConfiguration *rc = target->activeRunConfiguration())
                 settings = rc->currentSettings<ValgrindBaseSettings>(ANALYZER_VALGRIND_SETTINGS);

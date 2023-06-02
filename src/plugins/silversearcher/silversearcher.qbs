@@ -9,16 +9,14 @@ QtcPlugin {
 
     files: [
         "findinfilessilversearcher.cpp", "findinfilessilversearcher.h",
-        "silversearcheroutputparser.cpp", "silversearcheroutputparser.h",
+        "silversearcherparser.cpp", "silversearcherparser.h",
         "silversearcherplugin.cpp", "silversearcherplugin.h",
     ]
 
-    Group {
-        name: "Tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         files: [
-            "outputparser_test.cpp",
-            "outputparser_test.h",
+            "silversearcherparser_test.cpp",
+            "silversearcherparser_test.h",
         ]
     }
 }

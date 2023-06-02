@@ -1,0 +1,42 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "E.Markdown",
+    "category": "U.General",
+    "trDescription": "Creates a markdown file.",
+    "trDisplayName": "Markdown File",
+    "trDisplayCategory": "General",
+    "iconText": "md",
+    "platformIndependent": true,
+    "enabled": "%{JS: value('Plugins').indexOf('TextEditor') >= 0}",
+
+    "options": [
+        { "key": "FileName", "value": "%{JS: Util.fileName(value('TargetPath'), 'md')}" }
+    ],
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.md",
+                "target": "%{FileName}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QAbstractItemModel>
 #include <QStringList>
 
@@ -29,7 +31,7 @@ public:
 
     void clearModel();
 
-    void setSourceFiles(const QMap<QString, QString> &sourceFiles);
+    void setSourceFiles(const QMap<QString, Utils::FilePath> &sourceFiles);
     void removeAll();
 
     QAbstractItemModel *model() { return m_proxyModel; }
@@ -37,7 +39,7 @@ public:
 private:
     DebuggerEngine *m_engine;
     QStringList m_shortNames;
-    QStringList m_fullNames;
+    Utils::FilePaths m_fullNames;
     QAbstractItemModel *m_proxyModel;
 };
 

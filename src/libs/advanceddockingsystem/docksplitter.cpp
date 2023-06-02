@@ -3,13 +3,14 @@
 
 #include "docksplitter.h"
 
+#include "ads_globals_p.h"
 #include "dockareawidget.h"
+
+#include <utils/stylehelper.h>
 
 #include <QChildEvent>
 #include <QLoggingCategory>
 #include <QVariant>
-
-static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg)
 
 namespace ADS
 {
@@ -31,7 +32,7 @@ namespace ADS
         , d(new DockSplitterPrivate(this))
     {
         //setProperty("ads-splitter", true); // TODO
-        setProperty("minisplitter", true);
+        setProperty(Utils::StyleHelper::C_MINI_SPLITTER, true);
         setChildrenCollapsible(false);
     }
 

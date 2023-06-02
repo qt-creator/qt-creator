@@ -6,12 +6,10 @@
 #include "timelinetracemanager.h"
 #include "tracingtr.h"
 
+#include <utils/async.h>
 #include <utils/qtcassert.h>
-#include <utils/temporaryfile.h>
-#include <utils/runextensions.h>
 
 #include <QFile>
-#include <QDataStream>
 
 #include <memory>
 
@@ -223,8 +221,11 @@ QFuture<void> TimelineTraceManager::save(const QString &filename)
     connect(writer, &QObject::destroyed, this, &TimelineTraceManager::saveFinished);
     connect(writer, &TimelineTraceFile::error, this, &TimelineTraceManager::error);
 
-    return Utils::runAsync([filename, writer] (QFutureInterface<void> &future) {
-        writer->setFuture(future);
+    QFutureInterface<void> fi;
+    fi.reportStarted();
+    writer->setFuture(fi);
+
+    Utils::asyncRun([filename, writer, fi] {
         QFile file(filename);
 
         if (file.open(QIODevice::WriteOnly))
@@ -232,10 +233,13 @@ QFuture<void> TimelineTraceManager::save(const QString &filename)
         else
             writer->fail(Tr::tr("Could not open %1 for writing.").arg(filename));
 
-        if (future.isCanceled())
+        if (fi.isCanceled())
             file.remove();
         writer->deleteLater();
+        QFutureInterface fiCopy = fi;
+        fiCopy.reportFinished();
     });
+    return fi.future();
 }
 
 QFuture<void> TimelineTraceManager::load(const QString &filename)
@@ -249,8 +253,10 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
     connect(reader, &QObject::destroyed, this, &TimelineTraceManager::loadFinished);
     connect(reader, &TimelineTraceFile::error, this, &TimelineTraceManager::error);
 
-    QFuture<void> future = Utils::runAsync([filename, reader] (QFutureInterface<void> &future) {
-        reader->setFuture(future);
+    QFutureInterface<void> fi;
+    fi.reportStarted();
+    reader->setFuture(fi);
+    Utils::asyncRun([filename, reader, fi] {
         QFile file(filename);
 
         if (file.open(QIODevice::ReadOnly))
@@ -259,11 +265,13 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
             reader->fail(Tr::tr("Could not open %1 for reading.").arg(filename));
 
         reader->deleteLater();
+        QFutureInterface fiCopy = fi;
+        fiCopy.reportFinished();
     });
 
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>(reader);
     connect(watcher, &QFutureWatcherBase::canceled, this, &TimelineTraceManager::clearAll);
-    connect(watcher, &QFutureWatcherBase::finished, this, [this, reader]() {
+    connect(watcher, &QFutureWatcherBase::finished, this, [this, reader] {
         if (!reader->isCanceled()) {
             if (reader->traceStart() >= 0)
                 decreaseTraceStart(reader->traceStart());
@@ -272,9 +280,8 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
             finalize();
         }
     });
-    watcher->setFuture(future);
-
-    return future;
+    watcher->setFuture(fi.future());
+    return fi.future();
 }
 
 qint64 TimelineTraceManager::traceStart() const
@@ -366,10 +373,9 @@ void TimelineTraceManager::restrictByFilter(TraceEventFilter filter)
 
     QFutureInterface<void> future;
     replayEvents(filter(std::bind(&TimelineTraceManagerPrivate::dispatch, d,
-                                  std::placeholders::_1, std::placeholders::_2)),
-                 [this]() {
+                                  std::placeholders::_1, std::placeholders::_2)), [this] {
         initialize();
-    }, [this]() {
+    }, [this] {
         if (d->notesModel)
             d->notesModel->restore();
         finalize();

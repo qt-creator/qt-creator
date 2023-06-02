@@ -30,7 +30,7 @@ function(_extract_ts_data_from_targets outprefix)
 
         set(_target_sources "")
         if(_source_files)
-          list(FILTER _source_files EXCLUDE REGEX ".*[.]json[.]in|.*[.]svg")
+          list(FILTER _source_files EXCLUDE REGEX ".*[.]json[.]in|.*[.]svg|.*[.]pro|.*[.]css")
           list(APPEND _target_sources ${_source_files})
         endif()
         if(_extra_translations)
@@ -130,7 +130,7 @@ endfunction()
 function(add_translation_targets file_prefix)
   if (NOT TARGET Qt::lrelease OR NOT TARGET Qt::lupdate)
     # No Qt translation tools were found: Skip this directory
-    message(WARNING "No Qt translation tools found, skipping translation targets. Add find_package(Qt5 COMPONENTS LinguistTools) to CMake to enable.")
+    message(WARNING "No Qt translation tools found, skipping translation targets. Add find_package(Qt6 COMPONENTS LinguistTools) to CMake to enable.")
     return()
   endif()
 

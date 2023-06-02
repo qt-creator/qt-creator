@@ -9,8 +9,8 @@
 
 #include <utils/port.h>
 #include <utils/portlist.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/url.h>
 
@@ -22,7 +22,7 @@ namespace Internal {
 class DeviceUsedPortsGathererPrivate
 {
 public:
-    std::unique_ptr<QtcProcess> process;
+    std::unique_ptr<Process> process;
     QList<Port> usedPorts;
     IDevice::ConstPtr device;
     PortsGatheringMethod portsGatheringMethod;
@@ -54,10 +54,10 @@ void DeviceUsedPortsGatherer::start()
 
     const QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::AnyIPProtocol;
 
-    d->process.reset(new QtcProcess);
+    d->process.reset(new Process);
     d->process->setCommand(d->portsGatheringMethod.commandLine(protocol));
 
-    connect(d->process.get(), &QtcProcess::done, this, &DeviceUsedPortsGatherer::handleProcessDone);
+    connect(d->process.get(), &Process::done, this, &DeviceUsedPortsGatherer::handleProcessDone);
     d->process->start();
 }
 
@@ -114,12 +114,6 @@ void DeviceUsedPortsGatherer::handleProcessDone()
         emitError(Utils::joinStrings({errorString, outputString}, '\n'));
     }
     stop();
-}
-
-DeviceUsedPortsGathererAdapter::DeviceUsedPortsGathererAdapter()
-{
-    connect(task(), &DeviceUsedPortsGatherer::portListReady, this, [this] { emit done(true); });
-    connect(task(), &DeviceUsedPortsGatherer::error, this, [this] { emit done(false); });
 }
 
 // PortGatherer

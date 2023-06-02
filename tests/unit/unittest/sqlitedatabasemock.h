@@ -28,7 +28,7 @@ public:
 
     MOCK_METHOD(void, prepare, (Utils::SmallStringView sqlStatement), ());
 
-    MOCK_METHOD(void, execute, (Utils::SmallStringView sqlStatement), ());
+    MOCK_METHOD(void, execute, (Utils::SmallStringView sqlStatement), (override));
 
     MOCK_METHOD(int64_t, lastInsertedRowId, (), (const));
 

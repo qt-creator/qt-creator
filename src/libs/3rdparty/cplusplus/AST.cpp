@@ -911,6 +911,8 @@ int DeclaratorAST::lastToken() const
             return candidate;
     if (equal_token)
         return equal_token + 1;
+    if (requiresClause)
+        return requiresClause->lastToken();
     if (post_attribute_list)
         if (int candidate = post_attribute_list->lastToken())
             return candidate;
@@ -1657,12 +1659,18 @@ int LambdaDeclaratorAST::firstToken() const
     if (trailing_return_type)
         if (int candidate = trailing_return_type->firstToken())
             return candidate;
+    if (requiresClause)
+        if (int candidate = requiresClause->firstToken())
+            return candidate;
     return 0;
 }
 
 /** \generated */
 int LambdaDeclaratorAST::lastToken() const
 {
+    if (requiresClause)
+        if (int candidate = requiresClause->firstToken())
+            return candidate;
     if (trailing_return_type)
         if (int candidate = trailing_return_type->lastToken())
             return candidate;
@@ -1690,6 +1698,15 @@ int LambdaExpressionAST::firstToken() const
     if (lambda_introducer)
         if (int candidate = lambda_introducer->firstToken())
             return candidate;
+    if (templateParameters)
+        if (int candidate = templateParameters->firstToken())
+            return candidate;
+    if (requiresClause)
+        if (int candidate = requiresClause->firstToken())
+            return candidate;
+    if (attributes)
+        if (int candidate = attributes->firstToken())
+            return candidate;
     if (lambda_declarator)
         if (int candidate = lambda_declarator->firstToken())
             return candidate;
@@ -1707,6 +1724,15 @@ int LambdaExpressionAST::lastToken() const
             return candidate;
     if (lambda_declarator)
         if (int candidate = lambda_declarator->lastToken())
+            return candidate;
+    if (attributes)
+        if (int candidate = attributes->firstToken())
+            return candidate;
+    if (requiresClause)
+        if (int candidate = requiresClause->firstToken())
+            return candidate;
+    if (templateParameters)
+        if (int candidate = templateParameters->firstToken())
             return candidate;
     if (lambda_introducer)
         if (int candidate = lambda_introducer->lastToken())
@@ -3761,6 +3787,8 @@ int TemplateTypeParameterAST::firstToken() const
 {
     if (template_token)
         return template_token;
+    if (typeConstraint)
+        return typeConstraint->firstToken();
     if (less_token)
         return less_token;
     if (template_parameter_list)
@@ -3805,6 +3833,8 @@ int TemplateTypeParameterAST::lastToken() const
             return candidate;
     if (less_token)
         return less_token + 1;
+    if (typeConstraint)
+        return typeConstraint->lastToken();
     if (template_token)
         return template_token + 1;
     return 1;
@@ -4633,4 +4663,34 @@ int NoExceptOperatorExpressionAST::lastToken() const
     if (noexcept_token)
         return noexcept_token + 1;
     return 1;
+}
+
+int TypeConstraintAST::firstToken() const
+{
+    if (nestedName)
+        return nestedName->firstToken();
+    return conceptName->firstToken();
+}
+
+int TypeConstraintAST::lastToken() const
+{
+    if (greaterToken)
+        return greaterToken + 1;
+    return conceptName->lastToken();
+}
+
+int PlaceholderTypeSpecifierAST::firstToken() const
+{
+    if (typeConstraint)
+        return typeConstraint->firstToken();
+    if (declTypetoken)
+        return declTypetoken;
+    return autoToken;
+}
+
+int PlaceholderTypeSpecifierAST::lastToken() const
+{
+    if (rparenToken)
+        return rparenToken + 1;
+    return autoToken + 1;
 }

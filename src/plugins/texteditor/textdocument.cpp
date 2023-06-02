@@ -373,6 +373,16 @@ QAction *TextDocument::createDiffAgainstCurrentFileAction(
     return diffAction;
 }
 
+void TextDocument::insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion)
+{
+    QTextCursor cursor(&d->m_document);
+    cursor.setPosition(suggestion->position());
+    const QTextBlock block = cursor.block();
+    TextDocumentLayout::userData(block)->insertSuggestion(std::move(suggestion));
+    TextDocumentLayout::updateSuggestionFormats(block, fontSettings());
+    updateLayout();
+}
+
 #ifdef WITH_TESTS
 void TextDocument::setSilentReload()
 {
@@ -419,6 +429,12 @@ IAssistProvider *TextDocument::quickFixAssistProvider() const
 void TextDocument::applyFontSettings()
 {
     d->m_fontSettingsNeedsApply = false;
+    QTextBlock block = document()->firstBlock();
+    while (block.isValid()) {
+        TextDocumentLayout::updateSuggestionFormats(block, fontSettings());
+        block = block.next();
+    }
+    updateLayout();
     if (d->m_highlighter) {
         d->m_highlighter->setFontSettings(d->m_fontSettings);
         d->m_highlighter->rehighlight();
@@ -820,15 +836,14 @@ bool TextDocument::reload(QString *errorString, const FilePath &realFilePath)
     emit aboutToReload();
     auto documentLayout =
         qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
-    TextMarks marks;
     if (documentLayout)
-        marks = documentLayout->documentClosing(); // removes text marks non-permanently
+        documentLayout->documentAboutToReload(); // removes text marks non-permanently
 
     bool success = openImpl(errorString, filePath(), realFilePath, /*reload =*/true)
                    == OpenResult::Success;
 
     if (documentLayout)
-        documentLayout->documentReloaded(marks, this); // re-adds text marks
+        documentLayout->documentReloaded(this); // re-adds text marks
     emit reloadFinished(success);
     return success;
 }

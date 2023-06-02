@@ -7,10 +7,10 @@
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "projectnodes.h"
 #include "projecttree.h"
 #include "projectwizardpage.h"
-#include "session.h"
 
 #include <coreplugin/icore.h>
 
@@ -27,7 +27,6 @@
 #include <utils/stringutils.h>
 
 #include <QDebug>
-#include <QFileInfo>
 #include <QMessageBox>
 #include <QPointer>
 #include <QTextCursor>
@@ -134,7 +133,7 @@ Node *ProjectFileWizardExtension::findWizardContextNode(Node *contextNode, Proje
                                                         const FilePath &path)
 {
     if (contextNode && !ProjectTree::hasNode(contextNode)) {
-        if (SessionManager::projects().contains(project) && project->rootProjectNode()) {
+        if (ProjectManager::projects().contains(project) && project->rootProjectNode()) {
             contextNode = project->rootProjectNode()->findNode([path](const Node *n) {
                 return path == n->filePath();
             });

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QObject>
 #include <QStringList>
@@ -49,7 +49,7 @@ private:
     void chooseAction();
     void addButton(QMessageBox *msgBox, const QString &text, char key);
 
-    Utils::QtcProcess m_process;
+    Utils::Process m_process;
     MergeType m_mergeType = NormalMerge;
     QString m_fileName;
     FileState m_localState = UnknownState;

@@ -291,8 +291,8 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
         return OpenResult::ReadError;
     }
 
-    bool ok = false;
-    QList<FileData> fileDataList = DiffUtils::readPatch(patch, &ok);
+    const std::optional<QList<FileData>> fileDataList = DiffUtils::readPatch(patch);
+    bool ok = fileDataList.has_value();
     if (!ok) {
         *errorString = Tr::tr("Could not parse patch file \"%1\". "
                               "The content is not of unified diff format.")
@@ -302,7 +302,7 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
         emit temporaryStateChanged();
         setFilePath(filePath.absoluteFilePath());
         setWorkingDirectory(filePath.absoluteFilePath());
-        setDiffFiles(fileDataList);
+        setDiffFiles(*fileDataList);
     }
     endReload(ok);
     if (!ok && readResult == TextFileFormat::ReadEncodingError)

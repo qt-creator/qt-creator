@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "MesonProjectManager.MesonProject", "CMakeProjectManager.CMakeProject", "Qbs.QbsProject", "Qt4ProjectManager.Qt4Project" ],
     "id": "H.CppLibrary",
     "category": "G.Library",
-    "trDescription": "Creates a C++ library. This can be used to create:<ul><li>a shared C++ library for use with <tt>QPluginLoader</tt> and runtime (Plugins)</li><li>a shared or static C++ library for use with another project at linktime</li></ul>",
+    "trDescription": "Creates a C++ library. You can create:<ul><li>a shared C++ library for use with <tt>QPluginLoader</tt> and runtime (Plugins)</li><li>a shared or static C++ library for use with another project at linktime</li></ul>",
     "trDisplayName": "C++ Library",
     "trDisplayCategory": "Library",
     "icon": "../../global/lib.png",

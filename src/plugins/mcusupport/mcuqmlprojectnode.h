@@ -9,7 +9,7 @@
 
 #include <utils/filepath.h>
 #include <utils/osspecificaspects.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>

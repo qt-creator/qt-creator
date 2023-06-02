@@ -37,14 +37,15 @@ NimCodeStylePreferencesWidget::NimCodeStylePreferencesWidget(ICodeStylePreferenc
     m_previewTextEdit = new SnippetEditorWidget;
     m_previewTextEdit->setPlainText(Nim::Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Row {
         Column {
             tabPreferencesWidget,
             st,
         },
         m_previewTextEdit,
-    }.attachTo(this, WithoutMargins);
+        noMargin,
+    }.attachTo(this);
 
     decorateEditor(TextEditorSettings::fontSettings());
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,

@@ -13,6 +13,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/futuresynchronizer.h>
+#include <utils/process.h>
 
 #include <QObject>
 #include <QString>
@@ -78,6 +79,12 @@ public:
 };
 
 struct Author {
+    bool operator==(const Author &other) const {
+        return name == other.name && email == other.email;
+    }
+    bool operator!=(const Author &other) const {
+        return !operator==(other);
+    }
     QString name;
     QString email;
 };
@@ -114,9 +121,8 @@ public:
         PushAction m_pushAction = NoPush;
     };
 
-    explicit GitClient(GitSettings *settings);
+    GitClient();
     static GitClient *instance();
-    static GitSettings &settings();
 
     Utils::FilePath vcsBinary() const override;
     QFuture<unsigned> gitVersion() const;
@@ -241,9 +247,9 @@ public:
     QString synchronousTopic(const Utils::FilePath &workingDirectory) const;
     bool synchronousRevParseCmd(const Utils::FilePath &workingDirectory, const QString &ref,
                                 QString *output, QString *errorMessage = nullptr) const;
-    QString synchronousTopRevision(const Utils::FilePath &workingDirectory, QDateTime *dateTime = nullptr);
+    Tasking::ProcessTask topRevision(const Utils::FilePath &workingDirectory,
+        const std::function<void(const QString &, const QDateTime &)> &callback);
     bool isRemoteCommit(const Utils::FilePath &workingDirectory, const QString &commit);
-    bool isFastForwardMerge(const Utils::FilePath &workingDirectory, const QString &branch);
 
     void fetch(const Utils::FilePath &workingDirectory, const QString &remote);
     void pull(const Utils::FilePath &workingDirectory, bool rebase);
@@ -343,12 +349,19 @@ public:
     Core::IEditor *openShowEditor(const Utils::FilePath &workingDirectory, const QString &ref,
                                   const Utils::FilePath &path, ShowEditor showSetting = ShowEditor::Always);
 
+    Author parseAuthor(const QString &authorInfo);
     Author getAuthor(const Utils::FilePath &workingDirectory);
 
+    QTextCodec *defaultCommitEncoding() const;
     enum EncodingType { EncodingSource, EncodingLogOutput, EncodingCommit, EncodingDefault };
     QTextCodec *encoding(EncodingType encodingType, const Utils::FilePath &source = {}) const;
 
+    void readConfigAsync(const Utils::FilePath &workingDirectory, const QStringList &arguments,
+                         const VcsBase::CommandHandler &handler) const;
+
 private:
+    static GitSettings &settings();
+
     void finishSubmoduleUpdate();
     void chunkActionsRequested(DiffEditor::DiffEditorController *controller,
                                QMenu *menu, int fileIndex, int chunkIndex,
@@ -400,6 +413,7 @@ private:
     QString m_diffCommit;
     Utils::FilePaths m_updatedSubmodules;
     bool m_disableEditor = false;
+    // The synchronizer has cancelOnWait set to true by default.
     Utils::FutureSynchronizer m_synchronizer; // for commit updates
 };
 

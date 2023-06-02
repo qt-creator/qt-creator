@@ -8,13 +8,13 @@
 #include "macrostr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icore.h>
 
 #include <QPixmap>
 
+using namespace Core;
 using namespace Macros;
 using namespace Macros::Internal;
+using namespace Utils;
 
 MacroLocatorFilter::MacroLocatorFilter()
     : m_icon(QPixmap(":/macros/images/macro.png"))
@@ -26,54 +26,50 @@ MacroLocatorFilter::MacroLocatorFilter()
     setDefaultShortcutString("rm");
 }
 
-MacroLocatorFilter::~MacroLocatorFilter() = default;
-
-QList<Core::LocatorFilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+LocatorMatcherTasks MacroLocatorFilter::matchers()
 {
-    Q_UNUSED(future)
-    QList<Core::LocatorFilterEntry> goodEntries;
-    QList<Core::LocatorFilterEntry> betterEntries;
+    using namespace Tasking;
 
-    const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
+    TreeStorage<LocatorStorage> storage;
 
-    const QMap<QString, Macro*> &macros = MacroManager::macros();
+    const auto onSetup = [storage, icon = m_icon] {
+        const QString input = storage->input();
+        const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(input);
+        const QMap<QString, Macro *> &macros = MacroManager::macros();
+        LocatorFilterEntries goodEntries;
+        LocatorFilterEntries betterEntries;
+        for (auto it = macros.cbegin(); it != macros.cend(); ++it) {
+            const QString displayName = it.key();
+            const QString description = it.value()->description();
+            int index = displayName.indexOf(input, 0, entryCaseSensitivity);
+            LocatorFilterEntry::HighlightInfo::DataType hDataType
+                = LocatorFilterEntry::HighlightInfo::DisplayName;
+            if (index < 0) {
+                index = description.indexOf(input, 0, entryCaseSensitivity);
+                hDataType = LocatorFilterEntry::HighlightInfo::ExtraInfo;
+            }
 
-    for (auto it = macros.cbegin(), end = macros.cend(); it != end; ++it) {
-        const QString displayName = it.key();
-        const QString description = it.value()->description();
-
-        int index = displayName.indexOf(entry, 0, entryCaseSensitivity);
-        Core::LocatorFilterEntry::HighlightInfo::DataType hDataType = Core::LocatorFilterEntry::HighlightInfo::DisplayName;
-        if (index < 0) {
-            index = description.indexOf(entry, 0, entryCaseSensitivity);
-            hDataType = Core::LocatorFilterEntry::HighlightInfo::ExtraInfo;
+            if (index >= 0) {
+                LocatorFilterEntry filterEntry;
+                filterEntry.displayName = displayName;
+                filterEntry.acceptor = [displayName] {
+                    IEditor *editor = EditorManager::currentEditor();
+                    if (editor)
+                        editor->widget()->setFocus(Qt::OtherFocusReason);
+                    MacroManager::instance()->executeMacro(displayName);
+                    return AcceptResult();
+                };
+                filterEntry.displayIcon = icon;
+                filterEntry.extraInfo = description;
+                filterEntry.highlightInfo = LocatorFilterEntry::HighlightInfo(index, input.length(),
+                                                                              hDataType);
+                if (index == 0)
+                    betterEntries.append(filterEntry);
+                else
+                    goodEntries.append(filterEntry);
+            }
         }
-
-        if (index >= 0) {
-            Core::LocatorFilterEntry filterEntry(this, displayName, {}, m_icon);
-            filterEntry.extraInfo = description;
-            filterEntry.highlightInfo = Core::LocatorFilterEntry::HighlightInfo(index, entry.length(), hDataType);
-
-            if (index == 0)
-                betterEntries.append(filterEntry);
-            else
-                goodEntries.append(filterEntry);
-        }
-    }
-    betterEntries.append(goodEntries);
-    return betterEntries;
-}
-
-void MacroLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
-                                QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    // Give the focus back to the editor
-    Core::IEditor *editor = Core::EditorManager::currentEditor();
-    if (editor)
-        editor->widget()->setFocus(Qt::OtherFocusReason);
-
-    MacroManager::instance()->executeMacro(selection.displayName);
+        storage->reportOutput(betterEntries + goodEntries);
+    };
+    return {{Sync(onSetup), storage}};
 }

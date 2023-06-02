@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qnxanalyzesupport.h"
-#include "qnxconfigurationmanager.h"
 #include "qnxconstants.h"
 #include "qnxdebugsupport.h"
 #include "qnxdevice.h"
@@ -33,8 +32,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
-#include <remotelinux/genericdirectuploadstep.h>
-#include <remotelinux/makeinstallstep.h>
 #include <remotelinux/remotelinux_constants.h>
 
 #include <QAction>
@@ -43,21 +40,12 @@ using namespace ProjectExplorer;
 
 namespace Qnx::Internal {
 
-class QnxUploadStep : public RemoteLinux::GenericDirectUploadStep
+class QnxDeployStepFactory : public BuildStepFactory
 {
 public:
-    QnxUploadStep(BuildStepList *bsl, Utils::Id id) : GenericDirectUploadStep(bsl, id, false) {}
-    static Utils::Id stepId() { return "Qnx.DirectUploadStep"; }
-};
-
-template <class Step>
-class GenericQnxDeployStepFactory : public BuildStepFactory
-{
-public:
-    GenericQnxDeployStepFactory()
+    QnxDeployStepFactory(Utils::Id existingStepId, Utils::Id overrideId = {})
     {
-        registerStep<Step>(Step::stepId());
-        setDisplayName(Step::displayName());
+        cloneStepCreator(existingStepId, overrideId);
         setSupportedConfiguration(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }
@@ -78,8 +66,8 @@ public:
             return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
                     && prj->hasMakeInstallEquivalent();
         });
-        addInitialStep(DeviceCheckBuildStep::stepId());
-        addInitialStep(QnxUploadStep::stepId());
+        addInitialStep(ProjectExplorer::Constants::DEVICE_CHECK_STEP);
+        addInitialStep(Constants::QNX_DIRECT_UPLOAD_STEP_ID);
     }
 };
 
@@ -91,15 +79,14 @@ public:
     QAction *m_debugSeparator = nullptr;
     QAction m_attachToQnxApplication{Tr::tr("Attach to remote QNX application..."), nullptr};
 
-    QnxConfigurationManager configurationManager;
+    QnxSettingsPage settingsPage;
     QnxQtVersionFactory qtVersionFactory;
     QnxDeviceFactory deviceFactory;
     QnxDeployConfigurationFactory deployConfigFactory;
-    GenericQnxDeployStepFactory<QnxUploadStep> directUploadDeployFactory;
-    GenericQnxDeployStepFactory<RemoteLinux::MakeInstallStep> makeInstallDeployFactory;
-    GenericQnxDeployStepFactory<DeviceCheckBuildStep> checkBuildDeployFactory;
+    QnxDeployStepFactory directUploadDeployFactory{RemoteLinux::Constants::DirectUploadStepId,
+                                                   Constants::QNX_DIRECT_UPLOAD_STEP_ID};
+    QnxDeployStepFactory makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
     QnxRunConfigurationFactory runConfigFactory;
-    QnxSettingsPage settingsPage;
     QnxToolChainFactory toolChainFactory;
     SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
     QnxDebugWorkerFactory debugWorkerFactory;
@@ -123,10 +110,6 @@ private:
 
 void QnxPlugin::extensionsInitialized()
 {
-    // Can't do yet as not all devices are around.
-    connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
-            &d->configurationManager, &QnxConfigurationManager::restoreConfigurations);
-
     // Attach support
     connect(&d->m_attachToQnxApplication, &QAction::triggered, this, &showAttachToProcessDialog);
 

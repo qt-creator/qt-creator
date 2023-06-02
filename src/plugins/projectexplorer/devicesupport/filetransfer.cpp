@@ -16,43 +16,18 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-FileTransferDirection FileToTransfer::direction() const
-{
-    if (m_source.needsDevice() == m_target.needsDevice())
-        return FileTransferDirection::Invalid;
-    return m_source.needsDevice() ? FileTransferDirection::Download : FileTransferDirection::Upload;
-}
-
 QString FileTransferSetupData::defaultRsyncFlags()
 {
     return "-av";
 }
 
-static FileTransferDirection transferDirection(const FilesToTransfer &files)
-{
-    if (files.isEmpty())
-        return FileTransferDirection::Invalid;
-
-    const FileTransferDirection direction = files.first().direction();
-    for (const FileToTransfer &file : files) {
-        if (file.direction() != direction)
-            return FileTransferDirection::Invalid;
-    }
-    return direction;
-}
-
-static const FilePath &remoteFile(FileTransferDirection direction, const FileToTransfer &file)
-{
-    return direction == FileTransferDirection::Upload ? file.m_target : file.m_source;
-}
-
-static IDeviceConstPtr matchedDevice(FileTransferDirection direction, const FilesToTransfer &files)
+static IDeviceConstPtr matchedDevice(const FilesToTransfer &files)
 {
     if (files.isEmpty())
         return {};
-    const FilePath &filePath = remoteFile(direction, files.first());
+    const FilePath filePath = files.first().m_target;
     for (const FileToTransfer &file : files) {
-        if (!filePath.isSameDevice(remoteFile(direction, file)))
+        if (!filePath.isSameDevice(file.m_target))
             return {};
     }
     return DeviceManager::deviceForPath(filePath);
@@ -102,15 +77,11 @@ void FileTransferPrivate::start()
     if (m_setup.m_files.isEmpty())
         return startFailed(Tr::tr("No files to transfer."));
 
-    const FileTransferDirection direction = transferDirection(m_setup.m_files);
-
-    IDeviceConstPtr device;
-    if (direction != FileTransferDirection::Invalid)
-        device = matchedDevice(direction, m_setup.m_files);
+    IDeviceConstPtr device = matchedDevice(m_setup.m_files);
 
     if (!device) {
         // Fall back to generic copy.
-        const FilePath &filePath = m_setup.m_files.first().m_target;
+        const FilePath filePath = m_setup.m_files.first().m_target;
         device = DeviceManager::deviceForPath(filePath);
         m_setup.m_method = FileTransferMethod::GenericCopy;
     }
@@ -222,7 +193,7 @@ QString FileTransfer::transferMethodName(FileTransferMethod method)
     return {};
 }
 
-FileTransferAdapter::FileTransferAdapter()
+FileTransferTaskAdapter::FileTransferTaskAdapter()
 {
     connect(task(), &FileTransfer::done, this, [this](const ProcessResultData &result) {
         emit done(result.m_exitStatus == QProcess::NormalExit

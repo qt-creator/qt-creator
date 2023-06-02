@@ -13,7 +13,6 @@ QtcPlugin {
         "conanconstants.h",
         "conaninstallstep.h",
         "conaninstallstep.cpp",
-        "conanplugin.h",
         "conanplugin.cpp",
         "conansettings.h",
         "conansettings.cpp",

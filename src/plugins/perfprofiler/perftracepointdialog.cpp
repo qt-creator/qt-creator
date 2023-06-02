@@ -8,12 +8,12 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/layoutbuilder.h>
+#include <utils/process.h>
+#include <utils/qtcassert.h>
 
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -41,7 +41,7 @@ PerfTracePointDialog::PerfTracePointDialog()
     m_privilegesChooser->addItems({ELEVATE_METHOD_NA, ELEVATE_METHOD_PKEXEC, ELEVATE_METHOD_SUDO});
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         m_label,
         m_textEdit,
@@ -51,7 +51,7 @@ PerfTracePointDialog::PerfTracePointDialog()
         m_buttonBox,
     }.attachTo(this);
 
-    if (const Target *target = SessionManager::startupTarget()) {
+    if (const Target *target = ProjectManager::startupTarget()) {
         const Kit *kit = target->kit();
         QTC_ASSERT(kit, return);
 
@@ -93,7 +93,7 @@ void PerfTracePointDialog::runScript()
     m_privilegesChooser->setEnabled(false);
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    m_process.reset(new QtcProcess(this));
+    m_process.reset(new Process(this));
     m_process->setWriteData(m_textEdit->toPlainText().toUtf8());
     m_textEdit->clear();
 
@@ -103,7 +103,7 @@ void PerfTracePointDialog::runScript()
     else
         m_process->setCommand({m_device->filePath("sh"), {}});
 
-    connect(m_process.get(), &QtcProcess::done, this, &PerfTracePointDialog::handleProcessDone);
+    connect(m_process.get(), &Process::done, this, &PerfTracePointDialog::handleProcessDone);
     m_process->start();
 }
 

@@ -187,10 +187,8 @@ public:
     bool pullOrPush(SyncMode mode);
 
     // Variables
-    FossilSettings m_fossilSettings;
-    FossilClient m_client{&m_fossilSettings};
-
-    OptionsPage optionPage{[this] { configurationChanged(); }, &m_fossilSettings};
+    FossilSettings m_settings;
+    FossilClient m_client;
 
     VcsSubmitEditorFactory submitEditorFactory {
         submitEditorParameters,
@@ -274,11 +272,6 @@ void FossilPlugin::extensionsInitialized()
     dd->extensionsInitialized();
 }
 
-const FossilSettings &FossilPlugin::settings()
-{
-    return dd->m_fossilSettings;
-}
-
 FossilClient *FossilPlugin::client()
 {
     return &dd->m_client;
@@ -293,11 +286,13 @@ FossilPluginPrivate::FossilPluginPrivate()
     connect(&m_client, &VcsBase::VcsBaseClient::changed, this, &FossilPluginPrivate::changed);
 
     m_commandLocator = new Core::CommandLocator("Fossil", "fossil", "fossil", this);
+    m_commandLocator->setDescription(Tr::tr("Triggers a Fossil version control operation."));
 
     ProjectExplorer::JsonWizardFactory::addWizardPath(Utils::FilePath::fromString(Constants::WIZARD_PATH));
-    Core::JsExpander::registerGlobalObject("Fossil", [this] {
-        return new FossilJsExtension(&m_fossilSettings);
-    });
+    Core::JsExpander::registerGlobalObject("Fossil", [] { return new FossilJsExtension; });
+
+    connect(&settings(), &AspectContainer::changed,
+            this, &IVersionControl::configurationChanged);
 
     createMenu(context);
 }
@@ -337,7 +332,7 @@ void FossilPluginPrivate::createFileActions(const Core::Context &context)
     command = Core::ActionManager::registerAction(m_diffFile, Constants::DIFF, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+D")
-                                                                      : Tr::tr("ALT+I,Alt+D")));
+                                                                      : Tr::tr("Alt+I,Alt+D")));
     connect(m_diffFile, &QAction::triggered, this, &FossilPluginPrivate::diffCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -346,7 +341,7 @@ void FossilPluginPrivate::createFileActions(const Core::Context &context)
     command = Core::ActionManager::registerAction(m_logFile, Constants::LOG, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+L")
-                                                                      : Tr::tr("ALT+I,Alt+L")));
+                                                                      : Tr::tr("Alt+I,Alt+L")));
     connect(m_logFile, &QAction::triggered, this, &FossilPluginPrivate::logCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -355,7 +350,7 @@ void FossilPluginPrivate::createFileActions(const Core::Context &context)
     command = Core::ActionManager::registerAction(m_statusFile, Constants::STATUS, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+S")
-                                                                      : Tr::tr("ALT+I,Alt+S")));
+                                                                      : Tr::tr("Alt+I,Alt+S")));
     connect(m_statusFile, &QAction::triggered, this, &FossilPluginPrivate::statusCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -417,10 +412,10 @@ void FossilPluginPrivate::logCurrentFile()
     QTC_ASSERT(state.hasFile(), return);
     FossilClient::SupportedFeatures features = m_client.supportedFeatures();
     QStringList extraOptions;
-    extraOptions << "-n" << QString::number(m_client.settings().logCount.value());
+    extraOptions << "-n" << QString::number(m_client.settings().logCount());
 
     if (features.testFlag(FossilClient::TimelineWidthFeature))
-        extraOptions << "-W" << QString::number(m_client.settings().timelineWidth.value());
+        extraOptions << "-W" << QString::number(m_client.settings().timelineWidth());
 
     // disable annotate context menu for older client versions, used to be supported for current revision only
     bool enableAnnotationContextMenu = features.testFlag(FossilClient::AnnotateRevisionFeature);
@@ -468,7 +463,7 @@ void FossilPluginPrivate::createDirectoryActions(const Core::Context &context)
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::LOGMULTI, context);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+T")
-                                                                      : Tr::tr("ALT+I,Alt+T")));
+                                                                      : Tr::tr("Alt+I,Alt+T")));
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::logRepository);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -502,10 +497,10 @@ void FossilPluginPrivate::logRepository()
     QTC_ASSERT(state.hasTopLevel(), return);
     FossilClient::SupportedFeatures features = m_client.supportedFeatures();
     QStringList extraOptions;
-    extraOptions << "-n" << QString::number(m_client.settings().logCount.value());
+    extraOptions << "-n" << QString::number(m_client.settings().logCount());
 
     if (features.testFlag(FossilClient::TimelineWidthFeature))
-        extraOptions << "-W" << QString::number(m_client.settings().timelineWidth.value());
+        extraOptions << "-W" << QString::number(m_client.settings().timelineWidth());
 
     m_client.log(state.topLevel(), {}, extraOptions);
 }
@@ -550,7 +545,7 @@ void FossilPluginPrivate::createRepositoryActions(const Core::Context &context)
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::UPDATE, context);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+U")
-                                                                      : Tr::tr("ALT+I,Alt+U")));
+                                                                      : Tr::tr("Alt+I,Alt+U")));
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::update);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -559,12 +554,12 @@ void FossilPluginPrivate::createRepositoryActions(const Core::Context &context)
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::COMMIT, context);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+C")
-                                                                      : Tr::tr("ALT+I,Alt+C")));
+                                                                      : Tr::tr("Alt+I,Alt+C")));
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::commit);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(Tr::tr("Settings ..."), this);
+    action = new QAction(Tr::tr("Settings..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::CONFIGURE_REPOSITORY, context);
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::configureRepository);
@@ -597,7 +592,7 @@ bool FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
     QTC_ASSERT(state.hasTopLevel(), return false);
 
     PullOrPushDialog dialog(pullOrPushMode, Core::ICore::dialogParent());
-    dialog.setLocalBaseDirectory(m_client.settings().defaultRepoPath.value());
+    dialog.setLocalBaseDirectory(m_client.settings().defaultRepoPath());
     const QString defaultURL(m_client.synchronousGetRepositoryURL(state.topLevel()));
     dialog.setDefaultRemoteLocation(defaultURL);
     if (dialog.exec() != QDialog::Accepted)
@@ -839,7 +834,7 @@ void FossilPluginPrivate::updateActions(VcsBase::VcsBasePluginPrivate::ActionSta
     m_revertFile->setParameter(filename);
     m_statusFile->setParameter(filename);
 
-    for (QAction *repoAction : qAsConst(m_repositoryActionList))
+    for (QAction *repoAction : std::as_const(m_repositoryActionList))
         repoAction->setEnabled(repoEnabled);
 }
 
@@ -873,24 +868,19 @@ bool FossilPluginPrivate::managesFile(const FilePath &workingDirectory, const QS
 
 bool FossilPluginPrivate::isConfigured() const
 {
-    const Utils::FilePath binary = m_client.vcsBinary();
+    const FilePath binary = m_client.vcsBinary();
     if (binary.isEmpty())
         return false;
 
-    const QFileInfo fi = binary.toFileInfo();
-    if ( !(fi.exists() && fi.isFile() && fi.isExecutable()) )
+    if (!binary.isExecutableFile())
         return false;
 
     // Local repositories default path must be set and exist
-    const QString repoPath = m_client.settings().defaultRepoPath.value();
+    const FilePath repoPath = m_client.settings().defaultRepoPath();
     if (repoPath.isEmpty())
         return false;
 
-    const QDir dir(repoPath);
-    if (!dir.exists())
-        return false;
-
-    return true;
+    return repoPath.isReadableDir();
 }
 
 bool FossilPluginPrivate::supportsOperation(Operation operation) const
@@ -1093,7 +1083,7 @@ RevertDialog::RevertDialog(const QString &title, QWidget *parent)
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Form {
         Tr::tr("Revision"), m_revisionLineEdit, br,
     }.attachTo(groupBox);

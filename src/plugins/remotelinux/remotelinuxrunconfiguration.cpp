@@ -10,6 +10,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -58,18 +59,17 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
             envAspect, &EnvironmentAspect::environmentChanged);
 
     setUpdater([this, target, exeAspect, symbolsAspect, libAspect] {
-        BuildTargetInfo bti = buildTargetInfo();
-        const FilePath localExecutable = bti.targetFilePath;
-        DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
-
-        if (depFile.localFilePath().needsDevice()) // a full remote build
-            exeAspect->setExecutable(depFile.localFilePath());
-        else
-            exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
-        symbolsAspect->setFilePath(localExecutable);
-
         const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(target->kit());
         const IDeviceConstPtr runDevice = DeviceKitAspect::device(target->kit());
+        QTC_ASSERT(buildDevice, return);
+        QTC_ASSERT(runDevice, return);
+        const BuildTargetInfo bti = buildTargetInfo();
+        const FilePath localExecutable = bti.targetFilePath;
+        const DeploymentData deploymentData = target->deploymentData();
+        const DeployableFile depFile = deploymentData.deployableForLocalFile(localExecutable);
+
+        exeAspect->setExecutable(runDevice->filePath(depFile.remoteFilePath()));
+        symbolsAspect->setFilePath(localExecutable);
         libAspect->setEnabled(buildDevice == runDevice);
     });
 

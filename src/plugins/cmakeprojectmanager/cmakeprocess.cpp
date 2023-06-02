@@ -14,8 +14,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 
+#include <utils/process.h>
 #include <utils/processinterface.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 using namespace Core;
@@ -38,7 +38,7 @@ CMakeProcess::~CMakeProcess()
     m_parser.flush();
 }
 
-static const int failedToStartExitCode = 0xFF; // See QtcProcessPrivate::handleDone() impl
+static const int failedToStartExitCode = 0xFF; // See ProcessPrivate::handleDone() impl
 
 void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &arguments)
 {
@@ -67,8 +67,8 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         return;
     }
 
-    const FilePath sourceDirectory = parameters.sourceDirectory.onDevice(cmakeExecutable);
-    const FilePath buildDirectory = parameters.buildDirectory.onDevice(cmakeExecutable);
+    const FilePath sourceDirectory = cmakeExecutable.withNewMappedPath(parameters.sourceDirectory);
+    const FilePath buildDirectory = parameters.buildDirectory;
 
     if (!buildDirectory.exists()) {
         const QString msg = ::CMakeProjectManager::Tr::tr(
@@ -106,7 +106,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     // Always use the sourceDir: If we are triggered because the build directory is getting deleted
     // then we are racing against CMakeCache.txt also getting deleted.
 
-    m_process.reset(new QtcProcess);
+    m_process.reset(new Process);
 
     m_process->setWorkingDirectory(buildDirectory);
     m_process->setEnvironment(parameters.environment);
@@ -120,7 +120,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         BuildSystem::appendBuildSystemOutput(stripTrailingNewline(s));
     });
 
-    connect(m_process.get(), &QtcProcess::done, this, [this] {
+    connect(m_process.get(), &Process::done, this, [this] {
         handleProcessDone(m_process->resultData());
     });
 

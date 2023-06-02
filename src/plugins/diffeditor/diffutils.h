@@ -14,7 +14,8 @@
 #include <array>
 
 QT_BEGIN_NAMESPACE
-class QFutureInterfaceBase;
+template <class T>
+class QPromise;
 QT_END_NAMESPACE
 
 namespace Utils { class Diff; }
@@ -142,9 +143,8 @@ public:
                              const QString &rightFileName,
                              bool lastChunk = false);
     static QString makePatch(const QList<FileData> &fileDataList);
-    static QList<FileData> readPatch(const QString &patch,
-                                     bool *ok = nullptr,
-                                     QFutureInterfaceBase *jobController = nullptr);
+    static std::optional<QList<FileData>> readPatch(const QString &patch);
+    static void readPatchWithPromise(QPromise<QList<FileData>> &promise, const QString &patch);
 };
 
 } // namespace DiffEditor

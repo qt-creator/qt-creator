@@ -5,10 +5,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
-
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 enum class LogLevel
 {
@@ -33,32 +30,24 @@ enum class ReportLevel
     No
 };
 
-class BoostTestSettings : public Utils::AspectContainer
+class BoostTestSettings : public Core::PagedSettings
 {
 public:
-    BoostTestSettings();
+    explicit BoostTestSettings(Utils::Id settingsId);
 
     static QString logLevelToOption(const LogLevel logLevel);
     static QString reportLevelToOption(const ReportLevel reportLevel);
 
-    Utils::SelectionAspect logLevel;
-    Utils::SelectionAspect reportLevel;
-    Utils::IntegerAspect seed;
-    Utils::BoolAspect randomize;
-    Utils::BoolAspect systemErrors;
-    Utils::BoolAspect fpExceptions;
-    Utils::BoolAspect memLeaks;
+    Utils::SelectionAspect logLevel{this};
+    Utils::SelectionAspect reportLevel{this};
+    Utils::IntegerAspect seed{this};
+    Utils::BoolAspect randomize{this};
+    Utils::BoolAspect systemErrors{this};
+    Utils::BoolAspect fpExceptions{this};
+    Utils::BoolAspect memLeaks{this};
 };
 
-
-class BoostTestSettingsPage final : public Core::IOptionsPage
-{
-public:
-    BoostTestSettingsPage(BoostTestSettings *settings, Utils::Id settingsId);
-};
-
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal
 
 Q_DECLARE_METATYPE(Autotest::Internal::LogLevel)
 Q_DECLARE_METATYPE(Autotest::Internal::ReportLevel)

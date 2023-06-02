@@ -7,10 +7,9 @@
 #include "../actionmanager/actionmanager.h"
 #include "../coreplugintr.h"
 
-#include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-Q_DECLARE_METATYPE(Core::ILocatorFilter*)
+using namespace Utils;
 
 namespace Core::Internal {
 
@@ -25,65 +24,45 @@ LocatorFiltersFilter::LocatorFiltersFilter():
     setConfigurable(false);
 }
 
-void LocatorFiltersFilter::prepareSearch(const QString &entry)
+LocatorMatcherTasks LocatorFiltersFilter::matchers()
 {
-    m_filterShortcutStrings.clear();
-    m_filterDisplayNames.clear();
-    m_filterDescriptions.clear();
-    if (!entry.isEmpty())
-        return;
+    using namespace Tasking;
 
-    QMap<QString, ILocatorFilter *> uniqueFilters;
-    const QList<ILocatorFilter *> allFilters = Locator::filters();
-    for (ILocatorFilter *filter : allFilters) {
-        const QString filterId = filter->shortcutString() + ',' + filter->displayName();
-        uniqueFilters.insert(filterId, filter);
-    }
+    TreeStorage<LocatorStorage> storage;
 
-    for (ILocatorFilter *filter : std::as_const(uniqueFilters)) {
-        if (!filter->shortcutString().isEmpty() && !filter->isHidden() && filter->isEnabled()) {
-            m_filterShortcutStrings.append(filter->shortcutString());
-            m_filterDisplayNames.append(filter->displayName());
-            m_filterDescriptions.append(filter->description());
-            QString keyboardShortcut;
-            if (auto command = ActionManager::command(filter->actionId()))
-                keyboardShortcut = command->keySequence().toString(QKeySequence::NativeText);
-            m_filterKeyboardShortcuts.append(keyboardShortcut);
+    const auto onSetup = [storage, icon = m_icon] {
+        if (!storage->input().isEmpty())
+            return;
+
+        QMap<QString, ILocatorFilter *> uniqueFilters;
+        const QList<ILocatorFilter *> allFilters = Locator::filters();
+        for (ILocatorFilter *filter : allFilters) {
+            const QString filterId = filter->shortcutString() + ',' + filter->displayName();
+            uniqueFilters.insert(filterId, filter);
         }
-    }
-}
 
-QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
-{
-    Q_UNUSED(entry) // search is already done in the GUI thread in prepareSearch
-    QList<LocatorFilterEntry> entries;
-    for (int i = 0; i < m_filterShortcutStrings.size(); ++i) {
-        if (future.isCanceled())
-            break;
-        LocatorFilterEntry filterEntry(this,
-                                m_filterShortcutStrings.at(i),
-                                i,
-                                m_icon);
-        filterEntry.extraInfo = m_filterDisplayNames.at(i);
-        filterEntry.toolTip = m_filterDescriptions.at(i);
-        filterEntry.displayExtra = m_filterKeyboardShortcuts.at(i);
-        entries.append(filterEntry);
-    }
-    return entries;
-}
-
-void LocatorFiltersFilter::accept(const LocatorFilterEntry &selection,
-                                  QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(selectionLength)
-    bool ok;
-    int index = selection.internalData.toInt(&ok);
-    QTC_ASSERT(ok && index >= 0 && index < m_filterShortcutStrings.size(), return);
-    const QString shortcutString = m_filterShortcutStrings.at(index);
-    if (!shortcutString.isEmpty()) {
-        *newText = shortcutString + ' ';
-        *selectionStart = shortcutString.length() + 1;
-    }
+        LocatorFilterEntries entries;
+        for (ILocatorFilter *filter : std::as_const(uniqueFilters)) {
+            const QString shortcutString = filter->shortcutString();
+            if (!shortcutString.isEmpty() && !filter->isHidden() && filter->isEnabled()) {
+                LocatorFilterEntry entry;
+                entry.displayName = shortcutString;
+                entry.acceptor = [shortcutString] {
+                    return AcceptResult{shortcutString + ' ', int(shortcutString.size() + 1)};
+                };
+                entry.displayIcon = icon;
+                entry.extraInfo = filter->displayName();
+                entry.toolTip = filter->description();
+                QString keyboardShortcut;
+                if (auto command = ActionManager::command(filter->actionId()))
+                    keyboardShortcut = command->keySequence().toString(QKeySequence::NativeText);
+                entry.displayExtra = keyboardShortcut;
+                entries.append(entry);
+            }
+        }
+        storage->reportOutput(entries);
+    };
+    return {{Sync(onSetup), storage}};
 }
 
 } // Core::Internal

@@ -39,4 +39,5 @@ extend_qtc_plugin(ClangFormat
     tests/clangformat-test.h
   DEFINES
     TESTDATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/data"
+  EXPLICIT_MOC tests/clangformat-test.h
 )

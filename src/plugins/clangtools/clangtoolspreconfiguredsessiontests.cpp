@@ -5,16 +5,18 @@
 
 #include "clangtool.h"
 #include "clangtoolsdiagnostic.h"
-#include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/session.h>
+
 #include <cppeditor/compileroptionsbuilder.h>
 #include <cppeditor/projectinfo.h>
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -29,6 +31,7 @@
 
 #include <functional>
 
+using namespace Core;
 using namespace CppEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -55,8 +58,8 @@ public:
     WaitForParsedProjects(const FilePaths &projects)
         : m_projectsToWaitFor(projects)
     {
-        connect(SessionManager::instance(),
-                &ProjectExplorer::SessionManager::projectFinishedParsing,
+        connect(ProjectManager::instance(),
+                &ProjectExplorer::ProjectManager::projectFinishedParsing,
                 this, &WaitForParsedProjects::onProjectFinishedParsing);
     }
 
@@ -87,7 +90,7 @@ void PreconfiguredSessionTests::initTestCase()
         QSKIP("Session must not be already active.");
 
     // Load session
-    const FilePaths projects = SessionManager::projectsForSessionName(preconfiguredSessionName);
+    const FilePaths projects = ProjectManager::projectsForSessionName(preconfiguredSessionName);
     WaitForParsedProjects waitForParsedProjects(projects);
     QVERIFY(SessionManager::loadSession(preconfiguredSessionName));
     QVERIFY(waitForParsedProjects.wait());
@@ -102,7 +105,7 @@ void PreconfiguredSessionTests::testPreconfiguredSession()
 
     for (ClangTool * const tool : {ClangTidyTool::instance(), ClazyTool::instance()}) {
         tool->startTool(ClangTool::FileSelectionType::AllFiles);
-        QSignalSpy waitUntilAnalyzerFinished(tool, SIGNAL(finished(bool)));
+        QSignalSpy waitUntilAnalyzerFinished(tool, &ClangTool::finished);
         QVERIFY(waitUntilAnalyzerFinished.wait(30000));
         const QList<QVariant> arguments = waitUntilAnalyzerFinished.takeFirst();
         const bool analyzerFinishedSuccessfully = arguments.first().toBool();
@@ -175,7 +178,7 @@ void PreconfiguredSessionTests::testPreconfiguredSession_data()
 
     bool hasAddedTestData = false;
 
-    for (Project *project : validProjects(SessionManager::projects())) {
+    for (Project *project : validProjects(ProjectManager::projects())) {
         for (Target *target : validTargets(project)) {
             hasAddedTestData = true;
             QTest::newRow(dataTagName(project, target)) << project << target;
@@ -189,17 +192,17 @@ void PreconfiguredSessionTests::testPreconfiguredSession_data()
 bool PreconfiguredSessionTests::switchToProjectAndTarget(Project *project,
                                                                             Target *target)
 {
-    Project * const activeProject = SessionManager::startupProject();
+    Project * const activeProject = ProjectManager::startupProject();
     if (project == activeProject && target == activeProject->activeTarget())
         return true; // OK, desired project/target already active.
 
     if (project != activeProject)
-        SessionManager::setStartupProject(project);
+        ProjectManager::setStartupProject(project);
 
     if (target != project->activeTarget()) {
-        QSignalSpy spyFinishedParsing(ProjectExplorer::SessionManager::instance(),
-                                      &ProjectExplorer::SessionManager::projectFinishedParsing);
-        SessionManager::setActiveTarget(project, target, ProjectExplorer::SetActive::NoCascade);
+        QSignalSpy spyFinishedParsing(ProjectExplorer::ProjectManager::instance(),
+                                      &ProjectExplorer::ProjectManager::projectFinishedParsing);
+        project->setActiveTarget(target, ProjectExplorer::SetActive::NoCascade);
         QTC_ASSERT(spyFinishedParsing.wait(30000), return false);
 
         const QVariant projectArgument = spyFinishedParsing.takeFirst().constFirst();

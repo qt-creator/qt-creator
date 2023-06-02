@@ -30,67 +30,59 @@
         {
             "trDisplayName": "Define Project Details",
             "trShortTitle": "Details",
-            "typeId": "Fields",
+            "typeId": "PythonConfiguration",
             "data":
-            [
-                {
-                    "name": "QtVersion",
-                    "trDisplayName": "PySide version:",
-                    "type": "ComboBox",
-                    "data":
+            {
+                "index": 0,
+                "items":
+                [
                     {
-                        "index": 0,
-                        "items":
-                        [
-                            {
-                                "trKey": "PySide 6",
-                                "value":
-                                {
-                                    "QtQuickVersion": "",
-                                    "QtQuickWindowVersion": "",
-                                    "PySideVersion": "PySide6"
-                                }
-                            },
-                            {
-                                "trKey": "PySide 5.15",
-                                "value":
-                                {
-                                    "QtQuickVersion": "2.15",
-                                    "QtQuickWindowVersion": "2.15",
-                                    "PySideVersion": "PySide2"
-                                }
-                            },
-                            {
-                                "trKey": "PySide 5.14",
-                                "value":
-                                {
-                                    "QtQuickVersion": "2.14",
-                                    "QtQuickWindowVersion": "2.14",
-                                    "PySideVersion": "PySide2"
-                                }
-                            },
-                            {
-                                "trKey": "PySide 5.13",
-                                "value":
-                                {
-                                    "QtQuickVersion": "2.13",
-                                    "QtQuickWindowVersion": "2.13",
-                                    "PySideVersion": "PySide2"
-                                }
-                            },
-                            {
-                                "trKey": "PySide 5.12",
-                                "value":
-                                {
-                                    "QtQuickVersion": "2.12",
-                                    "QtQuickWindowVersion": "2.12",
-                                    "PySideVersion": "PySide2"
-                                }
-                            }
-                        ]
+                        "trKey": "PySide 6",
+                        "value":
+                        {
+                            "QtQuickVersion": "",
+                            "QtQuickWindowVersion": "",
+                            "PySideVersion": "PySide6"
+                        }
+                    },
+                    {
+                        "trKey": "PySide 5.15",
+                        "value":
+                        {
+                            "QtQuickVersion": "2.15",
+                            "QtQuickWindowVersion": "2.15",
+                            "PySideVersion": "PySide2"
+                        }
+                    },
+                    {
+                        "trKey": "PySide 5.14",
+                        "value":
+                        {
+                            "QtQuickVersion": "2.14",
+                            "QtQuickWindowVersion": "2.14",
+                            "PySideVersion": "PySide2"
+                        }
+                    },
+                    {
+                        "trKey": "PySide 5.13",
+                        "value":
+                        {
+                            "QtQuickVersion": "2.13",
+                            "QtQuickWindowVersion": "2.13",
+                            "PySideVersion": "PySide2"
+                        }
+                    },
+                    {
+                        "trKey": "PySide 5.12",
+                        "value":
+                        {
+                            "QtQuickVersion": "2.12",
+                            "QtQuickWindowVersion": "2.12",
+                            "PySideVersion": "PySide2"
+                        }
                     }
-                }
-            ]
+                ]
+            }
         },
         {
             "trDisplayName": "Project Management",

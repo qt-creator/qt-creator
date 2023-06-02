@@ -9,8 +9,8 @@
 
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/variablechooser.h>
 
 #include <QComboBox>
@@ -64,7 +64,7 @@ QString OpenOcdGdbServerProvider::channelString() const
         // otherwise running will be stuck.
         CommandLine cmd = command();
         QStringList args = {"|", cmd.executable().toString()};
-        for (const QString &a : ProcessArgs::splitArgs(cmd.arguments())) {
+        for (const QString &a : ProcessArgs::splitArgs(cmd.arguments(), HostOsInfo::hostOs())) {
             if (a.startsWith('\"') && a.endsWith('\"'))
                 args << a;
             else

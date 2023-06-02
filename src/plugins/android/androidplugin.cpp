@@ -34,7 +34,6 @@
 #endif
 
 #include <coreplugin/icore.h>
-#include <utils/checkablemessagebox.h>
 #include <utils/infobar.h>
 
 #include <languageclient/languageclientsettings.h>
@@ -45,10 +44,12 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtversionmanager.h>
+
+#include <QTimer>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Constants;
@@ -66,17 +67,6 @@ public:
         addSupportedTargetDeviceType(Constants::ANDROID_DEVICE_TYPE);
         setDefaultDisplayName(Tr::tr("Deploy to Android Device"));
         addInitialStep(Constants::ANDROID_DEPLOY_QT_ID);
-    }
-};
-
-class AndroidRunConfigurationFactory : public RunConfigurationFactory
-{
-public:
-    AndroidRunConfigurationFactory()
-    {
-        registerRunConfiguration<Android::AndroidRunConfiguration>
-                ("Qt4ProjectManager.AndroidRunConfiguration:");
-        addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
     }
 };
 
@@ -151,8 +141,7 @@ void AndroidPlugin::kitsRestored()
 
 void AndroidPlugin::askUserAboutAndroidSetup()
 {
-    if (!Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(), kSetupAndroidSetting)
-        || !Core::ICore::infoBar()->canInfoBeAdded(kSetupAndroidSetting))
+    if (!Core::ICore::infoBar()->canInfoBeAdded(kSetupAndroidSetting))
         return;
 
     Utils::InfoBarEntry

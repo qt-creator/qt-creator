@@ -6,13 +6,13 @@
 #include "texteditortr.h"
 
 #include <utils/layoutbuilder.h>
+#include <utils/qtcolorbutton.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QAbstractListModel>
 #include <QApplication>
 #include <QCheckBox>
-#include <QColorDialog>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QLabel>
@@ -24,14 +24,6 @@
 namespace TextEditor::Internal {
 
 const int layoutSpacing = 6;
-
-static QString colorButtonStyleSheet(const QColor &bgColor)
-{
-    QString rc("border-width: 2px; border-radius: 2px; border-color: black; ");
-    rc += bgColor.isValid() ? "border-style: solid; background:" + bgColor.name() + ";"
-                            : QString("border-style: dotted;");
-    return rc;
-}
 
 class FormatsModel : public QAbstractListModel
 {
@@ -129,10 +121,9 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     m_formatsModel(new FormatsModel(this))
 {
     setContentsMargins(0, layoutSpacing, 0, 0);
-    resize(513, 416);
 
     auto colorButton = [] () {
-        auto tb = new QToolButton;
+        auto tb = new Utils::QtColorButton;
         tb->setMinimumWidth(56);
         return tb;
     };
@@ -210,13 +201,14 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     auto bottomSpacer = new QWidget;
     bottomSpacer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Row {
         m_itemList,
         m_builtinSchemeLabel,
         m_fontProperties,
-    }.attachTo(this, WithoutMargins);
+        noMargin
+    }.attachTo(this);
 
     Grid {
         m_foregroundLabel, m_foregroundToolButton, m_eraseForegroundToolButton, br,
@@ -245,9 +237,9 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
 
     connect(m_itemList->selectionModel(), &QItemSelectionModel::currentRowChanged,
             this, &ColorSchemeEdit::currentItemChanged);
-    connect(m_foregroundToolButton, &QAbstractButton::clicked,
+    connect(m_foregroundToolButton, &Utils::QtColorButton::colorChanged,
             this, &ColorSchemeEdit::changeForeColor);
-    connect(m_backgroundToolButton, &QAbstractButton::clicked,
+    connect(m_backgroundToolButton, &Utils::QtColorButton::colorChanged,
             this, &ColorSchemeEdit::changeBackColor);
     connect(m_eraseBackgroundToolButton, &QAbstractButton::clicked,
             this, &ColorSchemeEdit::eraseBackColor);
@@ -265,7 +257,7 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
             this, &ColorSchemeEdit::checkCheckBoxes);
     connect(m_italicCheckBox, &QAbstractButton::toggled,
             this, &ColorSchemeEdit::checkCheckBoxes);
-    connect(m_underlineColorToolButton, &QToolButton::clicked,
+    connect(m_underlineColorToolButton, &Utils::QtColorButton::colorChanged,
             this, &ColorSchemeEdit::changeUnderlineColor);
     connect(m_eraseUnderlineColorToolButton, &QToolButton::clicked,
             this, &ColorSchemeEdit::eraseUnderlineColor);
@@ -347,7 +339,7 @@ void ColorSchemeEdit::updateForegroundControls()
     m_foregroundToolButton->setVisible(isVisible);
     m_eraseForegroundToolButton->setVisible(isVisible);
 
-    m_foregroundToolButton->setStyleSheet(colorButtonStyleSheet(format.foreground()));
+    m_foregroundToolButton->setColor(format.foreground());
     m_eraseForegroundToolButton->setEnabled(!m_readOnly
                                                 && m_curItem > 0
                                                 && format.foreground().isValid());
@@ -366,7 +358,7 @@ void ColorSchemeEdit::updateBackgroundControls()
     m_backgroundToolButton->setVisible(isVisible);
     m_eraseBackgroundToolButton->setVisible(isVisible);
 
-    m_backgroundToolButton->setStyleSheet(colorButtonStyleSheet(format.background()));
+    m_backgroundToolButton->setColor(format.background());
     m_eraseBackgroundToolButton->setEnabled(!m_readOnly
                                                 && m_curItem > 0
                                                 && format.background().isValid());
@@ -466,7 +458,7 @@ void ColorSchemeEdit::updateUnderlineControls()
     m_eraseUnderlineColorToolButton->setVisible(isVisible);
     m_underlineComboBox->setVisible(isVisible);
 
-    m_underlineColorToolButton->setStyleSheet(colorButtonStyleSheet(format.underlineColor()));
+    m_underlineColorToolButton->setColor(format.underlineColor());
     m_eraseUnderlineColorToolButton->setEnabled(!m_readOnly
                                                     && m_curItem > 0
                                                     && format.underlineColor().isValid());
@@ -478,11 +470,8 @@ void ColorSchemeEdit::changeForeColor()
 {
     if (m_curItem == -1)
         return;
-    QColor color = m_scheme.formatFor(m_descriptions[m_curItem].id()).foreground();
-    const QColor newColor = QColorDialog::getColor(color, m_boldCheckBox->window());
-    if (!newColor.isValid())
-        return;
-    m_foregroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
+
+    const QColor newColor = m_foregroundToolButton->color();
     m_eraseForegroundToolButton->setEnabled(true);
 
     for (const QModelIndex &index : m_itemList->selectionModel()->selectedRows()) {
@@ -498,11 +487,8 @@ void ColorSchemeEdit::changeBackColor()
 {
     if (m_curItem == -1)
         return;
-    QColor color = m_scheme.formatFor(m_descriptions[m_curItem].id()).background();
-    const QColor newColor = QColorDialog::getColor(color, m_boldCheckBox->window());
-    if (!newColor.isValid())
-        return;
-    m_backgroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
+
+    const QColor newColor = m_backgroundToolButton->color();
     m_eraseBackgroundToolButton->setEnabled(true);
 
     for (const QModelIndex &index : m_itemList->selectionModel()->selectedRows()) {
@@ -521,14 +507,13 @@ void ColorSchemeEdit::eraseBackColor()
 {
     if (m_curItem == -1)
         return;
-    QColor newColor;
-    m_backgroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
+    m_backgroundToolButton->setColor({});
     m_eraseBackgroundToolButton->setEnabled(false);
 
     const QList<QModelIndex> indexes = m_itemList->selectionModel()->selectedRows();
     for (const QModelIndex &index : indexes) {
         const TextStyle category = m_descriptions[index.row()].id();
-        m_scheme.formatFor(category).setBackground(newColor);
+        m_scheme.formatFor(category).setBackground({});
         m_formatsModel->emitDataChanged(index);
     }
 
@@ -539,14 +524,13 @@ void ColorSchemeEdit::eraseForeColor()
 {
     if (m_curItem == -1)
         return;
-    QColor newColor;
-    m_foregroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
+    m_foregroundToolButton->setColor({});
     m_eraseForegroundToolButton->setEnabled(false);
 
     const QList<QModelIndex> indexes = m_itemList->selectionModel()->selectedRows();
     for (const QModelIndex &index : indexes) {
         const TextStyle category = m_descriptions[index.row()].id();
-        m_scheme.formatFor(category).setForeground(newColor);
+        m_scheme.formatFor(category).setForeground({});
         m_formatsModel->emitDataChanged(index);
     }
 
@@ -635,11 +619,8 @@ void ColorSchemeEdit::changeUnderlineColor()
 {
     if (m_curItem == -1)
         return;
-    QColor color = m_scheme.formatFor(m_descriptions[m_curItem].id()).underlineColor();
-    const QColor newColor = QColorDialog::getColor(color, m_boldCheckBox->window());
-    if (!newColor.isValid())
-        return;
-    m_underlineColorToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
+
+    const QColor newColor = m_underlineColorToolButton->color();
     m_eraseUnderlineColorToolButton->setEnabled(true);
 
     for (const QModelIndex &index : m_itemList->selectionModel()->selectedRows()) {
@@ -653,13 +634,12 @@ void ColorSchemeEdit::eraseUnderlineColor()
 {
     if (m_curItem == -1)
         return;
-    QColor newColor;
-    m_underlineColorToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
+    m_underlineColorToolButton->setColor({});
     m_eraseUnderlineColorToolButton->setEnabled(false);
 
     for (const QModelIndex &index : m_itemList->selectionModel()->selectedRows()) {
         const TextStyle category = m_descriptions[index.row()].id();
-        m_scheme.formatFor(category).setUnderlineColor(newColor);
+        m_scheme.formatFor(category).setUnderlineColor({});
         m_formatsModel->emitDataChanged(index);
     }
 }

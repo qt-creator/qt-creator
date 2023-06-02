@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-2.1-or-later OR GPL-3.0-or-later
 
 #include "dockareatabbar.h"
+#include "ads_globals_p.h"
 
 #include "dockareawidget.h"
 #include "dockwidget.h"
@@ -15,8 +16,6 @@
 #include <QtGlobal>
 
 #include <iostream>
-
-static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg)
 
 namespace ADS
 {

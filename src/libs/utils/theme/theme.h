@@ -36,7 +36,6 @@ public:
         BadgeLabelBackgroundColorUnchecked,
         BadgeLabelTextColorChecked,
         BadgeLabelTextColorUnchecked,
-        CanceledSearchTextColor,
         ComboBoxArrowColor,
         ComboBoxArrowColorDisabled,
         ComboBoxTextColor,
@@ -438,6 +437,28 @@ public:
 
         DSstatePanelBackground,
         DSstateHighlight,
+
+        TerminalForeground,
+        TerminalBackground,
+        TerminalSelection,
+        TerminalFindMatch,
+
+        TerminalAnsi0,
+        TerminalAnsi1,
+        TerminalAnsi2,
+        TerminalAnsi3,
+        TerminalAnsi4,
+        TerminalAnsi5,
+        TerminalAnsi6,
+        TerminalAnsi7,
+        TerminalAnsi8,
+        TerminalAnsi9,
+        TerminalAnsi10,
+        TerminalAnsi11,
+        TerminalAnsi12,
+        TerminalAnsi13,
+        TerminalAnsi14,
+        TerminalAnsi15,
     };
 
     enum ImageFile {

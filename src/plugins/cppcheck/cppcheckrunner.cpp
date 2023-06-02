@@ -16,7 +16,7 @@ namespace Cppcheck::Internal {
 CppcheckRunner::CppcheckRunner(CppcheckTool &tool) : m_tool(tool)
 {
     if (HostOsInfo::hostOs() == OsTypeLinux) {
-        QtcProcess getConf;
+        Process getConf;
         getConf.setCommand({"getconf", {"ARG_MAX"}});
         getConf.start();
         getConf.waitForFinished(2000);
@@ -31,8 +31,8 @@ CppcheckRunner::CppcheckRunner(CppcheckTool &tool) : m_tool(tool)
        m_tool.parseErrorLine(line);
     });
 
-    connect(&m_process, &QtcProcess::started, &m_tool, &CppcheckTool::startParsing);
-    connect(&m_process, &QtcProcess::done, this, &CppcheckRunner::handleDone);
+    connect(&m_process, &Process::started, &m_tool, &CppcheckTool::startParsing);
+    connect(&m_process, &Process::done, this, &CppcheckRunner::handleDone);
 
     m_queueTimer.setSingleShot(true);
     const int checkDelayInMs = 200;

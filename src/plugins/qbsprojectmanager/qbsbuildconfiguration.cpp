@@ -27,8 +27,8 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
 #include <QCryptographicHash>

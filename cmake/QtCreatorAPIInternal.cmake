@@ -182,7 +182,7 @@ endfunction()
 
 function(qtc_add_link_flags_no_undefined target)
   # needs CheckLinkerFlags
-  if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.18)
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.18 AND NOT MSVC)
     set(no_undefined_flag "-Wl,--no-undefined")
     check_linker_flag(CXX ${no_undefined_flag} QTC_LINKER_SUPPORTS_NO_UNDEFINED)
     if (NOT QTC_LINKER_SUPPORTS_NO_UNDEFINED)
@@ -224,7 +224,7 @@ function(set_explicit_moc target_name file)
     set(file_dependencies DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${target_name}.json")
   endif()
   set_property(SOURCE "${file}" PROPERTY SKIP_AUTOMOC ON)
-  qt5_wrap_cpp(file_moc "${file}" ${file_dependencies})
+  qt_wrap_cpp(file_moc "${file}" ${file_dependencies})
   target_sources(${target_name} PRIVATE "${file_moc}")
 endfunction()
 
@@ -413,6 +413,7 @@ function(enable_pch target)
             CXX_VISIBILITY_PRESET hidden
             VISIBILITY_INLINES_HIDDEN ON
             CXX_EXTENSIONS OFF
+            POSITION_INDEPENDENT_CODE ON
           )
           target_link_libraries(${pch_target} PRIVATE ${pch_dependency})
         endif()

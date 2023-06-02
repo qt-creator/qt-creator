@@ -49,7 +49,7 @@ public:
         emailLineEdit = new QLineEdit;
         fixedBugsLineEdit = new QLineEdit;
 
-        using namespace Utils::Layouting;
+        using namespace Layouting;
         Column {
             Group {
                 title(Tr::tr("General Information")),
@@ -65,8 +65,9 @@ public:
                     Tr::tr("Email:"), emailLineEdit, br,
                     Tr::tr("Fixed bugs:"), fixedBugsLineEdit
                 }
-            }
-        }.attachTo(this, WithoutMargins);
+            },
+            noMargin
+        }.attachTo(this);
     }
 
     QLineEdit *branchLineEdit;

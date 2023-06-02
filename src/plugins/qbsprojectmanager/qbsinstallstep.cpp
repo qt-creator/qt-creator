@@ -48,7 +48,7 @@ QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Utils::Id id)
     setDisplayName(Tr::tr("Qbs Install"));
     setSummaryText(Tr::tr("<b>Qbs:</b> %1").arg("install"));
 
-    const auto labelPlacement = BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel;
+    const auto labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
     m_dryRun = addAspect<BoolAspect>();
     m_dryRun->setSettingsKey(QBS_DRY_RUN);
     m_dryRun->setLabel(Tr::tr("Dry run"), labelPlacement);
@@ -81,7 +81,7 @@ void QbsInstallStep::doRun()
 
     QJsonObject request;
     request.insert("type", "install-project");
-    request.insert("install-root", installRoot());
+    request.insert("install-root", installRoot().path());
     request.insert("clean-install-root", m_cleanInstallRoot->value());
     request.insert("keep-going", m_keepGoing->value());
     request.insert("dry-run", m_dryRun->value());
@@ -102,10 +102,10 @@ void QbsInstallStep::doCancel()
         m_session->cancelCurrentJob();
 }
 
-QString QbsInstallStep::installRoot() const
+FilePath QbsInstallStep::installRoot() const
 {
     const QbsBuildStep * const bs = buildConfig()->qbsStep();
-    return bs ? bs->installRoot().toString() : QString();
+    return bs ? bs->installRoot() : FilePath();
 }
 
 const QbsBuildConfiguration *QbsInstallStep::buildConfig() const
@@ -162,7 +162,7 @@ QWidget *QbsInstallStep::createConfigWidget()
 {
     auto widget = new QWidget;
 
-    auto installRootValueLabel = new QLabel(installRoot());
+    auto installRootValueLabel = new QLabel(installRoot().toUserOutput());
 
     auto commandLineKeyLabel = new QLabel(Tr::tr("Equivalent command line:"));
     commandLineKeyLabel->setAlignment(Qt::AlignTop);
@@ -172,18 +172,15 @@ QWidget *QbsInstallStep::createConfigWidget()
     commandLineTextEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
     commandLineTextEdit->setMinimumHeight(QFontMetrics(widget->font()).height() * 8);
 
-    Layouting::Form builder;
-    builder.addRow({Tr::tr("Install root:"), installRootValueLabel});
-    builder.addRow(Tr::tr("Flags:"));
-    m_dryRun->addToLayout(builder);
-    m_keepGoing->addToLayout(builder);
-    m_cleanInstallRoot->addToLayout(builder);
-
-    builder.addRow({commandLineKeyLabel, commandLineTextEdit});
-    builder.attachTo(widget);
+    using namespace Layouting;
+    Form {
+        Tr::tr("Install root:"), installRootValueLabel, br,
+        Tr::tr("Flags:"),  m_dryRun, m_keepGoing, m_cleanInstallRoot, br,
+        commandLineKeyLabel, commandLineTextEdit
+     }.attachTo(widget);
 
     const auto updateState = [this, commandLineTextEdit, installRootValueLabel] {
-        installRootValueLabel->setText(installRoot());
+        installRootValueLabel->setText(installRoot().toUserOutput());
         commandLineTextEdit->setPlainText(buildConfig()->equivalentCommandLine(stepData()));
     };
 

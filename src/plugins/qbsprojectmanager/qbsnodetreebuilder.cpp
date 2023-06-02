@@ -42,6 +42,10 @@ static FileType fileType(const QJsonObject &artifact)
         return FileType::StateChart;
     if (fileTags.contains("qt.qml.qml"))
         return FileType::QML;
+    if (fileTags.contains("application"))
+        return FileType::App;
+    if (fileTags.contains("staticlibrary") || fileTags.contains("dynamiclibrary"))
+        return FileType::Lib;
     return FileType::Unknown;
 }
 

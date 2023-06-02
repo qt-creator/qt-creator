@@ -275,7 +275,7 @@ Position Position::withOffset(int offset, const QTextDocument *doc) const
     int line;
     int character;
     Utils::Text::convertPosition(doc, toPositionInDocument(doc) + offset, &line, &character);
-    return Position(line - 1, character - 1);
+    return Position(line - 1, character);
 }
 
 Range::Range(const Position &start, const Position &end)
@@ -288,13 +288,13 @@ Range::Range(const QTextCursor &cursor)
 {
     int line, character = 0;
     Utils::Text::convertPosition(cursor.document(), cursor.selectionStart(), &line, &character);
-    if (line <= 0 || character <= 0)
+    if (line <= 0 || character < 0)
         return;
-    setStart(Position(line - 1, character - 1));
+    setStart(Position(line - 1, character));
     Utils::Text::convertPosition(cursor.document(), cursor.selectionEnd(), &line, &character);
-    if (line <= 0 || character <= 0)
+    if (line <= 0 || character < 0)
         return;
-    setEnd(Position(line - 1, character - 1));
+    setEnd(Position(line - 1, character));
 }
 
 bool Range::contains(const Range &other) const
@@ -309,6 +309,16 @@ bool Range::contains(const Range &other) const
 bool Range::overlaps(const Range &range) const
 {
     return !isLeftOf(range) && !range.isLeftOf(*this);
+}
+
+QTextCursor Range::toSelection(QTextDocument *doc) const
+{
+    QTC_ASSERT(doc, return {});
+    if (!isValid())
+        return {};
+    QTextCursor cursor = start().toTextCursor(doc);
+    cursor.setPosition(end().toPositionInDocument(doc), QTextCursor::KeepAnchor);
+    return cursor;
 }
 
 QString expressionForGlob(QString globPattern)

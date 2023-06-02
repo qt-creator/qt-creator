@@ -3,8 +3,11 @@
 
 #include "environmentaspect.h"
 
+#include "buildconfiguration.h"
 #include "environmentaspectwidget.h"
+#include "kit.h"
 #include "projectexplorertr.h"
+#include "target.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -12,6 +15,7 @@
 using namespace Utils;
 
 namespace ProjectExplorer {
+const char PRINT_ON_RUN_KEY[] = "PE.EnvironmentAspect.PrintOnRun";
 
 // --------------------------------------------------------------------
 // EnvironmentAspect:
@@ -101,16 +105,39 @@ int EnvironmentAspect::addPreferredBaseEnvironment(const QString &displayName,
     return index;
 }
 
+void EnvironmentAspect::setSupportForBuildEnvironment(Target *target)
+{
+    setIsLocal(true);
+    addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
+
+    addSupportedBaseEnvironment(Tr::tr("System Environment"), [] {
+        return Environment::systemEnvironment();
+    });
+    addPreferredBaseEnvironment(Tr::tr("Build Environment"), [target] {
+        if (BuildConfiguration *bc = target->activeBuildConfiguration())
+            return bc->environment();
+        // Fallback for targets without buildconfigurations:
+        return target->kit()->buildEnvironment();
+    });
+
+    connect(target, &Target::activeBuildConfigurationChanged,
+            this, &EnvironmentAspect::environmentChanged);
+    connect(target, &Target::buildEnvironmentChanged,
+            this, &EnvironmentAspect::environmentChanged);
+}
+
 void EnvironmentAspect::fromMap(const QVariantMap &map)
 {
     m_base = map.value(QLatin1String(BASE_KEY), -1).toInt();
     m_userChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(CHANGES_KEY)).toStringList());
+    m_printOnRun = map.value(PRINT_ON_RUN_KEY).toBool();
 }
 
 void EnvironmentAspect::toMap(QVariantMap &data) const
 {
     data.insert(QLatin1String(BASE_KEY), m_base);
     data.insert(QLatin1String(CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userChanges));
+    data.insert(PRINT_ON_RUN_KEY, m_printOnRun);
 }
 
 QString EnvironmentAspect::currentDisplayName() const

@@ -192,10 +192,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         const int textFlags = Qt::AlignVCenter | Qt::AlignHCenter;
 
         const QString projectName = defaultAction()->property("heading").toString();
-        if (!projectName.isNull())
-            centerRect.adjust(0, lineHeight + 4, 0, 0);
-
-        centerRect.adjust(0, 0, 0, -lineHeight * 2 - 4);
+        centerRect.adjust(0, lineHeight + 4, 0, -lineHeight * 2 - 4);
 
         iconRect.moveCenter(centerRect.center());
         StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, iconMode);
@@ -294,12 +291,12 @@ QSize FancyToolButton::sizeHint() const
         boldFont.setBold(true);
         const QFontMetrics fm(boldFont);
         const qreal lineHeight = fm.height();
-        const QString projectName = defaultAction()->property("heading").toString();
-        buttonSize += QSizeF(0, 10);
-        if (!projectName.isEmpty())
-            buttonSize += QSizeF(0, lineHeight + 2);
-
-        buttonSize += QSizeF(0, lineHeight * 2 + 2);
+        const int extraHeight = 10             // Spacing between top and projectName
+                           + lineHeight        // projectName height
+                           + 2                 // Spacing between projectName and icon
+                           + lineHeight * 2    // configurationName height (2 lines)
+                           + 2;                // Spacing between configurationName and bottom
+        buttonSize.rheight() += extraHeight;
     }
     return buttonSize.toSize();
 }

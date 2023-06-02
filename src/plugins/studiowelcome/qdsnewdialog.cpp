@@ -88,10 +88,10 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
 
     m_dialog->installEventFilter(this);
 
-    QObject::connect(&m_wizard, &WizardHandler::wizardCreationFailed, this, [this]() {
+    QObject::connect(&m_wizard, &WizardHandler::wizardCreationFailed, this, [this] {
         QMessageBox::critical(m_dialog, tr("New Project"), tr("Failed to initialize data."));
         reject();
-        delete this;
+        deleteLater();
     });
 
     QObject::connect(m_styleModel.data(), &StyleModel::modelAboutToBeReset, this, [this]() {

@@ -3,10 +3,9 @@
 
 #include "projectwelcomepage.h"
 
-#include "session.h"
-#include "sessionmodel.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -15,6 +14,8 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwizardfactory.h>
+#include <coreplugin/session.h>
+#include <coreplugin/sessionmodel.h>
 #include <coreplugin/welcomepagehelper.h>
 
 #include <utils/algorithm.h>
@@ -324,7 +325,7 @@ public:
         if (expanded) {
             painter->setPen(textColor);
             painter->setFont(sizedFont(12, option.widget));
-            const FilePaths projects = SessionManager::projectsForSessionName(sessionName);
+            const FilePaths projects = ProjectManager::projectsForSessionName(sessionName);
             int yy = firstBase + SESSION_LINE_HEIGHT - 3;
             QFontMetrics fm(option.widget->font());
             for (const FilePath &projectPath : projects) {
@@ -378,7 +379,7 @@ public:
         int h = SESSION_LINE_HEIGHT;
         QString sessionName = idx.data(Qt::DisplayRole).toString();
         if (m_expandedSessions.contains(sessionName)) {
-            const FilePaths projects = SessionManager::projectsForSessionName(sessionName);
+            const FilePaths projects = ProjectManager::projectsForSessionName(sessionName);
             h += projects.size() * 40 + LINK_HEIGHT - 6;
         }
         return QSize(380, h + ItemGap);
@@ -579,7 +580,7 @@ public:
         auto manageSessionsButton = new WelcomePageButton(this);
         manageSessionsButton->setText(Tr::tr("Manage..."));
         manageSessionsButton->setWithAccentColor(true);
-        manageSessionsButton->setOnClicked([] { ProjectExplorerPlugin::showSessionManager(); });
+        manageSessionsButton->setOnClicked([] { SessionManager::showSessionManager(); });
 
         auto sessionsLabel = new QLabel(this);
         sessionsLabel->setFont(brandFont());

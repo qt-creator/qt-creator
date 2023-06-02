@@ -9,12 +9,10 @@
 #include "clangdcompletion.h"
 #include "clangdfindreferences.h"
 #include "clangdfollowsymbol.h"
-#include "clangdlocatorfilters.h"
 #include "clangdmemoryusagewidget.h"
 #include "clangdquickfixes.h"
 #include "clangdsemantichighlighting.h"
 #include "clangdswitchdecldef.h"
-#include "clangmodelmanagersupport.h"
 #include "clangtextmark.h"
 #include "clangutils.h"
 #include "tasktimers.h"
@@ -38,6 +36,7 @@
 #include <languageclient/languageclienthoverhandler.h>
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
+#include <languageclient/languageclientoutline.h>
 #include <languageclient/languageclientsymbolsupport.h>
 #include <languageclient/languageclientutils.h>
 #include <languageclient/progressmanager.h>
@@ -48,7 +47,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/codeassist/assistinterface.h>
@@ -57,10 +56,11 @@
 #include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/itemviews.h>
-#include <utils/runextensions.h>
+#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -128,6 +128,27 @@ public:
         : Request("textDocument/symbolInfo", params) {}
 };
 
+class ClangdOutlineItem : public LanguageClientOutlineItem
+{
+    using LanguageClientOutlineItem::LanguageClientOutlineItem;
+private:
+    QVariant data(int column, int role) const override
+    {
+        switch (role) {
+        case Qt::DisplayRole:
+            return ClangdClient::displayNameFromDocumentSymbol(
+                static_cast<SymbolKind>(type()), name(), detail());
+        case Qt::ForegroundRole:
+            if ((detail().endsWith("class") || detail().endsWith("struct"))
+                && range().end() == selectionRange().end()) {
+                return creatorTheme()->color(Theme::TextColorDisabled);
+            }
+            break;
+        }
+        return LanguageClientOutlineItem::data(column, role);
+    }
+};
+
 void setupClangdConfigFile()
 {
     const Utils::FilePath targetConfigFile = CppEditor::ClangdSettings::clangdUserConfigFilePath();
@@ -192,7 +213,7 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
     if (settings.clangdVersion() >= QVersionNumber(16))
         cmd.addArg("--rename-file-limit=0");
     if (!jsonDbDir.isEmpty())
-        cmd.addArg("--compile-commands-dir=" + jsonDbDir.onDevice(clangdExePath).path());
+        cmd.addArg("--compile-commands-dir=" + clangdExePath.withNewMappedPath(jsonDbDir).path());
     if (clangdLogServer().isDebugEnabled())
         cmd.addArgs({"--log=verbose", "--pretty"});
     cmd.addArg("--use-dirty-headers");
@@ -427,7 +448,6 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     });
     setCurrentProject(project);
     setDocumentChangeUpdateThreshold(d->settings.documentUpdateThreshold);
-    setSymbolStringifier(displayNameFromDocumentSymbol);
     setSemanticTokensHandler([this](TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
                                     int version, bool force) {
         d->handleSemanticTokens(doc, tokens, version, force);
@@ -450,12 +470,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
         }
     });
 
-    connect(this, &Client::initialized, this, [this] {
-        auto currentDocumentFilter = static_cast<ClangdCurrentDocumentFilter *>(
-            CppEditor::CppModelManager::instance()->currentDocumentFilter());
-        currentDocumentFilter->updateCurrentClient();
-        d->openedExtraFiles.clear();
-    });
+    connect(this, &Client::initialized, this, [this] { d->openedExtraFiles.clear(); });
 
     start();
 }
@@ -698,6 +713,12 @@ DiagnosticManager *ClangdClient::createDiagnosticManager()
     return diagnosticManager;
 }
 
+LanguageClientOutlineItem *ClangdClient::createOutlineItem(
+    const LanguageServerProtocol::DocumentSymbol &symbol)
+{
+    return new ClangdOutlineItem(this, symbol);
+}
+
 bool ClangdClient::referencesShadowFile(const TextEditor::TextDocument *doc,
                                         const Utils::FilePath &candidate)
 {
@@ -710,7 +731,7 @@ bool ClangdClient::fileBelongsToProject(const Utils::FilePath &filePath) const
 {
     if (CppEditor::ClangdSettings::instance().granularity()
             == CppEditor::ClangdSettings::Granularity::Session) {
-        return SessionManager::projectForFile(filePath);
+        return ProjectManager::projectForFile(filePath);
     }
     return Client::fileBelongsToProject(filePath);
 }
@@ -1477,7 +1498,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
                              clangdVersion = q->versionNumber(),
                              this] {
             try {
-                return Utils::runAsync(doSemanticHighlighting, filePath, tokens, text, ast, doc,
+                return Utils::asyncRun(doSemanticHighlighting, filePath, tokens, text, ast, doc,
                                        rev, clangdVersion, highlightingTimer);
             } catch (const std::exception &e) {
                 qWarning() << "caught" << e.what() << "in main highlighting thread";

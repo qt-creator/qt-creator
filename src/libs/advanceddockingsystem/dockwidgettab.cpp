@@ -4,6 +4,7 @@
 #include "dockwidgettab.h"
 
 #include "ads_globals.h"
+#include "ads_globals_p.h"
 #include "advanceddockingsystemtr.h"
 #include "dockareawidget.h"
 #include "dockmanager.h"
@@ -31,8 +32,6 @@
 #include <QStylePainter>
 
 #include <iostream>
-
-static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg)
 
 namespace ADS
 {

@@ -7,7 +7,6 @@
 #include "diffeditorwidgetcontroller.h"
 #include "selectabletexteditorwidget.h" // TODO: we need DiffSelections here only
 
-#include <QFutureInterface>
 #include <QWidget>
 
 namespace Core { class IContext; }
@@ -19,7 +18,7 @@ class TextEditorWidget;
 
 namespace Utils {
 template <typename R>
-class AsyncTask;
+class Async;
 }
 
 QT_BEGIN_NAMESPACE
@@ -40,9 +39,6 @@ class SideBySideDiffOutput;
 class SideDiffData
 {
 public:
-    static SideBySideDiffOutput diffOutput(QFutureInterface<void> &fi, int progressMin,
-                                           int progressMax, const DiffEditorInput &input);
-
     DiffChunkInfo m_chunkInfo;
     // block number, fileInfo. Set for file lines only.
     QMap<int, DiffFileInfo> m_fileInfo;
@@ -60,7 +56,6 @@ public:
     int blockNumberForFileIndex(int fileIndex) const;
     int fileIndexForBlockNumber(int blockNumber) const;
 
-private:
     void setLineNumber(int blockNumber, int lineNumber);
     void setFileInfo(int blockNumber, const DiffFileInfo &fileInfo);
     void setSkippedLines(int blockNumber, int skippedLines, const QString &contextInfo = {}) {
@@ -87,6 +82,16 @@ public:
     // Remaining lines (diff contents) are assigned 3.
     QHash<int, int> foldingIndent;
 };
+
+class SideBySideShowResult
+{
+public:
+    QSharedPointer<TextEditor::TextDocument> textDocument{};
+    SideDiffData diffData;
+    DiffSelections selections;
+};
+
+using SideBySideShowResults = std::array<SideBySideShowResult, SideCount>;
 
 class SideBySideDiffEditorWidget : public QWidget
 {
@@ -135,15 +140,7 @@ private:
 
     bool m_horizontalSync = false;
 
-    struct ShowResult
-    {
-        QSharedPointer<TextEditor::TextDocument> textDocument{};
-        SideDiffData diffData;
-        DiffSelections selections;
-    };
-    using ShowResults = std::array<ShowResult, SideCount>;
-
-    std::unique_ptr<Utils::AsyncTask<ShowResults>> m_asyncTask;
+    std::unique_ptr<Utils::Async<SideBySideShowResults>> m_asyncTask;
 };
 
 } // namespace Internal

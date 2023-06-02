@@ -34,7 +34,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -342,7 +342,7 @@ static FileInfos sortedFileInfos(const QVector<CppEditor::ProjectPart::ConstPtr>
 
 static RunSettings runSettings()
 {
-    if (Project *project = SessionManager::startupProject()) {
+    if (Project *project = ProjectManager::startupProject()) {
         const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
         if (!projectSettings->useGlobalSettings())
             return projectSettings->runSettings();
@@ -599,19 +599,18 @@ static bool continueDespiteReleaseBuild(const QString &toolName)
                                     "<p>%2</p>"
                                     "</body></html>")
                                 .arg(problem, question);
-    return CheckableMessageBox::doNotAskAgainQuestion(ICore::dialogParent(),
-                                                      title,
-                                                      message,
-                                                      ICore::settings(),
-                                                      "ClangToolsCorrectModeWarning")
-           == QDialogButtonBox::Yes;
+    return CheckableMessageBox::question(ICore::dialogParent(),
+                                         title,
+                                         message,
+                                         QString("ClangToolsCorrectModeWarning"))
+           == QMessageBox::Yes;
 }
 
 void ClangTool::startTool(ClangTool::FileSelection fileSelection,
                           const RunSettings &runSettings,
                           const CppEditor::ClangDiagnosticConfig &diagnosticConfig)
 {
-    Project *project = SessionManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     QTC_ASSERT(project, return);
     QTC_ASSERT(project->activeTarget(), return);
 
@@ -858,19 +857,19 @@ static CheckResult canAnalyze()
 {
     const ClangDiagnosticConfig config = diagnosticConfig(runSettings().diagnosticConfigId());
 
-    if (config.isEnabled(ClangToolType::Tidy)
+    if (toolEnabled(ClangToolType::Tidy, config, runSettings())
         && !toolExecutable(ClangToolType::Tidy).isExecutableFile()) {
         return {CheckResult::InvalidTidyExecutable,
                 Tr::tr("Set a valid Clang-Tidy executable.")};
     }
 
-    if (config.isEnabled(ClangToolType::Clazy)
+    if (toolEnabled(ClangToolType::Clazy, config, runSettings())
         && !toolExecutable(ClangToolType::Clazy).isExecutableFile()) {
         return {CheckResult::InvalidClazyExecutable,
                 Tr::tr("Set a valid Clazy-Standalone executable.")};
     }
 
-    if (Project *project = SessionManager::startupProject()) {
+    if (Project *project = ProjectManager::startupProject()) {
         if (!canAnalyzeProject(project)) {
             return {CheckResult::ProjectNotSuitable,
                     Tr::tr("Project \"%1\" is not a C/C++ project.")

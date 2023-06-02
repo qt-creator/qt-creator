@@ -91,7 +91,7 @@ bool QScxmlcGenerator::prepareToRun(const QByteArray &sourceContents)
     return true;
 }
 
-FileNameToContentsHash QScxmlcGenerator::handleProcessFinished(Utils::QtcProcess *process)
+FileNameToContentsHash QScxmlcGenerator::handleProcessFinished(Utils::Process *process)
 {
     Q_UNUSED(process)
     const Utils::FilePath wd = workingDirectory();

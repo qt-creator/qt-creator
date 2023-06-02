@@ -10,8 +10,10 @@
 #include "../itestframework.h"
 
 #include <cppeditor/cppmodelmanager.h>
+
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
+
 #include <utils/qtcassert.h>
 
 using namespace Utils;
@@ -30,7 +32,7 @@ static QString nonRootDisplayName(const CatchTreeItem *it)
 {
     if (it->type() != TestTreeItem::TestSuite)
         return it->name();
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project)
         return it->name();
     TestTreeItem *parent = it->parentItem();
@@ -141,7 +143,7 @@ bool CatchTreeItem::canProvideDebugConfiguration() const
 
 ITestConfiguration *CatchTreeItem::testConfiguration() const
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return nullptr);
     const auto cppMM = CppEditor::CppModelManager::instance();
     QTC_ASSERT(cppMM, return nullptr);
@@ -244,7 +246,7 @@ QList<ITestConfiguration *> CatchTreeItem::getSelectedTestConfigurations() const
 QList<ITestConfiguration *> CatchTreeItem::getFailedTestConfigurations() const
 {
     QList<ITestConfiguration *> result;
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 
@@ -271,7 +273,7 @@ QList<ITestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Fi
     const auto cppMM = CppEditor::CppModelManager::instance();
     QTC_ASSERT(cppMM, return result);
 
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 
@@ -293,7 +295,7 @@ QList<ITestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Fi
         testConfig = new CatchConfiguration(framework());
         testConfig->setTestCases(testCases);
         testConfig->setProjectFile(item->proFile());
-        testConfig->setProject(ProjectExplorer::SessionManager::startupProject());
+        testConfig->setProject(ProjectExplorer::ProjectManager::startupProject());
         testConfig->setInternalTargets(cppMM->internalTargets(item->filePath()));
         result << testConfig;
     }
@@ -314,7 +316,7 @@ QString CatchTreeItem::stateSuffix() const
 QList<ITestConfiguration *> CatchTreeItem::getTestConfigurations(bool ignoreCheckState) const
 {
     QList<ITestConfiguration *> result;
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 

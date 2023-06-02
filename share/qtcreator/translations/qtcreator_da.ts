@@ -2709,8 +2709,8 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
         <translation>Meta+Z,Meta+D</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
-        <translation>ALT+Z,Alt+D</translation>
+        <source>Alt+Z,Alt+D</source>
+        <translation>Alt+Z,Alt+D</translation>
     </message>
     <message>
         <source>Log Current File</source>
@@ -2725,8 +2725,8 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
         <translation>Meta+Z,Meta+L</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
-        <translation>ALT+Z,Alt+L</translation>
+        <source>Alt+Z,Alt+L</source>
+        <translation>Alt+Z,Alt+L</translation>
     </message>
     <message>
         <source>Status Current File</source>
@@ -2741,8 +2741,8 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
         <translation>Meta+Z,Meta+S</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
-        <translation>ALT+Z,Alt+S</translation>
+        <source>Alt+Z,Alt+S</source>
+        <translation>Alt+Z,Alt+S</translation>
     </message>
     <message>
         <source>Add</source>
@@ -2805,8 +2805,8 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
         <translation>Meta+Z,Meta+C</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
-        <translation>ALT+Z,Alt+C</translation>
+        <source>Alt+Z,Alt+C</source>
+        <translation>Alt+Z,Alt+C</translation>
     </message>
     <message>
         <source>Uncommit...</source>
@@ -7810,8 +7810,8 @@ Vil du dræbe den?</translation>
         <translation>Patch-kommandoen konfigureret i de generelle &quot;Miljø&quot;-indstillinger findes ikke.</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Kører om %1: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3.</source>
+        <translation>Kører om &quot;%1&quot;: %2 %3.</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -22723,8 +22723,8 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Genskab sidste session ved opstart</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Hvad er en session?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>Hvad er en session?</translation>
     </message>
     <message>
         <source>Session</source>
@@ -24940,8 +24940,8 @@ Disse filer bevares.</numerusform>
         <translation>Fejl ved gemning af session</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Kunne ikke gemme session til filen %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Kunne ikke gemme session til filen &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -38022,8 +38022,8 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <translation>Kører: %1 %2</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Kører om %1: %2 %3</translation>
+        <source>Running in %1: %2 %3.</source>
+        <translation>Kører om %1: %2 %3.</translation>
     </message>
 </context>
 <context>
@@ -39042,8 +39042,8 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
 <context>
     <name>QtC::CppEditor</name>
     <message>
-        <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
-        <translation>For passende valgmuligheder, konsulter GCC- eller Clang-manualsiderne eller &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online dokumentationen&lt;/a&gt;.</translation>
+        <source>For appropriate options, consult the GCC or Clang manual pages or the [GCC online documentation](%1).</source>
+        <translation>For passende valgmuligheder, konsulter GCC- eller Clang-manualsiderne eller [GCC online dokumentationen](%1).</translation>
     </message>
     <message>
         <source>Each level adds checks to the previous level. For more information, see &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;clazy&apos;s homepage&lt;/a&gt;.</source>

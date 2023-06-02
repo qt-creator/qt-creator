@@ -162,13 +162,13 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
 {
     m_centralWidgetStack = new QStackedWidget;
     m_statusLabel = new Utils::StatusLabel;
-    m_statusLabel->setProperty("panelwidget", true);
+    StyleHelper::setPanelWidget(m_statusLabel);
     m_statusLabel->setIndent(2 * QFontMetrics(q->font()).horizontalAdvance(QChar('x')));
     m_editorPlaceHolder = new EditorManagerPlaceHolder;
 
     m_perspectiveChooser = new QComboBox;
     m_perspectiveChooser->setObjectName("PerspectiveChooser");
-    m_perspectiveChooser->setProperty("panelwidget", true);
+    StyleHelper::setPanelWidget(m_perspectiveChooser);
     m_perspectiveChooser->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     connect(m_perspectiveChooser, &QComboBox::activated, this, [this](int item) {
         Perspective *perspective = Perspective::findPerspective(m_perspectiveChooser->itemData(item).toString());
@@ -201,7 +201,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     closeButton->setToolTip(Tr::tr("Leave Debug Mode"));
 
     auto toolbar = new Utils::StyledBar;
-    toolbar->setProperty("topBorder", true);
+    toolbar->setProperty(StyleHelper::C_TOP_BORDER, true);
 
     // "Engine switcher" style comboboxes
     auto subPerspectiveSwitcher = new QWidget;
@@ -233,8 +233,8 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     scrolledToolbar->setFrameStyle(QFrame::NoFrame);
     scrolledToolbar->setWidgetResizable(true);
     scrolledToolbar->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrolledToolbar->setFixedHeight(toolbar->height());
     scrolledToolbar->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    StyleHelper::setPanelWidgetSingleRow(scrolledToolbar);
 
     auto dock = new QDockWidget(Tr::tr("Toolbar"), q);
     dock->setObjectName("Toolbar");
@@ -507,7 +507,7 @@ QWidget *DebuggerMainWindow::centralWidgetStack()
 void DebuggerMainWindow::addSubPerspectiveSwitcher(QWidget *widget)
 {
     widget->setVisible(false);
-    widget->setProperty("panelwidget", true);
+    StyleHelper::setPanelWidget(widget);
     d->m_subPerspectiveSwitcherLayout->addWidget(widget);
 }
 
@@ -810,7 +810,7 @@ QToolButton *PerspectivePrivate::setupToolButton(QAction *action)
 {
     QTC_ASSERT(action, return nullptr);
     auto toolButton = new QToolButton(m_innerToolBar);
-    toolButton->setProperty("panelwidget", true);
+    StyleHelper::setPanelWidget(toolButton);
     toolButton->setDefaultAction(action);
     toolButton->setToolTip(action->toolTip());
     m_innerToolBarLayout->addWidget(toolButton);
@@ -833,7 +833,7 @@ void Perspective::addToolBarWidget(QWidget *widget)
 {
     QTC_ASSERT(widget, return);
     // QStyle::polish is called before it is added to the toolbar, explicitly make it a panel widget
-    widget->setProperty("panelwidget", true);
+    StyleHelper::setPanelWidget(widget);
     widget->setParent(d->m_innerToolBar);
     d->m_innerToolBarLayout->addWidget(widget);
 }

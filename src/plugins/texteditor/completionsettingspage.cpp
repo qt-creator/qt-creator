@@ -66,8 +66,6 @@ private:
 CompletionSettingsPageWidget::CompletionSettingsPageWidget(CompletionSettingsPage *owner)
     : m_owner(owner)
 {
-    resize(823, 756);
-
     m_caseSensitivity = new QComboBox;
     m_caseSensitivity->addItem(Tr::tr("Full"));
     m_caseSensitivity->addItem(Tr::tr("None"));

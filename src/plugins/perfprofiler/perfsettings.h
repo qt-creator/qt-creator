@@ -14,7 +14,6 @@ namespace PerfProfiler {
 class PERFPROFILER_EXPORT PerfSettings final : public ProjectExplorer::ISettingsAspect
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList perfRecordArguments READ perfRecordArguments NOTIFY changed)
 
 public:
     explicit PerfSettings(ProjectExplorer::Target *target = nullptr);
@@ -23,19 +22,16 @@ public:
     void readGlobalSettings();
     void writeGlobalSettings() const;
 
-    QStringList perfRecordArguments() const;
+    void addPerfRecordArguments(Utils::CommandLine *cmd) const;
 
     void resetToDefault();
 
-    Utils::IntegerAspect period;
-    Utils::IntegerAspect stackSize;
-    Utils::SelectionAspect sampleMode;
-    Utils::SelectionAspect callgraphMode;
-    Utils::StringListAspect events;
-    Utils::StringAspect extraArguments;
-
-signals:
-    void changed();
+    Utils::IntegerAspect period{this};
+    Utils::IntegerAspect stackSize{this};
+    Utils::SelectionAspect sampleMode{this};
+    Utils::SelectionAspect callgraphMode{this};
+    Utils::StringListAspect events{this};
+    Utils::StringAspect extraArguments{this};
 };
 
 } // namespace PerfProfiler

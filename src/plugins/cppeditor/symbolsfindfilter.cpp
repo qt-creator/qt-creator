@@ -12,18 +12,19 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/runextensions.h>
+#include <utils/async.h>
 #include <utils/qtcassert.h>
 
-#include <QSet>
+#include <QButtonGroup>
 #include <QGridLayout>
 #include <QLabel>
-#include <QButtonGroup>
+#include <QSet>
 
 using namespace Core;
 using namespace Utils;
@@ -108,7 +109,7 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     SymbolSearcher::Parameters parameters = search->userData().value<SymbolSearcher::Parameters>();
     QSet<QString> projectFileNames;
     if (parameters.scope == SymbolSearcher::SearchProjectsOnly) {
-        for (ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects())
+        for (ProjectExplorer::Project *project : ProjectExplorer::ProjectManager::projects())
             projectFileNames += Utils::transform<QSet>(project->files(ProjectExplorer::Project::AllFiles), &Utils::FilePath::toString);
     }
 
@@ -120,7 +121,7 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     SymbolSearcher *symbolSearcher = new SymbolSearcher(parameters, projectFileNames);
     connect(watcher, &QFutureWatcherBase::finished,
             symbolSearcher, &QObject::deleteLater);
-    watcher->setFuture(Utils::runAsync(m_manager->sharedThreadPool(),
+    watcher->setFuture(Utils::asyncRun(m_manager->sharedThreadPool(),
                                        &SymbolSearcher::runSearch, symbolSearcher));
     FutureProgress *progress = ProgressManager::addTask(watcher->future(), Tr::tr("Searching for Symbol"),
                                                         Core::Constants::TASK_SEARCH);
@@ -135,7 +136,7 @@ void SymbolsFindFilter::addResults(QFutureWatcher<SearchResultItem> *watcher, in
         watcher->cancel();
         return;
     }
-    QList<SearchResultItem> items;
+    SearchResultItems items;
     for (int i = begin; i < end; ++i)
         items << watcher->resultAt(i);
     search->addResults(items, SearchResult::AddSorted);

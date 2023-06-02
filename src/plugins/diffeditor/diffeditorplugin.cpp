@@ -13,12 +13,13 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <texteditor/textdocument.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/differ.h>
 #include <utils/fileutils.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -47,13 +48,12 @@ public:
           m_ignoreWhitespace(ignoreWhitespace)
     {}
 
-    void operator()(QFutureInterface<FileData> &futureInterface,
-                    const ReloadInput &reloadInput) const
+    void operator()(QPromise<FileData> &promise, const ReloadInput &reloadInput) const
     {
         if (reloadInput.text[LeftSide] == reloadInput.text[RightSide])
             return; // We show "No difference" in this case, regardless if it's binary or not
 
-        Differ differ(&futureInterface);
+        Differ differ(QFuture<void>(promise.future()));
 
         FileData fileData;
         if (!reloadInput.binaryFiles) {
@@ -85,7 +85,7 @@ public:
         fileData.fileInfo = reloadInput.fileInfo;
         fileData.fileOperation = reloadInput.fileOperation;
         fileData.binaryFiles = reloadInput.binaryFiles;
-        futureInterface.reportResult(fileData);
+        promise.addResult(fileData);
     }
 
 private:
@@ -114,11 +114,12 @@ DiffFilesController::DiffFilesController(IDocument *document)
     const auto setupTree = [this, storage](TaskTree &taskTree) {
         QList<std::optional<FileData>> *outputList = storage.activeStorage();
 
-        const auto setupDiff = [this](AsyncTask<FileData> &async, const ReloadInput &reloadInput) {
-            async.setAsyncCallData(DiffFile(ignoreWhitespace(), contextLineCount()), reloadInput);
-            async.setFutureSynchronizer(Internal::DiffEditorPlugin::futureSynchronizer());
+        const auto setupDiff = [this](Async<FileData> &async, const ReloadInput &reloadInput) {
+            async.setConcurrentCallData(
+                DiffFile(ignoreWhitespace(), contextLineCount()), reloadInput);
+            async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         };
-        const auto onDiffDone = [outputList](const AsyncTask<FileData> &async, int i) {
+        const auto onDiffDone = [outputList](const Async<FileData> &async, int i) {
             if (async.isResultAvailable())
                 (*outputList)[i] = async.result();
         };
@@ -127,15 +128,15 @@ DiffFilesController::DiffFilesController(IDocument *document)
         outputList->resize(inputList.size());
 
         using namespace std::placeholders;
-        QList<TaskItem> tasks {parallel, optional};
+        QList<TaskItem> tasks {parallel, finishAllAndDone};
         for (int i = 0; i < inputList.size(); ++i) {
-            tasks.append(Async<FileData>(std::bind(setupDiff, _1, inputList.at(i)),
+            tasks.append(AsyncTask<FileData>(std::bind(setupDiff, _1, inputList.at(i)),
                                          std::bind(onDiffDone, _1, i)));
         }
         taskTree.setupRoot(tasks);
     };
     const auto onTreeDone = [this, storage] {
-        const QList<std::optional<FileData>> &results = *storage.activeStorage();
+        const QList<std::optional<FileData>> &results = *storage;
         QList<FileData> finalList;
         for (const std::optional<FileData> &result : results) {
             if (result.has_value())
@@ -149,9 +150,9 @@ DiffFilesController::DiffFilesController(IDocument *document)
 
     const Group root = {
         Storage(storage),
-        Tree(setupTree),
-        OnGroupDone(onTreeDone),
-        OnGroupError(onTreeError)
+        TaskTreeTask(setupTree),
+        onGroupDone(onTreeDone),
+        onGroupError(onTreeError)
     };
     setReloadRecipe(root);
 }
@@ -416,12 +417,10 @@ public:
 
     DiffEditorFactory m_editorFactory;
     DiffEditorServiceImpl m_service;
-    FutureSynchronizer m_futureSynchronizer;
 };
 
 DiffEditorPluginPrivate::DiffEditorPluginPrivate()
 {
-    m_futureSynchronizer.setCancelOnWait(true);
     //register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     toolsContainer->insertGroup(Core::Constants::G_TOOLS_DEBUG, Constants::G_TOOLS_DIFF);
@@ -534,12 +533,6 @@ DiffEditorPlugin::~DiffEditorPlugin()
 void DiffEditorPlugin::initialize()
 {
     d = new DiffEditorPluginPrivate;
-}
-
-FutureSynchronizer *DiffEditorPlugin::futureSynchronizer()
-{
-    QTC_ASSERT(s_instance, return nullptr);
-    return &s_instance->d->m_futureSynchronizer;
 }
 
 } // namespace Internal
@@ -771,13 +764,13 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch()
 
     QCOMPARE(result, patchText);
 
-    bool ok;
-    QList<FileData> resultList = DiffUtils::readPatch(result, &ok);
+    const std::optional<QList<FileData>> resultList = DiffUtils::readPatch(result);
+    const bool ok = resultList.has_value();
 
     QVERIFY(ok);
-    QCOMPARE(resultList.count(), 1);
-    for (int i = 0; i < resultList.count(); i++) {
-        const FileData &resultFileData = resultList.at(i);
+    QCOMPARE(resultList->count(), 1);
+    for (int i = 0; i < resultList->count(); i++) {
+        const FileData &resultFileData = resultList->at(i);
         QCOMPARE(resultFileData.fileInfo[LeftSide].fileName, fileName);
         QCOMPARE(resultFileData.fileInfo[RightSide].fileName, fileName);
         QCOMPARE(resultFileData.chunks.count(), 1);
@@ -1335,14 +1328,14 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
     QFETCH(QString, sourcePatch);
     QFETCH(QList<FileData>, fileDataList);
 
-    bool ok;
-    const QList<FileData> &result = DiffUtils::readPatch(sourcePatch, &ok);
+    const std::optional<QList<FileData>> result = DiffUtils::readPatch(sourcePatch);
+    const bool ok = result.has_value();
 
     QVERIFY(ok);
-    QCOMPARE(result.count(), fileDataList.count());
+    QCOMPARE(result->count(), fileDataList.count());
     for (int i = 0; i < fileDataList.count(); i++) {
         const FileData &origFileData = fileDataList.at(i);
-        const FileData &resultFileData = result.at(i);
+        const FileData &resultFileData = result->at(i);
         QCOMPARE(resultFileData.fileInfo[LeftSide].fileName, origFileData.fileInfo[LeftSide].fileName);
         QCOMPARE(resultFileData.fileInfo[LeftSide].typeInfo, origFileData.fileInfo[LeftSide].typeInfo);
         QCOMPARE(resultFileData.fileInfo[RightSide].fileName, origFileData.fileInfo[RightSide].fileName);

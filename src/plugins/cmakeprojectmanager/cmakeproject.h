@@ -31,16 +31,22 @@ public:
     Internal::PresetsData presetsData() const;
     void readPresets();
 
+    void setOldPresetKits(const QList<ProjectExplorer::Kit *> &presetKits) const;
+    QList<ProjectExplorer::Kit *> oldPresetKits() const;
+
 protected:
     bool setupTarget(ProjectExplorer::Target *t) final;
 
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
+    void configureAsExampleProject(ProjectExplorer::Kit *kit) override;
+
     Internal::PresetsData combinePresets(Internal::PresetsData &cmakePresetsData,
                                          Internal::PresetsData &cmakeUserPresetsData);
     void setupBuildPresets(Internal::PresetsData &presetsData);
 
     mutable Internal::CMakeProjectImporter *m_projectImporter = nullptr;
+    mutable QList<ProjectExplorer::Kit*> m_oldPresetKits;
 
     ProjectExplorer::Tasks m_issues;
     Internal::PresetsData m_presetsData;

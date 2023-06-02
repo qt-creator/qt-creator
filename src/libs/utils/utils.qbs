@@ -35,7 +35,9 @@ Project {
 
         Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "qml", "widgets", "xml"] }
         Depends { name: "Qt.macextras"; condition: Qt.core.versionMajor < 6 && qbs.targetOS.contains("macos") }
+        Depends { name: "Tasking" }
         Depends { name: "app_version_header" }
+        Depends { name: "ptyqt" }
 
         files: [
             "QtConcurrentTools",
@@ -48,8 +50,8 @@ Project {
             "archive.h",
             "aspects.cpp",
             "aspects.h",
-            "asynctask.cpp",
-            "asynctask.h",
+            "async.cpp",
+            "async.h",
             "basetreeview.cpp",
             "basetreeview.h",
             "benchmarker.cpp",
@@ -108,6 +110,8 @@ Project {
             "execmenu.cpp",
             "execmenu.h",
             "executeondestruction.h",
+            "externalterminalprocessimpl.cpp",
+            "externalterminalprocessimpl.h",
             "fadingindicator.cpp",
             "fadingindicator.h",
             "faketooltip.cpp",
@@ -126,6 +130,10 @@ Project {
             "filepath.h",
             "filesearch.cpp",
             "filesearch.h",
+            "filestreamer.cpp",
+            "filestreamer.h",
+            "filestreamermanager.cpp",
+            "filestreamermanager.h",
             "filesystemmodel.cpp",
             "filesystemmodel.h",
             "filesystemwatcher.cpp",
@@ -178,8 +186,6 @@ Project {
             "launchersocket.h",
             "layoutbuilder.cpp",
             "layoutbuilder.h",
-            "linecolumn.cpp",
-            "linecolumn.h",
             "link.cpp",
             "link.h",
             "listmodel.h",
@@ -232,6 +238,8 @@ Project {
             "port.h",
             "portlist.cpp",
             "portlist.h",
+            "process.cpp",
+            "process.h",
             "processenums.h",
             "processhandle.cpp",
             "processhandle.h",
@@ -255,8 +263,6 @@ Project {
             "qtcassert.h",
             "qtcolorbutton.cpp",
             "qtcolorbutton.h",
-            "qtcprocess.cpp",
-            "qtcprocess.h",
             "qtcsettings.cpp",
             "qtcsettings.h",
             "reloadpromptutils.cpp",
@@ -268,6 +274,10 @@ Project {
             "savefile.cpp",
             "savefile.h",
             "scopedswap.h",
+            "scopedtimer.cpp",
+            "scopedtimer.h",
+            "searchresultitem.cpp",
+            "searchresultitem.h",
             "set_algorithm.h",
             "settingsaccessor.cpp",
             "settingsaccessor.h",
@@ -299,8 +309,6 @@ Project {
             "styledbar.h",
             "stylehelper.cpp",
             "stylehelper.h",
-            "tasktree.cpp",
-            "tasktree.h",
             "templateengine.cpp",
             "templateengine.h",
             "temporarydirectory.cpp",
@@ -309,8 +317,10 @@ Project {
             "temporaryfile.h",
             "terminalcommand.cpp",
             "terminalcommand.h",
-            "terminalprocess.cpp",
-            "terminalprocess_p.h",
+            "terminalhooks.cpp",
+            "terminalhooks.h",
+            "terminalinterface.cpp",
+            "terminalinterface.h",
             "textfieldcheckbox.cpp",
             "textfieldcheckbox.h",
             "textfieldcombobox.cpp",
@@ -329,7 +339,7 @@ Project {
             "headerviewstretcher.h",
             "uncommentselection.cpp",
             "uncommentselection.h",
-            "uniqueobjectptr.h"
+            "uniqueobjectptr.h",
             "unixutils.cpp",
             "unixutils.h",
             "url.cpp",
@@ -464,6 +474,7 @@ Project {
 
         Export {
             Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
+            Depends { name: "Tasking" }
             cpp.includePaths: base.concat("mimetypes2")
         }
     }

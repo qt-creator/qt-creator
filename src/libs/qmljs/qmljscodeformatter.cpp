@@ -253,7 +253,14 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case function_arglist_closed:
             switch (kind) {
             case LeftBrace:         turnInto(jsblock_open); break;
+            case Colon:             turnInto(function_type_annotated_return); break;
             default:                leave(true); continue; // error recovery
+            } break;
+
+        case function_type_annotated_return:
+            switch (kind) {
+            case LeftBrace:         turnInto(jsblock_open); break;
+            default:                break;
             } break;
 
         case expression_or_objectdefinition:

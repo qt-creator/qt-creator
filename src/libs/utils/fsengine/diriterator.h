@@ -39,6 +39,9 @@ public:
     QString currentFileName() const override
     {
         const QString result = it->fileName();
+        if (result.isEmpty() && !it->host().isEmpty()) {
+            return it->host().toString();
+        }
         return chopIfEndsWith(result, '/');
     }
 

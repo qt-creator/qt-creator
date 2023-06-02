@@ -5,7 +5,6 @@
 
 #include "pipsupport.h"
 #include "pythonplugin.h"
-#include "pythonsettings.h"
 #include "pythontr.h"
 #include "pythonutils.h"
 
@@ -17,10 +16,10 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/infobar.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
 #include <QRegularExpression>
 #include <QTextCursor>
@@ -55,7 +54,7 @@ bool PySideInstaller::missingPySideInstallation(const FilePath &pythonPath,
     if (pythonWithPyside[pythonPath].contains(pySide))
         return false;
 
-    QtcProcess pythonProcess;
+    Process pythonProcess;
     pythonProcess.setCommand({pythonPath, {"-c", "import " + pySide}});
     pythonProcess.runBlocking();
     const bool missing = pythonProcess.result() != ProcessResult::FinishedWithSuccess;
@@ -88,17 +87,8 @@ void PySideInstaller::installPyside(const FilePath &python,
         if (success)
             emit pySideInstalled(python, pySide);
     });
-    install->setPackage(PipPackage(pySide));
+    install->setPackages({PipPackage(pySide)});
     install->run();
-}
-
-void PySideInstaller::changeInterpreter(const QString &interpreterId,
-                                        RunConfiguration *runConfig)
-{
-    if (runConfig) {
-        if (auto aspect = runConfig->aspect<InterpreterAspect>())
-            aspect->setCurrentInterpreter(PythonSettings::interpreter(interpreterId));
-    }
 }
 
 void PySideInstaller::handlePySideMissing(const FilePath &python,
@@ -140,8 +130,7 @@ void PySideInstaller::runPySideChecker(const FilePath &python,
                     handlePySideMissing(python, pySide, document);
                 watcher->deleteLater();
             });
-    watcher->setFuture(
-        Utils::runAsync(&missingPySideInstallation, python, pySide));
+    watcher->setFuture(Utils::asyncRun(&missingPySideInstallation, python, pySide));
 }
 
 } // Python::Internal

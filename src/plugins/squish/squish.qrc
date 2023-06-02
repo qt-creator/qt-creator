@@ -8,6 +8,8 @@
         <file>images/jumpTo@2x.png</file>
         <file>images/data.png</file>
         <file>images/data@2x.png</file>
+        <file>images/picker.png</file>
+        <file>images/picker@2x.png</file>
         <file>wizard/suite/wizard.json</file>
     </qresource>
 </RCC>

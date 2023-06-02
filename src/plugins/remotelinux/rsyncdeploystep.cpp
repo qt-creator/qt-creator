@@ -16,21 +16,21 @@
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
+#include <utils/process.h>
 #include <utils/processinterface.h>
-#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
-using namespace Utils::Tasking;
 
 namespace RemoteLinux {
 
-class RsyncDeployService : public AbstractRemoteLinuxDeployService
+// RsyncDeployStep
+
+class RsyncDeployStep : public AbstractRemoteLinuxDeployStep
 {
 public:
-    void setDeployableFiles(const QList<DeployableFile> &files);
-    void setIgnoreMissingFiles(bool ignore) { m_ignoreMissingFiles = ignore; }
-    void setFlags(const QString &flags) { m_flags = flags; }
+    RsyncDeployStep(BuildStepList *bsl, Id id);
 
 private:
     bool isDeploymentNecessary() const final;
@@ -43,84 +43,9 @@ private:
     QString m_flags;
 };
 
-void RsyncDeployService::setDeployableFiles(const QList<DeployableFile> &files)
-{
-    m_files.clear();
-    for (const DeployableFile &f : files)
-        m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
-}
-
-bool RsyncDeployService::isDeploymentNecessary() const
-{
-    if (m_ignoreMissingFiles)
-        Utils::erase(m_files, [](const FileToTransfer &file) { return !file.m_source.exists(); });
-    return !m_files.empty();
-}
-
-TaskItem RsyncDeployService::mkdirTask()
-{
-    const auto setupHandler = [this](QtcProcess &process) {
-        QStringList remoteDirs;
-        for (const FileToTransfer &file : std::as_const(m_files))
-            remoteDirs << file.m_target.parentDir().path();
-        remoteDirs.sort();
-        remoteDirs.removeDuplicates();
-        process.setCommand({deviceConfiguration()->filePath("mkdir"),
-                            QStringList("-p") + remoteDirs});
-        connect(&process, &QtcProcess::readyReadStandardError, this, [this, proc = &process] {
-            emit stdErrData(QString::fromLocal8Bit(proc->readAllRawStandardError()));
-        });
-    };
-    const auto errorHandler = [this](const QtcProcess &process) {
-        QString finalMessage = process.errorString();
-        const QString stdErr = process.cleanedStdErr();
-        if (!stdErr.isEmpty()) {
-            if (!finalMessage.isEmpty())
-                finalMessage += '\n';
-            finalMessage += stdErr;
-        }
-        emit errorMessage(Tr::tr("Deploy via rsync: failed to create remote directories:")
-                          + '\n' + finalMessage);
-    };
-    return Process(setupHandler, {}, errorHandler);
-}
-
-TaskItem RsyncDeployService::transferTask()
-{
-    const auto setupHandler = [this](FileTransfer &transfer) {
-        transfer.setTransferMethod(FileTransferMethod::Rsync);
-        transfer.setRsyncFlags(m_flags);
-        transfer.setFilesToTransfer(m_files);
-        connect(&transfer, &FileTransfer::progress,
-                this, &AbstractRemoteLinuxDeployService::stdOutData);
-    };
-    const auto errorHandler = [this](const FileTransfer &transfer) {
-        const ProcessResultData result = transfer.resultData();
-        if (result.m_error == QProcess::FailedToStart) {
-            emit errorMessage(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
-        } else if (result.m_exitStatus == QProcess::CrashExit) {
-            emit errorMessage(Tr::tr("rsync crashed."));
-        } else if (result.m_exitCode != 0) {
-            emit errorMessage(Tr::tr("rsync failed with exit code %1.").arg(result.m_exitCode)
-                + "\n" + result.m_errorString);
-        }
-    };
-    return Transfer(setupHandler, {}, errorHandler);
-}
-
-Group RsyncDeployService::deployRecipe()
-{
-    return Group { mkdirTask(), transferTask() };
-}
-
-// RsyncDeployStep
-
 RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-    auto service = new RsyncDeployService;
-    setDeployService(service);
-
     auto flags = addAspect<StringAspect>();
     flags->setDisplayStyle(StringAspect::LineEditDisplay);
     flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
@@ -133,33 +58,95 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
                                  BoolAspect::LabelPlacement::InExtraLabel);
     ignoreMissingFiles->setValue(false);
 
-    setInternalInitializer([this, service, flags, ignoreMissingFiles] {
+    setInternalInitializer([this, ignoreMissingFiles, flags] {
         if (BuildDeviceKitAspect::device(kit()) == DeviceKitAspect::device(kit())) {
             // rsync transfer on the same device currently not implemented
             // and typically not wanted.
             return CheckResult::failure(
                 Tr::tr("rsync is only supported for transfers between different devices."));
         }
-        service->setIgnoreMissingFiles(ignoreMissingFiles->value());
-        service->setFlags(flags->value());
-        return service->isDeploymentPossible();
+        m_ignoreMissingFiles = ignoreMissingFiles->value();
+        m_flags = flags->value();
+        return isDeploymentPossible();
     });
 
-    setRunPreparer([this, service] {
-        service->setDeployableFiles(target()->deploymentData().allFiles());
+    setRunPreparer([this] {
+        const QList<DeployableFile> files = target()->deploymentData().allFiles();
+        m_files.clear();
+        for (const DeployableFile &f : files)
+            m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
     });
 }
 
-RsyncDeployStep::~RsyncDeployStep() = default;
-
-Utils::Id RsyncDeployStep::stepId()
+bool RsyncDeployStep::isDeploymentNecessary() const
 {
-    return Constants::RsyncDeployStepId;
+    if (m_ignoreMissingFiles)
+        Utils::erase(m_files, [](const FileToTransfer &file) { return !file.m_source.exists(); });
+    return !m_files.empty();
 }
 
-QString RsyncDeployStep::displayName()
+TaskItem RsyncDeployStep::mkdirTask()
 {
-    return Tr::tr("Deploy files via rsync");
+    const auto setupHandler = [this](Process &process) {
+        QStringList remoteDirs;
+        for (const FileToTransfer &file : std::as_const(m_files))
+            remoteDirs << file.m_target.parentDir().path();
+        remoteDirs.sort();
+        remoteDirs.removeDuplicates();
+        process.setCommand({deviceConfiguration()->filePath("mkdir"),
+                            QStringList("-p") + remoteDirs});
+        connect(&process, &Process::readyReadStandardError, this, [this, proc = &process] {
+            handleStdErrData(QString::fromLocal8Bit(proc->readAllRawStandardError()));
+        });
+    };
+    const auto errorHandler = [this](const Process &process) {
+        QString finalMessage = process.errorString();
+        const QString stdErr = process.cleanedStdErr();
+        if (!stdErr.isEmpty()) {
+            if (!finalMessage.isEmpty())
+                finalMessage += '\n';
+            finalMessage += stdErr;
+        }
+        addErrorMessage(Tr::tr("Deploy via rsync: failed to create remote directories:")
+                        + '\n' + finalMessage);
+    };
+    return ProcessTask(setupHandler, {}, errorHandler);
+}
+
+TaskItem RsyncDeployStep::transferTask()
+{
+    const auto setupHandler = [this](FileTransfer &transfer) {
+        transfer.setTransferMethod(FileTransferMethod::Rsync);
+        transfer.setRsyncFlags(m_flags);
+        transfer.setFilesToTransfer(m_files);
+        connect(&transfer, &FileTransfer::progress,
+                this, &AbstractRemoteLinuxDeployStep::handleStdOutData);
+    };
+    const auto errorHandler = [this](const FileTransfer &transfer) {
+        const ProcessResultData result = transfer.resultData();
+        if (result.m_error == QProcess::FailedToStart) {
+            addErrorMessage(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
+        } else if (result.m_exitStatus == QProcess::CrashExit) {
+            addErrorMessage(Tr::tr("rsync crashed."));
+        } else if (result.m_exitCode != 0) {
+            addErrorMessage(Tr::tr("rsync failed with exit code %1.").arg(result.m_exitCode)
+                            + "\n" + result.m_errorString);
+        }
+    };
+    return FileTransferTask(setupHandler, {}, errorHandler);
+}
+
+Group RsyncDeployStep::deployRecipe()
+{
+    return Group { mkdirTask(), transferTask() };
+}
+
+// Factory
+
+RsyncDeployStepFactory::RsyncDeployStepFactory()
+{
+    registerStep<RsyncDeployStep>(Constants::RsyncDeployStepId);
+    setDisplayName(Tr::tr("Deploy files via rsync"));
 }
 
 } // RemoteLinux

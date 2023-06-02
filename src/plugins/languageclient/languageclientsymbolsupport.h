@@ -5,18 +5,15 @@
 
 #include "languageclient_global.h"
 
-#include <coreplugin/find/searchresultitem.h>
 #include <texteditor/textdocument.h>
 
 #include <languageserverprotocol/languagefeatures.h>
 
+#include <utils/searchresultitem.h>
+
 #include <functional>
 
-namespace Core {
-class SearchResult;
-class SearchResultItem;
-}
-
+namespace Core { class SearchResult; }
 namespace LanguageServerProtocol { class MessageId; }
 
 namespace LanguageClient {
@@ -46,7 +43,7 @@ public:
                       const std::function<void()> &callback = {},
                       bool preferLowerCaseFileNames = true);
 
-    static Core::Search::TextRange convertRange(const LanguageServerProtocol::Range &range);
+    static Utils::Text::Range convertRange(const LanguageServerProtocol::Range &range);
     static QStringList getFileContents(const Utils::FilePath &filePath);
 
     using SymbolMapper = std::function<QString(const QString &)>;
@@ -76,7 +73,7 @@ private:
                            const std::function<void()> &callback, bool preferLowerCaseFileNames);
     void handleRenameResponse(Core::SearchResult *search,
                               const LanguageServerProtocol::RenameRequest::Response &response);
-    void applyRename(const QList<Core::SearchResultItem> &checkedItems, Core::SearchResult *search);
+    void applyRename(const Utils::SearchResultItems &checkedItems, Core::SearchResult *search);
     QString derivePlaceholder(const QString &oldSymbol, const QString &newSymbol);
 
     Client *m_client = nullptr;

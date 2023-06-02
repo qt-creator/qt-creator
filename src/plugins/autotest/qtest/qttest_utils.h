@@ -26,9 +26,9 @@ namespace QTestUtils {
 
 bool isQTestMacro(const QByteArray &macro);
 QHash<Utils::FilePath, TestCases> testCaseNamesForFiles(ITestFramework *framework,
-                                                        const Utils::FilePaths &files);
+                                                        const QSet<Utils::FilePath> &files);
 QMultiHash<Utils::FilePath, Utils::FilePath> alternativeFiles(ITestFramework *framework,
-                                                              const Utils::FilePaths &files);
+                                                              const QSet<Utils::FilePath> &files);
 QStringList filterInterfering(const QStringList &provided, QStringList *omitted, bool isQuickTest);
 Utils::Environment prepareBasicEnvironment(const Utils::Environment &env);
 

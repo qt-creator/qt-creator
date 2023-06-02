@@ -8,8 +8,8 @@
 #include <projectexplorer/target.h>
 
 #include <utils/layoutbuilder.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QComboBox>
 #include <QTextStream>
@@ -29,7 +29,7 @@ static WebBrowserEntries emrunBrowsers(ProjectExplorer::Target *target)
         const Utils::Environment environment = bc->environment();
         const Utils::FilePath emrunPath = environment.searchInPath("emrun");
 
-        QtcProcess browserLister;
+        Process browserLister;
         browserLister.setEnvironment(environment);
         browserLister.setCommand({emrunPath, {"--list_browsers"}});
         browserLister.start();
@@ -55,7 +55,7 @@ WebBrowserSelectionAspect::WebBrowserSelectionAspect(ProjectExplorer::Target *ta
     addDataExtractor(this, &WebBrowserSelectionAspect::currentBrowser, &Data::currentBrowser);
 }
 
-void WebBrowserSelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void WebBrowserSelectionAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_CHECK(!m_webBrowserComboBox);
     m_webBrowserComboBox = new QComboBox;
@@ -66,7 +66,7 @@ void WebBrowserSelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
         m_currentBrowser = m_webBrowserComboBox->currentData().toString();
         emit changed();
     });
-    builder.addItems({Tr::tr("Web browser:"), m_webBrowserComboBox});
+    parent.addItems({Tr::tr("Web browser:"), m_webBrowserComboBox});
 }
 
 void WebBrowserSelectionAspect::fromMap(const QVariantMap &map)

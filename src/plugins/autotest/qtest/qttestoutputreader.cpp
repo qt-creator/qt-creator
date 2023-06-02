@@ -12,8 +12,6 @@
 
 #include <QRegularExpression>
 
-#include <cctype>
-
 using namespace Utils;
 
 namespace Autotest {
@@ -99,18 +97,15 @@ static QString constructBenchmarkInformation(const QString &metric, double value
     else if (metric == "CPUCycles")               // -perf
         metricsText = "CPU cycles";
     return Tr::tr("%1 %2 per iteration (total: %3, iterations: %4)")
-            .arg(formatResult(value))
-            .arg(metricsText)
-            .arg(formatResult(value * double(iterations)))
+            .arg(formatResult(value), metricsText, formatResult(value * double(iterations)))
             .arg(iterations);
 }
 
-QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                                       QtcProcess *testApplication,
+QtTestOutputReader::QtTestOutputReader(Process *testApplication,
                                        const FilePath &buildDirectory,
                                        const FilePath &projectFile,
                                        OutputMode mode, TestType type)
-    : TestOutputReader(futureInterface, testApplication, buildDirectory)
+    : TestOutputReader(testApplication, buildDirectory)
     , m_projectFile(projectFile)
     , m_mode(mode)
     , m_testType(type)
@@ -177,8 +172,6 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
         m_xmlReader.addData("\n");
     m_xmlReader.addData(QString::fromUtf8(outputLine));
     while (!m_xmlReader.atEnd()) {
-        if (m_futureInterface.isCanceled())
-            return;
         QXmlStreamReader::TokenType token = m_xmlReader.readNext();
         switch (token) {
         case QXmlStreamReader::StartDocument:
@@ -277,7 +270,7 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
             const QStringView currentTag = m_xmlReader.name();
             if (currentTag == QStringLiteral("TestFunction")) {
                 sendFinishMessage(true);
-                m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
+                // TODO: bump progress?
                 m_dataTag.clear();
                 m_formerTestCase = m_testCase;
                 m_testCase.clear();
@@ -346,9 +339,6 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
                                                  "\\(total: [\\d,.]+, iterations: \\d+\\))$");
     static const QRegularExpression locationUnix(QT_TEST_FAIL_UNIX_REGEXP);
     static const QRegularExpression locationWin(QT_TEST_FAIL_WIN_REGEXP);
-
-    if (m_futureInterface.isCanceled())
-        return;
 
     const QString line = QString::fromUtf8(outputLine);
     QRegularExpressionMatch match;

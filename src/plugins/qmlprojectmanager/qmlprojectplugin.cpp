@@ -25,7 +25,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runcontrol.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -40,7 +40,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QAction>
 #include <QDesktopServices>
@@ -115,10 +115,10 @@ void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
     qputenv(Constants::enviromentLaunchedQDS, "true");
     //-a and -client arguments help to append project to open design studio application
     if (Utils::HostOsInfo::isMacHost())
-        qdsStarted = Utils::QtcProcess::startDetached(
+        qdsStarted = Utils::Process::startDetached(
             {"/usr/bin/open", {"-a", qdsPath.path(), fileName.toString()}});
     else
-        qdsStarted = Utils::QtcProcess::startDetached({qdsPath, {"-client", fileName.toString()}});
+        qdsStarted = Utils::Process::startDetached({qdsPath, {"-client", fileName.toString()}});
 
     if (!qdsStarted) {
         QMessageBox::warning(Core::ICore::dialogParent(),
@@ -180,7 +180,7 @@ const Utils::FilePath findQmlProjectUpwards(const Utils::FilePath &folder)
 static bool findAndOpenProject(const Utils::FilePath &filePath)
 {
     ProjectExplorer::Project *project
-            = ProjectExplorer::SessionManager::projectForFile(filePath);
+            = ProjectExplorer::ProjectManager::projectForFile(filePath);
 
     if (project) {
         if (project->projectFilePath().suffix() == "qmlproject") {
@@ -436,7 +436,7 @@ void QmlProjectPlugin::updateQmlLandingPageProjectInfo(const Utils::FilePath &pr
 
 Utils::FilePath QmlProjectPlugin::projectFilePath()
 {
-    auto project = ProjectExplorer::SessionManager::startupProject();
+    auto project = ProjectExplorer::ProjectManager::startupProject();
     const QmlProjectManager::QmlProject *qmlProject = qobject_cast<const QmlProjectManager::QmlProject*>(project);
     if (qmlProject) {
         return qmlProject->projectFilePath();

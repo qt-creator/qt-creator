@@ -154,8 +154,6 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget()
             this, &CppTypeHierarchyWidget::perform);
     connect(&m_futureWatcher, &QFutureWatcher<void>::finished,
             this, &CppTypeHierarchyWidget::displayHierarchy);
-
-    m_synchronizer.setCancelOnWait(true);
 }
 
 void CppTypeHierarchyWidget::perform()
@@ -183,7 +181,8 @@ void CppTypeHierarchyWidget::perform()
     m_futureWatcher.setFuture(QFuture<void>(m_future));
     m_synchronizer.addFuture(m_future);
 
-    Core::ProgressManager::addTask(m_future, Tr::tr("Evaluating Type Hierarchy"), "TypeHierarchy");
+    Core::ProgressManager::addTimedTask(m_futureWatcher.future(),
+                                        Tr::tr("Evaluating Type Hierarchy"), "TypeHierarchy", 2);
 }
 
 void CppTypeHierarchyWidget::performFromExpression(const QString &expression, const FilePath &filePath)

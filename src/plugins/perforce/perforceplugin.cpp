@@ -27,8 +27,8 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/parameteraction.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
 #include <vcsbase/basevcseditorfactory.h>
@@ -226,6 +226,10 @@ public:
     void discardCommit() override { cleanCommitMessageFile(); }
 
     QString commitDisplayName() const final;
+    QString commitAbortTitle() const final;
+    QString commitAbortMessage() const final;
+    QString commitErrorMessage(const QString &error) const final;
+
     void p4Diff(const PerforceDiffParameters &p);
 
     void openCurrentFile();
@@ -889,8 +893,8 @@ void PerforcePluginPrivate::filelog(const FilePath &workingDir, const QString &f
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, QStringList(fileName));
     QStringList args;
     args << QLatin1String("filelog") << QLatin1String("-li");
-    if (m_settings.logCount.value() > 0)
-        args << "-m" << QString::number(m_settings.logCount.value());
+    if (m_settings.logCount() > 0)
+        args << "-m" << QString::number(m_settings.logCount());
     if (!fileName.isEmpty())
         args.append(fileName);
     const PerforceResponse result = runP4Cmd(workingDir, args,
@@ -911,8 +915,8 @@ void PerforcePluginPrivate::changelists(const FilePath &workingDir, const QStrin
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, QStringList(fileName));
     QStringList args;
     args << QLatin1String("changelists") << QLatin1String("-lit");
-    if (m_settings.logCount.value() > 0)
-        args << "-m" << QString::number(m_settings.logCount.value());
+    if (m_settings.logCount() > 0)
+        args << "-m" << QString::number(m_settings.logCount());
     if (!fileName.isEmpty())
         args.append(fileName);
     const PerforceResponse result = runP4Cmd(workingDir, args,
@@ -1225,8 +1229,8 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     QTC_ASSERT(stdInput.isEmpty(), return PerforceResponse()); // Not supported here
 
     // Run, connect stderr to the output window
-    QtcProcess process;
-    const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS.value();
+    Process process;
+    const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS();
     process.setTimeoutS(timeOutS);
     if (outputCodec)
         process.setCodec(outputCodec);
@@ -1283,7 +1287,7 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const FilePath &
                                                                 const QByteArray &stdInput,
                                                                 QTextCodec *outputCodec) const
 {
-    QtcProcess process;
+    Process process;
 
     if (flags & OverrideDiffEnvironment)
         process.setEnvironment(overrideDiffEnvironmentVariable());
@@ -1303,7 +1307,7 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const FilePath &
 
     QByteArray stdOut;
     QByteArray stdErr;
-    const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS.value();
+    const int timeOutS = (flags & LongTimeOut) ? m_settings.longTimeOutS() : m_settings.timeOutS();
     if (!process.readDataFromProcess(&stdOut, &stdErr, timeOutS)) {
         process.stop();
         process.waitForFinished();
@@ -1443,7 +1447,25 @@ void PerforceDiffConfig::triggerReRun()
 
 QString PerforcePluginPrivate::commitDisplayName() const
 {
+    //: Name of the "commit" action of the VCS
     return Tr::tr("Submit");
+}
+
+QString PerforcePluginPrivate::commitAbortTitle() const
+{
+    return Tr::tr("Close Submit Editor");
+}
+
+QString PerforcePluginPrivate::commitAbortMessage() const
+{
+    return Tr::tr("Closing this editor will abort the submit.");
+}
+
+QString PerforcePluginPrivate::commitErrorMessage(const QString &error) const
+{
+    if (error.isEmpty())
+        return Tr::tr("Cannot submit.");
+    return Tr::tr("Cannot submit: %1.").arg(error);
 }
 
 void PerforcePluginPrivate::p4Diff(const FilePath &workingDir, const QStringList &files)

@@ -14,12 +14,14 @@ namespace Qnx::Internal {
 class QnxTarget
 {
 public:
-    QnxTarget(const Utils::FilePath &path, const ProjectExplorer::Abi &abi) :
-        m_path(path), m_abi(abi)
-    {
-    }
+    QnxTarget(const Utils::FilePath &path, const ProjectExplorer::Abi &abi);
+
+    QString shortDescription() const;
+    QString cpuDir() const { return m_path.fileName(); }
+
     Utils::FilePath m_path;
     ProjectExplorer::Abi m_abi;
+    Utils::FilePath m_debuggerPath;
 };
 
 namespace QnxUtils {

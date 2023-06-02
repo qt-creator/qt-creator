@@ -47,8 +47,8 @@ private:
 
     bool validate();
 
-    StringAspect *m_taskName = nullptr;
-    StringAspect *m_taskArgs = nullptr;
+    StringAspect m_taskName{this};
+    StringAspect m_taskArgs{this};
 
     QStandardItemModel m_tasks;
     bool m_selecting = false;
@@ -62,19 +62,17 @@ NimbleTaskStep::NimbleTaskStep(BuildStepList *parentList, Id id)
     setDisplayName(display);
 
     setCommandLineProvider([this] {
-        QString args = m_taskName->value() + " " + m_taskArgs->value();
+        QString args = m_taskName() + " " + m_taskArgs();
         return CommandLine(Nim::nimblePathFromKit(target()->kit()), args, CommandLine::Raw);
     });
 
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
 
-    m_taskName = addAspect<StringAspect>();
-    m_taskName->setSettingsKey(Constants::C_NIMBLETASKSTEP_TASKNAME);
+    m_taskName.setSettingsKey(Constants::C_NIMBLETASKSTEP_TASKNAME);
 
-    m_taskArgs = addAspect<StringAspect>();
-    m_taskArgs->setSettingsKey(Constants::C_NIMBLETASKSTEP_TASKARGS);
-    m_taskArgs->setDisplayStyle(StringAspect::LineEditDisplay);
-    m_taskArgs->setLabelText(Tr::tr("Task arguments:"));
+    m_taskArgs.setSettingsKey(Constants::C_NIMBLETASKSTEP_TASKARGS);
+    m_taskArgs.setDisplayStyle(StringAspect::LineEditDisplay);
+    m_taskArgs.setLabelText(Tr::tr("Task arguments:"));
 }
 
 QWidget *NimbleTaskStep::createConfigWidget()
@@ -88,22 +86,22 @@ QWidget *NimbleTaskStep::createConfigWidget()
     using namespace Layouting;
     auto widget = Form {
         m_taskArgs,
-        Tr::tr("Tasks:"), taskList
-    }.emerge(WithoutMargins);
+        Tr::tr("Tasks:"), taskList,
+        noMargin
+    }.emerge();
 
     auto buildSystem = dynamic_cast<NimbleBuildSystem *>(this->buildSystem());
     QTC_ASSERT(buildSystem, return widget);
 
     updateTaskList();
-    selectTask(m_taskName->value());
+    selectTask(m_taskName());
 
     connect(&m_tasks, &QAbstractItemModel::dataChanged, this, &NimbleTaskStep::onDataChanged);
 
     connect(buildSystem, &NimbleBuildSystem::tasksChanged, this, &NimbleTaskStep::updateTaskList);
 
     setSummaryUpdater([this] {
-        return QString("<b>%1:</b> nimble %2 %3")
-                .arg(displayName(), m_taskName->value(), m_taskArgs->value());
+        return QString("<b>%1:</b> nimble %2 %3").arg(displayName(), m_taskName(), m_taskArgs());
     });
 
     return widget;
@@ -198,24 +196,24 @@ void NimbleTaskStep::uncheckedAllDifferentFrom(QStandardItem *toSkip)
 
 void NimbleTaskStep::setTaskName(const QString &name)
 {
-    if (m_taskName->value() == name)
+    if (m_taskName() == name)
         return;
-    m_taskName->setValue(name);
+    m_taskName.setValue(name);
     selectTask(name);
 }
 
 bool NimbleTaskStep::validate()
 {
-    if (m_taskName->value().isEmpty())
+    if (m_taskName().isEmpty())
         return true;
 
     auto nimbleBuildSystem = dynamic_cast<NimbleBuildSystem*>(buildSystem());
     QTC_ASSERT(nimbleBuildSystem, return false);
 
-    auto matchName = [this](const NimbleTask &task) { return task.name == m_taskName->value(); };
+    auto matchName = [this](const NimbleTask &task) { return task.name == m_taskName(); };
     if (!Utils::contains(nimbleBuildSystem->tasks(), matchName)) {
         emit addTask(BuildSystemTask(Task::Error, Tr::tr("Nimble task %1 not found.")
-                                     .arg(m_taskName->value())));
+                                     .arg(m_taskName())));
         emitFaultyConfigurationMessage();
         return false;
     }

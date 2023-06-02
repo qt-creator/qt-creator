@@ -28,8 +28,8 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
@@ -115,8 +115,8 @@ void McuSupportPlugin::initialize()
     setObjectName("McuSupportPlugin");
     dd = new McuSupportPluginPrivate;
 
-    connect(SessionManager::instance(),
-            &SessionManager::projectFinishedParsing,
+    connect(ProjectManager::instance(),
+            &ProjectManager::projectFinishedParsing,
             updateMCUProjectTree);
 
     dd->m_options.registerQchFiles();

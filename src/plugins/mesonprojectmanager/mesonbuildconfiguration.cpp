@@ -19,7 +19,7 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/fileutils.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDir>
 
@@ -91,7 +91,8 @@ void MesonBuildConfiguration::build(const QString &target)
 
 QStringList MesonBuildConfiguration::mesonConfigArgs()
 {
-    return Utils::ProcessArgs::splitArgs(m_parameters) + QStringList{QString("-Dbuildtype=%1").arg(mesonBuildTypeName(m_buildType))};
+    return Utils::ProcessArgs::splitArgs(m_parameters, HostOsInfo::hostOs())
+        + QStringList{QString("-Dbuildtype=%1").arg(mesonBuildTypeName(m_buildType))};
 }
 
 const QString &MesonBuildConfiguration::parameters() const

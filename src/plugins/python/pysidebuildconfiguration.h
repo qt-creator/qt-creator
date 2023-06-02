@@ -9,18 +9,6 @@
 
 namespace Python::Internal {
 
-class PySideBuildConfiguration : public ProjectExplorer::BuildConfiguration
-{
-public:
-    PySideBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-};
-
-class PySideBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
-{
-public:
-    PySideBuildConfigurationFactory();
-};
-
 class PySideBuildStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
@@ -29,16 +17,21 @@ public:
     void updatePySideProjectPath(const Utils::FilePath &pySideProjectPath);
 
 private:
-    Utils::StringAspect *m_pysideProject;
-
-private:
     void doRun() override;
+
+    Utils::FilePathAspect m_pysideProject{this};
 };
 
 class PySideBuildStepFactory : public ProjectExplorer::BuildStepFactory
 {
 public:
     PySideBuildStepFactory();
+};
+
+class PySideBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
+{
+public:
+    PySideBuildConfigurationFactory();
 };
 
 } // Python::Internal

@@ -16,9 +16,6 @@ class REMOTELINUX_EXPORT MakeInstallStep : public ProjectExplorer::MakeStep
 public:
     MakeInstallStep(ProjectExplorer::BuildStepList *parent, Utils::Id id);
 
-    static Utils::Id stepId();
-    static QString displayName();
-
 private:
     bool fromMap(const QVariantMap &map) override;
     QWidget *createConfigWidget() override;
@@ -39,6 +36,13 @@ private:
     ProjectExplorer::DeploymentData m_deploymentData;
     bool m_noInstallTarget = false;
     bool m_isCmakeProject = false;
+};
+
+class REMOTELINUX_EXPORT MakeInstallStepFactory
+    : public ProjectExplorer::BuildStepFactory
+{
+public:
+    MakeInstallStepFactory();
 };
 
 } // namespace RemoteLinux

@@ -67,7 +67,7 @@ public:
     QVariant recordedData(const QString &channel) const;
 
     // Part of read-only interface of RunControl for convenience.
-    void appendMessage(const QString &msg, Utils::OutputFormat format);
+    void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
     void appendMessageChunk(const QString &msg, Utils::OutputFormat format);
     IDeviceConstPtr device() const;
 
@@ -205,6 +205,7 @@ public:
 
     void setupFormatter(Utils::OutputFormatter *formatter) const;
     Utils::Id runMode() const;
+    bool isPrintEnvironmentEnabled() const;
 
     const Runnable &runnable() const;
 

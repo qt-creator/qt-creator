@@ -5,7 +5,6 @@
 
 #include "qmljscodestylepreferences.h"
 #include "qmljscodestylepreferenceswidget.h"
-#include "qmljsindenter.h"
 #include "qmljsqtstylecodeformatter.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
@@ -25,13 +24,13 @@
 #include <utils/layoutbuilder.h>
 
 #include <QTextStream>
+#include <QVBoxLayout>
 
 using namespace TextEditor;
 
-namespace QmlJSTools {
-namespace Internal {
+namespace QmlJSTools::Internal {
 
-// ------------------ CppCodeStyleSettingsWidget
+// QmlJSCodeStylePreferencesWidget
 
 QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
         const TextEditor::ICodeStylePreferencesFactory *factory, QWidget *parent)
@@ -47,7 +46,7 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
 
     decorateEditor(TextEditorSettings::fontSettings());
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Row {
         Column {
             m_tabPreferencesWidget,
@@ -55,7 +54,8 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
             st,
         },
         m_previewTextEdit,
-    }.attachTo(this, WithoutMargins);
+        noMargin
+    }.attachTo(this);
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
        this, &QmlJSCodeStylePreferencesWidget::decorateEditor);
@@ -120,7 +120,51 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
     tc.endEditBlock();
 }
 
-// ------------------ CppCodeStyleSettingsPage
+// QmlJSCodeStyleSettingsPageWidget
+
+class QmlJSCodeStyleSettingsPageWidget : public Core::IOptionsPageWidget
+{
+public:
+    QmlJSCodeStyleSettingsPageWidget()
+    {
+
+        QmlJSCodeStylePreferences *originalPreferences
+                = QmlJSToolsSettings::globalCodeStyle();
+        m_preferences.setDelegatingPool(originalPreferences->delegatingPool());
+        m_preferences.setCodeStyleSettings(originalPreferences->codeStyleSettings());
+        m_preferences.setTabSettings(originalPreferences->tabSettings());
+        m_preferences.setCurrentDelegate(originalPreferences->currentDelegate());
+        m_preferences.setId(originalPreferences->id());
+
+        auto vbox = new QVBoxLayout(this);
+        vbox->addWidget(new CodeStyleEditor(
+            TextEditorSettings::codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID),
+            &m_preferences));
+    }
+
+    void apply() final
+    {
+        QSettings *s = Core::ICore::settings();
+
+        QmlJSCodeStylePreferences *originalPreferences = QmlJSToolsSettings::globalCodeStyle();
+        if (originalPreferences->codeStyleSettings() != m_preferences.codeStyleSettings()) {
+            originalPreferences->setCodeStyleSettings(m_preferences.codeStyleSettings());
+            originalPreferences->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
+        }
+        if (originalPreferences->tabSettings() != m_preferences.tabSettings()) {
+            originalPreferences->setTabSettings(m_preferences.tabSettings());
+            originalPreferences->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
+        }
+        if (originalPreferences->currentDelegate() != m_preferences.currentDelegate()) {
+            originalPreferences->setCurrentDelegate(m_preferences.currentDelegate());
+            originalPreferences->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
+        }
+    }
+
+      QmlJSCodeStylePreferences m_preferences;
+};
+
+// QmlJSCodeStyleSettingsPage
 
 QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
 {
@@ -129,50 +173,7 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
     setDisplayCategory(Tr::tr("Qt Quick"));
     setCategoryIconPath(":/qmljstools/images/settingscategory_qml.png");
+    setWidgetCreator([] { return new QmlJSCodeStyleSettingsPageWidget; });
 }
 
-QWidget *QmlJSCodeStyleSettingsPage::widget()
-{
-    if (!m_widget) {
-        QmlJSCodeStylePreferences *originalPreferences
-                = QmlJSToolsSettings::globalCodeStyle();
-        m_preferences = new QmlJSCodeStylePreferences(m_widget);
-        m_preferences->setDelegatingPool(originalPreferences->delegatingPool());
-        m_preferences->setCodeStyleSettings(originalPreferences->codeStyleSettings());
-        m_preferences->setTabSettings(originalPreferences->tabSettings());
-        m_preferences->setCurrentDelegate(originalPreferences->currentDelegate());
-        m_preferences->setId(originalPreferences->id());
-        m_widget = new CodeStyleEditor(TextEditorSettings::codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID),
-                                       m_preferences);
-    }
-    return m_widget;
-}
-
-void QmlJSCodeStyleSettingsPage::apply()
-{
-    if (m_widget) {
-        QSettings *s = Core::ICore::settings();
-
-        QmlJSCodeStylePreferences *originalPreferences = QmlJSToolsSettings::globalCodeStyle();
-        if (originalPreferences->codeStyleSettings() != m_preferences->codeStyleSettings()) {
-            originalPreferences->setCodeStyleSettings(m_preferences->codeStyleSettings());
-            originalPreferences->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
-        }
-        if (originalPreferences->tabSettings() != m_preferences->tabSettings()) {
-            originalPreferences->setTabSettings(m_preferences->tabSettings());
-            originalPreferences->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
-        }
-        if (originalPreferences->currentDelegate() != m_preferences->currentDelegate()) {
-            originalPreferences->setCurrentDelegate(m_preferences->currentDelegate());
-            originalPreferences->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
-        }
-    }
-}
-
-void QmlJSCodeStyleSettingsPage::finish()
-{
-    delete m_widget;
-}
-
-} // namespace Internal
-} // namespace QmlJSTools
+} // QmlJSTools::Internal

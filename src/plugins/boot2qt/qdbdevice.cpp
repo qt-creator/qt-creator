@@ -15,8 +15,8 @@
 #include <remotelinux/linuxprocessinterface.h>
 
 #include <utils/portlist.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 
 #include <QFormLayout>
@@ -30,11 +30,10 @@ using namespace Utils;
 
 namespace Qdb::Internal {
 
-class QdbProcessImpl : public LinuxProcessInterface
+class QdbProcessImpl : public SshProcessInterface
 {
 public:
-    QdbProcessImpl(const LinuxDevice *linuxDevice)
-        : LinuxProcessInterface(linuxDevice) {}
+    QdbProcessImpl(const IDevice::ConstPtr &device) : SshProcessInterface(device) {}
     ~QdbProcessImpl() { killIfRunning(); }
 
 private:
@@ -51,7 +50,7 @@ class DeviceApplicationObserver : public QObject
 public:
     DeviceApplicationObserver(const IDevice::ConstPtr &device, const CommandLine &command)
     {
-        connect(&m_appRunner, &QtcProcess::done, this, &DeviceApplicationObserver::handleDone);
+        connect(&m_appRunner, &Process::done, this, &DeviceApplicationObserver::handleDone);
 
         QTC_ASSERT(device, return);
         m_deviceName = device->displayName();
@@ -95,7 +94,7 @@ private:
         deleteLater();
     }
 
-    QtcProcess m_appRunner;
+    Process m_appRunner;
     QString m_deviceName;
 };
 
@@ -105,6 +104,7 @@ private:
 QdbDevice::QdbDevice()
 {
     setDisplayType(Tr::tr("Boot2Qt Device"));
+    setType(Constants::QdbLinuxOsType);
 
     addDeviceAction({Tr::tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
         (void) new DeviceApplicationObserver(device, {device->filePath("reboot"), {}});
@@ -124,7 +124,7 @@ ProjectExplorer::IDeviceWidget *QdbDevice::createWidget()
 
 ProcessInterface *QdbDevice::createProcessInterface() const
 {
-    return new QdbProcessImpl(this);
+    return new QdbProcessImpl(sharedFromThis());
 }
 
 void QdbDevice::setSerialNumber(const QString &serial)
@@ -248,6 +248,7 @@ QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
 {
     setDisplayName(Tr::tr("Boot2Qt Device"));
     setCombinedIcon(":/qdb/images/qdbdevicesmall.png", ":/qdb/images/qdbdevice.png");
+    setQuickCreationAllowed(true);
     setConstructionFunction(&QdbDevice::create);
     setCreator([] {
         QdbDeviceWizard wizard(Core::ICore::dialogParent());

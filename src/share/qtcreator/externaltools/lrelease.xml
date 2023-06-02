@@ -11,6 +11,7 @@
     <order>2</order>
     <executable>
         <path>%{CurrentDocument:Project:QT_INSTALL_BINS}/lrelease</path>
+        <path>%{ActiveProject:QT_INSTALL_BINS}/lrelease</path>
         <path>lrelease</path>
         <arguments>%{CurrentDocument:Project:FilePath}</arguments>
         <workingdirectory>%{CurrentDocument:Project:Path}</workingdirectory>

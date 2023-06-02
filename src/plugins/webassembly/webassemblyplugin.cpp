@@ -8,9 +8,9 @@
 #endif // WITH_TESTS
 #include "webassemblyconstants.h"
 #include "webassemblydevice.h"
-#include "webassemblyoptionspage.h"
 #include "webassemblyqtversion.h"
 #include "webassemblyrunconfiguration.h"
+#include "webassemblysettings.h"
 #include "webassemblytoolchain.h"
 #include "webassemblytr.h"
 
@@ -39,7 +39,7 @@ public:
     WebAssemblyQtVersionFactory qtVersionFactory;
     EmrunRunConfigurationFactory emrunRunConfigurationFactory;
     EmrunRunWorkerFactory emrunRunWorkerFactory;
-    WebAssemblyOptionsPage optionsPage;
+    WebAssemblySettings settings;
 };
 
 static WebAssemblyPluginPrivate *dd = nullptr;

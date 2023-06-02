@@ -20,6 +20,8 @@ class QScrollArea;
 class QToolButton;
 QT_END_NAMESPACE
 
+namespace Utils { class QtColorButton; }
+
 namespace TextEditor::Internal {
 
 class FormatsModel;
@@ -80,10 +82,10 @@ private:
     QLabel *m_builtinSchemeLabel;
     QWidget *m_fontProperties;
     QLabel *m_foregroundLabel;
-    QToolButton *m_foregroundToolButton;
+    Utils::QtColorButton *m_foregroundToolButton;
     QAbstractButton *m_eraseForegroundToolButton;
     QLabel *m_backgroundLabel;
-    QToolButton *m_backgroundToolButton;
+    Utils::QtColorButton *m_backgroundToolButton;
     QAbstractButton *m_eraseBackgroundToolButton;
     QLabel *m_relativeForegroundHeadline;
     QLabel *m_foregroundLightnessLabel;
@@ -100,7 +102,7 @@ private:
     QCheckBox *m_italicCheckBox;
     QLabel *m_underlineHeadline;
     QLabel *m_underlineLabel;
-    QToolButton *m_underlineColorToolButton;
+    Utils::QtColorButton *m_underlineColorToolButton;
     QAbstractButton *m_eraseUnderlineColorToolButton;
     QComboBox *m_underlineComboBox;
 

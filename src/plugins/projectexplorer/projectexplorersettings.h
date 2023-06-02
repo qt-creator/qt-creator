@@ -4,6 +4,8 @@
 #pragma once
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/hostosinfo.h>
 
 #include <QUuid>
@@ -23,7 +25,6 @@ public:
                 && p1.deployBeforeRun == p2.deployBeforeRun
                 && p1.saveBeforeBuild == p2.saveBeforeBuild
                 && p1.useJom == p2.useJom
-                && p1.autorestoreLastSession == p2.autorestoreLastSession
                 && p1.prompToStopRunControl == p2.prompToStopRunControl
                 && p1.automaticallyCreateRunConfigurations == p2.automaticallyCreateRunConfigurations
                 && p1.addLibraryPathsToRunEnv == p2.addLibraryPathsToRunEnv
@@ -40,7 +41,6 @@ public:
     bool deployBeforeRun = true;
     bool saveBeforeBuild = false;
     bool useJom = true;
-    bool autorestoreLastSession = false; // This option is set in the Session Manager!
     bool prompToStopRunControl = false;
     bool automaticallyCreateRunConfigurations = true;
     bool addLibraryPathsToRunEnv = true;
@@ -74,12 +74,10 @@ public:
     int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
 };
 
-class CompileOutputSettings
+class ProjectExplorerSettingsPage : public Core::IOptionsPage
 {
 public:
-    bool popUp = false;
-    bool wrapOutput = false;
-    int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
+    ProjectExplorerSettingsPage();
 };
 
 } // namespace Internal

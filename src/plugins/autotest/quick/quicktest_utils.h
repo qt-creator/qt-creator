@@ -16,7 +16,7 @@ namespace QuickTestUtils {
 
 bool isQuickTestMacro(const QByteArray &macro);
 QHash<Utils::FilePath, Utils::FilePath> proFilesForQmlFiles(ITestFramework *framework,
-                                                            const Utils::FilePaths &files);
+                                                            const QSet<Utils::FilePath> &files);
 
 } // namespace QuickTestUtils
 } // namespace Internal

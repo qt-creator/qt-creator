@@ -17,13 +17,14 @@ class SuppressionAspect final : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    explicit SuppressionAspect(bool global);
+    SuppressionAspect(Utils::AspectContainer *container, bool global);
     ~SuppressionAspect() final;
 
+    Utils::FilePaths operator()() const { return value(); }
     Utils::FilePaths value() const;
     void setValue(const Utils::FilePaths &val);
 
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) final;
+    void addToLayout(Layouting::LayoutItem &parent) final;
 
     void fromMap(const QVariantMap &map) final;
     void toMap(QVariantMap &map) const final;
@@ -61,16 +62,13 @@ public:
         LeakCheckOnFinishYes
     };
 
-signals:
-    void changed(); // sent when multiple values have changed simulatenously (e.g. fromMap)
-
 /**
  * Base valgrind settings
  */
 public:
-    Utils::StringAspect valgrindExecutable;
-    Utils::StringAspect valgrindArguments;
-    Utils::SelectionAspect selfModifyingCodeDetection;
+    Utils::FilePathAspect valgrindExecutable{this};
+    Utils::StringAspect valgrindArguments{this};
+    Utils::SelectionAspect selfModifyingCodeDetection{this};
 
     SuppressionAspect suppressions;
 
@@ -78,13 +76,13 @@ public:
  * Base memcheck settings
  */
 public:
-    Utils::StringAspect memcheckArguments;
-    Utils::IntegerAspect numCallers;
-    Utils::SelectionAspect leakCheckOnFinish;
-    Utils::BoolAspect showReachable;
-    Utils::BoolAspect trackOrigins;
-    Utils::BoolAspect filterExternalIssues;
-    Utils::IntegersAspect visibleErrorKinds;
+    Utils::StringAspect memcheckArguments{this};
+    Utils::IntegerAspect numCallers{this};
+    Utils::SelectionAspect leakCheckOnFinish{this};
+    Utils::BoolAspect showReachable{this};
+    Utils::BoolAspect trackOrigins{this};
+    Utils::BoolAspect filterExternalIssues{this};
+    Utils::IntegersAspect visibleErrorKinds{this};
 
     void setVisibleErrorKinds(const QList<int> &);
 
@@ -92,16 +90,16 @@ public:
  * Base callgrind settings
  */
 public:
-    Utils::StringAspect callgrindArguments;
-    Utils::StringAspect kcachegrindExecutable;
+    Utils::StringAspect callgrindArguments{this};
+    Utils::FilePathAspect kcachegrindExecutable{this};
 
-    Utils::BoolAspect enableCacheSim;
-    Utils::BoolAspect enableBranchSim;
-    Utils::BoolAspect collectSystime;
-    Utils::BoolAspect collectBusEvents;
-    Utils::BoolAspect enableEventToolTips;
-    Utils::DoubleAspect minimumInclusiveCostRatio;
-    Utils::DoubleAspect visualizationMinimumInclusiveCostRatio;
+    Utils::BoolAspect enableCacheSim{this};
+    Utils::BoolAspect enableBranchSim{this};
+    Utils::BoolAspect collectSystime{this};
+    Utils::BoolAspect collectBusEvents{this};
+    Utils::BoolAspect enableEventToolTips{this};
+    Utils::DoubleAspect minimumInclusiveCostRatio{this};
+    Utils::DoubleAspect visualizationMinimumInclusiveCostRatio{this};
 
     QVariantMap defaultSettings() const;
 };
@@ -126,16 +124,16 @@ public:
     void writeSettings() const;
     void readSettings();
 
-    Utils::StringAspect lastSuppressionDirectory;
-    Utils::StringAspect lastSuppressionHistory;
+    Utils::StringAspect lastSuppressionDirectory{this};
+    Utils::StringAspect lastSuppressionHistory{this};
 
 
     /**
      * Global callgrind settings
      */
-    Utils::SelectionAspect costFormat;
-    Utils::BoolAspect detectCycles;
-    Utils::BoolAspect shortenTemplates;
+    Utils::SelectionAspect costFormat{this};
+    Utils::BoolAspect detectCycles{this};
+    Utils::BoolAspect shortenTemplates{this};
 };
 
 

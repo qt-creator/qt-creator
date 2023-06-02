@@ -22,7 +22,7 @@ class BoostTestParser : public CppParser
 {
 public:
     explicit BoostTestParser(ITestFramework *framework) : CppParser(framework) {}
-    bool processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
+    bool processDocument(QPromise<TestParseResultPtr> &promise,
                          const Utils::FilePath &fileName) override;
 };
 

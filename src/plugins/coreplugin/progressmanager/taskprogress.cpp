@@ -6,14 +6,16 @@
 #include "futureprogress.h"
 #include "progressmanager.h"
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/mathutils.h>
 #include <utils/qtcassert.h>
-#include <utils/tasktree.h>
 
 #include <QFutureWatcher>
 #include <QTimer>
 
 using namespace Utils;
+using namespace Tasking;
 
 namespace Core {
 
@@ -89,6 +91,7 @@ void TaskProgressPrivate::updateProgress()
 
 /*!
     \class Core::TaskProgress
+    \inmodule QtCreator
 
     \brief The TaskProgress class is responsible for showing progress of the running task tree.
 

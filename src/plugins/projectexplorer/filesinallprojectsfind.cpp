@@ -5,7 +5,7 @@
 
 #include "project.h"
 #include "projectexplorertr.h"
-#include "session.h"
+#include "projectmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
@@ -52,7 +52,7 @@ Utils::FileIterator *FilesInAllProjectsFind::files(const QStringList &nameFilter
                                                    const QVariant &additionalParameters) const
 {
     Q_UNUSED(additionalParameters)
-    const QSet<FilePath> dirs = Utils::transform<QSet>(SessionManager::projects(), [](Project *p) {
+    const QSet<FilePath> dirs = Utils::transform<QSet>(ProjectManager::projects(), [](Project *p) {
         return p->projectFilePath().parentDir();
     });
     return new SubDirFileIterator(FilePaths(dirs.constBegin(), dirs.constEnd()),

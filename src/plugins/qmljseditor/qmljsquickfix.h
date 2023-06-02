@@ -44,7 +44,7 @@ protected:
 
     const QmlJSTools::SemanticInfo &semanticInfo() const;
 
-    /// \returns The name of the file for for which this operation is invoked.
+    /// Returns The name of the file for for which this operation is invoked.
     Utils::FilePath fileName() const;
 
 private:

@@ -110,12 +110,18 @@ const char CPP_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEditor", "C++");
 const char CURRENT_DOCUMENT_FILTER_ID[] = "Methods in current Document";
 const char CURRENT_DOCUMENT_FILTER_DISPLAY_NAME[]
     = QT_TRANSLATE_NOOP("QtC::CppEditor", "C++ Symbols in Current Document");
+const char CURRENT_DOCUMENT_FILTER_DESCRIPTION[]
+    = QT_TRANSLATE_NOOP("QtC::CppEditor", "Locates C++ symbols in the current document.");
 
 const char CLASSES_FILTER_ID[] = "Classes";
 const char CLASSES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEditor", "C++ Classes");
+const char CLASSES_FILTER_DESCRIPTION[]
+    = QT_TRANSLATE_NOOP("QtC::CppEditor", "Locates C++ classes in any open project.");
 
 const char FUNCTIONS_FILTER_ID[] = "Methods";
 const char FUNCTIONS_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEditor", "C++ Functions");
+const char FUNCTIONS_FILTER_DESCRIPTION[]
+    = QT_TRANSLATE_NOOP("QtC::CppEditor", "Locates C++ functions in any open project.");
 
 const char INCLUDES_FILTER_ID[] = "All Included C/C++ Files";
 const char INCLUDES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEditor",
@@ -124,6 +130,8 @@ const char INCLUDES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEditor",
 const char LOCATOR_FILTER_ID[] = "Classes and Methods";
 const char LOCATOR_FILTER_DISPLAY_NAME[]
     = QT_TRANSLATE_NOOP("QtC::CppEditor", "C++ Classes, Enums, Functions and Type Aliases");
+const char LOCATOR_FILTER_DESCRIPTION[] = QT_TRANSLATE_NOOP(
+    "QtC::CppEditor", "Locates C++ classes, enums, functions and type aliases in any open project.");
 
 const char SYMBOLS_FIND_FILTER_ID[] = "Symbols";
 const char SYMBOLS_FIND_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEditor", "C++ Symbols");

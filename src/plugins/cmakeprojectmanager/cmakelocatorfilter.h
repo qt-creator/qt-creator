@@ -7,41 +7,22 @@
 
 namespace CMakeProjectManager::Internal {
 
-class CMakeTargetLocatorFilter : public Core::ILocatorFilter
+class CMakeBuildTargetFilter : Core::ILocatorFilter
 {
 public:
-    CMakeTargetLocatorFilter();
-
-    void prepareSearch(const QString &entry) override;
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) final;
+    CMakeBuildTargetFilter();
 
 private:
-    void projectListUpdated();
-
-    QList<Core::LocatorFilterEntry> m_result;
+    Core::LocatorMatcherTasks matchers() final;
 };
 
-class BuildCMakeTargetLocatorFilter : CMakeTargetLocatorFilter
+class CMakeOpenTargetFilter : Core::ILocatorFilter
 {
 public:
-    BuildCMakeTargetLocatorFilter();
+    CMakeOpenTargetFilter();
 
-    void accept(const Core::LocatorFilterEntry &selection,
-                QString *newText,
-                int *selectionStart,
-                int *selectionLength) const final;
+private:
+    Core::LocatorMatcherTasks matchers() final;
 };
 
-class OpenCMakeTargetLocatorFilter : CMakeTargetLocatorFilter
-{
-public:
-    OpenCMakeTargetLocatorFilter();
-
-    void accept(const Core::LocatorFilterEntry &selection,
-                QString *newText,
-                int *selectionStart,
-                int *selectionLength) const final;
-};
-
-} // CMakeProjectManager::Internal
+} // namespace CMakeProjectManager::Internal

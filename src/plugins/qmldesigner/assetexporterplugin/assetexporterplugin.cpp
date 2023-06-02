@@ -19,9 +19,9 @@
 #include "coreplugin/documentmanager.h"
 #include "qmldesigner/qmldesignerplugin.h"
 #include "projectexplorer/projectexplorerconstants.h"
-#include "projectexplorer/session.h"
+#include "projectexplorer/projectmanager.h"
 #include "projectexplorer/project.h"
-#include "projectexplorer/session.h"
+#include "projectexplorer/projectmanager.h"
 #include "projectexplorer/taskhub.h"
 
 #include "extensionsystem/pluginmanager.h"
@@ -54,8 +54,8 @@ AssetExporterPlugin::AssetExporterPlugin()
     // Instantiate actions created by the plugin.
     addActions();
 
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged,
+    connect(ProjectExplorer::ProjectManager::instance(),
+            &ProjectExplorer::ProjectManager::startupProjectChanged,
             this, &AssetExporterPlugin::updateActions);
 
     updateActions();
@@ -68,7 +68,7 @@ QString AssetExporterPlugin::pluginName() const
 
 void AssetExporterPlugin::onExport()
 {
-    auto startupProject = ProjectExplorer::SessionManager::startupProject();
+    auto startupProject = ProjectExplorer::ProjectManager::startupProject();
     if (!startupProject)
         return;
 
@@ -97,7 +97,7 @@ void AssetExporterPlugin::addActions()
 
 void AssetExporterPlugin::updateActions()
 {
-    auto project = ProjectExplorer::SessionManager::startupProject();
+    auto project = ProjectExplorer::ProjectManager::startupProject();
     QAction* const exportAction = Core::ActionManager::command(Constants::EXPORT_QML)->action();
     exportAction->setEnabled(project && !project->needsConfiguration());
 }

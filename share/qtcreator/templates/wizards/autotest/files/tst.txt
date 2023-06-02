@@ -133,6 +133,33 @@ elseif (EXISTS ${BOOST_INCLUDE_DIR})
     include_directories(${BOOST_INCLUDE_DIR})
 endif ()
 @endif
+@if "%{TestFrameWork}" == "BoostTest_dyn"
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+
+if (DEFINED ENV{BOOST_INSTALL_DIR})
+    set(BOOST_INSTALL_DIR $ENV{BOOST_INSTALL_DIR})
+else ()
+    set(BOOST_INSTALL_DIR "%{BoostInstallDir}") # set by Qt Creator wizard
+endif ()
+if (BOOST_INSTALL_DIR STREQUAL "")
+    message("BOOST_INSTALL_DIR not set, assuming Boost can be found automatically in your system")
+elseif (EXISTS ${BOOST_INSTALL_DIR})
+    set(BOOST_ROOT ${BOOST_INSTALL_DIR})
+endif ()
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_executable(%{TestCaseName} %{MainCppName} %{TestCaseFileGTestWithCppSuffix})
+add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
+if (Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+  target_link_libraries(%{TestCaseName} PUBLIC ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+endif ()
+@endif
 @if "%{TestFrameWork}" == "Catch2"
 SET(CMAKE_CXX_STANDARD 11)
 

@@ -1,28 +1,27 @@
 {
     "version": 1,
-    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "QbsProjectManager.QbsProject" ],
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
     "id": "U.QtQuickApplicationEmpty",
     "category": "D.ApplicationQt",
-    "trDescription": "Creates a Qt Quick application that contains an empty window. Optionally, you can create a Qt Design Studio project.",
+    "trDescription": "Creates a Qt Quick application that can have both QML and C++ code. You can build the application and deploy it to desktop, embedded, and mobile target platforms.\n\nYou can select an option to create a project that you can open in Qt Design Studio, which has a visual editor for Qt Quick UIs.",
     "trDisplayName": "Qt Quick Application",
     "trDisplayCategory": "Application (Qt)",
     "icon": "icon.png",
     "iconKind": "Themed",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQtQmlCMakeApi" ],
-    "enabled": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0 || value('Plugins').indexOf('QbsProjectManager') >= 0 }",
+    "enabled": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0 }",
 
     "options":
     [
-        { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') === 'cmake' ? '%{ProjectDirectory}/CMakeLists.txt' : '%{ProjectDirectory}/' + '%{ProjectName}'.toLowerCase() + '.qbs' }"  },
+        { "key": "ProjectFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
         { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src') }" },
         { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0 }" },
         { "key": "TargetName", "value": "%{JS: 'app' + value('ProjectName') }" },
         { "key": "HasQSPSetup", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.2' }"},
         { "key": "HasFailureSignal", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.3' }"},
-        { "key": "UsesAutoResourcePrefix", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' && value('BuildSystem') === 'cmake' }"},
+        { "key": "UsesAutoResourcePrefix", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' }"},
         { "key": "HasLoadFromModule", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' && value('UsesAutoResourcePrefix') }"},
         { "key": "QdsWizardPath", "value": "%{IDE:ResourcePath}/qmldesigner/studio_templates/projects" },
-        { "key": "QdsProjectStyle", "value": "%{JS: value('BuildSystem') === 'cmake' ? %{QdsProjectStyleInput} : false }" },
         { "key": "NoQdsProjectStyle", "value": "%{JS: !%{QdsProjectStyle} }" },
 
         { "key": "ImportModuleName", "value": "%{ProjectName}" },
@@ -48,50 +47,17 @@
             "typeId": "Project"
         },
         {
-            "trDisplayName": "Define Build System",
-            "trShortTitle": "Build System",
-            "typeId": "Fields",
-            "enabled": "%{JS: ! %{IsSubproject}}",
-            "data":
-            [
-                {
-                    "name": "BuildSystem",
-                    "trDisplayName": "Build system:",
-                    "type": "ComboBox",
-                    "persistenceKey": "BuildSystemType",
-                    "data":
-                    {
-                        "index": 0,
-                        "items":
-                        [
-                            {
-                                "trKey": "CMake",
-                                "value": "cmake",
-                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
-                            },
-                            {
-                                "trKey": "Qbs",
-                                "value": "qbs",
-                                "condition": "%{JS: value('Plugins').indexOf('QbsProjectManager') >= 0}"
-                            }
-                        ]
-                    }
-                }
-            ]
-        },
-        {
             "trDisplayName": "Define Project Details",
             "trShortTitle": "Details",
             "typeId": "Fields",
             "data":
             [
                 {
-                    "name": "QdsProjectStyleInput",
-                    "trDisplayName": "Create a project that you can open in Qt Design Studio",
-                    "trToolTip": "Create a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.",
+                    "name": "QdsProjectStyle",
+                    "trDisplayName": "Creates a project that you can open in Qt Design Studio.",
+                    "trToolTip": "Creates a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.",
                     "type": "CheckBox",
                     "span": true,
-                    "visible": "%{JS: value('BuildSystem') === 'cmake'}",
                     "persistenceKey": "QtQuick.QdsProjectStyle",
                     "data":
                     {
@@ -111,11 +77,15 @@
                 },
                 {
                     "name": "MinimumSupportedQtVersion",
-                    "trDisplayName": "The minimum version of Qt you want to build the application for",
+                    "trDisplayName": "The minimum version of Qt you want to build the application for.",
                     "type": "ComboBox",
                     "data":
                     {
-                        "items": [ "6.2", "6.4", "6.5" ],
+                        "items": [
+                            { "trKey": "Qt 6.2", "value": "6.2" },
+                            { "trKey": "Qt 6.4", "value": "6.4" },
+                            { "trKey": "Qt 6.5", "value": "6.5" }
+                        ],
                         "index": 1
                     }
                 }
@@ -146,13 +116,7 @@
                 {
                     "source": "CMakeLists.txt",
                     "openAsProject": true,
-                    "condition": "%{JS: %{NoQdsProjectStyle} && value('BuildSystem') === 'cmake' }"
-                },
-                {
-                    "source": "tmpl.qbs",
-                    "target": "%{ProjectFile}",
-                    "openAsProject": true,
-                    "condition": "%{JS: value('BuildSystem') === 'qbs' }"
+                    "condition": "%{NoQdsProjectStyle}"
                 },
                 {
                     "source": "main.cpp",

@@ -21,13 +21,15 @@ namespace Internal {
 
 PerforceChecker::PerforceChecker(QObject *parent) : QObject(parent)
 {
-    connect(&m_process, &QtcProcess::done, this, &PerforceChecker::slotDone);
+    connect(&m_process, &Process::done, this, &PerforceChecker::slotDone);
 }
 
 PerforceChecker::~PerforceChecker()
 {
-    m_process.kill();
-    m_process.waitForFinished();
+    if (m_process.isRunning()) {
+        m_process.kill();
+        m_process.waitForFinished();
+    }
     resetOverrideCursor();
 }
 

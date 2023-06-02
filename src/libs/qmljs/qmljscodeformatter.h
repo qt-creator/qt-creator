@@ -99,6 +99,7 @@ public: // must be public to make Q_GADGET introspection work
         function_start, // after 'function'
         function_arglist_open, // after '(' starting function argument list
         function_arglist_closed, // after ')' in argument list, expecting '{'
+        function_type_annotated_return, // after ':' expecting a type
 
         binding_or_objectdefinition, // after an identifier
 

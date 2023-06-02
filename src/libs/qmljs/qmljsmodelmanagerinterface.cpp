@@ -15,8 +15,8 @@
 
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/hostosinfo.h>
-#include <utils/runextensions.h>
 #include <utils/stringutils.h>
 
 #ifdef WITH_TESTS
@@ -337,11 +337,9 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QList<Utils::FileP
     if (sourceFiles.isEmpty())
         return QFuture<void>();
 
-    QFuture<void> result = Utils::runAsync(&m_threadPool,
-                                           &ModelManagerInterface::parse,
-                                           workingCopyInternal(), sourceFiles,
-                                           this, Dialect(Dialect::Qml),
-                                           emitDocumentOnDiskChanged);
+    QFuture<void> result = Utils::asyncRun(&m_threadPool, &ModelManagerInterface::parse,
+                                           workingCopyInternal(), sourceFiles, this,
+                                           Dialect(Dialect::Qml), emitDocumentOnDiskChanged);
     addFuture(result);
 
     if (sourceFiles.count() > 1)
@@ -365,13 +363,8 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QList<Utils::FileP
 
 void ModelManagerInterface::fileChangedOnDisk(const Utils::FilePath &path)
 {
-    addFuture(Utils::runAsync(&m_threadPool,
-                              &ModelManagerInterface::parse,
-                              workingCopyInternal(),
-                              FilePaths({path}),
-                              this,
-                              Dialect(Dialect::AnyLanguage),
-                              true));
+    addFuture(Utils::asyncRun(&m_threadPool, &ModelManagerInterface::parse, workingCopyInternal(),
+                              FilePaths({path}), this, Dialect(Dialect::AnyLanguage), true));
 }
 
 void ModelManagerInterface::removeFiles(const QList<Utils::FilePath> &files)
@@ -1044,24 +1037,24 @@ void ModelManagerInterface::parseLoop(QSet<Utils::FilePath> &scannedPaths,
 class FutureReporter
 {
 public:
-    FutureReporter(QFutureInterface<void> &future, int multiplier, int base)
-        : future(future), multiplier(multiplier), base(base)
+    FutureReporter(QPromise<void> &promise, int multiplier, int base)
+        : m_promise(promise), m_multiplier(multiplier), m_base(base)
     {}
 
     bool operator()(qreal val)
     {
-        if (future.isCanceled())
+        if (m_promise.isCanceled())
             return false;
-        future.setProgressValue(int(base + multiplier * val));
+        m_promise.setProgressValue(int(m_base + m_multiplier * val));
         return true;
     }
 private:
-    QFutureInterface<void> &future;
-    int multiplier;
-    int base;
+    QPromise<void> &m_promise;
+    int m_multiplier;
+    int m_base;
 };
 
-void ModelManagerInterface::parse(QFutureInterface<void> &future,
+void ModelManagerInterface::parse(QPromise<void> &promise,
                                   const WorkingCopy &workingCopy,
                                   QList<Utils::FilePath> files,
                                   ModelManagerInterface *modelManager,
@@ -1069,8 +1062,8 @@ void ModelManagerInterface::parse(QFutureInterface<void> &future,
                                   bool emitDocChangedOnDisk)
 {
     const int progressMax = 100;
-    FutureReporter reporter(future, progressMax, 0);
-    future.setProgressRange(0, progressMax);
+    FutureReporter reporter(promise, progressMax, 0);
+    promise.setProgressRange(0, progressMax);
 
     // paths we have scanned for files and added to the files list
     QSet<Utils::FilePath> scannedPaths;
@@ -1078,7 +1071,7 @@ void ModelManagerInterface::parse(QFutureInterface<void> &future,
     QSet<Utils::FilePath> newLibraries;
     parseLoop(scannedPaths, newLibraries, workingCopy, std::move(files), modelManager, mainLanguage,
               emitDocChangedOnDisk, reporter);
-    future.setProgressValue(progressMax);
+    promise.setProgressValue(progressMax);
 }
 
 struct ScanItem {
@@ -1087,11 +1080,20 @@ struct ScanItem {
     Dialect language = Dialect::AnyLanguage;
 };
 
-void ModelManagerInterface::importScan(QFutureInterface<void> &future,
-                                       const ModelManagerInterface::WorkingCopy &workingCopy,
+void ModelManagerInterface::importScan(const WorkingCopy &workingCopy,
                                        const PathsAndLanguages &paths,
                                        ModelManagerInterface *modelManager,
-                                       bool emitDocChangedOnDisk, bool libOnly, bool forceRescan)
+                                       bool emitDocChanged, bool libOnly, bool forceRescan)
+{
+    QPromise<void> promise;
+    promise.start();
+    importScanAsync(promise, workingCopy, paths, modelManager, emitDocChanged, libOnly, forceRescan);
+}
+
+void ModelManagerInterface::importScanAsync(QPromise<void> &promise, const WorkingCopy &workingCopy,
+                                            const PathsAndLanguages &paths,
+                                            ModelManagerInterface *modelManager,
+                                            bool emitDocChanged, bool libOnly, bool forceRescan)
 {
     // paths we have scanned for files and added to the files list
     QSet<Utils::FilePath> scannedPaths;
@@ -1118,9 +1120,9 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
     int progressRange = pathsToScan.size() * (1 << (2 + maxScanDepth));
     int totalWork = progressRange;
     int workDone = 0;
-    future.setProgressRange(0, progressRange); // update max length while iterating?
+    promise.setProgressRange(0, progressRange); // update max length while iterating?
     const Snapshot snapshot = modelManager->snapshot();
-    bool isCanceled = future.isCanceled();
+    bool isCanceled = promise.isCanceled();
     while (!pathsToScan.isEmpty() && !isCanceled) {
         ScanItem toScan = pathsToScan.last();
         pathsToScan.pop_back();
@@ -1135,16 +1137,16 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
                                                               toScan.language.companionLanguages());
             }
             workDone += 1;
-            future.setProgressValue(progressRange * workDone / totalWork);
+            promise.setProgressValue(progressRange * workDone / totalWork);
             if (!importedFiles.isEmpty()) {
-                FutureReporter reporter(future, progressRange * pathBudget / (4 * totalWork),
+                FutureReporter reporter(promise, progressRange * pathBudget / (4 * totalWork),
                                         progressRange * workDone / totalWork);
                 parseLoop(scannedPaths, newLibraries, workingCopy, importedFiles, modelManager,
-                          toScan.language, emitDocChangedOnDisk, reporter); // run in parallel??
+                          toScan.language, emitDocChanged, reporter); // run in parallel??
                 importedFiles.clear();
             }
             workDone += pathBudget / 4 - 1;
-            future.setProgressValue(progressRange * workDone / totalWork);
+            promise.setProgressValue(progressRange * workDone / totalWork);
         } else {
             workDone += pathBudget / 4;
         }
@@ -1159,10 +1161,10 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
         } else {
             workDone += pathBudget * 3 / 4;
         }
-        future.setProgressValue(progressRange * workDone / totalWork);
-        isCanceled = future.isCanceled();
+        promise.setProgressValue(progressRange * workDone / totalWork);
+        isCanceled = promise.isCanceled();
     }
-    future.setProgressValue(progressRange);
+    promise.setProgressValue(progressRange);
     if (isCanceled) {
         // assume no work has been done
         QMutexLocker l(&modelManager->m_mutex);
@@ -1206,8 +1208,8 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
     }
 
     if (pathToScan.length() >= 1) {
-        QFuture<void> result = Utils::runAsync(&m_threadPool,
-                                               &ModelManagerInterface::importScan,
+        QFuture<void> result = Utils::asyncRun(&m_threadPool,
+                                               &ModelManagerInterface::importScanAsync,
                                                workingCopyInternal(), pathToScan,
                                                this, true, true, false);
         addFuture(result);
@@ -1373,8 +1375,8 @@ void ModelManagerInterface::startCppQmlTypeUpdate()
     if (!cppModelManager)
         return;
 
-    m_cppQmlTypesUpdater = Utils::runAsync(&ModelManagerInterface::updateCppQmlTypes,
-                this, cppModelManager->snapshot(), m_queuedCppDocuments);
+    m_cppQmlTypesUpdater = Utils::asyncRun(&ModelManagerInterface::updateCppQmlTypes, this,
+                                           cppModelManager->snapshot(), m_queuedCppDocuments);
     m_queuedCppDocuments.clear();
 }
 
@@ -1415,13 +1417,12 @@ bool rescanExports(const QString &fileName, FindExportedCppTypes &finder,
     return hasNewInfo;
 }
 
-void ModelManagerInterface::updateCppQmlTypes(
-        QFutureInterface<void> &futureInterface, ModelManagerInterface *qmlModelManager,
-        const CPlusPlus::Snapshot &snapshot,
+void ModelManagerInterface::updateCppQmlTypes(QPromise<void> &promise,
+        ModelManagerInterface *qmlModelManager, const CPlusPlus::Snapshot &snapshot,
         const QHash<QString, QPair<CPlusPlus::Document::Ptr, bool>> &documents)
 {
-    futureInterface.setProgressRange(0, documents.size());
-    futureInterface.setProgressValue(0);
+    promise.setProgressRange(0, documents.size());
+    promise.setProgressValue(0);
 
     CppDataHash newData;
     QHash<QString, QList<CPlusPlus::Document::Ptr>> newDeclarations;
@@ -1436,9 +1437,9 @@ void ModelManagerInterface::updateCppQmlTypes(
     bool hasNewInfo = false;
     using DocScanPair = QPair<CPlusPlus::Document::Ptr, bool>;
     for (const DocScanPair &pair : documents) {
-        if (futureInterface.isCanceled())
+        if (promise.isCanceled())
             return;
-        futureInterface.setProgressValue(futureInterface.progressValue() + 1);
+        promise.setProgressValue(promise.future().progressValue() + 1);
 
         CPlusPlus::Document::Ptr doc = pair.first;
         const bool scan = pair.second;

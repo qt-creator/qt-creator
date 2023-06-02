@@ -15,33 +15,22 @@ namespace CodePaster {
 
 FileShareProtocolSettings::FileShareProtocolSettings()
 {
+    setId("X.CodePaster.FileSharePaster");
+    setDisplayName(Tr::tr("Fileshare"));
+    setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
     setSettingsGroup("FileSharePasterSettings");
-    setAutoApply(false);
 
-    registerAspect(&path);
     path.setSettingsKey("Path");
-    path.setDisplayStyle(StringAspect::PathChooserDisplay);
     path.setExpectedKind(PathChooser::ExistingDirectory);
     path.setDefaultValue(TemporaryDirectory::masterDirectoryPath());
     path.setLabelText(Tr::tr("&Path:"));
 
-    registerAspect(&displayCount);
     displayCount.setSettingsKey("DisplayCount");
     displayCount.setDefaultValue(10);
     displayCount.setSuffix(' ' + Tr::tr("entries"));
     displayCount.setLabelText(Tr::tr("&Display:"));
-}
 
-// Settings page
-
-FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(FileShareProtocolSettings *settings)
-{
-    setId("X.CodePaster.FileSharePaster");
-    setDisplayName(Tr::tr("Fileshare"));
-    setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
-    setSettings(settings);
-
-    setLayouter([&s = *settings](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
 
         auto label = new QLabel(Tr::tr(
@@ -49,15 +38,17 @@ FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(FileShareProtocolSe
             "simple files on a shared network drive. Files are never deleted."));
         label->setWordWrap(true);
 
-        Column {
+        return Column {
             Form {
                 label, br,
-                s.path,
-                s.displayCount
+                path, br,
+                displayCount
             },
             st
-        }.attachTo(widget);
+        };
     });
+
+    readSettings();
 }
 
 } // namespace CodePaster

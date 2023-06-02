@@ -129,6 +129,7 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
         QTextLayout *blockLayout = block.layout();
         int pos = begin.position() - begin.block().position();
         QTextLine line = blockLayout->lineForTextPosition(pos);
+        QTC_ASSERT(line.isValid(), return {});
         QRectF lineRect = line.naturalTextRect();
         lineRect = lineRect.translated(blockGeometry.topLeft());
         int x = line.cursorToX(pos);
@@ -154,12 +155,12 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
         QTextLayout *blockLayout = block.layout();
 
         int firstLine = 0;
-        QTextLine line = blockLayout->lineAt(firstLine);
 
         int beginChar = 0;
         if (block == begin.block()) {
             beginChar = begin.positionInBlock();
-            line = blockLayout->lineForTextPosition(beginChar);
+            QTextLine line = blockLayout->lineForTextPosition(beginChar);
+            QTC_ASSERT(line.isValid(), return {});
             firstLine = line.lineNumber();
             const int lineEnd = line.textStart() + line.textLength();
             if (beginChar == lineEnd)
@@ -170,7 +171,9 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
         int endChar = -1;
         if (block == end.block()) {
             endChar = end.positionInBlock();
-            lastLine = blockLayout->lineForTextPosition(endChar).lineNumber();
+            QTextLine line = blockLayout->lineForTextPosition(endChar);
+            QTC_ASSERT(line.isValid(), return {});
+            lastLine = line.lineNumber();
             if (endChar == beginChar)
                 break; // Do not expand overlay to empty selection at end
         } else {
@@ -181,7 +184,8 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
         }
 
         for (int i = firstLine; i <= lastLine; ++i) {
-            line = blockLayout->lineAt(i);
+            QTextLine line = blockLayout->lineAt(i);
+            QTC_ASSERT(line.isValid(), return {});
             QRectF lineRect = line.naturalTextRect();
             if (i == firstLine && beginChar > 0)
                 lineRect.setLeft(line.cursorToX(beginChar));

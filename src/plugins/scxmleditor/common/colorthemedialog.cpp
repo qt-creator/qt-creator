@@ -21,7 +21,7 @@ ColorThemeDialog::ColorThemeDialog(QWidget *parent)
                                           QDialogButtonBox::Cancel |
                                           QDialogButtonBox::Apply);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         m_colorSettings,
         buttonBox,

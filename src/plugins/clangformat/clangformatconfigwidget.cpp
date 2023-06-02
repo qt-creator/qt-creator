@@ -82,15 +82,14 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     d->project = project;
     d->config = std::make_unique<ClangFormatFile>(filePathToCurrentSettings(codeStyle->currentPreferences()));
 
-    resize(489, 305);
     d->fallbackConfig = new QLabel(Tr::tr("Clang-Format Style"));
     d->checksScrollArea = new QScrollArea();
     d->checksWidget = new ClangFormatChecks();
 
     d->checksScrollArea->setWidget(d->checksWidget);
     d->checksScrollArea->setWidgetResizable(true);
-    d->checksWidget->setEnabled(!codeStyle->isReadOnly()
-                                && !codeStyle->isTemporarilyReadOnly());
+    d->checksWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
+                                && !codeStyle->isAdditionalTabDisabled());
 
     FilePath fileName;
     if (d->project)
@@ -141,8 +140,8 @@ void ClangFormatConfigWidget::slotCodeStyleChanged(
     d->config->setIsReadOnly(codeStyle->isReadOnly());
     d->style = d->config->style();
 
-    d->checksWidget->setEnabled(!codeStyle->isReadOnly()
-                                && !codeStyle->isTemporarilyReadOnly());
+    d->checksWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
+                                && !codeStyle->isAdditionalTabDisabled());
 
     fillTable();
     updatePreview();

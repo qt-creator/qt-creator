@@ -24,7 +24,7 @@ public:
     QmlJS::Document::Ptr qmljsDocument() const;
 
     /*!
-        \returns the offset in the document for the start position of the given
+        Returns the offset in the document for the start position of the given
                  source location.
      */
     unsigned startOf(const QmlJS::SourceLocation &loc) const;

@@ -350,10 +350,17 @@ void McuSupportOptionsWidget::populateMcuTargetsComboBox()
 {
     m_options.populatePackagesAndTargets();
     m_mcuTargetsComboBox->clear();
+    int initialPlatformIndex = 0;
+    int targetsCounter = -1;
     m_mcuTargetsComboBox->addItems(
-        Utils::transform<QStringList>(m_options.sdkRepository.mcuTargets, [](const McuTargetPtr &t) {
+        Utils::transform<QStringList>(m_options.sdkRepository.mcuTargets, [&](const McuTargetPtr &t) {
+            if (t->platform().name == m_settingsHandler->initialPlatformName())
+                initialPlatformIndex = m_options.sdkRepository.mcuTargets.indexOf(t);
+            targetsCounter++;
             return McuKitManager::generateKitNameFromTarget(t.get());
         }));
+    if (targetsCounter != -1)
+        m_mcuTargetsComboBox->setCurrentIndex(initialPlatformIndex);
     updateStatus();
 }
 

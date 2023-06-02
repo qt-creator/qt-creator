@@ -24,7 +24,6 @@ const char debugServerProviderIdKeyC[] = "IDebugServerProviderId";
 BareMetalDevice::BareMetalDevice()
 {
     setDisplayType(Tr::tr("Bare Metal"));
-    setDefaultDisplayName(defaultDisplayName());
     setOsType(Utils::OsTypeOther);
 }
 

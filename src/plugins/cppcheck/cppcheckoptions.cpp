@@ -12,6 +12,7 @@
 #include <utils/flowlayout.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
 
@@ -20,211 +21,119 @@
 #include <debugger/analyzer/analyzericons.h>
 #include <debugger/debuggertr.h>
 
-#include <QCheckBox>
-#include <QFormLayout>
-
 using namespace Utils;
 
 namespace Cppcheck::Internal {
 
-OptionsWidget::OptionsWidget(QWidget *parent)
-    : QWidget(parent),
-    m_binary(new Utils::PathChooser(this)),
-    m_customArguments(new QLineEdit(this)),
-    m_ignorePatterns(new QLineEdit(this)),
-    m_warning(new QCheckBox(Tr::tr("Warnings"), this)),
-    m_style(new QCheckBox(Tr::tr("Style"), this)),
-    m_performance(new QCheckBox(Tr::tr("Performance"), this)),
-    m_portability(new QCheckBox(Tr::tr("Portability"), this)),
-    m_information(new QCheckBox(Tr::tr("Information"), this)),
-    m_unusedFunction(new QCheckBox(Tr::tr("Unused functions"), this)),
-    m_missingInclude(new QCheckBox(Tr::tr("Missing includes"), this)),
-    m_inconclusive(new QCheckBox(Tr::tr("Inconclusive errors"), this)),
-    m_forceDefines(new QCheckBox(Tr::tr("Check all define combinations"), this)),
-    m_showOutput(new QCheckBox(Tr::tr("Show raw output"), this)),
-    m_addIncludePaths(new QCheckBox(Tr::tr("Add include paths"), this)),
-    m_guessArguments(new QCheckBox(Tr::tr("Calculate additional arguments"), this))
-{
-    m_binary->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_binary->setCommandVersionArguments({"--version"});
-
-    auto variableChooser = new Utils::VariableChooser(this);
-    variableChooser->addSupportedWidget (m_customArguments);
-
-    m_unusedFunction->setToolTip(Tr::tr("Disables multithreaded check."));
-    m_ignorePatterns->setToolTip(Tr::tr("Comma-separated wildcards of full file paths. "
-                                        "Files still can be checked if others include them."));
-    m_addIncludePaths->setToolTip(Tr::tr("Can find missing includes but makes "
-                                         "checking slower. Use only when needed."));
-    m_guessArguments->setToolTip(Tr::tr("Like C++ standard and language."));
-
-    auto layout = new QFormLayout(this);
-    layout->addRow(Tr::tr("Binary:"), m_binary);
-
-    auto checks = new Utils::FlowLayout;
-    layout->addRow(Tr::tr("Checks:"), checks);
-    checks->addWidget(m_warning);
-    checks->addWidget(m_style);
-    checks->addWidget(m_performance);
-    checks->addWidget(m_portability);
-    checks->addWidget(m_information);
-    checks->addWidget(m_unusedFunction);
-    checks->addWidget(m_missingInclude);
-
-    layout->addRow(Tr::tr("Custom arguments:"), m_customArguments);
-    layout->addRow(Tr::tr("Ignored file patterns:"), m_ignorePatterns);
-    auto flags = new Utils::FlowLayout;
-    layout->addRow(flags);
-    flags->addWidget(m_inconclusive);
-    flags->addWidget(m_forceDefines);
-    flags->addWidget(m_showOutput);
-    flags->addWidget(m_addIncludePaths);
-    flags->addWidget(m_guessArguments);
-}
-
-void OptionsWidget::load(const CppcheckOptions &options)
-{
-    m_binary->setFilePath(options.binary);
-    m_customArguments->setText(options.customArguments);
-    m_ignorePatterns->setText(options.ignoredPatterns);
-    m_warning->setChecked(options.warning);
-    m_style->setChecked(options.style);
-    m_performance->setChecked(options.performance);
-    m_portability->setChecked(options.portability);
-    m_information->setChecked(options.information);
-    m_unusedFunction->setChecked(options.unusedFunction);
-    m_missingInclude->setChecked(options.missingInclude);
-    m_inconclusive->setChecked(options.inconclusive);
-    m_forceDefines->setChecked(options.forceDefines);
-    m_showOutput->setChecked(options.showOutput);
-    m_addIncludePaths->setChecked(options.addIncludePaths);
-    m_guessArguments->setChecked(options.guessArguments);
-}
-
-void OptionsWidget::save(CppcheckOptions &options) const
-{
-    options.binary = m_binary->filePath();
-    options.customArguments = m_customArguments->text();
-    options.ignoredPatterns = m_ignorePatterns->text();
-    options.warning = m_warning->isChecked();
-    options.style = m_style->isChecked();
-    options.performance = m_performance->isChecked();
-    options.portability = m_portability->isChecked();
-    options.information = m_information->isChecked();
-    options.unusedFunction = m_unusedFunction->isChecked();
-    options.missingInclude = m_missingInclude->isChecked();
-    options.inconclusive = m_inconclusive->isChecked();
-    options.forceDefines = m_forceDefines->isChecked();
-    options.showOutput = m_showOutput->isChecked();
-    options.addIncludePaths = m_addIncludePaths->isChecked();
-    options.guessArguments = m_guessArguments->isChecked();
-}
-
-CppcheckOptionsPage::CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &trigger):
-    m_tool(tool),
-    m_trigger(trigger)
+CppcheckOptions::CppcheckOptions()
 {
     setId(Constants::OPTIONS_PAGE_ID);
     setDisplayName(Tr::tr("Cppcheck"));
     setCategory("T.Analyzer");
     setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+    setSettingsGroup("Cppcheck");
 
-    CppcheckOptions options;
+    binary.setSettingsKey("binary");
+    binary.setExpectedKind(PathChooser::ExistingCommand);
+    binary.setCommandVersionArguments({"--version"});
+    binary.setLabelText(Tr::tr("Binary:"));
     if (HostOsInfo::isAnyUnixHost()) {
-        options.binary = "cppcheck";
+        binary.setDefaultValue("cppcheck");
     } else {
         FilePath programFiles = FilePath::fromUserInput(qtcEnvironmentVariable("PROGRAMFILES"));
         if (programFiles.isEmpty())
             programFiles = "C:/Program Files";
-        options.binary = programFiles / "Cppcheck/cppcheck.exe";
+        binary.setDefaultValue(programFiles.pathAppended("Cppcheck/cppcheck.exe").toString());
     }
 
-    load(options);
+    warning.setSettingsKey("warning");
+    warning.setDefaultValue(true);
+    warning.setLabelText(Tr::tr("Warnings"));
 
-    m_tool.updateOptions(options);
+    style.setSettingsKey("style");
+    style.setDefaultValue(true);
+    style.setLabelText(Tr::tr("Style"));
+
+    performance.setSettingsKey("performance");
+    performance.setDefaultValue(true);
+    performance.setLabelText(Tr::tr("Performance"));
+
+    portability.setSettingsKey("portability");
+    portability.setDefaultValue(true);
+    portability.setLabelText(Tr::tr("Portability"));
+
+    information.setSettingsKey("information");
+    information.setDefaultValue(true);
+    information.setLabelText(Tr::tr("Information"));
+
+    unusedFunction.setSettingsKey("unusedFunction");
+    unusedFunction.setLabelText(Tr::tr("Unused functions"));
+    unusedFunction.setToolTip(Tr::tr("Disables multithreaded check."));
+
+    missingInclude.setSettingsKey("missingInclude");
+    missingInclude.setLabelText(Tr::tr("Missing includes"));
+
+    inconclusive.setSettingsKey("inconclusive");
+    inconclusive.setLabelText(Tr::tr("Inconclusive errors"));
+
+    forceDefines.setSettingsKey("forceDefines");
+    forceDefines.setLabelText(Tr::tr("Check all define combinations"));
+
+    customArguments.setSettingsKey("customArguments");
+    customArguments.setDisplayStyle(StringAspect::LineEditDisplay);
+    customArguments.setLabelText(Tr::tr("Custom arguments:"));
+
+    ignoredPatterns.setSettingsKey("ignoredPatterns");
+    ignoredPatterns.setDisplayStyle(StringAspect::LineEditDisplay);
+    ignoredPatterns.setLabelText(Tr::tr("Ignored file patterns:"));
+    ignoredPatterns.setToolTip(Tr::tr("Comma-separated wildcards of full file paths. "
+                                      "Files still can be checked if others include them."));
+
+    showOutput.setSettingsKey("showOutput");
+    showOutput.setLabelText(Tr::tr("Show raw output"));
+
+    addIncludePaths.setSettingsKey("addIncludePaths");
+    addIncludePaths.setLabelText(Tr::tr("Add include paths"));
+    addIncludePaths.setToolTip(Tr::tr("Can find missing includes but makes "
+                                      "checking slower. Use only when needed."));
+
+    guessArguments.setSettingsKey("guessArguments");
+    guessArguments.setDefaultValue(true);
+    guessArguments.setLabelText(Tr::tr("Calculate additional arguments"));
+    guessArguments.setToolTip(Tr::tr("Like C++ standard and language."));
+
+    setLayouter(layouter());
+
+    readSettings();
 }
 
-QWidget *CppcheckOptionsPage::widget()
+std::function<Layouting::LayoutItem()> CppcheckOptions::layouter()
 {
-    if (!m_widget)
-        m_widget = new OptionsWidget;
-    m_widget->load(m_tool.options());
-    return m_widget.data();
-}
-
-void CppcheckOptionsPage::apply()
-{
-    CppcheckOptions options;
-    m_widget->save(options);
-    save(options);
-    m_tool.updateOptions(options);
-    m_trigger.recheck();
-}
-
-void CppcheckOptionsPage::finish()
-{
-}
-
-void CppcheckOptionsPage::save(const CppcheckOptions &options) const
-{
-    QSettings *s = Core::ICore::settings();
-    QTC_ASSERT(s, return);
-    s->beginGroup(Constants::SETTINGS_ID);
-    s->setValue(Constants::SETTINGS_BINARY, options.binary.toString());
-    s->setValue(Constants::SETTINGS_CUSTOM_ARGUMENTS, options.customArguments);
-    s->setValue(Constants::SETTINGS_IGNORE_PATTERNS, options.ignoredPatterns);
-    s->setValue(Constants::SETTINGS_WARNING, options.warning);
-    s->setValue(Constants::SETTINGS_STYLE, options.style);
-    s->setValue(Constants::SETTINGS_PERFORMANCE, options.performance);
-    s->setValue(Constants::SETTINGS_PORTABILITY, options.portability);
-    s->setValue(Constants::SETTINGS_INFORMATION, options.information);
-    s->setValue(Constants::SETTINGS_UNUSED_FUNCTION, options.unusedFunction);
-    s->setValue(Constants::SETTINGS_MISSING_INCLUDE, options.missingInclude);
-    s->setValue(Constants::SETTINGS_INCONCLUSIVE, options.inconclusive);
-    s->setValue(Constants::SETTINGS_FORCE_DEFINES, options.forceDefines);
-    s->setValue(Constants::SETTINGS_SHOW_OUTPUT, options.showOutput);
-    s->setValue(Constants::SETTINGS_ADD_INCLUDE_PATHS, options.addIncludePaths);
-    s->setValue(Constants::SETTINGS_GUESS_ARGUMENTS, options.guessArguments);
-    s->endGroup();
-}
-
-void CppcheckOptionsPage::load(CppcheckOptions &options) const
-{
-    QSettings *s = Core::ICore::settings();
-    QTC_ASSERT(s, return);
-    s->beginGroup(Constants::SETTINGS_ID);
-    options.binary = FilePath::fromString(s->value(Constants::SETTINGS_BINARY,
-                                                   options.binary.toString()).toString());
-    options.customArguments = s->value(Constants::SETTINGS_CUSTOM_ARGUMENTS,
-                                       options.customArguments).toString();
-    options.ignoredPatterns = s->value(Constants::SETTINGS_IGNORE_PATTERNS,
-                                       options.ignoredPatterns).toString();
-    options.warning = s->value(Constants::SETTINGS_WARNING,
-                               options.warning).toBool();
-    options.style = s->value(Constants::SETTINGS_STYLE,
-                             options.style).toBool();
-    options.performance = s->value(Constants::SETTINGS_PERFORMANCE,
-                                   options.performance).toBool();
-    options.portability = s->value(Constants::SETTINGS_PORTABILITY,
-                                   options.portability).toBool();
-    options.information = s->value(Constants::SETTINGS_INFORMATION,
-                                   options.information).toBool();
-    options.unusedFunction = s->value(Constants::SETTINGS_UNUSED_FUNCTION,
-                                      options.unusedFunction).toBool();
-    options.missingInclude = s->value(Constants::SETTINGS_MISSING_INCLUDE,
-                                      options.missingInclude).toBool();
-    options.inconclusive = s->value(Constants::SETTINGS_INCONCLUSIVE,
-                                    options.inconclusive).toBool();
-    options.forceDefines = s->value(Constants::SETTINGS_FORCE_DEFINES,
-                                    options.forceDefines).toBool();
-    options.showOutput = s->value(Constants::SETTINGS_SHOW_OUTPUT,
-                                  options.showOutput).toBool();
-    options.addIncludePaths = s->value(Constants::SETTINGS_ADD_INCLUDE_PATHS,
-                                       options.addIncludePaths).toBool();
-    options.guessArguments = s->value(Constants::SETTINGS_GUESS_ARGUMENTS,
-                                      options.guessArguments).toBool();
-    s->endGroup();
+    return [this] {
+        using namespace Layouting;
+        return Form {
+            binary, br,
+            Tr::tr("Checks:"), Flow {
+                warning,
+                style,
+                performance,
+                portability,
+                information,
+                unusedFunction,
+                missingInclude
+            }, br,
+            customArguments, br,
+            ignoredPatterns, br,
+            Flow {
+                inconclusive,
+                forceDefines,
+                showOutput,
+                addIncludePaths,
+                guessArguments
+            }
+        };
+    };
 }
 
 } // Cppcheck::Internal

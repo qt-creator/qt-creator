@@ -9,7 +9,9 @@
 #include "../itestframework.h"
 
 #include <cppeditor/cppmodelmanager.h>
-#include <projectexplorer/session.h>
+
+#include <projectexplorer/projectmanager.h>
+
 #include <utils/qtcassert.h>
 
 using namespace Utils;
@@ -108,7 +110,7 @@ bool QuickTestTreeItem::canProvideDebugConfiguration() const
 
 ITestConfiguration *QuickTestTreeItem::testConfiguration() const
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return nullptr);
 
     QuickTestConfiguration *config = nullptr;
@@ -147,7 +149,7 @@ static QList<ITestConfiguration *> testConfigurationsFor(
         const TestTreeItem *rootNode, const std::function<bool(TestTreeItem *)> &predicate)
 {
     QTC_ASSERT(rootNode, return {});
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || rootNode->type() != TestTreeItem::Root)
         return {};
 
@@ -171,7 +173,7 @@ static QList<ITestConfiguration *> testConfigurationsFor(
             if (it == configurationForProFiles.end()) {
                 auto tc = new QuickTestConfiguration(treeItem->framework());
                 tc->setProjectFile(treeItem->proFile());
-                tc->setProject(ProjectExplorer::SessionManager::startupProject());
+                tc->setProject(ProjectExplorer::ProjectManager::startupProject());
                 tc->setInternalTargets(internalTargets(treeItem->proFile()));
                 it = configurationForProFiles.insert(treeItem->proFile(), tc);
             }
@@ -206,7 +208,7 @@ QList<ITestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
 {
     QList<ITestConfiguration *> result;
 
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 
@@ -369,7 +371,7 @@ QSet<QString> internalTargets(const FilePath &proFile)
 {
     QSet<QString> result;
     const auto cppMM = CppEditor::CppModelManager::instance();
-    const auto projectInfo = cppMM->projectInfo(ProjectExplorer::SessionManager::startupProject());
+    const auto projectInfo = cppMM->projectInfo(ProjectExplorer::ProjectManager::startupProject());
     if (!projectInfo)
         return {};
     for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectInfo->projectParts()) {
@@ -387,17 +389,19 @@ QSet<QString> internalTargets(const FilePath &proFile)
     return result;
 }
 
-void QuickTestTreeItem::markForRemovalRecursively(const FilePath &filePath)
+void QuickTestTreeItem::markForRemovalRecursively(const QSet<FilePath> &filePaths)
 {
-    TestTreeItem::markForRemovalRecursively(filePath);
+    TestTreeItem::markForRemovalRecursively(filePaths);
     auto parser = static_cast<QuickTestParser *>(framework()->testParser());
-    const FilePath proFile = parser->projectFileForMainCppFile(filePath);
-    if (!proFile.isEmpty()) {
-        TestTreeItem *root = framework()->rootNode();
-        root->forAllChildItems([proFile](TestTreeItem *it) {
-            if (it->proFile() == proFile)
-                it->markForRemoval(true);
-        });
+    for (const FilePath &filePath : filePaths) {
+        const FilePath proFile = parser->projectFileForMainCppFile(filePath);
+        if (!proFile.isEmpty()) {
+            TestTreeItem *root = framework()->rootNode();
+            root->forAllChildItems([proFile](TestTreeItem *it) {
+                if (it->proFile() == proFile)
+                    it->markForRemoval(true);
+            });
+        }
     }
 }
 

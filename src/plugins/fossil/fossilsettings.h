@@ -3,29 +3,29 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
 #include <vcsbase/vcsbaseclientsettings.h>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 class FossilSettings : public VcsBase::VcsBaseSettings
 {
 public:
-    Utils::StringAspect defaultRepoPath;
-    Utils::StringAspect sslIdentityFile;
-    Utils::BoolAspect diffIgnoreAllWhiteSpace;
-    Utils::BoolAspect diffStripTrailingCR;
-    Utils::BoolAspect annotateShowCommitters;
-    Utils::BoolAspect annotateListVersions;
-    Utils::IntegerAspect timelineWidth;
-    Utils::StringAspect timelineLineageFilter;
-    Utils::BoolAspect timelineVerbose;
-    Utils::StringAspect timelineItemType;
-    Utils::BoolAspect disableAutosync;
-
     FossilSettings();
+
+    Utils::FilePathAspect defaultRepoPath{this};
+    Utils::FilePathAspect sslIdentityFile{this};
+    Utils::BoolAspect diffIgnoreAllWhiteSpace{this};
+    Utils::BoolAspect diffStripTrailingCR{this};
+    Utils::BoolAspect annotateShowCommitters{this};
+    Utils::BoolAspect annotateListVersions{this};
+    Utils::IntegerAspect timelineWidth{this};
+    Utils::StringAspect timelineLineageFilter{this};
+    Utils::BoolAspect timelineVerbose{this};
+    Utils::StringAspect timelineItemType{this};
+    Utils::BoolAspect disableAutosync{this};
 };
+
+FossilSettings &settings();
 
 struct RepositorySettings
 {
@@ -34,20 +34,13 @@ struct RepositorySettings
     QString user;
     QString sslIdentityFile;
     AutosyncMode autosync = AutosyncOn;
+
+    friend bool operator==(const RepositorySettings &lh, const RepositorySettings &rh)
+    {
+        return lh.user == rh.user
+            && lh.sslIdentityFile == rh.sslIdentityFile
+            && lh.autosync == rh.autosync;
+    }
 };
 
-inline bool operator==(const RepositorySettings &lh, const RepositorySettings &rh)
-{
-    return (lh.user == rh.user &&
-            lh.sslIdentityFile == rh.sslIdentityFile &&
-            lh.autosync == rh.autosync);
-}
-
-class OptionsPage : public Core::IOptionsPage
-{
-public:
-    OptionsPage(const std::function<void()> &onApply, FossilSettings *settings);
-};
-
-} // namespace Internal
-} // namespace Fossil
+} // Fossil::Internal

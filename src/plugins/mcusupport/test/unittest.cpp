@@ -152,11 +152,7 @@ const QString renesasProgrammerEnvVar{"RenesasFlashProgrammer_PATH"};
 const char renesasProgrammerLabel[]{"Renesas Flash Programmer"};
 const QString renesasProgrammerDetectionPath{HostOsInfo::withExecutableSuffix("rfp-cli")};
 
-const char renesasE2StudioCmakeVar[]{"EK_RA6M3G_E2_PROJECT_PATH"};
-const char renesasE2StudioDefaultPath[]{"%{Env:HOME}/e2_studio/workspace"};
 const QString renesasE2StudioPath{(FileUtils::homePath() / "/e2_studio/workspace").toUserOutput()};
-const char renesasE2StudioLabel[]{"Path to project for Renesas e2 Studio"};
-const char renesasE2StudioSetting[]{"RenesasE2StudioPath"};
 
 const char cypressProgrammerSetting[]{"CypressAutoFlashUtil"};
 const char cypressProgrammerCmakeVar[]{"INFINEON_AUTO_FLASH_UTILITY_DIR"};
@@ -1760,9 +1756,9 @@ void McuSupportTest::test_nonemptyVersionDetector()
     // pkgDesc.versionDetection.xmlAttribute left empty
     pkgDesc.shouldAddToSystemPath = false;
     const auto package = targetFactory.createPackage(pkgDesc);
-    QVERIFY(package->getVersionDetector() != nullptr);
-    QCOMPARE(typeid(*package->getVersionDetector()).name(),
-             typeid(McuPackageExecutableVersionDetector).name());
+    const McuPackageVersionDetector *detector = package->getVersionDetector();
+    QVERIFY(detector != nullptr);
+    QCOMPARE(typeid(*detector).name(), typeid(McuPackageExecutableVersionDetector).name());
 }
 
 void McuSupportTest::test_emptyVersionDetector()

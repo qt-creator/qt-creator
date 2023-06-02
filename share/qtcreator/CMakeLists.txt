@@ -35,11 +35,8 @@ set(resource_files
   debugger/libcpp_stdtypes.py
   debugger/stdtypes.py
   debugger/utils.py
+  debugger/loadorder.txt
 )
-
-if (APPLE)
-  set(resource_directories ${resource_directories} scripts)
-endif()
 
 # copy resource directories during build
 qtc_copy_to_builddir(copy_share_to_builddir

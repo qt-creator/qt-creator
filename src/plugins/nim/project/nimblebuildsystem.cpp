@@ -10,8 +10,8 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -20,7 +20,7 @@ namespace Nim {
 
 const char C_NIMBLEPROJECT_TASKS[] = "Nim.NimbleProject.Tasks";
 
-static QList<QByteArray> linesFromProcessOutput(QtcProcess *process)
+static QList<QByteArray> linesFromProcessOutput(Process *process)
 {
     QList<QByteArray> lines = process->readAllRawStandardOutput().split('\n');
     lines = Utils::transform(lines, [](const QByteArray &line){ return line.trimmed(); });
@@ -30,7 +30,7 @@ static QList<QByteArray> linesFromProcessOutput(QtcProcess *process)
 
 static std::vector<NimbleTask> parseTasks(const FilePath &nimblePath, const FilePath &workingDirectory)
 {
-    QtcProcess process;
+    Process process;
     process.setCommand({nimblePath, {"tasks"}});
     process.setWorkingDirectory(workingDirectory);
     process.start();
@@ -58,7 +58,7 @@ static std::vector<NimbleTask> parseTasks(const FilePath &nimblePath, const File
 
 static NimbleMetadata parseMetadata(const FilePath &nimblePath, const FilePath &workingDirectory)
 {
-    QtcProcess process;
+    Process process;
     process.setCommand({nimblePath, {"dump"}});
     process.setWorkingDirectory(workingDirectory);
     process.start();

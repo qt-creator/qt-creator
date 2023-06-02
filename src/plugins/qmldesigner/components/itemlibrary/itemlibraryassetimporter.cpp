@@ -19,7 +19,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/algorithm.h>
-#include <utils/runextensions.h>
+#include <utils/async.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -682,7 +682,7 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
             if (modelManager) {
                 QmlJS::PathsAndLanguages pathToScan;
                 pathToScan.maybeInsert(::Utils::FilePath::fromString(m_importPath));
-                result = ::Utils::runAsync(&QmlJS::ModelManagerInterface::importScan,
+                result = ::Utils::asyncRun(&QmlJS::ModelManagerInterface::importScan,
                                            modelManager->workingCopy(),
                                            pathToScan,
                                            modelManager,

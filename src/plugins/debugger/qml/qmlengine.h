@@ -25,7 +25,7 @@ public:
     void logServiceActivity(const QString &service, const QString &logMessage);
 
     void expressionEvaluated(quint32 queryId, const QVariant &result);
-    QString toFileInProject(const QUrl &fileUrl);
+    Utils::FilePath toFileInProject(const QUrl &fileUrl);
 
 private:
     void disconnected();
@@ -75,9 +75,9 @@ private:
     void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value) override;
 
-    void loadSymbols(const QString &moduleName) override;
+    void loadSymbols(const Utils::FilePath &moduleName) override;
     void loadAllSymbols() override;
-    void requestModuleSymbols(const QString &moduleName) override;
+    void requestModuleSymbols(const Utils::FilePath &moduleName) override;
     void reloadModules() override;
     void reloadRegisters() override {}
     void reloadSourceFiles() override;

@@ -95,7 +95,7 @@
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Add.
         \li In the \uicontrol Name field, specify a name for the kit.
-        \li In the \uicontrol {Device type} field, select
+        \li In the \uicontrol {Run device type} field, select
             \uicontrol {WebAssembly Runtime}.
             The value of the \uicontrol Device field is automatically
             set to \uicontrol {Web Browser}.

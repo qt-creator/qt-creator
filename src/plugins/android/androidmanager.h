@@ -82,6 +82,7 @@ public:
     static bool matchedAbis(const QStringList &deviceAbis, const QStringList &appAbis);
     static QString devicePreferredAbi(const QStringList &deviceAbis, const QStringList &appAbis);
     static ProjectExplorer::Abi androidAbi2Abi(const QString &androidAbi);
+    static bool skipInstallationAndPackageSteps(const ProjectExplorer::Target *target);
 
     static QString androidNameForApiLevel(int x);
 

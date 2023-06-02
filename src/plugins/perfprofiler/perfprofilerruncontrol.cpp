@@ -17,7 +17,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QAction>
 #include <QMessageBox>
@@ -95,20 +95,19 @@ public:
         : RunWorker(runControl)
     {
         setId("LocalPerfRecordWorker");
-
-        auto perfAspect = runControl->aspect<PerfRunConfigurationAspect>();
-        QTC_ASSERT(perfAspect, return);
-        PerfSettings *settings = static_cast<PerfSettings *>(perfAspect->currentSettings);
-        QTC_ASSERT(settings, return);
-        m_perfRecordArguments = settings->perfRecordArguments();
     }
 
     void start() override
     {
-        m_process = new QtcProcess(this);
+        auto perfAspect = runControl()->aspect<PerfRunConfigurationAspect>();
+        QTC_ASSERT(perfAspect, reportFailure(); return);
+        PerfSettings *settings = static_cast<PerfSettings *>(perfAspect->currentSettings);
+        QTC_ASSERT(settings, reportFailure(); return);
 
-        connect(m_process, &QtcProcess::started, this, &RunWorker::reportStarted);
-        connect(m_process, &QtcProcess::done, this, [this] {
+        m_process = new Process(this);
+
+        connect(m_process, &Process::started, this, &RunWorker::reportStarted);
+        connect(m_process, &Process::done, this, [this] {
             // The terminate() below will frequently lead to QProcess::Crashed. We're not interested
             // in that. FailedToStart is the only actual failure.
             if (m_process->error() == QProcess::FailedToStart) {
@@ -125,7 +124,7 @@ public:
         });
 
         CommandLine cmd({device()->filePath("perf"), {"record"}});
-        cmd.addArgs(m_perfRecordArguments);
+        settings->addPerfRecordArguments(&cmd);
         cmd.addArgs({"-o", "-", "--"});
         cmd.addCommandLineAsArgs(runControl()->commandLine(), CommandLine::Raw);
 
@@ -141,11 +140,10 @@ public:
             m_process->terminate();
     }
 
-    QtcProcess *recorder() { return m_process; }
+    Process *recorder() { return m_process; }
 
 private:
-    QPointer<QtcProcess> m_process;
-    QStringList m_perfRecordArguments;
+    QPointer<Process> m_process;
 };
 
 
@@ -193,12 +191,12 @@ void PerfProfilerRunner::start()
     PerfDataReader *reader = m_perfParserWorker->reader();
     if (auto prw = qobject_cast<LocalPerfRecordWorker *>(m_perfRecordWorker)) {
         // That's the local case.
-        QtcProcess *recorder = prw->recorder();
-        connect(recorder, &QtcProcess::readyReadStandardError, this, [this, recorder] {
+        Process *recorder = prw->recorder();
+        connect(recorder, &Process::readyReadStandardError, this, [this, recorder] {
             appendMessage(QString::fromLocal8Bit(recorder->readAllRawStandardError()),
                           Utils::StdErrFormat);
         });
-        connect(recorder, &QtcProcess::readyReadStandardOutput, this, [this, reader, recorder] {
+        connect(recorder, &Process::readyReadStandardOutput, this, [this, reader, recorder] {
             if (!reader->feedParser(recorder->readAllRawStandardOutput()))
                 reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
         });

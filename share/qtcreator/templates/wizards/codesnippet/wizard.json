@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
     "id": "Z.Snippet",
     "category": "H.Project",
-    "trDescription": "Creates a CMake-based test project for which a code snippet can be entered.",
+    "trDescription": "Creates a CMake-based test project where you can enter a code snippet to compile and check it.",
     "trDisplayName": "Code Snippet",
     "trDisplayCategory": "Other Project",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],

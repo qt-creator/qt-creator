@@ -93,6 +93,7 @@ QtcPlugin {
             "baseitem.cpp", "baseitem.h",
             "connectableitem.cpp", "connectableitem.h",
             "cornergrabberitem.cpp", "cornergrabberitem.h",
+            "eventitem.cpp", "eventitem.h",
             "finalstateitem.cpp", "finalstateitem.h",
             "genericscxmlplugin.cpp", "genericscxmlplugin.h",
             "graphicsitemprovider.h",

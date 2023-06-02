@@ -5,9 +5,10 @@
 
 #include "project.h"
 #include "projectexplorertr.h"
-#include "session.h"
+#include "projectmanager.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
@@ -32,19 +33,18 @@ DependenciesModel::DependenciesModel(Project *project, QObject *parent)
 {
     resetModel();
 
-    SessionManager *sessionManager = SessionManager::instance();
-    connect(sessionManager, &SessionManager::projectRemoved,
+    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
             this, &DependenciesModel::resetModel);
-    connect(sessionManager, &SessionManager::projectAdded,
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, &DependenciesModel::resetModel);
-    connect(sessionManager, &SessionManager::sessionLoaded,
+    connect(Core::SessionManager::instance(), &Core::SessionManager::sessionLoaded,
             this, &DependenciesModel::resetModel);
 }
 
 void DependenciesModel::resetModel()
 {
     beginResetModel();
-    m_projects = SessionManager::projects();
+    m_projects = ProjectManager::projects();
     m_projects.removeAll(m_project);
     Utils::sort(m_projects, [](Project *a, Project *b) {
         return a->displayName() < b->displayName();
@@ -77,7 +77,7 @@ QVariant DependenciesModel::data(const QModelIndex &index, int role) const
     case Qt::ToolTipRole:
         return p->projectFilePath().toUserOutput();
     case Qt::CheckStateRole:
-        return SessionManager::hasDependency(m_project, p) ? Qt::Checked : Qt::Unchecked;
+        return ProjectManager::hasDependency(m_project, p) ? Qt::Checked : Qt::Unchecked;
     case Qt::DecorationRole:
         return Utils::FileIconProvider::icon(p->projectFilePath());
     default:
@@ -92,7 +92,7 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
         const auto c = static_cast<Qt::CheckState>(value.toInt());
 
         if (c == Qt::Checked) {
-            if (SessionManager::addDependency(m_project, p)) {
+            if (ProjectManager::addDependency(m_project, p)) {
                 emit dataChanged(index, index);
                 return true;
             } else {
@@ -100,8 +100,8 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
                                      Tr::tr("This would create a circular dependency."));
             }
         } else if (c == Qt::Unchecked) {
-            if (SessionManager::hasDependency(m_project, p)) {
-                SessionManager::removeDependency(m_project, p);
+            if (ProjectManager::hasDependency(m_project, p)) {
+                ProjectManager::removeDependency(m_project, p);
                 emit dataChanged(index, index);
                 return true;
             }
@@ -215,9 +215,9 @@ DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent) : Proj
     m_cascadeSetActiveCheckBox = new QCheckBox;
     m_cascadeSetActiveCheckBox->setText(Tr::tr("Synchronize configuration"));
     m_cascadeSetActiveCheckBox->setToolTip(Tr::tr("Synchronize active kit, build, and deploy configuration between projects."));
-    m_cascadeSetActiveCheckBox->setChecked(SessionManager::isProjectConfigurationCascading());
+    m_cascadeSetActiveCheckBox->setChecked(ProjectManager::isProjectConfigurationCascading());
     connect(m_cascadeSetActiveCheckBox, &QCheckBox::toggled,
-            SessionManager::instance(), &SessionManager::setProjectConfigurationCascading);
+            ProjectManager::instance(), &ProjectManager::setProjectConfigurationCascading);
     layout->addWidget(m_cascadeSetActiveCheckBox, 1, 0, 2, 1);
 }
 

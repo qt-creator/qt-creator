@@ -22,8 +22,8 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/environment.h>
+#include <utils/process.h>
 #include <utils/processinterface.h>
-#include <utils/qtcprocess.h>
 
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -78,7 +78,7 @@ private:
     const FetchMode m_fetchMode;
     const Utils::FilePath m_git;
     const GerritServer m_server;
-    QtcProcess m_process;
+    Process m_process;
 };
 
 FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
@@ -93,11 +93,11 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     , m_server(server)
 {
     m_process.setUseCtrlCStub(true);
-    connect(&m_process, &QtcProcess::done, this, &FetchContext::processDone);
-    connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
+    connect(&m_process, &Process::done, this, &FetchContext::processDone);
+    connect(&m_process, &Process::readyReadStandardError, this, [this] {
         VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllRawStandardError()));
     });
-    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+    connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
         VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllRawStandardOutput()));
     });
     m_process.setWorkingDirectory(repository);
@@ -152,18 +152,26 @@ void FetchContext::checkout()
     GitClient::instance()->checkout(m_repository, "FETCH_HEAD");
 }
 
-GerritPlugin::GerritPlugin(QObject *parent)
-    : QObject(parent)
-    , m_parameters(new GerritParameters)
+GerritPlugin::GerritPlugin()
+    : m_parameters(new GerritParameters)
     , m_server(new GerritServer)
 {
+    m_parameters->fromSettings(ICore::settings());
+
+    m_gerritOptionsPage = new GerritOptionsPage(m_parameters,
+        [this] {
+        if (m_dialog)
+            m_dialog->scheduleUpdateRemotes();
+    });
 }
 
-GerritPlugin::~GerritPlugin() = default;
-
-void GerritPlugin::initialize(ActionContainer *ac)
+GerritPlugin::~GerritPlugin()
 {
-    m_parameters->fromSettings(ICore::settings());
+    delete m_gerritOptionsPage;
+}
+
+void GerritPlugin::addToMenu(ActionContainer *ac)
+{
 
     QAction *openViewAction = new QAction(Git::Tr::tr("Gerrit..."), this);
 
@@ -178,13 +186,6 @@ void GerritPlugin::initialize(ActionContainer *ac)
         ActionManager::registerAction(pushAction, Constants::GERRIT_PUSH);
     connect(pushAction, &QAction::triggered, this, [this] { push(); });
     ac->addAction(m_pushToGerritCommand);
-
-    auto options = new GerritOptionsPage(m_parameters, this);
-    connect(options, &GerritOptionsPage::settingsChanged,
-            this, [this] {
-        if (m_dialog)
-            m_dialog->scheduleUpdateRemotes();
-    });
 }
 
 void GerritPlugin::updateActions(const VcsBase::VcsBasePluginState &state)

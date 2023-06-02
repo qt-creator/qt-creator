@@ -19,6 +19,10 @@ class QmlLanguageBundles;
 class QmlBundle;
 } // namespace QmlJS
 
+namespace QtSupport {
+class QtVersion;
+}
+
 namespace QmlJSTools {
 
 class QMLJSTOOLS_EXPORT IBundleProvider : public QObject
@@ -43,8 +47,9 @@ public:
     void mergeBundlesForKit(ProjectExplorer::Kit *kit, QmlJS::QmlLanguageBundles &bundles,
                             const QHash<QString,QString> &replacements) override;
 
-    static QmlJS::QmlBundle defaultBundle(const QString &bundleInfoName);
-    static QmlJS::QmlBundle defaultQt5QtQuick2Bundle();
+    static QmlJS::QmlBundle defaultBundle(const QString &bundleInfoName,
+                                          QtSupport::QtVersion *qtVersion);
+    static QmlJS::QmlBundle defaultQt5QtQuick2Bundle(QtSupport::QtVersion *qtVersion);
     static QmlJS::QmlBundle defaultQbsBundle();
     static QmlJS::QmlBundle defaultQmltypesBundle();
     static QmlJS::QmlBundle defaultQmlprojectBundle();

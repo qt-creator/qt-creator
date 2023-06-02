@@ -55,8 +55,8 @@ public:
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
-    QStringList includedFiles(const QStringList &flags,
-                              const QString &directoryPath) const override;
+    Utils::FilePaths includedFiles(const QStringList &flags,
+                              const Utils::FilePath &directoryPath) const override;
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &env) const override;
     void addToEnvironment(Utils::Environment &env) const override;
@@ -81,6 +81,8 @@ public:
                                                                 const QString &batchFile,
                                                                 const QString &batchArgs,
                                                                 QMap<QString, QString> &envPairs);
+    bool environmentInitialized() const { return !m_environmentModifications.isEmpty(); }
+
 protected:
     class WarningFlagAdder
     {
@@ -111,9 +113,8 @@ protected:
         std::optional<QString> error;
         Utils::EnvironmentItems environmentItems;
     };
-    static void environmentModifications(QFutureInterface<GenerateEnvResult> &future,
-                                         QString vcvarsBat,
-                                         QString varsBatArg);
+    static void environmentModifications(QPromise<GenerateEnvResult> &future,
+                                         QString vcvarsBat, QString varsBatArg);
     void initEnvModWatcher(const QFuture<GenerateEnvResult> &future);
 
 protected:

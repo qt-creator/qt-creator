@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <QApplication>
 #include <QRegularExpression>
 #include <QWidget>
@@ -23,7 +25,7 @@ namespace CppEditor::Internal {
 
 class LineCountSpinBox;
 
-class CppQuickFixSettingsWidget : public QWidget
+class CppQuickFixSettingsWidget : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 
@@ -36,7 +38,7 @@ class CppQuickFixSettingsWidget : public QWidget
     };
 
 public:
-    explicit CppQuickFixSettingsWidget(QWidget *parent = nullptr);
+    CppQuickFixSettingsWidget();
 
     void loadSettings(CppQuickFixSettings *settings);
     void saveSettings(CppQuickFixSettings *settings);
@@ -45,6 +47,7 @@ signals:
     void settingsChanged();
 
 private:
+    void apply() final;
     void currentCustomItemChanged(QListWidgetItem *newItem, QListWidgetItem *oldItem);
 
     bool m_isLoadingSettings = false;

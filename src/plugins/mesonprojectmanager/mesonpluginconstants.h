@@ -18,7 +18,6 @@ const char PARAMETERS_KEY[] = "MesonProjectManager.BuildConfig.Parameters";
 
 // Settings page
 namespace SettingsPage {
-const char GENERAL_ID[] = "A.MesonProjectManager.SettingsPage.General";
 const char TOOLS_ID[] = "Z.MesonProjectManager.SettingsPage.Tools";
 const char CATEGORY[] = "Z.Meson";
 } // namespace SettingsPage

@@ -28,28 +28,17 @@ public:
 
     DockerSettings m_settings;
     DockerDeviceFactory m_deviceFactory{&m_settings};
-    DockerSettingsPage m_settingPage{&m_settings};
     DockerApi m_dockerApi{&m_settings};
 };
 
-static DockerPlugin *s_instance = nullptr;
-
 DockerPlugin::DockerPlugin()
 {
-    s_instance = this;
     FSEngine::registerDeviceScheme(Constants::DOCKER_DEVICE_SCHEME);
-}
-
-DockerApi *DockerPlugin::dockerApi()
-{
-    QTC_ASSERT(s_instance, return nullptr);
-    return &s_instance->d->m_dockerApi;
 }
 
 DockerPlugin::~DockerPlugin()
 {
     FSEngine::unregisterDeviceScheme(Constants::DOCKER_DEVICE_SCHEME);
-    s_instance = nullptr;
     delete d;
 }
 

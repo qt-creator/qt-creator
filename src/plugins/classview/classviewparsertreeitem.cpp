@@ -7,9 +7,11 @@
 
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
+
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <QDebug>
 #include <QHash>
@@ -261,7 +263,7 @@ bool ParserTreeItem::canFetchMore(QStandardItem *item) const
 */
 void ParserTreeItem::fetchMore(QStandardItem *item) const
 {
-    using ProjectExplorer::SessionManager;
+    using ProjectExplorer::ProjectManager;
     if (!item)
         return;
 
@@ -283,7 +285,7 @@ void ParserTreeItem::fetchMore(QStandardItem *item) const
             // icon
             const Utils::FilePath &filePath = ptr->projectFilePath();
             if (!filePath.isEmpty()) {
-                ProjectExplorer::Project *project = SessionManager::projectForFile(filePath);
+                ProjectExplorer::Project *project = ProjectManager::projectForFile(filePath);
                 if (project)
                     add->setIcon(project->containerNode()->icon());
             }

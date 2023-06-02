@@ -210,58 +210,82 @@ void TaskModel::clearTasks(Utils::Id categoryId)
 QModelIndex TaskModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (parent.isValid())
-        return QModelIndex();
+        return createIndex(row, column, quintptr(parent.row() + 1));
     return createIndex(row, column);
 }
 
 QModelIndex TaskModel::parent(const QModelIndex &child) const
 {
-    Q_UNUSED(child)
-    return QModelIndex();
+    if (child.internalId())
+        return index(child.internalId() - 1, 0);
+    return {};
 }
 
 int TaskModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_tasks.count();
+    if (!parent.isValid())
+        return m_tasks.count();
+    if (parent.column() != 0)
+        return 0;
+    return task(parent).details.isEmpty() ? 0 : 1;
 }
 
 int TaskModel::columnCount(const QModelIndex &parent) const
 {
-        return parent.isValid() ? 0 : 1;
+    return parent.isValid() ? 1 : 2;
 }
 
 QVariant TaskModel::data(const QModelIndex &index, int role) const
 {
-    int row = index.row();
-    if (!index.isValid() || row < 0 || row >= m_tasks.count() || index.column() != 0)
-        return QVariant();
+    if (!index.isValid() || index.row() < 0 || index.row() >= rowCount(index.parent())
+            || index.column() >= columnCount(index.parent())) {
+        return {};
+    }
 
-    if (role == TaskModel::File)
-        return m_tasks.at(index.row()).file.toString();
-    else if (role == TaskModel::Line)
-        return m_tasks.at(index.row()).line;
-    else if (role == TaskModel::MovedLine)
-        return m_tasks.at(index.row()).movedLine;
-    else if (role == TaskModel::Description)
-        return m_tasks.at(index.row()).description();
-    else if (role == TaskModel::FileNotFound)
-        return m_fileNotFound.value(m_tasks.at(index.row()).file.toString());
-    else if (role == TaskModel::Type)
-        return (int)m_tasks.at(index.row()).type;
-    else if (role == TaskModel::Category)
-        return m_tasks.at(index.row()).category.uniqueIdentifier();
-    else if (role == TaskModel::Icon)
-        return m_tasks.at(index.row()).icon();
-    else if (role == TaskModel::Task_t)
-        return QVariant::fromValue(task(index));
-    return QVariant();
+    if (index.internalId()) {
+        const Task &task = m_tasks.at(index.internalId() - 1);
+        if (role != Qt::DisplayRole)
+            return {};
+        return task.formattedDescription(Task::WithLinks);
+    }
+
+    static const auto lineString = [](const Task &task) {
+        QString file = task.file.fileName();
+        const int line = task.movedLine > 0 ? task.movedLine : task.line;
+        if (line > 0)
+            file.append(':').append(QString::number(line));
+        return file;
+    };
+
+    const Task &task = m_tasks.at(index.row());
+    if (index.column() == 1) {
+        if (role == Qt::DisplayRole)
+            return lineString(task);
+        if (role == Qt::ToolTipRole)
+            return task.file.toUserOutput();
+        return {};
+    }
+
+    switch (role) {
+    case Qt::DecorationRole:
+        return task.icon();
+    case Qt::DisplayRole:
+        return task.summary;
+    case TaskModel::Description:
+        return task.description();
+    case TaskModel::Type:
+        return int(task.type);
+    }
+    return {};
 }
 
 Task TaskModel::task(const QModelIndex &index) const
 {
     int row = index.row();
-    if (!index.isValid() || row < 0 || row >= m_tasks.count())
+    if (!index.isValid() || row < 0 || row >= m_tasks.count() || index.internalId()
+        || index.column() > 0) {
         return Task();
+    }
     return m_tasks.at(row);
 }
 
@@ -387,7 +411,8 @@ void TaskFilterModel::updateFilterProperties(
 
 bool TaskFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    Q_UNUSED(source_parent)
+    if (source_parent.isValid())
+        return true;
     return filterAcceptsTask(taskModel()->tasks().at(source_row));
 }
 

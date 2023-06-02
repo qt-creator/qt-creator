@@ -185,7 +185,7 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
         QAction *closeAllSuites = new QAction(Tr::tr("Close All Test Suites"), &menu);
         menu.addAction(closeAllSuites);
 
-        connect(closeAllSuites, &QAction::triggered, this, [this] {
+        connect(closeAllSuites, &QAction::triggered, this, [] {
             if (SquishMessages::simpleQuestion(Tr::tr("Close All Test Suites"),
                                                Tr::tr("Close all test suites?"
                                                       /*"\nThis will close all related files as well."*/))
@@ -296,14 +296,14 @@ void SquishNavigationWidget::onRemoveAllSharedFolderTriggered()
 
 void SquishNavigationWidget::onRecordTestCase(const QString &suiteName, const QString &testCase)
 {
-    QDialogButtonBox::StandardButton pressed = Utils::CheckableMessageBox::doNotAskAgainQuestion(
-                Core::ICore::dialogParent(),
-                Tr::tr("Record Test Case"),
-                Tr::tr("Do you want to record over the test case \"%1\"? The existing content will "
-                       "be overwritten by the recorded script.").arg(testCase),
-                Core::ICore::settings(),
-                "RecordWithoutApproval");
-    if (pressed != QDialogButtonBox::Yes)
+    QMessageBox::StandardButton pressed = Utils::CheckableMessageBox::question(
+        Core::ICore::dialogParent(),
+        Tr::tr("Record Test Case"),
+        Tr::tr("Do you want to record over the test case \"%1\"? The existing content will "
+               "be overwritten by the recorded script.")
+            .arg(testCase),
+        QString("RecordWithoutApproval"));
+    if (pressed != QMessageBox::Yes)
         return;
 
     SquishFileHandler::instance()->recordTestCase(suiteName, testCase);
@@ -314,7 +314,7 @@ void SquishNavigationWidget::onNewTestCaseTriggered(const QModelIndex &index)
     auto settings = SquishPlugin::squishSettings();
     QTC_ASSERT(settings, return);
 
-    if (!settings->squishPath.filePath().pathAppended("scriptmodules").exists()) {
+    if (!settings->squishPath().pathAppended("scriptmodules").exists()) {
         SquishMessages::criticalMessage(Tr::tr("Set up a valid Squish path to be able to create "
                                                "a new test case.\n(Edit > Preferences > Squish)"));
         return;

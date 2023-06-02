@@ -5,11 +5,12 @@
 
 #include "boosttestsettings.h"
 #include "boosttestresult.h"
+
 #include "../autotesttr.h"
 #include "../testtreeitem.h"
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QLoggingCategory>
 #include <QRegularExpression>
@@ -21,12 +22,11 @@ namespace Internal {
 
 static Q_LOGGING_CATEGORY(orLog, "qtc.autotest.boost.outputreader", QtWarningMsg)
 
-BoostTestOutputReader::BoostTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                                             QtcProcess *testApplication,
+BoostTestOutputReader::BoostTestOutputReader(Process *testApplication,
                                              const FilePath &buildDirectory,
                                              const FilePath &projectFile,
                                              LogLevel log, ReportLevel report)
-    : TestOutputReader(futureInterface, testApplication, buildDirectory)
+    : TestOutputReader(testApplication, buildDirectory)
     , m_projectFile(projectFile)
     , m_logLevel(log)
     , m_reportLevel(report)
@@ -34,7 +34,7 @@ BoostTestOutputReader::BoostTestOutputReader(const QFutureInterface<TestResult> 
     if (!testApplication)
         return;
 
-    connect(testApplication, &QtcProcess::done, this, [this, testApplication] {
+    connect(testApplication, &Process::done, this, [this, testApplication] {
         onDone(testApplication->exitCode());
     });
 }

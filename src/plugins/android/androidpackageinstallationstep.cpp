@@ -22,7 +22,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDir>
 #include <QLoggingCategory>
@@ -122,6 +122,14 @@ void AndroidPackageInstallationStep::setupOutputFormatter(OutputFormatter *forma
 
 void AndroidPackageInstallationStep::doRun()
 {
+    if (AndroidManager::skipInstallationAndPackageSteps(target())) {
+        reportWarningOrError(Tr::tr("Product type is not an application, not running the "
+                                    "Make install step."),
+                             Task::Warning);
+        emit finished(true);
+        return;
+    }
+
     QString error;
     for (const QString &dir : std::as_const(m_androidDirsToClean)) {
         FilePath androidDir = FilePath::fromString(dir);

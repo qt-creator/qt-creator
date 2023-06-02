@@ -50,7 +50,7 @@ void NimTextEditorWidget::findLinkAt(const QTextCursor &c, const Utils::LinkHand
 
     std::shared_ptr<NimSuggestClientRequest> request = suggest->def(path.toString(),
                                                                              line,
-                                                                             column - 1,
+                                                                             column,
                                                                              dirtyFile->fileName());
 
     if (!request)

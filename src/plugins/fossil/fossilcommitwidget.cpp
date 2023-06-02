@@ -93,8 +93,8 @@ FossilCommitWidget::FossilCommitWidget() : m_commitPanel(new QWidget)
     m_invalidBranchLabel->setType(InfoLabel::Error);
 
     m_isPrivateCheckBox = new QCheckBox(Tr::tr("Private"));
-    m_isPrivateCheckBox->setToolTip(Tr::tr("Create a private check-in that is never synced.\n"
-                                       "Children of private check-ins are automatically private.\n"
+    m_isPrivateCheckBox->setToolTip("<html>" + Tr::tr("Create a private check-in that is never synced. "
+                                       "Children of private check-ins are automatically private. "
                                        "Private check-ins are not pushed to the remote repository by default."));
 
     m_tagsLineEdit = new QLineEdit;
@@ -120,8 +120,9 @@ FossilCommitWidget::FossilCommitWidget() : m_commitPanel(new QWidget)
                 Tr::tr("Tags:"), m_tagsLineEdit, br,
                 Tr::tr("Author:"),  m_authorLineEdit, st,
             }
-        }
-    }.attachTo(m_commitPanel, WithoutMargins);
+        },
+        noMargin
+    }.attachTo(m_commitPanel);
 
     insertTopWidget(m_commitPanel);
     new FossilSubmitHighlighter(descriptionEdit());

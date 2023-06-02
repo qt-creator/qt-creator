@@ -4,12 +4,13 @@
 #pragma once
 
 #include "clangfileinfo.h"
+#include "clangtoolssettings.h"
 
 #include <cppeditor/clangdiagnosticconfig.h>
 
 #include <utils/environment.h>
 
-namespace Utils::Tasking { class TaskItem; }
+namespace Tasking { class TaskItem; }
 
 namespace ClangTools {
 namespace Internal {
@@ -28,6 +29,7 @@ using AnalyzeUnits = QList<AnalyzeUnit>;
 struct AnalyzeInputData
 {
     CppEditor::ClangToolType tool = CppEditor::ClangToolType::Tidy;
+    RunSettings runSettings;
     CppEditor::ClangDiagnosticConfig config;
     Utils::FilePath outputDirPath;
     Utils::Environment environment;
@@ -48,9 +50,9 @@ struct AnalyzeOutputData
 using AnalyzeSetupHandler = std::function<bool()>;
 using AnalyzeOutputHandler = std::function<void(const AnalyzeOutputData &)>;
 
-Utils::Tasking::TaskItem clangToolTask(const AnalyzeInputData &input,
-                                       const AnalyzeSetupHandler &setupHandler,
-                                       const AnalyzeOutputHandler &outputHandler);
+Tasking::TaskItem clangToolTask(const AnalyzeInputData &input,
+                                const AnalyzeSetupHandler &setupHandler,
+                                const AnalyzeOutputHandler &outputHandler);
 
 } // namespace Internal
 } // namespace ClangTools

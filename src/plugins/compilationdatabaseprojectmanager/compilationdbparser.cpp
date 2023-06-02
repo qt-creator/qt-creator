@@ -8,8 +8,8 @@
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/treescanner.h>
+#include <utils/async.h>
 #include <utils/mimeutils.h>
-#include <utils/runextensions.h>
 
 #include <QCryptographicHash>
 #include <QDir>
@@ -95,7 +95,7 @@ void CompilationDbParser::start()
     }
 
     // Thread 2: Parse the project file.
-    const QFuture<DbContents> future = runAsync(&CompilationDbParser::parseProject, this);
+    const QFuture<DbContents> future = Utils::asyncRun(&CompilationDbParser::parseProject, this);
     Core::ProgressManager::addTask(future,
                                    Tr::tr("Parse \"%1\" project").arg(m_projectName),
                                    "CompilationDatabase.Parse");
@@ -182,7 +182,7 @@ std::vector<DbEntry> CompilationDbParser::readJsonObjects() const
         const Utils::FilePath filePath = jsonObjectFilePath(object);
         const QStringList flags = filterFromFileName(jsonObjectFlags(object, flagsCache),
                                                      filePath.fileName());
-        result.push_back({flags, filePath, object["directory"].toString()});
+        result.push_back({flags, filePath, FilePath::fromUserInput(object["directory"].toString())});
 
         objectStart = m_projectFileContents.indexOf('{', objectEnd + 1);
         objectEnd = m_projectFileContents.indexOf('}', objectStart + 1);

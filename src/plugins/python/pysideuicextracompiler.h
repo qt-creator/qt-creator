@@ -21,7 +21,7 @@ public:
 private:
     Utils::FilePath command() const override;
     ProjectExplorer::FileNameToContentsHash handleProcessFinished(
-        Utils::QtcProcess *process) override;
+        Utils::Process *process) override;
 
     Utils::FilePath m_pySideUic;
 };

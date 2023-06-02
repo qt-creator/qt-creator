@@ -19,101 +19,97 @@ BookmarkFilter::BookmarkFilter(BookmarkManager *manager)
 {
     setId("Bookmarks");
     setDisplayName(Tr::tr("Bookmarks"));
-    setDescription(Tr::tr("Matches all bookmarks. Filter by file name, by the text on the line of the "
-                      "bookmark, or by the bookmark's note text."));
+    setDescription(Tr::tr("Locates bookmarks. Filter by file name, by the text on the line of the "
+                          "bookmark, or by the bookmark's note text."));
     setPriority(Medium);
     setDefaultShortcutString("b");
 }
 
-void BookmarkFilter::prepareSearch(const QString &entry)
+LocatorMatcherTasks BookmarkFilter::matchers()
 {
-    m_results = {};
-    if (m_manager->rowCount() == 0)
-        return;
+    using namespace Tasking;
 
-    auto match = [this](const QString &name, BookmarkManager::Roles role) {
+    TreeStorage<LocatorStorage> storage;
+
+    const auto onSetup = [=] { storage->reportOutput(match(storage->input())); };
+    return {{Sync(onSetup), storage}};
+}
+
+LocatorFilterEntries BookmarkFilter::match(const QString &input) const
+{
+    if (m_manager->rowCount() == 0)
+        return {};
+    const auto match = [this](const QString &name, BookmarkManager::Roles role) {
         return m_manager->match(m_manager->index(0, 0), role, name, -1,
                                 Qt::MatchContains | Qt::MatchWrap);
     };
 
-    int colonIndex = entry.lastIndexOf(':');
+    const int colonIndex = input.lastIndexOf(':');
     QModelIndexList fileNameLineNumberMatches;
     if (colonIndex >= 0) {
         // Filter by "fileName:lineNumber" pattern
-        const QString fileName = entry.left(colonIndex);
-        const QString lineNumber = entry.mid(colonIndex + 1);
+        const QString fileName = input.left(colonIndex);
+        const QString lineNumber = input.mid(colonIndex + 1);
         fileNameLineNumberMatches = match(fileName, BookmarkManager::Filename);
-        fileNameLineNumberMatches =
-                Utils::filtered(fileNameLineNumberMatches, [lineNumber](const QModelIndex &index) {
-                    return index.data(BookmarkManager::LineNumber).toString().contains(lineNumber);
-                });
+        fileNameLineNumberMatches = Utils::filtered(
+            fileNameLineNumberMatches, [lineNumber](const QModelIndex &index) {
+                return index.data(BookmarkManager::LineNumber).toString().contains(lineNumber);
+            });
     }
-
     const QModelIndexList matches = filteredUnique(fileNameLineNumberMatches
-                                                   + match(entry, BookmarkManager::Filename)
-                                                   + match(entry, BookmarkManager::LineNumber)
-                                                   + match(entry, BookmarkManager::Note)
-                                                   + match(entry, BookmarkManager::LineText));
-
+                                                   + match(input, BookmarkManager::Filename)
+                                                   + match(input, BookmarkManager::LineNumber)
+                                                   + match(input, BookmarkManager::Note)
+                                                   + match(input, BookmarkManager::LineText));
+    LocatorFilterEntries entries;
     for (const QModelIndex &idx : matches) {
         const Bookmark *bookmark = m_manager->bookmarkForIndex(idx);
         const QString filename = bookmark->filePath().fileName();
-        LocatorFilterEntry filterEntry(this,
-                                       QString("%1:%2").arg(filename).arg(bookmark->lineNumber()),
-                                       QVariant::fromValue(idx));
+        LocatorFilterEntry entry;
+        entry.displayName = QString("%1:%2").arg(filename).arg(bookmark->lineNumber());
+        // TODO: according to QModelIndex docs, we shouldn't store model indexes:
+        // Model indexes should be used immediately and then discarded.
+        // You should not rely on indexes to remain valid after calling model functions
+        // that change the structure of the model or delete items.
+        entry.acceptor = [manager = m_manager, idx] {
+            if (Bookmark *bookmark = manager->bookmarkForIndex(idx))
+                manager->gotoBookmark(bookmark);
+            return AcceptResult();
+        };
         if (!bookmark->note().isEmpty())
-            filterEntry.extraInfo = bookmark->note();
+            entry.extraInfo = bookmark->note();
         else if (!bookmark->lineText().isEmpty())
-            filterEntry.extraInfo = bookmark->lineText();
+            entry.extraInfo = bookmark->lineText();
         else
-            filterEntry.extraInfo = bookmark->filePath().toString();
-        int highlightIndex = filterEntry.displayName.indexOf(entry, 0, Qt::CaseInsensitive);
+            entry.extraInfo = bookmark->filePath().toString();
+        int highlightIndex = entry.displayName.indexOf(input, 0, Qt::CaseInsensitive);
         if (highlightIndex >= 0) {
-            filterEntry.highlightInfo = {highlightIndex, int(entry.length())};
+            entry.highlightInfo = {highlightIndex, int(input.length())};
         } else  {
-            highlightIndex = filterEntry.extraInfo.indexOf(entry, 0, Qt::CaseInsensitive);
+            highlightIndex = entry.extraInfo.indexOf(input, 0, Qt::CaseInsensitive);
             if (highlightIndex >= 0) {
-                filterEntry.highlightInfo = {highlightIndex, int(entry.length()),
-                                             LocatorFilterEntry::HighlightInfo::ExtraInfo};
+                entry.highlightInfo = {highlightIndex, int(input.length()),
+                                       LocatorFilterEntry::HighlightInfo::ExtraInfo};
             } else if (colonIndex >= 0) {
-                const QString fileName = entry.left(colonIndex);
-                const QString lineNumber = entry.mid(colonIndex + 1);
-                highlightIndex = filterEntry.displayName.indexOf(fileName, 0, Qt::CaseInsensitive);
+                const QString fileName = input.left(colonIndex);
+                const QString lineNumber = input.mid(colonIndex + 1);
+                highlightIndex = entry.displayName.indexOf(fileName, 0,
+                                                           Qt::CaseInsensitive);
                 if (highlightIndex >= 0) {
-                    filterEntry.highlightInfo = {highlightIndex, int(fileName.length())};
-                    highlightIndex = filterEntry.displayName.indexOf(
+                    entry.highlightInfo = {highlightIndex, int(fileName.length())};
+                    highlightIndex = entry.displayName.indexOf(
                         lineNumber, highlightIndex, Qt::CaseInsensitive);
                     if (highlightIndex >= 0) {
-                        filterEntry.highlightInfo.startsDisplay += highlightIndex;
-                        filterEntry.highlightInfo.lengthsDisplay += lineNumber.length();
+                        entry.highlightInfo.startsDisplay += highlightIndex;
+                        entry.highlightInfo.lengthsDisplay += lineNumber.length();
                     }
                 }
             }
         }
-
-        filterEntry.displayIcon = bookmark->icon();
-        m_results.append(filterEntry);
+        entry.displayIcon = bookmark->icon();
+        entries.append(entry);
     }
-}
-
-QList<LocatorFilterEntry> BookmarkFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
-                                                     const QString &entry)
-{
-    Q_UNUSED(future)
-    Q_UNUSED(entry)
-    return m_results;
-}
-
-void BookmarkFilter::accept(const LocatorFilterEntry &selection, QString *newText,
-                            int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    if (const Bookmark *bookmark = m_manager->bookmarkForIndex(
-                selection.internalData.toModelIndex())) {
-        m_manager->gotoBookmark(bookmark);
-    }
+    return entries;
 }
 
 } // Bookmarks::Internal

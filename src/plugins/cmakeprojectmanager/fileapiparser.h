@@ -14,12 +14,16 @@
 #include <utils/fileutils.h>
 
 #include <QDir>
-#include <QFutureInterface>
 #include <QString>
 #include <QVector>
 #include <QVersionNumber>
 
 #include <vector>
+
+QT_BEGIN_NAMESPACE
+template <typename Ret>
+class QPromise;
+QT_END_NAMESPACE
 
 namespace CMakeProjectManager::Internal {
 
@@ -218,7 +222,7 @@ public:
 class FileApiParser
 {
 public:
-    static FileApiData parseData(QFutureInterface<std::shared_ptr<FileApiQtcData>> &fi,
+    static FileApiData parseData(QPromise<std::shared_ptr<FileApiQtcData>> &promise,
                                  const Utils::FilePath &replyFilePath,
                                  const QString &cmakeBuildType,
                                  QString &errorMessage);

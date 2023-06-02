@@ -23,6 +23,10 @@ class QTextCodec;
 class QToolBar;
 QT_END_NAMESPACE
 
+namespace Utils {
+class Process;
+}
+
 namespace VcsBase {
 
 class CommandResult;
@@ -55,6 +59,10 @@ public:
 
     VcsCommand *createCommand(const Utils::FilePath &workingDirectory,
                               VcsBaseEditorWidget *editor = nullptr) const;
+
+    void setupCommand(Utils::Process &process,
+                      const Utils::FilePath &workingDirectory,
+                      const QStringList &args) const;
 
     void enqueueJob(VcsCommand *cmd, const QStringList &args,
                     const Utils::ExitCodeInterpreter &interpreter = {}) const;

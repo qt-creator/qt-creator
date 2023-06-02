@@ -26,6 +26,7 @@ public:
     bool canCreate() const;
     IDevicePtr construct() const;
     IDevicePtr create() const;
+    bool quickCreationAllowed() const;
 
     virtual bool canRestore(const QVariantMap &) const { return true; }
 
@@ -41,6 +42,7 @@ protected:
     void setCombinedIcon(const Utils::FilePath &smallIcon, const Utils::FilePath &largeIcon);
     void setConstructionFunction(const std::function<IDevicePtr ()> &constructor);
     void setCreator(const std::function<IDevicePtr()> &creator);
+    void setQuickCreationAllowed(bool on);
 
 private:
     std::function<IDevicePtr()> m_creator;
@@ -48,6 +50,7 @@ private:
     QString m_displayName;
     QIcon m_icon;
     std::function<IDevicePtr()> m_constructor;
+    bool m_quickCreationAllowed = false;
 };
 
 } // namespace ProjectExplorer

@@ -48,7 +48,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
 
     m_behaviorSettings = new TextEditor::BehaviorSettingsWidget(this);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Row {
         m_showWrapColumn,
@@ -63,7 +63,8 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
         m_displaySettings,
         m_behaviorSettings,
         st,
-    }.attachTo(this, WithoutMargins);
+        noMargin
+    }.attachTo(this);
 
     const EditorConfiguration *config = m_project->editorConfiguration();
     settingsToUi(config);

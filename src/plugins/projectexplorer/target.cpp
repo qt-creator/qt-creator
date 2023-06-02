@@ -21,8 +21,8 @@
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "runconfiguration.h"
-#include "session.h"
 
 #include <coreplugin/coreconstants.h>
 
@@ -120,10 +120,10 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
     });
 
     connect(this, &Target::parsingFinished, this, [this, project](bool success) {
-        if (success && this == SessionManager::startupTarget())
+        if (success && this == ProjectManager::startupTarget())
             updateDefaultRunConfigurations();
         // For testing.
-        emit SessionManager::instance()->projectFinishedParsing(project);
+        emit ProjectManager::instance()->projectFinishedParsing(project);
         emit project->anyParsingFinished(this, success);
     }, Qt::QueuedConnection); // Must wait for run configs to change their enabled state.
 
@@ -242,6 +242,70 @@ QString Target::activeBuildKey() const
     return d->m_activeRunConfiguration->buildKey();
 }
 
+void Target::setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade)
+{
+    QTC_ASSERT(project(), return);
+
+    if (project()->isShuttingDown() || isShuttingDown())
+        return;
+
+    setActiveBuildConfiguration(bc);
+
+    if (!bc)
+        return;
+    if (cascade != SetActive::Cascade || !ProjectManager::isProjectConfigurationCascading())
+        return;
+
+    Id kitId = kit()->id();
+    QString name = bc->displayName(); // We match on displayname
+    for (Project *otherProject : ProjectManager::projects()) {
+        if (otherProject == project())
+            continue;
+        Target *otherTarget = otherProject->activeTarget();
+        if (!otherTarget || otherTarget->kit()->id() != kitId)
+            continue;
+
+        for (BuildConfiguration *otherBc : otherTarget->buildConfigurations()) {
+            if (otherBc->displayName() == name) {
+                otherTarget->setActiveBuildConfiguration(otherBc);
+                break;
+            }
+        }
+    }
+}
+
+void Target::setActiveDeployConfiguration(DeployConfiguration *dc, SetActive cascade)
+{
+    QTC_ASSERT(project(), return);
+
+    if (project()->isShuttingDown() || isShuttingDown())
+        return;
+
+    setActiveDeployConfiguration(dc);
+
+    if (!dc)
+        return;
+    if (cascade != SetActive::Cascade || !ProjectManager::isProjectConfigurationCascading())
+        return;
+
+    Id kitId = kit()->id();
+    QString name = dc->displayName(); // We match on displayname
+    for (Project *otherProject : ProjectManager::projects()) {
+        if (otherProject == project())
+            continue;
+        Target *otherTarget = otherProject->activeTarget();
+        if (!otherTarget || otherTarget->kit()->id() != kitId)
+            continue;
+
+        for (DeployConfiguration *otherDc : otherTarget->deployConfigurations()) {
+            if (otherDc->displayName() == name) {
+                otherTarget->setActiveDeployConfiguration(otherDc);
+                break;
+            }
+        }
+    }
+}
+
 Utils::Id Target::id() const
 {
     return d->m_kit->id();
@@ -307,9 +371,9 @@ bool Target::removeBuildConfiguration(BuildConfiguration *bc)
 
     if (activeBuildConfiguration() == bc) {
         if (d->m_buildConfigurations.isEmpty())
-            SessionManager::setActiveBuildConfiguration(this, nullptr, SetActive::Cascade);
+            setActiveBuildConfiguration(nullptr, SetActive::Cascade);
         else
-            SessionManager::setActiveBuildConfiguration(this, d->m_buildConfigurations.at(0), SetActive::Cascade);
+            setActiveBuildConfiguration(d->m_buildConfigurations.at(0), SetActive::Cascade);
     }
 
     emit removedBuildConfiguration(bc);
@@ -377,10 +441,9 @@ bool Target::removeDeployConfiguration(DeployConfiguration *dc)
 
     if (activeDeployConfiguration() == dc) {
         if (d->m_deployConfigurations.isEmpty())
-            SessionManager::setActiveDeployConfiguration(this, nullptr, SetActive::Cascade);
+            setActiveDeployConfiguration(nullptr, SetActive::Cascade);
         else
-            SessionManager::setActiveDeployConfiguration(this, d->m_deployConfigurations.at(0),
-                                                         SetActive::Cascade);
+            setActiveDeployConfiguration(d->m_deployConfigurations.at(0), SetActive::Cascade);
     }
 
     ProjectExplorerPlugin::targetSelector()->removedDeployConfiguration(dc);

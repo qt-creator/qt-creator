@@ -32,22 +32,28 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
+
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
+
 #include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/runcontrol.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+
 #include <utils/algorithm.h>
 #include <utils/textutils.h>
 #include <utils/utilsicons.h>
@@ -90,7 +96,7 @@ public:
     void onRunUnderCursorTriggered(TestRunMode mode);
 
     TestSettings m_settings;
-    TestSettingsPage m_testSettingPage{&m_settings};
+    TestSettingsPage m_testSettingPage;
 
     TestCodeParser m_testCodeParser;
     TestTreeModel m_testTreeModel{&m_testCodeParser};
@@ -148,11 +154,11 @@ AutotestPluginPrivate::AutotestPluginPrivate()
     m_testTreeModel.synchronizeTestFrameworks();
     m_testTreeModel.synchronizeTestTools();
 
-    auto sessionManager = ProjectExplorer::SessionManager::instance();
-    connect(sessionManager, &ProjectExplorer::SessionManager::startupProjectChanged,
+    auto sessionManager = ProjectExplorer::ProjectManager::instance();
+    connect(sessionManager, &ProjectExplorer::ProjectManager::startupProjectChanged,
             this, [this] { m_runconfigCache.clear(); });
 
-    connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
+    connect(sessionManager, &ProjectExplorer::ProjectManager::aboutToRemoveProject,
             this, [](ProjectExplorer::Project *project) {
         const auto it = s_projectSettings.constFind(project);
         if (it != s_projectSettings.constEnd()) {
@@ -170,11 +176,6 @@ AutotestPluginPrivate::~AutotestPluginPrivate()
     }
 
     delete m_resultsPane;
-}
-
-TestSettings *AutotestPlugin::settings()
-{
-    return &dd->m_settings;
 }
 
 TestProjectSettings *AutotestPlugin::projectSettings(ProjectExplorer::Project *project)
@@ -471,7 +472,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
 
 TestFrameworks AutotestPlugin::activeTestFrameworks()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     TestFrameworks sorted;
     if (!project || projectSettings(project)->useGlobalSettings()) {
         sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
@@ -489,7 +490,7 @@ TestFrameworks AutotestPlugin::activeTestFrameworks()
 
 void AutotestPlugin::updateMenuItemsEnabledState()
 {
-    const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     const ProjectExplorer::Target *target = project ? project->activeTarget() : nullptr;
     const bool canScan = !dd->m_testRunner.isTestRunning()
             && dd->m_testCodeParser.state() == TestCodeParser::Idle;

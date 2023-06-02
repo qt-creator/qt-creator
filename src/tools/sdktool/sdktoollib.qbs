@@ -85,34 +85,7 @@ QtcLibrary {
         "rmtoolchainoperation.h",
         "settings.cpp",
         "settings.h",
+        "sdkpersistentsettings.cpp",
+        "sdkpersistentsettings.h",
     ]
-
-    Group {
-        name: "Utils"
-        prefix: libsDir + "/utils/"
-        files: [
-            "commandline.cpp", "commandline.h",
-            "devicefileaccess.cpp", "devicefileaccess.h",
-            "environment.cpp", "environment.h",
-            "filepath.cpp", "filepath.h",
-            "fileutils.cpp", "fileutils.h",
-            "hostosinfo.cpp", "hostosinfo.h",
-            "macroexpander.cpp", "macroexpander.h",
-            "namevaluedictionary.cpp", "namevaluedictionary.h",
-            "namevalueitem.cpp", "namevalueitem.h",
-            "persistentsettings.cpp", "persistentsettings.h",
-            "qtcassert.cpp", "qtcassert.h",
-            "savefile.cpp", "savefile.h",
-            "stringutils.cpp"
-        ]
-    }
-    Group {
-        name: "Utils/macOS"
-        condition: qbs.targetOS.contains("macos")
-        prefix: libsDir + "/utils/"
-        files: [
-            "fileutils_mac.h",
-            "fileutils_mac.mm",
-        ]
-    }
 }

@@ -234,7 +234,7 @@ void StackHandler::setFramesAndCurrentIndex(const GdbMi &frames, bool isFull)
             targetFrame = i;
     }
 
-    bool canExpand = !isFull && (n >= debuggerSettings()->maximalStackDepth.value());
+    bool canExpand = !isFull && (n >= debuggerSettings()->maximalStackDepth());
     debuggerSettings()->expandStack.setEnabled(canExpand);
     setFrames(stackFrames, canExpand);
 

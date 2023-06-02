@@ -7,43 +7,39 @@
 
 #include <utils/aspects.h>
 
-namespace VcsBase {
-namespace Internal {
+namespace VcsBase::Internal {
 
 class CommonVcsSettings : public Utils::AspectContainer
-{
-public:
-    CommonVcsSettings();
-
-    friend QDebug operator<<(QDebug, const CommonVcsSettings &);
-
-    Utils::StringAspect nickNameMailMap;
-    Utils::StringAspect nickNameFieldListFile;
-
-    Utils::StringAspect submitMessageCheckScript;
-
-    // Executable run to graphically prompt for a SSH-password.
-    Utils::StringAspect sshPasswordPrompt;
-
-    Utils::BoolAspect lineWrap;
-    Utils::IntegerAspect lineWrapWidth;
-};
-
-class CommonOptionsPage final : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    explicit CommonOptionsPage();
+    CommonVcsSettings();
 
-    CommonVcsSettings &settings() { return m_settings; }
+    Utils::FilePathAspect nickNameMailMap{this};
+    Utils::FilePathAspect nickNameFieldListFile{this};
+
+    Utils::FilePathAspect submitMessageCheckScript{this};
+
+    // Executable run to graphically prompt for a SSH-password.
+    Utils::FilePathAspect sshPasswordPrompt{this};
+
+    Utils::BoolAspect lineWrap{this};
+    Utils::IntegerAspect lineWrapWidth{this};
 
 signals:
     void settingsChanged();
+};
+
+class CommonOptionsPage final : public Core::IOptionsPage
+{
+public:
+    CommonOptionsPage();
+
+    CommonVcsSettings &settings() { return m_settings; }
 
 private:
     CommonVcsSettings m_settings;
 };
 
-} // namespace Internal
-} // namespace VcsBase
+} // VcsBase::Internal

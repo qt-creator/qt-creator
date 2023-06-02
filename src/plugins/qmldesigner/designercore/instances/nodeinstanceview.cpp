@@ -75,8 +75,8 @@
 #include <qmlprojectmanager/qmlproject.h>
 
 #include <utils/algorithm.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 #include <utils/threadutils.h>
 
@@ -870,7 +870,7 @@ NodeInstance NodeInstanceView::activeStateInstance() const
 
 void NodeInstanceView::updateChildren(const NodeAbstractProperty &newPropertyParent)
 {
-    const QVector<ModelNode> childNodeVector = newPropertyParent.directSubNodes().toVector();
+    const QList<ModelNode> childNodeVector = newPropertyParent.directSubNodes();
 
     qint32 parentInstanceId = newPropertyParent.parentModelNode().internalId();
 
@@ -1506,7 +1506,7 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
     m_nodeInstanceServer->benchmark(Q_FUNC_INFO + QString::number(renderImageChangeSet.count()));
 
     if (!renderImageChangeSet.isEmpty())
-        emitInstancesRenderImageChanged(Utils::toList(renderImageChangeSet).toVector());
+        emitInstancesRenderImageChanged(Utils::toList(renderImageChangeSet));
 
     if (!containerVector.isEmpty()) {
         QMultiHash<ModelNode, InformationName> informationChangeHash = informationChanged(
@@ -2071,7 +2071,7 @@ void NodeInstanceView::updateWatcher(const QString &path)
         m_generateQsbFilesTimer.start();
 }
 
-void NodeInstanceView::handleQsbProcessExit(Utils::QtcProcess *qsbProcess, const QString &shader)
+void NodeInstanceView::handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader)
 {
     --m_remainingQsbTargets;
 
@@ -2172,8 +2172,8 @@ void NodeInstanceView::handleShaderChanges()
         QStringList args = baseArgs;
         args.append(outPath.toString());
         args.append(shader);
-        auto qsbProcess = new Utils::QtcProcess(this);
-        connect(qsbProcess, &Utils::QtcProcess::done, this, [this, qsbProcess, shader] {
+        auto qsbProcess = new Utils::Process(this);
+        connect(qsbProcess, &Utils::Process::done, this, [this, qsbProcess, shader] {
             handleQsbProcessExit(qsbProcess, shader);
         });
         qsbProcess->setWorkingDirectory(srcPath);

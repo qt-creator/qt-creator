@@ -9,12 +9,10 @@
 
 namespace Bazaar::Internal {
 
-class BazaarSettings;
-
 class BazaarClient : public VcsBase::VcsBaseClient
 {
 public:
-    explicit BazaarClient(BazaarSettings *settings);
+    BazaarClient();
 
     BranchInfo synchronousBranchQuery(const Utils::FilePath &repositoryRoot) const;
     bool synchronousUncommit(const Utils::FilePath &workingDir,

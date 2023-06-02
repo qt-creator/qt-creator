@@ -39,12 +39,10 @@ private:
 
 CodeGenSettingsPageWidget::CodeGenSettingsPageWidget()
 {
-    resize(340, 232);
-
     CodeGenSettings parameters;
     parameters.fromSettings(Core::ICore::settings());
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     m_ptrAggregationRadioButton = new QRadioButton(Tr::tr("Aggregation as a pointer member"));
     m_ptrAggregationRadioButton->setChecked

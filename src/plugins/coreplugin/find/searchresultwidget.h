@@ -6,6 +6,7 @@
 #include "searchresultwindow.h"
 
 #include <utils/infobar.h>
+#include <utils/searchresultitem.h>
 
 #include <QWidget>
 
@@ -33,9 +34,10 @@ public:
     QWidget *additionalReplaceWidget() const;
     void setAdditionalReplaceWidget(QWidget *widget);
 
-    void addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
+    void addResults(const Utils::SearchResultItems &items, SearchResult::AddMode mode);
 
     int count() const;
+    bool isSearching() const { return m_searching; }
 
     void setSupportsReplace(bool replaceSupported, const QString &group);
     bool supportsReplace() const;
@@ -51,7 +53,7 @@ public:
 
     void notifyVisibilityChanged(bool visible);
 
-    void setTextEditorFont(const QFont &font, const SearchResultColors &colors);
+    void setTextEditorFont(const QFont &font, const Utils::SearchResultColors &colors);
     void setTabWidth(int tabWidth);
 
     void setAutoExpandResults(bool expand);
@@ -75,8 +77,9 @@ public slots:
     void sendRequestPopup();
 
 signals:
-    void activated(const Core::SearchResultItem &item);
-    void replaceButtonClicked(const QString &replaceText, const QList<Core::SearchResultItem> &checkedItems, bool preserveCase);
+    void activated(const Utils::SearchResultItem &item);
+    void replaceButtonClicked(const QString &replaceText,
+                              const Utils::SearchResultItems &checkedItems, bool preserveCase);
     void replaceTextChanged(const QString &replaceText);
     void searchAgainRequested();
     void canceled();
@@ -90,7 +93,7 @@ signals:
     void navigateStateChanged();
 
 private:
-    void handleJumpToSearchResult(const SearchResultItem &item);
+    void handleJumpToSearchResult(const Utils::SearchResultItem &item);
     void handleReplaceButton();
     void doReplace();
     void cancel();
@@ -100,7 +103,7 @@ private:
     void continueAfterSizeWarning();
     void cancelAfterSizeWarning();
 
-    QList<SearchResultItem> checkedItems() const;
+    Utils::SearchResultItems checkedItems() const;
     void updateMatchesFoundLabel();
 
     SearchResultTreeView *m_searchResultTreeView = nullptr;

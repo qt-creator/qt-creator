@@ -11,12 +11,6 @@ namespace Utils { class ProcessResultData; }
 
 namespace ProjectExplorer {
 
-enum class FileTransferDirection {
-    Invalid,
-    Upload,
-    Download
-};
-
 enum class FileTransferMethod {
     Sftp,
     Rsync,
@@ -29,8 +23,6 @@ class PROJECTEXPLORER_EXPORT FileToTransfer
 public:
     Utils::FilePath m_source;
     Utils::FilePath m_target;
-
-    FileTransferDirection direction() const;
 };
 
 using FilesToTransfer = QList<FileToTransfer>;

@@ -12,9 +12,9 @@
 #include "project.h"
 #include "projectexplorericons.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "projectwindow.h"
 #include "runsettingspropertiespage.h"
-#include "session.h"
 #include "target.h"
 #include "targetsetuppage.h"
 #include "task.h"
@@ -281,7 +281,7 @@ public:
             QFont font = parent()->data(column, role).value<QFont>();
             if (TargetItem *targetItem = parent()->currentTargetItem()) {
                 Target *t = targetItem->target();
-                if (t && t->id() == m_kitId && m_project == SessionManager::startupProject())
+                if (t && t->id() == m_kitId && m_project == ProjectManager::startupProject())
                     font.setBold(true);
             }
             return font;
@@ -334,7 +334,7 @@ public:
                 // Go to Run page, when on Run previously etc.
                 TargetItem *previousItem = parent()->currentTargetItem();
                 m_currentChild = previousItem ? previousItem->m_currentChild : DefaultPage;
-                SessionManager::setActiveTarget(m_project, target(), SetActive::Cascade);
+                m_project->setActiveTarget(target(), SetActive::Cascade);
                 parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)),
                                   ItemActivatedFromBelowRole);
             }
@@ -346,7 +346,7 @@ public:
             int child = indexOf(data.value<TreeItem *>());
             QTC_ASSERT(child != -1, return false);
             m_currentChild = child; // Triggered from sub-item.
-            SessionManager::setActiveTarget(m_project, target(), SetActive::Cascade);
+            m_project->setActiveTarget(target(), SetActive::Cascade);
             // Propagate Build/Run selection up.
             parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)),
                               ItemActivatedFromBelowRole);
@@ -355,7 +355,7 @@ public:
 
         if (role == ItemActivatedFromAboveRole) {
             // Usually programmatic activation, e.g. after opening the Project mode.
-            SessionManager::setActiveTarget(m_project, target(), SetActive::Cascade);
+            m_project->setActiveTarget(target(), SetActive::Cascade);
             return true;
         }
         return false;
@@ -377,7 +377,7 @@ public:
                 = menu->addAction(Tr::tr("Enable Kit for All Projects"));
         enableForAllAction->setEnabled(isSelectable);
         QObject::connect(enableForAllAction, &QAction::triggered, [kit] {
-            for (Project * const p : SessionManager::projects()) {
+            for (Project * const p : ProjectManager::projects()) {
                 if (!p->target(kit))
                     p->addTargetForKit(kit);
             }
@@ -411,7 +411,7 @@ public:
         QAction *disableForAllAction = menu->addAction(Tr::tr("Disable Kit for All Projects"));
         disableForAllAction->setEnabled(isSelectable);
         QObject::connect(disableForAllAction, &QAction::triggered, [kit] {
-            for (Project * const p : SessionManager::projects()) {
+            for (Project * const p : ProjectManager::projects()) {
                 Target * const t = p->target(kit);
                 if (!t)
                     continue;

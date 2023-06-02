@@ -5,7 +5,6 @@
 
 #include "baseqtversion.h"
 #include "exampleslistmodel.h"
-#include "qtkitinformation.h"
 #include "qtsupportconstants.h"
 #include "qtversionfactory.h"
 
@@ -22,8 +21,8 @@
 #include <utils/filesystemwatcher.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QFile>
@@ -369,7 +368,7 @@ static void saveQtVersions()
 // Executes qtchooser with arguments in a process and returns its output
 static QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringList &arguments)
 {
-    QtcProcess p;
+    Process p;
     p.setCommand({FilePath::fromString(qtchooser), arguments});
     p.start();
     p.waitForFinished();

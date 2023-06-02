@@ -3,10 +3,14 @@
 
 #pragma once
 
-#include <QFutureInterface>
 #include <QLoggingCategory>
 #include <QPointer>
 #include <QVersionNumber>
+
+QT_BEGIN_NAMESPACE
+template <typename T>
+class QPromise;
+QT_END_NAMESPACE
 
 namespace LanguageClient { class ExpandedSemanticToken; }
 namespace TextEditor {
@@ -21,7 +25,7 @@ class TaskTimer;
 Q_DECLARE_LOGGING_CATEGORY(clangdLogHighlight);
 
 void doSemanticHighlighting(
-        QFutureInterface<TextEditor::HighlightingResult> &future,
+        QPromise<TextEditor::HighlightingResult> &promise,
         const Utils::FilePath &filePath,
         const QList<LanguageClient::ExpandedSemanticToken> &tokens,
         const QString &docContents,

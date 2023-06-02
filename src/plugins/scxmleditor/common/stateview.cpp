@@ -31,15 +31,19 @@ StateView::StateView(StateItem *state, QWidget *parent)
 
     m_graphicsView = new GraphicsView;
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Row {
         PushButton{ text("Back"), onClicked([this] { closeView(); }, this) },
         stateNameLabel,
-    }.attachTo(titleBar, WithoutMargins);
+        noMargin
+    }.attachTo(titleBar);
 
     Column {
-        titleBar, m_graphicsView
-    }.setSpacing(0).attachTo(this, WithoutMargins);
+        spacing(0),
+        titleBar,
+        m_graphicsView,
+        noMargin,
+    }.attachTo(this);
 
     initScene();
 }

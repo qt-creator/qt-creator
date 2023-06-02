@@ -90,8 +90,12 @@
                                 "value": "QtQuickTest"
                             },
                             {
-                                "trKey": "Boost Test",
+                                "trKey": "Boost Test (header only)",
                                 "value": "BoostTest"
+                            },
+                            {
+                                "trKey": "Boost Test (shared libraries)",
+                                "value": "BoostTest_dyn"
                             },
                             {
                                 "trKey": "Catch2",
@@ -113,7 +117,7 @@
                 {
                     "name": "TestSuiteName",
                     "trDisplayName": "Test suite name:",
-                    "visible": "%{JS: ['BoostTest', 'GTest'].indexOf(value('TestFrameWork')) >= 0}",
+                    "visible": "%{JS: ['BoostTest', 'BoostTest_dyn', 'GTest'].indexOf(value('TestFrameWork')) >= 0}",
                     "mandatory": true,
                     "type": "LineEdit",
                     "data": { "validator": "^[a-zA-Z_0-9]+$" }
@@ -175,6 +179,16 @@
                     "name": "BoostIncDir",
                     "trDisplayName": "Boost include directory (optional):",
                     "visible": "%{JS: value('TestFrameWork') == 'BoostTest'}",
+                    "mandatory": false,
+                    "type": "PathChooser",
+                    "data": {
+                        "kind": "existingDirectory"
+                    }
+                },
+                {
+                    "name": "BoostInstallDir",
+                    "trDisplayName": "Boost install directory (optional):",
+                    "visible": "%{JS: value('TestFrameWork') == 'BoostTest_dyn'}",
                     "mandatory": false,
                     "type": "PathChooser",
                     "data": {
@@ -300,8 +314,13 @@
                 {
                     "source": "files/tst_main.cpp",
                     "target": "%{MainCppName}",
-                    "condition": "%{JS: ['GTest', 'QtQuickTest', 'BoostTest', 'Catch2'].indexOf(value('TestFrameWork')) >= 0}",
+                    "condition": "%{JS: ['GTest', 'QtQuickTest', 'BoostTest', 'BoostTest_dyn', 'Catch2'].indexOf(value('TestFrameWork')) >= 0}",
                     "openInEditor": true
+                },
+                {
+                    "source": "files/tst_src_boost.cpp",
+                    "target": "%{TestCaseFileWithCppSuffix}",
+                    "condition": "%{JS: value('TestFrameWork') === 'BoostTest_dyn'}"
                 },
                 {
                     "source": "files/tst_qml.tmpl",

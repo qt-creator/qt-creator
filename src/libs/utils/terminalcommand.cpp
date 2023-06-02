@@ -65,13 +65,7 @@ TerminalCommand TerminalCommand::defaultTerminalEmulator()
 
     if (defaultTerm.command.isEmpty()) {
         if (HostOsInfo::isMacHost()) {
-            const FilePath termCmd = FilePath::fromString(QCoreApplication::applicationDirPath())
-                            / "../Resources/scripts/openTerminal.py";
-            if (termCmd.exists())
-                defaultTerm = {termCmd, "", ""};
-            else
-                defaultTerm = {"/usr/X11/bin/xterm", "", "-e"};
-
+            return {"Terminal.app", "", ""};
         } else if (HostOsInfo::isAnyUnixHost()) {
             defaultTerm = {"xterm", "", "-e"};
             const Environment env = Environment::systemEnvironment();

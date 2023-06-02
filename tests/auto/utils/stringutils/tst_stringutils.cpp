@@ -79,6 +79,8 @@ private slots:
     void testTrim();
     void testWildcardToRegularExpression_data();
     void testWildcardToRegularExpression();
+    void testSplitAtFirst_data();
+    void testSplitAtFirst();
 
 private:
     TestMacroExpander mx;
@@ -402,6 +404,38 @@ void tst_StringUtils::testWildcardToRegularExpression()
 
     const QRegularExpression re(Utils::wildcardToRegularExpression(pattern));
     QCOMPARE(string.contains(re), matches);
+}
+
+void tst_StringUtils::testSplitAtFirst_data()
+{
+    QTest::addColumn<QString>("string");
+    QTest::addColumn<QChar>("separator");
+    QTest::addColumn<QString>("left");
+    QTest::addColumn<QString>("right");
+
+    QTest::newRow("Empty") << QString{} << QChar{} << QString{} << QString{};
+    QTest::newRow("EmptyString") << QString{} << QChar{'a'} << QString{} << QString{};
+    QTest::newRow("EmptySeparator") << QString{"abc"} << QChar{} << QString{"abc"} << QString{};
+    QTest::newRow("NoSeparator") << QString{"abc"} << QChar{'d'} << QString{"abc"} << QString{};
+    QTest::newRow("SeparatorAtStart") << QString{"abc"} << QChar{'a'} << QString{} << QString{"bc"};
+    QTest::newRow("SeparatorAtEnd") << QString{"abc"} << QChar{'c'} << QString{"ab"} << QString{};
+    QTest::newRow("SeparatorInMiddle")
+        << QString{"abc"} << QChar{'b'} << QString{"a"} << QString{"c"};
+    QTest::newRow("SeparatorAtStartAndEnd")
+        << QString{"abca"} << QChar{'a'} << QString{} << QString{"bca"};
+}
+
+void tst_StringUtils::testSplitAtFirst()
+{
+    QFETCH(QString, string);
+    QFETCH(QChar, separator);
+    QFETCH(QString, left);
+    QFETCH(QString, right);
+
+    const auto [l, r] = Utils::splitAtFirst(string, separator);
+
+    QCOMPARE(l, left);
+    QCOMPARE(r, right);
 }
 
 QTEST_GUILESS_MAIN(tst_StringUtils)

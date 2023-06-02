@@ -9,13 +9,14 @@
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/session.h>
+
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/settingsutils.h>
 
 #include <QDateTime>
@@ -63,6 +64,9 @@ static QString useClangdKey() { return QLatin1String("UseClangdV7"); }
 static QString clangdPathKey() { return QLatin1String("ClangdPath"); }
 static QString clangdIndexingKey() { return QLatin1String("ClangdIndexing"); }
 static QString clangdIndexingPriorityKey() { return QLatin1String("ClangdIndexingPriority"); }
+static QString clangdHeaderSourceSwitchModeKey() {
+    return QLatin1String("ClangdHeaderSourceSwitchMode");
+}
 static QString clangdHeaderInsertionKey() { return QLatin1String("ClangdHeaderInsertion"); }
 static QString clangdThreadLimitKey() { return QLatin1String("ClangdThreadLimit"); }
 static QString clangdDocumentThresholdKey() { return QLatin1String("ClangdDocumentThreshold"); }
@@ -228,6 +232,16 @@ QString ClangdSettings::priorityToDisplayString(const IndexingPriority &priority
     return {};
 }
 
+QString ClangdSettings::headerSourceSwitchModeToDisplayString(HeaderSourceSwitchMode mode)
+{
+    switch (mode) {
+    case HeaderSourceSwitchMode::BuiltinOnly: return Tr::tr("Use Built-in Only");
+    case HeaderSourceSwitchMode::ClangdOnly: return Tr::tr("Use Clangd Only");
+    case HeaderSourceSwitchMode::Both: return Tr::tr("Try Both");
+    }
+    return {};
+}
+
 ClangdSettings &ClangdSettings::instance()
 {
     static ClangdSettings settings;
@@ -237,15 +251,18 @@ ClangdSettings &ClangdSettings::instance()
 ClangdSettings::ClangdSettings()
 {
     loadSettings();
-    const auto sessionMgr = ProjectExplorer::SessionManager::instance();
-    connect(sessionMgr, &ProjectExplorer::SessionManager::sessionRemoved,
-            this, [this](const QString &name) { m_data.sessionsWithOneClangd.removeOne(name); });
-    connect(sessionMgr, &ProjectExplorer::SessionManager::sessionRenamed,
-            this, [this](const QString &oldName, const QString &newName) {
-        const auto index = m_data.sessionsWithOneClangd.indexOf(oldName);
-        if (index != -1)
-            m_data.sessionsWithOneClangd[index] = newName;
+    const auto sessionMgr = Core::SessionManager::instance();
+    connect(sessionMgr, &Core::SessionManager::sessionRemoved, this, [this](const QString &name) {
+        m_data.sessionsWithOneClangd.removeOne(name);
     });
+    connect(sessionMgr,
+            &Core::SessionManager::sessionRenamed,
+            this,
+            [this](const QString &oldName, const QString &newName) {
+                const auto index = m_data.sessionsWithOneClangd.indexOf(oldName);
+                if (index != -1)
+                    m_data.sessionsWithOneClangd[index] = newName;
+            });
 }
 
 bool ClangdSettings::useClangd() const
@@ -319,7 +336,7 @@ ClangDiagnosticConfig ClangdSettings::diagnosticConfig() const
 
 ClangdSettings::Granularity ClangdSettings::granularity() const
 {
-    if (m_data.sessionsWithOneClangd.contains(ProjectExplorer::SessionManager::activeSession()))
+    if (m_data.sessionsWithOneClangd.contains(Core::SessionManager::activeSession()))
         return Granularity::Session;
     return Granularity::Project;
 }
@@ -339,7 +356,7 @@ static FilePath getClangHeadersPathFromClang(const FilePath &clangdFilePath)
             .withExecutableSuffix();
     if (!clangFilePath.exists())
         return {};
-    QtcProcess clang;
+    Process clang;
     clang.setCommand({clangFilePath, {"-print-resource-dir"}});
     clang.start();
     if (!clang.waitForFinished())
@@ -527,6 +544,7 @@ QVariantMap ClangdSettings::Data::toMap() const
                                                               : QString());
     map.insert(clangdIndexingKey(), indexingPriority != IndexingPriority::Off);
     map.insert(clangdIndexingPriorityKey(), int(indexingPriority));
+    map.insert(clangdHeaderSourceSwitchModeKey(), int(headerSourceSwitchMode));
     map.insert(clangdHeaderInsertionKey(), autoIncludeHeaders);
     map.insert(clangdThreadLimitKey(), workerThreadLimit);
     map.insert(clangdDocumentThresholdKey(), documentUpdateThreshold);
@@ -548,6 +566,8 @@ void ClangdSettings::Data::fromMap(const QVariantMap &map)
     const auto it = map.find(clangdIndexingKey());
     if (it != map.end() && !it->toBool())
         indexingPriority = IndexingPriority::Off;
+    headerSourceSwitchMode = HeaderSourceSwitchMode(map.value(clangdHeaderSourceSwitchModeKey(),
+                                                              int(headerSourceSwitchMode)).toInt());
     autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), false).toBool();
     workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
     documentUpdateThreshold = map.value(clangdDocumentThresholdKey(), 500).toInt();

@@ -70,6 +70,10 @@ public:
         // Get Document
         const Document::Ptr document = waitForFileInGlobalSnapshot(filePath);
         QVERIFY(document);
+        if (!document->diagnosticMessages().isEmpty()) {
+            for (const Document::DiagnosticMessage &m : document->diagnosticMessages())
+                qDebug().noquote() << m.text();
+        }
         QVERIFY(document->diagnosticMessages().isEmpty());
 
         m_snapshot.insert(document);
@@ -409,16 +413,16 @@ static void enumTestCase(const QByteArray &tag, const QByteArray &source,
                          const QByteArray &prefix = QByteArray())
 {
     QByteArray fullSource = source;
-    fullSource.replace('$', "enum E { val1, val2, val3 };");
-    QTest::newRow(tag) << fullSource << (prefix + "val")
-            << QStringList({"val1", "val2", "val3"});
+    fullSource.replace('$', "enum E { value1, value2, value3 };");
+    QTest::newRow(tag) << fullSource << (prefix + "value")
+            << QStringList({"value1", "value2", "value3"});
 
     QTest::newRow(QByteArray{tag + "_cxx11"}) << fullSource << QByteArray{prefix + "E::"}
-            << QStringList({"E", "val1", "val2", "val3"});
+            << QStringList({"E", "value1", "value2", "value3"});
 
     fullSource.replace("enum E ", "enum ");
-    QTest::newRow(QByteArray{tag + "_anon"}) << fullSource << QByteArray{prefix + "val"}
-            << QStringList({"val1", "val2", "val3"});
+    QTest::newRow(QByteArray{tag + "_anon"}) << fullSource << QByteArray{prefix + "value"}
+            << QStringList({"value1", "value2", "value3"});
 }
 
 void CompletionTest::testCompletion_data()

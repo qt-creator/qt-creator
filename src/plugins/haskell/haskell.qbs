@@ -21,8 +21,8 @@ QtcPlugin {
         "haskellplugin.cpp", "haskellplugin.h",
         "haskellproject.cpp", "haskellproject.h",
         "haskellrunconfiguration.cpp", "haskellrunconfiguration.h",
+        "haskellsettings.cpp", "haskellsettings.h",
         "haskelltokenizer.cpp", "haskelltokenizer.h",
-        "optionspage.cpp", "optionspage.h",
         "stackbuildstep.cpp", "stackbuildstep.h"
     ]
 }

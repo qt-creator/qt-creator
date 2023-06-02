@@ -1736,7 +1736,8 @@ void tst_Dumpers::dumper()
             expandedq.append(',');
         }
         expanded += iname;
-        expandedq += '\'' + iname + '\'';
+        expandedq += '\'' + iname + "':";
+        expandedq += data.bigArray ? "10000" : "100";
     }
 
     QString exe = m_debuggerBinary;
@@ -1769,7 +1770,7 @@ void tst_Dumpers::dumper()
                     "'token':2,'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
                     "'testing':1,'qobjectnames':1,"
-                    "'expanded':[" + expandedq + "]})\n";
+                    "'expanded':{" + expandedq + "}})\n";
 
         cmds += "quit\n";
 
@@ -1792,7 +1793,7 @@ void tst_Dumpers::dumper()
                 "'token':2,'fancy':1,'forcens':1,"
                 "'autoderef':1,'dyntype':1,'passexceptions':0,"
                 "'testing':1,'qobjectnames':1,"
-                "'expanded':[" + expandedq + "]})\n"
+                "'expanded':{" + expandedq + "}})\n"
                 "q\n";
     } else if (m_debuggerEngine == LldbEngine) {
         QFile fullLldb(t->buildPath + "/lldbcommand.txt");
@@ -1808,7 +1809,7 @@ void tst_Dumpers::dumper()
                     "'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
                     "'testing':1,'qobjectnames':1,"
-                    "'expanded':[" + expandedq + "]})\n"
+                    "'expanded':{" + expandedq + "}})\n"
                "quit\n";
 
         fullLldb.write(cmds.toUtf8());
@@ -5314,6 +5315,7 @@ void tst_Dumpers::dumper_data()
                     "&v0, &v1, &v2, &v3, &v4, &v5, &b0, &b1, &b2, &b3")
 
                + Cxx11Profile()
+               + BigArrayProfile()
 
                + Check("v0", "<0 items>", "std::valarray<double>")
                + Check("v1", "<3 items>", "std::valarray<double>")

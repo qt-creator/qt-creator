@@ -5,6 +5,7 @@
 
 #include <coreplugin/core_global.h>
 
+#include <utils/aspects.h>
 #include <utils/icon.h>
 #include <utils/id.h>
 
@@ -15,6 +16,8 @@
 
 #include <functional>
 
+namespace Layouting { class LayoutItem; };
+
 namespace Utils { class AspectContainer; };
 
 namespace Core {
@@ -22,18 +25,28 @@ namespace Core {
 class CORE_EXPORT IOptionsPageWidget : public QWidget
 {
     Q_OBJECT
+
 public:
-    virtual void apply() = 0;
-    virtual void finish() {}
+    void setOnApply(const std::function<void ()> &func) { m_onApply = func; }
+    void setOnFinish(const std::function<void ()> &func) { m_onFinish = func; }
+
+protected:
+    friend class IOptionsPage;
+    virtual void apply() { if (m_onApply) m_onApply(); }
+    virtual void finish() { if (m_onFinish) m_onFinish(); }
+
+private:
+    std::function<void()> m_onApply;
+    std::function<void()> m_onFinish;
 };
 
-class CORE_EXPORT IOptionsPage : public QObject
+class CORE_EXPORT IOptionsPage
 {
-    Q_OBJECT
+    Q_DISABLE_COPY_MOVE(IOptionsPage)
 
 public:
-    IOptionsPage(QObject *parent = nullptr, bool registerGlobally = true);
-    ~IOptionsPage() override;
+    explicit IOptionsPage(bool registerGlobally = true);
+    virtual ~IOptionsPage();
 
     static const QList<IOptionsPage *> allOptionsPages();
 
@@ -61,7 +74,7 @@ protected:
     void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
     void setCategoryIconPath(const Utils::FilePath &categoryIconPath);
     void setSettings(Utils::AspectContainer *settings);
-    void setLayouter(const std::function<void(QWidget *w)> &layouter);
+    void setLayouter(const std::function<Layouting::LayoutItem()> &layouter);
 
     // Used in FontSettingsPage. FIXME?
     QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
@@ -78,7 +91,6 @@ private:
     mutable QStringList m_keywords;
 
     Utils::AspectContainer *m_settings = nullptr;
-    std::function<void(QWidget *w)> m_layouter;
 };
 
 /*
@@ -89,13 +101,13 @@ private:
     before the options pages get available.)
 */
 
-class CORE_EXPORT IOptionsPageProvider : public QObject
+class CORE_EXPORT IOptionsPageProvider
 {
-    Q_OBJECT
+    Q_DISABLE_COPY_MOVE(IOptionsPageProvider);
 
 public:
-    IOptionsPageProvider(QObject *parent = nullptr);
-    ~IOptionsPageProvider() override;
+    IOptionsPageProvider();
+    virtual ~IOptionsPageProvider();
 
     static const QList<IOptionsPageProvider *> allOptionsPagesProviders();
 
@@ -114,6 +126,15 @@ protected:
     Utils::Id m_category;
     QString m_displayCategory;
     Utils::Icon m_categoryIcon;
+};
+
+class CORE_EXPORT PagedSettings : public Utils::AspectContainer, public IOptionsPage
+{
+public:
+    PagedSettings();
+
+    using AspectContainer::readSettings; // FIXME: Remove.
+    void readSettings(); // Intentionally hides AspectContainer::readSettings()
 };
 
 } // namespace Core

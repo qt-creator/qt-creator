@@ -112,7 +112,7 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
 class ExtraHighlightingResultsCollector
 {
 public:
-    ExtraHighlightingResultsCollector(QFutureInterface<HighlightingResult> &future,
+    ExtraHighlightingResultsCollector(QPromise<HighlightingResult> &promise,
                                       HighlightingResults &results,
                                       const Utils::FilePath &filePath, const ClangdAstNode &ast,
                                       const QTextDocument *doc, const QString &docContent,
@@ -131,7 +131,7 @@ private:
     void collectFromNode(const ClangdAstNode &node);
     void visitNode(const ClangdAstNode&node);
 
-    QFutureInterface<HighlightingResult> &m_future;
+    QPromise<HighlightingResult> &m_promise;
     HighlightingResults &m_results;
     const Utils::FilePath m_filePath;
     const ClangdAstNode &m_ast;
@@ -142,7 +142,7 @@ private:
 };
 
 void doSemanticHighlighting(
-        QFutureInterface<HighlightingResult> &future,
+        QPromise<HighlightingResult> &promise,
         const Utils::FilePath &filePath,
         const QList<ExpandedSemanticToken> &tokens,
         const QString &docContents,
@@ -153,10 +153,8 @@ void doSemanticHighlighting(
         const TaskTimer &taskTimer)
 {
     ThreadedSubtaskTimer t("highlighting", taskTimer);
-    if (future.isCanceled()) {
-        future.reportFinished();
+    if (promise.isCanceled())
         return;
-    }
 
     const QTextDocument doc(docContents);
     const auto tokenRange = [&doc](const ExpandedSemanticToken &token) {
@@ -399,13 +397,13 @@ void doSemanticHighlighting(
     };
     auto results = QtConcurrent::blockingMapped<HighlightingResults>(tokens, safeToResult);
     const QList<BlockRange> ifdefedOutBlocks = cleanupDisabledCode(results, &doc, docContents);
-    ExtraHighlightingResultsCollector(future, results, filePath, ast, &doc, docContents,
+    ExtraHighlightingResultsCollector(promise, results, filePath, ast, &doc, docContents,
                                       clangdVersion).collect();
     Utils::erase(results, [](const HighlightingResult &res) {
         // QTCREATORBUG-28639
         return res.textStyles.mainStyle == C_TEXT && res.textStyles.mixinStyles.empty();
     });
-    if (!future.isCanceled()) {
+    if (!promise.isCanceled()) {
         qCInfo(clangdLogHighlight) << "reporting" << results.size() << "highlighting results";
         QMetaObject::invokeMethod(textDocument, [textDocument, ifdefedOutBlocks, docRevision] {
             if (textDocument && textDocument->document()->revision() == docRevision)
@@ -423,16 +421,20 @@ void doSemanticHighlighting(
             if (ClangdClient * const client = ClangModelManagerSupport::clientForFile(filePath))
                 client->setVirtualRanges(filePath, virtualRanges, docRevision);
         }, Qt::QueuedConnection);
-        future.reportResults(QVector<HighlightingResult>(results.cbegin(), results.cend()));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+        promise.addResults(results);
+#else
+        for (const HighlightingResult &r : results)
+            promise.addResult(r);
+#endif
     }
-    future.reportFinished();
 }
 
 ExtraHighlightingResultsCollector::ExtraHighlightingResultsCollector(
-        QFutureInterface<HighlightingResult> &future, HighlightingResults &results,
+        QPromise<HighlightingResult> &promise, HighlightingResults &results,
         const Utils::FilePath &filePath, const ClangdAstNode &ast, const QTextDocument *doc,
         const QString &docContent, const QVersionNumber &clangdVersion)
-    : m_future(future), m_results(results), m_filePath(filePath), m_ast(ast), m_doc(doc),
+    : m_promise(promise), m_results(results), m_filePath(filePath), m_ast(ast), m_doc(doc),
       m_docContent(docContent), m_clangdVersion(clangdVersion.majorVersion())
 {
 }
@@ -573,10 +575,12 @@ void ExtraHighlightingResultsCollector::insertAngleBracketInfo(int searchStart1,
     result.useTextSyles = true;
     result.textStyles.mainStyle = C_PUNCTUATION;
     Utils::Text::convertPosition(m_doc, absOpeningAngleBracketPos, &result.line, &result.column);
+    ++result.column;
     result.length = 1;
     result.kind = CppEditor::SemanticHighlighter::AngleBracketOpen;
     insertResult(result);
     Utils::Text::convertPosition(m_doc, absClosingAngleBracketPos, &result.line, &result.column);
+    ++result.column;
     result.kind = CppEditor::SemanticHighlighter::AngleBracketClose;
     insertResult(result);
 }
@@ -648,10 +652,12 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
         result.textStyles.mainStyle = C_PUNCTUATION;
         result.textStyles.mixinStyles.push_back(C_OPERATOR);
         Utils::Text::convertPosition(m_doc, absQuestionMarkPos, &result.line, &result.column);
+        ++result.column;
         result.length = 1;
         result.kind = CppEditor::SemanticHighlighter::TernaryIf;
         insertResult(result);
         Utils::Text::convertPosition(m_doc, absColonPos, &result.line, &result.column);
+        ++result.column;
         result.kind = CppEditor::SemanticHighlighter::TernaryElse;
         insertResult(result);
         return;
@@ -839,10 +845,12 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
             Utils::Text::convertPosition(m_doc,
                                          nodeStartPos + openingBracketOffset,
                                          &result.line, &result.column);
+            ++result.column;
             insertResult(result);
             Utils::Text::convertPosition(m_doc,
                                          nodeStartPos + closingBracketOffset,
                                          &result.line, &result.column);
+            ++result.column;
             insertResult(result);
         }
         return;
@@ -887,6 +895,7 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
     const int opStringOffsetInDoc = nodeStartPos + opStringOffset
             + detail.length() - opStringLen;
     Utils::Text::convertPosition(m_doc, opStringOffsetInDoc, &result.line, &result.column);
+    ++result.column;
     result.length = opStringLen;
     if (isArray || isCall)
         result.length = 1;
@@ -908,15 +917,17 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
         return;
     Utils::Text::convertPosition(m_doc, nodeStartPos + openingParenOffset,
                                  &result.line, &result.column);
+    ++result.column;
     insertResult(result);
     Utils::Text::convertPosition(m_doc, nodeStartPos + closingParenOffset,
                                  &result.line, &result.column);
+    ++result.column;
     insertResult(result);
 }
 
 void ExtraHighlightingResultsCollector::visitNode(const ClangdAstNode &node)
 {
-    if (m_future.isCanceled())
+    if (m_promise.isCanceled())
         return;
     const ClangdAstNode::FileStatus prevFileStatus = m_currentFileStatus;
     m_currentFileStatus = node.fileStatus(m_filePath);

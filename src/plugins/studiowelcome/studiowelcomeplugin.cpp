@@ -103,7 +103,7 @@ static StudioWelcomePlugin *s_pluginInstance = nullptr;
 
 static Utils::FilePath getMainUiFileWithFallback()
 {
-    auto project = ProjectExplorer::SessionManager::startupProject();
+    auto project = ProjectExplorer::ProjectManager::startupProject();
     if (!project)
         return {};
 
@@ -492,8 +492,7 @@ private:
 
 void StudioWelcomePlugin::closeSplashScreen()
 {
-    Utils::CheckableMessageBox::doNotAskAgain(Core::ICore::settings(),
-                                              DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY);
+    Utils::CheckableDecider(DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY).doNotAskAgain();
     if (!s_viewWindow.isNull())
         s_viewWindow->deleteLater();
 
@@ -541,8 +540,7 @@ static bool showSplashScreen()
         return true;
     }
 
-    return Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(),
-                                                      DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY);
+    return Utils::CheckableDecider(DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY).shouldAskAgain();
 }
 
 void StudioWelcomePlugin::extensionsInitialized()
@@ -669,10 +667,7 @@ bool StudioWelcomePlugin::delayedInitialize()
             const Utils::FilePath qmlPath = version->qmlPath();
             importPaths.maybeInsert(qmlPath, QmlJS::Dialect::QmlQtQuick2);
 
-            QFutureInterface<void> result;
-
-            QmlJS::ModelManagerInterface::importScan(result,
-                                                     QmlJS::ModelManagerInterface::workingCopy(),
+            QmlJS::ModelManagerInterface::importScan(QmlJS::ModelManagerInterface::workingCopy(),
                                                      importPaths,
                                                      modelManager,
                                                      false);

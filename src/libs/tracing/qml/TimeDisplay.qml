@@ -11,7 +11,7 @@ Item {
     property double rangeDuration
 
     property int textMargin: 5
-    property int labelsHeight: 24
+    property int labelsHeight: Theme.toolBarHeight()
     property int fontSize: 8
     property int initialBlockLength: 120
     property double spacing: width / rangeDuration

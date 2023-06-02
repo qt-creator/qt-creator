@@ -92,7 +92,6 @@ extend_qtc_library(QmlDesignerCore
   CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.5.0 AND Qt6_VERSION VERSION_LESS 6.6.0
   PUBLIC_DEFINES QDS_BUILD_QMLPARSER
 )
-
 extend_qtc_library(QmlDesignerCore
   CONDITION UNIX AND NOT APPLE
   PUBLIC_DEPENDS rt
@@ -292,19 +291,6 @@ extend_qtc_library(QmlDesignerCore
     puppetstarter.cpp
     puppetstarter.h
     qprocessuniqueptr.h
-)
-
-extend_qtc_library(QmlDesignerCore
-  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/instances
-  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/instances
-  SOURCES_PROPERTIES SKIP_AUTOUIC OFF
-  SOURCES
-    puppetbuildprogressdialog.ui
-    puppetdialog.ui
-    puppetbuildprogressdialog.cpp
-    puppetbuildprogressdialog.h
-    puppetdialog.cpp
-    puppetdialog.h
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -538,17 +524,12 @@ function(get_and_add_as_subdirectory name repository git_tag build_dir source_di
 endfunction()
 
 if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
-  get_target_property(_designerType Qt5::Designer TYPE)
-  if (${_designerType} STREQUAL "STATIC_LIBRARY")
-    extend_qtc_target(QmlDesigner PUBLIC_DEFINES QT_DESIGNER_STATIC)
-  endif()
   get_target_property(_designerType Qt::Designer TYPE)
   if (${_designerType} STREQUAL "STATIC_LIBRARY")
     extend_qtc_target(QmlDesigner PUBLIC_DEFINES QT_DESIGNER_STATIC)
   endif()
   extend_qtc_target(QmlDesigner PUBLIC_DEPENDS TextEditor)
 endif()
-
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components

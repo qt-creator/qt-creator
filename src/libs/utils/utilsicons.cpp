@@ -24,6 +24,8 @@ const Icon UNLOCKED({
         {":/utils/images/unlocked.png", Theme::PanelTextColorDark}}, Icon::Tint);
 const Icon PINNED({
         {":/utils/images/pinned.png", Theme::PanelTextColorDark}}, Icon::Tint);
+const Icon PINNED_SMALL({
+        {":/utils/images/pinned_small.png", Theme::PanelTextColorDark}}, Icon::Tint);
 const Icon NEXT({
         {":/utils/images/next.png", Theme::IconsWarningColor}}, Icon::MenuTintedStyle);
 const Icon NEXT_TOOLBAR({
@@ -225,6 +227,8 @@ const Icon INTERRUPT_SMALL_TOOLBAR({
         {":/utils/images/interrupt_small.png", Theme::IconsInterruptToolBarColor}});
 const Icon BOUNDING_RECT({
         {":/utils/images/boundingrect.png", Theme::IconsBaseColor}});
+const Icon EYE_OPEN({
+        {":/utils/images/eye_open.png", Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon EYE_OPEN_TOOLBAR({
         {":/utils/images/eye_open.png", Theme::IconsBaseColor}});
 const Icon EYE_CLOSED_TOOLBAR({

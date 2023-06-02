@@ -42,67 +42,10 @@ const QList<DocumentSymbol> sortedSymbols(const QList<DocumentSymbol> &symbols)
     });
 }
 
-class LanguageClientOutlineItem : public Utils::TypedTreeItem<LanguageClientOutlineItem>
-{
-public:
-    LanguageClientOutlineItem() = default;
-    LanguageClientOutlineItem(const SymbolInformation &info)
-        : m_name(info.name())
-        , m_range(info.location().range())
-        , m_type(info.kind())
-    { }
-
-    LanguageClientOutlineItem(const DocumentSymbol &info, const SymbolStringifier &stringifier)
-        : m_name(info.name())
-        , m_detail(info.detail().value_or(QString()))
-        , m_range(info.range())
-        , m_symbolStringifier(stringifier)
-        , m_type(info.kind())
-    {
-        const QList<LanguageServerProtocol::DocumentSymbol> children = sortedSymbols(
-                    info.children().value_or(QList<DocumentSymbol>()));
-        for (const DocumentSymbol &child : children)
-            appendChild(new LanguageClientOutlineItem(child, stringifier));
-    }
-
-    // TreeItem interface
-    QVariant data(int column, int role) const override
-    {
-        switch (role) {
-        case Qt::DecorationRole:
-            return symbolIcon(m_type);
-        case Qt::DisplayRole:
-            return m_symbolStringifier
-                    ? m_symbolStringifier(static_cast<SymbolKind>(m_type), m_name, m_detail)
-                    : m_name;
-        default:
-            return Utils::TreeItem::data(column, role);
-        }
-    }
-
-    Qt::ItemFlags flags(int column) const override
-    {
-        Q_UNUSED(column)
-        return Utils::TypedTreeItem<LanguageClientOutlineItem>::flags(column)
-               | Qt::ItemIsDragEnabled;
-    }
-
-    Range range() const { return m_range; }
-    Position pos() const { return m_range.start(); }
-    bool contains(const Position &pos) const { return m_range.contains(pos); }
-
-private:
-    QString m_name;
-    QString m_detail;
-    Range m_range;
-    SymbolStringifier m_symbolStringifier;
-    int m_type = -1;
-};
-
 class LanguageClientOutlineModel : public Utils::TreeModel<LanguageClientOutlineItem>
 {
 public:
-    using Utils::TreeModel<LanguageClientOutlineItem>::TreeModel;
+    LanguageClientOutlineModel(Client *client) : m_client(client)  {}
     void setFilePath(const Utils::FilePath &filePath) { m_filePath = filePath; }
 
     void setInfo(const QList<SymbolInformation> &info)
@@ -115,12 +58,7 @@ public:
     {
         clear();
         for (const DocumentSymbol &symbol : sortedSymbols(info))
-            rootItem()->appendChild(new LanguageClientOutlineItem(symbol, m_symbolStringifier));
-    }
-
-    void setSymbolStringifier(const SymbolStringifier &stringifier)
-    {
-        m_symbolStringifier = stringifier;
+            rootItem()->appendChild(m_client->createOutlineItem(symbol));
     }
 
     Qt::DropActions supportedDragActions() const override
@@ -146,7 +84,7 @@ public:
     }
 
 private:
-    SymbolStringifier m_symbolStringifier;
+    Client * const m_client;
     Utils::FilePath m_filePath;
 };
 
@@ -195,6 +133,7 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
                                                          TextEditor::BaseTextEditor *editor)
     : m_client(client)
     , m_editor(editor)
+    , m_model(client)
     , m_view(this)
     , m_uri(m_client->hostPathToServerUri(editor->textDocument()->filePath()))
 {
@@ -214,7 +153,6 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     layout->setSpacing(0);
     layout->addWidget(Core::ItemViewFind::createSearchableWrapper(&m_view));
     setLayout(layout);
-    m_model.setSymbolStringifier(m_client->symbolStringifier());
     m_model.setFilePath(editor->textDocument()->filePath());
     m_proxyModel.setSourceModel(&m_model);
     m_view.setModel(&m_proxyModel);
@@ -373,11 +311,11 @@ Utils::TreeViewComboBox *LanguageClientOutlineWidgetFactory::createComboBox(
 }
 
 OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor)
-    : m_client(client)
+    : m_model(client)
+    , m_client(client)
     , m_editorWidget(editor->editorWidget())
     , m_uri(m_client->hostPathToServerUri(editor->document()->filePath()))
 {
-    m_model.setSymbolStringifier(client->symbolStringifier());
     m_proxyModel.setSourceModel(&m_model);
     const bool sorted = LanguageClientSettings::outlineComboBoxIsSorted();
     m_proxyModel.sort(sorted ? 0 : -1);
@@ -455,4 +393,40 @@ void OutlineComboBox::setSorted(bool sorted)
     m_proxyModel.sort(sorted ? 0 : -1);
 }
 
+LanguageClientOutlineItem::LanguageClientOutlineItem(const SymbolInformation &info)
+    : m_name(info.name())
+    , m_range(info.location().range())
+    , m_type(info.kind())
+{ }
+
+LanguageClientOutlineItem::LanguageClientOutlineItem(Client *client, const DocumentSymbol &info)
+    : m_client(client)
+    , m_name(info.name())
+    , m_detail(info.detail().value_or(QString()))
+    , m_range(info.range())
+    , m_selectionRange(info.selectionRange())
+    , m_type(info.kind())
+{
+    const QList<LanguageServerProtocol::DocumentSymbol> children = sortedSymbols(
+        info.children().value_or(QList<DocumentSymbol>()));
+    for (const DocumentSymbol &child : children)
+        appendChild(m_client->createOutlineItem(child));
+}
+
+QVariant LanguageClientOutlineItem::data(int column, int role) const
+{
+    switch (role) {
+    case Qt::DecorationRole:
+        return symbolIcon(m_type);
+    case Qt::DisplayRole:
+        return m_name;
+    default:
+        return Utils::TreeItem::data(column, role);
+    }
+}
+Qt::ItemFlags LanguageClientOutlineItem::flags(int column) const
+{
+    Q_UNUSED(column)
+    return Utils::TypedTreeItem<LanguageClientOutlineItem>::flags(column) | Qt::ItemIsDragEnabled;
+}
 } // namespace LanguageClient

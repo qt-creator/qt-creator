@@ -18,7 +18,7 @@
 #include "qmt/tasks/findrootdiagramvisitor.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
 #include <utils/mimeutils.h>
@@ -33,6 +33,8 @@
 #include <QLoggingCategory>
 #include <QDebug>
 #include <QPointer>
+
+using namespace ProjectExplorer;
 
 namespace ModelEditor {
 namespace Internal {
@@ -308,9 +310,9 @@ ModelIndexer::ModelIndexer(QObject *parent)
     connect(this, &ModelIndexer::filesQueued,
             d->indexerThread, &ModelIndexer::IndexerThread::onFilesQueued);
     d->indexerThread->start();
-    connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::projectAdded,
+    connect(ProjectExplorer::ProjectManager::instance(), &ProjectExplorer::ProjectManager::projectAdded,
             this, &ModelIndexer::onProjectAdded);
-    connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::aboutToRemoveProject,
+    connect(ProjectExplorer::ProjectManager::instance(), &ProjectExplorer::ProjectManager::aboutToRemoveProject,
             this, &ModelIndexer::onAboutToRemoveProject);
 }
 
@@ -447,18 +449,20 @@ QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode,
 {
     if (!mimeType.isValid())
         return QString();
-    const QList<ProjectExplorer::FileNode *> fileNodes = folderNode->fileNodes();
-    for (const ProjectExplorer::FileNode *fileNode : fileNodes) {
-        if (mimeType.suffixes().contains(fileNode->filePath().completeSuffix()))
-            return fileNode->filePath().toString();
-    }
-    const QList<ProjectExplorer::FolderNode *> subFolderNodes = folderNode->folderNodes();
-    for (ProjectExplorer::FolderNode *subFolderNode : subFolderNodes) {
-        QString modelFileName = findFirstModel(subFolderNode, mimeType);
-        if (!modelFileName.isEmpty())
-            return modelFileName;
-    }
-    return QString();
+
+    const QStringList suffixes = mimeType.suffixes();
+    FileNode *foundFileNode = folderNode->findChildFileNode([&](FileNode *fn) {
+        return suffixes.contains(fn->filePath().completeSuffix());
+    });
+    if (foundFileNode)
+         return foundFileNode->filePath().toString();
+
+    QString modelFileName;
+    folderNode->findChildFolderNode([&](FolderNode *fn) {
+        modelFileName = findFirstModel(fn, mimeType);
+        return !modelFileName.isEmpty();
+    });
+    return modelFileName;
 }
 
 void ModelIndexer::forgetProject(ProjectExplorer::Project *project)

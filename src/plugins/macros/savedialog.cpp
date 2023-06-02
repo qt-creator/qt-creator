@@ -12,8 +12,6 @@
 #include <QLineEdit>
 #include <QRegularExpressionValidator>
 
-using namespace Utils;
-
 namespace Macros::Internal {
 
 SaveDialog::SaveDialog(QWidget *parent) :

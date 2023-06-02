@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "PythonProject" ],
     "id": "F.QtForPythonApplicationWindowWidget",
     "category": "F.ApplicationPySide",
-    "trDescription": "Creates a Qt for Python application that includes a Qt Designer-based widget (ui file) - Requires .ui to Python conversion",
+    "trDescription": "Creates a Qt for Python application that includes a Qt Designer-based widget (ui file). Requires .ui to Python conversion.",
     "trDisplayName": "Window UI",
     "trDisplayCategory": "Application (Qt for Python)",
     "icon": "../icons/icon.png",
@@ -30,16 +30,6 @@
             "typeId": "Fields",
             "data" :
             [
-                {
-                    "name": "PySideVersion",
-                    "trDisplayName": "PySide version:",
-                    "type": "ComboBox",
-                    "data":
-                    {
-                        "index": 1,
-                        "items": [ "PySide2", "PySide6" ]
-                    }
-                },
                 {
                     "name": "Class",
                     "trDisplayName": "Class name:",
@@ -76,6 +66,32 @@
                     "data": { "trText": "%{JS: Util.fileName('%{ProjectName}', 'pyproject')}" }
                 }
             ]
+        },
+        {
+            "trDisplayName": "Define Python Interpreter",
+            "trShortTitle": "Interpreter",
+            "typeId": "PythonConfiguration",
+            "data":
+            {
+                "index": 0,
+                "items":
+                [
+                    {
+                        "trKey": "PySide 6",
+                        "value":
+                        {
+                            "PySideVersion": "PySide6"
+                        }
+                    },
+                    {
+                        "trKey": "PySide 2",
+                        "value":
+                        {
+                            "PySideVersion": "PySide2"
+                        }
+                    }
+                ]
+            }
         },
         {
             "trDisplayName": "Project Management",

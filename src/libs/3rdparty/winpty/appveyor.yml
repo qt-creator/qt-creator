@@ -1,0 +1,16 @@
+image: Visual Studio 2015
+
+init:
+ - C:\msys64\usr\bin\bash --login -c "pacman -S --needed --noconfirm --noprogressbar msys/make msys/tar msys/gcc mingw-w64-cross-toolchain"
+ - C:\cygwin\setup-x86      -q -P mingw64-i686-gcc-g++,mingw64-x86_64-gcc-g++,make
+ - C:\cygwin64\setup-x86_64 -q -P mingw64-i686-gcc-g++,mingw64-x86_64-gcc-g++,make
+
+build_script:
+ - C:\Python27-x64\python.exe ship\ship.py --kind msys2 --arch x64 --syspath C:\msys64
+ - C:\Python27-x64\python.exe ship\ship.py --kind cygwin --arch ia32 --syspath C:\cygwin
+ - C:\Python27-x64\python.exe ship\ship.py --kind cygwin --arch x64 --syspath C:\cygwin64
+ - C:\Python27-x64\python.exe ship\make_msvc_package.py
+
+artifacts:
+ - path: ship\packages\*.tar.gz
+ - path: ship\packages\*.zip

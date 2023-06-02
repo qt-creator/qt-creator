@@ -23,6 +23,11 @@
 
 #include <functional>
 
+QT_BEGIN_NAMESPACE
+template <typename T>
+class QPromise;
+QT_END_NAMESPACE
+
 namespace TextEditor { class TextDocument; }
 
 namespace CppEditor {
@@ -83,7 +88,7 @@ signals:
     void semanticInfoUpdated(const SemanticInfo semanticInfo); // TODO: Remove me
 
 protected:
-    static void runParser(QFutureInterface<void> &future,
+    static void runParser(QPromise<void> &promise,
                           BaseEditorDocumentParser::Ptr parser,
                           BaseEditorDocumentParser::UpdateParams updateParams);
 

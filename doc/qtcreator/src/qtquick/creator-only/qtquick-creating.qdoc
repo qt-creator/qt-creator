@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -14,58 +14,28 @@
 
     \title Creating Qt Quick Projects
 
-    The following table lists the wizard templates for creating a new
-    Qt Quick project from scratch.
+    Use the following wizard templates to create new Qt Quick projects:
 
-    \table
-        \header
-            \li Category
-            \li Wizard Template
-            \li Purpose
-        \row
-            \li Application (Qt)
-            \li Qt Quick Application
-            \li Creates a Qt Quick application project that can have both
-                QML and C++ code. You can build the application and deploy it
-                to desktop, embedded, and mobile target platforms.
+    \list
+        \li \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application}
+        \li \uicontrol {Application (Qt for Python)} >
+            \uicontrol {Qt for Python - Qt Quick Application}
+        \li \uicontrol {Other Project} > \uicontrol {Qt Quick UI Prototype}
+        \li \uicontrol {Library} > \uicontrol {Qt Quick 2 Extension Plugin}
+    \endlist
 
-                You can select an option to create a project that you can open
-                in \QDS.
-        \row
-            \li Application (Qt for Python)
-            \li Qt for Python - Qt Quick Application
-            \li Creates a Python project that has an empty Qt Quick
-                Application.
-        \row
-            \li Other Project
-            \li Qt Quick UI Prototype
-            \li Creates a Qt Quick UI project with a single QML file that
-                has the main view. You can preview Qt Quick UI projects
-                in the QML Scene preview tool. You do not need to build them
-                because they do not have any C++ code.
-
-                This project type is compatible with \QDS. However, use this
-                template only if you are prototyping. You cannot create
-                a full application by using this template.
-
-                You cannot deploy Qt Quick UI projects to embedded or
-                mobile target platforms. For those platforms, create a Qt Quick
-                application instead.
-        \row
-            \li Library
-            \li Qt Quick 2 Extension Plugin
-            \li Creates C++ plugins that make it possible to offer extensions
-                that can be loaded dynamically into Qt Quick applications.
-    \endtable
+    The \uicontrol {New Project} dialog shows detailed information about each
+    project wizard template.
 
     \note The SDK for a particular target platform might install additional
     templates for that platform. For example, the QNX templates are installed
     as part of the QNX SDK.
 
     \QC creates the necessary boilerplate files. Some of the files are
-    specific to a particular target platform.
+    specific to a particular target platform. You can use wizard templates
+    also to \l{Creating Files}{add files} to the projects.
 
-    \section1 Creating Qt Quick Applications
+    \section1 Qt Quick Applications
 
     \list 1
 
@@ -142,7 +112,7 @@
 
     \include creator-python-project.qdocinc python qml project wizards
 
-    \section1 Creating Qt Quick UI Projects
+    \section1 Qt Quick UI Projects
 
     Qt Quick UI Prototype projects are useful for testing or prototyping user
     interfaces,

@@ -198,6 +198,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             logView->append(Tr::tr("Docker daemon appears to be not running."));
         else
             logView->append(Tr::tr("Docker daemon appears to be running."));
+
+        logView->append(Tr::tr("Detection complete."));
         updateDaemonStateTexts();
     });
 
@@ -245,7 +247,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             m_pathsListEdit,
         }, br,
         (dockerDevice->isAutoDetected() ? Column {} : std::move(detectionControls)),
-    }.attachTo(this, WithoutMargins);
+        noMargin,
+    }.attachTo(this);
     // clang-format on
 
     searchDirsLineEdit->setVisible(false);

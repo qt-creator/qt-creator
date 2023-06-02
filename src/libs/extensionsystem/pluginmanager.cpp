@@ -32,10 +32,11 @@
 #include <utils/benchmarker.h>
 #include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcsettings.h>
 #include <utils/threadutils.h>
 
@@ -400,7 +401,7 @@ QString PluginManager::systemInformation()
     QString result;
     CommandLine qtDiag(FilePath::fromString(QLibraryInfo::location(QLibraryInfo::BinariesPath))
                         .pathAppended("qtdiag").withExecutableSuffix());
-    QtcProcess qtDiagProc;
+    Process qtDiagProc;
     qtDiagProc.setCommand(qtDiag);
     qtDiagProc.runBlocking();
     if (qtDiagProc.result() == ProcessResult::FinishedWithSuccess)
@@ -420,6 +421,11 @@ QString PluginManager::systemInformation()
         settingspath.replace(QDir::homePath(), "~");
     result += "\nUsed settingspath: " + settingspath + "\n";
     return result;
+}
+
+FutureSynchronizer *PluginManager::futureSynchronizer()
+{
+    return d->m_futureSynchronizer.get();
 }
 
 /*!
@@ -976,6 +982,7 @@ void PluginManagerPrivate::nextDelayedInitialize()
 PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
     q(pluginManager)
 {
+    m_futureSynchronizer.reset(new FutureSynchronizer);
 }
 
 
@@ -1027,6 +1034,7 @@ void PluginManagerPrivate::readSettings()
 */
 void PluginManagerPrivate::stopAll()
 {
+    m_isShuttingDown = true;
     if (delayedInitializeTimer && delayedInitializeTimer->isActive()) {
         delayedInitializeTimer->stop();
         delete delayedInitializeTimer;
@@ -1043,6 +1051,7 @@ void PluginManagerPrivate::stopAll()
 */
 void PluginManagerPrivate::deleteAll()
 {
+    m_futureSynchronizer.reset(); // Synchronize all futures from all plugins
     Utils::reverseForeach(loadQueue(), [this](PluginSpec *spec) {
         loadPlugin(spec, PluginSpec::Deleted);
     });
@@ -1829,6 +1838,11 @@ QString PluginManager::platformName()
 bool PluginManager::isInitializationDone()
 {
     return d->m_isInitializationDone;
+}
+
+bool PluginManager::isShuttingDown()
+{
+    return d->m_isShuttingDown;
 }
 
 /*!

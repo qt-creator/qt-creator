@@ -7,13 +7,14 @@
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
+class QComboBox;
 class QLabel;
-class QLineEdit;
 class QRadioButton;
 class QSpinBox;
 QT_END_NAMESPACE
 
 namespace Utils {
+class FancyLineEdit;
 class FilePath;
 class PathChooser;
 } // Utils
@@ -42,6 +43,8 @@ private:
     void setPrivateKey(const Utils::FilePath &path);
     void createNewKey();
     void hostKeyCheckingChanged(bool doCheck);
+    void sourceProfileCheckingChanged(bool doCheck);
+    void linkDeviceChanged(int index);
 
     void updateDeviceFromUi() override;
     void updatePortsWarningLabel();
@@ -50,17 +53,19 @@ private:
     QRadioButton *m_defaultAuthButton;
     QLabel *m_keyLabel;
     QRadioButton *m_keyButton;
-    QLineEdit *m_hostLineEdit;
+    Utils::FancyLineEdit *m_hostLineEdit;
     QSpinBox *m_sshPortSpinBox;
     QCheckBox *m_hostKeyCheckBox;
-    QLineEdit *m_portsLineEdit;
+    Utils::FancyLineEdit *m_portsLineEdit;
     QLabel *m_portsWarningLabel;
-    QLineEdit *m_userLineEdit;
+    Utils::FancyLineEdit *m_userLineEdit;
     QSpinBox *m_timeoutSpinBox;
     Utils::PathChooser *m_keyFileLineEdit;
     QLabel *m_machineTypeValueLabel;
     Utils::PathChooser *m_gdbServerLineEdit;
     Utils::PathChooser *m_qmlRuntimeLineEdit;
+    QCheckBox *m_sourceProfileCheckBox;
+    QComboBox *m_linkDeviceComboBox;
 };
 
 } // RemoteLinux::Internal

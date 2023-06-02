@@ -4,7 +4,7 @@
 #include "qmljslocatordata.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsutils.h>
@@ -40,10 +40,10 @@ LocatorData::LocatorData()
     connect(manager, &ModelManagerInterface::aboutToRemoveFiles,
             this, &LocatorData::onAboutToRemoveFiles);
 
-    ProjectExplorer::SessionManager *session = ProjectExplorer::SessionManager::instance();
+    ProjectExplorer::ProjectManager *session = ProjectExplorer::ProjectManager::instance();
     if (session)
         connect(session,
-                &ProjectExplorer::SessionManager::projectRemoved,
+                &ProjectExplorer::ProjectManager::projectRemoved,
                 this,
                 [this](ProjectExplorer::Project *) { m_entries.clear(); });
 }

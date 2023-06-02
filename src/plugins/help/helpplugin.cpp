@@ -4,7 +4,6 @@
 #include "helpplugin.h"
 
 #include "bookmarkmanager.h"
-#include "contentwindow.h"
 #include "docsettingspage.h"
 #include "filtersettingspage.h"
 #include "generalsettingspage.h"
@@ -13,11 +12,9 @@
 #include "helpicons.h"
 #include "helpindexfilter.h"
 #include "helpmanager.h"
-#include "helpmode.h"
 #include "helptr.h"
 #include "helpviewer.h"
 #include "helpwidget.h"
-#include "indexwindow.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 #include "searchtaskhandler.h"
@@ -35,6 +32,7 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/helpitem.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/imode.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/rightpane.h>
@@ -52,45 +50,54 @@
 #include <utils/theme/theme.h>
 #include <utils/tooltip/tooltip.h>
 
-#include <QApplication>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QDir>
-#include <QFileInfo>
-#include <QLabel>
-#include <QLibraryInfo>
-#include <QPlainTextEdit>
-#include <QTimer>
-#include <QTranslator>
-#include <qplugin.h>
-#include <QRegularExpression>
-
 #include <QAction>
+#include <QApplication>
 #include <QComboBox>
 #include <QDesktopServices>
-#include <QMenu>
-#include <QStackedLayout>
-#include <QSplitter>
-
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QHelpEngine>
+#include <QLabel>
+#include <QLibraryInfo>
+#include <QMenu>
+#include <QPlainTextEdit>
+#include <QRegularExpression>
+#include <QSplitter>
+#include <QStackedLayout>
+#include <QTimer>
+#include <QTranslator>
 
 #include <functional>
-
-static const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
-static const char kToolTipHelpContext[] = "Help.ToolTip";
 
 using namespace Core;
 using namespace Utils;
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
+
+const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
+const char kToolTipHelpContext[] = "Help.ToolTip";
+
+class HelpMode : public IMode
+{
+public:
+    HelpMode()
+    {
+        setObjectName("HelpMode");
+        setContext(Core::Context(Constants::C_MODE_HELP));
+        setIcon(Icon::modeIcon(Icons::MODE_HELP_CLASSIC,
+                               Icons::MODE_HELP_FLAT, Icons::MODE_HELP_FLAT_ACTIVE));
+        setDisplayName(Tr::tr("Help"));
+        setPriority(Constants::P_MODE_HELP);
+        setId(Constants::ID_MODE_HELP);
+    }
+};
 
 class HelpPluginPrivate : public QObject
 {
 public:
     HelpPluginPrivate();
 
-    void modeChanged(Utils::Id mode, Utils::Id old);
+    void modeChanged(Id mode, Id old);
 
     void requestContextHelp();
     void showContextHelp(const HelpItem &contextHelp);
@@ -127,7 +134,7 @@ public:
     QRect m_externalWindowState;
 
     DocSettingsPage m_docSettingsPage;
-    FilterSettingsPage m_filterSettingsPage;
+    FilterSettingsPage m_filterSettingsPage{[this] {setupHelpEngineIfNeeded(); }};
     SearchTaskHandler m_searchTaskHandler;
     GeneralSettingsPage m_generalSettingsPage;
 
@@ -158,6 +165,11 @@ void HelpPlugin::showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocat
     dd->showHelpUrl(url, location);
 }
 
+void HelpPlugin::showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links, const QString &key)
+{
+    dd->showLinksInCurrentViewer(links, key);
+}
+
 void HelpPlugin::initialize()
 {
     dd = new HelpPluginPrivate;
@@ -185,8 +197,6 @@ HelpPluginPrivate::HelpPluginPrivate()
     connect(&m_searchTaskHandler, &SearchTaskHandler::search,
             this, &QDesktopServices::openUrl);
 
-    connect(&m_filterSettingsPage, &FilterSettingsPage::filtersChanged,
-            this, &HelpPluginPrivate::setupHelpEngineIfNeeded);
     connect(Core::HelpManager::Signals::instance(),
             &Core::HelpManager::Signals::documentationChanged,
             this,
@@ -257,9 +267,6 @@ HelpPluginPrivate::HelpPluginPrivate()
     cmd = ActionManager::registerAction(action, "Help.SystemInformation");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, &QAction::triggered, this, &HelpPluginPrivate::slotSystemInformation);
-
-    connect(&helpIndexFilter, &HelpIndexFilter::linksActivated,
-            this, &HelpPluginPrivate::showLinksInCurrentViewer);
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &HelpPluginPrivate::modeChanged);
@@ -394,7 +401,7 @@ void HelpPluginPrivate::showLinksInCurrentViewer(const QMultiMap<QString, QUrl> 
     widget->showLinks(links, key);
 }
 
-void HelpPluginPrivate::modeChanged(Utils::Id mode, Utils::Id old)
+void HelpPluginPrivate::modeChanged(Id mode, Id old)
 {
     Q_UNUSED(old)
     if (mode == m_mode.id()) {
@@ -494,7 +501,7 @@ HelpViewer *HelpPluginPrivate::viewerForContextHelp()
 void HelpPluginPrivate::requestContextHelp()
 {
     // Find out what to show
-    const QVariant tipHelpValue = Utils::ToolTip::contextHelp();
+    const QVariant tipHelpValue = ToolTip::contextHelp();
     const HelpItem tipHelp = tipHelpValue.canConvert<HelpItem>()
                                  ? tipHelpValue.value<HelpItem>()
                                  : HelpItem(tipHelpValue.toString());
@@ -641,5 +648,4 @@ void HelpPluginPrivate::doSetupIfNeeded()
     }
 }
 
-} // Internal
-} // Help
+} // Help::Internal

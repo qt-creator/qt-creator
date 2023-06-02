@@ -10,9 +10,10 @@
 namespace Utils {
 class CommandLine;
 enum class ProcessResult;
-class QtcProcess;
-namespace Tasking { class Group; }
+class Process;
 }
+
+namespace Tasking { class Group; }
 
 namespace ProjectExplorer {
 class ProcessParameters;
@@ -51,8 +52,8 @@ protected:
     virtual void finish(Utils::ProcessResult result);
 
     bool checkWorkingDirectory();
-    void setupProcess(Utils::QtcProcess *process);
-    void runTaskTree(const Utils::Tasking::Group &recipe);
+    void setupProcess(Utils::Process *process);
+    void runTaskTree(const Tasking::Group &recipe);
     ProcessParameters *displayedParameters() const;
 
 private:

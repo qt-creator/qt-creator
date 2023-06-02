@@ -12,9 +12,9 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectimporter.h"
+#include "projectmanager.h"
 #include "projectpanelfactory.h"
 #include "projectsettingswidget.h"
-#include "session.h"
 #include "target.h"
 #include "targetsettingspanel.h"
 
@@ -352,7 +352,7 @@ public:
 
         case Qt::FontRole: {
             QFont font;
-            font.setBold(m_project == SessionManager::startupProject());
+            font.setBold(m_project == ProjectManager::startupProject());
             return font;
         }
 
@@ -392,7 +392,7 @@ public:
 
         if (role == ItemActivatedDirectlyRole) {
             // Someone selected the project using the combobox or similar.
-            SessionManager::setStartupProject(m_project);
+            ProjectManager::setStartupProject(m_project);
             m_currentChildIndex = 0; // Use some Target page by defaults
             m_targetsItem->setData(column, dat, ItemActivatedFromAboveRole); // And propagate downwards.
             announceChange();
@@ -546,18 +546,18 @@ public:
                 m_projectSelection->showPopup();
         });
 
-        SessionManager *sessionManager = SessionManager::instance();
-        connect(sessionManager, &SessionManager::projectAdded,
+        ProjectManager *sessionManager = ProjectManager::instance();
+        connect(sessionManager, &ProjectManager::projectAdded,
                 this, &ProjectWindowPrivate::registerProject);
-        connect(sessionManager, &SessionManager::aboutToRemoveProject,
+        connect(sessionManager, &ProjectManager::aboutToRemoveProject,
                 this, &ProjectWindowPrivate::deregisterProject);
-        connect(sessionManager, &SessionManager::startupProjectChanged,
+        connect(sessionManager, &ProjectManager::startupProjectChanged,
                 this, &ProjectWindowPrivate::startupProjectChanged);
 
         m_importBuild = new QPushButton(Tr::tr("Import Existing Build..."));
         connect(m_importBuild, &QPushButton::clicked,
                 this, &ProjectWindowPrivate::handleImportBuild);
-        connect(sessionManager, &SessionManager::startupProjectChanged, this, [this](Project *project) {
+        connect(sessionManager, &ProjectManager::startupProjectChanged, this, [this](Project *project) {
             m_importBuild->setEnabled(project && project->projectImporter());
         });
 
@@ -572,9 +572,6 @@ public:
         selectorView->setObjectName("ProjectSelector"); // Needed for dock widget state saving
         selectorView->setWindowTitle(Tr::tr("Project Selector"));
         selectorView->setAutoFillBackground(true);
-        selectorView->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(selectorView, &QWidget::customContextMenuRequested,
-                this, &ProjectWindowPrivate::openContextMenu);
 
         auto activeLabel = new QLabel(Tr::tr("Active Project"));
         QFont font = activeLabel->font();
@@ -677,7 +674,7 @@ public:
     void projectSelected(int index)
     {
         Project *project = m_comboBoxModel.rootItem()->childAt(index)->m_projectItem->project();
-        SessionManager::setStartupProject(project);
+        ProjectManager::setStartupProject(project);
     }
 
     ComboBoxItem *itemForProject(Project *project) const
@@ -746,8 +743,7 @@ public:
     void handleManageKits()
     {
         if (ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0)) {
-            if (auto kitPage = KitOptionsPage::instance())
-                kitPage->showKit(KitManager::kit(Id::fromSetting(projectItem->data(0, KitIdRole))));
+            KitOptionsPage::showKit(KitManager::kit(Id::fromSetting(projectItem->data(0, KitIdRole))));
         }
         ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID);
     }
@@ -780,8 +776,8 @@ public:
             }
         }
         if (lastTarget && lastBc) {
-            SessionManager::setActiveBuildConfiguration(lastTarget, lastBc, SetActive::Cascade);
-            SessionManager::setActiveTarget(project, lastTarget, SetActive::Cascade);
+            lastTarget->setActiveBuildConfiguration(lastBc, SetActive::Cascade);
+            project->setActiveTarget(lastTarget, SetActive::Cascade);
         }
     }
 

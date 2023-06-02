@@ -216,6 +216,13 @@ public:
             child->valueEditable = true;
             item->appendChild(child);
         }
+        if (childrenElided) {
+            auto child = new WatchItem;
+            child->name = WatchItem::loadMoreName;
+            child->iname = item->iname + "." + WatchItem::loadMoreName;
+            child->wantsChildren = true;
+            item->appendChild(child);
+        }
     }
 
     void decode()
@@ -264,6 +271,7 @@ public:
     QString rawData;
     QString childType;
     DebuggerEncoding encoding;
+    int childrenElided;
     quint64 addrbase;
     quint64 addrstep;
     Endian endian;
@@ -379,6 +387,7 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
         decoder.item = this;
         decoder.rawData = mi.data();
         decoder.childType = input["childtype"].data();
+        decoder.childrenElided = input["childrenelided"].toInt();
         decoder.addrbase = input["addrbase"].toAddress();
         decoder.addrstep = input["addrstep"].toAddress();
         decoder.endian = input["endian"].data() == ">" ? Endian::Big : Endian::Little;
@@ -502,6 +511,11 @@ QString WatchItem::toToolTip() const
     formatToolTipRow(str, Tr::tr("Source"), sourceExpression());
     str << "</table></body></html>";
     return res;
+}
+
+bool WatchItem::isLoadMore() const
+{
+    return name == loadMoreName;
 }
 
 bool WatchItem::isLocal() const

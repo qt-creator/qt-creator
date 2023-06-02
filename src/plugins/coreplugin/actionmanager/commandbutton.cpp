@@ -92,7 +92,8 @@ QString CommandAction::toolTipBase() const
 }
 
 /*!
-    Sets the base tool tip that is extended with the command's shortcut.
+    Sets the base tool tip that is extended with the command's shortcut to
+    \a toolTipBase.
 
     \sa toolTipBase()
 */
@@ -155,7 +156,8 @@ QString CommandButton::toolTipBase() const
 }
 
 /*!
-    Sets the base tool tip that is extended with the command's shortcut.
+    Sets the base tool tip that is extended with the command's shortcut to
+    \a toolTipBase.
 
     \sa toolTipBase()
 */

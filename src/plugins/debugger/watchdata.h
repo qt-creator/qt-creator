@@ -36,8 +36,10 @@ public:
     int editType() const;
 
     static const qint64 InvalidId = -1;
+    constexpr static char loadMoreName[] = "<load more>";
 
     void setHasChildren(bool c)   { wantsChildren = c; }
+    bool isLoadMore() const;
 
     bool isValid()   const { return !iname.isEmpty(); }
     bool isVTablePointer() const;

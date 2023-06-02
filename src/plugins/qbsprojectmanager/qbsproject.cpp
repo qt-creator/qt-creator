@@ -41,10 +41,10 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qtsupport/qtcppkitinfo.h>
@@ -483,7 +483,7 @@ void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuati
         if (continuation)
             continuation();
     });
-    m_treeCreationWatcher->setFuture(runAsync(ProjectExplorerPlugin::sharedThreadPool(),
+    m_treeCreationWatcher->setFuture(Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
             QThread::LowPriority, &QbsNodeTreeBuilder::buildTree,
             project()->displayName(), project()->projectFilePath(), project()->projectDirectory(),
             projectData()));
@@ -498,7 +498,7 @@ FilePath QbsBuildSystem::installRoot()
             if (!step->enabled())
                 continue;
             if (const auto qbsInstallStep = qobject_cast<const QbsInstallStep *>(step))
-                return FilePath::fromUserInput(qbsInstallStep->installRoot());
+                return qbsInstallStep->installRoot();
         }
     }
     const QbsBuildStep * const buildStep = m_buildConfiguration->qbsStep();
@@ -744,6 +744,7 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
     };
     const QJsonValue &enableExceptions = getCppProp("enableExceptions");
     const QJsonValue &enableRtti = getCppProp("enableRtti");
+    const QString warningLevel = getCppProp("warningLevel").toString();
     QStringList commonFlags = arrayToStringList(getCppProp("platformCommonCompilerFlags"));
     commonFlags << arrayToStringList(getCppProp("commonCompilerFlags"))
                 << arrayToStringList(getCppProp("platformDriverFlags"))
@@ -773,6 +774,10 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
             if (!machineType.isEmpty())
                 commonFlags << ("-march=" + machineType);
         }
+        if (warningLevel == "all")
+            commonFlags << "-Wall" << "-Wextra";
+        else if (warningLevel == "none")
+            commonFlags << "-w";
         const QStringList targetOS = arrayToStringList(properties.value("qbs.targetOS"));
         if (targetOS.contains("unix")) {
             const QVariant positionIndependentCode = getCppProp("positionIndependentCode");
@@ -837,6 +842,10 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
             else if (exceptionModel == "externc")
                 commonFlags << "/EHs";
         }
+        if (warningLevel == "all")
+            commonFlags << "/Wall";
+        else if (warningLevel == "none")
+            commonFlags << "/w";
         cFlags = cxxFlags = commonFlags;
         cFlags << "/TC";
         cxxFlags << "/TP";

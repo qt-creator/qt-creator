@@ -8,7 +8,7 @@
 #include <languageserverprotocol/jsonrpcmessages.h>
 
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/temporaryfile.h>
 
 #include <QBuffer>
@@ -52,14 +52,11 @@ private:
 class LANGUAGECLIENT_EXPORT StdIOClientInterface : public BaseClientInterface
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(StdIOClientInterface)
+
 public:
     StdIOClientInterface();
     ~StdIOClientInterface() override;
-
-    StdIOClientInterface(const StdIOClientInterface &) = delete;
-    StdIOClientInterface(StdIOClientInterface &&) = delete;
-    StdIOClientInterface &operator=(const StdIOClientInterface &) = delete;
-    StdIOClientInterface &operator=(StdIOClientInterface &&) = delete;
 
     void startImpl() override;
 
@@ -74,7 +71,7 @@ protected:
     void sendData(const QByteArray &data) final;
     Utils::CommandLine m_cmd;
     Utils::FilePath m_workingDirectory;
-    Utils::QtcProcess *m_process = nullptr;
+    Utils::Process *m_process = nullptr;
     Utils::Environment m_env;
 
 private:

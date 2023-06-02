@@ -2,20 +2,21 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "uicgenerator.h"
+
 #include "baseqtversion.h"
 #include "qtkitinformation.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/buildconfiguration.h>
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
-#include <QFileInfo>
-#include <QDir>
-#include <QLoggingCategory>
 #include <QDateTime>
+#include <QDir>
+#include <QFileInfo>
+#include <QLoggingCategory>
 
 using namespace ProjectExplorer;
 
@@ -48,7 +49,7 @@ QStringList UicGenerator::arguments() const
     return {"-p"};
 }
 
-FileNameToContentsHash UicGenerator::handleProcessFinished(Utils::QtcProcess *process)
+FileNameToContentsHash UicGenerator::handleProcessFinished(Utils::Process *process)
 {
     FileNameToContentsHash result;
     if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)

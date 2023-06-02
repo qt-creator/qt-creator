@@ -12,94 +12,14 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/process.h>
 #include <utils/processinterface.h>
-#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
-using namespace Utils::Tasking;
 
 namespace RemoteLinux::Internal {
-
-class TarPackageDeployService : public AbstractRemoteLinuxDeployService
-{
-public:
-    void setPackageFilePath(const FilePath &filePath);
-
-private:
-    QString remoteFilePath() const;
-    bool isDeploymentNecessary() const final;
-    Group deployRecipe() final;
-    TaskItem uploadTask();
-    TaskItem installTask();
-
-    FilePath m_packageFilePath;
-};
-
-void TarPackageDeployService::setPackageFilePath(const FilePath &filePath)
-{
-    m_packageFilePath = filePath;
-}
-
-QString TarPackageDeployService::remoteFilePath() const
-{
-    return QLatin1String("/tmp/") + m_packageFilePath.fileName();
-}
-
-bool TarPackageDeployService::isDeploymentNecessary() const
-{
-    return hasLocalFileChanged(DeployableFile(m_packageFilePath, {}));
-}
-
-TaskItem TarPackageDeployService::uploadTask()
-{
-    const auto setupHandler = [this](FileTransfer &transfer) {
-        const FilesToTransfer files {{m_packageFilePath,
-                        deviceConfiguration()->filePath(remoteFilePath())}};
-        transfer.setFilesToTransfer(files);
-        connect(&transfer, &FileTransfer::progress,
-                this, &TarPackageDeployService::progressMessage);
-        emit progressMessage(Tr::tr("Uploading package to device..."));
-    };
-    const auto doneHandler = [this](const FileTransfer &) {
-        emit progressMessage(Tr::tr("Successfully uploaded package file."));
-    };
-    const auto errorHandler = [this](const FileTransfer &transfer) {
-        const ProcessResultData result = transfer.resultData();
-        emit errorMessage(result.m_errorString);
-    };
-    return Transfer(setupHandler, doneHandler, errorHandler);
-}
-
-TaskItem TarPackageDeployService::installTask()
-{
-    const auto setupHandler = [this](QtcProcess &process) {
-        const QString cmdLine = QLatin1String("cd / && tar xvf ") + remoteFilePath()
-                + " && (rm " + remoteFilePath() + " || :)";
-        process.setCommand({deviceConfiguration()->filePath("/bin/sh"), {"-c", cmdLine}});
-        QtcProcess *proc = &process;
-        connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
-            emit stdOutData(proc->readAllStandardOutput());
-        });
-        connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
-            emit stdErrData(proc->readAllStandardError());
-        });
-        emit progressMessage(Tr::tr("Installing package to device..."));
-    };
-    const auto doneHandler = [this](const QtcProcess &) {
-        saveDeploymentTimeStamp(DeployableFile(m_packageFilePath, {}), {});
-        emit progressMessage(Tr::tr("Successfully installed package file."));
-    };
-    const auto errorHandler = [this](const QtcProcess &process) {
-        emit errorMessage(Tr::tr("Installing package failed.") + process.errorString());
-    };
-    return Process(setupHandler, doneHandler, errorHandler);
-}
-
-Group TarPackageDeployService::deployRecipe()
-{
-    return Group { uploadTask(), installTask() };
-}
 
 // TarPackageDeployStep
 
@@ -109,12 +29,9 @@ public:
     TarPackageDeployStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
-        auto service = new TarPackageDeployService;
-        setDeployService(service);
-
         setWidgetExpandedByDefault(false);
 
-        setInternalInitializer([this, service] {
+        setInternalInitializer([this] {
             const BuildStep *tarCreationStep = nullptr;
 
             for (BuildStep *step : deployConfiguration()->stepList()->steps()) {
@@ -128,13 +45,80 @@ public:
             if (!tarCreationStep)
                 return CheckResult::failure(Tr::tr("No tarball creation step found."));
 
-            const FilePath tarFile =
-                    FilePath::fromVariant(tarCreationStep->data(Constants::TarPackageFilePathId));
-            service->setPackageFilePath(tarFile);
-            return service->isDeploymentPossible();
+            m_packageFilePath =
+                FilePath::fromVariant(tarCreationStep->data(Constants::TarPackageFilePathId));
+            return isDeploymentPossible();
         });
     }
+
+private:
+    QString remoteFilePath() const;
+    bool isDeploymentNecessary() const final;
+    Group deployRecipe() final;
+    TaskItem uploadTask();
+    TaskItem installTask();
+
+    FilePath m_packageFilePath;
 };
+
+QString TarPackageDeployStep::remoteFilePath() const
+{
+    return QLatin1String("/tmp/") + m_packageFilePath.fileName();
+}
+
+bool TarPackageDeployStep::isDeploymentNecessary() const
+{
+    return hasLocalFileChanged(DeployableFile(m_packageFilePath, {}));
+}
+
+TaskItem TarPackageDeployStep::uploadTask()
+{
+    const auto setupHandler = [this](FileTransfer &transfer) {
+        const FilesToTransfer files {{m_packageFilePath,
+                        deviceConfiguration()->filePath(remoteFilePath())}};
+        transfer.setFilesToTransfer(files);
+        connect(&transfer, &FileTransfer::progress, this, &TarPackageDeployStep::addProgressMessage);
+        addProgressMessage(Tr::tr("Uploading package to device..."));
+    };
+    const auto doneHandler = [this](const FileTransfer &) {
+        addProgressMessage(Tr::tr("Successfully uploaded package file."));
+    };
+    const auto errorHandler = [this](const FileTransfer &transfer) {
+        const ProcessResultData result = transfer.resultData();
+        addErrorMessage(result.m_errorString);
+    };
+    return FileTransferTask(setupHandler, doneHandler, errorHandler);
+}
+
+TaskItem TarPackageDeployStep::installTask()
+{
+    const auto setupHandler = [this](Process &process) {
+        const QString cmdLine = QLatin1String("cd / && tar xvf ") + remoteFilePath()
+                + " && (rm " + remoteFilePath() + " || :)";
+        process.setCommand({deviceConfiguration()->filePath("/bin/sh"), {"-c", cmdLine}});
+        Process *proc = &process;
+        connect(proc, &Process::readyReadStandardOutput, this, [this, proc] {
+            handleStdOutData(proc->readAllStandardOutput());
+        });
+        connect(proc, &Process::readyReadStandardError, this, [this, proc] {
+            handleStdErrData(proc->readAllStandardError());
+        });
+        addProgressMessage(Tr::tr("Installing package to device..."));
+    };
+    const auto doneHandler = [this](const Process &) {
+        saveDeploymentTimeStamp(DeployableFile(m_packageFilePath, {}), {});
+        addProgressMessage(Tr::tr("Successfully installed package file."));
+    };
+    const auto errorHandler = [this](const Process &process) {
+        addErrorMessage(Tr::tr("Installing package failed.") + process.errorString());
+    };
+    return ProcessTask(setupHandler, doneHandler, errorHandler);
+}
+
+Group TarPackageDeployStep::deployRecipe()
+{
+    return Group { uploadTask(), installTask() };
+}
 
 
 // TarPackageDeployStepFactory

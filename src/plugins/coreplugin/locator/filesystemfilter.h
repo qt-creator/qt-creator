@@ -5,40 +5,24 @@
 
 #include "ilocatorfilter.h"
 
-#include <QByteArray>
-#include <QFutureInterface>
-#include <QList>
-#include <QString>
-
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class FileSystemFilter : public ILocatorFilter
 {
-    Q_OBJECT
-
 public:
-    explicit FileSystemFilter();
-    void prepareSearch(const QString &entry) override;
-    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
-                                         const QString &entry) override;
-    void accept(const LocatorFilterEntry &selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
-    void restoreState(const QByteArray &state) override;
-    bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
+    FileSystemFilter();
+    void restoreState(const QByteArray &state) final;
+    bool openConfigDialog(QWidget *parent, bool &needsRefresh) final;
 
 protected:
     void saveState(QJsonObject &object) const final;
     void restoreState(const QJsonObject &object) final;
 
 private:
-    static MatchLevel matchLevelFor(const QRegularExpressionMatch &match, const QString &matchText);
+    LocatorMatcherTasks matchers() final;
 
-    static const bool kIncludeHiddenDefault = true;
-    bool m_includeHidden = kIncludeHiddenDefault;
-    bool m_currentIncludeHidden = kIncludeHiddenDefault;
-    QString m_currentDocumentDirectory;
+    static const bool s_includeHiddenDefault = true;
+    bool m_includeHidden = s_includeHiddenDefault;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

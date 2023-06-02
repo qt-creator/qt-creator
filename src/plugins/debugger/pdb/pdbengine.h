@@ -4,7 +4,7 @@
 #pragma once
 
 #include <debugger/debuggerengine.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QVariant>
 
@@ -52,9 +52,9 @@ private:
         const QString &expr, const QVariant &value) override;
     void executeDebuggerCommand(const QString &command) override;
 
-    void loadSymbols(const QString &moduleName) override;
+    void loadSymbols(const Utils::FilePath &moduleName) override;
     void loadAllSymbols() override;
-    void requestModuleSymbols(const QString &moduleName) override;
+    void requestModuleSymbols(const Utils::FilePath &moduleName) override;
     void reloadModules() override;
     void reloadRegisters() override {}
     void reloadSourceFiles() override {}
@@ -87,7 +87,7 @@ private:
     void updateLocals() override;
 
     QString m_inbuffer;
-    Utils::QtcProcess m_proc;
+    Utils::Process m_proc;
     Utils::FilePath m_interpreter;
 };
 

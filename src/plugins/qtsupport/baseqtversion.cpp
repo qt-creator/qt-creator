@@ -21,7 +21,8 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -32,8 +33,8 @@
 #include <utils/fileinprojectfinder.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/winutils.h>
 
@@ -1252,7 +1253,7 @@ void QtVersionPrivate::updateVersionInfo()
     m_qmakeIsExecutable = true;
 
     auto fileProperty = [this](const QByteArray &name) {
-        return FilePath::fromUserInput(qmakeProperty(name)).onDevice(m_qmakeCommand);
+        return m_qmakeCommand.withNewPath(qmakeProperty(name)).cleanPath();
     };
 
     m_data.prefix = fileProperty("QT_INSTALL_PREFIX");
@@ -1543,10 +1544,10 @@ void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Target 
 
     // ... else try the session manager's global startup project ...
     if (!startupProject)
-        startupProject = SessionManager::startupProject();
+        startupProject = ProjectManager::startupProject();
 
     // ... and if that is null, use the first project available.
-    const QList<Project *> projects = SessionManager::projects();
+    const QList<Project *> projects = ProjectManager::projects();
     QTC_CHECK(projects.isEmpty() || startupProject);
 
     FilePath projectDirectory;
@@ -1683,7 +1684,7 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
     // Prevent e.g. qmake 4.x on MinGW to show annoying errors about missing dll's.
     WindowsCrashDialogBlocker crashDialogBlocker;
 
-    QtcProcess process;
+    Process process;
     process.setEnvironment(env);
     process.setCommand({binary, {"-query"}});
     process.start();
@@ -1773,7 +1774,7 @@ FilePath QtVersionPrivate::mkspecDirectoryFromVersionInfo(const QHash<ProKey, Pr
     QString dataDir = qmakeProperty(versionInfo, "QT_HOST_DATA", PropertyVariantSrc);
     if (dataDir.isEmpty())
         return FilePath();
-    return FilePath::fromUserInput(dataDir + "/mkspecs").onDevice(qmakeCommand);
+    return qmakeCommand.withNewPath(dataDir + "/mkspecs").cleanPath();
 }
 
 FilePath QtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> &versionInfo,

@@ -40,10 +40,6 @@ static bool isFileDropMime(const QMimeData *d, QList<DropSupport::FileSpec> *fil
     const QList<QUrl>::const_iterator cend = urls.constEnd();
     for (QList<QUrl>::const_iterator it = urls.constBegin(); it != cend; ++it) {
         QUrl url = *it;
-#ifdef Q_OS_OSX
-        // for file drops from Finder, working around QTBUG-40449
-        url = Internal::filePathUrl(url);
-#endif
         const QString fileName = url.toLocalFile();
         if (!fileName.isEmpty()) {
             hasFiles = true;

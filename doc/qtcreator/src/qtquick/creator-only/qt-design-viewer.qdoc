@@ -19,7 +19,7 @@
     However, the actual performance of the application once started is
     indistinguishable from the same application running on the desktop.
 
-    You can run \l{Creating Qt Quick UI Projects}{Qt Quick UI projects}, which
+    You can run \l{Qt Quick UI Projects}{Qt Quick UI projects}, which
     have a .qmlproject file that define the main QML file and the import paths.
     Compress the project folder into a ZIP file that you upload to \QDV.
 

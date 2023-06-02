@@ -15,11 +15,8 @@
 #include <QDateTime>
 #include <QHash>
 #include <QFileInfo>
+#include <QFuture>
 #include <QAtomicInt>
-
-QT_BEGIN_NAMESPACE
-class QFutureInterfaceBase;
-QT_END_NAMESPACE
 
 namespace CPlusPlus {
 
@@ -300,7 +297,12 @@ public:
         }
     };
 
-    Utils::FilePaths includedFiles() const;
+    enum class Duplicates {
+        Remove,
+        Keep,
+    };
+
+    Utils::FilePaths includedFiles(Duplicates duplicates = Duplicates::Remove) const;
     void addIncludeFile(const Include &include);
 
     const QList<Include> &resolvedIncludes() const
@@ -406,8 +408,7 @@ public:
 
     Utils::FilePaths filesDependingOn(const Utils::FilePath &filePath) const;
 
-    void updateDependencyTable() const;
-    void updateDependencyTable(QFutureInterfaceBase &futureInterface) const;
+    void updateDependencyTable(const std::optional<QFuture<void>> &future = {}) const;
 
     bool operator==(const Snapshot &other) const;
 

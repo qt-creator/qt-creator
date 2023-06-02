@@ -63,12 +63,25 @@ bool IDeviceFactory::canCreate() const
 
 IDevice::Ptr IDeviceFactory::create() const
 {
-    return m_creator ? m_creator() : IDevice::Ptr();
+    if (!m_creator)
+        return {};
+
+    IDevice::Ptr device = m_creator();
+    if (!device) // e.g. Cancel used on the dialog to create a device
+        return {};
+    device->setDefaultDisplayName(displayName());
+    return device;
 }
 
 IDevice::Ptr IDeviceFactory::construct() const
 {
-    return m_constructor ? m_constructor() : IDevice::Ptr();
+    if (!m_constructor)
+        return {};
+
+    IDevice::Ptr device = m_constructor();
+    QTC_ASSERT(device, return {});
+    device->setDefaultDisplayName(displayName());
+    return device;
 }
 
 static QList<IDeviceFactory *> g_deviceFactories;
@@ -103,6 +116,16 @@ void IDeviceFactory::setCreator(const std::function<IDevice::Ptr ()> &creator)
 {
     QTC_ASSERT(creator, return);
     m_creator = creator;
+}
+
+void IDeviceFactory::setQuickCreationAllowed(bool on)
+{
+    m_quickCreationAllowed = on;
+}
+
+bool IDeviceFactory::quickCreationAllowed() const
+{
+    return m_quickCreationAllowed;
 }
 
 void IDeviceFactory::setConstructionFunction(const std::function<IDevice::Ptr ()> &constructor)

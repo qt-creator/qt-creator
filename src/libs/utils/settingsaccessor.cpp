@@ -39,17 +39,7 @@ QMessageBox::StandardButtons SettingsAccessor::Issue::allButtons() const
 /*!
  * The SettingsAccessor can be used to read/write settings in XML format.
  */
-SettingsAccessor::SettingsAccessor(const QString &docType,
-                                   const QString &displayName,
-                                   const QString &applicationDisplayName) :
-docType(docType),
-displayName(displayName),
-applicationDisplayName(applicationDisplayName)
-{
-    QTC_CHECK(!docType.isEmpty());
-    QTC_CHECK(!displayName.isEmpty());
-    QTC_CHECK(!applicationDisplayName.isEmpty());
-}
+SettingsAccessor::SettingsAccessor() = default;
 
 SettingsAccessor::~SettingsAccessor() = default;
 
@@ -68,6 +58,9 @@ QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
  */
 bool SettingsAccessor::saveSettings(const QVariantMap &data, QWidget *parent) const
 {
+    QTC_CHECK(!m_docType.isEmpty());
+    QTC_CHECK(!m_applicationDisplayName.isEmpty());
+
     const std::optional<Issue> result = writeData(m_baseFilePath, data, parent);
 
     const ProceedInfo pi = result ? reportIssues(result.value(), m_baseFilePath, parent) : ProceedInfo::Continue;
@@ -99,6 +92,9 @@ std::optional<SettingsAccessor::Issue> SettingsAccessor::writeData(const FilePat
 
 QVariantMap SettingsAccessor::restoreSettings(const FilePath &settingsPath, QWidget *parent) const
 {
+    QTC_CHECK(!m_docType.isEmpty());
+    QTC_CHECK(!m_applicationDisplayName.isEmpty());
+
     const RestoreData result = readData(settingsPath, parent);
 
     const ProceedInfo pi = result.hasIssue() ? reportIssues(result.issue.value(), result.path, parent)
@@ -123,7 +119,7 @@ SettingsAccessor::RestoreData SettingsAccessor::readFile(const FilePath &path) c
     const QVariantMap data = reader.restoreValues();
     if (!m_readOnly && path == m_baseFilePath) {
         if (!m_writer)
-            m_writer = std::make_unique<PersistentSettingsWriter>(m_baseFilePath, docType);
+            m_writer = std::make_unique<PersistentSettingsWriter>(m_baseFilePath, m_docType);
         m_writer->setContents(data);
     }
 
@@ -146,7 +142,7 @@ std::optional<SettingsAccessor::Issue> SettingsAccessor::writeFile(const FilePat
 
     QString errorMessage;
     if (!m_readOnly && (!m_writer || m_writer->fileName() != path))
-        m_writer = std::make_unique<PersistentSettingsWriter>(path, docType);
+        m_writer = std::make_unique<PersistentSettingsWriter>(path, m_docType);
 
     if (!m_writer->save(data, &errorMessage)) {
         return Issue(Tr::tr("Failed to Write File"),
@@ -156,8 +152,7 @@ std::optional<SettingsAccessor::Issue> SettingsAccessor::writeFile(const FilePat
 }
 
 SettingsAccessor::ProceedInfo
-SettingsAccessor::reportIssues(const SettingsAccessor::Issue &issue, const FilePath &path,
-                               QWidget *parent)
+SettingsAccessor::reportIssues(const Issue &issue, const FilePath &path, QWidget *parent)
 {
     if (!path.exists())
         return Continue;
@@ -226,18 +221,8 @@ std::optional<FilePath> BackUpStrategy::backupName(const QVariantMap &oldData,
     return path.stringAppended(".bak");
 }
 
-BackingUpSettingsAccessor::BackingUpSettingsAccessor(const QString &docType,
-                                                     const QString &displayName,
-                                                     const QString &applicationDisplayName) :
-    BackingUpSettingsAccessor(std::make_unique<BackUpStrategy>(), docType, displayName, applicationDisplayName)
-{ }
-
-BackingUpSettingsAccessor::BackingUpSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
-                                                     const QString &docType,
-                                                     const QString &displayName,
-                                                     const QString &applicationDisplayName) :
-    SettingsAccessor(docType, displayName, applicationDisplayName),
-    m_strategy(std::move(strategy))
+BackingUpSettingsAccessor::BackingUpSettingsAccessor()
+    : m_strategy(std::make_unique<BackUpStrategy>())
 { }
 
 SettingsAccessor::RestoreData
@@ -259,7 +244,7 @@ BackingUpSettingsAccessor::readData(const FilePath &path, QWidget *parent) const
                        "for instance because they were written by an incompatible "
                        "version of %2, or because a different settings path "
                        "was used.</p>")
-                .arg(path.toUserOutput(), applicationDisplayName), Issue::Type::ERROR);
+                .arg(path.toUserOutput(), m_applicationDisplayName), Issue::Type::ERROR);
         i.buttons.insert(QMessageBox::Ok, DiscardAndContinue);
         result.issue = i;
     }
@@ -277,6 +262,11 @@ std::optional<SettingsAccessor::Issue> BackingUpSettingsAccessor::writeData(cons
     backupFile(path, data, parent);
 
     return SettingsAccessor::writeData(path, data, parent);
+}
+
+void BackingUpSettingsAccessor::setStrategy(std::unique_ptr<BackUpStrategy> &&strategy)
+{
+    m_strategy = std::move(strategy);
 }
 
 FilePaths BackingUpSettingsAccessor::readFileCandidates(const FilePath &path) const
@@ -410,19 +400,10 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
  * The UpgradingSettingsAccessor keeps version information in the settings file and will
  * upgrade the settings on load to the latest supported version (if possible).
  */
-UpgradingSettingsAccessor::UpgradingSettingsAccessor(const QString &docType,
-                                                     const QString &displayName,
-                                                     const QString &applicationDisplayName) :
-    UpgradingSettingsAccessor(std::make_unique<VersionedBackUpStrategy>(this), docType,
-                              displayName, applicationDisplayName)
-{ }
-
-UpgradingSettingsAccessor::UpgradingSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
-                                                     const QString &docType,
-                                                     const QString &displayName,
-                                                     const QString &applicationDisplayName) :
-    BackingUpSettingsAccessor(std::move(strategy), docType, displayName, applicationDisplayName)
-{ }
+UpgradingSettingsAccessor::UpgradingSettingsAccessor()
+{
+    setStrategy(std::make_unique<VersionedBackUpStrategy>(this));
+}
 
 int UpgradingSettingsAccessor::currentVersion() const
 {
@@ -541,7 +522,7 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
                        "version of %2 was used are ignored, and "
                        "changes made now will <b>not</b> be propagated to "
                        "the newer version.</p>")
-                .arg(result.path.toUserOutput(), applicationDisplayName), Issue::Type::WARNING);
+                .arg(result.path.toUserOutput(), m_applicationDisplayName), Issue::Type::WARNING);
         i.buttons.insert(QMessageBox::Ok, Continue);
         result.issue = i;
         return result;
@@ -550,13 +531,13 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
     const QByteArray readId = settingsIdFromMap(result.data);
     if (!settingsId().isEmpty() && !readId.isEmpty() && readId != settingsId()) {
         Issue i(Tr::tr("Settings File for \"%1\" from a Different Environment?")
-                .arg(applicationDisplayName),
+                .arg(m_applicationDisplayName),
                 Tr::tr("<p>No settings file created by this instance "
                        "of %1 was found.</p>"
                        "<p>Did you work with this project on another machine or "
                        "using a different settings path before?</p>"
                        "<p>Do you still want to load the settings file \"%2\"?</p>")
-                .arg(applicationDisplayName, result.path.toUserOutput()), Issue::Type::WARNING);
+                .arg(m_applicationDisplayName, result.path.toUserOutput()), Issue::Type::WARNING);
         i.defaultButton = QMessageBox::No;
         i.escapeButton = QMessageBox::No;
         i.buttons.clear();
@@ -577,12 +558,7 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
  * MergingSettingsAccessor allows to merge secondary settings into the main settings.
  * This is useful to e.g. handle .shared files together with .user files.
  */
-MergingSettingsAccessor::MergingSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
-                                                 const QString &docType,
-                                                 const QString &displayName,
-                                                 const QString &applicationDisplayName) :
-    UpgradingSettingsAccessor(std::move(strategy), docType, displayName, applicationDisplayName)
-{ }
+MergingSettingsAccessor::MergingSettingsAccessor() = default;
 
 SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &path,
                                                                 QWidget *parent) const
@@ -614,7 +590,7 @@ SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &
         secondaryData.issue = Issue(Tr::tr("Unsupported Merge Settings File"),
                                     Tr::tr("\"%1\" is not supported by %2. "
                                            "Do you want to try loading it anyway?")
-                                    .arg(secondaryData.path.toUserOutput(), applicationDisplayName),
+                                    .arg(secondaryData.path.toUserOutput(), m_applicationDisplayName),
                                     Issue::Type::WARNING);
         secondaryData.issue->buttons.clear();
         secondaryData.issue->buttons.insert(QMessageBox::Yes, Continue);

@@ -6,7 +6,6 @@
 @PLUGIN_CLASS@::@PLUGIN_CLASS@(QObject *parent)
     : QObject(parent)
 {
-    m_initialized = false;
 }
 
 void @PLUGIN_CLASS@::initialize(QDesignerFormEditorInterface * /* core */)
@@ -61,11 +60,10 @@ bool @PLUGIN_CLASS@::isContainer() const
 
 QString @PLUGIN_CLASS@::domXml() const
 {
-    return QLatin1String("@WIDGET_DOMXML@");
+    return QLatin1String(@WIDGET_DOMXML@);
 }
 
 QString @PLUGIN_CLASS@::includeFile() const
 {
     return QLatin1String("@WIDGET_HEADER@");
 }
-@SINGLE_PLUGIN_EXPORT@

@@ -34,8 +34,8 @@ ColorPicker::ColorPicker(const QString &key, QWidget *parent)
     m_lastUsedColorContainer = new QHBoxLayout(lastUsedColorContainer);
     m_lastUsedColorContainer->setContentsMargins(0, 0, 0, 0);
 
-    using namespace Utils::Layouting;
-    Grid colorGrid;
+    using namespace Layouting;
+    Grid colorGrid{noMargin};
     for (int i = 0; i < colors.count(); ++i) {
         QWidget *button = createButton(colors[i]);
         colorGrid.addItem(button);
@@ -46,7 +46,7 @@ ColorPicker::ColorPicker(const QString &key, QWidget *parent)
                                                                     QSizePolicy::MinimumExpanding,
                                                                     QSizePolicy::Preferred));
     }
-    colorGrid.attachTo(basicColorContentFrame, WithoutMargins);
+    colorGrid.attachTo(basicColorContentFrame);
     Column {
         Tr::tr("Basic Colors"),
         basicColorContentFrame,

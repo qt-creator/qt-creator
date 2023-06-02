@@ -3,6 +3,7 @@
 
 #include "msvctoolchain.h"
 
+#include "devicesupport/idevice.h"
 #include "gcctoolchain.h"
 #include "msvcparser.h"
 #include "projectexplorer.h"
@@ -14,12 +15,12 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 #include <utils/winutils.h>
 
@@ -254,7 +255,7 @@ static std::optional<VisualStudioInstallation> detectCppBuildTools2017()
 static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QString &vswhere)
 {
     QVector<VisualStudioInstallation> installations;
-    QtcProcess vsWhereProcess;
+    Process vsWhereProcess;
     vsWhereProcess.setCodec(QTextCodec::codecForName("UTF-8"));
     const int timeoutS = 5;
     vsWhereProcess.setTimeoutS(timeoutS);
@@ -648,7 +649,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
         return predefinedMacros;
     }
-    Utils::QtcProcess cpp;
+    Utils::Process cpp;
     cpp.setEnvironment(env);
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
     QStringList arguments;
@@ -747,10 +748,8 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
     return in;
 }
 
-void MsvcToolChain::environmentModifications(
-    QFutureInterface<MsvcToolChain::GenerateEnvResult> &future,
-    QString vcvarsBat,
-    QString varsBatArg)
+void MsvcToolChain::environmentModifications(QPromise<MsvcToolChain::GenerateEnvResult> &promise,
+                                             QString vcvarsBat, QString varsBatArg)
 {
     const Utils::Environment inEnv = Utils::Environment::systemEnvironment();
     Utils::Environment outEnv;
@@ -776,7 +775,7 @@ void MsvcToolChain::environmentModifications(
         }
     }
 
-    future.reportResult({error, diff});
+    promise.addResult(MsvcToolChain::GenerateEnvResult{error, diff});
 }
 
 void MsvcToolChain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
@@ -1004,10 +1003,8 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
         data.value(QLatin1String(environModsKeyC)).toList());
     rescanForCompiler();
 
-    initEnvModWatcher(Utils::runAsync(envModThreadPool(),
-                                      &MsvcToolChain::environmentModifications,
-                                      m_vcvarsBat,
-                                      m_varsBatArg));
+    initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &MsvcToolChain::environmentModifications,
+                                      m_vcvarsBat, m_varsBatArg));
 
     const bool valid = !m_vcvarsBat.isEmpty() && targetAbi().isValid();
     if (!valid)
@@ -1128,8 +1125,8 @@ WarningFlags MsvcToolChain::warningFlags(const QStringList &cflags) const
     return flags;
 }
 
-QStringList MsvcToolChain::includedFiles(const QStringList &flags,
-                                         const QString &directoryPath) const
+FilePaths MsvcToolChain::includedFiles(const QStringList &flags,
+                                       const FilePath &directoryPath) const
 {
     return ToolChain::includedFiles("/FI", flags, directoryPath, PossiblyConcatenatedFlag::Yes);
 }
@@ -1236,10 +1233,8 @@ void MsvcToolChain::setupVarsBat(const Abi &abi, const QString &varsBat, const Q
     m_varsBatArg = varsBatArg;
 
     if (!varsBat.isEmpty()) {
-        initEnvModWatcher(Utils::runAsync(envModThreadPool(),
-                                          &MsvcToolChain::environmentModifications,
-                                          varsBat,
-                                          varsBatArg));
+        initEnvModWatcher(Utils::asyncRun(envModThreadPool(),
+                          &MsvcToolChain::environmentModifications, varsBat, varsBatArg));
     }
 }
 
@@ -1560,7 +1555,7 @@ static QVersionNumber clangClVersion(const FilePath &clangClPath)
     if (!dllversion.isEmpty())
         return QVersionNumber::fromString(dllversion);
 
-    QtcProcess clangClProcess;
+    Process clangClProcess;
     clangClProcess.setCommand({clangClPath, {"--version"}});
     clangClProcess.runBlocking();
     if (clangClProcess.result() != ProcessResult::FinishedWithSuccess)
@@ -1777,7 +1772,7 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     if (!cxxflags.contains("--driver-mode=g++"))
         return MsvcToolChain::msvcPredefinedMacros(cxxflags, env);
 
-    QtcProcess cpp;
+    Process cpp;
     cpp.setEnvironment(env);
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
 
@@ -1915,7 +1910,7 @@ static void detectCppBuildTools2015(Toolchains *list)
 
 Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    if (!detector.device.isNull()) {
+    if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // FIXME currently no support for msvc toolchains on a device
         return {};
     }
@@ -2030,7 +2025,7 @@ bool ClangClToolChainFactory::canCreate() const
 
 Toolchains ClangClToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    if (!detector.device.isNull()) {
+    if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // FIXME currently no support for msvc toolchains on a device
         return {};
     }
@@ -2127,7 +2122,7 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
         return QString();
     }
 
-    Utils::QtcProcess run;
+    Utils::Process run;
 
     // As of WinSDK 7.1, there is logic preventing the path from being set
     // correctly if "ORIGINALPATH" is already set. That can cause problems

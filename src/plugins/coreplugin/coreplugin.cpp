@@ -6,12 +6,12 @@
 #include "designmode.h"
 #include "editmode.h"
 #include "foldernavigationwidget.h"
-#include "helpmanager.h"
 #include "icore.h"
 #include "idocument.h"
 #include "iwizardfactory.h"
 #include "mainwindow.h"
 #include "modemanager.h"
+#include "session.h"
 #include "themechooser.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -36,6 +36,7 @@
 #include <utils/pathchooser.h>
 #include <utils/savefile.h>
 #include <utils/stringutils.h>
+#include <utils/textutils.h>
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
 
@@ -71,7 +72,7 @@ void CorePlugin::setupSystemEnvironment()
 CorePlugin::CorePlugin()
 {
     qRegisterMetaType<Id>();
-    qRegisterMetaType<Core::Search::TextPosition>();
+    qRegisterMetaType<Utils::Text::Position>();
     qRegisterMetaType<Utils::CommandLine>();
     qRegisterMetaType<Utils::FilePath>();
     qRegisterMetaType<Utils::Environment>();
@@ -148,6 +149,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Theme::setInitialPalette(theme); // Initialize palette before setting it
     setCreatorTheme(theme);
     InfoBar::initialize(ICore::settings());
+    CheckableMessageBox::initialize(ICore::settings());
     new ActionManager(this);
     ActionManager::setPresentationModeEnabled(args.presentationMode);
     m_mainWindow = new MainWindow;
@@ -158,8 +160,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_mainWindow->init();
     m_editMode = new EditMode;
     ModeManager::activateMode(m_editMode->id());
-
     m_folderNavigationWidgetFactory = new FolderNavigationWidgetFactory;
+    m_sessionManager.reset(new SessionManager);
 
     IWizardFactory::initialize();
 
@@ -471,8 +473,7 @@ QString CorePlugin::msgCrashpadInformation()
 ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
 {
     Find::aboutToShutdown();
-    ExtensionSystem::IPlugin::ShutdownFlag shutdownFlag = m_locator->aboutToShutdown(
-        [this] { emit asynchronousShutdownFinished(); });
+    m_locator->aboutToShutdown();
     m_mainWindow->aboutToShutdown();
-    return shutdownFlag;
+    return SynchronousShutdown;
 }

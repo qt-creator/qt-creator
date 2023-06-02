@@ -3,9 +3,11 @@
 
 #include "genericlinuxdeviceconfigurationwidget.h"
 
+#include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 #include "sshkeycreationdialog.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 
@@ -16,6 +18,7 @@
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
@@ -32,14 +35,13 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
         const IDevice::Ptr &device) :
     IDeviceWidget(device)
 {
-    resize(556, 309);
-
     m_defaultAuthButton = new QRadioButton(Tr::tr("Default"), this);
 
     m_keyButton = new QRadioButton(Tr::tr("Specific &key"));
 
-    m_hostLineEdit = new QLineEdit(this);
+    m_hostLineEdit = new FancyLineEdit(this);
     m_hostLineEdit->setPlaceholderText(Tr::tr("IP or host name of the device"));
+    m_hostLineEdit->setHistoryCompleter("HostName");
 
     m_sshPortSpinBox = new QSpinBox(this);
     m_sshPortSpinBox->setMinimum(0);
@@ -48,8 +50,9 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
 
     m_hostKeyCheckBox = new QCheckBox(Tr::tr("&Check host key"));
 
-    m_portsLineEdit = new QLineEdit(this);
+    m_portsLineEdit = new FancyLineEdit(this);
     m_portsLineEdit->setToolTip(Tr::tr("You can enter lists and ranges like this: '1024,1026-1028,1030'."));
+    m_portsLineEdit->setHistoryCompleter("PortRange");
 
     m_portsWarningLabel = new QLabel(this);
 
@@ -59,7 +62,8 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     m_timeoutSpinBox->setValue(1000);
     m_timeoutSpinBox->setSuffix(Tr::tr("s"));
 
-    m_userLineEdit = new QLineEdit(this);
+    m_userLineEdit = new FancyLineEdit(this);
+    m_userLineEdit->setHistoryCompleter("UserName");
 
     m_keyLabel = new QLabel(Tr::tr("Private key file:"));
 
@@ -74,11 +78,28 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     m_gdbServerLineEdit->setExpectedKind(PathChooser::ExistingCommand);
     m_gdbServerLineEdit->setPlaceholderText(hint);
     m_gdbServerLineEdit->setToolTip(hint);
+    m_gdbServerLineEdit->setHistoryCompleter("GdbServer");
+    m_gdbServerLineEdit->setAllowPathFromDevice(true);
 
     m_qmlRuntimeLineEdit = new PathChooser(this);
     m_qmlRuntimeLineEdit->setExpectedKind(PathChooser::ExistingCommand);
     m_qmlRuntimeLineEdit->setPlaceholderText(hint);
     m_qmlRuntimeLineEdit->setToolTip(hint);
+    m_qmlRuntimeLineEdit->setHistoryCompleter("QmlRuntime");
+    m_qmlRuntimeLineEdit->setAllowPathFromDevice(true);
+
+    m_sourceProfileCheckBox =
+        new QCheckBox(Tr::tr("Source %1 and %2").arg("/etc/profile").arg("$HOME/.profile"));
+
+    m_linkDeviceComboBox = new QComboBox;
+    m_linkDeviceComboBox->addItem(Tr::tr("Direct"), QVariant());
+
+    auto dm = DeviceManager::instance();
+    const int dmCount = dm->deviceCount();
+    for (int i = 0; i < dmCount; ++i) {
+        IDevice::ConstPtr dev =  dm->deviceAt(i);
+        m_linkDeviceComboBox->addItem(dev->displayName(), dev->id().toSetting());
+    }
 
     auto sshPortLabel = new QLabel(Tr::tr("&SSH port:"));
     sshPortLabel->setBuddy(m_sshPortSpinBox);
@@ -93,7 +114,9 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
         Tr::tr("&Username:"), m_userLineEdit, st, br,
         m_keyLabel, m_keyFileLineEdit, createKeyButton, br,
         Tr::tr("GDB server executable:"), m_gdbServerLineEdit, br,
-        Tr::tr("QML runtime executable:"), m_qmlRuntimeLineEdit, br
+        Tr::tr("QML runtime executable:"), m_qmlRuntimeLineEdit, br,
+        QString(), m_sourceProfileCheckBox, br,
+        Tr::tr("Access via:"), m_linkDeviceComboBox
     }.attachTo(this);
 
     connect(m_hostLineEdit, &QLineEdit::editingFinished,
@@ -124,6 +147,10 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
             this, &GenericLinuxDeviceConfigurationWidget::qmlRuntimeEditingFinished);
     connect(m_hostKeyCheckBox, &QCheckBox::toggled,
             this, &GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged);
+    connect(m_sourceProfileCheckBox, &QCheckBox::toggled,
+            this, &GenericLinuxDeviceConfigurationWidget::sourceProfileCheckingChanged);
+    connect(m_linkDeviceComboBox, &QComboBox::currentIndexChanged,
+            this, &GenericLinuxDeviceConfigurationWidget::linkDeviceChanged);
 
     initGui();
 }
@@ -214,6 +241,17 @@ void GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged(bool doCheck)
     device()->setSshParameters(sshParams);
 }
 
+void GenericLinuxDeviceConfigurationWidget::sourceProfileCheckingChanged(bool doCheck)
+{
+    device()->setExtraData(Constants::SourceProfile, doCheck);
+}
+
+void GenericLinuxDeviceConfigurationWidget::linkDeviceChanged(int index)
+{
+    const QVariant deviceId = m_linkDeviceComboBox->itemData(index);
+    device()->setExtraData(Constants::LinkDevice, deviceId);
+}
+
 void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
 {
     hostNameEditingFinished();
@@ -223,6 +261,10 @@ void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
     keyFileEditingFinished();
     handleFreePortsChanged();
     gdbServerEditingFinished();
+    sshPortEditingFinished();
+    timeoutEditingFinished();
+    sourceProfileCheckingChanged(m_sourceProfileCheckBox->isChecked());
+    linkDeviceChanged(m_linkDeviceComboBox->currentIndex());
     qmlRuntimeEditingFinished();
 }
 
@@ -261,6 +303,17 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_hostLineEdit->setEnabled(!device()->isAutoDetected());
     m_sshPortSpinBox->setEnabled(!device()->isAutoDetected());
     m_hostKeyCheckBox->setChecked(sshParams.hostKeyCheckingMode != SshHostKeyCheckingNone);
+    m_sourceProfileCheckBox->setChecked(device()->extraData(Constants::SourceProfile).toBool());
+    Id linkDeviceId = Id::fromSetting(device()->extraData(Constants::LinkDevice));
+    auto dm = DeviceManager::instance();
+    int found = -1;
+    for (int i = 0, n = dm->deviceCount(); i < n; ++i) {
+        if (dm->deviceAt(i)->id() == linkDeviceId) {
+            found = i;
+            break;
+        }
+    }
+    m_linkDeviceComboBox->setCurrentIndex(found + 1); // There's the "Direct" entry first.
 
     m_hostLineEdit->setText(sshParams.host());
     m_sshPortSpinBox->setValue(sshParams.port());

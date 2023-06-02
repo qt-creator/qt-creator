@@ -28,6 +28,7 @@ Q_LOGGING_CATEGORY(fileIconProvider, "qtc.core.fileiconprovider", QtWarningMsg)
 
 /*!
   \class Utils::FileIconProvider
+  \internal
   \inmodule QtCreator
   \brief Provides functions for registering custom overlay icons for system
   icons.
@@ -216,49 +217,11 @@ QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
 {
     qCDebug(fileIconProvider) << "FileIconProvider::icon" << filePath.absoluteFilePath();
 
-    if (filePath.isEmpty())
-        return unknownFileIcon();
-
-    // Check if its one of the virtual devices directories
-    if (filePath.path().startsWith(FilePath::specialRootPath())) {
-        // If the filepath does not need a device, it is a virtual device directory
-        if (!filePath.needsDevice())
-            return dirIcon();
-    }
-
-    bool isDir = filePath.isDir();
-
-    // Check for cached overlay icons by file suffix.
-    const QString filename = !isDir ? filePath.fileName() : QString();
-    if (!filename.isEmpty()) {
-        const std::optional<QIcon> icon = getIcon(m_filenameCache, filename);
-        if (icon)
-            return *icon;
-    }
-
-    const QString suffix = !isDir ? filePath.suffix() : QString();
-    if (!suffix.isEmpty()) {
-        const std::optional<QIcon> icon = getIcon(m_suffixCache, suffix);
-        if (icon)
-            return *icon;
-    }
-
-    if (filePath.needsDevice())
-        return isDir ? dirIcon() : unknownFileIcon();
-
-    // Get icon from OS (and cache it based on suffix!)
-    QIcon icon;
-    if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
-        icon = QFileIconProvider::icon(filePath.toFileInfo());
-    else // File icons are unknown on linux systems.
-        icon = isDir ? QFileIconProvider::icon(filePath.toFileInfo()) : unknownFileIcon();
-
-    if (!isDir && !suffix.isEmpty())
-        m_suffixCache.insert(suffix, icon);
-    return icon;
+    return icon(QFileInfo(filePath.toFSPathString()));
 }
 
 /*!
+  \internal
   Returns the icon associated with the file suffix in \a filePath. If there is none,
   the default icon of the operating system is returned.
   */
@@ -269,14 +232,16 @@ QIcon icon(const FilePath &filePath)
 }
 
 /*!
- * \overload
- */
+    \internal
+    \overload
+*/
 QIcon icon(QFileIconProvider::IconType type)
 {
     return instance()->icon(type);
 }
 
 /*!
+  \internal
   Creates a pixmap with \a baseIcon and lays \a overlayIcon over it.
   */
 QPixmap overlayIcon(const QPixmap &baseIcon, const QIcon &overlayIcon)
@@ -288,6 +253,7 @@ QPixmap overlayIcon(const QPixmap &baseIcon, const QIcon &overlayIcon)
 }
 
 /*!
+  \internal
   Creates a pixmap with \a baseIcon at \a size and \a overlay.
   */
 QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlay, const QSize &size)
@@ -296,6 +262,7 @@ QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlay, const
 }
 
 /*!
+  \internal
   Registers an icon at \a path for a given \a suffix, overlaying the system
   file icon.
  */
@@ -305,6 +272,7 @@ void registerIconOverlayForSuffix(const QString &path, const QString &suffix)
 }
 
 /*!
+  \internal
   Registers \a icon for all the suffixes of a the mime type \a mimeType,
   overlaying the system file icon.
   */
@@ -314,7 +282,8 @@ void registerIconOverlayForMimeType(const QIcon &icon, const QString &mimeType)
 }
 
 /*!
- * \overload
+    \internal
+    \overload
  */
 void registerIconOverlayForMimeType(const QString &path, const QString &mimeType)
 {

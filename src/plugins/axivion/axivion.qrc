@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/axivion">
+        <file>images/axivion.png</file>
+        <file>images/axivion@2x.png</file>
+    </qresource>
+</RCC>

@@ -13,8 +13,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
+#include <utils/async.h>
 #include <utils/futuresynchronizer.h>
-#include <utils/runextensions.h>
 
 #include <QDateTime>
 #include <QDir>
@@ -74,9 +74,9 @@ private:
     bool isPackagingNeeded() const;
     void deployFinished(bool success);
     void addNeededDeploymentFiles(const DeployableFile &deployable, const Kit *kit);
-    void doPackage(QFutureInterface<bool> &fi, const Utils::FilePath &tarFilePath,
+    void doPackage(QPromise<bool> &promise, const Utils::FilePath &tarFilePath,
                    bool ignoreMissingFiles);
-    bool appendFile(QFutureInterface<bool> &fi, QFile &tarFile, const QFileInfo &fileInfo,
+    bool appendFile(QPromise<bool> &promise, QFile &tarFile, const QFileInfo &fileInfo,
                     const QString &remoteFilePath, const Utils::FilePath &tarFilePath,
                     bool ignoreMissingFiles);
 
@@ -94,7 +94,6 @@ private:
 TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, Id id)
     : BuildStep(bsl, id)
 {
-    m_synchronizer.setCancelOnWait(true);
     connect(target(), &Target::deploymentDataChanged, this, [this] {
         m_deploymentDataModified = true;
     });
@@ -167,7 +166,7 @@ void TarPackageCreationStep::doRun()
         connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
                 this, &TarPackageCreationStep::deployFinished);
     });
-    auto future = Utils::runAsync(&TarPackageCreationStep::doPackage, this,
+    auto future = Utils::asyncRun(&TarPackageCreationStep::doPackage, this,
                                   m_tarFilePath, m_ignoreMissingFilesAspect->value());
     watcher->setFuture(future);
     m_synchronizer.addFuture(future);
@@ -271,7 +270,7 @@ void TarPackageCreationStep::addNeededDeploymentFiles(
     }
 }
 
-void TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi, const FilePath &tarFilePath,
+void TarPackageCreationStep::doPackage(QPromise<bool> &promise, const FilePath &tarFilePath,
                                        bool ignoreMissingFiles)
 {
     // TODO: Optimization: Only package changed files
@@ -280,7 +279,7 @@ void TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi, const FilePat
     if (!tarFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         raiseError(Tr::tr("Error: tar file %1 cannot be opened (%2).")
                    .arg(tarFilePath.toUserOutput(), tarFile.errorString()));
-        fi.reportResult(false);
+        promise.addResult(false);
         return;
     }
 
@@ -291,10 +290,10 @@ void TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi, const FilePat
             continue;
         }
         QFileInfo fileInfo = d.localFilePath().toFileInfo();
-        if (!appendFile(fi, tarFile, fileInfo,
+        if (!appendFile(promise, tarFile, fileInfo,
                         d.remoteDirectory() + QLatin1Char('/') + fileInfo.fileName(),
                         tarFilePath, ignoreMissingFiles)) {
-            fi.reportResult(false);
+            promise.addResult(false);
             return;
         }
     }
@@ -303,10 +302,10 @@ void TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi, const FilePat
     if (tarFile.write(eofIndicator) != eofIndicator.length()) {
         raiseError(Tr::tr("Error writing tar file \"%1\": %2.")
             .arg(QDir::toNativeSeparators(tarFile.fileName()), tarFile.errorString()));
-        fi.reportResult(false);
+        promise.addResult(false);
         return;
     }
-    fi.reportResult(true);
+    promise.addResult(true);
 }
 
 static bool setFilePath(TarFileHeader &header, const QByteArray &filePath)
@@ -388,7 +387,7 @@ static bool writeHeader(QFile &tarFile, const QFileInfo &fileInfo, const QString
     return true;
 }
 
-bool TarPackageCreationStep::appendFile(QFutureInterface<bool> &fi,
+bool TarPackageCreationStep::appendFile(QPromise<bool> &promise,
                                         QFile &tarFile,
                                         const QFileInfo &fileInfo,
                                         const QString &remoteFilePath,
@@ -406,7 +405,7 @@ bool TarPackageCreationStep::appendFile(QFutureInterface<bool> &fi,
         for (const QString &fileName : files) {
             const QString thisLocalFilePath = dir.path() + QLatin1Char('/') + fileName;
             const QString thisRemoteFilePath  = remoteFilePath + QLatin1Char('/') + fileName;
-            if (!appendFile(fi, tarFile, QFileInfo(thisLocalFilePath), thisRemoteFilePath,
+            if (!appendFile(promise, tarFile, QFileInfo(thisLocalFilePath), thisRemoteFilePath,
                             tarFilePath, ignoreMissingFiles)) {
                 return false;
             }
@@ -437,7 +436,7 @@ bool TarPackageCreationStep::appendFile(QFutureInterface<bool> &fi,
     while (!file.atEnd() && file.error() == QFile::NoError && tarFile.error() == QFile::NoError) {
         const QByteArray data = file.read(chunkSize);
         tarFile.write(data);
-        if (fi.isCanceled())
+        if (promise.isCanceled())
             return false;
     }
     if (file.error() != QFile::NoError) {

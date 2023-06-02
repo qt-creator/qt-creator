@@ -17,7 +17,8 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT Link
 {
 public:
-    Link(const FilePath &filePath = FilePath(), int line = 0, int column = 0)
+    Link() = default;
+    Link(const FilePath &filePath, int line = 0, int column = 0)
         : targetFilePath(filePath)
         , targetLine(line)
         , targetColumn(column)
@@ -26,7 +27,11 @@ public:
     static Link fromString(const QString &filePathWithNumbers, bool canContainLineNumber = false);
 
     bool hasValidTarget() const
-    { return !targetFilePath.isEmpty(); }
+    {
+        if (!targetFilePath.isEmpty())
+            return true;
+        return !targetFilePath.scheme().isEmpty() || !targetFilePath.host().isEmpty();
+    }
 
     bool hasValidLinkText() const
     { return linkTextStart != linkTextEnd; }
@@ -48,8 +53,8 @@ public:
     int linkTextEnd = -1;
 
     FilePath targetFilePath;
-    int targetLine;
-    int targetColumn;
+    int targetLine = 0;
+    int targetColumn = 0;
 };
 
 using LinkHandler = std::function<void(const Link &)>;
@@ -58,3 +63,12 @@ using Links = QList<Link>;
 } // namespace Utils
 
 Q_DECLARE_METATYPE(Utils::Link)
+
+namespace std {
+
+template<> struct hash<Utils::Link>
+{
+    size_t operator()(const Utils::Link &fn) const { return qHash(fn); }
+};
+
+} // std

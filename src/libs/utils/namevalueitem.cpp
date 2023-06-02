@@ -118,14 +118,6 @@ static QString expand(const NameValueDictionary *dictionary, QString value)
     return value;
 }
 
-enum : char {
-#ifdef Q_OS_WIN
-    pathSepC = ';'
-#else
-    pathSepC = ':'
-#endif
-};
-
 void NameValueItem::apply(NameValueDictionary *dictionary, Operation op) const
 {
     switch (op) {
@@ -142,7 +134,7 @@ void NameValueItem::apply(NameValueDictionary *dictionary, Operation op) const
         const NameValueDictionary::const_iterator it = dictionary->constFind(name);
         if (it != dictionary->constEnd()) {
             QString v = dictionary->value(it);
-            const QChar pathSep{QLatin1Char(pathSepC)};
+            const QChar pathSep = HostOsInfo::pathListSeparator();
             int sepCount = 0;
             if (v.startsWith(pathSep))
                 ++sepCount;
@@ -162,7 +154,7 @@ void NameValueItem::apply(NameValueDictionary *dictionary, Operation op) const
         const NameValueDictionary::const_iterator it = dictionary->constFind(name);
         if (it != dictionary->constEnd()) {
             QString v = dictionary->value(it);
-            const QChar pathSep{QLatin1Char(pathSepC)};
+            const QChar pathSep = HostOsInfo::pathListSeparator();
             int sepCount = 0;
             if (v.endsWith(pathSep))
                 ++sepCount;

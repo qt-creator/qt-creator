@@ -9,6 +9,7 @@
 
 /*!
    \class Utils::NavigationTreeView
+   \inmodule QtCreator
 
     \brief The NavigationTreeView class implements a general TreeView for any
     sidebar widget.

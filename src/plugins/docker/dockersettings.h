@@ -5,22 +5,14 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
-
 namespace Docker::Internal {
 
-class DockerSettings final : public Utils::AspectContainer
+class DockerSettings final : public Core::PagedSettings
 {
 public:
     DockerSettings();
 
-    Utils::StringAspect dockerBinaryPath;
-};
-
-class DockerSettingsPage final : public Core::IOptionsPage
-{
-public:
-    explicit DockerSettingsPage(DockerSettings *settings);
+    Utils::FilePathAspect dockerBinaryPath{this};
 };
 
 } // Docker::Internal

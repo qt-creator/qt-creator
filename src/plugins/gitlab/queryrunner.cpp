@@ -96,7 +96,7 @@ QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
     url += query.toString();
     args << url;
     m_process.setCommand({p->curl, args});
-    connect(&m_process, &QtcProcess::done, this, [this, id] {
+    connect(&m_process, &Process::done, this, [this, id] {
         if (m_process.result() != ProcessResult::FinishedWithSuccess) {
             const int exitCode = m_process.exitCode();
             if (m_process.exitStatus() == QProcess::NormalExit

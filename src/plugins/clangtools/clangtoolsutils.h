@@ -17,6 +17,7 @@ namespace Utils { class FilePath; }
 
 namespace ClangTools {
 namespace Internal {
+class RunSettings;
 
 QString clangTidyDocUrl(const QString &check);
 QString clazyDocUrl(const QString &check);
@@ -47,6 +48,8 @@ Utils::FilePath toolShippedExecutable(CppEditor::ClangToolType tool);
 Utils::FilePath toolExecutable(CppEditor::ClangToolType tool);
 Utils::FilePath toolFallbackExecutable(CppEditor::ClangToolType tool);
 QString clangToolName(CppEditor::ClangToolType tool);
+bool toolEnabled(CppEditor::ClangToolType type, const CppEditor::ClangDiagnosticConfig &config,
+                 const RunSettings &runSettings);
 
 bool isVFSOverlaySupported(const Utils::FilePath &executable);
 

@@ -17,8 +17,8 @@
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
 #include "project.h"
+#include "projectmanager.h"
 #include "projecttree.h"
-#include "session.h"
 #include "target.h"
 
 #include <coreplugin/fileutils.h>
@@ -167,6 +167,10 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     expander->registerVariable("buildDir", Tr::tr("Build directory"),
             [this] { return buildDirectory().toUserOutput(); });
 
+    expander->registerFileVariables("BuildConfig:BuildDirectory",
+                                    Tr::tr("Build directory"),
+                                    [this] { return buildDirectory(); });
+
     expander->registerVariable("BuildConfig:Name", Tr::tr("Name of the build configuration"),
             [this] { return displayName(); });
 
@@ -209,7 +213,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     connect(target, &Target::parsingStarted, this, &BuildConfiguration::enabledChanged);
     connect(target, &Target::parsingFinished, this, &BuildConfiguration::enabledChanged);
     connect(this, &BuildConfiguration::enabledChanged, this, [this] {
-        if (isActive() && project() == SessionManager::startupProject()) {
+        if (isActive() && project() == ProjectManager::startupProject()) {
             ProjectExplorerPlugin::updateActions();
             ProjectExplorerPlugin::updateRunActions();
         }
@@ -318,12 +322,15 @@ NamedWidget *BuildConfiguration::createConfigWidget()
         widget = named;
     }
 
-    Layouting::Form builder;
+    Layouting::Form form;
     for (BaseAspect *aspect : aspects()) {
-        if (aspect->isVisible())
-            aspect->addToLayout(builder.finishRow());
+        if (aspect->isVisible()) {
+            form.addItem(aspect);
+            form.addItem(Layouting::br);
+        }
     }
-    builder.attachTo(widget, Layouting::WithoutMargins);
+    form.addItem(Layouting::noMargin);
+    form.attachTo(widget);
 
     return named;
 }
@@ -612,13 +619,27 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
                          [buildType] { return buildTypeName(buildType); });
     exp.registerSubProvider([kit] { return kit->macroExpander(); });
 
-    QString buildDir = ProjectExplorerPlugin::buildDirectoryTemplate();
-    qCDebug(bcLog) << "build dir template:" << buildDir;
+    FilePath buildDir = FilePath::fromUserInput(ProjectExplorerPlugin::buildDirectoryTemplate());
+    qCDebug(bcLog) << "build dir template:" << buildDir.toUserOutput();
     buildDir = exp.expand(buildDir);
-    qCDebug(bcLog) << "expanded build:" << buildDir;
-    buildDir.replace(" ", "-");
+    qCDebug(bcLog) << "expanded build:" << buildDir.toUserOutput();
+    buildDir = buildDir.withNewPath(buildDir.path().replace(" ", "-"));
 
-    return projectDir.resolvePath(buildDir);
+    auto buildDevice = BuildDeviceKitAspect::device(kit);
+
+    if (buildDir.isAbsolutePath()) {
+        bool isReachable = buildDevice->ensureReachable(buildDir);
+        if (!isReachable)
+            return {};
+        return buildDevice->rootPath().withNewMappedPath(buildDir);
+    }
+
+    bool isReachable = buildDevice->ensureReachable(projectDir);
+    if (!isReachable)
+        return {};
+
+    const FilePath baseDir = buildDevice->rootPath().withNewMappedPath(projectDir);
+    return baseDir.resolvePath(buildDir);
 }
 ///
 // IBuildConfigurationFactory

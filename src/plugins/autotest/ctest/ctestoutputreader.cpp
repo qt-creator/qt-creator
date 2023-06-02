@@ -5,13 +5,11 @@
 
 #include "../autotesttr.h"
 #include "../testframeworkmanager.h"
-#include "../testresult.h"
 #include "../testtreeitem.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <utils/qtcassert.h>
-#include <utils/treemodel.h>
 
 #include <QRegularExpression>
 
@@ -52,10 +50,9 @@ public:
     {}
 };
 
-CTestOutputReader::CTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                                     QtcProcess *testApplication,
+CTestOutputReader::CTestOutputReader(Process *testApplication,
                                      const FilePath &buildDirectory)
-    : TestOutputReader(futureInterface, testApplication, buildDirectory)
+    : TestOutputReader(testApplication, buildDirectory)
 {
 }
 

@@ -29,7 +29,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -80,7 +80,7 @@ public:
 
     ProFileEditorFactory profileEditorFactory;
 
-    QmakeSettingsPage settingsPage;
+    QmakeSettings settings;
 
     QmakeProject *m_previousStartupProject = nullptr;
     Target *m_previousTarget = nullptr;
@@ -244,7 +244,7 @@ void QmakeProjectManagerPlugin::initialize()
 
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
             d, &QmakeProjectManagerPluginPrivate::buildStateChanged);
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             d, &QmakeProjectManagerPluginPrivate::projectChanged);
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             d, &QmakeProjectManagerPluginPrivate::projectChanged);
@@ -294,7 +294,7 @@ void QmakeProjectManagerPluginPrivate::projectChanged()
     if (ProjectTree::currentProject())
         m_previousStartupProject = qobject_cast<QmakeProject *>(ProjectTree::currentProject());
     else
-        m_previousStartupProject = qobject_cast<QmakeProject *>(SessionManager::startupProject());
+        m_previousStartupProject = qobject_cast<QmakeProject *>(ProjectManager::startupProject());
 
     if (m_previousStartupProject) {
         connect(m_previousStartupProject, &Project::activeTargetChanged,
@@ -357,8 +357,7 @@ void QmakeProjectManagerPluginPrivate::addLibraryImpl(const FilePath &filePath, 
     // add extra \n in case the last line is not empty
     int line, column;
     editor->convertPosition(endOfDoc, &line, &column);
-    const int positionInBlock = column - 1;
-    if (!editor->textAt(endOfDoc - positionInBlock, positionInBlock).simplified().isEmpty())
+    if (!editor->textAt(endOfDoc - column, column).simplified().isEmpty())
         snippet = QLatin1Char('\n') + snippet;
 
     editor->insert(snippet);
@@ -366,7 +365,7 @@ void QmakeProjectManagerPluginPrivate::addLibraryImpl(const FilePath &filePath, 
 
 void QmakeProjectManagerPluginPrivate::runQMake()
 {
-    runQMakeImpl(SessionManager::startupProject(), nullptr);
+    runQMakeImpl(ProjectManager::startupProject(), nullptr);
 }
 
 void QmakeProjectManagerPluginPrivate::runQMakeContextMenu()
@@ -411,7 +410,7 @@ void QmakeProjectManagerPluginPrivate::buildFile()
     FileNode *node  = n ? n->asFileNode() : nullptr;
     if (!node)
         return;
-    Project *project = SessionManager::projectForFile(file);
+    Project *project = ProjectManager::projectForFile(file);
     if (!project)
         return;
     Target *target = project->activeTarget();
@@ -563,7 +562,7 @@ void QmakeProjectManagerPluginPrivate::enableBuildFileMenus(const FilePath &file
     bool enabled = false;
 
     if (Node *node = ProjectTree::nodeForFile(file)) {
-        if (Project *project = SessionManager::projectForFile(file)) {
+        if (Project *project = ProjectManager::projectForFile(file)) {
             if (const FileNode *fileNode = node->asFileNode()) {
                 const FileType type = fileNode->fileType();
                 visible = qobject_cast<QmakeProject *>(project)

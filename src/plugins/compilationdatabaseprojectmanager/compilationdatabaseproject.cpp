@@ -148,8 +148,8 @@ void addDriverModeFlagIfNeeded(const ToolChain *toolchain,
 RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
                                   Kit *kit,
                                   ProjectExplorer::KitInfo &kitInfo,
-                                  const QString &workingDir,
-                                  const Utils::FilePath &fileName,
+                                  const FilePath &workingDir,
+                                  const FilePath &filePath,
                                   QStringList flags)
 {
     HeaderPaths headerPaths;
@@ -157,7 +157,7 @@ RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
     CppEditor::ProjectFile::Kind fileKind = CppEditor::ProjectFile::Unclassified;
 
     const QStringList originalFlags = flags;
-    filteredFlags(fileName.fileName(),
+    filteredFlags(filePath,
                   workingDir,
                   flags,
                   headerPaths,
@@ -166,10 +166,12 @@ RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
                   kitInfo.sysRootPath);
 
     RawProjectPart rpp;
+
     rpp.setProjectFileLocation(projectFile.toString());
-    rpp.setBuildSystemTarget(workingDir);
-    rpp.setDisplayName(fileName.fileName());
-    rpp.setFiles({fileName.toString()});
+    rpp.setBuildSystemTarget(workingDir.path());
+    rpp.setDisplayName(filePath.fileName());
+    rpp.setFiles({filePath.toFSPathString()});
+
     rpp.setHeaderPaths(headerPaths);
     rpp.setMacros(macros);
 
@@ -221,13 +223,10 @@ FolderNode *addChildFolderNode(FolderNode *parent, const QString &childName)
 
 FolderNode *addOrGetChildFolderNode(FolderNode *parent, const QString &childName)
 {
-    for (FolderNode *folder : parent->folderNodes()) {
-        if (folder->filePath().fileName() == childName) {
-            return folder;
-        }
-    }
-
-    return addChildFolderNode(parent, childName);
+    FolderNode *fn = parent->findChildFolderNode([&](FolderNode *folder) {
+        return folder->filePath().fileName() == childName;
+    });
+    return fn ? fn : addChildFolderNode(parent, childName);
 }
 
     // Return the node for folderPath.

@@ -65,8 +65,6 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     : QWidget(parent)
     , d(new BehaviorSettingsWidgetPrivate)
 {
-    resize(801, 693);
-
     d->tabPreferencesWidget = new SimpleCodeStylePreferencesWidget(this);
     d->tabPreferencesWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed); // FIXME: Desirable?
 
@@ -165,7 +163,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
 
     d->groupBoxMouse = new QGroupBox(Tr::tr("Mouse and Keyboard"));
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     const auto indent = [](QWidget *inner) { return Row { Space(30), inner }; };
 
@@ -207,8 +205,9 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
 
     Row {
         Column { d->tabPreferencesWidget, d->groupBoxTyping, st },
-        Column { d->groupBoxStorageSettings, d->groupBoxEncodings, d->groupBoxMouse, st }
-    }.attachTo(this, WithoutMargins);
+        Column { d->groupBoxStorageSettings, d->groupBoxEncodings, d->groupBoxMouse, st },
+        noMargin,
+    }.attachTo(this);
 
     connect(d->cleanWhitespace, &QCheckBox::toggled,
             d->inEntireDocument, &QCheckBox::setEnabled);

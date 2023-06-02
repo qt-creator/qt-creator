@@ -41,7 +41,7 @@ QtcPlugin {
             "formeditorfactory.cpp", "formeditorfactory.h",
             "formeditorplugin.cpp", "formeditorplugin.h",
             "formeditorstack.cpp", "formeditorstack.h",
-            "formeditorw.cpp", "formeditorw.h",
+            "formeditor.cpp", "formeditor.h",
             "formtemplatewizardpage.cpp", "formtemplatewizardpage.h",
             "formwindoweditor.cpp", "formwindoweditor.h",
             "formwindowfile.cpp", "formwindowfile.h",
@@ -77,9 +77,7 @@ QtcPlugin {
         ]
     }
 
-    Group {
-        name: "Tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         files: [ "gotoslot_test.cpp" ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])

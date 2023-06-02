@@ -4,9 +4,10 @@
 
 #include "exportnotification.h"
 
-#include "projectexplorer/project.h"
-#include "projectexplorer/projectnodes.h"
-#include "utils/runextensions.h"
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
+
+#include <utils/async.h>
 
 #include <QLoggingCategory>
 #include <QTimer>
@@ -17,19 +18,19 @@ namespace  {
 Q_LOGGING_CATEGORY(loggerError, "qtc.designer.assetExportPlugin.filePathModel", QtCriticalMsg)
 Q_LOGGING_CATEGORY(loggerInfo, "qtc.designer.assetExportPlugin.filePathModel", QtInfoMsg)
 
-void findQmlFiles(QFutureInterface<Utils::FilePath> &f, const Project *project)
+void findQmlFiles(QPromise<Utils::FilePath> &promise, const Project *project)
 {
-    if (!project || f.isCanceled())
+    if (!project || promise.isCanceled())
         return;
 
     int index = 0;
-    project->files([&f, &index](const Node* node) ->bool {
-        if (f.isCanceled())
+    project->files([&promise, &index](const Node* node) ->bool {
+        if (promise.isCanceled())
             return false;
         Utils::FilePath path = node->filePath();
         bool isComponent = !path.fileName().isEmpty() && path.fileName().front().isUpper();
         if (isComponent && node->filePath().endsWith(".ui.qml"))
-            f.reportResult(path, index++);
+            promise.addResult(path, index++);
         return true;
     });
 }
@@ -132,7 +133,7 @@ void FilePathModel::processProject()
     connect(m_preprocessWatcher.get(), &QFutureWatcher<Utils::FilePath>::finished,
             this, &FilePathModel::endResetModel);
 
-    QFuture<Utils::FilePath> f = Utils::runAsync(&findQmlFiles, m_project);
+    QFuture<Utils::FilePath> f = Utils::asyncRun(&findQmlFiles, m_project);
     m_preprocessWatcher->setFuture(f);
 }
 

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Cvs::Internal {
@@ -12,21 +10,17 @@ namespace Cvs::Internal {
 class CvsSettings : public VcsBase::VcsBaseSettings
 {
 public:
-    Utils::StringAspect cvsRoot;
-    Utils::StringAspect diffOptions;
-    Utils::BoolAspect diffIgnoreWhiteSpace;
-    Utils::BoolAspect diffIgnoreBlankLines;
-    Utils::BoolAspect describeByCommitId;
-
     CvsSettings();
+
+    Utils::StringAspect cvsRoot{this};
+    Utils::StringAspect diffOptions{this};
+    Utils::BoolAspect diffIgnoreWhiteSpace{this};
+    Utils::BoolAspect diffIgnoreBlankLines{this};
+    Utils::BoolAspect describeByCommitId{this};
 
     QStringList addOptions(const QStringList &args) const;
 };
 
-class CvsSettingsPage final : public Core::IOptionsPage
-{
-public:
-    explicit CvsSettingsPage(CvsSettings *settings);
-};
+CvsSettings &settings();
 
 } // Cvs::Internal

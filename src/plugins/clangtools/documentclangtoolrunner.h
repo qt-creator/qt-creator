@@ -14,8 +14,8 @@
 #include <QTimer>
 
 namespace Core { class IDocument; }
+namespace Tasking { class TaskTree; }
 namespace TextEditor { class TextEditorWidget; }
-namespace Utils { class TaskTree; }
 
 namespace ClangTools {
 namespace Internal {
@@ -51,7 +51,7 @@ private:
     QList<QPointer<TextEditor::TextEditorWidget>> m_editorsWithMarkers;
     SuppressedDiagnosticsList m_suppressed;
     Utils::FilePath m_lastProjectDirectory;
-    std::unique_ptr<Utils::TaskTree> m_taskTree;
+    std::unique_ptr<Tasking::TaskTree> m_taskTree;
 };
 
 } // namespace Internal

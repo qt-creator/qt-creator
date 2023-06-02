@@ -5,26 +5,24 @@
 
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
-#include "diffeditorplugin.h"
 #include "diffeditortr.h"
-
-#include <QMenu>
-#include <QPainter>
-#include <QScrollBar>
-#include <QTextBlock>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <utils/asynctask.h>
+#include <utils/async.h>
 #include <utils/mathutils.h>
 #include <utils/qtcassert.h>
-#include <utils/tooltip/tooltip.h>
+
+#include <QMenu>
+#include <QScrollBar>
+#include <QTextBlock>
 
 using namespace Core;
 using namespace TextEditor;
@@ -48,10 +46,10 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     connect(this, &QPlainTextEdit::cursorPositionChanged,
             this, &UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor);
 
-    auto context = new Core::IContext(this);
+    auto context = new IContext(this);
     context->setWidget(this);
-    context->setContext(Core::Context(Constants::UNIFIED_VIEW_ID));
-    Core::ICore::addContextObject(context);
+    context->setContext(Context(Constants::UNIFIED_VIEW_ID));
+    ICore::addContextObject(context);
 }
 
 UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget() = default;
@@ -66,6 +64,14 @@ void UnifiedDiffEditorWidget::setDocument(DiffEditorDocument *document)
 DiffEditorDocument *UnifiedDiffEditorWidget::diffDocument() const
 {
     return m_controller.document();
+}
+
+void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
+{
+    const GuardLocker locker(m_controller.m_ignoreChanges);
+    clear(Tr::tr("Waiting for data..."));
+    m_controller.m_contextFileData = diffFileList;
+    showDiff();
 }
 
 void UnifiedDiffEditorWidget::saveState()
@@ -260,14 +266,6 @@ void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumb
     m_lineNumberDigits[side] = qMax(m_lineNumberDigits[side], lineNumberString.count());
 }
 
-void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
-{
-    const GuardLocker locker(m_controller.m_ignoreChanges);
-    clear(Tr::tr("Waiting for data..."));
-    m_controller.m_contextFileData = diffFileList;
-    showDiff();
-}
-
 QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
                                   bool lastChunk, int *blockNumber, DiffSelections *selections)
 {
@@ -391,8 +389,8 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
     return diffText;
 }
 
-UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int progressMin,
-                                              int progressMax, const DiffEditorInput &input)
+static UnifiedDiffOutput diffOutput(QPromise<UnifiedShowResult> &promise, int progressMin,
+                                    int progressMax, const DiffEditorInput &input)
 {
     UnifiedDiffOutput output;
 
@@ -437,8 +435,8 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
                     output.diffData.m_chunkInfo.setChunkIndex(oldBlock, blockNumber - oldBlock, j);
             }
         }
-        fi.setProgressValue(MathUtils::interpolateLinear(++i, 0, count, progressMin, progressMax));
-        if (fi.isCanceled())
+        promise.setProgressValue(MathUtils::interpolateLinear(++i, 0, count, progressMin, progressMax));
+        if (promise.isCanceled())
             return {};
     }
 
@@ -454,14 +452,14 @@ void UnifiedDiffEditorWidget::showDiff()
         return;
     }
 
-    m_asyncTask.reset(new AsyncTask<ShowResult>());
-    m_asyncTask->setFutureSynchronizer(DiffEditorPlugin::futureSynchronizer());
+    m_asyncTask.reset(new Async<UnifiedShowResult>());
+    m_asyncTask->setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     m_controller.setBusyShowing(true);
-    connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {
+    connect(m_asyncTask.get(), &AsyncBase::done, this, [this] {
         if (m_asyncTask->isCanceled() || !m_asyncTask->isResultAvailable()) {
             setPlainText(Tr::tr("Retrieving data failed."));
         } else {
-            const ShowResult result = m_asyncTask->result();
+            const UnifiedShowResult result = m_asyncTask->result();
             m_data = result.diffData;
             TextDocumentPtr doc(result.textDocument);
             {
@@ -481,21 +479,16 @@ void UnifiedDiffEditorWidget::showDiff()
 
     const DiffEditorInput input(&m_controller);
 
-    auto getDocument = [input](QFutureInterface<ShowResult> &futureInterface) {
-        auto cleanup = qScopeGuard([&futureInterface] {
-            if (futureInterface.isCanceled())
-                futureInterface.reportCanceled();
-        });
+    auto getDocument = [input](QPromise<UnifiedShowResult> &promise) {
         const int progressMax = 100;
         const int firstPartMax = 20; // diffOutput is about 4 times quicker than filling document
-        futureInterface.setProgressRange(0, progressMax);
-        futureInterface.setProgressValue(0);
-        QFutureInterface<void> fi = futureInterface;
-        const UnifiedDiffOutput output = UnifiedDiffData::diffOutput(fi, 0, firstPartMax, input);
-        if (futureInterface.isCanceled())
+        promise.setProgressRange(0, progressMax);
+        promise.setProgressValue(0);
+        const UnifiedDiffOutput output = diffOutput(promise, 0, firstPartMax, input);
+        if (promise.isCanceled())
             return;
 
-        const ShowResult result = {TextDocumentPtr(new TextDocument("DiffEditor.UnifiedDiffEditor")),
+        const UnifiedShowResult result = {TextDocumentPtr(new TextDocument("DiffEditor.UnifiedDiffEditor")),
                                    output.diffData, output.selections};
         // No need to store the change history
         result.textDocument->document()->setUndoRedoEnabled(false);
@@ -512,8 +505,9 @@ void UnifiedDiffEditorWidget::showDiff()
             const QString package = output.diffText.mid(currentPos, packageSize);
             cursor.insertText(package);
             currentPos += package.size();
-            fi.setProgressValue(MathUtils::interpolateLinear(currentPos, 0, diffSize, firstPartMax, progressMax));
-            if (futureInterface.isCanceled())
+            promise.setProgressValue(MathUtils::interpolateLinear(currentPos, 0, diffSize,
+                                                                  firstPartMax, progressMax));
+            if (promise.isCanceled())
                 return;
         }
 
@@ -525,10 +519,10 @@ void UnifiedDiffEditorWidget::showDiff()
         // to caller's thread. We push it to no thread (make object to have no thread affinity),
         // and later, in the caller's thread, we pull it back to the caller's thread.
         result.textDocument->moveToThread(nullptr);
-        futureInterface.reportResult(result);
+        promise.addResult(result);
     };
 
-    m_asyncTask->setAsyncCallData(getDocument);
+    m_asyncTask->setConcurrentCallData(getDocument);
     m_asyncTask->start();
     ProgressManager::addTask(m_asyncTask->future(), Tr::tr("Rendering diff"), "DiffEditor");
 }

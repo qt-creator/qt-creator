@@ -265,7 +265,8 @@ static QString cleanupFullName(const QString &fileName)
 
     return cleanFilePath;
 }
-void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt)
+
+void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Utils::FilePath &fileRoot)
 {
     QTC_ASSERT(bkpt.isValid(), return);
 
@@ -358,7 +359,7 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt)
     QString name;
     if (!fullName.isEmpty()) {
         name = cleanupFullName(fullName);
-        fileName = Utils::FilePath::fromString(name);
+        fileName = fileRoot.withNewPath(name);
         //if (data->markerFileName().isEmpty())
         //    data->setMarkerFileName(name);
     } else {
@@ -367,7 +368,7 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt)
         // gdb's own. No point in assigning markerFileName for now.
     }
     if (!name.isEmpty())
-        fileName = Utils::FilePath::fromString(name);
+        fileName = fileRoot.withNewPath(name);
 
     if (fileName.isEmpty())
         updateLocation(originalLocation);

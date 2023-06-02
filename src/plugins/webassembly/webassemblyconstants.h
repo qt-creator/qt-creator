@@ -14,8 +14,5 @@ const char WEBASSEMBLY_DEVICE_DEVICE_ID[] = "WebAssembly Device";
 const char WEBASSEMBLY_QT_VERSION[] = "Qt4ProjectManager.QtVersion.WebAssembly";
 const char WEBASSEMBLY_RUNCONFIGURATION_EMRUN[] = "WebAssembly.RunConfiguration.Emrun";
 
-const char SETTINGS_GROUP[] = "WebAssembly";
-const char SETTINGS_KEY_EMSDK[] = "EmSdk";
-
 } // namespace WebAssembly
 } // namespace Constants

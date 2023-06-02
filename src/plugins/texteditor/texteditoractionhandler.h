@@ -36,7 +36,8 @@ public:
         FollowSymbolUnderCursor = 8,
         JumpToFileUnderCursor = 16,
         RenameSymbol = 32,
-        FindUsage = 64
+        FindUsage = 64,
+        CallHierarchy = 128
     };
     using TextEditorWidgetResolver = std::function<TextEditorWidget *(Core::IEditor *)>;
 

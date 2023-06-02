@@ -268,9 +268,7 @@ static void compressTree(FolderNode *n)
         compressable->compress();
         return;
     }
-    const QList<FolderNode *> childFolders = n->folderNodes();
-    for (FolderNode * const c : childFolders)
-        compressTree(c);
+    n->forEachFolderNode([](FolderNode *c) { compressTree(c); });
 }
 
 void ResourceTopLevelNode::addInternalNodes()

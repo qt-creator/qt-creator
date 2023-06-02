@@ -23,11 +23,13 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-// --------------------------------------------------------------------------
-// KitOptionsPageWidget:
-// --------------------------------------------------------------------------
+// KitOptionsPageWidget
 
-class KitOptionsPageWidget : public QWidget
+class KitOptionsPageWidget;
+
+static QPointer<KitOptionsPageWidget> kitOptionsPageWidget;
+
+class KitOptionsPageWidget : public Core::IOptionsPageWidget
 {
 public:
     KitOptionsPageWidget();
@@ -41,6 +43,8 @@ public:
     void removeKit();
     void makeDefaultKit();
     void updateState();
+
+    void apply() final { m_model->apply(); }
 
 public:
     QTreeView *m_kitsView = nullptr;
@@ -58,6 +62,7 @@ public:
 
 KitOptionsPageWidget::KitOptionsPageWidget()
 {
+    kitOptionsPageWidget = this;
     m_kitsView = new QTreeView(this);
     m_kitsView->setUniformRowHeights(true);
     m_kitsView->header()->setStretchLastSection(true);
@@ -239,38 +244,14 @@ QModelIndex KitOptionsPageWidget::currentIndex() const
 // KitOptionsPage:
 // --------------------------------------------------------------------------
 
-static KitOptionsPage *theKitOptionsPage = nullptr;
-
 KitOptionsPage::KitOptionsPage()
 {
-    theKitOptionsPage = this;
     setId(Constants::KITS_SETTINGS_PAGE_ID);
     setDisplayName(Tr::tr("Kits"));
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
     setDisplayCategory(Tr::tr("Kits"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_kits.png");
-}
-
-QWidget *KitOptionsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new Internal::KitOptionsPageWidget;
-
-    return m_widget;
-}
-
-void KitOptionsPage::apply()
-{
-    if (m_widget)
-        m_widget->m_model->apply();
-}
-
-void KitOptionsPage::finish()
-{
-    if (m_widget) {
-        delete m_widget;
-        m_widget = nullptr;
-    }
+    setWidgetCreator([] { return new Internal::KitOptionsPageWidget; });
 }
 
 void KitOptionsPage::showKit(Kit *k)
@@ -278,18 +259,16 @@ void KitOptionsPage::showKit(Kit *k)
     if (!k)
         return;
 
-    (void) widget();
-    QModelIndex index = m_widget->m_model->indexOf(k);
-    m_widget->m_selectionModel->select(index,
+    Internal::KitOptionsPageWidget *widget = Internal::kitOptionsPageWidget;
+    if (!widget)
+        return;
+
+    QModelIndex index = widget->m_model->indexOf(k);
+    widget->m_selectionModel->select(index,
                                 QItemSelectionModel::Clear
                                 | QItemSelectionModel::SelectCurrent
                                 | QItemSelectionModel::Rows);
-    m_widget->m_kitsView->scrollTo(index);
-}
-
-KitOptionsPage *KitOptionsPage::instance()
-{
-    return theKitOptionsPage;
+    widget->m_kitsView->scrollTo(index);
 }
 
 } // namespace ProjectExplorer

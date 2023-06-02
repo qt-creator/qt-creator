@@ -6,6 +6,9 @@
 #include <instances/puppetstartdata.h>
 #include <utils/filepath.h>
 
+#include <QColor>
+#include <QUrl>
+
 namespace QmlDesigner {
 
 class DesignerSettings;

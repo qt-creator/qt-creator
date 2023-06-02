@@ -6,11 +6,14 @@
 #include "searchresulttreeitemroles.h"
 
 #include <utils/algorithm.h>
+#include <utils/searchresultitem.h>
 
 #include <QApplication>
 #include <QFont>
 #include <QFontMetrics>
 #include <QDebug>
+
+using namespace Utils;
 
 namespace Core {
 namespace Internal {
@@ -38,7 +41,7 @@ public:
     QModelIndex next(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = nullptr) const;
     QModelIndex prev(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = nullptr) const;
 
-    QList<QModelIndex> addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
+    QList<QModelIndex> addResults(const SearchResultItems &items, SearchResult::AddMode mode);
 
     static SearchResultTreeItem *treeItemAtIndex(const QModelIndex &idx);
 
@@ -51,7 +54,7 @@ public slots:
 
 private:
     QModelIndex index(SearchResultTreeItem *item) const;
-    void addResultsToCurrentParent(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
+    void addResultsToCurrentParent(const SearchResultItems &items, SearchResult::AddMode mode);
     QSet<SearchResultTreeItem *> addPath(const QStringList &path);
     QVariant data(const SearchResultTreeItem *row, int role) const;
     bool setCheckState(const QModelIndex &idx, Qt::CheckState checkState, bool firstCall = true);
@@ -319,9 +322,13 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
     case ItemDataRoles::ResultBeginColumnNumberRole:
         result = row->item.mainRange().begin.column;
         break;
-    case ItemDataRoles::SearchTermLengthRole:
-        result = row->item.mainRange().length(row->item.lineText());
+    case ItemDataRoles::SearchTermLengthRole:{
+        Text::Range range = row->item.mainRange();
+        range.end.line -= range.begin.line - 1;
+        range.begin.line = 1;
+        result = range.length(row->item.lineText());
         break;
+    }
     case ItemDataRoles::ContainingFunctionNameRole:
         result = row->item.containingFunctionName().value_or(QString{});
         break;
@@ -382,7 +389,8 @@ QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(const QStringList &p
     return pathNodes;
 }
 
-void SearchResultTreeModel::addResultsToCurrentParent(const QList<SearchResultItem> &items, SearchResult::AddMode mode)
+void SearchResultTreeModel::addResultsToCurrentParent(const SearchResultItems &items,
+                                                      SearchResult::AddMode mode)
 {
     if (!m_currentParent)
         return;
@@ -433,12 +441,12 @@ static bool lessThanByPath(const SearchResultItem &a, const SearchResultItem &b)
  * Adds the search result to the list of results, creating nodes for the path when
  * necessary.
  */
-QList<QModelIndex> SearchResultTreeModel::addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode)
+QList<QModelIndex> SearchResultTreeModel::addResults(const SearchResultItems &items, SearchResult::AddMode mode)
 {
     QSet<SearchResultTreeItem *> pathNodes;
-    QList<SearchResultItem> sortedItems = items;
+    SearchResultItems sortedItems = items;
     std::stable_sort(sortedItems.begin(), sortedItems.end(), lessThanByPath);
-    QList<SearchResultItem> itemSet;
+    SearchResultItems itemSet;
     for (const SearchResultItem &item : sortedItems) {
         m_editorFontIsUsed |= item.useTextEditorFont();
         if (!m_currentParent || (m_currentPath != item.path())) {
@@ -577,7 +585,7 @@ void SearchResultFilterModel::setTextEditorFont(const QFont &font, const SearchR
     sourceModel()->setTextEditorFont(font, colors);
 }
 
-QList<QModelIndex> SearchResultFilterModel::addResults(const QList<SearchResultItem> &items,
+QList<QModelIndex> SearchResultFilterModel::addResults(const SearchResultItems &items,
                                                        SearchResult::AddMode mode)
 {
     QList<QModelIndex> sourceIndexes = sourceModel()->addResults(items, mode);

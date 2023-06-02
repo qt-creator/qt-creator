@@ -13,59 +13,13 @@
 
 #include <remotelinux/abstractremotelinuxdeploystep.h>
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
-using namespace Utils::Tasking;
 
 namespace Qdb::Internal {
-
-// QdbStopApplicationService
-
-class QdbStopApplicationService : public RemoteLinux::AbstractRemoteLinuxDeployService
-{
-private:
-    bool isDeploymentNecessary() const final { return true; }
-    Group deployRecipe() final;
-};
-
-Group QdbStopApplicationService::deployRecipe()
-{
-    const auto setupHandler = [this](QtcProcess &process) {
-        const auto device = DeviceKitAspect::device(target()->kit());
-        if (!device) {
-            emit errorMessage(Tr::tr("No device to stop the application on."));
-            return TaskAction::StopWithError;
-        }
-        QTC_CHECK(device);
-        process.setCommand({device->filePath(Constants::AppcontrollerFilepath), {"--stop"}});
-        process.setWorkingDirectory("/usr/bin");
-        QtcProcess *proc = &process;
-        connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
-            emit stdOutData(proc->readAllStandardOutput());
-        });
-        return TaskAction::Continue;
-    };
-    const auto doneHandler = [this](const QtcProcess &) {
-        emit progressMessage(Tr::tr("Stopped the running application."));
-    };
-    const auto errorHandler = [this](const QtcProcess &process) {
-        const QString errorOutput = process.cleanedStdErr();
-        const QString failureMessage = Tr::tr("Could not check and possibly stop running application.");
-        if (process.exitStatus() == QProcess::CrashExit) {
-            emit errorMessage(failureMessage);
-        } else if (process.result() != ProcessResult::FinishedWithSuccess) {
-            emit stdErrData(process.errorString());
-        } else if (errorOutput.contains("Could not connect: Connection refused")) {
-            emit progressMessage(Tr::tr("Checked that there is no running application."));
-        } else if (!errorOutput.isEmpty()) {
-            emit stdErrData(errorOutput);
-            emit errorMessage(failureMessage);
-        }
-    };
-    return Group { Process(setupHandler, doneHandler, errorHandler) };
-}
 
 // QdbStopApplicationStep
 
@@ -75,15 +29,50 @@ public:
     QdbStopApplicationStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
-        auto service = new QdbStopApplicationService;
-        setDeployService(service);
-
         setWidgetExpandedByDefault(false);
 
-        setInternalInitializer([service] { return service->isDeploymentPossible(); });
+        setInternalInitializer([this] { return isDeploymentPossible(); });
     }
+
+    Group deployRecipe() final;
 };
 
+Group QdbStopApplicationStep::deployRecipe()
+{
+    const auto setupHandler = [this](Process &process) {
+        const auto device = DeviceKitAspect::device(target()->kit());
+        if (!device) {
+            addErrorMessage(Tr::tr("No device to stop the application on."));
+            return TaskAction::StopWithError;
+        }
+        QTC_CHECK(device);
+        process.setCommand({device->filePath(Constants::AppcontrollerFilepath), {"--stop"}});
+        process.setWorkingDirectory("/usr/bin");
+        Process *proc = &process;
+        connect(proc, &Process::readyReadStandardOutput, this, [this, proc] {
+            handleStdOutData(proc->readAllStandardOutput());
+        });
+        return TaskAction::Continue;
+    };
+    const auto doneHandler = [this](const Process &) {
+        addProgressMessage(Tr::tr("Stopped the running application."));
+    };
+    const auto errorHandler = [this](const Process &process) {
+        const QString errorOutput = process.cleanedStdErr();
+        const QString failureMessage = Tr::tr("Could not check and possibly stop running application.");
+        if (process.exitStatus() == QProcess::CrashExit) {
+            addErrorMessage(failureMessage);
+        } else if (process.result() != ProcessResult::FinishedWithSuccess) {
+            handleStdErrData(process.errorString());
+        } else if (errorOutput.contains("Could not connect: Connection refused")) {
+            addProgressMessage(Tr::tr("Checked that there is no running application."));
+        } else if (!errorOutput.isEmpty()) {
+            handleStdErrData(errorOutput);
+            addErrorMessage(failureMessage);
+        }
+    };
+    return Group { ProcessTask(setupHandler, doneHandler, errorHandler) };
+}
 
 // QdbStopApplicationStepFactory
 

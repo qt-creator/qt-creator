@@ -13,7 +13,7 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/stringutils.h>
 
 #include <QLoggingCategory>
@@ -63,12 +63,12 @@ void MesonProcess::setupProcess(const Command &command, const Environment &env,
 {
     if (m_process)
         m_process.release()->deleteLater();
-    m_process.reset(new QtcProcess);
-    connect(m_process.get(), &QtcProcess::done, this, &MesonProcess::handleProcessDone);
+    m_process.reset(new Process);
+    connect(m_process.get(), &Process::done, this, &MesonProcess::handleProcessDone);
     if (!captureStdo) {
-        connect(m_process.get(), &QtcProcess::readyReadStandardOutput,
+        connect(m_process.get(), &Process::readyReadStandardOutput,
                 this, &MesonProcess::processStandardOutput);
-        connect(m_process.get(), &QtcProcess::readyReadStandardError,
+        connect(m_process.get(), &Process::readyReadStandardError,
                 this, &MesonProcess::processStandardError);
     }
 

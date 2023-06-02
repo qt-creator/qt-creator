@@ -27,13 +27,14 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QFileDialog>
@@ -120,6 +121,7 @@ PerfProfilerTool::PerfProfilerTool()
     options->addAction(command);
 
     m_tracePointsButton = new QToolButton;
+    StyleHelper::setPanelWidget(m_tracePointsButton);
     m_tracePointsButton->setDefaultAction(tracePointsAction);
     m_objectsToDelete << m_tracePointsButton;
 
@@ -146,14 +148,18 @@ PerfProfilerTool::PerfProfilerTool()
             this, &PerfProfilerTool::updateRunActions);
 
     m_recordButton = new QToolButton;
+    StyleHelper::setPanelWidget(m_recordButton);
     m_clearButton = new QToolButton;
+    StyleHelper::setPanelWidget(m_clearButton);
     m_filterButton = new QToolButton;
+    StyleHelper::setPanelWidget(m_filterButton);
     m_filterMenu = new QMenu(m_filterButton);
     m_aggregateButton = new QToolButton;
+    StyleHelper::setPanelWidget(m_aggregateButton);
     m_recordedLabel = new QLabel;
-    m_recordedLabel->setProperty("panelwidget", true);
+    StyleHelper::setPanelWidget(m_recordedLabel);
     m_delayLabel = new QLabel;
-    m_delayLabel->setProperty("panelwidget", true);
+    StyleHelper::setPanelWidget(m_delayLabel);
     m_objectsToDelete << m_recordButton << m_clearButton << m_filterButton << m_aggregateButton
                       << m_recordedLabel << m_delayLabel;
 
@@ -224,7 +230,7 @@ void PerfProfilerTool::createViews()
     connect(recordMenu, &QMenu::aboutToShow, recordMenu, [recordMenu] {
         recordMenu->hide();
         PerfSettings *settings = nullptr;
-        Target *target = SessionManager::startupTarget();
+        Target *target = ProjectManager::startupTarget();
         if (target) {
             if (auto runConfig = target->activeRunConfiguration())
                 settings = runConfig->currentSettings<PerfSettings>(Constants::PerfSettingsId);
@@ -250,7 +256,7 @@ void PerfProfilerTool::createViews()
 
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
-    m_filterButton->setProperty("noArrow", true);
+    m_filterButton->setProperty(StyleHelper::C_NO_ARROW, true);
     m_filterButton->setMenu(m_filterMenu);
 
     m_aggregateButton->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
@@ -572,7 +578,7 @@ static Utils::FilePaths sourceFiles(const Project *currentProject = nullptr)
     if (currentProject)
         sourceFiles.append(currentProject->files(Project::SourceFiles));
 
-    const QList<Project *> projects = SessionManager::projects();
+    const QList<Project *> projects = ProjectManager::projects();
     for (const Project *project : projects) {
         if (project != currentProject)
             sourceFiles.append(project->files(Project::SourceFiles));
@@ -609,7 +615,7 @@ void PerfProfilerTool::showLoadTraceDialog()
 
     startLoading();
 
-    const Project *currentProject = SessionManager::startupProject();
+    const Project *currentProject = ProjectManager::startupProject();
     const Target *target = currentProject ?  currentProject->activeTarget() : nullptr;
     const Kit *kit = target ? target->kit() : nullptr;
     populateFileFinder(currentProject, kit);

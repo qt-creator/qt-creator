@@ -4,31 +4,20 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/aspects.h>
 
 namespace TextEditor { class SimpleCodeStylePreferences; }
 
 namespace Nim {
 
-class NimSettings : public Utils::AspectContainer
+class NimSettings : public Core::PagedSettings
 {
 public:
     NimSettings();
     ~NimSettings();
 
-    Utils::StringAspect nimSuggestPath;
+    Utils::FilePathAspect nimSuggestPath{this};
 
     static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
-
-private:
-    void InitializeCodeStyleSettings();
-    void TerminateCodeStyleSettings();
-};
-
-class NimToolsSettingsPage final : public Core::IOptionsPage
-{
-public:
-    explicit NimToolsSettingsPage(NimSettings *settings);
 };
 
 } // Nim

@@ -29,7 +29,6 @@ public:
 private:
     void initialize() final;
     void extensionsInitialized() final;
-    ShutdownFlag aboutToShutdown() final;
 
     class QmlJSEditorPluginPrivate *d = nullptr;
 };

@@ -18,15 +18,14 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <utils/async.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/url.h>
 
-#include <QEventLoop>
 #include <QFormLayout>
 #include <QInputDialog>
 #include <QLoggingCategory>
@@ -388,11 +387,6 @@ IDeviceWidget *AndroidDevice::createWidget()
     return new AndroidDeviceWidget(sharedFromThis());
 }
 
-bool AndroidDevice::canAutoDetectPorts() const
-{
-    return true;
-}
-
 DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr(new AndroidSignalOperation());
@@ -454,7 +448,7 @@ void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device,
     const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(device.data());
     const QString name = androidDev->avdName();
     qCDebug(androidDeviceLog, "Starting Android AVD id \"%s\".", qPrintable(name));
-    runAsync([this, name, device] {
+    auto future = Utils::asyncRun([this, name, device] {
         const QString serialNumber = m_avdManager.startAvd(name);
         // Mark the AVD as ReadyToUse once we know it's started
         if (!serialNumber.isEmpty()) {
@@ -462,6 +456,7 @@ void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device,
             devMgr->setDeviceState(device->id(), IDevice::DeviceReadyToUse);
         }
     });
+    // TODO: use future!
 }
 
 void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
@@ -479,7 +474,7 @@ void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
         return;
 
     qCDebug(androidDeviceLog) << QString("Erasing Android AVD \"%1\" from the system.").arg(name);
-    m_removeAvdFutureWatcher.setFuture(runAsync([this, name, device] {
+    m_removeAvdFutureWatcher.setFuture(Utils::asyncRun([this, name, device] {
         QPair<IDevice::ConstPtr, bool> pair;
         pair.first = device;
         pair.second = false;
@@ -618,20 +613,20 @@ void AndroidDeviceManager::setupDevicesWatcher()
     }
 
     if (!m_adbDeviceWatcherProcess)
-        m_adbDeviceWatcherProcess.reset(new QtcProcess(this));
+        m_adbDeviceWatcherProcess.reset(new Process(this));
 
     if (m_adbDeviceWatcherProcess->isRunning()) {
         qCDebug(androidDeviceLog) << "ADB device watcher is already running.";
         return;
     }
 
-    connect(m_adbDeviceWatcherProcess.get(), &QtcProcess::done, this, [this] {
+    connect(m_adbDeviceWatcherProcess.get(), &Process::done, this, [this] {
         if (m_adbDeviceWatcherProcess->error() != QProcess::UnknownError) {
             qCDebug(androidDeviceLog) << "ADB device watcher encountered an error:"
                                       << m_adbDeviceWatcherProcess->errorString();
             if (!m_adbDeviceWatcherProcess->isRunning()) {
                 qCDebug(androidDeviceLog) << "Restarting the ADB device watcher now.";
-                QTimer::singleShot(0, m_adbDeviceWatcherProcess.get(), &QtcProcess::start);
+                QTimer::singleShot(0, m_adbDeviceWatcherProcess.get(), &Process::start);
             }
         }
         qCDebug(androidDeviceLog) << "ADB device watcher finished.";
@@ -847,7 +842,6 @@ AndroidDeviceFactory::AndroidDeviceFactory()
     setDisplayName(Tr::tr("Android Device"));
     setCombinedIcon(":/android/images/androiddevicesmall.png",
                     ":/android/images/androiddevice.png");
-
     setConstructionFunction(&AndroidDevice::create);
     if (m_androidConfig.sdkToolsOk()) {
         setCreator([this] {

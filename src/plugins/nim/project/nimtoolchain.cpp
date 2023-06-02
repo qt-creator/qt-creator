@@ -9,7 +9,7 @@
 
 #include <projectexplorer/abi.h>
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QRegularExpression>
 
@@ -95,7 +95,7 @@ bool NimToolChain::fromMap(const QVariantMap &data)
 
 bool NimToolChain::parseVersion(const FilePath &path, std::tuple<int, int, int> &result)
 {
-    QtcProcess process;
+    Process process;
     process.setCommand({path, {"--version"}});
     process.start();
     if (!process.waitForFinished())

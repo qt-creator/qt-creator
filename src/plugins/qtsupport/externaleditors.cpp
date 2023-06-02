@@ -8,8 +8,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/session.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -19,8 +19,8 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QMap>
@@ -181,7 +181,7 @@ static bool getEditorLaunchData(const CommandForQtVersion &commandForQtVersion,
     // As fallback check PATH
     data->workingDirectory.clear();
     QVector<QtSupport::QtVersion *> qtVersionsToCheck; // deduplicated after being filled
-    if (const Project *project = SessionManager::projectForFile(filePath)) {
+    if (const Project *project = ProjectManager::projectForFile(filePath)) {
         data->workingDirectory = project->projectDirectory();
         // active kit
         if (const Target *target = project->activeTarget()) {
@@ -224,7 +224,7 @@ static bool startEditorProcess(const LaunchData &data, QString *errorMessage)
     if (debug)
         qDebug() << Q_FUNC_INFO << '\n' << data.binary << data.arguments << data.workingDirectory;
     qint64 pid = 0;
-    if (!QtcProcess::startDetached({FilePath::fromString(data.binary), data.arguments}, data.workingDirectory, &pid)) {
+    if (!Process::startDetached({FilePath::fromString(data.binary), data.arguments}, data.workingDirectory, &pid)) {
         *errorMessage = msgStartFailed(data.binary, data.arguments);
         return false;
     }

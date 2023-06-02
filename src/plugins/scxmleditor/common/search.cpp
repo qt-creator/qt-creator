@@ -45,11 +45,13 @@ Search::Search(QWidget *parent)
     m_searchView->setModel(m_proxyModel);
     m_searchView->setFrameShape(QFrame::NoFrame);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
+        spacing(0),
         m_searchEdit,
         m_searchView,
-    }.setSpacing(0).attachTo(this, WithoutMargins);
+        noMargin
+    }.attachTo(this);
 
     connect(m_searchEdit, &Utils::FancyLineEdit::textChanged, this, &Search::setSearchText);
     connect(m_searchView, &TableView::pressed, this, &Search::rowActivated);

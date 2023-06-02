@@ -7,7 +7,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
-#include <utils/stringutils.h>
 
 #include <QCheckBox>
 #include <QDesktopServices>
@@ -17,9 +16,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
-#include <QMutexLocker>
 #include <QPushButton>
-#include <QUrl>
 
 using namespace Utils;
 
@@ -162,38 +159,32 @@ UrlLocatorFilter::UrlLocatorFilter(const QString &displayName, Id id)
     setId(id);
     m_defaultDisplayName = displayName;
     setDisplayName(displayName);
-    setDefaultIncludedByDefault(false);
 }
 
-UrlLocatorFilter::~UrlLocatorFilter() = default;
-
-QList<Core::LocatorFilterEntry> UrlLocatorFilter::matchesFor(
-    QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+LocatorMatcherTasks UrlLocatorFilter::matchers()
 {
-    QList<Core::LocatorFilterEntry> entries;
-    const QStringList urls = remoteUrls();
-    for (const QString &url : urls) {
-        if (future.isCanceled())
-            break;
-        const QString name = url.arg(entry);
-        Core::LocatorFilterEntry filterEntry(this, name);
-        filterEntry.highlightInfo = {int(name.lastIndexOf(entry)), int(entry.length())};
-        entries.append(filterEntry);
-    }
-    return entries;
-}
+    using namespace Tasking;
 
-void UrlLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
-                              QString *newText,
-                              int *selectionStart,
-                              int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    const QString &url = selection.displayName;
-    if (!url.isEmpty())
-        QDesktopServices::openUrl(url);
+    TreeStorage<LocatorStorage> storage;
+
+    const auto onSetup = [storage, urls = remoteUrls()] {
+        const QString input = storage->input();
+        LocatorFilterEntries entries;
+        for (const QString &url : urls) {
+            const QString name = url.arg(input);
+            LocatorFilterEntry entry;
+            entry.displayName = name;
+            entry.acceptor = [name] {
+                if (!name.isEmpty())
+                    QDesktopServices::openUrl(name);
+                return AcceptResult();
+            };
+            entry.highlightInfo = {int(name.lastIndexOf(input)), int(input.length())};
+            entries.append(entry);
+        }
+        storage->reportOutput(entries);
+    };
+    return {{Sync(onSetup), storage}};
 }
 
 const char kDisplayNameKey[] = "displayName";
@@ -249,7 +240,6 @@ bool UrlLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     Q_UNUSED(needsRefresh)
     Internal::UrlFilterOptions optionsDialog(this, parent);
     if (optionsDialog.exec() == QDialog::Accepted) {
-        QMutexLocker lock(&m_mutex);
         m_remoteUrls.clear();
         setIncludedByDefault(optionsDialog.includeByDefault->isChecked());
         setShortcutString(optionsDialog.shortcutEdit->text().trimmed());
@@ -266,22 +256,6 @@ void UrlLocatorFilter::addDefaultUrl(const QString &urlTemplate)
 {
     m_remoteUrls.append(urlTemplate);
     m_defaultUrls.append(urlTemplate);
-}
-
-QStringList UrlLocatorFilter::remoteUrls() const
-{
-    QMutexLocker lock(&m_mutex);
-    return m_remoteUrls;
-}
-
-void UrlLocatorFilter::setIsCustomFilter(bool value)
-{
-    m_isCustomFilter = value;
-}
-
-bool UrlLocatorFilter::isCustomFilter() const
-{
-    return m_isCustomFilter;
 }
 
 } // namespace Core

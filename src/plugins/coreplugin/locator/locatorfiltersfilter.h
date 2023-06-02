@@ -5,12 +5,7 @@
 
 #include "ilocatorfilter.h"
 
-#include <QIcon>
-
-namespace Core {
-namespace Internal {
-
-class Locator;
+namespace Core::Internal {
 
 /*!
   This filter provides the user with the list of available Locator filters.
@@ -18,19 +13,12 @@ class Locator;
  */
 class LocatorFiltersFilter : public ILocatorFilter
 {
-    Q_OBJECT
-
 public:
     LocatorFiltersFilter();
 
-    // ILocatorFilter
-    void prepareSearch(const QString &entry) override;
-    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
-                                         const QString &entry) override;
-    void accept(const LocatorFilterEntry &selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
-
 private:
+    LocatorMatcherTasks matchers() final;
+
     QStringList m_filterShortcutStrings;
     QStringList m_filterDisplayNames;
     QStringList m_filterDescriptions;
@@ -38,5 +26,4 @@ private:
     QIcon m_icon;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

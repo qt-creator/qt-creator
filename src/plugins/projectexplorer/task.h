@@ -38,6 +38,9 @@ public:
     };
     using Options = char;
 
+    enum DescriptionTag { WithSummary = 1, WithLinks = 2 };
+    using DescriptionTags = QFlags<DescriptionTag>;
+
     Task() = default;
     Task(TaskType type, const QString &description,
          const Utils::FilePath &file, int line, Utils::Id category,
@@ -49,8 +52,9 @@ public:
     bool isNull() const;
     void clear();
     void setFile(const Utils::FilePath &file);
-    QString description() const;
+    QString description(DescriptionTags tags = WithSummary) const;
     QIcon icon() const;
+    QString formattedDescription(DescriptionTags tags, const QString &extraHeading = {}) const;
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const Task &t1, const Task &t2);
     friend PROJECTEXPLORER_EXPORT bool operator<(const Task &a, const Task &b);

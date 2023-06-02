@@ -12,8 +12,6 @@ class QTreeWidget;
 class QTreeWidgetItem;
 QT_END_NAMESPACE
 
-namespace Utils { class FancyLineEdit; }
-
 namespace Core {
 
 namespace Internal { class CommandMappingsPrivate; }

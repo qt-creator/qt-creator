@@ -12,7 +12,7 @@
 namespace Utils {
 
 class FilePath;
-class QtcProcess;
+class Process;
 
 class QTCREATOR_UTILS_EXPORT Archive : public QObject
 {
@@ -33,7 +33,7 @@ signals:
 private:
     CommandLine m_commandLine;
     FilePath m_workingDirectory;
-    std::unique_ptr<QtcProcess> m_process;
+    std::unique_ptr<Process> m_process;
 };
 
 } // namespace Utils

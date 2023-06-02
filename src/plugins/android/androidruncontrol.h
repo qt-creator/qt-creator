@@ -3,13 +3,9 @@
 
 #pragma once
 
-#include "androidrunner.h"
-
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 namespace Android::Internal {
-
-class AndroidRunner;
 
 class AndroidRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {

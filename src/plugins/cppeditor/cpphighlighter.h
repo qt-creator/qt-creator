@@ -29,6 +29,7 @@ private:
     void highlightWord(QStringView word, int position, int length);
     bool highlightRawStringLiteral(QStringView text, const CPlusPlus::Token &tk,
                                    const QString &inheritedSuffix);
+    void highlightStringLiteral(QStringView text, const CPlusPlus::Token &tk);
 
     void highlightDoxygenComment(const QString &text, int position,
                                  int length);

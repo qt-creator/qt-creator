@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo -e -n "\x1b[\x31 q" # Blinking block (default)

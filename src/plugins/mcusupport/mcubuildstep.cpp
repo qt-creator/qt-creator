@@ -2,18 +2,21 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "mcubuildstep.h"
+
 #include "mcukitmanager.h"
 #include "mculegacyconstants.h"
 #include "mcusupportconstants.h"
 
 #include <cmakeprojectmanager/cmakekitinformation.h>
 
-#include <projectexplorer/buildstep.h>
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
@@ -23,11 +26,24 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/aspects.h>
-#include <utils/filepath.h>
 
+#include <QTemporaryDir>
 #include <QVersionNumber>
 
 namespace McuSupport::Internal {
+
+class DeployMcuProcessStep : public ProjectExplorer::AbstractProcessStep
+{
+public:
+    static const Utils::Id id;
+    static void showError(const QString &text);
+
+    DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, Utils::Id id);
+
+private:
+    QString findKitInformation(ProjectExplorer::Kit *kit, const QString &key);
+    QTemporaryDir m_tmpDir;
+};
 
 const Utils::Id DeployMcuProcessStep::id = "QmlProject.Mcu.DeployStep";
 
@@ -58,9 +74,8 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, U
     QString root = findKitInformation(kit, Internal::Legacy::Constants::QUL_CMAKE_VAR);
     auto rootPath = Utils::FilePath::fromString(root);
 
-    auto cmd = addAspect<Utils::StringAspect>();
+    auto cmd = addAspect<Utils::FilePathAspect>();
     cmd->setSettingsKey("QmlProject.Mcu.ProcessStep.Command");
-    cmd->setDisplayStyle(Utils::StringAspect::PathChooserDisplay);
     cmd->setExpectedKind(Utils::PathChooser::Command);
     cmd->setLabelText(QmlProjectManager::Tr::tr("Command:"));
     cmd->setFilePath(rootPath.pathAppended("/bin/qmlprojectexporter"));
@@ -87,9 +102,8 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, U
     args->setLabelText(QmlProjectManager::Tr::tr("Arguments:"));
     args->setValue(Utils::ProcessArgs::joinArgs(arguments));
 
-    auto outDir = addAspect<Utils::StringAspect>();
+    auto outDir = addAspect<Utils::FilePathAspect>();
     outDir->setSettingsKey("QmlProject.Mcu.ProcessStep.BuildDirectory");
-    outDir->setDisplayStyle(Utils::StringAspect::PathChooserDisplay);
     outDir->setExpectedKind(Utils::PathChooser::Directory);
     outDir->setLabelText(QmlProjectManager::Tr::tr("Build directory:"));
     outDir->setPlaceHolderText(m_tmpDir.path());
@@ -117,13 +131,6 @@ QString DeployMcuProcessStep::findKitInformation(ProjectExplorer::Kit *kit, cons
             return QString::fromUtf8(configItem.value);
     }
     return {};
-}
-
-MCUBuildStepFactory::MCUBuildStepFactory()
-    : BuildStepFactory()
-{
-    setDisplayName(QmlProjectManager::Tr::tr("Qt for MCUs Deploy Step"));
-    registerStep<DeployMcuProcessStep>(DeployMcuProcessStep::id);
 }
 
 ProjectExplorer::Kit *MCUBuildStepFactory::findMostRecentQulKit()
@@ -166,6 +173,13 @@ void MCUBuildStepFactory::updateDeployStep(ProjectExplorer::Target *target, bool
             return;
         step->setEnabled(enabled);
     }
+}
+
+
+MCUBuildStepFactory::MCUBuildStepFactory()
+{
+    setDisplayName(QmlProjectManager::Tr::tr("Qt for MCUs Deploy Step"));
+    registerStep<DeployMcuProcessStep>(DeployMcuProcessStep::id);
 }
 
 } // namespace McuSupport::Internal

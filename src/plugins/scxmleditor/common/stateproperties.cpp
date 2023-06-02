@@ -106,7 +106,6 @@ void StateProperties::createUi()
     m_currentTagName = new QLabel;
 
     auto propertiesToolBar = new QToolBar;
-    propertiesToolBar->setMinimumHeight(24);
     propertiesToolBar->addWidget(titleLabel);
     propertiesToolBar->addWidget(m_currentTagName);
 

@@ -51,8 +51,7 @@ using SettingsMergeResult = std::optional<QPair<QString, QVariant>>;
 class QTCREATOR_UTILS_EXPORT SettingsAccessor
 {
 public:
-    SettingsAccessor(const QString &docType, const QString &displayName,
-                     const QString &applicationDisplayName);
+    SettingsAccessor();
     virtual ~SettingsAccessor();
 
     enum ProceedInfo { Continue, DiscardAndContinue };
@@ -95,10 +94,6 @@ public:
     QVariantMap restoreSettings(QWidget *parent) const;
     bool saveSettings(const QVariantMap &data, QWidget *parent) const;
 
-    const QString docType;
-    const QString displayName;
-    const QString applicationDisplayName;
-
     void setBaseFilePath(const FilePath &baseFilePath) { m_baseFilePath = baseFilePath; }
     void setReadOnly() { m_readOnly = true; }
     FilePath baseFilePath() const { return m_baseFilePath; }
@@ -107,6 +102,9 @@ public:
     virtual std::optional<Issue> writeData(const FilePath &path,
                                            const QVariantMap &data,
                                            QWidget *parent) const;
+
+    void setDocType(const QString &docType) { m_docType = docType; }
+    void setApplicationDisplayName(const QString &name) { m_applicationDisplayName = name; }
 
 protected:
     // Report errors:
@@ -118,6 +116,9 @@ protected:
 
     virtual RestoreData readFile(const FilePath &path) const;
     virtual std::optional<Issue> writeFile(const FilePath &path, const QVariantMap &data) const;
+
+    QString m_docType;
+    QString m_applicationDisplayName;
 
 private:
     FilePath m_baseFilePath;
@@ -148,10 +149,7 @@ public:
 class QTCREATOR_UTILS_EXPORT BackingUpSettingsAccessor : public SettingsAccessor
 {
 public:
-    BackingUpSettingsAccessor(const QString &docType, const QString &displayName,
-                              const QString &applicationDisplayName);
-    BackingUpSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy, const QString &docType,
-                              const QString &displayName, const QString &applicationDisplayName);
+    BackingUpSettingsAccessor();
 
     RestoreData readData(const FilePath &path, QWidget *parent) const override;
     std::optional<Issue> writeData(const FilePath &path,
@@ -159,6 +157,7 @@ public:
                                    QWidget *parent) const override;
 
     BackUpStrategy *strategy() const { return m_strategy.get(); }
+    void setStrategy(std::unique_ptr<BackUpStrategy> &&strategy);
 
 private:
     FilePaths readFileCandidates(const FilePath &path) const;
@@ -220,10 +219,7 @@ class MergingSettingsAccessor;
 class QTCREATOR_UTILS_EXPORT UpgradingSettingsAccessor : public BackingUpSettingsAccessor
 {
 public:
-    UpgradingSettingsAccessor(const QString &docType,
-                              const QString &displayName, const QString &applicationDisplayName);
-    UpgradingSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy, const QString &docType,
-                              const QString &displayName, const QString &appDisplayName);
+    UpgradingSettingsAccessor();
 
     int currentVersion() const;
     int firstSupportedVersion() const;
@@ -263,9 +259,7 @@ public:
         QString key;
     };
 
-    MergingSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy,
-                            const QString &docType, const QString &displayName,
-                            const QString &applicationDisplayName);
+    MergingSettingsAccessor();
 
     RestoreData readData(const FilePath &path, QWidget *parent) const final;
 

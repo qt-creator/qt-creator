@@ -40,6 +40,9 @@ private slots:
 
     void incrementalChanges();
 
+    void pathChanges_data();
+    void pathChanges();
+
     void find_data();
     void find();
 
@@ -270,8 +273,9 @@ void tst_Environment::incrementalChanges()
     newEnv.modify(changes);
     QVERIFY(!newEnv.hasKey("VAR1"));
     QCOMPARE(newEnv.value("VAR2"), QString());
-    QCOMPARE(newEnv.constFind("VAR2")->first, "VALUE2");
-    QVERIFY(!newEnv.isEnabled(newEnv.constFind("VAR2")));
+    Environment::FindResult res = newEnv.find("VAR2");
+    QCOMPARE(res->value, "VALUE2");
+    QVERIFY(!res->enabled);
     const QChar sep = HostOsInfo::pathListSeparator();
     QCOMPARE(newEnv.value("PATH"),
              QString("/tmp").append(sep).append("/usr/bin").append(sep).append("/usr/local/bin"));
@@ -293,6 +297,82 @@ void tst_Environment::incrementalChanges()
     QCOMPARE(NameValueItem::itemsFromVariantList(NameValueItem::toVariantList(diff)), diff);
     QCOMPARE(NameValueItem::itemsFromVariantList(NameValueItem::toVariantList(reverseDiff)),
              reverseDiff);
+}
+
+void tst_Environment::pathChanges_data()
+{
+    const Environment origEnvLinux({"PATH=/bin:/usr/bin", "VAR=VALUE"}, OsTypeLinux);
+    const Environment origEnvWin({"PATH=C:\\Windows\\System32;D:\\gnu\\bin", "VAR=VALUE"}, OsTypeWindows);
+
+    QTest::addColumn<Environment>("environment");
+    QTest::addColumn<bool>("prepend"); // if false => append
+    QTest::addColumn<QString>("variable");
+    QTest::addColumn<QString>("value");
+    QTest::addColumn<Environment>("expected");
+
+    QTest::newRow("appendOrSetPath existingLeading Unix")
+        << origEnvLinux << false << "PATH" << "/bin"
+        << Environment({"PATH=/bin:/usr/bin:/bin", "VAR=VALUE"}, OsTypeLinux);
+    QTest::newRow("appendOrSetPath existingLeading Win")
+        << origEnvWin << false << "PATH" << "C:\\Windows\\System32"
+        << Environment({"PATH=C:\\Windows\\System32;D:\\gnu\\bin;C:\\Windows\\System32",
+                        "VAR=VALUE"}, OsTypeWindows);
+    QTest::newRow("appendOrSetPath existingTrailing Unix")
+        << origEnvLinux << false << "PATH" << "/usr/bin"
+        << Environment({"PATH=/bin:/usr/bin", "VAR=VALUE"}, OsTypeLinux);
+    QTest::newRow("appendOrSetPath existingTrailing Win")
+        << origEnvWin << false << "PATH" << "D:\\gnu\\bin"
+        << Environment({"PATH=C:\\Windows\\System32;D:\\gnu\\bin",
+                        "VAR=VALUE"}, OsTypeWindows);
+    QTest::newRow("prependOrSetPath existingLeading Unix")
+        << origEnvLinux << true << "PATH" << "/bin"
+        << Environment({"PATH=/bin:/usr/bin", "VAR=VALUE"}, OsTypeLinux);
+    QTest::newRow("prependOrSetPath existingLeading Win")
+        << origEnvWin << true << "PATH" << "C:\\Windows\\System32"
+        << Environment({"PATH=C:\\Windows\\System32;D:\\gnu\\bin",
+                        "VAR=VALUE"}, OsTypeWindows);
+    QTest::newRow("prependOrSetPath existingTrailing Unix")
+        << origEnvLinux << true << "PATH" << "/usr/bin"
+        << Environment({"PATH=/usr/bin:/bin:/usr/bin", "VAR=VALUE"}, OsTypeLinux);
+    QTest::newRow("prependOrSetPath existingTrailing Win")
+        << origEnvWin << true << "PATH" << "D:\\gnu\\bin"
+        << Environment({"PATH=D:\\gnu\\bin;C:\\Windows\\System32;D:\\gnu\\bin",
+                        "VAR=VALUE"}, OsTypeWindows);
+
+    QTest::newRow("appendOrSetPath non-existing Unix")
+        << origEnvLinux << false << "PATH" << "/opt"
+        << Environment({"PATH=/bin:/usr/bin:/opt", "VAR=VALUE"}, OsTypeLinux);
+    QTest::newRow("appendOrSetPath non-existing Win")
+        << origEnvWin << false << "PATH" << "C:\\Windows"
+        << Environment({"PATH=C:\\Windows\\System32;D:\\gnu\\bin;C:\\Windows",
+                        "VAR=VALUE"}, OsTypeWindows);
+    QTest::newRow("prependOrSetPath non-existing half-matching Unix")
+        << origEnvLinux << true << "PATH" << "/bi"
+        << Environment({"PATH=/bi:/bin:/usr/bin", "VAR=VALUE"}, OsTypeLinux);
+    QTest::newRow("prependOrSetPath non-existing half-matching Win")
+        << origEnvWin << true << "PATH" << "C:\\Windows"
+        << Environment({"PATH=C:\\Windows;C:\\Windows\\System32;D:\\gnu\\bin",
+                        "VAR=VALUE"}, OsTypeWindows);
+}
+
+void tst_Environment::pathChanges()
+{
+    QFETCH(Environment, environment);
+    QFETCH(bool, prepend);
+    QFETCH(QString, variable);
+    QFETCH(QString, value);
+    QFETCH(Environment, expected);
+
+    const QString sep = OsSpecificAspects::pathListSeparator(environment.osType());
+
+    if (prepend)
+        environment.prependOrSet(variable, value, sep);
+    else
+        environment.appendOrSet(variable, value, sep);
+
+    qDebug() << "Actual  :" << environment.toStringList();
+    qDebug() << "Expected:" << expected.toStringList();
+    QCOMPARE(environment, expected);
 }
 
 void tst_Environment::find_data()
@@ -317,13 +397,12 @@ void tst_Environment::find()
 
     Environment env(QStringList({"Foo=bar", "Hi=HO"}), osType);
 
-    auto end = env.constEnd();
-    auto it = env.constFind(variable);
+    Environment::FindResult res = env.find(variable);
 
-    QCOMPARE((end != it), contains);
+    QCOMPARE(bool(res), contains);
 
     if (contains)
-        QCOMPARE(env.value(it), QString("bar"));
+        QCOMPARE(res->value, QString("bar"));
 
 }
 

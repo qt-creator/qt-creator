@@ -157,7 +157,7 @@ GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Projec
     connect(m_hostCB, &QComboBox::currentIndexChanged, this, [this] {
         m_infoLabel->setVisible(false);
     });
-    connect(GitLabPlugin::optionsPage(), &GitLabOptionsPage::settingsChanged,
+    connect(GitLabPlugin::globalParameters(), &GitLabParameters::changed,
             this, &GitLabProjectSettingsWidget::updateUi);
     updateUi();
 }

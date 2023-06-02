@@ -3,16 +3,17 @@
 
 #pragma once
 
-#include <coreplugin/find/ifindsupport.h>
 #include <texteditor/basefilefind.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
 QT_END_NAMESPACE
+
+namespace Core { class IFindSupport; }
 
 namespace SilverSearcher {
 
@@ -22,7 +23,6 @@ class FindInFilesSilverSearcher : public TextEditor::SearchEngine
 
 public:
     explicit FindInFilesSilverSearcher(QObject *parent);
-    ~FindInFilesSilverSearcher() override;
 
     // TextEditor::FileFindExtension
     QString title() const override;
@@ -31,9 +31,9 @@ public:
     QVariant parameters() const override;
     void readSettings(QSettings *settings) override;
     void writeSettings(QSettings *settings) const override;
-    QFuture<Utils::FileSearchResultList> executeSearch(
+    QFuture<Utils::SearchResultItems> executeSearch(
             const TextEditor::FileFindParameters &parameters, TextEditor::BaseFileFind *) override;
-    Core::IEditor *openEditor(const Core::SearchResultItem &item,
+    Core::IEditor *openEditor(const Utils::SearchResultItem &item,
                               const TextEditor::FileFindParameters &parameters) override;
 
 private:

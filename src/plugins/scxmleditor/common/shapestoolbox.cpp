@@ -29,10 +29,12 @@ ShapesToolbox::ShapesToolbox(QWidget *parent)
     m_shapeGroupsLayout->setContentsMargins(0, 0, 0, 0);
     m_shapeGroupsLayout->setSpacing(0);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
+        spacing(0),
         scrollArea,
-    }.setSpacing(0).attachTo(this, WithoutMargins);
+        noMargin,
+    }.attachTo(this);
 }
 
 void ShapesToolbox::setUIFactory(ScxmlEditor::PluginInterface::ScxmlUiFactory *factory)

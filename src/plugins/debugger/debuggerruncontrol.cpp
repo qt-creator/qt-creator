@@ -23,8 +23,9 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -34,8 +35,8 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/portlist.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 #include <utils/temporaryfile.h>
 #include <utils/url.h>
@@ -69,6 +70,7 @@ DebuggerEngine *createPdbEngine();
 DebuggerEngine *createQmlEngine();
 DebuggerEngine *createLldbEngine();
 DebuggerEngine *createUvscEngine();
+DebuggerEngine *createDapEngine();
 
 static QString noEngineMessage()
 {
@@ -107,7 +109,7 @@ private:
         }
 
         m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
-        connect(&m_coreUnpackProcess, &QtcProcess::done, this, [this] {
+        connect(&m_coreUnpackProcess, &Process::done, this, [this] {
             if (m_coreUnpackProcess.error() == QProcess::UnknownError) {
                 reportStopped();
                 return;
@@ -130,7 +132,7 @@ private:
             appendMessage(msg.arg(m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
             m_tempCoreFile.setFileName(m_tempCoreFilePath.path());
             m_tempCoreFile.open(QFile::WriteOnly);
-            connect(&m_coreUnpackProcess, &QtcProcess::readyReadStandardOutput, this, [this] {
+            connect(&m_coreUnpackProcess, &Process::readyReadStandardOutput, this, [this] {
                 m_tempCoreFile.write(m_coreUnpackProcess.readAllRawStandardOutput());
             });
             m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", m_coreFilePath.path()}});
@@ -146,7 +148,7 @@ private:
     QFile m_tempCoreFile;
     FilePath m_coreFilePath;
     FilePath m_tempCoreFilePath;
-    QtcProcess m_coreUnpackProcess;
+    Process m_coreUnpackProcess;
 };
 
 class DebuggerRunToolPrivate
@@ -182,8 +184,8 @@ void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
 
         // FIXME: This is horribly wrong.
         // get files from all the projects in the session
-        QList<Project *> projects = SessionManager::projects();
-        if (Project *startupProject = SessionManager::startupProject()) {
+        QList<Project *> projects = ProjectManager::projects();
+        if (Project *startupProject = ProjectManager::startupProject()) {
             // startup project first
             projects.removeOne(startupProject);
             projects.insert(0, startupProject);
@@ -508,6 +510,9 @@ void DebuggerRunTool::start()
             case UvscEngineType:
                 m_engine = createUvscEngine();
                 break;
+            case DapEngineType:
+                m_engine = createDapEngine();
+                break;
             default:
                 if (!m_runParameters.isQmlDebugging) {
                     reportFailure(noEngineMessage() + '\n' +
@@ -611,14 +616,12 @@ void DebuggerRunTool::start()
 
             showMessage(warningMessage, LogWarning);
 
-            static bool checked = true;
-            if (checked)
-                CheckableMessageBox::information(Core::ICore::dialogParent(),
-                                                 Tr::tr("Debugger"),
-                                                 warningMessage,
-                                                 Tr::tr("&Show this message again."),
-                                                 &checked,
-                                                 QDialogButtonBox::Ok);
+            static bool doNotShowAgain = false;
+            CheckableMessageBox::information(Core::ICore::dialogParent(),
+                                             Tr::tr("Debugger"),
+                                             warningMessage,
+                                             &doNotShowAgain,
+                                             QMessageBox::Ok);
         }
     }
 
@@ -885,8 +888,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
 
     Runnable inferior = runControl->runnable();
     const FilePath &debuggerExecutable = m_runParameters.debugger.command.executable();
-    inferior.command.setExecutable(inferior.command.executable().onDevice(debuggerExecutable));
-    inferior.workingDirectory = inferior.workingDirectory.onDevice(debuggerExecutable);
+    inferior.command.setExecutable(debuggerExecutable.withNewMappedPath(inferior.command.executable()));
+    inferior.workingDirectory = debuggerExecutable.withNewMappedPath(inferior.workingDirectory);
     // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
     inferior.workingDirectory = inferior.workingDirectory.normalizedPathName();
     m_runParameters.inferior = inferior;
@@ -900,6 +903,9 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     if (Project *project = runControl->project()) {
         m_runParameters.projectSourceDirectory = project->projectDirectory();
         m_runParameters.projectSourceFiles = project->files(Project::SourceFiles);
+    } else {
+        m_runParameters.projectSourceDirectory = m_runParameters.debugger.command.executable().parentDir();
+        m_runParameters.projectSourceFiles.clear();
     }
 
     m_runParameters.toolChainAbi = ToolChainKitAspect::targetAbi(kit);
@@ -924,7 +930,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         }
     }
 
-    m_runParameters.dumperPath = Core::ICore::resourcePath("debugger/");
     if (QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
         const QVersionNumber qtVersion = baseQtVersion->qtVersion();
         m_runParameters.fallbackQtVersion = 0x10000 * qtVersion.majorVersion()
@@ -1036,14 +1041,37 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
             cmd.setExecutable(commandLine().executable()); // FIXME: Case should not happen?
         } else {
             cmd.setExecutable(runControl->device()->debugServerPath());
-            if (cmd.isEmpty())
-                cmd.setExecutable(runControl->device()->filePath("gdbserver"));
+
+            if (cmd.isEmpty()) {
+                if (runControl->device()->osType() == Utils::OsTypeMac) {
+                    const FilePath debugServerLocation = runControl->device()->filePath(
+                        "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/"
+                        "Resources/debugserver");
+
+                    if (debugServerLocation.isExecutableFile()) {
+                        cmd.setExecutable(debugServerLocation);
+                    } else {
+                        // TODO: In the future it is expected that the debugserver will be
+                        // replaced by lldb-server. Remove the check for debug server at that point.
+                        const FilePath lldbserver
+                            = runControl->device()->filePath("lldb-server").searchInPath();
+                        if (lldbserver.isExecutableFile())
+                            cmd.setExecutable(lldbserver);
+                    }
+                } else {
+                    cmd.setExecutable(runControl->device()->filePath("gdbserver"));
+                }
+            }
             args.clear();
-            if (cmd.executable().toString().contains("lldb-server")) {
+            if (cmd.executable().baseName().contains("lldb-server")) {
                 args.append("platform");
                 args.append("--listen");
                 args.append(QString("*:%1").arg(portsGatherer->gdbServer().port()));
                 args.append("--server");
+            } else if (cmd.executable().baseName() == "debugserver") {
+                args.append(QString("*:%1").arg(portsGatherer->gdbServer().port()));
+                args.append("--attach");
+                args.append(QString::number(m_pid.pid()));
             } else {
                 // Something resembling gdbserver
                 if (m_useMulti)

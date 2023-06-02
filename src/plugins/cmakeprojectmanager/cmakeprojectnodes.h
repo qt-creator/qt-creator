@@ -15,6 +15,12 @@ public:
     CMakeInputsNode(const Utils::FilePath &cmakeLists);
 };
 
+class CMakePresetsNode : public ProjectExplorer::ProjectNode
+{
+public:
+    CMakePresetsNode(const Utils::FilePath &projectPath);
+};
+
 class CMakeListsNode : public ProjectExplorer::ProjectNode
 {
 public:

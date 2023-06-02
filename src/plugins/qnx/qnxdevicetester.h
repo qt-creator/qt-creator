@@ -5,23 +5,14 @@
 
 #include <remotelinux/linuxdevicetester.h>
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
-class QnxDeviceTester : public ProjectExplorer::DeviceTester
+class QnxDeviceTester : public RemoteLinux::GenericLinuxDeviceTester
 {
-    Q_OBJECT
-
 public:
     explicit QnxDeviceTester(QObject *parent = nullptr);
 
-    void testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration) override;
-    void stopTest() override;
-
-private:
-    RemoteLinux::GenericLinuxDeviceTester *m_genericTester = nullptr;
-    ProjectExplorer::IDevice::ConstPtr m_deviceConfiguration;
+    void testDevice(const ProjectExplorer::IDevice::Ptr &device) override;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

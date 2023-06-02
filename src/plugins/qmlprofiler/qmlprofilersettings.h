@@ -7,15 +7,10 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QPointer>
-
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerSettings : public ProjectExplorer::ISettingsAspect
 {
-    Q_OBJECT
-
 public:
     QmlProfilerSettings();
 
@@ -31,14 +26,6 @@ class QmlProfilerOptionsPage final : public Core::IOptionsPage
 {
 public:
     QmlProfilerOptionsPage();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<QWidget> m_widget;
 };
 
-} // Internal
-} // QmlProfiler
+} // QmlProfiler::Internal

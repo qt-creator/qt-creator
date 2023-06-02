@@ -24,8 +24,8 @@
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <proparser/qmakeevaluator.h>
@@ -33,7 +33,7 @@
 #include <utils/filepath.h>
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 using namespace Core;
 using namespace Utils;
@@ -76,7 +76,7 @@ static void processRunnerCallback(ProcessData *data)
 {
     FilePath rootPath = FilePath::fromString(data->deviceRoot);
 
-    QtcProcess proc;
+    Process proc;
     proc.setProcessChannelMode(data->processChannelMode);
     proc.setCommand({rootPath.withNewPath("/bin/sh"), {QString("-c"), data->command}});
     proc.setWorkingDirectory(FilePath::fromString(data->workingDirectory));
@@ -170,7 +170,7 @@ void QtSupportPlugin::extensionsInitialized()
         });
 
     static const auto activeQtVersion = []() -> const QtVersion * {
-        ProjectExplorer::Project *project = SessionManager::startupProject();
+        ProjectExplorer::Project *project = ProjectManager::startupProject();
         if (!project || !project->activeTarget())
             return nullptr;
         return QtKitAspect::qtVersion(project->activeTarget()->kit());
@@ -197,7 +197,7 @@ void QtSupportPlugin::extensionsInitialized()
 
     expander->registerVariable(
         "ActiveProject::QT_HOST_LIBEXECS",
-        Tr::tr("Full path to the libexec bin directory of the Qt version in the active kit "
+        Tr::tr("Full path to the libexec directory of the Qt version in the active kit "
                "of the active project."),
         []() {
             const QtVersion *const qt = activeQtVersion();
@@ -208,7 +208,7 @@ void QtSupportPlugin::extensionsInitialized()
         const FilePath filePath = item.filePath();
         if (filePath.isEmpty())
             return links;
-        const Project *project = SessionManager::projectForFile(filePath);
+        const Project *project = ProjectManager::projectForFile(filePath);
         Target *target = project ? project->activeTarget() : nullptr;
         QtVersion *qt = target ? QtKitAspect::qtVersion(target->kit()) : nullptr;
         if (!qt)

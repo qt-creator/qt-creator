@@ -38,7 +38,7 @@ public:
     QAction resetCodeModelAction{Tr::tr("Reset Code Model"), nullptr};
 
     LocatorData locatorData;
-    FunctionFilter functionFilter{&locatorData};
+    QmlJSFunctionsFilter functionsFilter{&locatorData};
     QmlJSCodeStyleSettingsPage codeStyleSettingsPage;
     BasicBundleProvider basicBundleProvider;
 };

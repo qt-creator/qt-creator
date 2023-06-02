@@ -27,11 +27,11 @@ def __noBuildIssues__():
 def __syntaxErrorDetected__():
     buildIssues = getBuildIssues(False)
     for issue in buildIssues:
-        if issue[3] in ["Expected ';' after expression (fix available)",
+        if issue[0] in ["Expected ';' after expression (fix available)",
                         "Expected ';' at end of declaration (fix available)",
                         "Use of undeclared identifier 'syntaxError'"]:
             return True
-        if re.match(issue[3], "Declaration of reference variable '.+' requires an initializer"):
+        if re.match(issue[0], "Declaration of reference variable '.+' requires an initializer"):
             return True
     return False
 

@@ -77,8 +77,7 @@ JsonRpcMessage::JsonRpcMessage(const BaseMessage &message)
     if (doc.isObject())
         m_jsonObject = doc.object();
     else if (doc.isNull())
-        m_parseError =
-            Tr::tr("Could not parse JSON message \"%1\".").arg(error.errorString());
+        m_parseError = Tr::tr("Could not parse JSON message: \"%1\".").arg(error.errorString());
     else
         m_parseError =
             Tr::tr("Expected a JSON object, but got a JSON \"%1\" value.").arg(docType(doc));

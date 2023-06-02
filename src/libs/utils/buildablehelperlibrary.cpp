@@ -4,7 +4,7 @@
 #include "buildablehelperlibrary.h"
 #include "environment.h"
 #include "hostosinfo.h"
-#include "qtcprocess.h"
+#include "process.h"
 
 #include <QDebug>
 #include <QRegularExpression>
@@ -21,7 +21,7 @@ bool BuildableHelperLibrary::isQtChooser(const FilePath &filePath)
 FilePath BuildableHelperLibrary::qtChooserToQmakePath(const FilePath &qtChooser)
 {
     const QString toolDir = QLatin1String("QTTOOLDIR=\"");
-    QtcProcess proc;
+    Process proc;
     proc.setTimeoutS(1);
     proc.setCommand({qtChooser, {"-print-env"}});
     proc.runBlocking();
@@ -103,7 +103,7 @@ QString BuildableHelperLibrary::qtVersionForQMake(const FilePath &qmakePath)
     if (qmakePath.isEmpty())
         return QString();
 
-    QtcProcess qmake;
+    Process qmake;
     qmake.setTimeoutS(5);
     qmake.setCommand({qmakePath, {"--version"}});
     qmake.runBlocking();

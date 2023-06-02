@@ -48,7 +48,7 @@ CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, bool showCom
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         lblFileName,
@@ -67,7 +67,7 @@ CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, bool showCom
         m_actSelector = new ActivitySelector(this);
 
         m_verticalLayout->insertWidget(0, m_actSelector);
-        m_verticalLayout->insertWidget(1, Utils::Layouting::createHr());
+        m_verticalLayout->insertWidget(1, Layouting::createHr());
     }
 
     if (!showComment)

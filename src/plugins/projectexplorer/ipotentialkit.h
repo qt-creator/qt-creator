@@ -4,18 +4,16 @@
 #pragma once
 
 #include <QObject>
-#include <QMetaType>
+
 #include "projectexplorer_export.h"
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT IPotentialKit : public QObject
+class PROJECTEXPLORER_EXPORT IPotentialKit
 {
-    Q_OBJECT
-
 public:
     IPotentialKit();
-    ~IPotentialKit() override;
+    virtual ~IPotentialKit();
 
     virtual QString displayName() const = 0;
     virtual void executeFromMenu() = 0;
@@ -23,4 +21,4 @@ public:
     virtual bool isEnabled() const = 0;
 };
 
-}
+} // ProjectExplorer

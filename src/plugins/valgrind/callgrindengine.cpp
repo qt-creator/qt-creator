@@ -12,8 +12,9 @@
 #include <debugger/analyzer/analyzermanager.h>
 
 #include <utils/filepath.h>
+#include <utils/filestreamermanager.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QDebug>
@@ -60,34 +61,32 @@ CallgrindToolRunner::~CallgrindToolRunner()
     cleanupTempFile();
 }
 
-QStringList CallgrindToolRunner::toolArguments() const
+void CallgrindToolRunner::addToolArguments(CommandLine &cmd) const
 {
-    QStringList arguments = {"--tool=callgrind"};
+    cmd << "--tool=callgrind";
 
-    if (m_settings.enableCacheSim.value())
-        arguments << "--cache-sim=yes";
+    if (m_settings.enableCacheSim())
+        cmd << "--cache-sim=yes";
 
-    if (m_settings.enableBranchSim.value())
-        arguments << "--branch-sim=yes";
+    if (m_settings.enableBranchSim())
+        cmd << "--branch-sim=yes";
 
-    if (m_settings.collectBusEvents.value())
-        arguments << "--collect-bus=yes";
+    if (m_settings.collectBusEvents())
+        cmd << "--collect-bus=yes";
 
-    if (m_settings.collectSystime.value())
-        arguments << "--collect-systime=yes";
+    if (m_settings.collectSystime())
+        cmd << "--collect-systime=yes";
 
     if (m_markAsPaused)
-        arguments << "--instr-atstart=no";
+        cmd << "--instr-atstart=no";
 
     // add extra arguments
     if (!m_argumentForToggleCollect.isEmpty())
-        arguments << m_argumentForToggleCollect;
+        cmd << m_argumentForToggleCollect;
 
-    arguments << "--callgrind-out-file=" + m_valgrindOutputFile.path();
+    cmd << "--callgrind-out-file=" + m_valgrindOutputFile.path();
 
-    arguments << ProcessArgs::splitArgs(m_settings.callgrindArguments.value());
-
-    return arguments;
+    cmd.addArgs(m_settings.callgrindArguments(), CommandLine::Raw);
 }
 
 QString CallgrindToolRunner::progressTitle() const
@@ -174,7 +173,7 @@ void CallgrindToolRunner::run(Option option)
     // save back current running operation
     m_lastOption = option;
 
-    m_controllerProcess.reset(new QtcProcess);
+    m_controllerProcess.reset(new Process);
 
     switch (option) {
         case CallgrindToolRunner::Dump:
@@ -196,11 +195,11 @@ void CallgrindToolRunner::run(Option option)
 #if CALLGRIND_CONTROL_DEBUG
     m_controllerProcess->setProcessChannelMode(QProcess::ForwardedChannels);
 #endif
-    connect(m_controllerProcess.get(), &QtcProcess::done,
+    connect(m_controllerProcess.get(), &Process::done,
             this, &CallgrindToolRunner::controllerProcessDone);
 
     const FilePath control =
-            FilePath(CALLGRIND_CONTROL_BINARY).onDevice(m_valgrindRunnable.command.executable());
+            m_valgrindRunnable.command.executable().withNewPath(CALLGRIND_CONTROL_BINARY);
     m_controllerProcess->setCommand({control, {toOptionString(option), QString::number(m_pid)}});
     m_controllerProcess->setWorkingDirectory(m_valgrindRunnable.workingDirectory);
     m_controllerProcess->setEnvironment(m_valgrindRunnable.environment);
@@ -257,11 +256,14 @@ void CallgrindToolRunner::triggerParse()
     }
 
     const auto afterCopy = [this](expected_str<void> res) {
-        QTC_ASSERT_EXPECTED(res, return);
+        if (!res) // failed to run callgrind
+            return;
         showStatusMessage(Tr::tr("Parsing Profile Data..."));
         m_parser.parse(m_hostOutputFile);
     };
-    m_valgrindOutputFile.asyncCopyFile(afterCopy, m_hostOutputFile);
+    // TODO: Store the handle and cancel on CallgrindToolRunner destructor?
+    // TODO: Should d'tor of context object cancel the running task?
+    FileStreamerManager::copy(m_valgrindOutputFile, m_hostOutputFile, this, afterCopy);
 }
 
 void CallgrindToolRunner::cleanupTempFile()

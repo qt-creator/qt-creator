@@ -22,8 +22,8 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
@@ -99,10 +99,10 @@ void PdbEngine::setupEngine()
     m_interpreter = runParameters().interpreter;
     QString bridge = ICore::resourcePath("debugger/pdbbridge.py").toString();
 
-    connect(&m_proc, &QtcProcess::started, this, &PdbEngine::handlePdbStarted);
-    connect(&m_proc, &QtcProcess::done, this, &PdbEngine::handlePdbDone);
-    connect(&m_proc, &QtcProcess::readyReadStandardOutput, this, &PdbEngine::readPdbStandardOutput);
-    connect(&m_proc, &QtcProcess::readyReadStandardError, this, &PdbEngine::readPdbStandardError);
+    connect(&m_proc, &Process::started, this, &PdbEngine::handlePdbStarted);
+    connect(&m_proc, &Process::done, this, &PdbEngine::handlePdbDone);
+    connect(&m_proc, &Process::readyReadStandardOutput, this, &PdbEngine::readPdbStandardOutput);
+    connect(&m_proc, &Process::readyReadStandardError, this, &PdbEngine::readPdbStandardError);
 
     const FilePath scriptFile = runParameters().mainScript;
     if (!scriptFile.isReadableFile()) {
@@ -263,7 +263,7 @@ void PdbEngine::removeBreakpoint(const Breakpoint &bp)
     notifyBreakpointRemoveOk(bp);
 }
 
-void PdbEngine::loadSymbols(const QString &moduleName)
+void PdbEngine::loadSymbols(const FilePath &moduleName)
 {
     Q_UNUSED(moduleName)
 }
@@ -294,16 +294,16 @@ void PdbEngine::refreshModules(const GdbMi &modules)
                 && path.endsWith("' (built-in)>")) {
             path = "(builtin)";
         }
-        module.modulePath = path;
+        module.modulePath = FilePath::fromString(path);
         handler->updateModule(module);
     }
     handler->endUpdateAll();
 }
 
-void PdbEngine::requestModuleSymbols(const QString &moduleName)
+void PdbEngine::requestModuleSymbols(const FilePath &moduleName)
 {
     DebuggerCommand cmd("listSymbols");
-    cmd.arg("module", moduleName);
+    cmd.arg("module", moduleName.path());
     runCommand(cmd);
 }
 
@@ -341,7 +341,7 @@ void PdbEngine::refreshSymbols(const GdbMi &symbols)
         symbol.name = item["name"].data();
         syms.append(symbol);
     }
-    showModuleSymbols(moduleName, syms);
+    showModuleSymbols(runParameters().inferior.command.executable().withNewPath(moduleName), syms);
 }
 
 bool PdbEngine::canHandleToolTip(const DebuggerToolTipContext &) const

@@ -11,6 +11,7 @@
 #include "navigationwidget.h"
 
 #include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QHBoxLayout>
@@ -53,7 +54,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     splitAction->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
     splitAction->setToolTip(Tr::tr("Split"));
     splitAction->setPopupMode(QToolButton::InstantPopup);
-    splitAction->setProperty("noArrow", true);
+    splitAction->setProperty(StyleHelper::C_NO_ARROW, true);
     m_splitMenu = new QMenu(splitAction);
     splitAction->setMenu(m_splitMenu);
     connect(m_splitMenu, &QMenu::aboutToShow, this, &NavigationSubWidget::populateSplitMenu);

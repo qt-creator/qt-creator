@@ -3,7 +3,8 @@
 
 #include "launcherlogging.h"
 #include "launchersockethandler.h"
-#include "singleton.h"
+
+#include <utils/singleton.h>
 
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qscopeguard.h>

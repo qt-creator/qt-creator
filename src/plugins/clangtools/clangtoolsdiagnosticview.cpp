@@ -313,9 +313,8 @@ bool DiagnosticView::disableChecksEnabled() const
     if (!activeConfig.id().isValid())
         return false;
 
-    // If all selected diagnostics come from clang-tidy and the active config is controlled
-    // by a .clang-tidy file, then we do not offer the action.
-    if (activeConfig.clangTidyMode() != ClangDiagnosticConfig::TidyMode::UseConfigFile)
+    // If all selected diagnostics come from clang-tidy and we prefer a .clang-tidy file, then we do not offer the action.
+    if (!settings->runSettings().preferConfigFile())
         return true;
     return Utils::anyOf(indexes, [this](const QModelIndex &index) {
         return model()->data(index).toString().startsWith("clazy-");

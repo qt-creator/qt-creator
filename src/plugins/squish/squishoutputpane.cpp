@@ -19,6 +19,7 @@
 #include <coreplugin/icontext.h>
 
 #include <utils/itemviews.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -305,17 +306,20 @@ void SquishOutputPane::clearOldResults()
 void SquishOutputPane::createToolButtons()
 {
     m_expandAll = new QToolButton(m_treeView);
+    Utils::StyleHelper::setPanelWidget(m_expandAll);
     m_expandAll->setIcon(Utils::Icons::EXPAND_TOOLBAR.icon());
     m_expandAll->setToolTip(Tr::tr("Expand All"));
 
     m_collapseAll = new QToolButton(m_treeView);
+    Utils::StyleHelper::setPanelWidget(m_collapseAll);
     m_collapseAll->setIcon(Utils::Icons::COLLAPSE_TOOLBAR.icon());
     m_collapseAll->setToolTip(Tr::tr("Collapse All"));
 
     m_filterButton = new QToolButton(m_treeView);
+    Utils::StyleHelper::setPanelWidget(m_filterButton);
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
     m_filterButton->setToolTip(Tr::tr("Filter Test Results"));
-    m_filterButton->setProperty("noArrow", true);
+    m_filterButton->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
     m_filterButton->setAutoRaise(true);
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
     m_filterMenu = new QMenu(m_filterButton);

@@ -217,14 +217,17 @@ void Lexer::scan_helper(Token *tok)
         tok->f.kind = s._tokenKind;
         const bool found = _expectedRawStringSuffix.isEmpty()
                 ? scanUntilRawStringLiteralEndSimple() : scanUntilRawStringLiteralEndPrecise();
-        if (found)
+        if (found) {
+            scanOptionalUserDefinedLiteral(tok);
             _state = 0;
+        }
         return;
     } else { // non-raw strings
         tok->f.joined = true;
         tok->f.kind = s._tokenKind;
         _state = 0;
         scanUntilQuote(tok, '"');
+        scanOptionalUserDefinedLiteral(tok);
         return;
     }
 
@@ -829,6 +832,8 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
         _expectedRawStringSuffix.prepend(')');
         _expectedRawStringSuffix.append('"');
     }
+    if (closed)
+        scanOptionalUserDefinedLiteral(tok);
 }
 
 bool Lexer::scanUntilRawStringLiteralEndPrecise()

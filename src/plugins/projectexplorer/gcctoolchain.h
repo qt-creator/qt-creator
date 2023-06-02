@@ -55,8 +55,8 @@ public:
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
-    QStringList includedFiles(const QStringList &flags,
-                              const QString &directoryPath) const override;
+    Utils::FilePaths includedFiles(const QStringList &flags,
+                                   const Utils::FilePath &directoryPath) const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &env) const override;

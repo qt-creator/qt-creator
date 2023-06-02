@@ -21,9 +21,10 @@
 #include <languageserverprotocol/lsptypes.h>
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <texteditor/basefilefind.h>
 
@@ -71,7 +72,7 @@ public:
     const Position linkAsPosition;
     const QPointer<SearchResult> search;
     const LinkHandler callback;
-    QList<SearchResultItem> declDefItems;
+    SearchResultItems declDefItems;
     bool openedExtraFileForLink = false;
     bool declHasUsedTag = false;
     bool recursiveCallDetected = false;
@@ -88,7 +89,7 @@ public:
             const SearchResult *search,
             const ReplacementData &replacementData,
             const QString &newSymbolName,
-            const QList<SearchResultItem> &checkedItems,
+            const SearchResultItems &checkedItems,
             bool preserveCase);
     void handleFindUsagesResult(const QList<Location> &locations);
     void finishSearch();
@@ -142,7 +143,7 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
         d->search->setAdditionalReplaceWidget(renameFilesCheckBox);
         const auto renameHandler =
                 [search = d->search](const QString &newSymbolName,
-                       const QList<SearchResultItem> &checkedItems,
+                       const SearchResultItems &checkedItems,
                        bool preserveCase) {
             const auto replacementData = search->userData().value<ReplacementData>();
             Private::handleRenameRequest(search, replacementData, newSymbolName, checkedItems,
@@ -150,7 +151,7 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
         };
         connect(d->search, &SearchResult::replaceButtonClicked, renameHandler);
     }
-    connect(d->search, &SearchResult::activated, [](const SearchResultItem& item) {
+    connect(d->search, &SearchResult::activated, [](const SearchResultItem &item) {
         EditorManager::openEditorAtSearchResult(item);
     });
     if (d->search->isInteractive())
@@ -242,7 +243,7 @@ void ClangdFindReferences::Private::handleRenameRequest(
         const SearchResult *search,
         const ReplacementData &replacementData,
         const QString &newSymbolName,
-        const QList<SearchResultItem> &checkedItems,
+        const SearchResultItems &checkedItems,
         bool preserveCase)
 {
     const Utils::FilePaths filePaths = BaseFileFind::replaceAll(newSymbolName, checkedItems,
@@ -390,7 +391,7 @@ static Usage::Tags getUsageType(const ClangdAstPath &path, const QString &search
 void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file,
                                                             const ReferencesFileData &fileData)
 {
-    QList<SearchResultItem> items;
+    SearchResultItems items;
     qCDebug(clangdLog) << file << "has valid AST:" << fileData.ast.isValid();
     const auto expectedDeclTypes = [this]() -> QStringList {
         if (checkUnusedData)
@@ -451,7 +452,7 @@ void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file
         item.setContainingFunctionName(getContainingFunction(astPath, range).detail());
 
         if (search->supportsReplace()) {
-            const bool fileInSession = SessionManager::projectForFile(file);
+            const bool fileInSession = ProjectManager::projectForFile(file);
             item.setSelectForReplacement(fileInSession);
             if (fileInSession && file.baseName().compare(replacementData->oldSymbolName,
                                                          Qt::CaseInsensitive) == 0) {
@@ -592,6 +593,19 @@ static Usage::Tags getUsageType(const ClangdAstPath &path, const QString &search
                         && !detail.at(opString.size()).isLetterOrNumber()
                         && detail.at(opString.size()) != '_') {
                     tags |= Usage::Tag::Operator;
+                }
+            }
+            if (pathIt->kind() == "CXXMethod") {
+                const ClangdAstNode &classNode = *std::next(pathIt);
+                if (classNode.hasChild([&](const ClangdAstNode &n) {
+                    if (n.kind() != "StaticAssert")
+                        return false;
+                    return n.hasChild([&](const ClangdAstNode &n) {
+                        return n.arcanaContains("Q_PROPERTY"); }, true)
+                           && n.hasChild([&](const ClangdAstNode &n) {
+                                  return n.arcanaContains(" " + searchTerm); }, true);
+                    }, false)) {
+                    tags |= Usage::Tag::MocInvokable;
                 }
             }
             return tags;

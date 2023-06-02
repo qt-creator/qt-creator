@@ -12,11 +12,11 @@
 
 #include <debugger/debuggerconstants.h>
 
+#include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/futuresynchronizer.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDir>
@@ -63,22 +63,22 @@ class LogTailFiles : public QObject
     Q_OBJECT
 public:
 
-    void exec(QFutureInterface<void> &fi, std::shared_ptr<QTemporaryFile> stdoutFile,
-                    std::shared_ptr<QTemporaryFile> stderrFile)
+    void exec(QPromise<void> &promise, std::shared_ptr<QTemporaryFile> stdoutFile,
+              std::shared_ptr<QTemporaryFile> stderrFile)
     {
-        if (fi.isCanceled())
+        if (promise.isCanceled())
             return;
 
         // The future is canceled when app on simulator is stoped.
         QEventLoop loop;
         QFutureWatcher<void> watcher;
         connect(&watcher, &QFutureWatcher<void>::canceled, &loop, [&] { loop.quit(); });
-        watcher.setFuture(fi.future());
+        watcher.setFuture(promise.future());
 
         // Process to print the console output while app is running.
         auto logProcess = [&](QProcess *tailProcess, std::shared_ptr<QTemporaryFile> file) {
-            QObject::connect(tailProcess, &QProcess::readyReadStandardOutput, &loop, [=] {
-                if (!fi.isCanceled())
+            QObject::connect(tailProcess, &QProcess::readyReadStandardOutput, &loop, [&, tailProcess] {
+                if (!promise.isCanceled())
                     emit logMessage(QString::fromLocal8Bit(tailProcess->readAll()));
             });
             tailProcess->start(QStringLiteral("tail"), {"-f", file->fileName()});
@@ -787,7 +787,6 @@ IosSimulatorToolHandlerPrivate::IosSimulatorToolHandlerPrivate(const IosDeviceTy
 {
     QObject::connect(&outputLogger, &LogTailFiles::logMessage,
                      std::bind(&IosToolHandlerPrivate::appOutput, this, _1));
-    futureSynchronizer.setCancelOnWait(true);
 }
 
 void IosSimulatorToolHandlerPrivate::requestTransferApp(const QString &appBundlePath,
@@ -814,8 +813,8 @@ void IosSimulatorToolHandlerPrivate::requestTransferApp(const QString &appBundle
     if (SimulatorControl::isSimulatorRunning(m_deviceId))
         installAppOnSimulator();
     else
-        futureSynchronizer.addFuture(
-            Utils::onResultReady(SimulatorControl::startSimulator(m_deviceId), onSimulatorStart));
+        futureSynchronizer.addFuture(Utils::onResultReady(
+            SimulatorControl::startSimulator(m_deviceId), q, onSimulatorStart));
 }
 
 void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
@@ -851,8 +850,8 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
     if (SimulatorControl::isSimulatorRunning(m_deviceId))
         launchAppOnSimulator(extraArgs);
     else
-        futureSynchronizer.addFuture(
-            Utils::onResultReady(SimulatorControl::startSimulator(m_deviceId), onSimulatorStart));
+        futureSynchronizer.addFuture(Utils::onResultReady(
+            SimulatorControl::startSimulator(m_deviceId), q, onSimulatorStart));
 }
 
 void IosSimulatorToolHandlerPrivate::requestDeviceInfo(const QString &deviceId, int timeout)
@@ -904,7 +903,7 @@ void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
     isTransferringApp(m_bundlePath, m_deviceId, 20, 100, "");
     auto installFuture = SimulatorControl::installApp(m_deviceId,
                                                       Utils::FilePath::fromString(m_bundlePath));
-    futureSynchronizer.addFuture(Utils::onResultReady(installFuture, onResponseAppInstall));
+    futureSynchronizer.addFuture(Utils::onResultReady(installFuture, q, onResponseAppInstall));
 }
 
 void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &extraArgs)
@@ -931,17 +930,17 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
                         "Install Xcode 8 or later.").arg(bundleId));
     }
 
-    auto monitorPid = [this](QFutureInterface<void> &fi, qint64 pid) {
+    auto monitorPid = [this](QPromise<void> &promise, qint64 pid) {
 #ifdef Q_OS_UNIX
         do {
             // Poll every 1 sec to check whether the app is running.
             QThread::msleep(1000);
-        } while (!fi.isCanceled() && kill(pid, 0) == 0);
+        } while (!promise.isCanceled() && kill(pid, 0) == 0);
 #else
     Q_UNUSED(pid)
 #endif
         // Future is cancelled if the app is stopped from the qt creator.
-        if (!fi.isCanceled())
+        if (!promise.isCanceled())
             stop(0);
     };
 
@@ -953,9 +952,9 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
             gotInferiorPid(m_bundlePath, m_deviceId, response.pID);
             didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Success);
             // Start monitoring app's life signs.
-            futureSynchronizer.addFuture(Utils::runAsync(monitorPid, response.pID));
+            futureSynchronizer.addFuture(Utils::asyncRun(monitorPid, response.pID));
             if (captureConsole)
-                futureSynchronizer.addFuture(Utils::runAsync(&LogTailFiles::exec, &outputLogger,
+                futureSynchronizer.addFuture(Utils::asyncRun(&LogTailFiles::exec, &outputLogger,
                                                              stdoutFile, stderrFile));
         } else {
             m_pid = -1;
@@ -967,16 +966,11 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
         }
     };
 
-    futureSynchronizer.addFuture(
-        Utils::onResultReady(SimulatorControl::launchApp(m_deviceId,
-                                                         bundleId,
-                                                         debugRun,
-                                                         extraArgs,
-                                                         captureConsole ? stdoutFile->fileName()
-                                                                        : QString(),
-                                                         captureConsole ? stderrFile->fileName()
-                                                                        : QString()),
-                             onResponseAppLaunch));
+    futureSynchronizer.addFuture(Utils::onResultReady(SimulatorControl::launchApp(
+            m_deviceId, bundleId, debugRun, extraArgs,
+            captureConsole ? stdoutFile->fileName() : QString(),
+            captureConsole ? stderrFile->fileName() : QString()),
+        q, onResponseAppLaunch));
 }
 
 bool IosSimulatorToolHandlerPrivate::isResponseValid(const SimulatorControl::ResponseData &responseData)

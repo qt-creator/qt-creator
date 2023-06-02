@@ -87,6 +87,13 @@ public:
         return QJsonValue();
     }
 
+    QList<T> toListOrEmpty() const
+    {
+        if (std::holds_alternative<QList<T>>(*this))
+            return std::get<QList<T>>(*this);
+        return {};
+    }
+
     QList<T> toList() const
     {
         QTC_ASSERT(std::holds_alternative<QList<T>>(*this), return {});

@@ -82,8 +82,6 @@ QtcPlugin {
         "cppcompletionassistprocessor.h",
         "cppcompletionassistprovider.cpp",
         "cppcompletionassistprovider.h",
-        "cppcurrentdocumentfilter.cpp",
-        "cppcurrentdocumentfilter.h",
         "cppcursorinfo.h",
         "cppdoxygen.cpp",
         "cppdoxygen.h",
@@ -91,7 +89,8 @@ QtcPlugin {
         "cppeditorwidget.cpp",
         "cppeditorwidget.h",
         "cppeditor.qrc",
-        "cppeditor_global.h", "cppeditortr.h",
+        "cppeditor_global.h",
+        "cppeditortr.h",
         "cppeditorconstants.h",
         "cppeditordocument.cpp",
         "cppeditordocument.h",
@@ -224,8 +223,6 @@ QtcPlugin {
         "searchsymbols.h",
         "semantichighlighter.cpp",
         "semantichighlighter.h",
-        "senddocumenttracker.cpp",
-        "senddocumenttracker.h",
         "symbolfinder.cpp",
         "symbolfinder.h",
         "symbolsfindfilter.cpp",
@@ -245,9 +242,7 @@ QtcPlugin {
         ]
     }
 
-    Group {
-        name: "Tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
         files: [
             "compileroptionsbuilder_test.cpp",

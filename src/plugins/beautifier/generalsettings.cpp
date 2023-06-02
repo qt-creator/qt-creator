@@ -3,114 +3,73 @@
 
 #include "generalsettings.h"
 
-#include <coreplugin/icore.h>
+#include "beautifierconstants.h"
+#include "beautifiertr.h"
 
 #include <utils/algorithm.h>
 #include <utils/genericconstants.h>
-#include <utils/mimeutils.h>
+#include <utils/layoutbuilder.h>
+
+using namespace Utils;
 
 namespace Beautifier::Internal {
 
-const char AUTO_FORMAT_TOOL[]                 = "autoFormatTool";
-const char AUTO_FORMAT_MIME[]                 = "autoFormatMime";
-const char AUTO_FORMAT_ONLY_CURRENT_PROJECT[] = "autoFormatOnlyCurrentProject";
-
-static GeneralSettings *m_instance;
-
 GeneralSettings::GeneralSettings()
 {
-    m_instance = this;
-    read();
+    setId(Constants::OPTION_GENERAL_ID);
+    setDisplayName(Tr::tr("General"));
+    setCategory(Constants::OPTION_CATEGORY);
+    setDisplayCategory(Tr::tr("Beautifier"));
+    setCategoryIconPath(":/beautifier/images/settingscategory_beautifier.png");
+    setSettingsGroups("Beautifier", "General");
+
+    autoFormatOnSave.setSettingsKey(Utils::Constants::BEAUTIFIER_AUTO_FORMAT_ON_SAVE);
+    autoFormatOnSave.setDefaultValue(false);
+    autoFormatOnSave.setLabelText(Tr::tr("Enable auto format on file save"));
+
+    autoFormatOnlyCurrentProject.setSettingsKey("autoFormatOnlyCurrentProject");
+    autoFormatOnlyCurrentProject.setDefaultValue(true);
+    autoFormatOnlyCurrentProject.setLabelText(Tr::tr("Restrict to files contained in the current project"));
+
+    autoFormatTools.setSettingsKey("autoFormatTool");
+    autoFormatTools.setLabelText(Tr::tr("Tool:"));
+    autoFormatTools.setDefaultValue(0);
+    autoFormatTools.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+
+    autoFormatMime.setSettingsKey("autoFormatMime");
+    autoFormatMime.setDefaultValue("text/x-c++src;text/x-c++hdr");
+    autoFormatMime.setLabelText(Tr::tr("Restrict to MIME types:"));
+    autoFormatMime.setDisplayStyle(StringAspect::LineEditDisplay);
+
+    setLayouter([this] {
+        using namespace Layouting;
+        return Column {
+            Group {
+                title(Tr::tr("Automatic Formatting on File Save")),
+                autoFormatOnSave.groupChecker(),
+                Form {
+                    autoFormatTools, br,
+                    autoFormatMime, br,
+                    Span(2, autoFormatOnlyCurrentProject)
+                }
+            },
+            st
+        };
+    });
 }
 
-GeneralSettings *GeneralSettings::instance()
+QList<MimeType> GeneralSettings::allowedMimeTypes() const
 {
-    return m_instance;
-}
+    const QStringList stringTypes = autoFormatMime.value().split(';');
 
-void GeneralSettings::read()
-{
-    QSettings *s = Core::ICore::settings();
-    s->beginGroup(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP);
-    s->beginGroup(Utils::Constants::BEAUTIFIER_GENERAL_GROUP);
-    m_autoFormatOnSave = s->value(Utils::Constants::BEAUTIFIER_AUTO_FORMAT_ON_SAVE, false).toBool();
-    m_autoFormatTool = s->value(AUTO_FORMAT_TOOL, QString()).toString();
-    setAutoFormatMime(s->value(AUTO_FORMAT_MIME, "text/x-c++src;text/x-c++hdr").toString());
-    m_autoFormatOnlyCurrentProject = s->value(AUTO_FORMAT_ONLY_CURRENT_PROJECT, true).toBool();
-    s->endGroup();
-    s->endGroup();
-}
-
-void GeneralSettings::save()
-{
-    QSettings *s = Core::ICore::settings();
-    s->beginGroup(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP);
-    s->beginGroup(Utils::Constants::BEAUTIFIER_GENERAL_GROUP);
-    s->setValue(Utils::Constants::BEAUTIFIER_AUTO_FORMAT_ON_SAVE, m_autoFormatOnSave);
-    s->setValue(AUTO_FORMAT_TOOL, m_autoFormatTool);
-    s->setValue(AUTO_FORMAT_MIME, autoFormatMimeAsString());
-    s->setValue(AUTO_FORMAT_ONLY_CURRENT_PROJECT, m_autoFormatOnlyCurrentProject);
-    s->endGroup();
-    s->endGroup();
-}
-
-bool GeneralSettings::autoFormatOnSave() const
-{
-    return m_autoFormatOnSave;
-}
-
-void GeneralSettings::setAutoFormatOnSave(bool autoFormatOnSave)
-{
-    m_autoFormatOnSave = autoFormatOnSave;
-}
-
-QString GeneralSettings::autoFormatTool() const
-{
-    return m_autoFormatTool;
-}
-
-void GeneralSettings::setAutoFormatTool(const QString &autoFormatTool)
-{
-    m_autoFormatTool = autoFormatTool;
-}
-
-QList<Utils::MimeType> GeneralSettings::autoFormatMime() const
-{
-    return m_autoFormatMime;
-}
-
-QString GeneralSettings::autoFormatMimeAsString() const
-{
-    return Utils::transform(m_autoFormatMime, &Utils::MimeType::name).join("; ");
-}
-
-void GeneralSettings::setAutoFormatMime(const QList<Utils::MimeType> &autoFormatMime)
-{
-    m_autoFormatMime = autoFormatMime;
-}
-
-void GeneralSettings::setAutoFormatMime(const QString &mimeList)
-{
-    const QStringList stringTypes = mimeList.split(';');
-    QList<Utils::MimeType> types;
-    types.reserve(stringTypes.count());
+    QList<MimeType> types;
     for (QString t : stringTypes) {
         t = t.trimmed();
-        const Utils::MimeType mime = Utils::mimeTypeForName(t);
+        const MimeType mime = Utils::mimeTypeForName(t);
         if (mime.isValid())
             types << mime;
     }
-    setAutoFormatMime(types);
-}
-
-bool GeneralSettings::autoFormatOnlyCurrentProject() const
-{
-    return m_autoFormatOnlyCurrentProject;
-}
-
-void GeneralSettings::setAutoFormatOnlyCurrentProject(bool autoFormatOnlyCurrentProject)
-{
-    m_autoFormatOnlyCurrentProject = autoFormatOnlyCurrentProject;
+    return types;
 }
 
 } // Beautifier::Internal

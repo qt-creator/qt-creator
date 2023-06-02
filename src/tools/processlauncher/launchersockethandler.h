@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <launcherpackets.h>
+#include <utils/launcherpackets.h>
 
 #include <QByteArray>
 #include <QHash>
@@ -15,7 +15,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 namespace Internal {
-class Process;
+class ProcessWithToken;
 
 class LauncherSocketHandler : public QObject
 {
@@ -31,11 +31,11 @@ private:
     void handleSocketError();
     void handleSocketClosed();
 
-    void handleProcessStarted(Process *process);
-    void handleProcessError(Process *process);
-    void handleProcessFinished(Process *process);
-    void handleReadyReadStandardOutput(Process *process);
-    void handleReadyReadStandardError(Process *process);
+    void handleProcessStarted(ProcessWithToken *process);
+    void handleProcessError(ProcessWithToken *process);
+    void handleProcessFinished(ProcessWithToken *process);
+    void handleReadyReadStandardOutput(ProcessWithToken *process);
+    void handleReadyReadStandardError(ProcessWithToken *process);
 
     void handleStartPacket();
     void handleWritePacket();
@@ -44,13 +44,13 @@ private:
 
     void sendPacket(const LauncherPacket &packet);
 
-    Process *setupProcess(quintptr token);
+    ProcessWithToken *setupProcess(quintptr token);
     void removeProcess(quintptr token);
 
     const QString m_serverPath;
     QLocalSocket * const m_socket;
     PacketParser m_packetParser;
-    QHash<quintptr, Process *> m_processes;
+    QHash<quintptr, ProcessWithToken *> m_processes;
 };
 
 } // namespace Internal

@@ -42,10 +42,8 @@ public:
     // Clang-Tidy
     enum class TidyMode
     {
-        // Disabled, // Used by Qt Creator 4.10 and below.
         UseCustomChecks = 1,
-        UseConfigFile,
-        UseDefaultChecks,
+        UseDefaultChecks = 3,
     };
     TidyMode clangTidyMode() const;
     void setClangTidyMode(TidyMode mode);

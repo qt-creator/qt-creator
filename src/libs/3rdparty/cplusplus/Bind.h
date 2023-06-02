@@ -128,6 +128,7 @@ protected:
     bool visit(NewTypeIdAST *ast) override;
     bool visit(OperatorAST *ast) override;
     bool visit(ParameterDeclarationClauseAST *ast) override;
+    bool visit(RequiresExpressionAST *ast) override;
     bool visit(TranslationUnitAST *ast) override;
     bool visit(ObjCProtocolRefsAST *ast) override;
     bool visit(ObjCMessageArgumentAST *ast) override;
@@ -229,6 +230,7 @@ protected:
     bool visit(TemplateDeclarationAST *ast) override;
     bool visit(TypenameTypeParameterAST *ast) override;
     bool visit(TemplateTypeParameterAST *ast) override;
+    bool visit(TypeConstraintAST *ast) override;
     bool visit(UsingAST *ast) override;
     bool visit(UsingDirectiveAST *ast) override;
     bool visit(ObjCClassForwardDeclarationAST *ast) override;

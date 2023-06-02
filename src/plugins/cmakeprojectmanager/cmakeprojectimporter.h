@@ -4,12 +4,14 @@
 #pragma once
 
 #include "presetsparser.h"
-#include "utils/temporarydirectory.h"
 
 #include <qtsupport/qtprojectimporter.h>
 
+#include <utils/temporarydirectory.h>
+
 namespace CMakeProjectManager {
 
+class CMakeProject;
 class CMakeTool;
 
 namespace Internal {
@@ -19,9 +21,11 @@ struct DirectoryData;
 class CMakeProjectImporter : public QtSupport::QtProjectImporter
 {
 public:
-    CMakeProjectImporter(const Utils::FilePath &path, const Internal::PresetsData &presetsData);
+    CMakeProjectImporter(const Utils::FilePath &path,
+                         const CMakeProjectManager::CMakeProject *project);
 
     Utils::FilePaths importCandidates() final;
+    ProjectExplorer::Target *preferredTarget(const QList<ProjectExplorer::Target *> &possibleTargets) final;
 
 private:
     QList<void *> examineDirectory(const Utils::FilePath &importPath,
@@ -43,7 +47,7 @@ private:
 
     void ensureBuildDirectory(DirectoryData &data, const ProjectExplorer::Kit *k) const;
 
-    Internal::PresetsData m_presetsData;
+    const CMakeProject *m_project;
     Utils::TemporaryDirectory m_presetsTempDir;
 };
 

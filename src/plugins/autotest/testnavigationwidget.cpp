@@ -18,12 +18,15 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/link.h>
 #include <utils/progressindicator.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -87,8 +90,8 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
     connect(m_model, &TestTreeModel::updatedActiveFrameworks, this, [this](int numberOfActive) {
         m_missingFrameworksWidget->setVisible(numberOfActive == 0);
     });
-    ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
-    connect(sm, &ProjectExplorer::SessionManager::startupProjectChanged,
+    ProjectExplorer::ProjectManager *sm = ProjectExplorer::ProjectManager::instance();
+    connect(sm, &ProjectExplorer::ProjectManager::startupProjectChanged,
             this, [this](ProjectExplorer::Project * /*project*/) {
         m_expandedStateCache.clear();
     });
@@ -190,7 +193,7 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
     m_filterButton = new QToolButton(m_view);
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
     m_filterButton->setToolTip(Tr::tr("Filter Test Tree"));
-    m_filterButton->setProperty("noArrow", true);
+    m_filterButton->setProperty(StyleHelper::C_NO_ARROW, true);
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
     m_filterMenu = new QMenu(m_filterButton);
     initializeFilterMenu();

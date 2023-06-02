@@ -4,7 +4,6 @@
 #include "exampleslistmodel.h"
 
 #include "examplesparser.h"
-#include "qtsupporttr.h"
 
 #include <QBuffer>
 #include <QApplication>
@@ -29,6 +28,7 @@
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 
+#include <QLoggingCategory>
 #include <algorithm>
 #include <memory>
 
@@ -37,6 +37,8 @@ using namespace Utils;
 
 namespace QtSupport {
 namespace Internal {
+
+static QLoggingCategory log = QLoggingCategory("qtc.examples", QtWarningMsg);
 
 static bool debugExamples()
 {
@@ -64,16 +66,16 @@ int ExampleSetModel::readCurrentIndexFromSettings() const
 
 ExampleSetModel::ExampleSetModel()
 {
+    if (debugExamples() && !log().isDebugEnabled())
+        log().setEnabled(QtDebugMsg, true);
     // read extra example sets settings
     QSettings *settings = Core::ICore::settings();
     const QStringList list = settings->value("Help/InstalledExamples", QStringList()).toStringList();
-    if (debugExamples())
-        qWarning() << "Reading Help/InstalledExamples from settings:" << list;
+    qCDebug(log) << "Reading Help/InstalledExamples from settings:" << list;
     for (const QString &item : list) {
         const QStringList &parts = item.split(QLatin1Char('|'));
         if (parts.size() < 3) {
-            if (debugExamples())
-                qWarning() << "Item" << item << "has less than 3 parts (separated by '|'):" << parts;
+            qCDebug(log) << "Item" << item << "has less than 3 parts (separated by '|'):" << parts;
             continue;
         }
         ExtraExampleSet set;
@@ -82,15 +84,13 @@ ExampleSetModel::ExampleSetModel()
         set.examplesPath = parts.at(2);
         QFileInfo fi(set.manifestPath);
         if (!fi.isDir() || !fi.isReadable()) {
-            if (debugExamples())
-                qWarning() << "Manifest path " << set.manifestPath << "is not a readable directory, ignoring";
+            qCDebug(log) << "Manifest path " << set.manifestPath
+                         << "is not a readable directory, ignoring";
             continue;
         }
-        if (debugExamples()) {
-            qWarning() << "Adding examples set displayName=" << set.displayName
-                       << ", manifestPath=" << set.manifestPath
-                       << ", examplesPath=" << set.examplesPath;
-        }
+        qCDebug(log) << "Adding examples set displayName=" << set.displayName
+                     << ", manifestPath=" << set.manifestPath
+                     << ", examplesPath=" << set.examplesPath;
         if (!Utils::anyOf(m_extraExampleSets, [&set](const ExtraExampleSet &s) {
                 return FilePath::fromString(s.examplesPath).cleanPath()
                            == FilePath::fromString(set.examplesPath).cleanPath()
@@ -98,8 +98,8 @@ ExampleSetModel::ExampleSetModel()
                               == FilePath::fromString(set.manifestPath).cleanPath();
             })) {
             m_extraExampleSets.append(set);
-        } else if (debugExamples()) {
-            qWarning() << "Not adding, because example set with same directories exists";
+        } else {
+            qCDebug(log) << "Not adding, because example set with same directories exists";
         }
     }
     m_extraExampleSets += pluginRegisteredExampleSets();
@@ -138,11 +138,9 @@ void ExampleSetModel::recreateModel(const QtVersions &qtVersions)
         if (extraManifestDirs.contains(version->docsPath())) {
             m_extraExampleSets[extraManifestDirs.value(version->docsPath())].qtVersion
                 = version->qtVersion();
-            if (debugExamples()) {
-                qWarning() << "Not showing Qt version because manifest path is already added "
-                              "through InstalledExamples settings:"
-                           << version->displayName();
-            }
+            qCDebug(log) << "Not showing Qt version because manifest path is already added "
+                            "through InstalledExamples settings:"
+                         << version->displayName();
             continue;
         }
         auto newItem = new QStandardItem();
@@ -255,7 +253,8 @@ static QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url)
             img.convertTo(QImage::Format_RGB32);
             const int dpr = qApp->devicePixelRatio();
             // boundedTo -> don't scale thumbnails up
-            const QSize scaledSize = Core::ListModel::defaultImageSize.boundedTo(img.size()) * dpr;
+            const QSize scaledSize =
+                WelcomePageHelpers::GridItemImageSize.boundedTo(img.size()) * dpr;
             pixmap = QPixmap::fromImage(
                 img.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
             pixmap.setDevicePixelRatio(dpr);
@@ -318,63 +317,12 @@ static bool isValidExampleOrDemo(ExampleItem *item)
     }
     if (!ok) {
         item->tags.append(QLatin1String("broken"));
-        if (debugExamples())
-            qWarning() << QString::fromLatin1("ERROR: Item \"%1\" broken: %2").arg(item->name, reason);
+        qCDebug(log) << QString::fromLatin1("ERROR: Item \"%1\" broken: %2").arg(item->name, reason);
     }
-    if (debugExamples() && item->description.isEmpty())
-        qWarning() << QString::fromLatin1("WARNING: Item \"%1\" has no description").arg(item->name);
+    if (item->description.isEmpty())
+        qCDebug(log) << QString::fromLatin1("WARNING: Item \"%1\" has no description")
+                            .arg(item->name);
     return ok || debugExamples();
-}
-
-static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)
-{
-    if (first->isHighlighted && !second->isHighlighted)
-        return true;
-    if (!first->isHighlighted && second->isHighlighted)
-        return false;
-    return first->name.compare(second->name, Qt::CaseInsensitive) < 0;
-}
-
-static QList<std::pair<QString, QList<ExampleItem *>>> getCategories(
-    const QList<ExampleItem *> &items, bool sortIntoCategories)
-{
-    static const QString otherDisplayName = Tr::tr("Other", "Category for all other examples");
-    const bool useCategories = sortIntoCategories
-                               || qtcEnvironmentVariableIsSet("QTC_USE_EXAMPLE_CATEGORIES");
-    QList<ExampleItem *> other;
-    QMap<QString, QList<ExampleItem *>> categoryMap;
-    if (useCategories) {
-        for (ExampleItem *item : items) {
-            const QStringList itemCategories = item->metaData.value("category");
-            for (const QString &category : itemCategories)
-                categoryMap[category].append(item);
-            if (itemCategories.isEmpty())
-                other.append(item);
-        }
-    }
-    QList<std::pair<QString, QList<ExampleItem *>>> categories;
-    if (categoryMap.isEmpty()) {
-        // The example set doesn't define categories. Consider the "highlighted" ones as "featured"
-        QList<ExampleItem *> featured;
-        QList<ExampleItem *> allOther;
-        std::tie(featured, allOther) = Utils::partition(items, [](ExampleItem *i) {
-            return i->isHighlighted;
-        });
-        if (!featured.isEmpty())
-            categories.append({Tr::tr("Featured", "Category for highlighted examples"), featured});
-        if (!allOther.isEmpty())
-            categories.append({otherDisplayName, allOther});
-    } else {
-        const auto end = categoryMap.constKeyValueEnd();
-        for (auto it = categoryMap.constKeyValueBegin(); it != end; ++it)
-            categories.append(*it);
-        if (!other.isEmpty())
-            categories.append({otherDisplayName, other});
-    }
-    const auto end = categories.end();
-    for (auto it = categories.begin(); it != end; ++it)
-        sort(it->second, sortByHighlightedAndName);
-    return categories;
 }
 
 void ExamplesViewController::updateExamples()
@@ -391,10 +339,8 @@ void ExamplesViewController::updateExamples()
     QList<ExampleItem *> items;
     for (const QString &exampleSource : sources) {
         const auto manifest = FilePath::fromUserInput(exampleSource);
-        if (debugExamples()) {
-            qWarning() << QString::fromLatin1("Reading file \"%1\"...")
-                              .arg(manifest.absoluteFilePath().toUserOutput());
-        }
+        qCDebug(log) << QString::fromLatin1("Reading file \"%1\"...")
+                            .arg(manifest.absoluteFilePath().toUserOutput());
 
         const expected_str<QList<ExampleItem *>> result
             = parseExamples(manifest,
@@ -402,10 +348,8 @@ void ExamplesViewController::updateExamples()
                             FilePath::fromUserInput(demosInstallPath),
                             m_isExamples);
         if (!result) {
-            if (debugExamples()) {
-                qWarning() << "ERROR: Could not read examples from" << exampleSource << ":"
-                           << result.error();
-            }
+            qCDebug(log) << "ERROR: Could not read examples from" << exampleSource << ":"
+                         << result.error();
             continue;
         }
         items += filtered(*result, isValidExampleOrDemo);
@@ -423,10 +367,10 @@ void ExamplesViewController::updateExamples()
     }
 
     const bool sortIntoCategories = qtVersion >= *minQtVersionForCategories;
-    const QList<std::pair<QString, QList<ExampleItem *>>> sections
+    const QList<std::pair<Section, QList<ExampleItem *>>> sections
         = getCategories(items, sortIntoCategories);
     for (int i = 0; i < sections.size(); ++i) {
-        m_view->addSection({sections.at(i).first, i},
+        m_view->addSection(sections.at(i).first,
                            static_container_cast<ListItem *>(sections.at(i).second));
     }
 }
@@ -535,7 +479,7 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath,
         const QStringList demosPattern(QLatin1String("demos-manifest.xml"));
         QFileInfoList fis;
         const QFileInfoList subDirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-        for (QFileInfo subDir : subDirs) {
+        for (const QFileInfo &subDir : subDirs) {
             fis << QDir(subDir.absoluteFilePath()).entryInfoList(examplesPattern);
             fis << QDir(subDir.absoluteFilePath()).entryInfoList(demosPattern);
         }

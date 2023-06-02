@@ -5,18 +5,15 @@
 
 #include "remotelinux_export.h"
 
-#include "abstractremotelinuxdeploystep.h"
+#include <projectexplorer/buildstep.h>
 
 namespace RemoteLinux {
 
-class REMOTELINUX_EXPORT RsyncDeployStep : public AbstractRemoteLinuxDeployStep
+class REMOTELINUX_EXPORT RsyncDeployStepFactory
+    : public ProjectExplorer::BuildStepFactory
 {
 public:
-    RsyncDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-    ~RsyncDeployStep() override;
-
-    static Utils::Id stepId();
-    static QString displayName();
+    RsyncDeployStepFactory();
 };
 
 } // namespace RemoteLinux

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-2.1-or-later OR GPL-3.0-or-later
 
 #include "floatingdragpreview.h"
+#include "ads_globals_p.h"
 
 #include "dockareawidget.h"
 #include "dockcontainerwidget.h"
@@ -18,8 +19,6 @@
 #include <QPainter>
 
 #include <iostream>
-
-static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg)
 
 namespace ADS
 {

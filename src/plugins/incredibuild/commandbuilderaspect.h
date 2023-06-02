@@ -23,7 +23,7 @@ public:
     QString fullCommandFlag(bool keepJobNum) const;
 
 private:
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) final;
+    void addToLayout(Layouting::LayoutItem &parent) final;
     void fromMap(const QVariantMap &map) final;
     void toMap(QVariantMap &map) const final;
 

@@ -8,7 +8,7 @@
 QT_BEGIN_NAMESPACE
 class QDir;
 template <typename T>
-class QFutureInterface;
+class QPromise;
 QT_END_NAMESPACE
 
 namespace ClearCase::Internal {
@@ -18,7 +18,7 @@ class ClearCaseSync : public QObject
     Q_OBJECT
 public:
     explicit ClearCaseSync(QSharedPointer<StatusMap> statusMap);
-    void run(QFutureInterface<void> &future, QStringList &files);
+    void run(QPromise<void> &promise, QStringList &files);
 
     QStringList updateStatusHotFiles(const QString &viewRoot, int &total);
     void invalidateStatus(const QDir &viewRootDir, const QStringList &files);
@@ -28,9 +28,8 @@ public:
                                const int processed);
     void updateStatusForNotManagedFiles(const QStringList &files);
 
-    void syncDynamicView(QFutureInterface<void> &future,
-                         const ClearCaseSettings &settings);
-    void syncSnapshotView(QFutureInterface<void> &future, QStringList &files,
+    void syncDynamicView(QPromise<void> &promise, const ClearCaseSettings &settings);
+    void syncSnapshotView(QPromise<void> &promise, QStringList &files,
                           const ClearCaseSettings &settings);
 
     void processCleartoolLscheckoutLine(const QString &buffer);

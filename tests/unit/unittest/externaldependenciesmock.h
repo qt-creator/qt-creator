@@ -7,8 +7,6 @@
 
 #include <externaldependenciesinterface.h>
 
-#include <QUrl>
-
 class ExternalDependenciesMock : public QmlDesigner::ExternalDependenciesInterface
 {
 public:

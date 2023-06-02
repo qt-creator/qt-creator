@@ -55,8 +55,8 @@ Qt::ItemFlags SourceFilesHandler::flags(const QModelIndex &index) const
 {
     if (index.row() >= m_fullNames.size())
         return {};
-    QFileInfo fi(m_fullNames.at(index.row()));
-    return fi.isReadable() ? QAbstractItemModel::flags(index) : Qt::ItemFlags({});
+    FilePath filePath = m_fullNames.at(index.row());
+    return filePath.isReadableFile() ? QAbstractItemModel::flags(index) : Qt::ItemFlags({});
 }
 
 QVariant SourceFilesHandler::data(const QModelIndex &index, int role) const
@@ -75,7 +75,7 @@ QVariant SourceFilesHandler::data(const QModelIndex &index, int role) const
             break;
         case 1:
             if (role == Qt::DisplayRole)
-                return m_fullNames.at(row);
+                return m_fullNames.at(row).toUserOutput();
             //if (role == Qt::DecorationRole)
             //    return module.symbolsRead ? icon2 : icon;
             break;
@@ -123,13 +123,13 @@ bool SourceFilesHandler::setData(const QModelIndex &idx, const QVariant &data, i
     return false;
 }
 
-void SourceFilesHandler::setSourceFiles(const QMap<QString, QString> &sourceFiles)
+void SourceFilesHandler::setSourceFiles(const QMap<QString, FilePath> &sourceFiles)
 {
     beginResetModel();
     m_shortNames.clear();
     m_fullNames.clear();
-    QMap<QString, QString>::ConstIterator it = sourceFiles.begin();
-    QMap<QString, QString>::ConstIterator et = sourceFiles.end();
+    auto it = sourceFiles.begin();
+    const auto et = sourceFiles.end();
     for (; it != et; ++it) {
         m_shortNames.append(it.key());
         m_fullNames.append(it.value());
@@ -139,7 +139,7 @@ void SourceFilesHandler::setSourceFiles(const QMap<QString, QString> &sourceFile
 
 void SourceFilesHandler::removeAll()
 {
-    setSourceFiles(QMap<QString, QString>());
+    setSourceFiles({});
     //header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 }
 

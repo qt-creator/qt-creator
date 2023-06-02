@@ -9,8 +9,8 @@
 #include "documentmodel.h"
 #include "ieditor.h"
 
-#include "utils/link.h"
-#include "utils/textfileformat.h"
+#include <utils/link.h>
+#include <utils/textfileformat.h>
 
 #include <QFileDialog>
 #include <QList>
@@ -18,21 +18,18 @@
 
 #include <functional>
 
-QT_FORWARD_DECLARE_CLASS(QMenu)
+QT_BEGIN_NAMESPACE
+class QMenu;
+QT_END_NAMESPACE
 
-namespace Utils {
-class MimeType;
-}
+namespace Utils { class SearchResultItem; }
 
 namespace Core {
 
 class IDocument;
-class SearchResultItem;
+class LocatorFilterEntry;
 
-namespace Internal {
-class EditorManagerPrivate;
-class MainWindow;
-} // namespace Internal
+namespace Internal { class MainWindow; }
 
 class CORE_EXPORT EditorManagerPlaceHolder final : public QWidget
 {
@@ -76,8 +73,9 @@ public:
                                  Utils::Id editorId = {},
                                  OpenEditorFlags flags = NoFlags,
                                  bool *newEditor = nullptr);
+    static IEditor *openEditor(const LocatorFilterEntry &entry);
 
-    static void openEditorAtSearchResult(const SearchResultItem &item,
+    static void openEditorAtSearchResult(const Utils::SearchResultItem &item,
                                          Utils::Id editorId = {},
                                          OpenEditorFlags flags = NoFlags,
                                          bool *newEditor = nullptr);

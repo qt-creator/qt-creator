@@ -7,6 +7,11 @@ import "googlecommon.js" as googleCommon
 import qbs.Environment
 import qbs.File
 @endif
+@if "%{TestFrameWork}" == "BoostTest_dyn"
+import qbs.Environment
+import qbs.File
+import qbs.FileInfo
+@endif
 @if "%{TestFrameWork}" == "Catch2"
 import qbs.Environment
 import qbs.File
@@ -115,6 +120,40 @@ CppApplication {
     }
 
     files: [ "%{MainCppName}" ]
+
+@endif
+@if "%{TestFrameWork}" == "BoostTest_dyn"
+    type: "application"
+
+    property string boostInstallDir: {
+        if (typeof Environment.getEnv("BOOST_INSTALL_DIR") !== 'undefined')
+            return Environment.getEnv("BOOST_INSTALL_DIR");
+        return "%{BoostInstallDir}"; // set by Qt Creator wizard
+    }
+
+    Properties {
+        condition: boostInstallDir && File.exists(boostInstallDir)
+        cpp.includePaths: base.concat([qbs.hostOS.contains("windows")
+                                       ? boostInstallDir
+                                       : FileInfo.joinPaths(boostInstallDir, "include")])
+        // Windows: adapt to different directory layout, e.g. "lib64-msvc-14.2"
+        cpp.libraryPaths: base.concat([FileInfo.joinPaths(boostInstallDir, "lib")])
+    }
+    cpp.defines: base.concat("BOOST_UNIT_TEST_FRAMEWORK_DYN_LINK")
+    // Windows: adapt to name scheme, e.g. "boost_unit_test_framework-vc142-mt-gd-x64-1_80"
+    cpp.dynamicLibraries: ["boost_unit_test_framework"]
+
+    condition: {
+        if (!boostInstallDir)
+            console.log("BOOST_INSTALL_DIR is not set, assuming Boost can be "
+                        + "found automatically in your system");
+        return true;
+    }
+
+    files: [
+        "%{MainCppName}",
+        "%{TestCaseFileWithCppSuffix}",
+    ]
 
 @endif
 @if "%{TestFrameWork}" == "Catch2"

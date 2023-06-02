@@ -5,7 +5,9 @@
 
 #include <texteditor/basefilefind.h>
 
-QT_FORWARD_DECLARE_CLASS(QCheckBox);
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+QT_END_NAMESPACE
 
 namespace Utils { class FancyLineEdit; }
 
@@ -25,10 +27,10 @@ public:
     QVariant parameters() const override;
     void readSettings(QSettings *settings) override;
     void writeSettings(QSettings *settings) const override;
-    QFuture<Utils::FileSearchResultList> executeSearch(
+    QFuture<Utils::SearchResultItems> executeSearch(
             const TextEditor::FileFindParameters &parameters,
             TextEditor::BaseFileFind *baseFileFind) override;
-    Core::IEditor *openEditor(const Core::SearchResultItem &item,
+    Core::IEditor *openEditor(const Utils::SearchResultItem &item,
                               const TextEditor::FileFindParameters &parameters) override;
 
 private:

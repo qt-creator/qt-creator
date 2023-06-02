@@ -9,30 +9,29 @@
 #include <cplusplus/FindUsages.h>
 #include <utils/filepath.h>
 #include <utils/link.h>
+#include <utils/searchresultitem.h>
 
-#include <QObject>
-#include <QPointer>
 #include <QFuture>
+#include <QPointer>
 
 #include <functional>
 
-QT_FORWARD_DECLARE_CLASS(QTimer)
+QT_BEGIN_NAMESPACE
+class QTimer;
+QT_END_NAMESPACE
 
-namespace Core {
-class SearchResultItem;
-class SearchResult;
-} // namespace Core
+namespace Core { class SearchResult; }
 
 namespace CppEditor {
 class CppModelManager;
 
-Core::SearchResultColor::Style CPPEDITOR_EXPORT
+Utils::SearchResultColor::Style CPPEDITOR_EXPORT
 colorStyleForUsageType(CPlusPlus::Usage::Tags tags);
 
 class CPPEDITOR_EXPORT CppSearchResultFilter : public Core::SearchResultFilter
 {
     QWidget *createWidget() override;
-    bool matches(const Core::SearchResultItem &item) const override;
+    bool matches(const Utils::SearchResultItem &item) const override;
 
     void setValue(bool &member, bool value);
 
@@ -79,7 +78,7 @@ public:
 private:
     void setupSearch(Core::SearchResult *search);
     void onReplaceButtonClicked(Core::SearchResult *search, const QString &text,
-                                const QList<Core::SearchResultItem> &items, bool preserveCase);
+                                const Utils::SearchResultItems &items, bool preserveCase);
     void searchAgain(Core::SearchResult *search);
 
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,

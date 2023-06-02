@@ -33,13 +33,17 @@ namespace Internal {
 
 SquishSettings::SquishSettings()
 {
+    setId("A.Squish.General");
+    setDisplayName(Tr::tr("General"));
+    setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
+    setDisplayCategory("Squish");
+    setCategoryIcon(Icon({{":/squish/images/settingscategory_squish.png",
+                           Theme::PanelTextColorDark}}, Icon::Tint));
     setSettingsGroup("Squish");
     setAutoApply(false);
 
-    registerAspect(&squishPath);
     squishPath.setSettingsKey("SquishPath");
     squishPath.setLabelText(Tr::tr("Squish path:"));
-    squishPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     squishPath.setExpectedKind(PathChooser::ExistingDirectory);
     squishPath.setPlaceHolderText(Tr::tr("Path to Squish installation"));
     squishPath.setValidationFunction([this](FancyLineEdit *edit, QString *error) {
@@ -54,37 +58,30 @@ SquishSettings::SquishSettings()
         return valid;
     });
 
-    registerAspect(&licensePath);
     licensePath.setSettingsKey("LicensePath");
     licensePath.setLabelText(Tr::tr("License path:"));
-    licensePath.setDisplayStyle(StringAspect::PathChooserDisplay);
     licensePath.setExpectedKind(PathChooser::ExistingDirectory);
 
-    registerAspect(&local);
     local.setSettingsKey("Local");
     local.setLabel(Tr::tr("Local Server"));
     local.setDefaultValue(true);
 
-    registerAspect(&serverHost);
     serverHost.setSettingsKey("ServerHost");
     serverHost.setLabelText(Tr::tr("Server host:"));
     serverHost.setDisplayStyle(StringAspect::LineEditDisplay);
     serverHost.setDefaultValue("localhost");
     serverHost.setEnabled(false);
 
-    registerAspect(&serverPort);
     serverPort.setSettingsKey("ServerPort");
     serverPort.setLabel(Tr::tr("Server Port"));
     serverPort.setRange(1, 65535);
     serverPort.setDefaultValue(9999);
     serverPort.setEnabled(false);
 
-    registerAspect(&verbose);
     verbose.setSettingsKey("Verbose");
     verbose.setLabel(Tr::tr("Verbose log"));
     verbose.setDefaultValue(false);
 
-    registerAspect(&minimizeIDE);
     minimizeIDE.setSettingsKey("MinimizeIDE");
     minimizeIDE.setLabel(Tr::tr("Minimize IDE"));
     minimizeIDE.setToolTip(Tr::tr("Minimize IDE automatically while running or recording test cases."));
@@ -94,13 +91,24 @@ SquishSettings::SquishSettings()
         serverHost.setEnabled(!checked);
         serverPort.setEnabled(!checked);
     });
-    connect(&squishPath, &Utils::StringAspect::valueChanged,
-            this, &SquishSettings::squishPathChanged);
+
+    setLayouter([this] {
+        using namespace Layouting;
+        return Form {
+            squishPath, br,
+            licensePath, br,
+            local, serverHost, serverPort, br,
+            verbose, br,
+            minimizeIDE, br,
+        };
+    });
+
+    readSettings();
 }
 
 Utils::FilePath SquishSettings::scriptsPath(Language language) const
 {
-    Utils::FilePath scripts = squishPath.filePath().pathAppended("scriptmodules");
+    Utils::FilePath scripts = squishPath().pathAppended("scriptmodules");
     switch (language) {
     case Language::Python: scripts = scripts.pathAppended("python"); break;
     case Language::Perl: scripts = scripts.pathAppended("perl"); break;
@@ -112,35 +120,8 @@ Utils::FilePath SquishSettings::scriptsPath(Language language) const
     return scripts.isReadableDir() ? scripts : Utils::FilePath();
 }
 
-SquishSettingsPage::SquishSettingsPage(SquishSettings *settings)
-{
-    setId("A.Squish.General");
-    setDisplayName(Tr::tr("General"));
-    setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
-    setDisplayCategory("Squish");
-    setCategoryIcon(Icon({{":/squish/images/settingscategory_squish.png",
-                           Theme::PanelTextColorDark}}, Icon::Tint));
-
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        SquishSettings &s = *settings;
-        using namespace Layouting;
-
-        Grid grid {
-            s.squishPath, br,
-            s.licensePath, br,
-            Span {2, Row { s.local, s.serverHost, s.serverPort } }, br,
-            s.verbose, br,
-            s.minimizeIDE, br,
-        };
-        Column { Row { grid }, st }.attachTo(widget);
-    });
-}
-
 SquishServerSettings::SquishServerSettings()
 {
-    registerAspect(&autTimeout);
     autTimeout.setLabel(Tr::tr("Maximum startup time:"));
     autTimeout.setToolTip(Tr::tr("Specifies how many seconds Squish should wait for a reply from the "
                              "AUT directly after starting it."));
@@ -148,7 +129,6 @@ SquishServerSettings::SquishServerSettings()
     autTimeout.setSuffix("s");
     autTimeout.setDefaultValue(20);
 
-    registerAspect(&responseTimeout);
     responseTimeout.setLabel(Tr::tr("Maximum response time:"));
     responseTimeout.setToolTip(Tr::tr("Specifies how many seconds Squish should wait for a reply from "
                                   "the hooked up AUT before raising a timeout error."));
@@ -156,7 +136,6 @@ SquishServerSettings::SquishServerSettings()
     responseTimeout.setDefaultValue(300);
     responseTimeout.setSuffix("s");
 
-    registerAspect(&postMortemWaitTime);
     postMortemWaitTime.setLabel(Tr::tr("Maximum post-mortem wait time:"));
     postMortemWaitTime.setToolTip(Tr::tr("Specifies how many seconds Squish should wait after the the "
                                      "first AUT process has exited."));
@@ -164,7 +143,6 @@ SquishServerSettings::SquishServerSettings()
     postMortemWaitTime.setDefaultValue(1500);
     postMortemWaitTime.setSuffix("ms");
 
-    registerAspect(&animatedCursor);
     animatedCursor.setLabel(Tr::tr("Animate mouse cursor:"));
     animatedCursor.setDefaultValue(true);
 }
@@ -251,10 +229,10 @@ void SquishServerSettings::setFromXmlOutput(const QString &output)
     autPaths = newSettings.autPaths;
     attachableAuts = newSettings.attachableAuts;
     licensedToolkits = newSettings.licensedToolkits;
-    autTimeout.setValue(newSettings.autTimeout.value());
-    postMortemWaitTime.setValue(newSettings.postMortemWaitTime.value());
-    responseTimeout.setValue(newSettings.responseTimeout.value());
-    animatedCursor.setValue(newSettings.animatedCursor.value());
+    autTimeout.setValue(newSettings.autTimeout());
+    postMortemWaitTime.setValue(newSettings.postMortemWaitTime());
+    responseTimeout.setValue(newSettings.responseTimeout());
+    animatedCursor.setValue(newSettings.animatedCursor());
 }
 
 class SquishServerItem : public TreeItem
@@ -386,10 +364,10 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
     using namespace Layouting;
     Form grid {
         &m_applicationsView, br,
-        &m_serverSettings.autTimeout,
-        &m_serverSettings.responseTimeout,
-        &m_serverSettings.postMortemWaitTime,
-        &m_serverSettings.animatedCursor,
+        &m_serverSettings.autTimeout, br,
+        &m_serverSettings.responseTimeout, br,
+        &m_serverSettings.postMortemWaitTime, br,
+        &m_serverSettings.animatedCursor, br,
     };
     Column buttonCol {
         add,
@@ -626,14 +604,14 @@ QList<QStringList> SquishServerSettingsWidget::toConfigChangeArguments() const
             result.append({"addAppPath", path});
     }
 
-    if (m_originalSettings.autTimeout.value() != m_serverSettings.autTimeout.value())
-        result.append({"setAUTTimeout", QString::number(m_serverSettings.autTimeout.value())});
-    if (m_originalSettings.responseTimeout.value() != m_serverSettings.responseTimeout.value())
-        result.append({"setResponseTimeout", QString::number(m_serverSettings.responseTimeout.value())});
-    if (m_originalSettings.postMortemWaitTime.value() != m_serverSettings.postMortemWaitTime.value())
-        result.append({"setAUTPostMortemTimeout", QString::number(m_serverSettings.postMortemWaitTime.value())});
-    if (m_originalSettings.animatedCursor.value() != m_serverSettings.animatedCursor.value())
-        result.append({"setCursorAnimation", m_serverSettings.animatedCursor.value() ? QString("on") : QString("off")});
+    if (m_originalSettings.autTimeout() != m_serverSettings.autTimeout())
+        result.append({"setAUTTimeout", QString::number(m_serverSettings.autTimeout())});
+    if (m_originalSettings.responseTimeout() != m_serverSettings.responseTimeout())
+        result.append({"setResponseTimeout", QString::number(m_serverSettings.responseTimeout())});
+    if (m_originalSettings.postMortemWaitTime() != m_serverSettings.postMortemWaitTime())
+        result.append({"setAUTPostMortemTimeout", QString::number(m_serverSettings.postMortemWaitTime())});
+    if (m_originalSettings.animatedCursor() != m_serverSettings.animatedCursor())
+        result.append({"setCursorAnimation", m_serverSettings.animatedCursor() ? QString("on") : QString("off")});
     return result;
 }
 

@@ -9,7 +9,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
@@ -18,7 +18,7 @@
 
 #include <utils/filepath.h>
 #include <utils/port.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/url.h>
 
 using namespace ProjectExplorer;
@@ -88,11 +88,14 @@ QmlPreviewRunner::QmlPreviewRunner(RunControl *runControl, const QmlPreviewRunne
         if (!runControl->isRunning())
             return;
 
-        this->connect(runControl, &RunControl::stopped, [this, runControl] {
-            auto rc = new RunControl(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
-            rc->copyDataFromRunControl(runControl);
-            ProjectExplorerPlugin::startRunControl(rc);
-        });
+        this->connect(runControl,
+                      &RunControl::stopped,
+                      ProjectExplorerPlugin::instance(),
+                      [runControl] {
+                          auto rc = new RunControl(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
+                          rc->copyDataFromRunControl(runControl);
+                          ProjectExplorerPlugin::startRunControl(rc);
+                      });
 
         runControl->initiateStop();
     });
@@ -124,7 +127,7 @@ QUrl QmlPreviewRunner::serverUrl() const
 QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory(QmlPreviewPlugin *plugin,
                                                        const QmlPreviewRunnerSetting *runnerSettings)
 {
-    setProducer([this, plugin, runnerSettings](RunControl *runControl) {
+    setProducer([plugin, runnerSettings](RunControl *runControl) {
         auto runner = new QmlPreviewRunner(runControl, *runnerSettings);
         QObject::connect(plugin, &QmlPreviewPlugin::updatePreviews,
                          runner, &QmlPreviewRunner::loadFile);

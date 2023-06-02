@@ -14,11 +14,10 @@ publication by Neil Fraser: http://neil.fraser.name/writing/diff/
 #include "utilstr.h"
 
 #include <QList>
-#include <QRegularExpression>
-#include <QStringList>
 #include <QMap>
 #include <QPair>
-#include <QFutureInterfaceBase>
+#include <QRegularExpression>
+#include <QStringList>
 
 namespace Utils {
 
@@ -937,10 +936,9 @@ QString Diff::toString() const
 
 ///////////////
 
-Differ::Differ(QFutureInterfaceBase *jobController)
-    : m_jobController(jobController)
+Differ::Differ(const std::optional<QFuture<void>> &future)
+    : m_future(future)
 {
-
 }
 
 QList<Diff> Differ::diff(const QString &text1, const QString &text2)
@@ -1075,7 +1073,7 @@ QList<Diff> Differ::diffMyers(const QString &text1, const QString &text2)
     int kMinReverse = -D;
     int kMaxReverse = D;
     for (int d = 0; d <= D; d++) {
-        if (m_jobController && m_jobController->isCanceled()) {
+        if (m_future && m_future->isCanceled()) {
             delete [] forwardV;
             delete [] reverseV;
             return QList<Diff>();
@@ -1193,17 +1191,10 @@ QList<Diff> Differ::diffNonCharMode(const QString &text1, const QString &text2)
     QString lastDelete;
     QString lastInsert;
     QList<Diff> newDiffList;
-    if (m_jobController) {
-        m_jobController->setProgressRange(0, diffList.count());
-        m_jobController->setProgressValue(0);
-    }
     for (int i = 0; i <= diffList.count(); i++) {
-        if (m_jobController) {
-            if (m_jobController->isCanceled()) {
-                m_currentDiffMode = diffMode;
-                return QList<Diff>();
-            }
-            m_jobController->setProgressValue(i + 1);
+        if (m_future && m_future->isCanceled()) {
+            m_currentDiffMode = diffMode;
+            return {};
         }
         const Diff diffItem = i < diffList.count()
                   ? diffList.at(i)

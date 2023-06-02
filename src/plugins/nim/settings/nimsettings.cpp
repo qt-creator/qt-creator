@@ -26,32 +26,24 @@ static SimpleCodeStylePreferences *m_globalCodeStyle = nullptr;
 
 NimSettings::NimSettings()
 {
-    setAutoApply(false);
     setSettingsGroups("Nim", "NimSuggest");
+    setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
+    setDisplayName(Tr::tr("Tools"));
+    setCategory(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY);
+    setDisplayCategory(Tr::tr("Nim"));
+    setCategoryIconPath(":/nim/images/settingscategory_nim.png");
 
-    InitializeCodeStyleSettings();
+    setLayouter([this] {
+        using namespace Layouting;
+        return Column {
+            Group {
+                title("Nimsuggest"),
+                Column { nimSuggestPath }
+            },
+            st
+        };
+    });
 
-    registerAspect(&nimSuggestPath);
-    nimSuggestPath.setSettingsKey("Command");
-    nimSuggestPath.setDisplayStyle(StringAspect::PathChooserDisplay);
-    nimSuggestPath.setExpectedKind(PathChooser::ExistingCommand);
-    nimSuggestPath.setLabelText(Tr::tr("Path:"));
-
-    readSettings(Core::ICore::settings());
-}
-
-NimSettings::~NimSettings()
-{
-    TerminateCodeStyleSettings();
-}
-
-SimpleCodeStylePreferences *NimSettings::globalCodeStyle()
-{
-    return m_globalCodeStyle;
-}
-
-void NimSettings::InitializeCodeStyleSettings()
-{
     // code style factory
     auto factory = new NimCodeStylePreferencesFactory();
     TextEditorSettings::registerCodeStyleFactory(factory);
@@ -93,9 +85,15 @@ void NimSettings::InitializeCodeStyleSettings()
                                                       Nim::Constants::C_NIMLANGUAGE_ID);
     TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_SCRIPT_MIMETYPE,
                                                       Nim::Constants::C_NIMLANGUAGE_ID);
+
+    nimSuggestPath.setSettingsKey("Command");
+    nimSuggestPath.setExpectedKind(PathChooser::ExistingCommand);
+    nimSuggestPath.setLabelText(Tr::tr("Path:"));
+
+    readSettings();
 }
 
-void NimSettings::TerminateCodeStyleSettings()
+NimSettings::~NimSettings()
 {
     TextEditorSettings::unregisterCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID);
     TextEditorSettings::unregisterCodeStylePool(Nim::Constants::C_NIMLANGUAGE_ID);
@@ -105,28 +103,9 @@ void NimSettings::TerminateCodeStyleSettings()
     m_globalCodeStyle = nullptr;
 }
 
-
-// NimToolSettingsPage
-
-NimToolsSettingsPage::NimToolsSettingsPage(NimSettings *settings)
+SimpleCodeStylePreferences *NimSettings::globalCodeStyle()
 {
-    setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
-    setDisplayName(Tr::tr("Tools"));
-    setCategory(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY);
-    setDisplayCategory(Tr::tr("Nim"));
-    setCategoryIconPath(":/nim/images/settingscategory_nim.png");
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        using namespace Layouting;
-        Column {
-            Group {
-                title("Nimsuggest"),
-                Column { settings->nimSuggestPath }
-            },
-            st
-        }.attachTo(widget);
-     });
+    return m_globalCodeStyle;
 }
 
 } // namespace Nim

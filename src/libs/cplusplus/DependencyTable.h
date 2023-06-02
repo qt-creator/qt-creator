@@ -14,7 +14,8 @@
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
-class QFutureInterfaceBase;
+template <typename T>
+class QFuture;
 QT_END_NAMESPACE
 
 namespace CPlusPlus {
@@ -25,7 +26,7 @@ class CPLUSPLUS_EXPORT DependencyTable
 {
 private:
     friend class Snapshot;
-    void build(QFutureInterfaceBase &futureInterface, const Snapshot &snapshot);
+    void build(const std::optional<QFuture<void>> &future, const Snapshot &snapshot);
     Utils::FilePaths filesDependingOn(const Utils::FilePath &fileName) const;
 
     QVector<Utils::FilePath> files;

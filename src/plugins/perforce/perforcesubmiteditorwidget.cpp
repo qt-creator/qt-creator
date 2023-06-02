@@ -22,7 +22,6 @@ public:
         , m_clientName(createLabel())
         , m_userName(createLabel())
     {
-        resize(402, 134);
         setFlat(true);
         setTitle(Tr::tr("Submit"));
 

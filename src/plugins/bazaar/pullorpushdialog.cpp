@@ -72,7 +72,7 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
         m_localCheckBox->setVisible(false);
     }
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Group {
             title(Tr::tr("Branch Location")),

@@ -33,13 +33,19 @@ ContextPaneWidgetRectangle::ContextPaneWidgetRectangle(QWidget *parent)
         return result;
     };
 
+    const auto colorButton = [] {
+        auto result = new ColorButton;
+        result->setCheckable(true);
+        result->setShowArrow(false);
+        return result;
+    };
+
     m_gradientLabel = new QLabel(Tr::tr("Gradient"));
     m_gradientLabel->setAlignment(Qt::AlignBottom);
     m_gradientLine = new GradientLine;
     m_gradientLine->setMinimumWidth(240);
 
-    m_colorColorButton = new ColorButton;
-    m_colorColorButton->setShowArrow(false);
+    m_colorColorButton = colorButton();
     m_colorSolid = toolButton("icon_color_solid");
     m_colorGradient = toolButton("icon_color_gradient");
     m_colorNone = toolButton("icon_color_none");
@@ -48,15 +54,14 @@ ContextPaneWidgetRectangle::ContextPaneWidgetRectangle(QWidget *parent)
     colorButtons->addButton(m_colorGradient);
     colorButtons->addButton(m_colorNone);
 
-    m_borderColorButton = new ColorButton;
-    m_borderColorButton->setShowArrow(false);
+    m_borderColorButton = colorButton();
     m_borderSolid = toolButton("icon_color_solid");
     m_borderNone = toolButton("icon_color_none");
     auto borderButtons = new QButtonGroup(this);
     borderButtons->addButton(m_borderSolid);
     borderButtons->addButton(m_borderNone);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Grid {
         m_gradientLabel, m_gradientLine, br,
         Tr::tr("Color"), Row { m_colorColorButton, m_colorSolid, m_colorGradient, m_colorNone, st, }, br,

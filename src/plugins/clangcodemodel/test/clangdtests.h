@@ -4,11 +4,11 @@
 #pragma once
 
 #include <cppeditor/cpptoolstestcase.h>
-#include <coreplugin/find/searchresultitem.h>
 #include <texteditor/blockrange.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/semantichighlighter.h>
 #include <utils/fileutils.h>
+#include <utils/searchresultitem.h>
 
 #include <QHash>
 #include <QObject>
@@ -74,7 +74,7 @@ private slots:
     void test();
 
 private:
-    QList<Core::SearchResultItem> m_actualResults;
+    Utils::SearchResultItems m_actualResults;
 };
 
 class ClangdTestFollowSymbol : public ClangdTest

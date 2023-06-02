@@ -10,10 +10,10 @@
 
 #include <coreplugin/messagemanager.h>
 
+#include <utils/async.h>
 #include <utils/differ.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 #include <utils/textutils.h>
 
@@ -64,13 +64,12 @@ static FormatTask format(FormatTask task)
         // Format temporary file
         QStringList options = task.command.options();
         options.replaceInStrings(QLatin1String("%file"), sourceFile.filePath().toString());
-        QtcProcess process;
+        Process process;
         process.setTimeoutS(5);
         process.setCommand({executable, options});
         process.runBlocking();
         if (process.result() != ProcessResult::FinishedWithSuccess) {
-            task.error = Tr::tr("TextEditor", "Failed to format: %1.")
-                             .arg(process.exitMessage());
+            task.error = Tr::tr("Failed to format: %1.").arg(process.exitMessage());
             return task;
         }
         const QString output = process.cleanedStdErr();
@@ -89,7 +88,7 @@ static FormatTask format(FormatTask task)
     return task;
 
     case Command::PipeProcessing: {
-        QtcProcess process;
+        Process process;
         QStringList options = task.command.options();
         options.replaceInStrings("%filename", task.filePath.fileName());
         options.replaceInStrings("%file", task.filePath.toString());
@@ -249,8 +248,7 @@ void updateEditorText(QPlainTextEdit *editor, const QString &text)
 
 static void showError(const QString &error)
 {
-    Core::MessageManager::writeFlashing(Tr::tr("TextEditor", "Error in text formatting: %1")
-                .arg(error.trimmed()));
+    Core::MessageManager::writeFlashing(Tr::tr("Error in text formatting: %1").arg(error.trimmed()));
 }
 
 /**
@@ -324,7 +322,7 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
             checkAndApplyTask(watcher->result());
         watcher->deleteLater();
     });
-    watcher->setFuture(Utils::runAsync(&format, FormatTask(editor, doc->filePath(), sd,
+    watcher->setFuture(Utils::asyncRun(&format, FormatTask(editor, doc->filePath(), sd,
                                                            command, startPos, endPos)));
 }
 

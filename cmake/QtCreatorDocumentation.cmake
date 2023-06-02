@@ -10,7 +10,7 @@ add_feature_info("Build online documentation" WITH_ONLINE_DOCS "")
 # Used for QT_INSTALL_DOCS
 function(qt5_query_qmake)
   if (NOT TARGET Qt::qmake)
-    message(FATAL_ERROR "Qmake was not found. Add find_package(Qt5 COMPONENTS Core) to CMake to enable.")
+    message(FATAL_ERROR "Qmake was not found. Add find_package(Qt6 COMPONENTS Core) to CMake to enable.")
   endif()
   # dummy check for if we already queried qmake
   if (QT_INSTALL_BINS)
@@ -142,7 +142,7 @@ function(_setup_qhelpgenerator_targets _qdocconf_file _html_outputdir)
   endif()
 
   if (NOT TARGET Qt::qhelpgenerator)
-    message(WARNING "qhelpgenerator missing: No QCH documentation targets were generated. Add find_package(Qt5 COMPONENTS Help) to CMake to enable.")
+    message(WARNING "qhelpgenerator missing: No QCH documentation targets were generated. Add find_package(Qt6 COMPONENTS Help) to CMake to enable.")
     return()
   endif()
 

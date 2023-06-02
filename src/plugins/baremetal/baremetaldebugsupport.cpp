@@ -11,6 +11,7 @@
 #include "idebugserverprovider.h"
 
 #include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
@@ -23,8 +24,8 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/portlist.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;

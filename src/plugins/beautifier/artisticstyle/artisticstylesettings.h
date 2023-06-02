@@ -5,8 +5,6 @@
 
 #include "../abstractsettings.h"
 
-#include <utils/fileutils.h>
-
 namespace Beautifier::Internal {
 
 class ArtisticStyleSettings : public AbstractSettings
@@ -14,26 +12,20 @@ class ArtisticStyleSettings : public AbstractSettings
 public:
     ArtisticStyleSettings();
 
-    bool useOtherFiles() const;
-    void setUseOtherFiles(bool useOtherFiles);
+    Utils::BoolAspect useOtherFiles{this};
+    Utils::BoolAspect useSpecificConfigFile{this};
+    Utils::FilePathAspect specificConfigFile{this};
+    Utils::BoolAspect useHomeFile{this};
+    Utils::BoolAspect useCustomStyle{this};
+    Utils::StringAspect customStyle{this};
 
-    bool useSpecificConfigFile() const;
-    void setUseSpecificConfigFile(bool useSpecificConfigFile);
-
-    Utils::FilePath specificConfigFile() const;
-    void setSpecificConfigFile(const Utils::FilePath &specificConfigFile);
-
-    bool useHomeFile() const;
-    void setUseHomeFile(bool useHomeFile);
-
-    bool useCustomStyle() const;
-    void setUseCustomStyle(bool useCustomStyle);
-
-    QString customStyle() const;
-    void setCustomStyle(const QString &customStyle);
-
-    QString documentationFilePath() const override;
     void createDocumentationFile() const override;
+};
+
+class ArtisticStyleOptionsPage final : public Core::IOptionsPage
+{
+public:
+    explicit ArtisticStyleOptionsPage(ArtisticStyleSettings *settings);
 };
 
 } // Beautifier::Internal

@@ -26,7 +26,7 @@ add_qtc_test(unittest GTEST
   DEPENDS
     Qt::Core Qt::Network Qt::Widgets
     Qt::Xml Qt::Concurrent Qt::QmlPrivate Qt::Gui
-    Qt6Core5Compat QmlJS Sqlite SqliteC
+    Qt::Core5Compat QmlJS Sqlite SqliteC
     Googletest
   DEFINES
     GTEST_INTERNAL_HAS_STRING_VIEW
@@ -43,7 +43,6 @@ add_qtc_test(unittest GTEST
     QDS_USE_PROJECTSTORAGE
   SOURCES
     abstractviewmock.h
-    compare-operators.h
     conditionally-disabled-tests.h
     dynamicastmatcherdiagnosticcontainer-matcher.h
     eventspy.cpp eventspy.h
@@ -342,15 +341,6 @@ if (NOT TARGET CPlusPlus)
 endif()
 
 extend_qtc_test(unittest DEPENDS Utils CPlusPlus)
-
-extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/coreplugin
-  DEFINES CORE_STATIC_LIBRARY
-  SOURCES
-    coreicons.cpp coreicons.h
-    find/ifindfilter.cpp find/ifindfilter.h
-    locator/ilocatorfilter.cpp locator/ilocatorfilter.h
-)
 
 extend_qtc_test(unittest
   CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND Qt6_VERSION VERSION_GREATER_EQUAL 6.5.0  AND Qt6_VERSION VERSION_LESS 6.6.0

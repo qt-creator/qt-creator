@@ -3,6 +3,7 @@
 
 #include "client.h"
 
+#include "callhierarchy.h"
 #include "diagnosticmanager.h"
 #include "documentsymbolcache.h"
 #include "languageclientcompletionassist.h"
@@ -11,6 +12,7 @@
 #include "languageclienthoverhandler.h"
 #include "languageclientinterface.h"
 #include "languageclientmanager.h"
+#include "languageclientoutline.h"
 #include "languageclientquickfix.h"
 #include "languageclientsymbolsupport.h"
 #include "languageclientutils.h"
@@ -26,6 +28,8 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <languageserverprotocol/completion.h>
 #include <languageserverprotocol/diagnostics.h>
 #include <languageserverprotocol/initializemessages.h>
@@ -38,7 +42,7 @@
 #include <languageserverprotocol/workspace.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <texteditor/codeassist/documentcontentcompletion.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -51,7 +55,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/mimeutils.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDebug>
 #include <QJsonDocument>
@@ -155,7 +159,7 @@ public:
         m_documentUpdateTimer.setInterval(500);
         connect(&m_documentUpdateTimer, &QTimer::timeout, this,
                 [this] { sendPostponedDocumentUpdates(Schedule::Now); });
-        connect(SessionManager::instance(), &SessionManager::projectRemoved,
+        connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
                 q, &Client::projectClosed);
 
         QTC_ASSERT(clientInterface, return);
@@ -192,7 +196,7 @@ public:
         // temporary container needed since m_resetAssistProvider is changed in resetAssistProviders
         for (TextDocument *document : m_resetAssistProvider.keys())
             resetAssistProviders(document);
-        if (!LanguageClientManager::isShuttingDown()) {
+        if (!ExtensionSystem::PluginManager::isShuttingDown()) {
             // prevent accessing deleted editors on Creator shutdown
             const QList<Core::IEditor *> &editors = Core::DocumentModel::editorsForOpenedDocuments();
             for (Core::IEditor *editor : editors) {
@@ -325,7 +329,6 @@ public:
     SemanticTokenSupport m_tokenSupport;
     QString m_serverName;
     QString m_serverVersion;
-    LanguageServerProtocol::SymbolStringifier m_symbolStringifier;
     Client::LogTarget m_logTarget = Client::LogTarget::Ui;
     bool m_locatorsEnabled = true;
     bool m_autoRequestCodeActions = true;
@@ -353,6 +356,7 @@ void Client::setName(const QString &name)
 QString Client::name() const
 {
     if (d->m_project && !d->m_project->displayName().isEmpty())
+        //: <language client> for <project>
         return Tr::tr("%1 for %2").arg(d->m_displayName, d->m_project->displayName());
     return d->m_displayName;
 }
@@ -508,11 +512,13 @@ void Client::initialize()
     if (d->m_project)
         params.setRootUri(hostPathToServerUri(d->m_project->projectDirectory()));
 
+    auto projectFilter = [this](Project *project) { return canOpenProject(project); };
+    auto toWorkSpaceFolder = [this](Project *pro) {
+        return WorkSpaceFolder(hostPathToServerUri(pro->projectDirectory()), pro->displayName());
+    };
     const QList<WorkSpaceFolder> workspaces
-        = Utils::transform(SessionManager::projects(), [this](Project *pro) {
-              return WorkSpaceFolder(hostPathToServerUri(pro->projectDirectory()),
-                                     pro->displayName());
-          });
+        = Utils::transform(Utils::filtered(ProjectManager::projects(), projectFilter),
+                           toWorkSpaceFolder);
     if (workspaces.isEmpty())
         params.setWorkSpaceFolders(nullptr);
     else
@@ -550,11 +556,17 @@ Client::State Client::state() const
 QString Client::stateString() const
 {
     switch (d->m_state){
+    //: language client state
     case Uninitialized: return Tr::tr("uninitialized");
+    //: language client state
     case InitializeRequested: return Tr::tr("initialize requested");
+    //: language client state
     case Initialized: return Tr::tr("initialized");
+    //: language client state
     case ShutdownRequested: return Tr::tr("shutdown requested");
-    case Shutdown: return Tr::tr("shutdown");
+    //: language client state
+    case Shutdown: return Tr::tr("shut down");
+    //: language client state
     case Error: return Tr::tr("error");
     }
     return {};
@@ -617,7 +629,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
         }
     }
 
-    d->m_openedDocument[document].document = document->document()->clone(this);
+    d->m_openedDocument[document].document = new QTextDocument(document->document()->toPlainText());
     d->m_openedDocument[document].contentsChangedConnection
         = connect(document,
                   &TextDocument::contentsChangedWithPosition,
@@ -879,6 +891,8 @@ void Client::activateEditor(Core::IEditor *editor)
             optionalActions |= TextEditor::TextEditorActionHandler::FindUsage;
         if (symbolSupport().supportsRename(widget->textDocument()))
             optionalActions |= TextEditor::TextEditorActionHandler::RenameSymbol;
+        if (CallHierarchyFactory::supportsCallHierarchy(this, textEditor->document()))
+            optionalActions |= TextEditor::TextEditorActionHandler::CallHierarchy;
         widget->setOptionalActions(optionalActions);
     }
 }
@@ -1348,6 +1362,7 @@ ProjectExplorer::Project *Client::project() const
 
 void Client::setCurrentProject(ProjectExplorer::Project *project)
 {
+    QTC_ASSERT(canOpenProject(project), return);
     if (d->m_project == project)
         return;
     if (d->m_project)
@@ -1364,7 +1379,7 @@ void Client::setCurrentProject(ProjectExplorer::Project *project)
 
 void Client::projectOpened(ProjectExplorer::Project *project)
 {
-    if (!d->sendWorkspceFolderChanges())
+    if (!d->sendWorkspceFolderChanges() || !canOpenProject(project))
         return;
     WorkspaceFoldersChangeEvent event;
     event.setAdded({WorkSpaceFolder(hostPathToServerUri(project->projectDirectory()),
@@ -1377,7 +1392,7 @@ void Client::projectOpened(ProjectExplorer::Project *project)
 
 void Client::projectClosed(ProjectExplorer::Project *project)
 {
-    if (d->sendWorkspceFolderChanges()) {
+    if (d->sendWorkspceFolderChanges() && canOpenProject(project)) {
         WorkspaceFoldersChangeEvent event;
         event.setRemoved({WorkSpaceFolder(hostPathToServerUri(project->projectDirectory()),
                                           project->displayName())});
@@ -1395,6 +1410,12 @@ void Client::projectClosed(ProjectExplorer::Project *project)
         }
         d->m_project = nullptr;
     }
+}
+
+bool Client::canOpenProject(ProjectExplorer::Project *project)
+{
+    Q_UNUSED(project);
+    return true;
 }
 
 void Client::updateConfiguration(const QJsonValue &configuration)
@@ -1482,16 +1503,6 @@ DiagnosticManager *Client::createDiagnosticManager()
 void Client::setSemanticTokensHandler(const SemanticTokensHandler &handler)
 {
     d->m_tokenSupport.setTokensHandler(handler);
-}
-
-void Client::setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier)
-{
-    d->m_symbolStringifier = stringifier;
-}
-
-SymbolStringifier Client::symbolStringifier() const
-{
-    return d->m_symbolStringifier;
 }
 
 void Client::setSnippetsGroup(const QString &group)
@@ -1679,10 +1690,15 @@ LanguageClientValue<MessageActionItem> ClientPrivate::showMessageBox(
     }
     QHash<QAbstractButton *, MessageActionItem> itemForButton;
     if (const std::optional<QList<MessageActionItem>> actions = message.actions()) {
-        for (const MessageActionItem &action : *actions)
-            itemForButton.insert(box->addButton(action.title(), QMessageBox::InvalidRole), action);
+        auto button = box->addButton(QMessageBox::Close);
+        connect(button, &QPushButton::clicked, box, &QMessageBox::reject);
+        for (const MessageActionItem &action : *actions) {
+            connect(button, &QPushButton::clicked, box, &QMessageBox::accept);
+            itemForButton.insert(button, action);
+        }
     }
-    box->exec();
+    if (box->exec() == QDialog::Rejected)
+        return {};
     const MessageActionItem &item = itemForButton.value(box->clickedButton());
     return item.isValid() ? LanguageClientValue<MessageActionItem>(item)
                           : LanguageClientValue<MessageActionItem>();
@@ -1872,7 +1888,7 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
     } else if (method == WorkSpaceFolderRequest::methodName) {
         WorkSpaceFolderRequest::Response response(id);
         const QList<ProjectExplorer::Project *> projects
-            = ProjectExplorer::SessionManager::projects();
+            = ProjectExplorer::ProjectManager::projects();
         if (projects.isEmpty()) {
             response.setResult(nullptr);
         } else {
@@ -1961,7 +1977,7 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
     if (std::optional<ResponseError<InitializeError>> error = initResponse.error()) {
         if (std::optional<InitializeError> data = error->data()) {
             if (data->retry()) {
-                const QString title(Tr::tr("Language Server \"%1\" Initialize Error").arg(m_displayName));
+                const QString title(Tr::tr("Language Server \"%1\" Initialization Error").arg(m_displayName));
                 auto result = QMessageBox::warning(Core::ICore::dialogParent(),
                                                    title,
                                                    error->message(),
@@ -1974,7 +1990,7 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
                 }
             }
         }
-        q->setError(Tr::tr("Initialize error: ") + error->message());
+        q->setError(Tr::tr("Initialization error: %1.").arg(error->message()));
         emit q->finished();
         return;
     }
@@ -2089,6 +2105,12 @@ bool Client::fileBelongsToProject(const Utils::FilePath &filePath) const
     return project() && project()->isKnownFile(filePath);
 }
 
+LanguageClientOutlineItem *Client::createOutlineItem(
+    const LanguageServerProtocol::DocumentSymbol &symbol)
+{
+    return new LanguageClientOutlineItem(this, symbol);
+}
+
 FilePath toHostPath(const FilePath serverDeviceTemplate, const FilePath localClientPath)
 {
     const FilePath onDevice = serverDeviceTemplate.withNewPath(localClientPath.path());
@@ -2110,7 +2132,7 @@ FilePath Client::serverUriToHostPath(const LanguageServerProtocol::DocumentUri &
 DocumentUri Client::hostPathToServerUri(const Utils::FilePath &path) const
 {
     return DocumentUri::fromFilePath(path, [&](const Utils::FilePath &clientPath) {
-        return clientPath.onDevice(d->m_serverDeviceTemplate);
+        return d->m_serverDeviceTemplate.withNewPath(clientPath.path());
     });
 }
 

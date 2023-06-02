@@ -7,7 +7,6 @@
 #include "nimconstants.h"
 #include "nimtr.h"
 
-#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -27,7 +26,9 @@ public:
     NimbleRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
-        auto envAspect = addAspect<LocalEnvironmentAspect>(target);
+        auto envAspect = addAspect<EnvironmentAspect>();
+        envAspect->setSupportForBuildEnvironment(target);
+
         addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
         addAspect<ArgumentsAspect>(macroExpander());
         addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);

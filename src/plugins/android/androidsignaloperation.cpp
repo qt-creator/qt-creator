@@ -4,8 +4,8 @@
 #include "androidconfigurations.h"
 #include "androidsignaloperation.h"
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 using namespace Utils;
 
@@ -90,8 +90,8 @@ void AndroidSignalOperation::startAdbProcess(State state, const Utils::CommandLi
 {
     m_state = state;
     m_timeout->start();
-    m_adbProcess.reset(new QtcProcess);
-    connect(m_adbProcess.get(), &QtcProcess::done, this, handler);
+    m_adbProcess.reset(new Process);
+    connect(m_adbProcess.get(), &Process::done, this, handler);
     m_adbProcess->setCommand(commandLine);
     m_adbProcess->start();
 }

@@ -20,12 +20,15 @@
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
+#include <QAbstractTextDocumentLayout>
 #include <QHash>
 #include <QHeaderView>
 #include <QLabel>
 #include <QMenu>
+#include <QPainter>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QStyledItemDelegate>
 
 using namespace Utils;
 
@@ -77,8 +80,14 @@ QVariant FilterItem::data(int column, int role) const
 {
     switch (column) {
     case FilterName:
-        if (role == Qt::DisplayRole || role == SortRole)
+        if (role == SortRole)
             return m_filter->displayName();
+        if (role == Qt::DisplayRole) {
+            if (m_filter->description().isEmpty())
+                return m_filter->displayName();
+            return QString("<html>%1<br/><span style=\"font-weight: 70\">%2</span>")
+                .arg(m_filter->displayName(), m_filter->description().toHtmlEscaped());
+        }
         break;
     case FilterPrefix:
         if (role == Qt::DisplayRole || role == SortRole || role == Qt::EditRole)
@@ -92,8 +101,10 @@ QVariant FilterItem::data(int column, int role) const
         break;
     }
 
-    if (role == Qt::ToolTipRole)
-        return m_filter->description();
+    if (role == Qt::ToolTipRole) {
+        const QString description = m_filter->description();
+        return description.isEmpty() ? QString() : ("<html>" + description.toHtmlEscaped());
+    }
     return QVariant();
 }
 
@@ -146,6 +157,97 @@ QVariant CategoryItem::data(int column, int role) const
     return QVariant();
 }
 
+class RichTextDelegate : public QStyledItemDelegate
+{
+public:
+    RichTextDelegate(QObject *parent);
+    ~RichTextDelegate();
+
+    QTextDocument &doc() { return m_doc; }
+
+    void setMaxWidth(int width);
+    int maxWidth() const;
+
+private:
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+
+    int m_maxWidth = -1;
+    mutable QTextDocument m_doc;
+};
+
+RichTextDelegate::RichTextDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
+{}
+
+void RichTextDelegate::setMaxWidth(int width)
+{
+    m_maxWidth = width;
+    emit sizeHintChanged({});
+}
+
+int RichTextDelegate::maxWidth() const
+{
+    return m_maxWidth;
+}
+
+RichTextDelegate::~RichTextDelegate() = default;
+
+void RichTextDelegate::paint(QPainter *painter,
+                             const QStyleOptionViewItem &option,
+                             const QModelIndex &index) const
+{
+    QStyleOptionViewItem options = option;
+    initStyleOption(&options, index);
+
+    painter->save();
+    QTextOption textOption;
+    if (m_maxWidth > 0) {
+        textOption.setWrapMode(QTextOption::WordWrap);
+        m_doc.setDefaultTextOption(textOption);
+        if (options.rect.width() > m_maxWidth)
+            options.rect.setWidth(m_maxWidth);
+    }
+    m_doc.setHtml(options.text);
+    m_doc.setTextWidth(options.rect.width());
+    options.text = "";
+    options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter);
+    painter->translate(options.rect.left(), options.rect.top());
+    QRect clip(0, 0, options.rect.width(), options.rect.height());
+    QAbstractTextDocumentLayout::PaintContext paintContext;
+    paintContext.palette = options.palette;
+    painter->setClipRect(clip);
+    paintContext.clip = clip;
+    if (qobject_cast<const QAbstractItemView *>(options.widget)->selectionModel()->isSelected(index)) {
+        QAbstractTextDocumentLayout::Selection selection;
+        selection.cursor = QTextCursor(&m_doc);
+        selection.cursor.select(QTextCursor::Document);
+        selection.format.setBackground(options.palette.brush(QPalette::Highlight));
+        selection.format.setForeground(options.palette.brush(QPalette::HighlightedText));
+        paintContext.selections << selection;
+    }
+    m_doc.documentLayout()->draw(painter, paintContext);
+    painter->restore();
+}
+
+QSize RichTextDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QStyleOptionViewItem options = option;
+    initStyleOption(&options, index);
+    QTextOption textOption;
+    if (m_maxWidth > 0) {
+        textOption.setWrapMode(QTextOption::WordWrap);
+        m_doc.setDefaultTextOption(textOption);
+        if (!options.rect.isValid() || options.rect.width() > m_maxWidth)
+            options.rect.setWidth(m_maxWidth);
+    }
+    m_doc.setHtml(options.text);
+    m_doc.setTextWidth(options.rect.width());
+    return QSize(m_doc.idealWidth(), m_doc.size().height());
+}
+
 class LocatorSettingsWidget : public IOptionsPageWidget
 {
 public:
@@ -178,8 +280,17 @@ public:
         m_filterList->setSelectionMode(QAbstractItemView::SingleSelection);
         m_filterList->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_filterList->setSortingEnabled(true);
-        m_filterList->setUniformRowHeights(true);
         m_filterList->setActivationMode(Utils::DoubleClickActivation);
+        m_filterList->setAlternatingRowColors(true);
+        auto nameDelegate = new RichTextDelegate(m_filterList);
+        connect(m_filterList->header(),
+                &QHeaderView::sectionResized,
+                nameDelegate,
+                [nameDelegate](int col, [[maybe_unused]] int old, int updated) {
+                    if (col == 0)
+                        nameDelegate->setMaxWidth(updated);
+                });
+        m_filterList->setItemDelegateForColumn(0, nameDelegate);
 
         m_model = new TreeModel<>(m_filterList);
         initializeModel();
@@ -230,12 +341,13 @@ public:
 
         auto addMenu = new QMenu(addButton);
         addMenu->addAction(Tr::tr("Files in Directories"), this, [this] {
-            addCustomFilter(new DirectoryFilter(Id(Constants::CUSTOM_DIRECTORY_FILTER_BASEID)
+            addCustomFilter(new DirectoryFilter(Utils::Id(Constants::CUSTOM_DIRECTORY_FILTER_BASEID)
                                                     .withSuffix(m_customFilters.size() + 1)));
         });
         addMenu->addAction(Tr::tr("URL Template"), this, [this] {
             auto filter = new UrlLocatorFilter(
-                Id(Constants::CUSTOM_URL_FILTER_BASEID).withSuffix(m_customFilters.size() + 1));
+                Utils::Id(Constants::CUSTOM_URL_FILTER_BASEID)
+                    .withSuffix(m_customFilters.size() + 1));
             filter->setIsCustomFilter(true);
             addCustomFilter(filter);
         });

@@ -17,8 +17,9 @@
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/terminalcommand.h>
+#include <utils/terminalhooks.h>
 #include <utils/textfileformat.h>
 #include <utils/unixutils.h>
 
@@ -56,7 +57,7 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
     const QFileInfo fileInfo = pathIn.toFileInfo();
     // Mac, Windows support folder or file.
     if (HostOsInfo::isWindowsHost()) {
-        const FilePath explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
+        const FilePath explorer = FilePath("explorer.exe").searchInPath();
         if (explorer.isEmpty()) {
             QMessageBox::warning(parent,
                                  Tr::tr("Launching Windows Explorer Failed"),
@@ -67,15 +68,16 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
         if (!pathIn.isDir())
             param += QLatin1String("/select,");
         param += QDir::toNativeSeparators(fileInfo.canonicalFilePath());
-        QtcProcess::startDetached({explorer, param});
+        Process::startDetached({explorer, param});
     } else if (HostOsInfo::isMacHost()) {
-        QtcProcess::startDetached({"/usr/bin/open", {"-R", fileInfo.canonicalFilePath()}});
+        Process::startDetached({"/usr/bin/open", {"-R", fileInfo.canonicalFilePath()}});
     } else {
         // we cannot select a file here, because no file browser really supports it...
         const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.filePath();
         const QString app = UnixUtils::fileBrowser(ICore::settings());
         QStringList browserArgs = ProcessArgs::splitArgs(
-                    UnixUtils::substituteFileBrowserParameters(app, folder));
+                    UnixUtils::substituteFileBrowserParameters(app, folder),
+                    HostOsInfo::hostOs());
         QString error;
         if (browserArgs.isEmpty()) {
             error = Tr::tr("The command for file browser is not set.");
@@ -104,8 +106,7 @@ void FileUtils::showInFileSystemView(const FilePath &path)
 
 void FileUtils::openTerminal(const FilePath &path, const Environment &env)
 {
-    QTC_ASSERT(DeviceFileHooks::instance().openTerminal, return);
-    DeviceFileHooks::instance().openTerminal(path, env);
+    Terminal::Hooks::instance().openTerminal({std::nullopt, path, env});
 }
 
 QString FileUtils::msgFindInDirectory()
@@ -169,8 +170,11 @@ bool FileUtils::renameFile(const FilePath &orgFilePath, const FilePath &newFileP
     if (orgFilePath == newFilePath)
         return false;
 
-    FilePath dir = orgFilePath.absolutePath();
+    const FilePath dir = orgFilePath.absolutePath();
     IVersionControl *vc = VcsManager::findVersionControlForDirectory(dir);
+    const FilePath newDir = newFilePath.absolutePath();
+    if (newDir != dir && !newDir.ensureWritableDir())
+        return false;
 
     bool result = false;
     if (vc && vc->supportsOperation(IVersionControl::MoveOperation))

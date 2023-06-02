@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmltaskmanager.h"
-#include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
@@ -13,7 +13,7 @@
 #include <qmljs/qmljsconstants.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljscheck.h>
-#include <utils/runextensions.h>
+#include <utils/async.h>
 
 #include <QDebug>
 #include <QtConcurrentRun>
@@ -57,7 +57,7 @@ static Tasks convertToTasks(const QList<StaticAnalysis::Message> &messages, cons
     return convertToTasks(diagnostics, fileName, category);
 }
 
-void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future,
+void QmlTaskManager::collectMessages(QPromise<FileErrorMessages> &promise,
                                      Snapshot snapshot,
                                      const QList<ModelManagerInterface::ProjectInfo> &projectInfos,
                                      ViewerContext vContext,
@@ -88,7 +88,7 @@ void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future
                                                    fileName,
                                                    Constants::TASK_CATEGORY_QML_ANALYSIS);
 
-                    Check checker(document, context);
+                    Check checker(document, context, Core::ICore::settings());
                     result.tasks += convertToTasks(checker(),
                                                    fileName,
                                                    Constants::TASK_CATEGORY_QML_ANALYSIS);
@@ -96,8 +96,8 @@ void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future
             }
 
             if (!result.tasks.isEmpty())
-                future.reportResult(result);
-            if (future.isCanceled())
+                promise.addResult(result);
+            if (promise.isCanceled())
                 break;
         }
     }
@@ -127,8 +127,7 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
     // process them
-    QFuture<FileErrorMessages> future =
-            Utils::runAsync(
+    QFuture<FileErrorMessages> future = Utils::asyncRun(
                 &collectMessages, modelManager->newestSnapshot(), modelManager->projectInfos(),
                 modelManager->defaultVContext(Dialect::AnyLanguage), updateSemantic);
     m_messageCollector.setFuture(future);

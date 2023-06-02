@@ -8,8 +8,11 @@
 
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
+
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <projectexplorer/session.h>
+
+#include <projectexplorer/projectmanager.h>
+
 #include <texteditor/texteditor.h>
 
 #include <QThread>
@@ -90,7 +93,7 @@ void ManagerPrivate::resetParser()
     cancelScheduledUpdate();
 
     QHash<FilePath, QPair<QString, FilePaths>> projectData;
-    for (const Project *project : SessionManager::projects()) {
+    for (const Project *project : ProjectManager::projects()) {
         projectData.insert(project->projectFilePath(),
                            {project->displayName(), project->files(Project::SourceFiles)});
     }
@@ -201,8 +204,8 @@ void Manager::initialize()
     d->m_timer.setSingleShot(true);
 
     // connections to enable/disable navi widget factory
-    SessionManager *sessionManager = SessionManager::instance();
-    connect(sessionManager, &SessionManager::projectAdded,
+    ProjectManager *sessionManager = ProjectManager::instance();
+    connect(sessionManager, &ProjectManager::projectAdded,
             this, [this](Project *project) {
         const FilePath projectPath = project->projectFilePath();
         const QString projectName = project->displayName();
@@ -211,7 +214,7 @@ void Manager::initialize()
             d->m_parser->addProject(projectPath, projectName, projectFiles);
         }, Qt::QueuedConnection);
     });
-    connect(sessionManager, &SessionManager::projectRemoved,
+    connect(sessionManager, &ProjectManager::projectRemoved,
             this, [this](Project *project) {
         const FilePath projectPath = project->projectFilePath();
         QMetaObject::invokeMethod(d->m_parser, [this, projectPath]() {
@@ -375,7 +378,7 @@ void Manager::gotoLocations(const QList<QVariant> &list)
             int line;
             int column;
             textEditor->convertPosition(textEditor->position(), &line, &column);
-            const SymbolLocation current(filePath, line, column);
+            const SymbolLocation current(filePath, line, column + 1);
             if (auto it = locations.constFind(current), end = locations.constEnd(); it != end) {
                 // we already are at the symbol, cycle to next location
                 ++it;

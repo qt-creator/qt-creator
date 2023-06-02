@@ -37,7 +37,7 @@ class PROJECTEXPLORER_EXPORT RawProjectPartFlags
 public:
     RawProjectPartFlags() = default;
     RawProjectPartFlags(const ToolChain *toolChain, const QStringList &commandLineFlags,
-                        const QString &includeFileBaseDir);
+                        const Utils::FilePath &includeFileBaseDir);
 
 public:
     QStringList commandLineFlags;

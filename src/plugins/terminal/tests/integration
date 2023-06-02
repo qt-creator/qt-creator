@@ -1,0 +1,70 @@
+#!/bin/bash
+
+echo "Testing integration response, best start this from a terminal that has no builtin integration"
+echo "e.g. 'sh'"
+echo
+
+echo -e "\033[1m ⎆ Current dir should have changed to '/Some/Dir/Here'\033[0m"
+printf "\033]7;file:///Some/Dir/Here\033\\"
+
+read -p "    ⎆ Press enter to continue " -n1 -s
+echo
+echo
+
+echo -e "\033[1m ⎆ Current dir should have changed to '/Some/Other/Dir/Here'\033[0m"
+printf "\033]1337;CurrentDir=/Some/Other/Dir/Here\033\\"
+
+read -p "    ⎆ Press enter to continue " -n1 -s
+echo
+echo
+
+
+echo -e "\033[1m ⎆ Current dir should have changed to '/VSCode/dir/with space'\033[0m"
+printf "\033]633P;Cwd=/VSCode/dir/with space\033\\"
+
+read -p "    ⎆ Press enter to continue " -n1 -s
+echo
+echo
+
+echo -e "\033[1m ⎆ The current process should have changed to 'test'\033[0m"
+printf "\033]633E;test with arguments\033\\"
+
+read -p "    ⎆ Press enter to continue " -n1 -s
+echo
+echo
+
+echo -e "\033[1m ⎆ The current process should have changed to 'test with space'\033[0m"
+printf "\033]633E;'test with space'\033\\"
+
+read -p "    ⎆ Press enter to continue " -n1 -s
+echo
+echo
+
+echo -e "\033[1m ⎆ The current process should have changed to 'test with space v2'\033[0m"
+printf "\033]633E;\"test with space v2\"\033\\"
+
+read -p "    ⎆ Press enter to continue " -n1 -s
+echo
+echo
+
+echo -e "\033[1m ⎆ The current process should have changed to 'test with space v3'\033[0m"
+printf "\033]633E;\"./test/test with space v3\" -argument\033\\"
+
+read -p "    ⎆ Press enter to continue " -n1 -s
+echo
+echo
+
+echo -e "\033[1m ⎆ The current process should have changed to 'cat'\033[0m"
+printf "\033]633E;cat /dev/random | base64 -argument\033\\"
+
+read -p "    ⎆ Press enter to continue " -n1 -s
+echo
+echo
+
+echo -e "\033[1m ⎆ The current process should have changed to 'cat me'\033[0m"
+printf "\033]633E;cat\\ me args \033\\"
+
+read -p "    ⎆ Press enter to continue " -n1 -s
+echo
+echo
+

@@ -24,10 +24,10 @@
 #include "../editormanager/ieditorfactory_p.h"
 #include "../editormanager/iexternaleditor.h"
 #include "../fileutils.h"
-#include "../find/searchresultitem.h"
 #include "../findplaceholder.h"
 #include "../icore.h"
 #include "../iversioncontrol.h"
+#include "../locator/ilocatorfilter.h"
 #include "../modemanager.h"
 #include "../outputpane.h"
 #include "../outputpanemanager.h"
@@ -51,6 +51,7 @@
 #include <utils/mimeutils.h>
 #include <utils/overridecursor.h>
 #include <utils/qtcassert.h>
+#include <utils/searchresultitem.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
@@ -238,6 +239,10 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
     \value SwitchSplitIfAlreadyVisible
            Switches to another split if the document is already
            visible there.
+    \value DoNotRaise
+           Prevents raising the \QC window to the foreground.
+    \value AllowExternalEditor
+           Allows opening the file in an external editor.
 */
 
 /*!
@@ -751,17 +756,13 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
                 .arg(filePath.fileName())
                 .arg(fileSizeInMB, 0, 'f', 2);
 
-        CheckableMessageBox messageBox(ICore::dialogParent());
-        messageBox.setWindowTitle(title);
-        messageBox.setText(text);
-        messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::No);
-        messageBox.setDefaultButton(QDialogButtonBox::No);
-        messageBox.setIcon(QMessageBox::Question);
-        messageBox.setCheckBoxVisible(true);
-        messageBox.setCheckBoxText(CheckableMessageBox::msgDoNotAskAgain());
-        messageBox.exec();
-        setWarnBeforeOpeningBigFilesEnabled(!messageBox.isChecked());
-        return messageBox.clickedStandardButton() != QDialogButtonBox::Yes;
+        bool askAgain = true;
+        CheckableDecider decider(&askAgain);
+
+        QMessageBox::StandardButton clickedButton
+            = CheckableMessageBox::question(ICore::dialogParent(), title, text, decider);
+        setWarnBeforeOpeningBigFilesEnabled(askAgain);
+        return clickedButton != QMessageBox::Yes;
     }
 
     return false;
@@ -3157,6 +3158,17 @@ IEditor *EditorManager::openEditorAt(const Link &link,
                                               newEditor);
 }
 
+IEditor *EditorManager::openEditor(const LocatorFilterEntry &entry)
+{
+    const OpenEditorFlags defaultFlags = EditorManager::AllowExternalEditor;
+    if (entry.linkForEditor)
+        return EditorManager::openEditorAt(*entry.linkForEditor, {}, defaultFlags);
+    else if (!entry.filePath.isEmpty())
+        return EditorManager::openEditor(entry.filePath, {}, defaultFlags);
+    return nullptr;
+}
+
+
 /*!
     Opens the document at the position of the search result \a item using the
     editor type \a editorId and the specified \a flags.
@@ -3180,7 +3192,7 @@ void EditorManager::openEditorAtSearchResult(const SearchResultItem &item,
         openEditor(FilePath::fromUserInput(item.lineText()), editorId, flags, newEditor);
         return;
     }
-    const Search::TextPosition position = item.mainRange().begin;
+    const Text::Position position = item.mainRange().begin;
     openEditorAt({FilePath::fromUserInput(path.first()), position.line, position.column},
                  editorId, flags, newEditor);
 }
@@ -3238,7 +3250,11 @@ void EditorManager::addCloseEditorListener(const std::function<bool (IEditor *)>
 /*!
     Asks the user for a list of files to open and returns the choice.
 
-    \sa DocumentManager::getOpenFileNames()
+    The \a options argument holds various options about how to run the dialog.
+    See the QFileDialog::Options enum for more information about the flags you
+    can pass.
+
+    \sa DocumentManager::getOpenFileNames(), QFileDialog::Options
 */
 FilePaths EditorManager::getOpenFilePaths(QFileDialog::Options options)
 {

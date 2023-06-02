@@ -17,8 +17,8 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/progressindicator.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
@@ -145,8 +145,6 @@ public:
     ~AndroidSettingsWidget() final;
 
 private:
-    void apply() final { AndroidConfigurations::setConfig(m_androidConfig); }
-
     void showEvent(QShowEvent *event) override;
 
     void validateJdk();
@@ -450,6 +448,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                       delete openSslOneShot;
         });
     });
+
+    setOnApply([this] { AndroidConfigurations::setConfig(m_androidConfig); });
 }
 
 AndroidSettingsWidget::~AndroidSettingsWidget()
@@ -659,7 +659,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
     openSslProgressDialog->setFixedSize(openSslProgressDialog->sizeHint());
 
     const QString openSslRepo("https://github.com/KDAB/android_openssl.git");
-    QtcProcess *gitCloner = new QtcProcess(this);
+    Process *gitCloner = new Process(this);
     CommandLine gitCloneCommand("git", {"clone", "--depth=1", openSslRepo, openSslPath.toString()});
     gitCloner->setCommand(gitCloneCommand);
 
@@ -684,7 +684,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
         openButton->deleteLater();
     };
 
-    connect(gitCloner, &QtcProcess::done, this, [=] {
+    connect(gitCloner, &Process::done, this, [=] {
         openSslProgressDialog->close();
         if (gitCloner->error() != QProcess::UnknownError) {
             if (gitCloner->error() == QProcess::FailedToStart) {
@@ -718,7 +718,7 @@ void AndroidSettingsWidget::updateUI()
     const bool openSslOk = m_openSslSummary->allRowsOk();
 
     const QListWidgetItem *currentItem = m_ndkListWidget->currentItem();
-    const FilePath currentNdk = FilePath::fromString(currentItem ? currentItem->text() : "");
+    const FilePath currentNdk = FilePath::fromUserInput(currentItem ? currentItem->text() : "");
     const QString infoText = Tr::tr("(SDK Version: %1, NDK Version: %2)")
             .arg(m_androidConfig.sdkToolsVersion().toString())
             .arg(currentNdk.isEmpty() ? "" : m_androidConfig.ndkVersion(currentNdk).toString());

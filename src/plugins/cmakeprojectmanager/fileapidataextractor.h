@@ -5,6 +5,7 @@
 
 #include "cmakebuildtarget.h"
 #include "cmakeprojectnodes.h"
+#include "3rdparty/cmake/cmListFileCache.h"
 
 #include <projectexplorer/rawprojectpart.h>
 
@@ -32,6 +33,7 @@ public:
     bool isCMakeListsDotTxt = false;
     bool isExternal = false;
     bool isGenerated = false;
+    cmListFile cmakeListFile;
 };
 
 class FileApiQtcData

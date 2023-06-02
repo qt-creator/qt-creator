@@ -21,8 +21,8 @@
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -33,9 +33,9 @@
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
+#include <utils/process.h>
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QFormLayout>
@@ -223,7 +223,7 @@ void showAttachToProcessDialog()
         return;
 
     // FIXME: That should be somehow related to the selected kit.
-    auto runConfig = SessionManager::startupRunConfiguration();
+    auto runConfig = ProjectManager::startupRunConfiguration();
 
     const int pid = dlg.currentProcess().processId;
 //    QString projectSourceDirectory = dlg.projectSource();

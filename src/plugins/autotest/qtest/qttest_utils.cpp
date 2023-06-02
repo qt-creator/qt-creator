@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qttest_utils.h"
+
 #include "qttesttreeitem.h"
-#include "../autotestplugin.h"
-#include "../testframeworkmanager.h"
+#include "../itestframework.h"
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>
@@ -27,7 +27,8 @@ bool isQTestMacro(const QByteArray &macro)
     return valid.contains(macro);
 }
 
-QHash<FilePath, TestCases> testCaseNamesForFiles(ITestFramework *framework, const FilePaths &files)
+QHash<FilePath, TestCases> testCaseNamesForFiles(ITestFramework *framework,
+                                                 const QSet<FilePath> &files)
 {
     QHash<FilePath, TestCases> result;
     TestTreeItem *rootNode = framework->rootNode();
@@ -49,7 +50,8 @@ QHash<FilePath, TestCases> testCaseNamesForFiles(ITestFramework *framework, cons
     return result;
 }
 
-QMultiHash<FilePath, FilePath> alternativeFiles(ITestFramework *framework, const FilePaths &files)
+QMultiHash<FilePath, FilePath> alternativeFiles(ITestFramework *framework,
+                                                const QSet<FilePath> &files)
 {
     QMultiHash<FilePath, FilePath> result;
     TestTreeItem *rootNode = framework->rootNode();
@@ -135,7 +137,7 @@ Environment prepareBasicEnvironment(const Environment &env)
         result.set("QT_FORCE_STDERR_LOGGING", "1");
         result.set("QT_LOGGING_TO_CONSOLE", "1");
     }
-    const int timeout = AutotestPlugin::settings()->timeout;
+    const int timeout = TestSettings::instance()->timeout();
     if (timeout > 5 * 60 * 1000) // Qt5.5 introduced hard limit, Qt5.6.1 added env var to raise this
         result.set("QTEST_FUNCTION_TIMEOUT", QString::number(timeout));
     return result;

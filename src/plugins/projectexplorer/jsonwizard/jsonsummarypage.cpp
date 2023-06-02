@@ -8,8 +8,8 @@
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
 #include "../projectnodes.h"
+#include "../projectmanager.h"
 #include "../projecttree.h"
-#include "../session.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/iversioncontrol.h>
@@ -209,7 +209,7 @@ Node *JsonSummaryPage::findWizardContextNode(Node *contextNode) const
 
         // Static cast from void * to avoid qobject_cast (which needs a valid object) in value().
         auto project = static_cast<Project *>(m_wizard->value(Constants::PROJECT_POINTER).value<void *>());
-        if (SessionManager::projects().contains(project) && project->rootProjectNode()) {
+        if (ProjectManager::projects().contains(project) && project->rootProjectNode()) {
             const FilePath path = FilePath::fromVariant(m_wizard->value(Constants::PREFERRED_PROJECT_NODE_PATH));
             contextNode = project->rootProjectNode()->findNode([path](const Node *n) {
                 return path == n->filePath();

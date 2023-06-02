@@ -7,8 +7,8 @@
 
 #include <utils/commandline.h>
 #include <utils/fileutils.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -30,8 +30,8 @@ static QString signalProcessGroupByPidCommandLine(qint64 pid, int signal)
 void RemoteLinuxSignalOperation::run(const QString &command)
 {
     QTC_ASSERT(!m_process, return);
-    m_process.reset(new QtcProcess);
-    connect(m_process.get(), &QtcProcess::done, this, &RemoteLinuxSignalOperation::runnerDone);
+    m_process.reset(new Process);
+    connect(m_process.get(), &Process::done, this, &RemoteLinuxSignalOperation::runnerDone);
 
     m_process->setCommand({m_device->filePath("/bin/sh"), {"-c", command}});
     m_process->start();

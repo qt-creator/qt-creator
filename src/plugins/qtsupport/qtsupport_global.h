@@ -12,3 +12,15 @@
 #else
 #  define QTSUPPORT_EXPORT Q_DECL_IMPORT
 #endif
+
+#if defined(WITH_TESTS)
+#  if defined(QTSUPPORT_LIBRARY)
+#    define QTSUPPORT_TEST_EXPORT Q_DECL_EXPORT
+#  elif defined(QTSUPPORT_STATIC_LIBRARY)
+#    define QTSUPPORT_TEST_EXPORT
+#  else
+#    define QTSUPPORT_TEST_EXPORT Q_DECL_IMPORT
+#  endif
+#else
+#  define QTSUPPORT_TEST_EXPORT
+#endif

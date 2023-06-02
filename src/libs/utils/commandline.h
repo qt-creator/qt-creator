@@ -55,7 +55,7 @@ public:
     //! Append already quoted arguments to a shell command
     static void addArgs(QString *args, const QString &inArgs);
     //! Split a shell command into separate arguments.
-    static QStringList splitArgs(const QString &cmd, OsType osType = HostOsInfo::hostOs(),
+    static QStringList splitArgs(const QString &cmd, OsType osType,
                                  bool abortOnMeta = false, SplitError *err = nullptr,
                                  const Environment *env = nullptr, const QString *pwd = nullptr);
     //! Safely replace the expandos in a shell command
@@ -119,6 +119,8 @@ public:
     enum RawType { Raw };
 
     CommandLine();
+    ~CommandLine();
+
     explicit CommandLine(const FilePath &executable);
     CommandLine(const FilePath &exe, const QStringList &args);
     CommandLine(const FilePath &exe, const QStringList &args, OsType osType);

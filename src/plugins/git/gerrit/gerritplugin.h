@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QObject>
 #include <QPointer>
@@ -25,15 +25,17 @@ class GerritChange;
 class GerritDialog;
 class GerritParameters;
 class GerritServer;
+class GerritOptionsPage;
 
 class GerritPlugin : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit GerritPlugin(QObject *parent = nullptr);
+    GerritPlugin();
     ~GerritPlugin() override;
 
-    void initialize(Core::ActionContainer *ac);
+    void addToMenu(Core::ActionContainer *ac);
 
     static Utils::FilePath gitBinDirectory();
     static QString branch(const Utils::FilePath &repository);
@@ -59,6 +61,7 @@ private:
     Core::Command *m_gerritCommand = nullptr;
     Core::Command *m_pushToGerritCommand = nullptr;
     QString m_reviewers;
+    GerritOptionsPage *m_gerritOptionsPage = nullptr;
 };
 
 } // namespace Internal

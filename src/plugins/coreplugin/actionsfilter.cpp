@@ -10,9 +10,11 @@
 #include "icore.h"
 #include "locator/locatormanager.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/fuzzymatcher.h>
-#include <utils/mapreduce.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -21,7 +23,10 @@
 #include <QMenuBar>
 #include <QPointer>
 #include <QRegularExpression>
+#include <QtConcurrent>
 #include <QTextDocument>
+
+using namespace Utils;
 
 static const char lastTriggeredC[] = "LastTriggeredActions";
 
@@ -33,6 +38,13 @@ size_t qHash(const QPointer<QAction> &p, size_t seed)
 QT_END_NAMESPACE
 
 namespace Core::Internal {
+
+static const QList<QAction *> menuBarActions()
+{
+    QMenuBar *menuBar = Core::ActionManager::actionContainer(Constants::MENU_BAR)->menuBar();
+    QTC_ASSERT(menuBar, return {});
+    return menuBar->actions();
+}
 
 ActionsFilter::ActionsFilter()
 {
@@ -50,29 +62,21 @@ ActionsFilter::ActionsFilter()
     });
 }
 
-static const QList<QAction *> menuBarActions()
-{
-    QMenuBar *menuBar = Core::ActionManager::actionContainer(Constants::MENU_BAR)->menuBar();
-    QTC_ASSERT(menuBar, return {});
-    return menuBar->actions();
-}
-
-QList<LocatorFilterEntry> ActionsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
-                                                    const QString &entry)
+static void matches(QPromise<void> &promise, const LocatorStorage &storage,
+                    const LocatorFilterEntries &entries)
 {
     using Highlight = LocatorFilterEntry::HighlightInfo;
-    if (entry.simplified().isEmpty())
-        return m_entries;
-
-    const QRegularExpression regExp = createRegExp(entry, Qt::CaseInsensitive, true);
-
+    using MatchLevel = ILocatorFilter::MatchLevel;
+    const QString input = storage.input();
+    const QRegularExpression regExp = ILocatorFilter::createRegExp(input, Qt::CaseInsensitive,
+                                                                   true);
     using FilterResult = std::pair<MatchLevel, LocatorFilterEntry>;
     const auto filter = [&](const LocatorFilterEntry &filterEntry) -> std::optional<FilterResult> {
-        if (future.isCanceled())
+        if (promise.isCanceled())
             return {};
         Highlight highlight;
 
-        const auto withHighlight = [&](LocatorFilterEntry result) {
+        const auto withHighlight = [&highlight](LocatorFilterEntry result) {
             result.highlightInfo = highlight;
             return result;
         };
@@ -89,17 +93,18 @@ QList<LocatorFilterEntry> ActionsFilter::matchesFor(QFutureInterface<LocatorFilt
             if (first == Highlight::DisplayName) {
                 const QRegularExpressionMatch displayMatch = regExp.match(filterEntry.displayName);
                 if (displayMatch.hasMatch())
-                    highlight = highlightInfo(displayMatch);
+                    highlight = ILocatorFilter::highlightInfo(displayMatch);
                 const QRegularExpressionMatch extraMatch = regExp.match(filterEntry.extraInfo);
                 if (extraMatch.hasMatch()) {
-                    Highlight extraHighlight = highlightInfo(extraMatch, Highlight::ExtraInfo);
+                    Highlight extraHighlight = ILocatorFilter::highlightInfo(extraMatch,
+                                                                             Highlight::ExtraInfo);
                     highlight.startsExtraInfo = extraHighlight.startsExtraInfo;
                     highlight.lengthsExtraInfo = extraHighlight.lengthsExtraInfo;
                 }
 
-                if (filterEntry.displayName.startsWith(entry, Qt::CaseInsensitive))
+                if (filterEntry.displayName.startsWith(input, Qt::CaseInsensitive))
                     return FilterResult{MatchLevel::Best, withHighlight(filterEntry)};
-                if (filterEntry.displayName.contains(entry, Qt::CaseInsensitive))
+                if (filterEntry.displayName.contains(input, Qt::CaseInsensitive))
                     return FilterResult{MatchLevel::Better, withHighlight(filterEntry)};
                 if (displayMatch.hasMatch())
                     return FilterResult{MatchLevel::Good, withHighlight(filterEntry)};
@@ -154,29 +159,53 @@ QList<LocatorFilterEntry> ActionsFilter::matchesFor(QFutureInterface<LocatorFilt
         return {};
     };
 
-    QMap<MatchLevel, QList<LocatorFilterEntry>> filtered;
-    const QList<std::optional<FilterResult>> filterResults = Utils::map(std::as_const(m_entries), filter)
-                                                                 .results();
+    QMap<MatchLevel, LocatorFilterEntries> filtered;
+    const QList<std::optional<FilterResult>> filterResults
+        = QtConcurrent::blockingMapped(entries, filter);
+    if (promise.isCanceled())
+        return;
     for (const std::optional<FilterResult> &filterResult : filterResults) {
+        if (promise.isCanceled())
+            return;
         if (filterResult)
             filtered[filterResult->first] << filterResult->second;
     }
-
-    QList<LocatorFilterEntry> result;
-    for (const QList<LocatorFilterEntry> &sublist : std::as_const(filtered))
-        result << sublist;
-    return result;
+    storage.reportOutput(std::accumulate(std::begin(filtered), std::end(filtered),
+                                         LocatorFilterEntries()));
 }
 
-void ActionsFilter::accept(const LocatorFilterEntry &selection, QString *newText,
-                           int *selectionStart, int *selectionLength) const
+LocatorMatcherTasks ActionsFilter::matchers()
+{
+    using namespace Tasking;
+
+    TreeStorage<LocatorStorage> storage;
+
+    const auto onSetup = [this, storage](Async<void> &async) {
+        m_entries.clear();
+        m_indexes.clear();
+        QList<const QMenu *> processedMenus;
+        collectEntriesForLastTriggered();
+        for (QAction* action : menuBarActions())
+            collectEntriesForAction(action, {}, processedMenus);
+        collectEntriesForCommands();
+        if (storage->input().simplified().isEmpty()) {
+            storage->reportOutput(m_entries);
+            return TaskAction::StopWithDone;
+        }
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+        async.setConcurrentCallData(matches, *storage, m_entries);
+        return TaskAction::Continue;
+    };
+
+    return {{AsyncTask<void>(onSetup), storage}};
+}
+
+LocatorFilterEntry::Acceptor ActionsFilter::acceptor(const ActionFilterEntryData &data) const
 {
     static const int maxHistorySize = 30;
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    auto data = selection.internalData.value<ActionFilterEntryData>();
-    if (data.action) {
+    return [this, data] {
+        if (!data.action)
+            return AcceptResult();
         m_lastTriggered.removeAll(data);
         m_lastTriggered.prepend(data);
         QMetaObject::invokeMethod(data.action, [action = data.action] {
@@ -185,7 +214,8 @@ void ActionsFilter::accept(const LocatorFilterEntry &selection, QString *newText
         }, Qt::QueuedConnection);
         if (m_lastTriggered.size() > maxHistorySize)
             m_lastTriggered.resize(maxHistorySize);
-    }
+        return AcceptResult();
+    };
 }
 
 static QString actionText(QAction *action)
@@ -214,8 +244,10 @@ void ActionsFilter::collectEntriesForAction(QAction *action,
                 collectEntriesForAction(menuAction, menuPath, processedMenus);
         }
     } else if (!text.isEmpty()) {
-        const ActionFilterEntryData data{action, {}};
-        LocatorFilterEntry filterEntry(this, text, QVariant::fromValue(data), action->icon());
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName = text;
+        filterEntry.acceptor = acceptor({action, {}});
+        filterEntry.displayIcon = action->icon();
         filterEntry.extraInfo = path.join(" > ");
         updateEntry(action, filterEntry);
     }
@@ -241,8 +273,10 @@ void ActionsFilter::collectEntriesForCommands()
 
         const QString identifier = command->id().toString();
         const QStringList path = identifier.split(QLatin1Char('.'));
-        const ActionFilterEntryData data{action, command->id()};
-        LocatorFilterEntry filterEntry(this, text, QVariant::fromValue(data), action->icon());
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName = text;
+        filterEntry.acceptor = acceptor({action, command->id()});
+        filterEntry.displayIcon = action->icon();
         filterEntry.displayExtra = command->keySequence().toString(QKeySequence::NativeText);
         if (path.size() >= 2)
             filterEntry.extraInfo = path.mid(0, path.size() - 1).join(" > ");
@@ -259,15 +293,17 @@ void ActionsFilter::collectEntriesForLastTriggered()
         }
         if (!data.action || !m_enabledActions.contains(data.action))
             continue;
-        const QString text = actionText(data.action);
-        LocatorFilterEntry filterEntry(this, text, QVariant::fromValue(data), data.action->icon());
+        LocatorFilterEntry filterEntry;
+        filterEntry.displayName = actionText(data.action);
+        filterEntry.acceptor = acceptor(data);
+        filterEntry.displayIcon = data.action->icon();
         updateEntry(data.action, filterEntry);
     }
 }
 
 void ActionsFilter::updateEntry(const QPointer<QAction> action, const LocatorFilterEntry &entry)
 {
-    auto index = m_indexes.value(action, -1);
+    const int index = m_indexes.value(action, -1);
     if (index < 0) {
         m_indexes[action] = m_entries.size();
         m_entries << entry;
@@ -311,18 +347,6 @@ void ActionsFilter::updateEnabledActionCache()
     }
 }
 
-void Core::Internal::ActionsFilter::prepareSearch(const QString &entry)
-{
-    Q_UNUSED(entry)
-    m_entries.clear();
-    m_indexes.clear();
-    QList<const QMenu *> processedMenus;
-    collectEntriesForLastTriggered();
-    for (QAction* action : menuBarActions())
-        collectEntriesForAction(action, QStringList(), processedMenus);
-    collectEntriesForCommands();
-}
-
 void ActionsFilter::saveState(QJsonObject &object) const
 {
     QJsonArray commands;
@@ -336,9 +360,10 @@ void ActionsFilter::saveState(QJsonObject &object) const
 void ActionsFilter::restoreState(const QJsonObject &object)
 {
     m_lastTriggered.clear();
-    for (const QJsonValue &command : object.value(lastTriggeredC).toArray()) {
+    const QJsonArray commands = object.value(lastTriggeredC).toArray();
+    for (const QJsonValue &command : commands) {
         if (command.isString())
-            m_lastTriggered.append({nullptr, Utils::Id::fromString(command.toString())});
+            m_lastTriggered.append({nullptr, Id::fromString(command.toString())});
     }
 }
 

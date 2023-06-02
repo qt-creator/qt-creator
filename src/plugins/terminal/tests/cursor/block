@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo -e -n "\x1b[\x32 q" # Steady block

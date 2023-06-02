@@ -48,12 +48,13 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project)
     connect(languageComboBox, &QComboBox::currentIndexChanged,
             stackedWidget, &QStackedWidget::setCurrentIndex);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Row { new QLabel(Tr::tr("Language:")), languageComboBox, st },
-        stackedWidget
-    }.attachTo(this, WithoutMargins);
+        stackedWidget,
+        noMargin
+    }.attachTo(this);
 }
 
 } // ProjectExplorer::Internal

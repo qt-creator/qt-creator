@@ -132,7 +132,7 @@ static QString sanitizeBlameOutput(const QString &b)
     if (b.isEmpty())
         return b;
 
-    const bool omitDate = GitClient::instance()->settings().omitAnnotationDate.value();
+    const bool omitDate = settings().omitAnnotationDate.value();
     const QChar space(' ');
     const int parenPos = b.indexOf(')');
     if (parenPos == -1)

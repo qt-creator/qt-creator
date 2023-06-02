@@ -12,6 +12,7 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPixmapCache>
 #include <QStyleOption>
 #include <QWindow>
@@ -36,6 +37,11 @@ static int range(float x, int min, int max)
 
 namespace Utils {
 
+static StyleHelper::ToolbarStyle m_toolbarStyle = StyleHelper::defaultToolbarStyle;
+// Invalid by default, setBaseColor needs to be called at least once
+static QColor m_baseColor;
+static QColor m_requestedBaseColor;
+
 QColor StyleHelper::mergedColors(const QColor &colorA, const QColor &colorB, int factor)
 {
     const int maxFactor = 100;
@@ -56,6 +62,36 @@ QColor StyleHelper::alphaBlendedColors(const QColor &colorA, const QColor &color
                 (colorA.green() * antiAlpha + colorB.green() * alpha) / 255,
                 (colorA.blue() * antiAlpha + colorB.blue() * alpha) / 255
                 );
+}
+
+QColor StyleHelper::sidebarHighlight()
+{
+    return QColor(255, 255, 255, 40);
+}
+
+QColor StyleHelper::sidebarShadow()
+{
+    return QColor(0, 0, 0, 40);
+}
+
+QColor StyleHelper::toolBarDropShadowColor()
+{
+    return QColor(0, 0, 0, 70);
+}
+
+int StyleHelper::navigationWidgetHeight()
+{
+    return m_toolbarStyle == ToolbarStyleCompact ? 24 : 30;
+}
+
+void StyleHelper::setToolbarStyle(ToolbarStyle style)
+{
+    m_toolbarStyle = style;
+}
+
+StyleHelper::ToolbarStyle StyleHelper::toolbarStyle()
+{
+    return m_toolbarStyle;
 }
 
 qreal StyleHelper::sidebarFontSize()
@@ -89,16 +125,17 @@ QColor StyleHelper::panelTextColor(bool lightColored)
         return Qt::black;
 }
 
-// Invalid by default, setBaseColor needs to be called at least once
-QColor StyleHelper::m_baseColor;
-QColor StyleHelper::m_requestedBaseColor;
-
 QColor StyleHelper::baseColor(bool lightColored)
 {
     static const QColor windowColor = QApplication::palette().color(QPalette::Window);
     static const bool windowColorAsBase = creatorTheme()->flag(Theme::WindowColorAsBase);
 
     return (lightColored || windowColorAsBase) ? windowColor : m_baseColor;
+}
+
+QColor StyleHelper::requestedBaseColor()
+{
+    return m_requestedBaseColor;
 }
 
 QColor StyleHelper::toolbarBaseColor(bool lightColored)
@@ -149,6 +186,11 @@ QColor StyleHelper::toolBarBorderColor()
                            clamp(base.value() * 0.80f));
 }
 
+QColor StyleHelper::buttonTextColor()
+{
+    return QColor(0x4c4c4c);
+}
+
 // We try to ensure that the actual color used are within
 // reasonalbe bounds while generating the actual baseColor
 // from the users request.
@@ -173,7 +215,7 @@ void StyleHelper::setBaseColor(const QColor &newcolor)
 
     if (color.isValid() && color != m_baseColor) {
         m_baseColor = color;
-        const QList<QWidget *> widgets = QApplication::topLevelWidgets();
+        const QWidgetList widgets = QApplication::allWidgets();
         for (QWidget *w : widgets)
             w->update();
     }
@@ -439,6 +481,22 @@ void StyleHelper::drawMinimalArrow(QStyle::PrimitiveElement element, QPainter *p
     painter->drawPixmap(xOffset, yOffset, pixmap);
 }
 
+void StyleHelper::drawPanelBgRect(QPainter *painter, const QRectF &rect, const QBrush &brush)
+{
+    if (toolbarStyle() == ToolbarStyleCompact) {
+        painter->fillRect(rect.toRect(), brush);
+    } else {
+        constexpr int margin = 2;
+        constexpr int radius = 5;
+        QPainterPath path;
+        path.addRoundedRect(rect.adjusted(margin, margin, -margin, -margin), radius, radius);
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing);
+        painter->fillPath(path, brush);
+        painter->restore();
+    }
+}
+
 void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)
 {
     if (StyleHelper::usePixmapCache()) {
@@ -460,6 +518,11 @@ void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const Q
     } else {
         menuGradientHelper(painter, spanRect, clipRect);
     }
+}
+
+bool StyleHelper::usePixmapCache()
+{
+    return true;
 }
 
 QPixmap StyleHelper::disabledSideBarIcon(const QPixmap &enabledicon)
@@ -632,6 +695,16 @@ QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
     grad.setColorAt(0, startColor);
     grad.setColorAt(1, endColor);
     return grad;
+}
+
+void StyleHelper::setPanelWidget(QWidget *widget, bool value)
+{
+    widget->setProperty(C_PANEL_WIDGET, value);
+}
+
+void StyleHelper::setPanelWidgetSingleRow(QWidget *widget, bool value)
+{
+    widget->setProperty(C_PANEL_WIDGET_SINGLE_ROW, value);
 }
 
 bool StyleHelper::isQDSTheme()

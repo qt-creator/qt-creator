@@ -9,14 +9,16 @@
 #include "vcsplugin.h"
 
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <projectexplorer/projecttree.h>
+
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projecttree.h>
+
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QDebug>
@@ -195,7 +197,7 @@ StateListener::StateListener(QObject *parent) : QObject(parent)
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &StateListener::slotStateChanged);
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             this, &StateListener::slotStateChanged);
 
     EditorManager::setWindowTitleVcsTopicHandler(&StateListener::windowTitleVcsTopic);
@@ -213,7 +215,7 @@ QString StateListener::windowTitleVcsTopic(const FilePath &filePath)
         searchPath = filePath.absolutePath();
     } else {
         // use single project's information if there is only one loaded.
-        const QList<Project *> projects = SessionManager::projects();
+        const QList<Project *> projects = ProjectManager::projects();
         if (projects.size() == 1)
             searchPath = projects.first()->projectDirectory();
     }
@@ -282,7 +284,7 @@ void StateListener::slotStateChanged()
     IVersionControl *projectControl = nullptr;
     Project *currentProject = ProjectTree::currentProject();
     if (!currentProject)
-        currentProject = SessionManager::startupProject();
+        currentProject = ProjectManager::startupProject();
 
     if (currentProject) {
         state.currentProjectPath = currentProject->projectDirectory();
@@ -591,7 +593,25 @@ bool VcsBasePluginPrivate::enableMenuAction(ActionState as, QAction *menuAction)
 
 QString VcsBasePluginPrivate::commitDisplayName() const
 {
+    //: Name of the "commit" action of the VCS
     return Tr::tr("Commit", "name of \"commit\" action of the VCS.");
+}
+
+QString VcsBasePluginPrivate::commitAbortTitle() const
+{
+    return Tr::tr("Close Commit Editor");
+}
+
+QString VcsBasePluginPrivate::commitAbortMessage() const
+{
+    return Tr::tr("Closing this editor will abort the commit.");
+}
+
+QString VcsBasePluginPrivate::commitErrorMessage(const QString &error) const
+{
+    if (error.isEmpty())
+        return Tr::tr("Cannot commit.");
+    return Tr::tr("Cannot commit: %1.").arg(error);
 }
 
 void VcsBasePluginPrivate::commitFromEditor()

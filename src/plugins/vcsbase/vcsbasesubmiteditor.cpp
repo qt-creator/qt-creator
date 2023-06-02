@@ -28,8 +28,8 @@
 #include <utils/completingtextedit.h>
 #include <utils/fileutils.h>
 #include <utils/icon.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 #include <utils/theme/theme.h>
 
@@ -37,7 +37,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -230,8 +230,8 @@ VcsBaseSubmitEditor::~VcsBaseSubmitEditor()
 void VcsBaseSubmitEditor::slotUpdateEditorSettings()
 {
     const CommonVcsSettings &s = VcsPlugin::instance()->settings();
-    setLineWrapWidth(s.lineWrapWidth.value());
-    setLineWrap(s.lineWrap.value());
+    setLineWrapWidth(s.lineWrapWidth());
+    setLineWrap(s.lineWrap());
 }
 
 // Return a trimmed list of non-empty field texts
@@ -453,11 +453,7 @@ void VcsBaseSubmitEditor::accept(VcsBasePluginPrivate *plugin)
     QString errorMessage;
     const bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit(&errorMessage);
     if (!canCommit) {
-        VcsOutputWindow::appendError(
-                    Tr::tr("Cannot %1%2.",
-                       "%2 is an optional error message with ': ' prefix. Don't add space in front.")
-                    .arg(plugin->commitDisplayName().toLower(),
-                         errorMessage.isEmpty() ? errorMessage : ": " + errorMessage));
+        VcsOutputWindow::appendError(plugin->commitErrorMessage(errorMessage));
     } else if (plugin->activateCommit()) {
         close();
     }
@@ -480,12 +476,10 @@ bool VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
     if (!submitWidget->isEnabled() || !submitWidget->isEdited())
         return true;
 
-    const QString commitName = plugin->commitDisplayName();
     QMessageBox mb(Core::ICore::dialogParent());
-    mb.setWindowTitle(Tr::tr("Close %1 %2 Editor").arg(plugin->displayName(), commitName));
+    mb.setWindowTitle(plugin->commitAbortTitle());
     mb.setIcon(QMessageBox::Warning);
-    mb.setText(Tr::tr("Closing this editor will abort the %1.")
-                   .arg(commitName.toLower()));
+    mb.setText(plugin->commitAbortMessage());
     mb.setStandardButtons(QMessageBox::Close | QMessageBox::Cancel);
     // On Windows there is no mnemonic for Close. Set it explicitly.
     mb.button(QMessageBox::Close)->setText(Tr::tr("&Close"));
@@ -561,7 +555,7 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     // Run check process
     VcsOutputWindow::appendShellCommandLine(msgCheckScript(d->m_checkScriptWorkingDirectory,
                                                            checkScript));
-    QtcProcess checkProcess;
+    Process checkProcess;
     if (!d->m_checkScriptWorkingDirectory.isEmpty())
         checkProcess.setWorkingDirectory(d->m_checkScriptWorkingDirectory);
     checkProcess.setCommand({FilePath::fromString(checkScript), {saver.filePath().toString()}});
@@ -606,7 +600,7 @@ void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const FilePath &reposito
 {
     for (QStringList::iterator it = untrackedFiles->begin(); it != untrackedFiles->end(); ) {
         const FilePath path = repositoryDirectory.resolvePath(*it).absoluteFilePath();
-        if (ProjectExplorer::SessionManager::projectForFile(path))
+        if (ProjectExplorer::ProjectManager::projectForFile(path))
             ++it;
         else
             it = untrackedFiles->erase(it);

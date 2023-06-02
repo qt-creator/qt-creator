@@ -22,6 +22,7 @@
 
 /*!
     \class Utils::ProjectIntroPage
+    \inmodule QtCreator
 
     \brief The ProjectIntroPage class is the standard wizard page for a project,
     letting the user choose its name
@@ -66,7 +67,6 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     WizardPage(parent),
     d(new ProjectIntroPagePrivate)
 {
-    resize(355, 289);
     setTitle(Tr::tr("Introduction and Project Location"));
 
     d->m_descriptionLabel = new QLabel(this);

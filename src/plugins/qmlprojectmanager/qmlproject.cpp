@@ -10,7 +10,7 @@
 #include <QTimer>
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -22,6 +22,21 @@
 #include "qmlprojectmanagerconstants.h"
 #include "qmlprojectmanagertr.h"
 #include "utils/algorithm.h"
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
+#include <texteditor/textdocument.h>
+
+#include <utils/algorithm.h>
+#include <utils/infobar.h>
+#include <utils/process.h>
+#include <utils/qtcassert.h>
+
+#include <QDebug>
+#include <QLoggingCategory>
+#include <QMessageBox>
+#include <QRegularExpression>
+#include <QTextCodec>
+#include <QTimer>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -37,15 +52,11 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setNeedsBuildConfigurations(false);
     setBuildSystemCreator([](Target *t) { return new QmlBuildSystem(t); });
 
-    // FIXME: why checking this?
-    // this should not even be the case. if that's possible, then what?
-    // what are the follow-up actions?
-    if (!QmlProject::isQtDesignStudio())
-        return;
-
-    if (allowOnlySingleProject()) {
-        Core::EditorManager::closeAllDocuments();
-        SessionManager::closeAllProjects();
+    if (QmlProject::isQtDesignStudio()) {
+        if (allowOnlySingleProject()) {
+            EditorManager::closeAllDocuments();
+            ProjectManager::closeAllProjects();
+        }
     }
 
     connect(this, &QmlProject::anyParsingFinished, this, &QmlProject::parsingFinished);
@@ -150,7 +161,7 @@ bool QmlProject::setKitWithVersion(const int qtMajorVersion, const QList<Kit *> 
     }
 
     if (target)
-        SessionManager::setActiveTarget(this, target, SetActive::NoCascade);
+        target->project()->setActiveTarget(target, SetActive::NoCascade);
 
     return true;
 }
@@ -237,7 +248,7 @@ bool QmlProject::allowOnlySingleProject()
 {
     QSettings *settings = Core::ICore::settings();
     auto key = "QML/Designer/AllowMultipleProjects";
-    return !settings->value(key, false).toBool();
+    return !settings->value(QString::fromUtf8(key), false).toBool();
 }
 
 } // namespace QmlProjectManager

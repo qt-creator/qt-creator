@@ -5,7 +5,7 @@
 
 #include "squishconstants.h"
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QObject>
 
@@ -36,7 +36,7 @@ protected:
     virtual void onDone() {}
     virtual void onErrorOutput() {}
 
-    Utils::QtcProcess m_process;
+    Utils::Process m_process;
 
 private:
     SquishProcessState m_state = Idle;

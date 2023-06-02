@@ -4,7 +4,8 @@
 #pragma once
 
 #include "utils_global.h"
-#include "utils/filepath.h"
+
+#include "filepath.h"
 
 #include <QSharedPointer>
 #include <QString>

@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include "qttestconstants.h"
 #include "../testoutputreader.h"
+
+#include "qttestconstants.h"
 
 #include <QXmlStreamReader>
 
@@ -22,8 +23,7 @@ public:
         PlainText
     };
 
-    QtTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                       Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory,
+    QtTestOutputReader(Utils::Process *testApplication, const Utils::FilePath &buildDirectory,
                        const Utils::FilePath &projectFile, OutputMode mode, TestType type);
 protected:
     void processOutputLine(const QByteArray &outputLine) override;

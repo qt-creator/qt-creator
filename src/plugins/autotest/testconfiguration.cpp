@@ -4,21 +4,18 @@
 #include "testconfiguration.h"
 
 #include "itestframework.h"
-#include "testoutputreader.h"
 #include "testrunconfiguration.h"
-
-#include <cppeditor/cppmodelmanager.h>
-#include <cppeditor/projectinfo.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
-#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
+
+#include <utils/algorithm.h>
 
 #include <QLoggingCategory>
 
@@ -28,7 +25,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Autotest {
-
 
 ITestConfiguration::ITestConfiguration(ITestBase *testBase)
     : m_testBase(testBase)
@@ -94,7 +90,7 @@ static FilePath ensureExeEnding(const FilePath &file)
     return file.withExecutableSuffix();
 }
 
-void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguration *rc,
+void TestConfiguration::completeTestInformation(RunConfiguration *rc,
                                                 TestRunMode runMode)
 {
     QTC_ASSERT(rc, return);
@@ -104,7 +100,7 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
         qCDebug(LOG) << "Executable has been set already - not completing configuration again.";
         return;
     }
-    Project *startupProject = SessionManager::startupProject();
+    Project *startupProject = ProjectManager::startupProject();
     if (!startupProject || startupProject != project())
         return;
 
@@ -149,7 +145,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         }
         qCDebug(LOG) << "Failed to complete - using 'normal' way.";
     }
-    Project *startupProject = SessionManager::startupProject();
+    Project *startupProject = ProjectManager::startupProject();
     if (!startupProject || startupProject != project()) {
         setProject(nullptr);
         return;

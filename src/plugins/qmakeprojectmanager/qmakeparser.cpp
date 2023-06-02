@@ -71,11 +71,12 @@ OutputLineParser::Result QMakeParser::handleLine(const QString &line, OutputForm
 // Unit tests:
 
 #ifdef WITH_TESTS
-#   include <QTest>
 
-#   include "qmakeprojectmanagerplugin.h"
+#include "qmakeprojectmanagerplugin.h"
 
-#   include "projectexplorer/outputparser_test.h"
+#include <projectexplorer/outputparser_test.h>
+
+#include <QTest>
 
 using namespace QmakeProjectManager::Internal;
 

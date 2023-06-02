@@ -33,6 +33,8 @@ public:
                 return;
     }
 
+    QList<IndexItem::Ptr> findSymbols(IndexItem::ItemType type, const QString &symbolName) const;
+
 public slots:
     void onDocumentUpdated(const CPlusPlus::Document::Ptr &document);
     void onAboutToRemoveFiles(const QStringList &files);

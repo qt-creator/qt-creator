@@ -4,13 +4,13 @@
 #include "symbolsearcher_test.h"
 
 #include "cppindexingsupport.h"
-#include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"
 #include "searchsymbols.h"
 
 #include <coreplugin/testdatadir.h>
 #include <coreplugin/find/searchresultwindow.h>
-#include <utils/runextensions.h>
+
+#include <utils/async.h>
 
 #include <QtTest>
 
@@ -35,10 +35,10 @@ public:
         return m_symbolName == other.m_symbolName && m_scope == other.m_scope;
     }
 
-    static ResultDataList fromSearchResultList(const QList<Core::SearchResultItem> &entries)
+    static ResultDataList fromSearchResultList(const Utils::SearchResultItems &entries)
     {
         ResultDataList result;
-        for (const Core::SearchResultItem &entry : entries)
+        for (const Utils::SearchResultItem &entry : entries)
             result << ResultData(entry.lineText(), entry.path().join(QLatin1String("::")));
         return result;
     }
@@ -77,8 +77,8 @@ public:
 
         const QScopedPointer<SymbolSearcher> symbolSearcher(
             new SymbolSearcher(searchParameters, QSet<QString>{testFile}));
-        QFuture<Core::SearchResultItem> search
-            = Utils::runAsync(&SymbolSearcher::runSearch, symbolSearcher.data());
+        QFuture<Utils::SearchResultItem> search
+            = Utils::asyncRun(&SymbolSearcher::runSearch, symbolSearcher.data());
         search.waitForFinished();
         ResultDataList results = ResultData::fromSearchResultList(search.results());
         QCOMPARE(results, expectedResults);

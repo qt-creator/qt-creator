@@ -22,8 +22,6 @@ public:
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
 
-    bool canAutoDetectPorts() const override;
-    ProjectExplorer::PortsGatheringMethod portsGatheringMethod() const override;
     bool canCreateProcessModel() const override { return true; }
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const override;
     bool hasDeviceTester() const override { return true; }
@@ -41,12 +39,16 @@ public:
     ProjectExplorer::FileTransferInterface *createFileTransferInterface(
             const ProjectExplorer::FileTransferSetupData &setup) const override;
 
+    class LinuxDevicePrivate *connectionAccess() const;
+    void checkOsType() override;
+
 protected:
     LinuxDevice();
 
+    void _setOsType(Utils::OsType osType);
+
     class LinuxDevicePrivate *d;
-    friend class SshProcessInterface;
-    friend class SshTransferInterface;
+    friend class LinuxDevicePrivate;
 };
 
 namespace Internal {

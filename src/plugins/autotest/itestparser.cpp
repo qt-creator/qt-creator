@@ -24,7 +24,7 @@ CppParser::CppParser(ITestFramework *framework)
 {
 }
 
-void CppParser::init(const FilePaths &filesToParse, bool fullParse)
+void CppParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
 {
     Q_UNUSED(filesToParse)
     Q_UNUSED(fullParse)
@@ -43,8 +43,8 @@ bool CppParser::selectedForBuilding(const FilePath &fileName)
 QByteArray CppParser::getFileContent(const FilePath &filePath) const
 {
     QByteArray fileContent;
-    if (m_workingCopy.contains(filePath)) {
-        fileContent = m_workingCopy.source(filePath);
+    if (const auto source = m_workingCopy.source(filePath)) {
+        fileContent = *source;
     } else {
         QString error;
         const QTextCodec *codec = Core::EditorManager::defaultTextCodec();

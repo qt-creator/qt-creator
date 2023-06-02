@@ -6,7 +6,7 @@
 #include "kitmanager.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
-#include "session.h"
+#include "projectmanager.h"
 #include "target.h"
 
 #include <coreplugin/icore.h>
@@ -88,7 +88,7 @@ void KitChooser::populate()
     const Id lastKit = Id::fromSetting(ICore::settings()->value(lastKitKey));
     bool didActivate = false;
 
-    if (Target *target = SessionManager::startupTarget()) {
+    if (Target *target = ProjectManager::startupTarget()) {
         Kit *kit = target->kit();
         if (m_kitPredicate(kit)) {
             QString display = Tr::tr("Kit of Active Project: %1").arg(kitText(kit));

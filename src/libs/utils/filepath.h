@@ -8,6 +8,7 @@
 #include "expected.h"
 #include "filepathinfo.h"
 #include "osspecificaspects.h"
+#include "utiltypes.h"
 
 #include <QDir>
 #include <QDirIterator>
@@ -31,9 +32,12 @@ namespace Utils {
 
 class DeviceFileAccess;
 class Environment;
-class EnvironmentChange;
+enum class FileStreamHandle;
 
 template <class ...Args> using Continuation = std::function<void(Args...)>;
+using CopyContinuation = Continuation<const expected_str<void> &>;
+using ReadContinuation = Continuation<const expected_str<QByteArray> &>;
+using WriteContinuation = Continuation<const expected_str<qint64> &>;
 
 class QTCREATOR_UTILS_EXPORT FileFilter
 {
@@ -50,8 +54,6 @@ public:
 };
 
 using FilePaths = QList<class FilePath>;
-
-enum class IterationPolicy { Stop, Continue };
 
 class QTCREATOR_UTILS_EXPORT FilePath
 {
@@ -116,6 +118,7 @@ public:
     bool isFile() const;
     bool isDir() const;
     bool isSymLink() const;
+    bool hasHardLinks() const;
     bool isRootPath() const;
     bool isNewerThan(const QDateTime &timeStamp) const;
     QDateTime lastModified() const;
@@ -158,11 +161,10 @@ public:
     [[nodiscard]] FilePath withExecutableSuffix() const;
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
     [[nodiscard]] FilePath relativePathFrom(const FilePath &anchor) const;
-    [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs,
-                                               const PathFilter &filter = {}) const;
     [[nodiscard]] Environment deviceEnvironment() const;
-    [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
+    [[nodiscard]] FilePaths devicePathEnvironmentVariable() const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
+    [[nodiscard]] FilePath withNewMappedPath(const FilePath &newPath) const;
 
     using IterateDirCallback
         = std::variant<
@@ -180,12 +182,24 @@ public:
             const FileFilter &filter);
 
     enum PathAmending { AppendToPath, PrependToPath };
-    [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs = {},
-                                        PathAmending = AppendToPath,
-                                        const PathFilter &filter = {}) const;
-
     enum MatchScope { ExactMatchOnly, WithExeSuffix, WithBatSuffix,
                       WithExeOrBatSuffix, WithAnySuffix };
+
+    [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs,
+                                               const FilePathPredicate &filter = {},
+                                               MatchScope matchScope = WithAnySuffix) const;
+    [[nodiscard]] FilePaths searchAllInDirectories(const FilePaths &dirs,
+                                                   const FilePathPredicate &filter = {},
+                                                   MatchScope matchScope = WithAnySuffix) const;
+    [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs = {},
+                                        PathAmending = AppendToPath,
+                                        const FilePathPredicate &filter = {},
+                                        MatchScope matchScope = WithAnySuffix) const;
+    [[nodiscard]] FilePaths searchAllInPath(const FilePaths &additionalDirs = {},
+                                            PathAmending = AppendToPath,
+                                            const FilePathPredicate &filter = {},
+                                            MatchScope matchScope = WithAnySuffix) const;
+
     std::optional<FilePath> refersToExecutableFile(MatchScope considerScript) const;
 
     [[nodiscard]] expected_str<FilePath> tmpDir() const;
@@ -207,14 +221,11 @@ public:
     static void sort(FilePaths &files);
 
     // Asynchronous interface
-    void asyncCopyFile(const Continuation<const expected_str<void> &> &cont,
-                       const FilePath &target) const;
-    void asyncFileContents(const Continuation<const expected_str<QByteArray> &> &cont,
-                           qint64 maxSize = -1,
-                           qint64 offset = 0) const;
-    void asyncWriteFileContents(const Continuation<const expected_str<qint64> &> &cont,
-                                const QByteArray &data,
-                                qint64 offset = 0) const;
+    FileStreamHandle asyncCopy(const FilePath &target, QObject *context,
+                               const CopyContinuation &cont = {}) const;
+    FileStreamHandle asyncRead(QObject *context, const ReadContinuation &cont = {}) const;
+    FileStreamHandle asyncWrite(const QByteArray &data, QObject *context,
+                                const WriteContinuation &cont = {}) const;
 
     // Prefer not to use
     // Using needsDevice() in "user" code is likely to result in code that
@@ -277,6 +288,7 @@ private:
     unsigned int m_pathLen = 0;
     unsigned short m_schemeLen = 0;
     unsigned short m_hostLen = 0;
+    mutable size_t m_hash = 0;
 };
 
 class QTCREATOR_UTILS_EXPORT DeviceFileHooks
@@ -291,7 +303,11 @@ public:
     std::function<bool(const FilePath &left, const FilePath &right)> isSameDevice;
     std::function<expected_str<FilePath>(const FilePath &)> localSource;
     std::function<void(const FilePath &, const Environment &)> openTerminal;
+    std::function<OsType(const FilePath &)> osType;
 };
+
+// For testing
+QTCREATOR_UTILS_EXPORT QString doCleanPath(const QString &input);
 
 } // Utils
 

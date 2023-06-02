@@ -5,8 +5,8 @@
 
 #include "project.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "projectmodels.h"
-#include "session.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
@@ -245,12 +245,10 @@ static AddNewTree *buildAddFilesTree(FolderNode *root, const FilePaths &files,
                                      Node *contextNode, BestNodeSelector *selector)
 {
     QList<AddNewTree *> children;
-    const QList<FolderNode *> folderNodes = root->folderNodes();
-    for (FolderNode *fn : folderNodes) {
-        AddNewTree *child = buildAddFilesTree(fn, files, contextNode, selector);
-        if (child)
+    root->forEachFolderNode([&](FolderNode *fn) {
+        if (AddNewTree *child = buildAddFilesTree(fn, files, contextNode, selector))
             children.append(child);
-    }
+    });
 
     if (root->supportsAction(AddNewFile, root) && !root->supportsAction(InheritedFromParent, root)) {
         FolderNode::AddNewInformation info = root->addNewInformation(files, contextNode);
@@ -290,7 +288,7 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
     scrollArea->setWidgetResizable(true);
     scrollArea->setWidget(m_filesLabel);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Form {
             m_projectLabel, m_projectComboBox, br,
@@ -463,7 +461,7 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const FilePaths &pa
 
     TreeItem *root = m_model.rootItem();
     root->removeChildren();
-    for (Project *project : SessionManager::projects()) {
+    for (Project *project : ProjectManager::projects()) {
         if (ProjectNode *pn = project->rootProjectNode()) {
             if (kind == IWizardFactory::ProjectWizard) {
                 if (AddNewTree *child = buildAddProjectTree(pn, paths.first(), context, &selector))

@@ -33,7 +33,7 @@ never ending running process:
 
    It looks like when you call terminate() for the adb.exe, it won't stop, never, even after
    default 30 seconds timeout. The same happens for blocking processes tested in
-   tst_QtcProcess::killBlockingProcess(). It's hard to say whether any process on Windows can
+   tst_Process::killBlockingProcess(). It's hard to say whether any process on Windows can
    be finished by a call to terminate(). Until now, no such a process has been found.
 
    Further call to kill() (after a call to terminate()) finishes the process quickly.

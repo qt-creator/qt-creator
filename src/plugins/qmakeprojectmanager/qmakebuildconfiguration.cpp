@@ -37,8 +37,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QInputDialog>
@@ -57,7 +57,8 @@ class RunSystemAspect : public TriStateAspect
 {
     Q_OBJECT
 public:
-    RunSystemAspect() : TriStateAspect(Tr::tr("Run"), Tr::tr("Ignore"), Tr::tr("Use global setting"))
+    RunSystemAspect()
+        : TriStateAspect(nullptr, Tr::tr("Run"), Tr::tr("Ignore"), Tr::tr("Use global setting"))
     {
         setSettingsKey("RunSystemFunction");
         setDisplayName(Tr::tr("qmake system() behavior when parsing:"));
@@ -160,7 +161,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
             this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(this, &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
             this, &QmakeBuildConfiguration::updateProblemLabel);
-    connect(&QmakeSettings::instance(), &QmakeSettings::settingsChanged,
+    connect(&settings(), &AspectContainer::changed,
             this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(target, &Target::parsingFinished, this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(target, &Target::kitChanged, this, &QmakeBuildConfiguration::updateProblemLabel);
@@ -267,7 +268,7 @@ void QmakeBuildConfiguration::updateProblemLabel()
         }
     }
 
-    const bool unalignedBuildDir = QmakeSettings::warnAgainstUnalignedBuildDir()
+    const bool unalignedBuildDir = settings().warnAgainstUnalignedBuildDir()
             && !isBuildDirAtSafeLocation();
     if (unalignedBuildDir)
         allGood = false;
@@ -426,7 +427,7 @@ bool QmakeBuildConfiguration::runSystemFunction() const
         return true;
     if (runSystem == TriState::Disabled)
         return false;
-    return QmakeSettings::runSystemFunction();
+    return settings().runSystemFunction();
 }
 
 QStringList QmakeBuildConfiguration::configCommandLineArguments() const
@@ -753,7 +754,7 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
         Tasks issues;
         if (version)
             issues << version->reportIssues(projectPath, buildDir);
-        if (QmakeSettings::warnAgainstUnalignedBuildDir()
+        if (settings().warnAgainstUnalignedBuildDir()
                 && !QmakeBuildConfiguration::isBuildDirAtSafeLocation(
                     projectPath.absolutePath(), buildDir.absoluteFilePath())) {
             issues.append(BuildSystemTask(Task::Warning,

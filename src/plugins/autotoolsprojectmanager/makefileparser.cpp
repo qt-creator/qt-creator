@@ -5,13 +5,15 @@
 
 #include "autotoolsprojectmanagertr.h"
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+
+using namespace Utils;
 
 namespace AutotoolsProjectManager::Internal {
 
@@ -423,7 +425,7 @@ QStringList MakefileParser::parseTermsAfterAssign(const QString &line)
     if (assignPos <= 0 || assignPos >= line.size())
         return QStringList();
 
-    const QStringList parts = Utils::ProcessArgs::splitArgs(line.mid(assignPos));
+    const QStringList parts = ProcessArgs::splitArgs(line.mid(assignPos), HostOsInfo::hostOs());
     QStringList result;
     for (int i = 0; i < parts.count(); ++i) {
         const QString cur = parts.at(i);

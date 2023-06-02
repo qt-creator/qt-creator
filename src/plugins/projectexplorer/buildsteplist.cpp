@@ -43,16 +43,6 @@ QVariantMap BuildStepList::toMap() const
 {
     QVariantMap map;
 
-    {
-        // Only written for compatibility reasons within the 4.11 cycle
-        const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
-        const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
-        const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
-        map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
-        map.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
-        map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), displayName());
-    }
-
     // Save build steps
     map.insert(QString::fromLatin1(STEPS_COUNT_KEY), m_steps.count());
     for (int i = 0; i < m_steps.count(); ++i)

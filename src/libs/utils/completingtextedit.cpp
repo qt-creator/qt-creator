@@ -13,7 +13,9 @@ static bool isEndOfWordChar(const QChar &c)
     return !c.isLetterOrNumber() && c.category() != QChar::Punctuation_Connector;
 }
 
-/*! \class Utils::CompletingTextEdit
+/*!
+  \class Utils::CompletingTextEdit
+  \inmodule QtCreator
 
   \brief The CompletingTextEdit class is a QTextEdit with auto-completion
   support.

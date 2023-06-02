@@ -10,7 +10,9 @@
 #include "../autotesttr.h"
 
 #include <cppeditor/cppmodelmanager.h>
-#include <projectexplorer/session.h>
+
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/icon.h>
@@ -146,7 +148,7 @@ QVariant GTestTreeItem::data(int column, int role) const
 
 ITestConfiguration *GTestTreeItem::testConfiguration() const
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return nullptr);
 
     GTestConfiguration *config = nullptr;
@@ -252,7 +254,7 @@ static void collectFailedTestInfo(const GTestTreeItem *item,
 QList<ITestConfiguration *> GTestTreeItem::getTestConfigurations(bool ignoreCheckState) const
 {
     QList<ITestConfiguration *> result;
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 
@@ -291,7 +293,7 @@ QList<ITestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
 QList<ITestConfiguration *> GTestTreeItem::getFailedTestConfigurations() const
 {
     QList<ITestConfiguration *> result;
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 
@@ -316,7 +318,7 @@ QList<ITestConfiguration *> GTestTreeItem::getFailedTestConfigurations() const
 QList<ITestConfiguration *> GTestTreeItem::getTestConfigurationsForFile(const FilePath &fileName) const
 {
     QList<ITestConfiguration *> result;
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 
@@ -503,7 +505,7 @@ QSet<QString> internalTargets(const TestTreeItem &item)
 {
     QSet<QString> result;
     const auto cppMM = CppEditor::CppModelManager::instance();
-    const auto projectInfo = cppMM->projectInfo(ProjectExplorer::SessionManager::startupProject());
+    const auto projectInfo = cppMM->projectInfo(ProjectExplorer::ProjectManager::startupProject());
     if (!projectInfo)
         return {};
     const FilePath filePath = item.filePath();

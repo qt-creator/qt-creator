@@ -25,115 +25,32 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QSpacerItem>
-#include <QSpinBox>
 #include <QTreeWidget>
-#include <QWidget>
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
-class TestSettingsWidget : public QWidget
+class TestSettingsWidget : public Core::IOptionsPageWidget
 {
 public:
-    explicit TestSettingsWidget(QWidget *parent = nullptr);
-
-    void setSettings(const TestSettings &settings);
-    TestSettings settings() const;
+    TestSettingsWidget();
 
 private:
     void populateFrameworksListWidget(const QHash<Id, bool> &frameworks,
                                       const QHash<Id, bool> &testTools);
-    void testSettings(TestSettings &settings) const;
-    void testToolsSettings(TestSettings &settings) const;
+    void testSettings(NonAspectSettings &settings) const;
+    void testToolsSettings(NonAspectSettings &settings) const;
     void onFrameworkItemChanged();
 
-    QCheckBox *m_omitInternalMsgCB;
-    QCheckBox *m_omitRunConfigWarnCB;
-    QCheckBox *m_limitResultOutputCB;
-    QCheckBox *m_limitResultDescriptionCb;
-    QSpinBox *m_limitResultDescriptionSpinBox;
-    QCheckBox *m_openResultsOnStartCB;
-    QCheckBox *m_openResultsOnFinishCB;
-    QCheckBox *m_openResultsOnFailCB;
-    QCheckBox *m_autoScrollCB;
-    QCheckBox *m_displayAppCB;
-    QCheckBox *m_processArgsCB;
-    QComboBox *m_runAfterBuildCB;
-    QSpinBox *m_timeoutSpin;
     QTreeWidget *m_frameworkTreeWidget;
     InfoLabel *m_frameworksWarn;
 };
 
-TestSettingsWidget::TestSettingsWidget(QWidget *parent)
-    : QWidget(parent)
+TestSettingsWidget::TestSettingsWidget()
 {
-    resize(586, 469);
-
-    m_omitInternalMsgCB = new QCheckBox(Tr::tr("Omit internal messages"));
-    m_omitInternalMsgCB->setChecked(true);
-    m_omitInternalMsgCB->setToolTip(Tr::tr("Hides internal messages by default. "
-        "You can still enable them by using the test results filter."));
-
-    m_omitRunConfigWarnCB = new QCheckBox(Tr::tr("Omit run configuration warnings"));
-    m_omitRunConfigWarnCB->setToolTip(Tr::tr("Hides warnings related to a deduced run configuration."));
-
-    m_limitResultOutputCB = new QCheckBox(Tr::tr("Limit result output"));
-    m_limitResultOutputCB->setChecked(true);
-    m_limitResultOutputCB->setToolTip(Tr::tr("Limits result output to 100000 characters."));
-
-    m_limitResultDescriptionCb = new QCheckBox(Tr::tr("Limit result description:"));
-    m_limitResultDescriptionCb->setToolTip(
-        Tr::tr("Limit number of lines shown in test result tooltip and description."));
-
-    m_limitResultDescriptionSpinBox = new QSpinBox;
-    m_limitResultDescriptionSpinBox->setEnabled(false);
-    m_limitResultDescriptionSpinBox->setMinimum(1);
-    m_limitResultDescriptionSpinBox->setMaximum(1000000);
-    m_limitResultDescriptionSpinBox->setValue(10);
-
-    m_openResultsOnStartCB = new QCheckBox(Tr::tr("Open results when tests start"));
-    m_openResultsOnStartCB->setToolTip(
-        Tr::tr("Displays test results automatically when tests are started."));
-
-    m_openResultsOnFinishCB = new QCheckBox(Tr::tr("Open results when tests finish"));
-    m_openResultsOnFinishCB->setChecked(true);
-    m_openResultsOnFinishCB->setToolTip(
-        Tr::tr("Displays test results automatically when tests are finished."));
-
-    m_openResultsOnFailCB = new QCheckBox(Tr::tr("Only for unsuccessful test runs"));
-    m_openResultsOnFailCB->setToolTip(
-        Tr::tr("Displays test results only if the test run contains failed, fatal or unexpectedly passed tests."));
-
-    m_autoScrollCB = new QCheckBox(Tr::tr("Automatically scroll results"));
-    m_autoScrollCB->setChecked(true);
-    m_autoScrollCB->setToolTip(Tr::tr("Automatically scrolls down when new items are added and scrollbar is at bottom."));
-
-    m_displayAppCB = new QCheckBox(Tr::tr("Group results by application"));
-
-    m_processArgsCB = new QCheckBox(Tr::tr("Process arguments"));
-    m_processArgsCB->setToolTip(
-        Tr::tr("Allow passing arguments specified on the respective run configuration.\n"
-           "Warning: this is an experimental feature and might lead to failing to execute the test executable."));
-
-    m_runAfterBuildCB = new QComboBox;
-    m_runAfterBuildCB->setToolTip(Tr::tr("Runs chosen tests automatically if a build succeeded."));
-    m_runAfterBuildCB->addItem(Tr::tr("None"));
-    m_runAfterBuildCB->addItem(Tr::tr("All"));
-    m_runAfterBuildCB->addItem(Tr::tr("Selected"));
-
     auto timeoutLabel = new QLabel(Tr::tr("Timeout:"));
     timeoutLabel->setToolTip(Tr::tr("Timeout used when executing each test case."));
-
-    m_timeoutSpin = new QSpinBox;
-    m_timeoutSpin->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_timeoutSpin->setRange(5, 36000);
-    m_timeoutSpin->setValue(60);
-    m_timeoutSpin->setSuffix(Tr::tr(" s"));
-    m_timeoutSpin->setToolTip(
-        Tr::tr("Timeout used when executing test cases. This will apply "
-               "for each test case on its own, not the whole project."));
 
     m_frameworkTreeWidget = new QTreeWidget;
     m_frameworkTreeWidget->setRootIsDecorated(false);
@@ -162,21 +79,22 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
         onClicked([] { AutotestPlugin::clearChoiceCache(); }, this)
     };
 
+    TestSettings &s = *TestSettings::instance();
     Group generalGroup {
         title(Tr::tr("General")),
         Column {
-            m_omitInternalMsgCB,
-            m_omitRunConfigWarnCB,
-            m_limitResultOutputCB,
-            Row { m_limitResultDescriptionCb, m_limitResultDescriptionSpinBox, st },
-            m_openResultsOnStartCB,
-            m_openResultsOnFinishCB,
-            Row { Space(20), m_openResultsOnFailCB },
-            m_autoScrollCB,
-            m_displayAppCB,
-            m_processArgsCB,
-            Row { Tr::tr("Automatically run"), m_runAfterBuildCB, st },
-            Row { timeoutLabel, m_timeoutSpin, st },
+            s.omitInternalMsg,
+            s.omitRunConfigWarn,
+            s.limitResultOutput,
+            Row { s.limitResultDescription, s.resultDescriptionMaxSize, st },
+            s.popupOnStart,
+            s.popupOnFinish,
+            Row { Space(20), s.popupOnFail },
+            s.autoScroll,
+            s.displayApplication,
+            s.processArgs,
+            Row { Tr::tr("Automatically run"), s.runAfterBuild, st },
+            Row { timeoutLabel, s.timeout, st },
             Row { resetChoicesButton, st }
          }
     };
@@ -199,50 +117,38 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
 
     connect(m_frameworkTreeWidget, &QTreeWidget::itemChanged,
             this, &TestSettingsWidget::onFrameworkItemChanged);
-    connect(m_openResultsOnFinishCB, &QCheckBox::toggled,
-            m_openResultsOnFailCB, &QCheckBox::setEnabled);
-    connect(m_limitResultDescriptionCb, &QCheckBox::toggled,
-            m_limitResultDescriptionSpinBox, &QSpinBox::setEnabled);
-}
 
-void TestSettingsWidget::setSettings(const TestSettings &settings)
-{
-    m_timeoutSpin->setValue(settings.timeout / 1000); // we store milliseconds
-    m_omitInternalMsgCB->setChecked(settings.omitInternalMssg);
-    m_omitRunConfigWarnCB->setChecked(settings.omitRunConfigWarn);
-    m_limitResultOutputCB->setChecked(settings.limitResultOutput);
-    m_limitResultDescriptionCb->setChecked(settings.limitResultDescription);
-    m_limitResultDescriptionSpinBox->setEnabled(settings.limitResultDescription);
-    m_limitResultDescriptionSpinBox->setValue(settings.resultDescriptionMaxSize);
-    m_autoScrollCB->setChecked(settings.autoScroll);
-    m_processArgsCB->setChecked(settings.processArgs);
-    m_displayAppCB->setChecked(settings.displayApplication);
-    m_openResultsOnStartCB->setChecked(settings.popupOnStart);
-    m_openResultsOnFinishCB->setChecked(settings.popupOnFinish);
-    m_openResultsOnFailCB->setChecked(settings.popupOnFail);
-    m_runAfterBuildCB->setCurrentIndex(int(settings.runAfterBuild));
-    populateFrameworksListWidget(settings.frameworks, settings.tools);
-}
+    populateFrameworksListWidget(s.frameworks, s.tools);
 
-TestSettings TestSettingsWidget::settings() const
-{
-    TestSettings result;
-    result.timeout = m_timeoutSpin->value() * 1000; // we display seconds
-    result.omitInternalMssg = m_omitInternalMsgCB->isChecked();
-    result.omitRunConfigWarn = m_omitRunConfigWarnCB->isChecked();
-    result.limitResultOutput = m_limitResultOutputCB->isChecked();
-    result.limitResultDescription = m_limitResultDescriptionCb->isChecked();
-    result.resultDescriptionMaxSize = m_limitResultDescriptionSpinBox->value();
-    result.autoScroll = m_autoScrollCB->isChecked();
-    result.processArgs = m_processArgsCB->isChecked();
-    result.displayApplication = m_displayAppCB->isChecked();
-    result.popupOnStart = m_openResultsOnStartCB->isChecked();
-    result.popupOnFinish = m_openResultsOnFinishCB->isChecked();
-    result.popupOnFail = m_openResultsOnFailCB->isChecked();
-    result.runAfterBuild = RunAfterBuildMode(m_runAfterBuildCB->currentIndex());
-    testSettings(result);
-    testToolsSettings(result);
-    return result;
+    setOnApply([this] {
+        TestSettings &s = *TestSettings::instance();
+
+        NonAspectSettings tmp;
+        testSettings(tmp);
+        testToolsSettings(tmp);
+
+        const QList<Utils::Id> changedIds = Utils::filtered(tmp.frameworksGrouping.keys(),
+           [&tmp, &s](Utils::Id id) {
+            return tmp.frameworksGrouping[id] != s.frameworksGrouping[id];
+        });
+
+        testSettings(s);
+        testToolsSettings(s);
+        s.toSettings(Core::ICore::settings());
+
+        for (ITestFramework *framework : TestFrameworkManager::registeredFrameworks()) {
+            framework->setActive(s.frameworks.value(framework->id(), false));
+            framework->setGrouping(s.frameworksGrouping.value(framework->id(), false));
+        }
+
+        for (ITestTool *testTool : TestFrameworkManager::registeredTestTools())
+            testTool->setActive(s.tools.value(testTool->id(), false));
+
+        TestTreeModel::instance()->synchronizeTestFrameworks();
+        TestTreeModel::instance()->synchronizeTestTools();
+        if (!changedIds.isEmpty())
+            TestTreeModel::instance()->rebuild(changedIds);
+    });
 }
 
 enum TestBaseInfo
@@ -283,7 +189,7 @@ void TestSettingsWidget::populateFrameworksListWidget(const QHash<Id, bool> &fra
     }
 }
 
-void TestSettingsWidget::testSettings(TestSettings &settings) const
+void TestSettingsWidget::testSettings(NonAspectSettings &settings) const
 {
     const QAbstractItemModel *model = m_frameworkTreeWidget->model();
     QTC_ASSERT(model, return);
@@ -298,7 +204,7 @@ void TestSettingsWidget::testSettings(TestSettings &settings) const
     }
 }
 
-void TestSettingsWidget::testToolsSettings(TestSettings &settings) const
+void TestSettingsWidget::testToolsSettings(NonAspectSettings &settings) const
 {
     const QAbstractItemModel *model = m_frameworkTreeWidget->model();
     QTC_ASSERT(model, return);
@@ -343,50 +249,16 @@ void TestSettingsWidget::onFrameworkItemChanged()
                                     || (mixed == (ITestBase::Framework | ITestBase::Tool)));
 }
 
-TestSettingsPage::TestSettingsPage(TestSettings *settings)
-    : m_settings(settings)
+// TestSettingsPage
+
+TestSettingsPage::TestSettingsPage()
 {
     setId(Constants::AUTOTEST_SETTINGS_ID);
     setDisplayName(Tr::tr("General"));
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayCategory(Tr::tr("Testing"));
     setCategoryIconPath(":/autotest/images/settingscategory_autotest.png");
+    setWidgetCreator([] { return new TestSettingsWidget; });
 }
 
-QWidget *TestSettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new TestSettingsWidget;
-        m_widget->setSettings(*m_settings);
-    }
-    return m_widget;
-}
-
-void TestSettingsPage::apply()
-{
-    if (!m_widget) // page was not shown at all
-        return;
-    const TestSettings newSettings = m_widget->settings();
-    const QList<Id> changedIds = Utils::filtered(newSettings.frameworksGrouping.keys(),
-                                                 [newSettings, this](const Id &id) {
-        return newSettings.frameworksGrouping[id] != m_settings->frameworksGrouping[id];
-    });
-    *m_settings = newSettings;
-    m_settings->toSettings(Core::ICore::settings());
-
-    for (ITestFramework *framework : TestFrameworkManager::registeredFrameworks()) {
-        framework->setActive(m_settings->frameworks.value(framework->id(), false));
-        framework->setGrouping(m_settings->frameworksGrouping.value(framework->id(), false));
-    }
-
-    for (ITestTool *testTool : TestFrameworkManager::registeredTestTools())
-        testTool->setActive(m_settings->tools.value(testTool->id(), false));
-
-    TestTreeModel::instance()->synchronizeTestFrameworks();
-    TestTreeModel::instance()->synchronizeTestTools();
-    if (!changedIds.isEmpty())
-        TestTreeModel::instance()->rebuild(changedIds);
-}
-
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

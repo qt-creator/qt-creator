@@ -232,8 +232,6 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     , m_warningVersionIcon(Utils::Icons::WARNING.icon())
     , m_configurationWidget(nullptr)
 {
-    resize(446, 450);
-
     m_qtdirList = new QTreeView(this);
     m_qtdirList->setObjectName("qtDirList");
     m_qtdirList->setUniformRowHeights(true);
@@ -261,15 +259,16 @@ QtOptionsPageWidget::QtOptionsPageWidget()
 
     m_errorLabel = new QLabel;
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     auto versionInfoWidget = new QWidget;
     // clang-format off
     Form {
         Tr::tr("Name:"), m_nameEdit, br,
         Tr::tr("qmake path:"), Row { m_qmakePath, m_editPathPushButton }, br,
-        Span(2, m_errorLabel)
-    }.attachTo(versionInfoWidget, WithoutMargins);
+        Span(2, m_errorLabel),
+        noMargin
+    }.attachTo(versionInfoWidget);
     // clang-format on
 
     m_formLayout = qobject_cast<QFormLayout*>(versionInfoWidget->layout());

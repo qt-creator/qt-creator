@@ -5,24 +5,44 @@
 
 #include <coreplugin/core_global.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/filepath.h>
 #include <utils/id.h>
 #include <utils/link.h>
 
-#include <QFutureInterface>
 #include <QIcon>
-#include <QMetaType>
-#include <QVariant>
 #include <QKeySequence>
 
 #include <optional>
 
+QT_BEGIN_NAMESPACE
+template <typename T>
+class QFuture;
+QT_END_NAMESPACE
+
 namespace Core {
 
-class ILocatorFilter;
+namespace Internal {
+class Locator;
+class LocatorWidget;
+}
 
-struct LocatorFilterEntry
+class ILocatorFilter;
+class LocatorStoragePrivate;
+class LocatorFileCachePrivate;
+
+class AcceptResult
 {
+public:
+    QString newText;
+    int selectionStart = -1;
+    int selectionLength = 0;
+};
+
+class LocatorFilterEntry
+{
+public:
     struct HighlightInfo {
         enum DataType {
             DisplayName,
@@ -66,18 +86,7 @@ struct LocatorFilterEntry
 
     LocatorFilterEntry() = default;
 
-    LocatorFilterEntry(ILocatorFilter *fromFilter,
-                       const QString &name,
-                       const QVariant &data = {},
-                       std::optional<QIcon> icon = std::nullopt)
-        : filter(fromFilter)
-        , displayName(name)
-        , internalData(data)
-        , displayIcon(icon)
-    {}
-
-    /* backpointer to creating filter */
-    ILocatorFilter *filter = nullptr;
+    using Acceptor = std::function<AcceptResult()>;
     /* displayed string */
     QString displayName;
     /* extra information displayed in parentheses and light-gray next to display name (optional)*/
@@ -86,8 +95,9 @@ struct LocatorFilterEntry
     QString extraInfo;
     /* additional tooltip */
     QString toolTip;
-    /* can be used by the filter to save more information about the entry */
-    QVariant internalData;
+    /* called by locator widget on accept. By default, when acceptor is empty,
+       EditorManager::openEditor(LocatorFilterEntry) will be used instead. */
+    Acceptor acceptor;
     /* icon to display along with the entry */
     std::optional<QIcon> displayIcon;
     /* file path, if the entry is related to a file, is used e.g. for resolving a file icon */
@@ -108,6 +118,76 @@ struct LocatorFilterEntry
     }
 };
 
+using LocatorFilterEntries = QList<LocatorFilterEntry>;
+
+class CORE_EXPORT LocatorStorage final
+{
+public:
+    LocatorStorage() = default;
+    QString input() const;
+    void reportOutput(const LocatorFilterEntries &outputData) const;
+
+private:
+    friend class LocatorMatcher;
+    LocatorStorage(const std::shared_ptr<LocatorStoragePrivate> &priv) { d = priv; }
+    void finalize() const;
+    std::shared_ptr<LocatorStoragePrivate> d;
+};
+
+class CORE_EXPORT LocatorMatcherTask final
+{
+public:
+    // The main task. Initial data (searchTerm) should be taken from storage.input().
+    // Results reporting is done via the storage.reportOutput().
+    Tasking::TaskItem task = Tasking::Group{};
+
+    // When constructing the task, don't place the storage inside the task above.
+    Tasking::TreeStorage<LocatorStorage> storage;
+};
+
+using LocatorMatcherTasks = QList<LocatorMatcherTask>;
+using LocatorMatcherTaskCreator = std::function<LocatorMatcherTasks()>;
+class LocatorMatcherPrivate;
+
+enum class MatcherType {
+    AllSymbols,
+    Classes,
+    Functions,
+    CurrentDocumentSymbols
+};
+
+class CORE_EXPORT LocatorMatcher final : public QObject
+{
+    Q_OBJECT
+
+public:
+    LocatorMatcher();
+    ~LocatorMatcher();
+    void setTasks(const LocatorMatcherTasks &tasks);
+    void setInputData(const QString &inputData);
+    void setParallelLimit(int limit); // by default 0 = parallel
+    void start();
+    void stop();
+
+    bool isRunning() const;
+    // Total data collected so far, even when running.
+    LocatorFilterEntries outputData() const;
+
+    // Note: Starts internal event loop.
+    static LocatorFilterEntries runBlocking(const LocatorMatcherTasks &tasks,
+                                            const QString &input, int parallelLimit = 0);
+
+    static void addMatcherCreator(MatcherType type, const LocatorMatcherTaskCreator &creator);
+    static LocatorMatcherTasks matchers(MatcherType type);
+
+signals:
+    void serialOutputDataReady(const LocatorFilterEntries &serialOutputData);
+    void done(bool success);
+
+private:
+    std::unique_ptr<LocatorMatcherPrivate> d;
+};
+
 class CORE_EXPORT ILocatorFilter : public QObject
 {
     Q_OBJECT
@@ -125,8 +205,6 @@ public:
 
     ILocatorFilter(QObject *parent = nullptr);
     ~ILocatorFilter() override;
-
-    static const QList<ILocatorFilter *> allLocatorFilters();
 
     Utils::Id id() const;
     Utils::Id actionId() const;
@@ -148,15 +226,6 @@ public:
 
     std::optional<QString> defaultSearchText() const;
     void setDefaultSearchText(const QString &defaultSearchText);
-
-    virtual void prepareSearch(const QString &entry);
-
-    virtual QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry) = 0;
-
-    virtual void accept(const LocatorFilterEntry &selection,
-                        QString *newText, int *selectionStart, int *selectionLength) const = 0;
-
-    virtual void refresh(QFutureInterface<void> &future) { Q_UNUSED(future) };
 
     virtual QByteArray saveState() const;
     virtual void restoreState(const QByteArray &state);
@@ -188,6 +257,9 @@ public:
 public slots:
     void setEnabled(bool enabled);
 
+signals:
+    void enabledChanged(bool enabled);
+
 protected:
     void setHidden(bool hidden);
     void setId(Utils::Id id);
@@ -198,9 +270,18 @@ protected:
     virtual void saveState(QJsonObject &object) const;
     virtual void restoreState(const QJsonObject &object);
 
+    void setRefreshRecipe(const std::optional<Tasking::TaskItem> &recipe);
+    std::optional<Tasking::TaskItem> refreshRecipe() const;
+
     static bool isOldSetting(const QByteArray &state);
 
 private:
+    virtual LocatorMatcherTasks matchers() = 0;
+
+    friend class Internal::Locator;
+    friend class Internal::LocatorWidget;
+    static const QList<ILocatorFilter *> allLocatorFilters();
+
     Utils::Id m_id;
     QString m_shortcut;
     Priority m_priority = Medium;
@@ -208,12 +289,46 @@ private:
     QString m_description;
     QString m_defaultShortcut;
     std::optional<QString> m_defaultSearchText;
+    std::optional<Tasking::TaskItem> m_refreshRecipe;
     QKeySequence m_defaultKeySequence;
     bool m_defaultIncludedByDefault = false;
     bool m_includedByDefault = m_defaultIncludedByDefault;
     bool m_hidden = false;
     bool m_enabled = true;
     bool m_isConfigurable = true;
+};
+
+class CORE_EXPORT LocatorFileCache final
+{
+    Q_DISABLE_COPY_MOVE(LocatorFileCache)
+
+public:
+    // Always called from non-main thread.
+    using FilePathsGenerator = std::function<Utils::FilePaths(const QFuture<void> &)>;
+    // Always called from main thread.
+    using GeneratorProvider = std::function<FilePathsGenerator()>;
+
+    LocatorFileCache();
+
+    void invalidate();
+    void setFilePathsGenerator(const FilePathsGenerator &generator);
+    void setFilePaths(const Utils::FilePaths &filePaths);
+    void setGeneratorProvider(const GeneratorProvider &provider);
+
+    std::optional<Utils::FilePaths> filePaths() const;
+
+    static FilePathsGenerator filePathsGenerator(const Utils::FilePaths &filePaths);
+    LocatorMatcherTask matcher() const;
+
+    using MatchedEntries = std::array<LocatorFilterEntries, int(ILocatorFilter::MatchLevel::Count)>;
+    static Utils::FilePaths processFilePaths(const QFuture<void> &future,
+                                             const Utils::FilePaths &filePaths,
+                                             bool hasPathSeparator,
+                                             const QRegularExpression &regExp,
+                                             const Utils::Link &inputLink,
+                                             LocatorFileCache::MatchedEntries *entries);
+private:
+    std::shared_ptr<LocatorFileCachePrivate> d;
 };
 
 } // namespace Core

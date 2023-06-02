@@ -35,15 +35,14 @@
 #include <QStackedWidget>
 #include <QTextStream>
 
-namespace TextEditor {
-namespace Internal {
+namespace TextEditor::Internal {
 
 // SnippetsTableModel
+
 class SnippetsTableModel : public QAbstractTableModel
 {
-    Q_OBJECT
 public:
-    SnippetsTableModel(QObject *parent);
+    SnippetsTableModel();
     ~SnippetsTableModel() override = default;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -74,9 +73,8 @@ private:
     QString m_activeGroupId;
 };
 
-SnippetsTableModel::SnippetsTableModel(QObject *parent) :
-    QAbstractTableModel(parent),
-    m_collection(SnippetsCollection::instance())
+SnippetsTableModel::SnippetsTableModel()
+    : m_collection(SnippetsCollection::instance())
 {}
 
 int SnippetsTableModel::rowCount(const QModelIndex &) const
@@ -244,19 +242,15 @@ void SnippetsTableModel::replaceSnippet(const Snippet &snippet, const QModelInde
     }
 }
 
-// SnippetsSettingsPagePrivate
-class SnippetsSettingsPagePrivate : public QObject
+// SnippetsSettingsWidget
+
+class SnippetsSettingsWidget : public Core::IOptionsPageWidget
 {
 public:
-    SnippetsSettingsPagePrivate();
-    ~SnippetsSettingsPagePrivate() override { delete m_model; }
+    SnippetsSettingsWidget();
 
-    void configureUi(QWidget *parent);
-
-    void apply();
-    void finish();
-
-    QPointer<QWidget> m_widget;
+    void apply() final;
+    void finish() final;
 
 private:
     void loadSnippetGroup(int index);
@@ -279,9 +273,9 @@ private:
     bool settingsChanged() const;
     void writeSettings();
 
-    const QString m_settingsPrefix;
-    SnippetsTableModel *m_model;
-    bool m_snippetsCollectionChanged;
+    const QString m_settingsPrefix{QLatin1String("Text")};
+    SnippetsTableModel m_model;
+    bool m_snippetsCollectionChanged = false;
     SnippetsSettings m_settings;
 
     QStackedWidget *m_snippetsEditorStack;
@@ -290,38 +284,22 @@ private:
     QPushButton *m_revertButton;
 };
 
-SnippetsSettingsPagePrivate::SnippetsSettingsPagePrivate() :
-    m_settingsPrefix(QLatin1String("Text")),
-    m_model(new SnippetsTableModel(nullptr)),
-    m_snippetsCollectionChanged(false)
-{}
-
-SnippetEditorWidget *SnippetsSettingsPagePrivate::currentEditor() const
-{
-    return editorAt(m_snippetsEditorStack->currentIndex());
-}
-
-SnippetEditorWidget *SnippetsSettingsPagePrivate::editorAt(int i) const
-{
-    return static_cast<SnippetEditorWidget *>(m_snippetsEditorStack->widget(i));
-}
-
-void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
+SnippetsSettingsWidget::SnippetsSettingsWidget()
 {
     m_groupCombo = new QComboBox;
     m_snippetsEditorStack = new QStackedWidget;
     for (const SnippetProvider &provider : SnippetProvider::snippetProviders()) {
         m_groupCombo->addItem(provider.displayName(), provider.groupId());
-        auto snippetEditor = new SnippetEditorWidget(w);
+        auto snippetEditor = new SnippetEditorWidget(this);
         SnippetProvider::decorateEditor(snippetEditor, provider.groupId());
         m_snippetsEditorStack->insertWidget(m_groupCombo->count() - 1, snippetEditor);
         connect(snippetEditor, &SnippetEditorWidget::snippetContentChanged,
-                this, &SnippetsSettingsPagePrivate::setSnippetContent);
+                this, &SnippetsSettingsWidget::setSnippetContent);
     }
 
     m_snippetsTable = new Utils::TreeView;
     m_snippetsTable->setRootIsDecorated(false);
-    m_snippetsTable->setModel(m_model);
+    m_snippetsTable->setModel(&m_model);
 
     m_revertButton = new QPushButton(Tr::tr("Revert Built-in"));
     m_revertButton->setEnabled(false);
@@ -332,7 +310,7 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
     snippetSplitter->addWidget(m_snippetsTable);
     snippetSplitter->addWidget(m_snippetsEditorStack);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Row { Tr::tr("Group:"), m_groupCombo, st },
         Row {
@@ -350,40 +328,50 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
                 st,
             }
         }
-    }.attachTo(w);
+    }.attachTo(this);
 
     loadSettings();
     loadSnippetGroup(m_groupCombo->currentIndex());
 
-    connect(m_model, &QAbstractItemModel::rowsInserted,
-            this, &SnippetsSettingsPagePrivate::selectSnippet);
-    connect(m_model, &QAbstractItemModel::rowsInserted,
-            this, &SnippetsSettingsPagePrivate::markSnippetsCollection);
-    connect(m_model, &QAbstractItemModel::rowsRemoved,
-            this, &SnippetsSettingsPagePrivate::markSnippetsCollection);
-    connect(m_model, &QAbstractItemModel::rowsMoved,
-            this, &SnippetsSettingsPagePrivate::selectMovedSnippet);
-    connect(m_model, &QAbstractItemModel::rowsMoved,
-            this, &SnippetsSettingsPagePrivate::markSnippetsCollection);
-    connect(m_model, &QAbstractItemModel::dataChanged,
-            this, &SnippetsSettingsPagePrivate::markSnippetsCollection);
-    connect(m_model, &QAbstractItemModel::modelReset,
+    connect(&m_model, &QAbstractItemModel::rowsInserted,
+            this, &SnippetsSettingsWidget::selectSnippet);
+    connect(&m_model, &QAbstractItemModel::rowsInserted,
+            this, &SnippetsSettingsWidget::markSnippetsCollection);
+    connect(&m_model, &QAbstractItemModel::rowsRemoved,
+            this, &SnippetsSettingsWidget::markSnippetsCollection);
+    connect(&m_model, &QAbstractItemModel::rowsMoved,
+            this, &SnippetsSettingsWidget::selectMovedSnippet);
+    connect(&m_model, &QAbstractItemModel::rowsMoved,
+            this, &SnippetsSettingsWidget::markSnippetsCollection);
+    connect(&m_model, &QAbstractItemModel::dataChanged,
+            this, &SnippetsSettingsWidget::markSnippetsCollection);
+    connect(&m_model, &QAbstractItemModel::modelReset,
             this, [this] { this->updateCurrentSnippetDependent(); });
-    connect(m_model, &QAbstractItemModel::modelReset,
-            this, &SnippetsSettingsPagePrivate::markSnippetsCollection);
+    connect(&m_model, &QAbstractItemModel::modelReset,
+            this, &SnippetsSettingsWidget::markSnippetsCollection);
 
     connect(m_groupCombo, &QComboBox::currentIndexChanged,
-            this, &SnippetsSettingsPagePrivate::loadSnippetGroup);
+            this, &SnippetsSettingsWidget::loadSnippetGroup);
     connect(m_revertButton, &QAbstractButton::clicked,
-            this, &SnippetsSettingsPagePrivate::revertBuiltInSnippet);
+            this, &SnippetsSettingsWidget::revertBuiltInSnippet);
     connect(m_snippetsTable->selectionModel(), &QItemSelectionModel::currentChanged,
-            this, &SnippetsSettingsPagePrivate::updateCurrentSnippetDependent);
+            this, &SnippetsSettingsWidget::updateCurrentSnippetDependent);
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-            this, &SnippetsSettingsPagePrivate::decorateEditors);
+            this, &SnippetsSettingsWidget::decorateEditors);
 }
 
-void SnippetsSettingsPagePrivate::apply()
+SnippetEditorWidget *SnippetsSettingsWidget::currentEditor() const
+{
+    return editorAt(m_snippetsEditorStack->currentIndex());
+}
+
+SnippetEditorWidget *SnippetsSettingsWidget::editorAt(int i) const
+{
+    return static_cast<SnippetEditorWidget *>(m_snippetsEditorStack->widget(i));
+}
+
+void SnippetsSettingsWidget::apply()
 {
     if (settingsChanged())
         writeSettings();
@@ -402,7 +390,7 @@ void SnippetsSettingsPagePrivate::apply()
     }
 }
 
-void SnippetsSettingsPagePrivate::finish()
+void SnippetsSettingsWidget::finish()
 {
     if (m_snippetsCollectionChanged) {
         SnippetsCollection::instance()->reload();
@@ -412,7 +400,7 @@ void SnippetsSettingsPagePrivate::finish()
     disconnect(TextEditorSettings::instance(), nullptr, this, nullptr);
 }
 
-void SnippetsSettingsPagePrivate::loadSettings()
+void SnippetsSettingsWidget::loadSettings()
 {
     if (m_groupCombo->count() == 0)
         return;
@@ -426,7 +414,7 @@ void SnippetsSettingsPagePrivate::loadSettings()
         m_groupCombo->setCurrentIndex(0);
 }
 
-void SnippetsSettingsPagePrivate::writeSettings()
+void SnippetsSettingsWidget::writeSettings()
 {
     if (m_groupCombo->count() == 0)
         return;
@@ -435,72 +423,72 @@ void SnippetsSettingsPagePrivate::writeSettings()
     m_settings.toSettings(m_settingsPrefix, Core::ICore::settings());
 }
 
-bool SnippetsSettingsPagePrivate::settingsChanged() const
+bool SnippetsSettingsWidget::settingsChanged() const
 {
     if (m_settings.lastUsedSnippetGroup() != m_groupCombo->currentText())
         return true;
     return false;
 }
 
-void SnippetsSettingsPagePrivate::loadSnippetGroup(int index)
+void SnippetsSettingsWidget::loadSnippetGroup(int index)
 {
     if (index == -1)
         return;
 
     m_snippetsEditorStack->setCurrentIndex(index);
     currentEditor()->clear();
-    m_model->load(m_groupCombo->itemData(index).toString());
+    m_model.load(m_groupCombo->itemData(index).toString());
 }
 
-void SnippetsSettingsPagePrivate::markSnippetsCollection()
+void SnippetsSettingsWidget::markSnippetsCollection()
 {
     if (!m_snippetsCollectionChanged)
         m_snippetsCollectionChanged = true;
 }
 
-void SnippetsSettingsPagePrivate::addSnippet()
+void SnippetsSettingsWidget::addSnippet()
 {
-    const QModelIndex &modelIndex = m_model->createSnippet();
+    const QModelIndex &modelIndex = m_model.createSnippet();
     selectSnippet(QModelIndex(), modelIndex.row());
     m_snippetsTable->edit(modelIndex);
 }
 
-void SnippetsSettingsPagePrivate::removeSnippet()
+void SnippetsSettingsWidget::removeSnippet()
 {
     const QModelIndex &modelIndex = m_snippetsTable->selectionModel()->currentIndex();
     if (!modelIndex.isValid()) {
         QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Error"), Tr::tr("No snippet selected."));
         return;
     }
-    m_model->removeSnippet(modelIndex);
+    m_model.removeSnippet(modelIndex);
 }
 
-void SnippetsSettingsPagePrivate::restoreRemovedBuiltInSnippets()
+void SnippetsSettingsWidget::restoreRemovedBuiltInSnippets()
 {
-    m_model->restoreRemovedBuiltInSnippets();
+    m_model.restoreRemovedBuiltInSnippets();
 }
 
-void SnippetsSettingsPagePrivate::revertBuiltInSnippet()
+void SnippetsSettingsWidget::revertBuiltInSnippet()
 {
-    m_model->revertBuitInSnippet(m_snippetsTable->selectionModel()->currentIndex());
+    m_model.revertBuitInSnippet(m_snippetsTable->selectionModel()->currentIndex());
 }
 
-void SnippetsSettingsPagePrivate::resetAllSnippets()
+void SnippetsSettingsWidget::resetAllSnippets()
 {
-    m_model->resetSnippets();
+    m_model.resetSnippets();
 }
 
-void SnippetsSettingsPagePrivate::selectSnippet(const QModelIndex &parent, int row)
+void SnippetsSettingsWidget::selectSnippet(const QModelIndex &parent, int row)
 {
-    QModelIndex topLeft = m_model->index(row, 0, parent);
-    QModelIndex bottomRight = m_model->index(row, 1, parent);
+    QModelIndex topLeft = m_model.index(row, 0, parent);
+    QModelIndex bottomRight = m_model.index(row, 1, parent);
     QItemSelection selection(topLeft, bottomRight);
     m_snippetsTable->selectionModel()->select(selection, QItemSelectionModel::SelectCurrent);
     m_snippetsTable->setCurrentIndex(topLeft);
     m_snippetsTable->scrollTo(topLeft);
 }
 
-void SnippetsSettingsPagePrivate::selectMovedSnippet(const QModelIndex &,
+void SnippetsSettingsWidget::selectMovedSnippet(const QModelIndex &,
                                                      int sourceRow,
                                                      int,
                                                      const QModelIndex &destinationParent,
@@ -508,17 +496,17 @@ void SnippetsSettingsPagePrivate::selectMovedSnippet(const QModelIndex &,
 {
     QModelIndex modelIndex;
     if (sourceRow < destinationRow)
-        modelIndex = m_model->index(destinationRow - 1, 0, destinationParent);
+        modelIndex = m_model.index(destinationRow - 1, 0, destinationParent);
     else
-        modelIndex = m_model->index(destinationRow, 0, destinationParent);
+        modelIndex = m_model.index(destinationRow, 0, destinationParent);
     m_snippetsTable->scrollTo(modelIndex);
-    currentEditor()->setPlainText(m_model->snippetAt(modelIndex).content());
+    currentEditor()->setPlainText(m_model.snippetAt(modelIndex).content());
 }
 
-void SnippetsSettingsPagePrivate::updateCurrentSnippetDependent(const QModelIndex &modelIndex)
+void SnippetsSettingsWidget::updateCurrentSnippetDependent(const QModelIndex &modelIndex)
 {
     if (modelIndex.isValid()) {
-        const Snippet &snippet = m_model->snippetAt(modelIndex);
+        const Snippet &snippet = m_model.snippetAt(modelIndex);
         currentEditor()->setPlainText(snippet.content());
         m_revertButton->setEnabled(snippet.isBuiltIn());
     } else {
@@ -527,16 +515,16 @@ void SnippetsSettingsPagePrivate::updateCurrentSnippetDependent(const QModelInde
     }
 }
 
-void SnippetsSettingsPagePrivate::setSnippetContent()
+void SnippetsSettingsWidget::setSnippetContent()
 {
     const QModelIndex &modelIndex = m_snippetsTable->selectionModel()->currentIndex();
     if (modelIndex.isValid()) {
-        m_model->setSnippetContent(modelIndex, currentEditor()->toPlainText());
+        m_model.setSnippetContent(modelIndex, currentEditor()->toPlainText());
         markSnippetsCollection();
     }
 }
 
-void SnippetsSettingsPagePrivate::decorateEditors(const TextEditor::FontSettings &fontSettings)
+void SnippetsSettingsWidget::decorateEditors(const TextEditor::FontSettings &fontSettings)
 {
     for (int i = 0; i < m_groupCombo->count(); ++i) {
         SnippetEditorWidget *snippetEditor = editorAt(i);
@@ -550,41 +538,13 @@ void SnippetsSettingsPagePrivate::decorateEditors(const TextEditor::FontSettings
 // SnippetsSettingsPage
 
 SnippetsSettingsPage::SnippetsSettingsPage()
-    : d(new SnippetsSettingsPagePrivate)
 {
     setId(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS);
     setDisplayName(Tr::tr("Snippets"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
     setDisplayCategory(Tr::tr("Text Editor"));
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
+    setWidgetCreator([] { return new SnippetsSettingsWidget; });
 }
 
-SnippetsSettingsPage::~SnippetsSettingsPage()
-{
-    delete d;
-}
-
-QWidget *SnippetsSettingsPage::widget()
-{
-    if (!d->m_widget) {
-        d->m_widget = new QWidget;
-        d->configureUi(d->m_widget);
-    }
-    return d->m_widget;
-}
-
-void SnippetsSettingsPage::apply()
-{
-    d->apply();
-}
-
-void SnippetsSettingsPage::finish()
-{
-    d->finish();
-    delete d->m_widget;
-}
-
-} // Internal
-} // TextEditor
-
-#include "snippetssettingspage.moc"
+} // TextEditor::Internal

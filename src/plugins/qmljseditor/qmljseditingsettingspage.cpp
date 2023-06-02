@@ -7,18 +7,24 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <qmljs/qmljscheck.h>
+#include <qmljs/qmljsstaticanalysismessage.h>
+#include <qmljstools/qmljstoolsconstants.h>
+#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcsettings.h>
+#include <utils/treemodel.h>
 #include <utils/variablechooser.h>
-#include <qmljstools/qmljstoolsconstants.h>
 
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QSettings>
 #include <QTextStream>
+#include <QTreeView>
 
 const char AUTO_FORMAT_ON_SAVE[] = "QmlJSEditor.AutoFormatOnSave";
 const char AUTO_FORMAT_ONLY_CURRENT_PROJECT[] = "QmlJSEditor.AutoFormatOnlyCurrentProject";
@@ -31,10 +37,29 @@ const char UIQML_OPEN_MODE[] = "QmlJSEditor.openUiQmlMode";
 const char FORMAT_COMMAND[] = "QmlJSEditor.formatCommand";
 const char FORMAT_COMMAND_OPTIONS[] = "QmlJSEditor.formatCommandOptions";
 const char CUSTOM_COMMAND[] = "QmlJSEditor.useCustomFormatCommand";
+const char CUSTOM_ANALYZER[] = "QmlJSEditor.useCustomAnalyzer";
+const char DISABLED_MESSAGES[] = "QmlJSEditor.disabledMessages";
+const char DISABLED_MESSAGES_NONQUICKUI[] = "QmlJSEditor.disabledMessagesNonQuickUI";
 const char DEFAULT_CUSTOM_FORMAT_COMMAND[] = "%{CurrentDocument:Project:QT_HOST_BINS}/qmlformat";
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
+
+static QList<int> defaultDisabledMessages()
+{
+    static const QList<int> disabledByDefault = Utils::transform(
+                QmlJS::Check::defaultDisabledMessages(),
+                [](QmlJS::StaticAnalysis::Type t) { return int(t); });
+    return disabledByDefault;
+}
+
+static QList<int> defaultDisabledMessagesNonQuickUi()
+{
+    static const QList<int> disabledForNonQuickUi = Utils::transform(
+        QmlJS::Check::defaultDisabledMessagesForNonQuickUi(),
+        [](QmlJS::StaticAnalysis::Type t){ return int(t); });
+    return disabledForNonQuickUi;
+}
 
 void QmlJsEditingSettings::set()
 {
@@ -57,6 +82,17 @@ void QmlJsEditingSettings::fromSettings(QSettings *settings)
     m_formatCommand = settings->value(FORMAT_COMMAND, {}).toString();
     m_formatCommandOptions = settings->value(FORMAT_COMMAND_OPTIONS, {}).toString();
     m_useCustomFormatCommand = settings->value(CUSTOM_COMMAND, QVariant(false)).toBool();
+    m_useCustomAnalyzer = settings->value(CUSTOM_ANALYZER, QVariant(false)).toBool();
+
+    m_disabledMessages = Utils::transform<QSet>(
+        settings->value(DISABLED_MESSAGES,
+                        QVariant::fromValue(defaultDisabledMessages())).toList(),
+        [](const QVariant &v){ return v.toInt(); });
+    m_disabledMessagesForNonQuickUi = Utils::transform<QSet>(
+        settings->value(DISABLED_MESSAGES_NONQUICKUI,
+                        QVariant::fromValue(defaultDisabledMessagesNonQuickUi())).toList(),
+        [](const QVariant &v) { return v.toInt(); });
+
     settings->endGroup();
 }
 
@@ -80,6 +116,18 @@ void QmlJsEditingSettings::toSettings(QSettings *settings) const
                                             CUSTOM_COMMAND,
                                             m_useCustomFormatCommand,
                                             false);
+    Utils::QtcSettings::setValueWithDefault(settings,
+                                            CUSTOM_ANALYZER,
+                                            m_useCustomAnalyzer,
+                                            false);
+    Utils::QtcSettings::setValueWithDefault(settings,
+                                            DISABLED_MESSAGES,
+                                            Utils::sorted(Utils::toList(m_disabledMessages)),
+                                            defaultDisabledMessages());
+    Utils::QtcSettings::setValueWithDefault(settings,
+                                            DISABLED_MESSAGES_NONQUICKUI,
+                                            Utils::sorted(Utils::toList(m_disabledMessagesForNonQuickUi)),
+                                            defaultDisabledMessagesNonQuickUi());
     settings->endGroup();
     QmllsSettingsManager::instance()->checkForChanges();
 }
@@ -93,7 +141,10 @@ bool QmlJsEditingSettings::equals(const QmlJsEditingSettings &other) const
            && m_foldAuxData == other.m_foldAuxData && m_qmllsSettings == other.m_qmllsSettings
            && m_uiQmlOpenMode == other.m_uiQmlOpenMode && m_formatCommand == other.m_formatCommand
            && m_formatCommandOptions == other.m_formatCommandOptions
-           && m_useCustomFormatCommand == other.m_useCustomFormatCommand;
+           && m_useCustomFormatCommand == other.m_useCustomFormatCommand
+           && m_useCustomAnalyzer == other.m_useCustomAnalyzer
+           && m_disabledMessages == other.m_disabledMessages
+           && m_disabledMessagesForNonQuickUi == other.m_disabledMessagesForNonQuickUi;
 }
 
 bool QmlJsEditingSettings::enableContextPane() const
@@ -181,12 +232,12 @@ void QmlJsEditingSettings::setUseCustomFormatCommand(bool customCommand)
     m_useCustomFormatCommand = customCommand;
 }
 
-QmllsSettings &QmlJsEditingSettings::qmllsSettigs()
+QmllsSettings &QmlJsEditingSettings::qmllsSettings()
 {
     return m_qmllsSettings;
 }
 
-const QmllsSettings &QmlJsEditingSettings::qmllsSettigs() const
+const QmllsSettings &QmlJsEditingSettings::qmllsSettings() const
 {
     return m_qmllsSettings;
 }
@@ -200,6 +251,92 @@ void QmlJsEditingSettings::setUiQmlOpenMode(const QString &mode)
 {
     m_uiQmlOpenMode = mode;
 }
+
+bool QmlJsEditingSettings::useCustomAnalyzer() const
+{
+    return m_useCustomAnalyzer;
+}
+
+void QmlJsEditingSettings::setUseCustomAnalyzer(bool customAnalyzer)
+{
+    m_useCustomAnalyzer = customAnalyzer;
+}
+
+QSet<int> QmlJsEditingSettings::disabledMessages() const
+{
+    return m_disabledMessages;
+}
+
+void QmlJsEditingSettings::setDisabledMessages(const QSet<int> &disabled)
+{
+    m_disabledMessages = disabled;
+}
+
+QSet<int> QmlJsEditingSettings::disabledMessagesForNonQuickUi() const
+{
+    return m_disabledMessagesForNonQuickUi;
+}
+
+void QmlJsEditingSettings::setDisabledMessagesForNonQuickUi(const QSet<int> &disabled)
+{
+    m_disabledMessagesForNonQuickUi = disabled;
+}
+
+class AnalyzerMessageItem final : public Utils::TreeItem
+{
+public:
+    AnalyzerMessageItem() = default;
+    AnalyzerMessageItem(int number, const QString &message)
+        : m_messageNumber(number)
+        , m_message(message)
+    {}
+
+    QVariant data(int column, int role) const final
+    {
+        if (role == Qt::DisplayRole) {
+            if (column == 0)
+                return QString("M%1").arg(m_messageNumber);
+            if (column == 2)
+                return m_message.split('\n').first();
+        } else if (role == Qt::CheckStateRole) {
+            if (column == 0)
+                return m_checked ? Qt::Checked : Qt::Unchecked;
+            if (column == 1)
+                return m_disabledInNonQuickUi ? Qt::Checked : Qt::Unchecked;
+        }
+        return TreeItem::data(column, role);
+    }
+
+    bool setData(int column, const QVariant &value, int role) final
+    {
+        if (role == Qt::CheckStateRole) {
+            if (column == 0) {
+                m_checked = value.toBool();
+                return true;
+            }
+            if (column == 1) {
+                m_disabledInNonQuickUi = value.toBool();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Qt::ItemFlags flags(int column) const final
+    {
+        if (column == 0 || column == 1)
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
+        else
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    }
+
+    int messageNumber() const { return m_messageNumber; }
+private:
+    int m_messageNumber = -1;
+    QString m_message;
+    bool m_checked = true;
+    bool m_disabledInNonQuickUi = false;
+};
 
 class QmlJsEditingSettingsPageWidget final : public Core::IOptionsPageWidget
 {
@@ -239,17 +376,38 @@ public:
         uiQmlOpenComboBox->setSizeAdjustPolicy(QComboBox::QComboBox::AdjustToContents);
 
         useQmlls = new QCheckBox(Tr::tr("Use qmlls (EXPERIMENTAL!)"));
-        useQmlls->setChecked(s.qmllsSettigs().useQmlls);
+        useQmlls->setChecked(s.qmllsSettings().useQmlls);
         useLatestQmlls = new QCheckBox(Tr::tr("Always use latest qmlls"));
-        useLatestQmlls->setChecked(s.qmllsSettigs().useLatestQmlls);
-        useLatestQmlls->setEnabled(s.qmllsSettigs().useQmlls);
+        useLatestQmlls->setChecked(s.qmllsSettings().useLatestQmlls);
+        useLatestQmlls->setEnabled(s.qmllsSettings().useQmlls);
         QObject::connect(useQmlls, &QCheckBox::stateChanged, this, [this](int checked) {
             useLatestQmlls->setEnabled(checked != Qt::Unchecked);
         });
-        using namespace Utils::Layouting;
+
+        useCustomAnalyzer = new QCheckBox(Tr::tr("Use customized static analyzer"));
+        useCustomAnalyzer->setChecked(s.useCustomAnalyzer());
+        analyzerMessageModel = new Utils::TreeModel<AnalyzerMessageItem>(this);
+        analyzerMessageModel->setHeader({Tr::tr("Enabled"),
+                                         Tr::tr("Disabled for non Qt Quick UI"),
+                                         Tr::tr("Message")});
+        analyzerMessagesView = new QTreeView;
+        analyzerMessagesView->setModel(analyzerMessageModel);
+        analyzerMessagesView->setEnabled(s.useCustomAnalyzer());
+        QObject::connect(useCustomAnalyzer, &QCheckBox::stateChanged, this, [this](int checked){
+            analyzerMessagesView->setEnabled(checked != Qt::Unchecked);
+        });
+        analyzerMessagesView->setToolTip(Tr::tr("Enabled checks can be disabled for non Qt Quick UI"
+                                                " files,\nbut disabled checks cannot get explicitly"
+                                                " enabled for non Qt Quick UI files."));
+        analyzerMessagesView->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(analyzerMessagesView, &QTreeView::customContextMenuRequested,
+                this, &QmlJsEditingSettingsPageWidget::showContextMenu);
+        using namespace Layouting;
         // clang-format off
-        const auto formattingGroup =
+        QWidget *formattingGroup = nullptr;
+        Column {
             Group {
+                bindTo(&formattingGroup),
                 title(Tr::tr("Automatic Formatting on File Save")),
                 Column {
                     autoFormatOnSave,
@@ -260,10 +418,7 @@ public:
                         formatCommandOptionsLabel, formatCommandOptions
                     }
                 },
-            };
-
-        Column {
-            formattingGroup,
+            },
             Group {
                 title(Tr::tr("Qt Quick Toolbars")),
                 Column { pinContextPane, enableContextPane },
@@ -279,16 +434,19 @@ public:
                 title(Tr::tr("Language Server")),
                 Column{useQmlls, useLatestQmlls},
             },
+            Group {
+                title(Tr::tr("Static Analyzer")),
+                Column{ useCustomAnalyzer, analyzerMessagesView },
+            },
             st,
         }.attachTo(this);
         // clang-format on
 
-        Utils::VariableChooser::addSupportForChildWidgets(formattingGroup.widget,
+        Utils::VariableChooser::addSupportForChildWidgets(formattingGroup,
                                                           Utils::globalMacroExpander());
 
         const auto updateFormatCommandState = [&, formatCommandLabel, formatCommandOptionsLabel] {
-            const bool enabled = useCustomFormatCommand->isChecked()
-                                 && autoFormatOnSave->isChecked();
+            const bool enabled = useCustomFormatCommand->isChecked();
             formatCommandLabel->setEnabled(enabled);
             formatCommand->setEnabled(enabled);
             formatCommandOptionsLabel->setEnabled(enabled);
@@ -298,10 +456,11 @@ public:
 
         connect(autoFormatOnSave, &QCheckBox::toggled, this, [&, updateFormatCommandState]() {
             autoFormatOnlyCurrentProject->setEnabled(autoFormatOnSave->isChecked());
-            useCustomFormatCommand->setEnabled(autoFormatOnSave->isChecked());
             updateFormatCommandState();
         });
         connect(useCustomFormatCommand, &QCheckBox::toggled, this, updateFormatCommandState);
+
+        populateAnalyzerMessages(s.disabledMessages(), s.disabledMessagesForNonQuickUi());
     }
 
     void apply() final
@@ -316,12 +475,55 @@ public:
         s.setFormatCommandOptions(formatCommandOptions->text());
         s.setFoldAuxData(foldAuxData->isChecked());
         s.setUiQmlOpenMode(uiQmlOpenComboBox->currentData().toString());
-        s.qmllsSettigs().useQmlls = useQmlls->isChecked();
-        s.qmllsSettigs().useLatestQmlls = useLatestQmlls->isChecked();
+        s.qmllsSettings().useQmlls = useQmlls->isChecked();
+        s.qmllsSettings().useLatestQmlls = useLatestQmlls->isChecked();
+        s.setUseCustomAnalyzer(useCustomAnalyzer->isChecked());
+        QSet<int> disabled;
+        QSet<int> disabledForNonQuickUi;
+        analyzerMessageModel->forAllItems(
+            [&disabled, &disabledForNonQuickUi](AnalyzerMessageItem *item){
+            if (item->data(0, Qt::CheckStateRole) == Qt::Unchecked)
+                disabled.insert(item->messageNumber());
+            if (item->data(1, Qt::CheckStateRole) == Qt::Checked)
+                disabledForNonQuickUi.insert(item->messageNumber());
+        });
+        s.setDisabledMessages(disabled);
+        s.setDisabledMessagesForNonQuickUi(disabledForNonQuickUi);
         s.set();
     }
 
 private:
+    void populateAnalyzerMessages(const QSet<int> &disabled, const QSet<int> &disabledForNonQuickUi)
+    {
+        using namespace QmlJS::StaticAnalysis;
+        auto knownMessages = Utils::sorted(Message::allMessageTypes());
+        auto root = analyzerMessageModel->rootItem();
+        for (auto msgType : knownMessages) {
+            const QString msg = Message::prototypeForMessageType(msgType).message;
+            auto item = new AnalyzerMessageItem(msgType, msg);
+            item->setData(0, !disabled.contains(msgType), Qt::CheckStateRole);
+            item->setData(1, disabledForNonQuickUi.contains(msgType), Qt::CheckStateRole);
+            root->appendChild(item);
+        }
+
+        for (int column = 0; column < 3; ++column)
+            analyzerMessagesView->resizeColumnToContents(column);
+    }
+
+    void showContextMenu(const QPoint &position)
+    {
+        QMenu menu;
+        QAction *reset = new QAction(Tr::tr("Reset to Default"), &menu);
+        menu.addAction(reset);
+        connect(reset, &QAction::triggered, this, [this](){
+            analyzerMessageModel->clear();
+            populateAnalyzerMessages(Utils::toSet(defaultDisabledMessages()),
+                                     Utils::toSet(defaultDisabledMessagesNonQuickUi()));
+
+        });
+        menu.exec(analyzerMessagesView->mapToGlobal(position));
+    }
+
     QCheckBox *autoFormatOnSave;
     QCheckBox *autoFormatOnlyCurrentProject;
     QCheckBox *useCustomFormatCommand;
@@ -333,6 +535,9 @@ private:
     QCheckBox *useQmlls;
     QCheckBox *useLatestQmlls;
     QComboBox *uiQmlOpenComboBox;
+    QCheckBox *useCustomAnalyzer;
+    QTreeView *analyzerMessagesView;
+    Utils::TreeModel<AnalyzerMessageItem> *analyzerMessageModel;
 };
 
 

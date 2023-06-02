@@ -34,8 +34,7 @@ public:
     static Ptr get(const Utils::FilePath &filePath);
 
 private:
-    void updateImpl(const QFutureInterface<void> &future,
-                    const UpdateParams &updateParams) override;
+    void updateImpl(const QPromise<void> &promise, const UpdateParams &updateParams) override;
     void addFileAndDependencies(CPlusPlus::Snapshot *snapshot,
                                 QSet<Utils::FilePath> *toRemove,
                                 const Utils::FilePath &fileName) const;

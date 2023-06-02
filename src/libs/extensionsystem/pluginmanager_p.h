@@ -26,6 +26,7 @@ class QEventLoop;
 QT_END_NAMESPACE
 
 namespace Utils {
+class FutureSynchronizer;
 class QtcSettings;
 }
 
@@ -123,6 +124,7 @@ public:
 
     bool m_isInitializationDone = false;
     bool enableCrashCheck = true;
+    bool m_isShuttingDown = false;
 
     QHash<QString, std::function<bool()>> m_scenarios;
     QString m_requestedScenario;
@@ -133,6 +135,7 @@ public:
     QWaitCondition m_scenarioWaitCondition;
 
     PluginManager::ProcessData m_creatorProcessData;
+    std::unique_ptr<Utils::FutureSynchronizer> m_futureSynchronizer;
 
 private:
     PluginManager *q;

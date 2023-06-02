@@ -7,56 +7,56 @@
 #include "helptr.h"
 #include "localhelpmanager.h"
 
+#include <utils/layoutbuilder.h>
+
 #include <QHelpFilterEngine>
 #include <QHelpFilterSettingsWidget>
 #include <QVersionNumber>
 
-using namespace Help::Internal;
+namespace Help::Internal {
 
-FilterSettingsPage::FilterSettingsPage()
+class FilterSettingsPageWidget : public Core::IOptionsPageWidget
+{
+public:
+    FilterSettingsPageWidget(const std::function<void()> &onChanged)
+    {
+        LocalHelpManager::setupGuiHelpEngine();
+
+        auto widget = new QHelpFilterSettingsWidget;
+        widget->readSettings(LocalHelpManager::filterEngine());
+
+        Layouting::Column {
+            Layouting::noMargin,
+            widget
+        }.attachTo(this);
+
+        auto updateFilterPage = [widget] {
+            widget->setAvailableComponents(LocalHelpManager::filterEngine()->availableComponents());
+            widget->setAvailableVersions(LocalHelpManager::filterEngine()->availableVersions());
+        };
+
+        auto connection = connect(Core::HelpManager::Signals::instance(),
+                                  &Core::HelpManager::Signals::documentationChanged,
+                                  this,
+                                  updateFilterPage);
+        updateFilterPage();
+
+        setOnApply([widget, onChanged] {
+            if (widget->applySettings(LocalHelpManager::filterEngine()))
+                onChanged();
+            widget->readSettings(LocalHelpManager::filterEngine());
+        });
+
+        setOnFinish([connection] {  disconnect(connection); });
+    }
+};
+
+FilterSettingsPage::FilterSettingsPage(const std::function<void ()> &onChanged)
 {
     setId("D.Filters");
     setDisplayName(Tr::tr("Filters"));
     setCategory(Help::Constants::HELP_CATEGORY);
+    setWidgetCreator([onChanged] { return new FilterSettingsPageWidget(onChanged); });
 }
 
-QWidget *FilterSettingsPage::widget()
-{
-    if (!m_widget) {
-        LocalHelpManager::setupGuiHelpEngine();
-        m_widget = new QHelpFilterSettingsWidget(nullptr);
-        m_widget->readSettings(LocalHelpManager::filterEngine());
-
-        connect(Core::HelpManager::Signals::instance(),
-                &Core::HelpManager::Signals::documentationChanged,
-                this,
-                &FilterSettingsPage::updateFilterPage);
-
-        updateFilterPage();
-    }
-    return m_widget;
-}
-
-void FilterSettingsPage::apply()
-{
-    if (m_widget->applySettings(LocalHelpManager::filterEngine()))
-        emit filtersChanged();
-
-    m_widget->readSettings(LocalHelpManager::filterEngine());
-}
-
-void FilterSettingsPage::finish()
-{
-    disconnect(Core::HelpManager::Signals::instance(),
-               &Core::HelpManager::Signals::documentationChanged,
-               this,
-               &FilterSettingsPage::updateFilterPage);
-    delete m_widget;
-}
-
-void FilterSettingsPage::updateFilterPage()
-{
-    m_widget->setAvailableComponents(LocalHelpManager::filterEngine()->availableComponents());
-    m_widget->setAvailableVersions(LocalHelpManager::filterEngine()->availableVersions());
-}
-
+} // Help::Internal

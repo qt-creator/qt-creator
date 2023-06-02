@@ -3,16 +3,16 @@
 
 #include <app/app_version.h>
 
+#include <utils/algorithm.h>
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/launcherinterface.h>
-#include <utils/mapreduce.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
+#include <utils/process.h>
 #include <utils/temporarydirectory.h>
 
 #include <QObject>
+#include <QtConcurrent>
 #include <QtTest>
 
 using namespace Utils;
@@ -28,7 +28,7 @@ public:
     }
 
 private:
-    void setupShellProcess(QtcProcess *shellProcess) override
+    void setupShellProcess(Process *shellProcess) override
     {
         shellProcess->setCommand(m_cmdLine);
     }
@@ -38,7 +38,7 @@ private:
 
 bool testDocker(const FilePath &executable)
 {
-    QtcProcess p;
+    Process p;
     p.setCommand({executable, {"info", "--format", "{{.OSType}}"}});
     p.runBlocking();
     const QString platform = p.cleanedStdOut().trimmed();
@@ -312,15 +312,14 @@ private slots:
         TestShell shell(cmdLine);
         QCOMPARE(shell.state(), DeviceShell::State::Succeeded);
 
-        QList<int> runs{1,2,3,4,5,6,7,8,9};
-
         int maxDepth = 4;
         int numMs = 0;
 
         while (true) {
             QElapsedTimer t;
             t.start();
-            RunResult result = shell.runInShell({"find", {"/usr", "-maxdepth", QString::number(maxDepth)}});
+            const RunResult result = shell.runInShell({"find", {"/usr", "-maxdepth",
+                                                                QString::number(maxDepth)}});
             numMs = t.elapsed();
             qDebug() << "adjusted maxDepth" << maxDepth << "took" << numMs << "ms";
             if (numMs < 100 || maxDepth == 1) {
@@ -329,15 +328,17 @@ private slots:
             maxDepth--;
         }
 
-        QList<QByteArray> results = Utils::mapped<QList>(runs, [&shell, maxDepth](const int i) -> QByteArray{
+        const auto find = [&shell, maxDepth](int i) {
             QElapsedTimer t;
             t.start();
-            RunResult result = shell.runInShell({"find", {"/usr", "-maxdepth", QString::number(maxDepth)}});
+            const RunResult result = shell.runInShell({"find", {"/usr", "-maxdepth",
+                                                                QString::number(maxDepth)}});
             qDebug() << i << "took" << t.elapsed() << "ms";
             return result.stdOut;
-        });
-
-        QVERIFY (!Utils::anyOf(results, [&results](const QByteArray r){ return r != results[0]; }));
+        };
+        const QList<int> runs{1,2,3,4,5,6,7,8,9};
+        const QList<QByteArray> results = QtConcurrent::blockingMapped(runs, find);
+        QVERIFY(!Utils::anyOf(results, [&results](const QByteArray r) { return r != results[0]; }));
     }
 
     void testNoScript_data()

@@ -74,7 +74,7 @@ CommandLine CMakeInstallStep::cmakeCommand() const
     if (buildConfiguration())
         buildDirectory = buildConfiguration()->buildDirectory();
 
-    cmd.addArgs({"--install", buildDirectory.onDevice(cmd.executable()).path()});
+    cmd.addArgs({"--install", buildDirectory.path()});
 
     auto bs = qobject_cast<CMakeBuildSystem *>(buildSystem());
     if (bs && bs->isMultiConfigReader()) {
@@ -93,6 +93,7 @@ void CMakeInstallStep::finish(ProcessResult result)
     emit progress(100, {});
     AbstractProcessStep::finish(result);
 }
+
 QWidget *CMakeInstallStep::createConfigWidget()
 {
     auto updateDetails = [this] {
@@ -105,10 +106,8 @@ QWidget *CMakeInstallStep::createConfigWidget()
 
     setDisplayName(Tr::tr("Install", "ConfigWidget display name."));
 
-    Layouting::Form builder;
-    builder.addRow(m_cmakeArguments);
-
-    auto widget = builder.emerge(Layouting::WithoutMargins);
+    using namespace Layouting;
+    auto widget =  Form { m_cmakeArguments,  noMargin }.emerge();
 
     updateDetails();
 

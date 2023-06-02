@@ -18,8 +18,8 @@
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/variablechooser.h>
 
 #include <QCheckBox>
@@ -564,11 +564,11 @@ ExternalToolConfig::ExternalToolConfig()
         Tr::tr("Environment:"),  m_environmentLabel, environmentButton, br,
         empty, m_modifiesDocumentCheckbox, br,
         inputLabel, m_inputText
-    }.attachTo(m_infoWidget, WithMargins);
+    }.attachTo(m_infoWidget);
 
     Column {
-        m_infoWidget
-    }.attachTo(scrollAreaWidgetContents, WithoutMargins);
+        m_infoWidget, noMargin
+    }.attachTo(scrollAreaWidgetContents);
 
     Row {
         Column {

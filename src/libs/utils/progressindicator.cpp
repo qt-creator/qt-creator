@@ -185,11 +185,7 @@ void ProgressIndicatorPainter::nextAnimationStep()
 /*!
     Constructs a ProgressIndicator of the size \a size and with the parent \a parent.
 
-    Use \l attachToWidget to make the progress indicator automatically resize and center on the
-    parent widget.
-
-    \sa attachToWidget
-    \sa setIndicatorSize
+    \sa setIndicatorSize()
 */
 ProgressIndicator::ProgressIndicator(ProgressIndicatorSize size, QWidget *parent)
     : OverlayWidget(parent)
@@ -204,7 +200,7 @@ ProgressIndicator::ProgressIndicator(ProgressIndicatorSize size, QWidget *parent
 /*!
     Changes the size of the progress indicator to \a size.
 
-    \sa indicatorSize
+    \sa ProgressIndicatorPainter::indicatorSize()
 */
 void ProgressIndicator::setIndicatorSize(ProgressIndicatorSize size)
 {
@@ -215,7 +211,7 @@ void ProgressIndicator::setIndicatorSize(ProgressIndicatorSize size)
 /*!
     Returns the size of the indicator in device independent pixels.
 
-    \sa indicatorSize
+    \sa ProgressIndicatorPainter::indicatorSize()
 */
 QSize ProgressIndicator::sizeHint() const
 {

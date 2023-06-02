@@ -8,8 +8,9 @@
 #include "cmaketool.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
+
 #include <texteditor/codeassist/assistinterface.h>
 
 #include <QFileInfo>
@@ -39,7 +40,7 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
     Keywords kw;
     const Utils::FilePath &filePath = interface()->filePath();
     if (!filePath.isEmpty() && filePath.toFileInfo().isFile()) {
-        Project *p = SessionManager::projectForFile(filePath);
+        Project *p = ProjectManager::projectForFile(filePath);
         if (p && p->activeTarget()) {
             CMakeTool *cmake = CMakeKitAspect::cmakeTool(p->activeTarget()->kit());
             if (cmake && cmake->isValid())

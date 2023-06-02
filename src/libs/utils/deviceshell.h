@@ -7,7 +7,7 @@
 
 #include "fileutils.h"
 
-#include <QMap>
+#include <QHash>
 #include <QMutex>
 #include <QProcess>
 #include <QThread>
@@ -19,7 +19,7 @@ namespace Utils {
 
 class CommandLine;
 class ProcessResultData;
-class QtcProcess;
+class Process;
 
 class DeviceShellImpl;
 
@@ -57,7 +57,7 @@ protected:
     void close();
 
 private:
-    virtual void setupShellProcess(QtcProcess *shellProcess);
+    virtual void setupShellProcess(Process *shellProcess);
     virtual CommandLine createFallbackCommand(const CommandLine &cmdLine);
 
     bool installShellScript();
@@ -73,13 +73,12 @@ private:
         QWaitCondition *waiter;
     };
 
-    std::unique_ptr<QtcProcess> m_shellProcess;
+    std::unique_ptr<Process> m_shellProcess;
     QThread m_thread;
     int m_currentId{0};
 
     QMutex m_commandMutex;
-    // QMap is used here to preserve iterators
-    QMap<quint64, CommandRun> m_commandOutput;
+    QHash<quint64, CommandRun> m_commandOutput;
     QByteArray m_commandBuffer;
 
     State m_shellScriptState = State::Unknown;

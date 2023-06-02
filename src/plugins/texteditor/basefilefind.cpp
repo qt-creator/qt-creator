@@ -21,6 +21,7 @@
 #include <utils/fadingindicator.h>
 #include <utils/filesearch.h>
 #include <utils/futuresynchronizer.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -38,6 +39,98 @@ using namespace Utils;
 using namespace Core;
 
 namespace TextEditor {
+
+static std::optional<QRegularExpression> regExpFromParameters(const FileFindParameters &parameters)
+{
+    if (!(parameters.flags & FindRegularExpression))
+        return {};
+
+    const QRegularExpression::PatternOptions options = parameters.flags & FindCaseSensitively
+        ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
+    QRegularExpression regExp;
+    regExp.setPattern(parameters.text);
+    regExp.setPatternOptions(options);
+    return regExp;
+}
+
+void searchInProcessOutput(QPromise<SearchResultItems> &promise,
+                           const FileFindParameters &parameters,
+                           const ProcessSetupHandler &processSetupHandler,
+                           const ProcessOutputParser &processOutputParser)
+{
+    if (promise.isCanceled())
+        return;
+
+    QEventLoop loop;
+
+    Process process;
+    processSetupHandler(process);
+
+    const std::optional<QRegularExpression> regExp = regExpFromParameters(parameters);
+    QStringList outputBuffer;
+    // The states transition exactly in this order:
+    enum State { BelowLimit, AboveLimit, Paused, Resumed };
+    State state = BelowLimit;
+    int reportedItemsCount = 0;
+    QFuture<void> future(promise.future());
+    process.setStdOutCallback([&](const QString &output) {
+        if (promise.isCanceled()) {
+            process.close();
+            loop.quit();
+            return;
+        }
+        // The SearchResultWidget is going to pause the search anyway, so start buffering
+        // the output.
+        if (state == AboveLimit || state == Paused) {
+            outputBuffer.append(output);
+        } else {
+            const SearchResultItems items = processOutputParser(future, output, regExp);
+            if (!items.isEmpty())
+                promise.addResult(items);
+            reportedItemsCount += items.size();
+            if (state == BelowLimit && reportedItemsCount > 200000)
+                state = AboveLimit;
+        }
+    });
+    QObject::connect(&process, &Process::done, &loop, [&loop, &promise, &state] {
+        if (state == BelowLimit || state == Resumed || promise.isCanceled())
+            loop.quit();
+    });
+
+    if (promise.isCanceled())
+        return;
+
+    process.start();
+    if (process.state() == QProcess::NotRunning)
+        return;
+
+    QFutureWatcher<void> watcher;
+    QObject::connect(&watcher, &QFutureWatcherBase::canceled, &loop, [&process, &loop] {
+        process.close();
+        loop.quit();
+    });
+    QObject::connect(&watcher, &QFutureWatcherBase::paused, &loop, [&state] { state = Paused; });
+    QObject::connect(&watcher, &QFutureWatcherBase::resumed, &loop, [&] {
+        state = Resumed;
+        for (const QString &output : outputBuffer) {
+            if (promise.isCanceled()) {
+                process.close();
+                loop.quit();
+            }
+            const SearchResultItems items = processOutputParser(future, output, regExp);
+            if (!items.isEmpty())
+                promise.addResult(items);
+        }
+        outputBuffer.clear();
+        if (process.state() == QProcess::NotRunning)
+            loop.quit();
+    });
+    watcher.setFuture(future);
+    if (promise.isCanceled())
+        return;
+    loop.exec(QEventLoop::ExcludeUserInputEvents);
+}
+
 namespace Internal {
 
 class InternalEngine : public TextEditor::SearchEngine
@@ -51,9 +144,8 @@ public:
     QVariant parameters() const override { return {}; }
     void readSettings(QSettings * /*settings*/) override {}
     void writeSettings(QSettings * /*settings*/) const override {}
-    QFuture<Utils::FileSearchResultList> executeSearch(
-            const TextEditor::FileFindParameters &parameters,
-            BaseFileFind *baseFileFind) override
+    QFuture<SearchResultItems> executeSearch(const TextEditor::FileFindParameters &parameters,
+                                             BaseFileFind *baseFileFind) override
     {
         const auto func = parameters.flags & FindRegularExpression ? Utils::findInFilesRegExp
                                                                    : Utils::findInFiles;
@@ -65,7 +157,7 @@ public:
                     TextDocument::openedTextDocumentContents());
 
     }
-    Core::IEditor *openEditor(const Core::SearchResultItem &/*item*/,
+    Core::IEditor *openEditor(const SearchResultItem &/*item*/,
                               const TextEditor::FileFindParameters &/*parameters*/) override
     {
         return nullptr;
@@ -91,8 +183,6 @@ public:
 class BaseFileFindPrivate
 {
 public:
-    BaseFileFindPrivate() { m_futureSynchronizer.setCancelOnWait(true); }
-
     QPointer<IFindSupport> m_currentFindSupport;
 
     Utils::FutureSynchronizer m_futureSynchronizer;
@@ -210,34 +300,6 @@ void BaseFileFind::setCurrentSearchEngine(int index)
     emit currentSearchEngineChanged();
 }
 
-static QString displayText(const QString &line)
-{
-    QString result = line;
-    auto end = result.end();
-    for (auto it = result.begin(); it != end; ++it) {
-        if (!it->isSpace() && !it->isPrint())
-            *it = QChar('?');
-    }
-    return result;
-}
-
-static void displayResult(QFutureWatcher<FileSearchResultList> *watcher,
-                          SearchResult *search, int index)
-{
-    const FileSearchResultList results = watcher->resultAt(index);
-    QList<SearchResultItem> items;
-    for (const FileSearchResult &result : results) {
-        SearchResultItem item;
-        item.setFilePath(result.fileName);
-        item.setMainRange(result.lineNumber, result.matchStart, result.matchLength);
-        item.setLineText(displayText(result.matchingLine));
-        item.setUseTextEditorFont(true);
-        item.setUserData(result.regexpCapturedTexts);
-        items << item;
-    }
-    search->addResults(items, SearchResult::AddOrdered);
-}
-
 void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
                                     SearchResultWindow::SearchMode searchMode)
 {
@@ -285,7 +347,7 @@ void BaseFileFind::runSearch(SearchResult *search)
 {
     const FileFindParameters parameters = search->userData().value<FileFindParameters>();
     SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch|IOutputPane::WithFocus));
-    auto watcher = new QFutureWatcher<FileSearchResultList>();
+    auto watcher = new QFutureWatcher<SearchResultItems>;
     watcher->setPendingResultsLimit(1);
     // search is deleted if it is removed from search panel
     connect(search, &QObject::destroyed, watcher, &QFutureWatcherBase::cancel);
@@ -295,14 +357,14 @@ void BaseFileFind::runSearch(SearchResult *search)
             watcher->setPaused(paused);
     });
     connect(watcher, &QFutureWatcherBase::resultReadyAt, search, [watcher, search](int index) {
-        displayResult(watcher, search, index);
+        search->addResults(watcher->resultAt(index), SearchResult::AddOrdered);
     });
     // auto-delete:
     connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
     connect(watcher, &QFutureWatcherBase::finished, search, [watcher, search]() {
         search->finishSearch(watcher->isCanceled());
     });
-    QFuture<FileSearchResultList> future = executeSearch(parameters);
+    QFuture<SearchResultItems> future = executeSearch(parameters);
     watcher->setFuture(future);
     d->m_futureSynchronizer.addFuture(future);
     FutureProgress *progress = ProgressManager::addTask(future,
@@ -332,8 +394,7 @@ void BaseFileFind::addSearchEngine(SearchEngine *searchEngine)
         setCurrentSearchEngine(0);
 }
 
-void BaseFileFind::doReplace(const QString &text,
-                             const QList<SearchResultItem> &items,
+void BaseFileFind::doReplace(const QString &text, const SearchResultItems &items,
                              bool preserveCase)
 {
     const FilePaths files = replaceAll(text, items, preserveCase);
@@ -377,7 +438,7 @@ QList<QPair<QWidget *, QWidget *>> BaseFileFind::createPatternWidgets()
     syncComboWithSettings(d->m_filterCombo, d->m_filterSetting);
     QLabel *exclusionLabel = createLabel(msgExclusionPatternLabel());
     d->m_exclusionCombo = createCombo(&d->m_exclusionStrings);
-    d->m_exclusionCombo->setToolTip(msgFilePatternToolTip());
+    d->m_exclusionCombo->setToolTip(msgFilePatternToolTip(Utils::InclusionType::Excluded));
     exclusionLabel->setBuddy(d->m_exclusionCombo);
     syncComboWithSettings(d->m_exclusionCombo, d->m_exclusionSetting);
     return {{filterLabel, d->m_filterCombo}, {exclusionLabel, d->m_exclusionCombo}};
@@ -474,8 +535,7 @@ void BaseFileFind::recheckEnabled(SearchResult *search)
     search->setSearchAgainEnabled(isEnabled());
 }
 
-FilePaths BaseFileFind::replaceAll(const QString &text,
-                                   const QList<SearchResultItem> &items,
+FilePaths BaseFileFind::replaceAll(const QString &text, const SearchResultItems &items,
                                    bool preserveCase)
 {
     if (items.isEmpty())
@@ -483,7 +543,7 @@ FilePaths BaseFileFind::replaceAll(const QString &text,
 
     RefactoringChanges refactoring;
 
-    QHash<FilePath, QList<SearchResultItem> > changes;
+    QHash<FilePath, SearchResultItems> changes;
     for (const SearchResultItem &item : items)
         changes[FilePath::fromUserInput(item.path().constFirst())].append(item);
 
@@ -504,7 +564,7 @@ FilePaths BaseFileFind::replaceAll(const QString &text,
 
     for (auto it = changes.cbegin(), end = changes.cend(); it != end; ++it) {
         const FilePath filePath = it.key();
-        const QList<SearchResultItem> changeItems = it.value();
+        const SearchResultItems changeItems = it.value();
 
         ChangeSet changeSet;
         RefactoringFilePtr file = refactoring.file(filePath);
@@ -519,9 +579,13 @@ FilePaths BaseFileFind::replaceAll(const QString &text,
             if (item.userData().canConvert<QStringList>() && !item.userData().toStringList().isEmpty()) {
                 replacement = Utils::expandRegExpReplacement(text, item.userData().toStringList());
             } else if (preserveCase) {
-                const QString originalText = (item.mainRange().length(item.lineText()) == 0)
-                                                 ? item.lineText()
-                                                 : item.mainRange().mid(item.lineText());
+                Text::Range range = item.mainRange();
+                range.end.line -= range.begin.line - 1;
+                range.begin.line = 1;
+                QString originalText = item.lineText();
+                const int rangeLength = range.length(item.lineText());
+                if (rangeLength > 0)
+                    originalText = originalText.mid(range.begin.column, rangeLength);
                 replacement = Utils::matchCaseReplacement(originalText, text);
             } else {
                 replacement = text;
@@ -545,7 +609,7 @@ QVariant BaseFileFind::getAdditionalParameters(SearchResult *search)
     return search->userData().value<FileFindParameters>().additionalParameters;
 }
 
-QFuture<FileSearchResultList> BaseFileFind::executeSearch(const FileFindParameters &parameters)
+QFuture<SearchResultItems> BaseFileFind::executeSearch(const FileFindParameters &parameters)
 {
     return d->m_searchEngines[parameters.searchEngineIndex]->executeSearch(parameters, this);
 }

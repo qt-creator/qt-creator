@@ -9,8 +9,8 @@
 #include <cplusplus/Scope.h>
 #include <cplusplus/Symbols.h>
 
-#include <utils/linecolumn.h>
 #include <utils/link.h>
+#include <utils/theme/theme.h>
 
 #include <QTimer>
 
@@ -101,6 +101,24 @@ public:
             if (name.isEmpty())
                 name = QLatin1String("anonymous");
             return name;
+        }
+
+        case Qt::ForegroundRole: {
+            const auto isFwdDecl = [&] {
+                const FullySpecifiedType type = symbol->type();
+                if (type->asForwardClassDeclarationType())
+                    return true;
+                if (const Template * const tmpl = type->asTemplateType())
+                    return tmpl->declaration() && tmpl->declaration()->asForwardClassDeclaration();
+                if (type->asObjCForwardClassDeclarationType())
+                    return true;
+                if (type->asObjCForwardProtocolDeclarationType())
+                    return true;
+                return false;
+            };
+            if (isFwdDecl())
+                return Utils::creatorTheme()->color(Utils::Theme::TextColorDisabled);
+            return TreeItem::data(column, role);
         }
 
         case Qt::DecorationRole:
@@ -220,20 +238,20 @@ Utils::Link OutlineModel::linkFromIndex(const QModelIndex &sourceIndex) const
     return symbol->toLink();
 }
 
-Utils::LineColumn OutlineModel::lineColumnFromIndex(const QModelIndex &sourceIndex) const
+Utils::Text::Position OutlineModel::positionFromIndex(const QModelIndex &sourceIndex) const
 {
-    Utils::LineColumn lineColumn;
+    Utils::Text::Position lineColumn;
     CPlusPlus::Symbol *symbol = symbolFromIndex(sourceIndex);
     if (!symbol)
         return lineColumn;
     lineColumn.line = symbol->line();
-    lineColumn.column = symbol->column();
+    lineColumn.column = symbol->column() - 1;
     return lineColumn;
 }
 
 OutlineModel::Range OutlineModel::rangeFromIndex(const QModelIndex &sourceIndex) const
 {
-    Utils::LineColumn lineColumn = lineColumnFromIndex(sourceIndex);
+    Utils::Text::Position lineColumn = positionFromIndex(sourceIndex);
     return {lineColumn, lineColumn};
 }
 

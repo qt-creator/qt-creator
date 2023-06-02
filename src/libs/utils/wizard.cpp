@@ -23,7 +23,9 @@
 #include <QVBoxLayout>
 
 
-/*! \class Utils::Wizard
+/*!
+  \class Utils::Wizard
+  \inmodule QtCreator
 
   \brief The Wizard class implements a wizard with a progress bar on the left.
 

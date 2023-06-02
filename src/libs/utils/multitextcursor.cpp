@@ -16,187 +16,42 @@ namespace Utils {
 MultiTextCursor::MultiTextCursor() {}
 
 MultiTextCursor::MultiTextCursor(const QList<QTextCursor> &cursors)
-    : m_cursors(cursors)
 {
-    mergeCursors();
+    setCursors(cursors);
 }
 
-void MultiTextCursor::addCursor(const QTextCursor &cursor)
+void MultiTextCursor::fillMapWithList()
 {
-    QTC_ASSERT(!cursor.isNull(), return);
-    m_cursors.append(cursor);
-    mergeCursors();
+    m_cursorMap.clear();
+    for (auto it = m_cursorList.begin(); it != m_cursorList.end(); ++it)
+        m_cursorMap[it->selectionStart()] = it;
 }
 
-void MultiTextCursor::addCursors(const QList<QTextCursor> &cursors)
+MultiTextCursor& MultiTextCursor::operator=(const MultiTextCursor &multiCursor)
 {
-    m_cursors.append(cursors);
-    mergeCursors();
+    m_cursorList = multiCursor.m_cursorList;
+    fillMapWithList();
+    return *this;
 }
 
-void MultiTextCursor::setCursors(const QList<QTextCursor> &cursors)
+MultiTextCursor::MultiTextCursor(const MultiTextCursor &multiCursor)
 {
-    m_cursors = cursors;
-    mergeCursors();
+    *this = multiCursor;
 }
 
-const QList<QTextCursor> MultiTextCursor::cursors() const
+MultiTextCursor& MultiTextCursor::operator=(const MultiTextCursor &&multiCursor)
 {
-    return m_cursors;
+    m_cursorList = std::move(multiCursor.m_cursorList);
+    fillMapWithList();
+    return *this;
 }
 
-void MultiTextCursor::replaceMainCursor(const QTextCursor &cursor)
+MultiTextCursor::MultiTextCursor(const MultiTextCursor &&multiCursor)
 {
-    QTC_ASSERT(!cursor.isNull(), return);
-    takeMainCursor();
-    addCursor(cursor);
+    *this = std::move(multiCursor);
 }
 
-QTextCursor MultiTextCursor::mainCursor() const
-{
-    if (m_cursors.isEmpty())
-        return {};
-    return m_cursors.last();
-}
-
-QTextCursor MultiTextCursor::takeMainCursor()
-{
-    if (m_cursors.isEmpty())
-        return {};
-    return m_cursors.takeLast();
-}
-
-void MultiTextCursor::beginEditBlock()
-{
-    QTC_ASSERT(!m_cursors.empty(), return);
-    m_cursors.last().beginEditBlock();
-}
-
-void MultiTextCursor::endEditBlock()
-{
-    QTC_ASSERT(!m_cursors.empty(), return);
-    m_cursors.last().endEditBlock();
-}
-
-bool MultiTextCursor::isNull() const
-{
-    return m_cursors.isEmpty();
-}
-
-bool MultiTextCursor::hasMultipleCursors() const
-{
-    return m_cursors.size() > 1;
-}
-
-int MultiTextCursor::cursorCount() const
-{
-    return static_cast<int>(m_cursors.size());
-}
-
-void MultiTextCursor::movePosition(QTextCursor::MoveOperation operation,
-                                   QTextCursor::MoveMode mode,
-                                   int n)
-{
-    for (QTextCursor &cursor : m_cursors)
-        cursor.movePosition(operation, mode, n);
-    mergeCursors();
-}
-
-bool MultiTextCursor::hasSelection() const
-{
-    return Utils::anyOf(m_cursors, &QTextCursor::hasSelection);
-}
-
-QString MultiTextCursor::selectedText() const
-{
-    QString text;
-    const QList<QTextCursor> cursors = Utils::sorted(m_cursors);
-    for (const QTextCursor &cursor : cursors) {
-        const QString &cursorText = cursor.selectedText();
-        if (cursorText.isEmpty())
-            continue;
-        if (!text.isEmpty()) {
-            if (text.endsWith(QChar::ParagraphSeparator))
-                text.chop(1);
-            text.append('\n');
-        }
-        text.append(cursorText);
-    }
-    return text;
-}
-
-void MultiTextCursor::removeSelectedText()
-{
-    beginEditBlock();
-    for (QTextCursor &c : m_cursors)
-        c.removeSelectedText();
-    endEditBlock();
-    mergeCursors();
-}
-
-static void insertAndSelect(QTextCursor &cursor, const QString &text, bool selectNewText)
-{
-    if (selectNewText) {
-        const int anchor = cursor.position();
-        cursor.insertText(text);
-        const int pos = cursor.position();
-        cursor.setPosition(anchor);
-        cursor.setPosition(pos, QTextCursor::KeepAnchor);
-    } else {
-        cursor.insertText(text);
-    }
-}
-
-void MultiTextCursor::insertText(const QString &text, bool selectNewText)
-{
-    if (m_cursors.isEmpty())
-        return;
-    m_cursors.last().beginEditBlock();
-    if (hasMultipleCursors()) {
-        QStringList lines = text.split('\n');
-        if (!lines.isEmpty() && lines.last().isEmpty())
-            lines.pop_back();
-        int index = 0;
-        if (lines.count() == m_cursors.count()) {
-            QList<QTextCursor> cursors = Utils::sorted(m_cursors);
-            for (QTextCursor &cursor : cursors)
-                insertAndSelect(cursor, lines.at(index++), selectNewText);
-            m_cursors.last().endEditBlock();
-            return;
-        }
-    }
-    for (QTextCursor &cursor : m_cursors)
-        insertAndSelect(cursor, text, selectNewText);
-    m_cursors.last().endEditBlock();
-}
-
-bool equalCursors(const QTextCursor &lhs, const QTextCursor &rhs)
-{
-    return lhs == rhs && lhs.anchor() == rhs.anchor();
-}
-
-bool MultiTextCursor::operator==(const MultiTextCursor &other) const
-{
-    if (m_cursors.size() != other.m_cursors.size())
-        return false;
-    if (m_cursors.isEmpty())
-        return true;
-    QList<QTextCursor> thisCursors = m_cursors;
-    QList<QTextCursor> otherCursors = other.m_cursors;
-    if (!equalCursors(thisCursors.takeLast(), otherCursors.takeLast()))
-        return false;
-    for (const QTextCursor &oc : otherCursors) {
-        auto compare = [oc](const QTextCursor &c) { return equalCursors(oc, c); };
-        if (!Utils::contains(thisCursors, compare))
-            return false;
-    }
-    return true;
-}
-
-bool MultiTextCursor::operator!=(const MultiTextCursor &other) const
-{
-    return !operator==(other);
-}
+MultiTextCursor::~MultiTextCursor() = default;
 
 static bool cursorsOverlap(const QTextCursor &c1, const QTextCursor &c2)
 {
@@ -243,25 +98,221 @@ static void mergeCursors(QTextCursor &c1, const QTextCursor &c2)
     }
 }
 
-void MultiTextCursor::mergeCursors()
+void MultiTextCursor::addCursor(const QTextCursor &cursor)
 {
-    std::list<QTextCursor> cursors(m_cursors.begin(), m_cursors.end());
-    cursors = Utils::filtered(cursors, [](const QTextCursor &c){
-        return !c.isNull();
-    });
-    for (auto it = cursors.begin(); it != cursors.end(); ++it) {
-        QTextCursor &c1 = *it;
-        for (auto other = std::next(it); other != cursors.end();) {
-            const QTextCursor &c2 = *other;
-            if (cursorsOverlap(c1, c2)) {
-                Utils::mergeCursors(c1, c2);
-                other = cursors.erase(other);
-                continue;
+    QTC_ASSERT(!cursor.isNull(), return);
+
+    QTextCursor c1 = cursor;
+    const int pos = c1.selectionStart();
+
+    auto found = m_cursorMap.lower_bound(pos);
+    if (found != m_cursorMap.begin())
+        --found;
+
+    for (; !m_cursorMap.empty() && found != m_cursorMap.end()
+           && found->second->selectionStart() <= cursor.selectionEnd();) {
+        const QTextCursor &c2 = *found->second;
+        if (cursorsOverlap(c1, c2)) {
+            Utils::mergeCursors(c1, c2);
+            m_cursorList.erase(found->second);
+            found = m_cursorMap.erase(found);
+            continue;
+        }
+        ++found;
+    }
+
+    m_cursorMap[pos] = m_cursorList.insert(m_cursorList.end(), c1);
+}
+
+void MultiTextCursor::addCursors(const QList<QTextCursor> &cursors)
+{
+    for (const QTextCursor &c : cursors)
+        addCursor(c);
+}
+
+void MultiTextCursor::setCursors(const QList<QTextCursor> &cursors)
+{
+    m_cursorList.clear();
+    m_cursorMap.clear();
+    addCursors(cursors);
+}
+
+const QList<QTextCursor> MultiTextCursor::cursors() const
+{
+    return QList<QTextCursor>(m_cursorList.begin(), m_cursorList.end());
+}
+
+void MultiTextCursor::replaceMainCursor(const QTextCursor &cursor)
+{
+    QTC_ASSERT(!cursor.isNull(), return);
+    takeMainCursor();
+    addCursor(cursor);
+}
+
+QTextCursor MultiTextCursor::mainCursor() const
+{
+    if (m_cursorList.empty())
+        return {};
+    return m_cursorList.back();
+}
+
+QTextCursor MultiTextCursor::takeMainCursor()
+{
+    if (m_cursorList.empty())
+        return {};
+
+    QTextCursor cursor = m_cursorList.back();
+    auto it = m_cursorList.end();
+    --it;
+    m_cursorMap.erase(it->selectionStart());
+    m_cursorList.erase(it);
+
+    return cursor;
+}
+
+void MultiTextCursor::beginEditBlock()
+{
+    QTC_ASSERT(!m_cursorList.empty(), return);
+    m_cursorList.back().beginEditBlock();
+}
+
+void MultiTextCursor::endEditBlock()
+{
+    QTC_ASSERT(!m_cursorList.empty(), return);
+    m_cursorList.back().endEditBlock();
+}
+
+bool MultiTextCursor::isNull() const
+{
+    return m_cursorList.empty();
+}
+
+bool MultiTextCursor::hasMultipleCursors() const
+{
+    return m_cursorList.size() > 1;
+}
+
+int MultiTextCursor::cursorCount() const
+{
+    return static_cast<int>(m_cursorList.size());
+}
+
+void MultiTextCursor::movePosition(QTextCursor::MoveOperation operation,
+                                   QTextCursor::MoveMode mode,
+                                   int n)
+{
+    for (auto &cursor : m_cursorList)
+        cursor.movePosition(operation, mode, n);
+
+    mergeCursors();
+}
+
+bool MultiTextCursor::hasSelection() const
+{
+    return Utils::anyOf(m_cursorList, &QTextCursor::hasSelection);
+}
+
+QString MultiTextCursor::selectedText() const
+{
+    QString text;
+    for (const auto &element : std::as_const(m_cursorMap)) {
+        const QTextCursor &cursor = *element.second;
+        const QString &cursorText = cursor.selectedText();
+        if (cursorText.isEmpty())
+            continue;
+        if (!text.isEmpty()) {
+            if (text.endsWith(QChar::ParagraphSeparator))
+                text.chop(1);
+            text.append('\n');
+        }
+        text.append(cursorText);
+    }
+    return text;
+}
+
+void MultiTextCursor::removeSelectedText()
+{
+    beginEditBlock();
+    for (auto cursor = m_cursorList.begin(); cursor != m_cursorList.end(); ++cursor)
+        cursor->removeSelectedText();
+    endEditBlock();
+    mergeCursors();
+}
+
+static void insertAndSelect(QTextCursor &cursor, const QString &text, bool selectNewText)
+{
+    if (selectNewText) {
+        const int anchor = cursor.position();
+        cursor.insertText(text);
+        const int pos = cursor.position();
+        cursor.setPosition(anchor);
+        cursor.setPosition(pos, QTextCursor::KeepAnchor);
+    } else {
+        cursor.insertText(text);
+    }
+}
+
+void MultiTextCursor::insertText(const QString &text, bool selectNewText)
+{
+    if (m_cursorList.empty())
+        return;
+
+    m_cursorList.back().beginEditBlock();
+    if (hasMultipleCursors()) {
+        QStringList lines = text.split('\n');
+        if (!lines.isEmpty() && lines.last().isEmpty())
+            lines.pop_back();
+        int index = 0;
+        if (static_cast<long unsigned int>(lines.count()) == m_cursorList.size()) {
+            for (const auto &element : std::as_const(m_cursorMap)) {
+                QTextCursor &cursor = *element.second;
+                insertAndSelect(cursor, lines.at(index++), selectNewText);
             }
-            ++other;
+            m_cursorList.back().endEditBlock();
+            return;
         }
     }
-    m_cursors = QList<QTextCursor>(cursors.begin(), cursors.end());
+    for (auto cursor = m_cursorList.begin(); cursor != m_cursorList.end(); ++cursor)
+        insertAndSelect(*cursor, text, selectNewText);
+    m_cursorList.back().endEditBlock();
+}
+
+bool equalCursors(const QTextCursor &lhs, const QTextCursor &rhs)
+{
+    return lhs == rhs && lhs.anchor() == rhs.anchor();
+}
+
+bool MultiTextCursor::operator==(const MultiTextCursor &other) const
+{
+    if (m_cursorList.size() != other.m_cursorList.size())
+        return false;
+    if (m_cursorList.empty())
+        return true;
+
+    if (!equalCursors(m_cursorList.back(), other.m_cursorList.back()))
+        return false;
+
+    auto it = m_cursorMap.begin();
+    auto otherIt = other.m_cursorMap.begin();
+    for (;it != m_cursorMap.end() && otherIt != other.m_cursorMap.end(); ++it, ++otherIt) {
+        const QTextCursor &cursor = *it->second;
+        const QTextCursor &otherCursor = *otherIt->second;
+        if (it->first != otherIt->first || cursor != otherCursor
+            || cursor.anchor() != otherCursor.anchor())
+            return false;
+    }
+    return true;
+}
+
+bool MultiTextCursor::operator!=(const MultiTextCursor &other) const
+{
+    return !operator==(other);
+}
+
+void MultiTextCursor::mergeCursors()
+{
+    QList<QTextCursor> cursors(m_cursorList.begin(), m_cursorList.end());
+    setCursors(cursors);
 }
 
 // could go into QTextCursor...
@@ -321,7 +372,7 @@ bool MultiTextCursor::handleMoveKeyEvent(QKeyEvent *e,
             return false;
         }
 
-        const QList<QTextCursor> cursors = m_cursors;
+        const std::list<QTextCursor> cursors = m_cursorList;
         for (QTextCursor cursor : cursors) {
             if (camelCaseNavigationEnabled && op == QTextCursor::WordRight)
                 CamelCaseCursor::right(&cursor, edit, QTextCursor::MoveAnchor);
@@ -329,14 +380,14 @@ bool MultiTextCursor::handleMoveKeyEvent(QKeyEvent *e,
                 CamelCaseCursor::left(&cursor, edit, QTextCursor::MoveAnchor);
             else
                 cursor.movePosition(op, QTextCursor::MoveAnchor);
-            m_cursors << cursor;
-        }
 
-        mergeCursors();
+            addCursor(cursor);
+        }
         return true;
     }
 
-    for (QTextCursor &cursor : m_cursors) {
+    for (auto it = m_cursorList.begin(); it != m_cursorList.end(); ++it) {
+        QTextCursor &cursor = *it;
         QTextCursor::MoveMode mode = QTextCursor::MoveAnchor;
         QTextCursor::MoveOperation op = QTextCursor::NoMove;
 

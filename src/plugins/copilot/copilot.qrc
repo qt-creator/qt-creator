@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="/copilot">
+    <file>images/settingscategory_copilot.png</file>
+    <file>images/settingscategory_copilot@2x.png</file>
+    <file>images/copilot.png</file>
+    <file>images/copilot@2x.png</file>
+  </qresource>
+</RCC>

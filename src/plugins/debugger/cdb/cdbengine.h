@@ -10,7 +10,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QElapsedTimer>
 
@@ -65,9 +65,9 @@ public:
     void changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data) override;
 
     void reloadModules() override;
-    void loadSymbols(const QString &moduleName) override;
+    void loadSymbols(const Utils::FilePath &moduleName) override;
     void loadAllSymbols() override;
-    void requestModuleSymbols(const QString &moduleName) override;
+    void requestModuleSymbols(const Utils::FilePath &moduleName) override;
 
     void reloadRegisters() override;
     void reloadSourceFiles() override;
@@ -110,9 +110,9 @@ private:
     };
     enum CommandFlags {
         NoFlags = 0,
-        BuiltinCommand,
-        ExtensionCommand,
-        ScriptCommand
+        BuiltinCommand = DebuggerCommand::Silent << 1,
+        ExtensionCommand = DebuggerCommand::Silent << 2,
+        ScriptCommand = DebuggerCommand::Silent << 3
     };
 
     void init();
@@ -174,7 +174,7 @@ private:
     const QString m_tokenPrefix;
     void handleSetupFailure(const QString &errorMessage);
 
-    Utils::QtcProcess m_process;
+    Utils::Process m_process;
     DebuggerStartMode m_effectiveStartMode = NoStartMode;
     //! Debugger accessible (expecting commands)
     bool m_accessible = false;

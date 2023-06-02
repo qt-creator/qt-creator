@@ -8,11 +8,11 @@
 #include "../actionmanager/actionmanager.h"
 #include "../actionmanager/command.h"
 #include "../coreplugintr.h"
-#include "../icontext.h"
 #include "../icore.h"
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -28,30 +28,15 @@
 
 static const char SETTINGSKEYSECTIONNAME[] = "SearchResults";
 static const char SETTINGSKEYEXPANDRESULTS[] = "ExpandResults";
+
+// Note that this is a soft limit: If all searches are still running, none of them will be
+// removed when a new one is started.
 static const int MAX_SEARCH_HISTORY = 12;
 
 namespace Core {
 
 /*!
     \namespace Core::Search
-    \inmodule QtCreator
-    \internal
-*/
-
-/*!
-    \class Core::Search::TextPosition
-    \inmodule QtCreator
-    \internal
-*/
-
-/*!
-    \class Core::Search::TextRange
-    \inmodule QtCreator
-    \internal
-*/
-
-/*!
-    \class Core::SearchResultItem
     \inmodule QtCreator
     \internal
 */
@@ -90,6 +75,7 @@ namespace Internal {
         void popupRequested(SearchResultWidget *widget, bool focus);
         void handleExpandCollapseToolButton(bool checked);
         void updateFilterButton();
+        int indexOfSearchToEvict() const;
         QList<QWidget *> toolBarWidgets();
 
         SearchResultWindow *q;
@@ -107,7 +93,7 @@ namespace Internal {
         QList<SearchResult *> m_searchResults;
         int m_currentIndex;
         QFont m_font;
-        SearchResultColors m_colors;
+        Utils::SearchResultColors m_colors;
         int m_tabWidth;
 
     };
@@ -257,14 +243,14 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void Core::SearchResult::activated(const Core::SearchResultItem &item)
+    \fn void Core::SearchResult::activated(const Utils::SearchResultItem &item)
     Indicates that the user activated the search result \a item by
     double-clicking it, for example.
 */
 
 /*!
     \fn void Core::SearchResult::replaceButtonClicked(const QString &replaceText,
-                           const QList<Core::SearchResultItem> &checkedItems,
+                           const Utils::SearchResultItems &checkedItems,
                            bool preserveCase)
 
     Indicates that the user initiated a text replace by selecting
@@ -290,7 +276,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void Core::SearchResult::cancelled()
+    \fn void Core::SearchResult::canceled()
     This signal is emitted if the user cancels the search.
 */
 
@@ -473,11 +459,15 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
                 // temporarily set the index to the last but one existing
                 d->m_currentIndex = d->m_recentSearchesBox->count() - 2;
             }
-            d->m_searchResultWidgets.last()->notifyVisibilityChanged(false);
-            // widget first, because that might send interesting signals to SearchResult
-            delete d->m_searchResultWidgets.takeLast();
-            delete d->m_searchResults.takeLast();
-            d->m_recentSearchesBox->removeItem(d->m_recentSearchesBox->count() - 1);
+            if (const int toRemoveIndex = d->indexOfSearchToEvict(); toRemoveIndex != -1) {
+                SearchResultWidget * const widgetToRemove
+                    = d->m_searchResultWidgets.takeAt(toRemoveIndex);
+                widgetToRemove->notifyVisibilityChanged(false);
+                // widget first, because that might send interesting signals to SearchResult
+                delete widgetToRemove;
+                delete d->m_searchResults.takeAt(toRemoveIndex);
+                d->m_recentSearchesBox->removeItem(toRemoveIndex + 1);
+            }
         }
         d->m_recentSearchesBox->insertItem(1, Tr::tr("%1 %2").arg(label, searchTerm));
     }
@@ -570,7 +560,8 @@ void SearchResultWindow::setFocus()
 /*!
     \internal
 */
-void SearchResultWindow::setTextEditorFont(const QFont &font, const SearchResultColors &colors)
+void SearchResultWindow::setTextEditorFont(const QFont &font,
+                                           const Utils::SearchResultColors &colors)
 {
     d->m_font = font;
     d->m_colors = colors;
@@ -616,13 +607,22 @@ void SearchResultWindowPrivate::updateFilterButton()
                                && m_searchResultWidgets.at(visibleSearchIndex())->hasFilter());
 }
 
+int SearchResultWindowPrivate::indexOfSearchToEvict() const
+{
+    for (int i = m_searchResultWidgets.size() - 1; i >= 0; --i) {
+        if (!m_searchResultWidgets.at(i)->isSearching())
+            return i;
+    }
+    return -1;
+}
+
 QList<QWidget *> SearchResultWindowPrivate::toolBarWidgets()
 {
     if (!m_historyLabel)
         m_historyLabel = new QLabel(Tr::tr("History:"));
     if (!m_recentSearchesBox) {
         m_recentSearchesBox = new QComboBox;
-        m_recentSearchesBox->setProperty("drawleftborder", true);
+        m_recentSearchesBox->setProperty(Utils::StyleHelper::C_DRAW_LEFT_BORDER, true);
         m_recentSearchesBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         m_recentSearchesBox->addItem(Tr::tr("New Search"));
         connect(m_recentSearchesBox, &QComboBox::activated,
@@ -821,7 +821,7 @@ void SearchResult::setAdditionalReplaceWidget(QWidget *widget)
 
     \sa addResults()
 */
-void SearchResult::addResult(const SearchResultItem &item)
+void SearchResult::addResult(const Utils::SearchResultItem &item)
 {
     m_widget->addResults({item}, AddOrdered);
 }
@@ -832,7 +832,7 @@ void SearchResult::addResult(const SearchResultItem &item)
 
     \sa addResult()
 */
-void SearchResult::addResults(const QList<SearchResultItem> &items, AddMode mode)
+void SearchResult::addResults(const Utils::SearchResultItems &items, AddMode mode)
 {
     m_widget->addResults(items, mode);
     emit countChanged(m_widget->count());
@@ -845,7 +845,8 @@ void SearchResult::setFilter(SearchResultFilter *filter)
 
 /*!
     Notifies the \uicontrol {Search Results} output pane that the current search
-    has been \a canceled, and the UI should reflect that.
+    has been \a canceled for the specified \a reason, and the UI should reflect
+    that.
 */
 void SearchResult::finishSearch(bool canceled, const QString &reason)
 {

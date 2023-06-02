@@ -268,10 +268,8 @@ ShortcutSettingsWidget::ShortcutSettingsWidget()
             this, &ShortcutSettingsWidget::initialize);
     connect(this, &ShortcutSettingsWidget::currentCommandChanged,
             this, &ShortcutSettingsWidget::handleCurrentCommandChanged);
-    connect(this,
-            &ShortcutSettingsWidget::resetRequested,
-            this,
-            &ShortcutSettingsWidget::resetToDefault);
+    connect(this, &ShortcutSettingsWidget::resetRequested,
+            this, &ShortcutSettingsWidget::resetToDefault);
 
     m_shortcutBox = new QGroupBox(Tr::tr("Shortcut"), this);
     m_shortcutBox->setEnabled(false);
@@ -287,35 +285,10 @@ ShortcutSettingsWidget::~ShortcutSettingsWidget()
     qDeleteAll(m_scitems);
 }
 
-ShortcutSettings::ShortcutSettings()
-{
-    setId(Constants::SETTINGS_ID_SHORTCUTS);
-    setDisplayName(Tr::tr("Keyboard"));
-    setCategory(Constants::SETTINGS_CATEGORY_CORE);
-}
-
-QWidget *ShortcutSettings::widget()
-{
-    if (!m_widget)
-        m_widget = new ShortcutSettingsWidget();
-    return m_widget;
-}
-
 void ShortcutSettingsWidget::apply()
 {
     for (const ShortcutItem *item : std::as_const(m_scitems))
         item->m_cmd->setKeySequences(item->m_keys);
-}
-
-void ShortcutSettings::apply()
-{
-    QTC_ASSERT(m_widget, return);
-    m_widget->apply();
-}
-
-void ShortcutSettings::finish()
-{
-    delete m_widget;
 }
 
 ShortcutItem *shortcutItem(QTreeWidgetItem *treeItem)
@@ -704,6 +677,32 @@ QKeySequence ShortcutInput::keySequence() const
 void ShortcutInput::setConflictChecker(const ShortcutInput::ConflictChecker &fun)
 {
     m_conflictChecker = fun;
+}
+
+// ShortcutSettingsPageWidget
+
+class ShortcutSettingsPageWidget : public IOptionsPageWidget
+{
+public:
+    ShortcutSettingsPageWidget()
+    {
+        auto inner = new ShortcutSettingsWidget;
+        auto vbox = new QVBoxLayout(this);
+        vbox->addWidget(inner);
+        vbox->setContentsMargins(0, 0, 0, 0);
+
+        setOnApply([inner] { inner->apply(); });
+    }
+};
+
+// ShortcutSettings
+
+ShortcutSettings::ShortcutSettings()
+{
+    setId(Constants::SETTINGS_ID_SHORTCUTS);
+    setDisplayName(Tr::tr("Keyboard"));
+    setCategory(Constants::SETTINGS_CATEGORY_CORE);
+    setWidgetCreator([] { return new ShortcutSettingsPageWidget; });
 }
 
 } // namespace Internal

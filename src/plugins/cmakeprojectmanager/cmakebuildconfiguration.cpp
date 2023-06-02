@@ -41,7 +41,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -54,7 +54,6 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
 #include <utils/detailswidget.h>
-#include <utils/headerviewstretcher.h>
 #include <utils/infolabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
@@ -68,6 +67,7 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QGridLayout>
+#include <QHeaderView>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QMessageBox>
@@ -250,7 +250,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
     m_configView->setUniformRowHeights(true);
     m_configView->setSortingEnabled(true);
     m_configView->sortByColumn(0, Qt::AscendingOrder);
-    (void) new HeaderViewStretcher(m_configView->header(), 0);
+    m_configView->header()->setSectionResizeMode(QHeaderView::Stretch);
     m_configView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_configView->setAlternatingRowColors(true);
@@ -335,8 +335,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
 
     Column {
         Form {
-            buildDirAspect,
-            bc->aspect<BuildTypeAspect>(),
+            buildDirAspect, br,
+            bc->aspect<BuildTypeAspect>(), br,
             qmlDebugAspect
         },
         m_warningMessageLabel,
@@ -347,19 +347,21 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
                 Column {
                     cmakeConfiguration,
                     Row {
-                        bc->aspect<InitialCMakeArgumentsAspect>(),
+                        bc->aspect<InitialCMakeArgumentsAspect>(), br,
                         bc->aspect<AdditionalCMakeOptionsAspect>()
                     },
                     m_reconfigureButton,
                 }
             },
             configureEnvironmentAspectWidget
-        }
-    }.attachTo(details, WithoutMargins);
+        },
+        noMargin
+    }.attachTo(details);
 
     Column {
         m_configureDetailsWidget,
-    }.attachTo(this, WithoutMargins);
+        noMargin
+    }.attachTo(this);
 
     updateAdvancedCheckBox();
     setError(m_buildSystem->error());
@@ -588,23 +590,18 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
 void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
 {
     auto settings = CMakeSpecificSettings::instance();
-    bool doNotAsk = !settings->askBeforeReConfigureInitialParams.value();
-    if (!doNotAsk) {
-        QDialogButtonBox::StandardButton reply = CheckableMessageBox::question(
-            Core::ICore::dialogParent(),
-            Tr::tr("Re-configure with Initial Parameters"),
-            Tr::tr("Clear CMake configuration and configure with initial parameters?"),
-            Tr::tr("Do not ask again"),
-            &doNotAsk,
-            QDialogButtonBox::Yes | QDialogButtonBox::No,
-            QDialogButtonBox::Yes);
+    QMessageBox::StandardButton reply = CheckableMessageBox::question(
+        Core::ICore::dialogParent(),
+        Tr::tr("Re-configure with Initial Parameters"),
+        Tr::tr("Clear CMake configuration and configure with initial parameters?"),
+        settings->askBeforeReConfigureInitialParams.checkableDecider(),
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::Yes);
 
-        settings->askBeforeReConfigureInitialParams.setValue(!doNotAsk);
-        settings->writeSettings(Core::ICore::settings());
+    settings->writeSettings(Core::ICore::settings());
 
-        if (reply != QDialogButtonBox::Yes) {
-            return;
-        }
+    if (reply != QMessageBox::Yes) {
+        return;
     }
 
     m_buildSystem->clearCMakeCache();
@@ -643,7 +640,7 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
     // As the user would expect to have e.g. "--preset" from "Initial Configuration"
     // to "Current Configuration" as additional parameters
     m_buildSystem->setAdditionalCMakeArguments(ProcessArgs::splitArgs(
-        bc->aspect<InitialCMakeArgumentsAspect>()->value()));
+        bc->aspect<InitialCMakeArgumentsAspect>()->value(), HostOsInfo::hostOs()));
 }
 
 void CMakeBuildSettingsWidget::kitCMakeConfiguration()
@@ -663,17 +660,19 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
     CMakeGeneratorKitAspect generatorAspect;
     CMakeConfigurationKitAspect configurationKitAspect;
 
-    auto layout = new QGridLayout(dialog);
-
+    Layouting::Grid grid;
     KitAspectWidget *widget = kitAspect.createConfigWidget(m_buildSystem->kit());
     widget->setParent(dialog);
-    widget->addToLayoutWithLabel(layout->parentWidget());
+    widget->addToLayoutWithLabel(grid, dialog);
     widget = generatorAspect.createConfigWidget(m_buildSystem->kit());
     widget->setParent(dialog);
-    widget->addToLayoutWithLabel(layout->parentWidget());
+    widget->addToLayoutWithLabel(grid, dialog);
     widget = configurationKitAspect.createConfigWidget(m_buildSystem->kit());
     widget->setParent(dialog);
-    widget->addToLayoutWithLabel(layout->parentWidget());
+    widget->addToLayoutWithLabel(grid, dialog);
+    grid.attachTo(dialog);
+
+    auto layout = qobject_cast<QGridLayout *>(dialog->layout());
 
     layout->setColumnStretch(1, 1);
 
@@ -701,7 +700,7 @@ void CMakeBuildSettingsWidget::updateConfigureDetailsWidgetsSummary(
     const FilePath buildDirectory = bc ? bc->buildDirectory() : ".";
 
     cmd.addArgs({"-S", m_buildSystem->projectDirectory().path()});
-    cmd.addArgs({"-B", buildDirectory.onDevice(cmd.executable()).path()});
+    cmd.addArgs({"-B", buildDirectory.path()});
     cmd.addArgs(configurationArguments);
 
     params.setCommandLine(cmd);
@@ -826,9 +825,10 @@ void CMakeBuildSettingsWidget::updateFromKit()
 
     // Then the additional parameters
     const QStringList additionalKitCMake = ProcessArgs::splitArgs(
-        CMakeConfigurationKitAspect::additionalConfiguration(k));
+        CMakeConfigurationKitAspect::additionalConfiguration(k), HostOsInfo::hostOs());
     const QStringList additionalInitialCMake = ProcessArgs::splitArgs(
-        m_buildSystem->buildConfiguration()->aspect<InitialCMakeArgumentsAspect>()->value());
+        m_buildSystem->buildConfiguration()->aspect<InitialCMakeArgumentsAspect>()->value(),
+        HostOsInfo::hostOs());
 
     QStringList mergedArgumentList;
     std::set_union(additionalInitialCMake.begin(),
@@ -1137,7 +1137,7 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildT
     // Package manager auto setup
     if (Internal::CMakeSpecificSettings::instance()->packageManagerAutoSetup.value()) {
         cmd.addArg(QString("-DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH="
-                           "%{buildDir}/%1/auto-setup.cmake")
+                           "%{BuildConfig:BuildDirectory:NativeFilePath}/%1/auto-setup.cmake")
                        .arg(Constants::PACKAGE_MANAGER_DIR));
     }
 
@@ -1176,12 +1176,6 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
     const QString presetName = presetItem.expandedValue(k);
     initialArguments.removeIf(
         [presetArgument](const QString &item) { return item == presetArgument; });
-
-    // Remove the -DQTC_KIT_DEFAULT_CONFIG_HASH argument
-    const QString presetHashArgument
-        = CMakeConfigurationKitAspect::kitDefaultConfigHashItem(k).toArgument();
-    initialArguments.removeIf(
-        [presetHashArgument](const QString &item) { return item == presetHashArgument; });
 
     PresetsDetails::ConfigurePreset configurePreset
         = Utils::findOrDefault(project->presetsData().configurePresets,
@@ -1743,7 +1737,8 @@ void CMakeBuildSystem::setInitialCMakeArguments(const QStringList &args)
 
 QStringList CMakeBuildSystem::additionalCMakeArguments() const
 {
-    return ProcessArgs::splitArgs(buildConfiguration()->aspect<AdditionalCMakeOptionsAspect>()->value());
+    return ProcessArgs::splitArgs(buildConfiguration()->aspect<AdditionalCMakeOptionsAspect>()->value(),
+                                  HostOsInfo::hostOs());
 }
 
 void CMakeBuildSystem::setAdditionalCMakeArguments(const QStringList &args)
@@ -1766,7 +1761,8 @@ void CMakeBuildSystem::filterConfigArgumentsFromAdditionalCMakeArguments()
     // which is already part of the CMake variables and should not be also
     // in the addtional CMake options
     const QStringList arguments = ProcessArgs::splitArgs(
-        buildConfiguration()->aspect<AdditionalCMakeOptionsAspect>()->value());
+        buildConfiguration()->aspect<AdditionalCMakeOptionsAspect>()->value(),
+        HostOsInfo::hostOs());
     QStringList unknownOptions;
     const CMakeConfig config = CMakeConfig::fromArguments(arguments, unknownOptions);
 
@@ -2083,8 +2079,8 @@ void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
         return;
 
     auto settings = CMakeSpecificSettings::instance();
-    if (!settings->ninjaPath.filePath().isEmpty()) {
-        const Utils::FilePath ninja = settings->ninjaPath.filePath();
+    if (!settings->ninjaPath().isEmpty()) {
+        const Utils::FilePath ninja = settings->ninjaPath();
         env.appendOrSetPath(ninja.isFile() ? ninja.parentDir() : ninja);
     }
 }
@@ -2162,7 +2158,7 @@ const QStringList InitialCMakeArgumentsAspect::allValues() const
                                                              return ci.toArgument(nullptr);
                                                          });
 
-    initialCMakeArguments.append(ProcessArgs::splitArgs(value()));
+    initialCMakeArguments.append(ProcessArgs::splitArgs(value(), HostOsInfo::hostOs()));
 
     return initialCMakeArguments;
 }
@@ -2281,6 +2277,7 @@ public:
 ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(ProjectExplorer::Target *target)
 {
     setIsLocal(true);
+    setAllowPrintOnRun(false);
     setConfigWidgetCreator(
         [this, target] { return new ConfigureEnvironmentAspectWidget(this, target); });
     addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});

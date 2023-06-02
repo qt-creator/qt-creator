@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "fossilsettings.h"
-
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <coreplugin/icontext.h>
@@ -25,7 +23,6 @@ class FossilPlugin final : public ExtensionSystem::IPlugin
     void extensionsInitialized() final;
 
 public:
-    static const FossilSettings &settings();
     static FossilClient *client();
 
 #ifdef WITH_TESTS

@@ -10,7 +10,7 @@
 
 #include <projectexplorer/runcontrol.h> // for RunWorker
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 namespace Utils { class PathChooser; }
 
@@ -127,7 +127,7 @@ private:
     void start() final;
     void stop() final;
 
-    Utils::QtcProcess m_process;
+    Utils::Process m_process;
 };
 
 } // namespace Internal

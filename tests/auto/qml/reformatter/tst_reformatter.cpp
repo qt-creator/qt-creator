@@ -68,25 +68,15 @@ void tst_Reformatter::test()
 
     QString rewritten = reformat(doc);
 
-    QStringList sourceLines = source.split(QLatin1Char('\n'));
-    QStringList newLines = rewritten.split(QLatin1Char('\n'));
+    QStringList sourceLines = source.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+    QStringList newLines = rewritten.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
 
     // compare line by line
     int commonLines = qMin(newLines.size(), sourceLines.size());
-    bool insideMultiLineComment = false;
     for (int i = 0; i < commonLines; ++i) {
         // names intentional to make 'Actual (sourceLine): ...\nExpected (newLinee): ...' line up
         const QString &sourceLine = sourceLines.at(i);
         const QString &newLinee = newLines.at(i);
-        if (!insideMultiLineComment && sourceLine.trimmed().startsWith("/*")) {
-            insideMultiLineComment = true;
-            sourceLines.insert(i, "\n");
-            continue;
-        }
-        if (sourceLine.trimmed().endsWith("*/"))
-            insideMultiLineComment = false;
-        if (sourceLine.trimmed().isEmpty() && newLinee.trimmed().isEmpty())
-            continue;
         bool fail = !QCOMPARE_NOEXIT(newLinee, sourceLine);
         if (fail) {
             qDebug() << "in line" << (i + 1);

@@ -5,6 +5,8 @@
 
 #include "extensionsystem_global.h"
 
+#include <utils/id.h>
+
 #include <QObject>
 
 #include <functional>
@@ -14,6 +16,17 @@ namespace ExtensionSystem {
 namespace Internal { class IPluginPrivate; }
 
 using TestCreator = std::function<QObject *()>;
+
+using ObjectCreator = std::function<void *()>;
+using ObjectDestructor = std::function<void(void *)>;
+
+struct EXTENSIONSYSTEM_EXPORT ObjectCreationPolicy
+{
+    // Can be empty if nothing depends on it.
+    Utils::Id id;
+    // Objects with empty dependencies are created as soon as possible.
+    QList<Utils::Id> dependsOn;
+};
 
 class EXTENSIONSYSTEM_EXPORT IPlugin : public QObject
 {
@@ -39,6 +52,7 @@ public:
 
     // Deprecated in 10.0, use addTest()
     virtual QVector<QObject *> createTestObjects() const;
+    virtual void tryCreateObjects();
 
 protected:
     virtual void initialize() {}
@@ -46,6 +60,17 @@ protected:
     template <typename Test, typename ...Args>
     void addTest(Args && ...args) { addTestCreator([args...] { return new Test(args...); }); }
     void addTestCreator(const TestCreator &creator);
+
+    template <typename Type>
+    void addManaged(const ObjectCreationPolicy &policy = {}) {
+        addManagedHelper([]() -> void * { return new Type(); },
+                             [](void *p) { delete static_cast<Type *>(p); },
+                             policy);
+    }
+
+    void addManagedHelper(const ObjectCreator &creator,
+                          const ObjectDestructor &destructor,
+                          const ObjectCreationPolicy &policy);
 
 signals:
     void asynchronousShutdownFinished();

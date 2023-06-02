@@ -47,7 +47,7 @@ bool Protocol::checkConfiguration(QString *)
     return true;
 }
 
-Core::IOptionsPage *Protocol::settingsPage() const
+const Core::IOptionsPage *Protocol::settingsPage() const
 {
     return nullptr;
 }

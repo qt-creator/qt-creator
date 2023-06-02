@@ -3,34 +3,21 @@
 
 #include "../coreplugin.h"
 
-#include "basefilefilter.h"
 #include "locatorfiltertest.h"
 
 #include <coreplugin/testdatadir.h>
 #include <utils/algorithm.h>
-#include <utils/filepath.h>
 #include <utils/fileutils.h>
 
 #include <QDir>
-#include <QTextStream>
 #include <QtTest>
 
 using namespace Core::Tests;
+using namespace Utils;
 
 namespace {
 
 QTC_DECLARE_MYTESTDATADIR("../../../tests/locators/")
-
-class MyBaseFileFilter : public Core::BaseFileFilter
-{
-public:
-    MyBaseFileFilter(const Utils::FilePaths &theFiles)
-    {
-        setFileIterator(new BaseFileFilter::ListIterator(theFiles));
-    }
-
-    void refresh(QFutureInterface<void> &) override {}
-};
 
 class ReferenceData
 {
@@ -53,14 +40,13 @@ void Core::Internal::CorePlugin::test_basefilefilter()
     QFETCH(QStringList, testFiles);
     QFETCH(QList<ReferenceData>, referenceDataList);
 
-    MyBaseFileFilter filter(Utils::FileUtils::toFilePathList(testFiles));
-    BasicLocatorFilterTest test(&filter);
-
+    LocatorFileCache cache;
+    cache.setFilePaths(FileUtils::toFilePathList(testFiles));
+    const LocatorMatcherTasks tasks = {cache.matcher()};
     for (const ReferenceData &reference : std::as_const(referenceDataList)) {
-        const QList<LocatorFilterEntry> filterEntries = test.matchesFor(reference.searchText);
+        const LocatorFilterEntries filterEntries = LocatorMatcher::runBlocking(
+            tasks, reference.searchText);
         const ResultDataList results = ResultData::fromFilterEntryList(filterEntries);
-//        QTextStream(stdout) << "----" << endl;
-//        ResultData::printFilterEntries(results);
         QCOMPARE(results, reference.results);
     }
 }
@@ -68,7 +54,7 @@ void Core::Internal::CorePlugin::test_basefilefilter()
 void Core::Internal::CorePlugin::test_basefilefilter_data()
 {
     auto shortNativePath = [](const QString &file) {
-        return Utils::FilePath::fromString(file).shortNativePath();
+        return FilePath::fromString(file).shortNativePath();
     };
 
     QTest::addColumn<QStringList>("testFiles");

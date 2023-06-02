@@ -10,7 +10,7 @@
 
 #include <QSettings>
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 using namespace Utils;
 
@@ -25,19 +25,16 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
         return widget;
     });
 
-    registerAspect(&period);
     period.setSettingsKey("Analyzer.Perf.Frequency");
     period.setRange(250, 2147483647);
     period.setDefaultValue(250);
     period.setLabelText(Tr::tr("Sample period:"));
 
-    registerAspect(&stackSize);
     stackSize.setSettingsKey("Analyzer.Perf.StackSize");
     stackSize.setRange(4096, 65536);
     stackSize.setDefaultValue(4096);
     stackSize.setLabelText(Tr::tr("Stack snapshot size (kB):"));
 
-    registerAspect(&sampleMode);
     sampleMode.setSettingsKey("Analyzer.Perf.SampleMode");
     sampleMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     sampleMode.setLabelText(Tr::tr("Sample mode:"));
@@ -45,7 +42,6 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     sampleMode.addOption({Tr::tr("event count"), {}, QString("-c")});
     sampleMode.setDefaultValue(0);
 
-    registerAspect(&callgraphMode);
     callgraphMode.setSettingsKey("Analyzer.Perf.CallgraphMode");
     callgraphMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     callgraphMode.setLabelText(Tr::tr("Call graph mode:"));
@@ -54,11 +50,9 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     callgraphMode.addOption({Tr::tr("last branch record"), {}, QString("lbr")});
     callgraphMode.setDefaultValue(0);
 
-    registerAspect(&events);
     events.setSettingsKey("Analyzer.Perf.Events");
     events.setDefaultValue({"cpu-cycles"});
 
-    registerAspect(&extraArguments);
     extraArguments.setSettingsKey("Analyzer.Perf.ExtraArguments");
     extraArguments.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
     extraArguments.setLabelText(Tr::tr("Additional arguments:"));
@@ -67,8 +61,6 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     connect(&callgraphMode, &SelectionAspect::volatileValueChanged, this, [this](int index) {
         stackSize.setEnabled(index == 0);
     });
-
-    connect(this, &AspectContainer::fromMapFinished, this, &PerfSettings::changed);
 
     readGlobalSettings();
 }
@@ -103,7 +95,7 @@ void PerfSettings::writeGlobalSettings() const
     settings->endGroup();
 }
 
-QStringList PerfSettings::perfRecordArguments() const
+void PerfSettings::addPerfRecordArguments(CommandLine *cmd) const
 {
     QString callgraphArg = callgraphMode.itemValue().toString();
     if (callgraphArg == Constants::PerfCallgraphDwarf)
@@ -118,11 +110,11 @@ QStringList PerfSettings::perfRecordArguments() const
         }
     }
 
-    return QStringList({"-e", events,
-                        "--call-graph", callgraphArg,
-                        sampleMode.itemValue().toString(),
-                        QString::number(period.value())})
-         + ProcessArgs::splitArgs(extraArguments.value());
+    cmd->addArgs({"-e", events,
+                  "--call-graph", callgraphArg,
+                  sampleMode.itemValue().toString(),
+                  QString::number(period.value())});
+    cmd->addArgs(extraArguments(), CommandLine::Raw);
 }
 
 void PerfSettings::resetToDefault()

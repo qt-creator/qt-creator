@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "settings.h"
-#include "operation.h"
 
 #include <app/app_version.h>
 
 #include <QCoreApplication>
+#include <QDir>
 
 static Settings *m_instance = nullptr;
 
@@ -21,28 +21,28 @@ Settings::Settings()
     m_instance = this;
 
     // autodetect sdk dir:
-    sdkPath = Utils::FilePath::fromUserInput(QCoreApplication::applicationDirPath())
-            .pathAppended(DATA_PATH).cleanPath()
-            .pathAppended(Core::Constants::IDE_SETTINGSVARIANT_STR)
-            .pathAppended(Core::Constants::IDE_ID);
+    sdkPath = QDir::cleanPath(QCoreApplication::applicationDirPath()
+        + '/' + DATA_PATH
+        + '/' + Core::Constants::IDE_SETTINGSVARIANT_STR
+        + '/' + Core::Constants::IDE_ID);
 }
 
-Utils::FilePath Settings::getPath(const QString &file)
+QString Settings::getPath(const QString &file)
 {
-    Utils::FilePath result = sdkPath;
+    QString result = sdkPath;
     const QString lowerFile = file.toLower();
     const QStringList identical = {
         "android", "cmaketools", "debuggers", "devices", "profiles", "qtversions", "toolchains", "abi"
     };
     if (lowerFile == "cmake")
-        result = result.pathAppended("cmaketools");
+        result += "/cmaketools";
     else if (lowerFile == "kits")
-        result = result.pathAppended("profiles");
+        result += "/profiles";
     else if (lowerFile == "qtversions")
-        result = result.pathAppended("qtversion");
+        result += "/qtversion";
     else if (identical.contains(lowerFile))
-        result = result.pathAppended(lowerFile);
+        result += '/' + lowerFile;
     else
-        result = result.pathAppended(file); // handle arbitrary file names not known yet
-    return result.stringAppended(".xml");
+        result += '/' + file; // handle arbitrary file names not known yet
+    return result += ".xml";
 }

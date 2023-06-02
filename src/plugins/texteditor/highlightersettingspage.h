@@ -15,10 +15,6 @@ public:
     HighlighterSettingsPage();
     ~HighlighterSettingsPage() override;
 
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
     const HighlighterSettings &highlighterSettings() const;
 
 private:

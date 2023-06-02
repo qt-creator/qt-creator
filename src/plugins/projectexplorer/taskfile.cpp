@@ -6,20 +6,22 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
-#include "session.h"
 #include "taskhub.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
+#include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QMessageBox>
 
+using namespace Core;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -147,6 +149,10 @@ static bool parseTaskFile(QString *errorString, const FilePath &name)
         }
         description = unescape(description);
 
+        if (description.trimmed().isEmpty()) {
+            MessageManager::writeFlashing(Tr::tr("Ignoring invalid task (no text)."));
+            continue;
+        }
         TaskHub::addTask(Task(type, description, FilePath::fromUserInput(file), line,
                               Constants::TASK_CATEGORY_TASKLIST_ID));
     }

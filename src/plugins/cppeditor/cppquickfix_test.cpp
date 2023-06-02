@@ -1725,7 +1725,7 @@ void QuickfixTest::testGeneric_data()
         << _(R"(const char *str = @"\xc3\xa0""f23\xd0\xb1g\xd0\xb1""1";)")
         << _(R"(const char *str = "àf23бgб1";)");
     QTest::newRow("AddLocalDeclaration_QTCREATORBUG-26004")
-        << CppQuickFixFactoryPtr(new AddLocalDeclaration)
+        << CppQuickFixFactoryPtr(new AddDeclarationForUndeclaredIdentifier)
         << _("void func() {\n"
              "  QStringList list;\n"
              "  @it = list.cbegin();\n"
@@ -2315,7 +2315,7 @@ signals:
     void newFooBarTestValue();
 
 private:
-    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue FINAL)
 };
 )-";
     QTest::addRow("create right names") << QByteArrayList{originalSource, expectedSource} << 4;
@@ -2346,7 +2346,7 @@ signals:
     void newFooBarTestValue();
 
 private:
-    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue FINAL)
 };
 )-";
     expectedSource = "";
@@ -2355,7 +2355,7 @@ private:
     // create from Q_PROPERTY with custom names
     originalSource = R"-(
 class Test {
-    Q_PROPER@TY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    Q_PROPER@TY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue FINAL)
 
 public:
     int give_me_foo_bar_test() const
@@ -2380,7 +2380,7 @@ signals:
 )-";
     expectedSource = R"-(
 class Test {
-    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue FINAL)
 
 public:
     int give_me_foo_bar_test() const
@@ -2411,14 +2411,14 @@ private:
     // create from Q_PROPERTY with custom names
     originalSource = R"-(
 class Test {
-    Q_PROPE@RTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    Q_PROPE@RTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue FINAL)
     int mem_fooBar_test;
 public:
 };
 )-";
     expectedSource = R"-(
 class Test {
-    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue FINAL)
     int mem_fooBar_test;
 public:
     int give_me_foo_bar_test() const
@@ -2766,7 +2766,7 @@ public:
 signals:
     void barChanged(N2::test *bar);
 private:
-    Q_PROPERTY(N2::test *bar READ getBar NOTIFY barChanged)
+    Q_PROPERTY(N2::test *bar READ getBar NOTIFY barChanged FINAL)
 };
 })--";
     testDocuments << CppTestDocument::create("file.h", original, expected);
@@ -3303,7 +3303,7 @@ void QuickfixTest::testGenerateGetterSetterAnonymousClass()
         void fooChanged();
 
     private:
-        Q_PROPERTY(int foo READ foo WRITE setFoo RESET resetFoo NOTIFY fooChanged)
+        Q_PROPERTY(int foo READ foo WRITE setFoo RESET resetFoo NOTIFY fooChanged FINAL)
     } bar;
 )";
     testDocuments << CppTestDocument::create("file.h", original, expected);
@@ -3334,7 +3334,7 @@ public:
 signals:
     void barChanged();
 private:
-    Q_PROPERTY(int bar READ getBar WRITE setBar RESET resetBar NOTIFY barChanged)
+    Q_PROPERTY(int bar READ getBar WRITE setBar RESET resetBar NOTIFY barChanged FINAL)
 };
 
 inline int Foo::getBar() const
@@ -3560,8 +3560,8 @@ private:
     int m_bar;
     int bar2_;
     QString bar3;
-    Q_PROPERTY(int bar2 READ getBar2 WRITE setBar2 RESET resetBar2 NOTIFY bar2Changed)
-    Q_PROPERTY(QString bar3 READ getBar3 WRITE setBar3 RESET resetBar3 NOTIFY bar3Changed)
+    Q_PROPERTY(int bar2 READ getBar2 WRITE setBar2 RESET resetBar2 NOTIFY bar2Changed FINAL)
+    Q_PROPERTY(QString bar3 READ getBar3 WRITE setBar3 RESET resetBar3 NOTIFY bar3Changed FINAL)
 };
 inline void Foo::resetBar()
 {
@@ -3780,7 +3780,7 @@ void QuickfixTest::testInsertQtPropertyMembers()
     QuickFixOperationTest({CppTestDocument::create("file.cpp", original, expected)}, &factory);
 }
 
-void QuickfixTest::testInsertMemberFromInitialization_data()
+void QuickfixTest::testInsertMemberFromUse_data()
 {
     QTest::addColumn<QByteArray>("original");
     QTest::addColumn<QByteArray>("expected");
@@ -3852,9 +3852,241 @@ void QuickfixTest::testInsertMemberFromInitialization_data()
             "    int m_x;\n"
             "};\n";
     QTest::addRow("initialization via function call") << original << expected;
+
+    original =
+        "struct S {\n\n};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.@value = v; }\n"
+        "private:\n"
+        "    S m_s;\n"
+        "};\n";
+    expected =
+        "struct S {\n\n"
+        "    int value;\n"
+        "};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.value = v; }\n"
+        "private:\n"
+        "    S m_s;\n"
+        "};\n";
+    QTest::addRow("add member to other struct") << original << expected;
+
+    original =
+        "struct S {\n\n};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { S::@value = v; }\n"
+        "};\n";
+    expected =
+        "struct S {\n\n"
+        "    static int value;\n"
+        "};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { S::value = v; }\n"
+        "};\n";
+    QTest::addRow("add static member to other struct (explicit)") << original << expected;
+
+    original =
+        "struct S {\n\n};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.@value = v; }\n"
+        "private:\n"
+        "    static S m_s;\n"
+        "};\n";
+    expected =
+        "struct S {\n\n"
+        "    static int value;\n"
+        "};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.value = v; }\n"
+        "private:\n"
+        "    static S m_s;\n"
+        "};\n";
+    QTest::addRow("add static member to other struct (implicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v);\n"
+        "};\n"
+        "void C::setValue(int v) { this->@m_value = v; }\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v);\n"
+        "private:\n"
+        "    int m_value;\n"
+        "};\n"
+        "void C::setValue(int v) { this->@m_value = v; }\n";
+    QTest::addRow("add member to this (explicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { @m_value = v; }\n"
+        "};\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_value = v; }\n"
+        "private:\n"
+        "    int m_value;\n"
+        "};\n";
+    QTest::addRow("add member to this (implicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    static void setValue(int v) { @m_value = v; }\n"
+        "};\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    static void setValue(int v) { m_value = v; }\n"
+        "private:\n"
+        "    static int m_value;\n"
+        "};\n";
+    QTest::addRow("add static member to this (inline)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    static void setValue(int v);\n"
+        "};\n"
+        "void C::setValue(int v) { @m_value = v; }\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    static void setValue(int v);\n"
+        "private:\n"
+        "    static int m_value;\n"
+        "};\n"
+        "void C::setValue(int v) { @m_value = v; }\n";
+    QTest::addRow("add static member to this (non-inline)") << original << expected;
+
+    original =
+        "struct S {\n\n};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.@setValue(v); }\n"
+        "private:\n"
+        "    S m_s;\n"
+        "};\n";
+    expected =
+        "struct S {\n\n"
+        "    void setValue(int);\n"
+        "};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.setValue(v); }\n"
+        "private:\n"
+        "    S m_s;\n"
+        "};\n";
+    QTest::addRow("add member function to other struct") << original << expected;
+
+    original =
+        "struct S {\n\n};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { S::@setValue(v); }\n"
+        "};\n";
+    expected =
+        "struct S {\n\n"
+        "    static void setValue(int);\n"
+        "};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { S::setValue(v); }\n"
+        "};\n";
+    QTest::addRow("add static member function to other struct (explicit)") << original << expected;
+
+    original =
+        "struct S {\n\n};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.@setValue(v); }\n"
+        "private:\n"
+        "    static S m_s;\n"
+        "};\n";
+    expected =
+        "struct S {\n\n"
+        "    static void setValue(int);\n"
+        "};\n"
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { m_s.setValue(v); }\n"
+        "private:\n"
+        "    static S m_s;\n"
+        "};\n";
+    QTest::addRow("add static member function to other struct (implicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v);\n"
+        "};\n"
+        "void C::setValue(int v) { this->@setValueInternal(v); }\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v);\n"
+        "private:\n"
+        "    void setValueInternal(int);\n"
+        "};\n"
+        "void C::setValue(int v) { this->setValueInternal(v); }\n";
+    QTest::addRow("add member function to this (explicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { @setValueInternal(v); }\n"
+        "};\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    void setValue(int v) { setValueInternal(v); }\n"
+        "private:\n"
+        "    void setValueInternal(int);\n"
+        "};\n";
+    QTest::addRow("add member function to this (implicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    static int value() { int i = @valueInternal(); return i; }\n"
+        "};\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    static int value() { int i = @valueInternal(); return i; }\n"
+        "private:\n"
+        "    static int valueInternal();\n"
+        "};\n";
+    QTest::addRow("add static member function to this (inline)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    static int value();\n"
+        "};\n"
+        "int C::value() { return @valueInternal(); }\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    static int value();\n"
+        "private:\n"
+        "    static int valueInternal();\n"
+        "};\n"
+        "int C::value() { return valueInternal(); }\n";
+    QTest::addRow("add static member function to this (non-inline)") << original << expected;
 }
 
-void QuickfixTest::testInsertMemberFromInitialization()
+void QuickfixTest::testInsertMemberFromUse()
 {
     QFETCH(QByteArray, original);
     QFETCH(QByteArray, expected);
@@ -3863,7 +4095,8 @@ void QuickfixTest::testInsertMemberFromInitialization()
         CppTestDocument::create("file.h", original, expected)
     });
 
-    InsertMemberFromInitialization factory;
+    AddDeclarationForUndeclaredIdentifier factory;
+    factory.setMembersOnly();
     QuickFixOperationTest(testDocuments, &factory);
 }
 

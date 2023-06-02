@@ -140,7 +140,7 @@
 
     For more information about the
     \uicontrol {Qt for Python - Qt Quick Application - Empty} wizard, see
-    \l {Creating Qt Quick Based Python Applications}.
+    \l {Qt Quick Based Python Applications}.
 
     For examples of creating Qt for Python applications, see
     \l {https://doc.qt.io/qtforpython/tutorials/index.html}
@@ -151,7 +151,7 @@
 
 //! [python qml project wizards]
 
-   \section1 Creating Qt Quick Based Python Applications
+   \section1 Qt Quick Based Python Applications
 
     The \uicontrol {Qt for Python - Qt Quick Application - Empty} wizard enables
     you to create a Python project that has a main QML file. Specify the

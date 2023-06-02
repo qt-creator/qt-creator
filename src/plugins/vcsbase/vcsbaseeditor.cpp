@@ -24,7 +24,7 @@
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
@@ -1234,7 +1234,7 @@ static QTextCodec *findProjectCodec(const FilePath &dirPath)
 {
     typedef  QList<ProjectExplorer::Project*> ProjectList;
     // Try to find a project under which file tree the file is.
-    const ProjectList projects = ProjectExplorer::SessionManager::projects();
+    const ProjectList projects = ProjectExplorer::ProjectManager::projects();
     const ProjectExplorer::Project *p
         = findOrDefault(projects, equal(&ProjectExplorer::Project::projectDirectory, dirPath));
     return p ? p->editorConfiguration()->textCodec() : nullptr;

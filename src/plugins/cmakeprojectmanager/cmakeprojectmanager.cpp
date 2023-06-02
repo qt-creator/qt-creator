@@ -9,6 +9,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakeprojectnodes.h"
+#include "cmakespecificsettings.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -16,14 +17,19 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/modemanager.h>
+
 #include <cppeditor/cpptoolsreuse.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <utils/checkablemessagebox.h>
+#include <utils/utilsicons.h>
 #include <utils/parameteraction.h>
 
 #include <QAction>
@@ -40,6 +46,8 @@ CMakeManager::CMakeManager()
     , m_clearCMakeCacheAction(new QAction(QIcon(), Tr::tr("Clear CMake Configuration"), this))
     , m_runCMakeActionContextMenu(new QAction(QIcon(), Tr::tr("Run CMake"), this))
     , m_rescanProjectAction(new QAction(QIcon(), Tr::tr("Rescan Project"), this))
+    , m_reloadCMakePresetsAction(
+          new QAction(Utils::Icons::RELOAD_TOOLBAR.icon(), Tr::tr("Reload CMake Presets"), this))
 {
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
@@ -59,7 +67,7 @@ CMakeManager::CMakeManager()
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_runCMakeAction, &QAction::triggered, this, [this] {
-        runCMake(SessionManager::startupBuildSystem());
+        runCMake(ProjectManager::startupBuildSystem());
     });
 
     command = Core::ActionManager::registerAction(m_clearCMakeCacheAction,
@@ -68,7 +76,7 @@ CMakeManager::CMakeManager()
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_clearCMakeCacheAction, &QAction::triggered, this, [this] {
-        clearCMakeCache(SessionManager::startupBuildSystem());
+        clearCMakeCache(ProjectManager::startupBuildSystem());
     });
 
     command = Core::ActionManager::registerAction(m_runCMakeActionContextMenu,
@@ -99,6 +107,15 @@ CMakeManager::CMakeManager()
         rescanProject(ProjectTree::currentBuildSystem());
     });
 
+    command = Core::ActionManager::registerAction(m_reloadCMakePresetsAction,
+                                                  Constants::RELOAD_CMAKE_PRESETS,
+                                                  globalContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
+    connect(m_reloadCMakePresetsAction, &QAction::triggered, this, [this] {
+        reloadCMakePresets();
+    });
+
     m_buildFileAction = new Utils::ParameterAction(Tr::tr("Build File"),
                                                    Tr::tr("Build File \"%1\""),
                                                    Utils::ParameterAction::AlwaysEnabled,
@@ -111,7 +128,7 @@ CMakeManager::CMakeManager()
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_buildFileAction, &QAction::triggered, this, [this] { buildFile(); });
 
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged, this, [this] {
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, [this] {
         updateCmakeActions(ProjectTree::currentNode());
     });
     connect(BuildManager::instance(), &BuildManager::buildStateChanged, this, [this] {
@@ -127,12 +144,22 @@ CMakeManager::CMakeManager()
 
 void CMakeManager::updateCmakeActions(Node *node)
 {
-    auto project = qobject_cast<CMakeProject *>(SessionManager::startupProject());
+    auto project = qobject_cast<CMakeProject *>(ProjectManager::startupProject());
     const bool visible = project && !BuildManager::isBuilding(project);
     m_runCMakeAction->setVisible(visible);
     m_runCMakeActionContextMenu->setEnabled(visible);
     m_clearCMakeCacheAction->setVisible(visible);
     m_rescanProjectAction->setVisible(visible);
+
+    const bool reloadPresetsVisible = [project] {
+        if (!project)
+            return false;
+        const FilePath presetsPath = project->projectFilePath().parentDir().pathAppended(
+            "CMakePresets.json");
+        return presetsPath.exists();
+    }();
+    m_reloadCMakePresetsAction->setVisible(reloadPresetsVisible);
+
     enableBuildFileMenus(node);
 }
 
@@ -200,6 +227,62 @@ void CMakeManager::enableBuildFileMenus(Node *node)
         m_buildFileAction->setParameter(node->filePath().fileName());
         m_buildFileContextMenu->setEnabled(enabled);
     }
+}
+
+void CMakeManager::reloadCMakePresets()
+{
+    auto settings = CMakeSpecificSettings::instance();
+
+    QMessageBox::StandardButton clickedButton
+        = CheckableMessageBox::question(Core::ICore::dialogParent(),
+                                        Tr::tr("Reload CMake Presets"),
+                                        Tr::tr("Re-generates the CMake presets kits. The manual "
+                                               "CMake project modifications will be lost."),
+                                        settings->askBeforePresetsReload.checkableDecider(),
+                                        QMessageBox::Yes | QMessageBox::Cancel,
+                                        QMessageBox::Yes,
+                                        QMessageBox::Yes,
+                                        {
+                                            {QMessageBox::Yes, Tr::tr("Reload")},
+                                        });
+
+    if (clickedButton == QMessageBox::Cancel)
+        return;
+
+    CMakeProject *project = static_cast<CMakeProject *>(ProjectTree::currentProject());
+    if (!project)
+        return;
+
+    const QSet<QString> oldPresets = Utils::transform<QSet>(project->presetsData().configurePresets,
+                                                            [](const auto &preset) {
+                                                                return preset.name;
+                                                            });
+    project->readPresets();
+
+    QList<Kit*> oldKits;
+    for (const auto &target : project->targets()) {
+        const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(
+            target->kit());
+
+        if (BuildManager::isBuilding(target))
+            BuildManager::cancel();
+
+        // Only clear the CMake configuration for preset kits. Any manual kit configuration
+        // will get the chance to get imported afterwards in the Kit selection wizard
+        CMakeBuildSystem *bs = static_cast<CMakeBuildSystem *>(target->buildSystem());
+        if (!presetItem.isNull() && bs)
+            bs->clearCMakeCache();
+
+        if (!presetItem.isNull() && oldPresets.contains(QString::fromUtf8(presetItem.value)))
+            oldKits << target->kit();
+
+        project->removeTarget(target);
+    }
+
+    project->setOldPresetKits(oldKits);
+
+    Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
+    Core::ModeManager::setFocusToCurrentMode();
 }
 
 void CMakeManager::buildFile(Node *node)

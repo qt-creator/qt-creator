@@ -5,7 +5,7 @@
 #include "designermcumanager.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <QComboBox>
 #include <QSettings>
@@ -14,7 +14,7 @@ namespace QmlDesigner {
 
 static QString styleConfigFileName(const QString &qmlFileName)
 {
-    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(Utils::FilePath::fromString(qmlFileName));
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(Utils::FilePath::fromString(qmlFileName));
 
     if (currentProject) {
         const QList<Utils::FilePath> fileNames = currentProject->files(

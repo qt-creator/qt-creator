@@ -72,6 +72,7 @@ private:
 };
 
 /*!
+    \internal
     Connect to all of the models signals.  Whenever anything happens
     recheck everything.
 */
@@ -135,6 +136,7 @@ void ModelTest::runAllTests()
 }
 
 /*!
+    \internal
     nonDestructiveBasicTest tries to call a number of the basic functions (not all)
     to make sure the model doesn't outright segfault, testing the functions that makes sense.
 */
@@ -173,6 +175,7 @@ void ModelTest::nonDestructiveBasicTest()
 }
 
 /*!
+    \internal
     Tests model's implementation of QAbstractItemModel::rowCount() and hasChildren()
 
     Models that are dynamically populated are not as fully tested here.
@@ -200,6 +203,7 @@ void ModelTest::rowCount()
 }
 
 /*!
+    \internal
     Tests model's implementation of QAbstractItemModel::columnCount() and hasChildren()
  */
 void ModelTest::columnCount()
@@ -218,6 +222,7 @@ void ModelTest::columnCount()
 }
 
 /*!
+    \internal
     Tests model's implementation of QAbstractItemModel::hasIndex()
  */
 void ModelTest::hasIndex()
@@ -242,6 +247,7 @@ void ModelTest::hasIndex()
 }
 
 /*!
+    \internal
     Tests model's implementation of QAbstractItemModel::index()
  */
 void ModelTest::index()
@@ -274,6 +280,7 @@ void ModelTest::index()
 }
 
 /*!
+    \internal
     Tests model's implementation of QAbstractItemModel::parent()
  */
 void ModelTest::parent()
@@ -322,6 +329,7 @@ void ModelTest::parent()
 }
 
 /*!
+    \internal
     Called from the parent() test.
 
     A model that returns an index of parent X should also return X when asking
@@ -430,6 +438,7 @@ void ModelTest::checkChildren(const QModelIndex &parent, int currentDepth)
 }
 
 /*!
+    \internal
     Tests model's implementation of QAbstractItemModel::data()
  */
 void ModelTest::data()
@@ -494,6 +503,7 @@ void ModelTest::data()
 }
 
 /*!
+    \internal
     Store what is about to be inserted to make sure it actually happens
 
     \sa rowsInserted()
@@ -510,6 +520,7 @@ void ModelTest::rowsAboutToBeInserted(const QModelIndex &parent, int start, int 
 }
 
 /*!
+    \internal
     Confirm that what was said was going to happen actually did
 
     \sa rowsAboutToBeInserted()
@@ -547,6 +558,7 @@ void ModelTest::layoutChanged()
 }
 
 /*!
+    \internal
     Store what is about to be inserted to make sure it actually happens
 
     \sa rowsRemoved()
@@ -562,6 +574,7 @@ void ModelTest::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
 }
 
 /*!
+    \internal
     Confirm that what was said was going to happen actually did
 
     \sa rowsAboutToBeRemoved()
@@ -895,6 +908,7 @@ void TreeItem::propagateModel(BaseTreeModel *m)
 
 /*!
     \class Utils::TreeModel
+    \inmodule QtCreator
 
     \brief The TreeModel class is a convienience base class for models
     to use in a QTreeView.

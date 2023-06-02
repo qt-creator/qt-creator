@@ -5,39 +5,29 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
+namespace Autotest::Internal {
 
-namespace Autotest {
-namespace Internal {
-
-class CatchTestSettings : public Utils::AspectContainer
+class CatchTestSettings : public Core::PagedSettings
 {
 public:
-    CatchTestSettings();
+    explicit CatchTestSettings(Utils::Id settingsId);
 
-    Utils::IntegerAspect abortAfter;
-    Utils::IntegerAspect benchmarkSamples;
-    Utils::IntegerAspect benchmarkResamples;
-    Utils::DoubleAspect confidenceInterval;
-    Utils::IntegerAspect benchmarkWarmupTime;
-    Utils::BoolAspect abortAfterChecked;
-    Utils::BoolAspect samplesChecked;
-    Utils::BoolAspect resamplesChecked;
-    Utils::BoolAspect confidenceIntervalChecked;
-    Utils::BoolAspect warmupChecked;
-    Utils::BoolAspect noAnalysis;
-    Utils::BoolAspect showSuccess;
-    Utils::BoolAspect breakOnFailure;
-    Utils::BoolAspect noThrow;
-    Utils::BoolAspect visibleWhitespace;
-    Utils::BoolAspect warnOnEmpty;
+    Utils::IntegerAspect abortAfter{this};
+    Utils::IntegerAspect benchmarkSamples{this};
+    Utils::IntegerAspect benchmarkResamples{this};
+    Utils::DoubleAspect confidenceInterval{this};
+    Utils::IntegerAspect benchmarkWarmupTime{this};
+    Utils::BoolAspect abortAfterChecked{this};
+    Utils::BoolAspect samplesChecked{this};
+    Utils::BoolAspect resamplesChecked{this};
+    Utils::BoolAspect confidenceIntervalChecked{this};
+    Utils::BoolAspect warmupChecked{this};
+    Utils::BoolAspect noAnalysis{this};
+    Utils::BoolAspect showSuccess{this};
+    Utils::BoolAspect breakOnFailure{this};
+    Utils::BoolAspect noThrow{this};
+    Utils::BoolAspect visibleWhitespace{this};
+    Utils::BoolAspect warnOnEmpty{this};
 };
 
-class CatchTestSettingsPage : public Core::IOptionsPage
-{
-public:
-    CatchTestSettingsPage(CatchTestSettings *settings, Utils::Id settingsId);
-};
-
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

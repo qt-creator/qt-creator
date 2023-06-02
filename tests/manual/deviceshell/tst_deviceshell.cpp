@@ -5,14 +5,12 @@
 
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
-#include <utils/hostosinfo.h>
 #include <utils/launcherinterface.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
+#include <utils/process.h>
 #include <utils/temporarydirectory.h>
-#include <utils/mapreduce.h>
 
 #include <QObject>
+#include <QtConcurrent>
 #include <QtTest>
 
 using namespace Utils;
@@ -56,7 +54,7 @@ public:
     }
 
 private:
-    void setupShellProcess(QtcProcess *shellProcess) override
+    void setupShellProcess(Process *shellProcess) override
     {
         shellProcess->setCommand(cmdLine());
     }
@@ -86,45 +84,47 @@ class tst_DeviceShell : public QObject
         return result;
     }
 
-    void test(int maxNumThreads, int numCalls)
+    void test(int numCalls, int maxNumThreads)
     {
         TestShell shell;
         QCOMPARE(shell.state(), DeviceShell::State::Succeeded);
 
         QThreadPool::globalInstance()->setMaxThreadCount(maxNumThreads);
 
-        QList<QByteArray> testArray = testArrays(numCalls);
+        const QList<QByteArray> testArray = testArrays(numCalls);
 
         QElapsedTimer t;
         t.start();
 
-        const QList<QByteArray> result
-            = mapped<QList>(testArray, [&shell](QByteArray data) -> QByteArray {
-                  return shell.runInShell({"cat", {}}, data).stdOut;
-              }, MapReduceOption::Ordered, QThreadPool::globalInstance());
-
-        QCOMPARE(result, testArray);
+        const auto cat = [&shell](const QByteArray &data) {
+            return shell.runInShell({"cat", {}}, data).stdOut;
+        };
+        const QList<QByteArray> results = QtConcurrent::blockingMapped(testArray, cat);
+        QCOMPARE(results, testArray);
 
         qDebug() << "maxThreads:" << maxNumThreads << ", took:" << t.elapsed() / 1000.0
                  << "seconds";
     }
 
-    void testSleep(QList<int> testData, int nThreads)
+    void testSleep(QList<int> testData, int maxNumThreads)
     {
         TestShell shell;
         QCOMPARE(shell.state(), DeviceShell::State::Succeeded);
 
-        QThreadPool::globalInstance()->setMaxThreadCount(nThreads);
+        QThreadPool::globalInstance()->setMaxThreadCount(maxNumThreads);
 
         QElapsedTimer t;
         t.start();
 
-        const auto result = mapped<QList>(testData, [&shell](const int &time) {
+        const auto sleep = [&shell](int time) {
             shell.runInShell({"sleep", {QString("%1").arg(time)}});
             return 0;
-        }, MapReduceOption::Unordered, QThreadPool::globalInstance());
+        };
+        const QList<int> results = QtConcurrent::blockingMapped(testData, sleep);
+        QCOMPARE(results, QList<int>(testData.size(), 0));
 
-        qDebug() << "maxThreads:" << nThreads << ", took:" << t.elapsed() / 1000.0 << "seconds";
+        qDebug() << "maxThreads:" << maxNumThreads << ", took:" << t.elapsed() / 1000.0
+                 << "seconds";
     }
 
 private slots:
@@ -183,7 +183,7 @@ private slots:
         QFETCH(int, numThreads);
         QFETCH(int, numIterations);
 
-        test(numThreads, numIterations);
+        test(numIterations, numThreads);
     }
 
     void testSleepMulti()

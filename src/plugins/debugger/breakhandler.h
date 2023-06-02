@@ -107,7 +107,7 @@ public:
 
     const BreakpointParameters &requestedParameters() const;
     void addToCommand(DebuggerCommand *cmd) const;
-    void updateFromGdbOutput(const GdbMi &bkpt);
+    void updateFromGdbOutput(const GdbMi &bkpt, const Utils::FilePath &fileRoot);
 
     int modelId() const;
     QString responseId() const { return m_responseId; }

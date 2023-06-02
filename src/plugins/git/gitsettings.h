@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
 #include <vcsbase/vcsbaseclientsettings.h>
 
 namespace Git::Internal {
@@ -21,24 +20,24 @@ class GitSettings : public VcsBase::VcsBaseSettings
 public:
     GitSettings();
 
-    Utils::BoolAspect pullRebase;
-    Utils::BoolAspect showTags;
-    Utils::BoolAspect omitAnnotationDate;
-    Utils::BoolAspect ignoreSpaceChangesInDiff;
-    Utils::BoolAspect ignoreSpaceChangesInBlame;
-    Utils::IntegerAspect blameMoveDetection;
-    Utils::BoolAspect diffPatience;
-    Utils::BoolAspect winSetHomeEnvironment;
-    Utils::StringAspect gitkOptions;
-    Utils::BoolAspect logDiff;
-    Utils::StringAspect repositoryBrowserCmd;
-    Utils::BoolAspect graphLog;
-    Utils::BoolAspect colorLog;
-    Utils::BoolAspect firstParent;
-    Utils::BoolAspect followRenames;
-    Utils::IntegerAspect lastResetIndex;
-    Utils::BoolAspect refLogShowDate;
-    Utils::BoolAspect instantBlame;
+    Utils::BoolAspect pullRebase{this};
+    Utils::BoolAspect showTags{this};
+    Utils::BoolAspect omitAnnotationDate{this};
+    Utils::BoolAspect ignoreSpaceChangesInDiff{this};
+    Utils::BoolAspect ignoreSpaceChangesInBlame{this};
+    Utils::IntegerAspect blameMoveDetection{this};
+    Utils::BoolAspect diffPatience{this};
+    Utils::BoolAspect winSetHomeEnvironment{this};
+    Utils::StringAspect gitkOptions{this};
+    Utils::BoolAspect logDiff{this};
+    Utils::FilePathAspect repositoryBrowserCmd{this};
+    Utils::BoolAspect graphLog{this};
+    Utils::BoolAspect colorLog{this};
+    Utils::BoolAspect firstParent{this};
+    Utils::BoolAspect followRenames{this};
+    Utils::IntegerAspect lastResetIndex{this};
+    Utils::BoolAspect refLogShowDate{this};
+    Utils::BoolAspect instantBlame{this};
 
     mutable Utils::FilePath resolvedBinPath;
     mutable bool tryResolve = true;
@@ -46,10 +45,6 @@ public:
     Utils::FilePath gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
 };
 
-class GitSettingsPage final : public Core::IOptionsPage
-{
-public:
-    explicit GitSettingsPage(GitSettings *settings);
-};
+GitSettings &settings();
 
 } // Git::Internal

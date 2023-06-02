@@ -26,6 +26,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorer.h>
@@ -40,15 +41,16 @@
 #include <proparser/qmakevfs.h>
 #include <proparser/qmakeglobals.h>
 
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
+#include <utils/async.h>
+#include <utils/process.h>
 
 #include <QDebug>
 #include <QDir>
@@ -335,7 +337,7 @@ void QmakeBuildSystem::updateCppCodeModel()
             rpp.setBuildTargetType(BuildTargetType::Unknown);
             break;
         }
-        const QString includeFileBaseDir = pro->sourceDir().toString();
+        const FilePath includeFileBaseDir = pro->sourceDir();
 
         QStringList cxxArgs = pro->variableValue(Variable::CppFlags);
         QStringList cArgs = pro->variableValue(Variable::CFlags);
@@ -776,32 +778,25 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
 }
 
 // Find the folder that contains a file with a certain name (recurse down)
-static FolderNode *folderOf(FolderNode *in, const FilePath &fileName)
+static FolderNode *folderOf(FolderNode *in, const FilePath &filePath)
 {
-    const QList<FileNode*> fileNodeList = in->fileNodes();
-    for (FileNode *fn : fileNodeList) {
-        if (fn->filePath() == fileName)
-            return in;
-    }
-    const QList<FolderNode *> folderNodeList = in->folderNodes();
-    for (FolderNode *folder : folderNodeList) {
-        if (FolderNode *pn = folderOf(folder, fileName))
-            return pn;
-    }
-    return {};
+    if (in->findChildFileNode([&filePath](FileNode *fn) { return fn->filePath() == filePath; }))
+        return in;
+
+    return in->findChildFolderNode([&filePath](FolderNode *folder) {
+        return folderOf(folder, filePath);
+    });
 }
 
 // Find the QmakeProFileNode that contains a certain file.
 // First recurse down to folder, then find the pro-file.
-static FileNode *fileNodeOf(FolderNode *in, const FilePath &fileName)
+static FileNode *fileNodeOf(FolderNode *in, const FilePath &filePath)
 {
-    for (FolderNode *folder = folderOf(in, fileName); folder; folder = folder->parentFolderNode()) {
-        if (auto *proFile = dynamic_cast<QmakeProFileNode *>(folder)) {
-            const QList<FileNode*> fileNodeList = proFile->fileNodes();
-            for (FileNode *fileNode : fileNodeList) {
-                if (fileNode->filePath() == fileName)
-                    return fileNode;
-            }
+    for (FolderNode *folder = folderOf(in, filePath); folder; folder = folder->parentFolderNode()) {
+        if (auto proFile = dynamic_cast<QmakeProFileNode *>(folder)) {
+            return proFile->findChildFileNode([&filePath](FileNode *fn) {
+                return fn->filePath() == filePath;
+            });
         }
     }
     return nullptr;
@@ -872,9 +867,9 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
                                        rootProFileName,
                                        deviceRoot());
 
-        Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
-        for (; eit != eend; ++eit)
-            m_qmakeGlobals->environment.insert(env.key(eit), env.expandedValueForKey(env.key(eit)));
+        env.forEachEntry([&](const QString &key, const QString &value, bool) {
+            m_qmakeGlobals->environment.insert(key, env.expandVariables(value));
+        });
 
         m_qmakeGlobals->setCommandLineArguments(rootProFileName, qmakeArgs);
         m_qmakeGlobals->runSystemFunction = bc->runSystemFunction();
@@ -923,9 +918,9 @@ const FilePath &QmakeBuildSystem::qmakeSysroot() const
 void QmakeBuildSystem::destroyProFileReader(QtSupport::ProFileReader *reader)
 {
     // The ProFileReader destructor is super expensive (but thread-safe).
-    const auto deleteFuture = runAsync(ProjectExplorerPlugin::sharedThreadPool(), QThread::LowestPriority,
-                    [reader] { delete reader; });
-    onFinished(deleteFuture, this, [this](const QFuture<void> &) {
+    const auto deleteFuture = Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
+                                              [reader] { delete reader; });
+    Utils::onFinished(deleteFuture, this, [this](const QFuture<void> &) {
         if (!--m_qmakeGlobalsRefCnt) {
             deregisterFromCacheManager();
             m_qmakeGlobals.reset();
@@ -1309,15 +1304,13 @@ static FilePath destDirFor(const TargetInformation &ti)
     return ti.destDir;
 }
 
-void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentData &deploymentData)
+FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) const
 {
-    const QString targetPath = file->installsList().targetPath;
-    if (targetPath.isEmpty())
-        return;
     const ToolChain *const toolchain = ToolChainKitAspect::cxxToolChain(kit());
     if (!toolchain)
-        return;
+        return {};
 
+    FilePaths libs;
     TargetInformation ti = file->targetInformation();
     QString targetFileName = ti.target;
     const QStringList config = file->variableValue(Variable::Config);
@@ -1337,7 +1330,7 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
         }
         targetFileName += targetVersionExt + QLatin1Char('.');
         targetFileName += QLatin1String(isStatic ? "lib" : "dll");
-        deploymentData.addFile(destDirFor(ti) / targetFileName, targetPath);
+        libs << FilePath::fromString(targetFileName);
         break;
     }
     case Abi::DarwinOS: {
@@ -1357,10 +1350,10 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
                 targetFileName += majorVersion;
             }
             targetFileName += QLatin1Char('.');
-            targetFileName += file->singleVariableValue(isStatic
-                    ? Variable::StaticLibExtension : Variable::ShLibExtension);
+            targetFileName += file->singleVariableValue(isStatic ? Variable::StaticLibExtension
+                                                                 : Variable::ShLibExtension);
         }
-        deploymentData.addFile(destDir / targetFileName, targetPath);
+        libs << destDir / targetFileName;
         break;
     }
     case Abi::LinuxOS:
@@ -1372,10 +1365,10 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
 
         targetFileName += QLatin1Char('.');
         if (isStatic) {
-            targetFileName += QLatin1Char('a');
+            libs << destDirFor(ti) / (targetFileName + QLatin1Char('a'));
         } else {
             targetFileName += QLatin1String("so");
-            deploymentData.addFile(destDirFor(ti) / targetFileName, targetPath);
+            libs << destDirFor(ti) / targetFileName;
             if (nameIsVersioned) {
                 QString version = file->singleVariableValue(Variable::Version);
                 if (version.isEmpty())
@@ -1386,9 +1379,7 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
                 targetFileName += QLatin1Char('.');
                 while (!versionComponents.isEmpty()) {
                     const QString versionString = versionComponents.join(QLatin1Char('.'));
-                    deploymentData.addFile(destDirFor(ti).pathAppended(targetFileName
-                                                                       + versionString),
-                                           targetPath);
+                    libs << destDirFor(ti).pathAppended(targetFileName + versionString);
                     versionComponents.removeLast();
                 }
             }
@@ -1396,6 +1387,18 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
         break;
     default:
         break;
+    }
+
+    return libs;
+}
+
+void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentData &deploymentData)
+{
+    const QString targetPath = file->installsList().targetPath;
+    if (!targetPath.isEmpty()) {
+        const FilePaths libs = allLibraryTargetFiles(file);
+        for (const FilePath &lib : libs)
+            deploymentData.addFile(lib, targetPath);
     }
 }
 
@@ -1450,8 +1453,12 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
 
 QString QmakeBuildSystem::deviceRoot() const
 {
-    if (projectFilePath().needsDevice())
-        return projectFilePath().withNewPath("/").toFSPathString();
+    IDeviceConstPtr device = BuildDeviceKitAspect::device(target()->kit());
+    QTC_ASSERT(device, return {});
+    FilePath deviceRoot = device->rootPath();
+    if (deviceRoot.needsDevice())
+        return deviceRoot.toFSPathString();
+
     return {};
 }
 
@@ -1588,22 +1595,22 @@ void QmakeBuildSystem::runGenerator(Utils::Id id)
         QTC_ASSERT(false, return);
     }
     if (!outDir.ensureWritableDir()) {
-        showError(Tr::tr("Cannot create output directory \"%1\"").arg(outDir.toUserOutput()));
+        showError(Tr::tr("Cannot create output directory \"%1\".").arg(outDir.toUserOutput()));
         return;
     }
-    const auto proc = new QtcProcess(this);
-    connect(proc, &QtcProcess::done, proc, &QtcProcess::deleteLater);
-    connect(proc, &QtcProcess::readyReadStandardOutput, this, [proc] {
+    const auto proc = new Process(this);
+    connect(proc, &Process::done, proc, &Process::deleteLater);
+    connect(proc, &Process::readyReadStandardOutput, this, [proc] {
         Core::MessageManager::writeFlashing(QString::fromLocal8Bit(proc->readAllRawStandardOutput()));
     });
-    connect(proc, &QtcProcess::readyReadStandardError, this, [proc] {
+    connect(proc, &Process::readyReadStandardError, this, [proc] {
         Core::MessageManager::writeDisrupting(QString::fromLocal8Bit(proc->readAllRawStandardError()));
     });
     proc->setWorkingDirectory(outDir);
     proc->setEnvironment(buildConfiguration()->environment());
     proc->setCommand(cmdLine);
-    Core::MessageManager::writeFlashing(Tr::tr("Running in %1: %2")
-                                        .arg(outDir.toUserOutput(), cmdLine.toUserOutput()));
+    Core::MessageManager::writeFlashing(
+        Tr::tr("Running in \"%1\": %2.").arg(outDir.toUserOutput(), cmdLine.toUserOutput()));
     proc->start();
 }
 

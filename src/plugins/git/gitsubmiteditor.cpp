@@ -11,8 +11,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/async.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -204,7 +204,7 @@ void GitSubmitEditor::updateFileModel()
         return;
     w->setUpdateInProgress(true);
     // TODO: Check if fetch works OK from separate thread, refactor otherwise
-    m_fetchWatcher.setFuture(Utils::runAsync(&CommitDataFetchResult::fetch,
+    m_fetchWatcher.setFuture(Utils::asyncRun(&CommitDataFetchResult::fetch,
                                              m_commitType, m_workingDirectory));
     Core::ProgressManager::addTask(m_fetchWatcher.future(), Tr::tr("Refreshing Commit Data"),
                                    TASK_UPDATE_COMMIT);

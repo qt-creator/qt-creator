@@ -93,6 +93,7 @@ public:
     ScxmlUiFactory *uiFactory() const;
 
     virtual void updateUIProperties();
+    virtual void addChild(ScxmlTag */*tag*/) {};
 
 protected:
     virtual void updatePolygon();

@@ -16,6 +16,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
+#include <QPromise>
 
 using namespace Utils;
 
@@ -825,7 +826,7 @@ static QStringList uniqueTargetFiles(const Configuration &config)
     return files;
 }
 
-FileApiData FileApiParser::parseData(QFutureInterface<std::shared_ptr<FileApiQtcData>> &fi,
+FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &promise,
                                      const FilePath &replyFilePath,
                                      const QString &cmakeBuildType,
                                      QString &errorMessage)
@@ -836,8 +837,8 @@ FileApiData FileApiParser::parseData(QFutureInterface<std::shared_ptr<FileApiQtc
 
     FileApiData result;
 
-    const auto cancelCheck = [&fi, &errorMessage] {
-        if (fi.isCanceled()) {
+    const auto cancelCheck = [&promise, &errorMessage] {
+        if (promise.isCanceled()) {
             errorMessage = Tr::tr("CMake parsing was canceled.");
             return true;
         }

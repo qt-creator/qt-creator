@@ -903,8 +903,8 @@
         <translation>&amp;Otwórz</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Co to jest sesja?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>Co to jest sesja?</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>
@@ -7967,8 +7967,8 @@ do projektu &quot;%2&quot;.</translation>
         <translation>Błąd podczas zachowywania sesji</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>Nie można zachować sesji w pliku %1</translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>Nie można zachować sesji w pliku &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -13881,8 +13881,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>Pokaż różnice w &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
-        <translation>ALT+Z,Alt+D</translation>
+        <source>Alt+Z,Alt+D</source>
+        <translation>Alt+Z,Alt+D</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+D</source>
@@ -13897,8 +13897,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>Log &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
-        <translation>ALT+Z,Alt+L</translation>
+        <source>Alt+Z,Alt+L</source>
+        <translation>Alt+Z,Alt+L</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+L</source>
@@ -13913,8 +13913,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>Stan &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
-        <translation>ALT+Z,Alt+S</translation>
+        <source>Alt+Z,Alt+S</source>
+        <translation>Alt+Z,Alt+S</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+S</source>
@@ -13977,8 +13977,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>Utwórz poprawkę...</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
-        <translation>ALT+Z,Alt+C</translation>
+        <source>Alt+Z,Alt+C</source>
+        <translation>Alt+Z,Alt+C</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+C</source>
@@ -28622,8 +28622,8 @@ Do you want to check them out now?</source>
         <translation>Brak skonfigurowanej komendy &quot;patch&quot; w głównych ustawieniach środowiska.</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Uruchamianie w %1: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3.</source>
+        <translation>Uruchamianie w &quot;%1&quot;: %2 %3.</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
@@ -31184,8 +31184,8 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <translation>Uruchamianie: %1 %2</translation>
     </message>
     <message>
-        <source>Running in %1: %2 %3</source>
-        <translation>Uruchamianie w %1: %2 %3</translation>
+        <source>Running in &quot;%1&quot;: %2 %3.</source>
+        <translation>Uruchamianie w &quot;%1&quot;: %2 %3.</translation>
     </message>
 </context>
 <context>
@@ -34259,8 +34259,8 @@ Te pliki są zabezpieczone.</numerusform>
         <translation>Usuń</translation>
     </message>
     <message>
-        <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
-        <translation>Sposoby konfigurowania opisane są w podręczniku GCC lub Clang lub w &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;dokumentacji online GCC&lt;/a&gt;.</translation>
+        <source>For appropriate options, consult the GCC or Clang manual pages or the [GCC online documentation](%1).</source>
+        <translation>Sposoby konfigurowania opisane są w podręczniku GCC lub Clang lub w [dokumentacji online GCC](%1).</translation>
     </message>
     <message>
         <source>Copy Diagnostic Configuration</source>

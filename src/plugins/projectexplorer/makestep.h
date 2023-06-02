@@ -55,11 +55,6 @@ public:
 
     Utils::Environment makeEnvironment() const;
 
-    // FIXME: All unused, remove in 4.15.
-    void setBuildTarget(const QString &buildTarget) { setSelectedBuildTarget(buildTarget); }
-    bool buildsTarget(const QString &target) const;
-    void setBuildTarget(const QString &target, bool on);
-
 protected:
     void supportDisablingForSubdirs() { m_disablingForSubDirsSupported = true; }
     virtual QStringList displayArguments() const;
@@ -78,7 +73,6 @@ private:
     QStringList jobArguments() const;
 
     Utils::MultiSelectionAspect *m_buildTargetsAspect = nullptr;
-    QStringList m_availableTargets; // FIXME: Unused, remove in 4.15.
     Utils::StringAspect *m_makeCommandAspect = nullptr;
     Utils::StringAspect *m_userArgumentsAspect = nullptr;
     Utils::IntegerAspect *m_userJobCountAspect = nullptr;

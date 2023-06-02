@@ -5,27 +5,19 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
-namespace QmlJSTools {
-namespace Internal {
+namespace QmlJSTools::Internal {
 
 class LocatorData;
 
-class FunctionFilter : public Core::ILocatorFilter
+class QmlJSFunctionsFilter : public Core::ILocatorFilter
 {
-    Q_OBJECT
-
 public:
-    explicit FunctionFilter(LocatorData *data, QObject *parent = nullptr);
-    ~FunctionFilter() override;
-
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
-    void accept(const Core::LocatorFilterEntry &selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
+    QmlJSFunctionsFilter(LocatorData *data);
 
 private:
+    Core::LocatorMatcherTasks matchers() final;
+
     LocatorData *m_data = nullptr;
 };
 
-} // namespace Internal
-} // namespace QmlJSTools
+} // namespace QmlJSTools::Internal

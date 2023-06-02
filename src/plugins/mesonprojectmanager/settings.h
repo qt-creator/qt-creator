@@ -7,25 +7,17 @@
 
 #include <utils/aspects.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
-class Settings : public Utils::AspectContainer
+class Settings : public Core::PagedSettings
 {
 public:
     Settings();
 
-    static Settings *instance();
-
-    Utils::BoolAspect autorunMeson;
-    Utils::BoolAspect verboseNinja;
+    Utils::BoolAspect autorunMeson{this};
+    Utils::BoolAspect verboseNinja{this};
 };
 
-class GeneralSettingsPage final : public Core::IOptionsPage
-{
-public:
-    GeneralSettingsPage();
-};
+Settings &settings();
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

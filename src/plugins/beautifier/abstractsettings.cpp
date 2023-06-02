@@ -14,7 +14,7 @@
 #include <utils/fileutils.h>
 #include <utils/genericconstants.h>
 #include <utils/mimeutils.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QFile>
 #include <QFileInfo>
@@ -26,15 +26,12 @@ using namespace Utils;
 
 namespace Beautifier::Internal {
 
-const char COMMAND[]        = "command";
-const char SUPPORTED_MIME[] = "supportedMime";
-
 class VersionUpdater
 {
 public:
     VersionUpdater()
     {
-        QObject::connect(&m_process, &QtcProcess::done, &m_process, [this] {
+        QObject::connect(&m_process, &Process::done, &m_process, [this] {
             if (m_process.result() != ProcessResult::FinishedWithSuccess)
                 return;
 
@@ -77,7 +74,7 @@ private:
     }
 
     QRegularExpression m_versionRegExp;
-    mutable QtcProcess m_process;
+    mutable Process m_process;
     QVersionNumber m_versionNumber;
 };
 
@@ -86,9 +83,38 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
     , m_styleDir(Core::ICore::userResourcePath(Beautifier::Constants::SETTINGS_DIRNAME)
                      .pathAppended(name)
                      .toString())
-    , m_name(name)
     , m_versionUpdater(new VersionUpdater)
 {
+    setSettingsGroups(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP, name);
+
+    command.setSettingsKey("command");
+    command.setExpectedKind(Utils::PathChooser::ExistingCommand);
+    command.setCommandVersionArguments({"--version"});
+    command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle("Clang Format"));
+
+    supportedMimeTypes.setDisplayStyle(StringAspect::LineEditDisplay);
+    supportedMimeTypes.setSettingsKey("supportedMime");
+    supportedMimeTypes.setLabelText(Tr::tr("Restrict to MIME types:"));
+    supportedMimeTypes.setDefaultValue("text/x-c++src; text/x-c++hdr; text/x-csrc;text/x-chdr; "
+                                       "text/x-objcsrc; text/x-objc++src");
+
+    supportedMimeTypes.setValueAcceptor([](const QString &, const QString &value) -> std::optional<QString> {
+        const QStringList stringTypes = value.split(';');
+        QStringList types;
+        for (const QString &type : stringTypes) {
+            const MimeType mime = mimeTypeForName(type.trimmed());
+            if (!mime.isValid())
+                continue;
+            const QString canonicalName = mime.name();
+            if (!types.contains(canonicalName))
+                types << canonicalName;
+        }
+        return types.join("; ");
+    });
+
+    connect(&command, &BaseAspect::changed, this, [this] {
+        m_versionUpdater->update(command());
+    });
 }
 
 AbstractSettings::~AbstractSettings() = default;
@@ -157,20 +183,6 @@ QString AbstractSettings::styleFileName(const QString &key) const
     return m_styleDir.absoluteFilePath(key + m_ending);
 }
 
-FilePath AbstractSettings::command() const
-{
-    return m_command;
-}
-
-void AbstractSettings::setCommand(const FilePath &cmd)
-{
-    if (cmd == m_command)
-        return;
-
-    m_command = cmd;
-    m_versionUpdater->update(command());
-}
-
 QVersionNumber AbstractSettings::version() const
 {
     return m_versionUpdater->version();
@@ -179,30 +191,6 @@ QVersionNumber AbstractSettings::version() const
 void AbstractSettings::setVersionRegExp(const QRegularExpression &versionRegExp)
 {
     m_versionUpdater->setVersionRegExp(versionRegExp);
-}
-
-QString AbstractSettings::supportedMimeTypesAsString() const
-{
-    return m_supportedMimeTypes.join("; ");
-}
-
-void AbstractSettings::setSupportedMimeTypes(const QString &mimes)
-{
-    const QStringList stringTypes = mimes.split(';');
-    QStringList types;
-    for (const QString &type : stringTypes) {
-        const MimeType mime = mimeTypeForName(type.trimmed());
-        if (!mime.isValid())
-            continue;
-        const QString canonicalName = mime.name();
-        if (!types.contains(canonicalName))
-            types << canonicalName;
-    }
-
-    if (m_supportedMimeTypes != types) {
-        m_supportedMimeTypes = types;
-        emit supportedMimeTypesChanged();
-    }
 }
 
 bool AbstractSettings::isApplicable(const Core::IDocument *document) const
@@ -240,17 +228,8 @@ void AbstractSettings::save()
 {
     // Save settings, except styles
     QSettings *s = Core::ICore::settings();
-    s->beginGroup(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP);
-    s->beginGroup(m_name);
-    QMap<QString, QVariant>::const_iterator iSettings = m_settings.constBegin();
-    while (iSettings != m_settings.constEnd()) {
-        s->setValue(iSettings.key(), iSettings.value());
-        ++iSettings;
-    }
-    s->setValue(COMMAND, m_command.toSettings());
-    s->setValue(SUPPORTED_MIME, supportedMimeTypesAsString());
-    s->endGroup();
-    s->endGroup();
+
+    AspectContainer::writeSettings(s);
 
     // Save styles
     if (m_stylesToRemove.isEmpty() && m_styles.isEmpty())
@@ -306,27 +285,9 @@ void AbstractSettings::createDocumentationFile() const
 
 void AbstractSettings::read()
 {
-    // Set default values
-    setSupportedMimeTypes("text/x-c++src;text/x-c++hdr;text/x-csrc;text/x-chdr;text/x-objcsrc;"
-                          "text/x-objc++src");
-
     // Read settings, except styles
     QSettings *s = Core::ICore::settings();
-    s->beginGroup(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP);
-    s->beginGroup(m_name);
-    const QStringList keys = s->allKeys();
-    for (const QString &key : keys) {
-        if (key == COMMAND)
-            setCommand(FilePath::fromSettings(s->value(key)));
-        else if (key == SUPPORTED_MIME)
-            setSupportedMimeTypes(s->value(key).toString());
-        else if (m_settings.contains(key))
-            m_settings[key] = s->value(key);
-        else
-            s->remove(key);
-    }
-    s->endGroup();
-    s->endGroup();
+    AspectContainer::readSettings(s);
 
     m_styles.clear();
     m_changedStyles.clear();
@@ -336,18 +297,19 @@ void AbstractSettings::read()
 
 void AbstractSettings::readDocumentation()
 {
-    const QString filename = documentationFilePath();
+    const FilePath filename = documentationFilePath;
     if (filename.isEmpty()) {
         BeautifierPlugin::showError(Tr::tr("No documentation file specified."));
         return;
     }
 
-    QFile file(filename);
+    QFile file(filename.toFSPathString());
     if (!file.exists())
         createDocumentationFile();
 
     if (!file.open(QIODevice::ReadOnly)) {
-        BeautifierPlugin::showError(Tr::tr("Cannot open documentation file \"%1\".").arg(filename));
+        BeautifierPlugin::showError(Tr::tr("Cannot open documentation file \"%1\".")
+            .arg(filename.toUserOutput()));
         return;
     }
 
@@ -356,7 +318,7 @@ void AbstractSettings::readDocumentation()
         return;
     if (xml.name() != QLatin1String(Constants::DOCUMENTATION_XMLROOT)) {
         BeautifierPlugin::showError(Tr::tr("The file \"%1\" is not a valid documentation file.")
-                                    .arg(filename));
+                                    .arg(filename.toUserOutput()));
         return;
     }
 
@@ -387,7 +349,7 @@ void AbstractSettings::readDocumentation()
 
     if (xml.hasError()) {
         BeautifierPlugin::showError(Tr::tr("Cannot read documentation file \"%1\": %2.")
-                                    .arg(filename).arg(xml.errorString()));
+                                    .arg(filename.toUserOutput()).arg(xml.errorString()));
     }
 }
 

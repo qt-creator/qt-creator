@@ -17,6 +17,8 @@ class QToolButton;
 class QTreeView;
 QT_END_NAMESPACE;
 
+namespace Tasking { class TaskTree; }
+
 namespace Utils {
 class ElidingLabel;
 class NavigationTreeView;
@@ -54,7 +56,7 @@ private:
     bool remove();
     bool rename();
     bool reset(const QByteArray &resetType);
-    bool isFastForwardMerge();
+    Tasking::TaskTree *onFastForwardMerge(const std::function<void()> &callback);
     bool merge(bool allowFastForward);
     void rebase();
     bool cherryPick();

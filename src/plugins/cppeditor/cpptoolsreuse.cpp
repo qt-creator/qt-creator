@@ -21,7 +21,9 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
-#include <projectexplorer/session.h>
+
+#include <projectexplorer/projectmanager.h>
+
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/textdocument.h>
 
@@ -29,6 +31,7 @@
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/SimpleLexer.h>
+
 #include <utils/algorithm.h>
 #include <utils/textutils.h>
 #include <utils/qtcassert.h>
@@ -263,10 +266,7 @@ const Macro *findCanonicalMacro(const QTextCursor &cursor, Document::Ptr documen
 {
     QTC_ASSERT(document, return nullptr);
 
-    int line, column;
-    Utils::Text::convertPosition(cursor.document(), cursor.position(), &line, &column);
-
-    if (const Macro *macro = document->findMacroDefinitionAt(line)) {
+    if (const Macro *macro = document->findMacroDefinitionAt(cursor.blockNumber() + 1)) {
         QTextCursor macroCursor = cursor;
         const QByteArray name = identifierUnderCursor(&macroCursor).toUtf8();
         if (macro->name() == name)
@@ -596,12 +596,12 @@ NamespaceAST *NSCheckerVisitor::currentNamespace()
 
 ProjectExplorer::Project *projectForProjectPart(const ProjectPart &part)
 {
-    return ProjectExplorer::SessionManager::projectWithProjectFilePath(part.topLevelProject);
+    return ProjectExplorer::ProjectManager::projectWithProjectFilePath(part.topLevelProject);
 }
 
 ProjectExplorer::Project *projectForProjectInfo(const ProjectInfo &info)
 {
-    return ProjectExplorer::SessionManager::projectWithProjectFilePath(info.projectFilePath());
+    return ProjectExplorer::ProjectManager::projectWithProjectFilePath(info.projectFilePath());
 }
 
 void openEditor(const Utils::FilePath &filePath, bool inNextSplit, Utils::Id editorId)

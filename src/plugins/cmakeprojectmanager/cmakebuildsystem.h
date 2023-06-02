@@ -18,7 +18,7 @@ namespace ProjectExplorer {
     class ExtraCompiler;
     class FolderNode;
 }
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace CMakeProjectManager {
 
@@ -48,6 +48,18 @@ public:
     bool addFiles(ProjectExplorer::Node *context,
                   const Utils::FilePaths &filePaths, Utils::FilePaths *) final;
 
+    ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *context,
+                                                         const Utils::FilePaths &filePaths,
+                                                         Utils::FilePaths *notRemoved
+                                                         = nullptr) final;
+
+    bool canRenameFile(ProjectExplorer::Node *context,
+                       const Utils::FilePath &oldFilePath,
+                       const Utils::FilePath &newFilePath) final;
+    bool renameFile(ProjectExplorer::Node *context,
+                    const Utils::FilePath &oldFilePath,
+                    const Utils::FilePath &newFilePath) final;
+
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
     QString name() const final { return QLatin1String("cmake"); }
 
@@ -67,7 +79,7 @@ public:
     const QList<ProjectExplorer::BuildTargetInfo> appTargets() const;
     QStringList buildTargetTitles() const;
     const QList<CMakeBuildTarget> &buildTargets() const;
-    ProjectExplorer::DeploymentData deploymentData() const;
+    ProjectExplorer::DeploymentData deploymentDataFromFile() const;
 
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 
@@ -185,6 +197,16 @@ private:
 
     void runCTest();
 
+    struct ProjectFileArgumentPosition
+    {
+        cmListFileArgument argumentPosition;
+        Utils::FilePath cmakeFile;
+        QString relativeFileName;
+        bool fromGlobbing = false;
+    };
+    std::optional<ProjectFileArgumentPosition> projectFileArgumentPosition(
+        const QString &targetName, const QString &fileName);
+
     ProjectExplorer::TreeScanner m_treeScanner;
     std::shared_ptr<ProjectExplorer::FolderNode> m_allFiles;
     QHash<QString, bool> m_mimeBinaryCache;
@@ -199,6 +221,9 @@ private:
     CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
+    QSet<CMakeFileInfo> m_cmakeFiles;
+
+    QHash<QString, ProjectFileArgumentPosition> m_filesToBeRenamed;
 
     // Parsing state:
     BuildDirParameters m_parameters;
@@ -208,7 +233,7 @@ private:
 
     // CTest integration
     Utils::FilePath m_ctestPath;
-    std::unique_ptr<Utils::QtcProcess> m_ctestProcess;
+    std::unique_ptr<Utils::Process> m_ctestProcess;
     QList<ProjectExplorer::TestCaseInfo> m_testNames;
 
     CMakeConfig m_configurationFromCMake;

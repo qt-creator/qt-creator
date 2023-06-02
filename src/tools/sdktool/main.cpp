@@ -28,8 +28,10 @@
 #include <app/app_version.h>
 
 #include <iostream>
+#include <memory>
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QLibraryInfo>
 #include <QStringList>
 
@@ -60,10 +62,7 @@ void printHelp(const std::vector<std::unique_ptr<Operation>> &operations)
     std::cout << "    --sdkpath=PATH|-s PATH   Set the path to the SDK files" << std::endl << std::endl;
 
     std::cout << "Default sdkpath is \""
-              << qPrintable(QDir::cleanPath(
-                     Utils::FilePath::fromString(QCoreApplication::applicationDirPath())
-                         .pathAppended(DATA_PATH)
-                         .toUserOutput()))
+              << qPrintable(QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + DATA_PATH))
               << "\"" << std::endl
               << std::endl;
 
@@ -105,7 +104,7 @@ int parseArguments(const QStringList &args, Settings *s,
 
             // sdkpath
             if (current.startsWith(QLatin1String("--sdkpath="))) {
-                s->sdkPath = Utils::FilePath::fromString(current.mid(10));
+                s->sdkPath = current.mid(10);
                 continue;
             }
             if (current == QLatin1String("-s")) {
@@ -114,7 +113,7 @@ int parseArguments(const QStringList &args, Settings *s,
                     printHelp(operations);
                     return 1;
                 }
-                s->sdkPath = Utils::FilePath::fromString(next);
+                s->sdkPath = next;
                 ++i; // skip next;
                 continue;
             }

@@ -7,9 +7,7 @@
 
 #include <utils/filepath.h>
 
-#include <QUrl>
-
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace ProjectExplorer {
 
@@ -29,28 +27,34 @@ public:
 
     SshParameters();
 
-    QString host() const { return url.host(); }
-    quint16 port() const { return url.port(); }
-    QString userName() const { return url.userName(); }
-    QString userAtHost() const { return userName().isEmpty() ? host() : userName() + '@' + host(); }
-    void setHost(const QString &host) { url.setHost(host); }
-    void setPort(int port) { url.setPort(port); }
-    void setUserName(const QString &name) { url.setUserName(name); }
+    QString host() const { return m_host; }
+    quint16 port() const { return m_port; }
+    QString userName() const { return m_userName; }
+
+    QString userAtHost() const;
+
+    void setHost(const QString &host) { m_host = host; }
+    void setPort(int port) { m_port = port; }
+    void setUserName(const QString &name) { m_userName = name; }
 
     QStringList connectionOptions(const Utils::FilePath &binary) const;
 
-    QUrl url;
     Utils::FilePath privateKeyFile;
     QString x11DisplayName;
     int timeout = 0; // In seconds.
     AuthenticationType authenticationType = AuthenticationTypeAll;
     SshHostKeyCheckingMode hostKeyCheckingMode = SshHostKeyCheckingAllowNoMatch;
 
-    static bool setupSshEnvironment(Utils::QtcProcess *process);
-};
+    static bool setupSshEnvironment(Utils::Process *process);
 
-PROJECTEXPLORER_EXPORT bool operator==(const SshParameters &p1, const SshParameters &p2);
-PROJECTEXPLORER_EXPORT bool operator!=(const SshParameters &p1, const SshParameters &p2);
+    friend PROJECTEXPLORER_EXPORT bool operator==(const SshParameters &p1, const SshParameters &p2);
+    friend bool operator!=(const SshParameters &p1, const SshParameters &p2) { return !(p1 == p2); }
+
+private:
+    QString m_host;
+    quint16 m_port = 22;
+    QString m_userName;
+};
 
 #ifdef WITH_TESTS
 namespace SshTest {

@@ -23,6 +23,7 @@
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QFontComboBox>
+#include <QFontDatabase>
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -35,18 +36,41 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 
-#include <QApplication>
-
 using namespace Core;
 using namespace Utils;
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
-class GeneralSettingsPageWidget : public QWidget
+class GeneralSettingsPageWidget : public IOptionsPageWidget
 {
 public:
     GeneralSettingsPageWidget();
+
+private:
+    void apply() final;
+
+    void setCurrentPage();
+    void setBlankPage();
+    void setDefaultPage();
+    void importBookmarks();
+    void exportBookmarks();
+
+    void updateFontSizeSelector();
+    void updateFontStyleSelector();
+    void updateFontFamilySelector();
+    void updateFont();
+    int closestPointSizeIndex(int desiredPointSize) const;
+
+    QFont m_font;
+    int m_fontZoom = 100;
+    QFontDatabase m_fontDatabase;
+
+    QString m_homePage;
+    int m_contextOption;
+
+    int m_startOption;
+    bool m_returnOnClose;
+    bool m_scrollWheelZoomingEnabled;
 
     QSpinBox *zoomSpinBox;
     QFontComboBox *familyComboBox;
@@ -62,7 +86,7 @@ public:
     QPushButton *importButton;
     QPushButton *exportButton;
     QCheckBox *scrollWheelZooming;
-    QCheckBox *m_returnOnClose;
+    QCheckBox *m_returnOnCloseCheckBox;
     QComboBox *viewerBackend;
 };
 
@@ -152,8 +176,8 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     auto behaviourGroupBox = new QGroupBox(Tr::tr("Behaviour"));
     scrollWheelZooming = new QCheckBox(Tr::tr("Enable scroll wheel zooming"));
 
-    m_returnOnClose = new QCheckBox(Tr::tr("Return to editor on closing the last page"));
-    m_returnOnClose->setToolTip(
+    m_returnOnCloseCheckBox = new QCheckBox(Tr::tr("Return to editor on closing the last page"));
+    m_returnOnCloseCheckBox->setToolTip(
         Tr::tr("Switches to editor context after last help page is closed."));
 
     auto viewerBackendLabel = new QLabel(Tr::tr("Viewer backend:"));
@@ -172,7 +196,7 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     auto behaviourGroupBoxLayout = new QVBoxLayout;
     behaviourGroupBox->setLayout(behaviourGroupBoxLayout);
     behaviourGroupBoxLayout->addWidget(scrollWheelZooming);
-    behaviourGroupBoxLayout->addWidget(m_returnOnClose);
+    behaviourGroupBoxLayout->addWidget(m_returnOnCloseCheckBox);
     behaviourGroupBoxLayout->addLayout(viewerBackendLayout);
 
     // bookmarks
@@ -203,167 +227,145 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     mainLayout->addWidget(behaviourGroupBox);
     mainLayout->addLayout(bookmarksLayout);
     mainLayout->addStretch(1);
-}
 
-GeneralSettingsPage::GeneralSettingsPage()
-{
-    setId("A.General settings");
-    setDisplayName(Tr::tr("General"));
-    setCategory(Help::Constants::HELP_CATEGORY);
-    setDisplayCategory(Tr::tr("Help"));
-    setCategoryIconPath(":/help/images/settingscategory_help.png");
-}
+    m_font = LocalHelpManager::fallbackFont();
+    m_fontZoom = LocalHelpManager::fontZoom();
+    zoomSpinBox->setValue(m_fontZoom);
 
-QWidget *GeneralSettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new GeneralSettingsPageWidget;
+    updateFontSizeSelector();
+    updateFontStyleSelector();
+    updateFontFamilySelector();
 
-        m_font = LocalHelpManager::fallbackFont();
-        m_fontZoom = LocalHelpManager::fontZoom();
-        m_widget->zoomSpinBox->setValue(m_fontZoom);
-
-        updateFontSizeSelector();
+    connect(familyComboBox, &QFontComboBox::currentFontChanged, this, [this] {
+        updateFont();
         updateFontStyleSelector();
-        updateFontFamilySelector();
+        updateFontSizeSelector();
+        updateFont(); // changes that might have happened when updating the selectors
+    });
 
-        connect(m_widget->familyComboBox, &QFontComboBox::currentFontChanged, this, [this] {
-            updateFont();
-            updateFontStyleSelector();
-            updateFontSizeSelector();
-            updateFont(); // changes that might have happened when updating the selectors
-        });
+    connect(styleComboBox, &QComboBox::currentIndexChanged, this, [this] {
+        updateFont();
+        updateFontSizeSelector();
+        updateFont(); // changes that might have happened when updating the selectors
+    });
 
-        connect(m_widget->styleComboBox, &QComboBox::currentIndexChanged, this, [this] {
-            updateFont();
-            updateFontSizeSelector();
-            updateFont(); // changes that might have happened when updating the selectors
-        });
+    connect(sizeComboBox, &QComboBox::currentIndexChanged,
+            this, &GeneralSettingsPageWidget::updateFont);
 
-        connect(m_widget->sizeComboBox, &QComboBox::currentIndexChanged,
-                this, &GeneralSettingsPage::updateFont);
+    connect(zoomSpinBox, &QSpinBox::valueChanged,
+            this, [this](int value) { m_fontZoom = value; });
 
-        connect(m_widget->zoomSpinBox, &QSpinBox::valueChanged,
-                this, [this](int value) { m_fontZoom = value; });
+    m_homePage = LocalHelpManager::homePage();
+    homePageLineEdit->setText(m_homePage);
 
-        m_homePage = LocalHelpManager::homePage();
-        m_widget->homePageLineEdit->setText(m_homePage);
+    m_startOption = LocalHelpManager::startOption();
+    helpStartComboBox->setCurrentIndex(m_startOption);
 
-        m_startOption = LocalHelpManager::startOption();
-        m_widget->helpStartComboBox->setCurrentIndex(m_startOption);
+    m_contextOption = LocalHelpManager::contextHelpOption();
+    contextHelpComboBox->setCurrentIndex(m_contextOption);
 
-        m_contextOption = LocalHelpManager::contextHelpOption();
-        m_widget->contextHelpComboBox->setCurrentIndex(m_contextOption);
+    connect(currentPageButton, &QPushButton::clicked,
+            this, &GeneralSettingsPageWidget::setCurrentPage);
+    connect(blankPageButton, &QPushButton::clicked,
+            this, &GeneralSettingsPageWidget::setBlankPage);
+    connect(defaultPageButton, &QPushButton::clicked,
+            this, &GeneralSettingsPageWidget::setDefaultPage);
 
-        connect(m_widget->currentPageButton, &QPushButton::clicked,
-                this, &GeneralSettingsPage::setCurrentPage);
-        connect(m_widget->blankPageButton, &QPushButton::clicked,
-                this, &GeneralSettingsPage::setBlankPage);
-        connect(m_widget->defaultPageButton,
-                &QPushButton::clicked,
-                this,
-                &GeneralSettingsPage::setDefaultPage);
+    HelpViewer *viewer = HelpPlugin::modeHelpWidget()->currentViewer();
+    if (!viewer)
+        currentPageButton->setEnabled(false);
 
-        HelpViewer *viewer = HelpPlugin::modeHelpWidget()->currentViewer();
-        if (!viewer)
-            m_widget->currentPageButton->setEnabled(false);
+    errorLabel->setVisible(false);
+    connect(importButton, &QPushButton::clicked,
+            this, &GeneralSettingsPageWidget::importBookmarks);
+    connect(exportButton, &QPushButton::clicked,
+            this, &GeneralSettingsPageWidget::exportBookmarks);
 
-        m_widget->errorLabel->setVisible(false);
-        connect(m_widget->importButton, &QPushButton::clicked,
-                this, &GeneralSettingsPage::importBookmarks);
-        connect(m_widget->exportButton, &QPushButton::clicked,
-                this, &GeneralSettingsPage::exportBookmarks);
+    m_returnOnClose = LocalHelpManager::returnOnClose();
+    m_returnOnCloseCheckBox->setChecked(m_returnOnClose);
 
-        m_returnOnClose = LocalHelpManager::returnOnClose();
-        m_widget->m_returnOnClose->setChecked(m_returnOnClose);
+    m_scrollWheelZoomingEnabled = LocalHelpManager::isScrollWheelZoomingEnabled();
+    scrollWheelZooming->setChecked(m_scrollWheelZoomingEnabled);
 
-        m_scrollWheelZoomingEnabled = LocalHelpManager::isScrollWheelZoomingEnabled();
-        m_widget->scrollWheelZooming->setChecked(m_scrollWheelZoomingEnabled);
-
-        m_widget->viewerBackend->addItem(
-            Tr::tr("Default (%1)", "Default viewer backend")
-                .arg(LocalHelpManager::defaultViewerBackend().displayName));
-        const QByteArray currentBackend = LocalHelpManager::viewerBackendId();
-        const QVector<HelpViewerFactory> backends = LocalHelpManager::viewerBackends();
-        for (const HelpViewerFactory &f : backends) {
-            m_widget->viewerBackend->addItem(f.displayName, f.id);
-            if (f.id == currentBackend)
-                m_widget->viewerBackend->setCurrentIndex(m_widget->viewerBackend->count() - 1);
-        }
-        if (backends.size() == 1)
-            m_widget->viewerBackend->setEnabled(false);
+    viewerBackend->addItem(
+        Tr::tr("Default (%1)", "Default viewer backend")
+            .arg(LocalHelpManager::defaultViewerBackend().displayName));
+    const QByteArray currentBackend = LocalHelpManager::viewerBackendId();
+    const QVector<HelpViewerFactory> backends = LocalHelpManager::viewerBackends();
+    for (const HelpViewerFactory &f : backends) {
+        viewerBackend->addItem(f.displayName, f.id);
+        if (f.id == currentBackend)
+            viewerBackend->setCurrentIndex(viewerBackend->count() - 1);
     }
-    return m_widget;
+    if (backends.size() == 1)
+        viewerBackend->setEnabled(false);
 }
 
-void GeneralSettingsPage::apply()
+void GeneralSettingsPageWidget::apply()
 {
-    if (!m_widget) // page was never shown
-        return;
-
     if (m_font != LocalHelpManager::fallbackFont())
         LocalHelpManager::setFallbackFont(m_font);
 
     if (m_fontZoom != LocalHelpManager::fontZoom())
         LocalHelpManager::setFontZoom(m_fontZoom);
 
-    QString homePage = QUrl::fromUserInput(m_widget->homePageLineEdit->text()).toString();
+    QString homePage = QUrl::fromUserInput(homePageLineEdit->text()).toString();
     if (homePage.isEmpty())
         homePage = Help::Constants::AboutBlank;
-    m_widget->homePageLineEdit->setText(homePage);
+    homePageLineEdit->setText(homePage);
     if (m_homePage != homePage) {
         m_homePage = homePage;
         LocalHelpManager::setHomePage(homePage);
     }
 
-    const int startOption = m_widget->helpStartComboBox->currentIndex();
+    const int startOption = helpStartComboBox->currentIndex();
     if (m_startOption != startOption) {
         m_startOption = startOption;
         LocalHelpManager::setStartOption(LocalHelpManager::StartOption(m_startOption));
     }
 
-    const int helpOption = m_widget->contextHelpComboBox->currentIndex();
+    const int helpOption = contextHelpComboBox->currentIndex();
     if (m_contextOption != helpOption) {
         m_contextOption = helpOption;
         LocalHelpManager::setContextHelpOption(HelpManager::HelpViewerLocation(m_contextOption));
     }
 
-    const bool close = m_widget->m_returnOnClose->isChecked();
+    const bool close = m_returnOnCloseCheckBox->isChecked();
     if (m_returnOnClose != close) {
         m_returnOnClose = close;
         LocalHelpManager::setReturnOnClose(m_returnOnClose);
     }
 
-    const bool zoom = m_widget->scrollWheelZooming->isChecked();
+    const bool zoom = scrollWheelZooming->isChecked();
     if (m_scrollWheelZoomingEnabled != zoom) {
         m_scrollWheelZoomingEnabled = zoom;
         LocalHelpManager::setScrollWheelZoomingEnabled(m_scrollWheelZoomingEnabled);
     }
 
-    const QByteArray viewerBackendId = m_widget->viewerBackend->currentData().toByteArray();
+    const QByteArray viewerBackendId = viewerBackend->currentData().toByteArray();
     LocalHelpManager::setViewerBackendId(viewerBackendId);
 }
 
-void GeneralSettingsPage::setCurrentPage()
+void GeneralSettingsPageWidget::setCurrentPage()
 {
     HelpViewer *viewer = HelpPlugin::modeHelpWidget()->currentViewer();
     if (viewer)
-        m_widget->homePageLineEdit->setText(viewer->source().toString());
+        homePageLineEdit->setText(viewer->source().toString());
 }
 
-void GeneralSettingsPage::setBlankPage()
+void GeneralSettingsPageWidget::setBlankPage()
 {
-    m_widget->homePageLineEdit->setText(Help::Constants::AboutBlank);
+    homePageLineEdit->setText(Help::Constants::AboutBlank);
 }
 
-void GeneralSettingsPage::setDefaultPage()
+void GeneralSettingsPageWidget::setDefaultPage()
 {
-    m_widget->homePageLineEdit->setText(LocalHelpManager::defaultHomePage());
+    homePageLineEdit->setText(LocalHelpManager::defaultHomePage());
 }
 
-void GeneralSettingsPage::importBookmarks()
+void GeneralSettingsPageWidget::importBookmarks()
 {
-    m_widget->errorLabel->setVisible(false);
+    errorLabel->setVisible(false);
 
     FilePath filePath = FileUtils::getOpenFilePath(nullptr,
                                                    Tr::tr("Import Bookmarks"),
@@ -381,13 +383,13 @@ void GeneralSettingsPage::importBookmarks()
             return;
     }
 
-    m_widget->errorLabel->setVisible(true);
-    m_widget->errorLabel->setText(Tr::tr("Cannot import bookmarks."));
+    errorLabel->setVisible(true);
+    errorLabel->setText(Tr::tr("Cannot import bookmarks."));
 }
 
-void GeneralSettingsPage::exportBookmarks()
+void GeneralSettingsPageWidget::exportBookmarks()
 {
-    m_widget->errorLabel->setVisible(false);
+    errorLabel->setVisible(false);
 
     FilePath filePath = FileUtils::getSaveFilePath(nullptr,
                                                    Tr::tr("Save File"),
@@ -405,12 +407,12 @@ void GeneralSettingsPage::exportBookmarks()
         saver.setResult(&writer);
     }
     if (!saver.finalize()) {
-        m_widget->errorLabel->setVisible(true);
-        m_widget->errorLabel->setText(saver.errorString());
+        errorLabel->setVisible(true);
+        errorLabel->setText(saver.errorString());
     }
 }
 
-void GeneralSettingsPage::updateFontSizeSelector()
+void GeneralSettingsPageWidget::updateFontSizeSelector()
 {
     const QString &family = m_font.family();
     const QString &fontStyle = m_fontDatabase.styleString(m_font);
@@ -419,81 +421,81 @@ void GeneralSettingsPage::updateFontSizeSelector()
     if (pointSizes.empty())
         pointSizes = QFontDatabase::standardSizes();
 
-    QSignalBlocker blocker(m_widget->sizeComboBox);
-    m_widget->sizeComboBox->clear();
-    m_widget->sizeComboBox->setCurrentIndex(-1);
-    m_widget->sizeComboBox->setEnabled(!pointSizes.empty());
+    QSignalBlocker blocker(sizeComboBox);
+    sizeComboBox->clear();
+    sizeComboBox->setCurrentIndex(-1);
+    sizeComboBox->setEnabled(!pointSizes.empty());
 
     //  try to maintain selection or select closest.
     if (!pointSizes.empty()) {
         QString n;
         for (int pointSize : std::as_const(pointSizes))
-            m_widget->sizeComboBox->addItem(n.setNum(pointSize), QVariant(pointSize));
+            sizeComboBox->addItem(n.setNum(pointSize), QVariant(pointSize));
         const int closestIndex = closestPointSizeIndex(m_font.pointSize());
         if (closestIndex != -1)
-            m_widget->sizeComboBox->setCurrentIndex(closestIndex);
+            sizeComboBox->setCurrentIndex(closestIndex);
     }
 }
 
-void GeneralSettingsPage::updateFontStyleSelector()
+void GeneralSettingsPageWidget::updateFontStyleSelector()
 {
     const QString &fontStyle = m_fontDatabase.styleString(m_font);
     const QStringList &styles = m_fontDatabase.styles(m_font.family());
 
-    QSignalBlocker blocker(m_widget->styleComboBox);
-    m_widget->styleComboBox->clear();
-    m_widget->styleComboBox->setCurrentIndex(-1);
-    m_widget->styleComboBox->setEnabled(!styles.empty());
+    QSignalBlocker blocker(styleComboBox);
+    styleComboBox->clear();
+    styleComboBox->setCurrentIndex(-1);
+    styleComboBox->setEnabled(!styles.empty());
 
     if (!styles.empty()) {
         int normalIndex = -1;
         const QString normalStyle = "Normal";
         for (const QString &style : styles) {
             // try to maintain selection or select 'normal' preferably
-            const int newIndex = m_widget->styleComboBox->count();
-            m_widget->styleComboBox->addItem(style);
+            const int newIndex = styleComboBox->count();
+            styleComboBox->addItem(style);
             if (fontStyle == style) {
-                m_widget->styleComboBox->setCurrentIndex(newIndex);
+                styleComboBox->setCurrentIndex(newIndex);
             } else {
                 if (fontStyle ==  normalStyle)
                     normalIndex = newIndex;
             }
         }
-        if (m_widget->styleComboBox->currentIndex() == -1 && normalIndex != -1)
-            m_widget->styleComboBox->setCurrentIndex(normalIndex);
+        if (styleComboBox->currentIndex() == -1 && normalIndex != -1)
+            styleComboBox->setCurrentIndex(normalIndex);
     }
 }
 
-void GeneralSettingsPage::updateFontFamilySelector()
+void GeneralSettingsPageWidget::updateFontFamilySelector()
 {
-    m_widget->familyComboBox->setCurrentFont(m_font);
+    familyComboBox->setCurrentFont(m_font);
 }
 
-void GeneralSettingsPage::updateFont()
+void GeneralSettingsPageWidget::updateFont()
 {
-    const QString &family = m_widget->familyComboBox->currentFont().family();
+    const QString &family = familyComboBox->currentFont().family();
     m_font.setFamily(family);
 
     int fontSize = 14;
-    int currentIndex = m_widget->sizeComboBox->currentIndex();
+    int currentIndex = sizeComboBox->currentIndex();
     if (currentIndex != -1)
-        fontSize = m_widget->sizeComboBox->itemData(currentIndex).toInt();
+        fontSize = sizeComboBox->itemData(currentIndex).toInt();
     m_font.setPointSize(fontSize);
 
-    currentIndex = m_widget->styleComboBox->currentIndex();
+    currentIndex = styleComboBox->currentIndex();
     if (currentIndex != -1)
-        m_font.setStyleName(m_widget->styleComboBox->itemText(currentIndex));
+        m_font.setStyleName(styleComboBox->itemText(currentIndex));
 }
 
-int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const
+int GeneralSettingsPageWidget::closestPointSizeIndex(int desiredPointSize) const
 {
     //  try to maintain selection or select closest.
     int closestIndex = -1;
     int closestAbsError = 0xFFFF;
 
-    const int pointSizeCount = m_widget->sizeComboBox->count();
+    const int pointSizeCount = sizeComboBox->count();
     for (int i = 0; i < pointSizeCount; i++) {
-        const int itemPointSize = m_widget->sizeComboBox->itemData(i).toInt();
+        const int itemPointSize = sizeComboBox->itemData(i).toInt();
         const int absError = qAbs(desiredPointSize - itemPointSize);
         if (absError < closestAbsError) {
             closestIndex  = i;
@@ -508,10 +510,16 @@ int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const
     return closestIndex;
 }
 
-void GeneralSettingsPage::finish()
+// GeneralSettingPage
+
+GeneralSettingsPage::GeneralSettingsPage()
 {
-    delete m_widget;
+    setId("A.General settings");
+    setDisplayName(Tr::tr("General"));
+    setCategory(Help::Constants::HELP_CATEGORY);
+    setDisplayCategory(Tr::tr("Help"));
+    setCategoryIconPath(":/help/images/settingscategory_help.png");
+    setWidgetCreator([] { return new GeneralSettingsPageWidget; });
 }
 
-} // Internal
-} // Help
+} // Help::Interal

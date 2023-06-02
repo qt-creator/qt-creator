@@ -362,12 +362,12 @@ public:
 
     ProjectInfo::ConstPtr generate()
     {
-        QFutureInterface<ProjectInfo::ConstPtr> fi;
+        QPromise<ProjectInfo::ConstPtr> promise;
 
         projectUpdateInfo.rawProjectParts += rawProjectPart;
-        ProjectInfoGenerator generator(fi, projectUpdateInfo);
+        ProjectInfoGenerator generator(projectUpdateInfo);
 
-        return generator.generate();
+        return generator.generate(promise);
     }
 
     ProjectUpdateInfo projectUpdateInfo;

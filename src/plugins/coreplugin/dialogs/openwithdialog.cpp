@@ -25,7 +25,7 @@ OpenWithDialog::OpenWithDialog(const Utils::FilePath &filePath, QWidget *parent)
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     // clang-format off
     Column {
         Tr::tr("Open file \"%1\" with:").arg(filePath.fileName()),

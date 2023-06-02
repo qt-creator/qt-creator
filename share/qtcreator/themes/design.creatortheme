@@ -246,7 +246,6 @@ BadgeLabelBackgroundColorChecked=ffe0e0e0
 BadgeLabelBackgroundColorUnchecked=ff808080
 BadgeLabelTextColorChecked=ff606060
 BadgeLabelTextColorUnchecked=ffffffff
-CanceledSearchTextColor=ff0000
 ComboBoxArrowColor=toolBarItem
 ComboBoxArrowColorDisabled=toolBarItemDisabled
 ComboBoxTextColor=fancyBarsNormalTextColor
@@ -498,6 +497,27 @@ PaletteBaseDisabled=backgroundColorDisabled
 PaletteTextDisabled=textDisabled
 PaletteMid=ffafafaf
 PalettePlaceholderText=ff808081
+
+TerminalForeground=ffffffff
+TerminalBackground=normalBackground
+TerminalSelection=7fffffff
+TerminalFindMatch=7fffff00
+TerminalAnsi0=000000
+TerminalAnsi1=8b1b10
+TerminalAnsi2=4aa32e
+TerminalAnsi3=9a9a2f
+TerminalAnsi4=0058D1
+TerminalAnsi5=a320ac
+TerminalAnsi6=49a3b0
+TerminalAnsi7=bfbfbf
+TerminalAnsi8=666666
+TerminalAnsi9=d22d1f
+TerminalAnsi10=62d63f
+TerminalAnsi11=e5e54b
+TerminalAnsi12=003EFF
+TerminalAnsi13=d22dde
+TerminalAnsi14=69e2e4
+TerminalAnsi15=e5e5e6
 
 [Flags]
 ComboBoxDrawTextShadow=false

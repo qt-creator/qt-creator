@@ -600,7 +600,7 @@ void UvscEngine::handleProjectClosed()
     Module module;
     module.startAddress = 0;
     module.endAddress = 0;
-    module.modulePath = rp.inferior.command.executable().toString();
+    module.modulePath = rp.inferior.command.executable();
     module.moduleName = "<executable>";
     modulesHandler()->updateModule(module);
 

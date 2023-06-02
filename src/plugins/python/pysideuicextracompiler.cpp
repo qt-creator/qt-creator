@@ -3,7 +3,7 @@
 
 #include "pysideuicextracompiler.h"
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -30,7 +30,7 @@ FilePath PySideUicExtraCompiler::command() const
     return m_pySideUic;
 }
 
-FileNameToContentsHash PySideUicExtraCompiler::handleProcessFinished(QtcProcess *process)
+FileNameToContentsHash PySideUicExtraCompiler::handleProcessFinished(Process *process)
 {
     FileNameToContentsHash result;
     if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)

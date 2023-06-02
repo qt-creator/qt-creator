@@ -167,9 +167,14 @@ void IOutputPane::setFilteringEnabled(bool enable)
 
 void IOutputPane::setupContext(const char *context, QWidget *widget)
 {
+    return setupContext(Context(context), widget);
+}
+
+void IOutputPane::setupContext(const Context &context, QWidget *widget)
+{
     QTC_ASSERT(!m_context, return);
     m_context = new IContext(this);
-    m_context->setContext(Context(context));
+    m_context->setContext(context);
     m_context->setWidget(widget);
     ICore::addContextObject(m_context);
 
@@ -813,6 +818,13 @@ QSize OutputPaneToggleButton::sizeHint() const
     return s;
 }
 
+static QRect bgRect(const QRect &widgetRect)
+{
+    // Removes/compensates the left and right margins of StyleHelper::drawPanelBgRect
+    return StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact
+               ? widgetRect : widgetRect.adjusted(-2, 0, 2, 0);
+}
+
 void OutputPaneToggleButton::paintEvent(QPaintEvent*)
 {
     const QFontMetrics fm = fontMetrics();
@@ -834,7 +846,7 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
             c = Theme::BackgroundColorSelected;
 
         if (c != Theme::BackgroundColorDark)
-            p.fillRect(rect(), creatorTheme()->color(c));
+            StyleHelper::drawPanelBgRect(&p, bgRect(rect()), creatorTheme()->color(c));
     } else {
         const QImage *image = nullptr;
         if (isDown()) {
@@ -870,9 +882,10 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
     {
         QColor c = creatorTheme()->color(Theme::OutputPaneButtonFlashColor);
         c.setAlpha (m_flashTimer->currentFrame());
-        QRect r = creatorTheme()->flag(Theme::FlatToolBars)
-                  ? rect() : rect().adjusted(numberAreaWidth(), 1, -1, -1);
-        p.fillRect(r, c);
+        if (creatorTheme()->flag(Theme::FlatToolBars))
+            StyleHelper::drawPanelBgRect(&p, bgRect(rect()), c);
+        else
+            p.fillRect(rect().adjusted(numberAreaWidth(), 1, -1, -1), c);
     }
 
     p.setFont(font());
@@ -932,13 +945,7 @@ OutputPaneManageButton::OutputPaneManageButton()
 {
     setFocusPolicy(Qt::NoFocus);
     setCheckable(true);
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-}
-
-QSize OutputPaneManageButton::sizeHint() const
-{
-    ensurePolished();
-    return QSize(numberAreaWidth(), 16);
+    setFixedWidth(StyleHelper::toolbarStyle() == Utils::StyleHelper::ToolbarStyleCompact ? 17 : 21);
 }
 
 void OutputPaneManageButton::paintEvent(QPaintEvent*)
@@ -951,7 +958,9 @@ void OutputPaneManageButton::paintEvent(QPaintEvent*)
     QStyle *s = style();
     QStyleOption arrowOpt;
     arrowOpt.initFrom(this);
-    arrowOpt.rect = QRect(6, rect().center().y() - 3, 8, 8);
+    constexpr int arrowSize = 8;
+    arrowOpt.rect = QRect(0, 0, arrowSize, arrowSize);
+    arrowOpt.rect.moveCenter(rect().center());
     arrowOpt.rect.translate(0, -3);
     s->drawPrimitive(QStyle::PE_IndicatorArrowUp, &arrowOpt, &p, this);
     arrowOpt.rect.translate(0, 6);

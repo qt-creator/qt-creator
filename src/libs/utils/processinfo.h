@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include "filepath.h"
+
 #include <QList>
 #include <QString>
 
@@ -19,7 +21,7 @@ public:
 
     bool operator<(const ProcessInfo &other) const;
 
-    static QList<ProcessInfo> processInfoList();
+    static QList<ProcessInfo> processInfoList(const Utils::FilePath &deviceRoot = Utils::FilePath());
 };
 
 } // namespace Utils

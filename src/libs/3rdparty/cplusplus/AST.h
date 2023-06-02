@@ -184,6 +184,7 @@ public:
     virtual ArrayInitializerAST *asArrayInitializer() { return nullptr; }
     virtual AsmDefinitionAST *asAsmDefinition() { return nullptr; }
     virtual AttributeSpecifierAST *asAttributeSpecifier() { return nullptr; }
+    virtual AwaitExpressionAST *asAwaitExpression() { return nullptr; }
     virtual BaseSpecifierAST *asBaseSpecifier() { return nullptr; }
     virtual BinaryExpressionAST *asBinaryExpression() { return nullptr; }
     virtual BoolLiteralAST *asBoolLiteral() { return nullptr; }
@@ -290,6 +291,7 @@ public:
     virtual OperatorFunctionIdAST *asOperatorFunctionId() { return nullptr; }
     virtual ParameterDeclarationAST *asParameterDeclaration() { return nullptr; }
     virtual ParameterDeclarationClauseAST *asParameterDeclarationClause() { return nullptr; }
+    virtual PlaceholderTypeSpecifierAST *asPlaceholderTypeSpecifier() { return nullptr; }
     virtual PointerAST *asPointer() { return nullptr; }
     virtual PointerLiteralAST *asPointerLiteral() { return nullptr; }
     virtual PointerToMemberAST *asPointerToMember() { return nullptr; }
@@ -322,6 +324,7 @@ public:
     virtual StringLiteralAST *asStringLiteral() { return nullptr; }
     virtual SwitchStatementAST *asSwitchStatement() { return nullptr; }
     virtual TemplateDeclarationAST *asTemplateDeclaration() { return nullptr; }
+    virtual ConceptDeclarationAST *asConceptDeclaration() { return nullptr; }
     virtual TemplateIdAST *asTemplateId() { return nullptr; }
     virtual TemplateTypeParameterAST *asTemplateTypeParameter() { return nullptr; }
     virtual ThisExpressionAST *asThisExpression() { return nullptr; }
@@ -329,6 +332,7 @@ public:
     virtual TrailingReturnTypeAST *asTrailingReturnType() { return nullptr; }
     virtual TranslationUnitAST *asTranslationUnit() { return nullptr; }
     virtual TryBlockStatementAST *asTryBlockStatement() { return nullptr; }
+    virtual TypeConstraintAST *asTypeConstraint() { return nullptr; }
     virtual TypeConstructorCallAST *asTypeConstructorCall() { return nullptr; }
     virtual TypeIdAST *asTypeId() { return nullptr; }
     virtual TypeidExpressionAST *asTypeidExpression() { return nullptr; }
@@ -336,9 +340,12 @@ public:
     virtual TypenameTypeParameterAST *asTypenameTypeParameter() { return nullptr; }
     virtual TypeofSpecifierAST *asTypeofSpecifier() { return nullptr; }
     virtual UnaryExpressionAST *asUnaryExpression() { return nullptr; }
+    virtual RequiresExpressionAST *asRequiresExpression() { return nullptr; }
+    virtual RequiresClauseAST *asRequiresClause() { return nullptr; }
     virtual UsingAST *asUsing() { return nullptr; }
     virtual UsingDirectiveAST *asUsingDirective() { return nullptr; }
     virtual WhileStatementAST *asWhileStatement() { return nullptr; }
+    virtual YieldExpressionAST *asYieldExpression() { return nullptr; }
 
 protected:
     virtual void accept0(ASTVisitor *visitor) = 0;
@@ -636,6 +643,49 @@ protected:
     bool match0(AST *, ASTMatcher *) override;
 };
 
+class CPLUSPLUS_EXPORT TypeConstraintAST: public AST
+{
+public:
+    NestedNameSpecifierListAST *nestedName = nullptr;
+    NameAST *conceptName = nullptr;
+    int lessToken = 0;
+    ExpressionListAST *templateArgs = nullptr;
+    int greaterToken = 0;
+
+    TypeConstraintAST *asTypeConstraint() override { return this; }
+
+    int firstToken() const override;
+    int lastToken() const override;
+
+    TypeConstraintAST *clone(MemoryPool *pool) const override;
+
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
+class CPLUSPLUS_EXPORT PlaceholderTypeSpecifierAST: public SpecifierAST
+{
+public:
+    TypeConstraintAST *typeConstraint = nullptr;
+    int declTypetoken = 0;
+    int lparenToken = 0;
+    int decltypeToken = 0;
+    int autoToken = 0;
+    int rparenToken = 0;
+
+public:
+    PlaceholderTypeSpecifierAST *asPlaceholderTypeSpecifier() override { return this; }
+
+    int firstToken() const override;
+    int lastToken() const override;
+
+    PlaceholderTypeSpecifierAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
 class CPLUSPLUS_EXPORT DeclaratorAST: public AST
 {
 public:
@@ -646,6 +696,7 @@ public:
     SpecifierListAST *post_attribute_list = nullptr;
     int equal_token = 0;
     ExpressionAST *initializer = nullptr;
+    RequiresClauseAST *requiresClause = nullptr;
 
 public:
     DeclaratorAST *asDeclarator() override { return this; }
@@ -1728,6 +1779,7 @@ public:
     int if_token = 0;
     int constexpr_token = 0;
     int lparen_token = 0;
+    StatementAST *initStmt = nullptr;
     ExpressionAST *condition = nullptr;
     int rparen_token = 0;
     StatementAST *statement = nullptr;
@@ -2716,6 +2768,7 @@ public:
     int less_token = 0;
     DeclarationListAST *template_parameter_list = nullptr;
     int greater_token = 0;
+    RequiresClauseAST *requiresClause = nullptr;
     DeclarationAST *declaration = nullptr;
 
 public: // annotations
@@ -2728,6 +2781,29 @@ public:
     int lastToken() const override;
 
     TemplateDeclarationAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
+class CPLUSPLUS_EXPORT ConceptDeclarationAST: public DeclarationAST
+{
+public:
+    int concept_token = 0;
+    NameAST *name = nullptr;
+    SpecifierListAST *attributes = nullptr;
+    int equals_token = 0;
+    ExpressionAST *constraint = nullptr;
+    int semicolon_token = 0;
+
+public:
+    ConceptDeclarationAST *asConceptDeclaration() override { return this; }
+
+    int firstToken() const override { return concept_token; }
+    int lastToken() const override { return semicolon_token + 1; }
+
+    ConceptDeclarationAST *clone(MemoryPool *pool) const override;
 
 protected:
     void accept0(ASTVisitor *visitor) override;
@@ -2747,6 +2823,44 @@ public:
     int lastToken() const override;
 
     ThrowExpressionAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
+class CPLUSPLUS_EXPORT YieldExpressionAST: public ExpressionAST
+{
+public:
+    int yield_token = 0;
+    ExpressionAST *expression = nullptr;
+
+public:
+    YieldExpressionAST *asYieldExpression() override { return this; }
+
+    int firstToken() const override { return yield_token; }
+    int lastToken() const override { return expression->lastToken(); }
+
+    YieldExpressionAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
+class CPLUSPLUS_EXPORT AwaitExpressionAST: public ExpressionAST
+{
+public:
+    int await_token = 0;
+    ExpressionAST *castExpression = nullptr;
+
+public:
+    AwaitExpressionAST *asAwaitExpression() override { return this; }
+
+    int firstToken() const override { return await_token; }
+    int lastToken() const override { return castExpression->lastToken(); }
+
+    AwaitExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
     void accept0(ASTVisitor *visitor) override;
@@ -2883,6 +2997,7 @@ class CPLUSPLUS_EXPORT TemplateTypeParameterAST: public DeclarationAST
 {
 public:
     int template_token = 0;
+    TypeConstraintAST *typeConstraint = nullptr;
     int less_token = 0;
     DeclarationListAST *template_parameter_list = nullptr;
     int greater_token = 0;
@@ -2921,6 +3036,48 @@ public:
     int lastToken() const override;
 
     UnaryExpressionAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
+class CPLUSPLUS_EXPORT RequiresExpressionAST: public ExpressionAST
+{
+public:
+    int requires_token = 0;
+    int lparen_token = 0;
+    ParameterDeclarationClauseAST *parameters = nullptr;
+    int rparen_token = 0;
+    int lbrace_token = 0;
+    int rbrace_token = 0;
+
+public:
+    RequiresExpressionAST *asRequiresExpression() override { return this; }
+
+    int firstToken() const override { return requires_token; }
+    int lastToken() const override { return rbrace_token + 1; }
+
+    RequiresExpressionAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
+class CPLUSPLUS_EXPORT RequiresClauseAST: public AST
+{
+public:
+    int requires_token = 0;
+    ExpressionAST *constraint = nullptr;
+
+public:
+    RequiresClauseAST *asRequiresClause() override { return this; }
+
+    int firstToken() const override { return requires_token; }
+    int lastToken() const override { return constraint->lastToken(); }
+
+    RequiresClauseAST *clone(MemoryPool *pool) const override;
 
 protected:
     void accept0(ASTVisitor *visitor) override;
@@ -3522,6 +3679,9 @@ class LambdaExpressionAST: public ExpressionAST
 {
 public:
     LambdaIntroducerAST *lambda_introducer = nullptr;
+    DeclarationListAST *templateParameters = nullptr;
+    RequiresClauseAST *requiresClause = nullptr;
+    SpecifierListAST *attributes = nullptr;
     LambdaDeclaratorAST *lambda_declarator = nullptr;
     StatementAST *statement = nullptr;
 
@@ -3602,6 +3762,7 @@ public:
     int mutable_token = 0;
     ExceptionSpecificationAST *exception_specification = nullptr;
     TrailingReturnTypeAST *trailing_return_type = nullptr;
+    RequiresClauseAST *requiresClause = nullptr;
 
 public: // annotations
     Function *symbol = nullptr;

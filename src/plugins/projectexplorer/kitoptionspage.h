@@ -7,11 +7,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-
 namespace ProjectExplorer {
-
-namespace Internal { class KitOptionsPageWidget; }
 
 class Kit;
 
@@ -20,15 +16,7 @@ class PROJECTEXPLORER_EXPORT KitOptionsPage : public Core::IOptionsPage
 public:
     KitOptionsPage();
 
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-    void showKit(Kit *k);
-    static KitOptionsPage *instance();
-
-private:
-    QPointer<Internal::KitOptionsPageWidget> m_widget;
+    static void showKit(Kit *k);
 };
 
 } // namespace ProjectExplorer

@@ -11,8 +11,8 @@
 
 #include <utils/basetreeview.h>
 #include <utils/hostosinfo.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/treemodel.h>
 
 #include <QCoreApplication>
@@ -48,7 +48,7 @@ QVariant ModuleItem::data(int column, int role) const
         break;
     case 1:
         if (role == Qt::DisplayRole)
-            return module.modulePath;
+            return module.modulePath.toUserOutput();
         if (role == Qt::ToolTipRole) {
             QString msg;
             if (!module.elfData.buildId.isEmpty())
@@ -140,6 +140,12 @@ public:
     DebuggerEngine *engine;
 };
 
+static bool dependsCanBeFound()
+{
+    static bool dependsInPath = Environment::systemEnvironment().searchInPath("depends").isEmpty();
+    return dependsInPath;
+}
+
 bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
 {
     ModuleItem *item = itemForIndexAtLevel<1>(ev.sourceModelIndex());
@@ -150,7 +156,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
     const bool canShowSymbols = engine->hasCapability(ShowModuleSymbolsCapability);
     const bool moduleNameValid = item && !item->module.moduleName.isEmpty();
     const QString moduleName = item ? item->module.moduleName : QString();
-    const QString modulePath = item ? item->module.modulePath : QString();
+    const FilePath modulePath = item ? item->module.modulePath : FilePath();
 
     auto menu = new QMenu;
 
@@ -163,11 +169,13 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
               moduleNameValid && enabled && canReload,
               [this, modulePath] { engine->loadSymbols(modulePath); });
 
-    // FIXME: Dependencies only available on Windows, when "depends" is installed.
     addAction(this, menu, Tr::tr("Show Dependencies of \"%1\"").arg(moduleName),
               Tr::tr("Show Dependencies"),
-              moduleNameValid && !moduleName.isEmpty() && HostOsInfo::isWindowsHost(),
-              [modulePath] { QtcProcess::startDetached({{"depends"}, {modulePath}}); });
+              moduleNameValid && !modulePath.needsDevice() && modulePath.exists()
+                  && dependsCanBeFound(),
+              [modulePath] {
+                  Process::startDetached({{"depends"}, {modulePath.toString()}});
+              });
 
     addAction(this, menu, Tr::tr("Load Symbols for All Modules"),
               enabled && canLoadSymbols,
@@ -185,7 +193,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
     addAction(this, menu, Tr::tr("Edit File \"%1\"").arg(moduleName),
               Tr::tr("Edit File"),
               moduleNameValid,
-              [this, modulePath] { engine->gotoLocation(FilePath::fromString(modulePath)); });
+              [this, modulePath] { engine->gotoLocation(modulePath); });
 
     addAction(this, menu, Tr::tr("Show Symbols in File \"%1\"").arg(moduleName),
               Tr::tr("Show Symbols"),
@@ -239,7 +247,7 @@ QAbstractItemModel *ModulesHandler::model() const
     return m_proxyModel;
 }
 
-ModuleItem *ModulesHandler::moduleFromPath(const QString &modulePath) const
+ModuleItem *ModulesHandler::moduleFromPath(const FilePath &modulePath) const
 {
     // Recent modules are more likely to be unloaded first.
     return m_model->findItemAtLevel<1>([modulePath](ModuleItem *item) {
@@ -259,7 +267,7 @@ const Modules ModulesHandler::modules() const
     return mods;
 }
 
-void ModulesHandler::removeModule(const QString &modulePath)
+void ModulesHandler::removeModule(const FilePath &modulePath)
 {
     if (ModuleItem *item = moduleFromPath(modulePath))
         m_model->destroyItem(item);
@@ -267,7 +275,7 @@ void ModulesHandler::removeModule(const QString &modulePath)
 
 void ModulesHandler::updateModule(const Module &module)
 {
-    const QString path = module.modulePath;
+    const FilePath path = module.modulePath;
     if (path.isEmpty())
         return;
 
@@ -281,12 +289,12 @@ void ModulesHandler::updateModule(const Module &module)
     }
 
     try { // MinGW occasionallly throws std::bad_alloc.
-        ElfReader reader(FilePath::fromUserInput(path));
+        ElfReader reader(path);
         item->module.elfData = reader.readHeaders();
         item->update();
     } catch(...) {
         qWarning("%s: An exception occurred while reading module '%s'",
-                 Q_FUNC_INFO, qPrintable(module.modulePath));
+                 Q_FUNC_INFO, qPrintable(module.modulePath.toUserOutput()));
     }
     item->updated = true;
 }

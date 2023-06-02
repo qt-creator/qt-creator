@@ -115,8 +115,9 @@ SourceLocation QmlJS::fullLocationForQualifiedId(AST::UiQualifiedId *qualifiedId
 }
 
 /*!
-    \returns the value of the 'id:' binding in \a object
-    \param idBinding optional out parameter to get the UiScriptBinding for the id binding
+    Returns the value of the 'id:' binding in \a object.
+
+    \a idBinding is optional out parameter to get the UiScriptBinding for the id binding.
 */
 QString QmlJS::idOfObject(Node *object, UiScriptBinding **idBinding)
 {

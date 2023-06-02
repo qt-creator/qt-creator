@@ -21,14 +21,14 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/algorithm.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/stringutils.h>
-#include <utils/tasktree.h>
 
 #include <QLoggingCategory>
 
 using namespace CppEditor;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runcontrol", QtWarningMsg)
@@ -183,10 +183,13 @@ void ClangToolRunWorker::start()
     m_filesAnalyzed.clear();
     m_filesNotAnalyzed.clear();
 
-    using namespace Tasking;
-    QList<TaskItem> tasks{ParallelLimit(qMax(1, m_runSettings.parallelJobs()))};
+    QList<TaskItem> tasks{parallelLimit(qMax(1, m_runSettings.parallelJobs()))};
     for (const AnalyzeUnit &unit : std::as_const(unitsToProcess)) {
-        const AnalyzeInputData input{tool, m_diagnosticConfig, m_temporaryDir.path(),
+        if (!m_diagnosticConfig.isEnabled(tool)
+            && !m_runSettings.hasConfigFileForSourceFile(unit.file)) {
+            continue;
+        }
+        const AnalyzeInputData input{tool, m_runSettings, m_diagnosticConfig, m_temporaryDir.path(),
                                      m_environment, unit};
         const auto setupHandler = [this, unit, tool] {
             const QString filePath = unit.file.toUserOutput();

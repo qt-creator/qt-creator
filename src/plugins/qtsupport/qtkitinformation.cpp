@@ -60,11 +60,11 @@ public:
 private:
     void makeReadOnly() final { m_combo->setEnabled(false); }
 
-    void addToLayout(Layouting::LayoutBuilder &builder)
+    void addToLayout(Layouting::LayoutItem &parent)
     {
         addMutableAction(m_combo);
-        builder.addItem(m_combo);
-        builder.addItem(m_manageButton);
+        parent.addItem(m_combo);
+        parent.addItem(m_manageButton);
     }
 
     void refresh() final

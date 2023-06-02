@@ -47,7 +47,7 @@ KeywordDialog::KeywordDialog(const Keyword &keyword, const QSet<QString> &alread
     m_buttonBox->setOrientation(Qt::Horizontal);
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         new QLabel(Tr::tr("Icon")),

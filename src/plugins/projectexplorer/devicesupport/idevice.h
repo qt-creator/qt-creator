@@ -6,11 +6,12 @@
 #include "../projectexplorer_export.h"
 #include "idevicefwd.h"
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/id.h>
 #include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
-#include <utils/tasktree.h>
 
 #include <QAbstractSocket>
 #include <QCoreApplication>
@@ -35,7 +36,7 @@ class Icon;
 class PortList;
 class Port;
 class ProcessInterface;
-class QtcProcess;
+class Process;
 } // Utils
 
 namespace ProjectExplorer {
@@ -139,10 +140,7 @@ public:
     void addDeviceAction(const DeviceAction &deviceAction);
     const QList<DeviceAction> deviceActions() const;
 
-    // Devices that can auto detect ports need not return a ports gathering method. Such devices can
-    // obtain a free port on demand. eg: Desktop device.
-    virtual bool canAutoDetectPorts() const { return false; }
-    virtual PortsGatheringMethod portsGatheringMethod() const { return {}; }
+    virtual PortsGatheringMethod portsGatheringMethod() const;
     virtual bool canCreateProcessModel() const { return false; }
     virtual DeviceProcessList *createProcessListModel(QObject *parent = nullptr) const;
     virtual bool hasDeviceTester() const { return false; }
@@ -178,9 +176,6 @@ public:
 
     Utils::FilePath debugServerPath() const;
     void setDebugServerPath(const Utils::FilePath &path);
-
-    Utils::FilePath debugDumperPath() const;
-    void setDebugDumperPath(const Utils::FilePath &path);
 
     Utils::FilePath qmlRunCommand() const;
     void setQmlRunCommand(const Utils::FilePath &path);
@@ -220,6 +215,8 @@ public:
 
     virtual bool prepareForBuild(const Target *target);
     virtual std::optional<Utils::FilePath> clangdExecutable() const;
+
+    virtual void checkOsType() {}
 
 protected:
     IDevice();
@@ -280,13 +277,14 @@ private:
     QString m_errorString;
 };
 
-class PROJECTEXPLORER_EXPORT KillerAdapter : public Utils::Tasking::TaskAdapter<DeviceProcessKiller>
+class PROJECTEXPLORER_EXPORT DeviceProcessKillerTaskAdapter
+    : public Tasking::TaskAdapter<DeviceProcessKiller>
 {
 public:
-    KillerAdapter();
+    DeviceProcessKillerTaskAdapter();
     void start() final;
 };
 
 } // namespace ProjectExplorer
 
-QTC_DECLARE_CUSTOM_TASK(Killer, ProjectExplorer::KillerAdapter);
+TASKING_DECLARE_TASK(DeviceProcessKillerTask, ProjectExplorer::DeviceProcessKillerTaskAdapter);

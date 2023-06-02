@@ -422,8 +422,12 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
 
     using namespace Layouting;
 
-    QWidget *setAllWidget = Row{Tr::tr("Select all, if possible: "), m_setAll, st}.emerge(
-        WithoutMargins);
+    QWidget *setAllWidget = Row {
+        Tr::tr("Select all, if possible: "),
+        m_setAll,
+        st,
+        noMargin
+    }.emerge();
 
     // clang-format off
     Column {

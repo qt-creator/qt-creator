@@ -18,13 +18,10 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
 
-#include <QCheckBox>
-#include <QLabel>
-#include <QLineEdit>
 #include <QThread>
 
 #include <optional>
@@ -49,9 +46,8 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
 
     setCommandLineProvider([this] { return effectiveMakeCommand(Execution); });
 
-    m_makeCommandAspect = addAspect<StringAspect>();
+    m_makeCommandAspect = addAspect<FilePathAspect>();
     m_makeCommandAspect->setSettingsKey(id.withSuffix(MAKE_COMMAND_SUFFIX).toString());
-    m_makeCommandAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_makeCommandAspect->setExpectedKind(PathChooser::ExistingCommand);
     m_makeCommandAspect->setBaseFileName(PathChooser::homePath());
     m_makeCommandAspect->setHistoryCompleter("PE.MakeCommand.History");
@@ -318,14 +314,15 @@ CommandLine MakeStep::effectiveMakeCommand(MakeCommandType type) const
 QWidget *MakeStep::createConfigWidget()
 {
     Layouting::Form builder;
-    builder.addRow(m_makeCommandAspect);
-    builder.addRow(m_userArgumentsAspect);
+    builder.addRow({m_makeCommandAspect});
+    builder.addRow({m_userArgumentsAspect});
     builder.addRow({m_userJobCountAspect, m_overrideMakeflagsAspect, m_nonOverrideWarning});
     if (m_disablingForSubDirsSupported)
-        builder.addRow(m_disabledForSubdirsAspect);
-    builder.addRow(m_buildTargetsAspect);
+        builder.addRow({m_disabledForSubdirsAspect});
+    builder.addRow({m_buildTargetsAspect});
+    builder.addItem(Layouting::noMargin);
 
-    auto widget = builder.emerge(Layouting::WithoutMargins);
+    auto widget = builder.emerge();
 
     VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
@@ -381,22 +378,6 @@ QWidget *MakeStep::createConfigWidget()
     connect(target(), &Target::parsingFinished, widget, updateDetails);
 
     return widget;
-}
-
-bool MakeStep::buildsTarget(const QString &target) const
-{
-    return m_buildTargetsAspect->value().contains(target);
-}
-
-void MakeStep::setBuildTarget(const QString &target, bool on)
-{
-    QStringList old = m_buildTargetsAspect->value();
-    if (on && !old.contains(target))
-         old << target;
-    else if (!on && old.contains(target))
-        old.removeOne(target);
-
-    m_buildTargetsAspect->setValue(old);
 }
 
 QStringList MakeStep::availableTargets() const

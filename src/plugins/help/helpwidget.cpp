@@ -30,6 +30,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QComboBox>
@@ -319,7 +320,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     cmd = Core::ActionManager::registerAction(helpTargetAction, "Help.OpenContextHelpHere", context);
     QToolButton *helpTargetButton = Core::Command::toolButtonWithAppendedShortcut(helpTargetAction,
                                                                                   cmd);
-    helpTargetButton->setProperty("noArrow", true);
+    helpTargetButton->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
     helpTargetButton->setPopupMode(QToolButton::DelayedPopup);
     helpTargetButton->setMenu(createHelpTargetMenu(helpTargetButton));
     connect(LocalHelpManager::instance(),
@@ -416,7 +417,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     auto openButton = new QToolButton;
     openButton->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
     openButton->setPopupMode(QToolButton::InstantPopup);
-    openButton->setProperty("noArrow", true);
+    openButton->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
     layout->addWidget(openButton);
     auto openMenu = new QMenu(openButton);
     openButton->setMenu(openMenu);

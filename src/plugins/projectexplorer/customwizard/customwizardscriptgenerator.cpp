@@ -8,7 +8,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/temporarydirectory.h>
 
 #include <QFileInfo>
@@ -64,7 +64,7 @@ static bool
                               const QMap<QString, QString> &fieldMap,
                               QString *stdOut /* = 0 */, QString *errorMessage)
 {
-    Utils::QtcProcess process;
+    Utils::Process process;
     const QString binary = script.front();
     QStringList arguments;
     const int binarySize = script.size();

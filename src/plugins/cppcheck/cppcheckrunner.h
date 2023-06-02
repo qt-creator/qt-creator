@@ -4,7 +4,7 @@
 #pragma once
 
 #include <utils/filepath.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QHash>
 #include <QTimer>
@@ -35,7 +35,7 @@ private:
     void handleDone();
 
     CppcheckTool &m_tool;
-    Utils::QtcProcess m_process;
+    Utils::Process m_process;
     Utils::FilePath m_binary;
     QString m_arguments;
     QHash<QString, Utils::FilePaths> m_queue;

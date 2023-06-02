@@ -49,7 +49,6 @@
 #include "functionutils.h"
 #include "includeutils.h"
 #include "projectinfo_test.h"
-#include "senddocumenttracker.h"
 #include "symbolsearcher_test.h"
 #include "typehierarchybuilder_test.h"
 #endif
@@ -431,6 +430,10 @@ void CppEditorPlugin::initialize()
     contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     cppToolsMenu->addAction(cmd);
 
+    cmd = ActionManager::command(TextEditor::Constants::OPEN_CALL_HIERARCHY);
+    contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
+    cppToolsMenu->addAction(cmd);
+
     // Refactoring sub-menu
     Command *sep = contextMenu->addSeparator();
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
@@ -482,7 +485,6 @@ void CppEditorPlugin::initialize()
     addTest<ProjectFileCategorizerTest>();
     addTest<ProjectInfoGeneratorTest>();
     addTest<ProjectPartChooserTest>();
-    addTest<DocumentTrackerTest>();
     addTest<SourceProcessorTest>();
     addTest<SymbolSearcherTest>();
     addTest<TypeHierarchyBuilderTest>();

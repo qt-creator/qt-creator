@@ -40,7 +40,7 @@ public:
     bool aboutToRun(Debugger::DebuggerRunTool *runTool,
                     QString &errorMessage) const final;
     ProjectExplorer::RunWorker *targetRunner(
-            ProjectExplorer::RunControl *runControl) const final;
+            ProjectExplorer::RunControl *runControl) const override;
 
     bool isValid() const override;
     virtual QSet<StartupMode> supportedStartupModes() const = 0;

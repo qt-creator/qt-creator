@@ -38,7 +38,6 @@
 #include <utils/variablechooser.h>
 
 #include <QComboBox>
-#include <QCryptographicHash>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QGridLayout>
@@ -49,7 +48,6 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
-using namespace Utils::Layouting;
 
 namespace CMakeProjectManager {
 
@@ -105,7 +103,7 @@ private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
 
-    void addToLayout(LayoutBuilder &builder) override
+    void addToLayout(Layouting::LayoutItem &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -350,11 +348,11 @@ private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
 
-    void addToLayout(LayoutBuilder &builder) override
+    void addToLayout(Layouting::LayoutItem &parent) override
     {
         addMutableAction(m_label);
-        builder.addItem(m_label);
-        builder.addItem(m_changeButton);
+        parent.addItem(m_label);
+        parent.addItem(m_changeButton);
     }
 
     void refresh() override
@@ -680,7 +678,7 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
     if (it != known.constEnd()) {
         const bool hasNinja = [k, tool] {
             auto settings = Internal::CMakeSpecificSettings::instance();
-            if (settings->ninjaPath.filePath().isEmpty()) {
+            if (settings->ninjaPath().isEmpty()) {
                 auto findNinja = [](const Environment &env) -> bool {
                     return !env.searchInPath("ninja").isEmpty();
                 };
@@ -874,7 +872,6 @@ const char CMAKE_CXX_TOOLCHAIN_KEY[] = "CMAKE_CXX_COMPILER";
 const char CMAKE_QMAKE_KEY[] = "QT_QMAKE_EXECUTABLE";
 const char CMAKE_PREFIX_PATH_KEY[] = "CMAKE_PREFIX_PATH";
 const char QTC_CMAKE_PRESET_KEY[] = "QTC_CMAKE_PRESET";
-const char QTC_KIT_DEFAULT_CONFIG_HASH[] = "QTC_KIT_DEFAULT_CONFIG_HASH";
 
 class CMakeConfigurationKitAspectWidget final : public KitAspectWidget
 {
@@ -892,11 +889,11 @@ public:
 
 private:
     // KitAspectWidget interface
-    void addToLayout(LayoutBuilder &builder) override
+    void addToLayout(Layouting::LayoutItem &parent) override
     {
         addMutableAction(m_summaryLabel);
-        builder.addItem(m_summaryLabel);
-        builder.addItem(m_manageButton);
+        parent.addItem(m_summaryLabel);
+        parent.addItem(m_manageButton);
     }
 
     void makeReadOnly() override
@@ -1135,51 +1132,6 @@ CMakeConfigItem CMakeConfigurationKitAspect::cmakePresetConfigItem(const Project
     });
 }
 
-void CMakeConfigurationKitAspect::setKitDefaultConfigHash(ProjectExplorer::Kit *k)
-{
-    const CMakeConfig defaultConfigExpanded
-        = Utils::transform(defaultConfiguration(k).toList(), [k](const CMakeConfigItem &item) {
-              CMakeConfigItem expanded(item);
-              expanded.value = item.expandedValue(k).toUtf8();
-              return expanded;
-          });
-    const CMakeTool *const tool = CMakeKitAspect::cmakeTool(k);
-    const QByteArray kitHash = computeDefaultConfigHash(defaultConfigExpanded,
-                                                        tool ? tool->cmakeExecutable()
-                                                             : FilePath());
-
-    CMakeConfig config = configuration(k);
-    config.append(CMakeConfigItem(QTC_KIT_DEFAULT_CONFIG_HASH, CMakeConfigItem::INTERNAL, kitHash));
-
-    setConfiguration(k, config);
-}
-
-CMakeConfigItem CMakeConfigurationKitAspect::kitDefaultConfigHashItem(const ProjectExplorer::Kit *k)
-{
-    const CMakeConfig config = configuration(k);
-    return Utils::findOrDefault(config, [](const CMakeConfigItem &item) {
-        return item.key == QTC_KIT_DEFAULT_CONFIG_HASH;
-    });
-}
-
-QByteArray CMakeConfigurationKitAspect::computeDefaultConfigHash(const CMakeConfig &config,
-                                                                 const FilePath &cmakeBinary)
-{
-    const CMakeConfig defaultConfig = defaultConfiguration(nullptr);
-    const QByteArray configValues = std::accumulate(defaultConfig.begin(),
-                                                    defaultConfig.end(),
-                                                    QByteArray(),
-                                                    [config](QByteArray &sum,
-                                                             const CMakeConfigItem &item) {
-                                                        return sum += config.valueOf(item.key);
-                                                    });
-    return QCryptographicHash::hash(cmakeBinary.caseSensitivity() == Qt::CaseInsensitive
-                                        ? configValues.toLower()
-                                        : configValues,
-                                    QCryptographicHash::Md5)
-        .toHex();
-}
-
 QVariant CMakeConfigurationKitAspect::defaultValue(const Kit *k) const
 {
     // FIXME: Convert preload scripts
@@ -1209,16 +1161,15 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
     FilePath tcCxxPath;
     for (const CMakeConfigItem &i : config) {
         // Do not use expand(QByteArray) as we cannot be sure the input is latin1
-        const FilePath expandedValue
-            = FilePath::fromString(k->macroExpander()->expand(QString::fromUtf8(i.value)));
+        const QString expandedValue = k->macroExpander()->expand(QString::fromUtf8(i.value));
         if (i.key == CMAKE_QMAKE_KEY)
-            qmakePath = expandedValue.onDevice(cmake->cmakeExecutable());
+            qmakePath = cmake->cmakeExecutable().withNewPath(expandedValue);
         else if (i.key == CMAKE_C_TOOLCHAIN_KEY)
-            tcCPath = expandedValue.onDevice(cmake->cmakeExecutable());
+            tcCPath = cmake->cmakeExecutable().withNewPath(expandedValue);
         else if (i.key == CMAKE_CXX_TOOLCHAIN_KEY)
-            tcCxxPath = expandedValue.onDevice(cmake->cmakeExecutable());
+            tcCxxPath = cmake->cmakeExecutable().withNewPath(expandedValue);
         else if (i.key == CMAKE_PREFIX_PATH_KEY)
-            qtInstallDirs = CMakeConfigItem::cmakeSplitValue(expandedValue.path());
+            qtInstallDirs = CMakeConfigItem::cmakeSplitValue(expandedValue);
     }
 
     Tasks result;
@@ -1259,7 +1210,7 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
         if (!tcC || !tcC->isValid()) {
             addWarning(Tr::tr("CMake configuration has a path to a C compiler set, "
                           "even though the kit has no valid tool chain."));
-        } else if (tcCPath != tcC->compilerCommand() && tcCPath != tcC->compilerCommand().onDevice(tcCPath)) {
+        } else if (tcCPath != tcC->compilerCommand() && tcCPath != tcCPath.withNewMappedPath(tcC->compilerCommand())) {
             addWarning(Tr::tr("CMake configuration has a path to a C compiler set "
                           "that does not match the compiler path "
                           "configured in the tool chain of the kit."));
@@ -1275,7 +1226,7 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
         if (!tcCxx || !tcCxx->isValid()) {
             addWarning(Tr::tr("CMake configuration has a path to a C++ compiler set, "
                           "even though the kit has no valid tool chain."));
-        } else if (tcCxxPath != tcCxx->compilerCommand() && tcCxxPath != tcCxx->compilerCommand().onDevice(tcCxxPath)) {
+        } else if (tcCxxPath != tcCxx->compilerCommand() && tcCxxPath != tcCxxPath.withNewMappedPath(tcCxx->compilerCommand())) {
             addWarning(Tr::tr("CMake configuration has a path to a C++ compiler set "
                           "that does not match the compiler path "
                           "configured in the tool chain of the kit."));

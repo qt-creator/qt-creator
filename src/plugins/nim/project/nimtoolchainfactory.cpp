@@ -35,10 +35,7 @@ Toolchains NimToolChainFactory::autoDetect(const ToolchainDetector &detector) co
 {
     Toolchains result;
 
-    IDevice::ConstPtr dev =
-        detector.device ? detector.device : DeviceManager::defaultDesktopDevice();
-
-    const FilePath compilerPath = dev->searchExecutableInPath("nim");
+    const FilePath compilerPath = detector.device->searchExecutableInPath("nim");
     if (compilerPath.isEmpty())
         return result;
 

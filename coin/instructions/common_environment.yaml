@@ -7,10 +7,10 @@ instructions:
         variableValue: "RelWithDebInfo"
       - type: EnvironmentVariable
         variableName: LLVM_BASE_URL
-        variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_16.0.0-based
+        variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_16.0.2-based
       - type: EnvironmentVariable
         variableName: QTC_QT_BASE_URL
-        variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/6.5/6.5.0-released/Qt"
+        variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/6.5/6.5.1-released/Qt"
       - type: EnvironmentVariable
         variableName: QTC_QT_MODULES
         variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquickcontrols2 qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations qtwebengine"

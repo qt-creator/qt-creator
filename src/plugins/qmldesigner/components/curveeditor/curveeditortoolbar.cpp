@@ -8,7 +8,9 @@
 #include "coreplugin/actionmanager/actionmanager.h"
 #include "coreplugin/icontext.h"
 #include "theme.h"
-#include "utils/id.h"
+
+#include <utils/id.h>
+#include <utils/stylehelper.h>
 
 #include <QAction>
 #include <QHBoxLayout>
@@ -154,8 +156,8 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
 
     m_zoomSlider = new QSlider(Qt::Horizontal);
     m_zoomSlider->setRange(0, 100);
-    m_zoomSlider->setProperty("panelwidget", true);
-    m_zoomSlider->setProperty("panelwidget_singlerow", true);
+    Utils::StyleHelper::setPanelWidget(m_zoomSlider);
+    Utils::StyleHelper::setPanelWidgetSingleRow(m_zoomSlider);
     m_zoomSlider->setFixedWidth(120);
 
     connect(m_zoomSlider, &QSlider::valueChanged, [this](int value) {

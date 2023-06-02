@@ -33,8 +33,6 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
     , m_factory(factory)
     , m_project(project)
 {
-    resize(536, 59);
-
     m_delegateComboBox = new QComboBox(this);
     m_delegateComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
@@ -48,7 +46,7 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
     m_importButton = new QPushButton(Tr::tr("Import..."));
     m_importButton->setEnabled(false);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         Grid {
@@ -59,8 +57,8 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
             m_exportButton,
             m_importButton
         },
-
-    }.attachTo(this, WithoutMargins);
+        noMargin,
+    }.attachTo(this);
 
     connect(m_delegateComboBox, &QComboBox::activated,
             this, &CodeStyleSelectorWidget::slotComboBoxActivated);

@@ -7,6 +7,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -25,9 +26,11 @@
 
 #include <qdrawutil.h>
 
+using namespace Utils;
+
 namespace Core {
 
-using namespace Utils;
+using namespace WelcomePageHelpers;
 
 static QColor themeColor(Theme::Color role)
 {
@@ -123,6 +126,17 @@ SectionGridView::SectionGridView(QWidget *parent)
     : GridView(parent)
 {}
 
+void SectionGridView::setMaxRows(std::optional<int> max)
+{
+    m_maxRows = max;
+    updateGeometry();
+}
+
+std::optional<int> SectionGridView::maxRows() const
+{
+    return m_maxRows;
+}
+
 bool SectionGridView::hasHeightForWidth() const
 {
     return true;
@@ -130,12 +144,39 @@ bool SectionGridView::hasHeightForWidth() const
 
 int SectionGridView::heightForWidth(int width) const
 {
-    const int columnCount = width / Core::ListItemDelegate::GridItemWidth;
+    const int columnCount = qMax(1, width / Core::WelcomePageHelpers::GridItemWidth);
     const int rowCount = (model()->rowCount() + columnCount - 1) / columnCount;
-    return rowCount * Core::ListItemDelegate::GridItemHeight;
+    const int maxRowCount = m_maxRows ? std::min(*m_maxRows, rowCount) : rowCount;
+    return maxRowCount * Core::WelcomePageHelpers::GridItemHeight;
 }
 
-const QSize ListModel::defaultImageSize(214, 160);
+void SectionGridView::wheelEvent(QWheelEvent *e)
+{
+    if (m_maxRows) // circumvent scrolling of the list view
+        QWidget::wheelEvent(e);
+    else
+        GridView::wheelEvent(e);
+}
+
+bool SectionGridView::event(QEvent *e)
+{
+    if (e->type() == QEvent::Resize) {
+        const auto itemsFit = [this](const QSize &size) {
+            const int maxColumns = std::max(size.width() / WelcomePageHelpers::GridItemWidth, 1);
+            const int maxRows = std::max(size.height() / WelcomePageHelpers::GridItemHeight, 1);
+            const int maxItems = maxColumns * maxRows;
+            const int items = model()->rowCount();
+            return maxItems >= items;
+        };
+        auto resizeEvent = static_cast<QResizeEvent *>(e);
+        const bool itemsCurrentyFit = itemsFit(size());
+        if (!resizeEvent->oldSize().isValid()
+            || itemsFit(resizeEvent->oldSize()) != itemsCurrentyFit) {
+            emit itemsFitChanged(itemsCurrentyFit);
+        }
+    }
+    return GridView::event(e);
+}
 
 ListModel::ListModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -403,6 +444,7 @@ ListItemDelegate::ListItemDelegate()
     : backgroundPrimaryColor(themeColor(Theme::Welcome_BackgroundPrimaryColor))
     , backgroundSecondaryColor(themeColor(Theme::Welcome_BackgroundSecondaryColor))
     , foregroundPrimaryColor(themeColor(Theme::Welcome_ForegroundPrimaryColor))
+    , foregroundSecondaryColor(themeColor(Theme::Welcome_ForegroundSecondaryColor))
     , hoverColor(themeColor(Theme::Welcome_HoverColor))
     , textColor(themeColor(Theme::Welcome_TextColor))
 {
@@ -415,13 +457,14 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
     const QRect rc = option.rect;
     const QRect tileRect(0, 0, rc.width() - GridItemGap, rc.height() - GridItemGap);
-    const QSize thumbnailBgSize = ListModel::defaultImageSize.grownBy(QMargins(1, 1, 1, 1));
+    const QSize thumbnailBgSize = GridItemImageSize.grownBy(QMargins(1, 1, 1, 1));
     const QRect thumbnailBgRect((tileRect.width() - thumbnailBgSize.width()) / 2, GridItemGap,
                                 thumbnailBgSize.width(), thumbnailBgSize.height());
     const QRect textArea = tileRect.adjusted(GridItemGap, GridItemGap, -GridItemGap, -GridItemGap);
 
     const bool hovered = option.state & QStyle::State_MouseOver;
 
+    constexpr int TagsSeparatorY = GridItemHeight - GridItemGap - 52;
     constexpr int tagsBase = TagsSeparatorY + 17;
     constexpr int shiftY = TagsSeparatorY - 16;
     constexpr int nameY = TagsSeparatorY - 20;
@@ -524,7 +567,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         // The separator line below the example title.
         const int ll = nameRect.height() + 3;
         const QLine line = QLine(0, ll, textArea.width(), ll).translated(shiftedTextRect.topLeft());
-        painter->setPen(foregroundPrimaryColor);
+        painter->setPen(foregroundSecondaryColor);
         painter->setOpacity(animationProgress); // "fade in" separator line and description
         painter->drawLine(line);
 
@@ -543,7 +586,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     }
 
     // Separator line between text and 'Tags:' section
-    painter->setPen(foregroundPrimaryColor);
+    painter->setPen(foregroundSecondaryColor);
     painter->drawLine(QLineF(textArea.topLeft(), textArea.topRight())
                       .translated(0, TagsSeparatorY));
 
@@ -633,13 +676,9 @@ void ListItemDelegate::goon()
 
 SectionedGridView::SectionedGridView(QWidget *parent)
     : QStackedWidget(parent)
-    , m_allItemsView(new Core::GridView(this))
 {
-    auto allItemsModel = new ListModel(this);
-    allItemsModel->setPixmapFunction(m_pixmapFunction);
-    // it just "borrows" the items from the section models:
-    allItemsModel->setOwnsItems(false);
-    m_filteredAllItemsModel = new Core::ListModelFilter(allItemsModel, this);
+    m_allItemsModel.reset(new ListModel);
+    m_allItemsModel->setPixmapFunction(m_pixmapFunction);
 
     auto area = new QScrollArea(this);
     area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -650,21 +689,23 @@ SectionedGridView::SectionedGridView(QWidget *parent)
     auto sectionedView = new QWidget;
     auto layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->addStretch();
+    layout->addStretch(1);
     sectionedView->setLayout(layout);
     area->setWidget(sectionedView);
 
     addWidget(area);
-
-    m_allItemsView->setModel(m_filteredAllItemsModel);
-    addWidget(m_allItemsView);
 }
 
-SectionedGridView::~SectionedGridView() = default;
+SectionedGridView::~SectionedGridView()
+{
+    clear();
+}
 
 void SectionedGridView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
-    m_allItemsView->setItemDelegate(delegate);
+    m_itemDelegate = delegate;
+    if (m_allItemsView)
+        m_allItemsView->setItemDelegate(delegate);
     for (GridView *view : std::as_const(m_gridViews))
         view->setItemDelegate(delegate);
 }
@@ -672,38 +713,97 @@ void SectionedGridView::setItemDelegate(QAbstractItemDelegate *delegate)
 void SectionedGridView::setPixmapFunction(const Core::ListModel::PixmapFunction &pixmapFunction)
 {
     m_pixmapFunction = pixmapFunction;
-    auto allProducts = static_cast<ListModel *>(m_filteredAllItemsModel->sourceModel());
-    allProducts->setPixmapFunction(pixmapFunction);
+    m_allItemsModel->setPixmapFunction(pixmapFunction);
     for (ListModel *model : std::as_const(m_sectionModels))
         model->setPixmapFunction(pixmapFunction);
 }
 
 void SectionedGridView::setSearchString(const QString &searchString)
 {
-    int view = searchString.isEmpty() ? 0  // sectioned view
-                                      : 1; // search view
-    setCurrentIndex(view);
-    m_filteredAllItemsModel->setSearchString(searchString);
+    if (searchString.isEmpty()) {
+        // back to previous view
+        m_allItemsView.reset();
+        if (m_zoomedInWidget)
+            setCurrentWidget(m_zoomedInWidget);
+        else
+            setCurrentIndex(0);
+        return;
+    }
+    if (!m_allItemsView) {
+        // We don't have a grid set for searching yet.
+        // Create all items view for filtering.
+        m_allItemsView.reset(new GridView);
+        m_allItemsView->setModel(new ListModelFilter(m_allItemsModel.get(), m_allItemsView.get()));
+        if (m_itemDelegate)
+            m_allItemsView->setItemDelegate(m_itemDelegate);
+        addWidget(m_allItemsView.get());
+    }
+    setCurrentWidget(m_allItemsView.get());
+    auto filterModel = static_cast<ListModelFilter *>(m_allItemsView.get()->model());
+    filterModel->setSearchString(searchString);
+}
+
+static QWidget *createSeparator(QWidget *parent)
+{
+    QWidget *line = Layouting::createHr(parent);
+    QSizePolicy linePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
+    linePolicy.setHorizontalStretch(2);
+    line->setSizePolicy(linePolicy);
+    QPalette pal = line->palette();
+    pal.setColor(QPalette::Dark, Qt::transparent);
+    pal.setColor(QPalette::Light, themeColor(Theme::Welcome_ForegroundSecondaryColor));
+    line->setPalette(pal);
+    return line;
+}
+
+static QLabel *createLinkLabel(const QString &text, QWidget *parent)
+{
+    const QString linkColor = themeColor(Theme::Welcome_LinkColor).name();
+    auto link = new QLabel("<a href=\"link\" style=\"color: " + linkColor + ";\">"
+                           + text + "</a>", parent);
+    return link;
 }
 
 ListModel *SectionedGridView::addSection(const Section &section, const QList<ListItem *> &items)
 {
     auto model = new ListModel(this);
     model->setPixmapFunction(m_pixmapFunction);
+    // the sections only keep a weak reference to the items,
+    // they are owned by the allProducts model, since multiple sections can contain duplicates
+    // of the same item
+    model->setOwnsItems(false);
     model->appendItems(items);
 
     auto gridView = new SectionGridView(this);
-    gridView->setItemDelegate(m_allItemsView->itemDelegate());
+    gridView->setItemDelegate(m_itemDelegate);
     gridView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     gridView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     gridView->setModel(model);
+    gridView->setMaxRows(section.maxRows);
 
     m_sectionModels.insert(section, model);
     const auto it = m_gridViews.insert(section, gridView);
 
-    auto sectionLabel = new QLabel(section.name);
+    QLabel *seeAllLink = createLinkLabel(Tr::tr("Show All") + " &gt;", this);
+    if (gridView->maxRows().has_value()) {
+        seeAllLink->setVisible(true);
+        connect(gridView, &SectionGridView::itemsFitChanged, seeAllLink, [seeAllLink](bool fits) {
+            seeAllLink->setVisible(!fits);
+        });
+    } else {
+        seeAllLink->setVisible(false);
+    }
+    connect(seeAllLink, &QLabel::linkActivated, this, [this, section] { zoomInSection(section); });
+    using namespace Layouting;
+    QWidget *sectionLabel = Row {
+        section.name,
+        createSeparator(this),
+        seeAllLink,
+        Space(HSpacing),
+        noMargin
+    }.emerge();
     m_sectionLabels.append(sectionLabel);
-    sectionLabel->setContentsMargins(0, Core::WelcomePageHelpers::ItemGap, 0, 0);
+    sectionLabel->setContentsMargins(0, ItemGap, 0, 0);
     sectionLabel->setFont(Core::WelcomePageHelpers::brandFont());
     auto scrollArea = qobject_cast<QScrollArea *>(widget(0));
     auto vbox = qobject_cast<QVBoxLayout *>(scrollArea->widget()->layout());
@@ -715,8 +815,11 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     vbox->insertWidget(position + 1, gridView);
 
     // add the items also to the all products model to be able to search correctly
-    auto allProducts = static_cast<ListModel *>(m_filteredAllItemsModel->sourceModel());
-    allProducts->appendItems(items);
+    const QSet<ListItem *> allItems = toSet(m_allItemsModel->items());
+    const QList<ListItem *> newItems = filtered(items, [&allItems](ListItem *item) {
+        return !allItems.contains(item);
+    });
+    m_allItemsModel->appendItems(newItems);
 
     // only show section label(s) if there is more than one section
     m_sectionLabels.at(0)->setVisible(m_sectionLabels.size() > 1);
@@ -726,14 +829,62 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
 
 void SectionedGridView::clear()
 {
-    auto allProducts = static_cast<ListModel *>(m_filteredAllItemsModel->sourceModel());
-    allProducts->clear();
+    m_allItemsModel->clear();
     qDeleteAll(m_sectionModels);
     qDeleteAll(m_sectionLabels);
     qDeleteAll(m_gridViews);
     m_sectionModels.clear();
     m_sectionLabels.clear();
     m_gridViews.clear();
+    m_allItemsView.reset();
 }
+
+void SectionedGridView::zoomInSection(const Section &section)
+{
+    auto zoomedInWidget = new QWidget(this);
+    auto layout = new QVBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
+    zoomedInWidget->setLayout(layout);
+
+    QLabel *backLink = createLinkLabel("&lt; " + Tr::tr("Back"), this);
+    connect(backLink, &QLabel::linkActivated, this, [this, zoomedInWidget] {
+        removeWidget(zoomedInWidget);
+        delete zoomedInWidget;
+        setCurrentIndex(0);
+    });
+    using namespace Layouting;
+    QWidget *sectionLabel = Row {
+        section.name,
+        createSeparator(this),
+        backLink,
+        Space(HSpacing),
+        noMargin
+    }.emerge();
+    sectionLabel->setContentsMargins(0, ItemGap, 0, 0);
+    sectionLabel->setFont(Core::WelcomePageHelpers::brandFont());
+
+    auto gridView = new GridView(zoomedInWidget);
+    gridView->setItemDelegate(m_itemDelegate);
+    gridView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    gridView->setModel(m_sectionModels.value(section));
+
+    layout->addWidget(sectionLabel);
+    layout->addWidget(gridView);
+
+    m_zoomedInWidget = zoomedInWidget;
+    addWidget(zoomedInWidget);
+    setCurrentWidget(zoomedInWidget);
+}
+
+Section::Section(const QString &name, int priority)
+    : name(name)
+    , priority(priority)
+{}
+
+Section::Section(const QString &name, int priority, std::optional<int> maxRows)
+    : name(name)
+    , priority(priority)
+    , maxRows(maxRows)
+{}
 
 } // namespace Core

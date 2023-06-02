@@ -36,7 +36,7 @@
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -137,8 +137,9 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
         createSignPackageGroup(),
         createApplicationGroup(),
         createAdvancedGroup(),
-        createAdditionalLibrariesGroup()
-    }.attachTo(this, WithoutMargins);
+        createAdditionalLibrariesGroup(),
+        noMargin
+    }.attachTo(this);
 
     connect(m_step->buildConfiguration(), &BuildConfiguration::buildTypeChanged,
             this, &AndroidBuildApkWidget::updateSigningWarning);
@@ -711,6 +712,13 @@ void AndroidBuildApkStep::doRun()
         return;
     }
 
+    if (AndroidManager::skipInstallationAndPackageSteps(target())) {
+        reportWarningOrError(Tr::tr("Product type is not an application, not building an APK."),
+                             Task::Warning);
+        emit finished(true);
+        return;
+    }
+
     auto setup = [this] {
         const auto androidAbis = AndroidManager::applicationAbis(target());
         const QString buildKey = target()->activeBuildKey();
@@ -863,7 +871,7 @@ void AndroidBuildApkStep::updateBuildToolsVersionInJsonFile()
     if (!contents)
         return;
 
-    QRegularExpression regex(QLatin1String("\"sdkBuildToolsRevision\":.\"[0-9.]+\""));
+    static const QRegularExpression regex(R"("sdkBuildToolsRevision":."[0-9.]+")");
     QRegularExpressionMatch match = regex.match(QString::fromUtf8(contents.value()));
     const QString version = buildToolsVersion().toString();
     if (match.hasMatch() && !version.isEmpty()) {
@@ -925,7 +933,8 @@ void AndroidBuildApkStep::setBuildToolsVersion(const QVersionNumber &version)
 void AndroidBuildApkStep::stdError(const QString &output)
 {
     QString newOutput = output;
-    newOutput.remove(QRegularExpression("^(\\n)+"));
+    static const QRegularExpression re("^(\\n)+");
+    newOutput.remove(re);
 
     if (newOutput.isEmpty())
         return;
@@ -1041,7 +1050,7 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
     const QStringList params = {"-list", "-v", "-keystore", m_keystorePath.toUserOutput(),
         "-storepass", m_keystorePasswd, "-J-Duser.language=en"};
 
-    QtcProcess keytoolProc;
+    Process keytoolProc;
     keytoolProc.setTimeoutS(30);
     keytoolProc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), params});
     keytoolProc.runBlocking(EventLoopMode::On);

@@ -9,9 +9,9 @@
 #include <cppeditor/cppworkingcopy.h>
 #include <qmljs/qmljsdocument.h>
 
-#include <QFutureInterface>
-
 QT_BEGIN_NAMESPACE
+template <class T>
+class QPromise;
 class QRegularExpression;
 QT_END_NAMESPACE
 
@@ -45,8 +45,8 @@ class ITestParser
 public:
     explicit ITestParser(ITestFramework *framework) : m_framework(framework) {}
     virtual ~ITestParser() { }
-    virtual void init(const Utils::FilePaths &filesToParse, bool fullParse) = 0;
-    virtual bool processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
+    virtual void init(const QSet<Utils::FilePath> &filesToParse, bool fullParse) = 0;
+    virtual bool processDocument(QPromise<TestParseResultPtr> &futureInterface,
                                  const Utils::FilePath &fileName) = 0;
 
     virtual QStringList supportedExtensions() const { return {}; }
@@ -63,7 +63,7 @@ class CppParser : public ITestParser
 {
 public:
     explicit CppParser(ITestFramework *framework);
-    void init(const Utils::FilePaths &filesToParse, bool fullParse) override;
+    void init(const QSet<Utils::FilePath> &filesToParse, bool fullParse) override;
     static bool selectedForBuilding(const Utils::FilePath &fileName);
     QByteArray getFileContent(const Utils::FilePath &filePath) const;
     void release() override;

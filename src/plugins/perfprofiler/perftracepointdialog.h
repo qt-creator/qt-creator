@@ -15,7 +15,7 @@ class QLabel;
 class QTextEdit;
 QT_END_NAMESPACE
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace PerfProfiler {
 namespace Internal {
@@ -40,7 +40,7 @@ private:
     QComboBox *m_privilegesChooser;
     QDialogButtonBox *m_buttonBox;
     ProjectExplorer::IDeviceConstPtr m_device;
-    std::unique_ptr<Utils::QtcProcess> m_process;
+    std::unique_ptr<Utils::Process> m_process;
 
     void accept() final;
     void reject() final;

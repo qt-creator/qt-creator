@@ -171,16 +171,17 @@
 
     Use the \uicontrol Locator to browse
     through projects, files, classes, functions, documentation, and file systems.
+
+    \image qtcreator-locator-open.webp "List of found files"
+
     To quickly access files not directly mentioned in your project, you can
     create your own locator filters. That way you can locate files in a
     directory structure you have defined.
 
-    \image qtcreator-locator.png "List of locator filters"
-
     To create locator filters, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Environment > \uicontrol Locator > \uicontrol Add.
 
-    \image qtcreator-locator-customize.png "Locator preferences"
+    \image qtcreator-locator-customize.webp "Locator preferences"
 
     For more information, see \l{Creating Locator Filters}.
 
@@ -189,6 +190,8 @@
     Open the \uicontrol Locator with \key {Ctrl+K} and type =, followed by a space.
     You can now do basic calculations, with options to copy the results to the clipboard
     by navigating through the entries and pressing \key {Enter}.
+
+    \image qtcreator-locator.webp "List of locator filters"
 
     For more information, see \l{Executing JavaScript}.
 

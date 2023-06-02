@@ -3,16 +3,13 @@
 
 #pragma once
 
+#include "sqlite3_fwd.h"
 #include "sqliteglobal.h"
 
 #include <utils/smallstring.h>
 
 #include <exception>
 #include <iostream>
-
-extern "C" {
-struct sqlite3;
-}
 
 namespace Sqlite {
 

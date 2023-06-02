@@ -2,15 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "quicktestconfiguration.h"
-#include "../qtest/qttestconstants.h"
+
+#include "../itestframework.h"
 #include "../qtest/qttestoutputreader.h"
 #include "../qtest/qttestsettings.h"
 #include "../qtest/qttest_utils.h"
-#include "../autotestplugin.h"
-#include "../itestframework.h"
 #include "../testsettings.h"
-
-#include <utils/stringutils.h>
 
 using namespace Utils;
 
@@ -23,21 +20,19 @@ QuickTestConfiguration::QuickTestConfiguration(ITestFramework *framework)
     setMixedDebugging(true);
 }
 
-TestOutputReader *QuickTestConfiguration::createOutputReader(
-        const QFutureInterface<TestResult> &fi, QtcProcess *app) const
+TestOutputReader *QuickTestConfiguration::createOutputReader(Process *app) const
 {
     auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
     const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()
             ? QtTestOutputReader::XML
             : QtTestOutputReader::PlainText;
-    return new QtTestOutputReader(fi, app, buildDirectory(), projectFile(),
-                                  mode, TestType::QuickTest);
+    return new QtTestOutputReader(app, buildDirectory(), projectFile(), mode, TestType::QuickTest);
 }
 
 QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     QStringList arguments;
-    if (AutotestPlugin::settings()->processArgs) {
+    if (TestSettings::instance()->processArgs()) {
         arguments.append(QTestUtils::filterInterfering
                          (runnable().command.arguments().split(' ', Qt::SkipEmptyParts),
                           omitted, true));

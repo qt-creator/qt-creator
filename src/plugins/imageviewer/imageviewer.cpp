@@ -17,8 +17,9 @@
 
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 #include <utils/styledbar.h>
+#include <utils/stylehelper.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QDebug>
@@ -112,7 +113,7 @@ void ImageViewer::ctor()
     d->shareButton->setToolTip(Tr::tr("Export"));
     d->shareButton->setPopupMode(QToolButton::InstantPopup);
     d->shareButton->setIcon(Icons::EXPORTFILE_TOOLBAR.icon());
-    d->shareButton->setProperty("noArrow", true);
+    d->shareButton->setProperty(StyleHelper::C_NO_ARROW, true);
     auto shareMenu = new QMenu(d->shareButton);
     shareMenu->addAction(d->actionExportImage);
     shareMenu->addAction(d->actionMultiExportImages);

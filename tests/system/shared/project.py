@@ -120,18 +120,18 @@ def __handleBuildSystem__(buildSystem):
             selectFromCombo(combo, buildSystem)
     except:
         t, v = sys.exc_info()[:2]
-        test.warning("Exception while handling build system", "%s(%s)" % (str(t), str(v)))
+        test.warning("Exception while handling build system", "%s: %s" % (t.__name__, str(v)))
     clickButton(waitForObject(":Next_QPushButton"))
     return buildSystem
 
 def __createProjectHandleQtQuickSelection__(minimumQtVersion):
-    comboBox = waitForObject("{name='MinimumSupportedQtVersion' type='QComboBox' "
-                             "visible='1' window=':New_ProjectExplorer::JsonWizard'}")
+    comboBox = waitForObject("{name?='*QtVersion' type='QComboBox' visible='1'"
+                             " window=':New_ProjectExplorer::JsonWizard'}")
     try:
-        selectFromCombo(comboBox, minimumQtVersion)
+        selectFromCombo(comboBox, "Qt " + minimumQtVersion)
     except:
         t,v = sys.exc_info()[:2]
-        test.fatal("Exception while trying to select Qt version", "%s (%s)" % (str(t), str(v)))
+        test.fatal("Exception while trying to select Qt version", "%s: %s" % (t.__name__, str(v)))
     clickButton(waitForObject(":Next_QPushButton"))
     return minimumQtVersion
 
@@ -277,7 +277,12 @@ def createNewQtQuickApplication(workingDir, projectName=None,
                                 buildSystem=None):
     available = __createProjectOrFileSelectType__("  Application (Qt)", template, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
-    __handleBuildSystem__(buildSystem)
+    if template == "Qt Quick Application":
+        if buildSystem:
+            test.warning("Build system set explicitly for a template which can't change it.",
+                         "Template: %s, Build System: %s" % (template, buildSystem))
+    else:
+        __handleBuildSystem__(buildSystem)
     requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
     __modifyAvailableTargets__(available, requiredQt)
     checkedTargets = __chooseTargets__(targets, available)
@@ -505,7 +510,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False, ignoreVali
         version = res.group("version")
     else:
         version = None
-    if "Qt Quick" in templateName:
+    if templateName == "Qt Quick Application":
         result = set([Targets.DESKTOP_6_2_4])
     elif 'Supported Platforms' in text:
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split("\n")

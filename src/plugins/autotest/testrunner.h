@@ -4,12 +4,11 @@
 #pragma once
 
 #include "autotest_global.h"
-#include "testresult.h"
+
+#include "autotestconstants.h"
 
 #include <QDialog>
-#include <QFutureWatcher>
 #include <QList>
-#include <QObject>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -20,13 +19,14 @@ class QLabel;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
-namespace Utils { class QtcProcess; }
+namespace Tasking { class TaskTree; }
 
 namespace Autotest {
 
-enum class TestRunMode;
 class ITestConfiguration;
-class TestOutputReader;
+class ITestTreeItem;
+class TestResult;
+enum class ResultType;
 
 namespace Internal {
 
@@ -44,7 +44,7 @@ public:
 
     void runTests(TestRunMode mode, const QList<ITestConfiguration *> &selectedTests);
     void runTest(TestRunMode mode, const ITestTreeItem *item);
-    bool isTestRunning() const { return m_executingTests; }
+    bool isTestRunning() const { return m_buildConnect || m_stopDebugConnect || m_taskTree.get(); }
 
 signals:
     void testRunStarted();
@@ -61,12 +61,7 @@ private:
     void onFinished();
 
     int precheckTestConfigurations();
-    bool currentConfigValid();
-    void setUpProcessEnv();
-    void scheduleNext();
     void cancelCurrent(CancelReason reason);
-    void onProcessDone();
-    void resetInternalPointers();
 
     void runTestsHelper();
     void debugTests();
@@ -75,14 +70,9 @@ private:
     bool postponeTestRunWithEmptyExecutable(ProjectExplorer::Project *project);
     void onBuildSystemUpdated();
 
-    QFutureWatcher<TestResult> m_futureWatcher;
-    QFutureInterface<TestResult> *m_fakeFutureInterface = nullptr;
+    std::unique_ptr<Tasking::TaskTree> m_taskTree;
+
     QList<ITestConfiguration *> m_selectedTests;
-    bool m_executingTests = false;
-    bool m_canceled = false;
-    ITestConfiguration *m_currentConfig = nullptr;
-    Utils::QtcProcess *m_currentProcess = nullptr;
-    TestOutputReader *m_currentOutputReader = nullptr;
     TestRunMode m_runMode = TestRunMode::None;
 
     // temporarily used if building before running is necessary

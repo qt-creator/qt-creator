@@ -10,8 +10,8 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/process.h>
 #include <utils/processinterface.h>
-#include <utils/qtcprocess.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -227,7 +227,7 @@ private:
 
     void errorTermination(const QString &msg);
 
-    QtcProcess m_process;
+    Process m_process;
     QTimer m_timer;
     FilePath m_binary;
     QByteArray m_output;
@@ -259,15 +259,15 @@ QueryContext::QueryContext(const QString &query,
                 + "&o=CURRENT_REVISION&o=DETAILED_LABELS&o=DETAILED_ACCOUNTS";
         m_arguments = server.curlArguments() << url;
     }
-    connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
+    connect(&m_process, &Process::readyReadStandardError, this, [this] {
         const QString text = QString::fromLocal8Bit(m_process.readAllRawStandardError());
         VcsOutputWindow::appendError(text);
         m_error.append(text);
     });
-    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+    connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
         m_output.append(m_process.readAllRawStandardOutput());
     });
-    connect(&m_process, &QtcProcess::done, this, &QueryContext::processDone);
+    connect(&m_process, &Process::done, this, &QueryContext::processDone);
     m_process.setEnvironment(Git::Internal::GitClient::instance()->processEnvironment());
 
     m_timer.setInterval(timeOutMS);
@@ -340,7 +340,7 @@ void QueryContext::timeout()
                     arg(timeOutMS / 1000), QMessageBox::NoButton, parent);
     QPushButton *terminateButton = box.addButton(Git::Tr::tr("Terminate"), QMessageBox::YesRole);
     box.addButton(Git::Tr::tr("Keep Running"), QMessageBox::NoRole);
-    connect(&m_process, &QtcProcess::done, &box, &QDialog::reject);
+    connect(&m_process, &Process::done, &box, &QDialog::reject);
     box.exec();
     if (m_process.state() != QProcess::Running)
         return;

@@ -6,12 +6,13 @@
 #include "clearcasesettings.h"
 
 #include <QDir>
-#include <QFutureInterface>
 #include <QRegularExpression>
 #include <QStringList>
 
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
+
+#include <QPromise>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -22,13 +23,12 @@ using namespace Utils;
 
 namespace ClearCase::Internal {
 
-static void runProcess(QFutureInterface<void> &future,
-                       const ClearCaseSettings &settings,
+static void runProcess(QPromise<void> &promise, const ClearCaseSettings &settings,
                        const QStringList &args,
                        std::function<void(const QString &buffer, int processed)> processLine)
 {
     const QString viewRoot = ClearCasePlugin::viewData().root;
-    QtcProcess process;
+    Process process;
     process.setWorkingDirectory(FilePath::fromString(viewRoot));
     process.setCommand({settings.ccBinaryPath, args});
     process.start();
@@ -37,7 +37,7 @@ static void runProcess(QFutureInterface<void> &future,
 
     int processed = 0;
     QString buffer;
-    while (process.waitForReadyRead() && !future.isCanceled()) {
+    while (process.waitForReadyRead() && !promise.isCanceled()) {
         buffer += QString::fromLocal8Bit(process.readAllRawStandardOutput());
         int index = buffer.indexOf('\n');
         while (index != -1) {
@@ -135,7 +135,7 @@ void ClearCaseSync::updateStatusForNotManagedFiles(const QStringList &files)
     }
 }
 
-void ClearCaseSync::syncSnapshotView(QFutureInterface<void> &future, QStringList &files,
+void ClearCaseSync::syncSnapshotView(QPromise<void> &promise, QStringList &files,
                                      const ClearCaseSettings &settings)
 {
     const QString view = ClearCasePlugin::viewData().name;
@@ -167,18 +167,18 @@ void ClearCaseSync::syncSnapshotView(QFutureInterface<void> &future, QStringList
 
     // adding 1 for initial sync in which total is not accurate, to prevent finishing
     // (we don't want it to become green)
-    future.setProgressRange(0, totalFileCount + 1);
+    promise.setProgressRange(0, totalFileCount + 1);
 
     int totalProcessed = 0;
-    runProcess(future, settings, args, [&](const QString &buffer, int processed) {
+    runProcess(promise, settings, args, [&](const QString &buffer, int processed) {
         processCleartoolLsLine(viewRootDir, buffer);
-        future.setProgressValue(qMin(totalFileCount, processed));
+        promise.setProgressValue(qMin(totalFileCount, processed));
         totalProcessed = processed;
     });
 
-    if (!future.isCanceled()) {
+    if (!promise.isCanceled()) {
         updateStatusForNotManagedFiles(files);
-        future.setProgressValue(totalFileCount + 1);
+        promise.setProgressValue(totalFileCount + 1);
         if (!hot)
             updateTotalFilesCount(view, settings, totalProcessed);
     }
@@ -193,21 +193,20 @@ void ClearCaseSync::processCleartoolLscheckoutLine(const QString &buffer)
 ///
 /// Update the file status for dynamic views.
 ///
-void ClearCaseSync::syncDynamicView(QFutureInterface<void> &future,
-                                    const ClearCaseSettings& settings)
+void ClearCaseSync::syncDynamicView(QPromise<void> &promise, const ClearCaseSettings& settings)
 {
     // Always invalidate status for all files
     invalidateStatusAllFiles();
 
     const QStringList args({"lscheckout", "-avobs", "-me", "-cview", "-s"});
 
-    runProcess(future, settings, args, [&](const QString &buffer, int processed) {
+    runProcess(promise, settings, args, [&](const QString &buffer, int processed) {
         processCleartoolLscheckoutLine(buffer);
-        future.setProgressValue(processed);
+        promise.setProgressValue(processed);
     });
 }
 
-void ClearCaseSync::run(QFutureInterface<void> &future, QStringList &files)
+void ClearCaseSync::run(QPromise<void> &promise, QStringList &files)
 {
     ClearCaseSettings settings = ClearCasePlugin::settings();
     if (settings.disableIndexer)
@@ -225,9 +224,9 @@ void ClearCaseSync::run(QFutureInterface<void> &future, QStringList &files)
         emit updateStreamAndView();
 
     if (ClearCasePlugin::viewData().isDynamic)
-        syncDynamicView(future, settings);
+        syncDynamicView(promise, settings);
     else
-        syncSnapshotView(future, files, settings);
+        syncSnapshotView(promise, files, settings);
 }
 
 #ifdef WITH_TESTS

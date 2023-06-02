@@ -10,6 +10,8 @@ class Utils::Internal::FSEngineHandler
 {};
 #endif
 
+#include <QMutex>
+
 #include <memory>
 
 namespace Utils {
@@ -29,46 +31,65 @@ bool FSEngine::isAvailable()
 #endif
 }
 
+template<class T>
+class Locked
+{
+public:
+    Locked(QMutex *mutex, T &object)
+        : m_object(object)
+        , m_locker(mutex)
+    {}
+
+    T *operator->() const noexcept { return &m_object; }
+    const T operator*() const noexcept { return m_object; }
+
+private:
+    T &m_object;
+    QMutexLocker<QMutex> m_locker;
+};
+
+static Locked<Utils::FilePaths> deviceRoots()
+{
+    static FilePaths g_deviceRoots;
+    static QMutex mutex;
+    return {&mutex, g_deviceRoots};
+}
+
+static Locked<QStringList> deviceSchemes()
+{
+    static QStringList g_deviceSchemes{"device"};
+    static QMutex mutex;
+    return {&mutex, g_deviceSchemes};
+}
+
 FilePaths FSEngine::registeredDeviceRoots()
 {
-    return FSEngine::deviceRoots();
+    return *deviceRoots();
 }
 
 void FSEngine::addDevice(const FilePath &deviceRoot)
 {
-    deviceRoots().append(deviceRoot);
+    deviceRoots()->append(deviceRoot);
 }
 
 void FSEngine::removeDevice(const FilePath &deviceRoot)
 {
-    deviceRoots().removeAll(deviceRoot);
-}
-
-FilePaths &FSEngine::deviceRoots()
-{
-    static FilePaths g_deviceRoots;
-    return g_deviceRoots;
-}
-
-QStringList &FSEngine::deviceSchemes()
-{
-    static QStringList g_deviceSchemes{"device"};
-    return g_deviceSchemes;
+    deviceRoots()->removeAll(deviceRoot);
 }
 
 void FSEngine::registerDeviceScheme(const QStringView scheme)
 {
-    deviceSchemes().append(scheme.toString());
+    deviceSchemes()->append(scheme.toString());
 }
 
 void FSEngine::unregisterDeviceScheme(const QStringView scheme)
 {
-    deviceSchemes().removeAll(scheme.toString());
+    deviceSchemes()->removeAll(scheme.toString());
 }
 
 QStringList FSEngine::registeredDeviceSchemes()
 {
-    return FSEngine::deviceSchemes();
+    return *deviceSchemes();
 }
 
 } // namespace Utils

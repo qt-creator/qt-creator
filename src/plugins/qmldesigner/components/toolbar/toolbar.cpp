@@ -115,7 +115,7 @@ Utils::UniqueObjectPtr<QWidget> ToolBar::createStatusBar()
 
     quickWidget->setSource(QUrl::fromLocalFile(qmlFilePath.toFSPathString()));
 
-    for (QWidget *w : Core::ICore::statusBar()->findChildren<QWidget *>(Qt::FindDirectChildrenOnly)) {
+    for (QWidget *w : Core::ICore::statusBar()->findChildren<QWidget *>(QString(), Qt::FindDirectChildrenOnly)) {
         w->hide();
     }
 

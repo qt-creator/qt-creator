@@ -27,22 +27,18 @@
 
 #include <qtsupport/qtversionfactory.h>
 
-#include <remotelinux/genericdirectuploadstep.h>
-#include <remotelinux/makeinstallstep.h>
-#include <remotelinux/rsyncdeploystep.h>
 #include <remotelinux/remotelinux_constants.h>
 
-#include <utils/hostosinfo.h>
 #include <utils/fileutils.h>
-#include <utils/qtcprocess.h>
+#include <utils/hostosinfo.h>
+#include <utils/process.h>
 
 #include <QAction>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 static FilePath flashWizardFilePath()
 {
@@ -53,9 +49,9 @@ static void startFlashingWizard()
 {
     const FilePath filePath = flashWizardFilePath();
     if (HostOsInfo::isWindowsHost()) {
-        if (QtcProcess::startDetached({"explorer.exe", {filePath.toUserOutput()}}))
+        if (Process::startDetached({"explorer.exe", {filePath.toUserOutput()}}))
             return;
-    } else if (QtcProcess::startDetached({filePath, {}})) {
+    } else if (Process::startDetached({filePath, {}})) {
         return;
     }
     const QString message = Tr::tr("Flash wizard \"%1\" failed to start.");
@@ -100,14 +96,12 @@ void registerFlashAction(QObject *parentForAction)
     toolsContainer->addAction(flashCommand, flashActionId);
 }
 
-template <class Step>
-class QdbDeployStepFactory : public ProjectExplorer::BuildStepFactory
+class QdbDeployStepFactory : public BuildStepFactory
 {
 public:
-    explicit QdbDeployStepFactory(Id id)
+    explicit QdbDeployStepFactory(Id existingStepId)
     {
-        registerStep<Step>(id);
-        setDisplayName(Step::displayName());
+        cloneStepCreator(existingStepId);
         setSupportedConfiguration(Constants::QdbDeployConfigurationId);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }
@@ -125,12 +119,9 @@ public:
     QdbStopApplicationStepFactory m_stopApplicationStepFactory;
     QdbMakeDefaultAppStepFactory m_makeDefaultAppStepFactory;
 
-    QdbDeployStepFactory<RemoteLinux::GenericDirectUploadStep>
-        m_directUploadStepFactory{RemoteLinux::Constants::DirectUploadStepId};
-    QdbDeployStepFactory<RemoteLinux::RsyncDeployStep>
-        m_rsyncDeployStepFactory{RemoteLinux::Constants::RsyncDeployStepId};
-    QdbDeployStepFactory<RemoteLinux::MakeInstallStep>
-        m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
+    QdbDeployStepFactory m_directUploadStepFactory{RemoteLinux::Constants::DirectUploadStepId};
+    QdbDeployStepFactory m_rsyncDeployStepFactory{RemoteLinux::Constants::RsyncDeployStepId};
+    QdbDeployStepFactory m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
 
     const QList<Id> supportedRunConfigs {
         m_runConfigFactory.runConfigurationId(),
@@ -180,5 +171,4 @@ void QdbPluginPrivate::setupDeviceDetection()
     m_deviceDetector.start();
 }
 
-} // Internal
-} // Qdb
+} // Qdb::Internal

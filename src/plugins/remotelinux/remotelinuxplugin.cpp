@@ -34,16 +34,14 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-template <class Step>
-class GenericDeployStepFactory : public ProjectExplorer::BuildStepFactory
+template <class Factory>
+class RemoteLinuxDeployStepFactory : public Factory
 {
 public:
-    GenericDeployStepFactory()
+    RemoteLinuxDeployStepFactory()
     {
-        registerStep<Step>(Step::stepId());
-        setDisplayName(Step::displayName());
-        setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
-        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        Factory::setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+        Factory::setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }
 };
 
@@ -56,11 +54,11 @@ public:
     RemoteLinuxDeployConfigurationFactory deployConfigurationFactory;
     TarPackageCreationStepFactory tarPackageCreationStepFactory;
     TarPackageDeployStepFactory tarPackageDeployStepFactory;
-    GenericDeployStepFactory<GenericDirectUploadStep> genericDirectUploadStepFactory;
-    GenericDeployStepFactory<RsyncDeployStep> rsyncDeployStepFactory;
+    RemoteLinuxDeployStepFactory<GenericDirectUploadStepFactory> genericDirectUploadStepFactory;
+    RemoteLinuxDeployStepFactory<RsyncDeployStepFactory> rsyncDeployStepFactory;
     CustomCommandDeployStepFactory customCommandDeployStepFactory;
     KillAppStepFactory killAppStepFactory;
-    GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
+    RemoteLinuxDeployStepFactory<MakeInstallStepFactory> makeInstallStepFactory;
     RemoteLinuxRunWorkerFactory runWorkerFactory;
     RemoteLinuxDebugWorkerFactory debugWorkerFactory;
     RemoteLinuxQmlToolingWorkerFactory qmlToolingWorkerFactory;

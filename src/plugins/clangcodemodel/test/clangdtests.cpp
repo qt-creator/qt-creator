@@ -3,7 +3,6 @@
 
 #include "clangdtests.h"
 
-#include "clangbatchfileprocessor.h"
 #include "../clangdclient.h"
 #include "../clangmodelmanagersupport.h"
 
@@ -44,6 +43,7 @@ using namespace CppEditor::Tests;
 using namespace LanguageClient;
 using namespace ProjectExplorer;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -69,6 +69,27 @@ static QString qrcPath(const QString &relativeFilePath)
     return ":/unittests/ClangCodeModel/" + relativeFilePath;
 }
 
+static Q_LOGGING_CATEGORY(debug, "qtc.clangcodemodel.batch", QtWarningMsg);
+
+static int timeOutFromEnvironmentVariable()
+{
+    bool isConversionOk = false;
+    const int intervalAsInt = Utils::qtcEnvironmentVariableIntValue("QTC_CLANG_BATCH_TIMEOUT",
+                                                                    &isConversionOk);
+    if (!isConversionOk) {
+        qCDebug(debug, "Environment variable QTC_CLANG_BATCH_TIMEOUT is not set, assuming 30000.");
+        return 30000;
+    }
+
+    return intervalAsInt;
+}
+
+int timeOutInMs()
+{
+    static int timeOut = timeOutFromEnvironmentVariable();
+    return timeOut;
+}
+
 ClangdTest::~ClangdTest()
 {
     EditorManager::closeAllEditors(false);
@@ -77,7 +98,7 @@ ClangdTest::~ClangdTest()
     delete m_projectDir;
 }
 
-Utils::FilePath ClangdTest::filePath(const QString &fileName) const
+FilePath ClangdTest::filePath(const QString &fileName) const
 {
     return m_projectDir->absolutePath(fileName);
 }
@@ -119,7 +140,7 @@ void ClangdTest::initTestCase()
 {
     const QString clangdFromEnv = Utils::qtcEnvironmentVariable("QTC_CLANGD");
     if (!clangdFromEnv.isEmpty())
-        CppEditor::ClangdSettings::setClangdFilePath(Utils::FilePath::fromString(clangdFromEnv));
+        CppEditor::ClangdSettings::setClangdFilePath(FilePath::fromString(clangdFromEnv));
     const auto clangd = CppEditor::ClangdSettings::instance().clangdFilePath();
     if (clangd.isEmpty() || !clangd.exists())
         QSKIP("clangd binary not found");
@@ -170,7 +191,7 @@ void ClangdTestFindReferences::initTestCase()
     ClangdTest::initTestCase();
     CppEditor::codeModelSettings()->setCategorizeFindReferences(true);
     connect(client(), &ClangdClient::foundReferences, this,
-            [this](const QList<SearchResultItem> &results) {
+            [this](const SearchResultItems &results) {
         if (results.isEmpty())
             return;
         if (results.first().path().first().endsWith("defs.h"))
@@ -184,8 +205,7 @@ void ClangdTestFindReferences::test_data()
 {
     QTest::addColumn<QString>("fileName");
     QTest::addColumn<int>("pos");
-    using ItemList = QList<SearchResultItem>;
-    QTest::addColumn<ItemList>("expectedResults");
+    QTest::addColumn<SearchResultItems>("expectedResults");
 
     static const auto makeItem = [](int line, int column, Usage::Tags tags) {
         SearchResultItem item;
@@ -194,7 +214,7 @@ void ClangdTestFindReferences::test_data()
         return item;
     };
 
-    QTest::newRow("struct member") << "defs.h" << 55 << ItemList{
+    QTest::newRow("struct member") << "defs.h" << 55 << SearchResultItems{
         makeItem(2, 17, Usage::Tag::Read), makeItem(3, 15, Usage::Tag::Declaration),
         makeItem(6, 17, Usage::Tag::WritableRef), makeItem(8, 11, Usage::Tag::WritableRef),
         makeItem(9, 13, Usage::Tag::WritableRef), makeItem(10, 12, Usage::Tag::WritableRef),
@@ -211,23 +231,23 @@ void ClangdTestFindReferences::test_data()
         makeItem(56, 7, Usage::Tag::Write), makeItem(56, 25, Usage::Tags()),
         makeItem(58, 13, Usage::Tag::Read), makeItem(58, 25, Usage::Tag::Read),
         makeItem(59, 7, Usage::Tag::Write), makeItem(59, 24, Usage::Tag::Read)};
-    QTest::newRow("constructor member initialization") << "defs.h" << 68 << ItemList{
+    QTest::newRow("constructor member initialization") << "defs.h" << 68 << SearchResultItems{
         makeItem(2, 10, Usage::Tag::Write), makeItem(4, 8, Usage::Tag::Declaration)};
-    QTest::newRow("direct member initialization") << "defs.h" << 101 << ItemList{
+    QTest::newRow("direct member initialization") << "defs.h" << 101 << SearchResultItems{
         makeItem(5, 21, Initialization), makeItem(45, 16, Usage::Tag::Read)};
 
-    ItemList pureVirtualRefs{makeItem(17, 17, Usage::Tag::Declaration),
+    SearchResultItems pureVirtualRefs{makeItem(17, 17, Usage::Tag::Declaration),
                              makeItem(21, 9, {Usage::Tag::Declaration, Usage::Tag::Override})};
     QTest::newRow("pure virtual declaration") << "defs.h" << 420 << pureVirtualRefs;
 
-    QTest::newRow("pointer variable") << "main.cpp" << 52 << ItemList{
+    QTest::newRow("pointer variable") << "main.cpp" << 52 << SearchResultItems{
         makeItem(6, 10, Initialization), makeItem(8, 4, Usage::Tag::Write),
         makeItem(10, 4, Usage::Tag::Write), makeItem(24, 5, Usage::Tag::Write),
         makeItem(25, 11, Usage::Tag::WritableRef), makeItem(26, 11, Usage::Tag::Read),
         makeItem(27, 10, Usage::Tag::WritableRef), makeItem(28, 10, Usage::Tag::Read),
         makeItem(29, 11, Usage::Tag::Read), makeItem(30, 15, Usage::Tag::WritableRef),
         makeItem(31, 22, Usage::Tag::Read)};
-    QTest::newRow("struct variable") << "main.cpp" << 39 << ItemList{
+    QTest::newRow("struct variable") << "main.cpp" << 39 << SearchResultItems{
         makeItem(5, 7, Usage::Tag::Declaration), makeItem(6, 15, Usage::Tag::WritableRef),
         makeItem(8, 9, Usage::Tag::WritableRef), makeItem(9, 11, Usage::Tag::WritableRef),
         makeItem(11, 4, Usage::Tag::Write), makeItem(11, 11, Usage::Tag::WritableRef),
@@ -248,7 +268,7 @@ void ClangdTestFindReferences::test_data()
 
     // Some of these are conceptually questionable, as S is a type and thus we cannot "read from"
     // or "write to" it. But it probably matches the intuitive user expectation.
-    QTest::newRow("struct type") << "defs.h" << 7 << ItemList{
+    QTest::newRow("struct type") << "defs.h" << 7 << SearchResultItems{
         makeItem(1, 7, Usage::Tag::Declaration),
         makeItem(2, 4, (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::ConstructorDestructor})),
         makeItem(20, 19, Usage::Tags()), makeItem(10, 9, Usage::Tag::WritableRef),
@@ -260,24 +280,24 @@ void ClangdTestFindReferences::test_data()
         makeItem(58, 10, Usage::Tag::Read), makeItem(58, 22, Usage::Tag::Read),
         makeItem(59, 4, Usage::Tag::Write), makeItem(59, 21, Usage::Tag::Read)};
 
-    QTest::newRow("struct type 2") << "defs.h" << 450 << ItemList{
+    QTest::newRow("struct type 2") << "defs.h" << 450 << SearchResultItems{
         makeItem(20, 7, Usage::Tag::Declaration), makeItem(5, 4, Usage::Tags()),
         makeItem(13, 21, Usage::Tags()), makeItem(32, 8, Usage::Tags())};
 
-    QTest::newRow("constructor") << "defs.h" << 627 << ItemList{
+    QTest::newRow("constructor") << "defs.h" << 627 << SearchResultItems{
         makeItem(31, 4, (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::ConstructorDestructor})),
         makeItem(36, 7, Usage::Tag::ConstructorDestructor)};
 
-    QTest::newRow("subclass") << "defs.h" << 450 << ItemList{
+    QTest::newRow("subclass") << "defs.h" << 450 << SearchResultItems{
         makeItem(20, 7, Usage::Tag::Declaration), makeItem(5, 4, Usage::Tags()),
         makeItem(13, 21, Usage::Tags()), makeItem(32, 8, Usage::Tags())};
-    QTest::newRow("array variable") << "main.cpp" << 1134 << ItemList{
+    QTest::newRow("array variable") << "main.cpp" << 1134 << SearchResultItems{
         makeItem(57, 8, Usage::Tag::Declaration), makeItem(58, 4, Usage::Tag::Write),
         makeItem(59, 15, Usage::Tag::Read)};
-    QTest::newRow("free function") << "defs.h" << 510 << ItemList{
+    QTest::newRow("free function") << "defs.h" << 510 << SearchResultItems{
         makeItem(24, 5, Usage::Tag::Declaration), makeItem(19, 4, Usage::Tags()),
         makeItem(25, 4, Usage::Tags()), makeItem(60, 26, Usage::Tag::Read)};
-    QTest::newRow("member function") << "defs.h" << 192 << ItemList{
+    QTest::newRow("member function") << "defs.h" << 192 << SearchResultItems{
         makeItem(9, 12, Usage::Tag::Declaration), makeItem(40, 8, Usage::Tags())};
 }
 
@@ -288,7 +308,7 @@ void ClangdTestFindReferences::test()
 {
     QFETCH(QString, fileName);
     QFETCH(int, pos);
-    QFETCH(QList<SearchResultItem>, expectedResults);
+    QFETCH(SearchResultItems, expectedResults);
 
     TextEditor::TextDocument * const doc = document(fileName);
     QVERIFY(doc);
@@ -388,13 +408,13 @@ void ClangdTestFollowSymbol::test()
     timer.setSingleShot(true);
     QEventLoop loop;
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    Utils::Link actualLink;
-    const auto handler = [&actualLink, &loop](const Utils::Link &l) {
+    Link actualLink;
+    const auto handler = [&actualLink, &loop](const Link &l) {
         actualLink = l;
         loop.quit();
     };
     QTextCursor cursor(doc->document());
-    const int pos = Utils::Text::positionInText(doc->document(), sourceLine, sourceColumn);
+    const int pos = Text::positionInText(doc->document(), sourceLine, sourceColumn);
     cursor.setPosition(pos);
     client()->followSymbol(doc, cursor, nullptr, handler, true,
                            goToType ? FollowTo::SymbolType : FollowTo::SymbolDef, false);
@@ -500,15 +520,14 @@ void ClangdTestLocalReferences::test()
     QEventLoop loop;
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
     QList<Range> actualRanges;
-    const auto handler = [&actualRanges, &loop](const QString &symbol,
-            const Utils::Links &links, int) {
-        for (const Utils::Link &link : links)
+    const auto handler = [&actualRanges, &loop](const QString &symbol, const Links &links, int) {
+        for (const Link &link : links)
             actualRanges << Range(link.targetLine, link.targetColumn, symbol.length());
         loop.quit();
     };
 
     QTextCursor cursor(doc->document());
-    const int pos = Utils::Text::positionInText(doc->document(), sourceLine, sourceColumn);
+    const int pos = Text::positionInText(doc->document(), sourceLine, sourceColumn);
     cursor.setPosition(pos);
     client()->findLocalUsages(doc, cursor, std::move(handler));
     timer.start(10000);
@@ -639,7 +658,7 @@ void ClangdTestTooltips::test()
     connect(client(), &ClangdClient::helpItemGathered, &loop, handler);
 
     QTextCursor cursor(doc->document());
-    const int pos = Utils::Text::positionInText(doc->document(), line, column);
+    const int pos = Text::positionInText(doc->document(), line, column);
     cursor.setPosition(pos);
     editor->editorWidget()->processTooltipRequest(cursor);
 
@@ -1296,11 +1315,11 @@ void ClangdTestHighlighting::test()
 
     const TextEditor::TextDocument * const doc = document("highlighting.cpp");
     QVERIFY(doc);
-    const int startPos = Utils::Text::positionInText(doc->document(), firstLine, startColumn);
-    const int endPos = Utils::Text::positionInText(doc->document(), lastLine, endColumn);
+    const int startPos = Text::positionInText(doc->document(), firstLine, startColumn);
+    const int endPos = Text::positionInText(doc->document(), lastLine, endColumn);
 
     const auto lessThan = [=](const TextEditor::HighlightingResult &r, int) {
-        return Utils::Text::positionInText(doc->document(), r.line, r.column) < startPos;
+        return Text::positionInText(doc->document(), r.line, r.column) < startPos;
     };
     const auto findResults = [=] {
         TextEditor::HighlightingResults results;
@@ -1308,7 +1327,7 @@ void ClangdTestHighlighting::test()
         if (it == m_results.cend())
             return results;
         while (it != m_results.cend()) {
-            const int resultEndPos = Utils::Text::positionInText(doc->document(), it->line,
+            const int resultEndPos = Text::positionInText(doc->document(), it->line,
                                                                  it->column) + it->length;
             if (resultEndPos > endPos)
                 break;
@@ -1419,7 +1438,7 @@ public:
     {
         const int pos = currentPosition();
         QPair<int, int> lineAndColumn;
-        Utils::Text::convertPosition(m_doc, pos, &lineAndColumn.first, &lineAndColumn.second);
+        Text::convertPosition(m_doc, pos, &lineAndColumn.first, &lineAndColumn.second);
         return lineAndColumn;
     }
 
@@ -1520,7 +1539,7 @@ void ClangdTestCompletion::testCompleteGlobals()
     Manipulator manipulator;
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(7), "   globalFunction() /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(7, 20));
+    QCOMPARE(manipulator.cursorPos(), qMakePair(7, 19));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1540,7 +1559,7 @@ void ClangdTestCompletion::testCompleteMembers()
     Manipulator manipulator;
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(7), "    s.member /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(7, 13));
+    QCOMPARE(manipulator.cursorPos(), qMakePair(7, 12));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1558,7 +1577,7 @@ void ClangdTestCompletion::testCompleteMembersFromInside()
     Manipulator manipulator;
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(4), "        privateFunc() /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(4, 22));
+    QCOMPARE(manipulator.cursorPos(), qMakePair(4, 21));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1576,7 +1595,7 @@ void ClangdTestCompletion::testCompleteMembersFromOutside()
     Manipulator manipulator;
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(13), "    c.publicFunc() /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(13, 19));
+    QCOMPARE(manipulator.cursorPos(), qMakePair(13, 18));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1594,7 +1613,7 @@ void ClangdTestCompletion::testCompleteMembersFromFriend()
     Manipulator manipulator;
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(14), "    C().privateFunc() /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(14, 22));
+    QCOMPARE(manipulator.cursorPos(), qMakePair(14, 21));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1611,7 +1630,7 @@ void ClangdTestCompletion::testFunctionAddress()
     Manipulator manipulator;
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(7), "    const auto p = &S::memberFunc /* COMPLETE HERE */;");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(7, 34));
+    QCOMPARE(manipulator.cursorPos(), qMakePair(7, 33));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1677,7 +1696,7 @@ void ClangdTestCompletion::testCompleteClassAndConstructor()
     Manipulator manipulator;
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(7), "    Foo( /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(7, 9));
+    QCOMPARE(manipulator.cursorPos(), qMakePair(7, 8));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1704,7 +1723,7 @@ void ClangdTestCompletion::testCompleteWithDotToArrowCorrection()
     Manipulator manipulator;
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(4), "    bar->member /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(4, 16));
+    QCOMPARE(manipulator.cursorPos(), qMakePair(4, 15));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1735,7 +1754,7 @@ void ClangdTestCompletion::testCompleteCodeInGeneratedUiFile()
     Manipulator manipulator;
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(34), "    ui->setupUi( /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(34, 17));
+    QCOMPARE(manipulator.cursorPos(), qMakePair(34, 16));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1844,7 +1863,7 @@ void ClangdTestCompletion::startCollectingHighlightingInfo()
 {
     m_documentsWithHighlighting.clear();
     connect(client(), &ClangdClient::highlightingResultsReady, this,
-            [this](const HighlightingResults &, const Utils::FilePath &file) {
+            [this](const HighlightingResults &, const FilePath &file) {
         m_documentsWithHighlighting.insert(file);
     });
 }
@@ -1861,9 +1880,9 @@ void ClangdTestCompletion::getProposal(const QString &fileName,
     if (cursorPos)
         *cursorPos = pos;
     int line, column;
-    Utils::Text::convertPosition(doc->document(), pos, &line, &column);
+    Text::convertPosition(doc->document(), pos, &line, &column);
     const auto editor = qobject_cast<BaseTextEditor *>(
-        EditorManager::openEditorAt({doc->filePath(), line, column - 1}));
+        EditorManager::openEditorAt({doc->filePath(), line, column}));
     QVERIFY(editor);
     QCOMPARE(EditorManager::currentEditor(), editor);
     QCOMPARE(editor->textDocument(), doc);

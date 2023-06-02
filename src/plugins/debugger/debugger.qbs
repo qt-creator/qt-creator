@@ -123,6 +123,12 @@ Project {
         }
 
         Group {
+            name: "dap"
+            prefix: "dap/"
+            files: ["dapengine.cpp", "dapengine.h"]
+        }
+
+        Group {
             name: "uvsc"
             prefix: "uvsc/"
             files: [
@@ -175,7 +181,7 @@ Project {
         Group {
             name: "Images"
             prefix: "images/"
-            files: ["*.png", "*.xpm"]
+            files: ["*.png"]
         }
 
         Group {
@@ -239,9 +245,7 @@ Project {
             ]
         }
 
-        Group {
-            name: "Unit tests"
-            condition: qtc.testsEnabled
+        QtcTestFiles {
             files: [
                 "debuggerunittests.qrc",
             ]

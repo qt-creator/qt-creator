@@ -4,7 +4,6 @@
 #include "conaninstallstep.h"
 
 #include "conanconstants.h"
-#include "conanplugin.h"
 #include "conansettings.h"
 #include "conantr.h"
 
@@ -19,11 +18,39 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/projectmanager.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Conan::Internal {
+
+static FilePath conanFilePath(Project *project, const FilePath &defaultFilePath = {})
+{
+    const FilePath projectDirectory = project->projectDirectory();
+    // conanfile.py takes precedence over conanfile.txt when "conan install dir" is invoked
+    const FilePath conanPy = projectDirectory / "conanfile.py";
+    if (conanPy.exists())
+        return conanPy;
+    const FilePath conanTxt = projectDirectory / "conanfile.txt";
+    if (conanTxt.exists())
+        return conanTxt;
+    return defaultFilePath;
+}
+
+static void connectTarget(Project *project, Target *target)
+{
+    if (!conanFilePath(project).isEmpty()) {
+        const QList<BuildConfiguration *> buildConfigurations = target->buildConfigurations();
+        for (BuildConfiguration *buildConfiguration : buildConfigurations)
+            buildConfiguration->buildSteps()->insertStep(0, Constants::INSTALL_STEP);
+    }
+    QObject::connect(target, &Target::addedBuildConfiguration,
+                     target, [project] (BuildConfiguration *buildConfiguration) {
+        if (!conanFilePath(project).isEmpty())
+            buildConfiguration->buildSteps()->insertStep(0, Constants::INSTALL_STEP);
+    });
+}
 
 // ConanInstallStep
 
@@ -43,13 +70,12 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
     setUseEnglishOutput();
     setDisplayName(Tr::tr("Conan install"));
 
-    auto conanFile = addAspect<StringAspect>();
+    auto conanFile = addAspect<FilePathAspect>();
     conanFile->setSettingsKey("ConanPackageManager.InstallStep.ConanFile");
-    conanFile->setFilePath(ConanPlugin::conanFilePath(project(),
+    conanFile->setFilePath(conanFilePath(project(),
                            project()->projectDirectory() / "conanfile.txt"));
     conanFile->setLabelText(Tr::tr("Conan file:"));
     conanFile->setToolTip(Tr::tr("Enter location of conanfile.txt or conanfile.py."));
-    conanFile->setDisplayStyle(StringAspect::PathChooserDisplay);
     conanFile->setExpectedKind(PathChooser::File);
 
     auto additionalArguments = addAspect<StringAspect>();
@@ -68,7 +94,7 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
         const QString buildType = bt == BuildConfiguration::Release ? QString("Release")
                                                                     : QString("Debug");
 
-        CommandLine cmd(ConanPlugin::conanSettings()->conanFilePath.filePath());
+        CommandLine cmd(settings().conanFilePath());
         cmd.addArgs({"install", "-s", "build_type=" + buildType});
         if (buildMissing->value())
             cmd.addArg("--build=missing");
@@ -84,6 +110,12 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
         ProcessParameters param;
         setupProcessParameters(&param);
         return param.summary(displayName());
+    });
+
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded, this, [](Project * project) {
+        connect(project, &Project::addedTarget, project, [project] (Target *target) {
+            connectTarget(project, target);
+        });
     });
 }
 

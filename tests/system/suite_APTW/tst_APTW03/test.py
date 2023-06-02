@@ -73,7 +73,7 @@ def main():
         invokeMenuItem('Build', 'Build Project "%s"' % projectName)
         waitForCompile(10000)
         if not virtualFunctionsAdded:
-            checkLastBuild(True, False)
+            checkLastBuild(True)
             if not openDocument("%s.Sources.%s\.cpp" % (projectName, className.lower())):
                 test.fatal("Could not open %s.cpp - continuing." % className.lower())
                 continue

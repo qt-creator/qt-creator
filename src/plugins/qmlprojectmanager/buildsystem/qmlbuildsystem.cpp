@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "qmlbuildsystem.h"
-#include "qmlprojectconstants.h"
+#include "../qmlprojectconstants.h"
 
 #include <QtCore5Compat/qtextcodec.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -16,6 +16,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/session.h>
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
@@ -26,7 +27,6 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include "projectitem/qmlprojectitem.h"
@@ -36,6 +36,8 @@
 #include "utils/qtcassert.h"
 
 #include "texteditor/textdocument.h"
+
+#include <QAction>
 
 using namespace ProjectExplorer;
 namespace QmlProjectManager {

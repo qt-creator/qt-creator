@@ -6,9 +6,9 @@
 #include "dockertr.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/async.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
 #include <QLoggingCategory>
 
@@ -35,7 +35,7 @@ DockerApi *DockerApi::instance()
 
 bool DockerApi::canConnect()
 {
-    QtcProcess process;
+    Process process;
     FilePath dockerExe = dockerClient();
     if (dockerExe.isEmpty() || !dockerExe.isExecutableFile())
         return false;
@@ -43,7 +43,7 @@ bool DockerApi::canConnect()
     bool result = false;
 
     process.setCommand(CommandLine(dockerExe, QStringList{"info"}));
-    connect(&process, &QtcProcess::done, [&process, &result] {
+    connect(&process, &Process::done, [&process, &result] {
         qCInfo(dockerApiLog) << "'docker info' result:\n" << qPrintable(process.allOutput());
         if (process.result() == ProcessResult::FinishedWithSuccess)
             result = true;
@@ -65,7 +65,7 @@ void DockerApi::checkCanConnect(bool async)
         m_dockerDaemonAvailable = std::nullopt;
         emit dockerDaemonAvailableChanged();
 
-        auto future = Utils::runAsync([lk = std::move(lk), this] {
+        auto future = Utils::asyncRun([lk = std::move(lk), this] {
             m_dockerDaemonAvailable = canConnect();
             emit dockerDaemonAvailableChanged();
         });
@@ -103,7 +103,7 @@ std::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
 
 FilePath DockerApi::dockerClient()
 {
-    return FilePath::fromString(m_settings->dockerBinaryPath.value());
+    return m_settings->dockerBinaryPath();
 }
 
 } // Docker::Internal

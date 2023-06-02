@@ -12,7 +12,7 @@
 #include <utils/completinglineedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 #include <utils/theme/theme.h>
 
 #include <QCompleter>
@@ -209,12 +209,12 @@ void ChangeSelectionDialog::recalculateCompletion()
         return;
 
     GitClient *client = GitClient::instance();
-    QtcProcess *process = new QtcProcess(this);
+    Process *process = new Process(this);
     process->setEnvironment(client->processEnvironment());
     process->setCommand({client->vcsBinary(), {"for-each-ref", "--format=%(refname:short)"}});
     process->setWorkingDirectory(workingDir);
     process->setUseCtrlCStub(true);
-    connect(process, &QtcProcess::done, this, [this, process] {
+    connect(process, &Process::done, this, [this, process] {
         if (process->result() == ProcessResult::FinishedWithSuccess)
             m_changeModel->setStringList(process->cleanedStdOut().split('\n'));
         process->deleteLater();
@@ -238,8 +238,8 @@ void ChangeSelectionDialog::recalculateDetails()
         return;
     }
 
-    m_process.reset(new QtcProcess);
-    connect(m_process.get(), &QtcProcess::done, this, &ChangeSelectionDialog::setDetails);
+    m_process.reset(new Process);
+    connect(m_process.get(), &Process::done, this, &ChangeSelectionDialog::setDetails);
     m_process->setWorkingDirectory(workingDir);
     m_process->setEnvironment(m_gitEnvironment);
     m_process->setCommand({m_gitExecutable, {"show", "--decorate", "--stat=80", ref}});

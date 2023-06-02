@@ -10,6 +10,7 @@
 #include "highlighter.h"
 #include "icodestylepreferences.h"
 #include "linenumberfilter.h"
+#include "markdowneditor.h"
 #include "outlinefactory.h"
 #include "plaintexteditorfactory.h"
 #include "snippets/snippetprovider.h"
@@ -18,6 +19,10 @@
 #include "texteditor.h"
 #include "texteditorsettings.h"
 #include "texteditortr.h"
+
+#ifdef WITH_TESTS
+#include "codeassist/codeassist_test.h"
+#endif
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -66,6 +71,7 @@ public:
     FindInOpenFiles findInOpenFilesFilter;
 
     PlainTextEditorFactory plainTextEditorFactory;
+    MarkdownEditorFactory markdownEditorFactory;
 };
 
 static TextEditorPlugin *m_instance = nullptr;
@@ -140,6 +146,10 @@ void TextEditorPlugin::initialize()
                                     Tr::tr("Text", "SnippetProvider"));
 
     d->createStandardContextMenu();
+
+#ifdef WITH_TESTS
+    addTest<CodeAssistTests>();
+#endif
 }
 
 void TextEditorPluginPrivate::extensionsInitialized()

@@ -86,14 +86,6 @@ class CppCodeStyleSettingsPage : public Core::IOptionsPage
 {
 public:
     CppCodeStyleSettingsPage();
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    CppCodeStylePreferences *m_pageCppCodeStylePreferences = nullptr;
-    QPointer<TextEditor::CodeStyleEditorWidget> m_widget;
 };
 
 } // namespace Internal

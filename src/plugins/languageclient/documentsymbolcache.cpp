@@ -40,6 +40,8 @@ DocumentSymbolCache::DocumentSymbolCache(Client *client)
 
 void DocumentSymbolCache::requestSymbols(const DocumentUri &uri, Schedule schedule)
 {
+    if (m_runningRequests.contains(uri))
+        return;
     m_compressedUris.insert(uri);
     switch (schedule) {
     case Schedule::Now:

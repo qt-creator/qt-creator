@@ -98,15 +98,12 @@ ClangDiagnosticConfig diagnosticConfig()
     return warningsConfigForProject(project);
 }
 
-bool isDiagnosticConfigChangable(Project *project, const ClangDiagnostic &diagnostic)
+static bool isDiagnosticConfigChangable(Project *project)
 {
     if (!project)
         return false;
-    const ClangDiagnosticConfig config = diagnosticConfig();
-    if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseConfigFile
-        && diagnosticType(diagnostic) == DiagnosticType::Tidy) {
+    if (diagnosticConfig().useBuildSystemWarnings())
         return false;
-    }
     return true;
 }
 
@@ -308,7 +305,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
 
         // Remove diagnostic warning action
         Project *project = projectForCurrentEditor();
-        if (project && isDiagnosticConfigChangable(project, diag)) {
+        if (project && isDiagnosticConfigChangable(project)) {
             action = new QAction();
             action->setIcon(Icons::BROKEN.icon());
             action->setToolTip(Tr::tr("Disable Diagnostic in Current Project"));

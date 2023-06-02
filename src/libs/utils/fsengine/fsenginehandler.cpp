@@ -13,6 +13,26 @@
 
 namespace Utils::Internal {
 
+static FilePath removeDoubleSlash(const QString &fileName)
+{
+    // Reduce every two or more slashes to a single slash.
+    QString result;
+    const QChar slash = QChar('/');
+    bool lastWasSlash = false;
+    for (const QChar &ch : fileName) {
+        if (ch == slash) {
+            if (!lastWasSlash)
+                result.append(ch);
+            lastWasSlash = true;
+        } else {
+            result.append(ch);
+            lastWasSlash = false;
+        }
+    }
+    // We use fromString() here to not normalize / clean the path anymore.
+    return FilePath::fromString(result);
+}
+
 QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
 {
     if (fileName.startsWith(':'))
@@ -29,29 +49,30 @@ QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
                   return rootFilePath.pathAppended(scheme);
               });
 
-        return new FixedListFSEngine(rootFilePath, paths);
+        return new FixedListFSEngine(removeDoubleSlash(fileName), paths);
     }
 
     if (fixedFileName.startsWith(rootPath)) {
         const QStringList deviceSchemes = FSEngine::registeredDeviceSchemes();
         for (const QString &scheme : deviceSchemes) {
             if (fixedFileName == rootFilePath.pathAppended(scheme).toString()) {
-                const FilePaths filteredRoots = Utils::filtered(FSEngine::deviceRoots(),
+                const FilePaths filteredRoots = Utils::filtered(FSEngine::registeredDeviceRoots(),
                                                                 [scheme](const FilePath &root) {
                                                                     return root.scheme() == scheme;
                                                                 });
 
-                return new FixedListFSEngine(rootFilePath.pathAppended(scheme), filteredRoots);
+                return new FixedListFSEngine(removeDoubleSlash(fileName), filteredRoots);
             }
         }
 
-        FilePath filePath = FilePath::fromString(fixedFileName);
-        if (filePath.needsDevice())
-            return new FSEngineImpl(filePath);
+        FilePath fixedPath = FilePath::fromString(fixedFileName);
+
+        if (fixedPath.needsDevice())
+            return new FSEngineImpl(removeDoubleSlash(fileName));
     }
 
     if (fixedFileName.compare(QDir::rootPath(), Qt::CaseInsensitive) == 0)
-        return new RootInjectFSEngine(fixedFileName);
+        return new RootInjectFSEngine(fileName);
 
     return nullptr;
 }

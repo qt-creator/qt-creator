@@ -19,8 +19,8 @@
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
@@ -33,7 +33,7 @@
 #include <QPushButton>
 
 using namespace Utils;
-using namespace Utils::Layouting;
+using namespace Layouting;
 
 namespace ProjectExplorer {
 
@@ -62,12 +62,13 @@ TerminalAspect::TerminalAspect()
 /*!
     \reimp
 */
-void TerminalAspect::addToLayout(LayoutBuilder &builder)
+void TerminalAspect::addToLayout(LayoutItem &parent)
 {
     QTC_CHECK(!m_checkBox);
-    m_checkBox = new QCheckBox(Tr::tr("Run in terminal"));
+    m_checkBox = createSubWidget<QCheckBox>(Tr::tr("Run in terminal"));
     m_checkBox->setChecked(m_useTerminal);
-    builder.addItems({{}, m_checkBox.data()});
+    m_checkBox->setEnabled(isEnabled());
+    parent.addItems({{}, m_checkBox.data()});
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_userSet = true;
         m_useTerminal = m_checkBox->isChecked();
@@ -123,7 +124,7 @@ void TerminalAspect::calculateUseTerminal()
 */
 bool TerminalAspect::useTerminal() const
 {
-    return m_useTerminal;
+    return m_useTerminal && isEnabled();
 }
 
 /*!
@@ -163,7 +164,7 @@ WorkingDirectoryAspect::WorkingDirectoryAspect(const MacroExpander *expander,
 /*!
     \reimp
 */
-void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
+void WorkingDirectoryAspect::addToLayout(LayoutItem &builder)
 {
     QTC_CHECK(!m_chooser);
     m_chooser = new PathChooser;
@@ -435,7 +436,7 @@ QWidget *ArgumentsAspect::setupChooser()
 /*!
     \reimp
 */
-void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
+void ArgumentsAspect::addToLayout(LayoutItem &builder)
 {
     QTC_CHECK(!m_chooser && !m_multiLineChooser && !m_multiLineButton);
 
@@ -501,7 +502,7 @@ ExecutableAspect::ExecutableAspect(Target *target, ExecutionDeviceSelector selec
     setId("ExecutableAspect");
     addDataExtractor(this, &ExecutableAspect::executable, &Data::executable);
 
-    m_executable.setPlaceHolderText(Tr::tr("<unknown>"));
+    m_executable.setPlaceHolderText(Tr::tr("path to the executable cannot be empty"));
     m_executable.setLabelText(Tr::tr("Executable:"));
     m_executable.setDisplayStyle(StringAspect::LabelDisplay);
 
@@ -570,19 +571,12 @@ void ExecutableAspect::setExpectedKind(const PathChooser::Kind expectedKind)
    Sets the environment in which paths will be searched when the expected kind
    of paths is chosen as PathChooser::Command or PathChooser::ExistingCommand
    to \a env.
-
-   \sa Utils::StringAspect::setEnvironmentChange()
 */
-void ExecutableAspect::setEnvironmentChange(const EnvironmentChange &change)
-{
-    m_executable.setEnvironmentChange(change);
-    if (m_alternativeExecutable)
-        m_alternativeExecutable->setEnvironmentChange(change);
-}
-
 void ExecutableAspect::setEnvironment(const Environment &env)
 {
-    setEnvironmentChange(EnvironmentChange::fromDictionary(env.toDictionary()));
+    m_executable.setEnvironment(env);
+    if (m_alternativeExecutable)
+        m_alternativeExecutable->setEnvironment(env);
 }
 
 /*!
@@ -631,7 +625,7 @@ FilePath ExecutableAspect::executable() const
             : m_executable.filePath();
 
     if (const IDevice::ConstPtr dev = executionDevice(m_target, m_selector))
-        exe = exe.onDevice(dev->rootPath());
+        exe = dev->rootPath().withNewMappedPath(exe);
 
     return exe;
 }
@@ -639,11 +633,11 @@ FilePath ExecutableAspect::executable() const
 /*!
     \reimp
 */
-void ExecutableAspect::addToLayout(LayoutBuilder &builder)
+void ExecutableAspect::addToLayout(LayoutItem &builder)
 {
-    m_executable.addToLayout(builder);
+    builder.addItem(m_executable);
     if (m_alternativeExecutable)
-        m_alternativeExecutable->addToLayout(builder.finishRow());
+        builder.addItems({br, m_alternativeExecutable});
 }
 
 /*!
@@ -837,7 +831,7 @@ void InterpreterAspect::toMap(QVariantMap &map) const
         saveToMap(map, m_currentId, QString(), settingsKey());
 }
 
-void InterpreterAspect::addToLayout(LayoutBuilder &builder)
+void InterpreterAspect::addToLayout(LayoutItem &builder)
 {
     if (QTC_GUARD(m_comboBox.isNull()))
         m_comboBox = new QComboBox;

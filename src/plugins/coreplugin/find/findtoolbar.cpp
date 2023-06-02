@@ -133,7 +133,6 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     auto verticalLayout_3 = new QVBoxLayout();
     verticalLayout_3->setSpacing(0);
     verticalLayout_3->addWidget(m_advancedButton);
-    verticalLayout_3->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
     auto gridLayout = new QGridLayout();
     gridLayout->setHorizontalSpacing(3);
@@ -147,8 +146,8 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
         m_findEdit,
         findButtonsWidget,
         br,
-        Column { m_replaceLabel, st }.setSpacing(0),
-        Column { m_replaceEdit, st }.setSpacing(0),
+        Column { spacing(0), m_replaceLabel, st },
+        Column { spacing(0), m_replaceEdit, st },
         gridLayout,
     }.attachTo(this);
 
@@ -159,7 +158,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     mainLayout->setColumnStretch(1, 10);
 
     setFocusProxy(m_findEdit);
-    setProperty("topBorder", true);
+    setProperty(StyleHelper::C_TOP_BORDER, true);
     setSingleRow(false);
 
     QWidget::setTabOrder(m_findEdit, m_replaceEdit);

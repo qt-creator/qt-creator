@@ -1,19 +1,18 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "finalstateitem.h"
+#include "stateitem.h"
+
+#include "eventitem.h"
 #include "graphicsitemprovider.h"
 #include "graphicsscene.h"
 #include "idwarningitem.h"
 #include "imageprovider.h"
-#include "initialstateitem.h"
-#include "parallelitem.h"
 #include "sceneutils.h"
 #include "scxmleditorconstants.h"
 #include "scxmleditortr.h"
 #include "scxmltagutils.h"
 #include "scxmluifactory.h"
-#include "stateitem.h"
 #include "statewarningitem.h"
 #include "textitem.h"
 #include "transitionitem.h"
@@ -28,6 +27,7 @@
 #include <QTextOption>
 #include <QUndoStack>
 #include <QtMath>
+#include <QRubberBand>
 
 using namespace ScxmlEditor::PluginInterface;
 
@@ -171,6 +171,7 @@ void StateItem::updateBoundingRect()
 
     // Check if we need to increase parent boundingrect
     if (!r2.isNull()) {
+        positionOnExitItems();
         QRectF r = boundingRect();
         QRectF r3 = r.united(r2);
 
@@ -244,7 +245,6 @@ void StateItem::transitionCountChanged()
 QRectF StateItem::childItemsBoundingRect() const
 {
     QRectF r;
-    QRectF rr = boundingRect();
 
     QList<QGraphicsItem*> children = childItems();
     for (int i = 0; i < children.count(); ++i) {
@@ -256,14 +256,25 @@ QRectF StateItem::childItemsBoundingRect() const
         }
     }
 
+    if (m_onEntryItem) {
+        QRectF br = m_onEntryItem->childBoundingRect();
+        QPointF p = m_onEntryItem->pos() + br.topLeft();
+        br.moveTopLeft(p);
+        r = r.united(br);
+    }
+
+    if (m_onExitItem) {
+        QRectF br = m_onExitItem->childBoundingRect();
+        QPointF p = m_onExitItem->pos() + br.topLeft();
+        br.moveTopLeft(p);
+        r = r.united(br);
+    }
+
     if (m_transitionRect.isValid()) {
         r.setLeft(r.left() - m_transitionRect.width());
         r.setHeight(qMax(r.height(), m_transitionRect.height()));
         r.moveBottom(qMax(r.bottom(), m_transitionRect.bottom()));
     }
-
-    if (!r.isNull())
-        r.adjust(-20, -(rr.height() * 0.06 + 40), 20, 20);
 
     return r;
 }
@@ -418,10 +429,17 @@ void StateItem::updatePolygon()
               << m_drawingRect.bottomLeft()
               << m_drawingRect.topLeft();
 
-    m_titleRect = QRectF(m_drawingRect.left(), m_drawingRect.top(), m_drawingRect.width(), TEXT_ITEM_HEIGHT + m_drawingRect.height() * 0.06);
+    m_titleRect = QRectF(m_drawingRect.left(),
+                         m_drawingRect.top(),
+                         m_drawingRect.width(),
+                         TEXT_ITEM_HEIGHT + m_drawingRect.height() * 0.06);
     QFont f = m_stateNameItem->font();
     f.setPixelSize(m_titleRect.height() * 0.65);
     m_stateNameItem->setFont(f);
+
+    if (m_onEntryItem)
+        m_onEntryItem->setPos(m_titleRect.x(), m_titleRect.bottom());
+    positionOnExitItems();
 
     updateTextPositions();
 }
@@ -517,11 +535,39 @@ void StateItem::init(ScxmlTag *tag, BaseItem *parentItem, bool initChildren, boo
             if (newItem) {
                 newItem->init(child, this, initChildren, blockUpdates);
                 newItem->finalizeCreation();
-            }
+            } else
+                addChild(child);
         }
     }
     if (blockUpdates)
         setBlockUpdates(false);
+}
+
+
+void StateItem::addChild(ScxmlTag *child)
+{
+    if (child->tagName() == "onentry") {
+        OnEntryExitItem *item = new OnEntryExitItem(this);
+        m_onEntryItem = item;
+        item->setTag(child);
+        item->finalizeCreation();
+        item->updateAttributes();
+        m_onEntryItem->setPos(m_titleRect.x(), m_titleRect.bottom());
+    } else if (child->tagName() == "onexit") {
+        OnEntryExitItem *item = new OnEntryExitItem(this);
+        m_onExitItem = item;
+        item->setTag(child);
+        item->finalizeCreation();
+        item->updateAttributes();
+        positionOnExitItems();
+    }
+}
+
+void StateItem::positionOnExitItems()
+{
+    int offset = m_onEntryItem ? m_onEntryItem->boundingRect().height() : 0;
+    if (m_onExitItem)
+        m_onExitItem->setPos(m_titleRect.x(), m_titleRect.bottom() + offset);
 }
 
 QString StateItem::itemId() const

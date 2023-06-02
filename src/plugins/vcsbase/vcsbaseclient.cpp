@@ -21,6 +21,7 @@
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -56,7 +57,7 @@ namespace VcsBase {
 VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseSettings *baseSettings)
     : m_baseSettings(baseSettings)
 {
-    m_baseSettings->readSettings(ICore::settings());
+    m_baseSettings->readSettings();
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &VcsBaseClientImpl::saveSettings);
 }
@@ -68,7 +69,7 @@ VcsBaseSettings &VcsBaseClientImpl::settings() const
 
 FilePath VcsBaseClientImpl::vcsBinary() const
 {
-    return m_baseSettings->binaryPath.filePath();
+    return m_baseSettings->binaryPath();
 }
 
 VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
@@ -87,6 +88,16 @@ VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
         });
     }
     return cmd;
+}
+
+void VcsBaseClientImpl::setupCommand(Utils::Process &process,
+                                     const FilePath &workingDirectory,
+                                     const QStringList &args) const
+{
+    process.setEnvironment(processEnvironment());
+    process.setWorkingDirectory(workingDirectory);
+    process.setCommand({vcsBinary(), args});
+    process.setUseCtrlCStub(true);
 }
 
 void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,
@@ -193,7 +204,7 @@ void VcsBaseClientImpl::vcsExecWithEditor(const Utils::FilePath &workingDirector
 
 int VcsBaseClientImpl::vcsTimeoutS() const
 {
-    return m_baseSettings->timeout.value();
+    return m_baseSettings->timeout();
 }
 
 VcsCommand *VcsBaseClientImpl::createVcsCommand(const FilePath &defaultWorkingDir,
@@ -224,6 +235,7 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
         connect(baseEditor, &VcsBaseEditorWidget::annotateRevisionRequested,
                 this, &VcsBaseClientImpl::annotateRevisionRequested);
         baseEditor->setSource(source);
+        baseEditor->setDefaultLineNumber(1);
         if (codec)
             baseEditor->setCodec(codec);
     }

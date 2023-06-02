@@ -6,10 +6,13 @@
 #include "builtincursorinfo.h"
 #include "cppchecksymbols.h"
 #include "cppcodemodelsettings.h"
+#include "cppeditordocument.h"
 #include "cppeditorplugin.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
+
+#include <coreplugin/editormanager/documentmodel.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>
@@ -18,9 +21,9 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/SimpleLexer.h>
 
-#include <utils/textutils.h>
+#include <utils/async.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
+#include <utils/textutils.h>
 
 #include <QLoggingCategory>
 #include <QTextBlock>
@@ -89,10 +92,10 @@ CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
     for (const CPlusPlus::Macro &macro : doc->definedMacros()) {
         int line, column;
         convertPosition(textDocument, macro.utf16CharOffset(), &line, &column);
-        QTC_ASSERT(line >= 0 && column >= 0, qDebug() << doc->filePath() << macro.toString();
+        QTC_ASSERT(line > 0 && column >= 0, qDebug() << doc->filePath() << macro.toString();
                    continue);
 
-        Result use(line, column, macro.nameToQString().size(), SemanticHighlighter::MacroUse);
+        Result use(line, column + 1, macro.nameToQString().size(), SemanticHighlighter::MacroUse);
         macroUses.append(use);
     }
 
@@ -116,10 +119,10 @@ CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
 
         int line, column;
         convertPosition(textDocument, macro.utf16charsBegin(), &line, &column);
-        QTC_ASSERT(line >= 0 && column >= 0, qDebug() << doc->filePath()
+        QTC_ASSERT(line > 0 && column >= 0, qDebug() << doc->filePath()
                                                       << macro.macro().toString(); continue);
 
-        Result use(line, column, name.size(), SemanticHighlighter::MacroUse);
+        Result use(line, column + 1, name.size(), SemanticHighlighter::MacroUse);
         macroUses.append(use);
     }
 
@@ -180,10 +183,8 @@ BuiltinEditorDocumentProcessor::~BuiltinEditorDocumentProcessor()
 void BuiltinEditorDocumentProcessor::runImpl(
         const BaseEditorDocumentParser::UpdateParams &updateParams)
 {
-    m_parserFuture = Utils::runAsync(CppModelManager::instance()->sharedThreadPool(),
-                                     runParser,
-                                     parser(),
-                                     updateParams);
+    m_parserFuture = Utils::asyncRun(CppModelManager::instance()->sharedThreadPool(),
+                                     runParser, parser(), updateParams);
 }
 
 BaseEditorDocumentParser::Ptr BuiltinEditorDocumentProcessor::parser()
@@ -266,6 +267,22 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
     const auto source = createSemanticInfoSource(false);
     QTC_CHECK(source.snapshot.contains(document->filePath()));
     m_semanticInfoUpdater.updateDetached(source);
+
+    const QList<Core::IDocument *> openDocuments = Core::DocumentModel::openedDocuments();
+    for (Core::IDocument * const openDocument : openDocuments) {
+        const auto cppEditorDoc = qobject_cast<Internal::CppEditorDocument *>(openDocument);
+        if (!cppEditorDoc)
+            continue;
+        if (cppEditorDoc->filePath() == document->filePath())
+            continue;
+        CPlusPlus::Document::Ptr cppDoc = CppModelManager::instance()->document(
+            cppEditorDoc->filePath());
+        if (!cppDoc)
+            continue;
+        if (!cppDoc->includedFiles().contains(document->filePath()))
+            continue;
+        cppEditorDoc->scheduleProcessDocument();
+    }
 }
 
 void BuiltinEditorDocumentProcessor::onSemanticInfoUpdated(const SemanticInfo semanticInfo)
@@ -304,12 +321,13 @@ void BuiltinEditorDocumentProcessor::onCodeWarningsUpdated(
 
 SemanticInfo::Source BuiltinEditorDocumentProcessor::createSemanticInfoSource(bool force) const
 {
-    const WorkingCopy workingCopy = CppModelManager::instance()->workingCopy();
-    return SemanticInfo::Source(filePath().toString(),
-                                workingCopy.source(filePath()),
-                                workingCopy.revision(filePath()),
-                                m_documentSnapshot,
-                                force);
+    QByteArray source;
+    int revision = 0;
+    if (const auto entry = CppModelManager::instance()->workingCopy().get(filePath())) {
+        source = entry->first;
+        revision = entry->second;
+    }
+    return SemanticInfo::Source(filePath().toString(), source, revision, m_documentSnapshot, force);
 }
 
 } // namespace CppEditor

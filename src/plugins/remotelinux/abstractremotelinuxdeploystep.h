@@ -8,55 +8,14 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/devicesupport/idevicefwd.h>
 
-#include <QtCore/qcontainerfwd.h>
 #include <QObject>
 
-namespace ProjectExplorer {
-class DeployableFile;
-class Kit;
-class Target;
-}
-
-namespace Utils::Tasking { class Group; }
+namespace ProjectExplorer { class DeployableFile; }
+namespace Tasking { class Group; }
 
 namespace RemoteLinux {
 
-class AbstractRemoteLinuxDeployService;
-class CheckResult;
-
 namespace Internal { class AbstractRemoteLinuxDeployStepPrivate; }
-namespace Internal { class AbstractRemoteLinuxDeployServicePrivate; }
-
-class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer::BuildStep
-{
-    Q_OBJECT
-
-public:
-    ~AbstractRemoteLinuxDeployStep() override;
-
-protected:
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-    bool init() override;
-    void doRun() final;
-    void doCancel() override;
-
-    explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-
-    void setInternalInitializer(const std::function<CheckResult()> &init);
-    void setRunPreparer(const std::function<void()> &prep);
-    void setDeployService(AbstractRemoteLinuxDeployService *service);
-
-private:
-    void handleProgressMessage(const QString &message);
-    void handleErrorMessage(const QString &message);
-    void handleWarningMessage(const QString &message);
-    void handleFinished();
-    void handleStdOutData(const QString &data);
-    void handleStdErrData(const QString &data);
-
-    Internal::AbstractRemoteLinuxDeployStepPrivate *d;
-};
 
 class REMOTELINUX_EXPORT CheckResult
 {
@@ -74,36 +33,28 @@ private:
     QString m_error;
 };
 
-class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployService : public QObject
+class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer::BuildStep
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(AbstractRemoteLinuxDeployService)
 public:
-    explicit AbstractRemoteLinuxDeployService(QObject *parent = nullptr);
-    ~AbstractRemoteLinuxDeployService() override;
+    explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
+    ~AbstractRemoteLinuxDeployStep() override;
 
-    void setTarget(ProjectExplorer::Target *bc);
-
-    void start();
-    void stop();
-
-    QVariantMap exportDeployTimes() const;
-    void importDeployTimes(const QVariantMap &map);
+    ProjectExplorer::IDeviceConstPtr deviceConfiguration() const;
 
     virtual CheckResult isDeploymentPossible() const;
 
-signals:
-    void errorMessage(const QString &message);
-    void progressMessage(const QString &message);
-    void warningMessage(const QString &message);
-    void stdOutData(const QString &data);
-    void stdErrData(const QString &data);
-    void finished(); // Used by Qnx.
+    void handleStdOutData(const QString &data);
+    void handleStdErrData(const QString &data);
 
 protected:
-    const ProjectExplorer::Target *target() const;
-    const ProjectExplorer::Kit *kit() const;
-    ProjectExplorer::IDeviceConstPtr deviceConfiguration() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
+    bool init() override;
+    void doRun() final;
+    void doCancel() override;
+
+    void setInternalInitializer(const std::function<CheckResult()> &init);
+    void setRunPreparer(const std::function<void()> &prep);
 
     void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile,
                                  const QDateTime &remoteTimestamp);
@@ -111,11 +62,17 @@ protected:
     bool hasRemoteFileChanged(const ProjectExplorer::DeployableFile &deployableFile,
                               const QDateTime &remoteTimestamp) const;
 
-private:
-    virtual bool isDeploymentNecessary() const = 0;
-    virtual Utils::Tasking::Group deployRecipe() = 0;
+    void addProgressMessage(const QString &message);
+    void addErrorMessage(const QString &message);
+    void addWarningMessage(const QString &message);
 
-    Internal::AbstractRemoteLinuxDeployServicePrivate * const d;
+    void handleFinished();
+
+private:
+    virtual bool isDeploymentNecessary() const;
+    virtual Tasking::Group deployRecipe();
+
+    Internal::AbstractRemoteLinuxDeployStepPrivate *d;
 };
 
 } // RemoteLinux

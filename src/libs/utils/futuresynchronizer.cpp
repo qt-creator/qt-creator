@@ -3,7 +3,9 @@
 
 #include "futuresynchronizer.h"
 
-/*! \class Utils::FutureSynchronizer
+/*!
+  \class Utils::FutureSynchronizer
+  \inmodule QtCreator
 
   \brief The FutureSynchronizer is an enhanced version of QFutureSynchronizer.
 */

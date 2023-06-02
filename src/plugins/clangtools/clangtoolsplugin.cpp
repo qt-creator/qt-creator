@@ -19,6 +19,7 @@
 
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -171,7 +172,7 @@ void ClangToolsPlugin::registerAnalyzeActions()
         button->setPopupMode(QToolButton::InstantPopup);
         button->setIcon(icon);
         button->setToolTip(Tr::tr("Analyze File..."));
-        button->setProperty("noArrow", true);
+        button->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
         widget->toolBar()->addWidget(button);
         const auto toolsMenu = new QMenu(widget);
         button->setMenu(toolsMenu);

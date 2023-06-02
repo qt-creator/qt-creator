@@ -18,9 +18,9 @@
 #include <cppeditor/cppmodelmanager.h>
 #include <cplusplus/CppDocument.h>
 
-#include <projectexplorer/session.h>
-#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
 
 #include <utils/qtcassert.h>
 
@@ -29,6 +29,7 @@
 // TODO implement removing include dependencies that are not longer used
 // TODO refactor add/remove relations between ancestor packages into extra controller class
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace ModelEditor {
@@ -136,7 +137,7 @@ void UpdateIncludeDependenciesVisitor::setModelUtilities(ModelUtilities *modelUt
 void UpdateIncludeDependenciesVisitor::updateFilePaths()
 {
     m_filePaths.clear();
-    for (const ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects()) {
+    for (const ProjectExplorer::Project *project : ProjectExplorer::ProjectManager::projects()) {
         ProjectExplorer::ProjectNode *projectNode = project->rootProjectNode();
         if (projectNode)
             collectElementPaths(projectNode, &m_filePaths);
@@ -217,17 +218,16 @@ QStringList UpdateIncludeDependenciesVisitor::findFilePathOfComponent(const qmt:
 void UpdateIncludeDependenciesVisitor::collectElementPaths(const ProjectExplorer::FolderNode *folderNode,
                                                            QMultiHash<QString, Node> *filePathsMap)
 {
-    const QList<ProjectExplorer::FileNode *> fileNodes = folderNode->fileNodes();
-    for (const ProjectExplorer::FileNode *fileNode : fileNodes) {
+    folderNode->forEachFileNode([&](FileNode *fileNode) {
         QString elementName = qmt::NameController::convertFileNameToElementName(fileNode->filePath().toString());
         QFileInfo fileInfo = fileNode->filePath().toFileInfo();
         QString nodePath = fileInfo.path();
         QStringList elementsPath = qmt::NameController::buildElementsPath(nodePath, false);
         filePathsMap->insert(elementName, Node(fileNode->filePath().toString(), elementsPath));
-    }
-    const QList<ProjectExplorer::FolderNode *> subNodes = folderNode->folderNodes();
-    for (const ProjectExplorer::FolderNode *subNode : subNodes)
+    });
+    folderNode->forEachFolderNode([&](FolderNode *subNode) {
         collectElementPaths(subNode, filePathsMap);
+    });
 }
 
 qmt::MComponent *UpdateIncludeDependenciesVisitor::findComponentFromFilePath(const QString &filePath)

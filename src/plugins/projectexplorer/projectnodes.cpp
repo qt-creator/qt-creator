@@ -326,14 +326,13 @@ FilePath Node::pathOrDirectory(bool dir) const
         FilePath location;
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
-        if (!folder->fileNodes().isEmpty() || folder->folderNodes().isEmpty()) {
+        auto Any = [](auto) { return true; };
+        if (folder->findChildFileNode(Any) || !folder->findChildFolderNode(Any)) {
             location = m_filePath;
         } else {
             // Otherwise we figure out a commonPath from the subfolders
             FilePaths list;
-            const QList<FolderNode *> folders = folder->folderNodes();
-            for (FolderNode *f : folders)
-                list << f->filePath();
+            folder->forEachFolderNode([&](FolderNode *f) { list << f->filePath(); });
             location = FileUtils::commonPath(list);
         }
 
@@ -547,6 +546,22 @@ void FolderNode::forEachProjectNode(const std::function<void(const ProjectNode *
     }
 }
 
+void FolderNode::forEachFileNode(const std::function<void (FileNode *)> &fileTask) const
+{
+    for (const std::unique_ptr<Node> &n : m_nodes) {
+        if (FileNode *fn = n->asFileNode())
+            fileTask(fn);
+    }
+}
+
+void FolderNode::forEachFolderNode(const std::function<void (FolderNode *)> &folderTask) const
+{
+    for (const std::unique_ptr<Node> &n : m_nodes) {
+        if (FolderNode *fn = n->asFolderNode())
+            folderTask(fn);
+    }
+}
+
 ProjectNode *FolderNode::findProjectNode(const std::function<bool(const ProjectNode *)> &predicate)
 {
     if (ProjectNode *projectNode = asProjectNode()) {
@@ -563,19 +578,29 @@ ProjectNode *FolderNode::findProjectNode(const std::function<bool(const ProjectN
     return nullptr;
 }
 
+FolderNode *FolderNode::findChildFolderNode(const std::function<bool(FolderNode *)> &predicate) const
+{
+    for (const std::unique_ptr<Node> &n : m_nodes) {
+        if (FolderNode *fn = n->asFolderNode())
+            if (predicate(fn))
+                return fn;
+    }
+    return nullptr;
+}
+
+FileNode *FolderNode::findChildFileNode(const std::function<bool(FileNode *)> &predicate) const
+{
+    for (const std::unique_ptr<Node> &n : m_nodes) {
+        if (FileNode *fn = n->asFileNode())
+            if (predicate(fn))
+                return fn;
+    }
+    return nullptr;
+}
+
 const QList<Node *> FolderNode::nodes() const
 {
     return Utils::toRawPointer<QList>(m_nodes);
-}
-
-QList<FileNode *> FolderNode::fileNodes() const
-{
-    QList<FileNode *> result;
-    for (const std::unique_ptr<Node> &n : m_nodes) {
-        if (FileNode *fn = n->asFileNode())
-            result.append(fn);
-    }
-    return result;
 }
 
 FileNode *FolderNode::fileNode(const Utils::FilePath &file) const
@@ -585,16 +610,6 @@ FileNode *FolderNode::fileNode(const Utils::FilePath &file) const
         const FileNode *fn = n->asFileNode();
         return fn && fn->filePath() == file;
     }));
-}
-
-QList<FolderNode *> FolderNode::folderNodes() const
-{
-    QList<FolderNode *> result;
-    for (const std::unique_ptr<Node> &n : m_nodes) {
-        if (FolderNode *fn = n->asFolderNode())
-            result.append(fn);
-    }
-    return result;
 }
 
 FolderNode *FolderNode::folderNode(const Utils::FilePath &directory) const
@@ -669,8 +684,7 @@ void FolderNode::compress()
 
         compress();
     } else {
-        for (FolderNode *fn : folderNodes())
-            fn->compress();
+        forEachFolderNode([&](FolderNode *fn) { fn->compress(); });
     }
 }
 

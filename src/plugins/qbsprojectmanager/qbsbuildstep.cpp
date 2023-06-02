@@ -28,8 +28,8 @@
 #include <utils/macroexpander.h>
 #include <utils/outputformatter.h>
 #include <utils/pathchooser.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/variablechooser.h>
 
 #include <QCheckBox>
@@ -63,7 +63,7 @@ public:
     ArchitecturesAspect();
 
     void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
-    void addToLayout(Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutItem &parent) override;
     QStringList selectedArchitectures() const;
     void setSelectedArchitectures(const QStringList& architectures);
     bool isManagedByTarget() const { return m_isManagedByTarget; }
@@ -86,9 +86,9 @@ ArchitecturesAspect::ArchitecturesAspect()
     setAllValues(m_abisToArchMap.keys());
 }
 
-void ArchitecturesAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void ArchitecturesAspect::addToLayout(Layouting::LayoutItem &parent)
 {
-    MultiSelectionAspect::addToLayout(builder);
+    MultiSelectionAspect::addToLayout(parent);
     const auto changeHandler = [this] {
         const QtVersion *qtVersion = QtKitAspect::qtVersion(m_kit);
         if (!qtVersion) {
@@ -224,7 +224,7 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     m_keepGoing->setToolTip(
                 QbsProjectManager::Tr::tr("Keep going when errors occur (if at all possible)."));
     m_keepGoing->setLabel(QbsProjectManager::Tr::tr("Keep going"),
-                          BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+                          BoolAspect::LabelPlacement::AtCheckBox);
 
     m_maxJobCount = addAspect<IntegerAspect>();
     m_maxJobCount->setSettingsKey(QBS_MAXJOBCOUNT);
@@ -235,22 +235,22 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     m_showCommandLines = addAspect<BoolAspect>();
     m_showCommandLines->setSettingsKey(QBS_SHOWCOMMANDLINES);
     m_showCommandLines->setLabel(QbsProjectManager::Tr::tr("Show command lines"),
-                                 BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+                                 BoolAspect::LabelPlacement::AtCheckBox);
 
     m_install = addAspect<BoolAspect>();
     m_install->setSettingsKey(QBS_INSTALL);
     m_install->setValue(true);
-    m_install->setLabel(QbsProjectManager::Tr::tr("Install"), BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    m_install->setLabel(QbsProjectManager::Tr::tr("Install"), BoolAspect::LabelPlacement::AtCheckBox);
 
     m_cleanInstallDir = addAspect<BoolAspect>();
     m_cleanInstallDir->setSettingsKey(QBS_CLEAN_INSTALL_ROOT);
     m_cleanInstallDir->setLabel(QbsProjectManager::Tr::tr("Clean install root"),
-                                BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+                                BoolAspect::LabelPlacement::AtCheckBox);
 
     m_forceProbes = addAspect<BoolAspect>();
     m_forceProbes->setSettingsKey("Qbs.forceProbesKey");
     m_forceProbes->setLabel(QbsProjectManager::Tr::tr("Force probes"),
-                            BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+                            BoolAspect::LabelPlacement::AtCheckBox);
 
     m_commandLine = addAspect<StringAspect>();
     m_commandLine->setDisplayStyle(StringAspect::TextEditDisplay);
@@ -658,25 +658,27 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
     installDirChooser = new PathChooser(this);
     installDirChooser->setExpectedKind(PathChooser::Directory);
 
-    Layouting::Form builder;
-    builder.addRow(m_qbsStep->m_buildVariant);
-    builder.addRow(m_qbsStep->m_selectedAbis);
-    builder.addRow(m_qbsStep->m_maxJobCount);
-    builder.addRow({QbsProjectManager::Tr::tr("Properties:"), propertyEdit});
+    using namespace Layouting;
+    Form {
+        m_qbsStep->m_buildVariant, br,
+        m_qbsStep->m_selectedAbis, br,
+        m_qbsStep->m_maxJobCount, br,
+        QbsProjectManager::Tr::tr("Properties:"), propertyEdit, br,
 
-    builder.addRow(QbsProjectManager::Tr::tr("Flags:"));
-    m_qbsStep->m_keepGoing->addToLayout(builder);
-    m_qbsStep->m_showCommandLines->addToLayout(builder);
-    m_qbsStep->m_forceProbes->addToLayout(builder);
+        QbsProjectManager::Tr::tr("Flags:"),
+        m_qbsStep->m_keepGoing,
+        m_qbsStep->m_showCommandLines,
+        m_qbsStep->m_forceProbes, br,
 
-    builder.addRow(QbsProjectManager::Tr::tr("Installation flags:"));
-    m_qbsStep->m_install->addToLayout(builder);
-    m_qbsStep->m_cleanInstallDir->addToLayout(builder);
-    builder.addItem(defaultInstallDirCheckBox);
+        QbsProjectManager::Tr::tr("Installation flags:"),
+        m_qbsStep->m_install,
+        m_qbsStep->m_cleanInstallDir,
+        defaultInstallDirCheckBox, br,
 
-    builder.addRow({QbsProjectManager::Tr::tr("Installation directory:"), installDirChooser});
-    builder.addRow(m_qbsStep->m_commandLine);
-    builder.attachTo(this, Layouting::WithoutMargins);
+        QbsProjectManager::Tr::tr("Installation directory:"), installDirChooser, br,
+        m_qbsStep->m_commandLine, br,
+        noMargin,
+    }.attachTo(this);
 
     propertyEdit->setToolTip(QbsProjectManager::Tr::tr("Properties to pass to the project."));
     defaultInstallDirCheckBox->setText(QbsProjectManager::Tr::tr("Use default location"));

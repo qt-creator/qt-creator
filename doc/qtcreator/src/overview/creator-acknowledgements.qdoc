@@ -1002,5 +1002,116 @@
 
         https://creativecommons.org/publicdomain/zero/1.0/
 
+        \li \b WinPty
+
+        Implementation of a pseudo terminal for Windows.
+
+        The sources can be found in:
+        \list
+            \li \l https://github.com/rprichard/winpty
+        \endlist
+
+        Distributed under the MIT license.
+
+        \include license-mit.qdocinc
+
+        \li \b ptyqt
+
+        Pty-Qt is small library for access to console applications by a
+        pseudo-terminal interface on \macos, Linux and Windows. On \macos and
+        Linux it uses standard PseudoTerminal API and on Windows it uses
+        WinPty or ConPty.
+
+        \list
+            \li \l https://github.com/kafeg/ptyqt
+        \endlist
+
+        Distributed under the MIT license.
+
+        \include license-mit.qdocinc
+
+        \li \b libvterm
+
+        An abstract C99 library, which implements a VT220 or xterm-like terminal
+        emulator. It doesn't use any particular graphics toolkit or output
+        system. Instead it invokes callback function pointers that its embedding
+        program should provide to draw on its behalf. It avoids calling malloc()
+        during normal running state, allowing it to be used in embedded kernels.
+
+        \list
+            \li \l https://www.leonerd.org.uk/code/libvterm/
+        \endlist
+
+        Distributed under the MIT license.
+
+        \include license-mit.qdocinc
+
+        \li \b terminal/shellintegrations
+
+        The Terminal plugin uses scripts to integrate with the shell. The scripts are
+        located in the Qt Creator source tree in src/plugins/terminal/shellintegrations.
+
+        \list
+            \li \l https://github.com/microsoft/vscode/tree/main/src/vs/workbench/contrib/terminal/browser/media
+        \endlist
+
+        Distributed under the MIT license.
+
+        \include license-mit.qdocinc
+
+        \li \b terminal/shellintegrations/clink
+
+        The Terminal plugin uses a lua script to integrate with the cmd shell when using clink.
+
+        \list
+            \li \l https://github.com/chrisant996/clink-gizmos
+        \endlist
+
+        Distributed under the MIT license.
+
+        \include license-mit.qdocinc
+
+        \li \b cmake
+
+        The CMake project manager uses the CMake lexer code for parsing CMake files.
+
+        \list
+            \li \l https://gitlab.kitware.com/cmake/cmake.git
+        \endlist
+
+        CMake - Cross Platform Makefile Generator
+        Copyright 2000-2023 Kitware, Inc. and Contributors
+        All rights reserved.
+
+        \badcode
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions
+        are met:
+
+        * Redistributions of source code must retain the above copyright
+            notice, this list of conditions and the following disclaimer.
+
+        * Redistributions in binary form must reproduce the above copyright
+            notice, this list of conditions and the following disclaimer in the
+            documentation and/or other materials provided with the distribution.
+
+        * Neither the name of Kitware, Inc. nor the names of Contributors
+            may be used to endorse or promote products derived from this
+            software without specific prior written permission.
+
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+        "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+        LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+        A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+        HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+        SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+        LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+        DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+        THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+        (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+        OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+        \endcode
+
+
      \endlist
 */

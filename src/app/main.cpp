@@ -22,29 +22,20 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QFontDatabase>
 #include <QFileInfo>
+#include <QFontDatabase>
 #include <QLibraryInfo>
-#include <QScopeGuard>
-#include <QStyle>
-#include <QTextStream>
-#include <QThreadPool>
-#include <QTimer>
-#include <QTranslator>
-#include <QUrl>
-#include <QVariant>
-
-#include <QSysInfo>
-
-#include <QNetworkProxyFactory>
-
-#include <QApplication>
 #include <QMessageBox>
+#include <QNetworkProxyFactory>
 #include <QPixmapCache>
 #include <QProcess>
+#include <QScopeGuard>
 #include <QStandardPaths>
-#include <QTemporaryDir>
+#include <QStyle>
 #include <QTextCodec>
+#include <QTextStream>
+#include <QThreadPool>
+#include <QTranslator>
 
 #include <iterator>
 #include <optional>
@@ -527,11 +518,6 @@ int main(int argc, char **argv)
         QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
     }
 
-    if (Utils::HostOsInfo::isRunningUnderRosetta()) {
-        // work around QTBUG-97085: QRegularExpression jitting is not reentrant under Rosetta
-        qputenv("QT_ENABLE_REGEXP_JIT", "0");
-    }
-
     if (Utils::HostOsInfo::isLinuxHost() && !qEnvironmentVariableIsSet("GTK_THEME"))
         // Work around QTCREATORBUG-28497:
         // Prevent Qt's GTK3 platform theme plugin from enforcing a dark palette
@@ -589,11 +575,12 @@ int main(int argc, char **argv)
 
     SharedTools::QtSingleApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
-    int numberofArguments = static_cast<int>(options.appArguments.size());
+    int numberOfArguments = static_cast<int>(options.appArguments.size());
 
-    SharedTools::QtSingleApplication app((QLatin1String(Core::Constants::IDE_DISPLAY_NAME)),
-                                         numberofArguments,
-                                         options.appArguments.data());
+    std::unique_ptr<SharedTools::QtSingleApplication>
+        appPtr(SharedTools::createApplication(QLatin1String(Core::Constants::IDE_DISPLAY_NAME),
+                                              numberOfArguments, options.appArguments.data()));
+    SharedTools::QtSingleApplication &app = *appPtr;
     QCoreApplication::setApplicationName(Core::Constants::IDE_CASED_ID);
     QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));
     QCoreApplication::setOrganizationName(QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR));

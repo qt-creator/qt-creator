@@ -17,32 +17,37 @@ using namespace Utils;
 
 namespace Cvs::Internal {
 
-// CvsSettings
+static CvsSettings *theSettings;
+
+CvsSettings &settings()
+{
+    return *theSettings;
+}
 
 CvsSettings::CvsSettings()
 {
+    theSettings = this;
     setSettingsGroup("CVS");
 
-    registerAspect(&binaryPath);
+    setId(VcsBase::Constants::VCS_ID_CVS);
+    setDisplayName(Tr::tr("CVS"));
+    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+
     binaryPath.setDefaultValue("cvs" QTC_HOST_EXE_SUFFIX);
-    binaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setHistoryCompleter(QLatin1String("Cvs.Command.History"));
     binaryPath.setDisplayName(Tr::tr("CVS Command"));
     binaryPath.setLabelText(Tr::tr("CVS command:"));
 
-    registerAspect(&cvsRoot);
     cvsRoot.setDisplayStyle(StringAspect::LineEditDisplay);
     cvsRoot.setSettingsKey("Root");
     cvsRoot.setLabelText(Tr::tr("CVS root:"));
 
-    registerAspect(&diffOptions);
     diffOptions.setDisplayStyle(StringAspect::LineEditDisplay);
     diffOptions.setSettingsKey("DiffOptions");
     diffOptions.setDefaultValue("-du");
     diffOptions.setLabelText("Diff options:");
 
-    registerAspect(&describeByCommitId);
     describeByCommitId.setSettingsKey("DescribeByCommitId");
     describeByCommitId.setDefaultValue(true);
     describeByCommitId.setLabelText(Tr::tr("Describe all files matching commit id"));
@@ -50,11 +55,33 @@ CvsSettings::CvsSettings()
         "displayed when clicking on a revision number in the annotation view "
         "(retrieved via commit ID). Otherwise, only the respective file will be displayed."));
 
-    registerAspect(&diffIgnoreWhiteSpace);
     diffIgnoreWhiteSpace.setSettingsKey("DiffIgnoreWhiteSpace");
 
-    registerAspect(&diffIgnoreBlankLines);
     diffIgnoreBlankLines.setSettingsKey("DiffIgnoreBlankLines");
+
+    setLayouter([this] {
+        using namespace Layouting;
+        return Column {
+            Group {
+                title(Tr::tr("Configuration")),
+                Form {
+                    binaryPath, br,
+                    cvsRoot
+                }
+            },
+            Group {
+                title(Tr::tr("Miscellaneous")),
+                Column {
+                    Form {
+                        timeout, br,
+                        diffOptions,
+                    },
+                    describeByCommitId,
+                }
+            },
+            st
+        };
+    });
 }
 
 QStringList CvsSettings::addOptions(const QStringList &args) const
@@ -68,40 +95,6 @@ QStringList CvsSettings::addOptions(const QStringList &args) const
     rc.push_back(cvsRoot);
     rc.append(args);
     return rc;
-}
-
-CvsSettingsPage::CvsSettingsPage(CvsSettings *settings)
-{
-    setId(VcsBase::Constants::VCS_ID_CVS);
-    setDisplayName(Tr::tr("CVS"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        CvsSettings &s = *settings;
-        using namespace Layouting;
-
-        Column {
-            Group {
-                title(Tr::tr("Configuration")),
-                Form {
-                    s.binaryPath,
-                    s.cvsRoot
-                }
-            },
-            Group {
-                title(Tr::tr("Miscellaneous")),
-                Column {
-                    Form {
-                        s.timeout,
-                        s.diffOptions,
-                    },
-                    s.describeByCommitId,
-                }
-            },
-            st
-        }.attachTo(widget);
-    });
 }
 
 } // Cvs::Internal

@@ -4,7 +4,7 @@
 #include "CppDocument.h"
 
 #include <QDebug>
-#include <QFutureInterface>
+#include <QFuture>
 
 using namespace Utils;
 
@@ -28,14 +28,14 @@ Utils::FilePaths DependencyTable::filesDependingOn(const Utils::FilePath &fileNa
     return deps;
 }
 
-void DependencyTable::build(QFutureInterfaceBase &futureInterface, const Snapshot &snapshot)
+void DependencyTable::build(const std::optional<QFuture<void>> &future, const Snapshot &snapshot)
 {
     files.clear();
     fileIndex.clear();
     includes.clear();
     includeMap.clear();
 
-    if (futureInterface.isCanceled())
+    if (future && future->isCanceled())
         return;
 
     const int documentCount = snapshot.size();
@@ -49,7 +49,7 @@ void DependencyTable::build(QFutureInterfaceBase &futureInterface, const Snapsho
         fileIndex[it.key()] = i;
     }
 
-    if (futureInterface.isCanceled())
+    if (future && future->isCanceled())
         return;
 
     for (int i = 0; i < files.size(); ++i) {
@@ -68,13 +68,13 @@ void DependencyTable::build(QFutureInterfaceBase &futureInterface, const Snapsho
                     directIncludes.append(index);
 
                 bitmap.setBit(index, true);
-                if (futureInterface.isCanceled())
+                if (future && future->isCanceled())
                     return;
             }
 
             includeMap[i] = bitmap;
             includes[i] = directIncludes;
-            if (futureInterface.isCanceled())
+            if (future && future->isCanceled())
                 return;
         }
     }
@@ -91,7 +91,7 @@ void DependencyTable::build(QFutureInterfaceBase &futureInterface, const Snapsho
             const QList<int> includedFileIndexes = includes.value(i);
             for (const int includedFileIndex : includedFileIndexes) {
                 bitmap |= includeMap.value(includedFileIndex);
-                if (futureInterface.isCanceled())
+                if (future && future->isCanceled())
                     return;
             }
 
@@ -99,10 +99,10 @@ void DependencyTable::build(QFutureInterfaceBase &futureInterface, const Snapsho
                 includeMap[i] = bitmap;
                 changed = true;
             }
-            if (futureInterface.isCanceled())
+            if (future && future->isCanceled())
                 return;
         }
-        if (futureInterface.isCanceled())
+        if (future && future->isCanceled())
             return;
     } while (changed);
 }

@@ -23,8 +23,6 @@ using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
 
-const char CALL_HIERARCHY_FACTORY_ID[] = "LanguageClient.CallHierarchy";
-
 namespace {
 enum Direction { Incoming, Outgoing };
 
@@ -186,6 +184,9 @@ public:
         layout()->setSpacing(0);
 
         connect(m_view, &NavigationTreeView::activated, this, &CallHierarchy::onItemActivated);
+
+        connect(LanguageClientManager::instance(), &LanguageClientManager::openCallHierarchy,
+                this, &CallHierarchy::updateHierarchyAtCursorPosition);
     }
 
     void onItemActivated(const QModelIndex &index)
@@ -211,26 +212,14 @@ void CallHierarchy::updateHierarchyAtCursorPosition()
     BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
     if (!editor)
         return;
-    Client *client = LanguageClientManager::clientForFilePath(editor->document()->filePath());
+
+    Core::IDocument *document = editor->document();
+
+    Client *client = LanguageClientManager::clientForFilePath(document->filePath());
     if (!client)
         return;
 
-    const QString methodName = PrepareCallHierarchyRequest::methodName;
-    std::optional<bool> registered = client->dynamicCapabilities().isRegistered(methodName);
-    bool supported = registered.value_or(false);
-    const Core::IDocument *document = editor->document();
-    if (registered) {
-        if (supported) {
-            const QJsonValue &options = client->dynamicCapabilities().option(methodName);
-            const TextDocumentRegistrationOptions docOptions(options);
-            supported = docOptions.filterApplies(document->filePath(),
-                                                 Utils::mimeTypeForName(document->mimeType()));
-        }
-    } else {
-        supported = client->capabilities().callHierarchyProvider().has_value();
-    }
-
-    if (!supported)
+    if (!CallHierarchyFactory::supportsCallHierarchy(client, document))
         return;
 
     TextDocumentPositionParams params;
@@ -273,7 +262,25 @@ CallHierarchyFactory::CallHierarchyFactory()
 {
     setDisplayName(Tr::tr("Call Hierarchy"));
     setPriority(650);
-    setId(CALL_HIERARCHY_FACTORY_ID);
+    setId(Constants::CALL_HIERARCHY_FACTORY_ID);
+}
+
+bool CallHierarchyFactory::supportsCallHierarchy(Client *client, const Core::IDocument *document)
+{
+    const QString methodName = PrepareCallHierarchyRequest::methodName;
+    std::optional<bool> registered = client->dynamicCapabilities().isRegistered(methodName);
+    bool supported = registered.value_or(false);
+    if (registered) {
+        if (supported) {
+            const QJsonValue &options = client->dynamicCapabilities().option(methodName);
+            const TextDocumentRegistrationOptions docOptions(options);
+            supported = docOptions.filterApplies(document->filePath(),
+                                                 Utils::mimeTypeForName(document->mimeType()));
+        }
+    } else {
+        supported = client->capabilities().callHierarchyProvider().has_value();
+    }
+    return supported;
 }
 
 Core::NavigationView CallHierarchyFactory::createWidget()
@@ -284,6 +291,7 @@ Core::NavigationView CallHierarchyFactory::createWidget()
     Icons::RELOAD_TOOLBAR.icon();
     auto button = new QToolButton;
     button->setIcon(Icons::RELOAD_TOOLBAR.icon());
+    button->setToolTip(Tr::tr("Reloads the call hierarchy for the symbol under cursor position."));
     connect(button, &QToolButton::clicked, [h](){
         h->updateHierarchyAtCursorPosition();
     });

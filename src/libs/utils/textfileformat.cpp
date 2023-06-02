@@ -33,6 +33,7 @@ QDebug operator<<(QDebug d, const TextFileFormat &format)
 
 /*!
     \class Utils::TextFileFormat
+    \inmodule QtCreator
 
     \brief The TextFileFormat class describes the format of a text file and
     provides autodetection.
@@ -51,7 +52,7 @@ QDebug operator<<(QDebug d, const TextFileFormat &format)
 TextFileFormat::TextFileFormat() = default;
 
 /*!
-    Detects the format of text data.
+    Detects the format of text \a data.
 */
 
 TextFileFormat TextFileFormat::detect(const QByteArray &data)
@@ -84,7 +85,8 @@ TextFileFormat TextFileFormat::detect(const QByteArray &data)
 }
 
 /*!
-    Returns a piece of text suitable as display for a encoding error.
+    Returns a piece of text specified by \a data suitable as display for
+    an encoding error.
 */
 
 QByteArray TextFileFormat::decodingErrorSample(const QByteArray &data)
@@ -152,7 +154,7 @@ bool decodeTextFileContent(const QByteArray &dataBA,
 }
 
 /*!
-    Decodes data to a plain string.
+    Returns \a data decoded to a plain string, \a target.
 */
 
 bool TextFileFormat::decode(const QByteArray &data, QString *target) const
@@ -162,7 +164,7 @@ bool TextFileFormat::decode(const QByteArray &data, QString *target) const
 }
 
 /*!
-    Decodes data to a list of strings.
+    Returns \a data decoded to a list of strings, \a target.
 
     Intended for use with progress bars loading large files.
 */
@@ -211,7 +213,12 @@ TextFileFormat::ReadResult readTextFile(const FilePath &filePath, const QTextCod
 }
 
 /*!
-    Reads a text file into a list of strings.
+    Reads a text file from \a filePath into a list of strings, \a plainTextList
+    using \a defaultCodec and text file format \a format.
+
+    Returns whether decoding was possible without errors. If errors occur,
+    returns an error message, \a errorString and a sample error,
+    \a decodingErrorSample.
 */
 
 TextFileFormat::ReadResult
@@ -229,7 +236,11 @@ TextFileFormat::ReadResult
 }
 
 /*!
-    Reads a text file into a string.
+    Reads a text file from \a filePath into a string, \a plainText using
+    \a defaultCodec and text file format \a format.
+
+    Returns whether decoding was possible without errors.
+
 */
 
 TextFileFormat::ReadResult
@@ -278,7 +289,10 @@ TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const FilePath &filePath
 }
 
 /*!
-    Writes out a text file.
+    Writes out a text file to \a filePath into a string, \a plainText.
+
+    Returns whether decoding was possible without errors. If errors occur,
+    returns an error message, \a errorString.
 */
 
 bool TextFileFormat::writeFile(const FilePath &filePath, QString plainText, QString *errorString) const

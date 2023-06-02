@@ -9,13 +9,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
-#include <utils/checkablemessagebox.h>
 #include <utils/pathchooser.h>
 #include <utils/temporarydirectory.h>
 
 #include <QAction>
 #include <QCheckBox>
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QLabel>
 #include <QPushButton>

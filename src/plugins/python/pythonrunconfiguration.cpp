@@ -9,7 +9,6 @@
 #include "pysideuicextracompiler.h"
 #include "pythonconstants.h"
 #include "pythonlanguageclient.h"
-#include "pythonplugin.h"
 #include "pythonproject.h"
 #include "pythonsettings.h"
 #include "pythontr.h"
@@ -17,13 +16,14 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <languageclient/languageclientmanager.h>
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -189,7 +189,8 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     scriptAspect->setLabelText(Tr::tr("Script:"));
     scriptAspect->setDisplayStyle(StringAspect::LabelDisplay);
 
-    addAspect<LocalEnvironmentAspect>(target);
+    auto envAspect = addAspect<EnvironmentAspect>();
+    envAspect->setSupportForBuildEnvironment(target);
 
     auto argumentsAspect = addAspect<ArgumentsAspect>(macroExpander());
 
@@ -218,7 +219,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     currentInterpreterChanged();
 
     setRunnableModifier([](Runnable &r) {
-        r.workingDirectory = r.workingDirectory.onDevice(r.command.executable());
+        r.workingDirectory = r.command.executable().withNewMappedPath(r.workingDirectory); // FIXME: Needed?
     });
 
     connect(PySideInstaller::instance(), &PySideInstaller::pySideInstalled, this,
@@ -248,7 +249,7 @@ void PythonRunConfigurationPrivate::checkForPySide(const FilePath &python,
     });
     const auto future = Pip::instance(python)->info(package);
     m_watcher.setFuture(future);
-    PythonPlugin::futureSynchronizer()->addFuture(future);
+    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
 }
 
 void PythonRunConfigurationPrivate::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,
@@ -279,12 +280,12 @@ void PythonRunConfigurationPrivate::handlePySidePackageInfo(const PipPackageInfo
             = OsSpecificAspects::withExecutableSuffix(python.osType(), "pyside6-uic");
         for (const FilePath &file : files) {
             if (file.fileName() == pySide6ProjectName) {
-                result.pySideProjectPath = location.resolvePath(file).onDevice(python);
+                result.pySideProjectPath = python.withNewMappedPath(location.resolvePath(file));
                 result.pySideProjectPath = result.pySideProjectPath.cleanPath();
                 if (!result.pySideUicPath.isEmpty())
                     return result;
             } else if (file.fileName() == pySide6UicName) {
-                result.pySideUicPath = location.resolvePath(file).onDevice(python);
+                result.pySideUicPath = python.withNewMappedPath(location.resolvePath(file));
                 result.pySideUicPath = result.pySideUicPath.cleanPath();
                 if (!result.pySideProjectPath.isEmpty())
                     return result;

@@ -147,7 +147,7 @@ QWidget *BuildStep::doCreateConfigWidget()
             setSummaryText(m_summaryUpdater());
     };
 
-    for (BaseAspect *aspect : std::as_const(m_aspects))
+    for (BaseAspect *aspect : std::as_const(*this))
         connect(aspect, &BaseAspect::changed, widget, recreateSummary);
 
     connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
@@ -160,12 +160,13 @@ QWidget *BuildStep::doCreateConfigWidget()
 
 QWidget *BuildStep::createConfigWidget()
 {
-    Layouting::Form builder;
-    for (BaseAspect *aspect : std::as_const(m_aspects)) {
+    Layouting::Form form;
+    for (BaseAspect *aspect : std::as_const(*this)) {
         if (aspect->isVisible())
-            aspect->addToLayout(builder.finishRow());
+            form.addItem(aspect);
     }
-    auto widget = builder.emerge(Layouting::WithoutMargins);
+    form.addItem(Layouting::noMargin);
+    auto widget = form.emerge();
 
     if (m_addMacroExpander)
         VariableChooser::addSupportForChildWidgets(widget, macroExpander());
@@ -361,7 +362,7 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
             return false;
     }
 
-    if (!m_isRepeatable && bsl->contains(m_info.id))
+    if (!m_isRepeatable && bsl->contains(m_stepId))
         return false;
 
     if (m_supportedConfiguration.isValid()) {
@@ -375,14 +376,42 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     return true;
 }
 
-void BuildStepFactory::setDisplayName(const QString &displayName)
+QString BuildStepFactory::displayName() const
 {
-    m_info.displayName = displayName;
+    return m_displayName;
 }
 
-void BuildStepFactory::setFlags(BuildStepInfo::Flags flags)
+void BuildStepFactory::cloneStepCreator(Id exitstingStepId, Id overrideNewStepId)
 {
-    m_info.flags = flags;
+    m_stepId = {};
+    m_creator = {};
+    for (BuildStepFactory *factory : BuildStepFactory::allBuildStepFactories()) {
+        if (factory->m_stepId == exitstingStepId) {
+            m_creator = factory->m_creator;
+            m_stepId = factory->m_stepId;
+            m_displayName = factory->m_displayName;
+            // Other bits are intentionally not copied as they are unlikely to be
+            // useful in the cloner's context. The cloner can/has to finish the
+            // setup on its own.
+            break;
+        }
+    }
+    // Existence should be guaranteed by plugin dependencies. In case it fails,
+    // bark and keep the factory in a state where the invalid m_stepId keeps it
+    // inaction.
+    QTC_ASSERT(m_creator, return);
+    if (overrideNewStepId.isValid())
+        m_stepId = overrideNewStepId;
+}
+
+void BuildStepFactory::setDisplayName(const QString &displayName)
+{
+    m_displayName = displayName;
+}
+
+void BuildStepFactory::setFlags(BuildStep::Flags flags)
+{
+    m_flags = flags;
 }
 
 void BuildStepFactory::setSupportedStepList(Id id)
@@ -415,20 +444,21 @@ void BuildStepFactory::setSupportedDeviceTypes(const QList<Id> &ids)
     m_supportedDeviceTypes = ids;
 }
 
-BuildStepInfo BuildStepFactory::stepInfo() const
+BuildStep::Flags BuildStepFactory::stepFlags() const
 {
-    return m_info;
+    return m_flags;
 }
 
 Id BuildStepFactory::stepId() const
 {
-    return m_info.id;
+    return m_stepId;
 }
 
 BuildStep *BuildStepFactory::create(BuildStepList *parent)
 {
-    BuildStep *step = m_info.creator(parent);
-    step->setDefaultDisplayName(m_info.displayName);
+    QTC_ASSERT(m_creator, return nullptr);
+    BuildStep *step = m_creator(parent);
+    step->setDefaultDisplayName(m_displayName);
     return step;
 }
 

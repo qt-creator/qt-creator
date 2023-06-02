@@ -15,8 +15,7 @@
 #include <QLineEdit>
 #include <QRadioButton>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
     : QDialog(parent)
@@ -35,7 +34,7 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
     m_localPathChooser->setPromptDialogFilter(Tr::tr(Constants::FOSSIL_FILE_FILTER));
 
     m_urlButton = new QRadioButton(Tr::tr("Specify URL:"));
-    m_urlButton->setToolTip(Tr::tr("For example: https://[user[:pass]@]host[:port]/[path]"));
+    m_urlButton->setToolTip(Tr::tr("For example: \"https://[user[:pass]@]host[:port]/[path]\"."));
 
     m_urlLineEdit = new QLineEdit;
     m_urlLineEdit->setEnabled(false);
@@ -52,7 +51,7 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
     Column {
         Group {
             title(Tr::tr("Remote Location")),
@@ -106,10 +105,9 @@ void PullOrPushDialog::setDefaultRemoteLocation(const QString &url)
     m_urlLineEdit->setText(url);
 }
 
-void PullOrPushDialog::setLocalBaseDirectory(const QString &dir)
+void PullOrPushDialog::setLocalBaseDirectory(const Utils::FilePath &dir)
 {
-    m_localPathChooser->setBaseDirectory(Utils::FilePath::fromString(dir));
+    m_localPathChooser->setBaseDirectory(dir);
 }
 
-} // namespace Internal
-} // namespace Fossil
+} // Fossil::Internal

@@ -34,7 +34,7 @@ private:
     Utils::PathChooser *m_pathChooserBundles;
 };
 
-class QMLDESIGNERBASE_EXPORT StudioConfigSettingsPage : public Core::IOptionsPage
+class QMLDESIGNERBASE_EXPORT StudioConfigSettingsPage : public QObject, Core::IOptionsPage
 {
     Q_OBJECT
 

@@ -12,7 +12,7 @@
 
 #include <optional>
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class Process; }
 
 namespace CMakeProjectManager {
 
@@ -61,6 +61,8 @@ public:
     Utils::Id id() const { return m_id; }
     QVariantMap toMap () const;
 
+    void setAutorun(bool autoRun) { m_isAutoRun = autoRun; }
+
     void setFilePath(const Utils::FilePath &executable);
     Utils::FilePath filePath() const;
     Utils::FilePath cmakeExecutable() const;
@@ -95,7 +97,7 @@ public:
 private:
     void readInformation() const;
 
-    void runCMake(Utils::QtcProcess &proc, const QStringList &args, int timeoutS = 1) const;
+    void runCMake(Utils::Process &proc, const QStringList &args, int timeoutS = 1) const;
     void parseFunctionDetailsOutput(const QString &output);
     QStringList parseVariableOutput(const QString &output);
 

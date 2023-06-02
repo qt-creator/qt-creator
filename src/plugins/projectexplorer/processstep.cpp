@@ -34,9 +34,8 @@ public:
 ProcessStep::ProcessStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
-    auto command = addAspect<StringAspect>();
+    auto command = addAspect<FilePathAspect>();
     command->setSettingsKey(PROCESS_COMMAND_KEY);
-    command->setDisplayStyle(StringAspect::PathChooserDisplay);
     command->setLabelText(Tr::tr("Command:"));
     command->setExpectedKind(PathChooser::Command);
     command->setHistoryCompleter("PE.ProcessStepCommand.History");
@@ -46,10 +45,9 @@ ProcessStep::ProcessStep(BuildStepList *bsl, Id id)
     arguments->setDisplayStyle(StringAspect::LineEditDisplay);
     arguments->setLabelText(Tr::tr("Arguments:"));
 
-    auto workingDirectory = addAspect<StringAspect>();
+    auto workingDirectory = addAspect<FilePathAspect>();
     workingDirectory->setSettingsKey(PROCESS_WORKINGDIRECTORY_KEY);
     workingDirectory->setValue(Constants::DEFAULT_WORKING_DIR);
-    workingDirectory->setDisplayStyle(StringAspect::PathChooserDisplay);
     workingDirectory->setLabelText(Tr::tr("Working directory:"));
     workingDirectory->setExpectedKind(PathChooser::Directory);
 

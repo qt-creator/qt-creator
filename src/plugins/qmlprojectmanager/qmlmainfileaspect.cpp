@@ -55,7 +55,7 @@ QmlMainFileAspect::~QmlMainFileAspect()
     delete m_fileListCombo;
 }
 
-void QmlMainFileAspect::addToLayout(Layouting::LayoutBuilder &builder)
+void QmlMainFileAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_ASSERT(!m_fileListCombo, delete m_fileListCombo);
     m_fileListCombo = new QComboBox;
@@ -67,7 +67,7 @@ void QmlMainFileAspect::addToLayout(Layouting::LayoutBuilder &builder)
             this, &QmlMainFileAspect::updateFileComboBox);
     connect(m_fileListCombo, &QComboBox::activated, this, &QmlMainFileAspect::setMainScript);
 
-    builder.addItems({Tr::tr("Main QML file:"), m_fileListCombo.data()});
+    parent.addItems({Tr::tr("Main QML file:"), m_fileListCombo.data()});
 }
 
 void QmlMainFileAspect::toMap(QVariantMap &map) const

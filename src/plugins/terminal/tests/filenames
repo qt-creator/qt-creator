@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+echo "Home:"
+echo "~/"
+
+FULLPATH=$(readlink -f "$0")
+
+echo "This file:"
+echo "$FULLPATH"
+
+echo "This file, this line:"
+echo "$FULLPATH:11"
+
+echo "This file, this line, this word:"
+echo "$FULLPATH:14:34"
+
+echo "This file, with an error message:"
+echo "$FULLPATH:18:23: error: C++ requires a type specifier for all declarations"
+
+echo "A link: http://google.com"
+echo "Another link: https://www.qt.io"
+echo "Another one: https://codereview.qt-project.org/c/qt-creator/qt-creator/+/464740"

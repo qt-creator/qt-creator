@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "designercontext.h"
-#include "formeditorw.h"
+#include "formeditor.h"
 
 #include <QDesignerFormEditorInterface>
 #include <QDesignerIntegration>
@@ -25,7 +25,7 @@ DesignerContext::DesignerContext(const Core::Context &context,
 
 void DesignerContext::contextHelp(const HelpCallback &callback) const
 {
-    const QDesignerFormEditorInterface *core = FormEditorW::designerEditor();
+    const QDesignerFormEditorInterface *core = designerEditor();
     callback(core->integration()->contextHelpId());
 }
 

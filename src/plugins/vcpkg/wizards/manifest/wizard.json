@@ -1,0 +1,80 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "VcpkgManifest.Json",
+    "category": "U.VcpkgManifest",
+    "trDescription": "Creates a vcpkg.json manifest file.",
+    "trDisplayName": "vcpkg.json Manifest File",
+    "trDisplayCategory": "vcpkg",
+    "iconText": "json",
+
+    "options": [
+        { "key": "InitialFileName", "value": "vcpkg.json" },
+        { "key": "TargetPath", "value": "%{Path}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "vcpkg.json Manifest File",
+            "trShortTitle": "Manifest fields",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "Name",
+                    "trDisplayName": "Name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "trText": "mypackage",
+                        "validator": "^[a-z_0-9]+$"
+                    }
+                },
+                {
+                    "name": "VersionString",
+                    "trDisplayName": "Version string:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "trText": "0.0.1"
+                    }
+                },
+                {
+                    "name": "Dependencies",
+                    "trDisplayName": "Dependencies:",
+                    "mandatory": false,
+                    "type": "TextEdit",
+                    "data":
+                    {
+                        "trText": "  \"dependencies\": [\n    \"fmt\"\n  ]"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "vcpkg.json.tpl",
+                "target": "%{Path}/vcpkg.json",
+                "openInEditor": true
+            }
+        }
+    ]
+}

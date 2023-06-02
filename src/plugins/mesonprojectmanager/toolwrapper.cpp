@@ -3,7 +3,7 @@
 
 #include "toolwrapper.h"
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 namespace MesonProjectManager {
 namespace Internal {
@@ -40,7 +40,7 @@ void ToolWrapper::setExe(const Utils::FilePath &newExe)
 Version ToolWrapper::read_version(const Utils::FilePath &toolPath)
 {
     if (toolPath.toFileInfo().isExecutable()) {
-        Utils::QtcProcess process;
+        Utils::Process process;
         process.setCommand({ toolPath, { "--version" } });
         process.start();
         if (process.waitForFinished())

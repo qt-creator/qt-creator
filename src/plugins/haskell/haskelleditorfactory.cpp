@@ -14,17 +14,14 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textindenter.h>
 
-#include <QCoreApplication>
+namespace Haskell::Internal {
 
-namespace Haskell {
-namespace Internal {
-
-static QWidget *createEditorWidget()
+static QWidget *createEditorWidget(QObject *guard)
 {
     auto widget = new TextEditor::TextEditorWidget;
     auto ghciButton = new Core::CommandButton(Constants::A_RUN_GHCI, widget);
     ghciButton->setText(Tr::tr("GHCi"));
-    QObject::connect(ghciButton, &QToolButton::clicked, HaskellManager::instance(), [widget] {
+    QObject::connect(ghciButton, &QToolButton::clicked, guard, [widget] {
         HaskellManager::openGhci(widget->textDocument()->filePath());
     });
     widget->insertExtraToolBarWidget(TextEditor::TextEditorWidget::Left, ghciButton);
@@ -40,12 +37,11 @@ HaskellEditorFactory::HaskellEditorFactory()
                             | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
     setDocumentCreator([] { return new TextEditor::TextDocument(Constants::C_HASKELLEDITOR_ID); });
     setIndenterCreator([](QTextDocument *doc) { return new TextEditor::TextIndenter(doc); });
-    setEditorWidgetCreator(createEditorWidget);
+    setEditorWidgetCreator([this] { return createEditorWidget(this); });
     setCommentDefinition(Utils::CommentDefinition("--", "{-", "-}"));
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setSyntaxHighlighterCreator([] { return new HaskellHighlighter(); });
 }
 
-} // Internal
-} // Haskell
+} // Haskell::Internal

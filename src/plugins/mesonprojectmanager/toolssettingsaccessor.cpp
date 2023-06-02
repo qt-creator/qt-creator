@@ -21,15 +21,13 @@ namespace Internal {
 
 static QString entryName(int index)
 {
-    using namespace Constants;
-    return QString("%1%2").arg(ToolsSettings::ENTRY_KEY).arg(index);
+    return QString("%1%2").arg(Constants::ToolsSettings::ENTRY_KEY).arg(index);
 }
 
 ToolsSettingsAccessor::ToolsSettingsAccessor()
-    : UpgradingSettingsAccessor("QtCreatorMesonTools",
-                                Tr::tr("Meson"),
-                                Core::Constants::IDE_DISPLAY_NAME)
 {
+    setDocType("QtCreatorMesonTools");
+    setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
     setBaseFilePath(Core::ICore::userResourcePath(Constants::ToolsSettings::FILENAME));
 }
 

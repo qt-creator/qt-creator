@@ -35,10 +35,6 @@ QtcPlugin {
         "cmakefilecompletionassist.h",
         "cmakeformatter.cpp",
         "cmakeformatter.h",
-        "cmakeformatteroptionspage.cpp",
-        "cmakeformatteroptionspage.h",
-        "cmakeformattersettings.cpp",
-        "cmakeformattersettings.h",
         "cmakeinstallstep.cpp",
         "cmakeinstallstep.h",
         "cmakekitinformation.h",
@@ -93,4 +89,18 @@ QtcPlugin {
         "projecttreehelper.cpp",
         "projecttreehelper.h"
     ]
+
+    Group {
+        name: "3rdparty"
+        cpp.includePaths: base.concat("3rdparty/cmake")
+
+        prefix: "3rdparty/cmake/"
+        files: [
+            "cmListFileCache.cxx",
+            "cmListFileCache.h",
+            "cmListFileLexer.cxx",
+            "cmListFileLexer.h",
+            "cmStandardLexer.h",
+        ]
+    }
 }

@@ -3,7 +3,7 @@
 
 #include "mcusupportversiondetection.h"
 
-#include <utils/qtcprocess.h>
+#include <utils/process.h>
 
 #include <QDir>
 #include <QRegularExpression>
@@ -41,7 +41,7 @@ QString McuPackageExecutableVersionDetector::parseVersion(const FilePath &packag
         return {};
 
     const int timeout = 3000; // usually runs below 1s, but we want to be on the safe side
-    QtcProcess process;
+    Process process;
     process.setCommand({binaryPath, m_detectionArgs});
     process.start();
     if (!process.waitForFinished(timeout) || process.result() != ProcessResult::FinishedWithSuccess)

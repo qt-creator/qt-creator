@@ -88,7 +88,7 @@ void ObjectsMapEditorWidget::initUi()
     m_stackedLayout->addWidget(validPropertiesWidget);
     m_stackedLayout->addWidget(invalidPropertiesWidget);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Row {
         m_propertiesTree,

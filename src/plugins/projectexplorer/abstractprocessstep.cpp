@@ -12,14 +12,15 @@
 
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QTextDecoder>
 
 #include <algorithm>
 #include <memory>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -76,7 +77,7 @@ public:
     void cleanUp(int exitCode, QProcess::ExitStatus status);
 
     AbstractProcessStep *q;
-    std::unique_ptr<QtcProcess> m_process;
+    std::unique_ptr<Process> m_process;
     std::unique_ptr<TaskTree> m_taskTree;
     ProcessParameters m_param;
     ProcessParameters *m_displayedParams = &m_param;
@@ -182,9 +183,9 @@ void AbstractProcessStep::doRun()
 
     setupStreams();
 
-    d->m_process.reset(new QtcProcess);
+    d->m_process.reset(new Process);
     setupProcess(d->m_process.get());
-    connect(d->m_process.get(), &QtcProcess::done, this, &AbstractProcessStep::handleProcessDone);
+    connect(d->m_process.get(), &Process::done, this, &AbstractProcessStep::handleProcessDone);
     d->m_process->start();
 }
 
@@ -209,7 +210,7 @@ void AbstractProcessStep::setupStreams()
     d->stderrStream = std::make_unique<QTextDecoder>(QTextCodec::codecForLocale());
 }
 
-void AbstractProcessStep::setupProcess(QtcProcess *process)
+void AbstractProcessStep::setupProcess(Process *process)
 {
     process->setUseCtrlCStub(HostOsInfo::isWindowsHost());
     process->setWorkingDirectory(d->m_param.effectiveWorkingDirectory());
@@ -224,15 +225,15 @@ void AbstractProcessStep::setupProcess(QtcProcess *process)
     if (d->m_lowPriority && ProjectExplorerPlugin::projectExplorerSettings().lowBuildPriority)
         process->setLowPriority();
 
-    connect(process, &QtcProcess::readyReadStandardOutput, this, [this, process] {
+    connect(process, &Process::readyReadStandardOutput, this, [this, process] {
         emit addOutput(d->stdoutStream->toUnicode(process->readAllRawStandardOutput()),
                        OutputFormat::Stdout, DontAppendNewline);
     });
-    connect(process, &QtcProcess::readyReadStandardError, this, [this, process] {
+    connect(process, &Process::readyReadStandardError, this, [this, process] {
         emit addOutput(d->stderrStream->toUnicode(process->readAllRawStandardError()),
                        OutputFormat::Stderr, DontAppendNewline);
     });
-    connect(process, &QtcProcess::started, this, [this] {
+    connect(process, &Process::started, this, [this] {
         ProcessParameters *params = displayedParameters();
         emit addOutput(Tr::tr("Starting: \"%1\" %2")
                        .arg(params->effectiveCommand().toUserOutput(), params->prettyArguments()),
@@ -240,7 +241,7 @@ void AbstractProcessStep::setupProcess(QtcProcess *process)
     });
 }
 
-void AbstractProcessStep::runTaskTree(const Tasking::Group &recipe)
+void AbstractProcessStep::runTaskTree(const Group &recipe)
 {
     setupStreams();
 
@@ -306,7 +307,7 @@ bool AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
     const bool looksGood = executable.isEmpty() || executable.ensureReachable(workingDirectory);
     QTC_ASSERT(looksGood, return false);
 
-    params->setWorkingDirectory(workingDirectory.onDevice(executable));
+    params->setWorkingDirectory(executable.withNewPath(workingDirectory.path()));
 
     return true;
 }

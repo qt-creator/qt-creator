@@ -7,12 +7,11 @@
 
 #include <utils/aspects.h>
 
-namespace Utils { class FilePath; }
-
 namespace ProjectExplorer {
+
 class BuildConfiguration;
 
-class PROJECTEXPLORER_EXPORT BuildDirectoryAspect : public Utils::StringAspect
+class PROJECTEXPLORER_EXPORT BuildDirectoryAspect : public Utils::FilePathAspect
 {
     Q_OBJECT
 public:
@@ -23,7 +22,7 @@ public:
     bool isShadowBuild() const;
     void setProblem(const QString &description);
 
-    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutItem &parent) override;
 
     static Utils::FilePath fixupDir(const Utils::FilePath &dir);
 

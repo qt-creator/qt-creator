@@ -494,16 +494,6 @@ static QHash<QString, QString> merge(const QHash<QString, QString> &first,
     return result;
 }
 
-static Utils::Environment merge(const Utils::Environment &first, const Utils::Environment &second)
-{
-    Utils::Environment result = first;
-    for (auto it = second.constBegin(); it != second.constEnd(); ++it) {
-        result.set(it.key().name, it.value().first);
-    }
-
-    return result;
-}
-
 static CMakeConfig merge(const CMakeConfig &first, const CMakeConfig &second)
 {
     return Utils::setUnionMerge<CMakeConfig>(
@@ -561,7 +551,7 @@ void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
     if (!environment && other.environment)
         environment = other.environment;
     else if (environment && other.environment)
-        environment = merge(other.environment.value(), environment.value());
+        environment = environment.value().appliedToEnvironment(other.environment.value());
 
     if (!warnings && other.warnings)
         warnings = other.warnings;
@@ -587,7 +577,7 @@ void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)
     if (!environment && other.environment)
         environment = other.environment;
     else if (environment && other.environment)
-        environment = merge(other.environment.value(), environment.value());
+        environment = environment.value().appliedToEnvironment(other.environment.value());
 
     if (!configurePreset && other.configurePreset)
         configurePreset = other.configurePreset;

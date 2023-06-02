@@ -24,12 +24,23 @@ public:
     static Interpreter interpreter(const QString &interpreterId);
     static void setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId);
     static void addInterpreter(const Interpreter &interpreter, bool isDefault = false);
+    static Interpreter addInterpreter(const Utils::FilePath &interpreterPath,
+                                      bool isDefault = false,
+                                      const QString &nameSuffix = {});
     static void setPyLSConfiguration(const QString &configuration);
     static bool pylsEnabled();
     static void setPylsEnabled(const bool &enabled);
     static QString pylsConfiguration();
     static PythonSettings *instance();
-
+    static void createVirtualEnvironmentInteractive(
+        const Utils::FilePath &startDirectory,
+        const Interpreter &defaultInterpreter,
+        const std::function<void(std::optional<Interpreter>)> &callback);
+    static void createVirtualEnvironment(
+        const Utils::FilePath &directory,
+        const Interpreter &interpreter,
+        const std::function<void(std::optional<Interpreter>)> &callback,
+        const QString &nameSuffix = {});
     static QList<Interpreter> detectPythonVenvs(const Utils::FilePath &path);
 
 signals:

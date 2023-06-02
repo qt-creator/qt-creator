@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "editorwidget.h"
-#include "formeditorw.h"
+#include "formeditor.h"
 #include "formeditorstack.h"
 
 #include <coreplugin/editormanager/ieditor.h>
@@ -28,7 +28,7 @@ EditorWidget::EditorWidget(QWidget *parent) :
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    QWidget * const*subs = FormEditorW::designerSubWindows();
+    QWidget * const * subs = designerSubWindows();
     for (int i = 0; i < DesignerSubWindowCount; i++) {
         QWidget *subWindow = subs[i];
         subWindow->setWindowTitle(subs[i]->windowTitle());

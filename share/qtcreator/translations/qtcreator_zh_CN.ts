@@ -32,14 +32,12 @@
         <translation>删除工作区</translation>
     </message>
     <message>
-        <source>Delete workspace %1?</source>
-        <translation>删除 %1 工作区？</translation>
+        <source>Delete workspace &quot;%1&quot;?</source>
+        <translation>删除 &quot;%1&quot; 工作区？</translation>
     </message>
     <message>
-        <source>Delete these workspaces?
-    %1</source>
-        <translation>删除这些工作区？
-    %1</translation>
+        <source>Delete these workspaces?</source>
+        <translation>删除这些工作区？</translation>
     </message>
     <message>
         <source>Cannot Restore Workspace</source>
@@ -4480,8 +4478,8 @@ This flag will allow push to proceed.</source>
         <translation>Diff &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+D</source>
-        <translation>ALT+Z,Alt+D</translation>
+        <source>Alt+Z,Alt+D</source>
+        <translation>Alt+Z,Alt+D</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+D</source>
@@ -4496,8 +4494,8 @@ This flag will allow push to proceed.</source>
         <translation>Log &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+L</source>
-        <translation>ALT+Z,Alt+L</translation>
+        <source>Alt+Z,Alt+L</source>
+        <translation>Alt+Z,Alt+L</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+L</source>
@@ -4512,8 +4510,8 @@ This flag will allow push to proceed.</source>
         <translation>Status &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+S</source>
-        <translation>ALT+Z,Alt+S</translation>
+        <source>Alt+Z,Alt+S</source>
+        <translation>Alt+Z,Alt+S</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+S</source>
@@ -4576,8 +4574,8 @@ This flag will allow push to proceed.</source>
         <translation>提交...</translation>
     </message>
     <message>
-        <source>ALT+Z,Alt+C</source>
-        <translation>ALT+Z,Alt+C</translation>
+        <source>Alt+Z,Alt+C</source>
+        <translation>Alt+Z,Alt+C</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+C</source>
@@ -28222,8 +28220,8 @@ to project &quot;%2&quot;.</source>
         <translation>打开(&amp;S)</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;什么是会话?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>什么是会话?</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>
@@ -30031,8 +30029,8 @@ These files are preserved.</source>
         <translation>保存会话时发生错误</translation>
     </message>
     <message>
-        <source>Could not save session to file %1</source>
-        <translation>无法将会话保存到文件 %1 </translation>
+        <source>Could not save session to file &quot;%1&quot;</source>
+        <translation>无法将会话保存到文件 &quot;%1&quot; </translation>
     </message>
     <message>
         <source>Untitled</source>

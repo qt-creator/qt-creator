@@ -78,9 +78,7 @@ SnippetsCollection::SnippetsCollection()
       m_builtInSnippetsFiles(Core::ICore::resourcePath("snippets")
         .dirEntries(FileFilter({"*.xml"})))
 {
-
-    connect(Core::ICore::instance(), &Core::ICore::coreOpened,
-            this, &SnippetsCollection::identifyGroups);
+    identifyGroups();
 }
 
 SnippetsCollection::~SnippetsCollection() = default;

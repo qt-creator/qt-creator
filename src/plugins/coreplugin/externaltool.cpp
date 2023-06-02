@@ -16,8 +16,8 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
 #include <QDateTime>
@@ -623,11 +623,11 @@ void ExternalToolRunner::run()
             DocumentManager::expectFileChange(m_expectedFilePath);
         }
     }
-    m_process = new QtcProcess(this);
-    connect(m_process, &QtcProcess::done, this, &ExternalToolRunner::done);
-    connect(m_process, &QtcProcess::readyReadStandardOutput,
+    m_process = new Process(this);
+    connect(m_process, &Process::done, this, &ExternalToolRunner::done);
+    connect(m_process, &Process::readyReadStandardOutput,
             this, &ExternalToolRunner::readStandardOutput);
-    connect(m_process, &QtcProcess::readyReadStandardError,
+    connect(m_process, &Process::readyReadStandardError,
             this, &ExternalToolRunner::readStandardError);
     if (!m_resolvedWorkingDirectory.isEmpty())
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);

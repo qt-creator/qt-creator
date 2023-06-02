@@ -13,10 +13,9 @@ CTestConfiguration::CTestConfiguration(ITestBase *testBase)
     setDisplayName("CTest");
 }
 
-TestOutputReader *CTestConfiguration::createOutputReader(const QFutureInterface<TestResult> &fi,
-                                                         Utils::QtcProcess *app) const
+TestOutputReader *CTestConfiguration::createOutputReader(Utils::Process *app) const
 {
-    return new CTestOutputReader(fi, app, workingDirectory());
+    return new CTestOutputReader(app, workingDirectory());
 }
 
 } // namespace Internal

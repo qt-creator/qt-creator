@@ -15,6 +15,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gcctoolchain.h>
@@ -30,8 +31,8 @@
 #include <qtsupport/qtversionfactory.h>
 
 #include <utils/algorithm.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QDomDocument>
@@ -211,7 +212,7 @@ static QByteArray decodeProvisioningProfile(const QString &path)
 {
     QTC_ASSERT(!path.isEmpty(), return QByteArray());
 
-    QtcProcess p;
+    Process p;
     p.setTimeoutS(3);
     // path is assumed to be valid file path to .mobileprovision
     p.setCommand({"openssl", {"smime", "-inform", "der", "-verify", "-in", path}});
@@ -404,7 +405,7 @@ void IosConfigurations::updateSimulators()
         dev = IDevice::ConstPtr(new IosSimulator(devId));
         devManager->addDevice(dev);
     }
-    SimulatorControl::updateAvailableSimulators();
+    SimulatorControl::updateAvailableSimulators(this);
 }
 
 void IosConfigurations::setDeveloperPath(const FilePath &devPath)
@@ -573,7 +574,7 @@ IosToolChainFactory::IosToolChainFactory()
 
 Toolchains IosToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    if (detector.device)
+    if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         return {};
 
     QList<ClangToolChain *> existingClangToolChains = clangToolChains(detector.alreadyKnown);

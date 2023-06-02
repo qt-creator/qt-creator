@@ -622,7 +622,7 @@ void LoggingViewManagerWidget::saveLoggingsToFile() const
 void LoggingViewManagerWidget::saveEnabledCategoryPreset() const
 {
     Utils::FilePath fp = Utils::FileUtils::getSaveFilePath(ICore::dialogParent(),
-                                                           Tr::tr("Save Enabled Categories As"));
+                                                           Tr::tr("Save Enabled Categories As..."));
     if (fp.isEmpty())
         return;
     const QList<LoggingCategoryItem> enabled = m_categoryModel->enabledCategories();
@@ -656,7 +656,7 @@ void LoggingViewManagerWidget::loadAndUpdateFromPreset()
     if (!contents) {
         QMessageBox::critical(ICore::dialogParent(),
                               Tr::tr("Error"),
-                              Tr::tr("Failed to open preset file \"%1\" for reading")
+                              Tr::tr("Failed to open preset file \"%1\" for reading.")
                                   .arg(fp.toUserOutput()));
         return;
     }

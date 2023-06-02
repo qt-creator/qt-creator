@@ -9,8 +9,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -22,8 +20,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/persistentsettings.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/treemodel.h>
 #include <utils/winutils.h>
 
@@ -92,7 +90,8 @@ static DebuggerItemManagerPrivate *d = nullptr;
 class DebuggerItemConfigWidget : public QWidget
 {
 public:
-    explicit DebuggerItemConfigWidget();
+    DebuggerItemConfigWidget();
+
     void load(const DebuggerItem *item);
     void store() const;
 
@@ -104,13 +103,18 @@ private:
     QLineEdit *m_displayNameLineEdit;
     QLineEdit *m_typeLineEdit;
     QLabel *m_cdbLabel;
-    QLineEdit *m_versionLabel;
     PathChooser *m_binaryChooser;
-    PathChooser *m_workingDirectoryChooser;
-    QLineEdit *m_abis;
     bool m_autodetected = false;
+    bool m_generic = false;
     DebuggerEngineType m_engineType = NoEngineType;
     QVariant m_id;
+
+    QLabel *m_abisLabel;
+    QLineEdit *m_abis;
+    QLabel *m_versionLabel;
+    QLineEdit *m_version;
+    QLabel *m_workingDirectoryLabel;
+    PathChooser *m_workingDirectoryChooser;
 };
 
 // --------------------------------------------------------------------------
@@ -170,10 +174,11 @@ class DebuggerItemModel : public TreeModel<TreeItem, StaticTreeItem, DebuggerTre
 {
 public:
     DebuggerItemModel();
+    enum { Generic, AutoDetected, Manual };
 
     QModelIndex lastIndex() const;
     void setCurrentIndex(const QModelIndex &index);
-    void addDebugger(const DebuggerItem &item, bool changed = false);
+    DebuggerTreeItem *addDebugger(const DebuggerItem &item, bool changed = false);
     void updateDebugger(const DebuggerItem &item);
     void apply();
     void cancel();
@@ -202,17 +207,40 @@ const DebuggerItem *findDebugger(const Predicate &pred)
 DebuggerItemModel::DebuggerItemModel()
 {
     setHeader({Tr::tr("Name"), Tr::tr("Path"), Tr::tr("Type")});
-    rootItem()->appendChild(
-        new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
-                           {ProjectExplorer::Constants::msgAutoDetectedToolTip()}));
+
+    auto generic = new StaticTreeItem(Tr::tr("Generic"));
+    auto autoDetected = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
+                                           {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
+    rootItem()->appendChild(generic);
+    rootItem()->appendChild(autoDetected);
     rootItem()->appendChild(new StaticTreeItem(ProjectExplorer::Constants::msgManual()));
+
+    DebuggerItem genericGdb(QVariant("gdb"));
+    genericGdb.setAutoDetected(true);
+    genericGdb.setGeneric(true);
+    genericGdb.setEngineType(GdbEngineType);
+    genericGdb.setAbi(Abi());
+    genericGdb.setCommand("gdb");
+    genericGdb.setUnexpandedDisplayName(Tr::tr("%1 from PATH on Build Device").arg("GDB"));
+    generic->appendChild(new DebuggerTreeItem(genericGdb, false));
+
+    DebuggerItem genericLldb(QVariant("lldb"));
+    genericLldb.setAutoDetected(true);
+    genericLldb.setEngineType(LldbEngineType);
+    genericLldb.setGeneric(true);
+    genericLldb.setAbi(Abi());
+    genericLldb.setCommand("lldb");
+    genericLldb.setUnexpandedDisplayName(Tr::tr("%1 from PATH on Build Device").arg("LLDB"));
+    generic->appendChild(new DebuggerTreeItem(genericLldb, false));
 }
 
-void DebuggerItemModel::addDebugger(const DebuggerItem &item, bool changed)
+DebuggerTreeItem *DebuggerItemModel::addDebugger(const DebuggerItem &item, bool changed)
 {
-    QTC_ASSERT(item.id().isValid(), return);
-    int group = item.isAutoDetected() ? 0 : 1;
-    rootItem()->childAt(group)->appendChild(new DebuggerTreeItem(item, changed));
+    QTC_ASSERT(item.id().isValid(), return {});
+    int group = item.isGeneric() ? Generic : (item.isAutoDetected() ? AutoDetected : Manual);
+    auto treeItem = new DebuggerTreeItem(item, changed);
+    rootItem()->childAt(group)->appendChild(treeItem);
+    return treeItem;
 }
 
 void DebuggerItemModel::updateDebugger(const DebuggerItem &item)
@@ -301,6 +329,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     });
     m_binaryChooser->setAllowPathFromDevice(true);
 
+    m_workingDirectoryLabel = new QLabel(Tr::tr("ABIs:"));
     m_workingDirectoryChooser = new PathChooser(this);
     m_workingDirectoryChooser->setExpectedKind(PathChooser::Directory);
     m_workingDirectoryChooser->setMinimumWidth(400);
@@ -310,10 +339,12 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     m_cdbLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
     m_cdbLabel->setOpenExternalLinks(true);
 
-    m_versionLabel = new QLineEdit(this);
-    m_versionLabel->setPlaceholderText(Tr::tr("Unknown"));
-    m_versionLabel->setEnabled(false);
+    m_versionLabel = new QLabel(Tr::tr("Version:"));
+    m_version = new QLineEdit(this);
+    m_version->setPlaceholderText(Tr::tr("Unknown"));
+    m_version->setEnabled(false);
 
+    m_abisLabel = new QLabel(Tr::tr("Working directory:"));
     m_abis = new QLineEdit(this);
     m_abis->setEnabled(false);
 
@@ -323,9 +354,9 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     formLayout->addRow(m_cdbLabel);
     formLayout->addRow(new QLabel(Tr::tr("Path:")), m_binaryChooser);
     formLayout->addRow(new QLabel(Tr::tr("Type:")), m_typeLineEdit);
-    formLayout->addRow(new QLabel(Tr::tr("ABIs:")), m_abis);
-    formLayout->addRow(new QLabel(Tr::tr("Version:")), m_versionLabel);
-    formLayout->addRow(new QLabel(Tr::tr("Working directory:")), m_workingDirectoryChooser);
+    formLayout->addRow(m_abisLabel, m_abis);
+    formLayout->addRow(m_versionLabel, m_version);
+    formLayout->addRow(m_workingDirectoryLabel, m_workingDirectoryChooser);
 
     connect(m_binaryChooser, &PathChooser::textChanged,
             this, &DebuggerItemConfigWidget::binaryPathHasChanged);
@@ -337,21 +368,24 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
 
 DebuggerItem DebuggerItemConfigWidget::item() const
 {
+    static const QRegularExpression noAbi("[^A-Za-z0-9-_]+");
+
     DebuggerItem item(m_id);
     item.setUnexpandedDisplayName(m_displayNameLineEdit->text());
     item.setCommand(m_binaryChooser->filePath());
     item.setWorkingDirectory(m_workingDirectoryChooser->filePath());
     item.setAutoDetected(m_autodetected);
     Abis abiList;
-    const QStringList abis = m_abis->text().split(QRegularExpression("[^A-Za-z0-9-_]+"));
+    const QStringList abis = m_abis->text().split(noAbi);
     for (const QString &a : abis) {
         if (a.isNull())
             continue;
         abiList << Abi::fromString(a);
     }
     item.setAbis(abiList);
-    item.setVersion(m_versionLabel->text());
+    item.setVersion(m_version->text());
     item.setEngineType(m_engineType);
+    item.setGeneric(m_generic);
     return item;
 }
 
@@ -373,6 +407,7 @@ void DebuggerItemConfigWidget::load(const DebuggerItem *item)
         return;
 
     // Set values:
+    m_generic = item->isGeneric();
     m_autodetected = item->isAutoDetected();
 
     m_displayNameLineEdit->setEnabled(!item->isAutoDetected());
@@ -382,6 +417,15 @@ void DebuggerItemConfigWidget::load(const DebuggerItem *item)
 
     m_binaryChooser->setReadOnly(item->isAutoDetected());
     m_binaryChooser->setFilePath(item->command());
+    m_binaryChooser->setExpectedKind(m_generic ? PathChooser::Any : PathChooser::ExistingCommand);
+
+    m_abisLabel->setVisible(!m_generic);
+    m_abis->setVisible(!m_generic);
+    m_versionLabel->setVisible(!m_generic);
+    m_version->setVisible(!m_generic);
+    m_workingDirectoryLabel->setVisible(!m_generic);
+    m_workingDirectoryChooser->setVisible(!m_generic);
+
 
     m_workingDirectoryChooser->setReadOnly(item->isAutoDetected());
     m_workingDirectoryChooser->setFilePath(item->workingDirectory());
@@ -405,7 +449,7 @@ void DebuggerItemConfigWidget::load(const DebuggerItem *item)
     m_cdbLabel->setText(text);
     m_cdbLabel->setVisible(!text.isEmpty());
     m_binaryChooser->setCommandVersionArguments(QStringList(versionCommand));
-    m_versionLabel->setText(item->version());
+    m_version->setText(item->version());
     setAbis(item->abiNames());
     m_engineType = item->engineType();
     m_id = item->id();
@@ -417,16 +461,18 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
     if (!m_id.isValid())
         return;
 
-    DebuggerItem tmp;
-    if (m_binaryChooser->filePath().isExecutableFile()) {
-        tmp = item();
-        tmp.reinitializeFromFile();
-    }
+    if (!m_generic) {
+        DebuggerItem tmp;
+        if (m_binaryChooser->filePath().isExecutableFile()) {
+            tmp = item();
+            tmp.reinitializeFromFile();
+        }
 
-    setAbis(tmp.abiNames());
-    m_versionLabel->setText(tmp.version());
-    m_engineType = tmp.engineType();
-    m_typeLineEdit->setText(tmp.engineTypeName());
+        setAbis(tmp.abiNames());
+        m_version->setText(tmp.version());
+        m_engineType = tmp.engineType();
+        m_typeLineEdit->setText(tmp.engineTypeName());
+    }
 
     store();
 }
@@ -534,8 +580,10 @@ void DebuggerConfigWidget::cloneDebugger()
     newItem.setUnexpandedDisplayName(d->uniqueDisplayName(Tr::tr("Clone of %1").arg(item->displayName())));
     newItem.reinitializeFromFile();
     newItem.setAutoDetected(false);
-    d->m_model->addDebugger(newItem, true);
-    m_debuggerView->setCurrentIndex(d->m_model->lastIndex());
+    newItem.setGeneric(item->isGeneric());
+    newItem.setEngineType(item->engineType());
+    auto addedItem = d->m_model->addDebugger(newItem, true);
+    m_debuggerView->setCurrentIndex(d->m_model->indexForItem(addedItem));
 }
 
 void DebuggerConfigWidget::addDebugger()
@@ -545,8 +593,8 @@ void DebuggerConfigWidget::addDebugger()
     item.setEngineType(NoEngineType);
     item.setUnexpandedDisplayName(d->uniqueDisplayName(Tr::tr("New Debugger")));
     item.setAutoDetected(false);
-    d->m_model->addDebugger(item, true);
-    m_debuggerView->setCurrentIndex(d->m_model->lastIndex());
+    auto addedItem = d->m_model->addDebugger(item, true);
+    m_debuggerView->setCurrentIndex(d->m_model->indexForItem(addedItem));
 }
 
 void DebuggerConfigWidget::removeDebugger()
@@ -712,7 +760,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
     FilePaths suspects;
 
     if (searchPaths.front().osType() == OsTypeMac) {
-        QtcProcess proc;
+        Process proc;
         proc.setTimeoutS(2);
         proc.setCommand({"xcrun", {"--find", "lldb"}});
         proc.runBlocking();
@@ -763,6 +811,14 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
         item.setUnexpandedDisplayName(name.arg(item.engineTypeName()).arg(command.toUserOutput()));
         m_model->addDebugger(item);
         logMessages.append(Tr::tr("Found: \"%1\"").arg(command.toUserOutput()));
+
+        if (item.engineType() == GdbEngineType) {
+            if (item.version().startsWith("GNU gdb (GDB) 14.0.50.2023")) {
+                // FIXME: Use something more robust
+                item.setEngineType(DapEngineType);
+                m_model->addDebugger(item);
+            }
+        }
     }
     if (logMessage)
         *logMessage = logMessages.join('\n');
@@ -820,7 +876,6 @@ DebuggerItemManagerPrivate::DebuggerItemManagerPrivate()
     d = this;
     m_model = new DebuggerItemModel;
     m_optionsPage = new DebuggerOptionsPage;
-    ExtensionSystem::PluginManager::addObject(m_optionsPage);
 }
 
 void DebuggerItemManagerPrivate::extensionsInitialized()
@@ -830,7 +885,6 @@ void DebuggerItemManagerPrivate::extensionsInitialized()
 
 DebuggerItemManagerPrivate::~DebuggerItemManagerPrivate()
 {
-    ExtensionSystem::PluginManager::removeObject(m_optionsPage);
     delete m_optionsPage;
     delete m_model;
 }
@@ -932,6 +986,8 @@ void DebuggerItemManagerPrivate::saveDebuggers()
 
     int count = 0;
     forAllDebuggers([&count, &data](DebuggerItem &item) {
+        if (item.isGeneric()) // do not store generic debuggers, these get added automatically
+            return;
         if (item.isValid() && item.engineType() != NoEngineType) {
             QVariantMap tmp = item.toMap();
             if (!tmp.isEmpty()) {

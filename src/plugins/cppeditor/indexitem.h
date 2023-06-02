@@ -40,7 +40,8 @@ public:
                       const QString &fileName,
                       int line,
                       int column,
-                      const QIcon &icon);
+                      const QIcon &icon,
+                      bool isFunctionDefinition);
     static Ptr create(const QString &fileName, int sizeHint);
 
     QString scopedSymbolName() const
@@ -64,6 +65,7 @@ public:
     ItemType type() const { return m_type; }
     int line() const { return m_line; }
     int column() const { return m_column; }
+    bool isFunctionDefinition() const { return m_isFuncDef; }
 
     void addChild(IndexItem::Ptr childItem) { m_children.append(childItem); }
     void squeeze();
@@ -106,6 +108,7 @@ private:
     ItemType m_type = All;
     int m_line = 0;
     int m_column = 0;
+    bool m_isFuncDef = false;
     QVector<IndexItem::Ptr> m_children;
 };
 

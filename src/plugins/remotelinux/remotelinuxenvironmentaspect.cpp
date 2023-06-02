@@ -40,7 +40,7 @@ public:
 
         connect(target, &Target::kitChanged, [aspect] { aspect->setRemoteEnvironment({}); });
 
-        connect(fetchButton, &QPushButton::clicked, this, [this, aspect, target] {
+        connect(fetchButton, &QPushButton::clicked, this, [aspect, target] {
             if (IDevice::ConstPtr device = DeviceKitAspect::device(target->kit())) {
                 DeviceFileAccess *access = device->fileAccess();
                 QTC_ASSERT(access, return);

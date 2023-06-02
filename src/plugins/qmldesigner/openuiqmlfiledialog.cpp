@@ -30,7 +30,7 @@ OpenUiQmlFileDialog::OpenUiQmlFileDialog(QWidget *parent) :
 
     m_listWidget = new QListWidget;
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         tr("You are opening a .qml file in the designer. Do you want to open a .ui.qml file instead?"),

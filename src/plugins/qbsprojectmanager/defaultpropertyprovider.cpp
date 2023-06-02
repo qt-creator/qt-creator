@@ -107,7 +107,7 @@ static QStringList toolchainList(const ProjectExplorer::ToolChain *tc)
     const Utils::Id type = tc->typeId();
     if (type == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID
             || (type == Android::Constants::ANDROID_TOOLCHAIN_TYPEID
-                && tc->compilerCommand().toString().contains("clang"))) {
+                && tc->compilerCommand().fileName().contains("clang"))) {
         return {"clang", "llvm", "gcc"};
     }
     if (type == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
@@ -156,7 +156,7 @@ static QString architecture(const ProjectExplorer::Abi &targetAbi)
             switch (targetAbi.architecture()) {
             case ProjectExplorer::Abi::X86Architecture:
                 architecture.append(QLatin1Char('_'));
-                // fall through
+                [[fallthrough]];
             case ProjectExplorer::Abi::ArmArchitecture:
                 // ARM sub-architectures are currently not handled, which is kind of problematic
             case ProjectExplorer::Abi::MipsArchitecture:

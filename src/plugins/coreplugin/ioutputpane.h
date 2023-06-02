@@ -4,6 +4,7 @@
 #pragma once
 
 #include "core_global.h"
+#include "icontext.h"
 
 #include <utils/fancylineedit.h>
 #include <utils/id.h>
@@ -88,6 +89,7 @@ protected:
     void setFilteringEnabled(bool enable);
     QWidget *filterWidget() const { return m_filterOutputLineEdit; }
     void setupContext(const char *context, QWidget *widget);
+    void setupContext(const Context &context, QWidget *widget);
     void setZoomButtonsEnabled(bool enabled);
 
 private:
