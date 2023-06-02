@@ -20,10 +20,11 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
-#include <utils/styledbar.h>
-#include <utils/stylehelper.h>
+#include <utils/layoutbuilder.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
+#include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -32,14 +33,14 @@
 #include <QComboBox>
 #include <QDebug>
 #include <QFocusEvent>
-#include <QHBoxLayout>
 #include <QLabel>
+#include <QLayout>
 #include <QMenu>
 #include <QPainter>
-#include <QStyle>
 #include <QStackedWidget>
-#include <QToolButton>
+#include <QStyle>
 #include <QTimeLine>
+#include <QToolButton>
 
 using namespace Utils;
 using namespace Core::Internal;
@@ -341,35 +342,37 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, &OutputPaneManager::saveSettings);
 
-    auto mainlayout = new QVBoxLayout;
-    mainlayout->setSpacing(0);
-    mainlayout->setContentsMargins(0, 0, 0, 0);
     m_toolBar = new StyledBar;
-    auto toolLayout = new QHBoxLayout(m_toolBar);
-    toolLayout->setContentsMargins(0, 0, 0, 0);
-    toolLayout->setSpacing(0);
-    toolLayout->addWidget(m_titleLabel);
-    toolLayout->addWidget(new StyledSeparator);
     m_clearButton = new QToolButton;
-    toolLayout->addWidget(m_clearButton);
     m_prevToolButton = new QToolButton;
-    toolLayout->addWidget(m_prevToolButton);
     m_nextToolButton = new QToolButton;
-    toolLayout->addWidget(m_nextToolButton);
-    toolLayout->addWidget(m_opToolBarWidgets);
-    toolLayout->addWidget(m_minMaxButton);
-    toolLayout->addWidget(m_closeButton);
-    mainlayout->addWidget(m_toolBar);
-    mainlayout->addWidget(m_outputWidgetPane, 10);
-    mainlayout->addWidget(new FindToolBarPlaceHolder(this));
-    setLayout(mainlayout);
 
     m_buttonsWidget = new QWidget;
     m_buttonsWidget->setObjectName("OutputPaneButtons"); // used for UI introduction
-    m_buttonsWidget->setLayout(new QHBoxLayout);
-    m_buttonsWidget->layout()->setContentsMargins(5,0,0,0);
-    m_buttonsWidget->layout()->setSpacing(
-            creatorTheme()->flag(Theme::FlatToolBars) ? 9 : 4);
+
+    using namespace Layouting;
+    Row {
+        m_titleLabel,
+        new StyledSeparator,
+        m_clearButton,
+        m_prevToolButton,
+        m_nextToolButton,
+        m_opToolBarWidgets,
+        m_minMaxButton,
+        m_closeButton,
+        spacing(0), noMargin(),
+    }.attachTo(m_toolBar);
+
+    Column {
+        m_toolBar,
+        m_outputWidgetPane,
+        new FindToolBarPlaceHolder(this),
+        spacing(0), noMargin(),
+    }.attachTo(this);
+
+    Row {
+        spacing(creatorTheme()->flag(Theme::FlatToolBars) ? 9 : 4), customMargin({5, 0, 0, 0}),
+    }.attachTo(m_buttonsWidget);
 
     StatusBarManager::addStatusBarWidget(m_buttonsWidget, StatusBarManager::Second);
 
@@ -452,14 +455,13 @@ void OutputPaneManager::initialize()
         });
 
         QWidget *toolButtonsContainer = new QWidget(m_instance->m_opToolBarWidgets);
-        auto toolButtonsLayout = new QHBoxLayout;
-        toolButtonsLayout->setContentsMargins(0, 0, 0, 0);
-        toolButtonsLayout->setSpacing(0);
+        using namespace Layouting;
+        Row toolButtonsRow { spacing(0), noMargin() };
         const QList<QWidget *> toolBarWidgets = outPane->toolBarWidgets();
         for (QWidget *toolButton : toolBarWidgets)
-            toolButtonsLayout->addWidget(toolButton);
-        toolButtonsLayout->addStretch(5);
-        toolButtonsContainer->setLayout(toolButtonsLayout);
+            toolButtonsRow.addItem(toolButton);
+        toolButtonsRow.addItem(st);
+        toolButtonsRow.attachTo(toolButtonsContainer);
 
         m_instance->m_opToolBarWidgets->addWidget(toolButtonsContainer);
 
