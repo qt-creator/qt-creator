@@ -72,7 +72,7 @@ static constexpr std::chrono::milliseconds minRefreshInterval = 1s / 30;
 
 TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &openParameters)
     : QAbstractScrollArea(parent)
-    , m_context(Utils::Id("TerminalWidget_").withSuffix((size_t) this))
+    , m_context(Utils::Id("TerminalWidget_").withSuffix(QString::number((uintptr_t) this)))
     , m_openParameters(openParameters)
     , m_lastFlush(std::chrono::system_clock::now())
     , m_lastDoubleClick(std::chrono::system_clock::now())
