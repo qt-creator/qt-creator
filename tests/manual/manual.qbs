@@ -15,6 +15,7 @@ Project {
         "shootout/shootout.qbs",
         "subdirfileiterator/subdirfileiterator.qbs",
         "tasking/demo/demo.qbs",
+        "tasking/demo/imagescaling.qbs",
         "widgets/widgets.qbs",
     ]
 }
