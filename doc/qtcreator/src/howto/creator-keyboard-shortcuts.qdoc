@@ -58,7 +58,7 @@
     in context menus} check box indicates whether the platform default value
     is \c on or \c off.
 
-    \image qtcreator-options-environment-interface.png "Interface tab in the Environment preferences"
+    \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
 
     \section1 Configuring Keyboard Shortcuts
 

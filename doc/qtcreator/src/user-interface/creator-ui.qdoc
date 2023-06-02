@@ -143,7 +143,7 @@
     > \uicontrol Environment, and then select a theme in the \uicontrol Theme
     field.
 
-    \image qtcreator-options-environment-interface.png "Interface preferences"
+    \image qtcreator-preferences-environment-interface.webp {Interface preferences}
 
     \section1 Changing Languages
 
@@ -452,7 +452,7 @@
     \uicontrol Preferences > \uicontrol Environment > \uicontrol Interface, and
     then select the codec in the \uicontrol {Text codec for tools} field.
 
-    \image qtcreator-options-environment-interface.png "Interface tab in the Environment preferences"
+    \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
 
     \section1 Finding and Filtering Output
 
