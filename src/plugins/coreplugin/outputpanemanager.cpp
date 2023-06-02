@@ -285,10 +285,12 @@ void OutputPaneManager::updateStatusButtons(bool visible)
 void OutputPaneManager::updateMaximizeButton(bool maximized)
 {
     if (maximized) {
-        m_instance->m_minMaxAction->setIcon(m_instance->m_minimizeIcon);
+        static const QIcon icon = Utils::Icons::ARROW_DOWN.icon();
+        m_instance->m_minMaxAction->setIcon(icon);
         m_instance->m_minMaxAction->setText(Tr::tr("Minimize"));
     } else {
-        m_instance->m_minMaxAction->setIcon(m_instance->m_maximizeIcon);
+        static const QIcon icon = Utils::Icons::ARROW_UP.icon();
+        m_instance->m_minMaxAction->setIcon(icon);
         m_instance->m_minMaxAction->setText(Tr::tr("Maximize"));
     }
 }
@@ -307,21 +309,17 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     QWidget(parent),
     m_titleLabel(new QLabel),
     m_manageButton(new OutputPaneManageButton),
-    m_closeButton(new QToolButton),
-    m_minMaxButton(new QToolButton),
     m_outputWidgetPane(new QStackedWidget),
-    m_opToolBarWidgets(new QStackedWidget),
-    m_minimizeIcon(Utils::Icons::ARROW_DOWN.icon()),
-    m_maximizeIcon(Utils::Icons::ARROW_UP.icon())
+    m_opToolBarWidgets(new QStackedWidget)
 {
     setWindowTitle(Tr::tr("Output"));
 
     m_titleLabel->setContentsMargins(5, 0, 5, 0);
 
-    m_clearAction = new QAction(this);
-    m_clearAction->setIcon(Utils::Icons::CLEAN.icon());
-    m_clearAction->setText(Tr::tr("Clear"));
-    connect(m_clearAction, &QAction::triggered, this, &OutputPaneManager::clearPage);
+    auto clearAction = new QAction(this);
+    clearAction->setIcon(Utils::Icons::CLEAN.icon());
+    clearAction->setText(Tr::tr("Clear"));
+    connect(clearAction, &QAction::triggered, this, &OutputPaneManager::clearPage);
 
     m_nextAction = new QAction(this);
     m_nextAction->setIcon(Utils::Icons::ARROW_DOWN_TOOLBAR.icon());
@@ -334,18 +332,18 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     connect(m_prevAction, &QAction::triggered, this, &OutputPaneManager::slotPrev);
 
     m_minMaxAction = new QAction(this);
-    m_minMaxAction->setIcon(m_maximizeIcon);
-    m_minMaxAction->setText(Tr::tr("Maximize"));
 
-    m_closeButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
-    connect(m_closeButton, &QAbstractButton::clicked, this, &OutputPaneManager::slotHide);
+    auto closeButton = new QToolButton;
+    closeButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
+    connect(closeButton, &QAbstractButton::clicked, this, &OutputPaneManager::slotHide);
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, &OutputPaneManager::saveSettings);
 
-    m_toolBar = new StyledBar;
-    m_clearButton = new QToolButton;
-    m_prevToolButton = new QToolButton;
-    m_nextToolButton = new QToolButton;
+    auto toolBar = new StyledBar;
+    auto clearButton = new QToolButton;
+    auto prevToolButton = new QToolButton;
+    auto nextToolButton = new QToolButton;
+    auto minMaxButton = new QToolButton;
 
     m_buttonsWidget = new QWidget;
     m_buttonsWidget->setObjectName("OutputPaneButtons"); // used for UI introduction
@@ -354,17 +352,17 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     Row {
         m_titleLabel,
         new StyledSeparator,
-        m_clearButton,
-        m_prevToolButton,
-        m_nextToolButton,
+        clearButton,
+        prevToolButton,
+        nextToolButton,
         m_opToolBarWidgets,
-        m_minMaxButton,
-        m_closeButton,
+        minMaxButton,
+        closeButton,
         spacing(0), noMargin(),
-    }.attachTo(m_toolBar);
+    }.attachTo(toolBar);
 
     Column {
-        m_toolBar,
+        toolBar,
         m_outputWidgetPane,
         new FindToolBarPlaceHolder(this),
         spacing(0), noMargin(),
@@ -387,19 +385,19 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     Command *cmd;
 
-    cmd = ActionManager::registerAction(m_clearAction, Constants::OUTPUTPANE_CLEAR);
-    m_clearButton->setDefaultAction(
-        ProxyAction::proxyActionWithIcon(m_clearAction, Utils::Icons::CLEAN_TOOLBAR.icon()));
+    cmd = ActionManager::registerAction(clearAction, Constants::OUTPUTPANE_CLEAR);
+    clearButton->setDefaultAction(
+        ProxyAction::proxyActionWithIcon(clearAction, Utils::Icons::CLEAN_TOOLBAR.icon()));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_prevAction, "Coreplugin.OutputPane.previtem");
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Shift+F6")));
-    m_prevToolButton->setDefaultAction(
+    prevToolButton->setDefaultAction(
         ProxyAction::proxyActionWithIcon(m_prevAction, Utils::Icons::ARROW_UP_TOOLBAR.icon()));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem");
-    m_nextToolButton->setDefaultAction(
+    nextToolButton->setDefaultAction(
         ProxyAction::proxyActionWithIcon(m_nextAction, Utils::Icons::ARROW_DOWN_TOOLBAR.icon()));
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("F6")));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
@@ -410,7 +408,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     cmd->setAttribute(Command::CA_UpdateIcon);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
     connect(m_minMaxAction, &QAction::triggered, this, &OutputPaneManager::toggleMaximized);
-    m_minMaxButton->setDefaultAction(cmd->action());
+    minMaxButton->setDefaultAction(cmd->action());
 
     mpanes->addSeparator("Coreplugin.OutputPane.ActionsGroup");
 }

@@ -67,24 +67,14 @@ private:
 
     QLabel *m_titleLabel = nullptr;
     OutputPaneManageButton *m_manageButton = nullptr;
-    QAction *m_clearAction = nullptr;
-    QToolButton *m_clearButton = nullptr;
-    QToolButton *m_closeButton = nullptr;
 
     QAction *m_minMaxAction = nullptr;
-    QToolButton *m_minMaxButton = nullptr;
-
     QAction *m_nextAction = nullptr;
     QAction *m_prevAction = nullptr;
-    QToolButton *m_prevToolButton = nullptr;
-    QToolButton *m_nextToolButton = nullptr;
-    QWidget *m_toolBar = nullptr;
 
     QStackedWidget *m_outputWidgetPane = nullptr;
     QStackedWidget *m_opToolBarWidgets = nullptr;
     QWidget *m_buttonsWidget = nullptr;
-    QIcon m_minimizeIcon;
-    QIcon m_maximizeIcon;
     int m_outputPaneHeightSetting = 0;
 };
 
