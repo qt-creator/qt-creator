@@ -227,7 +227,7 @@ InsightModel::InsightModel(InsightView *view, ExternalDependenciesInterface &ext
 
 int InsightModel::rowCount(const QModelIndex &) const
 {
-    return m_qtdsConfig.empty() ? 0 : m_qtdsConfig.size();
+    return m_qtdsConfig.empty() ? 0 : static_cast<int>(m_qtdsConfig.size());
 }
 
 QVariant InsightModel::data(const QModelIndex &index, int role) const
