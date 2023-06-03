@@ -11,7 +11,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
-#include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 #include <utils/listmodel.h>
 #include <utils/qtcassert.h>
@@ -33,6 +32,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QToolButton>
@@ -591,7 +591,7 @@ void LoggingViewManagerWidget::saveLoggingsToFile() const
 {
     // should we just let it continue without temporarily disabling?
     const bool enabled = m_manager->isEnabled();
-    Utils::ExecuteOnDestruction exec([this, enabled] { m_manager->setEnabled(enabled); });
+    const auto cleanup = qScopeGuard([this, enabled] { m_manager->setEnabled(enabled); });
     if (enabled)
         m_manager->setEnabled(false);
     const Utils::FilePath fp = Utils::FileUtils::getSaveFilePath(ICore::dialogParent(),
