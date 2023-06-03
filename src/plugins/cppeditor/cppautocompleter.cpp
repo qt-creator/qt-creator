@@ -20,8 +20,8 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
-#include <utils/executeondestruction.h>
 
+#include <QScopeGuard>
 #include <QtTest>
 
 #endif // WITH_TESTS
@@ -267,9 +267,7 @@ void AutoCompleterTest::testAutoComplete()
 
     QVERIFY(text.contains(QLatin1Char('|')));
 
-    Utils::ExecuteOnDestruction guard([](){
-        Core::EditorManager::closeAllEditors(false);
-    });
+    const QScopeGuard cleanup([] { Core::EditorManager::closeAllEditors(false); });
     QTextCursor tc = openEditor(text);
 
     QVERIFY(!tc.isNull());
@@ -328,9 +326,7 @@ void AutoCompleterTest::testSurroundWithSelection()
 
     QVERIFY(text.count(QLatin1Char('|')) == 2);
 
-    Utils::ExecuteOnDestruction guard([](){
-        Core::EditorManager::closeAllEditors(false);
-    });
+    const QScopeGuard cleanup([] { Core::EditorManager::closeAllEditors(false); });
     QTextCursor tc = openEditor(text);
 
     QVERIFY(!tc.isNull());
@@ -363,9 +359,7 @@ void AutoCompleterTest::testAutoBackspace()
 
     QVERIFY(text.contains(QLatin1Char('|')));
 
-    Utils::ExecuteOnDestruction guard([](){
-        Core::EditorManager::closeAllEditors(false);
-    });
+    const QScopeGuard cleanup([] { Core::EditorManager::closeAllEditors(false); });
     QTextCursor tc = openEditor(text);
 
     QVERIFY(!tc.isNull());
@@ -405,9 +399,7 @@ void AutoCompleterTest::testInsertParagraph()
 
     QVERIFY(text.contains(QLatin1Char('|')));
 
-    Utils::ExecuteOnDestruction guard([](){
-        Core::EditorManager::closeAllEditors(false);
-    });
+    const QScopeGuard cleanup([] { Core::EditorManager::closeAllEditors(false); });
     QTextCursor tc = openEditor(text);
 
     QVERIFY(!tc.isNull());
