@@ -11,15 +11,11 @@ Images::Images(QWidget *parent) : QWidget(parent), downloadDialog(new DownloadDi
     resize(800, 600);
 
     addUrlsButton = new QPushButton(tr("Add URLs"));
-//! [1]
     connect(addUrlsButton, &QPushButton::clicked, this, &Images::process);
-//! [1]
 
     cancelButton = new QPushButton(tr("Cancel"));
     cancelButton->setEnabled(false);
-//! [2]
     connect(cancelButton, &QPushButton::clicked, this, &Images::cancel);
-//! [2]
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(addUrlsButton);
@@ -37,10 +33,8 @@ Images::Images(QWidget *parent) : QWidget(parent), downloadDialog(new DownloadDi
     mainLayout->addWidget(statusBar);
     setLayout(mainLayout);
 
-//! [6]
     connect(&scalingWatcher, &QFutureWatcher<QList<QImage>>::finished,
             this, &Images::scaleFinished);
-//! [6]
 }
 
 Images::~Images()
@@ -48,7 +42,6 @@ Images::~Images()
     cancel();
 }
 
-//! [3]
 void Images::process()
 {
     // Clean previous state
@@ -67,20 +60,14 @@ void Images::process()
 
         downloadFuture = download(urls);
         statusBar->showMessage(tr("Downloading..."));
-//! [3]
 
-        //! [4]
         downloadFuture
                 .then([this](auto) {
                     cancelButton->setEnabled(false);
                     updateStatus(tr("Scaling..."));
-                    //! [16]
                     scalingWatcher.setFuture(QtConcurrent::run(Images::scaled,
                                                                downloadFuture.results()));
-                    //! [16]
                 })
-        //! [4]
-        //! [5]
                 .onCanceled([this] {
                     updateStatus(tr("Download has been canceled."));
                 })
@@ -92,7 +79,6 @@ void Images::process()
                 .onFailed([this](const std::exception &ex) {
                     updateStatus(tr(ex.what()));
                 })
-        //! [5]
                 .then([this]() {
                     cancelButton->setEnabled(false);
                     addUrlsButton->setEnabled(true);
@@ -100,7 +86,6 @@ void Images::process()
     }
 }
 
-//! [7]
 void Images::cancel()
 {
     statusBar->showMessage(tr("Canceling..."));
@@ -108,9 +93,7 @@ void Images::cancel()
     downloadFuture.cancel();
     abortDownload();
 }
-//! [7]
 
-//! [15]
 void Images::scaleFinished()
 {
     const OptionalImages result = scalingWatcher.result();
@@ -123,24 +106,16 @@ void Images::scaleFinished()
     }
     addUrlsButton->setEnabled(true);
 }
-//! [15]
 
-//! [8]
 QFuture<QByteArray> Images::download(const QList<QUrl> &urls)
 {
-//! [8]
-//! [9]
     QSharedPointer<QPromise<QByteArray>> promise(new QPromise<QByteArray>());
     promise->start();
-//! [9]
 
-    //! [10]
     for (const auto &url : urls) {
         QSharedPointer<QNetworkReply> reply(qnam.get(QNetworkRequest(url)));
         replies.push_back(reply);
-    //! [10]
 
-    //! [11]
         QtFuture::connect(reply.get(), &QNetworkReply::finished).then([=] {
             if (promise->isCanceled()) {
                 if (!promise->future().isFinished())
@@ -152,13 +127,11 @@ QFuture<QByteArray> Images::download(const QList<QUrl> &urls)
                 if (!promise->future().isFinished())
                     throw reply->error();
             }
-        //! [12]
             promise->addResult(reply->readAll());
 
             // Report finished on the last download
             if (promise->future().resultCount() == urls.size())
                 promise->finish();
-        //! [12]
         }).onFailed([promise] (QNetworkReply::NetworkError error) {
             promise->setException(std::make_exception_ptr(error));
             promise->finish();
@@ -169,14 +142,10 @@ QFuture<QByteArray> Images::download(const QList<QUrl> &urls)
             promise->finish();
         });
     }
-    //! [11]
 
-//! [13]
     return promise->future();
 }
-//! [13]
 
-//! [14]
 Images::OptionalImages Images::scaled(const QList<QByteArray> &data)
 {
     QList<QImage> scaled;
@@ -191,7 +160,6 @@ Images::OptionalImages Images::scaled(const QList<QByteArray> &data)
 
     return scaled;
 }
-//! [14]
 
 void Images::showImages(const QList<QImage> &images)
 {

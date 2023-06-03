@@ -32,9 +32,7 @@ private slots:
     void scaleFinished();
 
 private:
-    //! [1]
     using OptionalImages = std::optional<QList<QImage>>;
-    //! [1]
     static OptionalImages scaled(const QList<QByteArray> &data);
 
     QPushButton *addUrlsButton;
