@@ -217,8 +217,12 @@ void FileExtractor::extract()
         targetDir.mkdir(m_targetFolder);
     }
 
-    Archive *archive = new Archive(m_sourceFile, m_targetPath);
-    QTC_ASSERT(archive->isValid(), delete archive; return);
+    const auto sourceAndCommand = Unarchiver::sourceAndCommand(m_sourceFile);
+    QTC_ASSERT(sourceAndCommand, return);
+
+    m_unarchiver.reset(new Unarchiver);
+    m_unarchiver->setSourceAndCommand(*sourceAndCommand);
+    m_unarchiver->setDestDir(m_targetPath);
 
     m_timer.start();
     m_bytesBefore = QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
@@ -226,14 +230,14 @@ void FileExtractor::extract()
     if (m_compressedSize <= 0)
         qWarning() << "Compressed size for file '" << m_sourceFile << "' is zero or invalid: " << m_compressedSize;
 
-    QObject::connect(archive, &Archive::outputReceived, this, [this](const QString &output) {
+    connect(m_unarchiver.get(), &Unarchiver::outputReceived, this, [this](const QString &output) {
         m_detailedText += output;
         emit detailedTextChanged();
     });
 
-    QObject::connect(archive, &Archive::finished, this, [this, archive](bool ret) {
-        archive->deleteLater();
-        m_finished = ret;
+    QObject::connect(m_unarchiver.get(), &Unarchiver::done, this, [this](bool success) {
+        m_unarchiver.release()->deleteLater();
+        m_finished = success;
         m_timer.stop();
 
         m_progress = 100;
@@ -241,9 +245,9 @@ void FileExtractor::extract()
 
         emit targetFolderExistsChanged();
         emit finishedChanged();
-        QTC_CHECK(ret);
+        QTC_CHECK(success);
     });
-    archive->unarchive();
+    m_unarchiver->start();
 }
 
 } // namespace QmlDesigner
