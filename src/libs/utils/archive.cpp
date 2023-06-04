@@ -5,7 +5,6 @@
 
 #include "algorithm.h"
 #include "mimeutils.h"
-#include "process.h"
 #include "qtcassert.h"
 #include "utilstr.h"
 
@@ -178,6 +177,83 @@ void Archive::unarchive()
     m_process->setCommand(m_commandLine);
     m_process->setWorkingDirectory(m_workingDirectory);
     m_process->start();
+}
+
+expected_str<Unarchiver::SourceAndCommand> Unarchiver::sourceAndCommand(const FilePath &sourceFile)
+{
+    const QVector<Tool> tools = toolsForFilePath(sourceFile);
+    if (tools.isEmpty())
+        return make_unexpected(Tr::tr("File format not supported."));
+
+    for (const Tool &tool : tools) {
+        const std::optional<Tool> resolvedTool = resolveTool(tool);
+        if (resolvedTool)
+            return SourceAndCommand(sourceFile, resolvedTool->command);
+    }
+
+    const QStringList execs = transform<QStringList>(tools, [](const Tool &tool) {
+        return tool.command.executable().toUserOutput();
+    });
+    return make_unexpected(Tr::tr("Could not find any unarchiving executable in PATH (%1).")
+                               .arg(execs.join(", ")));
+}
+
+static CommandLine unarchiveCommand(const CommandLine &commandTemplate, const FilePath &sourceFile,
+                                    const FilePath &destDir)
+{
+    CommandLine command = commandTemplate;
+    command.setArguments(command.arguments().replace("%{src}", sourceFile.path())
+                                            .replace("%{dest}", destDir.path()));
+    return command;
+}
+
+void Unarchiver::start()
+{
+    QTC_ASSERT(!m_process, emit done(false); return);
+
+    if (!m_sourceAndCommand) {
+        emit outputReceived(Tr::tr("No source file set."));
+        emit done(false);
+        return;
+    }
+    if (m_destDir.isEmpty()) {
+        emit outputReceived(Tr::tr("No destination directory set."));
+        emit done(false);
+        return;
+    }
+
+    const CommandLine command = unarchiveCommand(m_sourceAndCommand->m_commandTemplate,
+                                                 m_sourceAndCommand->m_sourceFile, m_destDir);
+    m_destDir.ensureWritableDir();
+
+    m_process.reset(new Process);
+    m_process->setProcessChannelMode(QProcess::MergedChannels);
+    QObject::connect(m_process.get(), &Process::readyReadStandardOutput, this, [this] {
+        emit outputReceived(m_process->readAllStandardOutput());
+    });
+    QObject::connect(m_process.get(), &Process::done, this, [this] {
+        const bool success = m_process->result() == ProcessResult::FinishedWithSuccess;
+        if (!success)
+            emit outputReceived(Tr::tr("Command failed."));
+        emit done(success);
+    });
+
+    emit outputReceived(Tr::tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
+                            .arg(command.toUserOutput(), m_destDir.toUserOutput()));
+
+    m_process->setCommand(command);
+    m_process->setWorkingDirectory(m_destDir);
+    m_process->start();
+}
+
+UnarchiverTaskAdapter::UnarchiverTaskAdapter()
+{
+    connect(task(), &Unarchiver::done, this, &Tasking::TaskInterface::done);
+}
+
+void UnarchiverTaskAdapter::start()
+{
+    task()->start();
 }
 
 } // namespace Utils
