@@ -609,8 +609,10 @@ public:
                               const QString &propertyPrefix,
                               AST::UiQualifiedId *propertyId)
     {
-        const QString propertyName = propertyPrefix.isEmpty() ? propertyId->name.toString()
-                                                              : propertyPrefix;
+        const QString propertyName = propertyPrefix.isEmpty()
+                                         ? toString(propertyId)
+                                         : propertyPrefix + "." + toString(propertyId);
+
 
         const PropertyMetaInfo propertyMetaInfo = node.metaInfo().property(propertyName.toUtf8());
         const bool hasQuotes = astValue.trimmed().left(1) == QStringLiteral("\"")
