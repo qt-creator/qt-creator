@@ -34,11 +34,13 @@ ToolBox::ToolBox(QWidget *parentWidget)
     Utils::StyleHelper::setPanelWidget(m_leftToolBar, false);
     Utils::StyleHelper::setPanelWidgetSingleRow(m_leftToolBar, false);
     m_leftToolBar->setFixedHeight(Theme::toolbarSize());
+    m_leftToolBar->setStyleSheet("QToolBarExtension {margin-top: 5px;}");
 
     Utils::StyleHelper::setPanelWidget(m_rightToolBar, false);
     Utils::StyleHelper::setPanelWidgetSingleRow(m_rightToolBar, false);
     m_rightToolBar->setFixedHeight(Theme::toolbarSize());
     m_rightToolBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+    m_rightToolBar->setStyleSheet("QToolBarExtension {margin-top: 5px;}");
 
     auto stretchToolbar = new QToolBar(this);
     Utils::StyleHelper::setPanelWidget(stretchToolbar, false);
