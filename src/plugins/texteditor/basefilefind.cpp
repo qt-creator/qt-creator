@@ -29,6 +29,7 @@
 #include <QSettings>
 #include <QHash>
 #include <QPair>
+#include <QPromise>
 #include <QStringListModel>
 #include <QFutureWatcher>
 #include <QPointer>
