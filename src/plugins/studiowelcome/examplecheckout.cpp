@@ -66,11 +66,11 @@ QString DataModelDownloader::targetPath() const
     return QmlDesigner::Paths::examplesPathSetting();
 }
 
-static Utils::FilePath tempFilePath()
+static FilePath tempFilePath()
 {
     QStandardPaths::StandardLocation location = QStandardPaths::CacheLocation;
 
-    return Utils::FilePath::fromString(QStandardPaths::writableLocation(location))
+    return FilePath::fromString(QStandardPaths::writableLocation(location))
         .pathAppended("QtDesignStudio");
 }
 
@@ -118,17 +118,18 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
         m_started = false;
 
         if (m_fileDownloader.finished()) {
-            const Utils::FilePath archiveFile = Utils::FilePath::fromString(
-                m_fileDownloader.outputFile());
-            QTC_ASSERT(Utils::Archive::supportsFile(archiveFile), return );
-            auto archive = new Utils::Archive(archiveFile, tempFilePath());
-            QTC_ASSERT(archive->isValid(), delete archive; return );
-            QObject::connect(archive, &Utils::Archive::finished, this, [this, archive](bool ret) {
-                QTC_CHECK(ret);
-                archive->deleteLater();
+            const FilePath archiveFile = FilePath::fromString(m_fileDownloader.outputFile());
+            const auto sourceAndCommand = Unarchiver::sourceAndCommand(archiveFile);
+            QTC_ASSERT(sourceAndCommand, return);
+            auto unarchiver = new Unarchiver;
+            unarchiver->setSourceAndCommand(*sourceAndCommand);
+            unarchiver->setDestDir(tempFilePath());
+            QObject::connect(unarchiver, &Unarchiver::done, this, [this, unarchiver](bool success) {
+                QTC_CHECK(success);
+                unarchiver->deleteLater();
                 emit finished();
             });
-            archive->unarchive();
+            unarchiver->start();
         }
     });
 }
@@ -180,9 +181,9 @@ bool DataModelDownloader::available() const
     return m_available;
 }
 
-Utils::FilePath DataModelDownloader::targetFolder() const
+FilePath DataModelDownloader::targetFolder() const
 {
-    return Utils::FilePath::fromUserInput(tempFilePath().toString() + "/" + "dataImports");
+    return FilePath::fromUserInput(tempFilePath().toString() + "/" + "dataImports");
 }
 
 void DataModelDownloader::setForceDownload(bool b)
