@@ -156,7 +156,9 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         { // append ShaderTool object
             if (!shaderConfig["args"].toVariant().toStringList().isEmpty()) {
                 startObject("ShaderTool");
-                appendString("args", shaderConfig["args"].toVariant().toStringList().join(" "));
+                appendString("args",
+                             shaderConfig["args"].toVariant().toStringList().join(" ").replace(
+                                 "\"", "\\\""));
                 appendArray("files", shaderConfig["files"].toVariant().toStringList());
                 endObject();
             }
@@ -193,7 +195,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
     }
 
     if (rootNode->name() != QLatin1String("Project")) {
-        qCritical() << "Cannot find root 'Proejct' item in the project file: " << projectFile;
+        qCritical() << "Cannot find root 'Project' item in the project file: " << projectFile;
         return {};
     }
 

@@ -31,12 +31,14 @@ public:
                     ? QString::fromLatin1(m_qmlProjectFile.fileContents().value())
                     : QString{});
     }
+
     QString jsonToQmlProjectContent() const
     {
         return m_jsonToQmlProjectFile.fileContents()
                    ? QString::fromLatin1(m_jsonToQmlProjectFile.fileContents().value())
                    : QString{};
     }
+
     QString qmlProjectToJsonContent() const
     {
         return m_qmlProjectToJsonFile.fileContents()
@@ -45,9 +47,13 @@ public:
     }
 
     QString dataSetPath() const { return m_dataSetDirectory.absolutePath(); }
+
     QString dataSetName() const { return m_dataSetDirectory.dirName(); }
+
     Utils::FilePath qmlProjectFile() const { return m_qmlProjectFile; }
+
     Utils::FilePath jsonToQmlProjectFile() const { return m_jsonToQmlProjectFile; }
+
     Utils::FilePath qmlProjectToJsonFile() const { return m_qmlProjectToJsonFile; }
 
 private:

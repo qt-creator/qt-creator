@@ -28,7 +28,7 @@ Project {
     }
 
     ShaderTool {
-        args: "-s --glsl "100 es,120,150" --hlsl 50 --msl 12"
+        args: "-s --glsl \"100 es,120,150\" --hlsl 50 --msl 12"
         files: [ "content/shaders/*" ]
     }
 
