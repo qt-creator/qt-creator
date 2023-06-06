@@ -408,7 +408,7 @@ void PythonBuildSystem::parse()
  * Expands environment variables in the given \a string when they are written
  * like $$(VARIABLE).
  */
-static void expandEnvironmentVariables(const QProcessEnvironment &env, QString &string)
+static void expandEnvironmentVariables(const Environment &env, QString &string)
 {
     const QRegularExpression candidate("\\$\\$\\((.+)\\)");
 
@@ -434,7 +434,7 @@ static void expandEnvironmentVariables(const QProcessEnvironment &env, QString &
 QStringList PythonBuildSystem::processEntries(const QStringList &paths,
                                               QHash<QString, QString> *map) const
 {
-    const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    const Environment env = projectDirectory().deviceEnvironment();
     const QDir projectDir(projectDirectory().toString());
 
     QFileInfo fileInfo;
