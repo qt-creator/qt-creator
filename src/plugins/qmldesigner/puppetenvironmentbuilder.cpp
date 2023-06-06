@@ -205,7 +205,7 @@ void PuppetEnvironmentBuilder::addImportPaths() const
     }
 
     if (m_availablePuppetType == PuppetType::Fallback)
-        importPaths.prepend(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
+        importPaths.prepend(QLibraryInfo::path(QLibraryInfo::Qml2ImportsPath));
 
     constexpr auto pathSep = Utils::HostOsInfo::pathListSeparator();
     m_environment.appendOrSet("QML2_IMPORT_PATH", importPaths.join(pathSep), pathSep);

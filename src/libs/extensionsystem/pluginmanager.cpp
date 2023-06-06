@@ -399,7 +399,7 @@ static QString filled(const QString &s, int min)
 QString PluginManager::systemInformation()
 {
     QString result;
-    CommandLine qtDiag(FilePath::fromString(QLibraryInfo::location(QLibraryInfo::BinariesPath))
+    CommandLine qtDiag(FilePath::fromString(QLibraryInfo::path(QLibraryInfo::BinariesPath))
                         .pathAppended("qtdiag").withExecutableSuffix());
     Process qtDiagProc;
     qtDiagProc.setCommand(qtDiag);

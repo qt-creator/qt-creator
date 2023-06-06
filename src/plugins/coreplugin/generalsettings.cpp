@@ -152,7 +152,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
 
 static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrPath)
 {
-    static const QString qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+    static const QString qtTrPath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
 
     const QString trFile = QLatin1String("/qt_") + locale + QLatin1String(".qm");
     return QFile::exists(qtTrPath + trFile) || QFile::exists(creatorTrPath + trFile);
