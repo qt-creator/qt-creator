@@ -2330,6 +2330,17 @@ ModelNode Model::modelNodeForId(const QString &id)
 {
     return ModelNode(d->nodeForId(id), this, nullptr);
 }
+
+QHash<QStringView, ModelNode> Model::idModelNodeDict()
+{
+    QHash<QStringView, ModelNode> idModelNodes;
+
+    for (const auto &[key, internalNode] : d->m_idNodeHash.asKeyValueRange())
+        idModelNodes.insert(key, ModelNode(internalNode, this, nullptr));
+
+    return idModelNodes;
+}
+
 namespace {
 ModelNode createNode(Model *model,
                      Internal::ModelPrivate *d,

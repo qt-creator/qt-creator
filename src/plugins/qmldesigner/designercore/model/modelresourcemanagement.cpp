@@ -12,6 +12,9 @@
 #include <utils/algorithm.h>
 #include <utils/set_algorithm.h>
 
+#include <QHash>
+#include <QRegularExpression>
+
 #include <functional>
 
 namespace QmlDesigner {
@@ -81,6 +84,9 @@ private:
     {
         std::sort(newModelNodes.begin(), newModelNodes.end());
 
+        newModelNodes.erase(std::unique(newModelNodes.begin(), newModelNodes.end()),
+                            newModelNodes.end());
+
         auto oldModelNodes = std::move(resourceSet.removeModelNodes);
         resourceSet.removeModelNodes = {};
         resourceSet.removeModelNodes.reserve(oldModelNodes.size() + newModelNodes.size());
@@ -97,6 +103,9 @@ private:
     AbstractProperties removeProperties(AbstractProperties &newProperties)
     {
         std::sort(newProperties.begin(), newProperties.end());
+
+        newProperties.erase(std::unique(newProperties.begin(), newProperties.end()),
+                            newProperties.end());
 
         auto oldProperties = std::move(resourceSet.removeProperties);
         resourceSet.removeProperties = {};
@@ -210,35 +219,6 @@ struct RemoveLayerEnabled : public Base
     }
 };
 
-struct RemoveAliasExports : public Base
-{
-    RemoveAliasExports(ModelResourceSet &resourceSet, NodeActions &nodeActions, ModelNode rootNode)
-        : Base{resourceSet, nodeActions}
-        , rootNode{std::move(rootNode)}
-    {}
-
-    AbstractProperties collectProperties(const ModelNodes &nodes)
-    {
-        AbstractProperties properties;
-
-        for (const ModelNode &node : nodes) {
-            PropertyName propertyName = node.id().toUtf8();
-
-            if (rootNode.bindingProperty(propertyName).isAliasExport())
-                properties.push_back(rootNode.property(propertyName));
-        }
-
-        return properties;
-    }
-
-    void handleNodes(const ModelNodes &nodes)
-    {
-        removeProperties(collectProperties(nodes), CheckRecursive::Yes);
-    }
-
-    ModelNode rootNode;
-};
-
 struct NodeDependency
 {
     ModelNode target;
@@ -261,6 +241,29 @@ struct NodeDependency
 };
 
 using NodeDependencies = std::vector<NodeDependency>;
+
+struct BindingDependency
+{
+    ModelNode target;
+    BindingProperty property;
+
+    friend bool operator<(const BindingDependency &first, const BindingDependency &second)
+    {
+        return std::tie(first.target, first.property) < std::tie(second.target, second.property);
+    }
+
+    friend bool operator<(const BindingDependency &first, const ModelNode &second)
+    {
+        return first.target < second;
+    }
+
+    friend bool operator<(const ModelNode &first, const BindingDependency &second)
+    {
+        return first < second.target;
+    }
+};
+
+using BindingDependencies = std::vector<BindingDependency>;
 
 struct NameNode
 {
@@ -289,6 +292,37 @@ struct NodesProperty
 };
 
 using NodesProperties = std::vector<NodesProperty>;
+
+struct RemoveDependentBindings : public Base
+{
+    RemoveDependentBindings(ModelResourceSet &resourceSet,
+                            NodeActions &nodeActions,
+                            BindingDependencies dependencies)
+        : Base{resourceSet, nodeActions}
+        , dependencies{std::move(dependencies)}
+    {}
+
+    AbstractProperties collectProperties(const ModelNodes &nodes)
+    {
+        AbstractProperties properties;
+        ::Utils::set_greedy_intersection(dependencies.begin(),
+                                         dependencies.end(),
+                                         nodes.begin(),
+                                         nodes.end(),
+                                         ::Utils::make_iterator([&](const BindingDependency &dependency) {
+                                             properties.push_back(dependency.property);
+                                         }));
+
+        return properties;
+    }
+
+    void handleNodes(const ModelNodes &nodes)
+    {
+        removeProperties(collectProperties(nodes), CheckRecursive::No);
+    }
+
+    BindingDependencies dependencies;
+};
 
 struct RemoveDependencies : public Base
 {
@@ -441,6 +475,41 @@ struct DependenciesSet
     NodeDependencies nodeDependencies;
     NodeDependencies targetsDependencies;
     NodesProperties targetsNodesProperties;
+    BindingDependencies bindingDependencies;
+};
+
+struct BindingFilter
+{
+    BindingFilter(BindingDependencies &dependencies, Model *model)
+        : dependencies{dependencies}
+        , idModelNodeDict{model->idModelNodeDict()}
+        , wordsRegex{"[[:<:]](\\w+)[[:>:]]"}
+    {}
+
+    void filterBindingProperty(const BindingProperty &property)
+    {
+        const QString &expression = property.expression();
+        auto iterator = wordsRegex.globalMatch(expression);
+
+        while (iterator.hasNext()) {
+            auto match = iterator.next();
+            auto word = match.capturedView();
+            if (auto modelNode = idModelNodeDict.value(word))
+                dependencies.push_back({modelNode, property});
+        }
+    }
+
+    void operator()(const NodeMetaInfo &, const ModelNode &node)
+    {
+        for (const BindingProperty &property : node.bindingProperties())
+            filterBindingProperty(property);
+    }
+
+    void finally() { std::sort(dependencies.begin(), dependencies.end()); }
+
+    BindingDependencies &dependencies;
+    QHash<QStringView, ModelNode> idModelNodeDict;
+    QRegularExpression wordsRegex;
 };
 
 struct TargetFilter
@@ -632,7 +701,8 @@ DependenciesSet createDependenciesSet(Model *model)
                       set.targetsDependencies,
                       set.targetsNodesProperties},
         StateFilter{stateNames},
-        TransitionFilter{set.nodeDependencies, stateNames});
+        TransitionFilter{set.nodeDependencies, stateNames},
+        BindingFilter{set.bindingDependencies, model});
 
     for (const ModelNode &node : nodes) {
         auto metaInfo = node.metaInfo();
@@ -647,7 +717,7 @@ DependenciesSet createDependenciesSet(Model *model)
 using NodeActionsTuple = std::tuple<CheckChildNodes,
                                     CheckNodesInNodeAbstractProperties,
                                     RemoveLayerEnabled,
-                                    RemoveAliasExports,
+                                    RemoveDependentBindings,
                                     RemoveDependencies,
                                     RemoveTargetsSources>;
 
@@ -672,21 +742,22 @@ void forEachAction(NodeActions &nodeActions, ActionCall actionCall)
 
 ModelResourceSet ModelResourceManagement::removeNodes(ModelNodes nodes, Model *model) const
 {
+    std::sort(nodes.begin(), nodes.end());
+
     ModelResourceSet resourceSet;
 
     DependenciesSet set = createDependenciesSet(model);
 
-    NodeActions nodeActions = {CheckChildNodes{resourceSet, nodeActions},
-                               CheckNodesInNodeAbstractProperties{resourceSet, nodeActions},
-                               RemoveLayerEnabled{resourceSet, nodeActions},
-                               RemoveAliasExports{resourceSet, nodeActions, model->rootModelNode()},
-                               RemoveDependencies{resourceSet,
-                                                  nodeActions,
-                                                  std::move(set.nodeDependencies)},
-                               RemoveTargetsSources{resourceSet,
-                                                    nodeActions,
-                                                    std::move(set.targetsDependencies),
-                                                    std::move(set.targetsNodesProperties)}};
+    NodeActions nodeActions = {
+        CheckChildNodes{resourceSet, nodeActions},
+        CheckNodesInNodeAbstractProperties{resourceSet, nodeActions},
+        RemoveLayerEnabled{resourceSet, nodeActions},
+        RemoveDependentBindings{resourceSet, nodeActions, std::move(set.bindingDependencies)},
+        RemoveDependencies{resourceSet, nodeActions, std::move(set.nodeDependencies)},
+        RemoveTargetsSources{resourceSet,
+                             nodeActions,
+                             std::move(set.targetsDependencies),
+                             std::move(set.targetsNodesProperties)}};
 
     Base{resourceSet, nodeActions}.removeNodes(nodes, CheckRecursive::Yes);
 
@@ -698,21 +769,22 @@ ModelResourceSet ModelResourceManagement::removeNodes(ModelNodes nodes, Model *m
 ModelResourceSet ModelResourceManagement::removeProperties(AbstractProperties properties,
                                                            Model *model) const
 {
+    std::sort(properties.begin(), properties.end());
+
     ModelResourceSet resourceSet;
 
     DependenciesSet set = createDependenciesSet(model);
 
-    NodeActions nodeActions = {CheckChildNodes{resourceSet, nodeActions},
-                               CheckNodesInNodeAbstractProperties{resourceSet, nodeActions},
-                               RemoveLayerEnabled{resourceSet, nodeActions},
-                               RemoveAliasExports{resourceSet, nodeActions, model->rootModelNode()},
-                               RemoveDependencies{resourceSet,
-                                                  nodeActions,
-                                                  std::move(set.nodeDependencies)},
-                               RemoveTargetsSources{resourceSet,
-                                                    nodeActions,
-                                                    std::move(set.targetsDependencies),
-                                                    std::move(set.targetsNodesProperties)}};
+    NodeActions nodeActions = {
+        CheckChildNodes{resourceSet, nodeActions},
+        CheckNodesInNodeAbstractProperties{resourceSet, nodeActions},
+        RemoveLayerEnabled{resourceSet, nodeActions},
+        RemoveDependentBindings{resourceSet, nodeActions, std::move(set.bindingDependencies)},
+        RemoveDependencies{resourceSet, nodeActions, std::move(set.nodeDependencies)},
+        RemoveTargetsSources{resourceSet,
+                             nodeActions,
+                             std::move(set.targetsDependencies),
+                             std::move(set.targetsNodesProperties)}};
 
     Base{resourceSet, nodeActions}.removeProperties(properties, CheckRecursive::Yes);
 

@@ -110,6 +110,16 @@ TEST_F(ModelResourceManagement, RemoveMultipleNodes)
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({node, node2}));
 }
 
+TEST_F(ModelResourceManagement, RemoveMultipleNodesOnce)
+{
+    auto node = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
+    auto node2 = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
+
+    auto resources = management.removeNodes({node, node2, node, node2}, &model);
+
+    ASSERT_THAT(resources.removeModelNodes, UnorderedElementsAre(node, node2));
+}
+
 TEST_F(ModelResourceManagement, DontRemoveChildNodes)
 {
     auto node = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
@@ -153,51 +163,71 @@ TEST_F(ModelResourceManagement, DontRemovePropertyLayerEnabledIfNotExists)
     ASSERT_THAT(resources.removeProperties, Not(Contains(layerEnabledProperty)));
 }
 
-TEST_F(ModelResourceManagement, RemoveAliasExportProperty)
+TEST_F(ModelResourceManagement, RemovePropertyWithId)
 {
     auto fooNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "foo");
-    auto aliasExportProperty = rootNode.bindingProperty("foo");
-    aliasExportProperty.setDynamicTypeNameAndExpression("alias", "foo");
+    auto property = rootNode.bindingProperty("foo");
+    property.setDynamicTypeNameAndExpression("var", "foo");
 
     auto resources = management.removeNodes({fooNode}, &model);
 
-    ASSERT_THAT(resources.removeProperties, Contains(aliasExportProperty));
+    ASSERT_THAT(resources.removeProperties, Contains(property));
 }
 
-TEST_F(ModelResourceManagement, RemoveAliasForChildExportProperty)
-{
-    auto node = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
-    auto fooNode = createNodeWithParent("QtQuick.Item", node.defaultNodeListProperty(), "foo");
-    auto aliasExportProperty = rootNode.bindingProperty("foo");
-    aliasExportProperty.setDynamicTypeNameAndExpression("alias", "foo");
-
-    auto resources = management.removeNodes({node}, &model);
-
-    ASSERT_THAT(resources.removeProperties, Contains(aliasExportProperty));
-}
-
-TEST_F(ModelResourceManagement, RemoveAliasForGrandChildExportProperty)
-{
-    auto node = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
-    auto childNode = createNodeWithParent("QtQuick.Item", node.defaultNodeListProperty());
-    auto fooNode = createNodeWithParent("QtQuick.Item", childNode.defaultNodeListProperty(), "foo");
-    auto aliasExportProperty = rootNode.bindingProperty("foo");
-    aliasExportProperty.setDynamicTypeNameAndExpression("alias", "foo");
-
-    auto resources = management.removeNodes({node}, &model);
-
-    ASSERT_THAT(resources.removeProperties, Contains(aliasExportProperty));
-}
-
-TEST_F(ModelResourceManagement, DontRemoveNonAliasExportProperty)
+TEST_F(ModelResourceManagement, RemovePropertyWithIdInComplexExpression)
 {
     auto fooNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "foo");
-    auto aliasExportProperty = rootNode.bindingProperty("foo");
-    aliasExportProperty.setDynamicTypeNameAndExpression("int", "foo");
+    auto foobarProperty = rootNode.bindingProperty("foo");
+    foobarProperty.setDynamicTypeNameAndExpression("var", "foo.x+bar.y");
+    auto resources = management.removeNodes({fooNode}, &model);
+
+    ASSERT_THAT(resources.removeProperties, Contains(foobarProperty));
+}
+
+TEST_F(ModelResourceManagement, DontRemovePropertyWithoutId)
+{
+    auto fooNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "foo");
+    auto barNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "bar");
+    auto fooProperty = rootNode.bindingProperty("foo");
+    fooProperty.setDynamicTypeNameAndExpression("var", "foo.x");
+
+    auto resources = management.removeNodes({barNode}, &model);
+
+    ASSERT_THAT(resources.removeProperties, Not(Contains(fooProperty)));
+}
+
+TEST_F(ModelResourceManagement, RemovePropertyWithIdOnce)
+{
+    auto fooNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "foo");
+    auto barNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "bar");
+    auto foobarProperty = rootNode.bindingProperty("foo");
+    foobarProperty.setDynamicTypeNameAndExpression("var", "foo.x+bar.y");
+
+    auto resources = management.removeNodes({fooNode, barNode}, &model);
+
+    ASSERT_THAT(resources.removeProperties, ElementsAre(foobarProperty));
+}
+
+TEST_F(ModelResourceManagement, RemoveAliasPropertyWithId)
+{
+    auto fooNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "foo");
+    auto property = rootNode.bindingProperty("foo");
+    property.setDynamicTypeNameAndExpression("alias", "foo");
 
     auto resources = management.removeNodes({fooNode}, &model);
 
-    ASSERT_THAT(resources.removeProperties, Not(Contains(aliasExportProperty)));
+    ASSERT_THAT(resources.removeProperties, Contains(property));
+}
+
+TEST_F(ModelResourceManagement, DontRemovePropertyWithDifferentIdWhichContainsIdString)
+{
+    auto fooNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "foo");
+    auto property = rootNode.bindingProperty("foo");
+    property.setDynamicTypeNameAndExpression("var", "foobar+barfoo");
+
+    auto resources = management.removeNodes({fooNode}, &model);
+
+    ASSERT_THAT(resources.removeProperties, Not(Contains(property)));
 }
 
 struct TargetData

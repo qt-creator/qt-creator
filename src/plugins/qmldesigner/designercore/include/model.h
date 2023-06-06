@@ -140,6 +140,7 @@ public:
     ModelNode rootModelNode();
 
     ModelNode modelNodeForId(const QString &id);
+    QHash<QStringView, ModelNode> idModelNodeDict();
 
     ModelNode createModelNode(const TypeName &typeName);
 
