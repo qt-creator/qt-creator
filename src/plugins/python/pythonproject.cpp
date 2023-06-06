@@ -270,57 +270,31 @@ bool PythonBuildSystem::save()
     const FileChangeBlocker changeGuarg(filePath);
     bool result = false;
 
+    QByteArray newContents;
+
     // New project file
     if (filePath.endsWith(".pyproject")) {
-        FileSaver saver(filePath, QIODevice::ReadOnly | QIODevice::Text);
-        if (!saver.hasError()) {
-            QString content = QTextStream(saver.file()).readAll();
-            if (saver.finalize(ICore::dialogParent())) {
-                QString errorMessage;
-                result = writePyProjectFile(filePath, content, rawList, &errorMessage);
-                if (!errorMessage.isEmpty())
-                    MessageManager::writeDisrupting(errorMessage);
-            }
+        expected_str<QByteArray> contents = filePath.fileContents();
+        if (contents) {
+            QJsonDocument doc = QJsonDocument::fromJson(*contents);
+            QJsonObject project = doc.object();
+            project["files"] = QJsonArray::fromStringList(rawList);
+            doc.setObject(project);
+            newContents = doc.toJson();
+        } else {
+            MessageManager::writeDisrupting(contents.error());
         }
     } else { // Old project file
-        FileSaver saver(filePath, QIODevice::WriteOnly | QIODevice::Text);
-        if (!saver.hasError()) {
-            QTextStream stream(saver.file());
-            for (const QString &filePath : rawList)
-                stream << filePath << '\n';
-            saver.setResult(&stream);
-            result = saver.finalize(ICore::dialogParent());
-        }
+        newContents = rawList.join('\n').toUtf8();
     }
+
+    const expected_str<qint64> writeResult = filePath.writeFileContents(newContents);
+    if (writeResult)
+        result = true;
+    else
+        MessageManager::writeDisrupting(writeResult.error());
 
     return result;
-}
-
-bool PythonBuildSystem::writePyProjectFile(const FilePath &filePath, QString &content,
-                                           const QStringList &rawList, QString *errorMessage)
-{
-    QFile file(filePath.toString());
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        *errorMessage = Tr::tr("Unable to open \"%1\" for writing: %2")
-                        .arg(filePath.toUserOutput(), file.errorString());
-        return false;
-    }
-
-    // Build list of files with the current rawList for the JSON file
-    QString files("[");
-    for (const QString &f : rawList)
-        if (!f.endsWith(".pyproject"))
-            files += QString("\"%1\",").arg(f);
-    files = files.left(files.lastIndexOf(',')); // Removing leading comma
-    files += ']';
-
-    // Removing everything inside square parenthesis
-    // to replace it with the new list of files for the JSON file.
-    QRegularExpression pattern(R"(\[.*\])");
-    content.replace(pattern, files);
-    file.write(content.toUtf8());
-
-    return true;
 }
 
 bool PythonBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *)
