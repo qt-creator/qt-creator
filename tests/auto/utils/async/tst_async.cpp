@@ -8,6 +8,8 @@
 
 using namespace Utils;
 
+using namespace std::chrono_literals;
+
 class tst_Async : public QObject
 {
     Q_OBJECT
@@ -438,8 +440,8 @@ void tst_Async::taskTree()
         AsyncTask<int>(setupIntAsync, handleIntAsync),
     };
 
-    TaskTree tree(root);
-    QVERIFY(tree.runBlocking(1000));
+
+    QVERIFY(TaskTree::runBlocking(root, 1000ms));
     QCOMPARE(value, 16);
 }
 
@@ -498,7 +500,7 @@ void tst_Async::mapReduce_data()
     using SetupHandler = std::function<void(Async<int> &task, int input)>;
     using DoneHandler = std::function<void()>;
 
-    const auto createTask = [=](const TaskItem &executeMode,
+    const auto createTask = [=](const GroupItem &executeMode,
                                 const SetupHandler &setupHandler,
                                 const DoneHandler &doneHandler) {
         return Group {
@@ -575,8 +577,7 @@ void tst_Async::mapReduce()
     QFETCH(double, sum);
     QFETCH(QList<double>, results);
 
-    TaskTree tree(root);
-    QVERIFY(tree.runBlocking(1000));
+    QVERIFY(TaskTree::runBlocking(root, 1000ms));
     QCOMPARE(s_results, results);
     QCOMPARE(s_sum, sum);
 }

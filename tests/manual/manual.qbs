@@ -14,7 +14,8 @@ Project {
         "proparser/testreader.qbs",
         "shootout/shootout.qbs",
         "subdirfileiterator/subdirfileiterator.qbs",
-        "tasktree/tasktree.qbs",
+        "tasking/demo/demo.qbs",
+        "tasking/imagescaling/imagescaling.qbs",
         "widgets/widgets.qbs",
     ]
 }

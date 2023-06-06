@@ -21,7 +21,7 @@ class QmlDesignerBasePlugin::Data
 public:
     DesignerSettings settings;
     StudioStyle *style = nullptr;
-    StudioConfigSettingsPage studioConfigSettingsPage;
+    std::unique_ptr<StudioConfigSettingsPage> studioConfigSettingsPage;
 
     Data()
         : settings(Core::ICore::settings())
@@ -54,13 +54,14 @@ QStyle *QmlDesignerBasePlugin::style()
 
 StudioConfigSettingsPage *QmlDesignerBasePlugin::studioConfigSettingsPage()
 {
-    return &global->d->studioConfigSettingsPage;
+    return global->d->studioConfigSettingsPage.get();
 }
 
 bool QmlDesignerBasePlugin::initialize(const QStringList &, QString *)
 {
     d = std::make_unique<Data>();
-
+    if (Core::ICore::settings()->value("QML/Designer/StandAloneMode", false).toBool())
+        d->studioConfigSettingsPage = std::make_unique<StudioConfigSettingsPage>();
     return true;
 }
 

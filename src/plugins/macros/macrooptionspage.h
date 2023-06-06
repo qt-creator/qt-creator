@@ -5,8 +5,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Macros {
-namespace Internal {
+namespace Macros::Internal {
 
 class MacroOptionsPage final : public Core::IOptionsPage
 {
@@ -14,5 +13,4 @@ public:
     MacroOptionsPage();
 };
 
-} // namespace Internal
-} // namespace Macros
+} // Macros::Internal

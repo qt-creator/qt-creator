@@ -493,6 +493,20 @@ bool DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) const
         if (s.st_nlink > 1)
             return true;
     }
+#elif defined(Q_OS_WIN)
+    const HANDLE handle = CreateFile((wchar_t *) filePath.toUserOutput().utf16(),
+                                     0,
+                                     FILE_SHARE_READ,
+                                     NULL,
+                                     OPEN_EXISTING,
+                                     FILE_FLAG_BACKUP_SEMANTICS,
+                                     NULL);
+    if (handle == INVALID_HANDLE_VALUE)
+        return false;
+
+    FILE_STANDARD_INFO info;
+    if (GetFileInformationByHandleEx(handle, FileStandardInfo, &info, sizeof(info)))
+        return info.NumberOfLinks > 1;
 #else
     Q_UNUSED(filePath)
 #endif

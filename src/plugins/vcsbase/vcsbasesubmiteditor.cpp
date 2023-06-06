@@ -103,11 +103,6 @@ namespace VcsBase {
 using namespace Internal;
 using namespace Utils;
 
-static inline QString submitMessageCheckScript()
-{
-    return VcsPlugin::instance()->settings().submitMessageCheckScript.value();
-}
-
 class VcsBaseSubmitEditorPrivate
 {
 public:
@@ -176,15 +171,15 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
     connect(descriptionEdit, &QTextEdit::textChanged,
             this, &VcsBaseSubmitEditor::fileContentsChanged);
 
-    const CommonVcsSettings &settings = VcsPlugin::instance()->settings();
+    const CommonVcsSettings &settings = commonSettings();
     // Add additional context menu settings
-    if (!settings.submitMessageCheckScript.value().isEmpty()
+    if (!settings.submitMessageCheckScript().isEmpty()
             || !settings.nickNameMailMap.value().isEmpty()) {
         auto sep = new QAction(this);
         sep->setSeparator(true);
         d->m_widget->addDescriptionEditContextMenuAction(sep);
         // Run check action
-        if (!settings.submitMessageCheckScript.value().isEmpty()) {
+        if (!settings.submitMessageCheckScript().isEmpty()) {
             auto checkAction = new QAction(Tr::tr("Check Message"), this);
             connect(checkAction, &QAction::triggered,
                     this, &VcsBaseSubmitEditor::slotCheckSubmitMessage);
@@ -203,7 +198,7 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
 
     // wrapping. etc
     slotUpdateEditorSettings();
-    connect(VcsPlugin::instance(), &VcsPlugin::settingsChanged,
+    connect(&settings, &CommonVcsSettings::changed,
             this, &VcsBaseSubmitEditor::slotUpdateEditorSettings);
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, [this] {
@@ -229,9 +224,8 @@ VcsBaseSubmitEditor::~VcsBaseSubmitEditor()
 
 void VcsBaseSubmitEditor::slotUpdateEditorSettings()
 {
-    const CommonVcsSettings &s = VcsPlugin::instance()->settings();
-    setLineWrapWidth(s.lineWrapWidth());
-    setLineWrap(s.lineWrap());
+    setLineWrapWidth(commonSettings().lineWrapWidth());
+    setLineWrap(commonSettings().lineWrap());
 }
 
 // Return a trimmed list of non-empty field texts
@@ -453,11 +447,7 @@ void VcsBaseSubmitEditor::accept(VcsBasePluginPrivate *plugin)
     QString errorMessage;
     const bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit(&errorMessage);
     if (!canCommit) {
-        VcsOutputWindow::appendError(
-                    Tr::tr("Cannot %1%2.",
-                       "%2 is an optional error message with ': ' prefix. Don't add space in front.")
-                    .arg(plugin->commitDisplayName().toLower(),
-                         errorMessage.isEmpty() ? errorMessage : ": " + errorMessage));
+        VcsOutputWindow::appendError(plugin->commitErrorMessage(errorMessage));
     } else if (plugin->activateCommit()) {
         close();
     }
@@ -480,12 +470,10 @@ bool VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
     if (!submitWidget->isEnabled() || !submitWidget->isEdited())
         return true;
 
-    const QString commitName = plugin->commitDisplayName();
     QMessageBox mb(Core::ICore::dialogParent());
-    mb.setWindowTitle(Tr::tr("Close %1 %2 Editor").arg(plugin->displayName(), commitName));
+    mb.setWindowTitle(plugin->commitAbortTitle());
     mb.setIcon(QMessageBox::Warning);
-    mb.setText(Tr::tr("Closing this editor will abort the %1.")
-                   .arg(commitName.toLower()));
+    mb.setText(plugin->commitAbortMessage());
     mb.setStandardButtons(QMessageBox::Close | QMessageBox::Cancel);
     // On Windows there is no mnemonic for Close. Set it explicitly.
     mb.button(QMessageBox::Close)->setText(Tr::tr("&Close"));
@@ -533,7 +521,7 @@ void VcsBaseSubmitEditor::slotCheckSubmitMessage()
 
 bool VcsBaseSubmitEditor::checkSubmitMessage(QString *errorMessage) const
 {
-    const QString checkScript = submitMessageCheckScript();
+    const QString checkScript = commonSettings().submitMessageCheckScript.value();
     if (checkScript.isEmpty())
         return true;
     QApplication::setOverrideCursor(Qt::WaitCursor);

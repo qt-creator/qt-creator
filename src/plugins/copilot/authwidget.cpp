@@ -93,7 +93,7 @@ void AuthWidget::updateClient(const Utils::FilePath &nodeJs, const Utils::FilePa
     m_client = nullptr;
     setState(Tr::tr("Sign in"), false);
     m_button->setEnabled(false);
-    if (!nodeJs.exists() || !agent.exists()) {
+    if (!nodeJs.isExecutableFile() || !agent.exists()) {
         return;
     }
 

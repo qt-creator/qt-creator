@@ -406,6 +406,7 @@ public:
     void setOpenTerminalHandler(const std::function<void()> &openTerminal);
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
     void setElideMode(Qt::TextElideMode elideMode);
+    void setAllowPathFromDevice(bool allowPathFromDevice);
 
     void validateInput();
 
@@ -548,7 +549,8 @@ class QTCREATOR_UTILS_EXPORT TriStateAspect : public SelectionAspect
     Q_OBJECT
 
 public:
-    TriStateAspect(const QString &onString = {},
+    TriStateAspect(AspectContainer *container = nullptr,
+                   const QString &onString = {},
                    const QString &offString = {},
                    const QString &defaultString = {});
 
@@ -608,6 +610,7 @@ class QTCREATOR_UTILS_EXPORT TextDisplay : public BaseAspect
     Q_OBJECT
 
 public:
+    explicit TextDisplay(AspectContainer *container);
     TextDisplay(const QString &message = {},
                 InfoLabel::InfoType type = InfoLabel::None);
     ~TextDisplay() override;

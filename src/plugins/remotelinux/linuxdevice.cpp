@@ -978,6 +978,7 @@ LinuxDevice::LinuxDevice()
     addDeviceAction({Tr::tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
                          device->openTerminal(Environment(), FilePath());
                      }});
+    setQmlRunCommand(filePath("qml"));
 }
 
 void LinuxDevice::_setOsType(Utils::OsType osType)

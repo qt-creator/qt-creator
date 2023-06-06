@@ -26,6 +26,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorer.h>
@@ -1452,8 +1453,12 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
 
 QString QmakeBuildSystem::deviceRoot() const
 {
-    if (projectFilePath().needsDevice())
-        return projectFilePath().withNewPath("/").toFSPathString();
+    IDeviceConstPtr device = BuildDeviceKitAspect::device(target()->kit());
+    QTC_ASSERT(device, return {});
+    FilePath deviceRoot = device->rootPath();
+    if (deviceRoot.needsDevice())
+        return deviceRoot.toFSPathString();
+
     return {};
 }
 

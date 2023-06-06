@@ -4,10 +4,10 @@
 #include "basehoverhandler.h"
 #include "texteditor.h"
 
-#include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
+#include <QScopeGuard>
 #include <QVBoxLayout>
 
 namespace TextEditor {
@@ -121,7 +121,7 @@ void BaseHoverHandler::process(TextEditorWidget *widget, int pos, ReportPriority
 
 void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report)
 {
-    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+    const auto cleanup = qScopeGuard([this, report] { report(priority()); });
 
     QString tooltip = editorWidget->extraSelectionTooltip(pos);
     if (!tooltip.isEmpty())

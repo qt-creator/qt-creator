@@ -378,7 +378,7 @@ void Manager::gotoLocations(const QList<QVariant> &list)
             int line;
             int column;
             textEditor->convertPosition(textEditor->position(), &line, &column);
-            const SymbolLocation current(filePath, line, column);
+            const SymbolLocation current(filePath, line, column + 1);
             if (auto it = locations.constFind(current), end = locations.constEnd(); it != end) {
                 // we already are at the symbol, cycle to next location
                 ++it;

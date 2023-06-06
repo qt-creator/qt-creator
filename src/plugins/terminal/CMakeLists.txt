@@ -10,7 +10,8 @@ add_qtc_plugin(Terminal
     shellintegration.cpp shellintegration.h
     shellmodel.cpp shellmodel.h
     terminal.qrc
-    terminalcommands.cpp terminalcommands.h
+    terminalconstants.h
+    terminalicons.h
     terminalpane.cpp terminalpane.h
     terminalplugin.cpp
     terminalprocessimpl.cpp terminalprocessimpl.h

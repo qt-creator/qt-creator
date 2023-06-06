@@ -24,7 +24,7 @@ class QPromise;
 class QThreadPool;
 QT_END_NAMESPACE
 
-namespace Tasking { class TaskItem; }
+namespace Tasking { class GroupItem; }
 namespace Utils { class Process; }
 
 namespace ProjectExplorer {
@@ -49,7 +49,7 @@ public:
     Utils::FilePaths targets() const;
     void forEachTarget(std::function<void(const Utils::FilePath &)> func) const;
 
-    Tasking::TaskItem compileFileItem();
+    Tasking::GroupItem compileFileItem();
     void compileFile();
     bool isDirty() const;
     void block();
@@ -75,7 +75,7 @@ private:
     void compileContent(const QByteArray &content);
     void compileImpl(const ContentProvider &provider);
     void compileIfDirty();
-    virtual Tasking::TaskItem taskItemImpl(const ContentProvider &provider) = 0;
+    virtual Tasking::GroupItem taskItemImpl(const ContentProvider &provider) = 0;
 
     const std::unique_ptr<ExtraCompilerPrivate> d;
 };
@@ -101,7 +101,7 @@ protected:
     virtual Tasks parseIssues(const QByteArray &stdErr);
 
 private:
-    Tasking::TaskItem taskItemImpl(const ContentProvider &provider) final;
+    Tasking::GroupItem taskItemImpl(const ContentProvider &provider) final;
     void runInThread(QPromise<FileNameToContentsHash> &promise,
                      const Utils::FilePath &cmd, const Utils::FilePath &workDir,
                      const QStringList &args, const ContentProvider &provider,

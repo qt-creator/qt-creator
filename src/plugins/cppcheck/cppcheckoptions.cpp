@@ -108,11 +108,11 @@ CppcheckOptions::CppcheckOptions()
     readSettings();
 }
 
-std::function<void(QWidget *widget)> CppcheckOptions::layouter()
+std::function<Layouting::LayoutItem()> CppcheckOptions::layouter()
 {
-    return [this](QWidget *widget) {
+    return [this] {
         using namespace Layouting;
-        Form {
+        return Form {
             binary, br,
             Tr::tr("Checks:"), Flow {
                 warning,
@@ -132,7 +132,7 @@ std::function<void(QWidget *widget)> CppcheckOptions::layouter()
                 addIncludePaths,
                 guessArguments
             }
-        }.attachTo(widget);
+        };
     };
 }
 

@@ -29,7 +29,7 @@ public:
 
 protected:
     Tasking::TreeStorage<QString> inputStorage() const;
-    Tasking::TaskItem postProcessTask();
+    Tasking::GroupItem postProcessTask();
 
     void setupCommand(Utils::Process &process, const QStringList &args) const;
 

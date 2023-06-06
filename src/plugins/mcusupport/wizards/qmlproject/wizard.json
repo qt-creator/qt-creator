@@ -12,6 +12,7 @@
 
     "options":
     [
+        { "key": "QmlProjectDirectory", "value": "%{ProjectDirectory}/qmlproject"},
         { "key": "CorrectedProjectName", "value": "%{JS: '%{ProjectName}'.replace(/-/g, '_')}"},
         { "key": "MainQmlFile", "value": "%{CorrectedProjectName}.qml" },
         { "key": "QmlProjectFile", "value": "%{CorrectedProjectName}.qmlproject" },
@@ -56,48 +57,53 @@
                     "openAsProject": true
                 },
                 {
+                    "source": "Qul.cmake",
+                    "target": "%{QmlProjectDirectory}/CMakeLists.txt",
+                    "openInEditor": false
+                },
+                {
                     "source": "BackendObject.h",
-                    "target": "%{ProjectDirectory}/src/%{InterfaceFile}",
+                    "target": "%{QmlProjectDirectory}/src/%{InterfaceFile}",
                     "openInEditor": true
                 },
                 {
                     "source": "component.qml.tpl",
-                    "target": "%{ProjectDirectory}/imports/CustomModule/%{QmlComponent}",
+                    "target": "%{QmlProjectDirectory}/imports/CustomModule/%{QmlComponent}",
                     "openInEditor": true
                 },
                 {
                     "source": "module.qmlproject.tpl",
-                    "target": "%{ProjectDirectory}/imports/CustomModule/%{ModuleFile}",
+                    "target": "%{QmlProjectDirectory}/imports/CustomModule/%{ModuleFile}",
                     "openInEditor": true
                 },
                 {
                     "source": "project.qmlproject.tpl",
-                    "target": "%{ProjectDirectory}/%{QmlProjectFile}",
+                    "target": "%{QmlProjectDirectory}/%{QmlProjectFile}",
                     "openInEditor": true
                 },
                 {
                     "source": "main.qml.tpl",
-                    "target": "%{ProjectDirectory}/%{MainQmlFile}",
+                    "target": "%{QmlProjectDirectory}/%{MainQmlFile}",
                     "openInEditor": true
                 },
                 {
                     "source": "../icon.png",
-                    "target": "%{ProjectDirectory}/images/icon.png",
+                    "target": "%{QmlProjectDirectory}/images/icon.png",
                     "isBinary": true
                 },
                 {
                     "source": "DejaVuSansMono.ttf",
-                    "target": "%{ProjectDirectory}/fonts/DejaVuSansMono.ttf",
+                    "target": "%{QmlProjectDirectory}/fonts/DejaVuSansMono.ttf",
                     "isBinary": true
                 },
                 {
                     "source": "LICENSE",
-                    "target": "%{ProjectDirectory}/fonts/LICENSE",
+                    "target": "%{QmlProjectDirectory}/fonts/LICENSE",
                     "isBinary": true
                 },
                 {
                     "source": "translation.nb_NO.ts",
-                    "target": "%{ProjectDirectory}/translations/%{TsFile}",
+                    "target": "%{QmlProjectDirectory}/translations/%{TsFile}",
                     "openInEditor": false
                 },
                 {

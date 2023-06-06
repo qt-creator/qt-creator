@@ -60,8 +60,8 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation
     m_errorLabel->setProperty("_q_custom_style_disabled", QVariant(true));
     m_warningLabel->setProperty("_q_custom_style_disabled", QVariant(true));
 
-    m_errorIcon->setAlignment(Qt::AlignRight);
-    m_warningIcon->setAlignment(Qt::AlignRight);
+    m_errorIcon->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    m_warningIcon->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     m_errorIcon->setPixmap(Utils::Icons::CRITICAL_TOOLBAR.pixmap());
     m_warningIcon->setPixmap(Utils::Icons::WARNING_TOOLBAR.pixmap());
 

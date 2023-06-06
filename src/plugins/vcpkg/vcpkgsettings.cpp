@@ -4,6 +4,7 @@
 #include "vcpkgsettings.h"
 
 #include "vcpkgconstants.h"
+#include "vcpkgtr.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
@@ -50,10 +51,10 @@ VcpkgSettings::VcpkgSettings()
         using namespace Layouting;
         return Column {
             Group {
-                title(tr("Vcpkg installation")),
+                title(Tr::tr("Vcpkg installation")),
                 Form {
                     Utils::PathChooser::label(),
-                    Span{ 2, Row{ vcpkgRoot, websiteButton} },
+                    Span { 2, Row { vcpkgRoot, websiteButton } },
                 },
             },
             st,

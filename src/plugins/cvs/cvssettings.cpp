@@ -59,9 +59,9 @@ CvsSettings::CvsSettings()
 
     diffIgnoreBlankLines.setSettingsKey("DiffIgnoreBlankLines");
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
-        Column {
+        return Column {
             Group {
                 title(Tr::tr("Configuration")),
                 Form {
@@ -80,7 +80,7 @@ CvsSettings::CvsSettings()
                 }
             },
             st
-        }.attachTo(widget);
+        };
     });
 }
 

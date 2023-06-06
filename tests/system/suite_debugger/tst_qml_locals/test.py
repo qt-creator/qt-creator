@@ -35,8 +35,7 @@ def main():
         return
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(Targets.getDefaultKit(), ProjectSettings.RUN)
-    ensureChecked("{container=':Qt Creator_Core::Internal::MainWindow' text='Enable QML' "
-                  "type='QCheckBox' unnamed='1' visible='1'}")
+    selectFromCombo(":EnableQMLDebugger_ComboBox", "Enabled")
     switchViewTo(ViewConstants.EDIT)
     clickButton(fancyDebugButton)
     locAndExprTV = waitForObject(":Locals and Expressions_Debugger::Internal::WatchTreeView")

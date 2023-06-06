@@ -4,7 +4,7 @@
 #pragma once
 
 #ifndef FAKEVIM_STANDALONE
-#   include <utils/aspects.h>
+#   include <coreplugin/dialogs/ioptionspage.h>
 #endif
 
 #include <QCoreApplication>
@@ -13,8 +13,7 @@
 #include <QString>
 #include <QVariant>
 
-namespace FakeVim {
-namespace Internal {
+namespace FakeVim::Internal {
 
 #ifdef FAKEVIM_STANDALONE
 class FvBaseAspect
@@ -68,7 +67,7 @@ public:
 
 #else
 
-using FvAspectContainer = Utils::AspectContainer;
+using FvAspectContainer = Core::PagedSettings;
 using FvBaseAspect = Utils::BaseAspect;
 using FvBoolAspect = Utils::BoolAspect;
 using FvIntegerAspect = Utils::IntegerAspect;
@@ -145,7 +144,6 @@ private:
     QHash<FvBaseAspect *, QString> m_aspectToName;
 };
 
-FakeVimSettings *fakeVimSettings();
+FakeVimSettings &settings();
 
-} // namespace Internal
-} // namespace FakeVim
+} // FakeVim::Internal

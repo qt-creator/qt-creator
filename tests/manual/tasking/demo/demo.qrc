@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/" >
+        <file>icons/progressindicator.png</file>
+        <file>icons/progressindicator@2x.png</file>
+    </qresource>
+</RCC>

@@ -112,7 +112,7 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
         return param.summary(displayName());
     });
 
-    connect(ProjectManager::instance(), &ProjectManager::projectAdded, this, [this](Project * project) {
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded, this, [](Project * project) {
         connect(project, &Project::addedTarget, project, [project] (Target *target) {
             connectTarget(project, target);
         });

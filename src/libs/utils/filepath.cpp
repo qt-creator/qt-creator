@@ -1914,7 +1914,7 @@ FilePath FilePath::canonicalPath() const
         return *this;
     }
 
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_WIN
     DWORD flagsAndAttrs = FILE_ATTRIBUTE_NORMAL;
     if (isDir())
         flagsAndAttrs |= FILE_FLAG_BACKUP_SEMANTICS;

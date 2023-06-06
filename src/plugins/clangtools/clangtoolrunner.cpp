@@ -101,9 +101,9 @@ static FilePath createOutputFilePath(const FilePath &dirPath, const FilePath &fi
     return {};
 }
 
-TaskItem clangToolTask(const AnalyzeInputData &input,
-                       const AnalyzeSetupHandler &setupHandler,
-                       const AnalyzeOutputHandler &outputHandler)
+GroupItem clangToolTask(const AnalyzeInputData &input,
+                        const AnalyzeSetupHandler &setupHandler,
+                        const AnalyzeOutputHandler &outputHandler)
 {
     struct ClangToolStorage {
         QString name;
@@ -186,7 +186,7 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
         Storage(storage),
         onGroupSetup(onSetup),
         Group {
-            optional,
+            finishAllAndDone,
             ProcessTask(onProcessSetup, onProcessDone, onProcessError)
         }
     };

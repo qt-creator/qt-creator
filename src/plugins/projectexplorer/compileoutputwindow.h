@@ -26,6 +26,18 @@ namespace Internal {
 class ShowOutputTaskHandler;
 class CompileOutputTextEdit;
 
+class CompileOutputSettings final : public Core::PagedSettings
+{
+public:
+    CompileOutputSettings();
+
+    static CompileOutputSettings &instance();
+
+    Utils::BoolAspect popUp{this};
+    Utils::BoolAspect wrapOutput{this};
+    Utils::IntegerAspect maxCharCount{this};
+};
+
 class CompileOutputWindow final : public Core::IOutputPane
 {
     Q_OBJECT
@@ -57,30 +69,18 @@ public:
     void flush();
     void reset();
 
-    const CompileOutputSettings &settings() const { return m_settings; }
-    void setSettings(const CompileOutputSettings &settings);
-
     Utils::OutputFormatter *outputFormatter() const;
 
 private:
     void updateFilter() override;
     const QList<Core::OutputWindow *> outputWindows() const override { return {m_outputWindow}; }
 
-    void loadSettings();
-    void storeSettings() const;
     void updateFromSettings();
-
     Core::OutputWindow *m_outputWindow;
     ShowOutputTaskHandler *m_handler;
     QToolButton *m_cancelBuildButton;
     QToolButton * const m_settingsButton;
     CompileOutputSettings m_settings;
-};
-
-class CompileOutputSettingsPage final : public Core::IOptionsPage
-{
-public:
-    CompileOutputSettingsPage();
 };
 
 } // namespace Internal

@@ -90,8 +90,8 @@ GitSettings::GitSettings()
     instantBlame.setSettingsKey("Git Instant");
     instantBlame.setDefaultValue(true);
     instantBlame.setLabelText(Tr::tr("Add instant blame annotations to editor"));
-    instantBlame.setToolTip(Tr::tr("Directly annotate each line in the editor "
-                                   "when scrolling through the document."));
+    instantBlame.setToolTip(
+        Tr::tr("Annotate the current line in the editor with Git \"blame\" output."));
 
     graphLog.setSettingsKey("GraphLog");
 

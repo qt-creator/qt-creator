@@ -157,7 +157,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     // find the beginning of a filename
     QString buffer;
-    int beginPos = column - 1;
+    int beginPos = column;
     while (beginPos >= 0) {
         if (isValidFileNameChar(block, beginPos)) {
             buffer.prepend(block.at(beginPos));

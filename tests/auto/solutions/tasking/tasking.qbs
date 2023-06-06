@@ -1,7 +1,8 @@
 QtcAutotest {
     name: "Tasking autotest"
 
-    Depends { name: "Utils" }
+    Depends { name: "Qt"; submodules: ["network"] }
+    Depends { name: "Tasking" }
 
     files: "tst_tasking.cpp"
 }

@@ -11,6 +11,7 @@
 #include "utilsicons.h"
 #include "utilstr.h"
 
+#include <QApplication>
 #include <QKeyEvent>
 #include <QKeySequence>
 #include <QMenu>
@@ -126,7 +127,7 @@ FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     m_completionShortcut(completionShortcut()->key(), parent),
     m_okTextColor(creatorTheme()->color(Theme::TextColorNormal)),
     m_errorTextColor(creatorTheme()->color(Theme::TextColorError)),
-    m_placeholderTextColor(creatorTheme()->color(Theme::PalettePlaceholderText))
+    m_placeholderTextColor(QApplication::palette().color(QPalette::PlaceholderText))
 
 {
     m_completionShortcut.setContext(Qt::WidgetShortcut);

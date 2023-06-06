@@ -64,7 +64,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
         if (async.isResultAvailable())
             storage->projectInfo = async.result();
     };
-    QList<TaskItem> tasks{parallel};
+    QList<GroupItem> tasks{parallel};
     tasks.append(AsyncTask<ProjectInfo::ConstPtr>(setupInfoGenerator, onInfoGeneratorDone));
     for (QPointer<ExtraCompiler> compiler : compilers) {
         if (compiler && compiler->isDirty())

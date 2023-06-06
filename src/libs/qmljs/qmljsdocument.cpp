@@ -369,61 +369,62 @@ LibraryInfo::LibraryInfo(const QmlDirParser &parser, const QByteArray &fingerpri
 QByteArray LibraryInfo::calculateFingerprint() const
 {
     QCryptographicHash hash(QCryptographicHash::Sha1);
-    hash.addData(reinterpret_cast<const char *>(&_status), sizeof(_status));
+    auto addData = [&hash](auto p, size_t len) {
+        hash.addData(QByteArrayView(reinterpret_cast<const char *>(p), len));
+    };
+
+    addData(&_status, sizeof(_status));
     int len = _components.size();
-    hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
+    addData(&len, sizeof(len));
     for (const QmlDirParser::Component &component : _components) {
         len = component.fileName.size();
-        hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-        hash.addData(reinterpret_cast<const char *>(component.fileName.constData()),
-                     len * sizeofQChar);
-        hash.addData(reinterpret_cast<const char *>(&component.majorVersion), sizeof(component.majorVersion));
-        hash.addData(reinterpret_cast<const char *>(&component.minorVersion), sizeof(component.minorVersion));
+        addData(&len, sizeof(len));
+        addData(component.fileName.constData(), len * sizeofQChar);
+        addData(&component.majorVersion, sizeof(component.majorVersion));
+        addData(&component.minorVersion, sizeof(component.minorVersion));
         len = component.typeName.size();
-        hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-        hash.addData(reinterpret_cast<const char *>(component.typeName.constData()),
-                     component.typeName.size() * sizeofQChar);
+        addData(&len, sizeof(len));
+        addData(component.typeName.constData(), component.typeName.size() * sizeofQChar);
         int flags = (component.singleton ?  (1 << 0) : 0) + (component.internal ? (1 << 1) : 0);
-        hash.addData(reinterpret_cast<const char *>(&flags), sizeof(flags));
+        addData(&flags, sizeof(flags));
     }
     len = _plugins.size();
-    hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
+    addData(&len, sizeof(len));
     for (const QmlDirParser::Plugin &plugin : _plugins) {
         len = plugin.path.size();
-        hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-        hash.addData(reinterpret_cast<const char *>(plugin.path.constData()), len * sizeofQChar);
+        addData(&len, sizeof(len));
+        addData(plugin.path.constData(), len * sizeofQChar);
         len = plugin.name.size();
-        hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-        hash.addData(reinterpret_cast<const char *>(plugin.name.constData()), len * sizeofQChar);
+        addData(&len, sizeof(len));
+        addData(plugin.name.constData(), len * sizeofQChar);
     }
     len = _typeinfos.size();
-    hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
+    addData(&len, sizeof(len));
     for (const QString &typeinfo : _typeinfos) {
         len = typeinfo.size();
-        hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-        hash.addData(reinterpret_cast<const char *>(typeinfo.constData()),
-                     len * sizeofQChar);
+        addData(&len, sizeof(len));
+        addData(typeinfo.constData(), len * sizeofQChar);
     }
     len = _metaObjects.size();
-    hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
+    addData(&len, sizeof(len));
     QList<QByteArray> metaFingerprints;
     for (const LanguageUtils::FakeMetaObject::ConstPtr &metaObject : _metaObjects)
         metaFingerprints.append(metaObject->fingerprint());
     std::sort(metaFingerprints.begin(), metaFingerprints.end());
     for (const QByteArray &fp : std::as_const(metaFingerprints))
         hash.addData(fp);
-    hash.addData(reinterpret_cast<const char *>(&_dumpStatus), sizeof(_dumpStatus));
+    addData(&_dumpStatus, sizeof(_dumpStatus));
     len = _dumpError.size(); // localization dependent (avoid?)
-    hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-    hash.addData(reinterpret_cast<const char *>(_dumpError.constData()), len * sizeofQChar);
+    addData(&len, sizeof(len));
+    addData(_dumpError.constData(), len * sizeofQChar);
 
     len = _moduleApis.size();
-    hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
+    addData(&len, sizeof(len));
     for (const ModuleApiInfo &moduleInfo : _moduleApis)
         moduleInfo.addToHash(hash); // make it order independent?
 
     len = _imports.size();
-    hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
+    addData(&len, sizeof(len));
     for (const QmlDirParser::Import &import : _imports)
         hash.addData(import.module.toUtf8()); // import order matters, keep order-dependent
 

@@ -7,11 +7,11 @@
 #include "../settingshandler.h"
 
 #include <QDialog>
-#include <QPushButton>
 
-namespace Ui {
-class McuKitCreationDialog;
-}
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace McuSupport::Internal {
 
@@ -24,18 +24,19 @@ public:
                                   const SettingsHandler::Ptr &settingsHandler,
                                   McuPackagePtr qtMCUPackage,
                                   QWidget *parent = nullptr);
-    ~McuKitCreationDialog();
 
 private slots:
     void updateMessage(const int inc);
 
 private:
-    Ui::McuKitCreationDialog *ui;
     int m_currentIndex = -1;
+    QLabel *m_iconLabel;
+    QLabel *m_textLabel;
+    QLabel *m_informationLabel;
+    QLabel *m_qtMCUsPathLabel;
+    QLabel *m_messageCountLabel;
     QPushButton *m_previousButton;
     QPushButton *m_nextButton;
-    QPushButton *m_helpButton;
-    QPushButton *m_fixButton;
     const MessagesList &m_messages;
 };
 } // namespace McuSupport::Internal

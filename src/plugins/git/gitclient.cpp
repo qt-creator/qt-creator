@@ -441,7 +441,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         };
 
         using namespace std::placeholders;
-        QList<TaskItem> tasks {parallel, continueOnDone, onGroupError(onFollowsError)};
+        QList<GroupItem> tasks {parallel, continueOnDone, onGroupError(onFollowsError)};
         for (int i = 0, total = parents.size(); i < total; ++i) {
             tasks.append(ProcessTask(std::bind(setupFollow, _1, parents.at(i)),
                                  std::bind(onFollowDone, _1, i)));
@@ -465,11 +465,11 @@ ShowController::ShowController(IDocument *document, const QString &id)
         parallel,
         onGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toString()); }),
         Group {
-            optional,
+            finishAllAndDone,
             ProcessTask(setupDescription, onDescriptionDone),
             Group {
                 parallel,
-                optional,
+                finishAllAndDone,
                 onGroupSetup(desciptionDetailsSetup),
                 ProcessTask(setupBranches, onBranchesDone, onBranchesError),
                 ProcessTask(setupPrecedes, onPrecedesDone, onPrecedesError),
@@ -2873,7 +2873,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
         GitPlugin::updateCurrentBranch();
         return true;
     }
-    VcsOutputWindow::appendError(Tr::tr("Cannot commit %n files", nullptr, commitCount) + "\n");
+    VcsOutputWindow::appendError(Tr::tr("Cannot commit %n file(s)", nullptr, commitCount) + "\n");
     return false;
 }
 

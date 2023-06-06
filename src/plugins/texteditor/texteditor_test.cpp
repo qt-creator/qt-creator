@@ -3,20 +3,13 @@
 
 #ifdef WITH_TESTS
 
-#include <QGuiApplication>
-#include <QClipboard>
-#include <QString>
+#include "tabsettings.h"
+#include "texteditorplugin.h"
+
+#include <QTextDocument>
 #include <QtTest/QtTest>
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/coreconstants.h>
-
-#include "texteditor.h"
-#include "texteditorplugin.h"
-#include "textdocument.h"
-#include "tabsettings.h"
-
-using namespace TextEditor;
+namespace TextEditor {
 
 QString tabPolicyToString(TabSettings::TabPolicy policy)
 {
@@ -148,5 +141,7 @@ void Internal::TextEditorPlugin::testIndentationClean()
 
     QCOMPARE(settings.isIndentationClean(block, indentSize), clean);
 }
+
+} // namespace TextEditor
 
 #endif // ifdef WITH_TESTS

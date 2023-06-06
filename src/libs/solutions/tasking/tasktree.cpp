@@ -9,6 +9,8 @@
 #include <QSet>
 #include <QTimer>
 
+using namespace std::chrono;
+
 namespace Tasking {
 
 // That's cut down qtcassert.{c,h} to avoid the dependency.
@@ -41,11 +43,119 @@ private:
 };
 
 /*!
-    \class Tasking::TaskItem
+    \class Tasking::GroupItem
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule QtCreator
     \ingroup mainclasses
-    \brief The TaskItem class represents the basic element for composing nested tree structures.
+    \brief The GroupItem class represents the basic element for composing nested tree structures.
+*/
+
+/*!
+    \enum Tasking::WorkflowPolicy
+
+    This enum describes the possible behavior of the Group element when any group's child task
+    finishes its execution. It's also used when the running Group is stopped.
+
+    \value StopOnError
+        Default. Corresponds to the stopOnError global element.
+        If any child task finishes with an error, the group stops and finishes with an error.
+        If all child tasks finished with success, the group finishes with success.
+        If a group is empty, it finishes with success.
+    \value ContinueOnError
+        Corresponds to the continueOnError global element.
+        Similar to stopOnError, but in case any child finishes with an error,
+        the execution continues until all tasks finish, and the group reports an error
+        afterwards, even when some other tasks in the group finished with success.
+        If all child tasks finish successfully, the group finishes with success.
+        If a group is empty, it finishes with success.
+    \value StopOnDone
+        Corresponds to the stopOnDone global element.
+        If any child task finishes with success, the group stops and finishes with success.
+        If all child tasks finished with an error, the group finishes with an error.
+        If a group is empty, it finishes with an error.
+    \value ContinueOnDone
+        Corresponds to the continueOnDone global element.
+        Similar to stopOnDone, but in case any child finishes successfully,
+        the execution continues until all tasks finish, and the group reports success
+        afterwards, even when some other tasks in the group finished with an error.
+        If all child tasks finish with an error, the group finishes with an error.
+        If a group is empty, it finishes with an error.
+    \value StopOnFinished
+        Corresponds to the stopOnFinished global element.
+        The group starts as many tasks as it can. When any task finishes,
+        the group stops and reports the task's result.
+        Useful only in parallel mode.
+        In sequential mode, only the first task is started, and when finished,
+        the group finishes too, so the other tasks are always skipped.
+        If a group is empty, it finishes with an error.
+    \value FinishAllAndDone
+        Corresponds to the finishAllAndDone global element.
+        The group executes all tasks and ignores their return results. When all
+        tasks finished, the group finishes with success.
+        If a group is empty, it finishes with success.
+    \value FinishAllAndError
+        Corresponds to the finishAllAndError global element.
+        The group executes all tasks and ignores their return results. When all
+        tasks finished, the group finishes with an error.
+        If a group is empty, it finishes with an error.
+
+    Whenever a child task's result causes the Group to stop,
+    i.e. in case of StopOnError, StopOnDone, or StopOnFinished policies,
+    the Group stops the other running child tasks (if any - for example in parallel mode),
+    and skips executing tasks it has not started yet (for example, in the sequential mode -
+    those, that are placed after the failed task). Both stopping and skipping child tasks
+    may happen when parallelLimit is used.
+
+    The table below summarizes the differences between various workflow policies:
+
+    \table
+    \header
+        \li \l WorkflowPolicy
+        \li Executes all child tasks
+        \li Result
+        \li Result when the group is empty
+    \row
+        \li StopOnError
+        \li Stops when any child task finished with an error and reports an error
+        \li An error when at least one child task failed, success otherwise
+        \li Success
+    \row
+        \li ContinueOnError
+        \li Yes
+        \li An error when at least one child task failed, success otherwise
+        \li Success
+    \row
+        \li StopOnDone
+        \li Stops when any child task finished with success and reports success
+        \li Success when at least one child task succeeded, an error otherwise
+        \li An error
+    \row
+        \li ContinueOnDone
+        \li Yes
+        \li Success when at least one child task succeeded, an error otherwise
+        \li An error
+    \row
+        \li StopOnFinished
+        \li Stops when any child task finished and reports child task's result
+        \li Success or an error, depending on the finished child task's result
+        \li An error
+    \row
+        \li FinishAllAndDone
+        \li Yes
+        \li Success
+        \li Success
+    \row
+        \li FinishAllAndError
+        \li Yes
+        \li An error
+        \li An error
+    \endtable
+
+    If a child of a group is also a group, the child group runs its tasks according to its own
+    workflow policy. When a parent group stops the running child group because
+    of parent group's workflow policy, i.e. when the StopOnError, StopOnDone, or StopOnFinished
+    policy was used for the parent, the child group's result is reported according to the
+    \b Result column and to the \b {child group's workflow policy} row in the table above.
 */
 
 /*!
@@ -75,6 +185,43 @@ private:
 */
 
 /*!
+    \variable stopOnError
+    A convenient global group's element describing the StopOnError workflow policy.
+
+    This is the default workflow policy of the Group element.
+*/
+
+/*!
+    \variable continueOnError
+    A convenient global group's element describing the ContinueOnError workflow policy.
+*/
+
+/*!
+    \variable stopOnDone
+    A convenient global group's element describing the StopOnDone workflow policy.
+*/
+
+/*!
+    \variable continueOnDone
+    A convenient global group's element describing the ContinueOnDone workflow policy.
+*/
+
+/*!
+    \variable stopOnFinished
+    A convenient global group's element describing the StopOnFinished workflow policy.
+*/
+
+/*!
+    \variable finishAllAndDone
+    A convenient global group's element describing the FinishAllAndDone workflow policy.
+*/
+
+/*!
+    \variable finishAllAndError
+    A convenient global group's element describing the FinishAllAndError workflow policy.
+*/
+
+/*!
     \enum Tasking::TaskAction
 
     This enum is optionally returned from the group's or task's setup handler function.
@@ -99,7 +246,7 @@ private:
 */
 
 /*!
-    \typealias TaskItem::GroupSetupHandler
+    \typealias GroupItem::GroupSetupHandler
 
     Type alias for \c std::function<TaskAction()>.
 
@@ -130,7 +277,7 @@ private:
 */
 
 /*!
-    \typealias TaskItem::GroupEndHandler
+    \typealias GroupItem::GroupEndHandler
 
     Type alias for \c std::function\<void()\>.
 
@@ -143,13 +290,14 @@ private:
 */
 
 /*!
-    \fn template <typename SetupHandler> TaskItem onGroupSetup(SetupHandler &&handler)
+    \fn template <typename SetupHandler> GroupItem onGroupSetup(SetupHandler &&handler)
 
     Constructs a group's element holding the group setup handler.
     The \a handler is invoked whenever the group starts.
 
     The passed \a handler is either of \c std::function<TaskAction()> or \c std::function<void()>
-    type. For more information on possible argument type, refer to \l {TaskItem::GroupSetupHandler}.
+    type. For more information on possible argument type, refer to
+    \l {GroupItem::GroupSetupHandler}.
 
     When the \a handler is invoked, none of the group's child tasks are running yet.
 
@@ -157,14 +305,14 @@ private:
     after the storages are constructed, so that the \a handler may already
     perform some initial modifications to the active storages.
 
-    \sa TaskItem::GroupSetupHandler, onGroupDone, onGroupError
+    \sa GroupItem::GroupSetupHandler, onGroupDone, onGroupError
 */
 
 /*!
     Constructs a group's element holding the group done handler.
     The \a handler is invoked whenever the group finishes with success.
     Depending on the group's workflow policy, this handler may also be called
-    when the running group is stopped (e.g. when optional element was used).
+    when the running group is stopped (e.g. when finishAllAndDone element was used).
 
     When the \a handler is invoked, all of the group's child tasks are already finished.
 
@@ -172,9 +320,9 @@ private:
     before the storages are destructed, so that the \a handler may still
     perform a last read of the active storages' data.
 
-    \sa TaskItem::GroupEndHandler, onGroupSetup, onGroupError
+    \sa GroupItem::GroupEndHandler, onGroupSetup, onGroupError
 */
-TaskItem onGroupDone(const TaskItem::GroupEndHandler &handler)
+GroupItem onGroupDone(const GroupItem::GroupEndHandler &handler)
 {
     return Group::onGroupDone(handler);
 }
@@ -191,9 +339,9 @@ TaskItem onGroupDone(const TaskItem::GroupEndHandler &handler)
     before the storages are destructed, so that the \a handler may still
     perform a last read of the active storages' data.
 
-    \sa TaskItem::GroupEndHandler, onGroupSetup, onGroupDone
+    \sa GroupItem::GroupEndHandler, onGroupSetup, onGroupDone
 */
-TaskItem onGroupError(const TaskItem::GroupEndHandler &handler)
+GroupItem onGroupError(const GroupItem::GroupEndHandler &handler)
 {
     return Group::onGroupError(handler);
 }
@@ -239,24 +387,34 @@ TaskItem onGroupError(const TaskItem::GroupEndHandler &handler)
 
     \sa sequential, parallel
 */
-TaskItem parallelLimit(int limit)
+GroupItem parallelLimit(int limit)
 {
     return Group::parallelLimit(qMax(limit, 0));
 }
 
-TaskItem workflowPolicy(WorkflowPolicy policy)
+/*!
+    Constructs a group's workflow policy element for a given \a policy.
+
+    For convenience, global elements may be used instead.
+
+    \sa stopOnError, continueOnError, stopOnDone, continueOnDone, stopOnFinished, finishAllAndDone,
+        finishAllAndError, WorkflowPolicy
+*/
+GroupItem workflowPolicy(WorkflowPolicy policy)
 {
     return Group::workflowPolicy(policy);
 }
 
-const TaskItem sequential = parallelLimit(1);
-const TaskItem parallel = parallelLimit(0);
-const TaskItem stopOnError = workflowPolicy(WorkflowPolicy::StopOnError);
-const TaskItem continueOnError = workflowPolicy(WorkflowPolicy::ContinueOnError);
-const TaskItem stopOnDone = workflowPolicy(WorkflowPolicy::StopOnDone);
-const TaskItem continueOnDone = workflowPolicy(WorkflowPolicy::ContinueOnDone);
-const TaskItem stopOnFinished = workflowPolicy(WorkflowPolicy::StopOnFinished);
-const TaskItem optional = workflowPolicy(WorkflowPolicy::Optional);
+const GroupItem sequential = parallelLimit(1);
+const GroupItem parallel = parallelLimit(0);
+
+const GroupItem stopOnError = workflowPolicy(WorkflowPolicy::StopOnError);
+const GroupItem continueOnError = workflowPolicy(WorkflowPolicy::ContinueOnError);
+const GroupItem stopOnDone = workflowPolicy(WorkflowPolicy::StopOnDone);
+const GroupItem continueOnDone = workflowPolicy(WorkflowPolicy::ContinueOnDone);
+const GroupItem stopOnFinished = workflowPolicy(WorkflowPolicy::StopOnFinished);
+const GroupItem finishAllAndDone = workflowPolicy(WorkflowPolicy::FinishAllAndDone);
+const GroupItem finishAllAndError = workflowPolicy(WorkflowPolicy::FinishAllAndError);
 
 static TaskAction toTaskAction(bool success)
 {
@@ -326,11 +484,11 @@ void TreeStorageBase::activateStorage(int id) const
     m_storageData->m_activeStorage = id;
 }
 
-void TaskItem::addChildren(const QList<TaskItem> &children)
+void GroupItem::addChildren(const QList<GroupItem> &children)
 {
     QTC_ASSERT(m_type == Type::Group, qWarning("Only Group may have children, skipping...");
                return);
-    for (const TaskItem &child : children) {
+    for (const GroupItem &child : children) {
         switch (child.m_type) {
         case Type::Group:
             m_children.append(child);
@@ -377,7 +535,7 @@ void TaskItem::addChildren(const QList<TaskItem> &children)
     }
 }
 
-void TaskItem::setTaskSetupHandler(const TaskSetupHandler &handler)
+void GroupItem::setTaskSetupHandler(const TaskSetupHandler &handler)
 {
     if (!handler) {
         qWarning("Setting empty Setup Handler is no-op, skipping...");
@@ -388,7 +546,7 @@ void TaskItem::setTaskSetupHandler(const TaskSetupHandler &handler)
     m_taskHandler.m_setupHandler = handler;
 }
 
-void TaskItem::setTaskDoneHandler(const TaskEndHandler &handler)
+void GroupItem::setTaskDoneHandler(const TaskEndHandler &handler)
 {
     if (!handler) {
         qWarning("Setting empty Done Handler is no-op, skipping...");
@@ -399,7 +557,7 @@ void TaskItem::setTaskDoneHandler(const TaskEndHandler &handler)
     m_taskHandler.m_doneHandler = handler;
 }
 
-void TaskItem::setTaskErrorHandler(const TaskEndHandler &handler)
+void GroupItem::setTaskErrorHandler(const TaskEndHandler &handler)
 {
     if (!handler) {
         qWarning("Setting empty Error Handler is no-op, skipping...");
@@ -408,6 +566,23 @@ void TaskItem::setTaskErrorHandler(const TaskEndHandler &handler)
     if (m_taskHandler.m_errorHandler)
         qWarning("Error Handler redefinition, overriding...");
     m_taskHandler.m_errorHandler = handler;
+}
+
+GroupItem GroupItem::withTimeout(const GroupItem &item, milliseconds timeout,
+                                 const GroupEndHandler &handler)
+{
+    const TimeoutTask::EndHandler taskHandler = handler
+        ? [handler](const milliseconds &) { handler(); } : TimeoutTask::EndHandler();
+    return Group {
+        parallel,
+        stopOnFinished,
+        Group {
+            finishAllAndError,
+            TimeoutTask([timeout](milliseconds &timeoutData) { timeoutData = timeout; },
+                        taskHandler)
+        },
+        item
+    };
 }
 
 class TaskTreePrivate;
@@ -466,7 +641,7 @@ class TaskContainer
     Q_DISABLE_COPY_MOVE(TaskContainer)
 
 public:
-    TaskContainer(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
+    TaskContainer(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
                   TaskNode *parentNode, TaskContainer *parentContainer)
         : m_constData(taskTreePrivate, task, parentNode, parentContainer, this) {}
     TaskAction start();
@@ -479,7 +654,7 @@ public:
     bool isStarting() const { return isRunning() && m_runtimeData->m_startGuard.isLocked(); }
 
     struct ConstData {
-        ConstData(TaskTreePrivate *taskTreePrivate, const TaskItem &task, TaskNode *parentNode,
+        ConstData(TaskTreePrivate *taskTreePrivate, const GroupItem &task, TaskNode *parentNode,
                   TaskContainer *parentContainer, TaskContainer *thisContainer);
         ~ConstData() { qDeleteAll(m_children); }
         TaskTreePrivate * const m_taskTreePrivate = nullptr;
@@ -488,7 +663,7 @@ public:
 
         const int m_parallelLimit = 1;
         const WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
-        const TaskItem::GroupHandler m_groupHandler;
+        const GroupItem::GroupHandler m_groupHandler;
         const QList<TreeStorageBase> m_storageList;
         const QList<TaskNode *> m_children;
         const int m_taskCount = 0;
@@ -505,8 +680,8 @@ public:
 
         const ConstData &m_constData;
         const QList<int> m_storageIdList;
-        int m_doneCount = 0;
         bool m_successBit = true;
+        int m_doneCount = 0;
         Guard m_startGuard;
     };
 
@@ -519,7 +694,7 @@ class TaskNode
     Q_DISABLE_COPY_MOVE(TaskNode)
 
 public:
-    TaskNode(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
+    TaskNode(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
              TaskContainer *parentContainer)
         : m_taskHandler(task.taskHandler())
         , m_container(taskTreePrivate, task, this, parentContainer)
@@ -537,7 +712,7 @@ public:
     TaskTree *taskTree() const { return m_container.m_constData.m_taskTreePrivate->q; }
 
 private:
-    const TaskItem::TaskHandler m_taskHandler;
+    const GroupItem::TaskHandler m_taskHandler;
     TaskContainer m_container;
     std::unique_ptr<TaskInterface> m_task;
 };
@@ -657,16 +832,16 @@ ReturnType invokeHandler(TaskContainer *container, Handler &&handler, Args &&...
 }
 
 static QList<TaskNode *> createChildren(TaskTreePrivate *taskTreePrivate, TaskContainer *container,
-                                        const TaskItem &task)
+                                        const GroupItem &task)
 {
     QList<TaskNode *> result;
-    const QList<TaskItem> &children = task.children();
-    for (const TaskItem &child : children)
+    const QList<GroupItem> &children = task.children();
+    for (const GroupItem &child : children)
         result.append(new TaskNode(taskTreePrivate, child, container));
     return result;
 }
 
-TaskContainer::ConstData::ConstData(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
+TaskContainer::ConstData::ConstData(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
                                     TaskNode *parentNode, TaskContainer *parentContainer,
                                     TaskContainer *thisContainer)
     : m_taskTreePrivate(taskTreePrivate)
@@ -701,13 +876,28 @@ void TaskContainer::RuntimeData::callStorageDoneHandlers()
     }
 }
 
+static bool initialSuccessBit(WorkflowPolicy workflowPolicy)
+{
+    switch (workflowPolicy) {
+    case WorkflowPolicy::StopOnError:
+    case WorkflowPolicy::ContinueOnError:
+    case WorkflowPolicy::FinishAllAndDone:
+        return true;
+    case WorkflowPolicy::StopOnDone:
+    case WorkflowPolicy::ContinueOnDone:
+    case WorkflowPolicy::StopOnFinished:
+    case WorkflowPolicy::FinishAllAndError:
+        return false;
+    }
+    QTC_CHECK(false);
+    return false;
+}
+
 TaskContainer::RuntimeData::RuntimeData(const ConstData &constData)
     : m_constData(constData)
     , m_storageIdList(createStorages(constData))
-{
-    m_successBit = m_constData.m_workflowPolicy != WorkflowPolicy::StopOnDone
-                && m_constData.m_workflowPolicy != WorkflowPolicy::ContinueOnDone;
-}
+    , m_successBit(initialSuccessBit(m_constData.m_workflowPolicy))
+{}
 
 TaskContainer::RuntimeData::~RuntimeData()
 {
@@ -720,10 +910,11 @@ TaskContainer::RuntimeData::~RuntimeData()
 
 bool TaskContainer::RuntimeData::updateSuccessBit(bool success)
 {
-    if (m_constData.m_workflowPolicy == WorkflowPolicy::Optional)
-        return m_successBit;
-    if (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished) {
-        m_successBit = success;
+    if (m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndDone
+        || m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndError
+        || m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished) {
+        if (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished)
+            m_successBit = success;
         return m_successBit;
     }
 
@@ -753,7 +944,7 @@ TaskAction TaskContainer::start()
     }
     if (startAction == TaskAction::Continue) {
         if (m_constData.m_children.isEmpty())
-            startAction = TaskAction::StopWithDone;
+            startAction = toTaskAction(m_runtimeData->m_successBit);
     }
     return continueStart(startAction, 0);
 }
@@ -845,7 +1036,7 @@ void TaskContainer::stop()
 
 void TaskContainer::invokeEndHandler()
 {
-    const TaskItem::GroupHandler &groupHandler = m_constData.m_groupHandler;
+    const GroupItem::GroupHandler &groupHandler = m_constData.m_groupHandler;
     if (m_runtimeData->m_successBit && groupHandler.m_doneHandler)
         invokeHandler(this, groupHandler.m_doneHandler);
     else if (!m_runtimeData->m_successBit && groupHandler.m_errorHandler)
@@ -893,6 +1084,7 @@ void TaskNode::stop()
 
     if (!m_task) {
         m_container.stop();
+        m_container.m_runtimeData->updateSuccessBit(false);
         m_container.invokeEndHandler();
         return;
     }
@@ -1331,77 +1523,11 @@ void TaskNode::invokeEndHandler(bool success)
     \section2 Workflow Policy
 
     The workflow policy element in a Group specifies how the group should behave
-    when any of its \e direct child's tasks finish:
+    when any of its \e direct child's tasks finish. For a detailed description of possible
+    policies, refer to WorkflowPolicy.
 
-    \table
-    \header
-        \li Workflow Policy
-        \li Description
-    \row
-        \li stopOnError
-        \li Default. If a task finishes with an error, the group:
-            \list 1
-                \li Stops the running tasks (if any - for example, in parallel
-                    mode).
-                \li Skips executing tasks it has not started yet (for example, in the
-                    sequential mode - those, that are placed after the failed task).
-                \li Immediately finishes with an error.
-            \endlist
-            If all child tasks finish successfully, the group finishes with success.
-    \row
-        \li continueOnError
-        \li Similar to stopOnError, but in case any child finishes with
-            an error, the execution continues until all tasks finish,
-            and the group reports an error afterwards, even when some other
-            tasks in group finished with success.
-            If a task finishes with an error, the group:
-            \list 1
-                \li Continues executing the tasks that are running or have not
-                    started yet.
-                \li Finishes with an error when all tasks finish.
-            \endlist
-            If all tasks finish successfully, the group finishes with success.
-    \row
-        \li stopOnDone
-        \li If a task finishes with success, the group:
-            \list 1
-                \li Stops the running tasks (if any - for example, in parallel
-                    mode).
-                \li Skips executing tasks it has not started yet (for example, in the
-                    sequential mode - those, that are placed after the successfully finished task).
-                \li Immediately finishes with success.
-            \endlist
-            If all tasks finish with an error, the group finishes with an error.
-    \row
-        \li continueOnDone
-        \li Similar to stopOnDone, but in case any child finishes
-            successfully, the execution continues until all tasks finish,
-            and the group reports success afterwards, even when some other
-            tasks in group finished with an error.
-            If a task finishes with success, the group:
-            \list 1
-                \li Continues executing the tasks that are running or have not
-                    started yet.
-                \li Finishes with success when all tasks finish.
-            \endlist
-            If all tasks finish with an error, the group finishes with an error.
-    \row
-        \li stopOnFinished
-        \li The group starts as many tasks as it can. When a task finishes,
-            the group stops and reports the task's result.
-            Useful only in parallel mode.
-            In sequential mode, only the first task is started, and when finished,
-            the group finishes too, so the other tasks are ignored.
-    \row
-        \li optional
-        \li The group executes all tasks and ignores their return state. When all
-            tasks finish, the group finishes with success.
-    \endtable
-
-    When a Group is empty, it finishes immediately with success,
-    regardless of its workflow policy.
-    If a child of a group is also a group, the child group
-    runs its tasks according to its own workflow policy.
+    If a child of a group is also a group, the child group runs its tasks
+    according to its own workflow policy.
 
     \section2 Storage
 
@@ -1411,10 +1537,10 @@ void TaskNode::invokeEndHandler(bool success)
     it from a source and writing it to a destination might look as follows:
 
     \code
-        static QByteArray load(const FilePath &fileName) { ... }
-        static void save(const FilePath &fileName, const QByteArray &array) { ... }
+        static QByteArray load(const QString &fileName) { ... }
+        static void save(const QString &fileName, const QByteArray &array) { ... }
 
-        static TaskItem diffRecipe(const FilePath &source, const FilePath &destination)
+        static GroupItem copyRecipe(const QString &source, const QString &destination)
         {
             struct CopyStorage { // [1] custom inter-task struct
                 QByteArray content; // [2] custom inter-task data
@@ -1448,6 +1574,13 @@ void TaskNode::invokeEndHandler(bool success)
             };
             return root;
         }
+
+        const QString source = ...;
+        const QString destination = ...;
+        TaskTree taskTree(copyRecipe(source, destination));
+        connect(&taskTree, &TaskTree::done,
+                &taskTree, [] { qDebug() << "The copying finished successfully."; });
+        tasktree.start();
     \endcode
 
     In the example above, the inter-task data consists of a QByteArray content
@@ -1659,9 +1792,16 @@ bool TaskTree::isRunning() const
     return d->m_root && d->m_root->isRunning();
 }
 
-bool TaskTree::runBlocking(const QFuture<void> &future, int timeoutMs)
+bool TaskTree::runBlocking()
 {
-    if (isRunning() || future.isCanceled())
+    QPromise<void> dummy;
+    dummy.start();
+    return runBlocking(dummy.future());
+}
+
+bool TaskTree::runBlocking(const QFuture<void> &future)
+{
+    if (future.isCanceled())
         return false;
 
     bool ok = false;
@@ -1680,17 +1820,7 @@ bool TaskTree::runBlocking(const QFuture<void> &future, int timeoutMs)
 
     connect(this, &TaskTree::done, &loop, [finalize] { finalize(true); });
     connect(this, &TaskTree::errorOccurred, &loop, [finalize] { finalize(false); });
-    start();
-    if (!isRunning())
-        return ok;
-
-    QTimer timer;
-    if (timeoutMs) {
-        timer.setSingleShot(true);
-        timer.setInterval(timeoutMs);
-        connect(&timer, &QTimer::timeout, this, &TaskTree::stop);
-        timer.start();
-    }
+    QTimer::singleShot(0, this, &TaskTree::start);
 
     loop.exec(QEventLoop::ExcludeUserInputEvents);
     if (!ok) {
@@ -1700,11 +1830,19 @@ bool TaskTree::runBlocking(const QFuture<void> &future, int timeoutMs)
     return ok;
 }
 
-bool TaskTree::runBlocking(int timeoutMs)
+bool TaskTree::runBlocking(const Group &recipe, milliseconds timeout)
 {
     QPromise<void> dummy;
     dummy.start();
-    return runBlocking(dummy.future(), timeoutMs);
+    return TaskTree::runBlocking(recipe, dummy.future(), timeout);
+}
+
+bool TaskTree::runBlocking(const Group &recipe, const QFuture<void> &future, milliseconds timeout)
+{
+    const Group root = timeout == milliseconds::max() ? recipe
+                                                      : Group { recipe.withTimeout(timeout) };
+    TaskTree taskTree(root);
+    return taskTree.runBlocking(future);
 }
 
 int TaskTree::taskCount() const
@@ -1747,6 +1885,97 @@ TaskTreeTaskAdapter::TaskTreeTaskAdapter()
 void TaskTreeTaskAdapter::start()
 {
     task()->start();
+}
+
+using TimeoutCallback = std::function<void()>;
+
+struct TimerData
+{
+    system_clock::time_point m_deadline;
+    QPointer<QObject> m_context;
+    TimeoutCallback m_callback;
+};
+
+QMutex s_mutex;
+std::atomic_int s_timerId = 0;
+QHash<int, TimerData> s_timerIdToTimerData = {};
+QMultiMap<system_clock::time_point, int> s_deadlineToTimerId = {};
+
+static QList<TimerData> prepareForActivation(int timerId)
+{
+    QMutexLocker lock(&s_mutex);
+    const auto it = s_timerIdToTimerData.constFind(timerId);
+    if (it == s_timerIdToTimerData.cend())
+        return {}; // the timer was already activated
+
+    const system_clock::time_point deadline = it->m_deadline;
+    QList<TimerData> toActivate;
+    auto itMap = s_deadlineToTimerId.cbegin();
+    while (itMap != s_deadlineToTimerId.cend()) {
+        if (itMap.key() > deadline)
+            break;
+
+        const auto it = s_timerIdToTimerData.constFind(itMap.value());
+        if (it != s_timerIdToTimerData.cend()) {
+            toActivate.append(it.value());
+            s_timerIdToTimerData.erase(it);
+        }
+        itMap = s_deadlineToTimerId.erase(itMap);
+    }
+    return toActivate;
+}
+
+static void removeTimerId(int timerId)
+{
+    QMutexLocker lock(&s_mutex);
+    const auto it = s_timerIdToTimerData.constFind(timerId);
+    QTC_ASSERT(it != s_timerIdToTimerData.cend(),
+               qWarning("Removing active timerId failed."); return);
+
+    const system_clock::time_point deadline = it->m_deadline;
+    s_timerIdToTimerData.erase(it);
+
+    const int removedCount = s_deadlineToTimerId.remove(deadline, timerId);
+    QTC_ASSERT(removedCount == 1, qWarning("Removing active timerId failed."); return);
+}
+
+static void handleTimeout(int timerId)
+{
+    const QList<TimerData> toActivate = prepareForActivation(timerId);
+    for (const TimerData &timerData : toActivate) {
+        if (timerData.m_context)
+            QMetaObject::invokeMethod(timerData.m_context.get(), timerData.m_callback);
+    }
+}
+
+static int scheduleTimeout(milliseconds timeout, QObject *context, const TimeoutCallback &callback)
+{
+    const int timerId = s_timerId.fetch_add(1) + 1;
+    const system_clock::time_point deadline = system_clock::now() + timeout;
+    QTimer::singleShot(timeout, context, [timerId] { handleTimeout(timerId); });
+    QMutexLocker lock(&s_mutex);
+    s_timerIdToTimerData.emplace(timerId, TimerData{deadline, context, callback});
+    s_deadlineToTimerId.insert(deadline, timerId);
+    return timerId;
+}
+
+TimeoutTaskAdapter::TimeoutTaskAdapter()
+{
+    *task() = std::chrono::milliseconds::zero();
+}
+
+TimeoutTaskAdapter::~TimeoutTaskAdapter()
+{
+    if (m_timerId)
+        removeTimerId(*m_timerId);
+}
+
+void TimeoutTaskAdapter::start()
+{
+    if (*task() == milliseconds::zero())
+        QTimer::singleShot(0, this, [this] { emit done(true); });
+    else
+        m_timerId = scheduleTimeout(*task(), this, [this] { m_timerId = {}; emit done(true); });
 }
 
 } // namespace Tasking

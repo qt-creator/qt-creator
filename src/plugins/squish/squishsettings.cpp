@@ -33,6 +33,12 @@ namespace Internal {
 
 SquishSettings::SquishSettings()
 {
+    setId("A.Squish.General");
+    setDisplayName(Tr::tr("General"));
+    setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
+    setDisplayCategory("Squish");
+    setCategoryIcon(Icon({{":/squish/images/settingscategory_squish.png",
+                           Theme::PanelTextColorDark}}, Icon::Tint));
     setSettingsGroup("Squish");
     setAutoApply(false);
 
@@ -85,6 +91,19 @@ SquishSettings::SquishSettings()
         serverHost.setEnabled(!checked);
         serverPort.setEnabled(!checked);
     });
+
+    setLayouter([this] {
+        using namespace Layouting;
+        return Form {
+            squishPath, br,
+            licensePath, br,
+            local, serverHost, serverPort, br,
+            verbose, br,
+            minimizeIDE, br,
+        };
+    });
+
+    readSettings();
 }
 
 Utils::FilePath SquishSettings::scriptsPath(Language language) const
@@ -99,31 +118,6 @@ Utils::FilePath SquishSettings::scriptsPath(Language language) const
     }
 
     return scripts.isReadableDir() ? scripts : Utils::FilePath();
-}
-
-SquishSettingsPage::SquishSettingsPage(SquishSettings *settings)
-{
-    setId("A.Squish.General");
-    setDisplayName(Tr::tr("General"));
-    setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
-    setDisplayCategory("Squish");
-    setCategoryIcon(Icon({{":/squish/images/settingscategory_squish.png",
-                           Theme::PanelTextColorDark}}, Icon::Tint));
-
-    setSettings(settings);
-
-    setLayouter([settings](QWidget *widget) {
-        SquishSettings &s = *settings;
-        using namespace Layouting;
-
-        Form {
-            s.squishPath, br,
-            s.licensePath, br,
-            s.local, s.serverHost, s.serverPort, br,
-            s.verbose, br,
-            s.minimizeIDE, br,
-        }.attachTo(widget);
-    });
 }
 
 SquishServerSettings::SquishServerSettings()

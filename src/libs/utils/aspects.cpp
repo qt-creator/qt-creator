@@ -670,6 +670,7 @@ public:
     // Used to block recursive editingFinished signals for example when return is pressed, and
     // the validation changes focus by opening a dialog
     bool m_blockAutoApply = false;
+    bool m_allowPathFromDevice = true;
 
     template<class Widget> void updateWidgetFromCheckStatus(StringAspect *aspect, Widget *w)
     {
@@ -977,6 +978,13 @@ void StringAspect::setCommandVersionArguments(const QStringList &arguments)
         d->m_pathChooserDisplay->setCommandVersionArguments(arguments);
 }
 
+void StringAspect::setAllowPathFromDevice(bool allowPathFromDevice)
+{
+    d->m_allowPathFromDevice = allowPathFromDevice;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setAllowPathFromDevice(allowPathFromDevice);
+}
+
 /*!
     Sets \a elideMode as label elide mode.
 */
@@ -1122,6 +1130,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->m_pathChooserDisplay->setPromptDialogFilter(d->m_prompDialogFilter);
         d->m_pathChooserDisplay->setPromptDialogTitle(d->m_prompDialogTitle);
         d->m_pathChooserDisplay->setCommandVersionArguments(d->m_commandVersionArguments);
+        d->m_pathChooserDisplay->setAllowPathFromDevice(d->m_allowPathFromDevice);
         if (defaultValue() == value())
             d->m_pathChooserDisplay->setDefaultValue(defaultValue());
         else
@@ -2153,8 +2162,11 @@ void DoubleAspect::setSingleStep(double step)
     Its visual representation is a QComboBox with three items.
 */
 
-TriStateAspect::TriStateAspect(const QString &onString, const QString &offString,
+TriStateAspect::TriStateAspect(AspectContainer *container,
+                               const QString &onString,
+                               const QString &offString,
                                const QString &defaultString)
+    : SelectionAspect(container)
 {
     setDisplayStyle(DisplayStyle::ComboBox);
     setDefaultValue(TriState::Default);
@@ -2308,7 +2320,7 @@ QList<int> IntegersAspect::value() const
 
 void IntegersAspect::setValue(const QList<int> &value)
 {
-    BaseAspect::setValue(transform(value, &QVariant::fromValue<int>));
+    BaseAspect::setValue(transform(value, [](int i) { return QVariant::fromValue<int>(i); }));
 }
 
 QList<int> IntegersAspect::defaultValue() const
@@ -2319,7 +2331,7 @@ QList<int> IntegersAspect::defaultValue() const
 
 void IntegersAspect::setDefaultValue(const QList<int> &value)
 {
-    BaseAspect::setDefaultValue(transform(value, &QVariant::fromValue<int>));
+    BaseAspect::setDefaultValue(transform(value, [](int i) { return QVariant::fromValue<int>(i); }));
 }
 
 
@@ -2333,6 +2345,10 @@ void IntegersAspect::setDefaultValue(const QList<int> &value)
 
     A text display does not have a real value.
 */
+
+TextDisplay::TextDisplay(AspectContainer *container)
+    : BaseAspect(container)
+{}
 
 /*!
     Constructs a text display showing the \a message with an icon representing

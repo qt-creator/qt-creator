@@ -629,12 +629,18 @@ FilePathInfo::FileFlags fileInfoFlagsfromStatMode(const QString &hexString, int 
 
     FilePathInfo::FileFlags result;
 
-    if (mode & IRUSR)
+    if (mode & IRUSR) {
         result |= FilePathInfo::ReadOwnerPerm;
-    if (mode & IWUSR)
+        result |= FilePathInfo::ReadUserPerm;
+    }
+    if (mode & IWUSR) {
         result |= FilePathInfo::WriteOwnerPerm;
-    if (mode & IXUSR)
+        result |= FilePathInfo::WriteUserPerm;
+    }
+    if (mode & IXUSR) {
         result |= FilePathInfo::ExeOwnerPerm;
+        result |= FilePathInfo::ExeUserPerm;
+    }
     if (mode & IRGRP)
         result |= FilePathInfo::ReadGroupPerm;
     if (mode & IWGRP)

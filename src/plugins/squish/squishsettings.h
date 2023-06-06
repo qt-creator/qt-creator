@@ -5,8 +5,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/aspects.h>
-
 #include <QDialog>
 #include <QProcess>
 
@@ -31,7 +29,7 @@ public:
     Utils::BoolAspect animatedCursor{this};
 };
 
-class SquishSettings : public Utils::AspectContainer
+class SquishSettings : public Core::PagedSettings
 {
 public:
     SquishSettings();
@@ -45,12 +43,6 @@ public:
     Utils::BoolAspect local{this};
     Utils::BoolAspect verbose{this};
     Utils::BoolAspect minimizeIDE{this};
-};
-
-class SquishSettingsPage final : public Core::IOptionsPage
-{
-public:
-    SquishSettingsPage(SquishSettings *settings);
 };
 
 class SquishServerSettingsDialog : public QDialog

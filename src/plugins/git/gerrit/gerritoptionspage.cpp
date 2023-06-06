@@ -43,8 +43,8 @@ public:
         curlChooser->setCommandVersionArguments({"-V"});
 
         auto portSpinBox = new QSpinBox(this);
-        portSpinBox->setValue(p->server.port);
         portSpinBox->setRange(1, 65535);
+        portSpinBox->setValue(p->server.port);
 
         auto httpsCheckBox = new QCheckBox(Git::Tr::tr("HTTPS"));
         httpsCheckBox->setChecked(p->https);

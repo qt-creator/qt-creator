@@ -190,7 +190,7 @@ void DocumentClangToolRunner::run()
     vfso().update();
     const ClangDiagnosticConfig config = diagnosticConfig(runSettings.diagnosticConfigId());
     const Environment env = projectBuildEnvironment(project);
-    QList<TaskItem> tasks{parallel};
+    QList<GroupItem> tasks{parallel};
     const auto addClangTool = [this, &runSettings, &config, &env, &tasks](ClangToolType tool) {
         if (!toolEnabled(tool, config, runSettings))
             return;
@@ -209,7 +209,7 @@ void DocumentClangToolRunner::run()
             return !m_document->isModified() || isVFSOverlaySupported(executable);
         };
         const auto outputHandler = [this](const AnalyzeOutputData &output) { onDone(output); };
-        tasks.append(Group{optional, clangToolTask(input, setupHandler, outputHandler)});
+        tasks.append(Group{finishAllAndDone, clangToolTask(input, setupHandler, outputHandler)});
     };
     addClangTool(ClangToolType::Tidy);
     addClangTool(ClangToolType::Clazy);

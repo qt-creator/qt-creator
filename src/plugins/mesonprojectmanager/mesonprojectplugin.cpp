@@ -45,7 +45,7 @@ public:
     ~MesonProjectPluginPrivate() {}
 
 private:
-    GeneralSettingsPage m_generalSettingsPage;
+    Settings m_settings;
     ToolsSettingsPage m_toolslSettingsPage;
     ToolsSettingsAccessor m_toolsSettings;
     MesonToolKitAspect m_mesonKitAspect;
@@ -60,7 +60,6 @@ private:
     void saveAll()
     {
         m_toolsSettings.saveMesonTools(MesonTools::tools(), ICore::dialogParent());
-        Settings::instance()->writeSettings(ICore::settings());
     }
 };
 
@@ -76,7 +75,6 @@ void MesonProjectPlugin::initialize()
     ProjectManager::registerProjectType<MesonProject>(Constants::Project::MIMETYPE);
     FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson.build");
     FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson_options.txt");
-    Settings::instance()->readSettings(ICore::settings());
 }
 
 } // MesonProjectManager::Internal

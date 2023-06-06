@@ -45,7 +45,7 @@ TreeStorage<QString> VcsBaseDiffEditorController::inputStorage() const
     return d->m_inputStorage;
 }
 
-TaskItem VcsBaseDiffEditorController::postProcessTask()
+GroupItem VcsBaseDiffEditorController::postProcessTask()
 {
     const auto setupDiffProcessor = [this](Async<QList<FileData>> &async) {
         const QString *storage = inputStorage().activeStorage();

@@ -365,13 +365,11 @@ TerminalSettings::TerminalSettings()
 {
     s_instance = this;
 
-    setAutoApply(false);
     setSettingsGroup("Terminal");
     setId("Terminal.General");
     setDisplayName("Terminal");
     setCategory("ZY.Terminal");
     setDisplayCategory("Terminal");
-    setSettings(&TerminalSettings::instance());
     setCategoryIconPath(":/terminal/images/settingscategory_terminal.png");
 
     enableTerminal.setSettingsKey("EnableTerminal");
@@ -401,7 +399,6 @@ TerminalSettings::TerminalSettings()
     shell.setSettingsKey("ShellPath");
     shell.setLabelText(Tr::tr("Shell path:"));
     shell.setExpectedKind(PathChooser::ExistingCommand);
-    shell.setDisplayStyle(StringAspect::PathChooserDisplay);
     shell.setHistoryCompleter("Terminal.Shell.History");
     shell.setToolTip(Tr::tr("The shell executable to be started."));
     shell.setDefaultValue(defaultShell());
@@ -483,7 +480,7 @@ TerminalSettings::TerminalSettings()
         auto loadThemeButton = new QPushButton(Tr::tr("Load Theme..."));
         auto resetTheme = new QPushButton(Tr::tr("Reset Theme"));
 
-        connect(loadThemeButton, &QPushButton::clicked, this, [this] {
+        connect(loadThemeButton, &QPushButton::clicked, this, [] {
             const FilePath path = FileUtils::getOpenFilePath(
                 Core::ICore::dialogParent(),
                 "Open Theme",

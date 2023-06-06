@@ -204,7 +204,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
         Storage(diffInputStorage),
         parallel,
         Group {
-            optional,
+            finishAllAndDone,
             ProcessTask(setupDescription, onDescriptionDone, onDescriptionError)
         },
         Group {

@@ -55,8 +55,8 @@ private:
     QString remoteFilePath() const;
     bool isDeploymentNecessary() const final;
     Group deployRecipe() final;
-    TaskItem uploadTask();
-    TaskItem installTask();
+    GroupItem uploadTask();
+    GroupItem installTask();
 
     FilePath m_packageFilePath;
 };
@@ -71,7 +71,7 @@ bool TarPackageDeployStep::isDeploymentNecessary() const
     return hasLocalFileChanged(DeployableFile(m_packageFilePath, {}));
 }
 
-TaskItem TarPackageDeployStep::uploadTask()
+GroupItem TarPackageDeployStep::uploadTask()
 {
     const auto setupHandler = [this](FileTransfer &transfer) {
         const FilesToTransfer files {{m_packageFilePath,
@@ -90,7 +90,7 @@ TaskItem TarPackageDeployStep::uploadTask()
     return FileTransferTask(setupHandler, doneHandler, errorHandler);
 }
 
-TaskItem TarPackageDeployStep::installTask()
+GroupItem TarPackageDeployStep::installTask()
 {
     const auto setupHandler = [this](Process &process) {
         const QString cmdLine = QLatin1String("cd / && tar xvf ") + remoteFilePath()

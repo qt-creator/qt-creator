@@ -70,10 +70,9 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     connect(makeAspect, &ExecutableAspect::changed,
             this, &MakeInstallStep::updateCommandFromAspect);
 
-    const auto installRootAspect = addAspect<StringAspect>();
+    const auto installRootAspect = addAspect<FilePathAspect>();
     installRootAspect->setId(InstallRootAspectId);
     installRootAspect->setSettingsKey(InstallRootAspectId);
-    installRootAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     installRootAspect->setExpectedKind(PathChooser::Directory);
     installRootAspect->setLabelText(Tr::tr("Install root:"));
     installRootAspect->setFilePath(rootPath);

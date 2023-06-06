@@ -7,7 +7,7 @@
 
 #include "fileutils.h"
 
-#include <QMap>
+#include <QHash>
 #include <QMutex>
 #include <QProcess>
 #include <QThread>
@@ -78,8 +78,7 @@ private:
     int m_currentId{0};
 
     QMutex m_commandMutex;
-    // QMap is used here to preserve iterators
-    QMap<quint64, CommandRun> m_commandOutput;
+    QHash<quint64, CommandRun> m_commandOutput;
     QByteArray m_commandBuffer;
 
     State m_shellScriptState = State::Unknown;

@@ -113,8 +113,7 @@ def doSimpleDebugging(currentKit, currentConfigName, expectedBPOrder=[], enableQ
         expectedLabelTexts.append("Running\.")
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(currentKit, ProjectSettings.RUN)
-    ensureChecked(waitForObject("{container=':Qt Creator_Core::Internal::MainWindow' text='Enable QML' "
-                                "type='QCheckBox' unnamed='1' visible='1'}"), enableQml)
+    selectFromCombo(":EnableQMLDebugger_ComboBox", "Enabled" if enableQml else "Disabled")
     switchViewTo(ViewConstants.EDIT)
     if not __startDebugger__(currentKit, currentConfigName):
         return False

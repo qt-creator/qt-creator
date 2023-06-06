@@ -43,7 +43,6 @@ public:
     bool initializeGlobalScripts();
 
     SquishSettings m_squishSettings;
-    SquishSettingsPage m_settingsPage{&m_squishSettings};
     SquishTestTreeModel m_treeModel;
     SquishNavigationWidgetFactory m_navigationWidgetFactory;
     ObjectsMapEditorFactory m_objectsMapEditorFactory;
@@ -57,7 +56,6 @@ SquishPluginPrivate::SquishPluginPrivate()
 {
     qRegisterMetaType<SquishResultItem*>("SquishResultItem*");
 
-    m_squishSettings.readSettings(ICore::settings());
     m_outputPane = SquishOutputPane::instance();
     m_squishTools = new SquishTools;
     initializeMenuEntries();

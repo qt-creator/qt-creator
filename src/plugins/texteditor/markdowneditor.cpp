@@ -30,7 +30,7 @@ const char MARKDOWNVIEWER_MIME_TYPE[] = "text/markdown";
 const char MARKDOWNVIEWER_TEXTEDITOR_RIGHT[] = "Markdown.TextEditorRight";
 const char MARKDOWNVIEWER_SHOW_EDITOR[] = "Markdown.ShowEditor";
 const char MARKDOWNVIEWER_SHOW_PREVIEW[] = "Markdown.ShowPreview";
-const bool kTextEditorRightDefault = true;
+const bool kTextEditorRightDefault = false;
 const bool kShowEditorDefault = true;
 const bool kShowPreviewDefault = true;
 
@@ -67,8 +67,8 @@ public:
         context->setContext(Core::Context(MARKDOWNVIEWER_TEXT_CONTEXT));
         Core::ICore::addContextObject(context);
 
+        m_splitter->addWidget(m_textEditorWidget); // sets splitter->focusWidget() on non-Windows
         m_splitter->addWidget(m_previewWidget);
-        m_splitter->addWidget(m_textEditorWidget);
 
         setContext(Core::Context(MARKDOWNVIEWER_ID));
 
@@ -245,6 +245,8 @@ public:
         if (obj == m_widget && ev->type() == QEvent::FocusIn) {
             if (m_splitter->focusWidget())
                 m_splitter->focusWidget()->setFocus();
+            else if (m_textEditorWidget->isVisible())
+                m_textEditorWidget->setFocus();
             else
                 m_splitter->widget(0)->setFocus();
             return true;

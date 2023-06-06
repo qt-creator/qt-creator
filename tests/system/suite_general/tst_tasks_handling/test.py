@@ -31,7 +31,7 @@ def generateRandomTaskType():
     return 2
 
 def generateMockTasksFile():
-    descriptions = ["", "dummy information", "unknown error", "not found", "syntax error",
+    descriptions = ["dummy information", "unknown error", "not found", "syntax error",
                     "missing information", "unused"]
     tasks = ["warn", "error", "other"]
     isWin = platform.system() in ('Microsoft', 'Windows')
@@ -44,7 +44,7 @@ def generateMockTasksFile():
         tasksType = generateRandomTaskType()
         tasksCount[tasksType] += 1
         tData = tasks[tasksType]
-        dData = descriptions[random.randint(0, 6)]
+        dData = descriptions[random.randint(0, len(descriptions) - 1)]
         tFile.write("%s\t%d\t%s\t%s\n" % (fData, lData, tData, dData))
     tFile.close()
     test.log("Wrote tasks file with %d warnings, %d errors and %d other tasks." % tuple(tasksCount))
@@ -58,7 +58,7 @@ def checkOrUncheckMyTasks():
                                    "My Tasks"))
 
 def getBuildIssuesTypeCounts(model):
-    issueTypes = list(map(lambda x: x.data(Qt.UserRole + 5).toInt(), dumpIndices(model)))
+    issueTypes = list(map(lambda x: x.data(Qt.UserRole + 1).toInt(), dumpIndices(model)))
     result = [issueTypes.count(0), issueTypes.count(1), issueTypes.count(2)]
     if len(issueTypes) != sum(result):
         test.fatal("Found unexpected value(s) for TaskType...")

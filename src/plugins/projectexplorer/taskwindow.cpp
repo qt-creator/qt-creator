@@ -92,7 +92,7 @@ namespace Internal {
 class TaskView : public TreeView
 {
 public:
-    TaskView() { setMouseTracking(true); }
+    TaskView();
     void resizeColumns();
 
 private:
@@ -169,6 +169,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 {
     d->m_model = new Internal::TaskModel(this);
     d->m_filter = new Internal::TaskFilterModel(d->m_model);
+    d->m_filter->setAutoAcceptChildRows(true);
 
     auto agg = new Aggregation::Aggregate;
     agg->add(&d->m_treeView);
@@ -659,6 +660,12 @@ bool TaskDelegate::needsSpecialHandling(const QModelIndex &index) const
     return sourceIndex.internalId();
 }
 
+TaskView::TaskView()
+{
+    setMouseTracking(true);
+    setVerticalScrollMode(ScrollPerPixel);
+}
+
 void TaskView::resizeColumns()
 {
     setColumnWidth(0, width() * 0.85);
@@ -694,7 +701,7 @@ void TaskView::mouseMoveEvent(QMouseEvent *e)
 
 void TaskView::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (m_clickAnchor.isEmpty()) {
+    if (m_clickAnchor.isEmpty() || e->button() == Qt::RightButton) {
         TreeView::mouseReleaseEvent(e);
         return;
     }

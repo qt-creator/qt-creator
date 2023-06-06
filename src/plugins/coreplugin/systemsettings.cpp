@@ -51,8 +51,7 @@ const char showCrashButtonKey[] = "ShowCrashButton";
 // TODO: move to somewhere in Utils
 static QString formatSize(qint64 size)
 {
-    QStringList units {Tr::tr("Bytes"), Tr::tr("KB"), Tr::tr("MB"),
-                       Tr::tr("GB"), Tr::tr("TB")};
+    QStringList units{Tr::tr("Bytes"), Tr::tr("KiB"), Tr::tr("MiB"), Tr::tr("GiB"), Tr::tr("TiB")};
     double outputSize = size;
     int i;
     for (i = 0; i < units.size() - 1; ++i) {

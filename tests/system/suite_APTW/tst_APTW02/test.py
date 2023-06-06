@@ -8,7 +8,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    createNewQtQuickApplication(tempDir(), "SampleApp", buildSystem="qmake")
+    createNewQtQuickApplication(tempDir(), "SampleApp")
     # run project for debug and release and verify results
     runVerify()
     #close Qt Creator
