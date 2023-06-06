@@ -151,12 +151,12 @@ bool FileNameValidatingLineEdit::validateFileNameExtension(const QString &fileNa
     if (!requiredExtensions.isEmpty()) {
         for (const QString &requiredExtension : requiredExtensions) {
             QString extension = QLatin1Char('.') + requiredExtension;
-            if (fileName.endsWith(extension, Qt::CaseSensitive) && extension.count() < fileName.count())
+            if (fileName.endsWith(extension, Qt::CaseSensitive) && extension.size() < fileName.size())
                 return true;
         }
 
         if (errorMessage) {
-            if (requiredExtensions.count() == 1)
+            if (requiredExtensions.size() == 1)
                 *errorMessage = Tr::tr("File extension %1 is required:").arg(requiredExtensions.first());
             else
                 *errorMessage = Tr::tr("File extensions %1 are required:").arg(requiredExtensions.join(QLatin1String(", ")));

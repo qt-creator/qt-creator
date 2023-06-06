@@ -49,7 +49,7 @@ inline static QString doubleToString(const PropertyName &propertyName, double d)
 
 static QString unicodeEscape(const QString &stringValue)
 {
-    if (stringValue.count() == 1) {
+    if (stringValue.size() == 1) {
         ushort code = stringValue.at(0).unicode();
         bool isUnicode = code <= 127;
         if (isUnicode) {
@@ -289,7 +289,7 @@ QString QmlTextGenerator::escape(const QString &value)
 {
     QString result = value;
 
-    if (value.count() == 6 && value.startsWith("\\u")) //Do not dobule escape unicode chars
+    if (value.size() == 6 && value.startsWith("\\u")) //Do not dobule escape unicode chars
         return result;
 
     result.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));

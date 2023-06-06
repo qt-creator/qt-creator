@@ -80,7 +80,7 @@ public:
         QTC_ASSERT((topLevel.isEmpty() && !vc) || (!topLevel.isEmpty() && vc), return);
 
         FilePath tmpDir = dir;
-        while (tmpDir.toString().count() >= topLevelString.count() && !tmpDir.isEmpty()) {
+        while (tmpDir.toString().size() >= topLevelString.size() && !tmpDir.isEmpty()) {
             m_cachedMatches.insert(tmpDir, {vc, topLevel});
             // if no vc was found, this might mean we're inside a repo internal directory (.git)
             // Cache only input directory, not parents
@@ -237,7 +237,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
         for (auto i = allThatCanManage.constBegin(); i != allThatCanManage.constEnd(); ++i) {
             const QString firstString = i->first.toString();
             // If topLevel was already cached for another VC, skip this one
-            if (tmpDir.toString().count() < firstString.count())
+            if (tmpDir.toString().size() < firstString.size())
                 continue;
             d->cache(i->second, i->first, tmpDir);
             tmpDir = i->first.parentDir();
@@ -458,7 +458,7 @@ static FileHash makeHash(const QStringList &list)
     FileHash result;
     for (const QString &i : list) {
         QStringList parts = i.split(QLatin1Char(':'));
-        QTC_ASSERT(parts.count() == 2, continue);
+        QTC_ASSERT(parts.size() == 2, continue);
         result.insert(FilePath::fromString(QString::fromLatin1(TEST_PREFIX) + parts.at(0)),
                       FilePath::fromString(QString::fromLatin1(TEST_PREFIX) + parts.at(1)));
     }
@@ -547,7 +547,7 @@ void CorePlugin::testVcsManager()
         // qDebug() << "Expecting:" << result;
 
         const QStringList split = result.split(QLatin1Char(':'));
-        QCOMPARE(split.count(), 4);
+        QCOMPARE(split.size(), 4);
         QVERIFY(split.at(3) == QLatin1String("*") || split.at(3) == QLatin1String("-"));
 
 

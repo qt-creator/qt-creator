@@ -2405,7 +2405,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
         const int pos = line.lastIndexOf(pattern);
         if (pos != -1) {
             branchFound = true;
-            const QString branchName = line.mid(pos + pattern.count());
+            const QString branchName = line.mid(pos + pattern.size());
             if (!headFound && line.startsWith(headSha)) {
                 branches[0] = branchName;
                 headFound = true;
@@ -2816,7 +2816,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
             if (state & (ModifiedFile | AddedFile | DeletedFile | TypeChangedFile)) {
                 filesToReset.append(file);
             } else if (state & (RenamedFile | CopiedFile)) {
-                const QString newFile = file.mid(file.indexOf(renameSeparator) + renameSeparator.count());
+                const QString newFile = file.mid(file.indexOf(renameSeparator) + renameSeparator.size());
                 filesToReset.append(newFile);
             }
         } else if (state & UnmergedFile && checked) {

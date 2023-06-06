@@ -91,7 +91,7 @@ bool operator<(const CommitData::StateFilePair &a, const CommitData::StateFilePa
 
 bool CommitData::checkLine(const QString &stateInfo, const QString &file)
 {
-    QTC_ASSERT(stateInfo.count() == 2, return false);
+    QTC_ASSERT(stateInfo.size() == 2, return false);
 
     if (stateInfo == "??") {
         files.push_back({FileStates(UntrackedFile), file});

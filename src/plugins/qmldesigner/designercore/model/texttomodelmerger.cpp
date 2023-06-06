@@ -165,7 +165,7 @@ bool isHexDigit(ushort c)
 
 QString fixEscapedUnicodeChar(const QString &value) //convert "\u2939"
 {
-    if (value.count() == 6 && value.at(0) == QLatin1Char('\\') && value.at(1) == QLatin1Char('u') &&
+    if (value.size() == 6 && value.at(0) == QLatin1Char('\\') && value.at(1) == QLatin1Char('u') &&
         isHexDigit(value.at(2).unicode()) && isHexDigit(value.at(3).unicode()) &&
         isHexDigit(value.at(4).unicode()) && isHexDigit(value.at(5).unicode())) {
             return convertUnicode(value.at(2).unicode(), value.at(3).unicode(), value.at(4).unicode(), value.at(5).unicode());
@@ -655,7 +655,7 @@ public:
     {
         QStringList astValueList = astValue.split(QStringLiteral("."));
 
-        if (astValueList.count() == 2) {
+        if (astValueList.size() == 2) {
             //Check for global Qt enums
             if (astValueList.constFirst() == QStringLiteral("Qt")
                     && globalQtEnums().contains(astValueList.constLast()))

@@ -339,7 +339,7 @@ static QString addConstRefIfNeeded(const QString &argument)
                                                          "long", "short", "char", "signed",
                                                          "unsigned", "qint64", "quint64"});
 
-    for (int i = 0; i < nonConstRefs.count(); i++) {
+    for (int i = 0; i < nonConstRefs.size(); i++) {
         const QString &nonConstRef = nonConstRefs.at(i);
         if (argument == nonConstRef || argument.startsWith(nonConstRef + ' '))
             return argument;
@@ -350,7 +350,7 @@ static QString addConstRefIfNeeded(const QString &argument)
 static QString formatArgument(const QString &argument)
 {
     QString formattedArgument = argument;
-    int i = argument.count();
+    int i = argument.size();
     while (i > 0) { // from the end of the "argument" string
         i--;
         const QChar c = argument.at(i); // take the char
@@ -373,8 +373,8 @@ static QString addParameterNames(const QString &functionSignature, const QString
     if (lastParen != -1)
         argumentsString.truncate(lastParen);
     const QStringList arguments = argumentsString.split(',', Qt::SkipEmptyParts);
-    const int pCount = parameterNames.count();
-    const int aCount = arguments.count();
+    const int pCount = parameterNames.size();
+    const int aCount = arguments.size();
     for (int i = 0; i < aCount; ++i) {
         if (i > 0)
             functionName += ", ";
