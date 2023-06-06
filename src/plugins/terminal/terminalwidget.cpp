@@ -252,23 +252,40 @@ void TerminalWidget::setupColors()
     update();
 }
 
+static RegisteredAction registerAction(Id commandId, const Context &context)
+{
+    QAction *action = new QAction;
+    ActionManager::registerAction(action, commandId, context);
+
+    return RegisteredAction(action, [commandId](QAction *a) {
+        ActionManager::unregisterAction(a, commandId);
+        delete a;
+    });
+}
+
 void TerminalWidget::setupActions()
 {
-    ActionManager::registerAction(&m_copy, Constants::COPY, m_context);
-    ActionManager::registerAction(&m_paste, Constants::PASTE, m_context);
-    ActionManager::registerAction(&m_close, Core::Constants::CLOSE, m_context);
-    ActionManager::registerAction(&m_clearTerminal, Constants::CLEAR_TERMINAL, m_context);
-    ActionManager::registerAction(&m_clearSelection, Constants::CLEARSELECTION, m_context);
-    ActionManager::registerAction(&m_moveCursorWordLeft, Constants::MOVECURSORWORDLEFT, m_context);
-    ActionManager::registerAction(&m_moveCursorWordRight, Constants::MOVECURSORWORDRIGHT, m_context);
+    m_copy = registerAction(Constants::COPY, m_context);
+    m_paste = registerAction(Constants::PASTE, m_context);
+    m_close = registerAction(Core::Constants::CLOSE, m_context);
+    m_clearTerminal = registerAction(Constants::CLEAR_TERMINAL, m_context);
+    m_clearSelection = registerAction(Constants::CLEARSELECTION, m_context);
+    m_moveCursorWordLeft = registerAction(Constants::MOVECURSORWORDLEFT, m_context);
+    m_moveCursorWordRight = registerAction(Constants::MOVECURSORWORDRIGHT, m_context);
 
-    connect(&m_copy, &QAction::triggered, this, &TerminalWidget::copyToClipboard);
-    connect(&m_paste, &QAction::triggered, this, &TerminalWidget::pasteFromClipboard);
-    connect(&m_close, &QAction::triggered, this, &TerminalWidget::closeTerminal);
-    connect(&m_clearTerminal, &QAction::triggered, this, &TerminalWidget::clearContents);
-    connect(&m_clearSelection, &QAction::triggered, this, &TerminalWidget::clearSelection);
-    connect(&m_moveCursorWordLeft, &QAction::triggered, this, &TerminalWidget::moveCursorWordLeft);
-    connect(&m_moveCursorWordRight, &QAction::triggered, this, &TerminalWidget::moveCursorWordRight);
+    connect(m_copy.get(), &QAction::triggered, this, &TerminalWidget::copyToClipboard);
+    connect(m_paste.get(), &QAction::triggered, this, &TerminalWidget::pasteFromClipboard);
+    connect(m_close.get(), &QAction::triggered, this, &TerminalWidget::closeTerminal);
+    connect(m_clearTerminal.get(), &QAction::triggered, this, &TerminalWidget::clearContents);
+    connect(m_clearSelection.get(), &QAction::triggered, this, &TerminalWidget::clearSelection);
+    connect(m_moveCursorWordLeft.get(),
+            &QAction::triggered,
+            this,
+            &TerminalWidget::moveCursorWordLeft);
+    connect(m_moveCursorWordRight.get(),
+            &QAction::triggered,
+            this,
+            &TerminalWidget::moveCursorWordRight);
 
     m_exit = unlockGlobalAction(Core::Constants::EXIT, m_context);
     m_options = unlockGlobalAction(Core::Constants::OPTIONS, m_context);
@@ -401,7 +418,7 @@ void TerminalWidget::updateCopyState()
     if (!hasFocus())
         return;
 
-    m_copy.setEnabled(m_selection.has_value());
+    m_copy->setEnabled(m_selection.has_value());
 }
 
 void TerminalWidget::setFont(const QFont &font)
@@ -1095,7 +1112,7 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
         }
 
         if (m_selection)
-            m_clearSelection.trigger();
+            m_clearSelection->trigger();
         else {
             QAction *returnAction = ActionManager::command(Core::Constants::S_RETURNTOEDITOR)
                                         ->actionForContext(Core::Constants::C_GLOBAL);
