@@ -27,7 +27,7 @@ namespace Internal {
 
 BreakpointParameters::BreakpointParameters(BreakpointType t)
   : type(t), enabled(true), pathUsage(BreakpointPathUsageEngineDefault),
-    ignoreCount(0), lineNumber(0), address(0), size(0),
+    ignoreCount(0),  address(0), size(0),
     bitpos(0), bitsize(0), threadSpec(-1),
     tracepoint(false), oneShot(false)
 {}
@@ -48,7 +48,7 @@ BreakpointParts BreakpointParameters::differencesTo
         parts |= ConditionPart;
     if (ignoreCount != rhs.ignoreCount)
         parts |= IgnoreCountPart;
-    if (lineNumber != rhs.lineNumber)
+    if (textPosition != rhs.textPosition)
         parts |= FileAndLinePart;
     if (address != rhs.address)
         parts |= AddressPart;
@@ -73,7 +73,7 @@ bool BreakpointParameters::isValid() const
 {
     switch (type) {
     case BreakpointByFileAndLine:
-        return !fileName.isEmpty() && lineNumber > 0;
+        return !fileName.isEmpty() && textPosition.line > 0;
     case BreakpointByFunction:
         return !functionName.isEmpty();
     case WatchpointAtAddress:
@@ -116,7 +116,7 @@ void BreakpointParameters::updateLocation(const QString &location)
 {
     if (!location.isEmpty()) {
         int pos = location.indexOf(':');
-        lineNumber = location.mid(pos + 1).toInt();
+        textPosition.line = location.mid(pos + 1).toInt();  // FIXME: Handle column
         QString file = location.left(pos);
         if (file.startsWith('"') && file.endsWith('"'))
             file = file.mid(1, file.size() - 2);
@@ -164,8 +164,8 @@ QString BreakpointParameters::toString() const
     ts << "Type: " << type;
     switch (type) {
     case BreakpointByFileAndLine:
-        ts << " FileName: " << fileName << ':' << lineNumber
-           << " PathUsage: " << pathUsage;
+        ts << " FileName: " << fileName << ':' << textPosition.line;
+        ts << " PathUsage: " << pathUsage;
         break;
     case BreakpointByFunction:
     case BreakpointOnQmlSignalEmit:
@@ -295,7 +295,7 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Utils::F
         } else if (child.hasName("fullname")) {
             fullName = child.data();
         } else if (child.hasName("line")) {
-            lineNumber = child.toInt();
+            textPosition.line = child.toInt();
         } else if (child.hasName("cond")) {
             // gdb 6.3 likes to "rewrite" conditions. Just accept that fact.
             condition = child.data();

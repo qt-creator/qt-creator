@@ -220,7 +220,7 @@ void PdbEngine::insertBreakpoint(const Breakpoint &bp)
     if (params.type  == BreakpointByFunction)
         loc = params.functionName;
     else
-        loc = params.fileName.toString() + ':' + QString::number(params.lineNumber);
+        loc = params.fileName.toString() + ':' + QString::number(params.textPosition.line);
 
     postDirectCommand("break " + loc);
 }
@@ -476,7 +476,7 @@ void PdbEngine::handleOutput2(const QString &data)
             QTC_ASSERT(bp, continue);
             bp->setResponseId(bpnr);
             bp->setFileName(fileName);
-            bp->setLineNumber(lineNumber);
+            bp->setTextPosition({lineNumber, -1});
             bp->adjustMarker();
             bp->setPending(false);
             notifyBreakpointInsertOk(bp);

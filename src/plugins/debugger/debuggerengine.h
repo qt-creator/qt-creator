@@ -219,12 +219,14 @@ public:
     Location(quint64 address) { m_address = address; }
     Location(const Utils::FilePath &file) { m_fileName = file; }
     Location(const Utils::FilePath &file, int line, bool marker = true)
-        { m_lineNumber = line; m_fileName = file; m_needsMarker = marker; }
+        { m_textPosition = {line, -1}; m_fileName = file; m_needsMarker = marker; }
+    Location(const Utils::FilePath &file, const Utils::Text::Position &pos, bool marker = true)
+        { m_textPosition = pos; m_fileName = file; m_needsMarker = marker; }
     Location(const StackFrame &frame, bool marker = true);
     Utils::FilePath fileName() const { return m_fileName; }
     QString functionName() const { return m_functionName; }
     QString from() const { return m_from; }
-    int lineNumber() const { return m_lineNumber; }
+    Utils::Text::Position textPosition() const { return m_textPosition; }
     void setNeedsRaise(bool on) { m_needsRaise = on; }
     void setNeedsMarker(bool on) { m_needsMarker = on; }
     void setFileName(const Utils::FilePath &fileName) { m_fileName = fileName; }
@@ -240,7 +242,7 @@ private:
     bool m_needsMarker = false;
     bool m_needsRaise = true;
     bool m_hasDebugInfo = true;
-    int m_lineNumber = -1;
+    Utils::Text::Position m_textPosition;
     Utils::FilePath m_fileName;
     QString m_functionName;
     QString m_from;

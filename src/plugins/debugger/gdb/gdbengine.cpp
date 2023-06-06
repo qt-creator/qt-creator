@@ -1211,9 +1211,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         if (Breakpoint bp = breakHandler()->findBreakpointByResponseId(nr)) {
             const FilePath &bpFileName = bp->fileName();
             if (!bpFileName.isEmpty())
-                bp->setMarkerFileAndLine(bpFileName, lineNumber);
+                bp->setMarkerFileAndPosition(bpFileName, {lineNumber, -1});
             else if (!fileName.isEmpty())
-                bp->setMarkerFileAndLine(fileName, lineNumber);
+                bp->setMarkerFileAndPosition(fileName, {lineNumber, -1});
         }
     }
 
@@ -1946,13 +1946,13 @@ void GdbEngine::executeRunToLine(const ContextData &data)
     CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
     notifyInferiorRunRequested();
-    showStatusMessage(Tr::tr("Run to line %1 requested...").arg(data.lineNumber), 5000);
+    showStatusMessage(Tr::tr("Run to line %1 requested...").arg(data.textPosition.line), 5000);
 #if 1
     QString loc;
     if (data.address)
         loc = addressSpec(data.address);
     else
-        loc = '"' + breakLocation(data.fileName) + '"' + ':' + QString::number(data.lineNumber);
+        loc = '"' + breakLocation(data.fileName) + '"' + ':' + QString::number(data.textPosition.line);
     runCommand({"tbreak " + loc});
 
     runCommand({"continue", NativeCommand|RunRequest, CB(handleExecuteRunToLine)});
@@ -1980,7 +1980,7 @@ void GdbEngine::executeJumpToLine(const ContextData &data)
     if (data.address)
         loc = addressSpec(data.address);
     else
-        loc = '"' + breakLocation(data.fileName) + '"' + ':' + QString::number(data.lineNumber);
+        loc = '"' + breakLocation(data.fileName) + '"' + ':' + QString::number(data.textPosition.line);
     runCommand({"tbreak " + loc});
     notifyInferiorRunRequested();
 
@@ -2086,7 +2086,7 @@ QString GdbEngine::breakpointLocation(const BreakpointParameters &data)
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.
     return "\"\\\"" + GdbMi::escapeCString(fileName) + "\\\":"
-        + QString::number(data.lineNumber) + '"';
+        + QString::number(data.textPosition.line) + '"';
 }
 
 QString GdbEngine::breakpointLocation2(const BreakpointParameters &data)
@@ -2097,7 +2097,7 @@ QString GdbEngine::breakpointLocation2(const BreakpointParameters &data)
 
     const QString fileName = usage == BreakpointUseFullPath
         ? data.fileName.path() : breakLocation(data.fileName);
-    return GdbMi::escapeCString(fileName) + ':' + QString::number(data.lineNumber);
+    return GdbMi::escapeCString(fileName) + ':' + QString::number(data.textPosition.line);
 }
 
 void GdbEngine::handleInsertInterpreterBreakpoint(const DebuggerResponse &response,
@@ -2236,7 +2236,7 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, const Break
         // Older version of gdb don't know the -a option to set tracepoints
         // ^error,msg="mi_cmd_break_insert: Unknown option ``a''"
         const QString fileName = bp->fileName().toString();
-        const int lineNumber = bp->lineNumber();
+        const int lineNumber = bp->textPosition().line;
         DebuggerCommand cmd("trace \"" + GdbMi::escapeCString(fileName) + "\":"
                             + QString::number(lineNumber),
                             NeedsTemporaryStop);

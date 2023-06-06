@@ -12,6 +12,7 @@
 #include <QVector>
 
 #include <utils/filepath.h>
+#include <utils/textutils.h>
 
 namespace Utils { class ProcessHandle; }
 
@@ -326,7 +327,7 @@ public:
 public:
     LocationType type = UnknownLocation;
     Utils::FilePath fileName;
-    int lineNumber = 0;
+    Utils::Text::Position textPosition;
     quint64 address = 0;
 };
 

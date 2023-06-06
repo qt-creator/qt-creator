@@ -603,10 +603,10 @@ void QmlEngine::executeRunToLine(const ContextData &data)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     showStatusMessage(Tr::tr("Run to line %1 (%2) requested...")
-                          .arg(data.lineNumber)
+                          .arg(data.textPosition.line)
                           .arg(data.fileName.toString()),
                       5000);
-    d->setBreakpoint(SCRIPTREGEXP, data.fileName.toString(), true, data.lineNumber);
+    d->setBreakpoint(SCRIPTREGEXP, data.fileName.toString(), true, data.textPosition.line);
     clearExceptionSelection();
     d->continueDebugging(Continue);
 
@@ -658,7 +658,7 @@ void QmlEngine::insertBreakpoint(const Breakpoint &bp)
 
     } else if (requested.type == BreakpointByFileAndLine) {
         d->setBreakpoint(SCRIPTREGEXP, requested.fileName.toString(),
-                         requested.enabled, requested.lineNumber, 0,
+                         requested.enabled, requested.textPosition.line, 0,
                          requested.condition, requested.ignoreCount);
 
     } else if (requested.type == BreakpointOnQmlSignalEmit) {
@@ -716,7 +716,7 @@ void QmlEngine::updateBreakpoint(const Breakpoint &bp)
     } else {
         d->clearBreakpoint(bp);
         d->setBreakpoint(SCRIPTREGEXP, requested.fileName.toString(),
-                         requested.enabled, requested.lineNumber, 0,
+                         requested.enabled, requested.textPosition.line, 0,
                          requested.condition, requested.ignoreCount);
         d->breakpointsSync.insert(d->sequence, bp);
     }
@@ -1727,7 +1727,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                             //The breakpoint requested line should be same as
                             //actual line
                             if (bp && bp->state() != BreakpointInserted) {
-                                bp->setLineNumber(line);
+                                bp->setTextPosition({line, -1});
                                 bp->setPending(false);
                                 engine->notifyBreakpointInsertOk(bp);
                             }
@@ -1865,7 +1865,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                             setBreakpoint(SCRIPTREGEXP,
                                           params.fileName.toString(),
                                           params.enabled,
-                                          params.lineNumber,
+                                          params.textPosition.line,
                                           newColumn,
                                           params.condition,
                                           params.ignoreCount);
@@ -1889,7 +1889,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                                 bp->setFunctionName(invocationText);
                             }
                             if (bp->state() != BreakpointInserted) {
-                                bp->setLineNumber(breakData.value("sourceLine").toInt() + 1);
+                                bp->setTextPosition({breakData.value("sourceLine").toInt() + 1, -1});
                                 bp->setPending(false);
                                 engine->notifyBreakpointInsertOk(bp);
                             }

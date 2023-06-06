@@ -818,7 +818,7 @@ void CdbEngine::executeRunToLine(const ContextData &data)
     } else {
         bp.type =BreakpointByFileAndLine;
         bp.fileName = data.fileName;
-        bp.lineNumber = data.lineNumber;
+        bp.textPosition = data.textPosition;
     }
 
     runCommand({cdbAddBreakpointCommand(bp, m_sourcePathMappings), BuiltinCommand,
@@ -854,7 +854,7 @@ void CdbEngine::executeJumpToLine(const ContextData &data)
         // Jump to source line: Resolve source line address and go to that location
         QString cmd;
         StringInputStream str(cmd);
-        str << "? `" << data.fileName.toUserOutput() << ':' << data.lineNumber << '`';
+        str << "? `" << data.fileName.toUserOutput() << ':' << data.textPosition.line << '`';
         runCommand({cmd, BuiltinCommand, [this, data](const DebuggerResponse &r) {
                         handleJumpToLineAddressResolution(r, data); }});
     }
@@ -891,7 +891,7 @@ void CdbEngine::handleJumpToLineAddressResolution(const DebuggerResponse &respon
     const quint64 address = answer.toULongLong(&ok, 16);
     if (ok && address) {
         jumpToAddress(address);
-        gotoLocation(Location(context.fileName, context.lineNumber));
+        gotoLocation(Location(context.fileName, context.textPosition));
     }
 }
 
@@ -2505,8 +2505,9 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
     if (!m_autoBreakPointCorrection
             && parameters.type == BreakpointByFileAndLine
             && debuggerSettings()->cdbBreakPointCorrection.value()) {
-        response.lineNumber = int(lineCorrection->fixLineNumber(parameters.fileName,
-                                                                unsigned(parameters.lineNumber)));
+        response.textPosition.line =
+            int(lineCorrection->fixLineNumber(parameters.fileName,
+                                              unsigned(parameters.textPosition.line)));
         QString cmd = cdbAddBreakpointCommand(response, m_sourcePathMappings, responseId);
         runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
     } else {
@@ -2979,7 +2980,7 @@ BreakpointParameters CdbEngine::parseBreakPoint(const GdbMi &gdbmi)
         result.fileName = Utils::FilePath::fromUserInput(mappedFile.fileName);
         const GdbMi lineNumber = gdbmi["srcline"];
         if (lineNumber.isValid())
-            result.lineNumber = lineNumber.data().toULongLong(nullptr, 0);
+            result.textPosition.line = lineNumber.data().toULongLong(nullptr, 0);
     }
     const GdbMi addressG = gdbmi["address"];
     if (addressG.isValid())
@@ -3036,7 +3037,7 @@ void CdbEngine::handleBreakPoints(const DebuggerResponse &response)
                 currentResponse.pending = reportedResponse.pending;
                 currentResponse.enabled = reportedResponse.enabled;
                 currentResponse.fileName = reportedResponse.fileName;
-                currentResponse.lineNumber = reportedResponse.lineNumber;
+                currentResponse.textPosition = reportedResponse.textPosition;
                 formatCdbBreakPointResponse(bp->modelId(), responseId, currentResponse, str);
                 if (debugBreakpoints)
                     qDebug("  Setting for %s: %s\n", qPrintable(responseId),
@@ -3053,7 +3054,7 @@ void CdbEngine::handleBreakPoints(const DebuggerResponse &response)
                 currentResponse.pending = reportedResponse.pending;
                 currentResponse.enabled = reportedResponse.enabled;
                 currentResponse.fileName = reportedResponse.fileName;
-                currentResponse.lineNumber = reportedResponse.lineNumber;
+                currentResponse.textPosition = reportedResponse.textPosition;
                 Breakpoint bp = sub->breakpoint();
                 QTC_ASSERT(bp, continue);
                 formatCdbBreakPointResponse(bp->modelId(), responseId, currentResponse, str);
