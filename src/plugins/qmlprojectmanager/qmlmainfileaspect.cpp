@@ -210,7 +210,7 @@ void QmlMainFileAspect::changeCurrentFile(Core::IEditor *editor)
 bool QmlMainFileAspect::isQmlFilePresent()
 {
     bool qmlFileFound = false;
-    if (mainScriptSource() == FileInEditor) {
+    if (mainScriptSource() == FileInEditor && !mainScript().isEmpty()) {
         IDocument *document = EditorManager::currentDocument();
         const MimeType mainScriptMimeType = mimeTypeForFile(mainScript());
         if (document) {
