@@ -59,6 +59,8 @@ protected:
     void setupScene(const CreateSceneCommand &command) override;
     const QList<QQuickItem*> allItems() const;
     bool rootIsRenderable3DObject() const;
+    void savePipelineCacheData();
+    void setPipelineCacheConfig(QQuickWindow *w);
 
     struct RenderViewData {
         QPointer<QQuickWindow> window = nullptr;
@@ -80,6 +82,9 @@ protected:
 
 private:
     RenderViewData m_viewData;
+    QByteArray m_pipelineCacheData;
+    QString m_pipelineCacheLocation;
+    QString m_pipelineCacheFile;
     std::unique_ptr<QQuickDesignerSupport> m_designerSupport;
     QQmlEngine *m_qmlEngine = nullptr;
 };

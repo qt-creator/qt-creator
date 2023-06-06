@@ -179,6 +179,7 @@ void Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUrl &url,
 #else
     viewData.renderControl = new QQuickRenderControl;
     viewData.window = new QQuickWindow(viewData.renderControl);
+    setPipelineCacheConfig(viewData.window);
     viewData.renderControl->initialize();
 #endif
     QQmlComponent component(engine());
@@ -1130,6 +1131,16 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
             m_render3DEditViewTimer.start(17); // 16.67ms = ~60fps, rounds up to 17
             --m_need3DEditViewRender;
         }
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+        else {
+            static bool pipelineSaved = false;
+            if (!pipelineSaved) {
+                // Store pipeline cache for quicker initialization in future
+                savePipelineCacheData();
+                pipelineSaved = true;
+            }
+        }
+#endif
 
 #ifdef FPS_COUNTER
         // Force constant rendering for accurate fps count
