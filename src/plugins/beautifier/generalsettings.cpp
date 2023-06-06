@@ -56,6 +56,7 @@ GeneralSettings::GeneralSettings()
             st
         };
     });
+    readSettings();
 }
 
 QList<MimeType> GeneralSettings::allowedMimeTypes() const
