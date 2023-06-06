@@ -2320,7 +2320,7 @@ QList<int> IntegersAspect::value() const
 
 void IntegersAspect::setValue(const QList<int> &value)
 {
-    BaseAspect::setValue(transform(value, &QVariant::fromValue<int>));
+    BaseAspect::setValue(transform(value, [](int i) { return QVariant::fromValue<int>(i); }));
 }
 
 QList<int> IntegersAspect::defaultValue() const
@@ -2331,7 +2331,7 @@ QList<int> IntegersAspect::defaultValue() const
 
 void IntegersAspect::setDefaultValue(const QList<int> &value)
 {
-    BaseAspect::setDefaultValue(transform(value, &QVariant::fromValue<int>));
+    BaseAspect::setDefaultValue(transform(value, [](int i) { return QVariant::fromValue<int>(i); }));
 }
 
 
