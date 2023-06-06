@@ -150,7 +150,7 @@ QVariant JsonFieldPage::Field::toSettings() const
 
 JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString *errorMessage)
 {
-    if (input.type() != QVariant::Map) {
+    if (input.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("Field is not an object.");
         return nullptr;
     }
@@ -393,7 +393,7 @@ QDebug &operator<<(QDebug &debug, const JsonFieldPage::Field &field)
 
 bool LabelField::parseData(const QVariant &data, QString *errorMessage)
 {
-    if (data.type() != QVariant::Map) {
+    if (data.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("Label (\"%1\") data is not an object.").arg(name());
         return false;
     }
@@ -431,7 +431,7 @@ bool SpacerField::parseData(const QVariant &data, QString *errorMessage)
     if (data.isNull())
         return true;
 
-    if (data.type() != QVariant::Map) {
+    if (data.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("Spacer (\"%1\") data is not an object.").arg(name());
         return false;
     }
@@ -476,7 +476,7 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
     if (data.isNull())
         return true;
 
-    if (data.type() != QVariant::Map) {
+    if (data.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("LineEdit (\"%1\") data is not an object.").arg(name());
         return false;
     }
@@ -673,7 +673,7 @@ bool TextEditField::parseData(const QVariant &data, QString *errorMessage)
     if (data.isNull())
         return true;
 
-    if (data.type() != QVariant::Map) {
+    if (data.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("TextEdit (\"%1\") data is not an object.")
                 .arg(name());
         return false;
@@ -756,7 +756,7 @@ bool PathChooserField::parseData(const QVariant &data, QString *errorMessage)
     if (data.isNull())
         return true;
 
-    if (data.type() != QVariant::Map) {
+    if (data.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("PathChooser data is not an object.");
         return false;
     }
@@ -861,7 +861,7 @@ bool CheckBoxField::parseData(const QVariant &data, QString *errorMessage)
     if (data.isNull())
         return true;
 
-    if (data.type() != QVariant::Map) {
+    if (data.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("CheckBox (\"%1\") data is not an object.").arg(name());
         return false;
     }
