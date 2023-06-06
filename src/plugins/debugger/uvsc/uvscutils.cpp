@@ -73,8 +73,8 @@ QByteArray encodeBreakPoint(BKTYPE type, const QString &exp, const QString &cmd)
     bkPtr->type = type;
     bkPtr->count = 1;
     bkPtr->accessSize = 0;
-    bkPtr->expressionLength = asciiExp.count() + 1;
-    bkPtr->commandLength = asciiCmd.count() + 1;
+    bkPtr->expressionLength = asciiExp.size() + 1;
+    bkPtr->commandLength = asciiCmd.size() + 1;
     return buffer;
 }
 
@@ -185,7 +185,7 @@ QString adjustHexValue(QString hex, const QString &type)
         return QString::number(v);
     } else {
         const bool isUnsigned = type.startsWith("unsigned");
-        switch (data.count()) {
+        switch (data.size()) {
         case 1:
             if (isUnsigned) {
                 quint8 v = 0;

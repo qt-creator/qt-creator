@@ -133,7 +133,7 @@ bool FileSaverBase::write(const QByteArray &bytes)
 {
     if (m_hasError)
         return false;
-    return setResult(m_file->write(bytes) == bytes.count());
+    return setResult(m_file->write(bytes) == bytes.size());
 }
 
 bool FileSaverBase::setResult(bool ok)

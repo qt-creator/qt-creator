@@ -581,7 +581,7 @@ void ObjectNodeInstance::refreshProperty(const PropertyName &name)
 
     if (oldValue.type() == QVariant::Url) {
         QByteArray key = oldValue.toUrl().toEncoded(QUrl::UrlFormattingOption(0x100));
-        QString pixmapKey = QString::fromUtf8(key.constData(), key.count());
+        QString pixmapKey = QString::fromUtf8(key.constData(), key.size());
         QPixmapCache::remove(pixmapKey);
     }
 
