@@ -102,7 +102,6 @@ PythonWizardPage::PythonWizardPage(const QList<QPair<QString, QVariant>> &pySide
     m_createVenv.setLabelText(Tr::tr("Create new Virtual Environment"));
 
     m_venvPath.setLabelText(Tr::tr("Path to virtual environment"));
-    m_venvPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     m_venvPath.setEnabler(&m_createVenv);
     m_venvPath.setExpectedKind(PathChooser::Directory);
 

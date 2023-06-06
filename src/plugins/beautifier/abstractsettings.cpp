@@ -297,7 +297,7 @@ void AbstractSettings::read()
 
 void AbstractSettings::readDocumentation()
 {
-    const FilePath filename = documentationFilePath();
+    const FilePath filename = documentationFilePath;
     if (filename.isEmpty()) {
         BeautifierPlugin::showError(Tr::tr("No documentation file specified."));
         return;

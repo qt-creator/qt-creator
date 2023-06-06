@@ -88,9 +88,9 @@ FossilSettings::FossilSettings()
     logCount.setToolTip(Tr::tr("The number of recent commit log entries to show. "
         "Choose 0 to see all entries."));
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
-        Column {
+        return Column {
             Group {
                 title(Tr::tr("Configuration")),
                 Row { binaryPath }
@@ -117,7 +117,7 @@ FossilSettings::FossilSettings()
                 },
             },
             st
-        }.attachTo(widget);
+        };
     });
 }
 

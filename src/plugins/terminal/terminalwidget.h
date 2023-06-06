@@ -8,6 +8,8 @@
 
 #include <aggregation/aggregate.h>
 
+#include <coreplugin/icontext.h>
+
 #include <utils/link.h>
 #include <utils/process.h>
 #include <utils/terminalhooks.h>
@@ -21,6 +23,8 @@
 #include <memory>
 
 namespace Terminal {
+
+using UnlockedGlobalAction = std::unique_ptr<QAction, std::function<void(QAction *)>>;
 
 class TerminalWidget : public QAbstractScrollArea
 {
@@ -45,6 +49,8 @@ public:
     void moveCursorWordRight();
 
     void clearContents();
+
+    void closeTerminal();
 
     TerminalSearch *search() { return m_search.get(); }
 
@@ -81,6 +87,11 @@ public:
     QProcess::ProcessState processState() const;
 
     void restart(const Utils::Terminal::OpenTerminalParameters &openParameters);
+
+    static void initActions();
+
+    [[nodiscard]] static UnlockedGlobalAction unlockGlobalAction(const Utils::Id &commandId,
+                                                                 const Core::Context &context);
 
 signals:
     void started(qint64 pid);
@@ -178,6 +189,7 @@ protected:
     void updateCopyState();
 
 private:
+    Core::Context m_context;
     std::unique_ptr<Utils::Process> m_process;
     std::unique_ptr<Internal::TerminalSurface> m_surface;
     std::unique_ptr<ShellIntegration> m_shellIntegration;
@@ -226,6 +238,19 @@ private:
 
     Aggregation::Aggregate *m_aggregate{nullptr};
     SearchHit m_lastSelectedHit{};
+
+    QAction m_copy;
+    QAction m_paste;
+    QAction m_clearSelection;
+    QAction m_clearTerminal;
+    QAction m_moveCursorWordLeft;
+    QAction m_moveCursorWordRight;
+    QAction m_close;
+
+    UnlockedGlobalAction m_findInDocument;
+    UnlockedGlobalAction m_exit;
+    UnlockedGlobalAction m_options;
+    UnlockedGlobalAction m_settings;
 };
 
 } // namespace Terminal

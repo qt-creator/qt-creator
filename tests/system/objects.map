@@ -62,6 +62,8 @@
 :Dialog.componentNameEdit_QLineEdit	{name='componentNameEdit' type='Utils::ClassNameValidatingLineEdit' visible='1' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}
 :Dialog_Debugger::Internal::SymbolPathsDialog	{name='Debugger__Internal__SymbolPathsDialog' type='Debugger::Internal::SymbolPathsDialog' visible='1' windowTitle='Dialog'}
 :Dialog_QmlJSEditor::Internal::ComponentNameDialog	{type='QmlJSEditor::Internal::ComponentNameDialog' unnamed='1' visible='1' windowTitle='Move Component into Separate File'}
+:EnableQMLDebugger_ComboBox	{buddy=':EnableQMLDebugger_Label' type='QComboBox' unnamed='1' visible='1'}
+:EnableQMLDebugger_Label	{text='QML debugger:' type='QLabel' window=':Qt Creator_Core::Internal::MainWindow'}
 :Events.QmlProfilerEventsTable_QmlProfiler::Internal::QmlProfilerStatisticsMainView	{container=':Qt Creator.Events_QDockWidget' name='QmlProfilerEventsTable' type='QmlProfiler::Internal::QmlProfilerStatisticsMainView' visible='1'}
 :Failed to start application_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Failed to start application'}
 :File has been removed.Close_QPushButton	{text='Close' type='QPushButton' unnamed='1' visible='1' window=':File has been removed_QMessageBox'}
@@ -124,7 +126,7 @@
 :Qt Creator.DragDoc_QToolButton	{toolTip='Drag to drag documents between splits' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Events_QDockWidget	{name='QmlProfiler.Statistics.DockDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Events_QTabBar	{aboveWidget=':Qt Creator.Events_QDockWidget' type='QTabBar' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator.Issues_QListView	{type='QListView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Issues'}
+:Qt Creator.Issues_QListView	{type='Utils::TreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Issues'}
 :Qt Creator.Project.Menu.File_QMenu	{name='Project.Menu.File' type='QMenu'}
 :Qt Creator.Project.Menu.Folder_QMenu	{name='Project.Menu.Folder' type='QMenu' visible='1'}
 :Qt Creator.QML debugging and profiling:_QComboBox	{leftWidget=':Qt Creator.QML debugging and profiling:_QLabel' type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}

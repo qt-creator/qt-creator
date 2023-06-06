@@ -1,8 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "outputparser_test.h"
-#include "silversearcheroutputparser.h"
+#include "silversearcherparser.h"
+#include "silversearcherparser_test.h"
 
 #include <QtTest>
 
@@ -18,12 +18,13 @@ SearchResultItem searchResult(const FilePath &fileName, const QString &matchingL
     result.setFilePath(fileName);
     result.setLineText(matchingLine);
     result.setMainRange(lineNumber, matchStart, matchLength);
+    result.setUseTextEditorFont(true);
     return result;
 }
 
 void OutputParserTest::test_data()
 {
-    QTest::addColumn<QString>("parserOutput");
+    QTest::addColumn<QString>("input");
     QTest::addColumn<SearchResultItems>("results");
 
     QTest::addRow("nothing") << QString("\n") << SearchResultItems();
@@ -58,9 +59,9 @@ void OutputParserTest::test_data()
 
 void OutputParserTest::test()
 {
-    QFETCH(QString, parserOutput);
+    QFETCH(QString, input);
     QFETCH(SearchResultItems, results);
-    const SearchResultItems items = SilverSearcher::parse(parserOutput);
+    const SearchResultItems items = SilverSearcher::parse(input);
     QCOMPARE(items, results);
 }
 

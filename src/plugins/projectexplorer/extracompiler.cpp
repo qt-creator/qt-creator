@@ -137,7 +137,7 @@ QThreadPool *ExtraCompiler::extraCompilerThreadPool()
     return s_extraCompilerThreadPool();
 }
 
-TaskItem ExtraCompiler::compileFileItem()
+GroupItem ExtraCompiler::compileFileItem()
 {
     return taskItemImpl(fromFileProvider());
 }
@@ -326,7 +326,7 @@ ProcessExtraCompiler::ProcessExtraCompiler(const Project *project, const FilePat
     ExtraCompiler(project, source, targets, parent)
 { }
 
-TaskItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
+GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
 {
     const auto setupTask = [=](Async<FileNameToContentsHash> &async) {
         async.setThreadPool(extraCompilerThreadPool());

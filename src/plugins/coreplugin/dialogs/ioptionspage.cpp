@@ -199,15 +199,6 @@ void IOptionsPage::setSettings(AspectContainer *settings)
     m_settings = settings;
 }
 
-void IOptionsPage::setLayouter(const std::function<void(QWidget *w)> &layouter)
-{
-    m_widgetCreator = [layouter] {
-        auto widget = new IOptionsPageWidget;
-        layouter(widget);
-        return widget;
-    };
-}
-
 void IOptionsPage::setLayouter(const std::function<Layouting::LayoutItem ()> &layouter)
 {
     m_widgetCreator = [layouter] {

@@ -1,21 +1,17 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include <solutions/tasking/barrier.h>
-
-#include <utils/async.h>
+#include <tasking/barrier.h>
 
 #include <QtTest>
 
-#include <QDeadlineTimer>
-
-using namespace std::literals::chrono_literals;
-
-using namespace Utils;
 using namespace Tasking;
 
-using TestTask = Async<void>;
-using Test = AsyncTask<void>;
+using namespace std::chrono;
+using namespace std::chrono_literals;
+
+using TaskObject = milliseconds;
+using TestTask = TimeoutTask;
 
 namespace PrintableEnums {
 
@@ -29,7 +25,8 @@ enum class Handler {
     GroupDone,
     GroupError,
     Sync,
-    BarrierAdvance
+    BarrierAdvance,
+    Timeout
 };
 Q_ENUM_NS(Handler);
 
@@ -55,8 +52,6 @@ private:
 int CustomStorage::s_count = 0;
 static const char s_taskIdProperty[] = "__taskId";
 
-static FutureSynchronizer *s_futureSynchronizer = nullptr;
-
 struct TestData {
     TreeStorage<CustomStorage> storage;
     Group root;
@@ -70,35 +65,20 @@ class tst_Tasking : public QObject
     Q_OBJECT
 
 private slots:
-    void initTestCase();
-
     void validConstructs(); // compile test
     void testTree_data();
     void testTree();
     void storageOperators();
     void storageDestructor();
-
-    void cleanupTestCase();
 };
-
-void tst_Tasking::initTestCase()
-{
-    s_futureSynchronizer = new FutureSynchronizer;
-}
-
-void tst_Tasking::cleanupTestCase()
-{
-    delete s_futureSynchronizer;
-    s_futureSynchronizer = nullptr;
-}
 
 void tst_Tasking::validConstructs()
 {
     const Group task {
         parallel,
-        Test([](TestTask &) {}, [](const TestTask &) {}),
-        Test([](TestTask &) {}, [](const TestTask &) {}),
-        Test([](TestTask &) {}, [](const TestTask &) {})
+        TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
+        TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
+        TestTask([](TaskObject &) {}, [](const TaskObject &) {})
     };
 
     const Group group1 {
@@ -109,18 +89,18 @@ void tst_Tasking::validConstructs()
         parallel,
         Group {
             parallel,
-            Test([](TestTask &) {}, [](const TestTask &) {}),
+            TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
             Group {
                 parallel,
-                Test([](TestTask &) {}, [](const TestTask &) {}),
+                TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
                 Group {
                     parallel,
-                    Test([](TestTask &) {}, [](const TestTask &) {})
+                    TestTask([](TaskObject &) {}, [](const TaskObject &) {})
                 }
             },
             Group {
                 parallel,
-                Test([](TestTask &) {}, [](const TestTask &) {}),
+                TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
                 onGroupDone([] {})
             }
         },
@@ -129,32 +109,32 @@ void tst_Tasking::validConstructs()
         onGroupError([] {})
     };
 
-    const auto setupHandler = [](TestTask &) {};
-    const auto doneHandler = [](const TestTask &) {};
-    const auto errorHandler = [](const TestTask &) {};
+    const auto setupHandler = [](TaskObject &) {};
+    const auto doneHandler = [](const TaskObject &) {};
+    const auto errorHandler = [](const TaskObject &) {};
 
     // Not fluent interface
 
     const Group task2 {
         parallel,
-        Test(setupHandler),
-        Test(setupHandler, doneHandler),
-        Test(setupHandler, doneHandler, errorHandler),
+        TestTask(setupHandler),
+        TestTask(setupHandler, doneHandler),
+        TestTask(setupHandler, doneHandler, errorHandler),
         // need to explicitly pass empty handler for done
-        Test(setupHandler, {}, errorHandler)
+        TestTask(setupHandler, {}, errorHandler)
     };
 
     // Fluent interface
 
     const Group fluent {
         parallel,
-        Test().onSetup(setupHandler),
-        Test().onSetup(setupHandler).onDone(doneHandler),
-        Test().onSetup(setupHandler).onDone(doneHandler).onError(errorHandler),
+        TestTask().onSetup(setupHandler),
+        TestTask().onSetup(setupHandler).onDone(doneHandler),
+        TestTask().onSetup(setupHandler).onDone(doneHandler).onError(errorHandler),
         // possible to skip the empty done
-        Test().onSetup(setupHandler).onError(errorHandler),
+        TestTask().onSetup(setupHandler).onError(errorHandler),
         // possible to set handlers in a different order
-        Test().onError(errorHandler).onDone(doneHandler).onSetup(setupHandler),
+        TestTask().onError(errorHandler).onDone(doneHandler).onSetup(setupHandler),
     };
 
 
@@ -185,43 +165,53 @@ void tst_Tasking::validConstructs()
 #endif
 }
 
-static void runTask(QPromise<void> &promise, bool success, std::chrono::milliseconds sleep)
+class TickAndDone : public QObject
 {
-    QDeadlineTimer deadline(sleep);
-    while (!deadline.hasExpired()) {
-        QThread::msleep(1);
-        if (promise.isCanceled())
-            return;
-    }
-    if (!success)
-        promise.future().cancel();
-}
+    Q_OBJECT
 
-static void reportAndSleep(QPromise<bool> &promise)
-{
-    promise.addResult(false);
-    QThread::msleep(5);
+public:
+    void setInterval(const milliseconds &interval) { m_interval = interval; }
+    void start() {
+        QTimer::singleShot(0, this, [this] {
+            emit tick();
+            QTimer::singleShot(m_interval, this, &TickAndDone::done);
+        });
+    }
+
+signals:
+    void tick();
+    void done();
+
+private:
+    milliseconds m_interval;
 };
 
-template <typename SharedBarrierType>
-auto setupBarrierAdvance(const TreeStorage<CustomStorage> &storage,
-                         const SharedBarrierType &barrier, int taskId)
+class TickAndDoneTaskAdapter : public TaskAdapter<TickAndDone>
 {
-    return [storage, barrier, taskId](Async<bool> &async) {
-        async.setFutureSynchronizer(s_futureSynchronizer);
-        async.setConcurrentCallData(reportAndSleep);
-        async.setProperty(s_taskIdProperty, taskId);
+public:
+    TickAndDoneTaskAdapter() { connect(task(), &TickAndDone::done, this,
+                                       [this] { emit done(true); }); }
+    void start() final { task()->start(); }
+};
+
+TASKING_DECLARE_TASK(TickAndDoneTask, TickAndDoneTaskAdapter);
+
+template <typename SharedBarrierType>
+GroupItem createBarrierAdvance(const TreeStorage<CustomStorage> &storage,
+                               const SharedBarrierType &barrier, int taskId)
+{
+    return TickAndDoneTask([storage, barrier, taskId](TickAndDone &tickAndDone) {
+        tickAndDone.setInterval(1ms);
         storage->m_log.append({taskId, Handler::Setup});
 
         CustomStorage *currentStorage = storage.activeStorage();
         Barrier *sharedBarrier = barrier->barrier();
-        QObject::connect(&async, &TestTask::resultReadyAt, sharedBarrier,
-                         [currentStorage, sharedBarrier, taskId](int index) {
-            Q_UNUSED(index)
+        QObject::connect(&tickAndDone, &TickAndDone::tick, sharedBarrier,
+                         [currentStorage, sharedBarrier, taskId] {
             currentStorage->m_log.append({taskId, Handler::BarrierAdvance});
             sharedBarrier->advance();
         });
-    };
+    });
 }
 
 void tst_Tasking::testTree_data()
@@ -230,102 +220,103 @@ void tst_Tasking::testTree_data()
 
     TreeStorage<CustomStorage> storage;
 
-    const auto setupTaskHelper = [storage](TestTask &task, int taskId, bool success = true,
-                                           std::chrono::milliseconds sleep = 0ms) {
-        task.setFutureSynchronizer(s_futureSynchronizer);
-        task.setConcurrentCallData(runTask, success, sleep);
-        task.setProperty(s_taskIdProperty, taskId);
-        storage->m_log.append({taskId, Handler::Setup});
+    const auto setupTask = [storage](int taskId, milliseconds timeout) {
+        return [storage, taskId, timeout](TaskObject &taskObject) {
+            taskObject = timeout;
+            storage->m_log.append({taskId, Handler::Setup});
+        };
     };
-    const auto setupTask = [setupTaskHelper](int taskId) {
-        return [=](TestTask &task) { setupTaskHelper(task, taskId); };
-    };
-    const auto setupFailingTask = [setupTaskHelper](int taskId) {
-        return [=](TestTask &task) { setupTaskHelper(task, taskId, false); };
-    };
-    const auto setupSleepingTask = [setupTaskHelper](int taskId, bool success,
-                                                     std::chrono::milliseconds sleep) {
-        return [=](TestTask &task) { setupTaskHelper(task, taskId, success, sleep); };
-    };
-    const auto setupDynamicTask = [setupTaskHelper](int taskId, TaskAction action) {
-        return [=](TestTask &task) {
-            setupTaskHelper(task, taskId);
+
+    const auto setupDynamicTask = [storage](int taskId, TaskAction action) {
+        return [storage, taskId, action](TaskObject &) {
+            storage->m_log.append({taskId, Handler::Setup});
             return action;
         };
     };
-    const auto logDone = [storage](const TestTask &task) {
-        storage->m_log.append({task.property(s_taskIdProperty).toInt(), Handler::Done});
-    };
-    const auto logError = [storage](const TestTask &task) {
-        storage->m_log.append({task.property(s_taskIdProperty).toInt(), Handler::Error});
-    };
-    const auto groupSetup = [storage](int taskId) {
-        return [=] { storage->m_log.append({taskId, Handler::GroupSetup}); };
-    };
-    const auto groupDone = [storage](int taskId) {
-        return [=] { storage->m_log.append({taskId, Handler::GroupDone}); };
-    };
-    const auto groupError = [storage](int taskId) {
-        return [=] { storage->m_log.append({taskId, Handler::GroupError}); };
-    };
-    const auto setupSync = [storage](int taskId) {
-        return [=] { storage->m_log.append({taskId, Handler::Sync}); };
-    };
-    const auto setupSyncWithReturn = [storage](int taskId, bool success) {
-        return [=] { storage->m_log.append({taskId, Handler::Sync}); return success; };
+
+    const auto setupDone = [storage](int taskId) {
+        return [storage, taskId](const TaskObject &) {
+            storage->m_log.append({taskId, Handler::Done});
+        };
     };
 
-    const auto constructSimpleSequence = [=](WorkflowPolicy policy) {
-        return Group {
-            Storage(storage),
-            workflowPolicy(policy),
-            Test(setupTask(1), logDone),
-            Test(setupFailingTask(2), logDone, logError),
-            Test(setupTask(3), logDone),
-            onGroupDone(groupDone(0)),
-            onGroupError(groupError(0))
+    const auto setupError = [storage](int taskId) {
+        return [storage, taskId](const TaskObject &) {
+            storage->m_log.append({taskId, Handler::Error});
         };
     };
-    const auto constructDynamicHierarchy = [=](TaskAction taskAction) {
-        return Group {
-            Storage(storage),
-            Group {
-                Test(setupTask(1), logDone)
-            },
-            Group {
-                onGroupSetup([=] { return taskAction; }),
-                Test(setupTask(2), logDone),
-                Test(setupTask(3), logDone),
-                Test(setupTask(4), logDone)
-            },
-            onGroupDone(groupDone(0)),
-            onGroupError(groupError(0))
+
+    const auto setupTimeout = [storage](int taskId) {
+        return [storage, taskId] {
+            storage->m_log.append({taskId, Handler::Timeout});
         };
+    };
+
+    const auto createTask = [storage, setupTask, setupDone, setupError](
+            int taskId, bool successTask, milliseconds timeout = 0ms) -> GroupItem {
+        if (successTask)
+            return TestTask(setupTask(taskId, timeout), setupDone(taskId), setupError(taskId));
+        const Group root {
+            finishAllAndError,
+            TestTask(setupTask(taskId, timeout)),
+            onGroupDone([storage, taskId] { storage->m_log.append({taskId, Handler::Done}); }),
+            onGroupError([storage, taskId] { storage->m_log.append({taskId, Handler::Error}); })
+        };
+        return root;
+    };
+
+    const auto createSuccessTask = [createTask](int taskId, milliseconds timeout = 0ms) {
+        return createTask(taskId, true, timeout);
+    };
+
+    const auto createFailingTask = [createTask](int taskId, milliseconds timeout = 0ms) {
+        return createTask(taskId, false, timeout);
+    };
+
+    const auto createDynamicTask = [storage, setupDynamicTask, setupDone, setupError](
+                                       int taskId, TaskAction action) {
+        return TestTask(setupDynamicTask(taskId, action), setupDone(taskId), setupError(taskId));
+    };
+
+    const auto groupSetup = [storage](int taskId) {
+        return onGroupSetup([=] { storage->m_log.append({taskId, Handler::GroupSetup}); });
+    };
+    const auto groupDone = [storage](int taskId) {
+        return onGroupDone([=] { storage->m_log.append({taskId, Handler::GroupDone}); });
+    };
+    const auto groupError = [storage](int taskId) {
+        return onGroupError([=] { storage->m_log.append({taskId, Handler::GroupError}); });
+    };
+    const auto createSync = [storage](int taskId) {
+        return Sync([=] { storage->m_log.append({taskId, Handler::Sync}); });
+    };
+    const auto createSyncWithReturn = [storage](int taskId, bool success) {
+        return Sync([=] { storage->m_log.append({taskId, Handler::Sync}); return success; });
     };
 
     {
         const Group root1 {
             Storage(storage),
-            onGroupDone(groupDone(0)),
-            onGroupError(groupError(0))
+            groupDone(0),
+            groupError(0)
         };
         const Group root2 {
             Storage(storage),
             onGroupSetup([] { return TaskAction::Continue; }),
-            onGroupDone(groupDone(0)),
-            onGroupError(groupError(0))
+            groupDone(0),
+            groupError(0)
         };
         const Group root3 {
             Storage(storage),
             onGroupSetup([] { return TaskAction::StopWithDone; }),
-            onGroupDone(groupDone(0)),
-            onGroupError(groupError(0))
+            groupDone(0),
+            groupError(0)
         };
         const Group root4 {
             Storage(storage),
             onGroupSetup([] { return TaskAction::StopWithError; }),
-            onGroupDone(groupDone(0)),
-            onGroupError(groupError(0))
+            groupDone(0),
+            groupError(0)
         };
         const Log logDone {{0, Handler::GroupDone}};
         const Log logError {{0, Handler::GroupError}};
@@ -338,8 +329,8 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            Test(setupDynamicTask(1, TaskAction::StopWithDone), logDone, logError),
-            Test(setupDynamicTask(2, TaskAction::StopWithDone), logDone, logError)
+            createDynamicTask(1, TaskAction::StopWithDone),
+            createDynamicTask(2, TaskAction::StopWithDone)
         };
         const Log log {{1, Handler::Setup}, {2, Handler::Setup}};
         QTest::newRow("DynamicTaskDone") << TestData{storage, root, log, 2, OnDone::Success};
@@ -348,8 +339,8 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            Test(setupDynamicTask(1, TaskAction::StopWithError), logDone, logError),
-            Test(setupDynamicTask(2, TaskAction::StopWithError), logDone, logError)
+            createDynamicTask(1, TaskAction::StopWithError),
+            createDynamicTask(2, TaskAction::StopWithError)
         };
         const Log log {{1, Handler::Setup}};
         QTest::newRow("DynamicTaskError") << TestData{storage, root, log, 2, OnDone::Failure};
@@ -358,10 +349,10 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            Test(setupDynamicTask(1, TaskAction::Continue), logDone, logError),
-            Test(setupDynamicTask(2, TaskAction::Continue), logDone, logError),
-            Test(setupDynamicTask(3, TaskAction::StopWithError), logDone, logError),
-            Test(setupDynamicTask(4, TaskAction::Continue), logDone, logError)
+            createDynamicTask(1, TaskAction::Continue),
+            createDynamicTask(2, TaskAction::Continue),
+            createDynamicTask(3, TaskAction::StopWithError),
+            createDynamicTask(4, TaskAction::Continue)
         };
         const Log log {
             {1, Handler::Setup},
@@ -377,10 +368,10 @@ void tst_Tasking::testTree_data()
         const Group root {
             parallel,
             Storage(storage),
-            Test(setupDynamicTask(1, TaskAction::Continue), logDone, logError),
-            Test(setupDynamicTask(2, TaskAction::Continue), logDone, logError),
-            Test(setupDynamicTask(3, TaskAction::StopWithError), logDone, logError),
-            Test(setupDynamicTask(4, TaskAction::Continue), logDone, logError)
+            createDynamicTask(1, TaskAction::Continue),
+            createDynamicTask(2, TaskAction::Continue),
+            createDynamicTask(3, TaskAction::StopWithError),
+            createDynamicTask(4, TaskAction::Continue)
         };
         const Log log {
             {1, Handler::Setup},
@@ -396,12 +387,12 @@ void tst_Tasking::testTree_data()
         const Group root {
             parallel,
             Storage(storage),
-            Test(setupDynamicTask(1, TaskAction::Continue), logDone, logError),
-            Test(setupDynamicTask(2, TaskAction::Continue), logDone, logError),
+            createDynamicTask(1, TaskAction::Continue),
+            createDynamicTask(2, TaskAction::Continue),
             Group {
-                Test(setupDynamicTask(3, TaskAction::StopWithError), logDone, logError)
+                createDynamicTask(3, TaskAction::StopWithError)
             },
-            Test(setupDynamicTask(4, TaskAction::Continue), logDone, logError)
+            createDynamicTask(4, TaskAction::Continue)
         };
         const Log log {
             {1, Handler::Setup},
@@ -417,16 +408,16 @@ void tst_Tasking::testTree_data()
         const Group root {
             parallel,
             Storage(storage),
-            Test(setupDynamicTask(1, TaskAction::Continue), logDone, logError),
-            Test(setupDynamicTask(2, TaskAction::Continue), logDone, logError),
+            createDynamicTask(1, TaskAction::Continue),
+            createDynamicTask(2, TaskAction::Continue),
             Group {
                 onGroupSetup([storage] {
                     storage->m_log.append({0, Handler::GroupSetup});
                     return TaskAction::StopWithError;
                 }),
-                Test(setupDynamicTask(3, TaskAction::Continue), logDone, logError)
+                createDynamicTask(3, TaskAction::Continue)
             },
-            Test(setupDynamicTask(4, TaskAction::Continue), logDone, logError)
+            createDynamicTask(4, TaskAction::Continue)
         };
         const Log log {
             {1, Handler::Setup},
@@ -447,23 +438,23 @@ void tst_Tasking::testTree_data()
                     Group {
                         Group {
                             Group {
-                                Test(setupTask(5), logDone, logError),
-                                onGroupSetup(groupSetup(5)),
-                                onGroupDone(groupDone(5))
+                                createSuccessTask(5),
+                                groupSetup(5),
+                                groupDone(5)
                             },
-                            onGroupSetup(groupSetup(4)),
-                            onGroupDone(groupDone(4))
+                            groupSetup(4),
+                            groupDone(4)
                         },
-                        onGroupSetup(groupSetup(3)),
-                        onGroupDone(groupDone(3))
+                        groupSetup(3),
+                        groupDone(3)
                     },
-                    onGroupSetup(groupSetup(2)),
-                    onGroupDone(groupDone(2))
+                    groupSetup(2),
+                    groupDone(2)
                 },
-                onGroupSetup(groupSetup(1)),
-                onGroupDone(groupDone(1))
+                groupSetup(1),
+                groupDone(1)
             },
-            onGroupDone(groupDone(0))
+            groupDone(0)
         };
         const Log log {
             {1, Handler::GroupSetup},
@@ -484,18 +475,15 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto logDoneAnonymously = [=](const TestTask &) {
-            storage->m_log.append({0, Handler::Done});
-        };
         const Group root {
             Storage(storage),
             parallel,
-            Test(setupTask(1), logDoneAnonymously),
-            Test(setupTask(2), logDoneAnonymously),
-            Test(setupTask(3), logDoneAnonymously),
-            Test(setupTask(4), logDoneAnonymously),
-            Test(setupTask(5), logDoneAnonymously),
-            onGroupDone(groupDone(0))
+            createSuccessTask(1),
+            createSuccessTask(2),
+            createSuccessTask(3),
+            createSuccessTask(4),
+            createSuccessTask(5),
+            groupDone(0)
         };
         const Log log {
             {1, Handler::Setup}, // Setup order is determined in parallel mode
@@ -503,23 +491,23 @@ void tst_Tasking::testTree_data()
             {3, Handler::Setup},
             {4, Handler::Setup},
             {5, Handler::Setup},
-            {0, Handler::Done}, // Done order isn't determined in parallel mode
-            {0, Handler::Done},
-            {0, Handler::Done},
-            {0, Handler::Done},
-            {0, Handler::Done},
+            {1, Handler::Done},
+            {2, Handler::Done},
+            {3, Handler::Done},
+            {4, Handler::Done},
+            {5, Handler::Done},
             {0, Handler::GroupDone}
         };
         QTest::newRow("Parallel") << TestData{storage, root, log, 5, OnDone::Success};
     }
 
     {
-        auto setupSubTree = [=](TaskTree &taskTree) {
+        auto setupSubTree = [storage, createSuccessTask](TaskTree &taskTree) {
             const Group nestedRoot {
                 Storage(storage),
-                Test(setupTask(2), logDone),
-                Test(setupTask(3), logDone),
-                Test(setupTask(4), logDone)
+                createSuccessTask(2),
+                createSuccessTask(3),
+                createSuccessTask(4)
             };
             taskTree.setupRoot(nestedRoot);
             CustomStorage *activeStorage = storage.activeStorage();
@@ -530,28 +518,28 @@ void tst_Tasking::testTree_data()
         };
         const Group root1 {
             Storage(storage),
-            Test(setupTask(1), logDone),
-            Test(setupTask(2), logDone),
-            Test(setupTask(3), logDone),
-            Test(setupTask(4), logDone),
-            Test(setupTask(5), logDone),
-            onGroupDone(groupDone(0))
+            createSuccessTask(1),
+            createSuccessTask(2),
+            createSuccessTask(3),
+            createSuccessTask(4),
+            createSuccessTask(5),
+            groupDone(0)
         };
         const Group root2 {
             Storage(storage),
-            Group { Test(setupTask(1), logDone) },
-            Group { Test(setupTask(2), logDone) },
-            Group { Test(setupTask(3), logDone) },
-            Group { Test(setupTask(4), logDone) },
-            Group { Test(setupTask(5), logDone) },
-            onGroupDone(groupDone(0))
+            Group { createSuccessTask(1) },
+            Group { createSuccessTask(2) },
+            Group { createSuccessTask(3) },
+            Group { createSuccessTask(4) },
+            Group { createSuccessTask(5) },
+            groupDone(0)
         };
         const Group root3 {
             Storage(storage),
-            Test(setupTask(1), logDone),
+            createSuccessTask(1),
             TaskTreeTask(setupSubTree),
-            Test(setupTask(5), logDone),
-            onGroupDone(groupDone(0))
+            createSuccessTask(5),
+            groupDone(0)
         };
         const Log log {
             {1, Handler::Setup},
@@ -576,26 +564,26 @@ void tst_Tasking::testTree_data()
         const Group root {
             Storage(storage),
             Group {
-                Test(setupTask(1), logDone),
+                createSuccessTask(1),
                 Group {
-                    Test(setupTask(2), logDone),
+                    createSuccessTask(2),
                     Group {
-                        Test(setupTask(3), logDone),
+                        createSuccessTask(3),
                         Group {
-                            Test(setupTask(4), logDone),
+                            createSuccessTask(4),
                             Group {
-                                Test(setupTask(5), logDone),
-                                onGroupDone(groupDone(5))
+                                createSuccessTask(5),
+                                groupDone(5)
                             },
-                            onGroupDone(groupDone(4))
+                            groupDone(4)
                         },
-                        onGroupDone(groupDone(3))
+                        groupDone(3)
                     },
-                    onGroupDone(groupDone(2))
+                    groupDone(2)
                 },
-                onGroupDone(groupDone(1))
+                groupDone(1)
             },
-            onGroupDone(groupDone(0))
+            groupDone(0)
         };
         const Log log {
             {1, Handler::Setup},
@@ -621,13 +609,13 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            Test(setupTask(1), logDone),
-            Test(setupTask(2), logDone),
-            Test(setupFailingTask(3), logDone, logError),
-            Test(setupTask(4), logDone),
-            Test(setupTask(5), logDone),
-            onGroupDone(groupDone(0)),
-            onGroupError(groupError(0))
+            createSuccessTask(1),
+            createSuccessTask(2),
+            createFailingTask(3),
+            createSuccessTask(4),
+            createSuccessTask(5),
+            groupDone(0),
+            groupError(0)
         };
         const Log log {
             {1, Handler::Setup},
@@ -642,129 +630,569 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto constructEmptyWorkflow = [=](WorkflowPolicy policy) {
+        const auto createRoot = [storage, groupDone, groupError](WorkflowPolicy policy) {
             return Group {
                 Storage(storage),
                 workflowPolicy(policy),
-                onGroupDone(groupDone(0)),
-                onGroupError(groupError(0))
+                groupDone(0),
+                groupError(0)
             };
         };
 
-        const Log log = {{0, Handler::GroupDone}};
+        const Log doneLog = {{0, Handler::GroupDone}};
+        const Log errorLog = {{0, Handler::GroupError}};
 
-        const Group root1 = constructEmptyWorkflow(WorkflowPolicy::StopOnError);
-        QTest::newRow("EmptyStopOnError") << TestData{storage, root1, log, 0, OnDone::Success};
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("EmptyStopOnError") << TestData{storage, root1, doneLog, 0,
+                                                      OnDone::Success};
 
-        const Group root2 = constructEmptyWorkflow(WorkflowPolicy::ContinueOnError);
-        QTest::newRow("EmptyContinueOnError") << TestData{storage, root2, log, 0, OnDone::Success};
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("EmptyContinueOnError") << TestData{storage, root2, doneLog, 0,
+                                                          OnDone::Success};
 
-        const Group root3 = constructEmptyWorkflow(WorkflowPolicy::StopOnDone);
-        QTest::newRow("EmptyStopOnDone") << TestData{storage, root3, log, 0, OnDone::Success};
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("EmptyStopOnDone") << TestData{storage, root3, errorLog, 0,
+                                                     OnDone::Failure};
 
-        const Group root4 = constructEmptyWorkflow(WorkflowPolicy::ContinueOnDone);
-        QTest::newRow("EmptyContinueOnDone") << TestData{storage, root4, log, 0, OnDone::Success};
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("EmptyContinueOnDone") << TestData{storage, root4, errorLog, 0,
+                                                         OnDone::Failure};
 
-        const Group root5 = constructEmptyWorkflow(WorkflowPolicy::StopOnFinished);
-        QTest::newRow("EmptyStopOnFinished") << TestData{storage, root5, log, 0, OnDone::Success};
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("EmptyStopOnFinished") << TestData{storage, root5, errorLog, 0,
+                                                         OnDone::Failure};
 
-        const Group root6 = constructEmptyWorkflow(WorkflowPolicy::Optional);
-        QTest::newRow("EmptyOptional") << TestData{storage, root6, log, 0, OnDone::Success};
+        const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
+        QTest::newRow("EmptyFinishAllAndDone") << TestData{storage, root6, doneLog, 0,
+                                                           OnDone::Success};
+
+        const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
+        QTest::newRow("EmptyFinishAllAndError") << TestData{storage, root7, errorLog, 0,
+                                                            OnDone::Failure};
     }
 
     {
-        const auto constructDoneWorkflow = [=](WorkflowPolicy policy) {
+        const auto createRoot = [storage, createSuccessTask, groupDone, groupError](
+                                    WorkflowPolicy policy) {
             return Group {
                 Storage(storage),
                 workflowPolicy(policy),
-                Test(setupTask(1), logDone, logError),
-                onGroupDone(groupDone(0)),
-                onGroupError(groupError(0))
+                createSuccessTask(1),
+                groupDone(0),
+                groupError(0)
             };
         };
 
-        const Log log = {
+        const Log doneLog = {
             {1, Handler::Setup},
             {1, Handler::Done},
             {0, Handler::GroupDone}
         };
 
-        const Group root1 = constructDoneWorkflow(WorkflowPolicy::StopOnError);
-        QTest::newRow("DoneStopOnError") << TestData{storage, root1, log, 1, OnDone::Success};
-
-        const Group root2 = constructDoneWorkflow(WorkflowPolicy::ContinueOnError);
-        QTest::newRow("DoneContinueOnError") << TestData{storage, root2, log, 1, OnDone::Success};
-
-        const Group root3 = constructDoneWorkflow(WorkflowPolicy::StopOnDone);
-        QTest::newRow("DoneStopOnDone") << TestData{storage, root3, log, 1, OnDone::Success};
-
-        const Group root4 = constructDoneWorkflow(WorkflowPolicy::ContinueOnDone);
-        QTest::newRow("DoneContinueOnDone") << TestData{storage, root4, log, 1, OnDone::Success};
-
-        const Group root5 = constructDoneWorkflow(WorkflowPolicy::StopOnFinished);
-        QTest::newRow("DoneStopOnFinished") << TestData{storage, root5, log, 1, OnDone::Success};
-
-        const Group root6 = constructDoneWorkflow(WorkflowPolicy::Optional);
-        QTest::newRow("DoneOptional") << TestData{storage, root6, log, 1, OnDone::Success};
-    }
-
-    {
-        const auto constructErrorWorkflow = [=](WorkflowPolicy policy) {
-            return Group {
-                Storage(storage),
-                workflowPolicy(policy),
-                Test(setupFailingTask(1), logDone, logError),
-                onGroupDone(groupDone(0)),
-                onGroupError(groupError(0))
-            };
-        };
-
-        const Log log = {
+        const Log errorLog = {
             {1, Handler::Setup},
-            {1, Handler::Error},
+            {1, Handler::Done},
             {0, Handler::GroupError}
         };
 
-        const Log optionalLog = {
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("DoneStopOnError") << TestData{storage, root1, doneLog, 1,
+                                                     OnDone::Success};
+
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("DoneContinueOnError") << TestData{storage, root2, doneLog, 1,
+                                                         OnDone::Success};
+
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("DoneStopOnDone") << TestData{storage, root3, doneLog, 1,
+                                                    OnDone::Success};
+
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("DoneContinueOnDone") << TestData{storage, root4, doneLog, 1,
+                                                        OnDone::Success};
+
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("DoneStopOnFinished") << TestData{storage, root5, doneLog, 1,
+                                                        OnDone::Success};
+
+        const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
+        QTest::newRow("DoneFinishAllAndDone") << TestData{storage, root6, doneLog, 1,
+                                                          OnDone::Success};
+
+        const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
+        QTest::newRow("DoneFinishAllAndError") << TestData{storage, root7, errorLog, 1,
+                                                           OnDone::Failure};
+    }
+
+    {
+        const auto createRoot = [storage, createFailingTask, groupDone, groupError](
+                                    WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                workflowPolicy(policy),
+                createFailingTask(1),
+                groupDone(0),
+                groupError(0)
+            };
+        };
+
+        const Log doneLog = {
             {1, Handler::Setup},
             {1, Handler::Error},
             {0, Handler::GroupDone}
         };
 
-        const Group root1 = constructErrorWorkflow(WorkflowPolicy::StopOnError);
-        QTest::newRow("ErrorStopOnError") << TestData{storage, root1, log, 1, OnDone::Failure};
+        const Log errorLog = {
+            {1, Handler::Setup},
+            {1, Handler::Error},
+            {0, Handler::GroupError}
+        };
 
-        const Group root2 = constructErrorWorkflow(WorkflowPolicy::ContinueOnError);
-        QTest::newRow("ErrorContinueOnError") << TestData{storage, root2, log, 1, OnDone::Failure};
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("ErrorStopOnError") << TestData{storage, root1, errorLog, 1,
+                                                      OnDone::Failure};
 
-        const Group root3 = constructErrorWorkflow(WorkflowPolicy::StopOnDone);
-        QTest::newRow("ErrorStopOnDone") << TestData{storage, root3, log, 1, OnDone::Failure};
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("ErrorContinueOnError") << TestData{storage, root2, errorLog, 1,
+                                                          OnDone::Failure};
 
-        const Group root4 = constructErrorWorkflow(WorkflowPolicy::ContinueOnDone);
-        QTest::newRow("ErrorContinueOnDone") << TestData{storage, root4, log, 1, OnDone::Failure};
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("ErrorStopOnDone") << TestData{storage, root3, errorLog, 1,
+                                                     OnDone::Failure};
 
-        const Group root5 = constructErrorWorkflow(WorkflowPolicy::StopOnFinished);
-        QTest::newRow("ErrorStopOnFinished") << TestData{storage, root5, log, 1, OnDone::Failure};
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("ErrorContinueOnDone") << TestData{storage, root4, errorLog, 1,
+                                                         OnDone::Failure};
 
-        const Group root6 = constructErrorWorkflow(WorkflowPolicy::Optional);
-        QTest::newRow("ErrorOptional") << TestData{storage, root6, optionalLog, 1, OnDone::Success};
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("ErrorStopOnFinished") << TestData{storage, root5, errorLog, 1,
+                                                         OnDone::Failure};
+
+        const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
+        QTest::newRow("ErrorFinishAllAndDone") << TestData{storage, root6, doneLog, 1,
+                                                           OnDone::Success};
+
+        const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
+        QTest::newRow("ErrorFinishAllAndError") << TestData{storage, root7, errorLog, 1,
+                                                           OnDone::Failure};
     }
 
     {
-        const Group root = constructSimpleSequence(WorkflowPolicy::StopOnError);
-        const Log log {
+        // These tests check whether the proper root's group end handler is called
+        // when the group is stopped. Test it with different workflow policies.
+        // The root starts one short failing task together with one long task.
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
+                                 groupError](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                parallel,
+                workflowPolicy(policy),
+                createFailingTask(1, 1ms),
+                createSuccessTask(2, 1ms),
+                groupDone(0),
+                groupError(0)
+            };
+        };
+
+        const Log errorErrorLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Error},
+            {0, Handler::GroupError}
+        };
+
+        const Log errorDoneLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Done},
+            {0, Handler::GroupError}
+        };
+
+        const Log doneLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Done},
+            {0, Handler::GroupDone}
+        };
+
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("StopRootWithStopOnError")
+            << TestData{storage, root1, errorErrorLog, 2, OnDone::Failure};
+
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("StopRootWithContinueOnError")
+            << TestData{storage, root2, errorDoneLog, 2, OnDone::Failure};
+
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("StopRootWithStopOnDone")
+            << TestData{storage, root3, doneLog, 2, OnDone::Success};
+
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("StopRootWithContinueOnDone")
+            << TestData{storage, root4, doneLog, 2, OnDone::Success};
+
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("StopRootWithStopOnFinished")
+            << TestData{storage, root5, errorErrorLog, 2, OnDone::Failure};
+
+        const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
+        QTest::newRow("StopRootWithFinishAllAndDone")
+            << TestData{storage, root6, doneLog, 2, OnDone::Success};
+
+        const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
+        QTest::newRow("StopRootWithFinishAllAndError")
+            << TestData{storage, root7, errorDoneLog, 2, OnDone::Failure};
+    }
+
+    {
+        // These tests check whether the proper root's group end handler is called
+        // when the group is stopped. Test it with different workflow policies.
+        // The root starts in parallel: one very short successful task, one short failing task
+        // and one long task.
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
+                                 groupError](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                parallel,
+                workflowPolicy(policy),
+                createSuccessTask(1),
+                createFailingTask(2, 1ms),
+                createSuccessTask(3, 1ms),
+                groupDone(0),
+                groupError(0)
+            };
+        };
+
+        const Log errorErrorLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Error},
+            {3, Handler::Error},
+            {0, Handler::GroupError}
+        };
+
+        const Log errorDoneLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Error},
+            {3, Handler::Done},
+            {0, Handler::GroupError}
+        };
+
+        const Log doneErrorLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Error},
+            {3, Handler::Error},
+            {0, Handler::GroupDone}
+        };
+
+        const Log doneDoneLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Error},
+            {3, Handler::Done},
+            {0, Handler::GroupDone}
+        };
+
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("StopRootAfterDoneWithStopOnError")
+            << TestData{storage, root1, errorErrorLog, 3, OnDone::Failure};
+
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("StopRootAfterDoneWithContinueOnError")
+            << TestData{storage, root2, errorDoneLog, 3, OnDone::Failure};
+
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("StopRootAfterDoneWithStopOnDone")
+            << TestData{storage, root3, doneErrorLog, 3, OnDone::Success};
+
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("StopRootAfterDoneWithContinueOnDone")
+            << TestData{storage, root4, doneDoneLog, 3, OnDone::Success};
+
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("StopRootAfterDoneWithStopOnFinished")
+            << TestData{storage, root5, doneErrorLog, 3, OnDone::Success};
+
+        const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
+        QTest::newRow("StopRootAfterDoneWithFinishAllAndDone")
+            << TestData{storage, root6, doneDoneLog, 3, OnDone::Success};
+
+        const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
+        QTest::newRow("StopRootAfterDoneWithFinishAllAndError")
+            << TestData{storage, root7, errorDoneLog, 3, OnDone::Failure};
+    }
+
+    {
+        // These tests check whether the proper subgroup's end handler is called
+        // when the group is stopped. Test it with different workflow policies.
+        // The subgroup starts one long task.
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
+                                 groupError](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                parallel,
+                Group {
+                    workflowPolicy(policy),
+                    createSuccessTask(1, 1000ms),
+                    groupDone(1),
+                    groupError(1)
+                },
+                createFailingTask(2, 1ms),
+                groupDone(2),
+                groupError(2)
+            };
+        };
+
+        const Log errorLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {2, Handler::Error},
+            {1, Handler::Error},
+            {1, Handler::GroupError},
+            {2, Handler::GroupError}
+        };
+
+        const Log doneLog = {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {2, Handler::Error},
+            {1, Handler::Error},
+            {1, Handler::GroupDone},
+            {2, Handler::GroupError}
+        };
+
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("StopGroupWithStopOnError")
+            << TestData{storage, root1, errorLog, 2, OnDone::Failure};
+
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("StopGroupWithContinueOnError")
+            << TestData{storage, root2, errorLog, 2, OnDone::Failure};
+
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("StopGroupWithStopOnDone")
+            << TestData{storage, root3, errorLog, 2, OnDone::Failure};
+
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("StopGroupWithContinueOnDone")
+            << TestData{storage, root4, errorLog, 2, OnDone::Failure};
+
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("StopGroupWithStopOnFinished")
+            << TestData{storage, root5, errorLog, 2, OnDone::Failure};
+
+        const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
+        QTest::newRow("StopGroupWithFinishAllAndDone")
+            << TestData{storage, root6, doneLog, 2, OnDone::Failure};
+
+        const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
+        QTest::newRow("StopGroupWithFinishAllAndError")
+            << TestData{storage, root7, errorLog, 2, OnDone::Failure};
+    }
+
+    {
+        // These tests check whether the proper subgroup's end handler is called
+        // when the group is stopped. Test it with different workflow policies.
+        // The sequential subgroup starts one short successful task followed by one long task.
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
+                                 groupError](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                parallel,
+                Group {
+                    workflowPolicy(policy),
+                    createSuccessTask(1),
+                    createSuccessTask(2, 1000ms),
+                    groupDone(1),
+                    groupError(1)
+                },
+                createFailingTask(3, 1ms),
+                groupDone(2),
+                groupError(2)
+            };
+        };
+
+        const Log errorLog = {
+            {1, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Setup},
+            {3, Handler::Error},
+            {2, Handler::Error},
+            {1, Handler::GroupError},
+            {2, Handler::GroupError}
+        };
+
+        const Log shortDoneLog = {
+            {1, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {1, Handler::GroupDone},
+            {3, Handler::Error},
+            {2, Handler::GroupError}
+        };
+
+        const Log longDoneLog = {
+            {1, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Setup},
+            {3, Handler::Error},
+            {2, Handler::Error},
+            {1, Handler::GroupDone},
+            {2, Handler::GroupError}
+        };
+
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("StopGroupAfterDoneWithStopOnError")
+            << TestData{storage, root1, errorLog, 3, OnDone::Failure};
+
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("StopGroupAfterDoneWithContinueOnError")
+            << TestData{storage, root2, errorLog, 3, OnDone::Failure};
+
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("StopGroupAfterDoneWithStopOnDone")
+            << TestData{storage, root3, shortDoneLog, 3, OnDone::Failure};
+
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("StopGroupAfterDoneWithContinueOnDone")
+            << TestData{storage, root4, longDoneLog, 3, OnDone::Failure};
+
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("StopGroupAfterDoneWithStopOnFinished")
+            << TestData{storage, root5, shortDoneLog, 3, OnDone::Failure};
+
+        const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
+        QTest::newRow("StopGroupAfterDoneWithFinishAllAndDone")
+            << TestData{storage, root6, longDoneLog, 3, OnDone::Failure};
+
+        const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
+        QTest::newRow("StopGroupAfterDoneWithFinishAllAndError")
+            << TestData{storage, root7, errorLog, 3, OnDone::Failure};
+    }
+
+    {
+        // These tests check whether the proper subgroup's end handler is called
+        // when the group is stopped. Test it with different workflow policies.
+        // The sequential subgroup starts one short failing task followed by one long task.
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
+                                 groupError](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                parallel,
+                Group {
+                    workflowPolicy(policy),
+                    createFailingTask(1),
+                    createSuccessTask(2, 1000ms),
+                    groupDone(1),
+                    groupError(1)
+                },
+                createFailingTask(3, 1ms),
+                groupDone(2),
+                groupError(2)
+            };
+        };
+
+        const Log shortErrorLog = {
+            {1, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Error},
+            {1, Handler::GroupError},
+            {3, Handler::Error},
+            {2, Handler::GroupError}
+        };
+
+        const Log longErrorLog = {
+            {1, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Setup},
+            {3, Handler::Error},
+            {2, Handler::Error},
+            {1, Handler::GroupError},
+            {2, Handler::GroupError}
+        };
+
+        const Log doneLog = {
+            {1, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Setup},
+            {3, Handler::Error},
+            {2, Handler::Error},
+            {1, Handler::GroupDone},
+            {2, Handler::GroupError}
+        };
+
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        QTest::newRow("StopGroupAfterErrorWithStopOnError")
+            << TestData{storage, root1, shortErrorLog, 3, OnDone::Failure};
+
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("StopGroupAfterErrorWithContinueOnError")
+            << TestData{storage, root2, longErrorLog, 3, OnDone::Failure};
+
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        QTest::newRow("StopGroupAfterErrorWithStopOnDone")
+            << TestData{storage, root3, longErrorLog, 3, OnDone::Failure};
+
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("StopGroupAfterErrorWithContinueOnDone")
+            << TestData{storage, root4, longErrorLog, 3, OnDone::Failure};
+
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("StopGroupAfterErrorWithStopOnFinished")
+            << TestData{storage, root5, shortErrorLog, 3, OnDone::Failure};
+
+        const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
+        QTest::newRow("StopGroupAfterErrorWithFinishAllAndDone")
+            << TestData{storage, root6, doneLog, 3, OnDone::Failure};
+
+        const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
+        QTest::newRow("StopGroupAfterErrorWithFinishAllAndError")
+            << TestData{storage, root7, longErrorLog, 3, OnDone::Failure};
+    }
+
+    {
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
+                                 groupError](WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                workflowPolicy(policy),
+                createSuccessTask(1),
+                createFailingTask(2),
+                createSuccessTask(3),
+                groupDone(0),
+                groupError(0)
+            };
+        };
+
+        const Group root1 = createRoot(WorkflowPolicy::StopOnError);
+        const Log log1 {
             {1, Handler::Setup},
             {1, Handler::Done},
             {2, Handler::Setup},
             {2, Handler::Error},
             {0, Handler::GroupError}
         };
-        QTest::newRow("StopOnError") << TestData{storage, root, log, 3, OnDone::Failure};
-    }
+        QTest::newRow("StopOnError") << TestData{storage, root1, log1, 3, OnDone::Failure};
 
-    {
-        const Group root = constructSimpleSequence(WorkflowPolicy::ContinueOnError);
-        const Log log {
+        const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
+        const Log errorLog {
             {1, Handler::Setup},
             {1, Handler::Done},
             {2, Handler::Setup},
@@ -773,22 +1201,18 @@ void tst_Tasking::testTree_data()
             {3, Handler::Done},
             {0, Handler::GroupError}
         };
-        QTest::newRow("ContinueOnError") << TestData{storage, root, log, 3, OnDone::Failure};
-    }
+        QTest::newRow("ContinueOnError") << TestData{storage, root2, errorLog, 3, OnDone::Failure};
 
-    {
-        const Group root = constructSimpleSequence(WorkflowPolicy::StopOnDone);
-        const Log log {
+        const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
+        const Log log3 {
             {1, Handler::Setup},
             {1, Handler::Done},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("StopOnDone") << TestData{storage, root, log, 3, OnDone::Success};
-    }
+        QTest::newRow("StopOnDone") << TestData{storage, root3, log3, 3, OnDone::Success};
 
-    {
-        const Group root = constructSimpleSequence(WorkflowPolicy::ContinueOnDone);
-        const Log log {
+        const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
+        const Log doneLog {
             {1, Handler::Setup},
             {1, Handler::Done},
             {2, Handler::Setup},
@@ -797,36 +1221,41 @@ void tst_Tasking::testTree_data()
             {3, Handler::Done},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("ContinueOnDone") << TestData{storage, root, log, 3, OnDone::Success};
-    }
+        QTest::newRow("ContinueOnDone") << TestData{storage, root4, doneLog, 3, OnDone::Success};
 
-    {
-        const Group root = constructSimpleSequence(WorkflowPolicy::StopOnFinished);
-        const Log log {
+        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        const Log log5 {
             {1, Handler::Setup},
             {1, Handler::Done},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("StopOnFinished") << TestData{storage, root, log, 3, OnDone::Success};
+        QTest::newRow("StopOnFinished") << TestData{storage, root5, log5, 3, OnDone::Success};
+
+        const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
+        QTest::newRow("FinishAllAndDone") << TestData{storage, root6, doneLog, 3, OnDone::Success};
+
+        const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
+        QTest::newRow("FinishAllAndError") << TestData{storage, root7, errorLog, 3, OnDone::Failure};
     }
 
     {
-        const auto setupRoot = [=](bool firstSuccess, bool secondSuccess) {
+        const auto createRoot = [storage, createTask, groupDone, groupError](
+                                    bool firstSuccess, bool secondSuccess) {
             return Group {
                 parallel,
                 stopOnFinished,
                 Storage(storage),
-                Test(setupSleepingTask(1, firstSuccess, 1000ms), logDone, logError),
-                Test(setupSleepingTask(2, secondSuccess, 5ms), logDone, logError),
-                onGroupDone(groupDone(0)),
-                onGroupError(groupError(0))
+                createTask(1, firstSuccess, 1000ms),
+                createTask(2, secondSuccess, 1ms),
+                groupDone(0),
+                groupError(0)
             };
         };
 
-        const Group root1 = setupRoot(true, true);
-        const Group root2 = setupRoot(true, false);
-        const Group root3 = setupRoot(false, true);
-        const Group root4 = setupRoot(false, false);
+        const Group root1 = createRoot(true, true);
+        const Group root2 = createRoot(true, false);
+        const Group root3 = createRoot(false, true);
+        const Group root4 = createRoot(false, false);
 
         const Log success {
             {1, Handler::Setup},
@@ -850,47 +1279,42 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const Group root {
-            Storage(storage),
-            optional,
-            Test(setupFailingTask(1), logDone, logError),
-            Test(setupFailingTask(2), logDone, logError),
-            onGroupDone(groupDone(0)),
-            onGroupError(groupError(0))
+        const auto createRoot = [storage, createSuccessTask, groupDone, groupError](
+                                    TaskAction taskAction) {
+            return Group {
+                Storage(storage),
+                Group {
+                    createSuccessTask(1)
+                },
+                Group {
+                    onGroupSetup([=] { return taskAction; }),
+                    createSuccessTask(2),
+                    createSuccessTask(3),
+                    createSuccessTask(4)
+                },
+                groupDone(0),
+                groupError(0)
+            };
         };
-        const Log log {
-            {1, Handler::Setup},
-            {1, Handler::Error},
-            {2, Handler::Setup},
-            {2, Handler::Error},
-            {0, Handler::GroupDone}
-        };
-        QTest::newRow("Optional") << TestData{storage, root, log, 2, OnDone::Success};
-    }
 
-    {
-        const Group root = constructDynamicHierarchy(TaskAction::StopWithDone);
-        const Log log {
+        const Group root1 = createRoot(TaskAction::StopWithDone);
+        const Log log1 {
             {1, Handler::Setup},
             {1, Handler::Done},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("DynamicSetupDone") << TestData{storage, root, log, 4, OnDone::Success};
-    }
+        QTest::newRow("DynamicSetupDone") << TestData{storage, root1, log1, 4, OnDone::Success};
 
-    {
-        const Group root = constructDynamicHierarchy(TaskAction::StopWithError);
-        const Log log {
+        const Group root2 = createRoot(TaskAction::StopWithError);
+        const Log log2 {
             {1, Handler::Setup},
             {1, Handler::Done},
             {0, Handler::GroupError}
         };
-        QTest::newRow("DynamicSetupError") << TestData{storage, root, log, 4, OnDone::Failure};
-    }
+        QTest::newRow("DynamicSetupError") << TestData{storage, root2, log2, 4, OnDone::Failure};
 
-    {
-        const Group root = constructDynamicHierarchy(TaskAction::Continue);
-        const Log log {
+        const Group root3 = createRoot(TaskAction::Continue);
+        const Log log3 {
             {1, Handler::Setup},
             {1, Handler::Done},
             {2, Handler::Setup},
@@ -901,7 +1325,7 @@ void tst_Tasking::testTree_data()
             {4, Handler::Done},
             {0, Handler::GroupDone}
         };
-        QTest::newRow("DynamicSetupContinue") << TestData{storage, root, log, 4, OnDone::Success};
+        QTest::newRow("DynamicSetupContinue") << TestData{storage, root3, log3, 4, OnDone::Success};
     }
 
     {
@@ -909,20 +1333,20 @@ void tst_Tasking::testTree_data()
             parallelLimit(2),
             Storage(storage),
             Group {
-                onGroupSetup(groupSetup(1)),
-                Test(setupTask(1))
+                groupSetup(1),
+                createSuccessTask(1)
             },
             Group {
-                onGroupSetup(groupSetup(2)),
-                Test(setupTask(2))
+                groupSetup(2),
+                createSuccessTask(2)
             },
             Group {
-                onGroupSetup(groupSetup(3)),
-                Test(setupTask(3))
+                groupSetup(3),
+                createSuccessTask(3)
             },
             Group {
-                onGroupSetup(groupSetup(4)),
-                Test(setupTask(4))
+                groupSetup(4),
+                createSuccessTask(4)
             }
         };
         const Log log {
@@ -930,10 +1354,14 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
+            {1, Handler::Done},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
+            {2, Handler::Done},
             {4, Handler::GroupSetup},
-            {4, Handler::Setup}
+            {4, Handler::Setup},
+            {3, Handler::Done},
+            {4, Handler::Done}
         };
         QTest::newRow("NestedParallel") << TestData{storage, root, log, 4, OnDone::Success};
     }
@@ -943,24 +1371,24 @@ void tst_Tasking::testTree_data()
             parallelLimit(2),
             Storage(storage),
             Group {
-                onGroupSetup(groupSetup(1)),
-                Test(setupTask(1))
+                groupSetup(1),
+                createSuccessTask(1)
             },
             Group {
-                onGroupSetup(groupSetup(2)),
-                Test(setupTask(2))
+                groupSetup(2),
+                createSuccessTask(2)
             },
             Group {
-                onGroupSetup(groupSetup(3)),
-                Test(setupDynamicTask(3, TaskAction::StopWithDone))
+                groupSetup(3),
+                createDynamicTask(3, TaskAction::StopWithDone)
             },
             Group {
-                onGroupSetup(groupSetup(4)),
-                Test(setupTask(4))
+                groupSetup(4),
+                createSuccessTask(4)
             },
             Group {
-                onGroupSetup(groupSetup(5)),
-                Test(setupTask(5))
+                groupSetup(5),
+                createSuccessTask(5)
             }
         };
         const Log log {
@@ -968,12 +1396,16 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
+            {1, Handler::Done},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
             {4, Handler::GroupSetup},
             {4, Handler::Setup},
+            {2, Handler::Done},
             {5, Handler::GroupSetup},
-            {5, Handler::Setup}
+            {5, Handler::Setup},
+            {4, Handler::Done},
+            {5, Handler::Done}
         };
         QTest::newRow("NestedParallelDone") << TestData{storage, root, log, 5, OnDone::Success};
     }
@@ -983,25 +1415,35 @@ void tst_Tasking::testTree_data()
             parallelLimit(2),
             Storage(storage),
             Group {
-                onGroupSetup(groupSetup(1)),
-                Test(setupTask(1))
+                groupSetup(1),
+                createSuccessTask(1)
             },
             Group {
-                onGroupSetup(groupSetup(2)),
-                Test(setupTask(2))
+                groupSetup(2),
+                createSuccessTask(2)
             },
             Group {
-                onGroupSetup(groupSetup(3)),
-                Test(setupDynamicTask(3, TaskAction::StopWithError))
+                groupSetup(3),
+                createDynamicTask(3, TaskAction::StopWithError)
             },
             Group {
-                onGroupSetup(groupSetup(4)),
-                Test(setupTask(4))
+                groupSetup(4),
+                createSuccessTask(4)
             },
             Group {
-                onGroupSetup(groupSetup(5)),
-                Test(setupTask(5))
+                groupSetup(5),
+                createSuccessTask(5)
             }
+        };
+        const Log log1 {
+            {1, Handler::GroupSetup},
+            {1, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {1, Handler::Done},
+            {3, Handler::GroupSetup},
+            {3, Handler::Setup},
+            {2, Handler::Error}
         };
 
         // Inside this test the task 2 should finish first, then synchonously:
@@ -1012,25 +1454,35 @@ void tst_Tasking::testTree_data()
             parallelLimit(2),
             Storage(storage),
             Group {
-                onGroupSetup(groupSetup(1)),
-                Test(setupSleepingTask(1, true, 10ms))
+                groupSetup(1),
+                createSuccessTask(1, 10ms)
             },
             Group {
-                onGroupSetup(groupSetup(2)),
-                Test(setupTask(2))
+                groupSetup(2),
+                createSuccessTask(2)
             },
             Group {
-                onGroupSetup(groupSetup(3)),
-                Test(setupDynamicTask(3, TaskAction::StopWithError))
+                groupSetup(3),
+                createDynamicTask(3, TaskAction::StopWithError)
             },
             Group {
-                onGroupSetup(groupSetup(4)),
-                Test(setupTask(4))
+                groupSetup(4),
+                createSuccessTask(4)
             },
             Group {
-                onGroupSetup(groupSetup(5)),
-                Test(setupTask(5))
+                groupSetup(5),
+                createSuccessTask(5)
             }
+        };
+        const Log log2 {
+            {1, Handler::GroupSetup},
+            {1, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {2, Handler::Done},
+            {3, Handler::GroupSetup},
+            {3, Handler::Setup},
+            {1, Handler::Error}
         };
 
         // This test ensures that the task 1 doesn't invoke its done handler,
@@ -1047,42 +1499,46 @@ void tst_Tasking::testTree_data()
             Group {
                 parallelLimit(2),
                 Group {
-                    onGroupSetup(groupSetup(1)),
-                    Test(setupSleepingTask(1, true, 20ms))
+                    groupSetup(1),
+                    createSuccessTask(1, 10ms)
                 },
                 Group {
-                    onGroupSetup(groupSetup(2)),
-                    Test(setupSleepingTask(2, true, 10ms))
+                    groupSetup(2),
+                    createSuccessTask(2, 1ms)
                 },
                 Group {
-                    onGroupSetup(groupSetup(3)),
-                    Test(setupDynamicTask(3, TaskAction::StopWithError))
+                    groupSetup(3),
+                    createDynamicTask(3, TaskAction::StopWithError)
                 },
                 Group {
-                    onGroupSetup(groupSetup(4)),
-                    Test(setupTask(4))
+                    groupSetup(4),
+                    createSuccessTask(4)
                 }
             },
             Group {
-                onGroupSetup(groupSetup(5)),
-                Test(setupTask(5))
+                groupSetup(5),
+                createSuccessTask(5)
             }
         };
-        const Log shortLog {
+        const Log log3 {
             {1, Handler::GroupSetup},
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
+            {2, Handler::Done},
             {3, Handler::GroupSetup},
-            {3, Handler::Setup}
+            {3, Handler::Setup},
+            {1, Handler::Error},
+            {5, Handler::GroupSetup},
+            {5, Handler::Setup},
+            {5, Handler::Done}
         };
-        const Log longLog = shortLog + Log {{5, Handler::GroupSetup}, {5, Handler::Setup}};
         QTest::newRow("NestedParallelError1")
-            << TestData{storage, root1, shortLog, 5, OnDone::Failure};
+            << TestData{storage, root1, log1, 5, OnDone::Failure};
         QTest::newRow("NestedParallelError2")
-            << TestData{storage, root2, shortLog, 5, OnDone::Failure};
+            << TestData{storage, root2, log2, 5, OnDone::Failure};
         QTest::newRow("NestedParallelError3")
-            << TestData{storage, root3, longLog, 5, OnDone::Failure};
+            << TestData{storage, root3, log3, 5, OnDone::Failure};
     }
 
     {
@@ -1090,35 +1546,31 @@ void tst_Tasking::testTree_data()
             parallelLimit(2),
             Storage(storage),
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(1)),
+                groupSetup(1),
                 Group {
                     parallel,
-                    Test(setupTask(1))
+                    createSuccessTask(1)
                 }
             },
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(2)),
+                groupSetup(2),
                 Group {
                     parallel,
-                    Test(setupTask(2))
+                    createSuccessTask(2)
                 }
             },
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(3)),
+                groupSetup(3),
                 Group {
                     parallel,
-                    Test(setupTask(3))
+                    createSuccessTask(3)
                 }
             },
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(4)),
+                groupSetup(4),
                 Group {
                     parallel,
-                    Test(setupTask(4))
+                    createSuccessTask(4)
                 }
             }
         };
@@ -1127,10 +1579,14 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
+            {1, Handler::Done},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
+            {2, Handler::Done},
             {4, Handler::GroupSetup},
-            {4, Handler::Setup}
+            {4, Handler::Setup},
+            {3, Handler::Done},
+            {4, Handler::Done}
         };
         QTest::newRow("DeeplyNestedParallel") << TestData{storage, root, log, 4, OnDone::Success};
     }
@@ -1140,29 +1596,24 @@ void tst_Tasking::testTree_data()
             parallelLimit(2),
             Storage(storage),
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(1)),
-                Group { Test(setupTask(1)) }
+                groupSetup(1),
+                Group { createSuccessTask(1) }
             },
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(2)),
-                Group { Test(setupTask(2)) }
+                groupSetup(2),
+                Group { createSuccessTask(2) }
             },
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(3)),
-                Group { Test(setupDynamicTask(3, TaskAction::StopWithDone)) }
+                groupSetup(3),
+                Group { createDynamicTask(3, TaskAction::StopWithDone) }
             },
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(4)),
-                Group { Test(setupTask(4)) }
+                groupSetup(4),
+                Group { createSuccessTask(4) }
             },
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(5)),
-                Group { Test(setupTask(5)) }
+                groupSetup(5),
+                Group { createSuccessTask(5) }
             }
         };
         const Log log {
@@ -1170,12 +1621,16 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
+            {1, Handler::Done},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
             {4, Handler::GroupSetup},
             {4, Handler::Setup},
+            {2, Handler::Done},
             {5, Handler::GroupSetup},
-            {5, Handler::Setup}
+            {5, Handler::Setup},
+            {4, Handler::Done},
+            {5, Handler::Done}
         };
         QTest::newRow("DeeplyNestedParallelDone")
             << TestData{storage, root, log, 5, OnDone::Success};
@@ -1186,29 +1641,24 @@ void tst_Tasking::testTree_data()
             parallelLimit(2),
             Storage(storage),
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(1)),
-                Group { Test(setupTask(1)) }
+                groupSetup(1),
+                Group { createSuccessTask(1) }
             },
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(2)),
-                Group { Test(setupTask(2)) }
+                groupSetup(2),
+                Group { createSuccessTask(2) }
             },
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(3)),
-                Group { Test(setupDynamicTask(3, TaskAction::StopWithError)) }
+                groupSetup(3),
+                Group { createDynamicTask(3, TaskAction::StopWithError) }
             },
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(4)),
-                Group { Test(setupTask(4)) }
+                groupSetup(4),
+                Group { createSuccessTask(4) }
             },
             Group {
-                Storage(TreeStorage<CustomStorage>()),
-                onGroupSetup(groupSetup(5)),
-                Group { Test(setupTask(5)) }
+                groupSetup(5),
+                Group { createSuccessTask(5) }
             }
         };
         const Log log {
@@ -1216,8 +1666,10 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
+            {1, Handler::Done},
             {3, Handler::GroupSetup},
-            {3, Handler::Setup}
+            {3, Handler::Setup},
+            {2, Handler::Error}
         };
         QTest::newRow("DeeplyNestedParallelError")
             << TestData{storage, root, log, 5, OnDone::Failure};
@@ -1226,11 +1678,11 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            Sync(setupSync(1)),
-            Sync(setupSync(2)),
-            Sync(setupSync(3)),
-            Sync(setupSync(4)),
-            Sync(setupSync(5))
+            createSync(1),
+            createSync(2),
+            createSync(3),
+            createSync(4),
+            createSync(5)
         };
         const Log log {
             {1, Handler::Sync},
@@ -1245,11 +1697,11 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            Sync(setupSyncWithReturn(1, true)),
-            Sync(setupSyncWithReturn(2, true)),
-            Sync(setupSyncWithReturn(3, true)),
-            Sync(setupSyncWithReturn(4, true)),
-            Sync(setupSyncWithReturn(5, true))
+            createSyncWithReturn(1, true),
+            createSyncWithReturn(2, true),
+            createSyncWithReturn(3, true),
+            createSyncWithReturn(4, true),
+            createSyncWithReturn(5, true)
         };
         const Log log {
             {1, Handler::Sync},
@@ -1265,11 +1717,11 @@ void tst_Tasking::testTree_data()
         const Group root {
             Storage(storage),
             parallel,
-            Sync(setupSync(1)),
-            Sync(setupSync(2)),
-            Sync(setupSync(3)),
-            Sync(setupSync(4)),
-            Sync(setupSync(5))
+            createSync(1),
+            createSync(2),
+            createSync(3),
+            createSync(4),
+            createSync(5)
         };
         const Log log {
             {1, Handler::Sync},
@@ -1285,11 +1737,11 @@ void tst_Tasking::testTree_data()
         const Group root {
             Storage(storage),
             parallel,
-            Sync(setupSync(1)),
-            Sync(setupSync(2)),
-            Sync(setupSyncWithReturn(3, false)),
-            Sync(setupSync(4)),
-            Sync(setupSync(5))
+            createSync(1),
+            createSync(2),
+            createSyncWithReturn(3, false),
+            createSync(4),
+            createSync(5)
         };
         const Log log {
             {1, Handler::Sync},
@@ -1302,18 +1754,20 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            Sync(setupSync(1)),
-            Test(setupTask(2)),
-            Sync(setupSync(3)),
-            Test(setupTask(4)),
-            Sync(setupSync(5)),
-            onGroupDone(groupDone(0))
+            createSync(1),
+            createSuccessTask(2),
+            createSync(3),
+            createSuccessTask(4),
+            createSync(5),
+            groupDone(0)
         };
         const Log log {
             {1, Handler::Sync},
             {2, Handler::Setup},
+            {2, Handler::Done},
             {3, Handler::Sync},
             {4, Handler::Setup},
+            {4, Handler::Done},
             {5, Handler::Sync},
             {0, Handler::GroupDone}
         };
@@ -1323,16 +1777,17 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            Sync(setupSync(1)),
-            Test(setupTask(2)),
-            Sync(setupSyncWithReturn(3, false)),
-            Test(setupTask(4)),
-            Sync(setupSync(5)),
-            onGroupError(groupError(0))
+            createSync(1),
+            createSuccessTask(2),
+            createSyncWithReturn(3, false),
+            createSuccessTask(4),
+            createSync(5),
+            groupError(0)
         };
         const Log log {
             {1, Handler::Sync},
             {2, Handler::Setup},
+            {2, Handler::Done},
             {3, Handler::Sync},
             {0, Handler::GroupError}
         };
@@ -1349,12 +1804,12 @@ void tst_Tasking::testTree_data()
             Storage(storage),
             Storage(barrier),
             sequential,
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
+            createBarrierAdvance(storage, barrier, 1),
             Group {
-                onGroupSetup(groupSetup(2)),
+                groupSetup(2),
                 WaitForBarrierTask(barrier),
-                Test(setupTask(2)),
-                Test(setupTask(3))
+                createSuccessTask(2),
+                createSuccessTask(3)
             }
         };
         const Log log1 {
@@ -1362,7 +1817,9 @@ void tst_Tasking::testTree_data()
             {1, Handler::BarrierAdvance},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
-            {3, Handler::Setup}
+            {2, Handler::Done},
+            {3, Handler::Setup},
+            {3, Handler::Done}
         };
 
         // Test that barrier advance, triggered from inside the task described by
@@ -1372,12 +1829,12 @@ void tst_Tasking::testTree_data()
             Storage(storage),
             Storage(barrier),
             parallel,
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
+            createBarrierAdvance(storage, barrier, 1),
             Group {
-                onGroupSetup(groupSetup(2)),
+                groupSetup(2),
                 WaitForBarrierTask(barrier),
-                Test(setupTask(2)),
-                Test(setupTask(3))
+                createSuccessTask(2),
+                createSuccessTask(3)
             }
         };
         const Log log2 {
@@ -1385,7 +1842,9 @@ void tst_Tasking::testTree_data()
             {2, Handler::GroupSetup},
             {1, Handler::BarrierAdvance},
             {2, Handler::Setup},
-            {3, Handler::Setup}
+            {2, Handler::Done},
+            {3, Handler::Setup},
+            {3, Handler::Done}
         };
 
         // Test that barrier advance, triggered from inside the task described by
@@ -1403,19 +1862,21 @@ void tst_Tasking::testTree_data()
             Storage(barrier),
             parallel,
             Group {
-                onGroupSetup(groupSetup(2)),
+                groupSetup(2),
                 WaitForBarrierTask(barrier),
-                Test(setupTask(2)),
-                Test(setupTask(3))
+                createSuccessTask(2),
+                createSuccessTask(3)
             },
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1))
+            createBarrierAdvance(storage, barrier, 1)
         };
         const Log log3 {
             {2, Handler::GroupSetup},
             {1, Handler::Setup},
             {1, Handler::BarrierAdvance},
             {2, Handler::Setup},
-            {3, Handler::Setup}
+            {2, Handler::Done},
+            {3, Handler::Setup},
+            {3, Handler::Done}
         };
 
         // Test that barrier advance, triggered from inside the task described by
@@ -1425,16 +1886,16 @@ void tst_Tasking::testTree_data()
             Storage(storage),
             Storage(barrier),
             parallel,
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
+            createBarrierAdvance(storage, barrier, 1),
             Group {
-                onGroupSetup(groupSetup(2)),
+                groupSetup(2),
                 WaitForBarrierTask(barrier),
-                Test(setupTask(4))
+                createSuccessTask(4)
             },
             Group {
-                onGroupSetup(groupSetup(3)),
+                groupSetup(3),
                 WaitForBarrierTask(barrier),
-                Test(setupTask(5))
+                createSuccessTask(5)
             }
         };
         const Log log4 {
@@ -1443,7 +1904,9 @@ void tst_Tasking::testTree_data()
             {3, Handler::GroupSetup},
             {1, Handler::BarrierAdvance},
             {4, Handler::Setup},
-            {5, Handler::Setup}
+            {5, Handler::Setup},
+            {4, Handler::Done},
+            {5, Handler::Done}
         };
 
         // Test two separate single barriers.
@@ -1455,25 +1918,26 @@ void tst_Tasking::testTree_data()
             Storage(barrier),
             Storage(barrier2),
             parallel,
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier2, 0)),
+            createBarrierAdvance(storage, barrier, 1),
+            createBarrierAdvance(storage, barrier2, 2),
             Group {
                 Group {
                     parallel,
-                    onGroupSetup(groupSetup(1)),
+                    groupSetup(1),
                     WaitForBarrierTask(barrier),
                     WaitForBarrierTask(barrier2)
                 },
-                Test(setupTask(2))
+                createSuccessTask(3)
             },
         };
         const Log log5 {
-            {0, Handler::Setup},
-            {0, Handler::Setup},
+            {1, Handler::Setup},
+            {2, Handler::Setup},
             {1, Handler::GroupSetup},
-            {0, Handler::BarrierAdvance},
-            {0, Handler::BarrierAdvance},
-            {2, Handler::Setup}
+            {1, Handler::BarrierAdvance},
+            {2, Handler::BarrierAdvance},
+            {3, Handler::Setup},
+            {3, Handler::Done}
         };
 
         // Notice the different log order for each scenario.
@@ -1499,13 +1963,13 @@ void tst_Tasking::testTree_data()
             Storage(storage),
             Storage(barrier),
             sequential,
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 1)),
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 2)),
+            createBarrierAdvance(storage, barrier, 1),
+            createBarrierAdvance(storage, barrier, 2),
             Group {
-                onGroupSetup(groupSetup(2)),
+                groupSetup(2),
                 WaitForBarrierTask(barrier),
-                Test(setupTask(2)),
-                Test(setupTask(3))
+                createSuccessTask(2),
+                createSuccessTask(3)
             }
         };
         const Log log1 {
@@ -1515,7 +1979,9 @@ void tst_Tasking::testTree_data()
             {2, Handler::BarrierAdvance},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
-            {3, Handler::Setup}
+            {2, Handler::Done},
+            {3, Handler::Setup},
+            {3, Handler::Done}
         };
 
         // Test that multi barrier advance, triggered from inside the tasks described by
@@ -1525,23 +1991,25 @@ void tst_Tasking::testTree_data()
             Storage(storage),
             Storage(barrier),
             parallel,
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            createBarrierAdvance(storage, barrier, 1),
+            createBarrierAdvance(storage, barrier, 2),
             Group {
-                onGroupSetup(groupSetup(2)),
+                groupSetup(2),
                 WaitForBarrierTask(barrier),
-                Test(setupTask(2)),
-                Test(setupTask(3))
+                createSuccessTask(3),
+                createSuccessTask(4)
             }
         };
         const Log log2 {
-            {0, Handler::Setup},
-            {0, Handler::Setup},
-            {2, Handler::GroupSetup},
-            {0, Handler::BarrierAdvance}, // Barrier advances may come in different order in
-            {0, Handler::BarrierAdvance}, // parallel mode, that's why id = 0 (same for both).
+            {1, Handler::Setup},
             {2, Handler::Setup},
-            {3, Handler::Setup}
+            {2, Handler::GroupSetup},
+            {1, Handler::BarrierAdvance},
+            {2, Handler::BarrierAdvance},
+            {3, Handler::Setup},
+            {3, Handler::Done},
+            {4, Handler::Setup},
+            {4, Handler::Done}
         };
 
         // Test that multi barrier advance, triggered from inside the tasks described by
@@ -1559,22 +2027,24 @@ void tst_Tasking::testTree_data()
             Storage(barrier),
             parallel,
             Group {
-                onGroupSetup(groupSetup(2)),
+                groupSetup(2),
                 WaitForBarrierTask(barrier),
-                Test(setupTask(2)),
-                Test(setupTask(3))
+                createSuccessTask(3),
+                createSuccessTask(4)
             },
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0))
+            createBarrierAdvance(storage, barrier, 1),
+            createBarrierAdvance(storage, barrier, 2)
         };
         const Log log3 {
             {2, Handler::GroupSetup},
-            {0, Handler::Setup},
-            {0, Handler::Setup},
-            {0, Handler::BarrierAdvance}, // Barrier advances may come in different order in
-            {0, Handler::BarrierAdvance}, // parallel mode, that's why id = 0 (same for both).
+            {1, Handler::Setup},
             {2, Handler::Setup},
-            {3, Handler::Setup}
+            {1, Handler::BarrierAdvance},
+            {2, Handler::BarrierAdvance},
+            {3, Handler::Setup},
+            {3, Handler::Done},
+            {4, Handler::Setup},
+            {4, Handler::Done}
         };
 
         // Test that multi barrier advance, triggered from inside the task described by
@@ -1584,28 +2054,30 @@ void tst_Tasking::testTree_data()
             Storage(storage),
             Storage(barrier),
             parallel,
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
-            AsyncTask<bool>(setupBarrierAdvance(storage, barrier, 0)),
+            createBarrierAdvance(storage, barrier, 1),
+            createBarrierAdvance(storage, barrier, 2),
             Group {
-                onGroupSetup(groupSetup(2)),
+                groupSetup(2),
                 WaitForBarrierTask(barrier),
-                Test(setupTask(4))
+                createSuccessTask(3)
             },
             Group {
-                onGroupSetup(groupSetup(3)),
+                groupSetup(3),
                 WaitForBarrierTask(barrier),
-                Test(setupTask(5))
+                createSuccessTask(4)
             }
         };
         const Log log4 {
-            {0, Handler::Setup},
-            {0, Handler::Setup},
+            {1, Handler::Setup},
+            {2, Handler::Setup},
             {2, Handler::GroupSetup},
             {3, Handler::GroupSetup},
-            {0, Handler::BarrierAdvance},
-            {0, Handler::BarrierAdvance},
+            {1, Handler::BarrierAdvance},
+            {2, Handler::BarrierAdvance},
+            {3, Handler::Setup},
             {4, Handler::Setup},
-            {5, Handler::Setup}
+            {3, Handler::Done},
+            {4, Handler::Done}
         };
 
         // Notice the different log order for each scenario.
@@ -1618,21 +2090,127 @@ void tst_Tasking::testTree_data()
         QTest::newRow("MultiBarrierParallelMultiWaitFor")
             << TestData{storage, root4, log4, 6, OnDone::Success};
     }
+
+    {
+        // Test CustomTask::withTimeout() combinations:
+        // 1. When the timeout has triggered or not.
+        // 2. With and without timeout handler.
+        const Group root1 {
+            Storage(storage),
+            TestTask(setupTask(1, 1000ms), setupDone(1), setupError(1))
+                .withTimeout(1ms)
+        };
+        const Log log1 {
+            {1, Handler::Setup},
+            {1, Handler::Error}
+        };
+        QTest::newRow("TaskErrorWithTimeout") << TestData{storage, root1, log1, 2,
+                                                          OnDone::Failure};
+
+        const Group root2 {
+            Storage(storage),
+            TestTask(setupTask(1, 1000ms), setupDone(1), setupError(1))
+                .withTimeout(1ms, setupTimeout(1))
+        };
+        const Log log2 {
+            {1, Handler::Setup},
+            {1, Handler::Timeout},
+            {1, Handler::Error}
+        };
+        QTest::newRow("TaskErrorWithTimeoutHandler") << TestData{storage, root2, log2, 2,
+                                                                 OnDone::Failure};
+
+        const Group root3 {
+            Storage(storage),
+            TestTask(setupTask(1, 1ms), setupDone(1), setupError(1))
+                .withTimeout(1000ms)
+        };
+        const Log doneLog {
+            {1, Handler::Setup},
+            {1, Handler::Done}
+        };
+        QTest::newRow("TaskDoneWithTimeout") << TestData{storage, root3, doneLog, 2,
+                                                         OnDone::Success};
+
+        const Group root4 {
+            Storage(storage),
+            TestTask(setupTask(1, 1ms), setupDone(1), setupError(1))
+                .withTimeout(1000ms, setupTimeout(1))
+        };
+        QTest::newRow("TaskDoneWithTimeoutHandler") << TestData{storage, root4, doneLog, 2,
+                                                                OnDone::Success};
+    }
+
+    {
+        // Test Group::withTimeout() combinations:
+        // 1. When the timeout has triggered or not.
+        // 2. With and without timeout handler.
+        const Group root1 {
+            Storage(storage),
+            Group {
+                createSuccessTask(1, 1000ms)
+            }.withTimeout(1ms)
+        };
+        const Log log1 {
+            {1, Handler::Setup},
+            {1, Handler::Error}
+        };
+        QTest::newRow("GroupErrorWithTimeout") << TestData{storage, root1, log1, 2,
+                                                           OnDone::Failure};
+
+        // Test Group::withTimeout(), passing custom handler
+        const Group root2 {
+            Storage(storage),
+            Group {
+                createSuccessTask(1, 1000ms)
+            }.withTimeout(1ms, setupTimeout(1))
+        };
+        const Log log2 {
+            {1, Handler::Setup},
+            {1, Handler::Timeout},
+            {1, Handler::Error}
+        };
+        QTest::newRow("GroupErrorWithTimeoutHandler") << TestData{storage, root2, log2, 2,
+                                                                  OnDone::Failure};
+
+        const Group root3 {
+            Storage(storage),
+            Group {
+                createSuccessTask(1, 1ms)
+            }.withTimeout(1000ms)
+        };
+        const Log doneLog {
+            {1, Handler::Setup},
+            {1, Handler::Done}
+        };
+        QTest::newRow("GroupDoneWithTimeout") << TestData{storage, root3, doneLog, 2,
+                                                          OnDone::Success};
+
+        // Test Group::withTimeout(), passing custom handler
+        const Group root4 {
+            Storage(storage),
+            Group {
+                createSuccessTask(1, 1ms)
+            }.withTimeout(1000ms, setupTimeout(1))
+        };
+        QTest::newRow("GroupDoneWithTimeoutHandler") << TestData{storage, root4, doneLog, 2,
+                                                                 OnDone::Success};
+    }
 }
 
 void tst_Tasking::testTree()
 {
     QFETCH(TestData, testData);
 
-    TaskTree taskTree(testData.root);
-    QCOMPARE(taskTree.taskCount(), testData.taskCount);
+    TaskTree taskTree({testData.root.withTimeout(1000ms)});
+    QCOMPARE(taskTree.taskCount() - 1, testData.taskCount); // -1 for the timeout task above
     Log actualLog;
     const auto collectLog = [&actualLog](CustomStorage *storage) { actualLog = storage->m_log; };
     taskTree.onStorageDone(testData.storage, collectLog);
-    const OnDone result = taskTree.runBlocking(2000) ? OnDone::Success : OnDone::Failure;
+    const OnDone result = taskTree.runBlocking() ? OnDone::Success : OnDone::Failure;
     QCOMPARE(taskTree.isRunning(), false);
 
-    QCOMPARE(taskTree.progressValue(), testData.taskCount);
+    QCOMPARE(taskTree.progressValue(), taskTree.progressMaximum());
     QCOMPARE(actualLog, testData.expectedLog);
     QCOMPARE(CustomStorage::instanceCount(), 0);
 
@@ -1667,13 +2245,12 @@ void tst_Tasking::storageDestructor()
     QCOMPARE(CustomStorage::instanceCount(), 0);
     {
         TreeStorage<CustomStorage> storage;
-        const auto setupSleepingTask = [](TestTask &task) {
-            task.setFutureSynchronizer(s_futureSynchronizer);
-            task.setConcurrentCallData(runTask, true, 1000ms);
+        const auto setupSleepingTask = [](TaskObject &taskObject) {
+            taskObject = 1000ms;
         };
         const Group root {
             Storage(storage),
-            Test(setupSleepingTask)
+            TestTask(setupSleepingTask)
         };
 
         TaskTree taskTree(root);
@@ -1682,7 +2259,6 @@ void tst_Tasking::storageDestructor()
         taskTree.onStorageDone(storage, doneHandler);
         taskTree.start();
         QCOMPARE(CustomStorage::instanceCount(), 1);
-        QThread::msleep(5); // Give the sleeping task a change to start
     }
     QCOMPARE(CustomStorage::instanceCount(), 0);
     QVERIFY(setupCalled);

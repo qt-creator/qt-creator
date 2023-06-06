@@ -273,6 +273,8 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
         return task.summary;
     case TaskModel::Description:
         return task.description();
+    case TaskModel::Type:
+        return int(task.type);
     }
     return {};
 }
@@ -409,7 +411,8 @@ void TaskFilterModel::updateFilterProperties(
 
 bool TaskFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    Q_UNUSED(source_parent)
+    if (source_parent.isValid())
+        return true;
     return filterAcceptsTask(taskModel()->tasks().at(source_row));
 }
 

@@ -18199,16 +18199,16 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Bytes</translation>
     </message>
     <message>
-        <source>KB</source>
-        <translation>KB</translation>
+        <source>KiB</source>
+        <translation>KiB</translation>
     </message>
     <message>
-        <source>GB</source>
-        <translation>GB</translation>
+        <source>GiB</source>
+        <translation>GiB</translation>
     </message>
     <message>
-        <source>TB</source>
-        <translation>TB</translation>
+        <source>TiB</source>
+        <translation>TiB</translation>
     </message>
     <message>
         <source>Enable crash reporting</source>
@@ -27194,12 +27194,8 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
         <translation>Privat</translation>
     </message>
     <message>
-        <source>Create a private check-in that is never synced.
-Children of private check-ins are automatically private.
-Private check-ins are not pushed to the remote repository by default.</source>
-        <translation>Erstelle einen privaten Check-In, der niemals synchronisiert wird.
-Kinder von privaten Check-Ins sind automatisch privat.
-Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht.</translation>
+        <source>Create a private check-in that is never synced. Children of private check-ins are automatically private. Private check-ins are not pushed to the remote repository by default.</source>
+        <translation>Erstelle einen privaten Check-In, der niemals synchronisiert wird. Kinder von privaten Check-Ins sind automatisch privat. Private Check-Ins werden standardmäßig nicht zum entfernten Repository gepusht.</translation>
     </message>
     <message>
         <source>Tag names to apply; comma-separated.</source>
@@ -39112,7 +39108,7 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>&amp;Configure Project</source>
-        <translation>Projekt &amp;Konfigurieren</translation>
+        <translation>Projekt &amp;konfigurieren</translation>
     </message>
     <message>
         <source>Enable Kit for Project &quot;%1&quot;</source>
@@ -53204,12 +53200,9 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
         <source>Hint: The second line of a commit message should be empty.</source>
         <translation>Hinweis: Die zweite Zeile der Beschreibung sollte leer sein.</translation>
     </message>
-    <message numerus="yes">
-        <source>&lt;p&gt;Writing good commit messages&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Avoid very short commit messages.&lt;/li&gt;&lt;li&gt;Consider the first line as subject (like in email) and keep it shorter than %n characters.&lt;/li&gt;&lt;li&gt;After an empty second line, a longer description can be added.&lt;/li&gt;&lt;li&gt;Describe why the change was done, not how it was done.&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>
-            <numerusform>&lt;p&gt;Gute Beschreibungen für Commits schreiben&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Vermeiden Sie sehr kurze Beschreibungen.&lt;/li&gt;&lt;li&gt;Betrachten Sie die erste Zeile als Betreff (wie in einer E-Mail) und halten Sie sie kürzer als ein Zeichen.&lt;/li&gt;&lt;li&gt;Eine längere Beschreibung kann nach einer leeren zweiten Zeile folgen.&lt;/li&gt;&lt;li&gt;Beschreiben Sie, weshalb die Änderung vorgenommen wurde, nicht wie sie vorgenommen wurde.&lt;/li&gt;&lt;/ul&gt;</numerusform>
-            <numerusform>&lt;p&gt;Gute Beschreibungen für Commits schreiben&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Vermeiden Sie sehr kurze Beschreibungen.&lt;/li&gt;&lt;li&gt;Betrachten Sie die erste Zeile als Betreff (wie in einer E-Mail) und halten Sie sie kürzer als %n Zeichen.&lt;/li&gt;&lt;li&gt;Eine längere Beschreibung kann nach einer leeren zweiten Zeile folgen.&lt;/li&gt;&lt;li&gt;Beschreiben Sie, weshalb die Änderung vorgenommen wurde, nicht wie sie vorgenommen wurde.&lt;/li&gt;&lt;/ul&gt;</numerusform>
-        </translation>
+    <message>
+        <source>&lt;p&gt;Writing good commit messages&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Avoid very short commit messages.&lt;/li&gt;&lt;li&gt;Consider the first line as a subject (like in emails) and keep it shorter than 72 characters.&lt;/li&gt;&lt;li&gt;After an empty second line, a longer description can be added.&lt;/li&gt;&lt;li&gt;Describe why the change was done, not how it was done.&lt;/li&gt;&lt;/ul&gt;</source>
+        <translation>&lt;p&gt;Gute Beschreibungen für Commits schreiben&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Vermeiden Sie sehr kurze Beschreibungen.&lt;/li&gt;&lt;li&gt;Betrachten Sie die erste Zeile als Betreff (wie in einer E-Mail) und halten Sie sie kürzer als 72 Zeichen.&lt;/li&gt;&lt;li&gt;Eine längere Beschreibung kann nach einer leeren zweiten Zeile folgen.&lt;/li&gt;&lt;li&gt;Beschreiben Sie, weshalb die Änderung vorgenommen wurde, nicht wie sie vorgenommen wurde.&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Update in progress</source>

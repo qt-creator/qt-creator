@@ -42,7 +42,6 @@
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
-#include <utils/executeondestruction.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
@@ -70,6 +69,7 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+#include <QScopeGuard>
 #include <QSet>
 #include <QSettings>
 #include <QSplitter>
@@ -3325,9 +3325,7 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
             EditorManager::gotoOtherSplit();
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    Utils::ExecuteOnDestruction appRestoreCursor(&QApplication::restoreOverrideCursor);
-    Q_UNUSED(appRestoreCursor)
-
+    const auto cleanup = qScopeGuard(&QApplication::restoreOverrideCursor);
 
     const QString title = makeTitleUnique(titlePattern);
 

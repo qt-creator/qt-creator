@@ -18,7 +18,7 @@ public:
 
     Utils::StringAspect font{this};
     Utils::IntegerAspect fontSize{this};
-    Utils::StringAspect shell{this};
+    Utils::FilePathAspect shell{this};
     Utils::StringAspect shellArguments{this};
 
     Utils::ColorAspect foregroundColor;

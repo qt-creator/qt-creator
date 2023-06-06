@@ -40,7 +40,7 @@ public:
     explicit VcsPluginPrivate(VcsPlugin *plugin)
         : q(plugin)
     {
-        QObject::connect(&m_settingsPage.settings(), &CommonVcsSettings::settingsChanged,
+        QObject::connect(&m_settings, &AspectContainer::changed,
                          [this] { slotSettingsChanged(); });
         slotSettingsChanged();
     }
@@ -57,7 +57,7 @@ public:
     void populateNickNameModel()
     {
         QString errorMessage;
-        if (!NickNameDialog::populateModelFromMailCapFile(m_settingsPage.settings().nickNameMailMap.filePath(),
+        if (!NickNameDialog::populateModelFromMailCapFile(m_settings.nickNameMailMap(),
                                                           m_nickNameModel,
                                                           &errorMessage)) {
             qWarning("%s", qPrintable(errorMessage));
@@ -71,7 +71,7 @@ public:
     }
 
     VcsPlugin *q;
-    CommonOptionsPage m_settingsPage;
+    CommonVcsSettings m_settings;
     QStandardItemModel *m_nickNameModel = nullptr;
 };
 
@@ -100,9 +100,6 @@ void VcsPlugin::initialize()
             emit submitEditorAboutToClose(se, &result);
         return result;
     });
-
-    connect(&d->m_settingsPage.settings(), &CommonVcsSettings::settingsChanged,
-            this, &VcsPlugin::settingsChanged);
 
     JsonWizardFactory::registerPageFactory(new Internal::VcsConfigurationPageFactory);
     JsonWizardFactory::registerPageFactory(new Internal::VcsCommandPageFactory);
@@ -144,11 +141,6 @@ void VcsPlugin::initialize()
 VcsPlugin *VcsPlugin::instance()
 {
     return m_instance;
-}
-
-CommonVcsSettings &VcsPlugin::settings() const
-{
-    return d->m_settingsPage.settings();
 }
 
 /* Delayed creation/update of the nick name model. */

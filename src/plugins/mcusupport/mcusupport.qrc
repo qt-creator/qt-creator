@@ -20,5 +20,6 @@
         <file>wizards/qmlproject/module.qmlproject.tpl</file>
         <file>wizards/qmlproject/component.qml.tpl</file>
         <file>wizards/qmlproject/wizard.json</file>
+        <file>wizards/qmlproject/Qul.cmake</file>
     </qresource>
 </RCC>

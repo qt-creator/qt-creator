@@ -66,10 +66,10 @@ BazaarSettings::BazaarSettings()
     timeout.setLabelText(Tr::tr("Timeout:"));
     timeout.setSuffix(Tr::tr("s"));
 
-    setLayouter([this](QWidget *widget) {
+    setLayouter([this] {
         using namespace Layouting;
 
-        Column {
+        return Column {
             Group {
                 title(Tr::tr("Configuration")),
                 Row { binaryPath }
@@ -88,7 +88,7 @@ BazaarSettings::BazaarSettings()
                 Row { logCount, timeout, st }
             },
             st
-        }.attachTo(widget);
+        };
     });
 }
 

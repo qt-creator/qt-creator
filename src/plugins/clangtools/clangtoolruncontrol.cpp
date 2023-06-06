@@ -183,7 +183,7 @@ void ClangToolRunWorker::start()
     m_filesAnalyzed.clear();
     m_filesNotAnalyzed.clear();
 
-    QList<TaskItem> tasks{parallelLimit(qMax(1, m_runSettings.parallelJobs()))};
+    QList<GroupItem> tasks{parallelLimit(qMax(1, m_runSettings.parallelJobs()))};
     for (const AnalyzeUnit &unit : std::as_const(unitsToProcess)) {
         if (!m_diagnosticConfig.isEnabled(tool)
             && !m_runSettings.hasConfigFileForSourceFile(unit.file)) {

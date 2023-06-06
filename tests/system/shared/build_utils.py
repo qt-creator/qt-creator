@@ -47,7 +47,7 @@ def checkLastBuild(expectedToFail=False):
         test.log("checkLastBuild called without a build")
         return
     buildIssues = getBuildIssues()
-    types = [i[5] for i in buildIssues]
+    types = [i[1] for i in buildIssues]
     errors = types.count("1")
     warnings = types.count("2")
     gotErrors = errors != 0
@@ -89,7 +89,7 @@ def dumpBuildIssues(listModel):
     issueDump = []
     for index in dumpIndices(listModel):
         issueDump.extend([[str(index.data(role).toString()) for role
-                           in range(Qt.UserRole, Qt.UserRole + 6)]])
+                           in range(Qt.UserRole, Qt.UserRole + 2)]])
     return issueDump
 
 

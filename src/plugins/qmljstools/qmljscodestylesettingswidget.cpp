@@ -20,15 +20,17 @@ QmlJSCodeStyleSettingsWidget::QmlJSCodeStyleSettingsWidget(QWidget *parent)
     m_lineLengthSpinBox->setMaximum(999);
 
     using namespace Layouting;
+    // clang-format off
     Column {
         Group {
-            title(Tr::tr("Qml JS Code Style")),
+            title(Tr::tr("Other")),
             Form {
                 Tr::tr("&Line length:"), m_lineLengthSpinBox, br,
             }
         },
         noMargin
     }.attachTo(this);
+    // clang-format on
 
     connect(m_lineLengthSpinBox, &QSpinBox::valueChanged,
             this, &QmlJSCodeStyleSettingsWidget::slotSettingsChanged);

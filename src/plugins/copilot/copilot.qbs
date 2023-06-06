@@ -5,6 +5,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "LanguageClient" }
+    Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 

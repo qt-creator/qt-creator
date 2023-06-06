@@ -135,6 +135,9 @@ public:
                                                      const QStringList &extraArgs);
     // Display name of the commit action
     virtual QString commitDisplayName() const;
+    virtual QString commitAbortTitle() const;
+    virtual QString commitAbortMessage() const;
+    virtual QString commitErrorMessage(const QString &error) const;
 
     void commitFromEditor();
     virtual bool activateCommit() = 0;

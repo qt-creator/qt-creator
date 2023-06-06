@@ -5,8 +5,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class ToolsSettingsPage final : public Core::IOptionsPage
 {
@@ -14,5 +13,4 @@ public:
     ToolsSettingsPage();
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

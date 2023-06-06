@@ -227,6 +227,10 @@ private:
     Q_INVOKABLE void updateStatusActions();
 
     QString commitDisplayName() const final;
+    QString commitAbortTitle() const final;
+    QString commitAbortMessage() const final;
+    QString commitErrorMessage(const QString &error) const final;
+
     void checkOutCurrentFile();
     void addCurrentFile();
     void undoCheckOutCurrent();
@@ -948,7 +952,25 @@ void ClearCasePluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
 
 QString ClearCasePluginPrivate::commitDisplayName() const
 {
+    //: Name of the "commit" action of the VCS
     return Tr::tr("Check In");
+}
+
+QString ClearCasePluginPrivate::commitAbortTitle() const
+{
+    return Tr::tr("Close Check In Editor");
+}
+
+QString ClearCasePluginPrivate::commitAbortMessage() const
+{
+    return Tr::tr("Closing this editor will abort the check in.");
+}
+
+QString ClearCasePluginPrivate::commitErrorMessage(const QString &error) const
+{
+    if (error.isEmpty())
+        return Tr::tr("Cannot check in.");
+    return Tr::tr("Cannot check in: %1.").arg(error);
 }
 
 void ClearCasePluginPrivate::checkOutCurrentFile()

@@ -21,6 +21,7 @@
 #include <utils/fadingindicator.h>
 #include <utils/filesearch.h>
 #include <utils/futuresynchronizer.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -28,6 +29,7 @@
 #include <QSettings>
 #include <QHash>
 #include <QPair>
+#include <QPromise>
 #include <QStringListModel>
 #include <QFutureWatcher>
 #include <QPointer>
@@ -38,6 +40,98 @@ using namespace Utils;
 using namespace Core;
 
 namespace TextEditor {
+
+static std::optional<QRegularExpression> regExpFromParameters(const FileFindParameters &parameters)
+{
+    if (!(parameters.flags & FindRegularExpression))
+        return {};
+
+    const QRegularExpression::PatternOptions options = parameters.flags & FindCaseSensitively
+        ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
+    QRegularExpression regExp;
+    regExp.setPattern(parameters.text);
+    regExp.setPatternOptions(options);
+    return regExp;
+}
+
+void searchInProcessOutput(QPromise<SearchResultItems> &promise,
+                           const FileFindParameters &parameters,
+                           const ProcessSetupHandler &processSetupHandler,
+                           const ProcessOutputParser &processOutputParser)
+{
+    if (promise.isCanceled())
+        return;
+
+    QEventLoop loop;
+
+    Process process;
+    processSetupHandler(process);
+
+    const std::optional<QRegularExpression> regExp = regExpFromParameters(parameters);
+    QStringList outputBuffer;
+    // The states transition exactly in this order:
+    enum State { BelowLimit, AboveLimit, Paused, Resumed };
+    State state = BelowLimit;
+    int reportedItemsCount = 0;
+    QFuture<void> future(promise.future());
+    process.setStdOutCallback([&](const QString &output) {
+        if (promise.isCanceled()) {
+            process.close();
+            loop.quit();
+            return;
+        }
+        // The SearchResultWidget is going to pause the search anyway, so start buffering
+        // the output.
+        if (state == AboveLimit || state == Paused) {
+            outputBuffer.append(output);
+        } else {
+            const SearchResultItems items = processOutputParser(future, output, regExp);
+            if (!items.isEmpty())
+                promise.addResult(items);
+            reportedItemsCount += items.size();
+            if (state == BelowLimit && reportedItemsCount > 200000)
+                state = AboveLimit;
+        }
+    });
+    QObject::connect(&process, &Process::done, &loop, [&loop, &promise, &state] {
+        if (state == BelowLimit || state == Resumed || promise.isCanceled())
+            loop.quit();
+    });
+
+    if (promise.isCanceled())
+        return;
+
+    process.start();
+    if (process.state() == QProcess::NotRunning)
+        return;
+
+    QFutureWatcher<void> watcher;
+    QObject::connect(&watcher, &QFutureWatcherBase::canceled, &loop, [&process, &loop] {
+        process.close();
+        loop.quit();
+    });
+    QObject::connect(&watcher, &QFutureWatcherBase::paused, &loop, [&state] { state = Paused; });
+    QObject::connect(&watcher, &QFutureWatcherBase::resumed, &loop, [&] {
+        state = Resumed;
+        for (const QString &output : outputBuffer) {
+            if (promise.isCanceled()) {
+                process.close();
+                loop.quit();
+            }
+            const SearchResultItems items = processOutputParser(future, output, regExp);
+            if (!items.isEmpty())
+                promise.addResult(items);
+        }
+        outputBuffer.clear();
+        if (process.state() == QProcess::NotRunning)
+            loop.quit();
+    });
+    watcher.setFuture(future);
+    if (promise.isCanceled())
+        return;
+    loop.exec(QEventLoop::ExcludeUserInputEvents);
+}
+
 namespace Internal {
 
 class InternalEngine : public TextEditor::SearchEngine

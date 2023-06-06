@@ -25,6 +25,7 @@
 #include <debugger/analyzer/analyzerconstants.h>
 #include <debugger/debuggermainwindow.h>
 
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -111,8 +112,7 @@ void CppcheckPluginPrivate::startManualRun()
 
     manualRunTool.updateOptions();
 
-    auto optionsWidget = new QWidget;
-    options.layouter()(optionsWidget);
+    auto optionsWidget = options.layouter()().emerge();
 
     ManualRunDialog dialog(optionsWidget, project);
     if (dialog.exec() == ManualRunDialog::Rejected)

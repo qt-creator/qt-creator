@@ -36,7 +36,7 @@ private:
     ProjectExplorer::InterpreterAspect m_interpreter;
     Utils::SelectionAspect m_pySideVersion;
     Utils::BoolAspect m_createVenv;
-    Utils::StringAspect m_venvPath;
+    Utils::FilePathAspect m_venvPath;
     Utils::InfoLabel *m_stateLabel = nullptr;
 };
 

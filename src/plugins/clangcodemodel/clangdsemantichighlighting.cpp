@@ -421,8 +421,12 @@ void doSemanticHighlighting(
             if (ClangdClient * const client = ClangModelManagerSupport::clientForFile(filePath))
                 client->setVirtualRanges(filePath, virtualRanges, docRevision);
         }, Qt::QueuedConnection);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+        promise.addResults(results);
+#else
         for (const HighlightingResult &r : results)
             promise.addResult(r);
+#endif
     }
 }
 

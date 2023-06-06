@@ -46,6 +46,11 @@ const char C_EDITORMANAGER[]       = "Core.EditorManager";
 const char C_NAVIGATION_PANE[]     = "Core.NavigationPane";
 const char C_PROBLEM_PANE[]        = "Core.ProblemPane";
 const char C_GENERAL_OUTPUT_PANE[] = "Core.GeneralOutputPane";
+// Special context that leads to all "more specific" contexts to be ignored.
+// If you use Context(mycontextId, C_GLOBAL_CUTOFF) for a widget that has focus,
+// mycontextId will be enabled but the contexts for all parent widgets, the manually added
+// "additional" contexts, and the global context will be turned off.
+const char C_GLOBAL_CUTOFF[]       = "Global Cutoff";
 
 // Default editor kind
 const char K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "Plain Text Editor");

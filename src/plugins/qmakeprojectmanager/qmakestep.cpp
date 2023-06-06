@@ -330,7 +330,7 @@ void QMakeStep::doRun()
         emit buildConfiguration()->buildDirectoryInitialized();
     };
 
-    QList<TaskItem> processList = {ProcessTask(setupQMake, onProcessDone, onProcessError)};
+    QList<GroupItem> processList = {ProcessTask(setupQMake, onProcessDone, onProcessError)};
     if (m_runMakeQmake)
         processList << ProcessTask(setupMakeQMake, onProcessDone, onProcessError);
     processList << onGroupDone(onDone);
@@ -455,21 +455,6 @@ bool QMakeStep::fromMap(const QVariantMap &map)
 {
     m_forced = map.value(QMAKE_FORCED_KEY, false).toBool();
     m_selectedAbis = map.value(QMAKE_SELECTED_ABIS_KEY).toStringList();
-
-    // Backwards compatibility with < Creator 4.12.
-    const QVariant separateDebugInfo
-            = map.value("QtProjectManager.QMakeBuildStep.SeparateDebugInfo");
-    if (separateDebugInfo.isValid())
-        qmakeBuildConfiguration()->forceSeparateDebugInfo(separateDebugInfo.toBool());
-    const QVariant qmlDebugging
-            = map.value("QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibrary");
-    if (qmlDebugging.isValid())
-        qmakeBuildConfiguration()->forceQmlDebugging(qmlDebugging.toBool());
-    const QVariant useQtQuickCompiler
-            = map.value("QtProjectManager.QMakeBuildStep.UseQtQuickCompiler");
-    if (useQtQuickCompiler.isValid())
-        qmakeBuildConfiguration()->forceQtQuickCompiler(useQtQuickCompiler.toBool());
-
     return BuildStep::fromMap(map);
 }
 

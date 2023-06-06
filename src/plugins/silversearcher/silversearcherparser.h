@@ -5,11 +5,18 @@
 
 #include <utils/searchresultitem.h>
 
+#include <QFuture>
 #include <QRegularExpression>
+
+namespace Utils { class FilePath; }
 
 namespace SilverSearcher {
 
-Utils::SearchResultItems parse(const QString &output,
+Utils::SearchResultItems parse(const QFuture<void> &future, const QString &input,
+                               const std::optional<QRegularExpression> &regExp,
+                               Utils::FilePath *lastFilePath);
+
+Utils::SearchResultItems parse(const QString &input,
                                const std::optional<QRegularExpression> &regExp = {});
 
 } // namespace SilverSearcher

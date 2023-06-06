@@ -95,8 +95,6 @@ Project {
             "toolssettingsaccessor.h",
             "toolssettingspage.cpp",
             "toolssettingspage.h",
-            "toolssettingswidget.cpp",
-            "toolssettingswidget.h",
             "tooltreeitem.cpp",
             "tooltreeitem.h",
             "versionhelper.h",

@@ -148,15 +148,14 @@ private slots:
         };
 
         // Parallelize tree generation
-        QList<TaskItem> tasks{parallelLimit(m_threadsCount)};
+        QList<GroupItem> tasks{parallelLimit(m_threadsCount)};
         for (int i = 1; i < s_topLevelSubDirsCount; ++i) {
             const QString destDirName = dirName(i);
             QVERIFY(parentDir.mkdir(destDirName));
             tasks.append(AsyncTask<void>(onCopySetup(parentDir.filePath(sourceDirName),
                                                      parentDir.filePath(destDirName))));
         }
-        TaskTree taskTree(tasks);
-        QVERIFY(taskTree.runBlocking());
+        QVERIFY(TaskTree::runBlocking(tasks));
     }
 
     void cleanupTestCase()
@@ -174,12 +173,11 @@ private slots:
             };
         };
         const QDir parentDir(m_tempDir->path());
-        QList<TaskItem> tasks {parallelLimit(m_threadsCount)};
+        QList<GroupItem> tasks {parallelLimit(m_threadsCount)};
         for (int i = 0; i < s_topLevelSubDirsCount; ++i)
             tasks.append(AsyncTask<void>(onSetup(parentDir.filePath(dirName(i)))));
 
-        TaskTree taskTree(tasks);
-        QVERIFY(taskTree.runBlocking());
+        QVERIFY(TaskTree::runBlocking(tasks));
 
         m_tempDir.reset();
         Singleton::deleteAll();

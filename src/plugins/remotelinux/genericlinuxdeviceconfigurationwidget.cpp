@@ -79,12 +79,14 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     m_gdbServerLineEdit->setPlaceholderText(hint);
     m_gdbServerLineEdit->setToolTip(hint);
     m_gdbServerLineEdit->setHistoryCompleter("GdbServer");
+    m_gdbServerLineEdit->setAllowPathFromDevice(true);
 
     m_qmlRuntimeLineEdit = new PathChooser(this);
     m_qmlRuntimeLineEdit->setExpectedKind(PathChooser::ExistingCommand);
     m_qmlRuntimeLineEdit->setPlaceholderText(hint);
     m_qmlRuntimeLineEdit->setToolTip(hint);
     m_qmlRuntimeLineEdit->setHistoryCompleter("QmlRuntime");
+    m_qmlRuntimeLineEdit->setAllowPathFromDevice(true);
 
     m_sourceProfileCheckBox =
         new QCheckBox(Tr::tr("Source %1 and %2").arg("/etc/profile").arg("$HOME/.profile"));

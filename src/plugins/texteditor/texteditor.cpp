@@ -51,7 +51,6 @@
 #include <utils/async.h>
 #include <utils/camelcasecursor.h>
 #include <utils/dropsupport.h>
-#include <utils/executeondestruction.h>
 #include <utils/fadingindicator.h>
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
@@ -92,9 +91,10 @@
 #include <QPropertyAnimation>
 #include <QDrag>
 #include <QRegularExpression>
-#include <QSequentialAnimationGroup>
+#include <QScopeGuard>
 #include <QScreen>
 #include <QScrollBar>
+#include <QSequentialAnimationGroup>
 #include <QShortcut>
 #include <QStyle>
 #include <QStyleFactory>
@@ -1426,7 +1426,7 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
         return;
 
     doc = doc->clone(doc);
-    Utils::ExecuteOnDestruction docDeleter([doc]() { delete doc; });
+    const auto cleanup = qScopeGuard([doc] { delete doc; });
 
     QTextOption opt = doc->defaultTextOption();
     opt.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
@@ -5275,7 +5275,7 @@ void TextEditorWidgetPrivate::paintTextMarks(QPainter &painter, const ExtraAreaP
     int yoffset = blockBoundingRect.top();
 
     painter.save();
-    Utils::ExecuteOnDestruction eod([&painter, size, yoffset, xoffset, overrideIcon]() {
+    const auto cleanup = qScopeGuard([&painter, size, yoffset, xoffset, overrideIcon] {
         if (!overrideIcon.isNull()) {
             const QRect r(xoffset, yoffset, size, size);
             overrideIcon.paint(&painter, r, Qt::AlignCenter);

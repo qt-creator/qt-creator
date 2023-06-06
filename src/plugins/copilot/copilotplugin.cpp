@@ -120,6 +120,9 @@ void CopilotPlugin::extensionsInitialized()
 void CopilotPlugin::restartClient()
 {
     LanguageClient::LanguageClientManager::shutdownClient(m_client);
+
+    if (!CopilotSettings::instance().nodeJsPath().isExecutableFile())
+        return;
     m_client = new CopilotClient(CopilotSettings::instance().nodeJsPath(),
                                  CopilotSettings::instance().distPath());
 }

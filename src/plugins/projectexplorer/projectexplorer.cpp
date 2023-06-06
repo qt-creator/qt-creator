@@ -57,7 +57,6 @@
 #include "project.h"
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
-#include "projectexplorersettingspage.h"
 #include "projectexplorertr.h"
 #include "projectfilewizardextension.h"
 #include "projectmanager.h"
@@ -667,7 +666,6 @@ public:
     // Settings pages
     ProjectExplorerSettingsPage m_projectExplorerSettingsPage;
     AppOutputSettingsPage m_appOutputSettingsPage;
-    CompileOutputSettingsPage m_compileOutputSettingsPage;
     DeviceSettingsPage m_deviceSettingsPage;
     SshSettingsPage m_sshSettingsPage;
     CustomParsersSettingsPage m_customParsersSettingsPage;

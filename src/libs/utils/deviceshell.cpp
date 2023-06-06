@@ -104,7 +104,7 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
 
     QWaitCondition waiter;
     const int id = ++m_currentId;
-    const auto it = m_commandOutput.insert(id, CommandRun{{-1, {}, {}}, &waiter});
+    m_commandOutput.insert(id, CommandRun{{-1, {}, {}}, &waiter});
 
     QMetaObject::invokeMethod(m_shellProcess.get(), [this, id, cmd, stdInData] {
         const QString command = QString("%1 \"%2\" %3\n").arg(id)
@@ -115,6 +115,7 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
 
     waiter.wait(&m_commandMutex);
 
+    const auto it = m_commandOutput.constFind(id);
     const RunResult result = *it;
     m_commandOutput.erase(it);
 

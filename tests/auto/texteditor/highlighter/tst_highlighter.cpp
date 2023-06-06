@@ -301,6 +301,41 @@ void tst_highlighter::test_incrementalApplyAdditionalFormats()
     // should have no results since the new results do not contain a highlight at that position
     formats = emptyLineBlock.layout()->formats();
     QVERIFY(formats.isEmpty());
+
+    // QTCREATORBUG-29218
+    highlighter->clearAllExtraFormats();
+    const HighlightingResults bug29218Results{HighlightingResult(1, 1, 2, 0),
+                                              HighlightingResult(1, 3, 2, 1)};
+    QFutureInterface<HighlightingResult> fi29218;
+    fi29218.reportResults(bug29218Results);
+    formats = firstBlock.layout()->formats();
+    QVERIFY(formats.isEmpty());
+    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighter,
+                                                                fi29218.future(),
+                                                                0,
+                                                                1,
+                                                                formatHash);
+    formats = firstBlock.layout()->formats();
+    QCOMPARE(formats.size(), 1);
+    QCOMPARE(formats.at(0).format.fontItalic(), true);
+    QCOMPARE(formats.at(0).format.fontOverline(), false);
+    QCOMPARE(formats.at(0).start, 0);
+    QCOMPARE(formats.at(0).length, 2);
+    SemanticHighlighter::incrementalApplyExtraAdditionalFormats(highlighter,
+                                                                fi29218.future(),
+                                                                1,
+                                                                2,
+                                                                formatHash);
+    formats = firstBlock.layout()->formats();
+    QCOMPARE(formats.size(), 2);
+    QCOMPARE(formats.at(0).format.fontItalic(), true);
+    QCOMPARE(formats.at(0).format.fontOverline(), false);
+    QCOMPARE(formats.at(0).start, 0);
+    QCOMPARE(formats.at(0).length, 2);
+    QCOMPARE(formats.at(1).format.fontItalic(), false);
+    QCOMPARE(formats.at(1).format.fontOverline(), true);
+    QCOMPARE(formats.at(1).start, 2);
+    QCOMPARE(formats.at(1).length, 2);
 }
 
 void tst_highlighter::cleanup()

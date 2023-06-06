@@ -634,7 +634,8 @@ static void addPythonsFromRegistry(QList<Interpreter> &pythons)
             const FilePath &executable = FilePath::fromUserInput(regVal.toString());
             if (executable.exists() && !alreadyRegistered(pythons, executable)) {
                 pythons << Interpreter{QUuid::createUuid().toString(),
-                                       name + Tr::tr(" (Windowed)"),
+                                       //: <python display name> (Windowed)
+                                       Tr::tr("%1 (Windowed)").arg(name),
                                        FilePath::fromUserInput(regVal.toString())};
             }
         }

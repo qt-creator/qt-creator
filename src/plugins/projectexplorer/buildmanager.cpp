@@ -442,16 +442,6 @@ int BuildManager::getErrorTaskCount()
     return errors;
 }
 
-void BuildManager::setCompileOutputSettings(const CompileOutputSettings &settings)
-{
-    d->m_outputWindow->setSettings(settings);
-}
-
-const CompileOutputSettings &BuildManager::compileOutputSettings()
-{
-    return d->m_outputWindow->settings();
-}
-
 QString BuildManager::displayNameForStepId(Id stepId)
 {
     if (stepId == Constants::BUILDSTEPS_CLEAN) {
@@ -853,7 +843,7 @@ bool BuildManager::buildLists(const QList<BuildStepList *> bsls, const QStringLi
         return false;
     }
 
-    if (d->m_outputWindow->settings().popUp)
+    if (CompileOutputSettings::instance().popUp())
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
     startBuildQueue();
     return true;
@@ -866,7 +856,7 @@ void BuildManager::appendStep(BuildStep *step, const QString &name)
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
         return;
     }
-    if (d->m_outputWindow->settings().popUp)
+    if (CompileOutputSettings::instance().popUp())
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
     startBuildQueue();
 }

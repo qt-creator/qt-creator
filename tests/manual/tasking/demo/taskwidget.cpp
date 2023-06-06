@@ -1,20 +1,18 @@
-// Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
+#include "progressindicator.h"
 #include "taskwidget.h"
 
-#include <utils/layoutbuilder.h>
-#include <utils/progressindicator.h>
-#include <utils/qtcassert.h>
-
+#include <QBoxLayout>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QGroupBox>
 #include <QLabel>
+#include <QMetaEnum>
 #include <QSpinBox>
 
-using namespace Utils;
-using namespace Layouting;
+using namespace Tasking;
 
 static QString colorButtonStyleSheet(const QColor &bgColor)
 {
@@ -37,10 +35,10 @@ static QColor stateToColor(State state) {
 class StateIndicator : public QLabel
 {
 public:
-    StateIndicator()
+    StateIndicator(QWidget *parent = nullptr)
+        : QLabel(parent)
     {
-        m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Small);
-        m_progressIndicator->attachToWidget(this);
+        m_progressIndicator = new ProgressIndicator(this);
         m_progressIndicator->hide();
         updateState();
     }
@@ -67,9 +65,7 @@ private:
 };
 
 StateWidget::StateWidget()
-    : m_stateIndicator(new StateIndicator)
-{
-}
+    : m_stateIndicator(new StateIndicator(this)) {}
 
 void StateWidget::setState(State state)
 {
@@ -86,14 +82,13 @@ TaskWidget::TaskWidget()
     setBusyTime(1);
     setSuccess(true);
 
-    Row {
-        m_stateIndicator,
-        m_infoLabel,
-        m_spinBox,
-        m_checkBox,
-        st,
-        noMargin,
-    }.attachTo(this);
+    QBoxLayout *layout = new QHBoxLayout(this);
+    layout->addWidget(m_stateIndicator);
+    layout->addWidget(m_infoLabel);
+    layout->addWidget(m_spinBox);
+    layout->addWidget(m_checkBox);
+    layout->addStretch();
+    layout->setContentsMargins(0, 0, 0, 0);
 }
 
 void TaskWidget::setBusyTime(int seconds)
@@ -122,34 +117,32 @@ GroupWidget::GroupWidget()
 {
     m_stateIndicator->setFixedWidth(30);
 
-    m_executeCombo->addItem("Sequential", (int)ExecuteMode::Sequential);
-    m_executeCombo->addItem("Parallel", (int)ExecuteMode::Parallel);
+    m_executeCombo->addItem("Sequential", int(ExecuteMode::Sequential));
+    m_executeCombo->addItem("Parallel", int(ExecuteMode::Parallel));
     updateExecuteMode();
     connect(m_executeCombo, &QComboBox::currentIndexChanged, this, [this](int index) {
         m_executeMode = (ExecuteMode)m_executeCombo->itemData(index).toInt();
     });
 
-    m_workflowCombo->addItem("Stop On Error", (int)Tasking::WorkflowPolicy::StopOnError);
-    m_workflowCombo->addItem("Cont On Error", (int)Tasking::WorkflowPolicy::ContinueOnError);
-    m_workflowCombo->addItem("Stop On Done", (int)Tasking::WorkflowPolicy::StopOnDone);
-    m_workflowCombo->addItem("Cont On Done", (int)Tasking::WorkflowPolicy::ContinueOnDone);
-    m_workflowCombo->addItem("Optional", (int)Tasking::WorkflowPolicy::Optional);
+    const QMetaEnum workflow = QMetaEnum::fromType<WorkflowPolicy>();
+    for (int i = 0; i < workflow.keyCount(); ++i)
+        m_workflowCombo->addItem(workflow.key(i), workflow.value(i));
+
     updateWorkflowPolicy();
     connect(m_workflowCombo, &QComboBox::currentIndexChanged, this, [this](int index) {
-        m_workflowPolicy = (Tasking::WorkflowPolicy)m_workflowCombo->itemData(index).toInt();
+        m_workflowPolicy = (WorkflowPolicy)m_workflowCombo->itemData(index).toInt();
     });
 
-    Row {
-        m_stateIndicator,
-        Column {
-            new QLabel("Execute:"),
-            m_executeCombo,
-            new QLabel("Workflow:"),
-            m_workflowCombo,
-            st,
-            noMargin
-        }
-    }.attachTo(this);
+    QBoxLayout *layout = new QHBoxLayout(this);
+    layout->addWidget(m_stateIndicator);
+    QBoxLayout *subLayout = new QVBoxLayout;
+    subLayout->addWidget(new QLabel("Execute Mode:"));
+    subLayout->addWidget(m_executeCombo);
+    subLayout->addWidget(new QLabel("Workflow Policy:"));
+    subLayout->addWidget(m_workflowCombo);
+    subLayout->addStretch();
+    layout->addLayout(subLayout);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 }
@@ -165,12 +158,12 @@ void GroupWidget::updateExecuteMode()
     m_executeCombo->setCurrentIndex(m_executeCombo->findData((int)m_executeMode));
 }
 
-Tasking::TaskItem GroupWidget::executeMode() const
+GroupItem GroupWidget::executeMode() const
 {
-    return m_executeMode == ExecuteMode::Sequential ? Tasking::sequential : Tasking::parallel;
+    return m_executeMode == ExecuteMode::Sequential ? sequential : parallel;
 }
 
-void GroupWidget::setWorkflowPolicy(Tasking::WorkflowPolicy policy)
+void GroupWidget::setWorkflowPolicy(WorkflowPolicy policy)
 {
     m_workflowPolicy = policy;
     updateWorkflowPolicy();
@@ -181,13 +174,7 @@ void GroupWidget::updateWorkflowPolicy()
     m_workflowCombo->setCurrentIndex(m_workflowCombo->findData((int)m_workflowPolicy));
 }
 
-Tasking::WorkflowPolicy GroupWidget::workflowPolicy() const
+GroupItem GroupWidget::workflowPolicy() const
 {
-    return m_workflowPolicy;
+    return Tasking::workflowPolicy(m_workflowPolicy);
 }
-
-void createItem(Layouting::LayoutItem *item, const TaskGroup &taskGroup)
-{
-    item->addItems({taskGroup.group, Group { taskGroup.items }, br});
-}
-

@@ -4,42 +4,27 @@
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
-
-#include <utils/aspects.h>
+#include <coreplugin/iversioncontrol.h>
 
 namespace VcsBase::Internal {
 
-class CommonVcsSettings : public Utils::AspectContainer
+class CommonVcsSettings : public Core::PagedSettings
 {
-    Q_OBJECT
-
 public:
     CommonVcsSettings();
 
-    Utils::StringAspect nickNameMailMap{this};
-    Utils::StringAspect nickNameFieldListFile{this};
+    Utils::FilePathAspect nickNameMailMap{this};
+    Utils::FilePathAspect nickNameFieldListFile{this};
 
-    Utils::StringAspect submitMessageCheckScript{this};
+    Utils::FilePathAspect submitMessageCheckScript{this};
 
     // Executable run to graphically prompt for a SSH-password.
-    Utils::StringAspect sshPasswordPrompt{this};
+    Utils::FilePathAspect sshPasswordPrompt{this};
 
     Utils::BoolAspect lineWrap{this};
     Utils::IntegerAspect lineWrapWidth{this};
-
-signals:
-    void settingsChanged();
 };
 
-class CommonOptionsPage final : public Core::IOptionsPage
-{
-public:
-    CommonOptionsPage();
-
-    CommonVcsSettings &settings() { return m_settings; }
-
-private:
-    CommonVcsSettings m_settings;
-};
+CommonVcsSettings &commonSettings();
 
 } // VcsBase::Internal

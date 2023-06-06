@@ -15,6 +15,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
@@ -33,7 +34,6 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QTextEdit>
-#include <QVBoxLayout>
 
 #include <memory>
 
@@ -80,19 +80,15 @@ public:
         , m_data(data)
     {
         setTitle(Tr::tr("Source"));
-        auto vlayout = new QVBoxLayout;
-        setLayout(vlayout);
 
         auto label = new QLabel(
             "<p>"
             + Tr::tr("Choose source location. This can be a plugin library file or a zip file.")
             + "</p>");
         label->setWordWrap(true);
-        vlayout->addWidget(label);
 
         auto chooser = new PathChooser;
         chooser->setExpectedKind(PathChooser::Any);
-        vlayout->addWidget(chooser);
         connect(chooser, &PathChooser::textChanged, this, [this, chooser] {
             m_data->sourcePath = chooser->filePath();
             updateWarnings();
@@ -101,7 +97,8 @@ public:
         m_info = new InfoLabel;
         m_info->setType(InfoLabel::Error);
         m_info->setVisible(false);
-        vlayout->addWidget(m_info);
+
+        Layouting::Column { label, chooser, m_info }.attachTo(this);
     }
 
     void updateWarnings()
@@ -153,8 +150,6 @@ public:
         , m_data(data)
     {
         setTitle(Tr::tr("Check Archive"));
-        auto vlayout = new QVBoxLayout;
-        setLayout(vlayout);
 
         m_label = new InfoLabel;
         m_label->setElideMode(Qt::ElideNone);
@@ -163,13 +158,11 @@ public:
         m_output = new QTextEdit;
         m_output->setReadOnly(true);
 
-        auto hlayout = new QHBoxLayout;
-        hlayout->addWidget(m_label, 1);
-        hlayout->addStretch();
-        hlayout->addWidget(m_cancelButton);
-
-        vlayout->addLayout(hlayout);
-        vlayout->addWidget(m_output);
+        using namespace Layouting;
+        Column {
+            Row { m_label, st, m_cancelButton },
+            m_output,
+        }.attachTo(this);
     }
 
     void initializePage() final
@@ -322,13 +315,9 @@ public:
         , m_data(data)
     {
         setTitle(Tr::tr("Install Location"));
-        auto vlayout = new QVBoxLayout;
-        setLayout(vlayout);
 
         auto label = new QLabel("<p>" + Tr::tr("Choose install location.") + "</p>");
         label->setWordWrap(true);
-        vlayout->addWidget(label);
-        vlayout->addSpacing(10);
 
         auto localInstall = new QRadioButton(Tr::tr("User plugins"));
         localInstall->setChecked(!m_data->installIntoApplication);
@@ -337,10 +326,6 @@ public:
                 .arg(Constants::IDE_DISPLAY_NAME));
         localLabel->setWordWrap(true);
         localLabel->setAttribute(Qt::WA_MacSmallSize, true);
-
-        vlayout->addWidget(localInstall);
-        vlayout->addWidget(localLabel);
-        vlayout->addSpacing(10);
 
         auto appInstall = new QRadioButton(
             Tr::tr("%1 installation").arg(Constants::IDE_DISPLAY_NAME));
@@ -351,8 +336,11 @@ public:
                 .arg(Constants::IDE_DISPLAY_NAME));
         appLabel->setWordWrap(true);
         appLabel->setAttribute(Qt::WA_MacSmallSize, true);
-        vlayout->addWidget(appInstall);
-        vlayout->addWidget(appLabel);
+
+        using namespace Layouting;
+        Column {
+            label, Space(10), localInstall, localLabel, Space(10), appInstall, appLabel,
+        }.attachTo(this);
 
         auto group = new QButtonGroup(this);
         group->addButton(localInstall);
@@ -375,12 +363,9 @@ public:
     {
         setTitle(Tr::tr("Summary"));
 
-        auto vlayout = new QVBoxLayout;
-        setLayout(vlayout);
-
         m_summaryLabel = new QLabel(this);
         m_summaryLabel->setWordWrap(true);
-        vlayout->addWidget(m_summaryLabel);
+        Layouting::Column { m_summaryLabel }.attachTo(this);
     }
 
     void initializePage() final

@@ -101,11 +101,11 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useMultiProcess, &Data::useMultiProcess);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::overrideStartup, &Data::overrideStartup);
 
-    m_cppAspect = new TriStateAspect(Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
+    m_cppAspect = new TriStateAspect(nullptr, Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
     m_cppAspect->setLabelText(Tr::tr("C++ debugger:"));
     m_cppAspect->setSettingsKey("RunConfiguration.UseCppDebugger");
 
-    m_qmlAspect = new TriStateAspect(Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
+    m_qmlAspect = new TriStateAspect(nullptr, Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
     m_qmlAspect->setLabelText(Tr::tr("QML debugger:"));
     m_qmlAspect->setSettingsKey("RunConfiguration.UseQmlDebugger");
 

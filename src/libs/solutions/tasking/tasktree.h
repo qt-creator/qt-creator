@@ -16,6 +16,8 @@ QT_END_NAMESPACE
 
 namespace Tasking {
 
+Q_NAMESPACE_EXPORT(TASKING_EXPORT)
+
 class ExecutionContextActivator;
 class TaskContainer;
 class TaskTreePrivate;
@@ -99,16 +101,19 @@ private:
 //    b) On first done - continue executing all children and report done afterwards.
 // 3. Stops on first finished child. In sequential mode it will never run other children then the first one.
 //    Useful only in parallel mode.
-// 4. Always run all children, ignore their result and report done afterwards.
+// 4. Always run all children, let them finish, ignore their results and report done afterwards.
+// 5. Always run all children, let them finish, ignore their results and report error afterwards.
 
 enum class WorkflowPolicy {
-    StopOnError,     // 1a - Reports error on first child error, otherwise done (if all children were done).
-    ContinueOnError, // 1b - The same, but children execution continues. Reports done when no children.
-    StopOnDone,      // 2a - Reports done on first child done, otherwise error (if all children were error).
-    ContinueOnDone,  // 2b - The same, but children execution continues. Reports error when no children.
-    StopOnFinished,  // 3  - Stops on first finished child and report its result.
-    Optional         // 4  - Reports done after all children finished.
+    StopOnError,      // 1a - Reports error on first child error, otherwise done (if all children were done).
+    ContinueOnError,  // 1b - The same, but children execution continues. Reports done when no children.
+    StopOnDone,       // 2a - Reports done on first child done, otherwise error (if all children were error).
+    ContinueOnDone,   // 2b - The same, but children execution continues. Reports error when no children.
+    StopOnFinished,   // 3  - Stops on first finished child and report its result.
+    FinishAllAndDone, // 4  - Reports done after all children finished.
+    FinishAllAndError // 5  - Reports error after all children finished.
 };
+Q_ENUM_NS(WorkflowPolicy);
 
 enum class TaskAction
 {
@@ -116,8 +121,9 @@ enum class TaskAction
     StopWithDone,
     StopWithError
 };
+Q_ENUM_NS(TaskAction);
 
-class TASKING_EXPORT TaskItem
+class TASKING_EXPORT GroupItem
 {
 public:
     // Internal, provided by QTC_DECLARE_CUSTOM_TASK
@@ -150,7 +156,7 @@ public:
         std::optional<WorkflowPolicy> m_workflowPolicy = {};
     };
 
-    QList<TaskItem> children() const { return m_children; }
+    QList<GroupItem> children() const { return m_children; }
     GroupData groupData() const { return m_groupData; }
     QList<TreeStorageBase> storageList() const { return m_storageList; }
     TaskHandler taskHandler() const { return m_taskHandler; }
@@ -163,52 +169,59 @@ protected:
         TaskHandler
     };
 
-    TaskItem() = default;
-    TaskItem(const GroupData &data)
+    GroupItem() = default;
+    GroupItem(const GroupData &data)
         : m_type(Type::GroupData)
         , m_groupData(data) {}
-    TaskItem(const TreeStorageBase &storage)
+    GroupItem(const TreeStorageBase &storage)
         : m_type(Type::Storage)
         , m_storageList{storage} {}
-    TaskItem(const TaskHandler &handler)
+    GroupItem(const TaskHandler &handler)
         : m_type(Type::TaskHandler)
         , m_taskHandler(handler) {}
-    void addChildren(const QList<TaskItem> &children);
+    void addChildren(const QList<GroupItem> &children);
 
     void setTaskSetupHandler(const TaskSetupHandler &handler);
     void setTaskDoneHandler(const TaskEndHandler &handler);
     void setTaskErrorHandler(const TaskEndHandler &handler);
-    static TaskItem groupHandler(const GroupHandler &handler) { return TaskItem({handler}); }
-    static TaskItem parallelLimit(int limit) { return TaskItem({{}, limit}); }
-    static TaskItem workflowPolicy(WorkflowPolicy policy) { return TaskItem({{}, {}, policy}); }
+    static GroupItem groupHandler(const GroupHandler &handler) { return GroupItem({handler}); }
+    static GroupItem parallelLimit(int limit) { return GroupItem({{}, limit}); }
+    static GroupItem workflowPolicy(WorkflowPolicy policy) { return GroupItem({{}, {}, policy}); }
+    static GroupItem withTimeout(const GroupItem &item, std::chrono::milliseconds timeout,
+                                const GroupEndHandler &handler = {});
 
 private:
     Type m_type = Type::Group;
-    QList<TaskItem> m_children;
+    QList<GroupItem> m_children;
     GroupData m_groupData;
     QList<TreeStorageBase> m_storageList;
     TaskHandler m_taskHandler;
 };
 
-class TASKING_EXPORT Group : public TaskItem
+class TASKING_EXPORT Group : public GroupItem
 {
 public:
-    Group(const QList<TaskItem> &children) { addChildren(children); }
-    Group(std::initializer_list<TaskItem> children) { addChildren(children); }
+    Group(const QList<GroupItem> &children) { addChildren(children); }
+    Group(std::initializer_list<GroupItem> children) { addChildren(children); }
 
     // GroupData related:
     template <typename SetupHandler>
-    static TaskItem onGroupSetup(SetupHandler &&handler) {
+    static GroupItem onGroupSetup(SetupHandler &&handler) {
         return groupHandler({wrapGroupSetup(std::forward<SetupHandler>(handler))});
     }
-    static TaskItem onGroupDone(const GroupEndHandler &handler) {
+    static GroupItem onGroupDone(const GroupEndHandler &handler) {
         return groupHandler({{}, handler});
     }
-    static TaskItem onGroupError(const GroupEndHandler &handler) {
+    static GroupItem onGroupError(const GroupEndHandler &handler) {
         return groupHandler({{}, {}, handler});
     }
-    using TaskItem::parallelLimit;  // Default: 1 (sequential). 0 means unlimited (parallel).
-    using TaskItem::workflowPolicy; // Default: WorkflowPolicy::StopOnError.
+    using GroupItem::parallelLimit;  // Default: 1 (sequential). 0 means unlimited (parallel).
+    using GroupItem::workflowPolicy; // Default: WorkflowPolicy::StopOnError.
+
+    GroupItem withTimeout(std::chrono::milliseconds timeout,
+                          const GroupEndHandler &handler = {}) const {
+        return GroupItem::withTimeout(*this, timeout, handler);
+    }
 
 private:
     template<typename SetupHandler>
@@ -231,29 +244,31 @@ private:
 };
 
 template <typename SetupHandler>
-static TaskItem onGroupSetup(SetupHandler &&handler)
+static GroupItem onGroupSetup(SetupHandler &&handler)
 {
     return Group::onGroupSetup(std::forward<SetupHandler>(handler));
 }
 
-TASKING_EXPORT TaskItem onGroupDone(const TaskItem::GroupEndHandler &handler);
-TASKING_EXPORT TaskItem onGroupError(const TaskItem::GroupEndHandler &handler);
-TASKING_EXPORT TaskItem parallelLimit(int limit);
-TASKING_EXPORT TaskItem workflowPolicy(WorkflowPolicy policy);
+TASKING_EXPORT GroupItem onGroupDone(const GroupItem::GroupEndHandler &handler);
+TASKING_EXPORT GroupItem onGroupError(const GroupItem::GroupEndHandler &handler);
+TASKING_EXPORT GroupItem parallelLimit(int limit);
+TASKING_EXPORT GroupItem workflowPolicy(WorkflowPolicy policy);
 
-TASKING_EXPORT extern const TaskItem sequential;
-TASKING_EXPORT extern const TaskItem parallel;
-TASKING_EXPORT extern const TaskItem stopOnError;
-TASKING_EXPORT extern const TaskItem continueOnError;
-TASKING_EXPORT extern const TaskItem stopOnDone;
-TASKING_EXPORT extern const TaskItem continueOnDone;
-TASKING_EXPORT extern const TaskItem stopOnFinished;
-TASKING_EXPORT extern const TaskItem optional;
+TASKING_EXPORT extern const GroupItem sequential;
+TASKING_EXPORT extern const GroupItem parallel;
 
-class TASKING_EXPORT Storage : public TaskItem
+TASKING_EXPORT extern const GroupItem stopOnError;
+TASKING_EXPORT extern const GroupItem continueOnError;
+TASKING_EXPORT extern const GroupItem stopOnDone;
+TASKING_EXPORT extern const GroupItem continueOnDone;
+TASKING_EXPORT extern const GroupItem stopOnFinished;
+TASKING_EXPORT extern const GroupItem finishAllAndDone;
+TASKING_EXPORT extern const GroupItem finishAllAndError;
+
+class TASKING_EXPORT Storage : public GroupItem
 {
 public:
-    Storage(const TreeStorageBase &storage) : TaskItem(storage) { }
+    Storage(const TreeStorageBase &storage) : GroupItem(storage) { }
 };
 
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
@@ -266,7 +281,7 @@ public:
 
 private:
     template<typename Function>
-    static QList<TaskItem> init(Function &&function) {
+    static QList<GroupItem> init(Function &&function) {
         constexpr bool isInvocable = std::is_invocable_v<std::decay_t<Function>>;
         static_assert(isInvocable,
                       "Sync element: The synchronous function can't take any arguments.");
@@ -295,17 +310,17 @@ private:
 };
 
 template <typename Adapter>
-class CustomTask : public TaskItem
+class CustomTask : public GroupItem
 {
 public:
     using Task = typename Adapter::Type;
     using EndHandler = std::function<void(const Task &)>;
     static Adapter *createAdapter() { return new Adapter; }
-    CustomTask() : TaskItem({&createAdapter}) {}
+    CustomTask() : GroupItem({&createAdapter}) {}
     template <typename SetupFunction>
     CustomTask(SetupFunction &&function, const EndHandler &done = {}, const EndHandler &error = {})
-        : TaskItem({&createAdapter, wrapSetup(std::forward<SetupFunction>(function)),
-                    wrapEnd(done), wrapEnd(error)}) {}
+        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupFunction>(function)),
+                     wrapEnd(done), wrapEnd(error)}) {}
 
     template <typename SetupFunction>
     CustomTask &onSetup(SetupFunction &&function) {
@@ -321,9 +336,14 @@ public:
         return *this;
     }
 
+    GroupItem withTimeout(std::chrono::milliseconds timeout,
+                          const GroupEndHandler &handler = {}) const {
+        return GroupItem::withTimeout(*this, timeout, handler);
+    }
+
 private:
     template<typename SetupFunction>
-    static TaskItem::TaskSetupHandler wrapSetup(SetupFunction &&function) {
+    static GroupItem::TaskSetupHandler wrapSetup(SetupFunction &&function) {
         static constexpr bool isDynamic = std::is_same_v<TaskAction,
                 std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
         constexpr bool isVoid = std::is_same_v<void,
@@ -370,8 +390,12 @@ public:
     // Helper methods. They execute a local event loop with ExcludeUserInputEvents.
     // The passed future is used for listening to the cancel event.
     // Don't use it in main thread. To be used in non-main threads or in auto tests.
-    bool runBlocking(const QFuture<void> &future, int timeoutMs = 0);
-    bool runBlocking(int timeoutMs = 0);
+    bool runBlocking();
+    bool runBlocking(const QFuture<void> &future);
+    static bool runBlocking(const Group &recipe,
+                            std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
+    static bool runBlocking(const Group &recipe, const QFuture<void> &future,
+                            std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
 
     int taskCount() const;
     int progressMaximum() const { return taskCount(); }
@@ -418,6 +442,17 @@ public:
     void start() final;
 };
 
+class TASKING_EXPORT TimeoutTaskAdapter : public TaskAdapter<std::chrono::milliseconds>
+{
+public:
+    TimeoutTaskAdapter();
+    ~TimeoutTaskAdapter();
+    void start() final;
+
+private:
+    std::optional<int> m_timerId;
+};
+
 } // namespace Tasking
 
 #define TASKING_DECLARE_TASK(CustomTaskName, TaskAdapterClass)\
@@ -430,3 +465,4 @@ using CustomTaskName = CustomTask<TaskAdapterClass<Args...>>;\
 } // namespace Tasking
 
 TASKING_DECLARE_TASK(TaskTreeTask, TaskTreeTaskAdapter);
+TASKING_DECLARE_TASK(TimeoutTask, TimeoutTaskAdapter);

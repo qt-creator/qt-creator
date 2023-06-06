@@ -54,18 +54,15 @@ def main():
         with TestSection("Testing project template %s -> %s" % (category, template)):
             displayedPlatforms = __createProject__(category, template)
             if template.startswith("Qt Quick Application"):
-                if "(compat)" in template:  # QTCREATORBUG-29126
-                    qtVersionsForQuick = ["Qt 5.14", "Qt 6.2"]
-                else:
-                    qtVersionsForQuick = ["6.2"]
+                qtVersionsForQuick = ["6.2"]
+                if "(compat)" in template:
+                    qtVersionsForQuick += ["5.14"]
                 for counter, qtVersion in enumerate(qtVersionsForQuick):
+
                     def additionalFunc(displayedPlatforms, qtVersion):
                         requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)
-                        if sys.version_info.major > 2:
-                            requiredQtVersion = requiredQtVersion.removeprefix("Qt ")
-                        else:
-                            requiredQtVersion = requiredQtVersion.lstrip("Qt ")
                         __modifyAvailableTargets__(displayedPlatforms, requiredQtVersion, True)
+
                     handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
                                                 additionalFunc, qtVersion)
                     # are there more Quick combinations - then recreate this project
@@ -90,13 +87,15 @@ def verifyKitCheckboxes(kits, displayedPlatforms):
     unexpectedShownKits = availableCheckboxes.difference(displayedPlatforms)
     missingKits = displayedPlatforms.difference(availableCheckboxes)
 
-    test.log("Expected kits shown on 'Kit Selection' page:\n%s" % "\n".join(expectedShownKits))
-    if len(unexpectedShownKits):
-        test.fail("Kits found on 'Kit Selection' page but not expected:\n%s"
-                  % "\n".join(unexpectedShownKits))
-    if len(missingKits):
-        test.fail("Expected kits missing on 'Kit Selection' page:\n%s"
-                  % "\n".join(missingKits))
+    if not test.verify(len(unexpectedShownKits) == 0 and len(missingKits) == 0,
+                       "No missing or unexpected kits found on 'Kit Selection' page?\n"
+                       "Found expected kits:\n%s" % "\n".join(expectedShownKits)):
+        if len(unexpectedShownKits):
+            test.log("Kits found on 'Kit Selection' page but not expected:\n%s"
+                     % "\n".join(unexpectedShownKits))
+        if len(missingKits):
+            test.log("Expected kits missing on 'Kit Selection' page:\n%s"
+                     % "\n".join(missingKits))
 
 def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
                                 specialHandlingFunc = None, *args):

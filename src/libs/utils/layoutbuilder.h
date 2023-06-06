@@ -11,12 +11,15 @@
 
 #if defined(UTILS_LIBRARY)
 #  define QTCREATOR_UTILS_EXPORT Q_DECL_EXPORT
+#elif defined(UTILS_STATIC_LIBRARY)
+#  define QTCREATOR_UTILS_EXPORT
 #else
 #  define QTCREATOR_UTILS_EXPORT Q_DECL_IMPORT
 #endif
 
 QT_BEGIN_NAMESPACE
 class QLayout;
+class QMargins;
 class QObject;
 class QWidget;
 template <class T> T qobject_cast(QObject *object);
@@ -200,6 +203,7 @@ QTCREATOR_UTILS_EXPORT LayoutItem empty();
 QTCREATOR_UTILS_EXPORT LayoutItem hr();
 QTCREATOR_UTILS_EXPORT LayoutItem noMargin();
 QTCREATOR_UTILS_EXPORT LayoutItem normalMargin();
+QTCREATOR_UTILS_EXPORT LayoutItem customMargin(const QMargins &margin);
 QTCREATOR_UTILS_EXPORT LayoutItem withFormAlignment();
 
 // "Setters"

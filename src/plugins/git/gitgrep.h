@@ -9,10 +9,7 @@ QT_BEGIN_NAMESPACE
 class QCheckBox;
 QT_END_NAMESPACE
 
-namespace Utils {
-class FancyLineEdit;
-class SearchResultItem;
-}
+namespace Utils { class FancyLineEdit; }
 
 namespace Git::Internal {
 

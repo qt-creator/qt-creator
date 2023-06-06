@@ -32,7 +32,7 @@ public:
         setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
         setSettings(&debuggerSettings()->page2);
 
-        setLayouter([](QWidget *w) {
+        setLayouter([] {
             using namespace Layouting;
             DebuggerSettings &s = *debuggerSettings();
 
@@ -84,7 +84,7 @@ public:
                 Column { s.gdbPostAttachCommands },
             };
 
-            Grid { general, extended, br, startup, attach }.attachTo(w);
+            return Grid { general, extended, br, startup, attach };
         });
     }
 };

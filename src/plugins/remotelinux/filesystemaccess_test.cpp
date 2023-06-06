@@ -503,8 +503,8 @@ void FileSystemAccessTest::testFileStreamer()
         }
     };
 
-    TaskTree taskTree(root);
-    QVERIFY(taskTree.runBlocking(10000));
+    using namespace std::chrono_literals;
+    QVERIFY(TaskTree::runBlocking(root, 10000ms));
 
     QVERIFY(localData);
     QCOMPARE(*localData, data);

@@ -4,7 +4,7 @@
 #include "terminalpane.h"
 #include "terminalprocessimpl.h"
 #include "terminalsettings.h"
-#include "terminalcommands.h"
+#include "terminalwidget.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -39,15 +39,14 @@ public:
         m_terminalPane = nullptr;
     }
 
-    void initialize() final
-    {
-        addManaged<TerminalSettings>();
-    }
+    void initialize() final { addManaged<TerminalSettings>(); }
 
     void extensionsInitialized() final
     {
         m_terminalPane = new TerminalPane;
         ExtensionSystem::PluginManager::addObject(m_terminalPane);
+
+        TerminalWidget::initActions();
 
         auto enable = [this] {
             Utils::Terminal::Hooks::instance()
@@ -71,21 +70,18 @@ public:
             }
         };
 
-        QObject::connect(&TerminalSettings::instance(), &Utils::AspectContainer::applied, this, settingsChanged);
+        QObject::connect(&TerminalSettings::instance(),
+                         &Utils::AspectContainer::applied,
+                         this,
+                         settingsChanged);
 
         settingsChanged();
-    }
-
-    bool delayedInitialize() final
-    {
-        TerminalCommands::instance().lazyInitCommands();
-        return true;
     }
 
 private:
     TerminalPane *m_terminalPane{nullptr};
 };
 
-} // Terminal::Internal
+} // namespace Terminal::Internal
 
 #include "terminalplugin.moc"

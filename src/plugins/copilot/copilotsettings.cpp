@@ -53,7 +53,7 @@ CopilotSettings::CopilotSettings()
     nodeJsPath.setHistoryCompleter("Copilot.NodePath.History");
     nodeJsPath.setDisplayName(Tr::tr("Node.js Path"));
     nodeJsPath.setToolTip(
-        Tr::tr("Select path to node.js executable. See https://nodejs.org/de/download/"
+        Tr::tr("Select path to node.js executable. See https://nodejs.org/en/download/"
                "for installation instructions."));
 
     distPath.setExpectedKind(PathChooser::File);
@@ -63,7 +63,7 @@ CopilotSettings::CopilotSettings()
     distPath.setHistoryCompleter("Copilot.DistPath.History");
     distPath.setDisplayName(Tr::tr("Agent.js path"));
     distPath.setToolTip(Tr::tr(
-        "Select path to agent.js in copilot neovim plugin. See "
+        "Select path to agent.js in Copilot Neovim plugin. See "
         "https://github.com/github/copilot.vim#getting-started for installation instructions."));
 
     autoComplete.setDisplayName(Tr::tr("Auto Complete"));
@@ -71,7 +71,7 @@ CopilotSettings::CopilotSettings()
     autoComplete.setLabelText(Tr::tr("Request completions automatically"));
     autoComplete.setDefaultValue(true);
     autoComplete.setToolTip(Tr::tr("Automatically request suggestions for the current text cursor "
-                                   "position after changes to the document"));
+                                   "position after changes to the document."));
 
     initEnableAspect(enableCopilot);
 }

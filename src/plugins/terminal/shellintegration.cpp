@@ -85,7 +85,8 @@ void ShellIntegration::onOsc(int cmd, const VTermStringFragment &fragment)
             emit currentDirChanged(FilePath::fromUserInput(value.toString()).path());
 
     } else if (cmd == 7) {
-        emit currentDirChanged(FilePath::fromUserInput(d).path());
+        const QString decoded = QUrl::fromPercentEncoding(d.toUtf8());
+        emit currentDirChanged(FilePath::fromUserInput(decoded).path());
     } else if (cmd == 133) {
         qCDebug(integrationLog) << "OSC 133:" << data;
     } else if (cmd == 633 && command.length() == 1) {

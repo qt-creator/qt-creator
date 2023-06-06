@@ -17,6 +17,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/session.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -686,6 +687,7 @@ void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *client)
 // for the respective project to force re-parsing of open documents and re-indexing.
 // While this is not 100% bullet-proof, chances are good that in a typical session-based
 // workflow, e.g. a git branch switch will hit at least one open file.
+// We also look for repository changes explicitly.
 void ClangModelManagerSupport::watchForExternalChanges()
 {
     connect(DocumentManager::instance(), &DocumentManager::filesChangedExternally,
@@ -707,6 +709,23 @@ void ClangModelManagerSupport::watchForExternalChanges()
             // so we exit the loop as soon as we have dealt with one project, as the
             // project look-up is not free.
             return;
+        }
+    });
+
+    connect(VcsManager::instance(), &VcsManager::repositoryChanged,
+            this, [this](const FilePath &repoDir) {
+        if (sessionModeEnabled()) {
+            if (ClangdClient * const client = clientForProject(nullptr))
+                scheduleClientRestart(client);
+            return;
+        }
+        for (const Project * const project : ProjectManager::projects()) {
+            const FilePath &projectDir = project->projectDirectory();
+            if (repoDir == projectDir || repoDir.isChildOf(projectDir)
+                || projectDir.isChildOf(repoDir)) {
+                if (ClangdClient * const client = clientForProject(project))
+                    scheduleClientRestart(client);
+            }
         }
     });
 }
