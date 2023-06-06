@@ -776,7 +776,7 @@ void QmlEngine::assignValueInDebugger(WatchItem *item,
     const QString &expression, const QVariant &editValue)
 {
     if (!expression.isEmpty()) {
-        QTC_CHECK(editValue.type() == QVariant::String);
+        QTC_CHECK(editValue.typeId() == QVariant::String);
         QVariant value;
         QString val = editValue.toString();
         if (item->type == "boolean")
@@ -855,7 +855,7 @@ static ConsoleItem *constructLogItemTree(const QVariant &result,
 
     QString text;
     ConsoleItem *item = nullptr;
-    if (result.type() == QVariant::Map) {
+    if (result.typeId() == QVariant::Map) {
         if (key.isEmpty())
             text = "Object";
         else
