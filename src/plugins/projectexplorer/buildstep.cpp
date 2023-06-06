@@ -150,8 +150,10 @@ QWidget *BuildStep::doCreateConfigWidget()
     for (BaseAspect *aspect : std::as_const(*this))
         connect(aspect, &BaseAspect::changed, widget, recreateSummary);
 
-    connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
-            widget, recreateSummary);
+    if (buildConfiguration()) {
+        connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
+                widget, recreateSummary);
+    }
 
     recreateSummary();
 
