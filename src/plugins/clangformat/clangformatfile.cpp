@@ -158,8 +158,6 @@ CppEditor::CppCodeStyleSettings ClangFormatFile::toCppCodeStyleSettings(
     settings.indentSwitchLabels = style.IndentCaseLabels;
 #if LLVM_VERSION_MAJOR >= 11
     settings.indentBlocksRelativeToSwitchLabels = style.IndentCaseBlocks;
-    settings.indentStatementsRelativeToSwitchLabels = style.IndentCaseBlocks;
-    settings.indentControlFlowRelativeToSwitchLabels = style.IndentCaseBlocks;
 #endif
     if (style.DerivePointerAlignment
         && ClangFormatSettings::instance().mode() == ClangFormatSettings::Mode::Formatting) {
@@ -200,9 +198,7 @@ void ClangFormatFile::fromCppCodeStyleSettings(const CppEditor::CppCodeStyleSett
 
     m_style.IndentCaseLabels = settings.indentSwitchLabels;
 #if LLVM_VERSION_MAJOR >= 11
-    m_style.IndentCaseBlocks = settings.indentBlocksRelativeToSwitchLabels
-                               || settings.indentStatementsRelativeToSwitchLabels
-                               || settings.indentControlFlowRelativeToSwitchLabels;
+    m_style.IndentCaseBlocks = settings.indentBlocksRelativeToSwitchLabels;
 #endif
 
     if (settings.extraPaddingForConditionsIfConfusingAlign)
