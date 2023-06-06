@@ -414,14 +414,16 @@ static QString tags(const FilePath &projectFilePath)
 
     const QByteArray data = reader.data();
 
-    bool mcu = data.contains("qtForMCUs: true");
+    const bool isQt6 = data.contains("qt6Project: true");
+    const bool isMcu = data.contains("qtForMCUs: true");
 
-    if (data.contains("qt6Project: true"))
+    if (isQt6)
         ret.append("Qt 6");
-    else if (mcu)
-        ret.append("Qt For MCU");
     else
         ret.append("Qt 5");
+
+    if (isMcu)
+        ret.append("Qt For MCU");
 
     return ret.join(",");
 }
