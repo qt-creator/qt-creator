@@ -62,18 +62,17 @@ private:
     QToolButton *m_closeTerminalButton{nullptr};
     QToolButton *m_openSettingsButton{nullptr};
     QToolButton *m_escSettingButton{nullptr};
-
-    UnlockedGlobalAction m_minMax;
-    UnlockedGlobalAction m_locate;
+    QToolButton *m_lockKeyboardButton{nullptr};
 
     QAction newTerminal;
     QAction nextTerminal;
     QAction prevTerminal;
     QAction closeTerminal;
+    QAction lockKeyboard;
 
     QMenu m_shellMenu;
 
-    Core::Context m_context;
+    Core::Context m_selfContext;
 
     bool m_widgetInitialized{false};
     bool m_isVisible{false};

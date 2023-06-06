@@ -92,6 +92,8 @@ protected:
     void setupContext(const Context &context, QWidget *widget);
     void setZoomButtonsEnabled(bool enabled);
 
+    IContext *m_context = nullptr;
+
 private:
     virtual void updateFilter();
 
@@ -108,7 +110,6 @@ private:
     QAction *m_filterActionCaseSensitive = nullptr;
     QAction *m_invertFilterAction = nullptr;
     Utils::FancyLineEdit *m_filterOutputLineEdit = nullptr;
-    IContext *m_context = nullptr;
     bool m_filterRegexp = false;
     bool m_invertFilter = false;
     Qt::CaseSensitivity m_filterCaseSensitivity = Qt::CaseInsensitive;
