@@ -303,58 +303,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
 bool QmlDesignerPlugin::delayedInitialize()
 {
-    // adding default path to item library plugins
-    const QString postfix = Utils::HostOsInfo::isMacHost() ? QString("/QmlDesigner")
-                                                           : QString("/qmldesigner");
-    const QStringList pluginPaths =
-        Utils::transform(ExtensionSystem::PluginManager::pluginPaths(), [postfix](const QString &p) {
-            return QString(p + postfix);
-        });
-
-    MetaInfo::initializeGlobal(pluginPaths, d->externalDependencies);
-
-    d->viewManager.registerView(std::make_unique<ConnectionView>(d->externalDependencies));
-
-    auto timelineView = d->viewManager.registerView(
-        std::make_unique<TimelineView>(d->externalDependencies));
-    timelineView->registerActions();
-
-    d->viewManager.registerView(
-        std::make_unique<CurveEditorView>(d->externalDependencies));
-
-    auto eventlistView = d->viewManager.registerView(
-        std::make_unique<EventListPluginView>(d->externalDependencies));
-    eventlistView->registerActions();
-
-    auto transitionEditorView = d->viewManager.registerView(
-        std::make_unique<TransitionEditorView>(d->externalDependencies));
-    transitionEditorView->registerActions();
-
-    d->viewManager.registerFormEditorTool(std::make_unique<SourceTool>());
-    d->viewManager.registerFormEditorTool(std::make_unique<ColorTool>());
-    d->viewManager.registerFormEditorTool(std::make_unique<TextTool>());
-    d->viewManager.registerFormEditorTool(
-        std::make_unique<PathTool>(d->externalDependencies));
-    d->viewManager.registerFormEditorTool(std::make_unique<TransitionTool>());
-
-    if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
-        d->mainWidget.initialize();
-
-        emitUsageStatistics("StandaloneMode");
-        if (QmlProjectManager::QmlProject::isQtDesignStudioStartedFromQtC())
-            emitUsageStatistics("QDSlaunchedFromQtC");
-        emitUsageStatistics("qdsStartupCount");
-
-        FoundLicense license = checkLicense();
-        if (license == FoundLicense::enterprise)
-            Core::ICore::appendAboutInformation(tr("License: Enterprise"));
-        else if (license == FoundLicense::professional)
-            Core::ICore::appendAboutInformation(tr("License: Professional"));
-
-        if (!licensee().isEmpty())
-            Core::ICore::appendAboutInformation(tr("Licensee: %1").arg(licensee()));
-    }
-
+    enforceDelayedInitialize();
     return true;
 }
 
@@ -474,6 +423,8 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
 void QmlDesignerPlugin::showDesigner()
 {
     QTC_ASSERT(!d->documentManager.hasCurrentDesignDocument(), return);
+
+    enforceDelayedInitialize();
 
     d->mainWidget.initialize();
 
@@ -639,6 +590,64 @@ QmlDesignerPluginPrivate *QmlDesignerPlugin::privateInstance()
 {
     QTC_ASSERT(instance(), return nullptr);
     return instance()->d;
+}
+
+void QmlDesignerPlugin::enforceDelayedInitialize()
+{
+    if (m_delayedInitialized)
+        return;
+
+    // adding default path to item library plugins
+    const QString postfix = Utils::HostOsInfo::isMacHost() ? QString("/QmlDesigner")
+                                                           : QString("/qmldesigner");
+    const QStringList pluginPaths = Utils::transform(ExtensionSystem::PluginManager::pluginPaths(),
+                                                     [postfix](const QString &p) {
+                                                         return QString(p + postfix);
+                                                     });
+
+    MetaInfo::initializeGlobal(pluginPaths, d->externalDependencies);
+
+    d->viewManager.registerView(std::make_unique<ConnectionView>(d->externalDependencies));
+
+    auto timelineView = d->viewManager.registerView(
+        std::make_unique<TimelineView>(d->externalDependencies));
+    timelineView->registerActions();
+
+    d->viewManager.registerView(std::make_unique<CurveEditorView>(d->externalDependencies));
+
+    auto eventlistView = d->viewManager.registerView(
+        std::make_unique<EventListPluginView>(d->externalDependencies));
+    eventlistView->registerActions();
+
+    auto transitionEditorView = d->viewManager.registerView(
+        std::make_unique<TransitionEditorView>(d->externalDependencies));
+    transitionEditorView->registerActions();
+
+    d->viewManager.registerFormEditorTool(std::make_unique<SourceTool>());
+    d->viewManager.registerFormEditorTool(std::make_unique<ColorTool>());
+    d->viewManager.registerFormEditorTool(std::make_unique<TextTool>());
+    d->viewManager.registerFormEditorTool(std::make_unique<PathTool>(d->externalDependencies));
+    d->viewManager.registerFormEditorTool(std::make_unique<TransitionTool>());
+
+    if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
+        d->mainWidget.initialize();
+
+        emitUsageStatistics("StandaloneMode");
+        if (QmlProjectManager::QmlProject::isQtDesignStudioStartedFromQtC())
+            emitUsageStatistics("QDSlaunchedFromQtC");
+        emitUsageStatistics("qdsStartupCount");
+
+        FoundLicense license = checkLicense();
+        if (license == FoundLicense::enterprise)
+            Core::ICore::appendAboutInformation(tr("License: Enterprise"));
+        else if (license == FoundLicense::professional)
+            Core::ICore::appendAboutInformation(tr("License: Professional"));
+
+        if (!licensee().isEmpty())
+            Core::ICore::appendAboutInformation(tr("Licensee: %1").arg(licensee()));
+    }
+
+    m_delayedInitialized = true;
 }
 
 DesignDocument *QmlDesignerPlugin::currentDesignDocument() const

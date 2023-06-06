@@ -119,11 +119,13 @@ private: // functions
     Model *currentModel() const;
     QQuickWidget *m_feedbackWidget = nullptr;
     static QmlDesignerPluginPrivate *privateInstance();
+    void enforceDelayedInitialize();
 
 private: // variables
     QmlDesignerPluginPrivate *d = nullptr;
     static QmlDesignerPlugin *m_instance;
     QElapsedTimer m_usageTimer;
+    bool m_delayedInitialized = false;
 };
 
 } // namespace QmlDesigner
