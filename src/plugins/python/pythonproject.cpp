@@ -52,12 +52,12 @@ public:
     QString name() const override { return QLatin1String("python"); }
 
     bool saveRawFileList(const QStringList &rawFileList);
-    bool saveRawList(const QStringList &rawList, const QString &fileName);
+    bool saveRawList(const QStringList &rawList, const FilePath &filePath);
     void parse();
     QStringList processEntries(const QStringList &paths,
                                QHash<QString, QString> *map = nullptr) const;
 
-    bool writePyProjectFile(const QString &fileName, QString &content,
+    bool writePyProjectFile(const FilePath &filePath, QString &content,
                             const QStringList &rawList, QString *errorMessage);
 
     void triggerParsing() final;
@@ -268,25 +268,24 @@ void PythonBuildSystem::triggerParsing()
 
 bool PythonBuildSystem::saveRawFileList(const QStringList &rawFileList)
 {
-    const bool result = saveRawList(rawFileList, projectFilePath().toString());
+    const bool result = saveRawList(rawFileList, projectFilePath());
 //    refresh(PythonProject::Files);
     return result;
 }
 
-bool PythonBuildSystem::saveRawList(const QStringList &rawList, const QString &fileName)
+bool PythonBuildSystem::saveRawList(const QStringList &rawList, const FilePath &filePath)
 {
-    const FilePath filePath = FilePath::fromString(fileName);
-    FileChangeBlocker changeGuarg(filePath);
+    const FileChangeBlocker changeGuarg(filePath);
     bool result = false;
 
     // New project file
-    if (fileName.endsWith(".pyproject")) {
+    if (filePath.endsWith(".pyproject")) {
         FileSaver saver(filePath, QIODevice::ReadOnly | QIODevice::Text);
         if (!saver.hasError()) {
             QString content = QTextStream(saver.file()).readAll();
             if (saver.finalize(ICore::dialogParent())) {
                 QString errorMessage;
-                result = writePyProjectFile(fileName, content, rawList, &errorMessage);
+                result = writePyProjectFile(filePath, content, rawList, &errorMessage);
                 if (!errorMessage.isEmpty())
                     MessageManager::writeDisrupting(errorMessage);
             }
@@ -305,13 +304,13 @@ bool PythonBuildSystem::saveRawList(const QStringList &rawList, const QString &f
     return result;
 }
 
-bool PythonBuildSystem::writePyProjectFile(const QString &fileName, QString &content,
-                                       const QStringList &rawList, QString *errorMessage)
+bool PythonBuildSystem::writePyProjectFile(const FilePath &filePath, QString &content,
+                                           const QStringList &rawList, QString *errorMessage)
 {
-    QFile file(fileName);
+    QFile file(filePath.toString());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        *errorMessage = Tr::tr("Unable to open \"%1\" for reading: %2")
-                        .arg(fileName, file.errorString());
+        *errorMessage = Tr::tr("Unable to open \"%1\" for writing: %2")
+                        .arg(filePath.toUserOutput(), file.errorString());
         return false;
     }
 
