@@ -799,15 +799,6 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/stateseditor
   SOURCES
-    stateseditorimageprovider.cpp stateseditorimageprovider.h
-    stateseditormodel.cpp stateseditormodel.h
-    stateseditorview.cpp stateseditorview.h
-    stateseditorwidget.cpp stateseditorwidget.h
-)
-
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX components/stateseditornew
-  SOURCES
     propertychangesmodel.cpp propertychangesmodel.h
     propertymodel.cpp propertymodel.h
     stateseditorimageprovider.cpp stateseditorimageprovider.h

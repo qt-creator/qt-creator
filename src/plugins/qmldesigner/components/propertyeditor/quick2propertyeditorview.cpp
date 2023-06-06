@@ -63,8 +63,8 @@ void Quick2PropertyEditorView::registerQmlTypes()
         RichTextEditorProxy::registerDeclarativeType();
         SelectionDynamicPropertiesProxyModel::registerDeclarativeType();
         DynamicPropertyRow::registerDeclarativeType();
-        Experimental::PropertyChangesModel::registerDeclarativeType();
-        Experimental::PropertyModel::registerDeclarativeType();
+        PropertyChangesModel::registerDeclarativeType();
+        PropertyModel::registerDeclarativeType();
 
         const QString resourcePath = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 

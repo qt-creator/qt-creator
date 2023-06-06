@@ -1,5 +1,5 @@
-// Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -7,14 +7,17 @@
 
 #include <qmlstate.h>
 
+#include <QSet>
+
 namespace QmlDesigner {
+
+class AnnotationEditor;
 
 class StatesEditorModel;
 class StatesEditorWidget;
-class AnnotationEditor;
+class PropertyChangesModel;
 
-class StatesEditorView : public AbstractView
-{
+class StatesEditorView : public AbstractView {
     Q_OBJECT
 
 public:
@@ -31,10 +34,14 @@ public:
     void removeAnnotation(int internalNodeId);
     bool hasAnnotation(int internalNodeId) const;
     bool validStateName(const QString &name) const;
+    bool hasExtend() const;
+    QStringList extendedStates() const;
     QString currentStateName() const;
     void setCurrentState(const QmlModelState &state);
     QmlModelState baseState() const;
     QmlModelStateGroup activeStateGroup() const;
+
+    void moveStates(int from, int to);
 
     // AbstractView
     void modelAttached(Model *model) override;
@@ -58,6 +65,13 @@ public:
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList,
                                   PropertyChangeFlags propertyChange) override;
 
+    void customNotification(const AbstractView *view,
+                            const QString &identifier,
+                            const QList<ModelNode> &nodeList,
+                            const QList<QVariant> &data) override;
+    void rewriterBeginTransaction() override;
+    void rewriterEndTransaction() override;
+
     // AbstractView
     void currentStateChanged(const ModelNode &node) override;
 
@@ -67,20 +81,32 @@ public:
 
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
 
-    ModelNode acitveStatesGroupNode() const;
-    void setAcitveStatesGroupNode(const ModelNode &modelNode);
+    ModelNode activeStatesGroupNode() const;
+    void setActiveStatesGroupNode(const ModelNode &modelNode);
+
+    int activeStatesGroupIndex() const;
+    void setActiveStatesGroupIndex(int index);
+
+    void registerPropertyChangesModel(PropertyChangesModel *model);
+    void deregisterPropertyChangesModel(PropertyChangesModel *model);
 
 public slots:
     void synchonizeCurrentStateFromWidget();
     void createNewState();
+    void cloneState(int nodeId);
+    void extendState(int nodeId);
     void removeState(int nodeId);
 
 private:
-    StatesEditorWidget *statesEditorWidget() const;
     void resetModel();
-    void addState();
-    void duplicateCurrentState();
+    void resetPropertyChangesModels();
+    void resetExtend();
+    void resetStateGroups();
+
     void checkForStatesAvailability();
+
+    void beginBulkChange();
+    void endBulkChange();
 
 private:
     QPointer<StatesEditorModel> m_statesEditorModel;
@@ -89,6 +115,18 @@ private:
     bool m_block = false;
     QPointer<AnnotationEditor> m_editor;
     ModelNode m_activeStatesGroupNode;
+
+    bool m_propertyChangesRemoved = false;
+    bool m_stateGroupRemoved = false;
+
+    bool m_bulkChange = false;
+
+    bool m_modelDirty = false;
+    bool m_extendDirty = false;
+    bool m_propertyChangesDirty = false;
+    bool m_stateGroupsDirty = false;
+
+    QSet<PropertyChangesModel *> m_propertyChangedModels;
 };
 
 } // namespace QmlDesigner

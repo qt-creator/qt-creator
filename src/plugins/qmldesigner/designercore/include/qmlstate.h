@@ -23,7 +23,6 @@ class StatesEditorView;
 class QMLDESIGNERCORE_EXPORT QmlModelState final : public QmlModelNodeFacade
 {
     friend StatesEditorView;
-    friend Experimental::StatesEditorView;
 
 public:
     QmlModelState();
