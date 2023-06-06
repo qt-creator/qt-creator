@@ -90,14 +90,13 @@ private:
 
 static QJsonObject readObjJson(const FilePath &projectFile, QString *errorMessage)
 {
-    QFile file(projectFile.toString());
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        *errorMessage = Tr::tr("Unable to open \"%1\" for reading: %2")
-                            .arg(projectFile.toUserOutput(), file.errorString());
-        return QJsonObject();
+    const expected_str<QByteArray> fileContentsResult = projectFile.fileContents();
+    if (!fileContentsResult) {
+        *errorMessage = fileContentsResult.error();
+        return {};
     }
 
-    const QByteArray content = file.readAll();
+    const QByteArray content = *fileContentsResult;
 
     // This assumes the project file is formed with only one field called
     // 'files' that has a list associated of the files to include in the project.
