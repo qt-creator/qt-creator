@@ -446,7 +446,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
             tasks.append(ProcessTask(std::bind(setupFollow, _1, parents.at(i)),
                                  std::bind(onFollowDone, _1, i)));
         }
-        taskTree.setupRoot(tasks);
+        taskTree.setRecipe(tasks);
     };
 
     const auto setupDiff = [this, id](Process &process) {
