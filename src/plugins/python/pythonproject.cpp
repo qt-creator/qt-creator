@@ -51,11 +51,8 @@ public:
                     const FilePath &newFilePath) override;
     QString name() const override { return QLatin1String("python"); }
 
-    bool saveRawFileList(const QStringList &rawFileList);
-    bool saveRawList(const QStringList &rawList, const FilePath &filePath);
     void parse();
-    QStringList processEntries(const QStringList &paths,
-                               QHash<QString, QString> *map = nullptr) const;
+    bool save();
 
     bool writePyProjectFile(const FilePath &filePath, QString &content,
                             const QStringList &rawList, QString *errorMessage);
@@ -63,12 +60,14 @@ public:
     void triggerParsing() final;
 
 private:
-    QStringList m_rawFileList;
-    QStringList m_files;
-    QStringList m_rawQmlImportPathList;
-    QStringList m_qmlImportPaths;
-    QHash<QString, QString> m_rawListEntries;
-    QHash<QString, QString> m_rawQmlImportPathEntries;
+    struct FileEntry {
+        QString rawEntry;
+        FilePath filePath;
+    };
+    QList<FileEntry> processEntries(const QStringList &paths) const;
+
+    QList<FileEntry> m_files;
+    QList<FileEntry> m_qmlImportPaths;
 };
 
 /**
@@ -226,20 +225,19 @@ void PythonBuildSystem::triggerParsing()
     QList<BuildTargetInfo> appTargets;
 
     auto newRoot = std::make_unique<PythonProjectNode>(projectDirectory());
-    for (const QString &f : std::as_const(m_files)) {
-        const QString displayName = baseDir.relativeFilePath(f);
-        const FilePath filePath = FilePath::fromString(f);
-        const FileType fileType = getFileType(filePath);
+    for (const FileEntry &entry: std::as_const(m_files)) {
+        const QString displayName = entry.filePath.relativePathFrom(projectDirectory()).toUserOutput();
+        const FileType fileType = getFileType(entry.filePath);
 
-        newRoot->addNestedNode(std::make_unique<PythonFileNode>(filePath, displayName, fileType));
-        const MimeType mt = mimeTypeForFile(filePath, MimeMatchMode::MatchExtension);
+        newRoot->addNestedNode(std::make_unique<PythonFileNode>(entry.filePath, displayName, fileType));
+        const MimeType mt = mimeTypeForFile(entry.filePath, MimeMatchMode::MatchExtension);
         if (mt.matchesName(Constants::C_PY_MIMETYPE) || mt.matchesName(Constants::C_PY3_MIMETYPE)) {
             BuildTargetInfo bti;
             bti.displayName = displayName;
-            bti.buildKey = f;
-            bti.targetFilePath = filePath;
+            bti.buildKey = entry.filePath.toString();
+            bti.targetFilePath = entry.filePath;
             bti.projectFilePath = projectFilePath();
-            bti.isQtcRunnable = filePath.fileName() == "main.py";
+            bti.isQtcRunnable = entry.filePath.fileName() == "main.py";
             appTargets.append(bti);
         }
     }
@@ -252,9 +250,9 @@ void PythonBuildSystem::triggerParsing()
         const auto hiddenRccFolders = project()->files(Project::HiddenRccFolders);
         auto projectInfo = modelManager->defaultProjectInfoForProject(project(), hiddenRccFolders);
 
-        for (const QString &importPath : std::as_const(m_qmlImportPaths)) {
-            const FilePath filePath = FilePath::fromString(importPath);
-            projectInfo.importPaths.maybeInsert(filePath, QmlJS::Dialect::Qml);
+        for (const FileEntry &importPath : std::as_const(m_qmlImportPaths)) {
+            if (!importPath.filePath.isEmpty())
+                projectInfo.importPaths.maybeInsert(importPath.filePath, QmlJS::Dialect::Qml);
         }
 
         modelManager->updateProjectInfo(projectInfo, project());
@@ -265,15 +263,10 @@ void PythonBuildSystem::triggerParsing()
     emitBuildSystemUpdated();
 }
 
-bool PythonBuildSystem::saveRawFileList(const QStringList &rawFileList)
+bool PythonBuildSystem::save()
 {
-    const bool result = saveRawList(rawFileList, projectFilePath());
-//    refresh(PythonProject::Files);
-    return result;
-}
-
-bool PythonBuildSystem::saveRawList(const QStringList &rawList, const FilePath &filePath)
-{
+    const FilePath filePath = projectFilePath();
+    const QStringList rawList = Utils::transform(m_files, &FileEntry::rawEntry);
     const FileChangeBlocker changeGuarg(filePath);
     bool result = false;
 
@@ -332,28 +325,26 @@ bool PythonBuildSystem::writePyProjectFile(const FilePath &filePath, QString &co
 
 bool PythonBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
-    QStringList newList = m_rawFileList;
+    const Utils::FilePath projectDir = projectDirectory();
 
-    const QDir baseDir(projectDirectory().toString());
-    for (const FilePath &filePath : filePaths)
-        newList.append(baseDir.relativeFilePath(filePath.toString()));
+    for (const FilePath &filePath : filePaths) {
+        if (!projectDir.isSameDevice(filePath))
+            return false;
+        m_files.append(FileEntry{filePath.relativePathFrom(projectDir).toString(), filePath});
+    }
 
-    return saveRawFileList(newList);
+    return save();
 }
 
 RemovedFilesFromProject PythonBuildSystem::removeFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
-    QStringList newList = m_rawFileList;
 
     for (const FilePath &filePath : filePaths) {
-        const QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath.toString());
-        if (i != m_rawListEntries.end())
-            newList.removeOne(i.value());
+        Utils::eraseOne(m_files,
+                        [filePath](const FileEntry &entry) { return filePath == entry.filePath; });
     }
 
-    bool res = saveRawFileList(newList);
-
-    return res ? RemovedFilesFromProject::Ok : RemovedFilesFromProject::Error;
+    return save() ? RemovedFilesFromProject::Ok : RemovedFilesFromProject::Error;
 }
 
 bool PythonBuildSystem::deleteFiles(Node *, const FilePaths &)
@@ -363,45 +354,45 @@ bool PythonBuildSystem::deleteFiles(Node *, const FilePaths &)
 
 bool PythonBuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
-    QStringList newList = m_rawFileList;
-
-    const QHash<QString, QString>::iterator i = m_rawListEntries.find(oldFilePath.toString());
-    if (i != m_rawListEntries.end()) {
-        const int index = newList.indexOf(i.value());
-        if (index != -1) {
-            const QDir baseDir(projectDirectory().toString());
-            newList.replace(index, baseDir.relativeFilePath(newFilePath.toString()));
+    for (FileEntry &entry : m_files) {
+        if (entry.filePath == oldFilePath) {
+            entry.filePath = newFilePath;
+            entry.rawEntry = newFilePath.relativeChildPath(projectDirectory()).toString();
+            break;
         }
     }
 
-    return saveRawFileList(newList);
+    return save();
 }
 
 void PythonBuildSystem::parse()
 {
-    m_rawListEntries.clear();
-    m_rawQmlImportPathEntries.clear();
+    m_files.clear();
+    m_qmlImportPaths.clear();
+
+    QStringList files;
+    QStringList qmlImportPaths;
 
     const FilePath filePath = projectFilePath();
     // The PySide project file is JSON based
     if (filePath.endsWith(".pyproject")) {
         QString errorMessage;
-        m_rawFileList = readLinesJson(filePath, &errorMessage);
+        files = readLinesJson(filePath, &errorMessage);
         if (!errorMessage.isEmpty())
             MessageManager::writeFlashing(errorMessage);
 
         errorMessage.clear();
-        m_rawQmlImportPathList = readImportPathsJson(filePath, &errorMessage);
+        qmlImportPaths = readImportPathsJson(filePath, &errorMessage);
         if (!errorMessage.isEmpty())
             MessageManager::writeFlashing(errorMessage);
     } else if (filePath.endsWith(".pyqtc")) {
         // To keep compatibility with PyQt we keep the compatibility with plain
         // text files as project files.
-        m_rawFileList = readLines(filePath);
+        files = readLines(filePath);
     }
 
-    m_files = processEntries(m_rawFileList, &m_rawListEntries);
-    m_qmlImportPaths = processEntries(m_rawQmlImportPathList, &m_rawQmlImportPathEntries);
+    m_files = processEntries(files);
+    m_qmlImportPaths = processEntries(qmlImportPaths);
 }
 
 /**
@@ -426,38 +417,25 @@ static void expandEnvironmentVariables(const Environment &env, QString &string)
 
 /**
  * Expands environment variables and converts the path from relative to the
- * project to an absolute path.
- *
- * The \a map variable is an optional argument that will map the returned
- * absolute paths back to their original \a paths.
+ * project to an absolute path for all given raw paths
  */
-QStringList PythonBuildSystem::processEntries(const QStringList &paths,
-                                              QHash<QString, QString> *map) const
+QList<PythonBuildSystem::FileEntry> PythonBuildSystem::processEntries(
+    const QStringList &rawPaths) const
 {
+    QList<FileEntry> processed;
+    const FilePath projectDir = projectDirectory();
     const Environment env = projectDirectory().deviceEnvironment();
-    const QDir projectDir(projectDirectory().toString());
 
-    QFileInfo fileInfo;
-    QStringList absolutePaths;
-    for (const QString &path : paths) {
-        QString trimmedPath = path.trimmed();
-        if (trimmedPath.isEmpty())
-            continue;
-
-        expandEnvironmentVariables(env, trimmedPath);
-
-        trimmedPath = FilePath::fromUserInput(trimmedPath).toString();
-
-        fileInfo.setFile(projectDir, trimmedPath);
-        if (fileInfo.exists()) {
-            const QString absPath = fileInfo.absoluteFilePath();
-            absolutePaths.append(absPath);
-            if (map)
-                map->insert(absPath, trimmedPath);
+    for (const QString &rawPath : rawPaths) {
+        FilePath resolvedPath;
+        QString path = rawPath.trimmed();
+        if (!path.isEmpty()) {
+            expandEnvironmentVariables(env, path);
+            resolvedPath = projectDir.resolvePath(path);
         }
+        processed << FileEntry{rawPath, resolvedPath};
     }
-    absolutePaths.removeDuplicates();
-    return absolutePaths;
+    return processed;
 }
 
 Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *errorMessage)
