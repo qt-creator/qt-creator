@@ -7,7 +7,10 @@
 
 QT_FORWARD_DECLARE_CLASS(QSpinBox)
 
-namespace Utils { class PathChooser; }
+namespace Utils {
+class FilePath;
+class PathChooser;
+} // Utils
 
 namespace ImageViewer::Internal {
 
@@ -21,8 +24,8 @@ public:
     QSize exportSize() const;
     void setExportSize(const QSize &);
 
-    QString exportFileName() const;
-    void setExportFileName(const QString &);
+    Utils::FilePath exportFileName() const;
+    void setExportFileName(const Utils::FilePath &);
 
     ExportData exportData() const;
 

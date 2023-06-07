@@ -24,8 +24,9 @@
 #include <QSpinBox>
 #include <QToolButton>
 
-namespace ImageViewer {
-namespace Internal {
+using namespace Utils;
+
+namespace ImageViewer::Internal {
 
 enum { exportMinimumSize = 1, exportMaximumSize = 2000 };
 
@@ -98,10 +99,10 @@ void ExportDialog::accept()
         QMessageBox::warning(this, windowTitle(), m_pathChooser->errorMessage());
         return;
     }
-    const QString fileName = exportFileName();
-    if (QFileInfo::exists(fileName)) {
+    const FilePath filePath = exportFileName();
+    if (filePath.exists()) {
         const QString question = Tr::tr("%1 already exists.\nWould you like to overwrite it?")
-            .arg(QDir::toNativeSeparators(fileName));
+            .arg(filePath.toUserOutput());
         if (QMessageBox::question(this, windowTitle(), question, QMessageBox::Yes | QMessageBox::No) !=  QMessageBox::Yes)
             return;
     }
@@ -156,14 +157,14 @@ void ExportDialog::exportHeightChanged(int height)
     setExportWidthBlocked(square ? height : qRound(qreal(height) * m_aspectRatio));
 }
 
-QString ExportDialog::exportFileName() const
+FilePath ExportDialog::exportFileName() const
 {
-    return m_pathChooser->filePath().toString();
+    return m_pathChooser->filePath();
 }
 
-void ExportDialog::setExportFileName(const QString &f)
+void ExportDialog::setExportFileName(const FilePath &f)
 {
-    m_pathChooser->setFilePath(Utils::FilePath::fromString(f));
+    m_pathChooser->setFilePath(f);
 }
 
 ExportData ExportDialog::exportData() const
@@ -171,5 +172,4 @@ ExportData ExportDialog::exportData() const
     return {exportFileName(), exportSize()};
 }
 
-} // namespace Internal
-} // namespace ImageViewer
+} // ImageViewer::Internal
