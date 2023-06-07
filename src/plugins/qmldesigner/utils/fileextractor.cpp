@@ -8,9 +8,9 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
-#include <utils/archive.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/unarchiver.h>
 
 using namespace Utils;
 

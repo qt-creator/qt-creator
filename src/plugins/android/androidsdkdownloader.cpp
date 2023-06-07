@@ -7,9 +7,9 @@
 
 #include <solutions/tasking/networkquery.h>
 
-#include <utils/archive.h>
 #include <utils/filepath.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/unarchiver.h>
 
 #include <coreplugin/icore.h>
 

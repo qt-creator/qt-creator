@@ -10,7 +10,6 @@ add_qtc_library(Utils
     ansiescapecodehandler.cpp ansiescapecodehandler.h
     appinfo.cpp appinfo.h
     appmainwindow.cpp appmainwindow.h
-    archive.cpp archive.h
     aspects.cpp aspects.h
     async.cpp async.h
     basetreeview.cpp basetreeview.h
@@ -186,6 +185,7 @@ add_qtc_library(Utils
     transientscroll.cpp transientscroll.h
     treemodel.cpp treemodel.h
     treeviewcombobox.cpp treeviewcombobox.h
+    unarchiver.cpp unarchiver.h
     uncommentselection.cpp uncommentselection.h
     uniqueobjectptr.h
     unixutils.cpp unixutils.h

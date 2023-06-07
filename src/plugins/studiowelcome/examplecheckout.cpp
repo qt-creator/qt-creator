@@ -11,10 +11,10 @@
 #include <studiosettingspage.h>
 #include <qmldesignerbase/qmldesignerbaseplugin.h>
 
-#include <utils/archive.h>
 #include <utils/algorithm.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/unarchiver.h>
 
 #include <private/qqmldata_p.h>
 

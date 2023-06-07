@@ -10,7 +10,6 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
-#include <utils/archive.h>
 #include <utils/async.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -20,6 +19,7 @@
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
+#include <utils/unarchiver.h>
 #include <utils/wizard.h>
 #include <utils/wizardpage.h>
 
