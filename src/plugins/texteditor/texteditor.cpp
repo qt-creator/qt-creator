@@ -4956,15 +4956,15 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
             paintBlock(&painter, data.block, data.offset, blockData.selections, data.eventRect);
 
-            if (data.isEditable && data.context.cursorPosition < -1
-                && !blockData.layout->preeditAreaText().isEmpty()) {
-                const int cursorPos = blockData.layout->preeditAreaPosition()
-                                           - (data.context.cursorPosition + 2);
-                data.cursors.append(generateCursorData(cursorPos, data, blockData, painter));
-            }
-
-            if (drawCursor && !drawCursorAsBlock)
+            if (data.isEditable && !blockData.layout->preeditAreaText().isEmpty()) {
+                if (data.context.cursorPosition < -1) {
+                    const int cursorPos = blockData.layout->preeditAreaPosition()
+                                          - (data.context.cursorPosition + 2);
+                    data.cursors = {generateCursorData(cursorPos, data, blockData, painter)};
+                }
+            } else if (drawCursor && !drawCursorAsBlock) {
                 d->addCursorsPosition(data, painter, blockData);
+            }
             d->paintIndentDepth(data, painter, blockData);
             d->paintAdditionalVisualWhitespaces(data, painter, blockData.boundingRect.top());
             d->paintReplacement(data, painter, blockData.boundingRect.top());
