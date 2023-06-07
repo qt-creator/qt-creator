@@ -1435,7 +1435,7 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
         return;
 
     doc = doc->clone(doc);
-    const auto cleanup = qScopeGuard([doc] { delete doc; });
+    const QScopeGuard cleanup([doc] { delete doc; });
 
     QTextOption opt = doc->defaultTextOption();
     opt.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
@@ -2555,7 +2555,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
 {
     ICore::restartTrimmer();
 
-    auto clearBlockSelectionGuard = qScopeGuard([&]() { d->clearBlockSelection(); });
+    QScopeGuard cleanup([&] { d->clearBlockSelection(); });
 
     if (!isModifier(e) && mouseHidingEnabled())
         viewport()->setCursor(Qt::BlankCursor);
@@ -2834,7 +2834,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
 
         if (blockSelectionOperation != QTextCursor::NoMove) {
-            clearBlockSelectionGuard.dismiss();
+            cleanup.dismiss();
             d->handleMoveBlockSelection(blockSelectionOperation);
         } else if (!d->cursorMoveKeyEvent(e)) {
             QTextCursor cursor = textCursor();
@@ -5284,7 +5284,7 @@ void TextEditorWidgetPrivate::paintTextMarks(QPainter &painter, const ExtraAreaP
     int yoffset = blockBoundingRect.top();
 
     painter.save();
-    const auto cleanup = qScopeGuard([&painter, size, yoffset, xoffset, overrideIcon] {
+    const QScopeGuard cleanup([&painter, size, yoffset, xoffset, overrideIcon] {
         if (!overrideIcon.isNull()) {
             const QRect r(xoffset, yoffset, size, size);
             overrideIcon.paint(&painter, r, Qt::AlignCenter);

@@ -330,7 +330,7 @@ void DynamicPropertyRow::commitValue(const QVariant &value)
         return;
 
     m_lock = true;
-    auto unlock = qScopeGuard([this] { m_lock = false; });
+    const QScopeGuard cleanup([this] { m_lock = false; });
 
     auto view = propertiesModel->view();
     RewriterTransaction transaction = view->beginRewriterTransaction(__FUNCTION__);
@@ -371,7 +371,7 @@ void DynamicPropertyRow::commitExpression(const QString &expression)
     }
 
     m_lock = true;
-    auto unlock = qScopeGuard([this] { m_lock = false; });
+    const QScopeGuard cleanup([this] { m_lock = false; });
 
     auto view = propertiesModel->view();
     RewriterTransaction transaction = view->beginRewriterTransaction(__FUNCTION__);
@@ -426,7 +426,7 @@ void DynamicPropertyRow::resetValue()
         }
     } else {
         m_lock = true;
-        auto unlock = qScopeGuard([this] { m_lock = false; });
+        const QScopeGuard cleanup([this] { m_lock = false; });
 
         RewriterTransaction transaction = view->beginRewriterTransaction(__FUNCTION__);
         try {

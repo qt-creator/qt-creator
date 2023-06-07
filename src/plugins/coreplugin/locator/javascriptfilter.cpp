@@ -15,7 +15,6 @@
 #include <QJSEngine>
 #include <QPair>
 #include <QPointer>
-#include <QScopeGuard>
 
 #include <chrono>
 

@@ -13,7 +13,6 @@
 #include <QFileDialog>
 #include <QPainter>
 #include <QPointer>
-#include <QScopeGuard>
 #include <QStyle>
 #include <QStyleFactory>
 #include <QTextTable>

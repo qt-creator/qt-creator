@@ -29,16 +29,17 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
-#include <QDir>
-#include <QFileSystemWatcher>
-#include <QFileInfo>
-#include <QDebug>
-#include <QQuickItem>
-#include <QTimer>
-#include <QShortcut>
 #include <QApplication>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QFileSystemWatcher>
+#include <QQuickItem>
+#include <QScopeGuard>
 #include <QScopedPointer>
+#include <QShortcut>
+#include <QTimer>
 
 enum {
     debug = false
@@ -241,10 +242,10 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
     if (noValidSelection())
         return;
 
-    QScopeGuard unlock([&](){ m_locked = false; });
+    const QScopeGuard cleanup([&] { m_locked = false; });
     m_locked = true;
 
-    executeInTransaction("PropertyEditorView::changeExpression", [this, name](){
+    executeInTransaction("PropertyEditorView::changeExpression", [this, name] {
         PropertyName underscoreName(name);
         underscoreName.replace('.', '_');
 

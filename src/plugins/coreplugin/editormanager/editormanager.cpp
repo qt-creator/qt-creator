@@ -3325,7 +3325,7 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
             EditorManager::gotoOtherSplit();
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    const auto cleanup = qScopeGuard(&QApplication::restoreOverrideCursor);
+    const QScopeGuard cleanup(&QApplication::restoreOverrideCursor);
 
     const QString title = makeTitleUnique(titlePattern);
 

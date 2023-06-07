@@ -15,6 +15,7 @@
 #include <utils/utilsicons.h>
 
 #include <QPushButton>
+#include <QScopeGuard>
 #include <QToolBar>
 #include <QToolButton>
 
@@ -117,7 +118,7 @@ void CopilotHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
                                         int pos,
                                         ReportPriority report)
 {
-    auto reportNone = qScopeGuard([&] { report(Priority_None); });
+    QScopeGuard cleanup([&] { report(Priority_None); });
     if (!editorWidget->suggestionVisible())
         return;
 
@@ -133,7 +134,7 @@ void CopilotHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
     if (completions.isEmpty())
         return;
 
-    reportNone.dismiss();
+    cleanup.dismiss();
     report(Priority_Suggestion);
 }
 
