@@ -10,7 +10,7 @@
 #include <QDropEvent>
 #include <QTimer>
 
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
 // for file drops from Finder, working around QTBUG-40449
 #include "fileutils_mac.h"
 #endif

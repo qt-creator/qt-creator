@@ -146,7 +146,7 @@ WindowList::~WindowList()
 
 void WindowList::addWindow(QWidget *window)
 {
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
     if (!m_dockMenu) {
         m_dockMenu = new QMenu;
         m_dockMenu->setAsDockMenu();

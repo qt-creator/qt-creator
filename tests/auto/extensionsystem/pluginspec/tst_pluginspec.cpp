@@ -33,7 +33,7 @@ static QJsonObject metaData(const QString &fileName)
 
 static QString libraryName(const QString &basename)
 {
-#if defined(Q_OS_OSX)
+#if defined(Q_OS_MACOS)
     return QLatin1String("lib") + basename + QLatin1String("_debug.dylib");
 #elif defined(Q_OS_UNIX)
     return QLatin1String("lib") + basename + QLatin1String(".so");

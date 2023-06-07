@@ -15,7 +15,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
 #include <sys/posix_shm.h>
 #endif
 #include <fcntl.h>
@@ -326,7 +326,7 @@ bool SharedMemory::createInternal(QSharedMemory::AccessMode mode, size_t size)
 {
     detachInternal();
 
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
     if (m_fileHandle > -1 && m_createdByMe) {
         close(m_fileHandle);
         shm_unlink(m_nativeKey.constData());
