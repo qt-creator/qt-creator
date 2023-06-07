@@ -643,33 +643,29 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
     if (parsedSpec.isEmpty())
         return {};
 
-    FilePath baseMkspecDir = FilePath::fromUserInput(version->hostDataPath().toString()
-                                                     + "/mkspecs");
-    baseMkspecDir = FilePath::fromString(baseMkspecDir.toFileInfo().canonicalFilePath());
+    const FilePath baseMkspecDir = version->hostDataPath().pathAppended("mkspecs")
+        .canonicalPath();
 
     // if the path is relative it can be
     // relative to the working directory (as found in the Makefiles)
     // or relatively to the mkspec directory
     // if it is the former we need to get the canonical form
     // for the other one we don't need to do anything
-    if (parsedSpec.toFileInfo().isRelative()) {
-        if (QFileInfo::exists(directory.path() + QLatin1Char('/') + parsedSpec.toString()))
-            parsedSpec = FilePath::fromUserInput(directory.path() + QLatin1Char('/') + parsedSpec.toString());
+    if (parsedSpec.isRelativePath()) {
+        FilePath mkspecs = directory.pathAppended(parsedSpec.path());
+        if (mkspecs.exists())
+            parsedSpec = mkspecs;
         else
-            parsedSpec = FilePath::fromUserInput(baseMkspecDir.toString() + QLatin1Char('/') + parsedSpec.toString());
+            parsedSpec = baseMkspecDir.pathAppended(parsedSpec.path());
     }
 
-    QFileInfo f2 = parsedSpec.toFileInfo();
-    while (f2.isSymLink()) {
-        parsedSpec = FilePath::fromString(f2.symLinkTarget());
-        f2.setFile(parsedSpec.toString());
-    }
+    while (parsedSpec.isSymLink())
+        parsedSpec = parsedSpec.symLinkTarget();
 
     if (parsedSpec.isChildOf(baseMkspecDir)) {
         parsedSpec = parsedSpec.relativeChildPath(baseMkspecDir);
     } else {
-        FilePath sourceMkSpecPath = FilePath::fromString(version->sourcePath().toString()
-                                                         + QLatin1String("/mkspecs"));
+        FilePath sourceMkSpecPath = version->sourcePath().pathAppended("mkspecs");
         if (parsedSpec.isChildOf(sourceMkSpecPath))
             parsedSpec = parsedSpec.relativeChildPath(sourceMkSpecPath);
     }
