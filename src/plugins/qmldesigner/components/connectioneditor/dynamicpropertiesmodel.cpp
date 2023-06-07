@@ -180,7 +180,7 @@ void DynamicPropertiesModel::resetModel()
 // Value copying is optional
 BindingProperty DynamicPropertiesModel::replaceVariantWithBinding(const PropertyName &name, bool copyValue)
 {
-    if (selectedNodes().count() == 1) {
+    if (selectedNodes().size() == 1) {
         const ModelNode modelNode = selectedNodes().constFirst();
         if (modelNode.isValid()) {
             if (modelNode.hasVariantProperty(name)) {
@@ -214,7 +214,7 @@ BindingProperty DynamicPropertiesModel::replaceVariantWithBinding(const Property
 // If it's a BindingProperty, then replaces it with empty VariantProperty
 void DynamicPropertiesModel::resetProperty(const PropertyName &name)
 {
-    if (selectedNodes().count() == 1) {
+    if (selectedNodes().size() == 1) {
         const ModelNode modelNode = selectedNodes().constFirst();
         if (modelNode.isValid()) {
             if (modelNode.hasProperty(name)) {
@@ -454,7 +454,7 @@ void DynamicPropertiesModel::addDynamicPropertyForCurrentNode()
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_PROPERTY_ADDED);
 
-    if (selectedNodes().count() == 1) {
+    if (selectedNodes().size() == 1) {
         const ModelNode modelNode = selectedNodes().constFirst();
         if (modelNode.isValid()) {
             try {
@@ -839,9 +839,9 @@ bool DynamicPropertiesModel::getExpressionStrings(const BindingProperty &binding
 
         QString propertyName;
 
-        for (int i = 1; i < expressionParts.count(); ++i) {
+        for (int i = 1; i < expressionParts.size(); ++i) {
             propertyName += expressionParts.at(i);
-            if (i != expressionParts.count() - 1)
+            if (i != expressionParts.size() - 1)
                 propertyName += QLatin1String(".");
         }
         *sourceProperty = propertyName;

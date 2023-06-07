@@ -301,7 +301,7 @@ void ConnectionModel::addConnection()
                                                                       nodeMetaInfo.minorVersion());
                 QString source = "console.log(\"clicked\")";
 
-                if (connectionView()->selectedModelNodes().count() == 1) {
+                if (connectionView()->selectedModelNodes().size() == 1) {
                     ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
                     if (QmlItemNode::isValidQmlItemNode(selectedNode))
                         selectedNode.nodeAbstractProperty("data").reparentHere(newNode);

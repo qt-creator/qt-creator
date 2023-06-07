@@ -216,7 +216,7 @@ void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths,
     addInfo(progressTitle);
     notifyProgress(0, progressTitle);
     uint count = 0;
-    double quota = 100.0 / filePaths.count();
+    double quota = 100.0 / filePaths.size();
     std::function<void(double)> progress = [this, quota, &count, &progressTitle](double value) {
         notifyProgress(qRound(quota * (count + value)), progressTitle);
     };

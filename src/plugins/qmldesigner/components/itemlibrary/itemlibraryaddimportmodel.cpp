@@ -28,12 +28,12 @@ ItemLibraryAddImportModel::~ItemLibraryAddImportModel()
 
 int ItemLibraryAddImportModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    return m_importList.count();
+    return m_importList.size();
 }
 
 QVariant ItemLibraryAddImportModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_importList.count())
+    if (!index.isValid() || index.row() >= m_importList.size())
         return {};
 
     Import import = m_importList[index.row()];

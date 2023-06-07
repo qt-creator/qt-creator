@@ -36,7 +36,7 @@ BakeLightsDataModel::~BakeLightsDataModel()
 
 int BakeLightsDataModel::rowCount(const QModelIndex &) const
 {
-    return m_dataList.count();
+    return m_dataList.size();
 }
 
 QHash<int, QByteArray> BakeLightsDataModel::roleNames() const
@@ -57,7 +57,7 @@ QHash<int, QByteArray> BakeLightsDataModel::roleNames() const
 
 QVariant BakeLightsDataModel::data(const QModelIndex &index, int role) const
 {
-    QTC_ASSERT(index.isValid() && index.row() < m_dataList.count(), return {});
+    QTC_ASSERT(index.isValid() && index.row() < m_dataList.size(), return {});
     QTC_ASSERT(roleNames().contains(role), return {});
 
     QByteArray roleName = roleNames().value(role);
@@ -102,7 +102,7 @@ QVariant BakeLightsDataModel::data(const QModelIndex &index, int role) const
 
 bool BakeLightsDataModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    QTC_ASSERT(index.isValid() && index.row() < m_dataList.count(), return false);
+    QTC_ASSERT(index.isValid() && index.row() < m_dataList.size(), return false);
     QTC_ASSERT(roleNames().contains(role), return false);
 
     QByteArray roleName = roleNames().value(role);

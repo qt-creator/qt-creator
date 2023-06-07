@@ -228,12 +228,12 @@ ItemLibraryModel::~ItemLibraryModel()
 
 int ItemLibraryModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    return m_importList.count();
+    return m_importList.size();
 }
 
 QVariant ItemLibraryModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_importList.count())
+    if (!index.isValid() || index.row() >= m_importList.size())
         return {};
 
     if (m_roleNames.contains(role)) {

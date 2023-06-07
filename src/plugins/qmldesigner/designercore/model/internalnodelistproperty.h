@@ -27,13 +27,13 @@ public:
     int indexOf(const InternalNodePointer &node) const override;
     const InternalNodePointer &at(int index) const
     {
-        Q_ASSERT(index >= 0 && index < m_nodeList.count());
+        Q_ASSERT(index >= 0 && index < m_nodeList.size());
         return m_nodeList[index];
     }
 
     InternalNodePointer &at(int index)
     {
-        Q_ASSERT(index >= 0 && index < m_nodeList.count());
+        Q_ASSERT(index >= 0 && index < m_nodeList.size());
         return m_nodeList[index];
     }
 

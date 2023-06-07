@@ -338,7 +338,7 @@ void CurveEditorView::commitKeyframes(TreeItem *item)
                                     attachEasingCurve(group, pos.x(), segment.easingCurve());
                             } else if (frame.interpolation() == Keyframe::Interpolation::Easing) {
                                 QVariant data = frame.data();
-                                if (data.type() == static_cast<int>(QMetaType::QEasingCurve))
+                                if (data.typeId() == static_cast<int>(QMetaType::QEasingCurve))
                                     attachEasingCurve(group, pos.x(), data.value<QEasingCurve>());
                             }
                         }

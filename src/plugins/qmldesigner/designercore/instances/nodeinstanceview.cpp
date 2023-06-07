@@ -201,7 +201,7 @@ NodeInstanceView::~NodeInstanceView()
 
 //\{
 
-bool static isSkippedRootNode(const ModelNode &node)
+static bool isSkippedRootNode(const ModelNode &node)
 {
     static const PropertyNameList skipList({"Qt.ListModel", "QtQuick.ListModel", "Qt.ListModel", "QtQuick.ListModel"});
 
@@ -211,8 +211,7 @@ bool static isSkippedRootNode(const ModelNode &node)
     return false;
 }
 
-
-bool static isSkippedNode(const ModelNode &node)
+static bool isSkippedNode(const ModelNode &node)
 {
     static const PropertyNameList skipList({"QtQuick.XmlRole", "Qt.XmlRole", "QtQuick.ListElement", "Qt.ListElement"});
 
@@ -222,7 +221,7 @@ bool static isSkippedNode(const ModelNode &node)
     return false;
 }
 
-bool static parentTakesOverRendering(const ModelNode &modelNode)
+static bool parentTakesOverRendering(const ModelNode &modelNode)
 {
     ModelNode currentNode = modelNode;
 
@@ -1503,7 +1502,7 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
         }
     }
 
-    m_nodeInstanceServer->benchmark(Q_FUNC_INFO + QString::number(renderImageChangeSet.count()));
+    m_nodeInstanceServer->benchmark(Q_FUNC_INFO + QString::number(renderImageChangeSet.size()));
 
     if (!renderImageChangeSet.isEmpty())
         emitInstancesRenderImageChanged(Utils::toList(renderImageChangeSet));
@@ -1542,7 +1541,7 @@ void NodeInstanceView::informationChanged(const InformationChangedCommand &comma
 
     QMultiHash<ModelNode, InformationName> informationChangeHash = informationChanged(command.informations());
 
-    m_nodeInstanceServer->benchmark(Q_FUNC_INFO + QString::number(informationChangeHash.count()));
+    m_nodeInstanceServer->benchmark(Q_FUNC_INFO + QString::number(informationChangeHash.size()));
 
     if (!informationChangeHash.isEmpty())
         emitInstanceInformationsChange(informationChangeHash);
@@ -1615,7 +1614,7 @@ void NodeInstanceView::componentCompleted(const ComponentCompletedCommand &comma
             nodeVector.append(modelNodeForInternalId(instanceId));
     }
 
-    m_nodeInstanceServer->benchmark(Q_FUNC_INFO + QString::number(nodeVector.count()));
+    m_nodeInstanceServer->benchmark(Q_FUNC_INFO + QString::number(nodeVector.size()));
 
     if (!nodeVector.isEmpty())
         emitInstancesCompleted(nodeVector);

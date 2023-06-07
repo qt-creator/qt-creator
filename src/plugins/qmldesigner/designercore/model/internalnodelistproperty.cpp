@@ -26,7 +26,7 @@ bool InternalNodeListProperty::isEmpty() const
 
 int InternalNodeListProperty::count() const
 {
-    return m_nodeList.count();
+    return m_nodeList.size();
 }
 
 int InternalNodeListProperty::indexOf(const InternalNode::Pointer &node) const

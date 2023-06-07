@@ -42,7 +42,7 @@
 #include <QPixmap>
 #include <QTimer>
 
-static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPointF &pos)
+inline static void setScenePos(const QmlDesigner::ModelNode &modelNode, const QPointF &pos)
 {
     if (modelNode.hasParentProperty() && QmlDesigner::QmlItemNode::isValidQmlItemNode(modelNode.parentProperty().parentModelNode())) {
         QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
@@ -58,7 +58,7 @@ static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPo
     }
 }
 
-static inline void moveNodesUp(const QList<QmlDesigner::ModelNode> &nodes)
+inline static void moveNodesUp(const QList<QmlDesigner::ModelNode> &nodes)
 {
     for (const auto &node : nodes) {
         if (!node.isRootNode() && node.parentProperty().isNodeListProperty()) {
@@ -73,7 +73,7 @@ static inline void moveNodesUp(const QList<QmlDesigner::ModelNode> &nodes)
     }
 }
 
-static inline void moveNodesDown(const QList<QmlDesigner::ModelNode> &nodes)
+inline static void moveNodesDown(const QList<QmlDesigner::ModelNode> &nodes)
 {
     for (const auto &node : nodes) {
         if (!node.isRootNode() && node.parentProperty().isNodeListProperty()) {
@@ -280,7 +280,7 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
         m_widget->update();
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
         const QStringList assetsPaths = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',');
-        if (assetsPaths.count() > 0) {
+        if (assetsPaths.size() > 0) {
             auto assetTypeAndData = AssetsLibraryWidget::getAssetTypeAndData(assetsPaths[0]);
             QString assetType = assetTypeAndData.first;
             if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
@@ -517,7 +517,7 @@ void NavigatorView::propagateInstanceErrorToExplorer(const ModelNode &modelNode)
 
 void NavigatorView::leftButtonClicked()
 {
-    if (selectedModelNodes().count() > 1)
+    if (selectedModelNodes().size() > 1)
         return; //Semantics are unclear for multi selection.
 
     bool blocked = blockSelectionChangedSignal(true);
@@ -541,14 +541,15 @@ void NavigatorView::leftButtonClicked()
 
 void NavigatorView::rightButtonClicked()
 {
-    if (selectedModelNodes().count() > 1)
+    if (selectedModelNodes().size() > 1)
         return; //Semantics are unclear for multi selection.
 
     bool blocked = blockSelectionChangedSignal(true);
     bool reverse = QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
 
     for (const ModelNode &node : selectedModelNodes()) {
-        if (!node.isRootNode() && node.parentProperty().isNodeListProperty() && node.parentProperty().count() > 1) {
+        if (!node.isRootNode() && node.parentProperty().isNodeListProperty()
+            && node.parentProperty().count() > 1) {
             int index = node.parentProperty().indexOf(node);
 
             bool indexOk = false;

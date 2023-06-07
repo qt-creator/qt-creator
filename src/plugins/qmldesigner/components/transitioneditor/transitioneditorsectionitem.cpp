@@ -441,7 +441,7 @@ void TransitionEditorSectionItem::invalidateHeight()
             model->qtQuickPropertyAnimationMetaInfo());
 
         height = TimelineConstants::sectionHeight
-                 + propertyAnimations.count() * TimelineConstants::sectionHeight;
+                 + propertyAnimations.size() * TimelineConstants::sectionHeight;
         visible = true;
     }
 

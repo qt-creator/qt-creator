@@ -50,7 +50,7 @@ inline static QString doubleToString(const PropertyName &propertyName, double d)
 
 static QString unicodeEscape(const QString &stringValue)
 {
-    if (stringValue.count() == 1) {
+    if (stringValue.size() == 1) {
         ushort code = stringValue.at(0).unicode();
         bool isUnicode = code <= 127;
         if (isUnicode) {
@@ -118,7 +118,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
         if (variantProperty.holdsEnumeration()) {
             return variantProperty.enumeration().toString();
         } else {
-            switch (value.userType()) {
+            switch (value.typeId()) {
             case QMetaType::Bool:
                 if (value.toBool())
                     return QStringLiteral("true");

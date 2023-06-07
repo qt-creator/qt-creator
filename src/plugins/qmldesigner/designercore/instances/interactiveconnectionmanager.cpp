@@ -70,7 +70,7 @@ void InteractiveConnectionManager::dispatchCommand(const QVariant &command, Conn
 {
     static const int puppetAliveCommandType = QMetaType::type("PuppetAliveCommand");
 
-    if (command.userType() == puppetAliveCommandType) {
+    if (command.typeId() == puppetAliveCommandType) {
         puppetAlive(connection);
     } else {
         BaseConnectionManager::dispatchCommand(command, connection);

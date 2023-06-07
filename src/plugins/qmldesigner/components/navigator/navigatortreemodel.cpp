@@ -69,13 +69,12 @@ static QList<ModelNode> modelNodesFromMimeData(const QMimeData *mineData, Abstra
 bool fitsToTargetProperty(const NodeAbstractProperty &targetProperty,
                           const QList<ModelNode> &modelNodeList)
 {
-    bool const canBeContainer =
-        NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(modelNodeList.first());
-    return !(targetProperty.isNodeProperty() &&
-             modelNodeList.count() > 1) && canBeContainer;
+    const bool canBeContainer = NodeHints::fromModelNode(targetProperty.parentModelNode())
+                                    .canBeContainerFor(modelNodeList.first());
+    return !(targetProperty.isNodeProperty() && modelNodeList.size() > 1) && canBeContainer;
 }
 
-static inline QString msgUnknownItem(const QString &t)
+inline static QString msgUnknownItem(const QString &t)
 {
     return NavigatorTreeModel::tr("Unknown component: %1").arg(t);
 }
@@ -289,7 +288,7 @@ Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
-void static appendForcedNodes(const NodeListProperty &property, QList<ModelNode> &list)
+static void appendForcedNodes(const NodeListProperty &property, QList<ModelNode> &list)
 {
     const QSet<ModelNode> set = QSet<ModelNode>(list.constBegin(), list.constEnd());
     for (const ModelNode &node : property.parentModelNode().directSubModelNodes()) {
@@ -411,7 +410,8 @@ int NavigatorTreeModel::rowCount(const QModelIndex &parent) const
     if (modelNode.defaultNodeListProperty().isValid()) {
         rows = filteredList(modelNode.defaultNodeListProperty(),
                             m_showOnlyVisibleItems,
-                            m_reverseItemOrder).count();
+                            m_reverseItemOrder)
+                   .size();
     }
 
     return rows;
@@ -451,7 +451,7 @@ void NavigatorTreeModel::setView(NavigatorView *view)
 
 QStringList NavigatorTreeModel::mimeTypes() const
 {
-    const static QStringList types({Constants::MIME_TYPE_MODELNODE_LIST,
+    static const QStringList types({Constants::MIME_TYPE_MODELNODE_LIST,
                                     Constants::MIME_TYPE_ITEM_LIBRARY_INFO,
                                     Constants::MIME_TYPE_TEXTURE,
                                     Constants::MIME_TYPE_MATERIAL,

@@ -655,7 +655,7 @@ Qt5InformationNodeInstanceServer::propertyToPropertyValueTriples(
     QVector<InstancePropertyValueTriple> result;
     InstancePropertyValueTriple propTriple;
 
-    if (variant.type() == QVariant::Vector3D) {
+    if (variant.typeId() == QVariant::Vector3D) {
         auto vector3d = variant.value<QVector3D>();
 
         if (vector3d.isNull())

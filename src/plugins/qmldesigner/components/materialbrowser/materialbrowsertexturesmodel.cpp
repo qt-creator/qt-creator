@@ -24,12 +24,12 @@ MaterialBrowserTexturesModel::~MaterialBrowserTexturesModel()
 
 int MaterialBrowserTexturesModel::rowCount(const QModelIndex &) const
 {
-    return m_textureList.count();
+    return m_textureList.size();
 }
 
 QVariant MaterialBrowserTexturesModel::data(const QModelIndex &index, int role) const
 {
-    QTC_ASSERT(index.isValid() && index.row() < m_textureList.count(), return {});
+    QTC_ASSERT(index.isValid() && index.row() < m_textureList.size(), return {});
     QTC_ASSERT(roleNames().contains(role), return {});
 
     if (role == RoleTexSource) {
@@ -124,7 +124,7 @@ void MaterialBrowserTexturesModel::refreshSearch()
     // if selected texture goes invisible, select nearest one
     if (!isVisible(m_selectedIndex)) {
         int inc = 1;
-        int incCap = m_textureList.count();
+        int incCap = m_textureList.size();
         while (!isEmpty && inc < incCap) {
             if (isVisible(m_selectedIndex - inc)) {
                 selectTexture(m_selectedIndex - inc);

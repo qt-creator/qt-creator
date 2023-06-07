@@ -336,7 +336,7 @@ private:
     const ContextPtr m_context;
 };
 
-static inline bool isValueType(const TypeName &type)
+inline static bool isValueType(const TypeName &type)
 {
     static const PropertyTypeList objectValuesList({"QFont",
                                                     "QPoint",
@@ -356,7 +356,7 @@ static inline bool isValueType(const TypeName &type)
     return objectValuesList.contains(type);
 }
 
-static inline bool isValueType(const QString &type)
+inline static bool isValueType(const QString &type)
 {
     static const QStringList objectValuesList({"QFont",
                                                "QPoint",
@@ -713,7 +713,7 @@ PropertyName NodeMetaInfoPrivate::defaultPropertyName() const
     return PropertyName("data");
 }
 
-static inline TypeName stringIdentifier( const TypeName &type, int maj, int min)
+inline static TypeName stringIdentifier(const TypeName &type, int maj, int min)
 {
     return type + QByteArray::number(maj) + '_' + QByteArray::number(min);
 }
@@ -2911,8 +2911,7 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
 
         QVariant::Type typeId = nodeMetaInfoPrivateData()->variantTypeId(propertyName());
 
-        if (variant.type() == QVariant::UserType
-            && variant.userType() == ModelNode::variantUserType()) {
+        if (variant.typeId() == QVariant::UserType && variant.typeId() == ModelNode::variantTypeId()) {
             return variant;
         } else if (typeId == QVariant::UserType && typeName == "QVariant") {
             return variant;
@@ -2920,7 +2919,7 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
             return variant;
         } else if (typeId == QVariant::UserType && typeName == "var") {
             return variant;
-        } else if (variant.type() == QVariant::List) {
+        } else if (variant.typeId() == QVariant::List) {
             // TODO: check the contents of the list
             return variant;
         } else if (typeName == "var" || typeName == "variant") {
@@ -2946,11 +2945,11 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
 
         const TypeId &typeId = propertyData().typeId;
 
-        if (value.type() == QVariant::UserType && value.userType() == ModelNode::variantUserType()) {
+        if (value.typeId() == QVariant::UserType && value.typeId() == ModelNode::variantTypeId()) {
             return value;
         } else if (typeId == m_projectStorage->builtinTypeId<QVariant>()) {
             return value;
-        } else if (value.type() == QVariant::List) {
+        } else if (value.typeId() == QVariant::List) {
             // TODO: check the contents of the list
             return value;
         } else if (typeId == m_projectStorage->builtinTypeId<double>()) {

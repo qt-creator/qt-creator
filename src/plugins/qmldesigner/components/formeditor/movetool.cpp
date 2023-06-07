@@ -94,9 +94,9 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
 
                 const FormEditorItem *movingItem = m_movingItems.constFirst();
 
-                if (m_movingItems.count() > 1
-                        || (movingItem->qmlItemNode().canBereparentedTo(containerItem->qmlItemNode())))
-                        m_moveManipulator.reparentTo(containerItem, MoveManipulator::EnforceReparent);
+                if (m_movingItems.size() > 1
+                    || (movingItem->qmlItemNode().canBereparentedTo(containerItem->qmlItemNode())))
+                    m_moveManipulator.reparentTo(containerItem, MoveManipulator::EnforceReparent);
             }
         }
 

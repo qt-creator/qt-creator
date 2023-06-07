@@ -45,7 +45,7 @@ QWidget *BackgroundAction::createWidget(QWidget *parent)
     auto comboBox = new QComboBox(parent);
     comboBox->setFixedWidth(42);
 
-    for (int i = 0; i < colors().count(); ++i) {
+    for (int i = 0; i < colors().size(); ++i) {
         comboBox->addItem(tr(""));
         comboBox->setItemIcon(i, iconForColor((colors().at(i))));
     }
@@ -62,7 +62,7 @@ QWidget *BackgroundAction::createWidget(QWidget *parent)
 
 void BackgroundAction::emitBackgroundChanged(int index)
 {
-    if (index < colors().count())
+    if (index < colors().size())
         emit backgroundChanged(colors().at(index));
 }
 

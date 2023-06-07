@@ -64,7 +64,7 @@ QString ContentLibraryTexture::resolveFileExt()
     if (textureFiles.isEmpty())
         return {};
 
-    if (textureFiles.count() > 1) {
+    if (textureFiles.size() > 1) {
         qWarning() << "Found multiple textures with the same name in the same directories: "
                    << Utils::transform(textureFiles, [](const QFileInfo &fi) {
                           return fi.fileName();

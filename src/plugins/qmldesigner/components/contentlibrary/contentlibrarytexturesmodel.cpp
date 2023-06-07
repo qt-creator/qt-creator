@@ -36,7 +36,7 @@ int ContentLibraryTexturesModel::rowCount(const QModelIndex &) const
 
 QVariant ContentLibraryTexturesModel::data(const QModelIndex &index, int role) const
 {
-    QTC_ASSERT(index.isValid() && index.row() < m_bundleCategories.count(), return {});
+    QTC_ASSERT(index.isValid() && index.row() < m_bundleCategories.size(), return {});
     QTC_ASSERT(roleNames().contains(role), return {});
 
     return m_bundleCategories.at(index.row())->property(roleNames().value(role));

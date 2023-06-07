@@ -152,7 +152,7 @@ void DynamicPropertiesProxyModel::createProperty(const QString &name, const QStr
     TypeName typeName = type.toUtf8();
 
     const auto selectedNodes = dynamicPropertiesModel()->selectedNodes();
-    if (selectedNodes.count() == 1) {
+    if (selectedNodes.size() == 1) {
         const ModelNode modelNode = selectedNodes.constFirst();
         if (modelNode.isValid()) {
             if (modelNode.hasProperty(name.toUtf8())) {

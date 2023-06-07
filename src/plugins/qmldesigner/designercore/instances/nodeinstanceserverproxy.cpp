@@ -107,37 +107,38 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
     static const int puppetToCreatorCommandType = QMetaType::type("PuppetToCreatorCommand");
     static const int SyncNanotraceCommandType = QMetaType::type("SyncNanotraceCommand");
 
-    qCInfo(instanceViewBenchmark) << "dispatching command" << command.userType() << command.typeName();
-    if (command.userType() == informationChangedCommandType) {
+    qCInfo(instanceViewBenchmark) << "dispatching command" << command.typeId() << command.typeName();
+    if (command.typeId() == informationChangedCommandType) {
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
-    } else if (command.userType() == valuesChangedCommandType) {
+    } else if (command.typeId() == valuesChangedCommandType) {
         nodeInstanceClient()->valuesChanged(command.value<ValuesChangedCommand>());
-    } else if (command.userType() == valuesModifiedCommandType) {
+    } else if (command.typeId() == valuesModifiedCommandType) {
         nodeInstanceClient()->valuesModified(command.value<ValuesModifiedCommand>());
-    } else if (command.userType() == pixmapChangedCommandType) {
+    } else if (command.typeId() == pixmapChangedCommandType) {
         nodeInstanceClient()->pixmapChanged(command.value<PixmapChangedCommand>());
-    } else if (command.userType() == childrenChangedCommandType) {
+    } else if (command.typeId() == childrenChangedCommandType) {
         nodeInstanceClient()->childrenChanged(command.value<ChildrenChangedCommand>());
-    } else if (command.userType() == statePreviewImageChangedCommandType) {
+    } else if (command.typeId() == statePreviewImageChangedCommandType) {
         nodeInstanceClient()->statePreviewImagesChanged(command.value<StatePreviewImageChangedCommand>());
-    } else if (command.userType() == componentCompletedCommandType) {
+    } else if (command.typeId() == componentCompletedCommandType) {
         nodeInstanceClient()->componentCompleted(command.value<ComponentCompletedCommand>());
-    } else if (command.userType() == tokenCommandType) {
+    } else if (command.typeId() == tokenCommandType) {
         nodeInstanceClient()->token(command.value<TokenCommand>());
-    } else if (command.userType() == debugOutputCommandType) {
+    } else if (command.typeId() == debugOutputCommandType) {
         nodeInstanceClient()->debugOutput(command.value<DebugOutputCommand>());
-    } else if (command.userType() == changeSelectionCommandType) {
+    } else if (command.typeId() == changeSelectionCommandType) {
         nodeInstanceClient()->selectionChanged(command.value<ChangeSelectionCommand>());
-    } else if (command.userType() == puppetToCreatorCommandType) {
+    } else if (command.typeId() == puppetToCreatorCommandType) {
         nodeInstanceClient()->handlePuppetToCreatorCommand(command.value<PuppetToCreatorCommand>());
-    } else if (command.userType() == SyncNanotraceCommandType) {
+    } else if (command.typeId() == SyncNanotraceCommandType) {
         // ignore.
     } else {
         QTC_ASSERT(false, );
         Q_ASSERT(false);
     }
 
-    qCInfo(instanceViewBenchmark) << "dispatching command" << "done" << command.userType();
+    qCInfo(instanceViewBenchmark) << "dispatching command"
+                                  << "done" << command.typeId();
 }
 
 NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
@@ -173,7 +174,7 @@ QString NodeInstanceServerProxy::qrcMappingString() const
 void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 {
 #ifdef NANOTRACE_ENABLED
-    if (command.userType() == QMetaType::type("SyncNanotraceCommand")) {
+    if (command.typeId() == QMetaType::type("SyncNanotraceCommand")) {
         SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
         NANOTRACE_INSTANT_ARGS("Sync", "writeCommand",
             {"name", cmd.name().toStdString()},

@@ -954,12 +954,12 @@ const QmlJS::Document *RewriterView::document() const
     return textToModelMerger()->document();
 }
 
-static inline QString getUrlFromType(const QString& typeName)
+inline static QString getUrlFromType(const QString &typeName)
 {
     QStringList nameComponents = typeName.split('.');
     QString result;
 
-    for (int i = 0; i < (nameComponents.count() - 1); i++) {
+    for (int i = 0; i < (nameComponents.size() - 1); i++) {
         result += nameComponents.at(i);
     }
 

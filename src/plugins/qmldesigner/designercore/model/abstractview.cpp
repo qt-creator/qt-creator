@@ -440,7 +440,7 @@ bool AbstractView::hasSelectedModelNodes() const
 
 bool AbstractView::hasSingleSelectedModelNode() const
 {
-    return model()->d->selectedNodes().count() == 1;
+    return model()->d->selectedNodes().size() == 1;
 }
 
 bool AbstractView::isSelectedModelNode(const ModelNode &modelNode) const

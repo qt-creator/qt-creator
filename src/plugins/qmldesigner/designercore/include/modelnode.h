@@ -74,7 +74,7 @@ public:
         NodeWithComponentSource = 2
     };
 
-    ModelNode();
+    ModelNode() = default;
     ModelNode(const Internal::InternalNodePointer &internalNode, Model *model, const AbstractView *view);
     ModelNode(const ModelNode &modelNode, AbstractView *view);
     ModelNode(const ModelNode &) = default;
@@ -173,7 +173,7 @@ public:
     void selectNode();
     void deselectNode();
 
-    static int variantUserType();
+    static int variantTypeId();
     QVariant toVariant() const;
 
     std::optional<QVariant> auxiliaryData(AuxiliaryDataKeyView key) const;

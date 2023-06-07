@@ -266,7 +266,7 @@ QPair<QString, QVariant> NodeHints::setParentProperty() const
 
     QStringList list = str.split(":");
 
-    if (list.count() != 2)
+    if (list.size() != 2)
         return {};
 
     return qMakePair(list.first().trimmed(), parseValue(list.last().trimmed()));

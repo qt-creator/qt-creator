@@ -34,7 +34,7 @@
 
 static QObject *variantToQObject(const QVariant &value)
 {
-    if (value.userType() == QMetaType::QObjectStar || value.userType() > QMetaType::User)
+    if (value.typeId() == QMetaType::QObjectStar || value.typeId() > QMetaType::User)
         return *(QObject **)value.constData();
 
     return nullptr;
@@ -109,7 +109,7 @@ void TextureEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qml
 void TextureEditorQmlBackend::setValue(const QmlObjectNode &, const PropertyName &name, const QVariant &value)
 {
     // Vector*D values need to be split into their subcomponents
-    if (value.type() == QVariant::Vector2D) {
+    if (value.typeId() == QVariant::Vector2D) {
         const char *suffix[2] = {"_x", "_y"};
         auto vecValue = value.value<QVector2D>();
         for (int i = 0; i < 2; ++i) {
@@ -120,7 +120,7 @@ void TextureEditorQmlBackend::setValue(const QmlObjectNode &, const PropertyName
             if (propertyValue)
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
-    } else if (value.type() == QVariant::Vector3D) {
+    } else if (value.typeId() == QVariant::Vector3D) {
         const char *suffix[3] = {"_x", "_y", "_z"};
         auto vecValue = value.value<QVector3D>();
         for (int i = 0; i < 3; ++i) {
@@ -131,7 +131,7 @@ void TextureEditorQmlBackend::setValue(const QmlObjectNode &, const PropertyName
             if (propertyValue)
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
-    } else if (value.type() == QVariant::Vector4D) {
+    } else if (value.typeId() == QVariant::Vector4D) {
         const char *suffix[4] = {"_x", "_y", "_z", "_w"};
         auto vecValue = value.value<QVector4D>();
         for (int i = 0; i < 4; ++i) {

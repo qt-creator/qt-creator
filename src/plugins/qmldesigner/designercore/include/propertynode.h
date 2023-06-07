@@ -12,7 +12,7 @@ class QMLDESIGNERCORE_EXPORT PropertyNode // : public BaseModelNode
 public:
     PropertyNode();
 
-//    static int variantUserType() { return qMetaTypeId<InternalNode::Pointer>(); }
+//    static int variantTypeId() { return qMetaTypeId<InternalNode::Pointer>(); }
 //    static QVariant toVariant(const InternalNode::Pointer &internalNodePointer) { return QVariant::fromValue(internalNodePointer); }
 };
 

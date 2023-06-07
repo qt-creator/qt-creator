@@ -24,7 +24,7 @@ void MultiFileDownloader::setDownloader(FileDownloader *downloader)
 
     QObject::connect(m_downloader, &FileDownloader::progressChanged, this, [this]() {
         double curProgress = m_downloader->progress() / 100.0;
-        double totalProgress = (m_nextFile + curProgress) / m_files.count();
+        double totalProgress = (m_nextFile + curProgress) / m_files.size();
         m_progress = totalProgress * 100;
         emit progressChanged();
     });

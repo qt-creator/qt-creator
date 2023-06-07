@@ -86,7 +86,7 @@ CrumbleBarModel::CrumbleBarModel(QObject *)
 
 int CrumbleBarModel::rowCount(const QModelIndex &) const
 {
-    return crumbleBar()->path().count();
+    return crumbleBar()->path().size();
 }
 
 QHash<int, QByteArray> CrumbleBarModel::roleNames() const
@@ -148,7 +148,7 @@ WorkspaceModel::WorkspaceModel(QObject *)
 int WorkspaceModel::rowCount(const QModelIndex &) const
 {
     if (designModeWidget() && designModeWidget()->dockManager())
-        return designModeWidget()->dockManager()->workspaces().count();
+        return designModeWidget()->dockManager()->workspaces().size();
 
     return 0;
 }
@@ -476,7 +476,7 @@ void ToolBarBackend::setCurrentStyle(int index)
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATUSBAR_SET_STYLE);
     const QList<StyleWidgetEntry> items = ChangeStyleWidgetAction::getAllStyleItems();
 
-    QTC_ASSERT(items.count() > index, return );
+    QTC_ASSERT(items.size() > index, return);
     QTC_ASSERT(index > 0, return );
 
     QTC_ASSERT(currentDesignDocument(), return );
@@ -499,7 +499,7 @@ void ToolBarBackend::setCurrentKit(int index)
 
     const auto kits = ProjectExplorer::KitManager::kits();
 
-    QTC_ASSERT(kits.count() > index, return );
+    QTC_ASSERT(kits.size() > index, return);
     QTC_ASSERT(index >= 0, return );
 
     const auto kit = kits.at(index);

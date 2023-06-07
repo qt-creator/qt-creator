@@ -149,7 +149,7 @@ void Keyframe::setRightHandle(const QPointF &pos)
 
 void Keyframe::setData(const QVariant &data)
 {
-    if (data.type() == static_cast<int>(QMetaType::QEasingCurve))
+    if (data.typeId() == static_cast<int>(QMetaType::QEasingCurve))
         m_interpolation = Interpolation::Easing;
 
     m_data = data;

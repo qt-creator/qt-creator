@@ -587,7 +587,7 @@ QAction *PathItem::createClosedPathAction(QMenu *contextMenu) const
     closedPathAction->setText(tr("Closed Path"));
     contextMenu->addAction(closedPathAction);
 
-    if (m_cubicSegments.count() == 1)
+    if (m_cubicSegments.size() == 1)
         closedPathAction->setDisabled(true);
 
     return closedPathAction;
@@ -617,7 +617,7 @@ void PathItem::createCubicSegmentContextMenu(CubicSegment &cubicSegment, const Q
     straightLinePointAction->setText(tr("Make Curve Segment Straight"));
     contextMenu.addAction(straightLinePointAction);
 
-    if (m_cubicSegments.count() == 1 && isClosedPath())
+    if (m_cubicSegments.size() == 1 && isClosedPath())
         straightLinePointAction->setDisabled(true);
 
     QAction *closedPathAction = createClosedPathAction(&contextMenu);
@@ -649,7 +649,7 @@ void PathItem::createEditPointContextMenu(const ControlPoint &controlPoint, cons
 
     QAction *closedPathAction = createClosedPathAction(&contextMenu);
 
-    if (m_cubicSegments.count() <= 1 || (m_cubicSegments.count() == 2 && isClosedPath()))
+    if (m_cubicSegments.size() <= 1 || (m_cubicSegments.size() == 2 && isClosedPath()))
         removeEditPointAction->setDisabled(true);
 
     QAction *activatedAction = contextMenu.exec(menuPosition);
@@ -663,7 +663,7 @@ void PathItem::createEditPointContextMenu(const ControlPoint &controlPoint, cons
 const QList<ControlPoint> PathItem::controlPoints() const
 {
     QList<ControlPoint> controlPointList;
-    controlPointList.reserve((m_cubicSegments.count() * 4));
+    controlPointList.reserve((m_cubicSegments.size() * 4));
 
     if (!m_cubicSegments.isEmpty())
         controlPointList.append(m_cubicSegments.constFirst().firstControlPoint());
@@ -914,9 +914,9 @@ void PathItem::removeEditPoint(const ControlPoint &controlPoint)
 {
     QList<CubicSegment> cubicSegments = cubicSegmentsContainingControlPoint(controlPoint, m_cubicSegments);
 
-    if (cubicSegments.count() == 1) {
+    if (cubicSegments.size() == 1) {
         m_cubicSegments.removeOne(cubicSegments.constFirst());
-    } else if (cubicSegments.count()  == 2){
+    } else if (cubicSegments.size() == 2) {
         CubicSegment mergedCubicSegment = CubicSegment::create();
         const CubicSegment &firstCubicSegment = cubicSegments.at(0);
         const CubicSegment &secondCubicSegment = cubicSegments.at(1);

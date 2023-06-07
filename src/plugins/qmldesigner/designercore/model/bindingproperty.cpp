@@ -92,7 +92,7 @@ ModelNode BindingProperty::resolveBinding(const QString &binding, ModelNode curr
                 currentNode = ModelNode(privateModel()->nodeForId(element), model(), view());
             }
             index++;
-            if (index < binding.split(QLatin1Char('.')).count())
+            if (index < binding.split(QLatin1Char('.')).size())
                 element = binding.split(QLatin1Char('.')).at(index);
             else
                 element.clear();
@@ -117,7 +117,7 @@ ModelNode BindingProperty::resolveToModelNode() const
     return resolveBinding(binding, parentModelNode());
 }
 
-static inline QStringList commaSeparatedSimplifiedStringList(const QString &string)
+inline static QStringList commaSeparatedSimplifiedStringList(const QString &string)
 {
     const QStringList stringList = string.split(QStringLiteral(","));
     QStringList simpleList;

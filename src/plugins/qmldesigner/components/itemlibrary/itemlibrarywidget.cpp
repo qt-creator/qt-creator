@@ -217,7 +217,7 @@ QString ItemLibraryWidget::getDependencyImport(const Import &import)
 
     const QStringList splitImport = import.url().split('.');
 
-    if (splitImport.count() > 1) {
+    if (splitImport.size() > 1) {
         if (prefixDependencies.contains(splitImport.first()))
             return splitImport.first();
     }

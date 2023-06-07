@@ -40,7 +40,7 @@ void TestConnectionManager::dispatchCommand(const QVariant &command, Connection 
 {
     static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
 
-    if (command.userType() == synchronizeCommandType) {
+    if (command.typeId() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();
     } else {

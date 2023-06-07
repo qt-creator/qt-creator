@@ -426,7 +426,7 @@ double Snapper::snappingDistance() const
 
 static QLineF mergedHorizontalLine(const QList<QLineF> &lineList)
 {
-    if (lineList.count() == 1)
+    if (lineList.size() == 1)
         return lineList.constFirst();
 
     double minimumX =  std::numeric_limits<double>::max();
@@ -444,7 +444,7 @@ static QLineF mergedHorizontalLine(const QList<QLineF> &lineList)
 
 static QLineF mergedVerticalLine(const QList<QLineF> &lineList)
 {
-    if (lineList.count() == 1)
+    if (lineList.size() == 1)
         return lineList.constFirst();
 
     double minimumY =  std::numeric_limits<double>::max();

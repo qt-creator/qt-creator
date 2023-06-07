@@ -21,7 +21,7 @@ ItemLibraryItemsModel::~ItemLibraryItemsModel()
 
 int ItemLibraryItemsModel::rowCount(const QModelIndex &) const
 {
-    return m_itemList.count();
+    return m_itemList.size();
 }
 
 QVariant ItemLibraryItemsModel::data(const QModelIndex &index, int role) const

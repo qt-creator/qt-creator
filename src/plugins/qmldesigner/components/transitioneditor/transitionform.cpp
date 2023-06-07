@@ -66,7 +66,7 @@ TransitionForm::TransitionForm(QWidget *parent)
         QTC_ASSERT(m_transition.isValid(), return );
         const QmlItemNode root(m_transition.view()->rootModelNode());
         QTC_ASSERT(root.isValid(), return );
-        const int stateCount = root.states().names().count();
+        const int stateCount = root.states().names().size();
 
         QStringList stateNames;
 
@@ -76,7 +76,7 @@ TransitionForm::TransitionForm(QWidget *parent)
         }
 
         QString toValue;
-        if (stateCount == stateNames.count())
+        if (stateCount == stateNames.size())
             toValue = "*";
         else
             toValue = stateNames.join(",");
@@ -90,7 +90,7 @@ TransitionForm::TransitionForm(QWidget *parent)
         QTC_ASSERT(m_transition.isValid(), return );
         const QmlItemNode root(m_transition.view()->rootModelNode());
         QTC_ASSERT(root.isValid(), return );
-        const int stateCount = root.states().names().count();
+        const int stateCount = root.states().names().size();
 
         QStringList stateNames;
 
@@ -100,7 +100,7 @@ TransitionForm::TransitionForm(QWidget *parent)
         }
 
         QString fromValue;
-        if (stateCount == stateNames.count())
+        if (stateCount == stateNames.size())
             fromValue = "*";
         else
             fromValue = stateNames.join(",");

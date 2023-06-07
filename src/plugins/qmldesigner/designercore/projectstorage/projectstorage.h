@@ -518,9 +518,7 @@ private:
 
     auto fetchModuleName(ModuleId id)
     {
-        return Sqlite::withDeferredTransaction(database, [&] {
-            return fetchModuleNameUnguarded(id);
-        });
+        return Sqlite::withDeferredTransaction(database, [&] { return fetchModuleNameUnguarded(id); });
     }
 
     auto fetchAllModules() const
@@ -1039,6 +1037,7 @@ private:
             },
             TypeCompare<PropertyDeclaration>{});
     }
+
     template<typename Callable>
     void relinkPrototypes(Prototypes &relinkablePrototypes,
                           const TypeIds &deletedTypeIds,
@@ -1551,10 +1550,10 @@ private:
                                 int majorVersion,
                                 int minorVersion,
                                 ModuleExportedImportId moduleExportedImportId) {
-                Storage::Synchronization::Import additionImport{
-                    exportedModuleId,
-                    Storage::Version{majorVersion, minorVersion},
-                    import.sourceId};
+                Storage::Synchronization::Import additionImport{exportedModuleId,
+                                                                Storage::Version{majorVersion,
+                                                                                 minorVersion},
+                                                                import.sourceId};
 
                 auto exportedImportKind = importKind == Storage::Synchronization::ImportKind::Import
                                               ? Storage::Synchronization::ImportKind::ModuleExportedImport

@@ -296,7 +296,7 @@ QVariant NodeInstance::property(const PropertyName &name) const
             if (index != -1) {
                 PropertyName parentPropName = name.left(index);
                 QVariant varValue = d->propertyValues.value(parentPropName);
-                if (varValue.type() == QVariant::Vector2D) {
+                if (varValue.typeId() == QVariant::Vector2D) {
                     auto value = varValue.value<QVector2D>();
                     char subProp = name.right(1)[0];
                     float subValue = 0.f;
@@ -312,7 +312,7 @@ QVariant NodeInstance::property(const PropertyName &name) const
                         break;
                     }
                     return QVariant(subValue);
-                } else if (varValue.type() == QVariant::Vector3D) {
+                } else if (varValue.typeId() == QVariant::Vector3D) {
                     auto value = varValue.value<QVector3D>();
                     char subProp = name.right(1)[0];
                     float subValue = 0.f;
@@ -331,7 +331,7 @@ QVariant NodeInstance::property(const PropertyName &name) const
                         break;
                     }
                     return QVariant(subValue);
-                } else if (varValue.type() == QVariant::Vector4D) {
+                } else if (varValue.typeId() == QVariant::Vector4D) {
                     auto value = varValue.value<QVector4D>();
                     char subProp = name.right(1)[0];
                     float subValue = 0.f;
@@ -417,9 +417,9 @@ void NodeInstance::setProperty(const PropertyName &name, const QVariant &value)
         QVariant oldValue = d->propertyValues.value(parentPropName);
         QVariant newValueVar;
         bool update = false;
-        if (oldValue.type() == QVariant::Vector2D) {
+        if (oldValue.typeId() == QVariant::Vector2D) {
             QVector2D newValue;
-            if (oldValue.type() == QVariant::Vector2D)
+            if (oldValue.typeId() == QVariant::Vector2D)
                 newValue = oldValue.value<QVector2D>();
             if (name.endsWith(".x")) {
                 newValue.setX(value.toFloat());
@@ -429,9 +429,9 @@ void NodeInstance::setProperty(const PropertyName &name, const QVariant &value)
                 update = true;
             }
             newValueVar = newValue;
-        } else if (oldValue.type() == QVariant::Vector3D) {
+        } else if (oldValue.typeId() == QVariant::Vector3D) {
             QVector3D newValue;
-            if (oldValue.type() == QVariant::Vector3D)
+            if (oldValue.typeId() == QVariant::Vector3D)
                 newValue = oldValue.value<QVector3D>();
             if (name.endsWith(".x")) {
                 newValue.setX(value.toFloat());
@@ -444,9 +444,9 @@ void NodeInstance::setProperty(const PropertyName &name, const QVariant &value)
                 update = true;
             }
             newValueVar = newValue;
-        } else if (oldValue.type() == QVariant::Vector4D) {
+        } else if (oldValue.typeId() == QVariant::Vector4D) {
             QVector4D newValue;
-            if (oldValue.type() == QVariant::Vector4D)
+            if (oldValue.typeId() == QVariant::Vector4D)
                 newValue = oldValue.value<QVector4D>();
             if (name.endsWith(".x")) {
                 newValue.setX(value.toFloat());

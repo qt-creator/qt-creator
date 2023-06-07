@@ -203,7 +203,7 @@ void BackendModel::addNewBackend()
 
     if (dialog.applied()) {
         QStringList importSplit = dialog.importString().split(" ");
-        if (importSplit.count() != 2) {
+        if (importSplit.size() != 2) {
             qWarning() << Q_FUNC_INFO << "invalid import" << importSplit;
             QTC_ASSERT(false, return);
         }

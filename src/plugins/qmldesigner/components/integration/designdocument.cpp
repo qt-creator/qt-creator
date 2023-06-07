@@ -211,8 +211,7 @@ void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const st
         targetNode = view.firstSelectedModelNode();
 
     // in case we copy and paste a selection we paste in the parent item
-    if ((view.selectedModelNodes().count() == movingNodes.count())
-            && targetNode.hasParentProperty()) {
+    if ((view.selectedModelNodes().size() == movingNodes.size()) && targetNode.hasParentProperty()) {
         targetNode = targetNode.parentProperty().parentModelNode();
     } else if (view.selectedModelNodes().isEmpty()) {
         // if selection is empty and copied nodes are all 3D nodes, paste them under the active scene

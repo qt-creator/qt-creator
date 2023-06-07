@@ -54,12 +54,12 @@ static ControlPoint getControlPoint(const QList<ControlPoint> &selectedPoints, c
     int controlPointIndex = selectedPoints.indexOf(controlPoint);
     if (controlPointIndex >= 0) {
         int offsetIndex = controlPointIndex + indexOffset;
-        if (offsetIndex >= 0 && offsetIndex < selectedPoints.count())
+        if (offsetIndex >= 0 && offsetIndex < selectedPoints.size())
             return selectedPoints.at(offsetIndex);
         else if (isClosedPath) {
             if (offsetIndex == -1)
                 return selectedPoints.constLast();
-            else if (offsetIndex < selectedPoints.count())
+            else if (offsetIndex < selectedPoints.size())
                 return selectedPoints.at(1);
         }
     }

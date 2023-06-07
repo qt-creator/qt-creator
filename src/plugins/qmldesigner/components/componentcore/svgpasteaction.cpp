@@ -27,7 +27,7 @@ namespace {
 /* Copied from qquicksvgparser.cpp 3e783b26a8fb41e3f5a53b883735f5d10fbbd98a */
 
 // '0' is 0x30 and '9' is 0x39
-static inline bool isDigit(ushort ch)
+inline static bool isDigit(ushort ch)
 {
     static quint16 magic = 0x3ff;
     return ((ch >> 4) == 3) && (magic >> (ch & 15));
@@ -110,7 +110,7 @@ static qreal toDouble(const QChar *&str)
     return val;
 }
 
-static inline void parseNumbersArray(const QChar *&str, QVarLengthArray<qreal, 8> &points)
+inline static void parseNumbersArray(const QChar *&str, QVarLengthArray<qreal, 8> &points)
 {
     while (str->isSpace())
         ++str;
@@ -261,7 +261,7 @@ bool parsePathDataFast(const QString &dataStr, QPainterPath &path)
         if (pathElem == QLatin1Char('z') || pathElem == QLatin1Char('Z'))
             arg.append(0);//dummy
         const qreal *num = arg.constData();
-        int count = arg.count();
+        int count = arg.size();
         while (count > 0) {
             qreal offsetX = x;        // correction offsets
             qreal offsetY = y;        // for relative commands
