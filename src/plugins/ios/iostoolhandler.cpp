@@ -20,7 +20,6 @@
 #include <utils/temporarydirectory.h>
 
 #include <QDir>
-#include <QFileInfo>
 #include <QFutureWatcher>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -41,6 +40,8 @@
 #include <errno.h>
 
 static Q_LOGGING_CATEGORY(toolHandlerLog, "qtc.ios.toolhandler", QtWarningMsg)
+
+using namespace Utils;
 
 namespace Ios {
 
@@ -166,9 +167,9 @@ class IosToolHandlerPrivate
 public:
     explicit IosToolHandlerPrivate(const IosDeviceType &devType, IosToolHandler *q);
     virtual ~IosToolHandlerPrivate();
-    virtual void requestTransferApp(const QString &bundlePath, const QString &deviceId,
+    virtual void requestTransferApp(const FilePath &bundlePath, const QString &deviceId,
                                     int timeout = 1000) = 0;
-    virtual void requestRunApp(const QString &bundlePath, const QStringList &extraArgs,
+    virtual void requestRunApp(const FilePath &bundlePath, const QStringList &extraArgs,
                                IosToolHandler::RunKind runKind,
                                const QString &deviceId, int timeout = 1000) = 0;
     virtual void requestDeviceInfo(const QString &deviceId, int timeout = 1000) = 0;
@@ -176,15 +177,15 @@ public:
     virtual void stop(int errorCode) = 0;
 
     // signals
-    void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,
+    void isTransferringApp(const FilePath &bundlePath, const QString &deviceId, int progress,
                            int maxProgress, const QString &info);
-    void didTransferApp(const QString &bundlePath, const QString &deviceId,
+    void didTransferApp(const FilePath &bundlePath, const QString &deviceId,
                         IosToolHandler::OpStatus status);
-    void didStartApp(const QString &bundlePath, const QString &deviceId,
+    void didStartApp(const FilePath &bundlePath, const QString &deviceId,
                      IosToolHandler::OpStatus status);
-    void gotServerPorts(const QString &bundlePath, const QString &deviceId, Utils::Port gdbPort,
-                        Utils::Port qmlPort);
-    void gotInferiorPid(const QString &bundlePath, const QString &deviceId, qint64 pid);
+    void gotServerPorts(const FilePath &bundlePath, const QString &deviceId, Port gdbPort,
+                        Port qmlPort);
+    void gotInferiorPid(const FilePath &bundlePath, const QString &deviceId, qint64 pid);
     void deviceInfo(const QString &deviceId, const IosToolHandler::Dict &info);
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
@@ -193,7 +194,7 @@ public:
 protected:
     IosToolHandler *q;
     QString m_deviceId;
-    QString m_bundlePath;
+    FilePath m_bundlePath;
     IosToolHandler::RunKind m_runKind = IosToolHandler::NormalRun;
     IosDeviceType m_devType;
 };
@@ -219,9 +220,9 @@ public:
 
 // IosToolHandlerPrivate overrides
 public:
-    void requestTransferApp(const QString &bundlePath, const QString &deviceId,
+    void requestTransferApp(const FilePath &bundlePath, const QString &deviceId,
                             int timeout = 1000) override;
-    void requestRunApp(const QString &bundlePath, const QStringList &extraArgs,
+    void requestRunApp(const FilePath &bundlePath, const QStringList &extraArgs,
                        IosToolHandler::RunKind runKind,
                        const QString &deviceId, int timeout = 1000) override;
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000) override;
@@ -287,9 +288,9 @@ public:
 
 // IosToolHandlerPrivate overrides
 public:
-    void requestTransferApp(const QString &appBundlePath, const QString &deviceIdentifier,
+    void requestTransferApp(const FilePath &appBundlePath, const QString &deviceIdentifier,
                             int timeout = 1000) override;
-    void requestRunApp(const QString &appBundlePath, const QStringList &extraArgs,
+    void requestRunApp(const FilePath &appBundlePath, const QStringList &extraArgs,
                        IosToolHandler::RunKind runKind,
                        const QString &deviceIdentifier, int timeout = 1000) override;
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000) override;
@@ -317,31 +318,31 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(const IosDeviceType &devType,
 IosToolHandlerPrivate::~IosToolHandlerPrivate() = default;
 
 // signals
-void IosToolHandlerPrivate::isTransferringApp(const QString &bundlePath, const QString &deviceId,
+void IosToolHandlerPrivate::isTransferringApp(const FilePath &bundlePath, const QString &deviceId,
                                               int progress, int maxProgress, const QString &info)
 {
     emit q->isTransferringApp(q, bundlePath, deviceId, progress, maxProgress, info);
 }
 
-void IosToolHandlerPrivate::didTransferApp(const QString &bundlePath, const QString &deviceId,
+void IosToolHandlerPrivate::didTransferApp(const FilePath &bundlePath, const QString &deviceId,
                     Ios::IosToolHandler::OpStatus status)
 {
     emit q->didTransferApp(q, bundlePath, deviceId, status);
 }
 
-void IosToolHandlerPrivate::didStartApp(const QString &bundlePath, const QString &deviceId,
+void IosToolHandlerPrivate::didStartApp(const FilePath &bundlePath, const QString &deviceId,
                                         IosToolHandler::OpStatus status)
 {
     emit q->didStartApp(q, bundlePath, deviceId, status);
 }
 
-void IosToolHandlerPrivate::gotServerPorts(const QString &bundlePath, const QString &deviceId,
-                                           Utils::Port gdbPort, Utils::Port qmlPort)
+void IosToolHandlerPrivate::gotServerPorts(const FilePath &bundlePath, const QString &deviceId,
+                                           Port gdbPort, Port qmlPort)
 {
     emit q->gotServerPorts(q, bundlePath, deviceId, gdbPort, qmlPort);
 }
 
-void IosToolHandlerPrivate::gotInferiorPid(const QString &bundlePath, const QString &deviceId,
+void IosToolHandlerPrivate::gotInferiorPid(const FilePath &bundlePath, const QString &deviceId,
                                            qint64 pid)
 {
     emit q->gotInferiorPid(q, bundlePath, deviceId, pid);
@@ -674,7 +675,7 @@ IosDeviceToolHandlerPrivate::~IosDeviceToolHandlerPrivate()
     }
 }
 
-void IosDeviceToolHandlerPrivate::requestTransferApp(const QString &bundlePath,
+void IosDeviceToolHandlerPrivate::requestTransferApp(const FilePath &bundlePath,
                                                      const QString &deviceId, int timeout)
 {
     m_bundlePath = bundlePath;
@@ -682,7 +683,7 @@ void IosDeviceToolHandlerPrivate::requestTransferApp(const QString &bundlePath,
     QString tmpDeltaPath = Utils::TemporaryDirectory::masterDirectoryFilePath().pathAppended("ios").toString();
     QStringList args;
     args << QLatin1String("--id") << deviceId << QLatin1String("--bundle")
-         << bundlePath << QLatin1String("--timeout") << QString::number(timeout)
+         << bundlePath.path() << QLatin1String("--timeout") << QString::number(timeout)
          << QLatin1String("--install")
          << QLatin1String("--delta-path")
          << tmpDeltaPath;
@@ -690,7 +691,7 @@ void IosDeviceToolHandlerPrivate::requestTransferApp(const QString &bundlePath,
     start(IosToolHandler::iosDeviceToolPath(), args);
 }
 
-void IosDeviceToolHandlerPrivate::requestRunApp(const QString &bundlePath,
+void IosDeviceToolHandlerPrivate::requestRunApp(const FilePath &bundlePath,
                                                 const QStringList &extraArgs,
                                                 IosToolHandler::RunKind runType,
                                                 const QString &deviceId, int timeout)
@@ -700,7 +701,7 @@ void IosDeviceToolHandlerPrivate::requestRunApp(const QString &bundlePath,
     m_runKind = runType;
     QStringList args;
     args << QLatin1String("--id") << deviceId << QLatin1String("--bundle")
-         << bundlePath << QLatin1String("--timeout") << QString::number(timeout);
+         << bundlePath.path() << QLatin1String("--timeout") << QString::number(timeout);
     switch (runType) {
     case IosToolHandler::NormalRun:
         args << QLatin1String("--run");
@@ -789,7 +790,7 @@ IosSimulatorToolHandlerPrivate::IosSimulatorToolHandlerPrivate(const IosDeviceTy
                      std::bind(&IosToolHandlerPrivate::appOutput, this, _1));
 }
 
-void IosSimulatorToolHandlerPrivate::requestTransferApp(const QString &appBundlePath,
+void IosSimulatorToolHandlerPrivate::requestTransferApp(const FilePath &appBundlePath,
                                                         const QString &deviceIdentifier, int timeout)
 {
     Q_UNUSED(timeout)
@@ -817,7 +818,7 @@ void IosSimulatorToolHandlerPrivate::requestTransferApp(const QString &appBundle
             SimulatorControl::startSimulator(m_deviceId), q, onSimulatorStart));
 }
 
-void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
+void IosSimulatorToolHandlerPrivate::requestRunApp(const FilePath &appBundlePath,
                                                    const QStringList &extraArgs,
                                                    IosToolHandler::RunKind runType,
                                                    const QString &deviceIdentifier, int timeout)
@@ -828,10 +829,9 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
     m_deviceId = m_devType.identifier;
     m_runKind = runType;
 
-    Utils::FilePath appBundle = Utils::FilePath::fromString(m_bundlePath);
-    if (!appBundle.exists()) {
+    if (!m_bundlePath.exists()) {
         errorMsg(Tr::tr("Application launch on simulator failed. Invalid bundle path %1")
-                 .arg(m_bundlePath));
+                 .arg(m_bundlePath.toUserOutput()));
         didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Failure);
         return;
     }
@@ -901,15 +901,13 @@ void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
     };
 
     isTransferringApp(m_bundlePath, m_deviceId, 20, 100, "");
-    auto installFuture = SimulatorControl::installApp(m_deviceId,
-                                                      Utils::FilePath::fromString(m_bundlePath));
+    auto installFuture = SimulatorControl::installApp(m_deviceId, m_bundlePath);
     futureSynchronizer.addFuture(Utils::onResultReady(installFuture, q, onResponseAppInstall));
 }
 
 void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &extraArgs)
 {
-    const Utils::FilePath appBundle = Utils::FilePath::fromString(m_bundlePath);
-    const QString bundleId = SimulatorControl::bundleIdentifier(appBundle);
+    const QString bundleId = SimulatorControl::bundleIdentifier(m_bundlePath);
     const bool debugRun = m_runKind == IosToolHandler::DebugRun;
     bool captureConsole = IosConfigurations::xcodeVersion() >= QVersionNumber(8);
     std::shared_ptr<QTemporaryFile> stdoutFile;
@@ -1012,13 +1010,13 @@ void IosToolHandler::stop()
     d->stop(-1);
 }
 
-void IosToolHandler::requestTransferApp(const QString &bundlePath, const QString &deviceId,
+void IosToolHandler::requestTransferApp(const FilePath &bundlePath, const QString &deviceId,
                                         int timeout)
 {
     d->requestTransferApp(bundlePath, deviceId, timeout);
 }
 
-void IosToolHandler::requestRunApp(const QString &bundlePath, const QStringList &extraArgs,
+void IosToolHandler::requestRunApp(const FilePath &bundlePath, const QStringList &extraArgs,
                                    RunKind runType, const QString &deviceId, int timeout)
 {
     d->requestRunApp(bundlePath, extraArgs, runType, deviceId, timeout);
