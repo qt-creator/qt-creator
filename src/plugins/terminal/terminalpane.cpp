@@ -79,10 +79,10 @@ TerminalPane::TerminalPane(QObject *parent)
                                             .toString(QKeySequence::NativeText);
         if (TerminalSettings::instance().sendEscapeToTerminal.value()) {
             m_escSettingButton->setText(escKey);
-            m_escSettingButton->setToolTip(Tr::tr("Sending ESC to terminal instead of Qt Creator"));
+            m_escSettingButton->setToolTip(Tr::tr("Sending Esc to terminal instead of Qt Creator"));
         } else {
             m_escSettingButton->setText(shiftEsc);
-            m_escSettingButton->setToolTip(Tr::tr("Press %1 to send ESC to terminal").arg(shiftEsc));
+            m_escSettingButton->setToolTip(Tr::tr("Press %1 to send Esc to terminal").arg(shiftEsc));
         }
     };
 
