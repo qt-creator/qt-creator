@@ -25,7 +25,7 @@ public:
     TextEditor::TabSettings tabSettings() const override;
 
     bool renameId(const QString &oldId, const QString &newId) override;
-    bool moveToComponent(int nodeOffset) override;
+    bool moveToComponent(int nodeOffset, const QString &importData) override;
     QStringList autoComplete(QTextDocument *textDocument, int position, bool explicitComplete) override;
 
 private:

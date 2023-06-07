@@ -32,6 +32,7 @@
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
+#include <QSet>
 
 #include <utility>
 #include <vector>
@@ -1031,11 +1032,25 @@ QSet<QPair<QString, QString> > RewriterView::qrcMapping() const
 
 void RewriterView::moveToComponent(const ModelNode &modelNode)
 {
+    if (!modelNode.isValid())
+        return;
+
     int offset = nodeOffset(modelNode);
 
+    const QList<ModelNode> nodes = modelNode.allSubModelNodesAndThisNode();
+    QSet<QString> directPaths;
 
-    textModifier()->moveToComponent(offset);
+    for (const ModelNode &partialNode : nodes) {
+        QString importStr = partialNode.metaInfo().requiredImportString();
+        if (importStr.size())
+            directPaths << importStr;
+    }
 
+    QString importData = Utils::sorted(directPaths.values()).join(QChar::LineFeed);
+    if (importData.size())
+        importData.append(QString(2, QChar::LineFeed));
+
+    textModifier()->moveToComponent(offset, importData);
 }
 
 QStringList RewriterView::autoComplete(const QString &text, int pos, bool explicitComplete)

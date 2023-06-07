@@ -36,7 +36,7 @@ public:
     { return false; }
     QStringList autoComplete(QTextDocument * textDocument, int position, bool explicitComplete) override
     { return m_originalModifier->autoComplete(textDocument, position, explicitComplete); }
-    bool moveToComponent(int /* nodeOffset */) override
+    bool moveToComponent(int /* nodeOffset */, const QString & /* importData */) override
     { return false; }
 
 private:

@@ -194,6 +194,7 @@ public:
 
     bool isEnumeration() const;
     QString importDirectoryPath() const;
+    QString requiredImportString() const;
 
     friend bool operator==(const NodeMetaInfo &first, const NodeMetaInfo &second)
     {

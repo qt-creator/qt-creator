@@ -22,6 +22,7 @@ class QMLJSTOOLS_EXPORT QmlJSRefactoringFile: public TextEditor::RefactoringFile
 {
 public:
     QmlJS::Document::Ptr qmljsDocument() const;
+    QString qmlImports() const;
 
     /*!
         Returns the offset in the document for the start position of the given

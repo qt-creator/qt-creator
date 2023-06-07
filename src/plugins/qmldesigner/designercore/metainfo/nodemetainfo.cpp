@@ -623,6 +623,7 @@ public:
 
     QString componentFileName() const;
     QString importDirectoryPath() const;
+    Import requiredImport() const;
 
     static std::shared_ptr<NodeMetaInfoPrivate> create(Model *model,
                                                        const TypeName &type,
@@ -1228,6 +1229,43 @@ QString NodeMetaInfoPrivate::importDirectoryPath() const
     return QString();
 }
 
+Import NodeMetaInfoPrivate::requiredImport() const
+{
+    if (!isValid())
+        return {};
+
+    const auto *imports = context()->imports(document());
+    ImportInfo importInfo = imports->info(lookupNameComponent().constLast(), context().data());
+
+    if (importInfo.type() == ImportType::Directory) {
+        return Import::createFileImport(importInfo.name(),
+                                        importInfo.version().toString(),
+                                        importInfo.as());
+    } else if (importInfo.type() == ImportType::Library) {
+        const QStringList importPaths = model()->importPaths();
+        for (const QString &importPath : importPaths) {
+            const QDir importDir(importPath);
+            const QString targetPathVersion = importDir.filePath(
+                importInfo.path() + '.' + QString::number(importInfo.version().majorVersion()));
+            if (QDir(targetPathVersion).exists()) {
+                return Import::createLibraryImport(importInfo.name(),
+                                                   importInfo.version().toString(),
+                                                   importInfo.as(),
+                                                   {targetPathVersion});
+            }
+
+            const QString targetPath = importDir.filePath(importInfo.path());
+            if (QDir(targetPath).exists()) {
+                return Import::createLibraryImport(importInfo.name(),
+                                                   importInfo.version().toString(),
+                                                   importInfo.as(),
+                                                   {targetPath});
+            }
+        }
+    }
+    return {};
+}
+
 QString NodeMetaInfoPrivate::lookupName() const
 {
     QString className = QString::fromUtf8(m_qualfiedTypeName);
@@ -1743,6 +1781,18 @@ QString NodeMetaInfo::importDirectoryPath() const
             return m_privateData->importDirectoryPath();
         }
     }
+
+    return {};
+}
+
+QString NodeMetaInfo::requiredImportString() const
+{
+    if (!isValid())
+        return {};
+
+    Import imp = m_privateData->requiredImport();
+    if (!imp.isEmpty())
+        return imp.toImportString();
 
     return {};
 }
