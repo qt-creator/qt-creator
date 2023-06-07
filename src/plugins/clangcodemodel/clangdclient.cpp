@@ -230,14 +230,22 @@ public:
     void enableCodeActionsInline() {insert(u"codeActionsInline", true);}
 };
 
+class InactiveRegionsCapabilities : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+    void enableInactiveRegionsSupport() { insert(u"inactiveRegions", true); }
+};
+
 class ClangdTextDocumentClientCapabilities : public TextDocumentClientCapabilities
 {
 public:
     using TextDocumentClientCapabilities::TextDocumentClientCapabilities;
 
-
     void setPublishDiagnostics(const DiagnosticsCapabilities &caps)
     { insert(u"publishDiagnostics", caps); }
+    void setInactiveRegionsCapabilities(const InactiveRegionsCapabilities &caps)
+    { insert(u"inactiveRegionsCapabilities", caps); }
 };
 
 static qint64 getRevision(const TextDocument *doc)
@@ -428,6 +436,9 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
         diagnostics.enableCategorySupport();
         diagnostics.enableCodeActionsInline();
         clangdTextCaps.setPublishDiagnostics(diagnostics);
+        InactiveRegionsCapabilities inactiveRegions;
+        inactiveRegions.enableInactiveRegionsSupport();
+        clangdTextCaps.setInactiveRegionsCapabilities(inactiveRegions);
         std::optional<TextDocumentClientCapabilities::CompletionCapabilities> completionCaps
                 = textCaps->completion();
         if (completionCaps)
@@ -455,6 +466,9 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     hoverHandler()->setHelpItemProvider([this](const HoverRequest::Response &response,
                                                const Utils::FilePath &filePath) {
         gatherHelpItemForTooltip(response, filePath);
+    });
+    registerCustomMethod(inactiveRegionsMethodName(), [this](const JsonRpcMessage &msg) {
+        handleInactiveRegions(this, msg);
     });
 
     connect(this, &Client::workDone, this,

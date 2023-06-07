@@ -398,7 +398,10 @@ void doSemanticHighlighting(
         }
     };
     auto results = QtConcurrent::blockingMapped<HighlightingResults>(tokens, safeToResult);
-    const QList<BlockRange> ifdefedOutBlocks = cleanupDisabledCode(results, &doc, docContents);
+    const bool handleInactiveCode = clangdMajorVersion < 17;
+    QList<BlockRange> ifdefedOutBlocks;
+    if (handleInactiveCode)
+        ifdefedOutBlocks = cleanupDisabledCode(results, &doc, docContents);
     ExtraHighlightingResultsCollector(promise, results, filePath, ast, &doc, docContents,
                                       clangdVersion).collect();
     Utils::erase(results, [](const HighlightingResult &res) {
@@ -407,10 +410,12 @@ void doSemanticHighlighting(
     });
     if (!promise.isCanceled()) {
         qCInfo(clangdLogHighlight) << "reporting" << results.size() << "highlighting results";
-        QMetaObject::invokeMethod(textDocument, [textDocument, ifdefedOutBlocks, docRevision] {
-            if (textDocument && textDocument->document()->revision() == docRevision)
-                textDocument->setIfdefedOutBlocks(ifdefedOutBlocks);
-        }, Qt::QueuedConnection);
+        if (handleInactiveCode) {
+            QMetaObject::invokeMethod(textDocument, [textDocument, ifdefedOutBlocks, docRevision] {
+                    if (textDocument && textDocument->document()->revision() == docRevision)
+                        textDocument->setIfdefedOutBlocks(ifdefedOutBlocks);
+                }, Qt::QueuedConnection);
+        }
         QList<Range> virtualRanges;
         for (const HighlightingResult &r : results) {
             if (r.textStyles.mainStyle != C_VIRTUAL_METHOD)
@@ -953,6 +958,47 @@ void ExtraHighlightingResultsCollector::visitNode(const ClangdAstNode &node)
     }
     }
     m_currentFileStatus = prevFileStatus;
+}
+
+class InactiveRegionsParams : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    DocumentUri uri() const { return TextDocumentIdentifier(value(u"textDocument")).uri(); }
+    QList<Range> inactiveRegions() const { return array<Range>(u"regions"); }
+};
+
+class InactiveRegionsNotification : public Notification<InactiveRegionsParams>
+{
+public:
+    explicit InactiveRegionsNotification(const InactiveRegionsParams &params)
+        : Notification(inactiveRegionsMethodName(), params) {}
+    using Notification::Notification;
+};
+
+void handleInactiveRegions(LanguageClient::Client *client, const JsonRpcMessage &msg)
+{
+    const auto params = InactiveRegionsNotification(msg.toJsonObject()).params();
+    if (!params)
+        return;
+    TextDocument * const doc = client->documentForFilePath(
+        params->uri().toFilePath(client->hostPathMapper()));
+    if (!doc)
+        return;
+    const QList<Range> inactiveRegions = params->inactiveRegions();
+    QList<BlockRange> ifdefedOutBlocks;
+    for (const Range &r : inactiveRegions) {
+        const int startPos = r.start().toPositionInDocument(doc->document());
+        const int endPos = r.end().toPositionInDocument(doc->document()) + 1;
+        ifdefedOutBlocks.emplaceBack(startPos, endPos);
+    }
+    doc->setIfdefedOutBlocks(ifdefedOutBlocks);
+}
+
+QString inactiveRegionsMethodName()
+{
+    return "textDocument/inactiveRegions";
 }
 
 } // namespace ClangCodeModel::Internal

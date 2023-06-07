@@ -1225,8 +1225,10 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("macro in struct") << 795 << 9 << 795 << 14
         << QList<int>{C_MACRO, C_DECLARATION} << 0;
-    QTest::newRow("#ifdef'ed out code") << 800 << 1 << 800 << 17
-        << QList<int>{C_DISABLED_CODE} << 0;
+    if (client()->versionNumber() < QVersionNumber(17)) {
+        QTest::newRow("#ifdef'ed out code") << 800 << 1 << 800 << 17
+                                            << QList<int>{C_DISABLED_CODE} << 0;
+    }
     QTest::newRow("static function call (object)") << 819 << 5 << 819 << 6
         << QList<int>{C_LOCAL} << 0;
     QTest::newRow("static function call (argument)") << 819 << 18 << 819 << 19

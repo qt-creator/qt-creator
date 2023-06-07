@@ -12,7 +12,11 @@ template <typename T>
 class QPromise;
 QT_END_NAMESPACE
 
-namespace LanguageClient { class ExpandedSemanticToken; }
+namespace LanguageClient {
+class Client;
+class ExpandedSemanticToken;
+}
+namespace LanguageServerProtocol { class JsonRpcMessage; }
 namespace TextEditor {
 class HighlightingResult;
 class TextDocument;
@@ -35,5 +39,10 @@ void doSemanticHighlighting(
         const QVersionNumber &clangdVersion,
         const TaskTimer &taskTimer
         );
+
+
+QString inactiveRegionsMethodName();
+void handleInactiveRegions(LanguageClient::Client *client,
+                           const LanguageServerProtocol::JsonRpcMessage &msg);
 
 } // namespace ClangCodeModel::Internal
