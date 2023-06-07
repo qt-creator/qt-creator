@@ -14,7 +14,7 @@ protected:
     QmlDesigner::ProjectStorageSqliteFunctionRegistry registry{database};
 };
 
-TEST_F(ProjectStorageSqliteFunctionRegistry, ReturnsUnqualifiedType)
+TEST_F(ProjectStorageSqliteFunctionRegistry, returns_unqualified_type)
 {
     std::lock_guard lock{database};
     Sqlite::ReadStatement<1> statement{"SELECT unqualifiedTypeName('Foo.Bar')", database};
@@ -24,7 +24,7 @@ TEST_F(ProjectStorageSqliteFunctionRegistry, ReturnsUnqualifiedType)
     ASSERT_THAT(typeName, Eq("Bar"));
 }
 
-TEST_F(ProjectStorageSqliteFunctionRegistry, ReturnsWholeStringIfNotDotIsFound)
+TEST_F(ProjectStorageSqliteFunctionRegistry, returns_whole_string_if_not_dot_is_found)
 {
     std::lock_guard lock{database};
     Sqlite::ReadStatement<1> statement{"SELECT unqualifiedTypeName('Foo_Bar')", database};
@@ -34,7 +34,7 @@ TEST_F(ProjectStorageSqliteFunctionRegistry, ReturnsWholeStringIfNotDotIsFound)
     ASSERT_THAT(typeName, Eq("Foo_Bar"));
 }
 
-TEST_F(ProjectStorageSqliteFunctionRegistry, ReturnEmptyStringForEmptyInput)
+TEST_F(ProjectStorageSqliteFunctionRegistry, return_empty_string_for_empty_input)
 {
     std::lock_guard lock{database};
     Sqlite::ReadStatement<1> statement{"SELECT unqualifiedTypeName('')", database};
@@ -44,7 +44,7 @@ TEST_F(ProjectStorageSqliteFunctionRegistry, ReturnEmptyStringForEmptyInput)
     ASSERT_THAT(typeName, IsEmpty());
 }
 
-TEST_F(ProjectStorageSqliteFunctionRegistry, ThrowsErrorForInteger)
+TEST_F(ProjectStorageSqliteFunctionRegistry, throws_error_for_integer)
 {
     std::lock_guard lock{database};
     Sqlite::ReadStatement<1> statement("SELECT unqualifiedTypeName(1)", database);
@@ -52,7 +52,7 @@ TEST_F(ProjectStorageSqliteFunctionRegistry, ThrowsErrorForInteger)
     ASSERT_THROW(statement.value<Utils::SmallString>(), Sqlite::StatementHasError);
 }
 
-TEST_F(ProjectStorageSqliteFunctionRegistry, ThrowsErrorForFloat)
+TEST_F(ProjectStorageSqliteFunctionRegistry, throws_error_for_float)
 {
     std::lock_guard lock{database};
     Sqlite::ReadStatement<1> statement("SELECT unqualifiedTypeName(1.4)", database);
@@ -60,7 +60,7 @@ TEST_F(ProjectStorageSqliteFunctionRegistry, ThrowsErrorForFloat)
     ASSERT_THROW(statement.value<Utils::SmallString>(), Sqlite::StatementHasError);
 }
 
-TEST_F(ProjectStorageSqliteFunctionRegistry, ThrowsErrorForBlob)
+TEST_F(ProjectStorageSqliteFunctionRegistry, throws_error_for_blob)
 {
     std::lock_guard lock{database};
     Sqlite::ReadStatement<1> statement("SELECT unqualifiedTypeName(x'0500')", database);
@@ -68,7 +68,7 @@ TEST_F(ProjectStorageSqliteFunctionRegistry, ThrowsErrorForBlob)
     ASSERT_THROW(statement.value<Utils::SmallString>(), Sqlite::StatementHasError);
 }
 
-TEST_F(ProjectStorageSqliteFunctionRegistry, ThrowsErrorForNull)
+TEST_F(ProjectStorageSqliteFunctionRegistry, throws_error_for_null)
 {
     std::lock_guard lock{database};
     Sqlite::ReadStatement<1> statement("SELECT unqualifiedTypeName(NULL)", database);
@@ -76,7 +76,7 @@ TEST_F(ProjectStorageSqliteFunctionRegistry, ThrowsErrorForNull)
     ASSERT_THROW(statement.value<Utils::SmallString>(), Sqlite::StatementHasError);
 }
 
-TEST_F(ProjectStorageSqliteFunctionRegistry, ThrowsErrorForNoArgument)
+TEST_F(ProjectStorageSqliteFunctionRegistry, throws_error_for_no_argument)
 {
     std::lock_guard lock{database};
 
@@ -84,7 +84,7 @@ TEST_F(ProjectStorageSqliteFunctionRegistry, ThrowsErrorForNoArgument)
                  Sqlite::StatementHasError);
 }
 
-TEST_F(ProjectStorageSqliteFunctionRegistry, ThrowsErrorForToManyArgument)
+TEST_F(ProjectStorageSqliteFunctionRegistry, throws_error_for_to_many_argument)
 {
     std::lock_guard lock{database};
 

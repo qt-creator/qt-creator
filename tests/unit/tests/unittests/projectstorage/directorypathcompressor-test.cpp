@@ -26,14 +26,14 @@ protected:
     SourceContextId sourceContextId2{SourceContextId::create(2)};
 };
 
-TEST_F(DirectoryPathCompressor, AddFilePath)
+TEST_F(DirectoryPathCompressor, add_file_path)
 {
     compressor.addSourceContextId(sourceContextId1);
 
     ASSERT_THAT(compressor.takeSourceContextIds(), ElementsAre(sourceContextId1));
 }
 
-TEST_F(DirectoryPathCompressor, NoFilePathsAferTakenThem)
+TEST_F(DirectoryPathCompressor, no_file_paths_afer_taken_them)
 {
     compressor.addSourceContextId(sourceContextId1);
 
@@ -42,14 +42,14 @@ TEST_F(DirectoryPathCompressor, NoFilePathsAferTakenThem)
     ASSERT_THAT(compressor.takeSourceContextIds(), IsEmpty());
 }
 
-TEST_F(DirectoryPathCompressor, CallRestartTimerAfterAddingPath)
+TEST_F(DirectoryPathCompressor, call_restart_timer_after_adding_path)
 {
     EXPECT_CALL(mockTimer, start(20));
 
     compressor.addSourceContextId(sourceContextId1);
 }
 
-TEST_F(DirectoryPathCompressor, CallTimeOutAfterAddingPath)
+TEST_F(DirectoryPathCompressor, call_time_out_after_adding_path)
 {
     EXPECT_CALL(mockCompressorCallback, Call(ElementsAre(sourceContextId1, sourceContextId2)));
 
@@ -57,7 +57,7 @@ TEST_F(DirectoryPathCompressor, CallTimeOutAfterAddingPath)
     compressor.addSourceContextId(sourceContextId2);
 }
 
-TEST_F(DirectoryPathCompressor, RemoveDuplicates)
+TEST_F(DirectoryPathCompressor, remove_duplicates)
 {
     EXPECT_CALL(mockCompressorCallback, Call(ElementsAre(sourceContextId1, sourceContextId2)));
 

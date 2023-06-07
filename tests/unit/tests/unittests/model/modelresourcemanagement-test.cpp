@@ -70,7 +70,7 @@ protected:
     ModelNode rootNode;
 };
 
-TEST_F(ModelResourceManagement, RemoveProperty)
+TEST_F(ModelResourceManagement, remove_property)
 {
     auto layerEnabledProperty = rootNode.variantProperty("layer.enabled");
     layerEnabledProperty.setValue(true);
@@ -80,7 +80,7 @@ TEST_F(ModelResourceManagement, RemoveProperty)
     ASSERT_THAT(resources.removeProperties, Contains(layerEnabledProperty));
 }
 
-TEST_F(ModelResourceManagement, RemoveMultipleProperties)
+TEST_F(ModelResourceManagement, remove_multiple_properties)
 {
     auto layerEnabledProperty = rootNode.variantProperty("layer.enabled");
     layerEnabledProperty.setValue(true);
@@ -92,7 +92,7 @@ TEST_F(ModelResourceManagement, RemoveMultipleProperties)
     ASSERT_THAT(resources.removeProperties, IsSupersetOf({layerEnabledProperty, layerHiddenProperty}));
 }
 
-TEST_F(ModelResourceManagement, RemoveNode)
+TEST_F(ModelResourceManagement, remove_node)
 {
     auto node = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
 
@@ -101,7 +101,7 @@ TEST_F(ModelResourceManagement, RemoveNode)
     ASSERT_THAT(resources.removeModelNodes, Contains(node));
 }
 
-TEST_F(ModelResourceManagement, RemoveMultipleNodes)
+TEST_F(ModelResourceManagement, remove_multiple_nodes)
 {
     auto node = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
     auto node2 = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
@@ -111,7 +111,7 @@ TEST_F(ModelResourceManagement, RemoveMultipleNodes)
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({node, node2}));
 }
 
-TEST_F(ModelResourceManagement, RemoveMultipleNodesOnce)
+TEST_F(ModelResourceManagement, remove_multiple_nodes_once)
 {
     auto node = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
     auto node2 = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
@@ -121,7 +121,7 @@ TEST_F(ModelResourceManagement, RemoveMultipleNodesOnce)
     ASSERT_THAT(resources.removeModelNodes, UnorderedElementsAre(node, node2));
 }
 
-TEST_F(ModelResourceManagement, DontRemoveChildNodes)
+TEST_F(ModelResourceManagement, dont_remove_child_nodes)
 {
     auto node = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty());
     auto childNode = createNodeWithParent("QtQuick.Item", node.defaultNodeListProperty());
@@ -131,7 +131,7 @@ TEST_F(ModelResourceManagement, DontRemoveChildNodes)
     ASSERT_THAT(resources.removeModelNodes, Not(Contains(childNode)));
 }
 
-TEST_F(ModelResourceManagement, RemovePropertyLayerEnabled)
+TEST_F(ModelResourceManagement, remove_property_layer_enabled)
 {
     auto node = createNodeWithParent("QtQuick.Item", rootNode.nodeProperty("layer.effect"));
     auto layerEnabledProperty = rootNode.variantProperty("layer.enabled");
@@ -142,7 +142,7 @@ TEST_F(ModelResourceManagement, RemovePropertyLayerEnabled)
     ASSERT_THAT(resources.removeProperties, Contains(layerEnabledProperty));
 }
 
-TEST_F(ModelResourceManagement, RemovePropertyLayerEnabledIfLayerEffectPropertyIsRemoved)
+TEST_F(ModelResourceManagement, remove_property_layer_enabled_if_layer_effect_property_is_removed)
 {
     auto layerEffectProperty = rootNode.nodeProperty("layer.effect");
     auto node = createNodeWithParent("QtQuick.Item", layerEffectProperty);
@@ -154,7 +154,7 @@ TEST_F(ModelResourceManagement, RemovePropertyLayerEnabledIfLayerEffectPropertyI
     ASSERT_THAT(resources.removeProperties, Contains(layerEnabledProperty));
 }
 
-TEST_F(ModelResourceManagement, DontRemovePropertyLayerEnabledIfNotExists)
+TEST_F(ModelResourceManagement, dont_remove_property_layer_enabled_if_not_exists)
 {
     auto node = createNodeWithParent("QtQuick.Item", rootNode.nodeProperty("layer.effect"));
     auto layerEnabledProperty = rootNode.variantProperty("layer.enabled");
@@ -164,7 +164,7 @@ TEST_F(ModelResourceManagement, DontRemovePropertyLayerEnabledIfNotExists)
     ASSERT_THAT(resources.removeProperties, Not(Contains(layerEnabledProperty)));
 }
 
-TEST_F(ModelResourceManagement, RemovePropertyWithId)
+TEST_F(ModelResourceManagement, remove_property_with_id)
 {
     auto fooNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "foo");
     auto property = rootNode.bindingProperty("foo");
@@ -175,7 +175,7 @@ TEST_F(ModelResourceManagement, RemovePropertyWithId)
     ASSERT_THAT(resources.removeProperties, Contains(property));
 }
 
-TEST_F(ModelResourceManagement, RemovePropertyWithIdInComplexExpression)
+TEST_F(ModelResourceManagement, remove_property_with_id_in_complex_expression)
 {
     auto fooNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "foo");
     auto foobarProperty = rootNode.bindingProperty("foo");
@@ -185,7 +185,7 @@ TEST_F(ModelResourceManagement, RemovePropertyWithIdInComplexExpression)
     ASSERT_THAT(resources.removeProperties, Contains(foobarProperty));
 }
 
-TEST_F(ModelResourceManagement, DontRemovePropertyWithoutId)
+TEST_F(ModelResourceManagement, dont_remove_property_without_id)
 {
     auto fooNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "foo");
     auto barNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "bar");
@@ -197,7 +197,7 @@ TEST_F(ModelResourceManagement, DontRemovePropertyWithoutId)
     ASSERT_THAT(resources.removeProperties, Not(Contains(fooProperty)));
 }
 
-TEST_F(ModelResourceManagement, RemovePropertyWithIdOnce)
+TEST_F(ModelResourceManagement, remove_property_with_id_once)
 {
     auto fooNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "foo");
     auto barNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "bar");
@@ -209,7 +209,7 @@ TEST_F(ModelResourceManagement, RemovePropertyWithIdOnce)
     ASSERT_THAT(resources.removeProperties, ElementsAre(foobarProperty));
 }
 
-TEST_F(ModelResourceManagement, RemoveAliasPropertyWithId)
+TEST_F(ModelResourceManagement, remove_alias_property_with_id)
 {
     auto fooNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "foo");
     auto property = rootNode.bindingProperty("foo");
@@ -220,7 +220,7 @@ TEST_F(ModelResourceManagement, RemoveAliasPropertyWithId)
     ASSERT_THAT(resources.removeProperties, Contains(property));
 }
 
-TEST_F(ModelResourceManagement, DontRemovePropertyWithDifferentIdWhichContainsIdString)
+TEST_F(ModelResourceManagement, dont_remove_property_with_different_id_which_contains_id_string)
 {
     auto fooNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "foo");
     auto property = rootNode.bindingProperty("foo");
@@ -274,7 +274,7 @@ INSTANTIATE_TEST_SUITE_P(
                     TargetData{"FlowView.FlowItem", "FlowView.FlowTransition", "to"},
                     TargetData{"FlowView.FlowItem", "FlowView.FlowTransition", "from"}));
 
-TEST_P(ForTarget, Remove)
+TEST_P(ForTarget, remove)
 {
     sourceTargetProperty.setExpression("foo");
     source2TargetProperty.setExpression("foo");
@@ -284,7 +284,7 @@ TEST_P(ForTarget, Remove)
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({source, source2}));
 }
 
-TEST_P(ForTarget, DontRemoveForDifferentTarget)
+TEST_P(ForTarget, dont_remove_for_different_target)
 {
     sourceTargetProperty.setExpression("bar");
 
@@ -293,14 +293,14 @@ TEST_P(ForTarget, DontRemoveForDifferentTarget)
     ASSERT_THAT(resources.removeModelNodes, Not(Contains(source)));
 }
 
-TEST_P(ForTarget, DontRemoveKeyIfTargetIsNotSet)
+TEST_P(ForTarget, dont_remove_key_if_target_is_not_set)
 {
     auto resources = management.removeNodes({fooNode}, &model);
 
     ASSERT_THAT(resources.removeModelNodes, Not(Contains(source)));
 }
 
-TEST_P(ForTarget, DontRemoveIfTargetCannotBeResolved)
+TEST_P(ForTarget, dont_remove_if_target_cannot_be_resolved)
 {
     sourceTargetProperty.setExpression("not_exists");
 
@@ -348,7 +348,7 @@ INSTANTIATE_TEST_SUITE_P(
                     TargetData{"FlowView.FlowTransition", "FlowView.FlowWildcard", "targets"},
                     TargetData{"QtQuick.Item", "QtQuick.PropertyAnimation", "targets"}));
 
-TEST_P(ForTargets, Remove)
+TEST_P(ForTargets, remove)
 {
     sourceTargetsProperty.setExpression("[foo]");
     source2TargetsProperty.setExpression("[foo]");
@@ -358,7 +358,7 @@ TEST_P(ForTargets, Remove)
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({source, source2}));
 }
 
-TEST_P(ForTargets, HandleInvalidBinding)
+TEST_P(ForTargets, handle_invalid_binding)
 {
     sourceTargetsProperty.setExpression("[foo, broken]");
     source2TargetsProperty.setExpression("[foo, fail]");
@@ -368,7 +368,7 @@ TEST_P(ForTargets, HandleInvalidBinding)
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({source, source2}));
 }
 
-TEST_P(ForTargets, RemoveIndirectly)
+TEST_P(ForTargets, remove_indirectly)
 {
     auto parenNode = createNodeWithParent("QtQuick.Item", rootNode.defaultNodeListProperty(), "hoo");
     parenNode.defaultNodeListProperty().reparentHere(fooNode);
@@ -381,7 +381,7 @@ TEST_P(ForTargets, RemoveIndirectly)
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({source, source2}));
 }
 
-TEST_P(ForTargets, DontRemoveTargetIfThereAreStillAnOtherTargets)
+TEST_P(ForTargets, dont_remove_target_if_there_are_still_an_other_targets)
 {
     sourceTargetsProperty.setExpression("[foo, bar]");
     source2TargetsProperty.setExpression("[foo, bar]");
@@ -391,7 +391,7 @@ TEST_P(ForTargets, DontRemoveTargetIfThereAreStillAnOtherTargets)
     ASSERT_THAT(resources.removeModelNodes, AllOf(Not(Contains(source)), Not(Contains(source2))));
 }
 
-TEST_P(ForTargets, ChangeExpressionIfThereAreStillAnOtherTargets)
+TEST_P(ForTargets, change_expression_if_there_are_still_an_other_targets)
 {
     sourceTargetsProperty.setExpression("[foo, bar]");
     source2TargetsProperty.setExpression("[foo, bar]");
@@ -403,7 +403,7 @@ TEST_P(ForTargets, ChangeExpressionIfThereAreStillAnOtherTargets)
                                      SetExpression(source2TargetsProperty, "[bar]")));
 }
 
-TEST_P(ForTargets, DontChangeOrderInExpression)
+TEST_P(ForTargets, dont_change_order_in_expression)
 {
     sourceTargetsProperty.setExpression("[yi, foo, er, san]");
 
@@ -461,7 +461,7 @@ INSTANTIATE_TEST_SUITE_P(ModelResourceManagement,
                          testing::Values(StateData{"QtQuick.Transition", "from"},
                                          StateData{"QtQuick.Transition", "to"}));
 
-TEST_P(ForState, Remove)
+TEST_P(ForState, remove)
 {
     sourceStateProperty.setValue(QString{"foo"});
     source2StateProperty.setValue(QString{"foo"});
@@ -471,7 +471,7 @@ TEST_P(ForState, Remove)
     ASSERT_THAT(resources.removeModelNodes, IsSupersetOf({source, source2}));
 }
 
-TEST_P(ForState, DontRemoveForStarState)
+TEST_P(ForState, dont_remove_for_star_state)
 {
     fooNode.variantProperty("name").setValue("*");
     sourceStateProperty.setValue(QString{"*"});
@@ -481,7 +481,7 @@ TEST_P(ForState, DontRemoveForStarState)
     ASSERT_THAT(resources.removeModelNodes, Not(Contains(source)));
 }
 
-TEST_P(ForState, DontRemoveForEmptyState)
+TEST_P(ForState, dont_remove_for_empty_state)
 {
     fooNode.variantProperty("name").setValue("");
     sourceStateProperty.setValue(QString{""});
@@ -491,7 +491,7 @@ TEST_P(ForState, DontRemoveForEmptyState)
     ASSERT_THAT(resources.removeModelNodes, Not(Contains(source)));
 }
 
-TEST_P(ForState, DontRemoveForDifferentState)
+TEST_P(ForState, dont_remove_for_different_state)
 {
     sourceStateProperty.setValue(QString{"foo"});
     source2StateProperty.setValue(QString{"bar"});

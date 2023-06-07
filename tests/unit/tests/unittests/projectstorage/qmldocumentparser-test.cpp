@@ -150,14 +150,14 @@ protected:
     ModuleId directoryModuleId{storage.moduleId(directoryPath)};
 };
 
-TEST_F(QmlDocumentParser, Prototype)
+TEST_F(QmlDocumentParser, prototype)
 {
     auto type = parser.parse("Example{}", imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type, HasPrototype(Storage::ImportedType("Example")));
 }
 
-TEST_F(QmlDocumentParser, QualifiedPrototype)
+TEST_F(QmlDocumentParser, qualified_prototype)
 {
     auto exampleModuleId = storage.moduleId("Example");
     QString text = R"(import Example 2.1 as Example
@@ -173,7 +173,7 @@ TEST_F(QmlDocumentParser, QualifiedPrototype)
                                                                    qmlFileSourceId})));
 }
 
-TEST_F(QmlDocumentParser, Properties)
+TEST_F(QmlDocumentParser, properties)
 {
     auto type = parser.parse(R"(Example{ property int foo })", imports, qmlFileSourceId, directoryPath);
 
@@ -184,7 +184,7 @@ TEST_F(QmlDocumentParser, Properties)
                                           QmlDesigner::Storage::PropertyDeclarationTraits::None)));
 }
 
-TEST_F(QmlDocumentParser, QualifiedProperties)
+TEST_F(QmlDocumentParser, qualified_properties)
 {
     auto exampleModuleId = storage.moduleId("Example");
 
@@ -204,7 +204,7 @@ TEST_F(QmlDocumentParser, QualifiedProperties)
                     QmlDesigner::Storage::PropertyDeclarationTraits::None)));
 }
 
-TEST_F(QmlDocumentParser, EnumerationInProperties)
+TEST_F(QmlDocumentParser, enumeration_in_properties)
 {
     auto type = parser.parse(R"(import Example 2.1 as Example
                                 Item{ property Enumeration.Foo foo})",
@@ -219,7 +219,7 @@ TEST_F(QmlDocumentParser, EnumerationInProperties)
                                           QmlDesigner::Storage::PropertyDeclarationTraits::None)));
 }
 
-TEST_F(QmlDocumentParser, QualifiedEnumerationInProperties)
+TEST_F(QmlDocumentParser, qualified_enumeration_in_properties)
 {
     auto exampleModuleId = storage.moduleId("Example");
 
@@ -239,7 +239,7 @@ TEST_F(QmlDocumentParser, QualifiedEnumerationInProperties)
                     QmlDesigner::Storage::PropertyDeclarationTraits::None)));
 }
 
-TEST_F(QmlDocumentParser, Imports)
+TEST_F(QmlDocumentParser, imports)
 {
     ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
     ModuleId qmlModuleId = storage.moduleId("QML");
@@ -261,7 +261,7 @@ TEST_F(QmlDocumentParser, Imports)
             Storage::Import{qtQuickModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId}));
 }
 
-TEST_F(QmlDocumentParser, ImportsWithVersion)
+TEST_F(QmlDocumentParser, imports_with_version)
 {
     ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
     ModuleId qmlModuleId = storage.moduleId("QML");
@@ -283,7 +283,7 @@ TEST_F(QmlDocumentParser, ImportsWithVersion)
             Storage::Import{qtQuickModuleId, QmlDesigner::Storage::Version{2, 1}, qmlFileSourceId}));
 }
 
-TEST_F(QmlDocumentParser, ImportsWithExplictDirectory)
+TEST_F(QmlDocumentParser, imports_with_explict_directory)
 {
     ModuleId qmlModuleId = storage.moduleId("QML");
     ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
@@ -303,7 +303,7 @@ TEST_F(QmlDocumentParser, ImportsWithExplictDirectory)
                     Storage::Import{qtQuickModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId}));
 }
 
-TEST_F(QmlDocumentParser, Functions)
+TEST_F(QmlDocumentParser, functions)
 {
     auto type = parser.parse(
         "Example{\n function someScript(x, y) {}\n function otherFunction() {}\n}",
@@ -320,7 +320,7 @@ TEST_F(QmlDocumentParser, Functions)
                                                              IsParameter("y", ""))))));
 }
 
-TEST_F(QmlDocumentParser, Signals)
+TEST_F(QmlDocumentParser, signals)
 {
     auto type = parser.parse("Example{\n signal someSignal(int x, real y)\n signal signal2()\n}",
                              imports,
@@ -336,7 +336,7 @@ TEST_F(QmlDocumentParser, Signals)
                                            Field(&Storage::SignalDeclaration::parameters, IsEmpty()))));
 }
 
-TEST_F(QmlDocumentParser, Enumeration)
+TEST_F(QmlDocumentParser, enumeration)
 {
     auto type = parser.parse("Example{\n enum Color{red, green, blue=10, white}\n enum "
                              "State{On,Off}\n}",
@@ -357,7 +357,7 @@ TEST_F(QmlDocumentParser, Enumeration)
                                 ElementsAre(IsEnumerator("On", 0), IsEnumerator("Off", 1))))));
 }
 
-TEST_F(QmlDocumentParser, DISABLED_DuplicateImportsAreRemoved)
+TEST_F(QmlDocumentParser, disabled_duplicate_imports_are_removed)
 {
     ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
     ModuleId qmlModuleId = storage.moduleId("QML");
@@ -386,7 +386,7 @@ TEST_F(QmlDocumentParser, DISABLED_DuplicateImportsAreRemoved)
             Storage::Import{qtQuickModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId}));
 }
 
-TEST_F(QmlDocumentParser, AliasItemProperties)
+TEST_F(QmlDocumentParser, alias_item_properties)
 {
     auto type = parser.parse(R"(Example{
                                     property alias delegate: foo
@@ -405,7 +405,7 @@ TEST_F(QmlDocumentParser, AliasItemProperties)
                                           QmlDesigner::Storage::PropertyDeclarationTraits::None)));
 }
 
-TEST_F(QmlDocumentParser, AliasProperties)
+TEST_F(QmlDocumentParser, alias_properties)
 {
     auto type = parser.parse(R"(Example{
                                     property alias text: foo.text2
@@ -425,7 +425,7 @@ TEST_F(QmlDocumentParser, AliasProperties)
                                                "text2")));
 }
 
-TEST_F(QmlDocumentParser, IndirectAliasProperties)
+TEST_F(QmlDocumentParser, indirect_alias_properties)
 {
     auto type = parser.parse(R"(Example{
                                     property alias textSize: foo.text.size
@@ -446,7 +446,7 @@ TEST_F(QmlDocumentParser, IndirectAliasProperties)
                                                "size")));
 }
 
-TEST_F(QmlDocumentParser, InvalidAliasPropertiesAreSkipped)
+TEST_F(QmlDocumentParser, invalid_alias_properties_are_skipped)
 {
     auto type = parser.parse(R"(Example{
                                     property alias textSize: foo2.text.size
@@ -461,7 +461,7 @@ TEST_F(QmlDocumentParser, InvalidAliasPropertiesAreSkipped)
     ASSERT_THAT(type.propertyDeclarations, IsEmpty());
 }
 
-TEST_F(QmlDocumentParser, ListProperty)
+TEST_F(QmlDocumentParser, list_property)
 {
     auto type = parser.parse(R"(Item{
                                     property list<Foo> foos
@@ -477,7 +477,7 @@ TEST_F(QmlDocumentParser, ListProperty)
                                           QmlDesigner::Storage::PropertyDeclarationTraits::IsList)));
 }
 
-TEST_F(QmlDocumentParser, AliasOnListProperty)
+TEST_F(QmlDocumentParser, alias_on_list_property)
 {
     auto type = parser.parse(R"(Item{
                                     property alias foos: foo.foos
@@ -498,7 +498,7 @@ TEST_F(QmlDocumentParser, AliasOnListProperty)
                                           QmlDesigner::Storage::PropertyDeclarationTraits::IsList)));
 }
 
-TEST_F(QmlDocumentParser, QualifiedListProperty)
+TEST_F(QmlDocumentParser, qualified_list_property)
 {
     auto exampleModuleId = storage.moduleId("Example");
     auto type = parser.parse(R"(import Example 2.1 as Example

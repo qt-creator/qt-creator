@@ -9,21 +9,21 @@ namespace {
 
 using Utils::SizedArray;
 
-TEST(SizedArray, EmptySize)
+TEST(SizedArray, empty_size)
 {
     SizedArray<char, 8> array;
 
     ASSERT_THAT(array.size(), 0);
 }
 
-TEST(SizedArray, IsEmpty)
+TEST(SizedArray, is_empty)
 {
     SizedArray<char, 8> array;
 
     ASSERT_TRUE(array.empty());
 }
 
-TEST(SizedArray, IsNotEmpty)
+TEST(SizedArray, is_not_empty)
 {
     SizedArray<char, 8> array;
 
@@ -32,7 +32,7 @@ TEST(SizedArray, IsNotEmpty)
     ASSERT_FALSE(array.empty());
 }
 
-TEST(SizedArray, SizeOneAfterPushBack)
+TEST(SizedArray, size_one_after_push_back)
 {
     SizedArray<char, 8> array;
 
@@ -41,7 +41,7 @@ TEST(SizedArray, SizeOneAfterPushBack)
     ASSERT_THAT(array.size(), 1);
 }
 
-TEST(SizedArray, FirstValueAfterPushBack)
+TEST(SizedArray, first_value_after_push_back)
 {
     SizedArray<char, 8> array;
 
@@ -50,7 +50,7 @@ TEST(SizedArray, FirstValueAfterPushBack)
     ASSERT_THAT(array.front(), 'x');
 }
 
-TEST(SizedArray, LastValueAfterPushBack)
+TEST(SizedArray, last_value_after_push_back)
 {
     SizedArray<char, 8> array;
 
@@ -59,21 +59,21 @@ TEST(SizedArray, LastValueAfterPushBack)
     ASSERT_THAT(array.back(), 'x');
 }
 
-TEST(SizedArray, EndIteratorIsEqualBeginForEmptyArray)
+TEST(SizedArray, end_iterator_is_equal_begin_for_empty_array)
 {
     SizedArray<char, 8> array;
 
     ASSERT_THAT(array.begin(), array.end());
 }
 
-TEST(SizedArray, ConstEndIteratorIsEqualBeginForEmptyArray)
+TEST(SizedArray, const_end_iterator_is_equal_begin_for_empty_array)
 {
     const SizedArray<char, 8> array = {};
 
     ASSERT_THAT(array.begin(), array.end());
 }
 
-TEST(SizedArray, EndIteratorIsOneAfterBeginForOneSizedArray)
+TEST(SizedArray, end_iterator_is_one_after_begin_for_one_sized_array)
 {
     SizedArray<char, 8> array;
 
@@ -82,7 +82,7 @@ TEST(SizedArray, EndIteratorIsOneAfterBeginForOneSizedArray)
     ASSERT_THAT(std::next(array.begin(), 1), array.end());
 }
 
-TEST(SizedArray, CEndIteratorIsOneAfterBeginForOneSizedArray)
+TEST(SizedArray, c_end_iterator_is_one_after_begin_for_one_sized_array)
 {
     SizedArray<char, 8> array = {};
 
@@ -91,21 +91,21 @@ TEST(SizedArray, CEndIteratorIsOneAfterBeginForOneSizedArray)
     ASSERT_THAT(std::next(array.cbegin(), 1), array.cend());
 }
 
-TEST(SizedArray, REndIteratorIsEqualRBeginForEmptyArray)
+TEST(SizedArray, r_end_iterator_is_equal_r_begin_for_empty_array)
 {
     SizedArray<char, 8> array;
 
     ASSERT_THAT(array.rbegin(), array.rend());
 }
 
-TEST(SizedArray, ConstREndIteratorIsEqualRBeginForEmptyArray)
+TEST(SizedArray, const_r_end_iterator_is_equal_r_begin_for_empty_array)
 {
     const SizedArray<char, 8> array = {};
 
     ASSERT_THAT(array.rbegin(), array.rend());
 }
 
-TEST(SizedArray, REndIteratorIsOneAfterRBeginForOneSizedArray)
+TEST(SizedArray, r_end_iterator_is_one_after_r_begin_for_one_sized_array)
 {
     SizedArray<char, 8> array;
 
@@ -114,7 +114,7 @@ TEST(SizedArray, REndIteratorIsOneAfterRBeginForOneSizedArray)
     ASSERT_THAT(std::next(array.rbegin(), 1), array.rend());
 }
 
-TEST(SizedArray, ConstREndIteratorIsOneAfterRBeginForOneSizedArray)
+TEST(SizedArray, const_r_end_iterator_is_one_after_r_begin_for_one_sized_array)
 {
     SizedArray<char, 8> array = {};
 
@@ -123,7 +123,7 @@ TEST(SizedArray, ConstREndIteratorIsOneAfterRBeginForOneSizedArray)
     ASSERT_THAT(std::next(array.crbegin(), 1), array.crend());
 }
 
-TEST(SizedArray, InitializerListSize)
+TEST(SizedArray, initializer_list_size)
 {
     SizedArray<char, 8> array{'a', 'b'};
 

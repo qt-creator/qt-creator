@@ -15,7 +15,7 @@ MATCHER_P(IsIcon, icon, std::string(negation ? "is't" : "is") + PrintToString(ic
     return arg.availableSizes() == icon.availableSizes();
 }
 
-TEST(ImageCacheStorageUpdateTest, CheckVersionIfDatabaseIsAlreadyInitialized)
+TEST(ImageCacheStorageUpdateTest, check_version_if_database_is_already_initialized)
 {
     NiceMock<SqliteDatabaseMock> databaseMock;
     ON_CALL(databaseMock, isInitialized()).WillByDefault(Return(true));
@@ -25,7 +25,7 @@ TEST(ImageCacheStorageUpdateTest, CheckVersionIfDatabaseIsAlreadyInitialized)
     QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
 }
 
-TEST(ImageCacheStorageUpdateTest, AddColumnMidSizeIfVersionIsZero)
+TEST(ImageCacheStorageUpdateTest, add_column_mid_size_if_version_is_zero)
 {
     NiceMock<SqliteDatabaseMock> databaseMock;
     ON_CALL(databaseMock, isInitialized()).WillByDefault(Return(true));
@@ -36,7 +36,7 @@ TEST(ImageCacheStorageUpdateTest, AddColumnMidSizeIfVersionIsZero)
     QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
 }
 
-TEST(ImageCacheStorageUpdateTest, DeleteAllRowsBeforeAddingMidSizeColumn)
+TEST(ImageCacheStorageUpdateTest, delete_all_rows_before_adding_mid_size_column)
 {
     NiceMock<SqliteDatabaseMock> databaseMock;
     ON_CALL(databaseMock, isInitialized()).WillByDefault(Return(true));
@@ -48,7 +48,7 @@ TEST(ImageCacheStorageUpdateTest, DeleteAllRowsBeforeAddingMidSizeColumn)
     QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
 }
 
-TEST(ImageCacheStorageUpdateTest, DontCallAddColumnMidSizeIfDatabaseWasNotAlreadyInitialized)
+TEST(ImageCacheStorageUpdateTest, dont_call_add_column_mid_size_if_database_was_not_already_initialized)
 {
     NiceMock<SqliteDatabaseMock> databaseMock;
     ON_CALL(databaseMock, isInitialized()).WillByDefault(Return(false));
@@ -59,7 +59,7 @@ TEST(ImageCacheStorageUpdateTest, DontCallAddColumnMidSizeIfDatabaseWasNotAlread
     QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
 }
 
-TEST(ImageCacheStorageUpdateTest, SetVersionToOneIfVersionIsZero)
+TEST(ImageCacheStorageUpdateTest, set_version_to_one_if_version_is_zero)
 {
     NiceMock<SqliteDatabaseMock> databaseMock;
     ON_CALL(databaseMock, isInitialized()).WillByDefault(Return(true));
@@ -69,7 +69,7 @@ TEST(ImageCacheStorageUpdateTest, SetVersionToOneIfVersionIsZero)
     QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
 }
 
-TEST(ImageCacheStorageUpdateTest, DontSetVersionIfVersionIsOne)
+TEST(ImageCacheStorageUpdateTest, dont_set_version_if_version_is_one)
 {
     NiceMock<SqliteDatabaseMock> databaseMock;
     ON_CALL(databaseMock, isInitialized()).WillByDefault(Return(true));
@@ -80,7 +80,7 @@ TEST(ImageCacheStorageUpdateTest, DontSetVersionIfVersionIsOne)
     QmlDesigner::ImageCacheStorage<SqliteDatabaseMock> storage{databaseMock};
 }
 
-TEST(ImageCacheStorageUpdateTest, SetVersionToOneForInitialization)
+TEST(ImageCacheStorageUpdateTest, set_version_to_one_for_initialization)
 {
     NiceMock<SqliteDatabaseMock> databaseMock;
     ON_CALL(databaseMock, isInitialized()).WillByDefault(Return(false));
@@ -114,7 +114,7 @@ protected:
     QIcon icon1{QPixmap::fromImage(image1)};
 };
 
-TEST_F(ImageCacheStorageTest, FetchImageCalls)
+TEST_F(ImageCacheStorageTest, fetch_image_calls)
 {
     InSequence s;
 
@@ -127,7 +127,7 @@ TEST_F(ImageCacheStorageTest, FetchImageCalls)
     storage.fetchImage("/path/to/component", {123});
 }
 
-TEST_F(ImageCacheStorageTest, FetchImageCallsIsBusy)
+TEST_F(ImageCacheStorageTest, fetch_image_calls_is_busy)
 {
     InSequence s;
 
@@ -146,7 +146,7 @@ TEST_F(ImageCacheStorageTest, FetchImageCallsIsBusy)
     storage.fetchImage("/path/to/component", {123});
 }
 
-TEST_F(ImageCacheStorageTest, FetchMidSizeImageCalls)
+TEST_F(ImageCacheStorageTest, fetch_mid_size_image_calls)
 {
     InSequence s;
 
@@ -159,7 +159,7 @@ TEST_F(ImageCacheStorageTest, FetchMidSizeImageCalls)
     storage.fetchMidSizeImage("/path/to/component", {123});
 }
 
-TEST_F(ImageCacheStorageTest, FetchMidSizeImageCallsIsBusy)
+TEST_F(ImageCacheStorageTest, fetch_mid_size_image_calls_is_busy)
 {
     InSequence s;
 
@@ -178,7 +178,7 @@ TEST_F(ImageCacheStorageTest, FetchMidSizeImageCallsIsBusy)
     storage.fetchMidSizeImage("/path/to/component", {123});
 }
 
-TEST_F(ImageCacheStorageTest, FetchSmallImageCalls)
+TEST_F(ImageCacheStorageTest, fetch_small_image_calls)
 {
     InSequence s;
 
@@ -191,7 +191,7 @@ TEST_F(ImageCacheStorageTest, FetchSmallImageCalls)
     storage.fetchSmallImage("/path/to/component", {123});
 }
 
-TEST_F(ImageCacheStorageTest, FetchSmallImageCallsIsBusy)
+TEST_F(ImageCacheStorageTest, fetch_small_image_calls_is_busy)
 {
     InSequence s;
 
@@ -210,7 +210,7 @@ TEST_F(ImageCacheStorageTest, FetchSmallImageCallsIsBusy)
     storage.fetchSmallImage("/path/to/component", {123});
 }
 
-TEST_F(ImageCacheStorageTest, FetchIconCalls)
+TEST_F(ImageCacheStorageTest, fetch_icon_calls)
 {
     InSequence s;
 
@@ -223,7 +223,7 @@ TEST_F(ImageCacheStorageTest, FetchIconCalls)
     storage.fetchIcon("/path/to/component", {123});
 }
 
-TEST_F(ImageCacheStorageTest, FetchIconCallsIsBusy)
+TEST_F(ImageCacheStorageTest, fetch_icon_calls_is_busy)
 {
     InSequence s;
 
@@ -242,7 +242,7 @@ TEST_F(ImageCacheStorageTest, FetchIconCallsIsBusy)
     storage.fetchIcon("/path/to/component", {123});
 }
 
-TEST_F(ImageCacheStorageTest, StoreImageCalls)
+TEST_F(ImageCacheStorageTest, store_image_calls)
 {
     InSequence s;
 
@@ -258,7 +258,7 @@ TEST_F(ImageCacheStorageTest, StoreImageCalls)
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 }
 
-TEST_F(ImageCacheStorageTest, StoreEmptyImageCalls)
+TEST_F(ImageCacheStorageTest, store_empty_image_calls)
 {
     InSequence s;
 
@@ -274,7 +274,7 @@ TEST_F(ImageCacheStorageTest, StoreEmptyImageCalls)
     storage.storeImage("/path/to/component", {123}, QImage{}, QImage{}, QImage{});
 }
 
-TEST_F(ImageCacheStorageTest, StoreImageCallsIsBusy)
+TEST_F(ImageCacheStorageTest, store_image_calls_is_busy)
 {
     InSequence s;
 
@@ -291,7 +291,7 @@ TEST_F(ImageCacheStorageTest, StoreImageCallsIsBusy)
     storage.storeImage("/path/to/component", {123}, QImage{}, QImage{}, QImage{});
 }
 
-TEST_F(ImageCacheStorageTest, StoreIconCalls)
+TEST_F(ImageCacheStorageTest, store_icon_calls)
 {
     InSequence s;
 
@@ -305,7 +305,7 @@ TEST_F(ImageCacheStorageTest, StoreIconCalls)
     storage.storeIcon("/path/to/component", {123}, icon1);
 }
 
-TEST_F(ImageCacheStorageTest, StoreEmptyIconCalls)
+TEST_F(ImageCacheStorageTest, store_empty_icon_calls)
 {
     InSequence s;
 
@@ -319,7 +319,7 @@ TEST_F(ImageCacheStorageTest, StoreEmptyIconCalls)
     storage.storeIcon("/path/to/component", {123}, QIcon{});
 }
 
-TEST_F(ImageCacheStorageTest, StoreIconCallsIsBusy)
+TEST_F(ImageCacheStorageTest, store_icon_calls_is_busy)
 {
     InSequence s;
 
@@ -334,14 +334,14 @@ TEST_F(ImageCacheStorageTest, StoreIconCallsIsBusy)
     storage.storeIcon("/path/to/component", {123}, QIcon{});
 }
 
-TEST_F(ImageCacheStorageTest, CallWalCheckointFull)
+TEST_F(ImageCacheStorageTest, call_wal_checkoint_full)
 {
     EXPECT_CALL(databaseMock, walCheckpointFull());
 
     storage.walCheckpointFull();
 }
 
-TEST_F(ImageCacheStorageTest, CallWalCheckointFullIsBusy)
+TEST_F(ImageCacheStorageTest, call_wal_checkoint_full_is_busy)
 {
     InSequence s;
 
@@ -372,14 +372,14 @@ protected:
     QIcon icon1{QPixmap::fromImage(image1)};
 };
 
-TEST_F(ImageCacheStorageSlowTest, StoreImage)
+TEST_F(ImageCacheStorageSlowTest, store_image)
 {
     storage.storeImage("/path/to/component", {123}, image1, QImage{}, QImage{});
 
     ASSERT_THAT(storage.fetchImage("/path/to/component", {123}), Optional(image1));
 }
 
-TEST_F(ImageCacheStorageSlowTest, StoreEmptyImageAfterEntry)
+TEST_F(ImageCacheStorageSlowTest, store_empty_image_after_entry)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -388,14 +388,14 @@ TEST_F(ImageCacheStorageSlowTest, StoreEmptyImageAfterEntry)
     ASSERT_THAT(storage.fetchImage("/path/to/component", {123}), Optional(QImage{}));
 }
 
-TEST_F(ImageCacheStorageSlowTest, StoreMidSizeImage)
+TEST_F(ImageCacheStorageSlowTest, store_mid_size_image)
 {
     storage.storeImage("/path/to/component", {123}, QImage{}, midSizeImage1, QImage{});
 
     ASSERT_THAT(storage.fetchMidSizeImage("/path/to/component", {123}), Optional(midSizeImage1));
 }
 
-TEST_F(ImageCacheStorageSlowTest, StoreEmptyMidSizeImageAfterEntry)
+TEST_F(ImageCacheStorageSlowTest, store_empty_mid_size_image_after_entry)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -404,14 +404,14 @@ TEST_F(ImageCacheStorageSlowTest, StoreEmptyMidSizeImageAfterEntry)
     ASSERT_THAT(storage.fetchMidSizeImage("/path/to/component", {123}), Optional(QImage{}));
 }
 
-TEST_F(ImageCacheStorageSlowTest, StoreSmallImage)
+TEST_F(ImageCacheStorageSlowTest, store_small_image)
 {
     storage.storeImage("/path/to/component", {123}, QImage{}, QImage{}, smallImage1);
 
     ASSERT_THAT(storage.fetchSmallImage("/path/to/component", {123}), Optional(smallImage1));
 }
 
-TEST_F(ImageCacheStorageSlowTest, StoreEmptySmallImageAfterEntry)
+TEST_F(ImageCacheStorageSlowTest, store_empty_small_image_after_entry)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -420,21 +420,21 @@ TEST_F(ImageCacheStorageSlowTest, StoreEmptySmallImageAfterEntry)
     ASSERT_THAT(storage.fetchSmallImage("/path/to/component", {123}), Optional(QImage{}));
 }
 
-TEST_F(ImageCacheStorageSlowTest, StoreEmptyEntry)
+TEST_F(ImageCacheStorageSlowTest, store_empty_entry)
 {
     storage.storeImage("/path/to/component", {123}, QImage{}, QImage{}, QImage{});
 
     ASSERT_THAT(storage.fetchImage("/path/to/component", {123}), Optional(QImage{}));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchNonExistingImageIsEmpty)
+TEST_F(ImageCacheStorageSlowTest, fetch_non_existing_image_is_empty)
 {
     auto image = storage.fetchImage("/path/to/component", {123});
 
     ASSERT_THAT(image, Eq(std::nullopt));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchSameTimeImage)
+TEST_F(ImageCacheStorageSlowTest, fetch_same_time_image)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -443,7 +443,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchSameTimeImage)
     ASSERT_THAT(image, Optional(image1));
 }
 
-TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderImage)
+TEST_F(ImageCacheStorageSlowTest, do_not_fetch_older_image)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -452,7 +452,7 @@ TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderImage)
     ASSERT_THAT(image, Eq(std::nullopt));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchNewerImage)
+TEST_F(ImageCacheStorageSlowTest, fetch_newer_image)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -461,14 +461,14 @@ TEST_F(ImageCacheStorageSlowTest, FetchNewerImage)
     ASSERT_THAT(image, Optional(image1));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchNonExistingMidSizeImageIsEmpty)
+TEST_F(ImageCacheStorageSlowTest, fetch_non_existing_mid_size_image_is_empty)
 {
     auto image = storage.fetchMidSizeImage("/path/to/component", {123});
 
     ASSERT_THAT(image, Eq(std::nullopt));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchSameTimeMidSizeImage)
+TEST_F(ImageCacheStorageSlowTest, fetch_same_time_mid_size_image)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -477,7 +477,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchSameTimeMidSizeImage)
     ASSERT_THAT(image, Optional(midSizeImage1));
 }
 
-TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderMidSizeImage)
+TEST_F(ImageCacheStorageSlowTest, do_not_fetch_older_mid_size_image)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -486,7 +486,7 @@ TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderMidSizeImage)
     ASSERT_THAT(image, Eq(std::nullopt));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchNewerMidSizeImage)
+TEST_F(ImageCacheStorageSlowTest, fetch_newer_mid_size_image)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -495,14 +495,14 @@ TEST_F(ImageCacheStorageSlowTest, FetchNewerMidSizeImage)
     ASSERT_THAT(image, Optional(midSizeImage1));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchNonExistingSmallImageIsEmpty)
+TEST_F(ImageCacheStorageSlowTest, fetch_non_existing_small_image_is_empty)
 {
     auto image = storage.fetchSmallImage("/path/to/component", {123});
 
     ASSERT_THAT(image, Eq(std::nullopt));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchSameTimeSmallImage)
+TEST_F(ImageCacheStorageSlowTest, fetch_same_time_small_image)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -511,7 +511,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchSameTimeSmallImage)
     ASSERT_THAT(image, Optional(smallImage1));
 }
 
-TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderSmallImage)
+TEST_F(ImageCacheStorageSlowTest, do_not_fetch_older_small_image)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -520,7 +520,7 @@ TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderSmallImage)
     ASSERT_THAT(image, Eq(std::nullopt));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchNewerSmallImage)
+TEST_F(ImageCacheStorageSlowTest, fetch_newer_small_image)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -529,14 +529,14 @@ TEST_F(ImageCacheStorageSlowTest, FetchNewerSmallImage)
     ASSERT_THAT(image, Optional(smallImage1));
 }
 
-TEST_F(ImageCacheStorageSlowTest, StoreIcon)
+TEST_F(ImageCacheStorageSlowTest, store_icon)
 {
     storage.storeIcon("/path/to/component", {123}, icon1);
 
     ASSERT_THAT(storage.fetchIcon("/path/to/component", {123}), Optional(IsIcon(icon1)));
 }
 
-TEST_F(ImageCacheStorageSlowTest, StoreEmptyIconAfterEntry)
+TEST_F(ImageCacheStorageSlowTest, store_empty_icon_after_entry)
 {
     storage.storeIcon("/path/to/component", {123}, icon1);
 
@@ -545,21 +545,21 @@ TEST_F(ImageCacheStorageSlowTest, StoreEmptyIconAfterEntry)
     ASSERT_THAT(storage.fetchIcon("/path/to/component", {123}), Optional(IsIcon(QIcon{})));
 }
 
-TEST_F(ImageCacheStorageSlowTest, StoreEmptyIconEntry)
+TEST_F(ImageCacheStorageSlowTest, store_empty_icon_entry)
 {
     storage.storeIcon("/path/to/component", {123}, QIcon{});
 
     ASSERT_THAT(storage.fetchIcon("/path/to/component", {123}), Optional(IsIcon(QIcon{})));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchNonExistingIconIsEmpty)
+TEST_F(ImageCacheStorageSlowTest, fetch_non_existing_icon_is_empty)
 {
     auto image = storage.fetchIcon("/path/to/component", {123});
 
     ASSERT_THAT(image, Eq(std::nullopt));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchSameTimeIcon)
+TEST_F(ImageCacheStorageSlowTest, fetch_same_time_icon)
 {
     storage.storeIcon("/path/to/component", {123}, icon1);
 
@@ -568,7 +568,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchSameTimeIcon)
     ASSERT_THAT(image, Optional(IsIcon(icon1)));
 }
 
-TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderIcon)
+TEST_F(ImageCacheStorageSlowTest, do_not_fetch_older_icon)
 {
     storage.storeIcon("/path/to/component", {123}, icon1);
 
@@ -577,7 +577,7 @@ TEST_F(ImageCacheStorageSlowTest, DoNotFetchOlderIcon)
     ASSERT_THAT(image, Eq(std::nullopt));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchNewerIcon)
+TEST_F(ImageCacheStorageSlowTest, fetch_newer_icon)
 {
     storage.storeIcon("/path/to/component", {123}, icon1);
 
@@ -586,7 +586,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchNewerIcon)
     ASSERT_THAT(image, Optional(IsIcon(icon1)));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchModifiedImageTime)
+TEST_F(ImageCacheStorageSlowTest, fetch_modified_image_time)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -595,7 +595,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchModifiedImageTime)
     ASSERT_THAT(timeStamp, Eq(Sqlite::TimeStamp{123}));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchInvalidModifiedImageTimeForNoEntry)
+TEST_F(ImageCacheStorageSlowTest, fetch_invalid_modified_image_time_for_no_entry)
 {
     storage.storeImage("/path/to/component2", {123}, image1, midSizeImage1, smallImage1);
 
@@ -604,7 +604,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchInvalidModifiedImageTimeForNoEntry)
     ASSERT_THAT(timeStamp, Eq(Sqlite::TimeStamp{}));
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchHasImage)
+TEST_F(ImageCacheStorageSlowTest, fetch_has_image)
 {
     storage.storeImage("/path/to/component", {123}, image1, midSizeImage1, smallImage1);
 
@@ -613,7 +613,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchHasImage)
     ASSERT_TRUE(hasImage);
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchHasImageForNullImage)
+TEST_F(ImageCacheStorageSlowTest, fetch_has_image_for_null_image)
 {
     storage.storeImage("/path/to/component", {123}, QImage{}, QImage{}, QImage{});
 
@@ -622,7 +622,7 @@ TEST_F(ImageCacheStorageSlowTest, FetchHasImageForNullImage)
     ASSERT_FALSE(hasImage);
 }
 
-TEST_F(ImageCacheStorageSlowTest, FetchHasImageForNoEntry)
+TEST_F(ImageCacheStorageSlowTest, fetch_has_image_for_no_entry)
 {
     storage.storeImage("/path/to/component", {123}, QImage{}, QImage{}, QImage{});
 

@@ -105,14 +105,14 @@ protected:
 using CacheTypes = ::testing::Types<CacheWithMockLocking, CacheWithoutLocking>;
 TYPED_TEST_SUITE(StorageCache, CacheTypes);
 
-TYPED_TEST(StorageCache, AddFilePath)
+TYPED_TEST(StorageCache, add_file_path)
 {
     auto id = this->cache.id(this->filePath1);
 
     ASSERT_THAT(id, this->id1);
 }
 
-TYPED_TEST(StorageCache, AddSecondFilePath)
+TYPED_TEST(StorageCache, add_second_file_path)
 {
     this->cache.id(this->filePath1);
 
@@ -121,7 +121,7 @@ TYPED_TEST(StorageCache, AddSecondFilePath)
     ASSERT_THAT(id, this->id2);
 }
 
-TYPED_TEST(StorageCache, AddDuplicateFilePath)
+TYPED_TEST(StorageCache, add_duplicate_file_path)
 {
     this->cache.id(this->filePath1);
 
@@ -130,7 +130,7 @@ TYPED_TEST(StorageCache, AddDuplicateFilePath)
     ASSERT_THAT(id, this->id1);
 }
 
-TYPED_TEST(StorageCache, AddDuplicateFilePathBetweenOtherEntries)
+TYPED_TEST(StorageCache, add_duplicate_file_path_between_other_entries)
 {
     this->cache.id(this->filePath1);
     this->cache.id(this->filePath2);
@@ -142,7 +142,7 @@ TYPED_TEST(StorageCache, AddDuplicateFilePathBetweenOtherEntries)
     ASSERT_THAT(id, this->id3);
 }
 
-TYPED_TEST(StorageCache, GetFilePathForIdWithOneEntry)
+TYPED_TEST(StorageCache, get_file_path_for_id_with_one_entry)
 {
     this->cache.id(this->filePath1);
 
@@ -151,7 +151,7 @@ TYPED_TEST(StorageCache, GetFilePathForIdWithOneEntry)
     ASSERT_THAT(filePath, this->filePath1);
 }
 
-TYPED_TEST(StorageCache, GetFilePathForIdWithSomeEntries)
+TYPED_TEST(StorageCache, get_file_path_for_id_with_some_entries)
 {
     this->cache.id(this->filePath1);
     this->cache.id(this->filePath2);
@@ -163,7 +163,7 @@ TYPED_TEST(StorageCache, GetFilePathForIdWithSomeEntries)
     ASSERT_THAT(filePath, this->filePath3);
 }
 
-TYPED_TEST(StorageCache, GetAllFilePaths)
+TYPED_TEST(StorageCache, get_all_file_paths)
 {
     this->cache.id(this->filePath1);
     this->cache.id(this->filePath2);
@@ -176,28 +176,28 @@ TYPED_TEST(StorageCache, GetAllFilePaths)
                 ElementsAre(this->filePath1, this->filePath2, this->filePath3, this->filePath4));
 }
 
-TYPED_TEST(StorageCache, AddFilePaths)
+TYPED_TEST(StorageCache, add_file_paths)
 {
     auto ids = this->cache.ids({this->filePath1, this->filePath2, this->filePath3, this->filePath4});
 
     ASSERT_THAT(ids, ElementsAre(this->id1, this->id2, this->id3, this->id4));
 }
 
-TYPED_TEST(StorageCache, AddFilePathsWithStorageFunction)
+TYPED_TEST(StorageCache, add_file_paths_with_storage_function)
 {
     auto ids = this->cache.ids({"foo", "taa", "poo", "bar"});
 
     ASSERT_THAT(ids, UnorderedElementsAre(this->id42, this->id43, this->id44, this->id45));
 }
 
-TYPED_TEST(StorageCache, IsEmpty)
+TYPED_TEST(StorageCache, is_empty)
 {
     auto isEmpty = this->cache.isEmpty();
 
     ASSERT_TRUE(isEmpty);
 }
 
-TYPED_TEST(StorageCache, IsNotEmpty)
+TYPED_TEST(StorageCache, is_not_empty)
 {
     this->cache.id(this->filePath1);
 
@@ -206,14 +206,14 @@ TYPED_TEST(StorageCache, IsNotEmpty)
     ASSERT_FALSE(isEmpty);
 }
 
-TYPED_TEST(StorageCache, PopulateWithEmptyVector)
+TYPED_TEST(StorageCache, populate_with_empty_vector)
 {
     this->cache.uncheckedPopulate();
 
     ASSERT_TRUE(this->cache.isEmpty());
 }
 
-TYPED_TEST(StorageCache, IsNotEmptyAfterPopulateWithSomeEntries)
+TYPED_TEST(StorageCache, is_not_empty_after_populate_with_some_entries)
 {
     typename TypeParam::CacheEntries entries{{this->filePath1.clone(), this->id1},
                                              {this->filePath2.clone(), this->id4},
@@ -226,7 +226,7 @@ TYPED_TEST(StorageCache, IsNotEmptyAfterPopulateWithSomeEntries)
     ASSERT_TRUE(!this->cache.isEmpty());
 }
 
-TYPED_TEST(StorageCache, GetEntryAfterPopulateWithSomeEntries)
+TYPED_TEST(StorageCache, get_entry_after_populate_with_some_entries)
 {
     typename TypeParam::CacheEntries entries{{this->filePath1.clone(), this->id1},
                                              {this->filePath2.clone(), this->id2},
@@ -240,7 +240,7 @@ TYPED_TEST(StorageCache, GetEntryAfterPopulateWithSomeEntries)
     ASSERT_THAT(value, this->filePath3);
 }
 
-TYPED_TEST(StorageCache, EntriesHaveUniqueIds)
+TYPED_TEST(StorageCache, entries_have_unique_ids)
 {
     typename TypeParam::CacheEntries entries{{this->filePath1.clone(), this->id1},
                                              {this->filePath2.clone(), this->id2},
@@ -251,7 +251,7 @@ TYPED_TEST(StorageCache, EntriesHaveUniqueIds)
     ASSERT_THROW(this->cache.populate(), StorageCacheException);
 }
 
-TYPED_TEST(StorageCache, MultipleEntries)
+TYPED_TEST(StorageCache, multiple_entries)
 {
     typename TypeParam::CacheEntries entries{{this->filePath1.clone(), this->id1},
                                              {this->filePath1.clone(), this->id2},
@@ -262,7 +262,7 @@ TYPED_TEST(StorageCache, MultipleEntries)
     ASSERT_THROW(this->cache.populate(), StorageCacheException);
 }
 
-TYPED_TEST(StorageCache, IdIsReadAndWriteLockedForUnknownEntry)
+TYPED_TEST(StorageCache, id_is_read_and_write_locked_for_unknown_entry)
 {
     InSequence s;
 
@@ -274,7 +274,7 @@ TYPED_TEST(StorageCache, IdIsReadAndWriteLockedForUnknownEntry)
     this->cache.id("foo");
 }
 
-TYPED_TEST(StorageCache, IdWithStorageFunctionIsReadAndWriteLockedForUnknownEntry)
+TYPED_TEST(StorageCache, id_with_storage_function_is_read_and_write_locked_for_unknown_entry)
 {
     InSequence s;
 
@@ -287,7 +287,7 @@ TYPED_TEST(StorageCache, IdWithStorageFunctionIsReadAndWriteLockedForUnknownEntr
     this->cache.id("foo");
 }
 
-TYPED_TEST(StorageCache, IdWithStorageFunctionIsReadLockedForKnownEntry)
+TYPED_TEST(StorageCache, id_with_storage_function_is_read_locked_for_known_entry)
 {
     InSequence s;
     this->cache.id("foo");
@@ -301,7 +301,7 @@ TYPED_TEST(StorageCache, IdWithStorageFunctionIsReadLockedForKnownEntry)
     this->cache.id("foo");
 }
 
-TYPED_TEST(StorageCache, IdIsReadLockedForKnownEntry)
+TYPED_TEST(StorageCache, id_is_read_locked_for_known_entry)
 {
     this->cache.id("foo");
 
@@ -313,7 +313,7 @@ TYPED_TEST(StorageCache, IdIsReadLockedForKnownEntry)
     this->cache.id("foo");
 }
 
-TYPED_TEST(StorageCache, IdsIsLocked)
+TYPED_TEST(StorageCache, ids_is_locked)
 {
     EXPECT_CALL(this->mockMutex, lock_shared());
     EXPECT_CALL(this->mockMutex, unlock_shared());
@@ -321,7 +321,7 @@ TYPED_TEST(StorageCache, IdsIsLocked)
     this->cache.ids({"foo"});
 }
 
-TYPED_TEST(StorageCache, IdsWithStorageIsLocked)
+TYPED_TEST(StorageCache, ids_with_storage_is_locked)
 {
     EXPECT_CALL(this->mockMutex, lock_shared());
     EXPECT_CALL(this->mockMutex, unlock_shared());
@@ -329,7 +329,7 @@ TYPED_TEST(StorageCache, IdsWithStorageIsLocked)
     this->cache.ids({"foo"});
 }
 
-TYPED_TEST(StorageCache, ValueIsLocked)
+TYPED_TEST(StorageCache, value_is_locked)
 {
     auto id = this->cache.id("foo");
 
@@ -339,7 +339,7 @@ TYPED_TEST(StorageCache, ValueIsLocked)
     this->cache.value(id);
 }
 
-TYPED_TEST(StorageCache, ValuesIsLocked)
+TYPED_TEST(StorageCache, values_is_locked)
 {
     auto ids = this->cache.ids({"foo", "bar"});
 
@@ -349,7 +349,7 @@ TYPED_TEST(StorageCache, ValuesIsLocked)
     this->cache.values(ids);
 }
 
-TYPED_TEST(StorageCache, ValueWithStorageFunctionIsReadAndWriteLockedForUnknownId)
+TYPED_TEST(StorageCache, value_with_storage_function_is_read_and_write_locked_for_unknown_id)
 {
     InSequence s;
 
@@ -362,7 +362,7 @@ TYPED_TEST(StorageCache, ValueWithStorageFunctionIsReadAndWriteLockedForUnknownI
     this->cache.value(this->id41);
 }
 
-TYPED_TEST(StorageCache, ValueWithStorageFunctionIsReadLockedForKnownId)
+TYPED_TEST(StorageCache, value_with_storage_function_is_read_locked_for_known_id)
 {
     InSequence s;
     this->cache.value(this->id41);
@@ -376,14 +376,14 @@ TYPED_TEST(StorageCache, ValueWithStorageFunctionIsReadLockedForKnownId)
     this->cache.value(this->id41);
 }
 
-TYPED_TEST(StorageCache, IdWithStorageFunctionWhichHasNoEntryIsCallingStorageFunction)
+TYPED_TEST(StorageCache, id_with_storage_function_which_has_no_entry_is_calling_storage_function)
 {
     EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("foo")));
 
     this->cache.id("foo");
 }
 
-TYPED_TEST(StorageCache, IdWithStorageFunctionWhichHasEntryIsNotCallingStorageFunction)
+TYPED_TEST(StorageCache, id_with_storage_function_which_has_entry_is_not_calling_storage_function)
 {
     this->cache.id("foo");
 
@@ -392,7 +392,7 @@ TYPED_TEST(StorageCache, IdWithStorageFunctionWhichHasEntryIsNotCallingStorageFu
     this->cache.id("foo");
 }
 
-TYPED_TEST(StorageCache, IndexOfIdWithStorageFunctionWhichHasEntry)
+TYPED_TEST(StorageCache, index_of_id_with_storage_function_which_has_entry)
 {
     this->cache.id("foo");
 
@@ -401,14 +401,14 @@ TYPED_TEST(StorageCache, IndexOfIdWithStorageFunctionWhichHasEntry)
     ASSERT_THAT(index, this->id42);
 }
 
-TYPED_TEST(StorageCache, IndexOfIdWithStorageFunctionWhichHasNoEntry)
+TYPED_TEST(StorageCache, index_of_id_with_storage_function_which_has_no_entry)
 {
     auto index = this->cache.id("foo");
 
     ASSERT_THAT(index, this->id42);
 }
 
-TYPED_TEST(StorageCache, GetEntryByIndexAfterInsertingByCustomIndex)
+TYPED_TEST(StorageCache, get_entry_by_index_after_inserting_by_custom_index)
 {
     auto index = this->cache.id("foo");
 
@@ -417,7 +417,7 @@ TYPED_TEST(StorageCache, GetEntryByIndexAfterInsertingByCustomIndex)
     ASSERT_THAT(value, Eq("foo"));
 }
 
-TYPED_TEST(StorageCache, CallFetchSourceContextPathForLowerIndex)
+TYPED_TEST(StorageCache, call_fetch_source_context_path_for_lower_index)
 {
     auto index = this->cache.id("foo");
     SourceContextId lowerIndex{SourceContextId::create(index.internalId() - 1)};
@@ -427,21 +427,21 @@ TYPED_TEST(StorageCache, CallFetchSourceContextPathForLowerIndex)
     this->cache.value(lowerIndex);
 }
 
-TYPED_TEST(StorageCache, CallFetchSourceContextPathForUnknownIndex)
+TYPED_TEST(StorageCache, call_fetch_source_context_path_for_unknown_index)
 {
     EXPECT_CALL(this->mockStorage, fetchSourceContextPath(Eq(this->id1)));
 
     this->cache.value(this->id1);
 }
 
-TYPED_TEST(StorageCache, FetchSourceContextPathForUnknownIndex)
+TYPED_TEST(StorageCache, fetch_source_context_path_for_unknown_index)
 {
     auto value = this->cache.value(this->id41);
 
     ASSERT_THAT(value, Eq("bar"));
 }
 
-TYPED_TEST(StorageCache, AddCalls)
+TYPED_TEST(StorageCache, add_calls)
 {
     EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("foo")));
     EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("bar")));
@@ -450,7 +450,7 @@ TYPED_TEST(StorageCache, AddCalls)
     this->cache.add({"foo", "bar", "poo"});
 }
 
-TYPED_TEST(StorageCache, AddCallsOnlyForNewValues)
+TYPED_TEST(StorageCache, add_calls_only_for_new_values)
 {
     this->cache.add({"foo", "poo"});
 
@@ -460,21 +460,21 @@ TYPED_TEST(StorageCache, AddCallsOnlyForNewValues)
     this->cache.add({"foo", "bar", "poo", "taa"});
 }
 
-TYPED_TEST(StorageCache, GetIdAfterAddingValues)
+TYPED_TEST(StorageCache, get_id_after_adding_values)
 {
     this->cache.add({"foo", "bar", "poo", "taa"});
 
     ASSERT_THAT(this->cache.value(this->cache.id("taa")), Eq("taa"));
 }
 
-TYPED_TEST(StorageCache, GetValueAfterAddingValues)
+TYPED_TEST(StorageCache, get_value_after_adding_values)
 {
     this->cache.add({"foo", "bar", "poo", "taa"});
 
     ASSERT_THAT(this->cache.value(this->cache.id("taa")), Eq("taa"));
 }
 
-TYPED_TEST(StorageCache, GetIdAfterAddingValuesMultipleTimes)
+TYPED_TEST(StorageCache, get_id_after_adding_values_multiple_times)
 {
     this->cache.add({"foo", "taa"});
 
@@ -483,19 +483,19 @@ TYPED_TEST(StorageCache, GetIdAfterAddingValuesMultipleTimes)
     ASSERT_THAT(this->cache.value(this->cache.id("taa")), Eq("taa"));
 }
 
-TYPED_TEST(StorageCache, GetIdAfterAddingTheSameValuesMultipleTimes)
+TYPED_TEST(StorageCache, get_id_after_adding_the_same_values_multiple_times)
 {
     this->cache.add({"foo", "taa", "poo", "taa", "bar", "taa"});
 
     ASSERT_THAT(this->cache.value(this->cache.id("taa")), Eq("taa"));
 }
 
-TYPED_TEST(StorageCache, AddingEmptyValues)
+TYPED_TEST(StorageCache, adding_empty_values)
 {
     this->cache.add({});
 }
 
-TYPED_TEST(StorageCache, FetchIdsFromStorageCalls)
+TYPED_TEST(StorageCache, fetch_ids_from_storage_calls)
 {
     InSequence s;
 

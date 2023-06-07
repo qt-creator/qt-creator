@@ -16,7 +16,7 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
 };
 
-TEST_F(SqliteFunctionRegistry, PathExists)
+TEST_F(SqliteFunctionRegistry, path_exists)
 {
     std::lock_guard lock{database};
     Sqlite::ReadStatement<1> statement{"SELECT pathExists('" UNITTEST_DIR
@@ -28,7 +28,7 @@ TEST_F(SqliteFunctionRegistry, PathExists)
     ASSERT_TRUE(pathExists);
 }
 
-TEST_F(SqliteFunctionRegistry, PathDoesntExists)
+TEST_F(SqliteFunctionRegistry, path_doesnt_exists)
 {
     std::lock_guard lock{database};
     Sqlite::ReadStatement<1> statement{"SELECT pathExists('" UNITTEST_DIR

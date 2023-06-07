@@ -49,19 +49,19 @@ protected:
     Builder builder;
 };
 
-TEST_F(CreateTableSqlStatementBuilder, IsNotValidAfterCreation)
+TEST_F(CreateTableSqlStatementBuilder, is_not_valid_after_creation)
 {
     ASSERT_FALSE(builder.isValid());
 }
 
-TEST_F(CreateTableSqlStatementBuilder, IsValidAfterBinding)
+TEST_F(CreateTableSqlStatementBuilder, is_valid_after_binding)
 {
     bindValues();
 
     ASSERT_TRUE(builder.isValid());
 }
 
-TEST_F(CreateTableSqlStatementBuilder, InvalidAfterClear)
+TEST_F(CreateTableSqlStatementBuilder, invalid_after_clear)
 {
     bindValues();
 
@@ -70,7 +70,7 @@ TEST_F(CreateTableSqlStatementBuilder, InvalidAfterClear)
     ASSERT_TRUE(!builder.isValid());
 }
 
-TEST_F(CreateTableSqlStatementBuilder, NoSqlStatementAfterClear)
+TEST_F(CreateTableSqlStatementBuilder, no_sql_statement_after_clear)
 {
     bindValues();
     builder.sqlStatement();
@@ -80,7 +80,7 @@ TEST_F(CreateTableSqlStatementBuilder, NoSqlStatementAfterClear)
     ASSERT_THROW(builder.sqlStatement(), SqlStatementBuilderException);
 }
 
-TEST_F(CreateTableSqlStatementBuilder, SqlStatement)
+TEST_F(CreateTableSqlStatementBuilder, sql_statement)
 {
     bindValues();
 
@@ -88,7 +88,7 @@ TEST_F(CreateTableSqlStatementBuilder, SqlStatement)
                 "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, AddColumnToExistingColumns)
+TEST_F(CreateTableSqlStatementBuilder, add_column_to_existing_columns)
 {
     bindValues();
 
@@ -98,7 +98,7 @@ TEST_F(CreateTableSqlStatementBuilder, AddColumnToExistingColumns)
                 "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC, number2 REAL)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ChangeTable)
+TEST_F(CreateTableSqlStatementBuilder, change_table)
 {
     bindValues();
 
@@ -108,7 +108,7 @@ TEST_F(CreateTableSqlStatementBuilder, ChangeTable)
                 "CREATE TABLE test2(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, IsInvalidAfterClearColumsOnly)
+TEST_F(CreateTableSqlStatementBuilder, is_invalid_after_clear_colums_only)
 {
     bindValues();
     builder.sqlStatement();
@@ -118,7 +118,7 @@ TEST_F(CreateTableSqlStatementBuilder, IsInvalidAfterClearColumsOnly)
     ASSERT_THROW(builder.sqlStatement(), SqlStatementBuilderException);
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ClearColumnsAndAddColumnNewColumns)
+TEST_F(CreateTableSqlStatementBuilder, clear_columns_and_add_column_new_columns)
 {
     bindValues();
     builder.clearColumns();
@@ -130,7 +130,7 @@ TEST_F(CreateTableSqlStatementBuilder, ClearColumnsAndAddColumnNewColumns)
                 "CREATE TABLE test(name3 TEXT, number3 REAL)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, SetWitoutRowId)
+TEST_F(CreateTableSqlStatementBuilder, set_witout_row_id)
 {
     bindValues();
 
@@ -140,7 +140,7 @@ TEST_F(CreateTableSqlStatementBuilder, SetWitoutRowId)
                 "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC) WITHOUT ROWID");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, SetColumnDefinitions)
+TEST_F(CreateTableSqlStatementBuilder, set_column_definitions)
 {
     builder.setTableName("test");
 
@@ -150,7 +150,7 @@ TEST_F(CreateTableSqlStatementBuilder, SetColumnDefinitions)
                 "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, UniqueContraint)
+TEST_F(CreateTableSqlStatementBuilder, unique_contraint)
 {
     builder.setTableName("test");
 
@@ -160,7 +160,7 @@ TEST_F(CreateTableSqlStatementBuilder, UniqueContraint)
                 "CREATE TABLE test(id INTEGER UNIQUE)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, IfNotExitsModifier)
+TEST_F(CreateTableSqlStatementBuilder, if_not_exits_modifier)
 {
     builder.setTableName("test");
     builder.addColumn("id", ColumnType::Integer, {});
@@ -171,7 +171,7 @@ TEST_F(CreateTableSqlStatementBuilder, IfNotExitsModifier)
                 "CREATE TABLE IF NOT EXISTS test(id INTEGER)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, TemporaryTable)
+TEST_F(CreateTableSqlStatementBuilder, temporary_table)
 {
     builder.setTableName("test");
     builder.addColumn("id", ColumnType::Integer, {});
@@ -182,7 +182,7 @@ TEST_F(CreateTableSqlStatementBuilder, TemporaryTable)
                 "CREATE TEMPORARY TABLE test(id INTEGER)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyWithoutColumn)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_without_column)
 {
     builder.setTableName("test");
 
@@ -191,7 +191,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyWithoutColumn)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER REFERENCES otherTable)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyWithColumn)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_with_column)
 {
     builder.setTableName("test");
 
@@ -201,7 +201,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyWithColumn)
                 "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn))");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateNoAction)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_update_no_action)
 {
     builder.setTableName("test");
 
@@ -211,7 +211,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateNoAction)
                 "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn))");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateRestrict)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_update_restrict)
 {
     builder.setTableName("test");
 
@@ -224,7 +224,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateRestrict)
         "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE RESTRICT)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateSetNull)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_update_set_null)
 {
     builder.setTableName("test");
 
@@ -237,7 +237,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateSetNull)
         "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET NULL)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateSetDefault)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_update_set_default)
 {
     builder.setTableName("test");
 
@@ -250,7 +250,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateSetDefault)
         "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET DEFAULT)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateCascade)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_update_cascade)
 {
     builder.setTableName("test");
 
@@ -263,7 +263,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateCascade)
         "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE CASCADE)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteNoAction)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_delete_no_action)
 {
     builder.setTableName("test");
 
@@ -273,7 +273,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteNoAction)
                 "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn))");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteRestrict)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_delete_restrict)
 {
     builder.setTableName("test");
 
@@ -286,7 +286,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteRestrict)
         "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE RESTRICT)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteSetNull)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_delete_set_null)
 {
     builder.setTableName("test");
 
@@ -299,7 +299,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteSetNull)
         "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE SET NULL)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteSetDefault)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_delete_set_default)
 {
     builder.setTableName("test");
 
@@ -312,7 +312,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteSetDefault)
         "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE SET DEFAULT)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteCascade)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_delete_cascade)
 {
     builder.setTableName("test");
 
@@ -325,7 +325,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteCascade)
         "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE CASCADE)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteAndUpdateAction)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_delete_and_update_action)
 {
     builder.setTableName("test");
 
@@ -341,7 +341,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteAndUpdateAction)
                 "DEFAULT ON DELETE CASCADE)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeferred)
+TEST_F(CreateTableSqlStatementBuilder, foreign_key_deferred)
 {
     builder.setTableName("test");
 
@@ -358,7 +358,7 @@ TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeferred)
                 "DEFAULT ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, NotNullConstraint)
+TEST_F(CreateTableSqlStatementBuilder, not_null_constraint)
 {
     builder.setTableName("test");
 
@@ -367,7 +367,7 @@ TEST_F(CreateTableSqlStatementBuilder, NotNullConstraint)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER NOT NULL)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, NotNullAndUniqueConstraint)
+TEST_F(CreateTableSqlStatementBuilder, not_null_and_unique_constraint)
 {
     builder.setTableName("test");
 
@@ -376,7 +376,7 @@ TEST_F(CreateTableSqlStatementBuilder, NotNullAndUniqueConstraint)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER UNIQUE NOT NULL)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, Check)
+TEST_F(CreateTableSqlStatementBuilder, check)
 {
     builder.setTableName("test");
 
@@ -385,7 +385,7 @@ TEST_F(CreateTableSqlStatementBuilder, Check)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT CHECK (id != ''))");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, DefaultValueInt)
+TEST_F(CreateTableSqlStatementBuilder, default_value_int)
 {
     builder.setTableName("test");
 
@@ -394,7 +394,7 @@ TEST_F(CreateTableSqlStatementBuilder, DefaultValueInt)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER DEFAULT 1)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, DefaultValueFloat)
+TEST_F(CreateTableSqlStatementBuilder, default_value_float)
 {
     builder.setTableName("test");
 
@@ -403,7 +403,7 @@ TEST_F(CreateTableSqlStatementBuilder, DefaultValueFloat)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id REAL DEFAULT 1.100000)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, DefaultValueString)
+TEST_F(CreateTableSqlStatementBuilder, default_value_string)
 {
     builder.setTableName("test");
 
@@ -412,7 +412,7 @@ TEST_F(CreateTableSqlStatementBuilder, DefaultValueString)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT DEFAULT 'foo')");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, DefaultExpression)
+TEST_F(CreateTableSqlStatementBuilder, default_expression)
 {
     builder.setTableName("test");
 
@@ -424,7 +424,7 @@ TEST_F(CreateTableSqlStatementBuilder, DefaultExpression)
                 "CREATE TABLE test(id INTEGER DEFAULT (SELECT name FROM foo WHERE id=?))");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, Collation)
+TEST_F(CreateTableSqlStatementBuilder, collation)
 {
     builder.setTableName("test");
 
@@ -433,7 +433,7 @@ TEST_F(CreateTableSqlStatementBuilder, Collation)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT COLLATE unicode)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, GeneratedAlwaysStored)
+TEST_F(CreateTableSqlStatementBuilder, generated_always_stored)
 {
     builder.setTableName("test");
 
@@ -447,7 +447,7 @@ TEST_F(CreateTableSqlStatementBuilder, GeneratedAlwaysStored)
         "CREATE TABLE test(id TEXT GENERATED ALWAYS AS (SELECT name FROM foo WHERE id=?) STORED)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, GeneratedAlwaysVirtual)
+TEST_F(CreateTableSqlStatementBuilder, generated_always_virtual)
 {
     builder.setTableName("test");
 
@@ -461,7 +461,7 @@ TEST_F(CreateTableSqlStatementBuilder, GeneratedAlwaysVirtual)
                 "VIRTUAL)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, PrimaryKeyAutoincrement)
+TEST_F(CreateTableSqlStatementBuilder, primary_key_autoincrement)
 {
     builder.setTableName("test");
 
@@ -470,7 +470,7 @@ TEST_F(CreateTableSqlStatementBuilder, PrimaryKeyAutoincrement)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER PRIMARY KEY AUTOINCREMENT)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, BlobType)
+TEST_F(CreateTableSqlStatementBuilder, blob_type)
 {
     builder.setTableName("test");
 
@@ -479,7 +479,7 @@ TEST_F(CreateTableSqlStatementBuilder, BlobType)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(data BLOB)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, TablePrimaryKeyConstaint)
+TEST_F(CreateTableSqlStatementBuilder, table_primary_key_constaint)
 {
     builder.setTableName("test");
     builder.addColumn("id", ColumnType::Integer);
@@ -491,7 +491,7 @@ TEST_F(CreateTableSqlStatementBuilder, TablePrimaryKeyConstaint)
     ASSERT_THAT(statement, "CREATE TABLE test(id INTEGER, text TEXT, PRIMARY KEY(id, text))");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, NoneColumnTypeStringConversion)
+TEST_F(CreateTableSqlStatementBuilder, none_column_type_string_conversion)
 {
     builder.setTableName("test");
     builder.addColumn("id", ColumnType::None);
@@ -501,7 +501,7 @@ TEST_F(CreateTableSqlStatementBuilder, NoneColumnTypeStringConversion)
     ASSERT_THAT(statement, "CREATE TABLE test(id)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, NumericColumnTypeStringConversion)
+TEST_F(CreateTableSqlStatementBuilder, numeric_column_type_string_conversion)
 {
     builder.setTableName("test");
     builder.addColumn("id", ColumnType::Numeric);
@@ -511,7 +511,7 @@ TEST_F(CreateTableSqlStatementBuilder, NumericColumnTypeStringConversion)
     ASSERT_THAT(statement, "CREATE TABLE test(id NUMERIC)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, IntegerColumnTypeStringConversion)
+TEST_F(CreateTableSqlStatementBuilder, integer_column_type_string_conversion)
 {
     builder.setTableName("test");
     builder.addColumn("id", ColumnType::Integer);
@@ -521,7 +521,7 @@ TEST_F(CreateTableSqlStatementBuilder, IntegerColumnTypeStringConversion)
     ASSERT_THAT(statement, "CREATE TABLE test(id INTEGER)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, RealColumnTypeStringConversion)
+TEST_F(CreateTableSqlStatementBuilder, real_column_type_string_conversion)
 {
     builder.setTableName("test");
     builder.addColumn("id", ColumnType::Real);
@@ -531,7 +531,7 @@ TEST_F(CreateTableSqlStatementBuilder, RealColumnTypeStringConversion)
     ASSERT_THAT(statement, "CREATE TABLE test(id REAL)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, TextColumnTypeStringConversion)
+TEST_F(CreateTableSqlStatementBuilder, text_column_type_string_conversion)
 {
     builder.setTableName("test");
     builder.addColumn("id", ColumnType::Text);
@@ -541,7 +541,7 @@ TEST_F(CreateTableSqlStatementBuilder, TextColumnTypeStringConversion)
     ASSERT_THAT(statement, "CREATE TABLE test(id TEXT)");
 }
 
-TEST_F(CreateTableSqlStatementBuilder, BlobColumnTypeStringConversion)
+TEST_F(CreateTableSqlStatementBuilder, blob_column_type_string_conversion)
 {
     builder.setTableName("test");
     builder.addColumn("id", ColumnType::Blob);
@@ -579,19 +579,19 @@ protected:
     Sqlite::CreateTableSqlStatementBuilder<StrictColumnType> builder;
 };
 
-TEST_F(CreateStrictTableSqlStatementBuilder, IsNotValidAfterCreation)
+TEST_F(CreateStrictTableSqlStatementBuilder, is_not_valid_after_creation)
 {
     ASSERT_FALSE(builder.isValid());
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, IsValidAfterBinding)
+TEST_F(CreateStrictTableSqlStatementBuilder, is_valid_after_binding)
 {
     bindValues();
 
     ASSERT_TRUE(builder.isValid());
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, InvalidAfterClear)
+TEST_F(CreateStrictTableSqlStatementBuilder, invalid_after_clear)
 {
     bindValues();
 
@@ -600,7 +600,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, InvalidAfterClear)
     ASSERT_TRUE(!builder.isValid());
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, NoSqlStatementAfterClear)
+TEST_F(CreateStrictTableSqlStatementBuilder, no_sql_statement_after_clear)
 {
     bindValues();
     builder.sqlStatement();
@@ -610,7 +610,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, NoSqlStatementAfterClear)
     ASSERT_THROW(builder.sqlStatement(), SqlStatementBuilderException);
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, SqlStatement)
+TEST_F(CreateStrictTableSqlStatementBuilder, sql_statement)
 {
     bindValues();
 
@@ -618,7 +618,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, SqlStatement)
                 "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number ANY) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, AddColumnToExistingColumns)
+TEST_F(CreateStrictTableSqlStatementBuilder, add_column_to_existing_columns)
 {
     bindValues();
 
@@ -629,7 +629,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, AddColumnToExistingColumns)
         "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number ANY, number2 REAL) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ChangeTable)
+TEST_F(CreateStrictTableSqlStatementBuilder, change_table)
 {
     bindValues();
 
@@ -639,7 +639,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ChangeTable)
                 "CREATE TABLE test2(id INTEGER PRIMARY KEY, name TEXT, number ANY) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, IsInvalidAfterClearColumsOnly)
+TEST_F(CreateStrictTableSqlStatementBuilder, is_invalid_after_clear_colums_only)
 {
     bindValues();
     builder.sqlStatement();
@@ -649,7 +649,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, IsInvalidAfterClearColumsOnly)
     ASSERT_THROW(builder.sqlStatement(), SqlStatementBuilderException);
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ClearColumnsAndAddColumnNewColumns)
+TEST_F(CreateStrictTableSqlStatementBuilder, clear_columns_and_add_column_new_columns)
 {
     bindValues();
     builder.clearColumns();
@@ -660,7 +660,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ClearColumnsAndAddColumnNewColumns)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(name3 TEXT, number3 REAL) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, SetWitoutRowId)
+TEST_F(CreateStrictTableSqlStatementBuilder, set_witout_row_id)
 {
     bindValues();
 
@@ -671,7 +671,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, SetWitoutRowId)
         "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number ANY) WITHOUT ROWID, STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, SetColumnDefinitions)
+TEST_F(CreateStrictTableSqlStatementBuilder, set_column_definitions)
 {
     builder.setTableName("test");
 
@@ -681,7 +681,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, SetColumnDefinitions)
                 "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number ANY) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, UniqueContraint)
+TEST_F(CreateStrictTableSqlStatementBuilder, unique_contraint)
 {
     builder.setTableName("test");
 
@@ -690,7 +690,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, UniqueContraint)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER UNIQUE) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, IfNotExitsModifier)
+TEST_F(CreateStrictTableSqlStatementBuilder, if_not_exits_modifier)
 {
     builder.setTableName("test");
     builder.addColumn("id", StrictColumnType::Integer, {});
@@ -700,7 +700,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, IfNotExitsModifier)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE IF NOT EXISTS test(id INTEGER) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, TemporaryTable)
+TEST_F(CreateStrictTableSqlStatementBuilder, temporary_table)
 {
     builder.setTableName("test");
     builder.addColumn("id", StrictColumnType::Integer, {});
@@ -710,7 +710,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, TemporaryTable)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TEMPORARY TABLE test(id INTEGER) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyWithoutColumn)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_without_column)
 {
     builder.setTableName("test");
 
@@ -719,7 +719,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyWithoutColumn)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER REFERENCES otherTable) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyWithColumn)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_with_column)
 {
     builder.setTableName("test");
 
@@ -729,7 +729,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyWithColumn)
                 "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn)) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateNoAction)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_update_no_action)
 {
     builder.setTableName("test");
 
@@ -739,7 +739,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateNoAction)
                 "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn)) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateRestrict)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_update_restrict)
 {
     builder.setTableName("test");
 
@@ -752,7 +752,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateRestrict)
                 "RESTRICT) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateSetNull)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_update_set_null)
 {
     builder.setTableName("test");
 
@@ -765,7 +765,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateSetNull)
                 "NULL) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateSetDefault)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_update_set_default)
 {
     builder.setTableName("test");
 
@@ -778,7 +778,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateSetDefault)
                 "DEFAULT) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateCascade)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_update_cascade)
 {
     builder.setTableName("test");
 
@@ -791,7 +791,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyUpdateCascade)
                 "CASCADE) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteNoAction)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_delete_no_action)
 {
     builder.setTableName("test");
 
@@ -801,7 +801,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteNoAction)
                 "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn)) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteRestrict)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_delete_restrict)
 {
     builder.setTableName("test");
 
@@ -814,7 +814,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteRestrict)
                 "RESTRICT) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteSetNull)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_delete_set_null)
 {
     builder.setTableName("test");
 
@@ -827,7 +827,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteSetNull)
                 "NULL) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteSetDefault)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_delete_set_default)
 {
     builder.setTableName("test");
 
@@ -840,7 +840,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteSetDefault)
                 "DEFAULT) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteCascade)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_delete_cascade)
 {
     builder.setTableName("test");
 
@@ -853,7 +853,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteCascade)
                 "CASCADE) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteAndUpdateAction)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_delete_and_update_action)
 {
     builder.setTableName("test");
 
@@ -869,7 +869,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeleteAndUpdateAction)
                 "DEFAULT ON DELETE CASCADE) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeferred)
+TEST_F(CreateStrictTableSqlStatementBuilder, foreign_key_deferred)
 {
     builder.setTableName("test");
 
@@ -886,7 +886,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, ForeignKeyDeferred)
                 "DEFAULT ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, NotNullConstraint)
+TEST_F(CreateStrictTableSqlStatementBuilder, not_null_constraint)
 {
     builder.setTableName("test");
 
@@ -895,7 +895,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, NotNullConstraint)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER NOT NULL) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, NotNullAndUniqueConstraint)
+TEST_F(CreateStrictTableSqlStatementBuilder, not_null_and_unique_constraint)
 {
     builder.setTableName("test");
 
@@ -904,7 +904,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, NotNullAndUniqueConstraint)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER UNIQUE NOT NULL) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, Check)
+TEST_F(CreateStrictTableSqlStatementBuilder, check)
 {
     builder.setTableName("test");
 
@@ -913,7 +913,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, Check)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT CHECK (id != '')) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, DefaultValueInt)
+TEST_F(CreateStrictTableSqlStatementBuilder, default_value_int)
 {
     builder.setTableName("test");
 
@@ -922,7 +922,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, DefaultValueInt)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER DEFAULT 1) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, DefaultValueFloat)
+TEST_F(CreateStrictTableSqlStatementBuilder, default_value_float)
 {
     builder.setTableName("test");
 
@@ -931,7 +931,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, DefaultValueFloat)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id REAL DEFAULT 1.100000) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, DefaultValueString)
+TEST_F(CreateStrictTableSqlStatementBuilder, default_value_string)
 {
     builder.setTableName("test");
 
@@ -940,7 +940,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, DefaultValueString)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT DEFAULT 'foo') STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, DefaultExpression)
+TEST_F(CreateStrictTableSqlStatementBuilder, default_expression)
 {
     builder.setTableName("test");
 
@@ -952,7 +952,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, DefaultExpression)
                 "CREATE TABLE test(id INTEGER DEFAULT (SELECT name FROM foo WHERE id=?)) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, Collation)
+TEST_F(CreateStrictTableSqlStatementBuilder, collation)
 {
     builder.setTableName("test");
 
@@ -961,7 +961,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, Collation)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT COLLATE unicode) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, GeneratedAlwaysStored)
+TEST_F(CreateStrictTableSqlStatementBuilder, generated_always_stored)
 {
     builder.setTableName("test");
 
@@ -975,7 +975,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, GeneratedAlwaysStored)
                 "STORED) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, GeneratedAlwaysVirtual)
+TEST_F(CreateStrictTableSqlStatementBuilder, generated_always_virtual)
 {
     builder.setTableName("test");
 
@@ -989,7 +989,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, GeneratedAlwaysVirtual)
                 "VIRTUAL) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, PrimaryKeyAutoincrement)
+TEST_F(CreateStrictTableSqlStatementBuilder, primary_key_autoincrement)
 {
     builder.setTableName("test");
 
@@ -1001,7 +1001,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, PrimaryKeyAutoincrement)
                 "CREATE TABLE test(id INTEGER PRIMARY KEY AUTOINCREMENT) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, BlobType)
+TEST_F(CreateStrictTableSqlStatementBuilder, blob_type)
 {
     builder.setTableName("test");
 
@@ -1010,7 +1010,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, BlobType)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(data BLOB) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, TablePrimaryKeyConstaint)
+TEST_F(CreateStrictTableSqlStatementBuilder, table_primary_key_constaint)
 {
     builder.setTableName("test");
     builder.addColumn("id", StrictColumnType::Integer);
@@ -1022,7 +1022,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, TablePrimaryKeyConstaint)
     ASSERT_THAT(statement, "CREATE TABLE test(id INTEGER, text TEXT, PRIMARY KEY(id, text)) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, AnyColumnTypeStringConversion)
+TEST_F(CreateStrictTableSqlStatementBuilder, any_column_type_string_conversion)
 {
     builder.setTableName("test");
     builder.addColumn("id", StrictColumnType::Any);
@@ -1032,7 +1032,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, AnyColumnTypeStringConversion)
     ASSERT_THAT(statement, "CREATE TABLE test(id ANY) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, IntColumnTypeStringConversion)
+TEST_F(CreateStrictTableSqlStatementBuilder, int_column_type_string_conversion)
 {
     builder.setTableName("test");
     builder.addColumn("id", StrictColumnType::Int);
@@ -1042,7 +1042,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, IntColumnTypeStringConversion)
     ASSERT_THAT(statement, "CREATE TABLE test(id INT) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, IntegerColumnTypeStringConversion)
+TEST_F(CreateStrictTableSqlStatementBuilder, integer_column_type_string_conversion)
 {
     builder.setTableName("test");
     builder.addColumn("id", StrictColumnType::Integer);
@@ -1052,7 +1052,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, IntegerColumnTypeStringConversion)
     ASSERT_THAT(statement, "CREATE TABLE test(id INTEGER) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, RealColumnTypeStringConversion)
+TEST_F(CreateStrictTableSqlStatementBuilder, real_column_type_string_conversion)
 {
     builder.setTableName("test");
     builder.addColumn("id", StrictColumnType::Real);
@@ -1062,7 +1062,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, RealColumnTypeStringConversion)
     ASSERT_THAT(statement, "CREATE TABLE test(id REAL) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, TextColumnTypeStringConversion)
+TEST_F(CreateStrictTableSqlStatementBuilder, text_column_type_string_conversion)
 {
     builder.setTableName("test");
     builder.addColumn("id", StrictColumnType::Text);
@@ -1072,7 +1072,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, TextColumnTypeStringConversion)
     ASSERT_THAT(statement, "CREATE TABLE test(id TEXT) STRICT");
 }
 
-TEST_F(CreateStrictTableSqlStatementBuilder, BlobColumnTypeStringConversion)
+TEST_F(CreateStrictTableSqlStatementBuilder, blob_column_type_string_conversion)
 {
     builder.setTableName("test");
     builder.addColumn("id", StrictColumnType::Blob);

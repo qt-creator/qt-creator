@@ -67,7 +67,7 @@ INSTANTIATE_TEST_SUITE_P(QmlProjectItem,
                          DataSet,
                          ::testing::Values(QString("test-set-1"), QString("test-set-2")));
 
-TEST_P(DataSet, QmlProjectToJson)
+TEST_P(DataSet, qml_project_to_json)
 {
     // GIVEN
     setDataSource(GetParam());
@@ -82,7 +82,7 @@ TEST_P(DataSet, QmlProjectToJson)
     ASSERT_THAT(convertedContent, Eq(targetContent));
 }
 
-TEST_P(DataSet, JsonToQmlProject)
+TEST_P(DataSet, json_to_qml_project)
 {
     // GIVEN
     setDataSource(GetParam());

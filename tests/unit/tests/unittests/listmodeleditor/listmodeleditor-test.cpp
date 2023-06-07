@@ -199,35 +199,35 @@ protected:
     ModelNode componentElement;
 };
 
-TEST_F(ListModelEditor, CreatePropertyNameSet)
+TEST_F(ListModelEditor, create_property_name_set)
 {
     model.setListModel(listModelNode);
 
     ASSERT_THAT(model.propertyNames(), ElementsAre("image", "name", "value", "value2"));
 }
 
-TEST_F(ListModelEditor, CreatePropertyNameSetForEmptyList)
+TEST_F(ListModelEditor, create_property_name_set_for_empty_list)
 {
     model.setListModel(emptyListModelNode);
 
     ASSERT_THAT(model.propertyNames(), IsEmpty());
 }
 
-TEST_F(ListModelEditor, HorizontalLabels)
+TEST_F(ListModelEditor, horizontal_labels)
 {
     model.setListModel(listModelNode);
 
     ASSERT_THAT(headerLabels(model), ElementsAre("image", "name", "value", "value2"));
 }
 
-TEST_F(ListModelEditor, HorizontalLabelsForEmptyList)
+TEST_F(ListModelEditor, horizontal_labels_for_empty_list)
 {
     model.setListModel(emptyListModelNode);
 
     ASSERT_THAT(headerLabels(model), IsEmpty());
 }
 
-TEST_F(ListModelEditor, DisplayValues)
+TEST_F(ListModelEditor, display_values)
 {
     model.setListModel(listModelNode);
 
@@ -237,7 +237,7 @@ TEST_F(ListModelEditor, DisplayValues)
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, ChangeValueChangesDisplayValues)
+TEST_F(ListModelEditor, change_value_changes_display_values)
 {
     model.setListModel(listModelNode);
 
@@ -249,7 +249,7 @@ TEST_F(ListModelEditor, ChangeValueChangesDisplayValues)
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, EditValueCallVariantPropertiesChanged)
+TEST_F(ListModelEditor, edit_value_call_variant_properties_changed)
 {
     model.setListModel(listModelNode);
 
@@ -260,7 +260,7 @@ TEST_F(ListModelEditor, EditValueCallVariantPropertiesChanged)
     model.setValue(0, 1, "hello");
 }
 
-TEST_F(ListModelEditor, ChangeDisplayValueCallsVariantPropertiesChanged)
+TEST_F(ListModelEditor, change_display_value_calls_variant_properties_changed)
 {
     model.setListModel(listModelNode);
 
@@ -272,7 +272,7 @@ TEST_F(ListModelEditor, ChangeDisplayValueCallsVariantPropertiesChanged)
     model.setValue(0, 1, "hello", Qt::DisplayRole);
 }
 
-TEST_F(ListModelEditor, AddRowAddedInvalidRow)
+TEST_F(ListModelEditor, add_row_added_invalid_row)
 {
     model.setListModel(listModelNode);
 
@@ -285,7 +285,7 @@ TEST_F(ListModelEditor, AddRowAddedInvalidRow)
                             ElementsAre(IsInvalid(), IsInvalid(), IsInvalid(), IsInvalid())));
 }
 
-TEST_F(ListModelEditor, AddRowCreatesNewModelNodeAndReparents)
+TEST_F(ListModelEditor, add_row_creates_new_model_node_and_reparents)
 {
     model.setListModel(listModelNode);
 
@@ -299,7 +299,7 @@ TEST_F(ListModelEditor, AddRowCreatesNewModelNodeAndReparents)
     model.addRow();
 }
 
-TEST_F(ListModelEditor, ChangeAddedRowPropery)
+TEST_F(ListModelEditor, change_added_row_propery)
 {
     model.setListModel(listModelNode);
     model.addRow();
@@ -313,7 +313,7 @@ TEST_F(ListModelEditor, ChangeAddedRowPropery)
                             ElementsAre(IsInvalid(), IsInvalid(), 22, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, ChangeAddedRowProperyCallsVariantPropertiesChanged)
+TEST_F(ListModelEditor, change_added_row_propery_calls_variant_properties_changed)
 {
     model.setListModel(listModelNode);
     ModelNode element4;
@@ -327,7 +327,7 @@ TEST_F(ListModelEditor, ChangeAddedRowProperyCallsVariantPropertiesChanged)
     model.setValue(3, 2, 22);
 }
 
-TEST_F(ListModelEditor, AddColumnInsertsPropertyName)
+TEST_F(ListModelEditor, add_column_inserts_property_name)
 {
     model.setListModel(listModelNode);
 
@@ -336,7 +336,7 @@ TEST_F(ListModelEditor, AddColumnInsertsPropertyName)
     ASSERT_THAT(model.propertyNames(), ElementsAre("image", "name", "other", "value", "value2"));
 }
 
-TEST_F(ListModelEditor, AddColumnInsertsPropertyNameToEmptyModel)
+TEST_F(ListModelEditor, add_column_inserts_property_name_to_empty_model)
 {
     model.setListModel(emptyListModelNode);
 
@@ -345,7 +345,7 @@ TEST_F(ListModelEditor, AddColumnInsertsPropertyNameToEmptyModel)
     ASSERT_THAT(model.propertyNames(), ElementsAre("foo"));
 }
 
-TEST_F(ListModelEditor, AddTwiceColumnInsertsPropertyNameToEmptyModel)
+TEST_F(ListModelEditor, add_twice_column_inserts_property_name_to_empty_model)
 {
     model.setListModel(emptyListModelNode);
     model.addColumn("foo");
@@ -355,7 +355,7 @@ TEST_F(ListModelEditor, AddTwiceColumnInsertsPropertyNameToEmptyModel)
     ASSERT_THAT(model.propertyNames(), ElementsAre("foo", "foo2"));
 }
 
-TEST_F(ListModelEditor, AddSameColumnInsertsPropertyName)
+TEST_F(ListModelEditor, add_same_column_inserts_property_name)
 {
     model.setListModel(emptyListModelNode);
     model.addColumn("foo");
@@ -365,7 +365,7 @@ TEST_F(ListModelEditor, AddSameColumnInsertsPropertyName)
     ASSERT_THAT(model.propertyNames(), ElementsAre("foo"));
 }
 
-TEST_F(ListModelEditor, AddColumnInsertsHeaderLabel)
+TEST_F(ListModelEditor, add_column_inserts_header_label)
 {
     model.setListModel(listModelNode);
 
@@ -374,7 +374,7 @@ TEST_F(ListModelEditor, AddColumnInsertsHeaderLabel)
     ASSERT_THAT(headerLabels(model), ElementsAre("image", "name", "other", "value", "value2"));
 }
 
-TEST_F(ListModelEditor, AddColumnInsertsHeaderLabelToEmptyModel)
+TEST_F(ListModelEditor, add_column_inserts_header_label_to_empty_model)
 {
     model.setListModel(emptyListModelNode);
 
@@ -383,7 +383,7 @@ TEST_F(ListModelEditor, AddColumnInsertsHeaderLabelToEmptyModel)
     ASSERT_THAT(headerLabels(model), ElementsAre("foo"));
 }
 
-TEST_F(ListModelEditor, AddTwiceColumnInsertsHeaderLabelToEmptyModel)
+TEST_F(ListModelEditor, add_twice_column_inserts_header_label_to_empty_model)
 {
     model.setListModel(emptyListModelNode);
     model.addColumn("foo");
@@ -393,7 +393,7 @@ TEST_F(ListModelEditor, AddTwiceColumnInsertsHeaderLabelToEmptyModel)
     ASSERT_THAT(headerLabels(model), ElementsAre("foo", "foo2"));
 }
 
-TEST_F(ListModelEditor, AddSameColumnInsertsHeaderLabel)
+TEST_F(ListModelEditor, add_same_column_inserts_header_label)
 {
     model.setListModel(emptyListModelNode);
     model.addColumn("foo");
@@ -403,7 +403,7 @@ TEST_F(ListModelEditor, AddSameColumnInsertsHeaderLabel)
     ASSERT_THAT(headerLabels(model), ElementsAre("foo"));
 }
 
-TEST_F(ListModelEditor, AddColumnInsertsDisplayValues)
+TEST_F(ListModelEditor, add_column_inserts_display_values)
 {
     model.setListModel(listModelNode);
 
@@ -415,7 +415,7 @@ TEST_F(ListModelEditor, AddColumnInsertsDisplayValues)
                             ElementsAre("pic.png", "poo", IsInvalid(), 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, ChangeAddColumnPropertyDisplayValue)
+TEST_F(ListModelEditor, change_add_column_property_display_value)
 {
     model.setListModel(listModelNode);
     model.addColumn("other");
@@ -428,7 +428,7 @@ TEST_F(ListModelEditor, ChangeAddColumnPropertyDisplayValue)
                             ElementsAre("pic.png", "poo", IsInvalid(), 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, ChangeAddColumnPropertyCallsVariantPropertiesChanged)
+TEST_F(ListModelEditor, change_add_column_property_calls_variant_properties_changed)
 {
     model.setListModel(listModelNode);
     model.addColumn("other");
@@ -439,7 +439,7 @@ TEST_F(ListModelEditor, ChangeAddColumnPropertyCallsVariantPropertiesChanged)
     model.setValue(1, 2, 434);
 }
 
-TEST_F(ListModelEditor, RemoveColumnRemovesDisplayValues)
+TEST_F(ListModelEditor, remove_column_removes_display_values)
 {
     model.setListModel(listModelNode);
 
@@ -451,7 +451,7 @@ TEST_F(ListModelEditor, RemoveColumnRemovesDisplayValues)
                             ElementsAre("pic.png", "poo", IsInvalid())));
 }
 
-TEST_F(ListModelEditor, RemoveColumnRemovesProperties)
+TEST_F(ListModelEditor, remove_column_removes_properties)
 {
     model.setListModel(listModelNode);
 
@@ -461,7 +461,7 @@ TEST_F(ListModelEditor, RemoveColumnRemovesProperties)
     model.removeColumns({index(0, 0)});
 }
 
-TEST_F(ListModelEditor, RemoveColumnRemovesPropertyName)
+TEST_F(ListModelEditor, remove_column_removes_property_name)
 {
     model.setListModel(listModelNode);
 
@@ -470,7 +470,7 @@ TEST_F(ListModelEditor, RemoveColumnRemovesPropertyName)
     ASSERT_THAT(model.propertyNames(), ElementsAre("image", "value", "value2"));
 }
 
-TEST_F(ListModelEditor, RemoveRowRemovesDisplayValues)
+TEST_F(ListModelEditor, remove_row_removes_display_values)
 {
     model.setListModel(listModelNode);
 
@@ -481,7 +481,7 @@ TEST_F(ListModelEditor, RemoveRowRemovesDisplayValues)
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, RemoveRowRemovesElementInListModel)
+TEST_F(ListModelEditor, remove_row_removes_element_in_list_model)
 {
     model.setListModel(listModelNode);
 
@@ -490,7 +490,7 @@ TEST_F(ListModelEditor, RemoveRowRemovesElementInListModel)
     model.removeRows({index(1, 0)});
 }
 
-TEST_F(ListModelEditor, ConvertStringFloatToFloat)
+TEST_F(ListModelEditor, convert_string_float_to_float)
 {
     model.setListModel(listModelNode);
 
@@ -500,7 +500,7 @@ TEST_F(ListModelEditor, ConvertStringFloatToFloat)
     ASSERT_THAT(element2.variantProperty("name").value().type(), QVariant::Double);
 }
 
-TEST_F(ListModelEditor, ConvertStringIntegerToDouble)
+TEST_F(ListModelEditor, convert_string_integer_to_double)
 {
     model.setListModel(listModelNode);
 
@@ -510,7 +510,7 @@ TEST_F(ListModelEditor, ConvertStringIntegerToDouble)
     ASSERT_THAT(element2.variantProperty("name").value().type(), QVariant::Double);
 }
 
-TEST_F(ListModelEditor, DontConvertStringToNumber)
+TEST_F(ListModelEditor, dont_convert_string_to_number)
 {
     model.setListModel(listModelNode);
 
@@ -520,7 +520,7 @@ TEST_F(ListModelEditor, DontConvertStringToNumber)
     ASSERT_THAT(element2.variantProperty("name").value().type(), QVariant::String);
 }
 
-TEST_F(ListModelEditor, EmptyStringsRemovesProperty)
+TEST_F(ListModelEditor, empty_strings_removes_property)
 {
     model.setListModel(listModelNode);
 
@@ -529,7 +529,7 @@ TEST_F(ListModelEditor, EmptyStringsRemovesProperty)
     ASSERT_THAT(element2.variantProperty("name").value().value<QString>(), Eq(""));
 }
 
-TEST_F(ListModelEditor, InvalidVariantRemovesProperty)
+TEST_F(ListModelEditor, invalid_variant_removes_property)
 {
     model.setListModel(listModelNode);
 
@@ -538,7 +538,7 @@ TEST_F(ListModelEditor, InvalidVariantRemovesProperty)
     ASSERT_FALSE(element2.hasProperty("name"));
 }
 
-TEST_F(ListModelEditor, DispayValueIsChangedToDouble)
+TEST_F(ListModelEditor, dispay_value_is_changed_to_double)
 {
     model.setListModel(listModelNode);
 
@@ -547,7 +547,7 @@ TEST_F(ListModelEditor, DispayValueIsChangedToDouble)
     ASSERT_THAT(displayValues()[1][1].type(), QVariant::Double);
 }
 
-TEST_F(ListModelEditor, StringDispayValueIsNotChanged)
+TEST_F(ListModelEditor, string_dispay_value_is_not_changed)
 {
     model.setListModel(listModelNode);
 
@@ -556,7 +556,7 @@ TEST_F(ListModelEditor, StringDispayValueIsNotChanged)
     ASSERT_THAT(displayValues()[1][1].type(), QVariant::String);
 }
 
-TEST_F(ListModelEditor, SetInvalidToDarkYellowBackgroundColor)
+TEST_F(ListModelEditor, set_invalid_to_dark_yellow_background_color)
 {
     model.setListModel(listModelNode);
 
@@ -568,7 +568,7 @@ TEST_F(ListModelEditor, SetInvalidToDarkYellowBackgroundColor)
             ElementsAre(Not(Qt::darkYellow), Not(Qt::darkYellow), Not(Qt::darkYellow), Qt::darkYellow)));
 }
 
-TEST_F(ListModelEditor, SettingValueChangesBackgroundColor)
+TEST_F(ListModelEditor, setting_value_changes_background_color)
 {
     model.setListModel(listModelNode);
 
@@ -582,7 +582,7 @@ TEST_F(ListModelEditor, SettingValueChangesBackgroundColor)
             ElementsAre(Not(Qt::darkYellow), Not(Qt::darkYellow), Not(Qt::darkYellow), Qt::darkYellow)));
 }
 
-TEST_F(ListModelEditor, SettingValueChangesByDisplayRoleBackgroundColor)
+TEST_F(ListModelEditor, setting_value_changes_by_display_role_background_color)
 {
     model.setListModel(listModelNode);
 
@@ -596,7 +596,7 @@ TEST_F(ListModelEditor, SettingValueChangesByDisplayRoleBackgroundColor)
             ElementsAre(Not(Qt::darkYellow), Not(Qt::darkYellow), Not(Qt::darkYellow), Qt::darkYellow)));
 }
 
-TEST_F(ListModelEditor, ResettingValueChangesBackgroundColor)
+TEST_F(ListModelEditor, resetting_value_changes_background_color)
 {
     model.setListModel(listModelNode);
 
@@ -610,7 +610,7 @@ TEST_F(ListModelEditor, ResettingValueChangesBackgroundColor)
             ElementsAre(Not(Qt::darkYellow), Not(Qt::darkYellow), Not(Qt::darkYellow), Qt::darkYellow)));
 }
 
-TEST_F(ListModelEditor, ResettingValueChangesByDisplayRoleBackgroundColor)
+TEST_F(ListModelEditor, resetting_value_changes_by_display_role_background_color)
 {
     model.setListModel(listModelNode);
 
@@ -624,7 +624,7 @@ TEST_F(ListModelEditor, ResettingValueChangesByDisplayRoleBackgroundColor)
             ElementsAre(Not(Qt::darkYellow), Not(Qt::darkYellow), Not(Qt::darkYellow), Qt::darkYellow)));
 }
 
-TEST_F(ListModelEditor, SettingNullValueChangesBackgroundColor)
+TEST_F(ListModelEditor, setting_null_value_changes_background_color)
 {
     model.setListModel(listModelNode);
 
@@ -636,7 +636,7 @@ TEST_F(ListModelEditor, SettingNullValueChangesBackgroundColor)
                             ElementsAre(_, _, _, Qt::darkYellow)));
 }
 
-TEST_F(ListModelEditor, DontRenamePropertyIfColumnNameExists)
+TEST_F(ListModelEditor, dont_rename_property_if_column_name_exists)
 {
     model.setListModel(listModelNode);
 
@@ -645,7 +645,7 @@ TEST_F(ListModelEditor, DontRenamePropertyIfColumnNameExists)
     ASSERT_THAT(model.propertyNames(), ElementsAre("image", "name", "value", "value2"));
 }
 
-TEST_F(ListModelEditor, DontRenameColumnIfColumnNameExists)
+TEST_F(ListModelEditor, dont_rename_column_if_column_name_exists)
 {
     model.setListModel(listModelNode);
 
@@ -654,7 +654,7 @@ TEST_F(ListModelEditor, DontRenameColumnIfColumnNameExists)
     ASSERT_THAT(headerLabels(model), ElementsAre("image", "name", "value", "value2"));
 }
 
-TEST_F(ListModelEditor, DontRenameColumnIfColumnNameExistsDoesNotChangeDisplayValues)
+TEST_F(ListModelEditor, dont_rename_column_if_column_name_exists_does_not_change_display_values)
 {
     model.setListModel(listModelNode);
 
@@ -666,7 +666,7 @@ TEST_F(ListModelEditor, DontRenameColumnIfColumnNameExistsDoesNotChangeDisplayVa
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, DontRenameColumnIfColumnNameExistsDoesNotChangeProperties)
+TEST_F(ListModelEditor, dont_rename_column_if_column_name_exists_does_not_change_properties)
 {
     model.setListModel(listModelNode);
 
@@ -684,7 +684,7 @@ TEST_F(ListModelEditor, DontRenameColumnIfColumnNameExistsDoesNotChangePropertie
                                                  IsVariantProperty("value", 111))));
 }
 
-TEST_F(ListModelEditor, RenamePropertyButDontChangeOrder)
+TEST_F(ListModelEditor, rename_property_but_dont_change_order)
 {
     model.setListModel(listModelNode);
 
@@ -693,7 +693,7 @@ TEST_F(ListModelEditor, RenamePropertyButDontChangeOrder)
     ASSERT_THAT(model.propertyNames(), ElementsAre("image", "mood", "value", "value2"));
 }
 
-TEST_F(ListModelEditor, RenameColumnButDontChangeOrder)
+TEST_F(ListModelEditor, rename_column_but_dont_change_order)
 {
     model.setListModel(listModelNode);
 
@@ -702,7 +702,7 @@ TEST_F(ListModelEditor, RenameColumnButDontChangeOrder)
     ASSERT_THAT(headerLabels(model), ElementsAre("image", "mood", "value", "value2"));
 }
 
-TEST_F(ListModelEditor, RenameColumnButDontChangeOrderDisplayValues)
+TEST_F(ListModelEditor, rename_column_but_dont_change_order_display_values)
 {
     model.setListModel(listModelNode);
 
@@ -714,7 +714,7 @@ TEST_F(ListModelEditor, RenameColumnButDontChangeOrderDisplayValues)
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, RenameColumnButDontChangeOrderProperies)
+TEST_F(ListModelEditor, rename_column_but_dont_change_order_properies)
 {
     model.setListModel(listModelNode);
 
@@ -732,7 +732,7 @@ TEST_F(ListModelEditor, RenameColumnButDontChangeOrderProperies)
                                                  IsVariantProperty("value", 111))));
 }
 
-TEST_F(ListModelEditor, RemoveColumnAfterRenameColumn)
+TEST_F(ListModelEditor, remove_column_after_rename_column)
 {
     model.setListModel(listModelNode);
     model.renameColumn(1, "mood");
@@ -748,7 +748,7 @@ TEST_F(ListModelEditor, RemoveColumnAfterRenameColumn)
                                                  IsVariantProperty("value", 111))));
 }
 
-TEST_F(ListModelEditor, ChangeValueAfterRenameColumn)
+TEST_F(ListModelEditor, change_value_after_rename_column)
 {
     model.setListModel(listModelNode);
     model.renameColumn(1, "mood");
@@ -767,7 +767,7 @@ TEST_F(ListModelEditor, ChangeValueAfterRenameColumn)
                                                  IsVariantProperty("value", 111))));
 }
 
-TEST_F(ListModelEditor, RemovePropertyAfterRenameColumn)
+TEST_F(ListModelEditor, remove_property_after_rename_column)
 {
     model.setListModel(listModelNode);
     model.renameColumn(1, "mood");
@@ -785,7 +785,7 @@ TEST_F(ListModelEditor, RemovePropertyAfterRenameColumn)
                                                  IsVariantProperty("value", 111))));
 }
 
-TEST_F(ListModelEditor, RenameToPrecedingProperty)
+TEST_F(ListModelEditor, rename_to_preceding_property)
 {
     model.setListModel(listModelNode);
 
@@ -794,7 +794,7 @@ TEST_F(ListModelEditor, RenameToPrecedingProperty)
     ASSERT_THAT(model.propertyNames(), ElementsAre("alpha", "image", "value", "value2"));
 }
 
-TEST_F(ListModelEditor, RenameToPrecedingColumn)
+TEST_F(ListModelEditor, rename_to_preceding_column)
 {
     model.setListModel(listModelNode);
 
@@ -803,7 +803,7 @@ TEST_F(ListModelEditor, RenameToPrecedingColumn)
     ASSERT_THAT(headerLabels(model), ElementsAre("alpha", "image", "value", "value2"));
 }
 
-TEST_F(ListModelEditor, RenameToPrecedingColumnDisplayValues)
+TEST_F(ListModelEditor, rename_to_preceding_column_display_values)
 {
     model.setListModel(listModelNode);
 
@@ -815,7 +815,7 @@ TEST_F(ListModelEditor, RenameToPrecedingColumnDisplayValues)
                             ElementsAre("poo", "pic.png", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, RenameToPrecedingColumnProperties)
+TEST_F(ListModelEditor, rename_to_preceding_column_properties)
 {
     model.setListModel(listModelNode);
 
@@ -833,7 +833,7 @@ TEST_F(ListModelEditor, RenameToPrecedingColumnProperties)
                                                  IsVariantProperty("value", 111))));
 }
 
-TEST_F(ListModelEditor, RenameToFollowingProperty)
+TEST_F(ListModelEditor, rename_to_following_property)
 {
     model.setListModel(listModelNode);
 
@@ -842,7 +842,7 @@ TEST_F(ListModelEditor, RenameToFollowingProperty)
     ASSERT_THAT(model.propertyNames(), ElementsAre("image", "name", "value2", "zoo"));
 }
 
-TEST_F(ListModelEditor, RenameToFollowingColumn)
+TEST_F(ListModelEditor, rename_to_following_column)
 {
     model.setListModel(listModelNode);
 
@@ -851,7 +851,7 @@ TEST_F(ListModelEditor, RenameToFollowingColumn)
     ASSERT_THAT(headerLabels(model), ElementsAre("image", "name", "value2", "zoo"));
 }
 
-TEST_F(ListModelEditor, RenameToFollowingColumnDisplayValues)
+TEST_F(ListModelEditor, rename_to_following_column_display_values)
 {
     model.setListModel(listModelNode);
 
@@ -863,7 +863,7 @@ TEST_F(ListModelEditor, RenameToFollowingColumnDisplayValues)
                             ElementsAre("pic.png", "poo", IsInvalid(), 111)));
 }
 
-TEST_F(ListModelEditor, RenameToFollowingColumnProperties)
+TEST_F(ListModelEditor, rename_to_following_column_properties)
 {
     model.setListModel(listModelNode);
 
@@ -881,7 +881,7 @@ TEST_F(ListModelEditor, RenameToFollowingColumnProperties)
                                                  IsVariantProperty("zoo", 111))));
 }
 
-TEST_F(ListModelEditor, RenamePropertiesWithInvalidValue)
+TEST_F(ListModelEditor, rename_properties_with_invalid_value)
 {
     model.setListModel(listModelNode);
 
@@ -899,7 +899,7 @@ TEST_F(ListModelEditor, RenamePropertiesWithInvalidValue)
                                                  IsVariantProperty("value", 111))));
 }
 
-TEST_F(ListModelEditor, ChangeValueAfterRenamePropertiesWithInvalidValue)
+TEST_F(ListModelEditor, change_value_after_rename_properties_with_invalid_value)
 {
     model.setListModel(listModelNode);
     model.renameColumn(0, "mood");
@@ -919,7 +919,7 @@ TEST_F(ListModelEditor, ChangeValueAfterRenamePropertiesWithInvalidValue)
                                                  IsVariantProperty("value", 111))));
 }
 
-TEST_F(ListModelEditor, RemoveLastRow)
+TEST_F(ListModelEditor, remove_last_row)
 {
     model.setListModel(emptyListModelNode);
     model.addColumn("mood");
@@ -930,7 +930,7 @@ TEST_F(ListModelEditor, RemoveLastRow)
     ASSERT_THAT(displayValues(), IsEmpty());
 }
 
-TEST_F(ListModelEditor, RemoveLastEmptyRow)
+TEST_F(ListModelEditor, remove_last_empty_row)
 {
     model.setListModel(emptyListModelNode);
     model.addColumn("mood");
@@ -942,7 +942,7 @@ TEST_F(ListModelEditor, RemoveLastEmptyRow)
     ASSERT_THAT(displayValues(), ElementsAre(IsEmpty()));
 }
 
-TEST_F(ListModelEditor, RemoveLastColumn)
+TEST_F(ListModelEditor, remove_last_column)
 {
     model.setListModel(emptyListModelNode);
     model.addColumn("mood");
@@ -953,7 +953,7 @@ TEST_F(ListModelEditor, RemoveLastColumn)
     ASSERT_THAT(displayValues(), ElementsAre(IsEmpty()));
 }
 
-TEST_F(ListModelEditor, RemoveLastEmptyColumn)
+TEST_F(ListModelEditor, remove_last_empty_column)
 {
     model.setListModel(emptyListModelNode);
     model.addColumn("mood");
@@ -965,7 +965,7 @@ TEST_F(ListModelEditor, RemoveLastEmptyColumn)
     ASSERT_THAT(displayValues(), IsEmpty());
 }
 
-TEST_F(ListModelEditor, RemoveColumns)
+TEST_F(ListModelEditor, remove_columns)
 {
     model.setListModel(listModelNode);
     model.removeColumns({index(0, 1), index(0, 3), index(1, 1), index(0, 4)});
@@ -978,7 +978,7 @@ TEST_F(ListModelEditor, RemoveColumns)
                                                  IsVariantProperty("value", 111))));
 }
 
-TEST_F(ListModelEditor, RemoveRows)
+TEST_F(ListModelEditor, remove_rows)
 {
     model.setListModel(listModelNode);
 
@@ -990,7 +990,7 @@ TEST_F(ListModelEditor, RemoveRows)
                                                  IsVariantProperty("value2", 42))));
 }
 
-TEST_F(ListModelEditor, FilterColumns)
+TEST_F(ListModelEditor, filter_columns)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(0, 0), index(1, 1), index(0, 2), index(0, 1)};
@@ -1000,7 +1000,7 @@ TEST_F(ListModelEditor, FilterColumns)
     ASSERT_THAT(columns, ElementsAre(0, 1, 2));
 }
 
-TEST_F(ListModelEditor, FilterColumnsInvalidColumns)
+TEST_F(ListModelEditor, filter_columns_invalid_columns)
 {
     QList<QModelIndex> indices = {index(0, 0), index(1, 1), index(0, 2), index(0, 1)};
 
@@ -1009,7 +1009,7 @@ TEST_F(ListModelEditor, FilterColumnsInvalidColumns)
     ASSERT_THAT(columns, IsEmpty());
 }
 
-TEST_F(ListModelEditor, FilterColumnsEmptyInput)
+TEST_F(ListModelEditor, filter_columns_empty_input)
 {
     QList<QModelIndex> indices;
 
@@ -1018,7 +1018,7 @@ TEST_F(ListModelEditor, FilterColumnsEmptyInput)
     ASSERT_THAT(columns, IsEmpty());
 }
 
-TEST_F(ListModelEditor, FilterRows)
+TEST_F(ListModelEditor, filter_rows)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(0, 0), index(1, 1), index(2, 2), index(0, 1)};
@@ -1028,7 +1028,7 @@ TEST_F(ListModelEditor, FilterRows)
     ASSERT_THAT(rows, ElementsAre(0, 1, 2));
 }
 
-TEST_F(ListModelEditor, FilterRowsInvalidColumns)
+TEST_F(ListModelEditor, filter_rows_invalid_columns)
 {
     QList<QModelIndex> indices = {index(0, 0), index(1, 1), index(2, 2), index(0, 1)};
 
@@ -1037,7 +1037,7 @@ TEST_F(ListModelEditor, FilterRowsInvalidColumns)
     ASSERT_THAT(rows, IsEmpty());
 }
 
-TEST_F(ListModelEditor, FilterRowsEmptyInput)
+TEST_F(ListModelEditor, filter_rows_empty_input)
 {
     QList<QModelIndex> indices;
 
@@ -1046,7 +1046,7 @@ TEST_F(ListModelEditor, FilterRowsEmptyInput)
     ASSERT_THAT(rows, IsEmpty());
 }
 
-TEST_F(ListModelEditor, CannotMoveEmptyRowsUp)
+TEST_F(ListModelEditor, cannot_move_empty_rows_up)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(-1, 1)};
@@ -1056,7 +1056,7 @@ TEST_F(ListModelEditor, CannotMoveEmptyRowsUp)
     ASSERT_THAT(elements(listModelNode), ElementsAre(element1, element2, element3));
 }
 
-TEST_F(ListModelEditor, MoveRowUp)
+TEST_F(ListModelEditor, move_row_up)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(1, 1), index(1, 2), index(1, 0)};
@@ -1066,7 +1066,7 @@ TEST_F(ListModelEditor, MoveRowUp)
     ASSERT_THAT(elements(listModelNode), ElementsAre(element2, element1, element3));
 }
 
-TEST_F(ListModelEditor, MoveRowsUp)
+TEST_F(ListModelEditor, move_rows_up)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(1, 1), index(2, 2), index(1, 0)};
@@ -1076,7 +1076,7 @@ TEST_F(ListModelEditor, MoveRowsUp)
     ASSERT_THAT(elements(listModelNode), ElementsAre(element2, element3, element1));
 }
 
-TEST_F(ListModelEditor, CannotMoveFirstRowsUp)
+TEST_F(ListModelEditor, cannot_move_first_rows_up)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(0, 1), index(1, 2), index(0, 0)};
@@ -1086,7 +1086,7 @@ TEST_F(ListModelEditor, CannotMoveFirstRowsUp)
     ASSERT_THAT(elements(listModelNode), ElementsAre(element1, element2, element3));
 }
 
-TEST_F(ListModelEditor, CannotMoveEmptyRowsUpDisplayValues)
+TEST_F(ListModelEditor, cannot_move_empty_rows_up_display_values)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(-1, 1)};
@@ -1099,7 +1099,7 @@ TEST_F(ListModelEditor, CannotMoveEmptyRowsUpDisplayValues)
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, CannotMoveFirstRowUpDisplayValues)
+TEST_F(ListModelEditor, cannot_move_first_row_up_display_values)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(0, 1), index(1, 2), index(0, 0)};
@@ -1112,7 +1112,7 @@ TEST_F(ListModelEditor, CannotMoveFirstRowUpDisplayValues)
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, MoveRowsUpDisplayValues)
+TEST_F(ListModelEditor, move_rows_up_display_values)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(1, 1), index(2, 2), index(1, 0)};
@@ -1125,7 +1125,7 @@ TEST_F(ListModelEditor, MoveRowsUpDisplayValues)
                             ElementsAre(IsInvalid(), "foo", 1, 42)));
 }
 
-TEST_F(ListModelEditor, NoSelectionAfterCannotMoveLastRowsDown)
+TEST_F(ListModelEditor, no_selection_after_cannot_move_last_rows_down)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(0, 1), index(1, 2), index(0, 0)};
@@ -1135,7 +1135,7 @@ TEST_F(ListModelEditor, NoSelectionAfterCannotMoveLastRowsDown)
     ASSERT_THAT(selection.indexes(), IsEmpty());
 }
 
-TEST_F(ListModelEditor, NoSelectionAfterMoveEmptyRowsDown)
+TEST_F(ListModelEditor, no_selection_after_move_empty_rows_down)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(-1, 1)};
@@ -1145,7 +1145,7 @@ TEST_F(ListModelEditor, NoSelectionAfterMoveEmptyRowsDown)
     ASSERT_THAT(selection.indexes(), IsEmpty());
 }
 
-TEST_F(ListModelEditor, SelectionAfterMoveRowsDown)
+TEST_F(ListModelEditor, selection_after_move_rows_down)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(1, 1), index(2, 2), index(1, 0)};
@@ -1163,7 +1163,7 @@ TEST_F(ListModelEditor, SelectionAfterMoveRowsDown)
                             index(1, 3)));
 }
 
-TEST_F(ListModelEditor, CannotMoveEmptyRowsDown)
+TEST_F(ListModelEditor, cannot_move_empty_rows_down)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(-1, 1)};
@@ -1173,7 +1173,7 @@ TEST_F(ListModelEditor, CannotMoveEmptyRowsDown)
     ASSERT_THAT(elements(listModelNode), ElementsAre(element1, element2, element3));
 }
 
-TEST_F(ListModelEditor, MoveRowDown)
+TEST_F(ListModelEditor, move_row_down)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(1, 1), index(1, 2), index(1, 0)};
@@ -1183,7 +1183,7 @@ TEST_F(ListModelEditor, MoveRowDown)
     ASSERT_THAT(elements(listModelNode), ElementsAre(element1, element3, element2));
 }
 
-TEST_F(ListModelEditor, MoveRowsDown)
+TEST_F(ListModelEditor, move_rows_down)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(1, 1), index(0, 2), index(1, 0)};
@@ -1193,7 +1193,7 @@ TEST_F(ListModelEditor, MoveRowsDown)
     ASSERT_THAT(elements(listModelNode), ElementsAre(element3, element1, element2));
 }
 
-TEST_F(ListModelEditor, CannotMoveLastRowsDown)
+TEST_F(ListModelEditor, cannot_move_last_rows_down)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(2, 1), index(1, 2), index(2, 0)};
@@ -1203,7 +1203,7 @@ TEST_F(ListModelEditor, CannotMoveLastRowsDown)
     ASSERT_THAT(elements(listModelNode), ElementsAre(element1, element2, element3));
 }
 
-TEST_F(ListModelEditor, CannotMoveEmptyRowsDownDisplayValues)
+TEST_F(ListModelEditor, cannot_move_empty_rows_down_display_values)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(-1, 1)};
@@ -1216,7 +1216,7 @@ TEST_F(ListModelEditor, CannotMoveEmptyRowsDownDisplayValues)
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, CannotMoveLastRowDownDisplayValues)
+TEST_F(ListModelEditor, cannot_move_last_row_down_display_values)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(2, 1), index(1, 2), index(2, 0)};
@@ -1229,7 +1229,7 @@ TEST_F(ListModelEditor, CannotMoveLastRowDownDisplayValues)
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, MoveRowsDownDisplayValues)
+TEST_F(ListModelEditor, move_rows_down_display_values)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(1, 1), index(0, 2), index(1, 0)};
@@ -1242,7 +1242,7 @@ TEST_F(ListModelEditor, MoveRowsDownDisplayValues)
                             ElementsAre("pic.png", "bar", 4, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, NoSelectionAfterCannotMoveLastRowsUp)
+TEST_F(ListModelEditor, no_selection_after_cannot_move_last_rows_up)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(2, 1), index(1, 2), index(2, 0)};
@@ -1252,7 +1252,7 @@ TEST_F(ListModelEditor, NoSelectionAfterCannotMoveLastRowsUp)
     ASSERT_THAT(selection.indexes(), IsEmpty());
 }
 
-TEST_F(ListModelEditor, NoSelectionAfterMoveEmptyRowsUp)
+TEST_F(ListModelEditor, no_selection_after_move_empty_rows_up)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(-1, 1)};
@@ -1262,7 +1262,7 @@ TEST_F(ListModelEditor, NoSelectionAfterMoveEmptyRowsUp)
     ASSERT_THAT(selection.indexes(), IsEmpty());
 }
 
-TEST_F(ListModelEditor, SelectionAfterMoveRowsUp)
+TEST_F(ListModelEditor, selection_after_move_rows_up)
 {
     model.setListModel(listModelNode);
     QList<QModelIndex> indices = {index(1, 1), index(0, 2), index(1, 0)};
@@ -1280,14 +1280,14 @@ TEST_F(ListModelEditor, SelectionAfterMoveRowsUp)
                             index(2, 3)));
 }
 
-TEST_F(ListModelEditor, ListViewHasNoModel)
+TEST_F(ListModelEditor, list_view_has_no_model)
 {
     model.setListView(listViewNode);
 
     ASSERT_THAT(listViewNode.nodeProperty("model").modelNode().type(), Eq("QtQml.Models.ListModel"));
 }
 
-TEST_F(ListModelEditor, ListViewHasModelInside)
+TEST_F(ListModelEditor, list_view_has_model_inside)
 {
     listViewNode.nodeProperty("model").reparentHere(listModelNode);
 
@@ -1299,7 +1299,7 @@ TEST_F(ListModelEditor, ListViewHasModelInside)
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, ListViewHasModelBinding)
+TEST_F(ListModelEditor, list_view_has_model_binding)
 {
     listModelNode.setIdWithoutRefactoring("listModel");
     listViewNode.bindingProperty("model").setExpression("listModel");
@@ -1312,7 +1312,7 @@ TEST_F(ListModelEditor, ListViewHasModelBinding)
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, AddBooleanDisplayValues)
+TEST_F(ListModelEditor, add_boolean_display_values)
 {
     model.setListModel(listModelNode);
 
@@ -1324,7 +1324,7 @@ TEST_F(ListModelEditor, AddBooleanDisplayValues)
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
-TEST_F(ListModelEditor, AddBooleanProperties)
+TEST_F(ListModelEditor, add_boolean_properties)
 {
     model.setListModel(listModelNode);
 
@@ -1342,7 +1342,7 @@ TEST_F(ListModelEditor, AddBooleanProperties)
                                                  IsVariantProperty("value", 111))));
 }
 
-TEST_F(ListModelEditor, AddTrueAsStringProperties)
+TEST_F(ListModelEditor, add_true_as_string_properties)
 {
     model.setListModel(listModelNode);
 
@@ -1360,7 +1360,7 @@ TEST_F(ListModelEditor, AddTrueAsStringProperties)
                                                  IsVariantProperty("value", 111))));
 }
 
-TEST_F(ListModelEditor, AddFalseAsStringProperties)
+TEST_F(ListModelEditor, add_false_as_string_properties)
 {
     model.setListModel(listModelNode);
 
@@ -1378,7 +1378,7 @@ TEST_F(ListModelEditor, AddFalseAsStringProperties)
                                                  IsVariantProperty("value", 111))));
 }
 
-TEST_F(ListModelEditor, GoIntoComponentForBinding)
+TEST_F(ListModelEditor, go_into_component_for_binding)
 {
     EXPECT_CALL(goIntoComponentMock, Call(Eq(listModelNode)))
         .WillRepeatedly(Return(mockComponentView.rootModelNode()));
@@ -1390,7 +1390,7 @@ TEST_F(ListModelEditor, GoIntoComponentForBinding)
     ASSERT_THAT(displayValues(), ElementsAre(ElementsAre("com", 11, 55)));
 }
 
-TEST_F(ListModelEditor, GoIntoComponentForModelNode)
+TEST_F(ListModelEditor, go_into_component_for_model_node)
 {
     EXPECT_CALL(goIntoComponentMock, Call(Eq(listModelNode)))
         .WillRepeatedly(Return(mockComponentView.rootModelNode()));

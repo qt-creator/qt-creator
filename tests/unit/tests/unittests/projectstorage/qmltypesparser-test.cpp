@@ -162,7 +162,7 @@ protected:
     ModuleId directoryModuleId{storage.moduleId("path/to/")};
 };
 
-TEST_F(QmlTypesParser, Imports)
+TEST_F(QmlTypesParser, imports)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -189,7 +189,7 @@ TEST_F(QmlTypesParser, Imports)
                                               qmltypesFileSourceId)));
 }
 
-TEST_F(QmlTypesParser, Types)
+TEST_F(QmlTypesParser, types)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -211,7 +211,7 @@ TEST_F(QmlTypesParser, Types)
                                             qmltypesFileSourceId)));
 }
 
-TEST_F(QmlTypesParser, Prototype)
+TEST_F(QmlTypesParser, prototype)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -234,7 +234,7 @@ TEST_F(QmlTypesParser, Prototype)
                                             qmltypesFileSourceId)));
 }
 
-TEST_F(QmlTypesParser, Extension)
+TEST_F(QmlTypesParser, extension)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -257,7 +257,7 @@ TEST_F(QmlTypesParser, Extension)
                                             qmltypesFileSourceId)));
 }
 
-TEST_F(QmlTypesParser, ExportedTypes)
+TEST_F(QmlTypesParser, exported_types)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -279,7 +279,7 @@ TEST_F(QmlTypesParser, ExportedTypes)
                 IsExportedType(qtQmlNativeModuleId, "QObject", QmlDesigner::Storage::Version{})))));
 }
 
-TEST_F(QmlTypesParser, Properties)
+TEST_F(QmlTypesParser, properties)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -313,7 +313,7 @@ TEST_F(QmlTypesParser, Properties)
                                           | QmlDesigner::Storage::PropertyDeclarationTraits::IsPointer)))));
 }
 
-TEST_F(QmlTypesParser, PropertiesWithQualifiedTypes)
+TEST_F(QmlTypesParser, properties_with_qualified_types)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -343,7 +343,7 @@ TEST_F(QmlTypesParser, PropertiesWithQualifiedTypes)
                                             QmlDesigner::Storage::PropertyDeclarationTraits::None)))));
 }
 
-TEST_F(QmlTypesParser, PropertiesWithoutType)
+TEST_F(QmlTypesParser, properties_without_type)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -362,7 +362,7 @@ TEST_F(QmlTypesParser, PropertiesWithoutType)
                                       QmlDesigner::Storage::PropertyDeclarationTraits::IsPointer)))));
 }
 
-TEST_F(QmlTypesParser, Functions)
+TEST_F(QmlTypesParser, functions)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -404,7 +404,7 @@ TEST_F(QmlTypesParser, Functions)
                                     Field(&Storage::FunctionDeclaration::parameters, IsEmpty()))))));
 }
 
-TEST_F(QmlTypesParser, SkipJavaScriptFunctions)
+TEST_F(QmlTypesParser, skip_java_script_functions)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -420,7 +420,7 @@ TEST_F(QmlTypesParser, SkipJavaScriptFunctions)
     ASSERT_THAT(types, ElementsAre(Field(&Storage::Type::functionDeclarations, IsEmpty())));
 }
 
-TEST_F(QmlTypesParser, FunctionsWithQualifiedTypes)
+TEST_F(QmlTypesParser, functions_with_qualified_types)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -448,7 +448,7 @@ TEST_F(QmlTypesParser, FunctionsWithQualifiedTypes)
                                                          IsParameter("values2", "Qt::Vector"))))))));
 }
 
-TEST_F(QmlTypesParser, Signals)
+TEST_F(QmlTypesParser, signals)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -487,7 +487,7 @@ TEST_F(QmlTypesParser, Signals)
                                                       IsParameter("args", "QQmlV4Function"))))))));
 }
 
-TEST_F(QmlTypesParser, SignalsWithQualifiedTypes)
+TEST_F(QmlTypesParser, signals_with_qualified_types)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -515,7 +515,7 @@ TEST_F(QmlTypesParser, SignalsWithQualifiedTypes)
                                                          IsParameter("values2", "Qt::Vector"))))))));
 }
 
-TEST_F(QmlTypesParser, Enumerations)
+TEST_F(QmlTypesParser, enumerations)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -553,7 +553,7 @@ TEST_F(QmlTypesParser, Enumerations)
                                                                IsEnumerator("BottomToTop"))))))));
 }
 
-TEST_F(QmlTypesParser, EnumerationIsExportedAsType)
+TEST_F(QmlTypesParser, enumeration_is_exported_as_type)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -600,7 +600,7 @@ TEST_F(QmlTypesParser, EnumerationIsExportedAsType)
             _));
 }
 
-TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAlias)
+TEST_F(QmlTypesParser, enumeration_is_exported_as_type_with_alias)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -638,7 +638,7 @@ TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAlias)
                     _));
 }
 
-TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAliasToo)
+TEST_F(QmlTypesParser, enumeration_is_exported_as_type_with_alias_too)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -685,7 +685,7 @@ TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAliasToo)
                     _));
 }
 
-TEST_F(QmlTypesParser, EnumerationIsReferencedByQualifiedName)
+TEST_F(QmlTypesParser, enumeration_is_referenced_by_qualified_name)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
@@ -712,7 +712,7 @@ TEST_F(QmlTypesParser, EnumerationIsReferencedByQualifiedName)
                                    QmlDesigner::Storage::PropertyDeclarationTraits::None)))));
 }
 
-TEST_F(QmlTypesParser, AliasEnumerationIsReferencedByQualifiedName)
+TEST_F(QmlTypesParser, alias_enumeration_is_referenced_by_qualified_name)
 {
     QString source{R"(import QtQuick.tooling 1.2
                       Module{

@@ -54,21 +54,21 @@ protected:
     long long source2FileSize = 4000;
 };
 
-TEST_F(FileStatusCache, CreateEntry)
+TEST_F(FileStatusCache, create_entry)
 {
     cache.find(header);
 
     ASSERT_THAT(cache, SizeIs(1));
 }
 
-TEST_F(FileStatusCache, AskCreatedEntryForLastModifiedTime)
+TEST_F(FileStatusCache, ask_created_entry_for_last_modified_time)
 {
     auto fileStatus = cache.find(header);
 
     ASSERT_THAT(fileStatus, (FileStatus{header, headerFileSize, headerLastModifiedTime}));
 }
 
-TEST_F(FileStatusCache, FindCachedEntry)
+TEST_F(FileStatusCache, find_cached_entry)
 {
     cache.find(header);
 
@@ -77,7 +77,7 @@ TEST_F(FileStatusCache, FindCachedEntry)
     ASSERT_THAT(fileStatus, (FileStatus{header, headerFileSize, headerLastModifiedTime}));
 }
 
-TEST_F(FileStatusCache, LastModifiedTime)
+TEST_F(FileStatusCache, last_modified_time)
 {
     cache.find(header);
 
@@ -86,7 +86,7 @@ TEST_F(FileStatusCache, LastModifiedTime)
     ASSERT_THAT(lastModifiedTime, headerLastModifiedTime);
 }
 
-TEST_F(FileStatusCache, FileSize)
+TEST_F(FileStatusCache, file_size)
 {
     cache.find(header);
 
@@ -95,7 +95,7 @@ TEST_F(FileStatusCache, FileSize)
     ASSERT_THAT(fileSize, headerFileSize);
 }
 
-TEST_F(FileStatusCache, DontAddEntryTwice)
+TEST_F(FileStatusCache, dont_add_entry_twice)
 {
     cache.find(header);
 
@@ -104,7 +104,7 @@ TEST_F(FileStatusCache, DontAddEntryTwice)
     ASSERT_THAT(cache, SizeIs(1));
 }
 
-TEST_F(FileStatusCache, AddNewEntry)
+TEST_F(FileStatusCache, add_new_entry)
 {
     cache.find(header);
 
@@ -113,7 +113,7 @@ TEST_F(FileStatusCache, AddNewEntry)
     ASSERT_THAT(cache, SizeIs(2));
 }
 
-TEST_F(FileStatusCache, AskNewEntryForLastModifiedTime)
+TEST_F(FileStatusCache, ask_new_entry_for_last_modified_time)
 {
     cache.find(header);
 
@@ -122,7 +122,7 @@ TEST_F(FileStatusCache, AskNewEntryForLastModifiedTime)
     ASSERT_THAT(fileStatus, (FileStatus{source, sourceFileSize, sourceLastModifiedTime}));
 }
 
-TEST_F(FileStatusCache, AddNewEntryReverseOrder)
+TEST_F(FileStatusCache, add_new_entry_reverse_order)
 {
     cache.find(source);
 
@@ -131,7 +131,7 @@ TEST_F(FileStatusCache, AddNewEntryReverseOrder)
     ASSERT_THAT(cache, SizeIs(2));
 }
 
-TEST_F(FileStatusCache, AskNewEntryReverseOrderAddedForLastModifiedTime)
+TEST_F(FileStatusCache, ask_new_entry_reverse_order_added_for_last_modified_time)
 {
     cache.find(source);
 
@@ -140,7 +140,7 @@ TEST_F(FileStatusCache, AskNewEntryReverseOrderAddedForLastModifiedTime)
     ASSERT_THAT(fileStatus, (FileStatus{header, headerFileSize, headerLastModifiedTime}));
 }
 
-TEST_F(FileStatusCache, UpdateFile)
+TEST_F(FileStatusCache, update_file)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
@@ -153,7 +153,7 @@ TEST_F(FileStatusCache, UpdateFile)
     ASSERT_THAT(cache.find(header), (FileStatus{header, headerFileSize2, headerLastModifiedTime2}));
 }
 
-TEST_F(FileStatusCache, UpdateFileDoesNotChangeEntryCount)
+TEST_F(FileStatusCache, update_file_does_not_change_entry_count)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
@@ -166,14 +166,14 @@ TEST_F(FileStatusCache, UpdateFileDoesNotChangeEntryCount)
     ASSERT_THAT(cache, SizeIs(1));
 }
 
-TEST_F(FileStatusCache, UpdateFileForNonExistingEntry)
+TEST_F(FileStatusCache, update_file_for_non_existing_entry)
 {
     cache.update(header);
 
     ASSERT_THAT(cache, SizeIs(0));
 }
 
-TEST_F(FileStatusCache, UpdateFileStats)
+TEST_F(FileStatusCache, update_file_stats)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
@@ -193,7 +193,7 @@ TEST_F(FileStatusCache, UpdateFileStats)
                 (FileStatus{header2, header2FileSize2, header2LastModifiedTime2}));
 }
 
-TEST_F(FileStatusCache, UpdateFilesDoesNotChangeEntryCount)
+TEST_F(FileStatusCache, update_files_does_not_change_entry_count)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
@@ -211,21 +211,21 @@ TEST_F(FileStatusCache, UpdateFilesDoesNotChangeEntryCount)
     ASSERT_THAT(cache, SizeIs(2));
 }
 
-TEST_F(FileStatusCache, UpdateFilesForNonExistingEntry)
+TEST_F(FileStatusCache, update_files_for_non_existing_entry)
 {
     cache.update(entries);
 
     ASSERT_THAT(cache, SizeIs(0));
 }
 
-TEST_F(FileStatusCache, NewModifiedEntries)
+TEST_F(FileStatusCache, new_modified_entries)
 {
     auto modifiedIds = cache.modified(entries);
 
     ASSERT_THAT(modifiedIds, entries);
 }
 
-TEST_F(FileStatusCache, NoNewModifiedEntries)
+TEST_F(FileStatusCache, no_new_modified_entries)
 {
     cache.modified(entries);
 
@@ -234,7 +234,7 @@ TEST_F(FileStatusCache, NoNewModifiedEntries)
     ASSERT_THAT(modifiedIds, IsEmpty());
 }
 
-TEST_F(FileStatusCache, SomeNewModifiedEntries)
+TEST_F(FileStatusCache, some_new_modified_entries)
 {
     cache.modified({source, header2});
 
@@ -243,7 +243,7 @@ TEST_F(FileStatusCache, SomeNewModifiedEntries)
     ASSERT_THAT(modifiedIds, ElementsAre(header, source2));
 }
 
-TEST_F(FileStatusCache, SomeAlreadyExistingModifiedEntries)
+TEST_F(FileStatusCache, some_already_existing_modified_entries)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
@@ -266,7 +266,7 @@ TEST_F(FileStatusCache, SomeAlreadyExistingModifiedEntries)
     ASSERT_THAT(modifiedIds, ElementsAre(header, header2));
 }
 
-TEST_F(FileStatusCache, SomeAlreadyExistingAndSomeNewModifiedEntries)
+TEST_F(FileStatusCache, some_already_existing_and_some_new_modified_entries)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .WillRepeatedly(Return(FileStatus{header, headerFileSize, headerLastModifiedTime}));
@@ -286,7 +286,7 @@ TEST_F(FileStatusCache, SomeAlreadyExistingAndSomeNewModifiedEntries)
     ASSERT_THAT(modifiedIds, ElementsAre(header, header2, source2));
 }
 
-TEST_F(FileStatusCache, TimeIsUpdatedForSomeAlreadyExistingModifiedEntries)
+TEST_F(FileStatusCache, time_is_updated_for_some_already_existing_modified_entries)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)

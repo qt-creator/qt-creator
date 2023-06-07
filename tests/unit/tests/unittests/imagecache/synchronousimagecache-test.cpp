@@ -71,21 +71,21 @@ protected:
     QIcon icon3{QPixmap::fromImage(image3)};
 };
 
-TEST_F(SynchronousImageCache, GetImageFromStorage)
+TEST_F(SynchronousImageCache, get_image_from_storage)
 {
     auto image = cache.image("/path/to/Component.qml");
 
     ASSERT_THAT(image, image1);
 }
 
-TEST_F(SynchronousImageCache, GetImageWithExtraIdFromStorage)
+TEST_F(SynchronousImageCache, get_image_with_extra_id_from_storage)
 {
     auto image = cache.image("/path/to/Component.qml", "extraId1");
 
     ASSERT_THAT(image, image2);
 }
 
-TEST_F(SynchronousImageCache, GetImageWithOutdatedTimeStampFromCollector)
+TEST_F(SynchronousImageCache, get_image_with_outdated_time_stamp_from_collector)
 {
     ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
         .WillByDefault(Return(Sqlite::TimeStamp{124}));
@@ -95,7 +95,7 @@ TEST_F(SynchronousImageCache, GetImageWithOutdatedTimeStampFromCollector)
     ASSERT_THAT(image, image3);
 }
 
-TEST_F(SynchronousImageCache, GetImageWithOutdatedTimeStampStored)
+TEST_F(SynchronousImageCache, get_image_with_outdated_time_stamp_stored)
 {
     ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
         .WillByDefault(Return(Sqlite::TimeStamp{124}));
@@ -110,21 +110,21 @@ TEST_F(SynchronousImageCache, GetImageWithOutdatedTimeStampStored)
     auto image = cache.image("/path/to/Component.qml", "extraId1");
 }
 
-TEST_F(SynchronousImageCache, GetMidSizeImageFromStorage)
+TEST_F(SynchronousImageCache, get_mid_size_image_from_storage)
 {
     auto image = cache.midSizeImage("/path/to/Component.qml");
 
     ASSERT_THAT(image, midSizeImage1);
 }
 
-TEST_F(SynchronousImageCache, GetMidSizeImageWithExtraIdFromStorage)
+TEST_F(SynchronousImageCache, get_mid_size_image_with_extra_id_from_storage)
 {
     auto image = cache.midSizeImage("/path/to/Component.qml", "extraId1");
 
     ASSERT_THAT(image, midSizeImage2);
 }
 
-TEST_F(SynchronousImageCache, GetMidSizeImageWithOutdatedTimeStampFromCollector)
+TEST_F(SynchronousImageCache, get_mid_size_image_with_outdated_time_stamp_from_collector)
 {
     ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
         .WillByDefault(Return(Sqlite::TimeStamp{124}));
@@ -134,7 +134,7 @@ TEST_F(SynchronousImageCache, GetMidSizeImageWithOutdatedTimeStampFromCollector)
     ASSERT_THAT(image, midSizeImage3);
 }
 
-TEST_F(SynchronousImageCache, GetMidSizeImageWithOutdatedTimeStampStored)
+TEST_F(SynchronousImageCache, get_mid_size_image_with_outdated_time_stamp_stored)
 {
     ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
         .WillByDefault(Return(Sqlite::TimeStamp{124}));
@@ -149,21 +149,21 @@ TEST_F(SynchronousImageCache, GetMidSizeImageWithOutdatedTimeStampStored)
     auto image = cache.midSizeImage("/path/to/Component.qml", "extraId1");
 }
 
-TEST_F(SynchronousImageCache, GetSmallImageFromStorage)
+TEST_F(SynchronousImageCache, get_small_image_from_storage)
 {
     auto image = cache.smallImage("/path/to/Component.qml");
 
     ASSERT_THAT(image, smallImage1);
 }
 
-TEST_F(SynchronousImageCache, GetSmallImageWithExtraIdFromStorage)
+TEST_F(SynchronousImageCache, get_small_image_with_extra_id_from_storage)
 {
     auto image = cache.smallImage("/path/to/Component.qml", "extraId1");
 
     ASSERT_THAT(image, smallImage2);
 }
 
-TEST_F(SynchronousImageCache, GetSmallImageWithOutdatedTimeStampFromCollector)
+TEST_F(SynchronousImageCache, get_small_image_with_outdated_time_stamp_from_collector)
 {
     ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
         .WillByDefault(Return(Sqlite::TimeStamp{124}));
@@ -173,7 +173,7 @@ TEST_F(SynchronousImageCache, GetSmallImageWithOutdatedTimeStampFromCollector)
     ASSERT_THAT(image, smallImage3);
 }
 
-TEST_F(SynchronousImageCache, GetSmallImageWithOutdatedTimeStampStored)
+TEST_F(SynchronousImageCache, get_small_image_with_outdated_time_stamp_stored)
 {
     ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
         .WillByDefault(Return(Sqlite::TimeStamp{124}));
@@ -188,21 +188,21 @@ TEST_F(SynchronousImageCache, GetSmallImageWithOutdatedTimeStampStored)
     auto image = cache.smallImage("/path/to/Component.qml", "extraId1");
 }
 
-TEST_F(SynchronousImageCache, GetIconFromStorage)
+TEST_F(SynchronousImageCache, get_icon_from_storage)
 {
     auto icon = cache.icon("/path/to/Component.qml");
 
     ASSERT_THAT(icon, IsIcon(icon1));
 }
 
-TEST_F(SynchronousImageCache, GetIconWithExtraIdFromStorage)
+TEST_F(SynchronousImageCache, get_icon_with_extra_id_from_storage)
 {
     auto icon = cache.icon("/path/to/Component.qml", "extraId1");
 
     ASSERT_THAT(icon, IsIcon(icon2));
 }
 
-TEST_F(SynchronousImageCache, GetIconWithOutdatedTimeStampFromCollector)
+TEST_F(SynchronousImageCache, get_icon_with_outdated_time_stamp_from_collector)
 {
     ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
         .WillByDefault(Return(Sqlite::TimeStamp{124}));
@@ -212,7 +212,7 @@ TEST_F(SynchronousImageCache, GetIconWithOutdatedTimeStampFromCollector)
     ASSERT_THAT(icon, IsIcon(icon3));
 }
 
-TEST_F(SynchronousImageCache, GetIconWithOutdatedTimeStampStored)
+TEST_F(SynchronousImageCache, get_icon_with_outdated_time_stamp_stored)
 {
     using QmlDesigner::ImageCache::FontCollectorSizesAuxiliaryData;
     std::vector<QSize> sizes{{20, 11}};
@@ -229,7 +229,7 @@ TEST_F(SynchronousImageCache, GetIconWithOutdatedTimeStampStored)
                            FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 }
 
-TEST_F(SynchronousImageCache, IconCallsCollectorWithAuxiliaryData)
+TEST_F(SynchronousImageCache, icon_calls_collector_with_auxiliary_data)
 {
     using QmlDesigner::ImageCache::FontCollectorSizesAuxiliaryData;
     std::vector<QSize> sizes{{20, 11}};
@@ -250,7 +250,7 @@ TEST_F(SynchronousImageCache, IconCallsCollectorWithAuxiliaryData)
                            FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 }
 
-TEST_F(SynchronousImageCache, ImageCallsCollectorWithAuxiliaryData)
+TEST_F(SynchronousImageCache, image_calls_collector_with_auxiliary_data)
 {
     using QmlDesigner::ImageCache::FontCollectorSizesAuxiliaryData;
     std::vector<QSize> sizes{{20, 11}};
@@ -271,7 +271,7 @@ TEST_F(SynchronousImageCache, ImageCallsCollectorWithAuxiliaryData)
                             FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 }
 
-TEST_F(SynchronousImageCache, SmallImageCallsCollectorWithAuxiliaryData)
+TEST_F(SynchronousImageCache, small_image_calls_collector_with_auxiliary_data)
 {
     using QmlDesigner::ImageCache::FontCollectorSizesAuxiliaryData;
     std::vector<QSize> sizes{{20, 11}};

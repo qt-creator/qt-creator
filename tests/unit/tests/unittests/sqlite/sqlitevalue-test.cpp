@@ -8,63 +8,63 @@
 
 namespace {
 
-TEST(SqliteValue, ConstructDefault)
+TEST(SqliteValue, construct_default)
 {
     Sqlite::Value value{};
 
     ASSERT_TRUE(value.isNull());
 }
 
-TEST(SqliteValue, ConstructNullValue)
+TEST(SqliteValue, construct_null_value)
 {
     Sqlite::Value value{Sqlite::NullValue{}};
 
     ASSERT_TRUE(value.isNull());
 }
 
-TEST(SqliteValue, ConstructLongLong)
+TEST(SqliteValue, construct_long_long)
 {
     Sqlite::Value value{1LL};
 
     ASSERT_THAT(value.toInteger(), Eq(1LL));
 }
 
-TEST(SqliteValue, ConstructInteger)
+TEST(SqliteValue, construct_integer)
 {
     Sqlite::Value value{1};
 
     ASSERT_THAT(value.toInteger(), Eq(1LL));
 }
 
-TEST(SqliteValue, ConstructFloatingPoint)
+TEST(SqliteValue, construct_floating_point)
 {
     Sqlite::Value value{1.1};
 
     ASSERT_THAT(value.toFloat(), Eq(1.1));
 }
 
-TEST(SqliteValue, ConstructStringFromCString)
+TEST(SqliteValue, construct_string_from_c_string)
 {
     Sqlite::Value value{"foo"};
 
     ASSERT_THAT(value.toStringView(), Eq("foo"));
 }
 
-TEST(SqliteValue, ConstructStringFromUtilsString)
+TEST(SqliteValue, construct_string_from_utils_string)
 {
     Sqlite::Value value{Utils::SmallString{"foo"}};
 
     ASSERT_THAT(value.toStringView(), Eq("foo"));
 }
 
-TEST(SqliteValue, ConstructStringFromQString)
+TEST(SqliteValue, construct_string_from_q_string)
 {
     Sqlite::Value value{QString{"foo"}};
 
     ASSERT_THAT(value.toStringView(), Eq("foo"));
 }
 
-TEST(SqliteValue, ConstructBlobFromSpan)
+TEST(SqliteValue, construct_blob_from_span)
 {
     Utils::span<const std::byte> bytes{reinterpret_cast<const std::byte *>("abcd"), 4};
 
@@ -73,7 +73,7 @@ TEST(SqliteValue, ConstructBlobFromSpan)
     ASSERT_THAT(value.toBlobView(), Eq(bytes));
 }
 
-TEST(SqliteValue, ConstructBlobFromBlob)
+TEST(SqliteValue, construct_blob_from_blob)
 {
     Utils::span<const std::byte> bytes{reinterpret_cast<const std::byte *>("abcd"), 4};
 
@@ -82,7 +82,7 @@ TEST(SqliteValue, ConstructBlobFromBlob)
     ASSERT_THAT(value.toBlobView(), Eq(bytes));
 }
 
-TEST(SqliteValue, ConstructNullFromNullQVariant)
+TEST(SqliteValue, construct_null_from_null_q_variant)
 {
     QVariant variant{};
 
@@ -91,7 +91,7 @@ TEST(SqliteValue, ConstructNullFromNullQVariant)
     ASSERT_TRUE(value.isNull());
 }
 
-TEST(SqliteValue, ConstructStringFromIntQVariant)
+TEST(SqliteValue, construct_string_from_int_q_variant)
 {
     QVariant variant{1};
 
@@ -100,7 +100,7 @@ TEST(SqliteValue, ConstructStringFromIntQVariant)
     ASSERT_THAT(value.toInteger(), Eq(1));
 }
 
-TEST(SqliteValue, ConstructStringFromLongLongQVariant)
+TEST(SqliteValue, construct_string_from_long_long_q_variant)
 {
     QVariant variant{1LL};
 
@@ -109,7 +109,7 @@ TEST(SqliteValue, ConstructStringFromLongLongQVariant)
     ASSERT_THAT(value.toInteger(), Eq(1));
 }
 
-TEST(SqliteValue, ConstructStringFromUintQVariant)
+TEST(SqliteValue, construct_string_from_uint_q_variant)
 {
     QVariant variant{1u};
 
@@ -118,7 +118,7 @@ TEST(SqliteValue, ConstructStringFromUintQVariant)
     ASSERT_THAT(value.toInteger(), Eq(1));
 }
 
-TEST(SqliteValue, ConstructStringFromFloatQVariant)
+TEST(SqliteValue, construct_string_from_float_q_variant)
 {
     QVariant variant{1.};
 
@@ -127,7 +127,7 @@ TEST(SqliteValue, ConstructStringFromFloatQVariant)
     ASSERT_THAT(value.toFloat(), Eq(1));
 }
 
-TEST(SqliteValue, ConstructStringFromStringQVariant)
+TEST(SqliteValue, construct_string_from_string_q_variant)
 {
     QVariant variant{QString{"foo"}};
 
@@ -136,7 +136,7 @@ TEST(SqliteValue, ConstructStringFromStringQVariant)
     ASSERT_THAT(value.toStringView(), Eq("foo"));
 }
 
-TEST(SqliteValue, ConstructBlobFromByteArrayQVariant)
+TEST(SqliteValue, construct_blob_from_byte_array_q_variant)
 {
     Utils::span<const std::byte> bytes{reinterpret_cast<const std::byte *>("abcd"), 4};
     QVariant variant{QByteArray{"abcd"}};
@@ -146,7 +146,7 @@ TEST(SqliteValue, ConstructBlobFromByteArrayQVariant)
     ASSERT_THAT(value.toBlobView(), Eq(bytes));
 }
 
-TEST(SqliteValue, ConvertToNullQVariant)
+TEST(SqliteValue, convert_to_null_q_variant)
 {
     Sqlite::Value value{};
 
@@ -155,7 +155,7 @@ TEST(SqliteValue, ConvertToNullQVariant)
     ASSERT_TRUE(variant.isNull());
 }
 
-TEST(SqliteValue, ConvertToStringQVariant)
+TEST(SqliteValue, convert_to_string_q_variant)
 {
     Sqlite::Value value{"foo"};
 
@@ -164,7 +164,7 @@ TEST(SqliteValue, ConvertToStringQVariant)
     ASSERT_THAT(variant, Eq("foo"));
 }
 
-TEST(SqliteValue, ConvertToIntegerQVariant)
+TEST(SqliteValue, convert_to_integer_q_variant)
 {
     Sqlite::Value value{1};
 
@@ -173,7 +173,7 @@ TEST(SqliteValue, ConvertToIntegerQVariant)
     ASSERT_THAT(variant, Eq(1));
 }
 
-TEST(SqliteValue, ConvertToFloatQVariant)
+TEST(SqliteValue, convert_to_float_q_variant)
 {
     Sqlite::Value value{1.1};
 
@@ -182,7 +182,7 @@ TEST(SqliteValue, ConvertToFloatQVariant)
     ASSERT_THAT(variant, Eq(1.1));
 }
 
-TEST(SqliteValue, ConvertToByteArrayQVariant)
+TEST(SqliteValue, convert_to_byte_array_q_variant)
 {
     Utils::span<const std::byte> bytes{reinterpret_cast<const std::byte *>("abcd"), 4};
     Sqlite::Value value{bytes};
@@ -192,49 +192,49 @@ TEST(SqliteValue, ConvertToByteArrayQVariant)
     ASSERT_THAT(variant, Eq(QByteArray{"abcd"}));
 }
 
-TEST(SqliteValue, IntegerEquals)
+TEST(SqliteValue, integer_equals)
 {
     bool isEqual = Sqlite::Value{1} == 1LL;
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, IntegerEqualsInverse)
+TEST(SqliteValue, integer_equals_inverse)
 {
     bool isEqual = 1LL == Sqlite::Value{1};
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, FloatEquals)
+TEST(SqliteValue, float_equals)
 {
     bool isEqual = Sqlite::Value{1.0} == 1.;
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, FloatEqualsInverse)
+TEST(SqliteValue, float_equals_inverse)
 {
     bool isEqual = 1. == Sqlite::Value{1.0};
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, StringEquals)
+TEST(SqliteValue, string_equals)
 {
     bool isEqual = Sqlite::Value{"foo"} == "foo";
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, StringEqualsInverse)
+TEST(SqliteValue, string_equals_inverse)
 {
     bool isEqual = "foo" == Sqlite::Value{"foo"};
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, BlobEquals)
+TEST(SqliteValue, blob_equals)
 {
     Utils::span<const std::byte> bytes{reinterpret_cast<const std::byte *>("abcd"), 4};
     bool isEqual = Sqlite::Value{bytes} == bytes;
@@ -242,7 +242,7 @@ TEST(SqliteValue, BlobEquals)
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, BlobInverseEquals)
+TEST(SqliteValue, blob_inverse_equals)
 {
     Utils::span<const std::byte> bytes{reinterpret_cast<const std::byte *>("abcd"), 4};
     bool isEqual = bytes == Sqlite::Value{bytes};
@@ -250,105 +250,105 @@ TEST(SqliteValue, BlobInverseEquals)
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, IntegerAndFloatAreNotEquals)
+TEST(SqliteValue, integer_and_float_are_not_equals)
 {
     bool isEqual = Sqlite::Value{1} == 1.;
 
     ASSERT_FALSE(isEqual);
 }
 
-TEST(SqliteValue, NullValuesNeverEqual)
+TEST(SqliteValue, null_values_never_equal)
 {
     bool isEqual = Sqlite::Value{} == Sqlite::Value{};
 
     ASSERT_FALSE(isEqual);
 }
 
-TEST(SqliteValue, IntegerValuesAreEquals)
+TEST(SqliteValue, integer_values_are_equals)
 {
     bool isEqual = Sqlite::Value{1} == Sqlite::Value{1};
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, IntegerAndFloatValuesAreNotEquals)
+TEST(SqliteValue, integer_and_float_values_are_not_equals)
 {
     bool isEqual = Sqlite::Value{1} == Sqlite::Value{1.};
 
     ASSERT_FALSE(isEqual);
 }
 
-TEST(SqliteValue, StringAndQStringAreEquals)
+TEST(SqliteValue, string_and_q_string_are_equals)
 {
     bool isEqual = Sqlite::Value{"foo"} == QString{"foo"};
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, IntegerAndFloatValuesAreUnequal)
+TEST(SqliteValue, integer_and_float_values_are_unequal)
 {
     bool isUnequal = Sqlite::Value{1} != Sqlite::Value{1.0};
 
     ASSERT_TRUE(isUnequal);
 }
 
-TEST(SqliteValue, IntegerAndFloatAreUnequal)
+TEST(SqliteValue, integer_and_float_are_unequal)
 {
     bool isUnequal = Sqlite::Value{1} != 1.0;
 
     ASSERT_TRUE(isUnequal);
 }
 
-TEST(SqliteValue, IntegerAndFloatAreUnequalInverse)
+TEST(SqliteValue, integer_and_float_are_unequal_inverse)
 {
     bool isUnequal = 1.0 != Sqlite::Value{1};
 
     ASSERT_TRUE(isUnequal);
 }
 
-TEST(SqliteValue, IntegersAreUnequal)
+TEST(SqliteValue, integers_are_unequal)
 {
     bool isUnequal = Sqlite::Value{1} != 2;
 
     ASSERT_TRUE(isUnequal);
 }
 
-TEST(SqliteValue, IntegersAreUnequalInverse)
+TEST(SqliteValue, integers_are_unequal_inverse)
 {
     bool isUnequal = 2 != Sqlite::Value{1};
 
     ASSERT_TRUE(isUnequal);
 }
 
-TEST(SqliteValue, NullType)
+TEST(SqliteValue, null_type)
 {
     auto type = Sqlite::Value{}.type();
 
     ASSERT_THAT(type, Sqlite::ValueType::Null);
 }
 
-TEST(SqliteValue, IntegerType)
+TEST(SqliteValue, integer_type)
 {
     auto type = Sqlite::Value{1}.type();
 
     ASSERT_THAT(type, Sqlite::ValueType::Integer);
 }
 
-TEST(SqliteValue, FloatType)
+TEST(SqliteValue, float_type)
 {
     auto type = Sqlite::Value{1.}.type();
 
     ASSERT_THAT(type, Sqlite::ValueType::Float);
 }
 
-TEST(SqliteValue, StringType)
+TEST(SqliteValue, string_type)
 {
     auto type = Sqlite::Value{"foo"}.type();
 
     ASSERT_THAT(type, Sqlite::ValueType::String);
 }
 
-TEST(SqliteValue, BlobType)
+TEST(SqliteValue, blob_type)
 {
     Utils::span<const std::byte> bytes{reinterpret_cast<const std::byte *>("abcd"), 4};
     auto type = Sqlite::Value{bytes}.type();
@@ -356,70 +356,70 @@ TEST(SqliteValue, BlobType)
     ASSERT_THAT(type, Sqlite::ValueType::Blob);
 }
 
-TEST(SqliteValue, NullValueAndValueViewAreNotEqual)
+TEST(SqliteValue, null_value_and_value_view_are_not_equal)
 {
     bool isEqual = Sqlite::ValueView::create(Sqlite::NullValue{}) == Sqlite::Value{};
 
     ASSERT_FALSE(isEqual);
 }
 
-TEST(SqliteValue, NullValueViewAndValueAreNotEqual)
+TEST(SqliteValue, null_value_view_and_value_are_not_equal)
 {
     bool isEqual = Sqlite::Value{} == Sqlite::ValueView::create(Sqlite::NullValue{});
 
     ASSERT_FALSE(isEqual);
 }
 
-TEST(SqliteValue, StringValueAndValueViewEquals)
+TEST(SqliteValue, string_value_and_value_view_equals)
 {
     bool isEqual = Sqlite::ValueView::create("foo") == Sqlite::Value{"foo"};
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, StringValueAndValueViewEqualsInverse)
+TEST(SqliteValue, string_value_and_value_view_equals_inverse)
 {
     bool isEqual = Sqlite::Value{"foo"} == Sqlite::ValueView::create("foo");
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, IntegerValueAndValueViewEquals)
+TEST(SqliteValue, integer_value_and_value_view_equals)
 {
     bool isEqual = Sqlite::ValueView::create(1) == Sqlite::Value{1};
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, IntegerValueAndValueViewEqualsInverse)
+TEST(SqliteValue, integer_value_and_value_view_equals_inverse)
 {
     bool isEqual = Sqlite::Value{2} == Sqlite::ValueView::create(2);
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, FloatValueAndValueViewEquals)
+TEST(SqliteValue, float_value_and_value_view_equals)
 {
     bool isEqual = Sqlite::ValueView::create(1.1) == Sqlite::Value{1.1};
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, FloatValueAndValueViewEqualsInverse)
+TEST(SqliteValue, float_value_and_value_view_equals_inverse)
 {
     bool isEqual = Sqlite::Value{1.1} == Sqlite::ValueView::create(1.1);
 
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, StringValueAndIntergerValueViewAreNotEqual)
+TEST(SqliteValue, string_value_and_interger_value_view_are_not_equal)
 {
     bool isEqual = Sqlite::Value{"foo"} == Sqlite::ValueView::create(1);
 
     ASSERT_FALSE(isEqual);
 }
 
-TEST(SqliteValue, BlobValueAndValueViewEquals)
+TEST(SqliteValue, blob_value_and_value_view_equals)
 {
     Utils::span<const std::byte> bytes{reinterpret_cast<const std::byte *>("abcd"), 4};
 
@@ -428,7 +428,7 @@ TEST(SqliteValue, BlobValueAndValueViewEquals)
     ASSERT_TRUE(isEqual);
 }
 
-TEST(SqliteValue, ConvertNullValueViewIntoValue)
+TEST(SqliteValue, convert_null_value_view_into_value)
 {
     auto view = Sqlite::ValueView::create(Sqlite::NullValue{});
 
@@ -437,7 +437,7 @@ TEST(SqliteValue, ConvertNullValueViewIntoValue)
     ASSERT_TRUE(value.isNull());
 }
 
-TEST(SqliteValue, ConvertStringValueViewIntoValue)
+TEST(SqliteValue, convert_string_value_view_into_value)
 {
     auto view = Sqlite::ValueView::create("foo");
 
@@ -446,7 +446,7 @@ TEST(SqliteValue, ConvertStringValueViewIntoValue)
     ASSERT_THAT(value, Eq("foo"));
 }
 
-TEST(SqliteValue, ConvertIntegerValueViewIntoValue)
+TEST(SqliteValue, convert_integer_value_view_into_value)
 {
     auto view = Sqlite::ValueView::create(1);
 
@@ -455,7 +455,7 @@ TEST(SqliteValue, ConvertIntegerValueViewIntoValue)
     ASSERT_THAT(value, Eq(1));
 }
 
-TEST(SqliteValue, ConvertFloatValueViewIntoValue)
+TEST(SqliteValue, convert_float_value_view_into_value)
 {
     auto view = Sqlite::ValueView::create(1.4);
 
@@ -464,7 +464,7 @@ TEST(SqliteValue, ConvertFloatValueViewIntoValue)
     ASSERT_THAT(value, Eq(1.4));
 }
 
-TEST(SqliteValue, ConvertBlobValueViewIntoValue)
+TEST(SqliteValue, convert_blob_value_view_into_value)
 {
     Utils::span<const std::byte> bytes{reinterpret_cast<const std::byte *>("abcd"), 4};
     auto view = Sqlite::ValueView::create(Sqlite::BlobView{bytes});

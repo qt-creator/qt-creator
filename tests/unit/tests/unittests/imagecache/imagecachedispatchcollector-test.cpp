@@ -61,7 +61,7 @@ protected:
     QIcon icon2{QPixmap::fromImage(image2)};
 };
 
-TEST_F(ImageCacheDispatchCollector, CallQmlCollectorStart)
+TEST_F(ImageCacheDispatchCollector, call_qml_collector_start)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair(
@@ -107,7 +107,7 @@ TEST_F(ImageCacheDispatchCollector, CallQmlCollectorStart)
                     abortCallbackMock.AsStdFunction());
 }
 
-TEST_F(ImageCacheDispatchCollector, CallUiFileCollectorStart)
+TEST_F(ImageCacheDispatchCollector, call_ui_file_collector_start)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair([](Utils::SmallStringView,
@@ -143,7 +143,7 @@ TEST_F(ImageCacheDispatchCollector, CallUiFileCollectorStart)
                     abortCallbackMock.AsStdFunction());
 }
 
-TEST_F(ImageCacheDispatchCollector, DontCallCollectorStartForUnknownFile)
+TEST_F(ImageCacheDispatchCollector, dont_call_collector_start_for_unknown_file)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair([](Utils::SmallStringView,
@@ -165,7 +165,7 @@ TEST_F(ImageCacheDispatchCollector, DontCallCollectorStartForUnknownFile)
                     abortCallbackMock.AsStdFunction());
 }
 
-TEST_F(ImageCacheDispatchCollector, CallFirstCollectorCreateIcon)
+TEST_F(ImageCacheDispatchCollector, call_first_collector_create_icon)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair([](Utils::SmallStringView,
@@ -184,7 +184,7 @@ TEST_F(ImageCacheDispatchCollector, CallFirstCollectorCreateIcon)
     ASSERT_THAT(icon, IsIcon(icon1));
 }
 
-TEST_F(ImageCacheDispatchCollector, FirstCollectorCreateIconCalls)
+TEST_F(ImageCacheDispatchCollector, first_collector_create_icon_calls)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair([](Utils::SmallStringView,
@@ -211,7 +211,7 @@ TEST_F(ImageCacheDispatchCollector, FirstCollectorCreateIconCalls)
                                      FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 }
 
-TEST_F(ImageCacheDispatchCollector, CallSecondCollectorCreateIcon)
+TEST_F(ImageCacheDispatchCollector, call_second_collector_create_icon)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair([](Utils::SmallStringView,
@@ -230,7 +230,7 @@ TEST_F(ImageCacheDispatchCollector, CallSecondCollectorCreateIcon)
     ASSERT_THAT(icon, IsIcon(icon2));
 }
 
-TEST_F(ImageCacheDispatchCollector, SecondCollectorCreateIconCalls)
+TEST_F(ImageCacheDispatchCollector, second_collector_create_icon_calls)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair([](Utils::SmallStringView,
@@ -257,7 +257,7 @@ TEST_F(ImageCacheDispatchCollector, SecondCollectorCreateIconCalls)
                                      FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 }
 
-TEST_F(ImageCacheDispatchCollector, DontCallCollectorCreateIconForUnknownFile)
+TEST_F(ImageCacheDispatchCollector, dont_call_collector_create_icon_for_unknown_file)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair([](Utils::SmallStringView,
@@ -276,7 +276,7 @@ TEST_F(ImageCacheDispatchCollector, DontCallCollectorCreateIconForUnknownFile)
     ASSERT_TRUE(icon.isNull());
 }
 
-TEST_F(ImageCacheDispatchCollector, CallFirstCollectorCreateImage)
+TEST_F(ImageCacheDispatchCollector, call_first_collector_create_image)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair([](Utils::SmallStringView,
@@ -295,7 +295,7 @@ TEST_F(ImageCacheDispatchCollector, CallFirstCollectorCreateImage)
     ASSERT_THAT(image, IsImage(image1, midSizeImage1, smallImage1));
 }
 
-TEST_F(ImageCacheDispatchCollector, FirstCollectorCreateImageCalls)
+TEST_F(ImageCacheDispatchCollector, first_collector_create_image_calls)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair([](Utils::SmallStringView,
@@ -322,7 +322,7 @@ TEST_F(ImageCacheDispatchCollector, FirstCollectorCreateImageCalls)
                                       FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 }
 
-TEST_F(ImageCacheDispatchCollector, CallSecondCollectorCreateImage)
+TEST_F(ImageCacheDispatchCollector, call_second_collector_create_image)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair([](Utils::SmallStringView,
@@ -341,7 +341,7 @@ TEST_F(ImageCacheDispatchCollector, CallSecondCollectorCreateImage)
     ASSERT_THAT(image, IsImage(image2, midSizeImage2, smallImage2));
 }
 
-TEST_F(ImageCacheDispatchCollector, SecondCollectorCreateImageCalls)
+TEST_F(ImageCacheDispatchCollector, second_collector_create_image_calls)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair([](Utils::SmallStringView,
@@ -368,7 +368,7 @@ TEST_F(ImageCacheDispatchCollector, SecondCollectorCreateImageCalls)
                                       FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 }
 
-TEST_F(ImageCacheDispatchCollector, DontCallCollectorCreateImageForUnknownFile)
+TEST_F(ImageCacheDispatchCollector, dont_call_collector_create_image_for_unknown_file)
 {
     QmlDesigner::ImageCacheDispatchCollector collector{std::make_tuple(
         std::make_pair([](Utils::SmallStringView,

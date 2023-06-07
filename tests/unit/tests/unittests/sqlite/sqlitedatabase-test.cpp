@@ -70,24 +70,24 @@ protected:
     std::unique_lock<Sqlite::Database> lock{database};
 };
 
-TEST_F(SqliteDatabase, SetDatabaseFilePath)
+TEST_F(SqliteDatabase, set_database_file_path)
 {
     ASSERT_THAT(database.databaseFilePath(), ":memory:");
 }
 
-TEST_F(SqliteDatabase, SetJournalMode)
+TEST_F(SqliteDatabase, set_journal_mode)
 {
     database.setJournalMode(JournalMode::Memory);
 
     ASSERT_THAT(database.journalMode(), JournalMode::Memory);
 }
 
-TEST_F(SqliteDatabase, LockingModeIsByDefaultExlusive)
+TEST_F(SqliteDatabase, locking_mode_is_by_default_exlusive)
 {
     ASSERT_THAT(database.lockingMode(), Sqlite::LockingMode::Exclusive);
 }
 
-TEST_F(SqliteDatabase, CreateDatabaseWithLockingModeNormal)
+TEST_F(SqliteDatabase, create_database_with_locking_mode_normal)
 {
     Utils::PathString path{Utils::TemporaryDirectory::masterDirectoryPath()
                            + "/database_exclusive_locked.db"};
@@ -98,7 +98,7 @@ TEST_F(SqliteDatabase, CreateDatabaseWithLockingModeNormal)
                 Sqlite::LockingMode::Normal);
 }
 
-TEST_F(SqliteDatabase, ExclusivelyLockedDatabaseIsLockedForSecondConnection)
+TEST_F(SqliteDatabase, exclusively_locked_database_is_locked_for_second_connection)
 {
     using namespace std::chrono_literals;
     Utils::PathString path{Utils::TemporaryDirectory::masterDirectoryPath()
@@ -108,7 +108,7 @@ TEST_F(SqliteDatabase, ExclusivelyLockedDatabaseIsLockedForSecondConnection)
     ASSERT_THROW(Sqlite::Database database2(path, 1ms), Sqlite::StatementIsBusy);
 }
 
-TEST_F(SqliteDatabase, NormalLockedDatabaseCanBeReopened)
+TEST_F(SqliteDatabase, normal_locked_database_can_be_reopened)
 {
     Utils::PathString path{Utils::TemporaryDirectory::masterDirectoryPath()
                            + "/database_exclusive_locked.db"};
@@ -117,14 +117,14 @@ TEST_F(SqliteDatabase, NormalLockedDatabaseCanBeReopened)
     ASSERT_NO_THROW((Sqlite::Database{path, JournalMode::Wal, Sqlite::LockingMode::Normal}));
 }
 
-TEST_F(SqliteDatabase, SetOpenlMode)
+TEST_F(SqliteDatabase, set_openl_mode)
 {
     database.setOpenMode(OpenMode::ReadOnly);
 
     ASSERT_THAT(database.openMode(), OpenMode::ReadOnly);
 }
 
-TEST_F(SqliteDatabase, OpenDatabase)
+TEST_F(SqliteDatabase, open_database)
 {
     database.close();
 
@@ -133,33 +133,33 @@ TEST_F(SqliteDatabase, OpenDatabase)
     ASSERT_TRUE(database.isOpen());
 }
 
-TEST_F(SqliteDatabase, CloseDatabase)
+TEST_F(SqliteDatabase, close_database)
 {
     database.close();
 
     ASSERT_FALSE(database.isOpen());
 }
 
-TEST_F(SqliteDatabase, DatabaseIsNotInitializedAfterOpening)
+TEST_F(SqliteDatabase, database_is_not_initialized_after_opening)
 {
     ASSERT_FALSE(database.isInitialized());
 }
 
-TEST_F(SqliteDatabase, DatabaseIsIntializedAfterSettingItBeforeOpening)
+TEST_F(SqliteDatabase, database_is_intialized_after_setting_it_before_opening)
 {
     database.setIsInitialized(true);
 
     ASSERT_TRUE(database.isInitialized());
 }
 
-TEST_F(SqliteDatabase, DatabaseIsInitializedIfDatabasePathExistsAtOpening)
+TEST_F(SqliteDatabase, database_is_initialized_if_database_path_exists_at_opening)
 {
     Sqlite::Database database{UNITTEST_DIR "/sqlite/data/sqlite_database.db"};
 
     ASSERT_TRUE(database.isInitialized());
 }
 
-TEST_F(SqliteDatabase, DatabaseIsNotInitializedIfDatabasePathDoesNotExistAtOpening)
+TEST_F(SqliteDatabase, database_is_not_initialized_if_database_path_does_not_exist_at_opening)
 {
     Sqlite::Database database{Utils::PathString{Utils::TemporaryDirectory::masterDirectoryPath()
                                                 + "/database_does_not_exist.db"}};
@@ -167,7 +167,7 @@ TEST_F(SqliteDatabase, DatabaseIsNotInitializedIfDatabasePathDoesNotExistAtOpeni
     ASSERT_FALSE(database.isInitialized());
 }
 
-TEST_F(SqliteDatabase, GetChangesCount)
+TEST_F(SqliteDatabase, get_changes_count)
 {
     Sqlite::WriteStatement<1> statement("INSERT INTO test(name) VALUES (?)", database);
     statement.write(42);
@@ -175,7 +175,7 @@ TEST_F(SqliteDatabase, GetChangesCount)
     ASSERT_THAT(database.changesCount(), 1);
 }
 
-TEST_F(SqliteDatabase, GetTotalChangesCount)
+TEST_F(SqliteDatabase, get_total_changes_count)
 {
     Sqlite::WriteStatement<1> statement("INSERT INTO test(name) VALUES (?)", database);
     statement.write(42);
@@ -183,7 +183,7 @@ TEST_F(SqliteDatabase, GetTotalChangesCount)
     ASSERT_THAT(database.lastInsertedRowId(), 1);
 }
 
-TEST_F(SqliteDatabase, GetLastInsertedRowId)
+TEST_F(SqliteDatabase, get_last_inserted_row_id)
 {
     Sqlite::WriteStatement<1> statement("INSERT INTO test(name) VALUES (?)", database);
     statement.write(42);
@@ -191,49 +191,49 @@ TEST_F(SqliteDatabase, GetLastInsertedRowId)
     ASSERT_THAT(database.lastInsertedRowId(), 1);
 }
 
-TEST_F(SqliteDatabase, LastRowId)
+TEST_F(SqliteDatabase, last_row_id)
 {
     database.setLastInsertedRowId(42);
 
     ASSERT_THAT(database.lastInsertedRowId(), 42);
 }
 
-TEST_F(SqliteDatabase, DeferredBegin)
+TEST_F(SqliteDatabase, deferred_begin)
 {
     ASSERT_NO_THROW(transactionInterface.deferredBegin());
 
     transactionInterface.commit();
 }
 
-TEST_F(SqliteDatabase, ImmediateBegin)
+TEST_F(SqliteDatabase, immediate_begin)
 {
     ASSERT_NO_THROW(transactionInterface.immediateBegin());
 
     transactionInterface.commit();
 }
 
-TEST_F(SqliteDatabase, ExclusiveBegin)
+TEST_F(SqliteDatabase, exclusive_begin)
 {
     ASSERT_NO_THROW(transactionInterface.exclusiveBegin());
 
     transactionInterface.commit();
 }
 
-TEST_F(SqliteDatabase, Commit)
+TEST_F(SqliteDatabase, commit)
 {
     transactionInterface.deferredBegin();
 
     ASSERT_NO_THROW(transactionInterface.commit());
 }
 
-TEST_F(SqliteDatabase, Rollback)
+TEST_F(SqliteDatabase, rollback)
 {
     transactionInterface.deferredBegin();
 
     ASSERT_NO_THROW(transactionInterface.rollback());
 }
 
-TEST_F(SqliteDatabase, SetUpdateHookSet)
+TEST_F(SqliteDatabase, set_update_hook_set)
 {
     database.setUpdateHook(this, updateHookCallback);
 
@@ -241,7 +241,7 @@ TEST_F(SqliteDatabase, SetUpdateHookSet)
     Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
-TEST_F(SqliteDatabase, SetNullUpdateHook)
+TEST_F(SqliteDatabase, set_null_update_hook)
 {
     database.setUpdateHook(this, updateHookCallback);
 
@@ -251,7 +251,7 @@ TEST_F(SqliteDatabase, SetNullUpdateHook)
     Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
-TEST_F(SqliteDatabase, ResetUpdateHook)
+TEST_F(SqliteDatabase, reset_update_hook)
 {
     database.setUpdateHook(this, updateHookCallback);
 
@@ -261,7 +261,7 @@ TEST_F(SqliteDatabase, ResetUpdateHook)
     Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
-TEST_F(SqliteDatabase, DeleteUpdateHookCall)
+TEST_F(SqliteDatabase, delete_update_hook_call)
 {
     Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
     database.setUpdateHook(this, updateHookCallback);
@@ -271,7 +271,7 @@ TEST_F(SqliteDatabase, DeleteUpdateHookCall)
     Sqlite::WriteStatement("DELETE FROM test WHERE name = 42", database).execute();
 }
 
-TEST_F(SqliteDatabase, InsertUpdateHookCall)
+TEST_F(SqliteDatabase, insert_update_hook_call)
 {
     database.setUpdateHook(this, updateHookCallback);
 
@@ -280,7 +280,7 @@ TEST_F(SqliteDatabase, InsertUpdateHookCall)
     Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
-TEST_F(SqliteDatabase, UpdateUpdateHookCall)
+TEST_F(SqliteDatabase, update_update_hook_call)
 {
     database.setUpdateHook(this, updateHookCallback);
 
@@ -289,7 +289,7 @@ TEST_F(SqliteDatabase, UpdateUpdateHookCall)
     Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
-TEST_F(SqliteDatabase, RowIdUpdateHookCall)
+TEST_F(SqliteDatabase, row_id_update_hook_call)
 {
     database.setUpdateHook(this, updateHookCallback);
 
@@ -298,7 +298,7 @@ TEST_F(SqliteDatabase, RowIdUpdateHookCall)
     Sqlite::WriteStatement<2>("INSERT INTO test(rowid, name) VALUES (?,?)", database).write(42, "foo");
 }
 
-TEST_F(SqliteDatabase, DatabaseUpdateHookCall)
+TEST_F(SqliteDatabase, database_update_hook_call)
 {
     database.setUpdateHook(this, updateHookCallback);
 
@@ -307,7 +307,7 @@ TEST_F(SqliteDatabase, DatabaseUpdateHookCall)
     Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
-TEST_F(SqliteDatabase, TableUpdateHookCall)
+TEST_F(SqliteDatabase, table_update_hook_call)
 {
     database.setUpdateHook(this, updateHookCallback);
 
@@ -316,7 +316,7 @@ TEST_F(SqliteDatabase, TableUpdateHookCall)
     Sqlite::WriteStatement<1>("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
 
-TEST_F(SqliteDatabase, SessionsCommit)
+TEST_F(SqliteDatabase, sessions_commit)
 {
     database.setAttachedTables({"test"});
     Sqlite::WriteStatement<2>("INSERT INTO test(id, name) VALUES (?,?)", database).write(1, "foo");
@@ -333,7 +333,7 @@ TEST_F(SqliteDatabase, SessionsCommit)
     ASSERT_THAT(names(), UnorderedElementsAre("foo", "bar"));
 }
 
-TEST_F(SqliteDatabase, SessionsRollback)
+TEST_F(SqliteDatabase, sessions_rollback)
 {
     database.setAttachedTables({"test"});
     Sqlite::WriteStatement<2>("INSERT INTO test(id, name) VALUES (?,?)", database).write(1, "foo");
@@ -351,7 +351,7 @@ TEST_F(SqliteDatabase, SessionsRollback)
     ASSERT_THAT(names(), UnorderedElementsAre("foo", "hoo"));
 }
 
-TEST_F(SqliteDatabase, ProgressHandlerInterrupts)
+TEST_F(SqliteDatabase, progress_handler_interrupts)
 {
     Sqlite::WriteStatement<1> statement("INSERT INTO test(name) VALUES (?)", database);
     lock.unlock();
@@ -362,7 +362,7 @@ TEST_F(SqliteDatabase, ProgressHandlerInterrupts)
     lock.unlock();
 }
 
-TEST_F(SqliteDatabase, ProgressHandlerContinues)
+TEST_F(SqliteDatabase, progress_handler_continues)
 {
     Sqlite::WriteStatement<1> statement("INSERT INTO test(name) VALUES (?)", database);
     lock.unlock();
@@ -373,7 +373,7 @@ TEST_F(SqliteDatabase, ProgressHandlerContinues)
     lock.unlock();
 }
 
-TEST_F(SqliteDatabase, ProgressHandlerResetsAfterLeavingScope)
+TEST_F(SqliteDatabase, progress_handler_resets_after_leaving_scope)
 {
     lock.unlock();
     {

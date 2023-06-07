@@ -36,7 +36,7 @@ protected:
     QImage smallImage1{1, 1, QImage::Format_ARGB32};
 };
 
-TEST_F(AsynchronousImageFactory, RequestImageRequestImageFromCollector)
+TEST_F(AsynchronousImageFactory, request_image_request_image_from_collector)
 {
     EXPECT_CALL(collectorMock,
                 start(Eq("/path/to/Component.qml"),
@@ -50,7 +50,7 @@ TEST_F(AsynchronousImageFactory, RequestImageRequestImageFromCollector)
     notification.wait();
 }
 
-TEST_F(AsynchronousImageFactory, RequestImageWithExtraIdRequestImageFromCollector)
+TEST_F(AsynchronousImageFactory, request_image_with_extra_id_request_image_from_collector)
 {
     EXPECT_CALL(collectorMock,
                 start(Eq("/path/to/Component.qml"),
@@ -64,7 +64,7 @@ TEST_F(AsynchronousImageFactory, RequestImageWithExtraIdRequestImageFromCollecto
     notification.wait();
 }
 
-TEST_F(AsynchronousImageFactory, RequestImageWithAuxiliaryDataRequestImageFromCollector)
+TEST_F(AsynchronousImageFactory, request_image_with_auxiliary_data_request_image_from_collector)
 {
     std::vector<QSize> sizes{{20, 11}};
 
@@ -88,7 +88,7 @@ TEST_F(AsynchronousImageFactory, RequestImageWithAuxiliaryDataRequestImageFromCo
     notification.wait();
 }
 
-TEST_F(AsynchronousImageFactory, DontRequestImageRequestImageFromCollectorIfFileWasUpdatedRecently)
+TEST_F(AsynchronousImageFactory, dont_request_image_request_image_from_collector_if_file_was_updated_recently)
 {
     ON_CALL(storageMock, fetchModifiedImageTime(Eq("/path/to/Component.qml"))).WillByDefault([&](auto) {
         notification.notify();
@@ -105,7 +105,7 @@ TEST_F(AsynchronousImageFactory, DontRequestImageRequestImageFromCollectorIfFile
     notification.wait();
 }
 
-TEST_F(AsynchronousImageFactory, RequestImageRequestImageFromCollectorIfFileWasNotUpdatedRecently)
+TEST_F(AsynchronousImageFactory, request_image_request_image_from_collector_if_file_was_not_updated_recently)
 {
     ON_CALL(storageMock, fetchModifiedImageTime(Eq("/path/to/Component.qml")))
         .WillByDefault(Return(Sqlite::TimeStamp{123}));
@@ -121,7 +121,7 @@ TEST_F(AsynchronousImageFactory, RequestImageRequestImageFromCollectorIfFileWasN
     notification.wait();
 }
 
-TEST_F(AsynchronousImageFactory, CleanRemovesEntries)
+TEST_F(AsynchronousImageFactory, clean_removes_entries)
 {
     EXPECT_CALL(collectorMock, start(Eq("/path/to/Component1.qml"), _, _, _, _))
         .WillRepeatedly([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
@@ -134,7 +134,7 @@ TEST_F(AsynchronousImageFactory, CleanRemovesEntries)
     waitInThread.notify();
 }
 
-TEST_F(AsynchronousImageFactory, AfterCleanNewJobsWorks)
+TEST_F(AsynchronousImageFactory, after_clean_new_jobs_works)
 {
     factory.clean();
 
@@ -150,7 +150,7 @@ TEST_F(AsynchronousImageFactory, AfterCleanNewJobsWorks)
     notification.wait();
 }
 
-TEST_F(AsynchronousImageFactory, CaptureImageCallbackStoresImage)
+TEST_F(AsynchronousImageFactory, capture_image_callback_stores_image)
 {
     ON_CALL(storageMock, fetchModifiedImageTime(Eq("/path/to/Component.qml")))
         .WillByDefault(Return(Sqlite::TimeStamp{123}));

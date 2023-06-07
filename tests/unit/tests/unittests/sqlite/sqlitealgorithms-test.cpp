@@ -112,7 +112,7 @@ auto compareKey = [](KeyValueView keyValueView, const KeyValue &keyValue) {
     return Sqlite::compare(keyValueView.key, keyValue.key);
 };
 
-TEST_F(SqliteAlgorithms, InsertValues)
+TEST_F(SqliteAlgorithms, insert_values)
 {
     KeyValues keyValues = {{"one", 1}, {"oneone", 11}};
 
@@ -121,7 +121,7 @@ TEST_F(SqliteAlgorithms, InsertValues)
     ASSERT_THAT(fetchKeyValues(), UnorderedElementsAre(KeyValue{"one", 1}, KeyValue{"oneone", 11}));
 }
 
-TEST_F(SqliteAlgorithms, InsertBeforeValues)
+TEST_F(SqliteAlgorithms, insert_before_values)
 {
     KeyValues keyValues = {{"two", 2}, {"twotwo", 22}};
     Sqlite::insertUpdateDelete(select(), keyValues, compareKey, insert, update, remove);
@@ -136,7 +136,7 @@ TEST_F(SqliteAlgorithms, InsertBeforeValues)
                                      KeyValue{"twotwo", 22}));
 }
 
-TEST_F(SqliteAlgorithms, InsertInBetweenValues)
+TEST_F(SqliteAlgorithms, insert_in_between_values)
 {
     KeyValues keyValues = {{"one", 1}, {"two", 2}};
     Sqlite::insertUpdateDelete(select(), keyValues, compareKey, insert, update, remove);
@@ -151,7 +151,7 @@ TEST_F(SqliteAlgorithms, InsertInBetweenValues)
                                      KeyValue{"twotwo", 22}));
 }
 
-TEST_F(SqliteAlgorithms, InsertTrailingValues)
+TEST_F(SqliteAlgorithms, insert_trailing_values)
 {
     KeyValues keyValues = {{"one", 1}, {"oneone", 11}};
     Sqlite::insertUpdateDelete(select(), keyValues, compareKey, insert, update, remove);
@@ -166,7 +166,7 @@ TEST_F(SqliteAlgorithms, InsertTrailingValues)
                                      KeyValue{"twotwo", 22}));
 }
 
-TEST_F(SqliteAlgorithms, UpdateValues)
+TEST_F(SqliteAlgorithms, update_values)
 {
     KeyValues keyValues = {{"one", 1}, {"oneone", 11}};
     Sqlite::insertUpdateDelete(select(), keyValues, compareKey, insert, update, remove);
@@ -177,7 +177,7 @@ TEST_F(SqliteAlgorithms, UpdateValues)
     ASSERT_THAT(fetchKeyValues(), UnorderedElementsAre(KeyValue{"one", 2}, KeyValue{"oneone", 22}));
 }
 
-TEST_F(SqliteAlgorithms, UpdateSomeValues)
+TEST_F(SqliteAlgorithms, update_some_values)
 {
     KeyValues keyValues = {{"one", 1}, {"oneone", 11}, {"two", 2}, {"twotwo", 22}};
     Sqlite::insertUpdateDelete(select(), keyValues, compareKey, insert, update, remove);
@@ -192,7 +192,7 @@ TEST_F(SqliteAlgorithms, UpdateSomeValues)
                                      KeyValue{"twotwo", 22}));
 }
 
-TEST_F(SqliteAlgorithms, DeleteBeforeSqliteEntries)
+TEST_F(SqliteAlgorithms, delete_before_sqlite_entries)
 {
     KeyValues keyValues = {{"one", 1}, {"oneone", 11}, {"two", 2}, {"twotwo", 22}};
     Sqlite::insertUpdateDelete(select(), keyValues, compareKey, insert, update, remove);
@@ -203,7 +203,7 @@ TEST_F(SqliteAlgorithms, DeleteBeforeSqliteEntries)
     ASSERT_THAT(fetchKeyValues(), UnorderedElementsAre(KeyValue{"two", 2}, KeyValue{"twotwo", 22}));
 }
 
-TEST_F(SqliteAlgorithms, DeleteTrailingSqliteEntries2)
+TEST_F(SqliteAlgorithms, delete_trailing_sqlite_entries2)
 {
     KeyValues keyValues = {{"one", 1}, {"oneone", 11}, {"two", 2}, {"twotwo", 22}};
     Sqlite::insertUpdateDelete(select(), keyValues, compareKey, insert, update, remove);
@@ -214,7 +214,7 @@ TEST_F(SqliteAlgorithms, DeleteTrailingSqliteEntries2)
     ASSERT_THAT(fetchKeyValues(), UnorderedElementsAre(KeyValue{"one", 1}, KeyValue{"oneone", 11}));
 }
 
-TEST_F(SqliteAlgorithms, DeleteTrailingSqliteEntries)
+TEST_F(SqliteAlgorithms, delete_trailing_sqlite_entries)
 {
     KeyValues keyValues = {{"one", 1}, {"oneone", 11}, {"two", 2}, {"twotwo", 22}};
     Sqlite::insertUpdateDelete(select(), keyValues, compareKey, insert, update, remove);
@@ -225,7 +225,7 @@ TEST_F(SqliteAlgorithms, DeleteTrailingSqliteEntries)
     ASSERT_THAT(fetchKeyValues(), UnorderedElementsAre(KeyValue{"one", 1}, KeyValue{"oneone", 11}));
 }
 
-TEST_F(SqliteAlgorithms, DeleteSqliteEntries)
+TEST_F(SqliteAlgorithms, delete_sqlite_entries)
 {
     KeyValues keyValues = {{"one", 1}, {"oneone", 11}, {"two", 2}, {"twotwo", 22}};
     Sqlite::insertUpdateDelete(select(), keyValues, compareKey, insert, update, remove);
@@ -236,7 +236,7 @@ TEST_F(SqliteAlgorithms, DeleteSqliteEntries)
     ASSERT_THAT(fetchKeyValues(), IsEmpty());
 }
 
-TEST_F(SqliteAlgorithms, Synchonize)
+TEST_F(SqliteAlgorithms, synchonize)
 {
     KeyValues keyValues = {{"one", 1}, {"oneone", 11}, {"two", 2}, {"twotwo", 22}};
     Sqlite::insertUpdateDelete(select(), keyValues, compareKey, insert, update, remove);
@@ -250,28 +250,28 @@ TEST_F(SqliteAlgorithms, Synchonize)
                                      KeyValue{"twotwo", 202}));
 }
 
-TEST_F(SqliteAlgorithms, CompareEqual)
+TEST_F(SqliteAlgorithms, compare_equal)
 {
     auto compare = Sqlite::compare("one", "one");
 
     ASSERT_THAT(compare, Eq(0));
 }
 
-TEST_F(SqliteAlgorithms, CompareGreater)
+TEST_F(SqliteAlgorithms, compare_greater)
 {
     auto compare = Sqlite::compare("two", "one");
 
     ASSERT_THAT(compare, Gt(0));
 }
 
-TEST_F(SqliteAlgorithms, CompareGreaterForTrailingText)
+TEST_F(SqliteAlgorithms, compare_greater_for_trailing_text)
 {
     auto compare = Sqlite::compare("oneone", "one");
 
     ASSERT_THAT(compare, Gt(0));
 }
 
-TEST_F(SqliteAlgorithms, CompareLessForTrailingText)
+TEST_F(SqliteAlgorithms, compare_less_for_trailing_text)
 {
     auto compare = Sqlite::compare("one", "oneone");
 

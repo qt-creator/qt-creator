@@ -7,91 +7,91 @@
 
 namespace {
 
-TEST(SourcePathView, FilePathSlashForEmptyPath)
+TEST(SourcePathView, file_path_slash_for_empty_path)
 {
     QmlDesigner::SourcePathView filePath("");
 
     ASSERT_THAT(filePath.slashIndex(), -1);
 }
 
-TEST(SourcePathView, FilePathSlashForSingleSlash)
+TEST(SourcePathView, file_path_slash_for_single_slash)
 {
     QmlDesigner::SourcePathView filePath("/");
 
     ASSERT_THAT(filePath.slashIndex(), 0);
 }
 
-TEST(SourcePathView, FilePathSlashForFileInRoot)
+TEST(SourcePathView, file_path_slash_for_file_in_root)
 {
     QmlDesigner::SourcePathView filePath("/file.h");
 
     ASSERT_THAT(filePath.slashIndex(), 0);
 }
 
-TEST(SourcePathView, FilePathSlashForSomeLongerPath)
+TEST(SourcePathView, file_path_slash_for_some_longer_path)
 {
     QmlDesigner::SourcePathView filePath("/path/to/some/file.h");
 
     ASSERT_THAT(filePath.slashIndex(), 13);
 }
 
-TEST(SourcePathView, FilePathSlashForFileNameOnly)
+TEST(SourcePathView, file_path_slash_for_file_name_only)
 {
     QmlDesigner::SourcePathView filePath("file.h");
 
     ASSERT_THAT(filePath.slashIndex(), -1);
 }
 
-TEST(SourcePathView, DirectoryPathForEmptyPath)
+TEST(SourcePathView, directory_path_for_empty_path)
 {
     QmlDesigner::SourcePathView filePath("");
 
     ASSERT_THAT(filePath.directory(), "");
 }
 
-TEST(SourcePathView, DirectoryPathForSingleSlashPath)
+TEST(SourcePathView, directory_path_for_single_slash_path)
 {
     QmlDesigner::SourcePathView filePath{"/"};
 
     ASSERT_THAT(filePath.directory(), "");
 }
 
-TEST(SourcePathView, DirectoryPathForLongerPath)
+TEST(SourcePathView, directory_path_for_longer_path)
 {
     QmlDesigner::SourcePathView filePath{"/path/to/some/file.h"};
 
     ASSERT_THAT(filePath.directory(), "/path/to/some");
 }
 
-TEST(SourcePathView, DirectoryPathForFileNameOnly)
+TEST(SourcePathView, directory_path_for_file_name_only)
 {
     QmlDesigner::SourcePathView filePath{"file.h"};
 
     ASSERT_THAT(filePath.directory(), IsEmpty());
 }
 
-TEST(SourcePathView, FileNameForEmptyPath)
+TEST(SourcePathView, file_name_for_empty_path)
 {
     QmlDesigner::SourcePathView filePath("");
 
     ASSERT_THAT(filePath.name(), "");
 }
 
-TEST(SourcePathView, FileNameForSingleSlashPath)
+TEST(SourcePathView, file_name_for_single_slash_path)
 {
     QmlDesigner::SourcePathView filePath{"/"};
 
     ASSERT_THAT(filePath.name(), "");
 }
 
-TEST(SourcePathView, FileNameForLongerPath)
+TEST(SourcePathView, file_name_for_longer_path)
 {
     QmlDesigner::SourcePathView filePath{"/path/to/some/file.h"};
 
     ASSERT_THAT(filePath.name(), "file.h");
 }
 
-TEST(SourcePathView, FileNameForFileNameOnly)
+TEST(SourcePathView, file_name_for_file_name_only)
 {
     QmlDesigner::SourcePathView filePath{"file.h"};
 

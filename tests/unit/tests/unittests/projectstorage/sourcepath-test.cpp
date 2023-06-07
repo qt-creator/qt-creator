@@ -7,7 +7,7 @@
 
 namespace {
 
-TEST(SourcePath, CreateFromPathString)
+TEST(SourcePath, create_from_path_string)
 {
     QmlDesigner::SourcePath sourcePath{Utils::PathString{"/file/pathOne"}};
 
@@ -15,7 +15,7 @@ TEST(SourcePath, CreateFromPathString)
     ASSERT_THAT(sourcePath.name(), "pathOne");
 }
 
-TEST(FilePath, CreateFromDirectoryAndFileName)
+TEST(FilePath, create_from_directory_and_file_name)
 {
     QmlDesigner::SourcePath sourcePath{Utils::PathString{"/file"}, Utils::PathString{"pathOne"}};
 
@@ -24,7 +24,7 @@ TEST(FilePath, CreateFromDirectoryAndFileName)
     ASSERT_THAT(sourcePath.path(), "/file/pathOne");
 }
 
-TEST(FilePath, CreateFromCString)
+TEST(FilePath, create_from_c_string)
 {
     QmlDesigner::SourcePath sourcePath{"/file/pathOne"};
 
@@ -32,7 +32,7 @@ TEST(FilePath, CreateFromCString)
     ASSERT_THAT(sourcePath.name(), "pathOne");
 }
 
-TEST(FilePath, CreateFromFilePathView)
+TEST(FilePath, create_from_file_path_view)
 {
     QmlDesigner::SourcePath sourcePath{QmlDesigner::SourcePathView{"/file/pathOne"}};
 
@@ -40,7 +40,7 @@ TEST(FilePath, CreateFromFilePathView)
     ASSERT_THAT(sourcePath.name(), "pathOne");
 }
 
-TEST(FilePath, CreateFromQString)
+TEST(FilePath, create_from_q_string)
 {
     QmlDesigner::SourcePath sourcePath{QString{"/file/pathOne"}};
 
@@ -48,7 +48,7 @@ TEST(FilePath, CreateFromQString)
     ASSERT_THAT(sourcePath.name(), "pathOne");
 }
 
-TEST(FilePath, DefaultFilePath)
+TEST(FilePath, default_file_path)
 {
     QmlDesigner::SourcePath sourcePath;
 
@@ -56,7 +56,7 @@ TEST(FilePath, DefaultFilePath)
     ASSERT_THAT(sourcePath.name(), "");
 }
 
-TEST(FilePath, EmptyFilePath)
+TEST(FilePath, empty_file_path)
 {
     QmlDesigner::SourcePath sourcePath("");
 

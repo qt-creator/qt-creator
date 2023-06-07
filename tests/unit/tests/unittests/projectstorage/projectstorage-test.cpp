@@ -1051,7 +1051,7 @@ protected:
     Storage::Synchronization::Imports moduleDependenciesSourceId5;
 };
 
-TEST_F(ProjectStorage, FetchSourceContextIdReturnsAlwaysTheSameIdForTheSamePath)
+TEST_F(ProjectStorage, fetch_source_context_id_returns_always_the_same_id_for_the_same_path)
 {
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
 
@@ -1060,7 +1060,7 @@ TEST_F(ProjectStorage, FetchSourceContextIdReturnsAlwaysTheSameIdForTheSamePath)
     ASSERT_THAT(newSourceContextId, Eq(sourceContextId));
 }
 
-TEST_F(ProjectStorage, FetchSourceContextIdReturnsNotTheSameIdForDifferentPath)
+TEST_F(ProjectStorage, fetch_source_context_id_returns_not_the_same_id_for_different_path)
 {
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
 
@@ -1069,7 +1069,7 @@ TEST_F(ProjectStorage, FetchSourceContextIdReturnsNotTheSameIdForDifferentPath)
     ASSERT_THAT(newSourceContextId, Ne(sourceContextId));
 }
 
-TEST_F(ProjectStorage, FetchSourceContextPath)
+TEST_F(ProjectStorage, fetch_source_context_path)
 {
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
 
@@ -1078,13 +1078,13 @@ TEST_F(ProjectStorage, FetchSourceContextPath)
     ASSERT_THAT(path, Eq("/path/to"));
 }
 
-TEST_F(ProjectStorage, FetchUnknownSourceContextPathThrows)
+TEST_F(ProjectStorage, fetch_unknown_source_context_path_throws)
 {
     ASSERT_THROW(storage.fetchSourceContextPath(SourceContextId::create(323)),
                  QmlDesigner::SourceContextIdDoesNotExists);
 }
 
-TEST_F(ProjectStorage, FetchAllSourceContextsAreEmptyIfNoSourceContextsExists)
+TEST_F(ProjectStorage, fetch_all_source_contexts_are_empty_if_no_source_contexts_exists)
 {
     storage.clearSources();
 
@@ -1093,7 +1093,7 @@ TEST_F(ProjectStorage, FetchAllSourceContextsAreEmptyIfNoSourceContextsExists)
     ASSERT_THAT(toValues(sourceContexts), IsEmpty());
 }
 
-TEST_F(ProjectStorage, FetchAllSourceContexts)
+TEST_F(ProjectStorage, fetch_all_source_contexts)
 {
     storage.clearSources();
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
@@ -1106,7 +1106,7 @@ TEST_F(ProjectStorage, FetchAllSourceContexts)
                                      IsSourceContext(sourceContextId2, "/path/to2")));
 }
 
-TEST_F(ProjectStorage, FetchSourceIdFirstTime)
+TEST_F(ProjectStorage, fetch_source_id_first_time)
 {
     addSomeDummyData();
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
@@ -1116,7 +1116,7 @@ TEST_F(ProjectStorage, FetchSourceIdFirstTime)
     ASSERT_TRUE(sourceId.isValid());
 }
 
-TEST_F(ProjectStorage, FetchExistingSourceId)
+TEST_F(ProjectStorage, fetch_existing_source_id)
 {
     addSomeDummyData();
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
@@ -1127,7 +1127,7 @@ TEST_F(ProjectStorage, FetchExistingSourceId)
     ASSERT_THAT(sourceId, createdSourceId);
 }
 
-TEST_F(ProjectStorage, FetchSourceIdWithDifferentContextIdAreNotEqual)
+TEST_F(ProjectStorage, fetch_source_id_with_different_context_id_are_not_equal)
 {
     addSomeDummyData();
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
@@ -1139,7 +1139,7 @@ TEST_F(ProjectStorage, FetchSourceIdWithDifferentContextIdAreNotEqual)
     ASSERT_THAT(sourceId, Ne(sourceId2));
 }
 
-TEST_F(ProjectStorage, FetchSourceIdWithDifferentNameAreNotEqual)
+TEST_F(ProjectStorage, fetch_source_id_with_different_name_are_not_equal)
 {
     addSomeDummyData();
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
@@ -1150,19 +1150,19 @@ TEST_F(ProjectStorage, FetchSourceIdWithDifferentNameAreNotEqual)
     ASSERT_THAT(sourceId, Ne(sourceId2));
 }
 
-TEST_F(ProjectStorage, FetchSourceIdWithNonExistingSourceContextIdThrows)
+TEST_F(ProjectStorage, fetch_source_id_with_non_existing_source_context_id_throws)
 {
     ASSERT_THROW(storage.fetchSourceId(SourceContextId::create(42), "foo"),
                  Sqlite::ConstraintPreventsModification);
 }
 
-TEST_F(ProjectStorage, FetchSourceNameAndSourceContextIdForNonExistingSourceId)
+TEST_F(ProjectStorage, fetch_source_name_and_source_context_id_for_non_existing_source_id)
 {
     ASSERT_THROW(storage.fetchSourceNameAndSourceContextId(SourceId::create(212)),
                  QmlDesigner::SourceIdDoesNotExists);
 }
 
-TEST_F(ProjectStorage, FetchSourceNameAndSourceContextIdForNonExistingEntry)
+TEST_F(ProjectStorage, fetch_source_name_and_source_context_id_for_non_existing_entry)
 {
     addSomeDummyData();
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
@@ -1173,13 +1173,13 @@ TEST_F(ProjectStorage, FetchSourceNameAndSourceContextIdForNonExistingEntry)
     ASSERT_THAT(sourceNameAndSourceContextId, IsSourceNameAndSourceContextId("foo", sourceContextId));
 }
 
-TEST_F(ProjectStorage, FetchSourceContextIdForNonExistingSourceId)
+TEST_F(ProjectStorage, fetch_source_context_id_for_non_existing_source_id)
 {
     ASSERT_THROW(storage.fetchSourceContextId(SourceId::create(212)),
                  QmlDesigner::SourceIdDoesNotExists);
 }
 
-TEST_F(ProjectStorage, FetchSourceContextIdForExistingSourceId)
+TEST_F(ProjectStorage, fetch_source_context_id_for_existing_source_id)
 {
     addSomeDummyData();
     auto originalSourceContextId = storage.fetchSourceContextId("/path/to3");
@@ -1190,7 +1190,7 @@ TEST_F(ProjectStorage, FetchSourceContextIdForExistingSourceId)
     ASSERT_THAT(sourceContextId, Eq(originalSourceContextId));
 }
 
-TEST_F(ProjectStorage, FetchAllSources)
+TEST_F(ProjectStorage, fetch_all_sources)
 {
     storage.clearSources();
 
@@ -1199,7 +1199,7 @@ TEST_F(ProjectStorage, FetchAllSources)
     ASSERT_THAT(toValues(sources), IsEmpty());
 }
 
-TEST_F(ProjectStorage, FetchSourceIdUnguardedFirstTime)
+TEST_F(ProjectStorage, fetch_source_id_unguarded_first_time)
 {
     addSomeDummyData();
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
@@ -1210,7 +1210,7 @@ TEST_F(ProjectStorage, FetchSourceIdUnguardedFirstTime)
     ASSERT_TRUE(sourceId.isValid());
 }
 
-TEST_F(ProjectStorage, FetchExistingSourceIdUnguarded)
+TEST_F(ProjectStorage, fetch_existing_source_id_unguarded)
 {
     addSomeDummyData();
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
@@ -1222,7 +1222,7 @@ TEST_F(ProjectStorage, FetchExistingSourceIdUnguarded)
     ASSERT_THAT(sourceId, createdSourceId);
 }
 
-TEST_F(ProjectStorage, FetchSourceIdUnguardedWithDifferentContextIdAreNotEqual)
+TEST_F(ProjectStorage, fetch_source_id_unguarded_with_different_context_id_are_not_equal)
 {
     addSomeDummyData();
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
@@ -1235,7 +1235,7 @@ TEST_F(ProjectStorage, FetchSourceIdUnguardedWithDifferentContextIdAreNotEqual)
     ASSERT_THAT(sourceId, Ne(sourceId2));
 }
 
-TEST_F(ProjectStorage, FetchSourceIdUnguardedWithDifferentNameAreNotEqual)
+TEST_F(ProjectStorage, fetch_source_id_unguarded_with_different_name_are_not_equal)
 {
     addSomeDummyData();
     auto sourceContextId = storage.fetchSourceContextId("/path/to");
@@ -1247,7 +1247,7 @@ TEST_F(ProjectStorage, FetchSourceIdUnguardedWithDifferentNameAreNotEqual)
     ASSERT_THAT(sourceId, Ne(sourceId2));
 }
 
-TEST_F(ProjectStorage, FetchSourceIdUnguardedWithNonExistingSourceContextIdThrows)
+TEST_F(ProjectStorage, fetch_source_id_unguarded_with_non_existing_source_context_id_throws)
 {
     std::lock_guard lock{database};
 
@@ -1255,7 +1255,7 @@ TEST_F(ProjectStorage, FetchSourceIdUnguardedWithNonExistingSourceContextIdThrow
                  Sqlite::ConstraintPreventsModification);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypes)
+TEST_F(ProjectStorage, synchronize_types_adds_new_types)
 {
     auto package{createSimpleSynchronizationPackage()};
 
@@ -1278,7 +1278,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypes)
                                                                     "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithExtensionChain)
+TEST_F(ProjectStorage, synchronize_types_adds_new_types_with_extension_chain)
 {
     auto package{createSimpleSynchronizationPackage()};
     swap(package.types.front().extension, package.types.front().prototype);
@@ -1303,7 +1303,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithExtensionChain)
                                                                     "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithExportedPrototypeName)
+TEST_F(ProjectStorage, synchronize_types_adds_new_types_with_exported_prototype_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::ImportedType{"Object"};
@@ -1328,7 +1328,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithExportedPrototypeName)
                                              IsExportedType(qtQuickNativeModuleId, "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithExportedExtensionName)
+TEST_F(ProjectStorage, synchronize_types_adds_new_types_with_exported_extension_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     swap(package.types.front().extension, package.types.front().prototype);
@@ -1354,7 +1354,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithExportedExtensionName)
                                                                     "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesThrowsWithWrongPrototypeName)
+TEST_F(ProjectStorage, synchronize_types_adds_new_types_throws_with_wrong_prototype_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::ImportedType{"Objec"};
@@ -1362,7 +1362,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesThrowsWithWrongPrototypeName)
     ASSERT_THROW(storage.synchronize(std::move(package)), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesThrowsWithWrongExtensionName)
+TEST_F(ProjectStorage, synchronize_types_adds_new_types_throws_with_wrong_extension_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].extension = Storage::Synchronization::ImportedType{"Objec"};
@@ -1370,7 +1370,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesThrowsWithWrongExtensionName)
     ASSERT_THROW(storage.synchronize(std::move(package)), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithMissingModule)
+TEST_F(ProjectStorage, synchronize_types_adds_new_types_with_missing_module)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types.push_back(Storage::Synchronization::Type{
@@ -1385,7 +1385,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithMissingModule)
     ASSERT_THROW(storage.synchronize(std::move(package)), QmlDesigner::ExportedTypeCannotBeInserted);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesReverseOrder)
+TEST_F(ProjectStorage, synchronize_types_adds_new_types_reverse_order)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::reverse(package.types.begin(), package.types.end());
@@ -1409,7 +1409,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesReverseOrder)
                                                                     "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesOverwritesTypeTraits)
+TEST_F(ProjectStorage, synchronize_types_overwrites_type_traits)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -1432,7 +1432,7 @@ TEST_F(ProjectStorage, SynchronizeTypesOverwritesTypeTraits)
                                              IsExportedType(qtQuickNativeModuleId, "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesOverwritesSources)
+TEST_F(ProjectStorage, synchronize_types_overwrites_sources)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -1467,7 +1467,7 @@ TEST_F(ProjectStorage, SynchronizeTypesOverwritesSources)
                                                                     "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesInsertTypeIntoPrototypeChain)
+TEST_F(ProjectStorage, synchronize_types_insert_type_into_prototype_chain)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -1510,7 +1510,7 @@ TEST_F(ProjectStorage, SynchronizeTypesInsertTypeIntoPrototypeChain)
                                              IsExportedType(qtQuickNativeModuleId, "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesInsertTypeIntoExtensionChain)
+TEST_F(ProjectStorage, synchronize_types_insert_type_into_extension_chain)
 {
     auto package{createSimpleSynchronizationPackage()};
     swap(package.types.front().extension, package.types.front().prototype);
@@ -1554,7 +1554,7 @@ TEST_F(ProjectStorage, SynchronizeTypesInsertTypeIntoExtensionChain)
                                              IsExportedType(qtQuickNativeModuleId, "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddQualifiedPrototype)
+TEST_F(ProjectStorage, synchronize_types_add_qualified_prototype)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
@@ -1599,7 +1599,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddQualifiedPrototype)
                                              IsExportedType(qtQuickNativeModuleId, "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddQualifiedExtension)
+TEST_F(ProjectStorage, synchronize_types_add_qualified_extension)
 {
     auto package{createSimpleSynchronizationPackage()};
     swap(package.types.front().extension, package.types.front().prototype);
@@ -1645,7 +1645,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddQualifiedExtension)
                                              IsExportedType(qtQuickNativeModuleId, "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesThrowsForMissingPrototype)
+TEST_F(ProjectStorage, synchronize_types_throws_for_missing_prototype)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types = {Storage::Synchronization::Type{
@@ -1660,7 +1660,7 @@ TEST_F(ProjectStorage, SynchronizeTypesThrowsForMissingPrototype)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesThrowsForMissingExtension)
+TEST_F(ProjectStorage, synchronize_types_throws_for_missing_extension)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types = {Storage::Synchronization::Type{
@@ -1675,7 +1675,7 @@ TEST_F(ProjectStorage, SynchronizeTypesThrowsForMissingExtension)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesThrowsForInvalidModule)
+TEST_F(ProjectStorage, synchronize_types_throws_for_invalid_module)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types = {
@@ -1689,7 +1689,7 @@ TEST_F(ProjectStorage, SynchronizeTypesThrowsForInvalidModule)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::ModuleDoesNotExists);
 }
 
-TEST_F(ProjectStorage, TypeWithInvalidSourceIdThrows)
+TEST_F(ProjectStorage, type_with_invalid_source_id_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types = {
@@ -1704,7 +1704,7 @@ TEST_F(ProjectStorage, TypeWithInvalidSourceIdThrows)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeHasInvalidSourceId);
 }
 
-TEST_F(ProjectStorage, DeleteTypeIfSourceIdIsSynchronized)
+TEST_F(ProjectStorage, delete_type_if_source_id_is_synchronized)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -1721,7 +1721,7 @@ TEST_F(ProjectStorage, DeleteTypeIfSourceIdIsSynchronized)
                                                      IsExportedType(qmlNativeModuleId, "QObject"))))));
 }
 
-TEST_F(ProjectStorage, DontDeleteTypeIfSourceIdIsNotSynchronized)
+TEST_F(ProjectStorage, dont_delete_type_if_source_id_is_not_synchronized)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -1745,7 +1745,7 @@ TEST_F(ProjectStorage, DontDeleteTypeIfSourceIdIsNotSynchronized)
                                                                     "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, UpdateExportedTypesIfTypeNameChanges)
+TEST_F(ProjectStorage, update_exported_types_if_type_name_changes)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -1770,7 +1770,7 @@ TEST_F(ProjectStorage, UpdateExportedTypesIfTypeNameChanges)
                                                                     "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, BreakingPrototypeChainByDeletingBaseComponentThrows)
+TEST_F(ProjectStorage, breaking_prototype_chain_by_deleting_base_component_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -1781,7 +1781,7 @@ TEST_F(ProjectStorage, BreakingPrototypeChainByDeletingBaseComponentThrows)
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, BreakingExtensionChainByDeletingBaseComponentThrows)
+TEST_F(ProjectStorage, breaking_extension_chain_by_deleting_base_component_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -1793,7 +1793,7 @@ TEST_F(ProjectStorage, BreakingExtensionChainByDeletingBaseComponentThrows)
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarations)
+TEST_F(ProjectStorage, synchronize_types_add_property_declarations)
 {
     auto package{createSimpleSynchronizationPackage()};
 
@@ -1814,7 +1814,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarations)
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarationsWithMissingImports)
+TEST_F(ProjectStorage, synchronize_types_add_property_declarations_with_missing_imports)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.imports.clear();
@@ -1822,7 +1822,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarationsWithMissingImports
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarationQualifiedType)
+TEST_F(ProjectStorage, synchronize_types_add_property_declaration_qualified_type)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
@@ -1856,7 +1856,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddPropertyDeclarationQualifiedType)
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesPropertyDeclarationType)
+TEST_F(ProjectStorage, synchronize_types_changes_property_declaration_type)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -1880,7 +1880,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesPropertyDeclarationType)
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesDeclarationTraits)
+TEST_F(ProjectStorage, synchronize_types_changes_declaration_traits)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -1903,7 +1903,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesDeclarationTraits)
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesDeclarationTraitsAndType)
+TEST_F(ProjectStorage, synchronize_types_changes_declaration_traits_and_type)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -1928,7 +1928,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesDeclarationTraitsAndType)
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemovesAPropertyDeclaration)
+TEST_F(ProjectStorage, synchronize_types_removes_a_property_declaration)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -1948,7 +1948,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovesAPropertyDeclaration)
                                          Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddsAPropertyDeclaration)
+TEST_F(ProjectStorage, synchronize_types_adds_a_property_declaration)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -1978,7 +1978,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsAPropertyDeclaration)
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRenameAPropertyDeclaration)
+TEST_F(ProjectStorage, synchronize_types_rename_a_property_declaration)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2001,7 +2001,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRenameAPropertyDeclaration)
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, UsingNonExistingPropertyTypeThrows)
+TEST_F(ProjectStorage, using_non_existing_property_type_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
@@ -2012,7 +2012,7 @@ TEST_F(ProjectStorage, UsingNonExistingPropertyTypeThrows)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, UsingNonExistingQualifiedExportedPropertyTypeWithWrongNameThrows)
+TEST_F(ProjectStorage, using_non_existing_qualified_exported_property_type_with_wrong_name_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
@@ -2026,7 +2026,7 @@ TEST_F(ProjectStorage, UsingNonExistingQualifiedExportedPropertyTypeWithWrongNam
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, UsingNonExistingQualifiedExportedPropertyTypeWithWrongModuleThrows)
+TEST_F(ProjectStorage, using_non_existing_qualified_exported_property_type_with_wrong_module_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
@@ -2038,7 +2038,7 @@ TEST_F(ProjectStorage, UsingNonExistingQualifiedExportedPropertyTypeWithWrongMod
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, BreakingPropertyDeclarationTypeDependencyByDeletingTypeThrows)
+TEST_F(ProjectStorage, breaking_property_declaration_type_dependency_by_deleting_type_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2049,7 +2049,7 @@ TEST_F(ProjectStorage, BreakingPropertyDeclarationTypeDependencyByDeletingTypeTh
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddFunctionDeclarations)
+TEST_F(ProjectStorage, synchronize_types_add_function_declarations)
 {
     auto package{createSimpleSynchronizationPackage()};
 
@@ -2066,7 +2066,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddFunctionDeclarations)
                                                      Eq(package.types[0].functionDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationReturnType)
+TEST_F(ProjectStorage, synchronize_types_changes_function_declaration_return_type)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2085,7 +2085,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationReturnType)
                                                      Eq(package.types[0].functionDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationName)
+TEST_F(ProjectStorage, synchronize_types_changes_function_declaration_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2104,7 +2104,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationName)
                                                      Eq(package.types[0].functionDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationPopParameters)
+TEST_F(ProjectStorage, synchronize_types_changes_function_declaration_pop_parameters)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2123,7 +2123,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationPopParameters)
                                                      Eq(package.types[0].functionDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationAppendParameters)
+TEST_F(ProjectStorage, synchronize_types_changes_function_declaration_append_parameters)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2143,7 +2143,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationAppendParameter
                                                      Eq(package.types[0].functionDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationChangeParameterName)
+TEST_F(ProjectStorage, synchronize_types_changes_function_declaration_change_parameter_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2162,7 +2162,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationChangeParameter
                                                      Eq(package.types[0].functionDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationChangeParameterTypeName)
+TEST_F(ProjectStorage, synchronize_types_changes_function_declaration_change_parameter_type_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2181,7 +2181,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationChangeParameter
                                                      Eq(package.types[0].functionDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationChangeParameterTraits)
+TEST_F(ProjectStorage, synchronize_types_changes_function_declaration_change_parameter_traits)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2201,7 +2201,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesFunctionDeclarationChangeParameter
                                                      Eq(package.types[0].functionDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemovesFunctionDeclaration)
+TEST_F(ProjectStorage, synchronize_types_removes_function_declaration)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2219,7 +2219,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovesFunctionDeclaration)
                                 UnorderedElementsAre(Eq(package.types[0].functionDeclarations[0]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddFunctionDeclaration)
+TEST_F(ProjectStorage, synchronize_types_add_function_declaration)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2240,7 +2240,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddFunctionDeclaration)
                                                      Eq(package.types[0].functionDeclarations[2]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddFunctionDeclarationsWithOverloads)
+TEST_F(ProjectStorage, synchronize_types_add_function_declarations_with_overloads)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].functionDeclarations.push_back(
@@ -2260,7 +2260,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddFunctionDeclarationsWithOverloads)
                                                      Eq(package.types[0].functionDeclarations[2]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesFunctionDeclarationsAddingOverload)
+TEST_F(ProjectStorage, synchronize_types_function_declarations_adding_overload)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2281,7 +2281,7 @@ TEST_F(ProjectStorage, SynchronizeTypesFunctionDeclarationsAddingOverload)
                                                      Eq(package.types[0].functionDeclarations[2]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesFunctionDeclarationsRemovingOverload)
+TEST_F(ProjectStorage, synchronize_types_function_declarations_removing_overload)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].functionDeclarations.push_back(
@@ -2302,7 +2302,7 @@ TEST_F(ProjectStorage, SynchronizeTypesFunctionDeclarationsRemovingOverload)
                                                      Eq(package.types[0].functionDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddSignalDeclarations)
+TEST_F(ProjectStorage, synchronize_types_add_signal_declarations)
 {
     auto package{createSimpleSynchronizationPackage()};
 
@@ -2319,7 +2319,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddSignalDeclarations)
                                                      Eq(package.types[0].signalDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationName)
+TEST_F(ProjectStorage, synchronize_types_changes_signal_declaration_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2338,7 +2338,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationName)
                                                      Eq(package.types[0].signalDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationPopParameters)
+TEST_F(ProjectStorage, synchronize_types_changes_signal_declaration_pop_parameters)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2357,7 +2357,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationPopParameters)
                                                      Eq(package.types[0].signalDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationAppendParameters)
+TEST_F(ProjectStorage, synchronize_types_changes_signal_declaration_append_parameters)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2377,7 +2377,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationAppendParameters)
                                                      Eq(package.types[0].signalDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationChangeParameterName)
+TEST_F(ProjectStorage, synchronize_types_changes_signal_declaration_change_parameter_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2396,7 +2396,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationChangeParameterNa
                                                      Eq(package.types[0].signalDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationChangeParameterTypeName)
+TEST_F(ProjectStorage, synchronize_types_changes_signal_declaration_change_parameter_type_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2415,7 +2415,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationChangeParameterTy
                                                      Eq(package.types[0].signalDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationChangeParameterTraits)
+TEST_F(ProjectStorage, synchronize_types_changes_signal_declaration_change_parameter_traits)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2434,7 +2434,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesSignalDeclarationChangeParameterTr
                                                      Eq(package.types[0].signalDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemovesSignalDeclaration)
+TEST_F(ProjectStorage, synchronize_types_removes_signal_declaration)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2452,7 +2452,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovesSignalDeclaration)
                                 UnorderedElementsAre(Eq(package.types[0].signalDeclarations[0]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddSignalDeclaration)
+TEST_F(ProjectStorage, synchronize_types_add_signal_declaration)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2473,7 +2473,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddSignalDeclaration)
                                                      Eq(package.types[0].signalDeclarations[2]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddSignalDeclarationsWithOverloads)
+TEST_F(ProjectStorage, synchronize_types_add_signal_declarations_with_overloads)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].signalDeclarations.push_back(
@@ -2493,7 +2493,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddSignalDeclarationsWithOverloads)
                                                      Eq(package.types[0].signalDeclarations[2]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesSignalDeclarationsAddingOverload)
+TEST_F(ProjectStorage, synchronize_types_signal_declarations_adding_overload)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2514,7 +2514,7 @@ TEST_F(ProjectStorage, SynchronizeTypesSignalDeclarationsAddingOverload)
                                                      Eq(package.types[0].signalDeclarations[2]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesSignalDeclarationsRemovingOverload)
+TEST_F(ProjectStorage, synchronize_types_signal_declarations_removing_overload)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].signalDeclarations.push_back(
@@ -2535,7 +2535,7 @@ TEST_F(ProjectStorage, SynchronizeTypesSignalDeclarationsRemovingOverload)
                                                      Eq(package.types[0].signalDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddEnumerationDeclarations)
+TEST_F(ProjectStorage, synchronize_types_add_enumeration_declarations)
 {
     auto package{createSimpleSynchronizationPackage()};
 
@@ -2552,7 +2552,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddEnumerationDeclarations)
                                                Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationName)
+TEST_F(ProjectStorage, synchronize_types_changes_enumeration_declaration_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2571,7 +2571,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationName)
                                                Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationPopEnumeratorDeclaration)
+TEST_F(ProjectStorage, synchronize_types_changes_enumeration_declaration_pop_enumerator_declaration)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2590,7 +2590,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationPopEnumerato
                                                Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationAppendEnumeratorDeclaration)
+TEST_F(ProjectStorage, synchronize_types_changes_enumeration_declaration_append_enumerator_declaration)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2610,7 +2610,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationAppendEnumer
                                                Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationChangeEnumeratorDeclarationName)
+TEST_F(ProjectStorage, synchronize_types_changes_enumeration_declaration_change_enumerator_declaration_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2629,7 +2629,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationChangeEnumer
                                                Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationChangeEnumeratorDeclarationValue)
+TEST_F(ProjectStorage, synchronize_types_changes_enumeration_declaration_change_enumerator_declaration_value)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2649,7 +2649,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangesEnumerationDeclarationChangeEnumer
 }
 
 TEST_F(ProjectStorage,
-       SynchronizeTypesChangesEnumerationDeclarationAddThatEnumeratorDeclarationHasValue)
+       synchronize_types_changes_enumeration_declaration_add_that_enumerator_declaration_has_value)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2670,7 +2670,7 @@ TEST_F(ProjectStorage,
 }
 
 TEST_F(ProjectStorage,
-       SynchronizeTypesChangesEnumerationDeclarationRemoveThatEnumeratorDeclarationHasValue)
+       synchronize_types_changes_enumeration_declaration_remove_that_enumerator_declaration_has_value)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2689,7 +2689,7 @@ TEST_F(ProjectStorage,
                                                Eq(package.types[0].enumerationDeclarations[1]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemovesEnumerationDeclaration)
+TEST_F(ProjectStorage, synchronize_types_removes_enumeration_declaration)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2707,7 +2707,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovesEnumerationDeclaration)
                                          Eq(package.types[0].enumerationDeclarations[0]))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddEnumerationDeclaration)
+TEST_F(ProjectStorage, synchronize_types_add_enumeration_declaration)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2728,7 +2728,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddEnumerationDeclaration)
                                                Eq(package.types[0].enumerationDeclarations[2]))))));
 }
 
-TEST_F(ProjectStorage, FetchTypeIdBySourceIdAndName)
+TEST_F(ProjectStorage, fetch_type_id_by_source_id_and_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2738,7 +2738,7 @@ TEST_F(ProjectStorage, FetchTypeIdBySourceIdAndName)
     ASSERT_THAT(storage.fetchTypeIdByExportedName("Object"), Eq(typeId));
 }
 
-TEST_F(ProjectStorage, FetchTypeIdByExportedName)
+TEST_F(ProjectStorage, fetch_type_id_by_exported_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2748,7 +2748,7 @@ TEST_F(ProjectStorage, FetchTypeIdByExportedName)
     ASSERT_THAT(storage.fetchTypeIdByName(sourceId2, "QObject"), Eq(typeId));
 }
 
-TEST_F(ProjectStorage, FetchTypeIdByImporIdsAndExportedName)
+TEST_F(ProjectStorage, fetch_type_id_by_impor_ids_and_exported_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2759,7 +2759,7 @@ TEST_F(ProjectStorage, FetchTypeIdByImporIdsAndExportedName)
     ASSERT_THAT(storage.fetchTypeIdByName(sourceId2, "QObject"), Eq(typeId));
 }
 
-TEST_F(ProjectStorage, FetchInvalidTypeIdByImporIdsAndExportedNameIfModuleIdsAreEmpty)
+TEST_F(ProjectStorage, fetch_invalid_type_id_by_impor_ids_and_exported_name_if_module_ids_are_empty)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2769,7 +2769,7 @@ TEST_F(ProjectStorage, FetchInvalidTypeIdByImporIdsAndExportedNameIfModuleIdsAre
     ASSERT_FALSE(typeId.isValid());
 }
 
-TEST_F(ProjectStorage, FetchInvalidTypeIdByImporIdsAndExportedNameIfModuleIdsAreInvalid)
+TEST_F(ProjectStorage, fetch_invalid_type_id_by_impor_ids_and_exported_name_if_module_ids_are_invalid)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2779,7 +2779,7 @@ TEST_F(ProjectStorage, FetchInvalidTypeIdByImporIdsAndExportedNameIfModuleIdsAre
     ASSERT_FALSE(typeId.isValid());
 }
 
-TEST_F(ProjectStorage, FetchInvalidTypeIdByImporIdsAndExportedNameIfNotInModule)
+TEST_F(ProjectStorage, fetch_invalid_type_id_by_impor_ids_and_exported_name_if_not_in_module)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -2790,7 +2790,7 @@ TEST_F(ProjectStorage, FetchInvalidTypeIdByImporIdsAndExportedNameIfNotInModule)
     ASSERT_FALSE(typeId.isValid());
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarations)
+TEST_F(ProjectStorage, synchronize_types_add_alias_declarations)
 {
     auto package{createSynchronizationPackageWithAliases()};
 
@@ -2816,7 +2816,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarations)
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsAgain)
+TEST_F(ProjectStorage, synchronize_types_add_alias_declarations_again)
 {
     auto package{createSynchronizationPackageWithAliases()};
     storage.synchronize(package);
@@ -2843,7 +2843,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsAgain)
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemoveAliasDeclarations)
+TEST_F(ProjectStorage, synchronize_types_remove_alias_declarations)
 {
     auto package{createSynchronizationPackageWithAliases()};
     storage.synchronize(package);
@@ -2868,7 +2868,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemoveAliasDeclarations)
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsThrowsForWrongTypeName)
+TEST_F(ProjectStorage, synchronize_types_add_alias_declarations_throws_for_wrong_type_name)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[2].propertyDeclarations[1].typeName = Storage::Synchronization::ImportedType{
@@ -2881,7 +2881,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsThrowsForWrongTypeNam
                                                             {sourceId4}}),
                  QmlDesigner::TypeNameDoesNotExists);
 }
-TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsThrowsForWrongPropertyName)
+TEST_F(ProjectStorage, synchronize_types_add_alias_declarations_throws_for_wrong_property_name)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[2].propertyDeclarations[1].aliasPropertyName = "childrenWrong";
@@ -2894,7 +2894,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddAliasDeclarationsThrowsForWrongPropert
                  QmlDesigner::PropertyNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsTypeName)
+TEST_F(ProjectStorage, synchronize_types_change_alias_declarations_type_name)
 {
     auto package{createSynchronizationPackageWithAliases()};
     storage.synchronize(package);
@@ -2924,7 +2924,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsTypeName)
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsPropertyName)
+TEST_F(ProjectStorage, synchronize_types_change_alias_declarations_property_name)
 {
     auto package{createSynchronizationPackageWithAliases()};
     storage.synchronize(package);
@@ -2951,7 +2951,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsPropertyName)
                                             Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsToPropertyDeclaration)
+TEST_F(ProjectStorage, synchronize_types_change_alias_declarations_to_property_declaration)
 {
     auto package{createSynchronizationPackageWithAliases()};
     storage.synchronize(package);
@@ -2982,7 +2982,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeAliasDeclarationsToPropertyDeclarat
                                             Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangePropertyDeclarationsToAliasDeclaration)
+TEST_F(ProjectStorage, synchronize_types_change_property_declarations_to_alias_declaration)
 {
     auto package{createSynchronizationPackageWithAliases()};
     auto packageChanged = package;
@@ -3015,7 +3015,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangePropertyDeclarationsToAliasDeclarat
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangeAliasTargetPropertyDeclarationTraits)
+TEST_F(ProjectStorage, synchronize_types_change_alias_target_property_declaration_traits)
 {
     auto package{createSynchronizationPackageWithAliases()};
     storage.synchronize(package);
@@ -3043,7 +3043,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeAliasTargetPropertyDeclarationTrait
                                             Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangeAliasTargetPropertyDeclarationTypeName)
+TEST_F(ProjectStorage, synchronize_types_change_alias_target_property_declaration_type_name)
 {
     auto package{createSynchronizationPackageWithAliases()};
     storage.synchronize(package);
@@ -3073,7 +3073,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeAliasTargetPropertyDeclarationTypeN
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationWithAnAliasThrows)
+TEST_F(ProjectStorage, synchronize_types_remove_property_declaration_with_an_alias_throws)
 {
     auto package{createSynchronizationPackageWithAliases()};
     storage.synchronize(package);
@@ -3084,7 +3084,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationWithAnAliasThrow
                  Sqlite::ConstraintPreventsModification);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationAndAlias)
+TEST_F(ProjectStorage, synchronize_types_remove_property_declaration_and_alias)
 {
     auto package{createSynchronizationPackageWithAliases()};
     storage.synchronize(package);
@@ -3112,7 +3112,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationAndAlias)
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemoveTypeWithAliasTargetPropertyDeclarationThrows)
+TEST_F(ProjectStorage, synchronize_types_remove_type_with_alias_target_property_declaration_throws)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[2].propertyDeclarations[2].typeName = Storage::Synchronization::ImportedType{
@@ -3124,7 +3124,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemoveTypeWithAliasTargetPropertyDeclarat
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemoveTypeAndAliasPropertyDeclaration)
+TEST_F(ProjectStorage, synchronize_types_remove_type_and_alias_property_declaration)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[2].propertyDeclarations[2].typeName = Storage::Synchronization::ImportedType{
@@ -3154,7 +3154,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemoveTypeAndAliasPropertyDeclaration)
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, UpdateAliasPropertyIfPropertyIsOverloaded)
+TEST_F(ProjectStorage, update_alias_property_if_property_is_overloaded)
 {
     auto package{createSynchronizationPackageWithAliases()};
     storage.synchronize(package);
@@ -3184,7 +3184,7 @@ TEST_F(ProjectStorage, UpdateAliasPropertyIfPropertyIsOverloaded)
                                             Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, AliasPropertyIsOverloaded)
+TEST_F(ProjectStorage, alias_property_is_overloaded)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[0].propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
@@ -3213,7 +3213,7 @@ TEST_F(ProjectStorage, AliasPropertyIsOverloaded)
                                             Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, UpdateAliasPropertyIfOverloadedPropertyIsRemoved)
+TEST_F(ProjectStorage, update_alias_property_if_overloaded_property_is_removed)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[0].propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
@@ -3245,7 +3245,7 @@ TEST_F(ProjectStorage, UpdateAliasPropertyIfOverloadedPropertyIsRemoved)
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, RelinkAliasProperty)
+TEST_F(ProjectStorage, relink_alias_property)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
@@ -3277,7 +3277,7 @@ TEST_F(ProjectStorage, RelinkAliasProperty)
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForQualifiedImportedTypeName)
+TEST_F(ProjectStorage, do_not_relink_alias_property_for_qualified_imported_type_name)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
@@ -3294,7 +3294,7 @@ TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForQualifiedImportedTypeName)
 }
 
 TEST_F(ProjectStorage,
-       DoRelinkAliasPropertyForQualifiedImportedTypeNameEvenIfAnOtherSimilarTimeNameExists)
+       do_relink_alias_property_for_qualified_imported_type_name_even_if_an_other_similar_time_name_exists)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
@@ -3333,7 +3333,7 @@ TEST_F(ProjectStorage,
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, RelinkAliasPropertyReactToTypeNameChange)
+TEST_F(ProjectStorage, relink_alias_property_react_to_type_name_change)
 {
     auto package{createSynchronizationPackageWithAliases2()};
     package.types[2].propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
@@ -3361,7 +3361,7 @@ TEST_F(ProjectStorage, RelinkAliasPropertyReactToTypeNameChange)
                                             Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedType)
+TEST_F(ProjectStorage, do_not_relink_alias_property_for_deleted_type)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
@@ -3381,7 +3381,7 @@ TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedType)
                                            TypeTraits::Reference))));
 }
 
-TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedTypeAndPropertyType)
+TEST_F(ProjectStorage, do_not_relink_alias_property_for_deleted_type_and_property_type)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
@@ -3404,7 +3404,7 @@ TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedTypeAndPropertyType)
     ASSERT_THAT(storage.fetchTypes(), SizeIs(2));
 }
 
-TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedTypeAndPropertyTypeNameChange)
+TEST_F(ProjectStorage, do_not_relink_alias_property_for_deleted_type_and_property_type_name_change)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
@@ -3427,7 +3427,7 @@ TEST_F(ProjectStorage, DoNotRelinkAliasPropertyForDeletedTypeAndPropertyTypeName
                                            TypeTraits::Reference))));
 }
 
-TEST_F(ProjectStorage, DoNotRelinkPropertyTypeDoesNotExists)
+TEST_F(ProjectStorage, do_not_relink_property_type_does_not_exists)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
@@ -3440,7 +3440,7 @@ TEST_F(ProjectStorage, DoNotRelinkPropertyTypeDoesNotExists)
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, DoNotRelinkAliasPropertyTypeDoesNotExists)
+TEST_F(ProjectStorage, do_not_relink_alias_property_type_does_not_exists)
 {
     auto package{createSynchronizationPackageWithAliases2()};
     package.types[1].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
@@ -3452,7 +3452,7 @@ TEST_F(ProjectStorage, DoNotRelinkAliasPropertyTypeDoesNotExists)
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, ChangePrototypeTypeName)
+TEST_F(ProjectStorage, change_prototype_type_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -3468,7 +3468,7 @@ TEST_F(ProjectStorage, ChangePrototypeTypeName)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, ChangeExtensionTypeName)
+TEST_F(ProjectStorage, change_extension_type_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -3485,7 +3485,7 @@ TEST_F(ProjectStorage, ChangeExtensionTypeName)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, ChangePrototypeTypeModuleId)
+TEST_F(ProjectStorage, change_prototype_type_module_id)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -3501,7 +3501,7 @@ TEST_F(ProjectStorage, ChangePrototypeTypeModuleId)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, ChangeExtensionTypeModuleId)
+TEST_F(ProjectStorage, change_extension_type_module_id)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -3518,7 +3518,7 @@ TEST_F(ProjectStorage, ChangeExtensionTypeModuleId)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, ChangeQualifiedPrototypeTypeModuleIdThrows)
+TEST_F(ProjectStorage, change_qualified_prototype_type_module_id_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
@@ -3532,7 +3532,7 @@ TEST_F(ProjectStorage, ChangeQualifiedPrototypeTypeModuleIdThrows)
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, ChangeQualifiedExtensionTypeModuleIdThrows)
+TEST_F(ProjectStorage, change_qualified_extension_type_module_id_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -3547,7 +3547,7 @@ TEST_F(ProjectStorage, ChangeQualifiedExtensionTypeModuleIdThrows)
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, ChangeQualifiedPrototypeTypeModuleId)
+TEST_F(ProjectStorage, change_qualified_prototype_type_module_id)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
@@ -3573,7 +3573,7 @@ TEST_F(ProjectStorage, ChangeQualifiedPrototypeTypeModuleId)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, ChangeQualifiedExtensionTypeModuleId)
+TEST_F(ProjectStorage, change_qualified_extension_type_module_id)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -3600,7 +3600,7 @@ TEST_F(ProjectStorage, ChangeQualifiedExtensionTypeModuleId)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, ChangePrototypeTypeNameAndModuleId)
+TEST_F(ProjectStorage, change_prototype_type_name_and_module_id)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::ImportedType{"Object"};
@@ -3623,7 +3623,7 @@ TEST_F(ProjectStorage, ChangePrototypeTypeNameAndModuleId)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, ChangeExtensionTypeNameAndModuleId)
+TEST_F(ProjectStorage, change_extension_type_name_and_module_id)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -3647,7 +3647,7 @@ TEST_F(ProjectStorage, ChangeExtensionTypeNameAndModuleId)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, ChangePrototypeTypeNameThrowsForWrongNativePrototupeTypeName)
+TEST_F(ProjectStorage, change_prototype_type_name_throws_for_wrong_native_prototupe_type_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::ImportedType{
@@ -3661,7 +3661,7 @@ TEST_F(ProjectStorage, ChangePrototypeTypeNameThrowsForWrongNativePrototupeTypeN
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, ChangeExtensionTypeNameThrowsForWrongNativeExtensionTypeName)
+TEST_F(ProjectStorage, change_extension_type_name_throws_for_wrong_native_extension_type_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -3676,7 +3676,7 @@ TEST_F(ProjectStorage, ChangeExtensionTypeNameThrowsForWrongNativeExtensionTypeN
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, ThrowForPrototypeChainCycles)
+TEST_F(ProjectStorage, throw_for_prototype_chain_cycles)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[1].prototype = Storage::Synchronization::ImportedType{"Object2"};
@@ -3700,7 +3700,7 @@ TEST_F(ProjectStorage, ThrowForPrototypeChainCycles)
                  QmlDesigner::PrototypeChainCycle);
 }
 
-TEST_F(ProjectStorage, ThrowForExtensionChainCycles)
+TEST_F(ProjectStorage, throw_for_extension_chain_cycles)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -3725,7 +3725,7 @@ TEST_F(ProjectStorage, ThrowForExtensionChainCycles)
                  QmlDesigner::PrototypeChainCycle);
 }
 
-TEST_F(ProjectStorage, ThrowForTypeIdAndPrototypeIdAreTheSame)
+TEST_F(ProjectStorage, throw_for_type_id_and_prototype_id_are_the_same)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[1].prototype = Storage::Synchronization::ImportedType{"Object"};
@@ -3733,7 +3733,7 @@ TEST_F(ProjectStorage, ThrowForTypeIdAndPrototypeIdAreTheSame)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::PrototypeChainCycle);
 }
 
-TEST_F(ProjectStorage, ThrowForTypeIdAndExtensionIdAreTheSame)
+TEST_F(ProjectStorage, throw_for_type_id_and_extension_id_are_the_same)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -3742,7 +3742,7 @@ TEST_F(ProjectStorage, ThrowForTypeIdAndExtensionIdAreTheSame)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::PrototypeChainCycle);
 }
 
-TEST_F(ProjectStorage, ThrowForTypeIdAndPrototypeIdAreTheSameForRelinking)
+TEST_F(ProjectStorage, throw_for_type_id_and_prototype_id_are_the_same_for_relinking)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -3755,7 +3755,7 @@ TEST_F(ProjectStorage, ThrowForTypeIdAndPrototypeIdAreTheSameForRelinking)
                  QmlDesigner::PrototypeChainCycle);
 }
 
-TEST_F(ProjectStorage, ThrowForTypeIdAndExtenssionIdAreTheSameForRelinking)
+TEST_F(ProjectStorage, throw_for_type_id_and_extenssion_id_are_the_same_for_relinking)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -3769,7 +3769,7 @@ TEST_F(ProjectStorage, ThrowForTypeIdAndExtenssionIdAreTheSameForRelinking)
                  QmlDesigner::PrototypeChainCycle);
 }
 
-TEST_F(ProjectStorage, RecursiveAliases)
+TEST_F(ProjectStorage, recursive_aliases)
 {
     auto package{createSynchronizationPackageWithRecursiveAliases()};
 
@@ -3787,7 +3787,7 @@ TEST_F(ProjectStorage, RecursiveAliases)
                                          Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, RecursiveAliasesChangePropertyType)
+TEST_F(ProjectStorage, recursive_aliases_change_property_type)
 {
     auto package{createSynchronizationPackageWithRecursiveAliases()};
     storage.synchronize(package);
@@ -3809,7 +3809,7 @@ TEST_F(ProjectStorage, RecursiveAliasesChangePropertyType)
                                          Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, UpdateAliasesAfterInjectingProperty)
+TEST_F(ProjectStorage, update_aliases_after_injecting_property)
 {
     auto package{createSynchronizationPackageWithRecursiveAliases()};
     storage.synchronize(package);
@@ -3833,7 +3833,7 @@ TEST_F(ProjectStorage, UpdateAliasesAfterInjectingProperty)
                                              | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, UpdateAliasesAfterChangeAliasToProperty)
+TEST_F(ProjectStorage, update_aliases_after_change_alias_to_property)
 {
     auto package{createSynchronizationPackageWithRecursiveAliases()};
     storage.synchronize(package);
@@ -3870,7 +3870,7 @@ TEST_F(ProjectStorage, UpdateAliasesAfterChangeAliasToProperty)
                                                "")))))));
 }
 
-TEST_F(ProjectStorage, UpdateAliasesAfterChangePropertyToAlias)
+TEST_F(ProjectStorage, update_aliases_after_change_property_to_alias)
 {
     auto package{createSynchronizationPackageWithRecursiveAliases()};
     package.types[3].propertyDeclarations[0].traits = Storage::PropertyDeclarationTraits::IsList
@@ -3897,7 +3897,7 @@ TEST_F(ProjectStorage, UpdateAliasesAfterChangePropertyToAlias)
                                          "objects"))))));
 }
 
-TEST_F(ProjectStorage, CheckForProtoTypeCycleThrows)
+TEST_F(ProjectStorage, check_for_proto_type_cycle_throws)
 {
     auto package{createSynchronizationPackageWithRecursiveAliases()};
     package.types[1].propertyDeclarations.clear();
@@ -3908,7 +3908,7 @@ TEST_F(ProjectStorage, CheckForProtoTypeCycleThrows)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::AliasChainCycle);
 }
 
-TEST_F(ProjectStorage, CheckForProtoTypeCycleAfterUpdateThrows)
+TEST_F(ProjectStorage, check_for_proto_type_cycle_after_update_throws)
 {
     auto package{createSynchronizationPackageWithRecursiveAliases()};
     storage.synchronize(package);
@@ -3922,7 +3922,7 @@ TEST_F(ProjectStorage, CheckForProtoTypeCycleAfterUpdateThrows)
                  QmlDesigner::AliasChainCycle);
 }
 
-TEST_F(ProjectStorage, QualifiedPrototype)
+TEST_F(ProjectStorage, qualified_prototype)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
@@ -3949,7 +3949,7 @@ TEST_F(ProjectStorage, QualifiedPrototype)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, QualifiedExtension)
+TEST_F(ProjectStorage, qualified_extension)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -3977,7 +3977,7 @@ TEST_F(ProjectStorage, QualifiedExtension)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, QualifiedPrototypeUpperDownTheModuleChainThrows)
+TEST_F(ProjectStorage, qualified_prototype_upper_down_the_module_chain_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
@@ -3989,7 +3989,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeUpperDownTheModuleChainThrows)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, QualifiedExtensionUpperDownTheModuleChainThrows)
+TEST_F(ProjectStorage, qualified_extension_upper_down_the_module_chain_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -4002,7 +4002,7 @@ TEST_F(ProjectStorage, QualifiedExtensionUpperDownTheModuleChainThrows)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, QualifiedPrototypeUpperInTheModuleChain)
+TEST_F(ProjectStorage, qualified_prototype_upper_in_the_module_chain)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
@@ -4031,7 +4031,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeUpperInTheModuleChain)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, QualifiedExtensionUpperInTheModuleChain)
+TEST_F(ProjectStorage, qualified_extension_upper_in_the_module_chain)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -4061,7 +4061,7 @@ TEST_F(ProjectStorage, QualifiedExtensionUpperInTheModuleChain)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, QualifiedPrototypeWithWrongVersionThrows)
+TEST_F(ProjectStorage, qualified_prototype_with_wrong_version_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
@@ -4081,7 +4081,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithWrongVersionThrows)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, QualifiedExtensionWithWrongVersionThrows)
+TEST_F(ProjectStorage, qualified_extension_with_wrong_version_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -4102,7 +4102,7 @@ TEST_F(ProjectStorage, QualifiedExtensionWithWrongVersionThrows)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, QualifiedPrototypeWithVersion)
+TEST_F(ProjectStorage, qualified_prototype_with_version)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.imports[0].version = Storage::Version{2};
@@ -4129,7 +4129,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersion)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, QualifiedExtensionWithVersion)
+TEST_F(ProjectStorage, qualified_extension_with_version)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -4157,7 +4157,7 @@ TEST_F(ProjectStorage, QualifiedExtensionWithVersion)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, QualifiedPrototypeWithVersionInTheProtoTypeChain)
+TEST_F(ProjectStorage, qualified_prototype_with_version_in_the_proto_type_chain)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.imports[1].version = Storage::Version{2};
@@ -4186,7 +4186,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersionInTheProtoTypeChain)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, QualifiedExtensionWithVersionInTheProtoTypeChain)
+TEST_F(ProjectStorage, qualified_extension_with_version_in_the_proto_type_chain)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -4216,7 +4216,7 @@ TEST_F(ProjectStorage, QualifiedExtensionWithVersionInTheProtoTypeChain)
                                        TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, QualifiedPrototypeWithVersionDownTheProtoTypeChainThrows)
+TEST_F(ProjectStorage, qualified_prototype_with_version_down_the_proto_type_chain_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
@@ -4228,7 +4228,7 @@ TEST_F(ProjectStorage, QualifiedPrototypeWithVersionDownTheProtoTypeChainThrows)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, QualifiedExtensionWithVersionDownTheProtoTypeChainThrows)
+TEST_F(ProjectStorage, qualified_extension_with_version_down_the_proto_type_chain_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -4241,7 +4241,7 @@ TEST_F(ProjectStorage, QualifiedExtensionWithVersionDownTheProtoTypeChainThrows)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeName)
+TEST_F(ProjectStorage, qualified_property_declaration_type_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
@@ -4268,7 +4268,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeName)
                                                          Storage::PropertyDeclarationTraits::IsList)))));
 }
 
-TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameDownTheModuleChainThrows)
+TEST_F(ProjectStorage, qualified_property_declaration_type_name_down_the_module_chain_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
@@ -4280,7 +4280,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameDownTheModuleChainThr
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameInTheModuleChain)
+TEST_F(ProjectStorage, qualified_property_declaration_type_name_in_the_module_chain)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
@@ -4309,7 +4309,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameInTheModuleChain)
                                                          Storage::PropertyDeclarationTraits::IsList)))));
 }
 
-TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameWithVersion)
+TEST_F(ProjectStorage, qualified_property_declaration_type_name_with_version)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
@@ -4327,7 +4327,7 @@ TEST_F(ProjectStorage, QualifiedPropertyDeclarationTypeNameWithVersion)
                                                          Storage::PropertyDeclarationTraits::IsList)))));
 }
 
-TEST_F(ProjectStorage, ChangePropertyTypeModuleIdWithQualifiedTypeThrows)
+TEST_F(ProjectStorage, change_property_type_module_id_with_qualified_type_throws)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
@@ -4341,7 +4341,7 @@ TEST_F(ProjectStorage, ChangePropertyTypeModuleIdWithQualifiedTypeThrows)
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, ChangePropertyTypeModuleIdWithQualifiedType)
+TEST_F(ProjectStorage, change_property_type_module_id_with_qualified_type)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].propertyDeclarations[0].typeName = Storage::Synchronization::QualifiedImportedType{
@@ -4368,7 +4368,7 @@ TEST_F(ProjectStorage, ChangePropertyTypeModuleIdWithQualifiedType)
                                                  Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, AddFileStatuses)
+TEST_F(ProjectStorage, add_file_statuses)
 {
     FileStatus fileStatus1{sourceId1, 100, 100};
     FileStatus fileStatus2{sourceId2, 101, 101};
@@ -4379,7 +4379,7 @@ TEST_F(ProjectStorage, AddFileStatuses)
                 UnorderedElementsAre(fileStatus1, fileStatus2));
 }
 
-TEST_F(ProjectStorage, RemoveFileStatus)
+TEST_F(ProjectStorage, remove_file_status)
 {
     FileStatus fileStatus1{sourceId1, 100, 100};
     FileStatus fileStatus2{sourceId2, 101, 101};
@@ -4390,7 +4390,7 @@ TEST_F(ProjectStorage, RemoveFileStatus)
     ASSERT_THAT(convert(storage.fetchAllFileStatuses()), UnorderedElementsAre(fileStatus1));
 }
 
-TEST_F(ProjectStorage, UpdateFileStatus)
+TEST_F(ProjectStorage, update_file_status)
 {
     FileStatus fileStatus1{sourceId1, 100, 100};
     FileStatus fileStatus2{sourceId2, 101, 101};
@@ -4403,7 +4403,7 @@ TEST_F(ProjectStorage, UpdateFileStatus)
                 UnorderedElementsAre(fileStatus1, fileStatus2b));
 }
 
-TEST_F(ProjectStorage, ThrowForInvalidSourceIdInFileStatus)
+TEST_F(ProjectStorage, throw_for_invalid_source_id_in_file_status)
 {
     FileStatus fileStatus1{SourceId{}, 100, 100};
 
@@ -4411,7 +4411,7 @@ TEST_F(ProjectStorage, ThrowForInvalidSourceIdInFileStatus)
                  QmlDesigner::FileStatusHasInvalidSourceId);
 }
 
-TEST_F(ProjectStorage, FetchAllFileStatuses)
+TEST_F(ProjectStorage, fetch_all_file_statuses)
 {
     FileStatus fileStatus1{sourceId1, 100, 100};
     FileStatus fileStatus2{sourceId2, 101, 101};
@@ -4422,7 +4422,7 @@ TEST_F(ProjectStorage, FetchAllFileStatuses)
     ASSERT_THAT(fileStatuses, ElementsAre(fileStatus1, fileStatus2));
 }
 
-TEST_F(ProjectStorage, FetchAllFileStatusesReverse)
+TEST_F(ProjectStorage, fetch_all_file_statuses_reverse)
 {
     FileStatus fileStatus1{sourceId1, 100, 100};
     FileStatus fileStatus2{sourceId2, 101, 101};
@@ -4433,7 +4433,7 @@ TEST_F(ProjectStorage, FetchAllFileStatusesReverse)
     ASSERT_THAT(fileStatuses, ElementsAre(fileStatus1, fileStatus2));
 }
 
-TEST_F(ProjectStorage, FetchFileStatus)
+TEST_F(ProjectStorage, fetch_file_status)
 {
     FileStatus fileStatus1{sourceId1, 100, 100};
     FileStatus fileStatus2{sourceId2, 101, 101};
@@ -4444,7 +4444,7 @@ TEST_F(ProjectStorage, FetchFileStatus)
     ASSERT_THAT(fileStatus, Eq(fileStatus1));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesWithoutTypeName)
+TEST_F(ProjectStorage, synchronize_types_without_type_name)
 {
     auto package{createSynchronizationPackageWithAliases()};
     storage.synchronize(package);
@@ -4463,7 +4463,7 @@ TEST_F(ProjectStorage, SynchronizeTypesWithoutTypeName)
                                                           IsExportedType("Obj2"))))));
 }
 
-TEST_F(ProjectStorage, FetchByMajorVersionForImportedType)
+TEST_F(ProjectStorage, fetch_by_major_version_for_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4487,7 +4487,7 @@ TEST_F(ProjectStorage, FetchByMajorVersionForImportedType)
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, FetchByMajorVersionForQualifiedImportedType)
+TEST_F(ProjectStorage, fetch_by_major_version_for_qualified_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4511,7 +4511,7 @@ TEST_F(ProjectStorage, FetchByMajorVersionForQualifiedImportedType)
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForImportedType)
+TEST_F(ProjectStorage, fetch_by_major_version_and_minor_version_for_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4535,7 +4535,7 @@ TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForImportedType)
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForQualifiedImportedType)
+TEST_F(ProjectStorage, fetch_by_major_version_and_minor_version_for_qualified_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4560,7 +4560,7 @@ TEST_F(ProjectStorage, FetchByMajorVersionAndMinorVersionForQualifiedImportedTyp
 }
 
 TEST_F(ProjectStorage,
-       FetchByMajorVersionAndMinorVersionForImportedTypeIfMinorVersionIsNotExportedThrows)
+       fetch_by_major_version_and_minor_version_for_imported_type_if_minor_version_is_not_exported_throws)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4582,7 +4582,7 @@ TEST_F(ProjectStorage,
 }
 
 TEST_F(ProjectStorage,
-       FetchByMajorVersionAndMinorVersionForQualifiedImportedTypeIfMinorVersionIsNotExportedThrows)
+       fetch_by_major_version_and_minor_version_for_qualified_imported_type_if_minor_version_is_not_exported_throws)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4603,7 +4603,7 @@ TEST_F(ProjectStorage,
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, FetchLowMinorVersionForImportedTypeThrows)
+TEST_F(ProjectStorage, fetch_low_minor_version_for_imported_type_throws)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4624,7 +4624,7 @@ TEST_F(ProjectStorage, FetchLowMinorVersionForImportedTypeThrows)
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, FetchLowMinorVersionForQualifiedImportedTypeThrows)
+TEST_F(ProjectStorage, fetch_low_minor_version_for_qualified_imported_type_throws)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4645,7 +4645,7 @@ TEST_F(ProjectStorage, FetchLowMinorVersionForQualifiedImportedTypeThrows)
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, FetchHigherMinorVersionForImportedType)
+TEST_F(ProjectStorage, fetch_higher_minor_version_for_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4669,7 +4669,7 @@ TEST_F(ProjectStorage, FetchHigherMinorVersionForImportedType)
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, FetchHigherMinorVersionForQualifiedImportedType)
+TEST_F(ProjectStorage, fetch_higher_minor_version_for_qualified_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4693,7 +4693,7 @@ TEST_F(ProjectStorage, FetchHigherMinorVersionForQualifiedImportedType)
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, FetchDifferentMajorVersionForImportedTypeThrows)
+TEST_F(ProjectStorage, fetch_different_major_version_for_imported_type_throws)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4714,7 +4714,7 @@ TEST_F(ProjectStorage, FetchDifferentMajorVersionForImportedTypeThrows)
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, FetchDifferentMajorVersionForQualifiedImportedTypeThrows)
+TEST_F(ProjectStorage, fetch_different_major_version_for_qualified_imported_type_throws)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4735,7 +4735,7 @@ TEST_F(ProjectStorage, FetchDifferentMajorVersionForQualifiedImportedTypeThrows)
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForImportedType)
+TEST_F(ProjectStorage, fetch_other_type_by_different_version_for_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4759,7 +4759,7 @@ TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForImportedType)
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject2"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForQualifiedImportedType)
+TEST_F(ProjectStorage, fetch_other_type_by_different_version_for_qualified_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4783,7 +4783,7 @@ TEST_F(ProjectStorage, FetchOtherTypeByDifferentVersionForQualifiedImportedType)
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject2"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForImportedType)
+TEST_F(ProjectStorage, fetch_highest_version_for_import_without_version_for_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4805,7 +4805,7 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForImportedType
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject4"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForQualifiedImportedType)
+TEST_F(ProjectStorage, fetch_highest_version_for_import_without_version_for_qualified_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4827,7 +4827,7 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithoutVersionForQualifiedImp
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject4"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForImportedType)
+TEST_F(ProjectStorage, fetch_highest_version_for_import_with_major_version_for_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4851,7 +4851,7 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForImportedTy
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject3"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForQualifiedImportedType)
+TEST_F(ProjectStorage, fetch_highest_version_for_import_with_major_version_for_qualified_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4875,7 +4875,7 @@ TEST_F(ProjectStorage, FetchHighestVersionForImportWithMajorVersionForQualifiedI
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject3"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, FetchExportedTypeWithoutVersionFirstForImportedType)
+TEST_F(ProjectStorage, fetch_exported_type_without_version_first_for_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4897,7 +4897,7 @@ TEST_F(ProjectStorage, FetchExportedTypeWithoutVersionFirstForImportedType)
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, FetchExportedTypeWithoutVersionFirstForQualifiedImportedType)
+TEST_F(ProjectStorage, fetch_exported_type_without_version_first_for_qualified_imported_type)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4919,7 +4919,7 @@ TEST_F(ProjectStorage, FetchExportedTypeWithoutVersionFirstForQualifiedImportedT
                     sourceId2, "Item", fetchTypeId(sourceId1, "QObject"), TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, EnsureThatPropertiesForRemovedTypesAreNotAnymoreRelinked)
+TEST_F(ProjectStorage, ensure_that_properties_for_removed_types_are_not_anymore_relinked)
 {
     Storage::Synchronization::Type type{
         "QObject",
@@ -4940,7 +4940,7 @@ TEST_F(ProjectStorage, EnsureThatPropertiesForRemovedTypesAreNotAnymoreRelinked)
     ASSERT_NO_THROW(storage.synchronize(SynchronizationPackage{{sourceId1}}));
 }
 
-TEST_F(ProjectStorage, EnsureThatPrototypesForRemovedTypesAreNotAnymoreRelinked)
+TEST_F(ProjectStorage, ensure_that_prototypes_for_removed_types_are_not_anymore_relinked)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -4948,7 +4948,7 @@ TEST_F(ProjectStorage, EnsureThatPrototypesForRemovedTypesAreNotAnymoreRelinked)
     ASSERT_NO_THROW(storage.synchronize(SynchronizationPackage{{sourceId1, sourceId2}}));
 }
 
-TEST_F(ProjectStorage, EnsureThatExtensionsForRemovedTypesAreNotAnymoreRelinked)
+TEST_F(ProjectStorage, ensure_that_extensions_for_removed_types_are_not_anymore_relinked)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -4957,7 +4957,7 @@ TEST_F(ProjectStorage, EnsureThatExtensionsForRemovedTypesAreNotAnymoreRelinked)
     ASSERT_NO_THROW(storage.synchronize(SynchronizationPackage{{sourceId1, sourceId2}}));
 }
 
-TEST_F(ProjectStorage, MinimalUpdates)
+TEST_F(ProjectStorage, minimal_updates)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -5000,14 +5000,14 @@ TEST_F(ProjectStorage, MinimalUpdates)
                   Field(&Storage::Synchronization::Type::enumerationDeclarations, Not(IsEmpty())))));
 }
 
-TEST_F(ProjectStorage, GetModuleId)
+TEST_F(ProjectStorage, get_module_id)
 {
     auto id = storage.moduleId("Qml");
 
     ASSERT_TRUE(id);
 }
 
-TEST_F(ProjectStorage, GetSameModuleIdAgain)
+TEST_F(ProjectStorage, get_same_module_id_again)
 {
     auto initialId = storage.moduleId("Qml");
 
@@ -5016,17 +5016,17 @@ TEST_F(ProjectStorage, GetSameModuleIdAgain)
     ASSERT_THAT(id, Eq(initialId));
 }
 
-TEST_F(ProjectStorage, ModuleNameThrowsIfIdIsInvalid)
+TEST_F(ProjectStorage, module_name_throws_if_id_is_invalid)
 {
     ASSERT_THROW(storage.moduleName(ModuleId{}), QmlDesigner::ModuleDoesNotExists);
 }
 
-TEST_F(ProjectStorage, ModuleNameThrowsIfIdDoesNotExists)
+TEST_F(ProjectStorage, module_name_throws_if_id_does_not_exists)
 {
     ASSERT_THROW(storage.moduleName(ModuleId::create(222)), QmlDesigner::ModuleDoesNotExists);
 }
 
-TEST_F(ProjectStorage, GetModuleName)
+TEST_F(ProjectStorage, get_module_name)
 {
     auto id = storage.moduleId("Qml");
 
@@ -5035,7 +5035,7 @@ TEST_F(ProjectStorage, GetModuleName)
     ASSERT_THAT(name, Eq("Qml"));
 }
 
-TEST_F(ProjectStorage, PopulateModuleCache)
+TEST_F(ProjectStorage, populate_module_cache)
 {
     auto id = storage.moduleId("Qml");
 
@@ -5044,7 +5044,7 @@ TEST_F(ProjectStorage, PopulateModuleCache)
     ASSERT_THAT(newStorage.moduleName(id), Eq("Qml"));
 }
 
-TEST_F(ProjectStorage, AddProjectDataes)
+TEST_F(ProjectStorage, add_project_dataes)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
@@ -5066,7 +5066,7 @@ TEST_F(ProjectStorage, AddProjectDataes)
                 UnorderedElementsAre(projectData1, projectData2, projectData3));
 }
 
-TEST_F(ProjectStorage, RemoveProjectData)
+TEST_F(ProjectStorage, remove_project_data)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
@@ -5090,7 +5090,7 @@ TEST_F(ProjectStorage, RemoveProjectData)
                 UnorderedElementsAre(projectData1));
 }
 
-TEST_F(ProjectStorage, UpdateProjectDataFileType)
+TEST_F(ProjectStorage, update_project_data_file_type)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
@@ -5117,7 +5117,7 @@ TEST_F(ProjectStorage, UpdateProjectDataFileType)
                 UnorderedElementsAre(projectData1, projectData2b, projectData3));
 }
 
-TEST_F(ProjectStorage, UpdateProjectDataModuleId)
+TEST_F(ProjectStorage, update_project_data_module_id)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
@@ -5144,7 +5144,7 @@ TEST_F(ProjectStorage, UpdateProjectDataModuleId)
                 UnorderedElementsAre(projectData1, projectData2b, projectData3));
 }
 
-TEST_F(ProjectStorage, ThrowForInvalidSourceIdInProjectData)
+TEST_F(ProjectStorage, throw_for_invalid_source_id_in_project_data)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        SourceId{},
@@ -5155,7 +5155,7 @@ TEST_F(ProjectStorage, ThrowForInvalidSourceIdInProjectData)
                  QmlDesigner::ProjectDataHasInvalidSourceId);
 }
 
-TEST_F(ProjectStorage, ThrowForInvalidModuleIdInProjectData)
+TEST_F(ProjectStorage, throw_for_invalid_module_id_in_project_data)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
@@ -5166,7 +5166,7 @@ TEST_F(ProjectStorage, ThrowForInvalidModuleIdInProjectData)
                  QmlDesigner::ProjectDataHasInvalidModuleId);
 }
 
-TEST_F(ProjectStorage, ThrowForUpdatingWithInvalidModuleIdInProjectData)
+TEST_F(ProjectStorage, throw_for_updating_with_invalid_module_id_in_project_data)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
@@ -5179,7 +5179,7 @@ TEST_F(ProjectStorage, ThrowForUpdatingWithInvalidModuleIdInProjectData)
                  QmlDesigner::ProjectDataHasInvalidModuleId);
 }
 
-TEST_F(ProjectStorage, ThrowForUpdatingWithInvalidProjectSourceIdInProjectData)
+TEST_F(ProjectStorage, throw_for_updating_with_invalid_project_source_id_in_project_data)
 {
     Storage::Synchronization::ProjectData projectData1{SourceId{},
                                                        sourceId1,
@@ -5190,7 +5190,7 @@ TEST_F(ProjectStorage, ThrowForUpdatingWithInvalidProjectSourceIdInProjectData)
                  QmlDesigner::ProjectDataHasInvalidProjectSourceId);
 }
 
-TEST_F(ProjectStorage, FetchProjectDatasByDirectorySourceIds)
+TEST_F(ProjectStorage, fetch_project_datas_by_directory_source_ids)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
@@ -5212,7 +5212,7 @@ TEST_F(ProjectStorage, FetchProjectDatasByDirectorySourceIds)
     ASSERT_THAT(projectDatas, UnorderedElementsAre(projectData1, projectData2, projectData3));
 }
 
-TEST_F(ProjectStorage, FetchProjectDatasByDirectorySourceId)
+TEST_F(ProjectStorage, fetch_project_datas_by_directory_source_id)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
@@ -5234,7 +5234,7 @@ TEST_F(ProjectStorage, FetchProjectDatasByDirectorySourceId)
     ASSERT_THAT(projectData, UnorderedElementsAre(projectData1, projectData2));
 }
 
-TEST_F(ProjectStorage, FetchProjectDataBySourceIds)
+TEST_F(ProjectStorage, fetch_project_data_by_source_ids)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
@@ -5256,7 +5256,7 @@ TEST_F(ProjectStorage, FetchProjectDataBySourceIds)
     ASSERT_THAT(projectData, Eq(projectData2));
 }
 
-TEST_F(ProjectStorage, ExcludeExportedTypes)
+TEST_F(ProjectStorage, exclude_exported_types)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -5282,7 +5282,7 @@ TEST_F(ProjectStorage, ExcludeExportedTypes)
                                                                     "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, ModuleExportedImport)
+TEST_F(ProjectStorage, module_exported_import)
 {
     auto package{createModuleExportedImportSynchronizationPackage()};
 
@@ -5313,7 +5313,7 @@ TEST_F(ProjectStorage, ModuleExportedImport)
                                 UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
 }
 
-TEST_F(ProjectStorage, ModuleExportedImportWithDifferentVersions)
+TEST_F(ProjectStorage, module_exported_import_with_different_versions)
 {
     auto package{createModuleExportedImportSynchronizationPackage()};
     package.imports.back().version.major.value = 2;
@@ -5348,7 +5348,7 @@ TEST_F(ProjectStorage, ModuleExportedImportWithDifferentVersions)
                                 UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
 }
 
-TEST_F(ProjectStorage, ModuleExportedImportWithIndirectDifferentVersions)
+TEST_F(ProjectStorage, module_exported_import_with_indirect_different_versions)
 {
     auto package{createModuleExportedImportSynchronizationPackage()};
     package.imports[1].version.major.value = 2;
@@ -5385,7 +5385,7 @@ TEST_F(ProjectStorage, ModuleExportedImportWithIndirectDifferentVersions)
                                 UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
 }
 
-TEST_F(ProjectStorage, ModuleExportedImportPreventCollisionIfModuleIsIndirectlyReexportedMultipleTimes)
+TEST_F(ProjectStorage, module_exported_import_prevent_collision_if_module_is_indirectly_reexported_multiple_times)
 {
     ModuleId qtQuick4DModuleId{storage.moduleId("QtQuick4D")};
     auto package{createModuleExportedImportSynchronizationPackage()};
@@ -5443,7 +5443,7 @@ TEST_F(ProjectStorage, ModuleExportedImportPreventCollisionIfModuleIsIndirectlyR
                                 UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
 }
 
-TEST_F(ProjectStorage, DistinguishBetweenImportKinds)
+TEST_F(ProjectStorage, distinguish_between_import_kinds)
 {
     ModuleId qml1ModuleId{storage.moduleId("Qml1")};
     ModuleId qml11ModuleId{storage.moduleId("Qml11")};
@@ -5477,7 +5477,7 @@ TEST_F(ProjectStorage, DistinguishBetweenImportKinds)
                                                                     "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, ModuleExportedImportDistinguishBetweenDependencyAndImportReExports)
+TEST_F(ProjectStorage, module_exported_import_distinguish_between_dependency_and_import_re_exports)
 {
     auto package{createModuleExportedImportSynchronizationPackage()};
     package.moduleDependencies.emplace_back(qtQuick3DModuleId,
@@ -5511,7 +5511,7 @@ TEST_F(ProjectStorage, ModuleExportedImportDistinguishBetweenDependencyAndImport
                                 UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
 }
 
-TEST_F(ProjectStorage, ModuleExportedImportWithQualifiedImportedType)
+TEST_F(ProjectStorage, module_exported_import_with_qualified_imported_type)
 {
     auto package{createModuleExportedImportSynchronizationPackage()};
     package.types.back().prototype = Storage::Synchronization::QualifiedImportedType{
@@ -5547,7 +5547,7 @@ TEST_F(ProjectStorage, ModuleExportedImportWithQualifiedImportedType)
                                 UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarations)
+TEST_F(ProjectStorage, synchronize_types_add_indirect_alias_declarations)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
 
@@ -5568,7 +5568,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarations)
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarationsAgain)
+TEST_F(ProjectStorage, synchronize_types_add_indirect_alias_declarations_again)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5590,7 +5590,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarationsAgain)
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemoveIndirectAliasDeclaration)
+TEST_F(ProjectStorage, synchronize_types_remove_indirect_alias_declaration)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5610,7 +5610,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemoveIndirectAliasDeclaration)
                                          Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarationsThrowsForWrongTypeName)
+TEST_F(ProjectStorage, synchronize_types_add_indirect_alias_declarations_throws_for_wrong_type_name)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5625,7 +5625,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarationsThrowsForWron
                  QmlDesigner::TypeNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarationsThrowsForWrongPropertyName)
+TEST_F(ProjectStorage, synchronize_types_add_indirect_alias_declarations_throws_for_wrong_property_name)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5639,7 +5639,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarationsThrowsForWron
                  QmlDesigner::PropertyNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarationsThrowsForWrongPropertyNameTail)
+TEST_F(ProjectStorage, synchronize_types_add_indirect_alias_declarations_throws_for_wrong_property_name_tail)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5653,7 +5653,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddIndirectAliasDeclarationsThrowsForWron
                  QmlDesigner::PropertyNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationTypeName)
+TEST_F(ProjectStorage, synchronize_types_change_indirect_alias_declaration_type_name)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5679,7 +5679,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationTypeName)
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationTailsTypeName)
+TEST_F(ProjectStorage, synchronize_types_change_indirect_alias_declaration_tails_type_name)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5705,7 +5705,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationTailsTypeNa
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationsPropertyName)
+TEST_F(ProjectStorage, synchronize_types_change_indirect_alias_declarations_property_name)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5729,7 +5729,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationsPropertyNa
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationsPropertyNameTail)
+TEST_F(ProjectStorage, synchronize_types_change_indirect_alias_declarations_property_name_tail)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5754,7 +5754,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationsPropertyNa
                                                     Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationsToPropertyDeclaration)
+TEST_F(ProjectStorage, synchronize_types_change_indirect_alias_declarations_to_property_declaration)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5782,7 +5782,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasDeclarationsToProperty
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangePropertyDeclarationsToIndirectAliasDeclaration)
+TEST_F(ProjectStorage, synchronize_types_change_property_declarations_to_indirect_alias_declaration)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5816,7 +5816,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangePropertyDeclarationsToIndirectAlias
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasTargetPropertyDeclarationTraits)
+TEST_F(ProjectStorage, synchronize_types_change_indirect_alias_target_property_declaration_traits)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5842,7 +5842,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasTargetPropertyDeclarat
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasTargetPropertyDeclarationTypeName)
+TEST_F(ProjectStorage, synchronize_types_change_indirect_alias_target_property_declaration_type_name)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5867,7 +5867,7 @@ TEST_F(ProjectStorage, SynchronizeTypesChangeIndirectAliasTargetPropertyDeclarat
                                                 | Storage::PropertyDeclarationTraits::IsReadOnly))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationWithAnIndirectAliasThrows)
+TEST_F(ProjectStorage, synchronize_types_remove_property_declaration_with_an_indirect_alias_throws)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5881,7 +5881,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationWithAnIndirectAl
                  Sqlite::ConstraintPreventsModification);
 }
 
-TEST_F(ProjectStorage, DISABLED_SynchronizeTypesRemoveStemPropertyDeclarationWithAnIndirectAliasThrows)
+TEST_F(ProjectStorage, disabled_synchronize_types_remove_stem_property_declaration_with_an_indirect_alias_throws)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5895,7 +5895,7 @@ TEST_F(ProjectStorage, DISABLED_SynchronizeTypesRemoveStemPropertyDeclarationWit
                  Sqlite::ConstraintPreventsModification);
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationAndIndirectAlias)
+TEST_F(ProjectStorage, synchronize_types_remove_property_declaration_and_indirect_alias)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5920,7 +5920,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationAndIndirectAlias
                                          Storage::PropertyDeclarationTraits::IsList))))));
 }
 
-TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationAndIndirectAliasSteam)
+TEST_F(ProjectStorage, synchronize_types_remove_property_declaration_and_indirect_alias_steam)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
@@ -5942,7 +5942,7 @@ TEST_F(ProjectStorage, SynchronizeTypesRemovePropertyDeclarationAndIndirectAlias
                           Field(&Storage::Synchronization::Type::propertyDeclarations, IsEmpty()))));
 }
 
-TEST_F(ProjectStorage, GetTypeId)
+TEST_F(ProjectStorage, get_type_id)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -5952,7 +5952,7 @@ TEST_F(ProjectStorage, GetTypeId)
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QObject4"));
 }
 
-TEST_F(ProjectStorage, GetNoTypeIdForNonExistingTypeName)
+TEST_F(ProjectStorage, get_no_type_id_for_non_existing_type_name)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -5962,7 +5962,7 @@ TEST_F(ProjectStorage, GetNoTypeIdForNonExistingTypeName)
     ASSERT_FALSE(typeId);
 }
 
-TEST_F(ProjectStorage, GetNoTypeIdForInvalidModuleId)
+TEST_F(ProjectStorage, get_no_type_id_for_invalid_module_id)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -5972,7 +5972,7 @@ TEST_F(ProjectStorage, GetNoTypeIdForInvalidModuleId)
     ASSERT_FALSE(typeId);
 }
 
-TEST_F(ProjectStorage, GetNoTypeIdForWrongModuleId)
+TEST_F(ProjectStorage, get_no_type_id_for_wrong_module_id)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -5982,7 +5982,7 @@ TEST_F(ProjectStorage, GetNoTypeIdForWrongModuleId)
     ASSERT_FALSE(typeId);
 }
 
-TEST_F(ProjectStorage, GetTypeIdWithMajorVersion)
+TEST_F(ProjectStorage, get_type_id_with_major_version)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -5992,7 +5992,7 @@ TEST_F(ProjectStorage, GetTypeIdWithMajorVersion)
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QObject3"));
 }
 
-TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForNonExistingTypeName)
+TEST_F(ProjectStorage, get_no_type_id_with_major_version_for_non_existing_type_name)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -6002,7 +6002,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForNonExistingTypeName)
     ASSERT_FALSE(typeId);
 }
 
-TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForInvalidModuleId)
+TEST_F(ProjectStorage, get_no_type_id_with_major_version_for_invalid_module_id)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -6012,7 +6012,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForInvalidModuleId)
     ASSERT_FALSE(typeId);
 }
 
-TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForWrongModuleId)
+TEST_F(ProjectStorage, get_no_type_id_with_major_version_for_wrong_module_id)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -6022,7 +6022,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForWrongModuleId)
     ASSERT_FALSE(typeId);
 }
 
-TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForWrongVersion)
+TEST_F(ProjectStorage, get_no_type_id_with_major_version_for_wrong_version)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -6032,7 +6032,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithMajorVersionForWrongVersion)
     ASSERT_FALSE(typeId);
 }
 
-TEST_F(ProjectStorage, GetTypeIdWithCompleteVersion)
+TEST_F(ProjectStorage, get_type_id_with_complete_version)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -6042,7 +6042,7 @@ TEST_F(ProjectStorage, GetTypeIdWithCompleteVersion)
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QObject2"));
 }
 
-TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionWithHigherMinorVersion)
+TEST_F(ProjectStorage, get_no_type_id_with_complete_version_with_higher_minor_version)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -6052,7 +6052,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionWithHigherMinorVersion)
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QObject3"));
 }
 
-TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForNonExistingTypeName)
+TEST_F(ProjectStorage, get_no_type_id_with_complete_version_for_non_existing_type_name)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -6062,7 +6062,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForNonExistingTypeName)
     ASSERT_FALSE(typeId);
 }
 
-TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForInvalidModuleId)
+TEST_F(ProjectStorage, get_no_type_id_with_complete_version_for_invalid_module_id)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -6072,7 +6072,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForInvalidModuleId)
     ASSERT_FALSE(typeId);
 }
 
-TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForWrongModuleId)
+TEST_F(ProjectStorage, get_no_type_id_with_complete_version_for_wrong_module_id)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -6082,7 +6082,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForWrongModuleId)
     ASSERT_FALSE(typeId);
 }
 
-TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForWrongMajorVersion)
+TEST_F(ProjectStorage, get_no_type_id_with_complete_version_for_wrong_major_version)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -6092,7 +6092,7 @@ TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForWrongMajorVersion)
     ASSERT_FALSE(typeId);
 }
 
-TEST_F(ProjectStorage, GetPropertyDeclarationIdsOverPrototypeChain)
+TEST_F(ProjectStorage, get_property_declaration_ids_over_prototype_chain)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6109,7 +6109,7 @@ TEST_F(ProjectStorage, GetPropertyDeclarationIdsOverPrototypeChain)
                                      HasName("children3")));
 }
 
-TEST_F(ProjectStorage, GetPropertyDeclarationIdsOverExtensionChain)
+TEST_F(ProjectStorage, get_property_declaration_ids_over_extension_chain)
 {
     auto package{createPackageWithProperties()};
     std::swap(package.types[1].extension, package.types[1].prototype);
@@ -6127,7 +6127,7 @@ TEST_F(ProjectStorage, GetPropertyDeclarationIdsOverExtensionChain)
                                      HasName("children3")));
 }
 
-TEST_F(ProjectStorage, GetPropertyDeclarationIdsAreReturnedSorted)
+TEST_F(ProjectStorage, get_property_declaration_ids_are_returned_sorted)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6138,7 +6138,7 @@ TEST_F(ProjectStorage, GetPropertyDeclarationIdsAreReturnedSorted)
     ASSERT_THAT(propertyIds, IsSorted());
 }
 
-TEST_F(ProjectStorage, GetNoPropertyDeclarationIdsPropertiesFromDerivedTypes)
+TEST_F(ProjectStorage, get_no_property_declaration_ids_properties_from_derived_types)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6153,7 +6153,7 @@ TEST_F(ProjectStorage, GetNoPropertyDeclarationIdsPropertiesFromDerivedTypes)
                                      HasName("children2")));
 }
 
-TEST_F(ProjectStorage, GetNoPropertyDeclarationIdsForWrongTypeId)
+TEST_F(ProjectStorage, get_no_property_declaration_ids_for_wrong_type_id)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6164,7 +6164,7 @@ TEST_F(ProjectStorage, GetNoPropertyDeclarationIdsForWrongTypeId)
     ASSERT_THAT(propertyIds, IsEmpty());
 }
 
-TEST_F(ProjectStorage, GetLocalPropertyDeclarationIds)
+TEST_F(ProjectStorage, get_local_property_declaration_ids)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6175,7 +6175,7 @@ TEST_F(ProjectStorage, GetLocalPropertyDeclarationIds)
     ASSERT_THAT(propertyIds, UnorderedElementsAre(HasName("data2"), HasName("children2")));
 }
 
-TEST_F(ProjectStorage, GetLocalPropertyDeclarationIdsAreReturnedSorted)
+TEST_F(ProjectStorage, get_local_property_declaration_ids_are_returned_sorted)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6186,7 +6186,7 @@ TEST_F(ProjectStorage, GetLocalPropertyDeclarationIdsAreReturnedSorted)
     ASSERT_THAT(propertyIds, IsSorted());
 }
 
-TEST_F(ProjectStorage, GetPropertyDeclarationIdOverPrototypeChain)
+TEST_F(ProjectStorage, get_property_declaration_id_over_prototype_chain)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6197,7 +6197,7 @@ TEST_F(ProjectStorage, GetPropertyDeclarationIdOverPrototypeChain)
     ASSERT_THAT(propertyId, HasName("data"));
 }
 
-TEST_F(ProjectStorage, GetPropertyDeclarationIdOverExtensionChain)
+TEST_F(ProjectStorage, get_property_declaration_id_over_extension_chain)
 {
     auto package{createPackageWithProperties()};
     std::swap(package.types[1].extension, package.types[1].prototype);
@@ -6209,7 +6209,7 @@ TEST_F(ProjectStorage, GetPropertyDeclarationIdOverExtensionChain)
     ASSERT_THAT(propertyId, HasName("data"));
 }
 
-TEST_F(ProjectStorage, GetLatestPropertyDeclarationId)
+TEST_F(ProjectStorage, get_latest_property_declaration_id)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6229,7 +6229,7 @@ TEST_F(ProjectStorage, GetLatestPropertyDeclarationId)
     ASSERT_THAT(oldPropertyId, HasName("data"));
 }
 
-TEST_F(ProjectStorage, GetInvalidPropertyDeclarationIdForInvalidTypeId)
+TEST_F(ProjectStorage, get_invalid_property_declaration_id_for_invalid_type_id)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6240,7 +6240,7 @@ TEST_F(ProjectStorage, GetInvalidPropertyDeclarationIdForInvalidTypeId)
     ASSERT_FALSE(propertyId);
 }
 
-TEST_F(ProjectStorage, GetInvalidPropertyDeclarationIdForWrongPropertyName)
+TEST_F(ProjectStorage, get_invalid_property_declaration_id_for_wrong_property_name)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6251,7 +6251,7 @@ TEST_F(ProjectStorage, GetInvalidPropertyDeclarationIdForWrongPropertyName)
     ASSERT_FALSE(propertyId);
 }
 
-TEST_F(ProjectStorage, GetLocalPropertyDeclarationId)
+TEST_F(ProjectStorage, get_local_property_declaration_id)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6262,7 +6262,7 @@ TEST_F(ProjectStorage, GetLocalPropertyDeclarationId)
     ASSERT_THAT(propertyId, HasName("data"));
 }
 
-TEST_F(ProjectStorage, GetInvalidLocalPropertyDeclarationIdForWrongType)
+TEST_F(ProjectStorage, get_invalid_local_property_declaration_id_for_wrong_type)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6273,7 +6273,7 @@ TEST_F(ProjectStorage, GetInvalidLocalPropertyDeclarationIdForWrongType)
     ASSERT_FALSE(propertyId);
 }
 
-TEST_F(ProjectStorage, GetInvalidLocalPropertyDeclarationIdForInvalidTypeId)
+TEST_F(ProjectStorage, get_invalid_local_property_declaration_id_for_invalid_type_id)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6284,7 +6284,7 @@ TEST_F(ProjectStorage, GetInvalidLocalPropertyDeclarationIdForInvalidTypeId)
     ASSERT_FALSE(propertyId);
 }
 
-TEST_F(ProjectStorage, GetInvalidLocalPropertyDeclarationIdForWrongPropertyName)
+TEST_F(ProjectStorage, get_invalid_local_property_declaration_id_for_wrong_property_name)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6295,7 +6295,7 @@ TEST_F(ProjectStorage, GetInvalidLocalPropertyDeclarationIdForWrongPropertyName)
     ASSERT_FALSE(propertyId);
 }
 
-TEST_F(ProjectStorage, GetPropertyDeclaration)
+TEST_F(ProjectStorage, get_property_declaration)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6310,7 +6310,7 @@ TEST_F(ProjectStorage, GetPropertyDeclaration)
                     typeId2, "data2", Storage::PropertyDeclarationTraits::IsReadOnly, typeId3)));
 }
 
-TEST_F(ProjectStorage, GetInvalidOptionalPropertyDeclarationForInvalidPropertyDeclarationId)
+TEST_F(ProjectStorage, get_invalid_optional_property_declaration_for_invalid_property_declaration_id)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6320,7 +6320,7 @@ TEST_F(ProjectStorage, GetInvalidOptionalPropertyDeclarationForInvalidPropertyDe
     ASSERT_THAT(property, Eq(std::nullopt));
 }
 
-TEST_F(ProjectStorage, GetSignalDeclarationNames)
+TEST_F(ProjectStorage, get_signal_declaration_names)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6331,7 +6331,7 @@ TEST_F(ProjectStorage, GetSignalDeclarationNames)
     ASSERT_THAT(signalNames, ElementsAre("itemsChanged", "objectsChanged", "valuesChanged"));
 }
 
-TEST_F(ProjectStorage, GetSignalDeclarationNamesAreOrdered)
+TEST_F(ProjectStorage, get_signal_declaration_names_are_ordered)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6342,7 +6342,7 @@ TEST_F(ProjectStorage, GetSignalDeclarationNamesAreOrdered)
     ASSERT_THAT(signalNames, StringsAreSorted());
 }
 
-TEST_F(ProjectStorage, GetNoSignalDeclarationNamesForInvalidTypeId)
+TEST_F(ProjectStorage, get_no_signal_declaration_names_for_invalid_type_id)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6353,7 +6353,7 @@ TEST_F(ProjectStorage, GetNoSignalDeclarationNamesForInvalidTypeId)
     ASSERT_THAT(signalNames, IsEmpty());
 }
 
-TEST_F(ProjectStorage, GetOnlySignalDeclarationNamesFromUpIntoThePrototypeChain)
+TEST_F(ProjectStorage, get_only_signal_declaration_names_from_up_into_the_prototype_chain)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6364,7 +6364,7 @@ TEST_F(ProjectStorage, GetOnlySignalDeclarationNamesFromUpIntoThePrototypeChain)
     ASSERT_THAT(signalNames, ElementsAre("itemsChanged", "valuesChanged"));
 }
 
-TEST_F(ProjectStorage, GetOnlySignalDeclarationNamesFromUpIntoTheExtensionChain)
+TEST_F(ProjectStorage, get_only_signal_declaration_names_from_up_into_the_extension_chain)
 {
     auto package{createPackageWithProperties()};
     std::swap(package.types[1].extension, package.types[1].prototype);
@@ -6376,7 +6376,7 @@ TEST_F(ProjectStorage, GetOnlySignalDeclarationNamesFromUpIntoTheExtensionChain)
     ASSERT_THAT(signalNames, ElementsAre("itemsChanged", "valuesChanged"));
 }
 
-TEST_F(ProjectStorage, GetFunctionDeclarationNames)
+TEST_F(ProjectStorage, get_function_declaration_names)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6387,7 +6387,7 @@ TEST_F(ProjectStorage, GetFunctionDeclarationNames)
     ASSERT_THAT(functionNames, ElementsAre("items", "objects", "values"));
 }
 
-TEST_F(ProjectStorage, GetFunctionDeclarationNamesAreOrdered)
+TEST_F(ProjectStorage, get_function_declaration_names_are_ordered)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6398,7 +6398,7 @@ TEST_F(ProjectStorage, GetFunctionDeclarationNamesAreOrdered)
     ASSERT_THAT(functionNames, StringsAreSorted());
 }
 
-TEST_F(ProjectStorage, GetNoFunctionDeclarationNamesForInvalidTypeId)
+TEST_F(ProjectStorage, get_no_function_declaration_names_for_invalid_type_id)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6409,7 +6409,7 @@ TEST_F(ProjectStorage, GetNoFunctionDeclarationNamesForInvalidTypeId)
     ASSERT_THAT(functionNames, IsEmpty());
 }
 
-TEST_F(ProjectStorage, GetOnlyFunctionDeclarationNamesFromUpIntoThePrototypeChain)
+TEST_F(ProjectStorage, get_only_function_declaration_names_from_up_into_the_prototype_chain)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6420,7 +6420,7 @@ TEST_F(ProjectStorage, GetOnlyFunctionDeclarationNamesFromUpIntoThePrototypeChai
     ASSERT_THAT(functionNames, ElementsAre("items", "values"));
 }
 
-TEST_F(ProjectStorage, GetOnlyFunctionDeclarationNamesFromUpIntoTheExtensionChain)
+TEST_F(ProjectStorage, get_only_function_declaration_names_from_up_into_the_extension_chain)
 {
     auto package{createPackageWithProperties()};
     std::swap(package.types[1].extension, package.types[1].prototype);
@@ -6432,7 +6432,7 @@ TEST_F(ProjectStorage, GetOnlyFunctionDeclarationNamesFromUpIntoTheExtensionChai
     ASSERT_THAT(functionNames, ElementsAre("items", "values"));
 }
 
-TEST_F(ProjectStorage, SynchronizeDefaultProperty)
+TEST_F(ProjectStorage, synchronize_default_property)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types.front().defaultPropertyName = "children";
@@ -6445,7 +6445,7 @@ TEST_F(ProjectStorage, SynchronizeDefaultProperty)
                                      Eq("children")))));
 }
 
-TEST_F(ProjectStorage, SynchronizeDefaultPropertyToADifferentName)
+TEST_F(ProjectStorage, synchronize_default_property_to_a_different_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types.front().defaultPropertyName = "children";
@@ -6460,7 +6460,7 @@ TEST_F(ProjectStorage, SynchronizeDefaultPropertyToADifferentName)
                           Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data")))));
 }
 
-TEST_F(ProjectStorage, SynchronizeToRemovedDefaultProperty)
+TEST_F(ProjectStorage, synchronize_to_removed_default_property)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types.front().defaultPropertyName = "children";
@@ -6475,7 +6475,7 @@ TEST_F(ProjectStorage, SynchronizeToRemovedDefaultProperty)
                           Field(&Storage::Synchronization::Type::defaultPropertyName, IsEmpty()))));
 }
 
-TEST_F(ProjectStorage, SynchronizeDefaultPropertyThrowsForMissingDefaultProperty)
+TEST_F(ProjectStorage, synchronize_default_property_throws_for_missing_default_property)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types.front().defaultPropertyName = "child";
@@ -6484,7 +6484,7 @@ TEST_F(ProjectStorage, SynchronizeDefaultPropertyThrowsForMissingDefaultProperty
 }
 
 TEST_F(ProjectStorage,
-       SynchronizeDefaultPropertyThrowsForRemovingPropertyWithoutChangingDefaultProperty)
+       synchronize_default_property_throws_for_removing_property_without_changing_default_property)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types.front().defaultPropertyName = "children";
@@ -6494,7 +6494,7 @@ TEST_F(ProjectStorage,
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::PropertyNameDoesNotExists);
 }
 
-TEST_F(ProjectStorage, SynchronizeChangesDefaultPropertyAndRemovesOldDefaultProperty)
+TEST_F(ProjectStorage, synchronize_changes_default_property_and_removes_old_default_property)
 {
     auto package{createSimpleSynchronizationPackage()};
     auto &type = findType(package, "QQuickItem");
@@ -6511,7 +6511,7 @@ TEST_F(ProjectStorage, SynchronizeChangesDefaultPropertyAndRemovesOldDefaultProp
                           Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data")))));
 }
 
-TEST_F(ProjectStorage, SynchronizeAddNewDefaultPropertyAndRemovesOldDefaultProperty)
+TEST_F(ProjectStorage, synchronize_add_new_default_property_and_removes_old_default_property)
 {
     auto package{createSimpleSynchronizationPackage()};
     auto &type = findType(package, "QQuickItem");
@@ -6533,7 +6533,7 @@ TEST_F(ProjectStorage, SynchronizeAddNewDefaultPropertyAndRemovesOldDefaultPrope
                           Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data2")))));
 }
 
-TEST_F(ProjectStorage, SynchronizeDefaultPropertyToThePrototypeProperty)
+TEST_F(ProjectStorage, synchronize_default_property_to_the_prototype_property)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types.front().defaultPropertyName = "children";
@@ -6550,47 +6550,28 @@ TEST_F(ProjectStorage, SynchronizeDefaultPropertyToThePrototypeProperty)
                                      Eq("children")))));
 }
 
-TEST_F(ProjectStorage, SynchronizeDefaultPropertyToTheExtensionProperty)
-{
-    auto package{createSimpleSynchronizationPackage()};
-    std::swap(package.types.front().extension, package.types.front().prototype);
-    package.types.front().defaultPropertyName = "children";
-    removeProperty(package, "QQuickItem", "children");
-    auto &type = findType(package, "QObject");
-    type.propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
-        "children", Storage::Synchronization::ImportedType{"Object"}, {}});
-
-    storage.synchronize(package);
-
-    ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
-                               Field(&Storage::Synchronization::Type::defaultPropertyName,
-                                     Eq("children")))));
-}
-
-TEST_F(ProjectStorage, SynchronizeMoveTheDefaultPropertyToThePrototypeProperty)
-{
-    auto package{createSimpleSynchronizationPackage()};
-    package.types.front().defaultPropertyName = "children";
-    storage.synchronize(package);
-    removeProperty(package, "QQuickItem", "children");
-    auto &type = findType(package, "QObject");
-    type.propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
-        "children", Storage::Synchronization::ImportedType{"Object"}, {}});
-
-    storage.synchronize(package);
-
-    ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
-                               Field(&Storage::Synchronization::Type::defaultPropertyName,
-                                     Eq("children")))));
-}
-
-TEST_F(ProjectStorage, SynchronizeMoveTheDefaultPropertyToTheExtensionProperty)
+TEST_F(ProjectStorage, synchronize_default_property_to_the_extension_property)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
     package.types.front().defaultPropertyName = "children";
+    removeProperty(package, "QQuickItem", "children");
+    auto &type = findType(package, "QObject");
+    type.propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
+        "children", Storage::Synchronization::ImportedType{"Object"}, {}});
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
+                               Field(&Storage::Synchronization::Type::defaultPropertyName,
+                                     Eq("children")))));
+}
+
+TEST_F(ProjectStorage, synchronize_move_the_default_property_to_the_prototype_property)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().defaultPropertyName = "children";
     storage.synchronize(package);
     removeProperty(package, "QQuickItem", "children");
     auto &type = findType(package, "QObject");
@@ -6605,7 +6586,26 @@ TEST_F(ProjectStorage, SynchronizeMoveTheDefaultPropertyToTheExtensionProperty)
                                      Eq("children")))));
 }
 
-TEST_F(ProjectStorage, GetType)
+TEST_F(ProjectStorage, synchronize_move_the_default_property_to_the_extension_property)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    std::swap(package.types.front().extension, package.types.front().prototype);
+    package.types.front().defaultPropertyName = "children";
+    storage.synchronize(package);
+    removeProperty(package, "QQuickItem", "children");
+    auto &type = findType(package, "QObject");
+    type.propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
+        "children", Storage::Synchronization::ImportedType{"Object"}, {}});
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                Contains(AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
+                               Field(&Storage::Synchronization::Type::defaultPropertyName,
+                                     Eq("children")))));
+}
+
+TEST_F(ProjectStorage, get_type)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -6618,7 +6618,7 @@ TEST_F(ProjectStorage, GetType)
     ASSERT_THAT(type, Optional(IsInfoType(defaultPropertyId, TypeTraits::Reference)));
 }
 
-TEST_F(ProjectStorage, DontGetTypeForInvalidId)
+TEST_F(ProjectStorage, dont_get_type_for_invalid_id)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -6628,7 +6628,7 @@ TEST_F(ProjectStorage, DontGetTypeForInvalidId)
     ASSERT_THAT(type, Eq(std::nullopt));
 }
 
-TEST_F(ProjectStorage, GetCommonType)
+TEST_F(ProjectStorage, get_common_type)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -6639,7 +6639,7 @@ TEST_F(ProjectStorage, GetCommonType)
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QQuickItem"));
 }
 
-TEST_F(ProjectStorage, GetCommonTypeAgain)
+TEST_F(ProjectStorage, get_common_type_again)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -6652,7 +6652,7 @@ TEST_F(ProjectStorage, GetCommonTypeAgain)
     ASSERT_THAT(typeId, firstTypeId);
 }
 
-TEST_F(ProjectStorage, GetCommonTypeAfterChangingType)
+TEST_F(ProjectStorage, get_common_type_after_changing_type)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -6668,7 +6668,7 @@ TEST_F(ProjectStorage, GetCommonTypeAfterChangingType)
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QQuickItem2"));
 }
 
-TEST_F(ProjectStorage, GetBuiltinType)
+TEST_F(ProjectStorage, get_builtin_type)
 {
     auto package{createBuiltinSynchronizationPackage()};
     storage.synchronize(package);
@@ -6678,7 +6678,7 @@ TEST_F(ProjectStorage, GetBuiltinType)
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "double"));
 }
 
-TEST_F(ProjectStorage, GetBuiltinTypeAgain)
+TEST_F(ProjectStorage, get_builtin_type_again)
 {
     auto package{createBuiltinSynchronizationPackage()};
     storage.synchronize(package);
@@ -6689,7 +6689,7 @@ TEST_F(ProjectStorage, GetBuiltinTypeAgain)
     ASSERT_THAT(typeId, firstTypeId);
 }
 
-TEST_F(ProjectStorage, GetBuiltinTypeAfterChangingType)
+TEST_F(ProjectStorage, get_builtin_type_after_changing_type)
 {
     auto package{createBuiltinSynchronizationPackage()};
     storage.synchronize(package);
@@ -6703,7 +6703,7 @@ TEST_F(ProjectStorage, GetBuiltinTypeAfterChangingType)
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "float"));
 }
 
-TEST_F(ProjectStorage, GetBuiltinStringType)
+TEST_F(ProjectStorage, get_builtin_string_type)
 {
     auto package{createBuiltinSynchronizationPackage()};
     storage.synchronize(package);
@@ -6713,7 +6713,7 @@ TEST_F(ProjectStorage, GetBuiltinStringType)
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "var"));
 }
 
-TEST_F(ProjectStorage, GetBuiltinStringTypeAgain)
+TEST_F(ProjectStorage, get_builtin_string_type_again)
 {
     auto package{createBuiltinSynchronizationPackage()};
     storage.synchronize(package);
@@ -6724,7 +6724,7 @@ TEST_F(ProjectStorage, GetBuiltinStringTypeAgain)
     ASSERT_THAT(typeId, firstTypeId);
 }
 
-TEST_F(ProjectStorage, GetBuiltinStringTypeAfterChangingType)
+TEST_F(ProjectStorage, get_builtin_string_type_after_changing_type)
 {
     auto package{createBuiltinSynchronizationPackage()};
     storage.synchronize(package);
@@ -6738,7 +6738,7 @@ TEST_F(ProjectStorage, GetBuiltinStringTypeAfterChangingType)
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "variant"));
 }
 
-TEST_F(ProjectStorage, GetPrototypeIds)
+TEST_F(ProjectStorage, get_prototype_ids)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6750,7 +6750,7 @@ TEST_F(ProjectStorage, GetPrototypeIds)
                 ElementsAre(fetchTypeId(sourceId1, "QObject2"), fetchTypeId(sourceId1, "QObject")));
 }
 
-TEST_F(ProjectStorage, GetNoPrototypeIdsForNoPrototype)
+TEST_F(ProjectStorage, get_no_prototype_ids_for_no_prototype)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6761,7 +6761,7 @@ TEST_F(ProjectStorage, GetNoPrototypeIdsForNoPrototype)
     ASSERT_THAT(prototypeIds, IsEmpty());
 }
 
-TEST_F(ProjectStorage, GetPrototypeIdsWithExtension)
+TEST_F(ProjectStorage, get_prototype_ids_with_extension)
 {
     auto package{createPackageWithProperties()};
     std::swap(package.types[1].extension, package.types[1].prototype);
@@ -6774,7 +6774,7 @@ TEST_F(ProjectStorage, GetPrototypeIdsWithExtension)
                 ElementsAre(fetchTypeId(sourceId1, "QObject2"), fetchTypeId(sourceId1, "QObject")));
 }
 
-TEST_F(ProjectStorage, GetPrototypeAndSelfIds)
+TEST_F(ProjectStorage, get_prototype_and_self_ids)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6788,7 +6788,7 @@ TEST_F(ProjectStorage, GetPrototypeAndSelfIds)
                             fetchTypeId(sourceId1, "QObject")));
 }
 
-TEST_F(ProjectStorage, GetSelfForNoPrototypeIds)
+TEST_F(ProjectStorage, get_self_for_no_prototype_ids)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6799,7 +6799,7 @@ TEST_F(ProjectStorage, GetSelfForNoPrototypeIds)
     ASSERT_THAT(prototypeAndSelfIds, ElementsAre(fetchTypeId(sourceId1, "QObject")));
 }
 
-TEST_F(ProjectStorage, GetPrototypeAndSelfIdsWithExtension)
+TEST_F(ProjectStorage, get_prototype_and_self_ids_with_extension)
 {
     auto package{createPackageWithProperties()};
     std::swap(package.types[1].extension, package.types[1].prototype);
@@ -6814,7 +6814,7 @@ TEST_F(ProjectStorage, GetPrototypeAndSelfIdsWithExtension)
                             fetchTypeId(sourceId1, "QObject")));
 }
 
-TEST_F(ProjectStorage, IsBasedOnForDirectPrototype)
+TEST_F(ProjectStorage, is_based_on_for_direct_prototype)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6827,7 +6827,7 @@ TEST_F(ProjectStorage, IsBasedOnForDirectPrototype)
     ASSERT_TRUE(isBasedOn);
 }
 
-TEST_F(ProjectStorage, IsBasedOnForIndirectPrototype)
+TEST_F(ProjectStorage, is_based_on_for_indirect_prototype)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6839,7 +6839,7 @@ TEST_F(ProjectStorage, IsBasedOnForIndirectPrototype)
     ASSERT_TRUE(isBasedOn);
 }
 
-TEST_F(ProjectStorage, IsBasedOnForDirectExtension)
+TEST_F(ProjectStorage, is_based_on_for_direct_extension)
 {
     auto package{createPackageWithProperties()};
     std::swap(package.types[1].extension, package.types[1].prototype);
@@ -6852,7 +6852,7 @@ TEST_F(ProjectStorage, IsBasedOnForDirectExtension)
     ASSERT_TRUE(isBasedOn);
 }
 
-TEST_F(ProjectStorage, IsBasedOnForIndirectExtension)
+TEST_F(ProjectStorage, is_based_on_for_indirect_extension)
 {
     auto package{createPackageWithProperties()};
     std::swap(package.types[1].extension, package.types[1].prototype);
@@ -6865,7 +6865,7 @@ TEST_F(ProjectStorage, IsBasedOnForIndirectExtension)
     ASSERT_TRUE(isBasedOn);
 }
 
-TEST_F(ProjectStorage, IsBasedOnForSelf)
+TEST_F(ProjectStorage, is_based_on_for_self)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6877,7 +6877,7 @@ TEST_F(ProjectStorage, IsBasedOnForSelf)
     ASSERT_TRUE(isBasedOn);
 }
 
-TEST_F(ProjectStorage, IsNotBasedOn)
+TEST_F(ProjectStorage, is_not_based_on)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6890,7 +6890,7 @@ TEST_F(ProjectStorage, IsNotBasedOn)
     ASSERT_FALSE(isBasedOn);
 }
 
-TEST_F(ProjectStorage, IsNotBasedOnIfNoBaseTypeIsGiven)
+TEST_F(ProjectStorage, is_not_based_on_if_no_base_type_is_given)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);

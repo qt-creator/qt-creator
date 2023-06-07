@@ -7,7 +7,7 @@
 
 namespace {
 
-TEST(Import, ParseVersion)
+TEST(Import, parse_version)
 {
     auto import = QmlDesigner::Import::createLibraryImport("Qml", "6.5");
 
@@ -16,7 +16,7 @@ TEST(Import, ParseVersion)
     ASSERT_THAT(version, FieldsAre(6, 5));
 }
 
-TEST(Import, ParseMajorVersion)
+TEST(Import, parse_major_version)
 {
     auto import = QmlDesigner::Import::createLibraryImport("Qml", "6.5");
 
@@ -25,7 +25,7 @@ TEST(Import, ParseMajorVersion)
     ASSERT_THAT(version, 6);
 }
 
-TEST(Import, MajorVersionIsInvalidForEmptyString)
+TEST(Import, major_version_is_invalid_for_empty_string)
 {
     auto import = QmlDesigner::Import::createLibraryImport("Qml");
 
@@ -34,7 +34,7 @@ TEST(Import, MajorVersionIsInvalidForEmptyString)
     ASSERT_THAT(version, -1);
 }
 
-TEST(Import, MajorVersionIsInvalidForBrokenString)
+TEST(Import, major_version_is_invalid_for_broken_string)
 {
     auto import = QmlDesigner::Import::createLibraryImport("Qml", "6,5");
 
@@ -43,7 +43,7 @@ TEST(Import, MajorVersionIsInvalidForBrokenString)
     ASSERT_THAT(version, -1);
 }
 
-TEST(Import, ParseMinorVersion)
+TEST(Import, parse_minor_version)
 {
     auto import = QmlDesigner::Import::createLibraryImport("Qml", "6.5");
 
@@ -52,7 +52,7 @@ TEST(Import, ParseMinorVersion)
     ASSERT_THAT(version, 5);
 }
 
-TEST(Import, MinorVersionIsInvalidForEmptyString)
+TEST(Import, minor_version_is_invalid_for_empty_string)
 {
     auto import = QmlDesigner::Import::createLibraryImport("Qml");
 
@@ -61,7 +61,7 @@ TEST(Import, MinorVersionIsInvalidForEmptyString)
     ASSERT_THAT(version, -1);
 }
 
-TEST(Import, MinorVersionIsInvalidForBrokenString)
+TEST(Import, minor_version_is_invalid_for_broken_string)
 {
     auto import = QmlDesigner::Import::createLibraryImport("Qml", "6,5");
 
@@ -70,7 +70,7 @@ TEST(Import, MinorVersionIsInvalidForBrokenString)
     ASSERT_THAT(version, -1);
 }
 
-TEST(Import, VersionIsNotEmpty)
+TEST(Import, version_is_not_empty)
 {
     auto import = QmlDesigner::Import::createLibraryImport("Qml", "6.5");
 
@@ -79,7 +79,7 @@ TEST(Import, VersionIsNotEmpty)
     ASSERT_FALSE(version.isEmpty());
 }
 
-TEST(Import, BrokenVersionStringIsEmptyVersion)
+TEST(Import, broken_version_string_is_empty_version)
 {
     auto import = QmlDesigner::Import::createLibraryImport("Qml", "6");
 
@@ -88,7 +88,7 @@ TEST(Import, BrokenVersionStringIsEmptyVersion)
     ASSERT_TRUE(version.isEmpty());
 }
 
-TEST(Import, EmptyVersionStringIsEmptyVersion)
+TEST(Import, empty_version_string_is_empty_version)
 {
     auto import = QmlDesigner::Import::createLibraryImport("Qml");
 
@@ -97,7 +97,7 @@ TEST(Import, EmptyVersionStringIsEmptyVersion)
     ASSERT_TRUE(version.isEmpty());
 }
 
-TEST(Import, SameVersionsAreEqual)
+TEST(Import, same_versions_are_equal)
 {
     QmlDesigner::Version version1{6, 5};
     QmlDesigner::Version version2{6, 5};
@@ -107,7 +107,7 @@ TEST(Import, SameVersionsAreEqual)
     ASSERT_TRUE(isEqual);
 }
 
-TEST(Import, InvalidVersionsAreEqual)
+TEST(Import, invalid_versions_are_equal)
 {
     QmlDesigner::Version version1;
     QmlDesigner::Version version2;
@@ -117,7 +117,7 @@ TEST(Import, InvalidVersionsAreEqual)
     ASSERT_TRUE(isEqual);
 }
 
-TEST(Import, DifferentMinorVersionsAreNotEqual)
+TEST(Import, different_minor_versions_are_not_equal)
 {
     QmlDesigner::Version version1{6, 4};
     QmlDesigner::Version version2{6, 5};
@@ -127,7 +127,7 @@ TEST(Import, DifferentMinorVersionsAreNotEqual)
     ASSERT_FALSE(isEqual);
 }
 
-TEST(Import, DifferentMajorVersionsAreNotEqual)
+TEST(Import, different_major_versions_are_not_equal)
 {
     QmlDesigner::Version version1{5, 5};
     QmlDesigner::Version version2{6, 5};
@@ -137,7 +137,7 @@ TEST(Import, DifferentMajorVersionsAreNotEqual)
     ASSERT_FALSE(isEqual);
 }
 
-TEST(Import, LessMinorVersionsAreLess)
+TEST(Import, less_minor_versions_are_less)
 {
     QmlDesigner::Version version1{6, 4};
     QmlDesigner::Version version2{6, 5};
@@ -147,7 +147,7 @@ TEST(Import, LessMinorVersionsAreLess)
     ASSERT_TRUE(isLess);
 }
 
-TEST(Import, LessMajorVersionsAreLess)
+TEST(Import, less_major_versions_are_less)
 {
     QmlDesigner::Version version1{5, 15};
     QmlDesigner::Version version2{6, 5};
@@ -157,7 +157,7 @@ TEST(Import, LessMajorVersionsAreLess)
     ASSERT_TRUE(isLess);
 }
 
-TEST(Import, SameVersionsAreNotLess)
+TEST(Import, same_versions_are_not_less)
 {
     QmlDesigner::Version version1{6, 5};
     QmlDesigner::Version version2{6, 5};
@@ -167,7 +167,7 @@ TEST(Import, SameVersionsAreNotLess)
     ASSERT_FALSE(isLess);
 }
 
-TEST(Import, EmptyVersionIsNotLess)
+TEST(Import, empty_version_is_not_less)
 {
     QmlDesigner::Version version1;
     QmlDesigner::Version version2{6, 5};
@@ -177,7 +177,7 @@ TEST(Import, EmptyVersionIsNotLess)
     ASSERT_FALSE(isLess);
 }
 
-TEST(Import, NonEmptyVersionIsIsLessThanEmptyVersion)
+TEST(Import, non_empty_version_is_is_less_than_empty_version)
 {
     QmlDesigner::Version version1{6, 5};
     QmlDesigner::Version version2;
@@ -187,7 +187,7 @@ TEST(Import, NonEmptyVersionIsIsLessThanEmptyVersion)
     ASSERT_TRUE(isLess);
 }
 
-TEST(Import, GreaterMinorVersionsAreGreater)
+TEST(Import, greater_minor_versions_are_greater)
 {
     QmlDesigner::Version version1{6, 6};
     QmlDesigner::Version version2{6, 5};
@@ -197,7 +197,7 @@ TEST(Import, GreaterMinorVersionsAreGreater)
     ASSERT_TRUE(isGreater);
 }
 
-TEST(Import, GreaterMajorVersionsAreGreater)
+TEST(Import, greater_major_versions_are_greater)
 {
     QmlDesigner::Version version1{6, 5};
     QmlDesigner::Version version2{5, 15};
@@ -207,7 +207,7 @@ TEST(Import, GreaterMajorVersionsAreGreater)
     ASSERT_TRUE(isGreater);
 }
 
-TEST(Import, SameVersionsAreNotGreater)
+TEST(Import, same_versions_are_not_greater)
 {
     QmlDesigner::Version version1{6, 5};
     QmlDesigner::Version version2{6, 5};
@@ -217,7 +217,7 @@ TEST(Import, SameVersionsAreNotGreater)
     ASSERT_FALSE(isGreater);
 }
 
-TEST(Import, EmptyVersionIsGreater)
+TEST(Import, empty_version_is_greater)
 {
     QmlDesigner::Version version1;
     QmlDesigner::Version version2{6, 5};
@@ -227,7 +227,7 @@ TEST(Import, EmptyVersionIsGreater)
     ASSERT_TRUE(isGreater);
 }
 
-TEST(Import, NonEmptyVersionIsIsNotGreaterThanEmptyVersion)
+TEST(Import, non_empty_version_is_is_not_greater_than_empty_version)
 {
     QmlDesigner::Version version1{6, 5};
     QmlDesigner::Version version2;
@@ -237,7 +237,7 @@ TEST(Import, NonEmptyVersionIsIsNotGreaterThanEmptyVersion)
     ASSERT_FALSE(isGreater);
 }
 
-TEST(Import, LessEqualMinorVersionsAreLessEqual)
+TEST(Import, less_equal_minor_versions_are_less_equal)
 {
     QmlDesigner::Version version1{6, 4};
     QmlDesigner::Version version2{6, 5};
@@ -247,7 +247,7 @@ TEST(Import, LessEqualMinorVersionsAreLessEqual)
     ASSERT_TRUE(isLessEqual);
 }
 
-TEST(Import, LessqualMajorVersionsAreLessqual)
+TEST(Import, lessqual_major_versions_are_lessqual)
 {
     QmlDesigner::Version version1{5, 15};
     QmlDesigner::Version version2{6, 5};
@@ -257,7 +257,7 @@ TEST(Import, LessqualMajorVersionsAreLessqual)
     ASSERT_TRUE(isLessEqual);
 }
 
-TEST(Import, SameVersionsAreLessqual)
+TEST(Import, same_versions_are_lessqual)
 {
     QmlDesigner::Version version1{6, 5};
     QmlDesigner::Version version2{6, 5};
@@ -267,7 +267,7 @@ TEST(Import, SameVersionsAreLessqual)
     ASSERT_TRUE(isLessEqual);
 }
 
-TEST(Import, EmptyVersionIsNotLessqual)
+TEST(Import, empty_version_is_not_lessqual)
 {
     QmlDesigner::Version version1;
     QmlDesigner::Version version2{6, 5};
@@ -277,7 +277,7 @@ TEST(Import, EmptyVersionIsNotLessqual)
     ASSERT_FALSE(isLessEqual);
 }
 
-TEST(Import, NonEmptyVersionIsIsLessqualThanEmptyVersion)
+TEST(Import, non_empty_version_is_is_lessqual_than_empty_version)
 {
     QmlDesigner::Version version1{6, 5};
     QmlDesigner::Version version2;
@@ -287,7 +287,7 @@ TEST(Import, NonEmptyVersionIsIsLessqualThanEmptyVersion)
     ASSERT_TRUE(isLessEqual);
 }
 
-TEST(Import, GreaterEqualMinorVersionsAreGreaterEqual)
+TEST(Import, greater_equal_minor_versions_are_greater_equal)
 {
     QmlDesigner::Version version1{6, 6};
     QmlDesigner::Version version2{6, 5};
@@ -297,7 +297,7 @@ TEST(Import, GreaterEqualMinorVersionsAreGreaterEqual)
     ASSERT_TRUE(isGreaterEqual);
 }
 
-TEST(Import, GreaterEqualMajorVersionsAreGreaterEqual)
+TEST(Import, greater_equal_major_versions_are_greater_equal)
 {
     QmlDesigner::Version version1{6, 5};
     QmlDesigner::Version version2{5, 15};
@@ -307,7 +307,7 @@ TEST(Import, GreaterEqualMajorVersionsAreGreaterEqual)
     ASSERT_TRUE(isGreaterEqual);
 }
 
-TEST(Import, SameVersionsAreGreaterEqual)
+TEST(Import, same_versions_are_greater_equal)
 {
     QmlDesigner::Version version1{6, 5};
     QmlDesigner::Version version2{6, 5};
@@ -317,7 +317,7 @@ TEST(Import, SameVersionsAreGreaterEqual)
     ASSERT_TRUE(isGreaterEqual);
 }
 
-TEST(Import, EmptyVersionIsGreaterEqual)
+TEST(Import, empty_version_is_greater_equal)
 {
     QmlDesigner::Version version1;
     QmlDesigner::Version version2{6, 5};
@@ -327,7 +327,7 @@ TEST(Import, EmptyVersionIsGreaterEqual)
     ASSERT_TRUE(isGreaterEqual);
 }
 
-TEST(Import, NonEmptyVersionIsIsNotGreaterEqualThanEmptyVersion)
+TEST(Import, non_empty_version_is_is_not_greater_equal_than_empty_version)
 {
     QmlDesigner::Version version1{6, 5};
     QmlDesigner::Version version2;

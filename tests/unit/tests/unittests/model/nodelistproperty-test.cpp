@@ -89,14 +89,14 @@ protected:
     ModelNode node5;
 };
 
-TEST_F(NodeListProperty, BeginAndEndItertors)
+TEST_F(NodeListProperty, begin_and_end_itertors)
 {
     std::vector<ModelNode> nodes{nodeListProperty.begin(), nodeListProperty.end()};
 
     ASSERT_THAT(nodes, ElementsAre(node1, node2, node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, LoopOverRange)
+TEST_F(NodeListProperty, loop_over_range)
 {
     std::vector<ModelNode> nodes;
 
@@ -106,7 +106,7 @@ TEST_F(NodeListProperty, LoopOverRange)
     ASSERT_THAT(nodes, ElementsAre(node1, node2, node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, NextIterator)
+TEST_F(NodeListProperty, next_iterator)
 {
     auto begin = nodeListProperty.begin();
 
@@ -115,7 +115,7 @@ TEST_F(NodeListProperty, NextIterator)
     ASSERT_THAT(nodes(nextIterator, nodeListProperty.end()), ElementsAre(node2, node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, PreviousIterator)
+TEST_F(NodeListProperty, previous_iterator)
 {
     auto end = nodeListProperty.end();
 
@@ -125,7 +125,7 @@ TEST_F(NodeListProperty, PreviousIterator)
                 ElementsAre(node1, node2, node3, node4));
 }
 
-TEST_F(NodeListProperty, IncrementIterator)
+TEST_F(NodeListProperty, increment_iterator)
 {
     auto incrementIterator = nodeListProperty.begin();
 
@@ -135,7 +135,7 @@ TEST_F(NodeListProperty, IncrementIterator)
                 ElementsAre(node2, node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, IncrementIteratorReturnsIterator)
+TEST_F(NodeListProperty, increment_iterator_returns_iterator)
 {
     auto begin = nodeListProperty.begin();
 
@@ -145,7 +145,7 @@ TEST_F(NodeListProperty, IncrementIteratorReturnsIterator)
                 ElementsAre(node2, node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, PostIncrementIterator)
+TEST_F(NodeListProperty, post_increment_iterator)
 {
     auto postIncrementIterator = nodeListProperty.begin();
 
@@ -155,7 +155,7 @@ TEST_F(NodeListProperty, PostIncrementIterator)
                 ElementsAre(node2, node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, PostIncrementIteratorReturnsPreincrementIterator)
+TEST_F(NodeListProperty, post_increment_iterator_returns_preincrement_iterator)
 {
     auto begin = nodeListProperty.begin();
 
@@ -165,7 +165,7 @@ TEST_F(NodeListProperty, PostIncrementIteratorReturnsPreincrementIterator)
                 ElementsAre(node1, node2, node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, DecrementIterator)
+TEST_F(NodeListProperty, decrement_iterator)
 {
     auto decrementIterator = nodeListProperty.end();
 
@@ -175,7 +175,7 @@ TEST_F(NodeListProperty, DecrementIterator)
                 ElementsAre(node1, node2, node3, node4));
 }
 
-TEST_F(NodeListProperty, DerementIteratorReturnsIterator)
+TEST_F(NodeListProperty, derement_iterator_returns_iterator)
 {
     auto end = nodeListProperty.end();
 
@@ -185,7 +185,7 @@ TEST_F(NodeListProperty, DerementIteratorReturnsIterator)
                 ElementsAre(node1, node2, node3, node4));
 }
 
-TEST_F(NodeListProperty, PostDecrementIterator)
+TEST_F(NodeListProperty, post_decrement_iterator)
 {
     auto postDecrementIterator = nodeListProperty.end();
 
@@ -195,7 +195,7 @@ TEST_F(NodeListProperty, PostDecrementIterator)
                 ElementsAre(node1, node2, node3, node4));
 }
 
-TEST_F(NodeListProperty, PostDecrementIteratorReturnsPredecrementIterator)
+TEST_F(NodeListProperty, post_decrement_iterator_returns_predecrement_iterator)
 {
     auto end = nodeListProperty.end();
 
@@ -205,7 +205,7 @@ TEST_F(NodeListProperty, PostDecrementIteratorReturnsPredecrementIterator)
                 ElementsAre(node1, node2, node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, IncrementIteratorByTwo)
+TEST_F(NodeListProperty, increment_iterator_by_two)
 {
     auto incrementIterator = nodeListProperty.begin();
 
@@ -214,7 +214,7 @@ TEST_F(NodeListProperty, IncrementIteratorByTwo)
     ASSERT_THAT(nodes(incrementIterator, nodeListProperty.end()), ElementsAre(node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, IncrementIteratorByTwoReturnsIterator)
+TEST_F(NodeListProperty, increment_iterator_by_two_returns_iterator)
 {
     auto begin = nodeListProperty.begin();
 
@@ -223,7 +223,7 @@ TEST_F(NodeListProperty, IncrementIteratorByTwoReturnsIterator)
     ASSERT_THAT(nodes(incrementIterator, nodeListProperty.end()), ElementsAre(node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, DecrementIteratorByTwo)
+TEST_F(NodeListProperty, decrement_iterator_by_two)
 {
     auto decrementIterator = nodeListProperty.end();
 
@@ -232,7 +232,7 @@ TEST_F(NodeListProperty, DecrementIteratorByTwo)
     ASSERT_THAT(nodes(nodeListProperty.begin(), decrementIterator), ElementsAre(node1, node2, node3));
 }
 
-TEST_F(NodeListProperty, DecrementIteratorByTwoReturnsIterator)
+TEST_F(NodeListProperty, decrement_iterator_by_two_returns_iterator)
 {
     auto end = nodeListProperty.end();
 
@@ -241,7 +241,7 @@ TEST_F(NodeListProperty, DecrementIteratorByTwoReturnsIterator)
     ASSERT_THAT(nodes(nodeListProperty.begin(), decrementIterator), ElementsAre(node1, node2, node3));
 }
 
-TEST_F(NodeListProperty, AccessIterator)
+TEST_F(NodeListProperty, access_iterator)
 {
     auto iterator = std::next(nodeListProperty.begin(), 3);
 
@@ -250,7 +250,7 @@ TEST_F(NodeListProperty, AccessIterator)
     ASSERT_THAT(nodes(accessIterator, nodeListProperty.end()), ElementsAre(node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, AddIteratorByIndexSecondOperand)
+TEST_F(NodeListProperty, add_iterator_by_index_second_operand)
 {
     auto begin = nodeListProperty.begin();
 
@@ -259,7 +259,7 @@ TEST_F(NodeListProperty, AddIteratorByIndexSecondOperand)
     ASSERT_THAT(nodes(addedIterator, nodeListProperty.end()), ElementsAre(node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, AddIteratorByIndexFirstOperand)
+TEST_F(NodeListProperty, add_iterator_by_index_first_operand)
 {
     auto begin = nodeListProperty.begin();
 
@@ -268,7 +268,7 @@ TEST_F(NodeListProperty, AddIteratorByIndexFirstOperand)
     ASSERT_THAT(nodes(addedIterator, nodeListProperty.end()), ElementsAre(node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, SubtractIterator)
+TEST_F(NodeListProperty, subtract_iterator)
 {
     auto end = nodeListProperty.end();
 
@@ -277,7 +277,7 @@ TEST_F(NodeListProperty, SubtractIterator)
     ASSERT_THAT(nodes(subtractedIterator, nodeListProperty.end()), ElementsAre(node3, node4, node5));
 }
 
-TEST_F(NodeListProperty, CompareEqualIteratorAreEqual)
+TEST_F(NodeListProperty, compare_equal_iterator_are_equal)
 {
     auto first = nodeListProperty.begin();
     auto second = nodeListProperty.begin();
@@ -287,7 +287,7 @@ TEST_F(NodeListProperty, CompareEqualIteratorAreEqual)
     ASSERT_TRUE(isEqual);
 }
 
-TEST_F(NodeListProperty, CompareEqualIteratorAreNotEqual)
+TEST_F(NodeListProperty, compare_equal_iterator_are_not_equal)
 {
     auto first = nodeListProperty.begin();
     auto second = std::next(nodeListProperty.begin());
@@ -297,7 +297,7 @@ TEST_F(NodeListProperty, CompareEqualIteratorAreNotEqual)
     ASSERT_FALSE(isEqual);
 }
 
-TEST_F(NodeListProperty, CompareUnqualIteratorAreEqual)
+TEST_F(NodeListProperty, compare_unqual_iterator_are_equal)
 {
     auto first = nodeListProperty.begin();
     auto second = nodeListProperty.begin();
@@ -307,7 +307,7 @@ TEST_F(NodeListProperty, CompareUnqualIteratorAreEqual)
     ASSERT_FALSE(isUnequal);
 }
 
-TEST_F(NodeListProperty, CompareUnequalIteratorAreNotEqual)
+TEST_F(NodeListProperty, compare_unequal_iterator_are_not_equal)
 {
     auto first = nodeListProperty.begin();
     auto second = std::next(nodeListProperty.begin());
@@ -317,7 +317,7 @@ TEST_F(NodeListProperty, CompareUnequalIteratorAreNotEqual)
     ASSERT_TRUE(isUnequal);
 }
 
-TEST_F(NodeListProperty, CompareLessIteratorAreNotLessIfEqual)
+TEST_F(NodeListProperty, compare_less_iterator_are_not_less_if_equal)
 {
     auto first = nodeListProperty.begin();
     auto second = nodeListProperty.begin();
@@ -327,7 +327,7 @@ TEST_F(NodeListProperty, CompareLessIteratorAreNotLessIfEqual)
     ASSERT_FALSE(isLess);
 }
 
-TEST_F(NodeListProperty, CompareLessIteratorAreNotLessIfGreater)
+TEST_F(NodeListProperty, compare_less_iterator_are_not_less_if_greater)
 {
     auto first = std::next(nodeListProperty.begin());
     auto second = nodeListProperty.begin();
@@ -337,7 +337,7 @@ TEST_F(NodeListProperty, CompareLessIteratorAreNotLessIfGreater)
     ASSERT_FALSE(isLess);
 }
 
-TEST_F(NodeListProperty, CompareLessIteratorAreLessIfLess)
+TEST_F(NodeListProperty, compare_less_iterator_are_less_if_less)
 {
     auto first = nodeListProperty.begin();
     auto second = std::next(nodeListProperty.begin());
@@ -347,7 +347,7 @@ TEST_F(NodeListProperty, CompareLessIteratorAreLessIfLess)
     ASSERT_TRUE(isLess);
 }
 
-TEST_F(NodeListProperty, CompareLessEqualIteratorAreLessEqualIfEqual)
+TEST_F(NodeListProperty, compare_less_equal_iterator_are_less_equal_if_equal)
 {
     auto first = nodeListProperty.begin();
     auto second = nodeListProperty.begin();
@@ -357,7 +357,7 @@ TEST_F(NodeListProperty, CompareLessEqualIteratorAreLessEqualIfEqual)
     ASSERT_TRUE(isLessEqual);
 }
 
-TEST_F(NodeListProperty, CompareLessEqualIteratorAreNotLessEqualIfGreater)
+TEST_F(NodeListProperty, compare_less_equal_iterator_are_not_less_equal_if_greater)
 {
     auto first = std::next(nodeListProperty.begin());
     auto second = nodeListProperty.begin();
@@ -367,7 +367,7 @@ TEST_F(NodeListProperty, CompareLessEqualIteratorAreNotLessEqualIfGreater)
     ASSERT_FALSE(isLessEqual);
 }
 
-TEST_F(NodeListProperty, CompareLessEqualIteratorAreLessEqualIfLess)
+TEST_F(NodeListProperty, compare_less_equal_iterator_are_less_equal_if_less)
 {
     auto first = nodeListProperty.begin();
     auto second = std::next(nodeListProperty.begin());
@@ -377,7 +377,7 @@ TEST_F(NodeListProperty, CompareLessEqualIteratorAreLessEqualIfLess)
     ASSERT_TRUE(isLessEqual);
 }
 
-TEST_F(NodeListProperty, CompareGreaterIteratorAreGreaterIfEqual)
+TEST_F(NodeListProperty, compare_greater_iterator_are_greater_if_equal)
 {
     auto first = nodeListProperty.begin();
     auto second = nodeListProperty.begin();
@@ -387,7 +387,7 @@ TEST_F(NodeListProperty, CompareGreaterIteratorAreGreaterIfEqual)
     ASSERT_FALSE(isGreater);
 }
 
-TEST_F(NodeListProperty, CompareGreaterIteratorAreGreaterIfGreater)
+TEST_F(NodeListProperty, compare_greater_iterator_are_greater_if_greater)
 {
     auto first = std::next(nodeListProperty.begin());
     auto second = nodeListProperty.begin();
@@ -397,7 +397,7 @@ TEST_F(NodeListProperty, CompareGreaterIteratorAreGreaterIfGreater)
     ASSERT_TRUE(isGreater);
 }
 
-TEST_F(NodeListProperty, CompareGreaterIteratorAreNotGreaterIfLess)
+TEST_F(NodeListProperty, compare_greater_iterator_are_not_greater_if_less)
 {
     auto first = nodeListProperty.begin();
     auto second = std::next(nodeListProperty.begin());
@@ -407,7 +407,7 @@ TEST_F(NodeListProperty, CompareGreaterIteratorAreNotGreaterIfLess)
     ASSERT_FALSE(isGreater);
 }
 
-TEST_F(NodeListProperty, CompareGreaterEqualIteratorAreGreaterEqualIfEqual)
+TEST_F(NodeListProperty, compare_greater_equal_iterator_are_greater_equal_if_equal)
 {
     auto first = nodeListProperty.begin();
     auto second = nodeListProperty.begin();
@@ -417,7 +417,7 @@ TEST_F(NodeListProperty, CompareGreaterEqualIteratorAreGreaterEqualIfEqual)
     ASSERT_TRUE(isGreaterEqual);
 }
 
-TEST_F(NodeListProperty, CompareGreaterEqualIteratorAreGreaterEqualIfGreater)
+TEST_F(NodeListProperty, compare_greater_equal_iterator_are_greater_equal_if_greater)
 {
     auto first = std::next(nodeListProperty.begin());
     auto second = nodeListProperty.begin();
@@ -427,7 +427,7 @@ TEST_F(NodeListProperty, CompareGreaterEqualIteratorAreGreaterEqualIfGreater)
     ASSERT_TRUE(isGreaterEqual);
 }
 
-TEST_F(NodeListProperty, CompareGreaterEqualIteratorAreNotGreaterEqualIfLess)
+TEST_F(NodeListProperty, compare_greater_equal_iterator_are_not_greater_equal_if_less)
 {
     auto first = nodeListProperty.begin();
     auto second = std::next(nodeListProperty.begin());
@@ -437,7 +437,7 @@ TEST_F(NodeListProperty, CompareGreaterEqualIteratorAreNotGreaterEqualIfLess)
     ASSERT_FALSE(isGreaterEqual);
 }
 
-TEST_F(NodeListProperty, DereferenceIterator)
+TEST_F(NodeListProperty, dereference_iterator)
 {
     auto iterator = std::next(nodeListProperty.begin());
 
@@ -446,7 +446,7 @@ TEST_F(NodeListProperty, DereferenceIterator)
     ASSERT_THAT(node, Eq(node2));
 }
 
-TEST_F(NodeListProperty, IterSwap)
+TEST_F(NodeListProperty, iter_swap)
 {
     auto first = std::next(nodeListProperty.begin(), 2);
     auto second = nodeListProperty.begin();
@@ -456,7 +456,7 @@ TEST_F(NodeListProperty, IterSwap)
     ASSERT_THAT(nodes(), ElementsAre(node3, node2, node1, node4, node5));
 }
 
-TEST_F(NodeListProperty, Rotate)
+TEST_F(NodeListProperty, rotate)
 {
     auto first = std::next(nodeListProperty.begin());
     auto newFirst = std::next(nodeListProperty.begin(), 2);
@@ -467,7 +467,7 @@ TEST_F(NodeListProperty, Rotate)
     ASSERT_THAT(nodes(), ElementsAre(node1, node3, node4, node2, node5));
 }
 
-TEST_F(NodeListProperty, RotateCallsNodeOrderedChanged)
+TEST_F(NodeListProperty, rotate_calls_node_ordered_changed)
 {
     auto first = std::next(nodeListProperty.begin());
     auto newFirst = std::next(nodeListProperty.begin(), 2);
@@ -478,7 +478,7 @@ TEST_F(NodeListProperty, RotateCallsNodeOrderedChanged)
     nodeListProperty.rotate(first, newFirst, last);
 }
 
-TEST_F(NodeListProperty, RotateRange)
+TEST_F(NodeListProperty, rotate_range)
 {
     auto newFirst = std::prev(nodeListProperty.end(), 2);
 
@@ -487,7 +487,7 @@ TEST_F(NodeListProperty, RotateRange)
     ASSERT_THAT(nodes(), ElementsAre(node4, node5, node1, node2, node3));
 }
 
-TEST_F(NodeListProperty, RotateReturnsIterator)
+TEST_F(NodeListProperty, rotate_returns_iterator)
 {
     auto first = std::next(nodeListProperty.begin());
     auto newFirst = std::next(nodeListProperty.begin(), 2);
@@ -498,7 +498,7 @@ TEST_F(NodeListProperty, RotateReturnsIterator)
     ASSERT_THAT(iterator, Eq(first + (last - newFirst)));
 }
 
-TEST_F(NodeListProperty, RotateRangeReturnsIterator)
+TEST_F(NodeListProperty, rotate_range_returns_iterator)
 {
     auto newFirst = std::prev(nodeListProperty.end(), 2);
 
@@ -507,7 +507,7 @@ TEST_F(NodeListProperty, RotateRangeReturnsIterator)
     ASSERT_THAT(iterator, Eq(nodeListProperty.begin() + (nodeListProperty.end() - newFirst)));
 }
 
-TEST_F(NodeListProperty, Reverse)
+TEST_F(NodeListProperty, reverse)
 {
     auto first = std::next(nodeListProperty.begin());
     auto last = std::prev(nodeListProperty.end());
@@ -517,7 +517,7 @@ TEST_F(NodeListProperty, Reverse)
     ASSERT_THAT(nodes(), ElementsAre(node1, node4, node3, node2, node5));
 }
 
-TEST_F(NodeListProperty, ReverseCallsNodeOrderedChanged)
+TEST_F(NodeListProperty, reverse_calls_node_ordered_changed)
 {
     auto first = std::next(nodeListProperty.begin());
     auto last = std::prev(nodeListProperty.end());

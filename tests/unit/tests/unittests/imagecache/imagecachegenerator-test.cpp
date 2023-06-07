@@ -41,7 +41,7 @@ protected:
     QmlDesigner::ImageCacheGenerator generator{collectorMock, storageMock};
 };
 
-TEST_F(ImageCacheGenerator, CallsCollectorWithCaptureCallback)
+TEST_F(ImageCacheGenerator, calls_collector_with_capture_callback)
 {
     EXPECT_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillRepeatedly([&](auto, auto, auto, auto captureCallback, auto) {
@@ -55,7 +55,7 @@ TEST_F(ImageCacheGenerator, CallsCollectorWithCaptureCallback)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, CallsCollectorOnlyIfNotProcessing)
+TEST_F(ImageCacheGenerator, calls_collector_only_if_not_processing)
 {
     EXPECT_CALL(collectorMock, start(AnyOf(Eq("name"), Eq("name2")), _, _, _, _))
         .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
@@ -65,7 +65,7 @@ TEST_F(ImageCacheGenerator, CallsCollectorOnlyIfNotProcessing)
     notification.wait(2);
 }
 
-TEST_F(ImageCacheGenerator, ProcessTaskAfterFirstFinished)
+TEST_F(ImageCacheGenerator, process_task_after_first_finished)
 {
     ON_CALL(imageCallbackMock, Call(_, _, _))
         .WillByDefault([&](const QImage &, const QImage &, const QImage &) { notification.notify(); });
@@ -84,7 +84,7 @@ TEST_F(ImageCacheGenerator, ProcessTaskAfterFirstFinished)
     notification.wait(2);
 }
 
-TEST_F(ImageCacheGenerator, DontCrashAtDestructingGenerator)
+TEST_F(ImageCacheGenerator, dont_crash_at_destructing_generator)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -101,7 +101,7 @@ TEST_F(ImageCacheGenerator, DontCrashAtDestructingGenerator)
         "name4", {}, {}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
 }
 
-TEST_F(ImageCacheGenerator, StoreImage)
+TEST_F(ImageCacheGenerator, store_image)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -120,7 +120,7 @@ TEST_F(ImageCacheGenerator, StoreImage)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, StoreImageWithExtraId)
+TEST_F(ImageCacheGenerator, store_image_with_extra_id)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -139,7 +139,7 @@ TEST_F(ImageCacheGenerator, StoreImageWithExtraId)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, StoreNullImage)
+TEST_F(ImageCacheGenerator, store_null_image)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -156,7 +156,7 @@ TEST_F(ImageCacheGenerator, StoreNullImage)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, StoreNullImageWithExtraId)
+TEST_F(ImageCacheGenerator, store_null_image_with_extra_id)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -180,7 +180,7 @@ TEST_F(ImageCacheGenerator, StoreNullImageWithExtraId)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, AbortCallback)
+TEST_F(ImageCacheGenerator, abort_callback)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -203,7 +203,7 @@ TEST_F(ImageCacheGenerator, AbortCallback)
     notification.wait(2);
 }
 
-TEST_F(ImageCacheGenerator, StoreNullImageForAbortCallbackAbort)
+TEST_F(ImageCacheGenerator, store_null_image_for_abort_callback_abort)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) {
@@ -220,7 +220,7 @@ TEST_F(ImageCacheGenerator, StoreNullImageForAbortCallbackAbort)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, DontStoreNullImageForAbortCallbackFailed)
+TEST_F(ImageCacheGenerator, dont_store_null_image_for_abort_callback_failed)
 {
     ON_CALL(collectorMock, start(_, _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto, auto abortCallback) {
@@ -237,7 +237,7 @@ TEST_F(ImageCacheGenerator, DontStoreNullImageForAbortCallbackFailed)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, AbortForNullImage)
+TEST_F(ImageCacheGenerator, abort_for_null_image)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -252,7 +252,7 @@ TEST_F(ImageCacheGenerator, AbortForNullImage)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, CallImageCallbackIfSmallImageIsNotNull)
+TEST_F(ImageCacheGenerator, call_image_callback_if_small_image_is_not_null)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -267,7 +267,7 @@ TEST_F(ImageCacheGenerator, CallImageCallbackIfSmallImageIsNotNull)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, StoreImageIfSmallImageIsNotNull)
+TEST_F(ImageCacheGenerator, store_image_if_small_image_is_not_null)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -282,7 +282,7 @@ TEST_F(ImageCacheGenerator, StoreImageIfSmallImageIsNotNull)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, CallImageCallbackIfMidSizeImageIsNotNull)
+TEST_F(ImageCacheGenerator, call_image_callback_if_mid_size_image_is_not_null)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -297,7 +297,7 @@ TEST_F(ImageCacheGenerator, CallImageCallbackIfMidSizeImageIsNotNull)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, StoreImageIfMidSizeImageIsNotNull)
+TEST_F(ImageCacheGenerator, store_image_if_mid_size_image_is_not_null)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -312,7 +312,7 @@ TEST_F(ImageCacheGenerator, StoreImageIfMidSizeImageIsNotNull)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, CallImageCallbackIfImageIsNotNull)
+TEST_F(ImageCacheGenerator, call_image_callback_if_image_is_not_null)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault(
@@ -326,7 +326,7 @@ TEST_F(ImageCacheGenerator, CallImageCallbackIfImageIsNotNull)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, StoreImageIfImageIsNotNull)
+TEST_F(ImageCacheGenerator, store_image_if_image_is_not_null)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault(
@@ -340,7 +340,7 @@ TEST_F(ImageCacheGenerator, StoreImageIfImageIsNotNull)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, CallWalCheckpointFullIfQueueIsEmpty)
+TEST_F(ImageCacheGenerator, call_wal_checkpoint_full_if_queue_is_empty)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault(
@@ -355,7 +355,7 @@ TEST_F(ImageCacheGenerator, CallWalCheckpointFullIfQueueIsEmpty)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, CleanIsCallingAbortCallback)
+TEST_F(ImageCacheGenerator, clean_is_calling_abort_callback)
 {
     ON_CALL(collectorMock, start(_, _, _, _, _)).WillByDefault([&](auto, auto, auto, auto, auto) {
         notification.wait();
@@ -374,7 +374,7 @@ TEST_F(ImageCacheGenerator, CleanIsCallingAbortCallback)
     waitInThread.wait();
 }
 
-TEST_F(ImageCacheGenerator, WaitForFinished)
+TEST_F(ImageCacheGenerator, wait_for_finished)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -397,7 +397,7 @@ TEST_F(ImageCacheGenerator, WaitForFinished)
     generator.waitForFinished();
 }
 
-TEST_F(ImageCacheGenerator, CallsCollectorWithExtraId)
+TEST_F(ImageCacheGenerator, calls_collector_with_extra_id)
 {
     EXPECT_CALL(collectorMock, start(Eq("name"), Eq("extraId1"), _, _, _))
         .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
@@ -406,7 +406,7 @@ TEST_F(ImageCacheGenerator, CallsCollectorWithExtraId)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, CallsCollectorWithAuxiliaryData)
+TEST_F(ImageCacheGenerator, calls_collector_with_auxiliary_data)
 {
     using QmlDesigner::ImageCache::FontCollectorSizesAuxiliaryData;
     std::vector<QSize> sizes{{20, 11}};
@@ -431,7 +431,7 @@ TEST_F(ImageCacheGenerator, CallsCollectorWithAuxiliaryData)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, MergeTasks)
+TEST_F(ImageCacheGenerator, merge_tasks)
 {
     EXPECT_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
         .WillRepeatedly([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
@@ -448,7 +448,7 @@ TEST_F(ImageCacheGenerator, MergeTasks)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, DontMergeTasksWithDifferentId)
+TEST_F(ImageCacheGenerator, dont_merge_tasks_with_different_id)
 {
     EXPECT_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
         .WillRepeatedly([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
@@ -465,7 +465,7 @@ TEST_F(ImageCacheGenerator, DontMergeTasksWithDifferentId)
     notification.wait(2);
 }
 
-TEST_F(ImageCacheGenerator, MergeTasksWithSameExtraId)
+TEST_F(ImageCacheGenerator, merge_tasks_with_same_extra_id)
 {
     EXPECT_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
         .WillRepeatedly([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
@@ -482,7 +482,7 @@ TEST_F(ImageCacheGenerator, MergeTasksWithSameExtraId)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, DontMergeTasksWithDifferentExtraId)
+TEST_F(ImageCacheGenerator, dont_merge_tasks_with_different_extra_id)
 {
     EXPECT_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
         .WillRepeatedly([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
@@ -498,7 +498,7 @@ TEST_F(ImageCacheGenerator, DontMergeTasksWithDifferentExtraId)
     notification.wait(2);
 }
 
-TEST_F(ImageCacheGenerator, UseLastTimeStampIfTasksAreMerged)
+TEST_F(ImageCacheGenerator, use_last_time_stamp_if_tasks_are_merged)
 {
     ON_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
@@ -519,7 +519,7 @@ TEST_F(ImageCacheGenerator, UseLastTimeStampIfTasksAreMerged)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, MergeCaptureCallbackIfTasksAreMerged)
+TEST_F(ImageCacheGenerator, merge_capture_callback_if_tasks_are_merged)
 {
     NiceMock<MockFunction<void(const QImage &, const QImage &, const QImage &)>> newerImageCallbackMock;
     ON_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
@@ -542,7 +542,7 @@ TEST_F(ImageCacheGenerator, MergeCaptureCallbackIfTasksAreMerged)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, MergeAbortCallbackIfTasksAreMerged)
+TEST_F(ImageCacheGenerator, merge_abort_callback_if_tasks_are_merged)
 {
     NiceMock<MockFunction<void(QmlDesigner::ImageCache::AbortReason)>> newerAbortCallbackMock;
     ON_CALL(collectorMock, start(Eq("waitDummy"), _, _, _, _))
@@ -565,7 +565,7 @@ TEST_F(ImageCacheGenerator, MergeAbortCallbackIfTasksAreMerged)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, DontCallNullImageCallback)
+TEST_F(ImageCacheGenerator, dont_call_null_image_callback)
 {
     EXPECT_CALL(collectorMock, start(_, _, _, _, _))
         .WillOnce([&](auto, auto, auto, auto captureCallback, auto) {
@@ -577,7 +577,7 @@ TEST_F(ImageCacheGenerator, DontCallNullImageCallback)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, DontCallNullAbortCallbackForNullImage)
+TEST_F(ImageCacheGenerator, dont_call_null_abort_callback_for_null_image)
 {
     EXPECT_CALL(collectorMock, start(_, _, _, _, _))
         .WillOnce([&](auto, auto, auto, auto captureCallback, auto) {
@@ -589,7 +589,7 @@ TEST_F(ImageCacheGenerator, DontCallNullAbortCallbackForNullImage)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, DontCallNullAbortCallback)
+TEST_F(ImageCacheGenerator, dont_call_null_abort_callback)
 {
     EXPECT_CALL(collectorMock, start(_, _, _, _, _))
         .WillOnce([&](auto, auto, auto, auto, auto abortCallback) {

@@ -14,7 +14,7 @@ using Sqlite::SqlStatementBuilderException;
 
 using SV = Utils::SmallStringVector;
 
-TEST(SqlStatementBuilder, Bind)
+TEST(SqlStatementBuilder, bind)
 {
     SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table WHERE $column = 'foo' AND rowid=$row AND rowid IN ($rows)");
 
@@ -27,7 +27,7 @@ TEST(SqlStatementBuilder, Bind)
     ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "SELECT name, number FROM test WHERE name = 'foo' AND rowid=20 AND rowid IN (1, 2, 3)");
 }
 
-TEST(SqlStatementBuilder, BindEmpty)
+TEST(SqlStatementBuilder, bind_empty)
 {
     SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table$emptyPart");
     sqlStatementBuilder.bind("$columns", SV{"name", "number"});
@@ -38,7 +38,7 @@ TEST(SqlStatementBuilder, BindEmpty)
     ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "SELECT name, number FROM test");
 }
 
-TEST(SqlStatementBuilder, BindFailure)
+TEST(SqlStatementBuilder, bind_failure)
 {
     SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table");
 
@@ -51,7 +51,7 @@ TEST(SqlStatementBuilder, BindFailure)
     ASSERT_THROW(sqlStatementBuilder.bindWithUpdateTemplateParameters("$columns", columns), SqlStatementBuilderException);
 }
 
-TEST(SqlStatementBuilder, BindWithInsertTemplateParameters)
+TEST(SqlStatementBuilder, bind_with_insert_template_parameters)
 {
     Utils::SmallStringVector columns = {"name", "number"};
 
@@ -63,7 +63,7 @@ TEST(SqlStatementBuilder, BindWithInsertTemplateParameters)
     ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "INSERT OR IGNORE INTO test (name, number) VALUES (?, ?)");
 }
 
-TEST(SqlStatementBuilder, BindWithUpdateTemplateParameters)
+TEST(SqlStatementBuilder, bind_with_update_template_parameters)
 {
     Utils::SmallStringVector columns = {"name", "number"};
 
@@ -74,7 +74,7 @@ TEST(SqlStatementBuilder, BindWithUpdateTemplateParameters)
     ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "UPDATE test SET name=?, number=? WHERE id=?");
 }
 
-TEST(SqlStatementBuilder, BindWithUpdateTemplateNames)
+TEST(SqlStatementBuilder, bind_with_update_template_names)
 {
     Utils::SmallStringVector columns = {"name", "number"};
 
@@ -85,7 +85,7 @@ TEST(SqlStatementBuilder, BindWithUpdateTemplateNames)
     ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "UPDATE test SET name=@name, number=@number WHERE id=@id");
 }
 
-TEST(SqlStatementBuilder, ClearOnRebinding)
+TEST(SqlStatementBuilder, clear_on_rebinding)
 {
     SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table");
 
@@ -99,7 +99,7 @@ TEST(SqlStatementBuilder, ClearOnRebinding)
     ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "SELECT name, number FROM test2");
 }
 
-TEST(SqlStatementBuilder, ClearBinding)
+TEST(SqlStatementBuilder, clear_binding)
 {
     SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table");
 
@@ -113,7 +113,7 @@ TEST(SqlStatementBuilder, ClearBinding)
     ASSERT_THROW(sqlStatementBuilder.sqlStatement(), SqlStatementBuilderException);
 }
 
-TEST(SqlStatementBuilder, SqlStatementFailure)
+TEST(SqlStatementBuilder, sql_statement_failure)
 {
     SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table");
 
@@ -122,7 +122,7 @@ TEST(SqlStatementBuilder, SqlStatementFailure)
     ASSERT_THROW(sqlStatementBuilder.sqlStatement(), SqlStatementBuilderException);
 }
 
-TEST(SqlStatementBuilder, IsBuild)
+TEST(SqlStatementBuilder, is_build)
 {
     SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table");
 

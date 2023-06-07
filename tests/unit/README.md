@@ -64,6 +64,7 @@ unittests (and integrationtests)
     * You can access test data from your test code with `UNITTEST_DIR` macro followed by `<your-folder-name>/data` path.
 * Name your test files as `foo-test.cpp`.
 * Always include `googletest.h` header. Without that you may get the printer function can be broken because the are not anymore ODR (because of weak linking to printers for example). It is also necessary for nice printers, also adds Qt known matchers.
+* Use snake_case for the test name to improve readability for long sentences
 
 ## Building Tests
 

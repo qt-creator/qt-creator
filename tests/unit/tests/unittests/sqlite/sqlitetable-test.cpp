@@ -31,28 +31,28 @@ protected:
     Utils::SmallString tableName = "testTable";
 };
 
-TEST_F(SqliteTable, ColumnIsAddedToTable)
+TEST_F(SqliteTable, column_is_added_to_table)
 {
     table.setUseWithoutRowId(true);
 
     ASSERT_TRUE(table.useWithoutRowId());
 }
 
-TEST_F(SqliteTable, SetTableName)
+TEST_F(SqliteTable, set_table_name)
 {
     table.setName(tableName.clone());
 
     ASSERT_THAT(table.name(), tableName);
 }
 
-TEST_F(SqliteTable, SetUseWithoutRowid)
+TEST_F(SqliteTable, set_use_without_rowid)
 {
     table.setUseWithoutRowId(true);
 
     ASSERT_TRUE(table.useWithoutRowId());
 }
 
-TEST_F(SqliteTable, AddIndex)
+TEST_F(SqliteTable, add_index)
 {
     table.setName(tableName.clone());
     auto &column = table.addColumn("name");
@@ -65,7 +65,7 @@ TEST_F(SqliteTable, AddIndex)
         Eq("CREATE INDEX IF NOT EXISTS index_testTable_name_value ON testTable(name, value)"));
 }
 
-TEST_F(SqliteTable, InitializeTable)
+TEST_F(SqliteTable, initialize_table)
 {
     table.setName(tableName.clone());
     table.setUseIfNotExists(true);
@@ -81,7 +81,7 @@ TEST_F(SqliteTable, InitializeTable)
     table.initialize(databaseMock);
 }
 
-TEST_F(SqliteTable, InitializeTableWithIndex)
+TEST_F(SqliteTable, initialize_table_with_index)
 {
     InSequence sequence;
     table.setName(tableName.clone());
@@ -100,7 +100,7 @@ TEST_F(SqliteTable, InitializeTableWithIndex)
     table.initialize(databaseMock);
 }
 
-TEST_F(SqliteTable, InitializeTableWithUniqueIndex)
+TEST_F(SqliteTable, initialize_table_with_unique_index)
 {
     InSequence sequence;
     table.setName(tableName.clone());
@@ -121,7 +121,7 @@ TEST_F(SqliteTable, InitializeTableWithUniqueIndex)
     table.initialize(databaseMock);
 }
 
-TEST_F(SqliteTable, AddForeignKeyColumnWithTableCalls)
+TEST_F(SqliteTable, add_foreign_key_column_with_table_calls)
 {
     Sqlite::Table foreignTable;
     foreignTable.setName("foreignTable");
@@ -139,7 +139,7 @@ TEST_F(SqliteTable, AddForeignKeyColumnWithTableCalls)
     table.initialize(databaseMock);
 }
 
-TEST_F(SqliteTable, AddForeignKeyColumnWithColumnCalls)
+TEST_F(SqliteTable, add_foreign_key_column_with_column_calls)
 {
     Sqlite::Table foreignTable;
     foreignTable.setName("foreignTable");
@@ -160,7 +160,7 @@ TEST_F(SqliteTable, AddForeignKeyColumnWithColumnCalls)
     table.initialize(databaseMock);
 }
 
-TEST_F(SqliteTable, AddColumn)
+TEST_F(SqliteTable, add_column)
 {
     table.setName(tableName);
 
@@ -174,7 +174,7 @@ TEST_F(SqliteTable, AddColumn)
                             ElementsAre(VariantWith<Sqlite::Unique>(Eq(Sqlite::Unique{}))))));
 }
 
-TEST_F(SqliteTable, AddForeignKeyColumnWithTable)
+TEST_F(SqliteTable, add_foreign_key_column_with_table)
 {
     Sqlite::Table foreignTable;
     foreignTable.setName("foreignTable");
@@ -200,7 +200,7 @@ TEST_F(SqliteTable, AddForeignKeyColumnWithTable)
                                       Field(&ForeignKey::enforcement, Enforment::Deferred)))))));
 }
 
-TEST_F(SqliteTable, AddForeignKeyColumnWithColumn)
+TEST_F(SqliteTable, add_foreign_key_column_with_column)
 {
     Sqlite::Table foreignTable;
     foreignTable.setName("foreignTable");
@@ -226,7 +226,7 @@ TEST_F(SqliteTable, AddForeignKeyColumnWithColumn)
                                       Field(&ForeignKey::enforcement, Enforment::Deferred)))))));
 }
 
-TEST_F(SqliteTable, AddForeignKeyWhichIsNotUniqueThrowsAnExceptions)
+TEST_F(SqliteTable, add_foreign_key_which_is_not_unique_throws_an_exceptions)
 {
     Sqlite::Table foreignTable;
     foreignTable.setName("foreignTable");
@@ -241,7 +241,7 @@ TEST_F(SqliteTable, AddForeignKeyWhichIsNotUniqueThrowsAnExceptions)
                  Sqlite::ForeignKeyColumnIsNotUnique);
 }
 
-TEST_F(SqliteTable, AddForeignKeyColumnWithTableAndNotNull)
+TEST_F(SqliteTable, add_foreign_key_column_with_table_and_not_null)
 {
     Sqlite::Table foreignTable;
     foreignTable.setName("foreignTable");
@@ -270,7 +270,7 @@ TEST_F(SqliteTable, AddForeignKeyColumnWithTableAndNotNull)
                                 VariantWith<Sqlite::NotNull>(Eq(Sqlite::NotNull{}))))));
 }
 
-TEST_F(SqliteTable, AddForeignKeyColumnWithColumnAndNotNull)
+TEST_F(SqliteTable, add_foreign_key_column_with_column_and_not_null)
 {
     Sqlite::Table foreignTable;
     foreignTable.setName("foreignTable");
@@ -299,7 +299,7 @@ TEST_F(SqliteTable, AddForeignKeyColumnWithColumnAndNotNull)
                                 VariantWith<Sqlite::NotNull>(Eq(Sqlite::NotNull{}))))));
 }
 
-TEST_F(SqliteTable, AddPrimaryTableContraint)
+TEST_F(SqliteTable, add_primary_table_contraint)
 {
     table.setName(tableName.clone());
     const auto &idColumn = table.addColumn("id");
@@ -321,28 +321,28 @@ protected:
     Utils::SmallString tableName = "testTable";
 };
 
-TEST_F(StrictSqliteTable, ColumnIsAddedToTable)
+TEST_F(StrictSqliteTable, column_is_added_to_table)
 {
     table.setUseWithoutRowId(true);
 
     ASSERT_TRUE(table.useWithoutRowId());
 }
 
-TEST_F(StrictSqliteTable, SetTableName)
+TEST_F(StrictSqliteTable, set_table_name)
 {
     table.setName(tableName.clone());
 
     ASSERT_THAT(table.name(), tableName);
 }
 
-TEST_F(StrictSqliteTable, SetUseWithoutRowid)
+TEST_F(StrictSqliteTable, set_use_without_rowid)
 {
     table.setUseWithoutRowId(true);
 
     ASSERT_TRUE(table.useWithoutRowId());
 }
 
-TEST_F(StrictSqliteTable, AddIndex)
+TEST_F(StrictSqliteTable, add_index)
 {
     table.setName(tableName.clone());
     auto &column = table.addColumn("name");
@@ -355,7 +355,7 @@ TEST_F(StrictSqliteTable, AddIndex)
                    "value)"));
 }
 
-TEST_F(StrictSqliteTable, InitializeTable)
+TEST_F(StrictSqliteTable, initialize_table)
 {
     table.setName(tableName.clone());
     table.setUseIfNotExists(true);
@@ -371,7 +371,7 @@ TEST_F(StrictSqliteTable, InitializeTable)
     table.initialize(databaseMock);
 }
 
-TEST_F(StrictSqliteTable, InitializeTableWithIndex)
+TEST_F(StrictSqliteTable, initialize_table_with_index)
 {
     InSequence sequence;
     table.setName(tableName.clone());
@@ -390,7 +390,7 @@ TEST_F(StrictSqliteTable, InitializeTableWithIndex)
     table.initialize(databaseMock);
 }
 
-TEST_F(StrictSqliteTable, InitializeTableWithUniqueIndex)
+TEST_F(StrictSqliteTable, initialize_table_with_unique_index)
 {
     InSequence sequence;
     table.setName(tableName.clone());
@@ -411,7 +411,7 @@ TEST_F(StrictSqliteTable, InitializeTableWithUniqueIndex)
     table.initialize(databaseMock);
 }
 
-TEST_F(StrictSqliteTable, AddForeignKeyColumnWithTableCalls)
+TEST_F(StrictSqliteTable, add_foreign_key_column_with_table_calls)
 {
     Sqlite::StrictTable foreignTable;
     foreignTable.setName("foreignTable");
@@ -429,7 +429,7 @@ TEST_F(StrictSqliteTable, AddForeignKeyColumnWithTableCalls)
     table.initialize(databaseMock);
 }
 
-TEST_F(StrictSqliteTable, AddForeignKeyColumnWithColumnCalls)
+TEST_F(StrictSqliteTable, add_foreign_key_column_with_column_calls)
 {
     Sqlite::StrictTable foreignTable;
     foreignTable.setName("foreignTable");
@@ -452,7 +452,7 @@ TEST_F(StrictSqliteTable, AddForeignKeyColumnWithColumnCalls)
     table.initialize(databaseMock);
 }
 
-TEST_F(StrictSqliteTable, AddColumn)
+TEST_F(StrictSqliteTable, add_column)
 {
     table.setName(tableName);
 
@@ -466,7 +466,7 @@ TEST_F(StrictSqliteTable, AddColumn)
                             ElementsAre(VariantWith<Sqlite::Unique>(Eq(Sqlite::Unique{}))))));
 }
 
-TEST_F(StrictSqliteTable, AddForeignKeyColumnWithTable)
+TEST_F(StrictSqliteTable, add_foreign_key_column_with_table)
 {
     Sqlite::StrictTable foreignTable;
     foreignTable.setName("foreignTable");
@@ -492,7 +492,7 @@ TEST_F(StrictSqliteTable, AddForeignKeyColumnWithTable)
                                       Field(&ForeignKey::enforcement, Enforment::Deferred)))))));
 }
 
-TEST_F(StrictSqliteTable, AddForeignKeyColumnWithColumn)
+TEST_F(StrictSqliteTable, add_foreign_key_column_with_column)
 {
     Sqlite::StrictTable foreignTable;
     foreignTable.setName("foreignTable");
@@ -520,7 +520,7 @@ TEST_F(StrictSqliteTable, AddForeignKeyColumnWithColumn)
                                       Field(&ForeignKey::enforcement, Enforment::Deferred)))))));
 }
 
-TEST_F(StrictSqliteTable, AddForeignKeyWhichIsNotUniqueThrowsAnExceptions)
+TEST_F(StrictSqliteTable, add_foreign_key_which_is_not_unique_throws_an_exceptions)
 {
     Sqlite::StrictTable foreignTable;
     foreignTable.setName("foreignTable");
@@ -535,7 +535,7 @@ TEST_F(StrictSqliteTable, AddForeignKeyWhichIsNotUniqueThrowsAnExceptions)
                  Sqlite::ForeignKeyColumnIsNotUnique);
 }
 
-TEST_F(StrictSqliteTable, AddForeignKeyColumnWithTableAndNotNull)
+TEST_F(StrictSqliteTable, add_foreign_key_column_with_table_and_not_null)
 {
     Sqlite::StrictTable foreignTable;
     foreignTable.setName("foreignTable");
@@ -564,7 +564,7 @@ TEST_F(StrictSqliteTable, AddForeignKeyColumnWithTableAndNotNull)
                                 VariantWith<Sqlite::NotNull>(Eq(Sqlite::NotNull{}))))));
 }
 
-TEST_F(StrictSqliteTable, AddForeignKeyColumnWithColumnAndNotNull)
+TEST_F(StrictSqliteTable, add_foreign_key_column_with_column_and_not_null)
 {
     Sqlite::StrictTable foreignTable;
     foreignTable.setName("foreignTable");
@@ -595,7 +595,7 @@ TEST_F(StrictSqliteTable, AddForeignKeyColumnWithColumnAndNotNull)
                                 VariantWith<Sqlite::NotNull>(Eq(Sqlite::NotNull{}))))));
 }
 
-TEST_F(StrictSqliteTable, AddPrimaryTableContraint)
+TEST_F(StrictSqliteTable, add_primary_table_contraint)
 {
     table.setName(tableName.clone());
     const auto &idColumn = table.addColumn("id");

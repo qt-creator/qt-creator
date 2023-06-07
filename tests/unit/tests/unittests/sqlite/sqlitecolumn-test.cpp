@@ -24,7 +24,7 @@ protected:
     Column column;
 };
 
-TEST_F(SqliteColumn, DefaultConstruct)
+TEST_F(SqliteColumn, default_construct)
 {
     ASSERT_THAT(column,
                 AllOf(Field(&Column::name, IsEmpty()),
@@ -33,7 +33,7 @@ TEST_F(SqliteColumn, DefaultConstruct)
                       Field(&Column::constraints, IsEmpty())));
 }
 
-TEST_F(SqliteColumn, Clear)
+TEST_F(SqliteColumn, clear)
 {
     column.name = "foo";
     column.name = "foo";
@@ -49,7 +49,7 @@ TEST_F(SqliteColumn, Clear)
                       Field(&Column::constraints, IsEmpty())));
 }
 
-TEST_F(SqliteColumn, Constructor)
+TEST_F(SqliteColumn, constructor)
 {
     column = Column{"table",
                     "column",
@@ -73,7 +73,7 @@ TEST_F(SqliteColumn, Constructor)
                                       Field(&ForeignKey::enforcement, Enforment::Deferred)))))));
 }
 
-TEST_F(SqliteColumn, FlatConstructor)
+TEST_F(SqliteColumn, flat_constructor)
 {
     column = Column{"table",
                     "column",
@@ -105,7 +105,7 @@ protected:
     Column column;
 };
 
-TEST_F(SqliteStrictColumn, DefaultConstruct)
+TEST_F(SqliteStrictColumn, default_construct)
 {
     ASSERT_THAT(column,
                 AllOf(Field(&Column::name, IsEmpty()),
@@ -114,7 +114,7 @@ TEST_F(SqliteStrictColumn, DefaultConstruct)
                       Field(&Column::constraints, IsEmpty())));
 }
 
-TEST_F(SqliteStrictColumn, Clear)
+TEST_F(SqliteStrictColumn, clear)
 {
     column.name = "foo";
     column.name = "foo";
@@ -130,7 +130,7 @@ TEST_F(SqliteStrictColumn, Clear)
                       Field(&Column::constraints, IsEmpty())));
 }
 
-TEST_F(SqliteStrictColumn, Constructor)
+TEST_F(SqliteStrictColumn, constructor)
 {
     column = Column{"table",
                     "column",
@@ -154,7 +154,7 @@ TEST_F(SqliteStrictColumn, Constructor)
                                       Field(&ForeignKey::enforcement, Enforment::Deferred)))))));
 }
 
-TEST_F(SqliteStrictColumn, FlatConstructor)
+TEST_F(SqliteStrictColumn, flat_constructor)
 {
     column = Column{"table",
                     "column",

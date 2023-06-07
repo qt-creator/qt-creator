@@ -65,49 +65,49 @@ protected:
                                        externalDependenciesMock};
 };
 
-TEST_F(ModuleScanner, ReturnEmptyOptionalForEmptyPath)
+TEST_F(ModuleScanner, return_empty_optional_for_empty_path)
 {
     scanner.scan(QStringList{""});
 
     ASSERT_THAT(scanner.modules(), IsEmpty());
 }
 
-TEST_F(ModuleScanner, ReturnEmptyOptionalForNullStringPath)
+TEST_F(ModuleScanner, return_empty_optional_for_null_string_path)
 {
     scanner.scan(QStringList{QString{}});
 
     ASSERT_THAT(scanner.modules(), IsEmpty());
 }
 
-TEST_F(ModuleScanner, ReturnEmptyOptionalForEmptyPaths)
+TEST_F(ModuleScanner, return_empty_optional_for_empty_paths)
 {
     scanner.scan(QStringList{});
 
     ASSERT_THAT(scanner.modules(), IsEmpty());
 }
 
-TEST_F(ModuleScanner, GetQtQuick)
+TEST_F(ModuleScanner, get_qt_quick)
 {
     scanner.scan(QStringList{qmlModulesPath});
 
     ASSERT_THAT(scanner.modules(), Contains(UrlProperty("QtQuick")));
 }
 
-TEST_F(ModuleScanner, SkipEmptyModules)
+TEST_F(ModuleScanner, skip_empty_modules)
 {
     scanner.scan(QStringList{qmlModulesPath});
 
     ASSERT_THAT(scanner.modules(), Not(Contains(UrlProperty(IsEmpty()))));
 }
 
-TEST_F(ModuleScanner, UseSkipFunction)
+TEST_F(ModuleScanner, use_skip_function)
 {
     scanner.scan(QStringList{qmlModulesPath});
 
     ASSERT_THAT(scanner.modules(), Not(Contains(UrlProperty(EndsWith(QStringView{u"impl"})))));
 }
 
-TEST_F(ModuleScanner, Version)
+TEST_F(ModuleScanner, version)
 {
     QmlDesigner::ModuleScanner scanner{[](QStringView moduleName) {
                                            return moduleName.endsWith(u"impl");
@@ -120,7 +120,7 @@ TEST_F(ModuleScanner, Version)
     ASSERT_THAT(scanner.modules(), ElementsAre(AllOf(UrlProperty("Example"), VersionProperty("1.3"))));
 }
 
-TEST_F(ModuleScanner, NoVersion)
+TEST_F(ModuleScanner, no_version)
 {
     QmlDesigner::ModuleScanner scanner{[](QStringView moduleName) {
                                            return moduleName.endsWith(u"impl");
@@ -134,14 +134,14 @@ TEST_F(ModuleScanner, NoVersion)
                 ElementsAre(AllOf(UrlProperty("Example"), VersionProperty(QString{}))));
 }
 
-TEST_F(ModuleScanner, Duplicates)
+TEST_F(ModuleScanner, duplicates)
 {
     scanner.scan(QStringList{qmlModulesPath});
 
     ASSERT_THAT(scanner.modules(), Not(HasDuplicates()));
 }
 
-TEST_F(ModuleScanner, DontAddModulesAgain)
+TEST_F(ModuleScanner, dont_add_modules_again)
 {
     scanner.scan(QStringList{qmlModulesPath});
 
@@ -150,14 +150,14 @@ TEST_F(ModuleScanner, DontAddModulesAgain)
     ASSERT_THAT(scanner.modules(), Not(HasDuplicates()));
 }
 
-TEST_F(ModuleScanner, SetNoVersionForQtQuickVersion)
+TEST_F(ModuleScanner, set_no_version_for_qt_quick_version)
 {
     scanner.scan(QStringList{qmlModulesPath});
 
     ASSERT_THAT(scanner.modules(), CorePropertiesHave(VersionProperty(QString{})));
 }
 
-TEST_F(ModuleScanner, SetVersionForQtQuickVersion)
+TEST_F(ModuleScanner, set_version_for_qt_quick_version)
 {
     ON_CALL(externalDependenciesMock, qtQuickVersion()).WillByDefault(Return(QString{"6.4"}));
 
@@ -166,7 +166,7 @@ TEST_F(ModuleScanner, SetVersionForQtQuickVersion)
     ASSERT_THAT(scanner.modules(), CorePropertiesHave(VersionProperty(u"6.4")));
 }
 
-TEST_F(ModuleScanner, DontSetVersionForNonQtQuickVersion)
+TEST_F(ModuleScanner, dont_set_version_for_non_qt_quick_version)
 {
     ON_CALL(externalDependenciesMock, qtQuickVersion()).WillByDefault(Return(QString{"6.4"}));
 

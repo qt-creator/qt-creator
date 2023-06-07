@@ -47,20 +47,20 @@ protected:
 
 using SqliteDatabaseBackendSlowTest = SqliteDatabaseBackend;
 
-TEST_F(SqliteDatabaseBackend, OpenAlreadyOpenDatabase)
+TEST_F(SqliteDatabaseBackend, open_already_open_database)
 {
     ASSERT_THROW(databaseBackend.open(databaseFilePath, OpenMode::ReadWrite, Sqlite::JournalMode::Wal),
                  Sqlite::DatabaseIsAlreadyOpen);
 }
 
-TEST_F(SqliteDatabaseBackend, CloseAlreadyClosedDatabase)
+TEST_F(SqliteDatabaseBackend, close_already_closed_database)
 {
     databaseBackend.close();
 
     ASSERT_THROW(databaseBackend.close(), Sqlite::DatabaseIsAlreadyClosed);
 }
 
-TEST_F(SqliteDatabaseBackend, OpenWithWrongPath)
+TEST_F(SqliteDatabaseBackend, open_with_wrong_path)
 {
     ASSERT_THROW(databaseBackend.open("/xxx/SqliteDatabaseBackendTest.db",
                                       OpenMode::ReadWrite,
@@ -68,54 +68,54 @@ TEST_F(SqliteDatabaseBackend, OpenWithWrongPath)
                  Sqlite::WrongFilePath);
 }
 
-TEST_F(SqliteDatabaseBackend, DefaultJournalMode)
+TEST_F(SqliteDatabaseBackend, default_journal_mode)
 {
     ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Delete);
 }
 
-TEST_F(SqliteDatabaseBackendSlowTest, WalJournalMode)
+TEST_F(SqliteDatabaseBackendSlowTest, wal_journal_mode)
 {
     databaseBackend.setJournalMode(JournalMode::Wal);
 
     ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Wal);
 }
 
-TEST_F(SqliteDatabaseBackend, TruncateJournalMode)
+TEST_F(SqliteDatabaseBackend, truncate_journal_mode)
 {
     databaseBackend.setJournalMode(JournalMode::Truncate);
 
     ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Truncate);
 }
 
-TEST_F(SqliteDatabaseBackend, MemoryJournalMode)
+TEST_F(SqliteDatabaseBackend, memory_journal_mode)
 {
     databaseBackend.setJournalMode(JournalMode::Memory);
 
     ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Memory);
 }
 
-TEST_F(SqliteDatabaseBackend, PersistJournalMode)
+TEST_F(SqliteDatabaseBackend, persist_journal_mode)
 {
     databaseBackend.setJournalMode(JournalMode::Persist);
 
     ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Persist);
 }
 
-TEST_F(SqliteDatabaseBackend, OpenModeReadOnly)
+TEST_F(SqliteDatabaseBackend, open_mode_read_only)
 {
     auto mode = Backend::createOpenFlags(OpenMode::ReadOnly, Sqlite::JournalMode::Wal);
 
     ASSERT_THAT(mode, SQLITE_OPEN_CREATE | SQLITE_OPEN_READONLY | SQLITE_OPEN_EXRESCODE);
 }
 
-TEST_F(SqliteDatabaseBackend, OpenModeReadWrite)
+TEST_F(SqliteDatabaseBackend, open_mode_read_write)
 {
     auto mode = Backend::createOpenFlags(OpenMode::ReadWrite, Sqlite::JournalMode::Wal);
 
     ASSERT_THAT(mode, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_EXRESCODE);
 }
 
-TEST_F(SqliteDatabaseBackend, OpenModeReadWriteAndMemoryJournal)
+TEST_F(SqliteDatabaseBackend, open_mode_read_write_and_memory_journal)
 {
     auto mode = Backend::createOpenFlags(OpenMode::ReadWrite, Sqlite::JournalMode::Memory);
 

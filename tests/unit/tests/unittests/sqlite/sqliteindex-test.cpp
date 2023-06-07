@@ -11,7 +11,7 @@ using Sqlite::Exception;
 using Sqlite::Index;
 using Sqlite::IndexType;
 
-TEST(Index, OneColumn)
+TEST(Index, one_column)
 {
     Index index{"tableName", {"column1"}};
 
@@ -20,7 +20,7 @@ TEST(Index, OneColumn)
     ASSERT_THAT(sqlStatement, Eq("CREATE INDEX IF NOT EXISTS index_tableName_column1 ON tableName(column1)"));
 }
 
-TEST(Index, TwoColumn)
+TEST(Index, two_column)
 {
     Index index{"tableName", {"column1", "column2"}};
 
@@ -29,21 +29,21 @@ TEST(Index, TwoColumn)
     ASSERT_THAT(sqlStatement, Eq("CREATE INDEX IF NOT EXISTS index_tableName_column1_column2 ON tableName(column1, column2)"));
 }
 
-TEST(Index, EmptyTableName)
+TEST(Index, empty_table_name)
 {
     Index index{"", {"column1", "column2"}};
 
     ASSERT_THROW(index.sqlStatement(), Exception);
 }
 
-TEST(Index, EmptyColumns)
+TEST(Index, empty_columns)
 {
     Index index{"tableName", {}};
 
     ASSERT_THROW(index.sqlStatement(), Exception);
 }
 
-TEST(Index, UniqueIndex)
+TEST(Index, unique_index)
 {
     Index index{"tableName", {"column1"}, IndexType::Unique};
 
@@ -52,7 +52,7 @@ TEST(Index, UniqueIndex)
     ASSERT_THAT(sqlStatement, Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_tableName_column1 ON tableName(column1)"));
 }
 
-TEST(Index, Condition)
+TEST(Index, condition)
 {
     Index index{"tableName", {"column1"}, IndexType::Normal, "column1 IS NOT NULL"};
 

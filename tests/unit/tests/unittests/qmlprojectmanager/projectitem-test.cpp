@@ -62,49 +62,49 @@ auto createAbsoluteFilePaths(const QStringList &fileList)
     });
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixMainFileProject)
+TEST_F(QmlProjectItem, get_with_qds_prefix_main_file_project)
 {
     auto mainFile = projectItemWithQdsPrefix->mainFile();
 
     ASSERT_THAT(mainFile, Eq("content/App.qml"));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixMainUIFileProject)
+TEST_F(QmlProjectItem, get_with_qds_prefix_main_ui_file_project)
 {
     auto mainUiFile = projectItemWithQdsPrefix->mainUiFile();
 
     ASSERT_THAT(mainUiFile, Eq("Screen01.ui.qml"));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixMcuProject)
+TEST_F(QmlProjectItem, get_with_qds_prefix_mcu_project)
 {
     auto isMcuProject = projectItemWithQdsPrefix->isQt4McuProject();
 
     ASSERT_TRUE(isMcuProject);
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixQtVersion)
+TEST_F(QmlProjectItem, get_with_qds_prefix_qt_version)
 {
     auto qtVersion = projectItemWithQdsPrefix->versionQt();
 
     ASSERT_THAT(qtVersion, Eq("6"));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixQtQuickVersion)
+TEST_F(QmlProjectItem, get_with_qds_prefix_qt_quick_version)
 {
     auto qtQuickVersion = projectItemWithQdsPrefix->versionQtQuick();
 
     ASSERT_THAT(qtQuickVersion, Eq("6.2"));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixDesignStudioVersion)
+TEST_F(QmlProjectItem, get_with_qds_prefix_design_studio_version)
 {
     auto designStudioVersion = projectItemWithQdsPrefix->versionDesignStudio();
 
     ASSERT_THAT(designStudioVersion, Eq("3.9"));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixSourceDirectory)
+TEST_F(QmlProjectItem, get_with_qds_prefix_source_directory)
 {
     auto sourceDirectory = projectItemWithQdsPrefix->sourceDirectory().path();
 
@@ -113,42 +113,42 @@ TEST_F(QmlProjectItem, GetWithQdsPrefixSourceDirectory)
     ASSERT_THAT(sourceDirectory, Eq(expectedSourceDir));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixTarGetWithQdsPrefixDirectory)
+TEST_F(QmlProjectItem, get_with_qds_prefix_tar_get_with_qds_prefix_directory)
 {
     auto targetDirectory = projectItemWithQdsPrefix->targetDirectory();
 
     ASSERT_THAT(targetDirectory, Eq("/opt/targetDirectory"));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixImportPaths)
+TEST_F(QmlProjectItem, get_with_qds_prefix_import_paths)
 {
     auto importPaths = projectItemWithQdsPrefix->importPaths();
 
     ASSERT_THAT(importPaths, UnorderedElementsAre("imports", "asset_imports"));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixFileSelectors)
+TEST_F(QmlProjectItem, get_with_qds_prefix_file_selectors)
 {
     auto fileSelectors = projectItemWithQdsPrefix->fileSelectors();
 
     ASSERT_THAT(fileSelectors, UnorderedElementsAre("WXGA", "darkTheme", "ShowIndicator"));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixMultiLanguageSupport)
+TEST_F(QmlProjectItem, get_with_qds_prefix_multi_language_support)
 {
     auto multilanguageSupport = projectItemWithQdsPrefix->multilanguageSupport();
 
     ASSERT_TRUE(multilanguageSupport);
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixSupportedLanguages)
+TEST_F(QmlProjectItem, get_with_qds_prefix_supported_languages)
 {
     auto supportedLanguages = projectItemWithQdsPrefix->supportedLanguages();
 
     ASSERT_THAT(supportedLanguages, UnorderedElementsAre("en", "fr"));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixPrimaryLanguage)
+TEST_F(QmlProjectItem, get_with_qds_prefix_primary_language)
 {
     auto primaryLanguage = projectItemWithQdsPrefix->primaryLanguage();
     ;
@@ -156,14 +156,14 @@ TEST_F(QmlProjectItem, GetWithQdsPrefixPrimaryLanguage)
     ASSERT_THAT(primaryLanguage, Eq("en"));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixWidgetApp)
+TEST_F(QmlProjectItem, get_with_qds_prefix_widget_app)
 {
     auto widgetApp = projectItemWithQdsPrefix->widgetApp();
 
     ASSERT_TRUE(widgetApp);
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixFileList)
+TEST_F(QmlProjectItem, get_with_qds_prefix_file_list)
 {
     QStringList fileList;
     for (const auto &file : projectItemWithQdsPrefix->files()) {
@@ -175,7 +175,7 @@ TEST_F(QmlProjectItem, GetWithQdsPrefixFileList)
     ASSERT_THAT(fileList, UnorderedElementsAre(expectedFileList));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixShaderToolArgs)
+TEST_F(QmlProjectItem, get_with_qds_prefix_shader_tool_args)
 {
     auto shaderToolArgs = projectItemWithQdsPrefix->shaderToolArgs();
 
@@ -184,14 +184,14 @@ TEST_F(QmlProjectItem, GetWithQdsPrefixShaderToolArgs)
         UnorderedElementsAre("-s", "--glsl", "\"100 es,120,150\"", "--hlsl", "50", "--msl", "12"));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixShaderToolFiles)
+TEST_F(QmlProjectItem, get_with_qds_prefix_shader_tool_files)
 {
     auto shaderToolFiles = projectItemWithQdsPrefix->shaderToolFiles();
 
     ASSERT_THAT(shaderToolFiles, UnorderedElementsAre("content/shaders/*"));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixEnvironment)
+TEST_F(QmlProjectItem, get_with_qds_prefix_environment)
 {
     auto env = projectItemWithQdsPrefix->environment();
 
@@ -200,56 +200,56 @@ TEST_F(QmlProjectItem, GetWithQdsPrefixEnvironment)
                     Utils::EnvironmentItem("QT_QUICK_CONTROLS_CONF", "qtquickcontrols2.conf")));
 }
 
-TEST_F(QmlProjectItem, GetWithQdsPrefixForceFreeType)
+TEST_F(QmlProjectItem, get_with_qds_prefix_force_free_type)
 {
     auto forceFreeType = projectItemWithQdsPrefix->forceFreeType();
 
     ASSERT_TRUE(forceFreeType);
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixMainFileProject)
+TEST_F(QmlProjectItem, get_without_qds_prefix_main_file_project)
 {
     auto mainFile = projectItemWithoutQdsPrefix->mainFile();
 
     ASSERT_THAT(mainFile, Eq("content/App.qml"));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixMainUIFileProject)
+TEST_F(QmlProjectItem, get_without_qds_prefix_main_ui_file_project)
 {
     auto mainUiFile = projectItemWithoutQdsPrefix->mainUiFile();
 
     ASSERT_THAT(mainUiFile, Eq("Screen01.ui.qml"));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixMcuProject)
+TEST_F(QmlProjectItem, get_without_qds_prefix_mcu_project)
 {
     auto isMcuProject = projectItemWithoutQdsPrefix->isQt4McuProject();
 
     ASSERT_TRUE(isMcuProject);
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixQtVersion)
+TEST_F(QmlProjectItem, get_without_qds_prefix_qt_version)
 {
     auto qtVersion = projectItemWithoutQdsPrefix->versionQt();
 
     ASSERT_THAT(qtVersion, Eq("6"));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixQtQuickVersion)
+TEST_F(QmlProjectItem, get_without_qds_prefix_qt_quick_version)
 {
     auto qtQuickVersion = projectItemWithoutQdsPrefix->versionQtQuick();
 
     ASSERT_THAT(qtQuickVersion, Eq("6.2"));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixDesignStudioVersion)
+TEST_F(QmlProjectItem, get_without_qds_prefix_design_studio_version)
 {
     auto designStudioVersion = projectItemWithoutQdsPrefix->versionDesignStudio();
 
     ASSERT_THAT(designStudioVersion, Eq("3.9"));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixSourceDirectory)
+TEST_F(QmlProjectItem, get_without_qds_prefix_source_directory)
 {
     auto sourceDirectory = projectItemWithoutQdsPrefix->sourceDirectory().path();
 
@@ -258,42 +258,42 @@ TEST_F(QmlProjectItem, GetWithoutQdsPrefixSourceDirectory)
     ASSERT_THAT(sourceDirectory, Eq(expectedSourceDir));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixTarGetWithoutQdsPrefixDirectory)
+TEST_F(QmlProjectItem, get_without_qds_prefix_tar_get_without_qds_prefix_directory)
 {
     auto targetDirectory = projectItemWithoutQdsPrefix->targetDirectory();
 
     ASSERT_THAT(targetDirectory, Eq("/opt/targetDirectory"));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixImportPaths)
+TEST_F(QmlProjectItem, get_without_qds_prefix_import_paths)
 {
     auto importPaths = projectItemWithoutQdsPrefix->importPaths();
 
     ASSERT_THAT(importPaths, UnorderedElementsAre("imports", "asset_imports"));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixFileSelectors)
+TEST_F(QmlProjectItem, get_without_qds_prefix_file_selectors)
 {
     auto fileSelectors = projectItemWithoutQdsPrefix->fileSelectors();
 
     ASSERT_THAT(fileSelectors, UnorderedElementsAre("WXGA", "darkTheme", "ShowIndicator"));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixMultiLanguageSupport)
+TEST_F(QmlProjectItem, get_without_qds_prefix_multi_language_support)
 {
     auto multilanguageSupport = projectItemWithoutQdsPrefix->multilanguageSupport();
 
     ASSERT_TRUE(multilanguageSupport);
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixSupportedLanguages)
+TEST_F(QmlProjectItem, get_without_qds_prefix_supported_languages)
 {
     auto supportedLanguages = projectItemWithoutQdsPrefix->supportedLanguages();
 
     ASSERT_THAT(supportedLanguages, UnorderedElementsAre("en", "fr"));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixPrimaryLanguage)
+TEST_F(QmlProjectItem, get_without_qds_prefix_primary_language)
 {
     auto primaryLanguage = projectItemWithoutQdsPrefix->primaryLanguage();
     ;
@@ -301,14 +301,14 @@ TEST_F(QmlProjectItem, GetWithoutQdsPrefixPrimaryLanguage)
     ASSERT_THAT(primaryLanguage, Eq("en"));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixWidgetApp)
+TEST_F(QmlProjectItem, get_without_qds_prefix_widget_app)
 {
     auto widgetApp = projectItemWithoutQdsPrefix->widgetApp();
 
     ASSERT_TRUE(widgetApp);
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixFileList)
+TEST_F(QmlProjectItem, get_without_qds_prefix_file_list)
 {
     QStringList fileList;
     for (const auto &file : projectItemWithoutQdsPrefix->files()) {
@@ -320,7 +320,7 @@ TEST_F(QmlProjectItem, GetWithoutQdsPrefixFileList)
     ASSERT_THAT(fileList, UnorderedElementsAre(expectedFileList));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixShaderToolArgs)
+TEST_F(QmlProjectItem, get_without_qds_prefix_shader_tool_args)
 {
     auto shaderToolArgs = projectItemWithoutQdsPrefix->shaderToolArgs();
 
@@ -329,14 +329,14 @@ TEST_F(QmlProjectItem, GetWithoutQdsPrefixShaderToolArgs)
         UnorderedElementsAre("-s", "--glsl", "\"100 es,120,150\"", "--hlsl", "50", "--msl", "12"));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixShaderToolFiles)
+TEST_F(QmlProjectItem, get_without_qds_prefix_shader_tool_files)
 {
     auto shaderToolFiles = projectItemWithoutQdsPrefix->shaderToolFiles();
 
     ASSERT_THAT(shaderToolFiles, UnorderedElementsAre("content/shaders/*"));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixEnvironment)
+TEST_F(QmlProjectItem, get_without_qds_prefix_environment)
 {
     auto env = projectItemWithoutQdsPrefix->environment();
 
@@ -345,35 +345,35 @@ TEST_F(QmlProjectItem, GetWithoutQdsPrefixEnvironment)
                     Utils::EnvironmentItem("QT_QUICK_CONTROLS_CONF", "qtquickcontrols2.conf")));
 }
 
-TEST_F(QmlProjectItem, GetWithoutQdsPrefixForceFreeType)
+TEST_F(QmlProjectItem, get_without_qds_prefix_force_free_type)
 {
     auto forceFreeType = projectItemWithoutQdsPrefix->forceFreeType();
 
     ASSERT_TRUE(forceFreeType);
 }
 
-TEST_F(QmlProjectItem, GetEmptyMainFileProject)
+TEST_F(QmlProjectItem, get_empty_main_file_project)
 {
     auto mainFile = projectItemEmpty->mainFile();
 
     ASSERT_THAT(mainFile, IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptyMainUIFileProject)
+TEST_F(QmlProjectItem, get_empty_main_ui_file_project)
 {
     auto mainUiFile = projectItemEmpty->mainUiFile();
 
     ASSERT_THAT(mainUiFile, IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptyMcuProject)
+TEST_F(QmlProjectItem, get_empty_mcu_project)
 {
     auto isMcuProject = projectItemEmpty->isQt4McuProject();
 
     ASSERT_FALSE(isMcuProject);
 }
 
-TEST_F(QmlProjectItem, GetEmptyQtVersion)
+TEST_F(QmlProjectItem, get_empty_qt_version)
 {
     auto qtVersion = projectItemEmpty->versionQt();
 
@@ -381,21 +381,21 @@ TEST_F(QmlProjectItem, GetEmptyQtVersion)
     ASSERT_THAT(qtVersion, Eq("5"));
 }
 
-TEST_F(QmlProjectItem, GetEmptyQtQuickVersion)
+TEST_F(QmlProjectItem, get_empty_qt_quick_version)
 {
     auto qtQuickVersion = projectItemEmpty->versionQtQuick();
 
     ASSERT_THAT(projectItemEmpty->versionQtQuick(), IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptyDesignStudioVersion)
+TEST_F(QmlProjectItem, get_empty_design_studio_version)
 {
     auto designStudioVersion = projectItemEmpty->versionDesignStudio();
 
     ASSERT_THAT(projectItemEmpty->versionDesignStudio(), IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptySourceDirectory)
+TEST_F(QmlProjectItem, get_empty_source_directory)
 {
     auto sourceDirectory = projectItemEmpty->sourceDirectory().path();
 
@@ -405,91 +405,91 @@ TEST_F(QmlProjectItem, GetEmptySourceDirectory)
     ASSERT_THAT(sourceDirectory, Eq(expectedSourceDir));
 }
 
-TEST_F(QmlProjectItem, GetEmptyTarGetEmptyDirectory)
+TEST_F(QmlProjectItem, get_empty_tar_get_empty_directory)
 {
     auto targetDirectory = projectItemEmpty->targetDirectory();
 
     ASSERT_THAT(targetDirectory, IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptyImportPaths)
+TEST_F(QmlProjectItem, get_empty_import_paths)
 {
     auto importPaths = projectItemEmpty->importPaths();
 
     ASSERT_THAT(importPaths, IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptyFileSelectors)
+TEST_F(QmlProjectItem, get_empty_file_selectors)
 {
     auto fileSelectors = projectItemEmpty->fileSelectors();
 
     ASSERT_THAT(fileSelectors, IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptyMultiLanguageSupport)
+TEST_F(QmlProjectItem, get_empty_multi_language_support)
 {
     auto multilanguageSupport = projectItemEmpty->multilanguageSupport();
 
     ASSERT_FALSE(multilanguageSupport);
 }
 
-TEST_F(QmlProjectItem, GetEmptySupportedLanguages)
+TEST_F(QmlProjectItem, get_empty_supported_languages)
 {
     auto supportedLanguages = projectItemEmpty->supportedLanguages();
 
     ASSERT_THAT(supportedLanguages, IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptyPrimaryLanguage)
+TEST_F(QmlProjectItem, get_empty_primary_language)
 {
     auto primaryLanguage = projectItemEmpty->primaryLanguage();
 
     ASSERT_THAT(primaryLanguage, IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptyWidgetApp)
+TEST_F(QmlProjectItem, get_empty_widget_app)
 {
     auto widgetApp = projectItemEmpty->widgetApp();
 
     ASSERT_FALSE(widgetApp);
 }
 
-TEST_F(QmlProjectItem, GetEmptyFileList)
+TEST_F(QmlProjectItem, get_empty_file_list)
 {
     auto fileList = projectItemEmpty->files();
 
     ASSERT_THAT(fileList, IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptyShaderToolArgs)
+TEST_F(QmlProjectItem, get_empty_shader_tool_args)
 {
     auto shaderToolArgs = projectItemEmpty->shaderToolArgs();
 
     ASSERT_THAT(shaderToolArgs, IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptyShaderToolFiles)
+TEST_F(QmlProjectItem, get_empty_shader_tool_files)
 {
     auto shaderToolFiles = projectItemEmpty->shaderToolFiles();
 
     ASSERT_THAT(shaderToolFiles, IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptyEnvironment)
+TEST_F(QmlProjectItem, get_empty_environment)
 {
     auto env = projectItemEmpty->environment();
 
     ASSERT_THAT(env, IsEmpty());
 }
 
-TEST_F(QmlProjectItem, GetEmptyForceFreeType)
+TEST_F(QmlProjectItem, get_empty_force_free_type)
 {
     auto forceFreeType = projectItemEmpty->forceFreeType();
 
     ASSERT_FALSE(forceFreeType);
 }
 
-TEST_F(QmlProjectItem, SetMainFileProject)
+TEST_F(QmlProjectItem, set_main_file_project)
 {
     projectItemSetters->setMainFile("testing");
 
@@ -498,7 +498,7 @@ TEST_F(QmlProjectItem, SetMainFileProject)
     ASSERT_THAT(mainFile, Eq("testing"));
 }
 
-TEST_F(QmlProjectItem, SetMainUIFileProject)
+TEST_F(QmlProjectItem, set_main_ui_file_project)
 {
     projectItemSetters->setMainUiFile("testing");
 
@@ -507,7 +507,7 @@ TEST_F(QmlProjectItem, SetMainUIFileProject)
     ASSERT_THAT(mainUiFile, Eq("testing"));
 }
 
-TEST_F(QmlProjectItem, SetImportPaths)
+TEST_F(QmlProjectItem, set_import_paths)
 {
     projectItemSetters->setImportPaths({"testing"});
 
@@ -516,7 +516,7 @@ TEST_F(QmlProjectItem, SetImportPaths)
     ASSERT_THAT(importPaths, UnorderedElementsAre("testing"));
 }
 
-TEST_F(QmlProjectItem, AddImportPaths)
+TEST_F(QmlProjectItem, add_import_paths)
 {
     projectItemSetters->setImportPaths({});
     projectItemSetters->addImportPath("testing");
@@ -526,7 +526,7 @@ TEST_F(QmlProjectItem, AddImportPaths)
     ASSERT_THAT(importPaths, UnorderedElementsAre("testing"));
 }
 
-TEST_F(QmlProjectItem, SetFileSelectors)
+TEST_F(QmlProjectItem, set_file_selectors)
 {
     projectItemSetters->setFileSelectors({"testing"});
 
@@ -535,7 +535,7 @@ TEST_F(QmlProjectItem, SetFileSelectors)
     ASSERT_THAT(fileSelectors, UnorderedElementsAre("testing"));
 }
 
-TEST_F(QmlProjectItem, AddFileSelectors)
+TEST_F(QmlProjectItem, add_file_selectors)
 {
     projectItemSetters->setFileSelectors({});
     projectItemSetters->addFileSelector("testing");
@@ -545,7 +545,7 @@ TEST_F(QmlProjectItem, AddFileSelectors)
     ASSERT_THAT(fileSelectors, UnorderedElementsAre("testing"));
 }
 
-TEST_F(QmlProjectItem, SetMultiLanguageSupport)
+TEST_F(QmlProjectItem, set_multi_language_support)
 {
     projectItemSetters->setMultilanguageSupport(true);
 
@@ -554,7 +554,7 @@ TEST_F(QmlProjectItem, SetMultiLanguageSupport)
     ASSERT_TRUE(multilanguageSupport);
 }
 
-TEST_F(QmlProjectItem, SetSupportedLanguages)
+TEST_F(QmlProjectItem, set_supported_languages)
 {
     projectItemSetters->setSupportedLanguages({"testing"});
 
@@ -563,7 +563,7 @@ TEST_F(QmlProjectItem, SetSupportedLanguages)
     ASSERT_THAT(supportedLanguages, UnorderedElementsAre("testing"));
 }
 
-TEST_F(QmlProjectItem, AddSupportedLanguages)
+TEST_F(QmlProjectItem, add_supported_languages)
 {
     projectItemSetters->setSupportedLanguages({});
     projectItemSetters->addSupportedLanguage("testing");
@@ -573,7 +573,7 @@ TEST_F(QmlProjectItem, AddSupportedLanguages)
     ASSERT_THAT(supportedLanguages, UnorderedElementsAre("testing"));
 }
 
-TEST_F(QmlProjectItem, SetPrimaryLanguage)
+TEST_F(QmlProjectItem, set_primary_language)
 {
     projectItemSetters->setPrimaryLanguage("testing");
 
@@ -583,7 +583,7 @@ TEST_F(QmlProjectItem, SetPrimaryLanguage)
     ASSERT_THAT(primaryLanguage, Eq("testing"));
 }
 
-TEST_F(QmlProjectItem, SetWidgetApp)
+TEST_F(QmlProjectItem, set_widget_app)
 {
     projectItemSetters->setWidgetApp(true);
 
@@ -592,7 +592,7 @@ TEST_F(QmlProjectItem, SetWidgetApp)
     ASSERT_TRUE(widgetApp);
 }
 
-TEST_F(QmlProjectItem, SetShaderToolArgs)
+TEST_F(QmlProjectItem, set_shader_tool_args)
 {
     projectItemSetters->setShaderToolArgs({"testing"});
 
@@ -601,7 +601,7 @@ TEST_F(QmlProjectItem, SetShaderToolArgs)
     ASSERT_THAT(shaderToolArgs, UnorderedElementsAre("testing"));
 }
 
-TEST_F(QmlProjectItem, AddShaderToolArgs)
+TEST_F(QmlProjectItem, add_shader_tool_args)
 {
     projectItemSetters->setShaderToolArgs({});
     projectItemSetters->addShaderToolArg("testing");
@@ -611,7 +611,7 @@ TEST_F(QmlProjectItem, AddShaderToolArgs)
     ASSERT_THAT(shaderToolArgs, UnorderedElementsAre("testing"));
 }
 
-TEST_F(QmlProjectItem, SetShaderToolFiles)
+TEST_F(QmlProjectItem, set_shader_tool_files)
 {
     projectItemSetters->setShaderToolFiles({"testing"});
 
@@ -620,7 +620,7 @@ TEST_F(QmlProjectItem, SetShaderToolFiles)
     ASSERT_THAT(shaderToolFiles, UnorderedElementsAre("testing"));
 }
 
-TEST_F(QmlProjectItem, AddShaderToolFiles)
+TEST_F(QmlProjectItem, add_shader_tool_files)
 {
     projectItemSetters->setShaderToolFiles({});
     projectItemSetters->addShaderToolFile("testing");
@@ -630,7 +630,7 @@ TEST_F(QmlProjectItem, AddShaderToolFiles)
     ASSERT_THAT(shaderToolFiles, UnorderedElementsAre("testing"));
 }
 
-TEST_F(QmlProjectItem, AddEnvironment)
+TEST_F(QmlProjectItem, add_environment)
 {
     projectItemSetters->addToEnviroment("testing", "testing");
     auto envs = projectItemSetters->environment();
@@ -641,35 +641,35 @@ TEST_F(QmlProjectItem, AddEnvironment)
     ASSERT_EQ(envs, expectedEnvs);
 }
 
-TEST_F(QmlProjectItem, SetForceFreeTypeTrue)
+TEST_F(QmlProjectItem, set_force_free_type_true)
 {
     projectItemSetters->setForceFreeType(true);
 
     ASSERT_EQ(projectItemSetters->forceFreeType(), true);
 }
 
-TEST_F(QmlProjectItem, SetForceFreeTypeFalse)
+TEST_F(QmlProjectItem, set_force_free_type_false)
 {
     projectItemSetters->setForceFreeType(false);
 
     ASSERT_EQ(projectItemSetters->forceFreeType(), false);
 }
 
-TEST_F(QmlProjectItem, SetQtVersion)
+TEST_F(QmlProjectItem, set_qt_version)
 {
     projectItemSetters->setVersionQt("6");
 
     ASSERT_EQ(projectItemSetters->versionQt().toStdString(), "6");
 }
 
-TEST_F(QmlProjectItem, SetQtQuickVersion)
+TEST_F(QmlProjectItem, set_qt_quick_version)
 {
     projectItemSetters->setVersionQtQuick("6");
 
     ASSERT_EQ(projectItemSetters->versionQtQuick(), "6");
 }
 
-TEST_F(QmlProjectItem, SetDesignStudioVersion)
+TEST_F(QmlProjectItem, set_design_studio_version)
 {
     projectItemSetters->setVersionDesignStudio("6");
 
@@ -677,7 +677,7 @@ TEST_F(QmlProjectItem, SetDesignStudioVersion)
 }
 
 // TODO: We should move these 2 tests into the integration tests
-TEST_F(QmlProjectItem, TestFileFilters)
+TEST_F(QmlProjectItem, test_file_filters)
 {
     // GIVEN
     auto fileListPath = Utils::FilePath::fromString(localTestDataDir + "/file-filters/filelist.txt");
@@ -692,7 +692,7 @@ TEST_F(QmlProjectItem, TestFileFilters)
     ASSERT_THAT(filePaths, UnorderedElementsAreArray(expectedAbsoluteFilePaths));
 }
 
-TEST_F(QmlProjectItem, MatchesFile)
+TEST_F(QmlProjectItem, matches_file)
 {
     // GIVEN
     auto fileSearched = localTestDataDir + "/file-filters/content/MaterialNames.qml";
@@ -704,7 +704,7 @@ TEST_F(QmlProjectItem, MatchesFile)
     ASSERT_TRUE(fileFound);
 }
 
-TEST_F(QmlProjectItem, NotMatchesFile)
+TEST_F(QmlProjectItem, not_matches_file)
 {
     // GIVEN
     auto fileSearched = localTestDataDir + "/file-filters/content/non-existing-file.qwerty";

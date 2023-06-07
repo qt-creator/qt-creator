@@ -139,24 +139,24 @@ struct Output
     }
 };
 
-TEST_F(SqliteStatement, ThrowsStatementHasErrorForWrongSqlStatement)
+TEST_F(SqliteStatement, throws_statement_has_error_for_wrong_sql_statement)
 {
     ASSERT_THROW(ReadStatement<0>("blah blah blah", database), Sqlite::StatementHasError);
 }
 
-TEST_F(SqliteStatement, ThrowsNotReadOnlySqlStatementForWritableSqlStatementInReadStatement)
+TEST_F(SqliteStatement, throws_not_read_only_sql_statement_for_writable_sql_statement_in_read_statement)
 {
     ASSERT_THROW(ReadStatement<0>("INSERT INTO test(name, number) VALUES (?, ?)", database),
                  Sqlite::NotReadOnlySqlStatement);
 }
 
-TEST_F(SqliteStatement, ThrowsNotReadonlySqlStatementForWritableSqlStatementInReadStatement)
+TEST_F(SqliteStatement, throws_not_readonly_sql_statement_for_writable_sql_statement_in_read_statement)
 {
     ASSERT_THROW(WriteStatement("SELECT name, number FROM test", database),
                  Sqlite::NotWriteSqlStatement);
 }
 
-TEST_F(SqliteStatement, CountRows)
+TEST_F(SqliteStatement, count_rows)
 {
     SqliteTestStatement<3> statement("SELECT * FROM test", database);
     int nextCount = 0;
@@ -168,7 +168,7 @@ TEST_F(SqliteStatement, CountRows)
     ASSERT_THAT(nextCount, sqlCount);
 }
 
-TEST_F(SqliteStatement, Value)
+TEST_F(SqliteStatement, value)
 {
     SqliteTestStatement<3> statement("SELECT name, number, value FROM test ORDER BY name", database);
     statement.next();
@@ -192,33 +192,33 @@ TEST_F(SqliteStatement, Value)
     ASSERT_THAT(statement.fetchValueView(2), Eq(2));
 }
 
-TEST_F(SqliteStatement, ToIntegerValue)
+TEST_F(SqliteStatement, to_integer_value)
 {
     auto value = ReadStatement<1>::toValue<int>("SELECT number FROM test WHERE name='foo'", database);
 
     ASSERT_THAT(value, 23);
 }
 
-TEST_F(SqliteStatement, ToLongIntegerValue)
+TEST_F(SqliteStatement, to_long_integer_value)
 {
     ASSERT_THAT(ReadStatement<1>::toValue<qint64>("SELECT number FROM test WHERE name='foo'", database),
                 Eq(23));
 }
 
-TEST_F(SqliteStatement, ToDoubleValue)
+TEST_F(SqliteStatement, to_double_value)
 {
     ASSERT_THAT(ReadStatement<1>::toValue<double>("SELECT number FROM test WHERE name='foo'", database),
                 23.3);
 }
 
-TEST_F(SqliteStatement, ToStringValue)
+TEST_F(SqliteStatement, to_string_value)
 {
     ASSERT_THAT(ReadStatement<1>::toValue<Utils::SmallString>(
                     "SELECT name FROM test WHERE name='foo'", database),
                 "foo");
 }
 
-TEST_F(SqliteStatement, BindNull)
+TEST_F(SqliteStatement, bind_null)
 {
     database.execute("INSERT INTO  test VALUES (NULL, 323, 344)");
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE name IS ?", database);
@@ -230,7 +230,7 @@ TEST_F(SqliteStatement, BindNull)
     ASSERT_THAT(statement.fetchValue<int>(1), 323);
 }
 
-TEST_F(SqliteStatement, BindNullValue)
+TEST_F(SqliteStatement, bind_null_value)
 {
     database.execute("INSERT INTO  test VALUES (NULL, 323, 344)");
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE name IS ?", database);
@@ -242,7 +242,7 @@ TEST_F(SqliteStatement, BindNullValue)
     ASSERT_THAT(statement.fetchValue<int>(1), 323);
 }
 
-TEST_F(SqliteStatement, BindInvalidIntIdToNull)
+TEST_F(SqliteStatement, bind_invalid_int_id_to_null)
 {
     TestIntId id;
     SqliteTestStatement<0, 1> statement("INSERT INTO  test VALUES ('id', 323, ?)", database);
@@ -255,7 +255,7 @@ TEST_F(SqliteStatement, BindInvalidIntIdToNull)
     ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Null);
 }
 
-TEST_F(SqliteStatement, BindIntId)
+TEST_F(SqliteStatement, bind_int_id)
 {
     TestIntId id{TestIntId::create(42)};
     SqliteTestStatement<0, 1> statement("INSERT INTO test VALUES ('id', 323, ?)", database);
@@ -269,7 +269,7 @@ TEST_F(SqliteStatement, BindIntId)
     ASSERT_THAT(readStatement.fetchIntValue(0), 42);
 }
 
-TEST_F(SqliteStatement, BindInvalidLongLongIdToNull)
+TEST_F(SqliteStatement, bind_invalid_long_long_id_to_null)
 {
     TestLongLongId id;
     SqliteTestStatement<0, 1> statement("INSERT INTO  test VALUES ('id', 323, ?)", database);
@@ -282,7 +282,7 @@ TEST_F(SqliteStatement, BindInvalidLongLongIdToNull)
     ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Null);
 }
 
-TEST_F(SqliteStatement, BindLongLongId)
+TEST_F(SqliteStatement, bind_long_long_id)
 {
     TestLongLongId id{TestLongLongId::create(42)};
     SqliteTestStatement<0, 1> statement("INSERT INTO test VALUES ('id', 323, ?)", database);
@@ -296,7 +296,7 @@ TEST_F(SqliteStatement, BindLongLongId)
     ASSERT_THAT(readStatement.fetchIntValue(0), 42);
 }
 
-TEST_F(SqliteStatement, BindString)
+TEST_F(SqliteStatement, bind_string)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE name=?", database);
 
@@ -307,7 +307,7 @@ TEST_F(SqliteStatement, BindString)
     ASSERT_THAT(statement.fetchValue<double>(1), 23.3);
 }
 
-TEST_F(SqliteStatement, BindInteger)
+TEST_F(SqliteStatement, bind_integer)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=?", database);
 
@@ -317,7 +317,7 @@ TEST_F(SqliteStatement, BindInteger)
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
 }
 
-TEST_F(SqliteStatement, BindLongInteger)
+TEST_F(SqliteStatement, bind_long_integer)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=?", database);
 
@@ -327,7 +327,7 @@ TEST_F(SqliteStatement, BindLongInteger)
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
 }
 
-TEST_F(SqliteStatement, BindDouble)
+TEST_F(SqliteStatement, bind_double)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=?", database);
 
@@ -337,7 +337,7 @@ TEST_F(SqliteStatement, BindDouble)
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
 }
 
-TEST_F(SqliteStatement, BindPointer)
+TEST_F(SqliteStatement, bind_pointer)
 {
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?, 5, 'int64')", database);
     std::vector<long long> values{1, 1, 2, 3, 5};
@@ -348,7 +348,7 @@ TEST_F(SqliteStatement, BindPointer)
     ASSERT_THAT(statement.fetchIntValue(0), 1);
 }
 
-TEST_F(SqliteStatement, BindIntCarray)
+TEST_F(SqliteStatement, bind_int_carray)
 {
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<int> values{3, 10, 20, 33, 55};
@@ -362,7 +362,7 @@ TEST_F(SqliteStatement, BindIntCarray)
     ASSERT_THAT(statement.fetchIntValue(0), 33);
 }
 
-TEST_F(SqliteStatement, BindLongLongCarray)
+TEST_F(SqliteStatement, bind_long_long_carray)
 {
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<long long> values{3, 10, 20, 33, 55};
@@ -376,7 +376,7 @@ TEST_F(SqliteStatement, BindLongLongCarray)
     ASSERT_THAT(statement.fetchLongLongValue(0), 33);
 }
 
-TEST_F(SqliteStatement, BindDoubleCarray)
+TEST_F(SqliteStatement, bind_double_carray)
 {
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<double> values{3.3, 10.2, 20.54, 33.21, 55};
@@ -390,7 +390,7 @@ TEST_F(SqliteStatement, BindDoubleCarray)
     ASSERT_THAT(statement.fetchDoubleValue(0), 33.21);
 }
 
-TEST_F(SqliteStatement, BindTextCarray)
+TEST_F(SqliteStatement, bind_text_carray)
 {
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<const char *> values{"yi", "er", "san", "se", "wu"};
@@ -404,7 +404,7 @@ TEST_F(SqliteStatement, BindTextCarray)
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), Eq("se"));
 }
 
-TEST_F(SqliteStatement, BindBlob)
+TEST_F(SqliteStatement, bind_blob)
 {
     SqliteTestStatement<1, 1> statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
     const unsigned char chars[] = "aaafdfdlll";
@@ -417,7 +417,7 @@ TEST_F(SqliteStatement, BindBlob)
     ASSERT_THAT(statement.fetchBlobValue(0), Eq(bytes));
 }
 
-TEST_F(SqliteStatement, BindEmptyBlob)
+TEST_F(SqliteStatement, bind_empty_blob)
 {
     SqliteTestStatement<1, 1> statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
     Sqlite::BlobView bytes;
@@ -428,56 +428,56 @@ TEST_F(SqliteStatement, BindEmptyBlob)
     ASSERT_THAT(statement.fetchBlobValue(0), IsEmpty());
 }
 
-TEST_F(SqliteStatement, BindIndexIsZeroIsThrowingBindingIndexIsOutOfBoundInt)
+TEST_F(SqliteStatement, bind_index_is_zero_is_throwing_binding_index_is_out_of_bound_int)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
     ASSERT_THROW(statement.bind(0, 40), Sqlite::BindingIndexIsOutOfRange);
 }
 
-TEST_F(SqliteStatement, BindIndexIsZeroIsThrowingBindingIndexIsOutOfBoundNull)
+TEST_F(SqliteStatement, bind_index_is_zero_is_throwing_binding_index_is_out_of_bound_null)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
     ASSERT_THROW(statement.bind(0, Sqlite::NullValue{}), Sqlite::BindingIndexIsOutOfRange);
 }
 
-TEST_F(SqliteStatement, BindIndexIsToLargeIsThrowingBindingIndexIsOutOfBoundLongLong)
+TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_of_bound_long_long)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
     ASSERT_THROW(statement.bind(2, 40LL), Sqlite::BindingIndexIsOutOfRange);
 }
 
-TEST_F(SqliteStatement, BindIndexIsToLargeIsThrowingBindingIndexIsOutOfBoundStringView)
+TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_of_bound_string_view)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
     ASSERT_THROW(statement.bind(2, "foo"), Sqlite::BindingIndexIsOutOfRange);
 }
 
-TEST_F(SqliteStatement, BindIndexIsToLargeIsThrowingBindingIndexIsOutOfBoundStringFloat)
+TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_of_bound_string_float)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
     ASSERT_THROW(statement.bind(2, 2.), Sqlite::BindingIndexIsOutOfRange);
 }
 
-TEST_F(SqliteStatement, BindIndexIsToLargeIsThrowingBindingIndexIsOutOfBoundPointer)
+TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_of_bound_pointer)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
     ASSERT_THROW(statement.bind(2, nullptr), Sqlite::BindingIndexIsOutOfRange);
 }
 
-TEST_F(SqliteStatement, BindIndexIsToLargeIsThrowingBindingIndexIsOutOfBoundValue)
+TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_of_bound_value)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=$1", database);
 
     ASSERT_THROW(statement.bind(2, Sqlite::Value{1}), Sqlite::BindingIndexIsOutOfRange);
 }
 
-TEST_F(SqliteStatement, BindIndexIsToLargeIsThrowingBindingIndexIsOutOfBoundBlob)
+TEST_F(SqliteStatement, bind_index_is_to_large_is_throwing_binding_index_is_out_of_bound_blob)
 {
     SqliteTestStatement<1, 1> statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
     Sqlite::BlobView bytes{QByteArray{"XXX"}};
@@ -485,7 +485,7 @@ TEST_F(SqliteStatement, BindIndexIsToLargeIsThrowingBindingIndexIsOutOfBoundBlob
     ASSERT_THROW(statement.bind(2, bytes), Sqlite::BindingIndexIsOutOfRange);
 }
 
-TEST_F(SqliteStatement, BindValues)
+TEST_F(SqliteStatement, bind_values)
 {
     SqliteTestStatement<0, 3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
@@ -495,7 +495,7 @@ TEST_F(SqliteStatement, BindValues)
     ASSERT_THAT(statement, HasValues("see", "7.23", 1));
 }
 
-TEST_F(SqliteStatement, BindNullValues)
+TEST_F(SqliteStatement, bind_null_values)
 {
     SqliteTestStatement<0, 3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
@@ -505,7 +505,7 @@ TEST_F(SqliteStatement, BindNullValues)
     ASSERT_THAT(statement, HasNullValues(1));
 }
 
-TEST_F(SqliteStatement, WriteValues)
+TEST_F(SqliteStatement, write_values)
 {
     WriteStatement<3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
@@ -514,7 +514,7 @@ TEST_F(SqliteStatement, WriteValues)
     ASSERT_THAT(statement, HasValues("see", "7.23", 1));
 }
 
-TEST_F(SqliteStatement, WritePointerValues)
+TEST_F(SqliteStatement, write_pointer_values)
 {
     SqliteTestStatement<1, 2> statement("SELECT value FROM carray(?, ?, 'int64')", database);
     std::vector<long long> values{1, 1, 2, 3, 5};
@@ -524,7 +524,7 @@ TEST_F(SqliteStatement, WritePointerValues)
     ASSERT_THAT(results, ElementsAre(1, 1, 2, 3, 5));
 }
 
-TEST_F(SqliteStatement, WriteIntCarrayValues)
+TEST_F(SqliteStatement, write_int_carray_values)
 {
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<int> values{3, 10, 20, 33, 55};
@@ -534,7 +534,7 @@ TEST_F(SqliteStatement, WriteIntCarrayValues)
     ASSERT_THAT(results, ElementsAre(3, 10, 20, 33, 55));
 }
 
-TEST_F(SqliteStatement, WriteLongLongCarrayValues)
+TEST_F(SqliteStatement, write_long_long_carray_values)
 {
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<long long> values{3, 10, 20, 33, 55};
@@ -544,7 +544,7 @@ TEST_F(SqliteStatement, WriteLongLongCarrayValues)
     ASSERT_THAT(results, ElementsAre(3, 10, 20, 33, 55));
 }
 
-TEST_F(SqliteStatement, WriteDoubleCarrayValues)
+TEST_F(SqliteStatement, write_double_carray_values)
 {
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<double> values{3.3, 10.2, 20.54, 33.21, 55};
@@ -554,7 +554,7 @@ TEST_F(SqliteStatement, WriteDoubleCarrayValues)
     ASSERT_THAT(results, ElementsAre(3.3, 10.2, 20.54, 33.21, 55));
 }
 
-TEST_F(SqliteStatement, WriteTextCarrayValues)
+TEST_F(SqliteStatement, write_text_carray_values)
 {
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<const char *> values{"yi", "er", "san", "se", "wu"};
@@ -564,7 +564,7 @@ TEST_F(SqliteStatement, WriteTextCarrayValues)
     ASSERT_THAT(results, ElementsAre("yi", "er", "san", "se", "wu"));
 }
 
-TEST_F(SqliteStatement, WriteNullValues)
+TEST_F(SqliteStatement, write_null_values)
 {
     WriteStatement<3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
     statement.write(1, 1, 1);
@@ -574,7 +574,7 @@ TEST_F(SqliteStatement, WriteNullValues)
     ASSERT_THAT(statement, HasNullValues(1));
 }
 
-TEST_F(SqliteStatement, WriteSqliteIntegerValue)
+TEST_F(SqliteStatement, write_sqlite_integer_value)
 {
     WriteStatement<3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
     statement.write(1, 1, 1);
@@ -584,7 +584,7 @@ TEST_F(SqliteStatement, WriteSqliteIntegerValue)
     ASSERT_THAT(statement, HasValues("see", 33, 1));
 }
 
-TEST_F(SqliteStatement, WriteSqliteDoubeValue)
+TEST_F(SqliteStatement, write_sqlite_doube_value)
 {
     WriteStatement<3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
@@ -593,7 +593,7 @@ TEST_F(SqliteStatement, WriteSqliteDoubeValue)
     ASSERT_THAT(statement, HasValues("see", 7.23, 1));
 }
 
-TEST_F(SqliteStatement, WriteSqliteStringValue)
+TEST_F(SqliteStatement, write_sqlite_string_value)
 {
     WriteStatement<3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
@@ -602,7 +602,7 @@ TEST_F(SqliteStatement, WriteSqliteStringValue)
     ASSERT_THAT(statement, HasValues("see", "foo", 1));
 }
 
-TEST_F(SqliteStatement, WriteSqliteBlobValue)
+TEST_F(SqliteStatement, write_sqlite_blob_value)
 {
     SqliteTestStatement<0, 1> statement("INSERT INTO  test VALUES ('blob', 40, ?)", database);
     SqliteTestStatement<1, 0> readStatement("SELECT value FROM test WHERE name = 'blob'", database);
@@ -616,7 +616,7 @@ TEST_F(SqliteStatement, WriteSqliteBlobValue)
                 Optional(Field(&Sqlite::Blob::bytes, Eq(bytes))));
 }
 
-TEST_F(SqliteStatement, WriteNullValueView)
+TEST_F(SqliteStatement, write_null_value_view)
 {
     WriteStatement<3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
     statement.write(1, 1, 1);
@@ -626,7 +626,7 @@ TEST_F(SqliteStatement, WriteNullValueView)
     ASSERT_THAT(statement, HasNullValues(1));
 }
 
-TEST_F(SqliteStatement, WriteSqliteIntegerValueView)
+TEST_F(SqliteStatement, write_sqlite_integer_value_view)
 {
     WriteStatement<3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
     statement.write(1, 1, 1);
@@ -636,7 +636,7 @@ TEST_F(SqliteStatement, WriteSqliteIntegerValueView)
     ASSERT_THAT(statement, HasValues("see", 33, 1));
 }
 
-TEST_F(SqliteStatement, WriteSqliteDoubeValueView)
+TEST_F(SqliteStatement, write_sqlite_doube_value_view)
 {
     WriteStatement<3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
@@ -645,7 +645,7 @@ TEST_F(SqliteStatement, WriteSqliteDoubeValueView)
     ASSERT_THAT(statement, HasValues("see", 7.23, 1));
 }
 
-TEST_F(SqliteStatement, WriteSqliteStringValueView)
+TEST_F(SqliteStatement, write_sqlite_string_value_view)
 {
     WriteStatement<3> statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
@@ -654,7 +654,7 @@ TEST_F(SqliteStatement, WriteSqliteStringValueView)
     ASSERT_THAT(statement, HasValues("see", "foo", 1));
 }
 
-TEST_F(SqliteStatement, WriteSqliteBlobValueView)
+TEST_F(SqliteStatement, write_sqlite_blob_value_view)
 {
     SqliteTestStatement<0, 1> statement("INSERT INTO  test VALUES ('blob', 40, ?)", database);
     SqliteTestStatement<1, 0> readStatement("SELECT value FROM test WHERE name = 'blob'", database);
@@ -668,7 +668,7 @@ TEST_F(SqliteStatement, WriteSqliteBlobValueView)
                 Optional(Field(&Sqlite::Blob::bytes, Eq(bytes))));
 }
 
-TEST_F(SqliteStatement, WriteEmptyBlobs)
+TEST_F(SqliteStatement, write_empty_blobs)
 {
     SqliteTestStatement<1, 1> statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
 
@@ -679,7 +679,7 @@ TEST_F(SqliteStatement, WriteEmptyBlobs)
     ASSERT_THAT(statement.fetchBlobValue(0), IsEmpty());
 }
 
-TEST_F(SqliteStatement, EmptyBlobsAreNull)
+TEST_F(SqliteStatement, empty_blobs_are_null)
 {
     SqliteTestStatement<1, 1> statement(
         "WITH T(blob) AS (VALUES (?)) SELECT ifnull(blob, 1) FROM T", database);
@@ -691,7 +691,7 @@ TEST_F(SqliteStatement, EmptyBlobsAreNull)
     ASSERT_THAT(statement.fetchType(0), Eq(Sqlite::Type::Null));
 }
 
-TEST_F(SqliteStatement, WriteBlobs)
+TEST_F(SqliteStatement, write_blobs)
 {
     SqliteTestStatement<0, 1> statement("INSERT INTO  test VALUES ('blob', 40, ?)", database);
     SqliteTestStatement<1, 0> readStatement("SELECT value FROM test WHERE name = 'blob'", database);
@@ -705,7 +705,7 @@ TEST_F(SqliteStatement, WriteBlobs)
                 Optional(Field(&Sqlite::Blob::bytes, Eq(bytes))));
 }
 
-TEST_F(SqliteStatement, CannotWriteToClosedDatabase)
+TEST_F(SqliteStatement, cannot_write_to_closed_database)
 {
     database.close();
 
@@ -713,14 +713,14 @@ TEST_F(SqliteStatement, CannotWriteToClosedDatabase)
                  Sqlite::DatabaseIsNotOpen);
 }
 
-TEST_F(SqliteStatement, CannotReadFromClosedDatabase)
+TEST_F(SqliteStatement, cannot_read_from_closed_database)
 {
     database.close();
 
     ASSERT_THROW(ReadStatement<3>("SELECT * FROM test", database), Sqlite::DatabaseIsNotOpen);
 }
 
-TEST_F(SqliteStatement, GetTupleValuesWithoutArguments)
+TEST_F(SqliteStatement, get_tuple_values_without_arguments)
 {
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
@@ -731,7 +731,7 @@ TEST_F(SqliteStatement, GetTupleValuesWithoutArguments)
                 UnorderedElementsAre(Tuple{"bar", 0, 1}, Tuple{"foo", 23.3, 2}, Tuple{"poo", 40.0, 3}));
 }
 
-TEST_F(SqliteStatement, GetTupleRangeWithoutArguments)
+TEST_F(SqliteStatement, get_tuple_range_without_arguments)
 {
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
@@ -742,7 +742,7 @@ TEST_F(SqliteStatement, GetTupleRangeWithoutArguments)
                 UnorderedElementsAre(Tuple{"bar", 0, 1}, Tuple{"foo", 23.3, 2}, Tuple{"poo", 40.0, 3}));
 }
 
-TEST_F(SqliteStatement, GetTupleRangeWithTransactionWithoutArguments)
+TEST_F(SqliteStatement, get_tuple_range_with_transaction_without_arguments)
 {
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
@@ -755,7 +755,7 @@ TEST_F(SqliteStatement, GetTupleRangeWithTransactionWithoutArguments)
     database.lock();
 }
 
-TEST_F(SqliteStatement, GetTupleRangeInForRangeLoop)
+TEST_F(SqliteStatement, get_tuple_range_in_for_range_loop)
 {
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
@@ -768,7 +768,7 @@ TEST_F(SqliteStatement, GetTupleRangeInForRangeLoop)
                 UnorderedElementsAre(Tuple{"bar", 0, 1}, Tuple{"foo", 23.3, 2}, Tuple{"poo", 40.0, 3}));
 }
 
-TEST_F(SqliteStatement, GetTupleRangeWithTransactionInForRangeLoop)
+TEST_F(SqliteStatement, get_tuple_range_with_transaction_in_for_range_loop)
 {
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
@@ -783,7 +783,7 @@ TEST_F(SqliteStatement, GetTupleRangeWithTransactionInForRangeLoop)
     database.lock();
 }
 
-TEST_F(SqliteStatement, GetTupleRangeInForRangeLoopWithBreak)
+TEST_F(SqliteStatement, get_tuple_range_in_for_range_loop_with_break)
 {
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test ORDER BY name", database);
@@ -798,7 +798,7 @@ TEST_F(SqliteStatement, GetTupleRangeInForRangeLoopWithBreak)
     ASSERT_THAT(values, UnorderedElementsAre(Tuple{"bar", 0, 1}, Tuple{"foo", 23.3, 2}));
 }
 
-TEST_F(SqliteStatement, GetTupleRangeWithTransactionInForRangeLoopWithBreak)
+TEST_F(SqliteStatement, get_tuple_range_with_transaction_in_for_range_loop_with_break)
 {
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test ORDER BY name", database);
@@ -815,7 +815,7 @@ TEST_F(SqliteStatement, GetTupleRangeWithTransactionInForRangeLoopWithBreak)
     database.lock();
 }
 
-TEST_F(SqliteStatement, GetTupleRangeInForRangeLoopWithContinue)
+TEST_F(SqliteStatement, get_tuple_range_in_for_range_loop_with_continue)
 {
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test ORDER BY name", database);
@@ -830,7 +830,7 @@ TEST_F(SqliteStatement, GetTupleRangeInForRangeLoopWithContinue)
     ASSERT_THAT(values, UnorderedElementsAre(Tuple{"bar", 0, 1}, Tuple{"poo", 40.0, 3}));
 }
 
-TEST_F(SqliteStatement, GetTupleRangeWithTransactionInForRangeLoopWithContinue)
+TEST_F(SqliteStatement, get_tuple_range_with_transaction_in_for_range_loop_with_continue)
 {
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test ORDER BY name", database);
@@ -847,7 +847,7 @@ TEST_F(SqliteStatement, GetTupleRangeWithTransactionInForRangeLoopWithContinue)
     database.lock();
 }
 
-TEST_F(SqliteStatement, GetSingleValuesWithoutArguments)
+TEST_F(SqliteStatement, get_single_values_without_arguments)
 {
     ReadStatement<1> statement("SELECT name FROM test", database);
 
@@ -856,7 +856,7 @@ TEST_F(SqliteStatement, GetSingleValuesWithoutArguments)
     ASSERT_THAT(values, UnorderedElementsAre("bar", "foo", "poo"));
 }
 
-TEST_F(SqliteStatement, GetSingleRangeWithoutArguments)
+TEST_F(SqliteStatement, get_single_range_without_arguments)
 {
     ReadStatement<1> statement("SELECT name FROM test", database);
 
@@ -866,7 +866,7 @@ TEST_F(SqliteStatement, GetSingleRangeWithoutArguments)
     ASSERT_THAT(values, UnorderedElementsAre("bar", "foo", "poo"));
 }
 
-TEST_F(SqliteStatement, GetSingleRangeWithTransactionWithoutArguments)
+TEST_F(SqliteStatement, get_single_range_with_transaction_without_arguments)
 {
     ReadStatement<1> statement("SELECT name FROM test", database);
     database.unlock();
@@ -894,7 +894,7 @@ public:
     }
 };
 
-TEST_F(SqliteStatement, GetSingleSqliteValuesWithoutArguments)
+TEST_F(SqliteStatement, get_single_sqlite_values_without_arguments)
 {
     ReadStatement<1> statement("SELECT number FROM test", database);
     database.execute("INSERT INTO  test VALUES (NULL, NULL, NULL)");
@@ -904,7 +904,7 @@ TEST_F(SqliteStatement, GetSingleSqliteValuesWithoutArguments)
     ASSERT_THAT(values, UnorderedElementsAre(Eq("blah"), Eq(23.3), Eq(40), IsNull()));
 }
 
-TEST_F(SqliteStatement, GetSingleSqliteRangeWithoutArguments)
+TEST_F(SqliteStatement, get_single_sqlite_range_without_arguments)
 {
     ReadStatement<1> statement("SELECT number FROM test", database);
     database.execute("INSERT INTO  test VALUES (NULL, NULL, NULL)");
@@ -915,7 +915,7 @@ TEST_F(SqliteStatement, GetSingleSqliteRangeWithoutArguments)
     ASSERT_THAT(values, UnorderedElementsAre(Eq("blah"), Eq(23.3), Eq(40), IsNull()));
 }
 
-TEST_F(SqliteStatement, GetSingleSqliteRangeWithTransactionWithoutArguments)
+TEST_F(SqliteStatement, get_single_sqlite_range_with_transaction_without_arguments)
 {
     ReadStatement<1> statement("SELECT number FROM test", database);
     database.execute("INSERT INTO  test VALUES (NULL, NULL, NULL)");
@@ -927,7 +927,7 @@ TEST_F(SqliteStatement, GetSingleSqliteRangeWithTransactionWithoutArguments)
     database.lock();
 }
 
-TEST_F(SqliteStatement, GetStructValuesWithoutArguments)
+TEST_F(SqliteStatement, get_struct_values_without_arguments)
 {
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
 
@@ -939,7 +939,7 @@ TEST_F(SqliteStatement, GetStructValuesWithoutArguments)
                                      Output{"poo", "40", 3}));
 }
 
-TEST_F(SqliteStatement, GetStructRangeWithoutArguments)
+TEST_F(SqliteStatement, get_struct_range_without_arguments)
 {
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
 
@@ -952,7 +952,7 @@ TEST_F(SqliteStatement, GetStructRangeWithoutArguments)
                                      Output{"poo", "40", 3}));
 }
 
-TEST_F(SqliteStatement, GetStructRangeWithTransactionWithoutArguments)
+TEST_F(SqliteStatement, get_struct_range_with_transaction_without_arguments)
 {
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
     database.unlock();
@@ -966,7 +966,7 @@ TEST_F(SqliteStatement, GetStructRangeWithTransactionWithoutArguments)
     database.lock();
 }
 
-TEST_F(SqliteStatement, GetValuesForSingleOutputWithBindingMultipleTimes)
+TEST_F(SqliteStatement, get_values_for_single_output_with_binding_multiple_times)
 {
     ReadStatement<1, 1> statement("SELECT name FROM test WHERE number=?", database);
     statement.values<Utils::SmallString>(3, 40);
@@ -976,7 +976,7 @@ TEST_F(SqliteStatement, GetValuesForSingleOutputWithBindingMultipleTimes)
     ASSERT_THAT(values, ElementsAre("poo"));
 }
 
-TEST_F(SqliteStatement, GetRangeForSingleOutputWithBindingMultipleTimes)
+TEST_F(SqliteStatement, get_range_for_single_output_with_binding_multiple_times)
 {
     ReadStatement<1, 1> statement("SELECT name FROM test WHERE number=?", database);
     statement.values<Utils::SmallString>(3, 40);
@@ -987,7 +987,7 @@ TEST_F(SqliteStatement, GetRangeForSingleOutputWithBindingMultipleTimes)
     ASSERT_THAT(values, ElementsAre("poo"));
 }
 
-TEST_F(SqliteStatement, GetRangeWithTransactionForSingleOutputWithBindingMultipleTimes)
+TEST_F(SqliteStatement, get_range_with_transaction_for_single_output_with_binding_multiple_times)
 {
     ReadStatement<1, 1> statement("SELECT name FROM test WHERE number=?", database);
     statement.values<Utils::SmallString>(3, 40);
@@ -1000,7 +1000,7 @@ TEST_F(SqliteStatement, GetRangeWithTransactionForSingleOutputWithBindingMultipl
     database.lock();
 }
 
-TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndMultipleQueryValue)
+TEST_F(SqliteStatement, get_values_for_multiple_output_values_and_multiple_query_value)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 3> statement(
@@ -1011,7 +1011,7 @@ TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndMultipleQueryValue)
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
 }
 
-TEST_F(SqliteStatement, GetRangeForMultipleOutputValuesAndMultipleQueryValue)
+TEST_F(SqliteStatement, get_range_for_multiple_output_values_and_multiple_query_value)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 3> statement(
@@ -1023,7 +1023,7 @@ TEST_F(SqliteStatement, GetRangeForMultipleOutputValuesAndMultipleQueryValue)
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
 }
 
-TEST_F(SqliteStatement, GetRangeWithTransactionForMultipleOutputValuesAndMultipleQueryValue)
+TEST_F(SqliteStatement, get_range_with_transaction_for_multiple_output_values_and_multiple_query_value)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 3> statement(
@@ -1036,7 +1036,7 @@ TEST_F(SqliteStatement, GetRangeWithTransactionForMultipleOutputValuesAndMultipl
     database.lock();
 }
 
-TEST_F(SqliteStatement, CallGetValuesForMultipleOutputValuesAndMultipleQueryValueMultipleTimes)
+TEST_F(SqliteStatement, call_get_values_for_multiple_output_values_and_multiple_query_value_multiple_times)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 2> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
@@ -1048,7 +1048,7 @@ TEST_F(SqliteStatement, CallGetValuesForMultipleOutputValuesAndMultipleQueryValu
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
 }
 
-TEST_F(SqliteStatement, CallGetRangeForMultipleOutputValuesAndMultipleQueryValueMultipleTimes)
+TEST_F(SqliteStatement, call_get_range_for_multiple_output_values_and_multiple_query_value_multiple_times)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 2> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
@@ -1065,7 +1065,7 @@ TEST_F(SqliteStatement, CallGetRangeForMultipleOutputValuesAndMultipleQueryValue
 }
 
 TEST_F(SqliteStatement,
-       CallGetRangeWithTransactionForMultipleOutputValuesAndMultipleQueryValueMultipleTimes)
+       call_get_range_with_transaction_for_multiple_output_values_and_multiple_query_value_multiple_times)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 2> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
@@ -1079,7 +1079,7 @@ TEST_F(SqliteStatement,
     database.lock();
 }
 
-TEST_F(SqliteStatement, GetStructOutputValuesAndMultipleQueryValue)
+TEST_F(SqliteStatement, get_struct_output_values_and_multiple_query_value)
 {
     ReadStatement<3, 3> statement(
         "SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
@@ -1089,7 +1089,7 @@ TEST_F(SqliteStatement, GetStructOutputValuesAndMultipleQueryValue)
     ASSERT_THAT(values, ElementsAre(Output{"bar", "blah", 1}));
 }
 
-TEST_F(SqliteStatement, GetBlobValues)
+TEST_F(SqliteStatement, get_blob_values)
 {
     database.execute("INSERT INTO  test VALUES ('blob', 40, x'AABBCCDD')");
     ReadStatement<1> statement("SELECT value FROM test WHERE name='blob'", database);
@@ -1102,7 +1102,7 @@ TEST_F(SqliteStatement, GetBlobValues)
     ASSERT_THAT(values, ElementsAre(Field(&Sqlite::Blob::bytes, Eq(bytes))));
 }
 
-TEST_F(SqliteStatement, GetEmptyOptionalBlobValueForInteger)
+TEST_F(SqliteStatement, get_empty_optional_blob_value_for_integer)
 {
     ReadStatement<1> statement("SELECT value FROM test WHERE name='poo'", database);
 
@@ -1111,7 +1111,7 @@ TEST_F(SqliteStatement, GetEmptyOptionalBlobValueForInteger)
     ASSERT_THAT(value, Optional(Field(&Sqlite::Blob::bytes, IsEmpty())));
 }
 
-TEST_F(SqliteStatement, GetEmptyOptionalBlobValueForFloat)
+TEST_F(SqliteStatement, get_empty_optional_blob_value_for_float)
 {
     ReadStatement<1> statement("SELECT number FROM test WHERE name='foo'", database);
 
@@ -1120,7 +1120,7 @@ TEST_F(SqliteStatement, GetEmptyOptionalBlobValueForFloat)
     ASSERT_THAT(value, Optional(Field(&Sqlite::Blob::bytes, IsEmpty())));
 }
 
-TEST_F(SqliteStatement, GetEmptyOptionalBlobValueForText)
+TEST_F(SqliteStatement, get_empty_optional_blob_value_for_text)
 {
     ReadStatement<1> statement("SELECT number FROM test WHERE name='bar'", database);
 
@@ -1129,7 +1129,7 @@ TEST_F(SqliteStatement, GetEmptyOptionalBlobValueForText)
     ASSERT_THAT(value, Optional(Field(&Sqlite::Blob::bytes, IsEmpty())));
 }
 
-TEST_F(SqliteStatement, GetOptionalSingleValueAndMultipleQueryValue)
+TEST_F(SqliteStatement, get_optional_single_value_and_multiple_query_value)
 {
     ReadStatement<1, 3> statement("SELECT name FROM test WHERE name=? AND number=? AND value=?",
                                   database);
@@ -1139,7 +1139,7 @@ TEST_F(SqliteStatement, GetOptionalSingleValueAndMultipleQueryValue)
     ASSERT_THAT(value.value(), Eq("bar"));
 }
 
-TEST_F(SqliteStatement, GetOptionalOutputValueAndMultipleQueryValue)
+TEST_F(SqliteStatement, get_optional_output_value_and_multiple_query_value)
 {
     ReadStatement<3, 3> statement(
         "SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
@@ -1149,7 +1149,7 @@ TEST_F(SqliteStatement, GetOptionalOutputValueAndMultipleQueryValue)
     ASSERT_THAT(value.value(), Eq(Output{"bar", "blah", 1}));
 }
 
-TEST_F(SqliteStatement, GetOptionalTupleValueAndMultipleQueryValue)
+TEST_F(SqliteStatement, get_optional_tuple_value_and_multiple_query_value)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 3> statement(
@@ -1160,7 +1160,7 @@ TEST_F(SqliteStatement, GetOptionalTupleValueAndMultipleQueryValue)
     ASSERT_THAT(value.value(), Eq(Tuple{"bar", "blah", 1}));
 }
 
-TEST_F(SqliteStatement, GetOptionalValueCallsReset)
+TEST_F(SqliteStatement, get_optional_value_calls_reset)
 {
     MockSqliteStatement<1, 1> mockStatement{databaseMock};
 
@@ -1169,7 +1169,7 @@ TEST_F(SqliteStatement, GetOptionalValueCallsReset)
     mockStatement.optionalValue<int>("bar");
 }
 
-TEST_F(SqliteStatement, GetOptionalValueCallsResetIfExceptionIsThrown)
+TEST_F(SqliteStatement, get_optional_value_calls_reset_if_exception_is_thrown)
 {
     MockSqliteStatement<1, 1> mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
@@ -1179,7 +1179,7 @@ TEST_F(SqliteStatement, GetOptionalValueCallsResetIfExceptionIsThrown)
     EXPECT_THROW(mockStatement.optionalValue<int>("bar"), Sqlite::StatementHasError);
 }
 
-TEST_F(SqliteStatement, GetSingleValueAndMultipleQueryValue)
+TEST_F(SqliteStatement, get_single_value_and_multiple_query_value)
 {
     ReadStatement<1, 3> statement("SELECT name FROM test WHERE name=? AND number=? AND value=?",
                                   database);
@@ -1189,7 +1189,7 @@ TEST_F(SqliteStatement, GetSingleValueAndMultipleQueryValue)
     ASSERT_THAT(value, Eq("bar"));
 }
 
-TEST_F(SqliteStatement, GetOutputValueAndMultipleQueryValue)
+TEST_F(SqliteStatement, get_output_value_and_multiple_query_value)
 {
     ReadStatement<3, 3> statement(
         "SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
@@ -1199,7 +1199,7 @@ TEST_F(SqliteStatement, GetOutputValueAndMultipleQueryValue)
     ASSERT_THAT(value, Eq(Output{"bar", "blah", 1}));
 }
 
-TEST_F(SqliteStatement, GetTupleValueAndMultipleQueryValue)
+TEST_F(SqliteStatement, get_tuple_value_and_multiple_query_value)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 3> statement(
@@ -1210,7 +1210,7 @@ TEST_F(SqliteStatement, GetTupleValueAndMultipleQueryValue)
     ASSERT_THAT(value, Eq(Tuple{"bar", "blah", 1}));
 }
 
-TEST_F(SqliteStatement, GetSingleInvalidLongLongId)
+TEST_F(SqliteStatement, get_single_invalid_long_long_id)
 {
     TestLongLongId id;
     WriteStatement<1>("INSERT INTO  test VALUES ('id', 323, ?)", database).write(id);
@@ -1221,7 +1221,7 @@ TEST_F(SqliteStatement, GetSingleInvalidLongLongId)
     ASSERT_FALSE(value.isValid());
 }
 
-TEST_F(SqliteStatement, GetSingleLongLongId)
+TEST_F(SqliteStatement, get_single_long_long_id)
 {
     TestLongLongId id{TestLongLongId::create(42)};
     WriteStatement<1>("INSERT INTO  test VALUES ('id', 323, ?)", database).write(id);
@@ -1232,7 +1232,7 @@ TEST_F(SqliteStatement, GetSingleLongLongId)
     ASSERT_THAT(value.internalId(), Eq(42));
 }
 
-TEST_F(SqliteStatement, GetSingleInvalidIntId)
+TEST_F(SqliteStatement, get_single_invalid_int_id)
 {
     TestIntId id;
     WriteStatement<1>("INSERT INTO  test VALUES ('id', 323, ?)", database).write(id);
@@ -1243,7 +1243,7 @@ TEST_F(SqliteStatement, GetSingleInvalidIntId)
     ASSERT_FALSE(value.isValid());
 }
 
-TEST_F(SqliteStatement, GetSingleIntId)
+TEST_F(SqliteStatement, get_single_int_id)
 {
     TestIntId id{TestIntId::create(42)};
     WriteStatement<1>("INSERT INTO  test VALUES ('id', 323, ?)", database).write(id);
@@ -1254,7 +1254,7 @@ TEST_F(SqliteStatement, GetSingleIntId)
     ASSERT_THAT(value.internalId(), Eq(42));
 }
 
-TEST_F(SqliteStatement, GetValueCallsReset)
+TEST_F(SqliteStatement, get_value_calls_reset)
 {
     struct Value
     {
@@ -1272,7 +1272,7 @@ TEST_F(SqliteStatement, GetValueCallsReset)
     mockStatement.value<Value>("bar");
 }
 
-TEST_F(SqliteStatement, GetValueCallsResetIfExceptionIsThrown)
+TEST_F(SqliteStatement, get_value_calls_reset_if_exception_is_thrown)
 {
     struct Value
     {
@@ -1291,7 +1291,7 @@ TEST_F(SqliteStatement, GetValueCallsResetIfExceptionIsThrown)
     EXPECT_THROW(mockStatement.value<Value>("bar"), Sqlite::StatementHasError);
 }
 
-TEST_F(SqliteStatement, GetValuesWithoutArgumentsCallsReset)
+TEST_F(SqliteStatement, get_values_without_arguments_calls_reset)
 {
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
 
@@ -1300,7 +1300,7 @@ TEST_F(SqliteStatement, GetValuesWithoutArgumentsCallsReset)
     mockStatement.values<int>(3);
 }
 
-TEST_F(SqliteStatement, GetRangeWithoutArgumentsCallsReset)
+TEST_F(SqliteStatement, get_range_without_arguments_calls_reset)
 {
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
 
@@ -1309,7 +1309,7 @@ TEST_F(SqliteStatement, GetRangeWithoutArgumentsCallsReset)
     mockStatement.range<int>();
 }
 
-TEST_F(SqliteStatement, GetRangeWithTransactionWithoutArgumentsCalls)
+TEST_F(SqliteStatement, get_range_with_transaction_without_arguments_calls)
 {
     InSequence s;
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
@@ -1323,7 +1323,7 @@ TEST_F(SqliteStatement, GetRangeWithTransactionWithoutArgumentsCalls)
     mockStatement.rangeWithTransaction<int>();
 }
 
-TEST_F(SqliteStatement, GetValuesWithoutArgumentsCallsResetIfExceptionIsThrown)
+TEST_F(SqliteStatement, get_values_without_arguments_calls_reset_if_exception_is_thrown)
 {
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
@@ -1333,7 +1333,7 @@ TEST_F(SqliteStatement, GetValuesWithoutArgumentsCallsResetIfExceptionIsThrown)
     EXPECT_THROW(mockStatement.values<int>(3), Sqlite::StatementHasError);
 }
 
-TEST_F(SqliteStatement, GetRangeWithoutArgumentsCallsResetIfExceptionIsThrown)
+TEST_F(SqliteStatement, get_range_without_arguments_calls_reset_if_exception_is_thrown)
 {
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
@@ -1344,7 +1344,7 @@ TEST_F(SqliteStatement, GetRangeWithoutArgumentsCallsResetIfExceptionIsThrown)
     EXPECT_THROW(range.begin(), Sqlite::StatementHasError);
 }
 
-TEST_F(SqliteStatement, GetRangeWithTransactionWithoutArgumentsCallsResetIfExceptionIsThrown)
+TEST_F(SqliteStatement, get_range_with_transaction_without_arguments_calls_reset_if_exception_is_thrown)
 {
     InSequence s;
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
@@ -1364,7 +1364,7 @@ TEST_F(SqliteStatement, GetRangeWithTransactionWithoutArgumentsCallsResetIfExcep
         Sqlite::StatementHasError);
 }
 
-TEST_F(SqliteStatement, GetValuesWithSimpleArgumentsCallsReset)
+TEST_F(SqliteStatement, get_values_with_simple_arguments_calls_reset)
 {
     MockSqliteStatement<1, 2> mockStatement{databaseMock};
 
@@ -1373,7 +1373,7 @@ TEST_F(SqliteStatement, GetValuesWithSimpleArgumentsCallsReset)
     mockStatement.values<int>(3, "foo", "bar");
 }
 
-TEST_F(SqliteStatement, GetValuesWithSimpleArgumentsCallsResetIfExceptionIsThrown)
+TEST_F(SqliteStatement, get_values_with_simple_arguments_calls_reset_if_exception_is_thrown)
 {
     MockSqliteStatement<1, 2> mockStatement{databaseMock};
     ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
@@ -1383,7 +1383,7 @@ TEST_F(SqliteStatement, GetValuesWithSimpleArgumentsCallsResetIfExceptionIsThrow
     EXPECT_THROW(mockStatement.values<int>(3, "foo", "bar"), Sqlite::StatementHasError);
 }
 
-TEST_F(SqliteStatement, ResetIfWriteIsThrowingException)
+TEST_F(SqliteStatement, reset_if_write_is_throwing_exception)
 {
     MockSqliteStatement<1, 1> mockStatement{databaseMock};
 
@@ -1394,7 +1394,7 @@ TEST_F(SqliteStatement, ResetIfWriteIsThrowingException)
     ASSERT_ANY_THROW(mockStatement.write("bar"));
 }
 
-TEST_F(SqliteStatement, ResetIfExecuteThrowsException)
+TEST_F(SqliteStatement, reset_if_execute_throws_exception)
 {
     MockSqliteStatement<1, 0> mockStatement{databaseMock};
 
@@ -1404,37 +1404,37 @@ TEST_F(SqliteStatement, ResetIfExecuteThrowsException)
     ASSERT_ANY_THROW(mockStatement.execute());
 }
 
-TEST_F(SqliteStatement, ReadStatementThrowsWrongColumnCount)
+TEST_F(SqliteStatement, read_statement_throws_wrong_column_count)
 {
     ASSERT_THROW(ReadStatement<1> statement("SELECT name, number FROM test", database),
                  Sqlite::WrongColumnCount);
 }
 
-TEST_F(SqliteStatement, ReadWriteStatementThrowsWrongColumnCount)
+TEST_F(SqliteStatement, read_write_statement_throws_wrong_column_count)
 {
     ASSERT_THROW(ReadWriteStatement<1> statement("SELECT name, number FROM test", database),
                  Sqlite::WrongColumnCount);
 }
 
-TEST_F(SqliteStatement, WriteStatementThrowsWrongBindingParameterCount)
+TEST_F(SqliteStatement, write_statement_throws_wrong_binding_parameter_count)
 {
     ASSERT_THROW(WriteStatement<1>("INSERT INTO test(name, number) VALUES(?1, ?2)", database),
                  Sqlite::WrongBindingParameterCount);
 }
 
-TEST_F(SqliteStatement, ReadWriteStatementThrowsWrongBindingParameterCount)
+TEST_F(SqliteStatement, read_write_statement_throws_wrong_binding_parameter_count)
 {
     ASSERT_THROW((ReadWriteStatement<0, 1>("INSERT INTO test(name, number) VALUES(?1, ?2)", database)),
                  Sqlite::WrongBindingParameterCount);
 }
 
-TEST_F(SqliteStatement, ReadStatementThrowsWrongBindingParameterCount)
+TEST_F(SqliteStatement, read_statement_throws_wrong_binding_parameter_count)
 {
     ASSERT_THROW((ReadStatement<2, 0>("SELECT name, number FROM test WHERE name=?", database)),
                  Sqlite::WrongBindingParameterCount);
 }
 
-TEST_F(SqliteStatement, ReadCallback)
+TEST_F(SqliteStatement, read_callback)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
     ReadStatement<2> statement("SELECT name, value FROM test", database);
@@ -1446,7 +1446,7 @@ TEST_F(SqliteStatement, ReadCallback)
     statement.readCallback(callbackMock.AsStdFunction());
 }
 
-TEST_F(SqliteStatement, ReadCallbackWithoutControl)
+TEST_F(SqliteStatement, read_callback_without_control)
 {
     MockFunction<void(Utils::SmallStringView, long long)> callbackMock;
     ReadStatement<2> statement("SELECT name, value FROM test", database);
@@ -1458,7 +1458,7 @@ TEST_F(SqliteStatement, ReadCallbackWithoutControl)
     statement.readCallback(callbackMock.AsStdFunction());
 }
 
-TEST_F(SqliteStatement, ReadCallbackCalledWithArguments)
+TEST_F(SqliteStatement, read_callback_called_with_arguments)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
     ReadStatement<2, 1> statement("SELECT name, value FROM test WHERE value=?", database);
@@ -1468,7 +1468,7 @@ TEST_F(SqliteStatement, ReadCallbackCalledWithArguments)
     statement.readCallback(callbackMock.AsStdFunction(), 2);
 }
 
-TEST_F(SqliteStatement, ReadCallbackAborts)
+TEST_F(SqliteStatement, read_callback_aborts)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
     ReadStatement<2> statement("SELECT name, value FROM test ORDER BY name", database);
@@ -1480,7 +1480,7 @@ TEST_F(SqliteStatement, ReadCallbackAborts)
     statement.readCallback(callbackMock.AsStdFunction());
 }
 
-TEST_F(SqliteStatement, ReadCallbackCallsResetAfterCallbacks)
+TEST_F(SqliteStatement, read_callback_calls_reset_after_callbacks)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
     MockSqliteStatement<2> mockStatement{databaseMock};
@@ -1490,7 +1490,7 @@ TEST_F(SqliteStatement, ReadCallbackCallsResetAfterCallbacks)
     mockStatement.readCallback(callbackMock.AsStdFunction());
 }
 
-TEST_F(SqliteStatement, ReadCallbackCallsResetAfterCallbacksAborts)
+TEST_F(SqliteStatement, read_callback_calls_reset_after_callbacks_aborts)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
     MockSqliteStatement<2> mockStatement{databaseMock};
@@ -1501,7 +1501,7 @@ TEST_F(SqliteStatement, ReadCallbackCallsResetAfterCallbacksAborts)
     mockStatement.readCallback(callbackMock.AsStdFunction());
 }
 
-TEST_F(SqliteStatement, ReadCallbackThrowsForError)
+TEST_F(SqliteStatement, read_callback_throws_for_error)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
     MockSqliteStatement<2> mockStatement{databaseMock};
@@ -1510,7 +1510,7 @@ TEST_F(SqliteStatement, ReadCallbackThrowsForError)
     ASSERT_THROW(mockStatement.readCallback(callbackMock.AsStdFunction()), Sqlite::StatementHasError);
 }
 
-TEST_F(SqliteStatement, ReadCallbackCallsResetIfExceptionIsThrown)
+TEST_F(SqliteStatement, read_callback_calls_reset_if_exception_is_thrown)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, long long)> callbackMock;
     MockSqliteStatement<2> mockStatement{databaseMock};
@@ -1521,7 +1521,7 @@ TEST_F(SqliteStatement, ReadCallbackCallsResetIfExceptionIsThrown)
     EXPECT_THROW(mockStatement.readCallback(callbackMock.AsStdFunction()), Sqlite::StatementHasError);
 }
 
-TEST_F(SqliteStatement, ReadToContainer)
+TEST_F(SqliteStatement, read_to_container)
 {
     std::deque<FooValue> values;
     ReadStatement<1> statement("SELECT number FROM test", database);
@@ -1531,7 +1531,7 @@ TEST_F(SqliteStatement, ReadToContainer)
     ASSERT_THAT(values, UnorderedElementsAre(Eq("blah"), Eq(23.3), Eq(40)));
 }
 
-TEST_F(SqliteStatement, ReadToContainerCallCallbackWithArguments)
+TEST_F(SqliteStatement, read_to_container_call_callback_with_arguments)
 {
     std::deque<FooValue> values;
     ReadStatement<1, 1> statement("SELECT number FROM test WHERE value=?", database);
@@ -1541,7 +1541,7 @@ TEST_F(SqliteStatement, ReadToContainerCallCallbackWithArguments)
     ASSERT_THAT(values, ElementsAre(Eq(23.3)));
 }
 
-TEST_F(SqliteStatement, ReadToCallsResetAfterPushingAllValuesBack)
+TEST_F(SqliteStatement, read_to_calls_reset_after_pushing_all_values_back)
 {
     std::deque<FooValue> values;
     MockSqliteStatement mockStatement{databaseMock};
@@ -1551,7 +1551,7 @@ TEST_F(SqliteStatement, ReadToCallsResetAfterPushingAllValuesBack)
     mockStatement.readTo(values);
 }
 
-TEST_F(SqliteStatement, ReadToThrowsForError)
+TEST_F(SqliteStatement, read_to_throws_for_error)
 {
     std::deque<FooValue> values;
     MockSqliteStatement mockStatement{databaseMock};
@@ -1560,7 +1560,7 @@ TEST_F(SqliteStatement, ReadToThrowsForError)
     ASSERT_THROW(mockStatement.readTo(values), Sqlite::StatementHasError);
 }
 
-TEST_F(SqliteStatement, ReadToCallsResetIfExceptionIsThrown)
+TEST_F(SqliteStatement, read_to_calls_reset_if_exception_is_thrown)
 {
     std::deque<FooValue> values;
     MockSqliteStatement mockStatement{databaseMock};
@@ -1571,7 +1571,7 @@ TEST_F(SqliteStatement, ReadToCallsResetIfExceptionIsThrown)
     EXPECT_THROW(mockStatement.readTo(values), Sqlite::StatementHasError);
 }
 
-TEST_F(SqliteStatement, ReadStatementValuesWithTransactions)
+TEST_F(SqliteStatement, read_statement_values_with_transactions)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 2> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
@@ -1584,7 +1584,7 @@ TEST_F(SqliteStatement, ReadStatementValuesWithTransactions)
     database.lock();
 }
 
-TEST_F(SqliteStatement, ReadStatementValueWithTransactions)
+TEST_F(SqliteStatement, read_statement_value_with_transactions)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 2> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
@@ -1597,7 +1597,7 @@ TEST_F(SqliteStatement, ReadStatementValueWithTransactions)
     database.lock();
 }
 
-TEST_F(SqliteStatement, ReadStatementOptionalValueWithTransactions)
+TEST_F(SqliteStatement, read_statement_optional_value_with_transactions)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 2> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
@@ -1610,7 +1610,7 @@ TEST_F(SqliteStatement, ReadStatementOptionalValueWithTransactions)
     database.lock();
 }
 
-TEST_F(SqliteStatement, ReadStatementReadCallbackWithTransactions)
+TEST_F(SqliteStatement, read_statement_read_callback_with_transactions)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, Utils::SmallStringView, long long)> callbackMock;
     ReadStatement<3, 2> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
@@ -1623,7 +1623,7 @@ TEST_F(SqliteStatement, ReadStatementReadCallbackWithTransactions)
     database.lock();
 }
 
-TEST_F(SqliteStatement, ReadStatementReadToWithTransactions)
+TEST_F(SqliteStatement, read_statement_read_to_with_transactions)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 2> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
@@ -1637,7 +1637,7 @@ TEST_F(SqliteStatement, ReadStatementReadToWithTransactions)
     database.lock();
 }
 
-TEST_F(SqliteStatement, ReadWriteStatementValuesWithTransactions)
+TEST_F(SqliteStatement, read_write_statement_values_with_transactions)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadWriteStatement<3, 2> statement(
@@ -1650,7 +1650,7 @@ TEST_F(SqliteStatement, ReadWriteStatementValuesWithTransactions)
     database.lock();
 }
 
-TEST_F(SqliteStatement, ReadWriteStatementValueWithTransactions)
+TEST_F(SqliteStatement, read_write_statement_value_with_transactions)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadWriteStatement<3, 2> statement(
@@ -1663,7 +1663,7 @@ TEST_F(SqliteStatement, ReadWriteStatementValueWithTransactions)
     database.lock();
 }
 
-TEST_F(SqliteStatement, ReadWriteStatementOptionalValueWithTransactions)
+TEST_F(SqliteStatement, read_write_statement_optional_value_with_transactions)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadWriteStatement<3, 2> statement(
@@ -1676,7 +1676,7 @@ TEST_F(SqliteStatement, ReadWriteStatementOptionalValueWithTransactions)
     database.lock();
 }
 
-TEST_F(SqliteStatement, ReadWriteStatementReadCallbackWithTransactions)
+TEST_F(SqliteStatement, read_write_statement_read_callback_with_transactions)
 {
     MockFunction<Sqlite::CallbackControl(Utils::SmallStringView, Utils::SmallStringView, long long)> callbackMock;
     ReadWriteStatement<3, 2> statement(
@@ -1689,7 +1689,7 @@ TEST_F(SqliteStatement, ReadWriteStatementReadCallbackWithTransactions)
     database.lock();
 }
 
-TEST_F(SqliteStatement, ReadWriteStatementReadToWithTransactions)
+TEST_F(SqliteStatement, read_write_statement_read_to_with_transactions)
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadWriteStatement<3, 2> statement(

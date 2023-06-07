@@ -136,12 +136,12 @@ protected:
     Sqlite::ReadStatement<1> selectChangeSets{"SELECT changeset FROM testsessions", database};
 };
 
-TEST_F(SqliteSessions, DontThrowForCommittingWithoutSessionStart)
+TEST_F(SqliteSessions, dont_throw_for_committing_without_session_start)
 {
     ASSERT_NO_THROW(sessions.commit());
 }
 
-TEST_F(SqliteSessions, CreateEmptySession)
+TEST_F(SqliteSessions, create_empty_session)
 {
     sessions.create();
     sessions.commit();
@@ -149,7 +149,7 @@ TEST_F(SqliteSessions, CreateEmptySession)
     ASSERT_THAT(sessions.changeSets(), IsEmpty());
 }
 
-TEST_F(SqliteSessions, CreateSessionWithInsert)
+TEST_F(SqliteSessions, create_session_with_insert)
 {
     sessions.create();
     insertData.write("foo", 22, 3.14);
@@ -158,7 +158,7 @@ TEST_F(SqliteSessions, CreateSessionWithInsert)
     ASSERT_THAT(sessions.changeSets(), SizeIs(1));
 }
 
-TEST_F(SqliteSessions, CreateSessionWithUpdate)
+TEST_F(SqliteSessions, create_session_with_update)
 {
     insertData.write("foo", 22, 3.14);
 
@@ -169,7 +169,7 @@ TEST_F(SqliteSessions, CreateSessionWithUpdate)
     ASSERT_THAT(sessions.changeSets(), SizeIs(1));
 }
 
-TEST_F(SqliteSessions, CreateSessionWithDelete)
+TEST_F(SqliteSessions, create_session_with_delete)
 {
     insertData.write("foo", 22, 3.14);
 
@@ -180,7 +180,7 @@ TEST_F(SqliteSessions, CreateSessionWithDelete)
     ASSERT_THAT(sessions.changeSets(), SizeIs(1));
 }
 
-TEST_F(SqliteSessions, CreateSessionWithInsertAndUpdate)
+TEST_F(SqliteSessions, create_session_with_insert_and_update)
 {
     sessions.create();
     insertData.write("foo", 22, 3.14);
@@ -193,7 +193,7 @@ TEST_F(SqliteSessions, CreateSessionWithInsertAndUpdate)
     ASSERT_THAT(sessions.changeSets(), SizeIs(2));
 }
 
-TEST_F(SqliteSessions, CreateSession)
+TEST_F(SqliteSessions, create_session)
 {
     sessions.create();
     insertData.write("foo", 22, 3.14);
@@ -203,7 +203,7 @@ TEST_F(SqliteSessions, CreateSession)
     ASSERT_THAT(sessions.changeSets(), SizeIs(1));
 }
 
-TEST_F(SqliteSessions, RevertSession)
+TEST_F(SqliteSessions, revert_session)
 {
     sessions.create();
     insertData.write("foo", 22, 3.14);
@@ -214,7 +214,7 @@ TEST_F(SqliteSessions, RevertSession)
     ASSERT_THAT(fetchData(), IsEmpty());
 }
 
-TEST_F(SqliteSessions, RevertSessionToBase)
+TEST_F(SqliteSessions, revert_session_to_base)
 {
     insertData.write("bar", "foo", 99);
     sessions.create();
@@ -226,7 +226,7 @@ TEST_F(SqliteSessions, RevertSessionToBase)
     ASSERT_THAT(fetchData(), ElementsAre(HasData("bar", "foo", 99)));
 }
 
-TEST_F(SqliteSessions, RevertMultipleSession)
+TEST_F(SqliteSessions, revert_multiple_session)
 {
     sessions.create();
     insertData.write("foo", 22, 3.14);
@@ -240,7 +240,7 @@ TEST_F(SqliteSessions, RevertMultipleSession)
     ASSERT_THAT(fetchData(), IsEmpty());
 }
 
-TEST_F(SqliteSessions, ApplySession)
+TEST_F(SqliteSessions, apply_session)
 {
     sessions.create();
     insertData.write("foo", 22, 3.14);
@@ -251,7 +251,7 @@ TEST_F(SqliteSessions, ApplySession)
     ASSERT_THAT(fetchData(), ElementsAre(HasData("foo", 22, 3.14)));
 }
 
-TEST_F(SqliteSessions, ApplySessionAfterAddingNewEntries)
+TEST_F(SqliteSessions, apply_session_after_adding_new_entries)
 {
     sessions.create();
     insertData.write("foo", 22, 3.14);
@@ -264,7 +264,7 @@ TEST_F(SqliteSessions, ApplySessionAfterAddingNewEntries)
                 UnorderedElementsAre(HasData("foo", 22, 3.14), HasData("bar", "foo", 99)));
 }
 
-TEST_F(SqliteSessions, ApplyOverridesEntriesWithUniqueConstraint)
+TEST_F(SqliteSessions, apply_overrides_entries_with_unique_constraint)
 {
     sessions.create();
     insertData.write("foo", 22, 3.14);
@@ -276,7 +276,7 @@ TEST_F(SqliteSessions, ApplyOverridesEntriesWithUniqueConstraint)
     ASSERT_THAT(fetchData(), ElementsAre(HasData("foo", 22, 3.14)));
 }
 
-TEST_F(SqliteSessions, ApplyDoesNotOverrideDeletedEntries)
+TEST_F(SqliteSessions, apply_does_not_override_deleted_entries)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -289,7 +289,7 @@ TEST_F(SqliteSessions, ApplyDoesNotOverrideDeletedEntries)
     ASSERT_THAT(fetchData(), IsEmpty());
 }
 
-TEST_F(SqliteSessions, ApplyDoesOnlyOverwriteUpdatedValues)
+TEST_F(SqliteSessions, apply_does_only_overwrite_updated_values)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -302,7 +302,7 @@ TEST_F(SqliteSessions, ApplyDoesOnlyOverwriteUpdatedValues)
     ASSERT_THAT(fetchData(), ElementsAre(HasData("foo", "poo", 1234)));
 }
 
-TEST_F(SqliteSessions, ApplyDoesDoesNotOverrideForeignKeyIfReferenceIsDeleted)
+TEST_F(SqliteSessions, apply_does_does_not_override_foreign_key_if_reference_is_deleted)
 {
     insertData.write("foo2", "bar", 3.14);
     insertData.write("foo", "bar", 3.14);
@@ -317,7 +317,7 @@ TEST_F(SqliteSessions, ApplyDoesDoesNotOverrideForeignKeyIfReferenceIsDeleted)
     ASSERT_THAT(fetchTags(), ElementsAre(HasTag("foo2", 4321)));
 }
 
-TEST_F(SqliteSessions, ApplyDoesDoesNotOverrideIfConstraintsIsApplied)
+TEST_F(SqliteSessions, apply_does_does_not_override_if_constraints_is_applied)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -331,7 +331,7 @@ TEST_F(SqliteSessions, ApplyDoesDoesNotOverrideIfConstraintsIsApplied)
     ASSERT_THAT(fetchTags(), IsEmpty());
 }
 
-TEST_F(SqliteSessions, ApplyDoesDoesNotOverrideForeignKeyIfReferenceIsDeletedDeferred)
+TEST_F(SqliteSessions, apply_does_does_not_override_foreign_key_if_reference_is_deleted_deferred)
 {
     database.unlock();
     Sqlite::DeferredTransaction transaction{database};
@@ -350,7 +350,7 @@ TEST_F(SqliteSessions, ApplyDoesDoesNotOverrideForeignKeyIfReferenceIsDeletedDef
     ASSERT_THAT(fetchTags(), ElementsAre(HasTag("foo2", 4321)));
 }
 
-TEST_F(SqliteSessions, EndSessionOnRollback)
+TEST_F(SqliteSessions, end_session_on_rollback)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -367,7 +367,7 @@ TEST_F(SqliteSessions, EndSessionOnRollback)
     ASSERT_THAT(fetchData(), ElementsAre(HasData("foo", 333, 666)));
 }
 
-TEST_F(SqliteSessions, EndSessionOnCommit)
+TEST_F(SqliteSessions, end_session_on_commit)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -381,7 +381,7 @@ TEST_F(SqliteSessions, EndSessionOnCommit)
     ASSERT_THAT(fetchData(), ElementsAre(HasData("foo", "bar", 99)));
 }
 
-TEST_F(SqliteSessions, DeleteSessions)
+TEST_F(SqliteSessions, delete_sessions)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -395,7 +395,7 @@ TEST_F(SqliteSessions, DeleteSessions)
     ASSERT_THAT(fetchData(), ElementsAre(HasData("foo", "bar", 3.14)));
 }
 
-TEST_F(SqliteSessions, DeleteAllSessions)
+TEST_F(SqliteSessions, delete_all_sessions)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -409,7 +409,7 @@ TEST_F(SqliteSessions, DeleteAllSessions)
     ASSERT_THAT(fetchData(), ElementsAre(HasData("foo", "bar", 3.14)));
 }
 
-TEST_F(SqliteSessions, ApplyAndUpdateSessions)
+TEST_F(SqliteSessions, apply_and_update_sessions)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -424,7 +424,7 @@ TEST_F(SqliteSessions, ApplyAndUpdateSessions)
     ASSERT_THAT(fetchData(), ElementsAre(HasData("foo", "bar", 22)));
 }
 
-TEST_F(SqliteSessions, ApplyAndUpdateSessionsHasOnlyOneChangeSet)
+TEST_F(SqliteSessions, apply_and_update_sessions_has_only_one_change_set)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -437,7 +437,7 @@ TEST_F(SqliteSessions, ApplyAndUpdateSessionsHasOnlyOneChangeSet)
     ASSERT_THAT(sessions.changeSets(), SizeIs(1));
 }
 
-TEST_F(SqliteSessions, ForEmptySessionBeginEqualsEnd)
+TEST_F(SqliteSessions, for_empty_session_begin_equals_end)
 {
     auto changeSets = sessions.changeSets();
 
@@ -446,7 +446,7 @@ TEST_F(SqliteSessions, ForEmptySessionBeginEqualsEnd)
     ASSERT_THAT(begin, Eq(changeSets.end()));
 }
 
-TEST_F(SqliteSessions, IteratorBeginUnequalsEndIfChangeSetHasContent)
+TEST_F(SqliteSessions, iterator_begin_unequals_end_if_change_set_has_content)
 {
     sessions.create();
     insertData.write("foo", "bar", 3.14);
@@ -459,7 +459,7 @@ TEST_F(SqliteSessions, IteratorBeginUnequalsEndIfChangeSetHasContent)
     ASSERT_THAT(begin, Ne(changeSet.end()));
 }
 
-TEST_F(SqliteSessions, NextIteratorUnequalsBeginIfChangeSetHasContent)
+TEST_F(SqliteSessions, next_iterator_unequals_begin_if_change_set_has_content)
 {
     sessions.create();
     insertData.write("foo", "bar", 3.14);
@@ -472,7 +472,7 @@ TEST_F(SqliteSessions, NextIteratorUnequalsBeginIfChangeSetHasContent)
     ASSERT_NE(next, changeSet.begin());
 }
 
-TEST_F(SqliteSessions, NextIteratorEqualsEndIfChangeSetHasContent)
+TEST_F(SqliteSessions, next_iterator_equals_end_if_change_set_has_content)
 {
     sessions.create();
     insertData.write("foo", "bar", 3.14);
@@ -485,7 +485,7 @@ TEST_F(SqliteSessions, NextIteratorEqualsEndIfChangeSetHasContent)
     ASSERT_THAT(next, Eq(changeSet.end()));
 }
 
-TEST_F(SqliteSessions, NextIteratorNotUnqualsEndIfChangeSetHasContent)
+TEST_F(SqliteSessions, next_iterator_not_unquals_end_if_change_set_has_content)
 {
     sessions.create();
     insertData.write("foo", "bar", 3.14);
@@ -498,7 +498,7 @@ TEST_F(SqliteSessions, NextIteratorNotUnqualsEndIfChangeSetHasContent)
     ASSERT_THAT(next, Not(Ne(changeSet.end())));
 }
 
-TEST_F(SqliteSessions, BeginIteratorHasInsertOperation)
+TEST_F(SqliteSessions, begin_iterator_has_insert_operation)
 {
     sessions.create();
     insertData.write("foo", "bar", 3.14);
@@ -512,7 +512,7 @@ TEST_F(SqliteSessions, BeginIteratorHasInsertOperation)
     ASSERT_THAT(tuple.operation, Eq(Operation::Insert));
 }
 
-TEST_F(SqliteSessions, BeginIteratorHasUpdateOperation)
+TEST_F(SqliteSessions, begin_iterator_has_update_operation)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -527,7 +527,7 @@ TEST_F(SqliteSessions, BeginIteratorHasUpdateOperation)
     ASSERT_THAT(tuple.operation, Eq(Operation::Update));
 }
 
-TEST_F(SqliteSessions, BeginIteratorHasDeleteOperation)
+TEST_F(SqliteSessions, begin_iterator_has_delete_operation)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -542,7 +542,7 @@ TEST_F(SqliteSessions, BeginIteratorHasDeleteOperation)
     ASSERT_THAT(tuple.operation, Eq(Operation::Delete));
 }
 
-TEST_F(SqliteSessions, BeginIteratorHasDataTableName)
+TEST_F(SqliteSessions, begin_iterator_has_data_table_name)
 {
     sessions.create();
     insertData.write("foo", "bar", 3.14);
@@ -556,7 +556,7 @@ TEST_F(SqliteSessions, BeginIteratorHasDataTableName)
     ASSERT_THAT(tuple.table, Eq("data"));
 }
 
-TEST_F(SqliteSessions, ConvertAllValueTypesInChangeSet)
+TEST_F(SqliteSessions, convert_all_value_types_in_change_set)
 {
     sessions.create();
     insertData.write("foo", "bar", 3.14);
@@ -575,7 +575,7 @@ TEST_F(SqliteSessions, ConvertAllValueTypesInChangeSet)
                             HasValues(3.14, nullptr)));
 }
 
-TEST_F(SqliteSessions, InsertOneValueChangeSet)
+TEST_F(SqliteSessions, insert_one_value_change_set)
 {
     sessions.create();
     insertOneDatum.write("foo", Sqlite::NullValue{});
@@ -594,7 +594,7 @@ TEST_F(SqliteSessions, InsertOneValueChangeSet)
                             HasValues("foo", nullptr)));
 }
 
-TEST_F(SqliteSessions, UpdateOneValueChangeSet)
+TEST_F(SqliteSessions, update_one_value_change_set)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -614,7 +614,7 @@ TEST_F(SqliteSessions, UpdateOneValueChangeSet)
                             HasValues(99, 3.14)));
 }
 
-TEST_F(SqliteSessions, DeleteRowChangeSet)
+TEST_F(SqliteSessions, delete_row_change_set)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -635,7 +635,7 @@ TEST_F(SqliteSessions, DeleteRowChangeSet)
                             HasValues(nullptr, 3.14)));
 }
 
-TEST_F(SqliteSessions, EmptyChangeSet)
+TEST_F(SqliteSessions, empty_change_set)
 {
     sessions.create();
     sessions.commit();
@@ -645,7 +645,7 @@ TEST_F(SqliteSessions, EmptyChangeSet)
     ASSERT_THAT(changeSets, ElementsAre());
 }
 
-TEST_F(SqliteSessions, AccessInsertOneValueChangeSet)
+TEST_F(SqliteSessions, access_insert_one_value_change_set)
 {
     sessions.create();
     insertOneDatum.write("foo", Sqlite::NullValue{});
@@ -660,7 +660,7 @@ TEST_F(SqliteSessions, AccessInsertOneValueChangeSet)
     ASSERT_THAT(value, HasValues("foo", nullptr));
 }
 
-TEST_F(SqliteSessions, AccessUpdateOneValueChangeSet)
+TEST_F(SqliteSessions, access_update_one_value_change_set)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();
@@ -676,7 +676,7 @@ TEST_F(SqliteSessions, AccessUpdateOneValueChangeSet)
     ASSERT_THAT(value, HasValues(99, 3.14));
 }
 
-TEST_F(SqliteSessions, AccessDeleteRowChangeSet)
+TEST_F(SqliteSessions, access_delete_row_change_set)
 {
     insertData.write("foo", "bar", 3.14);
     sessions.create();

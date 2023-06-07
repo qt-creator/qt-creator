@@ -91,7 +91,7 @@ protected:
     ModelNode rootNode;
 };
 
-TEST_F(Model, ModelNodeDestroyIsCallingModelResourceManagementRemoveNode)
+TEST_F(Model, model_node_destroy_is_calling_model_resource_management_remove_node)
 {
     auto node = createNodeWithParent(rootNode);
 
@@ -100,7 +100,7 @@ TEST_F(Model, ModelNodeDestroyIsCallingModelResourceManagementRemoveNode)
     node.destroy();
 }
 
-TEST_F(Model, ModelNodeRemoveProperyIsCallingModelResourceManagementRemoveProperty)
+TEST_F(Model, model_node_remove_propery_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.variantProperty("foo");
     property.setValue(4);
@@ -110,7 +110,7 @@ TEST_F(Model, ModelNodeRemoveProperyIsCallingModelResourceManagementRemoveProper
     rootNode.removeProperty("foo");
 }
 
-TEST_F(Model, NodeAbstractPropertyReparentHereIsCallingModelResourceManagementRemoveProperty)
+TEST_F(Model, node_abstract_property_reparent_here_is_calling_model_resource_management_remove_property)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = rootNode.variantProperty("foo");
@@ -121,7 +121,7 @@ TEST_F(Model, NodeAbstractPropertyReparentHereIsCallingModelResourceManagementRe
     rootNode.nodeListProperty("foo").reparentHere(node);
 }
 
-TEST_F(Model, NodePropertySetModelNodeIsCallingModelResourceManagementRemoveProperty)
+TEST_F(Model, node_property_set_model_node_is_calling_model_resource_management_remove_property)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = rootNode.variantProperty("foo");
@@ -132,7 +132,7 @@ TEST_F(Model, NodePropertySetModelNodeIsCallingModelResourceManagementRemoveProp
     rootNode.nodeProperty("foo").setModelNode(node);
 }
 
-TEST_F(Model, VariantPropertySetValueIsCallingModelResourceManagementRemoveProperty)
+TEST_F(Model, variant_property_set_value_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.bindingProperty("foo");
     property.setExpression("blah");
@@ -143,7 +143,7 @@ TEST_F(Model, VariantPropertySetValueIsCallingModelResourceManagementRemovePrope
 }
 
 TEST_F(Model,
-       VariantPropertySetDynamicTypeNameAndEnumerationIsCallingModelResourceManagementRemoveProperty)
+       variant_property_set_dynamic_type_name_and_enumeration_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.bindingProperty("foo");
     property.setExpression("blah");
@@ -153,7 +153,7 @@ TEST_F(Model,
     rootNode.variantProperty("foo").setDynamicTypeNameAndEnumeration("int", "Ha");
 }
 
-TEST_F(Model, VariantPropertySetDynamicTypeNameAndValueIsCallingModelResourceManagementRemoveProperty)
+TEST_F(Model, variant_property_set_dynamic_type_name_and_value_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.bindingProperty("foo");
     property.setExpression("blah");
@@ -163,7 +163,7 @@ TEST_F(Model, VariantPropertySetDynamicTypeNameAndValueIsCallingModelResourceMan
     rootNode.variantProperty("foo").setDynamicTypeNameAndValue("int", 7);
 }
 
-TEST_F(Model, BindingPropertySetExpressionIsCallingModelResourceManagementRemoveProperty)
+TEST_F(Model, binding_property_set_expression_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.variantProperty("foo");
     property.setValue(4);
@@ -174,7 +174,7 @@ TEST_F(Model, BindingPropertySetExpressionIsCallingModelResourceManagementRemove
 }
 
 TEST_F(Model,
-       BindingPropertySetDynamicTypeNameAndExpressionIsCallingModelResourceManagementRemoveProperty)
+       binding_property_set_dynamic_type_name_and_expression_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.variantProperty("foo");
     property.setValue(4);
@@ -184,7 +184,7 @@ TEST_F(Model,
     rootNode.bindingProperty("foo").setDynamicTypeNameAndExpression("int", "blah");
 }
 
-TEST_F(Model, SignalHandlerPropertySetSourceIsCallingModelResourceManagementRemoveProperty)
+TEST_F(Model, signal_handler_property_set_source_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.bindingProperty("foo");
     property.setExpression("blah");
@@ -194,7 +194,7 @@ TEST_F(Model, SignalHandlerPropertySetSourceIsCallingModelResourceManagementRemo
     rootNode.signalHandlerProperty("foo").setSource("blah");
 }
 
-TEST_F(Model, SignalDeclarationPropertySetSignatureIsCallingModelResourceManagementRemoveProperty)
+TEST_F(Model, signal_declaration_property_set_signature_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.bindingProperty("foo");
     property.setExpression("blah");
@@ -204,7 +204,7 @@ TEST_F(Model, SignalDeclarationPropertySetSignatureIsCallingModelResourceManagem
     rootNode.signalDeclarationProperty("foo").setSignature("blah");
 }
 
-TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewNodeAboutToBeRemoved)
+TEST_F(Model, model_node_destroy_is_calling_abstract_view_node_about_to_be_removed)
 {
     auto node = createNodeWithParent(rootNode);
     auto node2 = createNodeWithParent(rootNode);
@@ -217,7 +217,7 @@ TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewNodeAboutToBeRemoved)
     node.destroy();
 }
 
-TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewNodeRemoved)
+TEST_F(Model, model_node_destroy_is_calling_abstract_view_node_removed)
 {
     auto node = createNodeWithParent(rootNode);
     auto node2 = createNodeWithParent(rootNode);
@@ -230,7 +230,7 @@ TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewNodeRemoved)
     node.destroy();
 }
 
-TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewNodeRemovedWithValidNodes)
+TEST_F(Model, model_node_destroy_is_calling_abstract_view_node_removed_with_valid_nodes)
 {
     auto node = createNodeWithParent(rootNode);
     auto node2 = createNodeWithParent(rootNode);
@@ -243,7 +243,7 @@ TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewNodeRemovedWithValidNodes)
     node.destroy();
 }
 
-TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewPropertiesAboutToBeRemoved)
+TEST_F(Model, model_node_destroy_is_calling_abstract_view_properties_about_to_be_removed)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createProperty(rootNode, "foo");
@@ -256,7 +256,7 @@ TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewPropertiesAboutToBeRemoved)
     node.destroy();
 }
 
-TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewPropertiesRemoved)
+TEST_F(Model, model_node_destroy_is_calling_abstract_view_properties_removed)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createProperty(rootNode, "foo");
@@ -269,7 +269,7 @@ TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewPropertiesRemoved)
     node.destroy();
 }
 
-TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewPropertiesRemovedOnlyWithValidProperties)
+TEST_F(Model, model_node_destroy_is_calling_abstract_view_properties_removed_only_with_valid_properties)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createProperty(rootNode, "foo");
@@ -282,7 +282,7 @@ TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewPropertiesRemovedOnlyWithVali
     node.destroy();
 }
 
-TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewBindingPropertiesAboutToBeChanged)
+TEST_F(Model, model_node_destroy_is_calling_abstract_view_binding_properties_about_to_be_changed)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createBindingProperty(rootNode, "foo");
@@ -296,7 +296,7 @@ TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewBindingPropertiesAboutToBeCha
     node.destroy();
 }
 
-TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewBindingPropertiesChanged)
+TEST_F(Model, model_node_destroy_is_calling_abstract_view_binding_properties_changed)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createBindingProperty(rootNode, "foo");
@@ -309,7 +309,7 @@ TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewBindingPropertiesChanged)
     node.destroy();
 }
 
-TEST_F(Model, ModelNodeDestroyIsChangingBindingPropertyExpression)
+TEST_F(Model, model_node_destroy_is_changing_binding_property_expression)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createBindingProperty(rootNode, "foo");
@@ -323,7 +323,7 @@ TEST_F(Model, ModelNodeDestroyIsChangingBindingPropertyExpression)
     ASSERT_THAT(property2.expression(), "er");
 }
 
-TEST_F(Model, ModelNodeDestroyIsOnlyChangingExistingBindingProperty)
+TEST_F(Model, model_node_destroy_is_only_changing_existing_binding_property)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = rootNode.bindingProperty("foo");
@@ -335,7 +335,7 @@ TEST_F(Model, ModelNodeDestroyIsOnlyChangingExistingBindingProperty)
     ASSERT_FALSE(rootNode.hasBindingProperty("foo"));
 }
 
-TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewBindingPropertiesChangedOnlyWithExistingProperties)
+TEST_F(Model, model_node_destroy_is_calling_abstract_view_binding_properties_changed_only_with_existing_properties)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createBindingProperty(rootNode, "foo");
@@ -349,7 +349,7 @@ TEST_F(Model, ModelNodeDestroyIsCallingAbstractViewBindingPropertiesChangedOnlyW
     node.destroy();
 }
 
-TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewNodeAboutToBeRemoved)
+TEST_F(Model, model_node_remove_property_is_calling_abstract_view_node_about_to_be_removed)
 {
     auto property = createProperty(rootNode, "foo");
     auto node = createNodeWithParent(rootNode);
@@ -363,7 +363,7 @@ TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewNodeAboutToBeRemoved)
     rootNode.removeProperty("foo");
 }
 
-TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewNodeRemoved)
+TEST_F(Model, model_node_remove_property_is_calling_abstract_view_node_removed)
 {
     auto property = createProperty(rootNode, "foo");
     auto node = createNodeWithParent(rootNode);
@@ -377,7 +377,7 @@ TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewNodeRemoved)
     rootNode.removeProperty("foo");
 }
 
-TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewNodeRemovedWithValidNodes)
+TEST_F(Model, model_node_remove_property_is_calling_abstract_view_node_removed_with_valid_nodes)
 {
     auto property = createProperty(rootNode, "foo");
     auto node = createNodeWithParent(rootNode);
@@ -391,7 +391,7 @@ TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewNodeRemovedWithValidNo
     rootNode.removeProperty("foo");
 }
 
-TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewPropertiesAboutToBeRemoved)
+TEST_F(Model, model_node_remove_property_is_calling_abstract_view_properties_about_to_be_removed)
 {
     auto property = createProperty(rootNode, "yi");
     auto property2 = createProperty(rootNode, "er");
@@ -403,7 +403,7 @@ TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewPropertiesAboutToBeRem
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewPropertiesRemoved)
+TEST_F(Model, model_node_remove_property_is_calling_abstract_view_properties_removed)
 {
     auto property = createProperty(rootNode, "yi");
     auto property2 = createProperty(rootNode, "er");
@@ -415,7 +415,7 @@ TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewPropertiesRemoved)
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewPropertiesRemovedOnlyWithValidProperties)
+TEST_F(Model, model_node_remove_property_is_calling_abstract_view_properties_removed_only_with_valid_properties)
 {
     auto property = createProperty(rootNode, "yi");
     auto property2 = createProperty(rootNode, "er");
@@ -427,7 +427,7 @@ TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewPropertiesRemovedOnlyW
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewBindingPropertiesAboutToBeChanged)
+TEST_F(Model, model_node_remove_property_is_calling_abstract_view_binding_properties_about_to_be_changed)
 {
     auto property = createProperty(rootNode, "yi");
     auto property1 = createBindingProperty(rootNode, "foo");
@@ -441,7 +441,7 @@ TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewBindingPropertiesAbout
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewBindingPropertiesChanged)
+TEST_F(Model, model_node_remove_property_is_calling_abstract_view_binding_properties_changed)
 {
     auto property = createProperty(rootNode, "yi");
     auto property1 = createBindingProperty(rootNode, "foo");
@@ -456,7 +456,7 @@ TEST_F(Model, ModelNodeRemovePropertyIsCallingAbstractViewBindingPropertiesChang
 }
 
 TEST_F(Model,
-       ModelNodeRemovePropertyIsCallingAbstractViewBindingPropertiesChangedOnlyWithValidProperties)
+       model_node_remove_property_is_calling_abstract_view_binding_properties_changed_only_with_valid_properties)
 {
     auto property = createProperty(rootNode, "yi");
     auto property1 = createBindingProperty(rootNode, "foo");
@@ -470,7 +470,7 @@ TEST_F(Model,
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, ByDefaultRemoveModelNodeRemovesNode)
+TEST_F(Model, by_default_remove_model_node_removes_node)
 {
     model.detachView(&viewMock);
     QmlDesigner::Model newModel{projectStorageMock, "QtQuick.Item"};
@@ -482,7 +482,7 @@ TEST_F(Model, ByDefaultRemoveModelNodeRemovesNode)
     node.destroy();
 }
 
-TEST_F(Model, ByDefaultRemovePropertiesRemovesProperty)
+TEST_F(Model, by_default_remove_properties_removes_property)
 {
     model.detachView(&viewMock);
     QmlDesigner::Model newModel{projectStorageMock, "QtQuick.Item"};
@@ -495,7 +495,7 @@ TEST_F(Model, ByDefaultRemovePropertiesRemovesProperty)
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, ByDefaultRemoveModelNodeInFactoryMethodCallsRemovesNode)
+TEST_F(Model, by_default_remove_model_node_in_factory_method_calls_removes_node)
 {
     model.detachView(&viewMock);
     auto newModel = QmlDesigner::Model::create(projectStorageMock, "QtQuick.Item");
@@ -507,7 +507,7 @@ TEST_F(Model, ByDefaultRemoveModelNodeInFactoryMethodCallsRemovesNode)
     node.destroy();
 }
 
-TEST_F(Model, ByDefaultRemovePropertiesInFactoryMethodCallsRemoveProperty)
+TEST_F(Model, by_default_remove_properties_in_factory_method_calls_remove_property)
 {
     model.detachView(&viewMock);
     auto newModel = QmlDesigner::Model::create(projectStorageMock, "QtQuick.Item");
@@ -520,7 +520,7 @@ TEST_F(Model, ByDefaultRemovePropertiesInFactoryMethodCallsRemoveProperty)
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, RemoveModelNodes)
+TEST_F(Model, remove_model_nodes)
 {
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -531,7 +531,7 @@ TEST_F(Model, RemoveModelNodes)
     model.removeModelNodes({node, node2});
 }
 
-TEST_F(Model, RemoveModelNodesFiltersInvalidModelNodes)
+TEST_F(Model, remove_model_nodes_filters_invalid_model_nodes)
 {
     auto node = createNodeWithParent(rootNode, "yi");
 
@@ -540,14 +540,14 @@ TEST_F(Model, RemoveModelNodesFiltersInvalidModelNodes)
     model.removeModelNodes({{}, node});
 }
 
-TEST_F(Model, RemoveModelNodesForOnlyInvalidModelNodesDoesNothing)
+TEST_F(Model, remove_model_nodes_for_only_invalid_model_nodes_does_nothing)
 {
     EXPECT_CALL(resourceManagementMock, removeNodes(_, _)).Times(0);
 
     model.removeModelNodes({{}});
 }
 
-TEST_F(Model, RemoveModelNodesReverse)
+TEST_F(Model, remove_model_nodes_reverse)
 {
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -558,7 +558,7 @@ TEST_F(Model, RemoveModelNodesReverse)
     model.removeModelNodes({node2, node});
 }
 
-TEST_F(Model, RemoveModelNodesCallsNotifier)
+TEST_F(Model, remove_model_nodes_calls_notifier)
 {
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -579,7 +579,7 @@ TEST_F(Model, RemoveModelNodesCallsNotifier)
     model.removeModelNodes({node, node2});
 }
 
-TEST_F(Model, RemoveModelNodesBypassesModelResourceManagement)
+TEST_F(Model, remove_model_nodes_bypasses_model_resource_management)
 {
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -599,7 +599,7 @@ TEST_F(Model, RemoveModelNodesBypassesModelResourceManagement)
     model.removeModelNodes({node, node2}, QmlDesigner::BypassModelResourceManagement::Yes);
 }
 
-TEST_F(Model, ByDefaultRemoveModelNodesInFactoryMethodCallsRemovesNode)
+TEST_F(Model, by_default_remove_model_nodes_in_factory_method_calls_removes_node)
 {
     model.detachView(&viewMock);
     QmlDesigner::Model newModel{projectStorageMock, "QtQuick.Item"};
@@ -614,7 +614,7 @@ TEST_F(Model, ByDefaultRemoveModelNodesInFactoryMethodCallsRemovesNode)
     newModel.removeModelNodes({node, node2});
 }
 
-TEST_F(Model, RemoveProperties)
+TEST_F(Model, remove_properties)
 {
     auto property = createProperty(rootNode, "yi");
     auto property2 = createProperty(rootNode, "er");
@@ -625,7 +625,7 @@ TEST_F(Model, RemoveProperties)
     model.removeProperties({property, property2});
 }
 
-TEST_F(Model, RemovePropertiesFiltersInvalidProperties)
+TEST_F(Model, remove_properties_filters_invalid_properties)
 {
     auto property = createProperty(rootNode, "yi");
 
@@ -634,14 +634,14 @@ TEST_F(Model, RemovePropertiesFiltersInvalidProperties)
     model.removeProperties({{}, property});
 }
 
-TEST_F(Model, RemovePropertiesForOnlyInvalidPropertiesDoesNothing)
+TEST_F(Model, remove_properties_for_only_invalid_properties_does_nothing)
 {
     EXPECT_CALL(resourceManagementMock, removeProperties(_, _)).Times(0);
 
     model.removeProperties({{}});
 }
 
-TEST_F(Model, RemovePropertiesReverse)
+TEST_F(Model, remove_properties_reverse)
 {
     auto property = createProperty(rootNode, "yi");
     auto property2 = createProperty(rootNode, "er");
@@ -652,7 +652,7 @@ TEST_F(Model, RemovePropertiesReverse)
     model.removeProperties({property2, property});
 }
 
-TEST_F(Model, RemovePropertiesCallsNotifier)
+TEST_F(Model, remove_properties_calls_notifier)
 {
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -673,7 +673,7 @@ TEST_F(Model, RemovePropertiesCallsNotifier)
     model.removeProperties({property, property3});
 }
 
-TEST_F(Model, RemovePropertiesBypassesModelResourceManagement)
+TEST_F(Model, remove_properties_bypasses_model_resource_management)
 {
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -692,7 +692,7 @@ TEST_F(Model, RemovePropertiesBypassesModelResourceManagement)
     model.removeProperties({property, property3}, QmlDesigner::BypassModelResourceManagement::Yes);
 }
 
-TEST_F(Model, ByDefaultRemovePropertiesInFactoryMethodCallsRemovesProperties)
+TEST_F(Model, by_default_remove_properties_in_factory_method_calls_removes_properties)
 {
     model.detachView(&viewMock);
     QmlDesigner::Model newModel{projectStorageMock, "QtQuick.Item"};
