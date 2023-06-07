@@ -18,13 +18,13 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
-#include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
 
 #include <QKeyEvent>
 #include <QList>
 #include <QObject>
 #include <QScopedPointer>
+#include <QScopeGuard>
 #include <QTimer>
 
 using namespace TextEditor::Internal;
@@ -158,7 +158,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
                                            bool isUpdate)
 {
     // make sure to cleanup old proposals if we cannot find a new assistant
-    Utils::ExecuteOnDestruction earlyReturnContextClear([this] { destroyContext(); });
+    auto cleanup = qScopeGuard([this] { destroyContext(); });
     if (isWaitingForProposal())
         cancelCurrentRequest();
 
@@ -179,7 +179,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     QTC_ASSERT(assistInterface, return);
 
     // We got an assist provider and interface so no need to reset the current context anymore
-    earlyReturnContextClear.reset({});
+    cleanup.dismiss();
 
     m_assistKind = kind;
     m_requestProvider = provider;

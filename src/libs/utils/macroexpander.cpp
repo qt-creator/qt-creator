@@ -77,7 +77,7 @@ public:
                 MacroExpander::PrefixFunction pf = it.value();
                 if (found)
                     *found = true;
-                return pf(QString::fromUtf8(variable.mid(it.key().count())));
+                return pf(QString::fromUtf8(variable.mid(it.key().size())));
             }
         }
         if (found)

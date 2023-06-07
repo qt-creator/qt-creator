@@ -34,7 +34,7 @@ private:
     int m_current = -1;
 };
 
-class TASKING_EXPORT BarrierTaskAdapter : public Tasking::TaskAdapter<Barrier>
+class TASKING_EXPORT BarrierTaskAdapter : public TaskAdapter<Barrier>
 {
 public:
     BarrierTaskAdapter() { connect(task(), &Barrier::done, this, &TaskInterface::done); }

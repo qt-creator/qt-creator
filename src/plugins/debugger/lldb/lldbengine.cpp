@@ -416,7 +416,7 @@ void LldbEngine::executeRunToLine(const ContextData &data)
     notifyInferiorRunRequested();
     DebuggerCommand cmd("executeRunToLocation");
     cmd.arg("file", data.fileName.path());
-    cmd.arg("line", data.lineNumber);
+    cmd.arg("line", data.textPosition.line);
     cmd.arg("address", data.address);
     runCommand(cmd);
 }
@@ -433,7 +433,7 @@ void LldbEngine::executeJumpToLine(const ContextData &data)
 {
     DebuggerCommand cmd("executeJumpToLocation");
     cmd.arg("file", data.fileName.path());
-    cmd.arg("line", data.lineNumber);
+    cmd.arg("line", data.textPosition.line);
     cmd.arg("address", data.address);
     runCommand(cmd);
 }
@@ -561,7 +561,7 @@ void LldbEngine::updateBreakpointData(const Breakpoint &bp, const GdbMi &bkpt, b
     bp->setCondition(fromHex(bkpt["condition"].data()));
     bp->setHitCount(bkpt["hitcount"].toInt());
     bp->setFileName(FilePath::fromUserInput(bkpt["file"].data()));
-    bp->setLineNumber(bkpt["line"].toInt());
+    bp->setTextPosition({bkpt["line"].toInt(), -1});
 
     GdbMi locations = bkpt["locations"];
     const int numChild = locations.childCount();
@@ -574,7 +574,7 @@ void LldbEngine::updateBreakpointData(const Breakpoint &bp, const GdbMi &bkpt, b
             loc->params.address = location["addr"].toAddress();
             loc->params.functionName = location["function"].data();
             loc->params.fileName = FilePath::fromUserInput(location["file"].data());
-            loc->params.lineNumber = location["line"].toInt();
+            loc->params.textPosition.line = location["line"].toInt();
             loc->displayName = QString("%1.%2").arg(bp->responseId()).arg(locid);
         }
         bp->setPending(false);

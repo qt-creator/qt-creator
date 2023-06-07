@@ -750,7 +750,7 @@ FilePath source(IDocument *document)
 
 void setProcessEnvironment(Environment *e)
 {
-    const QString prompt = Internal::VcsPlugin::instance()->settings().sshPasswordPrompt.value();
+    const QString prompt = Internal::commonSettings().sshPasswordPrompt().path();
     if (!prompt.isEmpty())
         e->set("SSH_ASKPASS", prompt);
 }

@@ -25,6 +25,7 @@
 namespace Terminal {
 
 using UnlockedGlobalAction = std::unique_ptr<QAction, std::function<void(QAction *)>>;
+using RegisteredAction = std::unique_ptr<QAction, std::function<void(QAction *)>>;
 
 class TerminalWidget : public QAbstractScrollArea
 {
@@ -239,13 +240,13 @@ private:
     Aggregation::Aggregate *m_aggregate{nullptr};
     SearchHit m_lastSelectedHit{};
 
-    QAction m_copy;
-    QAction m_paste;
-    QAction m_clearSelection;
-    QAction m_clearTerminal;
-    QAction m_moveCursorWordLeft;
-    QAction m_moveCursorWordRight;
-    QAction m_close;
+    RegisteredAction m_copy;
+    RegisteredAction m_paste;
+    RegisteredAction m_clearSelection;
+    RegisteredAction m_clearTerminal;
+    RegisteredAction m_moveCursorWordLeft;
+    RegisteredAction m_moveCursorWordRight;
+    RegisteredAction m_close;
 
     UnlockedGlobalAction m_findInDocument;
     UnlockedGlobalAction m_exit;

@@ -128,7 +128,7 @@ private slots:
                 async.setConcurrentCallData(generate, parentPath, templateFile, s_treeDepth);
             };
         };
-        QList<TaskItem> tasks {parallel};
+        QList<GroupItem> tasks {parallel};
         for (int i = 0; i < tasksCount; ++i) {
             const QString dirName = QString("%1%2").arg(s_dirPrefix).arg(i);
             QVERIFY(parentDir.mkdir(dirName));
@@ -153,7 +153,7 @@ private slots:
                 async.setConcurrentCallData(removeTree, parentPath);
             };
         };
-        QList<TaskItem> tasks {parallel};
+        QList<GroupItem> tasks {parallel};
         const int tasksCount = QThread::idealThreadCount();
         for (int i = 0; i < tasksCount; ++i) {
             const QString dirName = QString("%1%2").arg(s_dirPrefix).arg(i);

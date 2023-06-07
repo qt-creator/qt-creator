@@ -114,9 +114,9 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
     qRegisterMetaType<QmlJS::PathsAndLanguages>("QmlJS::PathsAndLanguages");
 
     m_defaultProjectInfo.qtQmlPath =
-            FilePath::fromUserInput(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
+            FilePath::fromUserInput(QLibraryInfo::path(QLibraryInfo::Qml2ImportsPath));
     m_defaultProjectInfo.qmllsPath = ModelManagerInterface::qmllsForBinPath(
-        FilePath::fromUserInput(QLibraryInfo::location(QLibraryInfo::BinariesPath)),
+        FilePath::fromUserInput(QLibraryInfo::path(QLibraryInfo::BinariesPath)),
                 QLibraryInfo::version());
     m_defaultProjectInfo.qtVersionString = QLibraryInfo::version().toString();
 

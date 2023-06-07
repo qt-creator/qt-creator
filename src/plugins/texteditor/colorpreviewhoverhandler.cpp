@@ -5,12 +5,12 @@
 #include "texteditor.h"
 
 #include <coreplugin/icore.h>
-#include <utils/executeondestruction.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/qtcassert.h>
 
-#include <QPoint>
 #include <QColor>
+#include <QPoint>
+#include <QScopeGuard>
 #include <QTextBlock>
 
 using namespace Core;
@@ -333,10 +333,9 @@ static QColor colorFromFuncAndArgs(const QString &func, const QStringList &args)
 }
 
 void ColorPreviewHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
-                                             int pos,
-                                             ReportPriority report)
+                                             int pos, ReportPriority report)
 {
-    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+    const auto cleanup = qScopeGuard([this, report] { report(priority()); });
 
     if (editorWidget->extraSelectionTooltip(pos).isEmpty()) {
         const QTextBlock tb = editorWidget->document()->findBlock(pos);

@@ -161,7 +161,8 @@ QString cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
         str << '`';
         if (!params.module.isEmpty())
             str << params.module << '!';
-        str << cdbBreakPointFileName(params, sourcePathMapping) << ':' << params.lineNumber << '`';
+        str << cdbBreakPointFileName(params, sourcePathMapping)
+            << ':' << params.textPosition.line << '`';
         break;
     case WatchpointAtAddress: { // Read/write, no space here
         const unsigned size = params.size ? params.size : 1;

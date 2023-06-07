@@ -441,7 +441,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         };
 
         using namespace std::placeholders;
-        QList<TaskItem> tasks {parallel, continueOnDone, onGroupError(onFollowsError)};
+        QList<GroupItem> tasks {parallel, continueOnDone, onGroupError(onFollowsError)};
         for (int i = 0, total = parents.size(); i < total; ++i) {
             tasks.append(ProcessTask(std::bind(setupFollow, _1, parents.at(i)),
                                  std::bind(onFollowDone, _1, i)));

@@ -31,7 +31,7 @@ FilePath BuildableHelperLibrary::qtChooserToQmakePath(const FilePath &qtChooser)
     int pos = output.indexOf(toolDir);
     if (pos == -1)
         return {};
-    pos += toolDir.count();
+    pos += toolDir.size();
     int end = output.indexOf('\"', pos);
     if (end == -1)
         return {};

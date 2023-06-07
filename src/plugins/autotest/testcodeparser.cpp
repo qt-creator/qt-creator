@@ -35,7 +35,7 @@ using namespace ProjectExplorer;
 static bool isProjectParsing()
 {
     const BuildSystem *bs = ProjectManager::startupBuildSystem();
-    return bs && bs->isParsing();
+    return bs && (bs->isParsing() || bs->isWaitingForParse());
 }
 
 TestCodeParser::TestCodeParser()
@@ -360,7 +360,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
 
     using namespace Tasking;
 
-    QList<TaskItem> tasks{parallelLimit(std::max(QThread::idealThreadCount() / 4, 1))};
+    QList<GroupItem> tasks{parallelLimit(std::max(QThread::idealThreadCount() / 4, 1))};
     for (const FilePath &file : filteredFiles) {
         const auto setup = [this, codeParsers, file](Async<TestParseResultPtr> &async) {
             async.setConcurrentCallData(parseFileForTests, codeParsers, file);

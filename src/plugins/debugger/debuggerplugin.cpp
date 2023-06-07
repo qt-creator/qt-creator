@@ -603,8 +603,8 @@ public:
             } else {
                 //: Message tracepoint: %1 file, %2 line %3 function hit.
                 message = Tr::tr("%1:%2 %3() hit").arg(data.fileName.fileName()).
-                        arg(data.lineNumber).
-                        arg(cppFunctionAt(data.fileName, data.lineNumber));
+                        arg(data.textPosition.line).
+                        arg(cppFunctionAt(data.fileName, data.textPosition.line));
             }
             QInputDialog dialog; // Create wide input dialog.
             dialog.setWindowFlags(dialog.windowFlags() & ~(Qt::MSWindowsFixedSizeDialogHint));
@@ -1881,7 +1881,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             if (engine->hasCapability(RunToLineCapability)) {
                 auto act = menu->addAction(args.address
                                            ? Tr::tr("Run to Address 0x%1").arg(args.address, 0, 16)
-                                           : Tr::tr("Run to Line %1").arg(args.lineNumber));
+                                           : Tr::tr("Run to Line %1").arg(args.textPosition.line));
                 connect(act, &QAction::triggered, this, [args, engine] {
                     QTC_ASSERT(engine, return);
                     engine->executeRunToLine(args);
@@ -1890,7 +1890,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             if (engine->hasCapability(JumpToLineCapability)) {
                 auto act = menu->addAction(args.address
                                            ? Tr::tr("Jump to Address 0x%1").arg(args.address, 0, 16)
-                                           : Tr::tr("Jump to Line %1").arg(args.lineNumber));
+                                           : Tr::tr("Jump to Line %1").arg(args.textPosition.line));
                 connect(act, &QAction::triggered, this, [args, engine] {
                     QTC_ASSERT(engine, return);
                     engine->executeJumpToLine(args);

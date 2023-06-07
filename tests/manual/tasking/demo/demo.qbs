@@ -4,7 +4,7 @@ QtcManualtest {
     name: "Tasking demo"
     type: ["application"]
 
-    Depends { name: "Qt"; submodules: ["widgets"] }
+    Depends { name: "Qt"; submodules: ["network", "widgets"] }
     Depends { name: "Tasking" }
 
     files: [

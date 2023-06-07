@@ -90,11 +90,11 @@ public:
 
 private:
     Group deployRecipe();
-    TaskItem checkDirTask();
-    TaskItem removeDirTask();
-    TaskItem uploadTask();
-    TaskItem chmodTask(const DeployableFile &file);
-    TaskItem chmodTree();
+    GroupItem checkDirTask();
+    GroupItem removeDirTask();
+    GroupItem uploadTask();
+    GroupItem chmodTask(const DeployableFile &file);
+    GroupItem chmodTree();
 
     enum class CheckResult { RemoveDir, SkipRemoveDir, Abort };
     CheckResult m_checkResult = CheckResult::Abort;
@@ -117,7 +117,7 @@ QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
     return collected;
 }
 
-TaskItem QnxDeployQtLibrariesDialogPrivate::checkDirTask()
+GroupItem QnxDeployQtLibrariesDialogPrivate::checkDirTask()
 {
     const auto setupHandler = [this](Process &process) {
         m_deployLogWindow->appendPlainText(Tr::tr("Checking existence of \"%1\"")
@@ -145,7 +145,7 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::checkDirTask()
     return ProcessTask(setupHandler, doneHandler, errorHandler);
 }
 
-TaskItem QnxDeployQtLibrariesDialogPrivate::removeDirTask()
+GroupItem QnxDeployQtLibrariesDialogPrivate::removeDirTask()
 {
     const auto setupHandler = [this](Process &process) {
         if (m_checkResult != CheckResult::RemoveDir)
@@ -162,7 +162,7 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::removeDirTask()
     return ProcessTask(setupHandler, {}, errorHandler);
 }
 
-TaskItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
+GroupItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
 {
     const auto setupHandler = [this](FileTransfer &transfer) {
         if (m_deployableFiles.isEmpty()) {
@@ -196,7 +196,7 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
     return FileTransferTask(setupHandler, {}, errorHandler);
 }
 
-TaskItem QnxDeployQtLibrariesDialogPrivate::chmodTask(const DeployableFile &file)
+GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTask(const DeployableFile &file)
 {
     const auto setupHandler = [=](Process &process) {
         process.setCommand({m_device->filePath("chmod"),
@@ -215,7 +215,7 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::chmodTask(const DeployableFile &file
     return ProcessTask(setupHandler, {}, errorHandler);
 }
 
-TaskItem QnxDeployQtLibrariesDialogPrivate::chmodTree()
+GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTree()
 {
     const auto setupChmodHandler = [=](TaskTree &tree) {
         QList<DeployableFile> filesToChmod;
@@ -223,7 +223,7 @@ TaskItem QnxDeployQtLibrariesDialogPrivate::chmodTree()
             if (file.isExecutable())
                 filesToChmod << file;
         }
-        QList<TaskItem> chmodList{finishAllAndDone, parallelLimit(MaxConcurrentStatCalls)};
+        QList<GroupItem> chmodList{finishAllAndDone, parallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(filesToChmod)) {
             QTC_ASSERT(file.isValid(), continue);
             chmodList.append(chmodTask(file));

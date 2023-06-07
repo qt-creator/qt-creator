@@ -8,13 +8,13 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <texteditor/texteditor.h>
-#include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QPoint>
+#include <QScopeGuard>
 #include <QTextBlock>
 #include <QXmlStreamReader>
 
@@ -148,7 +148,7 @@ void ResourcePreviewHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
                                                 int pos,
                                                 ReportPriority report)
 {
-    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+    const QScopeGuard cleanup([this, report] { report(priority()); });
 
     if (editorWidget->extraSelectionTooltip(pos).isEmpty()) {
         const QTextBlock tb = editorWidget->document()->findBlock(pos);

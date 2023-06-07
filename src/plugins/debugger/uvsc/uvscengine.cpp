@@ -359,7 +359,7 @@ void UvscEngine::insertBreakpoint(const Breakpoint &bp)
         // Add file name.
         expression += "\\" + requested.fileName.toString();
         // Add line number.
-        expression += "\\" + QString::number(requested.lineNumber);
+        expression += "\\" + QString::number(requested.textPosition.line);
     }
 
     handleInsertBreakpoint(expression, bp);
@@ -777,7 +777,7 @@ void UvscEngine::handleInsertBreakpoint(const QString &exp, const Breakpoint &bp
         bp->setPending(false);
         bp->setResponseId(QString::number(tickMark));
         bp->setAddress(address);
-        bp->setLineNumber(line);
+        bp->setTextPosition(Text::Position{int(line), -1});
         bp->setFileName(FilePath::fromString(fileName));
         bp->setFunctionName(function);
         notifyBreakpointInsertOk(bp);

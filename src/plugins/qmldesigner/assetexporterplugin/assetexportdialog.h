@@ -1,25 +1,28 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #pragma once
+
 #include "assetexporter.h"
+
+#include <utils/filepath.h>
 
 #include <QDialog>
 #include <QStringListModel>
 
-#include "utils/fileutils.h"
-
-#include <memory>
-
 QT_BEGIN_NAMESPACE
 class QPushButton;
 class QCheckBox;
+class QDialogButtonBox;
 class QListView;
 class QPlainTextEdit;
+class QProgressBar;
+class QStackedWidget;
 QT_END_NAMESPACE
-
 
 namespace Utils {
 class OutputFormatter;
+class PathChooser;
 }
 
 namespace ProjectExplorer {
@@ -27,7 +30,7 @@ class Task;
 }
 
 namespace QmlDesigner {
-namespace Ui { class AssetExportDialog; }
+
 class FilePathModel;
 
 class AssetExportDialog : public QDialog
@@ -49,13 +52,16 @@ private:
 private:
     AssetExporter &m_assetExporter;
     FilePathModel &m_filePathModel;
-    std::unique_ptr<Ui::AssetExportDialog> m_ui;
     QPushButton *m_exportBtn = nullptr;
     QCheckBox *m_exportAssetsCheck = nullptr;
     QCheckBox *m_perComponentExportCheck = nullptr;
     QListView *m_filesView = nullptr;
     QPlainTextEdit *m_exportLogs = nullptr;
     Utils::OutputFormatter *m_outputFormatter = nullptr;
+    Utils::PathChooser *m_exportPath = nullptr;
+    QDialogButtonBox *m_buttonBox = nullptr;
+    QStackedWidget *m_stackedWidget = nullptr;
+    QProgressBar *m_exportProgress = nullptr;
 };
 
-}
+} // QmlDesigner

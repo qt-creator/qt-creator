@@ -35,8 +35,8 @@ public:
 private:
     bool isDeploymentNecessary() const final;
     Group deployRecipe() final;
-    TaskItem mkdirTask();
-    TaskItem transferTask();
+    GroupItem mkdirTask();
+    GroupItem transferTask();
 
     mutable FilesToTransfer m_files;
     bool m_ignoreMissingFiles = false;
@@ -85,7 +85,7 @@ bool RsyncDeployStep::isDeploymentNecessary() const
     return !m_files.empty();
 }
 
-TaskItem RsyncDeployStep::mkdirTask()
+GroupItem RsyncDeployStep::mkdirTask()
 {
     const auto setupHandler = [this](Process &process) {
         QStringList remoteDirs;
@@ -113,7 +113,7 @@ TaskItem RsyncDeployStep::mkdirTask()
     return ProcessTask(setupHandler, {}, errorHandler);
 }
 
-TaskItem RsyncDeployStep::transferTask()
+GroupItem RsyncDeployStep::transferTask()
 {
     const auto setupHandler = [this](FileTransfer &transfer) {
         transfer.setTransferMethod(FileTransferMethod::Rsync);

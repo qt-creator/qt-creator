@@ -98,7 +98,8 @@ public:
 
     QIcon icon(bool withLocationMarker = false) const;
 
-    void setMarkerFileAndLine(const Utils::FilePath &fileName, int lineNumber);
+    void setMarkerFileAndPosition(const Utils::FilePath &fileName,
+                                  const Utils::Text::Position &textPosition);
     bool needsChange() const;
 
     SubBreakpoint findOrCreateSubBreakpoint(const QString &responseId);
@@ -128,14 +129,14 @@ public:
     QString message() const { return m_parameters.message; }
     QString command() const { return m_parameters.command; }
     quint64 address() const { return m_parameters.address; }
-    int lineNumber() const { return m_parameters.lineNumber; }
+    Utils::Text::Position textPosition() const { return m_parameters.textPosition; }
     bool isEnabled() const { return m_parameters.enabled; }
     bool isWatchpoint() const { return m_parameters.isWatchpoint(); }
     bool isTracepoint() const { return m_parameters.isTracepoint(); }
     bool isOneShot() const { return m_parameters.oneShot; }
     bool isPending() const { return m_parameters.pending; }
 
-    void setLineNumber(int lineNumber) { m_parameters.lineNumber = lineNumber; }
+    void setTextPosition(const Utils::Text::Position pos) { m_parameters.textPosition = pos; }
     void setFileName(const Utils::FilePath &fileName) { m_parameters.fileName = fileName; }
     void setFunctionName(const QString &functionName) { m_parameters.functionName = functionName; }
     void setPending(bool pending);

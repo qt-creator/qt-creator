@@ -134,7 +134,7 @@ private:
     }
     static QString formatField(int number, int fieldWidth, const QString &suffix = {})
     {
-        return QString("%1%2").arg(number, fieldWidth - suffix.count()).arg(suffix);
+        return QString("%1%2").arg(number, fieldWidth - suffix.size()).arg(suffix);
     }
 
     static int toMs(quint64 nsesc) // nanoseconds to miliseconds

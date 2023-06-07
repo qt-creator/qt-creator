@@ -43,11 +43,11 @@ private:
 };
 
 /*!
-    \class Tasking::TaskItem
+    \class Tasking::GroupItem
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule QtCreator
     \ingroup mainclasses
-    \brief The TaskItem class represents the basic element for composing nested tree structures.
+    \brief The GroupItem class represents the basic element for composing nested tree structures.
 */
 
 /*!
@@ -246,7 +246,7 @@ private:
 */
 
 /*!
-    \typealias TaskItem::GroupSetupHandler
+    \typealias GroupItem::GroupSetupHandler
 
     Type alias for \c std::function<TaskAction()>.
 
@@ -277,7 +277,7 @@ private:
 */
 
 /*!
-    \typealias TaskItem::GroupEndHandler
+    \typealias GroupItem::GroupEndHandler
 
     Type alias for \c std::function\<void()\>.
 
@@ -290,13 +290,14 @@ private:
 */
 
 /*!
-    \fn template <typename SetupHandler> TaskItem onGroupSetup(SetupHandler &&handler)
+    \fn template <typename SetupHandler> GroupItem onGroupSetup(SetupHandler &&handler)
 
     Constructs a group's element holding the group setup handler.
     The \a handler is invoked whenever the group starts.
 
     The passed \a handler is either of \c std::function<TaskAction()> or \c std::function<void()>
-    type. For more information on possible argument type, refer to \l {TaskItem::GroupSetupHandler}.
+    type. For more information on possible argument type, refer to
+    \l {GroupItem::GroupSetupHandler}.
 
     When the \a handler is invoked, none of the group's child tasks are running yet.
 
@@ -304,7 +305,7 @@ private:
     after the storages are constructed, so that the \a handler may already
     perform some initial modifications to the active storages.
 
-    \sa TaskItem::GroupSetupHandler, onGroupDone, onGroupError
+    \sa GroupItem::GroupSetupHandler, onGroupDone, onGroupError
 */
 
 /*!
@@ -319,9 +320,9 @@ private:
     before the storages are destructed, so that the \a handler may still
     perform a last read of the active storages' data.
 
-    \sa TaskItem::GroupEndHandler, onGroupSetup, onGroupError
+    \sa GroupItem::GroupEndHandler, onGroupSetup, onGroupError
 */
-TaskItem onGroupDone(const TaskItem::GroupEndHandler &handler)
+GroupItem onGroupDone(const GroupItem::GroupEndHandler &handler)
 {
     return Group::onGroupDone(handler);
 }
@@ -338,9 +339,9 @@ TaskItem onGroupDone(const TaskItem::GroupEndHandler &handler)
     before the storages are destructed, so that the \a handler may still
     perform a last read of the active storages' data.
 
-    \sa TaskItem::GroupEndHandler, onGroupSetup, onGroupDone
+    \sa GroupItem::GroupEndHandler, onGroupSetup, onGroupDone
 */
-TaskItem onGroupError(const TaskItem::GroupEndHandler &handler)
+GroupItem onGroupError(const GroupItem::GroupEndHandler &handler)
 {
     return Group::onGroupError(handler);
 }
@@ -386,7 +387,7 @@ TaskItem onGroupError(const TaskItem::GroupEndHandler &handler)
 
     \sa sequential, parallel
 */
-TaskItem parallelLimit(int limit)
+GroupItem parallelLimit(int limit)
 {
     return Group::parallelLimit(qMax(limit, 0));
 }
@@ -399,21 +400,21 @@ TaskItem parallelLimit(int limit)
     \sa stopOnError, continueOnError, stopOnDone, continueOnDone, stopOnFinished, finishAllAndDone,
         finishAllAndError, WorkflowPolicy
 */
-TaskItem workflowPolicy(WorkflowPolicy policy)
+GroupItem workflowPolicy(WorkflowPolicy policy)
 {
     return Group::workflowPolicy(policy);
 }
 
-const TaskItem sequential = parallelLimit(1);
-const TaskItem parallel = parallelLimit(0);
+const GroupItem sequential = parallelLimit(1);
+const GroupItem parallel = parallelLimit(0);
 
-const TaskItem stopOnError = workflowPolicy(WorkflowPolicy::StopOnError);
-const TaskItem continueOnError = workflowPolicy(WorkflowPolicy::ContinueOnError);
-const TaskItem stopOnDone = workflowPolicy(WorkflowPolicy::StopOnDone);
-const TaskItem continueOnDone = workflowPolicy(WorkflowPolicy::ContinueOnDone);
-const TaskItem stopOnFinished = workflowPolicy(WorkflowPolicy::StopOnFinished);
-const TaskItem finishAllAndDone = workflowPolicy(WorkflowPolicy::FinishAllAndDone);
-const TaskItem finishAllAndError = workflowPolicy(WorkflowPolicy::FinishAllAndError);
+const GroupItem stopOnError = workflowPolicy(WorkflowPolicy::StopOnError);
+const GroupItem continueOnError = workflowPolicy(WorkflowPolicy::ContinueOnError);
+const GroupItem stopOnDone = workflowPolicy(WorkflowPolicy::StopOnDone);
+const GroupItem continueOnDone = workflowPolicy(WorkflowPolicy::ContinueOnDone);
+const GroupItem stopOnFinished = workflowPolicy(WorkflowPolicy::StopOnFinished);
+const GroupItem finishAllAndDone = workflowPolicy(WorkflowPolicy::FinishAllAndDone);
+const GroupItem finishAllAndError = workflowPolicy(WorkflowPolicy::FinishAllAndError);
 
 static TaskAction toTaskAction(bool success)
 {
@@ -483,11 +484,11 @@ void TreeStorageBase::activateStorage(int id) const
     m_storageData->m_activeStorage = id;
 }
 
-void TaskItem::addChildren(const QList<TaskItem> &children)
+void GroupItem::addChildren(const QList<GroupItem> &children)
 {
     QTC_ASSERT(m_type == Type::Group, qWarning("Only Group may have children, skipping...");
                return);
-    for (const TaskItem &child : children) {
+    for (const GroupItem &child : children) {
         switch (child.m_type) {
         case Type::Group:
             m_children.append(child);
@@ -534,7 +535,7 @@ void TaskItem::addChildren(const QList<TaskItem> &children)
     }
 }
 
-void TaskItem::setTaskSetupHandler(const TaskSetupHandler &handler)
+void GroupItem::setTaskSetupHandler(const TaskSetupHandler &handler)
 {
     if (!handler) {
         qWarning("Setting empty Setup Handler is no-op, skipping...");
@@ -545,7 +546,7 @@ void TaskItem::setTaskSetupHandler(const TaskSetupHandler &handler)
     m_taskHandler.m_setupHandler = handler;
 }
 
-void TaskItem::setTaskDoneHandler(const TaskEndHandler &handler)
+void GroupItem::setTaskDoneHandler(const TaskEndHandler &handler)
 {
     if (!handler) {
         qWarning("Setting empty Done Handler is no-op, skipping...");
@@ -556,7 +557,7 @@ void TaskItem::setTaskDoneHandler(const TaskEndHandler &handler)
     m_taskHandler.m_doneHandler = handler;
 }
 
-void TaskItem::setTaskErrorHandler(const TaskEndHandler &handler)
+void GroupItem::setTaskErrorHandler(const TaskEndHandler &handler)
 {
     if (!handler) {
         qWarning("Setting empty Error Handler is no-op, skipping...");
@@ -567,8 +568,8 @@ void TaskItem::setTaskErrorHandler(const TaskEndHandler &handler)
     m_taskHandler.m_errorHandler = handler;
 }
 
-TaskItem TaskItem::withTimeout(const TaskItem &item, milliseconds timeout,
-                               const GroupEndHandler &handler)
+GroupItem GroupItem::withTimeout(const GroupItem &item, milliseconds timeout,
+                                 const GroupEndHandler &handler)
 {
     const TimeoutTask::EndHandler taskHandler = handler
         ? [handler](const milliseconds &) { handler(); } : TimeoutTask::EndHandler();
@@ -640,7 +641,7 @@ class TaskContainer
     Q_DISABLE_COPY_MOVE(TaskContainer)
 
 public:
-    TaskContainer(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
+    TaskContainer(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
                   TaskNode *parentNode, TaskContainer *parentContainer)
         : m_constData(taskTreePrivate, task, parentNode, parentContainer, this) {}
     TaskAction start();
@@ -653,7 +654,7 @@ public:
     bool isStarting() const { return isRunning() && m_runtimeData->m_startGuard.isLocked(); }
 
     struct ConstData {
-        ConstData(TaskTreePrivate *taskTreePrivate, const TaskItem &task, TaskNode *parentNode,
+        ConstData(TaskTreePrivate *taskTreePrivate, const GroupItem &task, TaskNode *parentNode,
                   TaskContainer *parentContainer, TaskContainer *thisContainer);
         ~ConstData() { qDeleteAll(m_children); }
         TaskTreePrivate * const m_taskTreePrivate = nullptr;
@@ -662,7 +663,7 @@ public:
 
         const int m_parallelLimit = 1;
         const WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
-        const TaskItem::GroupHandler m_groupHandler;
+        const GroupItem::GroupHandler m_groupHandler;
         const QList<TreeStorageBase> m_storageList;
         const QList<TaskNode *> m_children;
         const int m_taskCount = 0;
@@ -693,7 +694,7 @@ class TaskNode
     Q_DISABLE_COPY_MOVE(TaskNode)
 
 public:
-    TaskNode(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
+    TaskNode(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
              TaskContainer *parentContainer)
         : m_taskHandler(task.taskHandler())
         , m_container(taskTreePrivate, task, this, parentContainer)
@@ -711,7 +712,7 @@ public:
     TaskTree *taskTree() const { return m_container.m_constData.m_taskTreePrivate->q; }
 
 private:
-    const TaskItem::TaskHandler m_taskHandler;
+    const GroupItem::TaskHandler m_taskHandler;
     TaskContainer m_container;
     std::unique_ptr<TaskInterface> m_task;
 };
@@ -831,16 +832,16 @@ ReturnType invokeHandler(TaskContainer *container, Handler &&handler, Args &&...
 }
 
 static QList<TaskNode *> createChildren(TaskTreePrivate *taskTreePrivate, TaskContainer *container,
-                                        const TaskItem &task)
+                                        const GroupItem &task)
 {
     QList<TaskNode *> result;
-    const QList<TaskItem> &children = task.children();
-    for (const TaskItem &child : children)
+    const QList<GroupItem> &children = task.children();
+    for (const GroupItem &child : children)
         result.append(new TaskNode(taskTreePrivate, child, container));
     return result;
 }
 
-TaskContainer::ConstData::ConstData(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
+TaskContainer::ConstData::ConstData(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
                                     TaskNode *parentNode, TaskContainer *parentContainer,
                                     TaskContainer *thisContainer)
     : m_taskTreePrivate(taskTreePrivate)
@@ -1035,7 +1036,7 @@ void TaskContainer::stop()
 
 void TaskContainer::invokeEndHandler()
 {
-    const TaskItem::GroupHandler &groupHandler = m_constData.m_groupHandler;
+    const GroupItem::GroupHandler &groupHandler = m_constData.m_groupHandler;
     if (m_runtimeData->m_successBit && groupHandler.m_doneHandler)
         invokeHandler(this, groupHandler.m_doneHandler);
     else if (!m_runtimeData->m_successBit && groupHandler.m_errorHandler)
@@ -1539,7 +1540,7 @@ void TaskNode::invokeEndHandler(bool success)
         static QByteArray load(const QString &fileName) { ... }
         static void save(const QString &fileName, const QByteArray &array) { ... }
 
-        static TaskItem copyRecipe(const QString &source, const QString &destination)
+        static GroupItem copyRecipe(const QString &source, const QString &destination)
         {
             struct CopyStorage { // [1] custom inter-task struct
                 QByteArray content; // [2] custom inter-task data

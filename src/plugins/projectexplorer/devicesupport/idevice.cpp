@@ -142,6 +142,7 @@ public:
     FilePath debugServerPath;
     FilePath debugDumperPath = Core::ICore::resourcePath("debugger/");
     FilePath qmlRunCommand;
+    bool qmlRunCommandChecked = false;
     bool emptyCommandAllowed = false;
 
     QList<Icon> deviceIcons;
@@ -603,12 +604,20 @@ void IDevice::setDebugServerPath(const FilePath &path)
 
 FilePath IDevice::qmlRunCommand() const
 {
+    if (!d->qmlRunCommandChecked) {
+        d->qmlRunCommandChecked = true;
+        QString runtime = d->qmlRunCommand.path();
+        if (runtime.isEmpty())
+           runtime = "qml";
+        d->qmlRunCommand = searchExecutableInPath(runtime);
+    }
     return d->qmlRunCommand;
 }
 
 void IDevice::setQmlRunCommand(const FilePath &path)
 {
     d->qmlRunCommand = path;
+    d->qmlRunCommandChecked = false;
 }
 
 void IDevice::setExtraData(Id kind, const QVariant &data)

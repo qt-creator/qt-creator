@@ -105,9 +105,10 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
         return;
 
     auto studioWelcomePlugin = qobject_cast<StudioWelcome::Internal::StudioWelcomePlugin *>(plugin);
-
-    if (studioWelcomePlugin) {
-        QObject::connect(QmlDesigner::QmlDesignerBasePlugin::studioConfigSettingsPage(),
+    QmlDesigner::StudioConfigSettingsPage *settingsPage
+        = QmlDesigner::QmlDesignerBasePlugin::studioConfigSettingsPage();
+    if (studioWelcomePlugin && settingsPage) {
+        QObject::connect(settingsPage,
                          &QmlDesigner::StudioConfigSettingsPage::examplesDownloadPathChanged,
                          this,
                          &DataModelDownloader::targetPathMustChange);

@@ -482,8 +482,9 @@
         \row
             \li Add Class Member
             \li Adds a member declaration for the class member being
-                initialized if it is not yet declared. You must enter
-                the data type of the member.
+                initialized if it is not yet declared. If \QC cannot
+                automatically detect the data type of the member, you
+                must add it.
             \li Identifier
         \row
             \li Create Implementations for Member Functions

@@ -647,7 +647,7 @@ int main(int argc, char **argv)
     for (QString locale : std::as_const(uiLanguages)) {
         locale = QLocale(locale).name();
         if (translator.load("qtcreator_" + locale, creatorTrPath)) {
-            const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+            const QString &qtTrPath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
             const QString &qtTrFile = QLatin1String("qt_") + locale;
             // Binary installer puts Qt tr files into creatorTrPath
             if (qtTranslator.load(qtTrFile, qtTrPath) || qtTranslator.load(qtTrFile, creatorTrPath)) {

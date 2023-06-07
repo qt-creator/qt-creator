@@ -190,7 +190,7 @@ void DocumentClangToolRunner::run()
     vfso().update();
     const ClangDiagnosticConfig config = diagnosticConfig(runSettings.diagnosticConfigId());
     const Environment env = projectBuildEnvironment(project);
-    QList<TaskItem> tasks{parallel};
+    QList<GroupItem> tasks{parallel};
     const auto addClangTool = [this, &runSettings, &config, &env, &tasks](ClangToolType tool) {
         if (!toolEnabled(tool, config, runSettings))
             return;

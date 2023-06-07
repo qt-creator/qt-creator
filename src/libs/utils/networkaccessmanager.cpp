@@ -4,13 +4,9 @@
 #include "networkaccessmanager.h"
 
 #include <QCoreApplication>
-#include <QLibraryInfo>
 #include <QLocale>
 #include <QNetworkReply>
-
-#ifdef Q_OS_UNIX
-#include <sys/utsname.h>
-#endif
+#include <QSysInfo>
 
 /*!
    \class Utils::NetworkAccessManager
@@ -74,6 +70,5 @@ QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkR
     req.setRawHeader("User-Agent", agentStr.toLatin1());
     return QNetworkAccessManager::createRequest(op, req, outgoingData);
 }
-
 
 } // namespace utils

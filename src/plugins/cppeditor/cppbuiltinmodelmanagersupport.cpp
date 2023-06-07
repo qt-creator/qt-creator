@@ -16,12 +16,12 @@
 #include <app/app_version.h>
 #include <coreplugin/messagemanager.h>
 #include <texteditor/basehoverhandler.h>
-#include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
 
 #include <QCoreApplication>
 #include <QFile>
+#include <QScopeGuard>
 #include <QTextDocument>
 
 using namespace Core;
@@ -42,7 +42,7 @@ private:
             return;
         }
 
-        Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+        const QScopeGuard cleanup([this, report] { report(priority()); });
 
         QTextCursor tc(editorWidget->document());
         tc.setPosition(pos);

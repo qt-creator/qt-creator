@@ -1,19 +1,24 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #include "assetexportdialog.h"
 
-#include "ui_assetexportdialog.h"
+#include "../qmldesignertr.h"
 #include "assetexportpluginconstants.h"
 #include "filepathmodel.h"
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
-#include <utils/fileutils.h>
+
+#include <utils/detailswidget.h>
+#include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
+#include <utils/pathchooser.h>
 
 #include <QCheckBox>
 #include <QPushButton>
@@ -22,13 +27,21 @@
 #include <QDialogButtonBox>
 #include <QMessageBox>
 #include <QScrollBar>
+#include <QGridLayout>
+#include <QProgressBar>
+#include <QLabel>
+#include <QStackedWidget>
 
 #include <algorithm>
 #include <cmath>
 
-namespace  {
-static void addFormattedMessage(Utils::OutputFormatter *formatter, const QString &str,
-                                Utils::OutputFormat format) {
+using namespace ProjectExplorer;
+using namespace Utils;
+
+namespace QmlDesigner {
+
+static void addFormattedMessage(OutputFormatter *formatter, const QString &str, OutputFormat format)
+{
     if (!formatter)
         return;
 
@@ -42,79 +55,81 @@ static void addFormattedMessage(Utils::OutputFormatter *formatter, const QString
     if (isAtBottom)
         scroll->setValue(scroll->maximum());
 }
-}
 
-using namespace ProjectExplorer;
-
-namespace QmlDesigner {
-AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
+AssetExportDialog::AssetExportDialog(const FilePath &exportPath,
                                      AssetExporter &assetExporter, FilePathModel &model,
                                      QWidget *parent) :
     QDialog(parent),
     m_assetExporter(assetExporter),
     m_filePathModel(model),
-    m_ui(new Ui::AssetExportDialog),
     m_filesView(new QListView),
     m_exportLogs(new QPlainTextEdit),
     m_outputFormatter(new Utils::OutputFormatter())
 {
-    m_ui->setupUi(this);
+    resize(768, 480);
+    setWindowTitle(Tr::tr("Export Components"));
 
-    m_ui->exportPath->setExpectedKind(Utils::PathChooser::Kind::SaveFile);
-    m_ui->exportPath->setFilePath(
+    m_stackedWidget = new QStackedWidget;
+
+    m_exportProgress = new QProgressBar;
+    m_exportProgress->setRange(0,0);
+
+    auto optionsWidget = new QWidget;
+
+    auto advancedOptions = new DetailsWidget;
+    advancedOptions->setSummaryText(tr("Advanced Options"));
+    advancedOptions->setWidget(optionsWidget);
+
+    m_buttonBox = new QDialogButtonBox;
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Close);
+
+    m_exportPath = new PathChooser;
+    m_exportPath->setExpectedKind(PathChooser::Kind::SaveFile);
+    m_exportPath->setFilePath(
                 exportPath.pathAppended(
                     ProjectExplorer::ProjectManager::startupProject()->displayName()  + ".metadata"
                 ));
-    m_ui->exportPath->setPromptDialogTitle(tr("Choose Export File"));
-    m_ui->exportPath->setPromptDialogFilter(tr("Metadata file (*.metadata)"));
-    m_ui->exportPath->lineEdit()->setReadOnly(true);
-    m_ui->exportPath->addButton(tr("Open"), this, [this]() {
-        Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), m_ui->exportPath->filePath());
+    m_exportPath->setPromptDialogTitle(tr("Choose Export File"));
+    m_exportPath->setPromptDialogFilter(tr("Metadata file (*.metadata)"));
+    m_exportPath->lineEdit()->setReadOnly(true);
+    m_exportPath->addButton(tr("Open"), this, [this]() {
+        Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), m_exportPath->filePath());
     });
-
-    auto optionsWidget = new QWidget;
-    m_ui->advancedOptions->setSummaryText(tr("Advanced Options"));
-    m_ui->advancedOptions->setWidget(optionsWidget);
-    auto optionsLayout = new QHBoxLayout(optionsWidget);
-    optionsLayout->setContentsMargins(8, 8, 8, 8);
 
     m_exportAssetsCheck = new QCheckBox(tr("Export assets"), this);
     m_exportAssetsCheck->setChecked(true);
-    optionsLayout->addWidget(m_exportAssetsCheck);
 
     m_perComponentExportCheck = new QCheckBox(tr("Export components separately"), this);
     m_perComponentExportCheck->setChecked(false);
-    optionsLayout->addWidget(m_perComponentExportCheck);
-    optionsLayout->addStretch();
 
-    m_ui->buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
+    m_buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
 
-    m_ui->stackedWidget->addWidget(m_filesView);
+    m_stackedWidget->addWidget(m_filesView);
     m_filesView->setModel(&m_filePathModel);
 
     m_exportLogs->setReadOnly(true);
     m_outputFormatter->setPlainTextEdit(m_exportLogs);
-    m_ui->stackedWidget->addWidget(m_exportLogs);
+    m_stackedWidget->addWidget(m_exportLogs);
     switchView(false);
 
-    connect(m_ui->buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, [this]() {
-        m_ui->buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
+    connect(m_buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, [this]() {
+        m_buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
         m_assetExporter.cancel();
     });
 
-    m_exportBtn = m_ui->buttonBox->addButton(tr("Export"), QDialogButtonBox::AcceptRole);
+    m_exportBtn = m_buttonBox->addButton(tr("Export"), QDialogButtonBox::AcceptRole);
     m_exportBtn->setEnabled(false);
     connect(m_exportBtn, &QPushButton::clicked, this, &AssetExportDialog::onExport);
     connect(&m_filePathModel, &FilePathModel::modelReset, this, [this]() {
-        m_ui->exportProgress->setRange(0, 1000);
-        m_ui->exportProgress->setValue(0);
+        m_exportProgress->setRange(0, 1000);
+        m_exportProgress->setValue(0);
         m_exportBtn->setEnabled(true);
     });
 
-    connect(m_ui->buttonBox->button(QDialogButtonBox::Close), &QPushButton::clicked, [this]() {
+    connect(m_buttonBox->button(QDialogButtonBox::Close), &QPushButton::clicked, [this]() {
         close();
     });
-    m_ui->buttonBox->button(QDialogButtonBox::Close)->setVisible(false);
+    m_buttonBox->button(QDialogButtonBox::Close)->setVisible(false);
 
     connect(&m_assetExporter, &AssetExporter::stateChanged,
             this, &AssetExportDialog::onExportStateChanged);
@@ -123,7 +138,22 @@ AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
 
     connect(TaskHub::instance(), &TaskHub::taskAdded, this, &AssetExportDialog::onTaskAdded);
 
-    m_ui->exportProgress->setRange(0,0);
+    using namespace Layouting;
+
+    Column {
+        m_exportAssetsCheck,
+        m_perComponentExportCheck,
+        st,
+        noMargin(),
+    }.attachTo(optionsWidget);
+
+    Column {
+        Form { Tr::tr("Export path:"), m_exportPath },
+        advancedOptions,
+        m_stackedWidget,
+        m_exportProgress,
+        m_buttonBox,
+    }.attachTo(this);
 }
 
 AssetExportDialog::~AssetExportDialog()
@@ -139,7 +169,7 @@ void AssetExportDialog::onExport()
     TaskHub::clearTasks(Constants::TASK_CATEGORY_ASSET_EXPORT);
     m_exportLogs->clear();
 
-    Utils::FilePath selectedPath = m_ui->exportPath->filePath();
+    Utils::FilePath selectedPath = m_exportPath->filePath();
     Utils::FilePath exportPath = m_perComponentExportCheck->isChecked() ?
                 (selectedPath.isDir() ? selectedPath : selectedPath.parentDir()) :
                 selectedPath;
@@ -154,28 +184,28 @@ void AssetExportDialog::onExportStateChanged(AssetExporter::ParsingState newStat
     switch (newState) {
     case AssetExporter::ParsingState::ExportingDone:
         m_exportBtn->setVisible(false);
-        m_ui->buttonBox->button(QDialogButtonBox::Close)->setVisible(true);
+        m_buttonBox->button(QDialogButtonBox::Close)->setVisible(true);
         break;
     default:
         break;
     }
 
     m_exportBtn->setEnabled(newState == AssetExporter::ParsingState::ExportingDone);
-    m_ui->buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(m_assetExporter.isBusy());
+    m_buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(m_assetExporter.isBusy());
 }
 
 void AssetExportDialog::updateExportProgress(double value)
 {
     value = std::max(0.0, std::min(1.0, value));
-    m_ui->exportProgress->setValue(std::round(value * 1000));
+    m_exportProgress->setValue(std::round(value * 1000));
 }
 
 void AssetExportDialog::switchView(bool showExportView)
 {
     if (showExportView)
-        m_ui->stackedWidget->setCurrentWidget(m_exportLogs);
+        m_stackedWidget->setCurrentWidget(m_exportLogs);
     else
-        m_ui->stackedWidget->setCurrentWidget(m_filesView);
+        m_stackedWidget->setCurrentWidget(m_filesView);
 }
 
 void AssetExportDialog::onTaskAdded(const ProjectExplorer::Task &task)

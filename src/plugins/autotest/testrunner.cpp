@@ -347,7 +347,7 @@ void TestRunner::runTestsHelper()
         std::unique_ptr<TestOutputReader> m_outputReader;
     };
 
-    QList<TaskItem> tasks{finishAllAndDone};
+    QList<GroupItem> tasks{finishAllAndDone};
 
     for (ITestConfiguration *config : m_selectedTests) {
         QTC_ASSERT(config, continue);

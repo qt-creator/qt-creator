@@ -3,6 +3,8 @@
 
 #include "silversearcherparser.h"
 
+#include <QPromise>
+
 using namespace Utils;
 
 namespace SilverSearcher {

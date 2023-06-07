@@ -142,7 +142,7 @@ static bool debuggerActionsEnabledHelper(DebuggerState state)
 Location::Location(const StackFrame &frame, bool marker)
 {
     m_fileName = frame.file;
-    m_lineNumber = frame.line;
+    m_textPosition = {frame.line, -1};
     m_needsMarker = marker;
     m_functionName = frame.function;
     m_hasDebugInfo = frame.isUsable();
@@ -1075,7 +1075,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         return;
     }
     const FilePath file = loc.fileName();
-    const int line = loc.lineNumber();
+    const int line = loc.textPosition().line;
     bool newEditor = false;
     IEditor *editor = EditorManager::openEditor(file,
                                                 Id(),

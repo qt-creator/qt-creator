@@ -61,7 +61,7 @@ private:
     FilePath qmlRuntimeFilePath() const;
     void createQtVersionAspect();
 
-    StringAspect *m_qmlViewerAspect = nullptr;
+    FilePathAspect *m_qmlViewerAspect = nullptr;
     QmlMainFileAspect *m_qmlMainFileAspect = nullptr;
     QmlMultiLanguageAspect *m_multiLanguageAspect = nullptr;
     SelectionAspect *m_qtversionAspect = nullptr;
@@ -71,10 +71,9 @@ private:
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    m_qmlViewerAspect = addAspect<StringAspect>();
+    m_qmlViewerAspect = addAspect<FilePathAspect>();
     m_qmlViewerAspect->setLabelText(Tr::tr("Override device QML viewer:"));
     m_qmlViewerAspect->setPlaceHolderText(qmlRuntimeFilePath().toUserOutput());
-    m_qmlViewerAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_qmlViewerAspect->setHistoryCompleter("QmlProjectManager.viewer.history");
     m_qmlViewerAspect->setSettingsKey(Constants::QML_VIEWER_KEY);
 
@@ -92,11 +91,9 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 
         // arguments from .qmlproject file
         const QmlBuildSystem *bs = qobject_cast<QmlBuildSystem *>(target->buildSystem());
-        const QStringList importPaths = QmlBuildSystem::makeAbsolute(bs->targetDirectory(),
-                                                                     bs->customImportPaths());
-        for (const QString &importPath : importPaths) {
+        for (const QString &importPath : bs->customImportPaths()) {
             cmd.addArg("-I");
-            cmd.addArg(importPath);
+            cmd.addArg(bs->targetDirectory().pathAppended(importPath).path());
         }
 
         for (const QString &fileSelector : bs->customFileSelectors()) {
@@ -115,8 +112,9 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         }
 
         const FilePath main = bs->targetFile(mainScript());
+
         if (!main.isEmpty())
-            cmd.addArg(main.nativePath());
+            cmd.addArg(main.path());
 
         return cmd;
     });

@@ -330,7 +330,7 @@ void QMakeStep::doRun()
         emit buildConfiguration()->buildDirectoryInitialized();
     };
 
-    QList<TaskItem> processList = {ProcessTask(setupQMake, onProcessDone, onProcessError)};
+    QList<GroupItem> processList = {ProcessTask(setupQMake, onProcessDone, onProcessError)};
     if (m_runMakeQmake)
         processList << ProcessTask(setupMakeQMake, onProcessDone, onProcessError);
     processList << onGroupDone(onDone);

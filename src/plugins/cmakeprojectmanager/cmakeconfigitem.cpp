@@ -272,10 +272,10 @@ CMakeConfigItem CMakeConfigItem::fromString(const QString &s)
 
 static QByteArray trimCMakeCacheLine(const QByteArray &in) {
     int start = 0;
-    while (start < in.count() && (in.at(start) == ' ' || in.at(start) == '\t'))
+    while (start < in.size() && (in.at(start) == ' ' || in.at(start) == '\t'))
         ++start;
 
-    return in.mid(start, in.count() - start - 1);
+    return in.mid(start, in.size() - start - 1);
 }
 
 static QByteArrayList splitCMakeCacheLine(const QByteArray &line) {
@@ -377,9 +377,9 @@ CMakeConfig CMakeConfig::fromFile(const Utils::FilePath &cacheFile, QString *err
         const QByteArray value = pieces.at(2);
 
         if (key.endsWith("-ADVANCED") && value == "1") {
-            advancedSet.insert(key.left(key.count() - 9 /* "-ADVANCED" */));
+            advancedSet.insert(key.left(key.size() - 9 /* "-ADVANCED" */));
         } else if (key.endsWith("-STRINGS") && CMakeConfigItem::typeStringToType(type) == CMakeConfigItem::INTERNAL) {
-            valuesMap[key.left(key.count() - 8) /* "-STRINGS" */] = value;
+            valuesMap[key.left(key.size() - 8) /* "-STRINGS" */] = value;
         } else {
             CMakeConfigItem::Type t = CMakeConfigItem::typeStringToType(type);
             result << CMakeConfigItem(key, t, documentation, value);

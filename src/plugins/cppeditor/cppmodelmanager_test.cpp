@@ -20,11 +20,11 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <utils/executeondestruction.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QScopeGuard>
 #include <QtTest>
 
 #define VERIFY_DOCUMENT_REVISION(document, expectedRevision) \
@@ -1085,9 +1085,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
     Core::IEditor *editor = Core::EditorManager::openEditor(mainFile);
     QVERIFY(editor);
     EditorCloser editorCloser(editor);
-    Utils::ExecuteOnDestruction saveAllFiles([](){
-        Core::DocumentManager::saveAllModifiedDocumentsSilently();
-    });
+    const QScopeGuard cleanup([] { Core::DocumentManager::saveAllModifiedDocumentsSilently(); });
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
     QVERIFY(modelManager->isCppEditor(editor));
     QVERIFY(modelManager->workingCopy().get(mainFile));

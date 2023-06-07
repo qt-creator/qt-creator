@@ -2101,8 +2101,7 @@ static QByteArray scanQtBinaryForBuildString(const FilePath &library)
 
 static QStringList extractFieldsFromBuildString(const QByteArray &buildString)
 {
-    if (buildString.isEmpty()
-            || buildString.count() > 4096)
+    if (buildString.isEmpty() || buildString.size() > 4096)
         return QStringList();
 
     const QRegularExpression buildStringMatcher("^Qt "
