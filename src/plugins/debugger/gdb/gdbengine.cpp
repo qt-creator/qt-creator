@@ -1123,7 +1123,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     const GdbMi frame = data["frame"];
 
     // Jump over well-known frames.
-    static int stepCounter = 0;
+    //static int stepCounter = 0;
     if (debuggerSettings()->skipKnownFrames.value()) {
         if (reason == "end-stepping-range" || reason == "function-finished") {
             //showMessage(frame.toString());
@@ -1131,19 +1131,19 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             QString fileName = frame["file"].data();
             if (isLeavableFunction(funcName, fileName)) {
                 //showMessage(_("LEAVING ") + funcName);
-                ++stepCounter;
+                //++stepCounter;
                 executeStepOut();
                 return;
             }
             if (isSkippableFunction(funcName, fileName)) {
                 //showMessage(_("SKIPPING ") + funcName);
-                ++stepCounter;
+                //++stepCounter;
                 executeStepIn(false);
                 return;
             }
             //if (stepCounter)
             //    qDebug() << "STEPCOUNTER:" << stepCounter;
-            stepCounter = 0;
+            //stepCounter = 0;
         }
     }
 
