@@ -42,12 +42,11 @@ private:
     void cancelWithError(const QString &error);
     void logError(const QString &error);
 
-    void downloadFinished(QNetworkReply *m_reply);
+    void downloadFinished();
 #if QT_CONFIG(ssl)
     void sslErrors(const QList<QSslError> &errors);
 #endif
 
-    QNetworkAccessManager m_manager;
     QNetworkReply *m_reply = nullptr;
     Utils::FilePath m_sdkFilename;
     QProgressDialog *m_progressDialog = nullptr;

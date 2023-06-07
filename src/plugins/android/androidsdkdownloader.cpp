@@ -7,6 +7,7 @@
 
 #include <utils/archive.h>
 #include <utils/filepath.h>
+#include <utils/networkaccessmanager.h>
 
 #include <coreplugin/icore.h>
 
@@ -25,9 +26,7 @@ namespace Android::Internal {
  */
 AndroidSdkDownloader::AndroidSdkDownloader()
     : m_androidConfig(AndroidConfigurations::currentConfig())
-{
-    connect(&m_manager, &QNetworkAccessManager::finished, this, &AndroidSdkDownloader::downloadFinished);
-}
+{}
 
 AndroidSdkDownloader::~AndroidSdkDownloader() = default;
 
@@ -47,8 +46,9 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         return;
     }
 
-    QNetworkRequest request(m_androidConfig.sdkToolsUrl());
-    m_reply = m_manager.get(request);
+    const QNetworkRequest request(m_androidConfig.sdkToolsUrl());
+    m_reply = NetworkAccessManager::instance()->get(request);
+    connect(m_reply, &QNetworkReply::finished, this, &AndroidSdkDownloader::downloadFinished);
 
 #if QT_CONFIG(ssl)
     connect(m_reply, &QNetworkReply::sslErrors, this, &AndroidSdkDownloader::sslErrors);
@@ -110,6 +110,7 @@ void AndroidSdkDownloader::cancel()
     if (m_reply) {
         m_reply->abort();
         m_reply->deleteLater();
+        m_reply = nullptr;
     }
     if (m_progressDialog)
         m_progressDialog->cancel();
@@ -169,18 +170,18 @@ bool AndroidSdkDownloader::isHttpRedirect(QNetworkReply *reply)
            || statusCode == 307 || statusCode == 308;
 }
 
-void AndroidSdkDownloader::downloadFinished(QNetworkReply *reply)
+void AndroidSdkDownloader::downloadFinished()
 {
-    QUrl url = reply->url();
-    if (reply->error()) {
+    QUrl url = m_reply->url();
+    if (m_reply->error()) {
         cancelWithError(QString(Tr::tr("Downloading Android SDK Tools from URL %1 has failed: %2."))
-                            .arg(url.toString(), reply->errorString()));
+                            .arg(url.toString(), m_reply->errorString()));
     } else {
-        if (isHttpRedirect(reply)) {
+        if (isHttpRedirect(m_reply)) {
             cancelWithError(QString(Tr::tr("Download from %1 was redirected.")).arg(url.toString()));
         } else {
             m_sdkFilename = getSaveFilename(url);
-            if (saveToDisk(m_sdkFilename, reply) && verifyFileIntegrity())
+            if (saveToDisk(m_sdkFilename, m_reply) && verifyFileIntegrity())
                 emit sdkPackageWriteFinished();
             else
                 cancelWithError(
@@ -188,7 +189,8 @@ void AndroidSdkDownloader::downloadFinished(QNetworkReply *reply)
         }
     }
 
-    reply->deleteLater();
+    m_reply->deleteLater();
+    m_reply = nullptr;
 }
 
 } // namespace Android::Internal
