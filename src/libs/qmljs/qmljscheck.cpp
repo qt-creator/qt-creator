@@ -649,6 +649,7 @@ QList<StaticAnalysis::Type> Check::defaultDisabledMessages()
         HintBinaryOperatorSpacing,
         HintOneStatementPerLine,
         HintExtraParentheses,
+        WarnAliasReferRootHierarchy,
 
         // QmlDesigner related
         WarnImperativeCodeNotEditableInVisualDesigner,
@@ -748,6 +749,7 @@ void Check::enableQmlDesignerChecks()
     enableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
     enableMessage(ErrUnsupportedRootTypeInVisualDesigner);
     enableMessage(ErrInvalidIdeInVisualDesigner);
+    enableMessage(WarnAliasReferRootHierarchy);
     //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
 }
 
