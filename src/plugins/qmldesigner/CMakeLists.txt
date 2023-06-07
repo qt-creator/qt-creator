@@ -36,7 +36,7 @@ extend_qtc_library(QmlDesignerUtils
 )
 
 add_qtc_library(QmlDesignerCore STATIC
-  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3 AND TARGET Qt6::QmlPrivate AND TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate
+  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3 AND TARGET QmlDesignerBase AND TARGET Qt6::QmlPrivate AND TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate
   EXCLUDE_FROM_INSTALL
   PROPERTIES SKIP_AUTOUIC ON
   DEPENDS
