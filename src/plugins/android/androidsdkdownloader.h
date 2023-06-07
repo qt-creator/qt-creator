@@ -1,8 +1,7 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#ifndef ANDROIDSDKDOWNLOADER_H
-#define ANDROIDSDKDOWNLOADER_H
+#pragma once
 
 #include "androidconfigurations.h"
 
@@ -15,8 +14,7 @@ class Archive;
 class FilePath;
 }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidSdkDownloader : public QObject
 {
@@ -57,7 +55,4 @@ private:
     std::unique_ptr<Utils::Archive> m_archive;
 };
 
-} // Internal
-} // Android
-
-#endif // ANDROIDSDKDOWNLOADER_H
+} // namespace Android::Internal

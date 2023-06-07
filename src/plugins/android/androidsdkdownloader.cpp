@@ -16,12 +16,9 @@
 
 using namespace Utils;
 
-namespace {
-Q_LOGGING_CATEGORY(sdkDownloaderLog, "qtc.android.sdkDownloader", QtWarningMsg)
-}
+namespace { Q_LOGGING_CATEGORY(sdkDownloaderLog, "qtc.android.sdkDownloader", QtWarningMsg) }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 /**
  * @class SdkDownloader
  * @brief Download Android SDK tools package from within Qt Creator.
@@ -194,5 +191,4 @@ void AndroidSdkDownloader::downloadFinished(QNetworkReply *reply)
     reply->deleteLater();
 }
 
-} // Internal
-} // Android
+} // namespace Android::Internal
