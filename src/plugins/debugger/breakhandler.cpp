@@ -1873,6 +1873,8 @@ bool BreakpointItem::needsChange() const
         return true;
     if (oparams.type == BreakpointByFileAndLine && oparams.textPosition != m_parameters.textPosition)
         return true;
+    if (oparams.pathUsage != m_parameters.pathUsage)
+        return true;
     // FIXME: Too strict, functions may have parameter lists, or not.
     // if (m_params.type == BreakpointByFunction && m_params.functionName != m_response.functionName)
     //     return true;
