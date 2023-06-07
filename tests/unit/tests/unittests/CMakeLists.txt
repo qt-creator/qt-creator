@@ -61,6 +61,7 @@ endfunction(unittest_copy_data_folder)
 
 add_subdirectory(listmodeleditor)
 add_subdirectory(imagecache)
+add_subdirectory(metainfo)
 add_subdirectory(model)
 add_subdirectory(sqlite)
 add_subdirectory(projectstorage)

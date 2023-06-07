@@ -3,69 +3,22 @@
 
 #include "projectstoragemock.h"
 
-namespace QmlDesigner {
+#include <projectstorage/projectstorageinfotypes.h>
+
+using QmlDesigner::ModuleId;
+using QmlDesigner::PropertyDeclarationId;
+using QmlDesigner::TypeId;
+using QmlDesigner::TypeIds;
+using QmlDesigner::Storage::PropertyDeclarationTraits;
+
+namespace Storage = QmlDesigner::Storage;
+
 namespace {
 
 template<typename BasicId>
 void incrementBasicId(BasicId &id)
 {
     id = BasicId::create(id.internalId() + 1);
-}
-
-ModuleId createModule(ProjectStorageMock &mock, Utils::SmallStringView moduleName)
-{
-    static ModuleId moduleId;
-    incrementBasicId(moduleId);
-
-    ON_CALL(mock, moduleId(Eq(moduleName))).WillByDefault(Return(moduleId));
-
-    return moduleId;
-}
-
-PropertyDeclarationId createProperty(ProjectStorageMock &mock, TypeId typeId, Utils::SmallString name)
-{
-    static PropertyDeclarationId propertyId;
-    incrementBasicId(propertyId);
-
-    ON_CALL(mock, propertyDeclarationId(Eq(typeId), Eq(name))).WillByDefault(Return(propertyId));
-    ON_CALL(mock, propertyName(Eq(propertyId))).WillByDefault(Return(name));
-
-    return propertyId;
-}
-
-TypeId createType(ProjectStorageMock &mock,
-                  ModuleId moduleId,
-                  Utils::SmallStringView typeName,
-                  Utils::SmallString defaultPropertyName,
-                  Storage::TypeTraits typeTraits,
-                  TypeIds baseTypeIds = {})
-{
-    static TypeId typeId;
-    incrementBasicId(typeId);
-
-    ON_CALL(mock, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
-    PropertyDeclarationId defaultPropertyDeclarationId;
-    if (defaultPropertyName.size())
-        defaultPropertyDeclarationId = createProperty(mock, typeId, defaultPropertyName);
-    ON_CALL(mock, type(Eq(typeId)))
-        .WillByDefault(Return(Storage::Info::Type{defaultPropertyDeclarationId, typeTraits}));
-
-    ON_CALL(mock, isBasedOn(Eq(typeId), Eq(typeId))).WillByDefault(Return(true));
-
-    for (TypeId baseTypeId : baseTypeIds)
-        ON_CALL(mock, isBasedOn(Eq(typeId), Eq(baseTypeId))).WillByDefault(Return(true));
-
-    return typeId;
-}
-
-TypeId createObject(ProjectStorageMock &mock,
-                    ModuleId moduleId,
-                    Utils::SmallStringView typeName,
-                    Utils::SmallString defaultPropertyName,
-                    TypeIds baseTypeIds = {})
-{
-    return createType(
-        mock, moduleId, typeName, defaultPropertyName, Storage::TypeTraits::Reference, baseTypeIds);
 }
 
 void setupIsBasedOn(ProjectStorageMock &mock)
@@ -82,49 +35,208 @@ void setupIsBasedOn(ProjectStorageMock &mock)
 }
 
 } // namespace
-} // namespace QmlDesigner
+
+ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName)
+{
+    static ModuleId moduleId;
+    incrementBasicId(moduleId);
+
+    ON_CALL(*this, moduleId(Eq(moduleName))).WillByDefault(Return(moduleId));
+
+    return moduleId;
+}
+
+PropertyDeclarationId ProjectStorageMock::createProperty(TypeId typeId,
+                                                         Utils::SmallString name,
+                                                         PropertyDeclarationTraits traits,
+                                                         TypeId propertyTypeId)
+{
+    static PropertyDeclarationId propertyId;
+    incrementBasicId(propertyId);
+
+    ON_CALL(*this, propertyDeclarationId(Eq(typeId), Eq(name))).WillByDefault(Return(propertyId));
+    ON_CALL(*this, propertyName(Eq(propertyId))).WillByDefault(Return(name));
+
+    ON_CALL(*this, propertyDeclaration(Eq(propertyId)))
+        .WillByDefault(Return(
+            QmlDesigner::Storage::Info::PropertyDeclaration{typeId, name, traits, propertyTypeId}));
+
+    auto ids = localPropertyDeclarationIds(typeId);
+    ids.push_back(propertyId);
+    ON_CALL(*this, propertyDeclarationIds(Eq(typeId))).WillByDefault(Return(ids));
+    ON_CALL(*this, localPropertyDeclarationIds(Eq(typeId))).WillByDefault(Return(ids));
+
+    return propertyId;
+}
+
+QmlDesigner::PropertyDeclarationId ProjectStorageMock::createProperty(
+    QmlDesigner::TypeId typeId, Utils::SmallString name, QmlDesigner::TypeId propertyTypeId)
+{
+    return createProperty(typeId, name, {}, propertyTypeId);
+}
+
+void ProjectStorageMock::createSignal(QmlDesigner::TypeId typeId, Utils::SmallString name)
+{
+    auto signalNames = signalDeclarationNames(typeId);
+    signalNames.push_back(name);
+    ON_CALL(*this, signalDeclarationNames(Eq(typeId))).WillByDefault(Return(signalNames));
+}
+
+void ProjectStorageMock::createFunction(QmlDesigner::TypeId typeId, Utils::SmallString name)
+{
+    auto functionNames = functionDeclarationNames(typeId);
+    functionNames.push_back(name);
+    ON_CALL(*this, functionDeclarationNames(Eq(typeId))).WillByDefault(Return(functionNames));
+}
+
+TypeId ProjectStorageMock::createType(ModuleId moduleId,
+                                      Utils::SmallStringView typeName,
+                                      Utils::SmallStringView defaultPropertyName,
+                                      PropertyDeclarationTraits defaultPropertyTraits,
+                                      TypeId defaultPropertyTypeId,
+                                      Storage::TypeTraits typeTraits,
+                                      TypeIds baseTypeIds)
+{
+    static TypeId typeId;
+    incrementBasicId(typeId);
+
+    ON_CALL(*this, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
+    PropertyDeclarationId defaultPropertyDeclarationId;
+    if (defaultPropertyName.size()) {
+        if (!defaultPropertyTypeId) {
+            defaultPropertyTypeId = typeId;
+        }
+
+        defaultPropertyDeclarationId = createProperty(typeId,
+                                                      defaultPropertyName,
+                                                      defaultPropertyTraits,
+                                                      defaultPropertyTypeId);
+    }
+
+    ON_CALL(*this, type(Eq(typeId)))
+        .WillByDefault(Return(Storage::Info::Type{defaultPropertyDeclarationId, typeTraits}));
+
+    ON_CALL(*this, isBasedOn(Eq(typeId), Eq(typeId))).WillByDefault(Return(true));
+
+    for (TypeId baseTypeId : baseTypeIds)
+        ON_CALL(*this, isBasedOn(Eq(typeId), Eq(baseTypeId))).WillByDefault(Return(true));
+
+    return typeId;
+}
+
+QmlDesigner::TypeId ProjectStorageMock::createType(QmlDesigner::ModuleId moduleId,
+                                                   Utils::SmallStringView typeName,
+                                                   QmlDesigner::Storage::TypeTraits typeTraits,
+                                                   QmlDesigner::TypeIds baseTypeIds)
+{
+    return createType(moduleId, typeName, {}, {}, TypeId{}, typeTraits, baseTypeIds);
+}
+
+TypeId ProjectStorageMock::createObject(ModuleId moduleId,
+                                        Utils::SmallStringView typeName,
+                                        Utils::SmallStringView defaultPropertyName,
+                                        PropertyDeclarationTraits defaultPropertyTraits,
+                                        QmlDesigner::TypeId defaultPropertyTypeId,
+                                        TypeIds baseTypeIds)
+{
+    return createType(moduleId,
+                      typeName,
+                      defaultPropertyName,
+                      defaultPropertyTraits,
+                      defaultPropertyTypeId,
+                      Storage::TypeTraits::Reference,
+                      baseTypeIds);
+}
+
+TypeId ProjectStorageMock::createObject(ModuleId moduleId,
+                                        Utils::SmallStringView typeName,
+                                        TypeIds baseTypeIds)
+{
+    return createType(moduleId, typeName, Storage::TypeTraits::Reference, baseTypeIds);
+}
 
 void ProjectStorageMock::setupQtQtuick()
 {
-    QmlDesigner::setupIsBasedOn(*this);
+    setupIsBasedOn(*this);
 
-    auto qmlModuleId = QmlDesigner::createModule(*this, "QML");
-    auto qtQmlModelsModuleId = QmlDesigner::createModule(*this, "QtQml.Models");
-    auto qtQuickModuleId = QmlDesigner::createModule(*this, "QtQuick");
-    auto qtQuickNativeModuleId = QmlDesigner::createModule(*this, "QtQuick-cppnative");
+    auto qmlModuleId = createModule("QML");
+    auto qtQmlModelsModuleId = createModule("QtQml.Models");
+    auto qtQuickModuleId = createModule("QtQuick");
+    auto qtQuickNativeModuleId = createModule("QtQuick-cppnative");
 
-    auto qtObjectId = QmlDesigner::createObject(*this, qmlModuleId, "QtObject", "children");
+    auto intId = createType(qmlModuleId, "int", Storage::TypeTraits::Value);
 
-    QmlDesigner::createObject(*this, qtQmlModelsModuleId, "ListModel", "children", {qtObjectId});
-    QmlDesigner::createObject(*this, qtQmlModelsModuleId, "ListElement", "children", {qtObjectId});
+    auto qtObjectId = createObject(qmlModuleId,
+                                   "QtObject",
+                                   "children",
+                                   PropertyDeclarationTraits::IsList,
+                                   TypeId{});
 
-    auto itemId = QmlDesigner::createObject(*this, qtQuickModuleId, "Item", "data", {qtObjectId});
-    QmlDesigner::createObject(*this, qtQuickModuleId, "ListView", "data", {qtObjectId, itemId});
-    QmlDesigner::createObject(*this, qtQuickModuleId, "StateGroup", "states", {qtObjectId});
-    QmlDesigner::createObject(*this, qtQuickModuleId, "State", "changes", {qtObjectId});
-    QmlDesigner::createObject(*this, qtQuickModuleId, "Transition", "animations", {qtObjectId});
-    QmlDesigner::createObject(*this, qtQuickModuleId, "PropertyAnimation", "", {qtObjectId});
-    auto stateOperationsId = QmlDesigner::createObject(*this,
-                                                       qtQuickNativeModuleId,
-                                                       " QQuickStateOperation",
-                                                       "",
-                                                       {qtObjectId});
-    QmlDesigner::createObject(*this,
-                              qtQuickModuleId,
-                              "PropertyChanges",
-                              "",
-                              {qtObjectId, stateOperationsId});
+    auto listElementId = createObject(qtQmlModelsModuleId, "ListElement", {qtObjectId});
+    createObject(qtQmlModelsModuleId,
+                 "ListModel",
+                 "children",
+                 PropertyDeclarationTraits::IsList,
+                 listElementId,
+                 {qtObjectId});
 
-    auto qtQuickTimelineModuleId = QmlDesigner::createModule(*this, "QtQuick.Timeline");
-    QmlDesigner::createObject(*this, qtQuickTimelineModuleId, "KeyframeGroup", "keyframes", {qtObjectId});
-    QmlDesigner::createObject(*this, qtQuickTimelineModuleId, "Keyframe", "", {qtObjectId});
+    auto itemId = createObject(qtQuickModuleId,
+                               "Item",
+                               "data",
+                               PropertyDeclarationTraits::IsList,
+                               qtObjectId,
+                               {qtObjectId});
+    createObject(qtQuickModuleId,
+                 "ListView",
+                 "data",
+                 PropertyDeclarationTraits::IsList,
+                 qtObjectId,
+                 {qtObjectId, itemId});
+    createObject(qtQuickModuleId, "StateGroup", {qtObjectId});
+    createObject(qtQuickModuleId,
+                 "State",
+                 "changes",
+                 PropertyDeclarationTraits::IsList,
+                 qtObjectId,
+                 {qtObjectId});
+    auto animationId = createObject(qtQuickModuleId, "Animation", {qtObjectId});
+    createObject(qtQuickModuleId,
+                 "Transition",
+                 "animations",
+                 PropertyDeclarationTraits::IsList,
+                 animationId,
+                 {qtObjectId});
+    createObject(qtQuickModuleId, "PropertyAnimation", {qtObjectId});
+    auto stateOperationsId = createObject(qtQuickNativeModuleId,
+                                          " QQuickStateOperation",
+                                          {qtObjectId});
+    createObject(qtQuickModuleId, "PropertyChanges", {qtObjectId, stateOperationsId});
 
-    auto flowViewModuleId = QmlDesigner::createModule(*this, "FlowView");
-    QmlDesigner::createObject(*this, flowViewModuleId, "FlowActionArea", "data", {qtObjectId, itemId});
-    QmlDesigner::createObject(*this, flowViewModuleId, "FlowWildcard", "data", {qtObjectId});
-    QmlDesigner::createObject(*this, flowViewModuleId, "FlowDecision", "", {qtObjectId});
-    QmlDesigner::createObject(*this, flowViewModuleId, "FlowTransition", "", {qtObjectId});
-    QmlDesigner::createObject(*this, flowViewModuleId, "FlowItem", "data", {qtObjectId, itemId});
+    auto qtQuickTimelineModuleId = createModule("QtQuick.Timeline");
+    createObject(qtQuickTimelineModuleId, "KeyframeGroup", {qtObjectId});
+    createObject(qtQuickTimelineModuleId, "Keyframe", {qtObjectId});
+
+    auto flowViewModuleId = createModule("FlowView");
+    createObject(flowViewModuleId,
+                 "FlowActionArea",
+                 "data",
+                 PropertyDeclarationTraits::IsList,
+                 qtObjectId,
+                 {qtObjectId, itemId});
+    createObject(flowViewModuleId,
+                 "FlowWildcard",
+                 "data",
+                 PropertyDeclarationTraits::IsList,
+                 qtObjectId,
+                 {qtObjectId});
+    createObject(flowViewModuleId, "FlowDecision", {qtObjectId});
+    createObject(flowViewModuleId, "FlowTransition", {qtObjectId});
+    createObject(flowViewModuleId,
+                 "FlowItem",
+                 "data",
+                 PropertyDeclarationTraits::IsList,
+                 qtObjectId,
+                 {qtObjectId, itemId});
 }
 
 void ProjectStorageMock::setupCommonTypeCache()

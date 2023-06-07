@@ -18,6 +18,47 @@ public:
     void setupQtQtuick();
     void setupCommonTypeCache();
 
+    QmlDesigner::ModuleId createModule(Utils::SmallStringView moduleName);
+
+    QmlDesigner::TypeId createType(
+        QmlDesigner::ModuleId moduleId,
+        Utils::SmallStringView typeName,
+        Utils::SmallStringView defaultPropertyName,
+        QmlDesigner::Storage::PropertyDeclarationTraits defaultPropertyTraits,
+        QmlDesigner::TypeId defaultPropertyTypeId,
+        QmlDesigner::Storage::TypeTraits typeTraits,
+        QmlDesigner::TypeIds baseTypeIds = {});
+
+    QmlDesigner::TypeId createType(QmlDesigner::ModuleId moduleId,
+                                   Utils::SmallStringView typeName,
+                                   QmlDesigner::Storage::TypeTraits typeTraits,
+                                   QmlDesigner::TypeIds baseTypeIds = {});
+
+    QmlDesigner::TypeId createObject(
+        QmlDesigner::ModuleId moduleId,
+        Utils::SmallStringView typeName,
+        Utils::SmallStringView defaultPropertyName,
+        QmlDesigner::Storage::PropertyDeclarationTraits defaultPropertyTraits,
+        QmlDesigner::TypeId defaultPropertyTypeId,
+        QmlDesigner::TypeIds baseTypeIds = {});
+
+    QmlDesigner::TypeId createObject(QmlDesigner::ModuleId moduleId,
+                                     Utils::SmallStringView typeName,
+                                     QmlDesigner::TypeIds baseTypeIds = {});
+
+    QmlDesigner::PropertyDeclarationId createProperty(
+        QmlDesigner::TypeId typeId,
+        Utils::SmallString name,
+        QmlDesigner::Storage::PropertyDeclarationTraits traits,
+        QmlDesigner::TypeId propertyTypeId);
+
+    QmlDesigner::PropertyDeclarationId createProperty(QmlDesigner::TypeId typeId,
+                                                      Utils::SmallString name,
+                                                      QmlDesigner::TypeId propertyTypeId);
+
+    void createSignal(QmlDesigner::TypeId typeId, Utils::SmallString name);
+    void createFunction(QmlDesigner::TypeId typeId, Utils::SmallString name);
+
     MOCK_METHOD(void,
                 synchronize,
                 (QmlDesigner::Storage::Synchronization::SynchronizationPackage package),

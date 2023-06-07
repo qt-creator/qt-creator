@@ -91,6 +91,16 @@ public:
         return false;
     }
 
+    bool MatchAndExplain(const QByteArray &s, testing::MatchResultListener *listener) const
+    {
+        if (s.isEmpty()) {
+            return true;
+        }
+
+        *listener << "whose size is " << s.size();
+        return false;
+    }
+
     void DescribeTo(std::ostream *os) const { *os << "is empty"; }
 
     void DescribeNegationTo(std::ostream *os) const { *os << "isn't empty"; }

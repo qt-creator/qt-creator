@@ -49,6 +49,9 @@ public:
         return bool(m_nodeMetaInfoPrivateData);
 #endif
     }
+
+    PropertyDeclarationId id() const { return m_id; }
+
     PropertyName name() const;
     NodeMetaInfo propertyType() const;
     bool isWritable() const;

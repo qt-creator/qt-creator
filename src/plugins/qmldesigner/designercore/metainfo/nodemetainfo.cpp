@@ -1421,7 +1421,7 @@ bool NodeMetaInfo::isValid() const
 bool NodeMetaInfo::isFileComponent() const
 {
     if constexpr (useProjectStorage())
-        return bool(typeData().traits & Storage::TypeTraits::IsFileComponent);
+        return isValid() && bool(typeData().traits & Storage::TypeTraits::IsFileComponent);
     else
         return isValid() && m_privateData->isFileComponent();
 }
@@ -1429,7 +1429,7 @@ bool NodeMetaInfo::isFileComponent() const
 bool NodeMetaInfo::hasProperty(Utils::SmallStringView propertyName) const
 {
     if constexpr (useProjectStorage())
-        return bool(m_projectStorage->propertyDeclarationId(m_typeId, propertyName));
+        return isValid() && bool(m_projectStorage->propertyDeclarationId(m_typeId, propertyName));
     else
         return isValid() && m_privateData->properties().contains(propertyName);
 }
@@ -1440,11 +1440,12 @@ PropertyMetaInfos NodeMetaInfo::properties() const
         return {};
 
     if constexpr (useProjectStorage()) {
-        return Utils::transform<PropertyMetaInfos>(
-            m_projectStorage->propertyDeclarationIds(m_typeId), [&](auto id) {
-                return PropertyMetaInfo{id, m_projectStorage};
-            });
-
+        if (isValid()) {
+            return Utils::transform<PropertyMetaInfos>(
+                m_projectStorage->propertyDeclarationIds(m_typeId), [&](auto id) {
+                    return PropertyMetaInfo{id, m_projectStorage};
+                });
+        }
     } else {
         const auto &properties = m_privateData->properties();
 
@@ -1456,15 +1457,19 @@ PropertyMetaInfos NodeMetaInfo::properties() const
 
         return propertyMetaInfos;
     }
+
+    return {};
 }
 
 PropertyMetaInfos NodeMetaInfo::localProperties() const
 {
     if constexpr (useProjectStorage()) {
-        return Utils::transform<PropertyMetaInfos>(
-            m_projectStorage->localPropertyDeclarationIds(m_typeId), [&](auto id) {
-                return PropertyMetaInfo{id, m_projectStorage};
-            });
+        if (isValid()) {
+            return Utils::transform<PropertyMetaInfos>(
+                m_projectStorage->localPropertyDeclarationIds(m_typeId), [&](auto id) {
+                    return PropertyMetaInfo{id, m_projectStorage};
+                });
+        }
     } else {
         const auto &properties = m_privateData->localProperties();
 
@@ -1476,15 +1481,21 @@ PropertyMetaInfos NodeMetaInfo::localProperties() const
 
         return propertyMetaInfos;
     }
+
+    return {};
 }
 
 PropertyMetaInfo NodeMetaInfo::property(const PropertyName &propertyName) const
 {
     if constexpr (useProjectStorage()) {
-        return {m_projectStorage->propertyDeclarationId(m_typeId, propertyName), m_projectStorage};
+        if (isValid()) {
+            return {m_projectStorage->propertyDeclarationId(m_typeId, propertyName),
+                    m_projectStorage};
+        }
     } else {
-        if (hasProperty(propertyName))
+        if (hasProperty(propertyName)) {
             return PropertyMetaInfo{m_privateData, propertyName};
+        }
     }
 
     return {};
@@ -1493,10 +1504,13 @@ PropertyMetaInfo NodeMetaInfo::property(const PropertyName &propertyName) const
 PropertyNameList NodeMetaInfo::signalNames() const
 {
     if constexpr (useProjectStorage()) {
-        return Utils::transform<PropertyNameList>(m_projectStorage->signalDeclarationNames(m_typeId),
-                                                  [&](const auto &name) {
-                                                      return name.toQByteArray();
-                                                  });
+        if (isValid()) {
+            return Utils::transform<PropertyNameList>(m_projectStorage->signalDeclarationNames(
+                                                          m_typeId),
+                                                      [&](const auto &name) {
+                                                          return name.toQByteArray();
+                                                      });
+        }
     } else {
         if (isValid())
             return m_privateData->signalNames();
@@ -1508,10 +1522,13 @@ PropertyNameList NodeMetaInfo::signalNames() const
 PropertyNameList NodeMetaInfo::slotNames() const
 {
     if constexpr (useProjectStorage()) {
-        return Utils::transform<PropertyNameList>(m_projectStorage->functionDeclarationNames(m_typeId),
-                                                  [&](const auto &name) {
-                                                      return name.toQByteArray();
-                                                  });
+        if (isValid()) {
+            return Utils::transform<PropertyNameList>(m_projectStorage->functionDeclarationNames(
+                                                          m_typeId),
+                                                      [&](const auto &name) {
+                                                          return name.toQByteArray();
+                                                      });
+        }
     } else {
         if (isValid())
             return m_privateData->slotNames();
@@ -1523,9 +1540,11 @@ PropertyNameList NodeMetaInfo::slotNames() const
 PropertyName NodeMetaInfo::defaultPropertyName() const
 {
     if constexpr (useProjectStorage()) {
-        if (auto name = m_projectStorage->propertyName(typeData().defaultPropertyId))
-            return name->toQByteArray();
-        return {};
+        if (isValid()) {
+            if (auto name = m_projectStorage->propertyName(typeData().defaultPropertyId)) {
+                return name->toQByteArray();
+            }
+        }
     } else {
         if (isValid())
             return m_privateData->defaultPropertyName();
@@ -1537,10 +1556,14 @@ PropertyName NodeMetaInfo::defaultPropertyName() const
 PropertyMetaInfo NodeMetaInfo::defaultProperty() const
 {
     if constexpr (useProjectStorage()) {
-        return PropertyMetaInfo(typeData().defaultPropertyId, m_projectStorage);
+        if (isValid()) {
+            return PropertyMetaInfo(typeData().defaultPropertyId, m_projectStorage);
+        }
     } else {
         return property(defaultPropertyName());
     }
+
+    return {};
 }
 bool NodeMetaInfo::hasDefaultProperty() const
 {

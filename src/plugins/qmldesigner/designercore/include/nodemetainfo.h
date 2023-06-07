@@ -50,6 +50,8 @@ public:
 
     bool isValid() const;
     explicit operator bool() const { return isValid(); }
+
+    TypeId id() const { return m_typeId; }
     bool isFileComponent() const;
     bool hasProperty(::Utils::SmallStringView propertyName) const;
     PropertyMetaInfos properties() const;
