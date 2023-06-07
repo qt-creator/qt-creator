@@ -112,7 +112,12 @@ const char kTerminalExecuteOptionsKey[] = "General/Terminal/ExecuteOptions";
 TerminalCommand TerminalCommand::terminalEmulator()
 {
     if (s_settings && HostOsInfo::isAnyUnixHost() && s_settings->contains(kTerminalCommandKey)) {
-        return {FilePath::fromSettings(s_settings->value(kTerminalCommandKey)),
+        FilePath command = FilePath::fromSettings(s_settings->value(kTerminalCommandKey));
+
+        if (HostOsInfo::isMacHost() && command.endsWith("openTerminal.py"))
+            command = FilePath::fromString("Terminal.app");
+
+        return {command,
                 s_settings->value(kTerminalOpenOptionsKey).toString(),
                 s_settings->value(kTerminalExecuteOptionsKey).toString()};
     }
