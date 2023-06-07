@@ -8,8 +8,9 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalNodeListProperty::InternalNodeListProperty(const PropertyName &name, const InternalNodePointer &propertyOwner)
-        : InternalNodeAbstractProperty(name, propertyOwner)
+InternalNodeListProperty::InternalNodeListProperty(const PropertyName &name,
+                                                   const InternalNodePointer &propertyOwner)
+    : InternalNodeAbstractProperty(name, propertyOwner, PropertyType::NodeList)
 {
 }
 
@@ -34,11 +35,6 @@ int InternalNodeListProperty::indexOf(const InternalNode::Pointer &node) const
         return -1;
 
     return m_nodeList.indexOf(node);
-}
-
-bool InternalNodeListProperty::isNodeListProperty() const
-{
-    return true;
 }
 
 void InternalNodeListProperty::add(const InternalNode::Pointer &internalNode)

@@ -8,10 +8,13 @@
 
 #include "abstractview.h"
 #include "auxiliarydataproperties.h"
+#include "internalbindingproperty.h"
 #include "internalnodeabstractproperty.h"
 #include "internalnodelistproperty.h"
+#include "internalnodeproperty.h"
 #include "internalproperty.h"
 #include "internalsignalhandlerproperty.h"
+#include "internalvariantproperty.h"
 #include "metainfo.h"
 #include "nodeinstanceview.h"
 #include "nodemetainfo.h"
@@ -1131,7 +1134,7 @@ void ModelPrivate::deselectNode(const InternalNodePointer &node)
 void ModelPrivate::removePropertyWithoutNotification(const InternalPropertyPointer &property)
 {
     if (property->isNodeAbstractProperty()) {
-        const auto &&allSubNodes = property->toNodeAbstractProperty()->allSubNodes();
+        const auto &&allSubNodes = property->toProperty<InternalNodeAbstractProperty>()->allSubNodes();
         for (const InternalNodePointer &node : allSubNodes)
             removeNodeFromModel(node);
     }

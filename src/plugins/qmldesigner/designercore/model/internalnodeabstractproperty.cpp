@@ -7,14 +7,11 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalNodeAbstractProperty::InternalNodeAbstractProperty(const PropertyName &name, const InternalNode::Pointer &propertyOwner)
-    : InternalProperty(name, propertyOwner)
+InternalNodeAbstractProperty::InternalNodeAbstractProperty(const PropertyName &name,
+                                                           const InternalNode::Pointer &propertyOwner,
+                                                           PropertyType propertyType)
+    : InternalProperty(name, propertyOwner, propertyType)
 {
-}
-
-bool InternalNodeAbstractProperty::isNodeAbstractProperty() const
-{
-    return true;
 }
 
 bool InternalNodeAbstractProperty::isValid() const

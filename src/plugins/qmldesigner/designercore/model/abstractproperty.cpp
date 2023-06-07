@@ -51,11 +51,6 @@ AbstractProperty::AbstractProperty(const AbstractProperty &property, AbstractVie
 
 AbstractProperty::~AbstractProperty() = default;
 
-Internal::InternalNodePointer AbstractProperty::internalNode() const
-{
-    return m_internalNode;
-}
-
 Internal::ModelPrivate *AbstractProperty::privateModel() const
 {
     return m_model ? m_model->d.get() : nullptr;
@@ -293,6 +288,17 @@ bool AbstractProperty::isSignalDeclarationProperty() const
     }
 
     return false;
+}
+
+PropertyType AbstractProperty::type() const
+{
+    if (!isValid())
+        return PropertyType::None;
+
+    if (internalNode()->hasProperty(name()))
+        return internalNode()->property(name())->propertyType();
+
+    return PropertyType::None;
 }
 
 bool AbstractProperty::isBindingProperty() const

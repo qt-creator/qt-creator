@@ -70,8 +70,9 @@ void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNode
     if (modelNode.hasParentProperty() && modelNode.parentProperty().isDynamic())
         return;
 
-    if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isNodeAbstractProperty())
-        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
+    auto internalProperty = internalNode()->property(name());
+    if (internalProperty && !internalProperty->isNodeAbstractProperty())
+        privateModel()->removePropertyAndRelatedResources(internalProperty);
 
     if (modelNode.hasParentProperty()) {
         Internal::InternalNodeAbstractProperty::Pointer oldParentProperty = modelNode.internalNode()->parentProperty();

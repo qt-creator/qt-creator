@@ -12,6 +12,7 @@ class InternalSignalHandlerProperty : public InternalProperty
 {
 public:
     using Pointer = std::shared_ptr<InternalSignalHandlerProperty>;
+    static constexpr PropertyType type = PropertyType::SignalHandler;
 
     InternalSignalHandlerProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
@@ -19,9 +20,6 @@ public:
 
     QString source() const;
     void setSource(const QString &source);
-
-    bool isSignalHandlerProperty() const override;
-
 
 private:
     QString m_source;
@@ -31,6 +29,7 @@ class InternalSignalDeclarationProperty : public InternalProperty
 {
 public:
     using Pointer = std::shared_ptr<InternalSignalDeclarationProperty>;
+    static constexpr PropertyType type = PropertyType::SignalDeclaration;
 
     InternalSignalDeclarationProperty(const PropertyName &name,
                                       const InternalNodePointer &propertyOwner);
@@ -39,8 +38,6 @@ public:
 
     QString signature() const;
     void setSignature(const QString &source);
-
-    bool isSignalDeclarationProperty() const override;
 
 private:
     QString m_signature;

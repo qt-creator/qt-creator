@@ -79,6 +79,8 @@ public:
     bool isSignalHandlerProperty() const;
     bool isSignalDeclarationProperty() const;
 
+    PropertyType type() const;
+
     bool isDynamic() const;
     TypeName dynamicTypeName() const;
 
@@ -124,7 +126,7 @@ public:
 protected:
     AbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
     AbstractProperty(const Internal::InternalPropertyPointer &property, Model* model, AbstractView *view);
-    Internal::InternalNodePointer internalNode() const;
+    Internal::InternalNodePointer internalNode() const { return m_internalNode; }
     Internal::ModelPrivate *privateModel() const;
 
 private:

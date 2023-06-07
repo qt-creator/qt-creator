@@ -12,6 +12,7 @@ class InternalVariantProperty : public InternalProperty
 {
 public:
     using Pointer = std::shared_ptr<InternalVariantProperty>;
+    static constexpr PropertyType type = PropertyType::Variant;
 
     InternalVariantProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
@@ -21,9 +22,6 @@ public:
     void setValue(const QVariant &value);
 
     void setDynamicValue(const TypeName &type, const QVariant &value);
-
-    bool isVariantProperty() const override;
-
 
 private:
     QVariant m_value;

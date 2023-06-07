@@ -12,6 +12,8 @@ class InternalBindingProperty : public InternalProperty
 {
 public:
     using Pointer = std::shared_ptr<InternalBindingProperty>;
+    static constexpr PropertyType type = PropertyType::Binding;
+
     InternalBindingProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
     bool isValid() const override;
@@ -20,8 +22,6 @@ public:
     void setExpression(const QString &expression);
 
     void setDynamicExpression(const TypeName &type, const QString &expression);
-
-    bool isBindingProperty() const override;
 
 protected:
 

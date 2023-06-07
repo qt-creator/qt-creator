@@ -7,8 +7,9 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalNodeProperty::InternalNodeProperty(const PropertyName &name, const InternalNode::Pointer &propertyOwner)
-    : InternalNodeAbstractProperty(name, propertyOwner)
+InternalNodeProperty::InternalNodeProperty(const PropertyName &name,
+                                           const InternalNode::Pointer &propertyOwner)
+    : InternalNodeAbstractProperty(name, propertyOwner, PropertyType::Node)
 {
 }
 
@@ -36,11 +37,6 @@ int InternalNodeProperty::indexOf(const InternalNode::Pointer &node) const
 bool InternalNodeProperty::isValid() const
 {
     return InternalProperty::isValid() && isNodeProperty();
-}
-
-bool InternalNodeProperty::isNodeProperty() const
-{
-    return true;
 }
 
 InternalNode::Pointer InternalNodeProperty::node() const

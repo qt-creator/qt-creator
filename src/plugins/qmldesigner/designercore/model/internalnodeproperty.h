@@ -12,6 +12,7 @@ class InternalNodeProperty : public InternalNodeAbstractProperty
 {
 public:
     using Pointer = std::shared_ptr<InternalNodeProperty>;
+    static constexpr PropertyType type = PropertyType::Node;
 
     InternalNodeProperty(const PropertyName &name, const InternalNodePointer &node);
 
@@ -19,7 +20,6 @@ public:
     bool isEmpty() const override;
     int count() const override;
     int indexOf(const InternalNodePointer &node) const override;
-    bool isNodeProperty() const override;
 
     QList<InternalNodePointer> allSubNodes() const override;
     QList<InternalNodePointer> directSubNodes() const override;

@@ -6,8 +6,9 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalBindingProperty::InternalBindingProperty(const PropertyName &name, const InternalNodePointer &propertyOwner)
-    : InternalProperty(name, propertyOwner)
+InternalBindingProperty::InternalBindingProperty(const PropertyName &name,
+                                                 const InternalNodePointer &propertyOwner)
+    : InternalProperty(name, propertyOwner, PropertyType::Binding)
 {
 }
 
@@ -23,11 +24,6 @@ QString InternalBindingProperty::expression() const
 void InternalBindingProperty::setExpression(const QString &expression)
 {
     m_expression = expression;
-}
-
-bool InternalBindingProperty::isBindingProperty() const
-{
-    return true;
 }
 
 void InternalBindingProperty::setDynamicExpression(const TypeName &type, const QString &expression)

@@ -48,16 +48,15 @@ void BindingProperty::setExpression(const QString &expression)
     if (expression.isEmpty())
         return;
 
-    if (internalNode()->hasProperty(name())) { //check if oldValue != value
-        Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
-        if (internalProperty->isBindingProperty()
-            && internalProperty->toBindingProperty()->expression() == expression)
-
+    if (auto internalProperty = internalNode()->property(name())) {
+        auto bindingProperty = internalProperty->to<PropertyType::Binding>();
+        //check if oldValue != value
+        if (bindingProperty && bindingProperty->expression() == expression)
             return;
-    }
 
-    if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isBindingProperty())
-        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
+        if (!bindingProperty)
+            privateModel()->removePropertyAndRelatedResources(internalProperty);
+    }
 
     privateModel()->setBindingProperty(internalNode(), name(), expression);
 }
@@ -340,20 +339,19 @@ void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, 
     if (typeName.isEmpty())
         return;
 
-    if (internalNode()->hasProperty(name())) { //check if oldValue != value
-        Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
-        if (internalProperty->isBindingProperty()
-            && internalProperty->toBindingProperty()->expression() == expression
-            && internalProperty->toBindingProperty()->dynamicTypeName() == typeName) {
-
+    if (auto internalProperty = internalNode()->property(name())) {
+        auto bindingProperty = internalProperty->to<PropertyType::Binding>();
+        //check if oldValue != value
+        if (bindingProperty && bindingProperty->expression() == expression
+            && internalProperty->dynamicTypeName() == typeName) {
             return;
         }
+
+        if (!bindingProperty)
+            privateModel()->removePropertyAndRelatedResources(internalProperty);
     }
 
-    if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isBindingProperty())
-        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
-
-     privateModel()->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
+    privateModel()->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
 }
 
 QDebug operator<<(QDebug debug, const BindingProperty &property)

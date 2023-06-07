@@ -41,11 +41,9 @@ Internal::InternalNodeListPropertyPointer &NodeListProperty::internalNodeListPro
     if (m_internalNodeListProperty)
         return m_internalNodeListProperty;
 
-    if (internalNode()->hasProperty(name())) {
-        Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
-        if (internalProperty->isNodeListProperty())
-            m_internalNodeListProperty = internalProperty->toNodeListProperty();
-    }
+    auto internalProperty = internalNode()->nodeListProperty(name());
+    if (internalProperty)
+        m_internalNodeListProperty = internalProperty;
 
     return m_internalNodeListProperty;
 }
@@ -65,9 +63,7 @@ QList<ModelNode> NodeListProperty::toModelNodeList() const
         return {};
 
     if (internalNodeListProperty())
-        return internalNodesToModelNodes(m_internalNodeListProperty->toNodeListProperty()->nodeList(),
-                                         model(),
-                                         view());
+        return internalNodesToModelNodes(m_internalNodeListProperty->nodeList(), model(), view());
 
     return QList<ModelNode>();
 }
