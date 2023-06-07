@@ -30,6 +30,7 @@
 #include <QListWidget>
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QPushButton>
 #include <QStandardPaths>
 #include <QTimer>

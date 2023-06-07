@@ -5,14 +5,13 @@
 
 #include "androidconfigurations.h"
 
-#include <QNetworkReply>
 #include <QObject>
-#include <QProgressDialog>
 
-namespace Utils {
-class Archive;
-class FilePath;
-}
+QT_BEGIN_NAMESPACE
+class QProgressDialog;
+QT_END_NAMESPACE
+
+namespace Tasking { class TaskTree; }
 
 namespace Android::Internal {
 
@@ -23,30 +22,20 @@ class AndroidSdkDownloader : public QObject
 public:
     AndroidSdkDownloader();
     ~AndroidSdkDownloader();
+
     void downloadAndExtractSdk();
     static QString dialogTitle();
 
-    void cancel();
-
 signals:
-    void sdkPackageWriteFinished();
     void sdkExtracted();
     void sdkDownloaderError(const QString &error);
 
 private:
-    void cancelWithError(const QString &error);
     void logError(const QString &error);
 
-    void downloadFinished();
-#if QT_CONFIG(ssl)
-    void sslErrors(const QList<QSslError> &errors);
-#endif
-
-    QNetworkReply *m_reply = nullptr;
-    Utils::FilePath m_sdkFilename;
-    QProgressDialog *m_progressDialog = nullptr;
     AndroidConfig &m_androidConfig;
-    std::unique_ptr<Utils::Archive> m_archive;
+    std::unique_ptr<QProgressDialog> m_progressDialog;
+    std::unique_ptr<Tasking::TaskTree> m_taskTree;
 };
 
 } // namespace Android::Internal
