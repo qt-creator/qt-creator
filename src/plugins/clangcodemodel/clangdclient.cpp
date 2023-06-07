@@ -691,7 +691,8 @@ class ClangdDiagnosticManager : public LanguageClient::DiagnosticManager
         return Utils::filtered(diagnostics, [](const Diagnostic &diag){
             const Diagnostic::Code code = diag.code().value_or(Diagnostic::Code());
             const QString * const codeString = std::get_if<QString>(&code);
-            return !codeString || *codeString != "drv_unknown_argument";
+            return !codeString || (*codeString != "drv_unknown_argument"
+                                   && !codeString->startsWith("drv_unsupported_opt"));
         });
     }
 
