@@ -81,7 +81,7 @@ public:
     ModelNode &operator=(const ModelNode &) = default;
     ModelNode(ModelNode &&) = default;
     ModelNode &operator=(ModelNode &&) noexcept = default;
-    ~ModelNode();
+    ~ModelNode() = default;
 
     TypeName type() const;
     QString simplifiedTypeName() const;
@@ -268,7 +268,7 @@ public:
     }
 
 private: // functions
-    Internal::InternalNodePointer internalNode() const;
+    Internal::InternalNodePointer internalNode() const { return m_internalNode; }
 
     bool hasLocked() const;
 
