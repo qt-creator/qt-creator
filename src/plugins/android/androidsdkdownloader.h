@@ -34,11 +34,6 @@ signals:
     void sdkDownloaderError(const QString &error);
 
 private:
-    static Utils::FilePath getSaveFilename(const QUrl &url);
-    bool saveToDisk(const Utils::FilePath &filename, QIODevice *data);
-    static bool isHttpRedirect(QNetworkReply *m_reply);
-
-    bool verifyFileIntegrity();
     void cancelWithError(const QString &error);
     void logError(const QString &error);
 

@@ -30,6 +30,55 @@ AndroidSdkDownloader::AndroidSdkDownloader()
 
 AndroidSdkDownloader::~AndroidSdkDownloader() = default;
 
+static bool isHttpRedirect(QNetworkReply *reply)
+{
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    return statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 305
+           || statusCode == 307 || statusCode == 308;
+}
+
+static FilePath sdkFromUrl(const QUrl &url)
+{
+    QString path = url.path();
+    QString basename = QFileInfo(path).fileName();
+
+    if (basename.isEmpty())
+        basename = "sdk-tools.zip";
+
+    if (QFile::exists(basename)) {
+        int i = 0;
+        basename += '.';
+        while (QFile::exists(basename + QString::number(i)))
+            ++i;
+        basename += QString::number(i);
+    }
+
+    return FilePath::fromString(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
+           / basename;
+}
+
+static std::optional<QString> saveToDisk(const FilePath &filename, QIODevice *data)
+{
+    QFile file(filename.toString());
+    if (!file.open(QIODevice::WriteOnly)) {
+        return Tr::tr("Could not open %1 for writing: %2.")
+            .arg(filename.toUserOutput(), file.errorString());
+    }
+    file.write(data->readAll());
+    return {};
+}
+
+static bool verifyFileIntegrity(const FilePath fileName, const QByteArray &sha256)
+{
+    QFile file(fileName.toString());
+    if (file.open(QFile::ReadOnly)) {
+        QCryptographicHash hash(QCryptographicHash::Sha256);
+        if (hash.addData(&file))
+            return hash.result() == sha256;
+    }
+    return false;
+}
+
 #if QT_CONFIG(ssl)
 void AndroidSdkDownloader::sslErrors(const QList<QSslError> &sslErrors)
 {
@@ -88,18 +137,6 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
     });
 }
 
-bool AndroidSdkDownloader::verifyFileIntegrity()
-{
-    QFile f(m_sdkFilename.toString());
-    if (f.open(QFile::ReadOnly)) {
-        QCryptographicHash hash(QCryptographicHash::Sha256);
-        if (hash.addData(&f)) {
-            return hash.result() == m_androidConfig.getSdkToolsSha256();
-        }
-    }
-    return false;
-}
-
 QString AndroidSdkDownloader::dialogTitle()
 {
     return Tr::tr("Download SDK Tools");
@@ -128,48 +165,6 @@ void AndroidSdkDownloader::logError(const QString &error)
     emit sdkDownloaderError(error);
 }
 
-FilePath AndroidSdkDownloader::getSaveFilename(const QUrl &url)
-{
-    QString path = url.path();
-    QString basename = QFileInfo(path).fileName();
-
-    if (basename.isEmpty())
-        basename = "sdk-tools.zip";
-
-    if (QFile::exists(basename)) {
-        int i = 0;
-        basename += '.';
-        while (QFile::exists(basename + QString::number(i)))
-            ++i;
-        basename += QString::number(i);
-    }
-
-    return FilePath::fromString(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
-            / basename;
-}
-
-bool AndroidSdkDownloader::saveToDisk(const FilePath &filename, QIODevice *data)
-{
-    QFile file(filename.toString());
-    if (!file.open(QIODevice::WriteOnly)) {
-        logError(QString(Tr::tr("Could not open %1 for writing: %2."))
-                     .arg(filename.toUserOutput(), file.errorString()));
-        return false;
-    }
-
-    file.write(data->readAll());
-    file.close();
-
-    return true;
-}
-
-bool AndroidSdkDownloader::isHttpRedirect(QNetworkReply *reply)
-{
-    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-    return statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 305
-           || statusCode == 307 || statusCode == 308;
-}
-
 void AndroidSdkDownloader::downloadFinished()
 {
     QUrl url = m_reply->url();
@@ -180,12 +175,16 @@ void AndroidSdkDownloader::downloadFinished()
         if (isHttpRedirect(m_reply)) {
             cancelWithError(QString(Tr::tr("Download from %1 was redirected.")).arg(url.toString()));
         } else {
-            m_sdkFilename = getSaveFilename(url);
-            if (saveToDisk(m_sdkFilename, m_reply) && verifyFileIntegrity())
+            m_sdkFilename = sdkFromUrl(url);
+            const std::optional<QString> saveResult = saveToDisk(m_sdkFilename, m_reply);
+            if (saveResult) {
+                cancelWithError(*saveResult);
+            } else if (!verifyFileIntegrity(m_sdkFilename, m_androidConfig.getSdkToolsSha256())) {
+                cancelWithError(Tr::tr("Writing and verifying the integrity of the "
+                                       "downloaded file has failed."));
+            } else {
                 emit sdkPackageWriteFinished();
-            else
-                cancelWithError(
-                    Tr::tr("Writing and verifying the integrity of the downloaded file has failed."));
+            }
         }
     }
 
