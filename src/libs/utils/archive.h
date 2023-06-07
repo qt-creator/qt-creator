@@ -14,28 +14,6 @@
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT Archive : public QObject
-{
-    Q_OBJECT
-public:
-    Archive(const FilePath &src, const FilePath &dest);
-    ~Archive();
-
-    bool isValid() const;
-    void unarchive();
-
-    static bool supportsFile(const FilePath &filePath, QString *reason = nullptr);
-
-signals:
-    void outputReceived(const QString &output);
-    void finished(bool success);
-
-private:
-    CommandLine m_commandLine;
-    FilePath m_workingDirectory;
-    std::unique_ptr<Process> m_process;
-};
-
 class QTCREATOR_UTILS_EXPORT Unarchiver : public QObject
 {
     Q_OBJECT
