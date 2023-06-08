@@ -107,6 +107,15 @@ public:
         });
     }
 
+    void synchronizeDocumentImports(Storage::Imports imports, SourceId sourceId) override
+    {
+        Sqlite::withImmediateTransaction(database, [&] {
+            synchronizeDocumentImports(imports,
+                                       {sourceId},
+                                       Storage::Synchronization::ImportKind::Import);
+        });
+    }
+
     ModuleId moduleId(Utils::SmallStringView moduleName) const override
     {
         return moduleCache.id(moduleName);
@@ -137,6 +146,38 @@ public:
 
         return selectTypeIdByModuleIdAndExportedNameStatement
             .template valueWithTransaction<TypeId>(moduleId, exportedTypeName);
+    }
+
+    TypeId typeId(ImportedTypeNameId typeNameId) const override
+    {
+        return Sqlite::withDeferredTransaction(database, [&] { return fetchTypeId(typeNameId); });
+    }
+
+    ImportId importId(const Storage::Import &import) const override
+    {
+        return Sqlite::withDeferredTransaction(database, [&] {
+            return fetchImportId(import.sourceId, import);
+        });
+    }
+
+    ImportedTypeNameId importedTypeNameId(ImportId importId,
+                                          Utils::SmallStringView typeName) override
+    {
+        return Sqlite::withDeferredTransaction(database, [&] {
+            return fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind::QualifiedExported,
+                                           importId,
+                                           typeName);
+        });
+    }
+
+    ImportedTypeNameId importedTypeNameId(SourceId sourceId,
+                                          Utils::SmallStringView typeName) override
+    {
+        return Sqlite::withDeferredTransaction(database, [&] {
+            return fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind::Exported,
+                                           sourceId,
+                                           typeName);
+        });
     }
 
     PropertyDeclarationIds propertyDeclarationIds(TypeId typeId) const override
@@ -610,14 +651,14 @@ private:
     template<typename Type>
     struct TypeCompare
     {
-        bool operator()(const Type &type, TypeId typeId) { return type.typeId < typeId; };
+        bool operator()(const Type &type, TypeId typeId) { return type.typeId < typeId; }
 
-        bool operator()(TypeId typeId, const Type &type) { return typeId < type.typeId; };
+        bool operator()(TypeId typeId, const Type &type) { return typeId < type.typeId; }
 
         bool operator()(const Type &first, const Type &second)
         {
             return first.typeId < second.typeId;
-        };
+        }
     };
 
     template<typename Property>
@@ -626,17 +667,17 @@ private:
         bool operator()(const Property &property, PropertyDeclarationId id)
         {
             return property.propertyDeclarationId < id;
-        };
+        }
 
         bool operator()(PropertyDeclarationId id, const Property &property)
         {
             return id < property.propertyDeclarationId;
-        };
+        }
 
         bool operator()(const Property &first, const Property &second)
         {
             return first.propertyDeclarationId < second.propertyDeclarationId;
-        };
+        }
     };
 
     SourceIds filterSourceIdsWithoutType(const SourceIds &updatedSourceIds, SourceIds &sourceIdsOfTypes)
@@ -825,9 +866,9 @@ private:
         Sqlite::insertUpdateDelete(range, fileStatuses, compareKey, insert, update, remove);
     }
 
-    void synchronizeImports(Storage::Synchronization::Imports &imports,
+    void synchronizeImports(Storage::Imports &imports,
                             const SourceIds &updatedSourceIds,
-                            Storage::Synchronization::Imports &moduleDependencies,
+                            Storage::Imports &moduleDependencies,
                             const SourceIds &updatedModuleDependencySourceIds,
                             Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
                             const ModuleIds &updatedModuleIds)
@@ -1484,7 +1525,7 @@ private:
                                 PropertyCompare<AliasPropertyDeclaration>{});
     }
 
-    void insertDocumentImport(const Storage::Synchronization::Import &import,
+    void insertDocumentImport(const Storage::Import &import,
                               Storage::Synchronization::ImportKind importKind,
                               ModuleId sourceModuleId,
                               ModuleExportedImportId moduleExportedImportId)
@@ -1513,7 +1554,7 @@ private:
         }
     }
 
-    void synchronizeDocumentImports(Storage::Synchronization::Imports &imports,
+    void synchronizeDocumentImports(Storage::Imports &imports,
                                     const SourceIds &updatedSourceIds,
                                     Storage::Synchronization::ImportKind importKind)
     {
@@ -1528,7 +1569,7 @@ private:
                                                                                importKind);
 
         auto compareKey = [](const Storage::Synchronization::ImportView &view,
-                             const Storage::Synchronization::Import &import) -> long long {
+                             const Storage::Import &import) -> long long {
             auto sourceIdDifference = view.sourceId - import.sourceId;
             if (sourceIdDifference != 0)
                 return sourceIdDifference;
@@ -1544,16 +1585,15 @@ private:
             return view.version.minor.value - import.version.minor.value;
         };
 
-        auto insert = [&](const Storage::Synchronization::Import &import) {
+        auto insert = [&](const Storage::Import &import) {
             insertDocumentImport(import, importKind, import.moduleId, ModuleExportedImportId{});
             auto callback = [&](ModuleId exportedModuleId,
                                 int majorVersion,
                                 int minorVersion,
                                 ModuleExportedImportId moduleExportedImportId) {
-                Storage::Synchronization::Import additionImport{exportedModuleId,
-                                                                Storage::Version{majorVersion,
-                                                                                 minorVersion},
-                                                                import.sourceId};
+                Storage::Import additionImport{exportedModuleId,
+                                               Storage::Version{majorVersion, minorVersion},
+                                               import.sourceId};
 
                 auto exportedImportKind = importKind == Storage::Synchronization::ImportKind::Import
                                               ? Storage::Synchronization::ImportKind::ModuleExportedImport
@@ -1571,8 +1611,7 @@ private:
                                                                          import.version.minor.value);
         };
 
-        auto update = [](const Storage::Synchronization::ImportView &,
-                         const Storage::Synchronization::Import &) {
+        auto update = [](const Storage::Synchronization::ImportView &, const Storage::Import &) {
             return Sqlite::UpdateChange::No;
         };
 
@@ -2028,7 +2067,7 @@ private:
         removeRelinkableEntries(relinkableExtensions, typeIds, TypeCompare<Prototype>{});
     }
 
-    ImportId fetchImportId(SourceId sourceId, const Storage::Synchronization::Import &import) const
+    ImportId fetchImportId(SourceId sourceId, const Storage::Import &import) const
     {
         if (import.version) {
             return selectImportIdBySourceIdAndModuleIdAndVersionStatement.template value<ImportId>(

@@ -4,6 +4,7 @@
 #include "../utils/googletest.h"
 
 #include "../mocks/projectstoragemock.h"
+#include "../mocks/sourcepathcachemock.h"
 
 #include <designercore/include/model.h>
 #include <designercore/include/modelnode.h>
@@ -23,11 +24,17 @@ auto PropertyId(const Matcher &matcher)
 class NodeMetaInfo : public testing::Test
 {
 protected:
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock;
-    QmlDesigner::Model model{projectStorageMock, "QtQuick.Item"};
+    NiceMock<SourcePathCacheMockWithPaths> pathCache{"/path/foo.qml"};
+    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCache.sourceId};
+    QmlDesigner::Model model{{projectStorageMock, pathCache},
+                             "Item",
+                             {QmlDesigner::Import::createLibraryImport("QML"),
+                              QmlDesigner::Import::createLibraryImport("QtQuick"),
+                              QmlDesigner::Import::createLibraryImport("QtQml.Models")},
+                             QUrl::fromLocalFile(pathCache.path.toQString())};
     ModelNode rootNode = model.rootModelNode();
-    ModelNode item = model.createModelNode("QtQuick.Item");
-    ModelNode object = model.createModelNode("QML.QtObject");
+    ModelNode item = model.createModelNode("Item");
+    ModelNode object = model.createModelNode("QtObject");
     QmlDesigner::NodeMetaInfo itemMetaInfo = item.metaInfo();
     QmlDesigner::NodeMetaInfo objectMetaInfo = object.metaInfo();
     QmlDesigner::TypeId intTypeId = projectStorageMock.typeId(projectStorageMock.moduleId("QML"),
@@ -37,7 +44,7 @@ protected:
 
 TEST_F(NodeMetaInfo, is_true_if_meta_info_exists)
 {
-    auto node = model.createModelNode("QtQuick.Item");
+    auto node = model.createModelNode("Item");
     auto metaInfo = node.metaInfo();
 
     auto isValid = bool(metaInfo);
@@ -47,7 +54,7 @@ TEST_F(NodeMetaInfo, is_true_if_meta_info_exists)
 
 TEST_F(NodeMetaInfo, is_valid_if_meta_info_exists)
 {
-    auto node = model.createModelNode("QtQuick.Item");
+    auto node = model.createModelNode("Item");
     auto metaInfo = node.metaInfo();
 
     auto isValid = metaInfo.isValid();
@@ -57,7 +64,7 @@ TEST_F(NodeMetaInfo, is_valid_if_meta_info_exists)
 
 TEST_F(NodeMetaInfo, is_false_if_meta_info_not_exists)
 {
-    auto node = model.createModelNode("QtQuick.Foo");
+    auto node = model.createModelNode("Foo");
     auto metaInfo = node.metaInfo();
 
     auto isValid = bool(metaInfo);
@@ -74,7 +81,7 @@ TEST_F(NodeMetaInfo, default_is_false)
 
 TEST_F(NodeMetaInfo, is_invalid_if_meta_info_not_exists)
 {
-    auto node = model.createModelNode("QtQuick.Foo");
+    auto node = model.createModelNode("Foo");
     auto metaInfo = node.metaInfo();
 
     auto isValid = metaInfo.isValid();
@@ -126,7 +133,7 @@ TEST_F(NodeMetaInfo, default_is_not_file_component)
 
 TEST_F(NodeMetaInfo, invalid_is_not_file_component)
 {
-    auto node = model.createModelNode("QtQuick.Foo");
+    auto node = model.createModelNode("Foo");
     auto metaInfo = node.metaInfo();
 
     bool isFileComponent = metaInfo.isFileComponent();
@@ -150,7 +157,7 @@ TEST_F(NodeMetaInfo, component_is_file_component)
 
 TEST_F(NodeMetaInfo, has_property)
 {
-    auto node = model.createModelNode("QtQuick.Item");
+    auto node = model.createModelNode("Item");
     auto metaInfo = node.metaInfo();
     projectStorageMock.createProperty(metaInfo.id(), "x", intTypeId);
 
@@ -161,7 +168,7 @@ TEST_F(NodeMetaInfo, has_property)
 
 TEST_F(NodeMetaInfo, has_not_property)
 {
-    auto node = model.createModelNode("QtQuick.Item");
+    auto node = model.createModelNode("Item");
     auto metaInfo = node.metaInfo();
 
     bool hasProperty = metaInfo.hasProperty("foo");
@@ -180,7 +187,7 @@ TEST_F(NodeMetaInfo, default_has_not_property)
 
 TEST_F(NodeMetaInfo, invalid_has_not_property)
 {
-    auto node = model.createModelNode("QtQuick.Foo");
+    auto node = model.createModelNode("Foo");
     auto metaInfo = node.metaInfo();
 
     bool hasProperty = metaInfo.hasProperty("x");
@@ -190,7 +197,7 @@ TEST_F(NodeMetaInfo, invalid_has_not_property)
 
 TEST_F(NodeMetaInfo, get_property)
 {
-    auto node = model.createModelNode("QtQuick.Item");
+    auto node = model.createModelNode("Item");
     auto metaInfo = node.metaInfo();
     auto propertyId = projectStorageMock.createProperty(metaInfo.id(), "x", intTypeId);
 
@@ -201,7 +208,7 @@ TEST_F(NodeMetaInfo, get_property)
 
 TEST_F(NodeMetaInfo, get_invalid_property_if_not_exists)
 {
-    auto node = model.createModelNode("QtQuick.Item");
+    auto node = model.createModelNode("Item");
     auto metaInfo = node.metaInfo();
 
     auto property = metaInfo.property("x");
@@ -220,7 +227,7 @@ TEST_F(NodeMetaInfo, get_invalid_property_for_default)
 
 TEST_F(NodeMetaInfo, get_invalid_property_if_meta_info_is_invalid)
 {
-    auto node = model.createModelNode("QtQuick.Foo");
+    auto node = model.createModelNode("Foo");
     auto metaInfo = node.metaInfo();
 
     auto property = metaInfo.property("x");
@@ -230,7 +237,7 @@ TEST_F(NodeMetaInfo, get_invalid_property_if_meta_info_is_invalid)
 
 TEST_F(NodeMetaInfo, get_properties)
 {
-    auto node = model.createModelNode("QtQuick.Item");
+    auto node = model.createModelNode("Item");
     auto metaInfo = node.metaInfo();
     auto xPropertyId = projectStorageMock.createProperty(metaInfo.id(), "x", intTypeId);
     auto yPropertyId = projectStorageMock.createProperty(metaInfo.id(), "y", intTypeId);
@@ -251,7 +258,7 @@ TEST_F(NodeMetaInfo, get_no_properties_for_default)
 
 TEST_F(NodeMetaInfo, get_no_properties_if_is_invalid)
 {
-    auto node = model.createModelNode("QtQuick.Foo");
+    auto node = model.createModelNode("Foo");
     auto metaInfo = node.metaInfo();
 
     auto properties = metaInfo.properties();
@@ -261,7 +268,7 @@ TEST_F(NodeMetaInfo, get_no_properties_if_is_invalid)
 
 TEST_F(NodeMetaInfo, get_local_properties)
 {
-    auto node = model.createModelNode("QtQuick.Item");
+    auto node = model.createModelNode("Item");
     auto metaInfo = node.metaInfo();
     auto xPropertyId = projectStorageMock.createProperty(metaInfo.id(), "x", intTypeId);
     auto yPropertyId = projectStorageMock.createProperty(metaInfo.id(), "y", intTypeId);
@@ -282,7 +289,7 @@ TEST_F(NodeMetaInfo, get_no_local_properties_for_default_metainfo)
 
 TEST_F(NodeMetaInfo, get_no_local_properties_if_node_is_invalid)
 {
-    auto node = model.createModelNode("QtQuick.Foo");
+    auto node = model.createModelNode("Foo");
     auto metaInfo = node.metaInfo();
 
     auto properties = metaInfo.localProperties();
@@ -292,7 +299,7 @@ TEST_F(NodeMetaInfo, get_no_local_properties_if_node_is_invalid)
 
 TEST_F(NodeMetaInfo, get_signal_names)
 {
-    auto node = model.createModelNode("QtQuick.Item");
+    auto node = model.createModelNode("Item");
     auto metaInfo = node.metaInfo();
     projectStorageMock.createSignal(metaInfo.id(), "xChanged");
     projectStorageMock.createSignal(metaInfo.id(), "yChanged");
@@ -313,7 +320,7 @@ TEST_F(NodeMetaInfo, get_no_signal_names_for_default_metainfo)
 
 TEST_F(NodeMetaInfo, get_no_signal_names_if_node_is_invalid)
 {
-    auto node = model.createModelNode("QtQuick.Foo");
+    auto node = model.createModelNode("Foo");
     auto metaInfo = node.metaInfo();
 
     auto signalNames = metaInfo.signalNames();
@@ -323,7 +330,7 @@ TEST_F(NodeMetaInfo, get_no_signal_names_if_node_is_invalid)
 
 TEST_F(NodeMetaInfo, get_function_names)
 {
-    auto node = model.createModelNode("QtQuick.Item");
+    auto node = model.createModelNode("Item");
     auto metaInfo = node.metaInfo();
     projectStorageMock.createFunction(metaInfo.id(), "setX");
     projectStorageMock.createFunction(metaInfo.id(), "setY");
@@ -344,7 +351,7 @@ TEST_F(NodeMetaInfo, get_no_function_names_for_default_metainfo)
 
 TEST_F(NodeMetaInfo, get_no_function_names_if_node_is_invalid)
 {
-    auto node = model.createModelNode("QtQuick.Foo");
+    auto node = model.createModelNode("Foo");
     auto metaInfo = node.metaInfo();
 
     auto functionNames = metaInfo.slotNames();
@@ -354,7 +361,7 @@ TEST_F(NodeMetaInfo, get_no_function_names_if_node_is_invalid)
 
 TEST_F(NodeMetaInfo, get_default_property)
 {
-    auto node = model.createModelNode("QtQuick.Item");
+    auto node = model.createModelNode("Item");
     auto metaInfo = node.metaInfo();
     auto defaultProperty = metaInfo.property("data");
 
@@ -374,7 +381,7 @@ TEST_F(NodeMetaInfo, get_no_default_property_for_default_metainfo)
 
 TEST_F(NodeMetaInfo, get_no_default_property_if_node_is_invalid)
 {
-    auto node = model.createModelNode("QtQuick.Foo");
+    auto node = model.createModelNode("Foo");
     auto metaInfo = node.metaInfo();
 
     auto property = metaInfo.defaultProperty();
@@ -384,7 +391,7 @@ TEST_F(NodeMetaInfo, get_no_default_property_if_node_is_invalid)
 
 TEST_F(NodeMetaInfo, get_default_property_name)
 {
-    auto node = model.createModelNode("QtQuick.Item");
+    auto node = model.createModelNode("Item");
     auto metaInfo = node.metaInfo();
     auto defaultProperty = metaInfo.property("data");
 
@@ -404,7 +411,7 @@ TEST_F(NodeMetaInfo, get_no_default_property_name_for_default_metainfo)
 
 TEST_F(NodeMetaInfo, get_no_default_property_name_if_node_is_invalid)
 {
-    auto node = model.createModelNode("QtQuick.Foo");
+    auto node = model.createModelNode("Foo");
     auto metaInfo = node.metaInfo();
 
     auto property = metaInfo.defaultPropertyName();

@@ -16,6 +16,9 @@ using PropertyTypeList = QList<PropertyName>;
 using IdName = QByteArray;
 class Model;
 class ModelNode;
+class NonLockingMutex;
+template<typename ProjectStorage, typename Mutex = NonLockingMutex>
+class SourcePathCache;
 
 struct ModelDeleter
 {
@@ -35,9 +38,17 @@ constexpr bool useProjectStorage()
 
 #ifdef QDS_MODEL_USE_PROJECTSTORAGEINTERFACE
 using ProjectStorageType = ProjectStorageInterface;
+using PathCacheType = SourcePathCacheInterface;
 #else
 using ProjectStorageType = ProjectStorage<Sqlite::Database>;
+using PathCacheType = SourcePathCache<ProjectStorageType, NonLockingMutex>;
 #endif
+
+struct ProjectStorageDependencies
+{
+    ProjectStorageType &storage;
+    PathCacheType &cache;
+};
 
 enum class PropertyType {
     None,

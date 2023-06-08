@@ -4,6 +4,7 @@
 #include "../utils/googletest.h"
 
 #include "../mocks/projectstoragemock.h"
+#include "../mocks/sourcepathcachemock.h"
 
 #include <designercore/include/model.h>
 #include <designercore/include/modelnode.h>
@@ -14,8 +15,9 @@ namespace {
 class ModelNode : public testing::Test
 {
 protected:
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock;
-    QmlDesigner::Model model{projectStorageMock, "QtQuick.Item"};
+    NiceMock<SourcePathCacheMockWithPaths> pathCache{"/path/foo.qml"};
+    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCache.sourceId};
+    QmlDesigner::Model model{{projectStorageMock, pathCache}, "Item"};
     QmlDesigner::ModelNode rootNode = model.rootModelNode();
 };
 

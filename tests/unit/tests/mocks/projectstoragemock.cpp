@@ -3,10 +3,15 @@
 
 #include "projectstoragemock.h"
 
+#include <matchers/import-matcher.h>
+
 #include <projectstorage/projectstorageinfotypes.h>
 
+using QmlDesigner::ImportedTypeNameId;
+using QmlDesigner::ImportId;
 using QmlDesigner::ModuleId;
 using QmlDesigner::PropertyDeclarationId;
+using QmlDesigner::SourceId;
 using QmlDesigner::TypeId;
 using QmlDesigner::TypeIds;
 using QmlDesigner::Storage::PropertyDeclarationTraits;
@@ -44,6 +49,54 @@ ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName)
     ON_CALL(*this, moduleId(Eq(moduleName))).WillByDefault(Return(moduleId));
 
     return moduleId;
+}
+
+QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
+    SourceId sourceId, Utils::SmallStringView typeName, TypeId typeId)
+{
+    static ImportedTypeNameId importedTypeNameId;
+    incrementBasicId(importedTypeNameId);
+
+    ON_CALL(*this, importedTypeNameId(sourceId, Eq(typeName)))
+        .WillByDefault(Return(importedTypeNameId));
+
+    ON_CALL(*this, typeId(importedTypeNameId)).WillByDefault(Return(typeId));
+
+    return importedTypeNameId;
+}
+
+QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
+    QmlDesigner::SourceId sourceId, Utils::SmallStringView typeName, QmlDesigner::ModuleId moduleId)
+{
+    return createImportedTypeNameId(sourceId,
+                                    typeName,
+                                    typeId(moduleId, typeName, QmlDesigner::Storage::Version{}));
+}
+
+QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
+    QmlDesigner::ImportId importId, Utils::SmallStringView typeName, QmlDesigner::TypeId typeId)
+{
+    static ImportedTypeNameId importedTypeNameId;
+    incrementBasicId(importedTypeNameId);
+
+    ON_CALL(*this, importedTypeNameId(importId, Eq(typeName)))
+        .WillByDefault(Return(importedTypeNameId));
+
+    ON_CALL(*this, typeId(importedTypeNameId)).WillByDefault(Return(typeId));
+
+    return importedTypeNameId;
+}
+
+QmlDesigner::ImportId ProjectStorageMock::createImportId(QmlDesigner::ModuleId moduleId,
+                                                         QmlDesigner::SourceId sourceId,
+                                                         QmlDesigner::Storage::Version version)
+{
+    static ImportId importId;
+    incrementBasicId(importId);
+
+    ON_CALL(*this, importId(IsImport(moduleId, sourceId, version))).WillByDefault(Return(importId));
+
+    return importId;
 }
 
 PropertyDeclarationId ProjectStorageMock::createProperty(TypeId typeId,
@@ -155,7 +208,7 @@ TypeId ProjectStorageMock::createObject(ModuleId moduleId,
     return createType(moduleId, typeName, Storage::TypeTraits::Reference, baseTypeIds);
 }
 
-void ProjectStorageMock::setupQtQtuick()
+void ProjectStorageMock::setupQtQuick()
 {
     setupIsBasedOn(*this);
 
@@ -237,6 +290,37 @@ void ProjectStorageMock::setupQtQtuick()
                  PropertyDeclarationTraits::IsList,
                  qtObjectId,
                  {qtObjectId, itemId});
+}
+
+void ProjectStorageMock::setupQtQuickImportedTypeNameIds(QmlDesigner::SourceId sourceId)
+{
+    auto qmlModuleId = moduleId("QML");
+    auto qtQmlModelsModuleId = moduleId("QtQml.Models");
+    auto qtQuickModuleId = moduleId("QtQuick");
+    auto qtQuickNativeModuleId = moduleId("QtQuick-cppnative");
+    auto qtQuickTimelineModuleId = moduleId("QtQuick.Timeline");
+    auto flowViewModuleId = moduleId("FlowView");
+
+    createImportedTypeNameId(sourceId, "int", qmlModuleId);
+    createImportedTypeNameId(sourceId, "QtObject", qmlModuleId);
+    createImportedTypeNameId(sourceId, "ListElement", qtQmlModelsModuleId);
+    createImportedTypeNameId(sourceId, "ListModel", qtQmlModelsModuleId);
+    createImportedTypeNameId(sourceId, "Item", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "ListView", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "StateGroup", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "State", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "Animation", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "Transition", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "PropertyAnimation", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "QQuickStateOperation", qtQuickNativeModuleId);
+    createImportedTypeNameId(sourceId, "PropertyChanges", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "KeyframeGroup", qtQuickTimelineModuleId);
+    createImportedTypeNameId(sourceId, "Keyframe", qtQuickTimelineModuleId);
+    createImportedTypeNameId(sourceId, "FlowActionArea", flowViewModuleId);
+    createImportedTypeNameId(sourceId, "FlowWildcard", flowViewModuleId);
+    createImportedTypeNameId(sourceId, "FlowDecision", flowViewModuleId);
+    createImportedTypeNameId(sourceId, "FlowTransition", flowViewModuleId);
+    createImportedTypeNameId(sourceId, "FlowItem", flowViewModuleId);
 }
 
 void ProjectStorageMock::setupCommonTypeCache()

@@ -6,6 +6,7 @@
 #include "../mocks/mocklistmodeleditorview.h"
 #include "../mocks/modelresourcemanagementmock.h"
 #include "../mocks/projectstoragemock.h"
+#include "../mocks/sourcepathcachemock.h"
 
 #include <include/bindingproperty.h>
 #include <include/model.h>
@@ -70,9 +71,13 @@ protected:
 
 protected:
     NiceMock<MockListModelEditorView> viewMock;
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock;
+    NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
+    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId};
     QmlDesigner::ModelResourceManagement management;
-    QmlDesigner::Model model{projectStorageMock, "QtQuick.Item"};
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
+                             "Item",
+                             {QmlDesigner::Import::createLibraryImport("QtQtuick")},
+                             QUrl::fromLocalFile(pathCacheMock.path.toQString())};
     ModelNode rootNode;
 };
 

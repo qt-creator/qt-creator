@@ -15,10 +15,30 @@
 class ProjectStorageMock : public QmlDesigner::ProjectStorageInterface
 {
 public:
-    void setupQtQtuick();
+    virtual ~ProjectStorageMock() = default;
+
+    void setupQtQuick();
+    void setupQtQuickImportedTypeNameIds(QmlDesigner::SourceId sourceId);
     void setupCommonTypeCache();
 
     QmlDesigner::ModuleId createModule(Utils::SmallStringView moduleName);
+
+    QmlDesigner::ImportedTypeNameId createImportedTypeNameId(QmlDesigner::SourceId sourceId,
+                                                             Utils::SmallStringView typeName,
+                                                             QmlDesigner::TypeId typeId);
+
+    QmlDesigner::ImportedTypeNameId createImportedTypeNameId(QmlDesigner::SourceId sourceId,
+                                                             Utils::SmallStringView typeName,
+                                                             QmlDesigner::ModuleId moduleId);
+
+    QmlDesigner::ImportedTypeNameId createImportedTypeNameId(QmlDesigner::ImportId importId,
+                                                             Utils::SmallStringView typeName,
+                                                             QmlDesigner::TypeId typeId);
+
+    QmlDesigner::ImportId createImportId(
+        QmlDesigner::ModuleId moduleId,
+        QmlDesigner::SourceId sourceId,
+        QmlDesigner::Storage::Version version = QmlDesigner::Storage::Version{});
 
     QmlDesigner::TypeId createType(
         QmlDesigner::ModuleId moduleId,
@@ -63,6 +83,10 @@ public:
                 synchronize,
                 (QmlDesigner::Storage::Synchronization::SynchronizationPackage package),
                 (override));
+    MOCK_METHOD(void,
+                synchronizeDocumentImports,
+                (const QmlDesigner::Storage::Imports imports, QmlDesigner::SourceId sourceId),
+                (override));
 
     MOCK_METHOD(QmlDesigner::ModuleId, moduleId, (::Utils::SmallStringView), (const, override));
 
@@ -73,10 +97,28 @@ public:
 
     MOCK_METHOD(QmlDesigner::TypeId,
                 typeId,
+                (QmlDesigner::ImportedTypeNameId typeNameId),
+                (const, override));
+
+    MOCK_METHOD(QmlDesigner::TypeId,
+                typeId,
                 (QmlDesigner::ModuleId moduleId,
                  ::Utils::SmallStringView exportedTypeName,
                  QmlDesigner::Storage::Version version),
                 (const, override));
+
+    MOCK_METHOD(QmlDesigner::ImportId,
+                importId,
+                (const QmlDesigner::Storage::Import &import),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::ImportedTypeNameId,
+                importedTypeNameId,
+                (QmlDesigner::ImportId sourceId, ::Utils::SmallStringView typeName),
+                (override));
+    MOCK_METHOD(QmlDesigner::ImportedTypeNameId,
+                importedTypeNameId,
+                (QmlDesigner::SourceId sourceId, ::Utils::SmallStringView typeName),
+                (override));
 
     MOCK_METHOD(QmlDesigner::PropertyDeclarationIds,
                 propertyDeclarationIds,
@@ -207,9 +249,10 @@ public:
 class ProjectStorageMockWithQtQtuick : public ProjectStorageMock
 {
 public:
-    ProjectStorageMockWithQtQtuick()
+    ProjectStorageMockWithQtQtuick(QmlDesigner::SourceId sourceId)
     {
-        setupQtQtuick();
+        setupQtQuick();
+        setupQtQuickImportedTypeNameIds(sourceId);
         setupCommonTypeCache();
     }
 };

@@ -98,12 +98,17 @@ class ModelPrivate : public QObject
 
 public:
     ModelPrivate(Model *model,
-                 ProjectStorageType &projectStorage,
+                 ProjectStorageDependencies m_projectStorageDependencies,
                  const TypeName &type,
                  int major,
                  int minor,
                  Model *metaInfoProxyModel,
                  std::unique_ptr<ModelResourceManagementInterface> resourceManagement);
+    ModelPrivate(Model *model,
+                 ProjectStorageDependencies m_projectStorageDependencies,
+                 Utils::SmallStringView typeName,
+                 Imports imports,
+                 const QUrl &filePath);
     ModelPrivate(Model *model,
                  const TypeName &type,
                  int major,
@@ -235,7 +240,7 @@ public:
 
     // Imports:
     const Imports &imports() const { return m_imports; }
-    void changeImports(const Imports &importsToBeAdded, const Imports &importToBeRemoved);
+    void changeImports(Imports importsToBeAdded, Imports importToBeRemoved);
     void notifyImportsChanged(const Imports &addedImports, const Imports &removedImports);
     void notifyPossibleImportsChanged(const Imports &possibleImports);
     void notifyUsedImportsChanged(const Imports &usedImportsChanged);
@@ -306,9 +311,11 @@ private:
     static QList<std::tuple<InternalBindingPropertyPointer, QString>> toInternalBindingProperties(
         const ModelResourceSet::SetExpressions &setExpressions);
     EnabledViewRange enabledViews() const;
+    void setTypeId(InternalNode *node, Utils::SmallStringView typeName);
 
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
+    NotNullPointer<PathCacheType> pathCache = nullptr;
 
 private:
     Model *m_model = nullptr;
@@ -326,6 +333,7 @@ private:
     InternalNodePointer m_currentTimelineNode;
     std::unique_ptr<ModelResourceManagementInterface> m_resourceManagement;
     QUrl m_fileUrl;
+    SourceId m_sourceId;
     QPointer<RewriterView> m_rewriterView;
     QPointer<NodeInstanceView> m_nodeInstanceView;
     QPointer<Model> m_metaInfoProxyModel;

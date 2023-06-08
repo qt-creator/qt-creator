@@ -3,7 +3,8 @@ add_qtc_library(TestMatchers OBJECT
   SKIP_AUTOMOC ON
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}
   DEPENDS
-    Googletest Utils
+    Googletest Utils QmlDesigner
   SOURCES
+    import-matcher.h
     unittest-matchers.h
 )

@@ -1568,7 +1568,7 @@ PropertyMetaInfo NodeMetaInfo::defaultProperty() const
 bool NodeMetaInfo::hasDefaultProperty() const
 {
     if constexpr (useProjectStorage())
-        return bool(typeData().defaultPropertyId);
+        return isValid() && bool(typeData().defaultPropertyId);
     else
         return !defaultPropertyName().isEmpty();
 }

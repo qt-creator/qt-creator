@@ -407,7 +407,7 @@ extend_qtc_library(QmlDesignerCore
     projectstorage.cpp projectstorage.h
     sourcepath.h
     sourcepathcache.h
-    sourcepathcache.h
+    sourcepathcacheinterface.h
     sourcepathcachetypes.h
     sourcepathview.h
     storagecache.h

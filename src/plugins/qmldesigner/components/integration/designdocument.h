@@ -39,7 +39,7 @@ class QMLDESIGNERCOMPONENTS_EXPORT DesignDocument : public QObject
     Q_OBJECT
 
 public:
-    DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage,
+    DesignDocument(ProjectStorageDependencies projectStorageDependencies,
                    ExternalDependenciesInterface &externalDependencies);
     ~DesignDocument() override;
 
@@ -143,7 +143,7 @@ private: // variables
     QScopedPointer<RewriterView> m_rewriterView;
     bool m_documentLoaded;
     ProjectExplorer::Target *m_currentTarget;
-    ProjectStorage<Sqlite::Database> &m_projectStorage;
+    ProjectStorageDependencies m_projectStorageDependencies;
     ExternalDependenciesInterface &m_externalDependencies;
 };
 

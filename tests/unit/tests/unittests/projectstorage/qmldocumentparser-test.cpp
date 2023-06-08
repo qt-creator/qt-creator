@@ -11,16 +11,17 @@
 
 namespace {
 
-namespace Storage = QmlDesigner::Storage::Synchronization;
+namespace Storage = QmlDesigner::Storage;
+namespace Synchronization = Storage::Synchronization;
 using QmlDesigner::ModuleId;
 using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
 
 MATCHER_P(HasPrototype, prototype, std::string(negation ? "isn't " : "is ") + PrintToString(prototype))
 {
-    const Storage::Type &type = arg;
+    const Synchronization::Type &type = arg;
 
-    return Storage::ImportedTypeName{prototype} == type.prototype;
+    return Synchronization::ImportedTypeName{prototype} == type.prototype;
 }
 
 MATCHER_P3(IsPropertyDeclaration,
@@ -28,12 +29,12 @@ MATCHER_P3(IsPropertyDeclaration,
            typeName,
            traits,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::PropertyDeclaration{name, typeName, traits}))
+               + PrintToString(Synchronization::PropertyDeclaration{name, typeName, traits}))
 {
-    const Storage::PropertyDeclaration &propertyDeclaration = arg;
+    const Synchronization::PropertyDeclaration &propertyDeclaration = arg;
 
     return propertyDeclaration.name == name
-           && Storage::ImportedTypeName{typeName} == propertyDeclaration.typeName
+           && Synchronization::ImportedTypeName{typeName} == propertyDeclaration.typeName
            && propertyDeclaration.traits == traits;
 }
 
@@ -43,12 +44,13 @@ MATCHER_P4(IsAliasPropertyDeclaration,
            traits,
            aliasPropertyName,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::PropertyDeclaration{name, typeName, traits, aliasPropertyName}))
+               + PrintToString(
+                   Synchronization::PropertyDeclaration{name, typeName, traits, aliasPropertyName}))
 {
-    const Storage::PropertyDeclaration &propertyDeclaration = arg;
+    const Synchronization::PropertyDeclaration &propertyDeclaration = arg;
 
     return propertyDeclaration.name == name
-           && Storage::ImportedTypeName{typeName} == propertyDeclaration.typeName
+           && Synchronization::ImportedTypeName{typeName} == propertyDeclaration.typeName
            && propertyDeclaration.traits == traits
            && propertyDeclaration.aliasPropertyName == aliasPropertyName
            && propertyDeclaration.aliasPropertyNameTail.empty();
@@ -61,12 +63,13 @@ MATCHER_P5(IsAliasPropertyDeclaration,
            aliasPropertyName,
            aliasPropertyNameTail,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::PropertyDeclaration{name, typeName, traits, aliasPropertyName}))
+               + PrintToString(
+                   Synchronization::PropertyDeclaration{name, typeName, traits, aliasPropertyName}))
 {
-    const Storage::PropertyDeclaration &propertyDeclaration = arg;
+    const Synchronization::PropertyDeclaration &propertyDeclaration = arg;
 
     return propertyDeclaration.name == name
-           && Storage::ImportedTypeName{typeName} == propertyDeclaration.typeName
+           && Synchronization::ImportedTypeName{typeName} == propertyDeclaration.typeName
            && propertyDeclaration.traits == traits
            && propertyDeclaration.aliasPropertyName == aliasPropertyName
            && propertyDeclaration.aliasPropertyNameTail == aliasPropertyNameTail;
@@ -76,18 +79,19 @@ MATCHER_P2(IsFunctionDeclaration,
            name,
            returnTypeName,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::FunctionDeclaration{name, returnTypeName}))
+               + PrintToString(Synchronization::FunctionDeclaration{name, returnTypeName}))
 {
-    const Storage::FunctionDeclaration &declaration = arg;
+    const Synchronization::FunctionDeclaration &declaration = arg;
 
     return declaration.name == name && declaration.returnTypeName == returnTypeName;
 }
 
 MATCHER_P(IsSignalDeclaration,
           name,
-          std::string(negation ? "isn't " : "is ") + PrintToString(Storage::SignalDeclaration{name}))
+          std::string(negation ? "isn't " : "is ")
+              + PrintToString(Synchronization::SignalDeclaration{name}))
 {
-    const Storage::SignalDeclaration &declaration = arg;
+    const Synchronization::SignalDeclaration &declaration = arg;
 
     return declaration.name == name;
 }
@@ -96,9 +100,9 @@ MATCHER_P2(IsParameter,
            name,
            typeName,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::ParameterDeclaration{name, typeName}))
+               + PrintToString(Synchronization::ParameterDeclaration{name, typeName}))
 {
-    const Storage::ParameterDeclaration &declaration = arg;
+    const Synchronization::ParameterDeclaration &declaration = arg;
 
     return declaration.name == name && declaration.typeName == typeName;
 }
@@ -106,9 +110,9 @@ MATCHER_P2(IsParameter,
 MATCHER_P(IsEnumeration,
           name,
           std::string(negation ? "isn't " : "is ")
-              + PrintToString(Storage::EnumerationDeclaration{name, {}}))
+              + PrintToString(Synchronization::EnumerationDeclaration{name, {}}))
 {
-    const Storage::EnumerationDeclaration &declaration = arg;
+    const Synchronization::EnumerationDeclaration &declaration = arg;
 
     return declaration.name == name;
 }
@@ -116,9 +120,9 @@ MATCHER_P(IsEnumeration,
 MATCHER_P(IsEnumerator,
           name,
           std::string(negation ? "isn't " : "is ")
-              + PrintToString(Storage::EnumeratorDeclaration{name}))
+              + PrintToString(Synchronization::EnumeratorDeclaration{name}))
 {
-    const Storage::EnumeratorDeclaration &declaration = arg;
+    const Synchronization::EnumeratorDeclaration &declaration = arg;
 
     return declaration.name == name && !declaration.hasValue;
 }
@@ -127,9 +131,9 @@ MATCHER_P2(IsEnumerator,
            name,
            value,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::EnumeratorDeclaration{name, value, true}))
+               + PrintToString(Synchronization::EnumeratorDeclaration{name, value, true}))
 {
-    const Storage::EnumeratorDeclaration &declaration = arg;
+    const Synchronization::EnumeratorDeclaration &declaration = arg;
 
     return declaration.name == name && declaration.value == value && declaration.hasValue;
 }
@@ -154,7 +158,7 @@ TEST_F(QmlDocumentParser, prototype)
 {
     auto type = parser.parse("Example{}", imports, qmlFileSourceId, directoryPath);
 
-    ASSERT_THAT(type, HasPrototype(Storage::ImportedType("Example")));
+    ASSERT_THAT(type, HasPrototype(Synchronization::ImportedType("Example")));
 }
 
 TEST_F(QmlDocumentParser, qualified_prototype)
@@ -166,11 +170,9 @@ TEST_F(QmlDocumentParser, qualified_prototype)
     auto type = parser.parse(text, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type,
-                HasPrototype(
-                    Storage::QualifiedImportedType("Item",
-                                                   Storage::Import{exampleModuleId,
-                                                                   QmlDesigner::Storage::Version{2, 1},
-                                                                   qmlFileSourceId})));
+                HasPrototype(Synchronization::QualifiedImportedType(
+                    "Item",
+                    Storage::Import{exampleModuleId, Storage::Version{2, 1}, qmlFileSourceId})));
 }
 
 TEST_F(QmlDocumentParser, properties)
@@ -178,10 +180,9 @@ TEST_F(QmlDocumentParser, properties)
     auto type = parser.parse(R"(Example{ property int foo })", imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
-                UnorderedElementsAre(
-                    IsPropertyDeclaration("foo",
-                                          Storage::ImportedType{"int"},
-                                          QmlDesigner::Storage::PropertyDeclarationTraits::None)));
+                UnorderedElementsAre(IsPropertyDeclaration("foo",
+                                                           Synchronization::ImportedType{"int"},
+                                                           Storage::PropertyDeclarationTraits::None)));
 }
 
 TEST_F(QmlDocumentParser, qualified_properties)
@@ -197,11 +198,11 @@ TEST_F(QmlDocumentParser, qualified_properties)
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration(
                     "foo",
-                    Storage::QualifiedImportedType("Foo",
-                                                   Storage::Import{exampleModuleId,
-                                                                   QmlDesigner::Storage::Version{2, 1},
-                                                                   qmlFileSourceId}),
-                    QmlDesigner::Storage::PropertyDeclarationTraits::None)));
+                    Synchronization::QualifiedImportedType("Foo",
+                                                           Storage::Import{exampleModuleId,
+                                                                           Storage::Version{2, 1},
+                                                                           qmlFileSourceId}),
+                    Storage::PropertyDeclarationTraits::None)));
 }
 
 TEST_F(QmlDocumentParser, enumeration_in_properties)
@@ -215,8 +216,8 @@ TEST_F(QmlDocumentParser, enumeration_in_properties)
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
                     IsPropertyDeclaration("foo",
-                                          Storage::ImportedType("Enumeration.Foo"),
-                                          QmlDesigner::Storage::PropertyDeclarationTraits::None)));
+                                          Synchronization::ImportedType("Enumeration.Foo"),
+                                          Storage::PropertyDeclarationTraits::None)));
 }
 
 TEST_F(QmlDocumentParser, qualified_enumeration_in_properties)
@@ -232,11 +233,11 @@ TEST_F(QmlDocumentParser, qualified_enumeration_in_properties)
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration(
                     "foo",
-                    Storage::QualifiedImportedType("Enumeration.Foo",
-                                                   Storage::Import{exampleModuleId,
-                                                                   QmlDesigner::Storage::Version{2, 1},
-                                                                   qmlFileSourceId}),
-                    QmlDesigner::Storage::PropertyDeclarationTraits::None)));
+                    Synchronization::QualifiedImportedType("Enumeration.Foo",
+                                                           Storage::Import{exampleModuleId,
+                                                                           Storage::Version{2, 1},
+                                                                           qmlFileSourceId}),
+                    Storage::PropertyDeclarationTraits::None)));
 }
 
 TEST_F(QmlDocumentParser, imports)
@@ -252,13 +253,12 @@ TEST_F(QmlDocumentParser, imports)
                              qmlFileSourceId,
                              directoryPath);
 
-    ASSERT_THAT(
-        imports,
-        UnorderedElementsAre(
-            Storage::Import{directoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
-            Storage::Import{fooDirectoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
-            Storage::Import{qmlModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
-            Storage::Import{qtQuickModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId}));
+    ASSERT_THAT(imports,
+                UnorderedElementsAre(
+                    Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qmlModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
 }
 
 TEST_F(QmlDocumentParser, imports_with_version)
@@ -274,13 +274,12 @@ TEST_F(QmlDocumentParser, imports_with_version)
                              qmlFileSourceId,
                              directoryPath);
 
-    ASSERT_THAT(
-        imports,
-        UnorderedElementsAre(
-            Storage::Import{directoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
-            Storage::Import{fooDirectoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
-            Storage::Import{qmlModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
-            Storage::Import{qtQuickModuleId, QmlDesigner::Storage::Version{2, 1}, qmlFileSourceId}));
+    ASSERT_THAT(imports,
+                UnorderedElementsAre(
+                    Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qmlModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qtQuickModuleId, Storage::Version{2, 1}, qmlFileSourceId}));
 }
 
 TEST_F(QmlDocumentParser, imports_with_explict_directory)
@@ -296,11 +295,11 @@ TEST_F(QmlDocumentParser, imports_with_explict_directory)
                              qmlFileSourceId,
                              directoryPath);
 
-    ASSERT_THAT(imports,
-                UnorderedElementsAre(
-                    Storage::Import{directoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
-                    Storage::Import{qmlModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
-                    Storage::Import{qtQuickModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId}));
+    ASSERT_THAT(
+        imports,
+        UnorderedElementsAre(Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
+                             Storage::Import{qmlModuleId, Storage::Version{}, qmlFileSourceId},
+                             Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
 }
 
 TEST_F(QmlDocumentParser, functions)
@@ -312,12 +311,12 @@ TEST_F(QmlDocumentParser, functions)
         directoryPath);
 
     ASSERT_THAT(type.functionDeclarations,
-                UnorderedElementsAre(AllOf(IsFunctionDeclaration("otherFunction", ""),
-                                           Field(&Storage::FunctionDeclaration::parameters, IsEmpty())),
-                                     AllOf(IsFunctionDeclaration("someScript", ""),
-                                           Field(&Storage::FunctionDeclaration::parameters,
-                                                 ElementsAre(IsParameter("x", ""),
-                                                             IsParameter("y", ""))))));
+                UnorderedElementsAre(
+                    AllOf(IsFunctionDeclaration("otherFunction", ""),
+                          Field(&Synchronization::FunctionDeclaration::parameters, IsEmpty())),
+                    AllOf(IsFunctionDeclaration("someScript", ""),
+                          Field(&Synchronization::FunctionDeclaration::parameters,
+                                ElementsAre(IsParameter("x", ""), IsParameter("y", ""))))));
 }
 
 TEST_F(QmlDocumentParser, signals)
@@ -328,12 +327,12 @@ TEST_F(QmlDocumentParser, signals)
                              directoryPath);
 
     ASSERT_THAT(type.signalDeclarations,
-                UnorderedElementsAre(AllOf(IsSignalDeclaration("someSignal"),
-                                           Field(&Storage::SignalDeclaration::parameters,
-                                                 ElementsAre(IsParameter("x", "int"),
-                                                             IsParameter("y", "real")))),
-                                     AllOf(IsSignalDeclaration("signal2"),
-                                           Field(&Storage::SignalDeclaration::parameters, IsEmpty()))));
+                UnorderedElementsAre(
+                    AllOf(IsSignalDeclaration("someSignal"),
+                          Field(&Synchronization::SignalDeclaration::parameters,
+                                ElementsAre(IsParameter("x", "int"), IsParameter("y", "real")))),
+                    AllOf(IsSignalDeclaration("signal2"),
+                          Field(&Synchronization::SignalDeclaration::parameters, IsEmpty()))));
 }
 
 TEST_F(QmlDocumentParser, enumeration)
@@ -347,13 +346,13 @@ TEST_F(QmlDocumentParser, enumeration)
     ASSERT_THAT(type.enumerationDeclarations,
                 UnorderedElementsAre(
                     AllOf(IsEnumeration("Color"),
-                          Field(&Storage::EnumerationDeclaration::enumeratorDeclarations,
+                          Field(&Synchronization::EnumerationDeclaration::enumeratorDeclarations,
                                 ElementsAre(IsEnumerator("red", 0),
                                             IsEnumerator("green", 1),
                                             IsEnumerator("blue", 10),
                                             IsEnumerator("white", 11)))),
                     AllOf(IsEnumeration("State"),
-                          Field(&Storage::EnumerationDeclaration::enumeratorDeclarations,
+                          Field(&Synchronization::EnumerationDeclaration::enumeratorDeclarations,
                                 ElementsAre(IsEnumerator("On", 0), IsEnumerator("Off", 1))))));
 }
 
@@ -376,14 +375,13 @@ TEST_F(QmlDocumentParser, DISABLED_duplicate_imports_are_removed)
                              qmlFileSourceId,
                              directoryPath);
 
-    ASSERT_THAT(
-        imports,
-        UnorderedElementsAre(
-            Storage::Import{directoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
-            Storage::Import{fooDirectoryModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId},
-            Storage::Import{qmlModuleId, QmlDesigner::Storage::Version{1, 0}, qmlFileSourceId},
-            Storage::Import{qtQmlModuleId, QmlDesigner::Storage::Version{6, 0}, qmlFileSourceId},
-            Storage::Import{qtQuickModuleId, QmlDesigner::Storage::Version{}, qmlFileSourceId}));
+    ASSERT_THAT(imports,
+                UnorderedElementsAre(
+                    Storage::Import{directoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId},
+                    Storage::Import{qmlModuleId, Storage::Version{1, 0}, qmlFileSourceId},
+                    Storage::Import{qtQmlModuleId, Storage::Version{6, 0}, qmlFileSourceId},
+                    Storage::Import{qtQuickModuleId, Storage::Version{}, qmlFileSourceId}));
 }
 
 TEST_F(QmlDocumentParser, alias_item_properties)
@@ -399,10 +397,9 @@ TEST_F(QmlDocumentParser, alias_item_properties)
                              directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
-                UnorderedElementsAre(
-                    IsPropertyDeclaration("delegate",
-                                          Storage::ImportedType{"Item"},
-                                          QmlDesigner::Storage::PropertyDeclarationTraits::None)));
+                UnorderedElementsAre(IsPropertyDeclaration("delegate",
+                                                           Synchronization::ImportedType{"Item"},
+                                                           Storage::PropertyDeclarationTraits::None)));
 }
 
 TEST_F(QmlDocumentParser, alias_properties)
@@ -420,8 +417,8 @@ TEST_F(QmlDocumentParser, alias_properties)
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
                     IsAliasPropertyDeclaration("text",
-                                               Storage::ImportedType{"Item"},
-                                               QmlDesigner::Storage::PropertyDeclarationTraits::None,
+                                               Synchronization::ImportedType{"Item"},
+                                               Storage::PropertyDeclarationTraits::None,
                                                "text2")));
 }
 
@@ -440,8 +437,8 @@ TEST_F(QmlDocumentParser, indirect_alias_properties)
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
                     IsAliasPropertyDeclaration("textSize",
-                                               Storage::ImportedType{"Item"},
-                                               QmlDesigner::Storage::PropertyDeclarationTraits::None,
+                                               Synchronization::ImportedType{"Item"},
+                                               Storage::PropertyDeclarationTraits::None,
                                                "text",
                                                "size")));
 }
@@ -473,8 +470,8 @@ TEST_F(QmlDocumentParser, list_property)
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
                     IsPropertyDeclaration("foos",
-                                          Storage::ImportedType{"Foo"},
-                                          QmlDesigner::Storage::PropertyDeclarationTraits::IsList)));
+                                          Synchronization::ImportedType{"Foo"},
+                                          Storage::PropertyDeclarationTraits::IsList)));
 }
 
 TEST_F(QmlDocumentParser, alias_on_list_property)
@@ -494,8 +491,8 @@ TEST_F(QmlDocumentParser, alias_on_list_property)
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
                     IsPropertyDeclaration("foos",
-                                          Storage::ImportedType{"Foo"},
-                                          QmlDesigner::Storage::PropertyDeclarationTraits::IsList)));
+                                          Synchronization::ImportedType{"Foo"},
+                                          Storage::PropertyDeclarationTraits::IsList)));
 }
 
 TEST_F(QmlDocumentParser, qualified_list_property)
@@ -512,11 +509,11 @@ TEST_F(QmlDocumentParser, qualified_list_property)
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration(
                     "foos",
-                    Storage::QualifiedImportedType{"Foo",
-                                                   Storage::Import{exampleModuleId,
-                                                                   QmlDesigner::Storage::Version{2, 1},
-                                                                   qmlFileSourceId}},
-                    QmlDesigner::Storage::PropertyDeclarationTraits::IsList)));
+                    Synchronization::QualifiedImportedType{"Foo",
+                                                           Storage::Import{exampleModuleId,
+                                                                           Storage::Version{2, 1},
+                                                                           qmlFileSourceId}},
+                    Storage::PropertyDeclarationTraits::IsList)));
 }
 
 } // namespace

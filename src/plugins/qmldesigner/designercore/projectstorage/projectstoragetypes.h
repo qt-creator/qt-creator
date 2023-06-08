@@ -79,31 +79,6 @@ public:
     VersionNumber minor;
 };
 
-namespace Synchronization {
-
-enum class TypeNameKind { Exported = 1, QualifiedExported = 2 };
-
-enum class FileType : char { QmlTypes, QmlDocument };
-
-enum class IsQualified : int { No, Yes };
-
-inline int operator-(IsQualified first, IsQualified second)
-{
-    return static_cast<int>(first) - static_cast<int>(second);
-}
-
-inline int operator<(IsQualified first, IsQualified second)
-{
-    return static_cast<int>(first) < static_cast<int>(second);
-}
-
-enum class ImportKind : char {
-    Import,
-    ModuleDependency,
-    ModuleExportedImport,
-    ModuleExportedModuleDependency
-};
-
 class Import
 {
 public:
@@ -140,6 +115,31 @@ public:
 };
 
 using Imports = std::vector<Import>;
+
+namespace Synchronization {
+
+enum class TypeNameKind { Exported = 1, QualifiedExported = 2 };
+
+enum class FileType : char { QmlTypes, QmlDocument };
+
+enum class IsQualified : int { No, Yes };
+
+inline int operator-(IsQualified first, IsQualified second)
+{
+    return static_cast<int>(first) - static_cast<int>(second);
+}
+
+inline int operator<(IsQualified first, IsQualified second)
+{
+    return static_cast<int>(first) < static_cast<int>(second);
+}
+
+enum class ImportKind : char {
+    Import,
+    ModuleDependency,
+    ModuleExportedImport,
+    ModuleExportedModuleDependency
+};
 
 class ImportView
 {

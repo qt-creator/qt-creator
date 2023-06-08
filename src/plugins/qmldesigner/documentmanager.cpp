@@ -39,12 +39,12 @@ namespace QmlDesigner {
 
 Q_LOGGING_CATEGORY(documentManagerLog, "qtc.qtquickdesigner.documentmanager", QtWarningMsg)
 
-static inline QmlDesigner::DesignDocument* designDocument()
+inline static QmlDesigner::DesignDocument *designDocument()
 {
     return QmlDesigner::QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
 }
 
-static inline QHash<PropertyName, QVariant> getProperties(const ModelNode &node)
+inline static QHash<PropertyName, QVariant> getProperties(const ModelNode &node)
 {
     QHash<PropertyName, QVariant> propertyHash;
     if (QmlObjectNode::isValidQmlObjectNode(node)) {
@@ -71,7 +71,7 @@ static inline QHash<PropertyName, QVariant> getProperties(const ModelNode &node)
     return propertyHash;
 }
 
-static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QVariant> &propertyHash)
+inline static void applyProperties(ModelNode &node, const QHash<PropertyName, QVariant> &propertyHash)
 {
     const auto auxiliaryData = node.auxiliaryData(AuxiliaryDataType::NodeInstancePropertyOverwrite);
 
@@ -168,7 +168,7 @@ static void handleTabComponent(const ModelNode &modelNode)
     }
 }
 
-static inline void openInlineComponent(const ModelNode &modelNode)
+inline static void openInlineComponent(const ModelNode &modelNode)
 {
     if (!modelNode.metaInfo().isValid())
         return;
@@ -227,7 +227,7 @@ void DocumentManager::setCurrentDesignDocument(Core::IEditor *editor)
         auto found = m_designDocuments.find(editor);
         if (found == m_designDocuments.end()) {
             auto &inserted = m_designDocuments[editor] = std::make_unique<DesignDocument>(
-                m_projectManager.projectStorage(), m_externalDependencies);
+                m_projectManager.projectStorageDependencies(), m_externalDependencies);
             m_currentDesignDocument = inserted.get();
             m_currentDesignDocument->setEditor(editor);
         } else {

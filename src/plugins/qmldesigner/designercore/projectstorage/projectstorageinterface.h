@@ -16,6 +16,7 @@ class ProjectStorageInterface
 {
 public:
     virtual void synchronize(Storage::Synchronization::SynchronizationPackage package) = 0;
+    virtual void synchronizeDocumentImports(const Storage::Imports imports, SourceId sourceId) = 0;
 
     virtual ModuleId moduleId(::Utils::SmallStringView name) const = 0;
     virtual std::optional<Storage::Info::PropertyDeclaration>
@@ -23,6 +24,12 @@ public:
     virtual TypeId typeId(ModuleId moduleId,
                           ::Utils::SmallStringView exportedTypeName,
                           Storage::Version version) const
+        = 0;
+    virtual TypeId typeId(ImportedTypeNameId typeNameId) const = 0;
+    virtual ImportId importId(const Storage::Import &import) const = 0;
+    virtual ImportedTypeNameId importedTypeNameId(ImportId sourceId, Utils::SmallStringView typeName)
+        = 0;
+    virtual ImportedTypeNameId importedTypeNameId(SourceId sourceId, Utils::SmallStringView typeName)
         = 0;
     virtual PropertyDeclarationIds propertyDeclarationIds(TypeId typeId) const = 0;
     virtual PropertyDeclarationIds localPropertyDeclarationIds(TypeId typeId) const = 0;

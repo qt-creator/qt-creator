@@ -6,6 +6,8 @@
 #include "model_p.h"
 #include <modelnode.h>
 
+#include "../projectstorage/sourcepath.h"
+#include "../projectstorage/sourcepathcache.h"
 #include "abstractview.h"
 #include "auxiliarydataproperties.h"
 #include "internalbindingproperty.h"
@@ -60,20 +62,42 @@ namespace QmlDesigner {
 namespace Internal {
 
 ModelPrivate::ModelPrivate(Model *model,
-                           ProjectStorageType &projectStorage,
+                           ProjectStorageDependencies projectStorageDependencies,
                            const TypeName &typeName,
                            int major,
                            int minor,
                            Model *metaInfoProxyModel,
                            std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
-    : projectStorage{&projectStorage}
+    : projectStorage{&projectStorageDependencies.storage}
+    , pathCache{&projectStorageDependencies.cache}
     , m_model{model}
     , m_resourceManagement{std::move(resourceManagement)}
 {
     m_metaInfoProxyModel = metaInfoProxyModel;
 
+    changeImports({Import::createLibraryImport({"QtQuick"})}, {});
+
     m_rootInternalNode = createNode(
         typeName, major, minor, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
+
+    m_currentStateNode = m_rootInternalNode;
+    m_currentTimelineNode = m_rootInternalNode;
+}
+
+ModelPrivate::ModelPrivate(Model *model,
+                           ProjectStorageDependencies projectStorageDependencies,
+                           Utils::SmallStringView typeName,
+                           Imports imports,
+                           const QUrl &fileUrl)
+    : projectStorage{&projectStorageDependencies.storage}
+    , pathCache{&projectStorageDependencies.cache}
+    , m_model{model}
+{
+    setFileUrl(fileUrl);
+    changeImports(std::move(imports), {});
+
+    m_rootInternalNode = createNode(
+        TypeName{typeName}, -1, -1, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
 
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
@@ -117,29 +141,41 @@ void ModelPrivate::detachAllViews()
     }
 }
 
-void ModelPrivate::changeImports(const Imports &toBeAddedImportList,
-                                 const Imports &toBeRemovedImportList)
+namespace {
+Storage::Imports createStorageImports(const Imports &imports,
+                                      ProjectStorageType &projectStorage,
+                                      SourceId fileId)
 {
-    Imports removedImportList;
-    for (const Import &import : toBeRemovedImportList) {
-        if (m_imports.contains(import)) {
-            removedImportList.append(import);
-            m_imports.removeOne(import);
+    return Utils::transform<Storage::Imports>(imports, [&](const Import &import) {
+        return Storage::Import{projectStorage.moduleId(Utils::SmallString{import.url()}),
+                               import.majorVersion(),
+                               import.minorVersion(),
+                               fileId};
+    });
+}
+
+} // namespace
+
+void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedImports)
+{
+    std::sort(toBeAddedImports.begin(), toBeAddedImports.end());
+    std::sort(toBeRemovedImports.begin(), toBeRemovedImports.end());
+
+    Imports removedImports = set_intersection(m_imports, toBeRemovedImports);
+    m_imports = set_difference(m_imports, removedImports);
+
+    Imports allNewAddedImports = set_strict_difference(toBeAddedImports, m_imports);
+    Imports importWithoutAddedImport = set_difference(m_imports, allNewAddedImports);
+
+    m_imports = set_union(importWithoutAddedImport, allNewAddedImports);
+
+    if (!removedImports.isEmpty() || !allNewAddedImports.isEmpty()) {
+        if (useProjectStorage()) {
+            auto imports = createStorageImports(m_imports, *projectStorage, m_sourceId);
+            projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
+        notifyImportsChanged(allNewAddedImports, removedImports);
     }
-
-    Imports addedImportList;
-    for (const Import &import : toBeAddedImportList) {
-        if (!m_imports.contains(import)) {
-            addedImportList.append(import);
-            m_imports.append(import);
-        }
-    }
-
-    std::sort(m_imports.begin(), m_imports.end());
-
-    if (!removedImportList.isEmpty() || !addedImportList.isEmpty())
-        notifyImportsChanged(addedImportList, removedImportList);
 }
 
 void ModelPrivate::notifyImportsChanged(const Imports &addedImports, const Imports &removedImports)
@@ -201,6 +237,9 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
 
     if (oldPath != fileUrl) {
         m_fileUrl = fileUrl;
+        if constexpr (useProjectStorage()) {
+            m_sourceId = pathCache->sourceId(SourcePath{fileUrl.path()});
+        }
 
         for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
             view->fileUrlChanged(oldPath, fileUrl);
@@ -219,23 +258,6 @@ void ModelPrivate::changeNodeType(const InternalNodePointer &node, const TypeNam
     } catch (const RewritingException &) {
     }
 }
-
-namespace {
-QT_WARNING_PUSH
-QT_WARNING_DISABLE_CLANG("-Wunneeded-internal-declaration")
-
-std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Utils::SmallStringView typeName)
-{
-    auto found = std::find(typeName.rbegin(), typeName.rend(), '.');
-
-    if (found == typeName.rend())
-        return {};
-
-    return {{typeName.begin(), std::prev(found.base())}, {found.base(), typeName.end()}};
-}
-
-QT_WARNING_POP
-} // namespace
 
 InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
                                              int majorVersion,
@@ -257,13 +279,7 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
 
     auto newNode = std::make_shared<InternalNode>(typeName, majorVersion, minorVersion, internalId);
 
-    if constexpr (useProjectStorage()) {
-        auto [moduleName, shortTypeName] = decomposeTypePath(typeName);
-        ModuleId moduleId = projectStorage->moduleId(moduleName);
-        newNode->typeId = projectStorage->typeId(moduleId,
-                                                 shortTypeName,
-                                                 Storage::Version{majorVersion, minorVersion});
-    }
+    setTypeId(newNode.get(), typeName);
 
     newNode->nodeSourceType = nodeSourceType;
 
@@ -312,6 +328,49 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
 EnabledViewRange ModelPrivate::enabledViews() const
 {
     return EnabledViewRange{m_viewList};
+}
+
+namespace {
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_CLANG("-Wunneeded-internal-declaration")
+
+std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Utils::SmallStringView typeName)
+{
+    auto found = std::find(typeName.rbegin(), typeName.rend(), '.');
+
+    if (found == typeName.rend())
+        return {{}, typeName};
+
+    return {{typeName.begin(), std::prev(found.base())}, {found.base(), typeName.end()}};
+}
+
+QT_WARNING_POP
+} // namespace
+
+void ModelPrivate::setTypeId(InternalNode *node, Utils::SmallStringView typeName)
+{
+    if constexpr (useProjectStorage()) {
+        auto [moduleName, shortTypeName] = decomposeTypePath(typeName);
+
+        if (moduleName.size()) {
+            QString aliasName = QString{moduleName};
+            auto found = std::find_if(m_imports.begin(), m_imports.end(), [&](const Import &import) {
+                return import.alias() == aliasName;
+            });
+            if (found != m_imports.end()) {
+                ModuleId moduleId = projectStorage->moduleId(Utils::PathString{found->url()});
+                ImportId importId = projectStorage->importId(
+                    Storage::Import{moduleId, found->majorVersion(), found->minorVersion(), m_sourceId});
+                ImportedTypeNameId typeNameId = projectStorage->importedTypeNameId(importId,
+                                                                                   shortTypeName);
+                node->typeId = projectStorage->typeId(typeNameId);
+                return;
+            }
+        }
+
+        ImportedTypeNameId typeNameId = projectStorage->importedTypeNameId(m_sourceId, shortTypeName);
+        node->typeId = projectStorage->typeId(typeNameId);
+    }
 }
 
 void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
@@ -1343,9 +1402,11 @@ void ModelPrivate::clearParent(const InternalNodePointer &node)
 void ModelPrivate::changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion)
 {
     Q_ASSERT(rootNode());
-    rootNode()->typeName = type;
-    rootNode()->majorVersion = majorVersion;
-    rootNode()->minorVersion = minorVersion;
+
+    m_rootInternalNode->typeName = type;
+    m_rootInternalNode->majorVersion = majorVersion;
+    m_rootInternalNode->minorVersion = minorVersion;
+    setTypeId(m_rootInternalNode.get(), type);
     notifyRootNodeTypeChanged(QString::fromUtf8(type), majorVersion, minorVersion);
 }
 
@@ -1512,14 +1573,27 @@ void WriteLocker::lock(Model *model)
 
 } // namespace Internal
 
-Model::Model(ProjectStorageType &projectStorage,
+Model::Model(ProjectStorageDependencies projectStorageDependencies,
              const TypeName &typeName,
              int major,
              int minor,
              Model *metaInfoProxyModel,
              std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
+    : d(std::make_unique<Internal::ModelPrivate>(this,
+                                                 projectStorageDependencies,
+                                                 typeName,
+                                                 major,
+                                                 minor,
+                                                 metaInfoProxyModel,
+                                                 std::move(resourceManagement)))
+{}
+
+Model::Model(ProjectStorageDependencies projectStorageDependencies,
+             Utils::SmallStringView typeName,
+             Imports imports,
+             const QUrl &fileUrl)
     : d(std::make_unique<Internal::ModelPrivate>(
-        this, projectStorage, typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)))
+        this, projectStorageDependencies, typeName, std::move(imports), fileUrl))
 {}
 
 Model::Model(const TypeName &typeName,
@@ -1548,9 +1622,9 @@ const Imports &Model::usedImports() const
     return d->m_usedImportList;
 }
 
-void Model::changeImports(const Imports &importsToBeAdded, const Imports &importsToBeRemoved)
+void Model::changeImports(Imports importsToBeAdded, Imports importsToBeRemoved)
 {
-    d->changeImports(importsToBeAdded, importsToBeRemoved);
+    d->changeImports(std::move(importsToBeAdded), std::move(importsToBeRemoved));
 }
 
 void Model::setPossibleImports(Imports possibleImports)
@@ -1924,6 +1998,26 @@ NodeMetaInfo Model::fontMetaInfo() const
         return createNodeMetaInfo<QtQuick, font>();
     } else {
         return metaInfo("QtQuick.font");
+    }
+}
+
+NodeMetaInfo Model::qtQmlModelsListModelMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQml_Models, ListModel>();
+    } else {
+        return metaInfo("QtQml.Models.ListModel");
+    }
+}
+
+NodeMetaInfo Model::qmlQtObjectMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QML, QtObject>();
+    } else {
+        return metaInfo("QML.QtObject");
     }
 }
 
@@ -2357,6 +2451,13 @@ ModelNode Model::createModelNode(const TypeName &typeName)
         const NodeMetaInfo m = metaInfo(typeName);
         return createNode(this, d.get(), typeName, m.majorVersion(), m.minorVersion());
     }
+}
+
+void Model::changeRootNodeType(const TypeName &type)
+{
+    Internal::WriteLocker locker(this);
+
+    d->changeRootNodeType(type, -1, -1);
 }
 
 void Model::removeModelNodes(ModelNodes nodes, BypassModelResourceManagement bypass)

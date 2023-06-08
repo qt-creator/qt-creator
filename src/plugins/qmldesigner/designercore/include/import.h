@@ -44,6 +44,11 @@ public:
 
 class QMLDESIGNERCORE_EXPORT Import
 {
+    using Imports = QList<Import>;
+    QMLDESIGNERCORE_EXPORT friend Imports set_strict_difference(const Imports &first,
+                                                                const Imports &second);
+    enum class Type { Empty, Library, File };
+
 public:
     Import() = default;
 
@@ -51,14 +56,14 @@ public:
     static Import createFileImport(const QString &file, const QString &version = QString(), const QString &alias = QString(), const QStringList &importPaths = QStringList());
     static Import empty();
 
-    bool isEmpty() const { return m_url.isEmpty() && m_file.isEmpty(); }
-    bool isFileImport() const { return m_url.isEmpty() && !m_file.isEmpty(); }
-    bool isLibraryImport() const { return !m_url.isEmpty() && m_file.isEmpty(); }
+    bool isEmpty() const { return m_type == Type::Empty; }
+    bool isFileImport() const { return m_type == Type::File; }
+    bool isLibraryImport() const { return m_type == Type::Library; }
     bool hasVersion() const { return !m_version.isEmpty(); }
     bool hasAlias() const { return !m_alias.isEmpty(); }
 
-    const QString &url() const { return m_url; }
-    const QString &file() const { return m_file; }
+    const QString &url() const { return m_type == Type::Library ? m_url : emptyString; }
+    const QString &file() const { return m_type == Type::File ? m_url : emptyString; }
     const QString &version() const { return m_version; }
     const QString &alias() const { return m_alias; }
     const QStringList &importPaths() const { return m_importPathList; }
@@ -76,32 +81,40 @@ public:
 
     friend bool operator==(const Import &first, const Import &second)
     {
-        return first.m_url == second.m_url && first.m_file == second.m_file
+        return first.m_url == second.m_url && first.m_type == second.m_type
                && (first.m_version == second.m_version || first.m_version.isEmpty()
                    || second.m_version.isEmpty());
     }
 
     friend bool operator<(const Import &first, const Import &second)
     {
-        return std::tie(first.m_url, first.m_file) < std::tie(second.m_url, second.m_file);
+        return std::tie(first.m_url, first.m_type) < std::tie(second.m_url, second.m_type);
     }
 
 private:
-    Import(const QString &url, const QString &file, const QString &version, const QString &alias, const QStringList &importPaths);
+    Import(const QString &url,
+           const QString &version,
+           const QString &alias,
+           const QStringList &importPaths,
+           Type type);
 
 private:
+    inline static const QString emptyString;
     QString m_url;
-    QString m_file;
     QString m_version;
     QString m_alias;
     QStringList m_importPathList;
+    Type m_type = Type::Empty;
 };
 
 QMLDESIGNERCORE_EXPORT size_t qHash(const Import &import);
 
 using Imports = QList<Import>;
 
-QMLDESIGNERCORE_EXPORT Imports difference(const Imports &first, const Imports &second);
+QMLDESIGNERCORE_EXPORT Imports set_difference(const Imports &first, const Imports &second);
+QMLDESIGNERCORE_EXPORT Imports set_stict_difference(const Imports &first, const Imports &second);
+QMLDESIGNERCORE_EXPORT Imports set_union(const Imports &first, const Imports &second);
+QMLDESIGNERCORE_EXPORT Imports set_intersection(const Imports &first, const Imports &second);
 
 template<typename Callable>
 void differenceCall(const Imports &first, const Imports &second, Callable callable)
