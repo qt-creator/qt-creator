@@ -19,7 +19,10 @@ namespace Utils { class FilePath; }
 
 namespace DiffEditor {
 
-namespace Internal { class DiffEditorDocument; }
+namespace Internal {
+class DiffEditorDocument;
+class DiffEditorWidgetController;
+}
 
 class ChunkSelection;
 
@@ -40,26 +43,18 @@ public:
         AddPrefix = 2
     };
     Q_DECLARE_FLAGS(PatchOptions, PatchOption)
-    QString makePatch(int fileIndex, int chunkIndex, const ChunkSelection &selection,
-                      PatchOptions options) const;
 
-    static Core::IDocument *findOrCreateDocument(const QString &vcsId,
-                                                 const QString &displayName);
+    static Core::IDocument *findOrCreateDocument(const QString &vcsId, const QString &displayName);
     static DiffEditorController *controller(Core::IDocument *document);
-
-    void requestChunkActions(QMenu *menu, int fileIndex, int chunkIndex,
-                             const ChunkSelection &selection);
-    bool chunkExists(int fileIndex, int chunkIndex) const;
-    Core::IDocument *document() const;
-
-signals:
-    void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex,
-                               const ChunkSelection &selection);
 
 protected:
     bool isReloading() const;
     int contextLineCount() const;
     bool ignoreWhitespace() const;
+    bool chunkExists(int fileIndex, int chunkIndex) const;
+    Core::IDocument *document() const;
+    QString makePatch(int fileIndex, int chunkIndex, const ChunkSelection &selection,
+                      PatchOptions options) const;
 
     // Core functions:
     void setReloadRecipe(const Tasking::Group &recipe) { m_reloadRecipe = recipe; }
@@ -72,6 +67,9 @@ protected:
 
 private:
     void reloadFinished(bool success);
+    friend class Internal::DiffEditorWidgetController;
+    virtual void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex,
+                                 const ChunkSelection &selection);
 
     Internal::DiffEditorDocument *const m_document;
     QString m_displayName;

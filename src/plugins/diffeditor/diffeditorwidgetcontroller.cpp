@@ -280,7 +280,7 @@ void DiffEditorWidgetController::addExtraActions(QMenu *menu, int fileIndex, int
                                                  const ChunkSelection &selection)
 {
     if (DiffEditorController *controller = m_document->controller())
-        controller->requestChunkActions(menu, fileIndex, chunkIndex, selection);
+        controller->addExtraActions(menu, fileIndex, chunkIndex, selection);
 }
 
 void DiffEditorWidgetController::updateCannotDecodeInfo()

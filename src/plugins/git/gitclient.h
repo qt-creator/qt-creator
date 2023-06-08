@@ -363,12 +363,6 @@ private:
     static GitSettings &settings();
 
     void finishSubmoduleUpdate();
-    void chunkActionsRequested(DiffEditor::DiffEditorController *controller,
-                               QMenu *menu, int fileIndex, int chunkIndex,
-                               const DiffEditor::ChunkSelection &selection) const;
-
-    void stage(DiffEditor::DiffEditorController *diffController,
-               const QString &patch, bool revert) const;
 
     void requestReload(const QString &documentId, const Utils::FilePath &source,
                        const QString &title, const Utils::FilePath &workingDirectory,
