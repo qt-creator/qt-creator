@@ -79,9 +79,9 @@ static QStringList parseRawLine(const QByteArray &raw)
 static QString unescape(const QString &input)
 {
     QString result;
-    for (int i = 0; i < input.count(); ++i) {
+    for (int i = 0; i < input.size(); ++i) {
         if (input.at(i) == '\\') {
-            if (i == input.count() - 1)
+            if (i == input.size() - 1)
                 continue;
             if (input.at(i + 1) == 'n') {
                 result.append('\n');
@@ -123,16 +123,16 @@ static bool parseTaskFile(QString *errorString, const FilePath &name)
         Task::TaskType type = Task::Unknown;
         int line = -1;
 
-        if (chunks.count() == 1) {
+        if (chunks.size() == 1) {
             description = chunks.at(0);
-        } else if (chunks.count() == 2) {
+        } else if (chunks.size() == 2) {
             type = typeFrom(chunks.at(0));
             description = chunks.at(1);
-        } else if (chunks.count() == 3) {
+        } else if (chunks.size() == 3) {
             file = chunks.at(0);
             type = typeFrom(chunks.at(1));
             description = chunks.at(2);
-        } else if (chunks.count() >= 4) {
+        } else if (chunks.size() >= 4) {
             file = chunks.at(0);
             bool ok;
             line = chunks.at(1).toInt(&ok);

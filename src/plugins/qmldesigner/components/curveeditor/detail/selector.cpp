@@ -38,7 +38,7 @@ void Selector::mousePress(QMouseEvent *event, GraphicsView *view, GraphicsScene 
 {
     m_shortcut = Shortcut(event);
 
-    QPointF click = view->globalToScene(event->globalPos());
+    QPointF click = view->globalToScene(event->globalPosition().toPoint());
 
     if (SelectableItem *sitem = scene->intersect(click)) {
         KeyframeItem *kitem = qobject_cast<KeyframeItem *>(sitem);
@@ -54,8 +54,8 @@ void Selector::mousePress(QMouseEvent *event, GraphicsView *view, GraphicsScene 
             applyPreSelection(scene);
 
         // Init selection tools.
-        m_mouseInit = event->globalPos();
-        m_mouseCurr = event->globalPos();
+        m_mouseInit = event->globalPosition().toPoint();
+        m_mouseCurr = event->globalPosition().toPoint();
 
         m_lasso = QPainterPath(click);
         m_lasso.closeSubpath();
@@ -72,17 +72,17 @@ void Selector::mouseMove(QMouseEvent *event,
     if (m_mouseInit.isNull())
         return;
 
-    if ((event->globalPos() - m_mouseInit).manhattanLength() < QApplication::startDragDistance())
+    if ((event->globalPosition().toPoint() - m_mouseInit).manhattanLength() < QApplication::startDragDistance())
         return;
 
-    QPointF delta = event->globalPos() - m_mouseCurr;
+    QPointF delta = event->globalPosition().toPoint() - m_mouseCurr;
     if (m_shortcut == m_shortcuts.newSelection || m_shortcut == m_shortcuts.addToSelection
         || m_shortcut == m_shortcuts.removeFromSelection
         || m_shortcut == m_shortcuts.toggleSelection) {
         if (scene->hasActiveItem())
             return;
 
-        select(m_tool, view->globalToScene(event->globalPos()), scene);
+        select(m_tool, view->globalToScene(event->globalPosition().toPoint()), scene);
 
         event->accept();
         view->viewport()->update();
@@ -91,13 +91,13 @@ void Selector::mouseMove(QMouseEvent *event,
         double bigger = std::abs(delta.x()) > std::abs(delta.y()) ? delta.x() : delta.y();
         double factor = bigger / view->width();
         view->setZoomX(view->zoomX() + factor, m_mouseInit);
-        m_mouseCurr = event->globalPos();
+        m_mouseCurr = event->globalPosition().toPoint();
         event->accept();
 
     } else if (m_shortcut == m_shortcuts.pan) {
         view->scrollContent(-delta.x(), -delta.y());
         playhead.resize(view);
-        m_mouseCurr = event->globalPos();
+        m_mouseCurr = event->globalPosition().toPoint();
     }
 }
 

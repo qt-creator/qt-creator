@@ -40,7 +40,6 @@
 #include <QMutex>
 #include <QReadWriteLock>
 #include <QRegularExpression>
-#include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QThread>
 #include <QTimer>

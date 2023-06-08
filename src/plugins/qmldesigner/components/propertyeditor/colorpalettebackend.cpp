@@ -340,14 +340,14 @@ void ColorPaletteBackend::releaseEyeDropper()
 
 bool ColorPaletteBackend::handleEyeDropperMouseMove(QMouseEvent *e)
 {
-    updateEyeDropperPosition(e->globalPos());
+    updateEyeDropperPosition(e->globalPosition().toPoint());
     return true;
 }
 
 bool ColorPaletteBackend::handleEyeDropperMouseButtonRelease(QMouseEvent *e)
 {
     if (e->button() == Qt::LeftButton)
-        emit currentColorChanged(grabScreenColor(e->globalPos()));
+        emit currentColorChanged(grabScreenColor(e->globalPosition().toPoint()));
     else
         emit eyeDropperRejected();
 
@@ -364,7 +364,7 @@ bool ColorPaletteBackend::handleEyeDropperKeyPress(QKeyEvent *e)
     } //else
 #endif
     //if (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) {
-    //    emit currentColorChanged(grabScreenColor(e->globalPos()));
+    //    emit currentColorChanged(grabScreenColor(e->globalPosition().toPoint()));
     //    releaseEyeDropper();
     //}
     e->accept();

@@ -1090,7 +1090,7 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
 bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
     QmlJS::ScopeChain::setSkipmakeComponentChain(true);
-    QScopeGuard unSkip([]() { QmlJS::ScopeChain::setSkipmakeComponentChain(false); });
+    const QScopeGuard cleanup([] { QmlJS::ScopeChain::setSkipmakeComponentChain(false); });
 
     qCInfo(rewriterBenchmark) << Q_FUNC_INFO;
 

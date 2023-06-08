@@ -21,6 +21,8 @@ QtcPlugin {
         "shellmodel.h",
         "shellintegration.cpp",
         "shellintegration.h",
+        "shortcutmap.cpp",
+        "shortcutmap.h",
         "terminal.qrc",
         "terminalconstants.h",
         "terminalicons.h",

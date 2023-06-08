@@ -66,7 +66,7 @@ public:
             return std::invoke(std::forward<Function>(function), std::forward<Args>(args)...);
         QElapsedTimer timer;
         timer.start();
-        auto cleanup = qScopeGuard([this, &timer] {
+        const QScopeGuard cleanup([this, &timer] {
             const qint64 currentNsecs = timer.nsecsElapsed();
             const bool mainThread = isMainThread();
             const int hitThisAll = m_hitThisAll.fetch_add(1) + 1;

@@ -341,7 +341,7 @@ bool AndroidRunnerWorker::uploadDebugServer(const QString &debugServerFileName)
     }
 
     const QString tempDebugServerPath = tempDebugServerPathTemplate.arg(count);
-    auto cleanUp = qScopeGuard([this, tempDebugServerPath] {
+    const QScopeGuard cleanup([this, tempDebugServerPath] {
         if (!runAdb({"shell", "rm", "-f", tempDebugServerPath}))
             qCDebug(androidRunWorkerLog) << "Debug server cleanup failed.";
     });

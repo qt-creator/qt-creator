@@ -3,8 +3,6 @@
 
 #include "clientrequesttask.h"
 
-#include <QScopeGuard>
-
 using namespace LanguageServerProtocol;
 
 namespace LanguageClient {

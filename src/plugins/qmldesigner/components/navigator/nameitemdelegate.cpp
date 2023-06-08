@@ -288,7 +288,7 @@ bool NameItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *, const QS
     if (event->type() == QEvent::MouseButtonRelease) {
         auto mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::RightButton) {
-            openContextMenu(index, mouseEvent->globalPos());
+            openContextMenu(index, mouseEvent->globalPosition().toPoint());
             mouseEvent->accept();
             return true;
         }

@@ -586,7 +586,7 @@ int main(int argc, char **argv)
     QCoreApplication::setOrganizationName(QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR));
     QGuiApplication::setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
 
-    auto cleanup = qScopeGuard([] { Utils::Singleton::deleteAll(); });
+    const QScopeGuard cleanup([] { Utils::Singleton::deleteAll(); });
 
     const QStringList pluginArguments = app.arguments();
 

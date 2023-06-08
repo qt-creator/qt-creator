@@ -109,7 +109,6 @@ Project {
             "environmentmodel.h",
             "execmenu.cpp",
             "execmenu.h",
-            "executeondestruction.h",
             "externalterminalprocessimpl.cpp",
             "externalterminalprocessimpl.h",
             "fadingindicator.cpp",

@@ -124,7 +124,7 @@ QList<QWidget *> AxivionOutputPane::toolBarWidgets() const
 {
     QList<QWidget *> buttons;
     auto showDashboard = new QToolButton(m_outputWidget);
-    showDashboard->setIcon(Utils::Icons::ONLINE_TOOLBAR.icon());
+    showDashboard->setIcon(Utils::Icons::HOME_TOOLBAR.icon());
     showDashboard->setToolTip(Tr::tr("Show dashboard"));
     connect(showDashboard, &QToolButton::clicked, this, [this]{
         QTC_ASSERT(m_outputWidget, return);

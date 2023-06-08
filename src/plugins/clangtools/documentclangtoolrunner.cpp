@@ -158,7 +158,7 @@ void DocumentClangToolRunner::run()
     if (m_projectSettingsUpdate)
         disconnect(m_projectSettingsUpdate);
     m_taskTree.reset();
-    QScopeGuard guard([this] { finalize(); });
+    QScopeGuard cleanup([this] { finalize(); });
 
     auto isEditorForCurrentDocument = [this](const IEditor *editor) {
         return editor->document() == m_document;
@@ -216,7 +216,7 @@ void DocumentClangToolRunner::run()
     if (tasks.isEmpty())
         return;
 
-    guard.dismiss();
+    cleanup.dismiss();
     m_taskTree.reset(new TaskTree(tasks));
     connect(m_taskTree.get(), &TaskTree::done, this, &DocumentClangToolRunner::finalize);
     connect(m_taskTree.get(), &TaskTree::errorOccurred, this, &DocumentClangToolRunner::finalize);

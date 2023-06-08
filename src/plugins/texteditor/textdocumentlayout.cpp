@@ -596,6 +596,8 @@ bool TextDocumentLayout::updateSuggestion(const QTextBlock &block,
 {
     if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(block)) {
         auto positionInBlock = position - block.position();
+        if (positionInBlock < suggestion->position())
+            return false;
         const QString start = block.text().left(positionInBlock);
         const QString end = block.text().mid(positionInBlock);
         const QString replacement = suggestion->document()->firstBlock().text();

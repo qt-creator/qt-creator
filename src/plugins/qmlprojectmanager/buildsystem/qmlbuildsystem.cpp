@@ -107,8 +107,9 @@ void QmlBuildSystem::updateDeploymentData()
     }
 
     ProjectExplorer::DeploymentData deploymentData;
-    for (const auto &file : m_projectItem->files())
-        deploymentData.addFile(file, m_projectItem->targetDirectory());
+    for (const auto &file : m_projectItem->files()) {
+        deploymentData.addFile(file, targetFile(file).parentDir().path());
+    }
 
     setDeploymentData(deploymentData);
 }
@@ -187,7 +188,7 @@ void QmlBuildSystem::refresh(RefreshOptions options)
                                                          project()->files(Project::HiddenRccFolders));
 
     for (const QString &searchPath : customImportPaths()) {
-        projectInfo.importPaths.maybeInsert(projectFilePath().pathAppended(searchPath),
+        projectInfo.importPaths.maybeInsert(projectDirectory().pathAppended(searchPath),
                                             QmlJS::Dialect::Qml);
     }
 

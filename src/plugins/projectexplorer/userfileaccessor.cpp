@@ -455,7 +455,7 @@ QVariantMap UserFileVersion14Upgrader::upgrade(const QVariantMap &map)
 {
     QVariantMap result;
     for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
-        if (it.value().type() == QVariant::Map)
+        if (it.value().typeId() == QVariant::Map)
             result.insert(it.key(), upgrade(it.value().toMap()));
         else if (it.key() == "AutotoolsProjectManager.AutotoolsBuildConfiguration.BuildDirectory"
                  || it.key() == "CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory"
@@ -710,7 +710,7 @@ QVariantMap UserFileVersion17Upgrader::upgrade(const QVariantMap &map)
 
 QVariant UserFileVersion17Upgrader::process(const QVariant &entry)
 {
-    switch (entry.type()) {
+    switch (entry.typeId()) {
     case QVariant::List: {
         QVariantList result;
         for (const QVariant &item : entry.toList())
@@ -738,7 +738,7 @@ QVariantMap UserFileVersion18Upgrader::upgrade(const QVariantMap &map)
 
 QVariant UserFileVersion18Upgrader::process(const QVariant &entry)
 {
-    switch (entry.type()) {
+    switch (entry.typeId()) {
     case QVariant::List:
         return Utils::transform(entry.toList(), &UserFileVersion18Upgrader::process);
     case QVariant::Map:
@@ -792,7 +792,7 @@ QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const QString
                                          "QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath"};
     static const QStringList dyldKeys = {"Qbs.RunConfiguration.UseDyldImageSuffix",
                                          "QmakeProjectManager.QmakeRunConfiguration.UseDyldImageSuffix"};
-    switch (entry.type()) {
+    switch (entry.typeId()) {
     case QVariant::List:
         return Utils::transform(entry.toList(),
                                 std::bind(&UserFileVersion19Upgrader::process, std::placeholders::_1, path));
@@ -827,7 +827,7 @@ QVariantMap UserFileVersion20Upgrader::upgrade(const QVariantMap &map)
 
 QVariant UserFileVersion20Upgrader::process(const QVariant &entry)
 {
-    switch (entry.type()) {
+    switch (entry.typeId()) {
     case QVariant::List:
         return Utils::transform(entry.toList(), &UserFileVersion20Upgrader::process);
     case QVariant::Map:
@@ -853,7 +853,7 @@ QVariantMap UserFileVersion21Upgrader::upgrade(const QVariantMap &map)
 
 QVariant UserFileVersion21Upgrader::process(const QVariant &entry)
 {
-    switch (entry.type()) {
+    switch (entry.typeId()) {
     case QVariant::List:
         return Utils::transform(entry.toList(), &UserFileVersion21Upgrader::process);
     case QVariant::Map: {

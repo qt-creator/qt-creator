@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <utils/filepath.h>
 #include <utils/port.h>
 
 #include <QObject>
@@ -35,24 +36,24 @@ public:
 
     explicit IosToolHandler(const Internal::IosDeviceType &type, QObject *parent = nullptr);
     ~IosToolHandler() override;
-    void requestTransferApp(const QString &bundlePath, const QString &deviceId, int timeout = 1000);
-    void requestRunApp(const QString &bundlePath, const QStringList &extraArgs, RunKind runType,
+    void requestTransferApp(const Utils::FilePath &bundlePath, const QString &deviceId, int timeout = 1000);
+    void requestRunApp(const Utils::FilePath &bundlePath, const QStringList &extraArgs, RunKind runType,
                             const QString &deviceId, int timeout = 1000);
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000);
     bool isRunning() const;
     void stop();
 
 signals:
-    void isTransferringApp(Ios::IosToolHandler *handler, const QString &bundlePath,
+    void isTransferringApp(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
                            const QString &deviceId, int progress, int maxProgress,
                            const QString &info);
-    void didTransferApp(Ios::IosToolHandler *handler, const QString &bundlePath,
+    void didTransferApp(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
                         const QString &deviceId, Ios::IosToolHandler::OpStatus status);
-    void didStartApp(Ios::IosToolHandler *handler, const QString &bundlePath,
+    void didStartApp(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
                      const QString &deviceId, Ios::IosToolHandler::OpStatus status);
-    void gotServerPorts(Ios::IosToolHandler *handler, const QString &bundlePath,
+    void gotServerPorts(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
                             const QString &deviceId, Utils::Port gdbPort, Utils::Port qmlPort);
-    void gotInferiorPid(Ios::IosToolHandler *handler, const QString &bundlePath,
+    void gotInferiorPid(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
                         const QString &deviceId, qint64 pid);
     void deviceInfo(Ios::IosToolHandler *handler, const QString &deviceId,
                     const Ios::IosToolHandler::Dict &info);

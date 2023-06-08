@@ -23,7 +23,7 @@
 
     You can specify settings for running Qt for Python applications:
 
-    \image qtcreator-python-run-settings.png
+    \image qtcreator-python-run-settings.png {Python run settings}
 
     \list
         \li In the \uicontrol Interpreter field, specify the path to the

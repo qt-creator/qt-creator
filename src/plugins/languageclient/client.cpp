@@ -313,6 +313,7 @@ public:
     AssistProviders m_clientProviders;
     QMap<TextEditor::TextDocument *, AssistProviders> m_resetAssistProvider;
     QHash<TextEditor::TextEditorWidget *, LanguageServerProtocol::MessageId> m_highlightRequests;
+    QHash<QString, Client::CustomMethodHandler> m_customHandlers;
     static const int MaxRestarts = 5;
     int m_restartsLeft = MaxRestarts;
     QTimer m_restartCountResetTimer;
@@ -1921,6 +1922,12 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
         error.setMessage(QString("The client cannot handle the method '%1'.").arg(method));
         response.setError(error);
         sendResponse(response);
+    } else {
+        const auto customHandler = m_customHandlers.constFind(method);
+        if (customHandler != m_customHandlers.constEnd()) {
+            (*customHandler)(message);
+            return;
+        }
     }
 
     // we got a request and handled it somewhere above but we missed to generate a response for it
@@ -2134,6 +2141,11 @@ DocumentUri Client::hostPathToServerUri(const Utils::FilePath &path) const
     return DocumentUri::fromFilePath(path, [&](const Utils::FilePath &clientPath) {
         return d->m_serverDeviceTemplate.withNewPath(clientPath.path());
     });
+}
+
+void Client::registerCustomMethod(const QString &method, const CustomMethodHandler &handler)
+{
+    d->m_customHandlers.insert(method, handler);
 }
 
 } // namespace LanguageClient

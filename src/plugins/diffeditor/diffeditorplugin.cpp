@@ -133,7 +133,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
             tasks.append(AsyncTask<FileData>(std::bind(setupDiff, _1, inputList.at(i)),
                                          std::bind(onDiffDone, _1, i)));
         }
-        taskTree.setupRoot(tasks);
+        taskTree.setRecipe(tasks);
     };
     const auto onTreeDone = [this, storage] {
         const QList<std::optional<FileData>> &results = *storage;

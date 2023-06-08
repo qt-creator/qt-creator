@@ -23,7 +23,6 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsutils.h>
 #include <texteditor/texteditor.h>
-#include <utils/executeondestruction.h>
 #include <utils/qrcparser.h>
 #include <utils/tooltip/tooltip.h>
 
@@ -31,6 +30,7 @@
 #include <QList>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+#include <QScopeGuard>
 
 using namespace Core;
 using namespace QmlJS;
@@ -175,7 +175,7 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
 
 void QmlJSHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report)
 {
-    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+    const QScopeGuard cleanup([this, report] { report(priority()); });
 
     reset();
 

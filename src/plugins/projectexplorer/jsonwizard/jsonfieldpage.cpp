@@ -950,12 +950,12 @@ QVariant CheckBoxField::toSettings() const
 
 std::unique_ptr<QStandardItem> createStandardItemFromListItem(const QVariant &item, QString *errorMessage)
 {
-    if (item.type() == QVariant::List) {
+    if (item.typeId() == QVariant::List) {
         *errorMessage = Tr::tr("No JSON lists allowed inside List items.");
         return {};
     }
     auto standardItem = std::make_unique<QStandardItem>();
-    if (item.type() == QVariant::Map) {
+    if (item.typeId() == QVariant::Map) {
         QVariantMap tmp = item.toMap();
         const QString key = JsonWizardFactory::localizedString(consumeValue(tmp, "trKey", QString()).toString());
         const QVariant value = consumeValue(tmp, "value", key);
@@ -985,7 +985,7 @@ ListField::~ListField() = default;
 
 bool ListField::parseData(const QVariant &data, QString *errorMessage)
 {
-    if (data.type() != QVariant::Map) {
+    if (data.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("%1 (\"%2\") data is not an object.").arg(type(), name());
         return false;
     }
@@ -1011,7 +1011,7 @@ bool ListField::parseData(const QVariant &data, QString *errorMessage)
         *errorMessage = Tr::tr("%1 (\"%2\") \"items\" missing.").arg(type(), name());
         return false;
     }
-    if (value.type() != QVariant::List) {
+    if (value.typeId() != QVariant::List) {
         *errorMessage = Tr::tr("%1 (\"%2\") \"items\" is not a JSON list.").arg(type(), name());
         return false;
     }

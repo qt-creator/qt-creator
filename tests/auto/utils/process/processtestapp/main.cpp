@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 #endif
     QCoreApplication app(argc, argv);
 
-    auto cleanup = qScopeGuard([] { Singleton::deleteAll(); });
+    const QScopeGuard cleanup([] { Singleton::deleteAll(); });
 
     TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
                                                     + Core::Constants::IDE_CASED_ID + "-XXXXXX");

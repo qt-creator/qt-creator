@@ -306,7 +306,7 @@ QString GradientModel::readGradientOrientation() const
 void GradientModel::setupModel()
 {
     m_locked = true;
-    auto guard = qScopeGuard([&] { m_locked = false; });
+    const QScopeGuard cleanup([&] { m_locked = false; });
 
     beginResetModel();
     endResetModel();
@@ -329,7 +329,7 @@ void GradientModel::setAnchorBackend(const QVariant &anchorBackend)
     setupModel();
 
     m_locked = true;
-    auto guard = qScopeGuard([&] { m_locked = false; });
+    const QScopeGuard cleanup([&] { m_locked = false; });
 
     emit anchorBackendChanged();
     emit hasGradientChanged();

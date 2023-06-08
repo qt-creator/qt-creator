@@ -184,7 +184,7 @@ GroupItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &st
             QTC_ASSERT(file.isValid(), continue);
             statList.append(statTask(storagePtr, file, statEndHandler));
         }
-        tree.setupRoot({statList});
+        tree.setRecipe({statList});
     };
     return TaskTreeTask(setupHandler);
 }
@@ -261,7 +261,7 @@ GroupItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &s
             QTC_ASSERT(file.isValid(), continue);
             chmodList.append(chmodTask(file));
         }
-        tree.setupRoot({chmodList});
+        tree.setRecipe({chmodList});
     };
     return TaskTreeTask(setupChmodHandler);
 }

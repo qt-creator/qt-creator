@@ -8,8 +8,8 @@
 #include <coreplugin/helpmanager.h>
 #include <texteditor/texteditor.h>
 #include <utils/htmldocextractor.h>
-#include <utils/executeondestruction.h>
 
+#include <QScopeGuard>
 #include <QTextBlock>
 #include <QUrl>
 
@@ -28,7 +28,7 @@ void ProFileHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidg
                                         int pos,
                                         ReportPriority report)
 {
-    ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+    const QScopeGuard cleanup([this, report] { report(priority()); });
 
     m_docFragment.clear();
     m_manualKind = UnknownManual;

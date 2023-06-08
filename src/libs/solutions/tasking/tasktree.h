@@ -378,10 +378,10 @@ class TASKING_EXPORT TaskTree final : public QObject
 
 public:
     TaskTree();
-    TaskTree(const Group &root);
+    TaskTree(const Group &recipe);
     ~TaskTree();
 
-    void setupRoot(const Group &root);
+    void setRecipe(const Group &recipe);
 
     void start();
     void stop();

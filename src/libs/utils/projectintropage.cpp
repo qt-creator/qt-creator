@@ -303,7 +303,7 @@ bool ProjectIntroPage::validateProjectName(const QString &name, QString *errorMe
 
         // if pos is set by validate it is cought at the bottom where it shows
         // a more detailed error message
-        if (validatorState != QValidator::Acceptable && (pos == -1 || pos >= name.count())) {
+        if (validatorState != QValidator::Acceptable && (pos == -1 || pos >= name.size())) {
             if (errorMessage) {
                 if (d->m_projectNameValidatorUserMessage.isEmpty())
                     *errorMessage = Tr::tr("Project name is invalid.");

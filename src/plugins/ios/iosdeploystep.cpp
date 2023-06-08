@@ -46,11 +46,11 @@ private:
     void doRun() final;
     void doCancel() final;
 
-    void handleIsTransferringApp(IosToolHandler *handler, const QString &bundlePath,
+    void handleIsTransferringApp(IosToolHandler *handler, const FilePath &bundlePath,
                                  const QString &deviceId, int progress, int maxProgress,
                                  const QString &info);
-    void handleDidTransferApp(IosToolHandler *handler, const QString &bundlePath, const QString &deviceId,
-                              IosToolHandler::OpStatus status);
+    void handleDidTransferApp(IosToolHandler *handler, const FilePath &bundlePath,
+                              const QString &deviceId, IosToolHandler::OpStatus status);
     void handleFinished(IosToolHandler *handler);
     void handleErrorMsg(IosToolHandler *handler, const QString &msg);
     void updateDisplayNames();
@@ -133,7 +133,7 @@ void IosDeployStep::doRun()
     connect(m_toolHandler, &IosToolHandler::errorMsg,
             this, &IosDeployStep::handleErrorMsg);
     checkProvisioningProfile();
-    m_toolHandler->requestTransferApp(m_bundlePath.toString(), m_deviceType.identifier);
+    m_toolHandler->requestTransferApp(m_bundlePath, m_deviceType.identifier);
 }
 
 void IosDeployStep::doCancel()
@@ -151,7 +151,7 @@ void IosDeployStep::cleanup()
     m_expectFail = false;
 }
 
-void IosDeployStep::handleIsTransferringApp(IosToolHandler *handler, const QString &bundlePath,
+void IosDeployStep::handleIsTransferringApp(IosToolHandler *handler, const FilePath &bundlePath,
                                             const QString &deviceId, int progress, int maxProgress,
                                             const QString &info)
 {
@@ -160,7 +160,7 @@ void IosDeployStep::handleIsTransferringApp(IosToolHandler *handler, const QStri
     emit this->progress(progress * 100 / maxProgress, info);
 }
 
-void IosDeployStep::handleDidTransferApp(IosToolHandler *handler, const QString &bundlePath,
+void IosDeployStep::handleDidTransferApp(IosToolHandler *handler, const FilePath &bundlePath,
                                          const QString &deviceId, IosToolHandler::OpStatus status)
 {
     Q_UNUSED(handler); Q_UNUSED(bundlePath); Q_UNUSED(deviceId)

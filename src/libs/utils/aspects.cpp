@@ -2347,7 +2347,7 @@ void IntegersAspect::setDefaultValue(const QList<int> &value)
 */
 
 TextDisplay::TextDisplay(AspectContainer *container)
-    : BaseAspect(container)
+    : BaseAspect(container), d(new Internal::TextDisplayPrivate)
 {}
 
 /*!

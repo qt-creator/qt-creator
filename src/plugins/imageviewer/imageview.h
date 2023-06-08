@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QGraphicsView>
 
 QT_FORWARD_DECLARE_CLASS(QImage)
@@ -17,7 +19,7 @@ namespace ImageViewer::Internal {
 class ImageViewerFile;
 
 struct ExportData {
-    QString fileName;
+    Utils::FilePath filePath;
     QSize size;
 };
 

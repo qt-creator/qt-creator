@@ -875,7 +875,8 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             || option.startsWith("/M", Qt::CaseSensitive)
             || option.startsWith(includeUserPathOption)
             || option.startsWith(includeSystemPathOption)
-            || option.startsWith(includeUserPathOptionWindows)) {
+            || option.startsWith(includeUserPathOptionWindows)
+            || option.startsWith("-flto")) {
             // Optimization and run-time flags.
             continue;
         }
