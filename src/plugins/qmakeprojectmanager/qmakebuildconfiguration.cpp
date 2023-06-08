@@ -659,7 +659,7 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
             parsedSpec = baseMkspecDir.pathAppended(parsedSpec.path());
     }
 
-    while (parsedSpec.isSymLink())
+    for (int i = 0; i < 5 && parsedSpec.isSymLink(); ++i)
         parsedSpec = parsedSpec.symLinkTarget();
 
     if (parsedSpec.isChildOf(baseMkspecDir)) {
