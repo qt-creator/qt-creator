@@ -313,7 +313,7 @@
     \endlist
 
     You can pause the particle animation by selecting
-    \inlineimage icons/particle-animation-on.png
+    \inlineimage icons/particle-pause.png
     . When the animation is paused, you can use
     \inlineimage icons/particles-seek.png
     to manually seek forward or backward in the particle animation.
