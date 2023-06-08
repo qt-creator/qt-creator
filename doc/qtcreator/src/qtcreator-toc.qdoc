@@ -235,6 +235,7 @@
                 \li \l{Setting Up Meson}
                 \li \l{Setting Up IncrediBuild}
                 \li \l{Setting Up Conan}
+                \li \l{Managing Packages with vcpkg}
             \endlist
             \li \l{Using Command Line Options}
             \li \l{Keyboard Shortcuts}

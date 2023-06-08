@@ -11,7 +11,8 @@
     \image qtcreator-new-file.webp {New File wizard}
 
     Use wizard templates to add individual files to your \l{Creating Projects}
-    {projects}:
+    {projects}. Select \uicontrol File > \uicontrol {New File} and
+    select the type of the file:
 
     \list
         \li \uicontrol {C/C++}: header and source files for new classes.
@@ -28,6 +29,8 @@
             files.
         \li \uicontrol {Java}: class files.
         \li \uicontrol {Python}: class and script files for Python projects.
+        \li \uicontrol {vcpkg} (experimental): \l {Managing Packages with vcpkg}
+            {vcpkg package manager} manifest files (vcpkg.json).
         \li \uicontrol {Nim} (experimental): empty Nim source and script files.
     \endlist
 
