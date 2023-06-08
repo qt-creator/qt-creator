@@ -162,6 +162,11 @@
                     "condition": "%{QdsProjectStyle}"
                 },
                 {
+                    "source": "%{QdsWizardPath}/common/insight.tpl",
+                    "target": "%{ProjectDirectory}/insight",
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
                     "source": "%{QdsWizardPath}/common/main.qml",
                     "target": "%{ProjectDirectory}/main.qml",
                     "condition": "%{QdsProjectStyle}"
