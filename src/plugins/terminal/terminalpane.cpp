@@ -252,10 +252,10 @@ void TerminalPane::initActions()
         TerminalSettings::instance().lockKeyboard.setValue(locked);
         if (locked) {
             lockKeyboard.setIcon(LOCK_KEYBOARD_ICON.icon());
-            lockKeyboard.setToolTip(Tr::tr("Keyboard shortcuts will be send to the Terminal"));
+            lockKeyboard.setToolTip(Tr::tr("Keyboard shortcuts will be sent to the Terminal"));
         } else {
             lockKeyboard.setIcon(UNLOCK_KEYBOARD_ICON.icon());
-            lockKeyboard.setToolTip(Tr::tr("Keyboard shortcuts will be send to Qt Creator"));
+            lockKeyboard.setToolTip(Tr::tr("Keyboard shortcuts will be sent to Qt Creator"));
         }
     };
 
