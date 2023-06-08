@@ -63,6 +63,7 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/touchbar/touchbar.h>
+#include <utils/terminalcommand.h>
 #include <utils/utilsicons.h>
 
 #include <QAbstractProxyModel>
@@ -1228,6 +1229,14 @@ void MainWindow::saveSettings()
     EditorManagerPrivate::saveSettings();
     m_leftNavigationWidget->saveSettings(settings);
     m_rightNavigationWidget->saveSettings(settings);
+
+    // TODO Remove some time after Qt Creator 11
+    // Work around Qt Creator <= 10 writing the default terminal to the settings.
+    // TerminalCommand writes the terminal to the settings when changing it, which usually is
+    // enough. But because of the bug in Qt Creator <= 10 we want to clean up the settings
+    // even if the user never touched the terminal setting.
+    if (HostOsInfo::isMacHost())
+        TerminalCommand::setTerminalEmulator(TerminalCommand::terminalEmulator());
 }
 
 void MainWindow::saveWindowSettings()

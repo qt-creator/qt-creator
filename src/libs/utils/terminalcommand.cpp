@@ -114,6 +114,8 @@ TerminalCommand TerminalCommand::terminalEmulator()
     if (s_settings && HostOsInfo::isAnyUnixHost() && s_settings->contains(kTerminalCommandKey)) {
         FilePath command = FilePath::fromSettings(s_settings->value(kTerminalCommandKey));
 
+        // TODO Remove some time after Qt Creator 11
+        // Work around Qt Creator <= 10 writing the default terminal to the settings.
         if (HostOsInfo::isMacHost() && command.endsWith("openTerminal.py"))
             command = FilePath::fromString("Terminal.app");
 
