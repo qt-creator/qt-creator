@@ -48,20 +48,16 @@ std::optional<QStringList> environmentVariables;
 QProcess inferiorProcess;
 int inferiorId{0};
 
-#ifndef Q_OS_WIN
-
 #ifdef Q_OS_DARWIN
 // A memory mapped helper to retrieve the pid of the inferior process in debugMode
 static int *shared_child_pid = nullptr;
 #endif
 
-using OSSocketNotifier = QSocketNotifier;
-#else
+#ifdef Q_OS_WIN
 Q_PROCESS_INFORMATION *win_process_information = nullptr;
-using OSSocketNotifier = QWinEventNotifier;
 #endif
-// Helper to read a single character from stdin in testMode
-OSSocketNotifier *stdInNotifier;
+
+bool waitingForExitKeyPress = false;
 
 QThread processThread;
 
@@ -77,8 +73,10 @@ std::optional<int> readEnvFile();
 void setupControlSocket();
 void setupSignalHandlers();
 void startProcess(const QString &program, const QStringList &arguments, const QString &workingDir);
-void readKey();
+void onKeyPress(std::function<void()> callback);
 void sendSelfPid();
+void killInferior();
+void resumeInferior();
 
 int main(int argc, char *argv[])
 {
@@ -117,7 +115,15 @@ int main(int argc, char *argv[])
 
         if (debugMode) {
             qDebug() << "Press 'c' to continue or 'k' to kill, followed by 'enter'";
-            readKey();
+
+            onKeyPress([] {
+                char ch;
+                std::cin >> ch;
+                if (ch == 'k')
+                    killInferior();
+                else
+                    resumeInferior();
+            });
         }
 
         return a.exec();
@@ -169,15 +175,20 @@ void sendErrChDir()
 
 void doExit(int exitCode)
 {
+    if (waitingForExitKeyPress)
+        exit(exitCode);
+
     if (controlSocket.state() == QLocalSocket::ConnectedState && controlSocket.bytesToWrite())
         controlSocket.waitForBytesWritten(1000);
 
     if (!commandLineParser.value("wait").isEmpty()) {
-        std::cout << commandLineParser.value("wait").toStdString();
-        std::cin.get();
-    }
+        std::cout << commandLineParser.value("wait").toStdString() << std::endl;
 
-    exit(exitCode);
+        waitingForExitKeyPress = true;
+        onKeyPress([exitCode] { doExit(exitCode); });
+    } else {
+        exit(exitCode);
+    }
 }
 
 void onInferiorFinished(int exitCode, QProcess::ExitStatus status)
@@ -550,23 +561,15 @@ void setupControlSocket()
     controlSocket.connectToServer(commandLineParser.value("socket"));
 }
 
-void onStdInReadyRead()
-{
-    char ch;
-    std::cin >> ch;
-    if (ch == 'k') {
-        killInferior();
-    } else {
-        resumeInferior();
-    }
-}
-
-void readKey()
+void onKeyPress(std::function<void()> callback)
 {
 #ifdef Q_OS_WIN
-    stdInNotifier = new QWinEventNotifier(GetStdHandle(STD_INPUT_HANDLE));
+    // On windows, QWinEventNotifier() doesn't work for stdin, so we have to use a thread instead.
+    QThread *thread = QThread::create([] { std::cin.ignore(); });
+    thread->start();
+    QObject::connect(thread, &QThread::finished, &controlSocket, callback);
 #else
-    stdInNotifier = new QSocketNotifier(fileno(stdin), QSocketNotifier::Read);
+    static auto stdInNotifier = new QSocketNotifier(fileno(stdin), QSocketNotifier::Read);
+    QObject::connect(stdInNotifier, &QSocketNotifier::activated, callback);
 #endif
-    QObject::connect(stdInNotifier, &OSSocketNotifier::activated, &onStdInReadyRead);
 }

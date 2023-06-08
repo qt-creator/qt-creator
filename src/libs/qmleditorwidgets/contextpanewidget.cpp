@@ -44,7 +44,7 @@ DragWidget::DragWidget(QWidget *parent) : QFrame(parent)
 void DragWidget::mousePressEvent(QMouseEvent * event)
 {
     if (event->button() ==  Qt::LeftButton) {
-        m_startPos = event->globalPos() - parentWidget()->mapToGlobal((pos()));
+        m_startPos = event->globalPosition().toPoint() - parentWidget()->mapToGlobal((pos()));
         m_opacityEffect = new QGraphicsOpacityEffect;
         setGraphicsEffect(m_opacityEffect);
         event->accept();
@@ -77,7 +77,7 @@ void DragWidget::mouseMoveEvent(QMouseEvent * event)
 {
     if (event->buttons() &  Qt::LeftButton) {
         if (m_startPos != QPoint(-1, -1)) {
-            QPoint newPos = parentWidget()->mapFromGlobal(event->globalPos() - m_startPos);
+            QPoint newPos = parentWidget()->mapFromGlobal(event->globalPosition().toPoint() - m_startPos);
 
             newPos.setX(limit(newPos.x(), 20, parentWidget()->width() - 20 - width()));
             newPos.setY(limit(newPos.y(), 2, parentWidget()->height() - 20 - height()));

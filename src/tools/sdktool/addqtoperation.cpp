@@ -270,7 +270,7 @@ QVariantMap AddQtData::addQt(const QVariantMap &map) const
     for (QVariantMap::const_iterator i = map.begin(); i != map.end(); ++i) {
         if (!i.key().startsWith(QLatin1String(PREFIX)))
             continue;
-        QString number = i.key().mid(QString::fromLatin1(PREFIX).count());
+        QString number = i.key().mid(QString::fromLatin1(PREFIX).size());
         bool ok;
         int count = number.toInt(&ok);
         if (ok && count >= versionCount)

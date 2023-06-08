@@ -41,13 +41,13 @@ const char CustomCommandLineAspectId[] = "RemoteLinux.MakeInstall.CustomCommandL
 
 MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent, id)
 {
-    makeCommandAspect()->setVisible(false);
-    buildTargetsAspect()->setVisible(false);
-    userArgumentsAspect()->setVisible(false);
-    overrideMakeflagsAspect()->setVisible(false);
-    nonOverrideWarning()->setVisible(false);
-    jobCountAspect()->setVisible(false);
-    disabledForSubdirsAspect()->setVisible(false);
+    m_makeCommandAspect.setVisible(false);
+    m_buildTargetsAspect.setVisible(false);
+    m_userArgumentsAspect.setVisible(false);
+    m_overrideMakeflagsAspect.setVisible(false);
+    m_nonOverrideWarning.setVisible(false);
+    m_jobCountAspect.setVisible(false);
+    m_disabledForSubdirsAspect.setVisible(false);
 
     // FIXME: Hack, Part#1: If the build device is not local, start with a temp dir
     // inside the build dir. On Docker that's typically shared with the host.

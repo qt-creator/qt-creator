@@ -13,7 +13,6 @@
 
 #include <QGuiApplication>
 #include <QLoggingCategory>
-#include <QScopeGuard>
 
 #ifdef WITH_BENCHMARKS
 #include <benchmark/benchmark.h>

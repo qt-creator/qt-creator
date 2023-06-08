@@ -3,12 +3,14 @@
 
 #pragma once
 
+#include "shortcutmap.h"
 #include "terminalsearch.h"
 #include "terminalsurface.h"
 
 #include <aggregation/aggregate.h>
 
 #include <coreplugin/icontext.h>
+#include <coreplugin/actionmanager/command.h>
 
 #include <utils/link.h>
 #include <utils/process.h>
@@ -24,7 +26,6 @@
 
 namespace Terminal {
 
-using UnlockedGlobalAction = std::unique_ptr<QAction, std::function<void(QAction *)>>;
 using RegisteredAction = std::unique_ptr<QAction, std::function<void(QAction *)>>;
 
 class TerminalWidget : public QAbstractScrollArea
@@ -91,8 +92,7 @@ public:
 
     static void initActions();
 
-    [[nodiscard]] static UnlockedGlobalAction unlockGlobalAction(const Utils::Id &commandId,
-                                                                 const Core::Context &context);
+    void unlockGlobalAction(const Utils::Id &commandId);
 
 signals:
     void started(qint64 pid);
@@ -189,6 +189,9 @@ protected:
 
     void updateCopyState();
 
+    RegisteredAction registerAction(Utils::Id commandId, const Core::Context &context);
+    void registerShortcut(Core::Command *command);
+
 private:
     Core::Context m_context;
     std::unique_ptr<Utils::Process> m_process;
@@ -248,10 +251,7 @@ private:
     RegisteredAction m_moveCursorWordRight;
     RegisteredAction m_close;
 
-    UnlockedGlobalAction m_findInDocument;
-    UnlockedGlobalAction m_exit;
-    UnlockedGlobalAction m_options;
-    UnlockedGlobalAction m_settings;
+    Internal::ShortcutMap m_shortcutMap;
 };
 
 } // namespace Terminal

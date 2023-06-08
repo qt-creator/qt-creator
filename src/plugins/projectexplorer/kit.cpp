@@ -578,7 +578,7 @@ QString Kit::toHtml(const Tasks &additional, const QString &extraText) const
         const KitAspect::ItemList list = aspect->toUserOutput(this);
         for (const KitAspect::Item &j : list) {
             QString contents = j.second;
-            if (contents.count() > 256) {
+            if (contents.size() > 256) {
                 int pos = contents.lastIndexOf("<br>", 256);
                 if (pos < 0) // no linebreak, so cut early.
                     pos = 80;

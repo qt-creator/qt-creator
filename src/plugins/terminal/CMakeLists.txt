@@ -9,6 +9,7 @@ add_qtc_plugin(Terminal
     scrollback.cpp scrollback.h
     shellintegration.cpp shellintegration.h
     shellmodel.cpp shellmodel.h
+    shortcutmap.cpp shortcutmap.h
     terminal.qrc
     terminalconstants.h
     terminalicons.h

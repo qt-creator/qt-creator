@@ -1225,8 +1225,10 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("macro in struct") << 795 << 9 << 795 << 14
         << QList<int>{C_MACRO, C_DECLARATION} << 0;
-    QTest::newRow("#ifdef'ed out code") << 800 << 1 << 800 << 17
-        << QList<int>{C_DISABLED_CODE} << 0;
+    if (client()->versionNumber() < QVersionNumber(17)) {
+        QTest::newRow("#ifdef'ed out code") << 800 << 1 << 800 << 17
+                                            << QList<int>{C_DISABLED_CODE} << 0;
+    }
     QTest::newRow("static function call (object)") << 819 << 5 << 819 << 6
         << QList<int>{C_LOCAL} << 0;
     QTest::newRow("static function call (argument)") << 819 << 18 << 819 << 19
@@ -1302,6 +1304,9 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("concept definition") << 1053 << 30 << 1053 << 42
                                                << QList<int>{C_TYPE, C_DECLARATION} << 0;
     QTest::newRow("concept use") << 1054 << 29 << 1054 << 41 << QList<int>{C_TYPE} << 0;
+    QTest::newRow("label declaration") << 242 << 1 << 242 << 11
+                                               << QList<int>{C_LABEL, C_DECLARATION} << 0;
+    QTest::newRow("label use") << 244 << 10 << 244 << 20 << QList<int>{C_LABEL} << 0;
 }
 
 void ClangdTestHighlighting::test()

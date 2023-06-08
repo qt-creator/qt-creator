@@ -230,7 +230,7 @@ QString DiagnosticTextInfo::option() const
         return QString();
 
     const int index = m_squareBracketStartIndex + 1;
-    return m_text.mid(index, m_text.count() - index - 1);
+    return m_text.mid(index, m_text.size() - index - 1);
 }
 
 QString DiagnosticTextInfo::category() const

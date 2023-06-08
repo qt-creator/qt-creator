@@ -2130,7 +2130,7 @@ static QStringList extractFieldsFromBuildString(const QByteArray &buildString)
 
     const QString endian = abiInfo.takeFirst();
     QTC_ASSERT(endian.endsWith("_endian"), return QStringList());
-    result.append(endian.left(endian.count() - 7)); // without the "_endian"
+    result.append(endian.left(endian.size() - 7)); // without the "_endian"
 
     result.append(abiInfo.takeFirst()); // pointer
 
@@ -2160,7 +2160,7 @@ static QStringList extractFieldsFromBuildString(const QByteArray &buildString)
 static Abi refineAbiFromBuildString(const QByteArray &buildString, const Abi &probableAbi)
 {
     QStringList buildStringData = extractFieldsFromBuildString(buildString);
-    if (buildStringData.count() != 9)
+    if (buildStringData.size() != 9)
         return probableAbi;
 
     const QString compiler = buildStringData.at(8);

@@ -81,7 +81,7 @@ public:
     void setCppDebugging(bool cppDebug);
     void setQmlDebugging(QmlDebug::QmlDebugServicesPreset qmlDebugServices);
 
-    QString bundlePath();
+    Utils::FilePath bundlePath() const;
     QString deviceId();
     IosToolHandler::RunKind runType();
     bool cppDebug() const;
@@ -101,9 +101,9 @@ public:
     bool isAppRunning() const;
 
 private:
-    void handleGotServerPorts(Ios::IosToolHandler *handler, const QString &bundlePath,
+    void handleGotServerPorts(Ios::IosToolHandler *handler, const FilePath &bundlePath,
                               const QString &deviceId, Port gdbPort, Port qmlPort);
-    void handleGotInferiorPid(Ios::IosToolHandler *handler, const QString &bundlePath,
+    void handleGotInferiorPid(Ios::IosToolHandler *handler, const FilePath &bundlePath,
                               const QString &deviceId, qint64 pid);
     void handleAppOutput(Ios::IosToolHandler *handler, const QString &output);
     void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
@@ -111,7 +111,7 @@ private:
     void handleFinished(Ios::IosToolHandler *handler);
 
     IosToolHandler *m_toolHandler = nullptr;
-    QString m_bundleDir;
+    FilePath m_bundleDir;
     IDeviceConstPtr m_device;
     IosDeviceType m_deviceType;
     bool m_cppDebug = false;
@@ -130,7 +130,7 @@ IosRunner::IosRunner(RunControl *runControl)
     stopRunningRunControl(runControl);
     const IosDeviceTypeAspect::Data *data = runControl->aspect<IosDeviceTypeAspect>();
     QTC_ASSERT(data, return);
-    m_bundleDir = data->bundleDirectory.toString();
+    m_bundleDir = data->bundleDirectory;
     m_device = DeviceKitAspect::device(runControl->kit());
     m_deviceType = data->deviceType;
 }
@@ -150,7 +150,7 @@ void IosRunner::setQmlDebugging(QmlDebug::QmlDebugServicesPreset qmlDebugService
     m_qmlDebugServices = qmlDebugServices;
 }
 
-QString IosRunner::bundlePath()
+FilePath IosRunner::bundlePath() const
 {
     return m_bundleDir;
 }
@@ -192,9 +192,9 @@ void IosRunner::start()
 
     m_cleanExit = false;
     m_qmlServerPort = Port();
-    if (!QFileInfo::exists(m_bundleDir)) {
+    if (!m_bundleDir.exists()) {
         TaskHub::addTask(DeploymentTask(Task::Warning,
-                                        Tr::tr("Could not find %1.").arg(m_bundleDir)));
+            Tr::tr("Could not find %1.").arg(m_bundleDir.toUserOutput())));
         reportFailure();
         return;
     }
@@ -247,7 +247,7 @@ void IosRunner::stop()
         m_toolHandler->stop();
 }
 
-void IosRunner::handleGotServerPorts(IosToolHandler *handler, const QString &bundlePath,
+void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bundlePath,
                                      const QString &deviceId, Port gdbPort,
                                      Port qmlPort)
 {
@@ -278,7 +278,7 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const QString &bun
         reportFailure(Tr::tr("Could not get necessary ports for the debugger connection."));
 }
 
-void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bundlePath,
+void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const FilePath &bundlePath,
                                      const QString &deviceId, qint64 pid)
 {
     // Called when debugging on Simulator.

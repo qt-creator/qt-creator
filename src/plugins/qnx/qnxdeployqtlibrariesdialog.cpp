@@ -228,7 +228,7 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTree()
             QTC_ASSERT(file.isValid(), continue);
             chmodList.append(chmodTask(file));
         }
-        tree.setupRoot(chmodList);
+        tree.setRecipe(chmodList);
     };
     return TaskTreeTask{setupChmodHandler};
 }

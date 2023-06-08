@@ -169,6 +169,11 @@ public:
     Utils::FilePath serverUriToHostPath(const LanguageServerProtocol::DocumentUri &uri) const;
     LanguageServerProtocol::DocumentUri hostPathToServerUri(const Utils::FilePath &path) const;
 
+    // custom methods
+    using CustomMethodHandler = std::function<void(
+        const LanguageServerProtocol::JsonRpcMessage &message)>;
+    void registerCustomMethod(const QString &method, const CustomMethodHandler &handler);
+
     // logging
     enum class LogTarget { Console, Ui };
     void setLogTarget(LogTarget target);

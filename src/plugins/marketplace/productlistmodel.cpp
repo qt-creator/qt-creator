@@ -4,7 +4,6 @@
 #include "productlistmodel.h"
 
 #include <utils/algorithm.h>
-#include <utils/executeondestruction.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 
@@ -19,6 +18,7 @@
 #include <QNetworkRequest>
 #include <QPixmapCache>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QTimer>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -107,7 +107,7 @@ void SectionedProducts::updateCollections()
 void SectionedProducts::onFetchCollectionsFinished(QNetworkReply *reply)
 {
     QTC_ASSERT(reply, return);
-    Utils::ExecuteOnDestruction replyDeleter([reply]() { reply->deleteLater(); });
+    const QScopeGuard cleanup([reply] { reply->deleteLater(); });
 
     if (reply->error() == QNetworkReply::NoError) {
         const QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
@@ -141,7 +141,7 @@ void SectionedProducts::onFetchSingleCollectionFinished(QNetworkReply *reply)
     emit toggleProgressIndicator(false);
 
     QTC_ASSERT(reply, return);
-    Utils::ExecuteOnDestruction replyDeleter([reply]() { reply->deleteLater(); });
+    const QScopeGuard cleanup([reply] { reply->deleteLater(); });
 
     QList<Core::ListItem *> productsForCollection;
     if (reply->error() == QNetworkReply::NoError) {
@@ -259,7 +259,7 @@ void SectionedProducts::fetchNextImage()
 void SectionedProducts::onImageDownloadFinished(QNetworkReply *reply)
 {
     QTC_ASSERT(reply, return);
-    Utils::ExecuteOnDestruction replyDeleter([reply]() { reply->deleteLater(); });
+    const QScopeGuard cleanup([reply] { reply->deleteLater(); });
 
     if (reply->error() == QNetworkReply::NoError) {
         const QByteArray data = reply->readAll();

@@ -158,7 +158,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
                                            bool isUpdate)
 {
     // make sure to cleanup old proposals if we cannot find a new assistant
-    auto cleanup = qScopeGuard([this] { destroyContext(); });
+    QScopeGuard cleanup([this] { destroyContext(); });
     if (isWaitingForProposal())
         cancelCurrentRequest();
 

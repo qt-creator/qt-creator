@@ -257,7 +257,7 @@ void AttachCoreDialog::accepted()
                           [=](const auto &task) { d->symbolFileResult = task.result(); }},
     };
 
-    d->taskTree.setupRoot(root);
+    d->taskTree.setRecipe(root);
     d->taskTree.start();
 
     d->progressLabel->setText(Tr::tr("Copying files to device..."));

@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    auto cleanup = qScopeGuard([] { Utils::Singleton::deleteAll(); });
+    const QScopeGuard cleanup([] { Utils::Singleton::deleteAll(); });
 
     Utils::Internal::LauncherSocketHandler launcher(app.arguments().constLast());
     QTimer::singleShot(0, &launcher, &Utils::Internal::LauncherSocketHandler::start);

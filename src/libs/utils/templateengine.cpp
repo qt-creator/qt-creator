@@ -235,9 +235,9 @@ QString TemplateEngine::processText(MacroExpander *expander, const QString &inpu
 
     // Expand \n, \t and handle line continuation:
     QString result;
-    result.reserve(out.count());
+    result.reserve(out.size());
     bool isEscaped = false;
-    for (int i = 0; i < out.count(); ++i) {
+    for (int i = 0; i < out.size(); ++i) {
         const QChar c = out.at(i);
 
         if (isEscaped) {

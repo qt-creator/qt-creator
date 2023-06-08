@@ -95,7 +95,7 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
 
         if (m_materialToDrag.isValid() || m_textureToDrag.isValid()) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
+            if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 20) {
                 bool isMaterial = m_materialToDrag.isValid();
                 QMimeData *mimeData = new QMimeData;
                 QByteArray internalId;

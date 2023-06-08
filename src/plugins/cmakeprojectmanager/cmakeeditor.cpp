@@ -169,7 +169,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     // find the end of a filename
     int endPos = column;
-    while (endPos < block.count()) {
+    while (endPos < block.size()) {
         if (isValidFileNameChar(block, endPos)) {
             buffer.append(block.at(endPos));
             endPos++;

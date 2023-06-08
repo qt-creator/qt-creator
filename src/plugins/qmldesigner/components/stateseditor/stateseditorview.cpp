@@ -28,6 +28,14 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QDebug>
+#include <QMessageBox>
+#include <QRegularExpression>
+#include <QScopeGuard>
+
+#include <cmath>
+#include <memory>
+
 namespace QmlDesigner {
 
 /**
@@ -549,7 +557,7 @@ void StatesEditorView::setWhenCondition(int internalNodeId, const QString &condi
         return;
 
     m_block = true;
-    auto guard = qScopeGuard([&]() { m_block = false; });
+    const QScopeGuard cleanup([&] { m_block = false; });
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -569,7 +577,7 @@ void StatesEditorView::resetWhenCondition(int internalNodeId)
         return;
 
     m_block = true;
-    auto guard = qScopeGuard([&]() { m_block = false; });
+    const QScopeGuard cleanup([&] { m_block = false; });
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -589,7 +597,7 @@ void StatesEditorView::setStateAsDefault(int internalNodeId)
         return;
 
     m_block = true;
-    auto guard = qScopeGuard([&]() { m_block = false; });
+    const QScopeGuard cleanup([&] { m_block = false; });
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -609,7 +617,7 @@ void StatesEditorView::resetDefaultState()
         return;
 
     m_block = true;
-    auto guard = qScopeGuard([&]() { m_block = false; });
+    const QScopeGuard cleanup([&] { m_block = false; });
 
     try {
         if (activeStatesGroupNode().hasProperty("state"))
@@ -631,7 +639,7 @@ void StatesEditorView::setAnnotation(int internalNodeId)
         return;
 
     m_block = true;
-    auto guard = qScopeGuard([&]() { m_block = false; });
+    const QScopeGuard cleanup([&] { m_block = false; });
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -660,7 +668,7 @@ void StatesEditorView::removeAnnotation(int internalNodeId)
         return;
 
     m_block = true;
-    auto guard = qScopeGuard([&]() { m_block = false; });
+    const QScopeGuard cleanup([&] { m_block = false; });
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -846,7 +854,7 @@ void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &pr
         return;
 
     m_block = true;
-    auto guard = qScopeGuard([&]() { m_block = false; });
+    const QScopeGuard cleanup([&] { m_block = false; });
 
     for (const VariantProperty &property : propertyList) {
         if (property.name() == "name"

@@ -635,7 +635,7 @@ public:
         const auto selection = selectionContext();
 
         bool showMenu = false;
-        auto cleanup = qScopeGuard([&]{ menu()->setEnabled(showMenu); });
+        const QScopeGuard cleanup([&]{ menu()->setEnabled(showMenu); });
 
         if (!selection.isValid())
             return;

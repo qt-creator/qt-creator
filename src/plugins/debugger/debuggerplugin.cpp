@@ -110,6 +110,7 @@
 #include <QMessageBox>
 #include <QPointer>
 #include <QPushButton>
+#include <QScopeGuard>
 #include <QSettings>
 #include <QStackedWidget>
 #include <QTextBlock>
@@ -124,8 +125,6 @@
 
 #include <cppeditor/cpptoolstestcase.h>
 #include <cppeditor/projectinfo.h>
-
-#include <utils/executeondestruction.h>
 
 #include <QTest>
 #include <QSignalSpy>
@@ -2338,7 +2337,7 @@ void DebuggerUnitTests::testStateMachine()
     BuildManager::buildProjectWithDependencies(ProjectManager::startupProject());
     loop.exec();
 
-    ExecuteOnDestruction guard([] { EditorManager::closeAllEditors(false); });
+    const QScopeGuard cleanup([] { EditorManager::closeAllEditors(false); });
 
     RunConfiguration *rc = ProjectManager::startupRunConfiguration();
     QVERIFY(rc);

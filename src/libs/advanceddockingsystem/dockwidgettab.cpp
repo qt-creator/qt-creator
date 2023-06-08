@@ -187,7 +187,7 @@ namespace ADS
     void DockWidgetTabPrivate::moveTab(QMouseEvent *event)
     {
         event->accept();
-        QPoint distance = event->globalPos() - m_globalDragStartMousePosition;
+        QPoint distance = event->globalPosition().toPoint() - m_globalDragStartMousePosition;
         distance.setY(0);
         auto targetPos = distance + m_tabDragStartPosition;
         targetPos.rx() = qMax(targetPos.x(), 0);
@@ -294,7 +294,7 @@ namespace ADS
     {
         if (event->button() == Qt::LeftButton) {
             event->accept();
-            d->saveDragStartMousePosition(event->globalPos());
+            d->saveDragStartMousePosition(event->globalPosition().toPoint());
             d->m_dragState = DraggingMousePressed;
             emit clicked();
             return;
@@ -314,7 +314,7 @@ namespace ADS
             case DraggingTab:
                 // End of tab moving, emit signal
                 if (d->m_dockArea) {
-                    emit moved(event->globalPos());
+                    emit moved(event->globalPosition().toPoint());
                 }
                 break;
 
@@ -354,7 +354,7 @@ namespace ADS
         auto mappedPos = mapToParent(event->pos());
         bool mouseOutsideBar = (mappedPos.x() < 0) || (mappedPos.x() > parentWidget()->rect().right());
         // Maybe a fixed drag distance is better here ?
-        int dragDistanceY = qAbs(d->m_globalDragStartMousePosition.y() - event->globalPos().y());
+        int dragDistanceY = qAbs(d->m_globalDragStartMousePosition.y() - event->globalPosition().toPoint().y());
         if (dragDistanceY >= DockManager::startDragDistance() || mouseOutsideBar) {
             // If this is the last dock area in a dock container with only
             // one single dock widget it does not make  sense to move it to a new
@@ -382,7 +382,7 @@ namespace ADS
             }
             return;
         } else if (d->m_dockArea->openDockWidgetsCount() > 1
-                   && (event->globalPos() - d->m_globalDragStartMousePosition).manhattanLength()
+                   && (event->globalPosition().toPoint() - d->m_globalDragStartMousePosition).manhattanLength()
                           >= QApplication::startDragDistance()) // Wait a few pixels before start moving
         {
             // If we start dragging the tab, we save its initial position to
@@ -502,7 +502,7 @@ namespace ADS
         // sense to move it to a new floating widget and leave this one empty
         if ((!d->m_dockArea->dockContainer()->isFloating() || d->m_dockArea->dockWidgetsCount() > 1)
             && d->m_dockWidget->features().testFlag(DockWidget::DockWidgetFloatable)) {
-            d->saveDragStartMousePosition(event->globalPos());
+            d->saveDragStartMousePosition(event->globalPosition().toPoint());
             d->startFloating(DraggingInactive);
         }
 

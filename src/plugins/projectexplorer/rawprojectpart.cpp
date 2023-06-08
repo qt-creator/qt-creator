@@ -45,9 +45,10 @@ void RawProjectPart::setFiles(const QStringList &files,
     this->getMimeType = getMimeType;
 }
 
-static QString trimTrailingSlashes(const QString &path) {
+static QString trimTrailingSlashes(const QString &path)
+{
     QString p = path;
-    while (p.endsWith('/') && p.count() > 1) {
+    while (p.endsWith('/') && p.size() > 1) {
         p.chop(1);
     }
     return p;

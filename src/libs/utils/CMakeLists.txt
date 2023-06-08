@@ -43,7 +43,6 @@ add_qtc_library(Utils
     environmentfwd.h
     environmentmodel.cpp environmentmodel.h
     execmenu.cpp execmenu.h
-    executeondestruction.h
     expected.h
     externalterminalprocessimpl.cpp externalterminalprocessimpl.h
     fadingindicator.cpp fadingindicator.h
