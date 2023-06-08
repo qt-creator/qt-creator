@@ -77,7 +77,7 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     } else if (event->type() == QMouseEvent::MouseMove) {
         if (m_itemToDrag.isValid()) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 10) {
+            if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 10) {
                 ItemLibraryEntry entry = m_itemToDrag.value<ItemLibraryEntry>();
                 // For drag to be handled correctly, we must have the component properly imported
                 // beforehand, so we import the module immediately when the drag starts

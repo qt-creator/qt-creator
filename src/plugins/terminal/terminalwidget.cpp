@@ -1339,7 +1339,7 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
             contextMenu->addSeparator();
             contextMenu->addAction(configureAction);
 
-            contextMenu->popup(event->globalPos());
+            contextMenu->popup(event->globalPosition().toPoint());
         } else if (m_selection) {
             copyToClipboard();
             setSelection(std::nullopt);

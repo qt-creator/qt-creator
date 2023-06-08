@@ -173,7 +173,7 @@ public:
 void DraggableLabel::mousePressEvent(QMouseEvent * event)
 {
     if (active && event->button() == Qt::LeftButton) {
-        m_moveStartPos = event->globalPos();
+        m_moveStartPos = event->globalPosition().toPoint();
         event->accept();
     }
     QLabel::mousePressEvent(event);
@@ -190,7 +190,7 @@ void DraggableLabel::mouseMoveEvent(QMouseEvent * event)
 {
     if (active && (event->buttons() & Qt::LeftButton)) {
         if (m_moveStartPos != QPoint(-1, -1)) {
-            const QPoint newPos = event->globalPos();
+            const QPoint newPos = event->globalPosition().toPoint();
             const QPoint offset = newPos - m_moveStartPos;
 
             m_target->move(m_target->pos() + offset);
