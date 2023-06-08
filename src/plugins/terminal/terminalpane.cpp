@@ -247,10 +247,10 @@ void TerminalPane::initActions()
     auto updateLockKeyboard = [this](bool locked) {
         TerminalSettings::instance().lockKeyboard.setValue(locked);
         if (locked) {
-            lockKeyboard.setIcon(Icons::LOCKED_TOOLBAR.icon());
+            lockKeyboard.setIcon(LOCK_KEYBOARD_ICON.icon());
             lockKeyboard.setToolTip(Tr::tr("Keyboard shortcuts will be send to the Terminal"));
         } else {
-            lockKeyboard.setIcon(Icons::UNLOCKED_TOOLBAR.icon());
+            lockKeyboard.setIcon(UNLOCK_KEYBOARD_ICON.icon());
             lockKeyboard.setToolTip(Tr::tr("Keyboard shortcuts will be send to Qt Creator"));
         }
     };

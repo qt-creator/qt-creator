@@ -15,4 +15,11 @@ static Utils::Icon CLOSE_TERMINAL_ICON(
     {{":/terminal/images/terminal.png", Utils::Theme::IconsBaseColor},
      {":/utils/images/iconoverlay_close_small.png", Utils::Theme::IconsStopToolBarColor}});
 
+static Utils::Icon LOCK_KEYBOARD_ICON(
+    {{":/terminal/images/keyboardlock.png", Utils::Theme::IconsBaseColor},
+     {":/codemodel/images/private.png", Utils::Theme::IconsBaseColor}});
+
+static Utils::Icon UNLOCK_KEYBOARD_ICON(
+    {{":/terminal/images/keyboardlock.png", Utils::Theme::IconsBaseColor}});
+
 } // namespace Terminal
