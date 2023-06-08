@@ -5,6 +5,8 @@
 
 #include "shortcutmap.h"
 
+#include <utils/qtcassert.h>
+
 #include <algorithm>
 
 #include <QGuiApplication>
@@ -125,8 +127,9 @@ int ShortcutMap::addShortcut(QObject *owner,
                              Qt::ShortcutContext context,
                              ContextMatcher matcher)
 {
-    Q_ASSERT_X(owner, "ShortcutMap::addShortcut", "All shortcuts need an owner");
-    Q_ASSERT_X(!key.isEmpty(), "ShortcutMap::addShortcut", "Cannot add keyless shortcuts to map");
+    QTC_ASSERT(owner, return 0); // "ShortcutMap::addShortcut", "All shortcuts need an owner");
+    QTC_ASSERT(!key.isEmpty(),
+               return 0); // "ShortcutMap::addShortcut", "Cannot add keyless shortcuts to map");
     Q_D(ShortcutMap);
 
     ShortcutEntry newEntry(owner, key, context, --(d->currentId), true, matcher);
@@ -327,9 +330,9 @@ QKeySequence::SequenceMatch ShortcutMap::find(QKeyEvent *e, int ignoredModifiers
 
     // Should never happen
     if (d->newEntries == d->currentSequences) {
-        Q_ASSERT_X(e->key() != Qt::Key_unknown || e->text().size(),
-                   "ShortcutMap::find",
-                   "New sequence to find identical to previous");
+        QTC_ASSERT(e->key() != Qt::Key_unknown || e->text().size(), return QKeySequence::NoMatch);
+        //"ShortcutMap::find",
+        // "New sequence to find identical to previous");
         return QKeySequence::NoMatch;
     }
 

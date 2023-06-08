@@ -262,10 +262,12 @@ void TerminalWidget::registerShortcut(Command *cmd)
     QTC_ASSERT(cmd, return);
     auto addShortCut = [this, cmd] {
         for (const auto &keySequence : cmd->keySequences()) {
-            m_shortcutMap.addShortcut(cmd->action(),
-                                      keySequence,
-                                      Qt::ShortcutContext::WindowShortcut,
-                                      contextMatcher);
+            if (!keySequence.isEmpty()) {
+                m_shortcutMap.addShortcut(cmd->action(),
+                                          keySequence,
+                                          Qt::ShortcutContext::WindowShortcut,
+                                          contextMatcher);
+            }
         }
     };
     auto removeShortCut = [this, cmd] { m_shortcutMap.removeShortcut(0, cmd->action()); };
