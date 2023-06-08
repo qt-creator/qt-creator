@@ -29,8 +29,7 @@ using namespace Core;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace DiffEditor {
-namespace Internal {
+namespace DiffEditor::Internal {
 
 DiffEditorWidgetController::DiffEditorWidgetController(QWidget *diffEditorWidget)
     : QObject(diffEditorWidget)
@@ -330,6 +329,4 @@ DiffEditorInput::DiffEditorInput(DiffEditorWidgetController *controller)
     , m_charFormat{&controller->m_charFormat[LeftSide], &controller->m_charFormat[RightSide]}
 { }
 
-
-} // namespace Internal
-} // namespace DiffEditor
+} // namespace DiffEditor::Internal

@@ -21,7 +21,6 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QProcessEnvironment;
 class QMenu;
 QT_END_NAMESPACE
 
