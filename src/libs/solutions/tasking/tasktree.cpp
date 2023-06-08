@@ -1284,7 +1284,7 @@ void TaskNode::invokeEndHandler(bool success)
         \li Starts asynchronous task, runs in separate thread.
     \row
         \li TaskTreeTask
-        \li Utils::TaskTree
+        \li Tasking::TaskTree
         \li Starts a nested task tree.
     \row
         \li FileTransferTask
@@ -1513,7 +1513,7 @@ void TaskNode::invokeEndHandler(bool success)
     The execution mode element in a Group specifies how the direct child tasks of
     the Group are started. The most common execution modes are \l sequential and
     \l parallel. It's also possible to specify the limit of tasks running
-    in parallel by using the parallelLimit function.
+    in parallel by using the parallelLimit() function.
 
     In all execution modes, a group starts tasks in the oder in which they appear.
 
@@ -1745,16 +1745,50 @@ void TaskNode::invokeEndHandler(bool success)
     to finish (that is, safe non-blocking destructor of a running task).
 */
 
+/*!
+    Constructs an empty task tree. Use setRecipe() to pass a declarative description
+    on how the task tree should execute the tasks and how it should handle the finished tasks.
+
+    Starting an empty task tree is no-op and the relevant warning message is issued.
+
+    \sa setRecipe(), start()
+*/
 TaskTree::TaskTree()
     : d(new TaskTreePrivate(this))
-{
-}
+{}
 
+/*!
+    Constructs a task tree with a given \a recipe. After the task tree is started,
+    it executes the tasks contained inside the \a recipe and
+    handles finished tasks according to the passed description.
+
+    \sa setRecipe(), start()
+*/
 TaskTree::TaskTree(const Group &recipe) : TaskTree()
 {
     setRecipe(recipe);
 }
 
+/*!
+    Destroys the task tree.
+
+    When the task tree is running while being destructed, it stops all the running tasks
+    immediately. In this case, no handlers are called, not even the groups' and
+    tasks' error handlers or onStorageDone() handlers. The task tree also doesn't emit any
+    signals from the destructor, not even errorOccurred() or progressValueChanged() signals.
+    This behavior may always be relied on.
+    It is completely safe to destruct the running task tree.
+
+    It's a usual pattern to destruct the running task tree, even from the main thread.
+    It's guaranteed that the destruction will run quickly, without having to wait for
+    the currently running tasks to finish, provided that the used tasks implement
+    their destructors in a non-blocking way.
+
+    \note Do not call the destructor directly from any of the running task's handlers
+          or task tree's signals. In these cases, use \l deleteLater() instead.
+
+    \sa stop()
+*/
 TaskTree::~TaskTree()
 {
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("Deleting TaskTree instance directly from "
@@ -1763,6 +1797,15 @@ TaskTree::~TaskTree()
     delete d;
 }
 
+/*!
+    Sets a given \a recipe for the task tree. After the task tree is started,
+    it executes the tasks contained inside the \a recipe and
+    handles finished tasks according to the passed description.
+
+    \note When called for a running task tree, the call is ignored.
+
+    \sa TaskTree(const Tasking::Group &recipe), start()
+*/
 void TaskTree::setRecipe(const Group &recipe)
 {
     QTC_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
@@ -1772,6 +1815,32 @@ void TaskTree::setRecipe(const Group &recipe)
     d->m_root.reset(new TaskNode(d, recipe, nullptr));
 }
 
+/*!
+    Starts the task tree.
+
+    Use setRecipe() or the constructor to set the declarative description according to which
+    the task tree will execute the contained tasks and handle finished tasks.
+
+    When the task tree is empty, that is, constructed with a default constructor,
+    a call to \e start is no-op and the relevant warning message is issued.
+
+    Otherwise, when the task tree is already running, a call to \e start is ignored and the
+    relevant warning message is issued.
+
+    Otherwise, the task tree is started.
+
+    The started task tree may finish synchronously,
+    for example when the main group's start handler returns TaskAction::StopWithError.
+    For this reason, the connections to the done and errorOccurred signals should be
+    established before calling start. Use isRunning() in order to detect whether
+    the task tree is still running after a call to start().
+
+    The task tree implementation relies on the running event loop for listening to the tasks'
+    done signals. Make sure you have a QEventLoop or QCoreApplication or one of its
+    subclasses running (or about to be run) when calling this method.
+
+    \sa TaskTree(const Tasking::Group &recipe), setRecipe(), isRunning(), stop()
+*/
 void TaskTree::start()
 {
     QTC_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
@@ -1780,6 +1849,65 @@ void TaskTree::start()
     d->start();
 }
 
+/*!
+    \fn void TaskTree::started()
+
+    This signal is emitted when the task tree is started. The emission of this signal is
+    followed synchronously by the progressValueChanged() signal with an initial \c 0 value.
+
+    \sa start(), done(), errorOccurred()
+*/
+
+/*!
+    \fn void TaskTree::done()
+
+    This signal is emitted when the task tree finished with success.
+    The task tree neither calls any handler, nor emits any signal anymore after this signal
+    was emitted.
+
+    Don't delete the task tree directly from this signal's handler. Use deleteLater() instead.
+
+    \sa started(), errorOccurred()
+*/
+
+/*!
+    \fn void TaskTree::errorOccurred()
+
+    This signal is emitted when the task tree finished with an error.
+    The task tree neither calls any handler, nor emits any signal anymore after this signal
+    was emitted.
+
+    Don't delete the task tree directly from this signal's handler. Use deleteLater() instead.
+
+    \sa started(), done()
+*/
+
+/*!
+    Stops the running task tree.
+
+    Stops all the running tasks immediately.
+    All running tasks finish with an error, invoking their error handlers.
+    All running groups dispatch their handlers according to their workflow policies,
+    invoking one of their end handlers. The storages' onStorageDone() handlers are invoked, too.
+    The \l progressValueChanged signals are also being sent.
+    This behavior may always be relied on.
+
+    The \l stop is executed synchronously, so that after a call to \e stop
+    all running tasks are finished and the tree is already stopped.
+    It's guaranteed that the stop will run quickly, without any blocking wait for
+    the currently running tasks to finish, provided the used tasks implement their destructors
+    in a non-blocking way.
+
+    When the task tree is empty, that is, constructed with a default constructor,
+    a call to \e stop is no-op and the relevant warning message is issued.
+
+    Otherwise, when the task tree wasn't started, a call to stop is ignored.
+
+    \note Do not call this function directly from any of the running task's handlers
+          or task tree's signals.
+
+    \sa ~TaskTree()
+*/
 void TaskTree::stop()
 {
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The stop() is called from one of the"
@@ -1787,11 +1915,26 @@ void TaskTree::stop()
     d->stop();
 }
 
+/*!
+    Returns \c true if the task tree is currently running; otherwise returns \c false.
+
+    \sa start(), stop()
+*/
 bool TaskTree::isRunning() const
 {
     return d->m_root && d->m_root->isRunning();
 }
 
+/*!
+    Executes a local event loop with QEventLoop::ExcludeUserInputEvents and starts the task tree.
+
+    Returns \c true if the task tree finished successfully; otherwise returns \c false.
+
+    \note Avoid using this method from the main thread. Use asynchronous start() instead.
+          This method is to be used in non-main threads or in auto tests.
+
+    \sa start()
+*/
 bool TaskTree::runBlocking()
 {
     QPromise<void> dummy;
@@ -1799,6 +1942,12 @@ bool TaskTree::runBlocking()
     return runBlocking(dummy.future());
 }
 
+/*!
+    \overload runBlocking()
+
+    The passed \a future is used for listening to the cancel event.
+    When the task tree finishes with an error, this method cancels the passed \a future.
+*/
 bool TaskTree::runBlocking(const QFuture<void> &future)
 {
     if (future.isCanceled())
@@ -1830,6 +1979,19 @@ bool TaskTree::runBlocking(const QFuture<void> &future)
     return ok;
 }
 
+/*!
+    Constructs a temporary task tree using the passed \a recipe and runs it blocking.
+
+    The optionally provided \a timeout is used to stop the tree automatically after
+    \a timeout milliseconds have passed.
+
+    Returns \c true if the task tree finished successfully; otherwise returns \c false.
+
+    \note Avoid using this method from the main thread. Use asynchronous start() instead.
+          This method is to be used in non-main threads or in auto tests.
+
+    \sa start()
+*/
 bool TaskTree::runBlocking(const Group &recipe, milliseconds timeout)
 {
     QPromise<void> dummy;
@@ -1837,6 +1999,12 @@ bool TaskTree::runBlocking(const Group &recipe, milliseconds timeout)
     return TaskTree::runBlocking(recipe, dummy.future(), timeout);
 }
 
+/*!
+    \overload runBlocking(const Group &recipe, milliseconds timeout)
+
+    The passed \a future is used for listening to the cancel event.
+    When the task tree finishes with an error, this method cancels the passed \a future.
+*/
 bool TaskTree::runBlocking(const Group &recipe, const QFuture<void> &future, milliseconds timeout)
 {
     const Group root = timeout == milliseconds::max() ? recipe
@@ -1845,15 +2013,144 @@ bool TaskTree::runBlocking(const Group &recipe, const QFuture<void> &future, mil
     return taskTree.runBlocking(future);
 }
 
+/*!
+    Returns the number of asynchronous tasks contained in the stored recipe.
+
+    \note The returned number doesn't include Sync tasks.
+    \note Any task or group that was set up using withTimeout() increases the total number of
+          tasks by \c 1.
+
+    \sa setRecipe(), progressMaximum()
+*/
 int TaskTree::taskCount() const
 {
     return d->m_root ? d->m_root->taskCount() : 0;
 }
 
+/*!
+    \fn void TaskTree::progressValueChanged(int value)
+
+    This signal is emitted when the running task tree finished, stopped, or skipped some tasks.
+    The \a value gives the current total number of finished, stopped or skipped tasks.
+    When the task tree is started, and after the started() signal was emitted,
+    this signal is emitted with an initial \a value of \c 0.
+    When the task tree is about to finish, and before the done() or errorOccurred() signal
+    is emitted, this signal is emitted with the final \a value of progressMaximum().
+
+    \sa progressValue(), progressMaximum()
+*/
+
+/*!
+    \fn int TaskTree::progressMaximum() const
+
+    Returns the maximum progressValue().
+
+    \note Currently, it's the same as taskCount(). This might change in the future.
+
+    \sa progressValue()
+*/
+
+/*!
+    Returns the current progress value, which is between the \c 0 and progressMaximum().
+
+    The returned number indicates how many tasks have been already finished, stopped, or skipped
+    while the task tree is running.
+    When the task tree is started, this number is set to \c 0.
+    When the task tree is finished, this number always equals progressMaximum().
+
+    \sa progressMaximum()
+*/
 int TaskTree::progressValue() const
 {
     return d->m_progressValue;
 }
+
+/*!
+    \fn template <typename StorageStruct, typename StorageHandler> void TaskTree::onStorageSetup(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler)
+
+    Installs a storage setup \a handler for the \a storage to pass the initial data
+    dynamically to the running task tree.
+
+    The \c StorageHandler takes the pointer to the \c StorageStruct instance:
+
+    \code
+        static void save(const QString &fileName, const QByteArray &array) { ... }
+
+        TreeStorage<QByteArray> storage;
+
+        const auto onSaverSetup = [storage](ConcurrentCall<void> &concurrent) {
+            concurrent.setConcurrentCallData(&save, "foo.txt", *storage);
+        };
+
+        const Group root {
+            Storage(storage),
+            ConcurrentCallTask(onSaverSetup)
+        };
+
+        TaskTree taskTree(root);
+        auto initStorage = [](QByteArray *storage){
+            *storage = "initial content";
+        };
+        taskTree.onStorageSetup(storage, initStorage);
+        taskTree.start();
+    \endcode
+
+    When the running task tree enters a Group where the \a storage is placed in,
+    it creates a \c StorageStruct instance, ready to be used inside this group.
+    Just after the \c StorageStruct instance is created, and before any handler of this group
+    is called, the task tree invokes the passed \a handler. This enables setting up
+    initial content for the given storage dynamically. Later, when any group's handler is invoked,
+    the task tree activates the created and initialized storage, so that it's available inside
+    any group's handler.
+
+    \sa onStorageDone()
+*/
+
+/*!
+    \fn template <typename StorageStruct, typename StorageHandler> void TaskTree::onStorageDone(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler)
+
+    Installs a storage done \a handler for the \a storage to retrie the final data
+    dynamically from the running task tree.
+
+    The \c StorageHandler takes the pointer to the \c StorageStruct instance:
+
+    \code
+        static QByteArray load(const QString &fileName) { ... }
+
+        TreeStorage<QByteArray> storage;
+
+        const auto onLoaderSetup = [storage](ConcurrentCall<void> &concurrent) {
+            concurrent.setConcurrentCallData(&load, "foo.txt");
+        };
+        const auto onLoaderDone = [storage](const ConcurrentCall<void> &concurrent) {
+            *storage = concurrent.result();
+        };
+
+        const Group root {
+            Storage(storage),
+            ConcurrentCallTask(onLoaderDone, onLoaderDone)
+        };
+
+        TaskTree taskTree(root);
+        auto collectStorage = [](QByteArray *storage){
+            qDebug() << "final content" << *storage;
+        };
+        taskTree.onStorageDone(storage, collectStorage);
+        taskTree.start();
+    \endcode
+
+    When the running task tree is about to leave a Group where the \a storage is placed in,
+    it destructs a \c StorageStruct instance.
+    Just before the \c StorageStruct instance is destructed, and after all possible handlers from
+    this group were called, the task tree invokes the passed \a handler. This enables reading
+    the final content of the given storage dynamically and processing it further outside of
+    the task tree.
+
+    This handler is called also when the running tree is stopped. However, it's not called
+    when the running tree is destructed.
+
+    \sa onStorageSetup()
+*/
 
 void TaskTree::setupStorageHandler(const TreeStorageBase &storage,
                                    StorageVoidHandler setupHandler,
