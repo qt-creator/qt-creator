@@ -10,17 +10,74 @@ the public Git repository. For example:
     git clone git://code.qt.io/qt-creator/qt-creator.git
     git log --cherry-pick --pretty=oneline origin/10.0..v11.0.0
 
+What's new?
+------------
+
+* Markdown editor with preview (QTCREATORBUG-27883)
+* Internal terminal (QTCREATORBUG-8511)
+* Experimental support for GitHub Copilot
+* Experimental support for the `vcpkg` C/C++ package manager
+* Experimental support for the Axivion static analyzer
+
+### Markdown
+
+You can open markdown (.md) files for editing or select `File > New File >
+General > Markdown File` to create a new file.
+
+([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-markdown-editor.html))
+
+### Terminal
+
+When you select the `Run in Terminal` check box and run an application or the
+`Open Terminal` button to open a terminal, the default terminal opens in the
+`Terminal` output view. It supports multiple tabs, as well as various
+shells, colors, and fonts.
+
+To use an external terminal, deselect the `Use internal terminal` check box in
+`Preferences > Terminal`.
+
+([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-output-panes.html#terminal))
+
+### Copilot
+
+The experimental Copilot plugin integrates
+[GitHub Copilot](https://github.com/features/copilot), which uses OpenAI to
+suggest code in the `Edit` mode.
+
+To set Copilot preferences, select `Preferences > Copilot`.
+
+([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-copilot.html))
+
+### vcpkg
+
+The experimental vcpkg plugin integrates the [vcpgk](https://vcpkg.io)
+package manager for downloading and managing libraries.
+
+Select the `vcpkg` installation location in `Preferences > CMake > Vcpkg > Path`.
+
+To create a new `vcpkg.json` package manifest file, select `File > New File >
+vcpkg`. The file is automatically added to the CMakeLists.txt file for the
+project.
+
+Edit manifest files in the manifest editor. To search for packages to add to the
+file, select the `Search Package` button on the manifest editor toolbar.
+
+([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-vcpkg.html))
+
+### Axivion
+
+After you configure access to the [Axivion](https://www.axivion.com) Dashboard
+and link a project to an Axivion project in the project settings, Qt Creator
+shows annotations of the latest run in the editors and allows you to view some
+details on the issues.
+
+([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-axivion.html))
+
 General
 -------
 
-* Added a `Terminal` view (QTCREATORBUG-8511)
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-output-panes.html#terminal))
-    * Opt-out via `Preferences` > `Terminal` preferences
-    * Added support for
-        * different shells, colors, fonts, and multiple tabs
-        * opening file paths in Qt Creator with `Ctrl+click` (`Cmd+click` on
-          macOS)
-* Added a more spacious "relaxed" toolbar style `Environment > Interface`
+* Added a more spacious `Relaxed` toolbar style to `Preferences > Environment >
+  Interface`
 * Added a pin button to progress details instead of automatically resetting
   their position (QTCREATORBUG-28829)
 * Improved the selection and navigation in the `Issues` view
@@ -52,9 +109,6 @@ Editing
 
 ### Language Server Protocol
 
-* Added experimental support for GitHub Copilot
-  ([GitHub documentation](https://github.com/features/copilot))
-  ([Qt Creator documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-copilot.html))
 * Added missing actions for opening the `Call Hierarchy` (QTCREATORBUG-28839,
   QTCREATORBUG-28842)
 
@@ -69,11 +123,6 @@ Editing
 
 * Added the option to create a virtual environment (`venv`) to the Python
   interpreter selector and the wizard (PYSIDE-2152)
-
-### Markdown
-
-* Added a Markdown editor with preview (QTCREATORBUG-27883)
-* Added a wizard for Markdown files (QTCREATORBUG-29056)
 
 Projects
 --------
@@ -94,14 +143,6 @@ Projects
 ### Python
 
 * Added an option for the interpreter to the wizards
-
-### vcpkg
-
-* Added experimental support for `vcpkg`
-  ([vcpgk documentation](https://vcpkg.io/en/))
-* Added an option for the `vcpkg` installation location
-* Added a search dialog for packages
-* Added a wizard and an editor for `vcpkg.json` files
 
 Debugging
 ---------
@@ -132,10 +173,6 @@ Analyzer
 
 * Fixed that a `.clang-tidy` file in the project directory was not used by
   default (QTCREATORBUG-28852)
-
-### Axivion
-
-* Added experimental support
 
 Version Control Systems
 -----------------------
