@@ -198,13 +198,9 @@ private:
 
         void updateTableToVersion1(DatabaseType &database)
         {
-            Sqlite::ExclusiveTransaction transaction{database};
-
             database.execute("DELETE FROM images");
             database.execute("ALTER TABLE images ADD COLUMN midSizeImage");
             database.setVersion(1);
-
-            transaction.commit();
         }
     };
 
