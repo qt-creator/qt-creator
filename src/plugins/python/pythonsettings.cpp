@@ -90,6 +90,7 @@ public:
         , m_executable(new PathChooser())
     {
         m_executable->setExpectedKind(PathChooser::ExistingCommand);
+        m_executable->setAllowPathFromDevice(true);
 
         connect(m_name, &QLineEdit::textChanged, this, &InterpreterDetailsWidget::changed);
         connect(m_executable, &PathChooser::textChanged, this, &InterpreterDetailsWidget::changed);
