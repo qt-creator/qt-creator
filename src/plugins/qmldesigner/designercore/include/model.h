@@ -34,6 +34,7 @@ class AbstractView;
 class NodeStateChangeSet;
 class MetaInfo;
 class NodeMetaInfo;
+class NodeMetaInfoPrivate;
 class ModelState;
 class NodeAnchors;
 class AbstractProperty;
@@ -48,12 +49,13 @@ enum class BypassModelResourceManagement { No, Yes };
 class QMLDESIGNERCORE_EXPORT Model : public QObject
 {
     friend ModelNode;
+    friend NodeMetaInfo;
+    friend NodeMetaInfoPrivate;
     friend AbstractProperty;
     friend AbstractView;
     friend Internal::ModelPrivate;
     friend Internal::WriteLocker;
     friend ModelDeleter;
-    friend class NodeMetaInfoPrivate;
 
     Q_OBJECT
 

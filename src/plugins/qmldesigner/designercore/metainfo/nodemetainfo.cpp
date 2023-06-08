@@ -587,8 +587,11 @@ QVector<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Conte
 class NodeMetaInfoPrivate
 {
 public:
-    using Pointer = QSharedPointer<NodeMetaInfoPrivate>;
-    NodeMetaInfoPrivate() = default;
+    using Pointer = std::shared_ptr<NodeMetaInfoPrivate>;
+    NodeMetaInfoPrivate() = delete;
+    NodeMetaInfoPrivate(Model *model, TypeName type, int maj = -1, int min = -1);
+    NodeMetaInfoPrivate(const NodeMetaInfoPrivate &) = delete;
+    NodeMetaInfoPrivate &operator=(const NodeMetaInfoPrivate &) = delete;
     ~NodeMetaInfoPrivate() = default;
 
     bool isValid() const;
@@ -621,13 +624,15 @@ public:
     QString componentFileName() const;
     QString importDirectoryPath() const;
 
-    static Pointer create(Model *model, const TypeName &type, int maj = -1, int min = -1);
+    static std::shared_ptr<NodeMetaInfoPrivate> create(Model *model,
+                                                       const TypeName &type,
+                                                       int maj = -1,
+                                                       int min = -1);
 
     QSet<QByteArray> &prototypeCachePositives();
     QSet<QByteArray> &prototypeCacheNegatives();
 
 private:
-    NodeMetaInfoPrivate(Model *model, TypeName type, int maj = -1, int min = -1);
 
     const CppComponentValue *getCppComponentValue() const;
     const ObjectValue *getObjectValue() const;
@@ -718,15 +723,18 @@ inline static TypeName stringIdentifier(const TypeName &type, int maj, int min)
     return type + QByteArray::number(maj) + '_' + QByteArray::number(min);
 }
 
-NodeMetaInfoPrivate::Pointer NodeMetaInfoPrivate::create(Model *model, const TypeName &type, int major, int minor)
+std::shared_ptr<NodeMetaInfoPrivate> NodeMetaInfoPrivate::create(Model *model,
+                                                                 const TypeName &type,
+                                                                 int major,
+                                                                 int minor)
 {
-    auto &&cache = model->d->m_nodeMetaInfoCache;
+    auto &cache = model->d->nodeMetaInfoCache();
     if (auto found = cache.find(stringIdentifier(type, major, minor)); found != cache.end())
         return *found;
 
-    Pointer newData(new NodeMetaInfoPrivate(model, type, major, minor));
+    auto newData = std::make_shared<NodeMetaInfoPrivate>(model, type, major, minor);
     if (newData->isValid())
-        model->d->m_nodeMetaInfoCache.insert(stringIdentifier(type, major, minor), newData);
+        cache.insert(stringIdentifier(type, major, minor), newData);
     return newData;
 }
 
@@ -931,7 +939,7 @@ bool NodeMetaInfoPrivate::isPropertyWritable(const PropertyName &propertyName) c
         if (isValueType(objectType))
             return true;
 
-        QSharedPointer<NodeMetaInfoPrivate> objectInfo(create(m_model, objectType));
+        auto objectInfo = create(m_model, objectType);
         if (objectInfo->isValid())
             return objectInfo->isPropertyWritable(rawPropertyName);
         else
@@ -946,7 +954,6 @@ bool NodeMetaInfoPrivate::isPropertyWritable(const PropertyName &propertyName) c
     else
         return true; //all properties of components are writable
 }
-
 
 bool NodeMetaInfoPrivate::isPropertyList(const PropertyName &propertyName) const
 {
@@ -964,7 +971,7 @@ bool NodeMetaInfoPrivate::isPropertyList(const PropertyName &propertyName) const
         if (isValueType(objectType))
             return false;
 
-        QSharedPointer<NodeMetaInfoPrivate> objectInfo(create(m_model, objectType));
+        auto objectInfo = create(m_model, objectType);
         if (objectInfo->isValid())
             return objectInfo->isPropertyList(rawPropertyName);
         else
@@ -999,7 +1006,7 @@ bool NodeMetaInfoPrivate::isPropertyPointer(const PropertyName &propertyName) co
         if (isValueType(objectType))
             return false;
 
-        QSharedPointer<NodeMetaInfoPrivate> objectInfo(create(m_model, objectType));
+        auto objectInfo = create(m_model, objectType);
         if (objectInfo->isValid())
             return objectInfo->isPropertyPointer(rawPropertyName);
         else
@@ -1031,7 +1038,7 @@ bool NodeMetaInfoPrivate::isPropertyEnum(const PropertyName &propertyName) const
         if (isValueType(objectType))
             return false;
 
-        QSharedPointer<NodeMetaInfoPrivate> objectInfo(create(m_model, objectType));
+        auto objectInfo = create(m_model, objectType);
         if (objectInfo->isValid())
             return objectInfo->isPropertyEnum(rawPropertyName);
         else
@@ -1157,7 +1164,6 @@ Model *NodeMetaInfoPrivate::model() const
     return m_model;
 }
 
-
 QStringList NodeMetaInfoPrivate::keysForEnum(const QString &enumName) const
 {
     if (!isValid())
@@ -1244,7 +1250,6 @@ QStringList NodeMetaInfoPrivate::lookupNameComponent() const
     QString tempString = fullQualifiedImportAliasType();
     return tempString.split('.');
 }
-
 
 bool NodeMetaInfoPrivate::isValid() const
 {
@@ -1349,7 +1354,6 @@ void NodeMetaInfoPrivate::setupPrototypes()
     }
 }
 
-
 QList<TypeDescription> NodeMetaInfoPrivate::prototypes() const
 {
     return m_prototypes;
@@ -1393,6 +1397,12 @@ void NodeMetaInfoPrivate::initialiseProperties()
     m_slots = getSlots(m_objectValue, context());
 }
 
+NodeMetaInfo::NodeMetaInfo() = default;
+NodeMetaInfo::NodeMetaInfo(const NodeMetaInfo &) = default;
+NodeMetaInfo &NodeMetaInfo::operator=(const NodeMetaInfo &) = default;
+NodeMetaInfo::NodeMetaInfo(NodeMetaInfo &&) = default;
+NodeMetaInfo &NodeMetaInfo::operator=(NodeMetaInfo &&) = default;
+
 NodeMetaInfo::NodeMetaInfo(Model *model, const TypeName &type, int maj, int min)
     : m_privateData(NodeMetaInfoPrivate::create(model, type, maj, min))
 {
@@ -1426,6 +1436,9 @@ bool NodeMetaInfo::hasProperty(Utils::SmallStringView propertyName) const
 
 PropertyMetaInfos NodeMetaInfo::properties() const
 {
+    if (!isValid())
+        return {};
+
     if constexpr (useProjectStorage()) {
         return Utils::transform<PropertyMetaInfos>(
             m_projectStorage->propertyDeclarationIds(m_typeId), [&](auto id) {
@@ -1439,7 +1452,7 @@ PropertyMetaInfos NodeMetaInfo::properties() const
         propertyMetaInfos.reserve(static_cast<std::size_t>(properties.size()));
 
         for (const auto &name : properties)
-            propertyMetaInfos.emplace_back(m_privateData, name);
+            propertyMetaInfos.push_back({m_privateData, name});
 
         return propertyMetaInfos;
     }
@@ -2822,8 +2835,14 @@ bool NodeMetaInfo::isEnumeration() const
     return false;
 }
 
+PropertyMetaInfo::PropertyMetaInfo() = default;
+PropertyMetaInfo::PropertyMetaInfo(const PropertyMetaInfo &) = default;
+PropertyMetaInfo &PropertyMetaInfo::operator=(const PropertyMetaInfo &) = default;
+PropertyMetaInfo::PropertyMetaInfo(PropertyMetaInfo &&) = default;
+PropertyMetaInfo &PropertyMetaInfo::operator=(PropertyMetaInfo &&) = default;
+
 PropertyMetaInfo::PropertyMetaInfo(
-    [[maybe_unused]] QSharedPointer<NodeMetaInfoPrivate> nodeMetaInfoPrivateData,
+    [[maybe_unused]] std::shared_ptr<NodeMetaInfoPrivate> nodeMetaInfoPrivateData,
     [[maybe_unused]] const PropertyName &propertyName)
 #ifndef QDS_USE_PROJECTSTORAGE
     : m_nodeMetaInfoPrivateData{nodeMetaInfoPrivateData}
@@ -2850,10 +2869,14 @@ NodeMetaInfo PropertyMetaInfo::propertyType() const
 
 PropertyName PropertyMetaInfo::name() const
 {
-    if constexpr (useProjectStorage())
-        return PropertyName(Utils::SmallStringView(propertyData().name));
-    else
-        return propertyName();
+    if (isValid()) {
+        if constexpr (useProjectStorage())
+            return PropertyName(Utils::SmallStringView(propertyData().name));
+        else
+            return propertyName();
+    }
+
+    return {};
 }
 
 bool PropertyMetaInfo::isWritable() const
@@ -3003,7 +3026,7 @@ TypeName PropertyMetaInfo::propertyTypeName() const
 const NodeMetaInfoPrivate *PropertyMetaInfo::nodeMetaInfoPrivateData() const
 {
 #ifndef QDS_USE_PROJECTSTORAGE
-    return m_nodeMetaInfoPrivateData.data();
+    return m_nodeMetaInfoPrivateData.get();
 #else
     return nullptr;
 #endif

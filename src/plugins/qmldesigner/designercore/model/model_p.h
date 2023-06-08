@@ -10,6 +10,8 @@
 #include "modelnode.h"
 #include "skipiterator.h"
 
+#include <nodemetainfo.h>
+
 #include <QList>
 #include <QPointer>
 #include <QSet>
@@ -93,7 +95,6 @@ class ModelPrivate : public QObject
 
     friend Model;
     friend Internal::WriteLocker;
-    friend NodeMetaInfoPrivate;
 
 public:
     ModelPrivate(Model *model,
@@ -288,6 +289,11 @@ public:
 
     void handleResourceSet(const ModelResourceSet &resourceSet);
 
+    QHash<TypeName, std::shared_ptr<NodeMetaInfoPrivate>> &nodeMetaInfoCache()
+    {
+        return m_nodeMetaInfoCache;
+    }
+
 private:
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
     void removeAllSubNodes(const InternalNodePointer &node);
@@ -323,7 +329,7 @@ private:
     QPointer<RewriterView> m_rewriterView;
     QPointer<NodeInstanceView> m_nodeInstanceView;
     QPointer<Model> m_metaInfoProxyModel;
-    QHash<TypeName, QSharedPointer<NodeMetaInfoPrivate>> m_nodeMetaInfoCache;
+    QHash<TypeName, std::shared_ptr<NodeMetaInfoPrivate>> m_nodeMetaInfoCache;
     bool m_writeLock = false;
     qint32 m_internalIdCounter = 1;
 };

@@ -9,21 +9,22 @@
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorageids.h>
 
-#include <QSharedPointer>
 #include <QString>
 
+#include <memory>
 #include <optional>
 #include <vector>
 
 namespace QmlDesigner {
 
 class NodeMetaInfo;
+class NodeMetaInfoPrivate;
 
 class QMLDESIGNERCORE_EXPORT PropertyMetaInfo
 {
 public:
-    PropertyMetaInfo() = default;
-    PropertyMetaInfo(QSharedPointer<class NodeMetaInfoPrivate> nodeMetaInfoPrivateData,
+    PropertyMetaInfo();
+    PropertyMetaInfo(std::shared_ptr<NodeMetaInfoPrivate> nodeMetaInfoPrivateData,
                      const PropertyName &propertyName);
     PropertyMetaInfo([[maybe_unused]] PropertyDeclarationId id,
                      [[maybe_unused]] NotNullPointer<const ProjectStorageType> projectStorage)
@@ -32,6 +33,10 @@ public:
         , m_id{id}
 #endif
     {}
+    PropertyMetaInfo(const PropertyMetaInfo &);
+    PropertyMetaInfo &operator=(const PropertyMetaInfo &);
+    PropertyMetaInfo(PropertyMetaInfo &&);
+    PropertyMetaInfo &operator=(PropertyMetaInfo &&);
     ~PropertyMetaInfo();
 
     explicit operator bool() const { return isValid(); }
@@ -74,7 +79,7 @@ private:
     mutable std::optional<Storage::Info::PropertyDeclaration> m_propertyData;
     PropertyDeclarationId m_id;
 #ifndef QDS_USE_PROJECTSTORAGE
-    QSharedPointer<class NodeMetaInfoPrivate> m_nodeMetaInfoPrivateData;
+    std::shared_ptr<NodeMetaInfoPrivate> m_nodeMetaInfoPrivateData;
     PropertyName m_propertyName;
 #endif
 };
