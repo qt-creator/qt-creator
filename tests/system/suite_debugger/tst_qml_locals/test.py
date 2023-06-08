@@ -48,13 +48,9 @@ def main():
         earlyExit("Could not find expected Inspector tree inside Locals and Expressions.")
         return
     # reduce items to outer Rectangle object
-    items = items.getChild("QQuickView")
+    items = items.getChild("QQmlApplicationEngine")
     if items == None:
-        earlyExit("Could not find expected QQuickView tree inside Locals and Expressions.")
-        return
-    items = items.getChild("QQuickRootItem")
-    if items == None:
-        earlyExit("Could not find expected QQuickRootItem tree inside Locals and Expressions.")
+        earlyExit("Could not find expected QQmlApplicationEngine tree inside Locals and Expressions.")
         return
     items = items.getChild("Rectangle")
     if items == None:
@@ -76,13 +72,14 @@ def main():
     invokeMenuItem("File", "Exit")
 
 def __unfoldTree__():
+    view = waitForObject(':Locals and Expressions_Debugger::Internal::WatchTreeView')
     # TODO inspect the qmlengine as well?
-    rootIndex = getQModelIndexStr("text='QQuickView'",
+    rootIndex = getQModelIndexStr("text='QQmlApplicationEngine'",
                                   ':Locals and Expressions_Debugger::Internal::WatchTreeView')
-    unfoldQModelIndex(rootIndex, False)
-    quickRootItem = getQModelIndexStr("text='QQuickRootItem'", rootIndex)
-    unfoldQModelIndex(quickRootItem, False)
-    mainRect = getQModelIndexStr("text='Rectangle'", quickRootItem)
+    if not test.verify(view.isExpanded(waitForObject(rootIndex)),
+                       "QQmlApplicationEngine should be expanded already."):
+        unfoldQModelIndex(rootIndex, False)
+    mainRect = getQModelIndexStr("text='Rectangle'", rootIndex)
     unfoldQModelIndex(mainRect)
     subItems = ["text='Rectangle'", "text='Rectangle' occurrence='2'", "text='Text'"]
     for item in subItems:
