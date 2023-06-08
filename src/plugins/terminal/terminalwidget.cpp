@@ -974,6 +974,9 @@ void TerminalWidget::paintCursor(QPainter &p) const
 
     auto cursor = m_surface->cursor();
 
+    if (!m_preEditString.isEmpty())
+        cursor.shape = Internal::Cursor::Shape::Underline;
+
     const bool blinkState = !cursor.blink || m_cursorBlinkState
                             || !TerminalSettings::instance().allowBlinkingCursor.value();
 
@@ -1019,9 +1022,13 @@ void TerminalWidget::paintPreedit(QPainter &p) const
         QRectF rect = QRectF(gridToGlobal(cursor.position),
                              gridToGlobal({cursor.position.x(), cursor.position.y()}, true, true));
 
-        p.fillRect(rect, QColor::fromRgb(0, 0, 0));
-        p.setPen(Qt::white);
-        p.drawText(rect, m_preEditString);
+        rect.setWidth(viewport()->width() - rect.x());
+
+        p.setPen(toQColor(ColorIndex::Foreground));
+        QFont f = font();
+        f.setUnderline(true);
+        p.setFont(f);
+        p.drawText(rect, Qt::TextDontClip | Qt::TextWrapAnywhere, m_preEditString);
     }
 }
 
