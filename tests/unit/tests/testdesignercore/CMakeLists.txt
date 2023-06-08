@@ -1,5 +1,31 @@
-extend_qtc_test(unittest
-  SOURCES_PREFIX "${QmlDesignerDir}/designercore"
+add_qtc_library(TestDesignerCore OBJECT
+  EXCLUDE_FROM_INSTALL
+  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}
+  SKIP_AUTOMOC ON
+  DEPENDS
+    Qt::Core Qt::Network Qt::Widgets
+    Qt::Xml Qt::Concurrent Qt::QmlPrivate Qt::Gui
+    Qt::Core5Compat Utils QmlJS Sqlite SqliteC
+  PUBLIC_DEPENDS
+    QmlPuppetCommunication
+  SOURCES_PREFIX ${QmlDesignerDir}/designercore
+  PUBLIC_INCLUDES
+    ${UnittestStubsDir}
+    ${UnittestStubsDir}/qmldesigner/designercore/include
+    ${QtCreatorLibsDir}
+    ${QtCreatorPluginsDir}
+    ${QmlDesignerDir}
+    ${QmlDesignerDir}/designercore
+    ${QmlDesignerDir}/designercore/include
+    ${QmlDesignerDir}/designercore/imagecache
+  PUBLIC_DEFINES
+    UNIT_TESTS
+    DONT_CHECK_MESSAGE_COUNTER
+    QTC_RESOURCE_DIR="${QtCreatorResourcesDir}"
+    QDS_MODEL_USE_PROJECTSTORAGEINTERFACE
+    QDS_USE_PROJECTSTORAGE
+    QMLDESIGNERCORE_STATIC_LIBRARY
+    QMLDESIGNER_STATIC_LIBRARY
   SOURCES
     exceptions/exception.cpp
     exceptions/invalidargumentexception.cpp
@@ -124,16 +150,18 @@ extend_qtc_test(unittest
     rewritertransaction.h
 )
 
-extend_qtc_test(unittest
-  SOURCES_PREFIX "${QmlDesignerDir}/designercore"
+extend_qtc_library(TestDesignerCore
+  SOURCES_PREFIX ${QmlDesignerDir}/designercore/include
   SOURCES_PROPERTIES AUTOMOC ON
   SOURCES
-    include/model.h
+    model.h
+    abstractview.h
 )
 
-extend_qtc_test(unittest
+extend_qtc_library(TestDesignerCore
   SOURCES_PROPERTIES AUTOMOC ON
+  SOURCES_PREFIX ../stubs/qmldesigner/designercore/include
   SOURCES
-    qmldesigner/designercore/include/nodeinstanceview.h
-    qmldesigner/designercore/include/rewriterview.h
+    nodeinstanceview.h
+    rewriterview.h
 )

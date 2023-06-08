@@ -9,8 +9,7 @@
 #include <gtest/gtest-printers.h>
 #include <gmock/gmock-matchers.h>
 
-#include <clangtools/clangtoolsdiagnostic.h>
-#include <debugger/analyzer/diagnosticlocation.h>
+#include <imagecache/imagecachestorageinterface.h>
 #include <imagecacheauxiliarydata.h>
 #include <import.h>
 #include <modelnode.h>
@@ -23,7 +22,6 @@
 #include <sqlitevalue.h>
 #include <utils/fileutils.h>
 #include <variantproperty.h>
-#include <qmldesigner/designercore/imagecache/imagecachestorageinterface.h>
 
 namespace std {
 template <typename T> ostream &operator<<(ostream &out, const QVector<T> &vector)
@@ -402,39 +400,6 @@ std::ostream &operator<<(std::ostream &out, const ConstTupleIterator &iterator)
 
 } // namespace SessionChangeSetInternal
 } // namespace Sqlite
-
-namespace Debugger {
-std::ostream &operator<<(std::ostream &out, const DiagnosticLocation &loc)
-{
-    return out << "(" << loc.filePath << ", " << loc.line << ", " << loc.column << ")";
-}
-} // namespace Debugger
-
-namespace ClangTools {
-namespace Internal {
-std::ostream &operator<<(std::ostream &out, const ExplainingStep &step)
-{
-    return out << "("
-               << step.message << ", "
-               << step.location << ", "
-               << step.ranges << ", "
-               << step.isFixIt
-               << ")";
-}
-
-std::ostream &operator<<(std::ostream &out, const Diagnostic &diag) {
-    return out << "("
-               << diag.name << ", "
-               << diag.description << ", "
-               << diag.category << ", "
-               << diag.type << ", "
-               << diag.location << ", "
-               << diag.explainingSteps << ", "
-               << diag.hasFixits
-               << ")";
-}
-} // namespace Internal
-} // namespace ClangTools
 
 namespace QmlDesigner {
 namespace {

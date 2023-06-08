@@ -371,8 +371,6 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
 
     connect(m_documentTextModifier.data(), &TextModifier::textChanged, this, &DesignDocument::updateQrcFiles);
 
-    m_documentModel->setTextModifier(m_documentTextModifier.data());
-
     m_inFileComponentTextModifier.reset();
 
     updateFileName(Utils::FilePath(), fileName());
@@ -431,7 +429,6 @@ void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textMod
         edit->document()->clearUndoRedoStacks();
 
     m_inFileComponentModel = createInFileComponentModel();
-    m_inFileComponentModel->setTextModifier(m_inFileComponentTextModifier.data());
 
     viewManager().attachRewriterView();
     viewManager().attachViewsExceptRewriterAndComponetView();

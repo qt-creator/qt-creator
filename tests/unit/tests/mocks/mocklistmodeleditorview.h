@@ -5,7 +5,7 @@
 
 #include "../utils/googletest.h"
 
-#include <qmldesigner/designercore/include/abstractview.h>
+#include <designercore/include/abstractview.h>
 
 class MockListModelEditorView : public QmlDesigner::AbstractView
 {

@@ -88,9 +88,6 @@ void RewriterView::modelAttached(Model *model)
 {
     m_modelAttachPending = false;
 
-    if (model && model->textModifier())
-        setTextModifier(model->textModifier());
-
     AbstractView::modelAttached(model);
 
     ModelAmender differenceHandler(m_textToModelMerger.data());

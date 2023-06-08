@@ -12,35 +12,10 @@ if (NOT Googletest_FOUND)
   return()
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake")
-enable_testing()
-
-# Needed for pch
-set(QtCreator_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../")
-option(BUILD_WITH_PCH "Build with precompiled headers" ON)
-
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(IMPLICIT_DEPENDS Qt::Test)
-
-include(QtCreatorIDEBranding)
-include(QtCreatorAPI)
-
-set(WITH_TESTS ON)
-
-find_package(Clang MODULE)
-find_package(Qt5
-  COMPONENTS
-    Gui Core Core5Compat Widgets Network Qml Concurrent Test Xml MODULE)
-find_package(Threads)
 
 add_subdirectory(tests)
 add_subdirectory(tools)

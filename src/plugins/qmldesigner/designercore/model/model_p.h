@@ -322,7 +322,6 @@ private:
     QUrl m_fileUrl;
     QPointer<RewriterView> m_rewriterView;
     QPointer<NodeInstanceView> m_nodeInstanceView;
-    QPointer<TextModifier> m_textModifier;
     QPointer<Model> m_metaInfoProxyModel;
     QHash<TypeName, QSharedPointer<NodeMetaInfoPrivate>> m_nodeMetaInfoCache;
     bool m_writeLock = false;

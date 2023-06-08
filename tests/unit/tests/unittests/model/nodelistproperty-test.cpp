@@ -1,9 +1,9 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "../mocks/abstractviewmock.h"
-#include "../mocks/projectstoragemock.h"
-#include "../utils/googletest.h"
+#include <abstractviewmock.h>
+#include <googletest.h>
+#include <projectstoragemock.h>
 
 #include <model.h>
 #include <modelnode.h>

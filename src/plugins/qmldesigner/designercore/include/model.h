@@ -172,8 +172,6 @@ public:
 
     Model *metaInfoProxyModel() const;
 
-    TextModifier *textModifier() const;
-    void setTextModifier(TextModifier *textModifier);
     void setDocumentMessages(const QList<DocumentMessage> &errors,
                              const QList<DocumentMessage> &warnings);
 

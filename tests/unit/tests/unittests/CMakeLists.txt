@@ -3,14 +3,12 @@ file(RELATIVE_PATH TEST_RELATIVE_LIBEXEC_PATH "/${RELATIVE_TEST_PATH}" "/${IDE_L
 
 add_qtc_test(unittest GTEST
   PROPERTIES COMPILE_WARNING_AS_ERROR OFF
-  INCLUDES
-    BEFORE ${UnittestStubsDir}
-    BEFORE ${UnittestStubsDir}/qmldesigner/designercore/include
+  SKIP_AUTOMOC ON
   DEPENDS
     Qt::Core Qt::Network Qt::Widgets
     Qt::Xml Qt::Concurrent Qt::QmlPrivate Qt::Gui
-    Qt::Core5Compat QmlJS Sqlite SqliteC
-    Googletest
+    Qt::Core5Compat Utils QmlJS Sqlite SqliteC
+    Googletest TestDesignerCore TestUtils TestMatchers TestPrinters TestMocks
   DEFINES
     GTEST_INTERNAL_HAS_STRING_VIEW
     QT_NO_CAST_TO_ASCII
@@ -52,28 +50,6 @@ finalize_qtc_gtest(unittest
   EXCLUDE_SOURCES_REGEX ".c$"
   EXCLUDE_ALL_FROM_PRECHECK
 )
-
-# Path needs to be before CppEditor
-target_include_directories(unittest
-  PRIVATE
-    BEFORE ${QtCreatorPluginsDir}
-)
-
-if (NOT TARGET Utils)
-  add_subdirectory(${QtCreatorLibsDir}/utils ${CMAKE_CURRENT_BINARY_DIR}/utils)
-endif()
-if (NOT TARGET CPlusPlus)
-  add_subdirectory(${QtCreatorLibsDir}/3rdparty/cplusplus ${CMAKE_CURRENT_BINARY_DIR}/3rd_cplusplus)
-  add_subdirectory(${QtCreatorLibsDir}/cplusplus ${CMAKE_CURRENT_BINARY_DIR}/cplusplus)
-endif()
-
-extend_qtc_test(unittest DEPENDS Utils CPlusPlus)
-
-file(GLOB PROJECTSTORAGE_EXCLUDED_SOURCES ${QmlDesignerDir}/designercore/projectstorage/*.cpp)
-set_property(SOURCE ${PROJECTSTORAGE_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
-
-file(GLOB UNITTEST_EXCLUDED_SOURCES *.cpp)
-set_property(SOURCE ${UNITTEST_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
 
 function(unittest_copy_data_folder)
   execute_process(

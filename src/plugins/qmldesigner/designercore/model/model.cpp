@@ -26,7 +26,6 @@
 #include "rewriterview.h"
 #include "rewritingexception.h"
 #include "signalhandlerproperty.h"
-#include "textmodifier.h"
 #include "variantproperty.h"
 
 #include <projectstorage/projectstorage.h>
@@ -1848,16 +1847,6 @@ Model *Model::metaInfoProxyModel() const
         return d->m_metaInfoProxyModel->metaInfoProxyModel();
 
     return const_cast<Model *>(this);
-}
-
-TextModifier *Model::textModifier() const
-{
-    return d->m_textModifier.data();
-}
-
-void Model::setTextModifier(TextModifier *textModifier)
-{
-    d->m_textModifier = textModifier;
 }
 
 void Model::setDocumentMessages(const QList<DocumentMessage> &errors,

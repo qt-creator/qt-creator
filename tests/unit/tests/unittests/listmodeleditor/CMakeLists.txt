@@ -4,15 +4,6 @@ extend_qtc_test(unittest
     listmodeleditor-test.cpp
 )
 extend_qtc_test(unittest
-  INCLUDES
-    "${QmlDesignerDir}"
-    "${QmlDesignerDir}/designercore"
-    "${QmlDesignerDir}/designercore/include"
-    "${QmlDesignerDir}/designercore/imagecache"
-    "${QmlDesignerDir}/../../../src/libs/qmlpuppetcommunication/interfaces"
-    "${QmlDesignerDir}/../../../src/libs/qmlpuppetcommunication/types"
-  DEFINES
-    QMLDESIGNERCORE_STATIC_LIBRARY QMLDESIGNER_STATIC_LIBRARY
   SOURCES_PREFIX
     "${QmlDesignerDir}"
   SOURCES
