@@ -30,12 +30,9 @@ public:
     explicit DiffEditorController(Core::IDocument *document);
 
     void requestReload();
-    bool isReloading() const;
 
     Utils::FilePath workingDirectory() const;
     void setWorkingDirectory(const Utils::FilePath &directory);
-    int contextLineCount() const;
-    bool ignoreWhitespace() const;
 
     enum PatchOption {
         NoOption = 0,
@@ -60,6 +57,10 @@ signals:
                                const ChunkSelection &selection);
 
 protected:
+    bool isReloading() const;
+    int contextLineCount() const;
+    bool ignoreWhitespace() const;
+
     // Core functions:
     void setReloadRecipe(const Tasking::Group &recipe) { m_reloadRecipe = recipe; }
     void setDiffFiles(const QList<FileData> &diffFileList);
