@@ -331,7 +331,7 @@ void RichTextEditor::setupTextActions()
         fmt.setFontWeight(checked ? QFont::Bold : QFont::Normal);
         mergeFormatOnWordOrSelection(fmt);
     });
-    m_actionTextBold->setShortcut(Qt::CTRL + Qt::Key_B);
+    m_actionTextBold->setShortcut(Qt::CTRL | Qt::Key_B);
     QFont bold;
     bold.setBold(true);
     m_actionTextBold->setFont(bold);
@@ -344,7 +344,7 @@ void RichTextEditor::setupTextActions()
         fmt.setFontItalic(checked);
         mergeFormatOnWordOrSelection(fmt);
     });
-    m_actionTextItalic->setShortcut(Qt::CTRL + Qt::Key_I);
+    m_actionTextItalic->setShortcut(Qt::CTRL | Qt::Key_I);
     QFont italic;
     italic.setItalic(true);
     m_actionTextItalic->setFont(italic);
@@ -357,7 +357,7 @@ void RichTextEditor::setupTextActions()
         fmt.setFontUnderline(checked);
         mergeFormatOnWordOrSelection(fmt);
     });
-    m_actionTextUnderline->setShortcut(Qt::CTRL + Qt::Key_U);
+    m_actionTextUnderline->setShortcut(Qt::CTRL | Qt::Key_U);
     QFont underline;
     underline.setUnderline(true);
     m_actionTextUnderline->setFont(underline);
@@ -417,25 +417,25 @@ void RichTextEditor::setupAlignActions()
 {
     const QIcon leftIcon(getIcon(Theme::Icon::textAlignLeft));
     m_actionAlignLeft = ui->toolBar->addAction(leftIcon, tr("&Left"), [this]() { ui->textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute); });
-    m_actionAlignLeft->setShortcut(Qt::CTRL + Qt::Key_L);
+    m_actionAlignLeft->setShortcut(Qt::CTRL | Qt::Key_L);
     m_actionAlignLeft->setCheckable(true);
     m_actionAlignLeft->setPriority(QAction::LowPriority);
 
     const QIcon centerIcon(getIcon(Theme::Icon::textAlignCenter));
     m_actionAlignCenter = ui->toolBar->addAction(centerIcon, tr("C&enter"), [this]() { ui->textEdit->setAlignment(Qt::AlignHCenter); });
-    m_actionAlignCenter->setShortcut(Qt::CTRL + Qt::Key_E);
+    m_actionAlignCenter->setShortcut(Qt::CTRL | Qt::Key_E);
     m_actionAlignCenter->setCheckable(true);
     m_actionAlignCenter->setPriority(QAction::LowPriority);
 
     const QIcon rightIcon(getIcon(Theme::Icon::textAlignRight));
     m_actionAlignRight = ui->toolBar->addAction(rightIcon, tr("&Right"), [this]() { ui->textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute); });
-    m_actionAlignRight->setShortcut(Qt::CTRL + Qt::Key_R);
+    m_actionAlignRight->setShortcut(Qt::CTRL | Qt::Key_R);
     m_actionAlignRight->setCheckable(true);
     m_actionAlignRight->setPriority(QAction::LowPriority);
 
     const QIcon fillIcon(getIcon(Theme::Icon::textFullJustification));
     m_actionAlignJustify = ui->toolBar->addAction(fillIcon, tr("&Justify"), [this]() { ui->textEdit->setAlignment(Qt::AlignJustify); });
-    m_actionAlignJustify->setShortcut(Qt::CTRL + Qt::Key_J);
+    m_actionAlignJustify->setShortcut(Qt::CTRL | Qt::Key_J);
     m_actionAlignJustify->setCheckable(true);
     m_actionAlignJustify->setPriority(QAction::LowPriority);
 
@@ -549,7 +549,7 @@ void RichTextEditor::setupTableActions()
     m_actionTableSettings = ui->toolBar->addAction(tableIcon, tr("&Table Settings"), [this](bool checked) {
         ui->tableBar->setVisible(checked);
     });
-    m_actionTableSettings->setShortcut(Qt::CTRL + Qt::Key_T);
+    m_actionTableSettings->setShortcut(Qt::CTRL | Qt::Key_T);
     m_actionTableSettings->setCheckable(true);
     m_actionTableSettings->setPriority(QAction::LowPriority);
 
