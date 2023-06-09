@@ -3,6 +3,8 @@
 
 #include "modelutils.h"
 
+#include <nodemetainfo.h>
+
 #include <utils/expected.h>
 
 #include <algorithm>
@@ -88,6 +90,16 @@ bool addImportsWithCheck(const QStringList &importNames,
         model->changeImports(std::move(importsToAdd), {});
 
     return true;
+}
+
+PropertyMetaInfo metainfo(const AbstractProperty &property)
+{
+    return metainfo(property.parentModelNode(), property.name());
+}
+
+PropertyMetaInfo metainfo(const ModelNode &node, const PropertyName &propertyName)
+{
+    return node.metaInfo().property(propertyName);
 }
 
 } // namespace QmlDesigner::Utils
