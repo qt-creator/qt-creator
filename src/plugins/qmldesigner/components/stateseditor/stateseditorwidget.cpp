@@ -64,11 +64,6 @@ void StatesEditorWidget::setNodeInstanceView(const NodeInstanceView *nodeInstanc
     m_imageProvider->setNodeInstanceView(nodeInstanceView);
 }
 
-void StatesEditorWidget::showAddNewStatesButton(bool showAddNewStatesButton)
-{
-    rootContext()->setContextProperty(QLatin1String("canAddNewStates"), showAddNewStatesButton);
-}
-
 StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView,
                                        StatesEditorModel *statesEditorModel)
     : m_statesEditorView(statesEditorView)
@@ -90,10 +85,8 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView,
     setResizeMode(QQuickWidget::SizeRootObjectToView);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    rootContext()->setContextProperties(
-        QVector<QQmlContext::PropertyPair>{{{"statesEditorModel"},
-                                            QVariant::fromValue(statesEditorModel)},
-                                           {{"canAddNewStates"}, true}});
+    auto map = registerPropertyMap("StatesEditorBackend");
+    map->setProperties({{"statesEditorModel", QVariant::fromValue(statesEditorModel)}});
 
     Theme::setupTheme(engine());
 
@@ -118,7 +111,7 @@ QString StatesEditorWidget::qmlSourcesPath()
 
 void StatesEditorWidget::showEvent(QShowEvent *event)
 {
-    QQuickWidget::showEvent(event);
+    StudioQuickWidget::showEvent(event);
     update();
     QMetaObject::invokeMethod(rootObject(), "showEvent");
 }
@@ -127,13 +120,13 @@ void StatesEditorWidget::focusOutEvent(QFocusEvent *focusEvent)
 {
     QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_STATESEDITOR_TIME,
                                                m_usageTimer.elapsed());
-    QQuickWidget::focusOutEvent(focusEvent);
+    StudioQuickWidget::focusOutEvent(focusEvent);
 }
 
 void StatesEditorWidget::focusInEvent(QFocusEvent *focusEvent)
 {
     m_usageTimer.restart();
-    QQuickWidget::focusInEvent(focusEvent);
+    StudioQuickWidget::focusInEvent(focusEvent);
 }
 
 void StatesEditorWidget::reloadQmlSource()

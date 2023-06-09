@@ -420,7 +420,7 @@ void StatesEditorView::checkForStatesAvailability()
         const bool isVisual = activeStatesGroupNode().metaInfo().isBasedOn(
             model()->qtQuickItemMetaInfo(), model()->qtQuick3DNodeMetaInfo());
         const bool isRoot = activeStatesGroupNode().isRootNode();
-        m_statesEditorWidget->showAddNewStatesButton(isVisual || !isRoot);
+        m_statesEditorModel->setCanAddNewStates(isVisual || !isRoot);
     }
 }
 

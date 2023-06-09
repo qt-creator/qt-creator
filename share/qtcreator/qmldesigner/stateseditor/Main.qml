@@ -29,6 +29,7 @@ import StatesEditor
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme as StudioTheme
+import StatesEditorBackend
 
 Rectangle {
     id: root
@@ -221,20 +222,20 @@ Rectangle {
     // These function assume that the order of the states is as follows:
     // State A, State B (extends State A), ... so the extended state always comes first
     function isInRange(i) {
-        return i >= 0 && i < statesEditorModel.count()
+        return i >= 0 && i < StatesEditorBackend.statesEditorModel.count()
     }
 
     function nextStateHasExtend(i) {
         let next = i + 1
-        return root.isInRange(next) ? statesEditorModel.get(next).hasExtend : false
+        return root.isInRange(next) ? StatesEditorBackend.statesEditorModel.get(next).hasExtend : false
     }
 
     function previousStateHasExtend(i) {
         let prev = i - 1
-        return root.isInRange(prev) ? statesEditorModel.get(prev).hasExtend : false
+        return root.isInRange(prev) ? StatesEditorBackend.statesEditorModel.get(prev).hasExtend : false
     }
 
-    property bool showExtendGroups: statesEditorModel.hasExtend
+    property bool showExtendGroups: StatesEditorBackend.statesEditorModel.hasExtend
 
     onShowExtendGroupsChanged: root.responsiveResize(root.width, root.height)
 
@@ -263,7 +264,7 @@ Rectangle {
     property int menuOpen: 0
 
     Connections {
-        target: statesEditorModel
+        target: StatesEditorBackend.statesEditorModel
         function onModelReset() {
             root.menuOpen = 0
             editDialog.close()
@@ -343,7 +344,7 @@ Rectangle {
         }
 
         onAccepted: {
-            let renamed = statesEditorModel.renameActiveStateGroup(editTextField.text)
+            let renamed = StatesEditorBackend.statesEditorModel.renameActiveStateGroup(editTextField.text)
             if (renamed)
                 editDialog.close()
         }
@@ -351,8 +352,8 @@ Rectangle {
         property string previousString
 
         onAboutToShow: {
-            editTextField.text = statesEditorModel.activeStateGroup
-            editDialog.previousString = statesEditorModel.activeStateGroup
+            editTextField.text = StatesEditorBackend.statesEditorModel.activeStateGroup
+            editDialog.previousString = StatesEditorBackend.statesEditorModel.activeStateGroup
 
             let btn = editDialog.standardButton(Dialog.Apply)
             btn.enabled = false
@@ -406,8 +407,8 @@ Rectangle {
                     style: StudioTheme.Values.viewBarControlStyle
                     id: stateGroupComboBox
                     actionIndicatorVisible: false
-                    model: statesEditorModel.stateGroups
-                    currentIndex: statesEditorModel.activeStateGroupIndex
+                    model: StatesEditorBackend.statesEditorModel.stateGroups
+                    currentIndex: StatesEditorBackend.statesEditorModel.activeStateGroupIndex
                     anchors.verticalCenter: parent.verticalCenter
                     width: stateGroupLabel.visible ? StudioTheme.Values.defaultControlWidth
                                                    : root.width - 2 * root.padding
@@ -434,18 +435,18 @@ Rectangle {
                     // currentIndex needs special treatment, because if model is changed, it will be
                     // reset regardless of binding.
                     Connections {
-                        target: statesEditorModel
+                        target: StatesEditorBackend.statesEditorModel
                         function onActiveStateGroupIndexChanged() {
-                            stateGroupComboBox.currentIndex = statesEditorModel.activeStateGroupIndex
+                            stateGroupComboBox.currentIndex = StatesEditorBackend.statesEditorModel.activeStateGroupIndex
                         }
                     }
 
                     onModelChanged: {
-                        stateGroupComboBox.currentIndex = statesEditorModel.activeStateGroupIndex
+                        stateGroupComboBox.currentIndex = StatesEditorBackend.statesEditorModel.activeStateGroupIndex
                     }
 
                     onCompressedActivated: function (index, reason) {
-                        statesEditorModel.activeStateGroupIndex = index
+                        StatesEditorBackend.statesEditorModel.activeStateGroupIndex = index
                         root.responsiveResize(root.width, root.height)
                     }
                 }
@@ -463,16 +464,16 @@ Rectangle {
                         buttonIcon: StudioTheme.Constants.add_medium
                         anchors.verticalCenter: parent.verticalCenter
                         tooltip: qsTr("Create State Group")
-                        onClicked: statesEditorModel.addStateGroup("stateGroup")
+                        onClicked: StatesEditorBackend.statesEditorModel.addStateGroup("stateGroup")
                     }
 
                     HelperWidgets.AbstractButton {
                         style: StudioTheme.Values.viewBarButtonStyle
                         buttonIcon: StudioTheme.Constants.remove_medium
                         anchors.verticalCenter: parent.verticalCenter
-                        enabled: statesEditorModel.activeStateGroupIndex !== 0
+                        enabled: StatesEditorBackend.statesEditorModel.activeStateGroupIndex !== 0
                         tooltip: qsTr("Remove State Group")
-                        onClicked: statesEditorModel.removeStateGroup()
+                        onClicked: StatesEditorBackend.statesEditorModel.removeStateGroup()
                     }
 
                     HelperWidgets.AbstractButton {
@@ -480,7 +481,7 @@ Rectangle {
                         style: StudioTheme.Values.viewBarButtonStyle
                         buttonIcon: StudioTheme.Constants.edit_medium
                         anchors.verticalCenter: parent.verticalCenter
-                        enabled: statesEditorModel.activeStateGroupIndex !== 0
+                        enabled: StatesEditorBackend.statesEditorModel.activeStateGroupIndex !== 0
                         checked: editDialog.visible
                         tooltip: qsTr("Rename State Group")
                         onClicked: {
@@ -550,13 +551,13 @@ Rectangle {
                 width: Constants.thumbnailSize
                 height: Constants.thumbnailSize
                 baseState: true
-                defaultChecked: !statesEditorModel.baseState.modelHasDefaultState // TODO Make this one a model property
+                defaultChecked: !StatesEditorBackend.statesEditorModel.baseState.modelHasDefaultState // TODO Make this one a model property
                 isChecked: root.currentStateInternalId === 0
-                thumbnailImageSource: statesEditorModel.baseState.stateImageSource ?? "" // TODO Get rid of the QVariantMap
+                thumbnailImageSource: StatesEditorBackend.statesEditorModel.baseState.stateImageSource ?? "" // TODO Get rid of the QVariantMap
                 isTiny: root.tinyMode
 
                 onFocusSignal: root.currentStateInternalId = 0
-                onDefaultClicked: statesEditorModel.resetDefaultState()
+                onDefaultClicked: StatesEditorBackend.statesEditorModel.resetDefaultState
             }
         }
 
@@ -649,7 +650,7 @@ Rectangle {
 
                             property int grabIndex: -1
 
-                            model: statesEditorModel
+                            model: StatesEditorBackend.statesEditorModel
 
                             onItemAdded: root.responsiveResize(root.width, root.height)
                             onItemRemoved: root.responsiveResize(root.width, root.height)
@@ -691,7 +692,7 @@ Rectangle {
                                         return
                                     }
 
-                                    statesEditorModel.move(dragSource.visualIndex,
+                                    StatesEditorBackend.statesEditorModel.move(dragSource.visualIndex,
                                                            stateThumbnail.visualIndex)
                                 }
 
@@ -709,7 +710,7 @@ Rectangle {
                                     if (statesRepeater.grabIndex === dropSource.visualIndex)
                                         return
 
-                                    statesEditorModel.drop(statesRepeater.grabIndex,
+                                    StatesEditorBackend.statesEditorModel.drop(statesRepeater.grabIndex,
                                                            dropSource.visualIndex)
                                     statesRepeater.grabIndex = -1
                                 }
@@ -807,7 +808,7 @@ Rectangle {
 
                                     hasExtend: delegateRoot.hasExtend
                                     extendString: delegateRoot.extendString
-                                    extendedState: statesEditorModel.extendedStates.includes(
+                                    extendedState: StatesEditorBackend.statesEditorModel.extendedStates.includes(
                                                        delegateRoot.stateName)
 
                                     hasWhenCondition: delegateRoot.hasWhenCondition
@@ -840,19 +841,19 @@ Rectangle {
                                     isChecked: root.currentStateInternalId === delegateRoot.internalNodeId
 
                                     onFocusSignal: root.currentStateInternalId = delegateRoot.internalNodeId
-                                    onDefaultClicked: statesEditorModel.setStateAsDefault(
+                                    onDefaultClicked: StatesEditorBackend.statesEditorModel.setStateAsDefault(
                                                           delegateRoot.internalNodeId)
 
                                     onClone: root.cloneState(delegateRoot.internalNodeId)
                                     onExtend: root.extendState(delegateRoot.internalNodeId)
                                     onRemove: {
                                         if (delegateRoot.isDefault)
-                                            statesEditorModel.resetDefaultState()
+                                            StatesEditorBackend.statesEditorModel.resetDefaultState()
 
                                         root.deleteState(delegateRoot.internalNodeId)
                                     }
 
-                                    onStateNameFinished: statesEditorModel.renameState(
+                                    onStateNameFinished: StatesEditorBackend.statesEditorModel.renameState(
                                                              delegateRoot.internalNodeId,
                                                              stateThumbnail.stateName)
                                 }
@@ -865,7 +866,7 @@ Rectangle {
 
         Item {
             id: addWrapper
-            visible: canAddNewStates
+            visible: StatesEditorBackend.statesEditorModel.canAddNewStates
 
             Canvas {
                 id: addCanvas

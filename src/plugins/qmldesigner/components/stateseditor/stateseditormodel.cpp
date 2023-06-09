@@ -435,4 +435,19 @@ void StatesEditorModel::evaluateExtend()
     }
 }
 
+bool StatesEditorModel::canAddNewStates() const
+{
+    return m_canAddNewStates;
+}
+
+void StatesEditorModel::setCanAddNewStates(bool b)
+{
+    if (b == m_canAddNewStates)
+        return;
+
+    m_canAddNewStates = b;
+
+    emit canAddNewStatesChanged();
+}
+
 } // namespace QmlDesigner

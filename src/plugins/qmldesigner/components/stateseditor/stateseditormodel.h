@@ -14,6 +14,9 @@ class StatesEditorModel : public QAbstractListModel
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool canAddNewStates READ canAddNewStates WRITE setCanAddNewStates NOTIFY
+                   canAddNewStatesChanged)
+
     enum {
         StateNameRole = Qt::DisplayRole,
         StateImageSourceRole = Qt::UserRole,
@@ -85,6 +88,9 @@ public:
     void reset();
     void evaluateExtend();
 
+    bool canAddNewStates() const;
+    void setCanAddNewStates(bool b);
+
 signals:
     void changedToState(int n);
     void baseStateChanged();
@@ -93,11 +99,13 @@ signals:
     void activeStateGroupChanged();
     void activeStateGroupIndexChanged();
     void stateGroupsChanged();
+    void canAddNewStatesChanged();
 
 private:
     QPointer<StatesEditorView> m_statesEditorView;
     bool m_hasExtend;
     QStringList m_extendedStates;
+    bool m_canAddNewStates = false;
 };
 
 } // namespace QmlDesigner

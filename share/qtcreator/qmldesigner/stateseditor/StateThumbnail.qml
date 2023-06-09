@@ -28,6 +28,7 @@ import QtQuick.Controls
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
+import StatesEditorBackend
 
 Item {
     id: root
@@ -77,7 +78,7 @@ Item {
     property alias dragActive: dragHandler.active
 
     function checkAnnotation() {
-        return statesEditorModel.hasAnnotation(root.internalNodeId)
+        return StatesEditorBackend.statesEditorModel.hasAnnotation(root.internalNodeId)
     }
 
     function setPropertyChangesVisible(value) {
@@ -256,7 +257,7 @@ Item {
 
             PropertyChangesModel {
                 id: propertyChangesModel
-                modelNodeBackendProperty: statesEditorModel.stateModelNode(root.internalNodeId)
+                modelNodeBackendProperty: StatesEditorBackend.statesEditorModel.stateModelNode(root.internalNodeId)
             }
 
             Text {
@@ -631,14 +632,14 @@ Item {
                             return
 
                         if ( bindingEditor.newWhenCondition !== "")
-                            statesEditorModel.setWhenCondition(root.internalNodeId,
+                            StatesEditorBackend.statesEditorModel.setWhenCondition(root.internalNodeId,
                                                                bindingEditor.newWhenCondition)
                         else
-                            statesEditorModel.resetWhenCondition(root.internalNodeId)
+                            StatesEditorBackend.statesEditorModel.resetWhenCondition(root.internalNodeId)
                     }
                 }
 
-                stateModelNodeProperty: statesEditorModel.stateModelNode(root.internalNodeId)
+                stateModelNodeProperty: StatesEditorBackend.statesEditorModel.stateModelNode(root.internalNodeId)
                 stateNameProperty: root.stateName
 
                 onRejected: bindingEditor.hideWidget()
@@ -691,9 +692,9 @@ Item {
                     whenCondition.previousCondition = whenCondition.text
 
                     if (whenCondition.text !== "")
-                        statesEditorModel.setWhenCondition(root.internalNodeId, root.whenCondition)
+                        StatesEditorBackend.statesEditorModel.setWhenCondition(root.internalNodeId, root.whenCondition)
                     else
-                        statesEditorModel.resetWhenCondition(root.internalNodeId)
+                        StatesEditorBackend.statesEditorModel.resetWhenCondition(root.internalNodeId)
 
                 }
 
@@ -736,11 +737,11 @@ Item {
         onToggle: root.setPropertyChangesVisible(!root.propertyChangesVisible)
         onResetWhenCondition: statesEditorModel.resetWhenCondition(root.internalNodeId)
         onEditAnnotation: {
-            statesEditorModel.setAnnotation(root.internalNodeId)
+            StatesEditorBackend.statesEditorModel.setAnnotation(root.internalNodeId)
             stateMenu.hasAnnotation = root.checkAnnotation()
         }
         onRemoveAnnotation: {
-            statesEditorModel.removeAnnotation(root.internalNodeId)
+            StatesEditorBackend.statesEditorModel.removeAnnotation(root.internalNodeId)
             stateMenu.hasAnnotation = root.checkAnnotation()
         }
 

@@ -3,10 +3,11 @@
 
 #pragma once
 
+#include <studioquickwidget.h>
+
 #include <QElapsedTimer>
 #include <QPointer>
 #include <QQmlPropertyMap>
-#include <QQuickWidget>
 
 QT_BEGIN_NAMESPACE
 class QShortcut;
@@ -21,7 +22,7 @@ class StatesEditorView;
 
 namespace Internal { class StatesEditorImageProvider; }
 
-class StatesEditorWidget : public QQuickWidget
+class StatesEditorWidget : public StudioQuickWidget
 {
     Q_OBJECT
 
@@ -32,8 +33,6 @@ public:
     int currentStateInternalId() const;
     void setCurrentStateInternalId(int internalId);
     void setNodeInstanceView(const NodeInstanceView *nodeInstanceView);
-
-    void showAddNewStatesButton(bool showAddNewStatesButton);
 
     static QString qmlSourcesPath();
 
