@@ -132,12 +132,15 @@ BranchView::BranchView()
 
     m_branchView->selectionModel()->clear();
     m_repository = GitPlugin::currentState().topLevel();
-    refreshCurrentRepository();
 }
 
 void BranchView::refreshIfSame(const FilePath &repository)
 {
-    if (m_repository == repository)
+    if (m_repository != repository)
+        return;
+    if (m_blockRefresh)
+        m_postponedRefresh = true;
+    else
         refreshCurrentRepository();
 }
 
@@ -228,6 +231,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     std::unique_ptr<TaskTree> taskTree;
     QAction *mergeAction = nullptr;
 
+    SetInContext block(m_blockRefresh);
     QMenu contextMenu;
     contextMenu.addAction(Tr::tr("&Add..."), this, &BranchView::add);
     const std::optional<QString> remote = m_model->remoteName(index);
@@ -256,10 +260,8 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
         contextMenu.addSeparator();
         contextMenu.addAction(Tr::tr("&Diff"), this, [this] {
             const QString fullName = m_model->fullName(selectedIndex(), true);
-            if (!fullName.isEmpty()) {
-                SetInContext block(m_blockRefresh);
+            if (!fullName.isEmpty())
                 GitClient::instance()->diffBranch(m_repository, fullName);
-            }
         });
         contextMenu.addAction(Tr::tr("&Log"), this, [this] { log(selectedIndex()); });
         contextMenu.addAction(Tr::tr("Reflo&g"), this, [this] { reflog(selectedIndex()); });
@@ -303,6 +305,10 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
         }
     }
     contextMenu.exec(m_branchView->viewport()->mapToGlobal(point));
+    if (m_postponedRefresh) {
+        refreshCurrentRepository();
+        m_postponedRefresh = false;
+    }
 }
 
 void BranchView::expandAndResize()

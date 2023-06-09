@@ -75,6 +75,7 @@ private:
     BranchFilterModel *m_filterModel = nullptr;
     Utils::FilePath m_repository;
     bool m_blockRefresh = false;
+    bool m_postponedRefresh = false;
 };
 
 class BranchViewFactory : public Core::INavigationWidgetFactory
