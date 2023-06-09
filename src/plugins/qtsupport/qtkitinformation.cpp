@@ -337,7 +337,7 @@ int QtKitAspect::qtVersionId(const Kit *k)
 
     int id = -1;
     QVariant data = k->value(QtKitAspect::id(), -1);
-    if (data.type() == QVariant::Int) {
+    if (data.typeId() == QVariant::Int) {
         bool ok;
         id = data.toInt(&ok);
         if (!ok)
