@@ -13,8 +13,10 @@ the public Git repository. For example:
 What's new?
 ------------
 
-* Markdown editor with preview (QTCREATORBUG-27883)
-* Internal terminal (QTCREATORBUG-8511)
+* Markdown editor with preview
+  ([QTCREATORBUG-27883](https://bugreports.qt.io/browse/QTCREATORBUG-27883))
+* Internal terminal
+  ([QTCREATORBUG-8511](https://bugreports.qt.io/browse/QTCREATORBUG-8511))
 * Experimental support for GitHub Copilot
 * Experimental support for the `vcpkg` C/C++ package manager
 * Experimental support for the Axivion static analyzer
@@ -79,9 +81,12 @@ General
 * Added a more spacious `Relaxed` toolbar style to `Preferences > Environment >
   Interface`
 * Added a pin button to progress details instead of automatically resetting
-  their position (QTCREATORBUG-28829)
+  their position
+  ([QTCREATORBUG-28829](https://bugreports.qt.io/browse/QTCREATORBUG-28829))
 * Improved the selection and navigation in the `Issues` view
-  (QTCREATORBUG-26128, QTCREATORBUG-27006, QTCREATORBUG-27506)
+  ([QTCREATORBUG-26128](https://bugreports.qt.io/browse/QTCREATORBUG-26128),
+   [QTCREATORBUG-27006](https://bugreports.qt.io/browse/QTCREATORBUG-27006),
+   [QTCREATORBUG-27506](https://bugreports.qt.io/browse/QTCREATORBUG-27506))
 * Locator
     * Improved performance
     * Added the creation of directories to the `Files in File System` filter
@@ -92,53 +97,69 @@ Editing
 -------
 
 * Improved the performance of the multi-cursor support
-* Fixed the saving of hardlinked files (QTCREATORBUG-19651)
-* Fixed an issue of copy and paste with multiple cursors (QTCREATORBUG-29117)
+* Fixed the saving of hardlinked files
+  ([QTCREATORBUG-19651](https://bugreports.qt.io/browse/QTCREATORBUG-19651))
+* Fixed an issue of copy and paste with multiple cursors
+  ([QTCREATORBUG-29117](https://bugreports.qt.io/browse/QTCREATORBUG-29117))
 
 ### C++
 
-* Improved the style of forward declarations in the outline (QTCREATORBUG-312)
+* Improved the style of forward declarations in the outline
+  ([QTCREATORBUG-312](https://bugreports.qt.io/browse/QTCREATORBUG-312))
 * Added highlighting for typed string literals and user-defined literals
-  (QTCREATORBUG-28869)
-* Added the option to create class members from assignments (QTCREATORBUG-1918)
+  ([QTCREATORBUG-28869](https://bugreports.qt.io/browse/QTCREATORBUG-28869))
+* Added the option to create class members from assignments
+  ([QTCREATORBUG-1918](https://bugreports.qt.io/browse/QTCREATORBUG-1918))
 * Fixed that locator showed both the declaration and the definition of symbols
-  (QTCREATORBUG-13894)
+  ([QTCREATORBUG-13894](https://bugreports.qt.io/browse/QTCREATORBUG-13894))
 * Fixed the handling of C++20 keywords and concepts
 * Built-in
-     * Fixed support for `if`-statements with initializer (QTCREATORBUG-29182)
+     * Fixed support for `if`-statements with initializer
+       ([QTCREATORBUG-29182](https://bugreports.qt.io/browse/QTCREATORBUG-29182))
 
 ### Language Server Protocol
 
-* Added missing actions for opening the `Call Hierarchy` (QTCREATORBUG-28839,
-  QTCREATORBUG-28842)
+* Added missing actions for opening the `Call Hierarchy`
+  ([QTCREATORBUG-28839](https://bugreports.qt.io/browse/QTCREATORBUG-28839),
+   [QTCREATORBUG-28842](https://bugreports.qt.io/browse/QTCREATORBUG-28842))
 
 ### QML
 
 * Fixed the reformatting in the presence of JavaScript directives and function
-  return type annotations (QTCREATORBUG-29001, QTCREATORBUG-29046)
-* Fixed that reformatting changed `of` to `in` (QTCREATORBUG-29123)
-* Fixed the completion for Qt Quick Controls (QTCREATORBUG-28648)
+  return type annotations
+  ([QTCREATORBUG-29001](https://bugreports.qt.io/browse/QTCREATORBUG-29001),
+   [QTCREATORBUG-29046](https://bugreports.qt.io/browse/QTCREATORBUG-29046))
+* Fixed that reformatting changed `of` to `in`
+  ([QTCREATORBUG-29123](https://bugreports.qt.io/browse/QTCREATORBUG-29123))
+* Fixed the completion for Qt Quick Controls
+  ([QTCREATORBUG-28648](https://bugreports.qt.io/browse/QTCREATORBUG-28648))
 
 ### Python
 
 * Added the option to create a virtual environment (`venv`) to the Python
-  interpreter selector and the wizard (PYSIDE-2152)
+  interpreter selector and the wizard
+  ([PYSIDE-2152](https://bugreports.qt.io/browse/PYSIDE-2152))
 
 Projects
 --------
 
 * Made it possible to add devices without going through the wizard
 * Added support for moving files to a different directory when renaming
-  (QTCREATORBUG-15981)
+  ([QTCREATORBUG-15981](https://bugreports.qt.io/browse/QTCREATORBUG-15981))
 
 ### CMake
 
-* Implemented adding files to the project (QTCREATORBUG-25922,
-  QTCREATORBUG-26006, QTCREATORBUG-27213, QTCREATORBUG-27538,
-  QTCREATORBUG-28493, QTCREATORBUG-28904, QTCREATORBUG-28985,
-  QTCREATORBUG-29006)
+* Implemented adding files to the project
+  ([QTCREATORBUG-25922](https://bugreports.qt.io/browse/QTCREATORBUG-25922),
+   [QTCREATORBUG-26006](https://bugreports.qt.io/browse/QTCREATORBUG-26006),
+   [QTCREATORBUG-27213](https://bugreports.qt.io/browse/QTCREATORBUG-27213),
+   [QTCREATORBUG-27538](https://bugreports.qt.io/browse/QTCREATORBUG-27538),
+   [QTCREATORBUG-28493](https://bugreports.qt.io/browse/QTCREATORBUG-28493),
+   [QTCREATORBUG-28904](https://bugreports.qt.io/browse/QTCREATORBUG-28904),
+   [QTCREATORBUG-28985](https://bugreports.qt.io/browse/QTCREATORBUG-28985),
+   [QTCREATORBUG-29006](https://bugreports.qt.io/browse/QTCREATORBUG-29006))
 * Fixed issues with detecting a configured Qt version when importing a build
-  (QTCREATORBUG-29075)
+  ([QTCREATORBUG-29075](https://bugreports.qt.io/browse/QTCREATORBUG-29075))
 
 ### Python
 
@@ -147,7 +168,8 @@ Projects
 Debugging
 ---------
 
-* Improved the UI for enabling and disabling debuggers (QTCREATORBUG-28627)
+* Improved the UI for enabling and disabling debuggers
+  ([QTCREATORBUG-28627](https://bugreports.qt.io/browse/QTCREATORBUG-28627))
 
 ### C++
 
@@ -155,16 +177,20 @@ Debugging
   (`Preferences > Debugger > Locals & Expressions > Default array size`)
 * CDB
     * Added automatic source file mapping for Qt packages
-    * Fixed the variables view on remote Windows devices (QTCREATORBUG-29000)
+    * Fixed the variables view on remote Windows devices
+      ([QTCREATORBUG-29000](https://bugreports.qt.io/browse/QTCREATORBUG-29000))
 * LLDB
     * Fixed that long lines in the application output were broken into multiple
-      lines (QTCREATORBUG-29098)
+      lines
+      ([QTCREATORBUG-29098](https://bugreports.qt.io/browse/QTCREATORBUG-29098))
 
 ### Qt Quick
 
-* Improved the auto-detection if QML debugging is required (QTCREATORBUG-28627)
+* Improved the auto-detection if QML debugging is required
+  ([QTCREATORBUG-28627](https://bugreports.qt.io/browse/QTCREATORBUG-28627))
 * Added an option for disabling static analyzer messages to
-  `Qt Quick > QML/JS Editing` (QTCREATORBUG-29095)
+  `Qt Quick > QML/JS Editing`
+  ([QTCREATORBUG-29095](https://bugreports.qt.io/browse/QTCREATORBUG-29095))
 
 Analyzer
 --------
@@ -172,7 +198,8 @@ Analyzer
 ### Clang
 
 * Fixed that a `.clang-tidy` file in the project directory was not used by
-  default (QTCREATORBUG-28852)
+  default
+  ([QTCREATORBUG-28852](https://bugreports.qt.io/browse/QTCREATORBUG-28852))
 
 Version Control Systems
 -----------------------
@@ -180,7 +207,8 @@ Version Control Systems
 ### Git
 
 * Instant Blame
-    * Improved the performance (QTCREATORBUG-29151)
+    * Improved the performance
+      ([QTCREATORBUG-29151](https://bugreports.qt.io/browse/QTCREATORBUG-29151))
     * Fixed that it did not show at the end of the document
 
 Platforms
@@ -188,7 +216,8 @@ Platforms
 
 ### Android
 
-* Fixed an issue with building library targets (QTCREATORBUG-26980)
+* Fixed an issue with building library targets
+  ([QTCREATORBUG-26980](https://bugreports.qt.io/browse/QTCREATORBUG-26980))
 
 ### Remote Linux
 
@@ -196,14 +225,16 @@ Platforms
 
 ### Docker
 
-* Added support for `qmake` based projects (QTCREATORBUG-29140)
+* Added support for `qmake` based projects
+  ([QTCREATORBUG-29140](https://bugreports.qt.io/browse/QTCREATORBUG-29140))
 * Fixed issues after deleting the Docker image for a registered Docker device
-  (QTCREATORBUG-28880)
+  ([QTCREATORBUG-28880](https://bugreports.qt.io/browse/QTCREATORBUG-28880))
 
 ### QNX
 
 * Added `slog2info` as a requirement for devices
-* Fixed the support for remote working directories (QTCREATORBUG-28900)
+* Fixed the support for remote working directories
+  ([QTCREATORBUG-28900](https://bugreports.qt.io/browse/QTCREATORBUG-28900))
 
 Credits for these changes go to:
 --------------------------------
