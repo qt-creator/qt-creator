@@ -879,7 +879,7 @@ static ConsoleItem *constructLogItemTree(const QVariant &result,
                 item->appendChild(child);
         }
 
-    } else if (result.type() == QVariant::List) {
+    } else if (result.typeId() == QVariant::List) {
         if (key.isEmpty())
             text = "List";
         else
@@ -1354,9 +1354,9 @@ void QmlEnginePrivate::scripts(int types, const QList<int> ids, bool includeSour
     if (includeSource)
         cmd.arg(INCLUDESOURCE, includeSource);
 
-    if (filter.type() == QVariant::String)
+    if (filter.typeId() == QVariant::String)
         cmd.arg(FILTER, filter.toString());
-    else if (filter.type() == QVariant::Int)
+    else if (filter.typeId() == QVariant::Int)
         cmd.arg(FILTER, filter.toInt());
     else
         QTC_CHECK(!filter.isValid());
@@ -2039,7 +2039,7 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal)
     }
 
     auto extractString = [this](const QVariant &item) {
-        return ((item.type() == QVariant::String) ? item : extractData(item).value).toString();
+        return (item.typeId() == QVariant::String ? item : extractData(item).value).toString();
     };
 
     stackFrame.function = extractString(body.value("func"));
