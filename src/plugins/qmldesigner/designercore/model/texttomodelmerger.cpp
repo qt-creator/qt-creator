@@ -586,25 +586,9 @@ public:
         return true;
     }
 
-    bool isArrayProperty(const Value *value, const ObjectValue *containingObject, const QString &name)
+    bool isArrayProperty(const AbstractProperty &property)
     {
-        if (!value)
-            return false;
-        const ObjectValue *objectValue = value->asObjectValue();
-        if (objectValue && objectValue->prototype(m_context) == m_context->valueOwner()->arrayPrototype())
-            return true;
-
-        PrototypeIterator iter(containingObject, m_context);
-        while (iter.hasNext()) {
-            const ObjectValue *proto = iter.next();
-            if (proto->lookupMember(name, m_context) == m_context->valueOwner()->arrayPrototype())
-                return true;
-            if (const CppComponentValue *qmlIter = value_cast<CppComponentValue>(proto)) {
-                if (qmlIter->isListProperty(name))
-                    return true;
-            }
-        }
-        return false;
+        return ModelUtils::metainfo(property).isListProperty();
     }
 
     QVariant convertToVariant(const ModelNode &node,
@@ -1328,7 +1312,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                         || isPropertyChangesType(typeName)
                         || isConnectionsType(typeName)) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
-                    if (context->isArrayProperty(propertyType, containingObject, name))
+                    if (context->isArrayProperty(modelProperty))
                         syncArrayProperty(modelProperty, {member}, context, differenceHandler);
                     else
                         syncNodeProperty(modelProperty, binding, context, TypeName(), differenceHandler);
