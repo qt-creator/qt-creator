@@ -3,6 +3,13 @@
 
 source("../../shared/qtcreator.py")
 
+
+def __waitForListView__():
+    listView = waitForObject("{container=':Qt Creator.WelcomeScreenStackedWidget' "
+                             "type='QListView' unnamed='1' visible='1'}")
+    return listView
+
+
 def main():
     # open Qt Creator
     startQC()
@@ -22,14 +29,14 @@ def main():
     searchTutorials = waitForObject("{type='QLineEdit' placeholderText='Search in Tutorials...'}")
     mouseClick(searchTutorials)
     replaceEditorContent(searchTutorials, "qwerty")
-    listView = waitForObject("{type='QListView' unnamed='1' visible='1' "
-                              "window=':Qt Creator_Core::Internal::MainWindow'}")
+    listView = __waitForListView__()
     waitFor('findExampleOrTutorial(listView, ".*") is None', 3000)
     tutorial = findExampleOrTutorial(listView, ".*", True)
     test.verify(tutorial is None,
                 "Verifying: 'Tutorials' topic is opened and nothing is shown.")
     bnr = "Help: Building and Running an Example"
     replaceEditorContent(searchTutorials, bnr.lower())
+    listView = __waitForListView__()
     waitFor('findExampleOrTutorial(listView, "%s.*") is not None' % bnr, 3000)
     tutorial = findExampleOrTutorial(listView, "%s.*" % bnr, True)
     test.verify(tutorial is not None, "Verifying: Expected Text tutorial is shown.")
@@ -46,6 +53,7 @@ def main():
     mouseClick(searchTutorials)
     replaceEditorContent(searchTutorials, "embedded device")
     embeddedTutorial = "Online: How to install and set up Qt for Device Creation.*"
+    listView = __waitForListView__()
     waitFor('findExampleOrTutorial(listView, embeddedTutorial) is not None', 3000)
     tutorial = findExampleOrTutorial(listView, embeddedTutorial, True)
     test.verify(tutorial is not None,
