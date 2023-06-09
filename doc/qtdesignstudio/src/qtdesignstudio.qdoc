@@ -18,10 +18,10 @@
 
     \table
         \row
-            \li \inlineimage front-gs.png
-            \li \inlineimage front-ui.png
-            \li \inlineimage studio-3d-scenes.png
-            \li \inlineimage studio-animation.png
+            \li \inlineimage qds-front-gs.png
+            \li \inlineimage qds-front-ui.png
+            \li \inlineimage qds-studio-3d-scenes.png
+            \li \inlineimage qds-studio-animation.png
         \row
         \li \b {\l{Getting Started}}
             \list
@@ -58,10 +58,10 @@
                 \li \l{Optimizing Designs}
             \endlist
         \row
-            \li \inlineimage front-preview.png
-            \li \inlineimage front-advanced.png
-            \li \inlineimage front-projects.png
-            \li \inlineimage front-help.png
+            \li \inlineimage qds-front-preview.png
+            \li \inlineimage qds-front-advanced.png
+            \li \inlineimage qds-front-projects.png
+            \li \inlineimage qds-front-help.png
         \row
         \li \b {\l{Implementing Applications}}
             \list

@@ -10,7 +10,7 @@
 
     \table
         \row
-            \li \image front-advanced.png
+            \li \image qds-front-advanced.png
             \li Learn more about the UI files (.ui.qml), collecting data about
                 using \QDS, and about packaging applications for delivering
                 them to users or uploading them to app stores.
