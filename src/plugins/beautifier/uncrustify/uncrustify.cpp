@@ -33,6 +33,7 @@
 #include <QVersionNumber>
 
 using namespace TextEditor;
+using namespace Utils;
 
 namespace Beautifier::Internal {
 
@@ -72,7 +73,7 @@ void Uncrustify::updateActions(Core::IEditor *editor)
 
 void Uncrustify::formatFile()
 {
-    const QString cfgFileName = configurationFile();
+    const FilePath cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
                                         Tr::tr(Constants::UNCRUSTIFY_DISPLAY_NAME)));
@@ -83,7 +84,7 @@ void Uncrustify::formatFile()
 
 void Uncrustify::formatSelectedText()
 {
-    const QString cfgFileName = configurationFile();
+    const FilePath cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
                                         Tr::tr(Constants::UNCRUSTIFY_DISPLAY_NAME)));
@@ -112,42 +113,41 @@ void Uncrustify::formatSelectedText()
     }
 }
 
-QString Uncrustify::configurationFile() const
+FilePath Uncrustify::configurationFile() const
 {
     if (m_settings.useCustomStyle())
-        return m_settings.styleFileName(m_settings.customStyle());
+        return FilePath::fromUserInput(m_settings.styleFileName(m_settings.customStyle()));
 
     if (m_settings.useOtherFiles()) {
-        if (const ProjectExplorer::Project *project
-                = ProjectExplorer::ProjectTree::currentProject()) {
-            const Utils::FilePaths files = project->files(
-                [](const ProjectExplorer::Node *n) { return n->filePath().endsWith("cfg"); });
-            for (const Utils::FilePath &file : files) {
-                const QFileInfo fi = file.toFileInfo();
-                if (fi.isReadable() && fi.fileName() == "uncrustify.cfg")
-                    return file.toString();
-            }
+        using namespace ProjectExplorer;
+        if (const Project *project = ProjectTree::currentProject()) {
+            const FilePaths files = project->files([](const Node *n) {
+                const FilePath fp = n->filePath();
+                return fp.fileName() == "uncrustify.cfg" && fp.isReadableFile();
+            });
+            if (!files.isEmpty())
+                return files.first();
         }
     }
 
     if (m_settings.useSpecificConfigFile()) {
-        const Utils::FilePath file = m_settings.specificConfigFile();
+        const FilePath file = m_settings.specificConfigFile();
         if (file.exists())
-            return file.toString();
-    }
-
-    if (m_settings.useHomeFile()) {
-        const QString file = QDir::home().filePath("uncrustify.cfg");
-        if (QFile::exists(file))
             return file;
     }
 
-    return QString();
+    if (m_settings.useHomeFile()) {
+        const FilePath file = FileUtils::homePath() / "uncrustify.cfg";
+        if (file.exists())
+            return file;
+    }
+
+    return {};
 }
 
 Command Uncrustify::command() const
 {
-    const QString cfgFile = configurationFile();
+    const FilePath cfgFile = configurationFile();
     return cfgFile.isEmpty() ? Command() : command(cfgFile, false);
 }
 
@@ -156,7 +156,7 @@ bool Uncrustify::isApplicable(const Core::IDocument *document) const
     return m_settings.isApplicable(document);
 }
 
-Command Uncrustify::command(const QString &cfgFile, bool fragment) const
+Command Uncrustify::command(const FilePath &cfgFile, bool fragment) const
 {
     Command command;
     command.setExecutable(m_settings.command());
@@ -173,7 +173,7 @@ Command Uncrustify::command(const QString &cfgFile, bool fragment) const
     if (fragment)
         command.addOption("--frag");
     command.addOption("-c");
-    command.addOption(cfgFile);
+    command.addOption(cfgFile.path());
     return command;
 }
 
