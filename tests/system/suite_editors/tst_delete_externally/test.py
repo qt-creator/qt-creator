@@ -20,6 +20,7 @@ def main():
                        "Skipping this file for now.")
             continue
 
+        editorRealName = objectMap.realName(editor)
         contentBefore = readFile(currentFile)
         os.remove(currentFile)
         if not currentFile.endswith(".bin"):
@@ -40,6 +41,6 @@ def main():
             test.compare(waitForObject(":File has been removed_QMessageBox").text,
                          popupText % currentFile)
             clickButton(waitForObject(":File has been removed.Close_QPushButton"))
-        test.verify(checkIfObjectExists(objectMap.realName(editor), False),
+        test.verify(checkIfObjectExists(editorRealName, False),
                     "Was the editor closed after deleting the file?")
     invokeMenuItem("File", "Exit")
