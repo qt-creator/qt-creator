@@ -252,7 +252,7 @@ private:
 
     The GroupSetupHandler is used when constructing the onGroupSetup element.
     Any function with the above signature, when passed as a group setup handler,
-    will be called by the running task tree when the group executions starts.
+    will be called by the running task tree when the group execution starts.
 
     The return value of the handler instructs the running group on how to proceed
     after the handler's invocation is finished. The default return value of TaskAction::Continue
@@ -1540,7 +1540,7 @@ void TaskNode::invokeEndHandler(bool success)
         static QByteArray load(const QString &fileName) { ... }
         static void save(const QString &fileName, const QByteArray &array) { ... }
 
-        static GroupItem copyRecipe(const QString &source, const QString &destination)
+        static Group copyRecipe(const QString &source, const QString &destination)
         {
             struct CopyStorage { // [1] custom inter-task struct
                 QByteArray content; // [2] custom inter-task data
@@ -1650,7 +1650,7 @@ void TaskNode::invokeEndHandler(bool success)
 
     \code
         TreeStorage<CopyStorage> storage;
-        Group root = ...; // storage placed inside root's group and inside handlers
+        const Group root = ...; // storage placed inside root's group and inside handlers
         TaskTree taskTree(root);
         auto initStorage = [](CopyStorage *storage){
             storage->content = "initial content";
@@ -1670,7 +1670,7 @@ void TaskNode::invokeEndHandler(bool success)
 
     \code
         TreeStorage<CopyStorage> storage;
-        Group root = ...; // storage placed inside root's group and inside handlers
+        const Group root = ...; // storage placed inside root's group and inside handlers
         TaskTree taskTree(root);
         auto collectStorage = [](CopyStorage *storage){
             qDebug() << "final content" << storage->content;
@@ -1758,7 +1758,7 @@ TaskTree::TaskTree(const Group &recipe) : TaskTree()
 TaskTree::~TaskTree()
 {
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("Deleting TaskTree instance directly from "
-               "one of its handlers will lead to crash!"));
+               "one of its handlers will lead to a crash!"));
     // TODO: delete storages explicitly here?
     delete d;
 }
