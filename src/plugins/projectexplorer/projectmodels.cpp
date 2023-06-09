@@ -436,6 +436,8 @@ void FlatModel::handleProjectAdded(Project *project)
 {
     QTC_ASSERT(project, return);
 
+    auto oldName = project->displayName();
+    project->setProperty("_q_oldProjectName", oldName);
     connect(project, &Project::anyParsingStarted,
             this, [this, project]() {
         if (nodeForProject(project))
@@ -443,8 +445,28 @@ void FlatModel::handleProjectAdded(Project *project)
     });
     connect(project, &Project::anyParsingFinished,
             this, [this, project]() {
-        if (nodeForProject(project))
+        auto wrapper = nodeForProject(project);
+        if (wrapper) {
+            // In case the project was renamed, change the name in expand data as well
+            // FIXME: Redesign node expansion so that it does not rely on display name of a node
+            auto oldName = project->property("_q_oldProjectName").toString();
+            auto currentName = project->displayName();
+            if (oldName != currentName) {
+                project->setProperty("_q_oldProjectName", currentName);
+                auto node = wrapper->m_node;
+                ExpandData oldData(node->filePath().toString(), oldName);
+                ExpandData newData(oldData.path, currentName);
+                auto it = m_toExpand.find(oldData);
+                if (it != m_toExpand.end()) {
+                    m_toExpand.erase(it);
+                    m_toExpand.insert(newData);
+                    emit requestExpansion(wrapper->index());
+                } else if (m_toExpand.contains(newData)) {
+                    emit requestExpansion(wrapper->index());
+                }
+            }
             parsingStateChanged(project);
+        }
         emit ProjectTree::instance()->nodeActionsChanged();
     });
     addOrRebuildProjectModel(project);

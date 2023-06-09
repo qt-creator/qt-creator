@@ -239,7 +239,9 @@
     For console applications that require input, select \uicontrol Projects >
     \uicontrol {Run Settings} > \uicontrol {Run in terminal}. To specify the
     terminal to use, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Environment > \uicontrol System.
+    \uicontrol Environment > \uicontrol System. To use an \l{Terminal}
+    {internal terminal}, select \uicontrol Edit > \uicontrol Preferences
+    > \uicontrol Terminal > \uicontrol {Use internal terminal}.
 
     \b {On Windows:} Output is displayed differently for \e{console
     applications} and \e{GUI applications}.

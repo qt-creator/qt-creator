@@ -201,7 +201,7 @@ void HighlightingItemDelegate::drawText(QPainter *painter,
 static QString replaceNewLine(QString text)
 {
     static const QChar nl = '\n';
-    for (int i = 0; i < text.count(); ++i)
+    for (int i = 0; i < text.size(); ++i)
         if (text.at(i) == nl)
             text[i] = QChar::LineSeparator;
     return text;

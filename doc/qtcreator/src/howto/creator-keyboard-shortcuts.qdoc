@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -58,7 +58,7 @@
     in context menus} check box indicates whether the platform default value
     is \c on or \c off.
 
-    \image qtcreator-options-environment-interface.png "Interface tab in the Environment preferences"
+    \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
 
     \section1 Configuring Keyboard Shortcuts
 
@@ -234,7 +234,7 @@
             \li  Alt+O
         \row
             \li  Maximize output views
-            \li  Alt+9
+            \li  Alt+Shift+9
         \row
             \li  Move to next item in output
             \li  F6
@@ -433,6 +433,8 @@
         \row
             \li  Find references to symbol under cursor
             \li  Ctrl+Shift+U
+                 \note If this keyboard shortcut does not work on Linux, see
+                 \l {Editing Issues}.
         \row
             \li  Follow symbol under cursor
 

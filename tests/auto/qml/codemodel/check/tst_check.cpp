@@ -73,7 +73,7 @@ void tst_Check::initTestCase()
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
     PathsAndLanguages lPaths;
-    QStringList paths(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
+    QStringList paths(QLibraryInfo::path(QLibraryInfo::Qml2ImportsPath));
     for (auto p: paths)
         lPaths.maybeInsert(Utils::FilePath::fromString(p), Dialect::Qml);
     ModelManagerInterface::importScan(ModelManagerInterface::workingCopy(), lPaths,

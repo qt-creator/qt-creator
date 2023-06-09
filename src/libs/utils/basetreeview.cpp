@@ -587,7 +587,7 @@ ItemViewEvent::ItemViewEvent(QEvent *ev, QAbstractItemView *view)
     case QEvent::DragEnter:
     case QEvent::DragMove:
     case QEvent::Drop:
-        m_pos = static_cast<QDropEvent *>(ev)->pos();
+        m_pos = static_cast<QDropEvent *>(ev)->position().toPoint();
         m_index = view->indexAt(m_pos);
         break;
     default:

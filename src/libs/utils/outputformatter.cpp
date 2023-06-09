@@ -449,7 +449,7 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
         d->cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
         startPos = crPos + 1;
     }
-    if (startPos < text.count())
+    if (startPos < text.size())
         d->cursor.insertText(text.mid(startPos), format);
 }
 

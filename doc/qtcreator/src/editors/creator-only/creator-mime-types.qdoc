@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-language-servers.html
+    \previouspage creator-python-development.html
     \page creator-mime-types.html
     \nextpage creator-modeling.html
 

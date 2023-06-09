@@ -6,9 +6,9 @@
 #include "squishtr.h"
 
 #include <debugger/breakhandler.h>
-#include <utils/executeondestruction.h>
 
 #include <QLoggingCategory>
+#include <QScopeGuard>
 
 Q_LOGGING_CATEGORY(runnerLOG, "qtc.squish.squishrunner", QtWarningMsg)
 
@@ -153,7 +153,7 @@ void SquishRunnerProcess::onStdOutput(const QString &lineIn)
 
 void SquishRunnerProcess::handleMultiLineOutput(OutputMode mode)
 {
-    Utils::ExecuteOnDestruction atExit([this]{
+    const QScopeGuard cleanup([this] {
         m_multiLineContent.clear();
         m_context.clear();
     });

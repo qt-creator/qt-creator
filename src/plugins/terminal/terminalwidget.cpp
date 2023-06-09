@@ -252,28 +252,74 @@ void TerminalWidget::setupColors()
     update();
 }
 
+static bool contextMatcher(QObject *, Qt::ShortcutContext)
+{
+    return true;
+}
+
+void TerminalWidget::registerShortcut(Command *cmd)
+{
+    QTC_ASSERT(cmd, return);
+    auto addShortCut = [this, cmd] {
+        for (const auto &keySequence : cmd->keySequences()) {
+            if (!keySequence.isEmpty()) {
+                m_shortcutMap.addShortcut(cmd->action(),
+                                          keySequence,
+                                          Qt::ShortcutContext::WindowShortcut,
+                                          contextMatcher);
+            }
+        }
+    };
+    auto removeShortCut = [this, cmd] { m_shortcutMap.removeShortcut(0, cmd->action()); };
+    addShortCut();
+
+    connect(cmd, &Command::keySequenceChanged, this, [addShortCut, removeShortCut]() {
+        removeShortCut();
+        addShortCut();
+    });
+}
+
+RegisteredAction TerminalWidget::registerAction(Id commandId, const Context &context)
+{
+    QAction *action = new QAction;
+    Command *cmd = ActionManager::registerAction(action, commandId, context);
+
+    registerShortcut(cmd);
+
+    return RegisteredAction(action, [commandId](QAction *a) {
+        ActionManager::unregisterAction(a, commandId);
+        delete a;
+    });
+}
+
 void TerminalWidget::setupActions()
 {
-    ActionManager::registerAction(&m_copy, Constants::COPY, m_context);
-    ActionManager::registerAction(&m_paste, Constants::PASTE, m_context);
-    ActionManager::registerAction(&m_close, Core::Constants::CLOSE, m_context);
-    ActionManager::registerAction(&m_clearTerminal, Constants::CLEAR_TERMINAL, m_context);
-    ActionManager::registerAction(&m_clearSelection, Constants::CLEARSELECTION, m_context);
-    ActionManager::registerAction(&m_moveCursorWordLeft, Constants::MOVECURSORWORDLEFT, m_context);
-    ActionManager::registerAction(&m_moveCursorWordRight, Constants::MOVECURSORWORDRIGHT, m_context);
+    m_copy = registerAction(Constants::COPY, m_context);
+    m_paste = registerAction(Constants::PASTE, m_context);
+    m_close = registerAction(Core::Constants::CLOSE, m_context);
+    m_clearTerminal = registerAction(Constants::CLEAR_TERMINAL, m_context);
+    m_clearSelection = registerAction(Constants::CLEARSELECTION, m_context);
+    m_moveCursorWordLeft = registerAction(Constants::MOVECURSORWORDLEFT, m_context);
+    m_moveCursorWordRight = registerAction(Constants::MOVECURSORWORDRIGHT, m_context);
 
-    connect(&m_copy, &QAction::triggered, this, &TerminalWidget::copyToClipboard);
-    connect(&m_paste, &QAction::triggered, this, &TerminalWidget::pasteFromClipboard);
-    connect(&m_close, &QAction::triggered, this, &TerminalWidget::closeTerminal);
-    connect(&m_clearTerminal, &QAction::triggered, this, &TerminalWidget::clearContents);
-    connect(&m_clearSelection, &QAction::triggered, this, &TerminalWidget::clearSelection);
-    connect(&m_moveCursorWordLeft, &QAction::triggered, this, &TerminalWidget::moveCursorWordLeft);
-    connect(&m_moveCursorWordRight, &QAction::triggered, this, &TerminalWidget::moveCursorWordRight);
+    connect(m_copy.get(), &QAction::triggered, this, &TerminalWidget::copyToClipboard);
+    connect(m_paste.get(), &QAction::triggered, this, &TerminalWidget::pasteFromClipboard);
+    connect(m_close.get(), &QAction::triggered, this, &TerminalWidget::closeTerminal);
+    connect(m_clearTerminal.get(), &QAction::triggered, this, &TerminalWidget::clearContents);
+    connect(m_clearSelection.get(), &QAction::triggered, this, &TerminalWidget::clearSelection);
+    connect(m_moveCursorWordLeft.get(),
+            &QAction::triggered,
+            this,
+            &TerminalWidget::moveCursorWordLeft);
+    connect(m_moveCursorWordRight.get(),
+            &QAction::triggered,
+            this,
+            &TerminalWidget::moveCursorWordRight);
 
-    m_exit = unlockGlobalAction(Core::Constants::EXIT, m_context);
-    m_options = unlockGlobalAction(Core::Constants::OPTIONS, m_context);
-    m_settings = unlockGlobalAction("Preferences.Terminal.General", m_context);
-    m_findInDocument = unlockGlobalAction(Core::Constants::FIND_IN_DOCUMENT, m_context);
+    unlockGlobalAction(Core::Constants::EXIT);
+    unlockGlobalAction(Core::Constants::OPTIONS);
+    unlockGlobalAction("Preferences.Terminal.General");
+    unlockGlobalAction(Core::Constants::FIND_IN_DOCUMENT);
 }
 
 void TerminalWidget::closeTerminal()
@@ -401,7 +447,7 @@ void TerminalWidget::updateCopyState()
     if (!hasFocus())
         return;
 
-    m_copy.setEnabled(m_selection.has_value());
+    m_copy->setEnabled(m_selection.has_value());
 }
 
 void TerminalWidget::setFont(const QFont &font)
@@ -928,6 +974,9 @@ void TerminalWidget::paintCursor(QPainter &p) const
 
     auto cursor = m_surface->cursor();
 
+    if (!m_preEditString.isEmpty())
+        cursor.shape = Internal::Cursor::Shape::Underline;
+
     const bool blinkState = !cursor.blink || m_cursorBlinkState
                             || !TerminalSettings::instance().allowBlinkingCursor.value();
 
@@ -973,9 +1022,13 @@ void TerminalWidget::paintPreedit(QPainter &p) const
         QRectF rect = QRectF(gridToGlobal(cursor.position),
                              gridToGlobal({cursor.position.x(), cursor.position.y()}, true, true));
 
-        p.fillRect(rect, QColor::fromRgb(0, 0, 0));
-        p.setPen(Qt::white);
-        p.drawText(rect, m_preEditString);
+        rect.setWidth(viewport()->width() - rect.x());
+
+        p.setPen(toQColor(ColorIndex::Foreground));
+        QFont f = font();
+        f.setUnderline(true);
+        p.setFont(f);
+        p.drawText(rect, Qt::TextDontClip | Qt::TextWrapAnywhere, m_preEditString);
     }
 }
 
@@ -1095,7 +1148,7 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
         }
 
         if (m_selection)
-            m_clearSelection.trigger();
+            m_clearSelection->trigger();
         else {
             QAction *returnAction = ActionManager::command(Core::Constants::S_RETURNTOEDITOR)
                                         ->actionForContext(Core::Constants::C_GLOBAL);
@@ -1286,7 +1339,7 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
             contextMenu->addSeparator();
             contextMenu->addAction(configureAction);
 
-            contextMenu->popup(event->globalPos());
+            contextMenu->popup(event->globalPosition().toPoint());
         } else if (m_selection) {
             copyToClipboard();
             setSelection(std::nullopt);
@@ -1489,6 +1542,11 @@ void TerminalWidget::showEvent(QShowEvent *event)
 
 bool TerminalWidget::event(QEvent *event)
 {
+    if (TerminalSettings::instance().lockKeyboard() && event->type() == QEvent::ShortcutOverride) {
+        event->accept();
+        return true;
+    }
+
     if (event->type() == QEvent::Paint) {
         QPainter p(this);
         p.fillRect(QRect(QPoint(0, 0), size()), m_currentColors[ColorIndex::Background]);
@@ -1496,12 +1554,16 @@ bool TerminalWidget::event(QEvent *event)
     }
 
     if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *k = (QKeyEvent *) event;
+        auto k = static_cast<QKeyEvent *>(event);
+
+        if (TerminalSettings::instance().lockKeyboard() && m_shortcutMap.tryShortcut(k))
+            return true;
+
         keyPressEvent(k);
         return true;
     }
     if (event->type() == QEvent::KeyRelease) {
-        QKeyEvent *k = (QKeyEvent *) event;
+        auto k = static_cast<QKeyEvent *>(event);
         keyReleaseEvent(k);
         return true;
     }
@@ -1548,21 +1610,11 @@ void TerminalWidget::initActions()
     ActionManager::registerAction(&clearTerminal, Constants::CLEAR_TERMINAL, context);
 }
 
-UnlockedGlobalAction TerminalWidget::unlockGlobalAction(const Utils::Id &commandId,
-                                                        const Context &context)
+void TerminalWidget::unlockGlobalAction(const Utils::Id &commandId)
 {
-    QAction *srcAction = ActionManager::command(commandId)->actionForContext(
-        Core::Constants::C_GLOBAL);
-
-    ProxyAction *proxy = ProxyAction::proxyActionWithIcon(srcAction, srcAction->icon());
-    ActionManager::registerAction(proxy, commandId, context);
-
-    UnlockedGlobalAction registeredAction(proxy, [commandId](QAction *a) {
-        ActionManager::unregisterAction(a, commandId);
-        delete a;
-    });
-
-    return registeredAction;
+    Command *cmd = ActionManager::command(commandId);
+    QTC_ASSERT(cmd, return);
+    registerShortcut(cmd);
 }
 
 } // namespace Terminal

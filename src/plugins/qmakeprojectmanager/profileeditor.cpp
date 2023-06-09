@@ -142,7 +142,7 @@ void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
     bool doBackwardScan = true;
 
     if (posCurlyPwd >= 0) {
-        const int end = chunkStart + posCurlyPwd + curlyPwd.count();
+        const int end = chunkStart + posCurlyPwd + curlyPwd.size();
         const int start = chunkStart + posCurlyPwd;
         if (start <= column && end >= column) {
             buffer = pwd;
@@ -151,7 +151,7 @@ void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
             doBackwardScan = false;
         }
     } else if (posPwd >= 0) {
-        const int end = chunkStart + posPwd + pwd.count();
+        const int end = chunkStart + posPwd + pwd.size();
         const int start = chunkStart + posPwd;
         if (start <= column && end >= column) {
             buffer = pwd;
@@ -173,19 +173,19 @@ void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     if (doBackwardScan
             && beginPos > 0
-            && block.mid(beginPos - 1, pwd.count()) == pwd
-            && (block.at(beginPos + pwd.count() - 1) == '/' || block.at(beginPos + pwd.count() - 1) == '\\')) {
+            && block.mid(beginPos - 1, pwd.size()) == pwd
+            && (block.at(beginPos + pwd.size() - 1) == '/' || block.at(beginPos + pwd.size() - 1) == '\\')) {
         buffer.prepend("$$");
         beginPos -= 2;
     } else if (doBackwardScan
-               && beginPos >= curlyPwd.count() - 1
-               && block.mid(beginPos - curlyPwd.count() + 1, curlyPwd.count()) == curlyPwd) {
+               && beginPos >= curlyPwd.size() - 1
+               && block.mid(beginPos - curlyPwd.size() + 1, curlyPwd.size()) == curlyPwd) {
         buffer.prepend(pwd);
-        beginPos -= curlyPwd.count();
+        beginPos -= curlyPwd.size();
     }
 
     // find the end of a filename
-    while (endPos < block.count()) {
+    while (endPos < block.size()) {
         QChar c = block.at(endPos);
         if (isValidFileNameChar(c)) {
             buffer.append(c);

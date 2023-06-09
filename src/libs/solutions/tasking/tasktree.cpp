@@ -1750,9 +1750,9 @@ TaskTree::TaskTree()
 {
 }
 
-TaskTree::TaskTree(const Group &root) : TaskTree()
+TaskTree::TaskTree(const Group &recipe) : TaskTree()
 {
-    setupRoot(root);
+    setRecipe(recipe);
 }
 
 TaskTree::~TaskTree()
@@ -1763,27 +1763,27 @@ TaskTree::~TaskTree()
     delete d;
 }
 
-void TaskTree::setupRoot(const Group &root)
+void TaskTree::setRecipe(const Group &recipe)
 {
     QTC_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
-    QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The setupRoot() is called from one of the"
-                                                "TaskTree handlers, ingoring..."); return);
+    QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The setRecipe() is called from one of the"
+                                                "TaskTree handlers, ignoring..."); return);
     d->m_storages.clear();
-    d->m_root.reset(new TaskNode(d, root, nullptr));
+    d->m_root.reset(new TaskNode(d, recipe, nullptr));
 }
 
 void TaskTree::start()
 {
     QTC_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The start() is called from one of the"
-                                                "TaskTree handlers, ingoring..."); return);
+                                                "TaskTree handlers, ignoring..."); return);
     d->start();
 }
 
 void TaskTree::stop()
 {
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The stop() is called from one of the"
-                                                "TaskTree handlers, ingoring..."); return);
+                                                "TaskTree handlers, ignoring..."); return);
     d->stop();
 }
 

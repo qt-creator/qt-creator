@@ -33,7 +33,7 @@ void ProcessTestApp::invokeSubProcess()
 {
     ProcessTestApp processTestApp;
     int returnValue = 1;
-    auto cleanup = qScopeGuard([&returnValue] {
+    const QScopeGuard cleanup([&returnValue] {
         QMetaObject::invokeMethod(qApp, [returnValue] {
             qApp->exit(returnValue);
         }, Qt::QueuedConnection);

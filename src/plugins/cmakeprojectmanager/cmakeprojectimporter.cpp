@@ -431,7 +431,7 @@ static QVector<ToolChainDescription> extractToolChainsFromCache(const CMakeConfi
     for (const CMakeConfigItem &i : config) {
         if (!i.key.startsWith("CMAKE_") || !i.key.endsWith("_COMPILER"))
             continue;
-        const QByteArray language = i.key.mid(6, i.key.count() - 6 - 9); // skip "CMAKE_" and "_COMPILER"
+        const QByteArray language = i.key.mid(6, i.key.size() - 6 - 9); // skip "CMAKE_" and "_COMPILER"
         Id languageId;
         if (language == "CXX") {
             haveCCxxCompiler = true;

@@ -341,14 +341,14 @@ void GraphicsView::keyPressEvent(QKeyEvent *event)
 
 void GraphicsView::mousePressEvent(QMouseEvent *event)
 {
-    if (m_playhead.mousePress(globalToScene(event->globalPos()))) {
+    if (m_playhead.mousePress(globalToScene(event->globalPosition().toPoint()))) {
         m_dragging = true;
         return;
     }
 
     Shortcut shortcut(event);
     if (shortcut == m_style.shortcuts.insertKeyframe) {
-        m_scene->insertKeyframe(globalToRaster(event->globalPos()).x());
+        m_scene->insertKeyframe(globalToRaster(event->globalPosition().toPoint()).x());
         return;
     }
 
@@ -371,7 +371,7 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
 
 void GraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
-    if (m_playhead.mouseMove(globalToScene(event->globalPos()), this))
+    if (m_playhead.mouseMove(globalToScene(event->globalPosition().toPoint()), this))
         return;
 
     QGraphicsView::mouseMoveEvent(event);

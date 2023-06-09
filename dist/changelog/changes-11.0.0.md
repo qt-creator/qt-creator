@@ -14,6 +14,7 @@ General
 -------
 
 * Added a `Terminal` view (QTCREATORBUG-8511)
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-output-panes.html#terminal))
     * Opt-out via `Preferences` > `Terminal` preferences
     * Added support for
         * different shells, colors, fonts, and multiple tabs
@@ -53,6 +54,7 @@ Editing
 
 * Added experimental support for GitHub Copilot
   ([GitHub documentation](https://github.com/features/copilot))
+  ([Qt Creator documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-copilot.html))
 * Added missing actions for opening the `Call Hierarchy` (QTCREATORBUG-28839,
   QTCREATORBUG-28842)
 

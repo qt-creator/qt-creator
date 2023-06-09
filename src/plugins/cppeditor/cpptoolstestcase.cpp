@@ -26,7 +26,6 @@
 #include <texteditor/storagesettings.h>
 
 #include <utils/environment.h>
-#include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -376,11 +375,8 @@ ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
         return;
 
     bool hasGcFinished = false;
-    QMetaObject::Connection connection;
-    Utils::ExecuteOnDestruction disconnect([&]() { QObject::disconnect(connection); });
-    connection = QObject::connect(CppModelManager::instance(), &CppModelManager::gcFinished, [&]() {
-        hasGcFinished = true;
-    });
+    auto connection = QObject::connect(CppModelManager::instance(), &CppModelManager::gcFinished,
+                                       [&hasGcFinished] { hasGcFinished = true; });
 
     for (Project *project : std::as_const(m_openProjects))
         ProjectExplorerPlugin::unloadProject(project);
@@ -389,6 +385,8 @@ ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
     t.start();
     while (!hasGcFinished && t.elapsed() <= 30000)
         QCoreApplication::processEvents();
+
+    QObject::disconnect(connection);
 }
 
 ProjectInfo::ConstPtr ProjectOpenerAndCloser::open(const FilePath &projectFile,

@@ -66,7 +66,7 @@ public:
             return std::invoke(std::forward<Function>(function), std::forward<Args>(args)...);
         QElapsedTimer timer;
         timer.start();
-        auto cleanup = qScopeGuard([this, &timer] {
+        const QScopeGuard cleanup([this, &timer] {
             const qint64 currentNsecs = timer.nsecsElapsed();
             const bool mainThread = isMainThread();
             const int hitThisAll = m_hitThisAll.fetch_add(1) + 1;
@@ -134,7 +134,7 @@ private:
     }
     static QString formatField(int number, int fieldWidth, const QString &suffix = {})
     {
-        return QString("%1%2").arg(number, fieldWidth - suffix.count()).arg(suffix);
+        return QString("%1%2").arg(number, fieldWidth - suffix.size()).arg(suffix);
     }
 
     static int toMs(quint64 nsesc) // nanoseconds to miliseconds

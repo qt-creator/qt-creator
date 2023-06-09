@@ -9,6 +9,7 @@
 #include "qttestparser.h"
 #include "qtversionmanager.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>
@@ -16,6 +17,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
+#include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
@@ -37,18 +39,20 @@ public:
         m_combo->setSizePolicy(QSizePolicy::Ignored, m_combo->sizePolicy().verticalPolicy());
         m_combo->addItem(Tr::tr("None"), -1);
 
-        QList<int> versionIds = Utils::transform(QtVersionManager::versions(), &QtVersion::uniqueId);
-        versionsChanged(versionIds, QList<int>(), QList<int>());
-
         m_manageButton = createManageButton(Constants::QTVERSION_SETTINGS_PAGE_ID);
 
         refresh();
         m_combo->setToolTip(ki->description());
 
-        connect(m_combo, &QComboBox::currentIndexChanged,
-                this, &QtKitAspectWidget::currentWasChanged);
-        connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
-                this, &QtKitAspectWidget::versionsChanged);
+        connect(m_combo, &QComboBox::currentIndexChanged, this, [this] {
+            if (!m_ignoreChanges.isLocked())
+                currentWasChanged(m_combo->currentIndex());
+        });
+
+        connect(QtVersionManager::instance(),
+                &QtVersionManager::qtVersionsChanged,
+                this,
+                &QtKitAspectWidget::refresh);
     }
 
     ~QtKitAspectWidget() final
@@ -69,6 +73,30 @@ private:
 
     void refresh() final
     {
+        const GuardLocker locker(m_ignoreChanges);
+        m_combo->clear();
+
+        IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
+        const FilePath deviceRoot = device->rootPath();
+
+        const QtVersions versions = QtVersionManager::versions();
+
+        const QList<QtVersion *> same = Utils::filtered(versions, [device](QtVersion *qt) {
+            return qt->qmakeFilePath().isSameDevice(device->rootPath());
+        });
+        const QList<QtVersion *> other = Utils::filtered(versions, [device](QtVersion *qt) {
+            return !qt->qmakeFilePath().isSameDevice(device->rootPath());
+        });
+
+        for (QtVersion *item : same)
+            m_combo->addItem(item->displayName(), item->uniqueId());
+
+        if (!same.isEmpty() && !other.isEmpty())
+            m_combo->insertSeparator(m_combo->count());
+
+        for (QtVersion *item : other)
+            m_combo->addItem(item->displayName(), item->uniqueId());
+
         m_combo->setCurrentIndex(findQtVersion(QtKitAspect::qtVersionId(m_kit)));
     }
 
@@ -80,27 +108,6 @@ private:
         if (!v->isValid())
             name = Tr::tr("%1 (invalid)").arg(v->displayName());
         return name;
-    }
-
-    void versionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed)
-    {
-        for (const int id : added) {
-            QtVersion *v = QtVersionManager::version(id);
-            QTC_CHECK(v);
-            QTC_CHECK(findQtVersion(id) < 0);
-            m_combo->addItem(itemNameFor(v), id);
-        }
-        for (const int id : removed) {
-            int pos = findQtVersion(id);
-            if (pos >= 0) // We do not include invalid Qt versions, so do not try to remove those.
-                m_combo->removeItem(pos);
-        }
-        for (const int id : changed) {
-            QtVersion *v = QtVersionManager::version(id);
-            int pos = findQtVersion(id);
-            QTC_CHECK(pos >= 0);
-            m_combo->setItemText(pos, itemNameFor(v));
-        }
     }
 
     void currentWasChanged(int idx)
@@ -117,6 +124,7 @@ private:
         return -1;
     }
 
+    Guard m_ignoreChanges;
     QComboBox *m_combo;
     QWidget *m_manageButton;
 };

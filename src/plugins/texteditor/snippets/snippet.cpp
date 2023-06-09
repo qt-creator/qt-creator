@@ -189,7 +189,7 @@ SnippetParseResult Snippet::parse(const QString &snippet)
     if (!errorMessage.isEmpty())
         return {SnippetParseError{errorMessage, {}, -1}};
 
-    const int count = preprocessedSnippet.count();
+    const int count = preprocessedSnippet.size();
     NameMangler *mangler = nullptr;
 
     QMap<QString, int> variableIndexes;
@@ -404,7 +404,7 @@ void Internal::TextEditorPlugin::testSnippetParsing()
         QCOMPARE(manglerId, expected.manglerId);
     };
 
-    for (int i = 0; i < parts.count(); ++i)
+    for (int i = 0; i < parts.size(); ++i)
         rangesCompare(snippet.parts.at(i), parts.at(i));
 }
 #endif

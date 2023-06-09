@@ -81,7 +81,7 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView,
     engine()->addImportPath(qmlSourcesPath());
     engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
 
-    m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F4), this);
+    m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F4), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &StatesEditorWidget::reloadQmlSource);
 
     setResizeMode(QQuickWidget::SizeRootObjectToView);

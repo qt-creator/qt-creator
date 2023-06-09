@@ -591,7 +591,7 @@ void LoggingViewManagerWidget::saveLoggingsToFile() const
 {
     // should we just let it continue without temporarily disabling?
     const bool enabled = m_manager->isEnabled();
-    const auto cleanup = qScopeGuard([this, enabled] { m_manager->setEnabled(enabled); });
+    const QScopeGuard cleanup([this, enabled] { m_manager->setEnabled(enabled); });
     if (enabled)
         m_manager->setEnabled(false);
     const Utils::FilePath fp = Utils::FileUtils::getSaveFilePath(ICore::dialogParent(),

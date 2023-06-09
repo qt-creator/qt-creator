@@ -8,7 +8,6 @@
 #include "wrappablelineedit.h"
 
 #include <utils/environment.h>
-#include <utils/executeondestruction.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/stringutils.h>
@@ -21,6 +20,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QPushButton>
+#include <QScopeGuard>
 #include <QTabWidget>
 #include <QTreeView>
 
@@ -323,7 +323,7 @@ void ClangDiagnosticConfigsWidget::sync()
         return;
 
     disconnectClangOnlyOptionsChanged();
-    ExecuteOnDestruction e([this] { connectClangOnlyOptionsChanged(); });
+    const QScopeGuard cleanup([this] { connectClangOnlyOptionsChanged(); });
 
     // Update main button row
     const ClangDiagnosticConfig &config = currentConfig();

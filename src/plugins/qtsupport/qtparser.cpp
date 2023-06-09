@@ -89,6 +89,21 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
         scheduleTask(task, 1);
         return {Status::Done, linkSpecs};
     }
+
+    if (lne.startsWith(QLatin1String("Error:"))) {
+        constexpr int matchLength = 6;
+        CompileTask task(Task::TaskType::Error, line.mid(matchLength).trimmed());
+        scheduleTask(task, 1);
+        return Status::Done;
+    }
+
+    if (lne.startsWith(QLatin1String("Warning:"))) {
+        constexpr int matchLength = 8;
+        CompileTask task(Task::TaskType::Warning, line.mid(matchLength).trimmed());
+        scheduleTask(task, 1);
+        return Status::Done;
+    }
+
     return Status::NotHandled;
 }
 
@@ -205,6 +220,15 @@ void QtSupportPlugin::testQtOutputParser_data()
                                                        QLatin1String("dropping duplicate messages"),
                                                        Utils::FilePath::fromUserInput(QLatin1String("/some/place/qtcreator_fr.qm")), -1))
             << QString();
+    QTest::newRow("qmlsc warning") // QTCREATORBUG-28720
+        << QString::fromUtf8("Warning: Main.qml:4:1: Warnings occurred while importing module "
+                             "\"QtQuick.Controls\": [import]\"")
+        << OutputParserTester::STDERR << QString() << QString()
+        << (Tasks() << CompileTask(Task::Warning,
+                                   QString::fromUtf8(
+                                       "Main.qml:4:1: Warnings occurred while importing module "
+                                       "\"QtQuick.Controls\": [import]\"")))
+        << QString();
 }
 
 void QtSupportPlugin::testQtOutputParser()

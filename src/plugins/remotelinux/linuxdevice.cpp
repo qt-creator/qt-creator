@@ -40,7 +40,6 @@
 #include <QMutex>
 #include <QReadWriteLock>
 #include <QRegularExpression>
-#include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QThread>
 #include <QTimer>
@@ -978,7 +977,6 @@ LinuxDevice::LinuxDevice()
     addDeviceAction({Tr::tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
                          device->openTerminal(Environment(), FilePath());
                      }});
-    setQmlRunCommand(filePath("qml"));
 }
 
 void LinuxDevice::_setOsType(Utils::OsType osType)

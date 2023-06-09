@@ -177,7 +177,7 @@ QString HelpItem::extractContent(bool extended) const
 // include separators for major vs minor vs patch version.
 static QVersionNumber qtVersionHeuristic(const QString &digits)
 {
-    if (digits.count() > 6 || digits.count() < 3)
+    if (digits.size() > 6 || digits.size() < 3)
         return {}; // suspicious version number
 
     for (const QChar &digit : digits)
@@ -188,7 +188,7 @@ static QVersionNumber qtVersionHeuristic(const QString &digits)
     // When we have 4 digits, we split it like: ABCD -> A.BC.D
     // When we have 5 digits, we split it like: ABCDE -> A.BC.DE
     // When we have 6 digits, we split it like: ABCDEF -> AB.CD.EF
-    switch (digits.count()) {
+    switch (digits.size()) {
     case 3:
         return QVersionNumber(digits.mid(0, 1).toInt(),
                               digits.mid(1, 1).toInt(),

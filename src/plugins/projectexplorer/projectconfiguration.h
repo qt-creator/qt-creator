@@ -54,8 +54,6 @@ public:
 
     static QString settingsIdKey();
 
-    Utils::FilePath mapFromBuildDeviceToGlobalPath(const Utils::FilePath &path) const;
-
 signals:
     void displayNameChanged();
     void toolTipChanged();

@@ -182,7 +182,7 @@ HelpPluginPrivate::HelpPluginPrivate()
         auto qtr = new QTranslator(this);
         auto qhelptr = new QTranslator(this);
         const QString creatorTrPath = ICore::resourcePath("translations").toString();
-        const QString qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+        const QString qtTrPath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
         const QString trFile = QLatin1String("assistant_") + locale;
         const QString helpTrFile = QLatin1String("qt_help_") + locale;
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))

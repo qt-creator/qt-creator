@@ -121,7 +121,7 @@ void BaseHoverHandler::process(TextEditorWidget *widget, int pos, ReportPriority
 
 void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report)
 {
-    const auto cleanup = qScopeGuard([this, report] { report(priority()); });
+    const QScopeGuard cleanup([this, report] { report(priority()); });
 
     QString tooltip = editorWidget->extraSelectionTooltip(pos);
     if (!tooltip.isEmpty())

@@ -535,7 +535,7 @@ public:
                     projectModel->resetProjects();
                 });
                 contextMenu.addAction(action);
-                contextMenu.exec(mouseEvent->globalPos());
+                contextMenu.exec(mouseEvent->globalPosition().toPoint());
                 return true;
             }
         }

@@ -22,6 +22,7 @@
 
 #ifdef WITH_TESTS
 #include "codeassist/codeassist_test.h"
+#include "highlighter_test.h"
 #endif
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -149,6 +150,7 @@ void TextEditorPlugin::initialize()
 
 #ifdef WITH_TESTS
     addTest<CodeAssistTests>();
+    addTest<GenerigHighlighterTests>();
 #endif
 }
 

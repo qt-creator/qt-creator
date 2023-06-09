@@ -490,7 +490,7 @@ void LocatorMatcher::start()
         }
     };
 
-    d->m_taskTree->setupRoot(root);
+    d->m_taskTree->setRecipe(root);
 
     const auto onFinish = [this](bool success) {
         return [this, success] {

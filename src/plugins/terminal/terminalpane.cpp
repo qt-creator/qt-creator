@@ -4,6 +4,7 @@
 #include "terminalpane.h"
 
 #include "shellmodel.h"
+#include "shortcutmap.h"
 #include "terminalconstants.h"
 #include "terminalicons.h"
 #include "terminalsettings.h"
@@ -36,9 +37,9 @@ using namespace Core;
 
 TerminalPane::TerminalPane(QObject *parent)
     : IOutputPane(parent)
-    , m_context("Terminal.Pane", Core::Constants::C_GLOBAL_CUTOFF)
+    , m_selfContext("Terminal.Pane")
 {
-    setupContext(m_context, &m_tabWidget);
+    setupContext(m_selfContext, &m_tabWidget);
     setZoomButtonsEnabled(true);
 
     connect(this, &IOutputPane::zoomInRequested, this, [this] {
@@ -51,6 +52,9 @@ TerminalPane::TerminalPane(QObject *parent)
     });
 
     initActions();
+
+    m_lockKeyboardButton = new QToolButton();
+    m_lockKeyboardButton->setDefaultAction(&lockKeyboard);
 
     m_newTerminalButton = new QToolButton();
     m_newTerminalButton->setDefaultAction(&newTerminal);
@@ -75,10 +79,10 @@ TerminalPane::TerminalPane(QObject *parent)
                                             .toString(QKeySequence::NativeText);
         if (TerminalSettings::instance().sendEscapeToTerminal.value()) {
             m_escSettingButton->setText(escKey);
-            m_escSettingButton->setToolTip(Tr::tr("Sending ESC to terminal instead of Qt Creator"));
+            m_escSettingButton->setToolTip(Tr::tr("Sending Esc to terminal instead of Qt Creator"));
         } else {
             m_escSettingButton->setText(shiftEsc);
-            m_escSettingButton->setToolTip(Tr::tr("Press %1 to send ESC to terminal").arg(shiftEsc));
+            m_escSettingButton->setToolTip(Tr::tr("Press %1 to send Esc to terminal").arg(shiftEsc));
         }
     };
 
@@ -110,8 +114,6 @@ static std::optional<FilePath> startupProjectDirectory()
 void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
 {
     OpenTerminalParameters parametersCopy{parameters};
-    if (!m_isVisible)
-        emit showPage(IOutputPane::ModeSwitch);
 
     if (!parametersCopy.workingDirectory) {
         const std::optional<FilePath> projectDir = startupProjectDirectory();
@@ -124,8 +126,19 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
     }
 
     const auto terminalWidget = new TerminalWidget(&m_tabWidget, parametersCopy);
+
+    using namespace Constants;
+    terminalWidget->unlockGlobalAction("Coreplugin.OutputPane.minmax");
+    terminalWidget->unlockGlobalAction(Core::Constants::LOCATE);
+    terminalWidget->unlockGlobalAction(NEWTERMINAL);
+    terminalWidget->unlockGlobalAction(NEXTTERMINAL);
+    terminalWidget->unlockGlobalAction(PREVTERMINAL);
+
     m_tabWidget.setCurrentIndex(m_tabWidget.addTab(terminalWidget, Tr::tr("Terminal")));
     setupTerminalWidget(terminalWidget);
+
+    if (!m_isVisible)
+        emit showPage(IOutputPane::ModeSwitch);
 
     m_tabWidget.currentWidget()->setFocus();
 
@@ -134,10 +147,13 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
 
 void TerminalPane::addTerminal(TerminalWidget *terminal, const QString &title)
 {
-    if (!m_isVisible)
-        emit showPage(IOutputPane::ModeSwitch);
     m_tabWidget.setCurrentIndex(m_tabWidget.addTab(terminal, title));
     setupTerminalWidget(terminal);
+
+    if (!m_isVisible)
+        emit showPage(IOutputPane::ModeSwitch);
+
+    terminal->setFocus();
 
     emit navigateStateUpdate();
 }
@@ -229,6 +245,23 @@ void TerminalPane::initActions()
 {
     createShellMenu();
 
+    lockKeyboard.setCheckable(true);
+    lockKeyboard.setChecked(TerminalSettings::instance().lockKeyboard());
+
+    auto updateLockKeyboard = [this](bool locked) {
+        TerminalSettings::instance().lockKeyboard.setValue(locked);
+        if (locked) {
+            lockKeyboard.setIcon(LOCK_KEYBOARD_ICON.icon());
+            lockKeyboard.setToolTip(Tr::tr("Keyboard shortcuts will be sent to the Terminal"));
+        } else {
+            lockKeyboard.setIcon(UNLOCK_KEYBOARD_ICON.icon());
+            lockKeyboard.setToolTip(Tr::tr("Keyboard shortcuts will be sent to Qt Creator"));
+        }
+    };
+
+    updateLockKeyboard(TerminalSettings::instance().lockKeyboard());
+    connect(&lockKeyboard, &QAction::toggled, this, updateLockKeyboard);
+
     newTerminal.setText(Tr::tr("New Terminal"));
     newTerminal.setIcon(NEW_TERMINAL_ICON.icon());
     newTerminal.setToolTip(Tr::tr("Create a new Terminal."));
@@ -242,24 +275,21 @@ void TerminalPane::initActions()
 
     using namespace Constants;
 
-    ActionManager::registerAction(&newTerminal, NEWTERMINAL, m_context)
-        ->setDefaultKeySequences({QKeySequence(
-            HostOsInfo::isMacHost() ? QLatin1String("Ctrl+T") : QLatin1String("Ctrl+Shift+T"))});
+    Command *cmd = ActionManager::registerAction(&newTerminal, NEWTERMINAL, m_selfContext);
+    cmd->setDefaultKeySequences({QKeySequence(
+        HostOsInfo::isMacHost() ? QLatin1String("Ctrl+T") : QLatin1String("Ctrl+Shift+T"))});
 
-    ActionManager::registerAction(&nextTerminal, NEXTTERMINAL, m_context)
+    ActionManager::registerAction(&nextTerminal, NEXTTERMINAL, m_selfContext)
         ->setDefaultKeySequences(
             {QKeySequence("Alt+Tab"),
              QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+[")
                                                   : QLatin1String("Ctrl+PgUp"))});
 
-    ActionManager::registerAction(&prevTerminal, PREVTERMINAL, m_context)
+    ActionManager::registerAction(&prevTerminal, PREVTERMINAL, m_selfContext)
         ->setDefaultKeySequences(
             {QKeySequence("Alt+Shift+Tab"),
              QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+]")
                                                   : QLatin1String("Ctrl+PgDown"))});
-
-    m_minMax = TerminalWidget::unlockGlobalAction("Coreplugin.OutputPane.minmax", m_context);
-    m_locate = TerminalWidget::unlockGlobalAction(Core::Constants::LOCATE, m_context);
 
     connect(&newTerminal, &QAction::triggered, this, [this] { openTerminal({}); });
     connect(&closeTerminal, &QAction::triggered, this, [this] {
@@ -303,10 +333,11 @@ void TerminalPane::createShellMenu()
 QList<QWidget *> TerminalPane::toolBarWidgets() const
 {
     QList<QWidget *> widgets = IOutputPane::toolBarWidgets();
+
     widgets.prepend(m_newTerminalButton);
     widgets.prepend(m_closeTerminalButton);
 
-    return widgets << m_openSettingsButton << m_escSettingButton;
+    return widgets << m_openSettingsButton << m_lockKeyboardButton << m_escSettingButton;
 }
 
 QString TerminalPane::displayName() const

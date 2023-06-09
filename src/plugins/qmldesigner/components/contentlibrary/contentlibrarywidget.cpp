@@ -61,7 +61,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
         if (m_materialToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20
+            if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 20
                 && m_materialToDrag->isDownloaded()) {
                 QByteArray data;
                 QMimeData *mimeData = new QMimeData;
@@ -76,7 +76,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             }
         } else if (m_textureToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20
+            if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 20
                 && m_textureToDrag->isDownloaded()) {
                 QMimeData *mimeData = new QMimeData;
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE,
@@ -140,7 +140,7 @@ ContentLibraryWidget::ContentLibraryWidget()
     setStyleSheet(Theme::replaceCssColors(
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
 
-    m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F11), this);
+    m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F11), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &ContentLibraryWidget::reloadQmlSource);
 
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_CONTENTLIBRARY_TIME);

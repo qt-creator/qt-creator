@@ -335,12 +335,12 @@ void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPa
 {
     ::QmlProjectManager::QmlBuildSystem *buildSystem = getQmlBuildSystem(target);
 
-    const Utils::FilePath pojectDirectoryPath = buildSystem->canonicalProjectDir();
+    const Utils::FilePath projectDirectoryPath = buildSystem->canonicalProjectDir();
     const QStringList importPaths = buildSystem->importPaths();
-    const QDir pojectDirectory(pojectDirectoryPath.toString());
+    const QDir projectDirectory(projectDirectoryPath.toString());
 
     for (const QString &importPath : importPaths)
-        qmldirPaths.push_back(QDir::cleanPath(pojectDirectory.absoluteFilePath(importPath))
+        qmldirPaths.push_back(QDir::cleanPath(projectDirectory.absoluteFilePath(importPath))
                               + "/qmldir");
 }
 

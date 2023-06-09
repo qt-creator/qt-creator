@@ -254,8 +254,10 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
     qCDebug(log) << "document parsed" << document->filePath() << document->editorRevision();
 
     // Emit ifdefed out blocks
-    const auto ifdefoutBlocks = toTextEditorBlocks(document->skippedBlocks());
-    emit ifdefedOutBlocksUpdated(revision(), ifdefoutBlocks);
+    if (!m_semanticHighlightingChecker || m_semanticHighlightingChecker()) {
+        const auto ifdefoutBlocks = toTextEditorBlocks(document->skippedBlocks());
+        emit ifdefedOutBlocksUpdated(revision(), ifdefoutBlocks);
+    }
 
     // Store parser warnings
     m_codeWarnings = toTextEditorSelections(document->diagnosticMessages(), textDocument());

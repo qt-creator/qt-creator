@@ -99,7 +99,7 @@ static int indexOf(Id id)
 void ModeManagerPrivate::showMenu(int index, QMouseEvent *event)
 {
     QTC_ASSERT(m_modes.at(index)->menu(), return);
-    m_modes.at(index)->menu()->popup(event->globalPos());
+    m_modes.at(index)->menu()->popup(event->globalPosition().toPoint());
 }
 
 ModeManager::ModeManager(Internal::MainWindow *mainWindow,

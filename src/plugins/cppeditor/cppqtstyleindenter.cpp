@@ -58,7 +58,7 @@ static bool isElectricInLine(const QChar ch, const QString &text)
     case '<':
     case '>': {
         // Electric if at line beginning (after space indentation)
-        for (int i = 0, len = text.count(); i < len; ++i) {
+        for (int i = 0, len = text.size(); i < len; ++i) {
             if (!text.at(i).isSpace())
                 return text.at(i) == ch;
         }

@@ -7,8 +7,7 @@
 
 namespace TextEditor { class DisplaySettings; }
 
-namespace DiffEditor {
-namespace Internal {
+namespace DiffEditor::Internal {
 
 class DiffSelection
 {
@@ -46,5 +45,4 @@ private:
     DiffSelections m_diffSelections;
 };
 
-} // namespace Internal
-} // namespace DiffEditor
+} // namespace DiffEditor::Internal

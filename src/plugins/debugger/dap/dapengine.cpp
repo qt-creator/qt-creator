@@ -281,7 +281,7 @@ static QJsonObject createBreakpoint(const Breakpoint &breakpoint)
         return QJsonObject();
 
     QJsonObject bp;
-    bp["line"] = params.lineNumber;
+    bp["line"] = params.textPosition.line;
     bp["source"] = QJsonObject{{"name", params.fileName.fileName()},
                                {"path", params.fileName.path()}};
     return bp;
@@ -622,7 +622,7 @@ void DapEngine::handleOutput(const QJsonDocument &data)
                 QString id = QString::number(body.value("hitBreakpointIds").toArray().first().toInteger());
                 const BreakpointParameters &params
                     = breakHandler()->findBreakpointByResponseId(id)->requestedParameters();
-                gotoLocation(Location(params.fileName, params.lineNumber));
+                gotoLocation(Location(params.fileName, params.textPosition));
             }
 
             if (state() == InferiorStopRequested)

@@ -28,7 +28,7 @@ static std::pair<int, QString> lineNumberInfo(const QStyleOptionViewItem &option
     if (lineNumber < 1)
         return {0, {}};
     const QString lineNumberText = QString::number(lineNumber);
-    const int lineNumberDigits = qMax(minimumLineNumberDigits, lineNumberText.count());
+    const int lineNumberDigits = qMax(minimumLineNumberDigits, lineNumberText.size());
     const int fontWidth = option.fontMetrics.horizontalAdvance(QString(lineNumberDigits, QLatin1Char('0')));
     const QStyle *style = option.widget ? option.widget->style() : QApplication::style();
     return {lineNumberAreaHorizontalPadding + fontWidth + lineNumberAreaHorizontalPadding

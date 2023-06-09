@@ -1,0 +1,96 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage creator-language-servers.html
+    \page creator-copilot.html
+    \nextpage creator-python-development.html
+
+    \title Using GitHub Copilot
+
+    The experimental Copilot plugin integrates
+    \l{https://github.com/features/copilot}{GitHub Copilot} into \QC.
+    You can view suggestions from Copilot in the \uicontrol Edit mode.
+
+    \section1 Requirements
+
+    To use the Copilot plugin, you need:
+
+    \list
+        \li An active \l{https://docs.github.com/en/billing/managing-billing-for-github-copilot/about-billing-for-github-copilot}
+            {GitHub Copilot subscription}.
+        \li GitHub Copilot Neovim plugin installed, as described in
+            \l{https://docs.github.com/en/copilot/getting-started-with-github-copilot?tool=neovim}
+            {About GitHub Copilot and Neovim}.
+    \endlist
+
+    \section1 Enabling the Copilot Plugin
+
+    To enable the Copilot plugin:
+
+    \list 1
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol Utilities > \uicontrol Copilot to enable the plugin.
+        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
+    \endlist
+
+    \section1 Setting Copilot Preferences
+
+    To set preferences for using Copilot:
+
+    \list 1
+        \li Select \uicontrol Edit > \uicontrol Preferences >
+            \uicontrol Copilot.
+            \image qtcreator-preferences-copilot.webp {Copilot tab in Preferences}
+        \li Select \uicontrol {Sign In} to sign into your subscription, activate
+            your device, and authorize the GitHub Copilot plugin.
+
+            The button turns into a \uicontrol {Sign Out} button.
+        \li Select the \uicontrol {Enable Copilot} check box to use Copilot.
+        \li In the \uicontrol {Node.js path} field, enter the full path to the
+            Node.js executable.
+        \li In the \uicontrol {Path to agent.js} field, enter the path to
+            agent.js in the Copilot Neovim plugin.
+        \li Select the \uicontrol {Request completions automatically} checkbox to
+            receive suggestions for the current text cursor position when you
+            make changes.
+    \endlist
+
+    \section1 Pair-Programming with Copilot
+
+    When you write code in the \l {Working in Edit Mode}{Edit} mode and
+    \uicontrol {Request completions automatically} is enabled, Copilot
+    automatically makes suggestions when you type.
+
+    \image qtcreator-copilot.gif {Receiving suggestions from Copilot in the editor}
+
+    To manually request a suggestion at the current editor's cursor position,
+    select \uicontrol {Request Copilot Suggestion} in the context menu.
+
+    Hover the mouse over a suggestion to show a toolbar with
+    \inlineimage icons/prev.png
+    and \inlineimage icons/next.png
+    buttons for cycling between Copilot suggestions.
+
+    To apply a suggestion as a whole, select \uicontrol Apply or press
+    the \key Tab key.
+
+    To apply a suggestion word-by-word, select \uicontrol {Apply Word}
+    or press \key {Alt+Right}.
+
+    \section1 Enabling and Disabling Copilot
+
+    You can enable and disable the Copilot plugin either globally for all
+    projects or at project level for a particular project.
+
+    To enable or disable Copilot suggestions globally, select the
+    \inlineimage icons/copilot.png
+    (\uicontrol {Toggle Copilot}) button. This also sets the value of the
+    \uicontrol {Enable Copilot} check box in \uicontrol Edit >
+    \uicontrol Preferences accordingly.
+
+    To enable or disable Copilot suggestions for a particular project,
+    select \uicontrol Projects > \uicontrol {Project Settings} >
+    \uicontrol Copilot, and then select or deselect the
+    \uicontrol {Enable Copilot} check box.
+*/

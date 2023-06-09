@@ -29,16 +29,17 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
-#include <QDir>
-#include <QFileSystemWatcher>
-#include <QFileInfo>
-#include <QDebug>
-#include <QQuickItem>
-#include <QTimer>
-#include <QShortcut>
 #include <QApplication>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QFileSystemWatcher>
+#include <QQuickItem>
+#include <QScopeGuard>
 #include <QScopedPointer>
+#include <QShortcut>
+#include <QTimer>
 
 enum {
     debug = false
@@ -71,9 +72,9 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
     m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 
     if (Utils::HostOsInfo::isMacHost())
-        m_updateShortcut = new QShortcut(QKeySequence(Qt::ALT + Qt::Key_F3), m_stackedWidget);
+        m_updateShortcut = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_F3), m_stackedWidget);
     else
-        m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F3), m_stackedWidget);
+        m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F3), m_stackedWidget);
     connect(m_updateShortcut, &QShortcut::activated, this, &PropertyEditorView::reloadQml);
 
     m_stackedWidget->setStyleSheet(Theme::replaceCssColors(
@@ -201,7 +202,7 @@ void PropertyEditorView::changeValue(const QString &name)
     if (name == "state" && castedValue.toString() == "base state")
         castedValue = "";
 
-    if (castedValue.type() == QVariant::Color) {
+    if (castedValue.typeId() == QVariant::Color) {
         QColor color = castedValue.value<QColor>();
         QColor newColor = QColor(color.name());
         newColor.setAlpha(color.alpha());
@@ -214,9 +215,9 @@ void PropertyEditorView::changeValue(const QString &name)
     } else {
         // QVector*D(0, 0, 0) detects as null variant though it is valid value
         if (castedValue.isValid()
-            && (!castedValue.isNull() || castedValue.type() == QVariant::Vector2D
-                || castedValue.type() == QVariant::Vector3D
-                || castedValue.type() == QVariant::Vector4D)) {
+            && (!castedValue.isNull() || castedValue.typeId() == QVariant::Vector2D
+                || castedValue.typeId() == QVariant::Vector3D
+                || castedValue.typeId() == QVariant::Vector4D)) {
             commitVariantValueToModel(propertyName, castedValue);
         }
     }
@@ -241,10 +242,10 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
     if (noValidSelection())
         return;
 
-    QScopeGuard unlock([&](){ m_locked = false; });
+    const QScopeGuard cleanup([&] { m_locked = false; });
     m_locked = true;
 
-    executeInTransaction("PropertyEditorView::changeExpression", [this, name](){
+    executeInTransaction("PropertyEditorView::changeExpression", [this, name] {
         PropertyName underscoreName(name);
         underscoreName.replace('.', '_');
 

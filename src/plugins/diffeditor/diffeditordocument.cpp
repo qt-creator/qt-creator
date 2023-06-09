@@ -24,8 +24,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace DiffEditor {
-namespace Internal {
+namespace DiffEditor::Internal {
 
 DiffEditorDocument::DiffEditorDocument() :
     Core::BaseTextDocument()
@@ -388,5 +387,4 @@ void DiffEditorDocument::endReload(bool success)
     emit reloadFinished(success);
 }
 
-} // namespace Internal
-} // namespace DiffEditor
+} // namespace DiffEditor::Internal

@@ -10,6 +10,17 @@
 #include "pluginspec.h"
 #include "pluginspec_p.h"
 
+#include <utils/algorithm.h>
+#include <utils/benchmarker.h>
+#include <utils/fileutils.h>
+#include <utils/futuresynchronizer.h>
+#include <utils/hostosinfo.h>
+#include <utils/mimeutils.h>
+#include <utils/process.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
+#include <utils/threadutils.h>
+
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDateTime>
@@ -23,22 +34,11 @@
 #include <QMessageBox>
 #include <QMetaProperty>
 #include <QPushButton>
+#include <QScopeGuard>
 #include <QSysInfo>
 #include <QTextStream>
 #include <QTimer>
 #include <QWriteLocker>
-
-#include <utils/algorithm.h>
-#include <utils/benchmarker.h>
-#include <utils/executeondestruction.h>
-#include <utils/fileutils.h>
-#include <utils/futuresynchronizer.h>
-#include <utils/hostosinfo.h>
-#include <utils/mimeutils.h>
-#include <utils/process.h>
-#include <utils/qtcassert.h>
-#include <utils/qtcsettings.h>
-#include <utils/threadutils.h>
 
 #ifdef WITH_TESTS
 #include <utils/hostosinfo.h>
@@ -399,7 +399,7 @@ static QString filled(const QString &s, int min)
 QString PluginManager::systemInformation()
 {
     QString result;
-    CommandLine qtDiag(FilePath::fromString(QLibraryInfo::location(QLibraryInfo::BinariesPath))
+    CommandLine qtDiag(FilePath::fromString(QLibraryInfo::path(QLibraryInfo::BinariesPath))
                         .pathAppended("qtdiag").withExecutableSuffix());
     Process qtDiagProc;
     qtDiagProc.setCommand(qtDiag);
@@ -1268,8 +1268,7 @@ void PluginManagerPrivate::startTests()
             continue; // plugin not loaded
 
         const QVector<QObject *> testObjects = plugin->createTestObjects();
-        ExecuteOnDestruction deleteTestObjects([&]() { qDeleteAll(testObjects); });
-        Q_UNUSED(deleteTestObjects)
+        const QScopeGuard cleanup([&] { qDeleteAll(testObjects); });
 
         const bool hasDuplicateTestObjects = testObjects.size()
                                              != Utils::filteredUnique(testObjects).size();

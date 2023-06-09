@@ -74,6 +74,11 @@
 
     \section2 Locating Files
 
+    You can locate files in the local file system or on connected devices. By
+    default, the file system filter shows the files in the same folder as the
+    currently open file and lets you navigate the file system. Also, it shows
+    items that let you switch to another device root.
+
     For example, to open a QML file called \e HelloWorld.qml in the currently
     open project using the locator:
 
@@ -143,16 +148,19 @@
     such as \c {Utils::*View}.
     \endif
 
-    \section2 Creating Files from Locator
+    \section2 Creating Files and Directories from Locator
 
     To create a new file and open it in the editor, type \c f
     followed by \key Space, followed by path and file name, and then press
-    \key Enter.
+    \key Enter or select \uicontrol {Create and Open File}. To create a
+    directory, select \uicontrol {Create Directory}.
+
+    \section2 Opening Sessions from Locator
 
     You can use the filter that triggers menu commands to open
     \l{Managing Sessions}{sessions}. Enter
     \c {t yoursess} or \c {t sess yoursess} to trigger \uicontrol File >
-    \uicontrol Sessions > \e yoursessionname.
+    \uicontrol Sessions > \e <session_name>.
 
     \section2 Default Filters
 

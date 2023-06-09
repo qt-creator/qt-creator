@@ -57,7 +57,7 @@ TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
     , m_stackedWidget(new QStackedWidget)
     , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
-    m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F12), m_stackedWidget);
+    m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F12), m_stackedWidget);
     connect(m_updateShortcut, &QShortcut::activated, this, &TextureEditorView::reloadQml);
 
     m_ensureMatLibTimer.callOnTimeout([this] {
@@ -153,9 +153,9 @@ void TextureEditorView::changeValue(const QString &name)
     } else {
         // QVector*D(0, 0, 0) detects as null variant though it is valid value
         if (castedValue.isValid()
-            && (!castedValue.isNull() || castedValue.type() == QVariant::Vector2D
-                || castedValue.type() == QVariant::Vector3D
-                || castedValue.type() == QVariant::Vector4D)) {
+            && (!castedValue.isNull() || castedValue.typeId() == QVariant::Vector2D
+                || castedValue.typeId() == QVariant::Vector3D
+                || castedValue.typeId() == QVariant::Vector4D)) {
             commitVariantValueToModel(propertyName, castedValue);
         }
     }

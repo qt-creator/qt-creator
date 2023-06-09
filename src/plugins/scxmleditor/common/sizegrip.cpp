@@ -23,7 +23,7 @@ void SizeGrip::resizeEvent(QResizeEvent *e)
 void SizeGrip::mousePressEvent(QMouseEvent *e)
 {
     QWidget::mousePressEvent(e);
-    m_startPoint = e->globalPos();
+    m_startPoint = e->globalPosition().toPoint();
     m_startRect = parentWidget()->rect();
     m_mouseDown = true;
     checkCursor(e->pos());
@@ -32,7 +32,7 @@ void SizeGrip::mousePressEvent(QMouseEvent *e)
 void SizeGrip::mouseMoveEvent(QMouseEvent *e)
 {
     if (m_mouseDown) {
-        QPoint p = e->globalPos() - m_startPoint;
+        QPoint p = e->globalPosition().toPoint() - m_startPoint;
         parentWidget()->resize(m_startRect.width() + p.x(), m_startRect.height() + p.y());
     } else {
         checkCursor(e->pos());

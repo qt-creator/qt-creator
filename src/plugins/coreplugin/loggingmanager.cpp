@@ -105,7 +105,7 @@ static QList<FilterRuleSpec> fetchOriginalRules()
     };
 
     Utils::FilePath iniFile = Utils::FilePath::fromString(
-                QLibraryInfo::location(QLibraryInfo::DataPath)).pathAppended("qtlogging.ini");
+                QLibraryInfo::path(QLibraryInfo::DataPath)).pathAppended("qtlogging.ini");
     if (iniFile.exists())
         appendRulesFromFile(iniFile.toString());
 

@@ -374,7 +374,7 @@ void ObjectNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentIn
 QVariant ObjectNodeInstance::convertSpecialCharacter(const QVariant& value) const
 {
     QVariant specialCharacterConvertedValue = value;
-    if (value.type() == QVariant::String) {
+    if (value.typeId() == QVariant::String) {
         QString string = value.toString();
         string.replace(QLatin1String("\\n"), QLatin1String("\n"));
         string.replace(QLatin1String("\\t"), QLatin1String("\t"));
@@ -472,7 +472,7 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
 
 
     QVariant oldValue = property.read();
-    if (oldValue.type() == QVariant::Url) {
+    if (oldValue.typeId() == QVariant::Url) {
         QUrl url = oldValue.toUrl();
         QString path = url.toLocalFile();
         if (QFileInfo::exists(path) && nodeInstanceServer() && !path.isEmpty())
@@ -489,7 +489,7 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
         qDebug() << "ObjectNodeInstance.setPropertyVariant: Cannot be written: " << object() << name << adjustedValue;
 
     QVariant newValue = property.read();
-    if (newValue.type() == QVariant::Url) {
+    if (newValue.typeId() == QVariant::Url) {
         QUrl url = newValue.toUrl();
         QString path = url.toLocalFile();
         if (QFileInfo::exists(path) && nodeInstanceServer() && !path.isEmpty())
@@ -579,9 +579,9 @@ void ObjectNodeInstance::refreshProperty(const PropertyName &name)
     else
         property.write(resetValue(name));
 
-    if (oldValue.type() == QVariant::Url) {
+    if (oldValue.typeId() == QVariant::Url) {
         QByteArray key = oldValue.toUrl().toEncoded(QUrl::UrlFormattingOption(0x100));
-        QString pixmapKey = QString::fromUtf8(key.constData(), key.count());
+        QString pixmapKey = QString::fromUtf8(key.constData(), key.size());
         QPixmapCache::remove(pixmapKey);
     }
 
@@ -851,7 +851,7 @@ static inline QString fixComponentPathForIncompatibleQt(const QString &component
     if (componentPath.contains(importString)) {
         int index = componentPath.indexOf(importString) + 8;
         const QString relativeImportPath = componentPath.right(componentPath.length() - index);
-        QString fixedComponentPath = QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath) + relativeImportPath;
+        QString fixedComponentPath = QLibraryInfo::path(QLibraryInfo::Qml2ImportsPath) + relativeImportPath;
         fixedComponentPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
         if (QFileInfo::exists(fixedComponentPath))
             return fixedComponentPath;

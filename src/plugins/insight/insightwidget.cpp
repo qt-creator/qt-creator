@@ -51,7 +51,7 @@ InsightWidget::InsightWidget(InsightView *insightView, InsightModel *insightMode
     engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     engine()->addImportPath(qmlSourcesPath() + "/imports");
 
-    m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F11), this);
+    m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F11), this);
     connect(m_qmlSourceUpdateShortcut,
             &QShortcut::activated,
             this,

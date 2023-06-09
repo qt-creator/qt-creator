@@ -65,6 +65,7 @@ FindToolWindow::FindToolWindow(QWidget *parent)
 
     m_searchTerm = new FancyLineEdit(this);
     m_searchTerm->setFiltering(true);
+    m_searchTerm->setPlaceholderText({});
 
     m_searchLabel = new QLabel(this);
     m_searchLabel->setText(Tr::tr("Search f&or:", nullptr));

@@ -4,14 +4,16 @@
 #pragma once
 
 #include <QDialog>
-
 #include <QPair>
 #include <QSize>
 #include <QVector>
 
 QT_FORWARD_DECLARE_CLASS(QLineEdit)
 
-namespace Utils { class PathChooser; }
+namespace Utils {
+class FilePath;
+class PathChooser;
+} // Utils
 
 namespace ImageViewer::Internal {
 
@@ -19,12 +21,11 @@ struct ExportData;
 
 class MultiExportDialog : public QDialog
 {
-    Q_OBJECT
 public:
     explicit MultiExportDialog(QWidget *parent = nullptr);
 
-    QString exportFileName() const;
-    void setExportFileName(QString);
+    Utils::FilePath exportFileName() const;
+    void setExportFileName(const Utils::FilePath &);
 
     void accept() override;
 

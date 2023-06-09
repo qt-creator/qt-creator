@@ -335,7 +335,7 @@ static QColor colorFromFuncAndArgs(const QString &func, const QStringList &args)
 void ColorPreviewHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
                                              int pos, ReportPriority report)
 {
-    const auto cleanup = qScopeGuard([this, report] { report(priority()); });
+    const QScopeGuard cleanup([this, report] { report(priority()); });
 
     if (editorWidget->extraSelectionTooltip(pos).isEmpty()) {
         const QTextBlock tb = editorWidget->document()->findBlock(pos);

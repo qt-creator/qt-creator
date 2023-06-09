@@ -54,10 +54,10 @@ static QString formatResult(double value)
 
     QString beforeDecimalPoint = QString::number(value, 'f', 0);
     QString afterDecimalPoint = QString::number(value, 'f', 20);
-    afterDecimalPoint.remove(0, beforeDecimalPoint.count() + 1);
+    afterDecimalPoint.remove(0, beforeDecimalPoint.size() + 1);
 
-    const int beforeUse = qMin(beforeDecimalPoint.count(), significantDigits);
-    const int beforeRemove = beforeDecimalPoint.count() - beforeUse;
+    const int beforeUse = qMin(beforeDecimalPoint.size(), significantDigits);
+    const int beforeRemove = beforeDecimalPoint.size() - beforeUse;
 
     beforeDecimalPoint.chop(beforeRemove);
     for (int i = 0; i < beforeRemove; ++i)
@@ -67,12 +67,12 @@ static QString formatResult(double value)
     if (beforeDecimalPoint == QString("0") && !afterDecimalPoint.isEmpty()) {
         ++afterUse;
         int i = 0;
-        while (i < afterDecimalPoint.count() && afterDecimalPoint.at(i) == '0')
+        while (i < afterDecimalPoint.size() && afterDecimalPoint.at(i) == '0')
             ++i;
         afterUse += i;
     }
 
-    const int afterRemove = afterDecimalPoint.count() - afterUse;
+    const int afterRemove = afterDecimalPoint.size() - afterUse;
     afterDecimalPoint.chop(afterRemove);
 
     QString result = beforeDecimalPoint;

@@ -28,8 +28,7 @@ using namespace Core;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace DiffEditor {
-namespace Internal {
+namespace DiffEditor::Internal {
 
 UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     : SelectableTextEditorWidget("DiffEditor.UnifiedDiffEditor", parent)
@@ -226,7 +225,7 @@ QString UnifiedDiffEditorWidget::lineNumber(int blockNumber) const
             const QString line = lineExists
                     ? QString::number(m_data.m_lineNumbers[side].value(blockNumber).first)
                     : QString();
-            lineNumberString += QString(m_data.m_lineNumberDigits[side] - line.count(), ' ') + line;
+            lineNumberString += QString(m_data.m_lineNumberDigits[side] - line.size(), ' ') + line;
         };
         addSideNumber(LeftSide, leftLineExists);
         lineNumberString += '|';
@@ -263,7 +262,7 @@ void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumb
     QTC_ASSERT(side < SideCount, return);
     const QString lineNumberString = QString::number(lineNumber);
     m_lineNumbers[side].insert(blockNumber, {lineNumber, rowNumberInChunk});
-    m_lineNumberDigits[side] = qMax(m_lineNumberDigits[side], lineNumberString.count());
+    m_lineNumberDigits[side] = qMax(m_lineNumberDigits[side], lineNumberString.size());
 }
 
 QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
@@ -589,5 +588,4 @@ void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     verticalScrollBar()->setValue(blockNumber);
 }
 
-} // namespace Internal
-} // namespace DiffEditor
+} // namespace DiffEditor::Internal

@@ -75,22 +75,15 @@ public:
         m_comboBox->setEnabled(false);
         m_comboBox->setToolTip(ki->description());
 
-        const QList<CMakeTool *> tools = CMakeToolManager::cmakeTools();
-        for (const CMakeTool *tool : tools)
-            cmakeToolAdded(tool->id());
-
-        updateComboBox();
         refresh();
+
         connect(m_comboBox, &QComboBox::currentIndexChanged,
                 this, &CMakeKitAspectWidget::currentCMakeToolChanged);
 
         CMakeToolManager *cmakeMgr = CMakeToolManager::instance();
-        connect(cmakeMgr, &CMakeToolManager::cmakeAdded,
-                this, &CMakeKitAspectWidget::cmakeToolAdded);
-        connect(cmakeMgr, &CMakeToolManager::cmakeRemoved,
-                this, &CMakeKitAspectWidget::cmakeToolRemoved);
-        connect(cmakeMgr, &CMakeToolManager::cmakeUpdated,
-                this, &CMakeKitAspectWidget::cmakeToolUpdated);
+        connect(cmakeMgr, &CMakeToolManager::cmakeAdded, this, &CMakeKitAspectWidget::refresh);
+        connect(cmakeMgr, &CMakeToolManager::cmakeRemoved, this, &CMakeKitAspectWidget::refresh);
+        connect(cmakeMgr, &CMakeToolManager::cmakeUpdated, this, &CMakeKitAspectWidget::refresh);
     }
 
     ~CMakeKitAspectWidget() override
@@ -112,6 +105,37 @@ private:
 
     void refresh() override
     {
+        const GuardLocker locker(m_ignoreChanges);
+        m_comboBox->clear();
+
+        IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
+        const FilePath rootPath = device->rootPath();
+
+        const auto list = CMakeToolManager::cmakeTools();
+
+        m_comboBox->setEnabled(!list.isEmpty());
+
+        if (list.isEmpty()) {
+            m_comboBox->addItem(Tr::tr("<No CMake Tool available>"), Id().toSetting());
+            return;
+        }
+
+        const QList<CMakeTool *> same = Utils::filtered(list, [rootPath](CMakeTool *item) {
+            return item->cmakeExecutable().isSameDevice(rootPath);
+        });
+        const QList<CMakeTool *> other = Utils::filtered(list, [rootPath](CMakeTool *item) {
+            return !item->cmakeExecutable().isSameDevice(rootPath);
+        });
+
+        for (CMakeTool *item : same)
+            m_comboBox->addItem(item->displayName(), item->id().toSetting());
+
+        if (!same.isEmpty() && !other.isEmpty())
+            m_comboBox->insertSeparator(m_comboBox->count());
+
+        for (CMakeTool *item : other)
+            m_comboBox->addItem(item->displayName(), item->id().toSetting());
+
         CMakeTool *tool = CMakeKitAspect::cmakeTool(m_kit);
         m_comboBox->setCurrentIndex(tool ? indexOf(tool->id()) : -1);
     }
@@ -123,58 +147,6 @@ private:
                 return i;
         }
         return -1;
-    }
-
-    void updateComboBox()
-    {
-        // remove unavailable cmake tool:
-        int pos = indexOf(Id());
-        if (pos >= 0)
-            m_comboBox->removeItem(pos);
-
-        if (m_comboBox->count() == 0) {
-            m_comboBox->addItem(Tr::tr("<No CMake Tool available>"), Id().toSetting());
-            m_comboBox->setEnabled(false);
-        } else {
-            m_comboBox->setEnabled(true);
-        }
-    }
-
-    void cmakeToolAdded(Id id)
-    {
-        const CMakeTool *tool = CMakeToolManager::findById(id);
-        QTC_ASSERT(tool, return);
-
-        m_comboBox->addItem(tool->displayName(), tool->id().toSetting());
-        updateComboBox();
-        refresh();
-    }
-
-    void cmakeToolUpdated(Id id)
-    {
-        const int pos = indexOf(id);
-        QTC_ASSERT(pos >= 0, return);
-
-        const CMakeTool *tool = CMakeToolManager::findById(id);
-        QTC_ASSERT(tool, return);
-
-        m_comboBox->setItemText(pos, tool->displayName());
-    }
-
-    void cmakeToolRemoved(Id id)
-    {
-        const int pos = indexOf(id);
-        QTC_ASSERT(pos >= 0, return);
-
-        {
-            // do not handle the current index changed signal
-            const GuardLocker locker(m_ignoreChanges);
-            m_comboBox->removeItem(pos);
-        }
-
-        // update the checkbox and set the current index
-        updateComboBox();
-        refresh();
     }
 
     void currentCMakeToolChanged(int index)

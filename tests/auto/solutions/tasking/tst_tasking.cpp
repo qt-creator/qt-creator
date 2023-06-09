@@ -509,7 +509,7 @@ void tst_Tasking::testTree_data()
                 createSuccessTask(3),
                 createSuccessTask(4)
             };
-            taskTree.setupRoot(nestedRoot);
+            taskTree.setRecipe(nestedRoot);
             CustomStorage *activeStorage = storage.activeStorage();
             auto collectSubLog = [activeStorage](CustomStorage *subTreeStorage){
                 activeStorage->m_log += subTreeStorage->m_log;

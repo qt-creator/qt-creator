@@ -15,8 +15,7 @@ using namespace Core;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace DiffEditor {
-namespace Internal {
+namespace DiffEditor::Internal {
 
 DiffEditorFactory::DiffEditorFactory() :
     descriptionHandler {
@@ -50,5 +49,4 @@ DiffEditorFactory::DiffEditorFactory() :
     setEditorCreator([] { return new DiffEditor(new DiffEditorDocument); });
 }
 
-} // namespace Internal
-} // namespace DiffEditor
+} // namespace DiffEditor::Internal

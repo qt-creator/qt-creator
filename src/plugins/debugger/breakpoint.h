@@ -7,6 +7,7 @@
 #include <QString>
 
 #include <utils/filepath.h>
+#include <utils/textutils.h>
 
 namespace Debugger {
 namespace Internal {
@@ -139,7 +140,7 @@ public:
     Utils::FilePath fileName;//!< Short name of source file.
     QString condition;       //!< Condition associated with breakpoint.
     int ignoreCount;         //!< Ignore count associated with breakpoint.
-    int lineNumber;          //!< Line in source file.
+    Utils::Text::Position textPosition;     //!< Line and column in source file.
     quint64 address;         //!< Address for address based data breakpoints.
     QString expression;      //!< Expression for expression based data breakpoints.
     uint size;               //!< Size of watched area for data breakpoints.

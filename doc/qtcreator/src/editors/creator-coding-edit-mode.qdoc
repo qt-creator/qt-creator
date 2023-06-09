@@ -29,6 +29,12 @@
 
     \if defined(qtcreator)
     \image qtcreator-editortoolbar-symbols.webp {Edit mode toolbar}
+
+    To add more space around the toolbar items, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Environment > \uicontrol Interface, and
+    then select \uicontrol Relaxed in the \uicontrol {Toolbar style} field.
+
+    \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
     \else
     \image studio-edit-mode.png
     \endif

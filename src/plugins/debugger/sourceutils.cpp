@@ -315,14 +315,14 @@ ContextData getLocationContext(TextDocument *document, int lineNumber)
                 if (ln > 0) {
                     data.type = LocationByFile;
                     data.fileName = Utils::FilePath::fromString(fileName);
-                    data.lineNumber = ln;
+                    data.textPosition.line = ln;
                 }
             }
         }
     } else {
         data.type = LocationByFile;
         data.fileName = document->filePath();
-        data.lineNumber = lineNumber;
+        data.textPosition.line = lineNumber;
     }
     return data;
 }
@@ -381,13 +381,13 @@ static void setValueAnnotationsHelper(BaseTextEditor *textEditor,
     if (!cppDocument) // For non-C++ documents.
         return;
 
-    const int firstLine = firstRelevantLine(cppDocument, loc.lineNumber(), 1);
+    const int firstLine = firstRelevantLine(cppDocument, loc.textPosition().line, 1);
     if (firstLine < 1)
         return;
 
     CPlusPlus::ExpressionUnderCursor expressionUnderCursor(cppDocument->languageFeatures());
     QTextCursor tc = widget->textCursor();
-    for (int lineNumber = loc.lineNumber(); lineNumber >= firstLine; --lineNumber) {
+    for (int lineNumber = loc.textPosition().line; lineNumber >= firstLine; --lineNumber) {
         const QTextBlock block = textDocument->document()->findBlockByNumber(lineNumber - 1);
         tc.setPosition(block.position());
         for (; !tc.atBlockEnd(); tc.movePosition(QTextCursor::NextCharacter)) {

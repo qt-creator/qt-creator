@@ -112,6 +112,38 @@ static QString branchesDisplay(const QString &prefix, QStringList *branches, boo
 
 ///////////////////////////////
 
+static void stage(DiffEditorController *diffController, const QString &patch, bool revert)
+{
+    TemporaryFile patchFile("git-patchfile");
+    if (!patchFile.open())
+        return;
+
+    const FilePath baseDir = diffController->workingDirectory();
+    QTextCodec *codec = EditorManager::defaultTextCodec();
+    const QByteArray patchData = codec ? codec->fromUnicode(patch) : patch.toLocal8Bit();
+    patchFile.write(patchData);
+    patchFile.close();
+
+    QStringList args = {"--cached"};
+    if (revert)
+        args << "--reverse";
+    QString errorMessage;
+    if (GitClient::instance()->synchronousApplyPatch(baseDir, patchFile.fileName(),
+                                                     &errorMessage, args)) {
+        if (errorMessage.isEmpty()) {
+            if (revert)
+                VcsOutputWindow::appendSilently(Tr::tr("Chunk successfully unstaged"));
+            else
+                VcsOutputWindow::appendSilently(Tr::tr("Chunk successfully staged"));
+        } else {
+            VcsOutputWindow::appendError(errorMessage);
+        }
+        diffController->requestReload();
+    } else {
+        VcsOutputWindow::appendError(errorMessage);
+    }
+}
+
 class GitBaseDiffEditorController : public VcsBaseDiffEditorController
 {
     Q_OBJECT
@@ -120,6 +152,50 @@ protected:
     explicit GitBaseDiffEditorController(IDocument *document);
 
     QStringList addConfigurationArguments(const QStringList &args) const;
+
+private:
+    void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex,
+                         const ChunkSelection &selection) final
+    {
+        menu->addSeparator();
+
+        auto stageChunk = [this, fileIndex, chunkIndex](DiffEditorController::PatchOptions options,
+                                                        const DiffEditor::ChunkSelection &selection) {
+            options |= DiffEditorController::AddPrefix;
+            const QString patch = makePatch(fileIndex, chunkIndex, selection, options);
+            stage(this, patch, options & Revert);
+        };
+
+        QAction *stageChunkAction = menu->addAction(Tr::tr("Stage Chunk"));
+        connect(stageChunkAction, &QAction::triggered, this, [stageChunk] {
+            stageChunk(DiffEditorController::NoOption, {});
+        });
+        QAction *stageLinesAction = menu->addAction(Tr::tr("Stage Selection (%n Lines)", "",
+                                                           selection.selectedRowsCount()));
+        connect(stageLinesAction, &QAction::triggered,  this, [stageChunk, selection] {
+            stageChunk(DiffEditorController::NoOption, selection);
+        });
+        QAction *unstageChunkAction = menu->addAction(Tr::tr("Unstage Chunk"));
+        connect(unstageChunkAction, &QAction::triggered, this, [stageChunk] {
+            stageChunk(DiffEditorController::Revert, {});
+        });
+        QAction *unstageLinesAction = menu->addAction(Tr::tr("Unstage Selection (%n Lines)", "",
+                                                             selection.selectedRowsCount()));
+        connect(unstageLinesAction, &QAction::triggered, this, [stageChunk, selection] {
+            stageChunk(DiffEditorController::Revert, selection);
+        });
+
+        if (selection.isNull()) {
+            stageLinesAction->setVisible(false);
+            unstageLinesAction->setVisible(false);
+        }
+        if (!chunkExists(fileIndex, chunkIndex)) {
+            stageChunkAction->setEnabled(false);
+            stageLinesAction->setEnabled(false);
+            unstageChunkAction->setEnabled(false);
+            unstageLinesAction->setEnabled(false);
+        }
+    }
 };
 
 class GitDiffEditorController : public GitBaseDiffEditorController
@@ -446,7 +522,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
             tasks.append(ProcessTask(std::bind(setupFollow, _1, parents.at(i)),
                                  std::bind(onFollowDone, _1, i)));
         }
-        taskTree.setupRoot(tasks);
+        taskTree.setRecipe(tasks);
     };
 
     const auto setupDiff = [this, id](Process &process) {
@@ -850,95 +926,6 @@ QTextCodec *GitClient::encoding(GitClient::EncodingType encodingType, const File
     }
 }
 
-void GitClient::chunkActionsRequested(DiffEditor::DiffEditorController *controller,
-                                      QMenu *menu, int fileIndex, int chunkIndex,
-                                      const DiffEditor::ChunkSelection &selection) const
-{
-    QPointer<DiffEditor::DiffEditorController> diffController(controller);
-
-    auto stageChunk = [this](QPointer<DiffEditor::DiffEditorController> diffController,
-            int fileIndex, int chunkIndex, DiffEditorController::PatchOptions options,
-            const DiffEditor::ChunkSelection &selection) {
-        if (diffController.isNull())
-            return;
-
-        options |= DiffEditorController::AddPrefix;
-        const QString patch = diffController->makePatch(fileIndex, chunkIndex, selection, options);
-        stage(diffController, patch, options & Revert);
-    };
-
-    menu->addSeparator();
-    QAction *stageChunkAction = menu->addAction(Tr::tr("Stage Chunk"));
-    connect(stageChunkAction, &QAction::triggered, this,
-            [stageChunk, diffController, fileIndex, chunkIndex] {
-        stageChunk(diffController, fileIndex, chunkIndex,
-                   DiffEditorController::NoOption, DiffEditor::ChunkSelection());
-    });
-    QAction *stageLinesAction = menu->addAction(Tr::tr("Stage Selection (%n Lines)", "", selection.selectedRowsCount()));
-    connect(stageLinesAction, &QAction::triggered, this,
-            [stageChunk, diffController, fileIndex, chunkIndex, selection] {
-        stageChunk(diffController, fileIndex, chunkIndex,
-                   DiffEditorController::NoOption, selection);
-    });
-    QAction *unstageChunkAction = menu->addAction(Tr::tr("Unstage Chunk"));
-    connect(unstageChunkAction, &QAction::triggered, this,
-            [stageChunk, diffController, fileIndex, chunkIndex] {
-        stageChunk(diffController, fileIndex, chunkIndex,
-                   DiffEditorController::Revert, DiffEditor::ChunkSelection());
-    });
-    QAction *unstageLinesAction = menu->addAction(Tr::tr("Unstage Selection (%n Lines)", "", selection.selectedRowsCount()));
-    connect(unstageLinesAction, &QAction::triggered, this,
-            [stageChunk, diffController, fileIndex, chunkIndex, selection] {
-        stageChunk(diffController, fileIndex, chunkIndex,
-                   DiffEditorController::Revert,
-                   selection);
-    });
-    if (selection.isNull()) {
-        stageLinesAction->setVisible(false);
-        unstageLinesAction->setVisible(false);
-    }
-    if (!diffController || !diffController->chunkExists(fileIndex, chunkIndex)) {
-        stageChunkAction->setEnabled(false);
-        stageLinesAction->setEnabled(false);
-        unstageChunkAction->setEnabled(false);
-        unstageLinesAction->setEnabled(false);
-    }
-}
-
-void GitClient::stage(DiffEditor::DiffEditorController *diffController,
-                      const QString &patch, bool revert) const
-{
-    TemporaryFile patchFile("git-patchfile");
-    if (!patchFile.open())
-        return;
-
-    const FilePath baseDir = diffController->workingDirectory();
-    QTextCodec *codec = EditorManager::defaultTextCodec();
-    const QByteArray patchData = codec
-            ? codec->fromUnicode(patch) : patch.toLocal8Bit();
-    patchFile.write(patchData);
-    patchFile.close();
-
-    QStringList args = {"--cached"};
-    if (revert)
-        args << "--reverse";
-    QString errorMessage;
-    if (synchronousApplyPatch(baseDir, patchFile.fileName(),
-                              &errorMessage, args)) {
-        if (errorMessage.isEmpty()) {
-            if (revert)
-                VcsOutputWindow::appendSilently(Tr::tr("Chunk successfully unstaged"));
-            else
-                VcsOutputWindow::appendSilently(Tr::tr("Chunk successfully staged"));
-        } else {
-            VcsOutputWindow::appendError(errorMessage);
-        }
-        diffController->requestReload();
-    } else {
-        VcsOutputWindow::appendError(errorMessage);
-    }
-}
-
 void GitClient::requestReload(const QString &documentId, const FilePath &source,
                               const QString &title, const FilePath &workingDirectory,
                               std::function<GitBaseDiffEditorController *(IDocument *)> factory) const
@@ -955,10 +942,6 @@ void GitClient::requestReload(const QString &documentId, const FilePath &source,
     controller->setWorkingDirectory(workingDirectory);
 
     using namespace std::placeholders;
-
-    connect(controller, &DiffEditorController::chunkActionsRequested, this,
-            std::bind(&GitClient::chunkActionsRequested, this, controller, _1, _2, _3, _4),
-            Qt::DirectConnection);
 
     VcsBase::setSource(document, sourceCopy);
     EditorManager::activateEditorForDocument(document);
@@ -2405,7 +2388,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
         const int pos = line.lastIndexOf(pattern);
         if (pos != -1) {
             branchFound = true;
-            const QString branchName = line.mid(pos + pattern.count());
+            const QString branchName = line.mid(pos + pattern.size());
             if (!headFound && line.startsWith(headSha)) {
                 branches[0] = branchName;
                 headFound = true;
@@ -2816,7 +2799,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
             if (state & (ModifiedFile | AddedFile | DeletedFile | TypeChangedFile)) {
                 filesToReset.append(file);
             } else if (state & (RenamedFile | CopiedFile)) {
-                const QString newFile = file.mid(file.indexOf(renameSeparator) + renameSeparator.count());
+                const QString newFile = file.mid(file.indexOf(renameSeparator) + renameSeparator.size());
                 filesToReset.append(newFile);
             }
         } else if (state & UnmergedFile && checked) {

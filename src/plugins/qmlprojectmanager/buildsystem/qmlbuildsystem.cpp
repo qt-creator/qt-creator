@@ -108,7 +108,7 @@ void QmlBuildSystem::updateDeploymentData()
 
     ProjectExplorer::DeploymentData deploymentData;
     for (const auto &file : m_projectItem->files()) {
-        deploymentData.addFile(file, targetFile(file).parentDir().toString());
+        deploymentData.addFile(file, targetFile(file).parentDir().path());
     }
 
     setDeploymentData(deploymentData);
@@ -160,9 +160,7 @@ void QmlBuildSystem::triggerParsing()
 
 Utils::FilePath QmlBuildSystem::canonicalProjectDir() const
 {
-    return BuildSystem::target()
-            ->project()
-            ->projectFilePath()
+    return projectFilePath()
             .canonicalPath()
             .normalizedPathName()
             .parentDir();
@@ -188,10 +186,11 @@ void QmlBuildSystem::refresh(RefreshOptions options)
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo
             = modelManager->defaultProjectInfoForProject(project(),
                                                          project()->files(Project::HiddenRccFolders));
-    const QStringList searchPaths = makeAbsolute(canonicalProjectDir(), customImportPaths());
-    for (const QString &searchPath : searchPaths)
-        projectInfo.importPaths.maybeInsert(Utils::FilePath::fromString(searchPath),
+
+    for (const QString &searchPath : customImportPaths()) {
+        projectInfo.importPaths.maybeInsert(projectDirectory().pathAppended(searchPath),
                                             QmlJS::Dialect::Qml);
+    }
 
     modelManager->updateProjectInfo(projectInfo, project());
 
@@ -370,22 +369,23 @@ bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFil
 
 Utils::FilePath QmlBuildSystem::targetDirectory() const
 {
-    if (DeviceTypeKitAspect::deviceTypeId(kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-        return canonicalProjectDir();
-
-    return m_projectItem ? Utils::FilePath::fromString(m_projectItem->targetDirectory())
-                         : Utils::FilePath();
+    Utils::FilePath result;
+    if (DeviceTypeKitAspect::deviceTypeId(kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        result = canonicalProjectDir();
+    } else if (IDevice::ConstPtr device = DeviceKitAspect::device(kit())) {
+        if (m_projectItem)
+            result = device->filePath(m_projectItem->targetDirectory());
+    }
+    return result;
 }
 
 Utils::FilePath QmlBuildSystem::targetFile(const Utils::FilePath &sourceFile) const
 {
-    const QDir sourceDir(m_projectItem ? m_projectItem->sourceDirectory().path()
-                                       : canonicalProjectDir().toString());
-    const QDir targetDir(targetDirectory().toString());
-    const QString relative = sourceDir.relativeFilePath(sourceFile.toString());
-    return Utils::FilePath::fromString(QDir::cleanPath(targetDir.absoluteFilePath(relative)));
+    const Utils::FilePath sourceDir = m_projectItem ? m_projectItem->sourceDirectory()
+                                             : canonicalProjectDir();
+    const Utils::FilePath relative = sourceFile.relativePathFrom(sourceDir);
+    return targetDirectory().resolvePath(relative);
 }
-
 void QmlBuildSystem::setSupportedLanguages(QStringList languages)
 {
         m_projectItem->setSupportedLanguages(languages);
@@ -394,18 +394,6 @@ void QmlBuildSystem::setSupportedLanguages(QStringList languages)
 void QmlBuildSystem::setPrimaryLanguage(QString language)
 {
         m_projectItem->setPrimaryLanguage(language);
-}
-
-QStringList QmlBuildSystem::makeAbsolute(const Utils::FilePath &path,
-                                         const QStringList &relativePaths)
-{
-    if (path.isEmpty())
-        return relativePaths;
-
-    const QDir baseDir(path.toString());
-    return Utils::transform(relativePaths, [&baseDir](const QString &path) {
-        return QDir::cleanPath(baseDir.absoluteFilePath(path));
-    });
 }
 
 void QmlBuildSystem::refreshFiles(const QSet<QString> & /*added*/, const QSet<QString> &removed)

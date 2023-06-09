@@ -215,13 +215,13 @@ bool CMakeConfigItem::less(const CMakeConfigItem &a, const CMakeConfigItem &b)
 CMakeConfigItem CMakeConfigItem::fromString(const QString &s)
 {
     // Strip comments (only at start of line!):
-    int commentStart = s.count();
-    for (int i = 0; i < s.count(); ++i) {
+    int commentStart = s.size();
+    for (int i = 0; i < s.size(); ++i) {
         const QChar c = s.at(i);
         if (c == ' ' || c == '\t')
             continue;
         else if ((c == '#')
-                 || (c == '/' && i < s.count() - 1 && s.at(i + 1) == '/')) {
+                 || (c == '/' && i < s.size() - 1 && s.at(i + 1) == '/')) {
             commentStart = i;
             break;
         } else {
@@ -234,7 +234,7 @@ CMakeConfigItem CMakeConfigItem::fromString(const QString &s)
     int firstPos = -1;
     int colonPos = -1;
     int equalPos = -1;
-    for (int i = 0; i < line.count(); ++i) {
+    for (int i = 0; i < line.size(); ++i) {
         const QChar c = s.at(i);
         if (firstPos < 0 && !c.isSpace()) {
             firstPos = i;
@@ -272,10 +272,10 @@ CMakeConfigItem CMakeConfigItem::fromString(const QString &s)
 
 static QByteArray trimCMakeCacheLine(const QByteArray &in) {
     int start = 0;
-    while (start < in.count() && (in.at(start) == ' ' || in.at(start) == '\t'))
+    while (start < in.size() && (in.at(start) == ' ' || in.at(start) == '\t'))
         ++start;
 
-    return in.mid(start, in.count() - start - 1);
+    return in.mid(start, in.size() - start - 1);
 }
 
 static QByteArrayList splitCMakeCacheLine(const QByteArray &line) {
@@ -371,15 +371,15 @@ CMakeConfig CMakeConfig::fromFile(const Utils::FilePath &cacheFile, QString *err
         if (pieces.isEmpty())
             continue;
 
-        QTC_ASSERT(pieces.count() == 3, continue);
+        QTC_ASSERT(pieces.size() == 3, continue);
         const QByteArray key = pieces.at(0);
         const QByteArray type = pieces.at(1);
         const QByteArray value = pieces.at(2);
 
         if (key.endsWith("-ADVANCED") && value == "1") {
-            advancedSet.insert(key.left(key.count() - 9 /* "-ADVANCED" */));
+            advancedSet.insert(key.left(key.size() - 9 /* "-ADVANCED" */));
         } else if (key.endsWith("-STRINGS") && CMakeConfigItem::typeStringToType(type) == CMakeConfigItem::INTERNAL) {
-            valuesMap[key.left(key.count() - 8) /* "-STRINGS" */] = value;
+            valuesMap[key.left(key.size() - 8) /* "-STRINGS" */] = value;
         } else {
             CMakeConfigItem::Type t = CMakeConfigItem::typeStringToType(type);
             result << CMakeConfigItem(key, t, documentation, value);
@@ -387,7 +387,7 @@ CMakeConfig CMakeConfig::fromFile(const Utils::FilePath &cacheFile, QString *err
     }
 
     // Set advanced flags:
-    for (int i = 0; i < result.count(); ++i) {
+    for (int i = 0; i < result.size(); ++i) {
         CMakeConfigItem &item = result[i];
         item.isAdvanced = advancedSet.contains(item.key);
 
