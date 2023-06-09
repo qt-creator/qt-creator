@@ -96,6 +96,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
     m_progressDialog->setWindowModality(Qt::ApplicationModal);
     m_progressDialog->setWindowTitle(dialogTitle());
     m_progressDialog->setFixedSize(m_progressDialog->sizeHint());
+    m_progressDialog->setAutoClose(false);
     connect(m_progressDialog.get(), &QProgressDialog::canceled, this, [this] {
         m_progressDialog.release()->deleteLater();
         m_taskTree.reset();
@@ -154,7 +155,8 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
     };
 
     const auto onUnarchiveSetup = [this, storage](Unarchiver &unarchiver) {
-        m_progressDialog.reset();
+        m_progressDialog->setRange(0, 0);
+        m_progressDialog->setLabelText(Tr::tr("Unarchiving SDK Tools package..."));
         if (!*storage)
             return TaskAction::StopWithError;
         const FilePath sdkFileName = **storage;
