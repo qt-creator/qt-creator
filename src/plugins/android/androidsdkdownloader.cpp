@@ -178,11 +178,14 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
             (*storage)->parentDir().pathAppended(Constants::cmdlineToolsName));
         QMetaObject::invokeMethod(this, [this] { emit sdkExtracted(); }, Qt::QueuedConnection);
     };
+    const auto onUnarchiverError = [this](const Unarchiver &) {
+        logError(Tr::tr("Unarchiving error."));
+    };
 
     const Group root {
         Storage(storage),
         NetworkQueryTask(onQuerySetup, onQueryDone, onQueryError),
-        UnarchiverTask(onUnarchiveSetup, onUnarchiverDone)
+        UnarchiverTask(onUnarchiveSetup, onUnarchiverDone, onUnarchiverError)
     };
 
     m_taskTree.reset(new TaskTree(root));
