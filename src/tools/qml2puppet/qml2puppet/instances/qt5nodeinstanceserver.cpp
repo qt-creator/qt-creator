@@ -217,18 +217,34 @@ void Qt5NodeInstanceServer::savePipelineCacheData()
     if (!m_viewData.rhi)
         return;
 
-    const QByteArray pipelineData = m_viewData.rhi->pipelineCacheData();
+    QByteArray pipelineData = m_viewData.rhi->pipelineCacheData();
 
     if (pipelineData.isEmpty())
         return;
 
-    m_pipelineCacheData = pipelineData;
+    char count = 0;
+    if (!m_pipelineCacheData.isEmpty())
+        count = m_pipelineCacheData[m_pipelineCacheData.size() - 1];
+    pipelineData.append(++count);
 
-    QTimer::singleShot(0, this, [this]() {
-        QFile file(m_pipelineCacheFile);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-            file.write(m_pipelineCacheData);
-    });
+    const bool needWrite = m_pipelineCacheData.size() != pipelineData.size()
+                           && !m_pipelineCacheFile.isEmpty();
+
+    if (needWrite) {
+        m_pipelineCacheData = pipelineData;
+
+        QTimer::singleShot(0, this, [this]() {
+            QFile cacheFile(m_pipelineCacheFile);
+
+            // Cache file can grow indefinitely, so let's just purge it every so often.
+            // The count is stored as the last char in the data.
+            char count = m_pipelineCacheData[m_pipelineCacheData.size() - 1];
+            if (count > 25)
+                cacheFile.remove();
+            else if (cacheFile.open(QIODevice::WriteOnly | QIODevice::Truncate))
+                cacheFile.write(m_pipelineCacheData);
+        });
+    }
 #endif
 }
 
@@ -267,7 +283,7 @@ bool Qt5NodeInstanceServer::initRhi([[maybe_unused]] RenderViewData &viewData)
         }
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
         if (!m_pipelineCacheData.isEmpty())
-            viewData.rhi->setPipelineCacheData(m_pipelineCacheData);
+            viewData.rhi->setPipelineCacheData(m_pipelineCacheData.left(m_pipelineCacheData.size() - 1));
 #endif
     }
 
