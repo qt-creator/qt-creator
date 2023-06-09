@@ -455,7 +455,7 @@ void TestRunner::runTestsHelper()
     connect(m_taskTree.get(), &TaskTree::errorOccurred, this, &TestRunner::onFinished);
 
     auto progress = new TaskProgress(m_taskTree.get());
-    progress->setDisplayName(tr("Running Tests"));
+    progress->setDisplayName(Tr::tr("Running Tests"));
     progress->setAutoStopOnCancel(false);
     progress->setHalfLifeTimePerTask(10000); // 10 seconds
     connect(progress, &TaskProgress::canceled, this, [this, progress] {
