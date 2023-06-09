@@ -224,66 +224,64 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     openMonitor.setToolTip(Tr::tr("Opens Build Monitor once the build starts."));
 
     setCommandLineProvider([this] {
-        QStringList args;
+        CommandLine cmd("BuildConsole.exe");
 
-        QString cmd("/Command= %1");
-        cmd = cmd.arg(commandBuilder.fullCommandFlag(keepJobNum()));
-        args.append(cmd);
+        cmd.addArgs(QString("/Command=%1").arg(commandBuilder.fullCommandFlag(keepJobNum())), CommandLine::Raw);
 
         if (!profileXml().isEmpty())
-            args.append("/Profile=" + profileXml().path());
+            cmd.addArg(QString("/Profile=%1").arg(profileXml().path()));
 
-        args.append(QString("/AvoidLocal=%1").arg(avoidLocal() ? QString("ON") : QString("OFF")));
+        cmd.addArg(QString("/AvoidLocal=%1").arg(avoidLocal() ? QString("ON") : QString("OFF")));
 
         if (maxCpu() > 0)
-            args.append(QString("/MaxCPUs=%1").arg(maxCpu()));
+            cmd.addArg(QString("/MaxCPUs=%1").arg(maxCpu()));
 
         if (!maxWinVer.stringValue().isEmpty())
-            args.append(QString("/MaxWinVer=%1").arg(normalizeWinVerArgument(maxWinVer.stringValue())));
+            cmd.addArg(QString("/MaxWinVer=%1").arg(normalizeWinVerArgument(maxWinVer.stringValue())));
 
         if (!minWinVer.stringValue().isEmpty())
-            args.append(QString("/MinWinVer=%1").arg(normalizeWinVerArgument(minWinVer.stringValue())));
+            cmd.addArg(QString("/MinWinVer=%1").arg(normalizeWinVerArgument(minWinVer.stringValue())));
 
         if (!title().isEmpty())
-            args.append("/Title=" + title());
+            cmd.addArg("/Title=" + title());
 
         if (!monFile().isEmpty())
-            args.append("/Mon=" + monFile().path());
+            cmd.addArg("/Mon=" + monFile().path());
 
         if (suppressStdOut())
-            args.append("/Silent");
+            cmd.addArg("/Silent");
 
         if (!logFile().isEmpty())
-            args.append("/Log=" + logFile().path());
+            cmd.addArg("/Log=" + logFile().path());
 
         if (showCmd())
-            args.append("/ShowCmd");
+            cmd.addArg("/ShowCmd");
 
         if (showAgents())
-            args.append("/ShowAgent");
+            cmd.addArg("/ShowAgent");
 
         if (showAgents())
-            args.append("/ShowTime");
+            cmd.addArg("/ShowTime");
 
         if (hideHeader())
-            args.append("/NoLogo");
+            cmd.addArg("/NoLogo");
 
         if (!logLevel.stringValue().isEmpty())
-            args.append("/LogLevel=" + logLevel.stringValue());
+            cmd.addArg("/LogLevel=" + logLevel.stringValue());
 
         if (!setEnv().isEmpty())
-            args.append("/SetEnv=" + setEnv());
+            cmd.addArg("/SetEnv=" + setEnv());
 
         if (stopOnError())
-            args.append("/StopOnErrors");
+            cmd.addArg("/StopOnErrors");
 
         if (!additionalArguments().isEmpty())
-            args.append(additionalArguments());
+            cmd.addArgs(additionalArguments(), CommandLine::Raw);
 
         if (openMonitor())
-            args.append("/OpenMonitor");
+            cmd.addArg("/OpenMonitor");
 
-        return CommandLine("BuildConsole.exe", args);
+        return cmd;
     });
 }
 
