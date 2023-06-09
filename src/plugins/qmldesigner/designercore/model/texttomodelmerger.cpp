@@ -1307,10 +1307,11 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             } else {
                 const Value *propertyType = nullptr;
                 const ObjectValue *containingObject = nullptr;
-                QString name;
-                if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name)
-                        || isPropertyChangesType(typeName)
-                        || isConnectionsType(typeName)) {
+                if (context->lookupProperty({},
+                                            binding->qualifiedId,
+                                            &propertyType,
+                                            &containingObject)
+                    || isPropertyChangesType(typeName) || isConnectionsType(typeName)) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
                     if (context->isArrayProperty(modelProperty))
                         syncArrayProperty(modelProperty, {member}, context, differenceHandler);
