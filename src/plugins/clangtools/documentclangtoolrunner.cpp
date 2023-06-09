@@ -83,9 +83,7 @@ static void removeClangToolRefactorMarkers(TextEditor::TextEditorWidget *editor)
 {
     if (!editor)
         return;
-    editor->setRefactorMarkers(
-        TextEditor::RefactorMarker::filterOutType(editor->refactorMarkers(),
-                                                  Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID));
+    editor->clearRefactorMarkers(Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID);
 }
 
 void DocumentClangToolRunner::scheduleRun()
@@ -291,7 +289,7 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
 
     for (auto editor : TextEditor::BaseTextEditor::textEditorsForDocument(doc)) {
         if (TextEditor::TextEditorWidget *widget = editor->editorWidget()) {
-            widget->setRefactorMarkers(markers + widget->refactorMarkers());
+            widget->setRefactorMarkers(markers, Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID);
             if (!m_editorsWithMarkers.contains(widget))
                 m_editorsWithMarkers << widget;
         }

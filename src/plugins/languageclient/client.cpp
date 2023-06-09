@@ -202,8 +202,7 @@ public:
             for (Core::IEditor *editor : editors) {
                 if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
                     TextEditorWidget *widget = textEditor->editorWidget();
-                    widget->setRefactorMarkers(
-                        RefactorMarker::filterOutType(widget->refactorMarkers(), m_id));
+                    widget->clearRefactorMarkers(m_id);
                     widget->removeHoverHandler(&m_hoverHandler);
                 }
             }
@@ -910,8 +909,7 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
             TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
             widget->removeHoverHandler(&d->m_hoverHandler);
             widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
-            widget->setRefactorMarkers(
-                TextEditor::RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
+            widget->clearRefactorMarkers(id());
             updateEditorToolBar(editor);
         }
     }
@@ -1158,7 +1156,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
         TextEditorWidget *widget = editor->editorWidget();
         QTC_ASSERT(widget, continue);
         delete d->m_documentHighlightsTimer.take(widget);
-        widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
+        widget->clearRefactorMarkers(id());
     }
     d->m_documentUpdateTimer.start();
 }

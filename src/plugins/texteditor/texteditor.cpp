@@ -8572,6 +8572,38 @@ void TextEditorWidget::setRefactorMarkers(const RefactorMarkers &markers)
         emit requestBlockUpdate(marker.cursor.block());
 }
 
+void TextEditorWidget::setRefactorMarkers(const RefactorMarkers &newMarkers, const Utils::Id &type)
+{
+    RefactorMarkers markers = d->m_refactorOverlay->markers();
+    auto first = std::partition(markers.begin(),
+                                markers.end(),
+                                [type](const RefactorMarker &marker) {
+                                    return marker.type == type;
+                                });
+
+    for (auto it = markers.begin(); it != first; ++it)
+        emit requestBlockUpdate(it->cursor.block());
+    markers.erase(markers.begin(), first);
+    markers.append(newMarkers);
+    d->m_refactorOverlay->setMarkers(markers);
+    for (const RefactorMarker &marker : newMarkers)
+        emit requestBlockUpdate(marker.cursor.block());
+}
+
+void TextEditorWidget::clearRefactorMarkers(const Utils::Id &type)
+{
+    RefactorMarkers markers = d->m_refactorOverlay->markers();
+    for (auto it = markers.begin(); it != markers.end();) {
+        if (it->type == type) {
+            emit requestBlockUpdate(it->cursor.block());
+            it = markers.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    d->m_refactorOverlay->setMarkers(markers);
+}
+
 bool TextEditorWidget::inFindScope(const QTextCursor &cursor) const
 {
     return d->m_find->inScope(cursor);
