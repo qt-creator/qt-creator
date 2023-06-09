@@ -264,13 +264,13 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
         m_extraAppParams = runControl->commandLine().arguments();
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_AM_START_ARGS)) {
-        QTC_CHECK(aspect->value.type() == QVariant::String);
+        QTC_CHECK(aspect->value.typeId() == QVariant::String);
         const QString startArgs = aspect->value.toString();
         m_amStartExtraArgs = ProcessArgs::splitArgs(startArgs, OsTypeOtherUnix);
     }
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_PRESTARTSHELLCMDLIST)) {
-        QTC_CHECK(aspect->value.type() == QVariant::String);
+        QTC_CHECK(aspect->value.typeId() == QVariant::String);
         const QStringList commands = aspect->value.toString().split('\n', Qt::SkipEmptyParts);
         for (const QString &shellCmd : commands)
             m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
