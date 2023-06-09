@@ -3,9 +3,9 @@
 
 #include "mesonprojectplugin.h"
 
-#include "machinefilemanager.h"
 #include "mesonactionsmanager.h"
 #include "mesonbuildconfiguration.h"
+#include "mesonbuildsystem.h"
 #include "mesonproject.h"
 #include "mesonrunconfiguration.h"
 #include "mesontoolkitaspect.h"

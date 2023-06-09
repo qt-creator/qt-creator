@@ -14,8 +14,6 @@ add_qtc_plugin(MesonProjectManager
   infoparser.h
   kitdata.h
   kithelper.h
-  machinefilemanager.cpp
-  machinefilemanager.h
   mesonactionsmanager.cpp
   mesonactionsmanager.h
   mesonbuildconfiguration.cpp

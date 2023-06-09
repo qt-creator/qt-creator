@@ -13,13 +13,28 @@
 
 #include <utils/filesystemwatcher.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class MesonBuildConfiguration;
+
+class MachineFileManager final : public QObject
+{
+public:
+    MachineFileManager();
+
+    static Utils::FilePath machineFile(const ProjectExplorer::Kit *kit);
+
+private:
+    void addMachineFile(const ProjectExplorer::Kit *kit);
+    void removeMachineFile(const ProjectExplorer::Kit *kit);
+    void updateMachineFile(const ProjectExplorer::Kit *kit);
+    void cleanupMachineFiles();
+};
+
 class MesonBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
+
 public:
     MesonBuildSystem(MesonBuildConfiguration *bc);
     ~MesonBuildSystem() final;
@@ -56,5 +71,4 @@ private:
     KitData m_kitData;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

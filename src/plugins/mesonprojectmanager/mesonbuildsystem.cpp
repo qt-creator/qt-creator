@@ -4,7 +4,8 @@
 #include "mesonbuildsystem.h"
 
 #include "kithelper.h"
-#include "machinefilemanager.h"
+#include "kitdata.h"
+#include "kithelper.h"
 #include "mesonbuildconfiguration.h"
 #include "mesonprojectmanagertr.h"
 #include "mesontoolkitaspect.h"
@@ -15,6 +16,18 @@
 
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>
+
+#include <coreplugin/icore.h>
+
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchain.h>
+
+#include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
+
+#include <optional>
 
 #include <QDir>
 #include <QLoggingCategory>
@@ -37,13 +50,136 @@
     };
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
+
 static Q_LOGGING_CATEGORY(mesonBuildSystemLog, "qtc.meson.buildsystem", QtWarningMsg);
 
+const char MACHINE_FILE_PREFIX[] = "Meson-MachineFile-";
+const char MACHINE_FILE_EXT[] = ".ini";
+
+static KitData createKitData(const Kit *kit)
+{
+    QTC_ASSERT(kit, return {});
+
+    MacroExpander *expander = kit->macroExpander();
+
+    KitData data;
+    data.cCompilerPath = expander->expand(QString("%{Compiler:Executable:C}"));
+    data.cxxCompilerPath = expander->expand(QString("%{Compiler:Executable:Cxx}"));
+    data.cmakePath = expander->expand(QString("%{CMake:Executable:FilePath}"));
+    data.qmakePath = expander->expand(QString("%{Qt:qmakeExecutable}"));
+    data.qtVersionStr = expander->expand(QString("%{Qt:Version}"));
+    data.qtVersion = Utils::QtMajorVersion::None;
+    auto version = Version::fromString(data.qtVersionStr);
+    if (version.isValid) {
+        switch (version.major) {
+        case 4:
+            data.qtVersion = Utils::QtMajorVersion::Qt4;
+            break;
+        case 5:
+            data.qtVersion = Utils::QtMajorVersion::Qt5;
+            break;
+        case 6:
+            data.qtVersion = Utils::QtMajorVersion::Qt6;
+            break;
+        default:
+            data.qtVersion = Utils::QtMajorVersion::Unknown;
+        }
+    }
+    return data;
+}
+
+static FilePath machineFilesDir()
+{
+    return Core::ICore::userResourcePath("Meson-machine-files");
+}
+
+FilePath MachineFileManager::machineFile(const Kit *kit)
+{
+    QTC_ASSERT(kit, return {});
+    auto baseName
+        = QString("%1%2%3").arg(MACHINE_FILE_PREFIX).arg(kit->id().toString()).arg(MACHINE_FILE_EXT);
+    baseName = baseName.remove('{').remove('}');
+    return machineFilesDir().pathAppended(baseName);
+}
+
+MachineFileManager::MachineFileManager()
+{
+    connect(KitManager::instance(), &KitManager::kitAdded,
+            this, &MachineFileManager::addMachineFile);
+    connect(KitManager::instance(), &KitManager::kitUpdated,
+            this, &MachineFileManager::updateMachineFile);
+    connect(KitManager::instance(), &KitManager::kitRemoved,
+            this, &MachineFileManager::removeMachineFile);
+    connect(KitManager::instance(), &KitManager::kitsLoaded,
+            this, &MachineFileManager::cleanupMachineFiles);
+}
+
+void MachineFileManager::addMachineFile(const Kit *kit)
+{
+    FilePath filePath = machineFile(kit);
+    QTC_ASSERT(!filePath.isEmpty(), return );
+    auto kitData = createKitData(kit);
+
+    auto entry = [](const QString &key, const QString &value) {
+        return QString("%1 = '%2'\n").arg(key).arg(value).toUtf8();
+    };
+
+    QByteArray ba = "[binaries]\n";
+    ba += entry("c", kitData.cCompilerPath);
+    ba += entry("cpp", kitData.cxxCompilerPath);
+    ba += entry("qmake", kitData.qmakePath);
+    if (kitData.qtVersion == QtMajorVersion::Qt4)
+        ba += entry("qmake-qt4", kitData.qmakePath);
+    else if (kitData.qtVersion == QtMajorVersion::Qt5)
+        ba += entry("qmake-qt5", kitData.qmakePath);
+    else if (kitData.qtVersion == QtMajorVersion::Qt6)
+        ba += entry("qmake-qt6", kitData.qmakePath);
+    ba += entry("cmake", kitData.cmakePath);
+
+    filePath.writeFileContents(ba);
+}
+
+void MachineFileManager::removeMachineFile(const Kit *kit)
+{
+    FilePath filePath = machineFile(kit);
+    if (filePath.exists())
+        filePath.removeFile();
+}
+
+void MachineFileManager::updateMachineFile(const Kit *kit)
+{
+    addMachineFile(kit);
+}
+
+void MachineFileManager::cleanupMachineFiles()
+{
+    FilePath dir = machineFilesDir();
+    dir.ensureWritableDir();
+
+    const FileFilter filter = {{QString("%1*%2").arg(MACHINE_FILE_PREFIX).arg(MACHINE_FILE_EXT)}};
+    const FilePaths machineFiles = dir.dirEntries(filter);
+
+    FilePaths expected;
+    for (Kit const *kit : KitManager::kits()) {
+        const FilePath fname = machineFile(kit);
+        expected.push_back(fname);
+        if (!machineFiles.contains(fname))
+            addMachineFile(kit);
+    }
+
+    for (const FilePath &file : machineFiles) {
+        if (!expected.contains(file))
+            file.removeFile();
+    }
+}
+
+// MesonBuildSystem
+
 MesonBuildSystem::MesonBuildSystem(MesonBuildConfiguration *bc)
-    : ProjectExplorer::BuildSystem{bc}
+    : BuildSystem{bc}
     , m_parser{MesonToolKitAspect::mesonToolId(bc->kit()), bc->environment(), project()}
 {
     init();
@@ -92,7 +228,7 @@ void MesonBuildSystem::parsingCompleted(bool success)
     emit buildConfiguration()->enabledChanged(); // HACK. Should not be needed.
 }
 
-ProjectExplorer::Kit *MesonBuildSystem::MesonBuildSystem::kit()
+Kit *MesonBuildSystem::MesonBuildSystem::kit()
 {
     return buildConfiguration()->kit();
 }
@@ -209,9 +345,8 @@ bool MesonBuildSystem::parseProject()
 void MesonBuildSystem::updateKit(ProjectExplorer::Kit *kit)
 {
     QTC_ASSERT(kit, return );
-    m_kitData = KitHelper::kitData(kit);
+    m_kitData = createKitData(kit);
     m_parser.setQtVersion(m_kitData.qtVersion);
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal
