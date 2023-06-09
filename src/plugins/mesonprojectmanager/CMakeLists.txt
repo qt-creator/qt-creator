@@ -49,8 +49,6 @@ add_qtc_plugin(MesonProjectManager
   mesontools.h
   mesonwrapper.cpp
   mesonwrapper.h
-  nativefilegenerator.cpp
-  nativefilegenerator.h
   ninjabuildstep.cpp
   ninjabuildstep.h
   ninjaparser.cpp

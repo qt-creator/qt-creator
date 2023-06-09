@@ -3,17 +3,14 @@
 
 #pragma once
 
-#include <projectexplorer/kit.h>
-#include <projectexplorer/kitmanager.h>
+#include <utils/filepath.h>
 
-#include <utils/fileutils.h>
+namespace ProjectExplorer { class Kit; }
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class MachineFileManager final : public QObject
 {
-    Q_OBJECT
 public:
     MachineFileManager();
 
@@ -26,5 +23,4 @@ private:
     void cleanupMachineFiles();
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

@@ -31,8 +31,6 @@ Project {
             "kithelper.h",
             "machinefilemanager.cpp",
             "machinefilemanager.h",
-            "nativefilegenerator.cpp",
-            "nativefilegenerator.h",
             "mesonactionsmanager.cpp",
             "mesonactionsmanager.h",
             "buildoptions.h",
