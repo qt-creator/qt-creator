@@ -952,7 +952,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/richtexteditor
   SOURCES
     hyperlinkdialog.cpp hyperlinkdialog.h hyperlinkdialog.ui
-    richtexteditor.cpp richtexteditor.h hyperlinkdialog.ui
+    richtexteditor.cpp richtexteditor.h
     richtexteditorproxy.cpp richtexteditorproxy.h
 )
 
