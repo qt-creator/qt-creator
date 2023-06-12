@@ -14,11 +14,14 @@
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QDomDocument;
+class QDomElement;
 class QComboBox;
 class QPushButton;
 class QLabel;
 class QLineEdit;
 class QListView;
+class QSpinBox;
+class QToolButton;
 class QXmlStreamReader;
 class QXmlStreamWriter;
 QT_END_NAMESPACE
@@ -104,6 +107,9 @@ private:
     void syncToWidgets(const QDomDocument &doc);
     void syncToEditor();
     void updateAfterFileLoad();
+
+    bool checkDocument(const QDomDocument &doc, QString *errorMessage,
+                       int *errorLine, int *errorColumn);
 
     void updateInfoBar(const QString &errorMessage, int line, int column);
     void hideInfoBar();
