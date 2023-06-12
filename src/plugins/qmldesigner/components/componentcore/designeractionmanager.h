@@ -123,6 +123,7 @@ public:
     bool externalDragHasSupportedAssets(const QMimeData *data) const;
     QHash<QString, QStringList> handleExternalAssetsDrop(const QMimeData *data) const;
     QIcon contextIcon(int contextId) const;
+    QIcon toolbarIcon(int contextId) const;
 
     void addAddActionCallback(ActionAddedInterface callback);
 

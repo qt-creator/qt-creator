@@ -296,6 +296,11 @@ QIcon DesignerActionManager::contextIcon(int contextId) const
     return m_designerIcons->icon(DesignerIcons::IconId(contextId), DesignerIcons::ContextMenuArea);
 }
 
+QIcon DesignerActionManager::toolbarIcon(int contextId) const
+{
+    return m_designerIcons->icon(DesignerIcons::IconId(contextId), DesignerIcons::ToolbarArea);
+}
+
 void DesignerActionManager::addAddActionCallback(ActionAddedInterface callback)
 {
     m_callBacks.append(callback);
