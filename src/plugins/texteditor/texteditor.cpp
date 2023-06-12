@@ -4539,12 +4539,7 @@ int TextEditorWidgetPrivate::indentDepthForBlock(const QTextBlock &block, const 
             m_visualIndentCache.resize(size, -1);
     };
     int depth = blockDepth(block);
-    if (depth < 0) // the block was empty and uncached ask the indenter for a visual indentation
-        depth = m_document->indenter()->visualIndentFor(block, data.tabSettings);
-    if (depth >= 0) {
-        ensureCacheSize(block.blockNumber() + 1);
-        m_visualIndentCache[block.blockNumber()] = depth;
-    } else {
+    if (depth < 0) {
         // find previous non empty block and get the indent depth of this block
         QTextBlock it = block.previous();
         int prevDepth = -1;
