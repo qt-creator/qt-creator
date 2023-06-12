@@ -17,6 +17,11 @@ Row {
             root.backendValue.setEnumeration("Item", value)
     }
 
+    Connections {
+        target: modelNodeBackend
+        function onSelectionChanged() { originPopup.close() }
+    }
+
     ExtendedFunctionLogic {
         id: extFuncLogic
         backendValue: root.backendValue
