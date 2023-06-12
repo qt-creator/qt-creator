@@ -7,8 +7,10 @@
 #include <QKeySequence>
 #include <QObject>
 
+QT_BEGIN_NAMESPACE
 class QKeyEvent;
 class QObject;
+QT_END_NAMESPACE
 
 namespace Terminal::Internal {
 

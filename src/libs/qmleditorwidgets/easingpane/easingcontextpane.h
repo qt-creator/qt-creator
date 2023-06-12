@@ -12,9 +12,9 @@ class QSpinBox;
 class QDoubleSpinBox;
 class QGraphicsView;
 class QVariant;
-QT_END_NAMESPACE
-
 class EasingGraph;
+
+QT_END_NAMESPACE
 
 namespace QmlJS { class PropertyReader; }
 
