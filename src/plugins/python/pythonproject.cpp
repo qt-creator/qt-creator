@@ -302,11 +302,20 @@ bool PythonBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *
 {
     const Utils::FilePath projectDir = projectDirectory();
 
+    auto comp = [](const FileEntry &left, const FileEntry &right) {
+        return left.rawEntry < right.rawEntry;
+    };
+
+    const bool isSorted = std::is_sorted(m_files.begin(), m_files.end(), comp);
+
     for (const FilePath &filePath : filePaths) {
         if (!projectDir.isSameDevice(filePath))
             return false;
         m_files.append(FileEntry{filePath.relativePathFrom(projectDir).toString(), filePath});
     }
+
+    if (isSorted)
+        std::sort(m_files.begin(), m_files.end(), comp);
 
     return save();
 }
