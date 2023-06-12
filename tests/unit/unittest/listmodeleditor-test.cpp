@@ -218,7 +218,7 @@ TEST_F(ListModelEditor, HorizontalLabels)
 {
     model.setListModel(listModelNode);
 
-    ASSERT_THAT(headerLabels(model), ElementsAre("image", "name", "value", "value2"));
+    ASSERT_THAT(headerLabels(model), ElementsAre(u"image", u"name", u"value", u"value2"));
 }
 
 TEST_F(ListModelEditor, HorizontalLabelsForEmptyList)
@@ -372,7 +372,7 @@ TEST_F(ListModelEditor, AddColumnInsertsHeaderLabel)
 
     model.addColumn("other");
 
-    ASSERT_THAT(headerLabels(model), ElementsAre("image", "name", "other", "value", "value2"));
+    ASSERT_THAT(headerLabels(model), ElementsAre(u"image", u"name", u"other", u"value", u"value2"));
 }
 
 TEST_F(ListModelEditor, AddColumnInsertsHeaderLabelToEmptyModel)
@@ -381,7 +381,7 @@ TEST_F(ListModelEditor, AddColumnInsertsHeaderLabelToEmptyModel)
 
     model.addColumn("foo");
 
-    ASSERT_THAT(headerLabels(model), ElementsAre("foo"));
+    ASSERT_THAT(headerLabels(model), ElementsAre(u"foo"));
 }
 
 TEST_F(ListModelEditor, AddTwiceColumnInsertsHeaderLabelToEmptyModel)
@@ -391,7 +391,7 @@ TEST_F(ListModelEditor, AddTwiceColumnInsertsHeaderLabelToEmptyModel)
 
     model.addColumn("foo2");
 
-    ASSERT_THAT(headerLabels(model), ElementsAre("foo", "foo2"));
+    ASSERT_THAT(headerLabels(model), ElementsAre(u"foo", u"foo2"));
 }
 
 TEST_F(ListModelEditor, AddSameColumnInsertsHeaderLabel)
@@ -401,7 +401,7 @@ TEST_F(ListModelEditor, AddSameColumnInsertsHeaderLabel)
 
     model.addColumn("foo");
 
-    ASSERT_THAT(headerLabels(model), ElementsAre("foo"));
+    ASSERT_THAT(headerLabels(model), ElementsAre(u"foo"));
 }
 
 TEST_F(ListModelEditor, AddColumnInsertsDisplayValues)
@@ -517,7 +517,7 @@ TEST_F(ListModelEditor, DontConvertStringToNumber)
 
     model.setValue(1, 1, "hello");
 
-    ASSERT_THAT(element2.variantProperty("name").value().value<QString>(), "hello");
+    ASSERT_THAT(element2.variantProperty("name").value().value<QString>(), u"hello");
     ASSERT_THAT(element2.variantProperty("name").value().type(), QVariant::String);
 }
 
@@ -527,7 +527,7 @@ TEST_F(ListModelEditor, EmptyStringsRemovesProperty)
 
     model.setValue(1, 1, "");
 
-    ASSERT_THAT(element2.variantProperty("name").value().value<QString>(), Eq(""));
+    ASSERT_THAT(element2.variantProperty("name").value().value<QString>(), Eq(u""));
 }
 
 TEST_F(ListModelEditor, InvalidVariantRemovesProperty)
@@ -652,7 +652,7 @@ TEST_F(ListModelEditor, DontRenameColumnIfColumnNameExists)
 
     model.renameColumn(1, "value2");
 
-    ASSERT_THAT(headerLabels(model), ElementsAre("image", "name", "value", "value2"));
+    ASSERT_THAT(headerLabels(model), ElementsAre(u"image", u"name", u"value", u"value2"));
 }
 
 TEST_F(ListModelEditor, DontRenameColumnIfColumnNameExistsDoesNotChangeDisplayValues)
@@ -700,7 +700,7 @@ TEST_F(ListModelEditor, RenameColumnButDontChangeOrder)
 
     model.renameColumn(1, "mood");
 
-    ASSERT_THAT(headerLabels(model), ElementsAre("image", "mood", "value", "value2"));
+    ASSERT_THAT(headerLabels(model), ElementsAre(u"image", u"mood", u"value", u"value2"));
 }
 
 TEST_F(ListModelEditor, RenameColumnButDontChangeOrderDisplayValues)
@@ -801,7 +801,7 @@ TEST_F(ListModelEditor, RenameToPrecedingColumn)
 
     model.renameColumn(1, "alpha");
 
-    ASSERT_THAT(headerLabels(model), ElementsAre("alpha", "image", "value", "value2"));
+    ASSERT_THAT(headerLabels(model), ElementsAre(u"alpha", u"image", u"value", u"value2"));
 }
 
 TEST_F(ListModelEditor, RenameToPrecedingColumnDisplayValues)
@@ -849,7 +849,7 @@ TEST_F(ListModelEditor, RenameToFollowingColumn)
 
     model.renameColumn(2, "zoo");
 
-    ASSERT_THAT(headerLabels(model), ElementsAre("image", "name", "value2", "zoo"));
+    ASSERT_THAT(headerLabels(model), ElementsAre(u"image", u"name", u"value2", u"zoo"));
 }
 
 TEST_F(ListModelEditor, RenameToFollowingColumnDisplayValues)
