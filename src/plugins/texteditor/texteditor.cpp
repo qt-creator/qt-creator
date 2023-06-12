@@ -5168,10 +5168,13 @@ void TextEditorWidgetPrivate::slotUpdateExtraAreaWidth(std::optional<int> width)
 {
     if (!width.has_value())
         width = q->extraAreaWidth();
+    QMargins margins;
     if (q->isLeftToRight())
-        q->setViewportMargins(*width, 0, 0, 0);
+        margins = QMargins(*width, 0, 0, 0);
     else
-        q->setViewportMargins(0, 0, *width, 0);
+        margins = QMargins(0, 0, *width, 0);
+    if (margins != q->viewportMargins())
+        q->setViewportMargins(margins);
 }
 
 struct Internal::ExtraAreaPaintEventData
