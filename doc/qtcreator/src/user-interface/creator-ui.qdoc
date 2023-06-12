@@ -392,6 +392,10 @@
 
        \li \uicontrol{General Messages}
 
+       \if defined(qtcreator)
+       \li \l {Static Code Analysis}{Axivion}
+       \endif
+
        \li \uicontrol{Version Control}
 
        \if defined(qtcreator)
