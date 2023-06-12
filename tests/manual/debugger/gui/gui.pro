@@ -9,3 +9,5 @@ SOURCES += \
 
 HEADERS += mainwindow.h
 FORMS += mainwindow.ui
+
+macos: QMAKE_POST_LINK = codesign -f -s - --entitlements "$${PWD}/entitlements.plist" "$${OUT_PWD}/gui.app"

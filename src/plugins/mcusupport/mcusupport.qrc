@@ -21,5 +21,9 @@
         <file>wizards/qmlproject/component.qml.tpl</file>
         <file>wizards/qmlproject/wizard.json</file>
         <file>wizards/qmlproject/Qul.cmake</file>
+        <file>wizards/qmlproject-empty/CMakeLists.txt</file>
+        <file>wizards/qmlproject-empty/main.qml.tpl</file>
+        <file>wizards/qmlproject-empty/project.qmlproject.tpl</file>
+        <file>wizards/qmlproject-empty/wizard.json</file>
     </qresource>
 </RCC>

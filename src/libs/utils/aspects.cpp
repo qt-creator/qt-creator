@@ -2346,16 +2346,12 @@ void IntegersAspect::setDefaultValue(const QList<int> &value)
     A text display does not have a real value.
 */
 
-TextDisplay::TextDisplay(AspectContainer *container)
-    : BaseAspect(container), d(new Internal::TextDisplayPrivate)
-{}
-
 /*!
     Constructs a text display showing the \a message with an icon representing
     type \a type.
  */
-TextDisplay::TextDisplay(const QString &message, InfoLabel::InfoType type)
-    : d(new Internal::TextDisplayPrivate)
+TextDisplay::TextDisplay(AspectContainer *container, const QString &message, InfoLabel::InfoType type)
+    : BaseAspect(container), d(new Internal::TextDisplayPrivate)
 {
     d->m_message = message;
     d->m_type = type;

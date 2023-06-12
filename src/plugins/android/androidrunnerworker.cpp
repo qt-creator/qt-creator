@@ -280,7 +280,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
         m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_POSTFINISHSHELLCMDLIST)) {
-        QTC_CHECK(aspect->value.type() == QVariant::String);
+        QTC_CHECK(aspect->value.typeId() == QVariant::String);
         const QStringList commands = aspect->value.toString().split('\n', Qt::SkipEmptyParts);
         for (const QString &shellCmd : commands)
             m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));

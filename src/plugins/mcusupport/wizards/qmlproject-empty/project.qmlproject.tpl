@@ -2,11 +2,10 @@ import QmlProject 1.3
 
 Project {
     qtForMCUs: true // Required by QDS to enable/disable features Supported/Unsupported by QtMCUs projects. Currently ignored by qmlprojectexporter.
-    // importPaths: ["imports/CustomModule"] // Alternative API for importing modules.
+    // importPaths: [] // Alternative API to ModuleFiles for importing modules.
     // projectRootPath: "." // Optional root path relative to qmlproject file path.
     mainFile: "%{MainQmlFile}" // The application's entrypoint
 
-    /* Global configuration */
     MCU.Config {
         controlsStyle: "QtQuick.Controls.StyleDefault"
         debugBytecode: false
@@ -29,7 +28,7 @@ Project {
         maxParagraphSize: 100
 
         // Font properties for "Static"
-        addDefaultFonts: false // Set to true to add the default fonts to your project.
+        addDefaultFonts: true // Set to false to disable add adding default fonts to your project.
         autoGenerateGlyphs: true
 
         // Font properties for "Spark"
@@ -42,57 +41,35 @@ Project {
         fontCachePrealloc: true
     }
 
-    /* QML files */
     QmlFiles {
         files: ["%{MainQmlFile}"]
-        MCU.copyQmlFiles: false
     }
 
-    /* Images */
     ImageFiles {
-        files: ["images/icon.png"]
-        MCU.base: "images"
-        MCU.prefix: "assets"
-
-        MCU.resourceCompression: false
-        MCU.resourceImagePixelFormat: "Automatic"
-        MCU.resourceOptimizeForRotation: false
-        MCU.resourceOptimizeForScale: false
-
-        // Uncomment to override the default values for images in this node
-        // MCU.resourceCachePolicy: "NoCaching" // Uncomment to override the default cache policy for these images.
-        // MCU.resourceStorageSection: "QulResourceData" // Uncomment to override the default storage section for these images
-
-        // Uncomment the following properties as needed when adding image files for an animated sprite:
-        // MCU.resourceAnimatedSprite: true
-        // MCU.resourceAnimatedSpriteFrameWidth: 180
-        // MCU.resourceAnimatedSpriteFrameHeight: 160
-    }
-
-    /* Modules */
-    ModuleFiles {
-        files: ["imports/CustomModule/%{ModuleFile}"]
-        // MCU.qulModules: [ // Uncomment for adding Qul modules
-            // "Qul::Controls",
-            // "Qul::ControlsTemplates",
-            // "Qul::Shapes",
-            // "Qul::Timeline"
-        // ]
-    }
-
-    /* Interfaces */
-    InterfaceFiles {
-        files: ["src/%{InterfaceFile}"]
-        MCU.qmlImports: ["QtQuick"]
-    }
-
-    /* Translations */
-    TranslationFiles {
-        files: ["translations/%{TsFile}"]
-        MCU.omitSourceLanguage: false
+        files: []
     }
 
     FontFiles {
-        files: ["fonts/DejaVuSansMono.ttf"]
+        files: []
     }
+
+    TranslationFiles {
+        files: []
+    }
+
+    InterfaceFiles {
+        files: []
+    }
+
+    ModuleFiles {
+        files: []
+        // Uncomment for adding Qul modules
+        MCU.qulModules: [
+           // "Qul::Controls",
+           // "Qul::ControlsTemplates",
+           // "Qul::Shapes",
+           // "Qul::Timeline"
+        ]
+    }
+
 }

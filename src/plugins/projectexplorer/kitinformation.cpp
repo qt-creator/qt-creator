@@ -387,7 +387,7 @@ void ToolChainKitAspect::upgrade(Kit *k)
         const QVariant value = k->value(oldIdV2);
         if (value.isNull() && !oldValue.isNull()) {
             QVariantMap newValue;
-            if (oldValue.type() == QVariant::Map) {
+            if (oldValue.typeId() == QVariant::Map) {
                 // Used between 4.1 and 4.2:
                 newValue = oldValue.toMap();
             } else {

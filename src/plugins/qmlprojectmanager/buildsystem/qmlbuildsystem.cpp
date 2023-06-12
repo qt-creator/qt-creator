@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "qmlbuildsystem.h"
+
 #include "../qmlprojectconstants.h"
+#include "../qmlprojectmanagertr.h"
 
 #include <QtCore5Compat/qtextcodec.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -222,7 +224,7 @@ void QmlBuildSystem::parseProjectFiles()
         QString errorMessage;
         if (!reader.fetch(mainFilePath, &errorMessage)) {
             Core::MessageManager::writeFlashing(
-                        tr("Warning while loading project file %1.").arg(projectFilePath().toUserOutput()));
+                Tr::tr("Warning while loading project file %1.").arg(projectFilePath().toUserOutput()));
             Core::MessageManager::writeSilently(errorMessage);
         }
     }

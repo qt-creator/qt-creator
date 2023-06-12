@@ -216,6 +216,13 @@ void DefaultImpl::start()
         return;
     if (!ensureProgramExists(program))
         return;
+
+    if (m_setup.m_runAsRoot && !HostOsInfo::isWindowsHost()) {
+        arguments.prepend(program);
+        arguments.prepend("-A");
+        program = "sudo";
+    }
+
     s_start.measureAndRun(&DefaultImpl::doDefaultStart, this, program, arguments);
 }
 
@@ -766,15 +773,6 @@ public:
         m_blockingInterface->setParent(this);
     }
 
-    CommandLine fullCommandLine() const
-    {
-        if (!m_setup.m_runAsRoot || HostOsInfo::isWindowsHost())
-            return m_setup.m_commandLine;
-        CommandLine rootCommand("sudo", {"-A"});
-        rootCommand.addCommandLineAsArgs(m_setup.m_commandLine);
-        return rootCommand;
-    }
-
     Process *q;
     std::unique_ptr<ProcessBlockingInterface> m_blockingInterface;
     std::unique_ptr<ProcessInterface> m_process;
@@ -1217,7 +1215,6 @@ void Process::start()
     d->setProcessInterface(processImpl);
     d->m_state = QProcess::Starting;
     d->m_process->m_setup = d->m_setup;
-    d->m_process->m_setup.m_commandLine = d->fullCommandLine();
     d->emitGuardedSignal(&Process::starting);
     d->m_process->start();
 }

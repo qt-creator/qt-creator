@@ -1107,7 +1107,7 @@ QVariant BreakpointItem::data(int column, int role) const
     return QVariant();
 }
 
-void BreakpointItem::addToCommand(DebuggerCommand *cmd) const
+void BreakpointItem::addToCommand(DebuggerCommand *cmd, BreakpointPathUsage defaultPathUsage) const
 {
     QTC_ASSERT(m_globalBreakpoint, return);
     const BreakpointParameters &requested = requestedParameters();
@@ -1120,10 +1120,19 @@ void BreakpointItem::addToCommand(DebuggerCommand *cmd) const
     cmd->arg("function", requested.functionName);
     cmd->arg("oneshot", requested.oneShot);
     cmd->arg("enabled", requested.enabled);
-    cmd->arg("file", requested.fileName.path());
     cmd->arg("line", requested.textPosition.line);
     cmd->arg("address", requested.address);
     cmd->arg("expression", requested.expression);
+
+    BreakpointPathUsage pathUsage = (requested.pathUsage
+                                     == BreakpointPathUsage::BreakpointPathUsageEngineDefault)
+                                        ? defaultPathUsage
+                                        : requested.pathUsage;
+
+    cmd->arg("file",
+             pathUsage == BreakpointPathUsage::BreakpointUseFullPath
+                 ? requested.fileName.path()
+                 : requested.fileName.fileName());
 }
 
 void BreakpointItem::updateFromGdbOutput(const GdbMi &bkpt, const FilePath &fileRoot)

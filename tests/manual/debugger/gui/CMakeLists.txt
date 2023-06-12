@@ -17,6 +17,15 @@ add_executable(manual_test_debugger_gui
 )
 target_link_libraries(manual_test_debugger_gui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
+if(APPLE)
+  # codesign in a way that allows attaching a debugger and writing core files
+  add_custom_command(TARGET manual_test_debugger_gui
+    POST_BUILD
+    VERBATIM
+    COMMAND codesign -f -s "-" --entitlements "${CMAKE_CURRENT_SOURCE_DIR}/entitlements.plist" "$<TARGET_FILE:manual_test_debugger_gui>"
+  )
+endif()
+
 if (NOT QT_CREATOR_API_DEFINED)
    if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
      set (CMAKE_INSTALL_PREFIX "/tmp/manual_test_debugger_gui" CACHE PATH "default install path" FORCE)

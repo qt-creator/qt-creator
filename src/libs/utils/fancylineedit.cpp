@@ -545,11 +545,11 @@ IconButton::IconButton(QWidget *parent)
 
 void IconButton::paintEvent(QPaintEvent *)
 {
-    QWindow *window = this->window()->windowHandle();
-    const QPixmap iconPixmap = icon().pixmap(window, sizeHint(),
+    const qreal pixelRatio = window()->windowHandle()->devicePixelRatio();
+    const QPixmap iconPixmap = icon().pixmap(sizeHint(), pixelRatio,
                                              isEnabled() ? QIcon::Normal : QIcon::Disabled);
     QStylePainter painter(this);
-    QRect pixmapRect(QPoint(), iconPixmap.size() / window->devicePixelRatio());
+    QRect pixmapRect(QPoint(), iconPixmap.size() / pixelRatio);
     pixmapRect.moveCenter(rect().center());
 
     if (m_autoHide)

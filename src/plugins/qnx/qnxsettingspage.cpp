@@ -498,7 +498,7 @@ public:
 
         auto l = new QHBoxLayout(this);
         for (const QnxTarget &target : config->m_targets) {
-            auto button = new QPushButton(tr("Create Kit for %1").arg(target.cpuDir()));
+            auto button = new QPushButton(Tr::tr("Create Kit for %1").arg(target.cpuDir()));
             connect(button, &QPushButton::clicked, this, [config, target] {
                 config->createKit(target);
             });

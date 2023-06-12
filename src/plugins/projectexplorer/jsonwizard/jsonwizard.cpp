@@ -218,14 +218,14 @@ QString JsonWizard::stringValue(const QString &n) const
     if (!v.isValid())
         return QString();
 
-    if (v.type() == QVariant::String) {
+    if (v.typeId() == QVariant::String) {
         QString tmp = m_expander.expand(v.toString());
         if (tmp.isEmpty())
             tmp = QString::fromLatin1(""); // Make sure isNull() is *not* true.
         return tmp;
     }
 
-    if (v.type() == QVariant::StringList)
+    if (v.typeId() == QVariant::StringList)
         return stringListToArrayString(v.toStringList(), &m_expander);
 
     return v.toString();
@@ -276,7 +276,7 @@ QVariant JsonWizard::value(const QString &n) const
 
 bool JsonWizard::boolFromVariant(const QVariant &v, MacroExpander *expander)
 {
-    if (v.type() == QVariant::String) {
+    if (v.typeId() == QVariant::String) {
         const QString tmp = expander->expand(v.toString());
         return !(tmp.isEmpty() || tmp == QLatin1String("false"));
     }
@@ -410,7 +410,7 @@ void JsonWizard::handleError(const QString &message)
 
 QString JsonWizard::stringify(const QVariant &v) const
 {
-    if (v.type() == QVariant::StringList)
+    if (v.typeId() == QVariant::StringList)
         return stringListToArrayString(v.toStringList(), &m_expander);
     return Wizard::stringify(v);
 }

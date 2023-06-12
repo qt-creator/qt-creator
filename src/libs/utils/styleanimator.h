@@ -10,8 +10,10 @@
 #include <QTime>
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
 class QPainter;
 class QStyleOption;
+QT_END_NAMESPACE
 
 namespace Utils {
 /*

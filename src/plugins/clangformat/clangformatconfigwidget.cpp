@@ -207,7 +207,7 @@ void ClangFormatConfigWidget::createStyleFileIfNeeded(bool isGlobal)
     if (configFile.exists())
         return;
 
-    QDir().mkpath(path.toString());
+    path.ensureWritableDir();
     if (!isGlobal) {
         FilePath possibleProjectConfig = d->project->rootProjectDirectory()
                                          / Constants::SETTINGS_FILE_NAME;
@@ -218,11 +218,8 @@ void ClangFormatConfigWidget::createStyleFileIfNeeded(bool isGlobal)
         }
     }
 
-    std::fstream newStyleFile(configFile.toString().toStdString(), std::fstream::out);
-    if (newStyleFile.is_open()) {
-        newStyleFile << clang::format::configurationAsText(constructStyle());
-        newStyleFile.close();
-    }
+    const std::string config = clang::format::configurationAsText(constructStyle());
+    configFile.writeFileContents(QByteArray::fromStdString(config));
 }
 
 void ClangFormatConfigWidget::showOrHideWidgets()
