@@ -108,8 +108,9 @@ public:
     InternalNodeAbstractProperty::Pointer nodeAbstractProperty(const PropertyName &name) const
     {
         auto property = m_namePropertyHash.value(name);
-        if (property->propertyType() == PropertyType::NodeList
-            || property->propertyType() == PropertyType::Node) {
+        if (property
+            && (property->propertyType() == PropertyType::NodeList
+                || property->propertyType() == PropertyType::Node)) {
             return std::static_pointer_cast<InternalNodeAbstractProperty>(property);
         }
         return {};
