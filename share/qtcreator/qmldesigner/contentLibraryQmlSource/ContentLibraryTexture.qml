@@ -199,31 +199,41 @@ Item {
             }
         } // IconButton
 
-        Rectangle {
-            width: 22
-            height: 22
-            color: "#323232"
+        IconButton {
+            id: updateButton
+            icon: StudioTheme.Constants.updateAvailable_medium
+            iconColor: "white"
+            tooltip: qsTr("Update texture")
+            buttonSize: 22
+            iconSize: 22
 
-            visible: root.downloadState === "downloaded" && modelData.textureHasUpdate
+            iconScale: updateButton.containsMouse ? 1.2 : 1
+            iconStyle: Text.Outline
+            iconStyleColor: "black"
 
             anchors.left: parent.left
             anchors.bottom: parent.bottom
 
-            IconButton {
-                id: updateButton
-                icon: StudioTheme.Constants.rotationFill
-                iconColor: "white"
-                tooltip: qsTr("Update texture")
-                buttonSize: 22
+            visible: root.downloadState === "downloaded" && modelData.textureHasUpdate
+            transparentBg: true
 
-                property color c: "white"
-                normalColor: Qt.hsla(c.hslHue, c.hslSaturation, c.hslLightness, .2)
-                hoverColor: Qt.hsla(c.hslHue, c.hslSaturation, c.hslLightness, .3)
-                pressColor: Qt.hsla(c.hslHue, c.hslSaturation, c.hslLightness, .4)
+            onClicked: root.updateTexture()
 
-                onClicked: root.updateTexture()
-            } // Update IconButton
-        }
+            Text {
+                text: StudioTheme.Constants.updateContent_medium
+                font.family: StudioTheme.Constants.iconFont.family
+                color: "black"
+
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 5
+
+                font.pixelSize: 10
+                font.bold: true
+
+                scale: updateButton.containsMouse ? 1.2 : 1
+            }
+        } // Update IconButton
 
         Rectangle {
             id: isNewFlag
