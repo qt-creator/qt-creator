@@ -42,14 +42,14 @@ ProjectInfo::ConstPtr ProjectInfoGenerator::generate(const QPromise<ProjectInfo:
         });
     };
     if (m_cToolchainMissing) {
-        showWarning(Tr::tr(
-                "The project contains C source files, but the currently active kit "
-                "has no C compiler. The code model will not be fully functional."));
+        showWarning(
+            ::CppEditor::Tr::tr("The project contains C source files, but the currently active kit "
+                                "has no C compiler. The code model will not be fully functional."));
     }
     if (m_cxxToolchainMissing) {
-        showWarning(Tr::tr(
-                "The project contains C++ source files, but the currently active kit "
-                "has no C++ compiler. The code model will not be fully functional."));
+        showWarning(::CppEditor::Tr::tr(
+            "The project contains C++ source files, but the currently active kit "
+            "has no C++ compiler. The code model will not be fully functional."));
     }
     return projectInfo;
 }
