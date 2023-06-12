@@ -34,10 +34,10 @@
     and integrated into \QC. The correct folder to place the plugins depends on
     whether you use the standalone \QD or the integrated \QD.
 
-    The integrated \QD fetches plugins from the \c {\bin\plugins\designer}
-    directory in the \QC installation directory on Windows and Linux. For
-    information about how to configure plugins on \macos, see
-    \l{Configuring Qt Designer Plugins on \macos}.
+    The integrated \QD fetches plugins from the \QC installation directory.
+    Designer plugins are loaded from \c {<QtCreator>\bin\plugins\designer} on Windows,
+    \c {<QtCreator>/lib/Qt/plugins/designer} on Linux, and
+    \c {Qt Creator.app/Contents/PlugIns/designer} on macOS.
 
     To check which plugins were loaded successfully and which failed, choose
     \uicontrol Tools > \uicontrol {Form Editor} >
@@ -49,81 +49,21 @@
     of \c bin. To check which plugins were loaded successfully and which failed,
     choose \uicontrol Help > \uicontrol {About Plugins}.
 
-    \section2 Configuring Qt Designer Plugins on \macos
-
-    On \macos, a GUI application must be built and run from a bundle. A bundle
-    is a directory structure that appears as a single entity when viewed in the
-    Finder. A bundle for an application typically has the executable and
-    all the resources it needs.
-
-    \QC uses its own set of Qt Libraries located in the bundle, and therefore,
-    you need to configure the \QD plugins that you want to use with \QC.
-    For more information about how to deploy applications to \macos, see
-    \l{Qt for macOS - Deployment}.
-
-    The following example illustrates how to configure version 5.2.1 of the
-    \l{http://qwt.sourceforge.net/}{Qwt - Qt Widgets for Technical Applications}
-    library for use with \QC:
-
-    \list 1
-
-        \li To check the paths used in the Qwt library, enter the following
-            \c otool command:
-
-            \include doc_src_plugins.qdocinc 0
-
-            The output for Qwt 5.2.1 indicates that the plugin uses Qt core
-            libraries (QtDesigner, QtScript, QtXml, QtGui and QtCore) and
-            libqwt.5.dylib:
-
-            \include doc_src_plugins.qdocinc 1
-
-
-        \li You must copy the \QD plugin and the Qwt library files to the
-            following locations:
-
-            \list
-
-                \li \c {libqwt_designer_plugin.dylib} to
-                    \c {Qt Creator.app/Contents/PlugIns/designer}
-
-                \li  \c {libqwt.*.dylib} to \c {Qt Creator.app/Contents/Frameworks}
-
-            \endlist
-
-            Enter the following commands:
-
-            \include doc_src_plugins.qdocinc 4
-
-        \li Enter the following \c otool command to check the libraries that are
-            used by the Qwt library:
-
-            \include doc_src_plugins.qdocinc 2
-
-            The command returns the following output:
-
-            \include doc_src_plugins.qdocinc 3
-
-        \li Enter the following \c install_name_tool command to fix the
-            references of the libraries:
-
-            \include doc_src_plugins.qdocinc 5
-
-    \endlist
-
     \section1 Matching Build Keys
 
     The \QC that is included in pre-built Qt packages on Windows is built with
-    the Microsoft Visual Studio compiler, whereas the version of Qt shipped for
-    building applications is configured and built to use the \MinGW/g++ compiler.
-    Plugins built by using this version of Qt cannot be loaded by \QC because
-    the build-keys do not match. The plugins can only be used in the standalone
+    the Microsoft Visual Studio compiler. If you install a Qt version that was built
+    with the \MinGW/g++ compiler, plugins built with this version of Qt cannot be
+    loaded by \QC because the build-keys do not match.
+    The same is true if you use a Qt version that is newer than the Qt version that
+    Qt Creator was built with, or that is otherwise incompatible.
+    The plugins can then only be used in the standalone
     version of \QD. Choose \uicontrol Help > \uicontrol {About \QC} to check the
-    Qt version \QC was built with.
+    Qt version and compiler that \QC was built with.
 
     To use \QD plugins that were built for the shipped Qt version, make sure
     that \QC is built with the same compiler by either recompiling \QC using
-    \MinGW or recompiling Qt with Microsoft Visual Studio, depending on which
-    configuration you want to use for your applications.
+    \MinGW or installing a Qt version that was built with Microsoft Visual Studio,
+    depending on which configuration you want to use for your applications.
 
 */
