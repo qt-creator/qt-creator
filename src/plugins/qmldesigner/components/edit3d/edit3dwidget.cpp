@@ -474,9 +474,8 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_contextMenuTarget = modelNode;
     m_contextMenuPos3d = pos3d;
 
-    const bool isValid = modelNode.isValid();
     const bool isModel = modelNode.metaInfo().isQtQuick3DModel();
-    const bool isCamera = isValid && modelNode.metaInfo().isQtQuick3DCamera();
+    const bool allowAlign = view()->edit3DAction(View3DActionType::AlignCamerasToView)->action()->isEnabled();
     const bool isSingleComponent = view()->hasSingleSelectedModelNode() && modelNode.isComponent();
     const bool anyNodeSelected = view()->hasSelectedModelNodes();
     const bool selectionExcludingRoot = anyNodeSelected && !view()->rootModelNode().isSelected();
@@ -491,8 +490,8 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_pasteAction->setEnabled(isPasteAvailable());
     m_deleteAction->setEnabled(selectionExcludingRoot);
     m_fitSelectedAction->setEnabled(anyNodeSelected);
-    m_alignCameraAction->setEnabled(isCamera);
-    m_alignViewAction->setEnabled(isCamera);
+    m_alignCameraAction->setEnabled(allowAlign);
+    m_alignViewAction->setEnabled(allowAlign);
     m_selectParentAction->setEnabled(selectionExcludingRoot);
     m_toggleGroupAction->setEnabled(true);
     m_bakeLightsAction->setVisible(view()->bakeLightsAction()->action()->isVisible());

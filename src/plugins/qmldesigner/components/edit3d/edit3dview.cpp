@@ -106,17 +106,6 @@ Edit3DWidget *Edit3DView::edit3DWidget() const
     return m_edit3DWidget.data();
 }
 
-void Edit3DView::selectedNodesChanged([[maybe_unused]] const QList<ModelNode> &selectedNodeList,
-                                      [[maybe_unused]] const QList<ModelNode> &lastSelectedNodeList)
-{
-    SelectionContext selectionContext(this);
-    selectionContext.setUpdateMode(SelectionContext::UpdateMode::Fast);
-    if (m_alignCamerasAction)
-        m_alignCamerasAction->currentContextChanged(selectionContext);
-    if (m_alignViewAction)
-        m_alignViewAction->currentContextChanged(selectionContext);
-}
-
 void Edit3DView::renderImage3DChanged(const QImage &img)
 {
     edit3DWidget()->canvas()->updateRenderImage(img);
@@ -149,6 +138,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
         edit3DWidget()->canvas()->updateActiveScene(newActiveScene);
         model()->setActive3DSceneId(newActiveScene);
+        updateAlignActionStates();
     }
 
     if (sceneState.contains(selectKey))
@@ -298,6 +288,22 @@ void Edit3DView::handleEntriesChanged()
     m_edit3DWidget->updateCreateSubMenu(entriesMap.values());
 }
 
+void Edit3DView::updateAlignActionStates()
+{
+    bool enabled = false;
+
+    ModelNode activeScene = active3DSceneNode();
+    if (activeScene.isValid()) {
+        const QList<ModelNode> nodes = activeScene.allSubModelNodes();
+        enabled = ::Utils::anyOf(nodes, [](const ModelNode &node) {
+            return node.metaInfo().isQtQuick3DCamera();
+        });
+    }
+
+    m_alignCamerasAction->action()->setEnabled(enabled);
+    m_alignViewAction->action()->setEnabled(enabled);
+}
+
 void Edit3DView::modelAboutToBeDetached(Model *model)
 {
     m_isBakingLightsSupported = false;
@@ -375,6 +381,21 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
     m_droppedModelNode = {};
     m_droppedFile.clear();
     m_nodeAtPosReqType = NodeAtPosReqType::None;
+}
+
+void Edit3DView::nodeReparented(const ModelNode &,
+                                const NodeAbstractProperty &,
+                                const NodeAbstractProperty &,
+                                PropertyChangeFlags)
+{
+    updateAlignActionStates();
+}
+
+void Edit3DView::nodeRemoved(const ModelNode &,
+                             const NodeAbstractProperty &,
+                             PropertyChangeFlags)
+{
+    updateAlignActionStates();
 }
 
 void Edit3DView::sendInputEvent(QInputEvent *e) const
@@ -581,25 +602,27 @@ void Edit3DView::createEdit3DActions()
                                    toolbarIcon(Theme::fitToView_medium),
                                    this);
 
-    m_alignCamerasAction = new Edit3DCameraAction(
+    m_alignCamerasAction = new Edit3DAction(
         QmlDesigner::Constants::EDIT3D_ALIGN_CAMERAS,
         View3DActionType::AlignCamerasToView,
-        QCoreApplication::translate("AlignCamerasToViewAction", "Align Selected Cameras to View"),
+        QCoreApplication::translate("AlignCamerasToViewAction", "Align Cameras to View"),
         QKeySequence(),
         false,
         false,
         toolbarIcon(Theme::alignToCam_medium),
         this);
+    m_alignCamerasAction->action()->setEnabled(false);
 
-    m_alignViewAction = new Edit3DCameraAction(
+    m_alignViewAction = new Edit3DAction(
         QmlDesigner::Constants::EDIT3D_ALIGN_VIEW,
         View3DActionType::AlignViewToCamera,
-        QCoreApplication::translate("AlignCamerasToViewAction", "Align View to Selected Camera"),
+        QCoreApplication::translate("AlignCamerasToViewAction", "Align View to Camera"),
         QKeySequence(),
         false,
         false,
         toolbarIcon(Theme::alignToView_medium),
         this);
+    m_alignViewAction->action()->setEnabled(false);
 
     m_cameraModeAction = new Edit3DAction(
         QmlDesigner::Constants::EDIT3D_EDIT_CAMERA,

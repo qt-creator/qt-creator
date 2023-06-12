@@ -175,20 +175,20 @@ Item {
         }
     }
 
-    function alignCamerasToView()
+    function alignCamerasToView(cameraNodes)
     {
         if (editView) {
-            cameraControl.alignCameras(selectedNodes);
+            cameraControl.alignCameras(cameraNodes);
             var propertyNames = ["position", "eulerRotation"];
-            viewRoot.changeObjectProperty(selectedNodes, propertyNames);
-            viewRoot.commitObjectProperty(selectedNodes, propertyNames);
+            viewRoot.changeObjectProperty(cameraNodes, propertyNames);
+            viewRoot.commitObjectProperty(cameraNodes, propertyNames);
         }
     }
 
-    function alignViewToCamera()
+    function alignViewToCamera(cameraNodes)
     {
         if (editView)
-            cameraControl.alignView(selectedNodes);
+            cameraControl.alignView(cameraNodes);
     }
 
     function updateViewStates(viewStates)

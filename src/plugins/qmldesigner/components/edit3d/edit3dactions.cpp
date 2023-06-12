@@ -98,25 +98,6 @@ bool Edit3DAction::isEnabled(const SelectionContext &selectionContext) const
     return isVisible(selectionContext);
 }
 
-Edit3DCameraAction::Edit3DCameraAction(const QByteArray &menuId,
-                                       View3DActionType type,
-                                       const QString &description,
-                                       const QKeySequence &key,
-                                       bool checkable,
-                                       bool checked,
-                                       const QIcon &icon,
-                                       Edit3DView *view,
-                                       SelectionContextOperation selectionAction)
-    : Edit3DAction(menuId, type, description, key, checkable, checked, icon, view, selectionAction)
-{
-}
-
-bool Edit3DCameraAction::isEnabled(const SelectionContext &selectionContext) const
-{
-    return Utils::anyOf(selectionContext.selectedModelNodes(),
-                        [](const ModelNode &node) { return node.metaInfo().isQtQuick3DCamera(); });
-}
-
 Edit3DParticleSeekerAction::Edit3DParticleSeekerAction(const QByteArray &menuId,
                                                        View3DActionType type,
                                                        Edit3DView *view)

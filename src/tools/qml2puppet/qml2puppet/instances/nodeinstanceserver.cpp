@@ -1058,6 +1058,21 @@ QList<ServerNodeInstance> NodeInstanceServer::allView3DInstances() const
     return view3Ds;
 }
 
+QList<ServerNodeInstance> NodeInstanceServer::allCameraInstances() const
+{
+    QList<ServerNodeInstance> cameras;
+    std::copy_if(nodeInstances().cbegin(),
+                 nodeInstances().cend(),
+                 std::back_inserter(cameras),
+                 [](const ServerNodeInstance &instance) {
+                     return instance.isValid()
+                            && ServerNodeInstance::isSubclassOf(instance.internalObject(),
+                                                                QByteArrayLiteral("QQuick3DCamera"));
+                 });
+
+    return cameras;
+}
+
 void NodeInstanceServer::setStateInstance(const ServerNodeInstance &stateInstance)
 {
     m_activeStateInstance = stateInstance;
