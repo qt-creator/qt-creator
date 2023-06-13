@@ -62,7 +62,7 @@ jobs:
         execute_process(COMMAND git submodule set-url -- perfparser https://code.qt.io/qt-creator/perfparser.git)
         execute_process(COMMAND git submodule update --init --recursive)
         file(MAKE_DIRECTORY release)
-        if (${{github.ref}} MATCHES "tags/v(.*)")
+        if (${{github.ref}} MATCHES "tags/v([0-9.]+)")
             file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${CMAKE_MATCH_1}\n")
             if (EXISTS "dist/changelog/changes-${CMAKE_MATCH_1}.md")
                 file(READ "dist/changelog/changes-${CMAKE_MATCH_1}.md" changelog_md)
