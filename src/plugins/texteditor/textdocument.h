@@ -101,7 +101,6 @@ public:
     static bool marksAnnotationHidden(const Utils::Id &category);
 
     // IDocument implementation.
-    bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
     QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
     bool shouldAutoSave() const override;
@@ -166,6 +165,7 @@ signals:
 
 protected:
     virtual void applyFontSettings();
+    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     OpenResult openImpl(QString *errorString,

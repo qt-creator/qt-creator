@@ -213,17 +213,6 @@ public:
         return type == TypeRemoved ? BehaviorSilent : IDocument::reloadBehavior(state, type);
     }
 
-    bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override
-    {
-        QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
-        const FilePath &fileNameToUse = filePath.isEmpty() ? this->filePath() : filePath;
-        if (m_widget->save(errorString, this->filePath(), fileNameToUse)) {
-            setFilePath(fileNameToUse);
-            return true;
-        }
-        return false;
-    }
-
     OpenResult open(QString *errorString, const FilePath &filePath,
                     const FilePath &realFilePath) override
     {
@@ -314,6 +303,18 @@ public:
         m_widget->setCursorPosition(cPos);
         emit reloadFinished(success);
         return success;
+    }
+
+protected:
+    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override
+    {
+        QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
+        const FilePath &fileNameToUse = filePath.isEmpty() ? this->filePath() : filePath;
+        if (m_widget->save(errorString, this->filePath(), fileNameToUse)) {
+            setFilePath(fileNameToUse);
+            return true;
+        }
+        return false;
     }
 
 private:

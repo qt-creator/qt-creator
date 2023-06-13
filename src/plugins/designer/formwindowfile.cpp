@@ -82,7 +82,7 @@ Core::IDocument::OpenResult FormWindowFile::open(QString *errorString,
     return OpenResult::Success;
 }
 
-bool FormWindowFile::save(QString *errorString, const FilePath &filePath, bool autoSave)
+bool FormWindowFile::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
 {
     const FilePath &actualName = filePath.isEmpty() ? this->filePath() : filePath;
 

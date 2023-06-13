@@ -235,7 +235,7 @@ bool DiffEditorDocument::isSaveAsAllowed() const
     return state() == LoadOK;
 }
 
-bool DiffEditorDocument::save(QString *errorString, const FilePath &filePath, bool autoSave)
+bool DiffEditorDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
 {
     Q_UNUSED(errorString)
     Q_UNUSED(autoSave)

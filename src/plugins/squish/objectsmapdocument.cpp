@@ -41,7 +41,9 @@ Core::IDocument::OpenResult ObjectsMapDocument::open(QString *errorString,
     return result;
 }
 
-bool ObjectsMapDocument::save(QString *errorString, const Utils::FilePath &fileName, bool autoSave)
+bool ObjectsMapDocument::saveImpl(QString *errorString,
+                                  const Utils::FilePath &fileName,
+                                  bool autoSave)
 {
     const Utils::FilePath actual = fileName.isEmpty() ? filePath() : fileName;
     if (actual.isEmpty())
