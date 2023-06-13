@@ -233,7 +233,7 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     // Memcheck
     memcheckArguments.setSettingsKey(base + "Memcheck.Arguments");
     memcheckArguments.setDisplayStyle(StringAspect::LineEditDisplay);
-    memcheckArguments.setLabelText(Tr::tr("Extra MemCheck arguments:"));
+    memcheckArguments.setLabelText(Tr::tr("Extra Memcheck arguments:"));
 
     filterExternalIssues.setSettingsKey(base + "FilterExternalIssues");
     filterExternalIssues.setDefaultValue(true);
@@ -273,7 +273,7 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
 
     callgrindArguments.setSettingsKey(base + "Callgrind.Arguments");
     callgrindArguments.setDisplayStyle(StringAspect::LineEditDisplay);
-    callgrindArguments.setLabelText(Tr::tr("Extra CallGrind arguments:"));
+    callgrindArguments.setLabelText(Tr::tr("Extra Callgrind arguments:"));
 
     enableEventToolTips.setDefaultValue(true);
     enableEventToolTips.setSettingsKey(base + "Callgrind.EnableEventToolTips");
