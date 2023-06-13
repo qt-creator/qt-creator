@@ -81,12 +81,49 @@ public:
     }
 };
 
+class BuildSystemFilesParser
+{
+    static void appendFiles(const std::optional<QJsonArray> &arr, Utils::FilePaths &dest)
+    {
+        if (arr)
+            std::transform(std::cbegin(*arr),
+                           std::cend(*arr),
+                           std::back_inserter(dest),
+                           [](const auto &file) {
+                               return Utils::FilePath::fromString(file.toString());
+                           });
+    }
+
+public:
+    static inline Utils::FilePaths files(const Utils::FilePath &buildDir)
+    {
+        Utils::FilePaths files;
+        Utils::FilePath path = buildDir / Constants::MESON_INFO_DIR / Constants::MESON_INTRO_BUILDSYSTEM_FILES;
+        auto arr = load<QJsonArray>(path.toFSPathString());
+        appendFiles(arr, files);
+        return files;
+    }
+
+    static inline Utils::FilePaths files(const QJsonDocument &js)
+    {
+        Utils::FilePaths files;
+        auto arr = get<QJsonArray>(js.object(), "projectinfo", "buildsystem_files");
+        appendFiles(arr, files);
+        const auto subprojects = get<QJsonArray>(js.object(), "projectinfo", "subprojects");
+        for (const auto &subproject : *subprojects) {
+            auto arr = get<QJsonArray>(subproject.toObject(), "buildsystem_files");
+            appendFiles(arr, files);
+        }
+        return files;
+    }
+};
+
 
 struct Result
 {
     TargetsList targets;
     BuildOptionsList buildOptions;
-    std::vector<Utils::FilePath> buildSystemFiles;
+    Utils::FilePaths buildSystemFiles;
     std::optional<MesonInfo> mesonInfo;
 };
 
@@ -94,7 +131,7 @@ inline Result parse(const Utils::FilePath &buildDir)
 {
     return {TargetParser::targetList(buildDir),
             BuildOptionsParser{buildDir}.takeBuildOptions(),
-            BuildSystemFilesParser{buildDir}.files(),
+            BuildSystemFilesParser::files(buildDir),
             InfoParser{buildDir}.info()};
 }
 
@@ -103,7 +140,7 @@ inline Result parse(const QByteArray &data)
     auto json = QJsonDocument::fromJson(data);
     return {TargetParser::targetList(json),
             BuildOptionsParser{json}.takeBuildOptions(),
-            BuildSystemFilesParser{json}.files(),
+            BuildSystemFilesParser::files(json),
             std::nullopt};
 }
 
