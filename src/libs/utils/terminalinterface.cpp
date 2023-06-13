@@ -392,16 +392,8 @@ void TerminalInterface::start()
                                     m_setup.m_commandLine.executable().fileName());
 
     if (m_setup.m_runAsRoot && !HostOsInfo::isWindowsHost()) {
-        CommandLine rootCommand(FilePath("sudo").searchInPath(), {"-A"});
+        CommandLine rootCommand("sudo", {});
         rootCommand.addCommandLineAsArgs(cmd);
-
-        const FilePath askPassPath = FilePath::fromUserInput(QCoreApplication::applicationDirPath())
-                                         .pathAppended(QLatin1String(RELATIVE_LIBEXEC_PATH))
-                                         .pathAppended(QLatin1String("qtc-askpass"));
-
-        if (askPassPath.exists())
-            stubSetupData.m_environment.setFallback("SUDO_ASKPASS", askPassPath.toUserOutput());
-
         stubSetupData.m_commandLine = rootCommand;
     } else {
         stubSetupData.m_commandLine = cmd;
