@@ -78,6 +78,7 @@ signals:
 private:
     void doProbeUrl();
     bool deleteFileAtTheEnd() const;
+    QNetworkRequest makeRequest() const;
 
     QUrl m_url;
     bool m_probeUrl = false;
