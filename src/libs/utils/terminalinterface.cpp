@@ -384,7 +384,7 @@ void TerminalInterface::start()
 
     QTC_ASSERT(d->stubCreator, return);
 
-    ProcessSetupData stubSetupData = m_setup;
+    ProcessSetupData stubSetupData;
     stubSetupData.m_commandLine = cmd;
 
     if (m_setup.m_runAsRoot && !HostOsInfo::isWindowsHost()) {

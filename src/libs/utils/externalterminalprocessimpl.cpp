@@ -108,6 +108,8 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
         cmdLine.addCommandLineAsArgs(setupData.m_commandLine, CommandLine::Raw);
         process->setCommand(cmdLine);
     }
+    process->setEnvironment(
+        setupData.m_environment.appliedToEnvironment(Environment::systemEnvironment()));
 
     process->setEnvironment(setupData.m_environment);
 
