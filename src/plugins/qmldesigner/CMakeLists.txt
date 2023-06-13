@@ -984,8 +984,7 @@ extend_qtc_plugin(QmlDesigner
     timelinepropertyitem.cpp timelinepropertyitem.h
     timelinesectionitem.cpp timelinesectionitem.h
     timelineselectiontool.cpp timelineselectiontool.h
-    timelinesettingsdialog.cpp
-    timelinesettingsdialog.h timelinesettingsdialog.ui
+    timelinesettingsdialog.cpp timelinesettingsdialog.h
     timelinesettingsmodel.cpp timelinesettingsmodel.h
     timelinetoolbar.cpp timelinetoolbar.h
     timelinetoolbutton.cpp timelinetoolbutton.h

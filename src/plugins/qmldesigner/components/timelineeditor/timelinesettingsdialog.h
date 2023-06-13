@@ -7,7 +7,11 @@
 
 #include <QDialog>
 
-QT_FORWARD_DECLARE_CLASS(QSpinBox)
+QT_BEGIN_NAMESPACE
+class QSpinBox;
+class QTabWidget;
+class QTableView;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
@@ -16,10 +20,6 @@ class TimelineAnimationForm;
 class TimelineView;
 class TimelineSettingsModel;
 
-namespace Ui {
-class TimelineSettingsDialog;
-}
-
 class TimelineSettingsDialog : public QDialog
 {
     Q_OBJECT
@@ -27,7 +27,6 @@ class TimelineSettingsDialog : public QDialog
 public:
     explicit TimelineSettingsDialog(QWidget *parent, TimelineView *view);
     void setCurrentTimeline(const QmlTimeline &timeline);
-    ~TimelineSettingsDialog() override;
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -42,7 +41,9 @@ private:
 
     TimelineForm *currentTimelineForm() const;
 
-    Ui::TimelineSettingsDialog *ui;
+    QTabWidget *m_timelineTab;
+    QTabWidget *m_animationTab;
+    QTableView *m_tableView;
 
     TimelineView *m_timelineView;
     QmlTimeline m_currentTimeline;
