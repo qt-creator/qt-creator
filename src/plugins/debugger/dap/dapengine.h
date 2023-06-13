@@ -82,6 +82,8 @@ private:
     void handleDabLaunch();
     void handleDabConfigurationDone();
 
+    void dabStackTrace();
+
     void handleDapDone();
     void readDapStandardOutput();
     void readDapStandardError();
@@ -93,6 +95,7 @@ private:
     QByteArray m_inbuffer;
     Utils::Process m_proc;
     int m_nextBreakpointId = 1;
+    int m_currentThreadId = -1;
 };
 
 } // Debugger::Internal
