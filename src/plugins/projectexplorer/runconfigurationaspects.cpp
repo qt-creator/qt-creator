@@ -502,7 +502,7 @@ ExecutableAspect::ExecutableAspect(Target *target, ExecutionDeviceSelector selec
     setId("ExecutableAspect");
     addDataExtractor(this, &ExecutableAspect::executable, &Data::executable);
 
-    m_executable.setPlaceHolderText(Tr::tr("path to the executable cannot be empty"));
+    m_executable.setPlaceHolderText(Tr::tr("Enter the path to the executable"));
     m_executable.setLabelText(Tr::tr("Executable:"));
     m_executable.setDisplayStyle(StringAspect::LabelDisplay);
 

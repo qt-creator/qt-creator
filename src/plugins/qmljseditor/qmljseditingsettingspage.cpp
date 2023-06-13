@@ -417,9 +417,11 @@ public:
         QObject::connect(useCustomAnalyzer, &QCheckBox::stateChanged, this, [this](int checked){
             analyzerMessagesView->setEnabled(checked != Qt::Unchecked);
         });
-        analyzerMessagesView->setToolTip(Tr::tr("Enabled checks can be disabled for non Qt Quick UI"
-                                                " files,\nbut disabled checks cannot get explicitly"
-                                                " enabled for non Qt Quick UI files."));
+        analyzerMessagesView->setToolTip(
+            "<html>"
+            + Tr::tr("Enabled checks can be disabled for non Qt Quick UI"
+                     " files, but disabled checks cannot get explicitly"
+                     " enabled for non Qt Quick UI files."));
         analyzerMessagesView->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(analyzerMessagesView, &QTreeView::customContextMenuRequested,
                 this, &QmlJsEditingSettingsPageWidget::showContextMenu);
