@@ -263,16 +263,16 @@ Task createTask(const ClangDiagnostic &diagnostic)
 
 } // anonymous namespace
 
-ClangdTextMark::ClangdTextMark(const FilePath &filePath,
+ClangdTextMark::ClangdTextMark(TextEditor::TextDocument *doc,
                                const Diagnostic &diagnostic,
                                bool isProjectFile,
                                ClangdClient *client)
-    : TextEditor::TextMark(filePath,
+    : TextEditor::TextMark(doc,
                            int(diagnostic.range().start().line() + 1),
                            {client->name(), client->id()})
     , m_lspDiagnostic(diagnostic)
     , m_diagnostic(
-          convertDiagnostic(ClangdDiagnostic(diagnostic), filePath, client->hostPathMapper()))
+          convertDiagnostic(ClangdDiagnostic(diagnostic), doc->filePath(), client->hostPathMapper()))
     , m_client(client)
 {
     setSettingsPage(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);

@@ -23,7 +23,7 @@ class ClangdClient;
 class ClangdTextMark : public TextEditor::TextMark
 {
 public:
-    ClangdTextMark(const ::Utils::FilePath &filePath,
+    ClangdTextMark(TextEditor::TextDocument *doc,
                    const LanguageServerProtocol::Diagnostic &diagnostic,
                    bool isProjectFile,
                    ClangdClient *client);
