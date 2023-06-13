@@ -8,6 +8,7 @@
 
 #include <QAction>
 #include <QBoxLayout>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QStyle>
 #include <QToolButton>
@@ -71,13 +72,23 @@ LineEdit::LineEdit(QWidget *parent)
     setFixedHeight(29);
 }
 
-void LineEdit::resizeEvent(QResizeEvent *)
+void LineEdit::resizeEvent([[maybe_unused]] QResizeEvent *event)
 {
     QSize hint = clearButton->sizeHint();
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
 
     clearButton->move(rect().right() - frameWidth - hint.width() - 3,
                       (rect().bottom() + 1 - hint.height()) / 2);
+}
+
+void LineEdit::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Escape && event->modifiers() == Qt::NoModifier) {
+        clear();
+        event->accept();
+        return;
+    }
+    QLineEdit::keyPressEvent(event);
 }
 
 void LineEdit::updateClearButton(const QString& text)

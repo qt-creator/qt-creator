@@ -40,6 +40,13 @@ T.TextField {
     hoverEnabled: true
     clip: true
 
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Escape && event.modifiers === Qt.NoModifier) {
+            control.clear()
+            event.accepted = true
+        }
+    }
+
     Text {
         id: placeholder
         x: control.leftPadding

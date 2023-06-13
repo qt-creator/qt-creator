@@ -19,7 +19,8 @@ public:
     LineEdit(QWidget *parent = nullptr);
 
 protected:
-    void resizeEvent(QResizeEvent *);
+    void resizeEvent(QResizeEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void updateClearButton(const QString &text);
