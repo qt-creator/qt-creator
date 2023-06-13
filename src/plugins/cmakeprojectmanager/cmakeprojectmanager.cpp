@@ -233,18 +233,18 @@ void CMakeManager::reloadCMakePresets()
 {
     auto settings = CMakeSpecificSettings::instance();
 
-    QMessageBox::StandardButton clickedButton
-        = CheckableMessageBox::question(Core::ICore::dialogParent(),
-                                        Tr::tr("Reload CMake Presets"),
-                                        Tr::tr("Re-generates the CMake presets kits. The manual "
-                                               "CMake project modifications will be lost."),
-                                        settings->askBeforePresetsReload.checkableDecider(),
-                                        QMessageBox::Yes | QMessageBox::Cancel,
-                                        QMessageBox::Yes,
-                                        QMessageBox::Yes,
-                                        {
-                                            {QMessageBox::Yes, Tr::tr("Reload")},
-                                        });
+    QMessageBox::StandardButton clickedButton = CheckableMessageBox::question(
+        Core::ICore::dialogParent(),
+        Tr::tr("Reload CMake Presets"),
+        Tr::tr("Re-generates the kits that were created for CMake presets. All manual "
+               "modifications to the CMake project settings will be lost."),
+        settings->askBeforePresetsReload.checkableDecider(),
+        QMessageBox::Yes | QMessageBox::Cancel,
+        QMessageBox::Yes,
+        QMessageBox::Yes,
+        {
+            {QMessageBox::Yes, Tr::tr("Reload")},
+        });
 
     if (clickedButton == QMessageBox::Cancel)
         return;
