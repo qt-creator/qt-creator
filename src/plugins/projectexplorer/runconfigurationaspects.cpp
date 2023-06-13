@@ -845,7 +845,7 @@ void InterpreterAspect::addToLayout(LayoutItem &builder)
         Core::ICore::showOptionsDialog(m_settingsDialogId);
     });
 
-    builder.addItems({Tr::tr("Interpreter"), m_comboBox.data(), manageButton});
+    builder.addItems({Tr::tr("Interpreter:"), m_comboBox.data(), manageButton});
 }
 
 void InterpreterAspect::updateCurrentInterpreter()

@@ -65,7 +65,7 @@ bool PythonWizardPageFactory::validateData(Id typeId, const QVariant &data, QStr
     if (items.isEmpty()) {
         if (errorMessage) {
             *errorMessage = Tr::tr("'data' of a Python wizard page expects a map with 'items' "
-                                   "containing a list of objects");
+                                   "containing a list of objects.");
         }
         return false;
     }
@@ -92,16 +92,16 @@ PythonWizardPage::PythonWizardPage(const QList<QPair<QString, QVariant>> &pySide
             this,
             &PythonWizardPage::updateInterpreters);
 
-    m_pySideVersion.setLabelText(Tr::tr("PySide version"));
+    m_pySideVersion.setLabelText(Tr::tr("PySide version:"));
     m_pySideVersion.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     for (auto [name, data] : pySideAndData)
         m_pySideVersion.addOption(SelectionAspect::Option(name, {}, data));
     if (defaultPyside >= 0)
         m_pySideVersion.setDefaultValue(defaultPyside);
 
-    m_createVenv.setLabelText(Tr::tr("Create new Virtual Environment"));
+    m_createVenv.setLabelText(Tr::tr("Create new virtual environment"));
 
-    m_venvPath.setLabelText(Tr::tr("Path to virtual environment"));
+    m_venvPath.setLabelText(Tr::tr("Path to virtual environment:"));
     m_venvPath.setEnabler(&m_createVenv);
     m_venvPath.setExpectedKind(PathChooser::Directory);
 
