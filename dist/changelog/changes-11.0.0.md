@@ -108,7 +108,8 @@ Editing
   ([QTCREATORBUG-312](https://bugreports.qt.io/browse/QTCREATORBUG-312))
 * Added highlighting for typed string literals and user-defined literals
   ([QTCREATORBUG-28869](https://bugreports.qt.io/browse/QTCREATORBUG-28869))
-* Added the option to create class members from assignments
+* Extended the `Add Class Member` refactoring action to create class
+  members from assignments
   ([QTCREATORBUG-1918](https://bugreports.qt.io/browse/QTCREATORBUG-1918))
 * Fixed that locator showed both the declaration and the definition of symbols
   ([QTCREATORBUG-13894](https://bugreports.qt.io/browse/QTCREATORBUG-13894))
@@ -119,7 +120,8 @@ Editing
 
 ### Language Server Protocol
 
-* Added missing actions for opening the `Call Hierarchy`
+* Added actions for opening the `Call Hierarchy` to the context menu of the
+  editor
   ([QTCREATORBUG-28839](https://bugreports.qt.io/browse/QTCREATORBUG-28839),
    [QTCREATORBUG-28842](https://bugreports.qt.io/browse/QTCREATORBUG-28842))
 
@@ -140,12 +142,18 @@ Editing
   interpreter selector and the wizard
   ([PYSIDE-2152](https://bugreports.qt.io/browse/PYSIDE-2152))
 
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-python-development.html))
+
 Projects
 --------
 
-* Made it possible to add devices without going through the wizard
-* Added support for moving files to a different directory when renaming
+* Made it possible to add devices in `Preferences > Devices > Add` without going
+  through the wizard
+* Added support for moving files to a different directory when renaming them in
+  the `File System` view
   ([QTCREATORBUG-15981](https://bugreports.qt.io/browse/QTCREATORBUG-15981))
+
+  ([Documentation](https://doc.qt.io/qtcreator/creator-file-system-view.html))
 
 ### CMake
 
@@ -167,12 +175,14 @@ Projects
 
 ### Python
 
-* Added an option for the interpreter to the wizards
+* Added an option for selecting the interpreter to the wizards in
+  `File > New Project > Application (Qt for Python)`
 
 Debugging
 ---------
 
-* Improved the UI for enabling and disabling debuggers
+* Improved the UI for enabling and disabling debuggers in `Projects > Run >
+  Debugger settings`
   ([QTCREATORBUG-28627](https://bugreports.qt.io/browse/QTCREATORBUG-28627))
 
 ### C++
