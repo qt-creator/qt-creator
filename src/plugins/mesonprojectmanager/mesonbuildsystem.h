@@ -49,14 +49,11 @@ public:
     bool setup();
     bool wipe();
 
-    MesonBuildConfiguration *mesonBuildConfiguration();
-
     const QStringList &targetList() const { return m_parser.targetsNames(); }
 
     void setMesonConfigArgs(const QStringList &args) { m_pendingConfigArgs = args; }
 
 private:
-    void init();
     bool parseProject();
     void updateKit(ProjectExplorer::Kit *kit);
     bool needsSetup();

@@ -3,7 +3,6 @@
 
 #include "mesonbuildsystem.h"
 
-#include "kithelper.h"
 #include "kitdata.h"
 #include "kithelper.h"
 #include "mesonbuildconfiguration.h"
@@ -11,25 +10,23 @@
 #include "mesontoolkitaspect.h"
 #include "settings.h"
 
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/taskhub.h>
-
-#include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitinformation.h>
-
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
+
+#include <qtsupport/qtcppkitinfo.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <optional>
 
-#include <QDir>
 #include <QLoggingCategory>
 
 #define LEAVE_IF_BUSY() \
@@ -179,10 +176,45 @@ void MachineFileManager::cleanupMachineFiles()
 // MesonBuildSystem
 
 MesonBuildSystem::MesonBuildSystem(MesonBuildConfiguration *bc)
-    : BuildSystem{bc}
-    , m_parser{MesonToolKitAspect::mesonToolId(bc->kit()), bc->environment(), project()}
+    : BuildSystem(bc)
+    , m_parser(MesonToolKitAspect::mesonToolId(bc->kit()), bc->environment(), project())
 {
-    init();
+    qCDebug(mesonBuildSystemLog) << "Init";
+    connect(bc->target(), &ProjectExplorer::Target::kitChanged, this, [this] {
+        updateKit(kit());
+    });
+    connect(bc, &MesonBuildConfiguration::buildDirectoryChanged, this, [this] {
+        updateKit(kit());
+        this->triggerParsing();
+    });
+    connect(bc, &MesonBuildConfiguration::parametersChanged, this, [this] {
+        updateKit(kit());
+        wipe();
+    });
+    connect(bc, &MesonBuildConfiguration::environmentChanged, this, [this] {
+        m_parser.setEnvironment(buildConfiguration()->environment());
+    });
+
+    connect(project(), &ProjectExplorer::Project::projectFileIsDirty, this, [this] {
+        if (buildConfiguration()->isActive())
+            parseProject();
+    });
+    connect(&m_parser, &MesonProjectParser::parsingCompleted, this, &MesonBuildSystem::parsingCompleted);
+
+    connect(&m_IntroWatcher, &Utils::FileSystemWatcher::fileChanged, this, [this] {
+        if (buildConfiguration()->isActive())
+            parseProject();
+    });
+
+    updateKit(kit());
+    // as specified here https://mesonbuild.com/IDE-integration.html#ide-integration
+    // meson-info.json is the last written file, which ensure that all others introspection
+    // files are ready when a modification is detected on this one.
+    m_IntroWatcher.addFile(buildConfiguration()
+                               ->buildDirectory()
+                               .pathAppended(Constants::MESON_INFO_DIR)
+                               .pathAppended(Constants::MESON_INFO),
+                           Utils::FileSystemWatcher::WatchModifiedDate);
 }
 
 MesonBuildSystem::~MesonBuildSystem()
@@ -230,14 +262,15 @@ void MesonBuildSystem::parsingCompleted(bool success)
 
 QStringList MesonBuildSystem::configArgs(bool isSetup)
 {
-    const QString &params = mesonBuildConfiguration()->parameters();
+    MesonBuildConfiguration *bc = static_cast<MesonBuildConfiguration *>(buildConfiguration());
+
+    const QString &params = bc->parameters();
     if (!isSetup || params.contains("--cross-file") || params.contains("--native-file"))
-        return m_pendingConfigArgs + mesonBuildConfiguration()->mesonConfigArgs();
-    else {
-        return QStringList{
-                   QString("--native-file=%1").arg(MachineFileManager::machineFile(kit()).toString())}
-               + m_pendingConfigArgs + mesonBuildConfiguration()->mesonConfigArgs();
-    }
+        return m_pendingConfigArgs + bc->mesonConfigArgs();
+
+    return QStringList{
+               QString("--native-file=%1").arg(MachineFileManager::machineFile(kit()).toString())}
+           + m_pendingConfigArgs + bc->mesonConfigArgs();
 }
 
 bool MesonBuildSystem::configure()
@@ -276,51 +309,6 @@ bool MesonBuildSystem::wipe()
         return true;
     UNLOCK(false);
     return false;
-}
-
-MesonBuildConfiguration *MesonBuildSystem::mesonBuildConfiguration()
-{
-    return static_cast<MesonBuildConfiguration *>(buildConfiguration());
-}
-
-void MesonBuildSystem::init()
-{
-    qCDebug(mesonBuildSystemLog) << "Init";
-    connect(buildConfiguration()->target(), &ProjectExplorer::Target::kitChanged, this, [this] {
-        updateKit(kit());
-    });
-    connect(mesonBuildConfiguration(), &MesonBuildConfiguration::buildDirectoryChanged, this, [this]() {
-        updateKit(kit());
-        this->triggerParsing();
-    });
-    connect(mesonBuildConfiguration(), &MesonBuildConfiguration::parametersChanged, this, [this]() {
-        updateKit(kit());
-        wipe();
-    });
-    connect(mesonBuildConfiguration(), &MesonBuildConfiguration::environmentChanged, this, [this]() {
-        m_parser.setEnvironment(buildConfiguration()->environment());
-    });
-
-    connect(project(), &ProjectExplorer::Project::projectFileIsDirty, this, [this]() {
-        if (buildConfiguration()->isActive())
-            parseProject();
-    });
-    connect(&m_parser, &MesonProjectParser::parsingCompleted, this, &MesonBuildSystem::parsingCompleted);
-
-    connect(&m_IntroWatcher, &Utils::FileSystemWatcher::fileChanged, this, [this]() {
-        if (buildConfiguration()->isActive())
-            parseProject();
-    });
-
-    updateKit(kit());
-    // as specified here https://mesonbuild.com/IDE-integration.html#ide-integration
-    // meson-info.json is the last written file, which ensure that all others introspection
-    // files are ready when a modification is detected on this one.
-    m_IntroWatcher.addFile(buildConfiguration()
-                               ->buildDirectory()
-                               .pathAppended(Constants::MESON_INFO_DIR)
-                               .pathAppended(Constants::MESON_INFO),
-                           Utils::FileSystemWatcher::WatchModifiedDate);
 }
 
 bool MesonBuildSystem::parseProject()

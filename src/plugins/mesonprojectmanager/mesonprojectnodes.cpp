@@ -46,7 +46,7 @@ void MesonTargetNode::build()
     Project *p = getProject();
     ProjectExplorer::Target *t = p ? p->activeTarget() : nullptr;
     if (t)
-        static_cast<MesonBuildSystem *>(t->buildSystem())->mesonBuildConfiguration()->build(m_name);
+        static_cast<MesonBuildConfiguration *>(t->buildSystem()->buildConfiguration())->build(m_name);
 }
 
 QString MesonTargetNode::tooltip() const
