@@ -9,6 +9,7 @@
 #include <QDir>
 #include <QQmlEngine>
 #include <QRandomGenerator>
+#include <QSslSocket>
 
 namespace QmlDesigner {
 
@@ -38,6 +39,22 @@ bool FileDownloader::deleteFileAtTheEnd() const
     return m_targetFilePath.isEmpty();
 }
 
+QNetworkRequest FileDownloader::makeRequest() const
+{
+    QUrl url = m_url;
+
+    if (url.scheme() == "https" && !QSslSocket::supportsSsl()) {
+        qWarning() << "SSL is not available. HTTP will be used instead of HTTPS.";
+        url.setScheme("http");
+    }
+
+    auto request = QNetworkRequest(url);
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                         QNetworkRequest::UserVerifiedRedirectPolicy);
+
+    return request;
+}
+
 void FileDownloader::start()
 {
     emit downloadStarting();
@@ -48,9 +65,7 @@ void FileDownloader::start()
     m_outputFile.setFileName(tempFileName);
     m_outputFile.open(QIODevice::WriteOnly);
 
-    auto request = QNetworkRequest(m_url);
-    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
-                         QNetworkRequest::UserVerifiedRedirectPolicy);
+    QNetworkRequest request = makeRequest();
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);
     m_reply = reply;
 
@@ -255,9 +270,7 @@ void FileDownloader::doProbeUrl()
         return;
     }
 
-    auto request = QNetworkRequest(m_url);
-    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
-                         QNetworkRequest::UserVerifiedRedirectPolicy);
+    QNetworkRequest request = makeRequest();
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->head(request);
 
     QNetworkReply::connect(reply, &QNetworkReply::redirected, [reply](const QUrl &) {
