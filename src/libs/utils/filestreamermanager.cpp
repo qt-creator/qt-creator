@@ -132,7 +132,7 @@ FileStreamHandle FileStreamerManager::copy(const FilePath &source, const FilePat
         if (streamer->result() == StreamResult::FinishedWithSuccess)
             cont({});
         else
-            cont(make_unexpected(Tr::tr("Failed copying file")));
+            cont(make_unexpected(Tr::tr("Failed copying file.")));
     };
     return execute(onSetup, onDone, context);
 }
@@ -156,7 +156,7 @@ FileStreamHandle FileStreamerManager::read(const FilePath &source, QObject *cont
         if (streamer->result() == StreamResult::FinishedWithSuccess)
             cont(streamer->readData());
         else
-            cont(make_unexpected(Tr::tr("Failed reading file")));
+            cont(make_unexpected(Tr::tr("Failed reading file.")));
     };
     return execute(onSetup, onDone, context);
 }
@@ -182,7 +182,7 @@ FileStreamHandle FileStreamerManager::write(const FilePath &destination, const Q
         if (streamer->result() == StreamResult::FinishedWithSuccess)
             cont(0); // TODO: return write count?
         else
-            cont(make_unexpected(Tr::tr("Failed writing file")));
+            cont(make_unexpected(Tr::tr("Failed writing file.")));
     };
     return execute(onSetup, onDone, context);
 }

@@ -61,7 +61,7 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
 
             QTemporaryFile *shFile = new QTemporaryFile(process);
             QTC_ASSERT(shFile->open(),
-                       return make_unexpected(Tr::tr("Failed to open temporary script file")));
+                       return make_unexpected(Tr::tr("Failed to open temporary script file.")));
             shFile->write(shScript.toUtf8());
             shFile->close();
 
@@ -79,7 +79,7 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
 
             if (!process->waitForStarted()) {
                 return make_unexpected(
-                    Tr::tr("Failed to start terminal process: \"%1\"").arg(process->errorString()));
+                    Tr::tr("Failed to start terminal process: \"%1\".").arg(process->errorString()));
             }
 
             QObject::connect(process, &Process::done, m_interface, &TerminalInterface::onStubExited);
@@ -115,7 +115,7 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
     process->waitForStarted();
     if (process->error() != QProcess::UnknownError) {
         return make_unexpected(
-            Tr::tr("Failed to start terminal process: \"%1\"").arg(process->errorString()));
+            Tr::tr("Failed to start terminal process: \"%1\".").arg(process->errorString()));
     }
 
     qint64 pid = process->processId();
