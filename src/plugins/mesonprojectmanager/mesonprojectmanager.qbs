@@ -42,8 +42,6 @@ Project {
             "mesonpluginconstants.h",
             "mesonprojectplugin.cpp",
             "mesonprojectplugin.h",
-            "mesonbuildsettingswidget.cpp",
-            "mesonbuildsettingswidget.h",
             "arrayoptionlineedit.cpp",
             "arrayoptionlineedit.h",
             "buildoptionsmodel.cpp",

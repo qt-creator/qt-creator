@@ -18,8 +18,6 @@ add_qtc_plugin(MesonProjectManager
   mesonactionsmanager.h
   mesonbuildconfiguration.cpp
   mesonbuildconfiguration.h
-  mesonbuildsettingswidget.cpp
-  mesonbuildsettingswidget.h
   mesonbuildsystem.cpp
   mesonbuildsystem.h
   mesoninfo.h
