@@ -61,8 +61,8 @@ private:
     void updateKit(ProjectExplorer::Kit *kit);
     bool needsSetup();
     void parsingCompleted(bool success);
-    ProjectExplorer::Kit *kit();
     QStringList configArgs(bool isSetup);
+
     ProjectExplorer::BuildSystem::ParseGuard m_parseGuard;
     MesonProjectParser m_parser;
     CppEditor::CppProjectUpdater m_cppCodeModelUpdater;

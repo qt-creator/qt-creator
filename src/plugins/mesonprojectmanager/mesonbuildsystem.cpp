@@ -228,11 +228,6 @@ void MesonBuildSystem::parsingCompleted(bool success)
     emit buildConfiguration()->enabledChanged(); // HACK. Should not be needed.
 }
 
-Kit *MesonBuildSystem::MesonBuildSystem::kit()
-{
-    return buildConfiguration()->kit();
-}
-
 QStringList MesonBuildSystem::configArgs(bool isSetup)
 {
     const QString &params = mesonBuildConfiguration()->parameters();
