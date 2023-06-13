@@ -63,12 +63,10 @@ class TargetParser
     }
 
 public:
-    TargetParser(const QString &buildDir)
+    TargetParser(const Utils::FilePath &buildDir)
     {
-        auto arr = load<QJsonArray>(QString("%1/%2/%3")
-                                        .arg(buildDir)
-                                        .arg(Constants::MESON_INFO_DIR)
-                                        .arg(Constants::MESON_INTRO_TARGETS));
+        Utils::FilePath path = buildDir / Constants::MESON_INFO_DIR / Constants::MESON_INTRO_TARGETS;
+        auto arr = load<QJsonArray>(path.toFSPathString());
         if (arr)
             m_targets = load_targets(*arr);
     }

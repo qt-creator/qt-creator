@@ -19,6 +19,7 @@
 #include <iostream>
 
 using namespace MesonProjectManager::Internal;
+using namespace Utils;
 
 struct projectData
 {
@@ -27,22 +28,9 @@ struct projectData
     QStringList targets;
 };
 
-namespace {
 static const QList<projectData> projectList{
     {"Simple C Project", "simplecproject", {"SimpleCProject"}}};
-} // namespace
 
-#define WITH_CONFIGURED_PROJECT(_source_dir, _build_dir, ...) \
-    { \
-        QTemporaryDir _build_dir{"test-meson"}; \
-        const auto tool = MesonWrapper::find(); \
-        QVERIFY(tool.has_value()); \
-        const auto _meson = MesonWrapper("name", *tool); \
-        run_meson(_meson.setup(Utils::FilePath::fromString(_source_dir), \
-                               Utils::FilePath::fromString(_build_dir.path()))); \
-        QVERIFY(isSetup(Utils::FilePath::fromString(_build_dir.path()))); \
-        __VA_ARGS__ \
-    }
 
 #define WITH_UNCONFIGURED_PROJECT(_source_dir, _intro_file, ...) \
     { \
@@ -86,15 +74,24 @@ private slots:
     {
         QFETCH(QString, src_dir);
         QFETCH(QStringList, expectedTargets);
-        WITH_CONFIGURED_PROJECT(src_dir, build_dir, {
-            auto result = MesonInfoParser::parse(build_dir.path());
+
+        {
+            QTemporaryDir build_dir{"test-meson"};
+            FilePath buildDir = FilePath::fromString(build_dir.path());
+            const auto tool = MesonWrapper::find();
+            QVERIFY(tool.has_value());
+            MesonWrapper meson("name", *tool);
+            run_meson(meson.setup(FilePath::fromString(src_dir), buildDir));
+            QVERIFY(isSetup(buildDir));
+
+            auto result = MesonInfoParser::parse(buildDir);
             QStringList targetsNames;
             std::transform(std::cbegin(result.targets),
                            std::cend(result.targets),
                            std::back_inserter(targetsNames),
                            [](const auto &target) { return target.name; });
             QVERIFY(targetsNames == expectedTargets);
-        })
+        }
 
         WITH_UNCONFIGURED_PROJECT(src_dir, introFile, {
             auto result = MesonInfoParser::parse(&introFile);

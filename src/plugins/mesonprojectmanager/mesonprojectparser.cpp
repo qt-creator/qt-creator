@@ -200,7 +200,7 @@ bool MesonProjectParser::startParser()
     m_parserFutureResult = Utils::asyncRun(
                 ProjectExplorer::ProjectExplorerPlugin::sharedThreadPool(),
                 [processOutput = m_process.stdOut(), introType = m_introType,
-                buildDir = m_buildDir.toString(), srcDir = m_srcDir] {
+                buildDir = m_buildDir, srcDir = m_srcDir] {
         if (introType == IntroDataType::file)
             return extractParserResults(srcDir, MesonInfoParser::parse(buildDir));
         else
@@ -323,7 +323,7 @@ bool MesonProjectParser::matchesKit(const KitData &kit)
 
 bool MesonProjectParser::usesSameMesonVersion(const Utils::FilePath &buildPath)
 {
-    auto info = MesonInfoParser::mesonInfo(buildPath.toString());
+    auto info = MesonInfoParser::mesonInfo(buildPath);
     auto meson = MesonTools::mesonWrapper(m_meson);
     return info && meson && info->mesonVersion == meson->version();
 }

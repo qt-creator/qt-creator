@@ -7,6 +7,8 @@
 #include "common.h"
 #include "mesonpluginconstants.h"
 
+#include <utils/filepath.h>
+
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -72,15 +74,14 @@ class BuildOptionsParser
     std::vector<std::unique_ptr<BuildOption>> m_buildOptions;
 
 public:
-    BuildOptionsParser(const QString &buildDir)
+    BuildOptionsParser(const Utils::FilePath &buildDir)
     {
-        auto arr = load<QJsonArray>(QString("%1/%2/%3")
-                                        .arg(buildDir)
-                                        .arg(Constants::MESON_INFO_DIR)
-                                        .arg(Constants::MESON_INTRO_BUIDOPTIONS));
+        Utils::FilePath path = buildDir / Constants::MESON_INFO_DIR / Constants::MESON_INTRO_BUIDOPTIONS;
+        auto arr = load<QJsonArray>(path.toFSPathString());
         if (arr)
             m_buildOptions = load_options(*arr);
     }
+
     BuildOptionsParser(const QJsonDocument &js)
     {
         auto obj = get<QJsonArray>(js.object(), "buildoptions");
