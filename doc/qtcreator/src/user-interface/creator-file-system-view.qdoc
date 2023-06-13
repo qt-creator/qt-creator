@@ -76,7 +76,10 @@
             \else
             \l{Creating Files}.
             \endif
-        \li Rename or remove existing files.
+        \li Rename existing files. To move the file to another directory, enter
+            the relative or absolute path to its new location in addition to the
+            new filename.
+        \li Remove existing files.
         \li Create new folders.
         \li Compare the selected file with the currently open file in the diff
             editor. For more information, see \l{Comparing Files}.
