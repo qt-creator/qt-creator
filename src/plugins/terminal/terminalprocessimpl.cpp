@@ -49,7 +49,11 @@ public:
         if (!terminal) {
             terminal = new TerminalWidget(nullptr, openParameters);
 
-            terminal->setShellName(setup.m_commandLine.executable().fileName());
+            terminal->setShellName(
+                setup.m_extraData
+                    .value(TERMINAL_SHELL_NAME, setup.m_commandLine.executable().fileName())
+                    .toString());
+
             m_terminalPane->addTerminal(terminal, "App");
         } else {
             terminal->restart(openParameters);

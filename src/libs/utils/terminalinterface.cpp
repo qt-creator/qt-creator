@@ -387,6 +387,10 @@ void TerminalInterface::start()
     ProcessSetupData stubSetupData;
     stubSetupData.m_commandLine = cmd;
 
+    stubSetupData.m_extraData[TERMINAL_SHELL_NAME]
+        = m_setup.m_extraData.value(TERMINAL_SHELL_NAME,
+                                    m_setup.m_commandLine.executable().fileName());
+
     if (m_setup.m_runAsRoot && !HostOsInfo::isWindowsHost()) {
         CommandLine rootCommand(FilePath("sudo").searchInPath(), {"-A"});
         rootCommand.addCommandLineAsArgs(cmd);

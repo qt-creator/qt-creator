@@ -28,6 +28,7 @@
 #include <utils/process.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
+#include <utils/terminalinterface.h>
 #include <utils/utilsicons.h>
 
 #include <coreplugin/icontext.h>
@@ -1348,9 +1349,12 @@ void SimpleTargetRunnerPrivate::start()
 
     m_stopRequested = false;
 
+    QVariantHash extraData = m_extraData;
+    extraData[TERMINAL_SHELL_NAME] = m_command.executable().fileName();
+
     m_process.setCommand(cmdLine);
     m_process.setEnvironment(env);
-    m_process.setExtraData(m_extraData);
+    m_process.setExtraData(extraData);
 
     m_state = Run;
     m_process.setWorkingDirectory(m_workingDirectory);
