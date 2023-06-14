@@ -68,6 +68,9 @@
                 \li \l{Specifying Build Settings}
                     \list
                         \li \l{Cmake Build Configuration}
+                        \list
+                            \li \l{CMake Presets}
+                        \endlist
                         \li \l{qmake Build Configuration}
                         \li \l{Qbs Build Configuration}
                         \li \l{Meson Build Configuration}
