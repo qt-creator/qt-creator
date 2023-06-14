@@ -91,6 +91,21 @@ void LineEdit::keyPressEvent(QKeyEvent *event)
     QLineEdit::keyPressEvent(event);
 }
 
+void LineEdit::paintEvent(QPaintEvent *event)
+{
+    if (text().isEmpty()) {
+        QPalette p(palette());
+        p.setColor(QPalette::Active,
+                   QPalette::PlaceholderText,
+                   Utils::creatorTheme()->color(Utils::Theme::DSplaceholderTextColor));
+        p.setColor(QPalette::Inactive,
+                   QPalette::PlaceholderText,
+                   Utils::creatorTheme()->color(Utils::Theme::DSplaceholderTextColor));
+        setPalette(p);
+    }
+    QLineEdit::paintEvent(event);
+}
+
 void LineEdit::updateClearButton(const QString& text)
 {
     clearButton->setVisible(!text.isEmpty());
