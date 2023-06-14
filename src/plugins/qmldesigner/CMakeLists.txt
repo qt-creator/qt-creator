@@ -973,7 +973,7 @@ extend_qtc_plugin(QmlDesigner
     timelineconstants.h
     timelinecontext.cpp timelinecontext.h
     timelinecontrols.cpp timelinecontrols.h
-    timelineform.cpp timelineform.h timelineform.ui
+    timelineform.cpp timelineform.h
     timelinegraphicslayout.cpp timelinegraphicslayout.h
     timelinegraphicsscene.cpp timelinegraphicsscene.h
     timelineicons.h

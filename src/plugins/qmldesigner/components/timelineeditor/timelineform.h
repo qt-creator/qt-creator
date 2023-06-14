@@ -7,13 +7,13 @@
 
 #include <QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QSpinBox)
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+class QRadioButton;
+class QSpinBox;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
-
-namespace Ui {
-class TimelineForm;
-}
 
 class TimelineForm : public QWidget
 {
@@ -21,7 +21,6 @@ class TimelineForm : public QWidget
 
 public:
     explicit TimelineForm(QWidget *parent);
-    ~TimelineForm() override;
     void setTimeline(const QmlTimeline &timeline);
     QmlTimeline timeline() const;
     void setHasAnimation(bool b);
@@ -30,7 +29,13 @@ private:
     void setProperty(const PropertyName &propertyName, const QVariant &value);
     void connectSpinBox(QSpinBox *spinBox, const PropertyName &propertyName);
 
-    Ui::TimelineForm *ui;
+    QLineEdit *m_idLineEdit;
+    QSpinBox *m_startFrame;
+    QSpinBox *m_endFrame;
+    QRadioButton *m_expressionBinding;
+    QRadioButton *m_animation;
+    QLineEdit *m_expressionBindingLineEdit;
+
     QmlTimeline m_timeline;
 };
 
