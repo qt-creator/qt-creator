@@ -9,18 +9,21 @@
 
 namespace CppEditor { class CppCodeStyleSettings; }
 namespace ProjectExplorer { class Project; }
-namespace TextEditor { class TabSettings; }
+namespace TextEditor {
+class ICodeStylePreferences;
+class TabSettings;
+}
 
 namespace ClangFormat {
 
 class ClangFormatFile
 {
 public:
-    explicit ClangFormatFile(Utils::FilePath file);
+    explicit ClangFormatFile(const TextEditor::ICodeStylePreferences *preferences);
     clang::format::FormatStyle style();
 
     Utils::FilePath filePath();
-    void resetStyleToQtC();
+    void resetStyleToQtC(const TextEditor::ICodeStylePreferences *codeStyle);
     void setBasedOnStyle(QString styleName);
     void setStyle(clang::format::FormatStyle style);
     QString setStyle(QString style);

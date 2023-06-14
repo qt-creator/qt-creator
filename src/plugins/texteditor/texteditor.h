@@ -310,6 +310,8 @@ public:
 
     RefactorMarkers refactorMarkers() const;
     void setRefactorMarkers(const RefactorMarkers &markers);
+    void setRefactorMarkers(const RefactorMarkers &markers, const Utils::Id &type);
+    void clearRefactorMarkers(const Utils::Id &type);
 
     enum Side { Left, Right };
     QAction *insertExtraToolBarWidget(Side side, QWidget *widget);

@@ -7,14 +7,15 @@
 
 #include <coreplugin/icore.h>
 
+#include <cppeditor/cppcodestylepreferences.h>
+
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
 #include <texteditor/icodestylepreferences.h>
+#include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
-
-#include <clang/Tooling/Core/Replacement.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -23,6 +24,8 @@
 
 #include <QDebug>
 #include <QTextDocument>
+
+#include <clang/Tooling/Core/Replacement.h>
 
 namespace ClangFormat {
 
@@ -760,7 +763,7 @@ clang::format::FormatStyle overrideStyle(const Utils::FilePath &fileName)
     Utils::FilePath filePath = filePathToCurrentSettings(preferences);
 
     if (!filePath.exists())
-        return qtcStyle();
+        return currentQtStyle(preferences);
 
     clang::format::FormatStyle currentSettingsStyle;
     currentSettingsStyle.Language = clang::format::FormatStyle::LK_Cpp;
@@ -769,7 +772,7 @@ clang::format::FormatStyle overrideStyle(const Utils::FilePath &fileName)
                                                                         .toStdString(),
                                                                     &currentSettingsStyle);
     QTC_ASSERT(error.value() == static_cast<int>(clang::format::ParseError::Success),
-               return qtcStyle());
+               return currentQtStyle(preferences));
 
     return currentSettingsStyle;
 }

@@ -488,40 +488,21 @@ void AndroidManifestEditorWidget::focusInEvent(QFocusEvent *event)
     }
 }
 
-static bool checkDocument(const QDomDocument &doc, QDomDocument::ParseResult *result)
-{
-    QDomElement manifest = doc.documentElement();
-    if (manifest.tagName() != QLatin1String("manifest")) {
-        result->errorMessage = ::Android::Tr::tr("The structure of the Android manifest file "
-                                         "is corrupted. Expected a top level 'manifest' node.");
-        result->errorLine = -1;
-        result->errorColumn = -1;
-        return false;
-    }
-    if (manifest.firstChildElement(QLatin1String("application")).firstChildElement(QLatin1String("activity")).isNull()) {
-        // missing either application or activity element
-        result->errorMessage = ::Android::Tr::tr("The structure of the Android manifest file "
-                                         "is corrupted. Expected an 'application' and 'activity' sub node.");
-        result->errorLine = -1;
-        result->errorColumn = -1;
-        return false;
-    }
-    return true;
-}
-
 void AndroidManifestEditorWidget::updateAfterFileLoad()
 {
+    QString error;
+    int errorLine;
+    int errorColumn;
     QDomDocument doc;
-    QDomDocument::ParseResult result = doc.setContent(m_textEditorWidget->toPlainText());
-    if (result) {
-        if (checkDocument(doc, &result)) {
+    if (doc.setContent(m_textEditorWidget->toPlainText(), &error, &errorLine, &errorColumn)) {
+        if (checkDocument(doc, &error, &errorLine, &errorColumn)) {
             if (activePage() != Source)
                 syncToWidgets(doc);
             return;
         }
     }
     // some error occurred
-    updateInfoBar(result.errorMessage, result.errorLine, result.errorColumn);
+    updateInfoBar(error, errorLine, errorColumn);
     setActivePage(Source);
 }
 
@@ -610,17 +591,37 @@ TextEditor::TextEditorWidget *AndroidManifestEditorWidget::textEditorWidget() co
 bool AndroidManifestEditorWidget::syncToWidgets()
 {
     QDomDocument doc;
-    QDomDocument::ParseResult result = doc.setContent(m_textEditorWidget->toPlainText());
-    if (result) {
-        if (checkDocument(doc, &result)) {
+    QString errorMessage;
+    int errorLine, errorColumn;
+    if (doc.setContent(m_textEditorWidget->toPlainText(), &errorMessage, &errorLine, &errorColumn)) {
+        if (checkDocument(doc, &errorMessage, &errorLine, &errorColumn)) {
             hideInfoBar();
             syncToWidgets(doc);
             return true;
         }
     }
 
-    updateInfoBar(result.errorMessage, result.errorLine, result.errorColumn);
+    updateInfoBar(errorMessage, errorLine, errorColumn);
     return false;
+}
+
+bool AndroidManifestEditorWidget::checkDocument(const QDomDocument &doc, QString *errorMessage,
+                                                int *errorLine, int *errorColumn)
+{
+    QDomElement manifest = doc.documentElement();
+    if (manifest.tagName() != QLatin1String("manifest")) {
+        *errorMessage = ::Android::Tr::tr("The structure of the Android manifest file is corrupted. Expected a top level 'manifest' node.");
+        *errorLine = -1;
+        *errorColumn = -1;
+        return false;
+    } else if (manifest.firstChildElement(QLatin1String("application")).firstChildElement(QLatin1String("activity")).isNull()) {
+        // missing either application or activity element
+        *errorMessage = ::Android::Tr::tr("The structure of the Android manifest file is corrupted. Expected an 'application' and 'activity' sub node.");
+        *errorLine = -1;
+        *errorColumn = -1;
+        return false;
+    }
+    return true;
 }
 
 void AndroidManifestEditorWidget::startParseCheck()
@@ -640,15 +641,16 @@ void AndroidManifestEditorWidget::updateInfoBar()
         return;
     }
     QDomDocument doc;
-    QDomDocument::ParseResult result = doc.setContent(m_textEditorWidget->toPlainText());
-    if (result) {
-        if (checkDocument(doc, &result)) {
+    int errorLine, errorColumn;
+    QString errorMessage;
+    if (doc.setContent(m_textEditorWidget->toPlainText(), &errorMessage, &errorLine, &errorColumn)) {
+        if (checkDocument(doc, &errorMessage, &errorLine, &errorColumn)) {
             hideInfoBar();
             return;
         }
     }
 
-    updateInfoBar(result.errorMessage, result.errorLine, result.errorColumn);
+    updateInfoBar(errorMessage, errorLine, errorColumn);
 }
 
 void AndroidManifestEditorWidget::updateSdkVersions()
@@ -886,9 +888,9 @@ void AndroidManifestEditorWidget::syncToEditor()
     m_dirty = false;
 }
 
-static QXmlStreamAttributes modifyXmlStreamAttributes(
-    const QXmlStreamAttributes &input, const QStringList &keys,
-    const QStringList &values, const QStringList &remove = {})
+namespace {
+QXmlStreamAttributes modifyXmlStreamAttributes(const QXmlStreamAttributes &input, const QStringList &keys,
+                                               const QStringList &values, const QStringList &remove = QStringList())
 {
     Q_ASSERT(keys.size() == values.size());
     QXmlStreamAttributes result;
@@ -901,7 +903,8 @@ static QXmlStreamAttributes modifyXmlStreamAttributes(
         if (index == -1)
             result.push_back(attribute);
         else
-            result.push_back(QXmlStreamAttribute(name, values.at(index)));
+            result.push_back(QXmlStreamAttribute(name,
+                                                 values.at(index)));
     }
 
     for (int i = 0; i < keys.size(); ++i) {
@@ -910,6 +913,7 @@ static QXmlStreamAttributes modifyXmlStreamAttributes(
     }
     return result;
 }
+} // end namespace
 
 void AndroidManifestEditorWidget::parseManifest(QXmlStreamReader &reader, QXmlStreamWriter &writer)
 {

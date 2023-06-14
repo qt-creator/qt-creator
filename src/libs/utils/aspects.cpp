@@ -671,6 +671,7 @@ public:
     // the validation changes focus by opening a dialog
     bool m_blockAutoApply = false;
     bool m_allowPathFromDevice = true;
+    bool m_validatePlaceHolder = false;
 
     template<class Widget> void updateWidgetFromCheckStatus(StringAspect *aspect, Widget *w)
     {
@@ -985,6 +986,13 @@ void StringAspect::setAllowPathFromDevice(bool allowPathFromDevice)
         d->m_pathChooserDisplay->setAllowPathFromDevice(allowPathFromDevice);
 }
 
+void StringAspect::setValidatePlaceHolder(bool validatePlaceHolder)
+{
+    d->m_validatePlaceHolder = validatePlaceHolder;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->lineEdit()->setValidatePlaceHolder(validatePlaceHolder);
+}
+
 /*!
     Sets \a elideMode as label elide mode.
 */
@@ -1131,6 +1139,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->m_pathChooserDisplay->setPromptDialogTitle(d->m_prompDialogTitle);
         d->m_pathChooserDisplay->setCommandVersionArguments(d->m_commandVersionArguments);
         d->m_pathChooserDisplay->setAllowPathFromDevice(d->m_allowPathFromDevice);
+        d->m_pathChooserDisplay->lineEdit()->setValidatePlaceHolder(d->m_validatePlaceHolder);
         if (defaultValue() == value())
             d->m_pathChooserDisplay->setDefaultValue(defaultValue());
         else
@@ -1169,6 +1178,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
             d->m_lineEditDisplay->setValidationFunction(d->m_validator);
         d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
         d->m_lineEditDisplay->setReadOnly(isReadOnly());
+        d->m_lineEditDisplay->setValidatePlaceHolder(d->m_validatePlaceHolder);
         d->updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
         addLabeledItem(parent, d->m_lineEditDisplay);
         useMacroExpander(d->m_lineEditDisplay);

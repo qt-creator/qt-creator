@@ -200,7 +200,7 @@ void updateCodeActionRefactoringMarker(Client *client,
     const RefactorMarkers markers = markersAtBlock.values();
     for (BaseTextEditor *editor : editors) {
         if (TextEditorWidget *editorWidget = editor->editorWidget())
-            editorWidget->setRefactorMarkers(markers + editorWidget->refactorMarkers());
+            editorWidget->setRefactorMarkers(markers, client->id());
     }
 }
 

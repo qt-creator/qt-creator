@@ -35,7 +35,7 @@
 
     \endlist
 
-    For more information about the CallGrind and MemCheck settings, see:
+    For more information about the Callgrind and Memcheck settings, see:
 
     \list
 

@@ -535,7 +535,7 @@ void AppOutputPane::storeSettings() const
     s->setValueWithDefault(WRAP_OUTPUT_KEY, m_settings.wrapOutput, kWrapOutputDefault);
     s->setValueWithDefault(MAX_LINES_KEY,
                            m_settings.maxCharCount / 100,
-                           Core::Constants::DEFAULT_MAX_CHAR_COUNT);
+                           Core::Constants::DEFAULT_MAX_CHAR_COUNT / 100);
 }
 
 void AppOutputPane::loadSettings()
@@ -551,7 +551,7 @@ void AppOutputPane::loadSettings()
     m_settings.mergeChannels = s->value(MERGE_CHANNELS_KEY, kMergeChannelsDefault).toBool();
     m_settings.wrapOutput = s->value(WRAP_OUTPUT_KEY, kWrapOutputDefault).toBool();
     m_settings.maxCharCount = s->value(MAX_LINES_KEY,
-                                       Core::Constants::DEFAULT_MAX_CHAR_COUNT).toInt() * 100;
+                                       Core::Constants::DEFAULT_MAX_CHAR_COUNT / 100).toInt() * 100;
 }
 
 void AppOutputPane::showTabFor(RunControl *rc)

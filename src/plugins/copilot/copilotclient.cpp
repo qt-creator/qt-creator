@@ -180,7 +180,11 @@ void CopilotClient::handleCompletions(const GetCompletionRequest::Response &resp
         return;
 
     if (const std::optional<GetCompletionResponse> result = response.result()) {
-        QList<Completion> completions = result->completions().toListOrEmpty();
+        auto isValidCompletion = [](const Completion &completion) {
+            return completion.isValid() && !completion.text().trimmed().isEmpty();
+        };
+        const QList<Completion> completions = Utils::filtered(result->completions().toListOrEmpty(),
+                                                              isValidCompletion);
         if (completions.isEmpty())
             return;
         editor->insertSuggestion(

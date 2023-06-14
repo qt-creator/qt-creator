@@ -175,8 +175,8 @@ void CMakeBuildSystem::triggerParsing()
     qCDebug(cmakeBuildSystemLog) << "Parse called with flags:"
                                  << reparseParametersString(reparseParameters);
 
-    const QString cache = m_parameters.buildDirectory.pathAppended("CMakeCache.txt").toString();
-    if (!QFileInfo::exists(cache)) {
+    const FilePath cache = m_parameters.buildDirectory.pathAppended("CMakeCache.txt");
+    if (!cache.exists()) {
         reparseParameters |= REPARSE_FORCE_INITIAL_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN;
         qCDebug(cmakeBuildSystemLog)
             << "No" << cache

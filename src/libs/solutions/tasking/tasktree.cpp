@@ -104,7 +104,7 @@ private:
     the Group stops the other running child tasks (if any - for example in parallel mode),
     and skips executing tasks it has not started yet (for example, in the sequential mode -
     those, that are placed after the failed task). Both stopping and skipping child tasks
-    may happen when parallelLimit is used.
+    may happen when parallelLimit() is used.
 
     The table below summarizes the differences between various workflow policies:
 
@@ -170,7 +170,7 @@ private:
     as input to the next task before it starts. This mode guarantees that the next task
     is started only after the previous task finishes.
 
-    \sa parallel, parallelLimit
+    \sa parallel, parallelLimit()
 */
 
 /*!
@@ -181,7 +181,7 @@ private:
     without waiting for the previous child tasks to finish.
     In this mode, all child tasks run simultaneously.
 
-    \sa sequential, parallelLimit
+    \sa sequential, parallelLimit()
 */
 
 /*!
@@ -234,13 +234,13 @@ private:
     \value StopWithDone
            The group's or task's execution stops immediately with success.
            When returned from the group's setup handler, all child tasks are skipped,
-           and the group's onGroupDone handler is invoked (if provided).
+           and the group's onGroupDone() handler is invoked (if provided).
            When returned from the task's setup handler, the task isn't started,
            its done handler isn't invoked, and the task reports success to its parent.
     \value StopWithError
            The group's or task's execution stops immediately with an error.
            When returned from the group's setup handler, all child tasks are skipped,
-           and the group's onGroupError handler is invoked (if provided).
+           and the group's onGroupError() handler is invoked (if provided).
            When returned from the task's setup handler, the task isn't started,
            its error handler isn't invoked, and the task reports an error to its parent.
 */
@@ -250,7 +250,7 @@ private:
 
     Type alias for \c std::function<TaskAction()>.
 
-    The GroupSetupHandler is used when constructing the onGroupSetup element.
+    The GroupSetupHandler is used when constructing the onGroupSetup() element.
     Any function with the above signature, when passed as a group setup handler,
     will be called by the running task tree when the group execution starts.
 
@@ -269,11 +269,11 @@ private:
     one of the group's done or error handlers is invoked. This behavior differs
     from that of task handlers and might change in the future.
 
-    The onGroupSetup accepts also functions in the shortened form of \c std::function<void()>,
+    The onGroupSetup() accepts also functions in the shortened form of \c std::function<void()>,
     i.e. the return value is void. In this case it's assumed that the return value
     is TaskAction::Continue by default.
 
-    \sa onGroupSetup
+    \sa onGroupSetup()
 */
 
 /*!
@@ -281,12 +281,12 @@ private:
 
     Type alias for \c std::function\<void()\>.
 
-    The GroupEndHandler is used when constructing the onGroupDone and onGroupError elements.
+    The GroupEndHandler is used when constructing the onGroupDone() and onGroupError() elements.
     Any function with the above signature, when passed as a group done or error handler,
     will be called by the running task tree when the group ends with success or an error,
     respectively.
 
-    \sa onGroupDone, onGroupError
+    \sa onGroupDone(), onGroupError()
 */
 
 /*!
@@ -305,7 +305,7 @@ private:
     after the storages are constructed, so that the \a handler may already
     perform some initial modifications to the active storages.
 
-    \sa GroupItem::GroupSetupHandler, onGroupDone, onGroupError
+    \sa GroupItem::GroupSetupHandler, onGroupDone(), onGroupError()
 */
 
 /*!
@@ -320,7 +320,7 @@ private:
     before the storages are destructed, so that the \a handler may still
     perform a last read of the active storages' data.
 
-    \sa GroupItem::GroupEndHandler, onGroupSetup, onGroupError
+    \sa GroupItem::GroupEndHandler, onGroupSetup(), onGroupError()
 */
 GroupItem onGroupDone(const GroupItem::GroupEndHandler &handler)
 {
@@ -339,7 +339,7 @@ GroupItem onGroupDone(const GroupItem::GroupEndHandler &handler)
     before the storages are destructed, so that the \a handler may still
     perform a last read of the active storages' data.
 
-    \sa GroupItem::GroupEndHandler, onGroupSetup, onGroupDone
+    \sa GroupItem::GroupEndHandler, onGroupSetup(), onGroupDone()
 */
 GroupItem onGroupError(const GroupItem::GroupEndHandler &handler)
 {
@@ -1397,8 +1397,8 @@ void TaskNode::invokeEndHandler(bool success)
     \endcode
 
     The group setup handler is optional. To define a group setup handler, add an
-    onGroupSetup element to a group. The argument of onGroupSetup is a user
-    handler. If you add more than one onGroupSetup element to a group, an assert
+    onGroupSetup() element to a group. The argument of onGroupSetup() is a user
+    handler. If you add more than one onGroupSetup() element to a group, an assert
     is triggered at runtime that includes an error message.
 
     Like the task's start handler, the group start handler may return TaskAction.
@@ -1481,7 +1481,7 @@ void TaskNode::invokeEndHandler(bool success)
     execution of its tasks, respectively. The final value reported by the
     group depends on its \l {Workflow Policy}. The handlers can apply other
     necessary actions. The done and error handlers are defined inside the
-    onGroupDone and onGroupError elements of a group, respectively. They do not
+    onGroupDone() and onGroupError() elements of a group, respectively. They do not
     take arguments:
 
     \code
@@ -1494,7 +1494,7 @@ void TaskNode::invokeEndHandler(bool success)
     \endcode
 
     The group done and error handlers are optional. If you add more than one
-    onGroupDone or onGroupError each to a group, an assert is triggered at
+    onGroupDone() or onGroupError() each to a group, an assert is triggered at
     runtime that includes an error message.
 
     \note Even if the group setup handler returns StopWithDone or StopWithError,

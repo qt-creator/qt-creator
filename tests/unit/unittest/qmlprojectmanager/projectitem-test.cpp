@@ -55,14 +55,14 @@ TEST_F(QmlProjectItem, GetNotEmptyMainFileProject)
 {
     auto mainFile = projectItemNotEmpty->mainFile();
 
-    ASSERT_THAT(mainFile, Eq("content/App.qml"));
+    ASSERT_THAT(mainFile, Eq(u"content/App.qml"));
 }
 
 TEST_F(QmlProjectItem, GetNotEmptyMainUIFileProject)
 {
     auto mainUiFile = projectItemNotEmpty->mainUiFile();
 
-    ASSERT_THAT(mainUiFile, Eq("Screen01.ui.qml"));
+    ASSERT_THAT(mainUiFile, Eq(u"Screen01.ui.qml"));
 }
 
 TEST_F(QmlProjectItem, GetNotEmptyMcuProject)
@@ -76,21 +76,21 @@ TEST_F(QmlProjectItem, GetNotEmptyQtVersion)
 {
     auto qtVersion = projectItemNotEmpty->versionQt();
 
-    ASSERT_THAT(qtVersion, Eq("6"));
+    ASSERT_THAT(qtVersion, Eq(u"6"));
 }
 
 TEST_F(QmlProjectItem, GetNotEmptyQtQuickVersion)
 {
     auto qtQuickVersion = projectItemNotEmpty->versionQtQuick();
 
-    ASSERT_THAT(qtQuickVersion, Eq("6.2"));
+    ASSERT_THAT(qtQuickVersion, Eq(u"6.2"));
 }
 
 TEST_F(QmlProjectItem, GetNotEmptyDesignStudioVersion)
 {
     auto designStudioVersion = projectItemNotEmpty->versionDesignStudio();
 
-    ASSERT_THAT(designStudioVersion, Eq("3.9"));
+    ASSERT_THAT(designStudioVersion, Eq(u"3.9"));
 }
 
 TEST_F(QmlProjectItem, GetNotEmptySourceDirectory)
@@ -106,21 +106,21 @@ TEST_F(QmlProjectItem, GetNotEmptyTarGetNotEmptyDirectory)
 {
     auto targetDirectory = projectItemNotEmpty->targetDirectory();
 
-    ASSERT_THAT(targetDirectory, Eq("/opt/targetDirectory"));
+    ASSERT_THAT(targetDirectory, Eq(u"/opt/targetDirectory"));
 }
 
 TEST_F(QmlProjectItem, GetNotEmptyImportPaths)
 {
     auto importPaths = projectItemNotEmpty->importPaths();
 
-    ASSERT_THAT(importPaths, UnorderedElementsAre("imports", "asset_imports"));
+    ASSERT_THAT(importPaths, UnorderedElementsAre(u"imports", u"asset_imports"));
 }
 
 TEST_F(QmlProjectItem, GetNotEmptyFileSelectors)
 {
     auto fileSelectors = projectItemNotEmpty->fileSelectors();
 
-    ASSERT_THAT(fileSelectors, UnorderedElementsAre("WXGA", "darkTheme", "ShowIndicator"));
+    ASSERT_THAT(fileSelectors, UnorderedElementsAre(u"WXGA", u"darkTheme", u"ShowIndicator"));
 }
 
 TEST_F(QmlProjectItem, GetNotEmptyMultiLanguageSupport)
@@ -134,7 +134,7 @@ TEST_F(QmlProjectItem, GetNotEmptySupportedLanguages)
 {
     auto supportedLanguages = projectItemNotEmpty->supportedLanguages();
 
-    ASSERT_THAT(supportedLanguages, UnorderedElementsAre("en", "fr"));
+    ASSERT_THAT(supportedLanguages, UnorderedElementsAre(u"en", u"fr"));
 }
 
 TEST_F(QmlProjectItem, GetNotEmptyPrimaryLanguage)
@@ -142,7 +142,7 @@ TEST_F(QmlProjectItem, GetNotEmptyPrimaryLanguage)
     auto primaryLanguage = projectItemNotEmpty->primaryLanguage();
     ;
 
-    ASSERT_THAT(primaryLanguage, Eq("en"));
+    ASSERT_THAT(primaryLanguage, Eq(u"en"));
 }
 
 TEST_F(QmlProjectItem, GetNotEmptyWidgetApp)
@@ -169,14 +169,14 @@ TEST_F(QmlProjectItem, GetNotEmptyShaderToolArgs)
     auto shaderToolArgs = projectItemNotEmpty->shaderToolArgs();
 
     ASSERT_THAT(shaderToolArgs,
-                UnorderedElementsAre("-s", "--glsl", "\"100 es,120,150\"", "--hlsl", "50", "--msl", "12"));
+                UnorderedElementsAre(u"-s", u"--glsl", u"\"100 es,120,150\"", u"--hlsl", u"50", u"--msl", u"12"));
 }
 
 TEST_F(QmlProjectItem, GetNotEmptyShaderToolFiles)
 {
     auto shaderToolFiles = projectItemNotEmpty->shaderToolFiles();
 
-    ASSERT_THAT(shaderToolFiles, UnorderedElementsAre("content/shaders/*"));
+    ASSERT_THAT(shaderToolFiles, UnorderedElementsAre(u"content/shaders/*"));
 }
 
 TEST_F(QmlProjectItem, GetNotEmptyEnvironment)
@@ -221,7 +221,7 @@ TEST_F(QmlProjectItem, GetEmptyQtVersion)
     auto qtVersion = projectItemEmpty->versionQt();
 
     // default Qt Version is "5" for Design Studio projects
-    ASSERT_THAT(qtVersion, Eq("5"));
+    ASSERT_THAT(qtVersion, Eq(u"5"));
 }
 
 TEST_F(QmlProjectItem, GetEmptyQtQuickVersion)
@@ -338,7 +338,7 @@ TEST_F(QmlProjectItem, SetMainFileProject)
 
     auto mainFile = projectItemSetters->mainFile();
 
-    ASSERT_THAT(mainFile, Eq("testing"));
+    ASSERT_THAT(mainFile, Eq(u"testing"));
 }
 
 TEST_F(QmlProjectItem, SetMainUIFileProject)
@@ -347,7 +347,7 @@ TEST_F(QmlProjectItem, SetMainUIFileProject)
 
     auto mainUiFile = projectItemSetters->mainUiFile();
 
-    ASSERT_THAT(mainUiFile, Eq("testing"));
+    ASSERT_THAT(mainUiFile, Eq(u"testing"));
 }
 
 TEST_F(QmlProjectItem, SetImportPaths)
@@ -356,7 +356,7 @@ TEST_F(QmlProjectItem, SetImportPaths)
 
     auto importPaths = projectItemSetters->importPaths();
 
-    ASSERT_THAT(importPaths, UnorderedElementsAre("testing"));
+    ASSERT_THAT(importPaths, UnorderedElementsAre(u"testing"));
 }
 
 TEST_F(QmlProjectItem, AddImportPaths)
@@ -366,7 +366,7 @@ TEST_F(QmlProjectItem, AddImportPaths)
 
     auto importPaths = projectItemSetters->importPaths();
 
-    ASSERT_THAT(importPaths, UnorderedElementsAre("testing"));
+    ASSERT_THAT(importPaths, UnorderedElementsAre(u"testing"));
 }
 
 TEST_F(QmlProjectItem, SetFileSelectors)
@@ -375,7 +375,7 @@ TEST_F(QmlProjectItem, SetFileSelectors)
 
     auto fileSelectors = projectItemSetters->fileSelectors();
 
-    ASSERT_THAT(fileSelectors, UnorderedElementsAre("testing"));
+    ASSERT_THAT(fileSelectors, UnorderedElementsAre(u"testing"));
 }
 
 TEST_F(QmlProjectItem, AddFileSelectors)
@@ -385,7 +385,7 @@ TEST_F(QmlProjectItem, AddFileSelectors)
 
     auto fileSelectors = projectItemSetters->fileSelectors();
 
-    ASSERT_THAT(fileSelectors, UnorderedElementsAre("testing"));
+    ASSERT_THAT(fileSelectors, UnorderedElementsAre(u"testing"));
 }
 
 TEST_F(QmlProjectItem, SetMultiLanguageSupport)
@@ -403,7 +403,7 @@ TEST_F(QmlProjectItem, SetSupportedLanguages)
 
     auto supportedLanguages = projectItemSetters->supportedLanguages();
 
-    ASSERT_THAT(supportedLanguages, UnorderedElementsAre("testing"));
+    ASSERT_THAT(supportedLanguages, UnorderedElementsAre(u"testing"));
 }
 
 TEST_F(QmlProjectItem, AddSupportedLanguages)
@@ -413,7 +413,7 @@ TEST_F(QmlProjectItem, AddSupportedLanguages)
 
     auto supportedLanguages = projectItemSetters->supportedLanguages();
 
-    ASSERT_THAT(supportedLanguages, UnorderedElementsAre("testing"));
+    ASSERT_THAT(supportedLanguages, UnorderedElementsAre(u"testing"));
 }
 
 TEST_F(QmlProjectItem, SetPrimaryLanguage)
@@ -423,7 +423,7 @@ TEST_F(QmlProjectItem, SetPrimaryLanguage)
     auto primaryLanguage = projectItemSetters->primaryLanguage();
     ;
 
-    ASSERT_THAT(primaryLanguage, Eq("testing"));
+    ASSERT_THAT(primaryLanguage, Eq(u"testing"));
 }
 
 TEST_F(QmlProjectItem, SetWidgetApp)
@@ -441,7 +441,7 @@ TEST_F(QmlProjectItem, SetShaderToolArgs)
 
     auto shaderToolArgs = projectItemSetters->shaderToolArgs();
 
-    ASSERT_THAT(shaderToolArgs, UnorderedElementsAre("testing"));
+    ASSERT_THAT(shaderToolArgs, UnorderedElementsAre(u"testing"));
 }
 
 TEST_F(QmlProjectItem, AddShaderToolArgs)
@@ -451,7 +451,7 @@ TEST_F(QmlProjectItem, AddShaderToolArgs)
 
     auto shaderToolArgs = projectItemSetters->shaderToolArgs();
 
-    ASSERT_THAT(shaderToolArgs, UnorderedElementsAre("testing"));
+    ASSERT_THAT(shaderToolArgs, UnorderedElementsAre(u"testing"));
 }
 
 TEST_F(QmlProjectItem, SetShaderToolFiles)
@@ -460,7 +460,7 @@ TEST_F(QmlProjectItem, SetShaderToolFiles)
 
     auto shaderToolFiles = projectItemSetters->shaderToolFiles();
 
-    ASSERT_THAT(shaderToolFiles, UnorderedElementsAre("testing"));
+    ASSERT_THAT(shaderToolFiles, UnorderedElementsAre(u"testing"));
 }
 
 TEST_F(QmlProjectItem, AddShaderToolFiles)
@@ -470,7 +470,7 @@ TEST_F(QmlProjectItem, AddShaderToolFiles)
 
     auto shaderToolFiles = projectItemSetters->shaderToolFiles();
 
-    ASSERT_THAT(shaderToolFiles, UnorderedElementsAre("testing"));
+    ASSERT_THAT(shaderToolFiles, UnorderedElementsAre(u"testing"));
 }
 
 TEST_F(QmlProjectItem, AddEnvironment)

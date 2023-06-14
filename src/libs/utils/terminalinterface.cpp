@@ -183,6 +183,8 @@ void TerminalInterface::onStubReadyRead()
             emitFinished(out.mid(5).toInt(), QProcess::NormalExit);
         } else if (out.startsWith("crash ")) {
             emitFinished(out.mid(6).toInt(), QProcess::CrashExit);
+        } else if (out.startsWith("ack ")) {
+            qCDebug(terminalInterfaceLog) << "Received ack from stub: " << out;
         } else {
             emitError(QProcess::UnknownError, msgUnexpectedOutput(out));
             break;

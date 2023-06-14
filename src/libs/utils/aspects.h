@@ -407,6 +407,7 @@ public:
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
     void setElideMode(Qt::TextElideMode elideMode);
     void setAllowPathFromDevice(bool allowPathFromDevice);
+    void setValidatePlaceHolder(bool validatePlaceHolder);
 
     void validateInput();
 

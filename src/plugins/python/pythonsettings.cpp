@@ -811,12 +811,12 @@ void PythonSettings::createVirtualEnvironmentInteractive(
         if (!preselectedId.isEmpty() && interpreter.id == preselectedId)
             interpreters->setCurrentIndex(interpreters->count() - 1);
     }
-    layout->addRow(Tr::tr("Python Interpreter"), interpreters);
+    layout->addRow(Tr::tr("Python interpreter:"), interpreters);
     auto pathChooser = new PathChooser();
     pathChooser->setInitialBrowsePathBackup(startDirectory);
     pathChooser->setExpectedKind(PathChooser::Directory);
     pathChooser->setPromptDialogTitle(Tr::tr("New Python Virtual Environment Directory"));
-    layout->addRow(Tr::tr("Virtual Environment Directory"), pathChooser);
+    layout->addRow(Tr::tr("Virtual environment directory:"), pathChooser);
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);
     auto createButton = buttons->addButton(Tr::tr("Create"), QDialogButtonBox::AcceptRole);
     createButton->setEnabled(false);

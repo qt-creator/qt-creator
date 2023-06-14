@@ -551,7 +551,7 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
     if (error.has_value()) {
         errorMessage = error->toString();
         if (errorMessage.contains("Cannot rename symbol: new name is the same as the old name"))
-            errorMessage = Tr::tr("Start typing to see replacements"); // clangd optimization
+            errorMessage = Tr::tr("Start typing to see replacements."); // clangd optimization
         else
             m_client->log(*error);
     }

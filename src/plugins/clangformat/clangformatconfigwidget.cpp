@@ -80,7 +80,7 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     : CppCodeStyleWidget(parent), d(new Private)
 {
     d->project = project;
-    d->config = std::make_unique<ClangFormatFile>(filePathToCurrentSettings(codeStyle->currentPreferences()));
+    d->config = std::make_unique<ClangFormatFile>(codeStyle->currentPreferences());
 
     d->fallbackConfig = new QLabel(Tr::tr("Clang-Format Style"));
     d->checksScrollArea = new QScrollArea();
@@ -136,7 +136,7 @@ void ClangFormatConfigWidget::slotCodeStyleChanged(
 {
     if (!codeStyle)
         return;
-    d->config.reset(new ClangFormatFile(filePathToCurrentSettings(codeStyle)));
+    d->config.reset(new ClangFormatFile(codeStyle));
     d->config->setIsReadOnly(codeStyle->isReadOnly());
     d->style = d->config->style();
 

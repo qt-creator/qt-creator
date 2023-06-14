@@ -37,11 +37,11 @@ auto CorePropertiesHave(const Matcher &matcher)
 template<typename Matcher>
 auto NonCorePropertiesHave(const Matcher &matcher)
 {
-    return Not(Contains(AllOf(UrlProperty(AnyOf(Eq("QtQuick"),
-                                                Eq("QtQuick.Controls"),
-                                                Eq("QtQuick3D"),
-                                                Eq("QtQuick3D.Helpers"),
-                                                Eq("QtQuick3D.Particles3D"))),
+    return Not(Contains(AllOf(UrlProperty(AnyOf(Eq(u"QtQuick"),
+                                                Eq(u"QtQuick.Controls"),
+                                                Eq(u"QtQuick3D"),
+                                                Eq(u"QtQuick3D.Helpers"),
+                                                Eq(u"QtQuick3D.Particles3D"))),
                               matcher)));
 }
 

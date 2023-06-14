@@ -205,15 +205,15 @@ void ClangFormatGlobalConfigWidget::initOverrideCheckBox()
     connect(m_indentingOrFormatting, &QComboBox::currentIndexChanged,
             this, setEnableOverrideCheckBox);
 
-    m_overrideDefault->setToolTip(Tr::tr(
-        "When this option is enabled, ClangFormat will use a\n"
-        "user-specified configuration from the widget below,\n"
-        "instead of the project .clang-format file. You can\n"
-        "customize the formatting options for your code by\n"
-        "adjusting the settings in the widget. Note that any\n"
-        "changes made there will only affect the current\n"
-        "configuration, and will not modify the project\n"
-        ".clang-format file."));
+    m_overrideDefault->setToolTip("<html>"
+                                  + Tr::tr("When this option is enabled, ClangFormat will use a "
+                                           "user-specified configuration from the widget below, "
+                                           "instead of the project .clang-format file. You can "
+                                           "customize the formatting options for your code by "
+                                           "adjusting the settings in the widget. Note that any "
+                                           "changes made there will only affect the current "
+                                           "configuration, and will not modify the project "
+                                           ".clang-format file."));
 
     m_overrideDefault->setChecked(getProjectOverriddenSettings(m_project));
     setTemporarilyReadOnly();

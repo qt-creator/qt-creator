@@ -7,6 +7,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <cppeditor/cppcodestylepreferences.h>
 #include <cppeditor/cppcodestylesettings.h>
 
 #include <texteditor/icodestylepreferences.h>
@@ -183,6 +184,83 @@ clang::format::FormatStyle qtcStyle()
 {
     static clang::format::FormatStyle style = calculateQtcStyle();
     return style;
+}
+
+clang::format::FormatStyle currentQtStyle(const TextEditor::ICodeStylePreferences *preferences)
+{
+    clang::format::FormatStyle style = qtcStyle();
+    if (!preferences)
+        return style;
+
+    fromTabSettings(style, preferences->tabSettings());
+    if (auto ccpPreferences = dynamic_cast<const CppEditor::CppCodeStylePreferences *>(preferences))
+        fromCppCodeStyleSettings(style, ccpPreferences->codeStyleSettings());
+    return style;
+}
+
+void fromCppCodeStyleSettings(clang::format::FormatStyle &style,
+                              const CppEditor::CppCodeStyleSettings &settings)
+{
+    using namespace clang::format;
+    if (settings.indentAccessSpecifiers)
+        style.AccessModifierOffset = 0;
+    else
+        style.AccessModifierOffset = -1 * style.IndentWidth;
+
+    if (settings.indentNamespaceBody || settings.indentNamespaceBraces)
+        style.NamespaceIndentation = FormatStyle::NamespaceIndentationKind::NI_All;
+    else
+        style.NamespaceIndentation = FormatStyle::NamespaceIndentationKind::NI_None;
+
+    if (settings.indentClassBraces || settings.indentEnumBraces || settings.indentBlockBraces
+        || settings.indentFunctionBraces)
+        style.BreakBeforeBraces = FormatStyle::BS_Whitesmiths;
+    else
+        style.BreakBeforeBraces = FormatStyle::BS_Custom;
+
+    style.IndentCaseLabels = settings.indentSwitchLabels;
+#if LLVM_VERSION_MAJOR >= 11
+    style.IndentCaseBlocks = settings.indentBlocksRelativeToSwitchLabels;
+#endif
+
+    if (settings.extraPaddingForConditionsIfConfusingAlign)
+        style.BreakBeforeBinaryOperators = FormatStyle::BOS_All;
+    else if (settings.alignAssignments)
+        style.BreakBeforeBinaryOperators = FormatStyle::BOS_NonAssignment;
+    else
+        style.BreakBeforeBinaryOperators = FormatStyle::BOS_None;
+
+    style.DerivePointerAlignment = settings.bindStarToIdentifier || settings.bindStarToTypeName
+                                   || settings.bindStarToLeftSpecifier
+                                   || settings.bindStarToRightSpecifier;
+
+    if ((settings.bindStarToIdentifier || settings.bindStarToRightSpecifier)
+        && ClangFormatSettings::instance().mode() == ClangFormatSettings::Mode::Formatting)
+        style.PointerAlignment = FormatStyle::PAS_Right;
+
+    if ((settings.bindStarToTypeName || settings.bindStarToLeftSpecifier)
+        && ClangFormatSettings::instance().mode() == ClangFormatSettings::Mode::Formatting)
+        style.PointerAlignment = FormatStyle::PAS_Left;
+}
+
+void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSettings &settings)
+{
+    using namespace clang::format;
+
+    style.IndentWidth = settings.m_indentSize;
+    style.TabWidth = settings.m_tabSize;
+
+    switch (settings.m_tabPolicy) {
+    case TextEditor::TabSettings::TabPolicy::MixedTabPolicy:
+        style.UseTab = FormatStyle::UT_ForContinuationAndIndentation;
+        break;
+    case TextEditor::TabSettings::TabPolicy::SpacesOnlyTabPolicy:
+        style.UseTab = FormatStyle::UT_Never;
+        break;
+    case TextEditor::TabSettings::TabPolicy::TabsOnlyTabPolicy:
+        style.UseTab = FormatStyle::UT_Always;
+        break;
+    }
 }
 
 QString projectUniqueId(ProjectExplorer::Project *project)

@@ -105,6 +105,8 @@ public:
     bool isValid() const;
     QString errorMessage() const;
 
+    void setValidatePlaceHolder(bool on);
+
     void setValidationFunction(const ValidationFunction &fn);
     static ValidationFunction defaultValidationFunction();
     void validate();

@@ -5,7 +5,9 @@
 
 #include <QMenu>
 
+QT_BEGIN_NAMESPACE
 class QStyleOptionMenuItem;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

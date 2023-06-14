@@ -4530,12 +4530,7 @@ int TextEditorWidgetPrivate::indentDepthForBlock(const QTextBlock &block, const 
             m_visualIndentCache.resize(size, -1);
     };
     int depth = blockDepth(block);
-    if (depth < 0) // the block was empty and uncached ask the indenter for a visual indentation
-        depth = m_document->indenter()->visualIndentFor(block, data.tabSettings);
-    if (depth >= 0) {
-        ensureCacheSize(block.blockNumber() + 1);
-        m_visualIndentCache[block.blockNumber()] = depth;
-    } else {
+    if (depth < 0) {
         // find previous non empty block and get the indent depth of this block
         QTextBlock it = block.previous();
         int prevDepth = -1;
@@ -5164,10 +5159,13 @@ void TextEditorWidgetPrivate::slotUpdateExtraAreaWidth(std::optional<int> width)
 {
     if (!width.has_value())
         width = q->extraAreaWidth();
+    QMargins margins;
     if (q->isLeftToRight())
-        q->setViewportMargins(*width, 0, 0, 0);
+        margins = QMargins(*width, 0, 0, 0);
     else
-        q->setViewportMargins(0, 0, *width, 0);
+        margins = QMargins(0, 0, *width, 0);
+    if (margins != q->viewportMargins())
+        q->setViewportMargins(margins);
 }
 
 struct Internal::ExtraAreaPaintEventData
@@ -8555,6 +8553,38 @@ void TextEditorWidget::setRefactorMarkers(const RefactorMarkers &markers)
     d->m_refactorOverlay->setMarkers(markers);
     for (const RefactorMarker &marker : markers)
         emit requestBlockUpdate(marker.cursor.block());
+}
+
+void TextEditorWidget::setRefactorMarkers(const RefactorMarkers &newMarkers, const Utils::Id &type)
+{
+    RefactorMarkers markers = d->m_refactorOverlay->markers();
+    auto first = std::partition(markers.begin(),
+                                markers.end(),
+                                [type](const RefactorMarker &marker) {
+                                    return marker.type == type;
+                                });
+
+    for (auto it = markers.begin(); it != first; ++it)
+        emit requestBlockUpdate(it->cursor.block());
+    markers.erase(markers.begin(), first);
+    markers.append(newMarkers);
+    d->m_refactorOverlay->setMarkers(markers);
+    for (const RefactorMarker &marker : newMarkers)
+        emit requestBlockUpdate(marker.cursor.block());
+}
+
+void TextEditorWidget::clearRefactorMarkers(const Utils::Id &type)
+{
+    RefactorMarkers markers = d->m_refactorOverlay->markers();
+    for (auto it = markers.begin(); it != markers.end();) {
+        if (it->type == type) {
+            emit requestBlockUpdate(it->cursor.block());
+            it = markers.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    d->m_refactorOverlay->setMarkers(markers);
 }
 
 bool TextEditorWidget::inFindScope(const QTextCursor &cursor) const

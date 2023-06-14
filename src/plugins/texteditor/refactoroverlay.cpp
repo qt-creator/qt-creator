@@ -24,14 +24,21 @@ RefactorOverlay::RefactorOverlay(TextEditor::TextEditorWidget *editor) :
 
 void RefactorOverlay::paint(QPainter *painter, const QRect &clip)
 {
+    const auto firstBlock = m_editor->blockForVerticalOffset(clip.top());
+    const auto lastBlock = m_editor->blockForVerticalOffset(clip.bottom());
+
     m_maxWidth = 0;
-    for (auto &marker : std::as_const(m_markers)) {
+    for (const RefactorMarker &marker : std::as_const(m_markers)) {
+        const int markerBlockNumber = marker.cursor.block().blockNumber();
+        if (markerBlockNumber < firstBlock.blockNumber())
+            continue;
+        if (markerBlockNumber > lastBlock.blockNumber())
+            continue;
         paintMarker(marker, painter, clip);
     }
 
     if (auto documentLayout = qobject_cast<TextDocumentLayout*>(m_editor->document()->documentLayout()))
         documentLayout->setRequiredWidth(m_maxWidth);
-
 }
 
 RefactorMarker RefactorOverlay::markerAt(const QPoint &pos) const

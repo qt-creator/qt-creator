@@ -150,6 +150,7 @@ public:
         m_qbsExePathChooser.setFilePath(QbsSettings::qbsExecutableFilePath());
         m_defaultInstallDirLineEdit.setText(QbsSettings::defaultInstallDirTemplate());
         m_versionLabel.setText(getQbsVersionString());
+        //: %1 == "Qt Creator" or "Qt Design Studio"
         m_settingsDirCheckBox.setText(Tr::tr("Use %1 settings directory for Qbs")
                                       .arg(Core::Constants::IDE_DISPLAY_NAME));
         m_settingsDirCheckBox.setChecked(QbsSettings::useCreatorSettingsDirForQbs());
