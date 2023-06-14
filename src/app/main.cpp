@@ -495,6 +495,10 @@ int main(int argc, char **argv)
     Options options = parseCommandLine(argc, argv);
     applicationDirPath(argv[0]);
 
+    const bool hasStyleOption = Utils::findOrDefault(options.appArguments, [](char *arg) {
+        return strcmp(arg, "-style") == 0;
+    });
+
     if (qEnvironmentVariableIsSet("QTC_DO_NOT_PROPAGATE_LD_PRELOAD")) {
         Utils::Environment::modifySystemEnvironment(
             {{"LD_PRELOAD", "", Utils::EnvironmentItem::Unset}});
@@ -607,10 +611,8 @@ int main(int argc, char **argv)
     setPixmapCacheLimit();
     loadFonts();
 
-    if (Utils::HostOsInfo::isWindowsHost()
-            && !qFuzzyCompare(qApp->devicePixelRatio(), 1.0)
-            && QApplication::style()->objectName().startsWith(
-                QLatin1String("windows"), Qt::CaseInsensitive)) {
+    if (Utils::HostOsInfo::isWindowsHost() && !qFuzzyCompare(qApp->devicePixelRatio(), 1.0)
+        && !hasStyleOption) {
         QApplication::setStyle(QLatin1String("fusion"));
     }
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
