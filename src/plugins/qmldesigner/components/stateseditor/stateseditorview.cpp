@@ -339,6 +339,9 @@ void StatesEditorView::removeState(int nodeId)
 
             NodeListProperty parentProperty = stateNode.parentProperty().toNodeListProperty();
 
+            if (modelState.isDefault())
+                m_statesEditorModel->resetDefaultState();
+
             if (parentProperty.count() <= 1) {
                 setCurrentState(baseState());
             } else if (parentProperty.isValid()) {
