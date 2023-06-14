@@ -27,6 +27,7 @@ public:
         return typedValue<LanguageServerProtocol::Range>(LanguageServerProtocol::rangeKey);
     }
     QString text() const { return typedValue<QString>(LanguageServerProtocol::textKey); }
+    void setText(const QString &text) { insert(LanguageServerProtocol::textKey, text); }
     QString uuid() const { return typedValue<QString>(uuidKey); }
 
     bool isValid() const override
