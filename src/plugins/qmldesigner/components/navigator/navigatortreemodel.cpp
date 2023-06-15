@@ -777,21 +777,6 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
             if (newQmlObjectNode.isValid())
                 m_view->setSelectedModelNode(newQmlObjectNode.modelNode());
         }
-
-        const QStringList copyFiles = itemLibraryEntry.extraFilePaths();
-        if (!copyFiles.isEmpty()) {
-            // Files are copied into the same directory as the current qml document
-            for (const auto &copyFile : copyFiles) {
-                QFileInfo fi(copyFile);
-                const QString targetFile = DocumentManager::currentFilePath().toFileInfo().dir()
-                        .absoluteFilePath(fi.fileName());
-                // We don't want to overwrite existing default files
-                if (!QFileInfo::exists(targetFile)) {
-                    if (!QFile::copy(copyFile, targetFile))
-                        qWarning() << QStringLiteral("Copying extra file '%1' failed.").arg(copyFile);
-                }
-            }
-        }
     }
 }
 

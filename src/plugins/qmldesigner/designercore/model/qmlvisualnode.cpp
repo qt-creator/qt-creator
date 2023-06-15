@@ -417,6 +417,20 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
             newQmlObjectNode.setBindingProperty(property, parent.validId());
     }
 
+    const QStringList copyFiles = itemLibraryEntry.extraFilePaths();
+    if (!copyFiles.isEmpty()) {
+        // Files are copied into the same directory as the current qml document
+        for (const auto &copyFileStr : copyFiles) {
+            Utils::FilePath sourceFile = Utils::FilePath::fromString(copyFileStr);
+            Utils::FilePath qmlFilePath = Utils::FilePath::fromString(
+                                            view->model()->fileUrl().toLocalFile()).absolutePath();
+            Utils::FilePath targetFile = qmlFilePath.pathAppended(sourceFile.fileName());
+            // We don't want to overwrite existing default files
+            if (!targetFile.exists() && !sourceFile.copyFile(targetFile))
+                qWarning() << QStringLiteral("Copying extra file '%1' failed.").arg(copyFileStr);
+        }
+    }
+
     return newQmlObjectNode;
 }
 
