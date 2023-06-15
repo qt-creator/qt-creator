@@ -185,6 +185,28 @@ void GenerigHighlighterTests::testChange()
         compareFormats(actualFormats.at(i), formatRanges.at(i));
 }
 
+void GenerigHighlighterTests::testPreeditText()
+{
+    QTextBlock block = m_editor->textDocument()->document()->findBlockByNumber(2);
+    QVERIFY(block.isValid());
+
+    block.layout()->setPreeditArea(7, "uaf");
+    m_editor->textDocument()->syntaxHighlighter()->rehighlight();
+
+    const FormatRanges formatRanges = {{0, 4, toFormat(C_VISUAL_WHITESPACE)},
+                                       {4, 3, toFormat(C_TYPE)},
+                                       {10, 3, toFormat(C_TYPE)},
+                                       {13, 1, toFormat(C_FUNCTION)},
+                                       {14, 1, toFormat(C_VISUAL_WHITESPACE)},
+                                       {15, 6, toFormat(C_STRING)},
+                                       {21, 1, toFormat(C_FUNCTION)}};
+    const QList<QTextLayout::FormatRange> actualFormats = block.layout()->formats();
+    // full hash calculation for QTextCharFormat fails so just check the important entries of format
+    QCOMPARE(actualFormats.size(), formatRanges.size());
+    for (int i = 0; i < formatRanges.size(); ++i)
+        compareFormats(actualFormats.at(i), formatRanges.at(i));
+}
+
 void GenerigHighlighterTests::cleanupTestCase()
 {
     if (m_editor)

@@ -11,6 +11,8 @@ namespace Utils {
 
 class TerminalInterfacePrivate;
 
+const char TERMINAL_SHELL_NAME[] = "Terminal.ShellName";
+
 class StubCreator : public QObject
 {
 public:

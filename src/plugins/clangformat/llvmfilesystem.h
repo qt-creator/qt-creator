@@ -50,7 +50,7 @@ public:
         Q_UNUSED(RequiresNullTerminator);
         Q_UNUSED(IsVolatile);
 
-        const FilePath path = FilePath::fromString(QString::fromStdString(Name.str()));
+        const FilePath path = FilePath::fromUserInput(QString::fromStdString(Name.str()));
         const expected_str<QByteArray> contents = path.fileContents(FileSize, 0);
         QTC_ASSERT_EXPECTED(contents, return std::error_code());
 
@@ -72,7 +72,7 @@ public:
 
     ErrorOr<Status> status(const Twine &Path) override
     {
-        const Utils::FilePath path = FilePath::fromString(QString::fromStdString(Path.str()));
+        const FilePath path = FilePath::fromUserInput(QString::fromStdString(Path.str()));
 
         QFileInfo fInfo(QString::fromStdString(Path.str()));
         if (!fInfo.exists())

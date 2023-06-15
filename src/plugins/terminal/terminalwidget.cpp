@@ -146,8 +146,8 @@ void TerminalWidget::setupPty()
                     TerminalSettings::instance().shellArguments.value(),
                     CommandLine::Raw});
 
-    Environment env = m_openParameters.environment.value_or(
-        shellCommand.executable().deviceEnvironment());
+    Environment env = m_openParameters.environment.value_or(Environment{})
+                          .appliedToEnvironment(shellCommand.executable().deviceEnvironment());
 
     // For git bash on Windows
     env.prependOrSetPath(shellCommand.executable().parentDir());

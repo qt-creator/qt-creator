@@ -277,10 +277,14 @@ public:
         {
             QObject::disconnect(contentsChangedConnection);
             QObject::disconnect(filePathChangedConnection);
+            QObject::disconnect(aboutToSaveConnection);
+            QObject::disconnect(savedConnection);
             delete document;
         }
         QMetaObject::Connection contentsChangedConnection;
         QMetaObject::Connection filePathChangedConnection;
+        QMetaObject::Connection aboutToSaveConnection;
+        QMetaObject::Connection savedConnection;
         QTextDocument *document = nullptr;
     };
     QMap<TextEditor::TextDocument *, OpenedDocument> m_openedDocument;
@@ -647,6 +651,22 @@ void Client::openDocument(TextEditor::TextDocument *document)
                       closeDocument(document, oldPath);
                       if (isSupportedDocument(document))
                           openDocument(document);
+                  });
+    d->m_openedDocument[document].savedConnection
+        = connect(document,
+                  &TextDocument::saved,
+                  this,
+                  [this, document](const FilePath &saveFilePath) {
+                      if (saveFilePath == document->filePath())
+                          documentContentsSaved(document);
+                  });
+    d->m_openedDocument[document].aboutToSaveConnection
+        = connect(document,
+                  &TextDocument::aboutToSave,
+                  this,
+                  [this, document](const FilePath &saveFilePath) {
+                      if (saveFilePath == document->filePath())
+                          documentWillSave(document);
                   });
     if (!d->m_documentVersions.contains(filePath))
         d->m_documentVersions[filePath] = 0;

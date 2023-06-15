@@ -60,9 +60,12 @@
         \li Open a terminal window in the selected directory or in the directory
             that has the file. To specify the terminal to use on Linux and
             \macos, select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol Environment > \uicontrol System. To use an \l{Terminal}
-            {internal terminal}, select \uicontrol Edit > \uicontrol Preferences
-            > \uicontrol Terminal > \uicontrol {Use internal terminal}.
+            \uicontrol Environment > \uicontrol System.
+            \if defined(qtcreator)
+            To use an \l{Terminal} {internal terminal}, select \uicontrol Edit >
+            \uicontrol Preferences > \uicontrol Terminal >
+            \uicontrol {Use internal terminal}.
+            \endif
         \li Search from the selected directory.
         \li View file properties, such as name, path, MIME type, default editor,
             line endings, indentation, owner, size, last read and modified
@@ -73,7 +76,10 @@
             \else
             \l{Creating Files}.
             \endif
-        \li Rename or remove existing files.
+        \li Rename existing files. To move the file to another directory, enter
+            the relative or absolute path to its new location in addition to the
+            new filename.
+        \li Remove existing files.
         \li Create new folders.
         \li Compare the selected file with the currently open file in the diff
             editor. For more information, see \l{Comparing Files}.

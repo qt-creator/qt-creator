@@ -29,7 +29,6 @@ public:
     OpenResult open(QString *errorString,
                     const Utils::FilePath &filePath,
                     const Utils::FilePath &realFilePath) override;
-    bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
     bool shouldAutoSave() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
@@ -38,6 +37,9 @@ public:
     ExtDocumentController *documentController() const;
 
     OpenResult load(QString *errorString, const QString &fileName);
+
+protected:
+    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     ModelDocumentPrivate *d;

@@ -622,7 +622,7 @@ SyntaxHighlighter *TextDocument::syntaxHighlighter() const
  * If \a autoSave is true, the cursor will be restored and some signals suppressed
  * and we do not clean up the text file (cleanWhitespace(), ensureFinalNewLine()).
  */
-bool TextDocument::save(QString *errorString, const FilePath &filePath, bool autoSave)
+bool TextDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
 {
     QTextCursor cursor(&d->m_document);
 

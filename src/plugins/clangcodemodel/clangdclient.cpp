@@ -711,11 +711,11 @@ class ClangdDiagnosticManager : public LanguageClient::DiagnosticManager
         });
     }
 
-    TextMark *createTextMark(const Utils::FilePath &filePath,
+    TextMark *createTextMark(TextDocument *doc,
                              const Diagnostic &diagnostic,
                              bool isProjectFile) const override
     {
-        return new ClangdTextMark(filePath, diagnostic, isProjectFile, getClient());
+        return new ClangdTextMark(doc, diagnostic, isProjectFile, getClient());
     }
 };
 

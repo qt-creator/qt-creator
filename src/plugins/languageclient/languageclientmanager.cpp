@@ -63,10 +63,6 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
             this, &LanguageClientManager::documentOpened);
     connect(EditorManager::instance(), &EditorManager::documentClosed,
             this, &LanguageClientManager::documentClosed);
-    connect(EditorManager::instance(), &EditorManager::saved,
-            this, &LanguageClientManager::documentContentsSaved);
-    connect(EditorManager::instance(), &EditorManager::aboutToSave,
-            this, &LanguageClientManager::documentWillSave);
     connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, &LanguageClientManager::projectAdded);
     connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
@@ -548,24 +544,6 @@ void LanguageClientManager::documentClosed(Core::IDocument *document)
 {
     if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
         m_clientForDocument.remove(textDocument);
-}
-
-void LanguageClientManager::documentContentsSaved(Core::IDocument *document)
-{
-    if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
-        const QList<Client *> &clients = reachableClients();
-        for (Client *client : clients)
-            client->documentContentsSaved(textDocument);
-    }
-}
-
-void LanguageClientManager::documentWillSave(Core::IDocument *document)
-{
-    if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
-        const QList<Client *> &clients = reachableClients();
-        for (Client *client : clients)
-            client->documentWillSave(textDocument);
-    }
 }
 
 void LanguageClientManager::updateProject(ProjectExplorer::Project *project)

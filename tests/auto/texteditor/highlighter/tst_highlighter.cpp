@@ -26,6 +26,7 @@ private slots:
     void test_setExtraAdditionalFormats();
     void test_clearExtraFormats();
     void test_incrementalApplyAdditionalFormats();
+    void test_preeditText();
     void cleanup();
 
 private:
@@ -235,6 +236,7 @@ void tst_highlighter::test_incrementalApplyAdditionalFormats()
                                                                 formatHash);
 
     formats = firstBlock.layout()->formats();
+    QCOMPARE(formats.size(), 1);
     QCOMPARE(formats.at(0).format.fontItalic(), true);
     QCOMPARE(formats.at(0).format.fontOverline(), false);
     QCOMPARE(formats.at(0).start, 0);
@@ -336,6 +338,28 @@ void tst_highlighter::test_incrementalApplyAdditionalFormats()
     QCOMPARE(formats.at(1).format.fontOverline(), true);
     QCOMPARE(formats.at(1).start, 2);
     QCOMPARE(formats.at(1).length, 2);
+}
+
+void tst_highlighter::test_preeditText()
+{
+    QCOMPARE(doc->blockCount(), 4);
+
+    QTextBlock firstBlock = doc->findBlockByNumber(0);
+    firstBlock.layout()->setPreeditArea(2, "uaf");
+
+    SemanticHighlighter::setExtraAdditionalFormats(highlighter, highlightingResults(), formatHash);
+
+    auto formats = firstBlock.layout()->formats();
+    QCOMPARE(formats.size(), 2);
+    QCOMPARE(formats.at(0).format.fontItalic(), true);
+    QCOMPARE(formats.at(0).format.fontOverline(), false);
+    QCOMPARE(formats.at(0).start, 0);
+    QCOMPARE(formats.at(0).length, 2);
+
+    QCOMPARE(formats.at(1).format.fontItalic(), true);
+    QCOMPARE(formats.at(1).format.fontOverline(), false);
+    QCOMPARE(formats.at(1).start, 5);
+    QCOMPARE(formats.at(1).length, 3);
 }
 
 void tst_highlighter::cleanup()

@@ -1,0 +1,227 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage creator-build-settings-cmake.html
+    \page creator-build-settings-cmake-presets.html
+    \nextpage creator-build-settings-qmake.html
+
+    \title CMake Presets
+
+    \c CMakePresets.json has options for project-wide builds, whereas
+    \c CMakeUserPresets.json has options for your local builds.
+
+    Create the presets files in the format described in
+    \l{https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html}
+    {cmake-presets(7)} and store them in the project's root directory.
+    You can then see them in the \l {Projects} view.
+
+    \QC supports presets up to version 3 (introduced in CMake 3.21), but does not
+    enforce version checking. It reads and uses all the fields from version 3 if
+    present. It does not support test presets.
+
+    You can import the presets the first time you \l {Opening Projects}
+    {open a project}, when no \c CMakeLists.txt.user file exists or you have
+    disabled all kits in the project.
+
+    \image qtcreator-cmake-presets-configure.webp {Opening a project that has CMake presets}
+
+    You can view the presets in the \uicontrol {Initial Configuration} field and
+    in the environment configuration field below it.
+
+    \image qtcreator-cmake-presets-environment.webp {CMake environment configuration}
+
+    To update changes to the \c CMakePresets.json file, select \uicontrol Build >
+    \uicontrol {Reload CMake Presets}, and then select the presets file to load.
+
+    \section1 Configure Presets
+
+    The following configure presets instruct CMake to use the default generator
+    on the platform and specify the build directory for all build types.
+    \c NOT_COMMON_VALUE is displayed in \uicontrol {Initial Parameters}
+    and \c AN_ENVIRONMENT_FLAG in the environment configuration field.
+
+    \badcode
+    {
+      "version": 1,
+      "configurePresets": [
+        {
+          "name": "preset",
+          "displayName": "preset",
+          "binaryDir": "${sourceDir}/build/preset",
+          "cacheVariables": {
+            "NOT_COMMON_VALUE": "NOT_COMMON_VALUE"
+            },
+          "environment": {
+            "AN_ENVIRONMENT_FLAG": "1"
+          }
+        }
+      ]
+    }
+    \endcode
+
+    \section1 MinGW Example
+
+    The following example configures a Qt project with:
+
+    \list
+        \li MinGW compiler
+        \li build directory – \c <sourceDir>/build-release
+        \li build type – \c CMAKE_BUILD_TYPE as \c Release
+        \li generator – MinGW Makefiles
+        \li path to a CMake executable
+        \li path to the Qt installation via \c CMAKE_PREFIX_PATH
+    \endlist
+
+    \badcode
+    {
+      "version": 1,
+      "configurePresets": [
+        {
+          "name": "mingw",
+          "displayName": "MinGW 11.2.0",
+          "generator": "MinGW Makefiles",
+          "binaryDir": "${sourceDir}/build-release",
+          "cmakeExecutable": "C:/Qt/Tools/CMake_64/bin/cmake.exe",
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Release",
+            "CMAKE_PREFIX_PATH": "C:/Qt/6.4.0/mingw_64"
+          },
+          "environment": {
+            "PATH": "C:/Qt/Tools/mingw1120_64/bin;$penv{PATH}"
+          }
+        }
+      ]
+    }
+    \endcode
+
+    To speed up the process on Windows, specify the \c CMAKE_C_COMPILER and
+    \c CMAKE_CXX_COMPILER in the \c cacheVariables section.
+
+    \section1 Ninja Generator Example
+
+    The following configure and build presets set Ninja Multi-Config as the
+    generator, add \c Debug and \c Release build steps, and specify the path
+    to \c ninja.exe as a value of the \c CMAKE_MAKE_PROGRAM variable:
+
+    \badcode
+    {
+      "version": 2,
+      "configurePresets": [
+        {
+          "name": "ninja-nmc",
+          "displayName": "Ninja Multi-Config MinGW",
+          "generator": "Ninja Multi-Config",
+          "binaryDir": "${sourceDir}/build",
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Debug;Release",
+            "CMAKE_PREFIX_PATH": "C:/Qt/6.4.0/mingw_64"
+            "CMAKE_MAKE_PROGRAM": "C:/Qt/Tools/Ninja/ninja.exe"
+          },
+          "environment": {
+            "PATH": "c:/Qt/Tools/mingw1120_64/bin;$penv{PATH}"
+          }
+        }
+      ],
+      "buildPresets": [
+        {
+          "name": "release",
+          "displayName": "Ninja Release",
+          "configurePreset": "ninja-nmc",
+          "configuration": "Release"
+        },
+        {
+          "name": "debug",
+          "displayName": "Ninja Debug",
+          "configurePreset": "ninja-nmc",
+          "configuration": "Debug"
+        }
+      ]
+    }
+    \endcode
+
+    This example assumes that the CMake executable path is set in
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
+    \uicontrol Tools.
+
+    \section1 MSVC Example
+
+    When using MSVC compilers with NMAKE Makefiles, Ninja, or Ninja
+    Multi-Config generators, you can use the \c external strategy for
+    the \c architecture and \c toolset fields. This lets \QC set up
+    the Visual C++ environment before invoking CMake.
+
+    For example:
+
+    \badcode
+    "generator": "Ninja Multi-Config",
+    "toolset": {
+      "value": "v142,host=x64",
+      "strategy": "external"
+    },
+    "architecture": {
+      "value": "x64",
+      "strategy": "external"
+    },
+    \endcode
+
+    If you use MSVC compilers with non-VS generators and have several compilers
+    in the \c PATH, you might also have to specify the compiler to use in
+    \c cacheVariables or \c environmentVariables:
+
+    \badcode
+    "generator": "Ninja Multi-Config",
+    "toolset": {
+      "value": "v142,host=x64",
+      "strategy": "external"
+    },
+    "architecture": {
+      "value": "x64",
+      "strategy": "external"
+    },
+    "cacheVariables": {
+      "CMAKE_C_COMPILER": "cl.exe",
+      "CMAKE_CXX_COMPILER": "cl.exe"
+    }
+    \endcode
+
+    \section1 Using Conditions
+
+    The following configure presets are used if they match \c condition. That is,
+    if the \c hostSystemName equals \c Linux, the \c linux presets are used and
+    if it equals \c Windows, the \c windows presets are used.
+
+    \badcode
+    {
+      "version": 3,
+      "configurePresets": [
+        {
+          "name": "linux",
+          "displayName": "Linux GCC",
+          "binaryDir": "${sourceDir}/build",
+          "cacheVariables": {
+            "CMAKE_PREFIX_PATH": "$env{HOME}/Qt/6.4.0/gcc_64"
+          },
+          "condition": {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Linux"
+          }
+        },
+        {
+          "name": "windows",
+          "displayName": "Windows MSVC",
+          "binaryDir": "${sourceDir}/build",
+          "cacheVariables": {
+            "CMAKE_PREFIX_PATH": "$env{SYSTEMDRIVE}/Qt/6.4.0/msvc2019_64"
+          },
+          "condition": {
+            "type": "equals",
+            "lhs": "${hostSystemName}",
+            "rhs": "Windows"
+          }
+        }
+      ]
+    }
+    \endcode
+*/

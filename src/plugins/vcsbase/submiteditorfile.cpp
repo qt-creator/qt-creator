@@ -67,7 +67,7 @@ void SubmitEditorFile::setModified(bool modified)
     emit changed();
 }
 
-bool SubmitEditorFile::save(QString *errorString, const FilePath &filePath, bool autoSave)
+bool SubmitEditorFile::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
 {
     const FilePath &fName = filePath.isEmpty() ? this->filePath() : filePath;
     FileSaver saver(fName, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);

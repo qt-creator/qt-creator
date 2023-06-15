@@ -40,6 +40,7 @@ class TEXTEDITOR_EXPORT TextMark
 public:
     TextMark() = delete;
     TextMark(const Utils::FilePath &filePath, int lineNumber, TextMarkCategory category);
+    TextMark(TextDocument *document, int lineNumber, TextMarkCategory category);
     virtual ~TextMark();
 
     // determine order on markers on the same line.

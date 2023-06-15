@@ -426,8 +426,10 @@ CommandLine CMakeBuildStep::cmakeCommand() const
         }
         return s;
     }));
+    if (m_useStaging->value())
+        cmd.addArg("install");
 
-    auto bs = qobject_cast<CMakeBuildSystem*>(buildSystem());
+    auto bs = qobject_cast<CMakeBuildSystem *>(buildSystem());
     if (bs && bs->isMultiConfigReader()) {
         cmd.addArg("--config");
         if (m_configuration)
@@ -438,9 +440,6 @@ CommandLine CMakeBuildStep::cmakeCommand() const
 
     if (!m_cmakeArguments->value().isEmpty())
         cmd.addArgs(m_cmakeArguments->value(), CommandLine::Raw);
-
-    if (m_useStaging->value())
-        cmd.addArg("install");
 
     bool toolArgumentsSpecified = false;
     if (!m_toolArguments->value().isEmpty()) {

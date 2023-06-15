@@ -30,7 +30,6 @@ public:
     OpenResult open(QString *errorString,
                     const Utils::FilePath &filePath,
                     const Utils::FilePath &realFilePath) override;
-    bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
     bool shouldAutoSave() const override;
     bool isSaveAsAllowed() const override;
     bool isModified() const override;
@@ -45,6 +44,9 @@ public:
 
 signals:
     void reloadRequested(QString *errorString, const QString &);
+
+protected:
+    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     QPointer<Common::MainWidget> m_designWidget;

@@ -120,9 +120,8 @@ static QJsonObject readObjJson(const FilePath &projectFile, QString *errorMessag
 
 static QStringList readLines(const FilePath &projectFile)
 {
-    const QString projectFileName = projectFile.fileName();
-    QSet<QString> visited = { projectFileName };
-    QStringList lines = { projectFileName };
+    QSet<QString> visited;
+    QStringList lines;
 
     const expected_str<QByteArray> contents = projectFile.fileContents();
     if (contents) {
@@ -144,9 +143,8 @@ static QStringList readLines(const FilePath &projectFile)
 
 static QStringList readLinesJson(const FilePath &projectFile, QString *errorMessage)
 {
-    const QString projectFileName = projectFile.fileName();
-    QSet<QString> visited = { projectFileName };
-    QStringList lines = { projectFileName };
+    QSet<QString> visited;
+    QStringList lines;
 
     const QJsonObject obj = readObjJson(projectFile, errorMessage);
     for (const QJsonValue &file : obj.value("files").toArray()) {
@@ -205,8 +203,6 @@ static FileType getFileType(const FilePath &f)
 {
     if (f.endsWith(".py"))
         return FileType::Source;
-    if (f.endsWith(".pyproject") || f.endsWith(".pyqtc"))
-        return FileType::Project;
     if (f.endsWith(".qrc"))
         return FileType::Resource;
     if (f.endsWith(".ui"))
@@ -221,11 +217,16 @@ void PythonBuildSystem::triggerParsing()
     ParseGuard guard = guardParsingRun();
     parse();
 
-    const QDir baseDir(projectDirectory().toString());
     QList<BuildTargetInfo> appTargets;
 
     auto newRoot = std::make_unique<PythonProjectNode>(projectDirectory());
-    for (const FileEntry &entry: std::as_const(m_files)) {
+
+    const FilePath projectFile = projectFilePath();
+    const QString displayName = projectFile.relativePathFrom(projectDirectory()).toUserOutput();
+    newRoot->addNestedNode(
+        std::make_unique<PythonFileNode>(projectFile, displayName, FileType::Project));
+
+    for (const FileEntry &entry : std::as_const(m_files)) {
         const QString displayName = entry.filePath.relativePathFrom(projectDirectory()).toUserOutput();
         const FileType fileType = getFileType(entry.filePath);
 
@@ -236,7 +237,7 @@ void PythonBuildSystem::triggerParsing()
             bti.displayName = displayName;
             bti.buildKey = entry.filePath.toString();
             bti.targetFilePath = entry.filePath;
-            bti.projectFilePath = projectFilePath();
+            bti.projectFilePath = projectFile;
             bti.isQtcRunnable = entry.filePath.fileName() == "main.py";
             appTargets.append(bti);
         }
@@ -301,11 +302,20 @@ bool PythonBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *
 {
     const Utils::FilePath projectDir = projectDirectory();
 
+    auto comp = [](const FileEntry &left, const FileEntry &right) {
+        return left.rawEntry < right.rawEntry;
+    };
+
+    const bool isSorted = std::is_sorted(m_files.begin(), m_files.end(), comp);
+
     for (const FilePath &filePath : filePaths) {
         if (!projectDir.isSameDevice(filePath))
             return false;
         m_files.append(FileEntry{filePath.relativePathFrom(projectDir).toString(), filePath});
     }
+
+    if (isSorted)
+        std::sort(m_files.begin(), m_files.end(), comp);
 
     return save();
 }

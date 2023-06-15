@@ -17,6 +17,12 @@
 
 namespace TextEditor {
 
+enum HighlighterTypeProperty
+{
+    SyntaxHighlight = QTextFormat::UserProperty + 1,
+    SemanticHighlight = QTextFormat::UserProperty + 2
+};
+
 class SyntaxHighlighterPrivate
 {
     SyntaxHighlighter *q_ptr = nullptr;
@@ -98,9 +104,9 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
 
     QVector<QTextLayout::FormatRange> ranges;
     QVector<QTextLayout::FormatRange> oldRanges;
-    std::tie(ranges, oldRanges)
+    std::tie(oldRanges, ranges)
         = Utils::partition(layout->formats(), [](const QTextLayout::FormatRange &range) {
-              return range.format.property(QTextFormat::UserProperty).toBool();
+              return range.format.property(SyntaxHighlight).toBool();
           });
 
     if (currentBlock.contains(from)) {
@@ -129,7 +135,22 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
         while (i < formatChanges.count() && formatChanges.at(i) == r.format)
             ++i;
 
+        r.format.setProperty(SyntaxHighlight, true);
         r.length = i - r.start;
+
+        const QString preeditText = currentBlock.layout()->preeditAreaText();
+        if (!preeditText.isEmpty()) {
+            const int preeditPosition = currentBlock.layout()->preeditAreaPosition();
+            if (r.start >= preeditPosition) {
+                r.start += preeditText.length();
+            } else if (r.start + r.length > preeditPosition) {
+                QTextLayout::FormatRange beforePreeditRange = r;
+                r.start = preeditPosition + preeditText.length();
+                r.length = r.length - (r.start - preeditPosition);
+                beforePreeditRange.length = preeditPosition - beforePreeditRange.start;
+                newRanges << beforePreeditRange;
+            }
+        }
 
         newRanges << r;
     }
@@ -656,6 +677,24 @@ void SyntaxHighlighter::setExtraFormats(const QTextBlock &block,
     if (block.layout() == nullptr || blockLength == 0)
         return;
 
+    const QString preeditText = block.layout()->preeditAreaText();
+    if (!preeditText.isEmpty()) {
+        QVector<QTextLayout::FormatRange> additionalRanges;
+        const int preeditPosition = block.layout()->preeditAreaPosition();
+        for (QTextLayout::FormatRange &r : formats) {
+            if (r.start >= preeditPosition) {
+                r.start += preeditText.length();
+            } else if (r.start + r.length > preeditPosition) {
+                QTextLayout::FormatRange afterPreeditRange = r;
+                afterPreeditRange.start = preeditPosition + preeditText.length();
+                afterPreeditRange.length = r.length - (preeditPosition - r.start);
+                additionalRanges << afterPreeditRange;
+                r.length = preeditPosition - r.start;
+            }
+        }
+        formats << additionalRanges;
+    }
+
     Utils::sort(formats, byStartOfRange);
 
     const QVector<QTextLayout::FormatRange> all = block.layout()->formats();
@@ -663,11 +702,11 @@ void SyntaxHighlighter::setExtraFormats(const QTextBlock &block,
     QVector<QTextLayout::FormatRange> formatsToApply;
     std::tie(previousSemanticFormats, formatsToApply)
         = Utils::partition(all, [](const QTextLayout::FormatRange &r) {
-              return r.format.hasProperty(QTextFormat::UserProperty);
+              return r.format.property(SemanticHighlight).toBool();
           });
 
     for (auto &format : formats)
-        format.format.setProperty(QTextFormat::UserProperty, true);
+        format.format.setProperty(SemanticHighlight, true);
 
     if (formats.size() == previousSemanticFormats.size()) {
         Utils::sort(previousSemanticFormats, byStartOfRange);
@@ -694,7 +733,7 @@ void SyntaxHighlighter::clearExtraFormats(const QTextBlock &block)
 
     const QVector<QTextLayout::FormatRange> formatsToApply
         = Utils::filtered(block.layout()->formats(), [](const QTextLayout::FormatRange &r) {
-              return !r.format.hasProperty(QTextFormat::UserProperty);
+              return !r.format.property(SemanticHighlight).toBool();
           });
 
     bool wasInReformatBlocks = d->inReformatBlocks;

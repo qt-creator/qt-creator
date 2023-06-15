@@ -58,7 +58,7 @@ Core::IDocument::OpenResult ScxmlEditorDocument::open(QString *errorString,
     return OpenResult::Success;
 }
 
-bool ScxmlEditorDocument::save(QString *errorString, const FilePath &filePath, bool autoSave)
+bool ScxmlEditorDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
 {
     const FilePath oldFileName = this->filePath();
     const FilePath actualName = filePath.isEmpty() ? oldFileName : filePath;
