@@ -158,6 +158,10 @@ Projects
    [QTCREATORBUG-28904](https://bugreports.qt.io/browse/QTCREATORBUG-28904),
    [QTCREATORBUG-28985](https://bugreports.qt.io/browse/QTCREATORBUG-28985),
    [QTCREATORBUG-29006](https://bugreports.qt.io/browse/QTCREATORBUG-29006))
+* Added `Build > Reload CMake Presets` to reload CMake presets after making
+  changes to them
+* Fixed that CMake Presets were not visible in `Projects` view
+  ([QTCREATORBUG-28966](https://bugreports.qt.io/browse/QTCREATORBUG-28966))
 * Fixed issues with detecting a configured Qt version when importing a build
   ([QTCREATORBUG-29075](https://bugreports.qt.io/browse/QTCREATORBUG-29075))
 
