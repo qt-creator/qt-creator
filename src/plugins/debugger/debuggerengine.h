@@ -157,6 +157,7 @@ public:
     Utils::FilePath debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
     QString qtPackageSourceLocation;
+    Utils::FilePath qtSourceLocation;
     bool isSnapshot = false; // Set if created internally.
     ProjectExplorer::Abi toolChainAbi;
 
