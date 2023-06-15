@@ -869,6 +869,13 @@ QTextCharFormat SyntaxHighlighter::whitespacified(const QTextCharFormat &fmt)
     return format;
 }
 
+QTextCharFormat SyntaxHighlighter::asSyntaxHighlight(const QTextCharFormat &fmt)
+{
+    QTextCharFormat format = fmt;
+    format.setProperty(SyntaxHighlight, true);
+    return format;
+}
+
 void SyntaxHighlighter::highlightBlock(const QString &text)
 {
     formatSpaces(text);
