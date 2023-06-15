@@ -172,6 +172,12 @@ bool UnixPtyProcess::startProcess(const QString &shellPath,
         static std::array<char, maxRead> buffer;
 
         int len = ::read(m_shellProcess.m_handleMaster, buffer.data(), buffer.size());
+
+        struct termios termAttributes;
+        tcgetattr(m_shellProcess.m_handleMaster, &termAttributes);
+        const bool isPasswordEntry = !(termAttributes.c_lflag & ECHO) && (termAttributes.c_lflag & ICANON);
+        m_inputFlags.setFlag(PtyInputFlag::InputModeHidden, isPasswordEntry);
+
         if (len > 0) {
             m_shellReadBuffer.append(buffer.data(), len);
             m_shellProcess.emitReadyRead();

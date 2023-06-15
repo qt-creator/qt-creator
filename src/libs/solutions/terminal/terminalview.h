@@ -87,6 +87,8 @@ public:
     void setSurfaceIntegration(SurfaceIntegration *surfaceIntegration);
     void setColors(const std::array<QColor, 20> &colors);
 
+    void setPasswordMode(bool passwordMode);
+
     struct Link
     {
         QString text;

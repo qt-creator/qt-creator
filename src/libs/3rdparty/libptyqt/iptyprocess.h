@@ -11,6 +11,8 @@ class IPtyProcess
 {
 public:
     enum PtyType { UnixPty = 0, WinPty = 1, ConPty = 2, AutoPty = 3 };
+    enum PtyInputFlag { None = 0x0, InputModeHidden = 0x1, };
+    Q_DECLARE_FLAGS(PtyInputFlags, PtyInputFlag)
 
     IPtyProcess() = default;
     IPtyProcess(const IPtyProcess &) = delete;
@@ -43,6 +45,8 @@ public:
         return m_trace;
     }
 
+    PtyInputFlags inputFlags() { return m_inputFlags; }
+
 protected:
     QString m_shellPath;
     QString m_lastError;
@@ -50,6 +54,9 @@ protected:
     int m_exitCode{0};
     QPair<qint16, qint16> m_size; //cols / rows
     bool m_trace{false};
+    PtyInputFlags m_inputFlags;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(IPtyProcess::PtyInputFlags)
 
 #endif // IPTYPROCESS_H

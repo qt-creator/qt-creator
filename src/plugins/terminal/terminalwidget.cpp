@@ -126,7 +126,12 @@ void TerminalWidget::setupPty()
         env.unset("CLINK_NOAUTORUN");
 
     m_process->setProcessMode(ProcessMode::Writer);
-    m_process->setPtyData(Utils::Pty::Data());
+    Utils::Pty::Data data;
+    data.setPtyInputFlagsChangedHandler([this](Pty::PtyInputFlag flags) {
+        const bool password = (flags & Pty::InputModeHidden);
+        setPasswordMode(password);
+    });
+    m_process->setPtyData(data);
     m_process->setCommand(shellCommand);
     if (m_openParameters.workingDirectory.has_value())
         m_process->setWorkingDirectory(*m_openParameters.workingDirectory);

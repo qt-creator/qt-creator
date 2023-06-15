@@ -410,6 +410,13 @@ public:
         }
 
         connect(m_ptyProcess->notifier(), &QIODevice::readyRead, this, [this] {
+            if (m_setup.m_ptyData->ptyInputFlagsChangedHandler()
+                && m_inputFlags != m_ptyProcess->inputFlags()) {
+                m_inputFlags = m_ptyProcess->inputFlags();
+                m_setup.m_ptyData->ptyInputFlagsChangedHandler()(
+                    static_cast<Pty::PtyInputFlag>(m_inputFlags.toInt()));
+            }
+
             emit readyRead(m_ptyProcess->readAll(), {});
         });
 
@@ -430,6 +437,7 @@ public:
 
 private:
     std::unique_ptr<IPtyProcess> m_ptyProcess;
+    IPtyProcess::PtyInputFlags m_inputFlags;
 };
 
 class QProcessImpl final : public DefaultImpl

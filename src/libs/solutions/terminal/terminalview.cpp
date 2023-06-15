@@ -85,6 +85,7 @@ public:
     bool m_cursorBlinkState{true};
     bool m_allowBlinkingCursor{true};
     bool m_allowMouseTracking{true};
+    bool m_passwordModeActive{false};
 
     SurfaceIntegration *m_surfaceIntegration{nullptr};
 };
@@ -256,6 +257,14 @@ void TerminalView::setColors(const std::array<QColor, 20> &newColors)
 
     updateViewport();
     update();
+}
+
+void TerminalView::setPasswordMode(bool passwordMode)
+{
+    if (passwordMode != d->m_passwordModeActive) {
+        d->m_passwordModeActive = passwordMode;
+        updateViewport();
+    }
 }
 
 void TerminalView::setFont(const QFont &font)
@@ -731,16 +740,37 @@ void TerminalView::paintCursor(QPainter &p) const
 {
     auto cursor = d->m_surface->cursor();
 
-    if (!d->m_preEditString.isEmpty())
-        cursor.shape = Cursor::Shape::Underline;
+    const int cursorCellWidth = d->m_surface->cellWidthAt(cursor.position.x(), cursor.position.y());
 
+    if (!d->m_preEditString.isEmpty()) {
+        cursor.shape = Cursor::Shape::Underline;
+    } else if (d->m_passwordModeActive) {
+        QRectF cursorRect = QRectF(gridToGlobal(cursor.position),
+                                   gridToGlobal({cursor.position.x() + cursorCellWidth,
+                                                 cursor.position.y()},
+                                                true))
+                                .toAlignedRect();
+
+        const qreal dpr = p.device()->devicePixelRatioF();
+        const QString key = QString("terminalpasswordlock-")
+                            % QString::number(cursorRect.size().height())
+                            % "@" % QString::number(dpr);
+        QPixmap px;
+        if (!QPixmapCache::find(key, &px)) {
+            const QPixmap lock(":/terminal/images/passwordlock.png");
+            px = lock.scaledToHeight(cursorRect.size().height() * dpr, Qt::SmoothTransformation);
+            px.setDevicePixelRatio(dpr);
+            QPixmapCache::insert(key, px);
+        }
+
+        p.drawPixmap(cursorRect.topLeft(), px);
+
+        return;
+    }
     const bool blinkState = !cursor.blink || d->m_cursorBlinkState || !d->m_allowBlinkingCursor
                             || !d->m_cursorBlinkTimer.isActive();
 
     if (cursor.visible && blinkState) {
-        const int cursorCellWidth = d->m_surface->cellWidthAt(cursor.position.x(),
-                                                              cursor.position.y());
-
         QRectF cursorRect = QRectF(gridToGlobal(cursor.position),
                                    gridToGlobal({cursor.position.x() + cursorCellWidth,
                                                  cursor.position.y()},
@@ -984,7 +1014,10 @@ void TerminalView::updateViewport()
 
 void TerminalView::updateViewportRect(const QRect &rect)
 {
-    viewport()->update(rect);
+    if (d->m_passwordModeActive)
+        viewport()->update();
+    else
+        viewport()->update(rect);
 }
 
 void TerminalView::focusInEvent(QFocusEvent *)

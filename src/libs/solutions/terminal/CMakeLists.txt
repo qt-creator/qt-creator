@@ -7,6 +7,7 @@ add_qtc_library(TerminalLib
     scrollback.cpp scrollback.h
     surfaceintegration.h
     terminal_global.h
+    terminal.qrc
     terminalsurface.cpp terminalsurface.h
     terminalview.cpp terminalview.h
 )
