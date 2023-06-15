@@ -8,11 +8,12 @@ set_source_files_properties(Constants.qml
     )
 
 qt6_add_qml_module(%{ImportModuleName}
-	URI "%{ImportModuleName}"
-	VERSION 1.0
-	QML_FILES
-		Constants.qml
-		DirectoryFontLoader.qml
-		EventListModel.qml
-		EventListSimulator.qml
+    URI "%{ImportModuleName}"
+    VERSION 1.0
+    RESOURCE_PREFIX "/qt/qml"
+    QML_FILES
+        Constants.qml
+        DirectoryFontLoader.qml
+        EventListModel.qml
+        EventListSimulator.qml
 )

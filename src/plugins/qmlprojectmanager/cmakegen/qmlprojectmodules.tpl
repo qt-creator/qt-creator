@@ -4,6 +4,7 @@
 qt6_add_qml_module(%1
     URI "Main"
     VERSION 1.0
+    RESOURCE_PREFIX "/qt/qml"
     NO_PLUGIN
     QML_FILES main.qml
 )
