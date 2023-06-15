@@ -211,6 +211,13 @@ void DapEngine::dabStackTrace()
     });
 }
 
+void DapEngine::threads()
+{
+    postDirectCommand(
+        {{"command", "threads"},
+         {"type", "request"}});
+}
+
 void DapEngine::executeStepIn(bool)
 {
     if (m_currentThreadId == -1)
@@ -226,7 +233,6 @@ void DapEngine::executeStepIn(bool)
         }}
     });
 
-    notifyInferiorRunOk();
 }
 
 void DapEngine::executeStepOut()
@@ -244,7 +250,6 @@ void DapEngine::executeStepOut()
         }}
     });
 
-    notifyInferiorRunOk();
 }
 
 void DapEngine::executeStepOver(bool)
@@ -262,7 +267,6 @@ void DapEngine::executeStepOver(bool)
         }}
     });
 
-    notifyInferiorRunOk();
 }
 
 void DapEngine::continueInferior()
@@ -648,6 +652,37 @@ void DapEngine::handleOutput(const QJsonDocument &data)
             gotoLocation(Location(file, line));
             return;
         }
+
+        if (command == "stepIn" || command == "stepOut" || command == "next") {
+            if (ob.value("success").toBool()) {
+                showMessage(command, LogDebug);
+                notifyInferiorRunOk();
+            } else {
+                notifyInferiorRunFailed();
+            }
+            return;
+        }
+
+        if (command == "threads") {
+            QJsonArray threads = ob.value("body").toObject().value("threads").toArray();
+            if (threads.isEmpty())
+                return;
+
+            ThreadsHandler *handler = threadsHandler();
+            for (auto thread : threads) {
+                ThreadData threadData;
+                threadData.id = QString::number(thread.toObject().value("id").toInt());
+                threadData.name = thread.toObject().value("name").toString();
+                handler->updateThread(threadData);
+            }
+
+            if (m_currentThreadId)
+                handler->setCurrentThread(
+                    threadsHandler()->threadForId(QString::number(m_currentThreadId)));
+            return;
+        }
+
+
     }
 
     if (type == "event") {
@@ -682,12 +717,8 @@ void DapEngine::handleOutput(const QJsonDocument &data)
             return;
         }
 
-        if (event == "initialized") {
-            showMessage(event, LogDebug);
-            return;
-        }
-
         if (event == "stopped") {
+            ThreadsHandler *handler = threadsHandler();
             m_currentThreadId = body.value("threadId").toInt();
             showMessage(event, LogDebug);
             if (body.value("reason").toString() == "breakpoint") {
@@ -707,10 +738,13 @@ void DapEngine::handleOutput(const QJsonDocument &data)
                 notifyInferiorStopOk();
             else
                 notifyInferiorSpontaneousStop();
+            threads();
             return;
         }
 
         if (event == "thread") {
+            threads();
+
             showMessage(event, LogDebug);
             if (body.value("reason").toString() == "started" && body.value("threadId").toInt() == 1)
                 claimInitialBreakpoints();

@@ -83,6 +83,7 @@ private:
     void handleDabConfigurationDone();
 
     void dabStackTrace();
+    void threads();
 
     void handleDapDone();
     void readDapStandardOutput();
