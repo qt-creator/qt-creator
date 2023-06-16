@@ -268,7 +268,7 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
         if (isSuppressed(diagnostic))
             continue;
 
-        auto mark = new DiagnosticMark(diagnostic);
+        auto mark = new DiagnosticMark(diagnostic, doc);
         mark->toolType = toolType;
 
         if (doc && Utils::anyOf(diagnostic.explainingSteps, &ExplainingStep::isFixIt)) {
