@@ -242,19 +242,21 @@ private:
     It instructs the running task tree on how to proceed after the setup handler's execution
     finished.
     \value Continue
-           Default. The group's or task's execution continues nomally.
+           Default. The group's or task's execution continues normally.
            When a group's or task's setup handler returns void, it's assumed that
            it returned Continue.
     \value StopWithDone
            The group's or task's execution stops immediately with success.
            When returned from the group's setup handler, all child tasks are skipped,
            and the group's onGroupDone() handler is invoked (if provided).
+           The group reports success to its parent. The group's workflow policy is ignored.
            When returned from the task's setup handler, the task isn't started,
            its done handler isn't invoked, and the task reports success to its parent.
     \value StopWithError
            The group's or task's execution stops immediately with an error.
            When returned from the group's setup handler, all child tasks are skipped,
            and the group's onGroupError() handler is invoked (if provided).
+           The group reports an error to its parent. The group's workflow policy is ignored.
            When returned from the task's setup handler, the task isn't started,
            its error handler isn't invoked, and the task reports an error to its parent.
 */
@@ -953,8 +955,11 @@ TaskAction TaskContainer::start()
     TaskAction startAction = TaskAction::Continue;
     if (m_constData.m_groupHandler.m_setupHandler) {
         startAction = invokeHandler(this, m_constData.m_groupHandler.m_setupHandler);
-        if (startAction != TaskAction::Continue)
+        if (startAction != TaskAction::Continue) {
             m_constData.m_taskTreePrivate->advanceProgress(m_constData.m_taskCount);
+            // Non-Continue TaskAction takes precedence over the workflow policy.
+            m_runtimeData->m_successBit = startAction == TaskAction::StopWithDone;
+        }
     }
     if (startAction == TaskAction::Continue) {
         if (m_constData.m_children.isEmpty())

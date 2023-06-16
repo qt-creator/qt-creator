@@ -318,12 +318,51 @@ void tst_Tasking::testTree_data()
             groupDone(0),
             groupError(0)
         };
+
         const Log logDone {{0, Handler::GroupDone}};
         const Log logError {{0, Handler::GroupError}};
+
         QTest::newRow("Empty") << TestData{storage, root1, logDone, 0, OnDone::Success};
         QTest::newRow("EmptyContinue") << TestData{storage, root2, logDone, 0, OnDone::Success};
         QTest::newRow("EmptyDone") << TestData{storage, root3, logDone, 0, OnDone::Success};
         QTest::newRow("EmptyError") << TestData{storage, root4, logError, 0, OnDone::Failure};
+    }
+
+    {
+        const auto setupGroup = [=](TaskAction taskAction, WorkflowPolicy policy) {
+            return Group {
+                Storage(storage),
+                workflowPolicy(policy),
+                onGroupSetup([taskAction] { return taskAction; }),
+                groupDone(0),
+                groupError(0)
+            };
+        };
+
+        const auto doneData = [storage, setupGroup](WorkflowPolicy policy) {
+            return TestData{storage, setupGroup(TaskAction::StopWithDone, policy),
+                            Log{{0, Handler::GroupDone}}, 0, OnDone::Success};
+        };
+        const auto errorData = [storage, setupGroup](WorkflowPolicy policy) {
+            return TestData{storage, setupGroup(TaskAction::StopWithError, policy),
+                            Log{{0, Handler::GroupError}}, 0, OnDone::Failure};
+        };
+
+        QTest::newRow("DoneAndStopOnError") << doneData(WorkflowPolicy::StopOnError);
+        QTest::newRow("DoneAndContinueOnError") << doneData(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("DoneAndStopOnDone") << doneData(WorkflowPolicy::StopOnDone);
+        QTest::newRow("DoneAndContinueOnDone") << doneData(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("DoneAndStopOnFinished") << doneData(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("DoneAndFinishAllAndDone") << doneData(WorkflowPolicy::FinishAllAndDone);
+        QTest::newRow("DoneAndFinishAllAndError") << doneData(WorkflowPolicy::FinishAllAndError);
+
+        QTest::newRow("ErrorAndStopOnError") << errorData(WorkflowPolicy::StopOnError);
+        QTest::newRow("ErrorAndContinueOnError") << errorData(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("ErrorAndStopOnDone") << errorData(WorkflowPolicy::StopOnDone);
+        QTest::newRow("ErrorAndContinueOnDone") << errorData(WorkflowPolicy::ContinueOnDone);
+        QTest::newRow("ErrorAndStopOnFinished") << errorData(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("ErrorAndFinishAllAndDone") << errorData(WorkflowPolicy::FinishAllAndDone);
+        QTest::newRow("ErrorAndFinishAllAndError") << errorData(WorkflowPolicy::FinishAllAndError);
     }
 
     {
