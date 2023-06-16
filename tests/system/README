@@ -36,8 +36,8 @@ Qt 6.2.4 (MSVC2019, 64bit)
 Third - you'll have to provide some additional repositories.
 These additional repositories are located inside ~/squish-data or C:\Users\<user>\squish-data (depending on the OS you're on).
 You can also just provide them inside a different folder and specify the folder with the environment variable SYSTEST_SRCPATH.
-This folder must contain a QtCreator repository (or source copy) of tag v4.7.0 named 'creator'
-including the submodule src/shared/qbs
+This folder must contain a QtCreator repository (or source copy) of tag v6.0.1 named 'creator'
+without any submodules initialized.
 
 Fourth - you'll have to make sure that some needed tools are available (no matter on which OS you're on).
  * cmake 3.14 or newer
