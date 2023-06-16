@@ -28,6 +28,7 @@ public:
 private:
     QLabel *m_project = nullptr;
     QLabel *m_loc = nullptr;
+    QLabel *m_timestamp = nullptr;
     QFormLayout *m_formLayout = nullptr;
 };
 
@@ -41,9 +42,13 @@ DashboardWidget::DashboardWidget(QWidget *parent)
     projectLayout->addRow(Tr::tr("Project:"), m_project);
     m_loc = new QLabel(this);
     projectLayout->addRow(Tr::tr("Lines of code:"), m_loc);
+    m_timestamp = new QLabel(this);
+    projectLayout->addRow(Tr::tr("Analysis timestamp:"), m_timestamp);
     layout->addLayout(projectLayout);
+    layout->addSpacing(10);
     m_formLayout = new QFormLayout;
     layout->addLayout(m_formLayout);
+    layout->addStretch(1);
     setWidget(widget);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setWidgetResizable(true);
@@ -54,6 +59,7 @@ void DashboardWidget::updateUi()
     const ProjectInfo &info = AxivionPlugin::projectInfo();
     m_project->setText(info.name);
     m_loc->setText({});
+    m_timestamp->setText({});
     while (m_formLayout->rowCount())
         m_formLayout->removeRow(0);
 
@@ -62,6 +68,9 @@ void DashboardWidget::updateUi()
 
     const ResultVersion &last = info.versions.last();
     m_loc->setText(QString::number(last.linesOfCode));
+    const QDateTime timeStamp = QDateTime::fromString(last.timeStamp, Qt::ISODate);
+    m_timestamp->setText(timeStamp.isValid() ? timeStamp.toString("yyyy-MM-dd HH::mm::ss")
+                                             : Tr::tr("unknown"));
 
     const QString tmpl("%1 %2 +%3 / -%4");
     auto apply = [&tmpl](int t, int a, int r){
