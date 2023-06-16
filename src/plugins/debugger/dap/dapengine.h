@@ -67,8 +67,8 @@ private:
     void postDirectCommand(const QJsonObject &ob);
 
     void refreshLocation(const GdbMi &reportedLocation);
-    void refreshStack(const GdbMi &stack);
-    void refreshLocals(const GdbMi &vars);
+    void refreshStack(const QJsonArray &stackFrames);
+    void refreshLocals(const QJsonArray &variables);
     void refreshModules(const GdbMi &modules);
     void refreshState(const GdbMi &reportedState);
     void refreshSymbols(const GdbMi &symbols);
@@ -78,12 +78,14 @@ private:
 
     void claimInitialBreakpoints();
 
-    void handleDabStarted();
-    void handleDabLaunch();
-    void handleDabConfigurationDone();
+    void handleDapStarted();
+    void handleDapLaunch();
+    void handleDapConfigurationDone();
 
-    void dabStackTrace();
+    void dapStackTrace();
+    void dapScopes();
     void threads();
+    void dapVariables(int variablesReference);
 
     void handleDapDone();
     void readDapStandardOutput();

@@ -114,7 +114,7 @@ void DapEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
-    connect(&m_proc, &Process::started, this, &DapEngine::handleDabStarted);
+    connect(&m_proc, &Process::started, this, &DapEngine::handleDapStarted);
     connect(&m_proc, &Process::done, this, &DapEngine::handleDapDone);
     connect(&m_proc, &Process::readyReadStandardOutput, this, &DapEngine::readDapStandardOutput);
     connect(&m_proc, &Process::readyReadStandardError, this, &DapEngine::readDapStandardError);
@@ -126,7 +126,7 @@ void DapEngine::setupEngine()
     m_proc.setEnvironment(rp.debugger.environment);
     m_proc.setCommand(cmd);
     m_proc.start();
-    notifyEngineRunAndInferiorRunOk();
+    notifyEngineSetupOk();
 }
 
 // From the docs:
@@ -140,9 +140,8 @@ void DapEngine::setupEngine()
 //   * client sends other future configuration requests
 //   * client sends one configurationDone request to indicate the end of the configuration.
 
-void DapEngine::handleDabStarted()
+void DapEngine::handleDapStarted()
 {
-    notifyEngineSetupOk();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
 //    CHECK_STATE(EngineRunRequested);
@@ -156,10 +155,10 @@ void DapEngine::handleDabStarted()
         }}
     });
 
-    qDebug() << "handleDabStarted";
+    qDebug() << "handleDapStarted";
 }
 
-void DapEngine::handleDabConfigurationDone()
+void DapEngine::handleDapConfigurationDone()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
@@ -167,11 +166,11 @@ void DapEngine::handleDabConfigurationDone()
 
     postDirectCommand({{"command", "configurationDone"}, {"type", "request"}});
 
-    qDebug() << "handleDabConfigurationDone";
+    qDebug() << "handleDapConfigurationDone";
 }
 
 
-void DapEngine::handleDabLaunch()
+void DapEngine::handleDapLaunch()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
@@ -184,7 +183,7 @@ void DapEngine::handleDabLaunch()
             {"__restart", ""}
         }}
     });
-    qDebug() << "handleDabLaunch";
+    qDebug() << "handleDapLaunch";
 }
 
 void DapEngine::interruptInferior()
@@ -195,7 +194,7 @@ void DapEngine::interruptInferior()
     });
 }
 
-void DapEngine::dabStackTrace()
+void DapEngine::dapStackTrace()
 {
     if (m_currentThreadId == -1)
         return;
@@ -206,16 +205,39 @@ void DapEngine::dabStackTrace()
         {"arguments", QJsonObject{
             {"threadId", m_currentThreadId},
             {"startFrame", 0},
-            {"levels", 1}
+            {"levels", 10}
+        }}
+    });
+}
+
+void DapEngine::dapScopes()
+{
+    postDirectCommand({
+        {"command", "scopes"},
+        {"type", "request"},
+        {"arguments", QJsonObject{
+            {"frameId", 0}
         }}
     });
 }
 
 void DapEngine::threads()
 {
-    postDirectCommand(
-        {{"command", "threads"},
-         {"type", "request"}});
+    postDirectCommand({
+        {"command", "threads"},
+        {"type", "request"}
+    });
+}
+
+void DapEngine::dapVariables(int variablesReference)
+{
+    postDirectCommand({
+        {"command", "variables"},
+        {"type", "request"},
+        {"arguments", QJsonObject{
+            {"variablesReference", variablesReference}
+        }}
+    });
 }
 
 void DapEngine::executeStepIn(bool)
@@ -628,7 +650,7 @@ void DapEngine::handleOutput(const QJsonDocument &data)
         if (command == "configurationDone") {
             showMessage("configurationDone", LogDebug);
             qDebug() << "configurationDone success";
-            notifyInferiorRunOk();
+            notifyEngineRunAndInferiorRunOk();
             return;
         }
 
@@ -650,7 +672,30 @@ void DapEngine::handleOutput(const QJsonDocument &data)
             const int line = stackFrame.value("line").toInt();
             qDebug() << "stackTrace success" << file << line;
             gotoLocation(Location(file, line));
+
+            refreshStack(stackFrames);
+            dapScopes();
             return;
+        }
+
+        if (command == "scopes") {
+            if (ob.value("success").toBool()) {
+                auto scopes = ob.value("body").toObject().value("scopes").toArray();
+                for (auto scope : scopes) {
+                    const QString name = scope.toObject().value("name").toString();
+                    const int variablesReference = scope.toObject().value("variablesReference").toInt();
+                    qDebug() << "scoped success" << name << variablesReference;
+                    if (name == "Locals")
+                        dapVariables(variablesReference);
+                }
+            }
+        }
+
+        if (command == "variables") {
+            if (ob.value("success").toBool()) {
+                auto variables = ob.value("body").toObject().value("variables").toArray();
+                refreshLocals(variables);
+            }
         }
 
         if (command == "stepIn" || command == "stepOut" || command == "next") {
@@ -665,6 +710,7 @@ void DapEngine::handleOutput(const QJsonDocument &data)
 
         if (command == "threads") {
             QJsonArray threads = ob.value("body").toObject().value("threads").toArray();
+
             if (threads.isEmpty())
                 return;
 
@@ -712,13 +758,12 @@ void DapEngine::handleOutput(const QJsonDocument &data)
         if (event == "initialized") {
             showMessage(event, LogDebug);
             qDebug() << "initialize success";
-            handleDabLaunch();
-            handleDabConfigurationDone();
+            handleDapLaunch();
+            handleDapConfigurationDone();
             return;
         }
 
         if (event == "stopped") {
-            ThreadsHandler *handler = threadsHandler();
             m_currentThreadId = body.value("threadId").toInt();
             showMessage(event, LogDebug);
             if (body.value("reason").toString() == "breakpoint") {
@@ -729,15 +774,12 @@ void DapEngine::handleOutput(const QJsonDocument &data)
                 gotoLocation(Location(params.fileName, params.textPosition));
             }
 
-            if (body.value("reason").toString() == "pause"
-                || body.value("reason").toString() == "step") {
-                dabStackTrace();
-            }
-
             if (state() == InferiorStopRequested)
                 notifyInferiorStopOk();
             else
                 notifyInferiorSpontaneousStop();
+
+            dapStackTrace();
             threads();
             return;
         }
@@ -760,7 +802,6 @@ void DapEngine::handleOutput(const QJsonDocument &data)
 
             if (body.value("reason").toString() == "new") {
                 if (breakpoint.value("verified").toBool()) {
-//                    bp->setPending(false);
                     notifyBreakpointInsertOk(bp);
                     qDebug() << "breakpoint inserted";
                 } else {
@@ -790,38 +831,41 @@ void DapEngine::handleOutput(const QJsonDocument &data)
     showMessage("UNKNOWN TYPE:" + type);
 }
 
-void DapEngine::refreshLocals(const GdbMi &vars)
+void DapEngine::refreshLocals(const QJsonArray &variables)
 {
-    WatchHandler *handler = watchHandler();
-    handler->resetValueCache();
-    handler->insertItems(vars);
-    handler->notifyUpdateFinished();
-
-    updateToolTips();
+    watchHandler()->notifyUpdateStarted();
+    for (auto variable : variables) {
+        WatchItem *item = new WatchItem;
+        const QString name = variable.toObject().value("name").toString();
+        item->iname = "local." + name;
+        item->name = name;
+        item->type = variable.toObject().value("type").toString();
+        item->value = variable.toObject().value("value").toString();
+        item->address = variable.toObject().value("address").toInt();
+        item->type = variable.toObject().value("type").toString();
+        qDebug() << "variable" << name << item->hexAddress();
+        watchHandler()->insertItem(item);
+    }
+    watchHandler()->notifyUpdateFinished();
 }
 
-void DapEngine::refreshStack(const GdbMi &stack)
+void DapEngine::refreshStack(const QJsonArray &stackFrames)
 {
     StackHandler *handler = stackHandler();
     StackFrames frames;
-    for (const GdbMi &item : stack["frames"]) {
+    for (const auto &value : stackFrames) {
         StackFrame frame;
-        frame.level = item["level"].data();
-        frame.file = FilePath::fromString(item["file"].data());
-        frame.function = item["function"].data();
-        frame.module = item["function"].data();
-        frame.line = item["line"].toInt();
-        frame.address = item["address"].toAddress();
-        GdbMi usable = item["usable"];
-        if (usable.isValid())
-            frame.usable = usable.data().toInt();
-        else
-            frame.usable = frame.file.isReadableFile();
+        QJsonObject item = value.toObject();
+        frame.level = item.value("id").toString();
+        frame.function = item.value("name").toString();
+        frame.line = item.value("line").toInt();
+        QJsonObject source = item.value("source").toObject();
+        frame.file = FilePath::fromString(source.value("path").toString());
+        frame.address = item.value("instructionPointerReference").toInt();
+        frame.usable = frame.file.isReadableFile();
         frames.append(frame);
     }
-    bool canExpand = stack["hasmore"].toInt();
-    //action(ExpandStack)->setEnabled(canExpand);
-    handler->setFrames(frames, canExpand);
+    handler->setFrames(frames, false);
 
     int index = stackHandler()->firstUsableIndex();
     handler->setCurrentIndex(index);
@@ -837,22 +881,6 @@ void DapEngine::updateAll()
 
 void DapEngine::updateLocals()
 {
-//    DebuggerCommand cmd("updateData");
-//    cmd.arg("nativeMixed", isNativeMixedActive());
-//    watchHandler()->appendFormatRequests(&cmd);
-//    watchHandler()->appendWatchersAndTooltipRequests(&cmd);
-
-//    const bool alwaysVerbose = qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE");
-//    cmd.arg("passexceptions", alwaysVerbose);
-//    cmd.arg("fancy", debuggerSettings()->useDebuggingHelpers.value());
-
-//    //cmd.arg("resultvarname", m_resultVarName);
-//    //m_lastDebuggableCommand = cmd;
-//    //m_lastDebuggableCommand.args.replace("\"passexceptions\":0", "\"passexceptions\":1");
-//    cmd.arg("frame", stackHandler()->currentIndex());
-
-//    watchHandler()->notifyUpdateStarted();
-//    runCommand(cmd);
 }
 
 bool DapEngine::hasCapability(unsigned cap) const
@@ -866,40 +894,6 @@ void DapEngine::claimInitialBreakpoints()
 {
     BreakpointManager::claimBreakpointsForEngine(this);
     qDebug() << "claimInitialBreakpoints";
-//    const Breakpoints bps = breakHandler()->breakpoints();
-//    for (const Breakpoint &bp : bps)
-//        qDebug() << "breakpoit: " << bp->fileName() << bp->lineNumber();
-//    qDebug() << "claimInitialBreakpoints end";
-
-//    const DebuggerRunParameters &rp = runParameters();
-//    if (rp.startMode != AttachToCore) {
-//        showStatusMessage(Tr::tr("Setting breakpoints..."));
-//        showMessage(Tr::tr("Setting breakpoints..."));
-//        BreakpointManager::claimBreakpointsForEngine(this);
-
-//        const DebuggerSettings &s = *debuggerSettings();
-//        const bool onAbort = s.breakOnAbort.value();
-//        const bool onWarning = s.breakOnWarning.value();
-//        const bool onFatal = s.breakOnFatal.value();
-//        if (onAbort || onWarning || onFatal) {
-//            DebuggerCommand cmd("createSpecialBreakpoints");
-//            cmd.arg("breakonabort", onAbort);
-//            cmd.arg("breakonwarning", onWarning);
-//            cmd.arg("breakonfatal", onFatal);
-//            runCommand(cmd);
-//        }
-//    }
-
-//    // It is ok to cut corners here and not wait for createSpecialBreakpoints()'s
-//    // response, as the command is synchronous from Creator's point of view,
-//    // and even if it fails (e.g. due to stripped binaries), continuing with
-//    // the start up is the best we can do.
-
-//    if (!rp.commandsAfterConnect.isEmpty()) {
-//        const QString commands = expand(rp.commandsAfterConnect);
-//        for (const QString &command : commands.split('\n'))
-//            runCommand({command, NativeCommand});
-//    }
 }
 
 DebuggerEngine *createDapEngine()
