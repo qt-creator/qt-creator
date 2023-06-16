@@ -1,5 +1,5 @@
-import QtQuick 6.5
-import Constants 1.0
+import QtQuick
+import Constants
 
 Item {
     width: Constants.width
