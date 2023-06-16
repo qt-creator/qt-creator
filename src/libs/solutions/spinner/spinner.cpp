@@ -162,30 +162,85 @@ private:
     SpinnerPainter m_paint;
 };
 
+/*!
+    \module SpinnerSolution
+    \title Spinner Solution
+    \ingroup solutions-modules
+    \brief Contains a Spinner solution.
+
+    The Spinner solution depends on Qt only, and doesn't depend on any \QC specific code.
+*/
+
+/*!
+    \namespace SpinnerSolution
+    \inmodule SpinnerSolution
+    \brief The SpinnerSolution namespace encloses the Spinner class.
+*/
+
+/*!
+    \enum SpinnerSolution::SpinnerSize
+
+    This enum describes the possible spinner sizes.
+
+    \value Small \inlineimage spinner/icons/spinner_small.png
+    \value Medium \inlineimage spinner/icons/spinner_medium.png
+    \value Large \inlineimage spinner/icons/spinner_large.png
+*/
+
+/*!
+    \class SpinnerSolution::Spinner
+    \inheaderfile solutions/spinner/spinner.h
+    \inmodule SpinnerSolution
+    \brief The Spinner class renders a circular, endlessly animated progress indicator,
+           that may be attached to any widget as an overlay.
+*/
+
+/*!
+    Creates a spinner overlay with a given \a size for the passed \a parent widget.
+
+    The \a parent widget takes the ownership of the created spinner.
+*/
 Spinner::Spinner(SpinnerSize size, QWidget *parent)
     : QObject(parent)
     , m_widget(new SpinnerWidget(size, parent)) {}
 
+/*!
+    Sets the size of the spinner to the given \a size.
+*/
 void Spinner::setSize(SpinnerSize size)
 {
     m_widget->setSize(size);
 }
 
+/*!
+    Shows the animated spinner as an overlay for the parent widget
+    set previously in the constructor.
+*/
 void Spinner::show()
 {
     m_widget->show();
 }
 
+/*!
+    Hides the spinner.
+*/
 void Spinner::hide()
 {
     m_widget->hide();
 }
 
+/*!
+    Returns \c true if the spinner is visible; otherwise, returns \c false.
+*/
 bool Spinner::isVisible() const
 {
     return m_widget->isVisible();
 }
 
+/*!
+    Shows or hides the spinner depending on the value of \a visible.
+    By default, the spinner is visible.
+*/
 void Spinner::setVisible(bool visible)
 {
     m_widget->setVisible(visible);
