@@ -227,7 +227,7 @@ void tst_Tasking::testTree_data()
         };
     };
 
-    const auto setupDynamicTask = [storage](int taskId, TaskAction action) {
+    const auto setupDynamicTask = [storage](int taskId, SetupResult action) {
         return [storage, taskId, action](TaskObject &) {
             storage->m_log.append({taskId, Handler::Setup});
             return action;
@@ -274,7 +274,7 @@ void tst_Tasking::testTree_data()
     };
 
     const auto createDynamicTask = [storage, setupDynamicTask, setupDone, setupError](
-                                       int taskId, TaskAction action) {
+                                       int taskId, SetupResult action) {
         return TestTask(setupDynamicTask(taskId, action), setupDone(taskId), setupError(taskId));
     };
 
@@ -302,19 +302,19 @@ void tst_Tasking::testTree_data()
         };
         const Group root2 {
             Storage(storage),
-            onGroupSetup([] { return TaskAction::Continue; }),
+            onGroupSetup([] { return SetupResult::Continue; }),
             groupDone(0),
             groupError(0)
         };
         const Group root3 {
             Storage(storage),
-            onGroupSetup([] { return TaskAction::StopWithDone; }),
+            onGroupSetup([] { return SetupResult::StopWithDone; }),
             groupDone(0),
             groupError(0)
         };
         const Group root4 {
             Storage(storage),
-            onGroupSetup([] { return TaskAction::StopWithError; }),
+            onGroupSetup([] { return SetupResult::StopWithError; }),
             groupDone(0),
             groupError(0)
         };
@@ -329,22 +329,22 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto setupGroup = [=](TaskAction taskAction, WorkflowPolicy policy) {
+        const auto setupGroup = [=](SetupResult setupResult, WorkflowPolicy policy) {
             return Group {
                 Storage(storage),
                 workflowPolicy(policy),
-                onGroupSetup([taskAction] { return taskAction; }),
+                onGroupSetup([setupResult] { return setupResult; }),
                 groupDone(0),
                 groupError(0)
             };
         };
 
         const auto doneData = [storage, setupGroup](WorkflowPolicy policy) {
-            return TestData{storage, setupGroup(TaskAction::StopWithDone, policy),
+            return TestData{storage, setupGroup(SetupResult::StopWithDone, policy),
                             Log{{0, Handler::GroupDone}}, 0, OnDone::Success};
         };
         const auto errorData = [storage, setupGroup](WorkflowPolicy policy) {
-            return TestData{storage, setupGroup(TaskAction::StopWithError, policy),
+            return TestData{storage, setupGroup(SetupResult::StopWithError, policy),
                             Log{{0, Handler::GroupError}}, 0, OnDone::Failure};
         };
 
@@ -368,8 +368,8 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            createDynamicTask(1, TaskAction::StopWithDone),
-            createDynamicTask(2, TaskAction::StopWithDone)
+            createDynamicTask(1, SetupResult::StopWithDone),
+            createDynamicTask(2, SetupResult::StopWithDone)
         };
         const Log log {{1, Handler::Setup}, {2, Handler::Setup}};
         QTest::newRow("DynamicTaskDone") << TestData{storage, root, log, 2, OnDone::Success};
@@ -378,8 +378,8 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            createDynamicTask(1, TaskAction::StopWithError),
-            createDynamicTask(2, TaskAction::StopWithError)
+            createDynamicTask(1, SetupResult::StopWithError),
+            createDynamicTask(2, SetupResult::StopWithError)
         };
         const Log log {{1, Handler::Setup}};
         QTest::newRow("DynamicTaskError") << TestData{storage, root, log, 2, OnDone::Failure};
@@ -388,10 +388,10 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            createDynamicTask(1, TaskAction::Continue),
-            createDynamicTask(2, TaskAction::Continue),
-            createDynamicTask(3, TaskAction::StopWithError),
-            createDynamicTask(4, TaskAction::Continue)
+            createDynamicTask(1, SetupResult::Continue),
+            createDynamicTask(2, SetupResult::Continue),
+            createDynamicTask(3, SetupResult::StopWithError),
+            createDynamicTask(4, SetupResult::Continue)
         };
         const Log log {
             {1, Handler::Setup},
@@ -407,10 +407,10 @@ void tst_Tasking::testTree_data()
         const Group root {
             parallel,
             Storage(storage),
-            createDynamicTask(1, TaskAction::Continue),
-            createDynamicTask(2, TaskAction::Continue),
-            createDynamicTask(3, TaskAction::StopWithError),
-            createDynamicTask(4, TaskAction::Continue)
+            createDynamicTask(1, SetupResult::Continue),
+            createDynamicTask(2, SetupResult::Continue),
+            createDynamicTask(3, SetupResult::StopWithError),
+            createDynamicTask(4, SetupResult::Continue)
         };
         const Log log {
             {1, Handler::Setup},
@@ -426,12 +426,12 @@ void tst_Tasking::testTree_data()
         const Group root {
             parallel,
             Storage(storage),
-            createDynamicTask(1, TaskAction::Continue),
-            createDynamicTask(2, TaskAction::Continue),
+            createDynamicTask(1, SetupResult::Continue),
+            createDynamicTask(2, SetupResult::Continue),
             Group {
-                createDynamicTask(3, TaskAction::StopWithError)
+                createDynamicTask(3, SetupResult::StopWithError)
             },
-            createDynamicTask(4, TaskAction::Continue)
+            createDynamicTask(4, SetupResult::Continue)
         };
         const Log log {
             {1, Handler::Setup},
@@ -447,16 +447,16 @@ void tst_Tasking::testTree_data()
         const Group root {
             parallel,
             Storage(storage),
-            createDynamicTask(1, TaskAction::Continue),
-            createDynamicTask(2, TaskAction::Continue),
+            createDynamicTask(1, SetupResult::Continue),
+            createDynamicTask(2, SetupResult::Continue),
             Group {
                 onGroupSetup([storage] {
                     storage->m_log.append({0, Handler::GroupSetup});
-                    return TaskAction::StopWithError;
+                    return SetupResult::StopWithError;
                 }),
-                createDynamicTask(3, TaskAction::Continue)
+                createDynamicTask(3, SetupResult::Continue)
             },
-            createDynamicTask(4, TaskAction::Continue)
+            createDynamicTask(4, SetupResult::Continue)
         };
         const Log log {
             {1, Handler::Setup},
@@ -1319,14 +1319,14 @@ void tst_Tasking::testTree_data()
 
     {
         const auto createRoot = [storage, createSuccessTask, groupDone, groupError](
-                                    TaskAction taskAction) {
+                                    SetupResult setupResult) {
             return Group {
                 Storage(storage),
                 Group {
                     createSuccessTask(1)
                 },
                 Group {
-                    onGroupSetup([=] { return taskAction; }),
+                    onGroupSetup([=] { return setupResult; }),
                     createSuccessTask(2),
                     createSuccessTask(3),
                     createSuccessTask(4)
@@ -1336,7 +1336,7 @@ void tst_Tasking::testTree_data()
             };
         };
 
-        const Group root1 = createRoot(TaskAction::StopWithDone);
+        const Group root1 = createRoot(SetupResult::StopWithDone);
         const Log log1 {
             {1, Handler::Setup},
             {1, Handler::Done},
@@ -1344,7 +1344,7 @@ void tst_Tasking::testTree_data()
         };
         QTest::newRow("DynamicSetupDone") << TestData{storage, root1, log1, 4, OnDone::Success};
 
-        const Group root2 = createRoot(TaskAction::StopWithError);
+        const Group root2 = createRoot(SetupResult::StopWithError);
         const Log log2 {
             {1, Handler::Setup},
             {1, Handler::Done},
@@ -1352,7 +1352,7 @@ void tst_Tasking::testTree_data()
         };
         QTest::newRow("DynamicSetupError") << TestData{storage, root2, log2, 4, OnDone::Failure};
 
-        const Group root3 = createRoot(TaskAction::Continue);
+        const Group root3 = createRoot(SetupResult::Continue);
         const Log log3 {
             {1, Handler::Setup},
             {1, Handler::Done},
@@ -1419,7 +1419,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 groupSetup(3),
-                createDynamicTask(3, TaskAction::StopWithDone)
+                createDynamicTask(3, SetupResult::StopWithDone)
             },
             Group {
                 groupSetup(4),
@@ -1463,7 +1463,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 groupSetup(3),
-                createDynamicTask(3, TaskAction::StopWithError)
+                createDynamicTask(3, SetupResult::StopWithError)
             },
             Group {
                 groupSetup(4),
@@ -1502,7 +1502,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 groupSetup(3),
-                createDynamicTask(3, TaskAction::StopWithError)
+                createDynamicTask(3, SetupResult::StopWithError)
             },
             Group {
                 groupSetup(4),
@@ -1547,7 +1547,7 @@ void tst_Tasking::testTree_data()
                 },
                 Group {
                     groupSetup(3),
-                    createDynamicTask(3, TaskAction::StopWithError)
+                    createDynamicTask(3, SetupResult::StopWithError)
                 },
                 Group {
                     groupSetup(4),
@@ -1644,7 +1644,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 groupSetup(3),
-                Group { createDynamicTask(3, TaskAction::StopWithDone) }
+                Group { createDynamicTask(3, SetupResult::StopWithDone) }
             },
             Group {
                 groupSetup(4),
@@ -1689,7 +1689,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 groupSetup(3),
-                Group { createDynamicTask(3, TaskAction::StopWithError) }
+                Group { createDynamicTask(3, SetupResult::StopWithError) }
             },
             Group {
                 groupSetup(4),

@@ -190,11 +190,11 @@ LocatorMatcherTasks ActionsFilter::matchers()
         collectEntriesForCommands();
         if (storage->input().simplified().isEmpty()) {
             storage->reportOutput(m_entries);
-            return TaskAction::StopWithDone;
+            return SetupResult::StopWithDone;
         }
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matches, *storage, m_entries);
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
 
     return {{AsyncTask<void>(onSetup), storage}};

@@ -83,14 +83,14 @@ public:
                          "It is possible that no barrier was added to the tree, "
                          "or the storage is not reachable from where it is referenced. "
                          "The WaitForBarrier task will finish with error. ");
-                return TaskAction::StopWithError;
+                return SetupResult::StopWithError;
             }
             Barrier *activeSharedBarrier = activeBarrier->barrier();
             const std::optional<bool> result = activeSharedBarrier->result();
             if (result.has_value())
-                return result.value() ? TaskAction::StopWithDone : TaskAction::StopWithError;
+                return result.value() ? SetupResult::StopWithDone : SetupResult::StopWithError;
             QObject::connect(activeSharedBarrier, &Barrier::done, &barrier, &Barrier::stopWithResult);
-            return TaskAction::Continue;
+            return SetupResult::Continue;
         }) {}
 };
 

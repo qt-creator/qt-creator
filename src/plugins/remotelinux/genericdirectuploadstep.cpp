@@ -194,7 +194,7 @@ GroupItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &
     const auto setupHandler = [this, storage](FileTransfer &transfer) {
         if (storage->filesToUpload.isEmpty()) {
             addProgressMessage(Tr::tr("No files need to be uploaded."));
-            return TaskAction::StopWithDone;
+            return SetupResult::StopWithDone;
         }
         addProgressMessage(Tr::tr("%n file(s) need to be uploaded.", "",
                                   storage->filesToUpload.size()));
@@ -208,19 +208,19 @@ GroupItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &
                     continue;
                 }
                 addErrorMessage(message);
-                return TaskAction::StopWithError;
+                return SetupResult::StopWithError;
             }
             files.append({file.localFilePath(),
                           deviceConfiguration()->filePath(file.remoteFilePath())});
         }
         if (files.isEmpty()) {
             addProgressMessage(Tr::tr("No files need to be uploaded."));
-            return TaskAction::StopWithDone;
+            return SetupResult::StopWithDone;
         }
         transfer.setFilesToTransfer(files);
         QObject::connect(&transfer, &FileTransfer::progress,
                          this, &GenericDirectUploadStep::addProgressMessage);
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
         addErrorMessage(transfer.resultData().m_errorString);

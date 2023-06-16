@@ -115,13 +115,13 @@ enum class WorkflowPolicy {
 };
 Q_ENUM_NS(WorkflowPolicy);
 
-enum class TaskAction
+enum class SetupResult
 {
     Continue,
     StopWithDone,
     StopWithError
 };
-Q_ENUM_NS(TaskAction);
+Q_ENUM_NS(SetupResult);
 
 class TASKING_EXPORT GroupItem
 {
@@ -129,11 +129,11 @@ public:
     // Internal, provided by QTC_DECLARE_CUSTOM_TASK
     using TaskCreateHandler = std::function<TaskInterface *(void)>;
     // Called prior to task start, just after createHandler
-    using TaskSetupHandler = std::function<TaskAction(TaskInterface &)>;
+    using TaskSetupHandler = std::function<SetupResult(TaskInterface &)>;
     // Called on task done / error
     using TaskEndHandler = std::function<void(const TaskInterface &)>;
     // Called when group entered
-    using GroupSetupHandler = std::function<TaskAction()>;
+    using GroupSetupHandler = std::function<SetupResult()>;
     // Called when group done / error
     using GroupEndHandler = std::function<void()>;
 
@@ -228,17 +228,17 @@ private:
     static GroupSetupHandler wrapGroupSetup(SetupHandler &&handler)
     {
         static constexpr bool isDynamic
-            = std::is_same_v<TaskAction, std::invoke_result_t<std::decay_t<SetupHandler>>>;
+            = std::is_same_v<SetupResult, std::invoke_result_t<std::decay_t<SetupHandler>>>;
         constexpr bool isVoid
             = std::is_same_v<void, std::invoke_result_t<std::decay_t<SetupHandler>>>;
         static_assert(isDynamic || isVoid,
                       "Group setup handler needs to take no arguments and has to return "
-                      "void or TaskAction. The passed handler doesn't fulfill these requirements.");
+                      "void or SetupResult. The passed handler doesn't fulfill these requirements.");
         return [=] {
             if constexpr (isDynamic)
                 return std::invoke(handler);
             std::invoke(handler);
-            return TaskAction::Continue;
+            return SetupResult::Continue;
         };
     };
 };
@@ -290,10 +290,10 @@ private:
         static_assert(isBool || isVoid,
                       "Sync element: The synchronous function has to return void or bool.");
         if constexpr (isBool) {
-            return {onGroupSetup([function] { return function() ? TaskAction::StopWithDone
-                                                                : TaskAction::StopWithError; })};
+            return {onGroupSetup([function] { return function() ? SetupResult::StopWithDone
+                                                                : SetupResult::StopWithError; })};
         }
-        return {onGroupSetup([function] { function(); return TaskAction::StopWithDone; })};
+        return {onGroupSetup([function] { function(); return SetupResult::StopWithDone; })};
     };
 };
 
@@ -344,19 +344,19 @@ public:
 private:
     template<typename SetupFunction>
     static GroupItem::TaskSetupHandler wrapSetup(SetupFunction &&function) {
-        static constexpr bool isDynamic = std::is_same_v<TaskAction,
+        static constexpr bool isDynamic = std::is_same_v<SetupResult,
                 std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
         constexpr bool isVoid = std::is_same_v<void,
                 std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
         static_assert(isDynamic || isVoid,
                 "Task setup handler needs to take (Task &) as an argument and has to return "
-                "void or TaskAction. The passed handler doesn't fulfill these requirements.");
+                "void or SetupResult. The passed handler doesn't fulfill these requirements.");
         return [=](TaskInterface &taskInterface) {
             Adapter &adapter = static_cast<Adapter &>(taskInterface);
             if constexpr (isDynamic)
                 return std::invoke(function, *adapter.task());
             std::invoke(function, *adapter.task());
-            return TaskAction::Continue;
+            return SetupResult::Continue;
         };
     };
 

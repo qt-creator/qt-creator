@@ -149,10 +149,10 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::removeDirTask()
 {
     const auto setupHandler = [this](Process &process) {
         if (m_checkResult != CheckResult::RemoveDir)
-            return TaskAction::StopWithDone;
+            return SetupResult::StopWithDone;
         m_deployLogWindow->appendPlainText(Tr::tr("Removing \"%1\"").arg(fullRemoteDirectory()));
         process.setCommand({m_device->filePath("rm"), {"-rf", fullRemoteDirectory()}});
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
     const auto errorHandler = [this](const Process &process) {
         QTC_ASSERT(process.exitCode() == 0, return);
@@ -167,7 +167,7 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
     const auto setupHandler = [this](FileTransfer &transfer) {
         if (m_deployableFiles.isEmpty()) {
             emitProgressMessage(Tr::tr("No files need to be uploaded."));
-            return TaskAction::StopWithDone;
+            return SetupResult::StopWithDone;
         }
         emitProgressMessage(Tr::tr("%n file(s) need to be uploaded.", "",
                                    m_deployableFiles.size()));
@@ -177,18 +177,18 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
                 const QString message = Tr::tr("Local file \"%1\" does not exist.")
                                               .arg(file.localFilePath().toUserOutput());
                 emitErrorMessage(message);
-                return TaskAction::StopWithError;
+                return SetupResult::StopWithError;
             }
             files.append({file.localFilePath(), m_device->filePath(file.remoteFilePath())});
         }
         if (files.isEmpty()) {
             emitProgressMessage(Tr::tr("No files need to be uploaded."));
-            return TaskAction::StopWithDone;
+            return SetupResult::StopWithDone;
         }
         transfer.setFilesToTransfer(files);
         QObject::connect(&transfer, &FileTransfer::progress,
                          this, &QnxDeployQtLibrariesDialogPrivate::emitProgressMessage);
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
         emitErrorMessage(transfer.resultData().m_errorString);
@@ -238,7 +238,7 @@ Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()
     const auto setupHandler = [this] {
         if (!m_device) {
             emitErrorMessage(Tr::tr("No device configuration set."));
-            return TaskAction::StopWithError;
+            return SetupResult::StopWithError;
         }
         QList<DeployableFile> collected;
         for (int i = 0; i < m_deployableFiles.count(); ++i)
@@ -247,18 +247,18 @@ Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()
         QTC_CHECK(collected.size() >= m_deployableFiles.size());
         m_deployableFiles = collected;
         if (!m_deployableFiles.isEmpty())
-            return TaskAction::Continue;
+            return SetupResult::Continue;
 
         emitProgressMessage(Tr::tr("No deployment action necessary. Skipping."));
-        return TaskAction::StopWithDone;
+        return SetupResult::StopWithDone;
     };
     const auto doneHandler = [this] {
         emitProgressMessage(Tr::tr("All files successfully deployed."));
     };
     const auto subGroupSetupHandler = [this] {
         if (m_checkResult == CheckResult::Abort)
-            return TaskAction::StopWithError;
-        return TaskAction::Continue;
+            return SetupResult::StopWithError;
+        return SetupResult::Continue;
     };
     const Group root {
         onGroupSetup(setupHandler),
