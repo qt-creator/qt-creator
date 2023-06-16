@@ -9,6 +9,8 @@ import AssetsLibraryBackend
 TreeViewDelegate {
     id: root
 
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+
     required property Item assetsView
     required property Item assetsRoot
 
@@ -68,6 +70,21 @@ TreeViewDelegate {
             root.depth = root.initialDepth
     }
 
+    indicator: Item {
+        implicitWidth: 20
+        implicitHeight: root.implicitHeight
+        anchors.left: bg.left
+
+        Image {
+            id: arrow
+            width: 8
+            height: 4
+            source: "image://icons/down-arrow"
+            anchors.centerIn: parent
+            rotation: root.expanded ? 0 : -90
+        }
+    }
+
     background: Rectangle {
         id: bg
 
@@ -109,7 +126,7 @@ TreeViewDelegate {
         id: assetLabel
         text: assetLabel.__computeText()
         color: StudioTheme.Values.themeTextColor
-        font.pixelSize: StudioTheme.Values.mediumFont
+        font.pixelSize: StudioTheme.Values.baseFontSize
         anchors.verticalCenter: parent.verticalCenter
         verticalAlignment: Qt.AlignVCenter
 
