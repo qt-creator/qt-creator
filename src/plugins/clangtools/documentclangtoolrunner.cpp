@@ -201,8 +201,16 @@ void DocumentClangToolRunner::run()
         if (includeDir.isEmpty() || clangVersion.isEmpty())
             return;
         const AnalyzeUnit unit(m_fileInfo, includeDir, clangVersion);
-        const AnalyzeInputData input{tool, runSettings, config, m_temporaryDir.path(), env, unit,
-                                     vfso().overlayFilePath().toString()};
+        auto diagnosticFilter = [mappedPath = vfso().autoSavedFilePath(m_document)](
+                                    const FilePath &path) { return path == mappedPath; };
+        const AnalyzeInputData input{tool,
+                                     runSettings,
+                                     config,
+                                     m_temporaryDir.path(),
+                                     env,
+                                     unit,
+                                     vfso().overlayFilePath().toString(),
+                                     diagnosticFilter};
         const auto setupHandler = [this, executable] {
             return !m_document->isModified() || isVFSOverlaySupported(executable);
         };
@@ -234,11 +242,7 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
         return;
     }
 
-    const FilePath mappedPath = vfso().autoSavedFilePath(m_document);
-    Diagnostics diagnostics = readExportedDiagnostics(
-        output.outputFilePath,
-        [&](const FilePath &path) { return path == mappedPath; });
-
+    Diagnostics diagnostics = output.diagnostics;
     for (Diagnostic &diag : diagnostics) {
         updateLocation(diag.location);
         for (ExplainingStep &explainingStep : diag.explainingSteps) {

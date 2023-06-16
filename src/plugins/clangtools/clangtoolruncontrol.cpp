@@ -242,26 +242,15 @@ void ClangToolRunWorker::onDone(const AnalyzeOutputData &output)
 
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << output.outputFilePath;
 
-    QString errorMessage;
-    const Diagnostics diagnostics = m_tool->read(output.outputFilePath, m_projectFiles,
-                                                 &errorMessage);
+    const Diagnostics diagnostics = output.diagnostics;
 
-    if (!errorMessage.isEmpty()) {
-        m_filesAnalyzed.remove(output.fileToAnalyze);
-        m_filesNotAnalyzed.insert(output.fileToAnalyze);
-        qCDebug(LOG) << "onRunnerFinishedWithSuccess: Error reading log file:" << errorMessage;
-        appendMessage(Tr::tr("Failed to analyze \"%1\": %2")
-                        .arg(output.fileToAnalyze.toUserOutput(), errorMessage),
-                      Utils::StdErrFormat);
-    } else {
-        if (!m_filesNotAnalyzed.contains(output.fileToAnalyze))
-            m_filesAnalyzed.insert(output.fileToAnalyze);
-        if (!diagnostics.isEmpty()) {
-            // do not generate marks when we always analyze open files since marks from that
-            // analysis should be more up to date
-            const bool generateMarks = !m_runSettings.analyzeOpenFiles();
-            m_tool->onNewDiagnosticsAvailable(diagnostics, generateMarks);
-        }
+    if (!m_filesNotAnalyzed.contains(output.fileToAnalyze))
+        m_filesAnalyzed.insert(output.fileToAnalyze);
+    if (!diagnostics.isEmpty()) {
+        // do not generate marks when we always analyze open files since marks from that
+        // analysis should be more up to date
+        const bool generateMarks = !m_runSettings.analyzeOpenFiles();
+        m_tool->onNewDiagnosticsAvailable(diagnostics, generateMarks);
     }
 }
 

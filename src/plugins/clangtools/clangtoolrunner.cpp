@@ -3,6 +3,7 @@
 
 #include "clangtoolrunner.h"
 
+#include "clangtoolslogfilereader.h"
 #include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 
@@ -11,6 +12,9 @@
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/cpptoolsreuse.h>
 
+#include <extensionsystem/pluginmanager.h>
+
+#include <utils/async.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
@@ -19,6 +23,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QLoggingCategory>
+
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner", QtWarningMsg)
 
@@ -109,6 +114,7 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
         QString name;
         FilePath executable;
         FilePath outputFilePath;
+        QString errorMessage;
     };
     const TreeStorage<ClangToolStorage> storage;
 
@@ -160,9 +166,6 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
     };
     const auto onProcessDone = [=](const Process &process) {
         qCDebug(LOG).noquote() << "Output:\n" << process.cleanedStdOut();
-        if (!outputHandler)
-            return;
-        outputHandler({true, input.unit.file, storage->outputFilePath, input.tool});
     };
     const auto onProcessError = [=](const Process &process) {
         if (!outputHandler)
@@ -179,15 +182,38 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
             message = Tr::tr("%1 finished with exit code: %2.").arg(data.name).arg(process.exitCode());
         else
             message = Tr::tr("%1 crashed.").arg(data.name);
-        outputHandler({false, input.unit.file, data.outputFilePath, input.tool, message, details});
+        outputHandler(
+            {false, input.unit.file, data.outputFilePath, {}, input.tool, message, details});
+    };
+
+    const auto onReadSetup = [=](Async<Diagnostics> &data) {
+        data.setConcurrentCallData(&readExportedDiagnostics,
+                                   storage->outputFilePath,
+                                   input.diagnosticsFilter,
+                                   &storage->errorMessage);
+        data.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+    };
+    const auto onReadDone = [=](const Async<Diagnostics> &data) {
+        if (!outputHandler)
+            return;
+        outputHandler(
+            {true, input.unit.file, storage->outputFilePath, data.result(), input.tool});
+    };
+    const auto onReadError = [=](const Async<Diagnostics> &) {
+        if (!outputHandler)
+            return;
+        outputHandler(
+            {false, input.unit.file, storage->outputFilePath, {}, input.tool, storage->errorMessage});
     };
 
     const Group group {
         Storage(storage),
         onGroupSetup(onSetup),
         Group {
+            sequential,
             finishAllAndDone,
-            ProcessTask(onProcessSetup, onProcessDone, onProcessError)
+            ProcessTask(onProcessSetup, onProcessDone, onProcessError),
+            AsyncTask<Diagnostics>(onReadSetup, onReadDone, onReadError)
         }
     };
     return group;
