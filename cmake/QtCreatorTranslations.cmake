@@ -30,7 +30,18 @@ function(_extract_ts_data_from_targets outprefix)
 
         set(_target_sources "")
         if(_source_files)
-          list(FILTER _source_files EXCLUDE REGEX ".*[.]json[.]in|.*[.]svg|.*[.]pro|.*[.]css")
+          # exclude various funny source files, and anything generated
+          # like *metatypes.json.gen, moc_*.cpp, qrc_*.cpp, */qmlcache/*.cpp,
+          # *qmltyperegistrations.cpp
+          set(_exclude_patterns
+            .*[.]json[.]in
+            .*[.]svg
+            .*[.]pro
+            .*[.]css
+            "${PROJECT_BINARY_DIR}/.*"
+          )
+          list(JOIN _exclude_patterns "|" _exclude_pattern)
+          list(FILTER _source_files EXCLUDE REGEX "${_exclude_pattern}")
           list(APPEND _target_sources ${_source_files})
         endif()
         if(_extra_translations)
