@@ -33,12 +33,13 @@ function(_extract_ts_data_from_targets outprefix)
           # exclude various funny source files, and anything generated
           # like *metatypes.json.gen, moc_*.cpp, qrc_*.cpp, */qmlcache/*.cpp,
           # *qmltyperegistrations.cpp
+          string(REGEX REPLACE "(\\^|\\$|\\.|\\[|\\]|\\*|\\+|\\?|\\(|\\)|\\|)" "\\\\\\1" binary_dir_regex "${PROJECT_BINARY_DIR}")
           set(_exclude_patterns
             .*[.]json[.]in
             .*[.]svg
             .*[.]pro
             .*[.]css
-            "${PROJECT_BINARY_DIR}/.*"
+            "${binary_dir_regex}/.*"
           )
           list(JOIN _exclude_patterns "|" _exclude_pattern)
           list(FILTER _source_files EXCLUDE REGEX "${_exclude_pattern}")
