@@ -850,20 +850,20 @@ IAssistProposal *InternalCppCompletionAssistProcessor::createContentProposal()
     QSet<QString> processed;
     auto it = m_completions.begin();
     while (it != m_completions.end()) {
-        auto item = static_cast<CppAssistProposalItem *>(*it);
-        if (!processed.contains(item->text()) || item->isSnippet()) {
+        if ((*it)->isSnippet()) {
             ++it;
-            if (!item->isSnippet()) {
-                processed.insert(item->text());
-                if (!item->isOverloaded()) {
-                    if (auto symbol = qvariant_cast<Symbol *>(item->data())) {
-                        if (Function *funTy = symbol->type()->asFunctionType()) {
-                            if (funTy->hasArguments())
-                                item->markAsOverloaded();
-                        }
+        } else if (!processed.contains((*it)->text())) {
+            auto item = static_cast<CppAssistProposalItem *>(*it);
+            processed.insert(item->text());
+            if (!item->isOverloaded()) {
+                if (auto symbol = qvariant_cast<Symbol *>(item->data())) {
+                    if (Function *funTy = symbol->type()->asFunctionType()) {
+                        if (funTy->hasArguments())
+                            item->markAsOverloaded();
                     }
                 }
             }
+            ++it;
         } else {
             delete *it;
             it = m_completions.erase(it);
