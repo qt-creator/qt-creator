@@ -168,7 +168,7 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::
         return;
 
     Utils::InfoBarEntry info(upgradeMcuSupportKits,
-                             Tr::tr("New version of Qt for MCUs detected. Upgrade existing Kits?"),
+                             Tr::tr("New version of Qt for MCUs detected. Upgrade existing kits?"),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
     using McuKitManager::UpgradeOption;
     static UpgradeOption selectedOption = UpgradeOption::Keep;
