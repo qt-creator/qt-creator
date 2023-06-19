@@ -4,7 +4,7 @@ QtcTool {
     name: "qtcreator_process_stub"
     consoleApplication: true
 
-    Depends { name: "Qt"; submodules: ["core", "network"]; }
+    Depends { name: "Qt.network" }
 
-    files: [ "main.cpp" ]
+    files: "main.cpp"
 }
