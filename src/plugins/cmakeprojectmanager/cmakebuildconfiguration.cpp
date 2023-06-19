@@ -2058,7 +2058,10 @@ void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 
 Environment CMakeBuildConfiguration::configureEnvironment() const
 {
-    return aspect<ConfigureEnvironmentAspect>()->environment();
+    Environment env = aspect<ConfigureEnvironmentAspect>()->environment();
+    addToEnvironment(env);
+
+    return env;
 }
 
 QString CMakeBuildSystem::cmakeBuildType() const

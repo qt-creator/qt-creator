@@ -1861,9 +1861,23 @@ FilePath QtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> 
 FilePath QtVersionPrivate::sourcePath(const QHash<ProKey, ProString> &versionInfo)
 {
     const QString qt5Source = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX/src");
-    if (!qt5Source.isEmpty())
-        return FilePath::fromString(QFileInfo(qt5Source).canonicalFilePath());
+    if (!qt5Source.isEmpty()) {
+        // Can be wrong for the Qt installers :/
+        // Check if we actually find sources, otherwise try what the online installer does.
+        const auto source = FilePath::fromString(QFileInfo(qt5Source).canonicalFilePath());
+        static const QString qglobal = "qtbase/src/corelib/global/qglobal.h";
+        if (!(source / qglobal).exists()) {
+            const auto install = FilePath::fromString(
+                                     qmakeProperty(versionInfo, "QT_INSTALL_PREFIX"))
+                                     .canonicalPath();
+            const FilePath otherSource = install / ".." / "Src";
+            if ((otherSource / qglobal).exists())
+                return otherSource.cleanPath();
+        }
+        return source;
+    }
 
+    // TODO The .qmake.cache workaround doesn't work anymore since Qt is built with CMake
     const QString installData = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX");
     QString sourcePath = installData;
     QFile qmakeCache(installData + "/.qmake.cache");

@@ -621,8 +621,9 @@ void CppHighlighterTest::test()
         const QChar c = m_doc.characterAt(pos);
         if (c == QChar::ParagraphSeparator)
             continue;
-        const QTextCharFormat expectedFormat = c.isSpace()
-                ? whitespacified(formatForStyle) : formatForStyle;
+        const QTextCharFormat expectedFormat = asSyntaxHighlight(
+            c.isSpace() ? whitespacified(formatForStyle) : formatForStyle);
+
         const QTextCharFormat actualFormat = getActualFormat(pos);
         if (actualFormat != expectedFormat) {
             int posLine;

@@ -43,10 +43,24 @@ private:
 };
 
 /*!
+    \module TaskingSolution
+    \title Tasking Solution
+    \ingroup solutions-modules
+    \brief Contains a general purpose Tasking solution.
+
+    The Tasking solution depends on Qt only, and doesn't depend on any \QC specific code.
+*/
+
+/*!
+    \namespace Tasking
+    \inmodule TaskingSolution
+    \brief The Tasking namespace encloses all classes and global functions of the Tasking solution.
+*/
+
+/*!
     \class Tasking::GroupItem
     \inheaderfile solutions/tasking/tasktree.h
-    \inmodule QtCreator
-    \ingroup mainclasses
+    \inmodule TaskingSolution
     \brief The GroupItem class represents the basic element for composing nested tree structures.
 */
 
@@ -1105,21 +1119,10 @@ void TaskNode::invokeEndHandler(bool success)
 }
 
 /*!
-    \namespace Tasking
-    \inmodule QtCreator
-    \brief The Tasking namespace contains a general purpose TaskTree solution.
-
-    The Tasking namespace depends on Qt only, and doesn't depend on any \QC
-    specific code.
-*/
-
-/*!
     \class Tasking::TaskTree
     \inheaderfile solutions/tasking/tasktree.h
-    \inmodule QtCreator
-    \ingroup mainclasses
-    \brief The TaskTree class runs an async task tree structure defined in a
-           declarative way.
+    \inmodule TaskingSolution
+    \brief The TaskTree class runs an async task tree structure defined in a declarative way.
 
     Use the Tasking namespace to build extensible, declarative task tree
     structures that contain possibly asynchronous tasks, such as Process,

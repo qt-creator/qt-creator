@@ -334,11 +334,14 @@ void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
     Q_UNUSED(clip)
 
     const auto firstBlock = m_editor->blockForVerticalOffset(clip.top());
+    const int firstBlockNumber = firstBlock.isValid() ? firstBlock.blockNumber() : 0;
     const auto lastBlock = m_editor->blockForVerticalOffset(clip.bottom());
+    const int lastBlockNumber = lastBlock.isValid() ? lastBlock.blockNumber()
+                                                    : m_editor->blockCount() - 1;
 
     auto overlapsClip = [&](const OverlaySelection &selection) {
-        return selection.m_cursor_end.blockNumber() >= firstBlock.blockNumber()
-               && selection.m_cursor_begin.blockNumber() <= lastBlock.blockNumber();
+        return selection.m_cursor_end.blockNumber() >= firstBlockNumber
+               && selection.m_cursor_begin.blockNumber() <= lastBlockNumber;
     };
 
     for (int i = m_selections.size() - 1; i >= 0; --i) {

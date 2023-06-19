@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -43,6 +43,11 @@
             Analyze the way an application runs as part of a test suite, for
             example, and use the results to make the tests more efficient and
             complete.
+
+        \li \l{Static Code Analysis}{Axivion}
+
+            Do static code analysis and architecture analysis to detect and
+            eliminate unnecessary complexity of code.
 
         \li \l{Using Valgrind Code Analysis Tools}{Valgrind Code Analysis Tools}
 

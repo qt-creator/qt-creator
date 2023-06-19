@@ -37,7 +37,6 @@ public:
     {
         m_combo = createSubWidget<QComboBox>();
         m_combo->setSizePolicy(QSizePolicy::Ignored, m_combo->sizePolicy().verticalPolicy());
-        m_combo->addItem(Tr::tr("None"), -1);
 
         m_manageButton = createManageButton(Constants::QTVERSION_SETTINGS_PAGE_ID);
 
@@ -75,6 +74,7 @@ private:
     {
         const GuardLocker locker(m_ignoreChanges);
         m_combo->clear();
+        m_combo->addItem(Tr::tr("None"), -1);
 
         IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
         const FilePath deviceRoot = device->rootPath();

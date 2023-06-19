@@ -1,0 +1,109 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage creator-coco.html
+    \page creator-axivion.html
+    \nextpage creator-valgrind-overview.html
+
+    \title Static Code Analysis
+
+    \l{https://www.axivion.com/en/products/axivion-suite/}{Axivion Suite} is
+    a tool suite for protecting software from erosion. Static code analysis,
+    architecture analysis, and code-smells-detection enable you to:
+
+    \list
+        \li Check the source code for potential runtime errors.
+        \li Use metrics to generate quantitative information about the
+            internal quality of the source code.
+        \li Run style checks to achieve compliance with coding guidelines.
+        \li Detect both duplicates and similar pieces of code in the source code.
+        \li Recognize cyclical dependencies at different levels.
+        \li Detect unreachable code.
+    \endlist
+
+    The experimental Axivion plugin integrates the Axivion dashboard server into
+    \QC.
+
+    To use the plugin, you must set up a project in the Axivion dashboard
+    server and link to it from \QC. You can then see style violations in the
+    \uicontrol Edit mode and descriptions and issue counts in the
+    \uicontrol Axivion view.
+
+    The editor shows style violations as inline annotations. Hover the mouse over
+    an annotation to bring up a tool tip with a short description of the issue.
+
+    \image qtcreator-axivion-annotation.webp {Annotation popup}
+
+    Select the \inlineimage icons/info.png
+    button to view detailed information about the issue in the \uicontrol Axivion
+    view.
+
+    \image qtcreator-axivion-view-rule.webp {Axivion view}
+
+    To view the issue counts, select \inlineimage icons/home.png
+    (\uicontrol {Show Dashboard}).
+
+    \section1 Enabling the Axivion Plugin
+
+    To enable the Axivion plugin:
+
+    \list 1
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {Code Analyzer} > \uicontrol Axivion to enable the plugin.
+        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
+    \endlist
+
+    \section1 Connecting to Axivion Dashboard Servers
+
+    To connect to Axivion:
+
+    \list 1
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Axivion.
+            \image qtcreator-preferences-axivion.webp {General tab in Axivion Preferences}
+        \li Select \uicontrol Edit to create a connection to the Axivion
+            dashboard server.
+            \image qtcreator-edit-dashboard-configuration.webp {Edit Dashboard Configuration dialog}
+        \li In \uicontrol {Dashboard URL}, enter the URL of the server.
+        \li In \uicontrol Description, enter a free-text description of the
+            server.
+        \li In \uicontrol {Access token}, enter the IDE application token that
+            you created in the server, in user preferences.
+    \endlist
+
+    \section1 Linking to Dashboards
+
+    To link a project to a dashboard:
+
+    \list 1
+        \li \uicontrol Projects > \uicontrol {Project Settings} >
+            \uicontrol Axivion.
+            \image qtcreator-preferences-axivion-project.webp {Axivion settings in Project Settings}
+        \li Select \uicontrol {Fetch Projects} to list projects from Axivion.
+        \li Select a project, and then select \uicontrol {Link Project} to link
+            to it.
+    \endlist
+
+    To unlink a project, select \uicontrol {Unlink Project}.
+
+    \section1 Viewing Issue Counts
+
+    \image qtcreator-axivion-view.webp {Axivion view}
+
+    The \uicontrol Axivion view lists the numbers of the following types of
+    issues that Axivion found in the linked project:
+
+    \list
+        \li \uicontrol AV - architecture violations, such as hidden dependencies
+        \li \uicontrol CL - duplicates and similar pieces of code
+        \li \uicontrol CY - call, component, and include cycles
+        \li \uicontrol DE - dead code
+        \li \uicontrol MV - violations of metrics based on lines and tokens,
+            nesting, cyclomatic complexity, control flow, and so on.
+        \li \uicontrol SV - style violations, such as deviations from the naming
+            or coding conventions
+    \endlist
+
+    To clear the view, select \inlineimage icons/clean_pane_small.png
+    (\uicontrol Clear).
+*/
