@@ -58,6 +58,107 @@ private:
 */
 
 /*!
+    \class Tasking::TaskInterface
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule TaskingSolution
+    \brief TaskInterface is the abstract base class for implementing custom task adapters.
+
+    To implement a custom task adapter, derive your adapter from the
+    \c TaskAdapter<Task> class template. TaskAdapter automatically creates and destroys
+    the custom task instance and associates the adapter with a given \c Task type.
+*/
+
+/*!
+    \fn virtual void TaskInterface::start()
+
+    This method is called by the running TaskTree for starting the \c Task instance.
+    Reimplement this method in \c TaskAdapter<Task>'s subclass in order to start the
+    associated task.
+
+    Use TaskAdapter::task() to access the associated \c Task instance.
+
+    \sa done(), TaskAdapter::task()
+*/
+
+/*!
+    \fn void TaskInterface::done(bool success)
+
+    Emit this signal from the \c TaskAdapter<Task>'s subclass, when the \c Task is finished.
+    Pass \c true as a \a success argument when the task finishes with success;
+    otherwise, when an error occurs, pass \c false.
+*/
+
+/*!
+    \class Tasking::TaskAdapter
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule TaskingSolution
+    \brief A class template for implementing custom task adapters.
+
+    The TaskAdapter class template is responsible for creating a task of the \c Task type,
+    starting it, and reporting success or an error when the task is finished.
+    It also associates the adapter with a given \c Task type.
+
+    Reimplement this class with the actual \c Task type to adapt the task's interface
+    into the general TaskTree's interface for managing the \c Task instances.
+
+    Each subclass needs to provide a public default constructor,
+    implement the start() method, and emit the done() signal when the task is finished.
+    Use task() to access the associated \c Task instance.
+
+    For more information on implementing the custom task adapters, refer to \l {Task Adapters}.
+
+    \sa start(), done(), task()
+*/
+
+/*!
+    \typealias TaskAdapter::Type
+
+    Type alias for the \c Task type.
+*/
+
+/*!
+    \fn template <typename Task> TaskAdapter<Task>::TaskAdapter<Task>()
+
+    Creates a task adapter for the given \c Task type. Internally, it creates
+    an instance of \c Task, which is accessible via the task() method.
+
+    \sa task()
+*/
+
+/*!
+    \fn template <typename Task> Task *TaskAdapter<Task>::task()
+
+    Returns the pointer to the associated \c Task instance.
+*/
+
+/*!
+    \fn template <typename Task> Task *TaskAdapter<Task>::task() const
+    \overload
+
+    Returns the const pointer to the associated \c Task instance.
+*/
+
+/*!
+    \macro TASKING_DECLARE_TASK(CustomTaskName, TaskAdapterClass)
+    \relates Tasking
+
+    Registers the new custom task type under a \a CustomTaskName name inside the
+    Tasking namespace for the passed \a TaskAdapterClass adapter class.
+
+    For more information on implementing the custom task adapters, refer to \l {Task Adapters}.
+*/
+
+/*!
+    \macro TASKING_DECLARE_TEMPLATE_TASK(CustomTaskName, TaskAdapterClass)
+    \relates Tasking
+
+    Registers the new custom task template type under a \a CustomTaskName name inside the
+    Tasking namespace for the passed \a TaskAdapterClass adapter class template.
+
+    For more information on implementing the custom task adapters, refer to \l {Task Adapters}.
+*/
+
+/*!
     \class Tasking::GroupItem
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule TaskingSolution
@@ -295,7 +396,7 @@ private:
 /*!
     \typealias GroupItem::GroupEndHandler
 
-    Type alias for \c std::function\<void()\>.
+    Type alias for \c std::function<void()>.
 
     The GroupEndHandler is used when constructing the onGroupDone() and onGroupError() elements.
     Any function with the above signature, when passed as a group done or error handler,
