@@ -11,6 +11,7 @@
 #include <utils/utilsicons.h>
 
 #include <QFormLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QScrollArea>
 #include <QStackedWidget>
@@ -29,7 +30,7 @@ private:
     QLabel *m_project = nullptr;
     QLabel *m_loc = nullptr;
     QLabel *m_timestamp = nullptr;
-    QFormLayout *m_formLayout = nullptr;
+    QGridLayout *m_gridLayout = nullptr;
 };
 
 DashboardWidget::DashboardWidget(QWidget *parent)
@@ -46,12 +47,27 @@ DashboardWidget::DashboardWidget(QWidget *parent)
     projectLayout->addRow(Tr::tr("Analysis timestamp:"), m_timestamp);
     layout->addLayout(projectLayout);
     layout->addSpacing(10);
-    m_formLayout = new QFormLayout;
-    layout->addLayout(m_formLayout);
+    auto row = new QHBoxLayout;
+    m_gridLayout = new QGridLayout;
+    row->addLayout(m_gridLayout);
+    row->addStretch(1);
+    layout->addLayout(row);
     layout->addStretch(1);
     setWidget(widget);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setWidgetResizable(true);
+}
+
+static QPixmap trendIcon(int added, int removed)
+{
+    static const QPixmap unchanged = Utils::Icons::NEXT.pixmap();
+    static const QPixmap increased = Utils::Icon(
+                { {":/utils/images/arrowup.png", Utils::Theme::IconsErrorColor} }).pixmap();
+    static const QPixmap decreased = Utils::Icon(
+                {  {":/utils/images/arrowdown.png", Utils::Theme::IconsRunColor} }).pixmap();
+    if (added == removed)
+        return unchanged;
+    return added < removed ? decreased : increased;
 }
 
 void DashboardWidget::updateUi()
@@ -60,8 +76,11 @@ void DashboardWidget::updateUi()
     m_project->setText(info.name);
     m_loc->setText({});
     m_timestamp->setText({});
-    while (m_formLayout->rowCount())
-        m_formLayout->removeRow(0);
+    QLayoutItem *child;
+    while ((child = m_gridLayout->takeAt(0)) != nullptr) {
+        delete child->widget();
+        delete child;
+    }
 
     if (info.versions.isEmpty())
         return;
@@ -72,36 +91,50 @@ void DashboardWidget::updateUi()
     m_timestamp->setText(timeStamp.isValid() ? timeStamp.toString("yyyy-MM-dd HH::mm::ss")
                                              : Tr::tr("unknown"));
 
-    const QString tmpl("%1 %2 +%3 / -%4");
-    auto apply = [&tmpl](int t, int a, int r){
-        QChar tr = (a == r ? '=' : (a < r ? '^' : 'v'));
-        return tmpl.arg(t, 10, 10, QLatin1Char(' ')).arg(tr).arg(a, 5, 10, QLatin1Char(' '))
-                .arg(r, 5, 10, QLatin1Char(' '));
-    };
     const QList<IssueKind> &issueKinds = info.issueKinds;
     auto toolTip = [issueKinds](const QString &prefix){
         for (const IssueKind &kind : issueKinds) {
             if (kind.prefix == prefix)
                 return kind.nicePlural;
         }
-        return QString();
+        return prefix;
     };
-    int allTotal = 0, allAdded = 0, allRemoved = 0;
+    auto addValuesWidgets = [this, &toolTip](const IssueCount &issueCount, int row){
+        const QString currentToolTip = toolTip(issueCount.issueKind);
+        QLabel *label = new QLabel(issueCount.issueKind, this);
+        label->setToolTip(currentToolTip);
+        m_gridLayout->addWidget(label, row, 0);
+        label = new QLabel(QString::number(issueCount.total), this);
+        label->setToolTip(currentToolTip);
+        label->setAlignment(Qt::AlignRight);
+        m_gridLayout->addWidget(label, row, 1);
+        label = new QLabel(this);
+        label->setPixmap(trendIcon(issueCount.added, issueCount.removed));
+        label->setToolTip(currentToolTip);
+        m_gridLayout->addWidget(label, row, 2);
+        label = new QLabel('+' + QString::number(issueCount.added));
+        label->setAlignment(Qt::AlignRight);
+        label->setToolTip(currentToolTip);
+        m_gridLayout->addWidget(label, row, 3);
+        label = new QLabel("/");
+        label->setToolTip(currentToolTip);
+        m_gridLayout->addWidget(label, row, 4);
+        label = new QLabel('-' + QString::number(issueCount.removed));
+        label->setAlignment(Qt::AlignRight);
+        label->setToolTip(currentToolTip);
+        m_gridLayout->addWidget(label, row, 5);
+    };
+    int allTotal = 0, allAdded = 0, allRemoved = 0, row = 0;
     for (auto issueCount : std::as_const(last.issueCounts)) {
         allTotal += issueCount.total;
         allAdded += issueCount.added;
         allRemoved += issueCount.removed;
-        const QString txt = apply(issueCount.total, issueCount.added, issueCount.removed);
-        const QString currentToolTip = toolTip(issueCount.issueKind);
-        QLabel *label = new QLabel(issueCount.issueKind, this);
-        label->setToolTip(currentToolTip);
-        QLabel *values = new QLabel(txt, this);
-        values->setToolTip(currentToolTip);
-        m_formLayout->addRow(label, values);
+        addValuesWidgets(issueCount, row);
+        ++row;
     }
 
-    QLabel *label = new QLabel(apply(allTotal, allAdded, allRemoved), this);
-    m_formLayout->addRow(Tr::tr("Total:"), label);
+    const IssueCount total{{}, Tr::tr("Total:"), allTotal, allAdded, allRemoved};
+    addValuesWidgets(total, row);
 }
 
 AxivionOutputPane::AxivionOutputPane(QObject *parent)
