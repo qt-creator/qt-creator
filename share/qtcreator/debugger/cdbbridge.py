@@ -147,11 +147,12 @@ class Dumper(DumperBase):
 
         code = nativeType.code()
         if code == TypeCode.Pointer:
-            if not nativeType.name().startswith('<function>'):
+            if nativeType.name().startswith('<function>'):
+                code = TypeCode.Function
+            elif nativeType.targetName() != nativeType.name():
                 targetType = self.lookupType(nativeType.targetName(), nativeType.moduleId())
-                if targetType is not None:
+                if targetType is not None and targetType is not nativeType:
                     return self.createPointerType(targetType)
-            code = TypeCode.Function
 
         if code == TypeCode.Array:
             # cdb reports virtual function tables as arrays those ar handled separetly by
