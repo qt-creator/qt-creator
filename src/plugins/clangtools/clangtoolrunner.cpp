@@ -114,7 +114,6 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
         QString name;
         FilePath executable;
         FilePath outputFilePath;
-        QString errorMessage;
     };
     const TreeStorage<ClangToolStorage> storage;
 
@@ -186,24 +185,36 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
             {false, input.unit.file, data.outputFilePath, {}, input.tool, message, details});
     };
 
-    const auto onReadSetup = [=](Async<Diagnostics> &data) {
-        data.setConcurrentCallData(&readExportedDiagnostics,
+    const auto onReadSetup = [=](Async<expected_str<Diagnostics>> &data) {
+        data.setConcurrentCallData(&parseDiagnostics,
                                    storage->outputFilePath,
-                                   input.diagnosticsFilter,
-                                   &storage->errorMessage);
+                                   input.diagnosticsFilter);
         data.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     };
-    const auto onReadDone = [=](const Async<Diagnostics> &data) {
+    const auto onReadDone = [=](const Async<expected_str<Diagnostics>> &data) {
         if (!outputHandler)
             return;
-        outputHandler(
-            {true, input.unit.file, storage->outputFilePath, data.result(), input.tool});
+        const expected_str<Diagnostics> result = data.result();
+        const bool success = result.has_value();
+        Diagnostics diagnostics;
+        QString error;
+        if (success)
+            diagnostics = *result;
+        else
+            error = result.error();
+        outputHandler({success,
+                       input.unit.file,
+                       storage->outputFilePath,
+                       diagnostics,
+                       input.tool,
+                       error});
     };
-    const auto onReadError = [=](const Async<Diagnostics> &) {
+    const auto onReadError = [=](const Async<expected_str<Diagnostics>> &data) {
         if (!outputHandler)
             return;
+        const expected_str<Diagnostics> result = data.result();
         outputHandler(
-            {false, input.unit.file, storage->outputFilePath, {}, input.tool, storage->errorMessage});
+            {false, input.unit.file, storage->outputFilePath, {}, input.tool, result.error()});
     };
 
     const Group group {
@@ -213,7 +224,7 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
             sequential,
             finishAllAndDone,
             ProcessTask(onProcessSetup, onProcessDone, onProcessError),
-            AsyncTask<Diagnostics>(onReadSetup, onReadDone, onReadError)
+            AsyncTask<expected_str<Diagnostics>>(onReadSetup, onReadDone, onReadError)
         }
     };
     return group;
