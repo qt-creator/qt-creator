@@ -49,7 +49,7 @@ if (APPLE)
 
   set(_IDE_LIBRARY_BASE_PATH "Frameworks")
   set(_IDE_LIBRARY_PATH "${_IDE_OUTPUT_PATH}/${_IDE_LIBRARY_BASE_PATH}")
-  set(_IDE_PLUGIN_PATH "${_IDE_OUTPUT_PATH}/PlugIns")
+  set(_IDE_PLUGIN_PATH "${_IDE_OUTPUT_PATH}/PlugIns/qtcreator")
   set(_IDE_LIBEXEC_PATH "${_IDE_OUTPUT_PATH}/Resources/libexec")
   set(_IDE_DATA_PATH "${_IDE_OUTPUT_PATH}/Resources")
   set(_IDE_DOC_PATH "${_IDE_OUTPUT_PATH}/Resources/doc")

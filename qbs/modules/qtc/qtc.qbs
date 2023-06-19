@@ -41,7 +41,7 @@ Module {
     }
     property string ide_plugin_path: {
         if (qbs.targetOS.contains("macos"))
-            return ide_app_target + ".app/Contents/PlugIns"
+            return ide_app_target + ".app/Contents/PlugIns/qtcreator"
         else if (qbs.targetOS.contains("windows"))
             return libDirName + "/qtcreator/plugins"
         else
