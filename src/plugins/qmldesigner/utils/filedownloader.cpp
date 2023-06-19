@@ -45,7 +45,11 @@ QNetworkRequest FileDownloader::makeRequest() const
 
     if (url.scheme() == "https" && !QSslSocket::supportsSsl()) {
         qWarning() << "SSL is not available. HTTP will be used instead of HTTPS.";
-        url.setScheme("http");
+        QString originUrl = url.toString();
+        if (originUrl.contains("https://download.qt.io"))
+            url = QUrl(originUrl.replace("https://download.qt.io", "http://master.qt.io"));
+        if (originUrl.contains("https://cdn.qt.io"))
+            url = QUrl(originUrl.replace("https://cdn.qt.io", " http://ordp.qt.io"));
     }
 
     auto request = QNetworkRequest(url);
