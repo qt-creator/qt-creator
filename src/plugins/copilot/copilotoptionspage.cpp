@@ -31,7 +31,8 @@ public:
         helpLabel->setTextFormat(Qt::MarkdownText);
         helpLabel->setWordWrap(true);
         helpLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse
-                                           | Qt::LinksAccessibleByKeyboard);
+                                           | Qt::LinksAccessibleByKeyboard
+                                           | Qt::TextSelectableByMouse);
         helpLabel->setOpenExternalLinks(true);
 
         // clang-format off
