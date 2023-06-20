@@ -42,7 +42,7 @@ To use an external terminal, deselect the `Use internal terminal` check box in
 
 ### Copilot
 
-The experimental Copilot plugin integrates
+The Copilot plugin (disabled by default) integrates
 [GitHub Copilot](https://github.com/features/copilot), which uses OpenAI to
 suggest code in the `Edit` mode.
 
@@ -87,6 +87,8 @@ General
   ([QTCREATORBUG-26128](https://bugreports.qt.io/browse/QTCREATORBUG-26128),
    [QTCREATORBUG-27006](https://bugreports.qt.io/browse/QTCREATORBUG-27006),
    [QTCREATORBUG-27506](https://bugreports.qt.io/browse/QTCREATORBUG-27506))
+* Fixed a crash with a large number of search hits from Silver Searcher
+  ([QTCREATORBUG-29130](https://bugreports.qt.io/browse/QTCREATORBUG-29130))
 * Locator
     * Improved performance
     * Added the creation of directories to the `Files in File System` filter
@@ -101,6 +103,8 @@ Editing
   ([QTCREATORBUG-19651](https://bugreports.qt.io/browse/QTCREATORBUG-19651))
 * Fixed an issue of copy and paste with multiple cursors
   ([QTCREATORBUG-29117](https://bugreports.qt.io/browse/QTCREATORBUG-29117))
+* Fixed the handling of pre-edit text for input methods
+  ([QTCREATORBUG-29134](https://bugreports.qt.io/browse/QTCREATORBUG-29134))
 
 ### C++
 
@@ -111,12 +115,22 @@ Editing
 * Extended the `Add Class Member` refactoring action to create class
   members from assignments
   ([QTCREATORBUG-1918](https://bugreports.qt.io/browse/QTCREATORBUG-1918))
+* Fixed that generated functions did not have a `const` qualifier when
+  required
+  ([QTCREATORBUG-29274](https://bugreports.qt.io/browse/QTCREATORBUG-29274))
 * Fixed that locator showed both the declaration and the definition of symbols
   ([QTCREATORBUG-13894](https://bugreports.qt.io/browse/QTCREATORBUG-13894))
 * Fixed the handling of C++20 keywords and concepts
+* Clangd
+    * Fixed that the index could be outdated after VCS operations
+    * Fixed the highlighting of labels
+      ([QTCREATORBUG-27338](https://bugreports.qt.io/browse/QTCREATORBUG-27338))
 * Built-in
-     * Fixed support for `if`-statements with initializer
-       ([QTCREATORBUG-29182](https://bugreports.qt.io/browse/QTCREATORBUG-29182))
+    * Fixed support for `if`-statements with initializer
+      ([QTCREATORBUG-29182](https://bugreports.qt.io/browse/QTCREATORBUG-29182))
+* Clang Format
+    * Fixed the conversion of tab indentation settings to Clang Format
+      ([QTCREATORBUG-29185](https://bugreports.qt.io/browse/QTCREATORBUG-29185))
 
 ### Language Server Protocol
 
@@ -135,12 +149,16 @@ Editing
   ([QTCREATORBUG-29123](https://bugreports.qt.io/browse/QTCREATORBUG-29123))
 * Fixed the completion for Qt Quick Controls
   ([QTCREATORBUG-28648](https://bugreports.qt.io/browse/QTCREATORBUG-28648))
+* Fixed that `qmllint` issues were not shown in the `Issues` view
+  ([QTCREATORBUG-28720](https://bugreports.qt.io/browse/QTCREATORBUG-28720))
 
 ### Python
 
 * Added the option to create a virtual environment (`venv`) to the Python
   interpreter selector and the wizard
   ([PYSIDE-2152](https://bugreports.qt.io/browse/PYSIDE-2152))
+* Fixed that too many progress indicators could be created
+  ([QTCREATORBUG-29224](https://bugreports.qt.io/browse/QTCREATORBUG-29224))
 
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-python-development.html))
 
@@ -168,6 +186,7 @@ Projects
    [QTCREATORBUG-29006](https://bugreports.qt.io/browse/QTCREATORBUG-29006))
 * Added `Build > Reload CMake Presets` to reload CMake presets after making
   changes to them
+* Added support for `block()` and `endblock()`
 * Fixed that CMake Presets were not visible in `Projects` view
   ([QTCREATORBUG-28966](https://bugreports.qt.io/browse/QTCREATORBUG-28966))
 * Fixed issues with detecting a configured Qt version when importing a build
@@ -184,11 +203,17 @@ Debugging
 * Improved the UI for enabling and disabling debuggers in `Projects > Run >
   Debugger settings`
   ([QTCREATORBUG-28627](https://bugreports.qt.io/browse/QTCREATORBUG-28627))
+* Fixed the automatic source mapping for Qt versions from an installer
+  ([QTCREATORBUG-28950](https://bugreports.qt.io/browse/QTCREATORBUG-28950))
+* Fixed pretty printer for `std::string` for recent `libc++`
+  ([QTCREATORBUG-29230](https://bugreports.qt.io/browse/QTCREATORBUG-29230))
 
 ### C++
 
 * Added an option for the default number of array elements to show
   (`Preferences > Debugger > Locals & Expressions > Default array size`)
+* Fixed debugging in a terminal as the root user
+  ([QTCREATORBUG-27519](https://bugreports.qt.io/browse/QTCREATORBUG-27519))
 * CDB
     * Added automatic source file mapping for Qt packages
     * Fixed the variables view on remote Windows devices

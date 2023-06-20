@@ -8,7 +8,7 @@
 
     \title Using GitHub Copilot
 
-    The experimental Copilot plugin integrates
+    The Copilot plugin (disabled by default) integrates
     \l{https://github.com/features/copilot}{GitHub Copilot} into \QC.
     You can view suggestions from Copilot in the \uicontrol Edit mode.
 
