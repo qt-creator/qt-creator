@@ -671,7 +671,6 @@ TaskView::TaskView()
 void TaskView::resizeColumns()
 {
     setColumnWidth(0, width() * 0.85);
-    setColumnWidth(1, width() * 0.15);
 }
 
 void TaskView::resizeEvent(QResizeEvent *e)
