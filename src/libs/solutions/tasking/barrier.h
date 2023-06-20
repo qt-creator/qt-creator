@@ -82,7 +82,7 @@ public:
                          "is not reachable in the running tree. "
                          "It is possible that no barrier was added to the tree, "
                          "or the storage is not reachable from where it is referenced. "
-                         "The WaitForBarrier task will finish with error. ");
+                         "The WaitForBarrier task finishes with an error. ");
                 return SetupResult::StopWithError;
             }
             Barrier *activeSharedBarrier = activeBarrier->barrier();
