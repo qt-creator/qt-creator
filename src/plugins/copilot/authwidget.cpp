@@ -30,6 +30,8 @@ AuthWidget::AuthWidget(QWidget *parent)
     m_progressIndicator->setVisible(false);
     m_statusLabel = new QLabel();
     m_statusLabel->setVisible(false);
+    m_statusLabel->setTextInteractionFlags(Qt::TextInteractionFlag::TextSelectableByMouse
+                                           | Qt::TextInteractionFlag::TextSelectableByKeyboard);
 
     // clang-format off
     Column {
