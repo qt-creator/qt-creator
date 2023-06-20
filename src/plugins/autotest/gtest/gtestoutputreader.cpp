@@ -81,7 +81,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
     if (ExactMatch match = testEnds.match(line)) {
         TestResult testResult = createDefaultResult();
         testResult.setResult(ResultType::TestEnd);
-        testResult.setDescription(Tr::tr("Test execution took %1").arg(match.captured(2)));
+        testResult.setDescription(Tr::tr("Test execution took %1.").arg(match.captured(2)));
         reportResult(testResult);
         m_currentTestSuite.clear();
         m_currentTestCase.clear();
