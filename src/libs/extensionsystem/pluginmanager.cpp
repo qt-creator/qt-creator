@@ -322,6 +322,13 @@ void PluginManager::loadPlugins()
     d->loadPlugins();
 }
 
+void PluginManager::loadPlugin(PluginSpec *spec)
+{
+    d->loadPlugin(spec, PluginSpec::Loaded);
+    d->loadPlugin(spec, PluginSpec::Initialized);
+    d->loadPlugin(spec, PluginSpec::Running);
+}
+
 /*!
     Returns \c true if any plugin has errors even though it is enabled.
     Most useful to call after loadPlugins().
@@ -1616,17 +1623,19 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         break;
     }
     // check if dependencies have loaded without error
-    const QHash<PluginDependency, PluginSpec *> deps = spec->dependencySpecs();
-    for (auto it = deps.cbegin(), end = deps.cend(); it != end; ++it) {
-        if (it.key().type != PluginDependency::Required)
-            continue;
-        PluginSpec *depSpec = it.value();
-        if (depSpec->state() != destState) {
-            spec->d->hasError = true;
-            spec->d->errorString =
-                Tr::tr("Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
-                    .arg(depSpec->name(), depSpec->version(), depSpec->errorString());
-            return;
+    if (!spec->isSoftLoadable()) {
+        const QHash<PluginDependency, PluginSpec *> deps = spec->dependencySpecs();
+        for (auto it = deps.cbegin(), end = deps.cend(); it != end; ++it) {
+            if (it.key().type != PluginDependency::Required)
+                continue;
+            PluginSpec *depSpec = it.value();
+            if (depSpec->state() != destState) {
+                spec->d->hasError = true;
+                spec->d->errorString =
+                    Tr::tr("Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
+                        .arg(depSpec->name(), depSpec->version(), depSpec->errorString());
+                return;
+            }
         }
     }
     switch (destState) {

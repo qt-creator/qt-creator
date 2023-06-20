@@ -68,6 +68,7 @@ public:
     // Plugin operations
     static QVector<PluginSpec *> loadQueue();
     static void loadPlugins();
+    static void loadPlugin(PluginSpec *);
     static QStringList pluginPaths();
     static void setPluginPaths(const QStringList &paths);
     static QString pluginIID();

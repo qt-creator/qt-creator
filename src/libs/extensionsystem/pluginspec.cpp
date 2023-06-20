@@ -386,6 +386,11 @@ bool PluginSpec::isForceDisabled() const
     return d->forceDisabled;
 }
 
+bool PluginSpec::isSoftLoadable() const
+{
+    return d->softLoadable;
+}
+
 /*!
     The plugin dependencies. This is valid after the PluginSpec::Read state is reached.
 */
@@ -570,6 +575,7 @@ namespace {
     const char PLUGIN_REQUIRED[] = "Required";
     const char PLUGIN_EXPERIMENTAL[] = "Experimental";
     const char PLUGIN_DISABLED_BY_DEFAULT[] = "DisabledByDefault";
+    const char PLUGIN_SOFTLOADABLE[] = "SoftLoadable";
     const char VENDOR[] = "Vendor";
     const char COPYRIGHT[] = "Copyright";
     const char LICENSE[] = "License";
@@ -681,6 +687,11 @@ void PluginSpecPrivate::setForceDisabled(bool value)
     if (value)
         forceEnabled = false;
     forceDisabled = value;
+}
+
+void PluginSpecPrivate::setSoftLoadable(bool value)
+{
+    softLoadable = value;
 }
 
 /*!
@@ -795,6 +806,12 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
     if (experimental)
         enabledByDefault = false;
     enabledBySettings = enabledByDefault;
+
+    value = metaData.value(QLatin1String(PLUGIN_SOFTLOADABLE));
+    if (!value.isUndefined() && !value.isBool())
+        return reportError(msgValueIsNotABool(PLUGIN_SOFTLOADABLE));
+    softLoadable = value.toBool(false);
+    qCDebug(pluginLog) << "softLoadable =" << softLoadable;
 
     value = metaData.value(QLatin1String(VENDOR));
     if (!value.isUndefined() && !value.isString())

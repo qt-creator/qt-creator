@@ -38,6 +38,7 @@ private:
     QPushButton *m_errorDetailsButton;
     QPushButton *m_installButton;
     bool m_isRestartRequired = false;
+    QSet<ExtensionSystem::PluginSpec *> m_softLoad;
 };
 
 } // namespace Internal

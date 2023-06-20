@@ -14,6 +14,7 @@
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginview.h>
 
+#include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 
@@ -21,6 +22,7 @@
 #include <QDialogButtonBox>
 #include <QPushButton>
 
+using namespace ExtensionSystem;
 using namespace Utils;
 
 namespace Core {
@@ -59,8 +61,16 @@ PluginDialog::PluginDialog(QWidget *parent)
             this, &PluginDialog::updateButtons);
     connect(m_view, &ExtensionSystem::PluginView::pluginActivated,
             this, &PluginDialog::openDetails);
-    connect(m_view, &ExtensionSystem::PluginView::pluginSettingsChanged, this, [this] {
-        m_isRestartRequired = true;
+    connect(m_view, &ExtensionSystem::PluginView::pluginsChanged,
+            this, [this](const QSet<PluginSpec *> &plugins, bool enable) {
+        for (PluginSpec *plugin : plugins) {
+            if (enable && plugin->isSoftLoadable()) {
+                m_softLoad.insert(plugin);
+            } else {
+                m_softLoad.remove(plugin); // In case it was added, harmless otherwise.
+                m_isRestartRequired = true;
+            }
+        }
     });
     connect(m_detailsButton, &QAbstractButton::clicked, this,
             [this]  { openDetails(m_view->currentPlugin()); });
@@ -75,7 +85,11 @@ PluginDialog::PluginDialog(QWidget *parent)
 
 void PluginDialog::closeDialog()
 {
-    ExtensionSystem::PluginManager::writeSettings();
+    PluginManager::writeSettings();
+
+    for (PluginSpec *plugin : m_softLoad)
+        PluginManager::loadPlugin(plugin);
+
     if (m_isRestartRequired) {
         RestartDialog restartDialog(ICore::dialogParent(),
                                     Tr::tr("Plugin changes will take effect after restart."));

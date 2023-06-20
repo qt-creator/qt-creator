@@ -237,9 +237,7 @@ public:
         if (column == LoadedColumn && role == Qt::CheckStateRole) {
             const QVector<PluginSpec *> affectedPlugins
                 = Utils::filtered(m_plugins, [](PluginSpec *spec) { return !spec->isRequired(); });
-            if (m_view->setPluginsEnabled(Utils::transform<QSet>(affectedPlugins,
-                                                                 [](PluginSpec *s) { return s; }),
-                                          data.toBool())) {
+            if (m_view->setPluginsEnabled(toSet(affectedPlugins), data.toBool())) {
                 update();
                 return true;
             }
@@ -419,8 +417,8 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
         spec->d->setEnabledBySettings(enable);
         item->updateColumn(LoadedColumn);
         item->parent()->updateColumn(LoadedColumn);
-        emit pluginSettingsChanged(spec);
     }
+    emit pluginsChanged(affectedPlugins, enable);
     return true;
 }
 
