@@ -772,17 +772,20 @@ void CMakeBuildStep::updateDeploymentData()
     DeploymentData deploymentData;
     deploymentData.setLocalInstallRoot(rootDir);
 
-    const int startPos = rootDir.path().length();
+    IDeviceConstPtr device = BuildDeviceKitAspect::device(buildSystem()->kit());
 
     const auto appFileNames = transform<QSet<QString>>(buildSystem()->applicationTargets(),
            [](const BuildTargetInfo &appTarget) { return appTarget.targetFilePath.fileName(); });
 
-    auto handleFile = [&appFileNames, startPos, &deploymentData](const FilePath &filePath) {
+    auto handleFile = [&appFileNames, rootDir, &deploymentData, device](const FilePath &filePath) {
         const DeployableFile::Type type = appFileNames.contains(filePath.fileName())
             ? DeployableFile::TypeExecutable
             : DeployableFile::TypeNormal;
-        const QString targetDir = filePath.parentDir().path().mid(startPos);
-        deploymentData.addFile(filePath, targetDir, type);
+
+        FilePath targetDirPath = filePath.parentDir().relativePathFrom(rootDir);
+
+        const FilePath targetDir = device->rootPath().pathAppended(targetDirPath.path());
+        deploymentData.addFile(filePath, targetDir.nativePath(), type);
         return IterationPolicy::Continue;
     };
 
