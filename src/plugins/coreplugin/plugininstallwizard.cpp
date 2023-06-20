@@ -166,7 +166,7 @@ void checkContents(QPromise<ArchiveIssue> &promise, const FilePath &tempDir)
                 return;
             promise.addResult(ArchiveIssue{
                 Tr::tr("Plugin requires an incompatible version of %1 (%2).")
-                    .arg(Constants::IDE_DISPLAY_NAME, found->version), InfoLabel::Error});
+                    .arg(Constants::IDE_DISPLAY_NAME).arg(found->version), InfoLabel::Error});
             return; // successful / no error
         }
     }
