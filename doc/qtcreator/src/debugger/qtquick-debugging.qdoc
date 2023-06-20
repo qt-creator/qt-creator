@@ -42,9 +42,11 @@
     \section2 Debugging Qt Quick UI Projects
     \endif
 
-    To debug Qt Quick UI projects (.qmlproject), select the
-    \uicontrol {Enable QML} check box in \uicontrol {Debugger settings}
-    in \uicontrol Projects mode \uicontrol {Run Settings}.
+    To debug Qt Quick UI projects (.qmlproject), select \uicontrol Automatic
+    or \uicontrol Enabled in \uicontrol{Run Settings} >
+    \uicontrol {Debugger Settings} > \uicontrol {QML debugger}.
+
+    \image qtquick-debugger-settings.webp {Debugger settings section in Run Settings}
 
     \if defined(qtcreator)
     \section2 Debugging Qt Quick Applications
@@ -65,9 +67,13 @@
             functions. Therefore, you must make sure that the port is properly
             protected by a firewall.
 
-        \li In \uicontrol {Run Settings} > \uicontrol {Debugger settings}, select
-            the \uicontrol {Enable QML} check box to enable QML debugging for
-            running applications.
+        \li In \uicontrol {Run Settings} > \uicontrol {Debugger settings} >
+            \uicontrol {QML debugger}, select \uicontrol Automatic or
+            \uicontrol Enabled to enable QML debugging for running applications.
+
+            To debug both the C++ and QML parts of your application at the same
+            time, also select \uicontrol Automatic or \uicontrol Enabled in
+            \uicontrol {C++ debugger}.
 
         \li Select \uicontrol Build > \uicontrol {Rebuild Project} to clean and
             rebuild the project.
@@ -119,16 +125,7 @@
     For example, for qmake the global setting only affects build configurations
     that are automatically created when enabling a kit. Also, CMake ignores the
     global setting.
-
-    \section1 Mixed C++/QML Debugging
-
-    To debug both the C++ and QML parts of your application at the same time,
-    select the \uicontrol {Enable C++} and \uicontrol {Enable QML} checkboxes for both
-    languages in the \uicontrol {Debugger Settings} section in the project
-    \uicontrol{Run Settings}.
     \endif
-
-    \image qtquick-debugging-settings.png {Debugger settings section in Run Settings}
 
     \section1 Starting QML Debugging
 
