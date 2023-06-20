@@ -486,7 +486,7 @@ bool FilePath::isWritableFile() const
 
     \sa createDir()
 */
-bool FilePath::ensureWritableDir() const
+expected_str<void> FilePath::ensureWritableDir() const
 {
     return fileAccess()->ensureWritableDirectory(*this);
 }

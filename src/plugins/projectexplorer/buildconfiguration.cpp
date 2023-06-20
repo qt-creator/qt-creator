@@ -293,7 +293,7 @@ MacroExpander *BuildConfiguration::macroExpander() const
 
 bool BuildConfiguration::createBuildDirectory()
 {
-    const bool result = buildDirectory().ensureWritableDir();
+    const bool result = buildDirectory().ensureWritableDir().has_value();
     buildDirectoryAspect()->validateInput();
     return result;
 }

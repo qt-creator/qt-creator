@@ -108,7 +108,7 @@ public:
 
     bool isWritableDir() const;
     bool isWritableFile() const;
-    bool ensureWritableDir() const;
+    expected_str<void> ensureWritableDir() const;
     bool ensureExistingFile() const;
     bool isExecutableFile() const;
     bool isReadableFile() const;
